@@ -428,7 +428,7 @@
 
     You should not call QLayoutItem::setGeometry() twice on the same item
     in the same function. That can be very expensive if the item has
-    several child widgets, because it will have to do a complete layout
+    several child widgets, because it must do a complete layout
     every time. Instead, calculate the geometry and then set it. (This
     doesn't only apply to layouts, you should do the same if you implement
     your own resizeEvent().)

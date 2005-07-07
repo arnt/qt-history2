@@ -244,8 +244,6 @@
 
     \omitvalue MPenStyle
 
-    Screenshot:
-
     \image pen-styles.png Pen Styles
 
     \sa QPen
@@ -264,8 +262,6 @@
     \value RoundCap  a rounded line end.
     \omitvalue MPenCapStyle
 
-    Screenshot:
-
     \image pen-cap-styles.png Pen Cap Styles
 
     \sa QPen
@@ -283,8 +279,6 @@
     \value BevelJoin  The triangular notch between the two lines is filled.
     \value RoundJoin  A circular arc between the two lines is filled.
     \omitvalue MPenJoinStyle
-
-    Screenshot:
 
     \image pen-join-styles.png Pen Join Styles
 
@@ -315,8 +309,6 @@
     \value TexturePattern  Custom pattern (see QBrush::setTexture()).
 
     \omitvalue CustomPattern
-
-    Screenshot:
 
     \image brush-styles.png Brush Styles
 
@@ -1802,8 +1794,6 @@
     \omitvalue whatsThisCursor
 
     ArrowCursor is the default for widgets in a normal state.
-
-    Screenshot:
 
     \image cursors.png Cursor Shapes
 */

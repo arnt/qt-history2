@@ -87,6 +87,9 @@
     \o Run the \l{qt3to4.html}{qt3to4 porting tool}. The tool will go
        through your source code and adapt it to Qt 4.
 
+    \o Follow the instructions in the \l{Porting .ui Files to Qt 4}
+       page to port Qt Designer files.
+
     \o Recompile with Qt 4. For each error, search below for related
        identifiers (e.g., function names, class names). This document
        mentions all relevant identifiers to help you get the information
@@ -190,7 +193,7 @@
 
     Whenever you see an occurrence of the name on the left, you can
     safely replace it with the Qt 4 equivalent in your program. The
-    \l{qt3to4.html}{qt3to4} tool handles performs the conversion
+    \l{qt3to4.html}{qt3to4} tool performs the conversion
     automatically.
 
     \table
@@ -576,7 +579,7 @@
     The \c QAsyncIO class was used internally in Qt 2.x in
     conjunction with QImageConsumer. It was obsoleted in Qt 3.0. If
     you use this mechanism in your application, contact \l
-    qt-bugs@trolltech.com and we will try to find a satisfying
+    qt-bugs@trolltech.com and we will try to find a satisfactory
     substitute.
 
     \section1 QBackInsertIterator
@@ -1421,13 +1424,13 @@
 
     fileInfoList(), entryInfoList(), and drives() now return a QList<QFileInfo>
     and not a QPtrList<QFileInfo> *. Code using these methods will not work with
-    the Qt3Support library and will have to be adapted instead.
+    the Qt3Support library and must be adapted instead.
 
     See \l{#virtual.functions}{Virtual Functions} for a list of
     QDir virtual member functions in Qt 3 that are no longer
     virtual in Qt 4.
 
-    QDir::match() now always matches case insensitive.
+    QDir::match() now always matches case insensitively.
 
     \section1 QDns
 
@@ -1513,9 +1516,8 @@
     distinct classes: QEventLoop and QAbstractEventDispatcher.
 
     If you subclassed QEventLoop to integrate with another library's
-    event loop, you will now need to subclass
-    QAbstractEventDispatcher instead. See the class documentation for
-    details.
+    event loop, you must subclass QAbstractEventDispatcher instead. See
+    the class documentation for details.
 
     \omit ### mention virtual functions that aren't virtual anymore \endomit
 
@@ -1636,12 +1638,11 @@
         QFrame paints itself, reimplement QFrame:paintEvent().
     \endlist
 
-    As an help to porting, the Qt3Support library
-    contains a Q3Frame class that inherits QFrame and provides a
-    similar API to the old QFrame class. If you derived from QFrame
-    in your application, you might want to use Q3Frame as a base
-    class as a first step in the porting process, and later move on
-    to the new QFrame class.
+    To help with porting, the Qt3Support library contains a Q3Frame
+    class that inherits QFrame and provides a similar API to the old
+    QFrame class. If you derived from QFrame in your application, you
+    might want to use Q3Frame as a base class as a first step in the
+    porting process, and later move on to the new QFrame class.
 
     See \l{#virtual.functions}{Virtual Functions} for a list of
     QFrame virtual member functions in Qt 3 that are no longer
@@ -1874,7 +1875,7 @@
     \section1 QIODevice
 
     The QIODevice class's API has been simplified to make it easier
-    to subclass and to make it work more nicely with asynchronous
+    to subclass and to make it work more smoothly with asynchronous
     devices such as QTcpSocket and QProcess.
 
     The following virtual functions have changed name or signature:
@@ -1942,12 +1943,6 @@
     you use this mechanism in your application, contact \l
     qt-bugs@trolltech.com and we will try to find a satisfying
     substitute.
-
-    \section1 QIconFactory
-
-    The QIconFactory class is no longer part of the Qt API. It has
-    been replaced by a "pixmap generator function" mechanism; see
-    QIcon::setPixmapGeneratorFn() for details.
 
     \section1 QLabel
 
@@ -2176,8 +2171,9 @@
 
     \section1 QObject
 
-    children() and QueryList now return a QObjectList instead of a pointer
-    to a QObjectList. See also the comments on QObjectList.
+    QObject::children() now returns a QObjectList instead of a
+    pointer to a QObjectList. See also the comments on QObjectList
+    below.
 
     QObject::killTimers() has been removed because it was unsafe to
     use in subclass. (A subclass normally doesn't know whether the
@@ -3368,7 +3364,7 @@
     The QStyle::PrimitiveElement enumeration has undergone extensive change.
     Some of the enums were moved to QStyle::ControlElement, some were removed
     and all were renamed. This renaming is not done by the qt3to4 porting tool,
-    so you will have to do it yourself. The table below shows how things look
+    so you must do it yourself. The table below shows how things look
     now.
 
     \table

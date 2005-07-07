@@ -72,6 +72,7 @@
     \row    \o \l{QAxContainer} \o ActiveQt client extension
     \row    \o \l{QAxServer}    \o ActiveQt server extension
     \row    \o \l{QtDesigner}   \o Classes for extending and embedding Qt Designer
+    \row    \o \l{QtAssistant}  \o Classes for launching Qt Assistant
     \endtable
 
     QtCore contains tool classes like QString, QList, and QFile, as

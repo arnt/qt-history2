@@ -6,7 +6,7 @@
     \previouspage What's New in Qt 4
     \nextpage The Interview Framework
 
-    Qt 4 introduces a new set of containers that will replace both the old
+    Qt 4 introduces a new set of containers that supercede both the old
     QCollection pointer-based containers and the newer QTL value-based
     containers.
 
@@ -31,7 +31,7 @@
 
     \o Even though they are implicitly shared, they can safely be copied
        across different threads without formality. There's no need to use
-       QDeepCopy.
+       \c QDeepCopy.
     \endlist
 
     Tulip provides the following sequential containers: QList,
@@ -182,7 +182,7 @@
         QList<double> list;
         ...
         for (int i = 0; i < list.size(); ++i) {
-            if (list.at(i) < 0.0)
+            if (list[i] < 0.0)
                 list[i] = 0.0;
         }
     \endcode

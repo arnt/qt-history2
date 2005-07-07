@@ -64,16 +64,6 @@
        with menus and keyboard shortcuts.
     \endlist
 
-    \section1 What's Changed Since Qt 4 Beta 1?
-
-    \list
-    \o QMainWindow and QToolBar have an \c iconSize property that
-       specifies the size of the QToolButton icons. The default size
-       is chosen based on the style.
-
-    \o The behavior of QDockWidget has been improved significantly.
-    \endlist
-
     \section1 Example Code
 
     Using QMainWindow is straightforward. Generally, we subclass

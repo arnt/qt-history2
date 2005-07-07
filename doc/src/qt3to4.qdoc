@@ -6,8 +6,8 @@
     to Qt 4. It is designed to automate the most tedious part of the
     porting effort.
 
-    See the \l{porting4.html}{Porting Guide} for more information
-    about porting from Qt 3 to Qt 4.
+    See \l{Porting to Qt 4} and \l{Porting .ui Files to Qt 4} for
+    more information about porting Qt 3 applications to Qt 4.
 
     \section1 Usage
 
