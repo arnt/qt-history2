@@ -17,10 +17,18 @@
 #include <qdialog.h>
 
 #include "ui_finddialog.h"
+#include <qstandarditemmodel.h>
 
 class MainWindow;
 class QStatusBar;
 class QTextBrowser;
+
+class CaseSensitiveModel : public QStandardItemModel
+{
+public:
+    CaseSensitiveModel(int rows, int columns, QObject *parent = 0);
+    QModelIndexList match(const QModelIndex &start, int role, const QVariant &value, int hits, Qt::MatchFlags flags) const;
+};
 
 class FindDialog : public QDialog
 {

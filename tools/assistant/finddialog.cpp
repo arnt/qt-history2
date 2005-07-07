@@ -23,13 +23,25 @@
 #include <qlineedit.h>
 #include <qdatetime.h>
 #include <qgridlayout.h>
-#include <qdebug.h>
+
+CaseSensitiveModel::CaseSensitiveModel(int rows, int columns, QObject *parent)
+    : QStandardItemModel(rows, columns, parent)
+{}
+QModelIndexList CaseSensitiveModel::match(const QModelIndex &start, int role, const QVariant &value,
+                                          int hits, Qt::MatchFlags flags) const
+{
+    if (flags == Qt::MatchFlags(Qt::MatchStartsWith|Qt::MatchWrap))
+        flags |= Qt::MatchCaseSensitive;
+
+    return QStandardItemModel::match(start, role, value, hits, flags);
+}
 
 FindDialog::FindDialog(MainWindow *parent)
     : QDialog(parent)
 {
     contentsWidget = new QWidget(this);
     ui.setupUi(contentsWidget);
+    ui.comboFind->setModel(new CaseSensitiveModel(0, 1, ui.comboFind));
 
     QVBoxLayout *l = new QVBoxLayout(this);
     l->setMargin(0);
@@ -42,7 +54,7 @@ FindDialog::FindDialog(MainWindow *parent)
 
     sb = new QStatusBar(this);
     l->addWidget(sb);
-    
+
     sb->showMessage(tr("Enter the text you are looking for."));
 
     connect(ui.findButton, SIGNAL(clicked()), this, SLOT(findButtonClicked()));
