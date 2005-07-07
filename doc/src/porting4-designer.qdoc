@@ -39,14 +39,14 @@
         files (\c .qrc).
     \endlist
 
-    See also \l{Porting to Qt 4} and \l{qt3to4 - The Qt 3 to 4
-    Porting Tool} for more information about porting from Qt 3 to Qt
-    4.
-
     The rest of this document explains how to deal with the main
     differences between Qt Designer 3 and Qt Designer 4:
 
     \tableofcontents
+
+    See \l{Porting to Qt 4} and \l{qt3to4 - The Qt 3 to 4 Porting
+    Tool} for more information about porting from Qt 3 to Qt 4. See
+    also the \l{Qt Designer Manual}.
 
     \section1 uic Output
 
@@ -186,7 +186,7 @@
     \code
         uic3 myform.ui > myform.h
         uic3 -impl myform.h > myform.cpp
-    \encode
+    \endcode
 
     The resulting files \c myform.h and \c myform.cpp implement the
     form in Qt 4.
