@@ -20,7 +20,7 @@
 #include "qdebug.h"
 /*!
     \class QWSMouseHandler qwsmouse_qws.h
-    \brief The QWSMouseHandler class is a mouse driver for Qt/Embedded.
+    \brief The QWSMouseHandler class is a mouse driver for Qtopia Core.
 
     \ingroup qws
 
@@ -30,7 +30,7 @@
     A QWSMouseHandler will usually open some system device in its
     constructor, create a QSocketNotifier on that opened device and
     when it receives data, it will call mouseChanged() to send the
-    event to Qt/Embedded for relaying to clients.
+    event to Qtopia Core for relaying to clients.
 */
 
 

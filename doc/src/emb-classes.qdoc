@@ -14,12 +14,12 @@
     \omit
     \page emb-classes.html
 
-    \title The Qt/Embedded-Specific Classes
+    \title The Qtopia Core Specific Classes
 
-    Qt/Embedded classes fall into two groups: the majority are used by
-    every Qt/Embedded program, and some are only used by the Qt/Embedded server. 
-    The Qt/Embedded server program can also be a client, as in the case of a
-    single-process installation. All Qt/Embedded specific source files are
+    Qtopia Core classes fall into two groups: the majority are used by
+    every Qtopia Core program, and some are only used by the Qtopia Core server. 
+    The Qtopia Core server program can also be a client, as in the case of a
+    single-process installation. All Qtopia Core specific source files are
     in \c src/gui and are suffixed \c{_qws}. The > symbol
     indicates inheritance.
 
@@ -37,7 +37,7 @@
     is the place to add constructors for new factories. It provides a
     high-level interface for requesting a particular font and calls
     \c QFontFactories to load fonts from disk on demand. Note that this only
-    applies to BDF and TrueType fonts; Qt/Embedded's optimised \c .qpf
+    applies to BDF and TrueType fonts; Qtopia Core's optimised \c .qpf
     font file format bypasses the \c QFontManager mechanism altogether. 
 
     There should be no need to modify this class unless you wish to change
@@ -48,7 +48,7 @@
     This contains information about a single on-disk font file (e.g.
     \c{/usr/local/etc/qt-embedded/times.ttf}). It holds the file path,
     information about whether the font is scalable, its weight, size,
-    Qt/Embedded name, etc. This information is used so that \c QFontManager
+    Qtopia Core name, etc. This information is used so that \c QFontManager
     can find the closest matching disk font (it uses a scoring mechanism
     weighted towards matching names, then whether the font's italic, then
     its weight). 
@@ -95,13 +95,13 @@
     not currently implemented for TrueType fonts). 
 
     You would only need to modify this class if you were, for example,
-    modifying Qt/Embedded to support textured fonts, in which case you
+    modifying Qtopia Core to support textured fonts, in which case you
     would also need to modify \c QGfxRaster.
     \endomit
 \omit
     \section1 QScreen > QLinuxFbScreen > accelerated screens, QTransformedScreen > QVfbScreen
 
-    These encapsulate the framebuffer Qt/Embedded is drawing to, provide
+    These encapsulate the framebuffer Qtopia Core is drawing to, provide
     support for mapping of coordinates for rotating framebuffers, allow
     manipulation of the colour palette and provide access to offscreen
     graphics memory for devices with separate framebuffer memories.
@@ -131,11 +131,11 @@
     \section1 QLock, QLockHolder
 
     This encapsulates a System V semaphore, used for synchronising access
-    to memory shared between Qt/Embedded clients. \c QLockHolder is a utility class
+    to memory shared between Qtopia Core clients. \c QLockHolder is a utility class
     to make managing and destroying \c{QLock}s easier. 
 
     There should be no need to modify this class unless porting
-    Qt/Embedded to an operating system without System V IPC.
+    Qtopia Core to an operating system without System V IPC.
 \endomit
     \omit ### Not implemented in 4.0
     \section1 QDirectPainter
@@ -150,11 +150,11 @@
 \omit
     \section1 QWSSoundServer, Client
 
-    The Qt/Embedded server contains a simple sound player and mixer. Clients
+    The Qtopia Core server contains a simple sound player and mixer. Clients
     can request the server play sounds specified as files. 
 
     There should be no need to modify this class unless porting
-    Qt/Embedded to an operating system without a Linux-style \c /dev/dsp.
+    Qtopia Core to an operating system without a Linux-style \c /dev/dsp.
 
     \section1 QWSWindow
 
@@ -189,21 +189,21 @@
 
     \section1 QWSDisplay
 
-    This class exists only in the Qt/Embedded server and keeps track of
+    This class exists only in the Qtopia Core server and keeps track of
     all the top-level windows in the system, as well as the keyboard and mouse.
 
     You would only want to modify this if making deep and drastic
-    modifications to Qt/Embedded window behavior (alpha blended windows
+    modifications to Qtopia Core window behavior (alpha blended windows
     for example).
 
     \section1 QWSServer 
 
-    This manages the Qt/Embedded server's Unix-domain socket connections to
+    This manages the Qtopia Core server's Unix-domain socket connections to
     clients. It sends and receives QWS protocol events and calls \c QWSDisplay
     in order to do such things as change the allocation region of windows.
 
     The only reason to modify this would be to use something other than
-    some sort of socket-like mechanism to communicate between Qt/Embedded
+    some sort of socket-like mechanism to communicate between Qtopia Core
     applications (in which case modify \c QWSClient too). If you have
     something like Unix domain sockets, modify \c QWSSocket/\c QWSServerSocket
     instead. Don't add extra QWS events to communicate between
@@ -211,12 +211,12 @@
 
     \section1 QWSClient
 
-    This encapsulates the client side of a Qt/Embedded connection and can
+    This encapsulates the client side of a Qtopia Core connection and can
     marshal and demarshal events. 
 
     There should be no reason to modify this except to use something
     radically different from Unix domain sockets to communicate between
-    Qt/Embedded applications.
+    Qtopia Core applications.
 
     \section1 QWSDisplayData
 
@@ -237,7 +237,7 @@
     \section1 QCopChannel
 
     \c QCop is a simple inter-process communication (IPC) mechanism for
-    communication between Qt/Embedded applications. String messages with
+    communication between Qtopia Core applications. String messages with
     optional binary data can be sent to different channels. 
 
     The mechanism itself is designed to be bare-bones in order for users
@@ -245,7 +245,7 @@
 
     \section1 QWSManager
 
-    This provides Qt/Embedded window management, drawing a title bar
+    This provides Qtopia Core window management, drawing a title bar
     and handling user requests to move and resize windows, and so on.
 
     There should be no reason to modify it but you should subclass it
@@ -254,8 +254,8 @@
 
     \section1 QWSDecoration
 
-    Descendants of this class are different styles for the Qt/Embedded
-    window manager, for instance \c QWSWindowsDecoration draws Qt/Embedded
+    Descendants of this class are different styles for the Qtopia Core
+    window manager, for instance \c QWSWindowsDecoration draws Qtopia Core
     window frames in the style of Windows CE. 
 
     Subclass it in order to provide a new window manager appearance (the

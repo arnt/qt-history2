@@ -16,7 +16,7 @@
     \omit
     \page emb-charinput.html
 
-    \title Character Input in Qt/Embedded
+    \title Character Input in Qtopia Core
 
     Internally in the client/server protocol, each key press and key
     release is sent as a \c{QWSKeyEvent}. A QWSKeyEvent contains the

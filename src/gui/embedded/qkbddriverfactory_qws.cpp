@@ -34,7 +34,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 /*!
     \class QKbdDriverFactory qkbddriverfactory.h
     \brief The QKbdDriverFactory class creates QWSKeyboardHandler objects
-    for Qt/Embedded.
+    for Qtopia Core.
 
     \ingroup qws
 
@@ -44,7 +44,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     The drivers are either built-in or dynamically loaded from a
     driver plugin (see \l QKbdDriverPlugin).
 
-    This class is only available in Qt/Embedded.
+    This class is only available in Qtopia Core.
 
     QKbdDriverFactory::keys() returns a list of valid keys.
 */

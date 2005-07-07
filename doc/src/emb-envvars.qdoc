@@ -14,7 +14,7 @@
     \omit
     \page emb-envvars.html
 
-    \title Qt/Embedded Environment Variables
+    \title Qtopia Core Environment Variables
 
     \table
     \header \i Variable \i Notes
@@ -35,12 +35,12 @@
 
     \row
     \i \c QTDIR
-    \i If defined this tells Qt/Embedded to where to find its fonts:
+    \i If defined this tells Qtopia Core to where to find its fonts:
     fontdir should be in \c $QTDIR/lib/fonts/.
 
     \row
     \i \c QWS_SIZE
-    \i If defined forces Qt/Embedded into a window of \<width\> x
+    \i If defined forces Qtopia Core into a window of \<width\> x
     \<height\> size centred within the screen, e.g. 320x200
 
     \row
@@ -52,7 +52,7 @@
     \i \c QWS_USB_KEYBOARD
     \i If defined, instead of opening \c{/dev/tty}, open the USB low-level
     event device defined in \c QWS_USB_KEYBOARD (e.g. \c /dev/input/event0):
-    this is useful if you want to run X and Qt/Embedded side by side on
+    this is useful if you want to run X and Qtopia Core side by side on
     different framebuffers.
 
     \row

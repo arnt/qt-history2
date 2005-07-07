@@ -18,7 +18,7 @@
 /*!
     \class QScreenDriverPlugin
     \brief The QScreenDriverPlugin class provides an abstract base for
-    Qt/Embedded graphics driver plugins.
+    Qtopia Core graphics driver plugins.
 
     \ingroup plugins
     \ingroup qws
@@ -31,7 +31,7 @@
     create(), and exporting the class with the Q_EXPORT_PLUGIN()
     macro. See \l{How to Create Qt Plugins} for details.
 
-    This class is only available in Qt/Embedded.
+    This class is only available in \l{Qtopia Core}.
 */
 
 /*!

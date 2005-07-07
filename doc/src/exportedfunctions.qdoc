@@ -51,10 +51,7 @@
     be honored or not. On Windows and X11, this feature is
     on by default; on Mac OS X, it is off. When this feature is off,
     the QKeySequence::mnemonic() function always returns an empty
-    string.
-    \omit
-    This feature is also enabled on Qt/Embedded.
-    \endomit
+    string. This feature is also enabled on embedded Linux.
 
     \section1 void qt_x11_wait_for_window_manager(QWidget *\e{widget})
 

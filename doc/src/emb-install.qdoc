@@ -2,7 +2,7 @@
     \omit
     \page emb-install.html
 
-    \title Installing Qt/Embedded
+    \title Installing Qtopia Core
 
     This installation procedure is written for Linux. It may need
     to be modified for other platforms.
@@ -16,10 +16,10 @@
         tar xf qt-embedded-commercial-VERSION.tar       # unpack it
     \endcode
 
-    Replace \c VERSION with the Qt/Embedded version number throughout.
+    Replace \c VERSION with the Qtopia Core version number throughout.
 
     This document assumes that the archive is installed as \c{~/qt-embedded-commercial-VERSION}. 
-    \i Compile the Qt/Embedded library and examples.
+    \i Compile the Qtopia Core library and examples.
 
     \code
         cd ~/qt-embedded-commercial-VERSION
@@ -58,7 +58,7 @@
        For Mach64 and most other cards, use the vesafb driver.
 
        Note that some cards are only supported in VGA16 mode, this will
-       not work with the current version of Qt/Embedded, since VGA/16 is
+       not work with the current version of Qtopia Core, since VGA/16 is
        not yet supported. You may need to upgrade your kernel, or even
        switch to an experimental kernel.
 
@@ -73,7 +73,7 @@
 
     \i Change permissions.
 
-       To run Qt/Embedded, you need write access to the framebuffer device
+       To run Qtopia Core, you need write access to the framebuffer device
        \c /dev/fb0. 
 
        You also need read access to the mouse device. (Note that
@@ -129,16 +129,16 @@
 
       The communication between client and server is done through the
       named pipe \c /tmp/qtembedded-username/QtEmbedded-0; sometimes it may need to be deleted
-      (e.g. if you run Qt/Embedded with root privileges then later as an unprivileged user).
+      (e.g. if you run Qtopia Core with root privileges then later as an unprivileged user).
 
     \i Customization.
 
-       The Qt/Embedded library can be reduced in size by
+       The Qtopia Core library can be reduced in size by
        \link emb-features.html removing unnecessary features \endlink.
 
-    \i This document shows how to use Qt/Embedded with the Linux framebuffer. For
+    \i This document shows how to use Qtopia Core with the Linux framebuffer. For
     development and debugging purposes it is often easier to use the \link
-    emb-qvfb.html Qt/Embedded virtual framebuffer\endlink instead.
+    emb-qvfb.html Qtopia Core virtual framebuffer\endlink instead.
 
     \endlist
     \endomit

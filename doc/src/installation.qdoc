@@ -21,12 +21,10 @@
 The installation procedure is different for the different Qt platforms:
 
 \list
- \i \link install-x11.html Qt/X11 \endlink
- \i \link install-win.html Qt/Windows \endlink
- \i \link install-mac.html Qt/Mac \endlink
-\omit
- \i \link emb-install.html Qt/Embedded \endlink
-\endomit
+ \o \l{install-x11.html}{Qt/X11}
+ \o \l{install-win.html}{Qt/Windows}
+ \o \l{install-mac.html}{Qt/Mac}
+ \o \l{emb-install.html}{Qtopia Core (Qt for embedded Linux)}
 \endlist
 
 */
@@ -36,12 +34,12 @@ The installation procedure is different for the different Qt platforms:
 \title Installing Qt/X11
 
 \list 1
-\i  If you have the commercial edition of Qt, install your license
+\o  If you have the commercial edition of Qt, install your license
     file as \c{$HOME/.qt-license}.
 
     For the open source version you do not need a license file.
 
-\i  Unpack the archive if you have not done so already:
+\o  Unpack the archive if you have not done so already:
 
 \code
         cd /tmp
@@ -53,7 +51,7 @@ The installation procedure is different for the different Qt platforms:
     from the archive. We only support the GNU version of the tar
     archiving utility. Note that on some systems it is called gtar.
 
-\i  Building
+\o  Building
 
     To configure the Qt library for your machine type:
 
@@ -86,7 +84,7 @@ The installation procedure is different for the different Qt platforms:
     e.g. gmake. The configure script tells you which make utility to
     use.
 
-\i  Environment variables
+\o  Environment variables
 
     In order to use Qt, some environment variables needs to be
     extended.
@@ -119,7 +117,7 @@ The installation procedure is different for the different Qt platforms:
     \c{/usr/local/Trolltech/Qt-%VERSION%/lib}. On Linux with GCC this step
     is not needed.
 
-\i  That's all. Qt is now installed.
+\o  That's all. Qt is now installed.
 
     If you are new to Qt, we suggest that you take a look at the demos
     and examples to see Qt in action. Run the Qt Examples and Demos

@@ -1,7 +1,7 @@
 /*!
     \omit
     \page emb-differences.html
-    \title Porting Your Applications to Qt/Embedded
+    \title Porting Your Applications to Qtopia Core
 
     Existing Qt applications should require no porting provided there is no
     platform dependent code. Platform dependent code includes system calls,
@@ -14,19 +14,19 @@
 
     \table
     \header \i Platform \i Macro
-    \row \i Qt/Embedded \i Q_WS_QWS
+    \row \i Qtopia Core \i Q_WS_QWS
     \row \i Qt/Mac \i Q_WS_MAC
     \row \i Qt/Windows \i Q_WS_WIN
     \row \i Qt/X11 \i Q_WS_X11
     \endtable
 
-    The default configuration of Qt/Embedded requires the following flags to be defined when compiling
+    The default configuration of Qtopia Core requires the following flags to be defined when compiling
     applications:
     \code
     -DQWS -fno-exceptions -fno-rtti
     \endcode
 
-    Exceptions and RTTI are disabled in Qt/Embedded because they incur a large
+    Exceptions and RTTI are disabled in Qtopia Core because they incur a large
     overhead in terms of both size and speed.
     \endomit
 */

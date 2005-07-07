@@ -609,7 +609,7 @@ void QVNCServer::readClient()
                 }
                 sim.width = qvnc_screen->deviceWidth();
                 sim.height = qvnc_screen->deviceHeight();
-                sim.setName("Qt/Embedded VNC Server");
+                sim.setName("Qtopia Core VNC Server");
                 sim.write(client);
                 state = Connected;
             }

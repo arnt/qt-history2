@@ -1,13 +1,13 @@
 /*!
     \omit
     \page emb-fonts.html
-    \title Fonts in Qt/Embedded
+    \title Fonts in Qtopia Core
 \endomit
     \omit ###
 
     \section1 Supported Formats
 
-    Qt/Embedded supports four font formats:
+    Qtopia Core supports four font formats:
 
     \table
     \row
@@ -23,18 +23,18 @@
     \i \bold{Bitmap Distribution Format fonts (BDF)}
     \i A standard format for non-scalable fonts. A large number of BDF
     fonts are supplied as part of standard X11 distributions -- most of
-    these can be used with Qt/Embedded. You should \e not use these in a
+    these can be used with Qtopia Core. You should \e not use these in a
     production system: they are very slow to load and take up a \e lot of
     storage space. Instead, render the BDF to a QPF.
     \row
     \i \bold{Qt Prerendered Font (QPF)}
-    \i A light-weight non-scalable font format specific to Qt/Embedded.
+    \i A light-weight non-scalable font format specific to Qtopia Core.
     \endtable
 
     Support for each of these font formats (except QPF which is always
     enabled) can be enabled or disabled independently by using the \link
-    emb-features.html Qt/Embedded Feature Definition File\endlink. There is
-    support in Qt/Embedded for writing a QPF font file from any font, so
+    emb-features.html Qtopia Core Feature Definition File\endlink. There is
+    support in Qtopia Core for writing a QPF font file from any font, so
     you can initially enable TTF and BDF formats, save QPF files for the
     fonts and sizes you need, then remove TTF and BDF support.
 
@@ -53,7 +53,7 @@
     For example, a 10-point Times font containing the ASCII characters uses
     around 1300 bytes when stored in QPF format.
 
-    Taking advantage of the way the QPF format is structured, Qt/Embedded
+    Taking advantage of the way the QPF format is structured, Qtopia Core
     memory-maps the data rather than reading and parsing it.
     This reduces RAM consumption even further.
 
@@ -73,21 +73,21 @@
 
     \img smooth.png smooth
 
-    In Qt/Embedded 2.2.1, smooth fonts use eight times as much memory as
+    In Qtopia Core 2.2.1, smooth fonts use eight times as much memory as
     non-smooth fonts. This multiplier will be reduced to a configurable 2
     or 4 (i.e. 4-level and 16-level shading rather than the default
     256-level shading).
 
     \section1 Unicode
 
-    All fonts used by Qt/Embedded use the Unicode character encoding.
+    All fonts used by Qtopia Core use the Unicode character encoding.
     Most fonts available today use this encoding, but they usually don't
     contain all the Unicode characters. A \e complete 16-point Unicode
     font uses over 1 MB of memory.
 
     \section1 Font Definition File
 
-    When Qt/Embedded applications run, they look for a file called
+    When Qtopia Core applications run, they look for a file called
     \c $QTDIR/lib/fonts/fontdir or
     \c /usr/local/qt-embedded/lib/fonts/fontdir. This file defines the
     fonts available to the application. It has the following format:
@@ -128,9 +128,9 @@
     then whenever a font other than a QPF font is used, a corresponding QPF file
     is saved. This allows you to easily find the font usage of your applications
     and to generate QPF files so that you can eventually reduce the memory
-    usage of your applications by disabling TTF and BDF support from Qt/Embedded,
+    usage of your applications by disabling TTF and BDF support from Qtopia Core,
     or by modifying the initialization of \c qws_savefonts in
-    \c kernel/qapplication_qws.cpp of the Qt/Embedded library source code.
+    \c kernel/qapplication_qws.cpp of the Qtopia Core library source code.
     In extreme cases of memory-saving, it is possible to save partially-rendered
     fonts (i.e. only the characters in "Product Name") if you are
     certain that these are the only characters you will need from the font.
@@ -139,10 +139,10 @@
     \section1 Notes
 
     The font definition file, naming conventions for font files, and the
-    format of QPF files may change in future versions of Qt/Embedded.
+    format of QPF files may change in future versions of Qtopia Core.
 
     \endomit
 
-    When enabled, Qt/Embedded uses the powerful FreeType2 library to implement
+    When enabled, Qtopia Core uses the powerful FreeType2 library to implement
     TrueType and Type1 support.
 */

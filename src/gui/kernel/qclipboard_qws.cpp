@@ -28,7 +28,7 @@
 
 
 /*****************************************************************************
-  Internal QClipboard functions for Qt/Embedded
+  Internal QClipboard functions for Qtopia Core
  *****************************************************************************/
 
 static const int TextClipboard=424242;

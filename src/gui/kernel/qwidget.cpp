@@ -5816,7 +5816,7 @@ bool QWidget::x11Event(XEvent *)
     \fn bool QWidget::qwsEvent(QWSEvent *event)
 
     This special event handler can be reimplemented in a subclass to
-    receive native Qt/Embedded events which are passed in the \a event
+    receive native Qtopia Core events which are passed in the \a event
     parameter.
 
     In your reimplementation of this function, if you want to stop the

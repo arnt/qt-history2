@@ -826,7 +826,7 @@ void QSNAPScreen::setMode(
 }
 
 /*
-This is called by Qt/Embedded clients to connect to the shared SNAP Graphics driver.
+This is called by Qtopia Core clients to connect to the shared SNAP Graphics driver.
 The \a displaySpec parameter is ignored for SNAP Graphics.
 
 This function actually gets called *before* the initDevice() function. For that
@@ -937,7 +937,7 @@ int QSNAPScreen::sharedRamSize(
 
 /*
 \fn bool QSNAPScreen::initDevice()
-This is called by the Qt/Embedded server at startup time. We don't
+This is called by the Qtopia Core server at startup time. We don't
 do much in here as we do most of the fun stuff up above in the connect()
 function. However we do initialise any shared memory blocks for sharing
 information between the server and connecting clients.
@@ -1018,7 +1018,7 @@ bool QSNAPScreen::initDevice()
 This is used to initialize the software cursor - \a end_of_location
 points to the address after the area where the cursor image can be stored.
 \a init is true for the first application this method is called from
-(the Qt/Embedded server), false otherwise.
+(the Qtopia Core server), false otherwise.
 */
 
 int QSNAPScreen::initCursor(
@@ -1047,7 +1047,7 @@ void QSNAPScreen::disconnect()
 
 /*
 \fn void QSNAPScreen::shutdownDevice()
-This is called by the Qt/Embedded server when it shuts down. Here we
+This is called by the Qtopia Core server when it shuts down. Here we
 unload the SNAP graphics driver and restore the Linux console back to
 normal.
 */
@@ -1317,7 +1317,7 @@ QGfx * QSNAPScreen::createGfx(
 
 /*
 \fn void QSNAPScreen::save()
-Save the state of the graphics card. It's called by the Qt/Embedded server
+Save the state of the graphics card. It's called by the Qtopia Core server
 when the virtual console is switched.
 */
 
@@ -1328,7 +1328,7 @@ void QSNAPScreen::save()
 
 /*
 \fn void QSNAPScreen::restore()
-This is called when the virtual console is switched back to Qt/Embedded
+This is called when the virtual console is switched back to Qtopia Core
 and restores the graphics screen.
 */
 

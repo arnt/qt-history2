@@ -58,7 +58,7 @@ public:
     \ingroup multimedia
     \ingroup qws
 
-    Only available in Qt/Embedded.
+    Only available in Qtopia Core.
 
     When the hardware is known and well defined, as is often the case
     with software for embedded devices, it may be useful to manipulate
@@ -99,7 +99,7 @@ public:
     configurations are insufficiently specified by such simple
     parameters.
 
-    Note that while a QDirectPainter exists, the entire Qt/Embedded
+    Note that while a QDirectPainter exists, the entire Qtopia Core
     window system is locked from use by other applications. Always
     construct the QDirectPainter as an auto (stack) variable, and be
     very careful to write robust and stable code within its scope.

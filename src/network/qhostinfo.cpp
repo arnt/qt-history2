@@ -61,7 +61,7 @@ Q_GLOBAL_STATIC(QHostInfoAgent, agent)
 
 
     The slot is invoked when the results are ready. (If you use
-    Qt/Embedded and disabled multithread support by defining \c
+    Qtopia Core and disabled multithread support by defining \c
     QT_NO_THREAD, lookupHost() will block until the lookup has
     finished.) The results are stored in a QHostInfo object. Call
     addresses() to get the list of IP addresses for the host, and

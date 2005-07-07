@@ -496,7 +496,7 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
     Furthermore, QString is used throughout in the Qt API. The two
     main cases where QByteArray is appropriate are when you need to
     store raw binary data, and when memory conservation is critical
-    (e.g. with Qt/Embedded).
+    (e.g. with Qtopia Core).
 
     One way to initialize a QByteArray is simply to pass a \c{const
     char *} to its constructor. For example, the following code

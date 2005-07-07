@@ -14,9 +14,9 @@
     \omit
     \page emb-porting.html
 
-    \title Issues to be Aware of When Porting Qt/Embedded
+    \title Issues to be Aware of When Porting Qtopia Core
 
-    Qt/Embedded is reasonably platform-independent, although the only
+    Qtopia Core is reasonably platform-independent, although the only
     publically available version is a Linux implementation. If you are
     looking for a non-Linux commercial implementation, it is worth
     contacting \link mailto:sales@trolltech.com
@@ -43,7 +43,7 @@
     you want a single-application setup. It should be possible to
     implement something like this using message queues or similar
     mechanisms; with the exception of QCOP messages (which are generated
-    by client applications and not Qt/Embedded) individual messages should
+    by client applications and not Qtopia Core) individual messages should
     be no more than a few bytes in length. 
 
     Modify \c qwssocket_qws.cpp.
@@ -59,18 +59,18 @@
     Modify \c qgfxlinuxfb_qws.cpp.
 
     \i \bold{Sound} uses a Linux \c /dev/dsp style device. If you want to use
-    the Qt/Embedded sound server you'll need to reimplement it.
+    the Qtopia Core sound server you'll need to reimplement it.
 
     Modify \c qsoundqss_qws.cpp.
 
     \i \bold{select()} is used to for
-    events to/from the Qt/Embedded server application.
+    events to/from the Qtopia Core server application.
 
     Modify \c qeventdispatcher_qws.cpp.
 
     \endlist
 
-    Qt/Embedded makes use of the standard C library and some POSIX functions.
+    Qtopia Core makes use of the standard C library and some POSIX functions.
     Mostly the latter are concentrated in platform dependent code anyway
     (e.g. \c mmap() to map in the Linux framebuffer).
     \endomit

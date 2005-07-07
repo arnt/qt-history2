@@ -62,7 +62,7 @@
     \o QuickDraw and CoreGraphics on Mac OS X
     \o X11 and the X Render Extension on Linux and Unix systems
     \omit
-    \o QVFb, VNC, and LinuxFb on Qt/Embedded
+    \o QVFb, VNC, and LinuxFb for Qtopia Core
     \endomit
     \endlist
 

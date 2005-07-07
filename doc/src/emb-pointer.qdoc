@@ -1,13 +1,13 @@
 /*!
     \omit
     \page emb-pointer.html
-    \title Qt/Embedded Pointer Handling
+    \title Qtopia Core Pointer Handling
 
-    Pointer handling in Qt/Embedded works for any mouse or mouse-like
+    Pointer handling in Qtopia Core works for any mouse or mouse-like
     device such as touch panels and trackballs.
 
     Usually only one pointer device is supported in an embedded device,
-    but for demonstration purposes, Qt/Embedded includes a large number of
+    but for demonstration purposes, Qtopia Core includes a large number of
     supported devices.
 
     \section1 Mouse Protocols
@@ -16,7 +16,7 @@
     \c{./configure} \c{-help} lists the available mouse drivers.  Only the
     "pc" mouse driver is enabled in the default configuration.
 
-    Provided the "pc" mouse driver is enabled, Qt/Embedded auto-detects the
+    Provided the "pc" mouse driver is enabled, Qtopia Core auto-detects the
     mouse type and device if it is one of
     the supported types on \c /dev/psaux or one of the \c /dev/ttyS?
     serial lines. If multiple mice are detected, all may be used simultaneously.
@@ -42,7 +42,7 @@
 
     \section1 Touch Panels
 
-    Qt/Embedded ships with support for the NEC Vr41XX touch panel and the
+    Qtopia Core ships with support for the NEC Vr41XX touch panel and the
     emerging linux touch panel standard used by the iPAQ and Zaurus. These
     are subclasses of QWSCalibratedMouseHandler which is in turn a subclass
     of QWSMouseHandler in \c src/gui/kernel/qmouse_qws.cpp.

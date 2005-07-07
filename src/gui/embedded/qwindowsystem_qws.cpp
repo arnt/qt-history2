@@ -255,11 +255,11 @@ void QWSServer::compose(int level, QRegion exposed, QRegion &blend, QPixmap &ble
 
 /*!
     \class QWSWindow qwindowsystem_qws.h
-    \brief The QWSWindow class provides server-specific functionality in Qt/Embedded.
+    \brief The QWSWindow class provides server-specific functionality in Qtopia Core.
 
     \ingroup qws
 
-    When you run a Qt/Embedded application, it either runs as a server
+    When you run a Qtopia Core application, it either runs as a server
     or connects to an existing server. If it runs as a server, some
     additional functionality is provided by the QWSServer class.
 
@@ -581,15 +581,15 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
 
 /*!
     \class QWSServer qwindowsystem_qws.h
-    \brief The QWSServer class provides server-specific functionality in Qt/Embedded.
+    \brief The QWSServer class provides server-specific functionality in Qtopia Core.
 
     \ingroup qws
 
-    When you run a Qt/Embedded application, it either runs as a server
+    When you run a Qtopia Core application, it either runs as a server
     or connects to an existing server. If it runs as a server, some
     additional operations are provided by this class.
 
-    This class is instantiated by QApplication for Qt/Embedded server
+    This class is instantiated by QApplication for Qtopia Core server
     processes. You should never construct this class yourself.
 
     A pointer to the QWSServer instance can be obtained via the global
@@ -677,7 +677,7 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
     Construct a QWSServer object.
 
     \warning This class is instantiated by QApplication for
-    Qt/Embedded server processes. You should never construct this
+    Qtopia Core server processes. You should never construct this
     class yourself.
 
     The \a flags are used for keyboard and mouse setting. The server's
@@ -1202,7 +1202,7 @@ void QWSServer::refresh(QRegion & r)
 }
 
 /*!
-    Sets the area of the screen which Qt/Embedded applications will
+    Sets the area of the screen which Qtopia Core applications will
     consider to be the maximum area to use for windows to \a r.
 
     \sa QWidget::showMaximized()
@@ -2925,7 +2925,7 @@ void QWSServer::updateClientCursorPos()
 /*!
     \class QWSInputMethod
     \brief The QWSInputMethod class provides international input methods
-    for Qt/Embedded.
+    for Qtopia Core.
 
     \ingroup qws
 
@@ -3136,7 +3136,7 @@ void QWSInputMethod::mouseHandler(int, int state)
     \ingroup qws
 
     The KeyboardFilter class is used to implement a global, low-level
-    filter on key events in the Qt/Embedded server application; this
+    filter on key events in the Qtopia Core server application; this
     can be used to implement things like APM (advanced power
     management) suspend from a button without having to filter for it
     in all applications.

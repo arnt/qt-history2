@@ -64,7 +64,7 @@ private:
 /*!
     \class QWSKeyboardHandler qkbd_qws.h
     \brief The QWSKeyboardHandler class implements the keyboard driver
-    for Qt/Embedded.
+    for Qtopia Core.
 
     \ingroup qws
 
@@ -74,7 +74,7 @@ private:
     A QWSKeyboardHandler will usually open some system device in its
     constructor, create a QSocketNotifier on that opened device and
     when it receives data, it will call processKeyEvent() to send the
-    event to Qt/Embedded for relaying to clients.
+    event to Qtopia Core for relaying to clients.
 */
 
 

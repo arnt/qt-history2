@@ -28,17 +28,17 @@
 
 /*!
     \class QDecoration qdecoration_qws.h
-    \brief The QDecoration class allows the appearance of the Qt/Embedded Window
+    \brief The QDecoration class allows the appearance of the Qtopia Core Window
     Manager to be customized.
 
     \ingroup qws
 
-    Qt/Embedded provides window management to top level windows. The
+    Qtopia Core provides window management to top level windows. The
     appearance of the borders and buttons (the decoration) around the
     managed windows can be customized by creating your own class
     derived from QDecoration and overriding a few methods.
 
-    This class is non-portable. It is available \e only in Qt/Embedded.
+    This class is non-portable. It is available \e only in Qtopia Core.
 
     \sa QApplication::qwsSetDecoration()
 */

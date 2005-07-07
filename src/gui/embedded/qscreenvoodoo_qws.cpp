@@ -719,7 +719,7 @@ bool QVoodooScreen::connect(const QString &spec)
     // This is the 256-byte PCI config space information for the
     // card pointed to by QWS_CARD_SLOT, as read from /proc/bus/pci
     // (or in theory from a PCI bus scan - there is some code for this
-    // but it's not how Qt/Embedded would normally work)
+    // but it's not how Qtopia Core would normally work)
     // It only tests the vendor ID - so don't use it with other 3dfx
     // graphics cards, such as Voodoo 4/5, or Bad Things
     // May Happen

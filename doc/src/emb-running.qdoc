@@ -2,14 +2,14 @@
     \omit
     \page emb-running.html
 
-    \title Running Qt/Embedded Applications
+    \title Running Qtopia Core Applications
 
-    A Qt/Embedded application requires a master application to be running,
+    A Qtopia Core application requires a master application to be running,
     or to be the master application itself. The master application is
     primarily responsible for managing top-level window regions, and
     pointer and keyboard input.
 
-    Any Qt/Embedded application can be the master application by
+    Any Qtopia Core application can be the master application by
     constructing the QApplication object with the
     \c{QApplication::GuiServer} type, or by being run with the \c{-qws}
     command line option.
@@ -17,12 +17,12 @@
     This document assumes you have the Linux framebuffer configured correctly
     and that no master process is running. If you do not have a working Linux
     framebuffer you can use the
-    \link emb-qvfb.html Qt/Embedded virtual framebuffer\endlink, or you can
-    run Qt/Embedded as a \link emb-vnc.html VNC server\endlink.
+    \link emb-qvfb.html Qtopia Core virtual framebuffer\endlink, or you can
+    run Qtopia Core as a \link emb-vnc.html VNC server\endlink.
 
     Change to a Linux console and select an example to run, e.g. \c
     examples/widgets. Make sure \c $QTDIR is set to the directory where you
-    installed Qt/Embedded and add the \c $QTDIR/lib directory to
+    installed Qtopia Core and add the \c $QTDIR/lib directory to
     \c $LD_LIBRARY_PATH, e.g.:
 
     \code
@@ -47,8 +47,8 @@
 
     \section1 Displays
 
-    Qt/Embedded allows multiple displays to be used simultaneously by running
-    multiple Qt/Embedded master processes. This is achieved using the \c -display
+    Qtopia Core allows multiple displays to be used simultaneously by running
+    multiple Qtopia Core master processes. This is achieved using the \c -display
     command line parameter or the \c $QWS_DISPLAY environment variable.
 
     The \c -display parameter's syntax is:
@@ -95,7 +95,7 @@
 
     \section1 Mouse Input
 
-    Qt/Embedded attempts to autodetect a mouse by default.  The supported
+    Qtopia Core attempts to autodetect a mouse by default.  The supported
     protocols are MouseMan, Microsoft, IntelliMouse and
     some other devices specific to certain hardware (e.g. Vr touch panel).
     To specify the mouse to use set the \c $QWS_MOUSE_PROTO environment
@@ -114,6 +114,6 @@
         export QWS_MOUSE_PROTO=MouseMan:/dev/inputs/mice
     \endcode
 
-    \sa \link emb-pointer.html Qt/Embedded Pointer Handling \endlink
+    \sa \link emb-pointer.html Qtopia Core Pointer Handling \endlink
     \endomit
 */

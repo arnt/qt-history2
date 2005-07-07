@@ -48,7 +48,7 @@ public:
     communicate both within the same address space and between
     different processes.
 
-    Currently, this facility is only available on Qt/Embedded. On X11
+    Currently, this facility is only available for Qtopia Core. On X11
     and Windows we are exploring the use of existing standards such as
     DCOP and COM.
 

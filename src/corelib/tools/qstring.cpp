@@ -171,7 +171,7 @@ const QString::Null QString::null = QString::Null();
     your application's market at some point. The two main cases where
     QByteArray is appropriate are when you need to store raw binary
     data, and when memory conservation is critical (e.g. with
-    Qt/Embedded).
+    Qtopia Core).
 
     One way to initialize a QString is simply to pass a \c{const char
     *} to its constructor. For example, the following code creates a

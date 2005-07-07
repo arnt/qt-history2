@@ -36,7 +36,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 /*!
     \class QMouseDriverFactory qmousedriverfactory.h
     \brief The QMouseDriverFactory class creates QWSMouseHandler
-    objects for Qt/Embedded.
+    objects for Qtopia Core.
 
     \ingroup qws
 
@@ -46,7 +46,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     The drivers are either built-in or dynamically loaded from a
     driver plugin (see \l QMouseDriverPlugin).
 
-    This class is only available in Qt/Embedded.
+    This class is only available in Qtopia Core.
 
     QMouseDriverFactory::keys() returns a list of valid keys.
 */

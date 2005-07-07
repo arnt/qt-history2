@@ -283,7 +283,7 @@ QApplicationPrivate::~QApplicationPrivate()
 
     \value Tty a console application
     \value GuiClient a GUI client application
-    \value GuiServer a GUI server application (on Qt/Embedded)
+    \value GuiServer a GUI server application (for Qtopia Core)
 */
 
 /*!
@@ -596,9 +596,9 @@ QApplication::QApplication(int &argc, char **argv, bool GUIenabled )
   Constructs an application object with \a argc command line arguments
   in \a argv.
 
-  For Qt/Embedded, passing \c QApplication::GuiServer for \a type
+  For Qtopia Core, passing \c QApplication::GuiServer for \a type
   makes this application the server (equivalent to running with the
-  -qws option).
+  \c -qws option).
 */
 QApplication::QApplication(int &argc, char **argv, Type type)
     : QCoreApplication(*new QApplicationPrivate(argc, argv, type))

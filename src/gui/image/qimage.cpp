@@ -298,11 +298,11 @@ QImageData::~QImageData()
     \skipto QImage
     \printuntil qRgb
 
-    On Qt/Embedded, scanlines are aligned to the pixel depth and may
+    In Qtopia Core, scanlines are aligned to the pixel depth and may
     be padded to any degree, while on all other platforms, the
     scanlines are 32-bit aligned for all depths. The constructor
     taking a \c{uchar*} argument always expects 32-bit aligned data.
-    On Qt/Embedded, an additional constructor allows the number of
+    In Qtopia Core, an additional constructor allows the number of
     bytes-per-line to be specified.
 
     Pixel colors are retrieved with pixel() and set with setPixel().
@@ -744,7 +744,7 @@ QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int
 
     The endianness is specified by \a bitOrder.
 
-    \warning This constructor is only available on Qt/Embedded.
+    \warning This constructor is only available in Qtopia Core.
 */
 QImage::QImage(uchar* data, int w, int h, int depth, int bpl, const QRgb* colortable, int numColors, Endian bitOrder)
     : QPaintDevice()
@@ -871,7 +871,7 @@ QImage QImage::copy(const QRect& r) const
         QImage image(d->width, d->height, d->format);
 
 #ifdef Q_WS_QWS
-        // Qt/Embedded can create images with non-default bpl
+        // Qtopia Core can create images with non-default bpl
         // make sure we don't crash.
         if (image.d->nbytes != d->nbytes) {
             int bpl = image.bytesPerLine();

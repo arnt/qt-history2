@@ -512,7 +512,7 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     // Software mouse cursor stuff
     GFX_END
 
-    // Release display again - not doing so will cause Qt/Embedded applications
+    // Release display again - not doing so will cause Qtopia Core applications
     // to deadlock
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
     QWSDisplay::ungrab();
@@ -1435,7 +1435,7 @@ bool QMachScreen::connect(const QString &displaySpec)
     // This is the 256-byte PCI config space information for the
     // card pointed to by QWS_CARD_SLOT, as read from /proc/bus/pci
     // (or in theory from a PCI bus scan - there is some code for this
-    // but it's not how Qt/Embedded would normally work)
+    // but it's not how Qtopia Core would normally work)
     // It only tests the vendor ID - so don't use it with other ATI
     // graphics cards, such as Rage128 or Radion variants, or Bad Things
     // May Happen
@@ -1539,7 +1539,7 @@ QMachScreen::~QMachScreen()
 {
 }
 
-// This is called when the Qt/Embedded server starts up but not when
+// This is called when the Qtopia Core server starts up but not when
 // individual clients do. This is when you set the device to a known
 // state
 

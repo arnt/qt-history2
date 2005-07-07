@@ -14,9 +14,9 @@
     \omit
     \page emb-qvfb.html
 
-    \title Qt/Embedded Virtual Framebuffer
+    \title Qtopia Core Virtual Framebuffer
 
-    The virtual framebuffer allows Qt/Embedded programs to be developed on
+    The virtual framebuffer allows Qtopia Core programs to be developed on
     a desktop machine, without switching between consoles and X11.
 
     The virtual framebuffer is located in \c $QTDIR/tools/qvfb.
@@ -24,24 +24,24 @@
     \section1 Using the Virtual Framebuffer
 
     \list 1 
-    \i Configure Qt/Embedded with the \c -qvfb argument and compile the library:
+    \i Configure Qtopia Core with the \c -qvfb argument and compile the library:
         \code
         ./configure -qvfb
         make
         \endcode
     \i Compile \c qvfb as a normal Qt/X11 application and run it. Do \e not
-        compile it as a Qt/Embedded application.
-    \i Start a Qt/Embedded master application (i.e., construct
+        compile it as a Qtopia Core application.
+    \i Start a Qtopia Core master application (i.e., construct
         QApplication with the QApplication::GuiServer flag or use the \c
         -qws command line parameter). You can tell the server that
         you want to use the virtual framebuffer driver, e.g.:
         \code
         masterapp -qws -display QVFb:0
         \endcode
-    \i Qt/Embedded will autodetect \c qvfb, so you can omit the \c -display
+    \i Qtopia Core will autodetect \c qvfb, so you can omit the \c -display
        command line parameter if you know that \c qvfb is running, and that
-       the Qt/Embedded library supports \c qvfb. (If this is not the case,
-       Qt/Embedded will write to the real framebuffer, and your X11
+       the Qtopia Core library supports \c qvfb. (If this is not the case,
+       Qtopia Core will write to the real framebuffer, and your X11
        display will be corrupted.)
 
     \endlist
@@ -64,7 +64,7 @@
     \i do not display the X11 cursor in the framebuffer window.
     \row
     \i \c -qwsdisplay \e :id 
-    \i the Qt/Embedded display ID to provide (default: :0).
+    \i the Qtopia Core display ID to provide (default: :0).
     \endtable
 
     \section1 Virtual Framebuffer Design
@@ -85,7 +85,7 @@
     be frequent, and the application and \c qvfb will compete for
     processor time.
 
-    Mouse and keyboard events are passed to the Qt/Embedded master process via
+    Mouse and keyboard events are passed to the Qtopia Core master process via
     named pipes.
 
     \warning The virtual framebuffer is a development tool only. No

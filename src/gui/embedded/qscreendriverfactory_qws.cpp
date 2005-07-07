@@ -41,7 +41,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 
 /*!
     \class QScreenDriverFactory qscreendriverfactory.h
-    \brief The QScreenDriverFactory class creates QScreen objects for Qt/Embedded.
+    \brief The QScreenDriverFactory class creates QScreen objects for Qtopia Core.
 
     \ingroup qws
 
@@ -54,7 +54,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     QScreenDriverFactory::keys() returns a list of valid keys. Qt
     currently ships with "LinuxFb".
 
-    This class is only available in Qt/Embedded.
+    This class is only available in \l{Qtopia Core}.
 */
 
 /*!

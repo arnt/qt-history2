@@ -1328,7 +1328,6 @@ QSize Q3MainWindow::sizeHint() const
     Q3MainWindow* that = (Q3MainWindow*) this;
     // Workaround: because d->tll get's deleted in
     // totalSizeHint->polish->sendPostedEvents->childEvent->triggerLayout
-    // [eg. canvas example on Qt/Embedded]
     QApplication::sendPostedEvents(that, QEvent::ChildInserted);
     if (!that->d_func()->tll)
         that->setUpLayout();

@@ -23,11 +23,11 @@
     be available in your installation. The \c -qconfig option to
     configure is used to select the configuration.
 
-    Note that such modification is only supported on Qt/Embedded
+    Note that such modification is only supported on Qtopia Core
     platforms, where reducing the size of Qt is
     important and the application set is often fixed.
 
-    \bold{Note: Qt/Embedded 4.0 does not support the \c -qconfig option.}
+    \bold{Note: Qtopia Core 4.0 does not support the \c -qconfig option.}
 \endomit
     \omit ### the set of features will change
     The \c qconfig.h definition file simply defines macros to disable
@@ -66,10 +66,10 @@
 
     \header \i31 Fonts
     \row \i \c QT_NO_TRUETYPE
-         \i TrueType (TTF and TTC) font file format, only used by Qt/Embedded.
+         \i TrueType (TTF and TTC) font file format, only used by Qtopia Core.
          \i
     \row \i \c QT_NO_BDF
-         \i Bitmap Distribution Format (BDF) font file format, only used by Qt/Embedded.
+         \i Bitmap Distribution Format (BDF) font file format, only used by Qtopia Core.
          \i
     \row \i \c QT_NO_FONTDATABASE
          \i Font database.
@@ -109,9 +109,9 @@
          \i Scripting Qt-based applications.
          \i
 
-    \header \i31 Qt/Embedded-specific
+    \header \i31 Qtopia Core specific
     \row \i \c QT_NO_QWS_CURSOR
-         \i The cursor sprite on Qt/Embedded. Pen-operated devices would not
+         \i The cursor sprite in Qtopia Core. Pen-operated devices would not
      normally need this feature.
          \i
     \row \i \c QT_NO_QWS_DEPTH_8GRAYSCALE

@@ -2,13 +2,13 @@
     \omit
     \page emb-vnc.html
 
-    \title Qt/Embedded as a VNC Server
+    \title Qtopia Core as a VNC Server
 
     The \link http://www.uk.research.att.com/vnc/ VNC \endlink protocol
     allows you to view and interact with the computer's display from
     anywhere on the network.
 
-    To use Qt/Embedded in this way, \c configure Qt with the \c -qt-gfx-vnc
+    To use Qtopia Core in this way, \c configure Qt with the \c -qt-gfx-vnc
     option, and ensure that you also enable 16-bit display support. Run
     your application like this:
     \code
@@ -21,7 +21,7 @@
         vncviewer localhost:0
     \endcode
 
-    By default, Qt/Embedded will create a 640 by 480 pixel display. You
+    By default, Qtopia Core will create a 640 by 480 pixel display. You
     can change this by setting the \c QWS_SIZE environment variable to
     another size, e.g. \c QWS_SIZE=240x320.
 

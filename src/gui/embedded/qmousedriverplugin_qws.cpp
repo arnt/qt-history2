@@ -20,7 +20,7 @@
 /*!
     \class QMouseDriverPlugin
     \brief The QMouseDriverPlugin class provides an abstract base for
-    Qt/Embedded mouse driver plugins.
+    Qtopia Core mouse driver plugins.
 
     \ingroup plugins
 
@@ -32,7 +32,7 @@
     create(), and exporting the class with the Q_EXPORT_PLUGIN()
     macro. See \l{How to Create Qt Plugins} for details.
 
-    This class is only available in Qt/Embedded.
+    This class is only available in Qtopia Core.
 */
 
 /*!

@@ -64,7 +64,7 @@ public:
 
     \internal
 
-    It is used by Qt/Embedded for synchronizing access to the graphics
+    It is used by Qtopia Core for synchronizing access to the graphics
     card and shared memory region between processes.
 */
 
@@ -79,10 +79,10 @@ public:
     \fn QLock::QLock(const QString &filename, char id, bool create)
 
     Creates a lock. \a filename is the file path of the Unix-domain
-    socket the Qt/Embedded client is using. \a id is the name of the
+    socket the Qtopia Core client is using. \a id is the name of the
     particular lock to be created on that socket. If \a create is true
-    the lock is to be created (as the Qt/Embedded server does); if \a
-    create is false the lock should exist already (as the Qt/Embedded
+    the lock is to be created (as the Qtopia Core server does); if \a
+    create is false the lock should exist already (as the Qtopia Core
     client expects).
 */
 

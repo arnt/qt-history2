@@ -16,7 +16,7 @@
     choice. This makes QBasicTimer a more lightweight alternative to
     QTimer. Qt's built-in widgets use it internally, and it is
     provided in Qt's API for highly-optimized applications (e.g.,
-    Qt/Embedded applications).
+    \l{Qtopia Core} applications).
 
     The example consists of two classes:
 

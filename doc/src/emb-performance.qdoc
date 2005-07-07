@@ -1,7 +1,7 @@
 /*!
     \omit
     \page emb-performance.html
-    \title Qt/Embedded Performance Tuning
+    \title Qtopia Core Performance Tuning
 
     When building embedded applications on low-powered devices, a number
     of options are available that are not relevant for desktop

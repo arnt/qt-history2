@@ -65,31 +65,28 @@
     \endlist
 
     \target qws
-    \section1 Qt/Embedded
-
-    \bold{Note:} \e{A version of Qt 4 for embedded Linux will be available in
-       August/September 2005.}
+    \section1 Qtopia Core (Qt for Embedded Linux)
 
     When compiling for this platform, the macro \c{Q_WS_QWS} is defined
     (the window system is literally the Qt Window System).
 
     \omit
     \list
-    \o \l{emb-install.html}{Installing Qt/Embedded}
-    \o \l{emb-classes.html}{The Qt/Embedded-Specific Classes}
-    \o \l{emb-envvars.html}{Qt/Embedded Environment Variables}
-    \o \l{emb-running.html}{Running Qt/Embedded Applications}
+    \o \l{emb-install.html}{Installing Qtopia Core}
+    \o \l{emb-classes.html}{The Qtopia Core Specific Classes}
+    \o \l{emb-envvars.html}{Qtopia Core Environment Variables}
+    \o \l{emb-running.html}{Running Qtopia Core Applications}
     \o \l{emb-framebuffer-howto.html}{Enabling the Linux Framebuffer}
-    \o \l{emb-qvfb.html}{Qt/Embedded Virtual Framebuffer}
-    \o \l{emb-vnc.html}{Qt/Embedded as a VNC Server}
-    \o \l{emb-performance.html}{Qt/Embedded Performance Tuning}
+    \o \l{emb-qvfb.html}{Qtopia Core Virtual Framebuffer}
+    \o \l{emb-vnc.html}{Qtopia Core as a VNC Server}
+    \o \l{emb-performance.html}{Qtopia Core Performance Tuning}
     \o \l{emb-features.html}{The Feature Definition File}
-    \o \l{emb-differences.html}{Porting Your Applications to Qt/Embedded}
-    \o \l{emb-fonts.html}{Fonts in Qt/Embedded}
-    \o \l{emb-charinput.html}{Character Input in Qt/Embedded}
-    \o \l{emb-pointer.html}{Qt/Embedded Pointer Handling}
-    \o \l{emb-accel.html}{Adding an Accelerated Graphics Driver to Qt/Embedded}
-    \o \l{emb-porting.html}{Issues to be Aware of when Porting Qt/Embedded}
+    \o \l{emb-differences.html}{Porting Your Applications to Qtopia Core}
+    \o \l{emb-fonts.html}{Fonts in Qtopia Core}
+    \o \l{emb-charinput.html}{Character Input in Qtopia Core}
+    \o \l{emb-pointer.html}{Qtopia Core Pointer Handling}
+    \o \l{emb-accel.html}{Adding an Accelerated Graphics Driver to Qtopia Core}
+    \o \l{emb-porting.html}{Issues to be Aware of when Porting Qtopia Core}
     \endlist
     \endomit
 */

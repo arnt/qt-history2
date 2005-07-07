@@ -144,11 +144,7 @@
         <td valign="top">
         <ul>
         <li><a href="winsystem.html">Platform-Specific Notes</a></li>
-    \endraw
-    \omit
-        <li><a href="winsystem.html#sec.4">Qt/Embedded</a></li>
-    \endomit
-    \raw HTML
+        <li><a href="winsystem.html#sec.4">Qtopia Core</a></li>
         <li><a href="activeqt.html">ActiveQt Framework</a></li>
         <li><a href="gallery.html">Qt Widget Gallery</a></li>
         </ul>

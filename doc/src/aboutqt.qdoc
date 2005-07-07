@@ -19,12 +19,8 @@
     Qt by \l{About Trolltech}{Trolltech} is a C++ toolkit for
     cross-platform GUI application development. Qt provides
     single-source portability across Microsoft Windows, Mac OS X,
-    Linux, and all major commercial Unix variants.
-    \omit
-    It is also available for embedded devices.
-    \endomit
-    \e{(A version of Qt 4 for embedded Linux will be available in
-       August/September 2005.)}
+    Linux, all major commercial Unix variants, and embedded Linux. On
+    embedded Linux, the Qt API is available as \l{Qtopia Core}.
 
     Qt provides application developers with all the functionality
     needed to build applications with state-of-the-art graphical user
@@ -43,13 +39,11 @@
 
     Qt is supported on the following platforms:
     \list
-     \i \bold{Microsoft Windows} -- 98, NT 4.0, ME, 2000, and XP
-     \i \bold{Unix/X11} -- Linux, Sun Solaris, HP-UX, HP Tru64 UNIX,
+     \o \bold{Microsoft Windows} -- 98, NT 4.0, ME, 2000, and XP
+     \o \bold{Unix/X11} -- Linux, Sun Solaris, HP-UX, HP Tru64 UNIX,
          IBM AIX, SGI IRIX and many others
-     \i \bold{Mac OS X} -- Mac OS X 10.2+
-     \omit
-     \i \bold{Embedded} -- Linux platforms with framebuffer support
-     \endomit
+     \o \bold{Mac OS X} -- Mac OS X 10.2+
+     \o \bold{Embedded Linux} -- Linux platforms with framebuffer support
     \endlist
 
     See

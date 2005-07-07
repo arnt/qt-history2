@@ -19,7 +19,7 @@ ClearCacheFunc QScreen::clearCacheFunc = 0;
 /*!
     \class QScreenCursor qscreen_qws.h
     \brief The QScreenCursor class manages the onscreen mouse cursor in
-    Qt/Embedded.
+    Qtopia Core.
 
     \internal (for now)
 
@@ -30,7 +30,7 @@ ClearCacheFunc QScreen::clearCacheFunc = 0;
     cursor. There may only be one QScreenCursor at a time; it is constructed
     by QScreen or one of its descendants.
 
-    This class is non-portable. It is available only in Qt/Embedded.
+    This class is non-portable. It is available only in Qtopia Core.
     It is also internal - this documentation is intended for those subclassing
     it in hardware drivers, not for application developers.
 */
@@ -53,7 +53,7 @@ QScreenCursor::QScreenCursor() : imgunder(0), cursor(0)
     Should not be called by hardware cursor descendants. \a da points
     to the location in framebuffer memory where the cursor saves information
     stored under it, \a init is true if the cursor is being initialized
-    (i.e. if the program calling this is the Qt/Embedded server), false
+    (i.e. if the program calling this is the Qtopia Core server), false
     if another application has already initialized it.
 */
 void QScreenCursor::init(SWCursorData *da, bool init)
@@ -658,7 +658,7 @@ void QScreenCursor::drawCursor()
 
   QScreens act as factories for the screen cursor and QPaintEngine. QLinuxFbScreen
   manages a Linux framebuffer; accelerated drivers subclass QLinuxFbScreen.
-  There can only be one screen in a Qt/Embedded application.
+  There can only be one screen in a Qtopia Core application.
 */
 
 /*!
@@ -670,13 +670,13 @@ void QScreenCursor::drawCursor()
 
 /*!
 \fn QScreen::initDevice()
-This function is called by the Qt/Embedded server when initializing
+This function is called by the Qtopia Core server when initializing
 the framebuffer. Accelerated drivers use it to set up the graphics card.
 */
 
 /*!
 \fn QScreen::connect(const QString &displaySpec)
-This function is called by every Qt/Embedded application on startup.
+This function is called by every Qtopia Core application on startup.
 It maps in the framebuffer and in the accelerated drivers the graphics
 card control registers. \a displaySpec has the following syntax:
 <p>
@@ -692,7 +692,7 @@ or the -display command line parameter.
 
 /*!
 \fn QScreen::disconnect()
-This function is called by every Qt/Embedded application just
+This function is called by every Qtopia Core application just
 before exitting; it's normally used to unmap the framebuffer.
 */
 
@@ -756,14 +756,14 @@ Returns the length in bytes of each scanline of the framebuffer.
 /*!
   \fn QScreen::deviceWidth() const
 Gives the full width of the framebuffer device, as opposed to the
-width which Qt/Embedded will actually use. These can differ if the
+width which Qtopia Core will actually use. These can differ if the
 display is centered within the framebuffer.
 */
 
 /*!
   \fn QScreen::deviceHeight() const
 Gives the full height of the framebuffer device, as opposed to the
-height which Qt/Embedded will actually use. These can differ if the
+height which Qtopia Core will actually use. These can differ if the
 display is centered within the framebuffer.
 */
 
@@ -808,7 +808,7 @@ screen. Offscreen memory is only used by the accelerated drivers.
 
 /*!
   \fn QScreen::QScreen(int display_id)
-  Create a screen; the \a display_id is the number of the Qt/Embedded server
+  Create a screen; the \a display_id is the number of the Qtopia Core server
   to connect to.
 */
 
@@ -844,8 +844,8 @@ QScreen::~QScreen()
 }
 
 /*!
-  Called by the Qt/Embedded server on shutdown; never called by
-  a Qt/Embedded client. This is intended to support graphics card specific
+  Called by the Qtopia Core server on shutdown; never called by
+  a Qtopia Core client. This is intended to support graphics card specific
   shutdown; the unaccelerated implementation simply hides the mouse cursor.
 */
 
@@ -914,7 +914,7 @@ int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
 This is used to initialize the software cursor - \a end_of_location
 points to the address after the area where the cursor image can be stored.
 \a init is true for the first application this method is called from
-(the Qt/Embedded server), false otherwise.
+(the Qtopia Core server), false otherwise.
 */
 
 int QScreen::initCursor(void* end_of_location, bool init)
@@ -1055,7 +1055,7 @@ bool QScreen::onCard(const unsigned char * p, ulong& offset) const
 */
 
 /*
-Given a display_id (number of the Qt/Embedded server to connect to)
+Given a display_id (number of the Qtopia Core server to connect to)
 and a spec (e.g. Mach64:/dev/fb0) return a QScreen-descendant.
 The QScreenDriverFactory is queried for a suitable driver and, if found,
 asked to create a driver.

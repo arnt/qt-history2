@@ -142,7 +142,7 @@ extern "C" void dumpmem(const char* m)
 */
 #endif
 
-// Get the name of the directory where Qt/Embedded temporary data should
+// Get the name of the directory where Qtopia Core temporary data should
 // live.
 QString qws_dataDir()
 {
@@ -154,27 +154,27 @@ QString qws_dataDir()
     QByteArray dataDir = "/tmp/qtembedded-" + username;
     if (mkdir(dataDir, 0700)) {
         if (errno != EEXIST) {
-            qFatal("Cannot create Qt/Embedded data directory: %s", dataDir.constData());
+            qFatal("Cannot create Qtopia Core data directory: %s", dataDir.constData());
         }
     }
 
     struct stat buf;
     if (lstat(dataDir, &buf))
-        qFatal("stat failed for Qt/Embedded data directory: %s", dataDir.constData());
+        qFatal("stat failed for Qtopia Core data directory: %s", dataDir.constData());
 
     if (!S_ISDIR(buf.st_mode))
         qFatal("%s is not a directory", dataDir.constData());
     if (buf.st_uid != getuid())
-        qFatal("Qt/Embedded data directory is not owned by user %d", getuid());
+        qFatal("Qtopia Core data directory is not owned by user %d", getuid());
 
     if ((buf.st_mode & 0677) != 0600)
-        qFatal("Qt/Embedded data directory has incorrect permissions: %s", dataDir.constData());
+        qFatal("Qtopia Core data directory has incorrect permissions: %s", dataDir.constData());
     dataDir += "/";
 
     return QString(dataDir);
 }
 
-// Get the filename of the pipe Qt/Embedded uses for server/client comms
+// Get the filename of the pipe Qtopia Core uses for server/client comms
 QString qws_qtePipeFilename()
 {
     return (qws_dataDir() + QString(QTE_PIPE).arg(qws_display_id));
@@ -782,7 +782,7 @@ void QWSDisplay::Data::waitForConnection()
     if (connected_event)
         return;
 #endif
-    qWarning("No Qt/Embedded server appears to be running.");
+    qWarning("No Qtopia Core server appears to be running.");
     qWarning("If you want to run this program as a server,");
     qWarning("add the \"-qws\" command-line option.");
     exit(1);
@@ -2562,7 +2562,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
 /*!
     \fn bool QApplication::qwsEventFilter(QWSEvent *event)
 
-    \warning This virtual function is only implemented under Qt/Embedded.
+    \warning This virtual function is only implemented under Qtopia Core.
 
     If you create an application that inherits QApplication and
     reimplement this function, you get direct access to all QWS (Q
@@ -2579,9 +2579,9 @@ bool QApplication::qwsEventFilter(QWSEvent *)
 }
 
 /*!
-    Set Qt/Embedded custom color table.
+    Set Qtopia Core custom color table.
 
-    Qt/Embedded on 8-bpp displays allocates a standard 216 color cube.
+    Qtopia Core on 8-bpp displays allocates a standard 216 color cube.
     The remaining 40 colors may be used by setting a custom color
     table in the QWS master process before any clients connect.
 
@@ -2590,7 +2590,7 @@ bool QApplication::qwsEventFilter(QWSEvent *)
     to be set (1-40).
 
     This method is non-portable. It is available \e only in
-    Qt/Embedded.
+    Qtopia Core.
 */
 void QApplication::qwsSetCustomColors(QRgb *colorTable, int start, int numColors)
 {
@@ -2613,7 +2613,7 @@ void QApplication::qwsSetCustomColors(QRgb *colorTable, int start, int numColors
 /*!
     Return the QWSDecoration used for decorating windows.
 
-    This method is non-portable. It is available \e only in Qt/Embedded.
+    This method is non-portable. It is available \e only in Qtopia Core.
 
     \sa QDecoration
 */
@@ -2624,10 +2624,10 @@ QDecoration &QApplication::qwsDecoration()
 
 /*!
     Set the QWSDecoration derived class to use for decorating the
-    Qt/Embedded windows to \a dec.
+    Qtopia Core windows to \a dec.
 
     This method is non-portable. It is available \e only in
-    Qt/Embedded.
+    Qtopia Core.
 
     \sa QDecoration
 */
