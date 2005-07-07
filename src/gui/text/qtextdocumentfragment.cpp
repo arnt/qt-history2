@@ -581,8 +581,10 @@ void QTextHtmlImporter::import()
                 }
                 hasBlock = true;
 
-                if (node->bgColor.isValid())
+                if (node->bgColor.isValid()) {
                     charFmt.setBackground(QBrush(node->bgColor));
+                    cursor.mergeBlockCharFormat(charFmt);
+                }
             }
 
             if (hasBlock) {
