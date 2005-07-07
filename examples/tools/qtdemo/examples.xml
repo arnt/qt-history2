@@ -55,6 +55,7 @@
     <example filename="http" name="HTTP" name="HTTP Client" />
     <example filename="loopback" name="Loopback" />
     <example filename="threadedfortuneserver" name="Threaded Fortune Server" />
+    <example filename="torrent" name="Torrent Client" />
   </category>
   <category dirname="opengl" name="OpenGL">
     <example filename="grabber" name="Grabber" />
