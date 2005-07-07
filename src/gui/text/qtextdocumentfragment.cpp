@@ -581,7 +581,7 @@ void QTextHtmlImporter::import()
             if (node->isTableCell && !tables.isEmpty()) {
                 Table &t = tables.last();
                 if (t.table) {
-                    cursor = t.currentPosition.cell().firstCursorPosition();
+                    cursor.setPosition(t.currentPosition.cell().firstPosition());
                 }
                 hasBlock = true;
 
