@@ -306,7 +306,7 @@ void FileManager::parseMetaInfo()
 QByteArray FileManager::readBlock(int pieceIndex, int offset, int length)
 {
     QByteArray block;
-    qint64 startReadIndex = (pieceIndex * pieceLength) + offset;
+    qint64 startReadIndex = (quint32(pieceIndex) * pieceLength) + offset;
     qint64 currentIndex = 0;
 	    
     for (int i = 0; !quit && i < files.size(); ++i) {
@@ -330,7 +330,7 @@ QByteArray FileManager::readBlock(int pieceIndex, int offset, int length)
 
 bool FileManager::writeBlock(int pieceIndex, int offset, const QByteArray &data)
 {
-    qint64 startWriteIndex = (pieceIndex * pieceLength) + offset;
+    qint64 startWriteIndex = (quint32(pieceIndex) * pieceLength) + offset;
     qint64 currentIndex = 0;
     int bytesToWrite = data.size();
     int written = 0;
