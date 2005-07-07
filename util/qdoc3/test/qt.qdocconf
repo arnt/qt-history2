@@ -6,12 +6,14 @@ url                     = http://doc.trolltech.com/4.0
 language                = Cpp
 headerdirs              = $QTDIR/src \
                           $QTDIR/extensions/activeqt \
+                          $QTDIR/tools/assistant/lib \
                           $QTDIR/tools/designer/src/lib/extension \
                           $QTDIR/tools/designer/src/lib/sdk \
                           $QTDIR/tools/designer/src/lib/uilib
 sourcedirs              = $QTDIR/src \
                           $QTDIR/doc/src \
                           $QTDIR/extensions/activeqt \
+                          $QTDIR/tools/assistant/lib \
                           $QTDIR/tools/designer/src/lib/extension \
                           $QTDIR/tools/designer/src/lib/sdk \
                           $QTDIR/tools/designer/src/lib/uilib
