@@ -698,7 +698,7 @@ void QXIMInputContext::update()
         return;
 
     QRect r = w->inputMethodQuery(Qt::ImMicroFocus).toRect();
-    QPoint p = r.bottomLeft();
+    QPoint p = QPoint((r.left() + r.right() + 1)/2, r.bottom());
     XPoint spot;
     spot.x = p.x();
     spot.y = p.y();

@@ -2250,7 +2250,8 @@ QRect QLineEditPrivate::cursorRect() const
 {
     Q_Q(const QLineEdit);
     QRect cr = q->contentsRect();
-    int cix = cr.x() - hscroll + innerMargin;
+    int frameWidth = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+    int cix = cr.x() + frameWidth - hscroll + innerMargin;
     QTextLine l = textLayout.lineAt(0);
     cix += qRound(l.cursorToX(cursor));
     int ch = qMin(cr.height(), q->fontMetrics().height() + 1);
@@ -2335,6 +2336,7 @@ void QLineEditPrivate::finishChange(int validateFromState, bool update, bool edi
             QString actualText = maskData ? stripString(text) : text;
             if (edited)
                 emit q->textEdited(actualText);
+            q->updateMicroFocus();
             emit q->textChanged(actualText);
         }
 #ifndef QT_NO_ACCESSIBILITY
