@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include "qabstractitemview.h"
+
+#ifndef QT_NO_ITEMVIEWS
 #include <qpointer.h>
 #include <qapplication.h>
 #include <qpainter.h>
@@ -2259,3 +2261,4 @@ void QAbstractItemViewPrivate::removeSelectedRows()
         model->removeRows((*it).top(), count, parent);
     }
 }
+#endif // QT_NO_ITEMVIEWS

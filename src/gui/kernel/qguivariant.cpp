@@ -97,9 +97,11 @@ static void construct(QVariant::Private *x, const void *copy)
     case QVariant::SizePolicy:
         v_construct<QSizePolicy>(x, copy);
         break;
+#ifndef QT_NO_CURSOR
     case QVariant::Cursor:
         v_construct<QCursor>(x, copy);
         break;
+#endif
     default:
         qcoreVariantHandler()->construct(x, copy);
         return;
@@ -227,7 +229,7 @@ static void load(QVariant::Private *d, QDataStream &s)
         s >> *v_cast<QCursor>(d);
         break;
 #endif
-    case QVariant::Bitmap: {
+    case QVariant::Bitmap: 
         s >> *v_cast<QBitmap>(d);
         break;
     case QVariant::Region:
@@ -260,7 +262,7 @@ static void load(QVariant::Private *d, QDataStream &s)
         break;
 #endif
 #ifndef QT_NO_ICON
-    case QVariant::Icon:
+    case QVariant::Icon: {
         QPixmap x;
         s >> x;
         *v_cast<QIcon>(d) = QIcon(x);
@@ -306,9 +308,11 @@ static void load(QVariant::Private *d, QDataStream &s)
 static void save(const QVariant::Private *d, QDataStream &s)
 {
     switch (d->type) {
+#ifndef QT_NO_CURSOR
     case QVariant::Cursor:
         s << *v_cast<QCursor>(d);
         break;
+#endif
     case QVariant::Bitmap:
         s << *v_cast<QBitmap>(d);
         break;
@@ -354,12 +358,12 @@ static void save(const QVariant::Private *d, QDataStream &s)
         s << *v_cast<QTextLength>(d);
         break;
     case QVariant::SizePolicy:
-        {
-            const QSizePolicy *p = v_cast<QSizePolicy>(d);
-            s << (int) p->horizontalPolicy() << (int) p->verticalPolicy()
-              << (qint8) p->hasHeightForWidth();
-        }
-        break;
+    {
+        const QSizePolicy *p = v_cast<QSizePolicy>(d);
+        s << (int) p->horizontalPolicy() << (int) p->verticalPolicy()
+          << (qint8) p->hasHeightForWidth();
+    }
+    break;
 #ifndef QT_NO_SHORTCUT
     case QVariant::KeySequence:
         s << *v_cast<QKeySequence>(d);
@@ -372,8 +376,7 @@ static void save(const QVariant::Private *d, QDataStream &s)
         qcoreVariantHandler()->save(d, s);
     }
 }
-#endif
-
+#endif // QT_NO_DATASTREAM
 
 static bool compare(const QVariant::Private *a, const QVariant::Private *b)
 {

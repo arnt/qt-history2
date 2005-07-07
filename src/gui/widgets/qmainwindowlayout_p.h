@@ -61,13 +61,14 @@ public:
     Qt::ToolBarArea toolBarArea(QToolBar *toolbar) const;
 #endif
     
+#ifndef QT_NO_DOCKWIDGET    
     QDockWidgetLayout *layoutForArea(Qt::DockWidgetArea area);
     void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget,
                        Qt::Orientation orientation);
     void splitDockWidget(QDockWidget *after, QDockWidget *dockwidget,
                          Qt::Orientation orientation);
     Qt::DockWidgetArea dockWidgetArea(QDockWidget *dockwidget) const;
-
+#endif
     enum { // sentinel values used to validate state data
         VersionMarker = 0xff,
         ToolBarStateMarker = 0xfe,

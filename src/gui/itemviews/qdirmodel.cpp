@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include "qdirmodel.h"
+
+#ifndef QT_NO_DIRMODEL
 #include <qfile.h>
 #include <qurl.h>
 #include <qmime.h>
@@ -1357,3 +1359,4 @@ void QDirModelPrivate::restorePersistentIndexes()
     }
 }
 
+#endif // QT_NO_DIRMODEL

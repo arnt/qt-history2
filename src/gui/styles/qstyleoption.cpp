@@ -1817,7 +1817,7 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
     \brief The text for the tool box tab.
 */
 
-
+#ifndef QT_NO_RUBBERBAND
 /*!
     \class QStyleOptionRubberBand
     \brief The QStyleOptionRubberBand class is used to describe the
@@ -1871,6 +1871,7 @@ QStyleOptionRubberBand::QStyleOptionRubberBand(int version)
     \variable QStyleOptionRubberBand::opaque
     \brief Whether the rubber band is required to be drawn in an opque style.
 */
+#endif // QT_NO_RUBBERBAND
 
 /*!
     \class QStyleOptionTitleBar

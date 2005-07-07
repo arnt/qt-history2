@@ -27,7 +27,7 @@
 
 #include <qwidget.h>
 
-#ifndef QT_NO_MAINWINDOW
+#ifndef QT_NO_DOCKWIDGET
 
 class QDockWidgetLayout;
 
@@ -55,5 +55,5 @@ public:
     } *state;
 };
 
-#endif // QT_NO_MAINWINDOW
+#endif // QT_NO_DOCKWIDGET
 #endif // QDOCKSEPARATOR_P_H

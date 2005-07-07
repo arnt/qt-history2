@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 #include "qtreeview.h"
+
+#ifndef QT_NO_TREEVIEW
 #include <qheaderview.h>
 #include <qitemdelegate.h>
 #include <qapplication.h>
@@ -1767,3 +1769,5 @@ void QTreeViewPrivate::select(int top, int bottom,
         selection.append(rangeStack.at(i));
     q->selectionModel()->select(selection, command);
 }
+
+#endif // QT_NO_TREEVIEW

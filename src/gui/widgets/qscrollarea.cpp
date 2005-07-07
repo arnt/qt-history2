@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qscrollarea.h"
+
+#ifndef QT_NO_SCROLLAREA
+
 #include "qscrollbar.h"
 #include "private/qabstractscrollarea_p.h"
 #include "qlayout.h"
@@ -273,3 +276,5 @@ bool QScrollArea::focusNextPrevChild(bool next)
     }
     return false;
 }
+
+#endif // QT_NO_SCROLLAREA

@@ -12,11 +12,11 @@
 ****************************************************************************/
 
 #include <qcursor.h>
-
-#ifndef QT_NO_CURSOR
 #include <private/qcursor_p.h>
 #include <qbitmap.h>
 #include <qwsdisplay_qws.h>
+
+#ifndef QT_NO_CURSOR
 
 static int nextCursorId = Qt::BitmapCursor;
 

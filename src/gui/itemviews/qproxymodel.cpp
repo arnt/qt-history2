@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include "qproxymodel.h"
+
+#ifndef QT_NO_PROXYMODEL
 #include <private/qproxymodel_p.h>
 #include <qsize.h>
 #include <qstringlist.h>
@@ -398,3 +400,4 @@ void QProxyModel::revert()
     d->model->revert();
 }
 
+#endif // QT_NO_PROXYMODEL

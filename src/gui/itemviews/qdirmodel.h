@@ -19,6 +19,8 @@
 #include <QtCore/qfileinfo.h>
 #include <QtGui/qicon.h>
 
+#ifndef QT_NO_DIRMODEL
+
 class QDirModelPrivate;
 class QFileIconProviderPrivate;
 
@@ -122,4 +124,5 @@ private:
     Q_DISABLE_COPY(QDirModel)
 };
 
+#endif // QT_NO_DIRMODEL
 #endif // QDIRMODEL_H

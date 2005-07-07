@@ -16,6 +16,8 @@
 
 #include <QtCore/qabstractitemmodel.h>
 
+#ifndef QT_NO_STANDARDITEMMODEL
+
 class QStandardItemModelPrivate;
 
 class Q_GUI_EXPORT QStandardItemModel : public QAbstractItemModel
@@ -55,4 +57,5 @@ private:
     Q_DISABLE_COPY(QStandardItemModel)
 };
 
+#endif // QT_NO_STANDARDITEMMODEL
 #endif //QSTANDARDITEMMODEL_H

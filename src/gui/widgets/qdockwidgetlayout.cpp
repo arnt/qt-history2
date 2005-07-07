@@ -14,6 +14,8 @@
 #include "qdockwidgetlayout_p.h"
 #include "qdockwidget.h"
 
+#ifndef QT_NO_DOCKWIDGET
+
 #include <qapplication.h>
 #include <qdebug.h>
 #include <qevent.h>
@@ -1360,3 +1362,4 @@ void QDockWidgetLayout::maybeDelete()
     if (layout_info.isEmpty())
         delete this;
 }
+#endif // QT_NO_DOCKWIDGET

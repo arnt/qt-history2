@@ -15,8 +15,8 @@
 #define QT_NO_CODECS
 #endif
 #define QT_NO_UNICODETABLES
-#define QT_NO_IMAGEIO_BMP
-#define QT_NO_IMAGEIO_PPM
+#define QT_NO_IMAGEFORMAT_BMP
+#define QT_NO_IMAGEFORMAT_PPM
 #define QT_NO_ASYNC_IO
 #define QT_NO_ASYNC_IMAGE_IO
 /* #define QT_NO_FREETYPE */

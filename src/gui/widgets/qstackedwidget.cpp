@@ -13,6 +13,8 @@
 
 #include "qstackedwidget.h"
 
+#ifndef QT_NO_STACKEDWIDGET
+
 #include <qstackedlayout.h>
 #include <qevent.h>
 #include <private/qframe_p.h>
@@ -241,3 +243,4 @@ int QStackedWidget::count() const
     return d_func()->layout->count();
 }
 
+#endif // QT_NO_STACKEDWIDGET

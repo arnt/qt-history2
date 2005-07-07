@@ -16,6 +16,8 @@
 
 #include <QtGui/qabstractitemview.h>
 
+#ifndef QT_NO_LISTVIEW
+
 class QListViewPrivate;
 
 class Q_GUI_EXPORT QListView : public QAbstractItemView
@@ -130,4 +132,5 @@ private:
     Q_DISABLE_COPY(QListView)
 };
 
+#endif // QT_NO_LISTVIEW
 #endif // QLISTVIEW_H

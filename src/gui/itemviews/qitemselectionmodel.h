@@ -19,6 +19,8 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qabstractitemmodel.h>
 
+#ifndef QT_NO_ITEMVIEWS
+
 class Q_GUI_EXPORT QItemSelectionRange
 {
 
@@ -158,4 +160,5 @@ public:
                       QItemSelection *result);
 };
 
+#endif // QT_NO_ITEMVIEWS
 #endif // QITEMSELECTIONMODEL_H

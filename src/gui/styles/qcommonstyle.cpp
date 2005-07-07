@@ -1143,6 +1143,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         }
         p->restore();
         break; }
+#ifndef QT_NO_RUBBERBAND
     case CE_RubberBand: {
         if (const QStyleOptionRubberBand *rbOpt = qstyleoption_cast<const QStyleOptionRubberBand *>(opt)) {
             QPixmap tiledPixmap(16, 16);
@@ -1168,6 +1169,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             p->restore();
         }
         break; }
+#endif // QT_NO_RUBBERBAND
     case CE_DockWidgetTitle:
         if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(opt)) {
             QRect r = dwOpt->rect.adjusted(0, 0, -1, -1);
@@ -2056,7 +2058,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 ir = subControlRect(CC_TitleBar, tb, SC_TitleBarCloseButton, widget);
                 down = tb->activeSubControls & SC_TitleBarCloseButton;
                 if ((tb->titleBarFlags & Qt::WindowType_Mask) == Qt::Tool
-#ifndef QT_NO_MAINWINDOW
+#ifndef QT_NO_DOCKWIDGET
                      || qobject_cast<const QDockWidget *>(widget)
 #endif
                    )
@@ -2688,7 +2690,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         if (const QStyleOptionTitleBar *tb = qstyleoption_cast<const QStyleOptionTitleBar *>(opt)) {
             if ((tb->titleBarFlags & Qt::WindowType_Mask) == Qt::Tool) {
                 ret = qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 16);
-#ifndef QT_NO_MAINWINDOW
+#ifndef QT_NO_DOCKWIDGET
             } else if (qobject_cast<const QDockWidget*>(widget)) {
                 ret = qMax(widget->fontMetrics().lineSpacing(), 13);
 #endif
@@ -3163,7 +3165,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
             }
         }
         break;
-
+#ifndef QT_NO_RUBBERBAND
     case SH_RubberBand_Mask:
         if (const QStyleOptionRubberBand *rbOpt = qstyleoption_cast<const QStyleOptionRubberBand *>(opt)) {
             ret = 0;
@@ -3177,7 +3179,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
             }
         }
         break;
-
+#endif // QT_NO_RUBBERBAND
     case SH_SpinControls_DisableOnBounds:
         ret = 1;
         break;

@@ -18,6 +18,8 @@
 #include <QtCore/qhash.h>
 #include <QtCore/qvariant.h>
 
+#ifndef QT_NO_ITEMVIEWS
+
 class QWidget;
 
 class Q_GUI_EXPORT QItemEditorCreatorBase
@@ -63,4 +65,5 @@ private:
     QHash<QVariant::Type, QItemEditorCreatorBase *> creatorMap;
 };
 
+#endif // QT_NO_ITEMVIEWS
 #endif // QITEMEDITORFACTORY_H

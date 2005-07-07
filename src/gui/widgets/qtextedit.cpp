@@ -383,7 +383,9 @@ void QTextEditPrivate::init(Qt::TextFormat format, const QString &text, QTextDoc
         cursor.setBlockFormat(blockFmt);
     }
 
+#ifndef QT_NO_CURSOR
     viewport->setCursor(Qt::IBeamCursor);
+#endif
 
     if (!text.isEmpty()) {
         if (format == Qt::PlainText)

@@ -27,6 +27,8 @@
 
 #include <qwidget.h>
 
+#ifndef QT_NO_MAINWINDOW
+
 class QDockWidget;
 class QDockWidgetLayout;
 class QPainter;
@@ -56,4 +58,5 @@ public:
     bool hover;
 };
 
+#endif // QT_NO_MAINWINDOW
 #endif // QDOCKWINDOWSEPARATOR_P_H

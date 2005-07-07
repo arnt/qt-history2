@@ -37,6 +37,8 @@ class QRubberBand;
 #include <qregion.h>
 #include <qdebug.h>
 
+#ifndef QT_NO_ITEMVIEWS
+
 class Q_GUI_EXPORT QAbstractItemViewPrivate : public QAbstractScrollAreaPrivate
 {
     Q_DECLARE_PUBLIC(QAbstractItemView)
@@ -193,4 +195,5 @@ inline int qBinarySearch(const QVector<T> &vec, const T &item, int start, int en
     return i;
 }
 
+#endif // QT_NO_ITEMVIEWS
 #endif // QABSTRACTITEMVIEW_P_H

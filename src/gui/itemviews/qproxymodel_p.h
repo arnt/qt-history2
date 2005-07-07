@@ -29,6 +29,7 @@
 #include <private/qabstractitemmodel_p.h>
 #include <qabstractitemmodel.h>
 
+#ifndef QT_NO_PROXYMODEL
 class QEmptyModel : public QAbstractItemModel
 {
 public:
@@ -50,5 +51,5 @@ public:
     QAbstractItemModel *model;
     QEmptyModel empty;
 };
-
+#endif // QT_NO_PROXYMODEL
 #endif // QPROXYMODEL_P_H

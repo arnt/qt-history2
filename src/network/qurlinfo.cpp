@@ -13,6 +13,7 @@
 
 #include "qurlinfo.h"
 
+#ifndef QT_NO_URLINFO
 
 #include "qurl.h"
 #include "qdir.h"
@@ -664,3 +665,4 @@ bool QUrlInfo::isValid() const
     return d != 0;
 }
 
+#endif // QT_NO_URLINFO

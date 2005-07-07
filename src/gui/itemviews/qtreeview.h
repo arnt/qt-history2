@@ -16,6 +16,8 @@
 
 #include <QtGui/qabstractitemview.h>
 
+#ifndef QT_NO_TREEVIEW
+
 class QTreeViewPrivate;
 class QHeaderView;
 
@@ -129,4 +131,5 @@ private:
     Q_DISABLE_COPY(QTreeView)
 };
 
+#endif // QT_NO_TREEVIEW
 #endif // QTREEVIEW_H

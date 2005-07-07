@@ -1,7 +1,45 @@
-Feature: WORKSPACE
-Section: Widgets
-Requires: SCROLLBAR VBOX TITLEBAR RESIZEHANDLER POPUPMENU LABEL TOOLBUTTON MAINWINDOW TOOLBAR MENUBAR
-Name: QWorkSpace
+# Kernel
+
+Feature: PROPERTIES
+Section: Kernel
+Requires: 
+Name: Properties
+SeeAlso: ???
+
+Feature: DRAGANDDROP
+Section: Kernel
+Requires: QWS_PROPERTIES IMAGEFORMAT_XPM
+Name: Drag and drop
+SeeAlso: ???
+
+Feature: SESSIONMANAGER
+Section: Kernel
+Requires: 
+Name: Session management
+SeeAlso: ???
+
+Feature: SHORTCUT
+Section: Kernel
+Requires: 
+Name: Keyboard accelerators and shortcuts
+SeeAlso: ???
+
+Feature: ACTION
+Section: Kernel
+Requires: 
+Name: QAction
+SeeAlso: ???
+
+Feature: CURSOR
+Section: Kernel
+Requires:
+Name: Cursors
+SeeAlso: ???
+
+Feature: CLIPBOARD
+Section: Kernel
+Requires: QWS_PROPERTIES
+Name: Cut and paste
 SeeAlso: ???
 
 Feature: WHEELEVENT
@@ -10,11 +48,19 @@ Requires:
 Name: Wheel-mouse events
 SeeAlso: ???
 
-Feature: MATRIX
-Section: Data structures
+Feature: SOUND
+Section: Kernel
 Requires:
-Name: QMatrix
+Name: Playing sounds
 SeeAlso: ???
+
+Feature: EFFECTS
+Section: Kernel
+Requires:
+Name: Special widget effects (fading, scrolling)
+SeeAlso: ???
+
+# Data structures
 
 Feature: STL
 Section: Data structures
@@ -22,173 +68,30 @@ Requires:
 Name: Standard template library compatiblity
 SeeAlso: ???
 
-Feature: CANVAS
-Section: Widgets
-Requires: SCROLLVIEW BEZIER
-Name: QCanvas
-SeeAlso: ???
-
-Feature: TOOLBOX
-Section: Widgets
-Requires: ICON SCROLLVIEW TOOLTIP LAYOUT TOOLBUTTON
-Name: Tool box
-SeeAlso: ???
-
-
-Feature: TABLE
-Section: Widgets
-Requires: COMBOBOX HEADER CHECKBOX
-Name: QTable
-SeeAlso: ???
-
-Feature: XML
-Section: Data structures
-Requires: TEXTSTREAM TEXTCODEC REGEXP_CAPTURE
-Name: XML
-SeeAlso: ???
-
-Feature: SQL
-Section: Database
-Requires: STRINGLIST REGEXP_CAPTURE VARIANT SPRINTF DATESTRING
-Name: SQL classes
-SeeAlso: ???
-
-Feature: SQL_FORM
-Section: Database
-Requires: SQL PROPERTIES
-Name: QSqlForm
-SeeAlso: ???
-
-Feature: SQL_EDIT_WIDGETS
-Section: Database
-Requires: SQL SPINBOX COMBOBOX CHECKBOX DATETIMEEDIT
-Name: SQL value editor widgets
-SeeAlso: ???
-
-Feature: SQL_VIEW_WIDGETS
-Section: Database
-Requires: SQL_FORM SQL_EDIT_WIDGETS TABLE
-Name: SQL table widgets
-SeeAlso: ???
-
-Feature: STRINGLIST
-Section: Data structures
-Requires:
-Name: QStringList
-SeeAlso: ???
-
-Feature: REGEXP
-Section: Data structures
-Requires:
-Name: Regular expression capture
-SeeAlso: ???
-
-Feature: REGEXP_CAPTURE
-Section: Data structures
-Requires: REGEXP STRINGLIST
-Name: Regular expression capture
-SeeAlso: ???
-
-Feature: TEMPLATE_VARIANT
-Section: Data structures
-Requires: VARIANT STRINGLIST
-Name: Template classes in QVariant
-SeeAlso: ???
-
-Feature: VARIANT
-Section: Data structures
-Requires:
-Name: QVariant
-SeeAlso: ???
-
-Feature: REGEXP_OPTIM
-Section: Data structures
-Requires: REGEXP
-Name: Regular expression optimization
-SeeAlso: ???
-
-Feature: REGEXP_LOOKAHEAD
-Section: Data structures
-Requires: REGEXP
-Name: Regular expression lookahead
-SeeAlso: ???
-
-Feature: REGEXP_INTERVAL
-Section: Data structures
-Requires: REGEXP
-Name: Regular expression interval
-SeeAlso: ???
-
-Feature: REGEXP_ESCAPE
-Section: Data structures
-Requires: REGEXP
-Name: Regular expression escape
-SeeAlso: ???
-
-Feature: REGEXP_CCLASS
-Section: Data structures
-Requires: REGEXP
-Name: Regular expression character-class
-SeeAlso: ???
-
-Feature: REGEXP_BACKREF
-Section: Data structures
-Requires: REGEXP
-Name: Regular expression back-reference
-SeeAlso: ???
-
-Feature: REGEXP_ANCHOR_ALT
-Section: Data structures
-Requires: REGEXP
-Name: Regular expression anchors
-SeeAlso: ???
-
-Feature: REGEXP_WILDCARD
-Section: Data structures
-Requires: REGEXP
-Name: Regular expression wildcard
-SeeAlso: ???
-
-Feature: SPRINTF
-Section: Data structures
-Requires: 
-Name: QString::sprintf()
-SeeAlso: ???
-
 Feature: QUUID_STRING
 Section: Data structures
-Requires: STRINGLIST
+Requires: 
 Name: Convert UUID to/from string
 SeeAlso: ???
 
 Feature: TEXTDATE
 Section: Data structures
-Requires: STRINGLIST DATESTRING
+Requires: 
 Name: Month and day names in dates
 SeeAlso: ???
 
 Feature: DATESTRING
 Section: Data structures
-Requires:
+Requires: TEXTDATE
 Name: QDate/QTime/QDateTime toString() and fromString()
 SeeAlso: ???
 
-Feature: ICON
-Section: Images
-Requires: IMAGEIO IMAGE_SMOOTHSCALE PALETTE IMAGE_HEURISTIC_MASK
-Name: QIcon
-SeeAlso: ???
+# File I/O
 
-Feature: DIR
+Feature: PROCESS
 Section: File I/O
-Requires: STRINGLIST
-Name: QDir
-SeeAlso: ???
-
-Feature: PALETTE
-Section: Kernel
-Requires:
-Name: Palettes
+Requires: 
+Name: External process invocation.
 SeeAlso: ???
 
 Feature: TEXTSTREAM
@@ -205,20 +108,396 @@ SeeAlso: ???
 
 Feature: LIBRARY
 Section: File I/O
-Requires: REGEXP
+Requires: SETTINGS
 Name: Shared library wrapper
-SeeAlso: ???
-
-Feature: COMPONENT
-Section: File I/O
-Requires: QUUID_STRING SETTINGS SPRINTF LIBRARY DATESTRING
-Name: Dynamic module linking
 SeeAlso: ???
 
 Feature: SETTINGS
 Section: File I/O
-Requires: DIR TEXTSTREAM REGEXP_CAPTURE
+Requires: TEXTSTREAM 
 Name: Persistent application settings
+SeeAlso: ???
+
+Feature: DOM
+Section: File I/O
+Requires:
+Name: Document Object Model
+SeeAlso: ???
+
+# Widgets
+
+Feature: TREEWIDGET
+Section: Widgets
+Requires: TREEVIEW
+Name: QTreeWidget
+SeeAlso: ???
+
+Feature: LISTWIDGET
+Section: Widgets
+Requires: LISTVIEW
+Name: QListWidget
+SeeAlso: ???
+
+Feature: TABLEWIDGET
+Section: Widgets
+Requires: TABLEVIEW
+Name: QTableWidget
+SeeAlso: ???
+
+Feature: DATETIMEEDIT
+Section: Widgets
+Requires: SPINBOX DATESTRING
+Name: QDateTimeEdit
+SeeAlso: ???
+
+Feature: STACKEDWIDGET
+Section: Widgets
+Requires:
+Name: QStackedWidget
+SeeAlso: ???
+
+Feature: TEXTBROWSER
+Section: Widgets
+Requires: TEXTEDIT
+Name: QTextBrowser
+SeeAlso: ???
+
+Feature: SPLASHSCREEN
+Section: Widgets
+Requires: 
+Name: Splash screen widget
+SeeAlso: ???
+
+Feature: SPLITTER
+Section: Widgets
+Requires: RUBBERBAND
+Name: Splitters
+SeeAlso: ???
+
+Feature: LCDNUMBER
+Section: Widgets
+Requires:
+Name: QLCDNumber
+SeeAlso: ???
+
+Feature: MENU
+Section: Widgets
+Requires: ACTION
+Name: Popup-menus
+SeeAlso: ???
+
+Feature: LINEEDIT
+Section: Widgets
+Requires:
+Name: Single-line edits
+SeeAlso: ???
+
+Feature: SPINBOX
+Section: Widgets
+Requires: SPINWIDGET LINEEDIT VALIDATOR
+Name: Spin boxes
+SeeAlso: ???
+
+Feature: TABBAR
+Section: Widgets
+Requires: TOOLBUTTON
+Name: Tab-bars
+SeeAlso: ???
+
+Feature: TABWIDGET
+Section: Widgets
+Requires: TABBAR STACKEDWIDGET
+Name: Tab widgets
+SeeAlso: ???
+
+Feature: COMBOBOX
+Section: Widgets
+Requires: LINEEDIT STANDARDITEMMODEL LISTVIEW
+Name: QComboBox
+SeeAlso: ???
+
+Feature: TOOLBUTTON
+Section: Widgets
+Requires: ICON ACTION
+Name: Tool-buttons
+SeeAlso: ???
+
+Feature: TOOLBAR
+Section: Widgets
+Requires: MAINWINDOW
+Name: Toolbars
+SeeAlso: ???
+
+Feature: TOOLBOX
+Section: Widgets
+Requires: ICON TOOLTIP TOOLBUTTON SCROLLAREA
+Name: Tool box
+SeeAlso: ???
+
+Feature: GROUPBOX
+Section: Widgets
+Requires:
+Name: Group boxes
+SeeAlso: ???
+
+Feature: BUTTONGROUP
+Section: Widgets
+Requires: GROUPBOX 
+Name: Button groups
+SeeAlso: ???
+
+Feature: MAINWINDOW
+Section: Widgets
+Requires: MENU RESIZEHANDLER TOOLBUTTON
+Name: Main-windows
+SeeAlso: ???
+
+Feature: DOCKWIDGET
+Section: Widgets
+Requires: RUBBERBAND MAINWINDOW
+Name: Main-windows
+SeeAlso: ???
+
+Feature: WORKSPACE
+Section: Widgets
+Requires: SCROLLBAR RESIZEHANDLER MENU TOOLBUTTON MAINWINDOW TOOLBAR MENUBAR
+Name: QWorkSpace
+SeeAlso: ???
+
+Feature: RESIZEHANDLER
+Section: Widgets
+Requires:
+Name: Internal resize handler
+SeeAlso: ???
+
+Feature: STATUSBAR
+Section: Widgets
+Requires:
+Name: Status bars
+SeeAlso: ???
+
+Feature: MENUBAR
+Section: Widgets
+Requires: MENU
+Name: Menu bars
+SeeAlso: ???
+
+Feature: PROGRESSBAR
+Section: Widgets
+Requires:
+Name: Progress bars
+SeeAlso: ???
+
+Feature: SLIDER
+Section: Widgets
+Requires:
+Name: Sliders
+SeeAlso: ???
+
+Feature: SCROLLBAR
+Section: Widgets
+Requires: SLIDER
+Name: Scroll bars
+SeeAlso: ???
+
+Feature: DIAL
+Section: Widgets
+Requires: SLIDER
+Name: Dials
+SeeAlso: ???
+
+Feature: SCROLLAREA
+Section: Widgets
+Requires: SCROLLBAR
+Name: QScrollArea
+SeeAlso: ???
+
+Feature: SPINWIDGET
+Section: Widgets
+Requires:
+Name: Spinbox control widget
+SeeAlso: ???
+
+Feature: TEXTEDIT
+Section: Widgets
+Requires: SCROLLAREA
+Name: Rich text edit
+SeeAlso: ???
+
+Feature: RUBBERBAND
+Section: Widgets
+Requires:
+Name: QRubberBand
+SeeAlso: ???
+
+Feature: TOOLTIP
+Section: Widgets
+Requires:
+Name: Tool tips
+SeeAlso: ???
+
+Feature: WHATSTHIS
+Section: Widgets
+Requires: TOOLTIP TOOLBUTTON ACTION
+Name: "What's this" help
+SeeAlso: ???
+
+Feature: VALIDATOR
+Section: Widgets
+Requires:
+Name: Input validators
+SeeAlso: ???
+
+Feature: SIZEGRIP
+Section: Widgets
+Requires:
+Name: QSizeGrip
+SeeAlso: ???
+
+# Dialogs
+
+Feature: MESSAGEBOX
+Section: Dialogs
+Requires:
+Name: QMessageBox
+SeeAlso: ???
+
+Feature: COLORDIALOG
+Section: Dialogs
+Requires: LINEEDIT VALIDATOR SPINBOX
+Name: QColorDialog
+SeeAlso: ???
+
+Feature: FILEDIALOG
+Section: Dialogs
+Requires: DIRMODEL TREEVIEW MESSAGEBOX COMBOBOX TOOLBUTTON BUTTONGROUP 
+Name: QFileDialog
+SeeAlso: ???
+
+Feature: FONTDIALOG
+Section: Dialogs
+Requires: STRINGLISTMODEL COMBOBOX VALIDATOR GROUPBOX
+Name: QFontDialog
+SeeAlso: ???
+
+Feature: PRINTDIALOG
+Section: Dialogs
+Requires: PRINTER COMBOBOX BUTTONGROUP SPINBOX TREEVIEW
+Name: QPrintDialog
+SeeAlso: ???
+
+Feature: PROGRESSDIALOG
+Section: Dialogs
+Requires: PROGRESSBAR
+Name: QProgressDialog
+SeeAlso: ???
+
+Feature: INPUTDIALOG
+Section: Dialogs
+Requires: COMBOBOX SPINBOX STACKEDWIDGET
+Name: QInputDialog
+SeeAlso: ???
+
+Feature: TABDIALOG
+Section: Dialogs
+Requires: TABBAR
+Name: Q3TabDialog
+SeeAlso: ???
+
+Feature: ERRORMESSAGE
+Section: Dialogs
+Requires: TEXTEDIT
+Name: QErrorMessage
+SeeAlso: ???
+
+# ItemViews
+
+Feature: ITEMVIEWS
+Section: ItemViews
+Requires: RUBBERBAND SCROLLAREA
+Name: The Model/View Framework
+SeeAlso: ???
+
+Feature: DIRMODEL
+Section: ItemViews
+Requires: ITEMVIEWS
+Name: QDirModel
+SeeAlso: ???
+
+Feature: STANDARDITEMMODEL
+Section: ItemViews
+Requires: ITEMVIEWS
+Name: QStandardItemModel
+SeeAlso: ???
+
+Feature: PROXYMODEL
+Section: ItemViews
+Requires: ITEMVIEWS
+Name: QProxyModel
+SeeAlso: ???
+
+Feature: STRINGLISTMODEL
+Section: ItemViews
+Requires: ITEMVIEWS
+Name: QStringListModel
+SeeAlso: ???
+
+Feature: LISTVIEW
+Section: ItemViews
+Requires: ITEMVIEWS
+Name: QListView
+SeeAlso: ???
+
+Feature: TABLEVIEW
+Section: ItemViews
+Requires: ITEMVIEWS
+Name: QTableView
+SeeAlso: ???
+
+Feature: TREEVIEW
+Section: ItemViews
+Requires: ITEMVIEWS
+Name: QTreeView
+SeeAlso: ???
+
+# Styles
+
+Feature: STYLE_WINDOWS
+Section: Styles
+Requires:
+Name: Windows style
+SeeAlso: ???
+
+Feature: STYLE_MOTIF
+Section: Styles
+Requires:
+Name: Motif style
+SeeAlso: ???
+
+Feature: STYLE_CDE
+Section: Styles
+Requires: STYLE_MOTIF
+Name: CDE style
+SeeAlso: ???
+
+Feature: STYLE_PLASTIQUE
+Section: Styles
+Requires: STYLE_WINDOWS
+Name: Plastique style
+SeeAlso: ???
+
+Feature: STYLE_WINDOWSXP
+Section: Styles
+Requires: STYLE_WINDOWS
+Name: WindowsXP style
+SeeAlso: ???
+
+# Images
+
+Feature: IMAGEFORMATPLUGIN
+Section: Images
+Requires: 
+Name: QImageFormatPlugin
 SeeAlso: ???
 
 Feature: SIGNALMAPPER
@@ -227,65 +506,93 @@ Requires:
 Name: QSignalMapper
 SeeAlso: ???
 
-Feature: IMAGEIO
+Feature: ICON
 Section: Images
-Requires: REGEXP
-Name: Image formats
-SeeAlso: ???
-
-Feature: IMAGEIO_BMP
-Section: Images
-Requires: IMAGEIO DATASTREAM
-Name: BMP image I/O
-SeeAlso: ???
-
-Feature: IMAGEIO_PPM
-Section: Images
-Requires: IMAGEIO
-Name: PPM image I/O
-SeeAlso: ???
-
-Feature: IMAGEIO_XBM
-Section: Images
-Requires: IMAGEIO
-Name: XBM image I/O
-SeeAlso: ???
-
-Feature: IMAGEIO_XPM
-Section: Images
-Requires: IMAGEIO SPRINTF TEXTSTREAM
-Name: XPM image I/O
-SeeAlso: ???
-
-Feature: IMAGEIO_PNG
-Section: Images
-Requires: IMAGEIO
-Name: PNG image I/O
-SeeAlso: ???
-
-Feature: IMAGEIO_JPEG
-Section: Images
-Requires: IMAGEIO
-Name: JPEG image I/O
-SeeAlso: ???
-
-Feature: ASYNC_IO
-Section: Images
-Requires:
-Name: Asynchronous I/O
-SeeAlso: ???
-
-Feature: ASYNC_IMAGE_IO
-Section: Images
-Requires: IMAGEIO
-Name: Asynchronous image I/O
+Requires: IMAGE_HEURISTIC_MASK
+Name: QIcon
 SeeAlso: ???
 
 Feature: MOVIE
 Section: Images
-Requires: ASYNC_IO ASYNC_IMAGE_IO
+Requires:
 Name: Animated images
 SeeAlso: ???
+
+Feature: IMAGEFORMAT_BMP
+Section: Images
+Requires: DATASTREAM
+Name: BMP image I/O
+SeeAlso: ???
+
+Feature: IMAGEFORMAT_PPM
+Section: Images
+Requires: 
+Name: PPM image I/O
+SeeAlso: ???
+
+Feature: IMAGEFORMAT_XBM
+Section: Images
+Requires: 
+Name: XBM image I/O
+SeeAlso: ???
+
+Feature: IMAGEFORMAT_XPM
+Section: Images
+Requires: TEXTSTREAM
+Name: XPM image I/O
+SeeAlso: ???
+
+Feature: IMAGEFORMAT_PNG
+Section: Images
+Requires: 
+Name: PNG image I/O
+SeeAlso: ???
+
+Feature: IMAGEFORMAT_JPEG
+Section: Images
+Requires: 
+Name: JPEG image I/O
+SeeAlso: ???
+
+Feature: IMAGE_HEURISTIC_MASK
+Section: Images
+Requires:
+Name: QImage::createHeuristicMask()
+SeeAlso: ???
+
+Feature: IMAGE_TEXT
+Section: Images
+Requires:
+Name: Image file text strings
+SeeAlso: ???
+
+# Painting
+
+Feature: DIRECTPAINTER
+Section: Painting
+Requires:
+Name: QDirectPainter
+SeeAlso: ???
+
+Feature: PICTURE
+Section: Painting
+Requires: DATASTREAM 
+Name: QPicture
+SeeAlso: ???
+
+Feature: COLORNAMES
+Section: Painting
+Requires:
+Name: Named colors
+SeeAlso: ???
+
+Feature: PRINTER
+Section: Painting
+Requires: TEXTSTREAM FILEDIALOG
+Name: Printing
+SeeAlso: ???
+
+# Fonts
 
 Feature: FREETYPE
 Section: Fonts
@@ -293,16 +600,12 @@ Requires:
 Name: Freetype font engine
 SeeAlso: ???
 
-Feature: BDF
-Section: Fonts
-Requires: TEXTSTREAM STRINGLIST
-Name: BDF font files
-SeeAlso: ???
+# Internationalization
 
-Feature: FONTDATABASE
-Section: Fonts
-Requires: STRINGLIST
-Name: QFontDatabase
+Feature: TEXTCODECPLUGIN
+Section: Internationalization
+Requires: TEXTCODEC LIBRARY
+Name: QTextCodecPlugin
 SeeAlso: ???
 
 Feature: TRANSLATION
@@ -331,117 +634,40 @@ SeeAlso: ???
 
 Feature: BIG_CODECS
 Section: Internationalization
-Requires: CODEC_HEBREW
+Requires: 
 Name: Big Codecs (eg. CJK)
 SeeAlso: ???
 
-Feature: CODEC_HEBREW
-Section: Internationalization
-Requires: CODECS COMPLEXTEXT
-Name: Hebrew Codec
-SeeAlso: ???
+# Networking
 
-Feature: UNICODETABLES
-Section: Internationalization
-Requires:
-Name: Unicode property tables
-SeeAlso: ???
-
-Feature: MIME
-Section: File I/O
-Requires: DIR IMAGEIO TEXTCODEC
-Name: MIME
-SeeAlso: ???
-
-Feature: RICHTEXT
-Section: Widgets
-Requires: STYLE LAYOUT STRINGLIST TEXTSTREAM
-Name: RichText (HTML) display
-SeeAlso: ???
-
-Feature: TEXTCUSTOMITEM
-Section: Widgets
-Requires: RICHTEXT MIME
-Name: RichText (HTML) tables and images
-SeeAlso: ???
-
-
-Feature: COMPLEXTEXT
-Section: Internationalization
-Requires: RICHTEXT
-Name: Complex scripts (eg. BiDi)
-SeeAlso: ???
-
-Feature: DOM
-Section: File I/O
-Requires: XML MIME
-Name: Document Object Model
-SeeAlso: ???
-
-Feature: SOUND
-Section: Kernel
-Requires:
-Name: Playing sounds
-SeeAlso: ???
-
-Feature: QWS_SOUNDSERVER
-Section: Qt/Embedded-specific
-Requires: SOUND DIR DNS
-Name: Server to play sound
-SeeAlso: ???
-
-Feature: PROPERTIES
-Section: Kernel
-Requires: VARIANT STRINGLIST ICON
-Name: Properties
-SeeAlso: ???
-
-Feature: NETWORK
+Feature: URLINFO
 Section: Networking
-Requires:
-Name: Networking
+Requires: 
+Name: QUrlInfo
 SeeAlso: ???
 
-Feature: DNS
+Feature: HOSTINFO
 Section: Networking
-Requires: NETWORK STRINGLIST TEXTSTREAM SPRINTF
-Name: DNS
+Requires: TEXTSTREAM 
+Name: QHostInfo
 SeeAlso: ???
 
-Feature: URL
+Feature: FTP
 Section: Networking
-Requires: DIR
-Name: URL parser
-SeeAlso: ???
-
-Feature: NETWORKPROTOCOL
-Section: Networking
-Requires: TEXTCODEC URL
-Name: Network file access
-SeeAlso: ???
-
-Feature: NETWORKPROTOCOL_FTP
-Section: Networking
-Requires: NETWORKPROTOCOL DNS TEXTDATE
+Requires: URLINFO TEXTDATE
 Name: FTP file access
 SeeAlso: ???
 
-Feature: NETWORKPROTOCOL_HTTP
+Feature: HTTP
 Section: Networking
-Requires: NETWORKPROTOCOL DNS
+Requires: HOSTINFO
 Name: HTTP file access
 SeeAlso: ???
 
-Feature: PROCESS
-Section: File I/O
-Requires: STRINGLIST REGEXP
-Name: External process invocation.
-SeeAlso: ???
-
-Feature: QWS_MULTIPROCESS
-Section: Qt/Embedded-specific
-Requires: NETWORK
-Name: Multi-process architecture
+Feature: UDPSOCKET
+Section: Networking
+Requires: 
+Name: QUdpSocket
 SeeAlso: ???
 
 Feature: COP
@@ -450,16 +676,24 @@ Requires: DATASTREAM
 Name: QCop IPC
 SeeAlso: ???
 
+# Qt/Embedded-specific
+
+Feature: QWS_SOUNDSERVER
+Section: Qt/Embedded-specific
+Requires: SOUND HOSTINFO
+Name: Server to play sound
+SeeAlso: ???
+
+Feature: QWS_MULTIPROCESS
+Section: Qt/Embedded-specific
+Requires:
+Name: Multi-process architecture
+SeeAlso: ???
+
 Feature: QWS_KEYBOARD
 Section: Qt/Embedded-specific
 Requires:
 Name: Console keyboard
-SeeAlso: ???
-
-Feature: QWS_KBD_SL5000
-Section: Qt/Embedded-specific
-Requires: QWS_KEYBOARD
-Name: Keyboard for SHARP Zaurus SL5xxx devices
 SeeAlso: ???
 
 Feature: QWS_CURSOR
@@ -474,148 +708,34 @@ Requires:
 Name: Alpha-blended cursor
 SeeAlso: ???
 
-Feature: QWS_MACH64
-Section: Qt/Embedded-specific
-Requires:
-Name: Mach64 acceleration
-SeeAlso: ???
-
-Feature: QWS_VOODOO
-Section: Qt/Embedded-specific
-Requires:
-Name: Voodoo3 acceleration
-SeeAlso: ???
-
-Feature: QWS_MATROX
-Section: Qt/Embedded-specific
-Requires:
-Name: Matrox MGA acceleration
-SeeAlso: ???
-
-Feature: QWS_REPEATER
-Section: Qt/Embedded-specific
-Requires:
-Name: Repeater display
-SeeAlso: ???
-
-Feature: QWS_QVFB
-Section: Qt/Embedded-specific
-Requires:
-Name: Virtual frame buffer
-SeeAlso: ???
-
-Feature: QWS_TRANSFORMED
-Section: Qt/Embedded-specific
-Requires: QWS_LINUXFB
-Name: Transformed frame buffer
-SeeAlso: ???
-
-Feature: QWS_LINUXFB
-Section: Qt/Embedded-specific
-Requires:
-Name: Linux framebuffer
-SeeAlso: ???
-
-Feature: QWS_VNC
-Section: Qt/Embedded-specific
-Requires: NETWORK
-Name: Remote frame buffer (VNC)
-SeeAlso: ???
-
-Feature: QWS_SHADOWFB
-Section: Qt/Embedded-specific
-Requires: 
-Name: Shadow frame buffer
-SeeAlso: ???
-
-Feature: QWS_DEPTH_1
-Section: Qt/Embedded-specific
-Requires:
-Name: 1-bit monochrome
-SeeAlso: ???
-
-Feature: QWS_DEPTH_4
-Section: Qt/Embedded-specific
-Requires:
-Name: 4-bit grayscale
-SeeAlso: ???
-
-Feature: QWS_VGA_16
-Section: Qt/Embedded-specific
-Requires:
-Name: 4-bit VGA
-SeeAlso: ???
-
-Feature: QWS_DEPTH_8GRAYSCALE
-Section: Qt/Embedded-specific
-Requires:
-Name: 8-bit grayscale
-SeeAlso: ???
-
-Feature: QWS_DEPTH_8
-Section: Qt/Embedded-specific
-Requires:
-Name: 8-bit color
-SeeAlso: ???
-
-Feature: QWS_DEPTH_16
-Section: Qt/Embedded-specific
-Requires:
-Name: 15 or 16-bit color
-SeeAlso: ???
-
-Feature: QWS_DEPTH_24
-Section: Qt/Embedded-specific
-Requires:
-Name: 24-bit color
-SeeAlso: ???
-
-Feature: QWS_DEPTH_32
-Section: Qt/Embedded-specific
-Requires:
-Name: 32-bit color
-SeeAlso: ???
-
-Feature: QWS_DEPTH_32_BGR
-Section: Qt/Embedded-specific
-Requires: QWS_DEPTH_32
-Name: 32-bit color, BGR order
-SeeAlso: ???
-
 Feature: QWS_MANAGER
 Section: Qt/Embedded-specific
 Requires:
 Name: Window Manager
 SeeAlso: ???
 
-Feature: QWS_DECORATION_KDE2
-Section: Qt/Embedded-specific
-Requires: QWS_MANAGER
-Name: The "KDE2" style
-SeeAlso: ???
-
-Feature: QWS_DECORATION_HYDRO
-Section: Qt/Embedded-specific
-Requires: QWS_MANAGER
-Name: The "Hydro" style
-SeeAlso: ???
-
-Feature: QWS_DECORATION_BEOS
-Section: Qt/Embedded-specific
-Requires: QWS_MANAGER
-Name: The "BeOS" style
-SeeAlso: ???
-
-Feature: QWS_DECORATION_KDE
-Section: Qt/Embedded-specific
-Requires: QWS_MANAGER
-Name: The "KDE" style
-SeeAlso: ???
-
 Feature: QWS_DECORATION_WINDOWS
 Section: Qt/Embedded-specific
 Requires: QWS_MANAGER
 Name: The "Windows" style
+SeeAlso: ???
+
+Feature: QWS_DECORATION_DEFAULT
+Section: Qt/Embedded-specific
+Requires: QWS_MANAGER
+Name:
+SeeAlso: ???
+
+Feature: QWS_DECORATION_STYLED
+Section: Qt/Embedded-specific
+Requires: QWS_DECORATION_DEFAULT
+Name:
+SeeAlso: ???
+
+Feature: QWS_MOUSE
+Section: Qt/Embedded-specific
+Requires:
+Name: Mouse
 SeeAlso: ???
 
 Feature: QWS_MOUSE_AUTO
@@ -630,692 +750,71 @@ Requires:
 Name: Non-autodetecting mouse driver
 SeeAlso: ???
 
-Feature: QWS_SAVEFONTS
-Section: Qt/Embedded-specific
-Requires:
-Name: Saving of fonts
-SeeAlso: ???
-
-Feature: QWS_GFX_SPEED
-Section: Qt/Embedded-specific
-Requires:
-Name: Favour code size over graphics speed
-SeeAlso: ???
-
 Feature: QWS_PROPERTIES
 Section: Qt/Embedded-specific
 Requires:
 Name: Qt/Embedded window system properties.
 SeeAlso: ???
 
-Feature: CLIPBOARD
-Section: Kernel
-Requires: QWS_PROPERTIES MIME
-Name: Cut and paste
-SeeAlso: ???
+# Regexp
+
+#Feature: REGEXP
+#Section: Data structures
+#Requires:
+#Name: Regular expression capture
+#SeeAlso: ???
+#
+#Feature: REGEXP_CAPTURE
+#Section: Data structures
+#Requires: REGEXP
+#Name: Regular expression capture
+#SeeAlso: ???
+#
+#Feature: REGEXP_OPTIM
+#Section: Data structures
+#Requires: REGEXP
+#Name: Regular expression optimization
+#SeeAlso: ???
+#
+#Feature: REGEXP_LOOKAHEAD
+#Section: Data structures
+#Requires: REGEXP
+#Name: Regular expression lookahead
+#SeeAlso: ???
+#
+#Feature: REGEXP_INTERVAL
+#Section: Data structures
+#Requires: REGEXP
+#Name: Regular expression interval
+#SeeAlso: ???
+#
+#Feature: REGEXP_ESCAPE
+#Section: Data structures
+#Requires: REGEXP
+#Name: Regular expression escape
+#SeeAlso: ???
+#
+#Feature: REGEXP_CCLASS
+#Section: Data structures
+#Requires: REGEXP
+#Name: Regular expression character-class
+#SeeAlso: ???
+#
+#Feature: REGEXP_BACKREF
+#Section: Data structures
+#Requires: REGEXP
+#Name: Regular expression back-reference
+#SeeAlso: ???
+#
+#Feature: REGEXP_ANCHOR_ALT
+#Section: Data structures
+#Requires: REGEXP
+#Name: Regular expression anchors
+#SeeAlso: ???
+#
+#Feature: REGEXP_WILDCARD
+#Section: Data structures
+#Requires: REGEXP
+#Name: Regular expression wildcard
+#SeeAlso: ???
 
-Feature: DRAGANDDROP
-Section: Kernel
-Requires: MIME QWS_PROPERTIES IMAGEIO_XPM
-Name: Drag and drop
-SeeAlso: ???
-
-Feature: MIMECLIPBOARD
-Section: Kernel
-Requires: CLIPBOARD
-Name: Cut and paste non-text
-SeeAlso: ???
-
-Feature: DRAWUTIL
-Section: Kernel
-Requires: SPRINTF PALETTE
-Name: Drawing utility functions
-SeeAlso: ???
-
-Feature: IMAGE_TRUECOLOR
-Section: Images
-Requires:
-Name: TrueColor QImage
-SeeAlso: ???
-
-Feature: IMAGE_SMOOTHSCALE
-Section: Images
-Requires:
-Name: Smooth QImage scaling
-SeeAlso: ???
-
-Feature: IMAGE_DITHER_TO_1
-Section: Images
-Requires:
-Name: Dither QImage to 1-bit image
-SeeAlso: ???
-
-Feature: IMAGE_HEURISTIC_MASK
-Section: Images
-Requires:
-Name: QImage::createHeuristicMask()
-SeeAlso: ???
-
-Feature: IMAGE_MIRROR
-Section: Images
-Requires:
-Name: QImage mirroring
-SeeAlso: ???
-
-Feature: IMAGE_TEXT
-Section: Images
-Requires: STRINGLIST
-Name: Image file text strings
-SeeAlso: ???
-
-Feature: IMAGE_16_BIT
-Section: Qt/Embedded-specific
-Requires: IMAGE_TRUECOLOR
-Name: 16-bit QImage
-SeeAlso: ???
-
-Feature: CURSOR
-Section: Kernel
-Requires:
-Name: Cursors
-SeeAlso: ???
-
-Feature: COLORNAMES
-Section: Painting
-Requires:
-Name: Named colors
-SeeAlso: ???
-
-Feature: TRANSFORMATIONS
-Section: Painting
-Requires: WMATRIX
-Name: Scaling and rotation
-SeeAlso: ???
-
-Feature: PIXMAP_TRANSFORMATION
-Section: Painting
-Requires: WMATRIX
-Name: Pixmap transformations
-SeeAlso: ???
-
-Feature: IMAGE_TRANSFORMATION
-Section: Painting
-Requires: PIXMAP_TRANSFORMATION
-Name: Image transformations
-SeeAlso: ???
-
-Feature: SVG
-Section: Painting
-Requires: DOM TRANSFORMATIONS SPRINTF
-Name: Scalable Vector Graphics (SVG)
-SeeAlso: ???
-
-Feature: BEZIER
-Section: Painting
-Requires:
-Name: Bezier curves
-SeeAlso: ???
-
-Feature: PRINTER
-Section: Painting
-Requires: TEXTSTREAM SPRINTF FONTDATABASE DATESTRING REGEXP_CAPTURE
-Name: Printing
-SeeAlso: ???
-
-Feature: PICTURE
-Section: Painting
-Requires: DATASTREAM IMAGEIO
-Name: QPicture
-SeeAlso: ???
-
-Feature: PICTUREFORMATPLUGIN
-Section: Painting
-Requires: COMPONENT PICTURE
-Name: QPictureFormatPlugin
-SeeAlso: ???
-
-Feature: LAYOUT
-Section: Kernel
-Requires:
-Name: Automatic widget layout
-SeeAlso: ???
-
-Feature: STYLE
-Section: Widgets
-Requires: DRAWUTIL
-Name: QStyle
-SeeAlso: ???
-
-Feature: WIDGET_TOPEXTRA
-Section: Kernel
-Requires: IMAGE_HEURISTIC_MASK
-Name: Window icon and caption
-SeeAlso: ???
-
-Feature: DIALOG
-Section: Widgets
-Requires:
-Name: Dialogs
-SeeAlso: ???
-
-Feature: SEMIMODAL
-Section: Widgets
-Requires: DIALOG
-Name: Semi-modal dialogs
-SeeAlso: ???
-
-Feature: FRAME
-Section: Widgets
-Requires: STYLE
-Name: Framed widgets
-SeeAlso: ???
-
-Feature: EFFECTS
-Section: Kernel
-Requires:
-Name: Special widget effects (fading, scrolling)
-SeeAlso: ???
-
-Feature: LABEL
-Section: Widgets
-Requires: FRAME
-Name: QLabel
-SeeAlso: ???
-
-Feature: TOOLBAR
-Section: Widgets
-Requires: MAINWINDOW
-Name: Toolbars
-SeeAlso: ???
-
-Feature: BUTTON
-Section: Widgets
-Requires:
-Name: Buttons
-SeeAlso: ???
-
-Feature: CHECKBOX
-Section: Widgets
-Requires: BUTTON STYLE
-Name: Check-boxes
-SeeAlso: ???
-
-Feature: RADIOBUTTON
-Section: Widgets
-Requires: BUTTON STYLE
-Name: Radio-buttons
-SeeAlso: ???
-
-Feature: TOOLBUTTON
-Section: Widgets
-Requires: BUTTON ICON STYLE
-Name: Tool-buttons
-SeeAlso: ???
-
-Feature: GRID
-Section: Widgets
-Requires: LAYOUT FRAME
-Name: Grid layout widgets
-SeeAlso: ???
-
-Feature: GROUPBOX
-Section: Widgets
-Requires: FRAME LAYOUT
-Name: Group boxes
-SeeAlso: ???
-
-Feature: BUTTONGROUP
-Section: Widgets
-Requires: GROUPBOX BUTTON RADIOBUTTON
-Name: Button groups
-SeeAlso: ???
-
-Feature: HGROUPBOX
-Section: Widgets
-Requires: GROUPBOX
-Name: Horizontal group boxes
-SeeAlso: ???
-
-Feature: VGROUPBOX
-Section: Widgets
-Requires: HGROUPBOX
-Name: Vertical group boxes
-SeeAlso: ???
-
-Feature: HBUTTONGROUP
-Section: Widgets
-Requires: BUTTONGROUP
-Name: Horizontal button groups
-SeeAlso: ???
-
-Feature: VBUTTONGROUP
-Section: Widgets
-Requires: HBUTTONGROUP
-Name: Vertical button groups
-SeeAlso: ???
-
-Feature: HBOX
-Section: Widgets
-Requires: LAYOUT FRAME
-Name: Horizontal box layout widgets
-SeeAlso: ???
-
-Feature: VBOX
-Section: Widgets
-Requires: HBOX
-Name: Vertical box layout widgets
-SeeAlso: ???
-
-Feature: MAINWINDOW
-Section: Widgets
-Requires: STRINGLIST POPUPMENU TITLEBAR RESIZEHANDLER TOOLBUTTON STATUSBAR
-Name: Main-windows
-SeeAlso: ???
-
-Feature: RESIZEHANDLER
-Section: Widgets
-Requires: FRAME
-Name: Internal resize handler
-SeeAlso: ???
-
-Feature: MENUDATA
-Section: Widgets
-Requires: ICON VARIANT
-Name: Menu-oriented widgets
-SeeAlso: ???
-
-Feature: POPUPMENU
-Section: Widgets
-Requires: MENUDATA FRAME
-Name: Popup-menus
-SeeAlso: ???
-
-Feature: MENUBAR
-Section: Widgets
-Requires: POPUPMENU
-Name: Menu bars
-SeeAlso: ???
-
-Feature: PUSHBUTTON
-Section: Widgets
-Requires: BUTTON STYLE
-Name: Push-buttons
-SeeAlso: ???
-
-Feature: PROGRESSBAR
-Section: Widgets
-Requires: FRAME
-Name: Progress bars
-SeeAlso: ???
-
-Feature: RANGECONTROL
-Section: Widgets
-Requires:
-Name: Range-control widgets
-SeeAlso: ???
-
-Feature: SCROLLBAR
-Section: Widgets
-Requires: RANGECONTROL STYLE
-Name: Scroll bars
-SeeAlso: ???
-
-Feature: SLIDER
-Section: Widgets
-Requires: RANGECONTROL STYLE
-Name: Sliders
-SeeAlso: ???
-
-Feature: DIAL
-Section: Widgets
-Requires: RANGECONTROL STYLE
-Name: Dials
-SeeAlso: ???
-
-Feature: SPINWIDGET
-Section: Widgets
-Requires: FRAME
-Name: Spinbox control widget
-SeeAlso: ???
-
-Feature: SCROLLVIEW
-Section: Widgets
-Requires: SCROLLBAR FRAME
-Name: Scrollable view widgets
-SeeAlso: ???
-
-Feature: ICONVIEW
-Section: Widgets
-Requires: SCROLLVIEW IMAGEIO_XPM IMAGE_HEURISTIC_MASK
-Name: QIconView
-SeeAlso: ???
-
-Feature: GRIDVIEW
-Section: Widgets
-Requires: SCROLLVIEW
-Name: QGridView
-SeeAlso: ???
-
-Feature: TEXTVIEW
-Section: Widgets
-Requires: TEXTEDIT
-Name: QTextView
-SeeAlso: ???
-
-Feature: TEXTEDIT
-Section: Widgets
-Requires: RICHTEXT SCROLLVIEW
-Name: Rich text edit
-SeeAlso: ???
-
-Feature: SYNTAXHIGHLIGHTER
-Section: Widgets
-Requires: TEXTEDIT
-Name: Rich text syntax highlighting
-SeeAlso: ???
-
-Feature: SPLASHSCREEN
-Section: Widgets
-Requires: IMAGEIO
-Name: Splash screen widget
-SeeAlso: ???
-
-
-Feature: TABLEVIEW
-Section: Widgets
-Requires: SCROLLBAR
-Name: Table-like widgets
-SeeAlso: ???
-
-Feature: LINEEDIT
-Section: Widgets
-Requires: FRAME
-Name: Single-line edits
-SeeAlso: ???
-
-Feature: MULTILINEEDIT
-Section: Widgets
-Requires: TEXTEDIT
-Name: Multi-line edits
-SeeAlso: ???
-
-Feature: SPINBOX
-Section: Widgets
-Requires: RANGECONTROL SPINWIDGET LINEEDIT VALIDATOR
-Name: Spin boxes
-SeeAlso: ???
-
-Feature: SPLITTER
-Section: Widgets
-Requires: FRAME LAYOUT
-Name: Splitters
-SeeAlso: ???
-
-Feature: STATUSBAR
-Section: Widgets
-Requires: LAYOUT STYLE
-Name: Status bars
-SeeAlso: ???
-
-Feature: TABBAR
-Section: Widgets
-Requires: TOOLBUTTON
-Name: Tab-bars
-SeeAlso: ???
-
-Feature: TABWIDGET
-Section: Widgets
-Requires: TABBAR WIDGETSTACK
-Name: Tab widgets
-SeeAlso: ???
-
-Feature: TOOLTIP
-Section: Widgets
-Requires: LABEL
-Name: Tool tips
-SeeAlso: ???
-
-Feature: VALIDATOR
-Section: Widgets
-Requires:
-Name: Input validators
-SeeAlso: ???
-
-Feature: WHATSTHIS
-Section: Widgets
-Requires: TOOLTIP TOOLBUTTON
-Name: "What's this" help
-SeeAlso: ???
-
-Feature: WIDGETSTACK
-Section: Widgets
-Requires: FRAME
-Name: Widget stacks
-SeeAlso: ???
-
-Feature: TEXTBROWSER
-Section: Widgets
-Requires: TEXTVIEW MIME
-Name: QTextBrowser
-SeeAlso: ???
-
-Feature: LISTBOX
-Section: Widgets
-Requires: SCROLLVIEW STRINGLIST
-Name: QListBox
-SeeAlso: ???
-
-Feature: ACCEL
-Section: Kernel
-Requires: SPRINTF
-Name: Keyboard accelerators and shortcuts
-SeeAlso: ???
-
-Feature: SIZEGRIP
-Section: Widgets
-Requires: STYLE
-Name: QSizeGrip
-SeeAlso: ???
-
-Feature: HEADER
-Section: Widgets
-Requires: STYLE ICON
-Name: QHeader
-SeeAlso: ???
-
-Feature: TITLEBAR
-Section: Kernel
-Requires: STYLE
-Name: Internal titlebar widget
-SeeAlso: ???
-
-Feature: LCDNUMBER
-Section: Widgets
-Requires: FRAME
-Name: QLCDNumber
-SeeAlso: ???
-
-Feature: ACTION
-Section: Kernel
-Requires: TOOLBUTTON COMBOBOX
-Name: QAction
-SeeAlso: ???
-
-Feature: COMBOBOX
-Section: Widgets
-Requires: LISTBOX LINEEDIT POPUPMENU
-Name: QComboBox
-SeeAlso: ???
-
-Feature: LISTVIEW
-Section: Widgets
-Requires: SCROLLVIEW HEADER LINEEDIT
-Name: QListView
-SeeAlso: ???
-
-Feature: STYLE_WINDOWS
-Section: Widgets
-Requires: STYLE
-Name: Windows style
-SeeAlso: ???
-
-Feature: STYLE_MOTIF
-Section: Widgets
-Requires: STYLE
-Name: Motif style
-SeeAlso: ???
-
-Feature: STYLE_INTERLACE
-Section: Widgets
-Requires: STYLE_MOTIF
-Name: Interlace-friendly style
-SeeAlso: ???
-
-Feature: STYLE_COMPACT
-Section: Widgets
-Requires: STYLE_WINDOWS
-Name: Compact Windows style
-SeeAlso: ???
-
-Feature: STYLE_PLATINUM
-Section: Widgets
-Requires: STYLE_WINDOWS
-Name: Platinum style
-SeeAlso: ???
-
-Feature: STYLE_AQUA
-Section: Widgets
-Requires: STYLE_WINDOWS IMAGE_TRANSFORMATION
-Name: Aqua style
-SeeAlso: ???
-
-Feature: STYLE_CDE
-Section: Widgets
-Requires: STYLE_MOTIF TRANSFORMATIONS
-Name: CDE style
-SeeAlso: ???
-
-Feature: STYLE_SGI
-Section: Widgets
-Requires: STYLE_MOTIF TRANSFORMATIONS BUTTON SCROLLBAR SLIDER LINEEDIT  MENUBAR
-Name: SGI style
-SeeAlso: ???
-
-Feature: STYLE_MOTIFPLUS
-Section: Widgets
-Requires: STYLE_MOTIF TRANSFORMATIONS BUTTON SCROLLBAR SLIDER
-Name: Motif-plus style
-SeeAlso: ???
-
-Feature: COLORDIALOG
-Section: Widgets
-Requires: DIALOG LABEL PUSHBUTTON LINEEDIT VALIDATOR GRIDVIEW LAYOUT
-Name: QColorDialog
-SeeAlso: ???
-
-Feature: MESSAGEBOX
-Section: Widgets
-Requires: DIALOG PUSHBUTTON LABEL
-Name: QMessageBox
-SeeAlso: ???
-
-Feature: TABDIALOG
-Section: Widgets
-Requires: DIALOG PUSHBUTTON LAYOUT TABWIDGET
-Name: QTabDialog
-SeeAlso: ???
-
-Feature: WIZARD
-Section: Widgets
-Requires: DIALOG WIDGETSTACK PUSHBUTTON LAYOUT LABEL
-Name: QWizard
-SeeAlso: ???
-
-Feature: FILEDIALOG
-Section: Widgets
-Requires: MESSAGEBOX LISTVIEW NETWORKPROTOCOL COMBOBOX SEMIMODAL REGEXP_CAPTURE TOOLBUTTON BUTTONGROUP VBOX SPLITTER PROGRESSBAR WIDGETSTACK DATESTRING
-Name: QFileDialog
-SeeAlso: ???
-
-Feature: FONTDIALOG
-Section: Widgets
-Requires: DIALOG FONTDATABASE COMBOBOX LABEL CHECKBOX PUSHBUTTON VGROUPBOX VALIDATOR
-Name: QFontDialog
-SeeAlso: ???
-
-Feature: PRINTDIALOG
-Section: Widgets
-Requires: DIALOG LISTVIEW PRINTER COMBOBOX LABEL BUTTONGROUP SPINBOX RADIOBUTTON PUSHBUTTON DIR
-Name: QPrintDialog
-SeeAlso: ???
-
-Feature: PAGESETUPDIALOG
-Section: Widgets
-Requires: DIALOG LISTVIEW PRINTER COMBOBOX LABEL BUTTONGROUP SPINBOX RADIOBUTTON PUSHBUTTON DIR
-Name: QPageSetupDialog
-SeeAlso: ???
-
-
-Feature: PROGRESSDIALOG
-Section: Widgets
-Requires: SEMIMODAL LABEL PUSHBUTTON PROGRESSBAR
-Name: QProgressDialog
-SeeAlso: ???
-
-Feature: INPUTDIALOG
-Section: Widgets
-Requires: DIALOG COMBOBOX LABEL PUSHBUTTON SPINBOX WIDGETSTACK LAYOUT
-Name: QInputDialog
-SeeAlso: ???
-
-Feature: ERRORMESSAGE
-Section: Widgets
-Requires: DIALOG PUSHBUTTON LABEL CHECKBOX TEXTVIEW
-Name: QErrorMessage
-SeeAlso: ???
-
-Feature: SESSIONMANAGER
-Section: Kernel
-Requires: STRINGLIST
-Name: Session management
-SeeAlso: ???
-
-Feature: DATETIMEEDIT
-Section: Widgets
-Requires: RICHTEXT SPINWIDGET DATESTRING
-Name: QDateTimeEdit
-SeeAlso: ???
-
-Feature: TEXTCODECPLUGIN
-Section: Internationalization
-Requires: COMPONENT TEXTCODEC
-Name: QTextCodecPlugin
-SeeAlso: ???
-
-
-Feature: IMAGEFORMATPLUGIN
-Section: Images
-Requires: COMPONENT IMAGEIO
-Name: QImageFormatPlugin
-SeeAlso: ???
-
-
-Feature: WIDGETPLUGIN
-Section: Widgets
-Requires: COMPONENT ICON
-Name: QWidgetPlugin
-SeeAlso: ???
-
-
-Feature: DIRECTPAINTER
-Section: Painting
-Requires:
-Name: QDirectPainter
-SeeAlso: ???
-
-
-Feature: DIALOGBUTTONS
-Section: Widgets
-Requires: LAYOUT STYLE PUSHBUTTON
-Name: Experimental internal class
-SeeAlso: ???

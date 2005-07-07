@@ -27,6 +27,8 @@
 
 #include "private/qwidget_p.h"
 
+#ifndef QT_NO_DOCKWIDGET
+
 class QBoxLayout;
 class QDockWidgetTitle;
 class QWidgetResizeHandler;
@@ -61,4 +63,5 @@ public:
 #endif
 };
 
+#endif // QT_NO_DOCKWIDGET
 #endif // QDOCKWIDGET_P_H

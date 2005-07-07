@@ -27,6 +27,7 @@
 
 #include <private/qobject_p.h>
 
+#ifndef QT_NO_ITEMVIEWS
 class QItemSelectionModelPrivate: public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QItemSelectionModel)
@@ -50,5 +51,5 @@ public:
     QPersistentModelIndex currentIndex;
     QItemSelectionModel::SelectionFlags currentCommand;
 };
-
+#endif // QT_NO_ITEMVIEWS
 #endif // QITEMSELECTIONMODEL_P_H

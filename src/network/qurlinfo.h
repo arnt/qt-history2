@@ -18,6 +18,8 @@
 #include "QtCore/qstring.h"
 #include "QtCore/qiodevice.h"
 
+#ifndef QT_NO_URLINFO
+
 class QUrl;
 class QUrlInfoPrivate;
 
@@ -83,4 +85,5 @@ private:
     QUrlInfoPrivate *d;
 };
 
+#endif // QT_NO_URLINFO
 #endif // QURLINFO_H

@@ -83,6 +83,8 @@
 #include "qabstractsocket_p.h"
 #include "qudpsocket.h"
 
+#ifndef QT_NO_UDPSOCKET
+
 #if defined(QT_NO_IPV6)
 #define QT_ENSURE_INITIALIZED(a) do { \
     QAbstractSocket::NetworkLayerProtocol proto = address.protocol(); \
@@ -276,3 +278,4 @@ qint64 QUdpSocket::readDatagram(char *data, qint64 maxSize, QHostAddress *addres
     d->readSocketNotifier->setEnabled(true);
     return readBytes;
 }
+#endif QT_NO_UDPSOCKET

@@ -18,6 +18,8 @@
 #include <QtCore/qvariant.h>
 #include <QtCore/qvector.h>
 
+#ifndef QT_NO_TREEWIDGET
+
 class QTreeWidget;
 class QTreeModel;
 class QWidgetItemData;
@@ -343,4 +345,5 @@ inline QTreeWidgetItem *QTreeWidgetItemIterator::operator*() const
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QTreeWidgetItemIterator::IteratorFlags)
 
+#endif // QT_NO_TREEWIDGET
 #endif // QTREEWIDGET_H

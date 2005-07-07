@@ -307,11 +307,13 @@ bool QPixmap::hasAlphaChannel() const
     return data->image.hasAlphaChannel();
 }
 
+#ifndef QT_NO_IMAGE_HEURISTIC_MASK
 QBitmap QPixmap::createHeuristicMask(bool clipTight ) const
 {
     QBitmap m = fromImage(toImage().createHeuristicMask(clipTight));
     return m;
 }
+#endif
 
 QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
 {

@@ -49,6 +49,7 @@ protected:
 };
 #endif // QT_NO_SPINBOX
 
+#ifndef QT_NO_SCROLLBAR
 class QAccessibleScrollBar : public QAccessibleWidget
 {
 public:
@@ -74,7 +75,9 @@ public:
 protected:
     QScrollBar *scrollBar() const;
 };
+#endif // QT_NO_SCROLLBAR
 
+#ifndef QT_NO_SLIDER
 class QAccessibleSlider : public QAccessibleWidget
 {
 public:
@@ -100,5 +103,6 @@ public:
 protected:
     QSlider *slider() const;
 };
+#endif // QT_NO_SLIDER
 
 #endif // RANGECONTROLS_H

@@ -16,6 +16,8 @@
 
 #include <QtCore/qabstractitemmodel.h>
 
+#ifndef QT_NO_PROXYMODEL
+
 class QProxyModelPrivate;
 
 class Q_GUI_EXPORT QProxyModel : public QAbstractItemModel
@@ -75,4 +77,5 @@ private:
     Q_DISABLE_COPY(QProxyModel)
 };
 
+#endif // QT_NO_PROXYMODEL
 #endif // QPROXYMODEL_H

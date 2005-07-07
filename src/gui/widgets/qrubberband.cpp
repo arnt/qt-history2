@@ -15,6 +15,9 @@
 #include "qevent.h"
 #include "qstylepainter.h"
 #include "qrubberband.h"
+
+#ifndef QT_NO_RUBBERBAND
+
 #include "qstyle.h"
 #include "qstyleoption.h"
 #ifdef Q_WS_MAC
@@ -247,3 +250,5 @@ void QRubberBand::setGeometry(const QRect &geom)
 #endif
     update();
 }
+
+#endif // QT_NO_RUBBERBAND

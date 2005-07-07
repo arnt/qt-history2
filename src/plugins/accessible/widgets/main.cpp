@@ -102,10 +102,14 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
     } else if (classname == "QSpinBox") {
         iface = new QAccessibleSpinBox(widget);
 #endif
+#ifndef QT_NO_SCROLLBAR
     } else if (classname == "QScrollBar") {
         iface = new QAccessibleScrollBar(widget);
+#endif
+#ifndef QT_NO_SLIDER
     } else if (classname == "QSlider") {
         iface = new QAccessibleSlider(widget);
+#endif
 #ifndef QT_NO_TOOLBUTTON
     } else if (classname == "QToolButton") {
         Role role = NoRole;
@@ -169,8 +173,10 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
     } else if (classname == "Q3PopupMenu") {
         iface = new QAccessibleMenu(widget);
 #endif
+#ifndef QT_NO_ITEMVIEWS
     } else if (classname == "QHeaderView") {
         iface = new QAccessibleHeader(widget);
+#endif
 #ifndef QT_NO_TABBAR
     } else if (classname == "QTabBar") {
         iface = new QAccessibleTabBar(widget);

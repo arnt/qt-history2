@@ -133,9 +133,10 @@ void QTextBrowserPrivate::activateAnchor(const QString &href)
 void QTextBrowserPrivate::setSource(const QUrl &url)
 {
     Q_Q(QTextBrowser);
+#ifndef QT_NO_CURSOR
     if (q->isVisible())
         qApp->setOverrideCursor(Qt::WaitCursor);
-
+#endif
     textOrSourceChanged = true;
 
     QString txt;
@@ -167,7 +168,9 @@ void QTextBrowserPrivate::setSource(const QUrl &url)
         if (q->isVisible()) {
             QString firstTag = txt.left(txt.indexOf('>') + 1);
             if (firstTag.left(3) == "<qt" && firstTag.contains("type") && firstTag.contains("detail")) {
+#ifndef QT_NO_CURSOR
                 qApp->restoreOverrideCursor();
+#endif
 #ifndef QT_NO_WHATSTHIS
                 QWhatsThis::showText(QCursor::pos(), txt, q);
 #endif
@@ -194,9 +197,10 @@ void QTextBrowserPrivate::setSource(const QUrl &url)
         vbar->setValue(0);
     }
 
+#ifndef QT_NO_CURSOR
     if (q->isVisible())
         qApp->restoreOverrideCursor();
-
+#endif
     emit q->sourceChanged(url);
 }
 
@@ -555,11 +559,15 @@ void QTextBrowser::mouseMoveEvent(QMouseEvent *e)
 
     QString anchor = anchorAt(e->pos());
     if (anchor.isEmpty()) {
+#ifndef QT_NO_CURSOR
         d->viewport->setCursor(Qt::ArrowCursor);
+#endif
         emit highlighted(QUrl());
         emit highlighted(QString());
     } else {
+#ifndef QT_NO_CURSOR
         d->viewport->setCursor(Qt::PointingHandCursor);
+#endif
 
         QUrl url = QUrl(d->currentURL).resolved(anchor);
         emit highlighted(url);

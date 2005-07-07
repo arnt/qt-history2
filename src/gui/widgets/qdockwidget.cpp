@@ -13,6 +13,7 @@
 
 #include "qdockwidget.h"
 
+#ifndef QT_NO_DOCKWIDGET
 #include <qaction.h>
 #include <qapplication.h>
 #include <qdesktopwidget.h>
@@ -851,3 +852,4 @@ QAction * QDockWidget::toggleViewAction() const
 
 #include "qdockwidget.moc"
 #include "moc_qdockwidget.cpp"
+#endif // QT_NO_DOCKWIDGET

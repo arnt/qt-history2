@@ -17,6 +17,8 @@
 #include <QtCore/qobject.h>
 #include <QtGui/qstyleoption.h>
 
+#ifndef QT_NO_ITEMVIEWS
+
 class QPainter;
 class QModelIndex;
 class QAbstractItemModel;
@@ -78,4 +80,5 @@ protected:
     QAbstractItemDelegate(QObjectPrivate &, QObject *parent = 0);
 };
 
+#endif // QT_NO_ITEMVIEWS
 #endif // QABSTRACTITEMDELEGATE_H

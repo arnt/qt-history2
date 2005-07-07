@@ -19,6 +19,8 @@
 #include <QtGui/qitemselectionmodel.h>
 #include <QtGui/qabstractitemdelegate.h>
 
+#ifndef QT_NO_ITEMVIEWS
+
 class QMenu;
 class QDrag;
 class QEvent;
@@ -250,4 +252,5 @@ private:
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemView::EditTriggers)
 
+#endif // QT_NO_ITEMVIEWS
 #endif // QABSTRACTITEMVIEW_H

@@ -28,6 +28,7 @@
 
 QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 
+#ifndef QT_NO_ITEMVIEWS
 /*!
   \class QAccessibleHeader qaccessiblewidget.h
   \brief The QAccessibleHeader class implements the QAccessibleInterface for header widgets.
@@ -121,6 +122,7 @@ QAccessible::State QAccessibleHeader::state(int child) const
         state |= Movable;
     return state;
 }
+#endif // QT_NO_ITEMVIEWS
 
 #ifndef QT_NO_TABBAR
 /*!

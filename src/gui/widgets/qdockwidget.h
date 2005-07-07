@@ -16,6 +16,8 @@
 
 #include <QtGui/qwidget.h>
 
+#ifndef QT_NO_DOCKWIDGET
+
 class QDockWidgetLayout;
 class QDockWidgetPrivate;
 class QMainWindow;
@@ -87,4 +89,5 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDockWidget::DockWidgetFeatures)
 
+#endif // QT_NO_DOCKWIDGET
 #endif // QDOCKWIDGET_H

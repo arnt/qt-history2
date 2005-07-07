@@ -26,6 +26,7 @@
 //
 
 #include <private/qabstractitemview_p.h>
+#ifndef QT_NO_TREEVIEW
 
 struct QTreeViewItem
 {
@@ -115,4 +116,5 @@ public:
     int hiddenItemsCount;
 };
 
+#endif // QT_NO_TREEVIEW
 #endif // QTREEVIEW_P_H

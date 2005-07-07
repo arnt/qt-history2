@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include "qlistwidget.h"
+
+#ifndef QT_NO_LISTWIDGET
 #include <qitemdelegate.h>
 #include <qpainter.h>
 #include <private/qlistview_p.h>
@@ -1422,3 +1424,4 @@ void QListWidget::setModel(QAbstractItemModel *model)
 }
 
 #include "moc_qlistwidget.cpp"
+#endif // QT_NO_LISTWIDGET

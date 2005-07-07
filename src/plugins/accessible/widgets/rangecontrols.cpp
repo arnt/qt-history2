@@ -198,6 +198,7 @@ bool QAccessibleSpinBox::doAction(int action, int /*child*/, const QVariantList 
 }
 #endif // QT_NO_SPINBOX
 
+#ifndef QT_NO_SCROLLBAR
 /*!
   \class QAccessibleScrollBar qaccessiblewidget.h
   \brief The QAccessibleScrollBar class implements the QAccessibleInterface for scroll bars.
@@ -348,7 +349,9 @@ bool QAccessibleScrollBar::doAction(int /*action*/, int /*child*/, const QVarian
 */
     return false;
 }
+#endif // QT_NO_SCROLLBAR
 
+#ifndef QT_NO_SLIDER
 /*!
   \class QAccessibleSlider qaccessiblewidget.h
   \brief The QAccessibleSlider class implements the QAccessibleInterface for sliders.
@@ -527,3 +530,5 @@ bool QAccessibleSlider::doAction(int /*action*/, int /*child*/, const QVariantLi
 */
     return false;
 }
+
+#endif // QT_NO_SLIDER

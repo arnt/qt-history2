@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include "qtreewidget.h"
+
+#ifndef QT_NO_TREEWIDGET
 #include <qapplication.h>
 #include <qheaderview.h>
 #include <qpainter.h>
@@ -2661,3 +2663,4 @@ bool QTreeWidgetItemIterator::matchesFlags(const QTreeWidgetItem *item) const
 */
 
 #include "moc_qtreewidget.cpp"
+#endif // QT_NO_TREEWIDGET

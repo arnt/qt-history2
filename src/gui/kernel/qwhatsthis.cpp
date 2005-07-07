@@ -373,10 +373,13 @@ QWhatsThisPrivate::QWhatsThisPrivate()
     QPoint pos = QCursor::pos();
     if (QWidget *w = QApplication::widgetAt(pos)) {
         QHelpEvent e(QEvent::QueryWhatsThis, w->mapFromGlobal(pos), pos);
-        QApplication::setOverrideCursor((!QApplication::sendEvent(w, &e) || !e.isAccepted())?
+        bool sentEvent = QApplication::sendEvent(w, &e);
+#ifndef QT_NO_CURSOR
+        QApplication::setOverrideCursor((!sentEvent || !e.isAccepted())?
                                         Qt::ForbiddenCursor:Qt::WhatsThisCursor);
     } else {
         QApplication::setOverrideCursor(Qt::WhatsThisCursor);
+#endif
     }
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::ContextHelpStart);
@@ -391,7 +394,9 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
     if (button)
         button->setChecked(false);
 #endif
+#ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
+#endif
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::ContextHelpEnd);
 #endif
@@ -420,8 +425,11 @@ bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
     {
         QMouseEvent *me = static_cast<QMouseEvent*>(e);
         QHelpEvent e(QEvent::QueryWhatsThis, me->pos(), me->globalPos());
-        QApplication::changeOverrideCursor((!QApplication::sendEvent(w, &e) || !e.isAccepted())?
+        bool sentEvent = QApplication::sendEvent(w, &e);
+#ifndef QT_NO_CURSOR
+        QApplication::changeOverrideCursor((!sentEvent || !e.isAccepted())?
                                            Qt::ForbiddenCursor:Qt::WhatsThisCursor);
+#endif
     }
     // fall thorugh
     case QEvent::MouseButtonRelease:

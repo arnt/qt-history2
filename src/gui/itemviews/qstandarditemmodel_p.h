@@ -27,6 +27,8 @@
 
 #include <private/qabstractitemmodel_p.h>
 
+#ifndef QT_NO_STANDARDITEMMODEL
+
 class  QStdModelItem {
 public:
     QStdModelItem() {};
@@ -83,4 +85,5 @@ public:
     int topLevelColumns;
 };
 
+#endif // QT_NO_STANDARDITEMMODEL
 #endif // QSTANDARDITEMMODEL_P_H

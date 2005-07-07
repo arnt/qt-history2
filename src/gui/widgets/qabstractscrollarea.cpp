@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qabstractscrollarea.h"
+
+#ifndef QT_NO_SCROLLAREA
+
 #include "qscrollbar.h"
 #include "qapplication.h"
 #include "qstyle.h"
@@ -643,3 +646,4 @@ QSize QAbstractScrollArea::sizeHint() const
 }
 
 #include "moc_qabstractscrollarea.cpp"
+#endif // QT_NO_SCROLLAREA

@@ -27,6 +27,7 @@
 
 #include <private/qframe_p.h>
 
+#ifndef QT_NO_SCROLLAREA
 class QScrollBar;
 class QAbstractScrollAreaPrivate: public QFramePrivate
 {
@@ -50,5 +51,5 @@ public:
     void vslide(int);
     void showOrHideScrollBars();
 };
-
+#endif // QT_NO_SCROLLAREA
 #endif // QVIEWPORT_P_H

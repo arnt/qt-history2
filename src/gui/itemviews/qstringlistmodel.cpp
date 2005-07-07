@@ -17,6 +17,7 @@
 
 #include "qstringlistmodel.h"
 
+#ifndef QT_NO_STRINGLISTMODEL
 /*!
   \class QStringListModel
   \brief The QStringListModel class provides a model that supplies strings to views.
@@ -200,3 +201,5 @@ void QStringListModel::setStringList(const QStringList &strings)
     lst = strings;
     reset();
 }
+
+#endif // QT_NO_STRINGLISTMODEL

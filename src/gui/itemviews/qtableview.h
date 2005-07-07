@@ -16,6 +16,8 @@
 
 #include <QtGui/qabstractitemview.h>
 
+#ifndef QT_NO_TABLEVIEW
+
 class QHeaderView;
 class QTableViewPrivate;
 
@@ -111,4 +113,5 @@ private:
     Q_DISABLE_COPY(QTableView)
 };
 
+#endif // QT_NO_TABLEVIEW
 #endif // QTABLEVIEW_H

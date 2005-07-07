@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include "qtableview.h"
+
+#ifndef QT_NO_TABLEVIEW
 #include <qheaderview.h>
 #include <qitemdelegate.h>
 #include <qapplication.h>
@@ -1308,3 +1310,5 @@ bool QTableView::isIndexHidden(const QModelIndex &index) const
 {
     return isRowHidden(index.row()) || isColumnHidden(index.column());
 }
+
+#endif // QT_NO_TABLEVIEW

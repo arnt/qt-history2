@@ -332,6 +332,7 @@ Qt::ToolBarArea QMainWindowLayout::toolBarArea(QToolBar *toolbar) const
 }
 #endif // QT_NO_TOOLBAR
 
+#ifndef QT_NO_DOCKWIDGET
 QDockWidgetLayout *QMainWindowLayout::layoutForArea(Qt::DockWidgetArea area)
 {
     POSITION pos = positionForArea(area);
@@ -383,6 +384,7 @@ void QMainWindowLayout::splitDockWidget(QDockWidget *after, QDockWidget *dockwid
                                       ? Qt::RightDockWidgetArea
                                       : Qt::BottomDockWidgetArea));
 }
+#endif // QT_NO_DOCKWIDGET
 
 static bool findWidgetRecursively(QLayoutItem *li, QWidget *w)
 {
@@ -403,6 +405,7 @@ static bool findWidgetRecursively(QLayoutItem *li, QWidget *w)
     return false;
 }
 
+#ifndef QT_NO_DOCKWIDGET    
 Qt::DockWidgetArea QMainWindowLayout::dockWidgetArea(QDockWidget *dockwidget) const
 {
     for (int pos = 0; pos < NPOSITIONS - 1; ++pos) {
@@ -416,6 +419,7 @@ Qt::DockWidgetArea QMainWindowLayout::dockWidgetArea(QDockWidget *dockwidget) co
     return Qt::TopDockWidgetArea;
 
 }
+#endif // QT_NO_DOCKWIDGET    
 
 void QMainWindowLayout::saveState(QDataStream &stream) const
 {
@@ -447,7 +451,8 @@ void QMainWindowLayout::saveState(QDataStream &stream) const
         }
     }
 #endif // QT_NO_TOOLBAR
-    
+
+#ifndef QT_NO_DOCKWIDGET    
     // save dockwidget state
     stream << (uchar) DockWidgetStateMarker;
     int x = 0;
@@ -468,6 +473,7 @@ void QMainWindowLayout::saveState(QDataStream &stream) const
         Q_ASSERT(layout != 0);
         layout->saveState(stream);
     }
+#endif // QT_NO_DOCKWIDGET    
 
     // save center widget state
     stream << layout_info[CENTER].size;
@@ -553,6 +559,7 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
     tb_layout_info = toolBarState;
 #endif // QT_NO_TOOLBAR
 
+#ifndef QT_NO_DOCKWIDGET    
     // restore dockwidget layout
     uchar dmarker;
     stream >> dmarker;
@@ -582,6 +589,7 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
             break;
         }
     }
+#endif // QT_NO_DOCKWIDGET    
 
     // restore center widget size
     stream >> layout_info[CENTER].size;
@@ -603,6 +611,7 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
         return false;
     }
 
+#ifndef QT_NO_DOCKWIDGET    
     // replace existing dockwidget layout
     for (int i = 0; i < NPOSITIONS - 1; ++i) {
         if ((*save_layout_info)[i].sep)
@@ -610,6 +619,7 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
         delete (*save_layout_info)[i].sep;
         delete (*save_layout_info)[i].item;
     }
+#endif // QT_NO_DOCKWIDGET    
 
     delete save_layout_info;
     save_layout_info = 0;
@@ -702,6 +712,7 @@ void fix_minmax(QVector<QLayoutStruct> &ls,
                 const QMainWindowLayout * const layout,
                 POSITION pos)
 {
+#ifndef QT_NO_DOCKWIDGET    
     const Qt::DockWidgetArea area = static_cast<Qt::DockWidgetArea>(areaForPosition(pos));
 
     const struct
@@ -767,6 +778,7 @@ void fix_minmax(QVector<QLayoutStruct> &ls,
             ls[1].minimumSize = qMax(ls[1].minimumSize, min - ls[2].minimumSize);
         }
     }
+#endif // QT_NO_DOCKWIDGET    
 }
 
 /*
@@ -1786,6 +1798,7 @@ Qt::DockWidgetAreas areasForMousePosition(const QRect &r, const QPoint &p, bool 
     return areas;
 }
 
+#ifndef QT_NO_DOCKWIDGET
 Qt::DockWidgetArea QMainWindowLayout::locateDockWidget(QDockWidget *dockwidget,
                                                        const QPoint &mouse) const
 {
@@ -1928,6 +1941,7 @@ void QMainWindowLayout::dropDockWidget(QDockWidget *dockwidget,
 
     DEBUG() << "END of QMainWindowLayout::dropDockWidget";
 }
+#endif // QT_NO_DOCKWIDGET
 
 static bool removeWidgetRecursively(QLayoutItem *li, QWidget *w, bool dummy)
 {
@@ -1951,10 +1965,12 @@ static bool removeWidgetRecursively(QLayoutItem *li, QWidget *w, bool dummy)
     return false;
 }
 
+#ifndef QT_NO_DOCKWIDGET
 void QMainWindowLayout::removeRecursive(QDockWidget *dockwidget)
 {
     removeWidgetRecursively(this, dockwidget, save_layout_info != 0);
 }
+#endif // QT_NO_DOCKWIDGET
 
 #ifndef QT_NO_TOOLBAR
 int QMainWindowLayout::locateToolBar(QToolBar *toolbar, const QPoint &mouse) const

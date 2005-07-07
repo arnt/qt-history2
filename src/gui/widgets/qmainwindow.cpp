@@ -558,6 +558,7 @@ Qt::ToolBarArea QMainWindow::toolBarArea(QToolBar *toolbar) const
 
 #endif // QT_NO_TOOLBAR
 
+#ifndef QT_NO_DOCKWIDGET    
 /*!
     Adds the given \a dockwidget to the specified \a area.
 */
@@ -644,6 +645,8 @@ void QMainWindow::removeDockWidget(QDockWidget *dockwidget)
 */
 Qt::DockWidgetArea QMainWindow::dockWidgetArea(QDockWidget *dockwidget) const
 { return d_func()->layout->dockWidgetArea(dockwidget); }
+
+#endif // QT_NO_DOCKWIDGET    
 
 /*!
     Saves the current state of this mainwindow's toolbars and
@@ -736,6 +739,7 @@ void QMainWindow::contextMenuEvent(QContextMenuEvent *event)
     // children
     QWidget *child = childAt(event->pos());
     while (child && child != this) {
+#ifndef QT_NO_DOCKWIDGET
         if (QDockWidget *dw = qobject_cast<QDockWidget *>(child)) {
             if (dw->parentWidget() != this)
                 return;
@@ -746,6 +750,7 @@ void QMainWindow::contextMenuEvent(QContextMenuEvent *event)
             }
             break;
         }
+#endif // QT_NO_DOCKWIDGET
 #ifndef QT_NO_TOOLBAR
         if (QToolBar *tb = qobject_cast<QToolBar *>(child)) {
             if (tb->parentWidget() != this)
@@ -779,6 +784,7 @@ void QMainWindow::contextMenuEvent(QContextMenuEvent *event)
 QMenu *QMainWindow::createPopupMenu()
 {
     QMenu *menu = 0;
+#ifndef QT_NO_DOCKWIDGET
     QList<QDockWidget *> dockwidgets = qFindChildren<QDockWidget *>(this);
     if (dockwidgets.size()) {
         menu = new QMenu(this);
@@ -787,6 +793,7 @@ QMenu *QMainWindow::createPopupMenu()
                 menu->addAction(dockwidgets.at(i)->toggleViewAction());
         menu->addSeparator();
     }
+#endif // QT_NO_DOCKWIDGET
 #ifndef QT_NO_TOOLBAR
     QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);
     if (toolbars.size()) {

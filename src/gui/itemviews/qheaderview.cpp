@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include "qheaderview.h"
+
+#ifndef QT_NO_ITEMVIEWS
 #include <qbitarray.h>
 #include <qdebug.h>
 #include <qevent.h>
@@ -1337,11 +1339,13 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
             return;
         }
         case QHeaderViewPrivate::NoState: {
+#ifndef QT_NO_CURSOR
             int handle = d->sectionHandleAt(pos);
             if (handle != -1 && resizeMode(handle) == Interactive)
                 setCursor(orientation() == Qt::Horizontal ? Qt::SplitHCursor : Qt::SplitVCursor);
             else
                 setCursor(Qt::ArrowCursor);
+#endif
             return;
         }
     }
@@ -1807,3 +1811,5 @@ bool QHeaderViewPrivate::isSectionSelected(int section) const
     sectionSelection.setBit(i, true);
     return selected;
 }
+
+#endif // QT_NO_ITEMVIEWS

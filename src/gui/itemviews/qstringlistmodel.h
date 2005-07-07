@@ -17,6 +17,8 @@
 #include <QtCore/qstringlist.h>
 #include <QtGui/qabstractitemview.h>
 
+#ifndef QT_NO_STRINGLISTMODEL
+
 class Q_GUI_EXPORT QStringListModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -42,4 +44,5 @@ private:
     QStringList lst;
 };
 
+#endif // QT_NO_STRINGLISTMODEL
 #endif // QSTRINGLISTMODEL_H

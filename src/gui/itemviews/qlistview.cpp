@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include "qlistview.h"
+
+#ifndef QT_NO_LISTVIEW
 #include <qabstractitemdelegate.h>
 #include <qapplication.h>
 #include <qpainter.h>
@@ -951,6 +953,7 @@ void QListView::paintEvent(QPaintEvent *e)
         d->drawItems(&painter, d->draggedItems);
     }
 
+#ifndef QT_NO_RUBBERBAND
     if (d->elasticBand.isValid()) {
         QStyleOptionRubberBand opt;
         opt.init(this);
@@ -962,6 +965,7 @@ void QListView::paintEvent(QPaintEvent *e)
         style()->drawControl(QStyle::CE_RubberBand, &opt, &painter);
         painter.restore();
     }
+#endif
 }
 
 /*!
@@ -1871,3 +1875,4 @@ QModelIndex QListViewPrivate::closestIndex(const QPoint &target,
     }
     return closest;
 }
+#endif // QT_NO_LISTVIEW

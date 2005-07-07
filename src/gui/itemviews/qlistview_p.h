@@ -28,6 +28,8 @@
 #include <private/qabstractitemview_p.h>
 #include <qrubberband.h>
 
+#ifndef QT_NO_LISTVIEW
+
 template <class T>
 class QBinTree
 {
@@ -373,4 +375,5 @@ public:
     int column;
 };
 
+#endif // QT_NO_LISTVIEW
 #endif //QLISTVIEW_P_H

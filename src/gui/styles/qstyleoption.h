@@ -361,6 +361,7 @@ protected:
     QStyleOptionToolBox(int version);
 };
 
+#ifndef QT_NO_RUBBERBAND
 class Q_GUI_EXPORT QStyleOptionRubberBand : public QStyleOption
 {
 public:
@@ -376,6 +377,7 @@ public:
 protected:
     QStyleOptionRubberBand(int version);
 };
+#endif // QT_NO_RUBBERBAND
 
 // -------------------------- Complex style options -------------------------------
 class Q_GUI_EXPORT QStyleOptionComplex : public QStyleOption

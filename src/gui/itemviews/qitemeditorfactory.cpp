@@ -13,6 +13,9 @@
 
 #include <qplatformdefs.h>
 #include "qitemeditorfactory.h"
+
+#ifndef QT_NO_ITEMVIEWS
+
 #include <qcombobox.h>
 #include <qdatetimeedit.h>
 #include <qlabel.h>
@@ -245,3 +248,4 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
     must return corresponds to the type of value that your editor widgets
     are designed to edit.
 */
+#endif // QT_NO_ITEMVIEWS

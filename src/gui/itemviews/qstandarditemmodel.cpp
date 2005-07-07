@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qstandarditemmodel.h"
+
+#ifndef QT_NO_STANDARDITEMMODEL
+
 #include <qpair.h>
 #include <qvariant.h>
 #include <qvector.h>
@@ -484,3 +487,4 @@ void QStandardItemModelPrivate::clear()
     verticalHeader.clear();
 }
 
+#endif // QT_NO_STANDARDITEMMODEL

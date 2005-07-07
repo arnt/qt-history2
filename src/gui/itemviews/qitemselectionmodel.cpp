@@ -14,6 +14,7 @@
 #include "qitemselectionmodel.h"
 #include <private/qitemselectionmodel_p.h>
 
+#ifndef QT_NO_ITEMVIEWS
 /*!
     \class QItemSelectionRange
 
@@ -1043,3 +1044,4 @@ void QItemSelectionModel::emitSelectionChanged(const QItemSelection &newSelectio
 
     emit selectionChanged(selected, deselected);
 }
+#endif // QT_NO_ITEMVIEWS

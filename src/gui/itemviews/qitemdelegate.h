@@ -19,6 +19,7 @@
 #include <QtGui/qpixmap.h>
 #include <QtCore/qvariant.h>
 
+#ifndef QT_NO_ITEMVIEWS
 class QItemDelegatePrivate;
 class QItemEditorFactory;
 
@@ -79,4 +80,5 @@ private:
     Q_DISABLE_COPY(QItemDelegate)
 };
 
+#endif // QT_NO_ITEMVIEWS
 #endif // QITEMDELEGATE_H

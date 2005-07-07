@@ -16,6 +16,8 @@
 
 #include <QtGui/qwidget.h>
 
+#ifndef QT_NO_RUBBERBAND
+
 class QRubberBandPrivate;
 
 class Q_GUI_EXPORT QRubberBand : public QWidget
@@ -57,4 +59,5 @@ inline void QRubberBand::move(int ax, int ay)
               ay - geometry().y() - QWidget::y(),
               width(), height()); }
 
+#endif // QT_NO_RUBBERBAND
 #endif // QRUBBERBAND_H

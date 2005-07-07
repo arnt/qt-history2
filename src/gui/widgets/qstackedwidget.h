@@ -16,6 +16,8 @@
 
 #include <QtGui/qframe.h>
 
+#ifndef QT_NO_STACKEDWIDGET
+
 class QStackedWidgetPrivate;
 
 class Q_GUI_EXPORT QStackedWidget : public QFrame
@@ -53,4 +55,5 @@ private:
     Q_DECLARE_PRIVATE(QStackedWidget)
 };
 
+#endif // QT_NO_STACKEDWIDGET
 #endif // QSTACKEDWIDGET_H

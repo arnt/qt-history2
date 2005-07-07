@@ -36,7 +36,9 @@ void QDockSeparator::setDock(QDockWidgetLayout *d)
     Q_ASSERT(d != 0);
     dock = d;
     orientation = dock->orientation;
+#ifndef QT_NO_CURSOR
     setCursor((orientation == Qt::Horizontal) ? Qt::SplitVCursor : Qt::SplitHCursor);
+#endif
 }
 
 bool QDockSeparator::event(QEvent *event)

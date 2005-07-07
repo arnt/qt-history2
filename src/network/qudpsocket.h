@@ -17,6 +17,8 @@
 #include "QtNetwork/qabstractsocket.h"
 #include "QtNetwork/qhostaddress.h"
 
+#ifndef QT_NO_UDPSOCKET
+
 class QUdpSocketPrivate;
 
 class Q_NETWORK_EXPORT QUdpSocket : public QAbstractSocket
@@ -41,4 +43,5 @@ private:
     Q_DECLARE_PRIVATE(QUdpSocket)
 };
 
+#endif // QT_NO_UDPSOCKET
 #endif // QUDPSOCKET_H

@@ -22,6 +22,7 @@ class QTabBar;
 class QComboBox;
 class QTitleBar;
 
+#ifndef QT_NO_ITEMVIEWS
 class QAccessibleHeader : public QAccessibleWidget
 {
 public:
@@ -37,6 +38,7 @@ public:
 protected:
     QHeaderView *header() const;
 };
+#endif
 
 #ifndef QT_NO_TABBAR
 class QAccessibleTabBar : public QAccessibleWidget

@@ -30,7 +30,7 @@ class Q_GUI_EXPORT QCursor
 public:
     static QPoint pos();
     static void setPos(int x, int y);
-    static void setPos(const QPoint &);
+    inline static void setPos(const QPoint &p) { setPos(p.x(), p.y()); }
 private:
     QCursor();
 };

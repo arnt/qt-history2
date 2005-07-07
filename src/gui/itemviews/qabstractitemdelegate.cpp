@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include "qabstractitemdelegate.h"
+
+#ifndef QT_NO_ITEMVIEWS
 #include <qabstractitemmodel.h>
 #include <qfontmetrics.h>
 #include <qstring.h>
@@ -299,3 +301,4 @@ QString QAbstractItemDelegate::elidedText(const QFontMetrics &fontMetrics, int w
     
     return elided;
 }
+#endif // QT_NO_ITEMVIEWS

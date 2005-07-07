@@ -26,6 +26,8 @@
 //
 
 #include <private/qabstractitemview_p.h>
+
+#ifndef QT_NO_ITEMVIEWS
 #include <qbitarray.h>
 #include <qapplication.h>
 #include <qlabel.h>
@@ -107,4 +109,5 @@ public:
     QHeaderView::ResizeMode globalResizeMode;
 };
 
+#endif // QT_NO_ITEMVIEWS
 #endif // QHEADERVIEW_P_H

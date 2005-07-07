@@ -70,7 +70,7 @@ public:
 
     Qt::ToolBarArea toolBarArea(QToolBar *toolbar) const;
 #endif
-    
+#ifndef QT_NO_DOCKWIDGET    
     void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget);
     void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget,
                        Qt::Orientation orientation);
@@ -79,6 +79,7 @@ public:
     void removeDockWidget(QDockWidget *dockwidget);
 
     Qt::DockWidgetArea dockWidgetArea(QDockWidget *dockwidget) const;
+#endif // QT_NO_DOCKWIDGET    
 
     QByteArray saveState(int version = 0) const;
     bool restoreState(const QByteArray &state, int version = 0);

@@ -16,6 +16,8 @@
 
 #include <QtGui/qabstractitemview.h>
 
+#ifndef QT_NO_ITEMVIEWS
+
 class QHeaderViewPrivate;
 
 class Q_GUI_EXPORT QHeaderView : public QAbstractItemView
@@ -168,4 +170,5 @@ inline void QHeaderView::hideSection(int alogicalIndex)
 inline void QHeaderView::showSection(int alogicalIndex)
 { setSectionHidden(alogicalIndex, false); }
 
+#endif // QT_NO_ITEMVIEWS
 #endif // QHEADERVIEW_H

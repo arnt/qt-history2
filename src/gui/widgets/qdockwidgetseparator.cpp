@@ -13,6 +13,8 @@
 
 #include "qdockwidgetseparator_p.h"
 
+#ifndef QT_NO_DOCKWIDGET
+
 #include "qdockwidget.h"
 #include "qdockwidgetlayout_p.h"
 
@@ -25,7 +27,11 @@
 
 QDockWidgetSeparator::QDockWidgetSeparator(QDockWidgetLayout *l, QWidget *parent)
     : QWidget(parent), layout(l), state(0), hover(false)
-{ setCursor(layout->orientation == Qt::Horizontal ? Qt::SplitHCursor : Qt::SplitVCursor); }
+{
+#ifndef QT_NO_CURSOR
+    setCursor(layout->orientation == Qt::Horizontal ? Qt::SplitHCursor : Qt::SplitVCursor);
+#endif
+}
 
 /*!
     Returns a rectangle centered around \a point.  The parent dock
@@ -128,3 +134,5 @@ void QDockWidgetSeparator::paintEvent(QPaintEvent *)
     opt.palette = palette();
     style()->drawPrimitive(QStyle::PE_IndicatorDockWidgetResizeHandle, &opt, &p, this);
 }
+
+#endif // QT_NO_DOCKWIDGET

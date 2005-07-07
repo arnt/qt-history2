@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include "qitemdelegate.h"
+
+#ifndef QT_NO_ITEMVIEWS
 #include <qabstractitemmodel.h>
 #include <qapplication.h>
 #include <qlineedit.h>
@@ -232,11 +234,13 @@ QWidget *QItemDelegate::createEditor(QWidget *parent,
 
 void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
+#ifndef QT_NO_PROPERTIES
     Q_D(const QItemDelegate);
     QVariant v = index.model()->data(index, Qt::EditRole);
     QByteArray n = d->editorFactory()->valuePropertyName(v.type());
     if (!n.isEmpty())
         editor->setProperty(n, v);
+#endif
 }
 
 /*!
@@ -248,12 +252,14 @@ void QItemDelegate::setModelData(QWidget *editor,
                                  QAbstractItemModel *model,
                                  const QModelIndex &index) const
 {
+#ifndef QT_NO_PROPERTIES
     Q_D(const QItemDelegate);
     Q_ASSERT(model);
     QVariant::Type t = model->data(index, Qt::EditRole).type();
     QByteArray n = d->editorFactory()->valuePropertyName(t);
     if (!n.isEmpty())
         model->setData(index, editor->property(n), Qt::EditRole);
+#endif
 }
 
 /*!
@@ -663,3 +669,5 @@ bool QItemDelegate::editorEvent(QEvent *event,
 
     return false;
 }
+
+#endif // QT_NO_ITEMVIEWS

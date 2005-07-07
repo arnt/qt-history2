@@ -184,20 +184,24 @@ void QWindowsStyle::unpolish(QApplication *)
 void QWindowsStyle::polish(QWidget *widget)
 {
     QCommonStyle::polish(widget);
+#ifndef QT_NO_RUBBERBAND
     if (qobject_cast<QRubberBand*>(widget)) {
         widget->setWindowOpacity(0.7f);
         widget->setAttribute(Qt::WA_PaintOnScreen);
     }
+#endif
 }
 
 /*! \reimp */
 void QWindowsStyle::unpolish(QWidget *widget)
 {
     QCommonStyle::polish(widget);
+#ifndef QT_NO_RUBBERBAND
     if (qobject_cast<QRubberBand*>(widget)) {
         widget->setWindowOpacity(1.0);
         widget->setAttribute(Qt::WA_PaintOnScreen, false);
     }
+#endif
 }
 
 /*! \reimp */

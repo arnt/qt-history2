@@ -18,11 +18,11 @@
 #define QT_NO_TEXTCODEC
 #endif
 #define QT_NO_UNICODETABLES
-#define QT_NO_IMAGEIO_BMP
-#define QT_NO_IMAGEIO_PPM
-#define QT_NO_IMAGEIO_XBM
-#define QT_NO_IMAGEIO_XPM
-/* #define QT_NO_IMAGEIO_PNG //done by configure -no-png */
+#define QT_NO_IMAGEFORMAT_BMP
+#define QT_NO_IMAGEFORMAT_PPM
+#define QT_NO_IMAGEFORMAT_XBM
+#define QT_NO_IMAGEFORMAT_XPM
+/* #define QT_NO_IMAGEFORMAT_PNG //done by configure -no-png */
 #define QT_NO_ASYNC_IO
 #define QT_NO_ASYNC_IMAGE_IO
 /* #define QT_NO_FREETYPE //done by configure -no-freetype */
@@ -72,7 +72,7 @@
 #define QT_NO_VALIDATOR
 #define QT_NO_WHATSTHIS
 #define QT_NO_WIDGETSTACK
-#define QT_NO_ACCEL
+#define QT_NO_SHORTCUT
 #define QT_NO_SIZEGRIP
 #define QT_NO_HEADER
 #define QT_NO_WORKSPACE

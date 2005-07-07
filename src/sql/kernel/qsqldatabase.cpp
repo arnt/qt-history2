@@ -61,14 +61,11 @@
 #include <stdlib.h>
 
 #ifndef QT_NO_LIBRARY
-# define LIBRARY_PATHS QCoreApplication::libraryPaths()
-#else
-# define LIBRARY_PATHS QStringList()
-#endif
-
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-                          (QSqlDriverFactoryInterface_iid, LIBRARY_PATHS,
+                          (QSqlDriverFactoryInterface_iid,
+                           QCoreApplication::libraryPaths(), 
                            QLatin1String("/sqldrivers")))
+#endif
 
 QT_STATIC_CONST_IMPL char *QSqlDatabase::defaultConnection = "qt_sql_default_connection";
 
@@ -513,6 +510,7 @@ QStringList QSqlDatabase::drivers()
     list << QLatin1String("QIBASE");
 #endif
 
+#ifndef QT_NO_LIBRARY
     if (QFactoryLoader *fl = loader()) {
         QStringList keys = fl->keys();
         for (QStringList::const_iterator i = keys.constBegin(); i != keys.constEnd(); ++i) {
@@ -520,7 +518,8 @@ QStringList QSqlDatabase::drivers()
                 list << *i;
         }
     }
-
+#endif
+    
     DriverDict dict = QSqlDatabasePrivate::driverDict();
     for (DriverDict::const_iterator i = dict.constBegin(); i != dict.constEnd(); ++i) {
         if (!list.contains(i.key()))
@@ -713,10 +712,12 @@ void QSqlDatabasePrivate::init(const QString &type)
         }
     }
 
+#ifndef QT_NO_LIBRARY
     if (!driver && loader()) {
         if (QSqlDriverFactoryInterface *factory = qobject_cast<QSqlDriverFactoryInterface*>(loader()->instance(type)))
             driver = factory->create(type);
     }
+#endif // QT_NO_LIBRARY
 
     if (!driver) {
         qWarning("QSqlDatabase: %s driver not loaded", type.toLatin1().data());

@@ -235,7 +235,9 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
             qApp->removeEventFilter(this);
             if (restoreCursor) {
                 willDrop = false;
+#ifndef QT_NO_CURSOR
                 QApplication::restoreOverrideCursor();
+#endif
                 restoreCursor = false;
             }
             if (object && object->target()) {
