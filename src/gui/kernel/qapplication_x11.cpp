@@ -1852,8 +1852,8 @@ void qt_init(QApplicationPrivate *priv, int,
         }
 #endif // QT_NO_TABLET_SUPPORT
        
-        X11->startupId = qgetenv("DESKTOP_STARTUP_ID");
-        setenv("DESKTOP_STARTUP_ID", 0);
+        X11->startupId = getenv("DESKTOP_STARTUP_ID");
+        setenv("DESKTOP_STARTUP_ID", 0, 1);
 
     } else {
         // read some non-GUI settings when not using the X server...
