@@ -1982,12 +1982,16 @@ QString QFontDatabase::writingSystemSample(WritingSystem writingSystem)
         sample += QChar(0x17c0);
         break;
     case SimplifiedChinese:
-        sample += QChar(0x3105);
-        sample += QChar(0x3115);
-        sample += QChar(0x3125);
-        sample += QChar(0x3129);
+        sample += QChar(0x4e2d);
+        sample += QChar(0x6587);
+        sample += QChar(0x8303);
+        sample += QChar(0x4f8b);
         break;
     case TraditionalChinese:
+        sample += QChar(0x4e2d);
+        sample += QChar(0x6587);
+        sample += QChar(0x7bc4);
+        sample += QChar(0x4f8b);
         break;
     case Japanese:
         sample += QChar(0x3050);
