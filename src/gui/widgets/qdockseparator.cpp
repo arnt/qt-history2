@@ -63,7 +63,7 @@ void QDockSeparator::mousePressEvent(QMouseEvent *event)
     if (event->button() != Qt::LeftButton)
         return;
 
-    Q_ASSERT(!state);
+    delete state;
     state = new DragState;
 
     // we map from global coordinates to avoid nasty effects when
@@ -80,7 +80,8 @@ void QDockSeparator::mousePressEvent(QMouseEvent *event)
 
 void QDockSeparator::mouseMoveEvent(QMouseEvent *event)
 {
-    Q_ASSERT(state != 0);
+    if (!state)
+        return;
 
     // we map from global coordinates to avoid nasty effects when
     // event compression kicks in
@@ -90,7 +91,7 @@ void QDockSeparator::mouseMoveEvent(QMouseEvent *event)
 
     // constrain the mouse move event
     if (qobject_cast<QMainWindowLayout *>(mw->layout())->constrain(dock, delta) != 0)
-	qobject_cast<QMainWindowLayout *>(mw->layout())->relayout();
+        qobject_cast<QMainWindowLayout *>(mw->layout())->relayout();
 }
 
 void QDockSeparator::mouseReleaseEvent(QMouseEvent *event)
@@ -103,10 +104,8 @@ void QDockSeparator::mouseReleaseEvent(QMouseEvent *event)
     l->relayout();
     l->discardLayoutInfo();
 
-    Q_ASSERT(state != 0);
-
     // restore focus
-    if (state->prevFocus)
+    if (state && state->prevFocus)
         state->prevFocus->setFocus();
 
     delete state;
