@@ -65,9 +65,6 @@
 // Animated images
 //#define QT_NO_MOVIE
 
-// External process invocation.
-//#define QT_NO_PROCESS
-
 // Progress bars
 //#define QT_NO_PROGRESSBAR
 
@@ -100,6 +97,9 @@
 
 // Qt/Embedded window system properties.
 //#define QT_NO_QWS_PROPERTIES
+
+// Regular expression capture
+//#define QT_NO_REGEXP
 
 // Internal resize handler
 //#define QT_NO_RESIZEHANDLER
@@ -230,6 +230,11 @@
 #define QT_NO_PICTURE
 #endif
 
+// External process invocation.
+#if !defined(QT_NO_PROCESS) && (defined(QT_NO_REGEXP))
+#define QT_NO_PROCESS
+#endif
+
 // QProgressDialog
 #if !defined(QT_NO_PROGRESSDIALOG) && (defined(QT_NO_PROGRESSBAR))
 #define QT_NO_PROGRESSDIALOG
@@ -250,14 +255,54 @@
 #define QT_NO_QWS_DECORATION_WINDOWS
 #endif
 
+// Regular expression anchors
+#if !defined(QT_NO_REGEXP_ANCHOR_ALT) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_ANCHOR_ALT
+#endif
+
+// Regular expression back-reference
+#if !defined(QT_NO_REGEXP_BACKREF) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_BACKREF
+#endif
+
+// Regular expression capture
+#if !defined(QT_NO_REGEXP_CAPTURE) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_CAPTURE
+#endif
+
+// Regular expression character-class
+#if !defined(QT_NO_REGEXP_CCLASS) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_CCLASS
+#endif
+
+// Regular expression escape
+#if !defined(QT_NO_REGEXP_ESCAPE) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_ESCAPE
+#endif
+
+// Regular expression interval
+#if !defined(QT_NO_REGEXP_INTERVAL) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_INTERVAL
+#endif
+
+// Regular expression lookahead
+#if !defined(QT_NO_REGEXP_LOOKAHEAD) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_LOOKAHEAD
+#endif
+
+// Regular expression optimization
+#if !defined(QT_NO_REGEXP_OPTIM) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_OPTIM
+#endif
+
+// Regular expression wildcard
+#if !defined(QT_NO_REGEXP_WILDCARD) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_WILDCARD
+#endif
+
 // Scroll bars
 #if !defined(QT_NO_SCROLLBAR) && (defined(QT_NO_SLIDER))
 #define QT_NO_SCROLLBAR
-#endif
-
-// Persistent application settings
-#if !defined(QT_NO_SETTINGS) && (defined(QT_NO_TEXTSTREAM))
-#define QT_NO_SETTINGS
 #endif
 
 // Splitters
@@ -295,11 +340,6 @@
 #define QT_NO_HTTP
 #endif
 
-// Shared library wrapper
-#if !defined(QT_NO_LIBRARY) && (defined(QT_NO_SETTINGS))
-#define QT_NO_LIBRARY
-#endif
-
 // Menu bars
 #if !defined(QT_NO_MENUBAR) && (defined(QT_NO_MENU))
 #define QT_NO_MENUBAR
@@ -323,6 +363,11 @@
 // Server to play sound
 #if !defined(QT_NO_QWS_SOUNDSERVER) && (defined(QT_NO_SOUND) || defined(QT_NO_HOSTINFO))
 #define QT_NO_QWS_SOUNDSERVER
+#endif
+
+// Persistent application settings
+#if !defined(QT_NO_SETTINGS) && (defined(QT_NO_TEXTSTREAM) || defined(QT_NO_REGEXP_CAPTURE))
+#define QT_NO_SETTINGS
 #endif
 
 // Spin boxes
@@ -365,14 +410,14 @@
 #define QT_NO_TEXTBROWSER
 #endif
 
-// QTextCodecPlugin
-#if !defined(QT_NO_TEXTCODECPLUGIN) && (defined(QT_NO_TEXTCODEC) || defined(QT_NO_LIBRARY))
-#define QT_NO_TEXTCODECPLUGIN
-#endif
-
 // QDirModel
 #if !defined(QT_NO_DIRMODEL) && (defined(QT_NO_ITEMVIEWS))
 #define QT_NO_DIRMODEL
+#endif
+
+// Shared library wrapper
+#if !defined(QT_NO_LIBRARY) && (defined(QT_NO_REGEXP) || defined(QT_NO_SETTINGS))
+#define QT_NO_LIBRARY
 #endif
 
 // QListView
@@ -450,6 +495,11 @@
 #define QT_NO_MAINWINDOW
 #endif
 
+// QTextCodecPlugin
+#if !defined(QT_NO_TEXTCODECPLUGIN) && (defined(QT_NO_TEXTCODEC) || defined(QT_NO_LIBRARY))
+#define QT_NO_TEXTCODECPLUGIN
+#endif
+
 // Toolbars
 #if !defined(QT_NO_TOOLBAR) && (defined(QT_NO_MAINWINDOW))
 #define QT_NO_TOOLBAR
@@ -486,7 +536,7 @@
 #endif
 
 // QFileDialog
-#if !defined(QT_NO_FILEDIALOG) && (defined(QT_NO_DIRMODEL) || defined(QT_NO_TREEVIEW) || defined(QT_NO_MESSAGEBOX) || defined(QT_NO_COMBOBOX) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_BUTTONGROUP))
+#if !defined(QT_NO_FILEDIALOG) && (defined(QT_NO_DIRMODEL) || defined(QT_NO_TREEVIEW) || defined(QT_NO_MESSAGEBOX) || defined(QT_NO_COMBOBOX) || defined(QT_NO_REGEXP_CAPTURE) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_BUTTONGROUP))
 #define QT_NO_FILEDIALOG
 #endif
 

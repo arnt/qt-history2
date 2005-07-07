@@ -90,7 +90,7 @@ SeeAlso: ???
 
 Feature: PROCESS
 Section: File I/O
-Requires: 
+Requires: REGEXP
 Name: External process invocation.
 SeeAlso: ???
 
@@ -108,13 +108,13 @@ SeeAlso: ???
 
 Feature: LIBRARY
 Section: File I/O
-Requires: SETTINGS
+Requires: REGEXP SETTINGS
 Name: Shared library wrapper
 SeeAlso: ???
 
 Feature: SETTINGS
 Section: File I/O
-Requires: TEXTSTREAM 
+Requires: TEXTSTREAM REGEXP_CAPTURE
 Name: Persistent application settings
 SeeAlso: ???
 
@@ -370,7 +370,7 @@ SeeAlso: ???
 
 Feature: FILEDIALOG
 Section: Dialogs
-Requires: DIRMODEL TREEVIEW MESSAGEBOX COMBOBOX TOOLBUTTON BUTTONGROUP 
+Requires: DIRMODEL TREEVIEW MESSAGEBOX COMBOBOX REGEXP_CAPTURE TOOLBUTTON BUTTONGROUP 
 Name: QFileDialog
 SeeAlso: ???
 
@@ -758,63 +758,63 @@ SeeAlso: ???
 
 # Regexp
 
-#Feature: REGEXP
-#Section: Data structures
-#Requires:
-#Name: Regular expression capture
-#SeeAlso: ???
-#
-#Feature: REGEXP_CAPTURE
-#Section: Data structures
-#Requires: REGEXP
-#Name: Regular expression capture
-#SeeAlso: ???
-#
-#Feature: REGEXP_OPTIM
-#Section: Data structures
-#Requires: REGEXP
-#Name: Regular expression optimization
-#SeeAlso: ???
-#
-#Feature: REGEXP_LOOKAHEAD
-#Section: Data structures
-#Requires: REGEXP
-#Name: Regular expression lookahead
-#SeeAlso: ???
-#
-#Feature: REGEXP_INTERVAL
-#Section: Data structures
-#Requires: REGEXP
-#Name: Regular expression interval
-#SeeAlso: ???
-#
-#Feature: REGEXP_ESCAPE
-#Section: Data structures
-#Requires: REGEXP
-#Name: Regular expression escape
-#SeeAlso: ???
-#
-#Feature: REGEXP_CCLASS
-#Section: Data structures
-#Requires: REGEXP
-#Name: Regular expression character-class
-#SeeAlso: ???
-#
-#Feature: REGEXP_BACKREF
-#Section: Data structures
-#Requires: REGEXP
-#Name: Regular expression back-reference
-#SeeAlso: ???
-#
-#Feature: REGEXP_ANCHOR_ALT
-#Section: Data structures
-#Requires: REGEXP
-#Name: Regular expression anchors
-#SeeAlso: ???
-#
-#Feature: REGEXP_WILDCARD
-#Section: Data structures
-#Requires: REGEXP
-#Name: Regular expression wildcard
-#SeeAlso: ???
+Feature: REGEXP
+Section: Data structures
+Requires:
+Name: Regular expression capture
+SeeAlso: ???
+
+Feature: REGEXP_CAPTURE
+Section: Data structures
+Requires: REGEXP
+Name: Regular expression capture
+SeeAlso: ???
+
+Feature: REGEXP_OPTIM
+Section: Data structures
+Requires: REGEXP
+Name: Regular expression optimization
+SeeAlso: ???
+
+Feature: REGEXP_LOOKAHEAD
+Section: Data structures
+Requires: REGEXP
+Name: Regular expression lookahead
+SeeAlso: ???
+
+Feature: REGEXP_INTERVAL
+Section: Data structures
+Requires: REGEXP
+Name: Regular expression interval
+SeeAlso: ???
+
+Feature: REGEXP_ESCAPE
+Section: Data structures
+Requires: REGEXP
+Name: Regular expression escape
+SeeAlso: ???
+
+Feature: REGEXP_CCLASS
+Section: Data structures
+Requires: REGEXP
+Name: Regular expression character-class
+SeeAlso: ???
+
+Feature: REGEXP_BACKREF
+Section: Data structures
+Requires: REGEXP
+Name: Regular expression back-reference
+SeeAlso: ???
+
+Feature: REGEXP_ANCHOR_ALT
+Section: Data structures
+Requires: REGEXP
+Name: Regular expression anchors
+SeeAlso: ???
+
+Feature: REGEXP_WILDCARD
+Section: Data structures
+Requires: REGEXP
+Name: Regular expression wildcard
+SeeAlso: ???
 
