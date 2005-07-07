@@ -1034,11 +1034,11 @@ qint64 QAbstractSocket::bytesToWrite() const
 qint64 QAbstractSocket::bytesAvailable() const
 {
     Q_D(const QAbstractSocket);
-    qint64 available = 0;
+    qint64 available = QIODevice::bytesAvailable();
     if (d->isBuffered)
-        available = (qint64) d->readBuffer.size();
+        available += (qint64) d->readBuffer.size();
     else if (d->socketLayer.isValid())
-        available = d->socketLayer.bytesAvailable();
+        available += d->socketLayer.bytesAvailable();
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::bytesAvailable() == %llu", available);
 #endif

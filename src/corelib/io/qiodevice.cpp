@@ -537,12 +537,16 @@ bool QIODevice::reset()
     Returns the number of bytes that are available for reading. This
     function is commonly used with sequential devices to determine the
     number of bytes to allocate in a buffer before reading.
+    
+    Subclasses that reimplement this function call the base 
+    implementation in order to include the size of the unget buffer.
 */
 qint64 QIODevice::bytesAvailable() const
 {
+    Q_D(const QIODevice);
     if (!isSequential())
         return size() - pos();
-    return 0;
+    return d->ungetBuffer.size();
 }
 
 /*!

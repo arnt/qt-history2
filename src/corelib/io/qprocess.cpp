@@ -705,11 +705,15 @@ QProcess::ProcessChannel QProcess::readChannel() const
     read(), readAll(), readLine(), and getChar(). It also determines
     which channel triggers QProcess to emit readyRead().
 
+    Changing the read channel will clear the unget buffer.
+
     \sa readChannel()
 */
 void QProcess::setReadChannel(ProcessChannel channel)
 {
     Q_D(QProcess);
+    if (d->processChannel != channel)
+        d->ungetBuffer.clear();
     d->processChannel = channel;
 }
 
@@ -864,7 +868,7 @@ qint64 QProcess::bytesAvailable() const
     qDebug("QProcess::bytesAvailable() == %i (%s)", readBuffer->size(),
            (d->processChannel == QProcess::StandardError) ? "stderr" : "stdout");
 #endif
-    return readBuffer->size();
+    return readBuffer->size() + QIODevice::bytesAvailable();
 }
 
 /*! \reimp
