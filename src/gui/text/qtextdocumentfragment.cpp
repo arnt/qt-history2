@@ -312,7 +312,6 @@ QTextDocumentFragment::~QTextDocumentFragment()
 bool QTextDocumentFragment::isEmpty() const
 {
     return !d || !d->doc || d->doc->docHandle()->length() <= 1;
-//    return !d || d->fragments.isEmpty();
 }
 
 /*!
@@ -405,13 +404,12 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
     return res;
 }
 
-QTextHTMLImporter::QTextHTMLImporter(QTextDocument *_doc, const QString &_html)
+QTextHtmlImporter::QTextHtmlImporter(QTextDocument *_doc, const QString &_html)
     : indent(0), setNamedAnchorInNextOutput(false), doc(_doc), containsCompleteDoc(false)
 {
     cursor = QTextCursor(doc);
 
     QString html = _html;
-    // ######## can go into HtmlImporter
     const int startFragmentPos = html.indexOf(QLatin1String("<!--StartFragment-->"));
     if (startFragmentPos != -1) {
         const int endFragmentPos = html.indexOf(QLatin1String("<!--EndFragment-->"));
@@ -436,7 +434,7 @@ static QTextListFormat::Style nextListStyle(QTextListFormat::Style style)
     return style;
 }
 
-void QTextHTMLImporter::import()
+void QTextHtmlImporter::import()
 {
     cursor.beginEditBlock();
     bool hasBlock = true;
@@ -706,7 +704,7 @@ void QTextHTMLImporter::import()
 }
 
 // returns true if a block tag was closed
-bool QTextHTMLImporter::closeTag(int i)
+bool QTextHtmlImporter::closeTag(int i)
 {
     const bool atLastNode = (i == count() - 1);
     const QTextHtmlParserNode *closedNode = &at(i - 1);
@@ -753,7 +751,7 @@ bool QTextHTMLImporter::closeTag(int i)
     return blockTagClosed;
 }
 
-bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
+bool QTextHtmlImporter::scanTable(int tableNodeIdx, Table *table)
 {
     table->columns = 0;
 
@@ -853,7 +851,7 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
     return true;
 }
 
-void QTextHTMLImporter::appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt)
+void QTextHtmlImporter::appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt)
 {
     if (setNamedAnchorInNextOutput) {
         charFmt.setAnchor(true);
@@ -879,7 +877,7 @@ QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &html)
     res.d->doc = new QTextDocument;
     res.d->doc->setUndoRedoEnabled(false);
 
-    QTextHTMLImporter importer(res.d->doc, html);
+    QTextHtmlImporter importer(res.d->doc, html);
     importer.import();
     res.d->containsCompleteDocument = importer.containsCompleteDocument();
     return res;

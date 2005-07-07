@@ -561,7 +561,7 @@ void QTextDocument::setHtml(const QString &html)
 {
     setUndoRedoEnabled(false);
     clear();
-    QTextHTMLImporter(this, html).import();
+    QTextHtmlImporter(this, html).import();
     setUndoRedoEnabled(true);
 }
 

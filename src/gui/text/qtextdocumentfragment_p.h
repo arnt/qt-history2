@@ -86,11 +86,11 @@ private:
     Q_DISABLE_COPY(QTextDocumentFragmentPrivate);
 };
 
-class QTextHTMLImporter : public QTextHtmlParser
+class QTextHtmlImporter : public QTextHtmlParser
 {
     struct Table;
 public:
-    QTextHTMLImporter(QTextDocument *_doc, const QString &html);
+    QTextHtmlImporter(QTextDocument *_doc, const QString &html);
 
     void import();
 
