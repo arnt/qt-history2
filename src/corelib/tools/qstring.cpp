@@ -2106,7 +2106,7 @@ int QString::lastIndexOf(QChar ch, int from, Qt::CaseSensitivity cs) const
     return -1;
 }
 
-#ifndef QT_NO_REGEXP_CAPTURE
+#ifndef QT_NO_REGEXP
 /*! \overload
 
     Replaces every occurrence of the regular expression \a rx in the

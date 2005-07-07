@@ -197,7 +197,7 @@ public:
     QString &replace(QChar c, const QString &after, Qt::CaseSensitivity cs = Qt::CaseSensitive);
     QString &replace(const QString &before, const QString &after,
                      Qt::CaseSensitivity cs = Qt::CaseSensitive);
-#ifndef QT_NO_REGEXP_CAPTURE
+#ifndef QT_NO_REGEXP
     QString &replace(const QRegExp &rx, const QString &after);
     inline QString &remove(const QRegExp &rx)
     { return replace(rx, QString()); }
@@ -209,7 +209,9 @@ public:
                       Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
     QStringList split(const QChar &sep, SplitBehavior behavior = KeepEmptyParts,
                       Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+#ifndef QT_NO_REGEXP
     QStringList split(const QRegExp &sep, SplitBehavior behavior = KeepEmptyParts) const;
+#endif
 
     enum NormalizationForm {
         NormalizationForm_D,
