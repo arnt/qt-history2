@@ -1327,18 +1327,22 @@ QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperatio
         if(op == Qt::ReplaceClip) {
             d->current.clip = clipRegion;
             d->setClip(0);
+            if(p.isEmpty()) {
+                CGRect rect = CGRectMake(0, 0, 0, 0);
+                CGContextClipToRect(d->hd, rect);
+            } else {
+                CGMutablePathRef path = qt_mac_compose_path(p);
+                CGContextBeginPath(d->hd);
+                CGContextAddPath(d->hd, path);
+                CGContextClip(d->hd);
+                CGPathRelease(path);
+            }
         } else if(op == Qt::IntersectClip) {
             d->current.clip = d->current.clip.intersect(clipRegion);
-        }
-        if(op == Qt::UniteClip) {
+            d->setClip(&d->current.clip);
+        } else if(op == Qt::UniteClip) {
             d->current.clip = d->current.clip.unite(clipRegion);
             d->setClip(&d->current.clip);
-        } else {
-            CGMutablePathRef path = qt_mac_compose_path(p);
-            CGContextBeginPath(d->hd);
-            CGContextAddPath(d->hd, path);
-            CGContextClip(d->hd);
-            CGPathRelease(path);
         }
     }
 }
