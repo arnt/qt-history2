@@ -49,7 +49,7 @@ static QString stringNumber(qint64 number)
 }
 
 AddTorrentDialog::AddTorrentDialog(QWidget *parent)
-  : QDialog(parent)
+  : QDialog(parent, Qt::Sheet)
 {
     ui.setupUi(this);
 

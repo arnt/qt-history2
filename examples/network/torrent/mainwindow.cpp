@@ -52,7 +52,8 @@ class TorrentViewDelegate : public QItemDelegate
 {
     Q_OBJECT
 public:
-    inline TorrentViewDelegate(MainWindow *mainWindow) : QItemDelegate(mainWindow) {}
+    inline TorrentViewDelegate(MainWindow *mainWindow)
+        : QItemDelegate(mainWindow), mainWindow(mainWindow) {}
 
     inline void paint(QPainter *painter, const QStyleOptionViewItem &option,
 		      const QModelIndex &index ) const
@@ -65,10 +66,8 @@ public:
 	// Set up a QStyleOptionProgressBar to precisely mimic the
 	// environment of a progress bar.
 	QStyleOptionProgressBar progressBarOption;
-	progressBarOption.state = QStyle::State_Enabled;
-	progressBarOption.direction = QApplication::layoutDirection();
+        progressBarOption.init(mainWindow);
 	progressBarOption.rect = option.rect;
-	progressBarOption.fontMetrics = QApplication::fontMetrics();
 	progressBarOption.minimum = 0;
 	progressBarOption.maximum = 100;
 	progressBarOption.textAlignment = Qt::AlignCenter;
@@ -82,6 +81,8 @@ public:
 	// Draw the progress bar onto the view.
 	QApplication::style()->drawControl(QStyle::CE_ProgressBar, &progressBarOption, painter);
     }
+private:
+    MainWindow *mainWindow;
 };
 
 MainWindow::MainWindow(QWidget *parent)
