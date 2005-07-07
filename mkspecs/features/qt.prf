@@ -25,6 +25,22 @@ win32:INCLUDEPATH += $$QMAKE_INCDIR_QT/ActiveQt
 !isEmpty(QT_BUILD_TREE):QMAKE_LIBDIR += $$QT_BUILD_TREE/lib
 QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
 for(QTLIB, $$list($$lower($$unique(QT)))) {
+   qlib_style = 
+   false:contains(QTLIB, ".*_debug$") {
+      qlib_style = debug
+      QTLIB ~= s,_debug$,,g
+   } else:false:contains(QTLIB, ".*_release$") {
+      qlib_style = release
+      QTLIB ~= s,_release$,,g
+   } else:!qt_debug:!qt_release {
+      CONFIG(debug, debug|release):qlib_style = debug
+      else:qlib_style = release
+   } else:CONFIG(qt_debug, qt_debug|qt_release) {
+      qlib_style = debug
+   } else {
+      qlib_style = release
+   }
+
    qlib =
    isEqual(QTLIB, gui):qlib = QtGui
    else:isEqual(QTLIB, network):qlib = QtNetwork
@@ -79,11 +95,12 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
 	 false {
 	    QT_LINKAGE = -l$${qlib}
 	 } else:isEmpty(QT_LINKAGE) {
-	    CONFIG(debug, debug|release) {
-	       win32:QT_LINKAGE = -l$${qlib}d
-	       else:QT_LINKAGE  = -l$${qlib}_debug
+            win32 {
+	       CONFIG(debug, debug|release):QT_LINKAGE = -l$${qlib}d
+	       else:QT_LINKAGE = -l$${qlib}
 	    } else { 
- 	       QT_LINKAGE = -l$${qlib}
+	       isEqual(qlib_style, debug):QT_LINKAGE = -l$${qlib}_debug
+	       else:QT_LINKAGE = -l$${qlib}
             }
          }
 	 LIBS += $$QT_LINKAGE
