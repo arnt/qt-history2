@@ -91,14 +91,17 @@ public:
 class Q_CORE_EXPORT QMetaCallEvent : public QEvent
 {
 public:
-    QMetaCallEvent(int id, int nargs = 0, int *types = 0, void **args = 0);
+    QMetaCallEvent(int id, const QObject *sender = 0,
+                   int nargs = 0, int *types = 0, void **args = 0);
     ~QMetaCallEvent();
 
     inline int id() const { return id_; }
+    inline const QObject *sender() const { return sender_; }
     inline void **args() const { return args_; }
 
 private:
     int id_;
+    const QObject *sender_;
     int nargs_;
     int *types_;
     void **args_;

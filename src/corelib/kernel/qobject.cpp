@@ -404,8 +404,8 @@ void QMetaObject::changeGuard(QObject **ptr, QObject *o)
 
 /*! \internal
  */
-QMetaCallEvent::QMetaCallEvent(int id, int nargs, int *types, void **args)
-    :QEvent(MetaCall), id_(id), nargs_(nargs), types_(types), args_(args)
+QMetaCallEvent::QMetaCallEvent(int id, const QObject *sender, int nargs, int *types, void **args)
+    :QEvent(MetaCall), id_(id), sender_(sender), nargs_(nargs), types_(types), args_(args)
 { }
 
 /*! \internal
@@ -875,13 +875,29 @@ bool QObject::event(QEvent *e)
         delete this;
         break;
 
-    case QEvent::MetaCall: {
-        QMetaCallEvent *mce = static_cast<QMetaCallEvent*>(e);
-        // #### should set current sender to 0 and reset after metacall.
-        // Problem is a delete this in the slot making this difficult.
-        qt_metacall(QMetaObject::InvokeMetaMethod, mce->id(), mce->args());
-        break;
-    }
+    case QEvent::MetaCall:
+        {
+            Q_D(QObject);
+            QMetaCallEvent *mce = static_cast<QMetaCallEvent*>(e);
+            QObject *previousSender = d->currentSender;
+            d->currentSender = const_cast<QObject*>(mce->sender());
+#if defined(QT_NO_EXCEPTIONS)
+            qt_metacall(QMetaObject::InvokeMetaMethod, mce->id(), mce->args());
+#else
+            try {
+                qt_metacall(QMetaObject::InvokeMetaMethod, mce->id(), mce->args());
+            } catch (...) {
+                QReadLocker locker(QObjectPrivate::readWriteLock());
+                if (QObjectPrivate::isValidObject(this))
+                    d->currentSender = previousSender;
+                throw;
+            }
+#endif
+            QReadLocker locker(QObjectPrivate::readWriteLock());
+            if (QObjectPrivate::isValidObject(this))
+                d->currentSender = previousSender;
+            break;
+        }
 
     case QEvent::ThreadChange: {
         QThread *objectThread = thread();
@@ -2509,10 +2525,10 @@ void QMetaObject::connectSlotsByName(QObject *o)
     }
 }
 
-static void queued_activate(QObject *obj, const QConnection &c, void **argv)
+static void queued_activate(QObject *sender, const QConnection &c, void **argv)
 {
     if (!c.types && c.types != &DIRECT_CONNECTION_ONLY) {
-        QMetaMethod m = obj->metaObject()->method(c.signal);
+        QMetaMethod m = sender->metaObject()->method(c.signal);
         QConnection &x = const_cast<QConnection &>(c);
         x.types = ::queuedConnectionTypes(m.signature());
         if (!x.types) // cannot queue arguments
@@ -2528,7 +2544,11 @@ static void queued_activate(QObject *obj, const QConnection &c, void **argv)
     args[0] = 0; // return value
     for (int n = 1; n < nargs; ++n)
         args[n] = QMetaType::construct((types[n] = c.types[n-1]), argv[n]);
-    QCoreApplication::postEvent(c.receiver, new QMetaCallEvent(c.method, nargs, types, args));
+    QCoreApplication::postEvent(c.receiver, new QMetaCallEvent(c.method,
+                                                               sender,
+                                                               nargs,
+                                                               types,
+                                                               args));
 }
 
 /*!\internal
