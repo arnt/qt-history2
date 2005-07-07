@@ -27,7 +27,6 @@
 ****************************************************************************/
 #include "filemanager.h"
 #include "metainfo.h"
-#include "sha1.h"
 
 #include <QByteArray>
 #include <QDebug>
@@ -36,6 +35,10 @@
 #include <QSet>
 #include <QTimer>
 #include <QTimerEvent>
+
+extern "C" {
+#include "3rdparty/sha1.h"
+}
 
 FileManager::FileManager(QObject *parent)
     : QThread(parent)
@@ -383,7 +386,28 @@ void FileManager::verifyFileContents()
 
 bool FileManager::verifySinglePiece(int pieceIndex)
 {
-    QByteArray sha1Sum = sha1Checksum(readBlock(pieceIndex, 0, pieceLength));
+    QByteArray block = readBlock(pieceIndex, 0, pieceLength);
+    
+    SHA1Context sha;
+    SHA1Reset(&sha);
+    SHA1Input(&sha, (const unsigned char *)block.constData(), block.size());
+    SHA1Result(&sha);
+    QByteArray sha1Sum(20, ' ');
+    unsigned char *digest = (unsigned char *)sha.Message_Digest;
+    for (int i = 0; i < 5; ++i) {
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
+        sha1Sum[i * 4 + 3] = digest[i * 4 + 3];
+        sha1Sum[i * 4 + 2] = digest[i * 4 + 2];
+        sha1Sum[i * 4 + 1] = digest[i * 4 + 1];
+        sha1Sum[i * 4 + 0] = digest[i * 4 + 0];
+#else
+        sha1Sum[i * 4 + 0] = digest[i * 4 + 3];
+        sha1Sum[i * 4 + 1] = digest[i * 4 + 2];
+        sha1Sum[i * 4 + 2] = digest[i * 4 + 1];
+        sha1Sum[i * 4 + 3] = digest[i * 4 + 0];
+#endif
+    }
+
     if (sha1Sum != sha1s.at(pieceIndex))
 	return false;
     

@@ -5,7 +5,6 @@ HEADERS += addtorrentdialog.h \
            peerwireclient.h \
            ratecontroller.h \
            filemanager.h \  
-           sha1.h \
            torrentclient.h \
            trackerclient.h
 
@@ -17,9 +16,12 @@ SOURCES += main.cpp \
            peerwireclient.cpp \
            ratecontroller.cpp \
            filemanager.cpp \
-           sha1.cpp \
            torrentclient.cpp \
            trackerclient.cpp
+
+# 3rdparty SHA-1 algorithm
+SOURCES += 3rdparty/sha1.c
+HEADERS += 3rdparty/sha1.h
 
 # Forms and resources
 FORMS += forms/addtorrentform.ui

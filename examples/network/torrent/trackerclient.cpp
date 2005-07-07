@@ -37,11 +37,15 @@
 
 static inline quint32 qntoh(quint32 source)
 {
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
+    return source;
+#else
     return 0
         | ((source & 0x000000ff) << 24)
         | ((source & 0x0000ff00) << 8)
         | ((source & 0x00ff0000) >> 8)
         | ((source & 0xff000000) >> 24);
+#endif
 }
 
 TrackerClient::TrackerClient(TorrentClient *downloader, QObject *parent)

@@ -33,10 +33,13 @@
 #include "trackerclient.h"
 #include "peerwireclient.h"
 #include "ratecontroller.h"
-#include "sha1.h"
 
 #include <QtCore>
 #include <QtNetwork/QTcpServer>
+
+extern "C" {
+#include "3rdparty/sha1.h"
+}
 
 static const int ServerMinPort = 6881;
 static const int ServerMaxPort = /* 6889 */ 7000;
@@ -276,7 +279,28 @@ bool TorrentClient::setTorrent(const QByteArray &torrentData)
     }
 
     // Calculate SHA1 hash of the "info" section in the torrent
-    d->infoHash = sha1Checksum(d->metaInfo.infoValue());
+    QByteArray block = d->metaInfo.infoValue();
+    SHA1Context sha;
+    SHA1Reset(&sha);
+    SHA1Input(&sha, (const unsigned char *)block.constData(), block.size());
+    SHA1Result(&sha);
+    QByteArray sha1Sum(20, ' ');
+    unsigned char *digest = (unsigned char *)sha.Message_Digest;
+    for (int i = 0; i < 5; ++i) {
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
+        sha1Sum[i * 4 + 3] = digest[i * 4 + 3];
+        sha1Sum[i * 4 + 2] = digest[i * 4 + 2];
+        sha1Sum[i * 4 + 1] = digest[i * 4 + 1];
+        sha1Sum[i * 4 + 0] = digest[i * 4 + 0];
+#else
+        sha1Sum[i * 4 + 0] = digest[i * 4 + 3];
+        sha1Sum[i * 4 + 1] = digest[i * 4 + 2];
+        sha1Sum[i * 4 + 2] = digest[i * 4 + 1];
+        sha1Sum[i * 4 + 3] = digest[i * 4 + 0];
+#endif
+    }
+
+    d->infoHash = sha1Sum;
     return true;
 }
 
