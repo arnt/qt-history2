@@ -714,7 +714,7 @@ bool QApplicationPrivate::x11_apply_settings()
 #ifndef QT_NO_XIM
     if (qt_xim_preferred_style == 0) {
         QString ximInputStyle = settings.value(QLatin1String("XIMInputStyle"),
-                                               QVariant(QLatin1String("on the spot"))).toString();
+                                               QVariant(QLatin1String("on the spot"))).toString().toLower();
         if (ximInputStyle == QLatin1String("on the spot"))
             qt_xim_preferred_style = XIMPreeditCallbacks | XIMStatusNothing;
         else if (ximInputStyle == QLatin1String("over the spot"))
