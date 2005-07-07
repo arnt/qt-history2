@@ -511,7 +511,7 @@ void QTreeModel::sort(int column, Qt::SortOrder order)
 {
     // sort top level
     sortItems(&tree, column, order);
- 
+
     // sort the children
     QList<QTreeWidgetItem*>::iterator it = tree.begin();
     for (; it != tree.end(); ++it)
@@ -720,7 +720,7 @@ QTreeWidgetItem* QTreeModel::previousSibling(const QTreeWidgetItem* item)
     return 0;
 }
 
-void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortOrder order)
+void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::SortOrder order)
 {
     // store the original order of indexes
     QVector< QPair<QTreeWidgetItem*,int> > sorting(items->count());
@@ -1243,16 +1243,45 @@ QTreeWidgetItem::~QTreeWidgetItem()
 }
 
 /*!
-  Creates an exact copy of the item and it's children.
+  Creates a deep copy of the item and it's children.
 */
 
 QTreeWidgetItem *QTreeWidgetItem::clone() const
 {
-    QTreeWidgetItem *item = new QTreeWidgetItem();
-    *item = *this; // copy the data
-    for (int i = 0; i < children.count(); ++i) // recursivly clone children
-        item->children.append(children.at(i)->clone());
-    return item;
+    QTreeWidgetItem *copy = new QTreeWidgetItem();
+    *copy = *this;
+
+    QStack<const QTreeWidgetItem*> stack;
+    QStack<QTreeWidgetItem*> parentStack;
+    stack.push(this);
+    parentStack.push(0);
+
+    QTreeWidgetItem *root = 0;
+    const QTreeWidgetItem *item = 0;
+    QTreeWidgetItem *parent = 0;
+    while (!stack.isEmpty()) {
+        // get current item, and copied parent
+        item = stack.pop();
+        parent = parentStack.pop();
+
+        // copy item
+        copy = new QTreeWidgetItem();
+        *copy = *item;
+        if (!root)
+            root = copy;
+
+        // set parent and add to parents children list
+        if (parent) {
+            copy->par = parent;
+            parent->children.append(copy);
+        }
+
+        for (int i=0; i<item->childCount(); ++i) {
+            stack.push(item->child(i));
+            parentStack.push(copy);
+        }
+    }
+    return root;
 }
 
 /*!
@@ -1339,15 +1368,13 @@ void QTreeWidgetItem::write(QDataStream &out) const
 }
 
 /*!
-    Assigns the \a other item to this item.
+    Assigns the \a other items values to this item.
+
+    Note: The child and parent relationships are not affected.
 */
 QTreeWidgetItem &QTreeWidgetItem::operator=(const QTreeWidgetItem &other)
 {
     values = other.values;
-    view = other.view;
-    model = other.model;
-    par = other.par;
-    //children = other.children; // ### don't copy the children
     itemFlags = other.itemFlags;
     return *this;
 }
