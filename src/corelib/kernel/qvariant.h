@@ -566,7 +566,7 @@ inline bool operator!=(const QVariant &v1, const QVariantComparisonHelper &v2)
 #endif
 
 #ifndef QT_MOC
-#if defined Q_CC_MSVC && _MSC_VER < 1300
+#if !defined qdoc && defined Q_CC_MSVC && _MSC_VER < 1300
 
 template<typename T> T qvariant_cast(const QVariant &v, T * = 0)
 {
