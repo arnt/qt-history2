@@ -624,20 +624,28 @@ QList<QPair<ClassNode*,QString> > Tree::readIndexSection(const QDomElement &elem
     } else if (element.nodeName() == "variable") {
         section = new VariableNode(parent, name);
 
-    } else if (element.nodeName() == "target") {
-        Target target;
-        target.node = parent;
-        target.priority = 2;
-        target.atom = new Atom(Atom::Target, name);
-        priv->targetHash.insert(name, target);
-        return basesList;
-
     } else if (element.nodeName() == "keyword") {
         Target target;
         target.node = parent;
         target.priority = 1;
         target.atom = new Atom(Atom::Target, name);
-        priv->targetHash.insert(name, target);
+        priv->targetHash.insert(Doc::canonicalTitle(name), target);
+        return basesList;
+
+    } else if (element.nodeName() == "target") {
+        Target target;
+        target.node = parent;
+        target.priority = 2;
+        target.atom = new Atom(Atom::Target, name);
+        priv->targetHash.insert(Doc::canonicalTitle(name), target);
+        return basesList;
+
+    } else if (element.nodeName() == "contents") {
+        Target target;
+        target.node = parent;
+        target.priority = 3;
+        target.atom = new Atom(Atom::Target, name);
+        priv->targetHash.insert(Doc::canonicalTitle(name), target);
         return basesList;
 
     } else
@@ -872,6 +880,13 @@ void Tree::generateIndexSubSections(QString indent, QTextStream& out,
             foreach (Atom *keyword, inner->doc().keywords()) {
                 out << indent << " <keyword name=\""
                     << HtmlGenerator::protect(keyword->string()) << "\" />\n";
+            }
+        }
+        if (inner->doc().hasTableOfContents()) {
+            foreach (Atom *item, inner->doc().tableOfContents()) {
+                QString title = Text::sectionHeading(item).toString();
+                out << indent << " <contents name=\""
+                    << HtmlGenerator::protect(title) << "\" />\n";
             }
         }
 
