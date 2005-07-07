@@ -1,5 +1,4 @@
-/*!
-    \omit
+/* NOT DOCUMENTED
     \page emb-vnc.html
 
     \title Qtopia Core as a VNC Server
@@ -31,5 +30,4 @@
     The \link emb-qvfb.html Qt Virtual Framebuffer \endlink is an alternative
     technique. It uses shared memory and thus is much faster and smoother, but
     it does not operate over a network.
-    \endomit
 */

@@ -10,8 +10,7 @@
 **
 ****************************************************************************/
 
-/*!
-    \omit
+/* NOT DOCUMENTED
     \page emb-porting.html
 
     \title Issues to be Aware of When Porting Qtopia Core
@@ -26,7 +25,7 @@
     following dependencies will need to be addressed (files that you'll
     need to modify are listed at the end of each section):
 
-    \list 
+    \list
 
     \i \bold{System V IPC} (shared memory and semaphores) is used to share
     window regions between client and server. You will need to provide
@@ -44,7 +43,7 @@
     implement something like this using message queues or similar
     mechanisms; with the exception of QCOP messages (which are generated
     by client applications and not Qtopia Core) individual messages should
-    be no more than a few bytes in length. 
+    be no more than a few bytes in length.
 
     Modify \c qwssocket_qws.cpp.
 
@@ -54,7 +53,7 @@
     framebuffer, plus information about width, height and bit depth (which
     most likely you can simply hard-code). If your framebuffer is not
     memory-mapped or is in an unsupported format or depth you will need to
-    modify QGfxRaster as well. 
+    modify QGfxRaster as well.
 
     Modify \c qgfxlinuxfb_qws.cpp.
 
@@ -73,5 +72,4 @@
     Qtopia Core makes use of the standard C library and some POSIX functions.
     Mostly the latter are concentrated in platform dependent code anyway
     (e.g. \c mmap() to map in the Linux framebuffer).
-    \endomit
 */

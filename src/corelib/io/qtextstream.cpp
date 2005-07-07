@@ -978,7 +978,7 @@ bool QTextStream::seek(qint64 pos)
     character.
 
     Whitespace characters are all characters for which
-    QChar::isSpace() returns true. 
+    QChar::isSpace() returns true.
 
     \sa operator>>(QChar &), operator>>(char &)
 */
@@ -2849,13 +2849,13 @@ void QTextStream::setEncoding(Encoding encoding)
 
 /*!
     \variable QTextStream::skipws
-    \variable QTextStream::left 
+    \variable QTextStream::left
     \variable QTextStream::right
     \variable QTextStream::internal
-    \variable QTextStream::bin  
-    \variable QTextStream::oct  
-    \variable QTextStream::dec  
-    \variable QTextStream::hex  
+    \variable QTextStream::bin
+    \variable QTextStream::oct
+    \variable QTextStream::dec
+    \variable QTextStream::hex
     \variable QTextStream::showbase
     \variable QTextStream::showpoint
     \variable QTextStream::uppercase

@@ -12,8 +12,7 @@
 **
 ****************************************************************************/
 
-/*!
-    \omit
+/* NOT DOCUMENTED
     \page emb-features.html
 
     \title The Feature Definition File
@@ -248,5 +247,4 @@
          \i Multi-step dialog (\l QWizard)
          \i \c QT_NO_DIALOGS
     \endtable
-    \endomit
 */

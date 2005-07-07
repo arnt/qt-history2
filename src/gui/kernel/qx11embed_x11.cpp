@@ -113,8 +113,6 @@
     \brief The QX11EmbedContainer class provides an XEmbed container
     widget.
 
-    \ingroup solutions-widgets
-
     XEmbed is an X11 protocol that supports the embedding of a widget
     from one application into another application.
 
@@ -211,7 +209,7 @@
     closes.
 */
 
-/*! \fn QX11EmbedWidget::error(int)
+/*! \fn QX11EmbedWidget::error(Error error)
 
     This signal is emitted if an error occurred as a result of
     embedding into or communicating with a container.
@@ -219,7 +217,7 @@
     \sa QX11EmbedWidget::Errors
 */
 
-/*! \fn QX11EmbedContainer::error(int)
+/*! \fn QX11EmbedContainer::error(Error error)
 
     This signal is emitted if an error occurred when embedding or
     communicating with a widget.
@@ -227,7 +225,7 @@
     \sa QX11EmbedContainer::Errors
 */
 
-/*! \enum QX11EmbedWidget::Errors
+/*! \enum QX11EmbedWidget::Error
 
     \value Unknown An unrecognized error occurred.
 
@@ -236,7 +234,7 @@
         window ID to embedInto().
 */
 
-/*! \enum QX11EmbedContainer::Errors
+/*! \enum QX11EmbedContainer::Error
 
     \value Unknown An unrecognized error occurred.
 

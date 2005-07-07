@@ -1,5 +1,4 @@
-/*!
-    \omit
+/* NOT DOCUMENTED
     \page emb-differences.html
     \title Porting Your Applications to Qtopia Core
 
@@ -28,5 +27,4 @@
 
     Exceptions and RTTI are disabled in Qtopia Core because they incur a large
     overhead in terms of both size and speed.
-    \endomit
 */

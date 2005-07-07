@@ -49,67 +49,55 @@ int QDesignerWidgetBoxInterface::findOrInsertCategory(const QString &categoryNam
 }
 
 /*!
-    \fn QDesignerWidgetBoxInterface::QDesignerWidgetBoxInterface(QWidget *parent, Qt::WindowFlags flags)
+    \fn int QDesignerWidgetBoxInterface::categoryCount() const
 */
 
 /*!
-    \fn virtual QDesignerWidgetBoxInterface::~QDesignerWidgetBoxInterface()
+    \fn Category QDesignerWidgetBoxInterface::category(int cat_idx) const
 */
 
 /*!
-    \fn virtual int QDesignerWidgetBoxInterface::categoryCount() const = 0
+    \fn void QDesignerWidgetBoxInterface::addCategory(const Category &cat)
 */
 
 /*!
-    \fn virtual Category QDesignerWidgetBoxInterface::category(int cat_idx) const = 0
+    \fn void QDesignerWidgetBoxInterface::removeCategory(int cat_idx)
 */
 
 /*!
-    \fn virtual void QDesignerWidgetBoxInterface::addCategory(const Category &cat) = 0
+    \fn int QDesignerWidgetBoxInterface::widgetCount(int cat_idx) const
 */
 
 /*!
-    \fn virtual void QDesignerWidgetBoxInterface::removeCategory(int cat_idx) = 0
+    \fn Widget QDesignerWidgetBoxInterface::widget(int cat_idx, int wgt_idx) const
 */
 
 /*!
-    \fn virtual int QDesignerWidgetBoxInterface::widgetCount(int cat_idx) const = 0
+    \fn void QDesignerWidgetBoxInterface::addWidget(int cat_idx, const Widget &wgt)
 */
 
 /*!
-    \fn virtual Widget QDesignerWidgetBoxInterface::widget(int cat_idx, int wgt_idx) const = 0
+    \fn void QDesignerWidgetBoxInterface::removeWidget(int cat_idx, int wgt_idx)
 */
 
 /*!
-    \fn virtual void QDesignerWidgetBoxInterface::addWidget(int cat_idx, const Widget &wgt) = 0
+    \fn void QDesignerWidgetBoxInterface::dropWidgets(const QList<QDesignerDnDItemInterface*> &item_list, const QPoint &global_mouse_pos)
 */
 
 /*!
-    \fn virtual void QDesignerWidgetBoxInterface::removeWidget(int cat_idx, int wgt_idx) = 0
+    \fn void QDesignerWidgetBoxInterface::setFileName(const QString &file_name)
 */
 
 /*!
-    \fn int QDesignerWidgetBoxInterface::findOrInsertCategory(const QString &categoryName)
+    \fn QString QDesignerWidgetBoxInterface::fileName() const
 */
 
 /*!
-    \fn virtual void QDesignerWidgetBoxInterface::dropWidgets(const QList<QDesignerDnDItemInterface*> &item_list, const QPoint &global_mouse_pos) = 0
+    \fn bool QDesignerWidgetBoxInterface::load()
 */
 
 /*!
-    \fn virtual void QDesignerWidgetBoxInterface::setFileName(const QString &file_name) = 0
-*/
-
-/*!
-    \fn virtual QString QDesignerWidgetBoxInterface::fileName() const = 0
-*/
-
-/*!
-    \fn virtual bool QDesignerWidgetBoxInterface::load() = 0
-*/
-
-/*!
-    \fn virtual bool QDesignerWidgetBoxInterface::save() = 0
+    \fn bool QDesignerWidgetBoxInterface::save()
 */
 
 

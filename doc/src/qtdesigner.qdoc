@@ -3,68 +3,68 @@
 /*!
     \class QDesignerMemberSheetExtension
     \brief The QDesignerMemberSheetExtension class provides an extension to an object's member
-    sheet in \QD. 
+    sheet in \QD.
     \inmodule QtDesigner
 */
 
 /*!
-    \fn virtual QDesignerMemberSheetExtension::~QDesignerMemberSheetExtension() {
+    \fn QDesignerMemberSheetExtension::~QDesignerMemberSheetExtension() {
 */
 
 /*!
-    \fn virtual int QDesignerMemberSheetExtension::count() const = 0
+    \fn int QDesignerMemberSheetExtension::count() const
 */
 
 /*!
-    \fn virtual int QDesignerMemberSheetExtension::indexOf(const QString &name) const = 0
+    \fn int QDesignerMemberSheetExtension::indexOf(const QString &name) const
 */
 
 /*!
-    \fn virtual QString QDesignerMemberSheetExtension::memberName(int index) const = 0
+    \fn QString QDesignerMemberSheetExtension::memberName(int index) const
 */
 
 /*!
-    \fn virtual QString QDesignerMemberSheetExtension::memberGroup(int index) const = 0
+    \fn QString QDesignerMemberSheetExtension::memberGroup(int index) const
 */
 
 /*!
-    \fn virtual void QDesignerMemberSheetExtension::setMemberGroup(int index, const QString &group) = 0
+    \fn void QDesignerMemberSheetExtension::setMemberGroup(int index, const QString &group)
 */
 
 /*!
-    \fn virtual bool QDesignerMemberSheetExtension::isVisible(int index) const = 0
+    \fn bool QDesignerMemberSheetExtension::isVisible(int index) const
 */
 
 /*!
-    \fn virtual void QDesignerMemberSheetExtension::setVisible(int index, bool b) = 0
+    \fn void QDesignerMemberSheetExtension::setVisible(int index, bool b)
 */
 
 /*!
-    \fn virtual bool QDesignerMemberSheetExtension::isSignal(int index) const = 0
+    \fn virtual bool QDesignerMemberSheetExtension::isSignal(int index) const
 */
 
 /*!
-    \fn virtual bool QDesignerMemberSheetExtension::isSlot(int index) const = 0
+    \fn bool QDesignerMemberSheetExtension::isSlot(int index) const
 */
 
 /*!
-    \fn virtual bool QDesignerMemberSheetExtension::inheritedFromWidget(int index) const = 0
+    \fn bool QDesignerMemberSheetExtension::inheritedFromWidget(int index)
 */
 
 /*!
-    \fn virtual QString QDesignerMemberSheetExtension::declaredInClass(int index) const = 0
+    \fn QString QDesignerMemberSheetExtension::declaredInClass(int index) const
 */
 
 /*!
-    \fn virtual QString QDesignerMemberSheetExtension::signature(int index) const = 0
+    \fn QString QDesignerMemberSheetExtension::signature(int index) const
 */
 
 /*!
-    \fn virtual QList<QByteArray> QDesignerMemberSheetExtension::parameterTypes(int index) const = 0
+    \fn QList<QByteArray> QDesignerMemberSheetExtension::parameterTypes(int index) const
 */
 
 /*!
-    \fn virtual QList<QByteArray> QDesignerMemberSheetExtension::parameterNames(int index) const = 0
+    \fn QList<QByteArray> QDesignerMemberSheetExtension::parameterNames(int index) const
 */
 
 
@@ -93,7 +93,7 @@
 */
 
 /*!
-    \fn virtual QList<QWidget*> QDesignerLayoutDecorationExtension::widgets(QLayout *layout) const = 0
+    \fn virtual QList<QWidget*> QDesignerLayoutDecorationExtension::widgets(QLayout *layout) const
 
     Returns the widgets that are managed by the given \a layout.
 
@@ -101,43 +101,43 @@
 */
 
 /*!
-    \fn virtual QRect QDesignerLayoutDecorationExtension::itemInfo(int index) const = 0
+    \fn QRect QDesignerLayoutDecorationExtension::itemInfo(int index) const
 
     Returns the rectangle covered by the item at the given \a index in the layout.
 */
 
 /*!
-    \fn virtual int QDesignerLayoutDecorationExtension::indexOf(QWidget *widget) const = 0
+    \fn int QDesignerLayoutDecorationExtension::indexOf(QWidget *widget) const
 
     Returns the index of the specified \a widget in the layout.
 */
 
 /*!
-    \fn virtual int QDesignerLayoutDecorationExtension::indexOf(QLayoutItem *item) const = 0
+    \fn int QDesignerLayoutDecorationExtension::indexOf(QLayoutItem *item) const
 
     Returns the index of the specified layout \a item.
 */
 
 /*!
-    \fn virtual QDesignerLayoutDecorationExtension::InsertMode QDesignerLayoutDecorationExtension::currentInsertMode() const = 0
+    \fn QDesignerLayoutDecorationExtension::InsertMode QDesignerLayoutDecorationExtension::currentInsertMode() const
 
     Returns the current insertion mode.
 */
 
 /*!
-    \fn virtual int QDesignerLayoutDecorationExtension::currentIndex() const = 0
+    \fn int QDesignerLayoutDecorationExtension::currentIndex() const
 
     Returns the current index in the layout.
 */
 
 /*!
-    \fn virtual QPair<int, int> QDesignerLayoutDecorationExtension::currentCell() const = 0
+    \fn QPair<int, int> QDesignerLayoutDecorationExtension::currentCell() const
 
     Returns a pair containing the row and column of the current cell in the layout.
 */
 
 /*!
-    \fn virtual void QDesignerLayoutDecorationExtension::insertWidget(QWidget *widget, const QPair<int, int> &cell) = 0
+    \fn void QDesignerLayoutDecorationExtension::insertWidget(QWidget *widget, const QPair<int, int> &cell)
 
     Inserts the given \a widget into the specified \a cell in the layout.
 
@@ -145,7 +145,7 @@
 */
 
 /*!
-    \fn virtual void QDesignerLayoutDecorationExtension::removeWidget(QWidget *widget) = 0
+    \fn void QDesignerLayoutDecorationExtension::removeWidget(QWidget *widget)
 
     Removes the specified \a widget from the layout.
 
@@ -153,32 +153,32 @@
 */
 
 /*!
-    \fn virtual void QDesignerLayoutDecorationExtension::insertRow(int row) = 0
+    \fn void QDesignerLayoutDecorationExtension::insertRow(int row)
 
     Inserts a new row into the form at the position specified by \a row.
 */
 
 /*!
-    \fn virtual void QDesignerLayoutDecorationExtension::insertColumn(int column) = 0
+    \fn void QDesignerLayoutDecorationExtension::insertColumn(int column)
 
     Inserts a new column into the form at the position specified by \a column.
 */
 
 /*!
-    \fn virtual void QDesignerLayoutDecorationExtension::simplify() = 0
+    \fn void QDesignerLayoutDecorationExtension::simplify()
 
     Simplifies the layout by removing unnecessary empty rows and columns, and by changing the
     number of rows or columns spanned by widgets.
 */
 
 /*!
-    \fn virtual int QDesignerLayoutDecorationExtension::findItemAt(const QPoint &position) const = 0
+    \fn int QDesignerLayoutDecorationExtension::findItemAt(const QPoint &position) const
 
     Returns the index of the item in the layout that covers the given \a position.
 */
 
 /*!
-    \fn virtual int QDesignerLayoutDecorationExtension::findItemAt(int row, int column) const = 0
+    \fn int QDesignerLayoutDecorationExtension::findItemAt(int row, int column) const
 
     Returns the item in the layout that occupies the specified \a row and \a column in the layout.
 
@@ -186,7 +186,7 @@
 */
 
 /*!
-    \fn virtual void QDesignerLayoutDecorationExtension::adjustIndicator(const QPoint &position, int index) = 0
+    \fn void QDesignerLayoutDecorationExtension::adjustIndicator(const QPoint &position, int index)
 
     Adjusts the indicator for the specified \a widget so that it lies at the given \a position on
     the form.
@@ -202,19 +202,19 @@
 */
 
 /*!
-    \fn virtual QDesignerContainerExtension::~QDesignerContainerExtension()
+    \fn QDesignerContainerExtension::~QDesignerContainerExtension()
 
     Destroys the extension.
 */
 
 /*!
-    \fn virtual int QDesignerContainerExtension::count() const = 0
+    \fn int QDesignerContainerExtension::count() const
 
     Returns the number of widgets in the container.
 */
 
 /*!
-    \fn virtual QWidget *QDesignerContainerExtension::widget(int index) const = 0
+    \fn QWidget *QDesignerContainerExtension::widget(int index) const
 
     Returns the widget at the given \a index in the container.
 
@@ -222,7 +222,7 @@
 */
 
 /*!
-    \fn virtual int QDesignerContainerExtension::currentIndex() const = 0
+    \fn int QDesignerContainerExtension::currentIndex() const
 
     Returns the current index, corresponding to the current widget in the container.
 
@@ -230,7 +230,7 @@
 */
 
 /*!
-    \fn virtual void QDesignerContainerExtension::setCurrentIndex(int index) = 0
+    \fn void QDesignerContainerExtension::setCurrentIndex(int index)
 
     Sets the current index, corresponding to the current widget in the container.
 
@@ -238,7 +238,7 @@
 */
 
 /*!
-    \fn virtual void QDesignerContainerExtension::addWidget(QWidget *widget) = 0
+    \fn void QDesignerContainerExtension::addWidget(QWidget *widget)
 
     Adds the given \a widget to the container after all the existing widgets.
 
@@ -246,7 +246,7 @@
 */
 
 /*!
-    \fn virtual void QDesignerContainerExtension::insertWidget(int index, QWidget *widget) = 0
+    \fn void QDesignerContainerExtension::insertWidget(int index, QWidget *widget)
 
     Inserts the given \a widget into the container at the specified \a index.
 
@@ -254,7 +254,7 @@
 */
 
 /*!
-    \fn virtual void QDesignerContainerExtension::remove(int index) = 0
+    \fn void QDesignerContainerExtension::remove(int index)
 
     Removes the widget at the given \a index in the container.
 
@@ -270,15 +270,15 @@
 */
 
 /*!
-    \fn virtual QDesignerTaskMenuExtension::~QDesignerTaskMenuExtension()
+    \fn QDesignerTaskMenuExtension::~QDesignerTaskMenuExtension()
 */
 
 /*!
-    \fn virtual QAction *QDesignerTaskMenuExtension::preferredEditAction() const
+    \fn QAction *QDesignerTaskMenuExtension::preferredEditAction() const
 */
 
 /*!
-    \fn virtual QList<QAction*> QDesignerTaskMenuExtension::taskActions() const = 0
+    \fn QList<QAction*> QDesignerTaskMenuExtension::taskActions() const
 */
 
 
@@ -292,13 +292,13 @@
 */
 
 /*!
-    \fn virtual QDesignerCustomWidgetCollectionInterface::~QDesignerCustomWidgetCollectionInterface() {
+    \fn QDesignerCustomWidgetCollectionInterface::~QDesignerCustomWidgetCollectionInterface() {
 
     Destroys the interface.
 */
 
 /*!
-    \fn virtual QList<QDesignerCustomWidgetInterface*> QDesignerCustomWidgetCollectionInterface::customWidgets() const = 0
+    \fn QList<QDesignerCustomWidgetInterface*> QDesignerCustomWidgetCollectionInterface::customWidgets() const
 
     Returns a list of interfaces to the custom widgets in the container.
 */
@@ -309,58 +309,58 @@
 /*!
     \class QDesignerCustomWidgetInterface
     \brief The QDesignerCustomWidgetInterface class provides an interface to a custom widget in
-    \QD. 
+    \QD.
     \inmodule QtDesigner
 
     \sa \l{Creating Custom Widgets for Qt Designer}
 */
 
 /*!
-    \fn virtual QDesignerCustomWidgetInterface::~QDesignerCustomWidgetInterface()
+    \fn QDesignerCustomWidgetInterface::~QDesignerCustomWidgetInterface()
 
     Destroys the custom widget interface.
 */
 
 /*!
-    \fn virtual QString QDesignerCustomWidgetInterface::name() const = 0
+    \fn QString QDesignerCustomWidgetInterface::name() const
 
     Returns the name of the class that implements the custom widget.
 */
 
 /*!
-    \fn virtual QString QDesignerCustomWidgetInterface::group() const = 0
+    \fn QString QDesignerCustomWidgetInterface::group() const
 
     Returns the name of the group to which the custom widget belongs.
 */
 
 /*!
-    \fn virtual QString QDesignerCustomWidgetInterface::toolTip() const = 0
+    \fn QString QDesignerCustomWidgetInterface::toolTip() const
 
     Returns a short description of the widget that can be used by \QD in a tool tip.
 */
 
 /*!
-    \fn virtual QString QDesignerCustomWidgetInterface::whatsThis() const = 0
+    \fn QString QDesignerCustomWidgetInterface::whatsThis() const
 
     Returns a description of the widget that can be used by \QD in "What's This?" help for the
     widget.
 */
 
 /*!
-    \fn virtual QString QDesignerCustomWidgetInterface::includeFile() const = 0
+    \fn QString QDesignerCustomWidgetInterface::includeFile() const
 
     Returns the path to the include file that \l uic uses when creating code for the custom
     widget.
 */
 
 /*!
-    \fn virtual QIcon QDesignerCustomWidgetInterface::icon() const = 0
+    \fn QIcon QDesignerCustomWidgetInterface::icon() const
 
     Returns the icon used to represent the custom widget in \QD's widget box.
 */
 
 /*!
-    \fn virtual bool QDesignerCustomWidgetInterface::isContainer() const = 0
+    \fn bool QDesignerCustomWidgetInterface::isContainer() const
 
     Returns true if the custom widget is intended to be used as a container; otherwise returns
     false.
@@ -371,13 +371,13 @@
 */
 
 /*!
-    \fn virtual QWidget *QDesignerCustomWidgetInterface::createWidget(QWidget *parent) = 0
+    \fn QWidget *QDesignerCustomWidgetInterface::createWidget(QWidget *parent)
 
     Returns a new widget with the given \a parent.
 */
 
 /*!
-    \fn virtual bool QDesignerCustomWidgetInterface::isInitialized()
+    \fn bool QDesignerCustomWidgetInterface::isInitialized() const
 
     Returns true if the widget has been initialized; otherwise returns false.
 
@@ -385,7 +385,7 @@
 */
 
 /*!
-    \fn virtual void QDesignerCustomWidgetInterface::initialize(QDesignerFormEditorInterface *core)
+    \fn void QDesignerCustomWidgetInterface::initialize(QDesignerFormEditorInterface *core)
 
     Initializes the widget for use with the form editor with the specified \a core interface.
 
@@ -393,13 +393,13 @@
 */
 
 /*!
-    \fn virtual QString QDesignerCustomWidgetInterface::domXml() const
+    \fn QString QDesignerCustomWidgetInterface::domXml() const
 
     Returns the XML that is used to describe widget properties to \QD.
 */
 
 /*!
-    \fn virtual QString QDesignerCustomWidgetInterface::codeTemplate() const
+    \fn QString QDesignerCustomWidgetInterface::codeTemplate() const
 
     Returns the code template that \QD includes in forms that contain the custom widget when
     they are saved.
@@ -433,19 +433,19 @@
 */
 
 /*!
-    \fn virtual QDesignerDnDItemInterface::~QDesignerDnDItemInterface()
+    \fn QDesignerDnDItemInterface::~QDesignerDnDItemInterface()
 
     Destroys the interface to the item.
 */
 
 /*!
-    \fn virtual DomUI *QDesignerDnDItemInterface::domUi() const = 0
+    \fn DomUI *QDesignerDnDItemInterface::domUi() const
 
     Returns a user interface object for the item.
 */
 
 /*!
-    \fn virtual QWidget *QDesignerDnDItemInterface::widget() const = 0
+    \fn QWidget *QDesignerDnDItemInterface::widget() const
 
     Returns the widget being copied or moved in the drag and drop operation.
 
@@ -453,13 +453,13 @@
 */
 
 /*!
-    \fn virtual QWidget *QDesignerDnDItemInterface::decoration() const = 0
+    \fn QWidget *QDesignerDnDItemInterface::decoration() const
 
     Returns the widget used to represent the item.
 */
 
 /*!
-    \fn virtual QPoint QDesignerDnDItemInterface::hotSpot() const = 0
+    \fn QPoint QDesignerDnDItemInterface::hotSpot() const
 
     Returns the cursor's hotspot.
 
@@ -467,13 +467,13 @@
 */
 
 /*!
-    \fn virtual DropType QDesignerDnDItemInterface::type() const = 0
+    \fn DropType QDesignerDnDItemInterface::type() const
 
     Returns the type of drag and drop operation in progress.
 */
 
 /*!
-    \fn virtual QWidget *QDesignerDnDItemInterface::source() const = 0
+    \fn QWidget *QDesignerDnDItemInterface::source() const
 
     Returns the widget that is the source of the drag and drop operation; i.e. the original
     container of the widget being dragged.
@@ -497,7 +497,7 @@
 */
 
 /*!
-    \fn virtual QIcon QDesignerIconCacheInterface::nameToIcon(const QString &filePath, const QString &qrcPath) = 0
+    \fn QIcon QDesignerIconCacheInterface::nameToIcon(const QString &filePath, const QString &qrcPath)
 
     Returns the icon associated with the name specified by \a filePath in the resource
     file specified by \a qrcPath.
@@ -509,7 +509,7 @@
 */
 
 /*!
-    \fn virtual QPixmap QDesignerIconCacheInterface::nameToPixmap(const QString &filePath, const QString &qrcPath) = 0
+    \fn QPixmap QDesignerIconCacheInterface::nameToPixmap(const QString &filePath, const QString &qrcPath)
 
     Returns the pixmap associated with the name specified by \a filePath in the resource
     file specified by \a qrcPath.
@@ -521,47 +521,47 @@
 */
 
 /*!
-    \fn virtual QString QDesignerIconCacheInterface::iconToFilePath(const QIcon &icon) const = 0
+    \fn QString QDesignerIconCacheInterface::iconToFilePath(const QIcon &icon) const
 
     Returns the file path associated with the given \a icon. The file path is a path within
     an application resources.
 */
 
 /*!
-    \fn virtual QString QDesignerIconCacheInterface::iconToQrcPath(const QIcon &icon) const = 0
+    \fn QString QDesignerIconCacheInterface::iconToQrcPath(const QIcon &icon) const
 
     Returns the path to the resource file that refers to the specified \a icon. The resource
     path refers to a local file.
 */
 
 /*!
-    \fn virtual QString QDesignerIconCacheInterface::pixmapToFilePath(const QPixmap &pixmap) const = 0
+    \fn QString QDesignerIconCacheInterface::pixmapToFilePath(const QPixmap &pixmap) const
 
     Returns the file path associated with the given \a pixmap. The file path is a path within
     an application resources.
 */
 
 /*!
-    \fn virtual QString QDesignerIconCacheInterface::pixmapToQrcPath(const QPixmap &pixmap) const = 0
+    \fn QString QDesignerIconCacheInterface::pixmapToQrcPath(const QPixmap &pixmap) const
 
     Returns the path to the resource file that refers to the specified \a pixmap. The resource
     path refers to a local file.
 */
 
 /*!
-    \fn virtual QList<QPixmap> QDesignerIconCacheInterface::pixmapList() const = 0
+    \fn QList<QPixmap> QDesignerIconCacheInterface::pixmapList() const
 
     Returns a list of pixmaps for the icons provided by the icon cache.
 */
 
 /*!
-    \fn virtual QList<QIcon> QDesignerIconCacheInterface::iconList() const = 0
+    \fn QList<QIcon> QDesignerIconCacheInterface::iconList() const
 
     Returns a list of icons provided by the icon cache.
 */
 
 /*!
-    \fn virtual QString QDesignerIconCacheInterface::resolveQrcPath(const QString &filePath, const QString &qrcPath, const QString &workingDirectory) const = 0
+    \fn QString QDesignerIconCacheInterface::resolveQrcPath(const QString &filePath, const QString &qrcPath, const QString &workingDirectory) const
 
     Returns a path to a resource specified by the \a filePath within the resource file located
     at \a qrcPath. If \a workingDirectory is a valid path to a directory, the path returned will
@@ -583,65 +583,65 @@
 */
 
 /*!
-    \fn virtual QDesignerPropertySheetExtension::~QDesignerPropertySheetExtension()
+    \fn QDesignerPropertySheetExtension::~QDesignerPropertySheetExtension()
 */
 
 /*!
-    \fn virtual int QDesignerPropertySheetExtension::count() const = 0
+    \fn int QDesignerPropertySheetExtension::count() const
 */
 
 /*!
-    \fn virtual int QDesignerPropertySheetExtension::indexOf(const QString &name) const = 0
+    \fn int QDesignerPropertySheetExtension::indexOf(const QString &name) const
 */
 
 /*!
-    \fn virtual QString QDesignerPropertySheetExtension::propertyName(int index) const = 0
+    \fn QString QDesignerPropertySheetExtension::propertyName(int index) const
 */
 
 /*!
-    \fn virtual QString QDesignerPropertySheetExtension::propertyGroup(int index) const = 0
+    \fn QString QDesignerPropertySheetExtension::propertyGroup(int index) const
 */
 
 /*!
-    \fn virtual void QDesignerPropertySheetExtension::setPropertyGroup(int index, const QString &group) = 0
+    \fn void QDesignerPropertySheetExtension::setPropertyGroup(int index, const QString &group)
 */
 
 /*!
-    \fn virtual bool QDesignerPropertySheetExtension::hasReset(int index) const = 0
+    \fn bool QDesignerPropertySheetExtension::hasReset(int index) const
 */
 
 /*!
-    \fn virtual bool QDesignerPropertySheetExtension::reset(int index) = 0
+    \fn bool QDesignerPropertySheetExtension::reset(int index)
 */
 
 /*!
-    \fn virtual bool QDesignerPropertySheetExtension::isVisible(int index) const = 0
+    \fn bool QDesignerPropertySheetExtension::isVisible(int index) const
 */
 
 /*!
-    \fn virtual void QDesignerPropertySheetExtension::setVisible(int index, bool b) = 0
+    \fn void QDesignerPropertySheetExtension::setVisible(int index, bool b)
 */
 
 /*!
-    \fn virtual bool QDesignerPropertySheetExtension::isAttribute(int index) const = 0
+    \fn bool QDesignerPropertySheetExtension::isAttribute(int index) const
 */
 
 /*!
-    \fn virtual void QDesignerPropertySheetExtension::setAttribute(int index, bool b) = 0
+    \fn void QDesignerPropertySheetExtension::setAttribute(int index, bool b)
 */
 
 /*!
-    \fn virtual QVariant QDesignerPropertySheetExtension::property(int index) const = 0
+    \fn QVariant QDesignerPropertySheetExtension::property(int index) const
 */
 
 /*!
-    \fn virtual void QDesignerPropertySheetExtension::setProperty(int index, const QVariant &value) = 0
+    \fn void QDesignerPropertySheetExtension::setProperty(int index, const QVariant &value)
 */
 
 /*!
-    \fn virtual bool QDesignerPropertySheetExtension::isChanged(int index) const = 0
+    \fn bool QDesignerPropertySheetExtension::isChanged(int index) const
 */
 
 /*!
-    \fn virtual void QDesignerPropertySheetExtension::setChanged(int index, bool changed) = 0
+    \fn void QDesignerPropertySheetExtension::setChanged(int index, bool changed)
 */

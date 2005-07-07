@@ -1,9 +1,6 @@
-/*!
-    \omit
+/* NOT DOCUMENTED
     \page emb-fonts.html
     \title Fonts in Qtopia Core
-\endomit
-    \omit ###
 
     \section1 Supported Formats
 
@@ -112,7 +109,7 @@
 		        \endlist
     \endtable
 
-    The font definition file does not specify QPF fonts; these are loaded 
+    The font definition file does not specify QPF fonts; these are loaded
     directly from the directory containing the \c fontdir file, and must
     be called \e {name}_\e {size}_\e {weight}\e {italicflag}.qpf, where
 
@@ -140,8 +137,6 @@
 
     The font definition file, naming conventions for font files, and the
     format of QPF files may change in future versions of Qtopia Core.
-
-    \endomit
 
     When enabled, Qtopia Core uses the powerful FreeType2 library to implement
     TrueType and Type1 support.

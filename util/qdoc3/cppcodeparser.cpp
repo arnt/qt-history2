@@ -1211,7 +1211,12 @@ bool CppCodeParser::matchDocsAndStuff()
 		    }
 		    delete clone;
 		} else {
-                    doc.location().warning(tr("Cannot tie this documentation to anything"));
+                    doc.location().warning(tr("Cannot tie this documentation to anything"),
+                                           tr("I found a /*! ... */ comment, but there was no "
+                                              "topical command (e.g., '\\%1', '\\%2') in the "
+                                              "comment and no function definition following "
+                                              "the comment.")
+                                           .arg(COMMAND_FN).arg(COMMAND_PAGE));
                 }
 	    } else {
 		QStringList::ConstIterator a = args.begin();

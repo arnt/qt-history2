@@ -1,5 +1,4 @@
-/*!
-    \omit
+/* NOT DOCUMENTED
     \page emb-running.html
 
     \title Running Qtopia Core Applications
@@ -115,5 +114,4 @@
     \endcode
 
     \sa \link emb-pointer.html Qtopia Core Pointer Handling \endlink
-    \endomit
 */

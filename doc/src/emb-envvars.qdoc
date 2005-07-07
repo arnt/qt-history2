@@ -10,8 +10,7 @@
 **
 ****************************************************************************/
 
-/*!
-    \omit
+/* NOT DOCUMENTED
     \page emb-envvars.html
 
     \title Qtopia Core Environment Variables
@@ -73,5 +72,4 @@
     is defined)
 
     \endtable
-    \endomit
 */

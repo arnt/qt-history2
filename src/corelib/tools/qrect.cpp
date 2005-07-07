@@ -21,11 +21,9 @@
 
     \ingroup multimedia
 
-    A rectangle is internally represented as an upper-left corner and
-    a bottom-right corner, but it is normally expressed as an
-    upper-left corner and a size.
+    A rectangle is normally expressed as an upper-left corner and a size.
 
-    Note that the size (width and height) of a rectangle might be
+    The size (width and height) of a rectangle might be
     different from what you are used to. If the top-left corner and
     the bottom-right corner are the same, the height and the width of
     the rectangle will both be 1.

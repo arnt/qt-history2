@@ -10,14 +10,13 @@
 **
 ****************************************************************************/
 
-/*!
-    \omit
+/* NOT DOCUMENTED
     \page emb-classes.html
 
     \title The Qtopia Core Specific Classes
 
     Qtopia Core classes fall into two groups: the majority are used by
-    every Qtopia Core program, and some are only used by the Qtopia Core server. 
+    every Qtopia Core program, and some are only used by the Qtopia Core server.
     The Qtopia Core server program can also be a client, as in the case of a
     single-process installation. All Qtopia Core specific source files are
     in \c src/gui and are suffixed \c{_qws}. The > symbol
@@ -38,7 +37,7 @@
     high-level interface for requesting a particular font and calls
     \c QFontFactories to load fonts from disk on demand. Note that this only
     applies to BDF and TrueType fonts; Qtopia Core's optimised \c .qpf
-    font file format bypasses the \c QFontManager mechanism altogether. 
+    font file format bypasses the \c QFontManager mechanism altogether.
 
     There should be no need to modify this class unless you wish to change
     font matching or caching behavior.
@@ -51,7 +50,7 @@
     Qtopia Core name, etc. This information is used so that \c QFontManager
     can find the closest matching disk font (it uses a scoring mechanism
     weighted towards matching names, then whether the font's italic, then
-    its weight). 
+    its weight).
 
     There should be no reason to modify this class.
 
@@ -78,7 +77,7 @@
     disk font is fast. It can also create a \c QRenderedFont and convert from
     Unicode values to an index into the font file. For compactness, glyphs
     are stored in the order and indexes they are defined in the font
-    rather than in Unicode order. 
+    rather than in Unicode order.
 
     There should be no need to modify this class, but it should be
     inherited if you wish to add a different type of font renderer (e.g.
@@ -92,7 +91,7 @@
     information about the character, and to the raw data for the glyph:
     this is either a 1-bit mask or an 8-bit alpha channel. Each \c QRenderedFont
     creates these on demand and caches them once created (note that this is
-    not currently implemented for TrueType fonts). 
+    not currently implemented for TrueType fonts).
 
     You would only need to modify this class if you were, for example,
     modifying Qtopia Core to support textured fonts, in which case you
@@ -122,7 +121,7 @@
     for drawing into a raw framebuffer. They can take an offset for drawing
     operations and a clipping region in order to support drawing into windows.
     You will need to subclass the \c QGfxRaster template in order to implement
-    an accelerated driver. 
+    an accelerated driver.
 
     If you're brave, modifying \c QGfxRaster would allow you to customise how
     drawing is done or add support for a new bit depth/pixel format.
@@ -132,7 +131,7 @@
 
     This encapsulates a System V semaphore, used for synchronising access
     to memory shared between Qtopia Core clients. \c QLockHolder is a utility class
-    to make managing and destroying \c{QLock}s easier. 
+    to make managing and destroying \c{QLock}s easier.
 
     There should be no need to modify this class unless porting
     Qtopia Core to an operating system without System V IPC.
@@ -143,7 +142,7 @@
     This is a \c QPainter which also gives you a pointer to the framebuffer
     of the window it's pointing to, the window's clip region and so on.
     It's intended to allow you to easily do your own pixel-level manipulation
-    of window contents. 
+    of window contents.
 
     There should be no reason to modify this class.
     \endomit
@@ -151,7 +150,7 @@
     \section1 QWSSoundServer, Client
 
     The Qtopia Core server contains a simple sound player and mixer. Clients
-    can request the server play sounds specified as files. 
+    can request the server play sounds specified as files.
 
     There should be no need to modify this class unless porting
     Qtopia Core to an operating system without a Linux-style \c /dev/dsp.
@@ -160,7 +159,7 @@
 
     This contains the server's notion of an individual top level window:
     the region of the framebuffer it's allocated, the client that created
-    it, and so forth. 
+    it, and so forth.
 
     There should be no reason to modify this class.
 
@@ -168,7 +167,7 @@
 
     This handles keyboard/button input. \c QWSKeyboardHandler is subclassed
     to provide for reading \c /dev/tty, an arbitrary low-level USB event device
-    (for USB keyboards) and some PDA button devices. 
+    (for USB keyboards) and some PDA button devices.
 
     Modifying \c QWSKeyboardHandler would allow you to support different
     types of keyboard (currently only a fairly standard US PC style
@@ -196,7 +195,7 @@
     modifications to Qtopia Core window behavior (alpha blended windows
     for example).
 
-    \section1 QWSServer 
+    \section1 QWSServer
 
     This manages the Qtopia Core server's Unix-domain socket connections to
     clients. It sends and receives QWS protocol events and calls \c QWSDisplay
@@ -212,7 +211,7 @@
     \section1 QWSClient
 
     This encapsulates the client side of a Qtopia Core connection and can
-    marshal and demarshal events. 
+    marshal and demarshal events.
 
     There should be no reason to modify this except to use something
     radically different from Unix domain sockets to communicate between
@@ -224,13 +223,13 @@
     from the QWS server. It connects to the QWS server on application
     startup, getting information about the framebuffer and creating the
     memory manager. Other information about the framebuffer comes directly
-    from \c /dev/fb in QLinuxFbScreen. 
+    from \c /dev/fb in QLinuxFbScreen.
 
     There should be no reason to modify this class.
 
     \section1 QWSCommands
 
-    These encapsulate the data sent to and from the QWS server. 
+    These encapsulate the data sent to and from the QWS server.
 
     There should be no reason to modify them.
 
@@ -238,7 +237,7 @@
 
     \c QCop is a simple inter-process communication (IPC) mechanism for
     communication between Qtopia Core applications. String messages with
-    optional binary data can be sent to different channels. 
+    optional binary data can be sent to different channels.
 
     The mechanism itself is designed to be bare-bones in order for users
     to build whatever higher-level layer they like on top of it.
@@ -256,7 +255,7 @@
 
     Descendants of this class are different styles for the Qtopia Core
     window manager, for instance \c QWSWindowsDecoration draws Qtopia Core
-    window frames in the style of Windows CE. 
+    window frames in the style of Windows CE.
 
     Subclass it in order to provide a new window manager appearance (the
     equivalent of a Windows XP or Enlightenment theme).
@@ -265,17 +264,16 @@
 
     This provides the QWS client's interface to the QWS property system
     (a simpler version of the X property system, it allows you to attach
-    arbitrary data to top-level windows, keyed by an integer). 
+    arbitrary data to top-level windows, keyed by an integer).
 
     There should be no reason to modify this class.
 
     \section1 QWSSocket, QWSServerSocket
 
-    Provides Unix-domain sockets. 
+    Provides Unix-domain sockets.
 
     Modify this if you're porting to a non-Unix OS but have something
     analogous to Unix-domain sockets (a byte-oriented, reliable, ordered
     transmission mechanism, although you can probably implement it with
     something like a message queue as well).
-    \endomit
 */

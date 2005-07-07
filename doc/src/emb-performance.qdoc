@@ -1,5 +1,4 @@
-/*!
-    \omit
+/* NOT DOCUMENTED
     \page emb-performance.html
     \title Qtopia Core Performance Tuning
 
@@ -103,5 +102,4 @@
 	    free(ptr);
         }
     \endcode
-    \endomit
 */

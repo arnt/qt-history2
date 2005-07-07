@@ -10,8 +10,7 @@
 **
 ****************************************************************************/
 
-/*!
-    \omit
+/* NOT DOCUMENTED
     \page emb-framebuffer-howto.html
 
     \title Enabling the Linux Framebuffer
@@ -43,7 +42,7 @@
        the driver. Most modern graphics cards can use the "VESA VGA
        graphics console"; use that or a driver that specifically matches
        your video card. Finally, enable "Advanced low level driver options"
-       and make sure that 16 and 32 bpp packed pixel support are enabled. 
+       and make sure that 16 and 32 bpp packed pixel support are enabled.
 
        When you are finished, chose exit and save.
 
@@ -76,7 +75,7 @@
     \code
     # LILO configuration file
     boot = /dev/hda3
-    delay = 30 
+    delay = 30
     image = /boot/vmlinuz
       root = /dev/hda3
       label = Linux
@@ -88,22 +87,22 @@
 
       Make a new "image" section that is a copy of the first one, but with
     \code
-      image = /boot/linux.vesafb 
+      image = /boot/linux.vesafb
     \endcode
-      and 
+      and
     \code
       label = Linux-vesafb
     \endcode
       Place it just above the first image section.
 
       Add a line before the image section saying \c{vga = 791}. (Meaning
-      1024x768, 16 bpp.) 
+      1024x768, 16 bpp.)
 
       With the above example, lilo.conf would now be:
     \code
     # LILO configuration file
     boot = /dev/hda3
-    delay = 30 
+    delay = 30
     vga = 791
     image = /boot/linux.vesafb
       root = /dev/hda3
@@ -221,5 +220,4 @@
     }
     \endcode
     \endlist
-    \endomit
 */

@@ -1,5 +1,4 @@
-/*!
-    \omit
+/* NOT DOCUMENTED
     \page emb-install.html
 
     \title Installing Qtopia Core
@@ -18,7 +17,7 @@
 
     Replace \c VERSION with the Qtopia Core version number throughout.
 
-    This document assumes that the archive is installed as \c{~/qt-embedded-commercial-VERSION}. 
+    This document assumes that the archive is installed as \c{~/qt-embedded-commercial-VERSION}.
     \i Compile the Qtopia Core library and examples.
 
     \code
@@ -74,7 +73,7 @@
     \i Change permissions.
 
        To run Qtopia Core, you need write access to the framebuffer device
-       \c /dev/fb0. 
+       \c /dev/fb0.
 
        You also need read access to the mouse device. (Note that
        \c /dev/mouse is normally a symbolic link; the actual mouse device
@@ -119,7 +118,7 @@
 
       Show existing semaphores:
     \code
-        ipcs            
+        ipcs
     \endcode
 
       Remove semaphores:
@@ -141,5 +140,4 @@
     emb-qvfb.html Qtopia Core virtual framebuffer\endlink instead.
 
     \endlist
-    \endomit
 */
