@@ -195,6 +195,9 @@ static const char * x11_atomnames = {
     "_NET_WM_WINDOW_TYPE_UTILITY\0"
 
     "_KDE_NET_WM_FRAME_STRUT\0"
+    
+    "_NET_STARTUP_INFO\0"
+    "_NET_STARTUP_INFO_BEGIN\0"
 
     // Property formats
     "COMPOUND_TEXT\0"
@@ -1283,6 +1286,8 @@ void qt_init(QApplicationPrivate *priv, int,
         X11->pattern_fills[i].screen = -1;
 #endif
 
+    X11->startupId = 0;
+    
     int argc = priv->argc;
     char **argv = priv->argv;
 
@@ -1846,6 +1851,10 @@ void qt_init(QApplicationPrivate *priv, int,
             XFreeDeviceList(devices);
         }
 #endif // QT_NO_TABLET_SUPPORT
+       
+        X11->startupId = getenv("DESKTOP_STARTUP_ID");
+        unsetenv("DESKTOP_STARTUP_ID");
+
     } else {
         // read some non-GUI settings when not using the X server...
 

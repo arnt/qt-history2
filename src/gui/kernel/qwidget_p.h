@@ -209,6 +209,7 @@ public:
     QRegion invalidated_region;
 
     void setWindowRole(const char *role);
+    void sendStartupMessage(const char *message) const; 
 #endif
 
 #if defined (Q_WS_WIN)

@@ -1814,6 +1814,47 @@ void QWidgetPrivate::show_sys()
         return;
     }
     XMapWindow(X11->display, q->winId());
+    
+    // Freedesktop.org Startup Notification
+    if (X11->startupId && q->isWindow()) {
+        QByteArray message("remove: ID=");
+        message.append(X11->startupId);
+        sendStartupMessage(message.constData());
+        X11->startupId = 0;
+    }
+}
+
+/*!
+  \internal
+  Platform-specific part of QWidget::show().
+*/
+
+void QWidgetPrivate::sendStartupMessage(const char *message) const
+{
+    Q_Q(const QWidget);
+
+    if (!message)
+        return;
+
+    XEvent xevent; 
+    xevent.xclient.type = ClientMessage;
+    xevent.xclient.message_type = ATOM(_NET_STARTUP_INFO_BEGIN);
+    xevent.xclient.display = X11->display;
+    xevent.xclient.window = q->winId();
+    xevent.xclient.format = 8;
+
+    Window rootWindow = RootWindow(X11->display, DefaultScreen(X11->display));
+    uint sent = 0;
+    uint length = strlen(message) + 1;
+    do {
+        if (sent == 20) 
+            xevent.xclient.message_type = ATOM(_NET_STARTUP_INFO);
+        
+        for (uint i = 0; i < 20 && i + sent <= length; i++)
+            xevent.xclient.data.b[i] = message[i + sent++]; 
+            
+        XSendEvent(X11->display, rootWindow, false, PropertyChangeMask, &xevent);
+    } while (sent <= length); 
 }
 
 

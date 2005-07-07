@@ -377,6 +377,8 @@ struct QX11Data
     qreal fc_scale;
     bool fc_antialias;
 
+    char *startupId;
+
     /* Warning: if you modify this list, modify the names of atoms in qapplication_x11.cpp as well! */
     enum X11Atom {
         // window-manager <-> client protocols
@@ -454,6 +456,9 @@ struct QX11Data
 
         _KDE_NET_WM_FRAME_STRUT,
 
+        _NET_STARTUP_INFO,
+        _NET_STARTUP_INFO_BEGIN,
+        
         // Property formats
         COMPOUND_TEXT,
         TEXT,
