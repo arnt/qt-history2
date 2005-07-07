@@ -1764,6 +1764,7 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
         return;
     }
 
+    int priorState = d->undoState;
     d->removeSelectedText();
 
     int c = d->cursor; // cursor position after insertion of commit string
@@ -1803,6 +1804,7 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
     update();
     if (!e->commitString().isEmpty())
         d->emitCursorPositionChanged();
+    d->finishChange(priorState);
 }
 
 /*!\reimp
