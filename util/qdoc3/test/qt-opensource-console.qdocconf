@@ -1,3 +1,0 @@
-include(qt-opensource.qdocconf)
-
-defines += console

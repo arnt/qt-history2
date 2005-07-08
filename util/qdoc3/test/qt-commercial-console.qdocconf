@@ -1,3 +1,0 @@
-include(qt-commercial.qdocconf)
-
-defines += console
