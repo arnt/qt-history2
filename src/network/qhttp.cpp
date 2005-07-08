@@ -1825,10 +1825,10 @@ int QHttp::setHost(const QString &hostName, quint16 port)
     emitted. When it is finished the requestFinished() signal is
     emitted.
 
-    Note: If QHttp is used in a different thread (i.e., running its own event
-    loop), you must move \a socket to this thread before calling setSocket().
+    Note: If QHttp is used in a non-GUI thread that runs its own event
+    loop, you must move \a socket to that thread before calling setSocket().
 
-    \sa QObject::moveToThread()
+    \sa QObject::moveToThread(), {Thread Support in Qt}
 */
 int QHttp::setSocket(QTcpSocket *socket)
 {
