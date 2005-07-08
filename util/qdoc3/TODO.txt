@@ -1,6 +1,7 @@
 MUST HAVES:
 
   * FIX THE BUG IN qt.html with images!!
+  * Identify editions
 
   * \since
   * fix \overload when one is a signal and the other a normal function

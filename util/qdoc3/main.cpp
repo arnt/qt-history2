@@ -39,6 +39,8 @@ static const struct {
     { 0, 0 }
 };
 
+static QStringList defines;
+
 static QHash<QString, Tree *> trees;
 
 static Tree *treeForLanguage(const QString &lang)
@@ -81,6 +83,8 @@ static void processQdocconfFile(const QString &fileName)
 
     Location::initialize( config );
     config.load( fileName );
+    config.setStringList(CONFIG_DEFINES, defines + config.getStringList(CONFIG_DEFINES));
+
     Location::terminate();
 
     QString prevCurrentDir = QDir::currentPath();
@@ -231,6 +235,9 @@ int main( int argc, char **argv )
 	} else if ( opt == "--" ) {
 	    while ( i < argc )
 		qdocFiles.append( argv[i++] );
+        } else if ( opt.startsWith("-D") ) {
+            QString define = opt.mid(2);
+            defines += define;
 	} else {
 	    qdocFiles.append( opt );
 	}
