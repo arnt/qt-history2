@@ -240,10 +240,10 @@ void QListModel::sort(int column, Qt::SortOrder order)
         sorting[i].first = lst.at(i);
         sorting[i].second = i;
     }
-    
+
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
     qSort(sorting.begin(), sorting.end(), compare);
-    
+
     for (int r = 0; r < sorting.count(); ++r) {
         QListWidgetItem *item = sorting.at(r).first;
         lst[r] = item;
@@ -522,8 +522,6 @@ void QListWidgetItem::write(QDataStream &out) const
 QListWidgetItem &QListWidgetItem::operator=(const QListWidgetItem &other)
 {
     values = other.values;
-    view = other.view;
-    model = other.model;
     itemFlags = other.itemFlags;
     return *this;
 }

@@ -427,7 +427,7 @@ void QTableModel::sort(int column, Qt::SortOrder order)
         sorting[i].first = item(i, column);
         sorting[i].second = i;
     }
-    
+
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
     qSort(sorting.begin(), sorting.end(), compare);
 
@@ -1020,8 +1020,6 @@ QDataStream &operator<<(QDataStream &out, const QTableWidgetItem &item)
 QTableWidgetItem &QTableWidgetItem::operator=(const QTableWidgetItem &other)
 {
     values = other.values;
-    view = other.view;
-    model = other.model;
     itemFlags = other.itemFlags;
     return *this;
 }
