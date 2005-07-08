@@ -13,15 +13,15 @@
 
     \image basicdrawing-example.png
 
-    The example provides a render area, and lets the user manipulate
-    the rendered shape and its appearance using the QPainter
-    parameters: The user can change the active shape (\gui Shape), and
-    modify the QPainter's pen (\gui {Pen Width}, \gui {Pen Style},
-    \gui {Pen Cap}, \gui {Pen Join}), brush (\gui {Brush Style}) and
-    render hints (\gui Antialiasing). In addition the user can rotate
-    a shape (\gui Transformations); behind the scenes we use
-    QPainter's ability to manipulate the coordinate system to perform
-    the rotation.
+    The example provides a render area, displaying the currently
+    active shape, and lets the user manipulate the rendered shape and
+    its appearance using the QPainter parameters: The user can change
+    the active shape (\gui Shape), and modify the QPainter's pen (\gui
+    {Pen Width}, \gui {Pen Style}, \gui {Pen Cap}, \gui {Pen Join}),
+    brush (\gui {Brush Style}) and render hints (\gui
+    Antialiasing). In addition the user can rotate a shape (\gui
+    Transformations); behind the scenes we use QPainter's ability to
+    manipulate the coordinate system to perform the rotation.
 
     The Basic Drawing example consists of two classes:
 
@@ -29,7 +29,7 @@
     \o \c RenderArea is a custom widget that renders multiple
        copies of the currently active shape.
     \o \c Window is the application's main window displaying a
-       \c RenderArea widget in addition to the parameter widgets.
+       \c RenderArea widget in addition to several parameter widgets.
     \endlist
 
     First we will review the \c Window class, then we will take a
@@ -38,7 +38,7 @@
     \section1 Window Class Definition
 
     The Window class inherits QWidget, and is the application's main
-    window displaying a \c RenderArea widget in addition to the
+    window displaying a \c RenderArea widget in addition to several
     parameter widgets.
 
     \quotefromfile painting/basicdrawing/window.h
@@ -48,9 +48,9 @@
     We declare the various widgets, and three private slots updating
     the \c RenderArea widget: The \c shapeChanged() slot updates the
     \c RenderArea widget when the user changes the currently active
-    shape. The \c penChanged() slot is called when either of the
-    QPainter's pen parameters are changed. And the \c brushChanged()
-    slot updates the \c RenderArea widget when the user changes the
+    shape. We call the \c penChanged() slot when either of the
+    QPainter's pen parameters changes. And the \c brushChanged() slot
+    updates the \c RenderArea widget when the user changes the
     painter's brush style.
 
     \section1 Window Class Implementation
@@ -89,8 +89,7 @@
     painter to not draw lines or outlines.  The pen cap defines how
     the end points of lines are drawn.  And the pen join defines how
     two lines join when multiple connected lines are drawn. The cap
-    and join only apply to wide lines, i.e. when the width is 1 or
-    greater.
+    and join only apply to lines with a width of 1 pixel or greater.
 
     We create \l {QComboBox}es for each of the \gui {Pen Style}, \gui
     {Pen Cap} and \gui {Pen Join} parameters, and adds the associated
@@ -150,17 +149,17 @@
     \skipto shapeChanged
     \printuntil /^\}/
 
-    The shapeChanged() slot is called whenever the user changes the
+    The \c shapeChanged() slot is called whenever the user changes the
     currently active shape.
 
     First we retrieve the shape the user has chosen using the
     QComboBox::itemData() function. This function returns the data for
     the given role in the given index in the combobox. We use
-    QComboBox::currentIndex() to retrieve the index of the shape. The
-    role is defined by the Qt::ItemDataRole enum, and \c IdRole is an
+    QComboBox::currentIndex() to retrieve the index of the shape, and
+    the role is defined by the Qt::ItemDataRole enum; \c IdRole is an
     alias for Qt::UserRole.
 
-    Qt::UserRole is only the first role that can be used for
+    Note that Qt::UserRole is only the first role that can be used for
     application-specific purposes. If you need to store different data
     in the same index, you can use different roles by simply
     incrementing the value of Qt::UserRole, for example: 'Qt::UserRole
@@ -199,7 +198,7 @@
     function as before.
 
     \skipto Qt::LinearGradientPattern
-    \printuntil setBrush(conicalGradient
+    \printuntil setBrush(linearGradient);
 
     If the brush parameter is a gradient fill, special actions are
     required.
@@ -220,10 +219,24 @@
     describes how the gradient area should be filled. A gradient can
     have an arbitrary number of stop points.
 
-    Then we call \c RenderArea::setBrush() slot to update the \c
-    RenderArea widget with the QLinearGradient object. The same
-    pattern of action is used in the cases of
-    Qt::RadialGradientPattern and Qt::ConicalGradientPattern.
+    In the end we call \c RenderArea::setBrush() slot to update the \c
+    RenderArea widget's brush with the QLinearGradient object.
+
+    \skipto else if
+    \printuntil setBrush(conicalGradient)
+
+    A similar pattern of actions, as the one used for QLinearGradient,
+    is used in the cases of Qt::RadialGradientPattern and
+    Qt::ConicalGradientPattern.
+
+    The only difference is the arguments passed to the constructor:
+    Regarding the QRadialGradient constructor the first argument is
+    the center, and the second the radial gradient's radius. The third
+    argument is optional, but can be used to define the focal point of
+    the gradient inside the circle (the default focal point is the
+    circle center).  Regarding the QConicalGradient constructor, the
+    first argument specifies the center of the conical, and the second
+    specifies the start angle of the interpolation.
 
     \skipto Qt::TexturePattern
     \printuntil QPixmap
@@ -249,8 +262,9 @@
     \printuntil /^\};/
 
     First we define a public \c Shape enum to hold the different
-    shapes that can be rendered by the widget. Then we reimplement the
-    constructor as well as two of QWidget's public functions: \l
+    shapes that can be rendered by the widget (i.e the shapes that can
+    be rendered by a QPainter). Then we reimplement the constructor as
+    well as two of QWidget's public functions: \l
     {QWidget::minimumSizeHint()}{minimumSizeHint()} and \l
     {QWidget::sizeHint()}{sizeHint()}.
 
@@ -272,11 +286,12 @@
     \skipto RenderArea
     \printuntil /^\}/
 
-    We set its shape to be a polygon, its antialiased property to be
-    false and we load an image into the widget's pixmap variable. In
-    the end we set the widget's background role defining the brush
-    from the widget's \l {QWidget::palette}{palette} that will be used
-    to render the background. QPalette::Base is typically white.
+    We set its shape to be a \gui Polygon, its antialiased property to
+    be false and we load an image into the widget's pixmap
+    variable. In the end we set the widget's background role, defining
+    the brush from the widget's \l {QWidget::palette}{palette} that
+    will be used to render the background. QPalette::Base is typically
+    white.
 
     \skipto sizeHint
     \printuntil /^\}/
@@ -320,9 +335,9 @@
 
     The public \c setShape(), \c setPen() and \c setBrush() slots are
     called whenever we want to modify a \c RenderArea widget's shape,
-    pen or brush. We set thr shape, pen or brush according to the slot
-    parameter, and call QWidget::update() to make the changes visible
-    in the \c RenderArea widget.
+    pen or brush. We set the shape, pen or brush according to the
+    slot parameter, and call QWidget::update() to make the changes
+    visible in the \c RenderArea widget.
 
     The QWidget::update() slot does not cause an immediate
     repaint; instead it schedules a paint event for processing when Qt
@@ -335,7 +350,7 @@
     \printuntil /^\}/
 
     With the \c setAntialiased() and \c setTransformed() slots we
-    change the state of the properties according to the function
+    change the state of the properties according to the slot
     parameter, and call the QWidget::update() slot to make the changes
     visible in the \c RenderArea widget.
 
@@ -349,7 +364,7 @@
     We create a vector of four \l {QPoint}s. We use this vector to
     render the \gui Points, \gui Polyline and \gui Polygon
     shapes. Then we create a QRect, defining a rectangle in the plane,
-    which we use as a bounding rectangle for all the shapes excluding
+    which we use as the bounding rectangle for all the shapes excluding
     the \gui Path and the \gui Pixmap.
 
     We also create a QPainterPath. The QPainterPath class provides a
@@ -357,7 +372,7 @@
     constructed and reused. A painter path is an object composed of a
     number of graphical building blocks, such as rectangles, ellipses,
     lines, and curves. For more information about the QPainterPath
-    class, see the \l {painting/painterpaths/}{Painter Paths}
+    class, see the \l {painting/painterpaths}{Painter Paths}
     example. In this example, we create a painter path composed of one
     straight line and a Bezier curve.
 
@@ -388,7 +403,7 @@
     determined by the variables of the \c for loops. If we omit this
     translation of the coordinate system all the copies of the shape
     will be rendered on top of each other in the top left cormer of
-    the \c RenderArea.
+    the \c RenderArea widget.
 
     \skipto transformed
     \printuntil }
@@ -406,13 +421,13 @@
     \skipto switch
     \printuntil }
 
-    We identify the \c RenderArea's shape, and render it using the
-    associated QPainter drawing function:
+    Next, we identify the \c RenderArea's shape, and render it using
+    the associated QPainter drawing function:
 
     \list
         \o QPainter::drawLine(),
         \o QPainter::drawPoints(),
-        \o QPainter::drawPolyLine(),
+        \o QPainter::drawPolyline(),
         \o QPainter::drawPolygon(),
         \o QPainter::drawRect(),
         \o QPainter::drawRoundRect(),
@@ -425,10 +440,10 @@
         \o QPainter::drawPixmap()
     \endlist
 
-    Before we start rendering, we saved the current painter state
-    (pushes the state onto a stack). The reason is that we calculate
-    each shape copy's position relative to the same point in the
-    coordinate system. When translating the coordinate system, we
+    Before we started rendering, we saved the current painter state
+    (pushes the state onto a stack). The rationale for this is that we
+    calculate each shape copy's position relative to the same point in
+    the coordinate system. When translating the coordinate system, we
     loose the knowledge of this point unless we save the current
     painter state \e before we start the translating process.
 
@@ -441,9 +456,10 @@
     ensure that the next shape copy will be rendered in the correct
     position.
 
-    We could simply translate the coordinate system back using
+    We could translate the coordinate system back using
     QPainter::translate() instead of saving the painter state. But
-    since we, in addition to translating the coordinate system, want
-    the painter to rotate and scale it, the easiest solution is to
-    save the current painter state.
+    since we in addition to translating the coordinate system (when
+    the \gui Transformation parameter option is checked) both rotate
+    and scale the coordinate system, the easiest solution is to save
+    the current painter state.
 */
