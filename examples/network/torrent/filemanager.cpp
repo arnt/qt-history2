@@ -87,7 +87,7 @@ int FileManager::read(int pieceIndex, int offset, int length)
 
     if (!wokeUp) {
 	wokeUp = true;
-	QTimer::singleShot(0, this, SLOT(wakeUp()));
+        QMetaObject::invokeMethod(this, "wakeUp", Qt::QueuedConnection);
     }
 
     return request.id;
@@ -105,7 +105,7 @@ void FileManager::write(int pieceIndex, int offset, const QByteArray &data)
 
     if (!wokeUp) {
 	wokeUp = true;
-	QTimer::singleShot(0, this, SLOT(wakeUp()));
+        QMetaObject::invokeMethod(this, "wakeUp", Qt::QueuedConnection);
     }
 }
 
@@ -117,7 +117,7 @@ void FileManager::verifyPiece(int pieceIndex)
 
     if (!wokeUp) {
 	wokeUp = true;
-	QTimer::singleShot(0, this, SLOT(wakeUp()));
+        QMetaObject::invokeMethod(this, "wakeUp", Qt::QueuedConnection);
     }
 }
 

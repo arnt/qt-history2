@@ -135,14 +135,14 @@ MainWindow::MainWindow(QWidget *parent)
     QToolBar *bottomBar = new QToolBar(tr("Rate control"));
     addToolBar(Qt::BottomToolBarArea, bottomBar);
     downloadLimitSlider = new QSlider(Qt::Horizontal);
-    downloadLimitSlider->setRange(0, 100);
+    downloadLimitSlider->setRange(0, 1000);
     bottomBar->addWidget(new QLabel(tr("Max download:")));
     bottomBar->addWidget(downloadLimitSlider);
     bottomBar->addWidget((downloadLimitLabel = new QLabel(tr("0 KB/s"))));
     downloadLimitLabel->setFixedSize(QSize(fm.width(tr("99999 KB/s")), fm.lineSpacing()));
     bottomBar->addSeparator();
     uploadLimitSlider = new QSlider(Qt::Horizontal);
-    uploadLimitSlider->setRange(0, 100);
+    uploadLimitSlider->setRange(0, 1000);
     bottomBar->addWidget(new QLabel(tr("Max upload:")));
     bottomBar->addWidget(uploadLimitSlider);
     bottomBar->addWidget((uploadLimitLabel = new QLabel(tr("0 KB/s"))));
@@ -173,7 +173,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Load settings and start
     setWindowTitle(tr("Torrent Client"));
     setActionsEnabled();
-    QTimer::singleShot(0, this, SLOT(loadSettings()));
+    QMetaObject::invokeMethod(this, "loadSettings");
 }
 
 QSize MainWindow::sizeHint() const
@@ -393,6 +393,7 @@ void MainWindow::saveSettings()
 	settings.setValue(QLatin1String("resumeState"), jobs.at(i).client->dumpedState());
     }
     settings.endArray();
+    settings.sync();
 }
 
 void MainWindow::updateState(TorrentClient::State)
@@ -531,37 +532,33 @@ void MainWindow::moveTorrentDown()
     setActionsEnabled();
 }
 
-void MainWindow::setUploadLimit(int bytes)
+static int rateFromValue(int value)
 {
-    int value = 0;
-    if (bytes >= 0 && bytes < 25) {
-	value = 1 + int(bytes * 1.24);
-    } else if (bytes < 50) {
-	value = 32 + int((bytes - 25) * 3.84);
-    } else if (bytes < 75) {
-	value = 128 + int((bytes - 50) * 15.36);
+    int rate = 0;
+    if (value >= 0 && value < 250) {
+	rate = 1 + int(value * 0.124);
+    } else if (value < 500) {
+	rate = 32 + int((value - 250) * 0.384);
+    } else if (value < 750) {
+	rate = 128 + int((value - 500) * 1.536);
     } else {
-	value = 512 + int((bytes - 75) * 61.445);
+	rate = 512 + int((value - 750) * 6.1445);
     }
-    uploadLimitLabel->setText(tr("%1 KB/s").arg(QString().sprintf("%4d", value)));
-    RateController::instance()->setUploadLimit(value * 1024);
+    return rate;
 }
 
-void MainWindow::setDownloadLimit(int bytes)
+void MainWindow::setUploadLimit(int value)
 {
-    int value = 0;
-    if (bytes >= 0 && bytes < 25) {
-	value = 1 + int(bytes * 1.24);
-    } else if (bytes < 50) {
-	value = 32 + int((bytes - 25) * 3.84);
-    } else if (bytes < 75) {
-	value = 128 + int((bytes - 50) * 15.36);
-    } else {
-	value = 512 + int((bytes - 75) * 61.445);
-    }
-    downloadLimitLabel->setText(tr("%1 KB/s").arg(QString().sprintf("%4d", value)));
-    downloadLimit = value * 1024;
-    RateController::instance()->setDownloadLimit(value * 1024);
+    int rate = rateFromValue(value);
+    uploadLimitLabel->setText(tr("%1 KB/s").arg(QString().sprintf("%4d", rate)));
+    RateController::instance()->setUploadLimit(rate * 1024);
+}
+
+void MainWindow::setDownloadLimit(int value)
+{
+    int rate = rateFromValue(value);
+    downloadLimitLabel->setText(tr("%1 KB/s").arg(QString().sprintf("%4d", rate)));
+    RateController::instance()->setDownloadLimit(value * rate);
 }
 
 void MainWindow::about()

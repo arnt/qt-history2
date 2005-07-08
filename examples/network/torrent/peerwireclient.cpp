@@ -128,7 +128,7 @@ int PeerWireClient::acceptBytesToRead(int bytes)
     QByteArray chunk = read(bytes);
     incomingBuffer.append(chunk);
     emit bytesReceived(chunk.size());
-    QTimer::singleShot(0, this, SLOT(processIncomingData()));
+    QMetaObject::invokeMethod(this, "processIncomingData", Qt::QueuedConnection);
     return chunk.size();
 }
 

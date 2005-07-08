@@ -67,7 +67,7 @@ TrackerClient::TrackerClient(TorrentClient *downloader, QObject *parent)
 void TrackerClient::start(const MetaInfo &info)
 {
     metaInfo = info;
-    QTimer::singleShot(0, this, SLOT(fetchPeerList()));
+    QMetaObject::invokeMethod(this, "fetchPeerList", Qt::QueuedConnection);
 
     if (metaInfo.fileForm() == MetaInfo::SingleFileForm) {
 	length = metaInfo.singleFile().length;

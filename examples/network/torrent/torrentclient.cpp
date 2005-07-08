@@ -34,7 +34,7 @@
 #include "peerwireclient.h"
 #include "ratecontroller.h"
 
-#include <QtCore>
+#include <QtCore/QtCore>
 #include <QtNetwork/QTcpServer>
 
 extern "C" {
@@ -213,7 +213,7 @@ void TorrentClientPrivate::callScheduler()
 {
     if (!schedulerCalled) {
 	schedulerCalled = true;
-	QTimer::singleShot(0, q, SLOT(schedulePayloads()));
+        QMetaObject::invokeMethod(q, "schedulePayloads", Qt::QueuedConnection);
     }
 }
 
@@ -221,7 +221,7 @@ void TorrentClientPrivate::callPeerConnector()
 {
     if (!connectingToClients) {
 	connectingToClients = true;
-	QTimer::singleShot(0, q, SLOT(connectToPeers()));
+        QMetaObject::invokeMethod(q, "connectToPeers", Qt::QueuedConnection);
     }
 }
 
@@ -679,7 +679,9 @@ void TorrentClient::pieceVerified(int pieceIndex, bool ok)
    
     if (d->completedPieces.size() == d->pieceCount) {
 	if (d->state != Seeding) {
-	    d->setState(Seeding);
+            foreach (PeerWireClient *client, d->outgoingClients)
+                client->disconnectFromHost();                
+            d->setState(Seeding);
             d->trackerClient.start(d->metaInfo);
         }
     } else {
@@ -709,6 +711,10 @@ void TorrentClient::connectToPeers()
     // Find the list of peers we are not currently connected to, where
     // the more interesting peers are listed more than once.
     QList<TorrentPeer *> weighedPeers = weighedFreePeers();
+    if (weighedPeers.isEmpty()) {
+        // If none are available now, try again in 5 seconds.
+        QTimer::singleShot(5000, this, SLOT(connectToPeers()));
+    }
 
     // Start as many connections as we can
     while (!weighedPeers.isEmpty() && (d->outgoingClients.size() < d->maxConnections)) {
@@ -834,10 +840,12 @@ void TorrentClient::setupIncomingConnection(PeerWireClient *client)
 	return;
     }
 
-    // Initialize this client
-    initializeConnection(client);
+    // Add this client to our lists
     d->incomingClients << client;
     RateController::instance()->addClient(client);
+
+    // Initialize this client
+    initializeConnection(client);
 
     // Call the scheduler ### but we don't know what the peer has yet
     emit peerInfoUpdated();
@@ -915,7 +923,6 @@ void TorrentClient::removeClient()
 
     d->pieceLocations.remove(client);
     client->deleteLater();
-    client->disconnectFromHost();
 
     d->callPeerConnector();
     emit peerInfoUpdated();
@@ -1119,12 +1126,9 @@ void TorrentClient::schedulePayloads()
     if (d->state == Stopping || d->state == Idle)
 	return;
 
-    if (d->completedPieces.size() == d->pieceCount) {
-	if (d->state != Seeding)
-	    d->setState(Seeding);
+    if (d->completedPieces.size() == d->pieceCount)
 	return;
-    }
-   
+
     // Check what each client is doing, and assign payloads to those
     // who are either idle or done.
     foreach (PeerWireClient *client, d->incomingClients + d->outgoingClients)
