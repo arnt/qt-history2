@@ -210,7 +210,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 
     QString file;
 #ifndef QT_NO_LIBRARY
-    QLibraryInfo::location(QLibraryInfo::PrefixPath);
+    file = QLibraryInfo::location(QLibraryInfo::PrefixPath);
 #endif
     file += "/lib/fonts/";
     file += size->fileName;
