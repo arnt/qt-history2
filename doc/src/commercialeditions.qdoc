@@ -1,0 +1,71 @@
+/****************************************************************************
+**
+** Documentation on the commercial editions.
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+/*!
+    \page commercialeditions.html
+    \title Qt Commercial Editions
+
+    Several editions of Qt are available under a commercial license:
+    Qt Console Edition, Qt Desktop Light Edition, and Qt Desktop
+    Edition.
+
+    You may write commercial, proprietary, or otherwise non-free
+    software \e only if you have purchased a commercial edition of
+    Qt. If you purchase a commercial edition, you are entitled to
+    technical support and upgrades.
+
+    If you want to develop Free or Open Source software for release
+    using a recognized Open Source license, you can use the \l{Qt
+    Open Source Edition}.
+
+    The table below summarizes the differences between the three
+    commercial editions:
+
+    \table 60%
+    \header \o{2,1}                        \o{1,3} Editions
+    \header                                \o Qt Console \o Qt Desktop Light \o Qt Desktop
+    \row    \o \l{QtCore}{Qt Core classes} \o \bold{X}   \o \bold{X}         \o \bold{X}
+    \row    \o \l{QtGui}{Qt GUI classes}   \o            \o \bold{X}         \o \bold{X}
+    \row    \o \l{QtNetwork}{Networking}   \o \bold{X}   \o                  \o \bold{X}
+    \row    \o \l{QtOpenGL}{OpenGL}        \o            \o                  \o \bold{X}
+    \row    \o \l{QtSql}{Database/SQL}     \o \bold{X}   \o                  \o \bold{X}
+    \row    \o \l{QtXml}{XML}              \o \bold{X}   \o                  \o \bold{X}
+    \endtable
+
+    Please see the
+    \l{http://www.trolltech.com/developer/platforms/supported.html}
+    {list of supported platforms} for up-to-date information about
+    the various platforms and compilers that Qt supports.
+
+    On Trolltech's web site, you can find
+    \l{http://www.trolltech.com/products/qt/licensing.html}{licensing
+    information} and
+    \l{http://www.trolltech.com/products/qt/pricing.html}{price
+    lists} for commercial editions of Qt and other Trolltech
+    products.
+
+    To purchase, please visit the
+    \l{http://www.trolltech.com/purchase/alternative.html}{online
+    order form}.
+
+    For further information and assistance, please contact Trolltech
+    sales.
+
+    Email: \l{mailto:sales@trolltech.com}{sales@trolltech.com}.
+
+    Phone, U.S. office (for North America): \bold{1-650-813-1676}.
+
+    Phone, Norway office (for the rest of the world): \bold{+47 21 60
+    48 00}.
+*/

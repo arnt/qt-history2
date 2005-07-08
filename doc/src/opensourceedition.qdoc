@@ -39,9 +39,8 @@
     http://www.trolltech.com/download/.
 
     It is also possible to develop commercial software using Qt: but to do
-    so you must buy a commercial license for the \link
-    commercialedition.html Commercial Edition\endlink. If
-    you buy a commercial edition of Qt you can sell your software for any
+    so you must buy a commercial license for one of the \l{Qt Commercial Editions}.
+    If you buy a commercial edition of Qt you can sell your software for any
     price and with any license you like. Thousands of commercial companies
     use the commercial edition of Qt to develop the products they sell.
 

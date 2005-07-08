@@ -80,7 +80,7 @@
        held by the data source.
     \o Signals from the view provide information about the user's interaction
        with the items being displayed.
-    \o Signals from the delegate are used during editing to tell the other
+    \o Signals from the delegate are used during editing to tell the
        model and view about the state of the editor.
     \endlist
 
@@ -146,7 +146,7 @@
 
     These classes are less flexible than the view classes, and cannot be
     used with arbitrary models. We recommend that you use a model/view
-    approach to handling data in item views unless you strongly need a
+    approach to handling data in item views unless you strongly need an
     item-based set of classes.
 
     \section1 The Model/View Components

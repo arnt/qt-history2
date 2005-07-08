@@ -52,20 +52,20 @@
     compilers.
 
     Qt is released in different editions:
+
     \list
-    \i The \bold{\l{commercialedition.html}{Qt Commercial
-    Editions}} provide for commercial software
-    development. It permits traditional commercial software distribution
-    and includefree upgrades and Technical Support. For the latest
-    prices, see the Trolltech web site's \l{
-    http://www.trolltech.com/pricing.html}{Pricing and Availability}
+    \i The \bold{\l{Qt Commercial Editions}} provide for commercial software
+    development. They permit traditional commercial software distribution
+    and include free upgrades and technical support. For the latest
+    prices, see the Trolltech web site's
+    \l{http://www.trolltech.com/pricing.html}{Pricing and Availability}
     page or contact \l{mailto:sales@trolltech.com}{sales@trolltech.com}.
     \endlist
 
     \list
-    \i The \bold{\l{opensourceedition.html}{Qt Open Source Edition}}
-    is for the development of Free and Open Source software only. It
-    is provided free of charge under the terms of both the
+    \i The \bold{\l{Qt Open Source Edition}} is for the development of
+    Free and Open Source software only. It is provided free of charge
+    under the terms of both the
     \l{qpl.html}{Q Public License} and the \link gpl.html GNU General
     Public License\endlink.
     \endlist
@@ -75,5 +75,4 @@
     Solutions\endlink, a growing range of industry and platform specific
     components that complement Qt. Some of these are only available to
     commercial customers, others are available to all Qt users.
-
 */

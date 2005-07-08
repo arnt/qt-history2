@@ -12,30 +12,64 @@
 
 /*! 
     \page index.html
-    \if defined(commercial)
-    \title Qt Reference Documentation (Commercial Edition)
-    \endif
-    \if defined(noncommercial)
-    \title Qt Reference Documentation (Non-Commercial Edition)
-    \endif
-    \if !defined(commercial) && !defined(noncommercial)
-    \title Qt Reference Documentation (Open Source Edition)
-    \endif
 
     \keyword Qt Reference Documentation
 
-    \if defined(noncommercial)
-    \bold{Note:} This
-    edition is for the development of non-commercial software in
-    accordance with the license you agreed to when you installed the
-    software from the CD; see also
-    \l{commercialedition.html}{Commercial Edition}.
+    \if defined(qtopiacore)
+        \if defined(opensourceedition)
+        \title Qtopia Core Reference Documentation (Open Source Edition)
+        \endif
+
+        \if defined(coreedition)
+        \title Qtopia Core Reference Documentation (Core Edition)
+        \endif
+
+        \if defined(desktoplightedition)
+        \title Qtopia Core Reference Documentation (Desktop Light Edition)
+        \endif
+
+        \if defined(desktopedition)
+        \title Qtopia Core Reference Documentation (Desktop Edition)
+        \endif
+
+        \if !defined(opensourceedition) \
+            && !defined(coreedition) \
+            && !defined(desktoplightedition) \
+            && !defined(desktopedition)
+        \title Qtopia Core Reference Documentation
+        \endif
+
+        \subtitle Qt for Embedded Linux
     \endif
-    \if !defined(commercial) && !defined(noncommercial)
-    \bold{Note:} This edition is
-    for the development of \l{opensourceedition.html}{Free and Open
-    Source} software only; see \l{commercialedition.html}{Commercial
-    Edition}.
+    \if !defined(qtopiacore)
+        \if defined(opensourceedition)
+        \title Qt Reference Documentation (Open Source Edition)
+        \endif
+
+        \if defined(coreedition)
+        \title Qt Reference Documentation (Core Edition)
+        \endif
+
+        \if defined(desktoplightedition)
+        \title Qt Reference Documentation (Desktop Light Edition)
+        \endif
+
+        \if defined(desktopedition)
+        \title Qt Reference Documentation (Desktop Edition)
+        \endif
+
+        \if !defined(opensourceedition) \
+            && !defined(coreedition) \
+            && !defined(desktoplightedition) \
+            && !defined(desktopedition)
+        \title Qtopia Core Reference Documentation
+        \endif
+    \endif
+
+    \if defined(opensourceedition)
+    \bold{Note:} This edition is for the development of \l{Qt
+    Open Source Edition}{Free and Open Source} software only; see
+    \l{Qt Commercial Editions}.
     \endif
 
     \raw HTML
@@ -65,7 +99,7 @@
         <ul>
         <li><a href="aboutqt.html">About Qt</a></li>
         <li><a href="trolltech.html">About Trolltech</a></li>
-        <li><a href="commercialedition.html">Commercial Edition</a></li>
+        <li><a href="commercialeditions.html">Commercial Edition</a></li>
         <li><a href="opensourceedition.html">Open Source Edition</a></li>
         <li><a href="http://www.trolltech.com/developer/faqs/">Frequently Asked Questions</a></li>
         </ul>

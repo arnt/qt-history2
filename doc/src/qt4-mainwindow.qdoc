@@ -6,7 +6,7 @@
     \previouspage The Scribe Classes
     \nextpage The New Qt Designer
 
-    Qt 4 introduces a new set of main window classes that will replace the
+    Qt 4 introduces a new set of main window classes that supercede the
     Qt 3 main window classes, providing a more efficient implementation
     while remaining easy to use.
 
@@ -22,7 +22,7 @@
     Toolbar and dock window functionality is provided by two independent
     classes: QToolBar and QDockWidget. Toolbars and dock widgets
     reside in separate areas, with toolbars outside the dock widget
-    area. This behavior differs from the standard Qt 3 behavior, where
+    area. This behavior differs from the Qt 3 behavior, where
     QToolBar inherited functionality from QDockWidget, and both types of
     component shared the same areas. The result is a more consistent
     and predictable experience for users. Toolbars and dock widgets
@@ -41,7 +41,7 @@
     widgets. One consequence is that the old QDockArea class is no
     longer required in Qt 4.
 
-    \section1 The Current State of the Main Window Classes
+    \section1 The Main Window Classes
 
     Qt 4 provides the following classes for managing main windows and
     associated user interface components:
@@ -96,9 +96,6 @@
     \skipto fileMenu->addSeparator()
     \printuntil fileMenu->addSeparator()
     \dots
-    \code
-        }
-    \endcode
 
     The QToolBar and QMenu classes use Qt's action system to provide a
     consistent API. In the above code, some existing actions were added to

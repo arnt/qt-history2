@@ -2229,7 +2229,7 @@
 
     For compatibility, we provide a Q3Painter class in Qt3Support
     that provides the old semantics. See the Q3Painter documentation
-    for details and for the reasons why we had to do this change.
+    for details and for the reasons why we had to make this change.
 
 \omit
     \section1 QPixmap
@@ -2257,8 +2257,8 @@
     The QPolygon::setPoints() and QPolygon::putPoints() functions
     return \c void in Qt 4. The corresponding Qt 3 functions returned
     a \c bool indicating whether the array was successfully resized
-    or not. This can now be checked by comparing checking
-    QPolygon::size() after the call.
+    or not. This can now be checked by checking QPolygon::size()
+    after the call.
 
 \omit
     X11 Specific:
@@ -2309,9 +2309,9 @@
 
     \section1 QProcess
 
-    The QProcess class has undergone drastic changes in Qt 4. It now
-    inherits QIODevice, which makes it possible to combine QProcess
-    with a QTextStream or a QDataStream.
+    The QProcess class has undergone major improvements in Qt 4. It
+    now inherits QIODevice, which makes it possible to combine
+    QProcess with a QTextStream or a QDataStream.
 
     The old \c QProcess class has been renamed Q3Process and moved to
     the Qt3Support library.
@@ -2337,7 +2337,14 @@
     Q3PtrCollection<T> moved to the Qt3Support library.
     There is no direct equivalent in Qt 4.
 
-    See \l{containers.html}{Generic Containers} for a list of
+    \omit
+    ###
+    The QPtrCollection entry is unsatisfactory. The xref is missing
+    its list and saying "no direct equivalent" with so suggestions
+    seems feeble.
+    \endomit
+
+    See \l{Generic Containers} for a list of Qt 4 containers.
 
     \section1 QPtrDict<T>
 
@@ -3033,6 +3040,17 @@
     Instead, simply connect to the QTcpServer::newConnection()
     signal.
 
+    \section1 QSettings
+
+    The QSettings class has been rewritten to be more robust and to
+    respect existing standards (e.g., the INI file format). The API
+    has also been extensively revised. The old API is still provided
+    when Qt 3 support is enabled.
+
+    Since the format and location of settings have changed between Qt
+    3 and Qt 4, the Qt 4 version of your application won't recognize
+    settings written using Qt 3.
+
     \section1 QShared
 
     The \c QShared class has been obsoleted by the more powerful
@@ -3062,7 +3080,10 @@
     \section1 QSignal
 
     The QSignal class has been renamed to Q3Signal and moved to the
-    Qt3Support library.
+    Qt3Support library. The preferred approach is to create your own
+    QObject subclass with a signal that has the desired signature.
+    Alternatively, you can call QMetaObject::invokeMethod() if you
+    want to invoke a slot.
 
     \section1 QSimpleRichText
 
@@ -3147,8 +3168,9 @@
 
     \section1 QSqlDatabase
 
-    QSqlDatabase is now a smart pointer that is passed around by value. Simply replace all QSqlDatabase
-    pointer by QSqlDatabase objects.
+    QSqlDatabase is now a smart pointer that is passed around by
+    value. Simply replace all QSqlDatabase pointers by QSqlDatabase
+    objects.
 
     \section1 QSqlEditorFactory
 
@@ -3272,6 +3294,11 @@
             if (str2.isNull())
                 do_something(QString());
         \endcode
+
+        In new code, we recommend that you don't rely on the
+        distinction between a null string and a (non-null) empty
+        string. See \l{Distinction Between Null and Empty Strings}
+        for details.
 
     \o  QString::at() returned a non-const reference, whereas the
         new QString::at() returns a const value. Code like
@@ -3721,8 +3748,8 @@
     \section1 QWidget
 
     Widget background painting has been greatly improved, supporting
-    flickerfree updates and making it possible to have half
-    transparent widgets. This renders the following background
+    flicker-free updates and making it possible to have
+    semitransparent widgets. This renders the following background
     handling functions obsolete:
 
     \list
@@ -3887,7 +3914,7 @@
     \input porting4-modifiedvirtual.qdocinc
     \endtable
 
-    Virtual functions that are not virtual anymore in Qt 4:
+    Virtual functions that are not virtual in Qt 4:
 
     \table
     \header \o Qt 3 function \o Comment

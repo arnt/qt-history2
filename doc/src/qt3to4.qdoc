@@ -12,7 +12,8 @@
     \section1 Usage
 
     \c qt3to4 can be run either on individual C++ source or header
-    files, or on an entire project specified by a qmake \c .pro file:
+    files, or on an entire project specified by a \c qmake \c .pro
+    file:
 
     \code
         qt3to4 myfile.cpp
@@ -78,26 +79,42 @@
     
     \section1 Advanced Usage
      
-    When porting, qt3to4 parses the source files and ports the contents according to
-    the C++ language rules. This C++ parsing step can be disabled with the
-    -disableCppParsing option.
+    When porting, \c qt3to4 parses the source files and ports the
+    contents according to the C++ language rules. This C++ parsing
+    step can be disabled with the \c -disableCppParsing option.
 
-    If C++ parsing is enabled, qt3to4 must be able to locate the headers included
-    from the source files. Necessary headers include the public Qt headers and 
-    any headers that declares names that may conflict with names in the public
-    Qt headers. The standard C++ headers and system headers are usually not needed.
-    
-    You can tell qt3to4 where to look for headers by using the \c{-I} command
-    line option. Qt 3.3 header information is built in, so it is normaly not
-    neccesary to specify the location of the Qt headers. If you are porting
-    from a different version of Qt 3, you may want to disable the built-in
-    headers with \c{-disableBuiltInQt3Headers}, and then add the path to the
+    If C++ parsing is enabled, \c qt3to4 must be able to locate the
+    headers included from the source files. Necessary headers include
+    the public Qt headers and  any headers that declares names that
+    may conflict with names in the public Qt headers. The standard
+    C++ headers and system headers are usually not needed.
+
+    You can tell \c qt3to4 where to look for headers by using the
+    \c{-I} command-line option. Qt 3.3 header information is built
+    in, so it is normaly not neccesary to specify the location of the
+    Qt headers. If you are porting from a different version of Qt 3,
+    you may want to disable the built-in headers with
+    \c{-disableBuiltInQt3Headers}, and then add the path to the
     actual headers with the \c{-I} option.
-    
-    When porting a project, qt3to4 will read the INCLUDEPATH and DEPENDPATH
-    variables from the .pro file and add the paths specified here to the list
-    of include search directories.
-    
+
+    When porting a project, \c qt3to4 will read the \c INCLUDEPATH
+    and \c DEPENDPATH variables from the \c .pro file and add the
+    paths specified here to the list of include search directories.
+
     To see which headers that are not found, use the \c{-missingFileWarnings}
     option.
+
+    \section1 Limitations
+
+    \list
+    \o  In some cases, you might get compiler errors because of identifiers
+        in the global namespace (e.g., \c CTRL). Adding
+
+        \code
+        using namespace Qt;
+        \endcode
+
+        at the beginning of the source file that contains the
+        indentifier solves the problem.
+    \endlist
 */

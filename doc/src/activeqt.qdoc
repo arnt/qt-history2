@@ -4,8 +4,8 @@
 
     \keyword ActiveQt
 
-    These modules are part of the \l{Qt Commercial Edition} and are
-    \e not part of the Qt Open Source Edition.
+    These modules are part of the \l{Qt Desktop Edition}. They are
+    \e not part of the \l{Qt Open Source Edition}.
 
     Qt's ActiveX and COM support allows Qt/Windows developers to:
     \list 1
