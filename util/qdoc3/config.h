@@ -87,6 +87,7 @@ private:
 #define CONFIG_MACRO                    "macro"
 #define CONFIG_OUTPUTDIR                "outputdir"
 #define CONFIG_OUTPUTFORMATS            "outputformats"
+#define CONFIG_PROJECT                  "project"
 #define CONFIG_SOURCEDIRS               "sourcedirs"
 #define CONFIG_SOURCES                  "sources"
 #define CONFIG_SPURIOUS                 "spurious"

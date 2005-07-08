@@ -1741,15 +1741,39 @@ QString DocParser::getOptionalArgument()
 
 QString DocParser::getRestOfLine()
 {
+    QString t;
+
     skipSpacesOnLine();
 
-    int begin = pos;
+    bool trailingSlash = false;
 
-    while ( pos < (int) in.length() && in[pos] != '\n' )
-	pos++;
+    do {
+        int begin = pos;
 
-    QString t = in.mid( begin, pos - begin ).simplified();
-    skipSpacesOnLine();
+        while (pos < in.size() && in[pos] != '\n') {
+            if (in[pos] == '\\' && !trailingSlash) {
+                trailingSlash = true;
+                ++pos;
+                while (pos < in.size() && in[pos].isSpace() && in[pos] != '\n')
+                    ++pos;
+            } else {
+                trailingSlash = false;
+                ++pos;
+            }
+        }
+
+        if (!t.isEmpty())
+            t += " ";
+        t += in.mid( begin, pos - begin ).simplified();
+
+        if (trailingSlash) {
+            t.chop(1);
+            t = t.simplified();
+        }
+        if (pos < in.size())
+            ++pos;
+    } while (pos < in.size() && trailingSlash);
+
     return t;
 }
 

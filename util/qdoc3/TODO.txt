@@ -1,7 +1,19 @@
 MUST HAVES:
 
+  * FIX THE BUG IN qt.html with images!!
+
+  * \since
+  * fix \overload when one is a signal and the other a normal function
+  * functions.html: include the types from QtGlobal as well as the functions (whatever that means)
+  * In Qt::escape() we are told that a "rich text formatted" string is
+    returned; but no hint as to what that means!
 
 
+  * \macro Q_OBJECT
+  * nice template function/class syntax
+  * spellchecker: built-in vs. builtin
+
+  * verbose mode for functions that don't exist
   * No links to Porting Guide sections (e.g. QStringList)
   * link toggled(bool)
   * autolink foo(1)

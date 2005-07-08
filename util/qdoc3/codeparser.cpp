@@ -11,13 +11,15 @@
 #define COMMAND_INGROUP                 Doc::alias("ingroup")
 #define COMMAND_INMODULE                Doc::alias("inmodule")  // ### don't document
 #define COMMAND_INTERNAL                Doc::alias("internal")
-#define COMMAND_MAINCLASS		Doc::alias("mainclass")
+#define COMMAND_MAINCLASS               Doc::alias("mainclass")
 #define COMMAND_NONREENTRANT            Doc::alias("nonreentrant")
 #define COMMAND_OBSOLETE                Doc::alias("obsolete")
 #define COMMAND_PRELIMINARY             Doc::alias("preliminary")
 #define COMMAND_REENTRANT               Doc::alias("reentrant")
+#define COMMAND_SINCE                   Doc::alias("since")
+#define COMMAND_SUBTITLE                Doc::alias("subtitle")
 #define COMMAND_THREADSAFE              Doc::alias("threadsafe")
-#define COMMAND_TITLE			Doc::alias("title")
+#define COMMAND_TITLE                   Doc::alias("title")
 
 QList<CodeParser *> CodeParser::parsers;
 
@@ -89,7 +91,8 @@ QSet<QString> CodeParser::commonMetaCommands()
     return QSet<QString>() << COMMAND_COMPAT << COMMAND_DEPRECATED << COMMAND_INGROUP
                            << COMMAND_INMODULE << COMMAND_INTERNAL << COMMAND_MAINCLASS
                            << COMMAND_NONREENTRANT << COMMAND_OBSOLETE << COMMAND_PRELIMINARY
-                           << COMMAND_REENTRANT << COMMAND_THREADSAFE << COMMAND_TITLE;
+                           << COMMAND_REENTRANT << COMMAND_SINCE << COMMAND_SUBTITLE
+                           << COMMAND_THREADSAFE << COMMAND_TITLE;
 }
 
 void CodeParser::processCommonMetaCommand(const Location &location, const QString &command,
@@ -116,6 +119,15 @@ void CodeParser::processCommonMetaCommand(const Location &location, const QStrin
 	node->setAccess( Node::Private );
     } else if (command == COMMAND_REENTRANT) {
 	node->setThreadSafeness(Node::Reentrant);
+    } else if (command == COMMAND_SINCE) {
+        node->setSince(arg);
+    } else if (command == COMMAND_SUBTITLE) {
+	if (node->type() == Node::Fake) {
+	    FakeNode *fake = static_cast<FakeNode *>(node);
+            fake->setSubTitle(arg);
+        } else {
+	    location.warning(tr("Ignored '\\%1'").arg(COMMAND_SUBTITLE));
+	}
     } else if (command == COMMAND_THREADSAFE) {
 	node->setThreadSafeness(Node::ThreadSafe);
     } else if (command == COMMAND_TITLE) {

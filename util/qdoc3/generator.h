@@ -58,6 +58,7 @@ protected:
 				      CodeMarker *marker );
 
     void generateThreadSafeness( const Node *node, CodeMarker *marker );
+    void generateSince(const Node *node, CodeMarker *marker);
     void generateStatus( const Node *node, CodeMarker *marker );
     const Atom *generateAtomList( const Atom *atom, const Node *relative,
 				  CodeMarker *marker, bool generate,
@@ -102,6 +103,7 @@ private:
     static QStringList imageFiles;
     static QStringList imageDirs;
     static QString outDir;
+    static QString project;
 };
 
 #endif

@@ -35,9 +35,11 @@ public:
     void setDoc( const Doc& doc, bool replace = false );
     void setStatus( Status status ) { sta = status; }
     void setThreadSafeness(ThreadSafeness safeness) { saf = safeness; }
+    void setSince(const QString &since) { sinc = since; }
     void setRelates(InnerNode *pseudoParent);
     void setModuleName(const QString &module) { mod = module; }
     void setLink(LinkType linkType, const QString &link, const QString &desc);
+    void setUrl(const QString &url);
 
     virtual bool isInnerNode() const = 0;
     Type type() const { return typ; }
@@ -47,7 +49,6 @@ public:
     QMap<LinkType, QPair<QString,QString> > links() const { return linkMap; }
     QString moduleName() const;
     QString url() const;
-    void setUrl(const QString &url);
 
     Access access() const { return acc; }
     const Location& location() const { return loc; }
@@ -56,6 +57,7 @@ public:
     Status inheritedStatus() const;
     ThreadSafeness threadSafeness() const;
     ThreadSafeness inheritedThreadSafeness() const;
+    QString since() const { return sinc; }
 
     void clearRelated() { rel = 0; }
 
@@ -82,6 +84,7 @@ private:
     QMap<LinkType, QPair<QString, QString> > linkMap;
     QString mod;
     QString u;
+    QString sinc;
 };
 
 class FunctionNode;
@@ -194,6 +197,7 @@ public:
     FakeNode( InnerNode *parent, const QString& name, SubType subType );
 
     void setTitle(const QString &title) { tle = title; }
+    void setSubTitle(const QString &subTitle) { stle = subTitle; }
     void addGroupMember(Node *node) { gr.append(node); }
 
     SubType subType() const { return sub; }
@@ -205,6 +209,7 @@ public:
 private:
     SubType sub;
     QString tle;
+    QString stle;
     NodeList gr;
 };
 

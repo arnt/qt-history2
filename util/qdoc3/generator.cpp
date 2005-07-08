@@ -22,6 +22,7 @@ QMap<QString, QStringList> Generator::imgFileExts;
 QStringList Generator::imageFiles;
 QStringList Generator::imageDirs;
 QString Generator::outDir;
+QString Generator::project;
 
 static Text stockLink(const QString &target)
 {
@@ -132,6 +133,8 @@ void Generator::initialize(const Config &config)
 	}
 	++n;
     }
+
+    project = config.getString(CONFIG_PROJECT);
 }
 
 void Generator::terminate()
@@ -422,6 +425,13 @@ void Generator::generateModuleName(const ClassNode *classe, CodeMarker *marker)
                  << "This class is not part of the Qt Console Edition."
                  << Atom(Atom::FormattingRight, ATOM_FORMATTING_BOLD)
                  << Atom::ParaRight;
+        } else if (Tokenizer::isTrue("defined(desktoplight)") && module != "QtCore"
+                && module != "QtGui") {
+            text << Atom::ParaLeft
+                 << Atom(Atom::FormattingLeft, ATOM_FORMATTING_BOLD)
+                 << "This class is not part of the Qt Desktop Light Edition."
+                 << Atom(Atom::FormattingRight, ATOM_FORMATTING_BOLD)
+                 << Atom::ParaRight;
         } else {
 	    text << Atom::ParaLeft << "Part of the "
                  << Atom(Atom::Link, module.toLower() + ".html")
@@ -651,6 +661,21 @@ void Generator::generateThreadSafeness(const Node *node, CodeMarker *marker)
         text << Atom::ParaRight;
     }
     generateText(text, node, marker);
+}
+
+void Generator::generateSince(const Node *node, CodeMarker *marker)
+{
+    if (!node->since().isEmpty()) {
+        Text text;
+        text << Atom::ParaLeft << "This " << typeString(node)
+             << " was introduced in ";
+        if (project.isEmpty())
+	     text << "version";
+        else
+             text << project;
+        text << " " << node->since() << "." << Atom::ParaRight;
+        generateText(text, node, marker);
+    }
 }
 
 void Generator::generateOverload( const Node *node, CodeMarker *marker )

@@ -12,10 +12,7 @@
 #include <qlist.h>
 #include <qiterator.h>
 
-#define COMMAND_PROJECT                 Doc::alias("project")
 #define COMMAND_VERSION                 Doc::alias("version")
-#define COMMAND_DESCRIPTION             Doc::alias("description")
-#define COMMAND_URL                     Doc::alias("url")
 
 static bool showBrokenLinks = false;
 
@@ -61,15 +58,15 @@ void HtmlGenerator::initializeGenerator(const Config &config)
     footer = config.getString(HtmlGenerator::format() + Config::dot + HTMLGENERATOR_FOOTER);
     address = config.getString(HtmlGenerator::format() + Config::dot + HTMLGENERATOR_ADDRESS);
 
-    project = config.getString(COMMAND_PROJECT);
+    project = config.getString(CONFIG_PROJECT);
     if (project.isEmpty())
         project = "Project";
 
-    projectDescription = config.getString(COMMAND_DESCRIPTION);
+    projectDescription = config.getString(CONFIG_DESCRIPTION);
     if (projectDescription.isEmpty())
         projectDescription = project + " Reference Documentation";
 
-    projectUrl = config.getString(COMMAND_URL);
+    projectUrl = config.getString(CONFIG_URL);
     if (projectUrl.isEmpty())
         projectUrl = "http://www.trolltech.com/products/" + project.toLower();
 }
@@ -651,6 +648,7 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
 	generateInheritedBy(classe, marker);
     }
     generateThreadSafeness(inner, marker);
+    generateSince(inner, marker);
 
     out() << "<ul>\n";
 
@@ -797,7 +795,7 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     QList<Section>::const_iterator s;
 
     QString htmlTitle = fake->fullTitle();
-    if (!fake->subTitle().isEmpty())
+    if (fake->subType() == FakeNode::File && !fake->subTitle().isEmpty())
         htmlTitle += " (" + fake->subTitle() + ")";
 
     generateHeader(htmlTitle, fake, marker);
@@ -1002,7 +1000,7 @@ void HtmlGenerator::generateTitle(const QString& title, const QString &subTitle)
 {
     out() << "<h1 align=\"center\">" << protect( title );
     if (!subTitle.isEmpty())
-        out() << "<br /><small><small>" << protect(subTitle) << "</small></small>";
+        out() << "<br /><small>" << protect(subTitle) << "</small>";
     out() << "</h1>\n";
 }
 
@@ -1974,6 +1972,8 @@ void HtmlGenerator::generateDetailedMember(const Node *node, const InnerNode *re
     generateStatus(node, marker);
     generateBody(node, marker);
     generateThreadSafeness(node, marker);
+    generateSince(node, marker);
+
     if (node->type() == Node::Property) {
 	const PropertyNode *property = static_cast<const PropertyNode *>(node);
         Section section;

@@ -476,6 +476,9 @@ QString FakeNode::fullTitle() const
 
 QString FakeNode::subTitle() const
 {
+    if (!stle.isEmpty())
+        return stle;
+
     if (sub == File) {
 	if (title().isEmpty() && name().contains("/"))
             return name();
