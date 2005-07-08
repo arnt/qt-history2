@@ -153,7 +153,7 @@ template<> struct QMetaTypeId<QChar>
   static inline int qt_metatype_id() { return QMetaType::QChar; } };
 template<> struct QMetaTypeId<void>
 { enum { Defined = 1 };
-  static inline int qt_metatype_id() { return QMetaType::VoidStar; } };
+  static inline int qt_metatype_id() { return QMetaType::Void; } };
 template<> struct QMetaTypeId<long>
 { enum { Defined = 1 };
   static inline int qt_metatype_id() { return QMetaType::Long; } };
@@ -183,5 +183,8 @@ class QWidget;
 template<> struct QMetaTypeId<QWidget *>
 { enum { Defined = 1 };
   static inline int qt_metatype_id() { return QMetaType::QWidgetStar; } };
+template<> struct QMetaTypeId<void *>
+{ enum { Defined = 1 };
+  static inline int qt_metatype_id() { return QMetaType::VoidStar; } };
 
 #endif // QMETATYPE_H
