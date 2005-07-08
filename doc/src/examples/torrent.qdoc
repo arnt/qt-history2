@@ -1,0 +1,7 @@
+/*!
+    \example network/torrent
+    \title Torrent Example
+
+    The Torrent example is a functional BitTorrent client that
+    illustrates how to write a complex TCP/IP application using Qt.
+*/

@@ -97,7 +97,9 @@
     enables you to provide detailed feedback to the user.
 
     The \l{network/http}{HTTP} and \l{network/ftp}{FTP} examples
-    illustrate how to write an HTTP and an FTP client.
+    illustrate how to write an HTTP and an FTP client. In addition,
+    the \l{network/torrent}{Torrent} example uses QHttp to track
+    transfer progress.
 
     Writing your own HTTP or FTP server is possible using the
     lower-level classes QTcpSocket and QTcpServer.
@@ -169,6 +171,10 @@
     and \l{network/threadedfortuneserver}{Threaded Fortune Server}
     for an example of a multithreaded TCP server with one thread per
     active client.
+
+    Finally, the \l{network/torrent}{Torrent} example is a larger
+    application that uses QTcpSocket and other network classes to
+    implement a fully functional BitTorrent client.
 
     \section1 Using UDP with QUdpSocket
 

@@ -177,6 +177,7 @@
     \o \l{network/http}{HTTP}
     \o \l{network/loopback}{Loopback}
     \o \l{network/threadedfortuneserver}{Threaded Fortune Server}
+    \o \l{network/torrent}{Torrent}
     \endlist
 
     \section1 SQL Examples
