@@ -144,7 +144,6 @@ Window::Window()
     shapeChanged();
     penChanged();
     brushChanged();
-    penChanged();
     renderArea->setAntialiased(false);
     renderArea->setTransformed(false);
 
