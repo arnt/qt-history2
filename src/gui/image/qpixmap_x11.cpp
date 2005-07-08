@@ -357,7 +357,7 @@ QPixmapData::~QPixmapData()
 
     A pixmap is automatically detached by Qt whenever its contents are
     about to change. This is done in all QPixmap member functions that
-    modify the pixmap (fill(), resize(), convertFromImage(), load(),
+    modify the pixmap (fill(), convertFromImage(), load(),
     etc.), and in QPainter::begin() on a pixmap.
 
     It is possible to modify a pixmap without letting Qt know. You can

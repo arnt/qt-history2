@@ -316,8 +316,6 @@ QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
 
     Resizing an existing pixmap to (0, 0) makes a pixmap into a null
     pixmap.
-
-    \sa resize()
 */
 bool QPixmap::isNull() const
 {
@@ -391,7 +389,13 @@ int QPixmap::depth() const
     \fn void QPixmap::resize(const QSize &size)
     \overload
 
-    Resizes the pixmap to size \a size.
+    Use the QPixmap constructor that takes a QSize and pass it \a size.
+
+    \oldcode
+        pixmap.resize(size);
+    \newcode
+        pixmap = QPixmap(size);
+    \endcode
 */
 #ifdef QT3_SUPPORT
 void QPixmap::resize_helper(const QSize &s)
@@ -439,14 +443,16 @@ void QPixmap::resize_helper(const QSize &s)
 #endif
 
 /*!
-  \fn void QPixmap::resize(int w, int h)
+    \fn void QPixmap::resize(int w, int h)
 
-    Resizes the pixmap to \a w width and \a h height. If either \a w
-    or \a h is 0, the pixmap becomes a null pixmap.
+    Use the QPixmap constructor that takes two \c{int}s and pass
+    \a w and \a h.
 
-    If both \a w and \a h are greater than 0, a valid pixmap is
-    created. New pixels will be uninitialized (random) if the pixmap
-    is expanded.
+    \oldcode
+        pixmap.resize(10, 20);
+    \newcode
+        pixmap = QPixmap(10, 20);
+    \endcode
 */
 
 /*!
@@ -1172,7 +1178,7 @@ QPixmap QPixmap::scaledToHeight(int h, Qt::TransformationMode mode) const
 
     You can retrieve the width(), height(), depth(), and size() of a
     pixmap. The enclosing rectangle can be determined with rect().
-    Pixmaps can be filled with fill() and resized with resize(). You
+    Pixmaps can be filled with fill(). You
     can create and set a mask with createHeuristicMask() and setMask().
     Use selfMask() to see if the pixmap is identical to its mask.
 
