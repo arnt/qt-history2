@@ -777,7 +777,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 
     QString libName;
     BSTR nameString;
-    HRESULT hasDocu = typelib->GetDocumentation(-1, &nameString, 0, 0, 0);
+    typelib->GetDocumentation(-1, &nameString, 0, 0, 0);
     libName = QString::fromUtf16((const ushort *)nameString);
     SysFreeString(nameString);
 

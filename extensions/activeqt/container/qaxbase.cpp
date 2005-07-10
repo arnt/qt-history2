@@ -456,7 +456,7 @@ public:
 
             const QMetaProperty metaProp = meta->property(meta->indexOfProperty(propname));
             void *argv[] = {0, var.data()};
-            if (metaProp.type() == -1)
+            if (metaProp.type() == QVariant::LastType)
                 argv[1] = &var;
 
             // emit the "changed" signal
@@ -2809,7 +2809,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
     QAxMetaObject *metaobj = new QAxMetaObject;
 
     // revision + classname + table + zero terminator
-    int int_data_size = 1+1+2+2+2+2+1;
+    uint int_data_size = 1+1+2+2+2+2+1;
 
     int_data_size += classinfo_list.count() * 2;
     int_data_size += signal_list.count() * 5;
@@ -2840,7 +2840,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
     stringdata += null;
     stringdata.reserve(8192);
 
-    int offset = int_data[3]; //idx_classinfo
+    uint offset = int_data[3]; //idx_classinfo
 
     // each class info in form key\0value\0
     for (QMap<QByteArray, QByteArray>::ConstIterator it = classinfo_list.begin(); it != classinfo_list.end(); ++it) {
@@ -3237,6 +3237,8 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
         case QMetaObject::ResetProperty:
             clear();
             break;
+        default:
+            break;
         }
         return index - mo->propertyCount();
     }
@@ -3463,6 +3465,7 @@ int QAxBase::qt_metacall(QMetaObject::Call call, int id, void **v)
             QMetaObject::activate(qObject(), mo, id, v);
             id -= mo->methodCount();
             break;
+        case QMetaMethod::Method:
         case QMetaMethod::Slot:
             id = internalInvoke(call, id, v);
             break;
