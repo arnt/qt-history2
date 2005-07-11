@@ -2370,7 +2370,7 @@ Qt/Embedded only:
     -no-freetype ....... Qt/Embedded only: do not compile in FreeType2 support.
  *  -freetype .......... Qt/Embedded only: add FreeType2 font support.
 
-    -qconfig local ..... Use src/tools/qconfig-local.h rather than the
+    -qconfig local ..... Use src/corelib/global/qconfig-local.h rather than the
                          default ($CFG_QCONFIG).
 
     -depths list ....... Comma-separated list of supported bit-per-pixel
@@ -2930,7 +2930,7 @@ minimal|small|medium|large|full)
     ;;
 *)
     # not known to be sufficient for anything
-    if [ '!' -f $relpath/src/tools/qconfig-$CFG_QCONFIG.h ]; then
+    if [ '!' -f $relpath/src/corelib/global/qconfig-$CFG_QCONFIG.h ]; then
         echo >&2 "No such configuration: $CFG_QCONFIG"
         OPT_HELP=yes
     fi
@@ -3289,7 +3289,7 @@ full)
     tmpconfig=$outpath/src/corelib/global/qconfig.h.new
     echo "#ifndef QT_BOOTSTRAPPED" >$tmpconfig
     echo "/* Copied from $QCONFIGFILE */" >>$tmpconfig
-    cat $relpath/src/tools/$QCONFIGFILE >>$tmpconfig
+    cat $relpath/src/corelib/global/$QCONFIGFILE >>$tmpconfig
     echo "#endif" >>$tmpconfig
     ;;
 esac
