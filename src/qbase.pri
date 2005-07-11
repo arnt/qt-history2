@@ -3,7 +3,7 @@ INCLUDEPATH *= $$QMAKE_INCDIR_QT/$$TARGET #just for today to have some compat
 TEMPLATE	= lib
 
 # note the configure script relies on the VERSION=X.Y.Z line not having any whitespace
-VERSION=4.0.0
+VERSION=4.1.0
 
 #load up the headers info
 unix {

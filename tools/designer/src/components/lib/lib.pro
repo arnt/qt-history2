@@ -4,7 +4,7 @@ CONFIG += qt dll debug_and_release depend_prl
 DESTDIR = $$QT_BUILD_TREE/lib
 DLLDESTDIR = $$QT_BUILD_TREE/bin
 
-VERSION = 4.0.0
+VERSION = 4.1.0
 QMAKE_TARGET_COMPANY = Trolltech AS
 QMAKE_TARGET_PRODUCT = Designer
 QMAKE_TARGET_DESCRIPTION = Graphical user interface designer.
