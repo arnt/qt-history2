@@ -21,7 +21,15 @@ QSqlConnectionDialog::QSqlConnectionDialog(QWidget *parent)
 {
     ui.setupUi(this);
 
-    QStringList drivers(QSqlDatabase::drivers());
+    QStringList drivers = QSqlDatabase::drivers();
+
+    // remove compat names
+    drivers.removeAll("QMYSQL3");
+    drivers.removeAll("QOCI8");
+    drivers.removeAll("QODBC3");
+    drivers.removeAll("QPSQL7");
+    drivers.removeAll("QTDS7");
+
     if (!drivers.contains("QSQLITE"))
         ui.dbCheckBox->setEnabled(false);
 
