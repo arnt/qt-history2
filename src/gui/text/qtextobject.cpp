@@ -748,6 +748,16 @@ QTextFrame::iterator &QTextFrame::iterator::operator--()
     return *this;
 }
 
+/*!
+    \class QTextBlockUserData
+    \brief The QTextBlockUserData class can be used to store custom data in blocks of text.
+
+    \ingroup text
+
+    QTextBlockUserData is an abstract interface that you can inherit from and attach to
+    a block of text using QTextBlock::setUserData(), making it possible to store additional
+    data per text block.
+*/
 QTextBlockUserData::~QTextBlockUserData()
 {
 }
@@ -1078,6 +1088,10 @@ QTextList *QTextBlock::textList() const
     return qobject_cast<QTextList *>(obj);
 }
 
+/*!
+    Returns a pointer to a QTextBlockUserData object if previously set with
+    setUserData() or a null pointer.
+*/
 QTextBlockUserData *QTextBlock::userData() const
 {
     if (!p || !n)
@@ -1087,6 +1101,14 @@ QTextBlockUserData *QTextBlock::userData() const
     return b->userData;
 }
 
+/*!
+    Attaches the given \a data object to the text block, which can be used
+    to store custom settings. For example a programming editor may want to
+    store additional information like debugger breakpoints in an object derived
+    from QTextBlockUserData.
+    The ownership is passed to the underlying text document, the provided object
+    will be deleted if the corresponding text block gets deleted.
+*/
 void QTextBlock::setUserData(QTextBlockUserData *data)
 {
     if (!p || !n)
@@ -1096,6 +1118,9 @@ void QTextBlock::setUserData(QTextBlockUserData *data)
     b->userData = data;
 }
 
+/*!
+    Returns the integer value previously set with setUserState() or -1.
+*/
 int QTextBlock::userState() const
 {
     if (!p || !n)
@@ -1105,6 +1130,10 @@ int QTextBlock::userState() const
     return b->userState;
 }
 
+/*!
+    Stores the specified \a state integer value in the text block. This may be
+    useful for example in a syntax highlighter to store a text parsing state.
+*/
 void QTextBlock::setUserState(int state)
 {
     if (!p || !n)
