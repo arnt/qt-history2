@@ -18,9 +18,6 @@ unix {
         QMAKE_CXXFLAGS += $$QMAKE_CXXFLAGS_SHLIB
 }
 
-target.path=$$[QT_INSTALL_LIBS]
-INSTALLS        += target
-
 !debug_and_release|build_pass {
    CONFIG(debug, debug|release) {
       unix:TARGET = $$member(TARGET, 0)_debug
