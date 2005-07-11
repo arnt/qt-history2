@@ -1904,7 +1904,7 @@ const char* QMetaClassInfo::value() const
     \relates QMetaObject
 
     This macro takes a \a Type and a \a value of that type and
-    returns a \c QGenericArgument object that can be passed to
+    returns a \l QGenericArgument object that can be passed to
     QMetaObject::invokeMethod().
 
     \sa Q_RETURN_ARG()
@@ -1924,14 +1924,48 @@ const char* QMetaClassInfo::value() const
 /*!
     \class QGenericArgument
 
-    This class should never be used directly. Instead, use the
-    Q_ARG() macro to create objects to use with QMetaObject::invokeMethod().
+    \brief The QGenericArgument class is an internal helper class for
+    marshalling arguments.
+
+    This class should never be used directly. Please use the \l Q_ARG()
+    macro instead.
+
+    \sa QGenericReturnArgument QMetaObject
+*/
+
+/*!
+    \fn QGenericArgument::QGenericArgument(const char *name, const void *data)
+
+    Constructs a QGenericArgument object with the given \a name and \a data.
+*/
+
+/*!
+    \fn QGenericArgument::data () const
+
+    Returns the \a data set in the constructor.
+*/
+
+/*!
+    \fn QGenericArgument::name () const
+
+    Returns the \a name set in the constructor.
 */
 
 /*!
     \class QGenericReturnArgument
 
-    This class should never be used directly. Instead, use the
-    Q_RETURN_ARG() macro to create objects to use with
-    QMetaObject::invokeMethod().
+    \brief The QGenericReturnArgument class is an internal helper class for
+    marshalling arguments.
+
+    This class should never be used directly. Please use the
+    Q_RETURN_ARG() macro instead.
+
+    \sa QGenericArgument QMetaObject
+*/
+
+/*!
+    \fn QGenericReturnArgument::QGenericReturnArgument(const char *name, void *data)
+
+    Constructs a QGenericReturnArgument object with the given \a name
+    and \a data.
 */
