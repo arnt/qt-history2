@@ -40,6 +40,7 @@
   </category>
   <category dirname="mainwindows" name="Main Windows">
     <example filename="application" name="Application" />
+    <example filename="dockwidgets" name="Dock Widgets" />
     <example filename="mdi" name="Multiple Document Interface" />
     <example filename="menus" name="Menus" />
     <example filename="recentfiles" name="Recent Files" />

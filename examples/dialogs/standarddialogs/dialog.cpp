@@ -209,8 +209,10 @@ void Dialog::setFont()
 {
     bool ok;
     QFont font = QFontDialog::getFont(&ok, QFont(fontLabel->text()), this);
-    if (ok)
+    if (ok) {
         fontLabel->setText(font.key());
+        fontLabel->setFont(font);
+    }
 }
 
 void Dialog::setExistingDirectory()
