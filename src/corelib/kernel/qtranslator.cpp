@@ -93,7 +93,9 @@ class QTranslatorPrivate : public QObjectPrivate
 public:
     enum { Contexts = 0x2f, Hashes = 0x42, Messages = 0x69 };
 
-    QTranslatorPrivate() : used_mmap(0), unmapPointer(0), unmapLength(0) {}
+    QTranslatorPrivate() : used_mmap(0), unmapPointer(0), unmapLength(0),
+       messageArray(0), offsetArray(0), contextArray(0), messageLength(0),
+       offsetLength(0), contextLength(0) {}
 
     // for mmap'ed files, this is what needs to be unmapped.
     uint used_mmap : 1;
