@@ -62,6 +62,7 @@ QWidget *QFormBuilder::createWidget(const QString &widgetName, QWidget *parentWi
     }
 
     if (w == 0) { // nothing to do
+        qWarning("QFormBuilder: Cannot create widget of class %s.", widgetName.toLatin1().constData());
         return 0;
     }
 

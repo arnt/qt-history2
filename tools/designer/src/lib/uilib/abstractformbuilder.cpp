@@ -333,6 +333,8 @@ bool QAbstractFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QL
         static_cast<FriendlyLayout*>(layout)->addChildWidget(item->widget());
     } else if (item->layout()) {
         static_cast<FriendlyLayout*>(layout)->addChildLayout(item->layout ());
+    } else {
+        return false;
     }
 
     if (QGridLayout *grid = qobject_cast<QGridLayout*>(layout)) {
