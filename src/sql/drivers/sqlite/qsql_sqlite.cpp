@@ -255,12 +255,17 @@ bool QSQLiteResult::exec()
     d->skipRow = false;
     clearValues();
 
-    sqlite3_reset(d->stmt);
-
+    int res = sqlite3_reset(d->stmt);
+    if (res != SQLITE_OK) {
+        setLastError(qMakeError(d->access, QCoreApplication::translate("QSQLiteResult",
+                     "Unable to reset statement"), QSqlError::StatementError, res));
+        d->finalize();
+        return false;
+    }
     int paramCount = sqlite3_bind_parameter_count(d->stmt);
     if (paramCount == values.count()) {
         for (int i = 0; i < paramCount; ++i) {
-            int res = SQLITE_OK;
+            res = SQLITE_OK;
             const QVariant value = values.at(i);
 
             if (value.isNull()) {
