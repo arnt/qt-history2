@@ -237,6 +237,7 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
         char c[16];
         while (::read(thread_pipe[0], c, sizeof(c)) > 0)
             ;
+        wakeUps = 0;
         ++nevents;
     }
 
@@ -774,9 +775,11 @@ bool QEventDispatcherUNIX::hasPendingEvents()
 
 void QEventDispatcherUNIX::wakeUp()
 {
-    char c = 0;
     Q_D(QEventDispatcherUNIX);
-    ::write( d->thread_pipe[1], &c, 1 );
+    if (d->wakeUps.testAndSet(0, 1)) {
+        char c = 0;
+        ::write( d->thread_pipe[1], &c, 1 );
+    }
 }
 
 void QEventDispatcherUNIX::interrupt()

@@ -122,6 +122,7 @@ public:
     // pending socket notifiers list
     QList<QSockNot*> sn_pending_list;
 
+    QAtomic wakeUps;
     bool interrupt;
 };
 
