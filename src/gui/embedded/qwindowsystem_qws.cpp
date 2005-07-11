@@ -3052,9 +3052,6 @@ void QWSInputMethod::updateHandler(int type)
     default:
         break;
     }
-    default:
-        break;
-    }
 }
 
 
