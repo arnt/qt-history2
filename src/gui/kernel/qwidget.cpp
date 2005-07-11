@@ -6495,6 +6495,16 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         qt_mac_update_metal_style(this);
 #endif
         break;
+    case Qt::WA_ShowModal:
+#ifdef Q_WS_MAC
+        // We need a different window type if we are to be run modal. SetWindowClass will
+        //  disappear, so Apple recommends changing the window group instead.
+        if (testAttribute(Qt::WA_WState_Created) && !d->topData()->group) {
+            WindowGroupRef wgr = GetWindowGroupOfClass(kMovableModalWindowClass);
+            SetWindowGroup(qt_mac_window_for(this), wgr);
+        }
+#endif
+        break;
     case Qt::WA_MouseTracking: {
         QEvent e(QEvent::MouseTrackingChange);
         QApplication::sendEvent(this, &e);
