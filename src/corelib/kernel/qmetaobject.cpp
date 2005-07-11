@@ -1930,7 +1930,7 @@ const char* QMetaClassInfo::value() const
     This class should never be used directly. Please use the \l Q_ARG()
     macro instead.
 
-    \sa QGenericReturnArgument QMetaObject
+    \sa Q_ARG(), QMetaObject::invokeMethod(),  QGenericReturnArgument
 */
 
 /*!
@@ -1960,7 +1960,7 @@ const char* QMetaClassInfo::value() const
     This class should never be used directly. Please use the
     Q_RETURN_ARG() macro instead.
 
-    \sa QGenericArgument QMetaObject
+    \sa Q_RETURN_ARG(), QMetaObject::invokeMethod(), QGenericArgument
 */
 
 /*!
