@@ -373,7 +373,7 @@ void qrichtext_import_plaintext(QTextCursor cursor, const QString &plainText)
             const int textEnd = (seenCRLF ? i - 1 : i);
 
             if (textEnd > textStart)
-                cursor.insertText(QString::fromRawData(plainText.unicode() + textStart, textEnd - textStart));
+                cursor.insertText(QString(plainText.unicode() + textStart, textEnd - textStart));
 
             textStart = i + 1;
             cursor.insertBlock();
@@ -386,7 +386,7 @@ void qrichtext_import_plaintext(QTextCursor cursor, const QString &plainText)
         }
     }
     if (textStart < plainText.length())
-        cursor.insertText(QString::fromRawData(plainText.unicode() + textStart, plainText.length() - textStart));
+        cursor.insertText(QString(plainText.unicode() + textStart, plainText.length() - textStart));
 
     cursor.endEditBlock();
 }
