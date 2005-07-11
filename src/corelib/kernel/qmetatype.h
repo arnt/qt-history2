@@ -120,12 +120,12 @@ struct QMetaTypeId
 
 #define Q_DECLARE_METATYPE(TYPE) \
 template <> \
-struct QMetaTypeId<TYPE> \
+struct QMetaTypeId< TYPE > \
 { \
     enum { Defined = 1 }; \
     static int qt_metatype_id() \
     { \
-       static int id = qRegisterMetaType<TYPE>(#TYPE); \
+       static int id = qRegisterMetaType< TYPE >(#TYPE); \
        return id; \
     } \
 };
