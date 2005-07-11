@@ -4,7 +4,7 @@ TARGET                = QtAssistantClient
 VERSION                = 1.0
 
 CONFIG                += qt warn_on
-CONFIG                += staticlib debug_and_release 
+CONFIG                += staticlib debug_and_release
 mac:unix:CONFIG       += explicitlib
 CONFIG                -= dll
 
@@ -27,3 +27,11 @@ INSTALLS        += target
       else:TARGET = $$member(TARGET, 0)d
    }
 }
+
+target.path=$$[QT_INSTALL_LIBS]
+INSTALLS        += target
+
+include($$QT_SOURCE_TREE/include/QtAssistant/headers.pri)
+assistant_headers.files = $$SYNCQT.HEADER_FILES $$SYNCQT.HEADER_CLASSES
+assistant_headers.path = $$[QT_INSTALL_HEADERS]/QtAssistant
+INSTALLS        += assistant_headers
