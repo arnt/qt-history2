@@ -30,7 +30,8 @@ SOURCES += main.cpp \
            converter.cpp \
            widgetinfo.cpp \
            embed.cpp \
-           qt3to4.cpp
+           qt3to4.cpp \
+           deps.cpp
 
 DEFINES -= QT_COMPAT_WARNINGS
 DEFINES += QT_COMPAT

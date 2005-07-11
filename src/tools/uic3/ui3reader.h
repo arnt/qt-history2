@@ -41,6 +41,7 @@ public:
     Ui3Reader(QTextStream &stream);
     ~Ui3Reader();
 
+    void computeDeps(const QDomElement &e, QStringList &globalIncludes, QStringList &localIncludes, bool impl = false);
     void generateUi4(const QString &fn, const QString &outputFn, QDomDocument doc);
 
     void generate(const QString &fn, const QString &outputFn,

@@ -46,7 +46,10 @@ int main(int argc, char * argv[])
     const char* trmacro = 0;
     bool nofwd = false;
     bool fix = false;
+    bool deps = false;
     QByteArray pchFile;
+
+
     QApplication app(argc, argv, false);
 
     for (int n = 1; n < argc && error == 0; n++) {
@@ -88,6 +91,8 @@ int main(int argc, char * argv[])
                     image_tmpfile = argv[n+2];
                     n += 2;
                 }
+            } else if (opt == "d") {
+                deps = true;
             } else if (opt == "nofwd") {
                 nofwd = true;
             } else if (opt == "nounload") {
@@ -268,9 +273,21 @@ int main(int argc, char * argv[])
         out.setEncoding(QTextStream::Latin1);
         ui3.embed(projectName, images);
         return 0;
-    }
+    } else if (deps) {
+        QStringList globalIncludes, localIncludes;
+        ui3.computeDeps(e, globalIncludes, localIncludes, impl);
 
-    if (convert) {
+        foreach (QString i, globalIncludes)
+            printf("%s\n", i.toLatin1().constData());
+
+        foreach (QString i, localIncludes)
+            printf("%s\n", i.toLatin1().constData());
+
+        if (impl)
+            printf("%s\n", headerFile);
+
+        return 0;
+    } else if (convert) {
         ui3.generateUi4(QFile::decodeName(fileName), QFile::decodeName(outputFile), doc);
         return 0;
     }
