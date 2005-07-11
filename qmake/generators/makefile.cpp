@@ -1269,7 +1269,8 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
             target += tmp.join(" ");
         }
         //masks
-        tmp = fileFixify(findFilesInVPATH(project->variables()[(*it) + ".files"], VPATH_NoFixify));
+        tmp = fileFixify(findFilesInVPATH(project->variables()[(*it) + ".files"], VPATH_NoFixify),
+                         FileFixifyAbsolute);
         if(!tmp.isEmpty()) {
             if(!target.isEmpty())
                 target += "\n";
