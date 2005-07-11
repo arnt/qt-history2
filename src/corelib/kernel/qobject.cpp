@@ -225,28 +225,37 @@ bool QConnectionList::removeConnection(QObject *sender, int signal,
     return success;
 }
 
+/*
+  QObjectSet sets the minimum capacity to 4099 (the first prime number
+  after 4096), so that we can speed up QObject destruction.
+ */
+class QObjectSet : public QSet<QObject *>
+{
+public:
+    QObjectSet()
+    { reserve(4099); }
+};
 
-Q_GLOBAL_STATIC(QSet<QObject *>, allObjects)
+Q_GLOBAL_STATIC(QObjectSet, allObjects)
 
 extern "C" Q_CORE_EXPORT void qt_addObject(QObject *object)
 {
     QWriteLocker locker(QObjectPrivate::readWriteLock());
-    QSet<QObject *> *set = allObjects();
+    QObjectSet *set = allObjects();
     if (set)
         set->insert(object);
 }
 
 extern "C" Q_CORE_EXPORT void qt_removeObject(QObject *object)
 {
-    QWriteLocker locker(QObjectPrivate::readWriteLock());
-    QSet<QObject *> *set = allObjects();
+    QObjectSet *set = allObjects();
     if (set)
         set->remove(object);
 }
 
 bool QObjectPrivate::isValidObject(QObject *object)
 {
-    QSet<QObject *> *set = allObjects();
+    QObjectSet *set = allObjects();
     return set ? set->contains(object) : false;
 }
 
@@ -661,13 +670,33 @@ QObject::~QObject()
 
     d->eventFilters.clear();
 
-    while (!d->children.isEmpty())                        // delete children objects
-        delete d->children.takeFirst();
+    // delete children objects
+    if (!d->children.isEmpty()) {
+        qDeleteAll(d->children);
+        d->children.clear();
+    }
 
-    ::qt_removeObject(this);
-    QCoreApplication::removePostedEvents(this);
 
-    if (d->parent)                                // remove it from parent object
+    {
+        QWriteLocker locker(QObjectPrivate::readWriteLock());
+        ::qt_removeObject(this);
+
+        /*
+          theoretically, we cannot check d->postedEvents without
+          holding the postEventList.mutex for the object's thread,
+          but since we hold the QObjectPrivate::readWriteLock(),
+          nothing can go into QCoreApplication::postEvent(), which
+          effectively means noone can post new events, which is what
+          we are trying to prevent. this means we can safely check
+          d->postedEvents, since we are fairly sure it will not
+          change (it could, but only by decreasing, i.e. removing
+          posted events from a differebnt thread)
+        */
+        if (d->postedEvents > 0)
+            QCoreApplication::removePostedEvents(this);
+    }
+
+    if (d->parent)        // remove it from parent object
         d->setParent_helper(0);
 
     delete d;
