@@ -1544,10 +1544,14 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
     FunctionBlock *fu = function;
     bool parsed = false;
     if(flags & IncludeFlagNewProject) {
-        QMakeProject proj(place);
-        if(proj.doProjectInclude("default_pre", IncludeFlagFeature, place) == IncludeNoExist)
-            proj.doProjectInclude("default", IncludeFlagFeature, place);
-        parsed = proj.read(file, place);
+        // The "project's variables" are used in other places (eg. export()) so it's not
+        // possible to use "place" everywhere. Instead just set variables and grab them later
+        QMakeProject proj;
+        proj.variables() = place;
+        if(proj.doProjectInclude("default_pre", IncludeFlagFeature, proj.variables()) == IncludeNoExist)
+            proj.doProjectInclude("default", IncludeFlagFeature, proj.variables());
+        parsed = proj.read(file, proj.variables());
+        place = proj.variables();
     } else {
         parsed = read(file, place);
     }
