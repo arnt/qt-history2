@@ -152,7 +152,7 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
 #endif
         }
     }
-
+    
     // check if any of our built-in formats can read images from the device
     if (!handler) {
         QByteArray subType;

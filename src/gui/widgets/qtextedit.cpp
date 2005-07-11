@@ -209,6 +209,12 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
         emit q->cursorPositionChanged();
         q->updateMicroFocus();
     }
+#ifdef QT_KEYPAD_NAVIGATION
+    else if (QApplication::keypadNavigationEnabled()
+        && (e->key() == Qt::Key_Up || e->key() == Qt::Key_Down)) {
+        return false;
+    }
+#endif
 
     selectionChanged();
 
@@ -1322,6 +1328,12 @@ void QTextEdit::timerEvent(QTimerEvent *e)
         QMouseEvent ev(QEvent::MouseMove, pos, globalPos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
         mouseMoveEvent(&ev);
     }
+#ifdef QT_KEYPAD_NAVIGATION
+    else if (e->timerId() == d->deleteAllTimer.timerId()) {
+        d->deleteAllTimer.stop();
+        clear();
+    }
+#endif
 }
 
 /*!
@@ -1395,6 +1407,35 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
         }
         return;
     }
+
+#ifdef QT_KEYPAD_NAVIGATION
+    switch (e->key()) {
+        case Qt::Key_Select:
+            if (QApplication::keypadNavigationEnabled())
+                setEditFocus(!hasEditFocus());
+            break;
+        case Qt::Key_Back:
+        case Qt::Key_No:
+            if (!QApplication::keypadNavigationEnabled()
+                    || (QApplication::keypadNavigationEnabled() && !hasEditFocus())) {
+                e->ignore();
+                return;
+            }
+            break;
+        default:
+            if (QApplication::keypadNavigationEnabled()) {
+                if (!hasEditFocus() && !(e->modifiers() & Qt::ControlModifier)) {
+                    if (e->text()[0].isPrint()) {
+                        setEditFocus(true);
+                        clear();
+                    } else {
+                        e->ignore();
+                        return;
+                    }
+                }
+            }
+    }
+#endif
 
     // schedule a repaint of the region of the cursor, as when we move it we
     // want to make sure the old cursor disappears (not noticable when moving
@@ -1497,6 +1538,31 @@ process:
     case Qt::Key_Enter:
         d->cursor.insertBlock();
         break;
+#ifdef QT_KEYPAD_NAVIGATION
+    case Qt::Key_Up:
+    case Qt::Key_Down:
+        if (QApplication::keypadNavigationEnabled()) {
+            // Cursor position didn't change, so we want to leave
+            // these keys to change focus.
+            e->ignore();
+            return;
+        }
+        break;
+    case Qt::Key_Back:
+        if (!e->isAutoRepeat()) {
+            if (QApplication::keypadNavigationEnabled()) {
+                if (document()->isEmpty()) {
+                    setEditFocus(false);
+                } else if (!d->deleteAllTimer.isActive()) {
+                    d->deleteAllTimer.start(750, this);
+                }
+            } else {
+                e->ignore();
+                return;
+            }
+        }
+        break;
+#endif
     default:
         {
             QString text = e->text();
@@ -1562,6 +1628,32 @@ process:
 
     d->updateCurrentCharFormat();
 }
+
+#ifdef QT_KEYPAD_NAVIGATION
+/*! \reimp
+*/
+void QTextEdit::keyReleaseEvent(QKeyEvent *e)
+{
+    Q_D(QTextEdit);
+    if (QApplication::keypadNavigationEnabled()) {
+        if (!e->isAutoRepeat() && e->key() == Qt::Key_Back
+            && d->deleteAllTimer.isActive()) {
+            d->deleteAllTimer.stop();
+            QTextBlockFormat blockFmt = d->cursor.blockFormat();
+
+            QTextList *list = d->cursor.currentList();
+            if (list && d->cursor.atBlockStart()) {
+                list->remove(d->cursor.block());
+            } else if (d->cursor.atBlockStart() && blockFmt.indent() > 0) {
+                blockFmt.setIndent(blockFmt.indent() - 1);
+                d->cursor.setBlockFormat(blockFmt);
+            } else {
+                d->cursor.deletePreviousChar();
+            }
+        }
+    }
+}
+#endif
 
 /*!
     Loads the resource specified by the given \a type and \a name.
@@ -2059,6 +2151,16 @@ void QTextEdit::focusInEvent(QFocusEvent *e)
     if (!d->readOnly) {
         d->cursorOn = true;
         d->setBlinkingCursorEnabled(true);
+#ifdef QT_KEYPAD_NAVIGATION
+	if (QApplication::keypadNavigationEnabled()) {
+	    if (e->reason() == Qt::TabFocusReason) {
+		d->cursor.movePosition(QTextCursor::Start);
+	    } else if (e->reason() == Qt::BacktabFocusReason) {
+		d->cursor.movePosition(QTextCursor::End);
+		d->cursor.movePosition(QTextCursor::StartOfLine);
+	    }
+	}
+#endif
     }
 
     QAbstractScrollArea::focusInEvent(e);

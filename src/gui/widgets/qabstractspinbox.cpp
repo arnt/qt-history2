@@ -778,6 +778,15 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
         steps *= 10;
     case Qt::Key_Up:
     case Qt::Key_Down: {
+#ifdef QT_KEYPAD_NAVIGATION
+        if (QApplication::keypadNavigationEnabled()) {
+            // Reserve up/down for nav - use left/right for edit.
+            if (e->key() == Qt::Key_Up || e->key() == Qt::Key_Down) {
+                e->ignore();
+                return;
+            }
+        }
+#endif
         e->accept();
         const bool up = (e->key() == Qt::Key_PageUp || e->key() == Qt::Key_Up);
         if (!(stepEnabled() & (up ? StepUpEnabled : StepDownEnabled)))
@@ -790,6 +799,29 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
         stepBy(steps);
         return;
     }
+#ifdef QT_KEYPAD_NAVIGATION
+    case Qt::Key_Left:
+    case Qt::Key_Right:
+        if (QApplication::keypadNavigationEnabled() && !hasEditFocus()) {
+            const bool up = (e->key() == Qt::Key_Right);
+            if (!(stepEnabled() & (up ? StepUpEnabled : StepDownEnabled)))
+                return;
+            if (!up)
+                steps *= -1;
+            if (style()->styleHint(QStyle::SH_SpinBox_AnimateButton, 0, this)) {
+                d->buttonState = (Keyboard | (up ? Up : Down));
+            }
+            stepBy(steps);
+            return;
+        }
+        break;
+    case Qt::Key_Back:
+        if (QApplication::keypadNavigationEnabled() && !hasEditFocus()) {
+            e->ignore();
+            return;
+        }
+        break;
+#endif
     case Qt::Key_Enter:
     case Qt::Key_Return:
         d->interpret(AlwaysEmit);
@@ -797,6 +829,17 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
         e->ignore();
         emit editingFinished();
         return;
+
+#ifdef QT_KEYPAD_NAVIGATION
+    case Qt::Key_Select:
+        if (QApplication::keypadNavigationEnabled()) {
+            // Toggles between left/right moving cursor and inc/dec.
+            setEditFocus(!hasEditFocus());
+            if (!hasEditFocus())
+                selectAll();
+        }
+        return;
+#endif
 
 #ifdef Q_WS_X11 // only X11
     case Qt::Key_U:

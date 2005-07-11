@@ -16,6 +16,11 @@
 
 #include "QtNetwork/qtcpserver.h"
 #include "QtNetwork/qtcpsocket.h"
+#include "QtGui/qwssocket_qws.h"
+
+#if defined(QT_NO_NETWORK) || defined(QT_NO_DNS)
+#define QT_NO_QWS_SOUNDSERVER
+#endif
 
 #ifndef QT_NO_SOUND
 
@@ -28,41 +33,76 @@ class QWSSoundServer : public QObject {
 public:
     explicit QWSSoundServer(QObject *parent=0);
     ~QWSSoundServer();
-    void playFile(const QString& filename);
+    void playFile( int id, const QString& filename );
+    void stopFile( int id );
+    void pauseFile( int id );
+    void resumeFile( int id );
+    
+signals:
+    void soundCompleted( int );
+    
+private slots:
+    void translateSoundCompleted( int, int );
 
 private:
     QWSSoundServerPrivate* d;
 };
 
 #ifndef QT_NO_QWS_SOUNDSERVER
-class QWSSoundClient : public QTcpSocket {
+class QWSSoundClient : public QWSSocket {
     Q_OBJECT
 public:
-    explicit QWSSoundClient(QObject *parent=0);
-    void play(const QString& filename);
-};
 
-class QWSSoundServerClient : public QTcpSocket {
-    Q_OBJECT
+    enum SoundFlags {
+	Priority = 0x01,
+	Streaming = 0x02  // currently ignored, but but could set up so both Raw and non raw can be done streaming or not.
+    };
+    enum DeviceErrors {
+	ErrOpeningAudioDevice = 0x01,
+	ErrOpeningFile = 0x02,
+	ErrReadingFile = 0x04
+    };
+    explicit QWSSoundClient(QObject* parent=0);
+    ~QWSSoundClient( );
+    void reconnect();
+    void play( int id, const QString& filename );
+    void play( int id, const QString& filename, int volume, int flags = 0 );
+    void playRaw( int id, const QString&, int, int, int, int flags = 0 );
 
-public:
-    QWSSoundServerClient(int s, QObject *parent);
-    ~QWSSoundServerClient();
-
+    void pause( int id );
+    void stop( int id );
+    void resume( int id );
+    void setVolume( int id, int left, int right );
+    void setMute( int id, bool m );
+    
+    // to be used by server only, to protect phone conversation/rings.
+    void playPriorityOnly(bool);
+    
 signals:
-    void play(const QString&);
+    void soundCompleted(int);
+    void deviceReady(int id);
+    void deviceError(int id, QWSSoundClient::DeviceErrors);
 
 private slots:
-    void destruct();
     void tryReadCommand();
+    void emitConnectionRefused();
+    
+private:
+    void sendServerMessage(QString msg);
 };
 
-class QWSSoundServerSocket : public QTcpServer {
+class QWSSoundServerSocket : public QWSServerSocket {
     Q_OBJECT
 
 public:
     explicit QWSSoundServerSocket(QObject *parent=0);
-    void incomingConnection(int s);
+public slots:    
+    void newConnection();
+
+#ifdef QT3_SUPPORT
+public:
+    QT3_SUPPORT_CONSTRUCTOR QWSSoundServerSocket(QObject *parent, const char *name);
+#endif
 
 #ifdef QT3_SUPPORT
 public:
@@ -70,7 +110,22 @@ public:
 #endif
 
 signals:
-    void playFile(const QString& filename);
+    void playFile(int, int, const QString&);
+    void playFile(int, int, const QString&, int, int);
+    void playRawFile(int, int, const QString&, int, int, int, int);
+    void pauseFile(int, int);
+    void stopFile(int, int);
+    void resumeFile(int, int);
+    void setVolume(int, int, int, int);
+    void setMute(int, int, bool);
+
+    void stopAll(int);
+
+    void playPriorityOnly(bool);
+
+    void soundFileCompleted(int, int);
+    void deviceReady(int, int);
+    void deviceError(int, int, int);
 };
 #endif
 

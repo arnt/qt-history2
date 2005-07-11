@@ -70,6 +70,10 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
     opt.lineWidth = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     opt.midLineWidth = 0;
     opt.state = QStyle::State_None | QStyle::State_Sunken;
+#ifdef QT_KEYPAD_NAVIGATION
+    if (q->hasEditFocus())
+        opt.state |= QStyle::State_HasEditFocus;
+#endif
     return opt;
 }
 
@@ -336,6 +340,9 @@ void QLineEdit::setText(const QString& text)
 {
     Q_D(QLineEdit);
     d->setText(text, -1, false);
+#ifdef QT_KEYPAD_NAVIGATION
+    d->origText = d->text;
+#endif
 }
 
 
@@ -505,7 +512,6 @@ void QLineEdit::setValidator(const QValidator *v)
     d->validator = const_cast<QValidator*>(v);
 }
 #endif // QT_NO_VALIDATOR
-
 
 /*!
     Returns a recommended size for the widget.
@@ -1323,6 +1329,12 @@ bool QLineEdit::event(QEvent * e)
         }
         else if (timerId == d->tripleClickTimer.timerId())
             d->tripleClickTimer.stop();
+#ifdef QT_KEYPAD_NAVIGATION
+        else if (timerId == d->deleteAllTimer.timerId()) {
+            d->deleteAllTimer.stop();
+            clear();
+        }
+#endif
     } else if (e->type() == QEvent::ContextMenu) {
 #ifndef QT_NO_IM
         if (d->composeMode())
@@ -1330,6 +1342,19 @@ bool QLineEdit::event(QEvent * e)
 #endif
         d->separate();
     }
+#ifdef QT_KEYPAD_NAVIGATION
+    else if (e->type() == QEvent::KeyRelease) {
+        if (QApplication::keypadNavigationEnabled()) {
+            QKeyEvent *ke = (QKeyEvent *)e;
+            if ( !ke->isAutoRepeat() && !isReadOnly()
+                    && ke->key() == Qt::Key_Back
+                    && d->deleteAllTimer.isActive()) {
+                d->deleteAllTimer.stop();
+                backspace();
+            }
+        }
+    }
+#endif
     return QWidget::event(e);
 }
 
@@ -1342,6 +1367,10 @@ void QLineEdit::mousePressEvent(QMouseEvent* e)
 	return;
     if (e->button() == Qt::RightButton)
         return;
+#ifdef QT_KEYPAD_NAVIGATION
+    if (QApplication::keypadNavigationEnabled() && !hasEditFocus())
+        setEditFocus(true);
+#endif
     if (d->tripleClickTimer.isActive() && (e->pos() - d->tripleClick).manhattanLength() <
          QApplication::startDragDistance()) {
         selectAll();
@@ -1468,6 +1497,45 @@ void QLineEdit::mouseDoubleClickEvent(QMouseEvent* e)
 void QLineEdit::keyPressEvent(QKeyEvent *event)
 {
     Q_D(QLineEdit);
+#ifdef QT_KEYPAD_NAVIGATION
+    bool select = false;
+    switch (event->key()) {
+        case Qt::Key_Select:
+            if (QApplication::keypadNavigationEnabled()) {
+                if (hasEditFocus()) {
+                    setEditFocus(false);
+                    select = true;
+                }
+            }
+            break;
+        case Qt::Key_Back:
+        case Qt::Key_No:
+            if (!QApplication::keypadNavigationEnabled() || !hasEditFocus()) {
+                event->ignore();
+                return;
+            }
+            break;
+        default:
+            if (QApplication::keypadNavigationEnabled()) {
+                if (!hasEditFocus() && !(event->modifiers() & Qt::ControlModifier)) {
+                    if (event->text()[0].isPrint()) {
+                        setEditFocus(true);
+                        clear();
+                    } else {
+                        event->ignore();
+                        return;
+                    }
+                }
+            }
+    }
+
+    if (QApplication::keypadNavigationEnabled() && !select && !hasEditFocus()) {
+        setEditFocus(true);
+        if (event->key() == Qt::Key_Select)
+            return; // Just start. No action.
+    }
+#endif
+
     d->setCursorVisible(true);
     if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
         if (hasAcceptableInput()) {
@@ -1694,6 +1762,21 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
             }
             break;
 #endif
+#ifdef QT_KEYPAD_NAVIGATION
+        case Qt::Key_Back:
+            if (QApplication::keypadNavigationEnabled() && !event->isAutoRepeat()
+                && !isReadOnly()) {
+                if (text().length() == 0) {
+                    setText(d->origText);
+                    setEditFocus(false);
+                } else if (!d->deleteAllTimer.isActive()) {
+                    d->deleteAllTimer.start(750, this);
+                }
+            } else {
+                unknown = true;
+            }
+            break;
+#endif
         default:
             unknown = true;
         }
@@ -1850,6 +1933,9 @@ void QLineEdit::focusInEvent(QFocusEvent *e)
     if (d->echoMode == Password || d->echoMode == NoEcho)
         qt_mac_secure_keyboard(true);
 #endif
+#ifdef QT_KEYPAD_NAVIGATION
+    d->origText = d->text;
+#endif
     update();
 }
 
@@ -1875,6 +1961,9 @@ void QLineEdit::focusOutEvent(QFocusEvent *e)
 #ifdef Q_WS_MAC
     if (d->echoMode == Password || d->echoMode == NoEcho)
         qt_mac_secure_keyboard(false);
+#endif
+#ifdef QT_KEYPAD_NAVIGATION
+    d->origText = QString();
 #endif
     update();
 }

@@ -258,6 +258,12 @@ void QTabBarPrivate::init()
     rightB = new QToolButton(q);
     QObject::connect(rightB, SIGNAL(clicked()), q, SLOT(scrollTabs()));
     rightB->hide();
+#ifdef QT_KEYPAD_NAVIGATION
+    if (QApplication::keypadNavigationEnabled()) {
+        leftB->setFocusPolicy(Qt::NoFocus);
+        rightB->setFocusPolicy(Qt::NoFocus);
+    }
+#endif
     q->setFocusPolicy(Qt::TabFocus);
     q->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 }

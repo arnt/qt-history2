@@ -18,6 +18,7 @@
 #include "qscrollbar.h"
 #include "private/qabstractscrollarea_p.h"
 #include "qlayout.h"
+#include "qapplication.h"
 #include "private/qlayoutengine_p.h"
 class QScrollAreaPrivate: public QAbstractScrollAreaPrivate
 {
@@ -165,6 +166,14 @@ bool QScrollArea::event(QEvent *e)
     if (e->type() == QEvent::StyleChange) {
         d->updateScrollBars();
     }
+#ifdef QT_KEYPAD_NAVIGATION
+    else if (QApplication::keypadNavigationEnabled()) {
+        if (e->type() == QEvent::Show)
+            QApplication::instance()->installEventFilter(this);
+        else if (e->type() == QEvent::Hide)
+            QApplication::instance()->removeEventFilter(this);
+    }
+#endif
     return QAbstractScrollArea::event(e);
 }
 
@@ -174,6 +183,28 @@ bool QScrollArea::event(QEvent *e)
 bool QScrollArea::eventFilter(QObject *o, QEvent *e)
 {
     Q_D(QScrollArea);
+#ifdef QT_KEYPAD_NAVIGATION
+    if (d->widget && o != d->widget && e->type() == QEvent::FocusIn
+            && QApplication::keypadNavigationEnabled()) {
+        if (o->isWidgetType()) {
+            QWidget *w = (QWidget*)o;
+            if (d->widget->isAncestorOf(w)) {
+                QRect focusRect(w->mapTo(d->widget, QPoint(0,0)), w->size());
+                QRect visibleRect(-d->widget->pos(), d->viewport->size());
+                if (!visibleRect.contains(focusRect)) {
+                    if (focusRect.right() > visibleRect.right())
+                        d->hbar->setValue(focusRect.right() - d->viewport->width());
+                    else if (focusRect.left() < visibleRect.left())
+                        d->hbar->setValue(focusRect.left());
+                    if (focusRect.bottom() > visibleRect.bottom())
+                        d->vbar->setValue(focusRect.bottom() - d->viewport->height());
+                    else if (focusRect.top() < visibleRect.top())
+                        d->vbar->setValue(focusRect.top());
+                }
+            }
+        }
+    }
+#endif
     if (o == d->widget && e->type() == QEvent::Resize)
         d->updateScrollBars();
     return false;

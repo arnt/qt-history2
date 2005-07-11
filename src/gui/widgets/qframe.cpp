@@ -18,6 +18,7 @@
 #include "qpainter.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
+#include "qapplication.h"
 
 #include "qframe_p.h"
 
@@ -553,6 +554,16 @@ void QFrame::drawFrame(QPainter *p)
         }
         break;
     }
+
+#ifdef QT_KEYPAD_NAVIGATION
+    if (QApplication::keypadNavigationEnabled() && hasFocus()) {
+        QStyleOptionFocusRect fopt;
+        fopt.init(this);
+        fopt.state |= QStyle::State_KeyboardFocusChange;
+        fopt.rect = frameRect();
+        style()->drawPrimitive(QStyle::PE_FrameFocusRect, &fopt, p, this);
+    }
+#endif
 }
 
 

@@ -491,6 +491,11 @@ public:
 
     bool isAncestorOf(const QWidget *child) const;
 
+#ifdef QT_KEYPAD_NAVIGATION
+    bool hasEditFocus() const;
+    void setEditFocus(bool on);
+#endif
+
 signals:
     void customContextMenuRequested(const QPoint &pos);
 

@@ -1195,6 +1195,31 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     Q_D(QAbstractItemView);
     if (!model())
         return;
+
+#ifdef QT_KEYPAD_NAVIGATION
+    switch( e->key() ) {
+    case Qt::Key_Select:
+        if (QApplication::keypadNavigationEnabled()) {
+            if (!hasEditFocus()) {
+                setEditFocus(true);
+                return;
+            }
+        }
+        break;
+    case Qt::Key_Back:
+        if (QApplication::keypadNavigationEnabled() && hasEditFocus())
+            setEditFocus(false);
+        else
+            e->ignore();
+        return;
+    default:
+        if (QApplication::keypadNavigationEnabled() && !hasEditFocus()) {
+            e->ignore();
+            return;
+        }
+    }
+#endif
+
     bool hadCurrent = true;
     QModelIndex current = currentIndex();
     if (!current.isValid()) {
@@ -1256,6 +1281,12 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     // ignored keys
     case Qt::Key_Down:
     case Qt::Key_Up:
+#ifdef QT_KEYPAD_NAVIGATION
+        if (QApplication::keypadNavigationEnabled()) {
+            e->accept(); // don't change focus
+            break;
+        }
+#endif
     case Qt::Key_Left:
     case Qt::Key_Right:
     case Qt::Key_Home:
@@ -1289,6 +1320,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
             e->ignore();
         break;
     case Qt::Key_Return:
+    case Qt::Key_Select:
         emit activated(currentIndex());
         break;
 #endif

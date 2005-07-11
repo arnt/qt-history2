@@ -177,6 +177,10 @@ void QStyleOption::init(const QWidget *widget)
         state |= QStyle::State_MouseOver;
     if (widget->window()->isActiveWindow())
         state |= QStyle::State_Active;
+#ifdef QT_KEYPAD_NAVIGATION
+    if (widget->hasEditFocus())
+        state |= QStyle::State_HasEditFocus;
+#endif
 
     direction = widget->layoutDirection();
     rect = widget->rect();

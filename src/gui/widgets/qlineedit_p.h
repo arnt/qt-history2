@@ -173,6 +173,11 @@ public:
 
     void clipboardChanged();
     bool userInput;
+
+#ifdef QT_KEYPAD_NAVIGATION
+    QBasicTimer deleteAllTimer; // keypad navigation
+    QString origText;
+#endif
 };
 
 #endif // QT_NO_LINEEDIT

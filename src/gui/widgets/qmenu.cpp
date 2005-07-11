@@ -1891,6 +1891,9 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         break;
 
     case Qt::Key_Escape:
+#ifdef QT_KEYPAD_NAVIGATION
+    case Qt::Key_Back:
+#endif
         key_consumed = true;
         if (d->tornoff) {
             close();
@@ -1912,6 +1915,9 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         if (!style()->styleHint(QStyle::SH_Menu_SpaceActivatesItem, 0, this))
             break;
         // for motif, fall through
+#ifdef QT_KEYPAD_NAVIGATION
+    case Qt::Key_Select:
+#endif
     case Qt::Key_Return:
     case Qt::Key_Enter: {
             if (!d->currentAction)

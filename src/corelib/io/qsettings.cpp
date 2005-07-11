@@ -896,7 +896,11 @@ static QString userIniPath()
 #else
         char *env = getenv("XDG_CONFIG_HOME");
         if (env == 0)
+#ifdef Q_WS_QWS
+            result = QDir::homePath() + QDir::separator() + QLatin1String("Settings");
+#else
             result = QDir::homePath() + QDir::separator() + QLatin1String(".config");
+#endif
         else if (*env == '/')
             result = QLatin1String(env);
         else

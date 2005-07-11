@@ -195,6 +195,62 @@ void QWidget::resetInputContext()
 #endif // QT_NO_IM
 }
 
+#ifdef QT_KEYPAD_NAVIGATION
+QWidget *QWidgetPrivate::editingWidget = 0;
+
+/*!
+    Returns true if this widget currently has edit focus; otherwise false.
+
+    This feature is available in Qtopia Core only.
+
+    \sa setEditFocus(), QApplication::keypadNavigationEnabled()
+*/
+bool QWidget::hasEditFocus() const
+{
+    const QWidget* w = this;
+    while (w->d_func()->extra && w->d_func()->extra->focus_proxy)
+        w = w->d_func()->extra->focus_proxy;
+    return QWidgetPrivate::editingWidget == w;
+}
+
+/*!
+    Sets whether this widget has edit focus.  If a widget has edit focus
+    Qt::Key_Up and Qt::Key_Down will be delivered to the widget normally,
+    otherwise they are used to change focus.
+
+    This feature is available in Qtopia Core only.
+
+    \sa hasEditFocus(), QApplication::keypadNavigationEnabled()
+*/
+void QWidget::setEditFocus(bool on)
+{
+    QWidget *f = this;
+    while (f->d_func()->extra && f->d_func()->extra->focus_proxy)
+        f = f->d_func()->extra->focus_proxy;
+
+    if (QWidgetPrivate::editingWidget && QWidgetPrivate::editingWidget != f)
+        QWidgetPrivate::editingWidget->setEditFocus(false);
+
+    qDebug() << "setEditFocus()" << on << this;
+
+    if ((!on && !QWidgetPrivate::editingWidget)
+        || (on && QWidgetPrivate::editingWidget == f)) {
+        update();
+        return;
+    }
+
+    if (!on && QWidgetPrivate::editingWidget == f) {
+        QWidgetPrivate::editingWidget = 0;
+        QEvent event(QEvent::LeaveEditFocus);
+        QApplication::sendEvent(f, &event);
+    } else if (on) {
+        QWidgetPrivate::editingWidget = f;
+        QEvent event(QEvent::EnterEditFocus);
+        QApplication::sendEvent(f, &event);
+    }
+    update();
+}
+#endif
 
 /*!
     \class QWidget qwidget.h
@@ -578,7 +634,6 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     naturalpalette.resolve(0);
     return naturalpalette;
 }
-
 
 /*****************************************************************************
   QWidget member functions
@@ -3423,7 +3478,6 @@ void QWidget::setFocus(Qt::FocusReason reason)
        )
         return;
 
-
     QWidget *w = f;
     if (isHidden()) {
         while (w && w->isHidden()) {
@@ -4829,6 +4883,19 @@ bool QWidget::event(QEvent *e)
                 break;
         }
         keyPressEvent(k);
+#ifdef QT_KEYPAD_NAVIGATION
+        if (!k->isAccepted() && QApplication::keypadNavigationEnabled()
+            && !(k->modifiers() & (Qt::ControlModifier | Qt::AltModifier | Qt::ShiftModifier))) {
+            if (k->key() == Qt::Key_Up)
+                res = focusNextPrevChild(false);
+            else if (k->key() == Qt::Key_Down)
+                res = focusNextPrevChild(true);
+            if (res) {
+                k->accept();
+                break;
+            }
+        }
+#endif
 #ifndef QT_NO_WHATSTHIS
         if (!k->isAccepted()
             && k->modifiers() & Qt::ShiftModifier && k->key() == Qt::Key_F1
@@ -6703,7 +6770,6 @@ void QWidget::setShortcutEnabled(int id, bool enable)
         qApp->d_func()->shortcutMap.setShortcutEnabled(enable, id, this, 0);
 }
 #endif // QT_NO_SHORTCUT
-
 /*!
     Updates the widget's micro focus.
 

@@ -162,6 +162,23 @@ static struct {
     { Qt::Key_Escape,       QT_TRANSLATE_NOOP("QShortcut", "Escape") },
     { Qt::Key_SysReq,       QT_TRANSLATE_NOOP("QShortcut", "System Request") },
 
+    // --------------------------------------------------------------
+    // Keypad navigation keys
+    { Qt::Key_Select,       QT_TRANSLATE_NOOP("QShortcut", "Select") },
+    { Qt::Key_Yes,          QT_TRANSLATE_NOOP("QShortcut", "Yes") },
+    { Qt::Key_No,           QT_TRANSLATE_NOOP("QShortcut", "No") },
+
+    // --------------------------------------------------------------
+    // Device keys
+    { Qt::Key_Context1,     QT_TRANSLATE_NOOP("QShortcut", "Context1") },
+    { Qt::Key_Context2,     QT_TRANSLATE_NOOP("QShortcut", "Context2") },
+    { Qt::Key_Context3,     QT_TRANSLATE_NOOP("QShortcut", "Context3") },
+    { Qt::Key_Context4,     QT_TRANSLATE_NOOP("QShortcut", "Context4") },
+    { Qt::Key_Call,         QT_TRANSLATE_NOOP("QShortcut", "Call") },
+    { Qt::Key_Hangup,       QT_TRANSLATE_NOOP("QShortcut", "Hangup") },
+    { Qt::Key_Flip,         QT_TRANSLATE_NOOP("QShortcut", "Flip") },
+
+
     { 0, 0 }
 };
 

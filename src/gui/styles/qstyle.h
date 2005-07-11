@@ -88,7 +88,10 @@ public:
         State_Item =          0x00100000,
         State_Sibling =       0x00200000,
         State_Editing =       0x00400000,
-        State_KeyboardFocusChange = 0x00800000
+        State_KeyboardFocusChange = 0x00800000,
+#ifdef QT_KEYPAD_NAVIGATION
+        State_HasEditFocus =  0x01000000
+#endif
     };
     Q_DECLARE_FLAGS(State, StateFlag)
 

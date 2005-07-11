@@ -49,6 +49,7 @@
 #include <private/qcursor_p.h>
 
 #include "qsettings.h"
+#include "qdebug.h"
 
 #include <unistd.h>
 #include <sys/stat.h>
@@ -146,12 +147,7 @@ extern "C" void dumpmem(const char* m)
 // live.
 QString qws_dataDir()
 {
-    QByteArray username = "unknown";
-    QByteArray logname = qgetenv("LOGNAME");
-    if (!logname.isEmpty())
-        username = logname;
-
-    QByteArray dataDir = "/tmp/qtembedded-" + username;
+    QByteArray dataDir = QString("/tmp/qtembedded-%1").arg(qws_display_id).toLocal8Bit();
     if (mkdir(dataDir, 0700)) {
         if (errno != EEXIST) {
             qFatal("Cannot create Qtopia Core data directory: %s", dataDir.constData());
@@ -1658,7 +1654,6 @@ bool QApplicationPrivate::qws_apply_settings()
 
 
 
-
 static void init_display()
 {
     if (qt_fbdpy) return; // workaround server==client case
@@ -2295,7 +2290,12 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
         if (keywidget) {
             grabbed = true;
         } else {
-            if (QApplicationPrivate::focus_widget && QApplicationPrivate::focus_widget->isVisible())
+            if (QWidget *popup = QApplication::activePopupWidget()) {
+                if (popup->focusWidget())
+                    keywidget = static_cast<QETWidget*>(popup->focusWidget());
+                else
+                    keywidget = static_cast<QETWidget*>(popup);
+            } else if (QApplicationPrivate::focus_widget && QApplicationPrivate::focus_widget->isVisible())
                 keywidget = static_cast<QETWidget*>(QApplicationPrivate::focus_widget);
             else if (widget)
                 keywidget = static_cast<QETWidget*>(widget->window());
@@ -2766,6 +2766,19 @@ void QApplicationPrivate::openPopup(QWidget *popup)
         popup->focusWidget()->setFocus(Qt::PopupFocusReason);
     } else if (popupWidgets->count() == 1) { // this was the first popup
         if (QWidget *fw = QApplication::focusWidget()) {
+#ifdef QT_KEYPAD_NAVIGATION
+            if (QApplication::keypadNavigationEnabled()) {
+                qDebug() << "openPopup() - check focus";
+                if (fw->hasEditFocus()) {
+                    qDebug() << "openPopup() - save old" << fw;
+                    oldEditFocus = fw;
+                    fw->setEditFocus(false);
+                } else {
+                    qDebug() << "openPopup() - reset old";
+                    oldEditFocus = 0;
+                }
+            }
+#endif
             QFocusEvent e(QEvent::FocusOut, Qt::PopupFocusReason);
             QApplication::sendEvent(fw, &e);
         }
@@ -2799,6 +2812,10 @@ void QApplicationPrivate::closePopup(QWidget *popup)
                 } else {
                     QFocusEvent e(QEvent::FocusIn, Qt::PopupFocusReason);
                     QApplication::sendEvent(fw, &e);
+#ifdef QT_KEYPAD_NAVIGATION
+                    if (QApplication::keypadNavigationEnabled() && fw == oldEditFocus)
+                        fw->setEditFocus(true);
+#endif
                 }
             }
         }

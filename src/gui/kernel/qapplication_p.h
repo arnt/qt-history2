@@ -255,6 +255,11 @@ public:
 
     static QString *styleOverride;
 
+#ifdef QT_KEYPAD_NAVIGATION
+    static bool keypadNavigation;
+    static QWidget *oldEditFocus;
+#endif
+
 private:
     static QApplicationPrivate *self;
 };

@@ -784,6 +784,20 @@ public:
 
         Key_MediaLast = 0x0100ffff,
 
+        // Keypad navigation keys
+        Key_Select = 0x01010000,
+        Key_Yes = 0x01010001,
+        Key_No = 0x01010002,
+
+        // Device keys
+        Key_Context1 = 0x01100000,
+        Key_Context2 = 0x01100001,
+        Key_Context3 = 0x01100002,
+        Key_Context4 = 0x01100003,
+        Key_Call = 0x01100004,
+        Key_Hangup = 0x01100005,
+        Key_Flip = 0x01100006,
+
         Key_unknown = 0x01ffffff
     };
 

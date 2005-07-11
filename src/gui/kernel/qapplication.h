@@ -207,6 +207,11 @@ public:
     static void setQuitOnLastWindowClosed(bool quit);
     static bool quitOnLastWindowClosed();
 
+#ifdef QT_KEYPAD_NAVIGATION
+    static void setKeypadNavigationEnabled(bool);
+    static bool keypadNavigationEnabled();
+#endif
+
 signals:
     void lastWindowClosed();
 

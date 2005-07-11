@@ -321,9 +321,11 @@ private:
     void im_update(const QWSIMUpdateCommand *);
 
     void send_im_mouse(const QWSIMMouseCommand *);
+#endif
+    // not in ifndef as this results in more readable functions.
     static void sendKeyEventUnfiltered(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
                                        bool isPress, bool autoRepeat);
-#endif
+    static void sendMouseEventUnfiltered(const QPoint &pos, int state, int wheel = 0);
     static void emergency_cleanup();
 
     static QBrush *bgBrush;
@@ -484,24 +486,37 @@ private:
 extern QWSServer *qwsServer; //there can be only one
 
 #ifndef QT_NO_QWS_IM
-    class QWSInputMethod : public QObject
-    {
-        Q_OBJECT
-    public:
-        QWSInputMethod();
-        virtual ~QWSInputMethod();
-        virtual bool filter(int unicode, int keycode, int modifiers,
-                            bool isPress, bool autoRepeat)=0;
-        virtual void reset();
-        virtual void updateHandler(int);
-        virtual void mouseHandler(int, int);
-        virtual void responseHandler(int, const QVariant&);
-    protected:
-        void sendIMEvent(QWSServer::IMState, const QString& txt, int cpos, int selLen = 0);
-        //void sendIMEvent(const QString &preedit, int cpos, int sellen, const QString commit, int replacepos, int rlen);
+class QWSInputMethod : public QObject
+{
+    Q_OBJECT
+public:
+    QWSInputMethod();
+    virtual ~QWSInputMethod();
 
-        void sendIMQuery(int property);
-    };
+    virtual bool filterKey(int unicode, int keycode, int modifiers,
+	    bool isPress, bool autoRepeat)=0;
+    
+    virtual bool filterMouse(const QPoint &, int, int = 0) = 0;
+
+    virtual void reset();
+    virtual void updateHandler(int);
+    virtual void mouseHandler(int, int);
+    virtual void responseHandler(int, const QVariant&);
+protected:
+
+    uint setInputResolution(bool isHigh);
+    uint inputResolutionShift() const;
+
+    void sendIMEvent(QWSServer::IMState, const QString& txt, int cpos, int selLen = 0);
+    //void sendIMEvent(const QString &preedit, int cpos, int sellen, const QString commit, int replacepos, int rlen);
+
+    void sendIMQuery(int property);
+
+    void sendKeyEvent( int, int, Qt::KeyboardModifiers, bool, bool);
+    void sendMouseEvent( const QPoint &, int, int wheel = 0 );
+private:
+    bool mIResolution;
+};
 
 inline void QWSInputMethod::sendIMEvent(QWSServer::IMState state, const QString &txt, int cpos, int selLen)
 {
@@ -512,6 +527,13 @@ inline void QWSInputMethod::sendIMQuery(int property)
 {
     qwsServer->sendIMQuery(property);
 }
+
+inline void QWSInputMethod::sendKeyEvent( int uni, int code, Qt::KeyboardModifiers mod, bool ispress, bool autorepeat)
+{
+    qwsServer->sendKeyEventUnfiltered(uni, code, mod, ispress, autorepeat);
+}
+
+// mouse events not inline as involve transformations.
 #endif // QT_NO_QWS_IM
 
 

@@ -363,6 +363,10 @@ bool QApplicationPrivate::fade_tooltip = false;
 bool QApplicationPrivate::animate_toolbox = false;
 bool QApplicationPrivate::widgetCount = false;
 QString* QApplicationPrivate::styleOverride = 0;
+#ifdef QT_KEYPAD_NAVIGATION
+bool QApplicationPrivate::keypadNavigation = false;
+QWidget *QApplicationPrivate::oldEditFocus = 0;
+#endif
 
 bool qt_tabletChokeMouse = false;
 static bool force_reverse = false;
@@ -1581,6 +1585,12 @@ void QApplicationPrivate::setFocusWidget(QWidget *focus, Qt::FocusReason reason)
 
         //send events
         if (prev) {
+#ifdef QT_KEYPAD_NAVIGATION
+            if (QApplication::keypadNavigationEnabled()) {
+                if (prev->hasEditFocus())
+                    prev->setEditFocus(false);
+            }
+#endif
             QFocusEvent out(QEvent::FocusOut, reason);
             QApplication::sendEvent(prev, &out);
             QApplication::sendEvent(prev->style(), &out);
@@ -3538,6 +3548,35 @@ void QApplicationPrivate::emitLastWindowClosed()
 
     Use \l CustomColor instead.
 */
+
+#ifdef QT_KEYPAD_NAVIGATION
+/*!
+    Sets whether Qt should use focus navigation suitable for use with a
+    minimal keypad.
+
+    If enabled, Qt::Key_Up and Qt::Key_Down are used to change focus.
+
+    This feature is available in Qtopia Core only.
+
+    \sa keypadNavigationEnabled()
+*/
+void QApplication::setKeypadNavigationEnabled(bool enable)
+{
+    QApplicationPrivate::keypadNavigation = enable;
+}
+
+/*
+    Returns true if Qt is set to use keypad navigation; otherwise returns
+    false. The default is false.
+
+    This feature is available in Qtopia Core only.
+    \sa setKeypadNavigationEnabled()
+*/
+bool QApplication::keypadNavigationEnabled()
+{
+    return QApplicationPrivate::keypadNavigation;
+}
+#endif
 
 // ************************************************************************
 // Input Method support

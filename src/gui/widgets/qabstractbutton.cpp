@@ -358,6 +358,9 @@ void QAbstractButtonPrivate::moveFocus(int key)
     }
 
     if (exclusive
+#ifdef QT_KEYPAD_NAVIGATION
+        && !QApplication::keypadNavigationEnabled()
+#endif
         && candidate
         && fb->d_func()->checked
         && candidate->d_func()->checkable)
@@ -929,6 +932,7 @@ void QAbstractButton::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Return:
         e->ignore();
         break;
+    case Qt::Key_Select:
     case Qt::Key_Space:
         if (!e->isAutoRepeat()) {
             setDown(true);
@@ -970,6 +974,7 @@ void QAbstractButton::keyReleaseEvent(QKeyEvent *e)
 {
     Q_D(QAbstractButton);
     switch (e->key()) {
+    case Qt::Key_Select:
     case Qt::Key_Space:
         if (!e->isAutoRepeat() && d->down)
             d->click();
@@ -1009,6 +1014,9 @@ void QAbstractButton::timerEvent(QTimerEvent *e)
 void QAbstractButton::focusInEvent(QFocusEvent *e)
 {
     Q_D(QAbstractButton);
+#ifdef QT_KEYPAD_NAVIGATION
+    if (!QApplication::keypadNavigationEnabled())
+#endif
     d->fixFocusPolicy();
     QWidget::focusInEvent(e);
 }

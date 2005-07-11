@@ -640,7 +640,6 @@ void QAbstractSlider::wheelEvent(QWheelEvent * e)
     e->accept();
 }
 #endif
-
 /*!
     \reimp
 */
@@ -652,15 +651,37 @@ void QAbstractSlider::keyPressEvent(QKeyEvent *ev)
 
         // It seems we need to use invertedAppearance for Left and right, otherwise, things look weird.
         case Qt::Key_Left:
+#ifdef QT_KEYPAD_NAVIGATION
+            if (QApplication::keypadNavigationEnabled() && d->orientation == Qt::Vertical)
+                action = d->invertedControls ? SliderSingleStepSub : SliderSingleStepAdd;
+            else
+#endif
             action = !d->invertedAppearance ? SliderSingleStepSub : SliderSingleStepAdd;
             break;
         case Qt::Key_Right:
+#ifdef QT_KEYPAD_NAVIGATION
+            if (QApplication::keypadNavigationEnabled() && d->orientation == Qt::Vertical)
+                action = d->invertedControls ? SliderSingleStepAdd : SliderSingleStepSub;
+            else
+#endif
             action = !d->invertedAppearance ? SliderSingleStepAdd : SliderSingleStepSub;
             break;
         case Qt::Key_Up:
+#ifdef QT_KEYPAD_NAVIGATION
+            if (QApplication::keypadNavigationEnabled()) {
+                ev->ignore();
+                break;
+            }
+#endif
             action = d->invertedControls ? SliderSingleStepSub : SliderSingleStepAdd;
             break;
         case Qt::Key_Down:
+#ifdef QT_KEYPAD_NAVIGATION
+            if (QApplication::keypadNavigationEnabled()) {
+                ev->ignore();
+                break;
+            }
+#endif
             action = d->invertedControls ? SliderSingleStepAdd : SliderSingleStepSub;
             break;
         case Qt::Key_PageUp:

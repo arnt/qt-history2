@@ -203,6 +203,9 @@ signals:
 protected:
     virtual void timerEvent(QTimerEvent *e);
     virtual void keyPressEvent(QKeyEvent *e);
+#ifdef QT_KEYPAD_NAVIGATION
+    virtual void keyReleaseEvent(QKeyEvent *e);
+#endif
     virtual void resizeEvent(QResizeEvent *);
     virtual void paintEvent(QPaintEvent *e);
     virtual void mousePressEvent(QMouseEvent *e);
