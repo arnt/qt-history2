@@ -104,11 +104,6 @@ public:
     QT3_SUPPORT_CONSTRUCTOR QWSSoundServerSocket(QObject *parent, const char *name);
 #endif
 
-#ifdef QT3_SUPPORT
-public:
-    QT3_SUPPORT_CONSTRUCTOR QWSSoundServerSocket(QObject *parent, const char *name);
-#endif
-
 signals:
     void playFile(int, int, const QString&);
     void playFile(int, int, const QString&, int, int);
