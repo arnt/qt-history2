@@ -683,7 +683,7 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
 QWidget::QWidget(QWidget *parent, Qt::WFlags f)
     : QObject(*new QWidgetPrivate, ((parent && (parent->windowType() == Qt::Desktop)) ? 0 : parent)), QPaintDevice()
 {
-    d_func()->init(f);
+    d_func()->init((parent && parent->windowType() == Qt::Desktop ? parent : 0), f);
 }
 
 #ifdef QT3_SUPPORT
@@ -694,7 +694,7 @@ QWidget::QWidget(QWidget *parent, Qt::WFlags f)
 QWidget::QWidget(QWidget *parent, const char *name, Qt::WFlags f)
     : QObject(*new QWidgetPrivate, ((parent && (parent->windowType() == Qt::Desktop)) ? 0 : parent)), QPaintDevice()
 {
-    d_func()->init(f);
+    d_func()->init((parent && parent->windowType() == Qt::Desktop ? parent : 0), f);
     setObjectName(name);
 }
 #endif
@@ -704,7 +704,7 @@ QWidget::QWidget(QWidget *parent, const char *name, Qt::WFlags f)
 QWidget::QWidget(QWidgetPrivate &dd, QWidget* parent, Qt::WFlags f)
     : QObject(dd, ((parent && (parent->windowType() == Qt::Desktop)) ? 0 : parent)), QPaintDevice()
 {
-    d_func()->init(f);
+    d_func()->init((parent && parent->windowType() == Qt::Desktop ? parent : 0), f);
 }
 
 /*!
@@ -715,7 +715,7 @@ int QWidget::devType() const
     return QInternal::Widget;
 }
 
-void QWidgetPrivate::init(Qt::WFlags f)
+void QWidgetPrivate::init(QWidget *desktopWidget, Qt::WFlags f)
 {
     Q_Q(QWidget);
     q->data = &data;
@@ -726,6 +726,14 @@ void QWidgetPrivate::init(Qt::WFlags f)
     if (!q->parent()) {
         Q_ASSERT_X(q->thread() == qApp->thread(), "QWidget",
                    "Widgets must be created in the GUI thread.");
+    }
+#endif
+
+#if defined(Q_WS_X11)
+    if (desktopWidget) {
+        // make sure the widget is created on the same screen as the
+        // programmer specified desktop widget
+        xinfo = desktopWidget->d_func()->xinfo;
     }
 #endif
 
@@ -903,14 +911,14 @@ QWidget::~QWidget()
     }
     d->actions.clear();
 #endif
-    
+
 #ifndef QT_NO_SHORTCUT
     // Remove all shortcuts grabbed by this
     // widget, unless application is closing
     if (!QApplicationPrivate::is_app_closing && testAttribute(Qt::WA_GrabbedShortcut))
         qApp->d_func()->shortcutMap.removeShortcut(0, this, QKeySequence());
 #endif
-    
+
     // delete layout while we still are a valid widget
     delete d->layout;
     // Remove myself focus list

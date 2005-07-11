@@ -300,7 +300,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                    || (flags & Qt::MSWindowsFixedSizeDialogHint));
     bool desktop = (type == Qt::Desktop);
     bool tool = (type == Qt::Tool || type == Qt::SplashScreen
-                || type == Qt::ToolTip || type == Qt::Drawer);
+                 || type == Qt::ToolTip || type == Qt::Drawer);
 
     bool customize =  (flags & (
                                 Qt::X11BypassWindowManagerHint
@@ -332,7 +332,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         // desktop on a certain screen other than the default requested
         QX11InfoData *xd = &X11->screens[qt_x11_create_desktop_on_screen];
         xinfo.setX11Data(xd);
-    } else if (parentWidget &&  parentWidget->d_func()->xinfo.screen() != xinfo.screen()) {
+    } else if (parentWidget && parentWidget->d_func()->xinfo.screen() != xinfo.screen()) {
         xinfo = parentWidget->d_func()->xinfo;
     }
 
@@ -399,7 +399,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 //             d->setWinId(id);                     // make sure otherDesktop is
 //             otherDesktop->d->setWinId(id);       // found first
 //         } else {
-            setWinId(id);
+        setWinId(id);
 //         }
     } else {
         if (xinfo.defaultVisual() && xinfo.defaultColormap()) {
@@ -637,7 +637,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 //         if (main_desktop->testWFlags(Qt::WPaintDesktop))
 //             XSelectInput(dpy, id, stdDesktopEventMask | ExposureMask);
 //         else
-            XSelectInput(dpy, id, stdDesktopEventMask);
+        XSelectInput(dpy, id, stdDesktopEventMask);
     } else {
         XSelectInput(dpy, id, stdWidgetEventMask);
 #if !defined (QT_NO_TABLET_SUPPORT)
@@ -798,7 +798,12 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
         QObject *obj = chlist.at(i);
         if (obj->isWidgetType()) {
             QWidget *w = (QWidget *)obj;
-            if (!w->isWindow()) {
+            if (xinfo.screen() != w->d_func()->xinfo.screen()) {
+                // ### force setParent() to not shortcut out (because
+                // ### we're setting the parent to the current parent)
+                w->d_func()->parent = 0;
+                w->setParent(q);
+            } else if (!w->isWindow()) {
                 XReparentWindow(X11->display, w->winId(), q->winId(),
                                 w->geometry().x(), w->geometry().y());
             } else if ((w->windowType() == Qt::Popup)
@@ -1363,10 +1368,10 @@ static void qt_x11_release_double_buffer(QX11DoubleBuffer **db)
     }
 }
 
-static QX11DoubleBuffer *qt_x11_create_double_buffer(Qt::HANDLE hd, int screen, int depth, int width, int height)
+static QX11DoubleBuffer *qt_x11_create_double_buffer(int screen, int depth, int width, int height)
 {
     QX11DoubleBuffer *db = new QX11DoubleBuffer;
-    db->hd = XCreatePixmap(X11->display, hd, width, height, depth);
+    db->hd = XCreatePixmap(X11->display, RootWindow(X11->display, screen), width, height, depth);
     db->picture = 0;
 #ifndef QT_NO_XRENDER
     if (X11->use_xrender)
@@ -1381,11 +1386,11 @@ static QX11DoubleBuffer *qt_x11_create_double_buffer(Qt::HANDLE hd, int screen, 
 }
 
 static
-void qt_x11_get_double_buffer(QX11DoubleBuffer **db, Qt::HANDLE hd, int screen, int depth, int width, int height)
+void qt_x11_get_double_buffer(QX11DoubleBuffer **db, int screen, int depth, int width, int height)
 {
     if (!qt_reuse_double_buffer || qt_x11_global_double_buffer_active) {
         // qDebug("<-- creating temporary double buffer");
-        *db = qt_x11_create_double_buffer(hd, screen, depth, width, height);
+        *db = qt_x11_create_double_buffer(screen, depth, width, height);
 	return;
     }
 
@@ -1411,7 +1416,7 @@ void qt_x11_get_double_buffer(QX11DoubleBuffer **db, Qt::HANDLE hd, int screen, 
         qt_discard_double_buffer();
     }
 
-    qt_x11_global_double_buffer = *db = qt_x11_create_double_buffer(hd, screen, depth, width, height);
+    qt_x11_global_double_buffer = *db = qt_x11_create_double_buffer(screen, depth, width, height);
 }
 
 void QWidget::repaint(const QRegion& rgn)
@@ -1448,7 +1453,7 @@ void QWidget::repaint(const QRegion& rgn)
     QPoint redirectionOffset;
     QX11DoubleBuffer *qDoubleBuffer = 0;
     if (double_buffer) {
-        qt_x11_get_double_buffer(&qDoubleBuffer, d->hd, d->xinfo.screen(), d->xinfo.depth(),
+        qt_x11_get_double_buffer(&qDoubleBuffer, d->xinfo.screen(), d->xinfo.depth(),
                                  br.width(), br.height());
 
 	d->hd = qDoubleBuffer->hd;

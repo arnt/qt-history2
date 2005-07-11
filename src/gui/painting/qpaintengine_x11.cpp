@@ -1550,9 +1550,10 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
     int sw = qRound(sr.width());
     int sh = qRound(sr.height());
 
-    if (d->xinfo && d->xinfo->screen() != pixmap.x11Info().screen()) {
+    if ((d->xinfo && d->xinfo->screen() != pixmap.x11Info().screen())
+        || (pixmap.x11Info().screen() != DefaultScreen(X11->display))) {
         QPixmap* p = const_cast<QPixmap *>(&pixmap);
-        p->x11SetScreen(d->xinfo->screen());
+        p->x11SetScreen(d->xinfo ? d->xinfo->screen() : DefaultScreen(X11->display));
     }
 
     QPixmap::x11SetDefaultScreen(pixmap.x11Info().screen());

@@ -324,7 +324,7 @@ QPixmapData::~QPixmapData()
         return;
     if (x11_mask) {
 #ifndef QT_NO_XRENDER
-        if (mask_picture) 
+        if (mask_picture)
             XRenderFreePicture(X11->display, mask_picture);
         mask_picture = 0;
 #endif
@@ -1919,7 +1919,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
             pm.data->picture = XRenderCreatePicture(X11->display, pm.data->hd, format, 0, 0);
         }
 #endif // QT_NO_XRENDER
-        
+
         GC gc = XCreateGC(X11->display, pm.data->hd, 0, 0);
 #if defined(QT_MITSHM)
         if (use_mitshm) {
@@ -1984,15 +1984,7 @@ void QPixmap::x11SetScreen(int screen)
 #endif
 
     QImage img = toImage();
-    QX11InfoData* xd = data->xinfo.getX11Data(true);
-    xd->screen = screen;
-    xd->depth = QX11Info::appDepth(screen);
-    xd->cells = QX11Info::appCells(screen);
-    xd->colormap = QX11Info::appColormap(screen);
-    xd->defaultColormap = QX11Info::appDefaultColormap(screen);
-    xd->visual = (Visual *)QX11Info::appVisual(screen);
-    xd->defaultVisual = QX11Info::appDefaultVisual(screen);
-    data->xinfo.setX11Data(xd);
+    x11SetDefaultScreen(screen);
     (*this) = fromImage(img);
 }
 
@@ -2105,7 +2097,7 @@ QPixmap QPixmap::copy(const QRect &rect) const
         }
 #endif
     }
-    
+
 #if !defined(QT_NO_XRENDER)
     if (data->picture && data->d == 32) {
         XRenderComposite(X11->display, PictOpSrc,
@@ -2136,9 +2128,9 @@ void QPixmapData::convertToARGB32()
 {
     if (!X11->use_xrender)
         return;
-    
+
     Q_ASSERT(count == 1);
-    
+
     Pixmap pm = XCreatePixmap(X11->display, RootWindow(X11->display, xinfo.screen()),
                               w, h, 32);
     Picture p = XRenderCreatePicture(X11->display, pm,
