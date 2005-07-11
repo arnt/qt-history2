@@ -162,8 +162,8 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
             initColumns();
         if (idx < 0 && !initialFetch)
             return true;
-        for (i = 0; i < rInf.count(); ++i)
-            switch (rInf.field(i).typeID()) {
+        for (i = 0; i < rInf.count(); ++i) {
+            switch (sqlite3_column_type(stmt, i)) {
             case SQLITE_BLOB:
                 values[i + idx] = QByteArray(static_cast<const char *>(
                             sqlite3_column_blob(stmt, i)),
@@ -183,6 +183,7 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
                             sqlite3_column_text16(stmt, i)),
                             sqlite3_column_bytes16(stmt, i) / sizeof(ushort));
                 break;
+            }
         }
         return true;
     case SQLITE_DONE:
