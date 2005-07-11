@@ -1538,8 +1538,8 @@ void qt_init(QApplicationPrivate *priv, int,
         getXDefault("Xft", FC_DPI, &dpi);
         if (dpi) {
                     for (int s = 0; s < ScreenCount(X11->display); ++s) {
-                        QX11Info::setAppDpiX(dpi, s);
-                        QX11Info::setAppDpiY(dpi, s);
+                        QX11Info::setAppDpiX(s, dpi);
+                        QX11Info::setAppDpiY(s, dpi);
                     }
                 }
         X11->fc_scale = 1.;
