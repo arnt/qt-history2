@@ -143,9 +143,13 @@ protected:
     enum FileFixifyType { FileFixifyAbsolute, FileFixifyRelative, FileFixifyDefault };
     QString fileFixify(const QString& file, const QString &out_dir=QString(),
                        const QString &in_dir=QString(), FileFixifyType fix=FileFixifyDefault, bool canon=true) const;
-    inline QString fileFixify(const QString& file, FileFixifyType fix, bool canon=true) const { return fileFixify(file, QString(), QString(), fix, canon); }
+    inline QString fileFixify(const QString& file, FileFixifyType fix, bool canon=true) const
+    { return fileFixify(file, QString(), QString(), fix, canon); }
     QStringList fileFixify(const QStringList& files, const QString &out_dir=QString(),
                            const QString &in_dir=QString(), FileFixifyType fix=FileFixifyDefault, bool canon=true) const;
+    inline QStringList fileFixify(const QStringList& files, FileFixifyType fix, bool canon=true) const
+    { return fileFixify(files, QString(), QString(), fix, canon); }
+
 public:
     MakefileGenerator();
     virtual ~MakefileGenerator();
