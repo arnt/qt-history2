@@ -25,37 +25,62 @@
 // We mean it.
 //
 
+#include <qstyleoption.h>
 #include "private/qwidget_p.h"
 
 #ifndef QT_NO_DOCKWIDGET
 
 class QBoxLayout;
-class QDockWidgetTitle;
+class QGridLayout;
 class QWidgetResizeHandler;
+class QRubberBand;
+class QDockWidgetTitleButton;
 
 class QDockWidgetPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QDockWidget)
 
+    struct DragState {
+        QRubberBand *rubberband;
+        QRect origin;   // starting position
+        QRect current;  // current size of the dockwidget (can be either placed or floating)
+        QRect floating; // size of the floating dockwidget
+        QPoint offset;
+        bool canDrop;
+    };
+
 public:
     inline QDockWidgetPrivate()
-	: QWidgetPrivate(), widget(0),
+	: QWidgetPrivate(), state(0), widget(0),
           features(QDockWidget::DockWidgetClosable
                    | QDockWidget::DockWidgetMovable
                    | QDockWidget::DockWidgetFloatable),
-          allowedAreas(Qt::AllDockWidgetAreas), top(0), box(0), title(0), resizer(0)
+          allowedAreas(Qt::AllDockWidgetAreas), top(0), box(0),
+          leftSpacer(0), rightSpacer(0), bottomSpacer(0),
+          floatButton(0), closeButton(0), resizer(0)
     { }
 
     void init();
     void toggleView(bool); // private slot
+    void toggleTopLevel(); // private slot
+
+    QStyleOptionDockWidget getStyleOption();
+
+    void updateButtons();
+    void relayout();
+    DragState *state;
 
     QWidget *widget;
 
     QDockWidget::DockWidgetFeatures features;
     Qt::DockWidgetAreas allowedAreas;
 
-    QBoxLayout *top, *box;
-    QDockWidgetTitle *title;
+    QGridLayout *top;
+    QBoxLayout *box;
+    QSpacerItem *leftSpacer, *rightSpacer, *topSpacer, *bottomSpacer;
+    QRect titleArea;
+    QDockWidgetTitleButton *floatButton;
+    QDockWidgetTitleButton *closeButton;
 
     QWidgetResizeHandler *resizer;
 #ifndef QT_NO_ACTION

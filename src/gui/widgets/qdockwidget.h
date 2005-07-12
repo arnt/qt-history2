@@ -78,12 +78,20 @@ protected:
     void changeEvent(QEvent *event);
     void closeEvent(QCloseEvent *event);
     void paintEvent(QPaintEvent *event);
+
+    void contextMenuEvent(QContextMenuEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void resizeEvent(QResizeEvent *event);
+
     bool event(QEvent *event);
 
 private:
     Q_DECLARE_PRIVATE(QDockWidget)
     Q_DISABLE_COPY(QDockWidget)
     Q_PRIVATE_SLOT(d_func(), void toggleView(bool))
+    Q_PRIVATE_SLOT(d_func(), void toggleTopLevel())
     friend class QDockWidgetLayout;
 };
 
