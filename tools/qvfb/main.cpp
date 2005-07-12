@@ -11,19 +11,25 @@
 **
 ****************************************************************************/
 
-#include "qvfb.h"
-
 #include <qapplication.h>
-#include <qpainter.h>
-#include <qregexp.h>
-
 #include <stdlib.h>
 #include <stdio.h>
+#include <signal.h>
+#include <qregexp.h>
+
+#include "qvfb.h"
+
+void fn_quit_qvfb(int)
+{
+    // pretend that we have quit normally
+    qApp->quit();
+}
+
 
 void usage( const char *app )
 {
     printf( "Usage: %s [-width width] [-height height] [-depth depth] "
-	    "[-nocursor] [-qwsdisplay :id]\n"
+	    "[-nocursor] [-qwsdisplay :id] [-skin skindirectory]\n"
 	    "Supported depths: 1, 4, 8, 32\n", app );
 }
 
@@ -33,10 +39,12 @@ int main( int argc, char *argv[] )
 
     QApplication app( argc, argv );
 
-    int width = 240;
-    int height = 320;
+    int width = 0;
+    int height = 0;
     int depth = 32;
-    bool cursor = true;
+    int rotation = 0;
+    bool cursor = TRUE;
+    double zoom = 1.0;
     QString displaySpec( ":0" );
     QString skin;
 
@@ -51,7 +59,9 @@ int main( int argc, char *argv[] )
 	} else if ( arg == "-depth" ) {
 	    depth = atoi( argv[++i] );
 	} else if ( arg == "-nocursor" ) {
-	    cursor = false;
+	    cursor = FALSE;
+	} else if ( arg == "-zoom" ) {
+	    zoom = atof( argv[++i] );
 	} else if ( arg == "-qwsdisplay" ) {
 	    displaySpec = argv[++i];
 	} else {
@@ -62,18 +72,30 @@ int main( int argc, char *argv[] )
     }
 
     int displayId = 0;
-    QRegExp rx( ":[0-9]" );
-    int m = rx.indexIn(displaySpec, 0);
+    QRegExp r( ":[0-9]+" );
+    int m = r.indexIn( displaySpec, 0 );
+    int len = r.matchedLength();
     if ( m >= 0 ) {
-	displayId = displaySpec.mid( m+1, rx.matchedLength()-1 ).toInt();
+	displayId = displaySpec.mid( m+1, len-1 ).toInt();
+    }
+    QRegExp rotRegExp( "Rot[0-9]+" );
+    m = rotRegExp.indexIn( displaySpec, 0 );
+    len = r.matchedLength();
+    if ( m >= 0 ) {
+	rotation = displaySpec.mid( m+3, len-3 ).toInt();
     }
 
     qDebug( "Using display %d", displayId );
+    signal(SIGINT, fn_quit_qvfb);
+    signal(SIGTERM, fn_quit_qvfb);
 
-    QVFb mw( displayId, width, height, depth, skin );
+    QVFb mw( displayId, width, height, depth, rotation, skin );
+    mw.setZoom(zoom);
     app.setMainWidget( &mw );
     mw.enableCursor(cursor);
     mw.show();
 
     return app.exec();
 }
+
+

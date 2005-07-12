@@ -11,27 +11,30 @@
 **
 ****************************************************************************/
 
-#include <qwidget.h>
+#include <QWidget>
 
 class QImage;
 class QTimer;
 class QAnimationWriter;
-class QLock;
 struct QVFbHeader;
 
 class QVFbView : public QWidget
 {
     Q_OBJECT
 public:
-    QVFbView( int display_id, int w, int h, int d, QWidget *parent = 0, Qt::WFlags = 0 );
+    enum Rotation { Rot0, Rot90, Rot180, Rot270 };
+    QVFbView( int display_id, int w, int h, int d, Rotation r, QWidget *parent = 0,
+		Qt::WFlags wflags = 0 );
     ~QVFbView();
 
     int displayId() const;
     int displayWidth() const;
     int displayHeight() const;
     int displayDepth() const;
+    Rotation displayRotation() const;
 
     bool touchScreenEmulation() const { return emulateTouchscreen; }
+    bool lcdScreenEmulation() const { return emulateLcdScreen; }
     int rate() { return refreshRate; }
     bool animating() const { return !!animation; }
     QImage image() const;
@@ -41,29 +44,33 @@ public:
     double gammaGreen() const { return ggreen; }
     double gammaBlue() const { return gblue; }
     void getGamma(int i, QRgb& rgb);
-    void skinKeyPressEvent( QKeyEvent *e ) { keyPressEvent(e); }
-    void skinKeyReleaseEvent( QKeyEvent *e ) { keyReleaseEvent(e); }
+    void skinKeyPressEvent( int code, const QString& text, bool autorep=FALSE );
+    void skinKeyReleaseEvent( int code, const QString& text, bool autorep=FALSE );
+    void skinMouseEvent( QMouseEvent *e );
 
-    double zoom() const { return zm; }
+    double zoomH() const { return hzm; }
+    double zoomV() const { return vzm; }
 
     QSize sizeHint() const;
+
 public slots:
     void setTouchscreenEmulation( bool );
-
+    void setLcdScreenEmulation( bool );
     void setRate( int );
-    void setZoom( double );
+    void setZoom( double, double );
     void startAnimation( const QString& );
     void stopAnimation();
 
 protected slots:
-    void timeout();
+    void flushChanges();
 
 protected:
     QImage getBuffer( const QRect &r, int &leading ) const;
     void drawScreen();
     void sendMouseData( const QPoint &pos, int buttons, int wheel );
-    void sendKeyboardData( int unicode, int keycode, Qt::KeyboardModifiers modifiers,
+    void sendKeyboardData( int unicode, int keycode, int modifiers,
 			   bool press, bool repeat );
+    //virtual bool eventFilter( QObject *obj, QEvent *e );
     virtual void paintEvent( QPaintEvent *pe );
     virtual void contextMenuEvent( QContextMenuEvent *e );
     virtual void mousePressEvent( QMouseEvent *e );
@@ -75,7 +82,6 @@ protected:
     virtual void keyReleaseEvent( QKeyEvent *e );
 
 private:
-    bool emulateTouchscreen;
     void setDirty( const QRect& );
     int shmId;
     unsigned char *data;
@@ -91,8 +97,9 @@ private:
     int contentsHeight;
     double gred, ggreen, gblue;
     QRgb* gammatable;
-    QLock *qwslock;
-    QTimer *timer;
+    int lockId;
+    QTimer *t_flush;
+
     int mouseFd;
     int keyboardFd;
     int refreshRate;
@@ -100,6 +107,9 @@ private:
     QString keyboardPipe;
     QAnimationWriter *animation;
     int displayid;
-    double zm;
+    double hzm,vzm;
+    bool emulateTouchscreen;
+    bool emulateLcdScreen;
+    Rotation rotation;
 };
 

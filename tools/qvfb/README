@@ -1,9 +1,6 @@
 Qt/Embedded Virtual Framebuffer
 ===============================
 
-Please note that the qvfb program needs to be compiled with the X11 version
-of Qt.
-
 The virtual frame buffer allows a Qt/Embedded program to be developed on your
 desktop machine, without switching between consoles and X11.  The virtual
 framebuffer consists of a shared memory region (the virtual frame buffer)
@@ -16,9 +13,9 @@ framebuffer.
 To use the virtual framebuffer:
 
 1. Ensure QT_NO_QWS_VFB is not set in qconfig.h (when you configure Qt,
-   add the -qvfb option).
+    add the -qvfb option).
 2. Start qvfb (qvfb should be compiled as a normal Qt/X11 application,
-   NOT as a Qt/Embedded application!).
+    NOT as a Qt/Embedded application!).
 3. Start a Qt/Embedded server (i.e. construct QApplication with
    QApplication::GuiServer flag, or run a client with the -qws option).
 
@@ -31,7 +28,7 @@ qvfb supports the following command line options:
 [-qwsdisplay]    the Qt/Embedded display ID, e.g. -qwsdisplay :1 (default :0).
 [-skin skinfile] tells qvfb to load a skin file, e.g. -skin pda.skin
 
-Please refer to the file "pda.skin" for an example of what a skin file looks like.
+Please refer to the file "pda.skin" as an example of what a skin file looks like.
 The format for skin files is:
     Image filename of skin with buttons in their up positions
     Image filename of skin with buttons in their down positions
@@ -39,7 +36,6 @@ The format for skin files is:
     Y offset of top left corner of the virtual screen on the skin image
     Width of the virtual screen on the skin image
     Height of the virtual screen on the skin image
-    Transparancy level of the Virtual Frame Buffer
     Number of defined button regions
 Then for each button region the format is:
     Button identifier

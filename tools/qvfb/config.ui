@@ -1,433 +1,298 @@
 <ui version="4.0" stdsetdef="1" >
+  <author></author>
+  <comment></comment>
+  <exportmacro></exportmacro>
   <class>Config</class>
-  <comment>*********************************************************************
-  **
-  ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-  **
-  ** This file is part of the $MODULE$ of the Qt Toolkit.
-  **
-  ** $LICENSE$
-  **
-  ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-  ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-  **
-  *********************************************************************</comment>
   <widget class="QDialog" name="Config" >
-    <property name="objectName" >
-      <string notr="true">Config</string>
+    <property name="geometry" >
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>585</width>
+        <height>756</height>
+      </rect>
     </property>
     <property name="windowTitle" >
       <string>Configure</string>
     </property>
-    <property name="windowIcon" >
-      <pixmap>logo.png</pixmap>
-    </property>
     <property name="sizeGripEnabled" >
       <bool>true</bool>
     </property>
-    <layout class="QGridLayout" >
-      <property name="objectName" >
-        <string notr="true">unnamed</string>
-      </property>
+    <layout class="QVBoxLayout" >
       <property name="margin" >
-        <number>6</number>
+        <number>11</number>
       </property>
       <property name="spacing" >
-        <number>2</number>
+        <number>6</number>
       </property>
-      <item row="0" column="0" >
-        <widget class="QGroupBox" name="ButtonGroup1" >
-          <property name="objectName" >
-            <string notr="true">ButtonGroup1</string>
+      <item>
+        <layout class="QHBoxLayout" >
+          <property name="margin" >
+            <number>0</number>
           </property>
+          <property name="spacing" >
+            <number>6</number>
+          </property>
+          <item>
+            <widget class="Q3ButtonGroup" name="ButtonGroup1" >
+              <property name="sizePolicy" >
+                <sizepolicy>
+                  <hsizetype>5</hsizetype>
+                  <vsizetype>5</vsizetype>
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                </sizepolicy>
+              </property>
+              <property name="title" >
+                <string>Size</string>
+              </property>
+              <layout class="QVBoxLayout" >
+                <property name="margin" >
+                  <number>11</number>
+                </property>
+                <property name="spacing" >
+                  <number>6</number>
+                </property>
+                <item>
+                  <widget class="QRadioButton" name="size_176_220" >
+                    <property name="text" >
+                      <string>176x220 &quot;SmartPhone&quot;</string>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QRadioButton" name="size_240_320" >
+                    <property name="text" >
+                      <string>240x320 &quot;PDA&quot;</string>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QRadioButton" name="size_320_240" >
+                    <property name="text" >
+                      <string>320x240 &quot;TV&quot; / &quot;QVGA&quot;</string>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QRadioButton" name="size_640_480" >
+                    <property name="text" >
+                      <string>640x480 &quot;VGA&quot;</string>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <layout class="QHBoxLayout" >
+                    <property name="margin" >
+                      <number>0</number>
+                    </property>
+                    <property name="spacing" >
+                      <number>6</number>
+                    </property>
+                    <item>
+                      <widget class="QRadioButton" name="size_custom" >
+                        <property name="sizePolicy" >
+                          <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                          </sizepolicy>
+                        </property>
+                        <property name="text" >
+                          <string>Custom</string>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QSpinBox" name="size_width" >
+                        <property name="sizePolicy" >
+                          <sizepolicy>
+                            <hsizetype>7</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                          </sizepolicy>
+                        </property>
+                        <property name="maximum" >
+                          <number>1280</number>
+                        </property>
+                        <property name="minimum" >
+                          <number>1</number>
+                        </property>
+                        <property name="singleStep" >
+                          <number>16</number>
+                        </property>
+                        <property name="value" >
+                          <number>400</number>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QSpinBox" name="size_height" >
+                        <property name="sizePolicy" >
+                          <sizepolicy>
+                            <hsizetype>7</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                          </sizepolicy>
+                        </property>
+                        <property name="maximum" >
+                          <number>1024</number>
+                        </property>
+                        <property name="minimum" >
+                          <number>1</number>
+                        </property>
+                        <property name="singleStep" >
+                          <number>16</number>
+                        </property>
+                        <property name="value" >
+                          <number>300</number>
+                        </property>
+                      </widget>
+                    </item>
+                  </layout>
+                </item>
+              </layout>
+            </widget>
+          </item>
+          <item>
+            <widget class="Q3ButtonGroup" name="ButtonGroup2" >
+              <property name="title" >
+                <string>Depth</string>
+              </property>
+              <layout class="QVBoxLayout" >
+                <property name="margin" >
+                  <number>11</number>
+                </property>
+                <property name="spacing" >
+                  <number>6</number>
+                </property>
+                <item>
+                  <widget class="QRadioButton" name="depth_1" >
+                    <property name="text" >
+                      <string>1 bit monochrome</string>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QRadioButton" name="depth_4gray" >
+                    <property name="text" >
+                      <string>4 bit grayscale</string>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QRadioButton" name="depth_8" >
+                    <property name="text" >
+                      <string>8 bit</string>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QRadioButton" name="depth_12" >
+                    <property name="text" >
+                      <string>12 (16) bit</string>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QRadioButton" name="depth_16" >
+                    <property name="text" >
+                      <string>16 bit</string>
+                    </property>
+                  </widget>
+                </item>
+                <item>
+                  <widget class="QRadioButton" name="depth_32" >
+                    <property name="text" >
+                      <string>32 bit</string>
+                    </property>
+                  </widget>
+                </item>
+              </layout>
+            </widget>
+          </item>
+        </layout>
+      </item>
+      <item>
+        <layout class="QHBoxLayout" >
+          <property name="margin" >
+            <number>0</number>
+          </property>
+          <property name="spacing" >
+            <number>6</number>
+          </property>
+          <item>
+            <widget class="QLabel" name="TextLabel1_3" >
+              <property name="text" >
+                <string>Skin</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QComboBox" name="skin" >
+              <property name="sizePolicy" >
+                <sizepolicy>
+                  <hsizetype>7</hsizetype>
+                  <vsizetype>0</vsizetype>
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                </sizepolicy>
+              </property>
+              <item>
+                <property name="text" >
+                  <string>None</string>
+                </property>
+              </item>
+            </widget>
+          </item>
+        </layout>
+      </item>
+      <item>
+        <widget class="QCheckBox" name="touchScreen" >
+          <property name="text" >
+            <string>Emulate touch screen (no mouse move)</string>
+          </property>
+        </widget>
+      </item>
+      <item>
+        <widget class="QCheckBox" name="lcdScreen" >
+          <property name="text" >
+            <string>Emulate LCD screen (Only with fixed zoom of 3.0 times magnification)</string>
+          </property>
+        </widget>
+      </item>
+      <item>
+        <widget class="QLabel" name="TextLabel1" >
           <property name="sizePolicy" >
             <sizepolicy>
               <hsizetype>5</hsizetype>
-              <vsizetype>5</vsizetype>
+              <vsizetype>1</vsizetype>
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
             </sizepolicy>
           </property>
-          <property name="title" >
-            <string>Size</string>
-          </property>
-          <layout class="QVBoxLayout" >
-            <property name="objectName" >
-              <string notr="true">unnamed</string>
-            </property>
-            <property name="margin" >
-              <number>6</number>
-            </property>
-            <property name="spacing" >
-              <number>2</number>
-            </property>
-            <item>
-              <widget class="QRadioButton" name="size_240_320" >
-                <attribute name="buttonGroup">
-                  <string>group2</string>
-                </attribute>
-                <property name="objectName" >
-                  <string notr="true">size_240_320</string>
-                </property>
-                <property name="text" >
-                  <string>240x320  (PDA)</string>
-                </property>
-              </widget>
-            </item>
-            <item>
-              <widget class="QRadioButton" name="size_320_240" >
-                <attribute name="buttonGroup">
-                  <string>group2</string>
-                </attribute>
-                <property name="objectName" >
-                  <string notr="true">size_320_240</string>
-                </property>
-                <property name="text" >
-                  <string>320x240  (TV)</string>
-                </property>
-              </widget>
-            </item>
-            <item>
-              <widget class="QRadioButton" name="size_640_480" >
-                <attribute name="buttonGroup">
-                  <string>group2</string>
-                </attribute>
-                <property name="objectName" >
-                  <string notr="true">size_640_480</string>
-                </property>
-                <property name="text" >
-                  <string>640x480  (VGA)</string>
-                </property>
-              </widget>
-            </item>
-            <item>
-              <widget class="QWidget" name="Layout1_2" >
-                <property name="objectName" >
-                  <string notr="true">Layout1_2</string>
-                </property>
-                <layout class="QHBoxLayout" >
-                  <property name="objectName" >
-                    <string notr="true">unnamed</string>
-                  </property>
-                  <property name="margin" >
-                    <number>0</number>
-                  </property>
-                  <property name="spacing" >
-                    <number>2</number>
-                  </property>
-                  <item>
-                    <widget class="QRadioButton" name="size_custom" >
-                      <attribute name="buttonGroup">
-                        <string>group2</string>
-                      </attribute>
-                      <property name="objectName" >
-                        <string notr="true">size_custom</string>
-                      </property>
-                      <property name="text" >
-                        <string>Custom</string>
-                      </property>
-                    </widget>
-                  </item>
-                  <item>
-                    <widget class="QSpinBox" name="size_width" >
-                      <property name="objectName" >
-                        <string notr="true">size_width</string>
-                      </property>
-                      <property name="maximum" >
-                        <number>1280</number>
-                      </property>
-                      <property name="minimum" >
-                        <number>1</number>
-                      </property>
-                      <property name="singleStep" >
-                        <number>16</number>
-                      </property>
-                      <property name="value" >
-                        <number>400</number>
-                      </property>
-                    </widget>
-                  </item>
-                  <item>
-                    <widget class="QSpinBox" name="size_height" >
-                      <property name="objectName" >
-                        <string notr="true">size_height</string>
-                      </property>
-                      <property name="maximum" >
-                        <number>1024</number>
-                      </property>
-                      <property name="minimum" >
-                        <number>1</number>
-                      </property>
-                      <property name="singleStep" >
-                        <number>16</number>
-                      </property>
-                      <property name="value" >
-                        <number>300</number>
-                      </property>
-                    </widget>
-                  </item>
-                </layout>
-              </widget>
-            </item>
-            <item>
-              <widget class="QWidget" name="Layout8" >
-                <property name="objectName" >
-                  <string notr="true">Layout8</string>
-                </property>
-                <layout class="QHBoxLayout" >
-                  <property name="objectName" >
-                    <string notr="true">unnamed</string>
-                  </property>
-                  <property name="margin" >
-                    <number>0</number>
-                  </property>
-                  <property name="spacing" >
-                    <number>2</number>
-                  </property>
-                  <item>
-                    <widget class="QRadioButton" name="size_skin" >
-                      <attribute name="buttonGroup">
-                        <string>group2</string>
-                      </attribute>
-                      <property name="objectName" >
-                        <string notr="true">size_skin</string>
-                      </property>
-                      <property name="sizePolicy" >
-                        <sizepolicy>
-                          <hsizetype>0</hsizetype>
-                          <vsizetype>0</vsizetype>
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                        </sizepolicy>
-                      </property>
-                      <property name="text" >
-                        <string>Skin</string>
-                      </property>
-                    </widget>
-                  </item>
-                  <item>
-                    <widget class="QComboBox" name="skin" >
-                      <property name="objectName" >
-                        <string notr="true">skin</string>
-                      </property>
-                      <property name="sizePolicy" >
-                        <sizepolicy>
-                          <hsizetype>5</hsizetype>
-                          <vsizetype>0</vsizetype>
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                        </sizepolicy>
-                      </property>
-                      <item>
-                        <property name="text" >
-                          <string>pda.skin</string>
-                        </property>
-                      </item>
-                      <item>
-                        <property name="text" >
-                          <string>ipaq.skin</string>
-                        </property>
-                      </item>
-                      <item>
-                        <property name="text" >
-                          <string>qpe.skin</string>
-                        </property>
-                      </item>
-                      <item>
-                        <property name="text" >
-                          <string>cassiopeia.skin</string>
-                        </property>
-                      </item>
-                      <item>
-                        <property name="text" >
-                          <string>other.skin</string>
-                        </property>
-                      </item>
-                    </widget>
-                  </item>
-                </layout>
-              </widget>
-            </item>
-            <item>
-              <spacer name="Vertical Spacing" >
-                <property name="sizeHint" >
-                  <size>
-                    <width>5</width>
-                    <height>5</height>
-                  </size>
-                </property>
-                <property name="sizeType" >
-                  <enum>Expanding</enum>
-                </property>
-                <property name="orientation" >
-                  <enum>Vertical</enum>
-                </property>
-              </spacer>
-            </item>
-          </layout>
-        </widget>
-      </item>
-      <item row="0" column="1" >
-        <widget class="QGroupBox" name="ButtonGroup2" >
-          <property name="objectName" >
-            <string notr="true">ButtonGroup2</string>
-          </property>
-          <property name="title" >
-            <string>Depth</string>
-          </property>
-          <layout class="QVBoxLayout" >
-              <property name="objectName" >
-                <string notr="true">unnamed</string>
-              </property>
-              <property name="margin" >
-                <number>6</number>
-              </property>
-              <property name="spacing" >
-                <number>2</number>
-              </property>
-              <item>
-              <widget class="QRadioButton" name="depth_1" >
-                <attribute name="buttonGroup">
-                  <string>group1</string>
-                </attribute>
-                <property name="objectName" >
-                  <string notr="true">depth_1</string>
-                </property>
-                <property name="text" >
-                  <string>1 bit monochrome</string>
-                </property>
-              </widget>
-              </item>
-              <item>
-              <widget class="QRadioButton" name="depth_4gray" >
-                <attribute name="buttonGroup">
-                  <string>group1</string>
-                </attribute>
-                <property name="objectName" >
-                  <string notr="true">depth_4gray</string>
-                </property>
-                <property name="text" >
-                  <string>4 bit grayscale</string>
-                </property>
-              </widget>
-              </item>
-              <item>
-              <widget class="QRadioButton" name="depth_8" >
-                <attribute name="buttonGroup">
-                  <string>group1</string>
-                </attribute>
-                <property name="objectName" >
-                  <string notr="true">depth_8</string>
-                </property>
-                <property name="text" >
-                  <string>8 bit</string>
-                </property>
-              </widget>
-              </item>
-              <item>
-              <widget class="QRadioButton" name="depth_12" >
-                <attribute name="buttonGroup">
-                  <string>group1</string>
-                </attribute>
-                <property name="objectName" >
-                  <string notr="true">depth_12</string>
-                </property>
-                <property name="text" >
-                  <string>12 (16) bit</string>
-                </property>
-              </widget>
-              </item>
-              <item>
-              <widget class="QRadioButton" name="depth_16" >
-                <attribute name="buttonGroup">
-                  <string>group1</string>
-                </attribute>
-                <property name="objectName" >
-                  <string notr="true">depth_16</string>
-                </property>
-                <property name="text" >
-                  <string>16 bit</string>
-                </property>
-              </widget>
-              </item>
-              <item>
-              <widget class="QRadioButton" name="depth_24" >
-                <attribute name="buttonGroup">
-                  <string>group1</string>
-                </attribute>
-                <property name="objectName" >
-                  <string notr="true">depth_24</string>
-                </property>
-                <property name="text" >
-                  <string>24 bit</string>
-                </property>
-              </widget>
-              </item>
-              <item>
-              <widget class="QRadioButton" name="depth_32" >
-                <attribute name="buttonGroup">
-                  <string>group1</string>
-                </attribute>
-                <property name="objectName" >
-                  <string notr="true">depth_32</string>
-                </property>
-                <property name="text" >
-                  <string>32 bit</string>
-                </property>
-              </widget>
-             </item>
-            </layout>
-        </widget>
-      </item>
-      <item rowspan="1" row="1" column="0" colspan="2" >
-        <widget class="QLabel" name="TextLabel1" >
-          <property name="objectName" >
-            <string notr="true">TextLabel1</string>
-          </property>
-	  <property name="wordWrap">
-		<bool>true</bool>
-	  </property>
           <property name="text" >
-            <string>Note that any applications using the virtual framebuffer will be terminated if you change the Size or Depth above. You may freely modify the values below.</string>
+            <string>&lt;p>Note that any applications using the virtual framebuffer will be terminated if you change the Size or Depth &lt;i>above&lt;/i>. You may freely modify the Gamma &lt;i>below&lt;/i>.</string>
           </property>
         </widget>
       </item>
-      <item rowspan="1" row="2" column="0" colspan="2" >
-        <widget class="QCheckBox" name="touchScreen" >
-          <property name="objectName" >
-            <string notr="true">touchScreen</string>
-          </property>
-          <property name="text" >
-            <string>Emulate touch screen (no mouse move).</string>
-          </property>
-        </widget>
-      </item>
-      <item rowspan="1" row="3" column="0" colspan="2" >
-        <widget class="QGroupBox" name="GroupBox1" >
-          <property name="objectName" >
-            <string notr="true">GroupBox1</string>
-          </property>
+      <item>
+        <widget class="Q3GroupBox" name="GroupBox1" >
           <property name="title" >
             <string>Gamma</string>
           </property>
-          <property name="flat">
-            <bool>true</bool>
-          </property>
           <layout class="QGridLayout" >
-            <property name="objectName" >
-              <string notr="true">unnamed</string>
-            </property>
             <property name="margin" >
-              <number>4</number>
+              <number>11</number>
             </property>
             <property name="spacing" >
-              <number>2</number>
+              <number>6</number>
             </property>
             <item row="6" column="0" >
               <widget class="QLabel" name="TextLabel3" >
-                <property name="objectName" >
-                  <string notr="true">TextLabel3</string>
-                </property>
                 <property name="text" >
                   <string>Blue</string>
                 </property>
@@ -435,9 +300,6 @@
             </item>
             <item row="6" column="1" >
               <widget class="QSlider" name="bslider" >
-                <property name="objectName" >
-                  <string notr="true">bslider</string>
-                </property>
                 <property name="palette" >
                   <palette>
                     <active>
@@ -701,15 +563,6 @@
             </item>
             <item row="6" column="2" >
               <widget class="QLabel" name="blabel" >
-                <property name="objectName" >
-                  <string notr="true">blabel</string>
-                </property>
-                <property name="minimumSize">
-                    <size>
-                        <width>30</width>
-                        <height>0</height>
-                    </size>
-                </property>
                 <property name="text" >
                   <string>1.0</string>
                 </property>
@@ -717,9 +570,6 @@
             </item>
             <item row="4" column="0" >
               <widget class="QLabel" name="TextLabel2" >
-                <property name="objectName" >
-                  <string notr="true">TextLabel2</string>
-                </property>
                 <property name="text" >
                   <string>Green</string>
                 </property>
@@ -727,9 +577,6 @@
             </item>
             <item row="4" column="1" >
               <widget class="QSlider" name="gslider" >
-                <property name="objectName" >
-                  <string notr="true">gslider</string>
-                </property>
                 <property name="palette" >
                   <palette>
                     <active>
@@ -993,9 +840,6 @@
             </item>
             <item row="4" column="2" >
               <widget class="QLabel" name="glabel" >
-                <property name="objectName" >
-                  <string notr="true">glabel</string>
-                </property>
                 <property name="text" >
                   <string>1.0</string>
                 </property>
@@ -1003,9 +847,6 @@
             </item>
             <item row="0" column="0" >
               <widget class="QLabel" name="TextLabel7" >
-                <property name="objectName" >
-                  <string notr="true">TextLabel7</string>
-                </property>
                 <property name="text" >
                   <string>All</string>
                 </property>
@@ -1013,9 +854,6 @@
             </item>
             <item row="0" column="2" >
               <widget class="QLabel" name="TextLabel8" >
-                <property name="objectName" >
-                  <string notr="true">TextLabel8</string>
-                </property>
                 <property name="text" >
                   <string>1.0</string>
                 </property>
@@ -1023,9 +861,6 @@
             </item>
             <item row="0" column="1" >
               <widget class="QSlider" name="gammaslider" >
-                <property name="objectName" >
-                  <string notr="true">gammaslider</string>
-                </property>
                 <property name="palette" >
                   <palette>
                     <active>
@@ -1289,9 +1124,6 @@
             </item>
             <item row="2" column="0" >
               <widget class="QLabel" name="TextLabel1_2" >
-                <property name="objectName" >
-                  <string notr="true">TextLabel1_2</string>
-                </property>
                 <property name="text" >
                   <string>Red</string>
                 </property>
@@ -1299,9 +1131,6 @@
             </item>
             <item row="2" column="2" >
               <widget class="QLabel" name="rlabel" >
-                <property name="objectName" >
-                  <string notr="true">rlabel</string>
-                </property>
                 <property name="text" >
                   <string>1.0</string>
                 </property>
@@ -1309,9 +1138,6 @@
             </item>
             <item row="2" column="1" >
               <widget class="QSlider" name="rslider" >
-                <property name="objectName" >
-                  <string notr="true">rslider</string>
-                </property>
                 <property name="palette" >
                   <palette>
                     <active>
@@ -1573,153 +1399,66 @@
                 </property>
               </widget>
             </item>
-            <item row="1" column="1" >
-              <spacer name="Spacer4" >
-                <property name="sizeHint" >
-                  <size>
-                    <width>1</width>
-                    <height>5</height>
-                  </size>
+            <item rowspan="1" row="8" column="0" colspan="3" >
+              <widget class="QPushButton" name="PushButton3" >
+                <property name="text" >
+                  <string>Set all to 1.0</string>
                 </property>
-                <property name="sizeType" >
-                  <enum>Expanding</enum>
-                </property>
-                <property name="orientation" >
-                  <enum>Vertical</enum>
-                </property>
-              </spacer>
+              </widget>
             </item>
-            <item row="3" column="1" >
-              <spacer name="Spacer2" >
-                <property name="sizeHint" >
-                  <size>
-                    <width>1</width>
-                    <height>5</height>
-                  </size>
-                </property>
-                <property name="sizeType" >
-                  <enum>Expanding</enum>
-                </property>
-                <property name="orientation" >
-                  <enum>Vertical</enum>
-                </property>
-              </spacer>
-            </item>
-            <item row="5" column="1" >
-              <spacer name="Spacer3" >
-                <property name="sizeHint" >
-                  <size>
-                    <width>1</width>
-                    <height>5</height>
-                  </size>
-                </property>
-                <property name="sizeType" >
-                  <enum>Expanding</enum>
-                </property>
-                <property name="orientation" >
-                  <enum>Vertical</enum>
-                </property>
-              </spacer>
-            </item>
-            <item row="7" column="1" >
-              <spacer name="Spacer5" >
-                <property name="sizeHint" >
-                  <size>
-                    <width>1</width>
-                    <height>5</height>
-                  </size>
-                </property>
-                <property name="sizeType" >
-                  <enum>Expanding</enum>
-                </property>
-                <property name="orientation" >
-                  <enum>Vertical</enum>
-                </property>
-              </spacer>
+            <item rowspan="9" row="0" column="3" colspan="1" >
+              <widget class="GammaView" name="MyCustomWidget1" />
             </item>
           </layout>
         </widget>
       </item>
-      <item rowspan="1" row="4" column="0" colspan="2" >
-        <widget class="QWidget" name="Layout1" >
-          <property name="objectName" >
-            <string notr="true">Layout1</string>
+      <item>
+        <widget class="QPushButton" name="buttonOk" >
+          <property name="text" >
+            <string>&amp;OK</string>
           </property>
-          <layout class="QHBoxLayout" >
-            <property name="objectName" >
-              <string notr="true">unnamed</string>
-            </property>
-            <property name="margin" >
-              <number>0</number>
-            </property>
-            <property name="spacing" >
-              <number>2</number>
-            </property>
-            <item>
-              <widget class="QPushButton" name="resetgamma" >
-                <property name="objectName" >
-                  <string notr="true">PushButton3</string>
-                </property>
-                <property name="text" >
-                  <string>Reset Gamma</string>
-                </property>
-              </widget>
-            </item>
-            <item>
-              <spacer name="Horizontal Spacing2" >
-                <property name="sizeHint" >
-                  <size>
-                    <width>5</width>
-                    <height>5</height>
-                  </size>
-                </property>
-                <property name="sizeType" >
-                  <enum>Expanding</enum>
-                </property>
-                <property name="orientation" >
-                  <enum>Horizontal</enum>
-                </property>
-              </spacer>
-            </item>
-            <item>
-              <widget class="QPushButton" name="buttonOk" >
-                <property name="objectName" >
-                  <string notr="true">buttonOk</string>
-                </property>
-                <property name="text" >
-                  <string>&amp;OK</string>
-                </property>
-                <property name="autoDefault" >
-                  <bool>true</bool>
-                </property>
-                <property name="default" >
-                  <bool>true</bool>
-                </property>
-              </widget>
-            </item>
-            <item>
-              <widget class="QPushButton" name="buttonCancel" >
-                <property name="objectName" >
-                  <string notr="true">buttonCancel</string>
-                </property>
-                <property name="text" >
-                  <string>&amp;Cancel</string>
-                </property>
-                <property name="autoDefault" >
-                  <bool>true</bool>
-                </property>
-              </widget>
-            </item>
-          </layout>
+          <property name="autoDefault" >
+            <bool>true</bool>
+          </property>
+          <property name="default" >
+            <bool>true</bool>
+          </property>
         </widget>
       </item>
-
+      <item>
+        <widget class="QPushButton" name="buttonCancel" >
+          <property name="text" >
+            <string>&amp;Cancel</string>
+          </property>
+          <property name="autoDefault" >
+            <bool>true</bool>
+          </property>
+        </widget>
+      </item>
     </layout>
   </widget>
-  <layoutdefault spacing="2" margin="6" />
+  <layoutdefault spacing="6" margin="11" />
+  <pixmapfunction></pixmapfunction>
+  <customwidgets>
+    <customwidget>
+      <class>GammaView</class>
+      <extends></extends>
+      <header location="local" >gammaview.h</header>
+      <sizehint>
+        <width>64</width>
+        <height>64</height>
+      </sizehint>
+      <container>0</container>
+      <sizepolicy>
+        <hordata>3</hordata>
+        <verdata>3</verdata>
+      </sizepolicy>
+      <pixmap>image0</pixmap>
+    </customwidget>
+  </customwidgets>
   <images>
     <image name="image0" >
-      <data format="XPM.GZ" length="646" >789c6dd2c10ac2300c00d07bbf2234b7229d1be245fc04c5a3201e4615f430059d0711ff5ddb2e6bb236ec90eed134cb5a19d8ef36602af5ecdbfeeac05dda0798d3abebde87e3faa374d3807fa0d633a52d38d8de6f679fe33fc776e196f53cd010188256a3600a292882096246517815ca99884606e18044a3a40d91824820924265a7923a2e8bcd05f33db1173e002913175f2a6be6d3294871a2d95fa00e8a94ee017b69d339d90df1e77c57ea072ede6758</data>
+      <data format="PNG" length="256" >89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000c7494441541895ad55db1184200c4c180bb005eab1cd6b8112b40d4bf1bee2486ef3006fbf1c93ece605f07eece4e1a4ed42ff2b35f6e2961132e46309941952ed8f628a761a21f56217cb20b04a45fe276d97f8ffb422431ad96e62a4ee057a83131bcc38431a6d057f8eb5cb36438afcb5cded719614011e9088308374c61aa9adb0e0651b5552b4b29efaacb099312ad5da5b2d50a93124463b2adf516fbb8cbd1354a9b1b667c8a787674144f9f982bcb93635ba8cb3fd1b2616f251013403fee763fabce8bff0aa6c9811452e150000000049454e44ae426082</data>
     </image>
   </images>
 </ui>

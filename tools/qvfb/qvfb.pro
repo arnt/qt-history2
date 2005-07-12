@@ -2,8 +2,9 @@ TEMPLATE        = app
 CONFIG          += qt warn_on uic
 TARGET          = qvfb
 
-DEPENDPATH      = ../../include
 QT		+= qt3support
+
+DEPENDPATH      = ../../include
 
 FORMS           = config.ui
 HEADERS         = qvfb.h \
@@ -12,7 +13,7 @@ HEADERS         = qvfb.h \
 		  qanimationwriter.h \
                   gammaview.h \
 		  skin.h \
- 		  config.h
+                  config.h
 
 SOURCES         = qvfb.cpp \
 		  qvfbview.cpp \
@@ -20,7 +21,7 @@ SOURCES         = qvfb.cpp \
                   main.cpp \
 		  qanimationwriter.cpp \
 		  skin.cpp \
-		  config.cpp
+                  config.cpp
 
 contains(QT_CONFIG, system-png) {
 	LIBS += -lpng

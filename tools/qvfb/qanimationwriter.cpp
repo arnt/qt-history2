@@ -11,13 +11,12 @@
 **
 ****************************************************************************/
 
-#include "qanimationwriter.h"
-#ifndef NO_QVFB_ANIMATION
 #define QT_CLEAN_NAMESPACE
+#include "qanimationwriter.h"
 #include <qfile.h>
-#include <qstring.h>
 #include <png.h>
 #include <netinet/in.h> // for htonl
+#include <Q3CString>
 
 class QAnimationWriterData {
 public:
@@ -28,7 +27,7 @@ public:
     void setFrameRate(int d) { framerate = d; }
     virtual ~QAnimationWriterData() { }
     virtual void setImage(const QImage& src)=0;
-    virtual bool canCompose() const { return false; }
+    virtual bool canCompose() const { return FALSE; }
     virtual void composeImage(const QImage&, const QPoint& ) { }
 
 protected:
@@ -44,7 +43,7 @@ class QAnimationWriterMNG : public QAnimationWriterData {
 public:
     QAnimationWriterMNG(QIODevice* d) : QAnimationWriterData(d)
     {
-	first = true;
+	first = TRUE;
 	begin_png();
     }
 
@@ -101,12 +100,11 @@ public:
 
 	png_bytep* row_pointers;
 	uint height = image.height();
-	const uchar* const* jt = image.jumpTable();
+	uchar** jt = (uchar**)image.jumpTable();
 	row_pointers=new png_bytep[height];
 	uint y;
 	for (y=0; y<height; y++) {
-            // PNG lib has const issue with the write image function
-            row_pointers[y]=const_cast<png_byte*>(jt[y]);
+		row_pointers[y]=jt[y];
 	}
 	png_write_image(png_ptr, row_pointers);
 	delete [] row_pointers;
@@ -142,7 +140,7 @@ public:
 	png_write_chunk(png_ptr, (png_byte*)"MEND", 0, 0);
     }
 
-    void writeDEFI( const QPoint& offset, const QSize& size )
+    void writeDEFI( const QPoint& offset, const QSize& /*size*/ )
     {
 	struct {
 	    ushort o;
@@ -213,13 +211,13 @@ public:
     void setImage(const QImage& src)
     {
 	if ( first ) {
-	    first = false;
+	    first = FALSE;
 	    writeMHDR(src.size(),framerate);
 	}
 	composeImage(src,QPoint(0,0));
     }
 
-    bool canCompose() const { return true; }
+    bool canCompose() const { return TRUE; }
 
     void composeImage(const QImage& src, const QPoint& offset)
     {
@@ -231,7 +229,7 @@ public:
 
 QAnimationWriter::QAnimationWriter( const QString& filename, const char* format )
 {
-    if ( QLatin1String(format) != "MNG" ) {
+    if ( Q3CString(format) != "MNG" ) {
 	qWarning("Format \"%s\" not supported, only MNG", format);
 	dev = 0;
 	d = 0;
@@ -245,7 +243,7 @@ QAnimationWriter::QAnimationWriter( const QString& filename, const char* format 
 
 bool QAnimationWriter::okay() const
 {
-    return dev && dev->status() == IO_Ok;
+    return dev && dev->status() == static_cast<int>(IO_Ok);
 }
 
 QAnimationWriter::~QAnimationWriter()
@@ -276,11 +274,11 @@ void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 	    QRgb** pjt = (QRgb**)prev.jumpTable() + offset.y();
 
 	    // Find left edge of change
-	    done = false;
+	    done = FALSE;
 	    for (minx = 0; minx < w && !done; minx++) {
 		for (int ty = 0; ty < h; ty++) {
 		    if ( jt[ty][minx] != pjt[ty][minx+offset.x()] ) {
-			done = true;
+			done = TRUE;
 			break;
 		    }
 		}
@@ -288,11 +286,11 @@ void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 	    minx--;
 
 	    // Find right edge of change
-	    done = false;
+	    done = FALSE;
 	    for (maxx = w-1; maxx >= 0 && !done; maxx--) {
 		for (int ty = 0; ty < h; ty++) {
 		    if ( jt[ty][maxx] != pjt[ty][maxx+offset.x()] ) {
-			done = true;
+			done = TRUE;
 			break;
 		    }
 		}
@@ -300,11 +298,11 @@ void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 	    maxx++;
 
 	    // Find top edge of change
-	    done = false;
+	    done = FALSE;
 	    for (miny = 0; miny < h && !done; miny++) {
 		for (int tx = 0; tx < w; tx++) {
 		    if ( jt[miny][tx] != pjt[miny][tx+offset.x()] ) {
-			done = true;
+			done = TRUE;
 			break;
 		    }
 		}
@@ -312,11 +310,11 @@ void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 	    miny--;
 
 	    // Find right edge of change
-	    done = false;
+	    done = FALSE;
 	    for (maxy = h-1; maxy >= 0 && !done; maxy--) {
 		for (int tx = 0; tx < w; tx++) {
 		    if ( jt[maxy][tx] != pjt[maxy][tx+offset.x()] ) {
-			done = true;
+			done = TRUE;
 			break;
 		    }
 		}
@@ -336,7 +334,7 @@ void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 
 	    QImage diff(dw, dh, 32);
 
-	    diff.setAlphaBuffer(true);
+	    diff.setAlphaBuffer(TRUE);
 	    int x, y;
 	    for (y = 0; y < dh; y++) {
 		QRgb* li = (QRgb*)frame.scanLine(y+miny)+minx;
@@ -389,8 +387,7 @@ void QAnimationWriter::appendFrame(const QImage& frm)
 void QAnimationWriter::appendBlankFrame()
 {
     QImage i(1,1,32);
-    i.setAlphaBuffer(true);
+    i.setAlphaBuffer(TRUE);
     i.fill(0);
     d->composeImage(i,QPoint(0,0));
 }
-#endif

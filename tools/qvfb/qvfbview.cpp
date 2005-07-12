@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-#include "qglobal.h"
 #if !defined( Q_WS_QWS ) || defined( QT_NO_QWS_MULTIPROCESS )
 #define QLock QWSSemaphore
 #undef QT_NO_QWS_MULTIPROCESS
@@ -26,64 +25,53 @@
 #define QTE_PIPE "QtEmbedded-%1"
 
 #include <qapplication.h>
+#include <qpainter.h>
 #include <qimage.h>
 #include <qbitmap.h>
 #include <qtimer.h>
 #include <qwmatrix.h>
-#include <qpainter.h>
-#include "qanimationwriter.h"
-#include <qevent.h>
+#include <QPaintEvent>
+#include <QScrollArea>
 #include <qfile.h>
+#include "qanimationwriter.h"
 
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/ipc.h>
 #include <sys/types.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
+#include <sys/sem.h>
 #include <fcntl.h>
-#include <stdlib.h>
 #include <errno.h>
 #include <math.h>
-
-//#define QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
 
 #ifndef Q_WS_QWS
 // Get the name of the directory where Qt/Embedded temporary data should
 // live.
-static QString qws_dataDir()
+static QString qws_dataDir(int qws_display_id)
 {
-    QString username = "unknown";
-    const char *logname = getenv("LOGNAME");
-    if ( logname )
-        username = logname;
-
-    QString dataDir = "/tmp/qtembedded-" + username;
-    if ( mkdir( dataDir.latin1(), 0700 ) ) {
-        if ( errno != EEXIST ) {
-            qFatal( QString("Cannot create Qt/Embedded data directory: %1")
-                    .arg( dataDir ) );
+    QByteArray dataDir = QString("/tmp/qtembedded-%1").arg(qws_display_id).toLocal8Bit();
+    if (mkdir(dataDir, 0700)) {
+        if (errno != EEXIST) {
+            qFatal("Cannot create Qt/Embedded data directory: %s", dataDir.constData());
         }
     }
 
     struct stat buf;
-    if ( lstat( dataDir.latin1(), &buf ) )
-        qFatal( QString( "stat failed for Qt/Embedded data directory: %1" )
-                .arg( dataDir ) );
+    if (lstat(dataDir, &buf))
+        qFatal("stat failed for Qt/Embedded data directory: %s", dataDir.constData());
 
-    if ( !S_ISDIR( buf.st_mode ) )
-        qFatal( QString( "%1 is not a directory" ).arg( dataDir ) );
+    if (!S_ISDIR(buf.st_mode))
+        qFatal("%s is not a directory", dataDir.constData());
+    if (buf.st_uid != getuid())
+        qFatal("Qt/Embedded data directory is not owned by user %d", getuid());
 
-    if ( buf.st_uid != getuid() )
-        qFatal( QString( "Qt/Embedded data directory is not owned by user %1" )
-                .arg( getuid() ) );
-
-    if ( (buf.st_mode & 0677) != 0600 )
-        qFatal( QString( "Qt/Embedded data directory has incorrect permissions: %1" )
-                .arg( dataDir ) );
-
+    if ((buf.st_mode & 0677) != 0600)
+        qFatal("Qt/Embedded data directory has incorrect permissions: %s", dataDir.constData());
     dataDir += "/";
 
-    return dataDir;
+    return QString(dataDir);
 }
 #endif
 
@@ -109,73 +97,104 @@ private:
     QLock *qlock;
 };
 
-
-QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
-                    Qt::WFlags flags )
-    : QWidget( parent, flags ), emulateTouchscreen(false), qwslock(NULL)
+QVFbView::QVFbView( int display_id, int _w, int _h, int d, Rotation r, QWidget *parent,
+		    Qt::WFlags  flags )
+    : QWidget( parent, flags ), lockId(-1), emulateTouchscreen(false), emulateLcdScreen(false)
 {
     displayid = display_id;
-    setMouseTracking( true );
+    rotation = r;
+    setMouseTracking( TRUE );
     setFocusPolicy( Qt::StrongFocus );
-    zm = 1;
+    setBackgroundMode( Qt::NoBackground );
+    hzm = 1;
+    vzm = 1;
     animation = 0;
     int actualdepth=d;
 
     switch ( d ) {
-        case 12:
-            actualdepth=16;
-            break;
-        case 1:
-        case 4:
-        case 8:
-        case 16:
-        case 24:
-        case 32:
-            break;
+	case 12:
+	    actualdepth=16;
+	    break;
+	case 1:
+	case 4:
+	case 8:
+	case 16:
+	case 24:
+	case 32:
+	    break;
 
-        default:
-            qFatal( "Unsupported bit depth %d\n", d );
+	default:
+	    qFatal( "Unsupported bit depth %d\n", d );
+    }
+
+    int w = ( rotation & 0x1 ) ? _h : _w;
+    int h = ( rotation & 0x1 ) ? _w : _h;
+
+    QString username = "unknown";
+    const char *logname = getenv("LOGNAME");
+    if ( logname )
+        username = logname;
+
+    QString oldPipe = "/tmp/qtembedded-" + username + "/" + QString( QTE_PIPE ).arg( displayid );
+    int oldPipeSemkey = ftok( oldPipe.latin1(), 'd' );
+    int oldPipeLockId = semget( oldPipeSemkey, 0, 0 );
+    if (oldPipeLockId >= 0){
+        sembuf sops;
+        sops.sem_num = 0;
+        sops.sem_op = 1;
+        sops.sem_flg = SEM_UNDO;
+        int rv;
+        do {
+            rv = semop(lockId,&sops,1);
+        } while ( rv == -1 && errno == EINTR );
+        qFatal("Cannot create lock file as an old version of QVFb has opened %s. Close other QVFb and try again", oldPipe.latin1());
     }
 
     mousePipe = QString(QT_VFB_MOUSE_PIPE).arg(display_id);
     keyboardPipe = QString(QT_VFB_KEYBOARD_PIPE).arg(display_id);
 
-    unlink( mousePipe.latin1() );
-    mkfifo( mousePipe.latin1(), 0666 );
+    unlink( mousePipe.local8Bit().data() );
+    mkfifo( mousePipe.local8Bit().data(), 0666 );
 
-    mouseFd = open( mousePipe.latin1(), O_RDWR | O_NDELAY );
+    mouseFd = ::open( mousePipe.local8Bit().data(), O_RDWR | O_NDELAY );
     if ( mouseFd == -1 ) {
-        qFatal( "Cannot open mouse pipe" );
+	qFatal( "Cannot open mouse pipe %s", mousePipe.latin1());
     }
 
     unlink( keyboardPipe );
     mkfifo( keyboardPipe, 0666 );
-    keyboardFd = open( keyboardPipe, O_RDWR | O_NDELAY );
+    keyboardFd = ::open( keyboardPipe.local8Bit().data(), O_RDWR | O_NDELAY );
     if ( keyboardFd == -1 ) {
-        qFatal( "Cannot open keyboard pipe" );
+	::close(mouseFd);
+	qFatal( "Cannot open keyboard pipe %s", keyboardPipe.latin1());
     }
 
     key_t key = ftok( mousePipe.latin1(), 'b' );
 
     int bpl;
     if ( d == 1 )
-        bpl = (w*d+7)/8;
+	bpl = (w*d+7)/8;
     else
-        bpl = ((w*actualdepth+31)/32)*4;
+	bpl = ((w*actualdepth+31)/32)*4;
 
-    int dataSize = bpl * h + sizeof( QVFbHeader );
+    int dataSize = bpl * h + sizeof(QVFbHeader);
     shmId = shmget( key, dataSize, IPC_CREAT|0666);
     if ( shmId != -1 )
-        data = (unsigned char *)shmat( shmId, 0, 0 );
+	data = (unsigned char *)shmat( shmId, 0, 0 );
     else {
-        struct shmid_ds shm;
-        shmctl( shmId, IPC_RMID, &shm );
-        shmId = shmget( key, dataSize, IPC_CREAT|0666);
-        data = (unsigned char *)shmat( shmId, 0, 0 );
+	struct shmid_ds shm;
+	shmctl( shmId, IPC_RMID, &shm );
+	shmId = shmget( key, dataSize, IPC_CREAT|0666);
+	if ( shmId == -1 )
+	    qFatal( "Cannot get shared memory 0x%08x", key );
+	data = (unsigned char *)shmat( shmId, 0, 0 );
     }
 
-    if ( (long)data == -1 )
-        qFatal( "Cannot attach to shared memory" );
+    if ( (long)data == -1 ){
+	::close(mouseFd);
+	::close(keyboardFd);
+	qFatal( "Cannot attach to shared memory %d",shmId );
+    }
 
     hdr = (QVFbHeader *)data;
     hdr->width = w;
@@ -184,28 +203,33 @@ QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
     hdr->depth = actualdepth;
     hdr->linestep = bpl;
     hdr->numcols = 0;
-    hdr->dataoffset = sizeof( QVFbHeader );
+    hdr->dataoffset = sizeof(QVFbHeader);
     hdr->update = QRect();
 
-    contentsWidth = w;
-    contentsHeight = h;
+    contentsWidth = _w;
+    contentsHeight = _h;
 
-    timer = new QTimer( this );
-    connect( timer, SIGNAL(timeout()), this, SLOT(timeout()) );
+    resize( _w, _h );
+
+    t_flush = new QTimer( this );
+    connect( t_flush, SIGNAL(timeout()), this, SLOT(flushChanges()) );
 
     gammatable=0;
     setGamma(1.0,1.0,1.0);
     setRate( 30 );
-    resize(contentsWidth, contentsHeight);
+
+#ifdef Q_WS_QWS
     displayPipe = qws_dataDir() + QString( QTE_PIPE ).arg( displayid );
+#else
+    displayPipe = qws_dataDir(displayid) + QString( QTE_PIPE ).arg( displayid );
+#endif
     displayPiped = displayPipe + 'd';
 }
 
 QVFbView::~QVFbView()
 {
     stopAnimation();
-    sendKeyboardData( 0, 0, 0, true, false ); // magic die key
-    delete qwslock;
+    sendKeyboardData( 0, 0, 0, TRUE, FALSE ); // magic die key
     struct shmid_ds shm;
     shmdt( (char*)data );
     shmctl( shmId, IPC_RMID, &shm );
@@ -223,48 +247,48 @@ QSize QVFbView::sizeHint() const
 void QVFbView::setGamma(double gr, double gg, double gb)
 {
     if ( viewdepth < 12 )
-        return; // not implemented
+	return; // not implemented
 
     gred=gr; ggreen=gg; gblue=gb;
 
     switch ( viewdepth ) {
       case 12:
-        rsh = 12;
-        gsh = 7;
-        bsh = 1;
-        rmax = 15;
-        gmax = 15;
-        bmax = 15;
-        break;
+	rsh = 12;
+	gsh = 7;
+	bsh = 1;
+	rmax = 15;
+	gmax = 15;
+	bmax = 15;
+	break;
       case 16:
-        rsh = 11;
-        gsh = 5;
-        bsh = 0;
-        rmax = 31;
-        gmax = 63;
-        bmax = 31;
-        break;
+	rsh = 11;
+	gsh = 5;
+	bsh = 0;
+	rmax = 31;
+	gmax = 63;
+	bmax = 31;
+	break;
       case 24:
       case 32:
-        rsh = 16;
-        gsh = 8;
-        bsh = 0;
-        rmax = 255;
-        gmax = 255;
-        bmax = 255;
+	rsh = 16;
+	gsh = 8;
+	bsh = 0;
+	rmax = 255;
+	gmax = 255;
+	bmax = 255;
     }
-    int mm = qMax(rmax,qMax(gmax,bmax))+1;
+    int mm = QMAX(rmax,QMAX(gmax,bmax))+1;
     if ( gammatable )
-        delete [] gammatable;
+	delete [] gammatable;
     gammatable = new QRgb[mm];
     for (int i=0; i<mm; i++) {
-        int r = int(pow(i,gr)*255/rmax);
-        int g = int(pow(i,gg)*255/gmax);
-        int b = int(pow(i,gb)*255/bmax);
-        if ( r > 255 ) r = 255;
-        if ( g > 255 ) g = 255;
-        if ( b > 255 ) b = 255;
-        gammatable[i] = qRgb(r,g,b);
+	int r = int(pow(i,gr)*255/rmax);
+	int g = int(pow(i,gg)*255/gmax);
+	int b = int(pow(i,gb)*255/bmax);
+	if ( r > 255 ) r = 255;
+	if ( g > 255 ) g = 255;
+	if ( b > 255 ) b = 255;
+	gammatable[i] = qRgb(r,g,b);
 //qDebug("%d: %d,%d,%d",i,r,g,b);
     }
 
@@ -287,12 +311,12 @@ int QVFbView::displayId() const
 
 int QVFbView::displayWidth() const
 {
-    return hdr->width;
+    return ( (int)rotation & 0x01 ) ? hdr->height : hdr->width;
 }
 
 int QVFbView::displayHeight() const
 {
-    return hdr->height;
+    return ( (int)rotation & 0x01 ) ? hdr->width: hdr->height;
 }
 
 int QVFbView::displayDepth() const
@@ -300,68 +324,89 @@ int QVFbView::displayDepth() const
     return viewdepth;
 }
 
-void QVFbView::setZoom( double z )
+QVFbView::Rotation QVFbView::displayRotation() const
 {
-    if ( zm != z ) {
-        zm = z;
-        setDirty(QRect(0,0,hdr->width,hdr->height));
-        contentsWidth = int(hdr->width*z);
-        contentsHeight = int(hdr->height*z);
+    return rotation;
+}
+
+
+void QVFbView::setZoom( double hz, double vz )
+{
+    if ( hzm != hz || vzm != vz ) {
+	hzm = hz;
+	vzm = vz;
+	setDirty(QRect(0,0,displayWidth(),displayHeight()));
+        contentsWidth = int(hdr->width*hz);
+        contentsHeight = int(hdr->height*vz);
         resize(contentsWidth, contentsHeight);
-////        window()->adjustSize();
-        drawScreen();
+	updateGeometry();
+	qApp->sendPostedEvents();
+	topLevelWidget()->adjustSize();
+	update();
     }
 }
 
 void QVFbView::setRate( int r )
 {
     refreshRate = r;
-    timer->start( 1000/r );
+    t_flush->start( 1000/r );
+}
+
+static QRect mapToDevice( const QRect &r, const QSize &s, QVFbView::Rotation rotation )
+{
+    int x1 = r.x(), y1 = r.y(), x2 = r.right(), y2 = r.bottom(), w = s.width(), h = s.height();
+    switch ( rotation ) {
+	case QVFbView::Rot90:
+	    return QRect( QPoint(y1, w - x1 - 1), QPoint(y2, w - x2 - 1) );
+	case QVFbView::Rot180:
+	    return QRect( QPoint(w - x1 - 1, h - y1 - 1), QPoint(w - x2 - 1, h - y2 - 1) );
+	case QVFbView::Rot270:
+	    return QRect( QPoint(h - y1 - 1, x1), QPoint(h - y2 - 1, x2) );
+	default:
+	    break;
+    }
+    return r;
 }
 
 void QVFbView::sendMouseData( const QPoint &pos, int buttons, int wheel )
 {
-    write( mouseFd, &pos, sizeof( QPoint ) );
+    QPoint p = mapToDevice( QRect(pos,QSize(1,1)), QSize(displayWidth(), displayHeight()), rotation ).topLeft(); 
+    write( mouseFd, &p, sizeof( QPoint ) );
     write( mouseFd, &buttons, sizeof( int ) );
     if (hdr->serverVersion >= 0x040000) {
         write( mouseFd, &wheel, sizeof( int ) );
     }
 }
 
-void QVFbView::sendKeyboardData( int unicode, int keycode, Qt::KeyboardModifiers modifiers,
-                                 bool press, bool repeat )
+void QVFbView::sendKeyboardData( int unicode, int keycode, int modifiers,
+				 bool press, bool repeat )
 {
     QVFbKeyData kd;
     kd.unicode = unicode;
     kd.keycode = keycode;
-    kd.modifiers = modifiers;
+    kd.modifiers = static_cast<Qt::KeyboardModifier>(modifiers);
     kd.press = press;
     kd.repeat = repeat;
     write( keyboardFd, &kd, sizeof( QVFbKeyData ) );
 }
 
-void QVFbView::timeout()
+void QVFbView::flushChanges()
 {
-    DisplayLock(); // Autolock display;
+    DisplayLock();
+    t_flush->start( 1000/refreshRate );
     if ( animation ) {
-#ifndef NO_QVFB_ANIMATION
-        QRect r( hdr->update );
-        r = r.intersect( QRect(0, 0, hdr->width, hdr->height ) );
-        if ( r.isEmpty() ) {
-                animation->appendBlankFrame();
-            } else {
-                int l;
-                QImage img = getBuffer( r, l );
-                animation->appendFrame(img,QPoint(r.x(),r.y()));
-            }
-#endif
+	    QRect r( hdr->update );
+	    r = r.intersect( QRect(0, 0, hdr->width, hdr->height ) );
+	    if ( r.isEmpty() ) {
+		animation->appendBlankFrame();
+	    } else {
+		int l;
+		QImage img = getBuffer( r, l );
+		animation->appendFrame(img,QPoint(r.x(),r.y()));
+	    }
     }
-
     if ( hdr->dirty ) {
-        QRect r(hdr->update);
-        r = QRect(int(r.x()*zm),int(r.y()*zm),
-                  int(r.width()*zm)+1,int(r.height()*zm)+1);
-        repaint(r);
+	repaint();
     }
 }
 
@@ -370,80 +415,58 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
     switch ( viewdepth ) {
       case 12:
       case 16: {
-        static unsigned char *imgData = 0;
-        if ( !imgData ) {
-            int bpl = ((hdr->width*32+31)/32)*4;
-            imgData = new unsigned char [ bpl * hdr->height ];
-        }
-        QImage img( imgData, r.width(), r.height(), 32, 0, 0, QImage::IgnoreEndian );
-        const int rsh = viewdepth == 12 ? 12 : 11;
-        const int gsh = viewdepth == 12 ? 7 : 5;
-        const int bsh = viewdepth == 12 ? 1 : 0;
-        const int rmax = viewdepth == 12 ? 15 : 31;
-        const int gmax = viewdepth == 12 ? 15 : 63;
-        const int bmax = viewdepth == 12 ? 15 : 31;
-        for ( int row = 0; row < r.height(); row++ ) {
-            QRgb *dptr = (QRgb*)img.scanLine( row );
-            ushort *sptr = (ushort*)(data + hdr->dataoffset + (r.y()+row)*hdr->linestep);
-            sptr += r.x();
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-            for ( int col=0; col < r.width()/2; col++ ) {
-#else
-            for ( int col=0; col < r.width(); col++ ) {
-#endif
-                ushort s = *sptr++;
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-                ushort s2 = *sptr++;
-                *dptr++ = qRgb(qRed(gammatable[(s2>>rsh)&rmax]),qGreen(gammatable[(s2>>gsh)&gmax]),qBlue(gammatable[(s2>>bsh)&bmax]));
-#endif
-                *dptr++ = qRgb(qRed(gammatable[(s>>rsh)&rmax]),qGreen(gammatable[(s>>gsh)&gmax]),qBlue(gammatable[(s>>bsh)&bmax]));
-                //*dptr++ = qRgb(((s>>rsh)&rmax)*255/rmax,((s>>gsh)&gmax)*255/gmax,((s>>bsh)&bmax)*255/bmax);
-            }
-        }
-        leading = 0;
-        return img;
+	static unsigned char *imgData = 0;
+	if ( !imgData ) {
+	    int bpl = ((hdr->width*32+31)/32)*4;
+	    imgData = new unsigned char [ bpl * hdr->height ];
+	}
+	QImage img( imgData, r.width(), r.height(), 32, 0, 0, QImage::IgnoreEndian );
+	const int rsh = viewdepth == 12 ? 12 : 11;
+	const int gsh = viewdepth == 12 ? 7 : 5;
+	const int bsh = viewdepth == 12 ? 1 : 0;
+	const int rmax = viewdepth == 12 ? 15 : 31;
+	const int gmax = viewdepth == 12 ? 15 : 63;
+	const int bmax = viewdepth == 12 ? 15 : 31;
+	for ( int row = 0; row < r.height(); row++ ) {
+	    QRgb *dptr = (QRgb*)img.scanLine( row );
+	    ushort *sptr = (ushort*)(data + hdr->dataoffset + (r.y()+row)*hdr->linestep);
+	    sptr += r.x();
+	    for ( int col=0; col < r.width(); col++ ) {
+		ushort s = *sptr++;
+		*dptr++ = qRgb(qRed(gammatable[(s>>rsh)&rmax]),qGreen(gammatable[(s>>gsh)&gmax]),qBlue(gammatable[(s>>bsh)&bmax]));
+		//*dptr++ = qRgb(((s>>rsh)&rmax)*255/rmax,((s>>gsh)&gmax)*255/gmax,((s>>bsh)&bmax)*255/bmax);
+	    }
+	}
+	leading = 0;
+	return img;
       }
       case 4: {
-        static unsigned char *imgData = 0;
-        if ( !imgData ) {
-            int bpl = ((hdr->width*8+31)/32)*4;
-            imgData = new unsigned char [ bpl * hdr->height ];
-        }
-        QImage img( imgData, r.width(), r.height(), 8, hdr->clut, 16,
-                    QImage::IgnoreEndian );
-        for ( int row = 0; row < r.height(); row++ ) {
-            unsigned char *dptr = img.scanLine( row );
-            unsigned char *sptr = data + hdr->dataoffset + (r.y()+row)*hdr->linestep;
-            sptr += r.x()/2;
-            int col = 0;
-#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-            if ( r.x() & 1 ) {
-                *dptr++ = *sptr++ & 0x0f;
-                col++;
-            }
-            for ( ; col < r.width()-1; col+=2 ) {
-                unsigned char s = *sptr++;
-                *dptr++ = s >> 4;
-                *dptr++ = s & 0x0f;
-            }
-            if ( !(r.right() & 1) )
-                *dptr = *sptr >> 4;
-#else
-            if ( r.x() & 1 ) {
-                *dptr++ = *sptr++ >> 4;
-                col++;
-            }
-            for ( ; col < r.width()-1; col+=2 ) {
-                unsigned char s = *sptr++;
-                *dptr++ = s & 0x0f;
-                *dptr++ = s >> 4;
-            }
-            if ( !(r.right() & 1) )
-                *dptr = *sptr & 0x0f;
-#endif
-        }
-        leading = 0;
-        return img;
+	static unsigned char *imgData = 0;
+	if ( !imgData ) {
+	    int bpl = ((hdr->width*8+31)/32)*4;
+	    imgData = new unsigned char [ bpl * hdr->height ];
+	}
+	QImage img( imgData, r.width(), r.height(), 8, hdr->clut, 16,
+		    QImage::IgnoreEndian );
+	for ( int row = 0; row < r.height(); row++ ) {
+	    unsigned char *dptr = img.scanLine( row );
+	    unsigned char *sptr = data + hdr->dataoffset + (r.y()+row)*hdr->linestep;
+	    sptr += r.x()/2;
+	    int col = 0;
+	    if ( r.x() & 1 ) {
+		*dptr++ = *sptr++ >> 4;
+		col++;
+	    }
+	    for ( ; col < r.width()-1; col+=2 ) {
+		unsigned char s = *sptr++;
+		*dptr++ = s & 0x0f;
+		*dptr++ = s >> 4;
+	    }
+	    if ( !(r.right() & 1) )
+		*dptr = *sptr & 0x0f;
+	}
+	leading = 0;
+	return img;
       }
       case 24: {
         static unsigned char *imgData = 0;
@@ -466,163 +489,263 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
         leading = 0;
         return img;
       }
-      case 32:{
-        leading = r.x();
-        return QImage( data + hdr->dataoffset + r.y() * hdr->linestep,
-                    hdr->width, r.height(), hdr->depth, 0,
-                    0, QImage::LittleEndian );
+      case 32: {
+	leading = r.x();
+	return QImage( data + hdr->dataoffset + r.y() * hdr->linestep,
+		    hdr->width, r.height(), hdr->depth, 0,
+		    0, QImage::LittleEndian );
       }
       case 8: {
-        leading = r.x();
-        return QImage( data + hdr->dataoffset + r.y() * hdr->linestep,
-                    hdr->width, r.height(), hdr->depth, hdr->clut,
-                    256, QImage::LittleEndian );
+	leading = r.x();
+	return QImage( data + hdr->dataoffset + r.y() * hdr->linestep,
+		    hdr->width, r.height(), hdr->depth, hdr->clut,
+		    256, QImage::LittleEndian );
       }
       case 1: {
-        leading = r.x();
-        return QImage( data + hdr->dataoffset + r.y() * hdr->linestep,
-                    hdr->width, r.height(), hdr->depth, hdr->clut,
-#ifndef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-                    0, QImage::LittleEndian );
-#else
-                    0, QImage::BigEndian );
-#endif
+	leading = r.x();
+	return QImage( data + hdr->dataoffset + r.y() * hdr->linestep,
+		    hdr->width, r.height(), hdr->depth, hdr->clut,
+		    0, QImage::LittleEndian );
       }
     }
     return QImage();
 }
 
+static int findMultiple(int start, double m, int limit, int step)
+{
+    int r = start;
+    while (r != limit) {
+	if ( int(int(r * m)/m) == r )
+	    break;
+	r += step;
+    }
+    return r;
+}
+
 void QVFbView::drawScreen()
 {
-    QPainter p(this);
-    DisplayLock(); // Autolock display;
+    QPainter p( this );
+
+//    p.translate( -contentsX(), -contentsY() );
+
+    DisplayLock();
     QRect r( hdr->update );
-    hdr->dirty = false;
+    hdr->dirty = FALSE;
     hdr->update = QRect();
-    // qDebug( "update %d, %d, %dx%d", r.y(), r.x(), r.width(), r.height() );
+    //qDebug( "update %d, %d, %dx%d", r.y(), r.x(), r.width(), r.height() );
     r = r.intersect( QRect(0, 0, hdr->width, hdr->height ) );
+    //qDebug( "update %d, %d, %dx%d", r.y(), r.x(), r.width(), r.height() );
     if ( !r.isEmpty() )  {
-        if ( int(zm) != zm ) {
-            r.rLeft() = int(int(r.left()*zm)/zm);
-            r.rTop() = int(int(r.top()*zm)/zm);
-            r.rRight() = int(int(r.right()*zm+zm+0.0000001)/zm+1.9999);
-            r.rBottom() = int(int(r.bottom()*zm+zm+0.0000001)/zm+1.9999);
-            r.rRight() = qMin(r.right(),hdr->width-1);
-            r.rBottom() = qMin(r.bottom(),hdr->height-1);
-        }
-        int leading;
-        QImage img( getBuffer( r, leading ) );
-        QPixmap pm;
-        if ( zm == 1 ) {
-            pm.convertFromImage( img );
-        } else if ( int(zm) == zm ) {
-            QWMatrix m;
-            m.scale(zm,zm);
-            pm.convertFromImage( img );
-            pm = pm.xForm(m);
-        } else {
-            pm.convertFromImage( img.smoothScale(int(img.width()*zm),int(img.height()*zm)) );
-        }
-        p.setPen( Qt::black );
-        p.setBrush( Qt::white );
-        p.drawPixmap( int(r.x()*zm), int(r.y()*zm), pm,
-                      int(leading*zm), 0, pm.width()-int(leading*zm), pm.height() );
+	if ( int(hzm) != hzm || int(vzm) != vzm ) {
+	    r.rLeft() = findMultiple(r.left(),hzm,0,-1);
+	    r.rTop() = findMultiple(r.top(),vzm,0,-1);
+	    int w = findMultiple(r.width(),hzm,hdr->width,1);
+	    int h = findMultiple(r.height(),vzm,hdr->height,1);
+	    r.rRight() = r.left()+w-1;
+	    r.rBottom() = r.top()+h-1;
+	}
+	int leading;
+	QImage img( getBuffer( r, leading ) );
+	QPixmap pm;
+	if ( hzm == 1.0 && vzm == 1.0 ) {
+	    pm.convertFromImage( img );
+	} else if ( emulateLcdScreen && hzm == 3.0 && vzm == 3.0 ) {
+	    QImage img2( img.width()*3, img.height(), 32 );
+	    for ( int row = 0; row < img2.height(); row++ ) {
+		QRgb *dptr = (QRgb*)img2.scanLine( row );
+		QRgb *sptr = (QRgb*)img.scanLine( row );
+		for ( int col = 0; col < img.width(); col++ ) {
+		    QRgb s = *sptr++;
+		    *dptr++ = qRgb(qRed(s),0,0);
+		    *dptr++ = qRgb(0,qGreen(s),0);
+		    *dptr++ = qRgb(0,0,qBlue(s));
+		}
+	    }
+	    QWMatrix m;
+	    m.scale(1.0, 3.0);
+	    pm.convertFromImage( img2 );
+	    pm = pm.xForm(m);
+	} else if ( int(hzm) == hzm && int(vzm) == vzm ) {
+	    QWMatrix m;
+	    m.scale(hzm,vzm);
+	    pm.convertFromImage( img );
+	    pm = pm.xForm(m);
+	} else {
+	    pm.convertFromImage( img.smoothScale(int(img.width()*hzm),int(img.height()*vzm)) );
+	}
+
+	int x1 = r.x();
+	int y1 = r.y();
+	int leadingX = leading;
+	int leadingY = 0;
+
+	// Do the rotation thing
+	int rotX1 = hdr->width - x1 - img.width();
+	int rotY1 = hdr->height - y1 - img.height();
+	int rotLeadingX = (leading) ? hdr->width - leadingX - img.width() : 0;
+	int rotLeadingY = 0;
+	switch ( rotation ) {
+	    case Rot0:
+		break;
+	    case Rot90:
+		leadingY = leadingX;
+		leadingX = rotLeadingY;
+		y1 = x1;
+		x1 = rotY1;
+		break;
+	    case Rot180:
+		leadingX = rotLeadingX;
+		leadingY = leadingY;
+		x1 = rotX1;
+		y1 = rotY1;
+		break;
+	    case Rot270:
+		leadingX = leadingY;
+		leadingY = rotLeadingX;
+		x1 = y1;
+		y1 = rotX1;
+		break;
+	    default:
+		break;
+	}
+	x1 = int(x1*hzm);
+	y1 = int(y1*vzm);
+	leadingX = int(leadingX*hzm);
+	leadingY = int(leadingY*vzm);
+	if ( rotation != 0 ) {
+	    QWMatrix m;
+	    m.rotate(rotation * 90.0);
+	    pm = pm.xForm(m);
+	}
+	p.setPen( Qt::black );
+	p.setBrush( Qt::white );
+	p.drawPixmap( x1, y1, pm, leadingX, leadingY, pm.width(), pm.height() );
     }
 }
 
+//bool QVFbView::eventFilter( QObject *obj, QEvent *e )
+//{
+//    if ( obj == this &&
+//	 (e->type() == QEvent::FocusIn || e->type() == QEvent::FocusOut) )
+//	return TRUE;
+//
+//    return QWidgetView::eventFilter( obj, e );
+//}
 
 void QVFbView::paintEvent( QPaintEvent *pe )
 {
     QRect r( pe->rect() );
-    r = QRect(int(r.x()/zm),int(r.y()/zm),
-            int(r.width()/zm)+1,int(r.height()/zm)+1);
+//    r.moveBy( contentsX(), contentsY() );
+    r = QRect(int(r.x()/hzm),int(r.y()/vzm),
+	    int(r.width()/hzm)+1,int(r.height()/vzm)+1);
     setDirty(r);
     drawScreen();
 }
 
 void QVFbView::setDirty( const QRect& r )
 {
-    DisplayLock(); // Autolock display;
-    hdr->update |= r;
-    hdr->dirty = true;
+    DisplayLock();
+    hdr->update |= mapToDevice( r, QSize(displayWidth(), displayHeight()), rotation ).normalize();
+    hdr->dirty = TRUE;
 }
 
 void QVFbView::mousePressEvent( QMouseEvent *e )
 {
-    sendMouseData( e->pos()/zm, e->stateAfter(), 0 );
+    sendMouseData( QPoint(int(e->x()/hzm),int(e->y()/vzm)), e->stateAfter(), 0 );
 }
 
-void QVFbView::contextMenuEvent( QContextMenuEvent *e )
+void QVFbView::contextMenuEvent( QContextMenuEvent* )
 {
+
 }
 
 void QVFbView::mouseDoubleClickEvent( QMouseEvent *e )
 {
-    sendMouseData( e->pos()/zm, e->stateAfter(), 0 );
+    sendMouseData( QPoint(int(e->x()/hzm),int(e->y()/vzm)), e->stateAfter(), 0 );
 }
 
 void QVFbView::mouseReleaseEvent( QMouseEvent *e )
 {
-    sendMouseData( e->pos()/zm, e->stateAfter(), 0 );
+    sendMouseData( QPoint(int(e->x()/hzm),int(e->y()/vzm)), e->stateAfter(), 0 );
+}
+
+void QVFbView::skinMouseEvent( QMouseEvent *e )
+{
+    sendMouseData( QPoint(int(e->x()/hzm),int(e->y()/vzm)), e->stateAfter(), 0 );
 }
 
 void QVFbView::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !emulateTouchscreen || (e->state() & Qt::MouseButtonMask ) )
-        sendMouseData( e->pos()/zm, e->state(), 0 );
+	sendMouseData( QPoint(int(e->x()/hzm),int(e->y()/vzm)), e->state(), 0 );
 }
 
 void QVFbView::wheelEvent( QWheelEvent *e )
 {
     if (!e)
         return;
-    sendMouseData(e->pos()/zm, e->buttons(), e->delta());
-}
-
-void QVFbView::keyPressEvent( QKeyEvent *e )
-{
-    sendKeyboardData(e->text()[0].unicode(), e->key(),
-                     e->modifiers() & (Qt::ShiftModifier|Qt::ControlModifier|Qt::AltModifier),
-                     true, e->isAutoRepeat());
-}
-
-void QVFbView::keyReleaseEvent( QKeyEvent *e )
-{
-    sendKeyboardData(/*#### e->ascii()*/0, e->key(),
-                     e->modifiers() & (Qt::ShiftModifier|Qt::ControlModifier|Qt::AltModifier),
-                     false, e->isAutoRepeat());
-}
-
-
-QImage QVFbView::image() const
-{
-    int l;
-    DisplayLock(); // Autolock display;
-    QImage r = getBuffer( QRect(0, 0, hdr->width, hdr->height), l ).copy();
-    return r;
-}
-
-void QVFbView::startAnimation( const QString& /*filename*/ )
-{
-#ifndef NO_QVFB_ANIMATION
-    delete animation;
-    animation = new QAnimationWriter(filename,"MNG");
-    animation->setFrameRate(refreshRate);
-    animation->appendFrame(QImage(data + hdr->dataoffset,
-                hdr->width, hdr->height, hdr->depth, hdr->clut,
-                256, QImage::LittleEndian));
-#endif
-}
-
-void QVFbView::stopAnimation()
-{
-#ifndef NO_QVFB_ANIMATION
-    delete animation;
-    animation = 0;
-#endif
+    sendMouseData( QPoint(int(e->x()/hzm),int(e->y()/vzm)), e->buttons(), e->delta());
 }
 
 void QVFbView::setTouchscreenEmulation( bool b )
 {
     emulateTouchscreen = b;
 }
+
+void QVFbView::setLcdScreenEmulation( bool b )
+{
+    emulateLcdScreen = b;
+}
+
+void QVFbView::keyPressEvent( QKeyEvent *e )
+{
+    sendKeyboardData(e->text()[0].unicode(), e->key(),
+		     e->state()&(Qt::ShiftButton|Qt::ControlButton|Qt::AltButton),
+		     TRUE, e->isAutoRepeat());
+}
+
+void QVFbView::keyReleaseEvent( QKeyEvent *e )
+{
+    sendKeyboardData(e->ascii(), e->key(),
+		     e->state()&(Qt::ShiftButton|Qt::ControlButton|Qt::AltButton),
+		     FALSE, e->isAutoRepeat());
+}
+
+
+QImage QVFbView::image() const
+{
+    int l;
+    DisplayLock();
+    QImage r = getBuffer( QRect(0, 0, hdr->width, hdr->height), l ).copy();
+    return r;
+}
+
+void QVFbView::startAnimation( const QString& filename )
+{
+    delete animation;
+    animation = new QAnimationWriter(filename,"MNG");
+    animation->setFrameRate(refreshRate);
+    animation->appendFrame(QImage(data + hdr->dataoffset,
+                hdr->width, hdr->height, hdr->depth, hdr->clut,
+                256, QImage::LittleEndian));
+}
+
+void QVFbView::stopAnimation()
+{
+    delete animation;
+    animation = 0;
+}
+
+
+void QVFbView::skinKeyPressEvent( int code, const QString& text, bool autorep )
+{
+    QKeyEvent e(QEvent::KeyPress,code,text.isEmpty() ? 0 : text[0].latin1(),0,text,autorep);
+    keyPressEvent(&e);
+}
+
+void QVFbView::skinKeyReleaseEvent( int code, const QString& text, bool autorep )
+{
+    QKeyEvent e(QEvent::KeyRelease,code,text.isEmpty() ? 0 : text[0].latin1(),0,text,autorep);
+    keyReleaseEvent(&e);
+}
+

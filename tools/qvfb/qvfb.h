@@ -12,26 +12,45 @@
 ****************************************************************************/
 
 #include <qmainwindow.h>
+#include <qstringlist.h>
 
 class QVFbView;
 class QVFbRateDialog;
 class QPopupMenu;
-class QMenu;
-class QAction;
+class QMenuData;
+class Q3FileDialog;
 class Config;
-class QScrollArea;
 class Skin;
+class QVFb;
+class QLabel;
+class Q3PopupMenu;
+class QScrollArea;
+
+class Zoomer : public QWidget {
+    Q_OBJECT
+public:
+    Zoomer(QVFb* target);
+
+private slots:
+    void zoom(int);
+
+private:
+    QVFb *qvfb;
+    QLabel *label;
+};
 
 class QVFb: public QMainWindow
 {
     Q_OBJECT
 public:
-    QVFb( int display_id, int w, int h, int d, const QString &skin, QWidget *parent = 0,
-		const char *name = 0, Qt::WFlags = 0 );
+    QVFb( int display_id, int w, int h, int d, int r, const QString &skin, QWidget *parent = 0,
+		const char *name = 0, uint wflags = 0 );
     ~QVFb();
 
     void enableCursor( bool e );
-    QMenu *createPopupMenu();
+    void popupMenu();
+
+    QSize sizeHint() const;
 
 protected slots:
     void saveImage();
@@ -39,55 +58,47 @@ protected slots:
     void toggleCursor();
     void changeRate();
     void about();
-    void aboutQt();
 
     void configure();
+    void skinConfigChosen(int i);
+    void chooseSize(const QSize& sz);
 
-    void setZoom(double);
     void setZoom1();
     void setZoom2();
     void setZoom3();
     void setZoom4();
     void setZoomHalf();
+    void setZoom075();
+
+    void setZoom();
+
+public slots:
+    void setZoom(double);
 
 protected:
-    void createMenuBar();
+    void createMenu(QMenuBar *menu);
+    void createMenu(Q3PopupMenu *menu);
+    QMenu* createFileMenu();
+    QMenu* createViewMenu();
+    QMenu* createHelpMenu();
 
 private:
-    void init( int display_id, int w, int h, int d, const QString &skin );
-    QAction *newAction(const char *menuName, const char *shortkey, const char *slot);
-    void createActions();
-
-    QVFbView *view;
-    QScrollArea *scroller;
+    void findSkins(const QString &currentSkin);
+    void init( int display_id, int w, int h, int d, int r, const QString& skin );
     Skin *skin;
+    double skinscaleH,skinscaleV;
+    QVFbView *view;
     QVFbRateDialog *rateDlg;
+    QMenu *viewMenu;
+    int cursorId;
     Config* config;
-    QString currentSkin;
-
-    enum FBActs { ConfigAct,
-                  QuitAct,
-                  AboutAct,
-                  AboutQtAct,
-//                  HelpAct,
-//                  FileAct,
-                  SaveAct,
-                  AnimationAct,
-                  CursorAct,
-//                  ViewAct,
-                  RefreshAct,
-                  Zoom1Act,
-                  Zoom2Act,
-                  Zoom3Act,
-                  Zoom4Act,
-                  Zoom05Act,
-                  NCountAct
-    };
-
-    QAction *actions[NCountAct];
+    QStringList skinnames;
+    QStringList skinfiles;
+    int currentSkinIndex;
+    Zoomer *zoomer;
+    QScrollArea* scroller;
 
 private slots:
-    void resetGamma();
     void setGamma400(int n);
     void setR400(int n);
     void setG400(int n);

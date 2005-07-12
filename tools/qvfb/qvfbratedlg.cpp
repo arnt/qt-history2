@@ -11,30 +11,25 @@
 **
 ****************************************************************************/
 
-#include "qvfbratedlg.h"
-
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qslider.h>
 #include <qpushbutton.h>
+#include "qvfbratedlg.h"
 
-QVFbRateDialog::QVFbRateDialog(int rate, QWidget *parent)
-    : QDialog(parent)
+QVFbRateDialog::QVFbRateDialog( int rate, QWidget *parent, const char *name,
+    bool modal )
+    : QDialog( parent, name, modal )
 {
     oldRate = rate;
 
-    QVBoxLayout *tl = new QVBoxLayout(this);
-    tl->setMargin(5);
+    QVBoxLayout *tl = new QVBoxLayout( this, 5 );
 
     QLabel *label = new QLabel( "Target frame rate:", this );
     tl->addWidget( label );
 
     QHBoxLayout *hl = new QHBoxLayout( tl );
-    rateSlider = new QSlider(Qt::Horizontal, this);
-    rateSlider->setRange(1,100);
-    rateSlider->setPageStep(10);
-    rateSlider->setValue(rate);
-
+    rateSlider = new QSlider( 1, 100, 10, rate, Qt::Horizontal, this );
     hl->addWidget( rateSlider );
     connect( rateSlider, SIGNAL(valueChanged(int)), this, SLOT(rateChanged(int)) );
     rateLabel = new QLabel( QString( "%1fps" ).arg(rate), this );
@@ -62,3 +57,4 @@ void QVFbRateDialog::cancel()
     rateChanged( oldRate );
     reject();
 }
+

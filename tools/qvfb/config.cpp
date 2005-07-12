@@ -1,25 +1,41 @@
-/****************************************************************************
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the $MODULE$ of the Qt Toolkit.
-**
-** $LICENSE$
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
-
-
 #include "config.h"
 
-void Config::on_buttonOk_clicked()
+#include <qvariant.h>
+#include "gammaview.h"
+/*
+ *  Constructs a Config as a child of 'parent', with the
+ *  name 'name' and widget flags set to 'f'.
+ *
+ *  The dialog will by default be modeless, unless you set 'modal' to
+ *  true to construct a modal dialog.
+ */
+Config::Config(QWidget* parent, const char* name, bool modal, Qt::WFlags fl)
+    : QDialog(parent, name, modal, fl)
 {
-    accept();
+    setupUi(this);
+
+
+    // signals and slots connections
+    connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(size_width, SIGNAL(valueChanged(int)), size_custom, SLOT(animateClick()));
+    connect(size_height, SIGNAL(valueChanged(int)), size_custom, SLOT(animateClick()));
 }
 
-void Config::on_buttonCancel_clicked()
+/*
+ *  Destroys the object and frees any allocated resources
+ */
+Config::~Config()
 {
-    reject();
+    // no need to delete child widgets, Qt does it all for us
 }
+
+/*
+ *  Sets the strings of the subwidgets using the current
+ *  language.
+ */
+void Config::languageChange()
+{
+    retranslateUi(this);
+}
+
