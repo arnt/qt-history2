@@ -3,7 +3,7 @@
 /*!
     \class QDesignerMemberSheetExtension
     \brief The QDesignerMemberSheetExtension class provides an extension to an object's member
-    sheet in \QD.
+    sheet in Qt Designer. 
     \inmodule QtDesigner
 */
 
@@ -312,7 +312,7 @@
     \QD.
     \inmodule QtDesigner
 
-    \sa \l{Creating Custom Widgets for Qt Designer}
+    \sa {Creating Custom Widgets for Qt Designer}
 */
 
 /*!
@@ -505,7 +505,7 @@
     If \a qrcPath refers to a valid resource file, the name used for the file path is a path
     within those resources; otherwise the file path refers to a local file.
 
-    \sa \link The Qt Resource System \endlink, nameToPixmap()
+    \sa {The Qt Resource System}, nameToPixmap()
 */
 
 /*!
@@ -517,7 +517,7 @@
     If \a qrcPath refers to a valid resource file, the name used for the file path is a path
     within those resources; otherwise the file path refers to a local file.
 
-    \sa \link The Qt Resource System \endlink, nameToPixmap()
+    \sa {The Qt Resource System}, nameToIcon()
 */
 
 /*!
