@@ -611,19 +611,14 @@ void QDockWidget::mousePressEvent(QMouseEvent *event)
     d->state->origin = QRect(mapToGlobal(QPoint(0, 0)), size());
     d->state->current = d->state->origin;
 
-    // like the above, except using the tool window's size hint
-    d->state->floating = isWindow()
-                      ? d->state->current
-                      : QRect(d->state->current.topLeft(), sizeHint());
-
     const QPoint globalPos = event->globalPos();
     const int dl = globalPos.x() - d->state->current.left(),
               dr = d->state->current.right() - globalPos.x(),
-       halfWidth = d->state->floating.width() / 2;
+       halfWidth = d->state->origin.width() / 2;
     d->state->offset = mapFrom(this,
                             (dl < dr)
                             ? QPoint(qMin(dl, halfWidth), 0)
-                            : QPoint(d->state->floating.width() - qMin(dr, halfWidth) - 1, 0));
+                            : QPoint(d->state->origin.width() - qMin(dr, halfWidth) - 1, 0));
     d->state->offset = mapTo(this, QPoint(d->state->offset.x(), event->pos().y()));
 
     d->state->canDrop = true;
@@ -696,7 +691,7 @@ void QDockWidget::mouseMoveEvent(QMouseEvent *event)
               recalculate absolute position as if the tool window
               was to be dropped to toplevel
             */
-            target = d->state->floating;
+            target = d->state->origin;
             target.moveTopLeft(event->globalPos() - d->state->offset);
         } else {
             /*
@@ -707,9 +702,6 @@ void QDockWidget::mouseMoveEvent(QMouseEvent *event)
         }
     }
 
-    if (d->state->current == target)
-        return;
-
     if (!d->state->rubberband) {
         const int screen_number = QApplication::desktop()->screenNumber(window());
         d->state->rubberband = new QRubberBand(QRubberBand::Rectangle,
@@ -717,7 +709,8 @@ void QDockWidget::mouseMoveEvent(QMouseEvent *event)
         d->state->rubberband->setGeometry(target);
         d->state->rubberband->show();
     } else {
-        d->state->rubberband->setGeometry(target);
+        if (d->state->current != target)
+            d->state->rubberband->setGeometry(target);
     }
     d->state->current = target;
 #endif // !defined(QT_NO_MAINWINDOW)
@@ -776,7 +769,7 @@ void QDockWidget::mouseReleaseEvent(QMouseEvent *event)
     }
 
     if (!dropped && hasFeature(this, QDockWidget::DockWidgetFloatable)) {
-        target = d->state->floating;
+        target = d->state->origin;
         target.moveTopLeft(event->globalPos() - d->state->offset);
 
         if (!isFloating()) {

@@ -45,7 +45,6 @@ class QDockWidgetPrivate : public QWidgetPrivate
         QRubberBand *rubberband;
         QRect origin;   // starting position
         QRect current;  // current size of the dockwidget (can be either placed or floating)
-        QRect floating; // size of the floating dockwidget
         QPoint offset;
         bool canDrop;
     };
