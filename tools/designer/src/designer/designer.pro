@@ -16,8 +16,8 @@ INCLUDEPATH += \
 
 LIBS += -L../../lib \
     -L../../../../lib \
-    -lQtDesigner \
-    -lQtDesignerComponents
+    -lQtDesignerComponents \
+    -lQtDesigner
 
 RESOURCES += designer.qrc
 
