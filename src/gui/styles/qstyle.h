@@ -606,6 +606,9 @@ public:
     virtual QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt = 0,
                                    const QWidget *widget = 0) const = 0;
 
+    QIcon standardIcon(StandardPixmap standardIcon, const QStyleOption *option = 0,
+                       const QWidget *widget = 0) const;
+
     virtual QPixmap generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap,
                                         const QStyleOption *opt) const = 0;
 
@@ -621,6 +624,9 @@ public:
     static QRect alignedRect(Qt::LayoutDirection direction, Qt::Alignment alignment,
                              const QSize &size, const QRect &rectangle);
 
+protected slots:
+    QIcon standardIconSlot(StandardPixmap standardIcon, const QStyleOption *opt = 0,
+                           const QWidget *widget = 0) const;
 
 private:
     Q_DISABLE_COPY(QStyle)

@@ -1580,10 +1580,12 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     Returns a pixmap for \a standardPixmap.
 
     The \a option argument can be used to pass extra information required
-    when drawing the ControlElement. Currently, the \a option argument is unused.
+    when drawing the ControlElement.
 
     The \a widget argument is optional and may contain a widget that
     may aid in drawing the control.
+
+    \sa standardIcon()
 */
 
 
@@ -1801,6 +1803,63 @@ QPalette QStyle::standardPalette() const
     return palette;
 }
 
+/*!
+    \since 4.1
+
+    Returns an icon for \a standardIcon.
+
+    The \a option argument can be used to pass extra information required
+    when determining the icon.
+
+    The \a widget argument is optional and may contain a widget that
+    may aid determining the icon.
+
+    \warning Because of binary compatibility constraints, this function is not virtual.
+    If you want to provide your own icons in a QStyle subclass, add a slot called
+    standardIconSlot() to you subclass. The standardIcon() function will dynamically
+    detect the slot and call it.
+
+    \sa standardIconSlot(), standardPixmap()
+*/
+QIcon QStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *option,
+                           const QWidget *widget) const
+{
+    QIcon result;
+    // ### 4.1: invokeMethod should accept const functions, to avoid this dirty cast
+    QMetaObject::invokeMethod(const_cast<QStyle*>(this),
+                              "standardIconSlot", Qt::DirectConnection,
+                              Q_RETURN_ARG(QIcon, result),
+                              Q_ARG(StandardPixmap, standardIcon),
+                              Q_ARG(const QStyleOption*, option),
+                              Q_ARG(const QWidget*, widget));
+    return result;
+}
+
+/*!
+    \since 4.1
+
+    Returns an icon for \a standardIcon.
+
+    The \a option argument contains extra information required when determining
+    the icon. The \a widget argument is optional and may contain a widget that
+    may aid determining the icon.
+
+    The default implementation simply calls standardPixmap(\a standardIcon, \a option,
+    \a widget).
+
+    \warning Because of binary compatibility constraints, the standardIcon()
+    function, introduced in Qt 4.1, isn't virtual. If you want to provide
+    your own icons in a QStyle subclass, add a slot called standardIconSlot() to
+    your subclass. The standardIcon() function will dynamically detect the slot and
+    call it.
+
+    \sa standardIcon()
+*/
+QIcon QStyle::standardIconSlot(StandardPixmap standardIcon, const QStyleOption *option,
+                               const QWidget *widget) const
+{
+    return QIcon(standardPixmap(standardIcon, option, widget));
+}
 
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug debug, QStyle::State state)
