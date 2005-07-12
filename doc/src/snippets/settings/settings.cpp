@@ -1,6 +1,7 @@
-#include <QCoreApplication>
-#include <QMainWindow>
-#include <QSettings>
+#include <QtGui>
+
+QWidget *win;
+QWidget *panel;
 
 void snippet_ctor1()
 {
@@ -42,13 +43,19 @@ void snippet_locations()
     QSettings obj3(QSettings::SystemScope, "MySoft", "Star Runner");
     QSettings obj4(QSettings::SystemScope, "MySoft");
 
+    {
     QSettings settings(QSettings::IniFormat, QSettings::UserScope,
                        "MySoft", "Star Runner");
+    }
 
+    {
     QSettings settings("starrunner.ini", QSettings::IniFormat);
+    }
 
+    {
     QSettings settings("HKEY_CURRENT_USER\\Software\\Microsoft",
                        QSettings::NativeFormat);
+    }
 }
 
 class MainWindow : public QMainWindow
@@ -78,16 +85,17 @@ void MainWindow::readSettings()
     QSettings settings("Moose Soft", "Clipper");
 
     settings.beginGroup("MainWindow");
-    resize(settings.value("size", QSize(400, 400)));
-    move(settings.value("pos", QPoint(200, 200)));
+    resize(settings.value("size", QSize(400, 400)).toSize());
+    move(settings.value("pos", QPoint(200, 200)).toPoint());
     settings.endGroup();
 }
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+MainWindow::MainWindow()
 {
     readSettings();
 }
+
+bool userReallyWantsToQuit() { return true; }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
