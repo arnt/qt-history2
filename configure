@@ -1267,7 +1267,7 @@ if [ "$OPT_SHADOW" = "yes" ]; then
     if [ -x "/usr/bin/perl" ] && [ -x "$relpath/bin/syncqt" ]; then
         mkdir -p "$outpath/bin"
         echo "#!/bin/sh" >$outpath/bin/syncqt
-        echo "export QTDIR=$relpath" >>$outpath/bin/syncqt
+        echo "QTDIR=$relpath; export QTDIR" >>$outpath/bin/syncqt
         [ "$LicenseType" = "Trolltech" ] && echo "perl $relpath/bin/syncqt -outdir $relpath" >>$outpath/bin/syncqt
         echo "perl $relpath/bin/syncqt -outdir $outpath" >>$outpath/bin/syncqt
         chmod 755 $outpath/bin/syncqt
