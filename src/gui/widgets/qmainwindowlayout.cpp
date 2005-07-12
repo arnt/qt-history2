@@ -1892,8 +1892,13 @@ QRect QMainWindowLayout::placeDockWidget(QDockWidget *dockwidget,
 
     relayout(QInternal::RelayoutDragging);
 
+    QSize currentMinSize = minSize;
+    // save minSize, force minimumSize() to recalculate, and restore
+    // the saved value
+    minSize = QSize();
     const QSize new_min = minimumSize();
     const bool forbid = cur.width() < new_min.width() || cur.height() < new_min.height();
+    minSize = currentMinSize;
 
     if (!forbid) {
         DEBUG() << "  placed at " << layoutitem.geometry();
