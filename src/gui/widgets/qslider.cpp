@@ -401,6 +401,8 @@ void QSlider::mousePressEvent(QMouseEvent *ev)
             update(sr);
         }
     }
+    if (d->pressedControl == QStyle::SC_SliderHandle)
+        setSliderDown(true);
 }
 
 /*!

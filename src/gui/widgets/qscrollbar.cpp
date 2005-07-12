@@ -482,6 +482,8 @@ void QScrollBar::mousePressEvent(QMouseEvent *e)
     }
     d->activateControl(d->pressedControl);
     repaint(style()->subControlRect(QStyle::CC_ScrollBar, &opt, d->pressedControl, this));
+    if (d->pressedControl == QStyle::SC_ScrollBarSlider)
+        setSliderDown(true);
 }
 
 

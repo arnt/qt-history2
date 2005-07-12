@@ -48,7 +48,7 @@
     PageUp or PageDown.
 
     \i \l tracking: Whether slider tracking is enabled.
-    
+
     \i \l sliderPosition: The current position of the slider. If \l
     tracking is enabled (the default), this is identical to \l value.
 
@@ -401,7 +401,17 @@ bool QAbstractSlider::hasTracking() const
 void QAbstractSlider::setSliderDown(bool down)
 {
     Q_D(QAbstractSlider);
+    bool doEmit = d->pressed != down;
+
     d->pressed = down;
+
+    if (doEmit) {
+        if (down)
+            emit sliderPressed();
+        else
+            emit sliderReleased();
+    }
+
     if (!down && d->position != d->value)
         triggerAction(SliderMove);
 }
