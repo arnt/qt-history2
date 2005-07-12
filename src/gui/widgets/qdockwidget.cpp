@@ -248,7 +248,7 @@ void QDockWidgetTitle::mousePressEvent(QMouseEvent *event)
     state->offset = mapFrom(dockwidget,
                             (dl < dr)
                             ? QPoint(qMin(dl, halfWidth), 0)
-                            : QPoint(state->floating.width() - qMin(dr, halfWidth), 0));
+                            : QPoint(state->floating.width() - qMin(dr, halfWidth) - 1, 0));
     state->offset = mapTo(dockwidget, QPoint(state->offset.x(), event->pos().y()));
 
     state->canDrop = true;
@@ -709,7 +709,7 @@ void QDockWidget::setFloating(bool floating)
             layout->invalidate();
     }
 #endif
-    
+
     d->resizer->setActive(floating);
 
     if (visible)
