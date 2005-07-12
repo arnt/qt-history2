@@ -1729,8 +1729,14 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
 
             QMap<QString, QStringList> tmp;
             if(doProjectInclude(file, IncludeFlagNewProject, tmp) == IncludeSuccess) {
-                if(tmp.contains("QMAKE_INTERNAL_INCLUDED_FILES"))
-                    place["QMAKE_INTERNAL_INCLUDED_FILES"] += tmp["QMAKE_INTERNAL_INCLUDED_FILES"];
+                if(tmp.contains("QMAKE_INTERNAL_INCLUDED_FILES")) {
+                    QStringList &out = place["QMAKE_INTERNAL_INCLUDED_FILES"];
+                    const QStringList &in = tmp["QMAKE_INTERNAL_INCLUDED_FILES"];
+                    for(int i = 0; i < in.size(); ++i) {
+                        if(out.indexOf(in[i]) == -1)
+                            out += in[i];
+                    }
+                }
                 ret = tmp[seek_var].join(QString(Option::field_sep));
             }
         }
@@ -2229,8 +2235,14 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
         bool ret = false;
         QMap<QString, QStringList> tmp;
         if(doProjectInclude(Option::fixPathToLocalOS(args[0]), IncludeFlagNewProject, tmp) == IncludeSuccess) {
-            if(tmp.contains("QMAKE_INTERNAL_INCLUDED_FILES"))
-                place["QMAKE_INTERNAL_INCLUDED_FILES"] += tmp["QMAKE_INTERNAL_INCLUDED_FILES"];
+            if(tmp.contains("QMAKE_INTERNAL_INCLUDED_FILES")) {
+                QStringList &out = place["QMAKE_INTERNAL_INCLUDED_FILES"];
+                const QStringList &in = tmp["QMAKE_INTERNAL_INCLUDED_FILES"];
+                for(int i = 0; i < in.size(); ++i) {
+                    if(out.indexOf(in[i]) == -1)
+                        out += in[i];
+                }
+            }
             if(args.count() == 2) {
                 ret = tmp.contains(args[1]);
             } else {
