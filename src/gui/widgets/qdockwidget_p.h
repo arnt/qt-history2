@@ -86,6 +86,11 @@ public:
 #ifndef QT_NO_ACTION
     QAction *toggleViewAction;
 #endif
+
+    void mousePressEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
 };
 
 #endif // QT_NO_DOCKWIDGET

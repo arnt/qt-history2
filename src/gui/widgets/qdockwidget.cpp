@@ -307,6 +307,209 @@ void QDockWidgetPrivate::toggleTopLevel()
         q->show();
 }
 
+void QDockWidgetPrivate::mousePressEvent(QMouseEvent *event)
+{
+#if !defined(QT_NO_MAINWINDOW)
+    Q_Q(QDockWidget);
+    if (event->button() != Qt::LeftButton)
+        return;
+    if (!titleArea.contains(event->pos()))
+        return;
+    // check if the tool window is movable... do nothing if it is not
+    if (!::hasFeature(q, QDockWidget::DockWidgetMovable))
+        return;
+
+    QMainWindowLayout *layout = qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
+    if (!layout)
+        return;
+
+    layout->saveLayoutInfo();
+
+    Q_ASSERT(!state);
+    state = new QDockWidgetPrivate::DragState;
+
+    state->rubberband = 0;
+
+    // the current location of the tool window in global coordinates
+    state->origin = QRect(q->mapToGlobal(QPoint(0, 0)), q->size());
+    state->current = state->origin;
+
+    const QPoint globalPos = event->globalPos();
+    const int dl = globalPos.x() - state->current.left(),
+              dr = state->current.right() - globalPos.x(),
+       halfWidth = state->origin.width() / 2;
+    state->offset = q->mapFrom(q,
+                               (dl < dr)
+                               ? QPoint(qMin(dl, halfWidth), 0)
+                               : QPoint(state->origin.width() - qMin(dr, halfWidth) - 1, 0));
+    state->offset = q->mapTo(q, QPoint(state->offset.x(), event->pos().y()));
+
+    state->canDrop = true;
+
+#ifdef Q_WS_WIN
+    /* Work around windows expose bug when windows are partially covered by
+     * a top level transparent object.
+     */
+    update();
+    QWidgetList children = qFindChildren<QWidget *>(this);
+    for (int i=0; i<children.size(); ++i)
+        children.at(i)->update();
+#endif
+#endif // !defined(QT_NO_MAINWINDOW)
+}
+
+void QDockWidgetPrivate::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if (event->button() != Qt::LeftButton)
+        return;
+    if (!titleArea.contains(event->pos()))
+        return;
+    toggleTopLevel();
+}
+
+void QDockWidgetPrivate::mouseMoveEvent(QMouseEvent *event)
+{
+#if !defined(QT_NO_MAINWINDOW)
+    Q_Q(QDockWidget);
+    if (!state)
+        return;
+
+    QRect target;
+
+    if (!(event->modifiers() & Qt::ControlModifier)) {
+        // see if there is a main window under us, and ask it to place the tool window
+        QWidget *widget = QApplication::widgetAt(event->globalPos());
+        if (widget) {
+            while (widget && !qobject_cast<QMainWindow *>(widget)) {
+                if (widget->isWindow()) {
+                    widget = 0;
+                    break;
+                }
+                widget = widget->parentWidget();
+            }
+
+            if (widget) {
+                QMainWindow *mainwindow = qobject_cast<QMainWindow *>(widget);
+                if (mainwindow && mainwindow == q->parentWidget()) {
+                    QMainWindowLayout *layout =
+                        qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
+                    Q_ASSERT(layout != 0);
+                    QRect request = state->origin;
+                    request.moveTopLeft(event->globalPos() - state->offset);
+                    target = layout->placeDockWidget(q, request, event->globalPos());
+                    layout->resetLayoutInfo();
+                }
+            }
+        }
+    }
+
+    state->canDrop = target.isValid();
+    if (!state->canDrop) {
+        if (hasFeature(q, QDockWidget::DockWidgetFloatable)) {
+            /*
+              main window refused to accept the tool window,
+              recalculate absolute position as if the tool window
+              was to be dropped to toplevel
+            */
+            target = state->origin;
+            target.moveTopLeft(event->globalPos() - state->offset);
+        } else {
+            /*
+              cannot float the window, so put it back into it's
+              original position
+            */
+            target = state->origin;
+        }
+    }
+
+    if (!state->rubberband) {
+        const int screen_number = QApplication::desktop()->screenNumber(q->window());
+        state->rubberband = new QRubberBand(QRubberBand::Rectangle,
+                                            QApplication::desktop()->screen(screen_number));
+        state->rubberband->setGeometry(target);
+        state->rubberband->show();
+    } else {
+        if (state->current != target)
+            state->rubberband->setGeometry(target);
+    }
+    state->current = target;
+#endif // !defined(QT_NO_MAINWINDOW)
+}
+
+void QDockWidgetPrivate::mouseReleaseEvent(QMouseEvent *event)
+{
+#if !defined(QT_NO_MAINWINDOW)
+    Q_Q(QDockWidget);
+    if (event->button() != Qt::LeftButton)
+        return;
+    if (!state)
+        return;
+
+    QMainWindowLayout *layout =
+        qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
+    if (!layout)
+        return;
+    layout->discardLayoutInfo();
+
+    delete state->rubberband;
+
+    QWidget *focus = qApp->focusWidget();
+
+    // calculate absolute position if the tool window was to be
+    // dropped to toplevel
+    QRect target;
+    bool dropped = false;
+    if (!(event->modifiers() & Qt::ControlModifier)) {
+        // see if there is a main window under us, and ask it to drop the tool window
+        QWidget *widget = QApplication::widgetAt(event->globalPos());
+        if (state->canDrop && widget) {
+            while (widget && !qobject_cast<QMainWindow *>(widget)) {
+                if (widget->isWindow()) {
+                    widget = 0;
+                    break;
+                }
+                widget = widget->parentWidget();
+            }
+
+            if (widget) {
+                QMainWindow *mainwindow = qobject_cast<QMainWindow *>(widget);
+                if (mainwindow && mainwindow == q->parentWidget()) {
+                    QMainWindowLayout *layout =
+                        qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
+                    Q_ASSERT(layout != 0);
+                    QRect request = state->origin;
+                    request.moveTopLeft(event->globalPos() - state->offset);
+                    layout->dropDockWidget(q, request, event->globalPos());
+                    dropped = true;
+                }
+            }
+        }
+    }
+
+    if (!dropped && hasFeature(q, QDockWidget::DockWidgetFloatable)) {
+        target = state->origin;
+        target.moveTopLeft(event->globalPos() - state->offset);
+
+        if (!q->isFloating()) {
+            q->hide();
+            q->setFloating(true);
+            q->setGeometry(target);
+            q->show();
+        } else {
+            // move to new location
+            q->setGeometry(target);
+        }
+    }
+
+    // restore focus
+    if (focus)
+        focus->setFocus();
+
+    delete state;
+    state = 0;
+#endif // !defined(QT_NO_MAINWINDOW)
+}
+
 
 
 /*!
@@ -568,240 +771,6 @@ void QDockWidget::paintEvent(QPaintEvent *event)
 }
 
 /*! \reimp */
-void QDockWidget::contextMenuEvent(QContextMenuEvent *event)
-{
-    Q_D(QDockWidget);
-    qDebug() << "contextmenu event";
-    if (d->state) {
-        qDebug() << "eat contextmenu";
-        event->accept();
-    }
-    else {
-        qDebug() << "propagate contextmenu";
-        QWidget::contextMenuEvent(event);
-    }
-}
-
-/*! \reimp */
-void QDockWidget::mousePressEvent(QMouseEvent *event)
-{
-#if !defined(QT_NO_MAINWINDOW)
-    Q_D(QDockWidget);
-    if (event->button() != Qt::LeftButton) return;
-
-    // check if the tool window is movable... do nothing if it is not
-    if (!::hasFeature(this, QDockWidget::DockWidgetMovable))
-        return;
-
-    QMainWindowLayout *layout =
-        qobject_cast<QMainWindowLayout *>(parentWidget()->layout());
-    if (!layout)
-        return;
-
-    if (!d->titleArea.contains(event->pos()))
-        return;
-
-    layout->saveLayoutInfo();
-
-    Q_ASSERT(!d->state);
-    d->state = new QDockWidgetPrivate::DragState;
-
-    d->state->rubberband = 0;
-
-    // the current location of the tool window in global coordinates
-    d->state->origin = QRect(mapToGlobal(QPoint(0, 0)), size());
-    d->state->current = d->state->origin;
-
-    const QPoint globalPos = event->globalPos();
-    const int dl = globalPos.x() - d->state->current.left(),
-              dr = d->state->current.right() - globalPos.x(),
-       halfWidth = d->state->origin.width() / 2;
-    d->state->offset = mapFrom(this,
-                            (dl < dr)
-                            ? QPoint(qMin(dl, halfWidth), 0)
-                            : QPoint(d->state->origin.width() - qMin(dr, halfWidth) - 1, 0));
-    d->state->offset = mapTo(this, QPoint(d->state->offset.x(), event->pos().y()));
-
-    d->state->canDrop = true;
-
-#ifdef Q_WS_WIN
-    /* Work around windows expose bug when windows are partially covered by
-     * a top level transparent object.
-     */
-    update();
-    QWidgetList children = qFindChildren<QWidget *>(this);
-    for (int i=0; i<children.size(); ++i)
-        children.at(i)->update();
-#endif
-#endif // !defined(QT_NO_MAINWINDOW)
-}
-
-/*! \reimp */
-void QDockWidget::mouseDoubleClickEvent(QMouseEvent *event)
-{
-    Q_D(QDockWidget);
-    if (event->button() != Qt::LeftButton)
-        return;
-    if (!d->titleArea.contains(event->pos()))
-        return;
-    d->toggleTopLevel();
-}
-
-/*! \reimp */
-void QDockWidget::mouseMoveEvent(QMouseEvent *event)
-{
-#if !defined(QT_NO_MAINWINDOW)
-    Q_D(QDockWidget);
-    if (!d->state)
-        return;
-
-    QRect target;
-
-    if (!(event->modifiers() & Qt::ControlModifier)) {
-        // see if there is a main window under us, and ask it to place the tool window
-        QWidget *widget = QApplication::widgetAt(event->globalPos());
-        if (widget) {
-            while (widget && !qobject_cast<QMainWindow *>(widget)) {
-                if (widget->isWindow()) {
-                    widget = 0;
-                    break;
-                }
-                widget = widget->parentWidget();
-            }
-
-            if (widget) {
-                QMainWindow *mainwindow = qobject_cast<QMainWindow *>(widget);
-                if (mainwindow && mainwindow == parentWidget()) {
-                    QMainWindowLayout *layout =
-                        qobject_cast<QMainWindowLayout *>(parentWidget()->layout());
-                    Q_ASSERT(layout != 0);
-                    QRect request = d->state->origin;
-                    request.moveTopLeft(event->globalPos() - d->state->offset);
-                    target = layout->placeDockWidget(this, request, event->globalPos());
-                    layout->resetLayoutInfo();
-                }
-            }
-        }
-    }
-
-    d->state->canDrop = target.isValid();
-    if (!d->state->canDrop) {
-        if (hasFeature(this, QDockWidget::DockWidgetFloatable)) {
-            /*
-              main window refused to accept the tool window,
-              recalculate absolute position as if the tool window
-              was to be dropped to toplevel
-            */
-            target = d->state->origin;
-            target.moveTopLeft(event->globalPos() - d->state->offset);
-        } else {
-            /*
-              cannot float the window, so put it back into it's
-              original position
-            */
-            target = d->state->origin;
-        }
-    }
-
-    if (!d->state->rubberband) {
-        const int screen_number = QApplication::desktop()->screenNumber(window());
-        d->state->rubberband = new QRubberBand(QRubberBand::Rectangle,
-                                               QApplication::desktop()->screen(screen_number));
-        d->state->rubberband->setGeometry(target);
-        d->state->rubberband->show();
-    } else {
-        if (d->state->current != target)
-            d->state->rubberband->setGeometry(target);
-    }
-    d->state->current = target;
-#endif // !defined(QT_NO_MAINWINDOW)
-}
-
-/*! \reimp */
-void QDockWidget::mouseReleaseEvent(QMouseEvent *event)
-{
-#if !defined(QT_NO_MAINWINDOW)
-    Q_D(QDockWidget);
-    if (event->button() != Qt::LeftButton)
-        return;
-
-    if (!d->state)
-        return;
-
-    QMainWindowLayout *layout =
-        qobject_cast<QMainWindowLayout *>(parentWidget()->layout());
-    if (!layout)
-        return;
-    layout->discardLayoutInfo();
-
-    delete d->state->rubberband;
-
-    QWidget *focus = qApp->focusWidget();
-
-    // calculate absolute position if the tool window was to be
-    // dropped to toplevel
-    QRect target;
-    bool dropped = false;
-    if (!(event->modifiers() & Qt::ControlModifier)) {
-        // see if there is a main window under us, and ask it to drop the tool window
-        QWidget *widget = QApplication::widgetAt(event->globalPos());
-        if (d->state->canDrop && widget) {
-            while (widget && !qobject_cast<QMainWindow *>(widget)) {
-                if (widget->isWindow()) {
-                    widget = 0;
-                    break;
-                }
-                widget = widget->parentWidget();
-            }
-
-            if (widget) {
-                QMainWindow *mainwindow = qobject_cast<QMainWindow *>(widget);
-                if (mainwindow && mainwindow == parentWidget()) {
-                    QMainWindowLayout *layout =
-                        qobject_cast<QMainWindowLayout *>(parentWidget()->layout());
-                    Q_ASSERT(layout != 0);
-                    QRect request = d->state->origin;
-                    request.moveTopLeft(event->globalPos() - d->state->offset);
-                    layout->dropDockWidget(this, request, event->globalPos());
-                    dropped = true;
-                }
-            }
-        }
-    }
-
-    if (!dropped && hasFeature(this, QDockWidget::DockWidgetFloatable)) {
-        target = d->state->origin;
-        target.moveTopLeft(event->globalPos() - d->state->offset);
-
-        if (!isFloating()) {
-            hide();
-            setFloating(true);
-            setGeometry(target);
-            show();
-        } else {
-            // move to new location
-            setGeometry(target);
-        }
-    }
-
-    // restore focus
-    if (focus)
-        focus->setFocus();
-
-    delete d->state;
-    d->state = 0;
-#endif // !defined(QT_NO_MAINWINDOW)
-}
-
-/*! \reimp */
-void QDockWidget::resizeEvent(QResizeEvent *event)
-{
-    Q_UNUSED(event);
-    Q_D(QDockWidget);
-    d->relayout();
-}
-
-/*! \reimp */
 bool QDockWidget::event(QEvent *event)
 {
     Q_D(QDockWidget);
@@ -818,7 +787,29 @@ bool QDockWidget::event(QEvent *event)
     case QEvent::StyleChange:
         d->updateButtons();
         break;
-
+    case QEvent::ContextMenu:
+        if (d->state) {
+            event->accept();
+            return true;
+        }
+        break;
+    case QEvent::Resize:
+        d->relayout();
+        break;
+        // return true after calling the handler since we don't want
+        // them to be passed onto the default handlers
+    case QEvent::MouseButtonPress:
+        d->mousePressEvent(static_cast<QMouseEvent *>(event));
+        return true;
+    case QEvent::MouseButtonDblClick:
+        d->mouseDoubleClickEvent(static_cast<QMouseEvent *>(event));
+        return true;
+    case QEvent::MouseMove:
+        d->mouseMoveEvent(static_cast<QMouseEvent *>(event));
+        return true;
+    case QEvent::MouseButtonRelease:
+        d->mouseReleaseEvent(static_cast<QMouseEvent *>(event));
+        return true;
     default:
         break;
     }

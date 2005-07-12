@@ -78,14 +78,6 @@ protected:
     void changeEvent(QEvent *event);
     void closeEvent(QCloseEvent *event);
     void paintEvent(QPaintEvent *event);
-
-    void contextMenuEvent(QContextMenuEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseDoubleClickEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void resizeEvent(QResizeEvent *event);
-
     bool event(QEvent *event);
 
 private:
