@@ -1177,9 +1177,27 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 p->setPen(dwOpt->palette.color(QPalette::Dark));
                 p->drawRect(r);
             }
+            QIcon ico = widget->windowIcon();
+            bool hasIcon = (ico.serialNumber() != qApp->windowIcon().serialNumber());
+            int indent = p->fontMetrics().descent();
+            if (hasIcon) {
+                QPixmap pxIco = ico.pixmap(r.height() - 2, r.height() - 2);
+                p->drawPixmap(indent, 1, pxIco);
+                indent += pxIco.width() + 1;
+            }
+
+            int buttonSpace = 0;
+            if (dwOpt->closable) {
+                QSize closeSize = standardPixmap(QStyle::SP_TitleBarCloseButton, dwOpt, widget).size();
+                buttonSpace += closeSize.width() + 4; // Added Toolbutton frame size
+            }
+            if (dwOpt->floatable) {
+                QSize floatSize = standardPixmap(QStyle::SP_TitleBarMaxButton, dwOpt, widget).size();
+                buttonSpace += floatSize.width() + 4; // Added Toolbutton frame size
+            }
+
             if (!dwOpt->title.isEmpty()) {
-                const int indent = p->fontMetrics().descent();
-                drawItemText(p, r.adjusted(indent + 1, 1, -indent - 1, -1),
+                drawItemText(p, r.adjusted(indent + 1, 1, -(buttonSpace) - 1, -1),
                              Qt::AlignLeft | Qt::AlignVCenter, dwOpt->palette,
                              dwOpt->state & State_Enabled, dwOpt->title,
                              QPalette::Foreground);

@@ -2689,14 +2689,23 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         if (const QStyleOptionDockWidget *dockWidget = qstyleoption_cast<const QStyleOptionDockWidget *>(option)) {
             painter->save();
 
+            // Figure out icon space on title bar
+            QIcon icon = widget->windowIcon();
+            bool hasIcon = (icon.serialNumber() != qApp->windowIcon().serialNumber());
+            int iconSize = hasIcon ? dockWidget->rect.height() : 0;
+
             // Find text width and title rect
             int textWidth = option->fontMetrics.width(dockWidget->title);
             int margin = 2;
             QRect titleRect = visualRect(dockWidget->direction, dockWidget->rect,
-                                         dockWidget->rect.adjusted(margin, 0, -margin * 2 - 26, 0));
+                                         dockWidget->rect.adjusted(margin + iconSize, 0, -margin * 2 - 26, 0));
 
             // Chop and insert ellide into title if text is too wide
             QString title = elliditide(dockWidget->title, dockWidget->fontMetrics, titleRect, &textWidth);
+
+            // Draw dockwindow icon, if any
+            if (hasIcon)
+                painter->drawPixmap(margin, dockWidget->rect.top(), icon.pixmap(iconSize));
 
             // Draw the toolbar handle pattern to the left and right of the text
             QImage handle(qt_toolbarhandle);

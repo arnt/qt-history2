@@ -55,7 +55,13 @@ public:
                   QStyleHintReturn *returnData = 0) const;
 
     QPalette standardPalette() const;
-    
+    QPixmap standardPixmap(StandardPixmap standardIcon, const QStyleOption *option,
+                           const QWidget *widget = 0) const;
+
+protected slots:
+    QIcon standardIconSlot(StandardPixmap standardIcon, const QStyleOption *option,
+                           const QWidget *widget = 0) const;
+
 private:
     Q_DISABLE_COPY(QWindowsXPStyle)
 
