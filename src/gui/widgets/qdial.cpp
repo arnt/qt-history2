@@ -306,25 +306,11 @@ void QDial::mouseMoveEvent(QMouseEvent * e)
 
 /*!
     \reimp
-
-    Reimplemented to ensure the display is correct and to emit the
-    valueChanged(int) signal when appropriate and to ensure
-    tickmarks are consistent with the new range. The \a change
-    parameter indicates what type of change that has taken place.
 */
 
 void QDial::sliderChange(SliderChange change)
 {
-    Q_D(QDial);
-    if (change == SliderRangeChange || change == SliderValueChange) {
-        update();
-        if (change == SliderValueChange && (d->tracking || !d->doNotEmit)) {
-            emit valueChanged(d->value);
-#ifndef QT_NO_ACCESSIBILITY
-            QAccessible::updateAccessibility(this, 0, QAccessible::ValueChanged);
-#endif
-        }
-    }
+    QAbstractSlider::sliderChange(change);
 }
 
 void QDial::setWrapping(bool enable)
