@@ -4782,7 +4782,7 @@ void QMacStyle::polish(QWidget* w)
     if (QLineEdit *lined = qobject_cast<QLineEdit*>(w)) {
         if (qobject_cast<QComboBox*>(lined->parentWidget())
                 && !lined->testAttribute(Qt::WA_SetFont))
-            lined->setFont(*qt_app_fonts_hash()->find("QComboLineEdit"));
+            lined->setFont(qt_app_fonts_hash()->value("QComboLineEdit")); 
     }
 
     if (d->useHITheme)
