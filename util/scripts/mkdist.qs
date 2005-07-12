@@ -196,38 +196,30 @@ var finalRemove = [ new RegExp("^dist") ];
  * Mapping from directories to module names
  */
 
+// main modules
+moduleMap["Qt3Support module"]           = new RegExp("^src/qt3support");
+moduleMap["QtCore module"]               = new RegExp("^src/core");
+moduleMap["QtGui module"]        	 = new RegExp("^src/gui");
+moduleMap["QtNetwork module"]            = new RegExp("^src/network");
+moduleMap["QtOpenGL module"]             = new RegExp("^src/opengl");
+moduleMap["QtSql module"]                = new RegExp("^src/sql");
+moduleMap["QtXML module"]                = new RegExp("^src/xml");
+
+// main applications
+moduleMap["Qt Designer"]                 = new RegExp("^tools/designer");
+moduleMap["Qt Assistant"]                = new RegExp("^tools/assistant");
+moduleMap["Qt Linguist"]                 = new RegExp("^tools/linguist");
+moduleMap["qt3to4 porting application"]  = new RegExp("^tools/porting");
+moduleMap["qmake application"]           = new RegExp("^qmake");
+
+// other
 moduleMap["demonstration applications"]  = new RegExp("^demos");
 moduleMap["documentation"]               = new RegExp("^doc");
 moduleMap["example classes"]             = new RegExp("^examples");
-moduleMap["qmake application"]           = new RegExp("^qmake");
-moduleMap["activeqt module"]             = new RegExp("^extensions/activeqt");
-moduleMap["Qt 3 compatibility classes"]  = new RegExp("^src/qt3support");
-moduleMap["core module"]                 = new RegExp("^src/core");
-moduleMap["accessibility module"]        = new RegExp("(^src/gui/accessible|^src/plugins/accessible)");
-moduleMap["dialog module"]               = new RegExp("^src/gui/dialogs");
-moduleMap["embedded classes"]            = new RegExp("(^src/gui/embedded|^src/plugins/gfxdrivers|^src/plugins/decorations)");
-moduleMap["item views module"]           = new RegExp("^src/gui/itemviews");
-moduleMap["gui module"]                  = new RegExp("^src/gui/kernel");
-moduleMap["painting module"]             = new RegExp("(^src/gui/painting|^src/gui/image|^src/plugins/imageformats)");
-moduleMap["style module"]                = new RegExp("(^src/gui/styles|^src/plugins/styles)");
-moduleMap["text module"]                 = new RegExp("^src/gui/text");
-moduleMap["widgets module"]              = new RegExp("^src/gui/widgets");
-moduleMap["input methods"]               = new RegExp("^src/gui/inputmethod");
-moduleMap["moc application"]             = new RegExp("^src/moc");
-moduleMap["network module"]              = new RegExp("^src/network");
-moduleMap["opengl module"]               = new RegExp("^src/opengl");
-moduleMap["internationalization module"] = new RegExp("^src/plugins/codecs");
-moduleMap["sql module"]                  = new RegExp("(^src/sql|^src/plugins/sqldrivers)");
-moduleMap["tools applications"]          = new RegExp("^src/tools");
+moduleMap["ActiveQt Framework"]          = new RegExp("^extensions/activeqt");
+moduleMap["tools applications"]          = new RegExp("(^src/tools|^tools/)");
 moduleMap["window classes"]              = new RegExp("^src/winmain");
-moduleMap["xml module"]                  = new RegExp("^src/xml");
-moduleMap["designer application"]        = new RegExp("^tools/designer");
-moduleMap["assistant application"]       = new RegExp("^tools/assistant");
-moduleMap["linguist application"]        = new RegExp("^tools/linguist");
-moduleMap["qtconfig application"]        = new RegExp("^tools/qtconfig");
-moduleMap["virtual framebuffer"]         = new RegExp("^tools/qvfb");
-moduleMap["porting application"]         = new RegExp("^tools/porting");
-moduleMap["resource dump application"]   = new RegExp("^tools/rccdump");
+moduleMap["plugins"]                     = new RegExp("^src/plugins");
 
 /*******************************************************************************
  * Here we go
@@ -278,7 +270,7 @@ for (var p in validPlatforms) {
 
 		// run qdoc
 		print("Running qdoc...");
- 		qdoc(platDir, license, edition);
+ 		qdoc(platDir, platform, license, edition);
 
 		// purge platform and license files
 		print("Purging platform and license specific files...");
@@ -910,17 +902,19 @@ function syncqt(packageDir, platform)
 /************************************************************
  * runs qdoc on packageDir
  */
-function qdoc(packageDir, license, edition)
+function qdoc(packageDir, platform, license, edition)
 {
     var dir = new Dir(packageDir);
     dir.setCurrent();
     System.setenv("QTDIR", packageDir);
-    var qdocConfigFile = qdocDir + "/test/qt-" + license + ".qdocconf";
-    if (edition == "console")
-	qdocConfigFile = qdocDir + "/test/qt-" + license + "-" + edition + ".qdocconf";
-    if (!File.exists(qdocConfigFile))
-	throw "Missing qdoc configuratio file: %1".arg(qdocConfigFile);
-    execute([qdocCommand, qdocConfigFile]);
+    var qdocConfigFile = qdocDir + "/test/qt.qdocconf";
+    var qdocDefines = "-Dopensourceedition";
+    if (license != "opensource")
+	qdocDefines = "-D" + edition + "edition";
+    if (platform == "embedded")
+	qdocDefines += " -Dqtopiacore";
+
+    execute([qdocCommand, qdocConfigFile, qdocDefines]);
 }
 
 /************************************************************
