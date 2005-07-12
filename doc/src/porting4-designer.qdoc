@@ -311,8 +311,8 @@
 
     In Qt 3, the binary data for the icons used by a form was stored
     in the \c .ui file. In Qt 4 icons and any other external files
-    can be compiled into the application by listing them in a \l{Qt's
-    Resource System}{resource file} (\c .qrc). This file is
+    can be compiled into the application by listing them in a \l{The
+    Qt Resource System}{resource file} (\c .qrc). This file is
     translated into a C++ source file using Qt's resource compiler
     (\c rcc). The data in the files is then available to any Qt class
     which takes a file name argument.
