@@ -718,7 +718,7 @@ void QPaintEngine::drawRects(const QRectF *rects, int rectCount)
             QPointF pts[4] = { QPointF(rf.x(), rf.y()),
                                QPointF(rf.x() + rf.width(), rf.y()),
                                QPointF(rf.x() + rf.width(), rf.y() + rf.height()),
-                               QPointF(rf.y(), rf.y() + rf.height()) };
+                               QPointF(rf.x(), rf.y() + rf.height()) };
             drawPolygon(pts, 4, ConvexMode);
         }
     }

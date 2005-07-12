@@ -61,10 +61,13 @@ public:
     void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
 
     void drawPath(const QPainterPath &path);
+    void drawPolygon(const QPoint  *points, int pointCount, PolygonDrawMode mode);
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
     void fillPath(const QPainterPath &path, FillData *fillData);
 
     void drawEllipse(const QRectF &rect);
+
+    void drawRects(const QRect  *rects, int rectCount);
     void drawRects(const QRectF *rects, int rectCount);
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
@@ -73,7 +76,9 @@ public:
     void drawTiledPixmap(const QRectF &r, const QPixmap &pm, const QPointF &sr);
     void drawTextItem(const QPointF &p, const QTextItem &textItem);
 
+    void drawLines(const QLine *line, int lineCount);
     void drawLines(const QLineF *line, int lineCount);
+
     void drawPoints(const QPointF *points, int pointCount);
 
 #ifdef Q_NO_USING_KEYWORD
@@ -181,6 +186,7 @@ public:
     uint bilinear : 1;
     uint flushOnEnd : 1;
     uint mono_surface : 1;
+    uint float_xform : 1;
 };
 
 /*******************************************************************************
