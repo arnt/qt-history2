@@ -61,7 +61,6 @@ public:
     void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
 
     void drawPath(const QPainterPath &path);
-    void drawPolygon(const QPoint  *points, int pointCount, PolygonDrawMode mode);
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
     void fillPath(const QPainterPath &path, FillData *fillData);
 
