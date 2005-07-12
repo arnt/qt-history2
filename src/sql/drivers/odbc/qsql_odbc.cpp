@@ -1175,7 +1175,7 @@ bool QODBCResult::exec()
                                           qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
                                           SQL_C_WCHAR,
                                           str.length() > 4000 ? SQL_WLONGVARCHAR : SQL_WVARCHAR,
-                                          0, // god knows... don't change this!
+                                          str.length() * sizeof(QChar),
                                           0,
                                           (void *)str.constData(),
                                           str.length() * sizeof(QChar),
