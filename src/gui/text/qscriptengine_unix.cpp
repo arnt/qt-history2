@@ -2140,371 +2140,555 @@ static void tibetan_attributes(int script, const QString &text, int from, int le
 //
 // --------------------------------------------------------------------------------------------------------------------------------------------
 
-enum KhmerForm {
-    Khmer_Cons, // Consonant
-    Khmer_IndV, // Independent Vowel
-    Khmer_Coeng, // COENG
-    Khmer_PreV, // Pre dependent Vowel
-    Khmer_BlwV, // Below dependent Vowel
-    Khmer_Shift, // Regshift
-    Khmer_AbvV, // Above dependent Vowel
-    Khmer_AbvS, // Above Sign
-    Khmer_PstV, // Post dependent Vowel
-    Khmer_PstS, // Post sign
-    Khmer_Other
-};
 
-
-static const unsigned char khmerForm[0x54] = {
-    Khmer_Cons, Khmer_Cons, Khmer_Cons, Khmer_Cons,
-    Khmer_Cons, Khmer_Cons, Khmer_Cons, Khmer_Cons,
-    Khmer_Cons, Khmer_Cons, Khmer_Cons, Khmer_Cons,
-    Khmer_Cons, Khmer_Cons, Khmer_Cons, Khmer_Cons,
-
-    Khmer_Cons, Khmer_Cons, Khmer_Cons, Khmer_Cons,
-    Khmer_Cons, Khmer_Cons, Khmer_Cons, Khmer_Cons,
-    Khmer_Cons, Khmer_Cons, Khmer_Cons, Khmer_Cons,
-    Khmer_Cons, Khmer_Cons, Khmer_Cons, Khmer_Cons,
-
-    Khmer_Cons, Khmer_Cons, Khmer_Cons, Khmer_IndV,
-    Khmer_IndV, Khmer_IndV, Khmer_IndV, Khmer_IndV,
-    Khmer_IndV, Khmer_IndV, Khmer_IndV, Khmer_IndV,
-    Khmer_IndV, Khmer_IndV, Khmer_IndV, Khmer_IndV,
-
-    Khmer_IndV, Khmer_IndV, Khmer_IndV, Khmer_IndV,
-    // #### the following two might not be independent vowels.
-    Khmer_IndV, Khmer_IndV, Khmer_PstV, Khmer_AbvV,
-    Khmer_AbvV, Khmer_AbvV, Khmer_AbvV, Khmer_BlwV,
-    Khmer_BlwV, Khmer_BlwV, Khmer_AbvV, Khmer_PstV,
-
-    Khmer_PstV, Khmer_PreV, Khmer_PreV, Khmer_PreV,
-    Khmer_PstV, Khmer_PstV, Khmer_AbvS, Khmer_PstS,
-    Khmer_PstS, Khmer_Shift, Khmer_Shift, Khmer_AbvS,
-    Khmer_AbvS, Khmer_AbvS, Khmer_AbvS, Khmer_AbvS,
-
-    Khmer_AbvS, Khmer_AbvS, Khmer_Coeng, Khmer_AbvS,
-};
-
-// see Uniscribe specs for details. A lot of the needed information can be found
-// in the 3.2 annex, see http://www.unicode.org/reports/tr28/
+//  Vocabulary
+//      Base ->         A consonant or an independent vowel in its full (not subscript) form. It is the
+//                      center of the syllable, it can be surrounded by coeng (subscript) consonants, vowels,
+//                      split vowels, signs... but there is only one base in a syllable, it has to be coded as
+//                      the first character of the syllable.
+//      split vowel --> vowel that has two parts placed separately (e.g. Before and after the consonant).
+//                      Khmer language has five of them. Khmer split vowels either have one part before the
+//                      base and one after the base or they have a part before the base and a part above the base.
+//                      The first part of all Khmer split vowels is the same character, identical to
+//                      the glyph of Khmer dependent vowel SRA EI
+//      coeng -->  modifier used in Khmer to construct coeng (subscript) consonants
+//                 Differently than indian languages, the coeng modifies the consonant that follows it,
+//                 not the one preceding it  Each consonant has two forms, the base form and the subscript form
+//                 the base form is the normal one (using the consonants code-point), the subscript form is
+//                 displayed when the combination coeng + consonant is encountered.
+//      Consonant of type 1 -> A consonant which has subscript for that only occupies space under a base consonant
+//      Consonant of type 2.-> Its subscript form occupies space under and before the base (only one, RO)
+//      Consonant of Type 3 -> Its subscript form occupies space under and after the base (KHO, CHHO, THHO, BA, YO, SA)
+//      Consonant shifter -> Khmer has to series of consonants. The same dependent vowel has different sounds
+//                           if it is attached to a consonant of the first series or a consonant of the second series
+//                           Most consonants have an equivalent in the other series, but some of theme exist only in
+//                           one series (for example SA). If we want to use the consonant SA with a vowel sound that
+//                           can only be done with a vowel sound that corresponds to a vowel accompanying a consonant
+//                           of the other series, then we need to use a consonant shifter: TRIISAP or MUSIKATOAN
+//                           x17C9 y x17CA. TRIISAP changes a first series consonant to second series sound and
+//                           MUSIKATOAN a second series consonant to have a first series vowel sound.
+//                           Consonant shifter are both normally supercript marks, but, when they are followed by a
+//                           superscript, they change shape and take the form of subscript dependent vowel SRA U.
+//                           If they are in the same syllable as a coeng consonant, Unicode 3.0 says that they
+//                           should be typed before the coeng. Unicode 4.0 breaks the standard and says that it should
+//                           be placed after the coeng consonant.
+//      Dependent vowel ->   In khmer dependent vowels can be placed above, below, before or after the base
+//                           Each vowel has its own position. Only one vowel per syllable is allowed.
+//      Signs            ->  Khmer has above signs and post signs. Only one above sign and/or one post sign are
+//                           Allowed in a syllable.
 //
-// syllable analysis needs to respect these: type one has to come before type 2
-// which has to come before type 3. type 2 can appear only once.
 //
-// We use 0xff to encode that this is a split vowel.
-static const unsigned char khmerSubscriptType[0x54] = {
-    1, 1, 1, 3,
-    1, 1, 1, 1,
-    3, 1, 1, 1,
-    1, 3, 1, 1,
-
-    1, 1, 1, 1,
-    3, 1, 1, 1,
-    1, 3, 2, 1,
-    1, 1, 3, 3,
-
-    1, 1, 1, 1,
-    1, 1, 1, 1,
-    1, 1, 1, 1,
-    1, 1, 1, 1,
-
-    1, 1, 1, 1,
-    1, 1, 1, 1,
-    1, 1, 1, 1,
-    1, 1, 0xff, 0xff,
-
-    0xff, 1, 1, 1,
-    0xff, 0xff, 1, 1,
-    1, 1, 1, 1,
-    1, 1, 1, 1,
-
-    1, 1, 1, 1
+//   order is important here! This order must be the same that is found in each horizontal
+//   line in the statetable for Khmer (see khmerStateTable) .
+//
+enum KhmerCharClassValues {
+    CC_RESERVED             =  0,
+    CC_CONSONANT            =  1, // Consonant of type 1 or independent vowel
+    CC_CONSONANT2           =  2, // Consonant of type 2
+    CC_CONSONANT3           =  3, // Consonant of type 3
+    CC_ZERO_WIDTH_NJ_MARK   =  4, // Zero Width non joiner character (0x200C)
+    CC_CONSONANT_SHIFTER    =  5,
+    CC_ROBAT                =  6, // Khmer special diacritic accent -treated differently in state table
+    CC_COENG                =  7, // Subscript consonant combining character
+    CC_DEPENDENT_VOWEL      =  8,
+    CC_SIGN_ABOVE           =  9,
+    CC_SIGN_AFTER           = 10,
+    CC_ZERO_WIDTH_J_MARK    = 11, // Zero width joiner character
+    CC_COUNT                = 12  // This is the number of character classes
 };
 
-static inline KhmerForm khmer_form(const QChar &uc) {
-    if (uc.unicode() < 0x1780 || uc.unicode() > 0x17d3)
-        return Khmer_Other;
-    return (KhmerForm) khmerForm[uc.unicode()-0x1780];
+
+enum KhmerCharClassFlags {
+    CF_CLASS_MASK    = 0x0000FFFF,
+
+    CF_CONSONANT     = 0x01000000,  // flag to speed up comparing
+    CF_SPLIT_VOWEL   = 0x02000000,  // flag for a split vowel -> the first part is added in front of the syllable
+    CF_DOTTED_CIRCLE = 0x04000000,  // add a dotted circle if a character with this flag is the first in a syllable
+    CF_COENG         = 0x08000000,  // flag to speed up comparing
+    CF_SHIFTER       = 0x10000000,  // flag to speed up comparing
+    CF_ABOVE_VOWEL   = 0x20000000,  // flag to speed up comparing
+
+    // position flags
+    CF_POS_BEFORE    = 0x00080000,
+    CF_POS_BELOW     = 0x00040000,
+    CF_POS_ABOVE     = 0x00020000,
+    CF_POS_AFTER     = 0x00010000,
+    CF_POS_MASK      = 0x000f0000
+};
+
+
+// Characters that get refered to by name
+enum KhmerChar {
+    C_SIGN_ZWNJ     = 0x200C,
+    C_SIGN_ZWJ      = 0x200D,
+    C_DOTTED_CIRCLE = 0x25CC,
+    C_RO            = 0x179A,
+    C_VOWEL_AA      = 0x17B6,
+    C_SIGN_NIKAHIT  = 0x17C6,
+    C_VOWEL_E       = 0x17C1,
+    C_COENG         = 0x17D2
+};
+
+
+//  simple classes, they are used in the statetable (in this file) to control the length of a syllable
+//  they are also used to know where a character should be placed (location in reference to the base character)
+//  and also to know if a character, when independently displayed, should be displayed with a dotted-circle to
+//  indicate error in syllable construction
+//
+enum {
+    _xx = CC_RESERVED,
+    _sa = CC_SIGN_ABOVE | CF_DOTTED_CIRCLE | CF_POS_ABOVE,
+    _sp = CC_SIGN_AFTER | CF_DOTTED_CIRCLE| CF_POS_AFTER,
+    _c1 = CC_CONSONANT | CF_CONSONANT,
+    _c2 = CC_CONSONANT2 | CF_CONSONANT,
+    _c3 = CC_CONSONANT3 | CF_CONSONANT,
+    _rb = CC_ROBAT | CF_POS_ABOVE | CF_DOTTED_CIRCLE,
+    _cs = CC_CONSONANT_SHIFTER | CF_DOTTED_CIRCLE | CF_SHIFTER,
+    _dl = CC_DEPENDENT_VOWEL | CF_POS_BEFORE | CF_DOTTED_CIRCLE,
+    _db = CC_DEPENDENT_VOWEL | CF_POS_BELOW | CF_DOTTED_CIRCLE,
+    _da = CC_DEPENDENT_VOWEL | CF_POS_ABOVE | CF_DOTTED_CIRCLE | CF_ABOVE_VOWEL,
+    _dr = CC_DEPENDENT_VOWEL | CF_POS_AFTER | CF_DOTTED_CIRCLE,
+    _co = CC_COENG | CF_COENG | CF_DOTTED_CIRCLE,
+
+    // split vowel
+    _va = _da | CF_SPLIT_VOWEL,
+    _vr = _dr | CF_SPLIT_VOWEL
+};
+
+
+//   Character class: a character class value
+//   ORed with character class flags.
+//
+typedef unsigned long KhmerCharClass;
+
+
+//  Character class tables
+//  _xx character does not combine into syllable, such as numbers, puntuation marks, non-Khmer signs...
+//  _sa Sign placed above the base
+//  _sp Sign placed after the base
+//  _c1 Consonant of type 1 or independent vowel (independent vowels behave as type 1 consonants)
+//  _c2 Consonant of type 2 (only RO)
+//  _c3 Consonant of type 3
+//  _rb Khmer sign robat u17CC. combining mark for subscript consonants
+//  _cd Consonant-shifter
+//  _dl Dependent vowel placed before the base (left of the base)
+//  _db Dependent vowel placed below the base
+//  _da Dependent vowel placed above the base
+//  _dr Dependent vowel placed behind the base (right of the base)
+//  _co Khmer combining mark COENG u17D2, combines with the consonant or independent vowel following
+//      it to create a subscript consonant or independent vowel
+//  _va Khmer split vowel in wich the first part is before the base and the second one above the base
+//  _vr Khmer split vowel in wich the first part is before the base and the second one behind (right of) the base
+//
+static const KhmerCharClass khmerCharClasses[] = {
+    _c1, _c1, _c1, _c3, _c1, _c1, _c1, _c1, _c3, _c1, _c1, _c1, _c1, _c3, _c1, _c1, // 1780 - 178F
+    _c1, _c1, _c1, _c1, _c3, _c1, _c1, _c1, _c1, _c3, _c2, _c1, _c1, _c1, _c3, _c3, // 1790 - 179F
+    _c1, _c3, _c1, _c1, _c1, _c1, _c1, _c1, _c1, _c1, _c1, _c1, _c1, _c1, _c1, _c1, // 17A0 - 17AF
+    _c1, _c1, _c1, _c1, _dr, _dr, _dr, _da, _da, _da, _da, _db, _db, _db, _va, _vr, // 17B0 - 17BF
+    _vr, _dl, _dl, _dl, _vr, _vr, _sa, _sp, _sp, _cs, _cs, _sa, _rb, _sa, _sa, _sa, // 17C0 - 17CF
+    _sa, _sa, _co, _sa, _xx, _xx, _xx, _xx, _xx, _xx, _xx, _xx, _xx, _sa, _xx, _xx  // 17D0 - 17DF
+};
+
+// this enum must reflect the range of khmerCharClasses
+enum KhmerCharClassesRange {
+    KhmerFirstChar = 0x1780,
+    KhmerLastChar  = 0x17df
+};
+
+//  Below we define how a character in the input string is either in the khmerCharClasses table
+//  (in which case we get its type back), a ZWJ or ZWNJ (two characters that may appear
+//  within the syllable, but are not in the table) we also get their type back, or an unknown object
+//  in which case we get _xx (CC_RESERVED) back
+//
+static inline KhmerCharClass getKhmerCharClass(const QChar &uc)
+{
+    if (uc.unicode() == C_SIGN_ZWJ) {
+        return CC_ZERO_WIDTH_J_MARK;
+    }
+
+    if (uc.unicode() == C_SIGN_ZWNJ) {
+        return CC_ZERO_WIDTH_NJ_MARK;
+    }
+
+    if (uc.unicode() < KhmerFirstChar || uc.unicode() > KhmerLastChar) {
+        return CC_RESERVED;
+    }
+
+    return khmerCharClasses[uc.unicode() - KhmerFirstChar];
 }
 
-static inline unsigned char khmer_subscript_type(const QChar &uc) {
-    return khmerSubscriptType[uc.unicode()-0x1780];
-}
 
-// #define KHMER_DEBUG
+//  The stateTable is used to calculate the end (the length) of a well
+//  formed Khmer Syllable.
+//
+//  Each horizontal line is ordered exactly the same way as the values in KhmerClassTable
+//  CharClassValues. This coincidence of values allows the follow up of the table.
+//
+//  Each line corresponds to a state, which does not necessarily need to be a type
+//  of component... for example, state 2 is a base, with is always a first character
+//  in the syllable, but the state could be produced a consonant of any type when
+//  it is the first character that is analysed (in ground state).
+//
+//  Differentiating 3 types of consonants is necessary in order to
+//  forbid the use of certain combinations, such as having a second
+//  coeng after a coeng RO,
+//  The inexistent possibility of having a type 3 after another type 3 is permitted,
+//  eliminating it would very much complicate the table, and it does not create typing
+//  problems, as the case above.
+//
+//  The table is quite complex, in order to limit the number of coeng consonants
+//  to 2 (by means of the table).
+//
+//  There a peculiarity, as far as Unicode is concerned:
+//  - The consonant-shifter is considered in two possible different
+//    locations, the one considered in Unicode 3.0 and the one considered in
+//    Unicode 4.0. (there is a backwards compatibility problem in this standard).
+//
+//
+//  xx    independent character, such as a number, punctuation sign or non-khmer char
+//
+//  c1    Khmer consonant of type 1 or an independent vowel
+//        that is, a letter in which the subscript for is only under the
+//        base, not taking any space to the right or to the left
+//
+//  c2    Khmer consonant of type 2, the coeng form takes space under
+//        and to the left of the base (only RO is of this type)
+//
+//  c3    Khmer consonant of type 3. Its subscript form takes space under
+//        and to the right of the base.
+//
+//  cs    Khmer consonant shifter
+//
+//  rb    Khmer robat
+//
+//  co    coeng character (u17D2)
+//
+//  dv    dependent vowel (including split vowels, they are treated in the same way).
+//        even if dv is not defined above, the component that is really tested for is
+//        KhmerClassTable::CC_DEPENDENT_VOWEL, which is common to all dependent vowels
+//
+//  zwj   Zero Width joiner
+//
+//  zwnj  Zero width non joiner
+//
+//  sa    above sign
+//
+//  sp    post sign
+//
+//  there are lines with equal content but for an easier understanding
+//  (and maybe change in the future) we did not join them
+//
+static const char khmerStateTable[][CC_COUNT] =
+{
+   // xx  c1  c2  c3 zwnj cs  rb  co  dv  sa  sp zwj
+    { 1,  2,  2,  2,  1,  1,  1,  6,  1,  1,  1,  2}, //  0 - ground state
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}, //  1 - exit state (or sign to the right of the syllable)
+    {-1, -1, -1, -1,  3,  4,  5,  6, 16, 17,  1, -1}, //  2 - Base consonant
+    {-1, -1, -1, -1, -1,  4, -1, -1, 16, -1, -1, -1}, //  3 - First ZWNJ before a register shifter It can only be followed by a shifter or a vowel
+    {-1, -1, -1, -1, 15, -1, -1,  6, 16, 17,  1, 14}, //  4 - First register shifter
+    {-1, -1, -1, -1, -1, -1, -1, -1, 20, -1,  1, -1}, //  5 - Robat
+    {-1,  7,  8,  9, -1, -1, -1, -1, -1, -1, -1, -1}, //  6 - First Coeng
+    {-1, -1, -1, -1, 12, 13, -1, 10, 16, 17,  1, 14}, //  7 - First consonant of type 1 after coeng
+    {-1, -1, -1, -1, 12, 13, -1, -1, 16, 17,  1, 14}, //  8 - First consonant of type 2 after coeng
+    {-1, -1, -1, -1, 12, 13, -1, 10, 16, 17,  1, 14}, //  9 - First consonant or type 3 after ceong
+    {-1, 11, 11, 11, -1, -1, -1, -1, -1, -1, -1, -1}, // 10 - Second Coeng (no register shifter before)
+    {-1, -1, -1, -1, 15, -1, -1, -1, 16, 17,  1, 14}, // 11 - Second coeng consonant (or ind. vowel) no register shifter before
+    {-1, -1,  1, -1, -1, 13, -1, -1, 16, -1, -1, -1}, // 12 - Second ZWNJ before a register shifter
+    {-1, -1, -1, -1, 15, -1, -1, -1, 16, 17,  1, 14}, // 13 - Second register shifter
+    {-1, -1, -1, -1, -1, -1, -1, -1, 16, -1, -1, -1}, // 14 - ZWJ before vowel
+    {-1, -1, -1, -1, -1, -1, -1, -1, 16, -1, -1, -1}, // 15 - ZWNJ before vowel
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, 17,  1, 18}, // 16 - dependent vowel
+    {-1, -1,  1, -1, -1, -1, -1, -1, -1, -1,  1, 18}, // 17 - sign above
+    {-1, -1, -1, -1, -1, -1, -1, 19, -1, -1, -1, -1}, // 18 - ZWJ after vowel
+    {-1,  1, -1,  1, -1, -1, -1, -1, -1, -1, -1, -1}, // 19 - Third coeng
+    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  1, -1}, // 20 - dependent vowel after a Robat
+};
+
+
+//  #define KHMER_DEBUG
 #ifdef KHMER_DEBUG
 #define KHDEBUG qDebug
 #else
 #define KHDEBUG if(0) qDebug
 #endif
 
-// Khmer syllables are of the form:
-//     Cons +  {COENG + (Cons | IndV)} + [PreV | BlwV] + [Shift] + [AbvV] + {AbvS} + [PstV] + [PstS]
-//     IndV
-//    Number
+//  Given an input string of characters and a location in which to start looking
+//  calculate, using the state table, which one is the last character of the syllable
+//  that starts in the starting position.
 //
-// {...} == 0-2 occurrences
-
-// According to the Unicode 3.0 standard, the syllable is as follows:
-//     Cons (Coeng (Cons|IndV))* Shift? DepV?
-
-// The above definitions disagree to a certain degree. Most probably the form mentioned by Uniscribe is the shaped form.
-
-static int khmer_nextSyllableBoundary(const QString &s, int start, int end, bool *invalid)
+static inline int khmer_nextSyllableBoundary(const QString &s, int start, int end, bool *invalid)
 {
+    *invalid = FALSE;
     const QChar *uc = s.unicode() + start;
+    int state = 0;
+    int pos = start;
 
-    int pos = 0;
-    unsigned int coengCount = 0;
-    unsigned int abvSCount = 0;
-    unsigned int subscriptType = 1;
-
-    KhmerForm state = khmer_form(*uc);
-
-    KHDEBUG("state[%d]=%d (uc=%4x)", pos, state, uc[pos].unicode());
-    pos++;
-
-    if (state != Khmer_Cons && state != Khmer_IndV) {
-         if (state != Khmer_Other)
-            *invalid = true;
-        goto finish;
-    }
-
-    while (pos < end - start) {
-        KhmerForm newState = khmer_form(uc[pos]);
-        switch(newState) {
-        case Khmer_Coeng:
-            if (coengCount > 1 || (state != Khmer_Cons && state != Khmer_IndV))
-                goto finish;
-            ++coengCount;
-            break;
-        case Khmer_Cons:
-        case Khmer_IndV: {
-            unsigned int t = khmer_subscript_type(uc[pos]);
-            if (state != Khmer_Coeng || t < subscriptType)
-                goto finish;
-            subscriptType = t;
-            // only one consonant of type 2 can be present
-            if (t == 2)
-                t = 3;
-            break;
-            }
-        case Khmer_PstS:
-            if (state == Khmer_PstV)
-                break;
-        case Khmer_PstV:
-        case Khmer_AbvS:
-            if (newState == Khmer_AbvS) {
-                if (abvSCount > 1)
-                    goto finish;
-                ++abvSCount;
-            }
-            if (state == Khmer_AbvS || state == Khmer_AbvV)
-                break;
-            // fall through
-        case Khmer_AbvV:
-            if (state == Khmer_Shift)
-                break;
-            // fall through
-        case Khmer_Shift:
-            if (state == Khmer_PreV || state == Khmer_BlwV)
-                break;
-            // fall through
-        case Khmer_PreV:
-        case Khmer_BlwV:
-            if (state != Khmer_Cons && state != Khmer_IndV)
-                goto finish;
-            break;
-        case Khmer_Other:
-            goto finish;
+    while (pos < end) {
+        KhmerCharClass charClass = getKhmerCharClass(*uc);
+        if (pos == start) {
+            *invalid = (charClass > 0) && ! (charClass & CF_CONSONANT);
         }
-        state = newState;
-        pos++;
+        state = khmerStateTable[state][charClass & CF_CLASS_MASK];
+
+        KHDEBUG("state[%d]=%d class=%8lx (uc=%4x)", pos - start, state,
+                charClass, uc->unicode() );
+
+        if (state < 0) {
+            break;
+        }
+        ++uc;
+        ++pos;
     }
-
-finish:
-    // makse sure we don't have an invalid Coeng at the end
-    if (state == Khmer_Coeng && pos > 1)
-        --pos;
-
-    *invalid = false;
-    return start+pos;
+    return pos;
 }
 
 
-static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item, bool invalid)
-{
-    Q_UNUSED(openType)
-    enum {
-        Coeng = 0x17d2,
-        VowelSignE = 0x17c1
-    };
 
+static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
+{
     // according to the specs this is the max length one can get
     // ### the real value should be smaller
-    Q_ASSERT(item->length < 13);
+    assert(item->length < 13);
 
     KHDEBUG("syllable from %d len %d, str='%s'", item->from, item->length,
-            item->string->mid(item->from,item->length).toUtf8().constData());
-    int len = item->length;
+	    item->string->mid(item->from, item->length).toUtf8().data());
 
-    int i;
+    int len = 0;
+    int syllableEnd = item->from + item->length;
     unsigned short reordered[16];
     unsigned char properties[16];
     enum {
-        AboveForm = 0x01,
-        PreForm = 0x02,
-        PostForm = 0x04,
-        BelowForm = 0x08
+	AboveForm = 0x01,
+	PreForm = 0x02,
+	PostForm = 0x04,
+	BelowForm = 0x08
     };
     memset(properties, 0, 16*sizeof(unsigned char));
 
-    if (invalid) {
-        *reordered = 0x25cc;
-        memcpy(reordered+1, item->string->unicode() + item->from, len*sizeof(unsigned short));
-        len++;
-    } else {
-        memcpy(reordered, item->string->unicode() + item->from, len*sizeof(unsigned short));
-    }
-
 #ifdef KHMER_DEBUG
     qDebug("original:");
-    for (i = 0; i < len; i++) {
-        qDebug("    %d: %4x", i, reordered[i]);
+    for (int i = from; i < syllableEnd; i++) {
+        qDebug("    %d: %4x", i, string[i].unicode());
     }
 #endif
 
-    if (len > 1) {
-        // rule 2, move COENG+Ro to front
-        for (i = 1; i < 4 && i < len-1; i += 2) {
-            if (khmer_form(reordered[i]) != Khmer_Coeng)
-                break;
-            int t = khmer_subscript_type(reordered[i + 1]);
-            if (t == 1) {
-                properties[i] = properties[i+1] = BelowForm;
-            } else if (t == 2) {
-                // move COENG + RO to beginning of syllable
-                unsigned short uc = reordered[i + 1];
-                for (int j = i + 1; j > 1; --j) {
-                    reordered[j] = reordered[j - 2];
-                    properties[j] = properties[j - 2];
-                }
-                reordered[0] = Coeng;
-                reordered[1] = uc;
-                properties[0] = properties[1] = PreForm;
-            } else if (t == 3) {
-                properties[i] = properties[i+1] = PostForm;
-            }
-        }
+    // write a pre vowel or the pre part of a split vowel first
+    // and look out for coeng + ro. RO is the only vowel of type 2, and
+    // therefore the only one that requires saving space before the base.
+    //
+    int coengRo = -1;  // There is no Coeng Ro, if found this value will change
+    for (int i = item->from; i < syllableEnd; i += 1) {
+        KhmerCharClass charClass = getKhmerCharClass(item->string->at(i));
 
-        // Rule 3
-        for (i = 1; i < len-1; ++i) {
-            if (khmer_form(reordered[i]) == Khmer_Shift &&
-                khmer_form(reordered[i+1]) == Khmer_AbvV) {
-                properties[i] = BelowForm;
-                break;
-            }
+        // if a split vowel, write the pre part. In Khmer the pre part
+        // is the same for all split vowels, same glyph as pre vowel C_VOWEL_E
+        if (charClass & CF_SPLIT_VOWEL) {
+            reordered[len] = C_VOWEL_E;
+            properties[len] = PreForm;
+            ++len;
+            break; // there can be only one vowel
         }
-
-        // Rule 4 and 5
-        // The Uniscribe docs state that the feature to apply should be Abvf even for post
-        // vowels. This is clearly incorrect (comparing with how fonts are build up and how
-        // Uniscribe behaves).
-        for (i = 1; i < len; ++i) {
-            if (khmer_subscript_type(reordered[i]) == 0xff) {
-                KHDEBUG("split vowel at %d", i);
-                properties[i] = (khmer_form(reordered[i]) == Khmer_AbvV) ? AboveForm : PostForm;
-                memmove(reordered+1, reordered, len*sizeof(unsigned short));
-                memmove(properties+1, properties, len*sizeof(unsigned char));
-                reordered[0] = VowelSignE;
-                properties[0] = PreForm;
-                ++len;
-                ++i;
-            }
+        // if a vowel with pos before write it out
+        if (charClass & CF_POS_BEFORE) {
+            reordered[len] = item->string->at(i).unicode();
+            properties[len] = PreForm;
+            ++len;
+            break; // there can be only one vowel
         }
-
-        // rule not stated in the MS docs about Khmer, but it's logical to do this (in accordance to
-        // all indic scripts) and Uniscribe seems to work the same way:
-        // Move Pre Vowels to the beginning of the syllable
-        for (i = len-1; i > 0; --i) {
-            if (khmer_form(reordered[i]) == Khmer_PreV) {
-                KHDEBUG("moving Pre Vowel at %d to start", i);
-                unsigned short pre = reordered[i];
-                memmove(reordered+1, reordered, i*sizeof(unsigned short));
-                memmove(properties+1, properties, i*sizeof(unsigned char));
-                reordered[0] = pre;
-                properties[0] = PreForm;
-                break;
-            }
+        // look for coeng + ro and remember position
+        // works because coeng + ro is always in front of a vowel (if there is a vowel)
+        // and because CC_CONSONANT2 is enough to identify it, as it is the only consonant
+        // with this flag
+        if ( (charClass & CF_COENG) && (i + 1 < syllableEnd) &&
+              ( (getKhmerCharClass(item->string->at(i+1)) & CF_CLASS_MASK) == CC_CONSONANT2) ) {
+            coengRo = i;
         }
-
     }
+
+    // write coeng + ro if found
+    if (coengRo > 0) {
+        reordered[len] = C_COENG;
+        properties[len] = PreForm;
+        ++len;
+        reordered[len] = C_RO;
+        properties[len] = PreForm;
+        ++len;
+    }
+
+    // shall we add a dotted circle?
+    // If in the position in which the base should be (first char in the string) there is
+    // a character that has the Dotted circle flag (a character that cannot be a base)
+    // then write a dotted circle
+    if (getKhmerCharClass(item->string->at(item->from)) & CF_DOTTED_CIRCLE) {
+        reordered[len] = C_DOTTED_CIRCLE;
+        ++len;
+    }
+
+    // copy what is left to the output, skipping before vowels and
+    // coeng Ro if they are present
+    for (int i = item->from; i < syllableEnd; i += 1) {
+        QChar uc = item->string->at(i);
+        KhmerCharClass charClass = getKhmerCharClass(uc);
+
+        // skip a before vowel, it was already processed
+        if (charClass & CF_POS_BEFORE) {
+            continue;
+        }
+
+        // skip coeng + ro, it was already processed
+        if (i == coengRo) {
+            i += 1;
+            continue;
+        }
+
+        switch (charClass & CF_POS_MASK)
+        {
+            case CF_POS_ABOVE :
+                reordered[len] = uc.unicode();
+                properties[len] = AboveForm;
+                ++len;
+                break;
+
+            case CF_POS_AFTER :
+                reordered[len] = uc.unicode();
+                properties[len] = PostForm;
+                ++len;
+                break;
+
+            case CF_POS_BELOW :
+                reordered[len] = uc.unicode();
+                properties[len] = BelowForm;
+                ++len;
+                break;
+
+            default:
+                // assign the correct flags to a coeng consonant
+                // Consonants of type 3 are taged as Post forms and those type 1 as below forms
+                if ( (charClass & CF_COENG) && i + 1 < syllableEnd ) {
+                    unsigned char property = (getKhmerCharClass(item->string->at(i+1)) & CF_CLASS_MASK) == CC_CONSONANT3 ?
+                                              PostForm : BelowForm;
+                    reordered[len] = uc.unicode();
+                    properties[len] = property;
+                    ++len;
+                    i += 1;
+                    reordered[len] = item->string->at(i).unicode();
+                    properties[len] = property;
+                    ++len;
+                    break;
+                }
+
+                // if a shifter is followed by an above vowel change the shifter to below form,
+                // an above vowel can have two possible positions i + 1 or i + 3
+                // (position i+1 corresponds to unicode 3, position i+3 to Unicode 4)
+                // and there is an extra rule for C_VOWEL_AA + C_SIGN_NIKAHIT also for two
+                // different positions, right after the shifter or after a vowel (Unicode 4)
+                if ( (charClass & CF_SHIFTER) && (i + 1 < syllableEnd) ) {
+                    if (getKhmerCharClass(item->string->at(i+1)) & CF_ABOVE_VOWEL ) {
+                        reordered[len] = uc.unicode();
+                        properties[len] = BelowForm;
+                        ++len;
+                        break;
+                    }
+                    if (i + 2 < syllableEnd &&
+                        (item->string->at(i+1).unicode() == C_VOWEL_AA) &&
+                        (item->string->at(i+2).unicode() == C_SIGN_NIKAHIT) )
+                    {
+                        reordered[len] = uc.unicode();
+                        properties[len] = BelowForm;
+                        ++len;
+                        break;
+                    }
+                    if (i + 3 < syllableEnd && (getKhmerCharClass(item->string->at(i+3)) & CF_ABOVE_VOWEL) ) {
+                        reordered[len] = uc.unicode();
+                        properties[len] = BelowForm;
+                        ++len;
+                        break;
+                    }
+                    if (i + 4 < syllableEnd &&
+                        (item->string->at(i+3).unicode() == C_VOWEL_AA) &&
+                        (item->string->at(i+4).unicode() == C_SIGN_NIKAHIT) )
+                    {
+                        reordered[len] = uc.unicode();
+                        properties[len] = BelowForm;
+                        ++len;
+                        break;
+                    }
+                }
+
+                // default - any other characters
+                reordered[len] = uc.unicode();
+                ++len;
+                break;
+        } // switch
+    } // for
+    
+    if (!item->font->stringToCMap((const QChar *)reordered, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+        return false;
 
     KHDEBUG("after shaping: len=%d", len);
-    int nglyphs = item->num_glyphs;
-    if (!item->font->stringToCMap((QChar *)reordered, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
-        return false;
-    for (i = 0; i < len; i++) {
-        item->glyphs[i].attributes.mark = false;
-        item->glyphs[i].attributes.clusterStart = false;
-        item->glyphs[i].attributes.justification = 0;
-        item->glyphs[i].attributes.zeroWidth = false;
-        KHDEBUG("    %d: %4x property=%x", i, reordered[i], properties[i]);
+    for (int i = 0; i < len; i++) {
+	item->glyphs[i].attributes.mark = FALSE;
+	item->glyphs[i].attributes.clusterStart = FALSE;
+	item->glyphs[i].attributes.justification = 0;
+	item->glyphs[i].attributes.zeroWidth = FALSE;
+	KHDEBUG("    %d: %4x property=%x", i, reordered[i], properties[i]);
     }
-    item->glyphs[0].attributes.clusterStart = true;
+    item->glyphs[0].attributes.clusterStart = TRUE;
 
     // now we have the syllable in the right order, and can start running it through open type.
 
-#ifdef QT_HAVE_FREETYPE
-    int j;
+#ifndef QT_NO_XFTFREETYPE
     if (openType) {
-        unsigned short logClusters[16];
-        for (i = 0; i < len; ++i)
-            logClusters[i] = i;
-        item->log_clusters = logClusters;
+	unsigned short logClusters[16];
+	for (int i = 0; i < len; ++i)
+	    logClusters[i] = i;
 
-        openType->init(item);
 
-        bool where[16];
+	openType->init(item);
 
-        // substitutions
-        const struct {
-            int feature; int form;
-        } features[] = {
-            { FT_MAKE_TAG('p', 'r', 'e', 'f'), PreForm },
-            { FT_MAKE_TAG('b', 'l', 'w', 'f'), BelowForm },
-            { FT_MAKE_TAG('a', 'b', 'v', 'f'), AboveForm },
-            { FT_MAKE_TAG('p', 's', 't', 'f'), PostForm }
-        };
-        for (j = 0; j < 4; ++j) {
-            for (i = 0; i < len; ++i)
-                where[i] = (properties[i] & features[j].form);
-            openType->applyGSUBFeature(features[j].feature, where);
-        }
+ 	bool where[16];
 
-        const int features2 [] = {
-            FT_MAKE_TAG('p', 'r', 'e', 's'),
-            FT_MAKE_TAG('b', 'l', 'w', 's'),
-            FT_MAKE_TAG('a', 'b', 'v', 's'),
-            FT_MAKE_TAG('p', 's', 't', 's'),
-            FT_MAKE_TAG('c', 'l', 'i', 'g')
-        };
-        for (i = 0; i < 5; ++i)
-            openType->applyGSUBFeature(features2[i]);
+	// substitutions
+	const struct {
+	    int feature; int form;
+	} features[] = {
+	    { FT_MAKE_TAG( 'p', 'r', 'e', 'f' ), PreForm },
+	    { FT_MAKE_TAG( 'b', 'l', 'w', 'f' ), BelowForm },
+	    { FT_MAKE_TAG( 'a', 'b', 'v', 'f' ), AboveForm },
+	    { FT_MAKE_TAG( 'p', 's', 't', 'f' ), PostForm }
+	};
+	for (int j = 0; j < 4; ++j) {
+	    for (int i = 0; i < len; ++i)
+		where[i] = (properties[i] & features[j].form);
+	    openType->applyGSUBFeature(features[j].feature, where);
+	}
 
-        openType->applyGPOSFeatures();
+	const int features2 [] = {
+	    FT_MAKE_TAG( 'p', 'r', 'e', 's' ),
+	    FT_MAKE_TAG( 'b', 'l', 'w', 's' ),
+	    FT_MAKE_TAG( 'a', 'b', 'v', 's' ),
+	    FT_MAKE_TAG( 'p', 's', 't', 's' ),
+	    FT_MAKE_TAG( 'c', 'l', 'i', 'g' )
+	};
+	for (int i = 0; i < 5; ++i)
+	    openType->applyGSUBFeature(features2[i]);
 
-        item->num_glyphs = nglyphs;
-        return openType->appendTo(item, false);
-    }
+	openType->applyGPOSFeatures();
+
+	openType->appendTo(item, FALSE);
+    } else
 #endif
+    {
+	KHDEBUG("Not using openType");
+	Q_UNUSED(openType);
+    }
 
     return true;
 }
 
 static bool khmer_shape(QShaperItem *item)
 {
-    Q_ASSERT(item->script == QUnicodeTables::Khmer);
+    assert(item->script == QUnicodeTables::Khmer);
 
 #ifdef QT_HAVE_FREETYPE
     QOpenType *openType = item->font->openType();
@@ -2520,22 +2704,30 @@ static bool khmer_shape(QShaperItem *item)
 
     int sstart = item->from;
     int end = sstart + item->length;
+    KHDEBUG("khmer_shape: from %d length %d", item->from, item->length);
     while (sstart < end) {
         bool invalid;
-        int send = khmer_nextSyllableBoundary(*(item->string), sstart, end, &invalid);
-        IDEBUG("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
+        int send = khmer_nextSyllableBoundary(*item->string, sstart, end, &invalid);
+        KHDEBUG("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
                invalid ? "true" : "false");
         syllable.from = sstart;
         syllable.length = send-sstart;
         syllable.glyphs = item->glyphs + first_glyph;
         syllable.num_glyphs = item->num_glyphs - first_glyph;
-        if (!khmer_shape_syllable(openType, &syllable, invalid)) {
+        if (!khmer_shape_syllable(openType, &syllable)) {
+            KHDEBUG("syllable shaping failed, syllable requests %d glyphs", syllable.num_glyphs);
             item->num_glyphs += syllable.num_glyphs;
             return false;
         }
         // fix logcluster array
-        for (int i = sstart; i < send; ++i)
+        KHDEBUG("syllable:");
+        for (int i = first_glyph; i < first_glyph + syllable.num_glyphs; ++i)
+            KHDEBUG("        %d -> glyph %x", i, item->glyphs[i].glyph);
+        KHDEBUG("    logclusters:");
+        for (int i = sstart; i < send; ++i) {
+            KHDEBUG("        %d -> glyph %d", i, first_glyph);
             logClusters[i-item->from] = first_glyph;
+        }
         sstart = send;
         first_glyph += syllable.num_glyphs;
     }
@@ -2543,7 +2735,7 @@ static bool khmer_shape(QShaperItem *item)
     return true;
 }
 
-static void khmer_attributes(int script, const QString &text, int from, int len, QCharAttributes *attributes)
+static void khmer_attributes( int script, const QString &text, int from, int len, QCharAttributes *attributes )
 {
     Q_UNUSED(script);
 
@@ -2551,28 +2743,28 @@ static void khmer_attributes(int script, const QString &text, int from, int len,
     const QChar *uc = text.unicode() + from;
     attributes += from;
     int i = 0;
-    while (i < len) {
-        bool invalid;
-        int boundary = khmer_nextSyllableBoundary(text, from+i, end, &invalid) - from;
+    while ( i < len ) {
+	bool invalid;
+	int boundary = khmer_nextSyllableBoundary( text, from+i, end, &invalid ) - from;
 
-        attributes[i].whiteSpace = ::isSpace(*uc);
-        attributes[i].softBreak = false;
-        attributes[i].charStop = true;
-        attributes[i].wordStop = false;
-        attributes[i].invalid = invalid;
+	attributes[i].whiteSpace = ::isSpace(*uc);
+	attributes[i].softBreak = FALSE;
+	attributes[i].charStop = TRUE;
+	attributes[i].wordStop = FALSE;
+	attributes[i].invalid = invalid;
 
-        if (boundary > len-1) boundary = len;
-        i++;
-        while (i < boundary) {
-            attributes[i].whiteSpace = ::isSpace(*uc);
-            attributes[i].softBreak = false;
-            attributes[i].charStop = false;
-            attributes[i].wordStop = false;
-            attributes[i].invalid = invalid;
-            ++uc;
-            ++i;
-        }
-        assert(i == boundary);
+	if ( boundary > len-1 ) boundary = len;
+	i++;
+	while ( i < boundary ) {
+	    attributes[i].whiteSpace = ::isSpace(*uc);
+	    attributes[i].softBreak = FALSE;
+	    attributes[i].charStop = FALSE;
+	    attributes[i].wordStop = FALSE;
+	    attributes[i].invalid = invalid;
+	    ++uc;
+	    ++i;
+	}
+	assert( i == boundary );
     }
 }
 

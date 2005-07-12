@@ -45,7 +45,6 @@ struct QShaperItem {
 
 // return true if ok.
 typedef bool (*ShapeFunction)(QShaperItem *item);
-//typedef void (*ShapeFunction)(int script, const QString &, int, int, QTextEngine *, QScriptItem *);
 typedef void (*AttributeFunction)(int script, const QString &, int, int, QCharAttributes *);
 
 struct q_scriptEngine {
