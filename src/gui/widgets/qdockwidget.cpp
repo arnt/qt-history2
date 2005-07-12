@@ -395,6 +395,7 @@ void QDockWidgetPrivate::mouseMoveEvent(QMouseEvent *event)
                         qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
                     Q_ASSERT(layout != 0);
                     QRect request = state->origin;
+                    // ### remove extra frame
                     request.moveTopLeft(event->globalPos() - state->offset);
                     target = layout->placeDockWidget(q, request, event->globalPos());
                     layout->resetLayoutInfo();
@@ -478,6 +479,7 @@ void QDockWidgetPrivate::mouseReleaseEvent(QMouseEvent *event)
                         qobject_cast<QMainWindowLayout *>(q->parentWidget()->layout());
                     Q_ASSERT(layout != 0);
                     QRect request = state->origin;
+                    // ### remove extra frame
                     request.moveTopLeft(event->globalPos() - state->offset);
                     layout->dropDockWidget(q, request, event->globalPos());
                     dropped = true;
