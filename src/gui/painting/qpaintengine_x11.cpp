@@ -633,6 +633,7 @@ void QX11PaintEnginePrivate::init()
     hd = 0;
     picture = 0;
     xinfo = 0;
+    current_brush = 0;
 }
 
 void QX11PaintEnginePrivate::setupAdaptedOrigin(const QPoint &p)
@@ -1378,7 +1379,10 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
     if (gcMode == QX11PaintEnginePrivate::BrushGC) {
         fill = cbrush;
         fill_gc = gc_brush;
-        src = current_brush;
+        if (current_brush)
+            src = current_brush;
+        else
+            src = getSolidFill(scrn, fill.color());
     } else {
         fill = QBrush(cpen.brush());
         fill_gc = gc;
