@@ -848,7 +848,7 @@ QString WriteInitialization::translate(const QString &text, const QString &class
 
     Q_UNUSED(className);
 
-    return QLatin1String("QApplication::translate(\"") + m_generatedClass + QLatin1String("\", ") + text + QLatin1String(")");
+    return QLatin1String("QApplication::translate(\"") + m_generatedClass + QLatin1String("\", ") + text + QLatin1String(", 0, QApplication::UnicodeUTF8)");
 }
 
 void WriteInitialization::acceptLayoutDefault(DomLayoutDefault *node)
