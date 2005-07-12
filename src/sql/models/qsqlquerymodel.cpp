@@ -34,19 +34,22 @@ void QSqlQueryModelPrivate::prefetch(int limit)
     if (query.seek(limit)) {
         newBottom = q->createIndex(limit, bottom.column());
     } else {
-        // fetch as far as we can
-        if (query.last()) {
-            newBottom = q->createIndex(query.at(), bottom.column());
+        // have to seek back to our old position for MS Access
+        int i = oldBottom.row();
+        if (query.seek(i)) {
+            while (query.next())
+                ++i;
+            newBottom = q->createIndex(i, bottom.column());
         } else {
-            error = query.lastError();
+            // empty or invalid query
             newBottom = q->createIndex(-1, bottom.column());
         }
         atEnd = true; // this is the end.
     }
     if (newBottom.row() > oldBottom.row()) {
-        emit q->beginInsertRows(QModelIndex(), oldBottom.row(), newBottom.row());
+        q->beginInsertRows(QModelIndex(), oldBottom.row(), newBottom.row());
         bottom = newBottom;
-        emit q->endInsertRows();
+        q->endInsertRows();
     } else {
         bottom = newBottom;
     }
