@@ -152,6 +152,8 @@ public:
     Qt::HANDLE hd;
 #if !defined (QT_NO_XRENDER)
     Qt::HANDLE picture;
+    Qt::HANDLE current_brush;
+    QPixmap bitmap_texture;
 #else
     Qt::HANDLE picture;
 #endif

@@ -919,12 +919,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
         && (d->has_texture || d->alpha_brush))
     {
         XRenderColor xc;
-        ::Picture fill = 0;
-        if (d->has_texture)
-            fill = d->cbrush.texture().x11PictureHandle();
-        else if (d->has_pattern)
-            fill = getPatternFill(d->scrn, d->cbrush, d->bg_brush, d->bg_mode == Qt::OpaqueMode);
-        else
+        if (!d->has_texture && !d->has_pattern)
             xc = preMultiply(d->cbrush.color());
 
         for (int i = 0; i < rectCount; ++i) {
@@ -935,7 +930,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
             if (r.isEmpty())
                 continue;
             if (d->has_texture || d->has_pattern) {
-                XRenderComposite(d->dpy, PictOpOver, fill, 0, pict,
+                XRenderComposite(d->dpy, PictOpOver, d->current_brush, 0, pict,
                                  qRound(r.x() - d->bg_origin.x()), qRound(r.y() - d->bg_origin.y()),
                                  0, 0, r.x(), r.y(), r.width(), r.height());
             } else {
@@ -1204,6 +1199,9 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     d->cbrush = brush;
     d->bg_origin = origin;
     d->adapted_brush_origin = false;
+#if !defined(QT_NO_XRENDER)
+    d->current_brush = 0;
+#endif
 
     int s  = FillSolid;
     int  bs = d->cbrush.style();
@@ -1259,18 +1257,46 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
             mask |= GCStipple;
             vals.stipple = pm.handle();
             s = d->bg_mode == Qt::TransparentMode ? FillStippled : FillOpaqueStippled;
+#if !defined(QT_NO_XRENDER)
+            d->bitmap_texture = QPixmap(pm.size());
+
+            if (d->bg_mode == Qt::OpaqueMode)
+                d->bitmap_texture.fill(d->bg_brush.color());
+            else
+                d->bitmap_texture.fill(Qt::transparent);
+
+            ::Picture src  = getSolidFill(d->scrn, d->cbrush.color());
+            XRenderComposite(d->dpy, PictOpSrc, src, pm.x11PictureHandle(),
+                             d->bitmap_texture.x11PictureHandle(),
+                             0, 0, pm.width(), pm.height(),
+                             0, 0, pm.width(), pm.height());
+
+            XRenderPictureAttributes attrs;
+            attrs.repeat = true;
+            XRenderChangePicture(d->dpy, d->bitmap_texture.x11PictureHandle(), CPRepeat, &attrs);
+
+            d->current_brush = d->bitmap_texture.x11PictureHandle();
+#endif
         } else {
             mask |= GCTile;
             vals.tile = (pm.depth() == d->pdev_depth
                          ? pm.handle()
                          : pm.data->x11ConvertToDefaultDepth());
             s = FillTiled;
+#if !defined(QT_NO_XRENDER)
+            d->current_brush = d->cbrush.texture().x11PictureHandle();
+#endif
         }
 
         mask |= GCTileStipXOrigin | GCTileStipYOrigin;
         vals.ts_x_origin = qRound(origin.x());
         vals.ts_y_origin = qRound(origin.y());
     }
+#if !defined(QT_NO_XRENDER)
+    else if (d->alpha_brush) {
+        d->current_brush = getSolidFill(d->scrn, d->cbrush.color());
+    }
+#endif
 
     vals.fill_style = s;
     XChangeGC(d->dpy, d->gc_brush, mask, &vals);
@@ -1290,8 +1316,9 @@ void QX11PaintEngine::drawEllipse(const QRect &rect)
     QRect r(rect);
     if (d->txop == QPainterPrivate::TxTranslate)
         r.translate(qRound(d->matrix.dx()), qRound(d->matrix.dy()));
-    if (d->use_path_fallback || d->cpen.color().alpha() != 255
-        || d->cbrush.color().alpha() != 255
+    if (d->use_path_fallback
+        || d->alpha_pen
+        || d->alpha_brush
         || devclip.intersect(r) != r) {
         QPainterPath path;
         path.addEllipse(rect);
@@ -1345,14 +1372,22 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
     int clippedCount = 0;
     qt_float_point *clippedPoints = 0;
 
+    ::Picture src;
     QBrush fill;
     GC fill_gc;
     if (gcMode == QX11PaintEnginePrivate::BrushGC) {
         fill = cbrush;
         fill_gc = gc_brush;
+        src = current_brush;
     } else {
         fill = QBrush(cpen.brush());
         fill_gc = gc;
+        if (has_texture)
+            src = fill.texture().x11PictureHandle();
+        else if (has_pattern)
+            src = getPatternFill(scrn, fill, bg_brush, bg_mode == Qt::OpaqueMode);
+        else
+            src = getSolidFill(scrn, fill.color());
     }
 
     polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
@@ -1366,13 +1401,6 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
         (has_texture || antialias || fill.color().alpha() != 255))
     {
         if (picture) {
-            ::Picture src;
-            if (has_texture)
-                src = fill.texture().x11PictureHandle();
-            else if (has_pattern)
-                src = getPatternFill(scrn, fill, bg_brush, bg_mode == Qt::OpaqueMode);
-            else
-                src = getSolidFill(scrn, fill.color());
 
             if (clippedCount > 0) {
                 int x_offset = 0;
