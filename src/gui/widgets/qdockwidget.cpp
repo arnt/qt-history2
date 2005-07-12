@@ -444,6 +444,7 @@ void QDockWidget::setFeatures(QDockWidget::DockWidgetFeatures features)
         return;
     d->features = features;
     d->updateButtons();
+    d->toggleViewAction->setEnabled((d->features & DockWidgetClosable) == DockWidgetClosable);
     emit featuresChanged(d->features);
 }
 
