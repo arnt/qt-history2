@@ -735,6 +735,8 @@ void QWidgetPrivate::init(QWidget *desktopWidget, Qt::WFlags f)
         // programmer specified desktop widget
         xinfo = desktopWidget->d_func()->xinfo;
     }
+#else
+    Q_UNUSED(desktopWidget);
 #endif
 
     data.fstrut_dirty = 1;
@@ -3521,6 +3523,11 @@ void QWidget::setFocus(Qt::FocusReason reason)
 
         QApplicationPrivate::setFocusWidget(f, reason);
         f->d_func()->focusInputContext();
+
+#if defined(Q_WS_MAC)
+        extern WindowPtr qt_mac_window_for(const QWidget *w); //qwidget_mac.cpp
+        SetKeyboardFocus(qt_mac_window_for(f), (HIViewRef)f->winId(), 1);
+#endif
 
 #if defined(Q_WS_WIN)
         if (!(f->window()->windowType() == Qt::Popup))

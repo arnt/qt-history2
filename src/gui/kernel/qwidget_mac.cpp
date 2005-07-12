@@ -344,6 +344,7 @@ static EventTypeSpec widget_events[] = {
     { kEventClassControl, kEventControlInitialize },
     { kEventClassControl, kEventControlGetPartRegion },
     { kEventClassControl, kEventControlGetClickActivation },
+    { kEventClassControl, kEventControlSetFocusPart },
     { kEventClassControl, kEventControlDragEnter },
     { kEventClassControl, kEventControlDragWithin },
     { kEventClassControl, kEventControlDragLeave },
@@ -502,10 +503,11 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                 widget->d_func()->hd = 0;
             }
         } else if(ekind == kEventControlInitialize) {
-            UInt32 features = kControlSupportsDragAndDrop | kControlSupportsClickActivation;
+            UInt32 features = kControlSupportsDragAndDrop | kControlSupportsClickActivation | kControlSupportsFocus;
             if(QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)
                 features |= (kControlSupportsEmbedding|kControlSupportsGetRegion);
             SetEventParameter(event, kEventParamControlFeatures, typeUInt32, sizeof(features), &features);
+        } else if(ekind == kEventControlSetFocusPart) {
         } else if(ekind == kEventControlGetClickActivation) {
             ClickActivationResult clickT = kActivateAndIgnoreClick;
             SetEventParameter(event, kEventParamClickActivation, typeClickActivationResult,
