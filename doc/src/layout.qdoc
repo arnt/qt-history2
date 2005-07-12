@@ -201,7 +201,7 @@
     good idea to provide a reasonable sizeHint().
 
     For further guidance when implementing these functions, see the
-    \l{http://doc.trolltech.com/qq/qq04-height-for-width.html}{Traiding
+    \l{http://doc.trolltech.com/qq/qq04-height-for-width.html}{Trading
     Height for Width} article in \e{Qt Quarterly}.
 
     \section1 Layout Issues
