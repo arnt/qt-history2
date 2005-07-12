@@ -103,6 +103,8 @@ void MainWindow::setupDockWidgets()
 
     for (int i = 0; i < setCount; ++i) {
         ColorSwatch *swatch = new ColorSwatch(tr(sets[i].name), this, Qt::WFlags(sets[i].flags));
+        if (i%2)
+            swatch->setWindowIcon(QIcon(QPixmap(":/res/qt.png")));
         addDockWidget(sets[i].area, swatch);
         dockWidgetMenu->addMenu(swatch->menu);
     }

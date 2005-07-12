@@ -6,6 +6,8 @@ build_all:!build_pass {
     CONFIG += release
 }
 
+RESOURCES += mainwindow.qrc
+
 # install
 target.path = $$[QT_INSTALL_DEMOS]/mainwindow
 sources.files = $$SOURCES $$HEADERS *.pro
