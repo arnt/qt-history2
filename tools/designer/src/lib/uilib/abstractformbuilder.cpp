@@ -332,7 +332,9 @@ bool QAbstractFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QL
     if (item->widget()) {
         static_cast<FriendlyLayout*>(layout)->addChildWidget(item->widget());
     } else if (item->layout()) {
-        static_cast<FriendlyLayout*>(layout)->addChildLayout(item->layout ());
+        static_cast<FriendlyLayout*>(layout)->addChildLayout(item->layout());
+    } else if (item->spacerItem()) {
+        // nothing to do
     } else {
         return false;
     }
