@@ -1375,7 +1375,9 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
     int clippedCount = 0;
     qt_float_point *clippedPoints = 0;
 
+#ifndef QT_NO_XRENDER
     ::Picture src;
+#endif
     QBrush fill;
     GC fill_gc;
     if (gcMode == QX11PaintEnginePrivate::BrushGC) {
