@@ -350,8 +350,8 @@ void QDockWidgetPrivate::mousePressEvent(QMouseEvent *event)
     /* Work around windows expose bug when windows are partially covered by
      * a top level transparent object.
      */
-    update();
-    QWidgetList children = qFindChildren<QWidget *>(this);
+    q->update();
+    QWidgetList children = qFindChildren<QWidget *>(q);
     for (int i=0; i<children.size(); ++i)
         children.at(i)->update();
 #endif
