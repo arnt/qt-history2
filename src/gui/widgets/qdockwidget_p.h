@@ -35,6 +35,7 @@ class QGridLayout;
 class QWidgetResizeHandler;
 class QRubberBand;
 class QDockWidgetTitleButton;
+class QSpacerItem;
 
 class QDockWidgetPrivate : public QWidgetPrivate
 {
