@@ -2130,10 +2130,12 @@ QString HtmlGenerator::getLink(const Atom *atom, const Node *relative, CodeMarke
     QString link;
     if (atom->string().contains(":") &&
 	    (atom->string().startsWith("file:")
-	     || atom->string().startsWith("http:")
+             || atom->string().startsWith("http:")
 	     || atom->string().startsWith("https:")
              || atom->string().startsWith("ftp:")
-	     || atom->string().startsWith("mailto:"))) {
+             || atom->string().startsWith("mailto:"))) {
+        if (!tre->root()->findNode(atom->string(), Node::Fake))
+            const_cast<Tree*>(tre)->addExternalLink(atom->string(), relative);
         link = atom->string();
     } else if (atom->string().count('@') == 1) {
         link = "mailto:" + atom->string();

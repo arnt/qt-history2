@@ -19,6 +19,7 @@
 #define COMMAND_CONTENTSPAGE            Doc::alias("contentspage")
 #define COMMAND_ENUM                    Doc::alias("enum")
 #define COMMAND_EXAMPLE                 Doc::alias("example")
+#define COMMAND_EXTERNALPAGE            Doc::alias("externalpage")
 #define COMMAND_FILE                    Doc::alias("file") // ### don't document
 #define COMMAND_FN                      Doc::alias("fn")
 #define COMMAND_GROUP                   Doc::alias("group")
@@ -217,7 +218,8 @@ const FunctionNode *CppCodeParser::findFunctionNode( const QString& synopsis,
 
 QSet<QString> CppCodeParser::topicCommands()
 {
-    return QSet<QString>() << COMMAND_CLASS << COMMAND_ENUM << COMMAND_EXAMPLE << COMMAND_FILE
+    return QSet<QString>() << COMMAND_CLASS << COMMAND_ENUM << COMMAND_EXAMPLE
+                           << COMMAND_EXTERNALPAGE << COMMAND_FILE
                            << COMMAND_FN << COMMAND_GROUP << COMMAND_HEADERFILE << COMMAND_MACRO
                            << COMMAND_MODULE << COMMAND_NAMESPACE << COMMAND_PAGE
                            << COMMAND_PROPERTY << COMMAND_TYPEDEF << COMMAND_VARIABLE;
@@ -306,6 +308,8 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 	FakeNode *fake = new FakeNode( tre->root(), arg, FakeNode::Example );
         createExampleFileNodes(fake);
         return fake;
+    } else if ( command == COMMAND_EXTERNALPAGE ) {
+	return new FakeNode( tre->root(), arg, FakeNode::ExternalPage );
     } else if ( command == COMMAND_FILE ) {
 	return new FakeNode( tre->root(), arg, FakeNode::File );
     } else if ( command == COMMAND_GROUP ) {

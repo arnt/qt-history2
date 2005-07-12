@@ -56,16 +56,18 @@ public:
                                   const Node *node) const;
     void generateIndexSections(const QString &fileName, const QString &url,
                                const QString &title) const;
+    void addExternalLink(const QString &url, const Node *relative);
+
 private:
     void resolveInheritance(int pass, ClassNode *classe);
     FunctionNode *findVirtualFunctionInBaseClasses(ClassNode *classe, FunctionNode *clone);
     void fixPropertyUsingBaseClasses(ClassNode *classe, PropertyNode *property);
     NodeList allBaseClasses(const ClassNode *classe) const;
     void readIndexFile(const QString &path);
-    QList<QPair<ClassNode*,QString> > readIndexSection(const QDomElement &element,
-        InnerNode *parent, const QString &indexUrl);
+    void readIndexSection(const QDomElement &element, InnerNode *parent,
+                          const QString &indexUrl);
     QString readIndexText(const QDomElement &element);
-    void resolveIndexBases(QList<QPair<ClassNode*,QString> > basesList);
+    void resolveIndex();
 
     NamespaceNode roo;
     QString vers;

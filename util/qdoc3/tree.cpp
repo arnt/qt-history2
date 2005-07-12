@@ -48,6 +48,8 @@ public:
     GroupMap groupMap;
     FakeNodeHash fakeNodesByTitle;
     TargetHash targetHash;
+    QList<QPair<ClassNode*,QString> > basesList;
+    QList<QPair<FunctionNode*,QString> > relatedList;
 };
 
 Tree::Tree()
@@ -509,31 +511,30 @@ void Tree::readIndexFile(const QString &path)
         document.setContent(&file);
         file.close();
 
-        QList<QPair<ClassNode*,QString> > basesList;
         QDomElement indexElement = document.documentElement();
         QString indexUrl = indexElement.attribute("url");
+        priv->basesList.clear();
+        priv->relatedList.clear();
 
         // Scan all elements in the XML file, constructing a map that contains
         // base classes for each class found.
 
         QDomElement child = indexElement.firstChildElement();
         while (!child.isNull()) {
-            basesList += readIndexSection(child, root(), indexUrl);
+            readIndexSection(child, root(), indexUrl);
             child = child.nextSiblingElement();
         }
 
         // Now that all the base classes have been found for this index,
         // arrange them into an inheritance hierarchy.
 
-        resolveIndexBases(basesList);
+        resolveIndex();
     }
 }
 
-QList<QPair<ClassNode*,QString> > Tree::readIndexSection(const QDomElement &element,
+void Tree::readIndexSection(const QDomElement &element,
     InnerNode *parent, const QString &indexUrl)
 {
-    QList<QPair<ClassNode*,QString> > basesList;
-
     QString name = element.attribute("name");
 
     Node *section;
@@ -541,7 +542,7 @@ QList<QPair<ClassNode*,QString> > Tree::readIndexSection(const QDomElement &elem
         section = new NamespaceNode(parent, name);
     } else if (element.nodeName() == "class") {
         section = new ClassNode(parent, name);
-        basesList.append(QPair<ClassNode*,QString>(
+        priv->basesList.append(QPair<ClassNode*,QString>(
             static_cast<ClassNode*>(section), element.attribute("bases")));
 
     } else if (element.nodeName() == "page") {
@@ -558,11 +559,16 @@ QList<QPair<ClassNode*,QString> > Tree::readIndexSection(const QDomElement &elem
             subtype = FakeNode::Module;
         else if (element.attribute("subtype") == "page")
             subtype = FakeNode::Page;
+        else if (element.attribute("subtype") == "externalpage")
+            subtype = FakeNode::ExternalPage;
         else
-            return basesList;
+            return;
 
         FakeNode *fakeNode = new FakeNode(parent, name, subtype);
         fakeNode->setTitle(element.attribute("title"));
+        if (element.hasAttribute("location"))
+            fakeNode->setLocation(Location(element.attribute("location")));
+
         section = fakeNode;
 
     } else if (element.nodeName() == "enum") {
@@ -583,7 +589,7 @@ QList<QPair<ClassNode*,QString> > Tree::readIndexSection(const QDomElement &elem
         else if (element.attribute("virtual") == "pure")
             virt = FunctionNode::PureVirtual;
         else
-            return basesList;
+            return;
 
         FunctionNode::Metaness meta;
         if (element.attribute("meta") == "plain")
@@ -599,7 +605,7 @@ QList<QPair<ClassNode*,QString> > Tree::readIndexSection(const QDomElement &elem
         else if (element.attribute("meta") == "macro")
             meta = FunctionNode::Macro;
         else
-            return basesList;
+            return;
 
         FunctionNode *functionNode = new FunctionNode(parent, name);
         functionNode->setReturnType(element.attribute("return"));
@@ -608,6 +614,13 @@ QList<QPair<ClassNode*,QString> > Tree::readIndexSection(const QDomElement &elem
         functionNode->setConst(element.attribute("const") == "true");
         functionNode->setStatic(element.attribute("static") == "true");
         functionNode->setOverload(element.attribute("overload") == "true");
+
+        if (element.hasAttribute("relates")
+            && element.attribute("relates") != parent->name()) {
+            priv->relatedList.append(
+                QPair<FunctionNode*,QString>(functionNode,
+                                             element.attribute("relates")));
+        }
 
         QDomElement child = element.firstChildElement("parameter");
         while (!child.isNull()) {
@@ -629,35 +642,37 @@ QList<QPair<ClassNode*,QString> > Tree::readIndexSection(const QDomElement &elem
         target.node = parent;
         target.priority = 1;
         target.atom = new Atom(Atom::Target, name);
-        priv->targetHash.insert(Doc::canonicalTitle(name), target);
-        return basesList;
+        priv->targetHash.insert(name, target);
+        return;
 
     } else if (element.nodeName() == "target") {
         Target target;
         target.node = parent;
         target.priority = 2;
         target.atom = new Atom(Atom::Target, name);
-        priv->targetHash.insert(Doc::canonicalTitle(name), target);
-        return basesList;
+        priv->targetHash.insert(name, target);
+        return;
 
     } else if (element.nodeName() == "contents") {
         Target target;
         target.node = parent;
         target.priority = 3;
         target.atom = new Atom(Atom::Target, name);
-        priv->targetHash.insert(Doc::canonicalTitle(name), target);
-        return basesList;
+        priv->targetHash.insert(name, target);
+        return;
 
     } else
-        return basesList;
+        return;
 
     QString access = element.attribute("access");
     if (access == "public")
         section->setAccess(Node::Public);
     else if (access == "protected")
         section->setAccess(Node::Protected);
-    else
+    else if (access == "private")
         section->setAccess(Node::Private);
+    else
+        section->setAccess(Node::Public);
 
     section->setUrl(indexUrl);
 
@@ -673,16 +688,15 @@ QList<QPair<ClassNode*,QString> > Tree::readIndexSection(const QDomElement &elem
 
         while (!child.isNull()) {
             if (element.nodeName() == "class")
-                basesList += readIndexSection(child, inner, indexUrl);
+                readIndexSection(child, inner, indexUrl);
             else if (element.nodeName() == "page")
-                basesList += readIndexSection(child, inner, indexUrl);
+                readIndexSection(child, inner, indexUrl);
             else
-                basesList += readIndexSection(child, parent, indexUrl);
+                readIndexSection(child, parent, indexUrl);
 
             child = child.nextSiblingElement();
         }
     }
-    return basesList;
 }
 
 QString Tree::readIndexText(const QDomElement &element)
@@ -697,11 +711,11 @@ QString Tree::readIndexText(const QDomElement &element)
     return text;
 }
 
-void Tree::resolveIndexBases(QList<QPair<ClassNode*,QString> > basesList)
+void Tree::resolveIndex()
 {
     QPair<ClassNode*,QString> pair;
 
-    foreach (pair, basesList) {
+    foreach (pair, priv->basesList) {
         foreach (QString base, pair.second.split(",")) {
             Node *baseClass = root()->findNode(base, Node::Class);
             if (baseClass) {
@@ -709,6 +723,14 @@ void Tree::resolveIndexBases(QList<QPair<ClassNode*,QString> > basesList)
                                          static_cast<ClassNode*>(baseClass));
             }
         }
+    }
+
+    QPair<FunctionNode*,QString> relatedPair;
+
+    foreach (relatedPair, priv->relatedList) {
+        Node *classNode = root()->findNode(relatedPair.second, Node::Class);
+        if (classNode)
+            relatedPair.first->setRelates(static_cast<ClassNode*>(classNode));
     }
 }
 
@@ -764,15 +786,22 @@ void Tree::generateIndexSubSections(QString indent, QTextStream& out,
             return;
     }
 
-    // Construct the opening tag for the node.
+    QString objName = node->name();
+    QString childNodes;
+    QString thisNode;
+    QTextStream thisStream(&thisNode);
 
-    out << indent << "<" << nodeName
+    thisStream << indent << "<" << nodeName
         << " access=\"" << access << "\""
-        << " name=\"" << HtmlGenerator::protect(node->name()) << "\"";
-
+        << " name=\"" << HtmlGenerator::protect(objName) << "\"";
+        
     // Class contain information about their base classes.
 
     if (node->type() == Node::Class) {
+
+        if (objName.isEmpty())
+            return;
+
         const ClassNode *classNode = static_cast<const ClassNode*>(node);
         QList<RelatedClass> bases = classNode->baseClasses();
         QStringList baseStrings;
@@ -780,85 +809,100 @@ void Tree::generateIndexSubSections(QString indent, QTextStream& out,
             ClassNode *baseClassNode = related.node;
             baseStrings.append(baseClassNode->name());
         }
-        out << " bases=\"" << HtmlGenerator::protect(baseStrings.join(","))
-            << "\"";
+        thisStream << " bases=\"" + HtmlGenerator::protect(baseStrings.join(","))
+                   << "\"";
     }
 
     // Fake nodes (such as manual pages) contain subtypes, titles and other
     // attributes.
 
     if (node->type() == Node::Fake) {
+
+        if (objName.isEmpty())
+            return;
+
         const FakeNode *fakeNode = static_cast<const FakeNode*>(node);
         switch (fakeNode->subType()) {
             case FakeNode::Example:
-                out << " subtype=\"example\"";
+                thisStream << " subtype=\"example\"";
                 break;
             case FakeNode::HeaderFile:
-                out << " subtype=\"header\"";
+                thisStream << " subtype=\"header\"";
                 break;
             case FakeNode::File:
-                out << " subtype=\"file\"";
+                thisStream << " subtype=\"file\"";
                 break;
             case FakeNode::Group:
-                out << " subtype=\"group\"";
+                thisStream << " subtype=\"group\"";
                 break;
             case FakeNode::Module:
-                out << " subtype=\"module\"";
+                thisStream << " subtype=\"module\"";
                 break;
             case FakeNode::Page:
-                out << " subtype=\"page\"";
+                thisStream << " subtype=\"page\"";
+                break;
+            case FakeNode::ExternalPage:
+                thisStream << " subtype=\"externalpage\"";
                 break;
             default:
                 break;
         }
-        out << " title=\"" << HtmlGenerator::protect(fakeNode->title()) << "\"";
-        out << " fulltitle=\"" << HtmlGenerator::protect(fakeNode->fullTitle()) << "\"";
-        out << " subtitle=\"" << HtmlGenerator::protect(fakeNode->subTitle()) << "\"";
+        thisStream << " title=\"" << HtmlGenerator::protect(fakeNode->title()) << "\"";
+        thisStream << " fulltitle=\"" << HtmlGenerator::protect(fakeNode->fullTitle()) << "\"";
+        thisStream << " subtitle=\"" << HtmlGenerator::protect(fakeNode->subTitle()) << "\"";
+        thisStream << " location=\"" << HtmlGenerator::protect(fakeNode->doc().location().fileName()) << "\"";
     }
 
     // Function nodes contain information about the type of function being
     // described.
 
     if (node->type() == Node::Function) {
+
+        if (objName.isEmpty())
+            return;
+
         const FunctionNode *functionNode = static_cast<const FunctionNode*>(node);
         switch (functionNode->virtualness()) {
             case FunctionNode::NonVirtual:
-                out << " virtual=\"non\"";
+                thisStream << " virtual=\"non\"";
                 break;
             case FunctionNode::ImpureVirtual:
-                out << " virtual=\"impure\"";
+                thisStream << " virtual=\"impure\"";
                 break;
             case FunctionNode::PureVirtual:
-                out << " virtual=\"pure\"";
+                thisStream << " virtual=\"pure\"";
                 break;
             default:
                 break;
         }
         switch (functionNode->metaness()) {
             case FunctionNode::Plain:
-                out << " meta=\"plain\"";
+                thisStream << " meta=\"plain\"";
                 break;
             case FunctionNode::Signal:
-                out << " meta=\"signal\"";
+                thisStream << " meta=\"signal\"";
                 break;
             case FunctionNode::Slot:
-                out << " meta=\"slot\"";
+                thisStream << " meta=\"slot\"";
                 break;
             case FunctionNode::Ctor:
-                out << " meta=\"constructor\"";
+                thisStream << " meta=\"constructor\"";
                 break;
             case FunctionNode::Dtor:
-                out << " meta=\"destructor\"";
+                thisStream << " meta=\"destructor\"";
                 break;
             case FunctionNode::Macro:
-                out << " meta=\"macro\"";
+                thisStream << " meta=\"macro\"";
                 break;
             default:
                 break;
         }
-        out << " const=\"" << (functionNode->isConst()?"true":"false") << "\"";
-        out << " static=\"" << (functionNode->isStatic()?"true":"false") << "\"";
-        out << " overload=\"" << (functionNode->isOverload()?"true":"false") << "\"";
+        thisStream << " const=\"" << (functionNode->isConst()?"true":"false") << "\"";
+        thisStream << " static=\"" << (functionNode->isStatic()?"true":"false") << "\"";
+        thisStream << " overload=\"" << (functionNode->isOverload()?"true":"false") << "\"";
+        if (functionNode->relates())
+            thisStream << " relates=\"" << HtmlGenerator::protect(
+                functionNode->relates()->name()) << "\"";
     }
 
     // Inner nodes and function nodes contain child nodes of some sort, either
@@ -868,46 +912,84 @@ void Tree::generateIndexSubSections(QString indent, QTextStream& out,
 
     const InnerNode *inner = dynamic_cast<const InnerNode*>(node);
     if (inner) {
-        out << ">\n";
+
+        // For internal pages, we canonicalize the target, keyword and content
+        // item names so that they can be used by qdoc for other sets of
+        // documentation.
+        // The reason we do this here is that we don't want to ruin
+        // externally composed indexes, containing non-qdoc-style target names
+        // when reading in indexes.
 
         if (inner->doc().hasTargets()) {
+            bool external = false;
+            if (inner->type() == Node::Fake) {
+                const FakeNode *fakeNode = static_cast<const FakeNode *>(inner);
+                if (fakeNode->subType() == FakeNode::ExternalPage)
+                    external = true;
+            }
+
             foreach (Atom *target, inner->doc().targets()) {
-                out << indent << " <target name=\""
-                    << HtmlGenerator::protect(target->string()) << "\" />\n";
+                QString targetName = target->string();
+                if (!external)
+                    targetName = Doc::canonicalTitle(targetName);
+                childNodes += indent + " <target name=\""
+                            + HtmlGenerator::protect(targetName) + "\" />\n";
             }
         }
         if (inner->doc().hasKeywords()) {
             foreach (Atom *keyword, inner->doc().keywords()) {
-                out << indent << " <keyword name=\""
-                    << HtmlGenerator::protect(keyword->string()) << "\" />\n";
+                childNodes += indent + " <keyword name=\""
+                            + HtmlGenerator::protect(
+                                Doc::canonicalTitle(keyword->string()))
+                            + "\" />\n";
             }
         }
         if (inner->doc().hasTableOfContents()) {
             foreach (Atom *item, inner->doc().tableOfContents()) {
                 QString title = Text::sectionHeading(item).toString();
-                out << indent << " <contents name=\""
-                    << HtmlGenerator::protect(title) << "\" />\n";
+                childNodes += indent + " <contents name=\""
+                            + HtmlGenerator::protect(
+                                Doc::canonicalTitle(title))
+                            + "\" title=\""
+                            + HtmlGenerator::protect(title) + "\" />\n";
             }
         }
 
-        foreach (Node *child, inner->childNodes())
-            generateIndexSubSections(indent + " ", out, child);
+        QString temp;
+        QTextStream childOut(&temp);
+        foreach (Node *child, inner->childNodes()) {
+            generateIndexSubSections(indent + " ", childOut, child);
+        }
 
-        out << indent << "</" << nodeName << ">\n";
+        childNodes += temp;
+        temp.clear();
+
+        foreach (Node *child, inner->relatedNodes())
+            generateIndexSubSections(indent + "  ", childOut, child);
+
+
     } else if (node->type() == Node::Function) {
-        out << ">\n";
 
         const FunctionNode *functionNode = static_cast<const FunctionNode*>(node);
         foreach (Parameter parameter, functionNode->parameters()) {
             // Do not supply a default value for the parameter; it will only
             // cause disagreement when it is read from an index file later on.
-            out << indent << " <parameter"
-                << " left=\"" << HtmlGenerator::protect(parameter.leftType()) << "\""
-                << " right=\"" << HtmlGenerator::protect(parameter.rightType()) << "\""
-                << " name=\"" << HtmlGenerator::protect(parameter.name()) << "\""
-//                << " default=\"" << HtmlGenerator::protect(parameter.defaultValue())
-                << " />\n";
+            childNodes += indent + " <parameter"
+                + " left=\"" + HtmlGenerator::protect(parameter.leftType()) + "\""
+                + " right=\"" + HtmlGenerator::protect(parameter.rightType()) + "\""
+                + " name=\"" + HtmlGenerator::protect(parameter.name()) + "\""
+//                + " default=\"" + HtmlGenerator::protect(parameter.defaultValue())
+                + " />\n";
         }
+    }
+
+    // Construct the opening tag for the node.
+
+    out << thisNode;
+
+    if (!childNodes.isEmpty()) {
+        out << ">\n";
+        out << childNodes;
         out << indent << "</" << nodeName << ">\n";
     } else
         out << " />\n";
@@ -932,4 +1014,16 @@ void Tree::generateIndexSections(const QString &fileName, const QString &url,
 
     out << "</INDEX>\n";
     out.flush();
+}
+
+void Tree::addExternalLink(const QString &url, const Node *relative)
+{
+    FakeNode *fakeNode = new FakeNode(root(), url, FakeNode::ExternalPage);
+    fakeNode->setAccess(Node::Public);
+
+    // Create some content for the node.
+    QSet<QString> emptySet;
+    Location location(relative->doc().location());
+    Doc doc(location, " ", emptySet); // placeholder
+    fakeNode->setDoc(doc);
 }
