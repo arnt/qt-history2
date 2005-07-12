@@ -127,8 +127,8 @@ The installation procedure is different for the different Qt platforms:
     You might also want to try the following links:
 
     \list
-    \o \l http://doc.trolltech.com/4.0/how-to-learn-qt.html
-    \o \l http://doc.trolltech.com/4.0/tutorial.html
+    \o \l{How to Learn Qt}
+    \o \l{Qt Tutorial}
     \o \l http://www.trolltech.com/developer
     \endlist
 \endlist
@@ -201,8 +201,8 @@ The installation procedure is different for the different Qt platforms:
     You might also want to try the following links:
 
     \list
-    \o \l http://doc.trolltech.com/4.0/how-to-learn-qt.html
-    \o \l http://doc.trolltech.com/4.0/tutorial.html
+    \o \l{How to Learn Qt}
+    \o \l{Qt Tutorial}
     \o \l http://www.trolltech.com/developer
     \endlist
 
@@ -299,8 +299,8 @@ The installation procedure is different for the different Qt platforms:
     You might also want to try the following links:
 
     \list
-    \o \l http://doc.trolltech.com/4.0/how-to-learn-qt.html
-    \o \l http://doc.trolltech.com/4.0/tutorial.html
+    \o \l{How to Learn Qt}
+    \o \l{Qt Tutorial}
     \o \l http://www.trolltech.com/developer
     \endlist
 \endlist
