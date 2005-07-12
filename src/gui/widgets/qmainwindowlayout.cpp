@@ -2024,6 +2024,8 @@ int QMainWindowLayout::locateToolBar(QToolBar *toolbar, const QPoint &mouse) con
 
     for (int line = 0; line < tb_layout_info.size(); ++line) {
         const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
+        if (!toolbar->isAreaAllowed(static_cast<Qt::ToolBarArea>(areaForPosition(lineInfo.pos))))
+            continue;
 	bool break_it = false;
         for (int i = 0; i < lineInfo.list.size(); ++i) {
 	    const ToolBarLayoutInfo &info = lineInfo.list.at(i);
