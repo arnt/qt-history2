@@ -918,14 +918,16 @@ Window findRealWindow(const QPoint & pos, Window w, int md)
         XWindowAttributes attr;
         XGetWindowAttributes(X11->display, w, &attr);
 
-        if (attr.map_state != IsUnmapped && QRect(attr.x,attr.y,attr.width,attr.height).contains(pos)) {
+        if (attr.map_state == IsViewable
+            && QRect(attr.x,attr.y,attr.width,attr.height).contains(pos)) {
             {
                 Atom   type = XNone;
                 int f;
                 unsigned long n, a;
                 unsigned char *data;
 
-                XGetWindowProperty(X11->display, w, ATOM(WM_STATE), 0, 0, False, AnyPropertyType, &type, &f,&n,&a,&data);
+                XGetWindowProperty(X11->display, w, ATOM(XdndAware), 0, 0, False,
+                                   AnyPropertyType, &type, &f,&n,&a,&data);
                 if (data) XFree(data);
                 if (type)
                     return w;
@@ -986,9 +988,37 @@ void QDragManager::move(const QPoint & globalPos)
         // Ok.
     } else if (target) {
         //me
-        Window targetW = X11->findClientWindow(target, ATOM(WM_STATE), true);
-        if (targetW)
-            target = targetW;
+        Window src = rootwin;
+        while (target != 0) {
+            int lx2, ly2;
+            Window t;
+            // translate coordinates
+            if (!XTranslateCoordinates(X11->display, src, target, lx, ly, &lx2, &ly2, &t)) {
+                target = 0;
+                break;
+            }
+            lx = lx2;
+            ly = ly2;
+            src = target;
+
+	    // check if it has XdndAware
+	    Atom type = 0;
+	    int f;
+	    unsigned long n, a;
+	    unsigned char *data = 0;
+	    XGetWindowProperty(X11->display, target, ATOM(XdndAware), 0, 0, False,
+                               AnyPropertyType, &type, &f,&n,&a,&data);
+	    if (data)
+                XFree(data);
+	    if (type)
+                break;
+
+            // find child at the coordinates
+            if (!XTranslateCoordinates(X11->display, src, src, lx, ly, &lx2, &ly2, &target)) {
+                target = 0;
+                break;
+            }
+        }
         if (xdnd_data.deco && (!target || target == xdnd_data.deco->winId())) {
             target = findRealWindow(globalPos, rootwin, 6);
         }
