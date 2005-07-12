@@ -62,7 +62,7 @@
             && !defined(coreedition) \
             && !defined(desktoplightedition) \
             && !defined(desktopedition)
-        \title Qtopia Core Reference Documentation
+        \title Qt Reference Documentation
         \endif
     \endif
 
