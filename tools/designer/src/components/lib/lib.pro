@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = QtDesignerComponents
-CONFIG += qt dll debug_and_release depend_prl
+CONFIG += qt debug_and_release depend_prl
 DESTDIR = $$QT_BUILD_TREE/lib
 DLLDESTDIR = $$QT_BUILD_TREE/bin
 
@@ -16,7 +16,13 @@ INSTALLS        += target
 SOURCES += qdesigner_components.cpp \
     qdesigner_plugins.cpp
 
-DEFINES += QDESIGNER_COMPONENTS_LIBRARY
+!contains(CONFIG, static) {
+    DEFINES += QDESIGNER_COMPONENTS_LIBRARY
+    CONFIG += dll
+    LIBS += -lQtDesigner
+} else {
+    DEFINES += QT_DESIGNER_STATIC
+}
 
 INCLUDEPATH += . .. \
     $$QT_SOURCE_TREE/tools/designer/src/lib/components \
@@ -36,8 +42,6 @@ include(../tabordereditor/tabordereditor.pri)
 include(../resourceeditor/resourceeditor.pri)
 
 PRECOMPILED_HEADER= lib_pch.h
-
-LIBS += -lQtDesigner
 
 include(../../sharedcomponents.pri)
 include(../component.pri)
