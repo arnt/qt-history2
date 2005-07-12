@@ -84,7 +84,7 @@
     \a ClassName, in a header file. See the
     \l{tools/plugandpaint}{Plug & Paint} example for details.
 
-    \sa Q_INTERFACE(), Q_EXPORT_PLUGIN(), {How to Create Qt Plugins}
+    \sa Q_INTERFACES(), Q_EXPORT_PLUGIN(), {How to Create Qt Plugins}
 */
 
 /*!

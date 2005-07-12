@@ -1942,13 +1942,13 @@ const char* QMetaClassInfo::value() const
 /*!
     \fn QGenericArgument::data () const
 
-    Returns the \a data set in the constructor.
+    Returns the data set in the constructor.
 */
 
 /*!
     \fn QGenericArgument::name () const
 
-    Returns the \a name set in the constructor.
+    Returns the name set in the constructor.
 */
 
 /*!

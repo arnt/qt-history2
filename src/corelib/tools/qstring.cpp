@@ -2773,7 +2773,10 @@ bool QString::startsWith(const QLatin1String& s, Qt::CaseSensitivity cs) const
 
 /*!
   \overload
- */
+
+  Returns true if the string starts with \a c; otherwise returns
+  false.
+*/
 bool QString::startsWith(const QChar &c, Qt::CaseSensitivity cs) const
 {
     return d->size
@@ -2843,6 +2846,9 @@ bool QString::endsWith(const QLatin1String& s, Qt::CaseSensitivity cs) const
 }
 
 /*!
+  Returns true if the string ends with \a c; otherwise returns
+  false.
+
   \overload
  */
 bool QString::endsWith(const QChar &c, Qt::CaseSensitivity cs) const

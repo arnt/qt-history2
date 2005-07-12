@@ -2504,7 +2504,7 @@ bool QMetaObject::disconnect(const QObject *sender, int signal_index,
 
 /*!
     Searches recursively for all child objects of \a o and connects matching signals
-    to slots of \o that follow the following form:
+    to slots of \a o that follow the following form:
 
     \code
     void on_<widget name>_<signal name>(<signal parameters>);

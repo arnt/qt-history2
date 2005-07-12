@@ -95,7 +95,7 @@
                     to be enabled.
     \value Resize   The region that the user can click to resize the window.
     \value Move     The region that the user can click to move the window.
-    \omitvalue None
+    \value None
 */
 
 /*!
@@ -124,8 +124,10 @@
 */
 
 /*!
-    Returns first region which contains \a point.
-    If none of the regions contain the point it returns None.
+    \fn int QDecoration::regionAt(const QWidget *widget, const QPoint &point)
+
+    Returns the first region within \a widget which contains \a point.
+    If none of the regions contain the point it returns \l None.
 */
 int QDecoration::regionAt(const QWidget *w, const QPoint &point)
 {
