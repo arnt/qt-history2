@@ -4,7 +4,7 @@
 
 void snippet_ctor1()
 {
-    QSettings settings("mysoft.org", "StarRunner");
+    QSettings settings("MySoft", "Star Runner");
 }
 
 void snippet_ctor2()
