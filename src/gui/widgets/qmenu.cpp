@@ -601,7 +601,7 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
 #endif
     if (!action || !q->isEnabled()
         || (action_e == QAction::Trigger
-#ifndef QT_NO_WHATSTHIS 
+#ifndef QT_NO_WHATSTHIS
             && !inWhatsThisMode
 #endif
             && !action->isEnabled()))
@@ -656,12 +656,12 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
             if (action_e == QAction::Trigger) {
                 emit qmenubar->triggered(action);
 #ifdef QT3_SUPPORT
-                emit qmenubar->activated(qmenu->findIdForAction(action));
+                emit qmenubar->activated(qmenubar->findIdForAction(action));
 #endif
             } else if (action_e == QAction::Hover) {
                 emit qmenubar->hovered(action);
 #ifdef QT3_SUPPORT
-                emit qmenubar->highlighted(qmenu->findIdForAction(action));
+                emit qmenubar->highlighted(qmenubar->findIdForAction(action));
 #endif
             }
             break; //nothing more..
