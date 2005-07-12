@@ -1712,7 +1712,7 @@ bool QDir::match(const QStringList &filters, const QString &fileName)
 
 bool QDir::match(const QString &filter, const QString &fileName)
 {
-    return match(QStringList(filter), fileName);
+    return match(nameFiltersFromString(filter), fileName);
 }
 #endif
 
