@@ -1280,7 +1280,7 @@ void QTextEdit::paste()
 void QTextEdit::clear()
 {
     Q_D(QTextEdit);
-    d->doc->clear();
+    d->init();
 }
 
 
