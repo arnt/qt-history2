@@ -135,7 +135,7 @@ void QDockWidgetTitleButton::paintEvent(QPaintEvent *)
     style()->drawPrimitive(QStyle::PE_PanelButtonTool, &opt, &p, this);
 
     r.adjust(2, 2, -2, -2);
-    QPixmap pm = icon().pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize), isEnabled() ? 
+    QPixmap pm = icon().pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize), isEnabled() ?
                                 underMouse() ? QIcon::Active : QIcon::Normal
                                     : QIcon::Disabled,
                                 isDown() ? QIcon::On : QIcon::Off);
@@ -271,7 +271,7 @@ void QDockWidgetPrivate::relayout()
     int posX = titleArea.right();
 
     if (closeButton) {
-        closeButton->setGeometry(posX - closeSize.width(), 
+        closeButton->setGeometry(posX - closeSize.width(),
                                  titleArea.bottom() - closeSize.height(),
                                  closeSize.width(),
                                  closeSize.height());
@@ -279,7 +279,7 @@ void QDockWidgetPrivate::relayout()
     }
 
     if (floatButton) {
-        floatButton->setGeometry(posX - floatSize.width(), 
+        floatButton->setGeometry(posX - floatSize.width(),
                                  titleArea.bottom() - floatSize.height(),
                                  floatSize.width(),
                                  floatSize.height());
@@ -605,9 +605,7 @@ void QDockWidget::mousePressEvent(QMouseEvent *event)
     Q_ASSERT(!d->state);
     d->state = new QDockWidgetPrivate::DragState;
 
-    const int screen_number = QApplication::desktop()->screenNumber(window());
-    d->state->rubberband = new QRubberBand(QRubberBand::Rectangle,
-                                        QApplication::desktop()->screen(screen_number));
+    d->state->rubberband = 0;
 
     // the current location of the tool window in global coordinates
     d->state->origin = QRect(mapToGlobal(QPoint(0, 0)), size());
@@ -630,9 +628,6 @@ void QDockWidget::mousePressEvent(QMouseEvent *event)
 
     d->state->canDrop = true;
 
-    d->state->rubberband->setGeometry(d->state->current);
-    d->state->rubberband->show();
-
 #ifdef Q_WS_WIN
     /* Work around windows expose bug when windows are partially covered by
      * a top level transparent object.
@@ -643,6 +638,17 @@ void QDockWidget::mousePressEvent(QMouseEvent *event)
         children.at(i)->update();
 #endif
 #endif // !defined(QT_NO_MAINWINDOW)
+}
+
+/*! \reimp */
+void QDockWidget::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    Q_D(QDockWidget);
+    if (event->button() != Qt::LeftButton)
+        return;
+    if (!d->titleArea.contains(event->pos()))
+        return;
+    d->toggleTopLevel();
 }
 
 /*! \reimp */
@@ -704,7 +710,15 @@ void QDockWidget::mouseMoveEvent(QMouseEvent *event)
     if (d->state->current == target)
         return;
 
-    d->state->rubberband->setGeometry(target);
+    if (!d->state->rubberband) {
+        const int screen_number = QApplication::desktop()->screenNumber(window());
+        d->state->rubberband = new QRubberBand(QRubberBand::Rectangle,
+                                               QApplication::desktop()->screen(screen_number));
+        d->state->rubberband->setGeometry(target);
+        d->state->rubberband->show();
+    } else {
+        d->state->rubberband->setGeometry(target);
+    }
     d->state->current = target;
 #endif // !defined(QT_NO_MAINWINDOW)
 }
