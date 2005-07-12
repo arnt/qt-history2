@@ -92,16 +92,12 @@ CodeMarker *CodeMarker::markerForLanguage( const QString& lang )
 
 const Node *CodeMarker::nodeForString( const QString& string )
 {
-    void *ptr = 0;
-    sscanf( string.toLatin1().data(), "%p", &ptr );
-    return (const Node *) ptr;
+    return (const Node *) string.toULongLong();
 }
 
 QString CodeMarker::stringForNode( const Node *node )
 {
-    QString str;
-    str.sprintf( "%p", (void *) node );
-    return str;
+    return QString::number((qulonglong) node);
 }
 
 QString CodeMarker::protect( const QString& string )
