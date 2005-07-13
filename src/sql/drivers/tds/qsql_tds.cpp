@@ -319,8 +319,8 @@ bool QTDSResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
                     QDate date = QDate::fromString(QLatin1String("1900-01-01"), Qt::ISODate);
                     QTime time = QTime::fromString(QLatin1String("00:00:00"), Qt::ISODate);
                     values[idx] = QDateTime(date.addDays(bdt->dtdays), time.addMSecs(int(bdt->dttime / 0.3)));
-                    break;
                 }
+                break;
             case QVariant::Int:
                 if ((DBINT)d->buffer.at(i * 2 + 1) == -1)
                     values[idx] = QVariant(QVariant::Int);
@@ -328,11 +328,6 @@ bool QTDSResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
                     values[idx] = *((int*)d->buffer.at(i * 2));
                 break;
             case QVariant::Double:
-                if ((DBINT)d->buffer.at(i * 2 + 1) == -1)
-                    values[idx] = QVariant(QVariant::Double);
-                else
-                    values[idx] = *((double*)d->buffer.at(i * 2));
-                break;
             case QVariant::String:
                 if ((DBINT)d->buffer.at(i * 2 + 1) == -1)
                     values[idx] = QVariant(QVariant::String);
