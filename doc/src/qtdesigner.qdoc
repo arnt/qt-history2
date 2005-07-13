@@ -3,7 +3,7 @@
 /*!
     \class QDesignerMemberSheetExtension
     \brief The QDesignerMemberSheetExtension class provides an extension to an object's member
-    sheet in Qt Designer. 
+    sheet in Qt Designer.
     \inmodule QtDesigner
 */
 
@@ -48,7 +48,7 @@
 */
 
 /*!
-    \fn bool QDesignerMemberSheetExtension::inheritedFromWidget(int index)
+    \fn bool QDesignerMemberSheetExtension::inheritedFromWidget(int index) const
 */
 
 /*!

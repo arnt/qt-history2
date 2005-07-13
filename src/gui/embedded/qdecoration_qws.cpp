@@ -127,7 +127,7 @@
     \fn int QDecoration::regionAt(const QWidget *widget, const QPoint &point)
 
     Returns the first region within \a widget which contains \a point.
-    If none of the regions contain the point it returns \l None.
+    If none of the regions contain the point, returns \l None.
 */
 int QDecoration::regionAt(const QWidget *w, const QPoint &point)
 {
