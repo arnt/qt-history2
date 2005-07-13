@@ -229,7 +229,7 @@
     \value Indicator        An indicator that represents a current value or item.
     \value LayeredPane      An object that can contain layered children, e.g. in a stack.
     \value Link             A link to something else.
-    \value List             A list of items, from which the user to select one or more items.
+    \value List             A list of items, from which the user can select one or more items.
     \value ListItem         An item in a list of items.
     \value MenuBar          A menu bar from which menus are opened by the user.
     \value MenuItem         An item in a menu or menu bar.
