@@ -1558,7 +1558,11 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
             }
         }
 #endif
-        event->ignore();
+        if (receivers(SIGNAL(returnPressed())) > 0) {
+            event->accept();
+        } else {
+            event->ignore();
+        }
         return;
     }
     bool unknown = false;
@@ -1619,7 +1623,7 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
             if (!d->readOnly)
                 paste();
             break;
-#endif            
+#endif
         case Qt::Key_X:
             if (!d->readOnly) {
 #ifndef QT_NO_CLIPBOARD
@@ -2268,7 +2272,7 @@ void QLineEditPrivate::init(const QString& txt)
     updateTextLayout();
     cursor = text.length();
 
-#ifndef QT_NO_MENU    
+#ifndef QT_NO_MENU
     actions[UndoAct] = new QAction(q->tr("&Undo") + ACCEL_KEY(Z), q);
     QObject::connect(actions[UndoAct], SIGNAL(triggered()), q, SLOT(undo()));
     actions[RedoAct] = new QAction(q->tr("&Redo") + ACCEL_KEY(Y), q);
