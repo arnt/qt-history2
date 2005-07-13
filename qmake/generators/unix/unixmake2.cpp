@@ -18,7 +18,6 @@
 #include <qbytearray.h>
 #include <qfile.h>
 #include <qdir.h>
-#include <qset.h>
 #include <time.h>
 
 QString mkdir_p_asstring(const QString &dir);
@@ -283,8 +282,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         t << endl << endl;
     }
     if(project->isActiveConfig("depend_prl") && !project->isEmpty("QMAKE_PRL_INTERNAL_FILES")) {
-        // Uniquify the list (because it's really a set)
-        QStringList l = project->variables()["QMAKE_PRL_INTERNAL_FILES"].toSet().toList();
+        QStringList &l = project->variables()["QMAKE_PRL_INTERNAL_FILES"];
         QStringList::Iterator it;
         for(it = l.begin(); it != l.end(); ++it) {
             QMakeMetaInfo libinfo;

@@ -21,7 +21,6 @@
 #include <qhash.h>
 #include <qbuffer.h>
 #include <qsettings.h>
-#include <qset.h>
 #if defined(Q_OS_UNIX)
 #include <unistd.h>
 #else
@@ -2559,8 +2558,7 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
                 else if(exists(Option::fixPathToLocalOS(specdir()+QDir::separator()+"tmake.conf")))
                     t << specdir() << Option::dir_sep << "tmake.conf" << " ";
             }
-            // Uniquify the list (because it's really a set)
-            QStringList included = project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].toSet().toList();
+            const QStringList &included = project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"];
             t << included.join(" \\\n\t\t") << "\n\t"
               << qmake << endl;
             for(int include = 0; include < included.size(); ++include)
