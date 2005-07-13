@@ -1029,16 +1029,32 @@ void QWidgetPrivate::setWindowIcon_sys()
     QIcon icon = q->windowIcon();
     if (!icon.isNull()) {
         QSize size = icon.actualSize(QSize(64, 64));
-        topData->iconPixmap = new QPixmap(icon.pixmap(size));
-        h->icon_pixmap = topData->iconPixmap->data->x11ConvertToDefaultDepth();
+        QPixmap pixmap = icon.pixmap(size);
+        /*
+          if the app is not using the default visual, convert the icon
+          to 1bpp as stated in the ICCCM section 4.1.2.4; otherwise,
+          create the icon pixmap in the default depth (even though
+          this violates the ICCCM)
+        */
+        if (!QX11Info::appDefaultVisual(xinfo.screen())
+            || !QX11Info::appDefaultColormap(xinfo.screen())) {
+            // non-default visual/colormap, use 1bpp bitmap
+            topData->iconPixmap = new QBitmap(pixmap);
+            h->icon_pixmap = topData->iconPixmap->handle();
+        } else {
+            // default depth, use a normal pixmap (even though this
+            // violates the ICCCM)
+            topData->iconPixmap = new QPixmap(pixmap);
+            h->icon_pixmap = topData->iconPixmap->data->x11ConvertToDefaultDepth();
+        }
         h->flags |= IconPixmapHint;
 
         QBitmap mask = topData->iconPixmap->mask();
         if (!mask.isNull()) {
-            if (!extra->topextra->iconMask)
-                extra->topextra->iconMask = new QBitmap;
-            *extra->topextra->iconMask = mask;
-            h->icon_mask = extra->topextra->iconMask->handle();
+            if (!topData->iconMask)
+                topData->iconMask = new QBitmap;
+            *topData->iconMask = mask;
+            h->icon_mask = topData->iconMask->handle();
             h->flags |= IconMaskHint;
         }
     } else {
