@@ -802,7 +802,7 @@ void Generator::generateSignal(FunctionDef *def,int index)
     if (def->arguments.isEmpty() && def->normalizedType.isEmpty()) {
         fprintf(out, ")\n{\n"
                 "    QMetaObject::activate(this, &staticMetaObject, %d, 0);\n"
-                "};\n", index);
+                "}\n", index);
         return;
     }
 
