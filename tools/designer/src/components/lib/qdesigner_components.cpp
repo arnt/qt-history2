@@ -21,6 +21,32 @@
 #include <resourceeditor/resourceeditor.h>
 #include <signalsloteditor/signalsloteditorwindow.h>
 
+#include <buddyeditor/buddyeditor_plugin.h>
+#include <signalsloteditor/signalsloteditor_plugin.h>
+#include <tabordereditor/tabordereditor_plugin.h>
+
+#include <QtCore/qplugin.h>
+
+// ### keep it in sync with Q_IMPORT_PLUGIN in qplugin.h
+#define DECLARE_PLUGIN_INSTANCE(PLUGIN) \
+        class Static##PLUGIN##PluginInstance{ \
+        public: \
+                Static##PLUGIN##PluginInstance() {                      \
+                extern void qRegisterStaticPluginInstanceFunction(QtPluginInstanceFunction); \
+                extern QObject *qt_plugin_instance_##PLUGIN(); \
+                qRegisterStaticPluginInstanceFunction(qt_plugin_instance_##PLUGIN); \
+                } \
+        };
+
+#define INIT_PLUGIN_INSTANCE(PLUGIN) \
+        do { \
+            Static##PLUGIN##PluginInstance instance; Q_UNUSED(instance); \
+        } while (0)
+
+DECLARE_PLUGIN_INSTANCE(SignalSlotEditorPlugin)
+DECLARE_PLUGIN_INSTANCE(BuddyEditorPlugin)
+DECLARE_PLUGIN_INSTANCE(TabOrderEditorPlugin)
+
 /*!
     \class QDesignerComponents
     \brief The QDesignerComponents class provides a central resource for the various components
@@ -41,6 +67,16 @@ void QDesignerComponents::initializeResources()
     Constructs a form editor interface with the given \a parent.*/
 QDesignerFormEditorInterface *QDesignerComponents::createFormEditor(QObject *parent)
 {
+    static bool plugins_initialized = false;
+
+    if (!plugins_initialized) {
+        INIT_PLUGIN_INSTANCE(SignalSlotEditorPlugin);
+        INIT_PLUGIN_INSTANCE(BuddyEditorPlugin);
+        INIT_PLUGIN_INSTANCE(TabOrderEditorPlugin);
+
+        plugins_initialized = true;
+    }
+
     return new qdesigner_internal::FormEditor(parent);
 }
 

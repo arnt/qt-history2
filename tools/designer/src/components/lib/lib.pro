@@ -13,8 +13,7 @@ QMAKE_TARGET_COPYRIGHT = Copyright (c) 2003-2005 Trolltech
 target.path=$$[QT_INSTALL_LIBS]
 INSTALLS        += target
 
-SOURCES += qdesigner_components.cpp \
-    qdesigner_plugins.cpp
+SOURCES += qdesigner_components.cpp
 
 !contains(CONFIG, static) {
     DEFINES += QDESIGNER_COMPONENTS_LIBRARY

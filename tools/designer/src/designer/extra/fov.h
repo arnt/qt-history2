@@ -3,7 +3,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved.
-** Copyright (C) 2002-$THISYEAR$ Björn Bergström
+** Copyright (C) 2002-$THISYEAR$ Bjï¿½n Bergstrï¿½
 **
 ** This file is part of the $MODULE$ of the Qt Toolkit.
 **
@@ -20,6 +20,8 @@ class OublietteLevel;
 class FOV
 {
 protected:
+	virtual ~FOV() {}
+
 	virtual bool scanCell(OublietteLevel *map, int x, int y) = 0;
 	virtual void applyCell(OublietteLevel *map, int x, int y) = 0;
 
