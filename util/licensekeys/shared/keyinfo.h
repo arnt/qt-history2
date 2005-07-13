@@ -100,13 +100,17 @@ enum {
     SupportedEvaluation   = 0x0001,
     UnsupportedEvaluation = 0x0002,
     FullSourceEvaluation  = 0x0004,
-    FullCommercial        = 0x0008
+    FullCommercial        = 0x0008,
+    Academic              = 0x0010,
+    Educational           = 0x0020
 };
 static const char *LicenseSchemas[] = {
     "Supported Evaluation",
     "Unsupported Evaluation",
     "Full Source Evaluation",
-    "Full Commercial"
+    "Full Commercial",
+    "Academic",
+    "Educational"
 };
 
 // License Feature
