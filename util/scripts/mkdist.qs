@@ -10,8 +10,7 @@ const qdocCommand = qdocDir + "/qdoc3";
 const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "embedded"];
-const validLicenses = ["opensource", "commercial", "preview", "beta", "eval", "academic"];
-const validEditions = ["console", "desktop"];
+const validLicenses = ["opensource", "commercial"];
 const validSwitches = ["gzip", "bzip", "zip", "binaries", "snapshots"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
 
@@ -98,7 +97,6 @@ platformRemove["win"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^configure$"),
-			  new RegExp("^LICENSE.PREVIEW"),
 			  new RegExp("^LICENSE.QPL"),
 			  new RegExp("\\.qws") ];
 
@@ -159,10 +157,6 @@ platformRemove["embedded"] = [ new RegExp("^gif"),
 var licenseRemove = new Array();
 
 licenseRemove["commercial"] = [ new RegExp("LICENSE.GPL") ];
-licenseRemove["preview"] = licenseRemove["commercial"];
-licenseRemove["beta"] = licenseRemove["commercial"];
-licenseRemove["eval"] = licenseRemove["commercial"];
-licenseRemove["academic"] = licenseRemove["commercial"];
 
 licenseRemove["opensource"] = [ new RegExp("^extensions"),
 				new RegExp("^examples/activeqt"),
@@ -183,12 +177,6 @@ licenseRemove["opensource"] = [ new RegExp("^extensions"),
 				new RegExp("^qmake/generators/mac/metrowerks"),
 				new RegExp("^mkspecs/macx-mwerks"),
 				new RegExp("^README-QT.TXT") ];
-
-var editionRemove = new Array();
-editionRemove["console"] = [ new RegExp("^tools/designer"),
-			     new RegExp("^extensions"),
-			     new RegExp("^examples/activeqt") ];
-editionRemove["desktop"] = [ ];
 
 var finalRemove = [ new RegExp("^dist") ];
 
@@ -239,83 +227,71 @@ purgeFiles(checkoutDir, getFileList(checkoutDir), checkoutRemove);
 indentation+=tabSize;
 for (var p in validPlatforms) {
     for (var l in validLicenses) {
-	for (var e in validEditions) {
-	    var platform = validPlatforms[p];
-	    var license = validLicenses[l];
-	    var edition = validEditions[e];
-	    if (options[platform] && options[license] && options[edition] &&
-		packageExists(platform, license, edition, false)) {
-		print("Packaging %1-%2-%3...".arg(platform).arg(license).arg(edition));
-		indentation+=tabSize;
+	var platform = validPlatforms[p];
+	var license = validLicenses[l];
+	if (options[platform] && options[license]) {
+	    print("Packaging %1-%2...".arg(platform).arg(license));
+	    indentation+=tabSize;
+	    
+	    // copy checkoutDir to platDir and set permissions
+	    print("Copying checkout...");
+	    var platName = "qt-%1-%2-%3"
+		.arg(platform)
+		.arg(license)
+		.arg(options["version"]);
+	    var platDir = distDir + "/" + platName;
+	    execute(["cp", "-r", checkoutDir, platDir]);
+	    
+	    //copying dist files
+	    print("Copying dist files...");
+	    copyDist(platDir, platform, license);
 
-		// copy checkoutDir to platDir and set permissions
-		print("Copying checkout...");
-		var platName = "qt-%1-%2-%3-%4"
-		    .arg(platform)
-		    .arg(license)
-		    .arg(edition)
-		    .arg(options["version"]);
-		var platDir = distDir + "/" + platName;
-		execute(["cp", "-r", checkoutDir, platDir]);
+	    // run qdoc
+	    print("Running qdoc...");
+	    qdoc(platDir, platform, license);
 
-		//copying dist files
-		print("Copying dist files...");
-		copyDist(platDir, platform, license);
+	    // purge platform and license files
+	    print("Purging platform and license specific files...");
+	    purgeFiles(platDir, getFileList(platDir),[]
+		       .concat(platformRemove[platform])
+		       .concat(licenseRemove[license]));
 
-		//copy in eval files
-		if ((license == "eval") && (platform == "win" || platform == "mac")) {
-		    print("Copying eval files...");
-		    copyEval(platDir);
+	    // run syncqt
+	    print("Running syncqt...");
+	    syncqt(platDir, platform);
+
+	    // final package purge
+	    print("Final package purge...");
+	    purgeFiles(platDir, getFileList(platDir), finalRemove);
+
+	    // replace tags (like THISYEAR etc.)
+	    print("Traversing all txt files and replacing tags...");
+	    replaceTags(platDir, getFileList(platDir), platform, license, platName);
+
+	    // package directory
+	    print("Compressing and packaging file(s)...");
+	    compress(platform, license, platDir);
+
+	    // create binaries
+	    if (options["binaries"] && (platform in binaryHosts)) {
+		if (license == "commercial" && platform == "win") {
+		    createBinary(platform, license, "desktop", platName, "vs2003");
+		    createBinary(platform, license, "desktop", platName, "vc60");
+		    createBinary(platform, "eval", "desktop", platName, "vs2003");
+		    createBinary(platform, "eval", "desktop", platName, "vc60");
+		} else if (license == "opensource" && platform == "win") {
+		    createBinary(platform, license, "desktop", platName, "mingw");
+		} else if (license == "commercial" && platform == "mac") {
+		    createBinary(platform, license, "desktop", platName, "");
+		    createBinary(platform, "eval", "desktop", platName, "");
 		}
-
-		// run qdoc
-		print("Running qdoc...");
- 		qdoc(platDir, platform, license, edition);
-
-		// purge platform and license files
-		print("Purging platform and license specific files...");
-		purgeFiles(platDir, getFileList(platDir),[]
-			   .concat(platformRemove[platform])
-			   .concat(licenseRemove[license])
-			   .concat(editionRemove[edition]));
-
-		// run syncqt
-		print("Running syncqt...");
-		syncqt(platDir, platform);
-
-		// final package purge
-		print("Final package purge...");
-		purgeFiles(platDir, getFileList(platDir), finalRemove);
-
-		// replace tags (like THISYEAR etc.)
-		print("Traversing all txt files and replacing tags...");
-		replaceTags(platDir, getFileList(platDir), platform, license, platName);
-
-		// package directory
-		print("Compressing and packaging file(s)...");
-		compress(platform, license, platDir);
-
-		// create binaries
-		if (options["binaries"] && (platform in binaryHosts) &&
-		    packageExists(platform, license, edition, true)) {
-		    print("Creating binaries...");
-		    if (platform == "win") {
-			if (license == "opensource") {
-			    createBinary(platform, license, edition, platName, "mingw");
-			} else {
-			    createBinary(platform, license, edition, platName, "vs2003");
-			    createBinary(platform, license, edition, platName, "vc60");
-			}
-		    } else {
-			createBinary(platform, license, edition, platName, "");
-		    }
-		}
-
-		indentation-=tabSize;
 	    }
+
+	    indentation-=tabSize;
 	}
     }
-}
+ }
+
 indentation-=tabSize;
 print("Cleaning all temp files...");
 cleanup();
@@ -328,7 +304,6 @@ function parseArgc()
     var validOptions = []
 	.concat(validPlatforms)
 	.concat(validLicenses)
-	.concat(validEditions)
 	.concat(validSwitches)
 	.concat(validVars);
     for (var i=0; i<argc.length; ++i) {
@@ -387,11 +362,6 @@ function initialize()
 	if (!(validLicenses[i] in options))
 	    options[validLicenses[i]] = false;
 
-    // by default turn off all valid editions that were not defined
-    for (var i in validEditions)
-	if (!(validEditions[i] in options))
-	    options[validEditions[i]] = false;
-
     // make sure platform and license filters are defined
     for (var i in validPlatforms) {
 	if (!(validPlatforms[i] in platformRemove))
@@ -401,11 +371,6 @@ function initialize()
 	if (!(validLicenses[i] in licenseRemove))
 	    licenseRemove[validLicenses[i]] = new Array();
     }
-    for (var i in validEditions) {
-	if (!(validEditions[i] in editionRemove))
-	    editionRemove[validEditions[i]] = new Array();
-    }
-
 
     // finds a tmpDir
     if (tmpDir == undefined || !File.exists(tmpDir)) {
@@ -675,6 +640,9 @@ function createBinary(platform, license, edition, packageName, compiler)
     // copy src package over
     execute(["scp", outputDir + "/" + packageFile, login + ":" + hostDir]);
 
+    //copy in eval files
+    // TODO!
+
     if (platform == "win") {
 	// get absolute windows path to hostDir
 	execute(["ssh", login, "cygpath", "-w", "`pwd`/" + hostDir]);
@@ -833,18 +801,13 @@ function copyDist(packageDir, platform, license)
 	    var dir = new Dir(new File(packageDir + "/" + fileName).path);
 	    if (!dir.exists)
 		dir.mkdirs();
-	    execute(["cp", absFileName, packageDir + "/" + fileName]);
+	    if (fileName.startsWith("LICENSE") && (fileName.find(".") == -1))
+		execute(["cp", absFileName, packageDir + "/." + fileName]);
+	    else
+		execute(["cp", absFileName, packageDir + "/" + fileName]);
+
 	}
     }
-
-    // rename any LICENSE and LICENSE-US to hidden . files
-    var dir = new Dir(packageDir);
-    if (dir.fileExists("LICENSE"))
-	dir.rename("LICENSE", ".LICENSE");
-    if (dir.fileExists("LICENSE-US"))
-	dir.rename("LICENSE-US", ".LICENSE-US");
-    if (dir.fileExists("LICENSE-COMBINED"))
-	dir.rename("LICENSE-COMBINED", "LICENSE.PREVIEW");
 
     // populate licenseHeaders with all files found in dist/licenses
     var licenseFiles = getFileList(packageDir + "/dist/licenses");
@@ -857,7 +820,7 @@ function copyDist(packageDir, platform, license)
 
     //check that key files are present
     var keyFiles = ["README", "INSTALL"];
-    if (!options["snapshots"] && (license != "preview" || license != "beta"))
+    if (!options["snapshots"])
 	keyFiles.push("changes-" + options["version"]);
     if (license == "opensource") {
 	keyFiles.push("LICENSE.GPL");
@@ -902,7 +865,7 @@ function syncqt(packageDir, platform)
 /************************************************************
  * runs qdoc on packageDir
  */
-function qdoc(packageDir, platform, license, edition)
+function qdoc(packageDir, platform, license)
 {
     var dir = new Dir(packageDir);
     dir.setCurrent();
@@ -910,7 +873,7 @@ function qdoc(packageDir, platform, license, edition)
     var qdocConfigFile = qdocDir + "/test/qt.qdocconf";
     var qdocDefines = "-Dopensourceedition";
     if (license != "opensource")
-	qdocDefines = "-D" + edition + "edition";
+	qdocDefines = "-Ddesktopedition";
     if (platform == "embedded")
 	qdocDefines += " -Dqtopiacore";
 
@@ -964,31 +927,6 @@ function replaceTags(packageDir, fileList, platform, license, platName, addition
 	    File.write(absFileName, content);
 	}
     }
-}
-
-/************************************************************
- * returns true if the combinations of platform, license and edition
- * is a valid package that should exist for Qt
- */
-function packageExists(platform, license, edition, binary)
-{
-    // binaries for mac and win for commercial,desktop
-    // binaries for win for opensource, desktop
-    if (binary == true && edition == "desktop" &&
-	(((license == "commercial" || license =="eval") &&
-	  (platform == "win" || platform == "mac")) ||
-	 (license == "opensource" && platform == "win")))
-	return true;
-
-    // console edition only exists for commercial packages
-    if (binary == false && edition == "console" && license == "commercial")
-	return true;
-
-    // desktop edition exists on all platforms for all licenses
-    if (binary == false && edition == "desktop")
-	return true;
-
-    return false;
 }
 
 /************************************************************
