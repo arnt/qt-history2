@@ -337,6 +337,8 @@ int QTabWidget::insertTab(int index, QWidget *w, const QString &label)
 int QTabWidget::insertTab(int index, QWidget *w, const QIcon& icon, const QString &label)
 {
     Q_D(QTabWidget);
+    if(!w)
+        return -1;
     index = d->tabs->insertTab(index, icon, label);
     d->stack->insertWidget(index, w);
     setUpLayout();
@@ -536,6 +538,9 @@ void QTabWidget::resizeEvent(QResizeEvent *e)
 void QTabWidget::setTabBar(QTabBar* tb)
 {
     Q_D(QTabWidget);
+    if (!tb)
+        return;
+
     if (tb->parentWidget() != this) {
         tb->setParent(this);
         tb->show();
