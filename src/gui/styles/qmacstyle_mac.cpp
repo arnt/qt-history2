@@ -764,7 +764,7 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
         }
     }
 
-    // HIThemes broke reverse scrollbars so put them back and "fake it"
+    // Tiger broke reverse scrollbars so put them back and "fake it"
     if (isScrollbar && (tdi->attributes & kThemeTrackRightToLeft)
         && QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
         tdi->attributes &= ~kThemeTrackRightToLeft;
@@ -1141,6 +1141,10 @@ bool QMacStylePrivate::addWidget(QWidget *w)
             return true;
         }
     }
+    if (w->isWindow()) {
+        w->installEventFilter(this);
+        return true;
+    }
     return false;
 }
 
@@ -1288,6 +1292,20 @@ bool QMacStylePrivate::eventFilter(QObject *o, QEvent *e)
             break; }
         }
     }
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+    else if (e->type() == QEvent::Paint && o->isWidgetType()
+             && qt_mac_is_metal(static_cast<QWidget *>(o))
+             && QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
+        QWidget *widget = static_cast<QWidget *>(o);
+        HIThemeBackgroundDrawInfo bginfo;
+        bginfo.version = qt_mac_hitheme_version;
+        bginfo.state = kThemeStateActive;
+        bginfo.kind = kThemeBackgroundMetal;
+        HIRect rect = CGRectMake(0, 0, widget->width(), widget->height());
+        HIThemeApplyBackground(&rect, &bginfo, QCFType<CGContextRef>(qt_mac_cg_context(widget)),
+                               kHIThemeOrientationNormal);
+    }
+#endif
     return false;
 }
 
@@ -1314,14 +1332,12 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
     addWidget(w);
     QPixmap px;
     if (qt_mac_is_metal(w)) {
-        px = QPixmap(200, 200);
-        HIThemeBackgroundDrawInfo bginfo;
-        bginfo.version = qt_mac_hitheme_version;
-        bginfo.state = kThemeStateActive;
-        bginfo.kind = kThemeBackgroundMetal;
-        HIRect rect = CGRectMake(0, 0, px.width(), px.height());
-        HIThemeDrawBackground(&rect, &bginfo, QCFType<CGContextRef>(qt_mac_cg_context(&px)),
-                              kHIThemeOrientationNormal);
+        // Set a clear brush so that the metal shines through.
+        QPalette pal = w->palette();
+        QBrush background(QColor(255, 255, 255, 0));
+        pal.setBrush(QPalette::Background, background);
+        pal.setBrush(QPalette::Button, background);
+        w->setPalette(pal);
     }
 
     if (::qobject_cast<QMenu*>(w)) {
