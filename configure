@@ -1657,6 +1657,12 @@ else
                 ;;
         esac
         ;; 
+    Darwin:*:x86)
+        if [ "$OPT_VERBOSE" = "yes" ]; then
+            echo "    32-bit Apple Intel (x86)"
+        fi
+        ARCH=i386
+        ;;
     AIX:*:00????????00)
         if [ "$OPT_VERBOSE" = "yes" ]; then
         echo "    64-bit IBM PowerPC (powerpc)"
