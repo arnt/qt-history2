@@ -603,7 +603,12 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
     }
 
     unlockFace();
-    glyphSet = XRenderCreateGlyphSet(X11->display, XRenderFindStandardFormat(X11->display, format));
+    if (X11->use_xrender) {
+        glyphSet = XRenderCreateGlyphSet(X11->display,
+                                         XRenderFindStandardFormat(X11->display, format));
+    } else {
+        glyphSet = 0;
+    }
     _openType = 0;
 }
 
@@ -625,7 +630,8 @@ QFontEngineFT::~QFontEngineFT()
     _pattern = 0;
 
     qDeleteAll(glyph_data);
-    XRenderFreeGlyphSet(X11->display, glyphSet);
+    if (glyphSet)
+        XRenderFreeGlyphSet(X11->display, glyphSet);
     delete _openType;
 }
 

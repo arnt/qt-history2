@@ -1547,27 +1547,29 @@ void qt_init(QApplicationPrivate *priv, int,
         for (int s = 0; s < ScreenCount(X11->display); ++s) {
             int subpixel = FC_RGBA_UNKNOWN;
 #if RENDER_MAJOR > 0 || RENDER_MINOR >= 6
-            int rsp = XRenderQuerySubpixelOrder(X11->display, s);
-            switch (rsp) {
-            default:
-            case SubPixelUnknown:
-                subpixel = FC_RGBA_UNKNOWN;
-                break;
-            case SubPixelHorizontalRGB:
-                subpixel = FC_RGBA_RGB;
-                break;
-            case SubPixelHorizontalBGR:
-                subpixel = FC_RGBA_BGR;
-                break;
-            case SubPixelVerticalRGB:
-                subpixel = FC_RGBA_VRGB;
-                break;
-            case SubPixelVerticalBGR:
-                subpixel = FC_RGBA_VBGR;
-            break;
-            case SubPixelNone:
-                subpixel = FC_RGBA_NONE;
-                break;
+            if (X11->use_xrender) {
+                int rsp = XRenderQuerySubpixelOrder(X11->display, s);
+                switch (rsp) {
+                default:
+                case SubPixelUnknown:
+                    subpixel = FC_RGBA_UNKNOWN;
+                    break;
+                case SubPixelHorizontalRGB:
+                    subpixel = FC_RGBA_RGB;
+                    break;
+                case SubPixelHorizontalBGR:
+                    subpixel = FC_RGBA_BGR;
+                    break;
+                case SubPixelVerticalRGB:
+                    subpixel = FC_RGBA_VRGB;
+                    break;
+                case SubPixelVerticalBGR:
+                    subpixel = FC_RGBA_VBGR;
+                    break;
+                case SubPixelNone:
+                    subpixel = FC_RGBA_NONE;
+                    break;
+                }
             }
 #endif
             getXDefault("Xft", FC_RGBA, &subpixel);

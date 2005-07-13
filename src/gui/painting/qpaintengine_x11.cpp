@@ -515,6 +515,9 @@ static XRenderColor preMultiply(const QColor &c)
 
 static Picture getSolidFill(int screen, const QColor &c)
 {
+    if (!X11->use_xrender)
+        return XNone;
+
     XRenderColor color = preMultiply(c);
     for (int i = 0; i < X11->solid_fill_count; ++i) {
         if (X11->solid_fills[i].screen == screen
@@ -550,6 +553,9 @@ static Picture getSolidFill(int screen, const QColor &c)
 
 static Picture getPatternFill(int screen, const QBrush &b, const QBrush &bg, bool opaque_bg)
 {
+    if (!X11->use_xrender)
+        return XNone;
+
     XRenderColor color = preMultiply(b.color());
     XRenderColor bg_color;
 
@@ -713,7 +719,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
 
     if (isActive()) {                         // already active painting
         qWarning("QX11PaintEngine::begin: Painter is already active."
-                  "\n\tYou must end() the painter before a second begin()");
+                 "\n\tYou must end() the painter before a second begin()");
         return false;
     }
 
@@ -754,9 +760,9 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
         XSetSubwindowMode(d->dpy, d->gc, IncludeInferiors);
         XSetSubwindowMode(d->dpy, d->gc_brush, IncludeInferiors);
 #ifndef QT_NO_XRENDER
-	XRenderPictureAttributes attrs;
-	attrs.subwindow_mode = IncludeInferiors;
-	XRenderChangePicture(d->dpy, d->picture, CPSubwindowMode, &attrs);
+        XRenderPictureAttributes attrs;
+        attrs.subwindow_mode = IncludeInferiors;
+        XRenderChangePicture(d->dpy, d->picture, CPSubwindowMode, &attrs);
 #endif
     }
 
@@ -1261,24 +1267,26 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
             vals.stipple = pm.handle();
             s = d->bg_mode == Qt::TransparentMode ? FillStippled : FillOpaqueStippled;
 #if !defined(QT_NO_XRENDER)
-            d->bitmap_texture = QPixmap(pm.size());
+            if (X11->use_xrender) {
+                d->bitmap_texture = QPixmap(pm.size());
 
-            if (d->bg_mode == Qt::OpaqueMode)
-                d->bitmap_texture.fill(d->bg_brush.color());
-            else
-                d->bitmap_texture.fill(Qt::transparent);
+                if (d->bg_mode == Qt::OpaqueMode)
+                    d->bitmap_texture.fill(d->bg_brush.color());
+                else
+                    d->bitmap_texture.fill(Qt::transparent);
 
-            ::Picture src  = getSolidFill(d->scrn, d->cbrush.color());
-            XRenderComposite(d->dpy, PictOpSrc, src, pm.x11PictureHandle(),
-                             d->bitmap_texture.x11PictureHandle(),
-                             0, 0, pm.width(), pm.height(),
-                             0, 0, pm.width(), pm.height());
+                ::Picture src  = getSolidFill(d->scrn, d->cbrush.color());
+                XRenderComposite(d->dpy, PictOpSrc, src, pm.x11PictureHandle(),
+                                 d->bitmap_texture.x11PictureHandle(),
+                                 0, 0, pm.width(), pm.height(),
+                                 0, 0, pm.width(), pm.height());
 
-            XRenderPictureAttributes attrs;
-            attrs.repeat = true;
-            XRenderChangePicture(d->dpy, d->bitmap_texture.x11PictureHandle(), CPRepeat, &attrs);
+                XRenderPictureAttributes attrs;
+                attrs.repeat = true;
+                XRenderChangePicture(d->dpy, d->bitmap_texture.x11PictureHandle(), CPRepeat, &attrs);
 
-            d->current_brush = d->bitmap_texture.x11PictureHandle();
+                d->current_brush = d->bitmap_texture.x11PictureHandle();
+            }
 #endif
         } else {
             mask |= GCTile;
