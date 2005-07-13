@@ -524,6 +524,7 @@ static void qt_plastique_draw_gradient(QPainter *painter, const QRect &rect, QCo
         gradient.setColorAt(0, gradientStart);
         gradient.setColorAt(1, gradientStop);
         cachePainter.fillRect(pixmapRect, gradient);
+        cachePainter.end();
         if (UsePixmapCache)
             QPixmapCache::insert(gradientName, cache);
     }
@@ -793,7 +794,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         // Draws the frame around a default button (drawn in
         // PE_PanelButtonCommand).
         break;
-#ifndef QT_NO_TABWIDGET        
+#ifndef QT_NO_TABWIDGET
     case PE_FrameTabWidget:
         if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option)) {
             if (twf->shape != QTabBar::RoundedNorth && twf->shape != QTabBar::RoundedWest &&
@@ -1166,6 +1167,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                     cachePainter.drawImage(QPoint(option->rect.left() + indent + i * handle.width(), option->rect.top() + 3),
                                            handle);
             }
+            cachePainter.end();
             if (UsePixmapCache)
                 QPixmapCache::insert(pixmapName, cache);
         }
@@ -1397,6 +1399,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                                                pixmapRect.right() - 1, pixmapRect.bottom() - 2);
                     }
                 }
+                buttonPainter.end();
                 if (UsePixmapCache)
                     QPixmapCache::insert(pixmapName, cache);
             }
@@ -1487,6 +1490,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                     }
                     checkBoxPainter.drawImage(pixmapRect.x() + 2, pixmapRect.y() + 2, image);
                 }
+                checkBoxPainter.end();
                 if (UsePixmapCache)
                     QPixmapCache::insert(pixmapName, cache);
             }
@@ -1560,6 +1564,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                     }
                     radioButtonPainter.drawImage(pixmapRect, image);
                 }
+                radioButtonPainter.end();
                 if (UsePixmapCache)
                     QPixmapCache::insert(pixmapName, cache);
             }
@@ -2373,6 +2378,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                                       pixmapRect.right() - 2, pixmapRect.bottom() - 1);
                 cachePainter.drawLine(pixmapRect.right() - 1, pixmapRect.bottom() - 2,
                                       pixmapRect.right() - 1, pixmapRect.top() + 2);
+                cachePainter.end();
                 if (UsePixmapCache)
                     QPixmapCache::insert(pixmapName, cache);
             }
@@ -2599,7 +2605,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     cachePainter.setPen(gradientStopColor.dark(102));
                 cachePainter.drawLine(rect.left() + 1, rect.bottom() - 1, rect.right() - 1, rect.bottom() - 1);
                 cachePainter.drawLine(rect.right() - 1, rect.top() + 1, rect.right() - 1, rect.bottom() - 2);
-
+                cachePainter.end();
                 if (UsePixmapCache)
                     QPixmapCache::insert(pixmapName, cache);
             }
@@ -2816,6 +2822,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                         groovePainter.drawPoint(pixmapRect.left(), pixmapRect.bottom());
                         groovePainter.drawPoint(pixmapRect.right(), pixmapRect.bottom());
                     }
+                    groovePainter.end();
                     if (UsePixmapCache)
                         QPixmapCache::insert(groovePixmapName, cache);
                 }
@@ -2907,6 +2914,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     image.setColor(2, gradientStartColor.rgba());
                     image.setColor(3, alphaCornerColor.rgba());
                     handlePainter.drawImage(pixmapRect, image);
+                    handlePainter.end();
                     if (UsePixmapCache)
                         QPixmapCache::insert(handlePixmapName, cache);
                 }
@@ -2996,6 +3004,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     }
                     groovePainter.fillRect(pixmapRect,
                                            QBrush(scrollBar->palette.base().color().dark(115), Qt::Dense4Pattern));
+                    groovePainter.end();
                     if (UsePixmapCache)
                         QPixmapCache::insert(groovePixmapName, cache);
                 }
@@ -3010,6 +3019,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     QPainter groovePainter(&cache);
                     QRect pixmapRect = QRect(0, 0, rect.width(), rect.height());
                     groovePainter.fillRect(pixmapRect, QBrush(scrollBar->palette.base().color().dark(125), Qt::Dense4Pattern));
+                    groovePainter.end();
                     if (UsePixmapCache)
                         QPixmapCache::insert(groovePixmapName, cache);
                 }
@@ -3104,6 +3114,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                             subLinePainter.drawImage(QPoint(pixmapRect.left() + 4, pixmapRect.top() + 6), arrow);
                         }
                     }
+                    subLinePainter.end();
                     if (UsePixmapCache)
                         QPixmapCache::insert(subLinePixmapName, cache);
                 }
@@ -3177,6 +3188,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                             addLinePainter.drawImage(QPoint(pixmapRect.left() + 4, pixmapRect.top() + 6), arrow);
                         }
                     }
+                    addLinePainter.end();
                     if (UsePixmapCache)
                         QPixmapCache::insert(addLinePixmapName, cache);
                 }
@@ -3247,7 +3259,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                                                     pattern);
                         }
                     }
-
+                    sliderPainter.end();
                     // insert the slider into the cache
                     if (UsePixmapCache)
                         QPixmapCache::insert(sliderPixmapName, cache);
@@ -3416,6 +3428,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                                                downArrow);
                     }
                 }
+                cachePainter.end();
                 if (UsePixmapCache)
                     QPixmapCache::insert(pixmapName, cache);
             }
@@ -3565,6 +3578,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                                  .adjusted(0, 0, option->direction == Qt::RightToLeft ? 1 : -1, 0);
                     drawPrimitive(PE_FrameFocusRect, &focus, &cachePainter, widget);
                 }
+                cachePainter.end();
                 if (UsePixmapCache)
                     QPixmapCache::insert(pixmapName, cache);
             }
@@ -4535,7 +4549,7 @@ void QPlastiqueStyle::polish(QWidget *widget)
 #endif
 #ifndef QT_NO_TOOLBUTTON
         || qobject_cast<QToolButton *>(widget)
-#endif        
+#endif
         ) {
         widget->setBackgroundRole(QPalette::Background);
     }
