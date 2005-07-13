@@ -21,7 +21,8 @@
 inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
 {
     unsigned char ret;
-    asm volatile("lock cmpxchgl %2,%3\n"
+    asm volatile("lock\n"
+                 "cmpxchgl %2,%3\n"
                  "sete %1\n"
                  : "=a" (newval), "=qm" (ret)
                  : "r" (newval), "m" (*ptr), "0" (expected)
@@ -39,7 +40,8 @@ inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *n
 inline int q_atomic_increment(volatile int *ptr)
 {
     unsigned char ret;
-    asm volatile("lock incl %0\n"
+    asm volatile("lock\n"
+                 "incl %0\n"
                  "setne %1"
                  : "=m" (*ptr), "=qm" (ret)
                  : "m" (*ptr)
@@ -50,7 +52,8 @@ inline int q_atomic_increment(volatile int *ptr)
 inline int q_atomic_decrement(volatile int *ptr)
 {
     unsigned char ret;
-    asm volatile("lock decl %0\n"
+    asm volatile("lock\n" 
+                 "decl %0\n"
                  "setne %1"
                  : "=m" (*ptr), "=qm" (ret)
                  : "m" (*ptr)

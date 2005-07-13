@@ -6,7 +6,8 @@ q_atomic_test_and_set_int:
 	movl		 4(%esp),%ecx
 	movl		 8(%esp),%eax
 	movl		12(%esp),%edx
-	lock cmpxchgl	%edx,(%ecx)
+	lock
+	cmpxchgl	%edx,(%ecx)
 	mov		$0,%eax
  	sete		%al
 	ret
@@ -20,7 +21,8 @@ q_atomic_test_and_set_ptr:
 	movl		 4(%esp),%ecx
 	movl		 8(%esp),%eax
 	movl		12(%esp),%edx
-	lock cmpxchgl	%edx,(%ecx)
+	lock 
+	cmpxchgl	%edx,(%ecx)
 	mov		$0,%eax
 	sete		%al
 	ret
@@ -32,7 +34,8 @@ q_atomic_test_and_set_ptr:
 	.globl q_atomic_increment
 q_atomic_increment:
 	movl 4(%esp), %ecx
-	lock incl (%ecx)
+	lock 
+	incl (%ecx)
 	mov $0,%eax
 	setne %al
 	ret
@@ -44,7 +47,8 @@ q_atomic_increment:
 	.globl q_atomic_decrement
 q_atomic_decrement:
 	movl 4(%esp), %ecx
-	lock decl (%ecx)
+	lock 
+	decl (%ecx)
 	mov $0,%eax
 	setne %al
 	ret
