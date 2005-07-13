@@ -47,6 +47,7 @@ public:
               const QSqlRecord &rec, const QSqlRecord &whereValues = QSqlRecord());
     void revertCachedRow(int row);
     void revertInsertedRow();
+    bool setRecord(int row, const QSqlRecord &record);
     QSqlDatabase db;
     int editIndex;
     int insertIndex;

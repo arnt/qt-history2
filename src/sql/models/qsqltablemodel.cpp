@@ -35,6 +35,35 @@ QSqlRecord QSqlTableModelPrivate::record(const QVector<QVariant> &values) const
     return r;
 }
 
+/*! \internal
+    Set a record for OnFieldChange and OnRowChange.
+*/
+bool QSqlTableModelPrivate::setRecord(int row, const QSqlRecord &record)
+{
+    Q_Q(QSqlTableModel);
+    bool isOk = true;
+
+    QSqlTableModel::EditStrategy oldStrategy = strategy;
+
+    // FieldChange strategy makes no sense when setting an entire row
+    if (strategy == QSqlTableModel::OnFieldChange)
+        strategy = QSqlTableModel::OnRowChange;
+    for (int i = 0; i < record.count(); ++i) {
+        int idx = rec.indexOf(record.fieldName(i));
+        if (idx == -1)
+            continue;
+        QModelIndex cIndex = q->createIndex(row, idx);
+        QVariant value = record.value(i);
+        if (q->data(cIndex) != value)
+            isOk &= q->setData(cIndex, value, Qt::EditRole);
+    }
+    if (isOk && oldStrategy == QSqlTableModel::OnFieldChange)
+        q->submitAll();
+    strategy = oldStrategy;
+
+    return isOk;
+}
+
 void QSqlTableModelPrivate::clear()
 {
     editIndex = -1;
@@ -447,10 +476,9 @@ bool QSqlTableModel::setData(const QModelIndex &index, const QVariant &value, in
             return true;
         }
         if (d->editIndex != index.row()) {
-            if (d->editBuffer.isEmpty())
-                d->clearEditBuffer();
-            else if (d->editIndex != -1)
+            if (d->editIndex != -1)
                 submit();
+            d->clearEditBuffer();
         }
         d->editBuffer.setValue(index.column(), value);
         d->editIndex = index.row();
@@ -1162,13 +1190,7 @@ bool QSqlTableModel::setRecord(int row, const QSqlRecord &record)
     switch (d->strategy) {
     case OnFieldChange:
     case OnRowChange:
-        for (int i = 0; i < record.count(); ++i) {
-            int idx = d->rec.indexOf(record.fieldName(i));
-            if (idx == -1)
-                continue;
-            isOk |= setData(createIndex(row, idx), record.value(i), Qt::EditRole);
-        }
-        return isOk;
+        return d->setRecord(row, record);
     case OnManualSubmit: {
         QSqlTableModelPrivate::ModifiedRow &mrow = d->cache[row];
         if (mrow.op == QSqlTableModelPrivate::None) {
