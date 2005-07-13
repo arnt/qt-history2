@@ -7,7 +7,7 @@ DEFINES += QT_QWS_TSLIB
 HEADERS = tslibmousedriverplugin.h tslibmousehandler.h
 SOURCES = tslibmousedriverplugin.cpp tslibmousehandler.cpp
 
-LIBS   += -ltslib
+LIBS   += -lts
 
 target.path=$$plugins.path/mousedrivers
 INSTALL += target
