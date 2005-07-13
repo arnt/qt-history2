@@ -21,7 +21,9 @@ static bool createConnection()
     if (!db.open()) {
         QMessageBox::critical(0, qApp->tr("Cannot open database"),
             qApp->tr("Unable to establish a database connection.\n"
-                     "Perhaps Qt was built without database support.\n\n"
+                     "This example needs SQLite support. Please read "
+                     "the Qt SQL driver documentation for information how "
+                     "to build it.\n\n"
                      "Click Cancel to exit."), QMessageBox::Cancel,
                      QMessageBox::NoButton);
         return false;
