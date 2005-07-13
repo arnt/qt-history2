@@ -140,6 +140,8 @@ bool QBufferedFSFileEngine::close()
 void QBufferedFSFileEngine::flush()
 {
     Q_D(QBufferedFSFileEngine);
+    if(!d->fh)
+        return;
 #ifdef Q_OS_WIN
     fpos_t pos;
     int gotPos = fgetpos(d->fh, &pos);
@@ -155,12 +157,16 @@ void QBufferedFSFileEngine::flush()
 qint64 QBufferedFSFileEngine::at() const
 {
     Q_D(const QBufferedFSFileEngine);
+    if(!d->fh)
+        return -1;
     return qint64(ftell(d->fh));
 }
 
 bool QBufferedFSFileEngine::seek(qint64 offset)
 {
     Q_D(QBufferedFSFileEngine);
+    if(!d->fh)
+        return false;
     if (fseeko(d->fh, off_t(offset), SEEK_SET) == -1) {
         d->setError(QFile::ReadError, qt_error_string(int(errno)));
         return false;
@@ -175,6 +181,8 @@ qint64 QBufferedFSFileEngine::read(char *data, qint64 maxlen)
         flush();
         d->lastIOCommand = QBufferedFSFileEnginePrivate::IOReadCommand;
     }
+    if(!d->fh)
+        return -1;
 
     if (feof(d->fh))
         return 0;
@@ -231,6 +239,8 @@ qint64 QBufferedFSFileEngine::read(char *data, qint64 maxlen)
 qint64 QBufferedFSFileEngine::readLine(char *data, qint64 maxlen)
 {
     Q_D(QBufferedFSFileEngine);
+    if(!d->fh)
+        return -1;
     if (d->lastIOCommand != QBufferedFSFileEnginePrivate::IOReadCommand) {
         flush();
         d->lastIOCommand = QBufferedFSFileEnginePrivate::IOReadCommand;
@@ -247,6 +257,8 @@ qint64 QBufferedFSFileEngine::readLine(char *data, qint64 maxlen)
 qint64 QBufferedFSFileEngine::write(const char *data, qint64 len)
 {
     Q_D(QBufferedFSFileEngine);
+    if(!d->fh)
+        return -1;
     if (d->lastIOCommand != QBufferedFSFileEnginePrivate::IOWriteCommand) {
         flush();
         d->lastIOCommand = QBufferedFSFileEnginePrivate::IOWriteCommand;

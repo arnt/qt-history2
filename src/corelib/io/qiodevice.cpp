@@ -20,13 +20,6 @@
 #define Q_VOID
 
 #ifdef QT_DEBUG
-#define CHECK_OPEN(function, returnType) \
-    do { \
-        if (!isOpen()) { \
-            return returnType; \
-        } \
-    } while (0)
-
 #define CHECK_MAXLEN(function, returnType) \
     do { \
         if (maxSize < 0) { \
@@ -51,11 +44,17 @@
        } \
    } while (0)
 #else
-#define CHECK_OPEN(a, b)
 #define CHECK_MAXLEN(a, b)
 #define CHECK_WRITABLE(a, b)
 #define CHECK_READABLE(a, b)
 #endif
+
+#define CHECK_OPEN(function, returnType) \
+    do { \
+        if (!isOpen()) { \
+            return returnType; \
+        } \
+    } while (0)
 
 /*! \internal
  */
@@ -537,8 +536,8 @@ bool QIODevice::reset()
     Returns the number of bytes that are available for reading. This
     function is commonly used with sequential devices to determine the
     number of bytes to allocate in a buffer before reading.
-    
-    Subclasses that reimplement this function call the base 
+
+    Subclasses that reimplement this function call the base
     implementation in order to include the size of the unget buffer.
 */
 qint64 QIODevice::bytesAvailable() const
@@ -979,7 +978,7 @@ void QIODevice::ungetChar(char c)
 
     If called from within a slot connected to the readyRead() signal,
     readyRead() will not be reemitted.
-    
+
     \warning Calling this function from the main (GUI) thread
     might cause your user interface to freeze.
 
