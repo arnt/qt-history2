@@ -1466,6 +1466,7 @@ void QMacStylePrivate::HIThemeDrawColorlessButton(const HIRect &macRect,
     QPixmap pm;
     if (!QPixmapCache::find(key, pm)) {
         QPixmap pix(width, height);
+        pix.fill(Qt::white);
         {
             QMacCGContext cg(&pix);
             HIRect newRect = CGRectMake(xoff, yoff, macRect.size.width, macRect.size.height);
