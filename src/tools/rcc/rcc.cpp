@@ -217,89 +217,94 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString c
 
     QDomDocument document;
     document.setContent(inputDevice);
-    QDomElement root = document.firstChild().toElement();
-    if (root.tagName() != QLatin1String(TAG_RCC)) {
-        fprintf(stderr, "Unable to parse file\n");
-        return false;
-    }
+    for(QDomElement root = document.firstChild().toElement(); !root.isNull();
+        root = root.nextSibling().toElement()) {
+        if (root.tagName() != QLatin1String(TAG_RCC))
+            continue;
 
-    for (QDomElement child = root.firstChild().toElement(); !child.isNull();
-        child = child.nextSibling().toElement()) {
-        if (child.tagName() == QLatin1String(TAG_RESOURCE)) {
-            QLocale lang = QLocale::c();
-            if (child.hasAttribute(ATTRIBUTE_LANG))
-                lang = QLocale(child.attribute(ATTRIBUTE_LANG));
+        for (QDomElement child = root.firstChild().toElement(); !child.isNull();
+             child = child.nextSibling().toElement()) {
+            if (child.tagName() == QLatin1String(TAG_RESOURCE)) {
+                QLocale lang = QLocale::c();
+                if (child.hasAttribute(ATTRIBUTE_LANG))
+                    lang = QLocale(child.attribute(ATTRIBUTE_LANG));
 
-            QString prefix;
-            if (child.hasAttribute(ATTRIBUTE_PREFIX))
-                prefix = child.attribute(ATTRIBUTE_PREFIX);
-            if (!prefix.startsWith(QLatin1String("/")))
-                prefix.prepend('/');
-            if (!prefix.endsWith(QLatin1String("/")))
-                prefix += '/';
+                QString prefix;
+                if (child.hasAttribute(ATTRIBUTE_PREFIX))
+                    prefix = child.attribute(ATTRIBUTE_PREFIX);
+                if (!prefix.startsWith(QLatin1String("/")))
+                    prefix.prepend('/');
+                if (!prefix.endsWith(QLatin1String("/")))
+                    prefix += '/';
 
 
-            for (QDomNode res = child.firstChild(); !res.isNull(); res = res.nextSibling()) {
-                if (res.toElement().tagName() == QLatin1String(TAG_FILE)) {
+                for (QDomNode res = child.firstChild(); !res.isNull(); res = res.nextSibling()) {
+                    if (res.toElement().tagName() == QLatin1String(TAG_FILE)) {
 
-                    QString fileName(res.firstChild().toText().data());
-                    if (fileName.isEmpty())
-                        fprintf(stderr, "Warning: Null node in XML\n");
+                        QString fileName(res.firstChild().toText().data());
+                        if (fileName.isEmpty())
+                            fprintf(stderr, "Warning: Null node in XML\n");
 
-                    QString alias;
-                    if (res.toElement().hasAttribute(ATTRIBUTE_ALIAS))
-                        alias = res.toElement().attribute(ATTRIBUTE_ALIAS);
-                    else
-                        alias = fileName;
+                        QString alias;
+                        if (res.toElement().hasAttribute(ATTRIBUTE_ALIAS))
+                            alias = res.toElement().attribute(ATTRIBUTE_ALIAS);
+                        else
+                            alias = fileName;
 
-                    int compressLevel = mCompressLevel;
-                    if (res.toElement().hasAttribute(ATTRIBUTE_COMPRESS))
-                        compressLevel = res.toElement().attribute(ATTRIBUTE_COMPRESS).toInt();
-                    int compressThreshold = mCompressThreshold;
-                    if (res.toElement().hasAttribute(ATTRIBUTE_THRESHOLD))
-                        compressThreshold = res.toElement().attribute(ATTRIBUTE_THRESHOLD).toInt();
+                        int compressLevel = mCompressLevel;
+                        if (res.toElement().hasAttribute(ATTRIBUTE_COMPRESS))
+                            compressLevel = res.toElement().attribute(ATTRIBUTE_COMPRESS).toInt();
+                        int compressThreshold = mCompressThreshold;
+                        if (res.toElement().hasAttribute(ATTRIBUTE_THRESHOLD))
+                            compressThreshold = res.toElement().attribute(ATTRIBUTE_THRESHOLD).toInt();
 
-                    // Special case for -no-compress. Overrides all other settings.
-                    if (mCompressLevel == -2)
-                        compressLevel = 0;
+                        // Special case for -no-compress. Overrides all other settings.
+                        if (mCompressLevel == -2)
+                            compressLevel = 0;
 
-                    alias = QDir::cleanPath(alias);
-                    while (alias.startsWith("../"))
-                        alias.remove(0, 3);
-                    alias = prefix + alias;
+                        alias = QDir::cleanPath(alias);
+                        while (alias.startsWith("../"))
+                            alias.remove(0, 3);
+                        alias = prefix + alias;
 
-                    QFileInfo file(currentPath + fileName);
-                    if (!file.exists()) {
-                        fprintf(stderr, "Cannot find file: %s\n", fileName.toLatin1().constData());
-                        continue ;
-                    } else if (file.isFile()) {
-                        addFile(alias, RCCFileInfo(alias.section('/', -1), file, lang, RCCFileInfo::NoFlags, compressLevel, compressThreshold));
-                    } else {
-                        QDir dir;
-                        if(file.isDir()) {
-                            dir.setPath(file.filePath());
+                        QFileInfo file(currentPath + fileName);
+                        if (!file.exists()) {
+                            fprintf(stderr, "Cannot find file: %s\n", fileName.toLatin1().constData());
+                            continue ;
+                        } else if (file.isFile()) {
+                            addFile(alias, RCCFileInfo(alias.section('/', -1), file, lang,
+                                                       RCCFileInfo::NoFlags, compressLevel, compressThreshold));
                         } else {
-                            dir.setPath(file.path());
-                            dir.setNameFilters(QStringList(file.fileName()));
-                            if(alias.endsWith(file.fileName()))
-                                alias = alias.left(alias.length()-file.fileName().length());
-                        }
-                        if (!alias.endsWith(QLatin1String("/")))
-                            alias += '/';
-                        QFileInfoList children = dir.entryInfoList();
-                        for(int i = 0; i < children.size(); ++i) {
-                            if(children[i].fileName() != QLatin1String(".") &&
-                               children[i].fileName() != QLatin1String(".."))
-                                addFile(alias + children[i].fileName(),
-                                        RCCFileInfo(children[i].fileName(), children[i], lang, RCCFileInfo::NoFlags, compressLevel, compressThreshold));
+                            QDir dir;
+                            if(file.isDir()) {
+                                dir.setPath(file.filePath());
+                            } else {
+                                dir.setPath(file.path());
+                                dir.setNameFilters(QStringList(file.fileName()));
+                                if(alias.endsWith(file.fileName()))
+                                    alias = alias.left(alias.length()-file.fileName().length());
+                            }
+                            if (!alias.endsWith(QLatin1String("/")))
+                                alias += '/';
+                            QFileInfoList children = dir.entryInfoList();
+                            for(int i = 0; i < children.size(); ++i) {
+                                if(children[i].fileName() != QLatin1String(".") &&
+                                   children[i].fileName() != QLatin1String(".."))
+                                    addFile(alias + children[i].fileName(),
+                                            RCCFileInfo(children[i].fileName(), children[i], lang,
+                                                        RCCFileInfo::NoFlags, compressLevel, compressThreshold));
+                            }
                         }
                     }
                 }
             }
         }
     }
-
-    return (this->root != 0);
+    if(this->root == 0) {
+        fprintf(stderr, "No resources in resource description.\n");
+        return false;
+    }
+    return true;
 }
 
 bool RCCResourceLibrary::addFile(const QString &alias, const RCCFileInfo &file)
