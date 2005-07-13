@@ -51,7 +51,7 @@ QWSMouseHandler* TSLibMouseDriverPlugin::create(const QString& driver, const QSt
 
 QWSMouseHandler* TSLibMouseDriverPlugin::create( const QString& driver)
 {
-    if( driver == "TSLib" )
+    if( driver.toLower() == "tslib" )
         return new TSLibMouseHandler();
 
     return 0;
