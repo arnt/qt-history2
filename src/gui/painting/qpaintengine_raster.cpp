@@ -456,7 +456,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->has_pen = true;
     d->has_brush = false;
     d->fast_pen = true;
-    d->float_xform = false;
+    d->int_xform = true;
 
     d->compositionMode = QPainter::CompositionMode_SourceOver;
 
@@ -673,23 +673,22 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyTransform) {
         update_fast_pen = true;
         d->matrix = state.matrix();
-        d->float_xform = true;
+        d->int_xform = false;
         if (d->matrix.m12() != 0 || d->matrix.m21() != 0) {
             d->txop = QPainterPrivate::TxRotShear;
-            d->txop = QPainterPrivate::TxTranslate;
-            d->float_xform = int(d->matrix.dx()) == d->matrix.dx()
-                             && int(d->matrix.dy()) == d->matrix.dy()
-                             && int(d->matrix.m11()) == d->matrix.m11()
-                             && int(d->matrix.m22()) == d->matrix.m22();
         } else if (d->matrix.m11() != 1 || d->matrix.m22() != 1) {
             d->txop = QPainterPrivate::TxScale;
+            d->int_xform = qreal(int(d->matrix.dx())) == d->matrix.dx()
+                             && qreal(int(d->matrix.dy())) == d->matrix.dy()
+                             && qreal(int(d->matrix.m11())) == d->matrix.m11()
+                             && qreal(int(d->matrix.m22())) == d->matrix.m22();
         } else if (d->matrix.dx() != 0 || d->matrix.dy() != 0) {
             d->txop = QPainterPrivate::TxTranslate;
-            d->float_xform = int(d->matrix.dx()) == d->matrix.dx()
-                             && int(d->matrix.dy()) == d->matrix.dy();
+            d->int_xform = qreal(int(d->matrix.dx())) == d->matrix.dx()
+                             && qreal(int(d->matrix.dy())) == d->matrix.dy();
         } else {
             d->txop = QPainterPrivate::TxNone;
-            d->float_xform = false;
+            d->int_xform = true;
         }
         d->outlineMapper->setMatrix(d->matrix, d->txop);
     }
@@ -811,7 +810,7 @@ void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
     qDebug(" - QRasterPaintEngine::drawRect(), rectCount=%d", rectCount);
 #endif
     Q_D(QRasterPaintEngine);
-    if (!d->antialiased && !d->float_xform) {
+    if (!d->antialiased && d->int_xform) {
 
         int offset_x = int(d->matrix.dx());
         int offset_y = int(d->matrix.dy());
@@ -1571,7 +1570,7 @@ void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
         FillData fillData = d->fillForBrush(QBrush(d->pen.brush()));
 
         for (int i=0; i<lineCount; ++i) {
-            if (!d->float_xform) {
+            if (d->int_xform) {
                 QLine l = lines[i];
                 l = QLine(l.x1() * int(d->matrix.m11()) + int(d->matrix.dx()),
                           l.y1() * int(d->matrix.m22()) + int(d->matrix.dy()),

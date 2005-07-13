@@ -181,7 +181,7 @@ public:
     uint bilinear : 1;
     uint flushOnEnd : 1;
     uint mono_surface : 1;
-    uint float_xform : 1;
+    uint int_xform : 1;
 };
 
 /*******************************************************************************
