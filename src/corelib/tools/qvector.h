@@ -23,6 +23,7 @@
 #include <iterator>
 #include <vector>
 #endif
+#include <string.h>
 
 struct Q_CORE_EXPORT QVectorData
 {
