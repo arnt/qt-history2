@@ -367,7 +367,7 @@ QSqlError QSqlResult::lastError() const
 
     Sets the result to use the SQL statement \a query for subsequent
     data retrieval.
-    
+
     Derived classes must reimplement this function and apply the \a
     query to the database. This function is only called after the
     result is set to an inactive state and is positioned before the
@@ -597,6 +597,8 @@ void QSqlResult::bindValue(int index, const QVariant& val, QSql::ParamType param
 
     Binds the value \a val of parameter type \a paramType to the \a
     placeholder name in the current record (row).
+
+    Note that binding an undefined placeholder will result in undefined behavior.
 */
 void QSqlResult::bindValue(const QString& placeholder, const QVariant& val,
                            QSql::ParamType paramType)
@@ -610,6 +612,10 @@ void QSqlResult::bindValue(const QString& placeholder, const QVariant& val,
             d->values.resize(idx + 1);
         d->values[idx] = val;
     } else {
+#ifdef QT_DEBUG
+        if (!driver()->hasFeature(QSqlDriver::NamedPlaceholders))
+            qWarning("Invalid placeholder: %s", placeholder.local8Bit().constData());
+#endif
         d->values.append(val);
         idx = d->values.count() - 1;
         d->indexes[placeholder] = idx;
