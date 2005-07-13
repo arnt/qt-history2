@@ -1258,7 +1258,7 @@ bool QOCIResult::exec()
                             (CONST OCISnapshot *) NULL,
                             (OCISnapshot *) NULL,
                             OCI_DEFAULT);
-        if (r != 0) {
+        if (r != OCI_SUCCESS && r != OCI_SUCCESS_WITH_INFO) {
             qOraWarning("QOCIResult::exec: unable to execute select statement:", d);
             setLastError(qMakeError(QCoreApplication::translate("QOCIResult",
                          "Unable to execute select statement"), QSqlError::StatementError, d));
@@ -1275,7 +1275,7 @@ bool QOCIResult::exec()
                                 (CONST OCISnapshot *) NULL,
                                 (OCISnapshot *) NULL,
                                 d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS );
-        if (r != 0) {
+        if (r != OCI_SUCCESS && r != OCI_SUCCESS_WITH_INFO) {
             qOraWarning("QOCIResult::exec: unable to execute statement:", d);
             setLastError(qMakeError(QCoreApplication::translate("QOCIResult",
                          "Unable to execute statement"), QSqlError::StatementError, d));
