@@ -1455,9 +1455,6 @@ void QMacStylePrivate::HIThemeDrawColorlessButton(const HIRect &macRect,
         yoff = combo->editable ? 3 : 2;
         extraWidth = 1;
         extraHeight = yoff;
-    } else {
-        extraHeight = 1;
-        finalyoff = -1;
     }
 
     int width = int(macRect.size.width) + extraWidth;
@@ -1468,21 +1465,22 @@ void QMacStylePrivate::HIThemeDrawColorlessButton(const HIRect &macRect,
                   + QLatin1Char('_') + QString::number(height);
     QPixmap pm;
     if (!QPixmapCache::find(key, pm)) {
-        int bytesPerLine = width * 4;
-        int size = bytesPerLine * height;
-        void *data = calloc(1, size);
-        QCFType<CGColorSpaceRef> colorspace = CGColorSpaceCreateDeviceRGB();
-        QCFType<CGContextRef> cg2 = CGBitmapContextCreate(data, width, height, 8, bytesPerLine,
-                                                          colorspace, kCGImageAlphaPremultipliedFirst);
-        HIRect newRect = CGRectMake(xoff, yoff, macRect.size.width, macRect.size.height);
-        HIThemeDrawButton(&newRect, &bdi, cg2, kHIThemeOrientationInverted, 0);
+        QPixmap pix(width, height);
+        {
+            QMacCGContext cg(&pix);
+            HIRect newRect = CGRectMake(xoff, yoff, macRect.size.width, macRect.size.height);
+            HIThemeDrawButton(&newRect, &bdi, cg, kHIThemeOrientationNormal, 0);
+        }
+        QImage pix_img = pix.toImage();
+
         QImage img(width, height, QImage::Format_ARGB32);
         for (int y = 0; y < height; ++y) {
-            QRgb *scanline = reinterpret_cast<QRgb *>(static_cast<char *>(data) + y * bytesPerLine);
+            QRgb *scanline = (QRgb*)pix_img.scanLine(y);
             for (int x = 0; x < width; ++x) {
                 uint pixel = scanline[x];
-                int distance = qAbs(qRed(pixel) - qGreen(pixel)) + qAbs(qRed(pixel) - qBlue(pixel))
-                                    + qAbs(qGreen(pixel) - qBlue(pixel));
+                int distance = qAbs(qRed(pixel) - qGreen(pixel)) +
+                               qAbs(qRed(pixel) - qBlue(pixel)) +
+                               qAbs(qGreen(pixel) - qBlue(pixel));
                 if (distance > 20) {
                     int tmp;
                     if (qRed(pixel) > qGreen(pixel) && qRed(pixel) > qBlue(pixel))
@@ -1495,9 +1493,8 @@ void QMacStylePrivate::HIThemeDrawColorlessButton(const HIRect &macRect,
                     scanline[x] = pixel;
                 }
             }
-            memcpy(img.scanLine(y), scanline, bytesPerLine);
+            memcpy(img.scanLine(y), scanline, pix_img.bytesPerLine());
         }
-        free(data);
 
         pm = QPixmap::fromImage(img);
         QPixmapCache::insert(key, pm);
@@ -4798,7 +4795,7 @@ void QMacStyle::polish(QWidget* w)
     if (QLineEdit *lined = qobject_cast<QLineEdit*>(w)) {
         if (qobject_cast<QComboBox*>(lined->parentWidget())
                 && !lined->testAttribute(Qt::WA_SetFont))
-            lined->setFont(qt_app_fonts_hash()->value("QComboLineEdit")); 
+            lined->setFont(qt_app_fonts_hash()->value("QComboLineEdit"));
     }
 
     if (d->useHITheme)
