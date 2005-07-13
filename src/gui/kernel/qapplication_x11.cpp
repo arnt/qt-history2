@@ -1429,7 +1429,7 @@ void qt_init(QApplicationPrivate *priv, int,
         if (f.open(QIODevice::ReadOnly)) {
             s.clear();
             char c;
-            while (f.getChar(&c)) {
+            while (f.getChar(&c) && c) {
                 if (c == '/')
                     s.clear();
                 else
