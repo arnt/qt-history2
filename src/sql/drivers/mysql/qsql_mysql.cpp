@@ -969,27 +969,31 @@ bool QMYSQLDriver::open(const QString& db,
 
     if ((d->mysql = mysql_init((MYSQL*) 0)) &&
             mysql_real_connect(d->mysql,
-                               host.toLocal8Bit().constData(),
-                               user.toLocal8Bit().constData(),
-                               password.toLocal8Bit().constData(),
-                               db.isNull() ? "" : db.toLocal8Bit().constData(),
+                               host.isNull() ? static_cast<const char *>(0)
+                                             : host.toLocal8Bit().constData(),
+                               user.isNull() ? static_cast<const char *>(0)
+                                             : user.toLocal8Bit().constData(),
+                               password.isNull() ? static_cast<const char *>(0)
+                                                 : password.toLocal8Bit().constData(),
+                               db.isNull() ? static_cast<const char *>(0)
+                                           : db.toLocal8Bit().constData(),
                                (port > -1) ? port : 0,
                                NULL,
                                optionFlags))
     {
-        if (mysql_select_db(d->mysql, db.toLocal8Bit().constData())) {
+        if (!db.isEmpty() && mysql_select_db(d->mysql, db.toLocal8Bit().constData())) {
             setLastError(qMakeError(tr("Unable open database '") + db +
-                        QLatin1Char('\''), QSqlError::ConnectionError, d));
+                         QLatin1Char('\''), QSqlError::ConnectionError, d));
             mysql_close(d->mysql);
             setOpenError(true);
             return false;
         }
     } else {
-            setLastError(qMakeError(tr("Unable to connect"),
-                                    QSqlError::ConnectionError, d));
-            mysql_close(d->mysql);
-            setOpenError(true);
-            return false;
+        setLastError(qMakeError(tr("Unable to connect"),
+                     QSqlError::ConnectionError, d));
+        mysql_close(d->mysql);
+        setOpenError(true);
+        return false;
     }
     d->tc = codec(d->mysql);
 
