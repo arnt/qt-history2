@@ -118,7 +118,7 @@ bool FunctionBlock::exec(const QStringList &args,
                          QMakeProject *proj, QMap<QString, QStringList> &place, QString &functionReturn)
 {
     //save state
-#if 0
+#if 1
     calling_place = &place;
 #else
     calling_place = &proj->variables();
