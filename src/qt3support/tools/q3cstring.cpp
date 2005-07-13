@@ -383,7 +383,7 @@ Q3CString &Q3CString::sprintf(const char *format, ...)
     va_start(ap, format);
     if (size() < 256)
         resize(256);                // make string big enough
-    vsprintf(data(), format, ap);
+    qvsnprintf(data(), size(), format, ap);
     resize(qstrlen(constData()));
     va_end(ap);
     return *this;
