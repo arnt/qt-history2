@@ -268,7 +268,7 @@ class Q_CORE_EXPORT QVariant
 
     template<typename T>
     bool canConvert() const
-    { return qVariantCanConvert<T>(); }
+    { return qVariantCanConvert<T>(*this); }
 #endif
 
  public:
