@@ -21,7 +21,7 @@
 
 #ifdef QT_DESIGNER_STATIC
 #  define QT_SDK_EXPORT
-#elif QT_SDK_LIBRARY
+#elif defined(QT_SDK_LIBRARY)
 #  define QT_SDK_EXPORT QT_SDK_EXTERN
 #else
 #  define QT_SDK_EXPORT QT_SDK_IMPORT
