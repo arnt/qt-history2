@@ -612,10 +612,6 @@ void QSqlResult::bindValue(const QString& placeholder, const QVariant& val,
             d->values.resize(idx + 1);
         d->values[idx] = val;
     } else {
-#ifdef QT_DEBUG
-        if (!driver()->hasFeature(QSqlDriver::NamedPlaceholders))
-            qWarning("Invalid placeholder: %s", placeholder.local8Bit().constData());
-#endif
         d->values.append(val);
         idx = d->values.count() - 1;
         d->indexes[placeholder] = idx;
