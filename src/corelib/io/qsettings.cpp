@@ -1807,7 +1807,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \section1 Restoring the State of a GUI Application
 
     QSettings is often used to store the state of a GUI
-    application. The following example will illustrate how to use we
+    application. The following example illustrates how to use we
     will use QSettings to save and restore the geometry of an
     application's main window.
 
@@ -1899,8 +1899,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
         \endcode
     \endlist
 
-    \sa {tools/settingseditor}{Settings Editor Example},
-        QVariant, QSessionManager
+    \sa QVariant, QSessionManager,
+        {tools/settingseditor}{Settings Editor Example}
 */
 
 /*! \enum QSettings::Status
@@ -1931,7 +1931,35 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     NativeFormat, \c .ini for IniFormat).
 
     The INI file format is a Windows file format that Qt supports on
-    all platforms.
+    all platforms. In the absence of an INI standard, we try to
+    follow what Microsoft does, with the following two exceptions:
+
+    \list
+    \o  If you store types that QVariant can't convert to QString
+        (e.g., QPoint, QRect, and QSize), Qt uses an \c{@}-based
+        syntax to encode the type. For example:
+
+        \code
+        pos = @Point(100 100)
+        \endcode
+
+        To minimize compatibility issues, any \c @ that doesn't
+        appear at the first position in the value or that isn't
+        followed by a Qt type (\c Point, \c Rect, \c Size, etc.) is
+        treated as a normal character.
+
+    \o  Although backslash is a special character in INI files, most
+        Windows applications don't escape backslashes (\c{\}) in file
+        paths:
+
+        \code
+        windir = C:\Windows
+        \endcode
+
+        QSettings always treats backslash as a special character and
+        provides no API for reading or writing such entries.
+    \endlist
+
 */
 
 /*! \enum QSettings::Scope
