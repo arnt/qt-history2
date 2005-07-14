@@ -52,7 +52,7 @@ QMacInputContext::~QMacInputContext()
 QString QMacInputContext::language()
 {
     return QString();
-};
+}
 
 void QMacInputContext::reset()
 {

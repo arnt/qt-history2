@@ -157,7 +157,7 @@ QPoint QDrag::hotSpot() const
 {
     Q_D(const QDrag);
     return d->hotspot;
-};
+}
 
 /*!
     Returns the source of the drag object. This is the widget where the drag

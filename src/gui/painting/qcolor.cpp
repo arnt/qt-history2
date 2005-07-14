@@ -1077,7 +1077,7 @@ QColor QColor::toRgb() const
     }
 
     return color;
-};
+}
 
 
 #define Q_MAX_3(a, b, c) ( ( a > b && a > c) ? a : (b > c ? b : c) )

@@ -277,7 +277,7 @@ bool Moc::parseClassHead(ClassDef *def)
     def->end = index ;
     index = def->begin + 1;
     return true;
-};
+}
 
 QByteArray Moc::parseType()
 {

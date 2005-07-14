@@ -248,7 +248,7 @@ QByteArray QUtf16Codec::convertFromUnicode(const QChar *uc, int len, ConverterSt
         state->flags |= IgnoreHeader;
     }
     return d;
-};
+}
 
 QString QUtf16Codec::convertToUnicode(const char *chars, int len, ConverterState *state) const
 {

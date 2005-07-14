@@ -2396,7 +2396,7 @@ QMimeData *QTextEdit::createMimeDataFromSelection() const
     QString txt = fragment.toPlainText();
     data->setText(txt);
     return data;
-};
+}
 
 /*!
     This function returns true if the contents of the MIME data object, specified

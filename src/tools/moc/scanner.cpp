@@ -143,7 +143,7 @@ Symbols Scanner::scan(const QByteArray &input)
 
     symbols += Symbol(); // eof symbol
     return symbols;
-};
+}
 
 
 
