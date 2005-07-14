@@ -3880,8 +3880,12 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
             // withdrawn
             if (X11->deferred_map.removeAll(this)) {
                 XMapWindow(X11->display, winId());
-            } else if (isVisible()) {
-                // so that show() will work again
+            } else if (isVisible() && !testAttribute(Qt::WA_Mapped)) {
+                // so that show() will work again. As stated in the
+                // ICCCM section 4.1.4: "Only the client can effect a
+                // transition into or out of the Withdrawn state.",
+                // but apparently this particular window manager
+                // doesn't seem to care
                 hide();
             }
         } else if (d->topData()->parentWinId != QX11Info::appRootWindow(x11Info().screen())) {
@@ -3911,8 +3915,13 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                     // transition to withdrawn
                     if (X11->deferred_map.removeAll(this)) {
                         XMapWindow(X11->display, winId());
-                    } else if (isVisible()) {
-                        // so that show() will work again
+                    } else if (isVisible() && !testAttribute(Qt::WA_Mapped)) {
+                        // so that show() will work again. As stated
+                        // in the ICCCM section 4.1.4: "Only the
+                        // client can effect a transition into or out
+                        // of the Withdrawn state.", but apparently
+                        // this particular window manager doesn't seem
+                        // to care
                         hide();
                     }
                     break;
