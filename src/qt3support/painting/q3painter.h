@@ -16,6 +16,8 @@
 
 #include "QtGui/qpainter.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class Q_COMPAT_EXPORT Q3Painter : public QPainter
 {
 public:

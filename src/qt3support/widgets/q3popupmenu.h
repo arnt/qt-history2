@@ -16,6 +16,8 @@
 
 #include "QtGui/qmenu.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class Q_COMPAT_EXPORT Q3PopupMenu : public QMenu
 {
     Q_OBJECT

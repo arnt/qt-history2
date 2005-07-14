@@ -15,6 +15,8 @@
 
 #include <QtCore/qalgorithms.h>
 
+QT_MODULE(Qt3SupportLight)
+
 template <typename T, typename LessThan>
 Q_OUTOFLINE_TEMPLATE void qHeapSortPushDown(T *heap, int first, int last, LessThan lessThan)
 {

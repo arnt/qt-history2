@@ -18,6 +18,8 @@
 #include "QtCore/qstring.h"
 #endif // QT_H
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_URL
 
 class Q3UrlPrivate;

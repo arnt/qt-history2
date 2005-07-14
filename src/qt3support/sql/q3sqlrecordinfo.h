@@ -16,6 +16,8 @@
 
 #include "QtCore/qglobal.h"
 
+QT_MODULE(Qt3Support)
+
 #ifndef QT_NO_SQL
 
 #include "Qt3Support/q3valuelist.h"

@@ -16,6 +16,8 @@
 
 #include "QtGui/qpolygon.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class Q_COMPAT_EXPORT Q3PointArray : public QPolygon
 {
 public:

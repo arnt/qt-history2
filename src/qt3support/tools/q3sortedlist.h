@@ -16,6 +16,8 @@
 
 #include "Qt3Support/q3ptrlist.h"
 
+QT_MODULE(Qt3SupportLight)
+
 template<class type>
 class Q3SortedList : public Q3PtrList<type>
 {

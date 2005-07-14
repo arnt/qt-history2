@@ -22,6 +22,8 @@
 #include "Qt3Support/q3sqlcursor.h"
 #include "QtSql/qsqlerror.h"
 
+QT_MODULE(Qt3Support)
+
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 
 class Q3SqlForm;

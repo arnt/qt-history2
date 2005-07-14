@@ -16,6 +16,8 @@
 
 #include "Qt3Support/q3ptrcollection.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class Q_COMPAT_EXPORT Q3LNode
 {
 friend class Q3GList;

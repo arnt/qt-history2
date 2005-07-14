@@ -18,6 +18,8 @@
 #include "Qt3Support/q3intdict.h"
 #include "Qt3Support/q3ptrdict.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class Q3WidgetStackPrivate;
 
 

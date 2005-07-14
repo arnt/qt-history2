@@ -22,6 +22,8 @@
 #include "Qt3Support/q3valuelist.h"
 #endif // QT_H
 
+QT_MODULE(Qt3Support)
+
 #ifndef QT_NO_DNS
 
 //#define Q_DNS_SYNCHRONOUS

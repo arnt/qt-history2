@@ -16,6 +16,8 @@
 
 #include "QtCore/qglobal.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class Q3SemaphorePrivate;
 
 class Q_COMPAT_EXPORT Q3Semaphore

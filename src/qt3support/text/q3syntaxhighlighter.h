@@ -18,6 +18,8 @@
 #include "QtGui/qcolor.h"
 #include "QtCore/qstring.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class Q3TextEdit;
 class Q3SyntaxHighlighterInternal;
 class Q3SyntaxHighlighterPrivate;

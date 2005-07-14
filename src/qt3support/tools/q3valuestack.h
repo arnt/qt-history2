@@ -16,6 +16,8 @@
 
 #include "Qt3Support/q3valuelist.h"
 
+QT_MODULE(Qt3SupportLight)
+
 template<class T>
 class Q3ValueStack : public Q3ValueList<T>
 {

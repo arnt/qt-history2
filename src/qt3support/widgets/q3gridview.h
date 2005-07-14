@@ -16,6 +16,8 @@
 
 #include "Qt3Support/q3scrollview.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class Q3GridViewPrivate;
 
 class Q_COMPAT_EXPORT Q3GridView : public Q3ScrollView

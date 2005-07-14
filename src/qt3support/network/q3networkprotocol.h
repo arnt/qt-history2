@@ -22,6 +22,8 @@
 #include "Qt3Support/q3valuelist.h"
 #endif // QT_H
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_NETWORKPROTOCOL
 
 class Q3NetworkProtocol;

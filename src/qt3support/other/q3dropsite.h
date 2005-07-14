@@ -16,6 +16,7 @@
 
 #include "QtCore/qglobal.h"
 
+QT_MODULE(Qt3SupportLight)
 
 class QWidget;
 

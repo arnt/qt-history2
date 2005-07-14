@@ -25,6 +25,8 @@
 #include "QtGui/qpicture.h"
 #include "Qt3Support/q3valuelist.h"
 
+QT_MODULE(Qt3Support)
+
 #ifndef QT_NO_ICONVIEW
 
 class Q3IconView;

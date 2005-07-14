@@ -18,6 +18,8 @@
 #include "Qt3Support/q3ptrvector.h"
 #include "QtCore/qdatastream.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class Q_COMPAT_EXPORT Q3StrVec : public Q3PtrVector<char>
 {
 public:

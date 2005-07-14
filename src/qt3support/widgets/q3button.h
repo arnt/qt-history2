@@ -16,6 +16,8 @@
 
 #include "QtGui/qabstractbutton.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class Q_COMPAT_EXPORT Q3Button : public QAbstractButton
 {
     Q_OBJECT

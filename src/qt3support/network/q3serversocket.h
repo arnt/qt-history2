@@ -20,6 +20,8 @@
 #include "Qt3Support/q3socketdevice.h" // ### remove or keep for users' convenience?
 #endif // QT_H
 
+QT_MODULE(Qt3Support)
+
 class Q3ServerSocketPrivate;
 
 class Q_COMPAT_EXPORT Q3ServerSocket : public QObject

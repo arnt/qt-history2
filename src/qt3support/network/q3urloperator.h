@@ -22,6 +22,8 @@
 #include "QtCore/qstringlist.h" // QString->QStringList conversion
 #endif // QT_H
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_NETWORKPROTOCOL
 
 class QUrlInfo;

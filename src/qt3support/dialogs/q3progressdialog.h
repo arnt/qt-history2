@@ -16,6 +16,8 @@
 
 #include "QtGui/qdialog.h"
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_PROGRESSDIALOG
 
 class Q3ProgressDialogData;

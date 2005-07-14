@@ -17,6 +17,8 @@
 
 #include "Qt3Support/q3frame.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class QGridLayout;
 
 class Q_COMPAT_EXPORT Q3Grid : public Q3Frame

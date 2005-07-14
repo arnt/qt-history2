@@ -16,6 +16,8 @@
 
 #include "QtGui/qframe.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class Q_COMPAT_EXPORT Q3Frame : public QFrame
 {
     Q_OBJECT

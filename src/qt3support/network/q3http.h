@@ -21,6 +21,8 @@
 #include "QtCore/qstringlist.h"
 #endif // QT_H
 
+QT_MODULE(Qt3Support)
+
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
 
 class Q3Socket;

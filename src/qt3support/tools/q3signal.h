@@ -19,6 +19,7 @@
 #include "QtCore/qobject.h"
 #endif // QT_H
 
+QT_MODULE(Qt3SupportLight)
 
 class Q_COMPAT_EXPORT Q3Signal : public QObject
 {

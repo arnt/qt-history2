@@ -19,6 +19,8 @@
 #include "QtGui/qregion.h"
 #include "QtGui/qcolor.h"
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_RICHTEXT
 
 class QPainter;

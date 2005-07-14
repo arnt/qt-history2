@@ -18,6 +18,8 @@
 #include "Qt3Support/q3toolbar.h"
 #include "QtCore/qtextstream.h"
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_MAINWINDOW
 
 class QMenuBar;

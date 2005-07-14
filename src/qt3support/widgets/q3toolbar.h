@@ -16,6 +16,8 @@
 
 #include "Qt3Support/q3dockwindow.h"
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_TOOLBAR
 
 class Q3MainWindow;

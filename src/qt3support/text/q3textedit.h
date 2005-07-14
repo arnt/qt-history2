@@ -19,6 +19,8 @@
 #include "Qt3Support/q3mimefactory.h"
 #include "QtCore/qmap.h"
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_TEXTEDIT
 // uncomment below to enable optimization mode - also uncomment the
 // optimDoAutoScroll() private slot since moc ignores #ifdefs..

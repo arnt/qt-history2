@@ -16,6 +16,8 @@
 
 #include "Qt3Support/q3editorfactory.h"
 
+QT_MODULE(Qt3Support)
+
 #ifndef QT_NO_SQL_EDIT_WIDGETS
 
 class QSqlField;

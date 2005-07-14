@@ -16,6 +16,7 @@
 
 #include "QtGui/qpaintdevice.h"
 
+QT_MODULE(Qt3SupportLight)
 
 class Q_COMPAT_EXPORT Q3PaintDeviceMetrics                        // paint device metrics
 {

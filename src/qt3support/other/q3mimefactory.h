@@ -19,6 +19,8 @@
 #include "QtCore/qmap.h"
 #include "QtGui/qpixmap.h"
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_MIMEFACTORY
 
 class QStringList;

@@ -16,6 +16,8 @@
 
 #include "QtGui/qwidget.h"
 
+QT_MODULE(Qt3Support)
+
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 
 class Q3SqlForm;

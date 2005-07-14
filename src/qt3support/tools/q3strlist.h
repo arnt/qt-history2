@@ -19,6 +19,8 @@
 #include "QtCore/qdatastream.h"
 #include "QtCore/qlist.h"
 
+QT_MODULE(Qt3SupportLight)
+
 #if defined(qdoc)
 class Q3StrListIterator : public Q3PtrListIterator<char>
 {

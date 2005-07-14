@@ -20,6 +20,8 @@
 #include "QtGui/qlayout.h"
 #include "QtCore/qpointer.h"
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_MAINWINDOW
 
 class QSplitter;

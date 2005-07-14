@@ -19,6 +19,8 @@
 #include "QtNetwork/qhostaddress.h" // int->QHostAddress conversion
 #endif // QT_H
 
+QT_MODULE(Qt3Support)
+
 class Q3SocketPrivate;
 class Q3SocketDevice;
 

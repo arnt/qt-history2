@@ -16,6 +16,8 @@
 
 #include "QtCore/qglobal.h"
 
+QT_MODULE(Qt3SupportLight)
+
 template <class T>
 class Q3DeepCopy
 {

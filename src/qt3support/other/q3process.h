@@ -20,6 +20,8 @@
 #include "QtCore/qdir.h"
 #endif // QT_H
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_PROCESS
 
 class Q3ProcessPrivate;

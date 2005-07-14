@@ -17,6 +17,8 @@
 #include "QtGui/qdialog.h"
 #include "QtGui/qicon.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class  QTabBar;
 class  QTab;
 class  Q3TabDialogPrivate;

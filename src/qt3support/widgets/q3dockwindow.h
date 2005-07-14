@@ -16,6 +16,8 @@
 
 #include "Qt3Support/q3frame.h"
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_MAINWINDOW
 
 class Q3DockWindowHandle;

@@ -17,6 +17,8 @@
 #include "QtCore/qvariant.h"
 #include "QtCore/qstring.h"
 
+QT_MODULE(Qt3Support)
+
 #ifndef QT_NO_SQL_FORM
 
 class QWidget;

@@ -16,6 +16,7 @@
 
 #include "Qt3Support/q3ptrcollection.h"
 
+QT_MODULE(Qt3SupportLight)
 
 class Q_COMPAT_EXPORT Q3GVector : public Q3PtrCollection	// generic vector
 {

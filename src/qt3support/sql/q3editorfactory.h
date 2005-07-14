@@ -17,6 +17,8 @@
 #include "QtCore/qobject.h"
 #include "QtCore/qvariant.h"
 
+QT_MODULE(Qt3Support)
+
 #ifndef QT_NO_SQL_EDIT_WIDGETS
 
 class Q_COMPAT_EXPORT Q3EditorFactory : public QObject

@@ -18,6 +18,8 @@
 #include "QtCore/qglobal.h"
 #endif // QT_H
 
+QT_MODULE(Qt3Support)
+
 #ifndef QT_NO_NETWORK
 
 Q_COMPAT_EXPORT void q3InitNetworkProtocols();

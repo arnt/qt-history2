@@ -18,6 +18,7 @@
 #include "Qt3Support/q3glist.h"
 #include "Qt3Support/q3gdict.h"
 
+QT_MODULE(Qt3SupportLight)
 
 class Q3CList;					// internal classes
 class Q3CListIt;

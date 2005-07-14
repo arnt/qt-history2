@@ -20,6 +20,7 @@
 #include <vector>
 #endif
 
+QT_MODULE(Qt3SupportLight)
 
 template <typename T>
 class Q3ValueVector : public QVector<T>

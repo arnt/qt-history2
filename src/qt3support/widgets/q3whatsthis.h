@@ -18,6 +18,8 @@
 #include "QtGui/qwhatsthis.h"
 #include "QtGui/qwidget.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class QToolButton;
 
 class Q_COMPAT_EXPORT Q3WhatsThis: public QObject

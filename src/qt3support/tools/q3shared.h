@@ -16,6 +16,8 @@
 
 #include "QtCore/qglobal.h"
 
+QT_MODULE(Qt3SupportLight)
+
 struct Q_COMPAT_EXPORT Q3Shared
 {
     Q3Shared() : count( 1 ) { }

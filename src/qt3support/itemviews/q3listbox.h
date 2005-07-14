@@ -17,6 +17,8 @@
 #include "Qt3Support/q3scrollview.h"
 #include "QtGui/qpixmap.h"
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_LISTBOX
 
 class Q3ListBoxPrivate;

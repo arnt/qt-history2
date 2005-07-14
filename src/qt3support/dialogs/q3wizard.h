@@ -16,6 +16,8 @@
 
 #include "QtGui/qdialog.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class QHBoxLayout;
 class Q3WizardPrivate;
 

@@ -16,6 +16,8 @@
 
 #include "Qt3Support/q3textedit.h"
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_TEXTVIEW
 
 class Q_COMPAT_EXPORT Q3TextView : public Q3TextEdit

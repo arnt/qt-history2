@@ -17,6 +17,8 @@
 #include "QtCore/qobject.h"
 #include "QtGui/qkeysequence.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class Q3AccelPrivate;
 
 class Q_COMPAT_EXPORT Q3Accel : public QObject			// accelerator class

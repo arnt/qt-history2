@@ -19,6 +19,8 @@
 #include "QtCore/qobject.h"
 #include "QtCore/qstring.h"
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_ACTION
 
 class Q3ActionPrivate;

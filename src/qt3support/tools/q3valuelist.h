@@ -24,6 +24,8 @@
 #include <list>
 #endif
 
+QT_MODULE(Qt3SupportLight)
+
 template <typename T>
 class Q3ValueListIterator : public QLinkedList<T>::iterator
 {

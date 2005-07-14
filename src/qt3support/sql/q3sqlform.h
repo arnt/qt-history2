@@ -17,6 +17,8 @@
 #include "QtCore/qobject.h"
 #include "QtCore/qmap.h"
 
+QT_MODULE(Qt3Support)
+
 #ifndef QT_NO_SQL_FORM
 
 class QSqlField;

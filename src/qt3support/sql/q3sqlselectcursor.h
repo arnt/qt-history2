@@ -16,6 +16,8 @@
 
 #include "Qt3Support/q3sqlcursor.h"
 
+QT_MODULE(Qt3Support)
+
 #ifndef QT_NO_SQL
 
 class Q3SqlSelectCursorPrivate;

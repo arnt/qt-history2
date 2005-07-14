@@ -17,6 +17,8 @@
 #include "Qt3Support/q3garray.h"
 #include "QtCore/qvector.h"
 
+QT_MODULE(Qt3SupportLight)
+
 template<class type>
 class Q3MemArray : public Q3GArray
 {

@@ -22,6 +22,8 @@
 #include "Qt3Support/q3valuelist.h"
 #include "Qt3Support/q3pointarray.h"
 
+QT_MODULE(Qt3Support)
+
 class Q3CanvasSprite;
 class Q3CanvasPolygonalItem;
 class Q3CanvasRectangle;

@@ -16,6 +16,8 @@
 
 #include "Qt3Support/q3frame.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class QBoxLayout;
 
 class Q_COMPAT_EXPORT Q3HBox : public Q3Frame

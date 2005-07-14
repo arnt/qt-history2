@@ -16,6 +16,7 @@
 
 #include "Qt3Support/q3gcache.h"
 
+QT_MODULE(Qt3SupportLight)
 
 template<class type>
 class Q3IntCache

@@ -18,6 +18,7 @@
 #include "Qt3Support/q3groupbox.h"
 #include "QtCore/qmap.h"
 
+QT_MODULE(Qt3SupportLight)
 
 class QAbstractButton;
 

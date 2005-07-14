@@ -16,6 +16,8 @@
 
 #include <QtGui/qpicture.h>
 
+QT_MODULE(Qt3SupportLight)
+
 class Q_COMPAT_EXPORT Q3Picture : public QPicture
 {
 public:

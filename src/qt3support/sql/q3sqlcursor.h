@@ -21,6 +21,8 @@
 #include "QtSql/qsqlquery.h"
 #include "QtSql/qsqlindex.h"
 
+QT_MODULE(Qt3Support)
+
 #ifndef QT_NO_SQL
 
 class Q3SqlCursorPrivate;

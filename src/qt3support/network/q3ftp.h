@@ -20,6 +20,8 @@
 #include "Qt3Support/q3networkprotocol.h"
 #endif // QT_H
 
+QT_MODULE(Qt3Support)
+
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
 
 class Q3Socket;

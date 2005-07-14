@@ -19,6 +19,8 @@
 #include "QtCore/qglobal.h"
 #include "QtSql/qsqlfield.h"
 
+QT_MODULE(Qt3Support)
+
 /* Q3SqlFieldInfo Class
    obsoleted, use QSqlField instead
 */

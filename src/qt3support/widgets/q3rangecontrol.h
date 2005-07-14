@@ -17,6 +17,8 @@
 #include "QtCore/qglobal.h"
 #include "QtGui/qwidget.h"
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_RANGECONTROL
 
 class Q3RangeControlPrivate;

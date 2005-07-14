@@ -19,6 +19,8 @@
 #include "QtCore/qdir.h"
 #endif // QT_H
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_NETWORKPROTOCOL
 
 class Q_COMPAT_EXPORT Q3LocalFs : public Q3NetworkProtocol

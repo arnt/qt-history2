@@ -16,6 +16,8 @@
 
 #include "Qt3Support/q3hbox.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class Q_COMPAT_EXPORT Q3VBox : public Q3HBox
 {
     Q_OBJECT

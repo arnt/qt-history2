@@ -33,6 +33,8 @@ class Q3FileDialogQFileListView;
 #include "Qt3Support/q3valuelist.h"
 #include "QtNetwork/qurlinfo.h"
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_FILEDIALOG
 
 class Q_COMPAT_EXPORT Q3FileIconProvider : public QObject

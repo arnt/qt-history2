@@ -24,6 +24,8 @@
 #include "Qt3Support/q3intdict.h"
 #include "QtCore/qstringlist.h"
 
+QT_MODULE(Qt3Support)
+
 class Q3TableHeader;
 class QValidator;
 class Q3Table;

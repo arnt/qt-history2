@@ -19,6 +19,7 @@
 #include "Qt3Support/q3asciidict.h"
 #endif // QT_H
 
+QT_MODULE(Qt3SupportLight)
 
 //
 // The object dictionary is a collection of QMetaObjects

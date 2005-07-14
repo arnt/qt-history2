@@ -18,6 +18,8 @@
 #include "QtCore/qstring.h"
 #include "QtCore/qdatetime.h"
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_DATETIMEEDIT
 
 class Q_COMPAT_EXPORT Q3DateTimeEditBase : public QWidget

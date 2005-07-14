@@ -17,6 +17,8 @@
 #include "Qt3Support/q3frame.h"
 #include "QtGui/qscrollbar.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class Q3ScrollViewData;
 
 class Q_COMPAT_EXPORT Q3ScrollView : public Q3Frame

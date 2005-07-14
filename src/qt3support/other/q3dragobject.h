@@ -21,6 +21,8 @@
 #include "Qt3Support/q3strlist.h"
 #include "QtCore/qlist.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class QWidget;
 class Q3TextDragPrivate;
 class Q3DragObjectPrivate;

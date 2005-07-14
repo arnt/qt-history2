@@ -23,6 +23,8 @@
 #include "Qt3Support/q3sqleditorfactory.h"
 #include "Qt3Support/qiconset.h"
 
+QT_MODULE(Qt3Support)
+
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 
 class QPainter;

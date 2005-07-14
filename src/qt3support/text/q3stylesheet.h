@@ -23,6 +23,8 @@
 //#include "qmime.h"
 //#include "qmimefactory.h"
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_RICHTEXT
 
 class Q3StyleSheet;

@@ -16,6 +16,8 @@
 
 #include "Qt3Support/q3gvector.h"
 
+QT_MODULE(Qt3SupportLight)
+
 template<class type>
 class Q3PtrVector
 #ifdef qdoc

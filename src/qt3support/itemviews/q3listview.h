@@ -16,6 +16,8 @@
 
 #include "Qt3Support/q3scrollview.h"
 
+QT_MODULE(Qt3SupportLight)
+
 #ifndef QT_NO_LISTVIEW
 
 

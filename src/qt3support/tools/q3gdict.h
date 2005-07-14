@@ -17,6 +17,8 @@
 #include "Qt3Support/q3ptrcollection.h"
 #include "QtCore/qstring.h"
 
+QT_MODULE(Qt3SupportLight)
+
 class Q3GDictIterator;
 class Q3GDItList;
 
