@@ -995,6 +995,9 @@ bool QTextCursor::movePosition(MoveOperation op, MoveMode mode, int n)
     (i.e. from position() forward), and replaces the selection with
     the phrase "Hello World".
 
+    Any ASCII linefeed characters (\\n) in the inserted text are transformed
+    into unicode block separators, corresponding to insertBlock() calls.
+
     \sa charFormat() hasSelection()
 */
 void QTextCursor::insertText(const QString &text)
@@ -1026,12 +1029,31 @@ void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
 
         QTextBlockFormat blockFmt = blockFormat();
 
-        QStringList blocks = text.split(QChar::ParagraphSeparator);
-        for (int i = 0; i < blocks.size(); ++i) {
-            if (i > 0)
+        bool seenCRLF = false;
+
+        int textStart = 0;
+        for (int i = 0; i < text.length(); ++i) {
+            QChar ch = text.at(i);
+            if (ch == QLatin1Char('\n')
+                || ch == QChar::ParagraphSeparator) {
+
+                const int textEnd = (seenCRLF ? i - 1 : i);
+
+                if (textEnd > textStart)
+                    d->priv->insert(d->position, QString(text.unicode() + textStart, textEnd - textStart), formatIdx);
+
+                textStart = i + 1;
                 d->insertBlock(blockFmt, format);
-            d->priv->insert(d->position, blocks.at(i), formatIdx);
+
+                seenCRLF = false;
+            } else if (ch == QLatin1Char('\r')
+                       && (i + 1) < text.length()
+                       && text.at(i + 1) == QLatin1Char('\n')) {
+                seenCRLF = true;
+            }
         }
+        if (textStart < text.length())
+            d->priv->insert(d->position, QString(text.unicode() + textStart, text.length() - textStart), formatIdx);
     }
     d->priv->endEditBlock();
 }
