@@ -1334,7 +1334,7 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
     if (qt_mac_is_metal(w)) {
         // Set a clear brush so that the metal shines through.
         QPalette pal = w->palette();
-        QBrush background(QColor(255, 255, 255, 0));
+        QBrush background(Qt::transparent);
         pal.setBrush(QPalette::Background, background);
         pal.setBrush(QPalette::Button, background);
         w->setPalette(pal);
@@ -1468,7 +1468,7 @@ void QMacStylePrivate::HIThemeDrawColorlessButton(const HIRect &macRect,
     QPixmap pm;
     if (!QPixmapCache::find(key, pm)) {
         QPixmap pix(width, height);
-        pix.fill(Qt::white);
+        pix.fill(Qt::transparent);
         {
             QMacCGContext cg(&pix);
             HIRect newRect = CGRectMake(xoff, yoff, macRect.size.width, macRect.size.height);
@@ -1476,7 +1476,6 @@ void QMacStylePrivate::HIThemeDrawColorlessButton(const HIRect &macRect,
         }
         QImage pix_img = pix.toImage();
 
-        QImage img(width, height, QImage::Format_ARGB32);
         for (int y = 0; y < height; ++y) {
             QRgb *scanline = (QRgb*)pix_img.scanLine(y);
             for (int x = 0; x < width; ++x) {
@@ -1496,10 +1495,9 @@ void QMacStylePrivate::HIThemeDrawColorlessButton(const HIRect &macRect,
                     scanline[x] = pixel;
                 }
             }
-            memcpy(img.scanLine(y), scanline, pix_img.bytesPerLine());
         }
 
-        pm = QPixmap::fromImage(img);
+        pm = QPixmap::fromImage(pix_img);
         QPixmapCache::insert(key, pm);
     }
     p->drawPixmap(int(macRect.origin.x), int(macRect.origin.y) + finalyoff, width, height, pm);
