@@ -1198,7 +1198,7 @@ QString QAbstractSpinBoxPrivate::stripped(const QString &t) const
         if (changed)
             text = text.mid(from, size);
     }
-    return text;
+    return text.trimmed();
 }
 
 /*!
