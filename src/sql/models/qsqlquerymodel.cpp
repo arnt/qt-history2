@@ -27,6 +27,7 @@ void QSqlQueryModelPrivate::prefetch(int limit)
     if (atEnd || limit <= bottom.row())
         return;
 
+    int oldAt = query.at();
     QModelIndex oldBottom = q->createIndex(bottom.row(), 0);
     QModelIndex newBottom;
 
@@ -46,7 +47,8 @@ void QSqlQueryModelPrivate::prefetch(int limit)
         }
         atEnd = true; // this is the end.
     }
-    if (newBottom.row() > oldBottom.row()) {
+    if (newBottom.row() >= 0
+        && (newBottom.row() > oldBottom.row() || oldAt == QSql::BeforeFirst)) {
         q->beginInsertRows(QModelIndex(), oldBottom.row(), newBottom.row());
         bottom = newBottom;
         q->endInsertRows();
