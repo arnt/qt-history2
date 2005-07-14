@@ -67,7 +67,6 @@ public:
        splash->show();
        QMainWindow *mainWin = new QMainWindow;
        ...
-       app.setMainWidget(mainWin);
        mainWin->show();
        splash->finish(mainWin);
        delete splash;

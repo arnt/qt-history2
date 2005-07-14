@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include <qapplication.h>
 #include <qevent.h>
 #include <qpainter.h>
@@ -148,7 +149,6 @@
             QApplication app(argc, argv);
 
             QX11EmbedContainer container(0);
-            app.setMainWidget(&container);
             container.show();
 
             QProcess proc(&container);

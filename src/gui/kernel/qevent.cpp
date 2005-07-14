@@ -1027,8 +1027,8 @@ QResizeEvent::~QResizeEvent()
     want the widget to be closed.
 
     \sa QWidget::close(), QWidget::hide(), QObject::destroyed(),
-    QApplication::setMainWidget(), QApplication::lastWindowClosed(),
-    QApplication::exec(), QApplication::quit()
+        QCoreApplication::exec(), QCoreApplication::quit(),
+        QApplication::lastWindowClosed()
 */
 
 /*!
