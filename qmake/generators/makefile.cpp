@@ -1958,8 +1958,9 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                                 }
                             }
                         }
-                        if(type != TYPE_UNKNOWN && !QMakeSourceFileInfo::containsSourceFile(dep, type)) {
-                            QMakeSourceFileInfo::addSourceFile(dep, type);
+                        if(type != TYPE_UNKNOWN) {
+                            if(!QMakeSourceFileInfo::containsSourceFile(dep, type))
+                                QMakeSourceFileInfo::addSourceFile(dep, type);
                             inc_deps += QMakeSourceFileInfo::dependencies(dep);
                         }
                     }
@@ -2844,7 +2845,6 @@ MakefileGenerator::findFileInfo(const QMakeLocalFileName &file)
 QMakeLocalFileName
 MakefileGenerator::findFileForDep(const QMakeLocalFileName &dep, const QMakeLocalFileName &file)
 {
-
     QMakeLocalFileName ret;
     if(!project->isEmpty("SKIP_DEPENDS")) {
         bool found = false;
@@ -2918,7 +2918,6 @@ MakefileGenerator::findFileForDep(const QMakeLocalFileName &dep, const QMakeLoca
                     QStringList &inputs = project->variables()[(*it2)];
                     for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
                         QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString());
-
                         if(out == dep.real() || out.endsWith("/" + dep.real())) {
                             ret = QMakeLocalFileName(fileFixify(out, qmake_getpwd(), Option::output_dir));
                             goto found_dep_from_heuristic;
