@@ -1990,6 +1990,8 @@ QDateTime::QDateTime(const QDate &date)
 /*!
     Constructs a datetime with the given \a date and \a time, using
     the time specification defined by \a spec.
+
+    If \a date is valid and \time is not, the time will be set to midnight.
 */
 
 QDateTime::QDateTime(const QDate &date, const QTime &time, Qt::TimeSpec spec)
@@ -2089,6 +2091,7 @@ Qt::TimeSpec QDateTime::timeSpec() const
 
 /*!
     Sets the date part of this datetime to \a date.
+    If no time is set, it is set to midnight.
 
     \sa date(), setTime(), setTimeSpec()
 */
