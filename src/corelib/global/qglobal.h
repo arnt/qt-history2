@@ -1634,10 +1634,14 @@ QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathSysconf();
 
 // Determine which modules can be used
 #ifndef QT_EDITION
+#  ifdef QT_BUILD_QMAKE
+#    define QT_EDITION QT_EDITION_DESKTOP
+#  else
 // ### remove me
-#  define QT_EDITION QT_EDITION_DESKTOP
+#    define QT_EDITION QT_EDITION_DESKTOP
 // ### uncomment me
-// #  error "Qt not configured correctly, please run configure"
+// #    error "Qt not configured correctly, please run configure"
+#  endif
 #endif
 
 #define QT_LICENSED_MODULE(x) \
