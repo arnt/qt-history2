@@ -1595,6 +1595,82 @@ QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathTranslations();
 QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathSysconf();
 #endif
 
+/*
+  This gives us the possibility to check which modules the user can
+  use. These are purely compile time checks and will generate no code.
+*/
+
+// Qt modules
+#define QT_MODULE_CORE                  0x01
+#define QT_MODULE_GUI                   0x02
+#define QT_MODULE_NETWORK               0x04
+#define QT_MODULE_OPENGL                0x08
+#define QT_MODULE_SQL                   0x10
+#define QT_MODULE_XML                   0x20
+#define QT_MODULE_QT3SUPPORTLIGHT       0x40
+#define QT_MODULE_QT3SUPPORT            0x80
+
+// Qt editions
+#define QT_EDITION_CONSOLE      (QT_MODULE_CORE \
+                                 | QT_MODULE_NETWORK \
+                                 | QT_MODULE_SQL \
+                                 | QT_MODULE_XML)
+#define QT_EDITION_DESKTOPLIGHT (QT_MODULE_CORE \
+                                 | QT_MODULE_GUI \
+                                 | QT_MODULE_QT3SUPPORTLIGHT)
+#define QT_EDITION_DESKTOP      (QT_MODULE_CORE \
+                                 | QT_MODULE_GUI \
+                                 | QT_MODULE_NETWORK \
+                                 | QT_MODULE_OPENGL \
+                                 | QT_MODULE_SQL \
+                                 | QT_MODULE_XML \
+                                 | QT_MODULE_QT3SUPPORTLIGHT \
+                                 | QT_MODULE_QT3SUPPORT)
+#define QT_EDITION_UNIVERSAL    QT_EDITION_DESKTOP
+#define QT_EDITION_ACADEMIC     QT_EDITION_DESKTOP
+#define QT_EDITION_EDUCATIONAL  QT_EDITION_DESKTOP
+#define QT_EDITION_EVALUATION   QT_EDITION_DESKTOP
+#define QT_EDITION_OPENSOURCE   QT_EDITION_DESKTOP
+
+// Determine which modules can be used
+#ifndef QT_EDITION
+// ### remove me
+#  define QT_EDITION QT_EDITION_DESKTOP
+// ### uncomment me
+// #  error "Qt not configured correctly, please run configure"
+#endif
+
+#define QT_LICENSED_MODULE(x) \
+    enum QtValidLicenseFor##x##Module { Licensed##x = true };
+
+#if (QT_EDITION & QT_MODULE_CORE)
+QT_LICENSED_MODULE(Core)
+#endif
+#if (QT_EDITION & QT_MODULE_GUI)
+QT_LICENSED_MODULE(Gui)
+#endif
+#if (QT_EDITION & QT_MODULE_NETWORK)
+QT_LICENSED_MODULE(Network)
+#endif
+#if (QT_EDITION & QT_MODULE_OPENGL)
+QT_LICENSED_MODULE(OpenGL)
+#endif
+#if (QT_EDITION & QT_MODULE_SQL)
+QT_LICENSED_MODULE(Sql)
+#endif
+#if (QT_EDITION & QT_MODULE_XML)
+QT_LICENSED_MODULE(Xml)
+#endif
+#if (QT_EDITION & QT_MODULE_QT3SUPPORTLIGHT)
+QT_LICENSED_MODULE(Qt3SupportLight)
+#endif
+#if (QT_EDITION & QT_MODULE_QT3SUPPORT)
+QT_LICENSED_MODULE(Qt3Support)
+#endif
+
+#define QT_MODULE(x) \
+    typedef QtValidLicenseFor##x##Module Qt##x##Module;
+
 #endif /* __cplusplus */
 
 #endif /* QGLOBAL_H */
