@@ -269,7 +269,6 @@ int QGridLayoutPrivate::minimumHeightForWidth(int w, int margin, int spacing)
     return has_hfw ? (hfw_minheight + 2*margin) : -1;
 }
 
-
 QSize QGridLayoutPrivate::findSize(int QLayoutStruct::*size, int spacer) const
 {
     QGridLayoutPrivate *that = const_cast<QGridLayoutPrivate*>(this);
@@ -285,6 +284,7 @@ QSize QGridLayoutPrivate::findSize(int QLayoutStruct::*size, int spacer) const
     }
     if (n)
         h += (n - 1) * spacer;
+
     n = 0;
     for (int c = 0; c < cc; c++) {
         w = w + colData[c].*size;
@@ -485,10 +485,8 @@ void QGridLayoutPrivate::addData(QGridBox *box, bool r, bool c)
     }
 }
 
-static void distributeMultiBox(QVector<QLayoutStruct> &chain, int spacing,
-                                int start, int end,
-                                int minSize, int sizeHint,
-                                QVector<int> &stretchArray, int stretch)
+static void distributeMultiBox(QVector<QLayoutStruct> &chain, int spacing, int start, int end,
+                               int minSize, int sizeHint, QVector<int> &stretchArray, int stretch)
 {
     int i;
     int w = 0;
@@ -560,37 +558,42 @@ void QGridLayoutPrivate::setupLayoutData(int spacing)
     for (i = 0; i < cc; i++)
         colData[i].init(cStretch[i], cSpacing[i]);
 
-    for (i = 0; i < things.size(); ++i) {
-        QGridBox *box = things.at(i);
-        int r1 = box->row;
-        int c1 = box->col;
-        int r2 = box->torow;
-        int c2 = box->tocol;
-        if (r2 < 0)
-            r2 = rr - 1;
-        if (c2 < 0)
-            c2 = cc - 1;
+    for (int pass = 0; pass < 2; ++pass) {
+        for (i = 0; i < things.size(); ++i) {
+            QGridBox *box = things.at(i);
+            int r1 = box->row;
+            int c1 = box->col;
+            int r2 = box->torow;
+            int c2 = box->tocol;
+            if (r2 < 0)
+                r2 = rr - 1;
+            if (c2 < 0)
+                c2 = cc - 1;
 
-        QSize hint = box->sizeHint();
-        QSize min = box->minimumSize();
-        if (box->hasHeightForWidth())
-            has_hfw = true;
+            QSize hint = box->sizeHint();
+            QSize min = box->minimumSize();
+            if (box->hasHeightForWidth())
+                has_hfw = true;
 
-        if (r1 == r2) {
-            addData(box, true, false);
-        } else {
-            distributeMultiBox(rowData, spacing, r1, r2,
-                                min.height(), hint.height(),
-                                rStretch, box->vStretch());
-        }
-        if (c1 == c2) {
-            addData(box, false, true);
-        } else {
-            distributeMultiBox(colData, spacing, c1, c2,
-                                min.width(), hint.width(),
-                                cStretch, box->hStretch());
+            if (r1 == r2) {
+                if (pass == 0)
+                    addData(box, true, false);
+            } else {
+                if (pass == 1)
+                    distributeMultiBox(rowData, spacing, r1, r2, min.height(), hint.height(),
+                                       rStretch, box->vStretch());
+            }
+            if (c1 == c2) {
+                if (pass == 0)
+                    addData(box, false, true);
+            } else {
+                if (pass == 1)
+                    distributeMultiBox(colData, spacing, c1, c2, min.width(), hint.width(),
+                                       cStretch, box->hStretch());
+            }
         }
     }
+
     for (i = 0; i < rr; i++)
         rowData[i].expansive = rowData[i].expansive || rowData[i].stretch > 0;
     for (i = 0; i < cc; i++)
