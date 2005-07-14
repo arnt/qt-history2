@@ -355,10 +355,17 @@ void Generator::generateCode()
                     cdef->classname.constData(), QByteArray(j+1, ')').constData());
         }
     }
-    if (purestSuperClass.size() && !isQObject)
-        fprintf(out, "    return %s::qt_metacast(_clname);\n", purestSuperClass.constData());
-    else
+    if (!purestSuperClass.isEmpty() && !isQObject) {
+        QByteArray superClass = purestSuperClass;
+        // workaround for VC6
+        if (superClass.contains("::")) {
+            fprintf(out, "    typedef %s SuperClass;\n", superClass.constData());
+            superClass = "SuperClass";
+        }
+        fprintf(out, "    return %s::qt_metacast(_clname);\n", superClass.constData());
+    } else {
         fprintf(out, "    return 0;\n");
+    }
     fprintf(out, "}\n");
 
 //
