@@ -18,6 +18,8 @@
 #include <QtNetwork/qabstractsocket.h>
 #include <QtNetwork/qhostaddress.h>
 
+QT_MODULE(Network)
+
 class QTcpServerPrivate;
 class QTcpSocket;
 

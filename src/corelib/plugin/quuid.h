@@ -16,6 +16,8 @@
 
 #include "QtCore/qstring.h"
 
+QT_MODULE(Core)
+
 #if defined(Q_OS_WIN32)
 #ifndef GUID_DEFINED
 #define GUID_DEFINED

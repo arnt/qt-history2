@@ -17,6 +17,8 @@
 #include <QtCore/qiodevice.h>
 #include <QtCore/qobject.h>
 
+QT_MODULE(Network)
+
 class QHostAddress;
 class QAbstractSocketPrivate;
 

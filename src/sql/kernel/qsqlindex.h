@@ -18,6 +18,8 @@
 #include "QtSql/qsqlrecord.h"
 #include "QtCore/qlist.h"
 
+QT_MODULE(Sql)
+
 class Q_SQL_EXPORT QSqlIndex : public QSqlRecord
 {
 public:

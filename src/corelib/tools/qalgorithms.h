@@ -16,6 +16,8 @@
 
 #include "QtCore/qglobal.h"
 
+QT_MODULE(Core)
+
 /*
     Warning: The contents of QAlgorithmsPrivate is not a part of the public Qt API
     and may be changed from version to version or even be completely removed.

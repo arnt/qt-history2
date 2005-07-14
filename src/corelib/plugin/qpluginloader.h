@@ -16,6 +16,7 @@
 
 #include "QtCore/qobject.h"
 
+QT_MODULE(Core)
 
 class QLibraryPrivate;
 

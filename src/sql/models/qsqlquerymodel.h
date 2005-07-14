@@ -17,6 +17,8 @@
 #include <QtCore/qabstractitemmodel.h>
 #include <QtSql/qsqldatabase.h>
 
+QT_MODULE(Sql)
+
 class QSqlQueryModelPrivate;
 class QSqlError;
 class QSqlRecord;

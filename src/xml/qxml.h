@@ -20,6 +20,7 @@
 #include "QtCore/qstringlist.h"
 #include "QtCore/qlist.h"
 
+QT_MODULE(Xml)
 
 class QXmlNamespaceSupport;
 class QXmlAttributes;

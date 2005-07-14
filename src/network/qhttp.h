@@ -18,6 +18,8 @@
 #include "QtCore/qstringlist.h"
 #include "QtCore/qmap.h"
 
+QT_MODULE(Network)
+
 #ifndef QT_NO_HTTP
 
 class QTcpSocket;

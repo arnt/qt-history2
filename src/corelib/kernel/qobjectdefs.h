@@ -16,6 +16,8 @@
 
 #include "QtCore/qnamespace.h"
 
+QT_MODULE(Core)
+
 class QString;
 
 class QByteArray;

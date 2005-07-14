@@ -18,6 +18,8 @@
 #include <QtCore/qpair.h>
 #include <QtCore/qstring.h>
 
+QT_MODULE(Core)
+
 class QByteArray;
 class QUrlPrivate;
 class QDataStream;
@@ -94,7 +96,7 @@ public:
     QStringList allQueryItemValues(const QString &key) const;
     void removeQueryItem(const QString &key);
     void removeAllQueryItems(const QString &key);
-    
+
 
     void setFragment(const QString &fragment);
     QString fragment() const;

@@ -25,6 +25,8 @@
 #include <qvaluelist.h>
 #endif
 
+QT_MODULE(Core)
+
 class QRegExp;
 
 typedef QListIterator<QString> QStringListIterator;

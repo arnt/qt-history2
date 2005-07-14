@@ -22,6 +22,8 @@
 #include <QtCore/qstringlist.h>
 #endif
 
+QT_MODULE(Core)
+
 #if defined(Q_WS_WIN) && !defined(tagMSG)
 typedef struct tagMSG MSG;
 #endif

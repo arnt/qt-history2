@@ -24,6 +24,8 @@
 
 #include <new>
 
+QT_MODULE(Core)
+
 struct Q_CORE_EXPORT QMapData
 {
     struct Node {

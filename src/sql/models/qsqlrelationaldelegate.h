@@ -21,6 +21,8 @@
 #include "QtGui/qcombobox.h"
 #include "QtSql/qsqlrelationaltablemodel.h"
 
+QT_MODULE(Sql)
+
 class QSqlRelationalDelegate: public QItemDelegate
 {
 public:

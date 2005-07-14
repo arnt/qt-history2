@@ -16,6 +16,8 @@
 
 #include "QtCore/qobject.h"
 
+QT_MODULE(Core)
+
 #ifndef QT_NO_SIGNALMAPPER
 class QSignalMapperPrivate;
 

@@ -17,6 +17,8 @@
 #include "QtCore/qstring.h"
 #include "QtNetwork/qabstractsocket.h"
 
+QT_MODULE(Network)
+
 class QHostAddressPrivate;
 
 class Q_NETWORK_EXPORT QIPv6Address

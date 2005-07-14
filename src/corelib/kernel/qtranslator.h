@@ -17,6 +17,8 @@
 #include "QtCore/qobject.h"
 #include "QtCore/qbytearray.h"
 
+QT_MODULE(Core)
+
 #ifndef QT_NO_TRANSLATION
 
 class QTranslatorPrivate;

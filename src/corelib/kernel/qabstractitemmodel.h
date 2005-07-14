@@ -17,6 +17,8 @@
 #include <QtCore/qvariant.h>
 #include <QtCore/qobject.h>
 
+QT_MODULE(Core)
+
 class QAbstractItemModel;
 class QPersistentModelIndex;
 
@@ -212,7 +214,7 @@ protected:
     void reset();
 
     void changePersistentIndex(const QModelIndex &from, const QModelIndex &to);
-    
+
 private:
     Q_DECLARE_PRIVATE(QAbstractItemModel)
     Q_DISABLE_COPY(QAbstractItemModel)

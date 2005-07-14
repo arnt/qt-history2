@@ -16,6 +16,8 @@
 
 #include "QtCore/qvector.h"
 
+QT_MODULE(Core)
+
 template<class T>
 class QStack : public QVector<T>
 {

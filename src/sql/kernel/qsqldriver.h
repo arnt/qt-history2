@@ -22,6 +22,8 @@
 #include "QtSql/qsqlquery.h"
 #endif
 
+QT_MODULE(Sql)
+
 class QStringList;
 class QSqlDatabase;
 class QSqlDriverPrivate;

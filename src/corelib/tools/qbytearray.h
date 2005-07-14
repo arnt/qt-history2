@@ -25,6 +25,8 @@
 #error qbytearray.h must be included before any header file that defines truncate
 #endif
 
+QT_MODULE(Core)
+
 /*****************************************************************************
   Safe and portable C string functions; extensions to standard string.h
  *****************************************************************************/

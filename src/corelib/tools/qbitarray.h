@@ -16,6 +16,8 @@
 
 #include "QtCore/qbytearray.h"
 
+QT_MODULE(Core)
+
 class QBitRef;
 class Q_CORE_EXPORT QBitArray
 {

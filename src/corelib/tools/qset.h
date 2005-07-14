@@ -16,6 +16,8 @@
 
 #include "QtCore/qhash.h"
 
+QT_MODULE(Core)
+
 template <class T>
 class QSet
 {

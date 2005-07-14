@@ -16,6 +16,8 @@
 
 #include <QtSql/qsqltablemodel.h>
 
+QT_MODULE(Sql)
+
 class Q_SQL_EXPORT QSqlRelation
 {
 public:

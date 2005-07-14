@@ -17,6 +17,8 @@
 #include <QtCore/qglobal.h>
 #include <limits.h>
 
+QT_MODULE(Core)
+
 struct QReadWriteLockPrivate;
 
 class Q_CORE_EXPORT QReadWriteLock

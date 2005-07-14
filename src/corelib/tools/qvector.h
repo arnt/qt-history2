@@ -25,6 +25,8 @@
 #endif
 #include <string.h>
 
+QT_MODULE(Core)
+
 struct Q_CORE_EXPORT QVectorData
 {
     QBasicAtomic ref;

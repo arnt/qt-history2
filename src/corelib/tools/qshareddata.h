@@ -17,6 +17,8 @@
 #include <QtCore/qatomic.h>
 #include <QtCore/qglobal.h>
 
+QT_MODULE(Core)
+
 template <class T> class QSharedDataPointer;
 
 class Q_CORE_EXPORT QSharedData

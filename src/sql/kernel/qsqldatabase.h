@@ -20,6 +20,8 @@
 #include "QtSql/qsqlrecord.h"
 #endif
 
+QT_MODULE(Sql)
+
 class QSqlError;
 class QSqlDriver;
 class QSqlIndex;

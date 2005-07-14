@@ -19,6 +19,8 @@
 #include "QtCore/qiterator.h"
 #include "QtCore/qlist.h"
 
+QT_MODULE(Core)
+
 class QByteArray;
 class QString;
 

@@ -18,6 +18,7 @@
 #include "QtOpenGL/qglcolormap.h"
 #include "QtCore/qmap.h"
 
+QT_MODULE(OpenGL)
 
 #ifdef QT3_SUPPORT
 #define QGL_VERSION        460

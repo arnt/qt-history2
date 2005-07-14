@@ -16,6 +16,8 @@
 
 #include "QtCore/qobject.h"
 
+QT_MODULE(Core)
+
 template <class T>
 class QPointer
 {

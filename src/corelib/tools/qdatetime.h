@@ -17,6 +17,8 @@
 #include "QtCore/qstring.h"
 #include "QtCore/qnamespace.h"
 
+QT_MODULE(Core)
+
 class Q_CORE_EXPORT QDate
 {
 public:

@@ -20,6 +20,9 @@
 #else
 #  include <QtCore/arch/qatomic.h>
 #endif
+#include <QtCore/qglobal.h>
+
+QT_MODULE(Core)
 
 #ifndef Q_SPECIALIZED_QATOMIC
 

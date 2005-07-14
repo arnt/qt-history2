@@ -18,6 +18,8 @@
 
 #include "QtCore/qstring.h"
 
+QT_MODULE(Core)
+
 struct QRegExpPrivate;
 class QStringList;
 

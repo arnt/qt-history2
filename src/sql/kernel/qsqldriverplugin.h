@@ -17,6 +17,8 @@
 #include "QtCore/qplugin.h"
 #include "QtCore/qfactoryinterface.h"
 
+QT_MODULE(Sql)
+
 class QSqlDriver;
 
 struct Q_SQL_EXPORT QSqlDriverFactoryInterface : public QFactoryInterface

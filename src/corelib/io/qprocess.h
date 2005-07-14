@@ -24,6 +24,8 @@ typedef PROCESS_INFORMATION* Q_PID;
 typedef qint64 Q_PID;
 #endif
 
+QT_MODULE(Core)
+
 #ifndef QT_NO_PROCESS
 
 class QProcessPrivate;
@@ -108,7 +110,7 @@ public:
 public slots:
     void terminate();
     void kill();
-    
+
 signals:
     void started();
     void finished(int exitCode);

@@ -17,6 +17,8 @@
 #include "QtCore/qvariant.h"
 #include "QtCore/qstring.h"
 
+QT_MODULE(Sql)
+
 class QSqlFieldPrivate;
 
 class Q_SQL_EXPORT QSqlField

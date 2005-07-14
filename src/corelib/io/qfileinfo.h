@@ -17,6 +17,8 @@
 #include "QtCore/qfile.h"
 #include "QtCore/qlist.h"
 
+QT_MODULE(Core)
+
 class QDir;
 class QDateTime;
 class QFileInfoPrivate;

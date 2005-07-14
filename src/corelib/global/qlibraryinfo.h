@@ -16,6 +16,8 @@
 
 #include <QtCore/qstring.h>
 
+QT_MODULE(Core)
+
 #ifndef QT_NO_SETTINGS
 
 class Q_CORE_EXPORT QLibraryInfo

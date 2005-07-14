@@ -16,6 +16,8 @@
 
 #include "QtCore/qstring.h"
 
+QT_MODULE(Core)
+
 class QDataStream;
 struct QLocalePrivate;
 

@@ -25,6 +25,8 @@
 #error qiodevice.h must be included before any system header that defines open
 #endif
 
+QT_MODULE(Core)
+
 class QByteArray;
 class QIODevicePrivate;
 

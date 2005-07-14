@@ -26,6 +26,8 @@
 #include "QtCore/qcoreevent.h"
 #endif
 
+QT_MODULE(Core)
+
 class QEvent;
 class QTimerEvent;
 class QChildEvent;

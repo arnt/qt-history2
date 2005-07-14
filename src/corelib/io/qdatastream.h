@@ -17,6 +17,8 @@
 #include "QtCore/qiodevice.h"
 #include "QtCore/qglobal.h"
 
+QT_MODULE(Core)
+
 class QByteArray;
 class QIODevice;
 

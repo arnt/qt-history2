@@ -16,6 +16,8 @@
 
 #include "QtCore/qdatastream.h"
 
+QT_MODULE(Core)
+
 template <class T1, class T2>
 struct QPair
 {

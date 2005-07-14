@@ -19,6 +19,8 @@
 #include "QtCore/qtextstream.h"
 #include "QtCore/qstring.h"
 
+QT_MODULE(Core)
+
 #if !defined(QT_NO_DEBUG_STREAM)
 class Q_CORE_EXPORT QDebug
 {

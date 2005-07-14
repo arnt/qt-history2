@@ -18,6 +18,8 @@
 
 #include <limits.h>
 
+QT_MODULE(Core)
+
 class QThreadData;
 class QThreadPrivate;
 

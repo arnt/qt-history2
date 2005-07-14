@@ -21,6 +21,8 @@
 #error "qrect.h must be included before any header file that defines topLeft"
 #endif
 
+QT_MODULE(Core)
+
 class Q_CORE_EXPORT QRect
 {
 public:

@@ -16,6 +16,8 @@
 
 #include "QtCore/qstring.h"
 
+QT_MODULE(Sql)
+
 class Q_SQL_EXPORT QSqlError
 {
 public:

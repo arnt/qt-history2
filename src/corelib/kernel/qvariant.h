@@ -20,6 +20,8 @@
 #include "QtCore/qmetatype.h"
 #include "QtCore/qmap.h"
 
+QT_MODULE(Core)
+
 class QBitArray;
 class QDataStream;
 class QDate;

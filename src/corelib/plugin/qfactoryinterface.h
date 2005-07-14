@@ -17,6 +17,8 @@
 #include "QtCore/qobject.h"
 #include "QtCore/qstringlist.h"
 
+QT_MODULE(Core)
+
 struct QFactoryInterface
 {
     virtual ~QFactoryInterface() {}

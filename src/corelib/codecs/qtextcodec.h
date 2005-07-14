@@ -17,6 +17,8 @@
 #include "QtCore/qstring.h"
 #include "QtCore/qlist.h"
 
+QT_MODULE(Core)
+
 #ifndef QT_NO_TEXTCODEC
 
 class QTextCodec;

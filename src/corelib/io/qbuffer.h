@@ -17,6 +17,8 @@
 #include "QtCore/qiodevice.h"
 #include "QtCore/qbytearray.h"
 
+QT_MODULE(Core)
+
 class QObject;
 class QBufferPrivate;
 
@@ -51,8 +53,8 @@ public:
     qint64 pos() const;
     bool seek(qint64 off);
     bool atEnd() const;
-    bool canReadLine() const;    
-    
+    bool canReadLine() const;
+
 protected:
     qint64 readData(char *data, qint64 maxlen);
     qint64 writeData(const char *data, qint64 len);

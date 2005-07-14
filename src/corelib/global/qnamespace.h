@@ -16,6 +16,7 @@
 
 #include "QtCore/qglobal.h"
 
+QT_MODULE(Core)
 
 #ifndef Q_MOC_RUN
 namespace Qt {

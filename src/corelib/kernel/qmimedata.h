@@ -17,6 +17,8 @@
 #include <QtCore/qvariant.h>
 #include <QtCore/qobject.h>
 
+QT_MODULE(Core)
+
 class QUrl;
 class QMimeDataPrivate;
 

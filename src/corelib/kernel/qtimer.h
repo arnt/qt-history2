@@ -19,6 +19,7 @@
 #include "QtCore/qbasictimer.h" // conceptual inheritance
 #include "QtCore/qobject.h"
 
+QT_MODULE(Core)
 
 class Q_CORE_EXPORT QTimer : public QObject
 {

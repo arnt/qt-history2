@@ -16,6 +16,8 @@
 
 #include "QtCore/qstring.h"
 
+QT_MODULE(Core)
+
 class QStringMatcherPrivate;
 
 class Q_CORE_EXPORT QStringMatcher

@@ -16,6 +16,8 @@
 
 #include "QtNetwork/qabstractsocket.h"
 
+QT_MODULE(Network)
+
 class QTcpSocketPrivate;
 
 class Q_NETWORK_EXPORT QTcpSocket : public QAbstractSocket

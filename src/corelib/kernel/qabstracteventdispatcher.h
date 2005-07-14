@@ -17,6 +17,8 @@
 #include "QtCore/qobject.h"
 #include "QtCore/qeventloop.h"
 
+QT_MODULE(Core)
+
 class QAbstractEventDispatcherPrivate;
 class QSocketNotifier;
 template <typename T1, typename T2> struct QPair;

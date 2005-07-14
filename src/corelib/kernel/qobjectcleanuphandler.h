@@ -16,6 +16,7 @@
 
 #include "QtCore/qobject.h"
 
+QT_MODULE(Core)
 
 class Q_CORE_EXPORT QObjectCleanupHandler : public QObject
 {

@@ -16,6 +16,8 @@
 
 #include "QtCore/qglobal.h"
 
+QT_MODULE(Sql)
+
 namespace QSql
 {
     enum Location {

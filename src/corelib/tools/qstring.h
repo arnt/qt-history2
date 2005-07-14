@@ -48,6 +48,8 @@ typedef std::basic_string<wchar_t> QStdWString;
 #error qstring.h must be included before any header file that defines truncate
 #endif
 
+QT_MODULE(Core)
+
 class QCharRef;
 class QRegExp;
 class QStringList;

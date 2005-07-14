@@ -23,6 +23,8 @@
 #include <list>
 #endif
 
+QT_MODULE(Core)
+
 template <typename T> class QVector;
 template <typename T> class QSet;
 

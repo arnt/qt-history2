@@ -16,6 +16,8 @@
 
 #include "QtCore/qobject.h"
 
+QT_MODULE(Core)
+
 class QEventLoopPrivate;
 
 class Q_CORE_EXPORT QEventLoop : public QObject

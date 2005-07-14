@@ -17,6 +17,8 @@
 #include "QtSql/qsqldatabase.h"
 #include "QtSql/qsqlquerymodel.h"
 
+QT_MODULE(Sql)
+
 class QSqlTableModelPrivate;
 class QSqlRecord;
 class QSqlField;

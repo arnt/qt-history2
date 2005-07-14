@@ -16,6 +16,8 @@
 
 #include "QtSql/qsql.h"
 
+QT_MODULE(Sql)
+
 class QString;
 class QSqlRecord;
 template <typename T> class QVector;

@@ -16,6 +16,8 @@
 
 #include "QtCore/qhash.h"
 
+QT_MODULE(Core)
+
 template <class Key, class T>
 class QCache
 {

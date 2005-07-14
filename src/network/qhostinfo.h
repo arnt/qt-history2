@@ -17,9 +17,11 @@
 #include <QtCore/qlist.h>
 #include <QtNetwork/qhostaddress.h>
 
-class QObject;
+QT_MODULE(Network)
 
+class QObject;
 class QHostInfoPrivate;
+
 class Q_NETWORK_EXPORT QHostInfo
 {
 public:
@@ -35,7 +37,7 @@ public:
     ~QHostInfo();
 
     QString hostName() const;
-    void setHostName(const QString &name);    
+    void setHostName(const QString &name);
 
     QList<QHostAddress> addresses() const;
     void setAddresses(const QList<QHostAddress> &addresses);
@@ -51,7 +53,7 @@ public:
 
     static int lookupHost(const QString &name, QObject *receiver, const char *member);
     static void abortHostLookup(int lookupId);
-    
+
     static QHostInfo fromName(const QString &name);
     static QString localHostName();
 

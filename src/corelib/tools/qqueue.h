@@ -16,6 +16,8 @@
 
 #include "QtCore/qlist.h"
 
+QT_MODULE(Core)
+
 template <class T>
 class QQueue : public QList<T>
 {

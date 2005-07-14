@@ -23,6 +23,8 @@
 #error qfile.h must be included before any system header that defines open
 #endif
 
+QT_MODULE(Core)
+
 class QFileEngine;
 class QFilePrivate;
 class Q_CORE_EXPORT QFile : public QIODevice

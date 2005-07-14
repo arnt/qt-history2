@@ -17,6 +17,8 @@
 #include "QtGui/qcolor.h"
 #include "QtCore/qvector.h"
 
+QT_MODULE(OpenGL)
+
 class Q_OPENGL_EXPORT QGLColormap
 {
 public:

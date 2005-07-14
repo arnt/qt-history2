@@ -18,6 +18,8 @@
 #include "QtCore/qfileinfo.h"
 #include "QtCore/qstringlist.h"
 
+QT_MODULE(Core)
+
 class QDirPrivate;
 
 class Q_CORE_EXPORT QDir

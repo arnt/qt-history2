@@ -16,6 +16,8 @@
 
 #include "QtCore/qglobal.h"
 
+QT_MODULE(Core)
+
 #ifndef QT_NO_THREAD
 
 class QMutexPrivate;

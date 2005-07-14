@@ -20,6 +20,8 @@
 #error qfileengine.h must be included before any system header that defines open
 #endif
 
+QT_MODULE(Core)
+
 class QFileEnginePrivate;
 class Q_CORE_EXPORT QFileEngine
 {

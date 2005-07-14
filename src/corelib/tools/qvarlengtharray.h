@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_MODULE(Core)
+
 template<class T, int Prealloc = 256>
 class QVarLengthArray
 {

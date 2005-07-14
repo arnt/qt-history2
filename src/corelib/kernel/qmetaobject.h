@@ -17,6 +17,8 @@
 #include "QtCore/qobjectdefs.h"
 #include "QtCore/qvariant.h"
 
+QT_MODULE(Core)
+
 template <typename T> class QList;
 
 class Q_CORE_EXPORT QMetaMethod

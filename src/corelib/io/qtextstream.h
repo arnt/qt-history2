@@ -26,6 +26,8 @@
 
 #include <stdio.h>
 
+QT_MODULE(Core)
+
 class QTextCodec;
 class QTextDecoder;
 
@@ -189,7 +191,7 @@ public:
     enum Encoding { Locale, Latin1, Unicode, UnicodeNetworkOrder,
                     UnicodeReverse, RawUnicode, UnicodeUTF8 };
     QT3_SUPPORT void setEncoding(Encoding encoding);
-#endif    
+#endif
     inline QT3_SUPPORT QString read() { return readAll(); }
     inline QT3_SUPPORT void unsetDevice() { setDevice(0); }
 #endif

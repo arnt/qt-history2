@@ -25,6 +25,8 @@
 #error qmetatype.h must be included before any header file that define Bool
 #endif
 
+QT_MODULE(Core)
+
 class Q_CORE_EXPORT QMetaType {
 public:
     enum Type {

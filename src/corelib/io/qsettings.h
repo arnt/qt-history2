@@ -18,6 +18,8 @@
 #include "QtCore/qvariant.h"
 #include "QtCore/qstring.h"
 
+QT_MODULE(Core)
+
 #ifndef QT_NO_SETTINGS
 
 #ifdef QT3_SUPPORT
@@ -35,7 +37,7 @@ class QSettingsPrivate;
 #ifndef QT_NO_QOBJECT
 class Q_CORE_EXPORT QSettings : public QObject
 #else
-class Q_CORE_EXPORT QSettings 
+class Q_CORE_EXPORT QSettings
 #endif
 {
 #ifndef QT_NO_QOBJECT
@@ -46,12 +48,12 @@ class Q_CORE_EXPORT QSettings
     Q_DECLARE_PRIVATE(QSettings)
 
 public:
-    enum Status { 
-        NoError = 0, 
-        AccessError, 
-        FormatError 
+    enum Status {
+        NoError = 0,
+        AccessError,
+        FormatError
     };
-    
+
     enum Format {
         NativeFormat,
         IniFormat
@@ -116,7 +118,7 @@ public:
     bool fallbacksEnabled() const;
 
     QString fileName() const;
-    
+
     static void setSystemIniPath(const QString &dir);
     static void setUserIniPath(const QString &dir);
 

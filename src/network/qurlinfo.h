@@ -18,6 +18,8 @@
 #include "QtCore/qstring.h"
 #include "QtCore/qiodevice.h"
 
+QT_MODULE(Network)
+
 #ifndef QT_NO_URLINFO
 
 class QUrl;

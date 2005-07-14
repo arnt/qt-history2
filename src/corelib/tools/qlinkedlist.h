@@ -17,6 +17,8 @@
 #include "QtCore/qiterator.h"
 #include "QtCore/qatomic.h"
 
+QT_MODULE(Core)
+
 struct Q_CORE_EXPORT QLinkedListData
 {
     QLinkedListData *n, *p;

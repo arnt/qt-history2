@@ -16,6 +16,8 @@
 
 #include "QtCore/qstring.h"
 
+QT_MODULE(Xml)
+
 #ifndef QT_NO_DOM
 
 class QIODevice;

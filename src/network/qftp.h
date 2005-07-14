@@ -18,6 +18,8 @@
 #include "QtNetwork/qurlinfo.h"
 #include "QtCore/qobject.h"
 
+QT_MODULE(Network)
+
 #ifndef QT_NO_FTP
 
 class QFtpPrivate;

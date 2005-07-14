@@ -16,6 +16,8 @@
 
 #include "QtCore/qglobal.h"
 
+QT_MODULE(Core)
+
 class QObject;
 
 class Q_CORE_EXPORT QBasicTimer

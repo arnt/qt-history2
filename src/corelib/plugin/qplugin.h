@@ -17,6 +17,8 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qpointer.h>
 
+QT_MODULE(Core)
+
 #ifndef Q_EXTERN_C
 #  ifdef __cplusplus
 #    define Q_EXTERN_C extern "C"
