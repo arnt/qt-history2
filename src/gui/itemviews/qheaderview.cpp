@@ -630,9 +630,11 @@ int QHeaderView::count() const
 int QHeaderView::visualIndex(int logicalIndex) const
 {
     Q_D(const QHeaderView);
+    if (logicalIndex < 0 || logicalIndex > d->sections.count())
+        return -1;
     if (d->visualIndices.count() <= 0)
         return logicalIndex; // nothing has been moved yet
-    if (logicalIndex < 0 || logicalIndex >= d->visualIndices.count())
+    if (logicalIndex >= d->visualIndices.count())
         return -1;
     return d->visualIndices.at(logicalIndex);
 }

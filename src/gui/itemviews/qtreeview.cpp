@@ -601,8 +601,12 @@ void QTreeView::paintEvent(QPaintEvent *e)
         const int b = area.bottom() + 1;
 
         d->left = d->header->visualIndexAt(area.left());
-        d->right = d->header->visualIndexAt(area.right());
-
+        // ### If a function is added to get the last visual index then use it
+        // rather then this crude loop. 
+        int lastItem = area.right();
+        while(d->header->isSectionHidden(lastItem))
+            lastItem--;
+        d->right = d->header->visualIndexAt(lastItem);
         if (isRightToLeft()) {
             d->left = (d->left == -1 ? d->header->count() - 1 : d->left);
             d->right = (d->right == -1 ? 0 : d->right);
