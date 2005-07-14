@@ -65,51 +65,28 @@ elif [ -f $relpath/src/gui/kernel/qapplication_qws.cpp ]; then
 fi
 
 #-------------------------------------------------------------------------------
-# package detection
+# check the license
 #-------------------------------------------------------------------------------
 
-if test -d $relpath/tools/designer; then
-    PACKAGE_TYPE=Desktop
-else
-    PACKAGE_TYPE=Console
-fi
-
-#-------------------------------------------------------------------------------
-# check commercial license
-#-------------------------------------------------------------------------------
-
-# Open Source edition - may only be used under the terms of the QPL or GPL.
 if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]; then
+    # Open Source edition - may only be used under the terms of the QPL or GPL.
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     Licensee="Open Source"
-    LicenseType="Open Source"
-    ProductType="$PACKAGE_TYPE"
-# Internal Trolltech edition.
+    Edition="Open Source"
+    QT_EDITION="QT_EDITION_OPENSOURCE"
 elif [ -f $relpath/LICENSE.TROLL ]; then
+    # internal Trolltech edition
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     Licensee="Trolltech"
-    LicenseType="Trolltech"
-    ProductType="$PACKAGE_TYPE"
-# Commercial or Evaluation - needs a license
+    Edition="Trolltech"
+    QT_EDITION="QT_EDITION_DESKTOP"
 else
+    # one of commercial editions
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
-    if [ -f $relpath/.LICENSE ]; then
-        if grep "Qt EVALUATION VERSION LICENSE AGREEMENT" .LICENSE 2>&1 >/dev/null; then
-            LicenseType="Evaluation"
-        else
-            LicenseType="Commercial"
-        fi
-    else
-	echo "The LICENSE, LICENSE.QPL, or LICENSE.GPL file shipped with"
-	echo "this software has disappeared."
-	echo
-	echo "Sorry, you are not licensed to use this software."
-	echo "Try re-installing."
-	echo
-	exit 1
-    fi
+
+    # read in the license file
     if [ -f $HOME/.qt-license ]; then
         . $HOME/.qt-license >/dev/null 2>&1
         if [ -z "$LicenseKeyExt" ]; then
@@ -135,128 +112,175 @@ else
                 echo "Please enter your license key: \c"
             fi
             read LicenseKeyExt
+            Licensee="Unknown user"
         fi
     fi
-    if echo $LicenseKeyExt | grep ".....*-....*-....*-....*-.....*-.....*-...." >/dev/null 2>&1; then
-	# Key verification
-	productTest=`echo $LicenseKeyExt | cut -f 1 -d - | cut -b 1`
-	platformTest=`echo $LicenseKeyExt | cut -f 2 -d - | cut -b 1`
-        licenseTypeTest=`echo $LicenseKeyExt | cut -f 3 -d - | cut -b 1`
-	licenseFeatureTest=`echo $LicenseKeyExt | cut -f 4 -d - | cut -b 1`
-	packageTest=
-        case $productTest in
-	F)
-	    # Universal
-	    ProductType="Universal"
-	    packageTest=Desktop
-	    ;;
-	B)
-            # Desktop
-	    ProductType="Desktop"
-	    packageTest=Desktop
-            ;;
-	L)
-	    # Desktop Light
-            ProductType="Desktop Light"
-	    packageTest=Desktop
-	    ;;
-	R)
-	    # Console
-	    ProductType="Console"
-	    packageTest=Console
-	    ;;
-	*)
-	    echo
-	    echo "Invalid license key. Please check the license key."
-	    exit 1
-	    ;;
-        esac	
-        licenseTest=
-        case $licenseTypeTest in
+
+    # Key verification
+    echo $LicenseKeyExt | grep ".....*-....*-....*-....*-.....*-.....*-...." >/dev/null 2>&1 \
+        && LicenseValid="yes" \
+        || LicenseValid="no"
+    if [ "$LicenseValid" != "yes" ]; then
+        echo
+        echo "Invalid license key. Please check the license key."
+        exit 1
+    fi
+    ProductCode=`echo $LicenseKeyExt | cut -f 1 -d - | cut -b 1`
+    PlatformCode=`echo $LicenseKeyExt | cut -f 2 -d - | cut -b 1`
+    LicenseTypeCode=`echo $LicenseKeyExt | cut -f 3 -d -`
+    LicenseFeatureCode=`echo $LicenseKeyExt | cut -f 4 -d - | cut -b 1`
+
+    # determine which edition we are licensed to use
+    case $LicenseTypeCode in
+    F4M)
+        LicenseType="Commercial"
+        case $ProductCode in
         F)
-            licenseTest=Commercial
+            Edition="Universal"
+            QT_EDITION="QT_EDITION_UNIVERSAL"
             ;;
-        Z|R|Q)
-            licenseTest=Evaluation
+        B)
+            Edition="Desktop"
+            QT_EDITION="QT_EDITION_DESKTOP"
+            ;;
+        L)
+            Edition="DesktopLight"
+            QT_EDITION="QT_EDITION_DESKTOPLIGHT"
+            ;;
+        R)
+            Edition="Console"
+            QT_EDITION="QT_EDITION_CONSOLE"
+            ;;
+        esac	
+        ;;
+    Z4M|R4M|Q4M)
+        LicenseType="Evaluation"
+        case $ProductCode in
+         B)
+            Edition="Evaluation"
+            QT_EDITION="QT_EDITION_EVALUATION"
+            ;;
+        esac
+        ;;
+    34M)
+        LicenseType="Academic"
+        case $ProductCode in
+        B)
+            Edition="Academic"
+            QT_EDITION="QT_EDITION_ACADEMIC"
+            ;;
+        esac
+        ;;
+    TBM)
+        LicenseType="Educational"
+        case $ProductCode in
+        B)
+            Edition="Educational"
+            QT_EDITION="QT_EDITION_EDUCATIONAL"
+            ;;
+        esac
+        ;;
+    esac
+    if [ -z "$LicenseType" -o -z "$Edition" -o -z "$QT_EDITION" ]; then
+        echo
+        echo "Invalid license key. Please check the license key."
+        exit 1
+    fi
+
+    # verify that we are licensed to use Qt on this platform
+    if [ "$PLATFORM_QWS" = "yes" ]; then
+        case $PlatformCode in
+	4|8|V|P|G|Q|2|B)
+            # Qt/Embedded
             ;;
         *)
             echo
-            echo "Invalid license key. Please check the license key."
+            echo "You are not licensed for the Qt/Embedded platform."
+            echo
+            echo "Please contact sales@trolltech.com to upgrade your license"
+            echo "to include the Qt/Embedded platform, or install the"
+            echo "Qt Open Source Edition if you intend to develop free software."
             exit 1
             ;;
         esac
-        if [ "$PACKAGE_TYPE" != "$packageTest" -o "$licenseTest" != "$LicenseType" ]; then
-	    echo
-	    echo "You are not licensed for the $LicenseType $PACKAGE_TYPE edition."
-	    echo
-	    echo "Your license is for the $licenseTest $ProductType edition.  Please"
-	    echo "download the correct package."
-	    exit 1
-        fi
-        # this character should fit the platform
-        if [ "$PLATFORM_QWS" = "yes" ]; then
-            case $platformTest in
-	    4|8|V|P|G|Q|2|B)
-                # Qt/Embedded
-                ;;
-            *)
-                echo
-                echo "You are not licensed for the Qt/Embedded platform."
-                echo
-                echo "Please contact sales@trolltech.com to upgrade your license"
-                echo "to include the Qt/Embedded platform, or install the"
-                echo "Qt Open Source Edition if you intend to develop free software."
-                exit 1
-                ;;
-            esac
-        elif [ "$PLATFORM_MAC" = "yes" ]; then
-            case $platformTest in
-	    4|L|5|G|Y|2|F|B)
-                # Qt/Mac
-                ;;
-            *)
-                echo
-                echo "You are not licensed for the Qt/Mac platform."
-                echo
-                echo "Please contact sales@trolltech.com to upgrade your license"
-                echo "to include the Qt/Mac platform."
-                exit 1
-                ;;
-            esac
-        else
-            case $platformTest in
-	    4|Z|V|T|5|Q|2|F)
-                # Qt/X11
-                ;;
-            *)
-                echo
-                echo "You are not licensed for the Qt/X11 platform."
-                echo
-                echo "Please contact sales@trolltech.com to upgrade your license to"
-                echo "include the Qt/X11 platform, or install the Qt Open Source Edition"
-                echo "if you intend to develop free software."
-                exit 1
-                ;;
-            esac
-        fi
-        case $licenseFeatureTest in
-        G)
-            # US
+    elif [ "$PLATFORM_MAC" = "yes" ]; then
+        case $PlatformCode in
+        4|L|5|G|Y|2|F|B)
+            # Qt/Mac
+            ;;
+        *)
+            echo
+            echo "You are not licensed for the Qt/Mac platform."
+            echo
+            echo "Please contact sales@trolltech.com to upgrade your license"
+            echo "to include the Qt/Mac platform."
+            exit 1
+            ;;
+        esac
+     else
+         case $PlatformCode in
+         4|Z|V|T|5|Q|2|F)
+             # Qt/X11
+             ;;
+         *)
+             echo
+             echo "You are not licensed for the Qt/X11 platform."
+             echo
+             echo "Please contact sales@trolltech.com to upgrade your license to"
+             echo "include the Qt/X11 platform, or install the Qt Open Source Edition"
+             echo "if you intend to develop free software."
+             exit 1
+             ;;
+        esac
+    fi
+    case $LicenseFeatureCode in
+    G)
+        # US
+        case "$LicenseType" in
+        Commercial)
             cp -f $relpath/.LICENSE-US $outpath/LICENSE
             ;;
-        2)
-	    # non-US
+        Evaluation)
+            cp -f $relpath/.LICENSE-EVALUATION-US $outpath/LICENSE
+            ;;
+        Academic)
+            cp -f $relpath/.LICENSE-ACADEMIC-US $outpath/LICENSE
+            ;;
+        Educational)
+            cp -f $relpath/.LICENSE-EDUCATIONAL-US $outpath/LICENSE
+            ;;
+        esac
+        ;;        
+    2)
+        # non-US
+        case "$LicenseType" in
+        Commercial)
             cp -f $relpath/.LICENSE $outpath/LICENSE
             ;;
-	*)
-	    echo
-	    echo "Invalid license key. Please check the license key."
-	    exit 1
-	    ;;
+        Evaluation)
+            cp -f $relpath/.LICENSE-EVALUATION $outpath/LICENSE
+            ;;
+        Academic)
+            cp -f $relpath/.LICENSE-ACADEMIC $outpath/LICENSE
+            ;;
+        Educational)
+            cp -f $relpath/.LICENSE-EDUCATIONAL $outpath/LICENSE
+            ;;
         esac
-    else
+        ;;
+    *)
         echo
         echo "Invalid license key. Please check the license key."
+        exit 1
+        ;;
+    esac
+    if [ '!' -f $outpath/LICENSE ]; then
+        echo "The LICENSE, LICENSE.QPL, or LICENSE.GPL file shipped with"
+        echo "this software has disappeared."
+        echo
+        echo "Sorry, you are not licensed to use this software."
+        echo "Try re-installing."
+        echo
         exit 1
     fi
 fi
@@ -271,7 +295,7 @@ else
 fi
 
 echo
-echo "This is the $Platform $LicenseType $ProductType edition."
+echo "This is the $Platform $Edition Edition."
 echo
 
 #-------------------------------------------------------------------------------
@@ -362,7 +386,7 @@ OPT_FAST=auto
 OPT_VERBOSE=no
 OPT_HELP=
 
-QT_PRODUCT=`echo $LicenseType$ProductType | sed -e 's, ,,g'`
+QT_PRODUCT=`echo $Edition | sed -e 's, ,,g'`
 
 # initalize variables used for installation
 QT_INSTALL_PREFIX=
@@ -652,7 +676,7 @@ while [ "$#" -gt 0 ]; do
         QMAKE_PROJECTS=`echo $QMAKE_PROJECTS | sort | uniq`
         ;;
     x11)
-        if [ "$LicenseType" = "Trolltech" ] && [ "$VAL" = "yes" ]; then
+        if [ "$Edition" = "Trolltech" ] && [ "$VAL" = "yes" ]; then
             if [ "$PLATFORM_MAC" = "yes" ]; then
                 PLATFORM_MAC=no
             elif [ "$PLATFORM_QWS" = "yes" ]; then
@@ -1096,7 +1120,7 @@ done
 
 #prefix
 if [ -z "$QT_INSTALL_PREFIX" ]; then
-    if [ "$LicenseType" = "Trolltech" ]; then
+    if [ "$Edition" = "Trolltech" ]; then
         # At Trolltech, we use sandboxed builds by default
 	QT_INSTALL_PREFIX=$outpath
     else
@@ -1268,7 +1292,7 @@ if [ "$OPT_SHADOW" = "yes" ]; then
         mkdir -p "$outpath/bin"
         echo "#!/bin/sh" >$outpath/bin/syncqt
         echo "QTDIR=$relpath; export QTDIR" >>$outpath/bin/syncqt
-        [ "$LicenseType" = "Trolltech" ] && echo "perl $relpath/bin/syncqt -outdir $relpath" >>$outpath/bin/syncqt
+        [ "$Edition" = "Trolltech" ] && echo "perl $relpath/bin/syncqt -outdir $relpath" >>$outpath/bin/syncqt
         echo "perl $relpath/bin/syncqt -outdir $outpath" >>$outpath/bin/syncqt
         chmod 755 $outpath/bin/syncqt
     fi
@@ -1298,7 +1322,7 @@ for e in gawk nawk awk; do
     fi
 done
 if [ "$OPT_FAST" = "auto" ]; then
-   if [ '!' -z "$AWK" ] && [ "$LicenseType" = "Trolltech" ]; then
+   if [ '!' -z "$AWK" ] && [ "$Edition" = "Trolltech" ]; then
        OPT_FAST=yes
    else
        OPT_FAST=no
@@ -2421,8 +2445,7 @@ fi # Help
 # LICENSING, INTERACTIVE PART
 # -----------------------------------------------------------------------------
 
-# check for license confirmation
-if [ "$LicenseType" = "Open Source" ]; then
+if [ "$Edition" = "Open Source" ]; then
     while true; do
         if [ "$PLATFORM_QWS" = "yes" ]; then
             echo "You are licensed to use this software under the terms of"
@@ -2462,7 +2485,7 @@ if [ "$LicenseType" = "Open Source" ]; then
         elif [ "$acceptance" = "no" ]; then
             echo "You are not licensed to use this software."
             echo
-            exit 0
+            exit 1
         elif [ "$acceptance" = "G" -o "$acceptance" = "g" ]; then
             more $relpath/LICENSE.GPL
         elif [ "$acceptance" = "Q" -o "$acceptance" = "q" ]; then
@@ -2471,39 +2494,8 @@ if [ "$LicenseType" = "Open Source" ]; then
             fi
         fi
     done
-elif [ "$LicenseType" = "Evaluation" ]; then
-    while true; do
-        if [ "$OPT_CONFIRM_LICENSE" = "yes" ]; then
-	    echo "You have already accepted the terms of the $LicenseType license."
-            acceptance=yes
-        else
-            echo "You are licensed to use this software under the terms of"
-            echo "the Qt EVALUATION VERSION LICENSE AGREEMENT"
-            echo
-            echo "Type '?' to view the Evaluation License."
-            echo "Type 'yes' to accept this license offer."
-            echo "Type 'no' to decline this license offer."
-            echo
-            if echo '\c' | grep '\c' >/dev/null; then
-                echo -n "Do you accept the terms of the license? "
-            else
-                echo "Do you accept the terms of the license? \c"
-            fi
-            read acceptance
-        fi
-        echo
-        if [ "$acceptance" = "yes" ]; then
-            break
-        elif [ "$acceptance" = "no" ] ;then
-            echo "You are not licensed to use this software."
-            echo
-            exit 0
-        elif [ "$acceptance" = "?" ]; then
-            more $relpath/LICENSE
-        fi
-    done
-elif [ "$LicenseType" != "Trolltech" ]; then
-    if [ -f $HOME/.qt-license ]; then
+elif [ "$Edition" != "Trolltech" ]; then
+    if [ -n "$ExpiryDate" ]; then
         ExpiryDate=`echo $ExpiryDate | sed -e "s,-,,g" | tr -d "\n\r"`
         [ -z "$ExpiryDate" ] && ExpiryDate="0"
         Today=`date +%Y%m%d`
@@ -2527,20 +2519,23 @@ elif [ "$LicenseType" != "Trolltech" ]; then
             sleep 3
         fi
     fi
+    TheLicense=`head -n 1 LICENSE`
     while true; do
         if [ "$OPT_CONFIRM_LICENSE" = "yes" ]; then
-	    echo "You have already accepted the terms of the $LicenseType license."
+	    echo "You have already accepted the terms of the $TheLicense."
             acceptance=yes
         else
+            echo "You are licensed to use this software under the terms of"
+            echo "the $TheLicense."
             echo
-            echo "Type '?' to view the $LicenseType License."
+            echo "Type '?' to view the $TheLicense."
             echo "Type 'yes' to accept this license offer."
             echo "Type 'no' to decline this license offer."
             echo
             if echo '\c' | grep '\c' >/dev/null; then
-                echo -n "Do you accept the terms of the $LicenseType License? "
+                echo -n "Do you accept the terms of the $TheLicense? "
             else
-                echo "Do you accept the terms of the $LicenseType License? \c"
+                echo "Do you accept the terms of the $TheLicense? \c"
             fi
             read acceptance
         fi
@@ -2550,13 +2545,14 @@ elif [ "$LicenseType" != "Trolltech" ]; then
         elif [ "$acceptance" = "no" ]; then
             echo "You are not licensed to use this software."
             echo
-            exit 0
+            exit 1
         else [ "$acceptance" = "?" ]
             more $relpath/LICENSE
         fi
     done
 fi
 
+# this should be moved somewhere else
 case "$PLATFORM" in
 aix-*)
     AIX_VERSION=`uname -v`
@@ -2652,10 +2648,10 @@ done
 # symlink includes
 if [ -x "/usr/bin/perl" ] && [ -x "$relpath/bin/syncqt" ]; then
     SYNCQT_OPTS=
-    [ "$LicenseType" = "Trolltech" ] &&  SYNCQT_OPTS="$SYNCQT_OPTS -check-includes"
+    [ "$Edition" = "Trolltech" ] &&  SYNCQT_OPTS="$SYNCQT_OPTS -check-includes"
     if [ "$OPT_SHADOW" = "yes" ]; then
        $outpath/bin/syncqt $SYNCQT_OPTS
-    elif [ "$LicenseType" = "Trolltech" ]; then
+    elif [ "$Edition" = "Trolltech" ]; then
        QTDIR=$relpath perl $outpath/bin/syncqt $SYNCQT_OPTS
     fi
 fi
@@ -2711,7 +2707,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
         in_mkfile="$relpath/qmake/$in_mkfile"
         mkfile="$outpath/qmake/$mkfile"
         if [ -f "$mkfile" ]; then
-            [ "$LicenseType" = "Trolltech" ] && $WHICH chflags >/dev/null 2>&1 && chflags nouchg $mkfile
+            [ "$Edition" = "Trolltech" ] && $WHICH chflags >/dev/null 2>&1 && chflags nouchg $mkfile
             rm -f $mkfile
         fi
         [ -f "$in_mkfile" ] || continue
@@ -2727,7 +2723,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
         grep "^QMAKE_CFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
         grep "^QMAKE_CXXFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,\$\$QMAKE_CFLAGS,\$(QMAKE_CFLAGS)," >>$mkfile
         grep "^QMAKE_LFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
-        if [ "$LicenseType" = "Open Source" ]; then
+        if [ "$Edition" = "Open Source" ]; then
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DQMAKE_OPENSOURCE_EDITION"
             EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -DQMAKE_OPENSOURCE_EDITION"
         else
@@ -2764,7 +2760,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
             -e "s,@QT_INSTALL_DATA@,\$(INSTALL_ROOT)$QMAKE_DATA_DIR,g" \
             -e "s,@QMAKE_QTOBJS@,$EXTRA_SOURCES,g" -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
 
-        if [ "$LicenseType" = "Trolltech" ] &&
+        if [ "$Edition" = "Trolltech" ] &&
             $WHICH makedepend >/dev/null 2>&1 && grep 'depend:' "$mkfile" >/dev/null 2>&1; then
             (cd $outpath/qmake && $MAKE -f $mkfile depend) >/dev/null 2>&1
         fi
@@ -3301,6 +3297,11 @@ full)
 esac
 cat >> $outpath/src/corelib/global/qconfig.h.new <<EOF
 
+/* Qt Edition */
+#ifndef QT_EDITION
+#  define QT_EDITION $QT_EDITION
+#endif
+
 #define QT_BUILD_KEY "$QT_BUILD_KEY"
 
 /* Machine byte-order */
@@ -3526,6 +3527,7 @@ ARCH = $ARCH
 CONFIG += $QMAKE_CONFIG dylib create_prl link_prl depend_includepath fix_output_dirs QTDIR_build
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
+DEFINES *= QT_EDITION=QT_EDITION_DESKTOP
 QMAKE_ABSOLUTE_SOURCE_ROOT = \$\$QT_SOURCE_TREE
 QMAKE_MOC_SRC    = \$\$QT_BUILD_TREE/src/moc
 
@@ -3567,7 +3569,7 @@ for i in $QMAKE_VARS; do
 done
 # incrementals
 INCREMENTAL=""
-[ "$CFG_INCREMENTAL" = "auto" ] && $WHICH p4 >/dev/null 2>&1 && [ "$LicenseType" = "Trolltech" ] && CFG_INCREMENTAL="yes"
+[ "$CFG_INCREMENTAL" = "auto" ] && $WHICH p4 >/dev/null 2>&1 && [ "$Edition" = "Trolltech" ] && CFG_INCREMENTAL="yes"
 if [ "$CFG_INCREMENTAL" = "yes" ]; then
     openfiles=`find $relpath -perm u+w -mtime -3 | grep 'cpp$'`
     for f in $openfiles; do
