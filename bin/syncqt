@@ -158,6 +158,7 @@ sub classNames {
 	    if($line) {
                 $line =~ s,//.*$,,; #remove c++ comments
 	        $line .= ";" if($line =~ m/^Q_[A-Z_]*\(.*\)[\r\n]*$/); #qt macro
+	        $line .= ";" if($line =~ m/^QT_MODULE\(.*\)[\r\n]*$/); # QT_MODULE macro
                 $parsable .= " " . $line;
 	    }
         }
