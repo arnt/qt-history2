@@ -217,7 +217,7 @@ QFontEngineMac::draw(QPaintEngine *p, qreal req_x, qreal req_y, const QTextItemI
         QVarLengthArray<ushort> g(si.num_glyphs);
         for(int i = 0; i < si.num_glyphs; ++i)
             g[i] = si.glyphs[i].glyph;
-        doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, DRAW, x, y, p) + 1;
+        doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, DRAW, x, y, p);
     }
     if(si.width && si.flags != 0) {
         QPen oldPen = pState->pen();
