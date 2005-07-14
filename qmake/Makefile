@@ -9,7 +9,13 @@ CFLAGS      = /Zc:forScope
 !else
 CXX         = cl
 LINK	    = link
+!endif
 
+#
+# specific stuff for VS2005
+#
+!if "$(QMAKESPEC)" == "win32-msvc2005"
+CFLAGS      = /Zc:wchar_t-
 !endif
 
 CFLAGS	     = -c -Fo$@ \
