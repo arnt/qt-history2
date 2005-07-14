@@ -637,8 +637,7 @@ void QDirModel::sort(int column, Qt::SortOrder order)
         sort |= QDir::Size;
         break;
     case 2:
-        // FIXME: we should sort on the type string
-        sort |= QDir::DirsFirst;
+        sort |= QDir::Type;
         break;
     case 3:
         sort |= QDir::Time;
@@ -781,7 +780,7 @@ void QDirModel::setNameFilters(const QStringList &filters)
 
     d->savePersistentIndexes();
     beginRemoveRows(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
-    
+
     d->nameFilters = filters;
     d->clear(&d->root); // clear model
 
@@ -808,7 +807,7 @@ QStringList QDirModel::nameFilters() const
 void QDirModel::setFilter(QDir::Filters filters)
 {
     Q_D(QDirModel);
-    
+
     d->savePersistentIndexes();
     beginRemoveRows(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
 
@@ -974,7 +973,7 @@ QModelIndex QDirModel::index(const QString &path, int column) const
     QModelIndex idx; // start with "My Computer"
     if (!d->root.populated) // make sure the root is populated
         d->populate(&d->root);
-    
+
 #ifdef Q_OS_WIN
     if (absolutePath.startsWith("//")) { // UNC path
         QString host = pathElements.first();
@@ -987,7 +986,7 @@ QModelIndex QDirModel::index(const QString &path, int column) const
             QFileInfo info("//" + host);
             QDirModelPrivate::QDirNode node;
             node.parent = 0;
-            node.info = info; 
+            node.info = info;
             node.populated = false;
 #ifdef Q_DIRMODEL_CACHED
             node.cached_size = info.size();
@@ -1063,10 +1062,10 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
     // For the indexOf() method to work, the new directory has to be a direct child of
     // the parent directory.
 
-    QDir newDir(name); 
+    QDir newDir(name);
     QDir dir(path);
     if (newDir.isRelative())
-        newDir = QDir(path + "/" + name); 
+        newDir = QDir(path + "/" + name);
     QString childName = newDir.dirName(); // Get the singular name of the directory
     newDir.cdUp();
 
@@ -1147,7 +1146,7 @@ bool QDirModel::remove(const QModelIndex &index)
         return false;
 
     refresh(par);
-    
+
     return true;
 }
 
@@ -1305,7 +1304,7 @@ void QDirModelPrivate::refresh(QDirNode *parent)
 {
     QFileInfoList info;
     if (!parent)
-        info = QDir::drives(); 
+        info = QDir::drives();
     else if (parent->info.isDir())
         info = entryInfoList(parent->info.filePath());
 

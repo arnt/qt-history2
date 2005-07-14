@@ -152,6 +152,7 @@ QDirPrivate::~QDirPrivate()
 /* For sorting */
 struct QDirSortItem {
     QString filename_cache;
+    QString suffix_cache;
     QFileInfo item;
 };
 static int qt_cmp_si_sort_flags;
@@ -180,7 +181,8 @@ static int qt_cmp_si(const void *n1, const void *n2)
     }
 
     int r = 0;
-    int sortBy = qt_cmp_si_sort_flags & QDir::SortByMask;
+    int sortBy = (qt_cmp_si_sort_flags & QDir::SortByMask)
+                 | (qt_cmp_si_sort_flags & QDir::Type);
 
     switch (sortBy) {
       case QDir::Time:
@@ -188,6 +190,20 @@ static int qt_cmp_si(const void *n1, const void *n2)
         break;
       case QDir::Size:
         r = f2->item.size() - f1->item.size();
+        break;
+      case QDir::Type:
+      {
+        bool ic = qt_cmp_si_sort_flags & QDir::IgnoreCase;
+
+        if (f1->suffix_cache.isNull())
+            f1->suffix_cache = ic ? f1->item.suffix().toLower()
+                               : f1->item.suffix();
+        if (f2->suffix_cache.isNull())
+            f2->suffix_cache = ic ? f2->item.suffix().toLower()
+                               : f2->item.suffix();
+
+        r = f1->suffix_cache.compare(f2->suffix_cache);
+      }
         break;
       default:
         ;
@@ -960,6 +976,7 @@ QDir::SortFlags QDir::sorting() const
     \value Name  Sort by name.
     \value Time  Sort by time (modification time).
     \value Size  Sort by file size.
+    \value Type  Sort by file type (extension).
     \value Unsorted  Do not sort.
 
     \value DirsFirst  Put the directories first, then the files.

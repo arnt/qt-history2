@@ -74,6 +74,7 @@ public:
                     Reversed    = 0x08,
                     IgnoreCase  = 0x10,
                     DirsLast    = 0x20,
+                    Type        = 0x80,
                     NoSort = -1
 #ifdef QT3_SUPPORT
                   ,DefaultSort = NoSort
