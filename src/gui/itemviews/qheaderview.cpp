@@ -335,6 +335,8 @@ int QHeaderView::sectionSizeHint(int logicalIndex) const
 
 /*!
     Returns the visual index of the section that covers the given \a position in the viewport.
+
+    \sa logicalIndexAt()
 */
 
 int QHeaderView::visualIndexAt(int position) const
@@ -368,6 +370,8 @@ int QHeaderView::visualIndexAt(int position) const
 
 /*!
     Returns the section that covers the given \a position in the viewport.
+
+    \sa visualIndexAt()
 */
 
 int QHeaderView::logicalIndexAt(int position) const
@@ -442,6 +446,8 @@ int QHeaderView::sectionViewportPosition(int logicalIndex) const
 
 /*!
     Moves the section at visual index \a from to occupy visual index \a to.
+
+    \sa sectionsMoved()
 */
 
 void QHeaderView::moveSection(int from, int to)
@@ -577,6 +583,8 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
 /*!
     Returns true if the section specified by \a logicalIndex is
     explicitly hidden from the user; otherwise returns false.
+
+    \sa setSectionHidden()
 */
 
 bool QHeaderView::isSectionHidden(int logicalIndex) const
@@ -591,6 +599,8 @@ bool QHeaderView::isSectionHidden(int logicalIndex) const
 /*!
   If \a hide is true the section specified by \a logicalIndex is hidden,
   otherwise the section is shown.
+
+  \sa isSectionHidden()
 */
 
 void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
@@ -721,6 +731,8 @@ bool QHeaderView::highlightSections() const
 /*!
     Sets the constraints on how the header can be resized to those
     described by the given \a mode.
+
+    \sa resizeMode()
 */
 
 void QHeaderView::setResizeMode(ResizeMode mode)
@@ -758,6 +770,8 @@ void QHeaderView::setResizeMode(int logicalIndex, ResizeMode mode)
 
 /*!
     Returns the resize mode that applies to the section specified by the given \a logicalIndex.
+
+    \sa setResizeMode()
 */
 
 QHeaderView::ResizeMode QHeaderView::resizeMode(int logicalIndex) const
@@ -885,6 +899,8 @@ void QHeaderView::doItemsLayout()
 /*!
   Returns true if sections in the header has been moved;
   otherwise returns false;
+
+  \sa moveSection()
 */
 bool QHeaderView::sectionsMoved() const
 {
