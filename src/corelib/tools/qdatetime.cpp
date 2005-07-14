@@ -1334,7 +1334,7 @@ QTime::QTime(int h, int m, int s, int ms)
 
 bool QTime::isValid() const
 {
-    return ds < MSECS_PER_DAY;
+    return mds > NullTime && mds < MSECS_PER_DAY;
 }
 
 
@@ -1346,7 +1346,7 @@ bool QTime::isValid() const
 
 int QTime::hour() const
 {
-    return ds / MSECS_PER_HOUR;
+    return ds() / MSECS_PER_HOUR;
 }
 
 /*!
@@ -1357,7 +1357,7 @@ int QTime::hour() const
 
 int QTime::minute() const
 {
-    return (ds % MSECS_PER_HOUR)/MSECS_PER_MIN;
+    return (ds() % MSECS_PER_HOUR)/MSECS_PER_MIN;
 }
 
 /*!
@@ -1368,7 +1368,7 @@ int QTime::minute() const
 
 int QTime::second() const
 {
-    return (ds / 1000)%SECS_PER_MIN;
+    return (ds() / 1000)%SECS_PER_MIN;
 }
 
 /*!
@@ -1379,7 +1379,7 @@ int QTime::second() const
 
 int QTime::msec() const
 {
-    return ds % 1000;
+    return ds() % 1000;
 }
 
 #ifndef QT_NO_DATESTRING
@@ -1547,10 +1547,10 @@ QString QTime::toString(const QString& format) const
 bool QTime::setHMS(int h, int m, int s, int ms)
 {
     if (!isValid(h,m,s,ms)) {
-        ds = MSECS_PER_DAY;                // make this invalid
+        mds = NullTime;                // make this invalid
         return false;
     }
-    ds = (h*SECS_PER_HOUR + m*SECS_PER_MIN + s)*1000 + ms;
+    mds = (h*SECS_PER_HOUR + m*SECS_PER_MIN + s)*1000 + ms;
     return true;
 }
 
@@ -1592,7 +1592,7 @@ QTime QTime::addSecs(int nsecs) const
 
 int QTime::secsTo(const QTime &t) const
 {
-    return ((int)t.ds - (int)ds)/1000;
+    return (t.ds() - ds()) / 1000;
 }
 
 /*!
@@ -1611,10 +1611,10 @@ QTime QTime::addMSecs(int ms) const
     if (ms < 0) {
         // % not well-defined for -ve, but / is.
         int negdays = (MSECS_PER_DAY-ms) / MSECS_PER_DAY;
-        t.ds = ((int)ds + ms + negdays*MSECS_PER_DAY)
+        t.mds = (ds() + ms + negdays*MSECS_PER_DAY)
                 % MSECS_PER_DAY;
     } else {
-        t.ds = ((int)ds + ms) % MSECS_PER_DAY;
+        t.mds = (ds() + ms) % MSECS_PER_DAY;
     }
     return t;
 }
@@ -1633,7 +1633,7 @@ QTime QTime::addMSecs(int ms) const
 
 int QTime::msecsTo(const QTime &t) const
 {
-    return (int)t.ds - (int)ds;
+    return t.ds() - ds();
 }
 
 
@@ -1692,8 +1692,8 @@ QTime QTime::currentTime()
     SYSTEMTIME st;
     memset(&st, 0, sizeof(SYSTEMTIME));
     GetLocalTime(&st);
-    ct.ds = (uint)(MSECS_PER_HOUR * st.wHour + MSECS_PER_MIN * st.wMinute + 1000 * st.wSecond
-                   + st.wMilliseconds);
+    ct.mds = MSECS_PER_HOUR * st.wHour + MSECS_PER_MIN * st.wMinute + 1000 * st.wSecond
+             + st.wMilliseconds;
 #elif defined(Q_OS_UNIX)
     // posix compliant system
     struct timeval tv;
@@ -1709,14 +1709,14 @@ QTime QTime::currentTime()
     t = localtime(&ltime);
 #endif
 
-    ct.ds = (uint)(MSECS_PER_HOUR * t->tm_hour + MSECS_PER_MIN * t->tm_min + 1000 * t->tm_sec
-                   + tv.tv_usec / 1000);
+    ct.mds = MSECS_PER_HOUR * t->tm_hour + MSECS_PER_MIN * t->tm_min + 1000 * t->tm_sec
+             + tv.tv_usec / 1000;
 #else
     time_t ltime; // no millisecond resolution
     ::time(&ltime);
     tm *t;
     localtime(&ltime);
-    ct.ds = (uint)(MSECS_PER_HOUR * t->tm_hour + MSECS_PER_MIN * t->tm_min + 1000 * t->tm_sec);
+    ct.mds = MSECS_PER_HOUR * t->tm_hour + MSECS_PER_MIN * t->tm_min + 1000 * t->tm_sec;
 #endif
     return ct;
 }
@@ -1735,7 +1735,7 @@ QTime QTime::fromString(const QString& s, Qt::DateFormat f)
     if (s.isEmpty() || f == Qt::LocalDate) {
         qWarning("QTime::fromString: Parameter out of range");
         QTime t;
-        t.ds = MSECS_PER_DAY;
+        t.mds = NullTime;
         return t;
     }
 
@@ -1996,7 +1996,7 @@ QDateTime::QDateTime(const QDate &date, const QTime &time, Qt::TimeSpec spec)
 {
     d = new QDateTimePrivate;
     d->date = date;
-    d->time = time;
+    d->time = date.isValid() && !time.isValid() ? QTime(0, 0, 0) : time;
     d->spec = (spec == Qt::UTC) ? QDateTimePrivate::UTC : QDateTimePrivate::LocalUnknown;
 }
 
@@ -2097,6 +2097,8 @@ void QDateTime::setDate(const QDate &date)
 {
     detach();
     d->date = date;
+    if (date.isValid() && !d->time.isValid())
+        d->time = QTime(0, 0, 0);
 }
 
 /*!
@@ -2388,7 +2390,7 @@ QDateTime QDateTime::addSecs(int nsecs) const
     d->getUTC(utcDate, utcTime);
 
     uint dd = utcDate.jd;
-    int tt = utcTime.ds;
+    int tt = utcTime.ds();
     int sign = 1;
     if (nsecs < 0) {
         nsecs = -nsecs;
@@ -2409,7 +2411,7 @@ QDateTime QDateTime::addSecs(int nsecs) const
         tt = tt % MSECS_PER_DAY;
     }
     utcDate.jd = dd;
-    utcTime.ds = tt;
+    utcTime.mds = tt;
     return QDateTime(utcDate, utcTime, Qt::UTC).toTimeSpec(timeSpec());
 }
 
@@ -2577,15 +2579,15 @@ QDateTime QDateTime::currentDateTime()
     memset(&st, 0, sizeof(SYSTEMTIME));
     GetLocalTime(&st);
     d.jd = QDate::gregorianToJulian(st.wYear, st.wMonth, st.wDay);
-    t.ds = (uint)(MSECS_PER_HOUR * st.wHour + MSECS_PER_MIN * st.wMinute + 1000 * st.wSecond
-                  + st.wMilliseconds);
+    t.mds = MSECS_PER_HOUR * st.wHour + MSECS_PER_MIN * st.wMinute + 1000 * st.wSecond
+            + st.wMilliseconds;
     return QDateTime(d, t);
 #else
     QDateTime dt;
     QTime t;
     dt.setDate(QDate::currentDate());
     t = QTime::currentTime();
-    if (t.ds < (uint)MSECS_PER_MIN)                // midnight or right after?
+    if (t.ds() < MSECS_PER_MIN)                // midnight or right after?
         dt.setDate(QDate::currentDate());          // fetch date again
     dt.setTime(t);
     return dt;
@@ -2832,7 +2834,7 @@ QDataStream &operator>>(QDataStream &in, QDate &date)
 
 QDataStream &operator<<(QDataStream &out, const QTime &time)
 {
-    return out << (quint32)time.ds;
+    return out << quint32(time.mds);
 }
 
 /*!
@@ -2847,7 +2849,7 @@ QDataStream &operator>>(QDataStream &in, QTime &time)
 {
     quint32 ds;
     in >> ds;
-    time.ds = ds;
+    time.mds = int(ds);
     return in;
 }
 

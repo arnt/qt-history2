@@ -100,10 +100,10 @@ Q_DECLARE_TYPEINFO(QDate, Q_MOVABLE_TYPE);
 class Q_CORE_EXPORT QTime
 {
 public:
-    QTime() { ds = 0; }
+    QTime(): mds(NullTime) {}
     QTime(int h, int m, int s = 0, int ms = 0);
 
-    bool isNull() const { return ds == 0; }
+    bool isNull() const { return mds == NullTime; }
     bool isValid() const;
 
     int hour() const;
@@ -121,12 +121,12 @@ public:
     QTime addMSecs(int ms) const;
     int msecsTo(const QTime &) const;
 
-    bool operator==(const QTime &other) const { return ds == other.ds; }
-    bool operator!=(const QTime &other) const { return ds != other.ds; }
-    bool operator<(const QTime &other) const { return ds < other.ds; }
-    bool operator<=(const QTime &other) const { return ds <= other.ds; }
-    bool operator>(const QTime &other) const { return ds > other.ds; }
-    bool operator>=(const QTime &other) const { return ds >= other.ds; }
+    bool operator==(const QTime &other) const { return mds == other.mds; }
+    bool operator!=(const QTime &other) const { return mds != other.mds; }
+    bool operator<(const QTime &other) const { return mds < other.mds; }
+    bool operator<=(const QTime &other) const { return mds <= other.mds; }
+    bool operator>(const QTime &other) const { return mds > other.mds; }
+    bool operator>=(const QTime &other) const { return mds >= other.mds; }
 
     static QTime currentTime();
 #ifndef QT_NO_DATESTRING
@@ -145,7 +145,9 @@ public:
     int elapsed() const;
 
 private:
-    uint ds;
+    enum { NullTime = -1 };
+    inline int ds() const { return mds == -1 ? 0 : mds; }
+    int mds;
 
     friend class QDateTime;
 #ifndef QT_NO_DATASTREAM
