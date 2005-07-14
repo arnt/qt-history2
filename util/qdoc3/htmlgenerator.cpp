@@ -1847,6 +1847,11 @@ QString HtmlGenerator::fileBase( const Node *node,
 
 QString HtmlGenerator::fileName( const Node *node )
 {
+    if (node->type() == Node::Fake) {
+        if (static_cast<const FakeNode *>(node)->subType() == FakeNode::ExternalPage)
+            return node->name();
+    }
+
     return PageGenerator::fileName(node);
 }
 
