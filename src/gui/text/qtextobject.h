@@ -163,6 +163,7 @@ public:
 
 class Q_GUI_EXPORT QTextBlock
 {
+    friend class QSyntaxHighlighter;
 public:
     inline QTextBlock(QTextDocumentPrivate *priv, int b) : p(priv), n(b) {}
     inline QTextBlock() : p(0), n(0) {}
@@ -232,6 +233,12 @@ public:
     inline QTextDocumentPrivate *docHandle() const { return p; }
 
 private:
+    QTextBlockUserData *userData() const;
+    void setUserData(QTextBlockUserData *data);
+
+    int userState() const;
+    void setUserState(int state);
+
     QTextDocumentPrivate *p;
     int n;
     friend class QTextDocumentPrivate;
