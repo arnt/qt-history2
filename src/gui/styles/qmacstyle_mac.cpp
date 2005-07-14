@@ -1452,9 +1452,11 @@ void QMacStylePrivate::HIThemeDrawColorlessButton(const HIRect &macRect,
         extraHeight = 0,
         finalyoff = 0;
     if (const QStyleOptionComboBox *combo = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
-        yoff = combo->editable ? 3 : 2;
+        if(combo->editable)
+            extraHeight = 3;
+        else
+            extraHeight = 1;
         extraWidth = 1;
-        extraHeight = yoff;
     }
 
     int width = int(macRect.size.width) + extraWidth;
