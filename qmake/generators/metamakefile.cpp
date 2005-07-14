@@ -347,11 +347,11 @@ SubdirsMetaMakefileGenerator::~SubdirsMetaMakefileGenerator()
 #include "unixmake.h"
 #include "mingw_make.h"
 #include "projectgenerator.h"
+#include "pbuilder_pbx.h"
 #ifndef QMAKE_OPENSOURCE_EDITION
 # include "msvc_nmake.h"
 # include "borland_bmake.h"
 # include "metrowerks_xml.h"
-# include "pbuilder_pbx.h"
 # include "msvc_dsp.h"
 # include "msvc_vcproj.h"
 #endif
