@@ -534,6 +534,8 @@ void QIcon::paint(QPainter *painter, const QRect &rect, Qt::Alignment alignment,
 
 /*!
     Returns true if the icon is empty; otherwise returns false.
+
+    A null icon is an icon that was created using the default constructor.
 */
 bool QIcon::isNull() const
 {
