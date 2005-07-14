@@ -37,6 +37,8 @@
 #include "snap/graphics.h"
 #include "snap/ref2d.h"
 
+QT_MODULE(Gui)
+
 /* Forward reference */
 struct QGfxSNAP_State;
 

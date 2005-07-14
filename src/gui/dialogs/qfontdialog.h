@@ -16,6 +16,8 @@
 
 #include "QtGui/qwindowdefs.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_FONTDIALOG
 
 #include "QtGui/qdialog.h"

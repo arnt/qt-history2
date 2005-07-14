@@ -16,6 +16,8 @@
 
 #include "QtGui/qapplication.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_QWS_KEYBOARD
 
 class QWSKbPrivate;

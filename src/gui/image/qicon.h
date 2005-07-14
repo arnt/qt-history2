@@ -18,6 +18,8 @@
 #include "QtCore/qsize.h"
 #include "QtGui/qpixmap.h"
 
+QT_MODULE(Gui)
+
 class QIconPrivate;
 class QIconEngine;
 

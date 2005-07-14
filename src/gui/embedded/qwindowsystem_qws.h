@@ -25,6 +25,8 @@
 
 #include "QtGui/qkbd_qws.h"
 
+QT_MODULE(Gui)
+
 struct QWSWindowData;
 class QWSCursor;
 class QWSClient;

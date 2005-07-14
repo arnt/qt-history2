@@ -18,6 +18,8 @@
 #include "QtCore/qpoint.h"
 #include "QtCore/qrect.h"
 
+QT_MODULE(Gui)
+
 class QMatrix;
 class QRect;
 class QVariant;

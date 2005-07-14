@@ -16,6 +16,8 @@
 
 #include <QtGui/qabstractitemview.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_LISTVIEW
 
 class QListViewPrivate;

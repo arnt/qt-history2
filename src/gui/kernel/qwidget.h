@@ -31,6 +31,8 @@
 #include "QtGui/qevent.h"
 #endif
 
+QT_MODULE(Gui)
+
 class QLayout;
 class QWSRegionManager;
 class QStyle;

@@ -17,6 +17,8 @@
 #include <QtCore/qobject.h>
 #include <QtGui/qtextformat.h>
 
+QT_MODULE(Gui)
+
 class QTextObjectPrivate;
 class QTextDocument;
 class QTextDocumentPrivate;

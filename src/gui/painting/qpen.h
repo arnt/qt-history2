@@ -16,6 +16,8 @@
 
 #include "QtGui/qcolor.h"
 
+QT_MODULE(Gui)
+
 class QVariant;
 class QPenPrivate;
 class QBrush;

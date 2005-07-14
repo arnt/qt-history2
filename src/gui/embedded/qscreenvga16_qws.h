@@ -16,6 +16,8 @@
 
 #include "QtGui/qscreenlinuxfb_qws.h"
 
+QT_MODULE(Gui)
+
 // VGA16 code does not compile on sparc
 #if defined(__sparc__) && !defined(QT_NO_QWS_VGA_16)
 #define QT_NO_QWS_VGA16

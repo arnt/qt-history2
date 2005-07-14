@@ -18,6 +18,8 @@
 #include <QtCore/qshareddata.h>
 #include <QtGui/qtextformat.h>
 
+QT_MODULE(Gui)
+
 class QTextDocument;
 class QTextCursorPrivate;
 class QTextDocumentFragment;

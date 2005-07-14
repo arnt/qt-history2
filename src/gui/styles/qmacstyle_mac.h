@@ -16,6 +16,8 @@
 
 #include "QtGui/qwindowsstyle.h"
 
+QT_MODULE(Gui)
+
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 
 class QPalette;

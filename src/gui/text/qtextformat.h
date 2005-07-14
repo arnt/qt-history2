@@ -22,6 +22,8 @@
 #include <QtGui/qpen.h>
 #include <QtGui/qbrush.h>
 
+QT_MODULE(Gui)
+
 class QString;
 class QVariant;
 class QFont;

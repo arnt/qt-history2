@@ -19,6 +19,8 @@
 #include "QtCore/qvector.h"
 #include "QtGui/qcolor.h"
 
+QT_MODULE(Gui)
+
 struct QBrushData;
 class QPixmap;
 class QGradient;

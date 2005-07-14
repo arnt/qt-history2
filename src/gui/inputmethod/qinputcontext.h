@@ -37,6 +37,8 @@
 #include "QtCore/qlist.h"
 #include "QtGui/qaction.h"
 
+QT_MODULE(Gui)
+
 class QWidget;
 class QFont;
 class QPopupMenu;

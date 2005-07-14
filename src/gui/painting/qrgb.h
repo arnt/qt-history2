@@ -16,6 +16,8 @@
 
 #include "QtCore/qglobal.h"
 
+QT_MODULE(Gui)
+
 typedef unsigned int QRgb;                        // RGB triplet
 
 const QRgb  RGB_MASK    = 0x00ffffff;                // masks RGB values

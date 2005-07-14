@@ -16,6 +16,8 @@
 
 #include <QtGui/qwidget.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_MAINWINDOW
 
 class QDockWidget;

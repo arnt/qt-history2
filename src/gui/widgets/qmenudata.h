@@ -19,6 +19,8 @@
 #ifdef QT3_SUPPORT
 #include <QtGui/qaction.h>
 
+QT_MODULE(Gui)
+
 class Q_GUI_EXPORT QMenuItem : public QAction
 {
 public:

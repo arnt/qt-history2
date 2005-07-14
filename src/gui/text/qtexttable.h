@@ -18,6 +18,8 @@
 #include <QtCore/qobject.h>
 #include "QtGui/qtextobject.h"
 
+QT_MODULE(Gui)
+
 class QTextCursor;
 class QTextTable;
 class QTextTablePrivate;

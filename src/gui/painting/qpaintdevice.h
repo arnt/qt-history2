@@ -17,6 +17,8 @@
 #include "QtGui/qwindowdefs.h"
 #include "QtCore/qrect.h"
 
+QT_MODULE(Gui)
+
 #if defined(Q_WS_QWS)
 class QWSDisplay;
 #endif

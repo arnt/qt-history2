@@ -19,6 +19,8 @@
 #include "QtGui/qdecoration_qws.h"
 #include "QtGui/qevent.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_QWS_MANAGER
 
 class QAction;

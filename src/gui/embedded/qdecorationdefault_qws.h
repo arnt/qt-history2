@@ -16,6 +16,8 @@
 
 #include "QtGui/qwsmanager_qws.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_QWS_MANAGER
 #if !defined(QT_NO_QWS_DECORATION_DEFAULT) || defined(QT_PLUGIN)
 

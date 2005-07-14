@@ -16,6 +16,8 @@
 
 #include "QtGui/qpainter.h"
 
+QT_MODULE(Gui)
+
 #ifdef Q_WS_QWS
 
 #define QT_NO_DIRECTPAINTER

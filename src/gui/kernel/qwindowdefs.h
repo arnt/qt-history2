@@ -17,6 +17,8 @@
 #include "QtCore/qobjectdefs.h"
 #include "QtCore/qnamespace.h"
 
+QT_MODULE(Gui)
+
 // Class forward definitions
 
 class QPaintDevice;

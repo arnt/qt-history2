@@ -22,6 +22,8 @@
 #include "QtGui/qevent.h"
 #include "QtGui/qtextformat.h"
 
+QT_MODULE(Gui)
+
 class QTextEngine;
 class QFont;
 class QRect;

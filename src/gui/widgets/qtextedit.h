@@ -27,6 +27,8 @@
 #include <QtGui/qtextlayout.h>
 #endif
 
+QT_MODULE(Gui)
+
 class QTextCharFormat;
 class QStyleSheet;
 class QTextDocument;

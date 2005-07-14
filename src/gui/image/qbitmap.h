@@ -16,6 +16,8 @@
 
 #include "QtGui/qpixmap.h"
 
+QT_MODULE(Gui)
+
 class QVariant;
 
 class Q_GUI_EXPORT QBitmap : public QPixmap

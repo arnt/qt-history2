@@ -21,6 +21,8 @@
 #include "QtGui/qimage.h"
 #include "QtGui/qregion.h"
 
+QT_MODULE(Gui)
+
 class QScreenCursor;
 class QPaintEngine;
 

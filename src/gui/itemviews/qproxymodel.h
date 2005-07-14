@@ -16,6 +16,8 @@
 
 #include <QtCore/qabstractitemmodel.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_PROXYMODEL
 
 class QProxyModelPrivate;

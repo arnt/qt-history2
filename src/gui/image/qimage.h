@@ -19,6 +19,8 @@
 #include "QtCore/qrect.h"
 #include "QtCore/qbytearray.h"
 
+QT_MODULE(Gui)
+
 class QIODevice;
 class QStringList;
 class QMatrix;

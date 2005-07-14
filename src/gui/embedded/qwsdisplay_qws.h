@@ -22,6 +22,8 @@
 
 #include "QtCore/qlist.h"
 
+QT_MODULE(Gui)
+
 // Class forward definitions
 //class QWSRegionManager;
 class QWSEvent;

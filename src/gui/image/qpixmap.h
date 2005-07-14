@@ -20,6 +20,8 @@
 #include "QtCore/qstring.h" // char*->QString conversion
 #include "QtGui/qimage.h"
 
+QT_MODULE(Gui)
+
 class QImageWriter;
 class QPixmapPrivate;
 class QColor;

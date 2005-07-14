@@ -17,6 +17,8 @@
 #include "QtGui/qpixmap.h"
 #include "QtGui/qwidget.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_SPLASHSCREEN
 class QSplashScreenPrivate;
 

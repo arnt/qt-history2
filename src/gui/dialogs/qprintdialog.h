@@ -16,6 +16,8 @@
 
 #include "QtGui/qabstractprintdialog.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_PRINTDIALOG
 
 class QPrintDialogPrivate;

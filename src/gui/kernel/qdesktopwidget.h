@@ -16,6 +16,8 @@
 
 #include "QtGui/qwidget.h"
 
+QT_MODULE(Gui)
+
 class QApplication;
 class QDesktopWidgetPrivate;
 

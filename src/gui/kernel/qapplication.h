@@ -30,6 +30,8 @@
 # include "QtGui/qrgb.h"
 #endif
 
+QT_MODULE(Gui)
+
 class QSessionManager;
 class QDesktopWidget;
 class QStyle;

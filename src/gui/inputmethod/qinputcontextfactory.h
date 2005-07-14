@@ -32,6 +32,8 @@
 #include "QtCore/qstringlist.h"
 #endif // QT_H
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_IM
 
 class QInputContext;

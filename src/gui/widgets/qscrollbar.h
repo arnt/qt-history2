@@ -17,6 +17,8 @@
 #include "QtGui/qwidget.h"
 #include "QtGui/qabstractslider.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_SCROLLBAR
 
 class QScrollBarPrivate;

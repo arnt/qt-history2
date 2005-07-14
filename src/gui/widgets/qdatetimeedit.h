@@ -17,6 +17,8 @@
 #include <QtCore/qdatetime.h>
 #include <QtGui/qabstractspinbox.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_DATETIMEEDIT
 
 class QDateTimeEditPrivate;

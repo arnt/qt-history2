@@ -17,6 +17,8 @@
 #include "QtCore/qplugin.h"
 #include "QtCore/qfactoryinterface.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_LIBRARY
 
 class QScreen;

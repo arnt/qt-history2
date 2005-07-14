@@ -17,6 +17,8 @@
 #include <QtGui/qframe.h>
 #include <QtGui/qicon.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_TOOLBOX
 
 class QToolBoxPrivate;

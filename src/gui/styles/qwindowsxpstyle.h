@@ -16,6 +16,8 @@
 
 #include "QtGui/qwindowsstyle.h"
 
+QT_MODULE(Gui)
+
 #if !defined(QT_NO_STYLE_WINDOWSXP) || defined(QT_PLUGIN)
 
 #if defined(QT_PLUGIN)

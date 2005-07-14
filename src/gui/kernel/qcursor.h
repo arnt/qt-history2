@@ -18,6 +18,8 @@
 #include "QtCore/qatomic.h"
 #include "QtGui/qwindowdefs.h"
 
+QT_MODULE(Gui)
+
 class QVariant;
 
 /*

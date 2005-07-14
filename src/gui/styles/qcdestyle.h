@@ -17,6 +17,8 @@
 
 #include "QtGui/qmotifstyle.h"
 
+QT_MODULE(Gui)
+
 #if !defined(QT_NO_STYLE_CDE) || defined(QT_PLUGIN)
 
 #if defined(QT_PLUGIN)

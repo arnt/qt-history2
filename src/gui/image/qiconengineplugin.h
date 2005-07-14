@@ -17,6 +17,8 @@
 #include "QtCore/qplugin.h"
 #include "QtCore/qfactoryinterface.h"
 
+QT_MODULE(Gui)
+
 class QIconEngine;
 
 struct Q_GUI_EXPORT QIconEngineFactoryInterface : public QFactoryInterface

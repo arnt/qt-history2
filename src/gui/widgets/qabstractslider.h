@@ -16,6 +16,8 @@
 
 #include "QtGui/qwidget.h"
 
+QT_MODULE(Gui)
+
 class QAbstractSliderPrivate;
 
 class Q_GUI_EXPORT QAbstractSlider : public QWidget

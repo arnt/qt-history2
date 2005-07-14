@@ -20,6 +20,8 @@
 #include "QtGui/qwidget.h"
 #include "QtCore/qvariant.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_ACTION
 
 class QMenu;

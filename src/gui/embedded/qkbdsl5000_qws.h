@@ -16,6 +16,8 @@
 
 #include "QtGui/qkbdtty_qws.h"
 
+QT_MODULE(Gui)
+
 #ifdef QT_QWS_KBD_SL5000
 
 class QWSSL5000KbPrivate;

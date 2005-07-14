@@ -16,6 +16,8 @@
 
 #include <QtGui/qabstractslider.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_SLIDER
 
 class QSliderPrivate;

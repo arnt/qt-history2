@@ -24,6 +24,8 @@
 
 #define QTE_PIPE "QtEmbedded-%1"
 
+QT_MODULE(Gui)
+
 class QRect;
 
 /*********************************************************************

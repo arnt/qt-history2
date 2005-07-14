@@ -19,6 +19,8 @@
 #include "QtCore/qrect.h"
 #endif
 
+QT_MODULE(Gui)
+
 #ifdef Q_WS_QWS
 class QFontEngine;
 #endif

@@ -16,6 +16,8 @@
 
 #include "QtGui/qdialog.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_ERRORMESSAGE
 
 class QErrorMessagePrivate;

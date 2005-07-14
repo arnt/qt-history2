@@ -16,6 +16,8 @@
 
 #include <QtGui/qwidget.h>
 
+QT_MODULE(Gui)
+
 class QX11EmbedWidgetPrivate;
 class Q_GUI_EXPORT QX11EmbedWidget : public QWidget
 {

@@ -17,6 +17,8 @@
 #include <QtCore/qobject.h>
 #include <QtGui/qstyleoption.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_ITEMVIEWS
 
 class QPainter;

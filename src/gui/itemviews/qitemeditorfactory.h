@@ -18,6 +18,8 @@
 #include <QtCore/qhash.h>
 #include <QtCore/qvariant.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_ITEMVIEWS
 
 class QWidget;

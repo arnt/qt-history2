@@ -16,6 +16,8 @@
 
 #include <QtGui/qframe.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_STACKEDWIDGET
 
 class QStackedWidgetPrivate;

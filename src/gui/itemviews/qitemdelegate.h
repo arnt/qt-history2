@@ -19,6 +19,8 @@
 #include <QtGui/qpixmap.h>
 #include <QtCore/qvariant.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_ITEMVIEWS
 class QItemDelegatePrivate;
 class QItemEditorFactory;

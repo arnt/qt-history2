@@ -18,6 +18,8 @@
 #include "QtGui/qkeysequence.h"
 #include "QtGui/qwidget.h"
 
+QT_MODULE(Gui)
+
 class QButtonGroup;
 class QAbstractButtonPrivate;
 

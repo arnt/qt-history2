@@ -19,6 +19,8 @@
 #include <QtGui/qitemselectionmodel.h>
 #include <QtGui/qabstractitemdelegate.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_ITEMVIEWS
 
 class QMenu;

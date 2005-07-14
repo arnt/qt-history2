@@ -20,6 +20,7 @@
 #include "QtCore/qvector.h"
 #include "QtGui/qmatrix.h"
 
+QT_MODULE(Gui)
 
 class QFont;
 class QPainterPathPrivate;

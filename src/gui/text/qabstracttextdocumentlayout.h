@@ -20,6 +20,8 @@
 #include <QtGui/qtextcursor.h>
 #include <QtGui/qpalette.h>
 
+QT_MODULE(Gui)
+
 class QAbstractTextDocumentLayoutPrivate;
 class QTextBlock;
 class QTextObjectInterface;

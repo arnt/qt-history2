@@ -16,6 +16,8 @@
 
 #include "QtGui/qabstractbutton.h"
 
+QT_MODULE(Gui)
+
 
 class QCheckBoxPrivate;
 

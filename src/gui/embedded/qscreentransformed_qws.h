@@ -16,6 +16,8 @@
 
 #include "QtGui/qscreen_qws.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_QWS_TRANSFORMED
 
 #define QT_TRANS_SCREEN_BASE    QLinuxFbScreen

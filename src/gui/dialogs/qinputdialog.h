@@ -18,6 +18,8 @@
 #include "QtCore/qstring.h"
 #include "QtGui/qlineedit.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_INPUTDIALOG
 
 class QSpinBox;

@@ -16,6 +16,8 @@
 
 #include "QtGui/qmouse_qws.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_QWS_MOUSE_YOPY
 
 // YOPY touch panel support based on changes contributed by Ron Victorelli

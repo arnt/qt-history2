@@ -17,6 +17,8 @@
 #include "QtCore/qobject.h"
 #include "QtGui/qpolygon.h"
 
+QT_MODULE(Gui)
+
 class QWSPointerCalibrationData
 {
 public:

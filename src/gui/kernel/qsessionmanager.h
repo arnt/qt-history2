@@ -20,6 +20,8 @@
 #include "QtCore/qstringlist.h"
 #ifndef QT_NO_SESSIONMANAGER
 
+QT_MODULE(Gui)
+
 class QSessionManagerPrivate;
 
 class Q_GUI_EXPORT  QSessionManager : public QObject

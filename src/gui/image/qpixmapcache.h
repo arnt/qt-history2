@@ -16,6 +16,8 @@
 
 #include "QtGui/qpixmap.h"
 
+QT_MODULE(Gui)
+
 class Q_GUI_EXPORT QPixmapCache                                // global pixmap cache
 {
 public:

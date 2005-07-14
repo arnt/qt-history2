@@ -18,6 +18,8 @@
 #include "QtCore/qrect.h"
 #include "QtGui/qwindowdefs.h"
 
+QT_MODULE(Gui)
+
 template <class T> class QVector;
 class QVariant;
 

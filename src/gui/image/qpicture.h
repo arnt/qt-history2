@@ -17,6 +17,8 @@
 #include "QtGui/qpaintdevice.h"
 #include "QtCore/qstringlist.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_PICTURE
 
 class QPicturePrivate;

@@ -19,6 +19,8 @@
 #include <QtGui/qicon.h>
 #include <QtGui/qaction.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_MENU
 
 class QMenuPrivate;

@@ -16,6 +16,8 @@
 
 #include "QtGui/qkbd_qws.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_QWS_KBD_YOPY
 
 class QWSYopyKbPrivate;

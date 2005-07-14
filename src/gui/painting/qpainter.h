@@ -30,6 +30,8 @@
 #include "QtGui/qfontmetrics.h"
 #endif
 
+QT_MODULE(Gui)
+
 class QBrush;
 class QFontInfo;
 class QFontMetrics;

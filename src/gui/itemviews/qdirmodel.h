@@ -19,6 +19,8 @@
 #include <QtCore/qfileinfo.h>
 #include <QtGui/qicon.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_DIRMODEL
 
 class QDirModelPrivate;

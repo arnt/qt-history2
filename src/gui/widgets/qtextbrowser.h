@@ -17,6 +17,8 @@
 #include "QtGui/qtextedit.h"
 #include <QtCore/qurl.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_TEXTBROWSER
 
 class QTextBrowserPrivate;

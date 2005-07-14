@@ -20,6 +20,8 @@
 
 #include "QtGui/qvfbhdr.h"
 
+QT_MODULE(Gui)
+
 class QVFbMouseHandler;
 class QVFbKeyboardHandler;
 

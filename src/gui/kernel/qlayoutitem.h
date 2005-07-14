@@ -19,6 +19,8 @@
 
 #include "limits.h"
 
+QT_MODULE(Gui)
+
 static const int QLAYOUTSIZE_MAX = INT_MAX/256/16;
 
 class QLayout;

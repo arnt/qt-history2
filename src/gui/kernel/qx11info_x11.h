@@ -16,6 +16,8 @@
 
 #include "QtCore/qnamespace.h"
 
+QT_MODULE(Gui)
+
 struct QX11InfoData;
 class QPaintDevice;
 class QApplicationPrivate;

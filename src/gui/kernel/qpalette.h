@@ -18,6 +18,8 @@
 #include "QtGui/qcolor.h"
 #include "QtGui/qbrush.h" // QColor->QBrush conversion
 
+QT_MODULE(Gui)
+
 
 #ifdef QT3_SUPPORT
 class QColorGroup;

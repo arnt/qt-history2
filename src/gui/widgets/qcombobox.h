@@ -19,6 +19,8 @@
 #include <QtGui/qabstractitemdelegate.h>
 #include <QtCore/qvariant.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_COMBOBOX
 
 class QAbstractItemView;

@@ -25,6 +25,8 @@
 #include "QtGui/qdrag.h"
 #include "QtCore/qvariant.h"
 
+QT_MODULE(Gui)
+
 class QAction;
 
 class Q_GUI_EXPORT QInputEvent : public QEvent

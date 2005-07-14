@@ -17,6 +17,8 @@
 #include "QtCore/qplugin.h"
 #include "QtCore/qfactoryinterface.h"
 
+QT_MODULE(Gui)
+
 #if !defined(QT_NO_LIBRARY) && !defined(QT_NO_PICTURE)
 
 class QPicture;

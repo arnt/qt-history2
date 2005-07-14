@@ -16,6 +16,8 @@
 
 #include "QtGui/qimage.h"
 
+QT_MODULE(Gui)
+
 class QWSCursor
 {
 public:

@@ -25,6 +25,8 @@
 #include <kfuncs.h>
 #include <ctype.h>
 
+QT_MODULE(Gui)
+
 #ifdef __cplusplus
 extern "C" {
 #endif

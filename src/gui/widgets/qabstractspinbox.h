@@ -17,6 +17,8 @@
 #include <QtGui/qwidget.h>
 #include <QtGui/qvalidator.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_SPINBOX
 
 class QLineEdit;

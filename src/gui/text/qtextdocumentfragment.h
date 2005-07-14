@@ -16,6 +16,8 @@
 
 #include <QtCore/qstring.h>
 
+QT_MODULE(Gui)
+
 class QTextStream;
 class QTextDocument;
 class QTextDocumentFragmentPrivate;

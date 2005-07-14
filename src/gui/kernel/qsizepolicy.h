@@ -17,6 +17,8 @@
 #include "QtCore/qobject.h"
 #include "QtCore/qobjectdefs.h"
 
+QT_MODULE(Gui)
+
 class QVariant;
 
 class Q_GUI_EXPORT QSizePolicy

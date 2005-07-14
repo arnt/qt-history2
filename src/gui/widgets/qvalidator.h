@@ -18,6 +18,8 @@
 #include "QtCore/qstring.h" // char*->QString conversion
 #include "QtCore/qregexp.h" // QString->QRegExp conversion
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_VALIDATOR
 
 

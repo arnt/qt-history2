@@ -16,6 +16,8 @@
 
 #include "QtGui/qwscommand_qws.h"
 
+QT_MODULE(Gui)
+
 /*********************************************************************
  *
  * Class: QWSPropertyManager

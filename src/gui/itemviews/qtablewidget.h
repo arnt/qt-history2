@@ -20,6 +20,8 @@
 #include <QtCore/qvariant.h>
 #include <QtCore/qvector.h>
 
+QT_MODULE(Gui)
+
 class Q_GUI_EXPORT QTableWidgetSelectionRange
 {
 public:

@@ -16,6 +16,8 @@
 
 #include "QtGui/qabstractscrollarea.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_SCROLLAREA
 
 class QScrollAreaPrivate;

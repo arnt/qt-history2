@@ -21,6 +21,7 @@
 
 #include <limits.h>
 
+QT_MODULE(Gui)
 
 class QGridLayoutPrivate;
 

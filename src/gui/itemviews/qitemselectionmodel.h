@@ -19,6 +19,8 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qabstractitemmodel.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_ITEMVIEWS
 
 class Q_GUI_EXPORT QItemSelectionRange

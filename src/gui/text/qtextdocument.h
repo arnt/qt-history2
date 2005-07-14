@@ -18,6 +18,8 @@
 #include <QtCore/qsize.h>
 #include <QtGui/qfont.h>
 
+QT_MODULE(Gui)
+
 class QTextFormatCollection;
 class QTextListFormat;
 class QRect;

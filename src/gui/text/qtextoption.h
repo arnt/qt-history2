@@ -16,6 +16,8 @@
 
 #include <QtCore/qnamespace.h>
 
+QT_MODULE(Gui)
+
 template <typename T> class QList;
 struct QTextOptionPrivate;
 

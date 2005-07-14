@@ -16,6 +16,7 @@
 
 #include "QtGui/qfont.h"
 
+QT_MODULE(Gui)
 
 class Q_GUI_EXPORT QFontInfo
 {

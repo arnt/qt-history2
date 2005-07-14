@@ -18,6 +18,8 @@
 #include "QtGui/qwidget.h"
 #include "QtGui/qkeysequence.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_SHORTCUT
 
 class QShortcutPrivate;

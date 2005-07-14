@@ -16,6 +16,8 @@
 
 #include "QtGui/qdecorationdefault_qws.h"
 
+QT_MODULE(Gui)
+
 #if !defined(QT_NO_QWS_DECORATION_WINDOWS) || defined(QT_PLUGIN)
 
 class QDecorationWindows : public QDecorationDefault

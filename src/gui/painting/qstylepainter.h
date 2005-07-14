@@ -18,6 +18,8 @@
 #include "QtGui/qstyle.h"
 #include "QtGui/qwidget.h"
 
+QT_MODULE(Gui)
+
 class QStylePainter : public QPainter
 {
 public:

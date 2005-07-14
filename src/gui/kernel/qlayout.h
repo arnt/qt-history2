@@ -21,6 +21,8 @@
 
 #include "limits.h"
 
+QT_MODULE(Gui)
+
 class QLayout;
 class QSize;
 

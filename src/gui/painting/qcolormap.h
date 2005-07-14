@@ -19,6 +19,8 @@
 #include <QtCore/qvector.h>
 #include <QtGui/qwindowdefs.h>
 
+QT_MODULE(Gui)
+
 class QColor;
 class QColormapPrivate;
 

@@ -17,6 +17,8 @@
 #include <QtCore/qbytearray.h>
 #include <QtCore/qlist.h>
 
+QT_MODULE(Gui)
+
 class QIODevice;
 class QImage;
 

@@ -22,7 +22,7 @@
 #include "QtCore/qlist.h"
 #endif
 
-
+QT_MODULE(Gui)
 
 class QStringList;
 template <class T> class QList;

@@ -16,6 +16,8 @@
 
 #include "QtGui/qabstractbutton.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_TOOLBUTTON
 
 class QToolButtonPrivate;

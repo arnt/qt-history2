@@ -17,6 +17,8 @@
 #include "QtGui/qframe.h"
 #include "QtCore/qbitarray.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_LCDNUMBER
 
 

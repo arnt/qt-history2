@@ -18,6 +18,8 @@
 #include <QtCore/qvariant.h>
 #include <QtCore/qvector.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_TREEWIDGET
 
 class QTreeWidget;

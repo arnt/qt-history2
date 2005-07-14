@@ -21,6 +21,8 @@
 #include "QtGui/qregion.h"
 #include "QtGui/qwindowdefs.h"
 
+QT_MODULE(Gui)
+
 class QPainterPath;
 
 class Q_GUI_EXPORT QMatrix // 2D transform matrix

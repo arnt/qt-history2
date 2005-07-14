@@ -15,6 +15,8 @@
 #define QACTIONGROUP_H
 #include "QtGui/qaction.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_ACTION
 
 class QActionGroupPrivate;

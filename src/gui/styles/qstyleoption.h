@@ -22,6 +22,8 @@
 #include "QtGui/qtabwidget.h"
 #include "QtGui/qrubberband.h"
 
+QT_MODULE(Gui)
+
 class QDebug;
 
 class Q_GUI_EXPORT QStyleOption

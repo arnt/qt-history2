@@ -15,6 +15,8 @@
 
 #include <QtGui/qwidget.h>
 
+QT_MODULE(Gui)
+
 class QFocusFramePrivate;
 class Q_GUI_EXPORT QFocusFrame : public QWidget
 {

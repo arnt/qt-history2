@@ -17,6 +17,8 @@
 #include "QtGui/qaccessible.h"
 #include "QtCore/qfactoryinterface.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_ACCESSIBILITY
 
 class QStringList;

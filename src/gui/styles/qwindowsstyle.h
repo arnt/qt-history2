@@ -16,6 +16,8 @@
 
 #include "QtGui/qcommonstyle.h"
 
+QT_MODULE(Gui)
+
 #if !defined(QT_NO_STYLE_WINDOWS) || defined(QT_PLUGIN)
 
 #if defined(QT_PLUGIN)

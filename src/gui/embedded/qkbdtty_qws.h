@@ -16,6 +16,8 @@
 
 #include "QtGui/qkbdpc101_qws.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_QWS_KEYBOARD
 
 #ifndef QT_NO_QWS_KBD_TTY

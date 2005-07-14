@@ -16,6 +16,8 @@
 
 #include "QtCore/qglobal.h"
 
+QT_MODULE(Gui)
+
 #define VOODOOSTATUS (0x000)
 #define INTCTRL (0x004+0x0100000)
 #define CLIP0MIN (0x008+0x0100000)

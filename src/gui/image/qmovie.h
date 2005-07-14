@@ -24,6 +24,8 @@
 #include <QtGui/qpixmap.h>
 #endif
 
+QT_MODULE(Gui)
+
 class QByteArray;
 class QColor;
 class QIODevice;

@@ -16,6 +16,8 @@
 
 #include "QtGui/qframe.h"
 
+QT_MODULE(Gui)
+
 
 class QLabelPrivate;
 

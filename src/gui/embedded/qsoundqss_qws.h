@@ -22,6 +22,8 @@
 #define QT_NO_QWS_SOUNDSERVER
 #endif
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_SOUND
 
 #ifndef Q_OS_MAC

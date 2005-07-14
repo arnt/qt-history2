@@ -16,6 +16,8 @@
 
 #include "QtGui/qscreenlinuxfb_qws.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_QWS_VOODOO
 
 class QVoodooScreen : public QLinuxFbScreen

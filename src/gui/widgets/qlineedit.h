@@ -20,6 +20,8 @@ class QMenu;
 #include "QtGui/qframe.h"
 #include "QtCore/qstring.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_LINEEDIT
 
 class QLineEditPrivate;

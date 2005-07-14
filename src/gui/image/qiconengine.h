@@ -17,6 +17,8 @@
 #include "QtCore/qglobal.h"
 #include "QtGui/qicon.h"
 
+QT_MODULE(Gui)
+
 class Q_GUI_EXPORT QIconEngine
 {
 public:

@@ -16,6 +16,7 @@
 
 #include "QtGui/qstyle.h"
 
+QT_MODULE(Gui)
 
 class Q_GUI_EXPORT QCommonStyle: public QStyle
 {

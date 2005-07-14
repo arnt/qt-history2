@@ -17,6 +17,8 @@
 #include <QtGui/qtextobject.h>
 #include <QtCore/qobject.h>
 
+QT_MODULE(Gui)
+
 class QTextListPrivate;
 class QTextCursor;
 

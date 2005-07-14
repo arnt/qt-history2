@@ -17,6 +17,8 @@
 #include "QtCore/qnamespace.h"
 #include "QtCore/qstring.h" // char*->QString conversion
 
+QT_MODULE(Gui)
+
 class QPainter;
 #ifndef QT3_SUPPORT
 class QColorGroup;

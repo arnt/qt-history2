@@ -16,6 +16,8 @@
 
 #include <QtGui/qmenu.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_MENUBAR
 
 class QMenuBarPrivate;

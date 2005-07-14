@@ -16,6 +16,8 @@
 
 #include "QtGui/qmouse_qws.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_QWS_MOUSE_VR41XX
 
 class QWSVr41xxMouseHandlerPrivate;

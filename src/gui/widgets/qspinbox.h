@@ -16,6 +16,8 @@
 
 #include <QtGui/qabstractspinbox.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_SPINBOX
 
 class QSpinBoxPrivate;

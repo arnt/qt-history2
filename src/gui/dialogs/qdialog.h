@@ -15,9 +15,8 @@
 #define QDIALOG_H
 
 #include "QtGui/qwidget.h"
-#if 0
-Q_OBJECT
-#endif
+
+QT_MODULE(Gui)
 
 class QPushButton;
 class QDialogPrivate;

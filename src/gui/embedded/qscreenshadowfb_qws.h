@@ -20,6 +20,8 @@
 #include "QtGui/qgfxlinuxfb_qws.h"
 #include "QtCore/qobject.h"
 
+QT_MODULE(Gui)
+
 // Define these appropriately to use an accelerated driver
 // as the basis for shadowfb
 

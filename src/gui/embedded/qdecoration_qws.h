@@ -18,6 +18,8 @@
 #include "QtGui/qwidget.h"
 #include "QtGui/qaction.h"
 
+QT_MODULE(Gui)
+
 class QPopupMenu;
 class QMenu;
 

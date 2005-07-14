@@ -16,6 +16,8 @@
 
 #include "QtCore/qobject.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_BUTTONGROUP
 
 class QAbstractButton;

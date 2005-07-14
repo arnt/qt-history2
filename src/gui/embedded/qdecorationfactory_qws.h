@@ -16,6 +16,8 @@
 
 #include "QtCore/qstringlist.h"
 
+QT_MODULE(Gui)
+
 class QDecoration;
 
 class QDecorationFactory

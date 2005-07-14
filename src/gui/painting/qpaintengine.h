@@ -18,6 +18,8 @@
 #include "QtCore/qobjectdefs.h"
 #include "QtGui/qpainter.h"
 
+QT_MODULE(Gui)
+
 class QFontEngine;
 class QLineF;
 class QPaintDevice;

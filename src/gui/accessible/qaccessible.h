@@ -24,6 +24,8 @@
 #include "QtCore/qvector.h"
 #include "QtCore/qvariant.h"
 
+QT_MODULE(Gui)
+
 class QAccessibleInterface;
 
 class Q_GUI_EXPORT QAccessible

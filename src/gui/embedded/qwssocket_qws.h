@@ -17,6 +17,8 @@
 #include "QtNetwork/qtcpsocket.h"
 #include "QtNetwork/qtcpserver.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_QWS_MULTIPROCESS
 
 class QWSSocket : public QTcpSocket

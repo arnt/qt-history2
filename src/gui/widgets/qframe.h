@@ -16,6 +16,8 @@
 
 #include "QtGui/qwidget.h"
 
+QT_MODULE(Gui)
+
 class QFramePrivate;
 
 class Q_GUI_EXPORT QFrame : public QWidget

@@ -16,6 +16,8 @@
 
 #include "QtGui/qmatrix.h"
 
+QT_MODULE(Gui)
+
 #if defined(QT3_SUPPORT)
 typedef QMatrix QWMatrix;
 #endif

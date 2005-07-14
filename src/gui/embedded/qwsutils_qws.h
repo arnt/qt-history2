@@ -16,6 +16,8 @@
 
 #include "QtGui/qwssocket_qws.h"
 
+QT_MODULE(Gui)
+
 /********************************************************************
  *
  * Convenient socket functions

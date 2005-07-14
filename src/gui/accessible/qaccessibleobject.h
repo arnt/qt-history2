@@ -16,6 +16,8 @@
 
 #include "QtGui/qaccessible.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_ACCESSIBILITY
 
 class QAccessibleObjectPrivate;

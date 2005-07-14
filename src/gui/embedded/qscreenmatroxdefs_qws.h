@@ -16,6 +16,8 @@
 
 #include "QtCore/qglobal.h"
 
+QT_MODULE(Gui)
+
 #define CXLEFT 0x1ca0
 #define CXRIGHT 0x1ca4
 #define YTOP 0x1c98

@@ -17,6 +17,8 @@
 #include "QtCore/qobject.h"
 #include "QtGui/qcursor.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_WHATSTHIS
 
 class QAction;

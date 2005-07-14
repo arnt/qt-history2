@@ -17,6 +17,8 @@
 #include "QtCore/qnamespace.h"
 #include "QtCore/qstring.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_SHORTCUT
 
 /*****************************************************************************

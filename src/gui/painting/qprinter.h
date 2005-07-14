@@ -17,6 +17,8 @@
 #include "QtGui/qpaintdevice.h"
 #include "QtCore/qstring.h"
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_PRINTER
 
 #if defined(B0)

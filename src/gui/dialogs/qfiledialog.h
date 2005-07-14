@@ -18,6 +18,8 @@
 #include <QtCore/qstring.h>
 #include <QtGui/qdialog.h>
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_FILEDIALOG
 
 class QModelIndex;

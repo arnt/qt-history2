@@ -17,6 +17,8 @@
 #include "QtGui/qcommonstyle.h"
 #include "QtCore/qpointer.h"
 
+QT_MODULE(Gui)
+
 #if !defined(QT_NO_STYLE_MOTIF) || defined(QT_PLUGIN)
 
 class QPalette;
