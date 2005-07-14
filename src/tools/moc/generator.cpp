@@ -359,8 +359,8 @@ void Generator::generateCode()
         QByteArray superClass = purestSuperClass;
         // workaround for VC6
         if (superClass.contains("::")) {
-            fprintf(out, "    typedef %s SuperClass;\n", superClass.constData());
-            superClass = "SuperClass";
+            fprintf(out, "    typedef %s QMocSuperClass;\n", superClass.constData());
+            superClass = "QMocSuperClass";
         }
         fprintf(out, "    return %s::qt_metacast(_clname);\n", superClass.constData());
     } else {
@@ -573,8 +573,15 @@ void Generator::generateMetacall()
     fprintf(out, "\nint %s::qt_metacall(QMetaObject::Call _c, int _id, void **_a)\n{\n",
              cdef->qualified.constData());
 
-    if (purestSuperClass.size() && !isQObject)
-        fprintf(out, "    _id = %s::qt_metacall(_c, _id, _a);\n", purestSuperClass.constData());
+    if (!purestSuperClass.isEmpty() && !isQObject) {
+        QByteArray superClass = purestSuperClass;
+        // workaround for VC6
+        if (superClass.contains("::")) {
+            fprintf(out, "    typedef %s QMocSuperClass;\n", superClass.constData());
+            superClass = "QMocSuperClass";
+        }
+        fprintf(out, "    _id = %s::qt_metacall(_c, _id, _a);\n", superClass.constData());
+    }
 
     fprintf(out, "    if (_id < 0)\n        return _id;\n");
     fprintf(out, "    ");
