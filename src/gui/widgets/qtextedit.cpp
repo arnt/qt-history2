@@ -1388,15 +1388,38 @@ void QTextEdit::setHtml(const QString &text)
 void QTextEdit::keyPressEvent(QKeyEvent *e)
 {
     Q_D(QTextEdit);
+
+    if (e->modifiers() & Qt::ControlModifier) {
+        switch( e->key() ) {
+#ifndef QT_NO_CLIPBOARD
+        case Qt::Key_C:
+        case Qt::Key_Insert:
+        case Qt::Key_F16: // Copy key on Sun keyboards
+            e->accept();
+            copy();
+            return;
+#endif // QT_NO_CLIPBOARD
+        case Qt::Key_A:
+            e->accept();
+            selectAll();
+            return;
+        default:
+            break;
+        }
+    }
+
     if (d->readOnly) {
         switch (e->key()) {
             case Qt::Key_Home:
+                e->accept();
                 d->vbar->triggerAction(QAbstractSlider::SliderToMinimum);
                 break;
             case Qt::Key_End:
+                e->accept();
                 d->vbar->triggerAction(QAbstractSlider::SliderToMaximum);
                 break;
             case Qt::Key_Space:
+                e->accept();
                 if (e->modifiers() & Qt::ShiftModifier)
                     d->vbar->triggerAction(QAbstractSlider::SliderPageStepSub);
                 else
@@ -1469,11 +1492,6 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
         case Qt::Key_F20:  // Cut key on Sun keyboards
             cut();
             break;
-        case Qt::Key_C:
-        case Qt::Key_Insert:
-        case Qt::Key_F16: // Copy key on Sun keyboards
-            copy();
-            break;
         case Qt::Key_V:
         case Qt::Key_F18:  // Paste key on Sun keyboards
             paste();
@@ -1494,9 +1512,6 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
             d->cursor.deleteChar();
             break;
         }
-        case Qt::Key_A:
-            selectAll();
-            break;
         default:
             e->ignore();
             return;
