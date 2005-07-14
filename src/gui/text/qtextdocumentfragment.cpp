@@ -357,40 +357,6 @@ QString QTextDocumentFragment::toHtml() const
     return exporter.toHtml(QByteArray());
 }
 
-// also used in QTextDocument, no need to export though
-void qrichtext_import_plaintext(QTextCursor cursor, const QString &plainText)
-{
-    cursor.beginEditBlock();
-
-    bool seenCRLF = false;
-
-    int textStart = 0;
-    for (int i = 0; i < plainText.length(); ++i) {
-        QChar ch = plainText.at(i);
-        if (ch == QLatin1Char('\n')
-            || ch == QChar::ParagraphSeparator) {
-
-            const int textEnd = (seenCRLF ? i - 1 : i);
-
-            if (textEnd > textStart)
-                cursor.insertText(QString(plainText.unicode() + textStart, textEnd - textStart));
-
-            textStart = i + 1;
-            cursor.insertBlock();
-
-            seenCRLF = false;
-        } else if (ch == QLatin1Char('\r')
-                   && (i + 1) < plainText.length()
-                   && plainText.at(i + 1) == QLatin1Char('\n')) {
-            seenCRLF = true;
-        }
-    }
-    if (textStart < plainText.length())
-        cursor.insertText(QString(plainText.unicode() + textStart, plainText.length() - textStart));
-
-    cursor.endEditBlock();
-}
-
 /*!
     Returns a document fragment that contains the given \a plainText.
 
@@ -404,7 +370,7 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
     res.d = new QTextDocumentFragmentPrivate;
     res.d->importedFromPlainText = true;
     QTextCursor cursor(res.d->doc);
-    qrichtext_import_plaintext(cursor, plainText);
+    cursor.insertText(plainText);
     return res;
 }
 

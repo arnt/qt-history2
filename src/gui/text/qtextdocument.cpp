@@ -539,11 +539,9 @@ QString QTextDocument::toPlainText() const
 */
 void QTextDocument::setPlainText(const QString &text)
 {
-    // pull in from qtextdocumentfragment.cpp
-    extern void qrichtext_import_plaintext(QTextCursor cursor, const QString &plainText);
     setUndoRedoEnabled(false);
     clear();
-    qrichtext_import_plaintext(QTextCursor(this), text);
+    QTextCursor(this).insertText(text);
     setUndoRedoEnabled(true);
 }
 
