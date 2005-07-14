@@ -907,7 +907,7 @@ bool QMYSQLDriver::hasFeature(DriverFeature f) const
     case LastInsertId:
         return true;
     case Unicode:
-        return false;
+        return true;
 #if MYSQL_VERSION_ID >= 40108
     case PreparedQueries:
     case PositionalPlaceholders:
