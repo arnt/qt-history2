@@ -76,7 +76,7 @@ struct QPixmapData { // internal pixmap data
 #elif defined(Q_WS_MAC)
     uint has_alpha : 1, has_mask : 1;
     void macSetHasAlpha(bool b);
-    void macGetAlphaChannel(QPixmap *) const;
+    void macGetAlphaChannel(QPixmap *, bool asMask) const;
     void macSetAlphaChannel(const QPixmap *, bool asMask);
     void macQDDisposeAlpha();
     void macQDUpdateAlpha();

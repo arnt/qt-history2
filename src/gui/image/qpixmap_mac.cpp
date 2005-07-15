@@ -119,9 +119,9 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     }
 
     if(image.depth()==1) {
-        image.setColor(0, qRgba(255,255,255,0));
-        image.setColor(1, qRgba(0,0,0,0));
-    }
+         image.setColor(0, QColor(Qt::color0).rgba());
+         image.setColor(1, QColor(Qt::color1).rgba());
+   }
 
     int w = image.width();
     int h = image.height();
@@ -151,10 +151,10 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
                     one_bit = one_bit >> (7 - (x % 8));
                 else
                     one_bit = one_bit >> (x % 8);
-                if(!(one_bit & 0x01))
-                    *(drow+x) = 0xFFFFFFFF;
-                else
+                if((one_bit & 0x01))
                     *(drow+x) = 0;
+                else
+                    *(drow+x) = 0xFFFFFFFF;
             }
             break; }
         case QImage::Format_Indexed8:
@@ -223,8 +223,8 @@ QImage QPixmap::toImage() const
     QImage image(w, h, format);
     if(format == QImage::Format_Mono) {
         image.setNumColors(2);
-        image.setColor(0, qRgba(255, 255, 255, 0));
-        image.setColor(1, qRgba(0, 0, 0, 0));
+        image.setColor(0, QColor(Qt::color0).rgba());
+        image.setColor(1, QColor(Qt::color1).rgba());
     }
 
     quint32 *sptr = data->pixels, *srow;
@@ -233,7 +233,7 @@ QImage QPixmap::toImage() const
         srow = sptr + (y * (sbpr/4));
         for(int x=0;x<w;x++) {
             if(format == QImage::Format_Mono || format == QImage::Format_MonoLSB)
-                image.setPixel(x, y, (*(srow+x) & RGB_MASK) ? 0 : 1);
+                image.setPixel(x, y, (*(srow+x) & RGB_MASK) ? 1 : 0);
             else
                 image.setPixel(x, y, *(srow+x));
         }
@@ -244,9 +244,6 @@ QImage QPixmap::toImage() const
 void QPixmap::fill(const QColor &fillColor)
 
 {
-    int x = 0;
-    *((uchar*)&x) = 100;
-
     if(!width() || !height())
         return;
 
@@ -270,7 +267,7 @@ QPixmap QPixmap::alphaChannel() const
     if (!data->has_alpha)
         return QPixmap();
     QPixmap alpha(width(), height());
-    data->macGetAlphaChannel(&alpha);
+    data->macGetAlphaChannel(&alpha, false);
     return alpha;
 }
 
@@ -294,7 +291,7 @@ QBitmap QPixmap::mask() const
     if (!data->has_mask)
         return QBitmap();
     QBitmap mask(width(), height());
-    data->macGetAlphaChannel(&mask);
+    data->macGetAlphaChannel(&mask, true);
     return mask;
 }
 
@@ -394,23 +391,26 @@ QPixmapData::macSetAlphaChannel(const QPixmap *pix, bool asMask)
     for (int y=0; y < h; ++y) {
         drow = dptr + (y * (dbpr/4));
         srow = sptr + (y * (sbpr/4));
-        for (int x=0; x < w; ++x) {
-            if(asMask) {
-                *(drow+x) = ((*(drow+x) & RGB_MASK) |
-                             (255 - qGray(qRed(*(srow+x)), qGreen(*(srow+x)),
-                                          qBlue(*(srow+x))) << 24));
-            } else {
+        if(asMask) {
+            for (int x=0; x < w; ++x) {
+                if(*(srow+x) & RGB_MASK)
+                    *(drow+x) = (*(drow+x) & RGB_MASK);
+                else
+                    *(drow+x) = (*(drow+x) & RGB_MASK) | 0xFF000000;
+            }
+        } else {
+            for (int x=0; x < w; ++x) {
 #if 1
-                *(drow+x) = ((*(drow+x) & RGB_MASK) |
-                             (qGray(qRed(*(srow+x)), qGreen(*(srow+x)),
-                                    qBlue(*(srow+x))) << 24));
+                *(drow+x) = (*(drow+x) & RGB_MASK) |
+                            (qGray(qRed(*(srow+x)), qGreen(*(srow+x)), qBlue(*(srow+x))) << 24);
 #else
                 const char alpha = qGray(qRed(*(srow+x)), qGreen(*(srow+x)), qBlue(*(srow+x)));
-                const char destAlpha = qt_div_255(alpha * qAlpha(*(drow+x)));
+                const char destAlpha = qt_div_255(alpha * INV_PREMUL(qAlpha(*(drow+x))));
                 *(drow+x) = qRgba(qt_div_255(qRed(*(drow+x) * alpha)),
                                   qt_div_255(qGreen(*(drow+x) * alpha)),
                                   qt_div_255(qBlue(*(drow+x) * alpha)), destAlpha);
 #endif
+                *(drow+x) = PREMUL(*(drow+x));
             }
         }
     }
@@ -418,7 +418,7 @@ QPixmapData::macSetAlphaChannel(const QPixmap *pix, bool asMask)
 }
 
 void
-QPixmapData::macGetAlphaChannel(QPixmap *pix) const
+QPixmapData::macGetAlphaChannel(QPixmap *pix, bool asMask) const
 {
     quint32 *dptr = pix->data->pixels, *drow;
     const uint dbpr = pix->data->nbytes / pix->data->h;
@@ -427,7 +427,16 @@ QPixmapData::macGetAlphaChannel(QPixmap *pix) const
     for(int y=0; y < h; ++y) {
         drow = dptr + (y * (dbpr/4));
         srow = sptr + (y * (sbpr/4));
-        memcpy(drow, srow, w * 4);
+        if(asMask) {
+            for(int x = 0; x < w; ++x) {
+                if(qAlpha(*(srow+x)))
+                    *(drow+x) = 0xFFFFFFFF;
+                else
+                    *(drow+x) = 0;
+            }
+        } else {
+            memcpy(drow, srow, w * 4);
+        }
     }
 }
 
