@@ -27,7 +27,8 @@ HEADERS += \
 	text/qtextdocumentfragment_p.h \
 	text/qtextimagehandler_p.h \
 	text/qtexttable.h \
-	text/qtextlist.h 
+	text/qtextlist.h \
+	text/qsyntaxhighlighter.h
 
 SOURCES += \
 	text/qfont.cpp \
@@ -50,7 +51,8 @@ SOURCES += \
 	text/qtextdocumentfragment.cpp \
 	text/qtextimagehandler.cpp \
 	text/qtexttable.cpp \
-	text/qtextlist.cpp
+	text/qtextlist.cpp \
+	text/qsyntaxhighlighter.cpp
 
 
 win32 {
