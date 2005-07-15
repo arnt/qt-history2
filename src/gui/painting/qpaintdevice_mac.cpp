@@ -89,12 +89,20 @@ CGContextRef qt_mac_cg_context(const QPaintDevice *pdev)
     if(pdev->devType() == QInternal::Pixmap) {
         const QPixmap *pm = static_cast<const QPixmap*>(pdev);
         CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+        CGImageRef img = (CGImageRef)pm->macCGHandle();
+        uint flags = CGImageGetAlphaInfo(img);
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+        CGBitmapInfo (*CGImageGetBitmapInfo_ptr)(CGImageRef) = CGImageGetBitmapInfo;
+        if(CGImageGetBitmapInfo_ptr)
+            flags |= (*CGImageGetBitmapInfo_ptr)(img);
+#endif
         CGContextRef ret = CGBitmapContextCreate(pm->data->pixels, pm->data->w, pm->data->h,
                                                  8, pm->data->nbytes / pm->data->h, colorspace,
-                                                 CGImageGetAlphaInfo((CGImageRef)pm->macCGHandle()));
+                                                 flags);
         CGColorSpaceRelease(colorspace);
         if(!ret)
-            qWarning("Unable to create context for pixmap (%d/%d/%d)", pm->data->w, pm->data->h, pm->data->nbytes);
+            qWarning("Unable to create context for pixmap (%d/%d/%d)",
+                     pm->data->w, pm->data->h, pm->data->nbytes);
         CGContextTranslateCTM(ret, 0, pm->data->h);
         CGContextScaleCTM(ret, 1, -1);
         return ret;

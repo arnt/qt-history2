@@ -80,7 +80,7 @@ struct QPixmapData { // internal pixmap data
     void macSetAlphaChannel(const QPixmap *, bool asMask);
     void macQDDisposeAlpha();
     void macQDUpdateAlpha();
-    uint *pixels;
+    quint32 *pixels;
     uint nbytes;
     CGImageRef cg_data;
     GWorldPtr qd_data, qd_alpha;
