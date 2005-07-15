@@ -75,6 +75,7 @@ var checkoutRemove = [ new RegExp("^tests"),
  		       new RegExp("^tools/linguist/.*\\.1"),
 		       new RegExp("^src/gui/painting/makepsheader.pl"),
 		       new RegExp("^src/gui/painting/qpsprinter"),
+		       new RegExp("^mkspecs/features/qttest_p4.prf"),
 		       new RegExp("^LICENSE.TROLL") ];
 
 var platformRemove = new Array();
