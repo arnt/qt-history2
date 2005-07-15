@@ -444,6 +444,8 @@ void QMenuBarPrivate::init()
     q->setAttribute(Qt::WA_CustomWhatsThis);
 #ifdef Q_WS_MAC
     macCreateMenuBar(q->parentWidget());
+    if(mac_menubar)
+        q->hide();
 #endif
     q->setBackgroundRole(QPalette::Button);
     oldWindow = oldParent = 0;
