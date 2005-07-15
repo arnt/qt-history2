@@ -11,7 +11,7 @@ const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "embedded"];
 const validLicenses = ["opensource", "commercial"];
-const validSwitches = ["gzip", "bzip", "zip", "binaries", "snapshots"]; // these are either true or false, set by -do-foo/-no-foo
+const validSwitches = ["gzip", "bzip", "zip", "binaries", "snapshots", "eval"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
 
 const binaryExtensions = ["msi", "dll", "gif", "png", "mng",
@@ -236,7 +236,7 @@ for (var p in validPlatforms) {
 	    
 	    // copy checkoutDir to platDir and set permissions
 	    print("Copying checkout...");
-	    var platName = "qt-%1-%2-%3"
+	    var platName = "qt-%1-%2-src-%3"
 		.arg(platform)
 		.arg(license)
 		.arg(options["version"]);
@@ -271,21 +271,36 @@ for (var p in validPlatforms) {
 
 	    // package directory
 	    print("Compressing and packaging file(s)...");
-	    compress(platform, license, platDir);
+	    compress(platform, platDir, platName);
 
 	    // create binaries
-	    if (options["binaries"] && (platform in binaryHosts)) {
-		if (license == "commercial" && platform == "win") {
-		    createBinary(platform, license, "desktop", platName, "vs2003");
-		    createBinary(platform, license, "desktop", platName, "vc60");
-		    createBinary(platform, "eval", "desktop", platName, "vs2003");
-		    createBinary(platform, "eval", "desktop", platName, "vc60");
-		} else if (license == "opensource" && platform == "win") {
-		    createBinary(platform, license, "desktop", platName, "mingw");
-		} else if (license == "commercial" && platform == "mac") {
-		    createBinary(platform, license, "desktop", platName, "");
-		    createBinary(platform, "eval", "desktop", platName, "");
-		}
+ 	    if (options["binaries"] && (platform in binaryHosts)) {
+ 		if (license == "commercial" && platform == "win") {
+ 		    createBinary(platform, license, platName, "vs2003");
+ 		    createBinary(platform, license, platName, "vc60");
+ 		} else if (license == "opensource" && platform == "win") {
+ 		    createBinary(platform, license, platName, "mingw");
+ 		} else if (license == "commercial" && platform == "mac") {
+ 		    createBinary(platform, license, platName, "");
+ 		    createBinary(platform, "eval", platName, "");
+ 		}
+ 	    }
+
+	    // create eval binary
+	    if (options["eval"] && license == "commercial" && (platform in binaryHosts)) {
+		// delete and make an empty platDir
+		var dir = new Dir(platDir);
+		if (dir.exists)
+		    dir.rmdirs();
+		dir.mkdir();
+		copyEval(platDir);
+		compress(platform, platDir, platName.replace("commercial", "evalpatches"));
+ 		if (options["binaries"] && platform == "win") {
+ 		    createBinary(platform, "eval", platName, "vs2003");
+ 		    createBinary(platform, "eval", platName, "vc60");
+ 		} else if (options["binaries"] && platform == "mac") {
+ 		    createBinary(platform, "eval", platName, "");
+ 		}
 	    }
 
 	    indentation-=tabSize;
@@ -542,11 +557,11 @@ function purgeFiles(rootDir, fileList, remove)
 /************************************************************
  * compresses platDir into files (.zip .gz etc.)
  */
-function compress(platform, license, packageDir)
+function compress(platform, packageDir, packageName)
 {
     // set directory to parent of packageDir
     var dir = new Dir(packageDir);
-    var packageName = dir.name;
+    var packageDirName = dir.name;
     dir.cdUp();
     dir.setCurrent();
 
@@ -567,9 +582,9 @@ function compress(platform, license, packageDir)
 		absFileName = packageDir + "/" + fileName;
 		if (File.exists(absFileName) && File.isFile(absFileName)) {
 		    if (binaryFile(absFileName))
-			binaryFiles.push(packageName + "/" + fileName);
+			binaryFiles.push(packageDirName + "/" + fileName);
 		    else
-			textFiles.push(packageName + "/" + fileName);
+			textFiles.push(packageDirName + "/" + fileName);
 		}
 	    }
 	    // add the binary and text files to the zip file in in two big goes
@@ -581,7 +596,7 @@ function compress(platform, license, packageDir)
 	}
     } else {
 	var tarFile = outputDir + "/" + packageName + ".tar";
-	execute(["tar", "-cf", tarFile, packageName]);
+	execute(["tar", "-cf", tarFile, packageDirName]);
 	if (!File.exists(tarFile))
 	    throw "Failed to produce %1.".arg(tarFile);
 	
@@ -601,7 +616,7 @@ function compress(platform, license, packageDir)
 /************************************************************
  * creates binaries on remote hosts and collects the results back
  */
-function createBinary(platform, license, edition, packageName, compiler)
+function createBinary(platform, license, packageName, compiler)
 {
     var login = binaryUser + "@" + binaryHosts[platform];
     var hostDir = platform + "-binary";
@@ -625,11 +640,10 @@ function createBinary(platform, license, edition, packageName, compiler)
  	return;
     }
 
-
     // copy a valid license file
     if (license != "opensource") {
 	p4Copy("//depot/infra/main/licensekeys/qt-license" + 
-	       "-" + platform + "-" + license + "-" + edition,
+	       "-" + platform + "-" + license + "-desktop",
 	       distDir + "/tmp-qt-license");
 	execute(["scp", distDir + "/tmp-qt-license", login + ":.qt-license"]);
     }
@@ -641,8 +655,15 @@ function createBinary(platform, license, edition, packageName, compiler)
     // copy src package over
     execute(["scp", outputDir + "/" + packageFile, login + ":" + hostDir]);
 
-    //copy in eval files
-    // TODO!
+    // copy eval patches over
+    if (license == "eval") {
+	var patchPackageFile = packageFile.replace("commercial", "evalpatches");
+	if (!File.exists(outputDir + "/" + patchPackageFile)) {
+	    warning("Package: " + outputDir + "/" + patchPackageFile + " not found.");
+	    return;
+	}
+	execute(["scp", outputDir + "/" + patchPackageFile, login + ":" + hostDir]);
+    }
 
     if (platform == "win") {
 	// get absolute windows path to hostDir
