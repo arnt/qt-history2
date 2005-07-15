@@ -2221,6 +2221,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                           app->activePopupWidget()->focusWidget() : app->activePopupWidget());
             else if(QApplicationPrivate::focus_widget)
                 widget = QApplicationPrivate::focus_widget;
+            else
+                widget = app->activeWindow();
             if(!widget || (app_do_modal && !qt_try_modal(widget, event)))
                 break;
             qt_mac_send_modifiers_changed(modifiers, widget);
@@ -2245,6 +2247,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                       app->activePopupWidget()->focusWidget() : app->activePopupWidget());
         else if(QApplicationPrivate::focus_widget)
             widget = QApplicationPrivate::focus_widget;
+        else
+            widget = app->activeWindow();
         if(widget) {
             if(app_do_modal && !qt_try_modal(widget, event))
                 break;
