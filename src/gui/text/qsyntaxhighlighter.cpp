@@ -20,6 +20,7 @@
 #include <qtextobject.h>
 #include <qtextcursor.h>
 #include <qdebug.h>
+#include <qtextedit.h>
 
 class QSyntaxHighlighterPrivate : public QObjectPrivate
 {
@@ -131,7 +132,7 @@ void QSyntaxHighlighterPrivate::reformatBlock(QTextBlock block)
     \brief The QSyntaxHighlighter class is a base class for
     implementing QTextEdit syntax highlighters.
 
-    \compat
+    \ingroup text
 
     A syntax highligher automatically highlights parts of the text in
     a QTextEdit, or generally in a QTextDocument. Syntax highlighters
@@ -139,7 +140,7 @@ void QSyntaxHighlighterPrivate::reformatBlock(QTextBlock block)
     (for example, source code) and help the user to read the text and
     identify syntax errors.
 
-    To provide your own syntax highlighting, you must subclass 
+    To provide your own syntax highlighting, you must subclass
     QSyntaxHighlighter and reimplement highlightBlock().
 
     When you create an instance of your QSyntaxHighlighter subclass,
@@ -160,6 +161,12 @@ QSyntaxHighlighter::QSyntaxHighlighter(QTextDocument *parent)
     : QObject(*new QSyntaxHighlighterPrivate, parent)
 {
     setDocument(parent);
+}
+
+QSyntaxHighlighter::QSyntaxHighlighter(QTextEdit *parent)
+    : QObject(*new QSyntaxHighlighterPrivate, parent)
+{
+    setDocument(parent->document());
 }
 
 /*!

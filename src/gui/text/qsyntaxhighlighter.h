@@ -23,6 +23,7 @@ class QTextCharFormat;
 class QFont;
 class QColor;
 class QTextBlockUserData;
+class QTextEdit;
 
 class Q_GUI_EXPORT QSyntaxHighlighter : public QObject
 {
@@ -31,6 +32,7 @@ class Q_GUI_EXPORT QSyntaxHighlighter : public QObject
 public:
     QSyntaxHighlighter(QObject *parent);
     QSyntaxHighlighter(QTextDocument *parent);
+    QSyntaxHighlighter(QTextEdit *parent);
     virtual ~QSyntaxHighlighter();
 
     void setDocument(QTextDocument *doc);
