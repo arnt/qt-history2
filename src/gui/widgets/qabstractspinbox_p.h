@@ -79,7 +79,7 @@ public:
     void init();
     void reset();
     void updateState(bool up);
-    QString stripped(const QString &text) const;
+    QString stripped(const QString &text, int *pos = 0) const;
     bool specialValue() const;
     QVariant getZeroVariant() const;
     void setRange(const QVariant &min, const QVariant &max);

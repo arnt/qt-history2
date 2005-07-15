@@ -426,7 +426,13 @@ void QSpinBox::setRange(int min, int max)
 
 QString QSpinBox::textFromValue(int v) const
 {
-    return QString::number(v);
+    Q_D(const QSpinBox);
+    QString str = QLocale().toString(v);
+    if (qAbs(v) >= 1000) {
+        str.remove(d->thousand);
+    }
+
+    return str;
 }
 
 /*!
@@ -831,7 +837,13 @@ QString QDoubleSpinBox::textFromValue(double v) const
 {
     Q_D(const QDoubleSpinBox);
 
-    return QString::number(v, 'f', d->decimals);
+    QString str = QLocale().toString(v, 'f', d->decimals);
+    if (qAbs(v) >= 1000.0) {
+        str.remove(d->thousand);
+    }
+
+
+    return str;
 }
 
 /*!
@@ -898,8 +910,6 @@ QSpinBoxPrivate::QSpinBoxPrivate()
     const QString str = QLocale().toString(4567);
     if (str.size() == 5) {
         thousand = QChar(str.at(1));
-        if (thousand.isSpace())
-            thousand = QLatin1Char(' '); // to avoid problems with 0xA0
     }
 
 }
@@ -993,20 +1003,20 @@ bool QSpinBoxPrivate::isIntermediateValue(const QString &str) const
     as.
 */
 
-QVariant QSpinBoxPrivate::validateAndInterpret(QString &input, int &,
+QVariant QSpinBoxPrivate::validateAndInterpret(QString &input, int &pos,
                                                QValidator::State &state) const
 {
     if (cachedText == input && !input.isEmpty()) {
         state = cachedState;
-//         QSBDEBUG() << "cachedText was" << "'" + cachedText + "'" << "state was "
-//                    << state << " and value was " << cachedValue;
+        QSBDEBUG() << "cachedText was" << "'" + cachedText + "'" << "state was "
+                   << state << " and value was " << cachedValue;
 
         return cachedValue;
     }
     const int max = maximum.toInt();
     const int min = minimum.toInt();
 
-    QString copy = stripped(input);
+    QString copy = stripped(input, &pos);
     QSBDEBUG() << "input" << input << "copy" << copy;
     state = QValidator::Acceptable;
     int num = min;
@@ -1021,7 +1031,9 @@ QVariant QSpinBoxPrivate::validateAndInterpret(QString &input, int &,
         bool removedThousand = false;
         num = QLocale().toInt(copy, &ok, 10);
         if (!ok && copy.contains(thousand) && (max >= 1000 || min <= -1000)) {
+            const int s = copy.size();
             copy.remove(thousand);
+            pos = qMax(0, pos - (s - copy.size()));
             removedThousand = true;
             num = QLocale().toInt(copy, &ok, 10);
         }
@@ -1045,6 +1057,7 @@ QVariant QSpinBoxPrivate::validateAndInterpret(QString &input, int &,
     }
     if (state != QValidator::Acceptable)
         num = max > 0 ? min : max;
+    input = prefix + copy + suffix;
     cachedText = input;
     cachedState = state;
     cachedValue = QVariant((int)num);
@@ -1075,8 +1088,6 @@ QDoubleSpinBoxPrivate::QDoubleSpinBoxPrivate()
         thousand = QChar((ushort)0);
     } else if (str.size() == 7) {
         thousand = str.at(1);
-        if (thousand.isSpace())
-            thousand = QLatin1Char(' '); // to avoid problems with 0xA0
         delimiter = str.at(5);
     }
     Q_ASSERT(!delimiter.isNull());
@@ -1210,18 +1221,19 @@ QVariant QDoubleSpinBoxPrivate::valueFromText(const QString &f) const
     as.
 */
 
-QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
+QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &pos,
                                                      QValidator::State &state) const
 {
     if (cachedText == input && !input.isEmpty()) {
         state = cachedState;
-//         QSBDEBUG() << "cachedText was" << "'" + cachedText + "'" << "state was "
-//                    << state << " and value was " << cachedValue;
+        QSBDEBUG() << "cachedText was" << "'" + cachedText + "'" << "state was "
+                   << state << " and value was " << cachedValue;
         return cachedValue;
     }
     const double max = maximum.toDouble();
     const double min = minimum.toDouble();
-    QString copy = stripped(input);
+
+    QString copy = stripped(input, &pos);
     QSBDEBUG() << "input" << input << "copy" << copy;
     int len = copy.size();
     double num = min;
@@ -1250,7 +1262,7 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
     default: break;
     }
 
-    if (copy.at(0).isSpace() || copy.at(0) == thousand) {
+    if (copy.at(0) == thousand) {
         QSBDEBUG() << __FILE__ << __LINE__<< "state is set to Invalid";
         state = QValidator::Invalid;
         goto end;
@@ -1289,7 +1301,7 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
         bool ok = false;
         QLocale loc;
         num = loc.toDouble(copy, &ok);
-        QSBDEBUG() << __FILE__ << __FILE__ << loc << copy << num << ok;
+        QSBDEBUG() << __FILE__ << __LINE__ << loc << copy << num << ok;
         bool notAcceptable = false;
 
         if (!ok) {
@@ -1309,7 +1321,11 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
                     }
                 }
 
+                const int s = copy.size();
                 copy.remove(thousand);
+                pos = qMax(0, pos - (s - copy.size()));
+
+
                 num = loc.toDouble(copy, &ok);
                 QSBDEBUG() << thousand << num << copy << ok;
 
@@ -1349,7 +1365,7 @@ end:
         num = max > 0 ? min : max;
     }
 
-
+    input = prefix + copy + suffix;
     cachedText = input;
     cachedState = state;
     cachedValue = QVariant(num);

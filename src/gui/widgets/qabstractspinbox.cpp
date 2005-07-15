@@ -1179,7 +1179,7 @@ QStyle::SubControl QAbstractSpinBoxPrivate::newHoverControl(const QPoint &pos)
     Strips any prefix/suffix from \a text.
 */
 
-QString QAbstractSpinBoxPrivate::stripped(const QString &t) const
+QString QAbstractSpinBoxPrivate::stripped(const QString &t, int *pos) const
 {
     QString text = t;
     if (specialValueText.size() == 0 || text != specialValueText) {
@@ -1198,7 +1198,13 @@ QString QAbstractSpinBoxPrivate::stripped(const QString &t) const
         if (changed)
             text = text.mid(from, size);
     }
-    return text.trimmed();
+
+    const int s = text.size();
+    text = text.trimmed();
+    if (pos)
+        (*pos) -= (s - text.size());
+    return text;
+
 }
 
 /*!
