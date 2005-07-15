@@ -2637,7 +2637,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
 
     // now we have the syllable in the right order, and can start running it through open type.
 
-#ifndef QT_NO_XFTFREETYPE
+#ifdef QT_HAVE_FREETYPE
     if (openType) {
 	unsigned short logClusters[16];
 	for (int i = 0; i < len; ++i)
