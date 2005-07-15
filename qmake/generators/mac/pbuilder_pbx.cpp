@@ -1516,8 +1516,8 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
         } else {
             if(version == "2.1")
                 ret = "42";
-            else if(version.startsWith("2."))
-                ret = "38";
+            else if(version == "1.5" || version.startsWith("2."))
+                ret = "39";
             else if(version == "1.1")
                 ret = "34";
         }
