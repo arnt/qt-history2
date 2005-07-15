@@ -19,6 +19,7 @@
 #include "qmainwindow.h"
 #include "qdockwidget.h"
 #include "qtoolbar.h"
+#include "qevent.h"
 #include "qstyle.h"
 
 #include <private/qapplication_p.h>
@@ -51,6 +52,7 @@ enum {
   Externals
  *****************************************************************************/
 extern IconRef qt_mac_create_iconref(const QPixmap &px); //qpixmap_mac.cpp
+extern QWidget * mac_keyboard_grabber; //qwidget_mac.cpp
 
 /*****************************************************************************
   QMenu utility functions
@@ -274,16 +276,41 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
     bool handled_event = true;
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
     switch(eclass) {
-    case kEventClassCommand: {
-        HICommand cmd;
-        GetEventParameter(event, kEventParamDirectObject, typeHICommand,
-                          0, sizeof(cmd), 0, &cmd);
-        UInt32 context;
-        GetEventParameter(event, kEventParamMenuContext, typeUInt32,
-                          0, sizeof(context), 0, &context);
-        handled_event = qt_mac_activate_action(cmd.menu.menuRef, cmd.commandID,
-                                               QAction::Trigger, context & kMenuContextKeyMatching);
-        break; }
+    case kEventClassCommand:
+        if(ekind == kEventCommandProcess) {
+            UInt32 context;
+            GetEventParameter(event, kEventParamMenuContext, typeUInt32,
+                              0, sizeof(context), 0, &context);
+            HICommand cmd;
+            GetEventParameter(event, kEventParamDirectObject, typeHICommand,
+                              0, sizeof(cmd), 0, &cmd);
+            if(!mac_keyboard_grabber && (context & kMenuContextKeyMatching)) {
+                QMacMenuAction *action = 0;
+                if(GetMenuCommandProperty(cmd.menu.menuRef, cmd.commandID, kMenuCreatorQt,
+                                          kMenuPropertyQAction, sizeof(action), 0, &action) == noErr) {
+                    QWidget *widget = 0;
+                    if (qApp->activePopupWidget())
+                        widget = (qApp->activePopupWidget()->focusWidget() ?
+                                  qApp->activePopupWidget()->focusWidget() : qApp->activePopupWidget());
+                    else if(QApplicationPrivate::focus_widget)
+                        widget = QApplicationPrivate::focus_widget;
+                    if(widget) {
+                        int key = action->action->shortcut();
+                        QKeyEvent accel_ev(QEvent::ShortcutOverride, (key & (~Qt::KeyboardModifierMask)),
+                                           Qt::KeyboardModifiers(key & Qt::KeyboardModifierMask));
+                        accel_ev.ignore();
+                        qt_sendSpontaneousEvent(widget, &accel_ev);
+                        if(accel_ev.isAccepted()) {
+                            handled_event = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            handled_event = qt_mac_activate_action(cmd.menu.menuRef, cmd.commandID,
+                                                   QAction::Trigger, context & kMenuContextKeyMatching);
+        }
+        break;
     case kEventClassMenu: {
         MenuRef menu;
         GetEventParameter(event, kEventParamDirectObject, typeMenuRef, NULL, sizeof(menu), NULL, &menu);
