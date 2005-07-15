@@ -880,6 +880,8 @@ void TorrentClient::setupOutgoingConnection()
 
 void TorrentClient::initializeConnection(PeerWireClient *client)
 {
+    connect(client, SIGNAL(connected()),
+            this, SLOT(setupOutgoingConnection()));
     connect(client, SIGNAL(disconnected()),
             this, SLOT(removeClient()));
     connect(client, SIGNAL(error(SocketError)),
