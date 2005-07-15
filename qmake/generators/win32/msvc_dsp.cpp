@@ -370,7 +370,7 @@ DspMakefileGenerator::init()
 
     // Move some files around //### is this compat?
     if (!project->variables()["IMAGES"].isEmpty()) {
-        QString imageFactory(project->variables()["QMAKE_IMAGE_COLLECTION"].first());
+        QString imageFactory(project->first("QMAKE_IMAGE_COLLECTION"));
         project->variables()["GENERATED_SOURCES"] += imageFactory;
         project->variables()["SOURCES"].removeAll(imageFactory);
     }
@@ -591,7 +591,7 @@ bool DspMakefileGenerator::writeProjectMakefile()
             }
 
             QStringList keys = files.keys();
-            for (int k = 0; k < keys.size(); ++k) 
+            for (int k = 0; k < keys.size(); ++k)
                 project->variables()[keys.at(k)] = QList<QString>::fromSet(files[keys.at(k)]);
 
             QStringList listNames = QString("SOURCES|DEF_FILE").split("|");
