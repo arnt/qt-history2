@@ -135,7 +135,7 @@ void QSyntaxHighlighterPrivate::reformatBlock(QTextBlock block)
     \ingroup text
 
     A syntax highligher automatically highlights parts of the text in
-    a QTextEdit, or generally in a QTextDocument. Syntax highlighters
+    a QTextEdit, or more generally in a QTextDocument. Syntax highlighters
     are often used when the user is entering text in a specific format
     (for example, source code) and help the user to read the text and
     identify syntax errors.
@@ -144,25 +144,38 @@ void QSyntaxHighlighterPrivate::reformatBlock(QTextBlock block)
     QSyntaxHighlighter and reimplement highlightBlock().
 
     When you create an instance of your QSyntaxHighlighter subclass,
-    pass it the QTextEdit that you want the syntax highlighting to be
-    applied to. Alternatively call setDocument() with the QTextDocument
-    you want to highlight. After this your highlightBlock() function
-    will be called automatically whenever necessary. Use your
+    pass it the QTextEdit or QTextDocument that you want the syntax
+    highlighting to be applied to. After this your highlightBlock()
+    function will be called automatically whenever necessary. Use your
     highlightBlock() function to apply formatting (e.g. setting the
     font and color) to the text that is passed to it.
 */
 
+/*!
+    Constructs the QSyntaxHighlighter
+*/
 QSyntaxHighlighter::QSyntaxHighlighter(QObject *parent)
     : QObject(*new QSyntaxHighlighterPrivate, parent)
 {
 }
 
+/*!
+    Constructs the QSyntaxHighlighter and installs it on \a parent.
+    The specified QTextDocument also becomes the owner of the
+    QSyntaxHighlighter.
+*/
 QSyntaxHighlighter::QSyntaxHighlighter(QTextDocument *parent)
     : QObject(*new QSyntaxHighlighterPrivate, parent)
 {
     setDocument(parent);
 }
 
+/*!
+    Constructs the QSyntaxHighlighter and installs it on \a parent 's
+    QTextDocument.
+    The specified QTextEdit also becomes the owner of the
+    QSyntaxHighlighter.
+*/
 QSyntaxHighlighter::QSyntaxHighlighter(QTextEdit *parent)
     : QObject(*new QSyntaxHighlighterPrivate, parent)
 {
@@ -170,7 +183,7 @@ QSyntaxHighlighter::QSyntaxHighlighter(QTextEdit *parent)
 }
 
 /*!
-    Destructor. Uninstalls this syntax highlighter from a text document.
+    Destructor. Uninstalls this syntax highlighter from the text document.
 */
 QSyntaxHighlighter::~QSyntaxHighlighter()
 {
@@ -202,14 +215,46 @@ void QSyntaxHighlighter::setDocument(QTextDocument *doc)
 }
 
 /*!
-    Returns a pointer to the document the syntax highlighter is installed on,
-    or null if is not bound to a document.
+    Returns the QTextDocument on which this syntax highlighter is
+    installed.
 */
 QTextDocument *QSyntaxHighlighter::document() const
 {
     Q_D(const QSyntaxHighlighter);
     return d->doc;
 }
+
+/*!
+    \fn void QSyntaxHighlighter::highlightBlock(const QString &text)
+
+    This function is called when necessary by the rich text engine,
+    i.e. on text blocks which have changed.
+
+    In your reimplementation you should parse the block's \a text
+    and call setFormat() as often as necessary to apply any font and
+    color changes that you require.
+
+    Some syntaxes can have constructs that span text blocks. For
+    example, a C++ syntax highlighter should be able to cope with
+    \c{/}\c{*...*}\c{/} comments that span text blocks. To deal
+    with these cases it is necessary to know the end state of the
+    previous text block (e.g. "in comment").
+
+    Inside your highlightBlock() implementation you can query the
+    end state of the previous text block using previousBlockState().
+    If no value was previously set then the returned value is -1.
+
+    After parsing the block you can save the last state using
+    setCurrentBlockState().
+
+    For example, if you're writing a simple C++ syntax highlighter,
+    you might designate 1 to signify "in comment". For a text block
+    that ended in the middle of a comment you'd set 1 using
+    setCurrentBlockState, and for other paragraphs you'd set 0.
+    In your parsing code if the return value of previousBlockState()
+    is 1, you would highlight the text as a C++ comment until you
+    reached the closing \c{*}\c{/}.
+*/
 
 /*!
     This function is applied to the syntax highlighter's current
@@ -246,6 +291,9 @@ void QSyntaxHighlighter::setFormat(int start, int count, const QColor &color)
     setFormat(start, count, format);
 }
 
+/*!
+    \overload
+*/
 void QSyntaxHighlighter::setFormat(int start, int count, const QFont &font)
 {
     QTextCharFormat format;
@@ -253,6 +301,10 @@ void QSyntaxHighlighter::setFormat(int start, int count, const QFont &font)
     setFormat(start, count, format);
 }
 
+/*!
+    Returns the format at \a pos inside the syntax highlighter's
+    current text block.
+*/
 QTextCharFormat QSyntaxHighlighter::format(int pos) const
 {
     Q_D(const QSyntaxHighlighter);
@@ -261,6 +313,13 @@ QTextCharFormat QSyntaxHighlighter::format(int pos) const
     return d->formatChanges.at(pos);
 }
 
+/*!
+    Returns the end state of the text block previous to the
+    syntax highlighter's current block. If no value was
+    previously set the returned value is -1.
+
+    \sa highlightBlock(), setCurrentBlockState()
+*/
 int QSyntaxHighlighter::previousBlockState() const
 {
     Q_D(const QSyntaxHighlighter);
@@ -274,6 +333,9 @@ int QSyntaxHighlighter::previousBlockState() const
     return previous.userState();
 }
 
+/*!
+    Returns the state of the current text block.
+*/
 int QSyntaxHighlighter::currentBlockState() const
 {
     Q_D(const QSyntaxHighlighter);
@@ -283,6 +345,9 @@ int QSyntaxHighlighter::currentBlockState() const
     return d->currentBlock.userState();
 }
 
+/*!
+    Sets the state of the current text block to \a newState.
+*/
 void QSyntaxHighlighter::setCurrentBlockState(int newState)
 {
     Q_D(QSyntaxHighlighter);
@@ -292,6 +357,11 @@ void QSyntaxHighlighter::setCurrentBlockState(int newState)
     d->currentBlock.setUserState(newState);
 }
 
+/*!
+    Sets the QTextBlockUserData object on the current text block.
+
+    \sa QTextBlock::setUserData()
+*/
 void QSyntaxHighlighter::setCurrentBlockUserData(QTextBlockUserData *data)
 {
     Q_D(QSyntaxHighlighter);
@@ -301,6 +371,11 @@ void QSyntaxHighlighter::setCurrentBlockUserData(QTextBlockUserData *data)
     d->currentBlock.setUserData(data);
 }
 
+/*!
+    Returns the QTextBlockUserData object previously set on the current text block.
+
+    \sa QTextBlock::userData(), QTextBlock::setUserData()
+*/
 QTextBlockUserData *QSyntaxHighlighter::currentBlockUserData() const
 {
     Q_D(const QSyntaxHighlighter);
