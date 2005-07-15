@@ -1544,8 +1544,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     Users normally expect an application to remember its settings
     (window sizes and positions, options, etc.) across sessions. This
     information is often stored in the system registry on Windows,
-    and in XML preferences files on Mac OS X. On X11 and embedded Linux,
-    in the absense of a standard, many applications (including the KDE
+    and in XML preferences files on Mac OS X. On Unix systems, in the
+    absense of a standard, many applications (including the KDE
     applications) use INI text files.
 
     QSettings is an abstraction around these technologies,
@@ -1705,34 +1705,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \o a system-wide location for all applications by MySoft
     \endlist
 
-    On Unix with X11 and on embedded Linux, these locations are the
-    following files:
-
-    \list 1
-    \o \c{$HOME/.config/MySoft/Star Runner.conf}
-    \o \c{$HOME/.config/MySoft.conf}
-    \o \c{/etc/xdg/MySoft/Star Runner.conf}
-    \o \c{/etc/xdg/MySoft.conf}
-    \endlist
-
-    On Mac OS X versions 10.2 and 10.3, these files are used:
-
-    \list 1
-    \o \c{$HOME/Library/Preferences/com.MySoft.Star Runner.plist}
-    \o \c{$HOME/Library/Preferences/com.MySoft.plist}
-    \o \c{/Library/Preferences/com.MySoft.Star Runner.plist}
-    \o \c{/Library/Preferences/com.MySoft.plist}
-    \endlist
-
-    On Windows, the settings are stored in the following registry
-    paths:
-
-    \list 1
-    \o \c{HKEY_CURRENT_USER\Software\MySoft\Star Runner}
-    \o \c{HKEY_CURRENT_USER\Software\MySoft}
-    \o \c{HKEY_LOCAL_MACHINE\Software\MySoft\Star Runner}
-    \o \c{HKEY_LOCAL_MACHINE\Software\MySoft}
-    \endlist
+    (See \l{Platform-Specific Notes} below for information on what
+    these locations are on the different platforms supported by Qt.)
 
     If a key cannot be found in the first location, the search goes
     on in the second location, and so on. This enables you to store
@@ -1797,8 +1771,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \printline HKEY
     \printline Native
 
-    On X11 and embedded Linux, QSettings::IniFormat and QSettings::NativeFormat have
-    the same meaning.
+    On Unix systems, QSettings::IniFormat and QSettings::NativeFormat
+    have the same meaning.
 
     The \l{tools/settingseditor}{Settings Editor} example lets you
     experiment with different settings location and with fallbacks
@@ -1856,8 +1830,82 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     \section1 Platform-Specific Notes
 
-    While QSettings attempts to smooth over the differences
-    between the different supported platforms, there are still a few
+    As mentioned in the \l{Fallback Mechanism} section, QSettings
+    stores settings for an application in up to four locations,
+    depending on whether the settings are user-specific or
+    system-wide and whether the the settings are application-specific
+    or organization-wide. For simplicity, we're assuming the
+    organization is called MySoft and the application is called Star
+    Runner.
+
+    If the file format is NativeFormat, the following files are used
+    on Unix systems:
+
+    \list 1
+    \o \c{$HOME/.config/MySoft/Star Runner.conf}
+    \o \c{$HOME/.config/MySoft.conf}
+    \o \c{/etc/xdg/MySoft/Star Runner.conf}
+    \o \c{/etc/xdg/MySoft.conf}
+    \endlist
+
+    The \c $HOME/.config portion of the first two paths can be
+    overridden by the user by setting the \c XDG_CONFIG_HOME
+    environment variable; the \c /etc/xdg portion of the last two
+    paths can be overridden when building the Qt library (see
+    QLibraryInfo for details). Both can be overridden using
+    setUserIniPath() and setSystemIniPath().
+
+    On Mac OS X versions 10.2 and 10.3, these files are used:
+
+    \list 1
+    \o \c{$HOME/Library/Preferences/com.MySoft.Star Runner.plist}
+    \o \c{$HOME/Library/Preferences/com.MySoft.plist}
+    \o \c{/Library/Preferences/com.MySoft.Star Runner.plist}
+    \o \c{/Library/Preferences/com.MySoft.plist}
+    \endlist
+
+    On Windows, the settings are stored in the following registry
+    paths:
+
+    \list 1
+    \o \c{HKEY_CURRENT_USER\Software\MySoft\Star Runner}
+    \o \c{HKEY_CURRENT_USER\Software\MySoft}
+    \o \c{HKEY_LOCAL_MACHINE\Software\MySoft\Star Runner}
+    \o \c{HKEY_LOCAL_MACHINE\Software\MySoft}
+    \endlist
+
+    If the file format is IniFormat, the following files are
+    used on Unix and Mac OS X:
+
+    \list 1
+    \o \c{$HOME/.config/MySoft/Star Runner.ini}
+    \o \c{$HOME/.config/MySoft.ini}
+    \o \c{/etc/xdg/MySoft/Star Runner.ini}
+    \o \c{/etc/xdg/MySoft.ini}
+    \endlist
+
+    Again, the \c $HOME/.config portion of the first two paths can be
+    overridden by the user by setting the \c XDG_CONFIG_HOME
+    environment variable; the \c /etc/xdg portion of the last two
+    paths can be overridden when building the Qt library (see
+    QLibraryInfo for details). Both can be overridden using
+    setUserIniPath() and setSystemIniPath().
+
+    On Windows, the following files are used:
+
+    \list 1
+    \o \c{%APPDATA%\MySoft\Star Runner.ini}
+    \o \c{%APPDATA%\MySoft.ini}
+    \o \c{%COMMON_APPDATA%\MySoft\Star Runner.ini}
+    \o \c{%COMMON_APPDATA%\MySoft.ini}
+    \endlist
+
+    The \c %APPDATA% path is usually \tt{C:\\Documents and
+    Settings\\\e{User Name}\\Application Data}; the \c
+    %COMMON_APPDATA% path is usually \c{C:\Windows\Application Data}.
+
+    While QSettings attempts to smooth over the differences between
+    the different supported platforms, there are still a few
     differences that you should be aware of when porting your
     application:
 
@@ -1922,13 +1970,13 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
                          appropriate storage format for the platform.
                          On Windows, this means the system registry;
                          on Mac OS X, this means the CFPreferences
-                         API; on Unix/X11, this means textual
+                         API; on Unix, this means textual
                          configuration files in INI format.
     \value IniFormat  Store the settings in INI files.
 
-    On Unix/X11, NativeFormat and IniFormat mean the same
-    thing, except that the file extension is different (\c .conf for
-    NativeFormat, \c .ini for IniFormat).
+    On Unix, NativeFormat and IniFormat mean the same thing, except
+    that the file extension is different (\c .conf for NativeFormat,
+    \c .ini for IniFormat).
 
     The INI file format is a Windows file format that Qt supports on
     all platforms. In the absence of an INI standard, we try to
@@ -2051,10 +2099,11 @@ QSettings::QSettings(Format format, Scope scope, const QString &organization,
     stored in the file called \a fileName, with parent \a parent. If
     the file doesn't already exist, it is created.
 
-    If \a format is QSettings::NativeFormat, the meaning of \a fileName
-    depends on the platform. On Unix/X11, \a fileName is the name of
-    an INI file. On Mac OS X, \a fileName is the name of a .plist
-    file. On Windows, \a fileName is a path in the system registry.
+    If \a format is QSettings::NativeFormat, the meaning of \a
+    fileName depends on the platform. On Unix, \a fileName is the
+    name of an INI file. On Mac OS X, \a fileName is the name of a
+    .plist file. On Windows, \a fileName is a path in the system
+    registry.
 
     If \a format is QSettings::IniFormat, \a fileName is the name of an INI
     file.
@@ -2948,7 +2997,7 @@ void QSettings::setUserIniPath(const QString &dir)
 /*! \enum QSettings::System
     \compat
 
-    \value Unix Unix/X11 systems
+    \value Unix Unix systems (X11 and Qtopia Core)
     \value Windows Microsoft Windows systems
     \value Mac Mac OS X systems
 
