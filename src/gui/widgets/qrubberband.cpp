@@ -206,16 +206,17 @@ void QRubberBand::changeEvent(QEvent *e)
     \fn void QRubberBand::setGeometry(const QRect &rect)
 
     Changes the rubberband's geometry to the geometry of the rectangle
-    \a rect.
+    \a rect. \a rect is relative of (and bounded by) by the parent
+    geometry.
 
     \sa move() resize()
 */
 void QRubberBand::setGeometry(const QRect &geom)
 {
     Q_D(QRubberBand);
-    QRect mygeom = geom;
-    d->rect = QRect(0, 0, mygeom.width(), mygeom.height());
+    QRect mygeom = geom.normalized();
     if(QWidget *p = parentWidget()) {
+        mygeom.moveTo(p->mapToGlobal(mygeom.topLeft()));
         const QRect prect(p->mapToGlobal(QPoint(0, 0)), p->size());
         if(!prect.contains(mygeom)) {
             if(mygeom.left() < prect.left()) {
@@ -244,6 +245,7 @@ void QRubberBand::setGeometry(const QRect &geom)
             }
         }
     }
+    d->rect = QRect(0, 0, mygeom.width(), mygeom.height());
     QWidget::setGeometry(mygeom);
 #ifdef Q_WS_MAC
     d->updateMask();
