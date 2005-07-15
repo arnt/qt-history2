@@ -1,0 +1,18 @@
+TESTDIR = $$(QTESTDIR)
+
+isEmpty(TESTDIR) {
+    QTEST_P4 = $$system(p4 where //depot/qtest/research/qtestlib)
+    count(QTEST_P4, 3): TESTDIR = $$member(QTEST_P4, 2)
+    warning("QTESTDIR environment variable not set, using qtestlib in $$TESTDIR")
+
+    # set the include path at qmake time rather than hardcode $QTESTDIR into the generated makefile
+    INCLUDEPATH += $${TESTDIR}
+} else {
+    TESTDIR=$${TESTDIR}/qtestlib
+}
+
+isEmpty(TESTDIR) {
+    error("Please set the QTESTDIR environment variable")
+}
+
+include($${TESTDIR}/../include/qtest.pri)
