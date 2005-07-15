@@ -1474,8 +1474,10 @@ QStyle* QWidget::setStyle(const QString &style)
 #endif
 
 /*!
-    \property QWidget::isWindow
-    \brief whether the widget is an independent window
+    \fn bool QWidget::isWindow() const
+
+    Returns true if the widget is an independent window, otherwise
+    returns false.
 
     A window is a widget that isn't visually the child of any other
     widget and that usually has a frame and a
