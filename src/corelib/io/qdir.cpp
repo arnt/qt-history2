@@ -701,7 +701,11 @@ QString QDir::relativeFilePath(const QString &fileName) const
         fileDriveMissing = true;
     }
 
+#ifdef Q_OS_WIN
+    if (fileDrive.toLower() != dirDrive.toLower())
+#else
     if (fileDrive != dirDrive)
+#endif
         return convertSeparators(file);
 
     dir.remove(0, dirDrive.size());
@@ -713,7 +717,12 @@ QString QDir::relativeFilePath(const QString &fileName) const
     QStringList fileElts = file.split(QLatin1Char('/'), QString::SkipEmptyParts);
 
     int i = 0;
-    while (i < dirElts.size() && i < fileElts.size() && dirElts.at(i) == fileElts.at(i))
+    while (i < dirElts.size() && i < fileElts.size() &&
+#ifdef Q_OS_WIN
+           dirElts.at(i).toLower() == fileElts.at(i).toLower())
+#else
+           dirElts.at(i) == fileElts.at(i))
+#endif
         ++i;
 
     for (int j = 0; j < dirElts.size() - i; ++j)
