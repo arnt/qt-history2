@@ -152,7 +152,6 @@ private slots:
     // Connection handling
     void connectToPeers();
     QList<TorrentPeer *> weighedFreePeers() const;
-    void handleSocketError(QAbstractSocket::SocketError socketError);
     void setupIncomingConnection(PeerWireClient *client);
     void setupOutgoingConnection();
     void initializeConnection(PeerWireClient *client);
@@ -166,13 +165,12 @@ private slots:
     int blocksLeftForPiece(const TorrentPiece *piece) const;
 
     // Scheduling
-    void schedulePayloads();
+    void scheduleUploads();
+    void scheduleDownloads();
     void schedulePieceForClient(PeerWireClient *client);
     void requestBlocks(PeerWireClient *client, TorrentPiece *piece);
     void peerChoked();
     void peerUnchoked();
-    void peerInterested();
-    void peerNotInterested();
 
     // Tracker handling
     void addToPeerList(const QList<TorrentPeer> &peerList);

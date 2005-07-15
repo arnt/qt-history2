@@ -41,11 +41,11 @@ public:
     RateController();
     static RateController *instance();
 
-    int uploadLimit() const;
-    void setUploadLimit(int bytesPerSecond);
+    inline int uploadLimit() const { return uploadLimitBytes; }
+    inline void setUploadLimit(int bytesPerSecond) { uploadLimitBytes = bytesPerSecond; }
 
-    int downloadLimit() const;
-    void setDownloadLimit(int bytesPerSecond);
+    inline int downloadLimit() const { return downloadLimitBytes; }
+    inline void setDownloadLimit(int bytesPerSecond) { downloadLimitBytes = bytesPerSecond; }
 
     void addClient(PeerWireClient *client);
     void removeClient(PeerWireClient *client);
@@ -54,6 +54,8 @@ protected:
     void timerEvent(QTimerEvent *event);
 
 private:
+    void setNewTimerDelay(int msecs);
+
     int transmitTimer;
     int timerDelay;
     int uploadLimitBytes;

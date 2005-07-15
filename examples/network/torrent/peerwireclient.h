@@ -29,15 +29,13 @@
 #ifndef PEERWIRECLIENT_H
 #define PEERWIRECLIENT_H
 
+class QHostAddress;
 class QTimerEvent;
 
-#include <QByteArray>
-#include <QDebug>
-#include <QHostAddress>
-#include <QList>
-#include <QSet>
-#include <QTcpSocket>
-#include <QTimer>
+#include <QtCore/QByteArray>
+#include <QtCore/QList>
+#include <QtCore/QSet>
+#include <QtNetwork/QTcpSocket>
 
 class PeerWireClient : public QTcpSocket
 {
@@ -52,34 +50,29 @@ public:
     Q_DECLARE_FLAGS(PeerWireState, PeerWireStateFlag)
 
     PeerWireClient(QObject *parent = 0);
-    ~PeerWireClient();
     void initialize(const QByteArray &infoHash, const QByteArray &peerId);
 
-    PeerWireState peerWireState() const;
-    QSet<int> availablePieces() const;
+    // State
+    inline PeerWireState peerWireState() const { return pwState; }
+    inline QSet<int> availablePieces() const { return peerPieces; }
 
+    // Protocol
     void chokePeer();
     void unchokePeer();
     void sendInterested();
     void sendNotInterested();
-
-    void sendKeepAlive();
     void sendPieceNotification(int piece);
     void sendPieceList(const QSet<int> &bitField, int pieceCount);
     void requestBlock(int piece, int offset, int length);
     void cancelRequest(int piece, int offset, int length);
     void sendBlock(int piece, int offset, const QByteArray &data);
 
-    QHostAddress lastPeerAddress() const;
-    quint16 lastPeerPort() const;
-
-    qint64 downloadSpeed() const;
-    qint64 downloadCount() const;
-    qint64 uploadCount() const;
-
-    int acceptBytesToRead(int bytes);
+    // Rate control
     int bufferedBytesToWrite() const;
     int acceptBytesToWrite(int bytes);
+    int acceptBytesToRead(int bytes);
+    qint64 downloadSpeed() const;
+    qint64 uploadSpeed() const;
 
 signals:
     void choked();
@@ -88,7 +81,7 @@ signals:
     void notInterested();
 
     void piecesAvailable(const QSet<int> &pieces);
-    void blockRequest(int pieceIndex, int begin, int length);
+    void blockRequested(int pieceIndex, int begin, int length);
     void requestCanceled(int pieceIndex, int begin, int length);
     void blockReceived(int pieceIndex, int begin, const QByteArray &data);
 
@@ -100,7 +93,6 @@ protected slots:
 private slots:
     void sendHandShake();
     void processIncomingData();
-    void updateBytesWritten(qint64 written);
     void closeConnection();
 
 private:
@@ -108,9 +100,11 @@ private:
     void writeToBuffer(const QByteArray &data);
     int readFromBuffer(char *data, int size);
     QByteArray readFromBuffer(int size);
-    int bytesInBuffer() const;
+
+    // Data waiting to be read/written
     QByteArray incomingBuffer;
     QByteArray outgoingBuffer;
+    QList<QByteArray> pendingBlocks;
 
     enum PacketType {
 	ChokePacket = 0,
@@ -124,39 +118,26 @@ private:
 	CancelPacket = 8
     };
 
+    // State
     PeerWireState pwState;
     bool receivedHandShake;
     bool gotPeerId;
     bool sentHandShake;
-
-    QHostAddress lastAddress;
-    quint16 lastPort;
-    qint64 downloaded;
-    qint64 uploaded;
-    qint64 downloadSpeedData[8];
-    int downloadSpeedTimer;
-
-    QByteArray infoHash;
-    QByteArray peerIdString;
-    QByteArray remotePeerIdString;
-
     int nextPacketLength;
 
+    // Upload/download speed records
+    qint64 uploadSpeedData[8];
+    qint64 downloadSpeedData[8];
+    int transferSpeedTimer;
+
+    // Timeout handling
+    int timeoutTimer;
+    bool invalidateTimeout;
+
+    // Checksum, peer ID and set of available pieces
+    QByteArray infoHash;
+    QByteArray peerIdString;
     QSet<int> peerPieces;
-    QTimer timeoutTimer;
-
-    struct Block {
-	int pieceIndex;
-	int begin;
-	QByteArray data;
-    };
 };
-
-inline QDebug operator<<(QDebug debug, PeerWireClient *client)
-{
-    debug << "PeerWireClient(" << client->peerAddress().toString()
-	  << ":" << client->peerPort() << ")";
-    return debug;
-}
 
 #endif

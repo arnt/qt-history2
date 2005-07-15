@@ -29,13 +29,9 @@
 #include "torrentclient.h"
 #include "trackerclient.h"
 
-#include <QDebug>
-#include <QEvent>
-#include <QFile>
-#include <QTimer>
-#include <QUrl>
+#include <QtCore/QtCore>
 
-static inline quint32 qntoh(quint32 source)
+quint32 qntoh(quint32 source)
 {
 #if Q_BYTE_ORDER == Q_BIG_ENDIAN
     return source;
@@ -67,14 +63,14 @@ TrackerClient::TrackerClient(TorrentClient *downloader, QObject *parent)
 void TrackerClient::start(const MetaInfo &info)
 {
     metaInfo = info;
-    QMetaObject::invokeMethod(this, "fetchPeerList", Qt::QueuedConnection);
+    QTimer::singleShot(0, this, SLOT(fetchPeerList()));
 
     if (metaInfo.fileForm() == MetaInfo::SingleFileForm) {
-	length = metaInfo.singleFile().length;
+        length = metaInfo.singleFile().length;
     } else {
-	QList<MetaInfoMultiFile> files = metaInfo.multiFiles();
-	for (int i = 0; i < files.size(); ++i)
-	    length += files.at(i).length;
+        QList<MetaInfoMultiFile> files = metaInfo.multiFiles();
+        for (int i = 0; i < files.size(); ++i)
+            length += files.at(i).length;
     }
 }
 
@@ -85,41 +81,13 @@ void TrackerClient::stop()
     fetchPeerList();
 }
 
-int TrackerClient::leechCount() const
-{
-    return leechers;
-}
-
-int TrackerClient::seedCount() const
-{
-    return seeders;
-}
-
-qint64 TrackerClient::uploadCount() const
-{
-    return uploadedBytes;
-}
-
-qint64 TrackerClient::downloadCount() const
-{
-    return downloadedBytes;
-}
-
-void TrackerClient::setUploadCount(qint64 bytes)
-{
-    uploadedBytes = bytes;
-}
-
-void TrackerClient::setDownloadCount(qint64 bytes)
-{
-    downloadedBytes = bytes;
-}
-
 void TrackerClient::timerEvent(QTimerEvent *event)
 {
     if (event->timerId() == requestIntervalTimer) {
-	if (http.state() == QHttp::Unconnected)
-	    fetchPeerList();
+        if (http.state() == QHttp::Unconnected)
+            fetchPeerList();
+    } else {
+        QObject::timerEvent(event);
     }
 }
 
@@ -137,32 +105,32 @@ void TrackerClient::fetchPeerList()
     unsigned char chars[4];
 
     for (int i = 0; i < 5; ++i) {
-	unsigned int digest = qntoh(messageDigest[i]);
-	chars[0] = (digest & 0xff000000) >> 24;
-	chars[1] = (digest & 0x00ff0000) >> 16;
-	chars[2] = (digest & 0x0000ff00) >> 8;
-	chars[3] = (digest & 0x000000ff);
+        unsigned int digest = qntoh(messageDigest[i]);
+        chars[0] = (digest & 0xff000000) >> 24;
+        chars[1] = (digest & 0x00ff0000) >> 16;
+        chars[2] = (digest & 0x0000ff00) >> 8;
+        chars[3] = (digest & 0x000000ff);
 
-	for (int j = 0; j < 4; ++j) {
-	    unsigned char c = chars[j];
-	    if ((c >= '0' && c <= '9')
-		|| (c >= 'a' && c <= 'z')
-		|| (c >= 'A' && c <= 'Z'))
-		encodedSum += c;
-	    else switch (c) {
-	    case '$': case '-': case '_': case '.':
-	    case '+': case '!': case '*': case '\'':
-	    case '(': case ')':
-		encodedSum += c;
-		break;
-	    default: {
-		encodedSum += "%";
-		encodedSum += hex[(c & 0xf0) >> 4];
-		encodedSum += hex[c & 0xf];
-		break;
-	    }
-	    }
-	}
+        for (int j = 0; j < 4; ++j) {
+            unsigned char c = chars[j];
+            if ((c >= '0' && c <= '9')
+                || (c >= 'a' && c <= 'z')
+                || (c >= 'A' && c <= 'Z'))
+                encodedSum += c;
+            else switch (c) {
+            case '$': case '-': case '_': case '.':
+            case '+': case '!': case '*': case '\'':
+            case '(': case ')':
+                encodedSum += c;
+                break;
+            default: {
+                encodedSum += "%";
+                encodedSum += hex[(c & 0xf0) >> 4];
+                encodedSum += hex[c & 0xf];
+                break;
+            }
+            }
+        }
     }
 
     QByteArray query;
@@ -176,33 +144,33 @@ void TrackerClient::fetchPeerList()
     query += "&left="+ QByteArray::number(qMax<int>(0, length - downloadedBytes));
     query += "&compact=1";
     if (firstTrackerRequest) {
-	firstTrackerRequest = false;
-	query += "&event=started";
+        firstTrackerRequest = false;
+        query += "&event=started";
     } else if (lastTrackerRequest) {
-	query += "&event=stopped";
+        query += "&event=stopped";
     } else if (torrentDownloader->state() == TorrentClient::Seeding) {
-	query += "&event=completed";
+        query += "&event=completed";
    }
     if (!trackerId.isEmpty())
-	query += "&trackerid=" + trackerId;
-    
+        query += "&trackerid=" + trackerId;
+
     http.setHost(url.host(), url.port() == -1 ? 80 : url.port());
     if (!url.userName().isEmpty())
-	http.setUser(url.userName(), url.password());
- 
+        http.setUser(url.userName(), url.password());
+
     http.get(query);
 }
 
 void TrackerClient::httpRequestDone(bool error)
 {
     if (lastTrackerRequest) {
-	emit stopped();
-	return;
+        emit stopped();
+        return;
     }
 
     if (error) {
-	emit connectionError(http.error());
-	return;
+        emit connectionError(http.error());
+        return;
     }
 
     QByteArray response = http.readAll();
@@ -210,94 +178,85 @@ void TrackerClient::httpRequestDone(bool error)
 
     BencodeParser parser;
     if (!parser.parse(response)) {
-	qWarning("Error parsing bencode response from tracker: %s",
-		 qPrintable(parser.errorString()));
-	http.abort();
-	return;
+        qWarning("Error parsing bencode response from tracker: %s",
+                 qPrintable(parser.errorString()));
+        http.abort();
+        return;
     }
 
     QMap<QByteArray, QVariant> dict = parser.dictionary();
 
     if (dict.contains("failure reason")) {
-	// no other items are present
-	emit failure(QString::fromUtf8(dict.value("failure reason").toByteArray()));
-	return;
+        // no other items are present
+        emit failure(QString::fromUtf8(dict.value("failure reason").toByteArray()));
+        return;
     }
 
     if (dict.contains("warning message")) {
-	// continue processing
-	emit warning(QString::fromUtf8(dict.value("warning message").toByteArray()));
+        // continue processing
+        emit warning(QString::fromUtf8(dict.value("warning message").toByteArray()));
     }
 
     if (dict.contains("tracker id")) {
-	// store it
+        // store it
         trackerId = dict.value("tracker id").toByteArray();
     }
 
     if (dict.contains("complete")) {
-	// store it
+        // store it
         int tmp = dict.value("complete").toInt();
-	if (tmp != seeders) {
+        if (tmp != seeders) {
             seeders = tmp;
-	    emit seedCountUpdated(tmp);
+            emit seedCountUpdated(tmp);
         }
     }
 
     if (dict.contains("incomplete")) {
-	// store it
+        // store it
         int tmp = dict.value("incomplete").toInt();
-	if (tmp != leechers) {
+        if (tmp != leechers) {
             leechers = tmp;
-	    emit leechCountUpdated(tmp);
+            emit leechCountUpdated(tmp);
         }
     }
 
     if (dict.contains("interval")) {
-	// Mandatory item
-	if (requestIntervalTimer != -1)
-	    killTimer(requestIntervalTimer);
-	requestIntervalTimer = startTimer(dict.value("interval").toInt() * 1000);
+        // Mandatory item
+        if (requestIntervalTimer != -1)
+            killTimer(requestIntervalTimer);
+        requestIntervalTimer = startTimer(dict.value("interval").toInt() * 1000);
     }
 
     if (dict.contains("peers")) {
-	// store it
-	peers.clear();
-	QVariant peerEntry = dict.value("peers");
-	if (peerEntry.type() == QVariant::List) {
-	    QList<QVariant> peerTmp = peerEntry.toList();
-	    for (int i = 0; i < peerTmp.size(); ++i) {
-		TorrentPeer tmp;
-		QMap<QByteArray, QVariant> peer = qVariantValue<QMap<QByteArray, QVariant> >(peerTmp.at(i));
-		tmp.id = QString::fromUtf8(peer.value("peer id").toByteArray());
-		tmp.address.setAddress(QString::fromUtf8(peer.value("ip").toByteArray()));
-		tmp.port = peer.value("port").toInt();
-		peers << tmp;
-	    }
-	} else {
-	    QByteArray peerTmp = peerEntry.toByteArray();
-	    for (int i = 0; i < peerTmp.size(); i += 6) {
-		TorrentPeer tmp;
+        // store it
+        peers.clear();
+        QVariant peerEntry = dict.value("peers");
+        if (peerEntry.type() == QVariant::List) {
+            QList<QVariant> peerTmp = peerEntry.toList();
+            for (int i = 0; i < peerTmp.size(); ++i) {
+                TorrentPeer tmp;
+                QMap<QByteArray, QVariant> peer = qVariantValue<QMap<QByteArray, QVariant> >(peerTmp.at(i));
+                tmp.id = QString::fromUtf8(peer.value("peer id").toByteArray());
+                tmp.address.setAddress(QString::fromUtf8(peer.value("ip").toByteArray()));
+                tmp.port = peer.value("port").toInt();
+                peers << tmp;
+            }
+        } else {
+            QByteArray peerTmp = peerEntry.toByteArray();
+            for (int i = 0; i < peerTmp.size(); i += 6) {
+                TorrentPeer tmp;
                 uchar *data = (uchar *)peerTmp.constData() + i;
-		tmp.port = (int(data[4]) << 8) + data[5];
-		uint ipAddress = uint(data[0]) << 24;
-		ipAddress += uint(data[1]) << 16;
-		ipAddress += uint(data[2]) << 8;
-		ipAddress += uint(data[3]);
-		tmp.address.setAddress(ipAddress);
-		peers << tmp;
-	    }
-	}
-	emit peerListUpdated(peers);
+                tmp.port = (int(data[4]) << 8) + data[5];
+                uint ipAddress = 0;
+                ipAddress += uint(data[0]) << 24;
+                ipAddress += uint(data[1]) << 16;
+                ipAddress += uint(data[2]) << 8;
+                ipAddress += uint(data[3]);
+                tmp.address.setAddress(ipAddress);
+                peers << tmp;
+            }
+        }
+        emit peerListUpdated(peers);
     }
-}
-
-void TrackerClient::addUploaded(qint64 uploadedBytes)
-{
-    this->uploadedBytes += uploadedBytes;
-}
-
-void TrackerClient::addDownloaded(qint64 downloadedBytes)
-{
-    this->downloadedBytes += downloadedBytes;
 }
 

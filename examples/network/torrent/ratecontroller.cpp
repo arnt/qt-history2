@@ -28,13 +28,13 @@
 #include "peerwireclient.h"
 #include "ratecontroller.h"
 
-#include <QtCore>
+#include <QtCore/QtCore>
 
 Q_GLOBAL_STATIC(RateController, rateController);
 
 static const int MaxTimerDelay = 500;
 static const int DefaultTimerDelay = 250;
-static const int MinimumTimerDelay = 100;
+static const int MinimumTimerDelay = 50;
 
 RateController::RateController()
 {
@@ -49,29 +49,9 @@ RateController *RateController::instance()
     return rateController();
 }
 
-void RateController::setUploadLimit(int bytesPerSecond)
-{
-    uploadLimitBytes = bytesPerSecond;
-}
-
-int RateController::uploadLimit() const
-{
-    return uploadLimitBytes;
-}
-
-void RateController::setDownloadLimit(int bytesPerSecond)
-{
-    downloadLimitBytes = bytesPerSecond;
-}
-
-int RateController::downloadLimit() const
-{
-    return downloadLimitBytes;
-}
-
 void RateController::addClient(PeerWireClient *client)
 {
-    client->setReadBufferSize(downloadLimitBytes * 10);
+    client->setReadBufferSize(downloadLimitBytes * 2);
     clients << client;
 }
 
@@ -80,64 +60,77 @@ void RateController::removeClient(PeerWireClient *client)
     clients.removeAll(client);
 }
 
+void RateController::setNewTimerDelay(int msecs)
+{
+    if (msecs != timerDelay) {
+        timerDelay = msecs;
+        killTimer(transmitTimer);
+        transmitTimer = startTimer(timerDelay);
+    }
+}
+
 void RateController::timerEvent(QTimerEvent *event)
 {
-    if (event->timerId() == transmitTimer && clients.size() > 0) {
-	QList<PeerWireClient *> transmittingClients;
-	foreach (PeerWireClient *client, clients) {
-	    if (client->state() == QAbstractSocket::ConnectedState
-		&& (client->bufferedBytesToWrite() > 0 || client->bytesAvailable() > 0)) {
-		transmittingClients << client;
-	    }
-	}
-	if (transmittingClients.isEmpty()) {
-	    int newTimerDelay = qMin(timerDelay + 10, MaxTimerDelay);
-	    if (newTimerDelay != timerDelay) {
-		timerDelay = newTimerDelay;
-		killTimer(transmitTimer);
-		transmitTimer = startTimer(timerDelay);
-	    }
-	    return;
-	}
-	int newTimerDelay = qMax(timerDelay - 10, MinimumTimerDelay);
-	if (newTimerDelay != timerDelay) {
-	    timerDelay = newTimerDelay;
-	    killTimer(transmitTimer);
-	    transmitTimer = startTimer(timerDelay);
-	}
-
-	int bytesLeftToWrite = uploadLimitBytes / (1000 / timerDelay);
-	int writeChunk = bytesLeftToWrite / transmittingClients.size();
-	int bytesLeftToRead = downloadLimitBytes / (1000 / timerDelay);
-	int readChunk = bytesLeftToRead / transmittingClients.size();
-
-	do {
-	    foreach (PeerWireClient *client, transmittingClients) {
-		if (client->state() != QAbstractSocket::ConnectedState) {
-		    transmittingClients.removeAll(client);
-		    continue;
-		}
-
-		int bytesToWrite = qMin(qMin(bytesLeftToWrite, writeChunk), client->bufferedBytesToWrite());
-		if (bytesToWrite > 0) {
-		    int written = client->acceptBytesToWrite(bytesToWrite);
-		    if (written > 0) {
-			bytesLeftToWrite -= written;
-		    } else {
-			transmittingClients.removeAll(client);
-			continue;
-		    }
-		}
-
-		int bytesToRead = qMin<int>(qMin(bytesLeftToRead, readChunk), client->bytesAvailable());
-		if (bytesToRead > 0) {
-		    bytesLeftToRead -= client->acceptBytesToRead(bytesToRead);
-		}
-
-		if (bytesToWrite == 0 && bytesToRead == 0)
-		    transmittingClients.removeAll(client);
-	    }
-	} while (!transmittingClients.isEmpty() && (bytesLeftToWrite > 0 || bytesLeftToRead > 0));
+    if (event->timerId() != transmitTimer) {
+        QObject::timerEvent(event);
+        return;
     }
+
+    // Find all clients that are waiting to transmit data.
+    QList<PeerWireClient *> transmittingClients;
+    foreach (PeerWireClient *client, clients) {
+        if (client->state() == QAbstractSocket::ConnectedState
+            && (client->bufferedBytesToWrite() > 0 || client->bytesAvailable() > 0)) {
+            transmittingClients << client;
+        }
+    }
+
+    // If none exist, slow down the timer and return.
+    if (transmittingClients.isEmpty()) {
+        setNewTimerDelay(qMin(timerDelay + 10, MaxTimerDelay));
+        return;
+    }
+
+    // Speed up the timer, and process pending transmissions.
+    setNewTimerDelay(qMax(timerDelay - 20, MinimumTimerDelay));
+
+    // Find how many bytes we can distribute in this go, and what the
+    // average chunk size per connection is.
+    int bytesLeftToWrite = uploadLimitBytes / (1000 / timerDelay);
+    int bytesLeftToRead = downloadLimitBytes / (1000 / timerDelay);
+    int writeChunk = bytesLeftToWrite / transmittingClients.size();
+    int readChunk = bytesLeftToRead / transmittingClients.size();
+
+    // Loop as long as we have bytes to distribute and clients that
+    // can transmit more data.
+    do {
+        foreach (PeerWireClient *client, transmittingClients) {
+            // Clients that are not connected are removed from the list.
+            if (client->state() != QAbstractSocket::ConnectedState) {
+                transmittingClients.removeAll(client);
+                continue;
+            }
+
+            // Distribute bytes to write
+            int bytesToWrite = qMin(qMin(bytesLeftToWrite, writeChunk), client->bufferedBytesToWrite());
+            if (bytesToWrite > 0) {
+                int written = client->acceptBytesToWrite(bytesToWrite);
+                if (written > 0) {
+                    bytesLeftToWrite -= written;
+                } else {
+                    transmittingClients.removeAll(client);
+                    continue;
+                }
+            }
+
+            // Distribute bytes to read
+            int bytesToRead = qMin<int>(qMin(bytesLeftToRead, readChunk), client->bytesAvailable());
+            if (bytesToRead > 0)
+                bytesLeftToRead -= client->acceptBytesToRead(bytesToRead);
+
+            if (bytesToWrite == 0 && bytesToRead == 0)
+                transmittingClients.removeAll(client);
+        }
+    } while (!transmittingClients.isEmpty() && (bytesLeftToWrite > 0 || bytesLeftToRead > 0));
 }
 

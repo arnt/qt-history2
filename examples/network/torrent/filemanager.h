@@ -32,11 +32,11 @@ class QByteArray;
 class QFile;
 class QTimerEvent;
 
-#include <QList>
-#include <QMutex>
-#include <QSet>
-#include <QThread>
-#include <QWaitCondition>
+#include <QtCore/QList>
+#include <QtCore/QMutex>
+#include <QtCore/QSet>
+#include <QtCore/QThread>
+#include <QtCore/QWaitCondition>
 
 #include "metainfo.h"
 
@@ -47,17 +47,19 @@ public:
     FileManager(QObject *parent = 0);
     virtual ~FileManager();
 
-    void setMetaInfo(const MetaInfo &info);
-    void setDestinationFolder(const QString &directory);
+    inline void setMetaInfo(const MetaInfo &info) { metaInfo = info; }
+    inline void setDestinationFolder(const QString &directory) { destinationPath = directory; }
     
     int read(int pieceIndex, int offset, int length);
     void write(int pieceIndex, int offset, const QByteArray &data);
     void verifyPiece(int pieceIndex);
-    qint64 totalSize() const;
+    inline qint64 totalSize() const { return totalLength; }
 
-    int pieceCount() const;
+    inline int pieceCount() const { return numPieces; }
     int pieceLengthAt(int pieceIndex) const;
+
     QSet<int> completedPieces() const;
+    void setCompletedPieces(const QSet<int> &pieces);
 
     QString errorString() const;
 
@@ -79,7 +81,7 @@ private slots:
     void wakeUp();
 
 private:
-    void parseMetaInfo();
+    bool generateFiles();
     QByteArray readBlock(int pieceIndex, int offset, int length);
     bool writeBlock(int pieceIndex, int offset, const QByteArray &data);
     void verifyFileContents();

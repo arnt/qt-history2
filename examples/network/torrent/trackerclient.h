@@ -28,11 +28,11 @@
 #ifndef TRACKERCLIENT_H
 #define TRACKERCLIENT_H
 
-#include <QByteArray>
-#include <QHostAddress>
-#include <QHttp>
-#include <QList>
-#include <QObject>
+#include <QtCore/QByteArray>
+#include <QtCore/QList>
+#include <QtCore/QObject>
+#include <QtNetwork/QHostAddress>
+#include <QtNetwork/QHttp>
 
 #include "metainfo.h"
 #include "torrentclient.h"
@@ -48,13 +48,12 @@ public:
     void start(const MetaInfo &info);
     void stop();
 
-    QList<TorrentPeer> peerList() const;
-    int leechCount() const;
-    int seedCount() const;
-    qint64 uploadCount() const;
-    qint64 downloadCount() const;
-    void setUploadCount(qint64 bytes);
-    void setDownloadCount(qint64 bytes);
+    inline int leechCount() const { return leechers; }
+    inline int seedCount() const { return seeders; }
+    inline qint64 uploadCount() const { return uploadedBytes; }
+    inline qint64 downloadCount() const { return downloadedBytes; }
+    inline void setUploadCount(qint64 bytes) { uploadedBytes = bytes; }
+    inline void setDownloadCount(qint64 bytes) { downloadedBytes = bytes; }
 
 signals:
     void connectionError(QHttp::Error error);
@@ -76,8 +75,6 @@ protected:
 private slots:
     void fetchPeerList();
     void httpRequestDone(bool error);
-    void addUploaded(qint64 uploadedBytes);
-    void addDownloaded(qint64 downloadedBytes);
 
 private:
     TorrentClient *torrentDownloader;
