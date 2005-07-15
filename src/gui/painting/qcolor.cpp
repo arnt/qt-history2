@@ -33,9 +33,9 @@
     \mainclass
 
     A color is normally specified in terms of RGB (red, green, and blue)
-    components, but it is also possible to specify HSV (hue, saturation,
-    and value) or set a color name (the names are copied from from the
-    X11 color database).
+    components, but it is also possible to specify HSV (hue, saturation, and
+    value) or set a color name (the color name can be any of the SVG 1.0 color
+    names).
 
     QColor's validity (isValid()) indicates whether it is legal at
     all. For example, a RGB color with RGB values out of range is
@@ -59,12 +59,11 @@
     QColor is platform and device independent. The QColormap class maps the
     color to the hardware.
 
-    A color can be set by passing an RGB string to setNamedColor() (such
-    as "#112233"), or a color name (such as "blue"). The names are taken
-    from X11's rgb.txt database but can also be used on all platforms. To get
-    a lighter or darker color use light() and dark() respectively.
-    Colors can also be set using setRgb() and setHsv(). The color
-    components can be accessed in one go with rgb() and hsv(), or
+    A color can be set by passing an RGB string to setNamedColor() (such as
+    "#112233"), or a color name (such as "blue"). The names are taken from the
+    SVG 1.0 color names. To get a lighter or darker color use light() and
+    dark() respectively.  Colors can also be set using setRgb() and setHsv().
+    The color components can be accessed in one go with rgb() and hsv(), or
     individually with red(), green(), and blue().
 
     \section1 HSV Colors
