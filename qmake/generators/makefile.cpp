@@ -2065,7 +2065,7 @@ QString MakefileGenerator::buildArgs()
     if(!Option::mkfile::do_dep_heuristics)
         ret += " -nodependheuristics";
     if(!Option::mkfile::qmakespec_commandline.isEmpty())
-        ret += " -spec " + Option::mkfile::qmakespec_commandline;
+        ret += " -spec " + specdir();
     if(Option::target_mode == Option::TARG_MAC9_MODE)
         ret += " -mac9";
     else if(Option::target_mode == Option::TARG_MACX_MODE)
@@ -2992,7 +2992,7 @@ MakefileGenerator::specdir()
 {
     if(!spec.isEmpty())
         return spec;
-    spec = Option::fixPathToTargetOS(Option::mkfile::qmakespec);
+    spec = fileFixify(Option::mkfile::qmakespec);
     return spec;
 }
 
