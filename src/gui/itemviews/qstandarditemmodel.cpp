@@ -38,6 +38,13 @@
 
     \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel
 
+    An example two dimentional QStandardItemModel creation and population:
+    \quotefromfile itemviews/spinboxdelegate/main.cpp
+    \skipto  model = new QStandardItemModel
+    \printline model
+    \skipto for (int row
+    \printuntil }
+    \printline }
 */
 
 /*!
