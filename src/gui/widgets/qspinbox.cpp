@@ -20,6 +20,8 @@
 #include <qlocale.h>
 #include <qvalidator.h>
 #include <qdebug.h>
+#include <math.h>
+
 //#define QSPINBOX_QSBDEBUG
 #ifdef QSPINBOX_QSBDEBUG
 #  define QSBDEBUG qDebug
@@ -56,6 +58,7 @@ public:
     virtual QString textFromValue(const QVariant &n) const;
     QVariant validateAndInterpret(QString &input, int &pos,
                                   QValidator::State &state) const;
+    double round(double input) const;
     // variables
     int decimals;
     QChar delimiter, thousand;
@@ -414,7 +417,7 @@ void QSpinBox::setRange(int min, int max)
     QLocale().toString(v). Reimplementations may return anything. (See
     the example in the detailed description.)
 
-    Note that Qt does not call this function for specialValueText()
+    Note: QSpinBox does not call this function for specialValueText()
     and that neither prefix() nor suffix() should be included in the
     return value.
 
@@ -439,18 +442,16 @@ QString QSpinBox::textFromValue(int v) const
     \fn int QSpinBox::valueFromText(const QString &text) const
 
     This virtual function is used by the spin box whenever it needs to
-    interpret text entered by the user as a value. Note that neither
-    prefix() nor suffix() are included when this function is called by
-    Qt.
+    interpret text entered by the user as a value.
 
     Subclasses that need to display spin box values in a non-numeric
     way need to reimplement this function.
 
-    Note that Qt handles specialValueText() separately; this function
-    is only concerned with the other values.
+    Note: QSpinBox handles specialValueText() separately; this
+    function is only concerned with the other values.
 
-    The default implementation tries to interpret \a text as an integer
-    using QString::toInt() and returns the value.
+    Note: Neither prefix() nor suffix() are included when this
+    function is called by QSpinBox.
 
     \sa textFromValue(), validate()
 */
@@ -513,6 +514,10 @@ void QSpinBox::fixup(QString &input) const
     Every time the value changes QDoubleSpinBox emits the
     valueChanged() signal. The current value can be fetched with
     value() and set with setValue().
+
+    Note: QDoubleSpinBox will round numbers so they can be displayed
+    with the current precision. In a QDoubleSpinBox with decimals set
+    to 2, calling setValue(2.555) will cause value() to return 2.56.
 
     Clicking the up and down buttons or using the keyboard accelerator's
     Up and Down arrows will increase or decrease the current value in
@@ -577,6 +582,11 @@ QDoubleSpinBox::QDoubleSpinBox(QWidget *parent)
 
     setValue() will emit valueChanged() if the new value is different
     from the old one.
+
+    Note: The value will be rounded so it can be displayed with the
+    current setting of decimals.
+
+    \sa decimals
 */
 double QDoubleSpinBox::value() const
 {
@@ -588,7 +598,7 @@ double QDoubleSpinBox::value() const
 void QDoubleSpinBox::setValue(double val)
 {
     Q_D(QDoubleSpinBox);
-    QVariant v(val);
+    QVariant v(d->round(val));
     d->setValue(v, EmitIfChanged);
 }
 /*!
@@ -718,7 +728,10 @@ void QDoubleSpinBox::setSingleStep(double val)
 
     The default minimum value is 0.0.
 
-    \sa setRange() specialValueText
+    Note: The minimum value will be rounded to match the decimals
+    property.
+
+    \sa decimals, setRange() specialValueText
 */
 
 double QDoubleSpinBox::minimum() const
@@ -731,7 +744,7 @@ double QDoubleSpinBox::minimum() const
 void QDoubleSpinBox::setMinimum(double min)
 {
     Q_D(QDoubleSpinBox);
-    const QVariant m(min);
+    const QVariant m(d->round(min));
     d->setRange(m, qMax(d->maximum, m));
 }
 
@@ -745,7 +758,10 @@ void QDoubleSpinBox::setMinimum(double min)
 
     The default maximum value is 99.99.
 
-    \sa setRange()
+    Note: The maximum value will be rounded to match the decimals
+    property.
+
+    \sa decimals, setRange()
 */
 
 double QDoubleSpinBox::maximum() const
@@ -758,13 +774,16 @@ double QDoubleSpinBox::maximum() const
 void QDoubleSpinBox::setMaximum(double max)
 {
     Q_D(QDoubleSpinBox);
-    const QVariant m(max);
+    const QVariant m(d->round(max));
     d->setRange(qMin(d->minimum, m), m);
 }
 
 /*!
     Convenience function to set the minimum, \a min, and maximum, \a
     max, values with a single function call.
+
+    Note: The maximum and minimum values will be rounded to match the
+    decimals property.
 
     \code
     setRange(min, max);
@@ -781,7 +800,7 @@ void QDoubleSpinBox::setMaximum(double max)
 void QDoubleSpinBox::setRange(double min, double max)
 {
     Q_D(QDoubleSpinBox);
-    d->setRange(QVariant(min), QVariant(max));
+    d->setRange(QVariant(d->round(min)), QVariant(d->round(max)));
 }
 
 /*!
@@ -789,10 +808,12 @@ void QDoubleSpinBox::setRange(double min, double max)
 
      \brief the precision of the spin box, in decimals
 
-     Sets how many decimals you want to display when displaying double
-     values. Valid ranges for decimals is 0-14. The default is 2.
+     Sets how many decimals the spinbox will use for displaying and
+     interpreting doubles. The valid decimal range is 0-14. The
+     default is 2.
 
-
+     Note: The maximum, minimum and value might change as a result of
+     changing this property.
 */
 
 int QDoubleSpinBox::decimals() const
@@ -805,12 +826,12 @@ int QDoubleSpinBox::decimals() const
 void QDoubleSpinBox::setDecimals(int decimals)
 {
     Q_D(QDoubleSpinBox);
+    Q_ASSERT_X(decimals >= 0 && decimals < 15, "QDoubleSpinBox::setDecimals(int)",
+               "Invalid decimals. Must be between 0 and 14");
+    d->decimals = decimals;
 
-    d->decimals = qMin<int>(qMax<int>(0, decimals), 14);
-    if (d->decimals != decimals)
-        qWarning("QDoubleSpinBox::setDecimals() %d is not a valid precision. 0-14 is allowed",
-                 decimals);
-    // more than fifteen seems to cause problems in QLocale::doubleToString
+    setRange(minimum(), maximum()); // make sure values are rounded
+    setValue(value());
     d->update();
 }
 
@@ -819,12 +840,13 @@ void QDoubleSpinBox::setDecimals(int decimals)
 
     This virtual function is used by the spin box whenever it needs to
     display value \a v. The default implementation returns a string
-    containing \a v printed using QLocale().toString(v, QLatin1Char('f'),
-    decimals()). Reimplementations may return anything.
+    containing \a v printed using QLocale().toString(v,
+    QLatin1Char('f'), decimals()) and will remove the thousand
+    seperator. Reimplementations may return anything.
 
-    Note that Qt does not call this function for specialValueText()
-    and that neither prefix() nor suffix() should be included in the
-    return value.
+    Note: QDoubleSpinBox does not call this function for
+    specialValueText() and that neither prefix() nor suffix() should
+    be included in the return value.
 
     If you reimplement this, you may also need to reimplement
     valueFromText().
@@ -836,27 +858,25 @@ void QDoubleSpinBox::setDecimals(int decimals)
 QString QDoubleSpinBox::textFromValue(double v) const
 {
     Q_D(const QDoubleSpinBox);
-
     QString str = QLocale().toString(v, 'f', d->decimals);
     if (qAbs(v) >= 1000.0) {
         str.remove(d->thousand);
     }
-
-
     return str;
 }
 
 /*!
     This virtual function is used by the spin box whenever it needs to
-    interpret \a text entered by the user as a value. Note that neither
-    prefix() nor suffix() are included when this function is called by
-    Qt.
+    interpret \a text entered by the user as a value.
+
+    Note: Neither prefix() nor suffix() are included when this
+    function is called by QDoubleSpinBox.
 
     Subclasses that need to display spin box values in a non-numeric
     way need to reimplement this function.
 
-    Note that Qt handles specialValueText() separately; this function
-    is only concerned with the other values.
+    Note: QDoubleSpinBox handles specialValueText() separately; this
+    function is only concerned with the other values.
 
     \sa textFromValue(), validate()
 */
@@ -1214,6 +1234,40 @@ QVariant QDoubleSpinBoxPrivate::valueFromText(const QString &f) const
     Q_Q(const QDoubleSpinBox);
     return QVariant(q->valueFromText(f));
 }
+
+/*!
+    \internal
+    Rounds to a double value that is restricted to decimals.
+    E.g. // decimals = 2
+
+    round(5.555) => 5.56
+*/
+
+double QDoubleSpinBoxPrivate::round(double value) const
+{
+    long double tmp = value;
+    int i;
+    double add = 0.5;
+    for (i=0; i<decimals; ++i) {
+        add /= 10;
+    }
+    if (value < 0) {
+        tmp -= add;
+    } else {
+        tmp += add;
+    }
+    for (i=0; i<decimals; ++i) {
+        tmp *= 10;
+    }
+
+    tmp = truncl(tmp);
+
+    for (i=0; i<decimals; ++i) {
+        tmp /= 10;
+    }
+    return (double)tmp;
+}
+
 
 /*!
     \internal Multi purpose function that parses input, sets state to

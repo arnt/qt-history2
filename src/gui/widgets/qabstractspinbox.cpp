@@ -670,13 +670,13 @@ QSize QAbstractSpinBox::sizeHint() const
     QString s;
     s = d->prefix + d->textFromValue(d->minimum) + d->suffix + QLatin1Char(' ');
     s.truncate(18);
-    w = qMax<int>(w, fm.width(s));
+    w = qMax(w, fm.width(s));
     s = d->prefix + d->textFromValue(d->maximum) + d->suffix + QLatin1Char(' ');
     s.truncate(18);
-    w = qMax<int>(w, fm.width(s));
+    w = qMax(w, fm.width(s));
     if (d->specialValueText.size()) {
         s = d->specialValueText;
-        w = qMax<int>(w, fm.width(s));
+        w = qMax(w, fm.width(s));
     }
     w += 2; // cursor blinking space
 
@@ -1495,7 +1495,8 @@ void QAbstractSpinBoxPrivate::updateEdit() const
     e->setText(newText);
 
     if (!specialValue()) {
-        cursor = qMin<int>(qMax<int>(cursor, prefix.size()), edit->displayText().size() - suffix.size());
+        cursor = qBound(prefix.size(), cursor, edit->displayText().size() - suffix.size());
+
         if (selsize > 0) {
             e->setSelection(cursor, selsize);
         } else {
@@ -1811,7 +1812,7 @@ QVariant operator-(const QVariant &arg1, const QVariant &arg2)
         QDateTime a2 = arg2.toDateTime();
         int days = a2.daysTo(a1);
         int secs = a2.secsTo(a1);
-        int msecs = qMax<int>(0, a1.time().msec() - a2.time().msec());
+        int msecs = qMax(0, a1.time().msec() - a2.time().msec());
         if (days < 0 || secs < 0 || msecs < 0) {
             ret = arg1;
         } else {
