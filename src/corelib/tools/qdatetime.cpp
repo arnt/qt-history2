@@ -2443,7 +2443,7 @@ int QDateTime::daysTo(const QDateTime &other) const
     Example:
     \code
         QDateTime now = QDateTime::currentDateTime();
-        QDateTime xmas(QDate(dt.date().year(), 12, 25), QTime(0, 0));
+        QDateTime xmas(QDate(now.date().year(), 12, 25), QTime(0, 0));
         qDebug("There are %d seconds to Christmas", dt.secsTo(xmas));
     \endcode
 
@@ -3565,7 +3565,7 @@ bool QDateTimeParser::fromString(const QString &string, QDate *dateIn, QTime *ti
         case QDateTimeParser::Month3: num = &month; max = 12; break;
         case QDateTimeParser::Month4: num = &month; max = 12; break;
 #endif
-            
+
         case QDateTimeParser::Day1: num = &day; max = 2; break;
         case QDateTimeParser::Month1: num = &month; max = 2; break;
         case QDateTimeParser::Hour1: num = &hour; max = 2; break;
