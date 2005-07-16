@@ -2608,18 +2608,22 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
     QReadLocker locker(&list->lock);
     QConnectionList::Hash::const_iterator it = list->sendersHash.find(sender);
     const QConnectionList::Hash::const_iterator end = list->sendersHash.constEnd();
-    if (it == end)
-        return;
-
-    list->invariant.ref();
 
     void *empty_argv[] = { 0 };
-    QThread * const currentThread = QThread::currentThread();
-    const int currentQThreadId = currentThread ? QThreadData::get(currentThread)->id : -1;
-
     if (qt_signal_spy_callback_set.signal_begin_callback != 0)
         qt_signal_spy_callback_set.signal_begin_callback(sender, from_signal_index,
                                                          argv ? argv : empty_argv);
+
+    if (it == end) {
+        if (qt_signal_spy_callback_set.signal_end_callback != 0)
+            qt_signal_spy_callback_set.signal_end_callback(sender, from_signal_index);
+        return;
+    }
+
+    list->invariant.ref();
+
+    QThread * const currentThread = QThread::currentThread();
+    const int currentQThreadId = currentThread ? QThreadData::get(currentThread)->id : -1;
 
     QVarLengthArray<int> connections;
     for (; it != end && it.key() == sender; ++it)
