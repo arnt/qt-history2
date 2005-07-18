@@ -1637,10 +1637,7 @@ QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathSysconf();
 #  ifdef QT_BUILD_QMAKE
 #    define QT_EDITION QT_EDITION_DESKTOP
 #  else
-// ### remove me
-#    define QT_EDITION QT_EDITION_DESKTOP
-// ### uncomment me
-// #    error "Qt not configured correctly, please run configure"
+#    error "Qt not configured correctly, please run configure"
 #  endif
 #endif
 
