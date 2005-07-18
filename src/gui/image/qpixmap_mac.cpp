@@ -41,6 +41,24 @@ extern QRegion qt_mac_convert_mac_region(RgnHandle rgn); //qregion_mac.cpp
 
 static int qt_pixmap_serial = 0;
 
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+# ifndef kCGBitmapByteOrderMask
+// Copy ByteOrder information from CGImage.h
+# define kCGBitmapByteOrderMask 0x7000
+# define kCGBitmapByteOrder16Big (0 << 12)
+# define kCGBitmapByteOrder32Big kCGBitmapByteOrder16Big
+# define kCGBitmapByteOrder16Little (1 << 12)
+# define kCGBitmapByteOrder32Little (2 << 12)
+#  ifdef __BIG_ENDIAN__ // Apple define
+#   define kCGBitmapByteOrder16Host kCGBitmapByteOrder16Big
+#   define kCGBitmapByteOrder32Host kCGBitmapByteOrder32Big
+#  else    /* Little endian. */
+#   define kCGBitmapByteOrder16Host kCGBitmapByteOrder16Little
+#   define kCGBitmapByteOrder32Host kCGBitmapByteOrder32Little
+#  endif // __BIG_ENDIAN__
+# endif // kCGBitmapByteOrderMask
+#endif // MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4
+
 static void qt_mac_cgimage_data_free(void *memory, const void *, size_t)
 {
     free(memory);
