@@ -783,20 +783,21 @@ bool QDesignerResource::checkProperty(QDesignerStackedWidget *widget, const QStr
 
 bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
 {
-    if (prop == QLatin1String("objectName")) // ### don't store the property objectName
+    if (prop == QLatin1String("objectName")) { // ### don't store the property objectName
         return false;
-    else if (prop == QLatin1String("geometry") && obj->isWidgetType()) {
+    } else if (prop == QLatin1String("geometry") && obj->isWidgetType()) {
         QWidget *check_widget = qobject_cast<QWidget*>(obj);
          if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(obj->parent()))
             check_widget = promoted;
 
         return !LayoutInfo::isWidgetLaidout(core(), check_widget);
-    } else if (!checkProperty(qobject_cast<QDesignerTabWidget*>(obj), prop))
+    } else if (!checkProperty(qobject_cast<QDesignerTabWidget*>(obj), prop)) {
         return false;
-    else if (!checkProperty(qobject_cast<QDesignerToolBox*>(obj), prop))
+    } else if (!checkProperty(qobject_cast<QDesignerToolBox*>(obj), prop)) {
         return false;
-    else if (!checkProperty(qobject_cast<QLayoutWidget*>(obj), prop))
+    } else if (!checkProperty(qobject_cast<QLayoutWidget*>(obj), prop)) {
         return false;
+    }
 
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), obj))
         return sheet->isChanged(sheet->indexOf(prop));
@@ -1032,6 +1033,10 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
 
 DomProperty *QDesignerResource::createProperty(QObject *object, const QString &propertyName, const QVariant &value)
 {
+    if (!checkProperty(object, propertyName)) {
+        return 0;
+    }
+
     if (qVariantCanConvert<EnumType>(value)) {
         EnumType e = qvariant_cast<EnumType>(value);
         int v = e.value.toInt();

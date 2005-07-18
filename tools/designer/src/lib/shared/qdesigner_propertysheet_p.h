@@ -71,6 +71,8 @@ protected:
     QVariant metaProperty(int index) const;
     void setFakeProperty(int index, const QVariant &value);
 
+    bool isFakeLayoutProperty(int index) const;
+
 protected:
     QObject *m_object;
     const QMetaObject *meta;
