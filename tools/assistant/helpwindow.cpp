@@ -54,6 +54,8 @@ void HelpWindow::setSource(const QUrl &name)
     if (!name.isValid())
         return;
 
+    shiftPressed = shiftPressed & hasFocus();
+
     if (newWindow || shiftPressed) {
         shiftPressed = false;
         QTextCursor c = textCursor();
