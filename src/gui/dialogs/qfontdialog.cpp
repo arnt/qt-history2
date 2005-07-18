@@ -322,7 +322,6 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     buttonBox->addStretch(1);
     QString okt = modal ? tr("OK") : tr("Apply");
     d->ok = new QPushButton(okt, this);
-    buttonBox->addWidget(d->ok);
     if (modal)
         connect(d->ok, SIGNAL(clicked()), SLOT(accept()));
     d->ok->setDefault(true);
@@ -331,7 +330,6 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
 
     QString cancelt = modal ? tr("Cancel") : tr("Close");
     d->cancel = new QPushButton(cancelt, this);
-    buttonBox->addWidget(d->cancel);
     connect(d->cancel, SIGNAL(clicked()), SLOT(reject()));
 
     resize(500, 360);
@@ -342,6 +340,13 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     d->sizeList->installEventFilter(this);
 
     d->familyList->setFocus();
+#ifdef Q_WS_MAC
+    buttonBox->addWidget(d->cancel);
+    buttonBox->addWidget(d->ok);
+#else
+    buttonBox->addWidget(d->ok);
+    buttonBox->addWidget(d->cancel);
+#endif
 }
 
 /*!

@@ -92,8 +92,13 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
     cancel->setFixedSize(bs);
 
     hbox->addStretch();
+#ifdef Q_WS_MAC
+    hbox->addWidget(cancel);
+    hbox->addWidget(ok);
+#else
     hbox->addWidget(ok);
     hbox->addWidget(cancel);
+#endif
 
     QObject::connect(ok, SIGNAL(clicked()), q, SLOT(accept()));
     QObject::connect(cancel, SIGNAL(clicked()), q, SLOT(reject()));
