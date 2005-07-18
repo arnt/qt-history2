@@ -37,7 +37,6 @@ class QX11PaintEnginePrivate;
 class QFontEngineFT;
 
 typedef unsigned long Picture;
-#include "qx11info_x11.h"
 
 struct qt_float_point
 {
