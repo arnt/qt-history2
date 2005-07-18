@@ -54,7 +54,7 @@ contains( styles, cde ) {
 contains( styles, windowsxp ) {
 	HEADERS += styles/qwindowsxpstyle.h
 	SOURCES += styles/qwindowsxpstyle.cpp
-	!contains( styles, windowsxp ) {
+	!contains( styles, windows ) {
 		message( windowsxp requires windows )
 		styles += windows
 		DEFINES+= QT_STYLE_WINDOWS
