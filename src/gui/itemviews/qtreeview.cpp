@@ -1478,7 +1478,7 @@ void QTreeViewPrivate::layout(int i)
     QModelIndex root = q->rootIndex();
     while (parent != root) {
         Q_ASSERT(i > -1);
-        viewItems[i].total += count;
+        viewItems[i].total += count - hidden;
         parent = parent.parent();
         i = viewIndex(parent);
     }
