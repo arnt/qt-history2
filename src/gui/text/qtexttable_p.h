@@ -41,6 +41,8 @@ public:
 
     void update() const;
 
+    int findCellIndex(int fragment) const;
+
     QList<int> cells;
     mutable int *grid;
     mutable int nRows;

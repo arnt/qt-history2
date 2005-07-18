@@ -181,8 +181,13 @@ int QTextTableCell::firstPosition() const
 int QTextTableCell::lastPosition() const
 {
     QTextDocumentPrivate *p = table->docHandle();
-    int index = table->d_func()->cells.indexOf(fragment) + 1;
-    int f = (index == table->d_func()->cells.size() ? table->d_func()->fragment_end : table->d_func()->cells.at(index));
+    const QTextTablePrivate *td = table->d_func();
+    int index = table->d_func()->findCellIndex(fragment);
+    int f;
+    if (index != -1)
+        f = td->cells.value(index + 1, td->fragment_end);
+    else
+        f = td->fragment_end;
     return p->fragmentMap().position(f);
 }
 
@@ -272,19 +277,43 @@ QTextTable *QTextTablePrivate::createTable(QTextDocumentPrivate *pieceTable, int
     return table;
 }
 
+struct FragmentFindHelper
+{
+    inline FragmentFindHelper(int _pos, const QTextDocumentPrivate::FragmentMap &map)
+        : pos(_pos), fragmentMap(map) {}
+    uint pos;
+    const QTextDocumentPrivate::FragmentMap &fragmentMap;
+};
+
+static bool operator<(int fragment, const FragmentFindHelper &helper)
+{
+    return helper.fragmentMap.position(fragment) < helper.pos;
+}
+
+static bool operator<(const FragmentFindHelper &helper, int fragment)
+{
+    return helper.pos < helper.fragmentMap.position(fragment);
+}
+
+int QTextTablePrivate::findCellIndex(int fragment) const
+{
+    FragmentFindHelper helper(pieceTable->fragmentMap().position(fragment),
+                              pieceTable->fragmentMap());
+    QList<int>::ConstIterator it = qBinaryFind(cells.begin(), cells.end(), helper);
+    if (it == cells.end())
+        return -1;
+    return it - cells.begin();
+}
 
 void QTextTablePrivate::fragmentAdded(const QChar &type, uint fragment)
 {
     dirty = true;
     if (type == QTextBeginningOfFrame) {
         Q_ASSERT(cells.indexOf(fragment) == -1);
-        uint pos = pieceTable->fragmentMap().position(fragment);
-        int i = 0;
-        for (; i < cells.size(); ++i) {
-            if (pieceTable->fragmentMap().position(cells.at(i)) > pos)
-                break;
-        }
-        cells.insert(i, fragment);
+        const uint pos = pieceTable->fragmentMap().position(fragment);
+        FragmentFindHelper helper(pos, pieceTable->fragmentMap());
+        QList<int>::Iterator it = qLowerBound(cells.begin(), cells.end(), helper);
+        cells.insert(it, fragment);
         if (!fragment_start || pos < pieceTable->fragmentMap().position(fragment_start))
             fragment_start = fragment;
         return;
@@ -449,14 +478,12 @@ QTextTableCell QTextTable::cellAt(int position) const
     if (position < 0 || m.position(d->fragment_start) >= pos || m.position(d->fragment_end) < pos)
         return QTextTableCell();
 
-    int fragment = d->cells.at(0);
-    for (int i = 1; i < d->cells.size(); ++i) {
-        int f = d->cells.at(i);
-        if (m.position(f) >= pos)
-            break;
-        fragment = f;
-    }
-    return QTextTableCell(this, fragment);
+    FragmentFindHelper helper(position, m);
+    QList<int>::ConstIterator it = qLowerBound(d->cells.begin(), d->cells.end(), helper);
+    if (it != d->cells.begin())
+        --it;
+
+    return QTextTableCell(this, *it);
 }
 
 /*!

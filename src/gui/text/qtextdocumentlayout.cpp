@@ -636,6 +636,20 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
         const int columns = table->columns();
         QTextTableData *td = static_cast<QTextTableData *>(data(table));
 
+        QVarLengthArray<int> selectedTableCells(context.selections.size() * 4);
+        for (int i = 0; i < context.selections.size(); ++i) {
+            const QAbstractTextDocumentLayout::Selection &s = context.selections.at(i);
+            int row_start = -1, col_start = -1, num_rows = -1, num_cols = -1;
+
+            if (s.cursor.currentTable() == table)
+                s.cursor.selectedTableCells(&row_start, &num_rows, &col_start, &num_cols);
+
+            selectedTableCells[i * 4] = row_start;
+            selectedTableCells[i * 4 + 1] = col_start;
+            selectedTableCells[i * 4 + 2] = num_rows;
+            selectedTableCells[i * 4 + 3] = num_cols;
+        }
+
         if (td->rowPageBreaks.isEmpty()) {
             drawFrameDecoration(painter, frame, fd, context.clip, frameRect);
         } else {
@@ -664,14 +678,31 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
             }
         }
 
-        for (int r = 0; r < rows; ++r) {
+        int firstRow = 0;
+        int lastRow = rows;
+
+        {
+            QVector<qreal>::ConstIterator rowIt = qLowerBound(td->rowPositions.begin(), td->rowPositions.end(), context.clip.top() - off.y());
+            if (rowIt != td->rowPositions.end() && rowIt != td->rowPositions.begin()) {
+                --rowIt;
+                firstRow = rowIt - td->rowPositions.begin();
+            }
+
+            rowIt = qUpperBound(td->rowPositions.begin(), td->rowPositions.end(), context.clip.bottom() - off.y());
+            if (rowIt != td->rowPositions.end()) {
+                ++rowIt;
+                lastRow = rowIt - td->rowPositions.begin();
+            }
+        }
+
+        for (int r = firstRow; r < lastRow; ++r) {
             for (int c = 0; c < columns; ++c) {
                 QTextTableCell cell = table->cellAt(r, c);
                 int rspan = cell.rowSpan();
                 int cspan = cell.columnSpan();
                 if (rspan != 1) {
                     int cr = cell.row();
-                    if (cr != r)
+                    if (cr != r && cr > firstRow)
                         continue;
                 }
                 if (cspan != 1) {
@@ -721,11 +752,11 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
 
                 QAbstractTextDocumentLayout::PaintContext cell_context = context;
                 for (int i = 0; i < context.selections.size(); ++i) {
-                    const QAbstractTextDocumentLayout::Selection &s = context.selections.at(i);
-                    int row_start = -1, col_start = -1, num_rows = -1, num_cols = -1;
+                    int row_start = selectedTableCells[i * 4];
+                    int col_start = selectedTableCells[i * 4 + 1];
+                    int num_rows = selectedTableCells[i * 4 + 2];
+                    int num_cols = selectedTableCells[i * 4 + 3];
 
-                    if (s.cursor.currentTable() == table)
-                        s.cursor.selectedTableCells(&row_start, &num_rows, &col_start, &num_cols);
                     if (row_start != -1) {
                         if (r >= row_start && r < row_start + num_rows
                             && c >= col_start && c < col_start + num_cols) {
