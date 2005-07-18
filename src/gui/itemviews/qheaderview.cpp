@@ -963,28 +963,31 @@ void QHeaderView::resizeSections()
     QList<int> section_sizes;
     int count = qMax(d->sections.count() - 1, 0);
     int last = (d->stretchLastSection ? count - 1 : -1);
-    const QVector<QHeaderViewPrivate::HeaderSection> secs = d->sections;
-    if (secs.isEmpty())
+    const QVector<QHeaderViewPrivate::HeaderSection> sections = d->sections;
+    if (sections.isEmpty())
         return;
     for (int i = 0; i < count; ++i) {
-        mode = (i == last ? Stretch : secs.at(i).mode);
+        if(sections.at(i).hidden)
+            continue;
+
+        mode = (i == last ? Stretch : sections.at(i).mode);
         if (mode == Stretch) {
             ++stretchSecs;
             continue;
         }
         if (mode == Interactive) {
-            secSize = sectionSize(secs.at(i).logical);
+            secSize = sectionSize(sections.at(i).logical);
         } else {// mode == QHeaderView::Custom
             // FIXME: this is a bit hacky; see if we can find a cleaner solution
             QAbstractItemView *par = ::qobject_cast<QAbstractItemView*>(parent());
             if (orientation() == Qt::Horizontal) {
                 if (par)
                     secSize = par->sizeHintForColumn(i);
-                secSize = qMax(secSize, sectionSizeHint(secs.at(i).logical));
+                secSize = qMax(secSize, sectionSizeHint(sections.at(i).logical));
             } else {
                 if (par)
                     secSize = par->sizeHintForRow(i);
-                secSize = qMax(secSize, sectionSizeHint(secs.at(i).logical));
+                secSize = qMax(secSize, sectionSizeHint(sections.at(i).logical));
             }
         }
         section_sizes.append(secSize);
@@ -999,7 +1002,9 @@ void QHeaderView::resizeSections()
     int stretchSectionSize = qMax(hint, minimum);
     for (int i = 0; i < count; ++i) {
         d->sections[i].position = position;
-        mode = (i == last ? Stretch : secs.at(i).mode);
+        if(d->sections[i].hidden)
+            continue;
+        mode = (i == last ? Stretch : sections.at(i).mode);
         if (mode == Stretch) {
             position += stretchSectionSize;
         } else {

@@ -601,12 +601,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
         const int b = area.bottom() + 1;
 
         d->left = d->header->visualIndexAt(area.left());
-        // ### If a function is added to get the last visual index then use it
-        // rather then this crude loop. 
-        int lastItem = area.right();
-        while(d->header->isSectionHidden(lastItem))
-            lastItem--;
-        d->right = d->header->visualIndexAt(lastItem);
+        d->right = d->header->visualIndexAt(d->header->length());
         if (isRightToLeft()) {
             d->left = (d->left == -1 ? d->header->count() - 1 : d->left);
             d->right = (d->right == -1 ? 0 : d->right);
@@ -618,7 +613,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
         int tmp = d->left;
         d->left = qMin(d->left, d->right);
         d->right = qMax(tmp, d->right);
-
+        
         int i = d->itemAt(v); // first item
         if (i < 0) // couldn't find the first item
             return;
@@ -993,31 +988,25 @@ QRegion QTreeView::visualRegionForSelection(const QItemSelection &selection) con
         return QRegion();
 
     QRegion selectionRegion;
-    if (header()->sectionsMoved()) {
-        for (int i = 0; i < selection.count(); ++i) {
-            QItemSelectionRange range = selection.at(i);
-            int top = visualRect(range.topLeft()).top();
-            int bottom = visualRect(range.bottomRight()).bottom();
-            if (top > bottom)
-                qSwap<int>(top, bottom);
-            int height = bottom - top;
-            for (int c = range.left(); c <= range.right(); ++c)
-                selectionRegion += QRegion(QRect(columnViewportPosition(c), top,
-                                                 columnWidth(c), height));
-        }
-    } else {
-        for (int i = 0; i < selection.count(); ++i) {
-            QItemSelectionRange range = selection.at(i);
-            QRect tl = visualRect(range.topLeft());
-            QRect br = visualRect(range.bottomRight());
-            if (isRightToLeft()) // get the branches too
-                br.setRight(columnViewportPosition(range.left()));
-            else
-                tl.setLeft(columnViewportPosition(range.left()));
-            selectionRegion += QRegion(tl|br);
-        }
+    for (int i = 0; i < selection.count(); ++i) {
+        QItemSelectionRange range = selection.at(i);
+           
+        QModelIndex leftIndex = range.topLeft();
+        while(isIndexHidden(leftIndex))
+            leftIndex = leftIndex.sibling(leftIndex.row(), leftIndex.column()+1);
+        int top = visualRect(leftIndex).top();
+         
+        QModelIndex rightIndex = range.topLeft();
+        while(isIndexHidden(rightIndex))
+            rightIndex = rightIndex.sibling(rightIndex.row(), rightIndex.column()-1);
+        int bottom = visualRect(rightIndex).bottom();
+        if (top > bottom)
+            qSwap<int>(top, bottom);
+        int height = bottom - top+1;
+        for (int c = range.left(); c <= range.right(); ++c)
+            selectionRegion += QRegion(QRect(columnViewportPosition(c), top,
+                                             columnWidth(c), height));
     }
-
     return selectionRegion;
 }
 
