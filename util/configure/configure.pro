@@ -89,8 +89,8 @@ SOURCES	 = main.cpp configureapp.cpp environment.cpp \
            $$QT_SOURCE_TREE/src/corelib/tools/qunicodetables.cpp \
            $$QT_SOURCE_TREE/src/corelib/tools/qvsnprintf.cpp
 
-SOURCES += $$QT_SOURCE_TREE/util/install/keygen/keyinfo.cpp
+SOURCES += $$QT_SOURCE_TREE/util/licensekeys/shared/keyinfo.cpp
 
 INCLUDEPATH += $$QT_SOURCE_TREE/src/corelib/arch/generic \
 	       $$QT_SOURCE_TREE/include/QtCore \
-	       $$QT_SOURCE_TREE/util/install/keygen
+	       $$QT_SOURCE_TREE/util/licensekeys/shared

@@ -17,6 +17,7 @@ enum {
     QtReserved3     = 0x00000080,
     QtReserved4     = 0x00000100,
     QtReserved5     = 0x00000200,
+    QtProductMask   = 0x000003ff,
 
     // the next 10 bits are reserved for Qtopia editions
     QtopiaPDA       = 0x00000400,
