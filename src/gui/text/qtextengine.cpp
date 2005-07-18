@@ -879,9 +879,9 @@ const QCharAttributes *QTextEngine::attributes()
 void QTextEngine::shape(int item) const
 {
     if (layoutData->items[item].isObject) {
+        ensureSpace(1);
         if (block.docHandle()) {
             QTextFormat format = formats()->format(formatIndex(&layoutData->items[item]));
-            ensureSpace(1);
             docLayout()->resizeInlineObject(QTextInlineObject(item, const_cast<QTextEngine *>(this)),
                                             layoutData->items[item].position + block.position(), format);
         }
