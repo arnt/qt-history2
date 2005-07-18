@@ -540,54 +540,17 @@ void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength
     ensureData();
     detach();
 
-    Q_D(QPainterPath);
-    Q_ASSERT(!d->elements.isEmpty());
-//     printf("   -> arcTo: rect=(%.1f,%.1f,%.1f,%.1f), angle=%.1f, len=%.1f\n",
-//            rect.x(), rect.y(), rect.width(), rect.height(),
-//            startAngle, sweepLength);
-#define ANGLE(t) ((t) * 2 * M_PI / 360.0)
-#define SIGN(t) (t > 0 ? 1 : -1)
-    qreal a = rect.width() / 2.0;
-    qreal b = rect.height() / 2.0;
+    int point_count;
+    QPointF pts[12];
+    QPointF curve_start = qt_curves_for_arc(rect, startAngle, sweepLength, pts, &point_count);
 
-    qreal absSweepLength = (sweepLength < 0 ? -sweepLength : sweepLength);
-    int iterations = qIntCast((absSweepLength + 89) / 90);
-    qreal clength = sweepLength / iterations;
-    qreal cosangle1, sinangle1, cosangle2, sinangle2;
-    for (int i=0; i<iterations; ++i) {
-        qreal cangle = startAngle + i * clength;
-
-        cosangle1 = cos(ANGLE(cangle));
-        sinangle1 = sin(ANGLE(cangle));
-        cosangle2 = cos(ANGLE(cangle + clength));
-        sinangle2 = sin(ANGLE(cangle + clength));
-
-        // Find the start and end point of the curve.
-        QPointF startPoint = rect.center() + QPointF(a * cosangle1, -b * sinangle1);
-        QPointF endPoint = rect.center() + QPointF(a * cosangle2, -b * sinangle2);
-
-        // The derived at the start and end point.
-        qreal sdx = -a * sinangle1;
-        qreal sdy = -b * cosangle1;
-        qreal edx = -a * sinangle2;
-        qreal edy = -b * cosangle2;
-
-        // Creating the tangent lines. We need to reverse their direction if the
-        // sweep is negative (clockwise)
-        QLineF controlLine1(startPoint, startPoint + SIGN(sweepLength) * QPointF(sdx, sdy));
-        QLineF controlLine2(endPoint, endPoint - SIGN(sweepLength) * QPointF(edx, edy));
-
-        // We need to scale down the control lines to match that of the current sweeplength.
-        // qAbs because we only want to scale, not change direction.
-        qreal kappa = KAPPA * qAbs(clength) / 90.0;
-        // Adjust their length to fit the magic KAPPA length.
-        controlLine1.setLength(controlLine1.length() * kappa);
-        controlLine2.setLength(controlLine2.length() * kappa);
-
-        if (startPoint != QPointF(d->elements.last().x, d->elements.last().y))
-            lineTo(startPoint);
-        cubicTo(controlLine1.p2(), controlLine2.p2(), endPoint);
+    lineTo(curve_start);
+    for (int i=0; i<point_count; i+=3) {
+        cubicTo(pts[i].x(), pts[i].y(),
+                pts[i+1].x(), pts[i+1].y(),
+                pts[i+2].x(), pts[i+2].y());
     }
+
 }
 
 
@@ -699,42 +662,15 @@ void QPainterPath::addEllipse(const QRectF &boundingRect)
     Q_D(QPainterPath);
     d->elements.reserve(d->elements.size() + 13);
 
-    qreal x = boundingRect.x();
-    qreal y = boundingRect.y();
+    QPointF pts[12];
+    int point_count;
+    QPointF start = qt_curves_for_arc(boundingRect, 0, 360, pts, &point_count);
 
-    qreal w = boundingRect.width();
-    qreal w2 = boundingRect.width() / 2;
-    qreal w2k = w2 * KAPPA;
-
-    qreal h = boundingRect.height();
-    qreal h2 = boundingRect.height() / 2;
-    qreal h2k = h2 * KAPPA;
-
-    moveTo(x + w, y + h2);
-
-    // 0 -> 270 degrees
-    Element cp11 = { x + w, y + h2 + h2k, CurveToElement };
-    Element cp21 = { x + w2 + w2k, y + h, CurveToDataElement };
-    Element end1 = { x + w2, y + h, CurveToDataElement };
-    d->elements << cp11 << cp21 << end1;
-
-    // 270 -> 180 degrees
-    Element cp12 = { x + w2 - w2k, y + h, CurveToElement };
-    Element cp22 = { x, y + h2 + h2k, CurveToDataElement };
-    Element end2 = { x, y + h2, CurveToDataElement };
-    d->elements << cp12 << cp22 << end2;
-
-    // 180 -> 90 degrees
-    Element cp13 = { x, y + h2 - h2k, CurveToElement };
-    Element cp23 = { x + w2 - w2k, y, CurveToDataElement };
-    Element end3 = { x + w2, y, CurveToDataElement };
-    d->elements << cp13 << cp23 << end3;
-
-    // 90 -> 0 degrees
-    Element cp14 = { x + w2 + w2k, y, CurveToElement };
-    Element cp24 = { x + w, y + h2 - h2k, CurveToDataElement };
-    Element end4 = { x + w, y + h2, CurveToDataElement };
-    d->elements << cp14 << cp24 << end4;
+    moveTo(start);
+    cubicTo(pts[0], pts[1], pts[2]);           // 0 -> 270
+    cubicTo(pts[3], pts[4], pts[5]);           // 270 -> 180
+    cubicTo(pts[6], pts[7], pts[8]);           // 180 -> 90
+    cubicTo(pts[9], pts[10], pts[11]);         // 90 - >0
 }
 
 /*!
