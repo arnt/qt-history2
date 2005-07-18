@@ -123,6 +123,8 @@ public:
 
     inline QPointF cellPosition(int row, int col) const
     { return QPointF(columnPositions.at(col) + cellPadding, rowPositions.at(row) + cellPadding); }
+    inline QPointF cellPosition(const QTextTableCell &cell) const
+    { return cellPosition(cell.row(), cell.column()); }
 
     void updateSize();
 };
@@ -308,6 +310,8 @@ public:
         PointExact
     };
     HitPoint hitTest(QTextFrame *frame, const QPointF &point, int *position) const;
+    HitPoint hitTest(QTextFrame::Iterator it, HitPoint hit, const QPointF &p, int *position) const;
+    HitPoint hitTest(QTextTable *table, const QPointF &point, int *position) const;
     HitPoint hitTest(QTextBlock bl, const QPointF &point, int *position) const;
 
     void relayoutDocument();
@@ -403,90 +407,96 @@ QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPointF &point, int
             return PointAfter;
         }
     }
-    INC_INDENT;
+
+    if (QTextTable *table = qobject_cast<QTextTable *>(frame))
+        return hitTest(table, relativePoint, position);
 
     HitPoint hit = PointInside;
+    QTextFrame::Iterator it = frame->begin();
 
-    QTextTable *table = qobject_cast<QTextTable *>(frame);
-    QTextTableData *td = 0;
-    int row = 0;
-    int col = 0;
+    if (frame == rootFrame) {
+        it = iteratorForYPosition(relativePoint.y());
 
-    if (table)
-        td = static_cast<QTextTableData *>(fd);
+        Q_ASSERT(it.parentFrame() == frame);
 
-    int pos = -1;
+        if (it.currentFrame())
+            *position = it.currentFrame()->firstPosition();
+        else
+            *position = it.currentBlock().position();
+        hit = PointBefore;
+    }
 
-    do {
-        QTextFrame::Iterator it = frame->begin();
-        QTextFrame::Iterator end = frame->end();
+    return hitTest(it, hit, relativePoint, position);
+}
 
-        QPointF p = relativePoint;
+QTextDocumentLayoutPrivate::HitPoint
+QTextDocumentLayoutPrivate::hitTest(QTextFrame::Iterator it, HitPoint hit, const QPointF &p, int *position) const
+{
+    INC_INDENT;
 
-        if (frame == rootFrame) {
-            it = iteratorForYPosition(p.y());
-
-            Q_ASSERT(it.parentFrame() == frame);
-
-            if (it.currentFrame())
-                pos = it.currentFrame()->firstPosition();
-            else
-                pos = it.currentBlock().position();
+    for (; !it.atEnd(); ++it) {
+        QTextFrame *c = it.currentFrame();
+        HitPoint hp;
+        int pos = -1;
+        if (c) {
+            hp = hitTest(c, p, &pos);
+        } else {
+            hp = hitTest(it.currentBlock(), p, &pos);
+        }
+        if (hp >= PointInside) {
+            if (isEmptyBlockBeforeTable(it))
+                continue;
+            hit = hp;
             *position = pos;
-            hit = PointBefore;
+            break;
         }
-
-        if (table) {
-            QTextTableCell cell = table->cellAt(row, col);
-            const QRectF rect = td->cellRect(cell);
-            if (rect.contains(p)) {
-                it = cell.begin();
-                end = cell.end();
-                p -= rect.topLeft();
-            } else {
-                it = QTextFrame::Iterator();
-                end = it;
-            }
+        if (hp == PointBefore && pos < *position) {
+            *position = pos;
+            hit = hp;
+        } else if (hp == PointAfter && pos > *position) {
+            *position = pos;
+            hit = hp;
         }
-
-        for (; it != end; ++it) {
-            QTextFrame *c = it.currentFrame();
-            HitPoint hp;
-            if (c) {
-                hp = hitTest(c, p, &pos);
-            } else {
-                hp = hitTest(it.currentBlock(), p, &pos);
-            }
-            if (hp >= PointInside) {
-                if (isEmptyBlockBeforeTable(it))
-                    continue;
-                hit = hp;
-                *position = pos;
-                table = 0; // be sure to exit from the while loop, too
-                break;
-            }
-            if (hp == PointBefore && pos < *position) {
-                *position = pos;
-                hit = hp;
-            } else if (hp == PointAfter && pos > *position) {
-                *position = pos;
-                hit = hp;
-            }
-        }
-
-        if (table) {
-            ++col;
-            if (col >= table->columns()) {
-                col = 0;
-                ++row;
-            }
-        }
-
-    } while (table && row < table->rows());
+    }
 
     DEC_INDENT;
 //     LDEBUG << "inside=" << hit << " pos=" << *position;
     return hit;
+}
+
+QTextDocumentLayoutPrivate::HitPoint
+QTextDocumentLayoutPrivate::hitTest(QTextTable *table, const QPointF &point, int *position) const
+{
+    QTextTableData *td = static_cast<QTextTableData *>(data(table));
+
+    QVector<qreal>::ConstIterator rowIt = qLowerBound(td->rowPositions.begin(), td->rowPositions.end(), point.y());
+    if (rowIt == td->rowPositions.end()) {
+        rowIt = td->rowPositions.end() - 1;
+    } else if (rowIt != td->rowPositions.begin()) {
+        --rowIt;
+    }
+
+    QVector<qreal>::ConstIterator colIt = qLowerBound(td->columnPositions.begin(), td->columnPositions.end(), point.x());
+    if (colIt == td->columnPositions.end()) {
+        colIt = td->columnPositions.end() - 1;
+    } else if (colIt != td->columnPositions.begin()) {
+        --colIt;
+    }
+
+    QTextTableCell cell = table->cellAt(rowIt - td->rowPositions.begin(),
+                                        colIt - td->columnPositions.begin());
+    if (!cell.isValid())
+        return PointBefore;
+
+    *position = cell.firstPosition();
+
+    HitPoint hp = hitTest(cell.begin(), PointInside, point - td->cellPosition(cell), position);
+
+    if (hp == PointExact)
+        return hp;
+    if (hp == PointAfter)
+        *position = cell.lastPosition();
+    return PointInside;
 }
 
 QTextDocumentLayoutPrivate::HitPoint
@@ -497,8 +507,8 @@ QTextDocumentLayoutPrivate::hitTest(QTextBlock bl, const QPointF &point, int *po
     textrect.translate(tl->position());
 //     LDEBUG << "    checking block" << bl.position() << "point=" << point
 //            << "    tlrect" << textrect;
+    *position = bl.position();
     if (point.y() < textrect.top()) {
-        *position = bl.position();
 //             LDEBUG << "    before pos=" << *position;
         return PointBefore;
     } else if (point.y() > textrect.bottom()) {
@@ -512,7 +522,6 @@ QTextDocumentLayoutPrivate::hitTest(QTextBlock bl, const QPointF &point, int *po
     // ### rtl?
 
     HitPoint hit = PointInside;
-    *position = bl.position();
     int off = 0;
     for (int i = 0; i < tl->lineCount(); ++i) {
         QTextLine line = tl->lineAt(i);
