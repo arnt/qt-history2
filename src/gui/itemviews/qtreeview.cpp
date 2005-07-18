@@ -513,10 +513,20 @@ QRect QTreeView::visualRect(const QModelIndex &index) const
     \a index is visible. The \a hint parameter specifies more
     precisely where the item should be located after the
     operation.
+    If any of the parents of the model item are collapsed, they will 
+    be expanded to ensure that the model item is visible.
 */
 void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
 {
     Q_D(QTreeView);
+    
+    // Expand all parents if the parent(s) of the node are not expanded.
+    QModelIndex parent = index.parent();
+    while (parent.isValid()) {
+        if (!isExpanded(parent)) expand(parent);
+        parent = parent.parent();
+    }    
+    
     // check if we really need to do anything
     QRect rect = visualRect(index);
     if (rect.isEmpty())
