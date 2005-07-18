@@ -44,11 +44,16 @@
 #  include <private/qfontengine_p.h>
 #elif defined(Q_WS_MAC)
 #  include <private/qt_mac_p.h>
+#  if Q_BYTE_ORDER == Q_BIG_ENDIAN
+#    define BITMAPS_ARE_MSB
+#  endif
 #endif
 
 #if defined(Q_WS_WIN64)
 #  include <malloc.h>
 #endif
+
+
 
 /*
     Used to prevent division by zero in LinearGradientData::init.
@@ -1753,12 +1758,12 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
 
     int x_offset = xmin - qRound(pos.x());
 
-#if BITMAPS_ARE_MSB
+#if defined (BITMAPS_ARE_MSB)
     QImage::Format format = image.format();
 #endif
     for (int y = ymin; y < ymax; ++y) {
         const uchar *src = image.scanLine(y - qRound(pos.y()));
-#if BITMAPS_ARE_MSB
+#if defined (BITMAPS_ARE_MSB)
         if (format == QImage::Format_MonoLSB) {
 #endif
             for (int x = 0; x < xmax - xmin; ++x) {
@@ -1783,7 +1788,7 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
                     n = 0;
                 }
             }
-#if BITMAPS_ARE_MSB
+#if defined (BITMAPS_ARE_MSB)
         } else {
             for (int x = 0; x < xmax - xmin; ++x) {
                 bool set = src[x >> 3] & (0x80 >> (x & 7));
