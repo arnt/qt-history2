@@ -1260,7 +1260,15 @@ double QDoubleSpinBoxPrivate::round(double value) const
         tmp *= 10;
     }
 
+#if !defined(Q_OS_UNIX) || (_POSIX_VERSION >= 200112L)
+    // truncl(3) first appeared in POSIX.1-2001
     tmp = truncl(tmp);
+#else
+    // could use qRound(), but we don't have one that takes a long double
+    tmp = (tmp >= 0.0
+           ? qint64(tmp + 0.5)
+           : qint64(tmp - qint64(tmp - 1.0) + 0.5) + qint64(tmp - 1.0));
+#endif
 
     for (i=0; i<decimals; ++i) {
         tmp /= 10;
