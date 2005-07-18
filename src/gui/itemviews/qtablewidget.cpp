@@ -1015,6 +1015,7 @@ QDataStream &operator<<(QDataStream &out, const QTableWidgetItem &item)
 #endif // QT_NO_DATASTREAM
 
 /*!
+  \internal
     Assigns \a other to this object.
 */
 QTableWidgetItem &QTableWidgetItem::operator=(const QTableWidgetItem &other)

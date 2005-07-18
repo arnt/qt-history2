@@ -1368,6 +1368,7 @@ void QTreeWidgetItem::write(QDataStream &out) const
 }
 
 /*!
+    \internal
     Assigns the \a other items values to this item.
 
     Note: The child and parent relationships are not affected.

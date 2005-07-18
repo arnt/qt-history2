@@ -517,6 +517,7 @@ void QListWidgetItem::write(QDataStream &out) const
 }
 
 /*!
+  \internal
     Assigns \a other to this list widget item.
 */
 QListWidgetItem &QListWidgetItem::operator=(const QListWidgetItem &other)
