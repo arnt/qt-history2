@@ -99,6 +99,9 @@ public:
     inline void cubicTo(qfixed x1, qfixed y1, qfixed x2, qfixed y2, qfixed ex, qfixed ey);
 
     void strokePath(const QPainterPath &path, void *data, const QMatrix &matrix);
+    void strokePolygon(const QPointF *points, int pointCount, bool implicit_close,
+                       void *data, const QMatrix &matrix);
+    void strokeEllipse(const QRectF &ellipse, void *data, const QMatrix &matrix);
 
 protected:
     inline void emitMoveTo(qfixed x, qfixed y);

@@ -741,7 +741,11 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         d->has_pen = pen_style != Qt::NoPen;
         d->basicStroker.setJoinStyle(d->pen.joinStyle());
         d->basicStroker.setCapStyle(d->pen.capStyle());
-        d->basicStroker.setStrokeWidth(d->pen.widthF());
+        qreal penWidth = d->pen.widthF();
+        if (penWidth == 0)
+            d->basicStroker.setStrokeWidth(1);
+        else
+            d->basicStroker.setStrokeWidth(penWidth);
 
         if(pen_style == Qt::SolidLine) {
             d->stroker = &d->basicStroker;
@@ -959,11 +963,9 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
         qreal width = d->pen.widthF();
         d->outlineMapper->beginOutline(Qt::WindingFill);
         if (width == 0) {
-            d->basicStroker.setStrokeWidth(1);
             d->outlineMapper->setMatrix(QMatrix(), QPainterPrivate::TxNone);
             d->stroker->strokePath(path, d->outlineMapper, d->matrix);
         } else {
-            d->basicStroker.setStrokeWidth(width);
             d->outlineMapper->setMatrix(d->matrix, d->txop);
             d->stroker->strokePath(path, d->outlineMapper, QMatrix());
         }
@@ -971,9 +973,9 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
         d->outlineMapper->endOutline();
 
         qt_scanconvert(&d->outlineMapper->m_outline, fillData.callback, fillData.data, d);
+        d->outlineMapper->setMatrix(d->matrix, d->txop);
     }
 
-    d->outlineMapper->setMatrix(d->matrix, d->txop);
 }
 
 
@@ -1037,15 +1039,25 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 
         } else {
             // fallback case for complex or transformed pens.
-            bool old_has_brush = d->has_brush;
-            d->has_brush = false;
-            QPainterPath path(points[0]);
-            for (int i=1; i<pointCount; ++i)
-                path.lineTo(points[i]);
-            if (needs_closing)
-                path.closeSubpath();
-            drawPath(path);
-            d->has_brush = old_has_brush;
+            qreal width = d->pen.widthF();
+            d->outlineMapper->beginOutline(Qt::WindingFill);
+            if (width == 0) {
+                d->basicStroker.setStrokeWidth(1);
+                d->outlineMapper->setMatrix(QMatrix(), QPainterPrivate::TxNone);
+                d->stroker->strokePolygon(points, pointCount, needs_closing,
+                                          d->outlineMapper, d->matrix);
+            } else {
+                d->basicStroker.setStrokeWidth(width);
+                d->outlineMapper->setMatrix(d->matrix, d->txop);
+                d->stroker->strokePolygon(points, pointCount, needs_closing,
+                                          d->outlineMapper, QMatrix());
+            }
+            FillData fillData = d->fillForBrush(QBrush(d->pen.brush()));
+            d->outlineMapper->endOutline();
+
+            qt_scanconvert(&d->outlineMapper->m_outline, fillData.callback, fillData.data, d);
+
+            d->outlineMapper->setMatrix(d->matrix, d->txop);
         }
     }
 
@@ -1663,13 +1675,40 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
 void QRasterPaintEngine::drawEllipse(const QRectF &rect)
 {
     Q_D(QRasterPaintEngine);
-    if (!d->antialiased && d->pen.style() == Qt::NoPen && d->txop <= QPainterPrivate::TxTranslate) {
-        QPen oldPen = d->pen;
-        d->pen = QPen(d->brush, 0);
-        QPaintEngine::drawEllipse(rect.adjusted(0, 0, -1, -1));
-        d->pen = oldPen;
-    } else {
-        QPaintEngine::drawEllipse(rect);
+    if (d->has_brush) {
+        QPointF controlPoints[12];
+        int point_count = 0;
+        QPointF start = qt_curves_for_arc(rect, 0, 360, controlPoints, &point_count);
+
+        Q_ASSERT(point_count == 12); // a perfect circle...
+
+        d->outlineMapper->beginOutline(Qt::WindingFill);
+        d->outlineMapper->moveTo(start);
+        for (int i=0; i<point_count; i+=3) {
+            d->outlineMapper->curveTo(controlPoints[i], controlPoints[i+1], controlPoints[i+2]);
+        }
+        d->outlineMapper->endOutline();
+
+        FillData fillData = d->fillForBrush(d->brush);
+        qt_scanconvert(&d->outlineMapper->m_outline, fillData.callback, fillData.data, d);
+    }
+
+    if (d->has_pen) {
+        qreal width = d->pen.widthF();
+        d->outlineMapper->beginOutline(Qt::WindingFill);
+        if (width == 0) {
+            d->outlineMapper->setMatrix(QMatrix(), QPainterPrivate::TxNone);
+            d->stroker->strokeEllipse(rect, d->outlineMapper, d->matrix);
+        } else {
+            d->outlineMapper->setMatrix(d->matrix, d->txop);
+            d->stroker->strokeEllipse(rect, d->outlineMapper, QMatrix());
+        }
+        FillData fillData = d->fillForBrush(QBrush(d->pen.brush()));
+        d->outlineMapper->endOutline();
+
+        qt_scanconvert(&d->outlineMapper->m_outline, fillData.callback, fillData.data, d);
+
+        d->outlineMapper->setMatrix(d->matrix, d->txop);
     }
 }
 

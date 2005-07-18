@@ -183,6 +183,9 @@ void QStrokerOps::end()
 
     The \a customData parameter is used in the callback functions
 
+    The \a matrix is used to transform the points before input to the
+    stroker.
+
     \sa begin()
 */
 void QStrokerOps::strokePath(const QPainterPath &path, void *customData, const QMatrix &matrix)
@@ -239,6 +242,73 @@ void QStrokerOps::strokePath(const QPainterPath &path, void *customData, const Q
                 break;
             }
         }
+    }
+    end();
+}
+
+/*!
+    Convenience function for stroking a polygon of the \a pointCount
+    first points in \a points. If \a implicit_close is set to true a
+    line is implictly drawn between the first and last point in the
+    polygon. Typically true for polygons and false for polylines.
+
+    The \a matrix is used to transform the points before they enter the
+    stroker.
+
+    \sa begin()
+*/
+
+void QStrokerOps::strokePolygon(const QPointF *points, int pointCount, bool implicit_close,
+                                void *data, const QMatrix &matrix)
+{
+    if (!pointCount)
+        return;
+    begin(data);
+    if (matrix.isIdentity()) {
+        moveTo(qt_real_to_fixed(points[0].x()), qt_real_to_fixed(points[0].y()));
+        for (int i=1; i<pointCount; ++i)
+            lineTo(qt_real_to_fixed(points[i].x()),
+                   qt_real_to_fixed(points[i].y()));
+        if (implicit_close)
+            lineTo(qt_real_to_fixed(points[0].x()), qt_real_to_fixed(points[0].y()));
+    } else {
+        QPointF start = points[0] * matrix;
+        moveTo(qt_real_to_fixed(start.x()), qt_real_to_fixed(start.y()));
+        for (int i=1; i<pointCount; ++i) {
+            QPointF pt = points[i] * matrix;
+            lineTo(qt_real_to_fixed(pt.x()), qt_real_to_fixed(pt.y()));
+        }
+        if (implicit_close)
+            lineTo(qt_real_to_fixed(start.x()), qt_real_to_fixed(start.y()));
+    }
+    end();
+}
+
+/*!
+    Convenience function for stroking an ellipse with bounding rect \a
+    rect. The \a matrix is used to transform the coordinates before
+    they enter the stroker.
+*/
+void QStrokerOps::strokeEllipse(const QRectF &rect, void *data, const QMatrix &matrix)
+{
+    int count = 0;
+    QPointF pts[12];
+    QPointF start = qt_curves_for_arc(rect, 0, 360, pts, &count);
+    Q_ASSERT(count == 12); // a perfect circle..
+
+    if (!matrix.isIdentity()) {
+        start = start * matrix;
+        for (int i=0; i<12; ++i) {
+            pts[i] = pts[i] * matrix;
+        }
+    }
+
+    begin(data);
+    moveTo(qt_real_to_fixed(start.x()), qt_real_to_fixed(start.y()));
+    for (int i=0; i<12; i+=3) {
+        cubicTo(qt_real_to_fixed(pts[i].x()), qt_real_to_fixed(pts[i].y()),
+                qt_real_to_fixed(pts[i+1].x()), qt_real_to_fixed(pts[i+1].y()),
+                qt_real_to_fixed(pts[i+2].x()), qt_real_to_fixed(pts[i+2].y()));
     }
     end();
 }
@@ -623,8 +693,50 @@ QPointF qt_curves_for_arc(const QRectF &rect, qreal startAngle, qreal sweepLengt
         || qIsNan(startAngle) || qIsNan(sweepLength))
         qWarning("QPainterPath::arcTo(): adding arc where a parameter is nan, results are undefined.");
 #endif
-    if (rect.isNull())
+    *point_count = 0;
+
+    if (rect.isNull()) {
         return QPointF();
+    }
+
+    if (sweepLength > 360) sweepLength = 360;
+    else if (sweepLength < -360) sweepLength = -360;
+
+    // Special case fast path
+    if (startAngle == 0.0 && sweepLength == 360.0) {
+        qreal x = rect.x();
+        qreal y = rect.y();
+
+        qreal w = rect.width();
+        qreal w2 = rect.width() / 2;
+        qreal w2k = w2 * QT_PATH_KAPPA;
+
+        qreal h = rect.height();
+        qreal h2 = rect.height() / 2;
+        qreal h2k = h2 * QT_PATH_KAPPA;
+
+        // 0 -> 270 degrees
+        curves[(*point_count)++] = QPointF(x + w, y + h2 + h2k);
+        curves[(*point_count)++] = QPointF(x + w2 + w2k, y + h);
+        curves[(*point_count)++] = QPointF(x + w2, y + h);
+
+        // 270 -> 180 degrees
+        curves[(*point_count)++] = QPointF(x + w2 - w2k, y + h);
+        curves[(*point_count)++] = QPointF(x, y + h2 + h2k);
+        curves[(*point_count)++] = QPointF(x, y + h2);
+
+        // 180 -> 90 degrees
+        curves[(*point_count)++] = QPointF(x, y + h2 - h2k);
+        curves[(*point_count)++] = QPointF(x + w2 - w2k, y);
+        curves[(*point_count)++] = QPointF(x + w2, y);
+
+        // 90 -> 0 degrees
+        curves[(*point_count)++] = QPointF(x + w2 + w2k, y);
+        curves[(*point_count)++] = QPointF(x + w, y + h2 - h2k);
+        curves[(*point_count)++] = QPointF(x + w, y + h2);
+
+        return QPointF(x + w, y + h2);
+    }
 
 #define ANGLE(t) ((t) * 2 * Q_PI / 360.0)
 #define SIGN(t) (t > 0 ? 1 : -1)
@@ -635,8 +747,6 @@ QPointF qt_curves_for_arc(const QRectF &rect, qreal startAngle, qreal sweepLengt
     int iterations = qIntCast((absSweepLength + 89) / 90);
     qreal clength = sweepLength / iterations;
     qreal cosangle1, sinangle1, cosangle2, sinangle2;
-
-    *point_count = 0;
 
     QPointF first_point;
 
