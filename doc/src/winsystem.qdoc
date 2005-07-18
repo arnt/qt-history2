@@ -28,9 +28,8 @@
     \tableofcontents
 
     For information about which platforms are supported by Qt, see the
-    \link http://www.trolltech.com/products/platforms/ Platform
-    Notes\endlink. For information on distributing Qt applications, see
-    \link distributingqt.html Deploying Qt Applications\endlink.
+    \l{Platform Notes}. For information on distributing Qt applications, see
+    \l{Deploying Qt Applications}.
 
     \target x11
     \section1 Qt/X11
@@ -60,8 +59,8 @@
     When compiling for this platform, the macro \c{Q_WS_MAC} is defined.
 
     \list
-    \i \link mac-differences.html Qt/Mac-Specific Issues\endlink
-    \i \link qtmac-as-native.html Qt/Mac is Mac OS X Native\endlink
+    \i \l{Qt/Mac-Specific Issues}
+    \i \l{Qt/Mac is Mac OS X Native}
     \endlist
 
     \target qws
