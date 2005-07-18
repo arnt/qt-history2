@@ -61,10 +61,10 @@
 
 5.  That's all. Qt is now installed.
 
-    If you are new to Qt, we suggest that you take a look at the demos
-    and examples to see Qt in action. Run the Qt Examples and Demos
-    either by typing 'qtdemo' on the command line or through the
-    desktop's Start menu.
+    If you are new to Qt, we suggest that you take a look at the demos and
+    examples to see Qt in action. Run the Qt Examples and Demos either by
+    typing 'open /usr/local/Trolltech/Qt-%VERSION%/bin/qtdemo.app' on the
+    command line or by double-clicking on the 'qtdemo' icon in the Finder.
 
     You might also want to try the following links:
 
