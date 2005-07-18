@@ -1260,7 +1260,7 @@ double QDoubleSpinBoxPrivate::round(double value) const
         tmp *= 10;
     }
 
-#if !defined(Q_OS_UNIX) || (_POSIX_VERSION >= 200112L)
+#if defined(Q_OS_UNIX) && (_POSIX_VERSION >= 200112L)
     // truncl(3) first appeared in POSIX.1-2001
     tmp = truncl(tmp);
 #else
