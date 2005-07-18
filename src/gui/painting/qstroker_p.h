@@ -85,6 +85,7 @@ public:
     };
 
     QStrokerOps();
+    virtual ~QStrokerOps();
 
     void setMoveToHook(qStrokerMoveToHook moveToHook) { m_moveTo = moveToHook; }
     void setLineToHook(qStrokerLineToHook lineToHook) { m_lineTo = lineToHook; }

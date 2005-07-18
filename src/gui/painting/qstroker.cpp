@@ -1,6 +1,7 @@
 #include "private/qstroker_p.h"
 #include "private/qbezier_p.h"
 #include "private/qmath_p.h"
+#include "qline.h"
 
 // #define QPP_STROKE_DEBUG
 
@@ -141,7 +142,11 @@ static inline qreal adapted_angle_on_x(const QLineF &line)
 }
 
 QStrokerOps::QStrokerOps()
-    : m_moveTo(0), m_lineTo(0), m_cubicTo(0), m_customData(0)
+    : m_customData(0), m_moveTo(0), m_lineTo(0), m_cubicTo(0)
+{
+}
+
+QStrokerOps::~QStrokerOps()
 {
 }
 
@@ -206,6 +211,8 @@ void QStrokerOps::strokePath(const QPainterPath &path, void *customData, const Q
                             qt_real_to_fixed(ep.x), qt_real_to_fixed(ep.y));
                 }
                 break;
+            default:
+                break;
             }
         }
     } else {
@@ -227,6 +234,8 @@ void QStrokerOps::strokePath(const QPainterPath &path, void *customData, const Q
                             qt_real_to_fixed(cp2.x()), qt_real_to_fixed(cp2.y()),
                             qt_real_to_fixed(ep.x()), qt_real_to_fixed(ep.y()));
                 }
+                break;
+            default:
                 break;
             }
         }
@@ -346,8 +355,8 @@ void QStroker::joinPoints(qfixed focal_x, qfixed focal_y, const QLineF &nextLine
                 emitLineTo(qt_real_to_fixed(nextLine.x1()), qt_real_to_fixed(nextLine.y1()));
                 return;
             }
-            QLineF miterLine(QPointF(qt_real_to_fixed(m_back1X),
-                                     qt_real_to_fixed(m_back1Y)), isect);
+            QLineF miterLine(QPointF(qt_fixed_to_real(m_back1X),
+                                     qt_fixed_to_real(m_back1Y)), isect);
             if (miterLine.length() > appliedMiterLimit) {
                 miterLine.setLength(appliedMiterLimit);
                 QLineF l2(nextLine);
@@ -437,7 +446,7 @@ void QStroker::joinPoints(qfixed focal_x, qfixed focal_y, const QLineF &nextLine
                         qt_real_to_fixed(l2.y1()));
 
             // move so that it matches
-            l2 = QLine(l2.x1(), l2.y1(), l2.x1()-l2.dx(), l2.y1()-l2.dy());
+            l2 = QLineF(l2.x1(), l2.y1(), l2.x1()-l2.dx(), l2.y1()-l2.dy());
 
             // last line is parallel to l1 so just shift it down.
             l1.translate(nextLine.x1() - l1.x1(), nextLine.y1() - l1.y1());
