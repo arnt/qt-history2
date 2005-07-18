@@ -99,6 +99,7 @@ Cpp.ignoredirectives    = Q_DECLARE_INTERFACE \
                           Q_ENUMS \
                           Q_FLAGS \
                           Q_INTERFACES \
+			  QT_MODULE \
                           __attribute__
 HTML.style              = "h3.fn,span.fn { margin-left: 1cm; text-indent: -1cm; }\n" \
                           "a:link { color: #004faf; text-decoration: none }\n" \
