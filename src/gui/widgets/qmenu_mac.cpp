@@ -65,9 +65,26 @@ inline static QString qt_mac_no_ampersands(QString str) {
     return str;
 }
 
-bool watchingAboutToShow(QMenu *menu)
+bool qt_mac_watchingAboutToShow(QMenu *menu)
 {
     return menu && menu->receivers(SIGNAL(aboutToShow()));
+}
+
+static int qt_mac_CountMenuItems(MenuRef menu)
+{
+    if(menu) {
+        int ret = 0;
+        const int items = CountMenuItems(menu);
+        for(int i = 0; i < items; i++) {
+            MenuItemAttributes attr;
+            if(GetMenuItemAttributes(menu, i+1, &attr) == noErr &&
+               attr & kMenuItemAttrHidden)
+                continue;
+            ++ret;
+        }
+        return ret;
+    }
+    return 0;
 }
 
 //lookup a QMacMenuAction in a menu
@@ -143,7 +160,7 @@ void qt_mac_clear_menubar()
     InvalMenuBar();
 }
 
-static MenuCommand qt_mac_menu_merge_action(QMacMenuAction *action)
+static MenuCommand qt_mac_menu_merge_action(MenuRef merge, QMacMenuAction *action)
 {
     if(qt_mac_no_menubar_merge || action->action->menu() || action->action->isSeparator())
         return 0;
@@ -170,6 +187,11 @@ static MenuCommand qt_mac_menu_merge_action(QMacMenuAction *action)
         ret = kHICommandQuit;
     }
 #undef MENU_TRANSLATE
+    QAction *cmd_action = 0;
+    GetMenuCommandProperty(merge, ret, kMenuCreatorQt, kMenuPropertyQAction,
+                           sizeof(cmd_action), 0, &cmd_action);
+    if(cmd_action)
+        return 0; //already taken
     return ret;
 }
 
@@ -408,6 +430,7 @@ QMenuPrivate::QMacMenuPrivate::addAction(QAction *a, QMacMenuAction *before)
     action->action = a;
     action->command = qt_mac_menu_static_cmd_id++;
     action->ignore_accel = 0;
+    action->merged = 0;
     action->menu = 0;
     addAction(action, before);
 }
@@ -425,11 +448,17 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
     /* I don't know if this is a bug or a feature, but when the action is considered a mergable action it
        will stay that way, until removed.. */
     if(!qt_mac_no_menubar_merge) {
-        if(MenuCommand cmd = qt_mac_menu_merge_action(action)) {
-            GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyMergeMenu, sizeof(action->menu), 0, &action->menu);
-            action->command = cmd;
-            if(qt_mac_auto_apple_menu(cmd))
-                index = 0; //no need
+        MenuRef merge = 0;
+        GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyMergeMenu,
+                            sizeof(action->menu), 0, &merge);
+        if(merge) {
+            if(MenuCommand cmd = qt_mac_menu_merge_action(merge, action)) {
+                action->merged = 1;
+                action->menu = merge;
+                action->command = cmd;
+                if(qt_mac_auto_apple_menu(cmd))
+                    index = 0; //no need
+            }
         }
     }
 
@@ -465,6 +494,23 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
     ChangeMenuItemAttributes(action->menu, index, 0, kMenuItemAttrHidden);
 
     if(action->action->isSeparator()) {
+        for(int i = 0; i < actionItems.size(); ++i) {
+            if(actionItems.at(i) == action) {
+                bool hide = true;
+                for(++i; i < actionItems.size(); ++i) {
+                    QMacMenuAction *action = actionItems.at(i);
+                    if(!action->merged && !action->action->isSeparator()) {
+                        hide = false;
+                        break;
+                    }
+                }
+                if(hide)
+                    ChangeMenuItemAttributes(action->menu, index, kMenuItemAttrHidden, 0);
+                else
+                    ChangeMenuItemAttributes(action->menu, index, 0, kMenuItemAttrHidden);
+                break;
+            }
+        }
         ChangeMenuItemAttributes(action->menu, index, kMenuItemAttrSeparator, 0);
         return;
     }
@@ -683,6 +729,7 @@ QMenuBarPrivate::QMacMenuBarPrivate::addAction(QAction *a, QMacMenuAction *befor
     QMacMenuAction *action = new QMacMenuAction;
     action->action = a;
     action->ignore_accel = 1;
+    action->merged = 0;
     action->menu = 0;
     action->command = qt_mac_menu_static_cmd_id++;
     addAction(action, before);
@@ -709,12 +756,6 @@ QMenuBarPrivate::QMacMenuBarPrivate::addAction(QMacMenuAction *action, QMacMenuA
             SetMenuItemHierarchicalMenu(menu, index, apple_menu);
             SetMenuItemProperty(apple_menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget),
                                 &widget);
-        }
-
-        if(QMenu *qmenu = action->action->menu()) {
-            if(!qmenu->actions().isEmpty() && !CountMenuItems(qmenu->macMenu(apple_menu))
-               && !watchingAboutToShow(qmenu))
-                return; // We don't want to add this to the list because it was all "merged" away
         }
     }
 
@@ -754,12 +795,17 @@ QMenuBarPrivate::QMacMenuBarPrivate::syncAction(QMacMenuAction *action)
     if(submenu) {
         SetMenuItemHierarchicalMenu(action->menu, index, submenu);
         SetMenuTitleWithCFString(submenu, QCFString(qt_mac_no_ampersands(action->action->text())));
-
-        if(!action->action->isVisible()) {
+        bool visible = action->action->isVisible();
+        if(visible && action->action->text() == QString(QChar(0x14)))
+            visible = false;
+        if(visible && action->action->menu() && !action->action->menu()->actions().isEmpty() &&
+           !qt_mac_CountMenuItems(action->action->menu()->macMenu(apple_menu)) &&
+           !qt_mac_watchingAboutToShow(action->action->menu()))
+            visible = false;
+        if(visible)
+            ChangeMenuAttributes(submenu, 0, kMenuAttrHidden);
+        else
             ChangeMenuAttributes(submenu, kMenuAttrHidden, 0);
-            return;
-        }
-        ChangeMenuAttributes(submenu, 0, kMenuAttrHidden);
 
         if(release_submenu) //no pointers to it
             ReleaseMenu(submenu);

@@ -40,6 +40,7 @@ class QTornOffMenu;
 struct QMacMenuAction {
     uint command;
     uchar ignore_accel : 1;
+    uchar merged : 1;
     QPointer<QAction> action;
     MenuRef menu;
 };

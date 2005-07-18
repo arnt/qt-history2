@@ -53,7 +53,7 @@ public:
     QAction *addAction(const QIcon &icon, const QString &text);
     QAction *addAction(const QString &text, const QObject *receiver, const char* member, const QKeySequence &shortcut = 0);
     QAction *addAction(const QIcon &icon, const QString &text, const QObject *receiver, const char* member, const QKeySequence &shortcut = 0);
-    
+
     QAction *addMenu(QMenu *menu);
     QMenu *addMenu(const QString &title);
     QMenu *addMenu(const QIcon &icon, const QString &title);
@@ -343,7 +343,7 @@ private:
     friend class QComboBox;
 
 #ifdef Q_WS_MAC
-    friend bool watchingAboutToShow(QMenu *);
+    friend bool qt_mac_watchingAboutToShow(QMenu *);
     friend OSStatus qt_mac_menu_event(EventHandlerCallRef, EventRef, void *);
     friend bool qt_mac_activate_action(MenuRef, uint, QAction::ActionEvent, bool);
 #endif
