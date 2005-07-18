@@ -393,6 +393,26 @@ public:
     qreal m_dy;
 };
 
+void qt_ft_outline_move_to(qfixed x, qfixed y, void *data)
+{
+    ((QFTOutlineMapper *) data)->moveTo(QPointF(qt_fixed_to_real(x), qt_fixed_to_real(y)));
+}
+
+void qt_ft_outline_line_to(qfixed x, qfixed y, void *data)
+{
+    ((QFTOutlineMapper *) data)->lineTo(QPointF(qt_fixed_to_real(x), qt_fixed_to_real(y)));
+}
+
+void qt_ft_outline_cubic_to(qfixed c1x, qfixed c1y,
+                             qfixed c2x, qfixed c2y,
+                             qfixed ex, qfixed ey,
+                             void *data)
+{
+    ((QFTOutlineMapper *) data)->curveTo(QPointF(qt_fixed_to_real(c1x), qt_fixed_to_real(c1y)),
+                                         QPointF(qt_fixed_to_real(c2x), qt_fixed_to_real(c2y)),
+                                         QPointF(qt_fixed_to_real(ex), qt_fixed_to_real(ey)));
+}
+
 
 #if !defined(QT_NO_DEBUG) && 0
 static void qt_debug_path(const QPainterPath &path)
@@ -451,6 +471,8 @@ QRasterPaintEngine::~QRasterPaintEngine()
     delete d->linearGradientData;
     delete d->radialGradientData;
     delete d->conicalGradientData;
+
+    delete d->dashStroker;
 }
 
 
@@ -470,6 +492,12 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->has_brush = false;
     d->fast_pen = true;
     d->int_xform = true;
+
+    d->stroker = 0;
+    d->dashStroker = 0;
+    d->basicStroker.setMoveToHook(qt_ft_outline_move_to);
+    d->basicStroker.setLineToHook(qt_ft_outline_line_to);
+    d->basicStroker.setCubicToHook(qt_ft_outline_cubic_to);
 
     d->compositionMode = QPainter::CompositionMode_SourceOver;
 
@@ -709,7 +737,23 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyPen) {
         update_fast_pen = true;
         d->pen = state.pen();
-        d->has_pen = d->pen.style() != Qt::NoPen;
+        Qt::PenStyle pen_style = d->pen.style();
+        d->has_pen = pen_style != Qt::NoPen;
+        d->basicStroker.setJoinStyle(d->pen.joinStyle());
+        d->basicStroker.setCapStyle(d->pen.capStyle());
+        d->basicStroker.setStrokeWidth(d->pen.widthF());
+
+        if(pen_style == Qt::SolidLine) {
+            d->stroker = &d->basicStroker;
+        } else if (d->has_pen) {
+            if (!d->dashStroker)
+                d->dashStroker = new QDashStroker(&d->basicStroker);
+            d->dashStroker->setDashPattern(QDashStroker::patternForStyle(pen_style));
+            d->stroker = d->dashStroker;
+        } else {
+            d->stroker = 0;
+        }
+
     }
 
     if ((flags & DirtyBrush) || (flags & DirtyBrushOrigin)) {
@@ -911,28 +955,22 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
     }
 
     if (d->has_pen) {
-        QPainterPathStroker stroker;
-        stroker.setDashPattern(d->pen.style());
-        stroker.setCapStyle(d->pen.capStyle());
-        stroker.setJoinStyle(d->pen.joinStyle());
-        QPainterPath stroke;
-
+        Q_ASSERT(d->stroker);
         qreal width = d->pen.widthF();
+        d->outlineMapper->beginOutline(Qt::WindingFill);
         if (width == 0) {
-            stroker.setWidth(1);
+            d->basicStroker.setStrokeWidth(1);
             d->outlineMapper->setMatrix(QMatrix(), QPainterPrivate::TxNone);
-            stroke = stroker.createStroke(path * d->matrix);
-            if (stroke.isEmpty())
-                return;
+            d->stroker->strokePath(path, d->outlineMapper, d->matrix);
         } else {
-            stroker.setWidth(width);
-            stroke = stroker.createStroke(path);
+            d->basicStroker.setStrokeWidth(width);
             d->outlineMapper->setMatrix(d->matrix, d->txop);
-            if (stroke.isEmpty())
-                return;
+            d->stroker->strokePath(path, d->outlineMapper, QMatrix());
         }
         FillData fillData = d->fillForBrush(QBrush(d->pen.brush()));
-        fillPath(stroke, &fillData);
+        d->outlineMapper->endOutline();
+
+        qt_scanconvert(&d->outlineMapper->m_outline, fillData.callback, fillData.data, d);
     }
 
     d->outlineMapper->setMatrix(d->matrix, d->txop);

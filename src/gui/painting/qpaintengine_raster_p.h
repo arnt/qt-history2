@@ -28,9 +28,10 @@
 #include <QtGui/qpaintengine.h>
 #include <QtGui/qpainterpath.h>
 
-#include <private/qpaintengine_p.h>
 #include <private/qdatabuffer_p.h>
 #include <private/qdrawhelper_p.h>
+#include <private/qpaintengine_p.h>
+#include <private/qstroker_p.h>
 
 class QFTOutlineMapper;
 class QRasterPaintEnginePrivate;
@@ -165,6 +166,10 @@ public:
     ConicalGradientData *conicalGradientData;
 
     DrawHelper *drawHelper;
+
+    QStroker basicStroker;
+    QDashStroker *dashStroker;
+    QStrokerOps *stroker;
 
     QImage tempImage;
 
