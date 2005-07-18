@@ -3217,11 +3217,14 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
     int sbpl = bytesPerLine();
     const uchar *sptr = bits();
 
-    QImage dImage(wd, hd, d->format);
+    QImage::Format target_format = d->format;
+
+    if (complex_xform || mode == Qt::SmoothTransformation)
+        target_format = Format_ARGB32_Premultiplied;
+
+    QImage dImage(wd, hd, target_format);
     dImage.d->colortable = d->colortable;
     dImage.d->has_alpha_clut = d->has_alpha_clut | complex_xform;
-    if (dImage.d->format == Format_RGB32 && complex_xform)
-        dImage.d->format = Format_ARGB32_Premultiplied;
     dImage.d->dpmx = dotsPerMeterX();
     dImage.d->dpmy = dotsPerMeterY();
 
@@ -3244,7 +3247,8 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
             break;
     }
 
-    if (d->format == QImage::Format_RGB32 || d->format == QImage::Format_ARGB32_Premultiplied) {
+    if (target_format == QImage::Format_RGB32
+        || target_format == QImage::Format_ARGB32_Premultiplied) {
         QPainter p(&dImage);
         if (mode == Qt::SmoothTransformation) {
             p.setRenderHint(QPainter::Antialiasing);
