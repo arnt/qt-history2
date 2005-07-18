@@ -526,19 +526,30 @@ int QTableView::verticalOffset() const
 QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
 {
     Q_D(QTableView);
-
     Q_UNUSED(modifiers);
 
+    int bottom = model()->rowCount(rootIndex()) - 1;
+    int right = model()->columnCount(rootIndex()) - 1;
     QModelIndex current = currentIndex();
-    if (!current.isValid())
-        return current;
+
+    if (!current.isValid()) {
+        if (bottom == -1 || right == -1)
+            return QModelIndex();
+        int row = 0;
+        int col = 0;
+        while (isColumnHidden(col) && col <= right)
+            ++col;
+        while (isRowHidden(row) && row <= bottom)
+            ++row;
+        if (row > bottom || col > right)
+            return QModelIndex();
+        return model()->index(row, col, rootIndex());
+    }
     int visualRow = verticalHeader()->visualIndex(current.row());
     int visualColumn = horizontalHeader()->visualIndex(current.column());
     int verticalStep = 0;
     int horizontalStep = 0;
 
-    int bottom = model()->rowCount(rootIndex()) - 1;
-    int right = model()->columnCount(rootIndex()) - 1;
     switch (cursorAction) {
     case MoveUp:
         verticalStep = -1;

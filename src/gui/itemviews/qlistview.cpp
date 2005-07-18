@@ -1007,20 +1007,27 @@ QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
     Q_D(QListView);
     Q_UNUSED(modifiers);
 
+    if (!model())
+        return QModelIndex();
+
     QModelIndex current = currentIndex();
     if (!current.isValid()) {
-        if (model())
-            return model()->index(0, 0, rootIndex());
-        return QModelIndex();
+        int rowCount = model()->rowCount(rootIndex());
+        if (!rowCount)
+            return QModelIndex();
+        int row = 0;
+        while (row < rowCount && isRowHidden(row))
+            ++row;
+        if (row >= rowCount)
+            return QModelIndex();
+        return model()->index(row, 0, rootIndex());
     }
 
     QRect rect = rectForIndex(current);
     if (rect.isEmpty()) {
-        if (model())
-            return model()->index(0, 0, rootIndex());
-        return QModelIndex();
+        return model()->index(0, 0, rootIndex());
     }
-    
+
     QSize contents = d->contentsSize;
     QPoint pos = rect.center();
     d->intersectVector.clear();

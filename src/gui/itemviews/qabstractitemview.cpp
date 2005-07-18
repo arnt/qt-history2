@@ -1220,61 +1220,54 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     }
 #endif
 
-    bool hadCurrent = true;
     QModelIndex current = currentIndex();
-    if (!current.isValid()) {
-        hadCurrent = false;
-        setCurrentIndex(model()->index(0, 0, QModelIndex()));
+    QModelIndex newCurrent;
+    switch (e->key()) {
+    case Qt::Key_Down:
+        newCurrent = moveCursor(MoveDown, e->modifiers());
+        break;
+    case Qt::Key_Up:
+        newCurrent = moveCursor(MoveUp, e->modifiers());
+        break;
+    case Qt::Key_Left:
+        newCurrent = moveCursor(MoveLeft, e->modifiers());
+        break;
+    case Qt::Key_Right:
+        newCurrent = moveCursor(MoveRight, e->modifiers());
+        break;
+    case Qt::Key_Home:
+        newCurrent = moveCursor(MoveHome, e->modifiers());
+        break;
+    case Qt::Key_End:
+        newCurrent = moveCursor(MoveEnd, e->modifiers());
+        break;
+    case Qt::Key_PageUp:
+        newCurrent = moveCursor(MovePageUp, e->modifiers());
+        break;
+    case Qt::Key_PageDown:
+        newCurrent = moveCursor(MovePageDown, e->modifiers());
+        break;
+    case Qt::Key_Tab:
+        newCurrent = moveCursor(MoveNext, e->modifiers());
+        break;
+    case Qt::Key_Backtab:
+        newCurrent = moveCursor(MovePrevious, e->modifiers());
+        break;
     }
-    QModelIndex newCurrent = current;
-    if (hadCurrent) {
-        switch (e->key()) {
-        case Qt::Key_Down:
-            newCurrent = moveCursor(MoveDown, e->modifiers());
-            break;
-        case Qt::Key_Up:
-            newCurrent = moveCursor(MoveUp, e->modifiers());
-            break;
-        case Qt::Key_Left:
-            newCurrent = moveCursor(MoveLeft, e->modifiers());
-            break;
-        case Qt::Key_Right:
-            newCurrent = moveCursor(MoveRight, e->modifiers());
-            break;
-        case Qt::Key_Home:
-            newCurrent = moveCursor(MoveHome, e->modifiers());
-            break;
-        case Qt::Key_End:
-            newCurrent = moveCursor(MoveEnd, e->modifiers());
-            break;
-        case Qt::Key_PageUp:
-            newCurrent = moveCursor(MovePageUp, e->modifiers());
-            break;
-        case Qt::Key_PageDown:
-            newCurrent = moveCursor(MovePageDown, e->modifiers());
-            break;
-        case Qt::Key_Tab:
-            newCurrent = moveCursor(MoveNext, e->modifiers());
-            break;
-        case Qt::Key_Backtab:
-            newCurrent = moveCursor(MovePrevious, e->modifiers());
-            break;
-        }
 
-        if (newCurrent != current && newCurrent.isValid()) {
-            QItemSelectionModel::SelectionFlags command = selectionCommand(newCurrent, e);
-            if (command & QItemSelectionModel::Current) {
-                selectionModel()->setCurrentIndex(newCurrent, QItemSelectionModel::NoUpdate);
-                QPoint offset(horizontalOffset(), verticalOffset());
-                QRect rect(d->pressedPosition - offset, visualRect(newCurrent).center());
-                setSelection(rect.normalized(), command);
-            } else {
-                selectionModel()->setCurrentIndex(newCurrent, command);
-                QPoint offset(horizontalOffset(), verticalOffset());
-                d->pressedPosition = visualRect(newCurrent).center() + offset;
-            }
-            return;
+    if (newCurrent != current && newCurrent.isValid()) {
+        QItemSelectionModel::SelectionFlags command = selectionCommand(newCurrent, e);
+        if (command & QItemSelectionModel::Current) {
+            selectionModel()->setCurrentIndex(newCurrent, QItemSelectionModel::NoUpdate);
+            QPoint offset(horizontalOffset(), verticalOffset());
+            QRect rect(d->pressedPosition - offset, visualRect(newCurrent).center());
+            setSelection(rect.normalized(), command);
+        } else {
+            selectionModel()->setCurrentIndex(newCurrent, command);
+            QPoint offset(horizontalOffset(), verticalOffset());
+            d->pressedPosition = visualRect(newCurrent).center() + offset;
         }
+        return;
     }
 
     switch (e->key()) {

@@ -930,8 +930,12 @@ QModelIndex QTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
     Q_UNUSED(modifiers);
 
     QModelIndex current = currentIndex();
-    if (!current.isValid())
-        return d->modelIndex(0);
+    if (!current.isValid()) {
+        int i = 0;
+        while (i < d->viewItems.count() && d->hiddenIndexes.contains(d->viewItems.at(i).index))
+            ++i;
+        return d->viewItems.value(i).index;
+    }
     int vi = qMax(0, d->viewIndex(current));
     switch (cursorAction) {
     case MoveNext:
