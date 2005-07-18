@@ -73,7 +73,7 @@
     these circumstances you must use a commercial edition of Qt.
 
     See the
-    \l{http://www.trolltech.com/developer/faqs/license_gpl.html}{License
+    \l{http://www.trolltech.com/developer/faqs/index.html?catid=1953}{License
     FAQ} for answers to frequently asked questions on Qt Open Source Edition
     licensing and its implications.
 
@@ -85,7 +85,7 @@
     \endlist
 
     Information about Qt Commercial License Agreements is available at
-    \l http://www.trolltech.com/pricing.html or by email from 
+    \l http://www.trolltech.com/products/qt/pricing.html or by email from 
     \l{mailto:sales@trolltech.com}{sales@trolltech.com}.
 
     If you are in doubt what edition of Qt is right for your project,

@@ -74,14 +74,15 @@ For more information, please visit the
  <td colspan="2">
   <a href="mailto:www@trolltech.com"><strong>www@trolltech.com</strong></a>
  </td><td colspan="2">
-  <a href="mailto:qt-bugs@trolltech.com"><strong>qt-bugs@trolltech.com</strong></a>
+  <a href="http://www.trolltech.com/developer/tasktracker.html">
+   <strong>Task Tracker</strong></a>
  </td>
 </tr><tr>
  <td ><br /></td>
  <td valign="top"> Comments about our web pages</td>
  <td ><br /></td>
  <td valign="top">
-  Use this address for bug reports; please read
+  Use this page to submit bug reports; please read
   <a href="bughowto.html">How to Report a Bug</a> page first.
  </td>
 </tr><tr>

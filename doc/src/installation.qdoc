@@ -21,10 +21,10 @@
 The installation procedure is different for the different Qt platforms:
 
 \list
- \o \l{install-x11.html}{Qt/X11}
- \o \l{install-win.html}{Qt/Windows}
- \o \l{install-mac.html}{Qt/Mac}
- \o \l{emb-install.html}{Qtopia Core (Qt for embedded Linux)}
+ \o \l{Installing Qt/X11}{Qt/X11}
+ \o \l{Installing Qt/Windows}{Qt/Windows}
+ \o \l{Installing Qt/Mac}{Qt/Mac}
+ \o \l{Installing Qtopia Core}{Qtopia Core (Qt for embedded Linux)}
 \endlist
 
 */

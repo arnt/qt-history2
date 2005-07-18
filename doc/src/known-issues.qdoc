@@ -3,6 +3,6 @@
     \title Known Issues in %VERSION%
 
     An up-to-date list of known issues with Qt %VERSION% can be found via the
-    \l{http://www.trolltech.com/developers/tasktracker.html}{Task Tracking System}
-    which provides additional information about known issues and tasks related to Qt.
+    \l{Task Tracker} on the Trolltech website which provides additional information
+    about known issues and tasks related to Qt.
 */

@@ -26,7 +26,7 @@
     needed to build applications with state-of-the-art graphical user
     interfaces. Qt is fully object-oriented, easily extensible, and
     allows true component programming. Read the \link
-    http://www.trolltech.com/products/qt/whitepaper.html
+    http://www.trolltech.com/products/whitepapers.html
     Whitepaper\endlink for a comprehensive technical overview.
 
     Since its commercial introduction in early 1996, Qt has formed the
@@ -54,12 +54,12 @@
     Qt is released in different editions:
 
     \list
-    \i The \bold{\l{Qt Commercial Editions}} provide for commercial software
+    \i The \bold{\l{Qt Commercial Editions}} are used for commercial software
     development. They permit traditional commercial software distribution
     and include free upgrades and technical support. For the latest
-    prices, see the Trolltech web site's
-    \l{http://www.trolltech.com/pricing.html}{Pricing and Availability}
-    page or contact \l{mailto:sales@trolltech.com}{sales@trolltech.com}.
+    prices, see the online
+    \l{Pricing Information} page or contact
+    \l{mailto:sales@trolltech.com}{sales@trolltech.com}.
     \endlist
 
     \list
