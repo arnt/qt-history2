@@ -2281,7 +2281,7 @@ QMotifStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *o
             default:
                 break;
             }
-            image = pm.toImage();
+            pm = QPixmap::fromImage(image);
         }
         return pm;
     }
