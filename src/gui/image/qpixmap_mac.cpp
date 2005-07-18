@@ -215,13 +215,13 @@ QImage QPixmap::toImage() const
 
     int w = data->w;
     int h = data->h;
-    QImage::Format format = QImage::Format_Mono;
+    QImage::Format format = QImage::Format_MonoLSB;
     if(data->d != 1) //Doesn't support index color modes
         format = (data->has_alpha ? QImage::Format_ARGB32 :
                   QImage::Format_RGB32);
 
     QImage image(w, h, format);
-    if(format == QImage::Format_Mono) {
+    if(format == QImage::Format_Mono || format == QImage::Format_MonoLSB) {
         image.setNumColors(2);
         image.setColor(0, QColor(Qt::color0).rgba());
         image.setColor(1, QColor(Qt::color1).rgba());
