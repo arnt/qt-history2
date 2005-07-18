@@ -865,10 +865,13 @@ void QTextBrowser::mouseMoveEvent(QMouseEvent *e)
 */
 void QTextBrowser::mousePressEvent(QMouseEvent *e)
 {
-    QTextEdit::mousePressEvent(e);
-
     Q_D(QTextBrowser);
     d->anchorOnMousePress = anchorAt(e->pos());
+    if (!d->cursor.hasSelection() && !d->anchorOnMousePress.isEmpty())
+        d->setCursorPosition(e->pos());
+
+    QTextEdit::mousePressEvent(e);
+
     d->hadSelectionOnMousePress = d->cursor.hasSelection();
 }
 
