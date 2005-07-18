@@ -139,7 +139,6 @@ public:
     uint has_clipping : 1;
     uint has_pen : 1;
     uint has_brush : 1;
-    uint has_autoswap : 1;
 
     QMatrix matrix;
     GLubyte pen_color[4];
@@ -168,7 +167,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     Q_ASSERT(static_cast<const QGLWidget *>(pdev));
     d->drawable.setDevice(pdev);
     d->has_clipping = false;
-    d->has_autoswap = dgl->autoBufferSwap();
     d->drawable.setAutoBufferSwap(false);
     setActive(true);
     d->drawable.makeCurrent();
@@ -198,7 +196,6 @@ bool QOpenGLPaintEngine::end()
     glPopAttrib();
     glFlush();
     d->drawable.swapBuffers();
-    dgl->setAutoBufferSwap(d_func()->has_autoswap);
     setActive(false);
     return true;
 }
