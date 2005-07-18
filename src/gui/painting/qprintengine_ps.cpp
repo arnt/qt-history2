@@ -970,7 +970,7 @@ static QString makePSFontName(const QFontEngine *fe, int *listpos = 0, int *ftyp
           return ps;
   }
 #endif
-  
+
   QString family = fe->fontDef.family.toLower();
 
   // try to make a "good" postscript name
@@ -2038,7 +2038,7 @@ void QPSPrintEngineFontMulti::drawText(QTextStream &stream, QPSPrintEnginePrivat
     d->setFont(ti2.fontEngine);
     if(d->currentPSFont) // better not crash in case somethig goes wrong.
         d->currentPSFont->drawText(stream, d, QPointF(x, y), ti2);
-    
+
     // reset the high byte for all glyphs
     const int hi = which << 24;
     for (i = start; i < end; ++i)
@@ -2860,7 +2860,7 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
     }
 #endif
 
-    if (fontKey.isEmpty()) 
+    if (fontKey.isEmpty())
         fontKey = QLatin1String("NonEmbed:") + makePSFontName(fe);
 
     Q_ASSERT(!fontKey.isEmpty());
@@ -3677,7 +3677,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
                     lpargs[++i] = (char *)media.constData();
                 }
                 lpargs[++i] = 0;
-                char **lprargs = new char *[lprhack.size()+1];
+                char **lprargs = new char *[lprhack.size()+2];
                 lprargs[0] = "lpr";
                 for (int i = 0; i < lprhack.size(); ++i)
                     lprargs[i+1] = (char *)lprhack[i].constData();
