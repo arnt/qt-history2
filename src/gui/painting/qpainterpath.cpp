@@ -14,13 +14,23 @@
 #include "qpainterpath.h"
 #include "qpainterpath_p.h"
 
+#include <qbitmap.h>
+#include <qdebug.h>
 #include <qiodevice.h>
+#include <qlist.h>
+#include <qmatrix.h>
+#include <qpen.h>
+#include <qpolygon.h>
+#include <qtextlayout.h>
+#include <qvarlengtharray.h>
+
 #include <private/qbezier_p.h>
 #include <private/qfontengine_p.h>
-#include <private/qobject_p.h>
-#include <private/qtextengine_p.h>
-#include <private/qnumeric_p.h>
 #include <private/qmath_p.h>
+#include <private/qnumeric_p.h>
+#include <private/qobject_p.h>
+#include <private/qstroker_p.h>
+#include <private/qtextengine_p.h>
 
 #include <qbitmap.h>
 #include <qdebug.h>
@@ -30,8 +40,8 @@
 #include <qpolygon.h>
 #include <qtextlayout.h>
 #include <qvarlengtharray.h>
-#include <limits.h>
 
+#include <limits.h>
 #include <math.h>
 
 #ifndef M_PI
@@ -1313,247 +1323,43 @@ QDataStream &operator>>(QDataStream &s, QPainterPath &p)
 
 
 /*******************************************************************************
- * Subpath Iterators
- */
-QPainterPath::Element QSubpathReverseIterator::next()
-{
-    Q_ASSERT(hasNext());
-
-    const QPainterPath::Element &pe = m_path->elementAt(m_pos+1); // previous element
-    QPainterPath::Element ce = m_path->elementAt(m_pos);   // current element
-
-    switch (pe.type) {
-    case QPainterPath::LineToElement:
-        ce.type = QPainterPath::LineToElement;
-        break;
-    case QPainterPath::CurveToDataElement:
-        // First control point?
-        if (ce.type == QPainterPath::CurveToElement) {
-            ce.type = QPainterPath::CurveToDataElement;
-        } else { // Second control point then
-            ce.type = QPainterPath::CurveToElement;
-        }
-        break;
-    case QPainterPath::CurveToElement:
-        ce.type = QPainterPath::CurveToDataElement;
-        break;
-    default:
-        qWarning("QSubpathReverseIterator::next(), unhandled case, %d", ce.type);
-        break;
-    }
-    --m_pos;
-
-    if (m_pos < m_start) {
-        m_start = m_end + 1;
-        m_end = indexOfSubpath(m_start+1);
-        m_pos = m_end;
-    }
-
-    return ce;
-}
-
-QPainterPath::Element QSubpathFlatIterator::next()
-{
-    Q_ASSERT(hasNext());
-
-    if (m_curve_index >= 0) {
-        QPainterPath::Element e = { m_curve.at(m_curve_index).x(),
-                                    m_curve.at(m_curve_index).y(),
-                                    QPainterPath::LineToElement };
-        ++m_curve_index;
-        if (m_curve_index >= m_curve.size())
-            m_curve_index = -1;
-        return e;
-    }
-
-    QPainterPath::Element e = m_path->elementAt(m_pos);
-    if (e.isCurveTo()) {
-        Q_ASSERT(m_pos > 0);
-        Q_ASSERT(m_pos < m_path->elementCount());
-        m_curve = QBezier::fromPoints(m_path->elementAt(m_pos-1),
-                          e,
-                          m_path->elementAt(m_pos+1),
-                          m_path->elementAt(m_pos+2)).toPolygon();
-        m_curve_index = 1;
-        e.type = QPainterPath::LineToElement;
-        e.x = m_curve.at(0).x();
-        e.y = m_curve.at(0).y();
-        m_pos += 2;
-    }
-    Q_ASSERT(e.isLineTo());
-    ++m_pos;
-    return e;
-}
-
-
-
-
-/*******************************************************************************
  * class QPainterPathStroker
  */
-#define QT_PATH_NO_JOIN Qt::PenJoinStyle(0xffff)
+
+void qt_path_stroke_move_to(qfixed x, qfixed y, void *data)
+{
+    ((QPainterPath *) data)->moveTo(qt_fixed_to_real(x), qt_fixed_to_real(y));
+}
+
+void qt_path_stroke_line_to(qfixed x, qfixed y, void *data)
+{
+    ((QPainterPath *) data)->lineTo(qt_fixed_to_real(x), qt_fixed_to_real(y));
+}
+
+void qt_path_stroke_cubic_to(qfixed c1x, qfixed c1y,
+                             qfixed c2x, qfixed c2y,
+                             qfixed ex, qfixed ey,
+                             void *data)
+{
+    ((QPainterPath *) data)->cubicTo(qt_fixed_to_real(c1x), qt_fixed_to_real(c1y),
+                                     qt_fixed_to_real(c2x), qt_fixed_to_real(c2y),
+                                     qt_fixed_to_real(ex), qt_fixed_to_real(ey));
+}
 
 class QPainterPathStrokerPrivate
 {
-    Q_DECLARE_PUBLIC(QPainterPathStroker)
 public:
-
-    enum LineJoinMode {
-        FlatJoin,
-        SquareJoin,
-        MiterJoin,
-        RoundJoin,
-        RoundCap
-    };
-
-    QPainterPathStrokerPrivate() :
-        width(1),
-        offset(0.5),
-        miterLimit(2),
-        curveThreshold(0.25),
-        style(Qt::SolidLine),
-        joinStyle(FlatJoin),
-        capStyle(SquareJoin)
+    QPainterPathStrokerPrivate()
     {
-        appliedMiterLimit = miterLimit * width;
+        stroker.setMoveToHook(qt_path_stroke_move_to);
+        stroker.setLineToHook(qt_path_stroke_line_to);
+        stroker.setCubicToHook(qt_path_stroke_cubic_to);
     }
 
-
-
-    void joinPoints(const QPointF &point, const QLineF &nextLine, QPainterPath *stroke,
-                    LineJoinMode join) const;
-
-    QPainterPathStroker *q_ptr;
-    qreal width;
-    qreal offset;
-    qreal miterLimit;
-    qreal appliedMiterLimit;
-    qreal curveThreshold;
-    Qt::PenStyle style;
-    LineJoinMode joinStyle;
-    LineJoinMode capStyle;
-    QVector<qreal> dashPattern;
+    QStroker stroker;
+    QVector<qfixed> dashPattern;
 };
 
-
-/*******************************************************************************
- * QLineF::angle gives us the smalles angle between two lines. Here we
- * want to identify the line's angle direction on the unit circle.
- */
-static inline qreal adapted_angle_on_x(const QLineF &line)
-{
-    qreal angle = line.angle(QLineF(0, 0, 1, 0));
-    if (line.dy() > 0)
-        angle = 360 - angle;
-    return angle;
-}
-
-void QPainterPathStrokerPrivate::joinPoints(const QPointF &point, const QLineF &nextLine,
-                                            QPainterPath *stroke, LineJoinMode join) const
-{
-#ifdef QPP_STROKE_DEBUG
-    printf(" -----> joinPoints: around=(%.0f, %.0f), next_p1=(%.0f, %.f) next_p2=(%.0f, %.f)\n",
-           point.x(), point.y(), nextLine.x1(), nextLine.y1(), nextLine.x2(), nextLine.y2());
-#endif
-
-    int elmCount = stroke->elementCount();
-    Q_ASSERT(elmCount >= 2);
-    const QPainterPath::Element &back1 = stroke->elementAt(elmCount-1);
-
-    // points connected already, don't join
-    if (qFuzzyCompare(back1.x, nextLine.x1()) && qFuzzyCompare(back1.y, nextLine.y1()))
-        return;
-
-    if (join == FlatJoin) {
-        stroke->lineTo(nextLine.p1());
-    } else {
-        const QPainterPath::Element &back2 = stroke->elementAt(elmCount-2);
-        QLineF prevLine(back2.x, back2.y, back1.x, back1.y);
-
-        QPointF isect;
-        QLineF::IntersectType type = prevLine.intersect(nextLine, &isect);
-
-        if (join == MiterJoin) {
-            // If we are on the inside, do the short cut...
-            QLineF shortCut(prevLine.p2(), nextLine.p1());
-            if (type == QLineF::BoundedIntersection
-                || prevLine.angle(shortCut) > 90) {
-                stroke->lineTo(nextLine.p1());
-                return;
-            }
-            QLineF miterLine(QPointF(back1.x, back1.y), isect);
-            if (miterLine.length() > appliedMiterLimit) {
-                miterLine.setLength(appliedMiterLimit);
-
-                QLineF l2(nextLine);
-                l2.setLength(appliedMiterLimit);
-                l2.translate(-l2.dx(), -l2.dy());
-
-                stroke->lineTo(miterLine.p2());
-                stroke->lineTo(l2.p1());
-                stroke->lineTo(nextLine.p1());
-
-            } else {
-                stroke->lineTo(isect);
-                stroke->lineTo(nextLine.p1());
-            }
-
-        } else if (join == SquareJoin) {
-            QLineF l1(prevLine);
-            l1.translate(l1.dx(), l1.dy());
-            l1.setLength(offset);
-            QLineF l2(nextLine.p2(), nextLine.p1());
-            l2.translate(l2.dx(), l2.dy());
-            l2.setLength(offset);
-            stroke->lineTo(l1.p2());
-            stroke->lineTo(l2.p2());
-            stroke->lineTo(l2.p1());
-
-
-        } else if (join == RoundJoin) {
-            QLineF shortCut(prevLine.p2(), nextLine.p1());
-            if (type == QLineF::BoundedIntersection
-                || prevLine.angle(shortCut) > 90) {
-                stroke->lineTo(nextLine.p1());
-                return;
-            }
-            QLineF l1(prevLine);
-            QLineF l2(nextLine);
-            qreal l1_on_x = adapted_angle_on_x(l1);
-            qreal l2_on_x = adapted_angle_on_x(l2);
-
-            qreal sweepLength = qAbs(l2_on_x - l1_on_x);
-
-            stroke->arcTo(point.x() - offset, point.y() - offset, offset * 2, offset * 2,
-                          l1_on_x + 90, -sweepLength);
-
-            stroke->lineTo(nextLine.p1());
-
-        // Same as round join except we know its 180 degrees. Can also optimize this
-        // later based on the addEllipse logic
-        } else if (join == RoundCap) {
-            QLineF l1(prevLine);
-            qreal l1_on_x = adapted_angle_on_x(l1);
-            stroke->arcTo(point.x() - offset, point.y() - offset, offset * 2, offset * 2,
-                          l1_on_x + 90, -180);
-        }
-    }
-}
-
-/*!
-  \class QPainterPathStroker
-  \brief The QPainterPathStroker class is used to process the stroke
-  of a QPainterPath into a path that can be used for filling.
-
-  The function createStroke is used to create a stroke from a given
-  path. The same stroker object can be used to create a stroke for a
-  number of paths.
-
-  Note, not all operations are supported in Tech Preview 2. These will
-  come later. Supported operations include width, Qt::SolidLine and the
-  various Qt::PenJoinStyle's. The outline may also have some overlapping
-  regions.
-*/
 
 QPainterPathStroker::QPainterPathStroker()
     : d_ptr(new QPainterPathStrokerPrivate)
@@ -1561,192 +1367,26 @@ QPainterPathStroker::QPainterPathStroker()
 }
 
 QPainterPathStroker::~QPainterPathStroker()
-{ delete d_ptr; }
-
-/*
-   Strokes a subpath side using the \a it as source. Results are put into
-   \a stroke. The function returns true if the subpath side was closed.
-   If \a capFirst is true, we will use capPoints instead of joinPoints to
-   connect the first segment, other segments will be joined using joinPoints.
-   This is to put capping in order...
-*/
-template <class Iterator> bool qt_stroke_subpath_side(Iterator *it, QPainterPath *stroke,
-                                                      const QPainterPathStrokerPrivate *data,
-                                                      bool capFirst)
 {
-    // Used in CurveToElement section below.
-    const int MAX_OFFSET = 16;
-    QBezier offsetCurves[MAX_OFFSET];
-
-    int startPos = stroke->elementCount() - 1;
-
-    QPointF start = it->nextSubpath();
-#ifdef QPP_STROKE_DEBUG
-    qDebug(" -> subpath [%.2f, %.2f], startPos=%d", start.x(), start.y(), startPos);
-#endif
-
-    QPointF prev = start;
-
-    while (it->hasNext()) {
-        QPainterPath::Element e = it->next();
-
-        // LineToElement
-        if (e.isLineTo()) {
-#ifdef QPP_STROKE_DEBUG
-            qDebug(" ---> lineto [%.2f, %.2f]", e.x, e.y);
-#endif
-            QLineF line(prev, e);
-            QLineF normal = line.normalVector();
-            normal.setLength(data->offset);
-            QLineF ml(line);
-            ml.translate(normal.dx(), normal.dy());
-
-            // If we are starting a new subpath, move to correct starting point.
-            if (stroke->elementAt(stroke->elementCount()-1).isMoveTo()) {
-                stroke->moveTo(ml.p1());
-            } else if (capFirst) {
-                data->joinPoints(prev, ml, stroke, data->capStyle);
-                capFirst = false;
-            } else {
-                data->joinPoints(prev, ml, stroke, data->joinStyle);
-            }
-
-            // Add the stroke for this line.
-            stroke->lineTo(ml.p2());
-            prev = e;
-
-        // CurveToElement
-        } else if (e.isCurveTo()) {
-#ifdef QPP_STROKE_DEBUG
-            qDebug(" ---> curveto [%.2f, %.2f]", e.x, e.y);
-#endif
-
-            QPainterPath::Element cp2 = it->next(); // control point 2
-            QPainterPath::Element ep = it->next();  // end point
-
-            QBezier bezier = QBezier::fromPoints(prev, e, cp2, ep);
-            int count = bezier.shifted(offsetCurves,
-                                       MAX_OFFSET,
-                                       data->offset,
-                                       data->curveThreshold);
-
-            if (count) {
-                // If we are starting a new subpath, move to correct starting point
-                if (stroke->elementAt(stroke->elementCount()-1).isMoveTo()) {
-                    stroke->moveTo(offsetCurves[0].pt1());
-                } else if (capFirst) {
-                    data->joinPoints(prev, QLineF(offsetCurves[0].pt1(),
-                                                offsetCurves[0].pt2()), stroke, data->capStyle);
-                    capFirst = 0;
-                } else {
-                    data->joinPoints(prev, QLineF(offsetCurves[0].pt1(),
-                                                offsetCurves[0].pt2()), stroke, data->joinStyle);
-                }
-                // Add these beziers
-                for (int i=0; i<count; ++i) {
-                    stroke->cubicTo(offsetCurves[i].pt2(),
-                                    offsetCurves[i].pt3(),
-                                    offsetCurves[i].pt4());
-                }
-            }
-
-            prev = ep;
-        }
-    }
-
-    if (qFuzzyCompare(prev.x(), start.x()) && qFuzzyCompare(prev.y(), start.y())) {
-        // closed subpath, join first and last point
-#ifdef QPP_STROKE_DEBUG
-        qDebug(" ---> closed subpath");
-#endif
-        QLineF startTangent(stroke->elementAt(startPos), stroke->elementAt(startPos+1));
-        data->joinPoints(prev, startTangent, stroke, data->joinStyle);
-        stroke->moveTo(QPointF()); // start new subpath
-        return true;
-    } else {
-#ifdef QPP_STROKE_DEBUG
-        qDebug(" ---> open subpath");
-#endif
-        return false;
-    }
+    delete d_ptr;
 }
+
 
 /*!
   Creates a new stroke from the path \a input.
 */
 QPainterPath QPainterPathStroker::createStroke(const QPainterPath &path) const
 {
-    Q_D(const QPainterPathStroker);
-
-#ifdef QPP_STROKE_DEBUG
-    printf("QPainterPathPrivate::createStroke()\n");
-#endif
-
-
-#ifdef QPP_STROKE_DEBUG
-    printf(" -> path size: %d\n", path.elementCount());
-    qt_debug_path(path);
-#endif
-
-    QPainterPath input = path;
-
-    // Create the dashed version to use.
-    if (!d->dashPattern.isEmpty()) {
-#ifdef Q_CC_HPACC
-        // This is a workaround for a compiler bug with aCC. Whatever
-        // we do with QVarLengthArray at this point, we get a segmentation
-        // fault. It may be an alignment problem in QVarLengthArray.
-        qreal stackArray[16];
-        qreal *heapArray = 0;
-        qreal *pattern = stackArray;
-        int patternSize = d->dashPattern.size();
-        if (patternSize > 16)
-            pattern = heapArray = new qreal[patternSize];
-
-        for (int i=0; i<patternSize; ++i)
-            pattern[i] = d->dashPattern.at(i) * d->width;
-        input = qt_stroke_dash(path, pattern, patternSize);
-
-        delete [] heapArray;
-#else
-        QVarLengthArray<qreal, 16> pattern(d->dashPattern.size());
-        for (int i=0; i<d->dashPattern.size(); ++i)
-            pattern[i] = d->dashPattern.at(i) * d->width;
-        input = qt_stroke_dash(path, pattern.data(), pattern.size());
-#endif
-    }
-
-    QSubpathIterator fwit(&input);
-    QSubpathReverseIterator bwit(&input);
-
+    QPainterPathStrokerPrivate *d = const_cast<QPainterPathStrokerPrivate *>(d_func());
     QPainterPath stroke;
-    stroke.ensureData();
-    stroke.d_func()->elements.reserve(input.elementCount() * 4);
-
-    while (fwit.hasSubpath()) {
-        Q_ASSERT(bwit.hasSubpath());
-
-        int fwit_index = fwit.position();
-
-        int bwStart = stroke.elementCount() - 1;
-
-        bool fwclosed = qt_stroke_subpath_side(&fwit, &stroke, d, false);
-        bool bwclosed = qt_stroke_subpath_side(&bwit, &stroke, d, !fwclosed);
-
-        if (!bwclosed) {
-            QLineF bwStartTangent(stroke.elementAt(bwStart), stroke.elementAt(bwStart+1));
-            d->joinPoints(input.elementAt(fwit_index), bwStartTangent, &stroke, d->capStyle);
-        }
-
-        stroke.closeSubpath();
+    if (d->dashPattern.isEmpty()) {
+        d->stroker.strokePath(path, &stroke, QMatrix());
+    } else {
+        QDashStroker dashStroker(&d->stroker);
+        dashStroker.setDashPattern(d->dashPattern);
+        dashStroker.strokePath(path, &stroke, QMatrix());
     }
-
     stroke.setFillRule(Qt::WindingFill);
-#ifdef QPP_STROKE_DEBUG
-    printf(" -> Final path:\n");
-    qt_debug_path(stroke);
-#endif
-
     return stroke;
 }
 
@@ -1755,194 +1395,68 @@ void QPainterPathStroker::setWidth(qreal width)
     Q_D(QPainterPathStroker);
     if (width <= 0)
         width = 1;
-    d->width = width;
-    d->offset = width / 2;
-    d->appliedMiterLimit = d->miterLimit * width;
+    d->stroker.setStrokeWidth(qt_real_to_fixed(width));
 }
 
 qreal QPainterPathStroker::width() const
 {
-    return d_func()->width;
+    return qt_fixed_to_real(d_func()->stroker.strokeWidth());
 }
 
 void QPainterPathStroker::setCapStyle(Qt::PenCapStyle style)
 {
-    Q_D(QPainterPathStroker);
-    if (style == Qt::FlatCap)
-        d->capStyle = QPainterPathStrokerPrivate::FlatJoin;
-    else if (style == Qt::SquareCap)
-        d->capStyle = QPainterPathStrokerPrivate::SquareJoin;
-    else
-        d->capStyle = QPainterPathStrokerPrivate::RoundCap;
+    d_func()->stroker.setCapStyle(style);
 }
 
 Qt::PenCapStyle QPainterPathStroker::capStyle() const
 {
-    Q_D(const QPainterPathStroker);
-    if (d->capStyle == QPainterPathStrokerPrivate::FlatJoin)
-        return Qt::FlatCap;
-    else if (d->capStyle == QPainterPathStrokerPrivate::SquareJoin)
-        return Qt::SquareCap;
-    else
-        return Qt::RoundCap;
+    return d_func()->stroker.capStyle();
 }
 
 void QPainterPathStroker::setJoinStyle(Qt::PenJoinStyle style)
 {
-    Q_D(QPainterPathStroker);
-    if (style == Qt::BevelJoin)
-        d->joinStyle = QPainterPathStrokerPrivate::FlatJoin;
-    else if (style == Qt::MiterJoin)
-        d->joinStyle = QPainterPathStrokerPrivate::MiterJoin;
-    else
-        d->joinStyle = QPainterPathStrokerPrivate::RoundJoin;
+    d_func()->stroker.setJoinStyle(style);
 }
 
 Qt::PenJoinStyle QPainterPathStroker::joinStyle() const
 {
-    Q_D(const QPainterPathStroker);
-    if (d->joinStyle == QPainterPathStrokerPrivate::FlatJoin)
-        return Qt::BevelJoin;
-    else if (d->joinStyle == QPainterPathStrokerPrivate::MiterJoin)
-        return Qt::MiterJoin;
-    else
-        return Qt::RoundJoin;
+    return d_func()->stroker.joinStyle();
 }
 
 void QPainterPathStroker::setMiterLimit(qreal limit)
 {
-    Q_D(QPainterPathStroker);
-    d->miterLimit = limit;
-    d->appliedMiterLimit = d->miterLimit * d->width;
+    d_func()->stroker.setMiterLimit(qt_real_to_fixed(limit));
 }
 
 qreal QPainterPathStroker::miterLimit() const
 {
-    return d_func()->miterLimit;
+    return qt_fixed_to_real(d_func()->stroker.miterLimit());
 }
 
 
 void QPainterPathStroker::setCurveThreshold(qreal threshold)
 {
-    d_func()->curveThreshold = threshold;
+    d_func()->stroker.setCurveThreshold(qt_real_to_fixed(threshold));
 }
 
 qreal QPainterPathStroker::curveThreshold() const
 {
-    return d_func()->curveThreshold;
+    return qt_fixed_to_real(d_func()->stroker.curveThreshold());
 }
 
 void QPainterPathStroker::setDashPattern(Qt::PenStyle style)
 {
-    Q_D(QPainterPathStroker);
-    d->dashPattern = QVector<qreal>();
-
-    const qreal space = 2;
-    const qreal dot = 1;
-    const qreal dash = 4;
-
-    switch (style) {
-    case Qt::DashLine:
-        d->dashPattern << dash << space;
-        break;
-    case Qt::DotLine:
-        d->dashPattern << dot << space;
-        break;
-    case Qt::DashDotLine:
-        d->dashPattern << dash << space << dot << space;
-        break;
-    case Qt::DashDotDotLine:
-        d->dashPattern << dash << space << dot << space << dot << space;
-        break;
-    default:
-        break;
-    }
+    d_func()->dashPattern = QDashStroker::patternForStyle(style);
 }
 
 void QPainterPathStroker::setDashPattern(const QVector<qreal> &dashPattern)
 {
-    d_func()->dashPattern = dashPattern;
+    d_func()->dashPattern.clear();
+    for (int i=0; i<dashPattern.size(); ++i)
+        d_func()->dashPattern << qt_real_to_fixed(dashPattern.at(i));
 }
 
 QVector<qreal> QPainterPathStroker::dashPattern() const
 {
     return d_func()->dashPattern;
-}
-
-
-QPainterPath qt_stroke_dash(const QPainterPath &path,
-                            qreal *dashes, int dashCount)
-{
-    Q_ASSERT(dashes);
-    Q_ASSERT(dashCount > 0);
-
-    dashCount = (dashCount / 2) * 2; // Round down to even number
-
-    int idash = 0; // Index to current dash
-    qreal pos = 0; // The position on the curve, 0 <= pos <= path.length
-    qreal elen = 0; // element length
-    qreal doffset = 0;
-
-    qreal estart = 0; // The elements starting position
-    qreal estop = 0; // The element stop position
-
-    QLineF cline;
-
-    QPainterPath dashPath;
-
-    QSubpathFlatIterator it(&path);
-    QPointF prev;
-    while (it.hasSubpath()) {
-        prev = it.nextSubpath();
-        dashPath.moveTo(prev);
-
-        pos = 0;
-        idash = 0;
-        doffset = 0;
-        estart = 0;
-
-        while (it.hasNext()) {
-            QPainterPath::Element e = it.next();
-
-            Q_ASSERT(e.isLineTo());
-            cline = QLineF(prev, e);
-            elen = cline.length();
-
-            estop = estart + elen;
-
-            // Dash away...
-            while (pos < estop) {
-                QPointF p2;
-
-                int idash_incr = 0;
-                qreal dpos = pos + dashes[idash] - doffset - estart;
-
-                Q_ASSERT(dpos >= 0);
-
-                if (dpos > elen) { // dash extends this line
-                    doffset = dashes[idash] - (dpos - elen); // subtract the part already used
-                    pos = estop; // move pos to next path element
-                    p2 = cline.p2();
-                } else { // Dash is on this line
-                    p2 = cline.pointAt(dpos/elen);
-                    pos = dpos + estart;
-                    idash_incr = 1;
-                    doffset = 0; // full segment so no offset on next.
-                }
-
-                if (idash % 2 == 0) {
-                    dashPath.lineTo(p2);
-                } else {
-                    dashPath.moveTo(p2);
-                }
-
-                idash = (idash + idash_incr) % dashCount;
-            }
-
-            // Shuffle to the next cycle...
-            estart = estop;
-            prev = e;
-        }
-    }
-    return dashPath;
 }
