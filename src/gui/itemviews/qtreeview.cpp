@@ -355,10 +355,10 @@ void QTreeView::setRowHidden(int row, const QModelIndex &parent, bool hide)
     QModelIndex index = model()->index(row, 0, parent);
     QPersistentModelIndex persistent(index);
     if (hide) {
-        d->hiddenIndexes.append(persistent);
+        if (!d->hiddenIndexes.contains(persistent)) d->hiddenIndexes.append(persistent);
     } else {
         int i = d->hiddenIndexes.indexOf(persistent);
-        d->hiddenIndexes.remove(i);
+        if (i >= 0) d->hiddenIndexes.remove(i);
     }
 
     if (isVisible())
