@@ -7,17 +7,9 @@ VERSION=4.1.0
 
 #load up the headers info
 unix {
-    contains(QT_PRODUCT, .*Console.*):!equals(TARGET, QtGui):!equals(TARGET, QtOpenGL) {
-        CONFIG += qt_install_headers
-        HEADERS_PRI = $$QT_BUILD_TREE/include/$$TARGET/headers.pri
-        include($$HEADERS_PRI)|clear(HEADERS_PRI)
-    } else {
-        !contains(QT_PRODUCT, .*Console.*) {
-            CONFIG += qt_install_headers
-            HEADERS_PRI = $$QT_BUILD_TREE/include/$$TARGET/headers.pri
-            include($$HEADERS_PRI)|clear(HEADERS_PRI)
-        }
-    }
+    CONFIG += qt_install_headers
+    HEADERS_PRI = $$QT_BUILD_TREE/include/$$TARGET/headers.pri
+    include($$HEADERS_PRI)|clear(HEADERS_PRI)
 }
 
 #version overriding

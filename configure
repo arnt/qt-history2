@@ -73,7 +73,7 @@ if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]; then
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     Licensee="Open Source"
-    Edition="Open Source"
+    Edition="OpenSource"
     QT_EDITION="QT_EDITION_OPENSOURCE"
 elif [ -f $relpath/LICENSE.TROLL ]; then
     # internal Trolltech edition
@@ -385,8 +385,6 @@ OPT_SHADOW=maybe
 OPT_FAST=auto
 OPT_VERBOSE=no
 OPT_HELP=
-
-QT_PRODUCT=`echo $Edition | sed -e 's, ,,g'`
 
 # initalize variables used for installation
 QT_INSTALL_PREFIX=
@@ -2445,7 +2443,7 @@ fi # Help
 # LICENSING, INTERACTIVE PART
 # -----------------------------------------------------------------------------
 
-if [ "$Edition" = "Open Source" ]; then
+if [ "$Edition" = "OpenSource" ]; then
     while true; do
         if [ "$PLATFORM_QWS" = "yes" ]; then
             echo "You are licensed to use this software under the terms of"
@@ -2570,7 +2568,7 @@ esac
 [ -d $outpath/src/corelib/global ] || mkdir -p $outpath/src/corelib/global
 
 LICENSE_USER_STR=`$relpath/config.tests/unix/padstring 268 "qt_lcnsuser=$Licensee" "\\0"`
-LICENSE_PRODUCTS_STR=`$relpath/config.tests/unix/padstring 268 "qt_lcnsprod=$QT_PRODUCT" "\\0"`
+LICENSE_PRODUCTS_STR=`$relpath/config.tests/unix/padstring 268 "qt_lcnsprod=$Edition" "\\0"`
 PREFIX_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_prfxpath=$QT_INSTALL_PREFIX" "\\0"`
 DOCUMENTATION_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_docspath=$QT_INSTALL_DOCS" "\\0"`
 HEADERS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_hdrspath=$QT_INSTALL_HEADERS" "\\0"`
@@ -2723,7 +2721,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
         grep "^QMAKE_CFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
         grep "^QMAKE_CXXFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,\$\$QMAKE_CFLAGS,\$(QMAKE_CFLAGS)," >>$mkfile
         grep "^QMAKE_LFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
-        if [ "$Edition" = "Open Source" ]; then
+        if [ "$Edition" = "OpenSource" ]; then
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DQMAKE_OPENSOURCE_EDITION"
             EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -DQMAKE_OPENSOURCE_EDITION"
         else
@@ -3503,7 +3501,7 @@ else
 fi
 cat >>$QTCONFIG.tmp <<EOF
 CONFIG += $QTCONFIG_CONFIG
-QT_PRODUCT = $QT_PRODUCT
+QT_EDITION = $Edition
 QT_CONFIG += $QT_CONFIG
 EOF
 if [ "$CFG_RPATH" = "yes" ]; then

@@ -16,7 +16,7 @@ HEADERS += project.h property.h generators/makefile.h \
            generators/win32/winmakefile.h generators/projectgenerator.h \
            qtmd5.h generators/makefiledeps.h generators/metamakefile.h generators/mac/pbuilder_pbx.h \
            generators/xmloutput.h
-contains(QT_PRODUCT, .*OpenSource.*) {
+contains(QT_EDITION, OpenSource) {
    DEFINES += QMAKE_OPENSOURCE_EDITION
 } else {
    SOURCES +=  generators/win32/borland_bmake.cpp generators/win32/msvc_nmake.cpp \
