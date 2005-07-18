@@ -4246,7 +4246,6 @@ void QWidgetPrivate::show_helper()
         // stacking might be wrong
         QApplicationPrivate::enterModal(q);
 
-    q->setAttribute(Qt::WA_Mapped);
     show_sys();
 
 #if !defined(Q_WS_WIN)

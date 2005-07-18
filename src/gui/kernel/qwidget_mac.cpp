@@ -1482,6 +1482,7 @@ void QWidgetPrivate::show_sys()
 
     if (q->testAttribute(Qt::WA_OutsideWSRange))
         return;
+    q->setAttribute(Qt::WA_Mapped);
 
     if(q->isWindow()) {
         QDesktopWidget *dsk = QApplication::desktop();

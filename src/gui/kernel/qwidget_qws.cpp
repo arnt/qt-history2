@@ -817,6 +817,7 @@ void QWidgetPrivate::requestWindowRegion(const QRegion &r)
 void QWidgetPrivate::show_sys()
 {
     Q_Q(QWidget);
+    q->setAttribute(Qt::WA_Mapped);
     if (q->isWindow()) {
         QRegion r = localRequestedRegion();
         r.translate(data.crect.topLeft());
