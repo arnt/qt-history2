@@ -66,8 +66,9 @@ QStyleOptionRubberBand QRubberBandPrivate::getStyleOption() const
     band around a given area (or to represent a single line), then
     call setGeometry(), move() or resize() to position and size it;
     hiding (or destroying) the widget will make the rubber band
-    disappear. The rubber band can be a \c Rectangle or a \c Line,
-    depending on the shape() it was given when constructed.
+    disappear. The rubber band can be a \c Rectangle or a \c Line
+    (vertical or horizontal), depending on the shape() it was given
+    when constructed.
 */
 
 // ### DOC: How about some nice convenience constructors?
@@ -106,8 +107,18 @@ QRubberBand::~QRubberBand()
 /*!
     \enum QRubberBand::Shape
 
-    \value Line
-    \value Rectangle
+    This enum specifies what shape a QRubberBand should have. This is
+    a drawing hint that is passed down to the style system, and can be
+    interpreted by each QStyle.
+
+    \value Line A QRubberBand can represent a vertical or horizontal
+                line. Geometry is still given in rect() and the line
+                will fill the given geometry on most styles.
+
+    \value Rectangle A QRubberBand can represent a rectangle. Some
+                     styles will interpret this as a filled (often
+                     semi-transparent) rectangle, or a rectangular
+                     outline.
 */
 
 /*!
