@@ -2819,7 +2819,7 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
     bool multi = false;
 
     if (fontType == QFontEngine::Multi) {
-        int type = f->fontDef.style * 1000 + f->fontDef.weight;
+        int type = fe->fontDef.style * 1000 + fe->fontDef.weight;
         fontKey = "Multi:" + fe->fontDef.family + QChar(type);
         multi = true;
     }
