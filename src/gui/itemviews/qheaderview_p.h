@@ -55,6 +55,7 @@ public:
           stretchSections(0),
           sectionIndicatorOffset(0),
           sectionIndicator(0),
+          hiddenSections(0),
           globalResizeMode(QHeaderView::Interactive) {}
 
     int sectionHandleAt(int position);
@@ -92,6 +93,7 @@ public:
     mutable QVector<HeaderSection> sections; // HeaderSection = sections.at(visualIndex)
     mutable QVector<int> visualIndices; // visualIndex = visualIndices.at(logicalIndex)
     mutable QBitArray sectionSelection;
+    mutable QMap<int, int> hiddenSectionSize; // from logical index to section size
 
     int lastPos;
     int section; // used for resizing and moving sections
@@ -107,6 +109,7 @@ public:
     QLabel *sectionIndicator;
     QStyleOptionHeader getStyleOption() const;
     QHeaderView::ResizeMode globalResizeMode;
+    int hiddenSections;
 };
 
 #endif // QT_NO_ITEMVIEWS

@@ -342,7 +342,8 @@ int QHeaderView::sectionSizeHint(int logicalIndex) const
 int QHeaderView::visualIndexAt(int position) const
 {
     Q_D(const QHeaderView);
-    if (count() < 1)
+    d->executePostedLayout();
+    if (count() < 1 || position < 0 || position >= length())
         return -1;
 
     if (d->reverse())
@@ -390,11 +391,10 @@ int QHeaderView::logicalIndexAt(int position) const
 int QHeaderView::sectionSize(int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    if (logicalIndex < 0
-        || logicalIndex >= d->sections.count() - 1
-        || isSectionHidden(logicalIndex))
+    if (isSectionHidden(logicalIndex))
         return 0;
     int visual = visualIndex(logicalIndex);
+    Q_ASSERT(visual != -1);
     return d->sections.at(visual + 1).position - d->sections.at(visual).position;
 }
 
@@ -407,14 +407,16 @@ int QHeaderView::sectionSize(int logicalIndex) const
 int QHeaderView::sectionPosition(int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    if (logicalIndex < 0 || logicalIndex >= d->sections.count())
-        return 0;
     int visual = visualIndex(logicalIndex);
+    Q_ASSERT(visual != -1);
+    if (d->sections.at(visual).hidden)
+        return -1;
     return d->sections.at(visual).position;
 }
 
 /*!
     Returns the section viewport position of the given \a logicalIndex.
+    If the section is hidden the function returns -1.
 
     \sa sectionPosition()
 */
@@ -422,7 +424,10 @@ int QHeaderView::sectionPosition(int logicalIndex) const
 int QHeaderView::sectionViewportPosition(int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    int offsetPosition = sectionPosition(logicalIndex) - d->offset;
+    int position = sectionPosition(logicalIndex);
+    if (position < 0)
+        return position; // the section was hidden
+    int offsetPosition = position - d->offset;
     if (d->reverse())
         return d->viewport->width() - (offsetPosition + sectionSize(logicalIndex));
     return offsetPosition;
@@ -453,11 +458,13 @@ int QHeaderView::sectionViewportPosition(int logicalIndex) const
 void QHeaderView::moveSection(int from, int to)
 {
     Q_D(QHeaderView);
-    if (from == -1 || to == -1)
-        return;
+    Q_ASSERT(from >= 0 && from < d->sections.count());
+    Q_ASSERT(to >= 0 && to < d->sections.count());
 
     if (from == to) {
-        updateSection(visualIndex(from));
+        int visual = visualIndex(from);
+        Q_ASSERT(visual != -1);
+        updateSection(visual);
         return;
     }
 
@@ -517,6 +524,9 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
 {
     Q_D(QHeaderView);
 
+    if (isSectionHidden(logicalIndex))
+        return;
+
     int oldSize = sectionSize(logicalIndex);
     if (oldSize == size)
         return;
@@ -525,6 +535,7 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
 
     int diff = size - oldSize;
     int visual = visualIndex(logicalIndex);
+    Q_ASSERT(visual != -1);
     QHeaderViewPrivate::HeaderSection *sections = d->sections.data() + visual + 1;
     int num = d->sections.size() - visual - 1;
 
@@ -590,9 +601,10 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
 bool QHeaderView::isSectionHidden(int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    int visual = visualIndex(logicalIndex);
-    if (visual == -1 || d->sections.count() == 0)
+    if (logicalIndex <= 0 || logicalIndex >= d->sections.count())
         return false;
+    int visual = visualIndex(logicalIndex);
+    Q_ASSERT(visual != -1);
     return d->sections.at(visual).hidden;
 }
 
@@ -606,16 +618,20 @@ bool QHeaderView::isSectionHidden(int logicalIndex) const
 void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
 {
     Q_D(QHeaderView);
-    // FIXME: if the size of the table changes, the hidden sections are forgotten
-    if (logicalIndex < 0 || logicalIndex >= d->sections.count())
+    int visual = visualIndex(logicalIndex);
+    Q_ASSERT(visual != -1);
+    if (hide && d->sections.at(visual).hidden)
         return;
     if (hide) {
+        int size = sectionSize(logicalIndex);
+        d->hiddenSectionSize.insert(logicalIndex, size);
         resizeSection(logicalIndex, 0);
-        d->sections[visualIndex(logicalIndex)].hidden = true;
+        d->sections[visual].hidden = true;
     } else {
-        d->sections[visualIndex(logicalIndex)].hidden = false;
-        resizeSection(logicalIndex, d->defaultSectionSize());
-        // FIXME: when you show a section, you should get the old section size bach
+        int size = d->hiddenSectionSize.value(logicalIndex);
+        d->hiddenSectionSize.remove(logicalIndex);
+        d->sections[visual].hidden = false;
+        resizeSection(logicalIndex, size);
     }
 }
 
@@ -633,6 +649,7 @@ int QHeaderView::count() const
 /*!
     Returns the visual index position of the section specified by the
     given \a logicalIndex, or -1 otherwise.
+    Hidden sections still have valid visual indexes.
 
     \sa logicalIndex()
 */
@@ -640,12 +657,12 @@ int QHeaderView::count() const
 int QHeaderView::visualIndex(int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    if (logicalIndex < 0 || logicalIndex > d->sections.count())
+    d->executePostedLayout();
+    if (logicalIndex < 0 || logicalIndex >= d->sections.count())
         return -1;
-    if (d->visualIndices.count() <= 0)
-        return logicalIndex; // nothing has been moved yet
-    if (logicalIndex >= d->visualIndices.count())
-        return -1;
+    if (d->visualIndices.isEmpty())
+        return logicalIndex; // nothing has been moved, so we have no mapping
+    Q_ASSERT(logicalIndex >= 0 && logicalIndex < d->visualIndices.count());
     return d->visualIndices.at(logicalIndex);
 }
 
@@ -756,12 +773,14 @@ void QHeaderView::setResizeMode(ResizeMode mode)
 void QHeaderView::setResizeMode(int logicalIndex, ResizeMode mode)
 {
     Q_D(QHeaderView);
+
     initializeSections();
     if (logicalIndex >= d->sections.count()) {
         qWarning("setResizeMode: section %d does not exist", logicalIndex);
         return;
     }
     int visual = visualIndex(logicalIndex);
+    Q_ASSERT(visual != -1);
     ResizeMode old = d->sections[visual].mode;
     d->sections[visual].mode = mode;
     if (mode == Stretch && old != Stretch)
@@ -780,6 +799,7 @@ QHeaderView::ResizeMode QHeaderView::resizeMode(int logicalIndex) const
     if (logicalIndex >= d->sections.count())
         return Interactive;
     int visual = visualIndex(logicalIndex);
+    Q_ASSERT(visual != -1);
     return d->sections.at(visual).mode;
 }
 
@@ -826,15 +846,15 @@ bool QHeaderView::isSortIndicatorShown() const
 void QHeaderView::setSortIndicator(int logicalIndex, Qt::SortOrder order)
 {
     Q_D(QHeaderView);
+        
     int old = d->sortIndicatorSection;
     d->sortIndicatorSection = logicalIndex;
     d->sortIndicatorOrder = order;
 
-    if (logicalIndex >= d->sections.count())
+    if (logicalIndex < 0 || logicalIndex >= d->sections.count())
         return; // nothing to do
 
-    // FIXME: sections.at() uses visible indexes
-    if (old != logicalIndex && d->sections.at(logicalIndex).mode == Custom) {
+    if (old != logicalIndex && resizeMode(logicalIndex) == Custom) {
         resizeSections();
         d->viewport->update();
     } else {
@@ -885,6 +905,10 @@ void QHeaderView::setStretchLastSection(bool stretch)
 {
     Q_D(QHeaderView);
     d->stretchLastSection = stretch;
+    if (stretch)
+        resizeSections();
+    else
+        resizeSection(count() - 1, d->defaultSectionSize());
 }
 
 /*!
@@ -1355,7 +1379,7 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
             // This will drop the moved section to the position under the center of the indicator.
             // If centerOffset is 0, the section will be moved to the position of the mouse cursor.
             int visual = visualIndexAt(pos + centerOffset);
-            if (visual < 0)
+            if (visual == -1)
                 return;
             d->target = d->sections.at(visual).logical;
             d->updateSectionIndicator(d->section, pos);
@@ -1385,7 +1409,11 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
     switch (d->state) {
     case QHeaderViewPrivate::MoveSection:
         if (pos != d->lastPos) { // moving
-            moveSection(visualIndex(d->section), visualIndex(d->target));
+            int from = visualIndex(d->section);
+            Q_ASSERT(from != -1);
+            int to = visualIndex(d->target);
+            Q_ASSERT(to != -1);
+            moveSection(from, to);
             d->section = d->target = -1;
             d->updateSectionIndicator(d->section, pos);
             break;
@@ -1466,6 +1494,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
                                     Qt::DecorationRole));
     // the section position
     int visual = visualIndex(logicalIndex);
+    Q_ASSERT(visual != -1);
     if (visual == 0)
         opt.position = QStyleOptionHeader::Beginning;
     else if (visual == count())
@@ -1691,7 +1720,9 @@ QRegion QHeaderView::visualRegionForSelection(const QItemSelection &selection) c
                 continue; // we only know about toplevel items
             // FIXME an item inside the range may be the leftmost or rightmost
             rangeLeft = visualIndex(r.left());
+            Q_ASSERT(rangeLeft != -1);
             rangeRight = visualIndex(r.right());
+            Q_ASSERT(rangeRight != -1);
             if (rangeLeft < left)
                 left = rangeLeft;
             if (rangeRight > right)
@@ -1717,7 +1748,9 @@ QRegion QHeaderView::visualRegionForSelection(const QItemSelection &selection) c
             continue; // we only know about toplevel items
         // FIXME an item inside the range may be the leftmost or rightmost
         rangeTop = visualIndex(r.top());
+        Q_ASSERT(rangeTop != -1);
         rangeBottom = visualIndex(r.bottom());
+        Q_ASSERT(rangeBottom != -1);
         if (rangeTop < top)
             top = rangeTop;
         if (rangeBottom > bottom)
@@ -1740,7 +1773,7 @@ int QHeaderViewPrivate::sectionHandleAt(int position)
 {
     Q_Q(QHeaderView);
     int visual = q->visualIndexAt(position);
-    if (visual < 0)
+    if (visual == -1)
         return -1;
     int log = sections.at(visual).logical;
     int pos = q->sectionViewportPosition(log);
