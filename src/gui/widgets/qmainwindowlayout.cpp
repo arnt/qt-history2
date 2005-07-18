@@ -550,12 +550,55 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
     if (stream.status() != QDataStream::Ok)
         return false;
 
-    // replace existing toolbar layout
-    for (int line = 0; line < tb_layout_info.size(); ++line) {
-        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
-        for (int i = 0; i < lineInfo.list.size(); ++i)
-            delete lineInfo.list.at(i).item;
+    // remove restored toolbars from the existing toolbar layout
+    for (int line = 0; line < toolBarState.size(); ++line) {
+        const ToolBarLineInfo &lineInfo = toolBarState.at(line);
+        for (int i = 0; i < lineInfo.list.size(); ++i) {
+            const ToolBarLayoutInfo &info = lineInfo.list.at(i);
+
+            bool found = false;
+            for (int eline = 0; !found && eline < tb_layout_info.size(); ++eline) {
+                ToolBarLineInfo &elineInfo = tb_layout_info[eline];
+                for (int e = 0; !found && e < elineInfo.list.size(); ++e) {
+                    ToolBarLayoutInfo &einfo = elineInfo.list[e];
+                    if (info.item->widget() == einfo.item->widget()) {
+                        // found it
+                        found = true;
+                        delete einfo.item;
+                        elineInfo.list.removeAt(e);
+                        if (elineInfo.list.isEmpty())
+                            tb_layout_info.removeAt(eline);
+                    }
+                }
+            }
+        }
     }
+    if (!tb_layout_info.isEmpty()) {
+        // merge toolbars that have not been restored into the restored layout
+        int lineCount[NPOSITIONS - 1] = { 0, 0, 0, 0 };
+        while (!tb_layout_info.isEmpty()) {
+            ToolBarLineInfo lineInfo = tb_layout_info.takeFirst();
+            ++lineCount[lineInfo.pos];
+
+            bool merged = false;
+            int targetLine = 0;
+            for (int line = 0; line < toolBarState.size(); ++line) {
+                ToolBarLineInfo &restoredLineInfo = toolBarState[line];
+                if (lineInfo.pos != restoredLineInfo.pos)
+                    continue;
+                if (++targetLine == lineCount[lineInfo.pos]) {
+                    // merge!
+                    restoredLineInfo.list << lineInfo.list;
+                    merged = true;
+                }
+            }
+            if (!merged) {
+                // couldn't merge this toolbar line, append it to the new layout
+                toolBarState << lineInfo;
+            }
+        }
+    }
+    // replace existing toolbar layout
     tb_layout_info = toolBarState;
 #endif // QT_NO_TOOLBAR
 
@@ -566,6 +609,7 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
     if (dmarker != DockWidgetStateMarker)
         return false;
 
+    QList<QDockWidget *> dockwidgets = qFindChildren<QDockWidget *>(parentWidget());
     save_layout_info = new QVector<QMainWindowLayoutInfo>(layout_info);
 
     // clear out our working copy
@@ -612,6 +656,43 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
     }
 
 #ifndef QT_NO_DOCKWIDGET
+    // if any of the dockwidgets have not been restored, append them
+    // to the end of their current area
+    for (int i = 0; i < dockwidgets.size(); ++i) {
+        QDockWidget *dockWidget = dockwidgets.at(i);
+        bool found = false;
+        for (int x = 0; !found && x < NPOSITIONS - 1; ++x) {
+            if (layout_info[x].item)
+                found = findWidgetRecursively(layout_info[x].item, dockWidget);
+        }
+        if (!found) {
+            // append to the dock widget's current area
+            found = false;
+            int x = 0;
+            for (; !found && x < NPOSITIONS - 1; ++x) {
+                if ((*save_layout_info)[x].item)
+                    found = findWidgetRecursively((*save_layout_info)[x].item, dockWidget);
+            }
+            if (!found) {
+                // the dock widget hasn't been added to this layout
+                continue;
+            }
+            --x;
+            Qt::Orientation orientation = Qt::Horizontal;
+            switch (areaForPosition(x)) {
+            case Qt::LeftDockWidgetArea:
+            case Qt::RightDockWidgetArea:
+                orientation = Qt::Vertical;
+                break;
+            default:
+                break;
+            }
+            addDockWidget(static_cast<Qt::DockWidgetArea>(areaForPosition(x)),
+                          dockWidget,
+                          orientation);
+        }
+    }
+
     // replace existing dockwidget layout
     for (int i = 0; i < NPOSITIONS - 1; ++i) {
         if ((*save_layout_info)[i].sep)
