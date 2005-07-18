@@ -30,6 +30,7 @@
 #include "qimagereader.h"
 #include "qimagewriter.h"
 #include "qdebug.h"
+#include "qt_windows.h"
 
 QPixmap QPixmap::grabWindow(WId winId, int x, int y, int w, int h )
 {

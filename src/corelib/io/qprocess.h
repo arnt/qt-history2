@@ -18,8 +18,7 @@
 #include <QtCore/qstringlist.h>
 
 #if defined(Q_OS_WIN32)
-#include <QtCore/qt_windows.h>
-typedef PROCESS_INFORMATION* Q_PID;
+typedef struct _PROCESS_INFORMATION* Q_PID;
 #else
 typedef qint64 Q_PID;
 #endif

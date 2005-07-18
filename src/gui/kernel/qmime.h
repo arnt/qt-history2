@@ -16,11 +16,6 @@
 
 #include "QtCore/qmimedata.h"
 
-#if defined(Q_WS_WIN)
-    #include <windows.h>
-    #include <objidl.h>
-#endif
-
 QT_MODULE(Gui)
 
 class Q_GUI_EXPORT QMimeSource
@@ -34,6 +29,10 @@ public:
 
 
 #if defined(Q_WS_WIN)
+
+typedef struct tagFORMATETC FORMATETC;
+typedef struct tagSTGMEDIUM STGMEDIUM;
+struct IDataObject;
 
 #include "QtCore/qvariant.h"
 

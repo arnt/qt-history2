@@ -36,6 +36,11 @@
 # include "private/qt_mac_p.h"
 #endif
 
+#if defined(Q_WS_WIN)
+    #include <windows.h>
+    #include <objidl.h>
+#endif
+
 #ifndef QT_NO_DRAGANDDROP
 
 class QEventLoop;
