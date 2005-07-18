@@ -1506,7 +1506,8 @@ bool QApplicationPrivate::modalState()
 void QApplicationPrivate::enterModal(QWidget *widget)
 {
 #ifdef DEBUG_MODAL_EVENTS
-    qDebug("Entering modal state with %s::%s::%p (%d)", widget->metaObject()->className(), widget->objectName().local8Bit(),
+    Q_ASSERT(widget);
+    qDebug("Entering modal state with %s::%s::%p (%d)", widget->metaObject()->className(), widget->objectName().toLocal8Bit().constData(),
            widget, qt_modal_stack ? (int)qt_modal_stack->count() : -1);
 #endif
     if(!qt_modal_stack) {                        // create modal stack
@@ -1532,7 +1533,7 @@ void QApplicationPrivate::leaveModal(QWidget *widget)
 {
     if(qt_modal_stack && qt_modal_stack->removeAll(widget)) {
 #ifdef DEBUG_MODAL_EVENTS
-        qDebug("Leaving modal state with %s::%s::%p (%d)", widget->metaObject()->className(), widget->objectName().local8Bit(),
+        qDebug("Leaving modal state with %s::%s::%p (%d)", widget->metaObject()->className(), widget->objectName().toLocal8Bit().constData(),
                widget, qt_modal_stack->count());
 #endif
         if(qt_modal_stack->isEmpty()) {
@@ -1546,7 +1547,7 @@ void QApplicationPrivate::leaveModal(QWidget *widget)
         }
     }
 #ifdef DEBUG_MODAL_EVENTS
-    else qDebug("Failure to remove %s::%s::%p -- %p", widget->metaObject()->className(), widget->objectName().local8Bit(), widget, qt_modal_stack);
+    else qDebug("Failure to remove %s::%s::%p -- %p", widget->metaObject()->className(), widget->objectName().toLocal8Bit().constData(), widget, qt_modal_stack);
 #endif
     app_do_modal = (qt_modal_stack != 0);
     if(!app_do_modal)
