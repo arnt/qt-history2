@@ -588,28 +588,27 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
 
     metrics = freetype->face->size->metrics;
 
-    int load_flags = FT_LOAD_DEFAULT;
+    unlockFace();
+
+#ifndef QT_NO_XRENDER
+    if (X11->use_xrender) {
     int format = PictStandardA8;
     if (!antialias) {
-        load_flags |= FT_LOAD_TARGET_MONO;
         format = PictStandardA1;
     } else {
         if (subpixel == FC_RGBA_RGB || subpixel == FC_RGBA_BGR) {
-            load_flags |= FT_LOAD_TARGET_LCD;
             format = PictStandardARGB32;
         } else if (subpixel == FC_RGBA_VRGB || subpixel == FC_RGBA_VBGR) {
-            load_flags |= FT_LOAD_TARGET_LCD_V;
             format = PictStandardARGB32;
         }
     }
-
-    unlockFace();
-    if (X11->use_xrender) {
         glyphSet = XRenderCreateGlyphSet(X11->display,
                                          XRenderFindStandardFormat(X11->display, format));
     } else {
         glyphSet = 0;
     }
+#endif
+
     _openType = 0;
 }
 
@@ -631,8 +630,10 @@ QFontEngineFT::~QFontEngineFT()
     _pattern = 0;
 
     qDeleteAll(glyph_data);
+#ifndef QT_NO_XRENDER
     if (glyphSet)
         XRenderFreeGlyphSet(X11->display, glyphSet);
+#endif
     delete _openType;
 }
 
@@ -714,7 +715,19 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
     int top    = CEIL(slot->metrics.horiBearingY);
     int bottom = FLOOR(slot->metrics.horiBearingY - slot->metrics.height);
 
+#ifndef QT_NO_XRENDER
     XGlyphInfo info;
+#else
+    typedef struct _XGlyphInfoDummy {
+        unsigned short  width;
+        unsigned short  height;
+        short           x;
+        short           y;
+        short           xOff;
+        short           yOff;
+    } XGlyphInfoDummy;
+    XGlyphInfoDummy info;
+#endif
     info.width = TRUNC(right - left);
     info.height = TRUNC(top - bottom);
     info.x = -TRUNC(left);

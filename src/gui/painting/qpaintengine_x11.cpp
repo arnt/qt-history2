@@ -77,6 +77,8 @@ static inline void x11SetClipRegion(Display *dpy, GC gc, GC gc2,
 #ifndef QT_NO_XRENDER
     if (picture)
         XRenderSetPictureClipRectangles(dpy, picture, 0, 0, rects, num);
+#else
+    Q_UNUSED(picture);
 #endif // QT_NO_XRENDER
 }
 
@@ -99,6 +101,8 @@ static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2,
         attrs.clip_mask = XNone;
         XRenderChangePicture (dpy, picture, CPClipMask, &attrs);
     }
+#else
+    Q_UNUSED(picture);
 #endif // QT_NO_XRENDER
 }
 
@@ -2170,9 +2174,6 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
         return;
     }
 
-    int screen = d->scrn;
-    GlyphSet glyphSet = ft->glyphSet;
-
     bool transform = d->txop >= QPainterPrivate::TxScale;
 
     if (d->txop == QPainterPrivate::TxTranslate) {
@@ -2201,16 +2202,16 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
     if (si.flags)
         ::drawLines(this, si, p.toPoint().y(), p.toPoint().x(), qRound(si.width));
 
-    QVarLengthArray<XGlyphElt32, 256> glyphSpec(si.num_glyphs);
-
-
 #ifndef QT_NO_XRENDER
     if (X11->use_xrender) {
 #ifdef FONTENGINE_DEBUG
         p->painter()->save();
         p->painter()->setPen(Qt::red);
 #endif
+        GlyphSet glyphSet = ft->glyphSet;
         int nGlyphs = 0;
+        int screen = d->scrn;
+        QVarLengthArray<XGlyphElt32, 256> glyphSpec(si.num_glyphs);
 
         if (si.flags & QTextItem::RightToLeft) {
             int i = si.num_glyphs;
@@ -2335,7 +2336,6 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
             int yp = qRound(gpos.y());
             core_render_glyph(ft, xp, yp, glyphs[i].glyph);
             if (glyphs[i].nKashidas) {
-                glyphSpec.resize(glyphSpec.size() + glyphs[i].nKashidas);
                 QChar ch(0x640); // Kashida character
                 QGlyphLayout g[8];
                 int nglyphs = 7;

@@ -207,8 +207,9 @@ public:
         uchar *data;
     };
     Glyph *loadGlyph(uint glyph, GlyphFormat = Format_None) const;
-
+#ifndef QT_NO_XRENDER
     GlyphSet glyphSet;
+#endif
 private:
     mutable QOpenType *_openType;
     FT_Size_Metrics metrics;
