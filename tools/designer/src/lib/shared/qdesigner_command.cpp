@@ -904,11 +904,15 @@ void DeleteToolBoxPageCommand::init(QToolBox *toolBox)
 void DeleteToolBoxPageCommand::redo()
 {
     removePage();
+    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
+        objectInspector->setFormWindow(formWindow());
 }
 
 void DeleteToolBoxPageCommand::undo()
 {
     addPage();
+    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
+        objectInspector->setFormWindow(formWindow());
 }
 
 // ---- AddToolBoxPageCommand ----
@@ -941,11 +945,15 @@ void AddToolBoxPageCommand::init(QToolBox *toolBox)
 void AddToolBoxPageCommand::redo()
 {
     addPage();
+    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
+        objectInspector->setFormWindow(formWindow());
 }
 
 void AddToolBoxPageCommand::undo()
 {
     removePage();
+    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
+        objectInspector->setFormWindow(formWindow());
 }
 
 // ---- TabWidgetCommand ----
@@ -1003,11 +1011,15 @@ void DeleteTabPageCommand::init(QTabWidget *tabWidget)
 void DeleteTabPageCommand::redo()
 {
     removePage();
+    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
+        objectInspector->setFormWindow(formWindow());
 }
 
 void DeleteTabPageCommand::undo()
 {
     addPage();
+    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
+        objectInspector->setFormWindow(formWindow());
 }
 
 // ---- AddTabPageCommand ----
@@ -1040,11 +1052,15 @@ void AddTabPageCommand::init(QTabWidget *tabWidget)
 void AddTabPageCommand::redo()
 {
     addPage();
+    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
+        objectInspector->setFormWindow(formWindow());
 }
 
 void AddTabPageCommand::undo()
 {
     removePage();
+    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
+        objectInspector->setFormWindow(formWindow());
 }
 
 // ---- MoveTabPageCommand ----
@@ -1136,11 +1152,15 @@ void DeleteStackedWidgetPageCommand::init(QStackedWidget *stackedWidget)
 void DeleteStackedWidgetPageCommand::redo()
 {
     removePage();
+    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
+        objectInspector->setFormWindow(formWindow());
 }
 
 void DeleteStackedWidgetPageCommand::undo()
 {
     addPage();
+    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
+        objectInspector->setFormWindow(formWindow());
 }
 
 // ---- AddStackedWidgetPageCommand ----
@@ -1171,11 +1191,15 @@ void AddStackedWidgetPageCommand::init(QStackedWidget *stackedWidget)
 void AddStackedWidgetPageCommand::redo()
 {
     addPage();
+    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
+        objectInspector->setFormWindow(formWindow());
 }
 
 void AddStackedWidgetPageCommand::undo()
 {
     removePage();
+    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
+        objectInspector->setFormWindow(formWindow());
 }
 
 // ---- TabOrderCommand ----
