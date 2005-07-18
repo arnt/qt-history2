@@ -112,16 +112,21 @@ void RateController::timerEvent(QTimerEvent *event)
             }
 
             // Distribute bytes to write
-            int bytesToWrite = qMin(qMin(bytesLeftToWrite, writeChunk), client->bufferedBytesToWrite());
-            if (bytesToWrite > 0) {
-                int written = client->acceptBytesToWrite(bytesToWrite);
-                if (written > 0) {
-                    bytesLeftToWrite -= written;
-                } else {
-                    transmittingClients.removeAll(client);
-                    continue;
+            int bytesToWrite = 0;
+            int maxWindowSize = uploadLimitBytes / transmittingClients.size() - client->bytesToWrite();
+            if (maxWindowSize > 0) {
+                bytesToWrite = qMin(qMin(bytesLeftToWrite, writeChunk), client->bufferedBytesToWrite());
+                bytesToWrite = qMin(bytesToWrite, maxWindowSize);
+                if (bytesToWrite > 0) {
+                    int written = client->acceptBytesToWrite(bytesToWrite);
+                    if (written > 0) {
+                        bytesLeftToWrite -= written;
+                    } else {
+                        transmittingClients.removeAll(client);
+                        continue;
+                    }
                 }
-            }
+            } 
 
             // Distribute bytes to read
             int bytesToRead = qMin<int>(qMin(bytesLeftToRead, readChunk), client->bytesAvailable());

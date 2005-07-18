@@ -1,4 +1,3 @@
-/*-*-mode:c++;c-basic-offset:4-*-*/
 /****************************************************************************
 **
 ** Copyright (C) 2004-2005 Trolltech AS. All rights reserved.
@@ -31,10 +30,11 @@
 
 class QHostAddress;
 class QTimerEvent;
+template<typename T> class QSet;
 
+#include <QtCore/QBitArray>
 #include <QtCore/QByteArray>
 #include <QtCore/QList>
-#include <QtCore/QSet>
 #include <QtNetwork/QTcpSocket>
 
 class PeerWireClient : public QTcpSocket
@@ -50,11 +50,12 @@ public:
     Q_DECLARE_FLAGS(PeerWireState, PeerWireStateFlag)
 
     PeerWireClient(QObject *parent = 0);
-    void initialize(const QByteArray &infoHash, const QByteArray &peerId);
+    void initialize(const QByteArray &infoHash, const QByteArray &peerId,
+                    int pieceCount);
 
     // State
     inline PeerWireState peerWireState() const { return pwState; }
-    inline QSet<int> availablePieces() const { return peerPieces; }
+    QSet<int> availablePieces() const;
 
     // Protocol
     void chokePeer();
@@ -62,7 +63,7 @@ public:
     void sendInterested();
     void sendNotInterested();
     void sendPieceNotification(int piece);
-    void sendPieceList(const QSet<int> &bitField, int pieceCount);
+    void sendPieceList(const QSet<int> &bitField);
     void requestBlock(int piece, int offset, int length);
     void cancelRequest(int piece, int offset, int length);
     void sendBlock(int piece, int offset, const QByteArray &data);
@@ -137,7 +138,7 @@ private:
     // Checksum, peer ID and set of available pieces
     QByteArray infoHash;
     QByteArray peerIdString;
-    QSet<int> peerPieces;
+    QBitArray peerPieces;
 };
 
 #endif

@@ -237,6 +237,7 @@ bool FileManager::generateFiles()
             }
         }
         files << file;
+        file->close();
 
         pieceLength = singleFile.pieceLength;
         totalLength = singleFile.length;
@@ -290,6 +291,8 @@ bool FileManager::generateFiles()
                 }
             }
             files << file;
+            file->close();
+
             totalLength += entry.length;
         }
 
@@ -310,8 +313,19 @@ QByteArray FileManager::readBlock(int pieceIndex, int offset, int length)
         QFile *file = files[i];
         qint64 currentFileSize = file->size();
         if ((currentIndex + currentFileSize) > startReadIndex) {
+            if (!file->isOpen()) {
+                if (!file->open(QFile::ReadWrite)) {
+                    errString = tr("Failed to read from file %1: %2")
+                        .arg(file->fileName()).arg(file->errorString());
+                    emit error();
+                    break;
+                }
+            }
+
             file->seek(startReadIndex - currentIndex);
             QByteArray chunk = file->read(qMin<qint64>(length, currentFileSize - file->pos()));
+            file->close();
+
             block += chunk;
             length -= chunk.size();
             startReadIndex += chunk.size();
@@ -339,9 +353,20 @@ bool FileManager::writeBlock(int pieceIndex, int offset, const QByteArray &data)
         qint64 currentFileSize = file->size();
 
         if ((currentIndex + currentFileSize) > startWriteIndex) {
+            if (!file->isOpen()) {
+                if (!file->open(QFile::ReadWrite)) {
+                    errString = tr("Failed to write to file %1: %2")
+                        .arg(file->fileName()).arg(file->errorString());
+                    emit error();
+                    break;
+                }
+            }
+
             file->seek(startWriteIndex - currentIndex);
             qint64 bytesWritten = file->write(data.constData() + written,
                                               qMin<qint64>(bytesToWrite, currentFileSize - file->pos()));
+            file->close();
+
             if (bytesWritten <= 0) {
                 errString = tr("Failed to write to file %1: %2")
                             .arg(file->fileName()).arg(file->errorString());

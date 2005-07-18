@@ -57,7 +57,7 @@ public:
     inline void paint(QPainter *painter, const QStyleOptionViewItem &option,
                       const QModelIndex &index ) const
     {
-        if (index.column() != 3) {
+        if (index.column() != 2) {
             QItemDelegate::paint(painter, option, index);
             return;
         }
@@ -89,7 +89,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     // Initialize some static strings
     QStringList headers;
-    headers << tr("Torrent") << tr("Connections") << tr("Peers") << tr("Progress")
+    headers << tr("Torrent") << tr("Seen / Known / Seeds") << tr("Progress")
             << tr("Download rate") << tr("Upload rate") << tr("Status");
 
     // Main torrent list
@@ -98,6 +98,7 @@ MainWindow::MainWindow(QWidget *parent)
     torrentView->setHeaderLabels(headers);
     torrentView->setSelectionBehavior(QAbstractItemView::SelectRows);
     torrentView->setAlternatingRowColors(true);
+    torrentView->setRootIsDecorated(false);
     setCentralWidget(torrentView);
 
     // Set header resize modes and initial section sizes
@@ -353,13 +354,13 @@ bool MainWindow::addTorrent(const QString &fileName, const QString &destinationF
         baseFileName.remove(baseFileName.size() - 8);
 
     item->setText(0, baseFileName);
-    item->setText(1, tr("0/0"));
-    item->setText(2, QLatin1String("0/0"));
-    item->setText(3, QLatin1String("0"));
+    item->setText(1, tr("0 / 0 / ?"));
+    item->setText(2, QLatin1String("0"));
+    item->setText(3, QLatin1String("0.0 KB/s"));
     item->setText(4, QLatin1String("0.0 KB/s"));
-    item->setText(5, QLatin1String("0.0 KB/s"));
-    item->setText(6, tr("Idle"));
+    item->setText(5, tr("Idle"));
     item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+    item->setTextAlignment(1, Qt::AlignHCenter);
 
     if (!saveChanges) {
         saveChanges = true;
@@ -404,7 +405,7 @@ void MainWindow::updateState(TorrentClient::State)
     int row = rowOfClient(client);
     QTreeWidgetItem *item = torrentView->topLevelItem(row);
     if (item)
-        item->setText(6, client->stateString());
+        item->setText(5, client->stateString());
     setActionsEnabled();
 }
 
@@ -415,8 +416,8 @@ void MainWindow::updatePeerInfo()
     int row = rowOfClient(client);
 
     QTreeWidgetItem *item = torrentView->topLevelItem(row);
-    item->setText(1, tr("%1/%2").arg(client->connectedPeerCount()).arg(client->visitedPeerCount()));
-    item->setText(2, tr("%1/%2").arg(client->seedCount()).arg(client->leechCount()));
+    item->setText(1, tr("%1 / %2 / %3").arg(client->connectedPeerCount())
+                  .arg(client->visitedPeerCount()).arg(client->seedCount()));
 }
 
 void MainWindow::updateProgress(int percent)
@@ -427,7 +428,7 @@ void MainWindow::updateProgress(int percent)
     // Update the progressbar.
     QTreeWidgetItem *item = torrentView->topLevelItem(row);
     if (item)
-        item->setText(3, QString::number(percent));
+        item->setText(2, QString::number(percent));
 }
 
 void MainWindow::setActionsEnabled()
@@ -469,7 +470,7 @@ void MainWindow::updateDownloadRate(int bytesPerSecond)
     int row = rowOfClient(client);
     QString num;
     num.sprintf("%.1f KB/s", bytesPerSecond / 1024.0);
-    torrentView->topLevelItem(row)->setText(4, num);
+    torrentView->topLevelItem(row)->setText(3, num);
 
     if (!saveChanges) {
         saveChanges = true;
@@ -484,7 +485,7 @@ void MainWindow::updateUploadRate(int bytesPerSecond)
     int row = rowOfClient(client);
     QString num;
     num.sprintf("%.1f KB/s", bytesPerSecond / 1024.0);
-    torrentView->topLevelItem(row)->setText(5, num);
+    torrentView->topLevelItem(row)->setText(4, num);
 
     if (!saveChanges) {
         saveChanges = true;

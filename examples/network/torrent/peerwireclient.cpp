@@ -28,6 +28,7 @@
 #include "peerwireclient.h"
 
 #include <QtCore/QListIterator>
+#include <QtCore/QSet>
 #include <QtCore/QTimerEvent>
 
 static const int ClientTimeout = 60 * 1000;
@@ -73,12 +74,24 @@ PeerWireClient::PeerWireClient(QObject *parent)
 
 // Registers the peer ID and SHA1 sum of the torrent, and initiates
 // the handshake.
-void PeerWireClient::initialize(const QByteArray &infoHash, const QByteArray &peerId)
+void PeerWireClient::initialize(const QByteArray &infoHash, const QByteArray &peerId,
+                                int pieceCount)
 {
     this->peerIdString = peerId;
     this->infoHash = infoHash;
+    peerPieces.resize(pieceCount);
     if (!sentHandShake)
 	sendHandShake();
+}
+
+QSet<int> PeerWireClient::availablePieces() const
+{
+    QSet<int> tmp;
+    for (int i = 0; i < peerPieces.size(); ++i) {
+       if (peerPieces.testBit(i))
+           tmp << i;
+    }
+    return tmp;
 }
 
 // Sends a "choke" message, asking the peer to stop requesting blocks.
@@ -133,7 +146,7 @@ void PeerWireClient::sendPieceNotification(int piece)
 }
 
 // Sends the complete list of pieces that we have downloaded.
-void PeerWireClient::sendPieceList(const QSet<int> &bitField, int pieceCount)
+void PeerWireClient::sendPieceList(const QSet<int> &bitField)
 {
     // The bitfield message may only be sent immediately after the
     // handshaking sequence is completed, and before any other
@@ -145,8 +158,8 @@ void PeerWireClient::sendPieceList(const QSet<int> &bitField, int pieceCount)
     if (bitField.size() == 0)
 	return;
 
-    int size = pieceCount / 8;
-    if (pieceCount % 8)
+    int size = peerPieces.size() / 8;
+    if (peerPieces.size() % 8)
 	++size;
     QByteArray bits(size, '\0');
     foreach (int pieceIndex, bitField) {
@@ -406,8 +419,8 @@ void PeerWireClient::processIncomingData()
 	case HavePacket: {
 	    // The peer has a new piece available.
 	    quint32 index = fromNetworkData(&packet.data()[1]);
-	    peerPieces << int(index);
-	    emit piecesAvailable(peerPieces);
+	    peerPieces.setBit(int(index));
+	    emit piecesAvailable(availablePieces());
 	    break;
 	}
 	case BitFieldPacket:
@@ -415,10 +428,10 @@ void PeerWireClient::processIncomingData()
 	    for (int i = 1; i < packet.size(); ++i) {
 		for (int bit = 0; bit < 8; ++bit) {
 		    if (packet.at(i) & (1 << (7 - bit)))
-			peerPieces << int(((i - 1) * 8) + bit);
+			peerPieces.setBit(int(((i - 1) * 8) + bit));
 		}
 	    }
-	    emit piecesAvailable(peerPieces);
+	    emit piecesAvailable(availablePieces());
 	    break;
 	case RequestPacket: {
 	    // The peer requests a block.
