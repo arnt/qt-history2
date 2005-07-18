@@ -889,6 +889,8 @@ int QComboBox::count() const
 void QComboBox::setMaxCount(int max)
 {
     Q_D(QComboBox);
+    Q_ASSERT(max >= 0);
+
     if (max < count())
         model()->removeRows(max, count() - max, rootModelIndex());
 
@@ -1387,12 +1389,13 @@ QVariant QComboBox::itemData(int index, int role) const
 void QComboBox::insertItem(int index, const QIcon &icon, const QString &text, const QVariant &userData)
 {
     Q_D(QComboBox);
-    if (!(count() < d->maxCount))
-        return;
     if (index < 0)
         index = 0;
     else if (index > count())
         index = count();
+    if (index >= d->maxCount)
+        return;
+
     QModelIndex item;
     if (model()->insertRows(index, 1, rootModelIndex())) {
         item = model()->index(index, d->modelColumn, rootModelIndex());
@@ -1402,6 +1405,9 @@ void QComboBox::insertItem(int index, const QIcon &icon, const QString &text, co
         values.insert(Qt::UserRole, userData);
         model()->setItemData(item, values);
     }
+    int mc = count();
+    if (mc > d->maxCount)
+        model()->removeRows(mc - 1, mc - d->maxCount, rootModelIndex());
 }
 
 /*!
@@ -1411,19 +1417,25 @@ void QComboBox::insertItem(int index, const QIcon &icon, const QString &text, co
 void QComboBox::insertItems(int index, const QStringList &list)
 {
     Q_D(QComboBox);
-    if (list.isEmpty() || list.count() + count() > d->maxCount)
+    if (list.isEmpty())
         return;
 
-    if (index < 0)
+    if (index < 0 || index > count())
         index = count();
 
-    if (model()->insertRows(index, list.count(), rootModelIndex())) {
+    int insertCount = qMin(d->maxCount - index, list.count());
+    if (insertCount <= 0)
+        return;
+    if (model()->insertRows(index, insertCount, rootModelIndex())) {
         QModelIndex item;
-        for (int i = 0; i < list.count(); ++i) {
+        for (int i = 0; i < insertCount; ++i) {
             item = model()->index(i+index, d->modelColumn, rootModelIndex());
             model()->setData(item, list.at(i), Qt::EditRole);
         }
     }
+    int mc = count();
+    if (mc > d->maxCount)
+        model()->removeRows(d->maxCount, mc - d->maxCount, rootModelIndex());
 }
 
 /*!
