@@ -761,6 +761,8 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
         int tcls = ncls;
         if (tcls >= QUnicodeTables::LineBreak_SA)
             tcls = QUnicodeTables::LineBreak_ID;
+        if (cls >= QUnicodeTables::LineBreak_SA)
+            cls = QUnicodeTables::LineBreak_ID;
 
 	int brk = charAttributes[i].charStop ? breakTable[cls][tcls] : (int)Pbk;
         if (brk == Ibk)
