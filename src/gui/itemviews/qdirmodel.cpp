@@ -198,7 +198,7 @@ QString QFileIconProvider::type(const QFileInfo &info) const
     if (info.isRoot())
         return QObject::tr("Drive");
     if (info.isFile())
-        return info.suffix() + " " + QObject::tr("File");
+        return info.suffix() + QLatin1String(" ") + QObject::tr("File");
     if (info.isDir())
         return QObject::tr("Directory");
     if (info.isSymLink())
@@ -254,7 +254,7 @@ public:
         QFileInfoList fil = dir.entryInfoList(nameFilters, filters, sort);
         for (int i = 0; i < fil.count(); ++i) {
             QString fn = fil.at(i).fileName();
-            if (fn == "." || fn == "..")
+            if (fn == QLatin1String(".") || fn == QLatin1String(".."))
                 fil.removeAt(i--);
         }
         return fil;
@@ -265,7 +265,7 @@ public:
         QStringList sl = dir.entryList(nameFilters, filters, sort);
         for (int i = 0; i < sl.count(); ++i) {
             QString fn = sl.at(i);
-            if (fn == "." || fn == "..")
+            if (fn == QLatin1String(".") || fn == QLatin1String(".."))
                 sl.removeAt(i--);
         }
         return sl;
@@ -492,9 +492,9 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
                 if (node->info.isRoot()) {
                     QString name = node->info.absoluteFilePath();
 #ifdef Q_OS_WIN
-                    if (name.at(0) == '/') // UNC host
+                    if (name.startsWith(QLatin1Char('/'))) // UNC host
                         return node->info.fileName();
-                    if (name.at(name.length() - 1) == '/')
+                    if (name.endsWith(QLatin1Char('/')))
                         name.chop(1);
 #endif
                     return name;
@@ -659,7 +659,7 @@ void QDirModel::sort(int column, Qt::SortOrder order)
 
 QStringList QDirModel::mimeTypes() const
 {
-    return QStringList("text/uri-list");
+    return QStringList(QLatin1String("text/uri-list"));
 }
 
 /*!
@@ -968,7 +968,7 @@ QModelIndex QDirModel::index(const QString &path, int column) const
     QStringList pathElements = absolutePath.split(QChar('/'), QString::SkipEmptyParts);
     if ((pathElements.isEmpty() || !QFileInfo(path).exists())
 #ifndef Q_OS_WIN
-        && path != "/"
+        && path != QLatin1String("/")
 #endif
         )
         return QModelIndex();
@@ -978,7 +978,7 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         d->populate(&d->root);
 
 #ifdef Q_OS_WIN
-    if (absolutePath.startsWith("//")) { // UNC path
+    if (absolutePath.startsWith(QLatin1String("//"))) { // UNC path
         QString host = pathElements.first();
         int r = 0;
         for (; r < d->root.children.count(); ++r) {
@@ -986,7 +986,7 @@ QModelIndex QDirModel::index(const QString &path, int column) const
                 break;
         }
         if (r >= d->root.children.count()) {
-            QFileInfo info("//" + host);
+            QFileInfo info(QLatin1String("//") + host);
             QDirModelPrivate::QDirNode node;
             node.parent = 0;
             node.info = info;
@@ -999,12 +999,12 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         }
         idx = index(r, 0, QModelIndex());
         pathElements.pop_front();
-    } else if (pathElements.at(0).endsWith(":")) {
-        pathElements[0] += "/";
+    } else if (pathElements.at(0).endsWith(QLatin1Char(':'))) {
+        pathElements[0] += QLatin1Char('/');
     }
 #else
     // add the "/" item, since it is a valid path element on unix
-    pathElements.prepend("/");
+    pathElements.prepend(QLatin1String("/"));
 #endif
     for (int i = 0; i < pathElements.count(); ++i) {
         QStringList entries;
@@ -1068,7 +1068,7 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
     QDir newDir(name);
     QDir dir(path);
     if (newDir.isRelative())
-        newDir = QDir(path + "/" + name);
+        newDir = QDir(path + QLatin1Char('/') + name);
     QString childName = newDir.dirName(); // Get the singular name of the directory
     newDir.cdUp();
 
@@ -1228,7 +1228,7 @@ void QDirModelPrivate::init()
 {
     filters = QDir::TypeMask;
     sort = QDir::Name;
-    nameFilters << "*";
+    nameFilters << QLatin1String("*");
     root.parent = 0;
     root.info = QFileInfo();
     clear(&root);
@@ -1277,12 +1277,13 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent)
 
     QVector<QDirNode> nodes(info.count());
     for (int i = 0; i < info.count(); ++i) {
-        nodes[i].parent = parent;
-        nodes[i].info = info.at(i);
-        nodes[i].populated = false;
+        QDirNode &node = nodes[i];
+        node.parent = parent;
+        node.info = info.at(i);
+        node.populated = false;
 #ifdef Q_DIRMODEL_CACHED
-        nodes[i].cached_size = info.at(i).size();
-        nodes[i].cached_modified = info.at(i).lastModified();
+        node.cached_size = info.at(i).size();
+        node.cached_modified = info.at(i).lastModified();
 #endif
     }
 
