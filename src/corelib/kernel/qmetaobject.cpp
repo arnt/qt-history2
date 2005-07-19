@@ -360,7 +360,10 @@ int QMetaObject::classInfoCount() const
 /*!
     Finds \a method and returns its index; otherwise returns -1.
 
-    \sa method(), methodCount(), methodOffset()
+    Note that the \a method has to be in normalized form, as returned
+    by normalizedSignature().
+
+    \sa method(), methodCount(), methodOffset(), normalizedSignature()
 */
 int QMetaObject::indexOfMethod(const char *method) const
 {
@@ -384,7 +387,10 @@ int QMetaObject::indexOfMethod(const char *method) const
     This is the same as indexOfMethod(), except that it will return
     -1 if the method exists but isn't a signal.
 
-    \sa indexOfMethod(), method(), methodCount(), methodOffset()
+    Note that the \a signal has to be in normalized form, as returned
+    by normalizedSignature().
+
+    \sa indexOfMethod(), normalizedSignature(), method(), methodCount(), methodOffset()
 */
 int QMetaObject::indexOfSignal(const char *signal) const
 {
