@@ -37,8 +37,8 @@
 #endif
 
 #if defined(Q_WS_WIN)
-    #include <windows.h>
-    #include <objidl.h>
+# include <windows.h>
+# include <objidl.h>
 #endif
 
 #ifndef QT_NO_DRAGANDDROP
