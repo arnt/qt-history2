@@ -126,7 +126,7 @@ protected:
 
     void initializeSections();
     void initializeSections(int start, int end);
-    void currentChanged(const QModelIndex &old, const QModelIndex &current);
+    void currentChanged(const QModelIndex &current, const QModelIndex &old);
 
     bool event(QEvent *e);
     void paintEvent(QPaintEvent *e);

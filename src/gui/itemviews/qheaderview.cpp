@@ -1181,19 +1181,23 @@ void QHeaderView::initializeSections(int start, int end)
   \reimp
 */
 
-void QHeaderView::currentChanged(const QModelIndex &old, const QModelIndex &current)
+void QHeaderView::currentChanged(const QModelIndex &current, const QModelIndex &old)
 {
     Q_D(QHeaderView);
     if (d->orientation == Qt::Horizontal) {
-        d->setDirtyRegion(QRect(sectionViewportPosition(old.column()), 0,
-                                sectionSize(old.column()), d->viewport->height()));
-        d->setDirtyRegion(QRect(sectionViewportPosition(current.column()), 0,
-                                sectionSize(current.column()), d->viewport->height()));
+        if (old.isValid())
+            d->setDirtyRegion(QRect(sectionViewportPosition(old.column()), 0,
+                                    sectionSize(old.column()), d->viewport->height()));
+        if (current.isValid())
+            d->setDirtyRegion(QRect(sectionViewportPosition(current.column()), 0,
+                                    sectionSize(current.column()), d->viewport->height()));
     } else {
-        d->setDirtyRegion(QRect(0, sectionViewportPosition(old.row()),
-                                d->viewport->width(), sectionSize(old.row())));
-        d->setDirtyRegion(QRect(0, sectionViewportPosition(current.row()),
-                                d->viewport->width(), sectionSize(current.row())));
+        if (old.isValid())
+            d->setDirtyRegion(QRect(0, sectionViewportPosition(old.row()),
+                                    d->viewport->width(), sectionSize(old.row())));
+        if (current.isValid())
+            d->setDirtyRegion(QRect(0, sectionViewportPosition(current.row()),
+                                    d->viewport->width(), sectionSize(current.row())));
     }
     d->updateDirtyRegion();
 }
