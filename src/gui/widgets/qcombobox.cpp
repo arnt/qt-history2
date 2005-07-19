@@ -141,8 +141,6 @@ QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView
     Q_ASSERT(itemView);
 
     // setup container
-    setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
-    setLineWidth(1);
     blockMouseReleaseTimer.setSingleShot(true);
 
     // we need a vertical layout
@@ -158,6 +156,9 @@ QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView
     if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
         top = new QComboBoxPrivateScroller(QAbstractSlider::SliderSingleStepSub, this);
         bottom = new QComboBoxPrivateScroller(QAbstractSlider::SliderSingleStepAdd, this);
+    } else {
+        setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
+        setLineWidth(1);
     }
     if (top) {
         layout->insertWidget(0, top);
