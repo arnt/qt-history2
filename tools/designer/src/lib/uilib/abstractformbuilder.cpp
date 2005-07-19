@@ -1485,7 +1485,7 @@ void QAbstractFormBuilder::setWorkingDirectory(const QDir &directory)
 
 DomAction *QAbstractFormBuilder::createDom(QAction *action)
 {
-    if (action->parentWidget() == action->menu())
+    if (action->parentWidget() == action->menu() || action->isSeparator())
         return 0;
 
     DomAction *ui_action = new DomAction;
