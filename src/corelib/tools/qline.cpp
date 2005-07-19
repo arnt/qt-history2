@@ -24,12 +24,18 @@
     \brief The QLine class provides a two-dimensional vector that
     uses integer point accuracy for coordinates.
 
-    A QLine describes a finite length line (or line segment) on a two-dimensional surface.
-    The start and end points of the line are specified using integer point
-    coordinates.
+    A QLine describes a finite length line (or line segment) on a
+    two-dimensional surface.  The start and end points of the line are
+    specified using integer point coordinates.
 
     Use isNull() to determine whether the QLine represents a valid line
     or a null line.
+
+    \table
+    \row
+        \o \inlineimage qline-point.png
+        \o \inlineimage qline-coordinates.png
+    \endtable
 
     The positions of the line's end points can be found with the p1(),
     x1(), y1(), p2(), x2(), and y2() functions. The horizontal and vertical
@@ -220,12 +226,19 @@ QDataStream &operator>>(QDataStream &stream, QLine &line)
     \brief The QLineF class provides a two-dimensional vector that
     uses floating point accuracy for coordinates.
 
-    A QLineF describes a finite length line (or line segment) on a two-dimensional surface.
-    The start and end points of the line are specified using floating point
-    coordinates.
+    A QLineF describes a finite length line (or line segment) on a
+    two-dimensional surface. QLineF provides a variant of the QLine
+    class that defines the start and end points of the line using
+    floating point coordinates.
 
     Use isNull() to determine whether the QLineF represents a valid line
     or a null line.
+
+    \table
+    \row
+        \o \inlineimage qline-point.png
+        \o \inlineimage qline-coordinates.png
+    \endtable
 
     The positions of the line's end points can be found with the p1(), x1(),
     y1(), p2(), x2(), and y2() functions. The horizontal and vertical

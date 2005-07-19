@@ -17,36 +17,77 @@
 
 /*!
     \class QRect
-    \brief The QRect class defines a rectangle in the plane.
+    \brief The QRect class defines a rectangle in the plane that
+    uses integer point accuracy for coordinates.
 
     \ingroup multimedia
 
     A rectangle is normally expressed as an upper-left corner and a size.
 
-    The size (width and height) of a rectangle might be
-    different from what you are used to. If the top-left corner and
-    the bottom-right corner are the same, the height and the width of
-    the rectangle will both be 1.
-
-    Generally, \e{width = right - left + 1} and \e{height = bottom -
-    top + 1}. We designed it this way to make it correspond to
-    rectangular spaces used by drawing functions in which the width
-    and height denote a number of pixels. For example, drawing a
-    rectangle with width and height 1 draws a single pixel.
-
     The default coordinate system has origin (0, 0) in the top-left
     corner. The positive direction of the y axis is down, and the
     positive x axis is from left to right.
 
-    A QRect can be constructed with a set of left, top, width and height
-    integers, from two \l{QPoint}s or from a QPoint and a QSize.
-    The following code creates three identical triangles.
+    The size (width and height) of a QRect is always equivalent to the
+    mathematical rectangle that form the basis for its rendering:
+
+    \image qrect-diagram-zero.png
+
+    If you use an \l {QPainter::Antialiasing}{anti-aliased} painter
+    the boundary line of a QRect will be rendered symetrically on both
+    sides of the mathematical rectangle's boundary line. But when
+    using an aliased painter (the default) other rules apply.
+
+    Then, when rendering with a one pixel wide pen the QRect's boundary
+    line will be rendered to the right and below the mathematical
+    rectangle's boundary line.
+
+    When rendering with a two pixels wide pen the boundary line will be
+    split in the middle by the mathematical rectangle. This will be
+    the case whenever the pen has an even number of pixels, while
+    rendering with a pen with an odd number of pixels, the spare
+    pixel will be rendered to the right and below the mathematical
+    rectangle as in the one pixel case.
+
+    \table
+    \row
+        \o One pixel wide pen
+        \o Two pixel wide pen
+        \o Three pixel wide pen
+    \row
+        \o \inlineimage qrect-diagram-one.png
+        \o \inlineimage qrect-diagram-two.png
+        \o \inlineimage qrect-diagram-three.png
+    \endtable
+
+    For historical reasons right() and bottom() deviate from the true
+    bottom-right corner of the rectangle.  The right() function
+    returns \e { left() + width() + 1} and the bottom() function
+    returns \e {top() + height() + 1}. The bottom-right green point in
+    the diagrams above shows the return coordinates of these
+    functions. We recommend that you use x() + width() and y() +
+    height() to find the bottom-right corner, and avoid right() and
+    bottom().
+
+    Another solution is to use QRectF: The QRectF class defines a
+    rectangle in the plane using floating point coordinates for
+    accuracy (QRect uses integer coordinates), and the QRectF::right()
+    and QRectF::bottom() functions do return the true bottom-right
+    corner.
+
+    A QRect can be constructed with a set of left, top, width and
+    height integers or from a QPoint and a QSize.  The following code
+    creates three identical rectangles.
 
     \code
-        QRect r1(QPoint(100,200), QPoint(110,215));
-        QRect r2(QPoint(100,200), QSize(11,16));
-        QRect r3(100, 200, 11, 16);
+        QRect r1(100, 200, 11, 16);
+        QRect r2(QPoint(100, 200), QSize(11, 16));
+        QRect r3(QPoint(100, 200), QPoint(110, 215));  // not recommended
     \endcode
+
+    The third constructor creates a QRect using the top-left and
+    bottom-right coordinates, but we recommend that you avoid using
+    it, since it often doesn't do what you want (as explained above).
 
     After creation the dimensions can be changed, e.g. with setLeft(),
     setRight(), setTop() and setBottom(), or by setting sizes, e.g.
@@ -54,12 +95,18 @@
     with the move functions, e.g. translate(), moveCenter(), moveBottomRight(),
     etc. You can also add coordinates to a rectangle with adjust(). You can get
     a new rectangle based on adjustments from the original rectangled with
-    adjusted().
+    adjusted(). You can test to see if a QRect contains a specific point with
+    contains().
 
-    You can test to see if a QRect contains a specific point with
-    contains(). You can also test to see if two QRects intersect with
-    intersects() (see also intersect()). To get the bounding rectangle
-    of two QRects use unite().
+    You can also test to see if two QRects intersect with
+    intersects(), or retrieve the intersection as a QRect using
+    intersect():
+
+    \image qrect-intersect.png
+
+    To retrieve the bounding rectangle of two QRects use unite():
+
+    \image qrect-unite.png
 
     \sa QPoint QSize QPolygon QRectF
 */
@@ -988,35 +1035,77 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
 
     \ingroup multimedia
 
-    Rectangles are used throughout Qt to describe the area covered by visible
-    items. They specify both the geometry of widgets and the extent of items
-    that are painted using a QPainter. QRectF provides a variant of the QRect
-    class that defines the position and dimension of the rectangle using
-    \c qreal values for accuracy.
-
-    A QRectF is represented internally as the positions of its upper-left
-    corner and its size. Because of this change in representation, QRectF has
-    slightly different behavior than QRect. In particular
-    \e{right = left + width} and \e{bottom = top + height}
+    A rectangle is normally expressed as an upper-left corner and a
+    size. QRectF provides a variant of the QRect class that defines
+    the position and dimension of the rectangle using \c qreal values
+    for accuracy.
 
     The default coordinate system has origin (0, 0) in the top-left
-    corner. The positive direction of the x axis is from left to right,
-    and the positive direction of the y axis is from top to bottom.
+    corner. The positive direction of the y axis is down, and the
+    positive x axis is from left to right.
+
+    The size (width and height) of a QRectF is always equivalent to
+    the mathematical rectangle that form the basis for its rendering:
+
+    \image qrect-diagram-zero.png
+
+    If you use an \l {QPainter::Antialiasing}{anti-aliased} painter
+    the boundary line of a QRectF will be rendered symetrically on both
+    sides of the mathematical rectangle's boundary line. But when
+    using an aliased painter (the default) other rules apply.
+
+    Then, when rendering with a one pixel wide pen the QRectF's
+    boundary line will be rendered to the right and below the
+    mathematical rectangle's boundary line.
+
+    When rendering with a two pixel wide pen the boundary line will be
+    split in the middle by the mathematical rectangle. This will be
+    the case whenever the pen has an even number of pixels, while
+    rendering with a pen with an odd number of pixels, the spare pixel
+    will be rendered to the right and below the mathematical rectangle
+    as in the one pixel case.
+
+    \table
+    \row
+        \o One pixel wide pen
+        \o Two pixel wide pen
+        \o Three pixel wide pen
+    \row
+        \o \inlineimage qrect-diagram-one.png
+        \o \inlineimage qrect-diagram-two.png
+        \o \inlineimage qrect-diagram-three.png
+    \endtable
 
     A QRectF can be constructed with a set of qreals specifying the
     coordinates of the top-left corner of the rectangle and its
-    dimensions or from a QPointF and a QSizeF.
+    dimensions or from a QPointF and a QSizeF. The following code
+    creates two identical rectangles.
+
+    \code
+        QRectF r1(100, 200, 11, 16);
+        QRectF r2(QPoint(100,200), QSize(11,16));
+    \endcode
+
+    There is also a third constructor creating a QRectF from a QRect.
+
     After creation, the dimensions can be changed with setLeft(),
     setRight(), setTop(), and setBottom(), or by setting sizes with
     setWidth(), setHeight(), and setSize(). The dimensions can also be
     changed with the move functions, such as moveBy(), moveCenter(),
     and moveBottomRight(). You can also add coordinates to a rectangle
-    with adjust().
+    with adjust(). You can test to see if a rectangle contains a
+    specific point with the contains() function, and you can test to
+    see if two rectangles intersect with the intersects() function.
 
-    You can test to see if a rectangle contains a specific point with the
-    contains() function. You can also test to see if two rectangles intersect
-    with the intersects() function. You can get the result of the intersection
-    with intersect() and the bounding rectangle of two rectangles with unite().
+    You can also retrieve the intersection as a QRect using
+    intersect():
+
+    \image qrect-intersect.png
+
+    And finally you can retrieve the bounding rectangle of two QRects
+    using unite():
+
+    \image qrect-unite.png
 
     \sa QPointF QSizeF QPolygonF QRect
 */
