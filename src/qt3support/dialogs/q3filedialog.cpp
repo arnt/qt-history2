@@ -2937,8 +2937,14 @@ QStringList Q3FileDialog::selectedFiles() const
     if (mode() == ExistingFiles) {
         QStringList selectedLst;
         QString selectedFiles = nameEdit->text();
-        selectedFiles.truncate(selectedFiles.lastIndexOf('\"'));
-        selectedLst = selectedLst.split(QString("\" "), selectedFiles);
+        if (selectedFiles.lastIndexOf('\"') == -1) {
+            //probably because Enter was pressed on the nameEdit, so we have one file
+            //not in "" but raw
+            selectedLst.append(selectedFiles);
+        } else {
+            selectedFiles.truncate(selectedFiles.lastIndexOf('\"'));
+            selectedLst = selectedLst.split(QString("\" "), selectedFiles);
+        }
         for (QStringList::Iterator it = selectedLst.begin(); it != selectedLst.end(); ++it) {
             Q3Url u;
             if ((*it)[0] == '\"') {
