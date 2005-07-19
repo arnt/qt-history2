@@ -871,7 +871,7 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 
     For multiple items, insertItems() can be used instead. The number of
     items in the list is found with the count() function.
-    To remove items from the list, use removeItem().
+    To remove items from the list, use takeItem().
 
     The current item in the list can be found with currentItem(), and changed
     with setCurrentItem(). The user can also change the current item by
@@ -1070,10 +1070,13 @@ void QListWidget::insertItems(int row, const QStringList &labels)
 }
 
 /*!
-    Removes and returns the item from the given \a row in the list
-    widget, otherwise return 0;
+    Removes and returns the item from the given \a row in the list widget; otherwise
+    returns 0.
 
-    \sa insertItem() addItem()
+    Items removed from a list widget will not be managed by Qt, and will need to be
+    deleted manually.
+
+    \sa insertItem(), addItem()
 */
 
 QListWidgetItem *QListWidget::takeItem(int row)
