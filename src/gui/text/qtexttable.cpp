@@ -277,27 +277,27 @@ QTextTable *QTextTablePrivate::createTable(QTextDocumentPrivate *pieceTable, int
     return table;
 }
 
-struct FragmentFindHelper
+struct QFragmentFindHelper
 {
-    inline FragmentFindHelper(int _pos, const QTextDocumentPrivate::FragmentMap &map)
+    inline QFragmentFindHelper(int _pos, const QTextDocumentPrivate::FragmentMap &map)
         : pos(_pos), fragmentMap(map) {}
     uint pos;
     const QTextDocumentPrivate::FragmentMap &fragmentMap;
 };
 
-static bool operator<(int fragment, const FragmentFindHelper &helper)
+static bool operator<(int fragment, const QFragmentFindHelper &helper)
 {
     return helper.fragmentMap.position(fragment) < helper.pos;
 }
 
-static bool operator<(const FragmentFindHelper &helper, int fragment)
+static bool operator<(const QFragmentFindHelper &helper, int fragment)
 {
     return helper.pos < helper.fragmentMap.position(fragment);
 }
 
 int QTextTablePrivate::findCellIndex(int fragment) const
 {
-    FragmentFindHelper helper(pieceTable->fragmentMap().position(fragment),
+    QFragmentFindHelper helper(pieceTable->fragmentMap().position(fragment),
                               pieceTable->fragmentMap());
     QList<int>::ConstIterator it = qBinaryFind(cells.begin(), cells.end(), helper);
     if (it == cells.end())
@@ -311,7 +311,7 @@ void QTextTablePrivate::fragmentAdded(const QChar &type, uint fragment)
     if (type == QTextBeginningOfFrame) {
         Q_ASSERT(cells.indexOf(fragment) == -1);
         const uint pos = pieceTable->fragmentMap().position(fragment);
-        FragmentFindHelper helper(pos, pieceTable->fragmentMap());
+        QFragmentFindHelper helper(pos, pieceTable->fragmentMap());
         QList<int>::Iterator it = qLowerBound(cells.begin(), cells.end(), helper);
         cells.insert(it, fragment);
         if (!fragment_start || pos < pieceTable->fragmentMap().position(fragment_start))
@@ -478,7 +478,7 @@ QTextTableCell QTextTable::cellAt(int position) const
     if (position < 0 || m.position(d->fragment_start) >= pos || m.position(d->fragment_end) < pos)
         return QTextTableCell();
 
-    FragmentFindHelper helper(position, m);
+    QFragmentFindHelper helper(position, m);
     QList<int>::ConstIterator it = qLowerBound(d->cells.begin(), d->cells.end(), helper);
     if (it != d->cells.begin())
         --it;
