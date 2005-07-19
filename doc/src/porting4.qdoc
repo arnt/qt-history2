@@ -364,7 +364,7 @@
     \row \o QButton::toggleType \o Use QCheckBox::setTristate() instead.
     \row \o QComboBox::autoResize \o Call QWidget:setFixedSize(QWidget::sizeHint()) whenever you change the contents.
     \row \o QFrame::contentsRect \o Use Q3Frame::contentsRect() instead.
-    \row \o QFrame::contentsRect \o Use Q3Frame::margin instead.
+    \row \o QFrame::margin \o Use QWidget::setContentsMargins() instead.
     \row \o QTabBar::keyboardFocusTab \o N/A
     \row \o QToolButton::offIconSet \o Use the \l{QIcon::Off}{off component} of QAbstractButton::icon instead.
     \row \o QToolButton::onIconSet \o Use the \l{QIcon::On}{on component} of QAbstractButton::icon instead.
@@ -577,10 +577,8 @@
     \section1 QAsyncIO
 
     The \c QAsyncIO class was used internally in Qt 2.x in
-    conjunction with QImageConsumer. It was obsoleted in Qt 3.0. If
-    you use this mechanism in your application, contact \l
-    qt-bugs@trolltech.com and we will try to find a satisfactory
-    substitute.
+    conjunction with QImageConsumer. It was obsoleted in Qt 3.0.
+    \input porting4-obsoletedmechanism.qdocinc
 
     \section1 QBackInsertIterator
 
@@ -1078,25 +1076,20 @@
     \section1 QDataPump
 
     The \c QDataPump class was used internally in Qt 2.x in
-    conjunction with QImageConsumer. It was obsoleted in Qt 3.0. If
-    you use this mechanism in your application, contact \l
-    qt-bugs@trolltech.com and we will try to find a satisfying
-    substitute.
+    conjunction with QImageConsumer. It was obsoleted in Qt 3.0.
+    \include porting4-obsoletedmechanism.qdocinc
 
     \section1 QDataSink
 
     The \c QDataSink class was used internally in Qt 2.x in conjunction
-    with QImageConsumer. It was obsoleted in Qt 3.0. If you use this
-    mechanism in your application, contact \l qt-bugs@trolltech.com
-    and we will try to find a satisfying substitute.
+    with QImageConsumer. It was obsoleted in Qt 3.0.
+    \include porting4-obsoletedmechanism.qdocinc
 
     \section1 QDataSource
 
     The \c QDataSource class was used internally in Qt 2.x in
-    conjunction with QImageConsumer. It was obsoleted in Qt 3.0. If
-    you use this mechanism in your application, contact \l
-    qt-bugs@trolltech.com and we will try to find a satisfying
-    substitute.
+    conjunction with QImageConsumer. It was obsoleted in Qt 3.0.
+    \include porting4-obsoletedmechanism.qdocinc
 
     \section1 QDataTable
 
@@ -1939,15 +1932,13 @@
     \section1 QIODeviceSource
 
     The QIODeviceSource class was used internally in Qt 2.x in
-    conjunction with QImageConsumer. It was obsoleted in Qt 3.0. If
-    you use this mechanism in your application, contact \l
-    qt-bugs@trolltech.com and we will try to find a satisfying
-    substitute.
+    conjunction with QImageConsumer. It was obsoleted in Qt 3.0.
+    \include porting4-obsoletedmechanism.qdocinc
 
     \section1 QLabel
 
-    QLabel doesn't enable word-wrap automatically anymore when the
-    text is richtext. You can enable it by calling
+    QLabel doesn't enable word-wrap automatically anymore when rich
+    text is used. You can enable it by calling
     QLabel::setWordWrap() or by setting the
     \l{QLabel::wordWrap}{wordWrap} property. The reason for this
     change is that the old behavior was confusing to many users.
