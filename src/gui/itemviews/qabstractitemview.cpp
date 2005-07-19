@@ -766,7 +766,10 @@ bool QAbstractItemView::dragEnabled() const
   \brief whether to draw the background using alternating colors
 
   If this property is true, the item background will be drawn using
-  alternating colors, otherwise the background will be drawn using the QPalette::Base color.
+  QPalette::Base and QPalette::AlternateBase; otherwise the background
+  will be drawn using the QPalette::Base color.
+
+  By default, this property is false.
 */
 
 void QAbstractItemView::setAlternatingRowColors(bool enable)
