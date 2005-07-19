@@ -294,7 +294,7 @@ void HelpDialog::loadIndexFile()
     bar->setMaximum(100);
     bar->setValue(0);
 
-
+    keywordDocuments.clear();
     QList<IndexKeyword> lst;
     QFile indexFile(cacheFilesPath + QDir::separator() + QLatin1String("indexdb40.") +
                      Config::configuration()->profileName());
@@ -335,8 +335,9 @@ void HelpDialog::loadIndexFile()
 
     for (int i=0; i<lst.count(); ++i) {
         const IndexKeyword &idx = lst.at(i);
-
         indexModel->addLink(idx.keyword, idx.link);
+
+        keywordDocuments << HelpDialog::removeAnchorFromLink(idx.link);    
     }
 
     indexModel->publish();
@@ -440,7 +441,7 @@ void HelpDialog::setupTitleMap()
     }
     if (contentList.isEmpty())
         getAllContents();
-
+    
     titleMapDone = true;
     titleMap.clear();
     for(QList<QPair<QString, ContentList> >::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
@@ -527,7 +528,7 @@ void HelpDialog::buildContentDict()
             s << *it;
         }
         contentOut.close();
-    }
+    }    
 }
 
 void HelpDialog::currentTabChanged(int index)
@@ -847,17 +848,8 @@ void HelpDialog::setupFullTextIndex()
     if (fullTextIndex)
         return;
 
-    QMap<QString, QString>::ConstIterator it = titleMap.begin();
-    QStringList documentList;
-    QString doc;
-    for (; it != titleMap.end(); ++it) {
-        doc = HelpDialog::removeAnchorFromLink(it.key());
-        if (documentList.filter(doc, Qt::CaseInsensitive).count() == 0)
-            documentList << doc;
-    }
-
     QString pname = Config::configuration()->profileName();
-    fullTextIndex = new Index(documentList, QDir::homePath()); // ### Is this correct ?
+    fullTextIndex = new Index(QStringList(), QDir::homePath()); // ### Is this correct ?
     if (!verifyDirectory(cacheFilesPath)) {
         QMessageBox::warning(help, tr("Qt Assistant"),
                              tr("Failed to save fulltext search index\n"
@@ -872,6 +864,21 @@ void HelpDialog::setupFullTextIndex()
              this, SLOT(setIndexingProgress(int)));
     QFile f(cacheFilesPath + QDir::separator() + QLatin1String("indexdb40.dict.") + pname);
     if (!f.exists()) {
+        QString doc;
+        QSet<QString> documentSet;
+        QMap<QString, QString>::ConstIterator it = titleMap.begin();
+        for (; it != titleMap.end(); ++it) {
+            doc = HelpDialog::removeAnchorFromLink(it.key());
+            if (!doc.isEmpty())
+                documentSet.insert(doc);            
+        }        
+        loadIndexFile();
+        for ( QStringList::Iterator it = keywordDocuments.begin(); it != keywordDocuments.end(); ++it ) {
+            if (!(*it).isEmpty())
+                documentSet.insert(*it);          
+        }
+        fullTextIndex->setDocList( documentSet.toList() );
+
         help->statusBar()->clearMessage();
         setCursor(Qt::WaitCursor);
         ui.labelPrepare->setText(tr("Indexing files..."));
@@ -886,7 +893,7 @@ void HelpDialog::setupFullTextIndex()
         ui.progressPrepare->setValue(100);
         ui.framePrepare->hide();
         setCursor(Qt::ArrowCursor);
-        showInitDoneMessage();
+        showInitDoneMessage();        
     } else {
         setCursor(Qt::WaitCursor);
         help->statusBar()->showMessage(tr("Reading dictionary..."));
@@ -895,6 +902,7 @@ void HelpDialog::setupFullTextIndex()
         help->statusBar()->showMessage(tr("Done"), 3000);
         setCursor(Qt::ArrowCursor);
     }
+    keywordDocuments.clear();
 }
 
 void HelpDialog::setIndexingProgress(int prog)

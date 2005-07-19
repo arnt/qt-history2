@@ -138,6 +138,7 @@ private:
     QList<QPair<QString, ContentList> > contentList;
     QMenu *itemPopup;
     QString cacheFilesPath;
+    QStringList keywordDocuments;
 
     QAction *actionOpenCurrentTab;
     QAction *actionOpenLinkInNewWindow;

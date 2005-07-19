@@ -67,6 +67,7 @@ public:
     QString getDocumentTitle( const QString& );
     void setDictionaryFile( const QString& );
     void setDocListFile( const QString& );
+    void setDocList( const QStringList & );
 
 signals:
     void indexingProgress( int );

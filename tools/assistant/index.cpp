@@ -84,6 +84,11 @@ void Index::setDocListFile( const QString &f )
     docListFile = f;
 }
 
+void Index::setDocList( const QStringList &lst )
+{
+    docList = lst;
+}
+
 int Index::makeIndex()
 {
     if ( !alreadyHaveDocList )
