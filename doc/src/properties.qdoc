@@ -10,6 +10,8 @@
     on the meta-object system that also provides object communication
     through \l{signals and slots}.
 
+    \section1 Requirements
+
     The Q_PROPERTY() macro in a class declaration declares a property.
     Properties can only be declared in classes that inherit QObject. 
 
@@ -47,6 +49,8 @@
     that member functions must be inherited from the first inherited class
     in the case of multiple inheritance.
 
+    \section1 Reading and Writing Properties
+
     Properties can be read and written through generic functions in
     QObject without knowing anything about the class in use. In the
     code snippet below, the QObject::setProperty() call is equivalent
@@ -74,6 +78,8 @@
     returns the number of all available properties.
     QMetaObject::property() returns the property data for a given
     property index: a QMetaProperty object.
+
+    \section1 A Simple Example
 
     Here's a simple example that shows the most important property
     functions in use:
@@ -133,6 +139,21 @@
     In the case of \c QList and \c QMap properties, the value passes
     is a QVariant whose value is the entire list or map.
 
+    \section1 Header Files
+
+    It is usually necessary to include the header files for each value type
+    that you use in property definitions. For example:
+
+    \code
+        Q_PROPERTY(QDate date READ getDate WRITE setDate)
+    \endcode
+
+    Since the property is based on the QDate class, the \c{<QDate>} header
+    file should be included in the file containing the above property
+    definition.
+
+    \section1 Using Enums and Flags in Properties
+
     Enumeration types are registered with the Q_ENUMS() macro. Here's the
     final class declaration including the property related declarations:
 
@@ -184,6 +205,8 @@
         define this to be false.
 
     \endlist
+
+    \section1 Adding Additional Information to a Class
 
     Connected to the property system is an additional macro,
     Q_CLASSINFO(), that can be used to attach additional
