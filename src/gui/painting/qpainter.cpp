@@ -3640,7 +3640,7 @@ QRect QPainter::boundingRect(const QRect &rect, int flags, const QString &str)
     \row \i \c Qt::TextSingleLine \i ignores newline characters in the text.
     \row \i \c Qt::TextExpandTabs \i expands tabs.
     \row \i \c Qt::TextShowMnemonic \i interprets "&x" as \underline{x}.
-    \row \i \c Qt::TextWordBreak \i breaks the text to fit the rectangle.
+    \row \i \c Qt::TextWordWrap \i breaks the text to fit the rectangle.
     \endtable
 
     Qt::Horizontal alignment defaults to \c Qt::AlignLeft and vertical
