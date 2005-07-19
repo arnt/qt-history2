@@ -294,7 +294,7 @@
     \row \o QSpinBox::maxValue \o QSpinBox::maximum
     \row \o QSpinBox::minValue \o QSpinBox::minimum
     \row \o QTabBar::currentTab \o QTabBar::currentIndex
-    \row \o QTabWidget::currentPage \o QTabWidget::currentIndex
+    \row \o QTabWidget::currentPage \o QTabWidget::currentWidget
     \row \o QToolButton::iconSet \o QToolButton::icon
     \row \o QToolButton::textLabel \o QToolButton::text
     \row \o QWidget::caption \o QWidget::windowTitle
