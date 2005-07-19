@@ -13,6 +13,7 @@
 
 #include "qitemselectionmodel.h"
 #include <private/qitemselectionmodel_p.h>
+#include <qdebug.h>
 
 #ifndef QT_NO_ITEMVIEWS
 /*!
@@ -1044,4 +1045,20 @@ void QItemSelectionModel::emitSelectionChanged(const QItemSelection &newSelectio
 
     emit selectionChanged(selected, deselected);
 }
+
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug dbg, const QItemSelectionRange &range)
+{
+#ifndef Q_BROKEN_DEBUG_STREAM
+    dbg.nospace() << "QItemSelectionRange(" << range.topLeft()
+                  << "," << range.bottomRight() << ")";
+    return dbg.space();
+#else
+    qWarning("This compiler doesn't support streaming QItemSelectionRange to QDebug");
+    return dbg;
+    Q_UNUSED(range);
+#endif
+}
+#endif
+
 #endif // QT_NO_ITEMVIEWS
