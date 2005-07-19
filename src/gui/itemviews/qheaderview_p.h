@@ -55,7 +55,6 @@ public:
           stretchSections(0),
           sectionIndicatorOffset(0),
           sectionIndicator(0),
-          hiddenSections(0),
           globalResizeMode(QHeaderView::Interactive) {}
 
     int sectionHandleAt(int position);
@@ -109,7 +108,6 @@ public:
     QLabel *sectionIndicator;
     QStyleOptionHeader getStyleOption() const;
     QHeaderView::ResizeMode globalResizeMode;
-    int hiddenSections;
 };
 
 #endif // QT_NO_ITEMVIEWS

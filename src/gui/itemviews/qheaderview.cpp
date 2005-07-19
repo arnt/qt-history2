@@ -1720,8 +1720,8 @@ QRegion QHeaderView::visualRegionForSelection(const QItemSelection &selection) c
 
         for (int i = 0; i < selection.count(); ++i) {
             QItemSelectionRange r = selection.at(i);
-            if (r.parent().isValid())
-                continue; // we only know about toplevel items
+            if (r.parent().isValid() || !r.isValid())
+                continue; // we only know about toplevel items and we don't want invalid ranges
             // FIXME an item inside the range may be the leftmost or rightmost
             rangeLeft = visualIndex(r.left());
             Q_ASSERT(rangeLeft != -1);
