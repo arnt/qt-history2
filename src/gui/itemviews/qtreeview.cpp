@@ -1004,19 +1004,19 @@ QRegion QTreeView::visualRegionForSelection(const QItemSelection &selection) con
     QRegion selectionRegion;
     for (int i = 0; i < selection.count(); ++i) {
         QItemSelectionRange range = selection.at(i);
-           
+        if (!range.isValid())
+            continue;
         QModelIndex leftIndex = range.topLeft();
-        while(isIndexHidden(leftIndex))
-            leftIndex = leftIndex.sibling(leftIndex.row(), leftIndex.column()+1);
+        while (isIndexHidden(leftIndex))
+            leftIndex = leftIndex.sibling(leftIndex.row(), leftIndex.column() + 1);
         int top = visualRect(leftIndex).top();
-         
         QModelIndex rightIndex = range.topLeft();
-        while(isIndexHidden(rightIndex))
-            rightIndex = rightIndex.sibling(rightIndex.row(), rightIndex.column()-1);
+        while (isIndexHidden(rightIndex))
+            rightIndex = rightIndex.sibling(rightIndex.row(), rightIndex.column() - 1);
         int bottom = visualRect(rightIndex).bottom();
         if (top > bottom)
             qSwap<int>(top, bottom);
-        int height = bottom - top+1;
+        int height = bottom - top + 1;
         for (int c = range.left(); c <= range.right(); ++c)
             selectionRegion += QRegion(QRect(columnViewportPosition(c), top,
                                              columnWidth(c), height));
