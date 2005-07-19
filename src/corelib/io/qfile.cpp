@@ -337,7 +337,7 @@ QFile::fileName() const
 
 /*!
     Sets the \a name of the file. The name can have no path, a
-    relative path, or an absolute absolute path.
+    relative path, or an absolute path.
 
     Do not call this function if the file has already been opened.
 
