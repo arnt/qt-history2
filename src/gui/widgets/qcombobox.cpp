@@ -1401,10 +1401,10 @@ void QComboBox::insertItem(int index, const QIcon &icon, const QString &text, co
     if (model()->insertRows(index, 1, rootModelIndex())) {
         item = model()->index(index, d->modelColumn, rootModelIndex());
         QMap<int, QVariant> values;
-        values.insert(Qt::EditRole, text);
-        values.insert(Qt::DecorationRole, icon);
-        values.insert(Qt::UserRole, userData);
-        model()->setItemData(item, values);
+        if (!text.isNull()) values.insert(Qt::EditRole, text);
+        if (!icon.isNull()) values.insert(Qt::DecorationRole, icon);
+        if (!userData.isNull()) values.insert(Qt::UserRole, userData);
+        if (!values.isEmpty()) model()->setItemData(item, values);
     }
     int mc = count();
     if (mc > d->maxCount)
