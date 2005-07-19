@@ -99,6 +99,8 @@ private:
     QString fixDeclaration(const QString &declaration) const;
     QString fixType(const QString &type) const;
 
+    void fixLayoutMargin(DomLayout *ui_layout);
+
     QTextStream &out;
     QTextOStream trout;
     QString languageChangeBody;
