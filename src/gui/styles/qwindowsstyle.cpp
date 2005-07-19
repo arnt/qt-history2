@@ -1737,8 +1737,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             p->setPen(Qt::NoPen);
             p->setBrush(br);
             p->setBackgroundMode(Qt::OpaqueMode);
-            p->drawRect(opt->rect);
-        } else {
+            p->drawRect(opt->rect);            
+        } else {            
             QStyleOptionButton buttonOpt;
             buttonOpt.QStyleOption::operator=(*opt);
             buttonOpt.state = State_Enabled | State_Raised;
@@ -1825,7 +1825,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 QCommonStyle::drawComplexControl(cc, &tmpSlider, p, widget);
             }
 
-            if (slider->subControls & SC_SliderHandle) {
+            if (slider->subControls & SC_SliderHandle) {                
                 // 4444440
                 // 4333310
                 // 4322210
@@ -1840,6 +1840,15 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 // const QColor c2 = g.button();
                 const QColor c3 = slider->palette.midlight().color();
                 const QColor c4 = slider->palette.light().color();
+                QBrush handleBrush;
+                
+                if (slider->state & State_Enabled) {
+                    handleBrush = slider->palette.color(QPalette::Button);
+                } else {
+                    handleBrush = QBrush(slider->palette.color(QPalette::Button), 
+                                         Qt::Dense4Pattern);                    
+                }
+
 
                 int x = handle.x(), y = handle.y(),
                    wi = handle.width(), he = handle.height();
@@ -1861,8 +1870,11 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 }
 
                 if ((tickAbove && tickBelow) || (!tickAbove && !tickBelow)) {
+                    Qt::BGMode oldMode = p->backgroundMode();
+                    p->setBackgroundMode(Qt::OpaqueMode);
                     qDrawWinButton(p, QRect(x, y, wi, he), slider->palette, false,
-                                   &slider->palette.brush(QPalette::Button));
+                                   &handleBrush);
+                    p->setBackgroundMode(oldMode);
                     return;
                 }
 
@@ -1906,11 +1918,14 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 }
 
                 QBrush oldBrush = p->brush();
-                p->setBrush(slider->palette.brush(QPalette::Button));
                 p->setPen(Qt::NoPen);
+                p->setBrush(handleBrush);
+                Qt::BGMode oldMode = p->backgroundMode();
+                p->setBackgroundMode(Qt::OpaqueMode);
                 p->drawRect(x1, y1, x2-x1+1, y2-y1+1);
-                p->drawPolygon(a);
+                p->drawPolygon(a);                
                 p->setBrush(oldBrush);
+                p->setBackgroundMode(oldMode);
 
                 if (dir != SlUp) {
                     p->setPen(c4);
