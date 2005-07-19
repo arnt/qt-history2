@@ -1824,6 +1824,12 @@ QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInf
                                 qax_qualified_usertypes << userTypeName;
                         }
                         break;
+                    case TKIND_ENUM:
+                        if (typeLibName != current_typelib)
+                            userTypeName = typeLibName + "::" + userTypeName;
+                        if (!qax_qualified_usertypes.contains("enum " + userTypeName))
+                            qax_qualified_usertypes << "enum " + userTypeName;
+                        break;
                     case TKIND_INTERFACE:
                         if (typeLibName != current_typelib)
                             userTypeName = typeLibName + "::" + userTypeName;

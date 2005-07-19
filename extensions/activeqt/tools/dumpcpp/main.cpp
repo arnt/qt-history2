@@ -77,6 +77,8 @@ extern QMetaObject *qax_readInterfaceInfo(ITypeLib *typeLib, ITypeInfo *typeInfo
 extern QList<QByteArray> qax_qualified_usertypes;
 extern QString qax_docuFromName(ITypeInfo *typeInfo, const QString &name);
 
+QMap<QByteArray, QByteArray> namespaceForType;
+
 void writeEnums(QTextStream &out, const QMetaObject *mo)
 {
     // enums
@@ -396,12 +398,16 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
             }
             
             for (int i = 0; i < signatureSplit.count(); ++i) {
-                slotNamedSignature += constRefify(signatureSplit.at(i));
+                QByteArray parameterType = signatureSplit.at(i);
+                if (!parameterType.contains("::") && namespaceForType.contains(parameterType))
+                    parameterType = namespaceForType.value(parameterType) + "::" + parameterType;
+
+                slotNamedSignature += constRefify(parameterType);
                 slotNamedSignature += " ";
                 slotNamedSignature += parameterSplit.at(i);
                 if (defaultArguments >= signatureSplit.count() - i) {
                     slotNamedSignature += " = ";
-                    slotNamedSignature += signatureSplit.at(i) + "()";
+                    slotNamedSignature += parameterType + "()";
                 }
                 if (i + 1 < signatureSplit.count())
                     slotNamedSignature += ", ";
@@ -886,6 +892,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
                         metaObject = qax_readInterfaceInfo(typelib, typeinfo, &QObject::staticMetaObject);
                     break;
                 case TKIND_RECORD:
+                case TKIND_ENUM:
                 case TKIND_INTERFACE: // only for forward declarations
                     {
                         QByteArray className;
@@ -894,8 +901,14 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
                             break;
                         className = QString::fromUtf16((const ushort *)bstr).toLatin1();
                         SysFreeString(bstr);
-                        if (typekind == TKIND_RECORD)
+                        switch (typekind) {
+                        case TKIND_RECORD:
                             className = "struct " + className;
+                            break;
+                        case TKIND_ENUM:
+                            className = "enum " + className;
+                            break;
+                        }
                         namespaces[libName.toLatin1()].append(className);
                         if (!qax_qualified_usertypes.contains(className))
                             qax_qualified_usertypes << className;
@@ -916,7 +929,11 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
                 if (refType.contains("::")) {
                     refTypeLib = refType;
                     refType = refType.mid(refType.lastIndexOf("::") + 2);
+                    if (refTypeLib.contains(' ')) {
+                        refType = refTypeLib.left(refTypeLib.indexOf(' ')) + ' ' + refType;
+                    }
                     refTypeLib = refTypeLib.left(refTypeLib.indexOf("::"));
+                    refTypeLib = refTypeLib.mid(refTypeLib.lastIndexOf(' ') + 1);
                     namespaces[refTypeLib].append(refType);
                 } else {
                     namespaces[libName.toLatin1()].append(refType);
@@ -931,10 +948,14 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
                     QList<QByteArray> classList = namespaces.value(nspace);
                     for (int c = 0; c < classList.count(); ++c) {
                         QByteArray className = classList.at(c);
-                        if (className.contains(' '))
+                        if (className.contains(' ')) {
                             declOut << "    " << className << ";" << endl;
-                        else
+                            namespaceForType.insert(className.mid(className.indexOf(' ') + 1), nspace);
+                        } else {
                             declOut << "    class " << className << ";" << endl;
+                            namespaceForType.insert(className, nspace);
+                            namespaceForType.insert(className + "*", nspace);
+                        }
                     }
                     declOut << "}" << endl << endl;
                 }
@@ -949,10 +970,14 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
             declOut << "// forward declarations" << endl;
         for (int c = 0; c < classList.count(); ++c) {
             QByteArray className = classList.at(c);
-            if (className.contains(' '))
+            if (className.contains(' ')) {
                 declOut << "    " << className << ";" << endl;
-            else
+                namespaceForType.insert(className.mid(className.indexOf(' ') + 1), libName.toLatin1());
+            } else {
                 declOut << "    class " << className << ";" << endl;
+                namespaceForType.insert(className, libName.toLatin1());
+                namespaceForType.insert(className + "*", libName.toLatin1());
+            }
         }
 
         declOut << endl;
