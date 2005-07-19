@@ -53,6 +53,14 @@ DECLARE_PLUGIN_INSTANCE(TabOrderEditorPlugin)
     used in the \QD user interface.
     \inmodule QtDesigner
     \internal
+
+    The QDesignerComponents class is a factory for each of the standard components present
+    in the \QD user interface. It is mostly useful for developers who want to implement
+    a standalone form editing environment using \QD's components, or who need to integrate
+    \QD's components into an existing integrated development environment (IDE).
+
+    \sa QDesignerFormEditorInterface, QDesignerObjectInspectorInterface,
+        QDesignerPropertyEditorInterface, QDesignerWidgetBoxInterface
 */
 
 /*!

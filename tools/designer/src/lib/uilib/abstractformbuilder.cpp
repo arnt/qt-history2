@@ -72,11 +72,32 @@ public:
 
 /*!
     \class QAbstractFormBuilder
+    \brief The QAbstractFormBuilder class provides a default implementation for classes that
+    create user interfaces at run-time.
     \inmodule QtDesigner
+
+    QAbstractFormBuilder provides a standard interface and a default implementation for
+    constructing forms from user interface files. It is not intended to be instantiated
+    directly. Use the QFormBuilder class to create user interfaces from \c{.ui} files at
+    run-time.
+
+    To override certain aspects of the form builder's behavior, subclass QAbstractFormBuilder
+    and reimplement the relevant virtual functions:
+
+    \list
+    \o load() handles reading of \c{.ui} format files from arbitrary QIODevices, and
+       construction of widgets from the XML data they contain.
+    \o save() handles saving of widget details in \c{.ui} format to arbitrary QIODevices.
+    \o workingDirectory() and setWorkingDirectory() control the directory in which forms
+       are held. The form builder looks for other resources on paths relative to this
+       directory.
+    \endlist
+
+    \sa QFormBuilder
 */
 
 /*!
-*/
+    Constructs a new form builder.*/
 QAbstractFormBuilder::QAbstractFormBuilder()
 {
     m_defaultMargin = INT_MIN;
@@ -84,13 +105,18 @@ QAbstractFormBuilder::QAbstractFormBuilder()
 }
 
 /*!
-*/
+    Destroys the form builder.*/
 QAbstractFormBuilder::~QAbstractFormBuilder()
 {
 }
 
 /*!
-*/
+    \fn QWidget *QAbstractFormBuilder::load(QIODevice *device, QWidget *parent)
+
+    Loads an XML representation of a widget from the given \a device, and constructs a
+    new widget with the specified \a parent.
+
+    \sa save()*/
 QWidget *QAbstractFormBuilder::load(QIODevice *dev, QWidget *parentWidget)
 {
     QDomDocument doc;
@@ -686,7 +712,12 @@ QActionGroup *QAbstractFormBuilder::createActionGroup(QObject *parent, const QSt
 }
 
 /*!
-*/
+    \fn void QAbstractFormBuilder::save(QIODevice *device, QWidget *widget)
+
+    Saves an XML representation of the given \a widget to the specified \a device in
+    the standard \c{.ui} file format.
+
+    \sa load()*/
 void QAbstractFormBuilder::save(QIODevice *dev, QWidget *widget)
 {
     DomWidget *ui_widget = createDom(widget, 0);
@@ -1481,14 +1512,18 @@ QString QAbstractFormBuilder::pixmapToQrcPath(const QPixmap &pm) const
 }
 
 /*!
-*/
+    Returns the current working directory of the form builder.
+
+    \sa setWorkingDirectory() */
 QDir QAbstractFormBuilder::workingDirectory() const
 {
     return m_workingDirectory;
 }
 
 /*!
-*/
+    Sets the current working directory of the form builder to the \a directory specified.
+
+    \sa workingDirectory()*/
 void QAbstractFormBuilder::setWorkingDirectory(const QDir &directory)
 {
     m_workingDirectory = directory;

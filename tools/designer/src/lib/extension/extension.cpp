@@ -16,8 +16,14 @@
 /*!
     \class QAbstractExtensionFactory
     \brief The QAbstractExtensionFactory class provides the standard interface for extension
-    factories in \QD.
+    factories in Qt Designer.
     \inmodule QtDesigner
+
+    In \QD, extension factories are used to look up and create named extensions as they are
+    required. QAbstractExtensionFactory provides a default implementation of an extension
+    factory that is 
+
+    \sa QAbstractExtensionManager
 */
 
 /*!
@@ -29,15 +35,19 @@
 /*!
     \fn virtual QObject *QAbstractExtensionFactory::extension(QObject *object, const QString &iid) const = 0
 
-    Returns an extension for the given \a object with an extension identifier specified by \a iid.
+    Returns an extension specified by \a iid for the given \a object.
 */
 
 
 /*!
     \class QAbstractExtensionManager
     \brief The QAbstractExtensionManager class provides the abstract interface for extension
-    managers in \QD.
+    managers in Qt Designer.
     \inmodule QtDesigner
+
+    In \QD, the QAbstract
+
+    \sa QAbstractExtensionFactory
 */
 
 /*!

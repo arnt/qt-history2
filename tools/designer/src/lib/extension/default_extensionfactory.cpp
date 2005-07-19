@@ -18,7 +18,12 @@
 
 /*!
     \class QExtensionFactory
+    \brief The QExtensionFactory class provides a standard extension factory for Qt Designer.
     \inmodule QtDesigner
+
+
+
+    \sa QExtensionManager, QAbstractExtensionFactory
 */
 
 /*!
@@ -30,8 +35,9 @@ QExtensionFactory::QExtensionFactory(QExtensionManager *parent)
 }
 
 /*!
-    Returns the extension of the given \a object with the internal ID
-    specified by \a iid.
+    Returns the extension specified by \a iid for the given \a object.
+
+    \sa createExtension()
 */
 
 QObject *QExtensionFactory::extension(QObject *object, const QString &iid) const
@@ -71,7 +77,10 @@ void QExtensionFactory::objectDestroyed(QObject *object)
 }
 
 /*!
-    \internal
+    Returns an extension specified by \a iid for the given \a object.
+    The extension object is created as a child of the specified \a parent.
+
+    \sa extension()
 */
 QObject *QExtensionFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {

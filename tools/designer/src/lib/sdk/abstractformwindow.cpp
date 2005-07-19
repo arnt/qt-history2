@@ -212,7 +212,7 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
     Returns the export macro associated with the form currently being displayed in the window.
     The export macro is used when the form is compiled to create a widget plugin.
 
-    \sa \link{Creating Custom Widgets for Qt Designer}\endlink
+    \sa {Creating Custom Widgets for Qt Designer}
 */
 
 /*!
