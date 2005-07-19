@@ -351,8 +351,8 @@ void sql_intro_snippets()
 
     for (int i = 0; i < model.rowCount(); ++i) {
         QSqlRecord record = model.record(i);
-        int salary = record.value("salary").toInt();
-        salary += salary / 10;
+        double salary = record.value("salary").toInt();
+        salary *= 1.1;
         record.setValue("salary", salary);
         model.setRecord(i, record);
     }
