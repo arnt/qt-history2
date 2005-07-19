@@ -13,6 +13,8 @@
 
 #include <QtGui/QFileOpenEvent>
 #include <QtGui/QCloseEvent>
+#include <QtGui/QMessageBox>
+#include <QtCore/QMetaObject>
 #include <QtCore/QFile>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QLocale>
@@ -32,7 +34,8 @@
 QDesigner::QDesigner(int &argc, char **argv)
     : QApplication(argc, argv),
       m_server(0),
-      m_client(0)
+      m_client(0),
+      m_workbench(0)
 {
     setOrganizationName(QLatin1String("Trolltech"));
     setApplicationName(QLatin1String("Designer"));
@@ -47,9 +50,12 @@ QDesigner::QDesigner(int &argc, char **argv)
 
 QDesigner::~QDesigner()
 {
-    delete m_workbench;
-    delete m_server;
-    delete m_client;
+    if (m_workbench)
+        delete m_workbench;
+    if (m_server)
+        delete m_server;
+    if (m_client)
+        delete m_client;
 }
 
 QDesignerWorkbench *QDesigner::workbench() const
@@ -100,6 +106,13 @@ void QDesigner::initialize()
     installTranslator(translator);
     installTranslator(qtTranslator);
 
+    if (QLibraryInfo::licensedProducts() == QLatin1String("Console")) {
+        QMessageBox::information(0, tr("Qt Designer"),
+                tr("This application cannot be used for the Console edition of Qt"));
+        QMetaObject::invokeMethod(this, "quit", Qt::QueuedConnection);
+        return;
+    }
+    
     m_workbench = new QDesignerWorkbench();
 
     emit initialized();
