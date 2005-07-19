@@ -136,4 +136,9 @@
             return app.exec();
         }
     \endcode
-*/
+
+    Similarly if you must unload a set of resources explicitly
+    (because a plugin is being unloaded or the resources are not valid
+    any longer), you can force removal of your resources by calling
+    Q_CLEANUP_RESOURCE() with the same base name as above.
+ */

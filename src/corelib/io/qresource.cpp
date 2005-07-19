@@ -373,6 +373,22 @@ Q_CORE_EXPORT bool qRegisterResourceData(int version, const unsigned char *tree,
     return false;
 }
 
+Q_CORE_EXPORT bool qUnregisterResourceData(int version, const unsigned char *tree,
+                                           const unsigned char *name, const unsigned char *data)
+{
+    if(version == 0x01) {
+        QResource res(tree, name, data);
+        for(int i = 0; i < resourceList()->size(); ) {
+            if(resourceList()->at(i) == res)
+                resourceList()->remove(i);
+            else
+                ++i;
+        }
+        return true;
+    }
+    return false;
+}
+
 //file type handler
 class QResourceFileEngineHandler : public QFileEngineHandler
 {

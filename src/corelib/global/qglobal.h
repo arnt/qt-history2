@@ -475,8 +475,18 @@
 
 #ifndef Q_CONSTRUCTOR_FUNCTION
 # define Q_CONSTRUCTOR_FUNCTION(AFUNC) \
-   static const int AFUNC_init_var = AFUNC();
+   static const int AFUNC ## __init_variable__ = AFUNC();
 #endif
+
+#ifndef Q_DESTRUCTOR_FUNCTION
+# define Q_DESTRUCTOR_FUNCTION(AFUNC) \
+    class AFUNC ## __dest_class__ { \
+    public: \
+       inline AFUNC ## __dest_class__() { } \
+       inline ~ AFUNC ## __dest_class__() { AFUNC(); } \
+    } AFUNC ## __dest_instance__;
+#endif
+
 
 /*
    The window system, must be one of: (Q_WS_x)
@@ -551,6 +561,9 @@ typedef quint64 qulonglong;
 #define Q_INIT_RESOURCE(name) \
     do { extern int qInitResources_ ## name (); \
     qInitResources_ ## name (); } while (0)
+#define Q_CLEANUP_RESOURCE(name) \
+    do { extern int qCleanupResources_ ## name (); \
+        qCleanupResources_ ## name (); } while (0)
 
 #if defined(__cplusplus)
 
