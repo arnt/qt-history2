@@ -581,6 +581,8 @@ int QTabBar::insertTab(int index, const QIcon& icon, const QString &text)
     d->tabList[index].shortcutId = grabShortcut(QKeySequence::mnemonic(text));
 #endif
     d->refresh();
+    if(d->tabList.count() == 1)
+        setCurrentTab(index);
     tabInserted(index);
     return index;
 }
