@@ -52,6 +52,7 @@ public:
     QGLDrawable() : widget(0) {}
     inline void setDevice(QPaintDevice *pdev);
     inline void setAutoBufferSwap(bool);
+    inline bool autoBufferSwap() const;
     inline void swapBuffers();
     inline void makeCurrent();
     inline QSize size() const;
@@ -72,6 +73,11 @@ void QGLDrawable::setDevice(QPaintDevice *pdev)
 inline void QGLDrawable::setAutoBufferSwap(bool enable)
 {
     widget->setAutoBufferSwap(enable);
+}
+
+inline bool QGLDrawable::autoBufferSwap() const
+{
+    return widget->autoBufferSwap();
 }
 
 inline void QGLDrawable::swapBuffers()
@@ -139,6 +145,7 @@ public:
     uint has_clipping : 1;
     uint has_pen : 1;
     uint has_brush : 1;
+    uint has_autoswap : 1;
 
     QMatrix matrix;
     GLubyte pen_color[4];
@@ -167,6 +174,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     Q_ASSERT(static_cast<const QGLWidget *>(pdev));
     d->drawable.setDevice(pdev);
     d->has_clipping = false;
+    d->has_autoswap = d->drawable.autoBufferSwap();
     d->drawable.setAutoBufferSwap(false);
     setActive(true);
     d->drawable.makeCurrent();
@@ -196,6 +204,7 @@ bool QOpenGLPaintEngine::end()
     glPopAttrib();
     glFlush();
     d->drawable.swapBuffers();
+    d->drawable.setAutoBufferSwap(d->has_autoswap);
     setActive(false);
     return true;
 }
