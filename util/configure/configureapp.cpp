@@ -1358,6 +1358,7 @@ void Configure::generateCachefile()
 	cacheStream << "QT_BUILD_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
 	cacheStream << "QT_SOURCE_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
         cacheStream << "QT_INSTALL_PREFIX=" << dictionary[ "QT_INSTALL_PREFIX" ] << endl;
+        cacheStream << "DEFINES *= QT_EDITION=QT_EDITION_DESKTOP" << endl;
         cacheStream << "docs.path=" << dictionary[ "QT_INSTALL_DOCS" ] << endl;
 	cacheStream << "headers.path=" << dictionary[ "QT_INSTALL_HEADERS" ] << endl;
 	cacheStream << "plugins.path=" << dictionary[ "QT_INSTALL_PLUGINS" ] << endl;
