@@ -2091,7 +2091,7 @@ void QTreeWidget::setSortingEnabled(bool enable)
         header()->setSortIndicatorShown(false);
         header()->setClickable(false);
     } else {
-        // don't set the sorting indicator until the data has actually been sorted
+        header()->setSortIndicatorShown(true);
         header()->setClickable(true);
     }
 }

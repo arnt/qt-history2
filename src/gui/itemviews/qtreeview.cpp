@@ -1208,8 +1208,6 @@ void QTreeView::sortByColumn(int column)
     Qt::SortOrder order = ascending ? Qt::AscendingOrder : Qt::DescendingOrder;
     header()->setSortIndicator(column, order);
     d->model->sort(column, order);
-    if (!header()->isSortIndicatorShown())
-        header()->setSortIndicatorShown(true);
 }
 
 /*!
