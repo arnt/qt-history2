@@ -14,6 +14,10 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#ifndef _WINDOWS_
+#error "Must include windows.h first!"
+#endif
+
 #include <qcolor.h>
 #include <qfont.h>
 #include <qdatetime.h>

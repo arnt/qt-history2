@@ -18,9 +18,10 @@
 #include <ActiveQt>
 #include <QtGui>
 
+#include <qt_windows.h>
+
 #include "../../shared/qaxtypes.h"
 
-#include <qt_windows.h>
 #include <oaidl.h>
 
 QAxObject *ax_mainWindow = 0;
