@@ -306,7 +306,7 @@ void Configure::parseCmdLine()
 	    dictionary[ "PNG" ] = "no";
 	    dictionary[ "LIBPNG" ] = "no";
 	} else if( configCmdLine.at(i) == "-qt-zlib" ) {
-	    dictionary[ "ZLIB" ] = "yes";
+	    dictionary[ "ZLIB" ] = "qt";
 	} else if( configCmdLine.at(i) == "-system-zlib" ) {
 	    dictionary[ "ZLIB" ] = "system";
 	}
@@ -535,70 +535,70 @@ void Configure::parseCmdLine()
 	    ++i;
 	    if(i==argCount)
 		break;
-	    dictionary[ "QT_INSTALL_PREFIX" ] = configCmdLine.at(i);
+	    //dictionary[ "QT_INSTALL_PREFIX" ] = configCmdLine.at(i);
 	}
 
         else if( configCmdLine.at(i) == "-bindir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    dictionary[ "QT_INSTALL_BINS" ] = configCmdLine.at(i);
+	    //dictionary[ "QT_INSTALL_BINS" ] = configCmdLine.at(i);
 	}
 
         else if( configCmdLine.at(i) == "-libdir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    dictionary[ "QT_INSTALL_LIBS" ] = configCmdLine.at(i);
+	    //dictionary[ "QT_INSTALL_LIBS" ] = configCmdLine.at(i);
 	}
 
         else if( configCmdLine.at(i) == "-docdir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    dictionary[ "QT_INSTALL_DOCS" ] = configCmdLine.at(i);
+	    //dictionary[ "QT_INSTALL_DOCS" ] = configCmdLine.at(i);
 	}
 
 	else if( configCmdLine.at(i) == "-headerdir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    dictionary[ "QT_INSTALL_HEADERS" ] = configCmdLine.at(i);
+	    //dictionary[ "QT_INSTALL_HEADERS" ] = configCmdLine.at(i);
 	}
 
 	else if( configCmdLine.at(i) == "-plugindir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    dictionary[ "QT_INSTALL_PLUGINS" ] = configCmdLine.at(i);
+	    //dictionary[ "QT_INSTALL_PLUGINS" ] = configCmdLine.at(i);
 	}
 
 	else if( configCmdLine.at(i) == "-datadir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    dictionary[ "QT_INSTALL_DATA" ] = configCmdLine.at(i);
+	    //dictionary[ "QT_INSTALL_DATA" ] = configCmdLine.at(i);
 	}
 
 	else if( configCmdLine.at(i) == "-translationdir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    dictionary[ "QT_INSTALL_TRANSLATIONS" ] = configCmdLine.at(i);
+	    //dictionary[ "QT_INSTALL_TRANSLATIONS" ] = configCmdLine.at(i);
 	}
 
 	else if( configCmdLine.at(i) == "-examplesdir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    dictionary[ "QT_INSTALL_EXAMPLES" ] = configCmdLine.at(i);
+	    //dictionary[ "QT_INSTALL_EXAMPLES" ] = configCmdLine.at(i);
 	}
 
 	else if( configCmdLine.at(i) == "-demosdir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    dictionary[ "QT_INSTALL_DEMOS" ] = configCmdLine.at(i);
+	    //dictionary[ "QT_INSTALL_DEMOS" ] = configCmdLine.at(i);
 	}
 
 	else if( configCmdLine.at(i).indexOf( QRegExp( "^-(en|dis)able-" ) ) != -1 ) {
@@ -825,7 +825,7 @@ bool Configure::displayHelp()
 
         desc("Installation options:\n\n");
 #if !defined(EVAL)
-        desc(" These are optional, but you may specify install directories.\n\n", 0, 1);
+/*        desc(" These are optional, but you may specify install directories.\n\n", 0, 1);
 
         desc(                   "-prefix dir",          "This will install everything relative to dir\n(default $QT_INSTALL_PREFIX)\n");
 
@@ -840,7 +840,7 @@ bool Configure::displayHelp()
 	desc(                   "-translationdir <dir>","Translations of Qt programs will be installed to dir\n(default PREFIX/translations)\n");
 	desc(                   "-examplesdir <dir>",       "Examples will be installed to dir\n(default PREFIX/examples)");
 	desc(                   "-demosdir <dir>",       "Demos will be installed to dir\n(default PREFIX/demos)");
-
+*/
         desc(" You may use these options to turn on strict plugin loading:\n\n", 0, 1);
 
 	desc(                   "-buildkey <key>",      "Build the Qt library and plugins using the specified <key>.  "
