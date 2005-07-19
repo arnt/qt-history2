@@ -23,7 +23,7 @@
     \endlist
 
     For example, if you want to write a custom QStyle subclass and
-    have Qt applications load it dynamically, you would then use the
+    have Qt applications load it dynamically, you would use the
     higher-level API; whereas if you want to extend \e{Qt Designer},
     you would use the lower-level API.
 
@@ -171,7 +171,7 @@
     \o Use the Q_INTERFACES() macro to tell Qt's \l{meta-object
        system} about the interfaces.
     \o Export the plugin using the Q_EXPORT_PLUGIN() macro.
-    \o Build the plugin using an adequate \c .pro file.
+    \o Build the plugin using an suitable \c .pro file.
     \endlist
 
     For example, here's the definition of an interface class:
@@ -211,7 +211,7 @@
        features that are not available in older versions. Trolltech
        has a policy of adding new features and APIs only between minor
        releases, which is why this test only looks at the major and minor
-       version numbers, and not at the bug-fix version number.
+       version numbers, and not at the patch version number.
 
     \o The Qt library and all plugins are built using a \e {build
        key}. The build key in the Qt library is examined against the build

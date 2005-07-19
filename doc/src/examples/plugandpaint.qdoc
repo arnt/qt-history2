@@ -75,7 +75,7 @@
     works the same as \c{BrushInterface}'s \c brushes() function, and
     a \c generateShape() function that has a \c shape parameter.
     Shapes are represented by a QPainterPath, a data type that can
-    represent arbitrary 2D shapes or combination of shapes. The \c
+    represent arbitrary 2D shapes or combinations of shapes. The \c
     parent parameter can be used by the plugin to pop up a dialog
     asking the user to specify more information.
 
@@ -87,7 +87,7 @@
     function that applies a filter to an image.
 
     \skipto Q_DECLARE
-    \printuntil FilterInterface
+    \printuntil FilterInterface/
 
     To make it possible to query at run-time whether a plugin
     implements a given interface, we must use the \c
@@ -108,14 +108,14 @@
     A note on naming: It might have been tempting to give the \c
     brushes(), \c shapes(), and \c filters() functions a more generic
     name, such as \c keys() or \c features(). However, that would
-    have made multiple inheritance impracticable. When creating
+    have made multiple inheritance impractical. When creating
     interfaces, we should always try to give unique names to the pure
     virtual functions.
 
     \section1 The MainWindow Class
 
     The \c MainWindow class is a standard QMainWindow subclass, as
-    found in many of the other examples (notably
+    found in many of the other examples (e.g.,
     \l{mainwindows/application}{Application}). Here, we'll
     concentrate on the parts of the code that are related to plugins.
 
@@ -179,8 +179,8 @@
     The \c addToMenu() function is called from \c loadPlugin() to
     create \l{QAction}s for custom brushes, shapes, or filters and
     add them to the relevant menu. The QAction is created with the
-    plugin from which it comes from as the parent; this is a trick to
-    get access to the plugin later.
+    plugin from which it comes from as the parent; this makes it
+    convenient to get access to the plugin later.
 
     \quotefromfile tools/plugandpaint/mainwindow.cpp
     \skipto ::changeBrush
@@ -280,7 +280,7 @@
 
     We start by including \c interfaces.h, which defines the plugin
     interfaces for the \l{tools/plugandpaint}{Plug & Paint}
-    application. For the \c #include to work, we need to add a \c
+    application. For the \c #include to work, we need to add an \c
     INCLUDEPATH entry to the \c .pro file with the path to Qt's \c
     examples/tools directory.
 
@@ -372,7 +372,7 @@
 
     The \c generateShape() creates a QPainterPath for the specified
     shape. If the shape is \gui{Text}, we pop up a QInputDialog to
-    let the user enter a text.
+    let the user enter some text.
 
     \section1 Implementation of the Filter Interface
 
@@ -410,7 +410,8 @@
 
     Here's the project file for building the Basic Tools plugin:
 
-    \include tools/plugandpaintplugins/basictools/basictools.pro
+    \quotefromfile tools/plugandpaintplugins/basictools/basictools.pro
+    \printto # install
 
     The \c .pro file differs from typical \c .pro files in many
     respects. First, it starts with a \c TEMPLATE entry specifying \c
