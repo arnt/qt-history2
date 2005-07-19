@@ -324,7 +324,7 @@ void QBoxLayoutPrivate::calcHfw(int w)
     margin width for a top-level layout, or to the same as the parent
     layout. Both are parameters to the constructor.
 
-    To remove a widget from a layout, call remove(). Calling
+    To remove a widget from a layout, call removeWidget(). Calling
     QWidget::hide() on a widget also effectively removes the widget
     from the layout until QWidget::show() is called.
 
