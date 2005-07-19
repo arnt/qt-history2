@@ -370,6 +370,7 @@ CFG_ENDIAN=auto
 CFG_GETADDRINFO=auto
 CFG_RPATH=yes
 CFG_FRAMEWORK=auto
+CFG_UNIVERSAL_BINARY=auto
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
@@ -455,7 +456,7 @@ while [ "$#" -gt 0 ]; do
         VAL=no
         ;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xrandr|-xrender|-fontconfig|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xrandr|-xrender|-fontconfig|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal-binary)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         VAL=yes
         ;;
@@ -681,6 +682,13 @@ while [ "$#" -gt 0 ]; do
                 PLATFORM_QWS=no
             fi
             PLATFORM_X11=yes
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    universal-binary)
+        if [ "$PLATFORM_MAC" = "yes" ]; then
+            CFG_UNIVERSAL_BINARY="$VAL"
         else
             UNKNOWN_OPT=yes
         fi
@@ -2375,6 +2383,11 @@ Qt/Mac only:
  *  -framework ......... Build Qt as a series of frameworks and
                          link tools against those frameworks.
     -no-framework ...... Do not build Qt as a series of frameworks.
+
+    -universal-binary .. Build Qt as a universal binary to work on intel
+                         as well as PPC platforms.
+ *  -no-universal-binary Do not build Qt as a universal binary.
+
 EOF
 fi
 
@@ -2820,6 +2833,14 @@ else
     CFG_FRAMEWORK=no
 fi
 
+# find the default universal value
+if [ "$PLATFORM_MAC" = "yes" ]; then
+    if [ "$CFG_UNIVERSAL_BINARY" = "auto" ]; then
+         CFG_UNIVERSAL_BINARY="no" #any other default? ###
+    fi
+else
+    CFG_UNIVERSAL_BINARY="no"
+fi
 
 # find if the platform supports IPv6
 if [ "$CFG_IPV6" = "auto" ]; then
@@ -2972,6 +2993,7 @@ if [ "$CFG_USE_GNUMAKE" = "yes" ]; then
 fi
 [ "$CFG_REDUCE_EXPORTS" = "yes" ] && QT_CONFIG="$QT_CONFIG reduce_exports"
 [ "$CFG_PRECOMPILE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG precompile_header"
+[ "$CFG_UNIVERSAL_BINARY" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG universal_binary"
 if [ "$CFG_IPV6" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG ipv6"
 fi
@@ -3498,6 +3520,11 @@ if [ "$CFG_FRAMEWORK" = "no" ]; then
     QTCONFIG_CONFIG="$QTCONFIG_CONFIG qt_no_framework"
 else
     QT_CONFIG="$QT_CONFIG qt_framework"
+fi
+if [ "$CFG_UNIVERSAL_BINARY" = "no" ]; then
+    QTCONFIG_CONFIG="$QTCONFIG_CONFIG qt_no_universal_binary"
+else
+    QT_CONFIG="$QT_CONFIG qt_universal_binary"
 fi
 cat >>$QTCONFIG.tmp <<EOF
 CONFIG += $QTCONFIG_CONFIG
