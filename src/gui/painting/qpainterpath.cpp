@@ -1108,6 +1108,63 @@ QList<QPolygonF> QPainterPath::toFillPolygons(const QMatrix &matrix) const
     return polys;
 }
 
+static void qt_painterpath_isect_line(const QPointF &p1, const QPointF &p2, qreal y,
+                                      QList<qreal> *isects,
+                                      QList<int> *directions)
+{
+    qreal x1 = p1.x();
+    qreal y1 = p1.y();
+    qreal x2 = p2.x();
+    qreal y2 = p2.y();
+
+    int dir = 1;
+
+    if (qFuzzyCompare(y1, y2)) {
+        // ignore horizontal lines according to scan conversion rule
+        return;
+    } else if (y2 < y1) {
+        qreal x_tmp = x2; x2 = x1; x1 = x_tmp;
+        qreal y_tmp = y2; y2 = y1; y1 = y_tmp;
+        dir = -1;
+    }
+
+    if (y >= y1 && y < y2) {
+        qreal x = x1 + ((x2 - x1) / (y2 - y1)) * (y - y1);
+        isects->append(x);
+        directions->append(dir);
+    }
+}
+
+static void qt_painterpath_isect_curve(const QBezier &bezier, qreal y,
+                                       QList<qreal> *isects,
+                                       QList<int> *directions)
+{
+    QRectF bounds = bezier.bounds();
+
+    // potential intersection, divide and try again..
+    if (y >= bounds.y() && y < bounds.y() + bounds.height()) {
+
+        // hit lower limit... This is a rough threshold, but its a
+        // tradeoff between speed and precision.
+        const qreal lower_bound = .01;
+        if (bounds.width() < lower_bound && bounds.height() < lower_bound) {
+            isects->append(bezier.pt1().x());
+
+            // We make the assumption here that the curve starts to
+            // approximate a line after while (i.e. that it doesn't
+            // change direction drastically during its slope)
+            directions->append(bezier.pt2().y() > bezier.pt1().y() ? 1 : -1);
+            return;
+        }
+
+        // split curve and try again...
+        QBezier first_half, second_half;
+        bezier.split(&first_half, &second_half);
+        qt_painterpath_isect_curve(first_half, y, isects, directions);
+        qt_painterpath_isect_curve(second_half, y, isects, directions);
+    }
+}
+
 /*!
     Returns true if the point \a pt is contained by the path; otherwise
     returns false.
@@ -1116,10 +1173,69 @@ bool QPainterPath::contains(const QPointF &pt) const
 {
     if (isEmpty())
         return false;
-    if (d_func()->containsCache.isEmpty()) {
-        d_func()->containsCache = QRegion(toFillPolygon().toPolygon(), fillRule());
+
+    Q_D(QPainterPath);
+
+    QList<qreal> isects;
+    QList<int> directions;
+
+    bool winding = fillRule() == Qt::WindingFill;
+
+    qreal y_coord = pt.y();
+
+    QPointF last_pt;
+    QPointF last_start;
+    for (int i=0; i<d->elements.size(); ++i) {
+        const Element &e = d->elements.at(i);
+
+        switch (e.type) {
+
+        case MoveToElement:
+            if (i > 0) // implicitly close all paths.
+                qt_painterpath_isect_line(last_pt, last_start, y_coord, &isects, &directions);
+            last_start = last_pt = e;
+            break;
+
+        case LineToElement:
+            qt_painterpath_isect_line(last_pt, e, y_coord, &isects, &directions);
+            last_pt = e;
+            break;
+
+        case CurveToElement:
+            {
+                const QPainterPath::Element &cp2 = d->elements.at(++i);
+                const QPainterPath::Element &ep = d->elements.at(++i);
+                qt_painterpath_isect_curve(QBezier::fromPoints(last_pt, e, cp2, ep),
+                                           y_coord, &isects, &directions);
+                last_pt = ep;
+
+            }
+            break;
+
+        default:
+            break;
+        }
     }
-    return d_func()->containsCache.contains(pt.toPoint());
+
+    // implicitly close last subpath
+    if (last_pt != last_start)
+        qt_painterpath_isect_line(last_pt, last_start, y_coord, &isects, &directions);
+
+    if (winding) {
+        Q_ASSERT(isects.size()  == directions.size());
+        int winding_number = 0;
+        for (int i=0; i< isects.size(); ++i)
+            if (isects.at(i) <= pt.x())
+                winding_number += directions.at(i);
+        return winding_number != 0;
+    } else {
+        int less_than_count = 0;
+        for (int i=0; i< isects.size(); ++i)
+            if (isects.at(i) <= pt.x())
+                ++less_than_count;
+        return (less_than_count % 2) != 0;
+    }
+
 }
 
 
