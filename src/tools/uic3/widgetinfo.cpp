@@ -45,6 +45,7 @@
 #include <Qt3Support/Q3MainWindow>
 #include <Qt3Support/Q3GroupBox>
 #include <Qt3Support/Q3ButtonGroup>
+#include <Qt3Support/Q3IconView>
 
 WidgetInfo::WidgetInfo()
 {
@@ -84,6 +85,8 @@ const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
     else if (widgetName == QLatin1String("QListView") ||
              widgetName == QLatin1String("Q3ListView"))
         return &Q3ListView::staticMetaObject;
+    else if (widgetName == QLatin1String("Q3IconView"))
+        return &Q3IconView::staticMetaObject;
     else if (widgetName == QLatin1String("QLineEdit"))
         return &QLineEdit::staticMetaObject;
     else if (widgetName == QLatin1String("QSpinBox"))
@@ -209,7 +212,7 @@ QString WidgetInfo::resolveEnumerator(const QString &className, const QString &n
 
 QString WidgetInfo::resolveEnumerator(const QMetaObject *meta, const QString &name)
 {
-    for (int i=0; i<meta->enumeratorCount(); ++i) {
+    for (int i=meta->enumeratorCount() - 1; i>=0; --i) {
         QString e = resolveEnumerator(meta->enumerator(i), name);
         if (e.size())
             return e;
