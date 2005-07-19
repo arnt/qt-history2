@@ -3867,6 +3867,10 @@
     See \l{#properties}{Properties} for a list of QWidget properties
     in Qt 3 that have changed in Qt 4.
 
+    \section1 QWidgetFactory
+
+    The \c QWidgetFactory class has been replaced by QFormBuilder in Qt 4.
+
     \section1 QWidgetIntDict
 
     The QWidgetIntDict class was a synonym for QIntDict<QWidget>. It
