@@ -215,7 +215,7 @@ QImage QPixmap::toImage() const
 
     int w = data->w;
     int h = data->h;
-    QImage::Format format = QImage::Format_MonoLSB;
+    QImage::Format format = QImage::Format_Mono;
     if(data->d != 1) //Doesn't support index color modes
         format = (data->has_alpha ? QImage::Format_ARGB32 :
                   QImage::Format_RGB32);
