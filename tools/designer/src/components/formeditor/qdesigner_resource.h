@@ -111,6 +111,8 @@ protected:
 
     virtual void layoutInfo(DomLayout *layout, QObject *parent, int *margin, int *spacing);
 
+    DomProperty *createIconProperty(const QVariant &v) const;
+
     void changeObjectName(QObject *o, QString name);
     static QString qtify(const QString &name);
 

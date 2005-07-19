@@ -242,7 +242,18 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
 
     if (QTabWidget *tabWidget = qobject_cast<QTabWidget*>(parentWidget)) {
         widget->setParent(0);
+
+        int tabIndex = tabWidget->count();
         tabWidget->addTab(widget, title);
+
+        if (DomProperty *picon = attributes.value(QLatin1String("icon"))) {
+            tabWidget->setTabIcon(tabIndex, qvariant_cast<QIcon>(toVariant(0, picon)));
+        }
+
+        if (DomProperty *ptoolTip = attributes.value(QLatin1String("toolTip"))) {
+            tabWidget->setTabToolTip(tabIndex, toString(ptoolTip->elementString()));
+        }
+
         return true;
     }
 

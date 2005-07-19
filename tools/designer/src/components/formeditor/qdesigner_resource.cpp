@@ -705,6 +705,40 @@ DomWidget *QDesignerResource::saveWidget(QDesignerStackedWidget *widget, DomWidg
     return ui_widget;
 }
 
+DomProperty *QDesignerResource::createIconProperty(const QVariant &v) const
+{
+    DomProperty *dom_prop = new DomProperty();
+
+    DomResourcePixmap *r = new DomResourcePixmap;
+    QString icon_path;
+    QString qrc_path;
+    if (v.type() == QVariant::Icon) {
+        QIcon icon = qvariant_cast<QIcon>(v);
+        icon_path = iconToFilePath(icon);
+        qrc_path = iconToQrcPath(icon);
+    } else {
+        QPixmap pixmap = qvariant_cast<QPixmap>(v);
+        icon_path = pixmapToFilePath(pixmap);
+        qrc_path = pixmapToQrcPath(pixmap);
+    }
+
+    if (qrc_path.isEmpty())
+        icon_path = workingDirectory().relativeFilePath(icon_path);
+    else
+        qrc_path = workingDirectory().relativeFilePath(qrc_path);
+
+    r->setText(icon_path);
+    if (!qrc_path.isEmpty())
+        r->setAttributeResource(qrc_path);
+
+    if (v.type() == QVariant::Icon)
+        dom_prop->setElementIconSet(r);
+    else
+        dom_prop->setElementPixmap(r);
+
+    return dom_prop;
+}
+
 DomWidget *QDesignerResource::saveWidget(QDesignerTabWidget *widget, DomWidget *ui_parentWidget)
 {
     DomWidget *ui_widget = QAbstractFormBuilder::createDom(widget, ui_parentWidget, false);
@@ -718,15 +752,35 @@ DomWidget *QDesignerResource::saveWidget(QDesignerTabWidget *widget, DomWidget *
             DomWidget *ui_page = createDom(page, ui_widget);
             Q_ASSERT( ui_page != 0 );
 
+            QList<DomProperty*> ui_attribute_list;
+
+            DomProperty *p = 0;
+            DomString *str = 0;
+
             // attribute `title'
-            DomProperty *p = new DomProperty();
+            p = new DomProperty();
             p->setAttributeName(QLatin1String("title"));
-            DomString *str = new DomString();
+            str = new DomString();
             str->setText(widget->tabText(i));
             p->setElementString(str);
-
-            QList<DomProperty*> ui_attribute_list;
             ui_attribute_list.append(p);
+
+            // attribute `icon'
+            if (!widget->tabIcon(i).isNull()) {
+                p = createIconProperty(widget->tabIcon(i));
+                p->setAttributeName(QLatin1String("icon"));
+                ui_attribute_list.append(p);
+            }
+
+            // attribute `toolTip'
+            if (!widget->tabToolTip(i).isEmpty()) {
+                p = new DomProperty();
+                p->setAttributeName(QLatin1String("toolTip"));
+                str = new DomString();
+                str->setText(widget->tabToolTip(i));
+                p->setElementString(str);
+                ui_attribute_list.append(p);
+            }
 
             ui_page->setElementAttribute(ui_attribute_list);
 
