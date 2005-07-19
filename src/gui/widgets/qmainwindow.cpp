@@ -473,6 +473,8 @@ void QMainWindow::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
     Q_ASSERT_X(toolbar->isAreaAllowed(area),
                "QMainWIndow::addToolBar", "specified 'area' is not an allowed area");
 
+    removeToolBar(toolbar);
+
     toolbar->d_func()->updateIconSize(d->iconSize);
     toolbar->d_func()->updateToolButtonStyle(d->toolButtonStyle);
     connect(this, SIGNAL(iconSizeChanged(QSize)),
@@ -522,6 +524,8 @@ void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar)
     Q_ASSERT_X(toolbar->isAreaAllowed(toolBarArea(before)),
                "QMainWIndow::insertToolBar", "specified 'area' is not an allowed area");
 
+    removeToolBar(toolbar);
+
     toolbar->d_func()->updateIconSize(d->iconSize);
     toolbar->d_func()->updateToolButtonStyle(d->toolButtonStyle);
     connect(this, SIGNAL(iconSizeChanged(QSize)),
@@ -558,7 +562,7 @@ Qt::ToolBarArea QMainWindow::toolBarArea(QToolBar *toolbar) const
 
 #endif // QT_NO_TOOLBAR
 
-#ifndef QT_NO_DOCKWIDGET    
+#ifndef QT_NO_DOCKWIDGET
 /*!
     Adds the given \a dockwidget to the specified \a area.
 */
@@ -646,7 +650,7 @@ void QMainWindow::removeDockWidget(QDockWidget *dockwidget)
 Qt::DockWidgetArea QMainWindow::dockWidgetArea(QDockWidget *dockwidget) const
 { return d_func()->layout->dockWidgetArea(dockwidget); }
 
-#endif // QT_NO_DOCKWIDGET    
+#endif // QT_NO_DOCKWIDGET
 
 /*!
     Saves the current state of this mainwindow's toolbars and
