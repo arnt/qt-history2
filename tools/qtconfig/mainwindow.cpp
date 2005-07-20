@@ -108,21 +108,6 @@ static const char *printer_text =
 "Qt should search for embeddable font files.  By default, the X "
 "server font path is used.";
 
-static const char *about_text =
-"<p><b><font size=+2>Qt Configuration</font></b></p>"
-"<p>A graphical configuration tool for programs using Qt</p>"
-"<p>Version 1.0</p>"
-"<p>Copyright (C) 2001-$THISYEAR$ Trolltech AS. All rights reserved.</p>"
-"<p></p>"
-"<p>This program is licensed to you under the terms of the GNU General "
-"Public License Version 2 as published by the Free Software Foundation. This "
-"gives you legal permission to copy, distribute and/or modify this software "
-"under certain conditions. For details, see the file 'LICENSE.GPL' that came with "
-"this software distribution. If you did not get the file, send email to "
-"info@trolltech.com.</p>\n\n<p>The program is provided AS IS with NO WARRANTY "
-"OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS "
-"FOR A PARTICULAR PURPOSE.</p>";
-
 
 static QColorGroup::ColorRole centralFromItem( int item )
 {
@@ -881,8 +866,31 @@ void MainWindow::somethingModified()
 
 void MainWindow::helpAbout()
 {
-    QMessageBox::about(this, tr("Qt Configuration"),
-                       tr(about_text));
+    QMessageBox box(this);
+    box.setText(tr("<h3>%1</h3>"
+                   "<br/>Version %2"
+#if defined(QT_OPENSOURCE)
+                   " Open Source Edition</center><p>"
+                   "This version of Qt Configuration is part of the Qt Open Source Edition, for use "
+                   "in the development of Open Source applications. "
+                   "Qt is a comprehensive C++ framework for cross-platform application "
+                   "development.<br/><br/>"
+                   "You need a commercial Qt license for development of proprietary (closed "
+                   "source) applications. Please see <tt>http://www.trolltech.com/company/model"
+                   ".html</tt> for an overview of Qt licensing."
+#else
+                   "</center><p>This program is licensed to you under the terms of the "
+                   "Qt Commercial License Agreement. For details, see the file LICENSE "
+                   "that came with this software distribution."
+#endif
+                   "<br/><br/>Copyright 2000-$THISYEAR$ Trolltech AS. All rights reserved."
+                   "<br/><br/>The program is provided AS IS with NO WARRANTY OF ANY KIND,"
+                   " INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A"
+                   " PARTICULAR PURPOSE.<br/> ")
+                   .arg(tr("Qt Configuration")).arg(QT_VERSION_STR));
+    box.setWindowTitle(tr("Qt Configuration"));
+    box.setIcon(QMessageBox::NoIcon);
+    box.exec();
 }
 
 
