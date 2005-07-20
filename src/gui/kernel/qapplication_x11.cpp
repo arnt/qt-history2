@@ -4394,7 +4394,7 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
     uint keystate = event->xkey.state;
     // remove the modifiers where mode_switch exists... HPUX machines seem
     // to have alt *AND* mode_switch both in Mod1Mask, which causes
-    // XLookupString to return things like '� (aring) for Qt::ALT-A.  This
+    // XLookupString to return things like (aring) for Qt::ALT-A.  This
     // completely breaks modifiers.  If we remove the modifier for Mode_switch,
     // then things work correctly...
     xkeyevent.state &= ~qt_mode_switch_remove_mask;

@@ -627,7 +627,7 @@ int QTextLayout::previousCursorPosition(int oldPos, CursorMode mode) const
 
     A grapheme cluster is a sequence of two or more Unicode characters
     that form one indivisible entity on the screen. For example the
-    latin character `Ä' can be represented in Unicode by two
+    latin character `\Auml' can be represented in Unicode by two
     characters, `A' (0x41), and the combining diaresis (0x308). A text
     cursor can only validly be positioned before or after these two
     characters, never between them since that wouldn't make sense. In

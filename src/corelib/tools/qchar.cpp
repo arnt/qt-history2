@@ -101,7 +101,7 @@
     whether the character needs to be mirrored when it is printed in
     its "unnatural" writing direction.
 
-    Composed Unicode characters (like å) can be converted to
+    Composed Unicode characters (like \aring) can be converted to
     decomposed Unicode ("a" followed by "ring above") by using
     decomposition().
 

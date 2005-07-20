@@ -707,7 +707,7 @@ are those in table 6.6 of the UNICODE 2.0 book.
 PrioritY        Glyph                   Condition                                       Kashida Location
 
 Arabic_Kashida        User inserted Kashida   The user entered a Kashida in a position.       After the user
-                (Shift+j or Shift+Ê)    Thus, it is the highest priority to insert an   inserted kashida
+                (Shift+j or Shift+[E with hat])    Thus, it is the highest priority to insert an   inserted kashida
                                         automatic kashida.
 
 Arabic_Seen        Seen, Sad               Connecting to the next character.               After the character.

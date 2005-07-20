@@ -328,7 +328,7 @@ void QDial::setWrapping(bool enable)
     \brief whether wrapping is enabled
 
     If true, wrapping is enabled. This means that the arrow can be
-    turned around 360°. Otherwise there is some space at the bottom of
+    turned around 360 degrees. Otherwise there is some space at the bottom of
     the dial which is skipped by the arrow.
 
     This property's default is false.

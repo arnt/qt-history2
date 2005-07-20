@@ -48,6 +48,8 @@ macro.raisedaster.HTML  = "<sup>*</sup>"
 macro.BR.HTML           = "<br />"
 macro.QD                = "\\e{Qt Designer}"
 macro.QA                = "\\e{Qt Assistant}"
+macro.aring.HTML        = "&aring;"
+macro.Auml.HTML         = "&Auml;"
 
 Cpp.ignoretokens        = QAXFACTORY_EXPORT \
                           QM_EXPORT_CANVAS \

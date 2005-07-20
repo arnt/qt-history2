@@ -513,7 +513,7 @@ static const struct {
 
     // This one is based on the charmap file
     // /usr/share/i18n/charmaps/SAMI-WS2.gz, which is manually adapted
-    // to this format by Børre Gaup <boerre@subdimension.com>
+    // to this format by Boerre Gaup <boerre@subdimension.com>
     { "WINSAMI2", { "WS2", 0 }, -165,
       { 0x20AC, 0xFFFD, 0x010C, 0x0192, 0x010D, 0x01B7, 0x0292, 0x01EE,
         0x01EF, 0x0110, 0x0160, 0x2039, 0x0152, 0xFFFD, 0xFFFD, 0xFFFD,
