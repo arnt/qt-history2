@@ -4129,6 +4129,16 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
     case QEvent::Resize:
 	updateMask();
 	break;
+    case QEvent::WindowBlocked:
+        if (!m_spInPlaceFrame)
+            break;
+        m_spInPlaceFrame->EnableModeless(FALSE);
+        break;
+    case QEvent::WindowUnblocked:
+        if (!m_spInPlaceFrame)
+            break;
+        m_spInPlaceFrame->EnableModeless(TRUE);
+        break;
     default:
 	break;
     }
