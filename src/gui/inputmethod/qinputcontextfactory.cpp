@@ -52,11 +52,39 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QInputContextFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/inputmethods")))
 #endif
 
+/*!
+    \class QInputContextFactory
+    \brief The QInputContextFactory class creates QInputContext objects.
+
+    \ingroup appearance
+
+    The input context factory creates a QInputContext object for a
+    given key with QInputContextFactory::create().
+
+    The input contexts are either built-in or dynamically loaded from
+    an input context plugin (see QInputContextPlugin).
+
+    QInputContextFactory::keys() returns a list of valid keys. The
+    keys are the names used, for example, to identify and specify
+    input methods for the input method switching mechanism. The names
+    have to be consistent with QInputContext::identifierName(), and
+    may only contain ASCII characters.
+
+    A key can be used to retrieve the associated input context's
+    supported languages using QInputContextFactory::languages(). You
+    can retrieve the input context's description using
+    QInputContextFactory::description() and finally you can get a user
+    friendly internationalized name of the QInputContext object
+    specified by the key using QInputContextFactory::displayName().
+
+    \sa QInputContext, QInputContextPlugin
+*/
 
 /*!
-    This function generates the input context that has the identifier
-    name which is in agreement with \a key. \a widget is the client
-    widget of QInputContext. \a widget may be null.
+    Creates and returns a QInputContext object for the input context
+    specified by \a key with the given \a parent.
+
+    \sa keys()
 */
 QInputContext *QInputContextFactory::create( const QString& key, QObject *parent )
 {
@@ -89,9 +117,15 @@ QInputContext *QInputContextFactory::create( const QString& key, QObject *parent
 
 
 /*!
-    This function returns the list of the names input methods.
-    Only input methods included in default and placed under
-    $QTDIR/plugins/inputmethods are listed.
+    Returns the list of keys this factory can create input contexts
+    for.
+
+    The keys are the names used, for example, to identify and specify
+    input methods for the input method switching mechanism.  The names
+    have to be consistent with QInputContext::identifierName(), and
+    may only contain ASCII characters.
+
+    \sa create(), displayName(), QInputContext::identifierName()
 */
 QStringList QInputContextFactory::keys()
 {
@@ -111,7 +145,20 @@ QStringList QInputContextFactory::keys()
     return result;
 }
 
+/*!
+    Returns the languages supported by the QInputContext object
+    specified by \a key.
 
+    The languages are expressed as language code (e.g. "zh_CN",
+    "zh_TW", "zh_HK", "ja", "ko", ...). An input context that supports
+    multiple languages can return all supported languages as a
+    QStringList. The name has to be consistent with
+    QInputContext::language().
+
+    This information may be used to optimize a user interface.
+
+    \sa keys(), QInputContext::language(), QLocale
+*/
 QStringList QInputContextFactory::languages( const QString &key )
 {
     QStringList result;
@@ -135,7 +182,13 @@ QStringList QInputContextFactory::languages( const QString &key )
     return result;
 }
 
+/*!
+    Returns a user friendly internationalized name of the
+    QInputContext object specified by \a key. You can, for example,
+    use this name in a menu.
 
+    \sa keys(), QInputContext::identifierName()
+*/
 QString QInputContextFactory::displayName( const QString &key )
 {
     QString result;
@@ -151,7 +204,13 @@ QString QInputContextFactory::displayName( const QString &key )
     return QString();
 }
 
+/*!
+    Returns an internationalized brief description of the QInputContext
+    object specified by \a key. You can, for example, use this
+    description in a user interface.
 
+    \sa keys(), displayName()
+*/
 QString QInputContextFactory::description( const QString &key )
 {
 #if defined(Q_WS_X11) && !defined(QT_NO_XIM)
