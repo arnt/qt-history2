@@ -77,7 +77,7 @@ FT_BEGIN_HEADER
    *     Mac Roman encoding.
    *
    *   FT_WinFNT_ID_OEM ::
-   *     From Michael Pöttgen <michael@poettgen.de>:
+   *     From Michael Poettgen <michael@poettgen.de>:
    *       The `Windows Font Mapping' article says that FT_WinFNT_ID_OEM
    *       is used for the charset of vector fonts, like `modern.fon',
    *       `roman.fon', and `script.fon' on Windows.
