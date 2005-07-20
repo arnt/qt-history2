@@ -934,6 +934,8 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             State flags = opt->state;
             QPalette pal = opt->palette;
             QRect r = opt->rect;
+            if (btn->features & QStyleOptionButton::DefaultButton)
+                r = r.adjusted(0, 0, -1, -1);
             if (! (flags & State_Sunken) && (flags & State_On))
                 fill = QBrush(pal.light().color(), Qt::Dense4Pattern);
             else
