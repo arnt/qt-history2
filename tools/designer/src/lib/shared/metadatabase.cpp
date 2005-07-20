@@ -94,8 +94,6 @@ void MetaDataBase::add(QObject *object)
     connect(object, SIGNAL(destroyed(QObject*)),
         this, SLOT(slotDestroyed(QObject*)));
 
-    core()->widgetFactory()->initialize(object);
-
     emit changed();
 }
 
