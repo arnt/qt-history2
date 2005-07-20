@@ -29,8 +29,8 @@ MainWindow::MainWindow()
     cursor.insertText(...);
 */
     cursor.insertText("Text documents are represented by the "
-                      "QTextDocument class, rather than by QString objects. "
-                      "Each QTextDocument object contains information about "
+                      "QTextDocument class, rather than by QString objects. "
+                      "Each QTextDocument object contains information about "
                       "the document's internal representation, its structure, "
                       "and keeps track of modifications to provide undo/redo "
                       "facilities. This approach allows features such as the "

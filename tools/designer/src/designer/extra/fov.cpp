@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved.
-** Copyright (C) 2002-$THISYEAR$ Björn Bergström
+** Copyright (C) 2002-$THISYEAR$ Bjoern Bergstroem
 **
 ** This file is part of the $MODULE$ of the Qt Toolkit.
 **
@@ -16,9 +16,9 @@
  *
  * implementation of recursive shadowcasting
  *
- * 020125: Björn Bergström - changed from float to double to remove compiler
+ * 020125: Bjoern Bergstroem - changed from float to double to remove compiler
  *         warnings
- * 020125: Björn Bergström - included a check to avoid orthogonal edges to be
+ * 020125: Bjoern Bergstroem - included a check to avoid orthogonal edges to be
  *         scanned more than once
  * 020125: Greg McIntyre - declared the nwL, neL etc in FOV::start outside the
  *         for loops
