@@ -1055,7 +1055,7 @@ bool QDirModel::isDir(const QModelIndex &index) const
 QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
 {
     Q_D(QDirModel);
-    if (!parent.isValid())
+    if (!parent.isValid() || isReadOnly())
         return QModelIndex();
 
     QDirModelPrivate::QDirNode *p =
@@ -1093,7 +1093,7 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
 
 bool QDirModel::rmdir(const QModelIndex &index)
 {
-    if (!index.isValid())
+    if (!index.isValid() || isReadOnly())
         return false;
 
     QDirModelPrivate::QDirNode *n =
@@ -1128,7 +1128,7 @@ bool QDirModel::rmdir(const QModelIndex &index)
 
 bool QDirModel::remove(const QModelIndex &index)
 {
-    if (!index.isValid())
+    if (!index.isValid() || isReadOnly())
         return false;
 
     QDirModelPrivate::QDirNode *n =
