@@ -31,7 +31,7 @@ LineEditTaskMenu::LineEditTaskMenu(QLineEdit *lineEdit, QObject *parent)
       m_lineEdit(lineEdit)
 {
     m_editTextAction = new QAction(this);
-    m_editTextAction->setText(tr("Change text"));
+    m_editTextAction->setText(tr("Change text..."));
     connect(m_editTextAction, SIGNAL(triggered()), this, SLOT(editText()));
     m_taskActions.append(m_editTextAction);
 

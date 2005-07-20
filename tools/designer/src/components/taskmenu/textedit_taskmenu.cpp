@@ -32,7 +32,7 @@ TextEditTaskMenu::TextEditTaskMenu(QTextEdit *textEdit, QObject *parent)
       m_textEdit(textEdit)
 {
     m_editTextAction= new QAction(this);
-    m_editTextAction->setText(tr("Change html"));
+    m_editTextAction->setText(tr("Change HTML..."));
     connect(m_editTextAction, SIGNAL(triggered()), this, SLOT(editText()));
     m_taskActions.append(m_editTextAction);
 
@@ -66,6 +66,7 @@ void TextEditTaskMenu::editText()
         editor->setDefaultFont(m_textEdit->font());
         editor->setText(m_textEdit->toHtml());
         editor->selectAll();
+        editor->setFocus();
 
         if (dlg->exec()) {
             QString text = editor->text(Qt::RichText);

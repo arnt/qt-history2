@@ -31,7 +31,7 @@ ButtonTaskMenu::ButtonTaskMenu(QAbstractButton *button, QObject *parent)
       m_button(button)
 {
     m_preferredEditAction = new QAction(this);
-    m_preferredEditAction->setText(tr("Change text"));
+    m_preferredEditAction->setText(tr("Change text..."));
     connect(m_preferredEditAction, SIGNAL(triggered()), this, SLOT(editText()));
     m_taskActions.append(m_preferredEditAction);
 

@@ -31,7 +31,7 @@ LabelTaskMenu::LabelTaskMenu(QLabel *label, QObject *parent)
       m_label(label)
 {
     m_editTextAction= new QAction(this);
-    m_editTextAction->setText(tr("Change text"));
+    m_editTextAction->setText(tr("Change text..."));
     connect(m_editTextAction, SIGNAL(triggered()), this, SLOT(editText()));
     m_taskActions.append(m_editTextAction);
 
@@ -65,6 +65,7 @@ void LabelTaskMenu::editText()
         editor->setDefaultFont(m_label->font());
         editor->setText(m_label->text());
         editor->selectAll();
+        editor->setFocus();
 
         if (dlg->exec()) {
             QString text = editor->text(m_label->textFormat());

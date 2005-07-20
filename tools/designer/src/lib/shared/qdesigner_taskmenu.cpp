@@ -43,16 +43,16 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     m_separator = new QAction(this);
     m_separator->setSeparator(true);
 
-    m_changeObjectNameAction = new QAction(tr("Change objectName"), this);
+    m_changeObjectNameAction = new QAction(tr("Change objectName..."), this);
     connect(m_changeObjectNameAction, SIGNAL(triggered()), this, SLOT(changeObjectName()));
 
-    m_changeStatusTip = new QAction(tr("Change statusTip"), this);
+    m_changeStatusTip = new QAction(tr("Change statusTip..."), this);
     connect(m_changeStatusTip, SIGNAL(triggered()), this, SLOT(changeStatusTip()));
 
-    m_changeToolTip = new QAction(tr("Change toolTip"), this);
+    m_changeToolTip = new QAction(tr("Change toolTip..."), this);
     connect(m_changeToolTip, SIGNAL(triggered()), this, SLOT(changeToolTip()));
 
-    m_changeWhatsThis = new QAction(tr("Change whatsThis"), this);
+    m_changeWhatsThis = new QAction(tr("Change whatsThis..."), this);
     connect(m_changeWhatsThis, SIGNAL(triggered()), this, SLOT(changeWhatsThis()));
 
     m_createDockWidgetAction = new QAction(tr("Create Dock Window"), this);
@@ -122,10 +122,11 @@ void QDesignerTaskMenu::changeObjectName()
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), widget());
     Q_ASSERT(sheet != 0);
 
+    bool ok;
     QString newObjectName = QInputDialog::getText(widget(), tr("Change Object Name"),
-            tr("Object Name"), QLineEdit::Normal, sheet->property(sheet->indexOf(QLatin1String("objectName"))).toString());;
+            tr("Object Name"), QLineEdit::Normal, sheet->property(sheet->indexOf(QLatin1String("objectName"))).toString(), &ok);
 
-    if (!newObjectName.isEmpty()) {
+    if (ok && !newObjectName.isEmpty()) {
         fw->cursor()->setProperty(QLatin1String("objectName"), newObjectName);
     }
 }
@@ -251,6 +252,7 @@ void QDesignerTaskMenu::changeRichTextProperty(const QString &propertyName)
         editor->setDefaultFont(m_widget->font());
         editor->setText(sheet->property(sheet->indexOf(propertyName)).toString());
         editor->selectAll();
+        editor->setFocus();
 
         if (dlg->exec()) {
             QString text = editor->text(Qt::RichText);
