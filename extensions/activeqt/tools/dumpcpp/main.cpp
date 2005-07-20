@@ -1223,6 +1223,7 @@ int main(int argc, char **argv)
 
     if (category == TypeLibID) {
         QSettings settings("HKEY_LOCAL_MACHINE\\Software\\Classes\\TypeLib\\" + typeLib, QSettings::NativeFormat);
+        typeLib = QByteArray();
         QStringList codes = settings.childGroups();
         for (int c = 0; c < codes.count(); ++c) {
             typeLib = settings.value("/" + codes.at(c) + "/0/win32/.").toByteArray();
