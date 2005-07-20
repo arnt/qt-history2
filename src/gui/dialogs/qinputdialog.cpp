@@ -219,6 +219,7 @@ QString QInputDialog::getText(QWidget *parent, const QString &title, const QStri
     QLineEdit *le = qobject_cast<QLineEdit *>(dlg.d_func()->input);
     le->setText(text);
     le->setEchoMode(mode);
+    le->setFocus();
 
     QString result;
     bool accepted = (dlg.exec() == QDialog::Accepted);
