@@ -29,9 +29,6 @@ public:
 
     virtual bool eventFilter(QObject *object, QEvent *event);
 
-protected:
-    virtual void focusOutEvent(QFocusEvent *e);
-
 private:
     QWidget *m_widget;
     bool m_noChildEvent;

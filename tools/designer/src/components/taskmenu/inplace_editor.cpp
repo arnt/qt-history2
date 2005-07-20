@@ -28,9 +28,10 @@ InPlaceEditor::InPlaceEditor(QWidget *widget, QDesignerFormWindowInterface *fw)
     : QLineEdit(),
       m_widget(widget)
 {
-    (void) new QShortcut(Qt::Key_Escape, this, SLOT(deleteLater()));
+    (void) new QShortcut(Qt::Key_Escape, this, SLOT(close()));
 
     m_noChildEvent = widget->testAttribute(Qt::WA_NoChildEventsForParent);
+    setAttribute(Qt::WA_DeleteOnClose);
     setParent(widget->window());
     m_widget->installEventFilter(this);
     connect(this, SIGNAL(destroyed()), fw->mainContainer(), SLOT(setFocus()));
@@ -61,10 +62,3 @@ bool InPlaceEditor::eventFilter(QObject *object, QEvent *e)
 
     return false;
 }
-
-void InPlaceEditor::focusOutEvent(QFocusEvent *e)
-{
-    QLineEdit::focusOutEvent(e);
-    deleteLater();
-}
-
