@@ -79,10 +79,12 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
 
         pindex = count();
         createFakeProperty(QLatin1String("margin"), 0);
+        setAttribute(pindex, true);
         setPropertyGroup(pindex, tr("Layout"));
 
         pindex = count();
         createFakeProperty(QLatin1String("spacing"), 0);
+        setAttribute(pindex, true);
         setPropertyGroup(pindex, tr("Layout"));
     }
 }
