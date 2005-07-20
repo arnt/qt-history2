@@ -47,7 +47,7 @@ Calculator::Calculator(QWidget *parent)
     }
 
     pointButton = createButton(tr("."), digitColor, SLOT(pointClicked()));
-    changeSignButton = createButton(tr("±"), digitColor, SLOT(changeSignClicked()));
+    changeSignButton = createButton(tr("\261"), digitColor, SLOT(changeSignClicked()));
 
     backspaceButton = createButton(tr("Backspace"), backspaceColor,
                                    SLOT(backspaceClicked()));
@@ -62,9 +62,9 @@ Calculator::Calculator(QWidget *parent)
     addToMemoryButton = createButton(tr("M+"), memoryColor,
                                      SLOT(addToMemory()));
 
-    divisionButton = createButton(tr("÷"), operatorColor,
+    divisionButton = createButton(tr("\367"), operatorColor,
                                   SLOT(multiplicativeOperatorClicked()));
-    timesButton = createButton(tr("×"), operatorColor,
+    timesButton = createButton(tr("\327"), operatorColor,
                                SLOT(multiplicativeOperatorClicked()));
     minusButton = createButton(tr("-"), operatorColor,
                                SLOT(additiveOperatorClicked()));
@@ -73,7 +73,7 @@ Calculator::Calculator(QWidget *parent)
 
     squareRootButton = createButton(tr("Sqrt"), operatorColor,
                                     SLOT(unaryOperatorClicked()));
-    powerButton = createButton(tr("x²"), operatorColor,
+    powerButton = createButton(tr("x\262"), operatorColor,
                                SLOT(unaryOperatorClicked()));
     reciprocalButton = createButton(tr("1/x"), operatorColor,
                                     SLOT(unaryOperatorClicked()));
@@ -168,7 +168,7 @@ void Calculator::unaryOperatorClicked()
             return;
         }
         result = sqrt(operand);
-    } else if (clickedOperator == tr("x²")) {
+    } else if (clickedOperator == tr("x\262")) {
         result = pow(operand, 2.0);
     } else if (clickedOperator == tr("1/x")) {
         if (operand == 0.0) {
@@ -358,9 +358,9 @@ bool Calculator::calculate(double rightOperand, const QString &pendingOperator)
         sumSoFar += rightOperand;
     } else if (pendingOperator == tr("-")) {
         sumSoFar -= rightOperand;
-    } else if (pendingOperator == tr("×")) {
+    } else if (pendingOperator == tr("\327")) {
         factorSoFar *= rightOperand;
-    } else if (pendingOperator == tr("÷")) {
+    } else if (pendingOperator == tr("\367")) {
 	if (rightOperand == 0.0)
 	    return false;
 	factorSoFar /= rightOperand;
