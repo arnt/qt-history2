@@ -1124,12 +1124,11 @@ void QX11PaintEngine::updatePen(const QPen &pen)
       (or 0) as a very special case.  The fudge variable unifies this
       case with the general case.
     */
-    int dot = pen.width();                     // width of a dot
-    int fudge = 1;
-    if (dot <= 1) {
-        dot = 3;
-        fudge = 2;
-    }
+    qreal pen_width = pen.widthF();
+    int scale =  qRound(pen_width < 1 ? 1 : pen_width);
+    int space = (pen_width < 1 ? 1 : (2 * scale));
+    int dot = 1 * scale;
+    int dash = 4 * scale;
 
     switch (ps) {
     case Qt::NoPen:
@@ -1137,32 +1136,32 @@ void QX11PaintEngine::updatePen(const QPen &pen)
         xStyle = LineSolid;
 	break;
     case Qt::DashLine:
-	dashes[0] = fudge * 3 * dot;
-	dashes[1] = fudge * dot;
+	dashes[0] = dash;
+	dashes[1] = space;
 	dash_len = 2;
         xStyle = LineOnOffDash;
 	break;
     case Qt::DotLine:
 	dashes[0] = dot;
-	dashes[1] = dot;
+	dashes[1] = space;
 	dash_len = 2;
         xStyle = LineOnOffDash;
 	break;
     case Qt::DashDotLine:
-	dashes[0] = 3 * dot;
-	dashes[1] = fudge * dot;
+	dashes[0] = dash;
+	dashes[1] = space;
 	dashes[2] = dot;
-	dashes[3] = fudge * dot;
+	dashes[3] = space;
 	dash_len = 4;
         xStyle = LineOnOffDash;
 	break;
     case Qt::DashDotDotLine:
-	dashes[0] = 3 * dot;
-	dashes[1] = dot;
+	dashes[0] = dash;
+	dashes[1] = space;
 	dashes[2] = dot;
-	dashes[3] = dot;
+	dashes[3] = space;
 	dashes[4] = dot;
-	dashes[5] = dot;
+	dashes[5] = space;
 	dash_len = 6;
         xStyle = LineOnOffDash;
         break;
