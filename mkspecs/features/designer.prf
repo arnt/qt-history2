@@ -7,3 +7,5 @@ CONFIG(debug, debug|release) {
 } else {
     LIBS += -lQtDesigner
 }
+
+INCLUDEPATH += $$QMAKE_INCDIR_QT/QtDesigner
