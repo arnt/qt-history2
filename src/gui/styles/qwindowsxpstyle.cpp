@@ -1502,7 +1502,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
     case PE_FrameMenu:
         p->save();
         p->setPen(option->palette.dark().color());
-        p->drawRect(option->rect.adjusted(0,0,-1,-1));
+        p->drawRect(rect);
         p->restore();
         return;
 
