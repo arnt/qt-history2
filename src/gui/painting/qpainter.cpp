@@ -1099,8 +1099,8 @@ void QPainter::setBrushOrigin(const QPointF &p)
   alpha is reduced by the inverse of destination.
 
   \value CompositionMode_DestinationOut The output is the
-  destionation, where the alpha is reduced byt eh inverse of the
-  source. This mode is the inverse of Compositionmode_SourceOut.
+  destination, where the alpha is reduced by the inverse of the
+  source. This mode is the inverse of CompositionMode_SourceOut.
 
   \value CompositionMode_SourceAtop The source pixel is blended on top
   of the destination, with the alpha of the source pixel reduced by
