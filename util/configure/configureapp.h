@@ -21,6 +21,7 @@ public:
     QString defaultTo(const QString &option);
     bool checkAvailability(const QString &part);
     void autoDetection();
+    bool verifyConfiguration();
 
     void generateOutputVars();
 #if !defined(EVAL)

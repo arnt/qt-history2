@@ -1026,6 +1026,13 @@ QString Configure::defaultTo(const QString &option)
     if (option == "JPEG")
         return "plugin";
 
+    // By default we do not want to compile OCI driver when compiling with
+    // MinGW, due to lack of such support from Oracle. It prob. wont work.
+    // (Customer may force the use though)
+    if (dictionary["QMAKESPEC"].endsWith("-g++")
+        && option == "SQL_OCI")
+        return "no";
+
     if (option == "SQL_MYSQL"
         || option == "SQL_MYSQL"
         || option == "SQL_ODBC"
@@ -1129,6 +1136,21 @@ void Configure::autoDetection()
     for (QMap<QString,QString>::iterator i = dictionary.begin(); i != dictionary.end(); ++i)
         if (i.value() == "auto")
             i.value() = defaultTo(i.key());
+}
+
+bool Configure::verifyConfiguration()
+{
+    if (dictionary["QMAKESPEC"].endsWith("-g++")
+        && dictionary["SQL_OCI"] != "no") {
+        cout << "WARNING: Qt does not support compiling the Oracle database driver with" << endl
+             << "MinGW, due to lack of such support from Oracle. Consider disabling the" << endl
+             << "Oracle driver, as the current build will most likely fail." << endl;
+        cout << "(Press any key to continue..)";
+        if(_getch() == 3) // _Any_ keypress w/no echo(eat <Enter> for stdout)
+            exit(0);      // Exit cleanly for Ctrl+C
+    }
+
+    return true;
 }
 
 void Configure::generateOutputVars()

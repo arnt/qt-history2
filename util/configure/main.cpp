@@ -25,7 +25,15 @@ int main( int argc, char** argv )
     if (!app.isOk())
         return 3;
 
+    // Auto-detect modules and settings.
     app.autoDetection();
+
+    // After reading all command-line arguments, and doing all the
+    // auto-detection, it's time to do some last minute validation.
+    // If the validation fails, we cannot continue.
+    if (!app.verifyConfiguration())
+        return 3;
+
     app.generateOutputVars();
 
 #if !defined(EVAL)
