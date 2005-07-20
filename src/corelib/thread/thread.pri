@@ -17,6 +17,7 @@ HEADERS += thread/qmutex_p.h \
            thread/qthread_p.h
 
 SOURCES += thread/qmutex.cpp \
+           thread/qreadwritelock.cpp \
            thread/qmutexpool.cpp \
 	   thread/qsemaphore.cpp \
  	   thread/qthread.cpp \
