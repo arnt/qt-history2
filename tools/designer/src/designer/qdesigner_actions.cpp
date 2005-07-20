@@ -742,7 +742,7 @@ bool QDesignerActions::writeOutForm(QDesignerFormWindowInterface *fw, const QStr
     }
     addRecentFile(saveFile);
     fw->setDirty(false);
-    fw->window()->setWindowModified(false);
+    fw->parentWidget()->setWindowModified(false);
     return true;
 }
 
