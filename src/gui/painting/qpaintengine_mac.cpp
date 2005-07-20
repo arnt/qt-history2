@@ -836,51 +836,47 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
 {
     QMacPattern *pat = (QMacPattern*)info;
     int w = 0, h = 0;
-    if (!pat->image) {
-        CGImageRef image = 0;
+    if (!pat->image) { //lazy cache
         if (pat->as_mask) {
             w = h = 8;
             CGDataProviderRef provider = CGDataProviderCreateWithData(0, pat->data.bytes, 64, 0);
-            image = CGImageMaskCreate(w, h, 1, 1, 1, provider, 0, false);
+            pat->image = CGImageMaskCreate(w, h, 1, 1, 1, provider, 0, false);
             CGDataProviderRelease(provider);
         } else {
             w = pat->data.pixmap.width();
             h = pat->data.pixmap.height();
             if(pat->data.pixmap.depth() == 1) {
-                image = qt_mac_create_imagemask(pat->data.pixmap);
+                pat->image = qt_mac_create_imagemask(pat->data.pixmap);
             } else {
-                image = (CGImageRef)pat->data.pixmap.macCGHandle();
-                CGImageRetain(image);
+                pat->image = (CGImageRef)pat->data.pixmap.macCGHandle();
+                CGImageRetain(pat->image);
             }
-        }
-        if(CGImageIsMask(image)) {
-            QPixmap tmp(w, h);
-            CGRect rect = CGRectMake(0, 0, w, h);
-            CGContextRef ctx = qt_mac_cg_context(&tmp);
-            if(pat->opaque) {
-                CGContextSetRGBFillColor(ctx, qt_mac_convert_color_to_cg(pat->background.red()),
-                                         qt_mac_convert_color_to_cg(pat->background.green()),
-                                         qt_mac_convert_color_to_cg(pat->background.blue()),
-                                         qt_mac_convert_color_to_cg(pat->background.alpha()));
-                CGContextFillRect(ctx, rect);
-            }
-            CGContextSetRGBFillColor(ctx, qt_mac_convert_color_to_cg(pat->foreground.red()),
-                                     qt_mac_convert_color_to_cg(pat->foreground.green()),
-                                     qt_mac_convert_color_to_cg(pat->foreground.blue()),
-                                     qt_mac_convert_color_to_cg(pat->foreground.alpha()));
-            HIViewDrawCGImage(ctx, &rect, image);
-            pat->image = (CGImageRef)tmp.macCGHandle();
-            CGImageRetain(pat->image);
-            CGImageRelease(image);
-        } else {
-            pat->image = image;
         }
     } else {
         w = CGImageGetWidth(pat->image);
         h = CGImageGetHeight(pat->image);
     }
     CGRect rect = CGRectMake(0, 0, w, h);
-    HIViewDrawCGImage(c, &rect, pat->image); //top left
+
+    //draw the image
+    if(CGImageIsMask(pat->image)) {
+        CGContextSaveGState(c);
+        if(pat->opaque) {
+            CGContextSetRGBFillColor(c, qt_mac_convert_color_to_cg(pat->background.red()),
+                                     qt_mac_convert_color_to_cg(pat->background.green()),
+                                     qt_mac_convert_color_to_cg(pat->background.blue()),
+                                     qt_mac_convert_color_to_cg(pat->background.alpha()));
+            CGContextFillRect(c, rect);
+        }
+        CGContextSetRGBFillColor(c, qt_mac_convert_color_to_cg(pat->foreground.red()),
+                                 qt_mac_convert_color_to_cg(pat->foreground.green()),
+                                 qt_mac_convert_color_to_cg(pat->foreground.blue()),
+                                 qt_mac_convert_color_to_cg(pat->foreground.alpha()));
+        HIViewDrawCGImage(c, &rect, pat->image);
+        CGContextRestoreGState(c);
+    } else {
+        HIViewDrawCGImage(c, &rect, pat->image);
+    }
 }
 static void qt_mac_dispose_pattern(void *info)
 {
@@ -1377,13 +1373,13 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
     qt_mac_clip_cg(d->hd, rgn, 0, 0);
 
     //draw
-    if(d->current.bg.mode == Qt::OpaqueMode) {
-        d->setFillBrush(d->current.bg.brush);
-        CGContextFillRect(d->hd, qt_mac_compose_rect(r, 0));
-    }
     const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();
     CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy), pm.width()*sx, pm.height()*sy);
     if (pm.depth() == 1) {
+        if(d->current.bg.mode == Qt::OpaqueMode) {
+            d->setFillBrush(d->current.bg.brush);
+            CGContextFillRect(d->hd, qt_mac_compose_rect(r, 0));
+        }
         const QColor &col = d->current.pen.color();
         CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
                                    qt_mac_convert_color_to_cg(col.green()),
@@ -1426,6 +1422,7 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
 
     //save the old state
     CGContextSaveGState(d->hd);
+
     //setup the pattern
     QMacPattern *qpattern = new QMacPattern;
     qpattern->data.pixmap = pixmap;
@@ -1445,12 +1442,13 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
     CGContextSetFillColorSpace(d->hd, cs);
     float component = 1.0; //just one
     CGContextSetFillPattern(d->hd, pat, &component);
-    //80x30 works
     CGSize phase = CGSizeApplyAffineTransform(CGSizeMake(-(p.x()-r.x()), -(p.y()-r.y())), trans);
     CGContextSetPatternPhase(d->hd, phase);
+
     //fill the rectangle
     CGRect mac_rect = CGRectMake(r.x(), r.y(), r.width(), r.height());
     CGContextFillRect(d->hd, mac_rect);
+
     //restore the state
     CGContextRestoreGState(d->hd);
     //cleanup
