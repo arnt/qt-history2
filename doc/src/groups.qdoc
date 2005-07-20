@@ -153,7 +153,7 @@ processing. (See also \l{XML Classes}.)
 
 */
 
-/*! \defgroup tools
+/*! \group tools
 
 \title Non-GUI Classes
 
@@ -165,7 +165,7 @@ and so can be used in non-GUI programs.
 
 */
 
-/*! \defgroup io
+/*! \group io
 
 \title Input/Output and Networking
 
@@ -174,7 +174,7 @@ devices, processes, files etc. as well as manipulating files and directories.
 
 */
 
-/*! \defgroup basic
+/*! \group basic
 
 \title Basic Widgets
 
@@ -184,7 +184,7 @@ subclassing, and some more complex \l{Advanced Widgets}.
 
 */
 
-/*! \defgroup advanced
+/*! \group advanced
 
 \title Advanced Widgets
 
@@ -192,7 +192,7 @@ These classes provide more complex user interface widgets (controls).
 
 */
 
-/*! \defgroup abstractwidgets
+/*! \group abstractwidgets
 
 \title Abstract Widget Classes
 
@@ -202,7 +202,7 @@ these classes.
 
 */
 
-/*! \defgroup accessibility
+/*! \group accessibility
 
 \title Accessibility Classes
 
@@ -214,7 +214,7 @@ accessible applications.
 
 */
 
-/*! \defgroup objectmodel
+/*! \group objectmodel
 
 \title Object Model
 
@@ -222,7 +222,7 @@ These classes form the basis of the \l{Qt Object Model}.
 
 */
 
-/* \defgroup componentmodel
+/* \group componentmodel
 
 \title Component Model
 
@@ -230,7 +230,7 @@ These classes and interfaces form the basis of the \l{Qt Component Model}.
 
 */
 
-/*! \defgroup plugins
+/*! \group plugins
 
 \title Plugin Classes
 
@@ -243,7 +243,7 @@ See also the \l{ActiveQt framework} for Windows.
 
 */
 
-/*! \defgroup organizers
+/*! \group organizers
 
 \title Organizers
 
@@ -253,7 +253,7 @@ complex applications or dialogs.
 */
 
 
-/*! \defgroup dialogs
+/*! \group dialogs
 
 \title Standard Dialog Classes
 
@@ -262,7 +262,7 @@ boxes, generally.
 
 */
 
-/*! \defgroup multimedia
+/*! \group multimedia
 
 \title Multimedia, Graphics, and Printing
 
@@ -275,7 +275,7 @@ coordinate system. \endlink
 
 */
 
-/*! \defgroup draganddrop
+/*! \group draganddrop
 
 \title Drag And Drop Classes
 
@@ -285,7 +285,7 @@ Qt. \endlink
 
 */
 
-/*! \defgroup appearance
+/*! \group appearance
 
 \title Widget Appearance and Style
 
@@ -294,7 +294,7 @@ style.
 
 */
 
-/*! \defgroup shared
+/*! \group shared
 
 \title Implicitly Shared Classes
 
@@ -308,7 +308,7 @@ seem heavyweight.
 
 */
 
-/*! \defgroup time
+/*! \group time
 
 \title Date and Time
 
@@ -317,7 +317,7 @@ These classes provide system-independent date and time abstractions.
 */
 
 
-/*! \defgroup application
+/*! \group application
 
 \title Main Window and Related Classes
 
@@ -328,7 +328,7 @@ a statusbar, etc.
 */
 
 
-/*! \defgroup geomanagement
+/*! \group geomanagement
 
 \title Layout Management
 
@@ -337,7 +337,7 @@ These classes provide automatic geometry (layout) management of widgets.
 */
 
 
-/*! \defgroup helpsystem
+/*! \group helpsystem
 
 \title Help System
 
@@ -361,7 +361,7 @@ with three levels of detail:
 */
 
 
-/*! \defgroup environment
+/*! \group environment
 
 \title Environment Classes
 
@@ -370,7 +370,7 @@ event handling, access to system settings, internationalization, etc.
 
 */
 
-/*! \defgroup misc
+/*! \group misc
 
 \title Miscellaneous Classes
 
@@ -379,7 +379,7 @@ These classes are useful classes not fitting into any other category.
 */
 
 
-/*! \defgroup events
+/*! \group events
 
 \title Event Classes
 
@@ -390,7 +390,7 @@ and \link signalsandslots.html Signals and Slots\endlink.
 */
 
 
-/*! \defgroup database
+/*! \group database
 
 \title Database Classes
 
@@ -398,7 +398,7 @@ These classes provide access to SQL databases.
 */
 
 
-/*! \defgroup thread
+/*! \group thread
 
 \title Threading Classes
 
@@ -406,21 +406,21 @@ These classes are relevant to threaded applications.
 */
 
 
-/*! \defgroup xml-tools
+/*! \group xml-tools
 
 \title XML Classes
 
 These classes are relevant to XML users.
 */
 
-/*! \defgroup qws
+/*! \group qws
 
 \title Qtopia Core Classes
 
 These classes are relevant to \l{Qtopia Core} users.
 */
 
-/*! \defgroup text
+/*! \group text
 
 \title Text Related Classes
 
@@ -429,7 +429,7 @@ These classes are relevant to text processing. See also the
 \l{XML classes}.
 */
 
-/*! \defgroup model-view
+/*! \group model-view
 
 \title Model/View Classes
 
@@ -440,7 +440,7 @@ is presented and manipulated by the user (in the view). See also
 
 */
 
-/*! \defgroup activeqt-tools
+/*! \group activeqt-tools
 
 \title ActiveQt Tools
 

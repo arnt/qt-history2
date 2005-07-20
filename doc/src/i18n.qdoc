@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 /*!
-    \defgroup i18n
+    \group i18n
 
     \title Internationalization with Qt
 

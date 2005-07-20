@@ -1,4 +1,3 @@
-alias.group			= defgroup
 alias.i				= e
 alias.include			= input
 alias.quotefile			= include
