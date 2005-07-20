@@ -882,7 +882,7 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
 
             uint score_adjust = 0;
 
-            bool supported = false;
+            bool supported = (script == QUnicodeTables::Common);
             for (int ws = 1; !supported && ws < WritingSystemsCount; ++ws) {
                 if (scriptForWritingSystem[ws] != script)
                     continue;
