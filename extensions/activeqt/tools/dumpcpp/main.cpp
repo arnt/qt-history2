@@ -668,7 +668,7 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
             QByteArray splitString = stringData.left(lastNewline);
 
             splitStrings << splitString;
-            out << "    static char stringdata" << splitCount << "[] = {" << endl;
+            out << "    static const char stringdata" << splitCount << "[] = {" << endl;
             out << "    \"" << splitString << endl;
             out << "    };" << endl;
             stringData = stringData.mid(lastNewline + 1);
@@ -677,10 +677,17 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
             ++splitCount;
         } while (!stringData.isEmpty());
 
-        out << "    static char data[" << stringDataLength + enumStringData.length() << "];" << endl;
-        out << "    static bool firstRun = true;" << endl;
-        out << "    if (firstRun) {" << endl;
-        out << "        firstRun = false;" << endl;
+        out << "    static char data[";
+        for (int i = 0; i < splitCount; ++i) {
+            out << "sizeof(stringdata" << i << ") + ";
+        }
+        if (!enumStringData.isEmpty()) {
+            out << "sizeof(qt_meta_enumstringdata_" << nameSpace << ")";
+        } else {
+            out << "0";
+        }
+        out << "];" << endl;
+        out << "    if (!data[0]) {" << endl;
         out << "        int index = 0;" << endl;
 
         int dataIndex = 0;
@@ -691,7 +698,7 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
             dataIndex += splitStrings.at(i).length();
         }
         if (!enumStringData.isEmpty()) {
-            out << "        memcpy(data + index, qt_meta_enumstringdata_" << nameSpace << ", " << enumStringData.length() << ");" << endl;
+            out << "        memcpy(data + index, qt_meta_enumstringdata_" << nameSpace << ", sizeof(qt_meta_enumstringdata_" << nameSpace << "));" << endl;
         }
         out << "    }" << endl;
         out << endl;
