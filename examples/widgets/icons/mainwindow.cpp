@@ -62,15 +62,15 @@ void MainWindow::changeStyle(bool checked)
     Q_ASSERT(style);
     QApplication::setStyle(style);
 
-    smallRadioButton->setText(tr("Small (%1 × %1)")
+    smallRadioButton->setText(tr("Small (%1 x %1)")
             .arg(style->pixelMetric(QStyle::PM_SmallIconSize)));
-    largeRadioButton->setText(tr("Large (%1 × %1)")
+    largeRadioButton->setText(tr("Large (%1 x %1)")
             .arg(style->pixelMetric(QStyle::PM_LargeIconSize)));
-    toolBarRadioButton->setText(tr("Toolbars (%1 × %1)")
+    toolBarRadioButton->setText(tr("Toolbars (%1 x %1)")
             .arg(style->pixelMetric(QStyle::PM_ToolBarIconSize)));
-    listViewRadioButton->setText(tr("List views (%1 × %1)")
+    listViewRadioButton->setText(tr("List views (%1 x %1)")
             .arg(style->pixelMetric(QStyle::PM_ListViewIconSize)));
-    iconViewRadioButton->setText(tr("Icon views (%1 × %1)")
+    iconViewRadioButton->setText(tr("Icon views (%1 x %1)")
             .arg(style->pixelMetric(QStyle::PM_IconViewIconSize)));
 
     changeSize();
@@ -276,7 +276,7 @@ void MainWindow::createActions()
     connect(removeAllImagesAct, SIGNAL(triggered()),
             this, SLOT(removeAllImages()));
 
-    exitAct = new QAction(tr("&Exit"), this);
+    exitAct = new QAction(tr("&Quit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
