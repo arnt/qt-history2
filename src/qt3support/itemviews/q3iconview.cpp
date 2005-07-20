@@ -3936,7 +3936,7 @@ void Q3IconView::clear()
     d->drawDragShapes = false;
 
     resizeContents(0, 0);
-    // maybe we don´t need this update, so delay it
+    // maybe we don't need this update, so delay it
     d->fullRedrawTimer->start(0, true);
 
     d->cleared = true;

@@ -679,7 +679,7 @@ bool Q3Url::parse( const QString& url )
 		at += cs;
 	    // we have no @, which means host[:port], so directly
 	    // after the protocol the host starts, or if the protocol
-	    // is file or there were more than 2 slashes, itÅ¥s the
+	    // is file or there were more than 2 slashes, it is the
 	    // path
 	    if ( at == -1 ) {
 		if ( url_.left( 4 ) == "file" || hasNoHost != -1 )
