@@ -42,6 +42,7 @@
 /*****************************************************************************
   External functions
  *****************************************************************************/
+extern CGImageRef qt_mac_create_imagemask(const QPixmap &px); //qpixmap_mac.cpp
 extern QPoint qt_mac_posInWindow(const QWidget *w); //qwidget_mac.cpp
 extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
 extern GrafPtr qt_mac_qd_context(const QPaintDevice *); //qpaintdevice_mac.cpp
@@ -175,12 +176,18 @@ QQuickDrawPaintEngine::end()
 void QQuickDrawPaintEngine::updateState(const QPaintEngineState &state)
 {
     QPaintEngine::DirtyFlags flags = state.state();
-    if (flags & DirtyTransform) updateMatrix(state.matrix());
-    if (flags & DirtyPen) updatePen(state.pen());
-    if (flags & DirtyBrush) updateBrush(state.brush(), state.brushOrigin());
-    if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
-    if (flags & DirtyFont) updateFont(state.font());
-    if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
+    if(flags & DirtyTransform)
+        updateMatrix(state.matrix());
+    if(flags & DirtyPen)
+        updatePen(state.pen());
+    if(flags & DirtyBrush)
+        updateBrush(state.brush(), state.brushOrigin());
+    if(flags & (DirtyBackground|DirtyBackgroundMode))
+        updateBackground(state.backgroundMode(), state.backgroundBrush());
+    if(flags & DirtyFont)
+        updateFont(state.font());
+    if(flags & DirtyClipRegion)
+        updateClipRegion(state.clipRegion(), state.clipOperation());
 }
 
 void
@@ -628,7 +635,6 @@ void QQuickDrawPaintEngine::drawTextItem(const QPointF &p, const QTextItem &text
     ti.fontEngine->draw(this, p.x(), p.y(), ti);
 }
 
-
 void
 QQuickDrawPaintEngine::initialize()
 {
@@ -814,6 +820,7 @@ inline static float qt_mac_convert_color_to_cg(int c) { return ((float)c * 1000 
 //pattern handling (tiling)
 struct QMacPattern {
     QMacPattern() : opaque(true), as_mask(false), image(0) { data.bytes = 0; }
+    ~QMacPattern() { CGImageRelease(image); }
     //input
     QColor background, foreground;
     bool opaque;
@@ -839,18 +846,24 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
         } else {
             w = pat->data.pixmap.width();
             h = pat->data.pixmap.height();
-            image = (CGImageRef)pat->data.pixmap.macCGHandle();
-            CGImageRetain(image);
+            if(pat->data.pixmap.depth() == 1) {
+                image = qt_mac_create_imagemask(pat->data.pixmap);
+            } else {
+                image = (CGImageRef)pat->data.pixmap.macCGHandle();
+                CGImageRetain(image);
+            }
         }
-        if(pat->opaque && CGImageIsMask(image)) {
+        if(CGImageIsMask(image)) {
             QPixmap tmp(w, h);
             CGRect rect = CGRectMake(0, 0, w, h);
             CGContextRef ctx = qt_mac_cg_context(&tmp);
-            CGContextSetRGBFillColor(ctx, qt_mac_convert_color_to_cg(pat->background.red()),
-                                     qt_mac_convert_color_to_cg(pat->background.green()),
-                                     qt_mac_convert_color_to_cg(pat->background.blue()),
-                                     qt_mac_convert_color_to_cg(pat->background.alpha()));
-            CGContextFillRect(ctx, rect);
+            if(pat->opaque) {
+                CGContextSetRGBFillColor(ctx, qt_mac_convert_color_to_cg(pat->background.red()),
+                                         qt_mac_convert_color_to_cg(pat->background.green()),
+                                         qt_mac_convert_color_to_cg(pat->background.blue()),
+                                         qt_mac_convert_color_to_cg(pat->background.alpha()));
+                CGContextFillRect(ctx, rect);
+            }
             CGContextSetRGBFillColor(ctx, qt_mac_convert_color_to_cg(pat->foreground.red()),
                                      qt_mac_convert_color_to_cg(pat->foreground.green()),
                                      qt_mac_convert_color_to_cg(pat->foreground.blue()),
@@ -872,8 +885,6 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
 static void qt_mac_dispose_pattern(void *info)
 {
     QMacPattern *pat = (QMacPattern*)info;
-    if(pat->image)
-        CGImageRelease(pat->image);
     delete pat;
 }
 
@@ -1109,14 +1120,22 @@ QCoreGraphicsPaintEngine::end()
 void QCoreGraphicsPaintEngine::updateState(const QPaintEngineState &state)
 {
     QPaintEngine::DirtyFlags flags = state.state();
-    if (flags & DirtyTransform) updateMatrix(state.matrix());
-    if (flags & DirtyPen) updatePen(state.pen());
-    if (flags & DirtyBrush) updateBrush(state.brush(), state.brushOrigin());
-    if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
-    if (flags & DirtyFont) updateFont(state.font());
-    if (flags & DirtyClipPath) updateClipPath(state.clipPath(), state.clipOperation());
-    if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
-    if (flags & DirtyHints) updateRenderHints(state.renderHints());
+    if(flags & DirtyTransform)
+        updateMatrix(state.matrix());
+    if(flags & DirtyPen)
+        updatePen(state.pen());
+    if(flags & DirtyBrush)
+        updateBrush(state.brush(), state.brushOrigin());
+    if(flags & (DirtyBackground|DirtyBackgroundMode))
+        updateBackground(state.backgroundMode(), state.backgroundBrush());
+    if(flags & DirtyFont)
+        updateFont(state.font());
+    if(flags & DirtyClipPath)
+        updateClipPath(state.clipPath(), state.clipOperation());
+    if(flags & DirtyClipRegion)
+        updateClipRegion(state.clipRegion(), state.clipOperation());
+    if(flags & DirtyHints)
+        updateRenderHints(state.renderHints());
 }
 
 void
@@ -1125,71 +1144,7 @@ QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
     Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
     d->current.pen = pen;
-
-    //pencap
-    CGLineCap cglinecap = kCGLineCapButt;
-    if(pen.capStyle() == Qt::SquareCap)
-        cglinecap = kCGLineCapSquare;
-    else if(pen.capStyle() == Qt::RoundCap)
-        cglinecap = kCGLineCapRound;
-    CGContextSetLineCap(d->hd, cglinecap);
-
-    //penwidth
-    const float cglinewidth = pen.widthF() <= 0.0f ? 1.0f : float(pen.widthF());
-    CGContextSetLineWidth(d->hd, cglinewidth);
-
-    //join
-    CGLineJoin cglinejoin = kCGLineJoinMiter;
-    if(pen.joinStyle() == Qt::BevelJoin)
-        cglinejoin = kCGLineJoinBevel;
-    else if(pen.joinStyle() == Qt::RoundJoin)
-        cglinejoin = kCGLineJoinRound;
-    CGContextSetLineJoin(d->hd, cglinejoin);
-
-    //pen style
-    int count = 0;
-    float lengths[10];
-    if(pen.style() == Qt::DashLine) {
-        lengths[0] = 3;
-        lengths[1] = 1;
-        count = 2;
-    } else if(pen.style() == Qt::DotLine) {
-        lengths[0] = 1;
-        lengths[1] = 1;
-        count = 2;
-    } else if(pen.style() == Qt::DashDotLine) {
-        lengths[0] = 3;
-        lengths[1] = 1;
-        lengths[2] = 1;
-        lengths[3] = 1;
-        count = 4;
-    } else if(pen.style() == Qt::DashDotDotLine) {
-        lengths[0] = 3;
-        lengths[1] = 1;
-        lengths[2] = 1;
-        lengths[3] = 1;
-        lengths[4] = 1;
-        lengths[5] = 1;
-        count = 6;
-    }
-    for(int i = 0; i < count; ++i) {
-        lengths[i] *= cglinewidth;
-        if(cglinecap == kCGLineCapSquare || cglinecap == kCGLineCapRound) {
-            if((i%2))
-                lengths[i] += cglinewidth/2;
-            else
-                lengths[i] -= cglinewidth/2;
-        }
-    }
-    Q_ASSERT(count < 10);
-    CGContextSetLineDash(d->hd, 0, lengths, count);
-
-    //color
-    const QColor &col = pen.color();
-    CGContextSetRGBStrokeColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
-                               qt_mac_convert_color_to_cg(col.green()),
-                               qt_mac_convert_color_to_cg(col.blue()),
-                               qt_mac_convert_color_to_cg(col.alpha()));
+    d->setStrokePen(pen);
 }
 
 void
@@ -1204,80 +1159,7 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPointF &brushO
         CGShadingRelease(d->shading);
         d->shading = 0;
     }
-
-    //pattern
-    Qt::BrushStyle bs = brush.style();
-    if(bs == Qt::LinearGradientPattern) {
-#ifdef QMAC_NATIVE_GRADIENTS
-        CGFunctionCallbacks callbacks = { 0, qt_mac_color_gradient_function, 0 };
-        CGFunctionRef fill_func = CGFunctionCreate(const_cast<void *>(reinterpret_cast<const void *>(&brush)),
-                                                   1, 0, 4, 0, &callbacks);
-        CGColorSpaceRef grad_colorspace = CGColorSpaceCreateDeviceRGB();
-        const QLinearGradient *linGrad = static_cast<const QLinearGradient*>(brush.gradient());
-        const QPointF start = linGrad->start(), stop = linGrad->finalStop();
-        d->shading = CGShadingCreateAxial(grad_colorspace, CGPointMake(start.x(), start.y()),
-                                          CGPointMake(stop.x(), stop.y()), fill_func, true, true);
-        CGFunctionRelease(fill_func);
-        CGColorSpaceRelease(grad_colorspace);
-#endif
-    } else if(bs == Qt::RadialGradientPattern || bs == Qt::ConicalGradientPattern) {
-#ifdef QMAC_NATIVE_GRADIENTS
-        qWarning("Unhandled gradient! %d", (int)bs);
-#endif
-    } else if(bs != Qt::SolidPattern && bs != Qt::NoBrush) {
-        int width = 0, height = 0;
-        QMacPattern *qpattern = new QMacPattern;
-        float components[4] = { 1.0, 1.0, 1.0, 1.0 };
-        CGColorSpaceRef base_colorspace = 0;
-        if (bs == Qt::TexturePattern) {
-            qpattern->data.pixmap = brush.texture();
-            if(qpattern->data.pixmap.isQBitmap()) {
-                const QColor &col = brush.color();
-                components[0] = qt_mac_convert_color_to_cg(col.red());
-                components[1] = qt_mac_convert_color_to_cg(col.green());
-                components[2] = qt_mac_convert_color_to_cg(col.blue());
-                base_colorspace = CGColorSpaceCreateDeviceRGB();
-            }
-            width = qpattern->data.pixmap.width();
-            height = qpattern->data.pixmap.height();
-        } else {
-            qpattern->as_mask = true;
-            qpattern->data.bytes = qt_patternForBrush(bs, false);
-            width = height = 8;
-            const QColor &col = brush.color();
-            components[0] = qt_mac_convert_color_to_cg(col.red());
-            components[1] = qt_mac_convert_color_to_cg(col.green());
-            components[2] = qt_mac_convert_color_to_cg(col.blue());
-            base_colorspace = CGColorSpaceCreateDeviceRGB();
-        }
-        qpattern->opaque = (d->current.bg.mode == Qt::OpaqueMode);
-        qpattern->foreground = brush.color();
-        qpattern->background = d->current.bg.brush.color();
-
-        CGColorSpaceRef fill_colorspace = CGColorSpaceCreatePattern(base_colorspace);
-        CGContextSetFillColorSpace(d->hd, fill_colorspace);
-
-        CGPatternCallbacks callbks;
-        callbks.version = 0;
-        callbks.drawPattern = qt_mac_draw_pattern;
-        callbks.releaseInfo = qt_mac_dispose_pattern;
-        CGPatternRef fill_pattern = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height),
-                                                    CGContextGetCTM(d->hd), width, height,
-                                                    kCGPatternTilingNoDistortion, !base_colorspace,
-                                                    &callbks);
-        CGContextSetFillPattern(d->hd, fill_pattern, components);
-
-        CGPatternRelease(fill_pattern);
-        CGColorSpaceRelease(fill_colorspace);
-        if(base_colorspace)
-            CGColorSpaceRelease(base_colorspace);
-    } else if(bs != Qt::NoBrush) {
-        const QColor &col = brush.color();
-        CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
-                                 qt_mac_convert_color_to_cg(col.green()),
-                                 qt_mac_convert_color_to_cg(col.blue()),
-                                 qt_mac_convert_color_to_cg(col.alpha()));
-    }
+    d->setFillBrush(brush, brushOrigin);
 }
 
 void
@@ -1495,10 +1377,25 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
     qt_mac_clip_cg(d->hd, rgn, 0, 0);
 
     //draw
+    if(d->current.bg.mode == Qt::OpaqueMode) {
+        d->setFillBrush(d->current.bg.brush);
+        CGContextFillRect(d->hd, qt_mac_compose_rect(r, 0));
+    }
     const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();
     CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy), pm.width()*sx, pm.height()*sy);
-    CGImageRef image = (CGImageRef)pm.macCGHandle();
-    HIViewDrawCGImage(d->hd, &rect, image); //top left
+    if (pm.depth() == 1) {
+        const QColor &col = d->current.pen.color();
+        CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
+                                   qt_mac_convert_color_to_cg(col.green()),
+                                   qt_mac_convert_color_to_cg(col.blue()),
+                                   qt_mac_convert_color_to_cg(col.alpha()));
+
+        CGImageRef image = qt_mac_create_imagemask(pm);
+        HIViewDrawCGImage(d->hd, &rect, image); //top left
+        CGImageRelease(image);
+    } else {
+        HIViewDrawCGImage(d->hd, &rect, (CGImageRef)pm.macCGHandle()); //top left
+    }
 
     //restore
     CGContextRestoreGState(d->hd);
@@ -1532,7 +1429,9 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
     //setup the pattern
     QMacPattern *qpattern = new QMacPattern;
     qpattern->data.pixmap = pixmap;
-    qpattern->opaque = false;
+    qpattern->opaque = (d->current.bg.mode == Qt::OpaqueMode);
+    qpattern->foreground = d->current.pen.color();
+    qpattern->background = d->current.bg.brush.color();
     CGPatternCallbacks callbks;
     callbks.version = 0;
     callbks.drawPattern = qt_mac_draw_pattern;
@@ -1590,6 +1489,153 @@ QCoreGraphicsPaintEnginePrivate::penOffset()
 }
 
 void
+QCoreGraphicsPaintEnginePrivate::setStrokePen(const QPen &pen)
+{
+    //pencap
+    CGLineCap cglinecap = kCGLineCapButt;
+    if(pen.capStyle() == Qt::SquareCap)
+        cglinecap = kCGLineCapSquare;
+    else if(pen.capStyle() == Qt::RoundCap)
+        cglinecap = kCGLineCapRound;
+    CGContextSetLineCap(hd, cglinecap);
+
+    //penwidth
+    const float cglinewidth = pen.widthF() <= 0.0f ? 1.0f : float(pen.widthF());
+    CGContextSetLineWidth(hd, cglinewidth);
+
+    //join
+    CGLineJoin cglinejoin = kCGLineJoinMiter;
+    if(pen.joinStyle() == Qt::BevelJoin)
+        cglinejoin = kCGLineJoinBevel;
+    else if(pen.joinStyle() == Qt::RoundJoin)
+        cglinejoin = kCGLineJoinRound;
+    CGContextSetLineJoin(hd, cglinejoin);
+
+    //pen style
+    int count = 0;
+    float lengths[10];
+    if(pen.style() == Qt::DashLine) {
+        lengths[0] = 3;
+        lengths[1] = 1;
+        count = 2;
+    } else if(pen.style() == Qt::DotLine) {
+        lengths[0] = 1;
+        lengths[1] = 1;
+        count = 2;
+    } else if(pen.style() == Qt::DashDotLine) {
+        lengths[0] = 3;
+        lengths[1] = 1;
+        lengths[2] = 1;
+        lengths[3] = 1;
+        count = 4;
+    } else if(pen.style() == Qt::DashDotDotLine) {
+        lengths[0] = 3;
+        lengths[1] = 1;
+        lengths[2] = 1;
+        lengths[3] = 1;
+        lengths[4] = 1;
+        lengths[5] = 1;
+        count = 6;
+    }
+    for(int i = 0; i < count; ++i) {
+        lengths[i] *= cglinewidth;
+        if(cglinecap == kCGLineCapSquare || cglinecap == kCGLineCapRound) {
+            if((i%2))
+                lengths[i] += cglinewidth/2;
+            else
+                lengths[i] -= cglinewidth/2;
+        }
+    }
+    Q_ASSERT(count < 10);
+    CGContextSetLineDash(hd, 0, lengths, count);
+
+    //color
+    const QColor &col = pen.color();
+    CGContextSetRGBStrokeColor(hd, qt_mac_convert_color_to_cg(col.red()),
+                               qt_mac_convert_color_to_cg(col.green()),
+                               qt_mac_convert_color_to_cg(col.blue()),
+                               qt_mac_convert_color_to_cg(col.alpha()));
+}
+
+void
+QCoreGraphicsPaintEnginePrivate::setFillBrush(const QBrush &brush, const QPointF &)
+{
+    //pattern
+    Qt::BrushStyle bs = brush.style();
+    if(bs == Qt::LinearGradientPattern) {
+#ifdef QMAC_NATIVE_GRADIENTS
+        CGFunctionCallbacks callbacks = { 0, qt_mac_color_gradient_function, 0 };
+        CGFunctionRef fill_func = CGFunctionCreate(const_cast<void *>(reinterpret_cast<const void *>(&brush)),
+                                                   1, 0, 4, 0, &callbacks);
+        CGColorSpaceRef grad_colorspace = CGColorSpaceCreateDeviceRGB();
+        const QLinearGradient *linGrad = static_cast<const QLinearGradient*>(brush.gradient());
+        const QPointF start = linGrad->start(), stop = linGrad->finalStop();
+        d->shading = CGShadingCreateAxial(grad_colorspace, CGPointMake(start.x(), start.y()),
+                                          CGPointMake(stop.x(), stop.y()), fill_func, true, true);
+        CGFunctionRelease(fill_func);
+        CGColorSpaceRelease(grad_colorspace);
+#endif
+    } else if(bs == Qt::RadialGradientPattern || bs == Qt::ConicalGradientPattern) {
+#ifdef QMAC_NATIVE_GRADIENTS
+        qWarning("Unhandled gradient! %d", (int)bs);
+#endif
+    } else if(bs != Qt::SolidPattern && bs != Qt::NoBrush) {
+        int width = 0, height = 0;
+        QMacPattern *qpattern = new QMacPattern;
+        float components[4] = { 1.0, 1.0, 1.0, 1.0 };
+        CGColorSpaceRef base_colorspace = 0;
+        if (bs == Qt::TexturePattern) {
+            qpattern->data.pixmap = brush.texture();
+            if(qpattern->data.pixmap.isQBitmap()) {
+                const QColor &col = brush.color();
+                components[0] = qt_mac_convert_color_to_cg(col.red());
+                components[1] = qt_mac_convert_color_to_cg(col.green());
+                components[2] = qt_mac_convert_color_to_cg(col.blue());
+                base_colorspace = CGColorSpaceCreateDeviceRGB();
+            }
+            width = qpattern->data.pixmap.width();
+            height = qpattern->data.pixmap.height();
+        } else {
+            qpattern->as_mask = true;
+            qpattern->data.bytes = qt_patternForBrush(bs, false);
+            width = height = 8;
+            const QColor &col = brush.color();
+            components[0] = qt_mac_convert_color_to_cg(col.red());
+            components[1] = qt_mac_convert_color_to_cg(col.green());
+            components[2] = qt_mac_convert_color_to_cg(col.blue());
+            base_colorspace = CGColorSpaceCreateDeviceRGB();
+        }
+        qpattern->opaque = (current.bg.mode == Qt::OpaqueMode);
+        qpattern->foreground = brush.color();
+        qpattern->background = current.bg.brush.color();
+
+        CGColorSpaceRef fill_colorspace = CGColorSpaceCreatePattern(base_colorspace);
+        CGContextSetFillColorSpace(hd, fill_colorspace);
+
+        CGPatternCallbacks callbks;
+        callbks.version = 0;
+        callbks.drawPattern = qt_mac_draw_pattern;
+        callbks.releaseInfo = qt_mac_dispose_pattern;
+        CGPatternRef fill_pattern = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height),
+                                                    CGContextGetCTM(hd), width, height,
+                                                    kCGPatternTilingNoDistortion, !base_colorspace,
+                                                    &callbks);
+        CGContextSetFillPattern(hd, fill_pattern, components);
+
+        CGPatternRelease(fill_pattern);
+        CGColorSpaceRelease(fill_colorspace);
+        if(base_colorspace)
+            CGColorSpaceRelease(base_colorspace);
+    } else if(bs != Qt::NoBrush) {
+        const QColor &col = brush.color();
+        CGContextSetRGBFillColor(hd, qt_mac_convert_color_to_cg(col.red()),
+                                 qt_mac_convert_color_to_cg(col.green()),
+                                 qt_mac_convert_color_to_cg(col.blue()),
+                                 qt_mac_convert_color_to_cg(col.alpha()));
+    }
+}
+
+void
 QCoreGraphicsPaintEnginePrivate::setClip(const QRegion *rgn)
 {
     Q_Q(QCoreGraphicsPaintEngine);
@@ -1612,21 +1658,21 @@ QCoreGraphicsPaintEnginePrivate::setClip(const QRegion *rgn)
 void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
 {
     Q_ASSERT((ops & (CGFill | CGEOFill)) != (CGFill | CGEOFill)); //can't really happen
-    if ((ops & (CGFill | CGEOFill))) {
-        if (current.brush.style() == Qt::LinearGradientPattern) {
+    if((ops & (CGFill | CGEOFill))) {
+        if(current.brush.style() == Qt::LinearGradientPattern) {
             Q_ASSERT(path);
             CGContextBeginPath(hd);
             CGContextAddPath(hd, path);
             CGContextSaveGState(hd);
-            if (ops & CGFill)
+            if(ops & CGFill)
                 CGContextClip(hd);
-            else if (ops & CGEOFill)
+            else if(ops & CGEOFill)
                 CGContextEOClip(hd);
             CGContextDrawShading(hd, shading);
             CGContextRestoreGState(hd);
             ops &= ~CGFill;
             ops &= ~CGEOFill;
-        } else if (current.brush.style() == Qt::NoBrush) {
+        } else if(current.brush.style() == Qt::NoBrush) {
             ops &= ~CGFill;
             ops &= ~CGEOFill;
         }
@@ -1635,15 +1681,15 @@ void QCoreGraphicsPaintEnginePrivate::drawPath(uchar ops, CGMutablePathRef path)
         ops &= ~CGStroke;
 
     CGPathDrawingMode mode;
-    if ((ops & (CGStroke | CGFill)) == (CGStroke | CGFill))
+    if((ops & (CGStroke | CGFill)) == (CGStroke | CGFill))
         mode = kCGPathFillStroke;
-    else if ((ops & (CGStroke | CGEOFill)) == (CGStroke | CGEOFill))
+    else if((ops & (CGStroke | CGEOFill)) == (CGStroke | CGEOFill))
         mode = kCGPathEOFillStroke;
-    else if (ops & CGStroke)
+    else if(ops & CGStroke)
         mode = kCGPathStroke;
-    else if (ops & CGEOFill)
+    else if(ops & CGEOFill)
         mode = kCGPathEOFill;
-    else if (ops & CGFill)
+    else if(ops & CGFill)
         mode = kCGPathFill;
     else //nothing to do..
         return;

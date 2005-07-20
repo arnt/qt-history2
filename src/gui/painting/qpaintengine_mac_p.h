@@ -211,6 +211,8 @@ public:
     enum { CGStroke=0x01, CGEOFill=0x02, CGFill=0x04 };
     void drawPath(uchar ops, CGMutablePathRef path = 0);
     void setClip(const QRegion *rgn=0);
+    void setFillBrush(const QBrush &brush, const QPointF &origin=QPoint());
+    void setStrokePen(const QPen &pen);
     float penOffset();
     inline void setTransform(const QMatrix *matrix=0)
     {
