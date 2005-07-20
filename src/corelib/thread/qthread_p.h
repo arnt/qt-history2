@@ -69,7 +69,7 @@ public:
     static QThreadData *get(QThread *thread);
 
     int id;
-    bool quitNow, allowDeferredDelete;
+    bool quitNow;
     QAbstractEventDispatcher *eventDispatcher;
     QStack<QEventLoop *> eventLoops;
     QPostEventList postEventList;

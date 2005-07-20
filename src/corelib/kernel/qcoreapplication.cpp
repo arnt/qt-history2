@@ -828,12 +828,6 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
     QThreadData *data = QThreadData::get(currentThread);
 
     ++data->postEventList.recursion;
-    // the allowDeferredDelete flag is set to true in
-    // QEventLoop::exec(), just before each call to processEvents()
-    //
-    // Note: we leave it set to false when returning
-    bool allowDeferredDelete = data->allowDeferredDelete || event_type == QEvent::DeferredDelete;
-    data->allowDeferredDelete = false;
 
 #ifdef QT3_SUPPORT
     // optimize sendPostedEvents(w, QEvent::ChildInserted) calls away
@@ -873,22 +867,6 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
             continue;
         if (event_type && event_type != pe.event->type())
             continue;
-
-        if (pe.event->type() == QEvent::DeferredDelete) {
-            const QEventLoop *const savedEventLoop = reinterpret_cast<QEventLoop *>(pe.event->d);
-            const QEventLoop *const currentEventLoop =
-                data->eventLoops.isEmpty() ? 0 : data->eventLoops.top();
-            if (!allowDeferredDelete
-                || (savedEventLoop != 0 && currentEventLoop != 0 &&  savedEventLoop != currentEventLoop)) {
-                // cannot send deferred delete
-                if (!event_type && !receiver) {
-                    // don't lose the event
-                    data->postEventList.append(pe);
-                    const_cast<QPostEvent &>(pe).event = 0;
-                }
-                continue;
-            }
-        }
 
         // first, we diddle the event so that we can deliver
         // it, and that noone will try to touch it later.
