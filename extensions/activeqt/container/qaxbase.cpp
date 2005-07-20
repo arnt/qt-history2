@@ -16,6 +16,7 @@
 
 #include "qaxobject.h"
 #include <qfile.h>
+#include <qwidget.h>
 
 #include <quuid.h>
 #include <qhash.h>
@@ -499,7 +500,7 @@ public:
     QAxBasePrivate()
         : useEventSink(true), useMetaObject(true), useClassInfo(true),
         cachedMetaObject(false), initialized(false), tryCache(false),
-        ptr(0), disp(0), metaobj(0), staticMetaObject(0)
+        ptr(0), disp(0), metaobj(0)
     {
         // protect initialization
         QMutexLocker locker(&cache_mutex);
@@ -556,7 +557,6 @@ public:
     mutable QMap<QString, LONG> verbs;
 
     QAxMetaObject *metaobj;
-    QMetaObject *staticMetaObject;
 };
 
 
@@ -2995,27 +2995,35 @@ static const uint qt_meta_data_QAxBase[] = {
  // content:
        1,       // revision
        0,       // classname
-       0,   12, // classinfo
-       3,   12, // signals
-       0,   27, // slots
-       1,   27, // properties
-       0,   30, // enums/sets
+       0,    0, // classinfo
+       3,   10, // methods
+       1,   25, // properties
+       0,    0, // enums/sets
 
  // signals: signature, parameters, type, tag, flags
-      46,   24,   23,   23, 0x0,
-      90,   85,   23,   23, 0x0,
-     130,  115,   23,   23, 0x0,
+      24,    9,    8,    8, 0x05,
+      55,   50,    8,    8, 0x05,
+     102,   80,    8,    8, 0x05,
 
  // properties: name, type, flags
-     164,  156, 0x03055103,
+     149,  141, 0x0a095103,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_QAxBase[] = {
-    "QAxBase\0\0code,source,desc,help\0"
-    "exception(int,QString,QString,QString)\0name\0propertyChanged(QString)\0"
-    "name,argc,argv\0signal(QString,int,void*)\0QString\0control\0"
+    "QAxBase\0\0name,argc,argv\0signal(QString,int,void*)\0name\0"
+    "propertyChanged(QString)\0code,source,desc,help\0"
+    "exception(int,QString,QString,QString)\0QString\0control\0"
+};
+
+static QMetaObject qaxobject_staticMetaObject = {
+    &QObject::staticMetaObject, qt_meta_stringdata_QAxBase,
+        qt_meta_data_QAxBase, 0
+};
+static QMetaObject qaxwidget_staticMetaObject = {
+    &QWidget::staticMetaObject, qt_meta_stringdata_QAxBase,
+        qt_meta_data_QAxBase, 0
 };
 
 /*!
@@ -3043,13 +3051,9 @@ const QMetaObject *QAxBase::metaObject() const
 
     // return the default meta object if not yet initialized
     if (!d->ptr || !d->useMetaObject) {
-        if (!d->staticMetaObject) {
-            d->staticMetaObject = new QMetaObject;
-            d->staticMetaObject->d.data = qt_meta_data_QAxBase;
-            d->staticMetaObject->d.stringdata = qt_meta_stringdata_QAxBase;
-            d->staticMetaObject->d.superdata = parentMetaObject();
-        }
-        return d->staticMetaObject;
+        if (qObject()->isWidgetType())
+            return &qaxwidget_staticMetaObject;
+        return &qaxobject_staticMetaObject;
     }
     MetaObjectGenerator generator((QAxBase*)this, d);
     return generator.metaObject(parentObject);
