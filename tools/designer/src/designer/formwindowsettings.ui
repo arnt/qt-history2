@@ -46,7 +46,7 @@
      <item>
       <widget class="QGroupBox" name="pixmapFunctionGroupBox" >
        <property name="title" >
-        <string>Pixmap Function</string>
+        <string>&amp;Pixmap Function</string>
        </property>
        <property name="checkable" >
         <bool>true</bool>
@@ -69,7 +69,7 @@
    <item rowspan="2" row="2" column="0" >
     <widget class="QGroupBox" name="includeHintsGroupBox" >
      <property name="title" >
-      <string>Include Hints</string>
+      <string>&amp;Include Hints</string>
      </property>
      <layout class="QVBoxLayout" >
       <property name="margin" >
@@ -87,7 +87,7 @@
    <item row="0" column="0" colspan="2" >
     <widget class="QGroupBox" name="pixmapFunctionGroupBox_2" >
      <property name="title" >
-      <string>Author</string>
+      <string>&amp;Author</string>
      </property>
      <layout class="QVBoxLayout" >
       <property name="margin" >
@@ -113,7 +113,7 @@
      <item>
       <widget class="QGroupBox" name="layoutDefaultGroupBox" >
        <property name="title" >
-        <string>Layout Default</string>
+        <string>Layout &amp;Default</string>
        </property>
        <property name="checkable" >
         <bool>true</bool>
@@ -128,7 +128,7 @@
         <item row="1" column="0" >
          <widget class="QLabel" name="label_2" >
           <property name="text" >
-           <string>Spacing:</string>
+           <string>&amp;Spacing:</string>
           </property>
           <property name="buddy" >
            <cstring>defaultSpacingSpinBox</cstring>
@@ -138,7 +138,7 @@
         <item row="0" column="0" >
          <widget class="QLabel" name="label" >
           <property name="text" >
-           <string>Margin:</string>
+           <string>&amp;Margin:</string>
           </property>
           <property name="buddy" >
            <cstring>defaultMarginSpinBox</cstring>
@@ -157,7 +157,7 @@
      <item>
       <widget class="QGroupBox" name="layoutFunctionGroupBox" >
        <property name="title" >
-        <string>Layout Function</string>
+        <string>&amp;Layout Function</string>
        </property>
        <property name="checkable" >
         <bool>true</bool>
@@ -178,7 +178,7 @@
         <item row="0" column="0" >
          <widget class="QLabel" name="label_3" >
           <property name="text" >
-           <string>Margin:</string>
+           <string>Ma&amp;rgin:</string>
           </property>
           <property name="buddy" >
            <cstring>marginFunctionLineEdit</cstring>
@@ -188,7 +188,7 @@
         <item row="1" column="0" >
          <widget class="QLabel" name="label_3_2" >
           <property name="text" >
-           <string>Spacing:</string>
+           <string>Spa&amp;cing:</string>
           </property>
           <property name="buddy" >
            <cstring>spacingFunctionLineEdit</cstring>
@@ -232,6 +232,9 @@
       <widget class="QPushButton" name="okButton" >
        <property name="text" >
         <string>OK</string>
+       </property>
+       <property name="default" >
+        <bool>true</bool>
        </property>
       </widget>
      </item>
