@@ -214,6 +214,12 @@ QListView::QListView(QWidget *parent)
 {
     setViewMode(ListMode);
     setSelectionMode(SingleSelection);
+    //we want to be sure that the changes on the scrollbar's are atomic
+    //and we can't allow those signals to arrive asynchronously
+    QObject::disconnect(horizontalScrollBar(), SIGNAL(rangeChanged(int,int)),
+                        this, SLOT(showOrHideScrollBars()));
+    QObject::disconnect(verticalScrollBar(), SIGNAL(rangeChanged(int,int)),
+                        this, SLOT(showOrHideScrollBars()));
 }
 
 /*!
@@ -261,7 +267,7 @@ void QListView::setMovement(Movement movement)
     setDragEnabled(movable);
     d->viewport->setAcceptDrops(movable);
 #endif
-    
+
     d->doDelayedItemsLayout();
 }
 
@@ -620,6 +626,8 @@ void QListView::resizeContents(int width, int height)
     d->contentsSize = QSize(width, height);
     horizontalScrollBar()->setRange(0, width - viewport()->width() - 1);
     verticalScrollBar()->setRange(0, height - viewport()->height() - 1);
+    //### this forces atomic relayout of children
+    setVerticalScrollBarPolicy(verticalScrollBarPolicy());
 }
 
 /*!
@@ -1244,6 +1252,9 @@ void QListView::updateGeometries()
         verticalScrollBar()->setRange(0, d->contentsSize.height() - d->viewport->height() - 1);
     }
     QAbstractItemView::updateGeometries();
+
+    //### this forces atomic relayout of children
+    setVerticalScrollBarPolicy(verticalScrollBarPolicy());
 }
 
 /*!
@@ -1589,7 +1600,7 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
                     deltaSegHint = item->w + gap;
                 }
                 deltaSegPosition = qMax(deltaSegPosition, deltaSegHint);
-            }            
+            }
             // set the position of the item
             if (flow == QListView::LeftToRight) {
                 item->x = flowPosition;
