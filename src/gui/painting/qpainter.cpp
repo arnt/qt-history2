@@ -737,11 +737,34 @@ void QPainter::restore()
     // last save
     if (!d->state->clipInfo.isEmpty()
         && (tmp->changeFlags & (QPaintEngine::DirtyClipRegion | QPaintEngine::DirtyClipPath))) {
-        d->state->clipRegion = clipRegion();
-        d->state->clipOperation = Qt::ReplaceClip;
-        //Since we're updating the clip region anyway, pretend that the clip path hasn't changed:
-        d->state->dirtyFlags &= ~QPaintEngine::DirtyClipPath;
-        d->state->dirtyFlags |= QPaintEngine::DirtyClipRegion;
+        // reuse the tmp state to avoid any extra allocs...
+        tmp->dirtyFlags = QPaintEngine::DirtyClipPath;
+        tmp->clipOperation = Qt::NoClip;
+        tmp->clipPath = QPainterPath();
+        d->engine->updateState(*tmp);
+        // replay the list of clip states,
+        for (int i=0; i<d->state->clipInfo.size(); ++i) {
+            const QPainterClipInfo &info = d->state->clipInfo.at(i);
+            tmp->matrix.setMatrix(info.matrix.m11(), info.matrix.m12(),
+                                  info.matrix.m21(), info.matrix.m22(),
+                                  info.matrix.dx() - d->redirection_offset.x(),
+                                  info.matrix.dy() - d->redirection_offset.y());
+            tmp->clipOperation = info.operation;
+            if (info.clipType == QPainterClipInfo::RegionClip) {
+                tmp->dirtyFlags = QPaintEngine::DirtyClipRegion | QPaintEngine::DirtyTransform;
+                tmp->clipRegion = info.region;
+            } else { // clipType == QPainterClipInfo::PathClip
+                tmp->dirtyFlags = QPaintEngine::DirtyClipPath | QPaintEngine::DirtyTransform;
+                tmp->clipPath = info.path;
+            }
+            d->engine->updateState(*tmp);
+        }
+
+
+        //Since we've updated the clip region anyway, pretend that the clip path hasn't changed:
+        d->state->dirtyFlags &= ~(QPaintEngine::DirtyClipPath | ~QPaintEngine::DirtyClipRegion);
+        tmp->changeFlags &= ~(QPaintEngine::DirtyClipPath | ~QPaintEngine::DirtyClipRegion);
+        tmp->changeFlags |= QPaintEngine::DirtyTransform;
     }
 
     d->updateState(d->state);
