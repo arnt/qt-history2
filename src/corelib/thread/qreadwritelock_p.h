@@ -18,38 +18,35 @@
 //  W A R N I N G
 //  -------------
 //
-// This file is not part of the Qt API.  It exists as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
+// This file is not part of the Qt API.  It exists for the convenience
+// of qreadwritelock_unix.cpp and qreadwritelock_win.cpp.  This header file may change
+// from version to version without notice, or even be removed.
 //
 // We mean it.
 //
 
+#ifdef Q_OS_UNIX
 struct QReadWriteLockPrivate
 {
-    QReadWriteLockPrivate();
-    ~QReadWriteLockPrivate();
-
-    void wait(bool reader);
-    void wakeUp();
-
-    QAtomic lock;
-    int accessCount;
-    int waitingReaders;
-    int waitingWriters;
-
-#ifdef Q_OS_UNIX
-    int wakeup;
+    QAtomic accessCount;
+    QAtomic waitingWriters;
+    QAtomic waitingReaders;
     pthread_mutex_t mutex;
     pthread_cond_t readerWait;
     pthread_cond_t writerWait;
+
+};
 #endif
 
 #ifdef Q_OS_WIN32
-    CRITICAL_SECTION cs;
+struct QReadWriteLockPrivate
+{
+    volatile int accessCount;
+    QAtomic waitingWriters;
+    QAtomic waitingReaders;
     HANDLE readerWait;
     HANDLE writerWait;
-#endif
 };
+#endif
 
 #endif // QREADWRITELOCK_P_H
