@@ -1502,7 +1502,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
     case PE_FrameMenu:
         p->save();
         p->setPen(option->palette.dark().color());
-        p->drawRect(rect);
+        p->drawRect(rect.adjusted(0, 0, -1, -1));
         p->restore();
         return;
 
@@ -2772,7 +2772,6 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
 
     int res = 0;
     switch (pm) {
-
     case PM_DockWidgetFrameWidth:
         {
             XPThemeData theme(widget, 0, "WINDOW", WP_SMALLFRAMERIGHT, FS_ACTIVE);
@@ -3070,10 +3069,15 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
         {
             if (menuitem->menuItemType == QStyleOptionMenuItem::Separator) {
                 sz = QSize(10, windowsSepHeight);
-                break;
+            } else {
+                sz = QWindowsStyle::sizeFromContents(ct, option, sz, widget);
+                if (menuitem->icon.isNull())
+                    sz.setHeight(sz.height() - 4);
+                sz.setWidth(sz.width() - 6);
             }
-        }
-        // Fall-through intended
+
+            break;
+        }        
     default:
         sz = QWindowsStyle::sizeFromContents(ct, option, sz, widget);
         break;
