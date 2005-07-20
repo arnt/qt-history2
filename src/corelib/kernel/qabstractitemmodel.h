@@ -43,6 +43,11 @@ public:
         { return (other.r == r && other.c == c && other.p == p && other.m == m); }
     inline bool operator!=(const QModelIndex &other) const
         { return !(*this == other); }
+    inline bool operator<(const QModelIndex &other) const
+        { if (r < other.r) return true;
+          if (r == other.r && c < other.c) return true;
+          if (r == other.r && c == other.c) return p < other.p;
+          return false; }
 private:
     inline QModelIndex(int row, int column, void *ptr, const QAbstractItemModel *model);
     int r, c;
