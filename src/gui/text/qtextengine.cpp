@@ -1300,8 +1300,16 @@ void QScriptLine::setDefaultHeight(QTextEngine *eng)
         e = eng->fnt.d->engineForScript(QUnicodeTables::Common);
     }
 
-    ascent = e->ascent();
-    descent = e->descent();
+    ascent = qMax(ascent, e->ascent());
+    descent = qMax(descent, e->descent());
+}
+
+QScriptLine &QScriptLine::operator+=(const QScriptLine &other)
+{
+    descent = qMax(descent, other.descent);
+    ascent = qMax(ascent, other.ascent);
+    textWidth += other.textWidth;
+    length += other.length;
 }
 
 QTextEngine::LayoutData::LayoutData()

@@ -243,7 +243,8 @@ typedef QVector<QScriptItem> QScriptItemArray;
 struct QScriptLine
 {
     QScriptLine()
-        : descent(0), ascent(0), x(0), y(0), width(0), textWidth(0) {}
+        : descent(0), ascent(0), x(0), y(0), width(0), textWidth(0), from(0), length(0),
+        justified(0), gridfitted(0) {}
     qreal descent;
     qreal ascent;
     qreal x;
@@ -256,6 +257,7 @@ struct QScriptLine
     mutable uint gridfitted : 1;
     qreal height() const { return ascent + descent + 1.; }
     void setDefaultHeight(QTextEngine *eng);
+    QScriptLine &operator+=(const QScriptLine &other);
 };
 Q_DECLARE_TYPEINFO(QScriptLine, Q_PRIMITIVE_TYPE);
 

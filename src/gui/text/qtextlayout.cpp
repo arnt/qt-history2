@@ -1060,9 +1060,53 @@ void QTextLine::setNumColumns(int numColumns)
     layout_helper(numColumns);
 }
 
+enum State {
+    Empty, 
+    Chars,
+    WhiteSpace
+};
+
+enum Action {
+    NoAction,
+    AddWhiteSpace,
+    AddTemp, 
+    Error
+};
+
+const Action state_table[3][3] = {
+    { Error, Error, Error }, 
+    { NoAction, NoAction, AddTemp }, 
+    { NoAction, AddWhiteSpace, NoAction }, 
+};
+
+#if 0
+#define LB_DEBUG qDebug
+#else
+#define LB_DEBUG if (0) qDebug
+#endif
+
+static bool check_full(QTextEngine *engine, QScriptLine &line, QScriptLine &tmpData, QScriptLine &spaceData,
+                       int glyphCount, int maxGlyphs, qreal minw, int pos)
+{
+    Q_UNUSED(pos);
+    LB_DEBUG("possible break at %d width %f, spacew=%f", pos, tmpData.textWidth, spaceData.textWidth);
+    if (line.length && engine->option.wrapMode() != QTextOption::ManualWrap) {
+        if (line.textWidth + tmpData.textWidth + spaceData.textWidth > line.width || glyphCount > maxGlyphs)
+            return true;
+    }
+    minw = qMax(minw, tmpData.textWidth);
+    line += tmpData;
+    line += spaceData;
+    tmpData = QScriptLine();
+    spaceData = QScriptLine();
+    return false;
+}
+
 void QTextLine::layout_helper(int maxGlyphs)
 {
     QScriptLine &line = eng->lines[i];
+    line.length = 0;
+    line.textWidth = 0;
 
     if (!eng->layoutData->items.size()) {
         line.setDefaultHeight(eng);
@@ -1074,142 +1118,164 @@ void QTextLine::layout_helper(int maxGlyphs)
     bool breakany = (eng->option.wrapMode() == QTextOption::WrapAnywhere);
 
     // #### binary search!
-    int item;
-    for (item = eng->layoutData->items.size()-1; item > 0; --item) {
-        if (eng->layoutData->items[item].position <= line.from)
+    int item = -1;
+    int newItem;
+    for (newItem = eng->layoutData->items.size()-1; newItem > 0; --newItem) {
+        if (eng->layoutData->items[newItem].position <= line.from)
             break;
     }
 
-    qreal minw = 0, spacew = 0;
+    qreal minw = 0;
     int glyphCount = 0;
 
-//     qDebug("from: %d:   item=%d, total %d width available %f", line.from, item, eng->layoutData->items.size(), line.width);
+    LB_DEBUG("from: %d: item=%d, total %d width available %f", line.from, newItem, eng->layoutData->items.size(), line.width);
+    QScriptLine tmpData;
+    QScriptLine spaceData;
 
-    while (item < eng->layoutData->items.size()) {
-        const QCharAttributes *attributes = eng->attributes();
+    State state = Empty;
+    Qt::Alignment alignment = eng->option.alignment();
+    
+    const QCharAttributes *attributes = eng->attributes();
+    int pos = line.from;
+    int end;
+    QGlyphLayout *glyphs;
+    unsigned short *logClusters = eng->logClustersPtr;
+    while (newItem < eng->layoutData->items.size()) {
+        if (newItem != item) {
+            item = newItem;
+            const QScriptItem &current = eng->layoutData->items[item];
+            if (!current.num_glyphs)
+                eng->shape(item);
+            pos = qMax(line.from, current.position);
+            end = current.position + eng->length(item);
+            glyphs = eng->glyphs(&current);
+        }
         const QScriptItem &current = eng->layoutData->items[item];
-        if (!current.num_glyphs)
-            eng->shape(item);
 
-        if (current.isObject) {
+        State newState = (attributes[pos].whiteSpace || current.isTab) ? WhiteSpace : Chars;
+
+        Action action = state_table[newState][state];
+        switch (action) {
+        case NoAction:
+            break;
+        case AddWhiteSpace:
+            break;
+        case Error:
+            Q_ASSERT(false);
+            break;
+        case AddTemp:
+            if (check_full(eng, line, tmpData, spaceData, glyphCount, maxGlyphs, minw, pos))
+                goto found;
+        }
+        state = newState;
+
+        if (state == Chars) {
+            tmpData.ascent = qMax(tmpData.ascent, current.ascent);
+            tmpData.descent = qMax(tmpData.descent, current.descent);
+        } else {
+            spaceData.ascent = qMax(spaceData.ascent, current.ascent);
+            spaceData.descent = qMax(spaceData.descent, current.descent);
+        }
+
+        if (current.isTab && (alignment & Qt::AlignLeft)) {
+            qreal x = line.x + line.textWidth;
+            qreal nx = eng->nextTab(&current, x);
+            spaceData.textWidth += nx - x;
+            spaceData.length++;
+            newItem = item + 1;
+            ++glyphCount;
+        } else if (current.isObject) {
             QTextFormat format = eng->formats()->format(eng->formatIndex(&eng->layoutData->items[item]));
             if (eng->block.docHandle())
                 eng->docLayout()->positionInlineObject(QTextInlineObject(item, eng), eng->block.position() + current.position, format);
-            if (line.length && eng->option.wrapMode() != QTextOption::ManualWrap) {
-                if (line.textWidth + current.width > line.width || glyphCount > maxGlyphs)
-                    goto found;
-            }
+            tmpData.textWidth += current.width;
+            tmpData.length++;
 
-            line.length++;
             // the width of the linesep doesn't count into the textwidth
             if (eng->layoutData->string.at(current.position) == QChar::LineSeparator) {
                 // if the line consists only of the line separator make sure
                 // we have a sane height
-                if (line.length == 1)
+                if (!line.length && tmpData.length == 1)
                     line.setDefaultHeight(eng);
+                line += tmpData;
                 goto found;
             }
-            line.textWidth += current.width;
 
-            ++item;
+            newItem = item + 1;
             ++glyphCount;
-            line.ascent = qMax(line.ascent, current.ascent);
-            line.descent = qMax(line.descent, current.descent);
-            continue;
-        } else if (current.isTab &&
-                   (eng->option.alignment() & Qt::AlignLeft)) {
-            qreal x = line.x + line.textWidth;
-            qreal nx = eng->nextTab(&current, x);
-            line.textWidth += nx - x;
-            line.length++;
-            ++item;
-            ++glyphCount;
-            line.ascent = qMax(line.ascent, current.ascent);
-            line.descent = qMax(line.descent, current.descent);
-            continue;
-        }
-
-        int length = eng->length(item);
-
-        const QCharAttributes *itemAttrs = attributes + current.position;
-        QGlyphLayout *glyphs = eng->glyphs(&current);
-        unsigned short *logClusters = eng->logClusters(&current);
-
-        int pos = qMax(0, line.from - current.position);
-
-        do {
-            int next = pos;
-
-            qreal tmpw = 0;
-            if (!itemAttrs[next].whiteSpace) {
-                tmpw = spacew;
-                spacew = 0;
+            if (check_full(eng, line, tmpData, spaceData, glyphCount, maxGlyphs, minw, pos))
+                goto found;
+        } else if (!attributes[pos].whiteSpace) {
+            bool need_check = false;
+            do {
+                int gp = logClusters[pos];
                 do {
-                    int gp = logClusters[next];
-                    do {
-                        ++next;
-                    } while (next < length && logClusters[next] == gp);
-                    do {
-                        tmpw += glyphs[gp].advance.x();
-                        ++gp;
-                    } while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
-
-                    Q_ASSERT((next == length && gp == current.num_glyphs) || logClusters[next] == gp);
-
-                    ++glyphCount;
-                } while (next < length && !itemAttrs[next].whiteSpace && !itemAttrs[next].softBreak && !(breakany && itemAttrs[next].charStop));
-                minw = qMax(tmpw, minw);
-            }
-
-            if (itemAttrs[next].softBreak)
-                breakany = false;
-
-            while (next < length && itemAttrs[next].whiteSpace) {
-                int gp = logClusters[next];
+                    ++pos;
+                    ++tmpData.length;
+                } while (pos < end && logClusters[pos] == gp);
                 do {
-                    ++next;
-                } while (next < length && logClusters[next] == gp);
-                do {
-                    spacew += glyphs[gp].advance.x();
+                    tmpData.textWidth += glyphs[gp].advance.x();
                     ++gp;
                 } while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
-
+                
+                Q_ASSERT((pos == end && gp == current.num_glyphs) || logClusters[pos] == gp);
+                
                 ++glyphCount;
-                Q_ASSERT((next == length && gp == current.num_glyphs) || logClusters[next] == gp);
-            }
+                if (attributes[pos].whiteSpace || attributes[pos].softBreak || (breakany && attributes[pos].charStop)) {
+                    need_check = true;
+                    break;
+                }
+            } while (pos < end);
+            minw = qMax(tmpData.textWidth, minw);
 
-//             qDebug("possible break at %d, chars (%d-%d) / glyphs (%d-%d): width %f, spacew=%f",
-//                    current.position + next, pos, next, logClusters[pos], logClusters[next], tmpw, spacew);
-
-            if (line.length && tmpw != qreal(0) && (line.textWidth + tmpw > line.width || glyphCount > maxGlyphs)
-                && eng->option.wrapMode() != QTextOption::ManualWrap)
+            bool sb_or_ws = (attributes[pos].softBreak || attributes[pos].whiteSpace);
+            if ((breakany || sb_or_ws) && check_full(eng, line, tmpData, spaceData, glyphCount, maxGlyphs, minw, pos))
                 goto found;
-
-            line.textWidth += tmpw;
-            line.length += next - pos;
-            line.ascent = qMax(line.ascent, current.ascent);
-            line.descent = qMax(line.descent, current.descent);
-
-            pos = next;
-        } while (pos < length);
-        ++item;
+            if (sb_or_ws) 
+                breakany = false;
+        } else {
+            while (pos < end && attributes[pos].whiteSpace) {
+                int gp = logClusters[pos];
+                do {
+                    ++pos;
+                    ++spaceData.length;
+                } while (pos < end && logClusters[pos] == gp);
+                do {
+                    spaceData.textWidth += glyphs[gp].advance.x();
+                    ++gp;
+                } while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
+                
+                ++glyphCount;
+                Q_ASSERT((pos == end && gp == current.num_glyphs) || logClusters[pos] == gp);
+            }
+        }
+        if (pos == end)
+            newItem = item + 1;
     }
- found:
-//     qDebug("line length = %d, ascent=%f, descent=%f, textWidth=%f (spacew=%f)", line.length, line.ascent,
-//            line.descent, line.textWidth, spacew);
-//     qDebug("        : '%s'", eng->layoutData->string.mid(line.from, line.length).toUtf8().data());
+    LB_DEBUG("reached end of line");
+    check_full(eng, line, tmpData, spaceData, glyphCount, maxGlyphs, minw, pos);
+found:
+    if (line.length == 0) {
+        LB_DEBUG("no break available in line, adding temp: length %d, width %f, space: length %d, width %f",
+               tmpData.length, tmpData.textWidth, spaceData.length, spaceData.textWidth);
+        line += tmpData;
+    }
+    
+    LB_DEBUG("line length = %d, ascent=%f, descent=%f, textWidth=%f (spacew=%f)", line.length, line.ascent,
+           line.descent, line.textWidth, spaceData.width);
+    LB_DEBUG("        : '%s'", eng->layoutData->string.mid(line.from, line.length).toUtf8().data());
 
-    if (eng->option.wrapMode() == QTextOption::ManualWrap
-        || eng->option.wrapMode() == QTextOption::NoWrap)
+    if (eng->option.wrapMode() == QTextOption::ManualWrap || eng->option.wrapMode() == QTextOption::NoWrap)
         eng->minWidth = qMax(eng->minWidth, line.textWidth);
     else
         eng->minWidth = qMax(eng->minWidth, minw);
 
     eng->maxWidth += line.textWidth;
     if (line.textWidth > 0 && item < eng->layoutData->items.size())
-        eng->maxWidth += spacew;
+        eng->maxWidth += spaceData.textWidth;
     if (eng->option.flags() & QTextOption::IncludeTrailingSpaces)
-        line.textWidth += spacew;
+        line.textWidth += spaceData.textWidth;
+    line.length += spaceData.length;
 
     line.justified = false;
     line.gridfitted = false;
