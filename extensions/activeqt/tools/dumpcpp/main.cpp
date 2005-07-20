@@ -482,7 +482,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
     }
 }
 
-#define addString(string) \
+#define addString(string, stringData) \
     out << stringDataLength << ", "; \
     stringData += string; \
     stringDataLength += qstrlen(string); \
@@ -531,8 +531,8 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
         for (int i = 0; i < classInfoCount; ++i) {
             QMetaClassInfo classInfo = mo->classInfo(i + mo->classInfoOffset());
             out << "       ";
-            addString(classInfo.name());
-            addString(classInfo.value());
+            addString(classInfo.name(), stringData);
+            addString(classInfo.value(), stringData);
             out << endl;
         }
         stringData += "\"\n";
@@ -546,10 +546,10 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
             if (signal.methodType() != QMetaMethod::Signal)
                 continue;
             out << "       ";
-            addString(signal.signature());
-            addString(joinParameterNames(signal.parameterNames()));
-            addString(signal.typeName());
-            addString(signal.tag());
+            addString(signal.signature(), stringData);
+            addString(joinParameterNames(signal.parameterNames()), stringData);
+            addString(signal.typeName(), stringData);
+            addString(signal.tag(), stringData);
             out << (AccessProtected | signal.attributes() | MemberSignal) << "," << endl;
         }
         stringData += "\"\n";
@@ -562,10 +562,10 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
             if (slot.methodType() != QMetaMethod::Slot)
                 continue;
             out << "       ";
-            addString(slot.signature());
-            addString(joinParameterNames(slot.parameterNames()));
-            addString(slot.typeName());
-            addString(slot.tag());
+            addString(slot.signature(), stringData);
+            addString(joinParameterNames(slot.parameterNames()), stringData);
+            addString(slot.typeName(), stringData);
+            addString(slot.tag(), stringData);
             out << (0x01 | slot.attributes() | MemberSlot) << "," << endl;
         }
         stringData += "\"\n";
@@ -577,8 +577,8 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
         for (int i = 0; i < propertyCount; ++i) {
             QMetaProperty property = mo->property(i + mo->propertyOffset());
             out << "       ";
-            addString(property.name());
-            addString(property.typeName());
+            addString(property.name(), stringData);
+            addString(property.typeName(), stringData);
 
             uint flags = 0;
             uint vartype = property.type();
@@ -607,52 +607,112 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
         stringData += "\"\n";
         out << endl;
     }
+
+    QByteArray enumStringData;
     if (enumCount) {
         out << " // enums: name, flags, count, data" << endl;
-        stringData += "    \"";
+        enumStringData += "    \"";
         enumStart += enumCount * 4;
         for (int i = 0; i < enumCount; ++i) {
             QMetaEnum enumerator = mo->enumerator(i + mo->enumeratorOffset());
             out << "       ";
-            addString(enumerator.name());
+            addString(enumerator.name(), enumStringData);
             out << (enumerator.isFlag() ? "0x1" : "0x0") << ", " << enumerator.keyCount() << ", " << enumStart << ", " << endl;
             enumStart += enumerator.keyCount() * 2;
         }
-        stringData += "\"\n";
+        enumStringData += "\"\n";
         out << endl;
 
         out << " // enum data: key, value" << endl;
         for (int i = 0; i < enumCount; ++i) {
-            stringData += "    \"";
+            enumStringData += "    \"";
             QMetaEnum enumerator = mo->enumerator(i + mo->enumeratorOffset());
             for (int j = 0; j < enumerator.keyCount(); ++j) {
                 out << "       ";
-                addString(enumerator.key(j));
+                addString(enumerator.key(j), enumStringData);
                 if (nameSpace.isEmpty())
                     out << className << "::";
                 else
                     out << nameSpace << "::";
                 out << enumerator.key(j) << "," << endl;
             }
-            stringData += "\"\n";
-        }        
+            enumStringData += "\"\n";
+        }
         out << endl;
     }
     out << "        0        // eod" << endl;
     out << "};" << endl;
     out << endl;
 
-    out << "static const char qt_meta_stringdata_" << qualifiedClassName.replace(':','_') << "[] = {" << endl;
-    out << "    \"" << stringData << endl;
-    out << "};" << endl;
-    out << endl;
+    QByteArray stringGenerator;
+
+    if (!nameSpace.isEmpty()) {
+        static bool firstStringData = true;
+        if (firstStringData) { // print enums only once
+            firstStringData = false;
+            if (!enumStringData.isEmpty()) {
+                out << "static const char qt_meta_enumstringdata_" << nameSpace << "[] = {" << endl;
+                out << enumStringData << endl;
+                out << "};" << endl;
+                out << endl;
+            }
+        }
+        stringGenerator = "qt_meta_stringdata_" + qualifiedClassName.replace(':','_') + "()";
+        out << "static const char *" << stringGenerator << " {" << endl;
+        QList<QByteArray> splitStrings;
+
+        // workaround for compilers that can't handle string literals longer than 64k
+        int splitCount = 0;
+        do {
+            int lastNewline = stringData.lastIndexOf('\n', 64000);
+            QByteArray splitString = stringData.left(lastNewline);
+
+            splitStrings << splitString;
+            out << "    static char stringdata" << splitCount << "[] = {" << endl;
+            out << "    \"" << splitString << endl;
+            out << "    };" << endl;
+            stringData = stringData.mid(lastNewline + 1);
+            if (stringData.startsWith("    \""))
+                stringData = stringData.mid(5);
+            ++splitCount;
+        } while (!stringData.isEmpty());
+
+        out << "    static char data[" << stringDataLength + enumStringData.length() << "];" << endl;
+        out << "    static bool firstRun = true;" << endl;
+        out << "    if (firstRun) {" << endl;
+        out << "        firstRun = false;" << endl;
+        out << "        int index = 0;" << endl;
+
+        int dataIndex = 0;
+        for (int i = 0; i < splitCount; ++i) {
+            out << "        memcpy(data + index";
+            out << ", stringdata" << i << ", sizeof(stringdata" << i << ") - 1);" << endl;
+            out << "        index += sizeof(stringdata" << i << ") - 1;" << endl;
+            dataIndex += splitStrings.at(i).length();
+        }
+        if (!enumStringData.isEmpty()) {
+            out << "        memcpy(data + index, qt_meta_enumstringdata_" << nameSpace << ", " << enumStringData.length() << ");" << endl;
+        }
+        out << "    }" << endl;
+        out << endl;
+        out << "    return data;" << endl;
+        out << "};" << endl;
+        out << endl;
+    } else {
+        stringData += enumStringData;
+        stringGenerator = "qt_meta_stringdata_" + qualifiedClassName.replace(':','_');
+        out << "static const char qt_meta_stringdata_" << stringGenerator << "[] = {" << endl;
+        out << "    \"" << stringData << endl;
+        out << "};" << endl;
+        out << endl;
+    }
 
     out << "const QMetaObject " << className << "::staticMetaObject = {" << endl;
     if (category & ActiveX)
         out << "{ &QWidget::staticMetaObject," << endl;
     else
         out << "{ &QObject::staticMetaObject," << endl;
-    out << "qt_meta_stringdata_" << qualifiedClassName.replace(':','_') << "," << endl;
+    out << stringGenerator << "," << endl;
     out << "qt_meta_data_" << qualifiedClassName.replace(':','_') << " }" << endl;
     out << "};" << endl;
     out << endl;
@@ -660,7 +720,7 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
     out << "void *" << className << "::qt_metacast(const char *_clname)" << endl;
     out << "{" << endl;
     out << "    if (!_clname) return 0;" << endl;
-    out << "    if (!strcmp(_clname, qt_meta_stringdata_" << qualifiedClassName.replace(':','_') << "))" << endl;
+    out << "    if (!strcmp(_clname, " << stringGenerator << "))" << endl;
     out << "        return static_cast<void*>(const_cast<" << className << "*>(this));" << endl;
     if (category & ActiveX)
         out << "    return QAxWidget::qt_metacast(_clname);" << endl;
