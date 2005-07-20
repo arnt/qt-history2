@@ -853,8 +853,13 @@ bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
         return false;
     }
 
-    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), obj))
-        return sheet->isChanged(sheet->indexOf(prop));
+    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), obj)) {
+        int pindex = sheet->indexOf(prop);
+        if (sheet->isAttribute(pindex))
+            return false;
+
+        return sheet->isChanged(pindex);
+    }
 
     return false;
 }
