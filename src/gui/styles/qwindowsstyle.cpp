@@ -934,8 +934,6 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             State flags = opt->state;
             QPalette pal = opt->palette;
             QRect r = opt->rect;
-            if (btn->features & QStyleOptionButton::DefaultButton)
-                r = r.adjusted(0, 0, -1, -1);
             if (! (flags & State_Sunken) && (flags & State_On))
                 fill = QBrush(pal.light().color(), Qt::Dense4Pattern);
             else
@@ -944,7 +942,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             if (btn->features & QStyleOptionButton::DefaultButton && flags & State_Sunken) {
                 p->setPen(pal.dark().color());
                 p->setBrush(fill);
-                p->drawRect(r);
+                p->drawRect(r.adjusted(0, 0, -1, -1));
             } else if (flags & (State_Raised | State_Sunken | State_On | State_Sunken)) {
                 qDrawWinButton(p, r, pal, flags & (State_Sunken | State_On),
                                &fill);
