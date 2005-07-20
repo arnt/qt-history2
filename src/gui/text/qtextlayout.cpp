@@ -1061,22 +1061,22 @@ void QTextLine::setNumColumns(int numColumns)
 }
 
 enum State {
-    Empty, 
-    Chars,
+    Empty,
+    Characters,
     WhiteSpace
 };
 
 enum Action {
     NoAction,
     AddWhiteSpace,
-    AddTemp, 
+    AddTemp,
     Error
 };
 
 const Action state_table[3][3] = {
-    { Error, Error, Error }, 
-    { NoAction, NoAction, AddTemp }, 
-    { NoAction, AddWhiteSpace, NoAction }, 
+    { Error, Error, Error },
+    { NoAction, NoAction, AddTemp },
+    { NoAction, AddWhiteSpace, NoAction },
 };
 
 #if 0
@@ -1134,11 +1134,11 @@ void QTextLine::layout_helper(int maxGlyphs)
 
     State state = Empty;
     Qt::Alignment alignment = eng->option.alignment();
-    
+
     const QCharAttributes *attributes = eng->attributes();
     int pos = line.from;
-    int end;
-    QGlyphLayout *glyphs;
+    int end = 0;
+    QGlyphLayout *glyphs = 0;
     unsigned short *logClusters = eng->logClustersPtr;
     while (newItem < eng->layoutData->items.size()) {
         if (newItem != item) {
@@ -1152,7 +1152,7 @@ void QTextLine::layout_helper(int maxGlyphs)
         }
         const QScriptItem &current = eng->layoutData->items[item];
 
-        State newState = (attributes[pos].whiteSpace || current.isTab) ? WhiteSpace : Chars;
+        State newState = (attributes[pos].whiteSpace || current.isTab) ? WhiteSpace : Characters;
 
         Action action = state_table[newState][state];
         switch (action) {
@@ -1169,7 +1169,7 @@ void QTextLine::layout_helper(int maxGlyphs)
         }
         state = newState;
 
-        if (state == Chars) {
+        if (state == Characters) {
             tmpData.ascent = qMax(tmpData.ascent, current.ascent);
             tmpData.descent = qMax(tmpData.descent, current.descent);
         } else {
@@ -1217,9 +1217,9 @@ void QTextLine::layout_helper(int maxGlyphs)
                     tmpData.textWidth += glyphs[gp].advance.x();
                     ++gp;
                 } while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
-                
+
                 Q_ASSERT((pos == end && gp == current.num_glyphs) || logClusters[pos] == gp);
-                
+
                 ++glyphCount;
                 if (attributes[pos].whiteSpace || attributes[pos].softBreak || (breakany && attributes[pos].charStop)) {
                     need_check = true;
@@ -1231,7 +1231,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             bool sb_or_ws = (attributes[pos].softBreak || attributes[pos].whiteSpace);
             if ((breakany || sb_or_ws) && check_full(eng, line, tmpData, spaceData, glyphCount, maxGlyphs, minw, pos))
                 goto found;
-            if (sb_or_ws) 
+            if (sb_or_ws)
                 breakany = false;
         } else {
             while (pos < end && attributes[pos].whiteSpace) {
@@ -1244,7 +1244,7 @@ void QTextLine::layout_helper(int maxGlyphs)
                     spaceData.textWidth += glyphs[gp].advance.x();
                     ++gp;
                 } while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
-                
+
                 ++glyphCount;
                 Q_ASSERT((pos == end && gp == current.num_glyphs) || logClusters[pos] == gp);
             }
@@ -1260,7 +1260,7 @@ found:
                tmpData.length, tmpData.textWidth, spaceData.length, spaceData.textWidth);
         line += tmpData;
     }
-    
+
     LB_DEBUG("line length = %d, ascent=%f, descent=%f, textWidth=%f (spacew=%f)", line.length, line.ascent,
            line.descent, line.textWidth, spaceData.width);
     LB_DEBUG("        : '%s'", eng->layoutData->string.mid(line.from, line.length).toUtf8().data());
