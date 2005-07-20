@@ -1841,9 +1841,18 @@ QRect QListViewPrivate::mapToViewport(const QRect &rect) const
     if (!rect.isValid())
         return rect;
     QRect result = rect;
+
     // If the listview is in "listbox-mode", the items are as wide as the view.
-    if (!wrap && movement == QListView::Static && flow == QListView::TopToBottom)
+    if (!wrap && movement == QListView::Static && flow == QListView::TopToBottom) {
+        if (q_func()->isRightToLeft()) {
+            // We don't have to adjust the offset if the viewport is larger than contentsSize,
+            // therefore, set offset to 0 if this is the case.
+            int offset = qMin(0, viewport->width() - contentsSize.width());
+            result.setLeft(result.right() - qMax(contentsSize.width(), viewport->width()) + offset);
+        }
         result.setWidth(qMax(contentsSize.width(), viewport->width()));
+    }
+    
     int dx = -q->horizontalOffset();
     int dy = -q->verticalOffset();
     result.adjust(dx, dy, dx, dy);

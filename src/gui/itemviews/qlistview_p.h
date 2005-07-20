@@ -290,7 +290,7 @@ public:
     QRect itemsRect(const QVector<QModelIndex> &indexes) const;
 
     inline int flipX(int x) const
-        { return qMax(viewport->width(), layoutBounds.width()) - x; }
+        { return qMax(viewport->width(), contentsSize.width()) - x; }
     inline QPoint flipX(const QPoint &p) const
         { return QPoint(flipX(p.x()), p.y()); }
     inline QRect flipX(const QRect &r) const
