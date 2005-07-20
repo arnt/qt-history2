@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved.
-** Copyright (C) 2002-$THISYEAR$ Bj�n Bergstr�
+** Copyright (C) 2002-$THISYEAR$ Bjoern Bergstroem
 **
 ** This file is part of the $MODULE$ of the Qt Toolkit.
 **
