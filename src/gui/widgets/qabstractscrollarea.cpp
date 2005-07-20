@@ -109,7 +109,7 @@ void QAbstractScrollAreaPrivate::init()
     QObject::connect(hbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), Qt::QueuedConnection);
     vbar = new QScrollBar(Qt::Vertical, q);
     QObject::connect(vbar, SIGNAL(valueChanged(int)), q, SLOT(vslide(int)));
-    QObject::connect(hbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), Qt::QueuedConnection);
+    QObject::connect(vbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), Qt::QueuedConnection);
     viewport = new QAbstractScrollAreaHelper(q);
     viewport->setBackgroundRole(QPalette::Base);
     viewport->setFocusProxy(q);
