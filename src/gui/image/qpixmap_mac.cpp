@@ -119,9 +119,9 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     }
 
     if(image.depth()==1) {
-         image.setColor(0, QColor(Qt::color0).rgba());
-         image.setColor(1, QColor(Qt::color1).rgba());
-   }
+        image.setColor(0, QColor(Qt::color0).rgba());
+        image.setColor(1, QColor(Qt::color1).rgba());
+    }
 
     int w = image.width();
     int h = image.height();
@@ -152,7 +152,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
                 else
                     one_bit = one_bit >> (x % 8);
                 if((one_bit & 0x01))
-                    *(drow+x) = 0;
+                    *(drow+x) = 0x00000000;
                 else
                     *(drow+x) = 0xFFFFFFFF;
             }
@@ -391,7 +391,14 @@ QPixmapData::macSetAlphaChannel(const QPixmap *pix, bool asMask)
     for (int y=0; y < h; ++y) {
         drow = dptr + (y * (dbpr/4));
         srow = sptr + (y * (sbpr/4));
-        if(asMask) {
+        if(d == 1) {
+            for (int x=0; x < w; ++x) {
+                if((*(srow+x) & RGB_MASK) && (*(drow+x) & RGB_MASK))
+                    *(drow+x) = 0xFFFFFFFF;
+                else
+                    *(drow+x) = 0x00000000;
+            }
+        } else if(asMask) {
             for (int x=0; x < w; ++x) {
                 if(*(srow+x) & RGB_MASK)
                     *(drow+x) = (*(drow+x) & RGB_MASK);
@@ -700,6 +707,24 @@ bool QPixmap::hasAlpha() const
 bool QPixmap::hasAlphaChannel() const
 {
     return data->has_alpha;
+}
+
+CGImageRef qt_mac_create_imagemask(const QPixmap &px)
+{
+    const int sbpr = px.data->nbytes / px.data->h, dbpr = sbpr;
+    const uint nbytes = px.data->nbytes;
+    quint32 *dptr = (quint32 *)malloc(sizeof(quint32)*nbytes), *sptr = px.data->pixels, *srow, *drow;
+    for(int y = 0; y < px.data->h; ++y) {
+        drow = dptr + (y * (dbpr / 4));
+        srow = sptr + (y * (sbpr / 4));
+        for(int x = 0; x < px.data->w; ++x)
+            *(drow+x) = ~*(srow+x);
+    }
+    CGDataProviderRef provider = CGDataProviderCreateWithData(dptr, dptr, nbytes,
+                                                              qt_mac_cgimage_data_free);
+    CGImageRef ret = CGImageMaskCreate(px.data->w, px.data->h, 8, 32, nbytes / px.data->h, provider, 0, 0);
+    CGDataProviderRelease(provider);
+    return ret;
 }
 
 IconRef qt_mac_create_iconref(const QPixmap &px)
