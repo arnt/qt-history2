@@ -1083,10 +1083,9 @@ void QAxBase::clear()
 
     d->ctrl.clear();
 
-    if (!d->cachedMetaObject) {
+    if (!d->cachedMetaObject)
         delete d->metaobj;
-        d->metaobj = 0;
-    }
+    d->metaobj = 0;
 }
 
 /*
