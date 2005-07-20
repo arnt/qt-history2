@@ -509,6 +509,9 @@ Qt::ItemFlags QTreeModel::flags(const QModelIndex &index) const
 
 void QTreeModel::sort(int column, Qt::SortOrder order)
 {
+    if (column < 0 || column >= header->columnCount())
+        return;
+
     // sort top level
     sortItems(&tree, column, order);
 
@@ -1325,7 +1328,7 @@ QVariant QTreeWidgetItem::data(int column, int role) const
         return childrenCheckState(column);
     // return the item data
     role = (role == Qt::EditRole ? Qt::DisplayRole : role);
-    if (column < values.size()) {
+    if (column >= 0 && column < values.size()) {
         const QVector<QWidgetItemData> &column_values = values.at(column);
         for (int i = 0; i < column_values.count(); ++i)
             if (column_values.at(i).role == role)
