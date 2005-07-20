@@ -162,15 +162,13 @@ void WidgetGallery::createBottomLeftTabWidget()
     QWidget *tab2 = new QWidget;
     textEdit = new QTextEdit;
 
-    textEdit->setPlainText(tr("Au clair de la lune,\n"
-                              "Mon ami Pierrot,\n"
-                              "Prête moi ta plume\n"
-                              "Pour écrire un mot.\n"
-                              "Ma chandelle est morte,\n"
-                              "Je n'ai plus de feu.\n"
-                              "Ouvre moi ta porte,\n"
-                              "Pour l'amour de Dieu.\n"));
-
+    textEdit->setPlainText(tr("Twinkle, twinkle, little star,\n"
+                              "How I wonder what you are.\n"
+                              "Up above the world so high,\n"
+                              "Like a diamond in the sky.\n"
+                              "Twinkle, twinkle, little star,\n"
+                              "How I wonder what you are!\n"));
+                     
     QHBoxLayout *tab2hbox = new QHBoxLayout;
     tab2hbox->setMargin(5);
     tab2hbox->addWidget(textEdit);
