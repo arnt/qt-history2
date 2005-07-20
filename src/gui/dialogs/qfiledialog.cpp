@@ -988,7 +988,15 @@ void QFileDialogPrivate::enterDirectory(const QModelIndex &index)
 
 void QFileDialogPrivate::enterDirectory(const QString &path)
 {
-    enterDirectory(model->index(path));
+    Q_Q(QFileDialog);
+    QModelIndex index = model->index(path);
+    if (index.isValid() || path.isEmpty() || path == QObject::tr("My Computer")) {
+        enterDirectory(index);
+    } else {
+        QString message = tr("\nDirectory not found.\nPlease verify the "
+                             "correct directory name was given");
+        QMessageBox::warning(q, q->windowTitle(), path + message);
+    }
 }
 
 /*!
