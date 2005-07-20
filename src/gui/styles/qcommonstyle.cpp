@@ -613,6 +613,9 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             QRect ir = btn->rect;
             uint tf = Qt::AlignVCenter | Qt::TextShowMnemonic;
+            if (!styleHint(SH_UnderlineShortcut, btn, widget))
+                tf |= Qt::TextHideMnemonic;
+
             if (btn->state & (State_On | State_Sunken))
                 ir.translate(pixelMetric(PM_ButtonShiftHorizontal, opt, widget),
                              pixelMetric(PM_ButtonShiftVertical, opt, widget));
