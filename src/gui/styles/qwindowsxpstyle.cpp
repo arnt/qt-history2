@@ -3069,15 +3069,14 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
         {
             if (menuitem->menuItemType == QStyleOptionMenuItem::Separator) {
                 sz = QSize(10, windowsSepHeight);
-            } else {
+                break;
+            } else if (menuitem->icon.isNull()) {
                 sz = QWindowsStyle::sizeFromContents(ct, option, sz, widget);
-                if (menuitem->icon.isNull())
-                    sz.setHeight(sz.height() - 4);
-                sz.setWidth(sz.width() - 6);
+                sz.setHeight(sz.height() - 2);
+                break;
             }
-
-            break;
-        }        
+        }     
+        // Otherwise, fall through
     default:
         sz = QWindowsStyle::sizeFromContents(ct, option, sz, widget);
         break;

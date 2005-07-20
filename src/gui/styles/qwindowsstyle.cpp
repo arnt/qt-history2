@@ -2251,6 +2251,12 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
             int w = sz.width();
             sz = QCommonStyle::sizeFromContents(ct, opt, csz, widget);
+            
+            if (mi->menuItemType != QStyleOptionMenuItem::Separator && mi->icon.isNull()) {
+                sz.setHeight(sz.height() - 2);
+                w -= 6;
+            } 
+
             if (mi->menuItemType != QStyleOptionMenuItem::Separator && !mi->icon.isNull())
                  sz.setHeight(qMax(sz.height(),
                               mi->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal).height()
@@ -2274,7 +2280,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             int checkcol = qMax(maxpmw, use2000style ? 20 : windowsCheckMarkWidth); // Windows always shows a check column
             w += checkcol;
             w += windowsRightBorder + 10;
-            sz.setWidth(w);
+            sz.setWidth(w);            
         }
         break;
     case CT_MenuBarItem:
