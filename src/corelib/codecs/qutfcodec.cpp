@@ -211,7 +211,7 @@ QByteArray QUtf16Codec::convertFromUnicode(const QChar *uc, int len, ConverterSt
 {
     Endianness endian = e;
     int length =  2*len;
-    if (state && (!(state->flags & IgnoreHeader))) {
+    if (!state || (!(state->flags & IgnoreHeader))) {
         length += 2;
     } else if (e == Detect) {
         endian = (QSysInfo::ByteOrder == QSysInfo::BigEndian) ? BE : LE;
@@ -220,8 +220,8 @@ QByteArray QUtf16Codec::convertFromUnicode(const QChar *uc, int len, ConverterSt
     QByteArray d;
     d.resize(length);
     char *data = d.data();
-    if (state && !(state->flags & IgnoreHeader)) {
-        const QChar bom(QChar::ByteOrderMark);
+    if (!state || !(state->flags & IgnoreHeader)) {
+        QChar bom(QChar::ByteOrderMark);
         if (endian == BE) {
             data[0] = bom.row();
             data[1] = bom.cell();
@@ -291,8 +291,7 @@ QString QUtf16Codec::convertToUnicode(const char *chars, int len, ConverterState
                         endian = BE;
                     } else {
                         endian = LE;
-                        ch.setRow(*chars++);
-                        ch.setCell(buf);
+                        ch = QChar((ch.unicode() >> 8) | ((ch.unicode() & 0xff) << 8));
                     }
                     *qch++ = ch;
                 }
