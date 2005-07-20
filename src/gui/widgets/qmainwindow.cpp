@@ -463,7 +463,8 @@ void QMainWindow::insertToolBarBreak(QToolBar *before)
 /*!
     Adds the \a toolbar into the specified \a area in this main
     window. The \a toolbar is placed at the end of the current tool
-    bar block (i.e. line).
+    bar block (i.e. line). If the main window already manages \a toolbar
+    then it will only move the toolbar to \a area.
 
     \sa insertToolBar() addToolBarBreak() insertToolBarBreak()
 */

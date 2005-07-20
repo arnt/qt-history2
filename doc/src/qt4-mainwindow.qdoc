@@ -112,7 +112,7 @@
     \dots
     \code
             fileToolbar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
-            fileToolbar->setAllowedArea(Qt::TopToolBarArea);
+            addToolBar(Qt::TopToolBarArea, fileToolbar);
     \endcode
 
     In this example, the toolbar is restricted to the top and bottom
