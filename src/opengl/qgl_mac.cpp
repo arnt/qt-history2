@@ -622,7 +622,7 @@ void QGLWidget::setContext(QGLContext *context, const QGLContext* shareContext, 
     QGLContext* oldcx = d->glcx;
     d->glcx = context;
     if(!d->glcx->isValid())
-        d->glcx->create(shareContext);
+        d->glcx->create(shareContext ? shareContext : oldcx);
     if(deleteOldContext)
         delete oldcx;
 }
