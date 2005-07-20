@@ -119,8 +119,8 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     }
 
     if(image.depth()==1) {
-        image.setColor(0, QColor(Qt::color0).rgba());
-        image.setColor(1, QColor(Qt::color1).rgba());
+        image.setColor(0, Qt::color0);
+        image.setColor(1, Qt::color1);
     }
 
     int w = image.width();
@@ -223,8 +223,8 @@ QImage QPixmap::toImage() const
     QImage image(w, h, format);
     if(format == QImage::Format_Mono || format == QImage::Format_MonoLSB) {
         image.setNumColors(2);
-        image.setColor(0, QColor(Qt::color0).rgba());
-        image.setColor(1, QColor(Qt::color1).rgba());
+        image.setColor(0, Qt::color0);
+        image.setColor(1, Qt::color1);
     }
 
     quint32 *sptr = data->pixels, *srow;
@@ -436,10 +436,10 @@ QPixmapData::macGetAlphaChannel(QPixmap *pix, bool asMask) const
         srow = sptr + (y * (sbpr/4));
         if(asMask) {
             for(int x = 0; x < w; ++x) {
-                if(qAlpha(*(srow+x)))
-                    *(drow+x) = 0xFFFFFFFF;
+                if(*(srow+x) & RGB_MASK)
+                    *(drow+x) = 0x00000000;
                 else
-                    *(drow+x) = 0;
+                    *(drow+x) = 0xFFFFFFFF;
             }
         } else {
             memcpy(drow, srow, w * 4);
