@@ -312,11 +312,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 
     m_mainHelpAction = new QAction(tr("Qt Designer &Help"), this);
     connect(m_mainHelpAction, SIGNAL(triggered()), this, SLOT(showDesignerHelp()));
-#ifdef Q_WS_MAC
     m_mainHelpAction->setShortcut(Qt::CTRL + Qt::Key_Question);
-#else
-    m_mainHelpAction->setShortcut(Qt::CTRL + Qt::Key_M);
-#endif
     m_helpActions->addAction(m_mainHelpAction);
 
     sep = new QAction(this);
