@@ -1,5 +1,3 @@
-#ifndef FOV_H
-#define FOV_H
 /****************************************************************************
 **
 ** Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -14,6 +12,8 @@
 **
 ****************************************************************************/
 
+#ifndef FOV_H
+#define FOV_H
 
 class OublietteLevel;
 
@@ -48,6 +48,4 @@ private:
 	bool scanCell(OublietteLevel *map, int x, int y);
 	void applyCell(OublietteLevel *map, int x, int y);
 };
-
-
 #endif
