@@ -932,7 +932,7 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
 
 static bool canConvert(const QVariant::Private *d, QVariant::Type t)
 {
-    if (d->type == (uint)t)
+    if (d->type == uint(t))
         return true;
 
     switch (t) {
@@ -977,11 +977,7 @@ static bool canConvert(const QVariant::Private *d, QVariant::Type t)
     case QVariant::Char:
         return d->type == QVariant::Int || d->type == QVariant::UInt;
     case QVariant::ByteArray:
-        return
-#ifdef QT3_SUPPORT
-            d->type == QVariant::CString ||
-#endif
-            d->type == QVariant::String;
+        return d->type == QVariant::String;
     case QVariant::Date:
         return d->type == QVariant::String || d->type == QVariant::DateTime;
     case QVariant::Time:
@@ -2154,7 +2150,7 @@ QVariantMap QVariant::toMap() const
   \fn QChar QVariant::toChar() const
 
   Returns the variant as a QChar if the variant has type()
-  Char, String or contains a numeric value; otherwise returns
+  Char or contains a numeric value; otherwise returns
   an invalid QChar.
  */
 
