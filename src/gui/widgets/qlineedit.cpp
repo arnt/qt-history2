@@ -1956,7 +1956,8 @@ void QLineEdit::focusOutEvent(QFocusEvent *e)
     if (d->cursorTimer > 0)
         killTimer(d->cursorTimer);
     d->cursorTimer = 0;
-    if (e->reason() != Qt::PopupFocusReason) {
+    if (e->reason() != Qt::PopupFocusReason
+        && !(QApplication::activePopupWidget() && QApplication::activePopupWidget()->parentWidget() == this)) {
         emit editingFinished();
 #ifdef QT3_SUPPORT
         emit lostFocus();
