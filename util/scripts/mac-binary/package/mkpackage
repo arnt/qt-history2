@@ -14,7 +14,7 @@ LICENSE=
 LICENSE_US=
 LICENSETYPE=commercial
 MAKE_META=
-MAKE_IMAGE=no
+MAKE_IMAGE=
 
 #versioning
 QT_SET_VERSION=no
@@ -27,6 +27,7 @@ QT_VERSION_STRING=${QT_MAJOR_VERSION}.${QT_MINOR_VERSION}.${QT_PATCH_VERSION}
 BINARY_DIR=
 SOURCE_DIR=
 SOURCE_PACKAGE=
+EVAL_PATCHES=
 CONFIGURE_ARGS="-qt-libpng -qt-libjpeg -plugin-sql-sqlite -plugin-sql-odbc -plugin-sql-psql -plugin-sql-mysql -release -framework -confirm-license -no-rpath -pch -I/usr/local/pgsql/include -I/usr/local/mysql/include -L/usr/local/pgsql/lib -L/usr/local/mysql/lib"
 
 doStringReplace()
@@ -67,7 +68,7 @@ while [ -n "$1" ]; do
      OPTION=`echo $1 | sed 's,-\([^=]*\)=\(.*\),\1,'`
      ARG=`echo $1 | sed 's,-\([^=]*\)=\(.*\),\2,'`
      ;;
-   -output|-packages|-qtbins|-qtsrcs|-qtdir|-qtpackage|-version|-license|-licensetype|-license_us|-readme) #second arg style
+   -output|-packages|-qtbins|-qtsrcs|-qtdir|-qtpackage|-version|-license|-licensetype|-license_us|-readme|-evalpatches) #second arg style
      OPTION=`echo $1 | sed 's,-\([^=]*\),\1,'`
      shift
      ARG=$1
@@ -103,6 +104,7 @@ while [ -n "$1" ]; do
 	   echo "  -readme <readme>               Where your readme file lives"
 	   echo "  -image                         Create a disk image of the outputs"
 	   echo "  -meta                          Create a meta package for all the outputs"
+           echo "  -evalpatches <evalpatches>     Eval patches can be found here"
 	   exit 1
         fi
 	;;
@@ -118,6 +120,7 @@ while [ -n "$1" ]; do
    meta) MAKE_META="$ARG" ;;
    package) PACKAGES="$PACKAGES $ARG" ;;
    image) MAKE_IMAGE="$ARG" ;;
+   evalpatches) EVAL_PATCHES="$ARG" ;;
    version) 
        VERSION="$ARG"
        MAJOR=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\1,'`
@@ -156,12 +159,20 @@ if [ ! -z "$BINARY_DIR" ] && [ -z "$SOURCE_PACKAGE" ]; then
 elif [ ! -z "$SOURCE_PACKAGE" ]; then
     rm -rf "$TMP_DIR/source"
     mkdir -p "$TMP_DIR/source"
-    PACKAGE_NAME=`echo $SOURCE_PACKAGE | sed -e 's,.*\(qt-mac.*\),\1,'`
-    EXTENSION=`echo $PACKAGE_NAME | sed -e 's,.*\.tar\.\(.*\),\1,'`
-    PACKAGE_DEST=`echo $PACKAGE_NAME | sed -e 's,\(.*\)\.tar.*,\1,'`
+    PACKAGE_NAME=`basename "$SOURCE_PACKAGE"`
+    EXTENSION=`echo "$PACKAGE_NAME" | sed -e 's,.*\.tar\.\(.*\),\1,'`
+    PACKAGE_DEST=`echo "$PACKAGE_NAME" | sed -e 's,\(.*\)\.tar.*,\1,'`
     if [ "$LICENSETYPE" = "eval" ]; then
 	CONFIGURE_ARGS="$CONFIGURE_ARGS -DQT_EVAL"
+        # If you didn't set the eval patches, I'll try in the same place as the package
+        if [ -z "$EVAL_PATCHES" ]; then
+            PACKAGE_VERSION=`echo $PACKAGE_DEST | sed -e 's,.*src-\(.*\),\1,'`
+            EVAL_PATCHES=`dirname "$SOURCE_PACKAGE"`/qt-mac-evalpatches-src-$PACKAGE_VERSION.tar.$EXTENSION
+        fi
+        # unzip the eval patches first since it _shouldn't_ matter.
+        (cd "$TMP_DIR/source" && gunzip -c "$EVAL_PATCHES"  | tar xf -);
     fi
+
     export QTDIR=$TMP_DIR/source/$PACKAGE_DEST
     export DYLD_LIBRARY_PATH=$QTDIR/lib:$DYLD_LIBRARY_PATH
     export DYLD_FRAMEWORK_PATH=$QTDIR/lib:$DYLD_FRAMEWORK_PATH
@@ -240,6 +251,7 @@ fi
 #just do all the packages
 if [ -z "$PACKAGES" ]; then
     [ -z "$MAKE_META" ] && MAKE_META=yes
+    [ -z "$MAKE_IMAGE" ] && MAKE_IMAGE=yes
     for a in $PACKAGE_DIR/*; do
 	if [ -d "$a" ]; then
 	    package=`basename $a`
