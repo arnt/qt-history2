@@ -197,7 +197,7 @@ QDateTime
     isSymLink(). The readLink() function provides the name of the file
     the symlink points to.
 
-    Elements of the file's name can be extracted with dirPath() and
+    Elements of the file's name can be extracted with path() and
     fileName(). The fileName()'s parts can be extracted with
     baseName() and extension().
 
