@@ -1931,6 +1931,7 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     Q_D(const QAbstractItemView);
     QStyleOptionViewItem option;
     option.init(this);
+    option.font = font();
     option.state &= ~QStyle::State_HasFocus;
     if (d->iconSize.isValid()) {
         option.decorationSize = d->iconSize;
