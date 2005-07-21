@@ -190,7 +190,7 @@ public:
                         const QPoint &global_mouse_pos);
 
 signals:
-    void showContextMenu(QWidget *w, const QPoint &pos);
+    void contextMenuRequested(QMenu *menu, QWidget *widget);
 
 public slots:
     void deleteWidgets();
