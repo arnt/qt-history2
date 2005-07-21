@@ -907,7 +907,7 @@ void QHeaderView::setStretchLastSection(bool stretch)
     d->stretchLastSection = stretch;
     if (stretch)
         resizeSections();
-    else
+    else if (count())
         resizeSection(count() - 1, d->defaultSectionSize());
 }
 
