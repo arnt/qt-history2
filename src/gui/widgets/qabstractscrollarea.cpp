@@ -23,6 +23,7 @@
 
 #include "qabstractscrollarea_p.h"
 #include <qwidget.h>
+#include <qdebug.h>
 
 /*!
     \class QAbstractScrollArea qabstractscrollarea.h
@@ -93,7 +94,7 @@ bool QAbstractScrollAreaHelper::event(QEvent *e) {
 QAbstractScrollAreaPrivate::QAbstractScrollAreaPrivate()
     :hbar(0), vbar(0), vbarpolicy(Qt::ScrollBarAsNeeded), hbarpolicy(Qt::ScrollBarAsNeeded),
      viewport(0), left(0), top(0), right(0), bottom(0),
-     xoffset(0), yoffset(0)
+     xoffset(0), yoffset(0), vend(false), hend(false)
 {
 }
 
@@ -600,6 +601,15 @@ void QAbstractScrollArea::scrollContentsBy(int, int)
 void QAbstractScrollAreaPrivate::hslide(int x)
 {
     Q_Q(QAbstractScrollArea);
+
+    if (q->horizontalScrollBar()->maximum() == x) {
+        if (hend)
+            return;
+        else
+            hend = true;
+    } else
+        hend = false;
+
     int dx = xoffset - x;
     xoffset = x;
     q->scrollContentsBy(dx, 0);
@@ -608,6 +618,15 @@ void QAbstractScrollAreaPrivate::hslide(int x)
 void QAbstractScrollAreaPrivate::vslide(int y)
 {
     Q_Q(QAbstractScrollArea);
+
+    if (q->verticalScrollBar()->maximum() == y) {
+        if (vend)
+            return;
+        else
+            vend = true;
+    } else
+        vend = false;
+
     int dy = yoffset - y;
     yoffset = y;
     q->scrollContentsBy(0, dy);

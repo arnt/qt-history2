@@ -43,6 +43,8 @@ public:
 
     int xoffset, yoffset;
 
+    bool vend, hend;
+
     void init();
     void layoutChildren();
     bool viewportEvent(QEvent *);
