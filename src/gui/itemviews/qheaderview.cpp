@@ -483,12 +483,14 @@ void QHeaderView::moveSection(int from, int to)
     int visual = from;
     if (to > from) {
         while (visual < to) {
+            sections[visual].hidden = sections[visual + 1].hidden;
             sections[visual].logical = sections[visual + 1].logical;
             visualIndices[sections[visual].logical] = visual;
             ++visual;
         }
     } else {
         while (visual > to) {
+            sections[visual].hidden = sections[visual - 1].hidden;
             sections[visual].logical = sections[visual - 1].logical;
             visualIndices[sections[visual].logical] = visual;
             --visual;
@@ -499,14 +501,17 @@ void QHeaderView::moveSection(int from, int to)
 
     // move positions
     if (to > from) {
-        for (visual = from; visual < to; ++visual)
-            sections[visual + 1].position -= sectionSize(logicalIndex(visual))
-                                             - sectionSize(logicalIndex(visual + 1));
+        int delta;
+        for (visual = from; visual < to; ++visual) {
+            delta = (sections[visual + 1].position - sections[visual].position)
+                    - (sections[visual + 2].position - sections[visual + 1].position);
+            sections[visual + 1].position -= delta; // update next
+        }
     } else {
         int tmp;
-        int size = sectionSize(logicalIndex(from));
+        int size = sections[from + 1].position - sections[from].position;
         for (visual = to; visual < from; ++visual) {
-            tmp = sectionSize(logicalIndex(visual));
+            tmp = sections[visual + 1].position - sections[visual].position;
             sections[visual + 1].position = sections[visual].position + size;
             size = tmp;
         }
@@ -1826,7 +1831,7 @@ void QHeaderViewPrivate::setupSectionIndicator(int section, int position)
 
 void QHeaderViewPrivate::updateSectionIndicator(int section, int position)
 {
-    if (section == -1 || target == -1 ) {
+    if (section == -1 || target == -1) {
         sectionIndicator->hide();
         return;
     }
