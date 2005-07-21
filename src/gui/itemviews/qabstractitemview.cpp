@@ -908,7 +908,10 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     QRect rect(d->pressedPosition - offset, pos);
     setSelection(rect.normalized(), command);
 
+    // signal handlers may change the model
+    QPersistentModelIndex persistent = index;
     emit pressed(index);
+    index = persistent;
 
     if (e->button() == Qt::LeftButton)
         edit(index, SelectedClicked, e);
@@ -950,11 +953,14 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         return;
 
     if (d->enteredIndex != index) {
+        // signal handlers may change the model
+        QPersistentModelIndex persistent = index;
         if (index.isValid())
             emit entered(index);
         else
             emit viewportEntered();
-        d->enteredIndex = index;
+        d->enteredIndex = persistent;
+        index = persistent;
     }
 
     if (!(e->buttons() & Qt::LeftButton))
@@ -998,9 +1004,11 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
         selectionModel()->select(index, selectionCommand(index, e));
 
     if (index == d_func()->pressedIndex) {
-        emit clicked(index);
+        // signal handlers may change the model
+        QPersistentModelIndex persistent = index;
+        emit clicked(persistent);
         if (style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
-            emit activated(index);
+            emit activated(persistent);
     }
 }
 
@@ -1014,10 +1022,12 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
     QModelIndex index = indexAt(e->pos());
     if (!index.isValid())
         return;
-    emit doubleClicked(index);
-    if (!edit(index, DoubleClicked, e)
+    // signal handlers may change the model
+    QPersistentModelIndex persistent = index;
+    emit doubleClicked(persistent);
+    if (!edit(persistent, DoubleClicked, e)
         && !style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
-        emit activated(index);
+        emit activated(persistent);
 }
 
 #ifndef QT_NO_DRAGANDDROP
