@@ -1108,14 +1108,14 @@ QList<QPolygonF> QPainterPath::toFillPolygons(const QMatrix &matrix) const
     return polys;
 }
 
-static void qt_painterpath_isect_line(const QPointF &p1, const QPointF &p2, qreal y,
-                                      QList<qreal> *isects,
-                                      QList<int> *directions)
+static void qt_painterpath_isect_line(const QPointF &p1, const QPointF &p2, const QPointF &pos,
+                                      int *winding)
 {
     qreal x1 = p1.x();
     qreal y1 = p1.y();
     qreal x2 = p2.x();
     qreal y2 = p2.y();
+    qreal y = pos.y();
 
     int dir = 1;
 
@@ -1130,15 +1130,19 @@ static void qt_painterpath_isect_line(const QPointF &p1, const QPointF &p2, qrea
 
     if (y >= y1 && y < y2) {
         qreal x = x1 + ((x2 - x1) / (y2 - y1)) * (y - y1);
-        isects->append(x);
-        directions->append(dir);
+
+        // count up the winding number if we're
+        if (x<=pos.x()) {
+            (*winding) += dir;
+        }
     }
 }
 
-static void qt_painterpath_isect_curve(const QBezier &bezier, qreal y,
-                                       QList<qreal> *isects,
-                                       QList<int> *directions)
+static void qt_painterpath_isect_curve(const QBezier &bezier, const QPointF &pt,
+                                       int *winding)
 {
+    qreal y = pt.y();
+    qreal x = pt.x();
     QRectF bounds = bezier.bounds();
 
     // potential intersection, divide and try again..
@@ -1148,20 +1152,20 @@ static void qt_painterpath_isect_curve(const QBezier &bezier, qreal y,
         // tradeoff between speed and precision.
         const qreal lower_bound = .01;
         if (bounds.width() < lower_bound && bounds.height() < lower_bound) {
-            isects->append(bezier.pt1().x());
-
             // We make the assumption here that the curve starts to
             // approximate a line after while (i.e. that it doesn't
             // change direction drastically during its slope)
-            directions->append(bezier.pt2().y() > bezier.pt1().y() ? 1 : -1);
+            if (bezier.pt1().x() <= x) {
+                (*winding) += (bezier.pt2().y() > bezier.pt1().y() ? 1 : -1);
+            }
             return;
         }
 
         // split curve and try again...
         QBezier first_half, second_half;
         bezier.split(&first_half, &second_half);
-        qt_painterpath_isect_curve(first_half, y, isects, directions);
-        qt_painterpath_isect_curve(second_half, y, isects, directions);
+        qt_painterpath_isect_curve(first_half, pt, winding);
+        qt_painterpath_isect_curve(second_half, pt, winding);
     }
 }
 
@@ -1174,14 +1178,9 @@ bool QPainterPath::contains(const QPointF &pt) const
     if (isEmpty())
         return false;
 
-    Q_D(QPainterPath);
+    QPainterPathData *d = d_func();
 
-    QList<qreal> isects;
-    QList<int> directions;
-
-    bool winding = fillRule() == Qt::WindingFill;
-
-    qreal y_coord = pt.y();
+    int winding_number = 0;
 
     QPointF last_pt;
     QPointF last_start;
@@ -1192,12 +1191,12 @@ bool QPainterPath::contains(const QPointF &pt) const
 
         case MoveToElement:
             if (i > 0) // implicitly close all paths.
-                qt_painterpath_isect_line(last_pt, last_start, y_coord, &isects, &directions);
+                qt_painterpath_isect_line(last_pt, last_start, pt, &winding_number);
             last_start = last_pt = e;
             break;
 
         case LineToElement:
-            qt_painterpath_isect_line(last_pt, e, y_coord, &isects, &directions);
+            qt_painterpath_isect_line(last_pt, e, pt, &winding_number);
             last_pt = e;
             break;
 
@@ -1206,7 +1205,7 @@ bool QPainterPath::contains(const QPointF &pt) const
                 const QPainterPath::Element &cp2 = d->elements.at(++i);
                 const QPainterPath::Element &ep = d->elements.at(++i);
                 qt_painterpath_isect_curve(QBezier::fromPoints(last_pt, e, cp2, ep),
-                                           y_coord, &isects, &directions);
+                                           pt, &winding_number);
                 last_pt = ep;
 
             }
@@ -1219,23 +1218,11 @@ bool QPainterPath::contains(const QPointF &pt) const
 
     // implicitly close last subpath
     if (last_pt != last_start)
-        qt_painterpath_isect_line(last_pt, last_start, y_coord, &isects, &directions);
+        qt_painterpath_isect_line(last_pt, last_start, pt, &winding_number);
 
-    if (winding) {
-        Q_ASSERT(isects.size()  == directions.size());
-        int winding_number = 0;
-        for (int i=0; i< isects.size(); ++i)
-            if (isects.at(i) <= pt.x())
-                winding_number += directions.at(i);
-        return winding_number != 0;
-    } else {
-        int less_than_count = 0;
-        for (int i=0; i< isects.size(); ++i)
-            if (isects.at(i) <= pt.x())
-                ++less_than_count;
-        return (less_than_count % 2) != 0;
-    }
-
+    return (d->fillRule == Qt::WindingFill
+            ? (winding_number != 0)
+            : ((winding_number % 2) != 0));
 }
 
 
