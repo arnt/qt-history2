@@ -835,7 +835,11 @@ void QTextEngine::reallocate(int totalGlyphs)
     m += space_logClusters;
 
 #if defined (Q_WS_WIN) || defined (__i386__)
+#if defined(Q_WS_WIN64)
+    m = (void **) (((__int64(m) + 3) >> 2) << 2);
+#else
     m = (void **) (((long(m) + 3) >> 2) << 2);
+#endif
 #else
     m = (void **) (((long(m) + 7) >> 3) << 3);
 #endif

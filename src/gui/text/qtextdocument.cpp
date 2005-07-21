@@ -196,7 +196,7 @@ QTextCodec *Qt::codecForHtml(const QByteArray &ba)
     } else {
         QByteArray header = ba.left(512).toLower();
         if ((pos = header.indexOf("http-equiv=")) != -1) {
-            pos = header.indexOf("charset=", pos) + strlen("charset=");
+            pos = header.indexOf("charset=", pos) + int(strlen("charset="));
             if (pos != -1) {
                 int pos2 = header.indexOf('\"', pos+1);
                 QByteArray cs = header.mid(pos, pos2-pos);
