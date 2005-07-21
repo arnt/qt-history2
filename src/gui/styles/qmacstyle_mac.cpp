@@ -2699,8 +2699,10 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                     if (tb->state & QStyle::State_HasFocus && QMacStyle::focusRectPolicy(widget)
                             != QMacStyle::FocusDisabled)
                         bdi.adornment = kThemeAdornmentFocus;
-                    if (tb->state & (QStyle::State_On | QStyle::State_Sunken))
-                        bdi.value = kThemeStatePressed;
+                    if (tb->state & QStyle::State_Sunken)
+                        bdi.state = kThemeStatePressed;
+                    if (tb->state & QStyle::State_On)
+                        bdi.value = kThemeButtonOn;
 
                     QRect off_rct(0, 0, 0, 0);
                     HIRect myRect, macRect;
