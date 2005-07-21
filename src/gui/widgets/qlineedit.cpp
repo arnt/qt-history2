@@ -1558,11 +1558,7 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
             }
         }
 #endif
-        if (receivers(SIGNAL(returnPressed())) > 0) {
-            event->accept();
-        } else {
-            event->ignore();
-        }
+        event->ignore();
         return;
     }
     bool unknown = false;
@@ -2376,7 +2372,7 @@ void QLineEditPrivate::moveCursor(int pos, bool mark)
         selend = qMax(anchor, pos);
         updateTextLayout();
     } else {
-        deselect();        
+        deselect();
     }
     if (fullUpdate) {
         cursor = pos;
