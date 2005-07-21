@@ -183,8 +183,8 @@ static HKEY createOrOpenKey(HKEY parentHandle, REGSAM perms, const QString &rSub
     if (res == ERROR_SUCCESS)
         return resultHandle;
 
-    qWarning("QSettings: failed to create subkey \"%s\": %s",
-            rSubKey.toLatin1().data(), errorCodeToString(res).toLatin1().data());
+    //qWarning("QSettings: failed to create subkey \"%s\": %s",
+    //        rSubKey.toLatin1().data(), errorCodeToString(res).toLatin1().data());
 
     return 0;
 }
