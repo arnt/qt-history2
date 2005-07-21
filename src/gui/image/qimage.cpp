@@ -383,6 +383,8 @@ QImageData::~QImageData()
     \value Format_MonoLSB   The image is stored using 1-bit per pixel. Bytes are
                             packed with the less significant bit (LSB) first.
     \value Format_Indexed8  The image is stored using 8-bit indexes into a colormap.
+                            Note that you will also need to call setNumColors() with
+                            a value of 256 before setting any of the colors in the index.
     \value Format_RGB32     The image is stored using a 32-bit RGB format (0xffRRGGBB).
     \value Format_ARGB32    The image is stored using a 32-bit ARGB format (0xAARRGGBB).
     \value Format_ARGB32_Premultiplied  The image is stored using a premultiplied 32-bit
@@ -390,6 +392,27 @@ QImageData::~QImageData()
                             green, and blue channels are multiplied
                             by the alpha component divided by 255. (If RR, GG, or BB
                             has a higher value than the alpha channel, the results are undefined.)
+
+    \omit
+    \value Format_RGB16     The image is stored using a 16-bit RGB format.
+    \value Format_RGB15     The image is stored using a 15-bit RGB format.
+    \value Format_Grayscale16   The image is stored with 65536 levels of gray
+                                (16 bits per pixel).
+    \value Format_Grayscale8    The image is stored with 256 levels of gray
+                                (8 bits per pixel).
+    \value Format_Grayscale4    The image is stored with 16 levels of gray
+                                (4 bits per pixel).
+    \value Format_Grayscale4LSB The image is stored with 16 levels of gray,
+                                stored in a form where the lowest 4 bits in a
+                                byte contain the first pixel in each pair.
+    \value Format_Grayscale2    The image is stored with 4 levels of gray
+                                (2 bits per pixel).
+    \value Format_Grayscale2LSB The image is stored with 4 levels of gray,
+                                stored in a form where the least significant bits
+                                contain the first pixel value and the most
+                                significant bits contain the last pixel value in
+                                each byte containing a group of 4 pixels.
+    \endomit
 
     \sa format(), convertToFormat()
 */
@@ -1222,7 +1245,10 @@ QRgb QImage::color(int i) const
     A color value is an RGB triplet. Use the qRed(), qGreen(), and qBlue()
     functions to get the color value components.
 
-    \sa color() setNumColors() numColors()
+    Note that, for images in \c Format_Indexed8 format, you will first need to call
+    setNumColors() with a value of 256 before using this function.
+
+    \sa color(), setNumColors(), numColors()
 */
 void QImage::setColor(int i, QRgb c)
 {
@@ -3217,14 +3243,11 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
     int sbpl = bytesPerLine();
     const uchar *sptr = bits();
 
-    QImage::Format target_format = d->format;
-
-    if (complex_xform || mode == Qt::SmoothTransformation)
-        target_format = Format_ARGB32_Premultiplied;
-
-    QImage dImage(wd, hd, target_format);
+    QImage dImage(wd, hd, d->format);
     dImage.d->colortable = d->colortable;
     dImage.d->has_alpha_clut = d->has_alpha_clut | complex_xform;
+    if (dImage.d->format == Format_RGB32 && complex_xform)
+        dImage.d->format = Format_ARGB32_Premultiplied;
     dImage.d->dpmx = dotsPerMeterX();
     dImage.d->dpmy = dotsPerMeterY();
 
@@ -3247,8 +3270,7 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
             break;
     }
 
-    if (target_format == QImage::Format_RGB32
-        || target_format == QImage::Format_ARGB32_Premultiplied) {
+    if (d->format == QImage::Format_RGB32 || d->format == QImage::Format_ARGB32_Premultiplied) {
         QPainter p(&dImage);
         if (mode == Qt::SmoothTransformation) {
             p.setRenderHint(QPainter::Antialiasing);
@@ -4051,10 +4073,10 @@ QList<QImageTextKeyLang> QImage::textList() const
     Records string \a s for the keyword \a key. The \a key should be
     a portable keyword recognizable by other software - some suggested
     values can be found in
-    \link http://www.libpng.org/pub/png/spec/PNG-Chunks.html#C.Anc-text
-    the PNG specification\endlink. \a s can be any text. \a lang should
+    \l{http://www.libpng.org/pub/png/spec/1.2/png-1.2-pdg.html#C.Anc-text}
+    {the PNG specification}. \a s can be any text. \a lang should
     specify the language code (see
-    \link ftp://ftp.isi.edu/in-notes/1766 RFC 1766\endlink) or 0.
+    \l{http://www.rfc-editor.org/rfc/rfc1766.txt}{RFC 1766}) or 0.
 */
 void QImage::setText(const char* key, const char* lang, const QString& s)
 {

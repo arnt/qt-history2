@@ -388,6 +388,7 @@ int QPixmap::depth() const
 /*!
     \fn void QPixmap::resize(const QSize &size)
     \overload
+    \compat
 
     Use the QPixmap constructor that takes a QSize and pass it \a size.
 
@@ -444,6 +445,7 @@ void QPixmap::resize_helper(const QSize &s)
 
 /*!
     \fn void QPixmap::resize(int w, int h)
+  \compat
 
     Use the QPixmap constructor that takes two \c{int}s and pass
     \a w and \a h.
@@ -753,6 +755,9 @@ static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
     If \a rect is a valid rectangle, only the rectangle you specify
     is painted.
 
+    \warning Do not call this function from with a
+    \l{QWidget::paintEvent()}{paintEvent()}.
+
     grabWidget(), QRect::isValid()
 */
 
@@ -815,6 +820,9 @@ QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rect)
     If an error occurs when trying to grab the widget, such as the
     size of the widget being too large to fit in memory, an isNull()
     pixmap is returned.
+
+    \warning Do not call this function from with a
+    \l{QWidget::paintEvent()}{paintEvent()}.
 
     \sa grabWindow() QWidget::paintEvent()
 */

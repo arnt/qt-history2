@@ -923,8 +923,10 @@ QImage QPixmap::toImage() const
 
 
 /*!
-    Converts image \a img and sets this pixmap. Returns true if
-    successful; otherwise returns false.
+    \fn QPixmap QPixmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags)
+
+    Converts the given \a image to a pixmap using the specified \a flags to control
+    the conversion process.
 
     The \a flags argument is a bitwise-OR of the
     \l{Qt::ImageConversionFlags}. Passing 0 for \a flags sets all the
