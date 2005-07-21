@@ -317,7 +317,7 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     mainGrid->setRowMinimumHeight(8, 12);
 
     QHBoxLayout *buttonBox = new QHBoxLayout;
-    mainGrid->addItem(buttonBox, 9, 0, 1, 5);
+    mainGrid->addLayout(buttonBox, 9, 0, 1, 5);
 
     buttonBox->addStretch(1);
     QString okt = modal ? tr("OK") : tr("Apply");
@@ -325,8 +325,6 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     if (modal)
         connect(d->ok, SIGNAL(clicked()), SLOT(accept()));
     d->ok->setDefault(true);
-
-    buttonBox->addSpacing(12);
 
     QString cancelt = modal ? tr("Cancel") : tr("Close");
     d->cancel = new QPushButton(cancelt, this);
@@ -342,9 +340,11 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     d->familyList->setFocus();
 #ifdef Q_WS_MAC
     buttonBox->addWidget(d->cancel);
+    buttonBox->addSpacing(6);
     buttonBox->addWidget(d->ok);
 #else
     buttonBox->addWidget(d->ok);
+    buttonBox->addSpacing(6);
     buttonBox->addWidget(d->cancel);
 #endif
 }
