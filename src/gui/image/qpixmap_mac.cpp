@@ -179,10 +179,10 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         }
     }
     if(sfmt != QImage::Format_RGB32) { //setup the alpha
-        bool alphamap = img.depth() == 32;
+        bool alphamap = image.depth() == 32;
         if (sfmt == QImage::Format_Indexed8) {
-            const QVector<QRgb> rgb = img.colorTable();
-            for (int i = 0, count = img.numColors(); i < count; ++i) {
+            const QVector<QRgb> rgb = image.colorTable();
+            for (int i = 0, count = image.numColors(); i < count; ++i) {
                 const int alpha = qAlpha(rgb[i]);
                 if (alpha != 0 && alpha != 0xff) {
                     alphamap = true;
