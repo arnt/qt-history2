@@ -447,13 +447,14 @@
        index of their parent items.
     \o Model indexes are constructed by models at the request of other 
        components, such as views and delegates.
-    \o If a valid model index is specified when an index is requested (using
-       \l{QAbstractItemModel::index()}{index()}, the model understands that
-       it refers to a parent item, and that it must return an index that refers
-       to a child of that item.
-    \o If an invalid model index is specified when an index is requested (using
-       \l{QAbstractItemModel::index()}{index()}, the model understands that
-       it must return a model index that refers to a top-level item in the model.
+    \o If a valid model index is specified for the parent item when an index is
+       requested using \l{QAbstractItemModel::index()}{index()}, the index
+       returned will refer to an item beneath that parent item in the
+       model.
+       The index obtained refers to a child of that item.
+    \o If an invalid model index is specified for the parent item when an index
+       is requested using \l{QAbstractItemModel::index()}{index()}, the index
+       returned will refer to a top-level item in the model.
     \o The \l{Qt::ItemDataRole}{role} distinguishes between the
        different kinds of data associated with an item.
     \endlist
