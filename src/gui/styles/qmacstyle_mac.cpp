@@ -5835,11 +5835,6 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                             spin->rect.height() - fw * 2 + 1);
                 ret = visualRect(spin->direction, spin->rect, ret);
                 break;
-            case SC_SpinBoxFrame:
-                ret.setRect(1, 1, spin->rect.width() - spinner_w - macSpinBoxSep - 1,
-                            spin->rect.height() - 1);
-                ret = visualRect(spin->direction, spin->rect, ret);
-                break;
             default:
                 ret = QWindowsStyle::subControlRect(cc, spin, sc, w);
                 break;
