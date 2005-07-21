@@ -1310,6 +1310,7 @@ QScriptLine &QScriptLine::operator+=(const QScriptLine &other)
     ascent = qMax(ascent, other.ascent);
     textWidth += other.textWidth;
     length += other.length;
+    return *this;
 }
 
 QTextEngine::LayoutData::LayoutData()
