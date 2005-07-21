@@ -10,7 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
+#include "qdebug.h"
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
@@ -1439,13 +1439,15 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             if (g)
                 widget = (QETWidget*)g;
             else if (QApplication::activePopupWidget())
-                widget = (QETWidget*)QApplication::activePopupWidget();
+                widget = (QETWidget*)QApplication::activePopupWidget()->focusWidget() 
+                       ? (QETWidget*)QApplication::activePopupWidget()->focusWidget() : (QETWidget*)QApplication::activePopupWidget();
             else if (qApp->focusWidget())
                 widget = (QETWidget*)QApplication::focusWidget();
             else if (!widget || widget->winId() == GetFocus()) // We faked the message to go to exactly that widget.
                 widget = (QETWidget*)widget->window();
             if (widget->isEnabled())
                 result = widget->translateKeyEvent(msg, g != 0);
+            qDebug() << "current focus: " << widget;
             break;
         }
         case WM_SYSCHAR:
