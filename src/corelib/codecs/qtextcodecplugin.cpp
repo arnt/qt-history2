@@ -73,9 +73,8 @@
 
     Creates a QTextCodec object for the mib enum \a mib.
 
-    (See \link
-    ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets the
-    IANA character-sets encoding file\endlink for more information)
+    See \l{http://www.iana.org/assignments/character-sets}{the
+    IANA character-sets encoding file} for more information.
 
     \sa mibEnums()
 */

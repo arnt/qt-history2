@@ -2809,7 +2809,7 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     Example:
     \code
         QByteArray ba("  lots\t of\nwhitespace\r\n ");
-        ba = ba.trimmed();
+        ba = ba.simplified();
         // ba == "lots of whitespace";
     \endcode
 

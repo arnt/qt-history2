@@ -1156,6 +1156,10 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
 /*!
   Returns the drop actions supported by this model.
 
+  The default implementation returns \c Qt::CopyAction. It is only necessary to reimplement
+  this function in subclasses if you wish to support more types of drag and drop
+  operation.
+
   \sa Qt::DropActions
 */
 Qt::DropActions QAbstractItemModel::supportedDropActions() const
