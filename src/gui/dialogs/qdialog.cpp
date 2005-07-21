@@ -177,8 +177,7 @@
 
   The widget flags \a f are passed on to the QWidget constructor.
   If, for example, you don't want a What's This button in the title bar
-  of the dialog, pass Qt::WStyle_Customize | Qt::WStyle_NormalBorder |
-  Qt::WStyle_Title | Qt::WStyle_SysMenu in \a f.
+  of the dialog, pass Qt::WindowTitleHint | Qt::WindowSystemMenuHint in \a f.
 
   \sa QWidget::setWindowFlags()
 */
