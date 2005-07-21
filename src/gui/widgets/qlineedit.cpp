@@ -1950,7 +1950,10 @@ void QLineEdit::focusOutEvent(QFocusEvent *e)
 {
     Q_D(QLineEdit);
     if (e->reason() != Qt::ActiveWindowFocusReason &&
-         e->reason() != Qt::PopupFocusReason)
+         e->reason() != Qt::PopupFocusReason
+         && !(e->reason() == Qt::MouseFocusReason
+            && QApplication::activePopupWidget()
+            && QApplication::activePopupWidget()->parentWidget() == this))
         deselect();
     d->setCursorVisible(false);
     if (d->cursorTimer > 0)
@@ -2373,7 +2376,7 @@ void QLineEditPrivate::moveCursor(int pos, bool mark)
         selend = qMax(anchor, pos);
         updateTextLayout();
     } else {
-        deselect();
+        deselect();        
     }
     if (fullUpdate) {
         cursor = pos;
