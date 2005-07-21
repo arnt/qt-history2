@@ -1274,7 +1274,7 @@ bool FormWindow::handleMouseButtonDblClickEvent(QWidget *, QWidget *managedWidge
 void FormWindow::finishContextMenu(QWidget *w, QWidget *menuParent, QContextMenuEvent *e)
 {
     e->accept();
-#ifndef VS_CTX_MENU
+
     QDesignerTaskMenuExtension *taskMenu = qt_extension<QDesignerTaskMenuExtension*>(core()->extensionManager(), w);
     QMenu *menu = createPopupMenu(menuParent);
     if (menu && taskMenu) {
@@ -1284,12 +1284,12 @@ void FormWindow::finishContextMenu(QWidget *w, QWidget *menuParent, QContextMenu
         acts.append(sep);
         menu->insertActions(menu->actions().at(0), acts);
     }
-    if (menu)
+
+    if (menu) {
+        emit contextMenuRequested(menu, w);
         menu->exec(e->globalPos());
-    delete menu;
-#else
-    emit showContextMenu(this, e->globalPos());
-#endif
+        delete menu;
+    }
 }
 
 
