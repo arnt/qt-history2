@@ -10,7 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include "qdebug.h"
+
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
@@ -1447,7 +1447,6 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 widget = (QETWidget*)widget->window();
             if (widget->isEnabled())
                 result = widget->translateKeyEvent(msg, g != 0);
-            qDebug() << "current focus: " << widget;
             break;
         }
         case WM_SYSCHAR:
