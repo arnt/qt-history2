@@ -256,6 +256,7 @@ QStringList qmake_feature_paths(QMakeProperty *prop=0)
         const QString base_concat = QDir::separator() + QString("features");
         switch(Option::target_mode) {
         case Option::TARG_MACX_MODE:                     //also a unix
+            concat << base_concat + QDir::separator() + "mac";
             concat << base_concat + QDir::separator() + "macx";
             concat << base_concat + QDir::separator() + "unix";
             break;
@@ -266,6 +267,7 @@ QStringList qmake_feature_paths(QMakeProperty *prop=0)
             concat << base_concat + QDir::separator() + "win32";
             break;
         case Option::TARG_MAC9_MODE:
+            concat << base_concat + QDir::separator() + "mac";
             concat << base_concat + QDir::separator() + "mac9";
             break;
         case Option::TARG_QNX6_MODE: //also a unix

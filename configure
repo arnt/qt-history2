@@ -1677,22 +1677,15 @@ else
                 if [ "$OPT_VERBOSE" = "yes" ]; then
                     echo "    32-bit Apple PowerPC (powerpc)"
                 fi
-                ARCH=powerpc
                 ;;
             x86)
                 if [ "$OPT_VERBOSE" = "yes" ]; then
                     echo "    32-bit Intel 80x86 (i386)"
                 fi
-                ARCH=i386
                 ;;
         esac
+        ARCH=macosx
         ;; 
-    Darwin:*:x86)
-        if [ "$OPT_VERBOSE" = "yes" ]; then
-            echo "    32-bit Apple Intel (x86)"
-        fi
-        ARCH=i386
-        ;;
     AIX:*:00????????00)
         if [ "$OPT_VERBOSE" = "yes" ]; then
         echo "    64-bit IBM PowerPC (powerpc)"
@@ -2386,7 +2379,7 @@ Qt/Mac only:
 
     -universal-binary .. Build Qt as a universal binary to work on intel
                          as well as PPC platforms.
- *  -no-universal-binary Do not build Qt as a universal binary.
+ *  -no-universal-binary Build Qt and its tools to work only on this host platform.
 
 EOF
 fi
@@ -2796,7 +2789,9 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 fi
 
 if [ "$CFG_ENDIAN" = "auto" ]; then
-    if $unixtests/endian.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
+    if [ "$PLATFORM_MAC" = "yes" ]; then
+	true #leave as auto 
+    elif $unixtests/endian.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
         CFG_ENDIAN="Q_LITTLE_ENDIAN"
     else
         CFG_ENDIAN="Q_BIG_ENDIAN"
@@ -2993,7 +2988,7 @@ if [ "$CFG_USE_GNUMAKE" = "yes" ]; then
 fi
 [ "$CFG_REDUCE_EXPORTS" = "yes" ] && QT_CONFIG="$QT_CONFIG reduce_exports"
 [ "$CFG_PRECOMPILE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG precompile_header"
-[ "$CFG_UNIVERSAL_BINARY" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG universal_binary"
+[ "$CFG_UNIVERSAL_BINARY" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG x86 ppc"
 if [ "$CFG_IPV6" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG ipv6"
 fi
@@ -3315,7 +3310,7 @@ full)
     echo "#endif" >>$tmpconfig
     ;;
 esac
-cat >> $outpath/src/corelib/global/qconfig.h.new <<EOF
+cat >>$outpath/src/corelib/global/qconfig.h.new <<EOF
 
 /* Qt Edition */
 #ifndef QT_EDITION
@@ -3327,10 +3322,22 @@ cat >> $outpath/src/corelib/global/qconfig.h.new <<EOF
 /* Machine byte-order */
 #define Q_BIG_ENDIAN 4321
 #define Q_LITTLE_ENDIAN 1234
-#define Q_BYTE_ORDER $CFG_ENDIAN
-
-/* Compile time features */
 EOF
+if [ "$CFG_ENDIAN" = "auto" ]; then
+    cat >>$outpath/src/corelib/global/qconfig.h.new <<EOF
+#if defined(__BIG_ENDIAN__)
+# define Q_BYTE_ORDER Q_BIG_ENDIAN
+#elif defined(__LITTLE_ENDIAN__)
+# define Q_BYTE_ORDER Q_LITTLE_ENDIAN
+#else
+# message "Unable to determine byte order!"
+#endif
+EOF
+else
+    echo "#define Q_BYTE_ORDER $CFG_ENDIAN" >>$outpath/src/corelib/global/qconfig.h.new 
+fi
+
+echo '/* Compile time features */' >>$outpath/src/corelib/global/qconfig.h.new 
 [ '!' -z "$LicenseKeyExt" ] && echo "#define QT_PRODUCT_LICENSEKEY \"$LicenseKeyExt\"" >>$outpath/src/corelib/global/qconfig.h.new
 
 if [ "$CFG_LARGEFILE" = "yes" ]; then
@@ -3521,10 +3528,8 @@ if [ "$CFG_FRAMEWORK" = "no" ]; then
 else
     QT_CONFIG="$QT_CONFIG qt_framework"
 fi
-if [ "$CFG_UNIVERSAL_BINARY" = "no" ]; then
-    QTCONFIG_CONFIG="$QTCONFIG_CONFIG qt_no_universal_binary"
-else
-    QT_CONFIG="$QT_CONFIG qt_universal_binary"
+if [ "$CFG_UNIVERSAL_BINARY" = "yes" ]; then
+    QT_CONFIG="$QT_CONFIG x86 ppc"
 fi
 cat >>$QTCONFIG.tmp <<EOF
 CONFIG += $QTCONFIG_CONFIG
