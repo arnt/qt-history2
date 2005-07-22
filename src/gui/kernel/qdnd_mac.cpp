@@ -264,9 +264,9 @@ QVariant QDropData::retrieveData_sys(const QString &mime, QVariant::Type) const
                     return QByteArray();
                 }
                 if(GetFlavorDataSize(qt_mac_current_dragRef, ref, flav, &flavorsize) == noErr) {
-                    char *buffer = static_cast<char *>(malloc(flavorsize));
-                    GetFlavorData(qt_mac_current_dragRef, ref, flav, buffer, &flavorsize, 0);
-                    arrs.append(QByteArray::fromRawData(buffer, flavorsize));
+                    QByteArray buffer(flavorsize, 0);
+                    GetFlavorData(qt_mac_current_dragRef, ref, flav, buffer.data(), &flavorsize, 0);
+                    arrs.append(buffer);
                 }
             }
             if(!arrs.isEmpty()) {

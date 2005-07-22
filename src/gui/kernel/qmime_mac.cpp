@@ -478,7 +478,7 @@ QVariant QMacMimeText::convertToMime(const QString &, QList<QByteArray> data, in
 {
     if(data.count() > 1)
         qWarning("QMacMimeText: cannot handle multiple member data");
-    return QVariant(QString(data.first()));
+    return QVariant(QString::fromUtf8(data.first()));
 }
 
 QList<QByteArray> QMacMimeText::convertFromMime(const QString &, QVariant data, int flavor)
@@ -654,7 +654,7 @@ QVariant QMacMimeFileUri::convertToMime(const QString &mime, QList<QByteArray> d
         return QVariant();
     QList<QVariant> ret;
     for(int i = 0; i < data.size(); ++i) {
-        QString url = QString(data.at(i));
+        QString url = QString::fromUtf8(data.at(i));
         if(url.startsWith(QLatin1String("file://localhost/"))) //mac encodes a bit differently
             url.remove(7, 9);
         ret.append(QUrl(url));
