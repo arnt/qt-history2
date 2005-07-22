@@ -988,7 +988,13 @@ MakefileGenerator::writeProjectMakefile()
           << "install: " << targets.first()->target << "-install" << endl
           << "uninstall: " << targets.first()->target << "-uninstall" << endl;
     }
+
     writeSubTargets(t, targets, SubTargetsNoFlags);
+    if(!project->isActiveConfig("no_autoqmake")) {
+        for(QList<SubTarget*>::Iterator it = targets.begin(); it != targets.end(); ++it)
+            t << (*it)->makefile << ": " <<
+                Option::fixPathToTargetOS(fileFixify(Option::output.fileName())) << endl;
+    }
     return true;
 }
 
