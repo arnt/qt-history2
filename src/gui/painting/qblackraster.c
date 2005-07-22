@@ -25,16 +25,17 @@
 
 #include <qglobal.h>
 
-typedef long QT_FT_F26Dot6;
 typedef int QT_FT_Error;
 typedef int QT_FT_Int;
 typedef unsigned int QT_FT_UInt;
 
 #if defined(Q_WS_WIN64)
-typedef __int64          QT_FT_Long;
+typedef signed __int64	 QT_FT_F26Dot6;
+typedef signed __int64   QT_FT_Long;
 typedef unsigned __int64 QT_FT_ULong;
 #else
-typedef long             QT_FT_Long;
+typedef signed long		 QT_FT_F26Dot6;
+typedef signed long      QT_FT_Long;
 typedef unsigned long    QT_FT_ULong;
 #endif
 
@@ -649,7 +650,7 @@ End_Profile( RAS_ARG )
                    (long)ras.cProfile, ras.cProfile->start, h,ras.top );
 
         oldProfile           = ras.cProfile;
-        ras.cProfile->height = h;
+        ras.cProfile->height = (long)h;
         ras.cProfile         = (PProfile)ras.top;
 
         ras.top             += AlignProfileSize;
