@@ -50,8 +50,6 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
 {
     Q_Q(QInputDialog);
     QVBoxLayout *vbox = new QVBoxLayout(q);
-    vbox->setMargin(6);
-    vbox->setSpacing(6);
 
     label = new QLabel(lbl, q);
     vbox->addWidget(label);
@@ -80,7 +78,6 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
     vbox->addStretch(1);
 
     QHBoxLayout *hbox = new QHBoxLayout;
-    hbox->setSpacing(6);
     vbox->addLayout(hbox, Qt::AlignRight);
 
     ok = new QPushButton(QInputDialog::tr("OK"), q);
@@ -213,7 +210,6 @@ QString QInputDialog::getText(QWidget *parent, const QString &title, const QStri
                                bool *ok, Qt::WFlags f)
 {
     QInputDialog dlg(label, parent, LineEdit, f);
-    dlg.setObjectName("qt_inputdlg_gettext");
 
     dlg.setWindowTitle(title);
     QLineEdit *le = qobject_cast<QLineEdit *>(dlg.d_func()->input);
@@ -263,7 +259,6 @@ int QInputDialog::getInteger(QWidget *parent, const QString &title, const QStrin
                              Qt::WFlags f)
 {
     QInputDialog dlg(label, parent, SpinBox, f);
-    dlg.setObjectName("qt_inputdlg_getint");
 
     dlg.setWindowTitle(title);
     QSpinBox *sb = qobject_cast<QSpinBox *>(dlg.d_func()->input);
@@ -310,7 +305,6 @@ double QInputDialog::getDouble( QWidget *parent, const QString &title, const QSt
                                 int decimals, bool *ok, Qt::WFlags f)
 {
     QInputDialog dlg(label, parent, DoubleSpinBox, f);
-    dlg.setObjectName("qt_inputdlg_getdbl");
     dlg.setWindowTitle(title);
     QDoubleSpinBox *sb = qobject_cast<QDoubleSpinBox *>(dlg.d_func()->input);
     sb->setRange(minValue, maxValue);
@@ -355,7 +349,6 @@ QString QInputDialog::getItem(QWidget *parent, const QString &title, const QStri
                               int current, bool editable, bool *ok, Qt::WFlags f)
 {
     QInputDialog dlg(label, parent, editable ? EditableComboBox : ComboBox, f);
-    dlg.setObjectName("qt_inputdlg_getitem");
     dlg.setWindowTitle(title);
 
     QComboBox *combo = qobject_cast<QComboBox *>(dlg.d_func()->input);

@@ -1025,7 +1025,7 @@ QColorShower::QColorShower(QWidget *parent)
     curCol = qRgb(-1, -1, -1);
 
     QGridLayout *gl = new QGridLayout(this);
-    gl->setMargin(6);
+    gl->setMargin(gl->spacing());
     lab = new QColorShowLabel(this);
     lab->setMinimumWidth(60);
     gl->addWidget(lab, 0, 0, -1, 1);
@@ -1272,13 +1272,8 @@ void QColorDialogPrivate::init()
         compact = true;
 
     nextCust = 0;
-    const int lumSpace = 3;
-    int border = 12;
-    if (compact)
-        border = 6;
     QHBoxLayout *topLay = new QHBoxLayout(q);
-    topLay->setMargin(border);
-    topLay->setSpacing(6);
+    const int lumSpace = topLay->spacing() / 2;
     QVBoxLayout *leftLay = 0;
 
     if (!compact) {

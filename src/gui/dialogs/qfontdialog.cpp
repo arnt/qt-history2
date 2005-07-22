@@ -281,8 +281,8 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
 
     // grid layout
     QGridLayout * mainGrid = new QGridLayout(this);
-    mainGrid->setMargin(12);
-    int defaultSpacing = mainGrid->spacing();
+    int margin = mainGrid->margin();
+    int spacing = mainGrid->spacing();
     mainGrid->setSpacing(0);
 
     mainGrid->addWidget(d->familyAccel, 0, 0);
@@ -301,11 +301,10 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     mainGrid->setColumnStretch(2, 24);
     mainGrid->setColumnStretch(4, 10);
 
-    mainGrid->setColumnMinimumWidth(1, 6);
-    mainGrid->setColumnMinimumWidth(3, 6);
-    mainGrid->setColumnMinimumWidth(5, 6);
+    mainGrid->setColumnMinimumWidth(1, spacing);
+    mainGrid->setColumnMinimumWidth(3, spacing);
 
-    mainGrid->setRowMinimumHeight(3, 12);
+    mainGrid->setRowMinimumHeight(3, margin);
 
     mainGrid->addWidget(d->effects, 4, 0);
 
@@ -315,10 +314,9 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     mainGrid->setRowMinimumHeight(6, 2);
     mainGrid->addWidget(d->writingSystemCombo, 7, 0);
 
-    mainGrid->setRowMinimumHeight(8, 12);
+    mainGrid->setRowMinimumHeight(8, margin);
 
     QHBoxLayout *buttonBox = new QHBoxLayout;
-    buttonBox->setSpacing(defaultSpacing);
     mainGrid->addLayout(buttonBox, 9, 0, 1, 5);
 
     buttonBox->addStretch(1);
@@ -342,11 +340,11 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     d->familyList->setFocus();
 #ifdef Q_WS_MAC
     buttonBox->addWidget(d->cancel);
-    buttonBox->addSpacing(6);
+    buttonBox->addSpacing(spacing);
     buttonBox->addWidget(d->ok);
 #else
     buttonBox->addWidget(d->ok);
-    buttonBox->addSpacing(6);
+    buttonBox->addSpacing(spacing);
     buttonBox->addWidget(d->cancel);
 #endif
 }

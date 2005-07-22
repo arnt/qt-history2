@@ -1381,8 +1381,6 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
     Q_Q(QFileDialog);
     q->setSizeGripEnabled(true);
     QGridLayout *grid = new QGridLayout(q);
-    grid->setMargin(11);
-    grid->setSpacing(6);
 
     // QDirModel
     QDir::Filters filters = filterForMode(fileMode);
@@ -1621,6 +1619,8 @@ void QFileDialogPrivate::setupToolButtons(const QModelIndex &current, QGridLayou
 
     grid->addLayout(box, 0, 4, 1, 2);
 }
+
+#include <qsizegrip.h>
 
 void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
 {

@@ -155,23 +155,18 @@ QErrorMessage::QErrorMessage(QWidget * parent)
 {
     Q_D(QErrorMessage);
     QGridLayout * grid = new QGridLayout(this);
-    grid->setMargin(11);
-    grid->setSpacing(6);
     d->icon = new QLabel(this);
-    d->icon->setObjectName("qt_errormessage_label");
 #ifndef QT_NO_MESSAGEBOX
     d->icon->setPixmap(QMessageBox::standardIcon(QMessageBox::Information));
+    d->icon->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
 #endif
     grid->addWidget(d->icon, 0, 0, Qt::AlignTop);
     d->errors = new QErrorMessageTextView(this);
-    d->errors->setObjectName("qt_errormessage_textview");
     grid->addWidget(d->errors, 0, 1);
     d->again = new QCheckBox(tr("&Show this message again"), this);
-    d->again->setObjectName("qt_errormessage_again");
     d->again->setChecked(true);
     grid->addWidget(d->again, 1, 1, Qt::AlignTop);
     d->ok = new QPushButton(tr("&OK"), this);
-    d->ok->setObjectName("qt_errormessage_ok");
     connect(d->ok, SIGNAL(clicked()), this, SLOT(accept()));
     d->ok->setFocus();
     grid->addWidget(d->ok, 2, 0, 1, 2, Qt::AlignCenter);
