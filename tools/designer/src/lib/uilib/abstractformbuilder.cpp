@@ -22,15 +22,16 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
-#include <QtGui/QGridLayout>
-#include <QtGui/QWidget>
-#include <QtGui/QIcon>
-#include <QtGui/QPixmap>
-#include <QtGui/QListWidget>
-#include <QtGui/QTreeWidget>
 #include <QtGui/QComboBox>
-#include <QtGui/QStatusBar>
+#include <QtGui/QGridLayout>
+#include <QtGui/QIcon>
+#include <QtGui/QListWidget>
 #include <QtGui/QMainWindow>
+#include <QtGui/QPixmap>
+#include <QtGui/QShortcut>
+#include <QtGui/QStatusBar>
+#include <QtGui/QTreeWidget>
+#include <QtGui/QWidget>
 
 #include <QtXml/QDomDocument>
 
@@ -45,6 +46,173 @@
 
 #include <limits.h>
 
+#ifdef Q_WS_MAC
+static struct {
+    int key;
+    const char* name;
+} keyname[] = {
+    { Qt::Key_Space,        QT_TRANSLATE_NOOP("QShortcut", "Space") },
+    { Qt::Key_Escape,       QT_TRANSLATE_NOOP("QShortcut", "Esc") },
+    { Qt::Key_Tab,          QT_TRANSLATE_NOOP("QShortcut", "Tab") },
+    { Qt::Key_Backtab,      QT_TRANSLATE_NOOP("QShortcut", "Backtab") },
+    { Qt::Key_Backspace,    QT_TRANSLATE_NOOP("QShortcut", "Backspace") },
+    { Qt::Key_Return,       QT_TRANSLATE_NOOP("QShortcut", "Return") },
+    { Qt::Key_Enter,        QT_TRANSLATE_NOOP("QShortcut", "Enter") },
+    { Qt::Key_Insert,       QT_TRANSLATE_NOOP("QShortcut", "Ins") },
+    { Qt::Key_Delete,       QT_TRANSLATE_NOOP("QShortcut", "Del") },
+    { Qt::Key_Pause,        QT_TRANSLATE_NOOP("QShortcut", "Pause") },
+    { Qt::Key_Print,        QT_TRANSLATE_NOOP("QShortcut", "Print") },
+    { Qt::Key_SysReq,       QT_TRANSLATE_NOOP("QShortcut", "SysReq") },
+    { Qt::Key_Home,         QT_TRANSLATE_NOOP("QShortcut", "Home") },
+    { Qt::Key_End,          QT_TRANSLATE_NOOP("QShortcut", "End") },
+    { Qt::Key_Left,         QT_TRANSLATE_NOOP("QShortcut", "Left") },
+    { Qt::Key_Up,           QT_TRANSLATE_NOOP("QShortcut", "Up") },
+    { Qt::Key_Right,        QT_TRANSLATE_NOOP("QShortcut", "Right") },
+    { Qt::Key_Down,         QT_TRANSLATE_NOOP("QShortcut", "Down") },
+    { Qt::Key_PageUp,       QT_TRANSLATE_NOOP("QShortcut", "PgUp") },
+    { Qt::Key_PageDown,     QT_TRANSLATE_NOOP("QShortcut", "PgDown") },
+    { Qt::Key_CapsLock,     QT_TRANSLATE_NOOP("QShortcut", "CapsLock") },
+    { Qt::Key_NumLock,      QT_TRANSLATE_NOOP("QShortcut", "NumLock") },
+    { Qt::Key_ScrollLock,   QT_TRANSLATE_NOOP("QShortcut", "ScrollLock") },
+    { Qt::Key_Menu,         QT_TRANSLATE_NOOP("QShortcut", "Menu") },
+    { Qt::Key_Help,         QT_TRANSLATE_NOOP("QShortcut", "Help") },
+
+    // Multimedia keys
+    { Qt::Key_Back,         QT_TRANSLATE_NOOP("QShortcut", "Back") },
+    { Qt::Key_Forward,      QT_TRANSLATE_NOOP("QShortcut", "Forward") },
+    { Qt::Key_Stop,         QT_TRANSLATE_NOOP("QShortcut", "Stop") },
+    { Qt::Key_Refresh,      QT_TRANSLATE_NOOP("QShortcut", "Refresh") },
+    { Qt::Key_VolumeDown,   QT_TRANSLATE_NOOP("QShortcut", "Volume Down") },
+    { Qt::Key_VolumeMute,   QT_TRANSLATE_NOOP("QShortcut", "Volume Mute") },
+    { Qt::Key_VolumeUp,     QT_TRANSLATE_NOOP("QShortcut", "Volume Up") },
+    { Qt::Key_BassBoost,    QT_TRANSLATE_NOOP("QShortcut", "Bass Boost") },
+    { Qt::Key_BassUp,       QT_TRANSLATE_NOOP("QShortcut", "Bass Up") },
+    { Qt::Key_BassDown,     QT_TRANSLATE_NOOP("QShortcut", "Bass Down") },
+    { Qt::Key_TrebleUp,     QT_TRANSLATE_NOOP("QShortcut", "Treble Up") },
+    { Qt::Key_TrebleDown,   QT_TRANSLATE_NOOP("QShortcut", "Treble Down") },
+    { Qt::Key_MediaPlay,    QT_TRANSLATE_NOOP("QShortcut", "Media Play") },
+    { Qt::Key_MediaStop,    QT_TRANSLATE_NOOP("QShortcut", "Media Stop") },
+    { Qt::Key_MediaPrevious,QT_TRANSLATE_NOOP("QShortcut", "Media Previous") },
+    { Qt::Key_MediaNext,    QT_TRANSLATE_NOOP("QShortcut", "Media Next") },
+    { Qt::Key_MediaRecord,  QT_TRANSLATE_NOOP("QShortcut", "Media Record") },
+    { Qt::Key_HomePage,     QT_TRANSLATE_NOOP("QShortcut", "Home") },
+    { Qt::Key_Favorites,    QT_TRANSLATE_NOOP("QShortcut", "Favorites") },
+    { Qt::Key_Search,       QT_TRANSLATE_NOOP("QShortcut", "Search") },
+    { Qt::Key_Standby,      QT_TRANSLATE_NOOP("QShortcut", "Standby") },
+    { Qt::Key_OpenUrl,      QT_TRANSLATE_NOOP("QShortcut", "Open URL") },
+    { Qt::Key_LaunchMail,   QT_TRANSLATE_NOOP("QShortcut", "Launch Mail") },
+    { Qt::Key_LaunchMedia,  QT_TRANSLATE_NOOP("QShortcut", "Launch Media") },
+    { Qt::Key_Launch0,      QT_TRANSLATE_NOOP("QShortcut", "Launch (0)") },
+    { Qt::Key_Launch1,      QT_TRANSLATE_NOOP("QShortcut", "Launch (1)") },
+    { Qt::Key_Launch2,      QT_TRANSLATE_NOOP("QShortcut", "Launch (2)") },
+    { Qt::Key_Launch3,      QT_TRANSLATE_NOOP("QShortcut", "Launch (3)") },
+    { Qt::Key_Launch4,      QT_TRANSLATE_NOOP("QShortcut", "Launch (4)") },
+    { Qt::Key_Launch5,      QT_TRANSLATE_NOOP("QShortcut", "Launch (5)") },
+    { Qt::Key_Launch6,      QT_TRANSLATE_NOOP("QShortcut", "Launch (6)") },
+    { Qt::Key_Launch7,      QT_TRANSLATE_NOOP("QShortcut", "Launch (7)") },
+    { Qt::Key_Launch8,      QT_TRANSLATE_NOOP("QShortcut", "Launch (8)") },
+    { Qt::Key_Launch9,      QT_TRANSLATE_NOOP("QShortcut", "Launch (9)") },
+    { Qt::Key_LaunchA,      QT_TRANSLATE_NOOP("QShortcut", "Launch (A)") },
+    { Qt::Key_LaunchB,      QT_TRANSLATE_NOOP("QShortcut", "Launch (B)") },
+    { Qt::Key_LaunchC,      QT_TRANSLATE_NOOP("QShortcut", "Launch (C)") },
+    { Qt::Key_LaunchD,      QT_TRANSLATE_NOOP("QShortcut", "Launch (D)") },
+    { Qt::Key_LaunchE,      QT_TRANSLATE_NOOP("QShortcut", "Launch (E)") },
+    { Qt::Key_LaunchF,      QT_TRANSLATE_NOOP("QShortcut", "Launch (F)") },
+
+    // --------------------------------------------------------------
+    // More consistent namings
+    { Qt::Key_Print,        QT_TRANSLATE_NOOP("QShortcut", "Print Screen") },
+    { Qt::Key_PageUp,       QT_TRANSLATE_NOOP("QShortcut", "Page Up") },
+    { Qt::Key_PageDown,     QT_TRANSLATE_NOOP("QShortcut", "Page Down") },
+    { Qt::Key_CapsLock,     QT_TRANSLATE_NOOP("QShortcut", "Caps Lock") },
+    { Qt::Key_NumLock,      QT_TRANSLATE_NOOP("QShortcut", "Num Lock") },
+    { Qt::Key_NumLock,      QT_TRANSLATE_NOOP("QShortcut", "Number Lock") },
+    { Qt::Key_ScrollLock,   QT_TRANSLATE_NOOP("QShortcut", "Scroll Lock") },
+    { Qt::Key_Insert,       QT_TRANSLATE_NOOP("QShortcut", "Insert") },
+    { Qt::Key_Delete,       QT_TRANSLATE_NOOP("QShortcut", "Delete") },
+    { Qt::Key_Escape,       QT_TRANSLATE_NOOP("QShortcut", "Escape") },
+    { Qt::Key_SysReq,       QT_TRANSLATE_NOOP("QShortcut", "System Request") },
+
+    { 0, 0 }
+};
+
+static QString qkeysequence_encodeString(int key)
+{
+    QString s;
+    if ((key & Qt::META) == Qt::META)
+        s += QShortcut::tr("Meta");
+    if ((key & Qt::CTRL) == Qt::CTRL) {
+        if (!s.isEmpty())
+            s += QShortcut::tr("+");
+        s += QShortcut::tr("Ctrl");
+    }
+    if ((key & Qt::ALT) == Qt::ALT) {
+        if (!s.isEmpty())
+            s += QShortcut::tr("+");
+        s += QShortcut::tr("Alt");
+    }
+    if ((key & Qt::SHIFT) == Qt::SHIFT) {
+        if (!s.isEmpty())
+            s += QShortcut::tr("+");
+        s += QShortcut::tr("Shift");
+    }
+
+
+    key &= ~(Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier);
+    QString p;
+
+    if (key && key < Qt::Key_Escape) {
+        if (key < 0x10000) {
+            p = QChar(key & 0xffff).toUpper();
+        } else {
+            p = QChar((key-0x10000)/0x400+0xd800);
+            p += QChar((key-0x10000)%400+0xdc00);
+        }
+    } else if (key >= Qt::Key_F1 && key <= Qt::Key_F35) {
+        p = QShortcut::tr("F%1").arg(key - Qt::Key_F1 + 1);
+    } else if (key > Qt::Key_Space && key <= Qt::Key_AsciiTilde) {
+        p.sprintf("%c", key);
+    } else if (key) {
+        int i=0;
+        while (keyname[i].name) {
+            if (key == keyname[i].key) {
+                p = QShortcut::tr(keyname[i].name);
+                break;
+            }
+            ++i;
+        }
+        // If we can't find the actual translatable keyname,
+        // fall back on the unicode representation of it...
+        // Or else characters like Qt::Key_aring may not get displayed
+        // (Really depends on you locale)
+        if (!keyname[i].name) {
+            if (key < 0x10000) {
+                p = QChar(key & 0xffff).toUpper();
+            } else {
+                p = QChar((key-0x10000)/0x400+0xd800);
+                p += QChar((key-0x10000)%400+0xdc00);
+            }
+        }
+    }
+
+    if (!s.isEmpty())
+        s += QShortcut::tr("+");
+
+    s += p;
+    return s;
+}
+
+static QString platformNeutralKeySequence(const QKeySequence &ks)
+{
+    uint k;
+    QString str;
+    for (k = 0; k < ks.count(); ++k) {
+        str += qkeysequence_encodeString(ks[k]) + ", ";
+    }
+    str.truncate(str.size() - 2);
+    return str;
+}
+#endif
 
 class FriendlyLayout: public QLayout
 {
@@ -1016,7 +1184,11 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
 
         case QVariant::KeySequence: {
             DomString *s = new DomString();
+#ifndef Q_WS_MAC
             s->setText(qvariant_cast<QKeySequence>(v));
+#else
+            s->setText(platformNeutralKeySequence(qvariant_cast<QKeySequence>(v)));
+#endif
             dom_prop->setElementString(s);
         } break;
 
@@ -1577,7 +1749,5 @@ void QAbstractFormBuilder::reset()
     m_defaultMargin = INT_MIN;
     m_defaultSpacing = INT_MIN;
 }
-
-
 
 #include "abstractformbuilder.moc"
