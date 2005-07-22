@@ -432,7 +432,7 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
     QMenuBar and QMenu.
 
     \sa QMenu, QShortcut, QAction,
-        {http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html}{Aqua Style Guidelines},
+        {http://developer.apple.com/documentation/UserExperience/Conceptual/OSXHIGuidelines/index.html}{Introduction to Apple Human Interface Guidelines}
         {fowler}{GUI Design Handbook: Menu Bar}
 */
 

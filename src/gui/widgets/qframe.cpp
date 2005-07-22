@@ -52,34 +52,40 @@ QFramePrivate::QFramePrivate()
     \endcode
 
     The QFrame class can also be used directly for creating simple
-    frames without any contents, although usually you would use a
-    QHBox or QVBox because they automatically lay out the widgets you
-    put inside the frame.
+    placeholder frames without any contents.
 
-    A frame widget has four attributes: frameStyle(), lineWidth(),
-    midLineWidth(), and margin().
+    The frame style is specified by a \l{QFrame::Shape}{frame shape} and
+    a \l{QFrame::Shadow}{shadow style} that is used to visually separate
+    the frame from surrounding widgets. These properties can be set
+    together using the setFrameStyle() function and read with frameStyle().
 
-    The frame style is specified by a \link QFrame::Shape frame
-    shape\endlink and a \link QFrame::Shadow shadow style\endlink. The
-    frame shapes are \c NoFrame, \c Box, \c Panel, \c StyledPanel,
+    The frame shapes are \c NoFrame, \c Box, \c Panel, \c StyledPanel,
     HLine and \c VLine; the shadow styles are \c Plain, \c Raised and
     \c Sunken.
 
-    The line width is the width of the frame border.
+    A frame widget has three attributes that describe the thickness of the
+    border: \l lineWidth, \l midLineWidth, and \l frameWidth.
 
-    The mid-line width specifies the width of an extra line in the
-    middle of the frame, which uses a third color to obtain a special
-    3D effect. Notice that a mid-line is only drawn for \c Box, \c
-    HLine and \c VLine frames that are raised or sunken.
+    \list
+    \o The line width is the width of the frame border. It can be modified
+       to customize the frame's appearance.
 
-    The margin is the gap between the frame and the contents of the
-    frame.
+    \o The mid-line width specifies the width of an extra line in the
+       middle of the frame, which uses a third color to obtain a special
+       3D effect. Notice that a mid-line is only drawn for \c Box, \c
+       HLine and \c VLine frames that are raised or sunken.
+
+    \o The frame width is determined by the frame style, and the frameWidth()
+       function is used to obtain the value defined for the style used.
+    \endlist
+
+    The margin between the frame and the contents of the frame can be
+    customized with the QWidget::setContentsMargins() function.
 
     \target picture
-    This table shows the most useful combinations of styles and widths
-    (and some rather useless ones):
+    This table shows some of the combinations of styles and line widths:
 
-    \img frames.png Table of frame styles
+    \image frames.png Table of frame styles
 */
 
 
@@ -289,12 +295,12 @@ void QFrame::setFrameStyle(int style)
     \property QFrame::lineWidth
     \brief the line width
 
-    Note that the \e total line width for \c HLine and \c VLine is
-    specified by frameWidth(), not lineWidth().
+    Note that the \e total line width for frames used as separators (\c HLine and
+    \c VLine) is specified by \l frameWidth, not \c lineWidth.
 
     The default value is 1.
 
-    \sa midLineWidth(), frameWidth()
+    \sa midLineWidth, frameWidth
 */
 
 void QFrame::setLineWidth(int w)
@@ -316,7 +322,7 @@ int QFrame::lineWidth() const
 
     The default value is 0.
 
-    \sa lineWidth(), frameWidth()
+    \sa lineWidth, frameWidth
 */
 
 void QFrame::setMidLineWidth(int w)
@@ -399,10 +405,9 @@ void QFramePrivate::updateFrameWidth()
     \property QFrame::frameWidth
     \brief the width of the frame that is drawn.
 
-    Note that the frame width depends on the \link
-    QFrame::setFrameStyle() frame style \endlink, not only the line
-    width and the mid-line width. For example, the style \c NoFrame
-    always has a frame width of 0, whereas the style \c Panel has a
+    Note that the frame width depends on the \l{QFrame::setFrameStyle()}{frame style},
+    not only the line width and the mid-line width. For example, the style specified
+    by \c NoFrame always has a frame width of 0, whereas the style \c Panel has a
     frame width equivalent to the line width.
 
     \sa lineWidth(), midLineWidth(), frameStyle()

@@ -1023,7 +1023,7 @@ void QWorkspace::setBackground(const QBrush &background)
   Adds widget \a w as new sub window to the workspace.  If \a flags
   are non-zero, they will override the flags set on the widget.
 
-  Returns the window frame.
+  Returns the widget used for the window frame.
 
 */
 QWidget * QWorkspace::addWindow(QWidget *w, Qt::WFlags flags)
