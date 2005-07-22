@@ -1275,10 +1275,10 @@ QWidget *QWidget::keyboardGrabber()
 
     On Windows, if you are calling this when the application is not
     currently the active one then it will not make it the active
-    window.  It will flash the task bar entry blue to indicate that
-    the window has done something. This is because Microsoft do not
-    allow an application to interrupt what the user is currently doing
-    in another application.
+    window.  It will change the color of the task bar entry to indicate
+    that the window has changed in some way. This is because Microsoft
+    do not allow an application to interrupt what the user is currently
+    doing in another application.
 
     \sa isActiveWindow(), window(), show()
 */
@@ -2604,7 +2604,10 @@ qreal QWidget::windowOpacity() const
 }
 
 /*!
-    \internal
+    Returns information about the configuration of the X display used to display the
+    widget.
+
+    \warning This function is only available on X11.
 */
 const QX11Info &QWidget::x11Info() const
 {
