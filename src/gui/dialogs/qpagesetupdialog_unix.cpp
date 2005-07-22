@@ -143,7 +143,7 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
 
     layout->addWidget(frame);
 
-    QSpacerItem* spacer = new QSpacerItem(20, 50, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    QSpacerItem* spacer = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
     layout->addItem(spacer);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
