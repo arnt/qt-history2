@@ -282,6 +282,7 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     // grid layout
     QGridLayout * mainGrid = new QGridLayout(this);
     mainGrid->setMargin(12);
+    int defaultSpacing = mainGrid->spacing();
     mainGrid->setSpacing(0);
 
     mainGrid->addWidget(d->familyAccel, 0, 0);
@@ -317,6 +318,7 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     mainGrid->setRowMinimumHeight(8, 12);
 
     QHBoxLayout *buttonBox = new QHBoxLayout;
+    buttonBox->setSpacing(defaultSpacing); // ### shouldn't be necessary
     mainGrid->addLayout(buttonBox, 9, 0, 1, 5);
 
     buttonBox->addStretch(1);

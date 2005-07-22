@@ -515,7 +515,7 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
             "<p>Qt provides single-source "
             "portability across MS&nbsp;Windows, Mac&nbsp;OS&nbsp;X, "
             "Linux, and all major commercial Unix variants. Qt is also"
-            " available for embedded devices.</p>"
+            " available for embedded devices as Qtopia Core.</p>"
             "<p>Qt is a Trolltech product. See "
             "<tt>http://www.trolltech.com/qt/</tt> for more information.</p>"
            ).arg(QT_VERSION_STR);
