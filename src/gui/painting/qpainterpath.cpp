@@ -840,6 +840,97 @@ void QPainterPath::setFillRule(Qt::FillRule fillRule)
     d_func()->fillRule = fillRule;
 }
 
+#define QT_BEZIER_A(bezier, coord) 3 * (-bezier.coord##1 \
+                                        + 3*bezier.coord##2 \
+                                        - 3*bezier.coord##3 \
+                                        +bezier.coord##4)
+
+#define QT_BEZIER_B(bezier, coord) 6 * (bezier.coord##1 \
+                                        - 2*bezier.coord##2 \
+                                        + bezier.coord##3)
+
+#define QT_BEZIER_C(bezier, coord) 3 * (- bezier.coord##1 \
+                                        + bezier.coord##2)
+
+#define QT_BEZIER_CHECK_T(bezier, t) \
+    if (t >= 0 && t <= 1) { \
+        QPointF p(b.pointAt(t)); \
+        if (p.x() < minx) minx = p.x(); \
+        else if (p.x() > maxx) maxx = p.x(); \
+        if (p.y() < miny) miny = p.y(); \
+        else if (p.y() > maxy) maxy = p.y(); \
+    }
+
+
+static QRectF qt_painterpath_bezier_extrema(const QBezier &b)
+{
+    qreal minx, miny, maxx, maxy;
+
+    // initialize with end points
+    if (b.x1 < b.x4) {
+        minx = b.x1;
+        maxx = b.x4;
+    } else {
+        minx = b.x4;
+        maxx = b.x1;
+    }
+    if (b.y1 < b.y4) {
+        miny = b.y1;
+        maxy = b.y4;
+    } else {
+        miny = b.y4;
+        maxy = b.y1;
+    }
+
+    // Update for the X extrema
+    {
+        qreal ax = QT_BEZIER_A(b, x);
+        qreal bx = QT_BEZIER_B(b, x);
+        qreal cx = QT_BEZIER_C(b, x);
+        // specialcase quadratic curves to avoid div by zero
+        if (qFuzzyCompare(ax, 0)) {
+
+            // linear curves are covered by initalization.
+            if (!qFuzzyCompare(bx, 0)) {
+                qreal t = -cx / bx;
+                QT_BEZIER_CHECK_T(b, t);
+            }
+
+        } else {
+            qreal t1 = (-bx + sqrt(bx * bx - 4 * ax * cx)) / (2 * ax);
+            QT_BEZIER_CHECK_T(b, t1);
+
+            qreal t2 = (-bx - sqrt(bx * bx - 4 * ax * cx)) / (2 * ax);
+            QT_BEZIER_CHECK_T(b, t2);
+        }
+    }
+
+    // Update for the Y extrema
+    {
+        qreal ay = QT_BEZIER_A(b, y);
+        qreal by = QT_BEZIER_B(b, y);
+        qreal cy = QT_BEZIER_C(b, y);
+
+        // specialcase quadratic curves to avoid div by zero
+        if (qFuzzyCompare(ay, 0)) {
+
+            // linear curves are covered by initalization.
+            if (!qFuzzyCompare(by, 0)) {
+                qreal t = -cy / by;
+                QT_BEZIER_CHECK_T(b, t);
+            }
+
+        } else {
+            qreal t1 = (-by + sqrt(by * by - 4 * ay * cy)) / (2 * ay);
+            QT_BEZIER_CHECK_T(b, t1);
+
+            qreal t2 = (-by - sqrt(by * by - 4 * ay * cy)) / (2 * ay);
+            QT_BEZIER_CHECK_T(b, t2);
+        }
+    }
+    return QRectF(minx, miny, maxx - minx, maxy - miny);
+}
+
 /*!
     Returns the bounding rectangle of this painter path as a rectangle with
     floating point precision.
@@ -848,8 +939,45 @@ void QPainterPath::setFillRule(Qt::FillRule fillRule)
 */
 QRectF QPainterPath::boundingRect() const
 {
-    // ### QBezier::boundingRect
-    return toFillPolygon().boundingRect();
+    Q_D(QPainterPath);
+    if (isEmpty())
+        return QRect();
+
+    qreal minx, maxx, miny, maxy;
+    minx = maxx = d->elements.at(0).x;
+    miny = maxy = d->elements.at(0).y;
+    for (int i=1; i<d->elements.size(); ++i) {
+        const Element &e = d->elements.at(i);
+
+        switch (e.type) {
+        case MoveToElement:
+        case LineToElement:
+            if (e.x > maxx) maxx = e.x;
+            else if (e.x < minx) minx = e.x;
+            if (e.y > maxy) maxy = e.y;
+            else if (e.y < miny) miny = e.y;
+            break;
+        case CurveToElement:
+            {
+                QBezier b = QBezier::fromPoints(d->elements.at(i-1),
+                                                e,
+                                                d->elements.at(i+1),
+                                                d->elements.at(i+2));
+                QRectF r = qt_painterpath_bezier_extrema(b);
+                qreal right = r.right();
+                qreal bottom = r.bottom();
+                if (r.x() < minx) minx = r.x();
+                if (right > maxx) maxx = right;
+                if (r.y() < miny) miny = r.y();
+                if (bottom > maxy) maxy = bottom;
+                i += 2;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    return QRectF(minx, miny, maxx - minx, maxy - miny);
 }
 
 /*!
