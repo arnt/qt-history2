@@ -105,8 +105,7 @@
     equivalent of QX11EmbedWidget is GtkPlug. The KDE widget is called
     QXEmbed.
 
-    \sa QX11EmbedContainer,
-        {http://www.freedesktop.org/standards/xembed-spec/}{XEmbed Specification}
+    \sa QX11EmbedContainer, {XEmbed Specification}
 */
 
 /*! \class QX11EmbedContainer
@@ -176,8 +175,7 @@
     The GTK+ equivalent of QX11EmbedContainer is GtkSocket. The KDE
     widget is called QXEmbed.
 
-    \sa QX11EmbedWidget,
-        {http://www.freedesktop.org/standards/xembed-spec/}{XEmbed Specification}
+    \sa QX11EmbedWidget, {XEmbed Specification}
 */
 
 /*! \fn QX11EmbedWidget::embedded()
@@ -209,20 +207,29 @@
     closes.
 */
 
-/*! \fn QX11EmbedWidget::error(Error error)
+/*!
+    \fn void QX11EmbedWidget::error(Error error)
 
     This signal is emitted if an error occurred as a result of
-    embedding into or communicating with a container.
+    embedding into or communicating with a container. The specified
+    \a error describes the problem that occurred.
 
-    \sa QX11EmbedWidget::Errors
+    \sa QX11EmbedWidget::Error
 */
 
-/*! \fn QX11EmbedContainer::error(Error error)
+/*!
+    \fn QX11EmbedContainer::Error QX11EmbedContainer::error() const
+
+    Returns the last error that occurred.
+*/
+
+/*! \fn void QX11EmbedContainer::error(Error error)
 
     This signal is emitted if an error occurred when embedding or
-    communicating with a widget.
+    communicating with a client. The specified \a error describes the
+    problem that occurred.
 
-    \sa QX11EmbedContainer::Errors
+    \sa QX11EmbedContainer::Error
 */
 
 /*! \enum QX11EmbedWidget::Error
@@ -232,9 +239,12 @@
     \value InvalidWindowID The X11 window ID of the container was
         invalid. This error is usually triggered by passing an invalid
         window ID to embedInto().
+
+    \omitvalue Internal
 */
 
-/*! \enum QX11EmbedContainer::Error
+/*! 
+    \enum QX11EmbedContainer::Error
 
     \value Unknown An unrecognized error occurred.
 
@@ -1458,6 +1468,9 @@ void QX11EmbedContainer::hideEvent(QHideEvent *)
     }
 }
 
+/*!
+    \reimp
+*/
 bool QX11EmbedContainer::event(QEvent *event)
 {
     if (event->type() == QEvent::ParentChange) {
