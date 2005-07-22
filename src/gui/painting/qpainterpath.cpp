@@ -1368,18 +1368,212 @@ bool QPainterPath::contains(const QRectF &rect) const
     return d_func()->containsCache.contains(rect.toRect());
 }
 
+static bool qt_painterpath_isect_line_rect(qreal x1, qreal y1, qreal x2, qreal y2,
+                                           const QRectF &rect)
+{
+    qreal left = rect.left();
+    qreal right = rect.right();
+    qreal top = rect.top();
+    qreal bottom = rect.bottom();
+
+    enum { Left, Right, Top, Bottom };
+    // clip the lines, after cohen-sutherland, see e.g. http://www.nondot.org/~sabre/graphpro/line6.html
+    int p1 = ((x1 < left) << Left)
+             | ((x1 > right) << Right)
+             | ((y1 < top) << Top)
+             | ((y1 > bottom) << Bottom);
+    int p2 = ((x2 < left) << Left)
+             | ((x2 > right) << Right)
+             | ((y2 < top) << Top)
+             | ((y2 > bottom) << Bottom);
+
+    if (p1 & p2)
+        // completely inside
+        return false;
+
+    if (p1 | p2) {
+        qreal dx = x2 - x1;
+        qreal dy = y2 - y1;
+
+        // clip x coordinates
+        if (x1 < left) {
+            y1 += dy/dx * (left - x1);
+            x1 = left;
+        } else if (x1 > right) {
+            y1 -= dy/dx * (x1 - right);
+            x1 = right;
+        }
+        if (x2 < left) {
+            y2 += dy/dx * (left - x2);
+            x2 = left;
+        } else if (x2 > right) {
+            y2 -= dy/dx * (x2 - right);
+            x2 = right;
+        }
+
+        p1 = ((y1 < top) << Top)
+             | ((y1 > bottom) << Bottom);
+        p2 = ((y2 < top) << Top)
+             | ((y2 > bottom) << Bottom);
+
+        if (p1 & p2)
+            return false;
+
+        // clip y coordinates
+        if (y1 < top) {
+            x1 += dx/dy * (top - y1);
+            y1 = top;
+        } else if (y1 > bottom) {
+            x1 -= dx/dy * (y1 - bottom);
+            y1 = bottom;
+        }
+        if (y2 < top) {
+            x2 += dx/dy * (top - y2);
+            y2 = top;
+        } else if (y2 > bottom) {
+            x2 -= dx/dy * (y2 - bottom);
+            y2 = bottom;
+        }
+
+        p1 = ((x1 < left) << Left)
+             | ((x1 > right) << Right);
+        p2 = ((x2 < left) << Left)
+             | ((x2 > right) << Right);
+
+        if (p1 & p2)
+            return false;
+
+        return true;
+    }
+    return false;
+}
+
+static bool qt_isect_curve_horizontal(const QBezier &bezier, qreal y, qreal x1, qreal x2)
+{
+    QRectF bounds = bezier.bounds();
+
+    if (y >= bounds.top() && y < bounds.bottom()
+        && bounds.right() >= x1 && bounds.left() < x2) {
+        const qreal lower_bound = .01;
+        if (bounds.width() < lower_bound && bounds.height() < lower_bound)
+            return true;
+
+        QBezier first_half, second_half;
+        bezier.split(&first_half, &second_half);
+        qreal midpoint = x1 + (x2 - x1) / 2;
+        if (qt_isect_curve_horizontal(first_half, y, x1, midpoint)
+            || qt_isect_curve_horizontal(first_half, y, midpoint, x2)
+            || qt_isect_curve_horizontal(second_half, y, x1, midpoint)
+            || qt_isect_curve_horizontal(second_half, y, midpoint, x2))
+            return true;
+    }
+    return false;
+}
+
+static bool qt_isect_curve_vertical(const QBezier &bezier, qreal x, qreal y1, qreal y2)
+{
+    QRectF bounds = bezier.bounds();
+
+    if (x >= bounds.left() && x < bounds.right()
+        && bounds.top() >= y1 && bounds.bottom() < y2) {
+        const qreal lower_bound = .01;
+        if (bounds.width() < lower_bound && bounds.height() < lower_bound)
+            return true;
+
+        QBezier first_half, second_half;
+        bezier.split(&first_half, &second_half);
+        qreal midpoint = y1 + (y2 - y1) / 2;
+        if (qt_isect_curve_horizontal(first_half, x, y1, midpoint)
+            || qt_isect_curve_horizontal(first_half, x, midpoint, y2)
+            || qt_isect_curve_horizontal(second_half, x, y1, midpoint)
+            || qt_isect_curve_horizontal(second_half, x, midpoint, y2))
+            return true;
+    }
+    return false;
+}
+
+/*
+    Returns true if any lines or curves cross the four edges in of rect
+*/
+static bool qt_painterpath_check_crossing(const QPainterPath *path, const QRectF &rect)
+{
+    QPointF last_pt;
+    QPointF last_start;
+    for (int i=0; i<path->elementCount(); ++i) {
+        const QPainterPath::Element &e = path->elementAt(i);
+
+        switch (e.type) {
+
+        case QPainterPath::MoveToElement:
+            if (i > 0
+                && qFuzzyCompare(last_pt.x(), last_start.y())
+                && qFuzzyCompare(last_pt.y(), last_start.y())
+                && qt_painterpath_isect_line_rect(last_pt.x(), last_pt.y(),
+                                                  last_start.x(), last_start.y(), rect))
+                return true;
+            last_start = last_pt = e;
+            break;
+
+        case QPainterPath::LineToElement:
+            if (qt_painterpath_isect_line_rect(last_pt.x(), last_pt.y(), e.x, e.y, rect))
+                return true;
+            last_pt = e;
+            break;
+
+        case QPainterPath::CurveToElement:
+            {
+                QPointF cp2 = path->elementAt(++i);
+                QPointF ep = path->elementAt(++i);
+                QBezier bezier = QBezier::fromPoints(last_pt, e, cp2, ep);
+                if (qt_isect_curve_horizontal(bezier, rect.top(), rect.left(), rect.right())
+                    || qt_isect_curve_horizontal(bezier, rect.bottom(), rect.left(), rect.right())
+                    || qt_isect_curve_vertical(bezier, rect.left(), rect.top(), rect.bottom())
+                    || qt_isect_curve_vertical(bezier, rect.right(), rect.top(), rect.bottom()))
+                    return true;
+                last_pt = ep;
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    // implicitly close last subpath
+    if (last_pt != last_start
+        && qt_painterpath_isect_line_rect(last_pt.x(), last_pt.y(),
+                                          last_start.x(), last_start.y(), rect))
+        return true;
+
+    return false;
+}
+
 /*!
     Returns true if any point in rect \a rect is inside the path; otherwise
     returns false.
 */
 bool QPainterPath::intersects(const QRectF &rect) const
 {
-    if (isEmpty())
+    if (isEmpty() || !controlPointRect().intersects(rect))
         return false;
-    if (d_func()->containsCache.isEmpty()) {
-        d_func()->containsCache = QRegion(toFillPolygon().toPolygon(), fillRule());
+
+    // If any path element cross the rect its bound to be an intersection
+    if (qt_painterpath_check_crossing(this, rect))
+        return true;
+
+    if (contains(rect.center()))
+        return true;
+
+    Q_D(QPainterPath);
+
+    // Check if the rectangle surounds any subpath...
+    for (int i=0; i<d->elements.size(); ++i) {
+        const Element &e = d->elements.at(i);
+        if (e.type == QPainterPath::MoveToElement && rect.contains(e))
+            return true;
     }
-    return !d_func()->containsCache.intersect(rect.toRect()).isEmpty();
+
+    return false;
 }
 
 /*!
