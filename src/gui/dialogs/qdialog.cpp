@@ -919,7 +919,7 @@ void QDialog::setSizeGripEnabled(bool enabled)
                 d->resizer->move(rect().bottomLeft() -d->resizer->rect().bottomLeft());
             else
                 d->resizer->move(rect().bottomRight() -d->resizer->rect().bottomRight());
-            d->resizer->raise();
+            d->resizer->lower();
             d->resizer->show();
         } else {
             delete d->resizer;
@@ -941,7 +941,7 @@ void QDialog::resizeEvent(QResizeEvent *)
             d->resizer->move(rect().bottomLeft() -d->resizer->rect().bottomLeft());
         else
             d->resizer->move(rect().bottomRight() -d->resizer->rect().bottomRight());
-        d->resizer->raise();
+        d->resizer->lower();
     }
 #endif
 }
