@@ -6,7 +6,6 @@
 #include <QDomDocument>
 
 #include "atom.h"
-#include "dcfsection.h"
 #include "htmlgenerator.h"
 #include "location.h"
 #include "node.h"
