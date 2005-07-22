@@ -168,6 +168,23 @@ The installation procedure is different for the different Qt platforms:
 
     Type \c{configure -help} to get a list of all available options.
 
+    If you have multiple compilers installed, and want to build the Qt library
+    using a specific compiler, you must specify a \c qmake specification.
+    This is done by pasing \c{-platform <spec>} to configure; for example:
+
+\code
+  configure -platform win32-msvc
+\endcode
+
+    In some cases you need to set up the compilation environment before running
+    configure in order to use the right compiler. For instance, you need to do this
+    if you have Visual Studio 2005 installed and want to compile Qt using the x64
+    compiler because the 32-bit and 64-bit compiler both use the same
+    \c qmake specification file.
+    This is usually done by selecting 
+    \menu{Microsoft Visual Studio 2005|Visual Studio Tools|<Command Prompt>}
+    from the \gui Start menu.
+
     The actual commands needed to build Qt depends on your development
     system. For Microsoft Visual Studio to create the library and
     compile all the demos, examples, tools and tutorials type:
