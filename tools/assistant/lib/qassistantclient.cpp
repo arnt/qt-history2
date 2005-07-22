@@ -44,6 +44,7 @@ static QAssistantClientPrivate *data( const QAssistantClient *client, bool creat
     \brief The QAssistantClient class provides a means of using Qt
     Assistant as an application's help tool.
 
+    \inmodule QtAssistant
     \ingroup helpsystem
 
     Using Qt Assistant is simple: create a QAssistantClient instance,
@@ -76,8 +77,10 @@ static QAssistantClientPrivate *data( const QAssistantClient *client, bool creat
         LIBS += -lqassistantclient
     \endcode
 
-    See also "Adding Documentation to Qt Assistant" in the \link
-    assistant.book Qt Assistant manual\endlink.
+    See also \l{Qt Assistant Manual#Modifying The Default Documentation Set}{Modifying The Default Documentation Set}.
+    \omit
+    \sa \link assistant-manual.html#modifying-the-default-documentation-set \endlink
+    \endomit
 */
 
 /*!
@@ -106,12 +109,10 @@ static QAssistantClientPrivate *data( const QAssistantClient *client, bool creat
 */
 
 /*!
-    Constructs an assistant client object. The \a path specifies the
-    path to the Qt Assistant executable. If \a path is an empty
-    string the system path (\c{%PATH%} or \c $PATH) is used.
-
-    The assistant client object is a child of \a parent and is called
-    \a name.
+    Constructs an assistant client with the given \a parent.
+    The \a path specifies the path to the Qt Assistant executable.
+    If \a path is an empty string the system path (\c{%PATH%} or \c $PATH)
+    is used.
 */
 QAssistantClient::QAssistantClient( const QString &path, QObject *parent )
     : QObject( parent ), host ( "localhost" )
@@ -245,9 +246,9 @@ void QAssistantClient::closeAssistant()
 
 /*!
     Call this function to make Qt Assistant show a particular \a page.
-    The \a page is a filename (e.g. \c myhelpfile.html). See "Adding
-    Documentation to Qt Assistant" in the \link assistant.book Qt
-    Assistant manual\endlink for further information.
+    The \a page is a filename (e.g. \c myhelpfile.html).
+    See \l{Qt Assistant Manual#Modifying the Default Documentation Set}
+    for further information.
 
     If Qt Assistant hasn't been \link openAssistant() opened\endlink
     yet, this function will do nothing. You can use isOpen() to
