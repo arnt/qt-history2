@@ -2204,3 +2204,42 @@ void HtmlGenerator::generateIndex(const QString &fileBase, const QString &url,
     tre->generateIndexSections(outputDir() + "/" + fileBase + ".index", url,
                                title);
 }
+void HtmlGenerator::generateStatus( const Node *node, CodeMarker *marker )
+{
+    Text text;
+
+    switch ( node->status() ) {
+    case Node::Compat:
+        if (node->isInnerNode()) {
+	    text << Atom::ParaLeft << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
+	         << typeString( node ) << " is part of the Qt 3 support library."
+	         << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
+	         << " It is provided to keep old source code working. We strongly advise against "
+                 << "using it in new code. See the ";
+
+            const FakeNode *fakeNode = tre->findFakeNodeByTitle("Porting To Qt 4");
+            Atom *targetAtom = 0;
+            if (fakeNode && node->type() == Node::Class) {
+                QString oldName(node->name());
+                targetAtom = tre->findTarget(oldName.replace("3", ""),
+                                             fakeNode);
+            }
+
+            if (targetAtom) {
+                text << Atom(Atom::Link, linkForNode(fakeNode, node) + "#" +
+                                         refForAtom(targetAtom, fakeNode));
+            } else
+                text << Atom(Atom::Link, "porting4.html");
+
+            text << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
+                 << Atom(Atom::String, "Porting Guide")
+                 << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK)
+                 << " for more information."
+                 << Atom::ParaRight;
+        }
+        generateText(text, node, marker);
+        break;
+    default:
+        Generator::generateStatus(node, marker);
+    }
+}

@@ -83,6 +83,7 @@ private:
 			  const Node *actualNode = 0);
     void generateDetailedMember(const Node *node, const InnerNode *relative, CodeMarker *marker);
     void generateLink(const Atom *atom, const Node *relative, CodeMarker *marker);
+    void generateStatus( const Node *node, CodeMarker *marker );
 
     QString cleanRef( const QString& ref );
     QString registerRef( const QString& ref );
