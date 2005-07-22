@@ -1481,7 +1481,7 @@ void QPSPrintEngineFont::downloadMapping(QTextStream &s, bool global)
         "%%EndFont\n";
 }
 
-#ifdef QT_HAVE_FREETYPE
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
 
 class QPSPrintEngineFontFT : public QPSPrintEngineFont {
 public:
@@ -2823,7 +2823,7 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
         fontKey = "Multi:" + fe->fontDef.family + QChar(type);
         multi = true;
     }
-#ifdef QT_HAVE_FREETYPE
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
     else if (embedFonts) {
 #ifdef Q_WS_X11
 #ifndef QT_NO_FONTCONFIG
@@ -2867,7 +2867,7 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
     currentPSFont = fonts.value(fontKey);
 
     if (!currentPSFont) {
-#ifdef QT_HAVE_FREETYPE
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
         if (embed) {
             currentPSFont = new QPSPrintEngineFontFT(fe);
         } else

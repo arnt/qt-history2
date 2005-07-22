@@ -13,6 +13,7 @@
 
 #include "qthreadstorage.h"
 
+#ifndef QT_NO_THREAD
 #include "qthread.h"
 #include "qthread_p.h"
 #include "qmutex.h"
@@ -286,3 +287,4 @@ void QThreadStorageData::finish(void **tls)
 
     \sa localData(), hasLocalData()
 */
+#endif // QT_NO_THREAD

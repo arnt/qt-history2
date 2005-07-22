@@ -16,6 +16,8 @@
 
 #include "QtCore/qglobal.h"
 
+#ifndef QT_NO_THREAD
+
 QT_MODULE(Core)
 
 class Q_CORE_EXPORT QThreadStorageData
@@ -114,4 +116,5 @@ public:
     { qThreadStorage_setLocalData(d, &t); }
 };
 
+#endif // QT_NO_THREAD
 #endif // QTHREADSTORAGE_H

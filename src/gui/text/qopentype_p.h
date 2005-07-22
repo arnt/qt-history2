@@ -27,7 +27,7 @@
 
 #include "qtextengine_p.h"
 
-#ifdef QT_HAVE_FREETYPE
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "ftxopen.h"

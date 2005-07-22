@@ -24,6 +24,8 @@
 #include <qvariant.h>
 #include <qaccessible.h>
 
+#ifndef QT_NO_ACCESSIBILITY
+
 class AccessibleFactory : public QAccessiblePlugin
 {
 public:
@@ -199,3 +201,4 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
 }
 
 Q_EXPORT_PLUGIN(AccessibleFactory)
+#endif // QT_NO_ACCESSIBILITY

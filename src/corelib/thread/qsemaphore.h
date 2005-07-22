@@ -16,6 +16,7 @@
 
 #include "QtCore/qglobal.h"
 
+#ifndef QT_NO_THREAD
 QT_MODULE(Core)
 
 class QSemaphorePrivate;
@@ -39,4 +40,5 @@ private:
     QSemaphorePrivate *d;
 };
 
+#endif // QT_NO_THREAD
 #endif // QSEMAPHORE_H

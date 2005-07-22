@@ -11,11 +11,11 @@
 // Named colors
 //#define QT_NO_COLORNAMES
 
+// QCop IPC
+//#define QT_NO_COP
+
 // Cursors
 //#define QT_NO_CURSOR
-
-// QDataStream
-//#define QT_NO_DATASTREAM
 
 // QDirectPainter
 //#define QT_NO_DIRECTPAINTER
@@ -34,6 +34,9 @@
 
 // QImageFormatPlugin
 //#define QT_NO_IMAGEFORMATPLUGIN
+
+// BMP image I/O
+//#define QT_NO_IMAGEFORMAT_BMP
 
 // JPEG image I/O
 //#define QT_NO_IMAGEFORMAT_JPEG
@@ -65,6 +68,9 @@
 // Animated images
 //#define QT_NO_MOVIE
 
+// QPicture
+//#define QT_NO_PICTURE
+
 // Progress bars
 //#define QT_NO_PROGRESSBAR
 
@@ -76,6 +82,9 @@
 
 // Alpha-blended cursor
 //#define QT_NO_QWS_ALPHA_CURSOR
+
+// Input methods
+//#define QT_NO_QWS_INPUTMETHODS
 
 // Console keyboard
 //#define QT_NO_QWS_KEYBOARD
@@ -98,8 +107,8 @@
 // Qt/Embedded window system properties.
 //#define QT_NO_QWS_PROPERTIES
 
-// Regular expression capture
-//#define QT_NO_REGEXP
+// Pre-rendered fonts
+//#define QT_NO_QWS_QPF
 
 // Internal resize handler
 //#define QT_NO_RESIZEHANDLER
@@ -155,8 +164,14 @@
 // QTextStream
 //#define QT_NO_TEXTSTREAM
 
+// Thread support
+//#define QT_NO_THREAD
+
 // Tool tips
 //#define QT_NO_TOOLTIP
+
+// Translations via QObject::tr()
+//#define QT_NO_TRANSLATION
 
 // QUdpSocket
 //#define QT_NO_UDPSOCKET
@@ -185,11 +200,6 @@
 #define QT_NO_CODECS
 #endif
 
-// QCop IPC
-#if !defined(QT_NO_COP) && (defined(QT_NO_DATASTREAM))
-#define QT_NO_COP
-#endif
-
 // QDate/QTime/QDateTime toString() and fromString()
 #if !defined(QT_NO_DATESTRING) && (defined(QT_NO_TEXTDATE))
 #define QT_NO_DATESTRING
@@ -210,11 +220,6 @@
 #define QT_NO_ICON
 #endif
 
-// BMP image I/O
-#if !defined(QT_NO_IMAGEFORMAT_BMP) && (defined(QT_NO_DATASTREAM))
-#define QT_NO_IMAGEFORMAT_BMP
-#endif
-
 // XPM image I/O
 #if !defined(QT_NO_IMAGEFORMAT_XPM) && (defined(QT_NO_TEXTSTREAM))
 #define QT_NO_IMAGEFORMAT_XPM
@@ -225,13 +230,8 @@
 #define QT_NO_MENU
 #endif
 
-// QPicture
-#if !defined(QT_NO_PICTURE) && (defined(QT_NO_DATASTREAM))
-#define QT_NO_PICTURE
-#endif
-
 // External process invocation.
-#if !defined(QT_NO_PROCESS) && (defined(QT_NO_REGEXP))
+#if !defined(QT_NO_PROCESS) && (defined(QT_NO_THREAD))
 #define QT_NO_PROCESS
 #endif
 
@@ -255,54 +255,14 @@
 #define QT_NO_QWS_DECORATION_WINDOWS
 #endif
 
-// Regular expression anchors
-#if !defined(QT_NO_REGEXP_ANCHOR_ALT) && (defined(QT_NO_REGEXP))
-#define QT_NO_REGEXP_ANCHOR_ALT
-#endif
-
-// Regular expression back-reference
-#if !defined(QT_NO_REGEXP_BACKREF) && (defined(QT_NO_REGEXP))
-#define QT_NO_REGEXP_BACKREF
-#endif
-
-// Regular expression capture
-#if !defined(QT_NO_REGEXP_CAPTURE) && (defined(QT_NO_REGEXP))
-#define QT_NO_REGEXP_CAPTURE
-#endif
-
-// Regular expression character-class
-#if !defined(QT_NO_REGEXP_CCLASS) && (defined(QT_NO_REGEXP))
-#define QT_NO_REGEXP_CCLASS
-#endif
-
-// Regular expression escape
-#if !defined(QT_NO_REGEXP_ESCAPE) && (defined(QT_NO_REGEXP))
-#define QT_NO_REGEXP_ESCAPE
-#endif
-
-// Regular expression interval
-#if !defined(QT_NO_REGEXP_INTERVAL) && (defined(QT_NO_REGEXP))
-#define QT_NO_REGEXP_INTERVAL
-#endif
-
-// Regular expression lookahead
-#if !defined(QT_NO_REGEXP_LOOKAHEAD) && (defined(QT_NO_REGEXP))
-#define QT_NO_REGEXP_LOOKAHEAD
-#endif
-
-// Regular expression optimization
-#if !defined(QT_NO_REGEXP_OPTIM) && (defined(QT_NO_REGEXP))
-#define QT_NO_REGEXP_OPTIM
-#endif
-
-// Regular expression wildcard
-#if !defined(QT_NO_REGEXP_WILDCARD) && (defined(QT_NO_REGEXP))
-#define QT_NO_REGEXP_WILDCARD
-#endif
-
 // Scroll bars
 #if !defined(QT_NO_SCROLLBAR) && (defined(QT_NO_SLIDER))
 #define QT_NO_SCROLLBAR
+#endif
+
+// Persistent application settings
+#if !defined(QT_NO_SETTINGS) && (defined(QT_NO_TEXTSTREAM))
+#define QT_NO_SETTINGS
 #endif
 
 // Splitters
@@ -325,11 +285,6 @@
 #define QT_NO_STYLE_WINDOWSXP
 #endif
 
-// Translations via QObject::tr()
-#if !defined(QT_NO_TRANSLATION) && (defined(QT_NO_DATASTREAM))
-#define QT_NO_TRANSLATION
-#endif
-
 // FTP file access
 #if !defined(QT_NO_FTP) && (defined(QT_NO_URLINFO) || defined(QT_NO_TEXTDATE))
 #define QT_NO_FTP
@@ -338,6 +293,11 @@
 // HTTP file access
 #if !defined(QT_NO_HTTP) && (defined(QT_NO_HOSTINFO))
 #define QT_NO_HTTP
+#endif
+
+// Shared library wrapper
+#if !defined(QT_NO_LIBRARY) && (defined(QT_NO_SETTINGS))
+#define QT_NO_LIBRARY
 #endif
 
 // Menu bars
@@ -355,6 +315,11 @@
 #define QT_NO_SCROLLAREA
 #endif
 
+// Translations via QObject::trUtf8()
+#if !defined(QT_NO_TRANSLATION_UTF8) && (defined(QT_NO_TRANSLATION) || defined(QT_NO_TEXTCODEC))
+#define QT_NO_TRANSLATION_UTF8
+#endif
+
 // Drag and drop
 #if !defined(QT_NO_DRAGANDDROP) && (defined(QT_NO_QWS_PROPERTIES) || defined(QT_NO_IMAGEFORMAT_XPM))
 #define QT_NO_DRAGANDDROP
@@ -363,11 +328,6 @@
 // Server to play sound
 #if !defined(QT_NO_QWS_SOUNDSERVER) && (defined(QT_NO_SOUND) || defined(QT_NO_HOSTINFO))
 #define QT_NO_QWS_SOUNDSERVER
-#endif
-
-// Persistent application settings
-#if !defined(QT_NO_SETTINGS) && (defined(QT_NO_TEXTSTREAM) || defined(QT_NO_REGEXP_CAPTURE))
-#define QT_NO_SETTINGS
 #endif
 
 // Spin boxes
@@ -383,11 +343,6 @@
 // Tool-buttons
 #if !defined(QT_NO_TOOLBUTTON) && (defined(QT_NO_ICON) || defined(QT_NO_ACTION))
 #define QT_NO_TOOLBUTTON
-#endif
-
-// Translations via QObject::trUtf8()
-#if !defined(QT_NO_TRANSLATION_UTF8) && (defined(QT_NO_TRANSLATION) || defined(QT_NO_TEXTCODEC))
-#define QT_NO_TRANSLATION_UTF8
 #endif
 
 // QErrorMessage
@@ -410,14 +365,14 @@
 #define QT_NO_TEXTBROWSER
 #endif
 
+// QTextCodecPlugin
+#if !defined(QT_NO_TEXTCODECPLUGIN) && (defined(QT_NO_TEXTCODEC) || defined(QT_NO_LIBRARY))
+#define QT_NO_TEXTCODECPLUGIN
+#endif
+
 // QDirModel
 #if !defined(QT_NO_DIRMODEL) && (defined(QT_NO_ITEMVIEWS))
 #define QT_NO_DIRMODEL
-#endif
-
-// Shared library wrapper
-#if !defined(QT_NO_LIBRARY) && (defined(QT_NO_REGEXP) || defined(QT_NO_SETTINGS))
-#define QT_NO_LIBRARY
 #endif
 
 // QListView
@@ -495,11 +450,6 @@
 #define QT_NO_MAINWINDOW
 #endif
 
-// QTextCodecPlugin
-#if !defined(QT_NO_TEXTCODECPLUGIN) && (defined(QT_NO_TEXTCODEC) || defined(QT_NO_LIBRARY))
-#define QT_NO_TEXTCODECPLUGIN
-#endif
-
 // Toolbars
 #if !defined(QT_NO_TOOLBAR) && (defined(QT_NO_MAINWINDOW))
 #define QT_NO_TOOLBAR
@@ -536,7 +486,7 @@
 #endif
 
 // QFileDialog
-#if !defined(QT_NO_FILEDIALOG) && (defined(QT_NO_DIRMODEL) || defined(QT_NO_TREEVIEW) || defined(QT_NO_MESSAGEBOX) || defined(QT_NO_COMBOBOX) || defined(QT_NO_REGEXP_CAPTURE) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_BUTTONGROUP))
+#if !defined(QT_NO_FILEDIALOG) && (defined(QT_NO_DIRMODEL) || defined(QT_NO_TREEVIEW) || defined(QT_NO_MESSAGEBOX) || defined(QT_NO_COMBOBOX) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_BUTTONGROUP))
 #define QT_NO_FILEDIALOG
 #endif
 

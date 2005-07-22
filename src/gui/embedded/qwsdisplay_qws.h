@@ -100,7 +100,7 @@ public:
 #ifdef QT_QWS_REPEATER
     void repaintRegion(QRegion &);
 #endif
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
     void sendIMUpdate(int type, int winId, int widgetid);
     void resetIM();
     void sendIMResponse(int winId, int property, const QVariant &result);

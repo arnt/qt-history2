@@ -76,7 +76,9 @@ public:
     QImage(int width, int height, Format format);
     QImage(uchar *data, int width, int height, Format format);
 
+#ifndef QT_NO_IMAGEFORMAT_XPM
     explicit QImage(const char * const xpm[]);
+#endif
     explicit QImage(const QString &fileName, const char *format = 0);
 #ifndef QT_NO_CAST_FROM_ASCII
     explicit QImage(const char *fileName, const char *format = 0);

@@ -24,7 +24,7 @@ static bool hebrew_shape(QShaperItem *item)
 {
     Q_ASSERT(item->script == QUnicodeTables::Hebrew);
 
-#ifdef QT_HAVE_FREETYPE
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
     QOpenType *openType = item->font->openType();
 
     if (openType && openType->supportsScript(item->script)) {
@@ -51,7 +51,7 @@ static bool syriac_shape(QShaperItem *item)
 {
     Q_ASSERT(item->script == QUnicodeTables::Syriac);
 
-#ifdef QT_HAVE_FREETYPE
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
     QOpenType *openType = item->font->openType();
     if (openType && openType->supportsScript(QUnicodeTables::Syriac)) {
         return arabicSyriacOpenTypeShape(openType, item);
@@ -65,7 +65,7 @@ static bool thaana_shape(QShaperItem *item)
 {
     Q_ASSERT(item->script == QUnicodeTables::Thaana);
 
-#ifdef QT_HAVE_FREETYPE
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
     QOpenType *openType = item->font->openType();
 
     if (openType && openType->supportsScript(item->script)) {
@@ -1488,7 +1488,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
     for (i = 0; i < len; ++i)
         control |= (form(reordered[i]) == Control);
 
-#ifdef QT_HAVE_FREETYPE
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
     if (openType) {
 
         // we need to keep track of where the base glyph is for some
@@ -1726,7 +1726,7 @@ static bool indic_shape(QShaperItem *item)
 {
     Q_ASSERT(item->script >= QUnicodeTables::Devanagari && item->script <= QUnicodeTables::Sinhala);
 
-#ifdef QT_HAVE_FREETYPE
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
     QOpenType *openType = item->font->openType();
     if (openType && !openType->supportsScript(item->script))
         openType = 0;
@@ -1989,7 +1989,7 @@ static bool tibetan_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
 
     // now we have the syllable in the right order, and can start running it through open type.
 
-#ifdef QT_HAVE_FREETYPE
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
     if (openType) {
         // we need to keep track of where the base glyph is for some scripts and abuse the logcluster feature for this.
         // This also means we have to correct the logCluster output from the open type engine manually afterwards.
@@ -2064,7 +2064,7 @@ static bool tibetan_shape(QShaperItem *item)
 {
     Q_ASSERT(item->script == QUnicodeTables::Tibetan);
 
-#ifdef QT_HAVE_FREETYPE
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
     QOpenType *openType = item->font->openType();
     if (openType && !openType->supportsScript(item->script))
         openType = 0;
@@ -2637,7 +2637,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
 
     // now we have the syllable in the right order, and can start running it through open type.
 
-#ifdef QT_HAVE_FREETYPE
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
     if (openType) {
 	unsigned short logClusters[16];
 	for (int i = 0; i < len; ++i)
@@ -2690,7 +2690,7 @@ static bool khmer_shape(QShaperItem *item)
 {
     assert(item->script == QUnicodeTables::Khmer);
 
-#ifdef QT_HAVE_FREETYPE
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
     QOpenType *openType = item->font->openType();
     if (openType && !openType->supportsScript(item->script))
         openType = 0;
@@ -2922,7 +2922,7 @@ static bool hangul_shape_syllable(QOpenType *openType, QShaperItem *item)
     }
     item->glyphs[0].attributes.clusterStart = true;
 
-#ifdef QT_HAVE_FREETYPE
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
     if (openType && !composed) {
 
         QVarLengthArray<unsigned short> logClusters(len);
@@ -2968,7 +2968,7 @@ static bool hangul_shape(QShaperItem *item)
     }
 
     if (!allPrecomposed) {
-#ifdef QT_HAVE_FREETYPE
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
         QOpenType *openType = item->font->openType();
         if (openType && !openType->supportsScript(item->script))
             openType = 0;

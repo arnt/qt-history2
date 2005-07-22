@@ -147,8 +147,10 @@ QInputContext *QWidget::inputContext()
     if (!testAttribute(Qt::WA_InputMethodEnabled))
         return 0;
 
+#ifndef QT_NO_IM
     if (d->ic)
         return d->ic;
+#endif
     return qApp->inputContext();
 }
 
@@ -163,9 +165,11 @@ void QWidget::setInputContext(QInputContext *context)
     Q_D(QWidget);
     if (!testAttribute(Qt::WA_InputMethodEnabled))
         return;
+#ifndef QT_NO_IM
     if (d->ic)
 	delete d->ic;
     d->ic = context;
+#endif
 }
 
 
@@ -6803,7 +6807,7 @@ void QWidget::setShortcutEnabled(int id, bool enable)
 */
 void QWidget::updateMicroFocus()
 {
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if !defined(QT_NO_IM) && (defined(Q_WS_X11) || defined(Q_WS_QWS))
     QInputContext *ic = inputContext();
     if (ic)
         ic->update();

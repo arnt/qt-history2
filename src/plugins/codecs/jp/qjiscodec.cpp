@@ -108,6 +108,7 @@
 #include "qjiscodec.h"
 #include "qlist.h"
 
+#ifndef QT_NO_TEXTCODECPLUGIN
 enum {
     Esc = 0x1b,
     So = 0x0e,         // Shift Out
@@ -416,3 +417,4 @@ QList<QByteArray> QJisCodec::_aliases()
     return list;
 }
 
+#endif // QT_NO_TEXTCODECPLUGIN

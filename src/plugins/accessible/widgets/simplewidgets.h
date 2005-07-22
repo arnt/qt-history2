@@ -16,6 +16,7 @@
 
 #include <qaccessiblewidget.h>
 
+#ifndef QT_NO_ACCESSIBILITY
 class QAbstractButton;
 class QLineEdit;
 class QToolButton;
@@ -93,4 +94,5 @@ protected:
 };
 #endif // QT_NO_LINEEDIT
 
+#endif // QT_NO_ACCESSIBILITY
 #endif // SIMPLEWIDGETS_H

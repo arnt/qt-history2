@@ -67,7 +67,7 @@ public:
     ~QThreadData();
 
     static QThreadData *get(QThread *thread);
-
+    
     int id;
     bool quitNow;
     QAbstractEventDispatcher *eventDispatcher;
@@ -76,6 +76,7 @@ public:
     void **tls;
 };
 
+#ifndef QT_NO_THREAD
 class QThreadPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QThread)
@@ -116,5 +117,20 @@ public:
 
     QThreadData data;
 };
+
+#else // QT_NO_THREAD
+
+class QThreadPrivate : public QObjectPrivate
+{
+public:
+    QThreadPrivate(QThread *threadInstance)
+    { Q_ASSERT(!QThread::instance); QThread::instance = threadInstance; }
+    QThreadData data;
+    static void setCurrentThread(QThread*) {}
+    static QThread *threadForId(int) { return QThread::currentThread(); }
+
+    Q_DECLARE_PUBLIC(QThread)
+};
+#endif // QT_NO_THREAD
 
 #endif // QTHREAD_P_H

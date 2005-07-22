@@ -144,7 +144,7 @@ static int get_object_id()
     static int next=1000;
     return next++;
 }
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
 static QWSInputMethod *current_IM = 0;
 
 static bool current_IM_ComposeMode = false;
@@ -430,7 +430,7 @@ void QWSWindow::operation(QWSWindowOperationEvent::Operation o)
 */
 QWSWindow::~QWSWindow()
 {
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
     if (current_IM_win == this)
         current_IM_win = 0;
 #endif
@@ -1121,7 +1121,7 @@ void QWSServer::doClient(QWSClient *client)
             invokeQCopSend((QWSQCopSendCommand*)cs->command, cs->client);
             break;
 #endif
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
         case QWSCommand::IMUpdate:
             invokeIMUpdate((QWSIMUpdateCommand*)cs->command, cs->client);
             break;
@@ -1350,7 +1350,7 @@ void QWSServer::sendMouseEventUnfiltered(const QPoint &pos, int state, int wheel
     QWSClient *serverClient = qwsServer->clientMap[-1];
     QWSClient *winClient = win ? win->client() : 0;
 
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
     //reset input method if we click outside
     //####### we can't do this; IM may want to do something different
 
@@ -1520,7 +1520,7 @@ void QWSServer::sendKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers mod
             qwsServer->screenSaverWake();
     }
 
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
 
     if (!current_IM || !current_IM->filterKey(unicode, keycode, modifiers, isPress, autoRepeat))
         sendKeyEventUnfiltered(unicode, keycode, modifiers, isPress, autoRepeat);
@@ -1629,7 +1629,7 @@ bool QWSServer::isCursorVisible()
 }
 #endif
 
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
 
 
 //### qt 3 support: ???
@@ -1665,6 +1665,7 @@ void QWSServer::sendIMEvent(IMState state, const QString& txt, int cpos, int sel
     out << pre;
     out << com;
 
+#ifndef QT_NO_IM
     if (state == InputMethodPreedit) {
         if (cpos > 0)
             out << int(QInputMethodEvent::TextFormat) << 0 <<cpos << QVariant(int(QInputContext::PreeditFormat));
@@ -1677,7 +1678,8 @@ void QWSServer::sendIMEvent(IMState state, const QString& txt, int cpos, int sel
 
         out << int(QInputMethodEvent::Cursor) << cpos << 0 << QVariant();
     }
-
+#endif // QT_NO_IM
+    
     event.setData(buffer.data(), buffer.size());
 
     QWSClient *serverClient = qwsServer->clientMap[-1];
@@ -1734,7 +1736,7 @@ void QWSServer::setCurrentInputMethod(QWSInputMethod *im)
     \internal
 */
 
-#endif //QT_NO_QWS_IM
+#endif //QT_NO_QWS_INPUTMETHODS
 
 #ifndef QT_NO_QWS_PROPERTIES
 /*!
@@ -1884,7 +1886,7 @@ void QWSServer::invokeSetFocus(const QWSRequestFocusCommand *cmd, QWSClient *cli
 
 void QWSServer::setFocus(QWSWindow* changingw, bool gain)
 {
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
     /*
       This is the logic:
       QWSWindow *loser = 0;
@@ -1998,7 +2000,7 @@ void QWSServer::invokeSetProperty(QWSSetPropertyCommand *cmd)
                                     cmd->rawLen)) {
         sendPropertyNotifyEvent(cmd->simpleData.property,
                                  QWSPropertyNotifyEvent::PropertyNewValue);
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
         if (cmd->simpleData.property == QT_QWS_PROPERTY_MARKEDTEXT) {
             QString s((const QChar*)cmd->data, cmd->rawLen/2);
             emit markedText(s);
@@ -2182,7 +2184,7 @@ void QWSServer::invokeQCopSend(QWSQCopSendCommand *cmd, QWSClient *client)
 
 #endif
 
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
 void QWSServer::resetInputMethod()
 {
     if (current_IM && qwsServer) {
@@ -2605,7 +2607,7 @@ void QWSServer::name_region(const QWSRegionNameCommand *cmd)
     invokeRegionName(cmd, clientMap[-1]);
 }
 
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
 void QWSServer::im_response(const QWSIMResponseCommand *cmd)
  {
      invokeIMResponse(cmd, clientMap[-1]);
@@ -2965,7 +2967,7 @@ void QWSServer::updateClientCursorPos()
         sendMouseEvent(mousePosition, d->mouseState);
 }
 
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
 
 /*!
     \class QWSInputMethod

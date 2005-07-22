@@ -48,8 +48,10 @@ Qt::HANDLE QFont::handle() const
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
 
+#ifndef QT_NO_FREETYPE
     if (engine->type() == QFontEngine::Freetype)
         return static_cast<QFontEngineFT *>(engine)->handle();
+#endif
     return 0;
 }
 

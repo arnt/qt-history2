@@ -161,13 +161,13 @@ public:
 #endif // Q_WS_WIN
 };
 
+class QGlyph;
 
 #if defined(Q_WS_QWS)
 
+#ifndef QT_NO_FREETYPE
 #include <ft2build.h>
 #include FT_FREETYPE_H
-
-class QGlyph;
 
 class QFontEngineFT : public QFontEngine
 {
@@ -213,6 +213,9 @@ public:
     friend class QFontDatabase;
     static FT_Library ft_library;
 };
+#endif // QT_NO_FREETYPE
+
+#ifndef QT_NO_QWS_QPF
 
 class QFontEngineQPFData;
 
@@ -247,6 +250,7 @@ public:
 
     QFontEngineQPFData *d;
 };
+#endif // QT_NO_QWS_QPF
 
 #endif // QWS
 

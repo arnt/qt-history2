@@ -89,6 +89,8 @@
 
 #include "qeucjpcodec.h"
 
+#ifndef QT_NO_TEXTCODECPLUGIN
+
 static const uchar Esc = 0x1b;
 static const uchar Ss2 = 0x8e;        // Single Shift 2
 static const uchar Ss3 = 0x8f;        // Single Shift 3
@@ -267,3 +269,4 @@ QByteArray QEucJpCodec::_name()
 {
     return "EUC-JP";
 }
+#endif // QT_NO_TEXTCODECPLUGIN

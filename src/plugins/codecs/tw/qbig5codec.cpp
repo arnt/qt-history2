@@ -72,6 +72,7 @@
 
 #include "qbig5codec.h"
 
+#ifndef QT_NO_TEXTCODECPLUGIN
 static int qt_Big5hkscsToUnicode(const uchar *s, uint *pwc);
 static int qt_UnicodeToBig5hkscs(uint wc, uchar *r);
 
@@ -11648,3 +11649,4 @@ int qt_UnicodeToBig5hkscs (uint wc, uchar *r)
 
 
 /* ====================================================================== */
+#endif // QT_NO_TEXTCODECPLUGIN

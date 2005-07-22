@@ -540,7 +540,7 @@ struct QWSQCopSendCommand : public QWSCommand
 #endif
 
 
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
 
 struct QWSIMMouseCommand : public QWSCommand
 {

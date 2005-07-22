@@ -177,7 +177,7 @@ public:
     static void processKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
                                 bool isPress, bool autoRepeat);
 
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
     enum IMState {
         InputMethodPreedit, InputMethodCommit, InputMethodCommitToPrev //###????
 
@@ -217,7 +217,7 @@ public:
     static void removeKeyboardFilter();
 #endif
 
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
     static void setCurrentInputMethod(QWSInputMethod *im);
     static void resetInputMethod();//remove ???
 #endif
@@ -298,7 +298,7 @@ signals:
     void removedChannel(const QString& channel);
 
 #endif
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
     void markedText(const QString &);
 #endif
 private:
@@ -317,7 +317,7 @@ private:
     void destroy_region(const QWSRegionDestroyCommand *);
     void name_region(const QWSRegionNameCommand *);
     void set_identity(const QWSIdentifyCommand *);
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
     void im_response(const QWSIMResponseCommand *);
 
     void im_update(const QWSIMUpdateCommand *);
@@ -370,7 +370,7 @@ private:
 #endif
     void invokeRepaintRegion(QWSRepaintRegionCommand *cmd,
                               QWSClient *client);
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
     void invokeIMResponse(const QWSIMResponseCommand *cmd,
                          QWSClient *client);
      void invokeIMUpdate(const QWSIMUpdateCommand *cmd,
@@ -487,7 +487,7 @@ private:
 
 extern QWSServer *qwsServer; //there can be only one
 
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
 class QWSInputMethod : public QObject
 {
     Q_OBJECT
@@ -536,7 +536,7 @@ inline void QWSInputMethod::sendKeyEvent( int uni, int code, Qt::KeyboardModifie
 }
 
 // mouse events not inline as involve transformations.
-#endif // QT_NO_QWS_IM
+#endif // QT_NO_QWS_INPUTMETHODS
 
 
 

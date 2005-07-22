@@ -42,6 +42,7 @@
 #include "qtextcodec.h"
 #include <qlist.h>
 
+#ifndef QT_NO_TEXTCODECPLUGIN
 class QEucKrCodec : public QTextCodec {
 public:
     static QByteArray _name();
@@ -76,5 +77,5 @@ public:
 
 };
 #endif
-
+#endif // QT_NO_TEXTCODECPLUGIN
 #endif // QEUCKRCODEC_P_H

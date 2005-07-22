@@ -613,6 +613,7 @@ QImage::QImage(const char *fileName, const char *format)
     load(QString::fromAscii(fileName), format);
 }
 
+#ifndef QT_NO_IMAGEFORMAT_XPM
 extern bool qt_read_xpm_image_or_array(QIODevice *device, const char * const *source, QImage &image);
 
 /*!
@@ -645,6 +646,7 @@ QImage::QImage(const char * const xpm[])
         qFatal("QImage::QImage(), XPM is not supported");
     }
 }
+#endif // QT_NO_IMAGEFORMAT_XPM
 
 /*!
     \fn QImage::QImage(const QByteArray &data)

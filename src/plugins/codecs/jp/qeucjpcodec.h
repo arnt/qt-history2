@@ -47,6 +47,8 @@
 #include "qjpunicode.h"
 #include <qlist.h>
 
+#ifndef QT_NO_TEXTCODECPLUGIN
+
 class QEucJpCodec : public QTextCodec {
 public:
     static QByteArray _name();
@@ -67,4 +69,5 @@ protected:
     const QJpUnicodeConv *conv;
 };
 
+#endif // QT_NO_TEXTCODECPLUGIN
 #endif // QEUCJPCODEC_P_H

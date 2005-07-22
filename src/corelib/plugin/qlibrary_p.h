@@ -35,6 +35,8 @@
 #include "qstringlist.h"
 #include "qplugin.h"
 
+#ifndef QT_NO_LIBRARY
+
 class QLibraryPrivate
 {
 public:
@@ -78,4 +80,5 @@ private:
     friend class QLibraryPrivateHasFriends;
 };
 
+#endif // QT_NO_LIBRARY
 #endif // QLIBRARY_P_H

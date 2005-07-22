@@ -73,7 +73,6 @@
 #include <qset.h>
 #include <qvariant.h>
 
-#ifndef QT_NO_LIBRARY
 // factory loader
 #include <qcoreapplication.h>
 #include <private/qfactoryloader_p.h>
@@ -87,14 +86,17 @@
 #include <private/qpnghandler_p.h>
 #endif
 
+#ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
                           (QImageIOHandlerFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/imageformats")))
-
+#endif
+    
 static QImageIOHandler *createWriteHandler(QIODevice *device, const QByteArray &format)
 {
     QByteArray form = format.toLower();
     QImageIOHandler *handler = 0;
 
+#ifndef QT_NO_LIBRARY
     // check if any plugins can write the image
     QFactoryLoader *l = loader();
     QStringList keys = l->keys();
@@ -105,7 +107,8 @@ static QImageIOHandler *createWriteHandler(QIODevice *device, const QByteArray &
             break;
         }
     }
-
+#endif
+    
     // check if any built-in handlers can write the image
     if (!handler && !format.isEmpty()) {
 #ifndef QT_NO_IMAGEFORMAT_PNG
@@ -483,6 +486,7 @@ QList<QByteArray> QImageWriter::supportedImageFormats()
     formats << "png";
 #endif
 
+#ifndef QT_NO_LIBRARY
     QFactoryLoader *l = loader();
     QStringList keys = l->keys();
     for (int i = 0; i < keys.count(); ++i) {
@@ -490,6 +494,7 @@ QList<QByteArray> QImageWriter::supportedImageFormats()
         if ((plugin->capabilities(0, keys.at(i).toLatin1()) & QImageIOPlugin::CanWrite) != 0)
             formats << keys.at(i).toLatin1();
     }
+#endif // QT_NO_LIBRARY
 
     QList<QByteArray> sortedFormats;
     for (QSet<QByteArray>::ConstIterator it = formats.constBegin(); it != formats.constEnd(); ++it)
@@ -499,4 +504,3 @@ QList<QByteArray> QImageWriter::supportedImageFormats()
     return sortedFormats;
 }
 
-#endif // QT_NO_LIBRARY

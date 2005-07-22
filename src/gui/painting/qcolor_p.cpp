@@ -68,6 +68,7 @@ bool qt_get_hex_rgb(const char *name, QRgb *rgb)
     return true;
 }
 
+#ifndef QT_NO_COLORNAMES
 
 /*
   CSS color names = SVG 1.0 color names + transparent (rgba(0,0,0,0))
@@ -235,8 +236,6 @@ static const struct RGBData {
 static const int rgbTblSize = sizeof(rgbTbl) / sizeof(RGBData);
 
 #undef rgb
-
-#ifndef QT_NO_COLORNAMES
 
 #include <stdlib.h>
 

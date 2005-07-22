@@ -115,6 +115,7 @@ QAbstractEventDispatcher *QCoreApplicationPrivate::eventDispatcher = 0;
 Qt::HANDLE qt_application_thread_id = 0;
 #endif
 
+#ifndef QT_NO_THREAD
 // thread wrapper for the main() thread
 class QCoreApplicationThread : public QThread
 {
@@ -141,6 +142,9 @@ private:
     }
 };
 Q_GLOBAL_STATIC(QCoreApplicationThread, mainThread)
+#else
+static QThread* mainThread() { return QThread::currentThread(); }
+#endif
 
 QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc, char **aargv)
     : QObjectPrivate(), argc(aargc), argv(aargv), application_type(0), eventFilter(0)
@@ -164,7 +168,9 @@ QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc, char **aargv)
 QCoreApplicationPrivate::~QCoreApplicationPrivate()
 {
     QThreadData *data = QThreadData::get(mainThread());
+#ifndef QT_NO_THREAD
     QThreadStorageData::finish(data->tls);
+#endif
     QThreadPrivate::setCurrentThread(0);
 
     // need to clear the state of the mainData, just in case a new QCoreApplication comes along.
@@ -380,7 +386,9 @@ void QCoreApplication::init()
     Q_ASSERT_X(!self, "QCoreApplication", "there should be only one application object");
     QCoreApplication::self = this;
 
+#ifndef QT_NO_THREAD
     QThread::initialize();
+#endif
 
     if (!QCoreApplicationPrivate::eventDispatcher)
         d->createEventDispatcher();
@@ -420,7 +428,9 @@ QCoreApplication::~QCoreApplication()
     self = 0;
     QCoreApplicationPrivate::is_app_running = false;
 
+#ifndef QT_NO_THREAD
     QThread::cleanup();
+#endif
 
     QThreadData::get(mainThread())->eventDispatcher = 0;
     if (d->eventDispatcher)

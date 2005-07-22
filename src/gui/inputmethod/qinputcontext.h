@@ -28,14 +28,14 @@
 #ifndef QINPUTCONTEXT_H
 #define QINPUTCONTEXT_H
 
-#ifndef QT_NO_IM
-
 #include "QtCore/qobject.h"
 #include "QtCore/qglobal.h"
 #include "QtGui/qevent.h"
 #include "QtCore/qstring.h"
 #include "QtCore/qlist.h"
 #include "QtGui/qaction.h"
+
+#ifndef QT_NO_IM
 
 QT_MODULE(Gui)
 

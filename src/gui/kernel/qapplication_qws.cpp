@@ -1121,7 +1121,7 @@ void QWSDisplay::destroyRegion(int winId)
     }
 }
 
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
 
 void QWSDisplay::sendIMUpdate(int type, int winId, int widgetid)
 {
@@ -1501,13 +1501,12 @@ static void qt_set_qws_resources()
 
 
 
-#ifndef QT_NO_SETTINGS
 /*! \internal
     apply the settings to the application
 */
 bool QApplicationPrivate::qws_apply_settings()
 {
-
+#ifndef QT_NO_SETTINGS
     QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
     settings.beginGroup(QLatin1String("Qt"));
 
@@ -1649,8 +1648,10 @@ bool QApplicationPrivate::qws_apply_settings()
     settings.endGroup(); // Qt
 
     return true;
-}
+#else
+    return false;    
 #endif // QT_NO_SETTINGS
+}
 
 
 
@@ -1831,7 +1832,7 @@ void qt_init(QApplicationPrivate *priv, int type)
         if (!qws_decoration)
             QApplication::qwsSetDecoration(new QDecorationDefault);
 #endif
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
         qApp->setInputContext(new QWSInputContext);
 #endif
     }
@@ -2465,7 +2466,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
             keywidget->translateKeyEvent(static_cast<QWSKeyEvent*>(event), grabbed);
         break;
 
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
     case QWSEvent::IMEvent:
         if (keywidget) // should always exist
             QWSInputContext::translateIMEvent(keywidget, static_cast<QWSIMEvent*>(event));
@@ -2926,7 +2927,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
                 // button press or release
                 current_buttons = Qt::MouseButtons(current_buttons ^ button);
 
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
                 //############ We used to do a QInputContext::reset(oldFocus);
                 // when we changed the focus widget. See change 93389 for where the
                 // focus code went. The IM code was (after testing for ClickToFocus):

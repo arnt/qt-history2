@@ -14,7 +14,7 @@
 
 #include "qinputcontext.h"
 
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
 
 class QWSIMEvent;
 class QWSIMQueryEvent;
@@ -45,5 +45,5 @@ public:
     static bool translateIMQueryEvent(QWidget *w, const QWSIMQueryEvent *e);
     static bool translateIMInitEvent(const QWSIMInitEvent *e);
 };
-#endif // QT_NO_QWS_IM
+#endif // QT_NO_QWS_INPUTMETHODS
 #endif

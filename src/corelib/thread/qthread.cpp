@@ -55,6 +55,7 @@ QThreadData *QThreadData::get(QThread *thread)
 
 
 
+#ifndef QT_NO_THREAD
 /*
   QThreadPrivate
 */
@@ -452,3 +453,13 @@ QThread::Priority QThread::priority() const
     QMutexLocker locker(&d->mutex);
     return d->priority;
 }
+
+#else // QT_NO_THREAD
+
+QThread* QThread::instance = 0;
+
+QThread::QThread() : QObject(*new QThreadPrivate(this), (QObject*)0)
+{
+}
+
+#endif // QT_NO_THREAD

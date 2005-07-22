@@ -23,6 +23,7 @@ QT_MODULE(Core)
 class QWaitConditionPrivate;
 class QMutex;
 
+#ifndef QT_NO_THREAD
 class Q_CORE_EXPORT QWaitCondition
 {
 public:
@@ -39,5 +40,22 @@ private:
 
     QWaitConditionPrivate * d;
 };
+#else
+class Q_CORE_EXPORT QWaitCondition
+{
+public:
+    QWaitCondition() {}
+    ~QWaitCondition() {}
 
+    bool wait(QMutex *mutex, unsigned long time = ULONG_MAX)
+    {
+	Q_UNUSED(mutex);
+	Q_UNUSED(time);
+	return true;
+    }
+
+    void wakeOne() {}
+    void wakeAll() {}
+};
+#endif // QT_NO_THREAD
 #endif // QWAITCONDITION_H

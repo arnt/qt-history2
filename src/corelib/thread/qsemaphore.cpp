@@ -13,6 +13,7 @@
 
 #include "qsemaphore.h"
 
+#ifndef QT_NO_THREAD
 #include "qmutex.h"
 #include "qwaitcondition.h"
 
@@ -182,3 +183,4 @@ bool QSemaphore::tryAcquire(int n)
     d->avail -= n;
     return true;
 }
+#endif // QT_NO_THREAD

@@ -16,6 +16,8 @@
 
 #include "QtCore/qobject.h"
 
+#ifndef QT_NO_LIBRARY
+
 QT_MODULE(Core)
 
 class QLibraryPrivate;
@@ -44,4 +46,5 @@ private:
     bool did_load;
 };
 
+#endif // QT_NO_LIBRARY
 #endif //QPLUGINLOADER_H

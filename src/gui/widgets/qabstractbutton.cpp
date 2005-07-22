@@ -132,6 +132,18 @@ nextCheckState().
 \sa QButtonGroup
 */
 
+QAbstractButtonPrivate::QAbstractButtonPrivate() 
+    :
+#ifndef QT_NO_SHORTCUT
+    shortcutId(0),
+#endif
+    checkable(false), checked(false), autoRepeat(false), autoExclusive(false),
+    down(false), blockRefresh(false)
+#ifndef QT_NO_BUTTONGROUP    
+    , group(0)
+#endif
+{}
+
 #ifndef QT_NO_BUTTONGROUP
 
 class QButtonGroupPrivate: public QObjectPrivate
@@ -145,18 +157,6 @@ public:
     void notifyChecked(QAbstractButton *button);
     bool exclusive;
 };
-
-QAbstractButtonPrivate::QAbstractButtonPrivate() 
-    :
-#ifndef QT_NO_SHORTCUT
-    shortcutId(0),
-#endif
-    checkable(false), checked(false), autoRepeat(false), autoExclusive(false),
-    down(false), blockRefresh(false)
-#ifndef QT_NO_BUTTONGROUP    
-    , group(0)
-#endif
-{}
 
 QButtonGroup::QButtonGroup(QObject *parent)
     : QObject(*new QButtonGroupPrivate, parent)

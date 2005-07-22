@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <string.h>
 
+#ifndef QT_NO_THREAD
 
 static void report_error(int code, const char *where, const char *what)
 {
@@ -265,3 +266,4 @@ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
 
     return (code == 0);
 }
+#endif // QT_NO_THREAD

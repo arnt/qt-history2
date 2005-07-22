@@ -13,6 +13,8 @@
 
 #include "qaccessiblebridge.h"
 
+#ifndef QT_NO_ACCESSIBILITY
+
 /*!
     \class QAccessibleBridge
     \brief The QAccessibleBridge class is the base class for
@@ -122,3 +124,5 @@ QAccessibleBridgePlugin::~QAccessibleBridgePlugin()
 
     \sa keys()
 */
+
+#endif // QT_NO_ACCESSIBILITY

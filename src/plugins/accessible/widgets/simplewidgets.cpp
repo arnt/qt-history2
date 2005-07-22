@@ -26,6 +26,8 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 
+#ifndef QT_NO_ACCESSIBILITY
+
 QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 QString Q_GUI_EXPORT qt_accHotKey(const QString &text);
 
@@ -561,3 +563,4 @@ QAccessible::State QAccessibleLineEdit::state(int child) const
     return state;
 }
 #endif // QT_NO_LINEEDIT
+#endif // QT_NO_ACCESSIBILITY

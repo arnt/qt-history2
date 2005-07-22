@@ -511,7 +511,7 @@ QWSCommand *QWSCommand::factory(int type)
     case QWSCommand::RepaintRegion:
         command = new QWSRepaintRegionCommand;
         break;
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
     case QWSCommand::IMUpdate:
         command = new QWSIMUpdateCommand;
         break;

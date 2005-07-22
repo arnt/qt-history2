@@ -267,7 +267,7 @@ struct QWSWindowOperationEvent : QWSEvent {
     } simpleData;
 };
 
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
 
 
 struct QWSIMEvent : QWSEvent {

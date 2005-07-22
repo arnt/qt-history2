@@ -582,7 +582,7 @@ int QTabBar::insertTab(int index, const QIcon& icon, const QString &text)
 #endif
     d->refresh();
     if(d->tabList.count() == 1)
-        setCurrentTab(index);
+        setCurrentIndex(index);
     tabInserted(index);
     return index;
 }

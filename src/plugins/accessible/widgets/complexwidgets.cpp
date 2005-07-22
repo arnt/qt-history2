@@ -26,6 +26,8 @@
 #include <qtooltip.h>
 #include <qwhatsthis.h>
 
+#ifndef QT_NO_ACCESSIBILITY
+
 QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 
 #ifndef QT_NO_ITEMVIEWS
@@ -494,3 +496,4 @@ bool QAccessibleComboBox::doAction(int, int child, const QVariantList &)
 }
 #endif // QT_NO_COMBOBOX
 
+#endif // QT_NO_ACCESSIBILITY

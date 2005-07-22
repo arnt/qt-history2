@@ -16,6 +16,8 @@
 
 #include <qaccessiblewidget.h>
 
+#ifndef QT_NO_ACCESSIBILITY
+
 class QAbstractButton;
 class QHeaderView;
 class QTabBar;
@@ -93,4 +95,5 @@ protected:
     QComboBox *comboBox() const;
 };
 
+#endif // QT_NO_ACCESSIBILITY
 #endif // COMPLEXWIDGETS_H

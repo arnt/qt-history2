@@ -207,10 +207,10 @@ int QHostInfo::lookupHost(const QString &name, QObject *receiver,
     if (!agent->isRunning())
         agent->start();
 #else
-    if (!agent->isRunning())
-        agent->run();
-    else
-        agent->wakeOne();
+//    if (!agent->isRunning())
+	agent->run();
+//    else
+//	agent->wakeOne();
 #endif
     return result->lookupId;
 }
@@ -271,9 +271,13 @@ QHostInfo QHostInfo::fromName(const QString &name)
 */
 void QHostInfoAgent::run()
 {
-    forever {
+#ifndef QT_NO_THREAD
+    forever
+#endif
+    {
         QHostInfoQuery *query;
         {
+#ifndef QT_NO_THREAD
             // the queries list is shared between threads. lock all
             // access to it.
             QMutexLocker locker(&mutex);
@@ -283,6 +287,10 @@ void QHostInfoAgent::run()
                 break;
 	    if (queries.isEmpty())
 		continue;
+#else
+	    if (quries.isEmpty())
+		return;
+#endif
             query = queries.takeFirst();
         }
 

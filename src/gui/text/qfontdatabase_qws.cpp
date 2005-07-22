@@ -42,10 +42,12 @@ static void initializeDb()
     QFontDatabasePrivate *db = privateDb();
     if (!db || db->count)
         return;
+#ifndef QT_NO_FREETYPE
     // initialize Freetype
     FT_Error err;
     err = FT_Init_FreeType(&QFontEngineFT::ft_library);
     Q_ASSERT(!err);
+#endif
 
     // Load in font definition file
     QString fn;
@@ -199,44 +201,48 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 
     Q_ASSERT(size);
 
-
     int pixelSize = size->pixelSize;
     if (!pixelSize || style->smoothScalable && pixelSize == SMOOTH_SCALABLE)
         pixelSize = request.pixelSize;
 
     if ( foundry->name != QLatin1String("qt") ) { ///#### is this the best way????
+#ifndef QT_NO_FREETYPE
 
-    FT_Face face;
+        FT_Face face;
 
-    QString file;
+        QString file;
 #ifndef QT_NO_LIBRARY
-    file = QLibraryInfo::location(QLibraryInfo::PrefixPath);
+        file = QLibraryInfo::location(QLibraryInfo::PrefixPath);
 #endif
-    file += "/lib/fonts/";
-    file += size->fileName;
-    FT_Error err = FT_New_Face(QFontEngineFT::ft_library, file.toLocal8Bit().constData(), 0, &face);
-    if (err) {
-        FM_DEBUG("loading font file %s failed, err=%x", file.toLocal8Bit().constData(), err);
-        Q_ASSERT(!err);
-    }
-    FT_Set_Pixel_Sizes(face, pixelSize, pixelSize);
-    FD_DEBUG("setting pixel size to %d", pixelSize);
+        file += "/lib/fonts/";
+        file += size->fileName;
+        FT_Error err = FT_New_Face(QFontEngineFT::ft_library, file.toLocal8Bit().constData(), 0, &face);
+        if (err) {
+            FM_DEBUG("loading font file %s failed, err=%x", file.toLocal8Bit().constData(), err);
+            Q_ASSERT(!err);
+        }
+        FT_Set_Pixel_Sizes(face, pixelSize, pixelSize);
+        FD_DEBUG("setting pixel size to %d", pixelSize);
 
-    QFontEngine *fe = new QFontEngineFT(request, face);
-    return fe;
+        QFontEngine *fe = new QFontEngineFT(request, face);
+        return fe;
+#endif // QT_NO_FREETYPE
     } else {
+#ifndef QT_NO_QWS_QPF
         QString fn;
 #ifndef QT_NO_LIBRARY
 	fn = QLibraryInfo::location(QLibraryInfo::PrefixPath);
 #endif
         fn += QLatin1String("/lib/fonts/")
-	    + family->name.toLower()
-	    + "_" + QString::number(pixelSize*10)
-	    + "_" + QString::number(style->key.weight)
-	    + (style->key.style == QFont::StyleItalic ? "i.qpf" : ".qpf");
+              + family->name.toLower()
+              + "_" + QString::number(pixelSize*10)
+              + "_" + QString::number(style->key.weight)
+              + (style->key.style == QFont::StyleItalic ? "i.qpf" : ".qpf");
         //###rotation ###
 
         QFontEngine *fe = new QFontEngineQPF(request, fn);
         return fe;
+#endif // QT_NO_QWS_QPF
     }
+    return 0;
 }

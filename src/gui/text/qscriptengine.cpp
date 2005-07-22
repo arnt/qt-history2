@@ -1303,7 +1303,7 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
     *shapedLength = data - shapeBuffer;
 }
 
-#if defined(QT_HAVE_FREETYPE)
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
 
 static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
 {
@@ -1437,7 +1437,7 @@ static bool arabic_shape(QShaperItem *item)
 {
     Q_ASSERT(item->script == QUnicodeTables::Arabic);
 
-#ifdef QT_HAVE_FREETYPE
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
     QOpenType *openType = item->font->openType();
 
     if (openType && openType->supportsScript(QUnicodeTables::Arabic))

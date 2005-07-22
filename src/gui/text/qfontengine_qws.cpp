@@ -47,7 +47,7 @@
 
 
 
-
+#ifndef QT_NO_FREETYPE
 
 FT_Library QFontEngineFT::ft_library = 0;
 
@@ -476,6 +476,9 @@ void QFontEngineFT::doKerning(int num_glyphs, QGlyphLayout *glyphs, QTextEngine:
         }
     }
 }
+
+#endif // QT_NO_FREETYPE
+
 
 qreal QFontEngine::lineThickness() const
 {

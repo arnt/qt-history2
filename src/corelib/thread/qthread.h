@@ -23,6 +23,7 @@ QT_MODULE(Core)
 class QThreadData;
 class QThreadPrivate;
 
+#ifndef QT_NO_THREAD
 class Q_CORE_EXPORT QThread : public QObject
 {
 public:
@@ -98,4 +99,23 @@ private:
     friend class QThreadData;
 };
 
+#else // QT_NO_THREAD
+
+class Q_CORE_EXPORT QThread : public QObject
+{
+public:
+    static Qt::HANDLE currentThreadId() { return Qt::HANDLE(currentThread()); }
+    static QThread* currentThread()
+    { if (!instance) instance = new QThread(); return instance; }
+    
+private:
+    QThread();
+    static QThread *instance;
+
+    friend class QCoreApplication;
+    friend class QThreadData;
+    Q_DECLARE_PRIVATE(QThread)
+};
+
+#endif // QT_NO_THREAD
 #endif // QTHREAD_H

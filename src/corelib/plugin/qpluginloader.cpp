@@ -19,6 +19,8 @@
 #include "qlibrary_p.h"
 #include "qdebug.h"
 
+#ifndef QT_NO_LIBRARY
+
 /*!
     \class QPluginLoader
     \reentrant
@@ -309,3 +311,4 @@ QObjectList QPluginLoader::staticInstances()
         instances.append((*functions)[i]());
     return instances;
 }
+#endif // QT_NO_LIBRARY

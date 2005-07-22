@@ -66,7 +66,7 @@ QWSEvent *QWSEvent::factory(int type)
         event = new QWSWindowOperationEvent;
         break;
 
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
     case QWSEvent::IMEvent:
         event = new QWSIMEvent;
         break;

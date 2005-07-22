@@ -6,6 +6,12 @@ Requires:
 Name: Properties
 SeeAlso: ???
 
+Feature: THREAD
+Section: Kernel
+Requires:
+Name: Thread support
+SeeAlso: ???
+
 Feature: DRAGANDDROP
 Section: Kernel
 Requires: QWS_PROPERTIES IMAGEFORMAT_XPM
@@ -90,7 +96,7 @@ SeeAlso: ???
 
 Feature: PROCESS
 Section: File I/O
-Requires: REGEXP
+Requires: THREAD
 Name: External process invocation.
 SeeAlso: ???
 
@@ -100,21 +106,15 @@ Requires:
 Name: QTextStream
 SeeAlso: ???
 
-Feature: DATASTREAM
-Section: File I/O
-Requires:
-Name: QDataStream
-SeeAlso: ???
-
 Feature: LIBRARY
 Section: File I/O
-Requires: REGEXP SETTINGS
+Requires: SETTINGS
 Name: Shared library wrapper
 SeeAlso: ???
 
 Feature: SETTINGS
 Section: File I/O
-Requires: TEXTSTREAM REGEXP_CAPTURE
+Requires: TEXTSTREAM 
 Name: Persistent application settings
 SeeAlso: ???
 
@@ -370,7 +370,7 @@ SeeAlso: ???
 
 Feature: FILEDIALOG
 Section: Dialogs
-Requires: DIRMODEL TREEVIEW MESSAGEBOX COMBOBOX REGEXP_CAPTURE TOOLBUTTON BUTTONGROUP 
+Requires: DIRMODEL TREEVIEW MESSAGEBOX COMBOBOX TOOLBUTTON BUTTONGROUP 
 Name: QFileDialog
 SeeAlso: ???
 
@@ -450,7 +450,7 @@ SeeAlso: ???
 
 Feature: TABLEVIEW
 Section: ItemViews
-Requires: ITEMVIEWS
+Requires: ITEMVIEWS 
 Name: QTableView
 SeeAlso: ???
 
@@ -520,7 +520,7 @@ SeeAlso: ???
 
 Feature: IMAGEFORMAT_BMP
 Section: Images
-Requires: DATASTREAM
+Requires:
 Name: BMP image I/O
 SeeAlso: ???
 
@@ -576,7 +576,7 @@ SeeAlso: ???
 
 Feature: PICTURE
 Section: Painting
-Requires: DATASTREAM 
+Requires: 
 Name: QPicture
 SeeAlso: ???
 
@@ -600,6 +600,12 @@ Requires:
 Name: Freetype font engine
 SeeAlso: ???
 
+Feature: QWS_QPF
+Section: Fonts
+Requires:
+Name: Pre-rendered fonts
+SeeAlso: ???
+
 # Internationalization
 
 Feature: TEXTCODECPLUGIN
@@ -610,7 +616,7 @@ SeeAlso: ???
 
 Feature: TRANSLATION
 Section: Internationalization
-Requires: DATASTREAM
+Requires:
 Name: Translations via QObject::tr()
 SeeAlso: ???
 
@@ -636,6 +642,12 @@ Feature: BIG_CODECS
 Section: Internationalization
 Requires: 
 Name: Big Codecs (eg. CJK)
+SeeAlso: ???
+
+Feature: QWS_INPUTMETHODS
+Section: Internationalization
+Requires: 
+Name: Input methods
 SeeAlso: ???
 
 # Networking
@@ -672,7 +684,7 @@ SeeAlso: ???
 
 Feature: COP
 Section: Networking
-Requires: DATASTREAM
+Requires:
 Name: QCop IPC
 SeeAlso: ???
 
@@ -754,67 +766,5 @@ Feature: QWS_PROPERTIES
 Section: Qt/Embedded-specific
 Requires:
 Name: Qt/Embedded window system properties.
-SeeAlso: ???
-
-# Regexp
-
-Feature: REGEXP
-Section: Data structures
-Requires:
-Name: Regular expression capture
-SeeAlso: ???
-
-Feature: REGEXP_CAPTURE
-Section: Data structures
-Requires: REGEXP
-Name: Regular expression capture
-SeeAlso: ???
-
-Feature: REGEXP_OPTIM
-Section: Data structures
-Requires: REGEXP
-Name: Regular expression optimization
-SeeAlso: ???
-
-Feature: REGEXP_LOOKAHEAD
-Section: Data structures
-Requires: REGEXP
-Name: Regular expression lookahead
-SeeAlso: ???
-
-Feature: REGEXP_INTERVAL
-Section: Data structures
-Requires: REGEXP
-Name: Regular expression interval
-SeeAlso: ???
-
-Feature: REGEXP_ESCAPE
-Section: Data structures
-Requires: REGEXP
-Name: Regular expression escape
-SeeAlso: ???
-
-Feature: REGEXP_CCLASS
-Section: Data structures
-Requires: REGEXP
-Name: Regular expression character-class
-SeeAlso: ???
-
-Feature: REGEXP_BACKREF
-Section: Data structures
-Requires: REGEXP
-Name: Regular expression back-reference
-SeeAlso: ???
-
-Feature: REGEXP_ANCHOR_ALT
-Section: Data structures
-Requires: REGEXP
-Name: Regular expression anchors
-SeeAlso: ???
-
-Feature: REGEXP_WILDCARD
-Section: Data structures
-Requires: REGEXP
-Name: Regular expression wildcard
 SeeAlso: ???
 

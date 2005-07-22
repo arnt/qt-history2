@@ -21,6 +21,7 @@
 #include "qtextcodec.h"
 #include <qlist.h>
 
+#ifndef QT_NO_TEXTCODECPLUGIN
 class QBig5Codec : public QTextCodec {
 public:
     static QByteArray _name();
@@ -87,5 +88,5 @@ public:
 };
 
 #endif // Q_WS_X11
-
+#endif // QT_NO_TEXTCODECPLUGIN
 #endif // QBIG5CODEC_P_H

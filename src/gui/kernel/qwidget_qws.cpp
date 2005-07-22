@@ -350,7 +350,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height,
         d->createExtra();
         d->extra->micro_focus_hint.setRect(x, y, width, height);
     }
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
     if (text) {
         QWidget *tlw = window();
         int winid = tlw->winId();

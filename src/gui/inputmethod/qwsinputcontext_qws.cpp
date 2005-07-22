@@ -23,7 +23,7 @@
 
 #include <qdebug.h>
 
-#ifndef QT_NO_QWS_IM
+#ifndef QT_NO_QWS_INPUTMETHODS
 
 static QWidget* activeWidget = 0;
 
@@ -184,4 +184,4 @@ bool QWSInputContext::translateIMEvent(QWidget *w, const QWSIMEvent *e)
 
 
 
-#endif // QT_NO_QWS_IM
+#endif // QT_NO_QWS_INPUTMETHODS

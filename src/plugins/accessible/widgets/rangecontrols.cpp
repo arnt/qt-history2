@@ -20,6 +20,7 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 
+#ifndef QT_NO_ACCESSIBILITY
 QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 
 #ifndef QT_NO_SPINBOX
@@ -532,3 +533,4 @@ bool QAccessibleSlider::doAction(int /*action*/, int /*child*/, const QVariantLi
 }
 
 #endif // QT_NO_SLIDER
+#endif // QT_NO_ACCESSIBILITY

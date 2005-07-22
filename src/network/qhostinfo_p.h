@@ -101,7 +101,9 @@ public slots:
             quit = true;
             cond.wakeOne();
         }
+#ifndef QT_NO_THREAD
         wait();
+#endif
     }
 
 private:

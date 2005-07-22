@@ -13,6 +13,8 @@
 
 #include "qthread.h"
 
+#ifndef QT_NO_THREAD
+
 #include "qplatformdefs.h"
 
 #include <private/qeventdispatcher_unix_p.h>
@@ -490,3 +492,5 @@ void QThread::setPriority(Priority priority)
     Q_UNUSED(d->priority);
 #endif
 }
+
+#endif // QT_NO_THREAD

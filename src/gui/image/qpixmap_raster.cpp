@@ -82,6 +82,7 @@ QPixmap::QPixmap(const QPixmap &pixmap)
     }
 }
 
+#ifndef QT_NO_IMAGEFORMAT_XPM
 QPixmap::QPixmap(const char * const xpm[])
     : QPaintDevice()
 {
@@ -91,6 +92,7 @@ QPixmap::QPixmap(const char * const xpm[])
     if (!image.isNull())
         (*this) = fromImage(image);
 }
+#endif // QT_NO_IMAGEFORMAT_XPM
 
 QPixmap::~QPixmap()
 {
@@ -594,6 +596,7 @@ QPixmap QPixmap::copy(const QRect &rect) const
         return QPixmap::fromImage(toImage().copy(rect));
 }
 
+#ifndef QT_NO_DATASTREAM
 QDataStream &operator<<(QDataStream &s, const QPixmap &pixmap)
 {
     s << pixmap.toImage();
@@ -610,6 +613,7 @@ QDataStream &operator>>(QDataStream &s, QPixmap &pixmap)
         pixmap = QPixmap::fromImage(img);
     return s;
 }
+#endif // QT_NO_DATASTREAM
 
 QPaintEngine *QPixmap::paintEngine() const
 {

@@ -15,6 +15,7 @@
 #include "qfontengine_p.h"
 #include "qscriptengine_p.h"
 
+#ifndef QT_NO_FREETYPE
 //  --------------------------------------------------------------------------------------------------------------------
 // Open type support
 //  --------------------------------------------------------------------------------------------------------------------
@@ -481,3 +482,4 @@ bool QOpenType::appendTo(QShaperItem *item, bool doLogClusters)
 #endif
     return true;
 }
+#endif // QT_NO_FREETYPE

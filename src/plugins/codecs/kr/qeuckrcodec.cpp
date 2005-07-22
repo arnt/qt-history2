@@ -64,6 +64,7 @@
 
 #include "qeuckrcodec.h"
 
+#ifndef QT_NO_TEXTCODECPLUGIN
 unsigned int qt_Ksc5601ToUnicode(unsigned int code);
 
 unsigned int qt_UnicodeToKsc5601(unsigned int unicode);
@@ -3378,3 +3379,4 @@ static unsigned short unicode2ksc(unsigned short unicode)
     }
     return 0;
 }
+#endif // QT_NO_TEXTCODECPLUGIN

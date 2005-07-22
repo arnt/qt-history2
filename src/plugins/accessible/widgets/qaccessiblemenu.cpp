@@ -17,6 +17,7 @@
 #include <qmenubar.h>
 #include <qstyle.h>
 
+#ifndef QT_NO_ACCESSIBILITY
 #ifndef QT_NO_MENU
 
 QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
@@ -301,3 +302,4 @@ bool QAccessibleMenuBar::setFocus(int child)
 }
 */
 #endif // QT_NO_MENUBAR
+#endif // QT_NO_ACCESSIBILITY

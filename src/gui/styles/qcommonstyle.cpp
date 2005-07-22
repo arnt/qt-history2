@@ -192,7 +192,9 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                     opt->palette.brush(QPalette::Highlight));
         break;
     case PE_Q3CheckListController:
+#ifndef QT_NO_IMAGEFORMAT_XPM
         p->drawPixmap(opt->rect.topLeft(), QPixmap(check_list_controller_xpm));
+#endif
         break;
     case PE_Q3CheckListExclusiveIndicator:
         if (const QStyleOptionQ3ListView *lv = qstyleoption_cast<const QStyleOptionQ3ListView *>(opt)) {
@@ -298,8 +300,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         }
         break;
     case PE_IndicatorBranch: {
-        static QPixmap open(tree_branch_open_xpm);
-        static QPixmap closed(tree_branch_closed_xpm);
         static const int decoration_size = 9;
         int mid_h = opt->rect.x() + opt->rect.width() / 2;
         int mid_v = opt->rect.y() + opt->rect.height() / 2;
@@ -307,6 +307,9 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         int bef_v = mid_v;
         int aft_h = mid_h;
         int aft_v = mid_v;
+#ifndef QT_NO_IMAGEFORMAT_XPM
+        static QPixmap open(tree_branch_open_xpm);
+        static QPixmap closed(tree_branch_closed_xpm);
         if (opt->state & State_Children) {
             int delta = decoration_size / 2;
             bef_h -= delta;
@@ -315,6 +318,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             aft_v += delta;
             p->drawPixmap(bef_h, bef_v, opt->state & State_Open ? open : closed);
         }
+#endif // QT_NO_IMAGEFORMAT_XPM
         if (opt->state & State_Item) {
             if (opt->direction == Qt::RightToLeft)
                 p->drawLine(opt->rect.left(), mid_v, bef_h, mid_v);

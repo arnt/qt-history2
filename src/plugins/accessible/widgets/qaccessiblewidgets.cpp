@@ -13,6 +13,7 @@
 
 #include "qaccessiblewidgets.h"
 
+#ifndef QT_NO_ACCESSIBILITY
 #include <qstyle.h>
 #include <qgroupbox.h>
 
@@ -166,3 +167,4 @@ int QAccessibleScrollView::itemCount() const
 {
     return 0;
 }
+#endif // QT_NO_ACCESSIBILITY
