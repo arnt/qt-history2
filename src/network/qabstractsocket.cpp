@@ -165,7 +165,7 @@
     \sa state()
 */
 
-/*! \internal
+/*! 
     \enum QAbstractSocket::NetworkLayerProtocol
 
     This enum describes the network layer protocol values used in Qt.
