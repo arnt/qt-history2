@@ -1052,6 +1052,9 @@ QStyle *QApplication::style()
     object is transferred to QApplication, so QApplication will delete
     the style object on application exit or when a new style is set.
 
+    To ensure that the application's style is set correctly, it is best to
+    call this function before the QApplication constructor, if possible.
+
     Example usage:
     \code
         QApplication::setStyle(new QWindowsStyle);

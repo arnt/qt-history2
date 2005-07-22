@@ -382,7 +382,7 @@ QFontEngineData::~QFontEngineData()
     \endcode
 
     For more general information on fonts, see the
-    \link http://www.nwalsh.com/comp.fonts/FAQ/ comp.fonts FAQ.\endlink
+    \link http://nwalsh.com/comp.fonts/FAQ/ comp.fonts FAQ.\endlink
     Information on encodings can be found from
     \link http://czyborra.com/ Roman Czyborra's\endlink page.
 

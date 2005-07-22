@@ -451,7 +451,7 @@ QMenu *QAction::menu() const
 }
 
 /*!
-    Sets the menu contained by this action.
+    Sets the menu contained by this action to the specified \a menu.
 */
 void QAction::setMenu(QMenu *menu)
 {

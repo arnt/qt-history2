@@ -101,12 +101,13 @@ public:
 
 /*!
     \class QPageSetupDialog
-
-    The QPageSetupDialog offers configuration for the page related
+    \brief The QPageSetupDialog provides a configuration dialog for the page-related
     options on a printer.
 
     On Windows and Mac OS X the page setup dialog is implemented using
     the native page setup dialogs.
+
+    \sa QPrinter
 */
 
 /*!

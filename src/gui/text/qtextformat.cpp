@@ -339,6 +339,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     \value TextIndent
     \value BlockIndent
     \value BlockNonBreakableLines
+    \value BlockTrailingHorizontalRulerWidth
 
     Character properties
 
