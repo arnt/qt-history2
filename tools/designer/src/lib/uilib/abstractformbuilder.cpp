@@ -246,7 +246,7 @@ QActionGroup *QAbstractFormBuilder::create(DomActionGroup *ui_action_group, QObj
     }
 
     foreach (DomActionGroup *g, ui_action_group->elementActionGroup()) {
-        QActionGroup *child_action_group = create(g, a);
+        QActionGroup *child_action_group = create(g, parent);
         Q_UNUSED( child_action_group );
     }
 
