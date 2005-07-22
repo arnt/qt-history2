@@ -95,6 +95,12 @@ void PageGenerator::generateInnerNode( const InnerNode *node,
     if (!node->url().isEmpty())
         return;
 
+    if (node->type() == Node::Fake) {
+        const FakeNode *fakeNode = static_cast<const FakeNode *>(node);
+        if (fakeNode->subType() == FakeNode::ExternalPage)
+            return;
+    }
+
     if ( node->parent() != 0 ) {
 	beginSubPage( node->location(), fileName(node) );
 	if ( node->type() == Node::Namespace || node->type() == Node::Class) {
