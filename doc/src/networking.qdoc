@@ -2,7 +2,7 @@
     \page networking.html
     \title Network Module
 
-    The network module offers classes to make network programming
+    The network module provides classes to make network programming
     easier and portable. It offers both high-level classes such as
     QHttp and QFtp that implement specific application-level
     protocols, and lower-level classes such as QTcpSocket,
@@ -33,11 +33,11 @@
 
     HTTP (Hypertext Transfer Protocol) is an application-level
     network protocol used mainly for downloading HTML and XML files,
-    but it is also used as a high-level transport protocol for any
-    types of data. For example, HTTP is often used for transferring
-    purchase orders over the Internet. In contrast, FTP (File
-    Transfer Protocol) is a protocol used almost exclusively for
-    browsing remote directories and transferring files.
+    but it is also used as a high-level transport protocol for many
+    other types of data, from images and movies to purchase orders
+    and banking transactions. In contrast, FTP (File Transfer
+    Protocol) is a protocol used almost exclusively for browsing
+    remote directories and for transferring files.
 
     \image httpstack.png HTTP Client and Server
 
@@ -46,7 +46,7 @@
     commands, and one for transferring data). HTTP is a stateless
     protocol; requests and responses are always self-contained. The
     FTP protocol has a state and requires the client to send several
-    commands before the file transfer takes place.
+    commands before a file transfer takes place.
 
     In practice, HTTP clients often use separate connections for
     separate requests, whereas FTP clients establish one connection
@@ -59,28 +59,29 @@
 
     \list
 
-    \i \e{Non-blocking behavior.} QHttp and QFtp are asynchronous. You
-    can schedule a series of commands (also called "requests" for
-    HTTP). The commands are executed later, when control goes back to
+    \o \e{Non-blocking behavior.} QHttp and QFtp are asynchronous.
+    You can schedule a series of commands (also called "requests" for
+    HTTP). The commands are executed later, when control returns to
     Qt's event loop.
 
-    \i \e{Command IDs.} Each command has a unique ID number that you
+    \o \e{Command IDs.} Each command has a unique ID number that you
     can use to follow the execution of the command. For example, QFtp
     emits the \l{QFtp::commandStarted()}{commandStarted()} and
     \l{QFtp::commandFinished()}{commandFinished()} signal with the
     command ID for each command that is executed. QHttp has a
     \l{QHttp::requestStarted()}{requestStarted()} and a
-    \l{QHttp::requestFinished()}{requestFinished()} signal that works
+    \l{QHttp::requestFinished()}{requestFinished()} signal that work
     the same way.
 
-    \i \e{Data transfer progress indicators.} QHttp and QFtp emits
+    \o \e{Data transfer progress indicators.} QHttp and QFtp emit
     signals whenever data is transferred
     (QFtp::dataTransferProgress(), QHttp::dataReadProgress(), and
-    QHttp::dataSendProgress()). You can connect these signals to
-    QProgressBar::setProgress() or QProgressDialog::setProgress().
+    QHttp::dataSendProgress()). You could connect these signals to
+    QProgressBar::setProgress() or QProgressDialog::setProgress(),
+    for example.
 
-    \i \e{QIODevice support.} Both classes support convenient
-    uploading of and downloading to \l{QIODevice}s, in addition to a
+    \o \e{QIODevice support.} Both classes support convenient
+    uploading from and downloading to \l{QIODevice}s, in addition to a
     QByteArray-based API.
 
     \endlist
@@ -109,8 +110,8 @@
     TCP (Transmission Control Protocol) is a low-level network
     protocol used by most Internet protocols, including HTTP and FTP,
     for data transfer. It is a reliable, stream-oriented,
-    connection-oriented transport protocol. It is especially well
-    suited for continuous transmission of data.
+    connection-oriented transport protocol. It is particularly well
+    suited to the continuous transmission of data.
 
     \image tcpstream.png A TCP Stream
 
@@ -147,17 +148,18 @@
     use the returned QTcpSocket to communicate with the client.
 
     Although most of its functions work asynchronously, it's possible
-    to use QTcpSocket synchronously (i.e., blocking). The trick is to
-    call QTcpSocket's waitFor...() functions, which suspend the
-    calling thread until a signal has been emitted. For example, after
-    calling the non-blocking QTcpSocket::connectToHost() function,
-    call QTcpSocket::waitForConnected() to block the thread until the
-    \l{QTcpSocket::connected()}{connected()} signal has been emitted.
+    to use QTcpSocket synchronously (i.e., blocking). To get blocking
+    behavior, call QTcpSocket's waitFor...() functions; these suspend
+    the calling thread until a signal has been emitted. For example,
+    after calling the non-blocking QTcpSocket::connectToHost()
+    function, call QTcpSocket::waitForConnected() to block the thread
+    until the \l{QTcpSocket::connected()}{connected()} signal has
+    been emitted.
 
-    Synchronous sockets often lead to code with a simpler control
-    flow. The main disadvantage of the waitFor...() approach is that
-    events won't be processed while a waitFor...() function is
-    blocked. If used in the GUI thread, this might freeze the
+    Synchronous sockets often lead to code with a simpler flow of
+    control. The main disadvantage of the waitFor...() approach is
+    that events won't be processed while a waitFor...() function is
+    blocking. If used in the GUI thread, this might freeze the
     application's user interface. For this reason, we recommend that
     you use synchronous sockets only in non-GUI threads. When used
     synchronously, QTcpSocket doesn't require an event loop.
@@ -224,13 +226,13 @@
     you're connecting to into an IP address. This operation is
     usually performed using the DNS (Domain Name Service) protocol.
 
-    QHostInfo provides a static function that lets you perform
-    such a lookup yourself. By passing a host name to
-    QHostInfo::lookupHost() with a host name, a QObject pointer, and
-    a slot signature, QHostInfo will perform the name lookup and
-    invoke the given slot when the results are ready. The actual
-    lookup is done in a separate thread, making use of the operating
-    system's own methods for performing name lookups.
+    QHostInfo provides a static function that lets you perform such a
+    lookup yourself. By calling QHostInfo::lookupHost() with a host
+    name, a QObject pointer, and a slot signature, QHostInfo will
+    perform the name lookup and invoke the given slot when the
+    results are ready. The actual lookup is done in a separate
+    thread, making use of the operating system's own methods for
+    performing name lookups.
 
     QHostInfo also provides a static function called
     QHostInfo::fromName() that takes the host name as argument and
@@ -238,6 +240,6 @@
     in the same thread as the caller. This overload is useful for
     non-GUI applications or for doing name lookups in a separate,
     non-GUI thread. (Calling this function in a GUI thread may cause
-    your user interface to freeze while the function performs the
-    lookup.)
+    your user interface to freeze while the function blocks as
+    it performs the lookup.)
 */
