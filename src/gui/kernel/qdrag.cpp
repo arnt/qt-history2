@@ -197,7 +197,7 @@ Qt::DropAction QDrag::start(Qt::DropActions request)
 
 /*!
     Sets the drag \a cursor for the \a action. This alows you
-    to overide the defualt native cursors. To revert to using the
+    to overide the default native cursors. To revert to using the
     native cursor for \a action pass in a null QPixmap as \a cursor.
     
     The \a action can only be CopyAction, MoveAction or LinkAction.
