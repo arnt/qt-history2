@@ -891,7 +891,7 @@ void FormWindow::selectWidgets()
 {
     QList<QWidget*> l = qFindChildren<QWidget*>(mainContainer());
     QListIterator <QWidget*> it(l);
-    const QRect selRect(mapToGloal(currRect.topLeft()), currRect.size());
+    const QRect selRect(mapToGlobal(currRect.topLeft()), currRect.size());
     while (it.hasNext()) {
         QWidget *w = it.next();
         if (w->isVisibleTo(this) && isManaged(w)) {
