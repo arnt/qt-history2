@@ -2378,7 +2378,7 @@ static inline KhmerCharClass getKhmerCharClass(const QChar &uc)
 //  there are lines with equal content but for an easier understanding
 //  (and maybe change in the future) we did not join them
 //
-static const char khmerStateTable[][CC_COUNT] =
+static const signed char khmerStateTable[][CC_COUNT] =
 {
    // xx  c1  c2  c3 zwnj cs  rb  co  dv  sa  sp zwj
     { 1,  2,  2,  2,  1,  1,  1,  6,  1,  1,  1,  2}, //  0 - ground state
