@@ -183,6 +183,8 @@ public:
     QPointF bg_origin;
     QPainterPrivate::TransformationCodes txop;
     QPolygonClipper<qt_float_point, qt_float_point, float> polygonClipper;
+
+    int xlibMaxLinePoints;
 };
 
 #endif // QPAINTENGINE_X11_P_H

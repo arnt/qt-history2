@@ -700,6 +700,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     d->bg_col = Qt::white;
     d->txop = QPainterPrivate::TxNone;
     d->pdev_depth = d->pdev->depth();
+    d->xlibMaxLinePoints = 32762; // a safe number used to avoid, call to XMaxRequestSize(d->dpy) - 3;
 
     // Set up the polygon clipper. Note: This will only work in
     // polyline mode as long as we have a buffer zone, since a
@@ -1453,7 +1454,18 @@ void QX11PaintEnginePrivate::strokePolygon_dev(const QPointF *polygonPoints, int
                 xpoints[i].x = qRound(clippedPoints[i].x);
                 xpoints[i].y = qRound(clippedPoints[i].y);
             }
-            XDrawLines(dpy, hd, gc, xpoints.data(), clippedCount, CoordModeOrigin);
+            uint numberPoints = qMin(clippedCount, xlibMaxLinePoints);
+            XPoint *pts = xpoints.data();
+            XDrawLines(dpy, hd, gc, pts, numberPoints, CoordModeOrigin);
+            pts += numberPoints;
+            clippedCount -= numberPoints;
+            numberPoints = qMin(clippedCount, xlibMaxLinePoints-1);
+            while (clippedCount) {
+                XDrawLines(dpy, hd, gc, pts-1, numberPoints+1, CoordModeOrigin);
+                pts += numberPoints;
+                clippedCount -= numberPoints;
+                numberPoints = qMin(clippedCount, xlibMaxLinePoints-1);
+            }
         }
     }
 }
