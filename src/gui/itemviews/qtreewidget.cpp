@@ -601,7 +601,7 @@ QTreeWidgetItem *QTreeModel::takeFromTopLevel(int row)
 
 /*!
   \internal
- 
+
   Inserts the list of tree view \a items to the tree model as a  toplevel item.
 */
 
@@ -1505,7 +1505,7 @@ QList<QTreeWidgetItem*> QTreeWidgetItem::takeChildren()
         }
         removed = children;
         children.clear(); // detach
-        if (model) model->endRemoveRows();   
+        if (model) model->endRemoveRows();
     }
     return removed;
 }
@@ -2495,7 +2495,7 @@ QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidgetItem *item, Iterator
 
 QTreeWidgetItemIterator::~QTreeWidgetItemIterator()
 {
-    model->iterators.remove(this);
+    model->iterators.removeAll(this);
 }
 
 /*!
@@ -2506,7 +2506,7 @@ QTreeWidgetItemIterator::~QTreeWidgetItemIterator()
 QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator=(const QTreeWidgetItemIterator &it)
 {
     if (model != it.model) {
-        model->iterators.remove(this);
+        model->iterators.removeAll(this);
         it.model->iterators.append(this);
     }
     current = it.current;
@@ -2550,7 +2550,7 @@ QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator--()
         do {
             QTreeWidgetItem *item = QTreeModel::previousSibling(current);
             if (item) {
-                while (!item->children.isEmpty()) 
+                while (!item->children.isEmpty())
                     item = item->children.last();
                 current = item;
             } else {
@@ -2617,14 +2617,14 @@ bool QTreeWidgetItemIterator::matchesFlags(const QTreeWidgetItem *item) const
             return false;
         if ((flags & NotHidden) && hidden)
             return false;
-        
+
         bool selected = widget->isItemSelected(item);
         if ((flags & Selected) && !selected)
             return false;
         if ((flags & Unselected) && selected)
             return false;
     }
-    
+
     return true;
 }
 

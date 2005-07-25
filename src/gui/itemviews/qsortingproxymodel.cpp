@@ -31,7 +31,7 @@ typedef bool(*LessThan)(const QModelIndex &left, const QModelIndex &right);
 */
 
 QSortingProxyModel::QSortingProxyModel(QObject *parent)
-    : QProxyModel(parent),  row_iid(false), sort_column(-1), sort_order(Qt::Ascending)
+    : QProxyModel(parent),  row_iid(false), sort_column(-1), sort_order(Qt::AscendingOrder)
 {
 }
 
@@ -47,32 +47,32 @@ QSortingProxyModel::~QSortingProxyModel()
 */
 void QSortingProxyModel::setModel(QAbstractItemModel *model)
 {
-    if (this->model()) {        
+    if (this->model()) {
         // disconnect QSortingProxyModel signals
 
         disconnect(this->model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                    this, SLOT(sourceDataChanged(QModelIndex,QModelIndex)));
-        
+
         disconnect(this->model(), SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
                    this, SLOT(sourceRowsAboutToBeInserted(QModelIndex,int,int)));
         disconnect(this->model(), SIGNAL(rowsInserted(QModelIndex,int,int)),
                    this, SLOT(sourceRowsInserted()));
-        
+
         disconnect(this->model(), SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
                    this, SLOT(sourceColumnsAboutToBeInserted(QModelIndex,int,int)));
         disconnect(this->model(), SIGNAL(columnsInserted(QModelIndex,int,int)),
                    this, SLOT(sourceColumnsInserted()));
-        
+
         disconnect(this->model(), SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                    this, SLOT(sourceRowsAboutToBeRemoved(QModelIndex,int,int)));
         disconnect(this->model(), SIGNAL(rowsRemoved(QModelIndex,int,int)),
                    this, SLOT(sourceRowsRemoved()));
-        
+
         disconnect(this->model(), SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
                    this, SLOT(sourceColumnsAboutToBeRemoved(QModelIndex,int,int)));
         disconnect(this->model(), SIGNAL(columnsRemoved(QModelIndex,int,int)),
                    this, SLOT(sourceColumnsRemoved()));
-        
+
         disconnect(this->model(), SIGNAL(modelReset()), this, SLOT(sourceModelReset()));
         disconnect(this->model(), SIGNAL(layoutChanged()), this, SLOT(sourceLayoutChanged()));
     }
@@ -80,7 +80,7 @@ void QSortingProxyModel::setModel(QAbstractItemModel *model)
     QProxyModel::setModel(model);
 
     if (this->model()) {
-        // disconnect QProxyModel signals        
+        // disconnect QProxyModel signals
 
         disconnect(this->model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                    this, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
@@ -102,27 +102,27 @@ void QSortingProxyModel::setModel(QAbstractItemModel *model)
                    this, SIGNAL(columnsRemoved(QModelIndex,int,int)));
         disconnect(this->model(), SIGNAL(modelReset()), this, SIGNAL(modelReset()));
         disconnect(this->model(), SIGNAL(layoutChanged()), this, SIGNAL(layoutChanged()));
-        
+
         // connect QSortingProxyModel signals
-        
+
         connect(this->model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                this, SLOT(sourceDataChanged(QModelIndex,QModelIndex)));    
-        
+                this, SLOT(sourceDataChanged(QModelIndex,QModelIndex)));
+
         connect(this->model(), SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
                 this, SLOT(sourceRowsAboutToBeInserted(QModelIndex,int,int)));
         connect(this->model(), SIGNAL(rowsInserted(QModelIndex,int,int)),
                 this, SLOT(sourceRowsInserted()));
-        
+
         connect(this->model(), SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
                 this, SLOT(sourceColumnsAboutToBeInserted(QModelIndex,int,int)));
         connect(this->model(), SIGNAL(columnsInserted(QModelIndex,int,int)),
                 this, SLOT(sourceColumnsInserted()));
-        
+
         connect(this->model(), SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                 this, SLOT(sourceRowsAboutToBeRemoved(QModelIndex,int,int)));
         connect(this->model(), SIGNAL(rowsRemoved(QModelIndex,int,int)),
                 this, SLOT(sourceRowsRemoved()));
-        
+
         connect(this->model(), SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
                 this, SLOT(sourceColumnsAboutToBeRemoved(QModelIndex,int,int)));
         connect(this->model(), SIGNAL(columnsRemoved(QModelIndex,int,int)),
@@ -394,7 +394,7 @@ void QSortingProxyModel::clear()
     id_to_proxy_row_map.clear();
     row_iid = false;
     sort_column = -1;
-    sort_order = Qt::Ascending;
+    sort_order = Qt::AscendingOrder;
     reset();
 }
 
@@ -508,7 +508,7 @@ void QSortingProxyModel::sourceColumnsAboutToBeInserted(const QModelIndex &sourc
 {
     QModelIndex proxy_parent = proxyIndex(source_parent);
     beginInsertColumns(proxy_parent, start, end); // emits signal
-}   
+}
 
 /*!
   \internal
