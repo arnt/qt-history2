@@ -586,14 +586,14 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
   \fn void QHeaderView::hideSection(int logicalIndex)
     Hides the section specified by \a logicalIndex.
 
-    \sa showSection()
+    \sa showSection() isSectionHidden()
 */
 
 /*!
   \fn void QHeaderView::showSection(int logicalIndex)
    Shows the section specified by \a logicalIndex.
 
-   \sa hideSection()
+   \sa hideSection() isSectionHidden()
 */
 
 /*!
