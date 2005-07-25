@@ -2060,50 +2060,6 @@ bool QApplicationPrivate::modalState()
     return app_do_modal;
 }
 
-
-void QApplicationPrivate::enterModal(QWidget *widget)
-{
-    if (!qt_modal_stack) {                        // create modal stack
-        qt_modal_stack = new QWidgetList;
-    }
-
-    releaseAutoCapture();
-    QApplicationPrivate::dispatchEnterLeave(0, QWidget::find((WId)curWin));
-    qt_modal_stack->insert(0, widget);
-    app_do_modal = true;
-    curWin = 0;
-    qt_button_down = 0;
-    qt_win_ignoreNextMouseReleaseEvent = false;
-
-    if (widget->parentWidget()) {
-        QEvent e(QEvent::WindowBlocked);
-        QApplication::sendEvent(widget->parentWidget(), &e);
-    }
-}
-
-
-void QApplicationPrivate::leaveModal(QWidget *widget)
-{
-    if (qt_modal_stack && qt_modal_stack->removeAll(widget)) {
-        if (qt_modal_stack->isEmpty()) {
-            delete qt_modal_stack;
-            qt_modal_stack = 0;
-            QPoint p(QCursor::pos());
-            app_do_modal = false; // necessary, we may get recursively into qt_try_modal below
-            QWidget* w = QApplication::widgetAt(p.x(), p.y());
-            QApplicationPrivate::dispatchEnterLeave(w, QWidget::find(curWin)); // send synthetic enter event
-            curWin = w? w->winId() : 0;
-        }
-        qt_win_ignoreNextMouseReleaseEvent = true;
-    }
-    app_do_modal = qt_modal_stack != 0;
-
-    if (widget->parentWidget()) {
-        QEvent e(QEvent::WindowUnblocked);
-        QApplication::sendEvent(widget->parentWidget(), &e);
-    }
-}
-
 static bool qt_blocked_modal(QWidget *widget)
 {
     if (!app_do_modal)
@@ -2121,6 +2077,52 @@ static bool qt_blocked_modal(QWidget *widget)
     if (!top || modal == top)                                // don't block event
         return false;
     return true;
+}
+
+void QApplicationPrivate::enterModal(QWidget *widget)
+{
+    if (!qt_modal_stack) {                        // create modal stack
+        qt_modal_stack = new QWidgetList;
+    }
+
+    releaseAutoCapture();
+    QApplicationPrivate::dispatchEnterLeave(0, QWidget::find((WId)curWin));
+    qt_modal_stack->insert(0, widget);
+    app_do_modal = true;
+    curWin = 0;
+    qt_button_down = 0;
+    qt_win_ignoreNextMouseReleaseEvent = false;
+
+    QList<QWidget*> windows = qApp->topLevelWidgets();
+    QEvent e(QEvent::WindowBlocked);
+    for (int i = 0; i < windows.count(); ++i) {
+        QWidget *window = windows.at(i);
+        if (qt_blocked_modal(window))
+            QApplication::sendEvent(window, &e);
+    }
+}
+
+void QApplicationPrivate::leaveModal(QWidget *widget)
+{
+    if (qt_modal_stack && qt_modal_stack->removeAll(widget)) {
+        if (qt_modal_stack->isEmpty()) {
+            delete qt_modal_stack;
+            qt_modal_stack = 0;
+            QPoint p(QCursor::pos());
+            app_do_modal = false; // necessary, we may get recursively into qt_try_modal below
+            QWidget* w = QApplication::widgetAt(p.x(), p.y());
+            QApplicationPrivate::dispatchEnterLeave(w, QWidget::find(curWin)); // send synthetic enter event
+            curWin = w? w->winId() : 0;
+        }
+        qt_win_ignoreNextMouseReleaseEvent = true;
+    }
+    app_do_modal = qt_modal_stack != 0;
+
+    QList<QWidget*> windows = qApp->topLevelWidgets();
+    QEvent e(QEvent::WindowUnblocked);
+    for (int i = 0; i < windows.count(); ++i) {
+        QApplication::sendEvent(windows.at(i), &e);
+    }
 }
 
 bool qt_try_modal(QWidget *widget, MSG *msg, int& ret)
@@ -2236,14 +2238,14 @@ void QApplicationPrivate::closePopup(QWidget *popup)
             return;
         if (!qt_nograb())                        // grabbing not disabled
             releaseAutoCapture();
-        if (QApplicationPrivate::active_window) {
-            if (QWidget *fw = QApplicationPrivate::active_window->focusWidget()) {
-                if (fw != q_func()->focusWidget()) {
-                    fw->setFocus(Qt::PopupFocusReason);
-                } else {
-                    QFocusEvent e(QEvent::FocusIn, Qt::PopupFocusReason);
-                    q_func()->sendEvent(fw, &e);
-                }
+        QWidget *fw = QApplicationPrivate::active_window ? QApplicationPrivate::active_window->focusWidget()
+            : q_func()->focusWidget();
+        if (fw) {
+            if (fw != q_func()->focusWidget()) {
+                fw->setFocus(Qt::PopupFocusReason);
+            } else {
+                QFocusEvent e(QEvent::FocusIn, Qt::PopupFocusReason);
+                q_func()->sendEvent(fw, &e);
             }
         }
     } else {
