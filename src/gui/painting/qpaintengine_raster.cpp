@@ -915,10 +915,14 @@ void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
             }
 
             if (d->has_pen) {
-                QPoint pts[] = { rects->topLeft(),
-                                  rects->topRight(),
-                                  rects->bottomRight(),
-                                  rects->bottomLeft() };
+                int left = rects->x();
+                int right = rects->x() + rects->width();
+                int top = rects->y();
+                int bottom = rects->y() + rects->height();
+                QPoint pts[] = { QPoint(left, top),
+                                 QPoint(right, top),
+                                 QPoint(right, bottom),
+                                 QPoint(left, bottom) };
                 QRasterPaintEngine::drawPolygon(pts, 4, WindingMode);
             }
 
