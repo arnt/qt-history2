@@ -2653,3 +2653,56 @@ Qt::HANDLE QWidget::x11PictureHandle() const
     return 0;
 #endif // QT_NO_XRENDER
 }
+
+#ifndef QT_NO_XRENDER
+static XRenderColor preMultiply(const QColor &c)
+{
+    XRenderColor color;
+    const uint A = c.alpha(),
+               R = c.red(),
+               G = c.green(),
+               B = c.blue();
+    color.alpha = (A | A << 8);
+    color.red   = (R | R << 8) * color.alpha / 0x10000;
+    color.green = (G | G << 8) * color.alpha / 0x10000;
+    color.blue  = (B | B << 8) * color.alpha / 0x10000;
+    return color;
+}
+Picture QX11Data::getSolidFill(int screen, const QColor &c)
+{
+    if (!X11->use_xrender)
+        return XNone;
+
+    XRenderColor color = preMultiply(c);
+    for (int i = 0; i < X11->solid_fill_count; ++i) {
+        if (X11->solid_fills[i].screen == screen
+            && X11->solid_fills[i].color.alpha == color.alpha
+            && X11->solid_fills[i].color.red == color.red
+            && X11->solid_fills[i].color.green == color.green
+            && X11->solid_fills[i].color.blue == color.blue)
+            return X11->solid_fills[i].picture;
+    }
+    // none found, replace one
+    int i = rand() % 16;
+
+    if (X11->solid_fills[i].screen != screen && X11->solid_fills[i].picture) {
+	XRenderFreePicture (X11->display, X11->solid_fills[i].picture);
+	X11->solid_fills[i].picture = 0;
+    }
+
+    if (!X11->solid_fills[i].picture) {
+	Pixmap pixmap = XCreatePixmap (X11->display, RootWindow (X11->display, screen), 1, 1, 32);
+        XRenderPictureAttributes attrs;
+	attrs.repeat = True;
+	X11->solid_fills[i].picture = XRenderCreatePicture (X11->display, pixmap,
+                                                            XRenderFindStandardFormat(X11->display, PictStandardARGB32),
+                                                            CPRepeat, &attrs);
+	XFreePixmap (X11->display, pixmap);
+    }
+
+    X11->solid_fills[i].color = color;
+    X11->solid_fills[i].screen = screen;
+    XRenderFillRectangle (X11->display, PictOpSrc, X11->solid_fills[i].picture, &color, 0, 0, 1, 1);
+    return X11->solid_fills[i].picture;
+}
+#endif

@@ -517,44 +517,6 @@ static XRenderColor preMultiply(const QColor &c)
     return color;
 }
 
-static Picture getSolidFill(int screen, const QColor &c)
-{
-    if (!X11->use_xrender)
-        return XNone;
-
-    XRenderColor color = preMultiply(c);
-    for (int i = 0; i < X11->solid_fill_count; ++i) {
-        if (X11->solid_fills[i].screen == screen
-            && X11->solid_fills[i].color.alpha == color.alpha
-            && X11->solid_fills[i].color.red == color.red
-            && X11->solid_fills[i].color.green == color.green
-            && X11->solid_fills[i].color.blue == color.blue)
-            return X11->solid_fills[i].picture;
-    }
-    // none found, replace one
-    int i = rand() % 16;
-
-    if (X11->solid_fills[i].screen != screen && X11->solid_fills[i].picture) {
-	XRenderFreePicture (X11->display, X11->solid_fills[i].picture);
-	X11->solid_fills[i].picture = 0;
-    }
-
-    if (!X11->solid_fills[i].picture) {
-	Pixmap pixmap = XCreatePixmap (X11->display, RootWindow (X11->display, screen), 1, 1, 32);
-        XRenderPictureAttributes attrs;
-	attrs.repeat = True;
-	X11->solid_fills[i].picture = XRenderCreatePicture (X11->display, pixmap,
-                                                            XRenderFindStandardFormat(X11->display, PictStandardARGB32),
-                                                            CPRepeat, &attrs);
-	XFreePixmap (X11->display, pixmap);
-    }
-
-    X11->solid_fills[i].color = color;
-    X11->solid_fills[i].screen = screen;
-    XRenderFillRectangle (X11->display, PictOpSrc, X11->solid_fills[i].picture, &color, 0, 0, 1, 1);
-    return X11->solid_fills[i].picture;
-}
-
 static Picture getPatternFill(int screen, const QBrush &b, const QBrush &bg, bool opaque_bg)
 {
     if (!X11->use_xrender)
@@ -613,7 +575,7 @@ static Picture getPatternFill(int screen, const QBrush &b, const QBrush &bg, boo
     attrs.repeat = true;
     XRenderChangePicture(X11->display, pattern.x11PictureHandle(), CPRepeat, &attrs);
 
-    Picture fill_fg = getSolidFill(screen, b.color());
+    Picture fill_fg = X11->getSolidFill(screen, b.color());
     XRenderComposite(X11->display, PictOpOver, fill_fg, pattern.x11PictureHandle(),
                      X11->pattern_fills[i].picture,
                      0, 0, 0, 0, 0, 0, 8, 8);
@@ -626,11 +588,11 @@ static void qt_render_bitmap(Display *dpy, int scrn, Picture src, Picture dst,
                       const QPen &pen, const QBrush &brush, bool opaque_bg)
 {
     if (opaque_bg) {
-        Picture fill_bg = getSolidFill(scrn, brush.color());
+        Picture fill_bg = X11->getSolidFill(scrn, brush.color());
         XRenderComposite(dpy, PictOpOver,
                          fill_bg, 0, dst, sx, sy, sx, sy, x, y, sw, sh);
     }
-    Picture fill_fg = getSolidFill(scrn, pen.color());
+    Picture fill_fg = X11->getSolidFill(scrn, pen.color());
     XRenderComposite(dpy, PictOpOver,
                      fill_fg, src, dst, sx, sy, sx, sy, x, y, sw, sh);
 }
@@ -1278,7 +1240,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
                 else
                     d->bitmap_texture.fill(Qt::transparent);
 
-                ::Picture src  = getSolidFill(d->scrn, d->cbrush.color());
+                ::Picture src  = X11->getSolidFill(d->scrn, d->cbrush.color());
                 XRenderComposite(d->dpy, PictOpSrc, src, pm.x11PictureHandle(),
                                  d->bitmap_texture.x11PictureHandle(),
                                  0, 0, pm.width(), pm.height(),
@@ -1308,7 +1270,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     }
 #if !defined(QT_NO_XRENDER)
     else if (d->alpha_brush) {
-        d->current_brush = getSolidFill(d->scrn, d->cbrush.color());
+        d->current_brush = X11->getSolidFill(d->scrn, d->cbrush.color());
     }
 #endif
 
@@ -1398,7 +1360,7 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
         if (current_brush)
             src = current_brush;
         else
-            src = getSolidFill(scrn, fill.color());
+            src = X11->getSolidFill(scrn, fill.color());
 #endif
     } else {
         fill = QBrush(cpen.brush());
@@ -1409,7 +1371,7 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
         else if (has_pattern)
             src = getPatternFill(scrn, fill, bg_brush, bg_mode == Qt::OpaqueMode);
         else
-            src = getSolidFill(scrn, fill.color());
+            src = X11->getSolidFill(scrn, fill.color());
 #endif
     }
 
@@ -2304,7 +2266,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
 #endif
 
         const QColor &pen = d->cpen.color();
-        ::Picture src = getSolidFill(screen, pen);
+        ::Picture src = X11->getSolidFill(screen, pen);
 
         int i = 0;
         while (i < nGlyphs) {

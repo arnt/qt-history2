@@ -406,10 +406,19 @@ void QPixmap::fill(const QColor &fillColor)
     if (isNull())
         return;
     if (fillColor.alpha() != 255) {
-        // ################ inefficient
-        QImage im(width(), height(), QImage::Format_ARGB32_Premultiplied);
-        im.fill(PREMUL(fillColor.rgba()));
-        *this = QPixmap::fromImage(im);
+#ifndef QT_NO_XRENDER
+        if (X11->use_xrender) {
+            ::Picture src  = X11->getSolidFill(data->xinfo.screen(), fillColor);
+            XRenderComposite(X11->display, PictOpSrc, src, 0, data->hd,
+                             0, 0, width(), height(),
+                             0, 0, width(), height());
+        } else
+#endif
+        {
+            QImage im(width(), height(), QImage::Format_ARGB32_Premultiplied);
+            im.fill(PREMUL(fillColor.rgba()));
+            *this = QPixmap::fromImage(im);
+        }
         return;
     } else {
         detach();
