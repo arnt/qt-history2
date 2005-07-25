@@ -39,17 +39,19 @@ The installation procedure is different for the different Qt platforms:
 
     For the open source version you do not need a license file.
 
-\o  Unpack the archive if you have not done so already:
+\o  Unpack the archive if you have not done so already. For example,
+    if you have the \c{qt-x11-opensource-desktop-%VERSION%.tar.gz}
+    package, type the following commands at a command line prompt:
 
 \code
-        cd /tmp
-        gunzip %DISTNAME%.tar.gz        # uncompress the archive
-        tar xvf %DISTNAME%.tar          # unpack it
+    cd /tmp
+    gunzip qt-x11-opensource-desktop-%VERSION%.tar.gz        # uncompress the archive
+    tar xvf qt-x11-opensource-desktop-%VERSION%.tar          # unpack it
 \endcode
 
-    This creates the directory \c{/tmp/%DISTNAME%} containing the files
-    from the archive. We only support the GNU version of the tar
-    archiving utility. Note that on some systems it is called gtar.
+    This creates the directory \c{/tmp/qt-x11-opensource-desktop-%VERSION%}
+    containing the files from the archive. We only support the GNU version of
+    the tar archiving utility. Note that on some systems it is called gtar.
 
 \o  Building
 
@@ -151,7 +153,7 @@ The installation procedure is different for the different Qt platforms:
 
     For the open source version you do not need a license file.
 
-\o  Uncompress the files into the directory you want Qt installed,
+\o  Uncompress the files into the directory you want Qt installed;
     e.g. \c{C:\Qt\%VERSION%}.
 
     NOTE: The install path must not contain any spaces.
@@ -239,16 +241,18 @@ The installation procedure is different for the different Qt platforms:
 
     For the open source version you do not need a license file.
 
-\o  Unpack the archive if you have not done so already:
+\o  Unpack the archive if you have not done so already. For example,
+    if you have the \c{qt-mac-opensource-desktop-%VERSION%.tar.gz}
+    package, type the following commands at a command line prompt:
 
 \code
     cd /tmp
-    gunzip %DISTNAME%.tar.gz        # uncompress the archive
-    tar xvf %DISTNAME%.tar          # unpack it
+    gunzip qt-mac-opensource-desktop-%VERSION%.tar.gz        # uncompress the archive
+    tar xvf qt-mac-opensource-desktop-%VERSION%.tar          # unpack it
 \endcode
 
-    This creates the directory \c{/tmp/%DISTNAME%} containing the files
-    from the archive.
+    This creates the directory \c{/tmp/qt-mac-opensource-desktop-%VERSION%}
+    containing the files from the archive.
 
 \o  Building
 
