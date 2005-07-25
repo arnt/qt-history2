@@ -48,7 +48,7 @@ void QSqlQueryModelPrivate::prefetch(int limit)
         atEnd = true; // this is the end.
     }
     if (newBottom.row() >= 0
-        && (newBottom.row() > oldBottom.row() || oldAt == QSql::BeforeFirst)) {
+        && (newBottom.row() > oldBottom.row() || oldAt == QSql::BeforeFirstRow)) {
         q->beginInsertRows(QModelIndex(), oldBottom.row(), newBottom.row());
         bottom = newBottom;
         q->endInsertRows();
