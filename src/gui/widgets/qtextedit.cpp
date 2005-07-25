@@ -379,11 +379,7 @@ void QTextEditPrivate::init(Qt::TextFormat format, const QString &text, QTextDoc
     if (clearDocument) {
         doc->clear();
 
-        QTextCharFormat fmt;
-        fmt.setFont(q->font());
-        fmt.setForeground(q->palette().brush(QPalette::Text));
         cursor.movePosition(QTextCursor::Start);
-        cursor.setBlockCharFormat(fmt);
         QTextBlockFormat blockFmt;
         blockFmt.setLayoutDirection(q->layoutDirection());
         cursor.setBlockFormat(blockFmt);
