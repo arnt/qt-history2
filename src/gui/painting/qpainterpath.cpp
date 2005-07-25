@@ -340,8 +340,6 @@ void QPainterPath::moveTo(const QPointF &p)
         d->elements.append(elm);
     }
     d->cStart = d->elements.size() - 1;
-
-    d->makeDirty();
 }
 
 /*!
@@ -379,8 +377,6 @@ void QPainterPath::lineTo(const QPointF &p)
         return;
     Element elm = { p.x(), p.y(), LineToElement };
     d->elements.append(elm);
-
-    d->makeDirty();
 }
 
 /*!
@@ -429,8 +425,6 @@ void QPainterPath::cubicTo(const QPointF &c1, const QPointF &c2, const QPointF &
     Element ce2 = { c2.x(), c2.y(), CurveToDataElement };
     Element ee = { e.x(), e.y(), CurveToDataElement };
     d->elements << ce1 << ce2 << ee;
-
-    d->makeDirty();
 }
 
 /*!
@@ -836,7 +830,6 @@ void QPainterPath::setFillRule(Qt::FillRule fillRule)
     ensureData();
     detach();
 
-    d_func()->makeDirty();
     d_func()->fillRule = fillRule;
 }
 
@@ -1353,21 +1346,6 @@ bool QPainterPath::contains(const QPointF &pt) const
             : ((winding_number % 2) != 0));
 }
 
-
-/*!
-    Returns true if the rect \a rect is inside the path; otherwise
-    returns false.
-*/
-bool QPainterPath::contains(const QRectF &rect) const
-{
-    if (isEmpty())
-        return false;
-    if (d_func()->containsCache.isEmpty()) {
-        d_func()->containsCache = QRegion(toFillPolygon().toPolygon(), fillRule());
-    }
-    return d_func()->containsCache.contains(rect.toRect());
-}
-
 static bool qt_painterpath_isect_line_rect(qreal x1, qreal y1, qreal x2, qreal y2,
                                            const QRectF &rect)
 {
@@ -1575,6 +1553,85 @@ bool QPainterPath::intersects(const QRectF &rect) const
 
     return false;
 }
+
+
+
+/*!
+    Returns true if the rect \a rect is inside the path; otherwise
+    returns false.
+*/
+bool QPainterPath::contains(const QRectF &rect) const
+{
+    Q_D(QPainterPath);
+
+    // the path is empty or the control point rect doesn't completly
+    // cover the rectangle we abort stratight away.
+    if (isEmpty() || !controlPointRect().contains(rect))
+        return false;
+
+    // if there are intersections, chances are that the rect is not
+    // contained, except if we have winding rule, in which case it
+    // still might.
+    if (qt_painterpath_check_crossing(this, rect)) {
+        if (fillRule() == Qt::OddEvenFill) {
+            return false;
+        } else {
+            // Do some wague sampling in the winding case. This is not
+            // precise but it should mostly be good enough.
+            if (!contains(rect.topLeft()) ||
+                !contains(rect.topRight()) ||
+                !contains(rect.bottomRight()) ||
+                !contains(rect.bottomLeft()))
+                return false;
+        }
+    }
+
+    // If there exists a point inside that is not part of the path its
+    // because: rectangle lies completly outside path or a subpath
+    // excludes parts of the rectangle. Both cases mean that the rect
+    // is not contained
+    if (!contains(rect.center()))
+        return false;
+
+    // If there are any subpaths inside this rectangle we need to
+    // check if they are still contained as a result of the fill
+    // rule. This can only be the case for WindingFill though. For
+    // OddEvenFill the rect will never be contained if it surrounds a
+    // subpath. (the case where two subpaths are completly identical
+    // can be argued but we choose to neglect it).
+    for (int i=0; i<d->elements.size(); ++i) {
+        const Element &e = d->elements.at(i);
+        if (e.type == QPainterPath::MoveToElement && rect.contains(e)) {
+            if (fillRule() == Qt::OddEvenFill)
+                return false;
+
+            bool stop = false;
+            for (; !stop && i<d->elements.size(); ++i) {
+                const Element &el = d->elements.at(i);
+                switch (el.type) {
+                case MoveToElement:
+                    stop = true;
+                    break;
+                case LineToElement:
+                    if (!contains(el))
+                        return false;
+                    break;
+                case CurveToElement:
+                    if (!contains(d->elements.at(i+2)))
+                        return false;
+                    i += 2;
+                    break;
+                }
+            }
+
+            // compensate for the last ++i in the inner for
+            --i;
+        }
+    }
+
+    return true;
+}
+
 
 /*!
     Returns true if this painterpath is equal to \a path.

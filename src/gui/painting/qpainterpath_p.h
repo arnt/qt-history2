@@ -41,7 +41,7 @@ public:
     }
 
     QPainterPathData(const QPainterPathData &other) :
-        QPainterPathPrivate(), cStart(other.cStart), fillRule(other.fillRule), containsCache(other.containsCache)
+        QPainterPathPrivate(), cStart(other.cStart), fillRule(other.fillRule)
     {
         ref = 1;
         elements = other.elements;
@@ -50,12 +50,8 @@ public:
     inline bool isClosed() const;
     inline void close();
 
-    inline void makeDirty();
-
     int cStart;
     Qt::FillRule fillRule;
-
-    QRegion containsCache;
 };
 
 
@@ -78,12 +74,6 @@ inline void QPainterPathData::close()
         QPainterPath::Element e = { first.x, first.y, QPainterPath::LineToElement };
         elements << e;
     }
-}
-
-inline void QPainterPathData::makeDirty()
-{
-    if (!containsCache.isEmpty())
-        containsCache = QRegion();
 }
 
 #endif // QPAINTERPATH_P_H
