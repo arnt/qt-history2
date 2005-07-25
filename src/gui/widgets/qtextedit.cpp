@@ -1513,8 +1513,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
             break;
         }
         default:
-            e->ignore();
-            return;
+            goto process;
         }
         goto accept;
     }
