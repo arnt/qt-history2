@@ -18,6 +18,7 @@
 
 #include <private/qt_x11_p.h>
 #include "qx11info_x11.h"
+#include <qdebug.h>
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -835,9 +836,108 @@ static const char *languageForWritingSystem[] = {
     "zh-tw", // TraditionalChinese
     "ja",  // Japanese
     "ko",  // Korean
-    "vi",  // Vietnamese
+    "vi"  // Vietnamese
 };
 enum { LanguageCount = sizeof(languageForWritingSystem) / sizeof(const char *) };
+
+// Unfortunately FontConfig doesn't know about some languages. We have to test these throught the
+// charset. The lists below contain the systems where we need to do this.
+static const ushort sampleCharForWritingSystem[] = {
+    0,     // Any
+    0,  // Latin
+    0,  // Greek
+    0,  // Cyrillic
+    0,  // Armenian
+    0,  // Hebrew
+    0,  // Arabic
+    0, // Syriac
+    0, // Thaana
+    0,  // Devanagari
+    0,  // Bengali
+    0,  // Gurmukhi
+    0,  // Gujarati
+    0,  // Oriya
+    0,  // Tamil
+    0xc15,  // Telugu
+    0xc95,  // Kannada
+    0xd15,  // Malayalam
+    0xd9a,  // Sinhala
+    0,  // Thai
+    0,  // Lao
+    0,  // Tibetan
+    0,  // Myanmar
+    0,  // Georgian
+    0,  // Khmer
+    0, // SimplifiedChinese
+    0, // TraditionalChinese
+    0,  // Japanese
+    0,  // Korean
+    0  // Vietnamese
+};
+enum { SampleCharCount = sizeof(sampleCharForWritingSystem) / sizeof(ushort) };
+
+static ushort specialChars[] = {
+    0, // English
+    0, // Hebrew
+    0, // Arabic
+    0, // Syriac
+    0, // Thaana
+    0, // Devanagari
+    0, // Bengali
+    0, // Gurmukhi
+    0, // Gujarati
+    0, // Oriya
+    0, // Tamil
+    0xc15, // Telugu
+    0xc95, // Kannada
+    0xd15, // Malayalam
+    0xd9a, // Sinhala
+    0, // Thai
+    0, // Lao
+    0, // Tibetan
+    0, // Myanmar
+    0, // Korean
+    0  // Khmer
+};
+enum { SpecialCharCount = sizeof(specialChars) / sizeof(ushort) };
+
+// Newer FontConfig let's us sort out fonts that contain certain glyphs, but no
+// open type tables for is directly. Do this so we don't pick some strange
+// pseudo unicode font
+static const char *openType[] = {
+    0,     // Any
+    0,  // Latin
+    0,  // Greek
+    0,  // Cyrillic
+    0,  // Armenian
+    0,  // Hebrew
+    0,  // Arabic
+    "syrc",  // Syriac
+    "thaa",  // Thaana
+    "deva",  // Devanagari
+    "beng",  // Bengali
+    "guru",  // Gurmukhi
+    "gurj",  // Gujarati
+    "orya",  // Oriya
+    "taml",  // Tamil
+    "telu",  // Telugu
+    "knda",  // Kannada
+    "mlym",  // Malayalam
+    "sinh",  // Sinhala
+    0,  // Thai
+    0,  // Lao
+    "tibt",  // Tibetan
+    "mymr",  // Myanmar
+    0,  // Georgian
+    "khmr",  // Khmer
+    0, // SimplifiedChinese
+    0, // TraditionalChinese
+    0,  // Japanese
+    0,  // Korean
+    0  // Vietnamese
+};
+enum { OpenTypeCount = sizeof(openType) / sizeof(const char *) };
+
 
 static void loadFontConfig()
 {
@@ -846,7 +946,13 @@ static void loadFontConfig()
 
     Q_ASSERT_X(int(QUnicodeTables::ScriptCount) == SpecialLanguageCount,
                "QFontDatabase", "New scripts have been added.");
+    Q_ASSERT_X(int(QUnicodeTables::ScriptCount) == SpecialCharCount,
+               "QFontDatabase", "New scripts have been added.");
     Q_ASSERT_X((QFontDatabase::WritingSystemsCount - 1) == LanguageCount,
+               "QFontDatabase", "New writing systems have been added.");
+    Q_ASSERT_X((QFontDatabase::WritingSystemsCount - 1) == SampleCharCount,
+               "QFontDatabase", "New writing systems have been added.");
+    Q_ASSERT_X((QFontDatabase::WritingSystemsCount - 1) == OpenTypeCount,
                "QFontDatabase", "New writing systems have been added.");
 
     QFontDatabasePrivate *db = privateDb();
@@ -869,9 +975,12 @@ static void loadFontConfig()
         const char *properties [] = {
             FC_FAMILY, FC_WEIGHT, FC_SLANT,
             FC_SPACING, FC_FILE, FC_INDEX,
-            FC_LANG, FC_FOUNDRY, FC_SCALABLE, FC_PIXEL_SIZE, FC_WEIGHT,
+            FC_LANG, FC_CHARSET, FC_FOUNDRY, FC_SCALABLE, FC_PIXEL_SIZE, FC_WEIGHT,
 #if FC_VERSION >= 20193
             FC_WIDTH,
+#endif
+#if FC_VERSION >= 20297
+            FC_CAPABILITY,
 #endif
             (const char *)0
         };
@@ -942,6 +1051,30 @@ static void loadFontConfig()
                 family->writingSystems[i] |= QtFontFamily::UnsupportedFT;
             family->writingSystems[QFontDatabase::Other] = QtFontFamily::Supported;
         }
+
+        FcCharSet *cs = 0;
+        res = FcPatternGetCharSet(fonts->fonts[i], FC_CHARSET, 0, &cs);
+        if (res == FcResultMatch) {
+            // some languages are not supported by FontConfig, we rather check the
+            // charset to detect these
+            for (int i = 1; i < SampleCharCount; ++i) {
+                if (!sampleCharForWritingSystem[i])
+                    continue;
+                if (FcCharSetHasChar(cs, sampleCharForWritingSystem[i])) 
+                    family->writingSystems[i] = QtFontFamily::Supported;
+            }
+        }
+        
+#if FC_VERSION >= 20297
+        for (int j = 1; j < LanguageCount; ++j) {
+            if (family->writingSystems[j] == QtFontFamily::Supported && requiresOpenType(j) && openType[j]) {
+                FcChar8 *cap;
+                res = FcPatternGetString (fonts->fonts[i], FC_CAPABILITY, 0, &cap);
+                if (res != FcResultMatch || !strstr((const char *)cap, openType[j]))
+                    family->writingSystems[j] = QtFontFamily::UnsupportedFT;
+            }
+        }
+#endif
 
         QByteArray file((const char *)file_value);
         family->fontFilename = file;
@@ -1325,12 +1458,21 @@ static QFontEngine *loadFcEngineFromPattern(FcPattern *pattern, const QFontPriva
 
         for (int i = 0; !fe && i < fs->nfont; ++i) {
             // skip font if it doesn't support the language we want
-            FcLangSet *langSet = 0;
-            if (FcPatternGetLangSet(fs->fonts[i], FC_LANG, 0, &langSet) != FcResultMatch)
-                continue;
-            if (FcLangSetHasLang(langSet, (const FcChar8*)specialLanguages[script]) != FcLangEqual)
-                continue;
-
+            if (specialChars[script]) {
+                // need to check the charset, as the langset doesn't work for these scripts
+                FcCharSet *cs;
+                if (FcPatternGetCharSet(fs->fonts[i], FC_CHARSET, 0, &cs) != FcResultMatch) 
+                    continue;
+                if (!FcCharSetHasChar(cs, specialChars[script])) 
+                    continue;
+            } else {
+                FcLangSet *langSet = 0;
+                if (FcPatternGetLangSet(fs->fonts[i], FC_LANG, 0, &langSet) != FcResultMatch)
+                    continue;
+                if (FcLangSetHasLang(langSet, (const FcChar8*)specialLanguages[script]) != FcLangEqual)
+                    continue;
+            }
+            
             FcPattern *pattern = FcPatternDuplicate(fs->fonts[i]);
             // add properties back in as the font selected from the
             // list doesn't contain them.
