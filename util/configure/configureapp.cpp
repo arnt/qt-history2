@@ -136,7 +136,7 @@ Configure::Configure( int& argc, char** argv )
 
     dictionary[ "BUILD" ]	    = "debug";
     dictionary[ "BUILDALL" ]	    = "auto"; // Means yes, but not explicitly
-    
+
     dictionary[ "SHARED" ]	    = "yes";
 
     dictionary[ "ZLIB" ]	    = "auto";
@@ -810,7 +810,7 @@ bool Configure::displayHelp()
 	            "[-datadir <dir>] [-translationdir <dir>]\n"
                     "[-examplesdir <dir>] [-demosdir <dir>][-buildkey <key>]\n"
 	            "[-release] [-debug] [-debug-and-release] [-shared] [-static]\n"
-	            "[-no-fast] [-fast] [-no-exception] [-exception]\n"
+	            "[-no-fast] [-fast] [-no-exceptions] [-exceptions]\n"
 	            "[-no-accessibility] [-accessibility] [-no-rtti] [-rtti]\n"
 	            "[-no-stl] [-stl] [-no-sql-<driver>] [-qt-sql-<driver>]\n"
 	            "[-plugin-sql-<driver>] [-arch <arch>] [-platform <spec>]\n"
@@ -864,8 +864,8 @@ bool Configure::displayHelp()
                                                         "subdirectory targets.  All other Makefiles are created as wrappers "
                                                         "which will in turn run qmake\n");
 
-        desc("EXCEPTIONS", "no", "-no-exception",       "Disable exceptions on platforms that support it.");
-        desc("EXCEPTIONS", "yes","-exception",          "Enable exceptions on platforms that support it.\n");
+        desc("EXCEPTIONS", "no", "-no-exceptions",      "Disable exceptions on platforms that support it.");
+        desc("EXCEPTIONS", "yes","-exceptions",         "Enable exceptions on platforms that support it.\n");
 
         desc("ACCESSIBILITY", "no",  "-no-accessibility", "Do not compile Windows Active Accessibilit support.");
         desc("ACCESSIBILITY", "yes", "-accessibility",    "Compile Windows Active Accessibilit support.\n");
@@ -1402,7 +1402,7 @@ void Configure::generateCachefile()
 	    configStream << " shared";
         else
 	    configStream << " static";
-        
+
 	if( dictionary[ "STL" ] == "yes" )
 	    configStream << " stl";
 	if ( dictionary[ "EXCEPTIONS" ] == "yes" )
@@ -2000,7 +2000,7 @@ bool Configure::showLicense(const QString &licenseFile)
     forever {
         char accept = '?';
         cout << "You are licensed to use this software under the terms of" << endl
-             << "the " << theLicense << "." << endl 
+             << "the " << theLicense << "." << endl
              << endl
              << "Type '?' to view the " << theLicense << "." << endl
              << "Type 'y' to accept this license offer." << endl
@@ -2009,7 +2009,7 @@ bool Configure::showLicense(const QString &licenseFile)
              << "Do you accept the terms of the license?" << endl;
         cin >> accept;
         accept = tolower(accept);
-        
+
         if (accept == 'y') {
             return true;
         } else if (accept == 'n') {
@@ -2218,7 +2218,7 @@ void Configure::readLicense()
         fromLicenseFile = dictionary["QT_SOURCE_TREE"] + "/.LICENSE-EDUCATIONAL";
         break;
     }
-    if (licenseFeatures & USCustomer) 
+    if (licenseFeatures & USCustomer)
         fromLicenseFile += "-US";
     if (!QFileInfo(toLicenseFile).exists()) {
         if (!CopyFileA(QDir::convertSeparators(fromLicenseFile).toLocal8Bit(),
