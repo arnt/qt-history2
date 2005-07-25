@@ -1296,12 +1296,12 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
             // If the base consonant is not the last one, Uniscribe
             // moves the halant from the base consonant to the last
             // one.
-            if (lastConsonant > base && uc[base+1] == halant) {
+            if (lastConsonant > base && uc[base+1] == halant
+                && (script != QUnicodeTables::Telugu || lastConsonant == len - 1 || uc[lastConsonant+1] != halant)) {
                 IDEBUG("    moving halant from %d to %d!", base+1, lastConsonant);
                 for (i = base+1; i < lastConsonant; i++)
                     uc[i] = uc[i+1];
                 uc[lastConsonant] = halant;
-
             }
 
             // Rule 3:
