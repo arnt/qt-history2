@@ -407,7 +407,7 @@ void QPixmap::fill(const QColor &fillColor)
         return;
     if (fillColor.alpha() != 255) {
 #ifndef QT_NO_XRENDER
-        if (X11->use_xrender) {
+        if (data->picture && data->d == 32) {
             ::Picture src  = X11->getSolidFill(data->xinfo.screen(), fillColor);
             XRenderComposite(X11->display, PictOpSrc, src, 0, data->hd,
                              0, 0, width(), height(),
