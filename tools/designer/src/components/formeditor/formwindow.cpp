@@ -325,7 +325,7 @@ bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouse
 
         drawRubber = true;
         currRect = QRect();
-        startRectDraw(e->globalPos(), this, Rubber);
+        startRectDraw(e->pos(), this, Rubber);
         return true;
     }
 
@@ -374,7 +374,7 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
         return true;
 
     if (drawRubber == true) {
-        continueRectDraw(e->globalPos(), this, Rubber);
+        continueRectDraw(e->pos(), this, Rubber);
         return true;
     }
 
@@ -891,12 +891,13 @@ void FormWindow::selectWidgets()
 {
     QList<QWidget*> l = qFindChildren<QWidget*>(mainContainer());
     QListIterator <QWidget*> it(l);
+    const QRect selRect(mapToGloal(currRect.topLeft()), currRect.size());
     while (it.hasNext()) {
         QWidget *w = it.next();
         if (w->isVisibleTo(this) && isManaged(w)) {
             QPoint p = w->mapToGlobal(QPoint(0,0));
             QRect r(p, w->size());
-            if (r.intersects(currRect) && !r.contains(currRect))
+            if (r.intersects(selRect) && !r.contains(selRect))
                 selectWidget(w);
         }
     }
