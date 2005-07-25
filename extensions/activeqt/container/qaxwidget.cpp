@@ -86,7 +86,7 @@ static ushort mouseTbl[] = {
     0,			0,				0
 };
 
-static Qt::MouseButtons translateMouseButtonState(int s, int type, int button)
+static Qt::MouseButtons translateMouseButtonState(int s)
 {
     Qt::MouseButtons bst = 0;
     if (s & MK_LBUTTON)
@@ -438,7 +438,7 @@ bool axc_FilterProc(void *m)
                     QPoint pos = widget->mapFromGlobal(gpos);
 
 		    QMouseEvent e(type, pos, gpos, (Qt::MouseButton)button,
-			    translateMouseButtonState(msg->wParam, type, button),
+			    translateMouseButtonState(msg->wParam),
 			    translateModifierState(msg->wParam));
                     QApplication::sendEvent(ax, &e);
                 }
@@ -1273,6 +1273,7 @@ HRESULT WINAPI QAxClientSite::TranslateAccelerator(LPMSG lpMsg, WORD grfModifier
 HRESULT WINAPI QAxClientSite::GetBorder(LPRECT lprectBorder)
 {
 #ifndef QAX_SUPPORT_BORDERSPACE
+    Q_UNUSED(lprectBorder);
     return INPLACE_E_NOTOOLSPACE;
 #else
     AX_DEBUG(QAxClientSite::GetBorder);
@@ -1305,6 +1306,7 @@ HRESULT WINAPI QAxClientSite::RequestBorderSpace(LPCBORDERWIDTHS /*pborderwidths
 HRESULT WINAPI QAxClientSite::SetBorderSpace(LPCBORDERWIDTHS pborderwidths)
 {
 #ifndef QAX_SUPPORT_BORDERSPACE
+    Q_UNUSED(pborderwidths);
     return OLE_E_INVALIDRECT;
 #else
     AX_DEBUG(QAxClientSite::SetBorderSpace);
@@ -1514,7 +1516,7 @@ bool QAxHostWidget::winEvent(MSG *msg, long *result)
         if (hres == S_OK)
             return true;
     }
-    return false;
+    return QWidget::winEvent(msg, result);
 }
 
 bool QAxHostWidget::event(QEvent *e)
