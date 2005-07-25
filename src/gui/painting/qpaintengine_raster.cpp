@@ -1464,6 +1464,10 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     Q_D(QRasterPaintEngine);
 #if defined(Q_WS_WIN)
 
+    // Decide on which span func to use
+    FillData fillData = d->fillForBrush(d->pen.brush());
+    if (!fillData.callback)
+        return;
 
     if (d->txop >= QPainterPrivate::TxScale) {
         bool antialiased = d->antialiased;
@@ -1481,16 +1485,32 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         return;
 
     d->fontRasterBuffer->prepare(devRect.width(), devRect.height());
-    d->fontRasterBuffer->resetBuffer(255);
 
-    // Fill buffer with stuff
-    qt_draw_text_item(QPoint(0, ti.ascent), ti, d->fontRasterBuffer->hdc(), d);
+    if (d->mono_surface) {
+        // Some extra work to get proper rasterization of text on monochrome targets
 
-    // Decide on which span func to use
-    FillData fillData = d->fillForBrush(d->pen.brush());
+        HBITMAP bitmap = CreateBitmap(devRect.width(), devRect.height(), 1, 1, 0);
+        HDC hdc = CreateCompatibleDC(qt_win_display_dc());
+        HGDIOBJ null_bitmap = SelectObject(hdc, bitmap);
+        SelectObject(hdc, GetStockObject(WHITE_BRUSH));
+        SelectObject(hdc, GetStockObject(NULL_PEN));
+        Rectangle(hdc, 0, 0, devRect.width() + 1, devRect.height() + 1);
 
-    if (!fillData.callback)
-        return;
+        // Fill buffer with stuff
+        qt_draw_text_item(QPoint(0, ti.ascent), ti, hdc, d);
+
+        BitBlt(d->fontRasterBuffer->hdc(), 0, 0, devRect.width(), devRect.height(),
+               hdc, 0, 0, SRCCOPY);
+
+        SelectObject(hdc, null_bitmap);
+        DeleteObject(bitmap);
+        DeleteDC(hdc);
+    } else {
+        d->fontRasterBuffer->resetBuffer(255);
+
+        // Fill buffer with stuff
+        qt_draw_text_item(QPoint(0, ti.ascent), ti, d->fontRasterBuffer->hdc(), d);
+    }
 
     // Boundaries
     int ymax = qMin(devRect.y() + devRect.height(), d->rasterBuffer->height());
@@ -1507,13 +1527,13 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             spans.reset();
             for (int x = xmin; x<xmax; ) {
                 // Skip those with 0 coverage (black on white so inverted)
-                while (x < xmax && qGray(scanline[x]) > 0x80) ++x;
+                while (x < xmax && qBlue(scanline[x]) > 0x80) ++x;
                 if (x >= xmax) break;
 
                 QT_FT_Span span = { x, 0, 255 };
 
                 // extend span until we find a different one.
-                while (x < xmax && qGray(scanline[x]) < 0x80) ++x;
+                while (x < xmax && qBlue(scanline[x]) < 0x80) ++x;
                 span.len = x - span.x;
 
                 spans.add(span);
