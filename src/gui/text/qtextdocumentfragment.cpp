@@ -498,11 +498,9 @@ void QTextHtmlImporter::import()
             if (node->text.isEmpty())
                 continue;
         } else if (node->id == Html_table) {
-            Table t;
-            if (scanTable(i, &t)) {
-                tables.append(t);
-                hasBlock = false;
-            }
+            Table t = scanTable(i);
+            tables.append(t);
+            hasBlock = false;
             continue;
         } else if (node->id == Html_tr && !tables.isEmpty()) {
             continue;
@@ -733,9 +731,11 @@ bool QTextHtmlImporter::closeTag(int i)
     return blockTagClosed;
 }
 
-bool QTextHtmlImporter::scanTable(int tableNodeIdx, Table *table)
+QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
 {
-    table->columns = 0;
+    Table table;
+    table.columns = 0;
+    table.lastFrame = cursor.currentFrame();
 
     QVector<QTextLength> columnWidths;
     QVector<int> rowSpanCellsPerRow;
@@ -762,16 +762,16 @@ bool QTextHtmlImporter::scanTable(int tableNodeIdx, Table *table)
                         columnWidths << c.width;
                 }
 
-            table->columns = qMax(table->columns, colsInRow + rowSpanCellsPerRow.value(effectiveRow, 0));
+            table.columns = qMax(table.columns, colsInRow + rowSpanCellsPerRow.value(effectiveRow, 0));
 
             ++effectiveRow;
             rowSpanCellsPerRow.append(0);
         }
     }
-    table->rows = effectiveRow;
+    table.rows = effectiveRow;
 
-    if (table->rows == 0 || table->columns == 0)
-        return false;
+    if (table.rows == 0 || table.columns == 0)
+        return table;
 
     QTextFrameFormat fmt;
     const QTextHtmlParserNode &node = at(tableNodeIdx);
@@ -786,7 +786,7 @@ bool QTextHtmlImporter::scanTable(int tableNodeIdx, Table *table)
         tableFmt.setCellPadding(node.tableCellPadding);
         if (node.alignment)
             tableFmt.setAlignment(node.alignment);
-        tableFmt.setColumns(table->columns);
+        tableFmt.setColumns(table.columns);
         tableFmt.setColumnWidthConstraints(columnWidths);
         fmt = tableFmt;
     }
@@ -803,19 +803,19 @@ bool QTextHtmlImporter::scanTable(int tableNodeIdx, Table *table)
         fmt.clearBackground();
     fmt.setPosition(QTextFrameFormat::Position(node.cssFloat));
 
-    table->lastFrame = cursor.currentFrame();
-    if (QTextTable *parentTable = qobject_cast<QTextTable *>(table->lastFrame)) {
+    table.lastFrame = cursor.currentFrame();
+    if (QTextTable *parentTable = qobject_cast<QTextTable *>(table.lastFrame)) {
         QTextTableCell cell = parentTable->cellAt(cursor);
-        table->lastRow = cell.row();
-        table->lastColumn = cell.column();
+        table.lastRow = cell.row();
+        table.lastColumn = cell.column();
     }
 
     if (node.isTableFrame) {
         cursor.insertFrame(fmt);
     } else {
-        table->table = cursor.insertTable(table->rows, table->columns, fmt.toTableFormat());
+        table.table = cursor.insertTable(table.rows, table.columns, fmt.toTableFormat());
 
-        TableIterator it(table->table);
+        TableIterator it(table.table);
         foreach (int row, at(tableNodeIdx).children)
             if (at(row).id == Html_tr)
                 foreach (int cell, at(row).children)
@@ -823,14 +823,14 @@ bool QTextHtmlImporter::scanTable(int tableNodeIdx, Table *table)
                         const QTextHtmlParserNode &c = at(cell);
 
                         if (c.tableCellColSpan > 1 || c.tableCellRowSpan > 1)
-                            table->table->mergeCells(it.row, it.column, c.tableCellRowSpan, c.tableCellColSpan);
+                            table.table->mergeCells(it.row, it.column, c.tableCellRowSpan, c.tableCellColSpan);
 
                         ++it;
                     }
 
-        table->currentPosition = TableIterator(table->table);
+        table.currentPosition = TableIterator(table.table);
     }
-    return true;
+    return table;
 }
 
 void QTextHtmlImporter::appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt)

@@ -99,7 +99,7 @@ public:
 private:
     bool closeTag(int i);
 
-    bool scanTable(int tableNodeIdx, Table *table);
+    Table scanTable(int tableNodeIdx);
 
     void appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt = QTextCharFormat());
 
