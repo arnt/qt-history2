@@ -4470,11 +4470,9 @@ typedef QList<QPaintDeviceRedirection> QPaintDeviceRedirectionList;
 Q_GLOBAL_STATIC(QPaintDeviceRedirectionList, globalRedirections)
 
 /*!
-  \internal
-
     Redirects all paint commands for a paint device, \a device, to
     another paint device, \a replacement. The optional point \a offset
-    defines an offset within the replaced device. After painting you
+    defines an offset within the source device. After painting you
     must call restoreRedirected().
 
     In general, you'll probably find calling QPixmap::grabWidget() or
