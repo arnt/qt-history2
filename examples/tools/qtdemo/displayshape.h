@@ -87,7 +87,7 @@ private:
     QFont font;
     QString text;
     QPen pen;
-    QRect textRect;
+    QRectF textRect;
     Qt::Alignment alignment;
 };
 

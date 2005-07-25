@@ -113,35 +113,4 @@
     <example filename="saxbookmarks" name="SAX Bookmarks" />
     <example filename="dombookmarks" name="DOM Bookmarks" />
   </category>
-<!--  <category dirname="tutorial" name="Qt Tutorial">
-    <example filename="t1" name="Hello World!" />
-    <example filename="t2" name="Calling it Quits" />
-    <example filename="t3" name="Family Values" />
-    <example filename="t4" name="Let There Be Widgets" />
-    <example filename="t5" name="Building Blocks" />
-    <example filename="t6" name="Building Blocks Galore!" />
-    <example filename="t7" name="One Thing Leads to Another" />
-    <example filename="t8" name="Preparing for Battle" />
-    <example filename="t9" name="With Cannon You Can" />
-    <example filename="t10" name="Smooth as Silk" />
-    <example filename="t11" name="Giving It a Shot" />
-    <example filename="t12" name="Hanging in the Air the Way Bricks Don't" />
-    <example filename="t13" name="Game Over" />
-    <example filename="t14" name="Facing the Wall" />
-  </category>
-  <category dirname="activeqt" name="ActiveQt">
-    <example filename="comapp" name="COM Application" />
-    <example filename="hierarchy" name="Hierarchy" />
-    <example filename="menus" name="Menus" />
-    <example filename="multiple" name="Multiple" />
-    <example filename="opengl" name="OpenGL" />
-    <example filename="qutlook" name="Qutlook" />
-    <example filename="simple" name="Simple" />
-    <example filename="webbrowser" name="Web Browser" />
-    <example filename="wrapper" name="Wrapper" />
-  </category>
-  <category dirname="motif" name="Motif">
-    <example filename="customwidget" name="Custom Widget" />
-    <example filename="dialog" name="Dialog" />
-  </category> -->
 </categories>

@@ -362,6 +362,9 @@ void Launcher::launchExample(const QString &example)
     runningProcesses[process] = example;
     process->setWorkingDirectory(examplePaths[example].first);
     process->start(examplePaths[example].second);
+
+    if (process->state() == QProcess::Starting)
+        slideshowTimer->stop();
 }
 
 void Launcher::enableLaunching()
@@ -379,6 +382,7 @@ void Launcher::enableLaunching()
                 display->enableUpdates();
             }
         }
+        slideshowTimer->start();
     }
 }
 
@@ -412,9 +416,7 @@ void Launcher::closeEvent(QCloseEvent *event)
 
     qDeleteAll(runningProcesses.keys());
     resizeTimer->stop();
-    resizeTimer->deleteLater();
     slideshowTimer->stop();
-    slideshowTimer->deleteLater();
 }
 
 void Launcher::showParentPage()
@@ -464,7 +466,6 @@ void Launcher::showCategories()
 
     display->appendShape(title);
 
-    QFontMetrics buttonMetrics(buttonFont);
     qreal topMargin = 6*verticalMargin;
     qreal bottomMargin = height() - 3.2*verticalMargin;
     qreal space = bottomMargin - topMargin;
@@ -906,10 +907,6 @@ void Launcher::showExampleSummary(const QString &example)
 
         QColor backgroundColor = QColor("#a63e39");
         QColor highlightedColor = QColor("#f95e56");
-        if (runningExamples.contains(example)) {
-            backgroundColor.setAlpha(15);
-            highlightedColor.setAlpha(15);
-        }
 
         DisplayShape *background = new PanelShape(path,
             QBrush(backgroundColor), QBrush(highlightedColor), Qt::NoPen,
@@ -920,6 +917,14 @@ void Launcher::showExampleSummary(const QString &example)
         background->setMetaData("launch", example);
         background->setInteractive(true);
         background->setTarget(launchCaption->target());
+
+        if (runningExamples.contains(example)) {
+            background->setMetaData("highlight", true);
+            background->setMetaData("highlight scale", 0.99);
+            background->animate();
+            background->setMetaData("fade", -135);
+            slideshowTimer->stop();
+        }
 
         display->insertShape(0, background);
 

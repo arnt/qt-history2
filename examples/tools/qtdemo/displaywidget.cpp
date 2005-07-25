@@ -22,9 +22,6 @@ DisplayWidget::DisplayWidget(QWidget *parent)
     empty = true;
     emptying = false;
 
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(updateShapes()));
-    timer->setSingleShot(false);
     enableUpdates();
 
     setBackgroundRole(QPalette::Base);
@@ -58,11 +55,14 @@ void DisplayWidget::mouseMoveEvent(QMouseEvent *event)
     bool updated = false;
 
     foreach (DisplayShape *shape, shapes) {
-        if (shape->isInteractive() && shape->rect().contains(event->pos())
-            && !shape->contains("fade")) {
-            shape->setMetaData("highlight", true);
-            updated = true;
-        } else if (shape->isInteractive() && shape->contains("highlight")) {
+        if (shape->rect().contains(event->pos())) {
+            if (shape->isInteractive() && !shape->contains("fade")
+                && !shape->contains("highlight")) {
+                shape->setMetaData("highlight", true);
+                updated = true;
+            }
+        } else if (shape->isInteractive() && shape->contains("highlight")
+                   && shape->metaData("highlight").toBool()) {
             shape->setMetaData("highlight", false);
             updated = true;
         }
@@ -119,7 +119,7 @@ void DisplayWidget::reset()
 
     if (shapes.size() == 0) {
         empty = true;
-        timer->stop();
+        timer.stop();
         emit displayEmpty();    // Note: synchronous signal
     } else {
         enableUpdates();
@@ -144,44 +144,48 @@ int DisplayWidget::shapesCount() const
 
 void DisplayWidget::enableUpdates()
 {
-    if (!timer->isActive())
-        timer->start(50);
+    if (!timer.isActive())
+        timer.start(50, this);
 }
 
-void DisplayWidget::updateShapes()
+void DisplayWidget::timerEvent(QTimerEvent *event)
 {
-    QVector<DisplayShape*> discard;
+    if (event->timerId() == timer.timerId()) {
+        QVector<DisplayShape*> discard;
 
-    int updated = 0;
+        int updated = 0;
 
-    foreach (DisplayShape *shape, shapes) {
-        QRect oldRect = shape->rect().toRect().adjusted(-1,-1,1,1);
-        if (shape->animate()) {
+        foreach (DisplayShape *shape, shapes) {
+            QRect oldRect = shape->rect().toRect().adjusted(-1,-1,1,1);
+            if (shape->animate()) {
 
-            update(oldRect);
-            QRect newRect = shape->rect().toRect().adjusted(-1,-1,1,1);
-            ++updated;
+                update(oldRect);
+                QRect newRect = shape->rect().toRect().adjusted(-1,-1,1,1);
+                ++updated;
 
-            if (shape->contains("destroy")) {
-                discard.append(shape);
-            } else {
-                update(newRect);
+                if (shape->contains("destroy")) {
+                    discard.append(shape);
+                } else {
+                    update(newRect);
+                }
             }
         }
-    }
 
-    if (updated == 0)
-        timer->stop();
+        if (updated == 0)
+            timer.stop();
 
-    foreach (DisplayShape *shape, discard) {
-        shapes.removeAll(shape);
-        delete shape;
-    }
+        foreach (DisplayShape *shape, discard) {
+            shapes.removeAll(shape);
+            delete shape;
+        }
 
-    if (shapes.size() == 0 && !empty) {
-        empty = true;
-        emptying = false;
-        timer->stop();
-        emit displayEmpty();    // Note: synchronous signal
+        if (shapes.size() == 0 && !empty) {
+            empty = true;
+            emptying = false;
+            timer.stop();
+            emit displayEmpty();    // Note: synchronous signal
+        }
+    } else {
+	QWidget::timerEvent(event);
     }
 }

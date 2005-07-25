@@ -14,6 +14,7 @@
 #ifndef DISPLAYWIDGET_H
 #define DISPLAYWIDGET_H
 
+#include <QBasicTimer>
 #include <QWidget>
 
 class DisplayShape;
@@ -36,6 +37,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void paintEvent(QPaintEvent *event);
+    void timerEvent(QTimerEvent *event);
 
 signals:
     void actionRequested(const QString &name);
@@ -45,14 +47,12 @@ signals:
     void exampleRequested(const QString &name);
     void launchRequested(const QString &name);
 
-private slots:
-    void updateShapes();
-
 private:
     bool empty;
     bool emptying;
+    bool updatesEnabled;
     QList<DisplayShape*> shapes;
-    QTimer *timer;
+    QBasicTimer timer;
 };
 
 #endif
