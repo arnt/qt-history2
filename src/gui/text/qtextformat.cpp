@@ -906,7 +906,9 @@ QMap<int, QVariant> QTextFormat::properties() const
 */
 bool QTextFormat::operator==(const QTextFormat &rhs) const
 {
-    if (format_type == rhs.format_type && d == rhs.d)
+    if (format_type != rhs.format_type)
+        return false;
+    if (d == rhs.d)
         return true;
     if (!d || !rhs.d)
         return false;
@@ -2049,7 +2051,7 @@ QTextFormatCollection::~QTextFormatCollection()
 
 int QTextFormatCollection::indexForFormat(const QTextFormat &format)
 {
-    int hash = format.d ? format.d->hash() : 0;
+    uint hash = format.d ? format.d->hash() : 0;
     if (hashes.contains(hash)) {
         for (int i = 0; i < formats.size(); ++i) {
             if (formats.at(i) == format)
@@ -2060,8 +2062,9 @@ int QTextFormatCollection::indexForFormat(const QTextFormat &format)
     formats.append(format);
 
     QTextFormat &f = formats.last();
-    if (f.d)
-        f.d->resolveFont(defaultFnt);
+    if (!f.d)
+        f.d = new QTextFormatPrivate;
+    f.d->resolveFont(defaultFnt);
 
     hashes.insert(hash);
     return idx;
@@ -2069,7 +2072,7 @@ int QTextFormatCollection::indexForFormat(const QTextFormat &format)
 
 bool QTextFormatCollection::hasFormatCached(const QTextFormat &format) const
 {
-    int hash = format.d ? format.d->hash() : 0;
+    uint hash = format.d ? format.d->hash() : 0;
     if (hashes.contains(hash)) {
         for (int i = 0; i < formats.size(); ++i)
             if (formats.at(i) == format)
