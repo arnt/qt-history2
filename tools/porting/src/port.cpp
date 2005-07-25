@@ -35,16 +35,14 @@ QString applicationDirPath;
 
 QString findRulesFile(const QString &fileName)
 {
-    //check QLibraryInfo::DataPath/filename
+    // Check QLibraryInfo::DataPath/filename
     QString filePath;
     filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::DataPath) + "/" + fileName)  ;
-    //cout << "checking" << filePath.toLatin1().constData() << endl;
     if (QFile::exists(filePath))
         return QFileInfo(filePath).canonicalFilePath();
 
-    //check QLibraryInfo::PrefixPath/tools/porting/src/filename
+    // Check QLibraryInfo::PrefixPath/tools/porting/src/filename
     filePath = QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::PrefixPath) + "/tools/porting/src/" + fileName);
-    //cout << "checking" << filePath.toLatin1().constData() << endl;
     if (QFile::exists(filePath))
         return QFileInfo(filePath).canonicalFilePath();
 
@@ -115,7 +113,7 @@ int main(int argc, char**argv)
 {
     QCoreApplication app(argc, argv);
     applicationDirPath = app.applicationDirPath();
-    QString defualtRulesFileName = "q3porting.xml";
+    QString defaultRulesFileName = "q3porting.xml";
     QStringList inFileNames;
     QStringList includeSearchDirectories;
     bool enableCppParsing = true;
@@ -191,23 +189,23 @@ int main(int argc, char**argv)
     }
 
     if (rulesFilePath.isEmpty())
-        rulesFilePath = findRulesFile(defualtRulesFileName);
+        rulesFilePath = findRulesFile(defaultRulesFileName);
 
-    //Check if we have a rules file
+    // Check if we have a rule file.
     if (!QFile::exists(rulesFilePath)) {
-        cout << "Error: Could not find the " << defualtRulesFileName.toLocal8Bit().constData() << "rules file: ";
-        cout << "Please try specifying the file with the "
+        cout << "Error: Could not find the " << defaultRulesFileName.toLocal8Bit().constData() << " rule file: ";
+        cout << "Please try specifying the location of the file with the "
         << rulesFileOption.argument.toLocal8Bit().constData() << " option" << endl;
         return 0;
     }
 
-    //check if we have any infiles
+    // Check if we have any infiles
     if (inFileNames.isEmpty()) {
         cout << "You must specify a file name" << endl;
         return 0;
     }
 
-    // Create and scan rules file.
+    // Read rule file and create PortingRules instance.
     cout << "Using rules file: ";
     cout << QDir::convertSeparators(rulesFilePath).toLocal8Bit().constData() <<endl;
     PortingRules::createInstance(rulesFilePath);
