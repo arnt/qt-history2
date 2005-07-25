@@ -130,87 +130,49 @@ bool DspMakefileGenerator::writeDspParts(QTextStream &t)
     t << "# Name \"" << configName(this) << "\"" << endl;
     t << endl;
 
-    if (project->isActiveConfig("flat")) {
 
-        QStringList listNames = QString("SOURCES|DEF_FILE").split("|");
-        QStringList allListNames = listNames;
-        writeFileGroup(t, listNames, "Source Files", "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat");
-        listNames = QStringList("HEADERS");
-        allListNames += listNames;
-        writeFileGroup(t, QStringList("HEADERS"), "Header Files", "h;hpp;hxx;hm;inl");
-        listNames = QString("FORMS|INTERFACES").split("|");
-        allListNames += listNames;
-        writeFileGroup(t, listNames, "Form Files", "ui");
-        listNames = QStringList("IMAGES");
-        allListNames += listNames;
-        writeFileGroup(t, QStringList("IMAGES"), "Image Files", "");
-        listNames = QString("RC_FILE|RESOURCES").split("|");
-        allListNames += listNames;
-        writeFileGroup(t, listNames, "Resources", "rc;qrc");
-        listNames = QStringList("TRANSLATIONS");
-        allListNames += listNames;
-        writeFileGroup(t, listNames, "Translations", "ts");
-        listNames = QStringList("LEXSOURCES");
-        allListNames += listNames;
-        writeFileGroup(t, listNames, "Lexables", "l");
-        listNames = QStringList("YACCSOURCES");
-        allListNames += listNames;
-        writeFileGroup(t, listNames, "Yaccables", "y");
-        listNames = QStringList("TYPELIBS");
-        allListNames += listNames;
-        writeFileGroup(t, listNames, "Type Libraries", "tlb;olb");
+    QStringList listNames = QString("SOURCES|DEF_FILE").split("|");
+    QStringList allListNames = listNames;
+    writeFileGroup(t, listNames, "Source Files", "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat");
+    listNames = QStringList("HEADERS");
+    allListNames += listNames;
+    writeFileGroup(t, QStringList("HEADERS"), "Header Files", "h;hpp;hxx;hm;inl");
+    listNames = QString("FORMS|INTERFACES").split("|");
+    allListNames += listNames;
+    writeFileGroup(t, listNames, "Form Files", "ui");
+    listNames = QStringList("IMAGES");
+    allListNames += listNames;
+    writeFileGroup(t, QStringList("IMAGES"), "Image Files", "");
+    listNames = QString("RC_FILE|RESOURCES").split("|");
+    allListNames += listNames;
+    writeFileGroup(t, listNames, "Resources", "rc;qrc");
+    listNames = QStringList("TRANSLATIONS");
+    allListNames += listNames;
+    writeFileGroup(t, listNames, "Translations", "ts");
+    listNames = QStringList("LEXSOURCES");
+    allListNames += listNames;
+    writeFileGroup(t, listNames, "Lexables", "l");
+    listNames = QStringList("YACCSOURCES");
+    allListNames += listNames;
+    writeFileGroup(t, listNames, "Yaccables", "y");
+    listNames = QStringList("TYPELIBS");
+    allListNames += listNames;
+    writeFileGroup(t, listNames, "Type Libraries", "tlb;olb");
 
-        if (!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
-             const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
-             for (QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
-                const QStringList &inputs = project->values((*it)+".input");
-                for (QStringList::ConstIterator input = inputs.begin(); input != inputs.end(); ++input) {
-                    if (!allListNames.contains((*input)))
-                        writeFileGroup(t, QStringList((*input)), (*input) + " Files", "");
-                }
+    if (!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
+         const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+         for (QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
+            const QStringList &inputs = project->values((*it)+".input");
+            for (QStringList::ConstIterator input = inputs.begin(); input != inputs.end(); ++input) {
+                if (!allListNames.contains((*input)))
+                    writeFileGroup(t, QStringList((*input)), (*input) + " Files", "");
             }
         }
-
-        project->variables()["SWAPPED_BUILD_STEPS"] = swappedBuildSteps.keys();
-
-        writeFileGroup(t, QString("GENERATED_SOURCES|GENERATED_FILES|UIC3_HEADERS|SWAPPED_BUILD_STEPS").split("|"), "Generated", "");
-
-    } else { // directory mode
-        /* //###
-        QStringList list(project->variables()["SOURCES"]
-            + project->variables()["GENERATED_SOURCES"]
-            + project->variables()["DEF_FILE"]
-            + project->variables()["IMAGES"]
-            + project->variables()["RC_FILE"]
-            + project->variables()["TRANSLATIONS"]
-            + project->variables()["LEXSOURCES"]
-            + project->variables()["YACCSOURCES"]);
-        if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
-            const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
-            for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
-                const QStringList &inputs = project->values((*it)+".input");
-                for(QStringList::ConstIterator input = inputs.begin(); input != inputs.end(); ++input)
-                    list += project->values((*input));
-                const QStringList &outputs = project->values((*it)+".output");
-                for(QStringList::ConstIterator output = outputs.begin(); output != outputs.end(); ++output)
-                    list += project->values((*output));
-            }
-        }
-
-        list.sort();
-        for (i = 0; i < list.count(); ++i) {
-            QString file = list.at(i);
-            beginGroupForFile(file, t);
-            t << "# Begin Source File" << endl;
-            t << "SOURCE=" << file << endl;
-            writeBuildstepForFile(t, file);
-            t << "# End Source File" << endl;
-            t << endl;
-        }
-        endGroups(t);
-        */
     }
 
+    project->variables()["SWAPPED_BUILD_STEPS"] = swappedBuildSteps.keys();
+
+    writeFileGroup(t, QString("GENERATED_SOURCES|GENERATED_FILES|UIC3_HEADERS|SWAPPED_BUILD_STEPS").split("|"), "Generated", "");
 
     t << "# End Target" << endl;
     t << "# End Project" << endl;
@@ -418,61 +380,6 @@ void DspMakefileGenerator::processPrlVariable(const QString &var, const QStringL
     }
 }
 
-void DspMakefileGenerator::beginGroupForFile(QString file, QTextStream &t,
-                                        const QString& filter)
-{
-    fileFixify(file, qmake_getpwd(), qmake_getpwd(), FileFixifyRelative);
-    file = file.section(Option::dir_sep, 0, -2);
-    if(file.right(Option::dir_sep.length()) != Option::dir_sep)
-        file += Option::dir_sep;
-    if(file == currentGroup)
-        return;
-
-    if(file.isEmpty() || !QDir::isRelativePath(file)) {
-        endGroups(t);
-        return;
-    }
-
-    QString tempFile = file;
-    if(tempFile.startsWith(currentGroup))
-        tempFile = tempFile.mid(currentGroup.length());
-    int dirSep = currentGroup.lastIndexOf(Option::dir_sep);
-
-    while(!tempFile.startsWith(currentGroup) && dirSep != -1) {
-        currentGroup.truncate(dirSep);
-        dirSep = currentGroup.lastIndexOf(Option::dir_sep);
-        if(!tempFile.startsWith(currentGroup) && dirSep != -1)
-            t << "\n# End Group\n";
-    }
-    if(!file.startsWith(currentGroup)) {
-        t << "\n# End Group\n";
-        currentGroup = "";
-    }
-
-    QStringList dirs = file.right(file.length() - currentGroup.length()).split(Option::dir_sep);
-    for(QStringList::Iterator dir_it = dirs.begin(); dir_it != dirs.end(); ++dir_it) {
-        if ((*dir_it).isEmpty())
-            continue;
-        t << "# Begin Group \"" << (*dir_it) << "\"" << endl;
-        t << "# Prop Default_Filter \"" << filter << "\"" << endl;
-    }
-    currentGroup = file;
-    if (currentGroup == "\\")
-        currentGroup = "";
-}
-
-void DspMakefileGenerator::endGroups(QTextStream &t)
-{
-    if(currentGroup.isEmpty())
-        return;
-
-    QStringList dirs = currentGroup.split(Option::dir_sep);
-    for(QStringList::Iterator dir_it = dirs.end(); dir_it != dirs.begin(); --dir_it) {
-        t << "\n# End Group\n";
-    }
-    currentGroup = "";
-}
-
 bool DspMakefileGenerator::openOutput(QFile &file, const QString &build) const
 {
     QString outdir;
@@ -535,8 +442,7 @@ bool DspMakefileGenerator::writeProjectMakefile()
         debug_msg(1, "Generator: MSVC 6: Writing project file");
 
         writeDspHeader(t);
-        int i = 0;
-        for (i = 0; i < mergedProjects.count(); ++i) {
+        for (int i = 0; i < mergedProjects.count(); ++i) {
             DspMakefileGenerator* config = mergedProjects.at(i);
             t << endl;
             if (i == 0)
@@ -552,104 +458,99 @@ bool DspMakefileGenerator::writeProjectMakefile()
         t << endl;
         t << "# Begin Target" << endl;
         t << endl;
-        for (i = 0; i < mergedProjects.count(); ++i)
+        for (int i = 0; i < mergedProjects.count(); ++i)
             t << "# Name \"" << configName(mergedProjects.at(i)) << "\"" << endl;
         t << endl;
+    
+        QMap< QString, QSet<QString> > files;
 
-        if (project->isActiveConfig("flat")) {
+        // merge source files
+        for (int i = 0; i < mergedProjects.count(); ++i) {
 
-            QMap< QString, QSet<QString> > files;
+            DspMakefileGenerator* config = mergedProjects.at(i);
 
-            // merge source files
-            int i = 0;
-            for (i = 0; i < mergedProjects.count(); ++i) {
+            files["DEF_FILE"] += config->project->variables()["DEF_FILE"].toSet();
+            files["SOURCES"] += config->project->variables()["SOURCES"].toSet();
+            files["HEADERS"] += config->project->variables()["HEADERS"].toSet();
+            files["INTERFACES"] += config->project->variables()["INTERFACES"].toSet();
+            files["FORMS"] += config->project->variables()["FORMS"].toSet();
+            files["IMAGES"] += config->project->variables()["IMAGES"].toSet();
+            files["RC_FILE"] += config->project->variables()["RC_FILE"].toSet();
+            files["RESOURCES"] += config->project->variables()["RESOURCES"].toSet();
+            files["TRANSLATIONS"] += config->project->variables()["TRANSLATIONS"].toSet();
+            files["LEXSOURCES"] += config->project->variables()["LEXSOURCES"].toSet();
+            files["YACCSOURCES"] += config->project->variables()["YACCSOURCES"].toSet();
+            files["TYPELIBS"] += config->project->variables()["TYPELIBS"].toSet();
 
-                DspMakefileGenerator* config = mergedProjects.at(i);
-
-                files["DEF_FILE"] += config->project->variables()["DEF_FILE"].toSet();
-                files["SOURCES"] += config->project->variables()["SOURCES"].toSet();
-                files["HEADERS"] += config->project->variables()["HEADERS"].toSet();
-                files["INTERFACES"] += config->project->variables()["INTERFACES"].toSet();
-                files["FORMS"] += config->project->variables()["FORMS"].toSet();
-                files["IMAGES"] += config->project->variables()["IMAGES"].toSet();
-                files["RC_FILE"] += config->project->variables()["RC_FILE"].toSet();
-                files["RESOURCES"] += config->project->variables()["RESOURCES"].toSet();
-                files["TRANSLATIONS"] += config->project->variables()["TRANSLATIONS"].toSet();
-                files["LEXSOURCES"] += config->project->variables()["LEXSOURCES"].toSet();
-                files["YACCSOURCES"] += config->project->variables()["YACCSOURCES"].toSet();
-                files["TYPELIBS"] += config->project->variables()["TYPELIBS"].toSet();
-
-                if (!config->project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
-                    const QStringList &quc = config->project->variables()["QMAKE_EXTRA_COMPILERS"];
-                    for (QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
-                        const QStringList &inputs = project->values((*it)+".input");
-                        for (QStringList::ConstIterator input = inputs.begin(); input != inputs.end(); ++input) {
-                            files[(*input)] += config->project->variables()[(*input)].toSet();
-                        }
+            if (!config->project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
+                const QStringList &quc = config->project->variables()["QMAKE_EXTRA_COMPILERS"];
+                for (QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
+                    const QStringList &inputs = project->values((*it)+".input");
+                    for (QStringList::ConstIterator input = inputs.begin(); input != inputs.end(); ++input) {
+                        files[(*input)] += config->project->variables()[(*input)].toSet();
                     }
                 }
             }
-
-            QStringList keys = files.keys();
-            for (int k = 0; k < keys.size(); ++k)
-                project->variables()[keys.at(k)] = QList<QString>::fromSet(files[keys.at(k)]);
-
-            QStringList listNames = QString("SOURCES|DEF_FILE").split("|");
-            QStringList allListNames = listNames;
-            writeFileGroup(t, listNames, "Source Files", "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat");
-            listNames = QStringList("HEADERS");
-            allListNames += listNames;
-            writeFileGroup(t, listNames, "Header Files", "h;hpp;hxx;hm;inl");
-            listNames = QString("FORMS|INTERFACES").split("|");
-            allListNames += listNames;
-            writeFileGroup(t, listNames, "Form Files", "ui");
-            listNames = QStringList("IMAGES");
-            allListNames += listNames;
-            writeFileGroup(t, listNames, "Image Files", "");
-            listNames = QString("RC_FILE|RESOURCES").split("|");
-            allListNames += listNames;
-            writeFileGroup(t, listNames, "Resources", "rc;qrc");
-            listNames = QStringList("TRANSLATIONS");
-            allListNames += listNames;
-            writeFileGroup(t, listNames, "Translations", "ts");
-            listNames = QStringList("LEXSOURCES");
-            allListNames += listNames;
-            writeFileGroup(t, listNames, "Lexables", "l");
-            listNames = QStringList("YACCSOURCES");
-            allListNames += listNames;
-            writeFileGroup(t, listNames, "Yaccables", "y");
-            listNames = QStringList("TYPELIBS");
-            allListNames += listNames;
-            writeFileGroup(t, listNames, "Type Libraries", "tlb;olb");
-
-            for (int l = 0; l < allListNames.size(); ++l)
-                keys.removeAll(allListNames.at(l));
-
-            for (int k = 0; k < keys.size(); ++k)
-                writeFileGroup(t, QStringList(keys.at(k)), keys.at(k) + " Files", "");
-
-            // done last as generated may have changed when creating build rules for the above
-            for (i = 0; i < mergedProjects.count(); ++i) {
-
-                DspMakefileGenerator* config = mergedProjects.at(i);
-
-                files["UIC3_HEADERS"] += config->project->variables()["UIC3_HEADERS"].toSet();
-
-                config->project->variables()["SWAPPED_BUILD_STEPS"] = config->swappedBuildSteps.keys();
-                files["SWAPPED_BUILD_STEPS"] +=  config->project->variables()["SWAPPED_BUILD_STEPS"].toSet();
-
-                files["GENERATED_SOURCES"] += config->project->variables()["GENERATED_SOURCES"].toSet();
-                files["GENERATED_FILES"] += config->project->variables()["GENERATED_FILES"].toSet();
-            }
-
-            project->variables()["SWAPPED_BUILD_STEPS"] = QList<QString>::fromSet(files["SWAPPED_BUILD_STEPS"]);
-            project->variables()["UIC3_HEADERS"] = QList<QString>::fromSet(files["UIC3_HEADERS"]);
-            project->variables()["GENERATED_SOURCES"] = QList<QString>::fromSet(files["GENERATED_SOURCES"]);
-            project->variables()["GENERATED_FILES"] = QList<QString>::fromSet(files["GENERATED_FILES"]);
-
-            writeFileGroup(t, QString("GENERATED_SOURCES|GENERATED_FILES|UIC3_HEADERS|SWAPPED_BUILD_STEPS").split("|"), "Generated", "");
-
         }
+
+        QStringList keys = files.keys();
+        for (int k = 0; k < keys.size(); ++k)
+            project->variables()[keys.at(k)] = QList<QString>::fromSet(files[keys.at(k)]);
+
+        QStringList listNames = QString("SOURCES|DEF_FILE").split("|");
+        QStringList allListNames = listNames;
+        writeFileGroup(t, listNames, "Source Files", "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat");
+        listNames = QStringList("HEADERS");
+        allListNames += listNames;
+        writeFileGroup(t, listNames, "Header Files", "h;hpp;hxx;hm;inl");
+        listNames = QString("FORMS|INTERFACES").split("|");
+        allListNames += listNames;
+        writeFileGroup(t, listNames, "Form Files", "ui");
+        listNames = QStringList("IMAGES");
+        allListNames += listNames;
+        writeFileGroup(t, listNames, "Image Files", "");
+        listNames = QString("RC_FILE|RESOURCES").split("|");
+        allListNames += listNames;
+        writeFileGroup(t, listNames, "Resources", "rc;qrc");
+        listNames = QStringList("TRANSLATIONS");
+        allListNames += listNames;
+        writeFileGroup(t, listNames, "Translations", "ts");
+        listNames = QStringList("LEXSOURCES");
+        allListNames += listNames;
+        writeFileGroup(t, listNames, "Lexables", "l");
+        listNames = QStringList("YACCSOURCES");
+        allListNames += listNames;
+        writeFileGroup(t, listNames, "Yaccables", "y");
+        listNames = QStringList("TYPELIBS");
+        allListNames += listNames;
+        writeFileGroup(t, listNames, "Type Libraries", "tlb;olb");
+
+        for (int l = 0; l < allListNames.size(); ++l)
+            keys.removeAll(allListNames.at(l));
+
+        for (int k = 0; k < keys.size(); ++k)
+            writeFileGroup(t, QStringList(keys.at(k)), keys.at(k) + " Files", "");
+
+        // done last as generated may have changed when creating build rules for the above
+        for (int i = 0; i < mergedProjects.count(); ++i) {
+
+            DspMakefileGenerator* config = mergedProjects.at(i);
+
+            files["UIC3_HEADERS"] += config->project->variables()["UIC3_HEADERS"].toSet();
+
+            config->project->variables()["SWAPPED_BUILD_STEPS"] = config->swappedBuildSteps.keys();
+            files["SWAPPED_BUILD_STEPS"] +=  config->project->variables()["SWAPPED_BUILD_STEPS"].toSet();
+
+            files["GENERATED_SOURCES"] += config->project->variables()["GENERATED_SOURCES"].toSet();
+            files["GENERATED_FILES"] += config->project->variables()["GENERATED_FILES"].toSet();
+        }
+
+        project->variables()["SWAPPED_BUILD_STEPS"] = QList<QString>::fromSet(files["SWAPPED_BUILD_STEPS"]);
+        project->variables()["UIC3_HEADERS"] = QList<QString>::fromSet(files["UIC3_HEADERS"]);
+        project->variables()["GENERATED_SOURCES"] = QList<QString>::fromSet(files["GENERATED_SOURCES"]);
+        project->variables()["GENERATED_FILES"] = QList<QString>::fromSet(files["GENERATED_FILES"]);
+
+        writeFileGroup(t, QString("GENERATED_SOURCES|GENERATED_FILES|UIC3_HEADERS|SWAPPED_BUILD_STEPS").split("|"), "Generated", "");
     }
     t << endl;
     t << "# End Target" << endl;
@@ -658,23 +559,76 @@ bool DspMakefileGenerator::writeProjectMakefile()
     return ret;
 }
 
+class FolderGroup
+{
+public:
+    QString name;
+    QString filter;
+    QMap<QString, FolderGroup *> subFolders;
+    QMap<QString, QString> files;
+
+    void insertStructured(const QString &file, const QString &fileListName)
+    {
+        QStringList path = QFileInfo(file).path().split("/");
+        if (!path.isEmpty() && path.at(0) == ".")
+            path.takeAt(0);
+        FolderGroup *currentFolder = this;
+        for (int i = 0; i < path.size(); i++) {
+            if (currentFolder->subFolders.contains(path.at(i))) {
+                currentFolder = currentFolder->subFolders.value(path.at(i));
+            } else {
+                FolderGroup *newFolder = new FolderGroup;
+                newFolder->name = path.at(i);
+                currentFolder->subFolders.insert(path.at(i), newFolder);
+                currentFolder = newFolder;
+            }
+        }
+        currentFolder->files.insert(file, fileListName);
+    }
+
+    void insertFlat(const QString &file, const QString &fileListName)
+    {
+        files.insert(file, fileListName);
+    }
+
+    ~FolderGroup()
+    {
+        qDeleteAll(subFolders.values());
+    }
+};
+
 bool DspMakefileGenerator::writeFileGroup(QTextStream &t, const QStringList &listNames, const QString &group, const QString &filter)
 {
-    QMap<QString, QString> files;
+    FolderGroup root;
+    root.name = group;
+    root.filter = filter;
+    
     for (int i = 0; i < listNames.count(); ++i) {
         QStringList list = project->variables()[listNames.at(i)];
         for (int j = 0; j < list.count(); ++j) {
-            files[list.at(j)] = listNames.at(i);
+            if (project->isActiveConfig("flat"))
+                root.insertFlat(list.at(j), listNames.at(i));
+            else
+                root.insertStructured(list.at(j), listNames.at(i));
         }
     }
 
-    if (files.isEmpty())
-        return false;
+    writeSubFileGroup(t, &root);
+    
+    return true;
+}
 
-    t << "# Begin Group \"" << group << "\"" << endl;
-    t << "# PROP Default_Filter \"" << filter << "\"" << endl;
-    QMap<QString, QString>::const_iterator it = files.begin();
-    while (it != files.end()) {
+void DspMakefileGenerator::writeSubFileGroup(QTextStream &t, FolderGroup *folder)
+{
+    t << "# Begin Group \"" << folder->name << "\"" << endl;
+    t << "# PROP Default_Filter \"" << folder->filter << "\"" << endl;
+    QMap<QString, FolderGroup *>::const_iterator folderIt = folder->subFolders.begin();
+    while (folderIt != folder->subFolders.end()) {
+        writeSubFileGroup(t, folderIt.value());
+        ++folderIt;
+    }
+    QMap<QString, QString>::const_iterator it = folder->files.begin();
+    while (it != folder->files.end()) {
         t << "# Begin Source File" << endl;
         t << "SOURCE=" << it.key() << endl;
         writeBuildstepForFile(t, it.key(), it.value());
@@ -684,8 +638,6 @@ bool DspMakefileGenerator::writeFileGroup(QTextStream &t, const QStringList &lis
     }
     t << "# End Group" << endl;
     t << endl;
-
-    return true;
 }
 
 bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &file, const QString &listName)

@@ -16,16 +16,15 @@
 
 #include "winmakefile.h"
 
+class FolderGroup;
+
 class DspMakefileGenerator : public Win32MakefileGenerator
 {
-    QString currentGroup;
-    void beginGroupForFile(QString file, QTextStream &, const QString& filter="");
-    void endGroups(QTextStream &);
-
     bool init_flag;
     bool writeDspHeader(QTextStream &);
     bool writeDspParts(QTextStream &);
     bool writeFileGroup(QTextStream &t, const QStringList &listNames, const QString &group, const QString &filter);
+    void writeSubFileGroup(QTextStream &t, FolderGroup *folder);
     bool writeBuildstepForFile(QTextStream &t, const QString &file, const QString &listName);
     static bool writeDspConfig(QTextStream &t, DspMakefileGenerator *config);
     static QString writeBuildstepForFileForConfig(const QString &file, const QString &listName, DspMakefileGenerator *config);
@@ -74,8 +73,6 @@ protected:
         QStringList buildOutputs;
     };
     QMap<QString, BuildStep> swappedBuildSteps;
-
-
 
     // Holds all configurations for glue (merged) project
     QList<DspMakefileGenerator*> mergedProjects;
