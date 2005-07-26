@@ -2605,18 +2605,26 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
     QConnectionList * const list = ::connectionList();
     if (!list)
         return;
+    
     QReadLocker locker(&list->lock);
-    QConnectionList::Hash::const_iterator it = list->sendersHash.find(sender);
-    const QConnectionList::Hash::const_iterator end = list->sendersHash.constEnd();
-
+    
     void *empty_argv[] = { 0 };
-    if (qt_signal_spy_callback_set.signal_begin_callback != 0)
+    if (qt_signal_spy_callback_set.signal_begin_callback != 0) {
+        locker.unlock();
         qt_signal_spy_callback_set.signal_begin_callback(sender, from_signal_index,
                                                          argv ? argv : empty_argv);
+        locker.relock();
+    }
 
+    QConnectionList::Hash::const_iterator it = list->sendersHash.find(sender);
+    const QConnectionList::Hash::const_iterator end = list->sendersHash.constEnd();
+    
     if (it == end) {
-        if (qt_signal_spy_callback_set.signal_end_callback != 0)
+        if (qt_signal_spy_callback_set.signal_end_callback != 0) {
+            locker.unlock();
             qt_signal_spy_callback_set.signal_end_callback(sender, from_signal_index);
+            locker.relock();
+        }
         return;
     }
 
@@ -2674,10 +2682,13 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
             c.receiver->d_func()->currentSender = previousSender;
     }
 
-    if (qt_signal_spy_callback_set.signal_end_callback != 0)
-        qt_signal_spy_callback_set.signal_end_callback(sender, from_signal_index);
-
     list->invariant.deref();
+  
+    if (qt_signal_spy_callback_set.signal_end_callback != 0) {
+        locker.unlock(); 
+        qt_signal_spy_callback_set.signal_end_callback(sender, from_signal_index);
+        locker.relock();
+    }
 }
 
 
