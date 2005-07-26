@@ -20,6 +20,7 @@
     \brief The QDesignerWidgetFactoryInterface class provides an interface that is used to control
     the widget factory used by Qt Designer.
     \inmodule QtDesigner
+    \internal
 */
 
 /*!

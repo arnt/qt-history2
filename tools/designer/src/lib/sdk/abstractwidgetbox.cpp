@@ -18,6 +18,7 @@
     \brief The QDesignerWidgetBoxInterface class provides an interface that is used to
     control Qt Designer's widget box component.
     \inmodule QtDesigner
+    \internal
 */
 
 /*!

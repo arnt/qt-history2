@@ -74,6 +74,7 @@
     \class QDesignerLayoutDecorationExtension
     \brief The QDesignerLayoutDecorationExtension class provides an extension to a layout in \QD.
     \inmodule QtDesigner
+    \internal
 */
 
 /*!
@@ -188,8 +189,8 @@
 /*!
     \fn void QDesignerLayoutDecorationExtension::adjustIndicator(const QPoint &position, int index)
 
-    Adjusts the indicator for the specified \a widget so that it lies at the given \a position on
-    the form.
+    Adjusts the indicator for the item specified by \a index so that
+    it lies at the given \a position on the form.
 */
 
 
@@ -416,6 +417,7 @@
     \brief The QDesignerDnDItemInterface class provides an interface that is used to manage items
     during a drag and drop operation.
     \inmodule QtDesigner
+    \internal
 */
 
 /*!
@@ -489,6 +491,7 @@
     \class QDesignerIconCacheInterface
     \brief The QDesignerIconCacheInterface class provides an interface to \QD's icon cache.
     \inmodule QtDesigner
+    \internal
 */
 
 /*!

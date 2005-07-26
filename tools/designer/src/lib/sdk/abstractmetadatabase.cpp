@@ -27,6 +27,7 @@
     \brief The QDesignerMetaDataBaseInterface class provides an interface to Qt Designer's
     object meta database.
     \inmodule QtDesigner
+    \internal
 */
 
 /*!
@@ -82,6 +83,7 @@ QDesignerMetaDataBaseInterface::~QDesignerMetaDataBaseInterface()
     \brief The QDesignerMetaDataBaseItemInterface class provides an interface to individual
     items in Qt Designer's meta database.
     \inmodule QtDesigner
+    \internal
 
     This class allows individual items in \QD's meta-data database to be accessed and modified.
     Use the QDesignerMetaDataBaseInterface class to change the properties of the database itself.

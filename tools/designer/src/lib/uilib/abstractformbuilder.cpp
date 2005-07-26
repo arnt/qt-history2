@@ -281,10 +281,11 @@ QAbstractFormBuilder::~QAbstractFormBuilder()
 /*!
     \fn QWidget *QAbstractFormBuilder::load(QIODevice *device, QWidget *parent)
 
-    Loads an XML representation of a widget from the given \a device, and constructs a
-    new widget with the specified \a parent.
+    Loads an XML representation of a widget from the given \a device,
+    and constructs a new widget with the specified \a parent.
 
-    \sa save()*/
+    \sa save()
+*/
 QWidget *QAbstractFormBuilder::load(QIODevice *dev, QWidget *parentWidget)
 {
     QDomDocument doc;
@@ -298,6 +299,9 @@ QWidget *QAbstractFormBuilder::load(QIODevice *dev, QWidget *parentWidget)
     return create(&ui, parentWidget);
 }
 
+/*!
+    \internal
+*/
 QWidget *QAbstractFormBuilder::create(DomUI *ui, QWidget *parentWidget)
 {
     if (DomLayoutDefault *def = ui->elementLayoutDefault()) {
@@ -323,6 +327,9 @@ QWidget *QAbstractFormBuilder::create(DomUI *ui, QWidget *parentWidget)
     return 0;
 }
 
+/*!
+    \internal
+*/
 QWidget *QAbstractFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
     QWidget *w = createWidget(ui_widget->attributeClass(), parentWidget, ui_widget->attributeName());
@@ -390,6 +397,9 @@ QWidget *QAbstractFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
     return w;
 }
 
+/*!
+    \internal
+*/
 QAction *QAbstractFormBuilder::create(DomAction *ui_action, QObject *parent)
 {
     QAction *a = createAction(parent, ui_action->attributeName());
@@ -400,6 +410,9 @@ QAction *QAbstractFormBuilder::create(DomAction *ui_action, QObject *parent)
     return a;
 }
 
+/*!
+    \internal
+*/
 QActionGroup *QAbstractFormBuilder::create(DomActionGroup *ui_action_group, QObject *parent)
 {
     QActionGroup *a = createActionGroup(parent, ui_action_group->attributeName());
@@ -421,7 +434,9 @@ QActionGroup *QAbstractFormBuilder::create(DomActionGroup *ui_action_group, QObj
     return a;
 }
 
-
+/*!
+    \internal
+*/
 bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
     QHash<QString, DomProperty*> attributes = propertyMap(ui_widget->elementAttribute());
@@ -464,6 +479,9 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
     return false;
 }
 
+/*!
+    \internal
+*/
 void QAbstractFormBuilder::layoutInfo(DomLayout *ui_layout, QObject *parent, int *margin, int *spacing)
 {
     QHash<QString, DomProperty*> properties = propertyMap(ui_layout->elementProperty());
@@ -485,6 +503,9 @@ void QAbstractFormBuilder::layoutInfo(DomLayout *ui_layout, QObject *parent, int
     }
 }
 
+/*!
+    \internal
+*/
 QLayout *QAbstractFormBuilder::create(DomLayout *ui_layout, QLayout *parentLayout, QWidget *parentWidget)
 {
     QObject *p = parentLayout;
@@ -532,6 +553,9 @@ QLayout *QAbstractFormBuilder::create(DomLayout *ui_layout, QLayout *parentLayou
     return layout;
 }
 
+/*!
+    \internal
+*/
 bool QAbstractFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)
 {
     if (item->widget()) {
@@ -556,6 +580,9 @@ bool QAbstractFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QL
     return true;
 }
 
+/*!
+    \internal
+*/
 QLayoutItem *QAbstractFormBuilder::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget)
 {
     switch (ui_layoutItem->kind()) {
@@ -611,6 +638,9 @@ QLayoutItem *QAbstractFormBuilder::create(DomLayoutItem *ui_layoutItem, QLayout 
     return 0;
 }
 
+/*!
+    \internal
+*/
 void QAbstractFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &properties)
 {
     foreach (DomProperty *p, properties) {
@@ -620,6 +650,9 @@ void QAbstractFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
     }
 }
 
+/*!
+    \internal
+*/
 QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p)
 {
     QVariant v;
@@ -814,6 +847,9 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
     return v;
 }
 
+/*!
+    \internal
+*/
 void QAbstractFormBuilder::setupColorGroup(QPalette &palette, DomColorGroup *group)
 {
     const QMetaObject meta = QAbstractFormBuilderGadget::staticMetaObject;
@@ -826,6 +862,9 @@ void QAbstractFormBuilder::setupColorGroup(QPalette &palette, DomColorGroup *gro
     }
 }
 
+/*!
+    \internal
+*/
 DomColorGroup *QAbstractFormBuilder::saveColorGroup(const QPalette &palette)
 {
     DomColorGroup *group = new DomColorGroup();
@@ -845,6 +884,9 @@ DomColorGroup *QAbstractFormBuilder::saveColorGroup(const QPalette &palette)
     return group;
 }
 
+/*!
+    \internal
+*/
 QWidget *QAbstractFormBuilder::createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name)
 {
     Q_UNUSED(widgetName);
@@ -853,6 +895,9 @@ QWidget *QAbstractFormBuilder::createWidget(const QString &widgetName, QWidget *
     return 0;
 }
 
+/*!
+    \internal
+*/
 QLayout *QAbstractFormBuilder::createLayout(const QString &layoutName, QObject *parent, const QString &name)
 {
     Q_UNUSED(layoutName);
@@ -861,6 +906,9 @@ QLayout *QAbstractFormBuilder::createLayout(const QString &layoutName, QObject *
     return 0;
 }
 
+/*!
+    \internal
+*/
 QAction *QAbstractFormBuilder::createAction(QObject *parent, const QString &name)
 {
     QAction *action = new QAction(parent);
@@ -870,6 +918,9 @@ QAction *QAbstractFormBuilder::createAction(QObject *parent, const QString &name
     return action;
 }
 
+/*!
+    \internal
+*/
 QActionGroup *QAbstractFormBuilder::createActionGroup(QObject *parent, const QString &name)
 {
     QActionGroup *g = new QActionGroup(parent);
@@ -882,8 +933,8 @@ QActionGroup *QAbstractFormBuilder::createActionGroup(QObject *parent, const QSt
 /*!
     \fn void QAbstractFormBuilder::save(QIODevice *device, QWidget *widget)
 
-    Saves an XML representation of the given \a widget to the specified \a device in
-    the standard \c{.ui} file format.
+    Saves an XML representation of the given \a widget to the
+    specified \a device in the standard \c{.ui} file format.
 
     \sa load()*/
 void QAbstractFormBuilder::save(QIODevice *dev, QWidget *widget)
@@ -907,6 +958,9 @@ void QAbstractFormBuilder::save(QIODevice *dev, QWidget *widget)
     delete ui;
 }
 
+/*!
+    \internal
+*/
 void QAbstractFormBuilder::saveDom(DomUI *ui, QWidget *widget)
 {
     ui->setElementClass(widget->objectName());
@@ -928,11 +982,17 @@ void QAbstractFormBuilder::saveDom(DomUI *ui, QWidget *widget)
     }
 }
 
+/*!
+    \internal
+*/
 DomConnections *QAbstractFormBuilder::saveConnections()
 {
     return new DomConnections;
 }
 
+/*!
+    \internal
+*/
 DomWidget *QAbstractFormBuilder::createDom(QWidget *widget, DomWidget *ui_parentWidget, bool recursive)
 {
     DomWidget *ui_widget = new DomWidget();
@@ -1000,7 +1060,9 @@ DomWidget *QAbstractFormBuilder::createDom(QWidget *widget, DomWidget *ui_parent
     return ui_widget;
 }
 
-
+/*!
+    \internal
+*/
 DomActionRef *QAbstractFormBuilder::createActionRefDom(QAction *action)
 {
     QString name = action->objectName();
@@ -1017,6 +1079,9 @@ DomActionRef *QAbstractFormBuilder::createActionRefDom(QAction *action)
     return ui_action_ref;
 }
 
+/*!
+    \internal
+*/
 DomLayout *QAbstractFormBuilder::createDom(QLayout *layout, DomLayout *ui_layout, DomWidget *ui_parentWidget)
 {
     Q_UNUSED(ui_layout)
@@ -1039,6 +1104,9 @@ DomLayout *QAbstractFormBuilder::createDom(QLayout *layout, DomLayout *ui_layout
     return lay;
 }
 
+/*!
+    \internal
+*/
 DomLayoutItem *QAbstractFormBuilder::createDom(QLayoutItem *item, DomLayout *ui_layout, DomWidget *ui_parentWidget)
 {
     DomLayoutItem *ui_item = new DomLayoutItem();
@@ -1055,6 +1123,9 @@ DomLayoutItem *QAbstractFormBuilder::createDom(QLayoutItem *item, DomLayout *ui_
     return ui_item;
 }
 
+/*!
+    \internal
+*/
 DomSpacer *QAbstractFormBuilder::createDom(QSpacerItem *spacer, DomLayout *ui_layout, DomWidget *ui_parentWidget)
 {
     Q_UNUSED(ui_layout);
@@ -1083,6 +1154,9 @@ DomSpacer *QAbstractFormBuilder::createDom(QSpacerItem *spacer, DomLayout *ui_la
     return ui_spacer;
 }
 
+/*!
+    \internal
+*/
 DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &pname, const QVariant &v)
 {
     if (!checkProperty(obj, pname)) {
@@ -1268,6 +1342,9 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
     return dom_prop;
 }
 
+/*!
+    \internal
+*/
 QList<DomProperty*> QAbstractFormBuilder::computeProperties(QObject *obj)
 {
     QList<DomProperty*> lst;
@@ -1319,11 +1396,17 @@ QList<DomProperty*> QAbstractFormBuilder::computeProperties(QObject *obj)
     return lst;
 }
 
+/*!
+    \internal
+*/
 bool QAbstractFormBuilder::toBool(const QString &str)
 {
     return str.toLower() == QLatin1String("true");
 }
 
+/*!
+    \internal
+*/
 QHash<QString, DomProperty*> QAbstractFormBuilder::propertyMap(const QList<DomProperty*> &properties)
 {
     QHash<QString, DomProperty*> map;
@@ -1334,6 +1417,9 @@ QHash<QString, DomProperty*> QAbstractFormBuilder::propertyMap(const QList<DomPr
     return map;
 }
 
+/*!
+    \internal
+*/
 bool QAbstractFormBuilder::checkProperty(QObject *obj, const QString &prop) const
 {
     Q_UNUSED(obj);
@@ -1342,11 +1428,17 @@ bool QAbstractFormBuilder::checkProperty(QObject *obj, const QString &prop) cons
     return true;
 }
 
+/*!
+    \internal
+*/
 QString QAbstractFormBuilder::toString(const DomString *str)
 {
     return str ? str->text() : QString();
 }
 
+/*!
+    \internal
+*/
 void QAbstractFormBuilder::applyTabStops(QWidget *widget, DomTabStops *tabStops)
 {
     if (!tabStops)
@@ -1377,21 +1469,33 @@ void QAbstractFormBuilder::applyTabStops(QWidget *widget, DomTabStops *tabStops)
     }
 }
 
+/*!
+    \internal
+*/
 DomCustomWidgets *QAbstractFormBuilder::saveCustomWidgets()
 {
     return 0;
 }
 
+/*!
+    \internal
+*/
 DomTabStops *QAbstractFormBuilder::saveTabStops()
 {
     return 0;
 }
 
+/*!
+    \internal
+*/
 DomResources *QAbstractFormBuilder::saveResources()
 {
     return 0;
 }
 
+/*!
+    \internal
+*/
 void QAbstractFormBuilder::saveTreeWidgetExtraInfo(QTreeWidget *treeWidget, DomWidget *ui_widget, DomWidget *ui_parentWidget)
 {
     Q_UNUSED(ui_parentWidget);
@@ -1438,6 +1542,9 @@ void QAbstractFormBuilder::saveTreeWidgetExtraInfo(QTreeWidget *treeWidget, DomW
     ui_widget->setElementColumn(columns);
 }
 
+/*!
+    \internal
+*/
 void QAbstractFormBuilder::saveListWidgetExtraInfo(QListWidget *listWidget, DomWidget *ui_widget, DomWidget *ui_parentWidget)
 {
     Q_UNUSED(ui_parentWidget);
@@ -1486,6 +1593,9 @@ void QAbstractFormBuilder::saveListWidgetExtraInfo(QListWidget *listWidget, DomW
     ui_widget->setElementItem(ui_items);
 }
 
+/*!
+    \internal
+*/
 void QAbstractFormBuilder::saveComboBoxExtraInfo(QComboBox *comboBox, DomWidget *ui_widget, DomWidget *ui_parentWidget)
 {
     Q_UNUSED(ui_parentWidget);
@@ -1534,6 +1644,9 @@ void QAbstractFormBuilder::saveComboBoxExtraInfo(QComboBox *comboBox, DomWidget 
     ui_widget->setElementItem(ui_items);
 }
 
+/*!
+    \internal
+*/
 void QAbstractFormBuilder::saveExtraInfo(QWidget *widget, DomWidget *ui_widget, DomWidget *ui_parentWidget)
 {
     if (QListWidget *listWidget = qobject_cast<QListWidget*>(widget)) {
@@ -1545,6 +1658,9 @@ void QAbstractFormBuilder::saveExtraInfo(QWidget *widget, DomWidget *ui_widget, 
     }
 }
 
+/*!
+    \internal
+*/
 void QAbstractFormBuilder::loadListWidgetExtraInfo(DomWidget *ui_widget, QListWidget *listWidget, QWidget *parentWidget)
 {
     Q_UNUSED(parentWidget);
@@ -1572,6 +1688,9 @@ void QAbstractFormBuilder::loadListWidgetExtraInfo(DomWidget *ui_widget, QListWi
     }
 }
 
+/*!
+    \internal
+*/
 void QAbstractFormBuilder::loadTreeWidgetExtraInfo(DomWidget *ui_widget, QTreeWidget *treeWidget, QWidget *parentWidget)
 {
     Q_UNUSED(parentWidget);
@@ -1601,6 +1720,9 @@ void QAbstractFormBuilder::loadTreeWidgetExtraInfo(DomWidget *ui_widget, QTreeWi
     }
 }
 
+/*!
+    \internal
+*/
 void QAbstractFormBuilder::loadComboBoxExtraInfo(DomWidget *ui_widget, QComboBox *comboBox, QWidget *parentWidget)
 {
     Q_UNUSED(parentWidget);
@@ -1631,7 +1753,9 @@ void QAbstractFormBuilder::loadComboBoxExtraInfo(DomWidget *ui_widget, QComboBox
     }
 }
 
-
+/*!
+    \internal
+*/
 void QAbstractFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
     if (QListWidget *listWidget = qobject_cast<QListWidget*>(widget)) {
@@ -1643,6 +1767,9 @@ void QAbstractFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, 
     }
 }
 
+/*!
+    \internal
+*/
 QIcon QAbstractFormBuilder::nameToIcon(const QString &filePath, const QString &qrcPath)
 {
     Q_UNUSED(filePath);
@@ -1651,18 +1778,27 @@ QIcon QAbstractFormBuilder::nameToIcon(const QString &filePath, const QString &q
     return QIcon();
 }
 
+/*!
+    \internal
+*/
 QString QAbstractFormBuilder::iconToFilePath(const QIcon &pm) const
 {
     Q_UNUSED(pm);
     return QString();
 }
 
+/*!
+    \internal
+*/
 QString QAbstractFormBuilder::iconToQrcPath(const QIcon &pm) const
 {
     Q_UNUSED(pm);
     return QString();
 }
 
+/*!
+    \internal
+*/
 QPixmap QAbstractFormBuilder::nameToPixmap(const QString &filePath, const QString &qrcPath)
 {
     Q_UNUSED(filePath);
@@ -1671,12 +1807,18 @@ QPixmap QAbstractFormBuilder::nameToPixmap(const QString &filePath, const QStrin
     return QPixmap();
 }
 
+/*!
+    \internal
+*/
 QString QAbstractFormBuilder::pixmapToFilePath(const QPixmap &pm) const
 {
     Q_UNUSED(pm);
     return QString();
 }
 
+/*!
+    \internal
+*/
 QString QAbstractFormBuilder::pixmapToQrcPath(const QPixmap &pm) const
 {
     Q_UNUSED(pm);
@@ -1701,6 +1843,9 @@ void QAbstractFormBuilder::setWorkingDirectory(const QDir &directory)
     m_workingDirectory = directory;
 }
 
+/*!
+    \internal
+*/
 DomAction *QAbstractFormBuilder::createDom(QAction *action)
 {
     if (action->parentWidget() == action->menu() || action->isSeparator())
@@ -1715,6 +1860,9 @@ DomAction *QAbstractFormBuilder::createDom(QAction *action)
     return ui_action;
 }
 
+/*!
+    \internal
+*/
 DomActionGroup *QAbstractFormBuilder::createDom(QActionGroup *actionGroup)
 {
     DomActionGroup *ui_action_group = new DomActionGroup;
@@ -1736,11 +1884,17 @@ DomActionGroup *QAbstractFormBuilder::createDom(QActionGroup *actionGroup)
     return ui_action_group;
 }
 
+/*!
+    \internal
+*/
 void QAbstractFormBuilder::addMenuAction(QAction *action)
 {
     Q_UNUSED(action);
 }
 
+/*!
+    \internal
+*/
 void QAbstractFormBuilder::reset()
 {
     m_laidout.clear();
@@ -1749,5 +1903,20 @@ void QAbstractFormBuilder::reset()
     m_defaultMargin = INT_MIN;
     m_defaultSpacing = INT_MIN;
 }
+
+/*!
+    \fn void QAbstractFormBuilder::createConnections ( DomConnections *, QWidget * )
+    \internal
+*/
+
+/*!
+    \fn void QAbstractFormBuilder::createCustomWidgets ( DomCustomWidgets * )
+    \internal
+*/
+
+/*!
+    \fn void QAbstractFormBuilder::createResources ( DomResources * )
+    \internal
+*/
 
 #include "abstractformbuilder.moc"
