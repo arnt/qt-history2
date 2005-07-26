@@ -908,8 +908,16 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
 {
     if (format_type != rhs.format_type)
         return false;
+
     if (d == rhs.d)
         return true;
+
+    if (d && d->properties().isEmpty() && !rhs.d)
+        return true;
+
+    if (!d && rhs.d && rhs.d->properties().isEmpty())
+        return true;
+
     if (!d || !rhs.d)
         return false;
 
