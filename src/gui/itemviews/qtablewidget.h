@@ -198,6 +198,7 @@ public:
     int currentColumn() const;
     QTableWidgetItem *currentItem() const;
     void setCurrentItem(QTableWidgetItem *item);
+    void setCurrentCell(int row, int column);
 
     void sortItems(int column, Qt::SortOrder order = Qt::AscendingOrder);
     void setSortingEnabled(bool enable);

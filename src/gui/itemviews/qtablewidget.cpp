@@ -1513,7 +1513,9 @@ void QTableWidget::setHorizontalHeaderLabels(const QStringList &labels)
 }
 
 /*!
-  Returns the row of the current item.
+    Returns the row of the current item.
+
+    \sa currentColumn(), setCurrentCell()
 */
 int QTableWidget::currentRow() const
 {
@@ -1521,7 +1523,9 @@ int QTableWidget::currentRow() const
 }
 
 /*!
-  Returns the column of the current item.
+    Returns the column of the current item.
+
+    \sa currentRow(), setCurrentCell()
 */
 int QTableWidget::currentColumn() const
 {
@@ -1529,7 +1533,9 @@ int QTableWidget::currentColumn() const
 }
 
 /*!
-  Returns the current item.
+    Returns the current item.
+
+    \sa setCurrentItem()
 */
 QTableWidgetItem *QTableWidget::currentItem() const
 {
@@ -1538,12 +1544,27 @@ QTableWidgetItem *QTableWidget::currentItem() const
 }
 
 /*!
-  Sets the current item to \a item.
+    Sets the current item to \a item.
+
+    \sa currentItem(), setCurrentCell()
 */
 void QTableWidget::setCurrentItem(QTableWidgetItem *item)
 {
     Q_D(QTableWidget);
     setCurrentIndex(d->model()->index(item));
+}
+
+/*!
+    \since 4.1
+
+    Sets the current cell to be the cell at position (\a row, \a
+    column).
+
+    \sa setCurrentItem(), currentRow(), currentColumn()
+*/
+void QTableWidget::setCurrentCell(int row, int column)
+{
+    setCurrentIndex(model()->index(row, column, QModelIndex()));
 }
 
 /*!
