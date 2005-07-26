@@ -30,6 +30,8 @@ static const char piData[] = "version=\"1.0\" standalone=\"no\"";
 static const char publicId[] = "-//W3C//DTD SVG 20001102//EN";
 static const char systemId[] = "http://www.w3.org/TR/2000/CR-SVG-20001102/DTD/svg-20001102.dtd";
 
+static QString qt_svg_compose_path(const QPainterPath &path);
+
 struct ImgElement {
     QDomElement element;
     QImage image;
@@ -184,6 +186,7 @@ void Q3SVGPaintEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyFont) updateFont(state.font());
     if (flags & DirtyTransform) updateMatrix(state.matrix());
     if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
+    if (flags & DirtyClipPath) updateClipPath(state.clipPath(), state.clipOperation());
 }
 
 void Q3SVGPaintEngine::updatePen(const QPen &pen)
@@ -222,7 +225,7 @@ void Q3SVGPaintEngine::updateMatrix(const QMatrix &matrix)
 //     d->wheight = ps->wh;
 }
 
-void Q3SVGPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)
+void Q3SVGPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
 {
     Q_D(Q3SVGPaintEngine);
     if (op == Qt::NoClip)
@@ -232,28 +235,19 @@ void Q3SVGPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpera
     d->currentClip++;
     e = d->doc.createElement("clipPath");
     e.setAttribute("id", QString("clip%1").arg(d->currentClip));
-    QRect br = clipRegion.boundingRect();
-    QDomElement ce;
-    if (clipRegion.rects().count() == 1) {
-        // Then it's just a rect, boundingRect() will do
-        ce = d->doc.createElement("rect");
-        ce.setAttribute("x", br.x());
-        ce.setAttribute("y", br.y());
-        ce.setAttribute("width", br.width());
-        ce.setAttribute("height", br.height());
-    } else {
-        // It's an ellipse, calculate the ellipse
-        // from the boundingRect()
-        ce = d->doc.createElement("ellipse");
-        double cx = br.x() + (br.width() / 2.0);
-        double cy = br.y() + (br.height() / 2.0);
-        ce.setAttribute("cx", cx);
-        ce.setAttribute("cy", cy);
-        ce.setAttribute("rx", cx - br.x());
-        ce.setAttribute("ry", cy - br.y());
-    }
-    e.appendChild(ce);
-    d->appendChild(e, QPicturePrivate::PdcSetClipRegion);
+
+    QDomElement path_element = d->doc.createElement("path");
+    path_element.setAttribute("d", qt_svg_compose_path(path));
+    e.appendChild(path_element);
+
+    d->appendChild(e, QPicturePrivate::PdcSetClipPath);
+}
+
+void Q3SVGPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)
+{
+    QPainterPath clipPath;
+    clipPath.addRegion(clipRegion);
+    updateClipPath(clipPath, op);
 }
 
 void Q3SVGPaintEngine::updateRenderHints(QPainter::RenderHints)
@@ -334,36 +328,8 @@ void Q3SVGPaintEngine::drawLines(const QLineF *lines, int lineCount)
 void Q3SVGPaintEngine::drawPath(const QPainterPath &path)
 {
     Q_D(Q3SVGPaintEngine);
-    QString str, tmp;
-    for (int i = 0; i < path.elementCount(); ++i) {
-        const QPainterPath::Element &elm = path.elementAt(i);
-        switch (elm.type) {
-        case QPainterPath::LineToElement:
-            tmp.sprintf("L %f %f ", elm.x, elm.y);
-            str += tmp;
-            break;
-        case QPainterPath::MoveToElement:
-            tmp.sprintf("M %f %f ", elm.x, elm.y);
-            str += tmp;
-            break;
-        case QPainterPath::CurveToElement:
-        {
-            Q_ASSERT(path.elementCount() > i+2);
-            const QPainterPath::Element cd1 = path.elementAt(i+1);
-            const QPainterPath::Element cd2 = path.elementAt(i+2);
-            Q_ASSERT(cd1.type == QPainterPath::CurveToDataElement
-                     && cd2.type == QPainterPath::CurveToDataElement);
-            tmp.sprintf("C %f %f %f %f %f %f ", elm.x, elm.y, cd1.x, cd1.y, cd2.x, cd2.y);
-            str += tmp;
-            i += 2;
-            break;
-        }
-        default:
-            break;
-        }
-    }
     QDomElement e = d->doc.createElement("path");
-    e.setAttribute("d", str);
+    e.setAttribute("d", qt_svg_compose_path(path));
     d->appendChild(e, QPicturePrivate::PdcDrawPath);
 }
 
@@ -594,10 +560,14 @@ void Q3SVGPaintEnginePrivate::appendChild(QDomElement &e, QPicturePrivate::Paint
         if (c == QPicturePrivate::PdcSave)
             current = e;
         // ### optimize application of attributes utilizing <g>
-        if (c == QPicturePrivate::PdcSetClipRegion) {
+        if (c == QPicturePrivate::PdcSetClipRegion || c == QPicturePrivate::PdcSetClipPath) {
             QDomElement ne;
             ne = doc.createElement("g");
             ne.setAttribute("style", QString("clip-path:url(#clip%1)").arg(currentClip));
+            if (dirtyTransform) {
+                applyTransform(&ne);
+                dirtyTransform = false;
+            }
             current.appendChild(ne);
             current = ne;
         } else {
@@ -1502,3 +1472,37 @@ QColor Q3SVGPaintEnginePrivate::parseColor(const QString &col)
     // check for predefined Qt color objects, #RRGGBB and #RGB
     return QColor(col);
 }
+
+static QString qt_svg_compose_path(const QPainterPath &path)
+{
+    QString str, tmp;
+    for (int i = 0; i < path.elementCount(); ++i) {
+        const QPainterPath::Element &elm = path.elementAt(i);
+        switch (elm.type) {
+        case QPainterPath::LineToElement:
+            tmp.sprintf("L %f %f ", elm.x, elm.y);
+            str += tmp;
+            break;
+        case QPainterPath::MoveToElement:
+            tmp.sprintf("M %f %f ", elm.x, elm.y);
+            str += tmp;
+            break;
+        case QPainterPath::CurveToElement:
+        {
+            Q_ASSERT(path.elementCount() > i+2);
+            const QPainterPath::Element cd1 = path.elementAt(i+1);
+            const QPainterPath::Element cd2 = path.elementAt(i+2);
+            Q_ASSERT(cd1.type == QPainterPath::CurveToDataElement
+                     && cd2.type == QPainterPath::CurveToDataElement);
+            tmp.sprintf("C %f %f %f %f %f %f ", elm.x, elm.y, cd1.x, cd1.y, cd2.x, cd2.y);
+            str += tmp;
+            i += 2;
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    return str;
+}
+
