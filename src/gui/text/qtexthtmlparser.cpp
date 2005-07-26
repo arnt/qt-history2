@@ -432,10 +432,8 @@ QTextCharFormat QTextHtmlParserNode::charFormat() const
         format.setFontFamily(fontFamily);
     if (hasFontPointSize)
         format.setFontPointSize(fontPointSize);
-    if (hasFontSizeAdjustment) {
-        qDebug() << "setting font size adjustment" << fontSizeAdjustment;
+    if (hasFontSizeAdjustment)
         format.setProperty(QTextFormat::FontSizeAdjustment, fontSizeAdjustment);
-    }
     format.setFontWeight(fontWeight);
     if (color.isValid())
         format.setForeground(QBrush(color));
