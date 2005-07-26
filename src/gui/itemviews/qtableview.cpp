@@ -73,6 +73,15 @@ void QTableViewPrivate::updateVerticalScrollbar()
     }
 
     q->verticalScrollBar()->setRange(0, max);
+    
+    if (q->verticalScrollBar()->value() == max) {
+        int newOffset = 0;
+        int oldOffset = verticalHeader->offset();
+        if (verticalHeader->length() >= viewport->height())
+            newOffset = verticalHeader->length() - viewport->height() - 1;
+        verticalHeader->setOffset(newOffset);
+        scrollContentsBy(0, oldOffset - newOffset);
+    }
 }
 
 void QTableViewPrivate::updateHorizontalScrollbar()
@@ -105,6 +114,15 @@ void QTableViewPrivate::updateHorizontalScrollbar()
     }
 
     q->horizontalScrollBar()->setRange(0, max);
+
+    if (q->horizontalScrollBar()->value() == max) {
+        int newOffset = 0;
+        int oldOffset = horizontalHeader->offset();
+        if (horizontalHeader->length() >= viewport->width())
+            newOffset = horizontalHeader->length() - viewport->width() - 1;
+        horizontalHeader->setOffset(newOffset);
+        scrollContentsBy(oldOffset - newOffset, 0);
+    }
 }
 
 /*!

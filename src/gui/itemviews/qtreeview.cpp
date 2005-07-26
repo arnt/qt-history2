@@ -1709,6 +1709,15 @@ void QTreeViewPrivate::updateHorizontalScrollbar()
     }
 
     q->horizontalScrollBar()->setRange(0, max);
+
+    if (q->horizontalScrollBar()->value() == max) {
+        int newOffset = 0;
+        int oldOffset = header->offset();
+        if (header->length() >= viewport->width())
+            newOffset = header->length() - viewport->width() - 1;
+        header->setOffset(newOffset);
+        scrollContentsBy(oldOffset - newOffset, 0);
+    }
 }
 
 int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
