@@ -254,7 +254,9 @@ MakefileGenerator::findFilesInVPATH(QStringList l, uchar flags, const QString &v
         bool remove_file = false;
         QString &val = l[val_it];
         if(!val.isEmpty()) {
-            QString file = (flags & VPATH_NoFixify) ? val : fileFixify(val, qmake_getpwd(), Option::output_dir);
+            QString file = val;
+            if(!(flags & VPATH_NoFixify))
+                file = fileFixify(file, qmake_getpwd(), Option::output_dir);
             if (file.at(0) == '\"' && file.at(file.length() - 1) == '\"')
                 file = file.mid(1, file.length() - 2);
 
@@ -276,7 +278,9 @@ MakefileGenerator::findFilesInVPATH(QStringList l, uchar flags, const QString &v
                         QString dir = (*vpath_it);
                         if(dir.right(Option::dir_sep.length()) != Option::dir_sep)
                             dir += Option::dir_sep;
-                        val = fileFixify(dir + val);
+                        val = dir + val;
+                        if(!(flags & VPATH_NoFixify))
+                            val = fileFixify(val);
                         found = true;
                         debug_msg(1, "Found file through vpath %s -> %s",
                                   file.toLatin1().constData(), val.toLatin1().constData());
@@ -288,8 +292,9 @@ MakefileGenerator::findFilesInVPATH(QStringList l, uchar flags, const QString &v
                 QString dir, regex = val, real_dir;
                 if(regex.lastIndexOf(Option::dir_sep) != -1) {
                     dir = regex.left(regex.lastIndexOf(Option::dir_sep) + 1);
-                    real_dir = fileFixify(Option::fixPathToLocalOS(dir),
-                                          qmake_getpwd(), Option::output_dir);
+                    real_dir = dir;
+                    if(!(flags & VPATH_NoFixify))
+                        real_dir = fileFixify(real_dir, qmake_getpwd(), Option::output_dir);
                     regex = regex.right(regex.length() - dir.length());
                 }
                 if(real_dir.isEmpty() || exists(real_dir)) {
@@ -304,10 +309,14 @@ MakefileGenerator::findFilesInVPATH(QStringList l, uchar flags, const QString &v
                             warn_msg(WarnLogic, "Failure to find: %s", val.toLatin1().constData());
                     } else {
                         l.removeAt(val_it);
+                        QString a;
                         for(int i = (int)files.count()-1; i >= 0; i--) {
                             if(files[i] == "." || files[i] == "..")
                                 continue;
-                            l.insert(val_it, fileFixify(dir + files[i]));
+                            a = dir + files[i];
+                            if(!(flags & VPATH_NoFixify))
+                                a = fileFixify(a);
+                            l.insert(val_it, a);
                         }
                     }
                 } else {
@@ -730,9 +739,12 @@ MakefileGenerator::init()
             (*it) = Option::fixPathToLocalOS((*it));
     }
 
-    const QString src_out_dir = fileFixify(Option::output_dir, Option::output_dir, Option::output_dir);
-    if(src_out_dir != qmake_getpwd())
-        project->variables()["INCLUDEPATH"].append(src_out_dir);
+    { //get the output_dir into the pwd
+        if(fileFixify(Option::output_dir) != fileFixify(qmake_getpwd()))
+            project->variables()["INCLUDEPATH"].append(fileFixify(Option::output_dir,
+                                                                  Option::output_dir,
+                                                                  Option::output_dir));
+    }
 
     //fix up the target deps
     QString fixpaths[] = { QString("PRE_TARGETDEPS"), QString("POST_TARGETDEPS"), QString() };
@@ -1302,14 +1314,12 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
                         dst_file += fi.fileName();
                     }
                     QString cmd =  QString(fi.isDir() ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " \"" +
-                                   Option::fixPathToTargetOS(fileFixify(wild, FileFixifyAbsolute, false), false, false) +
-                                   "\" \"" + dst_file + "\"\n";
+                                   wild + "\" \"" + dst_file + "\"\n";
                     target += cmd;
                     if(!project->isActiveConfig("debug") &&
                        !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
                         target += QString("\t-") + var("QMAKE_STRIP") + " \"" +
-                                  filePrefixRoot(root, fileFixify(dst + filestr, FileFixifyAbsolute, false)) +
-                                  "\"\n";
+                                  filePrefixRoot(root, fileFixify(dst + filestr, FileFixifyAbsolute, false)) + "\"\n";
                     if(!uninst.isEmpty())
                         uninst.append("\n\t");
                     uninst.append(rm_dir_contents + " \"" + filePrefixRoot(root, fileFixify(dst + filestr, FileFixifyAbsolute, false)) + "\"");
@@ -1322,8 +1332,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
                         target += "\t";
                     QString dst_file = filePrefixRoot(root, dst);
                     QString cmd =  QString("-$(INSTALL_FILE)") + " \"" +
-                                   Option::fixPathToTargetOS(fileFixify(wild, FileFixifyAbsolute, false), false, false) +
-                                   "\" \"" + dst_file + "\"\n";
+                                   wild + "\" \"" + dst_file + "\"\n";
                     target += cmd;
                     if(!uninst.isEmpty())
                         uninst.append("\n\t");
@@ -1336,8 +1345,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
                     if(!uninst.isEmpty())
                         uninst.append("\n\t");
                     uninst.append(rm_dir_contents + " \"" + filePrefixRoot(root, fileFixify(dst + file, FileFixifyAbsolute, false)) + "\"");
-                    QFileInfo fi(fileInfo(Option::fixPathToTargetOS(fileFixify(dirstr + file,
-                                                                               FileFixifyAbsolute, false), true, false)));
+                    QFileInfo fi(fileInfo(dirstr + file));
                     if(!target.isEmpty())
                         target += "\t";
                     QString dst_file = filePrefixRoot(root, fileFixify(dst, FileFixifyAbsolute, false));
@@ -1347,8 +1355,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
                         dst_file += fi.fileName();
                     }
                     QString cmd = QString(fi.isDir() ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " \"" +
-                                  Option::fixPathToTargetOS(fileFixify(dirstr + file, FileFixifyAbsolute, false), false) +
-                                  "\" \"" + dst_file + "\"\n";
+                                  dirstr + file + "\" \"" + dst_file + "\"\n";
                     target += cmd;
                     if(!project->isActiveConfig("debug") &&
                        !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
