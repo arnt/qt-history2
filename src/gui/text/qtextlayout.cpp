@@ -1188,7 +1188,6 @@ void QTextLine::layout_helper(int maxGlyphs)
             QTextFormat format = eng->formats()->format(eng->formatIndex(&eng->layoutData->items[item]));
             if (eng->block.docHandle())
                 eng->docLayout()->positionInlineObject(QTextInlineObject(item, eng), eng->block.position() + current.position, format);
-            tmpData.textWidth += current.width;
             tmpData.length++;
 
             // the width of the linesep doesn't count into the textwidth
@@ -1200,6 +1199,8 @@ void QTextLine::layout_helper(int maxGlyphs)
                 line += tmpData;
                 goto found;
             }
+
+            tmpData.textWidth += current.width;
 
             newItem = item + 1;
             ++glyphCount;
