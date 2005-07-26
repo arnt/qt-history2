@@ -461,6 +461,11 @@ QRasterPaintEngine::QRasterPaintEngine()
     d->dashStroker = 0;
 
     d->flushOnEnd = true;
+
+    d->basicStroker.setMoveToHook(qt_ft_outline_move_to);
+    d->basicStroker.setLineToHook(qt_ft_outline_line_to);
+    d->basicStroker.setCubicToHook(qt_ft_outline_cubic_to);
+    d->dashStroker = 0;
 }
 
 QRasterPaintEngine::~QRasterPaintEngine()
@@ -499,10 +504,6 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->fast_pen = true;
     d->int_xform = true;
 
-    d->dashStroker = 0;
-    d->basicStroker.setMoveToHook(qt_ft_outline_move_to);
-    d->basicStroker.setLineToHook(qt_ft_outline_line_to);
-    d->basicStroker.setCubicToHook(qt_ft_outline_cubic_to);
     d->stroker = &d->basicStroker;
 
     d->compositionMode = QPainter::CompositionMode_SourceOver;
