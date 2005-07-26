@@ -2142,10 +2142,8 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::multiSelectionComm
             if (selectionModel->isSelected(index))
                 return QItemSelectionModel::Deselect|selectionBehaviorFlags();
             return QItemSelectionModel::Select|selectionBehaviorFlags();
-        case QEvent::MouseMove: // Select/Deselect on MouseMove
-            if (selectionModel->isSelected(index))
-                return QItemSelectionModel::Deselect|selectionBehaviorFlags();
-            return QItemSelectionModel::Select|selectionBehaviorFlags();
+        case QEvent::MouseMove: // ToggleCurrent on MouseMove
+            return QItemSelectionModel::ToggleCurrent|selectionBehaviorFlags();
         default:
             break;
         } // switch
