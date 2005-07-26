@@ -613,6 +613,9 @@ bool DspMakefileGenerator::writeFileGroup(QTextStream &t, const QStringList &lis
         }
     }
 
+    if (root.files.isEmpty() && root.subFolders.isEmpty())
+        return true;
+
     writeSubFileGroup(t, &root);
     
     return true;
