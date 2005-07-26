@@ -161,6 +161,7 @@ struct QTextHtmlParserNode {
     uint cssFloat : 2;
     uint hasOwnListStyle : 1;
     uint hasFontPointSize : 1;
+    uint hasFontSizeAdjustment : 1;
     uint hasCssBlockIndent : 1;
     uint hasCssListIndent : 1;
     uint isEmptyParagraph : 1;
@@ -169,6 +170,7 @@ struct QTextHtmlParserNode {
     uint displayMode : 3; // QTextHtmlElement::DisplayMode
     QString fontFamily;
     int fontPointSize;
+    int fontSizeAdjustment;
     int fontWeight;
     QColor color;
     QColor bgColor;

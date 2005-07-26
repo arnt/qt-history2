@@ -214,6 +214,16 @@ void QTextFormatPrivate::resolveFont(const QFont &defaultFont)
     recalcFont();
     const uint oldMask = fnt.resolve();
     fnt = fnt.resolve(defaultFont);
+
+    if (props.contains(QTextFormat::FontSizeAdjustment)) {
+        const qreal scaleFactors[7] = {0.7, 0.8, 1.0, 1.2, 1.5, 2, 2.4};
+
+        const int htmlFontSize = qBound(0, props.value(QTextFormat::FontSizeAdjustment).toInt() + 3 - 1, 6);
+
+        qreal pointSize = scaleFactors[htmlFontSize] * defaultFont.pointSizeF();
+        fnt.setPointSizeF(pointSize);
+    }
+
     fnt.resolve(oldMask);
 }
 
@@ -345,7 +355,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
 
     \value FontFamily
     \value FontPointSize
-    \value FontSizeIncrement
+    \value FontSizeAdjustment
     \value FontWeight
     \value FontItalic
     \value FontUnderline

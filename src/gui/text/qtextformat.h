@@ -125,7 +125,8 @@ public:
         // character properties
         FontFamily = 0x2000,
         FontPointSize = 0x2001,
-        FontSizeIncrement = 0x2002,
+        FontSizeAdjustment = 0x2002,
+        FontSizeIncrement = FontSizeAdjustment, // old name, compat
         FontWeight = 0x2003,
         FontItalic = 0x2004,
         FontUnderline = 0x2005,

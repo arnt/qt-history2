@@ -24,8 +24,6 @@
 #include "qtextdocument_p.h"
 #include "qtextcursor.h"
 
-const int DefaultFontSize = 12;
-
 #define MAX_ENTITY 259
 static const struct QTextHtmlEntity { const char *name; quint16 code; } entities[MAX_ENTITY]= {
     { "AElig", 0x00c6 },
@@ -396,41 +394,6 @@ int QTextHtmlParser::lookupElement(const QString &element)
     return e->id;
 }
 
-static int scaleFontPointSize(int fontPointSize, int logicalFontSize, int logicalFontSizeStep = 0)
-{
-    if (logicalFontSize != -1 || logicalFontSizeStep) {
-        int logical = logicalFontSize;
-        if (logical < 0)
-            logical = 3;
-        logical += logicalFontSizeStep;
-        if (logical < 0)
-            logical = 0;
-        else if (logical > 7)
-            logical = 8;
-        switch (logical) {
-        case 1:
-            fontPointSize =  (7 * fontPointSize) / 10;
-            break;
-        case 2:
-            fontPointSize = (8 * fontPointSize) / 10;
-            break;
-        case 4:
-            fontPointSize =  (12 * fontPointSize) / 10;
-            break;
-        case 5:
-            fontPointSize = (15 * fontPointSize) / 10;
-            break;
-        case 6:
-            fontPointSize = 2 * fontPointSize;
-            break;
-        case 7:
-            fontPointSize = (24 * fontPointSize) / 10;
-            break;
-        };
-    }
-    return fontPointSize;
-}
-
 // quotes newlines as "\\n"
 static QString quoteNewline(const QString &s)
 {
@@ -442,9 +405,9 @@ static QString quoteNewline(const QString &s)
 QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), id(-1), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
       fontItalic(false), fontUnderline(false), fontOverline(false), fontStrikeOut(false), fontFixedPitch(false),
-      cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false),
+      cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false), hasFontSizeAdjustment(false),
       hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), isTableFrame(false), direction(3),
-      displayMode(QTextHtmlElement::DisplayInline), fontPointSize(DefaultFontSize),
+      displayMode(QTextHtmlElement::DisplayInline), fontPointSize(-1), fontSizeAdjustment(0),
       fontWeight(QFont::Normal), alignment(0), verticalAlignment(QTextCharFormat::AlignNormal),
       listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0),
       tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0), cssBlockIndent(0),
@@ -469,6 +432,10 @@ QTextCharFormat QTextHtmlParserNode::charFormat() const
         format.setFontFamily(fontFamily);
     if (hasFontPointSize)
         format.setFontPointSize(fontPointSize);
+    if (hasFontSizeAdjustment) {
+        qDebug() << "setting font size adjustment" << fontSizeAdjustment;
+        format.setProperty(QTextFormat::FontSizeAdjustment, fontSizeAdjustment);
+    }
     format.setFontWeight(fontWeight);
     if (color.isValid())
         format.setForeground(QBrush(color));
@@ -1040,10 +1007,12 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             fontItalic = true;
             break;
         case Html_big:
-            fontPointSize = scaleFontPointSize(fontPointSize, -1 /*logical*/, 1 /*step*/);
+            fontSizeAdjustment = 1;
+            hasFontSizeAdjustment = true;
             break;
         case Html_small:
-            fontPointSize = scaleFontPointSize(fontPointSize, -1 /*logical*/, -1 /*step*/);
+            fontSizeAdjustment = -1;
+            hasFontSizeAdjustment = true;
             break;
         case Html_strong:
         case Html_b:
@@ -1051,31 +1020,36 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             break;
         case Html_h1:
             fontWeight = QFont::Bold;
-            fontPointSize = scaleFontPointSize(DefaultFontSize, 6);
+            fontSizeAdjustment = 3;
+            hasFontSizeAdjustment = true;
             margin[QTextHtmlParser::MarginTop] = 18;
             margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_h2:
             fontWeight = QFont::Bold;
-            fontPointSize = scaleFontPointSize(DefaultFontSize, 5);
+            fontSizeAdjustment = 2;
+            hasFontSizeAdjustment = true;
             margin[QTextHtmlParser::MarginTop] = 16;
             margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_h3:
             fontWeight = QFont::Bold;
-            fontPointSize = scaleFontPointSize(DefaultFontSize, 4);
+            fontSizeAdjustment = 1;
+            hasFontSizeAdjustment = true;
             margin[QTextHtmlParser::MarginTop] = 14;
             margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_h4:
             fontWeight = QFont::Bold;
-            fontPointSize = scaleFontPointSize(DefaultFontSize, 3);
+            fontSizeAdjustment = 0;
+            hasFontSizeAdjustment = true;
             margin[QTextHtmlParser::MarginTop] = 12;
             margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_h5:
             fontWeight = QFont::Bold;
-            fontPointSize = scaleFontPointSize(DefaultFontSize, 2);
+            fontSizeAdjustment = -1;
+            hasFontSizeAdjustment = true;
             margin[QTextHtmlParser::MarginTop] = 12;
             margin[QTextHtmlParser::MarginBottom] = 4;
             break;
@@ -1242,10 +1216,10 @@ void QTextHtmlParser::parseAttributes()
             // the infamous font tag
             if (key == QLatin1String("size") && value.size()) {
                 int n = value.toInt();
-                if (value.at(0) == QLatin1Char('+') || value.at(0) == QLatin1Char('-'))
-                    n += 3;
-                node->fontPointSize = scaleFontPointSize(DefaultFontSize, n);
-                node->hasFontPointSize = true;
+                if (value.at(0) != QLatin1Char('+') && value.at(0) != QLatin1Char('-'))
+                    n -= 3;
+                node->fontSizeAdjustment = n;
+                node->hasFontSizeAdjustment = true;
             } else if (key == QLatin1String("face")) {
                 node->fontFamily = value;
             } else if (key == QLatin1String("color")) {

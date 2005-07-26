@@ -1157,6 +1157,19 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
     return attributesEmitted;
 }
 
+bool QTextHtmlExporter::emitLogicalFontSize(const QTextCharFormat &format)
+{
+    if (!format.hasProperty(QTextFormat::FontSizeAdjustment))
+        return false;
+
+    int logSize = 3 + format.property(QTextFormat::FontSizeAdjustment).toInt();
+    html += QLatin1String("<font size=\"");
+    html += QString::number(logSize);
+    html += QLatin1String("\">");
+
+    return true;
+}
+
 void QTextHtmlExporter::emitTextLength(const char *attribute, const QTextLength &length)
 {
     if (length.type() == QTextLength::VariableLength) // default
@@ -1254,6 +1267,10 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
     else
         html.chop(qstrlen(styleTag.latin1()));
 
+    // qt 4.0.0's parser only supports logical font sizes through the
+    // font tag, not through css, so we have to emit <font> here ;(
+    const bool emittedFontTag = emitLogicalFontSize(format);
+
     QString txt = fragment.text();
     if (txt.count() == 1 && txt.at(0) == QChar::ObjectReplacementCharacter) {
         if (format.isImageFormat()) {
@@ -1291,6 +1308,9 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
             html += lines.at(i);
         }
     }
+
+    if (emittedFontTag)
+        html += QLatin1String("</font>");
 
     if (attributesEmitted)
         html += QLatin1String("</span>");
@@ -1430,7 +1450,12 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
 
     html += QLatin1Char('>');
 
-    defaultCharFormat.merge(block.charFormat());
+    const QTextCharFormat blockCharFmt = block.charFormat();
+    const QTextCharFormat diff = formatDifference(defaultCharFormat, blockCharFmt).toCharFormat();
+
+    const bool emittedFontTag = emitLogicalFontSize(diff);
+
+    defaultCharFormat.merge(blockCharFmt);
 
     QTextBlock::Iterator it = block.begin();
     if (fragmentMarkers && !it.atEnd() && block == doc->begin())
@@ -1441,6 +1466,9 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
 
     if (fragmentMarkers && block.position() + block.length() == doc->docHandle()->length())
         html += QLatin1String("<!--EndFragment-->");
+
+    if (emittedFontTag)
+        html += QLatin1String("</font>");
 
     if (pre)
         html += QLatin1String("</pre>");
