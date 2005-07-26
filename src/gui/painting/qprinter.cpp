@@ -16,6 +16,7 @@
 #include "qprintengine.h"
 #include "qlist.h"
 #include <qpagesetupdialog.h>
+#include <qapplication.h>
 
 #ifndef QT_NO_PRINTER
 
