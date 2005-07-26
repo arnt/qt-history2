@@ -1338,16 +1338,9 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
     html += QString::number(format.indent());
     html += QLatin1String("px;");
 
-    // ### 'if' needed as long as the block char format of a block at pos == 0
-    // is equivalent to the char format at that position.
-    // later on in the piecetable that's not the case, that's when the block char
-    // fmt is at block.position() - 1
-    // When changing this also change the 'if' in emitBlock
-    if (block.position() > 0) {
-        QTextCharFormat diff = formatDifference(defaultCharFormat, block.charFormat()).toCharFormat();
-        if (!diff.properties().isEmpty())
-            emitCharFormatStyle(diff);
-    }
+    QTextCharFormat diff = formatDifference(defaultCharFormat, block.charFormat()).toCharFormat();
+    if (!diff.properties().isEmpty())
+        emitCharFormatStyle(diff);
 
     html += QLatin1Char('"');
 
@@ -1437,14 +1430,7 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
 
     html += QLatin1Char('>');
 
-    // ### 'if' needed as long as the block char format of a block at pos == 0
-    // is equivalent to the char format at that position.
-    // later on in the piecetable that's not the case, that's when the block char
-    // fmt is at block.position() - 1
-    // When changing this also change the 'if' in emitBlockAttributes
-    if (block.position() > 0) {
-        defaultCharFormat.merge(block.charFormat());
-    }
+    defaultCharFormat.merge(block.charFormat());
 
     QTextBlock::Iterator it = block.begin();
     if (fragmentMarkers && !it.atEnd() && block == doc->begin())
