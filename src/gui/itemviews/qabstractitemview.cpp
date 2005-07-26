@@ -981,7 +981,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     setState(DragSelectingState);
 #endif
 
-    if (selectionModel())
+    if (selectionModel() && index.isValid())
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
     QRect selectionRect = QRect(topLeft, bottomRight).normalized();
     setSelection(selectionRect, selectionCommand(index, e));
