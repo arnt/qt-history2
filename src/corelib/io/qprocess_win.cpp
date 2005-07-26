@@ -203,43 +203,26 @@ static void qt_create_pipes(QProcessPrivate *that)
         return;
     if (!CloseHandle(tmpStdin))
         return;
-    if (that->processChannelMode == QProcess::ForwardedChannels) {
-        tmpStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-        if (tmpStdout == INVALID_HANDLE_VALUE)
-            return;
-        if (!DuplicateHandle(GetCurrentProcess(), tmpStdout, GetCurrentProcess(),
-                         &that->standardReadPipe[1], 0, TRUE, DUPLICATE_SAME_ACCESS))
+    if (!CreatePipe(&tmpStdout, &that->standardReadPipe[1], &secAtt, 0))
+        return;
+    if (!DuplicateHandle(GetCurrentProcess(), tmpStdout, GetCurrentProcess(),
+                     &that->standardReadPipe[0], 0, FALSE, DUPLICATE_SAME_ACCESS))
+    return;
+    if (!CloseHandle(tmpStdout))
         return;
 
-        tmpStderr = GetStdHandle(STD_OUTPUT_HANDLE);
-        if (tmpStderr == INVALID_HANDLE_VALUE)
+    if (that->processChannelMode == QProcess::MergedChannels) {
+        if (!DuplicateHandle(GetCurrentProcess(), that->standardReadPipe[1], GetCurrentProcess(),
+                     &that->errorReadPipe[1], 0, TRUE, DUPLICATE_SAME_ACCESS))
+        return;
+    } else {
+        if (!CreatePipe(&tmpStderr, &that->errorReadPipe[1], &secAtt, 0))
             return;
         if (!DuplicateHandle(GetCurrentProcess(), tmpStderr, GetCurrentProcess(),
-                         &that->errorReadPipe[1], 0, TRUE, DUPLICATE_SAME_ACCESS))
-        return;
-
-    } else {
-        if (!CreatePipe(&tmpStdout, &that->standardReadPipe[1], &secAtt, 0))
+                     &that->errorReadPipe[0], 0, FALSE, DUPLICATE_SAME_ACCESS))
             return;
-        if (!DuplicateHandle(GetCurrentProcess(), tmpStdout, GetCurrentProcess(),
-                         &that->standardReadPipe[0], 0, FALSE, DUPLICATE_SAME_ACCESS))
-        return;
-        if (!CloseHandle(tmpStdout))
+        if (!CloseHandle(tmpStderr))
             return;
-
-        if (that->processChannelMode == QProcess::MergedChannels) {
-            if (!DuplicateHandle(GetCurrentProcess(), that->standardReadPipe[1], GetCurrentProcess(),
-                         &that->errorReadPipe[1], 0, TRUE, DUPLICATE_SAME_ACCESS))
-            return;
-        } else {
-            if (!CreatePipe(&tmpStderr, &that->errorReadPipe[1], &secAtt, 0))
-                return;
-            if (!DuplicateHandle(GetCurrentProcess(), tmpStderr, GetCurrentProcess(),
-                         &that->errorReadPipe[0], 0, FALSE, DUPLICATE_SAME_ACCESS))
-                return;
-            if (!CloseHandle(tmpStderr))
-                return;
-        }
     }
 }
 
@@ -471,6 +454,18 @@ qint64 QProcessPrivate::bytesAvailableFromStdout() const
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::bytesAvailableFromStdout() == %d", bytesAvail);
 #endif
+    if (processChannelMode == QProcess::ForwardedChannels && bytesAvail > 0) {
+        QByteArray buf(bytesAvail, 0);
+        DWORD bytesRead = 0;
+        if (ReadFile(standardReadPipe[0], buf.data(), buf.size(), &bytesRead, 0) && bytesRead > 0) {
+            HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+            if (hStdout) {
+                DWORD bytesWritten = 0;
+                WriteFile(hStdout, buf.data(), bytesRead, &bytesWritten, 0);
+            }
+        }
+        bytesAvail = 0;
+    }
     return bytesAvail;
 }
 
@@ -481,6 +476,18 @@ qint64 QProcessPrivate::bytesAvailableFromStderr() const
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::bytesAvailableFromStderr() == %d", bytesAvail);
 #endif
+    if (processChannelMode == QProcess::ForwardedChannels && bytesAvail > 0) {
+        QByteArray buf(bytesAvail, 0);
+        DWORD bytesRead = 0;
+        if (ReadFile(errorReadPipe[0], buf.data(), buf.size(), &bytesRead, 0) && bytesRead > 0) {
+            HANDLE hStderr = GetStdHandle(STD_ERROR_HANDLE);
+            if (hStderr) {
+                DWORD bytesWritten = 0;
+                WriteFile(hStderr, buf.data(), bytesRead, &bytesWritten, 0);
+            }
+        }
+        bytesAvail = 0;
+    }
     return bytesAvail;
 }
 
