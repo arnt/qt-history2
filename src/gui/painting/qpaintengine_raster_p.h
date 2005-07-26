@@ -95,6 +95,12 @@ public:
     void setFlushOnEnd(bool flush);
     void flush(QPaintDevice *device, const QPoint &offset);
 
+    QSize size() const;
+
+#ifndef QT_NO_DEBUG
+    void saveBuffer(const QString &s) const;
+#endif
+
 #ifdef Q_WS_WIN
     HDC getDC() const;
     void releaseDC(HDC hdc) const;

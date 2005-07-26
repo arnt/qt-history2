@@ -59,6 +59,7 @@ class QCoreGraphicsPaintEnginePrivate;
 #endif
 class QPaintEngine;
 class QPixmap;
+class QWidgetBackingStore;
 
 class QStyle;
 
@@ -75,6 +76,9 @@ struct QTLWExtra {
 #endif
 #if defined(Q_WS_WIN)
     ulong savedFlags; // Save window flags while showing fullscreen
+#ifdef QT_USE_BACKINGSTORE
+    QWidgetBackingStore *backingStore;
+#endif
 #else
     Qt::WFlags savedFlags; // Save widget flags while showing fullscreen
 #endif
@@ -111,6 +115,7 @@ struct QTLWExtra {
     HICON winIconSmall; // internal small Windows icon
 #endif
     QRect normalGeometry; // used by showMin/maximized/FullScreen
+
 };
 
 struct QWExtra {
@@ -188,8 +193,7 @@ public:
     void composeBackground(const QRect &);
 
     QRect clipRect() const;
-    bool hasComplexClipRegion() const;
-    bool isFullyOpaque() const;
+    QRegion clipRegion() const;
 
     enum CloseMode {
         CloseNoEvent,
@@ -209,11 +213,16 @@ public:
     QRegion invalidated_region;
 
     void setWindowRole(const char *role);
-    void sendStartupMessage(const char *message) const; 
+    void sendStartupMessage(const char *message) const;
 #endif
 
 #if defined (Q_WS_WIN)
     void reparentChildren();
+#endif
+
+#ifdef QT_USE_BACKINGSTORE
+    void scrollBuffer(const QRegion &, int dx, int dy);
+    void invalidateBuffer(const QRegion &);
 #endif
 
     void reparentFocusWidgets(QWidget *oldtlw);

@@ -106,6 +106,10 @@ unix:x11 {
 
 unix:SOURCES += painting/qregion_unix.cpp
 
+backingstore:win32 {
+   DEFINES += QT_USE_BACKINGSTORE
+   SOURCES += painting/qbackingstore.cpp
+}
 
 embedded {
 	SOURCES += \

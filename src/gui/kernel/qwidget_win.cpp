@@ -25,6 +25,7 @@
 #include "qt_windows.h"
 #include "qwidget.h"
 #include "qwidget_p.h"
+#include "private/qbackingstore_p.h"
 
 #include <qdebug.h>
 
@@ -498,6 +499,9 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 {
     Q_D(QWidget);
+#ifdef QT_USE_BACKINGSTORE
+    d->invalidateBuffer(rect());
+#endif
     d->deactivateWidgetCleanup();
     if (testAttribute(Qt::WA_WState_Created)) {
         setAttribute(Qt::WA_WState_Created, false);
@@ -540,6 +544,9 @@ void QWidgetPrivate::reparentChildren()
                 if (showIt)
                     w->show();
             } else {
+#ifdef QT_USE_BACKINGSTORE
+                w->d_func()->invalidateBuffer(w->rect());
+#endif
                 SetParent(w->winId(), q->winId());
                 w->d_func()->reparentChildren();
             }
@@ -569,6 +576,9 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     bool enable = q->isEnabled();                // remember status
     Qt::FocusPolicy fp = q->focusPolicy();
     QSize s = q->size();
+#ifdef QT_USE_BACKINGSTORE
+    invalidateBuffer(q->rect());
+#endif
     bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
 
     data.window_flags = f;
@@ -602,6 +612,9 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
         QString txt = windowTitle().isEmpty()?qAppName():windowTitle();
         SetWindowText(winId(), (TCHAR*)txt.utf16());
     }
+#endif
+#ifdef QT_USE_BACKINGSTORE
+    invalidateBuffer(q->rect());
 #endif
 }
 
@@ -849,7 +862,21 @@ void QWidget::activateWindow()
     SetForegroundWindow(window()->winId());
 }
 
+#ifdef QT_USE_BACKINGSTORE
+void QWidgetBackingStore::updateWidget_sys(const QRegion &rgn, QWidget *widget)
+{
+    if (!rgn.isEmpty())
+        InvalidateRgn(widget->winId(), rgn.handle(), false);
+}
 
+void QWidgetBackingStore::paintWidget_sys(const QRegion& rgn, QWidget *widget)
+{
+    ValidateRgn(widget->winId(),rgn.handle());
+
+    QPaintEvent e(rgn);
+    qt_sendSpontaneousEvent(widget, &e);
+}
+#else
 void QWidget::update()
 {
     if (isVisible() && updatesEnabled()) {
@@ -955,7 +982,7 @@ void QWidget::repaint(const QRegion& rgn)
         d->updatePropagatedBackground(&rgn);
 
 }
-
+#endif
 
 void QWidget::setWindowState(Qt::WindowStates newstate)
 {
@@ -1064,6 +1091,9 @@ void QWidgetPrivate::hide_sys()
     Q_Q(QWidget);
     deactivateWidgetCleanup();
     ShowWindow(q->winId(), SW_HIDE);
+#ifdef QT_USE_BACKINGSTORE
+    invalidateBuffer(q->rect());
+#endif
 }
 
 
@@ -1100,6 +1130,9 @@ void QWidgetPrivate::show_sys()
         data.window_state |= Qt::WindowMaximized;
 
     UpdateWindow(q->winId());
+#ifdef QT_USE_BACKINGSTORE
+    invalidateBuffer(q->rect());
+#endif
 }
 
 #else // Q_OS_TEMP --------------------------------------------------
@@ -1143,6 +1176,9 @@ void QWidget::show_sys()
     if (isWindow() && sm == SW_SHOW)
         SetForegroundWindow(winId());
     UpdateWindow(winId());
+#ifdef QT_USE_BACKINGSTORE
+    invalidateBuffer(q->rect());
+#endif
 }
 
 #endif // Q_OS_TEMP -------------------------------------------------
@@ -1151,18 +1187,28 @@ void QWidgetPrivate::raise_sys()
 {
     Q_Q(QWidget);
     SetWindowPos(q->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+#ifdef QT_USE_BACKINGSTORE
+    invalidateBuffer(q->rect());
+#endif
+
 }
 
 void QWidgetPrivate::lower_sys()
 {
     Q_Q(QWidget);
     SetWindowPos(q->winId(), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+#ifdef QT_USE_BACKINGSTORE
+    invalidateBuffer(q->rect());
+#endif
 }
 
 void QWidgetPrivate::stackUnder_sys(QWidget* w)
 {
     Q_Q(QWidget);
     SetWindowPos(q->winId(), w->winId() , 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+#ifdef QT_USE_BACKINGSTORE
+    invalidateBuffer(q->rect());
+#endif
 }
 
 
@@ -1331,8 +1377,19 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             GetClientRect(q->winId(), &rect);
 	    data.crect.setRect(x, y, rect.right - rect.left, rect.bottom - rect.top);
         } else {
+#ifdef QT_USE_BACKINGSTORE
+             if(isMove)
+                 q->parentWidget()->d_func()->scrollBuffer(QRect(oldPos, oldSize),
+                                                           x - q->x(), y - q->y());
+             else
+                q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, oldSize));
+#endif
             data.crect.setRect(x, y, w, h);
             setWSGeometry();
+#ifdef QT_USE_BACKINGSTORE
+            if(isResize)
+                invalidateBuffer(q->rect()); //after the resize
+#endif
         }
         q->setAttribute(Qt::WA_WState_ConfigPending, false);
     }
@@ -1347,8 +1404,10 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         if (isResize) {
             QResizeEvent e(q->size(), oldSize);
             QApplication::sendEvent(q, &e);
+#ifndef QT_USE_BACKINGSTORE
             if (!q->testAttribute(Qt::WA_StaticContents))
                 q->update();
+#endif
         }
     } else {
         if (isMove && q->pos() != oldPos)
@@ -1372,6 +1431,9 @@ void QWidget::scroll(int dx, int dy)
     if (!testAttribute(Qt::WA_NoBackground))
         flags |= SW_ERASE;
 
+#ifdef QT_USE_BACKINGSTORE
+    d_func()->scrollBuffer(rect(), dx, dy);
+#endif
     ScrollWindowEx(winId(), dx, dy, 0, 0, 0, 0, flags);
     UpdateWindow(winId());
 }
@@ -1389,6 +1451,10 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     wr.left = r.left();
     wr.bottom = r.bottom()+1;
     wr.right = r.right()+1;
+
+#ifdef QT_USE_BACKINGSTORE
+    d_func()->scrollBuffer(r, dx, dy);
+#endif
     ScrollWindowEx(winId(), dx, dy, &wr, &wr, 0, 0, flags);
     UpdateWindow(winId());
 }
@@ -1463,6 +1529,9 @@ void QWidgetPrivate::createTLSysExtra()
 {
     extra->topextra->winIconSmall = 0;
     extra->topextra->winIconBig = 0;
+#ifdef QT_USE_BACKINGSTORE
+    extra->topextra->backingStore = new QWidgetBackingStore(q_func());
+#endif
 }
 
 void QWidgetPrivate::deleteTLSysExtra()
@@ -1471,6 +1540,10 @@ void QWidgetPrivate::deleteTLSysExtra()
         DestroyIcon(extra->topextra->winIconSmall);
     if (extra->topextra->winIconBig)
         DestroyIcon(extra->topextra->winIconBig);
+#ifdef QT_USE_BACKINGSTORE
+    if (extra->topextra->backingStore)
+        delete extra->topextra->backingStore;
+#endif
 }
 
 bool QWidgetPrivate::setAcceptDrops_sys(bool on)

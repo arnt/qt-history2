@@ -246,6 +246,9 @@ QRgb qt_colorref2qrgb(COLORREF col)
   Internal variables and functions
  *****************************************************************************/
 
+#ifdef QT_USE_BACKINGSTORE
+extern void qt_syncBackingStore(QRegion rgn, QWidget *widget);
+#endif
 extern Q_CORE_EXPORT char      appName[];
 extern Q_CORE_EXPORT char      appFileName[];
 extern Q_CORE_EXPORT HINSTANCE appInst;                        // handle to app instance
@@ -1439,7 +1442,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             if (g)
                 widget = (QETWidget*)g;
             else if (QApplication::activePopupWidget())
-                widget = (QETWidget*)QApplication::activePopupWidget()->focusWidget() 
+                widget = (QETWidget*)QApplication::activePopupWidget()->focusWidget()
                        ? (QETWidget*)QApplication::activePopupWidget()->focusWidget() : (QETWidget*)QApplication::activePopupWidget();
             else if (qApp->focusWidget())
                 widget = (QETWidget*)QApplication::focusWidget();
@@ -1701,11 +1704,13 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             break;
 
         case WM_ERASEBKGND:                        // erase window background
+#ifndef QT_USE_BACKINGSTORE
             if (!widget->testAttribute(Qt::WA_PendingUpdate)
                 && !widget->testAttribute(Qt::WA_NoBackground)
                 && widget->windowType() != Qt::Popup
                 && widget->windowType() != Qt::ToolTip)
                 widget->eraseWindowBackground((HDC)wParam);
+#endif
             RETURN(true);
             break;
 
@@ -3377,7 +3382,11 @@ bool QETWidget::translatePaintEvent(const MSG &)
 
     // Mapping region from system to qt (32 bit) coordinate system.
     rgn.translate(data->wrect.topLeft());
+#ifdef QT_USE_BACKINGSTORE
+    qt_syncBackingStore(rgn, this);
+#else
     repaint(rgn);
+#endif
 
     d_func()->hd = 0;
     EndPaint(winId(), &ps);
@@ -3437,8 +3446,10 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
         if (isVisible()) {
             QResizeEvent e(newSize, oldSize);
             QApplication::sendSpontaneousEvent(this, &e);
-            if (!testAttribute(Qt::WA_StaticContents))
-                testAttribute(Qt::WA_WState_InPaintEvent)?update():repaint();
+#ifndef QT_USE_BACKINGSTORE
+             if (!testAttribute(Qt::WA_StaticContents))
+                 testAttribute(Qt::WA_WState_InPaintEvent)?update():repaint();
+#endif
         } else {
             QResizeEvent *e = new QResizeEvent(newSize, oldSize);
             QApplication::postEvent(this, e);

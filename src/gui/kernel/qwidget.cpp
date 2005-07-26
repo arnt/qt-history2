@@ -1125,7 +1125,7 @@ bool QWidgetPrivate::isBackgroundInherited() const
  */
 void QWidgetPrivate::updateInheritedBackground()
 {
-#if !defined(Q_WS_MAC) && !defined(Q_WS_QWS)
+#if !defined(Q_WS_MAC) && !defined(Q_WS_QWS) && !defined(QT_USE_BACKINGSTORE)
     Q_Q(QWidget);
     if (!q->isVisible() || !isBackgroundInherited())
         return;
@@ -1149,7 +1149,7 @@ void QWidgetPrivate::updateInheritedBackground()
  */
 void QWidgetPrivate::updatePropagatedBackground(const QRegion *reg)
 {
-#if !defined(Q_WS_MAC) && !defined(Q_WS_QWS)
+#if !defined(Q_WS_MAC) && !defined(Q_WS_QWS) && !defined(QT_USE_BACKINGSTORE)
     for (int i = 0; i < children.size(); ++i) {
         if (QWidget *w = qobject_cast<QWidget*>(children.at(i))) {
             if (reg && !reg->boundingRect().intersects(w->geometry()))
@@ -1260,7 +1260,6 @@ void QWidgetPrivate::propagatePaletteChange()
 #endif
 }
 
-
 /*
   Returns the widget's clipping rectangle.
 */
@@ -1285,29 +1284,13 @@ QRect QWidgetPrivate::clipRect() const
     return r;
 }
 
-bool QWidgetPrivate::isFullyOpaque() const
-{
-    Q_Q(const QWidget);
-    if (q->testAttribute(Qt::WA_NoBackground) || q->testAttribute(Qt::WA_NoSystemBackground)
-        || q->isWindow() || q->windowType() == Qt::SubWindow)
-        return true;
-
-    const QPalette &pal = q->palette();
-    QPalette::ColorRole bg = q->backgroundRole();
-    QBrush bgBrush = pal.brush(bg);
-    QPalette::ColorRole bgrl = bg_role;
-    return (bgBrush.style() != Qt::NoBrush && bgBrush.isOpaque()
-            && ((bgrl != QPalette::NoRole || (pal.resolve() & (1<<bg)))));
-}
-
 /*
-  Returns true if the widget's clipping region (excluding siblings) is
-  complex; otherwise returns false.
+  Returns the widget's clipping region (without siblings).
 */
-bool QWidgetPrivate::hasComplexClipRegion() const
+QRegion QWidgetPrivate::clipRegion() const
 {
     Q_Q(const QWidget);
-    QRect r(q->rect());
+    QRegion r(q->rect());
     const QWidget * w = q;
     const QWidget *ignoreUpTo;
     int ox = 0;
@@ -1320,10 +1303,10 @@ bool QWidgetPrivate::hasComplexClipRegion() const
         oy -= w->y();
         ignoreUpTo = w;
         w = w->parentWidget();
-        r &= QRect(ox, oy, w->width(), w->height());
+        r &= QRegion(ox, oy, w->width(), w->height());
 
         int i = 0;
-        while(w->d_func()->children.at(i++) != static_cast<const QObject *>(ignoreUpTo))
+        while(w->d_func()->children.at(i++) != ignoreUpTo)
             ;
         for ( ; i < w->d_func()->children.size(); ++i) {
             if(QWidget *sibling = qobject_cast<QWidget *>(w->d_func()->children.at(i))) {
@@ -1331,14 +1314,15 @@ bool QWidgetPrivate::hasComplexClipRegion() const
                     QRect siblingRect(ox+sibling->x(), oy+sibling->y(),
                                       sibling->width(), sibling->height());
                     if(siblingRect.intersects(q->rect()))
-                        return true;
+                        r -= QRegion(siblingRect);
                 }
             }
         }
     }
-    return false;
+    if (!w->isVisible())
+        return QRegion();
+    return r;
 }
-
 
 /*!
     \fn void QPixmap::fill(const QWidget *widget, const QPoint &offset)

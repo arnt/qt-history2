@@ -458,6 +458,7 @@ QRasterPaintEngine::QRasterPaintEngine()
     d->linearGradientData = new LinearGradientData;
     d->radialGradientData = new RadialGradientData;
     d->conicalGradientData = new ConicalGradientData;
+    d->dashStroker = 0;
 
     d->flushOnEnd = true;
 }
@@ -523,6 +524,11 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
             d->baseClip = d->baseClip * QMatrix(1, 0, 0, 1,
                                                 -d->deviceRect.x(),
                                                 -d->deviceRect.y());
+        }
+    } else {
+        QRegion sysClip = systemClip();
+        if (!sysClip.isEmpty()) {
+            d->baseClip.addRegion(sysClip);
         }
     }
 #if defined(Q_WS_QWS)
@@ -620,6 +626,19 @@ bool QRasterPaintEngine::end()
     return true;
 }
 
+QSize QRasterPaintEngine::size() const
+{
+    Q_D(const QRasterPaintEngine);
+    return QSize(d->rasterBuffer->width(), d->rasterBuffer->height());
+}
+
+#ifndef QT_NO_DEBUG
+void QRasterPaintEngine::saveBuffer(const QString &s) const
+{
+    Q_D(const QRasterPaintEngine);
+    d->rasterBuffer->bufferImage().save(s, "PNG");
+}
+#endif
 
 void QRasterPaintEngine::setFlushOnEnd(bool flushOnEnd)
 {
@@ -640,6 +659,8 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
 #if defined(Q_WS_WIN)
     if (device->devType() == QInternal::Widget) {
         HDC hdc = device->getDC();
+
+        Q_ASSERT(d->rasterBuffer->hdc());
         Q_ASSERT(hdc);
 
         QRegion sysClip = systemClip();
@@ -658,7 +679,6 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
             }
         }
         device->releaseDC(hdc);
-        return;
     } else {
 
         QImage *target = 0;

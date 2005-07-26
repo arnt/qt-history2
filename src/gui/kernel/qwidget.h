@@ -453,7 +453,7 @@ public:
     void removeAction(QAction *action);
     QList<QAction*> actions() const;
 #endif
-    
+
     QWidget *parentWidget() const;
 
     void setWindowFlags(Qt::WindowFlags type);
@@ -577,6 +577,10 @@ private:
 
     bool testAttribute_helper(Qt::WidgetAttribute) const;
 
+    friend void qt_syncBackingStores();
+    friend void qt_syncBackingStore(QRegion, QWidget *);
+    friend class QBackingStoreDevice;
+    friend class QWidgetBackingStore;
     friend class QApplication;
     friend class QApplicationPrivate;
     friend class QBaseApplication;
