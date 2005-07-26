@@ -8,8 +8,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>445</width>
-    <height>452</height>
+    <width>484</width>
+    <height>268</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -23,233 +23,117 @@
   <property name="windowTitle" >
    <string>Edit Palette</string>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QGridLayout" >
    <property name="margin" >
-    <number>11</number>
+    <number>8</number>
    </property>
    <property name="spacing" >
     <number>6</number>
    </property>
-   <item>
-    <widget class="QGroupBox" name="groupAutoPalette" >
-     <property name="geometry" >
-      <rect>
-       <x>11</x>
-       <y>11</y>
-       <width>423</width>
-       <height>62</height>
-      </rect>
+   <item row="2" column="0" colspan="2" >
+    <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
      </property>
-     <property name="sizePolicy" >
-      <sizepolicy>
-       <hsizetype>5</hsizetype>
-       <vsizetype>4</vsizetype>
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="buttonHelp" >
+       <property name="text" >
+        <string>&amp;Help</string>
+       </property>
+       <property name="autoDefault" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonOk" >
+       <property name="whatsThis" >
+        <string>Close the dialog and apply all the changes.</string>
+       </property>
+       <property name="text" >
+        <string>OK</string>
+       </property>
+       <property name="autoDefault" >
+        <bool>true</bool>
+       </property>
+       <property name="default" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonCancel" >
+       <property name="whatsThis" >
+        <string>Close the dialog and discard any changes.</string>
+       </property>
+       <property name="text" >
+        <string>Cancel</string>
+       </property>
+       <property name="autoDefault" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item rowspan="2" row="0" column="1" >
+    <widget class="QGroupBox" name="advancedBox" >
+     <property name="minimumSize" >
+      <size>
+       <width>180</width>
+       <height>16</height>
+      </size>
+     </property>
+     <property name="maximumSize" >
+      <size>
+       <width>180</width>
+       <height>16777215</height>
+      </size>
      </property>
      <property name="title" >
-      <string>Build Palette</string>
+      <string>Palette Details</string>
      </property>
-     <layout class="QHBoxLayout" >
+     <layout class="QVBoxLayout" >
       <property name="margin" >
-       <number>11</number>
+       <number>8</number>
       </property>
       <property name="spacing" >
        <number>6</number>
       </property>
       <item>
-       <widget class="QLabel" name="labelMainColor" >
-        <property name="geometry" >
-         <rect>
-          <x>13</x>
-          <y>23</y>
-          <width>70</width>
-          <height>26</height>
-         </rect>
-        </property>
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>1</hsizetype>
-          <vsizetype>1</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
+       <widget class="QListView" name="roleListView" >
         <property name="minimumSize" >
          <size>
-          <width>50</width>
+          <width>0</width>
           <height>0</height>
          </size>
-        </property>
-        <property name="lineWidth" >
-         <number>1</number>
-        </property>
-        <property name="midLineWidth" >
-         <number>0</number>
-        </property>
-        <property name="text" >
-         <string>&amp;3-D Effects:</string>
-        </property>
-        <property name="margin" >
-         <number>0</number>
-        </property>
-        <property name="buddy" >
-         <cstring>buttonMainColor</cstring>
-        </property>
-       </widget>
-      </item>
-      <item>
-        <widget class="qdesigner_internal::StyledButton" name="buttonMainColor" >
-        <property name="geometry" >
-         <rect>
-          <x>89</x>
-          <y>23</y>
-          <width>800</width>
-          <height>480</height>
-         </rect>
-        </property>
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>0</hsizetype>
-          <vsizetype>0</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="focusPolicy" >
-         <enum>Qt::StrongFocus</enum>
-        </property>
-        <property name="toolTip" >
-         <string>Choose a color</string>
-        </property>
-        <property name="whatsThis" >
-         <string>Choose the effect-color for the generated palette.</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="labelMainColor2" >
-        <property name="geometry" >
-         <rect>
-          <x>95</x>
-          <y>23</y>
-          <width>77</width>
-          <height>26</height>
-         </rect>
-        </property>
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>1</hsizetype>
-          <vsizetype>1</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize" >
-         <size>
-          <width>50</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="lineWidth" >
-         <number>1</number>
-        </property>
-        <property name="midLineWidth" >
-         <number>0</number>
-        </property>
-        <property name="text" >
-         <string>Back&amp;ground:</string>
-        </property>
-        <property name="margin" >
-         <number>0</number>
-        </property>
-        <property name="buddy" >
-         <cstring>buttonMainColor2</cstring>
-        </property>
-       </widget>
-      </item>
-      <item>
-        <widget class="qdesigner_internal::StyledButton" name="buttonMainColor2" >
-        <property name="geometry" >
-         <rect>
-          <x>178</x>
-          <y>23</y>
-          <width>800</width>
-          <height>480</height>
-         </rect>
-        </property>
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>0</hsizetype>
-          <vsizetype>0</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="focusPolicy" >
-         <enum>Qt::StrongFocus</enum>
-        </property>
-        <property name="toolTip" >
-         <string>Choose a color</string>
-        </property>
-        <property name="whatsThis" >
-         <string>Choose the background color for the generated palette.</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer>
-        <property name="geometry" >
-         <rect>
-          <x>184</x>
-          <y>23</y>
-          <width>132</width>
-          <height>26</height>
-         </rect>
-        </property>
-        <property name="orientation" >
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType" >
-         <enum>QSizePolicy::Expanding</enum>
-        </property>
-        <property name="sizeHint" >
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnAdvanced" >
-        <property name="geometry" >
-         <rect>
-          <x>322</x>
-          <y>23</y>
-          <width>88</width>
-          <height>26</height>
-         </rect>
-        </property>
-        <property name="text" >
-         <string>&amp;Tune Palette...</string>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="1" column="0" >
     <widget class="QGroupBox" name="GroupBox126" >
-     <property name="geometry" >
-      <rect>
-       <x>11</x>
-       <y>79</y>
-       <width>423</width>
-       <height>328</height>
-      </rect>
-     </property>
      <property name="sizePolicy" >
       <sizepolicy>
        <hsizetype>5</hsizetype>
@@ -278,14 +162,6 @@
         </property>
         <item>
          <widget class="QLabel" name="TextLabel1" >
-          <property name="geometry" >
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>196</width>
-            <height>143</height>
-           </rect>
-          </property>
           <property name="text" >
            <string>Select &amp;Palette:</string>
           </property>
@@ -296,14 +172,6 @@
         </item>
         <item>
          <widget class="QComboBox" name="paletteCombo" >
-          <property name="geometry" >
-           <rect>
-            <x>202</x>
-            <y>59</y>
-            <width>195</width>
-            <height>25</height>
-           </rect>
-          </property>
           <item>
            <property name="text" >
             <string>Active Palette</string>
@@ -324,15 +192,7 @@
        </layout>
       </item>
       <item>
-        <widget class="qdesigner_internal::PreviewFrame" name="previewFrame" >
-        <property name="geometry" >
-         <rect>
-          <x>13</x>
-          <y>172</y>
-          <width>800</width>
-          <height>480</height>
-         </rect>
-        </property>
+       <widget class="qdesigner_internal::PreviewFrame" name="previewFrame" >
         <property name="sizePolicy" >
          <sizepolicy>
           <hsizetype>7</hsizetype>
@@ -346,114 +206,167 @@
      </layout>
     </widget>
    </item>
-   <item>
-    <layout class="QHBoxLayout" >
-     <property name="margin" >
-      <number>0</number>
+   <item row="0" column="0" >
+    <widget class="QGroupBox" name="groupAutoPalette" >
+     <property name="sizePolicy" >
+      <sizepolicy>
+       <hsizetype>5</hsizetype>
+       <vsizetype>4</vsizetype>
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-     <property name="spacing" >
-      <number>6</number>
+     <property name="title" >
+      <string>Build Palette</string>
      </property>
-     <item>
-      <widget class="QPushButton" name="buttonHelp" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>77</width>
-         <height>28</height>
-        </rect>
-       </property>
-       <property name="text" >
-        <string>&amp;Help</string>
-       </property>
-       <property name="autoDefault" >
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer>
-       <property name="geometry" >
-        <rect>
-         <x>83</x>
-         <y>0</y>
-         <width>174</width>
-         <height>28</height>
-        </rect>
-       </property>
-       <property name="orientation" >
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType" >
-        <enum>QSizePolicy::Expanding</enum>
-       </property>
-       <property name="sizeHint" >
-        <size>
-         <width>20</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="buttonOk" >
-       <property name="geometry" >
-        <rect>
-         <x>263</x>
-         <y>0</y>
-         <width>77</width>
-         <height>28</height>
-        </rect>
-       </property>
-       <property name="whatsThis" >
-        <string>Close the dialog and apply all the changes.</string>
-       </property>
-       <property name="text" >
-        <string>OK</string>
-       </property>
-       <property name="autoDefault" >
-        <bool>true</bool>
-       </property>
-       <property name="default" >
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="buttonCancel" >
-       <property name="geometry" >
-        <rect>
-         <x>346</x>
-         <y>0</y>
-         <width>77</width>
-         <height>28</height>
-        </rect>
-       </property>
-       <property name="whatsThis" >
-        <string>Close the dialog and discard any changes.</string>
-       </property>
-       <property name="text" >
-        <string>Cancel</string>
-       </property>
-       <property name="autoDefault" >
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
+     <layout class="QHBoxLayout" >
+      <property name="margin" >
+       <number>11</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="labelMainColor" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>5</hsizetype>
+          <vsizetype>5</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize" >
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="lineWidth" >
+         <number>1</number>
+        </property>
+        <property name="midLineWidth" >
+         <number>0</number>
+        </property>
+        <property name="text" >
+         <string>&amp;3-D Effects:</string>
+        </property>
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="buddy" >
+         <cstring>buttonMainColor</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="qdesigner_internal::StyledButton" name="buttonMainColor" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>0</hsizetype>
+          <vsizetype>0</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="focusPolicy" >
+         <enum>Qt::StrongFocus</enum>
+        </property>
+        <property name="toolTip" >
+         <string>Choose a color</string>
+        </property>
+        <property name="whatsThis" >
+         <string>Choose the effect-color for the generated palette.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelMainColor2" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>5</hsizetype>
+          <vsizetype>5</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize" >
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="lineWidth" >
+         <number>1</number>
+        </property>
+        <property name="midLineWidth" >
+         <number>0</number>
+        </property>
+        <property name="text" >
+         <string>Back&amp;ground:</string>
+        </property>
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="buddy" >
+         <cstring>buttonMainColor2</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="qdesigner_internal::StyledButton" name="buttonMainColor2" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>0</hsizetype>
+          <vsizetype>0</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="focusPolicy" >
+         <enum>Qt::StrongFocus</enum>
+        </property>
+        <property name="toolTip" >
+         <string>Choose a color</string>
+        </property>
+        <property name="whatsThis" >
+         <string>Choose the background color for the generated palette.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType" >
+         <enum>QSizePolicy::Expanding</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnAdvanced" >
+        <property name="text" >
+         <string>&amp;Tune Palette...</string>
+        </property>
+        <property name="checkable" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
   </layout>
  </widget>
  <pixmapfunction></pixmapfunction>
  <customwidgets>
-  <customwidget>
-   <class>qdesigner_internal::StyledButton</class>
-   <extends></extends>
-   <header>styledbutton.h</header>
-   <container>0</container>
-   <pixmap></pixmap>
-  </customwidget>
   <customwidget>
    <class>qdesigner_internal::PreviewFrame</class>
    <extends></extends>
@@ -461,13 +374,23 @@
    <container>0</container>
    <pixmap></pixmap>
   </customwidget>
+  <customwidget>
+   <class>qdesigner_internal::StyledButton</class>
+   <extends></extends>
+   <header>styledbutton.h</header>
+   <container>0</container>
+   <pixmap></pixmap>
+  </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>buttonOk</tabstop>
-  <tabstop>buttonCancel</tabstop>
+  <tabstop>buttonMainColor</tabstop>
+  <tabstop>buttonMainColor2</tabstop>
   <tabstop>btnAdvanced</tabstop>
   <tabstop>paletteCombo</tabstop>
+  <tabstop>roleListView</tabstop>
   <tabstop>buttonHelp</tabstop>
+  <tabstop>buttonOk</tabstop>
+  <tabstop>buttonCancel</tabstop>
  </tabstops>
  <resources/>
  <connections>
