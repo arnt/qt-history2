@@ -731,7 +731,7 @@ MakefileGenerator::init()
     }
 
     const QString src_out_dir = fileFixify(Option::output_dir, Option::output_dir, Option::output_dir);
-    if(src_out_dir != qmake_getpwd() && src_out_dir != ".")
+    if(src_out_dir != qmake_getpwd())
         project->variables()["INCLUDEPATH"].append(src_out_dir);
 
     //fix up the target deps
