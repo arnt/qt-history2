@@ -2321,6 +2321,7 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
         } else if(stat == IncludeNoExist && include_statement) {
             warn_msg(WarnParser, "%s:%d: Unable to find file for inclusion %s",
                      parser.file.toLatin1().constData(), parser.line_no, file.toLatin1().constData());
+            return false;
         } else if(stat >= IncludeFailure) {
             if(!ignore_error) {
                 printf("Project LOAD(): Feature %s cannot be found.\n", file.toLatin1().constData());
