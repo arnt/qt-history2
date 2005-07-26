@@ -23,13 +23,13 @@
 class ReplaceToken
 {
 public:
-    ReplaceToken(QList<TokenReplacement*> &tokenReplacementRules);
+    ReplaceToken(const QList<TokenReplacement*> &tokenReplacementRules);
     TextReplacements getTokenTextReplacements(const TokenEngine::TokenContainer &tokenContainer);
 private:
     bool isInterestingToken(const QByteArray &token);
     bool isPreprocessorDirective(const QByteArray &token);
     QMultiMap<QByteArray, TokenReplacement*> tokenRuleLookup;
-    QList<TokenReplacement*> tokenReplacementRules;
+    const QList<TokenReplacement*> tokenReplacementRules;
 };
 
 #endif

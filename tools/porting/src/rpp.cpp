@@ -434,7 +434,8 @@ bool Preprocessor::parseIncludeDirective(Item *group)
     if(tokenSection.count() == 0)
         return false;
 
-    IncludeDirective *includeDirective =  createNode<IncludeDirective>(m_memoryPool, group);
+    const TokenEngine::TokenContainer tokenContainer = tokenSection.tokenContainer(0);
+    IncludeDirective *includeDirective = createNode<IncludeDirective>(m_memoryPool, group);
     group->toItemComposite()->add(includeDirective);
     includeDirective->setTokenSection(tokenSection);
 
@@ -445,9 +446,11 @@ bool Preprocessor::parseIncludeDirective(Item *group)
     int tokenIndex = 0;
     const int endIndex = tokenList.count();
     while (tokenIndex < endIndex) {
-        if(m_tokenTypeList.at(tokenList.containerIndex(tokenIndex)) == Token_string_literal) {
+        const int containerTokenIndex = tokenList.containerIndex(tokenIndex);
+        if(m_tokenTypeList.at(containerTokenIndex) == Token_string_literal) {
             QByteArray tokenText = tokenList.text(tokenIndex);
             includeDirective->setFilename(tokenText.mid(1, tokenText.size() -2)); //remove quotes
+            includeDirective->setFilenameTokens(TokenEngine::TokenList(tokenContainer, QVector<int>() << containerTokenIndex));
             includeDirective->setIncludeType(IncludeDirective::QuoteInclude);
             break;
         } else if(tokenList.text(tokenIndex) == "<") {
@@ -455,16 +458,18 @@ bool Preprocessor::parseIncludeDirective(Item *group)
             // > is a part of the file anme
             QByteArray filename;
             ++tokenIndex; //skip '<'
-            includeDirective->setFilenameToken(tokenIndex);
+            QVector<int> filenameTokens;
             while(tokenIndex < endIndex) {
                 const QByteArray tokenText = tokenList.text(tokenIndex);
                 if(tokenText == ">")
                     break;
+                filenameTokens.append(tokenList.containerIndex(tokenIndex));
                 filename += tokenText;
                 ++tokenIndex;
             }
             if(tokenIndex < endIndex) {
                 includeDirective->setFilename(filename);
+                includeDirective->setFilenameTokens(TokenEngine::TokenList(tokenContainer, filenameTokens));
                 includeDirective->setIncludeType(IncludeDirective::AngleBracketInclude);
             }
             break;

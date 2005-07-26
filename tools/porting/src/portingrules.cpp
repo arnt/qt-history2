@@ -91,6 +91,12 @@ QHash<QByteArray, QByteArray> PortingRules::getClassLibraryList()
         addLogWarning("Warning: classLibraryList list is empty");
     return classLibraryList;
 }
+
+QHash<QByteArray, QByteArray> PortingRules::getHeaderReplacements()
+{
+    return headerReplacements;
+}
+
 /*
     Loads rule xml file given by fileName, and sets up data structures.
     The rules can generally be divided into to types, replacement rules and
@@ -126,8 +132,7 @@ void PortingRules::parseXml(QString fileName)
                 continue;
 
             if(ruleType == "RenamedHeader") {
-                tokenRules.append(new IncludeTokenReplacement(
-                        qt3Symbol.toLatin1(), qt4Symbol.toLatin1()));
+              headerReplacements.insert(qt3Symbol.toLatin1(), qt4Symbol.toLatin1());
             } else if(ruleType == "RenamedClass" || ruleType == "RenamedToken" ) {
                 tokenRules.append(new ClassNameReplacement(
                         qt3Symbol.toLatin1(), qt4Symbol.toLatin1()));

@@ -53,6 +53,7 @@ public:
     QHash<QByteArray, QByteArray> getNeededHeaders();
     QStringList getInheritsQt();
     QHash<QByteArray, QByteArray> getClassLibraryList();
+    QHash<QByteArray, QByteArray> getHeaderReplacements();
 private:
     static PortingRules *theInstance;
 
@@ -63,6 +64,7 @@ private:
     QStringList inheritsQtClass;
     QList<RuleDescription> disabledRules;
     QHash<QByteArray, QByteArray> classLibraryList;
+    QHash<QByteArray, QByteArray> headerReplacements;
 
 
     void parseXml(const QString fileName);

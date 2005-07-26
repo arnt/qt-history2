@@ -389,20 +389,20 @@ struct PragmaDirective: public Directive
 struct IncludeDirective: public Directive
 {
     IncludeDirective(Item *item)
-    : Directive(item), m_filenameToken(-1) {}
+    : Directive(item) {}
 
-    IncludeDirective() : Directive(), m_filenameToken(-1) {}
+    IncludeDirective() : Directive() {}
 
     virtual IncludeDirective *toIncludeDirective() const
     { return const_cast<IncludeDirective *>(this); }
 
     enum IncludeType {QuoteInclude, AngleBracketInclude};
 
-    void setFilenameToken(int filenameToken)
-    { m_filenameToken = filenameToken; }
+    void setFilenameTokens(const TokenEngine::TokenList &filenameTokens)
+    { m_filenameTokens = filenameTokens; }
 
-    int filenameToken() const
-    { return m_filenameToken; }
+    TokenEngine::TokenList filenameTokens() const
+    { return m_filenameTokens; }
 
     void setFilename(const QByteArray &filename)
     { m_filename = filename; }
@@ -416,7 +416,7 @@ struct IncludeDirective: public Directive
     IncludeType includeType() const
     { return m_includeType; }
 private:
-    int m_filenameToken;
+    TokenEngine::TokenList m_filenameTokens;
     QByteArray m_filename;
     IncludeType m_includeType;
 };

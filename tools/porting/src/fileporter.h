@@ -31,14 +31,28 @@ public:
 private:
     QByteArray loadFile(const QString &fileName);
     QByteArray includeAnalyse(QByteArray fileContents);
+    TextReplacements includeDirectiveReplacements();
 
     PreprocessorCache &preprocessorCache;
-    QList<TokenReplacement*> tokenReplacementRules;
+    const QList<TokenReplacement*> tokenReplacementRules;
+    const QHash<QByteArray, QByteArray> headerReplacements;
+
     ReplaceToken replaceToken;
     Tokenizer tokenizer;    //used by includeAnalyse
 
     QSet<QByteArray> qt4HeaderNames;
     QSet<QByteArray> m_usedQtModules;
+};
+
+class IncludeDirectiveReplace : public Rpp::RppTreeWalker
+{
+public:
+    IncludeDirectiveReplace(const Rpp::Source *source, const QHash<QByteArray, QByteArray> &headerReplacements);
+    TextReplacements getReplacements();
+private:
+    void evaluateIncludeDirective(const Rpp::IncludeDirective *directive);
+    const QHash<QByteArray, QByteArray> headerReplacements;
+    TextReplacements replacements;
 };
 
 class IncludeDirectiveAnalyzer : public Rpp::RppTreeWalker

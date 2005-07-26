@@ -18,11 +18,9 @@
 using namespace TokenEngine;
 using namespace std;
 
-void TokenReplacement::addLogSourceEntry(const QString &text, const TokenContainer &tokenContainer, const int index) const
+void addLogSourceEntry(const QString &text, const TokenContainer &tokenContainer, const int index)
 {
-    Q_UNUSED(tokenContainer);
-    Q_UNUSED(index);
-     Logger *logger = Logger::instance();
+    Logger *logger = Logger::instance();
     int line = tokenContainer.line(index);
     int col = tokenContainer.column(index);
     SourcePointLogEntry *logEntry =
@@ -32,8 +30,7 @@ void TokenReplacement::addLogSourceEntry(const QString &text, const TokenContain
     logger->addEntry(logEntry);
 }
 
-
-void TokenReplacement::addLogWarning(const QString &text) const
+void addLogWarning(const QString &text)
 {
      Logger::instance()->addEntry(new PlainLogEntry("Warning", "Porting", text));
 }
@@ -128,42 +125,6 @@ int QualifiedNameParser::nextScopeToken(Direction direction)
        tokenIndex += direction;
     }
     return tokenIndex - direction;
-}
-
-IncludeTokenReplacement::IncludeTokenReplacement(QByteArray fromFile, QByteArray toFile)
-:fromFile(fromFile)
-,toFile(toFile)
-{  }
-
-bool IncludeTokenReplacement::doReplace(const TokenContainer &tokenContainer,
-                                        int index, TextReplacements &textReplacements)
-{
-    QByteArray tokenText;
-    // read a line of tokens, index points to a "#" token
-    int currentIndex = index;
-    while(currentIndex < tokenContainer.count()) {
-        QByteArray newText = tokenContainer.text(currentIndex);
-        if(newText == "\n" || newText == "\r\n")
-            break;
-        tokenText += newText;
-        ++currentIndex;
-    }
-
-    // Also match cases where the header name contains
-    // capital letters (ex. #include <QWidget.h>)
-    tokenText = tokenText.toLower();
-
-    if(tokenText.startsWith("#") && tokenText.contains("include") ) {
-        int pos = tokenText.indexOf(fromFile);
-        if(pos!=-1) {
-            addLogSourceEntry(tokenText + " -> " + toFile, tokenContainer, index);
-            TokenEngine::Token token = tokenContainer.token(index);
-            textReplacements.insert(toFile, token.start + pos, fromFile.size());
-            return true;
-        }
-    }
-    return false;
-
 }
 
 /////////////////////

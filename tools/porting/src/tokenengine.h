@@ -293,6 +293,12 @@ public:
     { Q_UNUSED(index); return m_tokenContainer; }
     inline int containerIndex(const int index) const
     { return m_tokenList.at(index); }
+    Token token(const int index) const
+    {
+        const int cIndex = containerIndex(index);
+        Q_ASSERT(cIndex < m_tokenContainer.count());
+        return m_tokenContainer.token(cIndex);
+    }
 
 private:
     TokenContainer m_tokenContainer;

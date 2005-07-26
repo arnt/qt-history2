@@ -17,7 +17,7 @@
 /*
     Add an entry to the tokenRuleLookup map for each token replacement rule.
 */
-ReplaceToken::ReplaceToken(QList<TokenReplacement*> &tokenReplacementRules)
+ReplaceToken::ReplaceToken(const QList<TokenReplacement*> &tokenReplacementRules)
 :tokenReplacementRules(tokenReplacementRules)
 {
     foreach (TokenReplacement* rep, tokenReplacementRules) {

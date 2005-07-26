@@ -19,9 +19,13 @@
 #include "tokenengine.h"
 #include "textreplacement.h"
 
+void addLogSourceEntry(const QString &text, const TokenEngine::TokenContainer&, const int index);
+void addLogWarning(const QString &text);
+
 class TokenReplacement
 {
 public:
+
     virtual bool doReplace(const TokenEngine::TokenContainer& ,
                            int /*tokenIndex*/,
                            TextReplacements&){return false;};
@@ -31,24 +35,6 @@ public:
     */
     virtual QByteArray getReplaceKey(){return QByteArray();};
     virtual ~TokenReplacement(){};
-protected:
-    void addLogSourceEntry(const QString &text, const TokenEngine::TokenContainer&, const int index) const;
-    void addLogWarning(const QString &text) const;
-};
-
-/*
-    A TokenReplacement that changes #include directives
-*/
-class IncludeTokenReplacement : public TokenReplacement
-{
-public:
-    IncludeTokenReplacement(QByteArray fromFile, QByteArray toFile);
- //   bool doReplace(QByteArray tokenText, QByteArray &newTokenText);
-    bool doReplace(const TokenEngine::TokenContainer &tokenContainer,
-                   int tokenIndex, TextReplacements &textReplacements);
-private:
-    QByteArray fromFile;
-    QByteArray toFile;
 };
 
 /*
