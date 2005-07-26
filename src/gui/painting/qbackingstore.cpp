@@ -104,12 +104,8 @@ void QWidgetBackingStore::scrollRegion(const QRegion &rgn, int dx, int dy, QWidg
 #if defined(Q_WS_WIN)
         QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
         HDC engine_dc = engine->getDC();
-        QVector<QRect> rects = wrgn.rects();
-        for (int i=0; i<rects.size(); ++i) {
-            QRect r = rects.at(i);
-            BitBlt(engine_dc, r.x()+pos.x()+dx, r.y()+pos.y()+dy, widget->width(), widget->height(),
-                   engine_dc, r.x()+pos.x(), r.y()+pos.y(), SRCCOPY);
-        }
+        BitBlt(engine_dc, pos.x()+dx, pos.y()+dy, widget->width(), widget->height(),
+               engine_dc, pos.x(), pos.y(), SRCCOPY);
         engine->releaseDC(engine_dc);
 #elif defined(Q_WS_X11)
         GC gc = XCreateGC(widget->d_func()->xinfo.display(), buffer.handle(), 0, 0);
@@ -307,6 +303,12 @@ void QWidgetBackingStore::paintWidget(const QRegion &rgn, QWidget *widget, const
         QRegion wrgn = rgn;
         wrgn.translate(offset);
         buffer.paintEngine()->setSystemClip(wrgn);
+#ifdef Q_WS_WIN
+        QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
+        HDC engine_dc = engine->getDC();
+	SelectClipRgn(engine_dc, wrgn.handle());
+        engine->releaseDC(engine_dc);
+#endif
    }
 
     //paint the background
