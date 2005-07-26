@@ -571,6 +571,10 @@ bool QPixmap::doImageIO(QImageWriter *writer, int quality) const
 
 void QPixmap::init(int w, int h, Type type)
 {
+    if (!qApp) {
+        qFatal("QPixmap: Must construct a QApplication before a QPaintDevice");
+        return;
+    }
     data = new QPixmapData;
     data->type = type;
     if (type == PixmapType) {

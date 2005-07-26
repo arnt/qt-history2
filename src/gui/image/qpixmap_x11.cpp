@@ -261,9 +261,13 @@ int Q_GUI_EXPORT qt_x11_preferred_pixmap_depth = 0;
 */
 void QPixmap::init(int w, int h, Type type)
 {
+    if (!qApp) {
+        qFatal("QPixmap: Must construct a QApplication before a QPaintDevice");
+        return;
+    }
+
     if (qApp->type() == QApplication::Tty) {
-        qWarning("QPixmap: Cannot create a QPixmap when no GUI "
-                 "is being used");
+        qWarning("QPixmap: Cannot create a QPixmap when no GUI is being used");
     }
 
     data = new QPixmapData;

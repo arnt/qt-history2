@@ -566,6 +566,10 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
 
 void QPixmap::init(int w, int h, Type type)
 {
+    if (!qApp) {
+        qFatal("QPixmap: Must construct a QApplication before a QPaintDevice");
+        return;
+    }
     if (qApp->type() == QApplication::Tty)
         qWarning("QPixmap: Cannot create a QPixmap when no GUI "
                   "is being used");

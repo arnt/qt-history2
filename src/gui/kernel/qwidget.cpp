@@ -75,6 +75,11 @@ QWidgetPrivate::QWidgetPrivate(int version) :
         ,polished(0)
 
 {
+    if (!qApp) {
+        qFatal("QWidget: Must construct a QApplication before a QPaintDevice");
+        return;
+    }
+
     if (version != QObjectPrivateVersion)
         qFatal("Cannot mix incompatible Qt libraries");
 

@@ -56,11 +56,6 @@
 
 QPaintDevice::QPaintDevice()
 {
-    if (!qApp) {                                // global constructor
-        qFatal("QPaintDevice: Must construct a QApplication before a "
-                "QPaintDevice");
-        return;
-    }
     painters = 0;
 }
 

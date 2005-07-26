@@ -323,6 +323,10 @@ QPrinter::QPrinter(PrinterMode mode)
     : QPaintDevice(),
       d_ptr(new QPrinterPrivate)
 {
+    if (!qApp) {
+        qFatal("QPrinter: Must construct a QApplication before a QPaintDevice");
+        return;
+    }
     Q_D(QPrinter);
 #if defined (Q_WS_WIN)
     d->printEngine = new QWin32PrintEngine(mode);
