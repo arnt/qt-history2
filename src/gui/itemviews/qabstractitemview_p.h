@@ -60,6 +60,8 @@ public:
                                                               const QEvent *event) const;
     QItemSelectionModel::SelectionFlags extendedSelectionCommand(const QModelIndex &index,
                                                                  const QEvent *event) const;
+    QItemSelectionModel::SelectionFlags contiguousSelectionCommand(const QModelIndex &index,
+                                                                   const QEvent *event) const;
 
     inline QItemSelectionModel::SelectionFlags selectionBehaviorFlags() const
     {

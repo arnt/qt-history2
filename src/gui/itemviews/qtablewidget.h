@@ -29,10 +29,14 @@ public:
     QTableWidgetSelectionRange(int top, int left, int bottom, int right);
     QTableWidgetSelectionRange(const QTableWidgetSelectionRange &other);
     ~QTableWidgetSelectionRange();
+
     inline int topRow() const { return top; }
     inline int bottomRow() const { return bottom; }
     inline int leftColumn() const { return left; }
     inline int rightColumn() const { return right; }
+    inline int rowCount() const { return bottom - top + 1; }
+    inline int columnCount() const { return right - left + 1; }
+
 private:
     int top, left, bottom, right;
 };

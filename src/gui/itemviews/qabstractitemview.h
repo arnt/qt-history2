@@ -51,7 +51,8 @@ public:
         NoSelection,
         SingleSelection,
         MultiSelection,
-        ExtendedSelection
+        ExtendedSelection,
+        ContiguousSelection
     };
 
     enum SelectionBehavior {
@@ -138,7 +139,7 @@ public:
     void closePersistentEditor(const QModelIndex &index);
 
     void setIndexWidget(const QModelIndex &index, QWidget *widget);
-    QWidget* indexWidget(const QModelIndex &index) const;
+    QWidget *indexWidget(const QModelIndex &index) const;
 
 public slots:
     virtual void reset();

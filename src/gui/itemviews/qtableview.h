@@ -57,7 +57,6 @@ public:
     void setColumnHidden(int column, bool hide);
 
     bool showGrid() const;
-    void setShowGrid(bool show);
 
     Qt::PenStyle gridStyle() const;
     void setGridStyle(Qt::PenStyle style);
@@ -76,6 +75,7 @@ public slots:
     void resizeRowToContents(int row);
     void resizeColumnToContents(int column);
     void sortByColumn(int column);
+    void setShowGrid(bool show);
 
 protected slots:
     void rowMoved(int row, int oldIndex, int newIndex);

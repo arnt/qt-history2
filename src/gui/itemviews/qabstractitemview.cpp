@@ -139,7 +139,7 @@ void QAbstractItemViewPrivate::init()
     concerned with editing, for example, edit(), and commitData(),
     whilst others are keyboard and mouse event handlers.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel
+    \sa {Model/View Programming}, QAbstractItemModel
 
 */
 
@@ -152,9 +152,12 @@ void QAbstractItemViewPrivate::init()
     already-selected item becomes unselected, and the user cannot
     unselect the selected item.
 
-    \value MultiSelection  When the user selects an item in the usual
-    way, the selection status of that item is toggled and the other
-    items are left alone.
+    \value ContiguousSelection When the user selects an item in the
+    usual way, the selection is cleared and the new item selected.
+    However, if the user presses the Shift key while clicking on an item,
+    all items between the current item and the clicked item are
+    selected or unselected, depending on the state of the clicked
+    item.
 
     \value ExtendedSelection When the user selects an item in the
     usual way, the selection is cleared and the new item selected.
@@ -167,15 +170,14 @@ void QAbstractItemViewPrivate::init()
     item. Multiple items can be selected by dragging the mouse
     over them.
 
+    \value MultiSelection  When the user selects an item in the usual
+    way, the selection status of that item is toggled and the other
+    items are left alone.
+
     \value NoSelection  Items cannot be selected.
 
-    In other words, \c SingleSelection is a real single-selection list
-    view, \c MultiSelection a real multi-selection list view,
-    \c ExtendedSelection is a list view in which users can select
-    multiple items, but usually want to select either just one or a
-    range of contiguous items, and \c NoSelection
-    is a list view where the user can navigate without selecting
-    items.
+    The most commonly used modes are SingleSelection and
+    ExtendedSelection.
 */
 
 /*!
@@ -2099,6 +2101,8 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(const QM
         return d->multiSelectionCommand(index, event);
     case ExtendedSelection:
         return d->extendedSelectionCommand(index, event);
+    case ContiguousSelection:
+        return d->contiguousSelectionCommand(index, event);
     }
     return QItemSelectionModel::NoUpdate;
 }
@@ -2220,6 +2224,29 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionC
         return QItemSelectionModel::SelectCurrent|selectionBehaviorFlags();
 
     return QItemSelectionModel::ClearAndSelect|selectionBehaviorFlags();
+}
+
+QItemSelectionModel::SelectionFlags
+QAbstractItemViewPrivate::contiguousSelectionCommand(const QModelIndex &index,
+                                                     const QEvent *event) const
+{
+    QItemSelectionModel::SelectionFlags flags = extendedSelectionCommand(index, event);
+    const int Mask = QItemSelectionModel::Clear | QItemSelectionModel::Select
+                     | QItemSelectionModel::Deselect | QItemSelectionModel::Toggle
+                     | QItemSelectionModel::Current;
+
+    switch (flags & Mask) {
+    case QItemSelectionModel::Clear:
+    case QItemSelectionModel::ClearAndSelect:
+    case QItemSelectionModel::SelectCurrent:
+        return flags;
+    case QItemSelectionModel::NoUpdate:
+        if (event && event->type() == QEvent::MouseButtonRelease)
+            return flags;
+        return QItemSelectionModel::ClearAndSelect|selectionBehaviorFlags();
+    default:
+        return QItemSelectionModel::SelectCurrent|selectionBehaviorFlags();
+    }
 }
 
 void QAbstractItemViewPrivate::fetchMore()

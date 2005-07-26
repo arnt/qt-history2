@@ -22,7 +22,7 @@
 #include <private/qtableview_p.h>
 #include <private/qwidgetitemdata_p.h>
 
-// workaround for VC++ 6.0 linker bug (?)
+// workaround for VC++ 6.0 linker bug
 typedef bool(*LessThan)(const QPair<QTableWidgetItem*,int>&,const QPair<QTableWidgetItem*,int>&);
 
 class QTableWidgetMimeData : public QMimeData
@@ -568,30 +568,34 @@ Qt::DropActions QTableModel::supportedDropActions() const
 }
 
 /*!
-  \class QTableWidgetSelectionRange
+    \class QTableWidgetSelectionRange
 
-  \brief The QTableWidgetSelectionRange class provides a container for
-  storing a selection range in a QTableWidget.
+    \brief The QTableWidgetSelectionRange class provides a container for
+    storing a selection range in a QTableWidget.
 
-  \ingroup model-view
+    \ingroup model-view
 
-  The QTableWidgetSelectionRange class stores the top left and bottom
-  right rows and columns of a selection range in a table. The
-  selections in the table may consist of several selection ranges.
+    The QTableWidgetSelectionRange class stores the top left and bottom
+    right rows and columns of a selection range in a table. The
+    selections in the table may consist of several selection ranges.
 
-  \sa QTableWidget
+    \sa QTableWidget
 */
 
 /*!
-  Constructs the table selection range.
+    Constructs an table selection range, i.e. a range
+    whose rowCount() and columnCount() are 0.
 */
 QTableWidgetSelectionRange::QTableWidgetSelectionRange()
-    : top(-1), left(-1), bottom(-1), right(-1)
+    : top(-1), left(-1), bottom(-2), right(-2)
 {
 }
 
 /*!
-  Constructs the table selection range from the given \a top, \a left, \a bottom and \a right table rows and columns.
+    Constructs the table selection range from the given \a top, \a
+    left, \a bottom and \a right table rows and columns.
+
+    \sa topRow(), leftColumn(), bottomRow(), rightColumn()
 */
 QTableWidgetSelectionRange::QTableWidgetSelectionRange(int top, int left, int bottom, int right)
     : top(top), left(left), bottom(bottom), right(right)
@@ -599,7 +603,8 @@ QTableWidgetSelectionRange::QTableWidgetSelectionRange(int top, int left, int bo
 }
 
 /*!
-  Constructs a the table selection range by copying the given \a other table selection range.
+    Constructs a the table selection range by copying the given \a
+    other table selection range.
 */
 QTableWidgetSelectionRange::QTableWidgetSelectionRange(const QTableWidgetSelectionRange &other)
     : top(other.top), left(other.left), bottom(other.bottom), right(other.right)
@@ -607,36 +612,65 @@ QTableWidgetSelectionRange::QTableWidgetSelectionRange(const QTableWidgetSelecti
 }
 
 /*!
-  Destroys the table selection range.
+    Destroys the table selection range.
 */
 QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 {
 }
 
 /*!
-  \fn inline int QTableWidgetSelectionRange::topRow() const
+    \fn int QTableWidgetSelectionRange::topRow() const
 
-  Returns the top row of the range.
+    Returns the top row of the range.
+
+    \sa bottomRow(), leftColumn(), rowCount()
 */
 
 /*!
-  \fn inline int QTableWidgetSelectionRange::bottomRow() const
+    \fn int QTableWidgetSelectionRange::bottomRow() const
 
-  Returns the bottom row of the range.
+    Returns the bottom row of the range.
+
+    \sa topRow(), rightColumn(), rowCount()
 */
 
 /*!
-  \fn inline int QTableWidgetSelectionRange::leftColumn() const
+    \fn int QTableWidgetSelectionRange::leftColumn() const
 
-  Returns the left column of the range.
+    Returns the left column of the range.
+
+    \sa rightColumn(), topRow(), columnCount()
 */
 
 /*!
-  \fn inline int QTableWidgetSelectionRange::rightColumn() const
+    \fn int QTableWidgetSelectionRange::rightColumn() const
 
-  Returns the right column of the range.
+    Returns the right column of the range.
+
+    \sa leftColumn(), bottomRow(), columnCount()
 */
 
+/*!
+    \since 4.1
+    \fn int QTableWidgetSelectionRange::rowCount() const
+
+    Returns the number of rows in the range.
+
+    This is equivalent to bottomRow() - topRow() + 1.
+
+    \sa columnCount(), topRow(), bottomRow()
+*/
+
+/*!
+    \since 4.1
+    \fn int QTableWidgetSelectionRange::columnCount() const
+
+    Returns the number of columns in the range.
+
+    This is equivalent to rightColumn() - leftColumn() + 1.
+
+    \sa rowCount(), leftColumn(), rightColumn()
+*/
 
 /*!
     \class QTableWidgetItem
@@ -676,7 +710,7 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 /*!
   \fn QSize QTableWidgetItem::sizeHint() const
 
-  Returns the size hint set for the table item (see \l{QSize}).
+  Returns the size hint set for the table item.
 */
 
 /*!
@@ -690,7 +724,7 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 /*!
     \fn Qt::CheckState QTableWidgetItem::checkState() const
 
-    Returns the checked state of the table item (see \l{Qt::CheckState}).
+    Returns the checked state of the table item.
 
     \sa flags()
 */
@@ -854,16 +888,20 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 */
 
 /*!
-  \fn int QTableWidgetItem::textAlignment() const
+    \fn int QTableWidgetItem::textAlignment() const
 
-  Returns the text alignment for the item's text (see \l{Qt::AlignmentFlag}).
+    Returns the text alignment for the item's text.
+
+    \sa Qt::Alignment
 */
 
 /*!
-  \fn void QTableWidgetItem::setTextAlignment(int alignment)
+    \fn void QTableWidgetItem::setTextAlignment(int alignment)
 
-  Sets the text alignment for the item's text to the \a alignment
-  specified (see \l{Qt::AlignmentFlag}).
+    Sets the text alignment for the item's text to the \a alignment
+    specified.
+
+    \sa Qt::Alignment
 */
 
 /*!
