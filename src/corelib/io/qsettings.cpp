@@ -1752,6 +1752,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     argument to the QSettings constructor, followed by the scope, the
     organization name, and the application name:
 
+    \skipline {
     \printline /settings\(.*,$/
     \printline );
 
@@ -1760,6 +1761,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     that takes a file name (or registry path) and a file format. For
     example:
 
+    \skipline }
+    \skipline {
     \printline /QSettings settings.*Ini/
 
     The file format can either be QSettings::IniFormat or QSettings::NativeFormat.
@@ -1768,6 +1771,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     the first argument is a path in the registry rather than a file
     name, for example:
 
+    \skipline }
+    \skipline {
     \printline HKEY
     \printline Native
 

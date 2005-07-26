@@ -1220,6 +1220,7 @@ void QGridLayout::addWidget(QWidget *widget, int fromRow, int fromColumn,
 /*!
     \fn void QGridLayout::addWidget(QWidget *widget)
 
+    \overload
     \internal
 */
 

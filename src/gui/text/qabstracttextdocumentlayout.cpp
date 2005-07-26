@@ -222,7 +222,7 @@ void QAbstractTextDocumentLayout::positionInlineObject(QTextInlineObject item, i
 /*!
     \fn void QAbstractTextDocumentLayout::drawInlineObject(QPainter *painter, const QRectF &rect, QTextInlineObject object, int posInDocument, const QTextFormat &format)
 
-    Called to draw the inline object \a item on the given \a painter within
+    Called to draw the inline object \a object on the given \a painter within
     the rectangle specified by \a rect using the text format specified by
     \a format.
 

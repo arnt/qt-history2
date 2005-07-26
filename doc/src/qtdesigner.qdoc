@@ -232,7 +232,8 @@
 /*!
     \fn void QDesignerContainerExtension::setCurrentIndex(int index)
 
-    Sets the current index, corresponding to the current widget in the container.
+    Sets the current index to the specified \a index, corresponding to
+    the current widget in the container.
 
     \sa currentIndex()
 */

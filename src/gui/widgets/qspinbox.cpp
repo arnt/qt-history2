@@ -442,7 +442,7 @@ QString QSpinBox::textFromValue(int v) const
     \fn int QSpinBox::valueFromText(const QString &text) const
 
     This virtual function is used by the spin box whenever it needs to
-    interpret text entered by the user as a value.
+    interpret \a text entered by the user as a value.
 
     Subclasses that need to display spin box values in a non-numeric
     way need to reimplement this function.

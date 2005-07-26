@@ -154,7 +154,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 
 
 /*!
-  <strong>Mac only</strong>: This virtual function tries to find a
+  \bold{Mac only:} This virtual function tries to find a
   visual that matches the format using the handle \a device, reducing
   the demands if the original request cannot be met.
 
@@ -165,7 +165,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
   \sa chooseContext()
 */
 
-void *QGLContext::chooseMacVisual(GDHandle)
+void *QGLContext::chooseMacVisual(GDHandle /* device */)
 {
     Q_D(QGLContext);
     GLint attribs[40], cnt=0;

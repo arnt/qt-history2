@@ -3106,9 +3106,9 @@ void QWSInputMethod::mouseHandler(int, int state)
     Causes a QIMEvent to be sent to the focus widget.
 
     \a txt is the text being composed (or the finished text if state
-    is \l InputMethodCommit). \a cpos is the current cursor position.
+    is QWSServer::InputMethodCommit). \a cpos is the current cursor position.
 
-    If \a state is \l InputMethodPreedit, \a selLen is the number of characters in
+    If \a state is QWSServer::InputMethodPreedit, \a selLen is the number of characters in
     the composition string (starting at \a cpos) that should be
     marked as selected by the input widget receiving the event.
 */

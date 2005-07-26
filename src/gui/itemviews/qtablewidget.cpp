@@ -674,10 +674,6 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 */
 
 /*!
-    \enum QTableWidgetItem::Type
-*/
-
-/*!
   \fn QSize QTableWidgetItem::sizeHint() const
 
   Returns the size hint set for the table item (see \l{QSize}).

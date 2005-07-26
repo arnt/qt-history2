@@ -26,9 +26,9 @@
 
     \inmodule QAxServer
 
-    Implement this factory once in your COM server to provide information 
+    Implement this factory once in your COM server to provide information
     about the components the server can create. Subclass QAxFactory and implement
-    the pure virtual functions in any implementation file (e.g. main.cpp), and export 
+    the pure virtual functions in any implementation file (e.g. main.cpp), and export
     the factory using the \c QAXFACTORY_EXPORT() macro.
 
     \code
@@ -104,7 +104,7 @@
     \endcode
 
 
-    If your server supports just a single COM object, you can use 
+    If your server supports just a single COM object, you can use
     a default factory implementation through the \c QAXFACTORY_DEFAULT() macro.
 
     \code
@@ -185,11 +185,11 @@ QUuid QAxFactory::appID() const
 /*!
     \fn QObject *QAxFactory::createObject(const QString &key)
 
-    Reimplement this function to return a new object for \a key, or 0 if 
+    Reimplement this function to return a new object for \a key, or 0 if
     this factory doesn't support the value of \a key.
 
     If the object returned is a QWidget it will be exposed as an ActiveX
-    control, otherwise the returned object will be exposed as a simple COM 
+    control, otherwise the returned object will be exposed as a simple COM
     object.
 */
 
@@ -207,7 +207,7 @@ QUuid QAxFactory::appID() const
     in \a wrapper. Return true if the function was successfull, otherwise
     return false.
 
-    The default implementation creates a generic automation wrapper based 
+    The default implementation creates a generic automation wrapper based
     on the meta object information of \a object.
 */
 // implementation in qaxserverbase.cpp
@@ -226,7 +226,7 @@ QUuid QAxFactory::classID(const QString &key) const
     if (!mo)
         return QUuid();
     QString id = QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("ClassID")).value());
-    
+
     return QUuid(id);
 }
 
@@ -244,7 +244,7 @@ QUuid QAxFactory::interfaceID(const QString &key) const
     if (!mo)
         return QUuid();
     QString id = QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("InterfaceID")).value());
-    
+
     return QUuid(id);
 }
 
@@ -263,7 +263,7 @@ QUuid QAxFactory::eventsID(const QString &key) const
     if (!mo)
         return QUuid();
     QString id = QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("EventsID")).value());
-    
+
     return QUuid(id);
 }
 
@@ -325,11 +325,11 @@ bool QAxFactory::validateLicenseKey(const QString &key, const QString &licenseKe
     const QMetaObject *mo = metaObject(key);
     if (!mo)
         return true;
-    
+
     QString classKey = QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("LicenseKey")).value());
     if (classKey.isEmpty())
         return true;
-    
+
     if (licenseKey.isEmpty()) {
         extern char qAxModuleFilename[MAX_PATH];
         QString licFile(QFile::decodeName(qAxModuleFilename));
@@ -404,7 +404,7 @@ bool QAxFactory::hasStockEvents(const QString &key) const
 extern bool qAxIsServer;
 
 /*!
-    Returns true if the application has been started (by COM) as an ActiveX 
+    Returns true if the application has been started (by COM) as an ActiveX
     server, otherwise returns false.
 
     \code
@@ -429,7 +429,7 @@ extern char qAxModuleFilename[MAX_PATH];
 /*!
     Returns the directory that contains the server binary.
 
-    For out-of-process servers this is the same as 
+    For out-of-process servers this is the same as
     QApplication::applicationDirPath(). For in-process servers
     that function returns the directory that contains the hosting
     application.
@@ -442,7 +442,7 @@ QString QAxFactory::serverDirPath()
 /*!
     Returns the file path of the server binary.
 
-    For out-of-process servers this is the same as 
+    For out-of-process servers this is the same as
     QApplication::applicationFilePath(). For in-process servers
     that function returns the file path of the hosting application.
 */
@@ -469,7 +469,7 @@ bool QAxFactory::isService() const
     This enum specifies the different types of servers that can be
     started with startServer.
 
-    \value SingleInstance The server can create only one instance of each 
+    \value SingleInstance The server can create only one instance of each
     supplied class.
     \value MultipleInstances The server can create multiple instances of
     each supplied class.
@@ -478,21 +478,21 @@ bool QAxFactory::isService() const
 /*!
     \fn bool QAxFactory::startServer(ServerType type);
 
-    Starts the COM server with \a type and returns true if successful, 
+    Starts the COM server with \a type and returns true if successful,
     otherwise returns false.
 
     Calling this function if the server is already running (or for an
     in-process server) does nothing and returns true.
 
-    The server is started automatically with \a type set to MultipleUse 
-    if the server executable has been started with the \c -activex 
+    The server is started automatically with \a type set to MultipleUse
+    if the server executable has been started with the \c -activex
     command line parameter.
 */
 
 /*!
     \fn bool QAxFactory::stopServer();
 
-    Stops the COM server and returns true if successful, otherwise 
+    Stops the COM server and returns true if successful, otherwise
     returns false.
 
     Calling this function if the server is not running (or for an
@@ -519,7 +519,7 @@ ActiveObject::ActiveObject(QObject *parent, QAxFactory *factory)
 : QObject(parent), wrapper(0), cookie(0)
 {
     QLatin1String key(parent->metaObject()->className());
-    
+
     factory->createObjectWrapper(parent, &wrapper);
     if (wrapper)
         RegisterActiveObject(wrapper, QUuid(factory->classID(key)), ACTIVEOBJECT_STRONG, &cookie);
@@ -537,12 +537,12 @@ ActiveObject::~ActiveObject()
     Registers the QObject \a object with COM as a running object, and returns true if
     the registration succeeded, otherwise returns false. The object is unregistered
     automatically when it is destroyed.
-    
-    This function should only be called if the application has been started by the user 
-    (i.e. not by COM to respond to a request), and only for one object, usually the 
+
+    This function should only be called if the application has been started by the user
+    (i.e. not by COM to respond to a request), and only for one object, usually the
     toplevel object of the application's object hierarchy.
-    
-    This function does nothing and returns false if the object's class info for 
+
+    This function does nothing and returns false if the object's class info for
     "RegisterObject" is not set to "yes", or if the server is an in-process server.
 */
 bool QAxFactory::registerActiveObject(QObject *object)
@@ -568,11 +568,11 @@ bool QAxFactory::registerActiveObject(QObject *object)
     This macro can be used to export a single QObject subclass \a Class a this
     COM server through an implicitly declared QAxFactory implementation.
 
-    This macro exports the class \a Class as a COM coclass with the CLSID \a ClassID. 
-    The properties and slots will be declared through a COM interface with the IID 
-    \a InterfaceID, and signals will be declared through a COM event interface with 
+    This macro exports the class \a Class as a COM coclass with the CLSID \a ClassID.
+    The properties and slots will be declared through a COM interface with the IID
+    \a InterfaceID, and signals will be declared through a COM event interface with
     the IID \a EventID. All declarations will be in a type library with the id \a LibID,
-    and if the server is an executable server then it will have the application id 
+    and if the server is an executable server then it will have the application id
     \a AppID.
 
     \code
@@ -597,9 +597,9 @@ bool QAxFactory::registerActiveObject(QObject *object)
     \macro QAXFACTORY_EXPORT(Class, LibID, AppID)
     \relates QAxFactory
 
-    This macro can be used to export a QAxFactory implementation \a Class from 
+    This macro can be used to export a QAxFactory implementation \a Class from
     a COM server. All declarations will be in a type library with the id \a LibID,
-    and if the server is an executable server then it will have the application id 
+    and if the server is an executable server then it will have the application id
     \a AppID.
 
     \code
@@ -620,9 +620,9 @@ bool QAxFactory::registerActiveObject(QObject *object)
     This macro can be used to export multiple QObject classes through an
     implicitly declared QAxFactory implementation. All QObject classes have to
     declare the ClassID, InterfaceID and EventsID (if applicable) through the
-    Q_CLASSINFO() macro. All declarations will be in a type library with the id 
-    \a LibID, and if the server is an executable server then it will have the
-    application id \a AppID.
+    Q_CLASSINFO() macro. All declarations will be in a type library with the id
+    \a IDTypeLib, and if the server is an executable server then it will have the
+    application id \a IDApp.
 
     This macro needs to be used together with the QAXCLASS(), QAXTYPE()
     and QAXFACTORY_END() macros.
@@ -642,7 +642,7 @@ bool QAxFactory::registerActiveObject(QObject *object)
     \macro QAXCLASS(Class)
     \relates QAxFactory
 
-    This macro adds a creatable COM class \a Class to the QAxFactory declared 
+    This macro adds a creatable COM class \a Class to the QAxFactory declared
     with the QAXFACTORY_BEGIN() macro.
 
     \sa QAXFACTORY_BEGIN(), QAXTYPE(), QAXFACTORY_END(), Q_CLASSINFO()
@@ -652,8 +652,8 @@ bool QAxFactory::registerActiveObject(QObject *object)
     \macro QAXTYPE(Class)
     \relates QAxFactory
 
-    This macro adds a non-creatable COM class \a Class to the QAxFactory 
-    declared with the QAXFACTORY_BEGIN(). The class \a Class can be used 
+    This macro adds a non-creatable COM class \a Class to the QAxFactory
+    declared with the QAXFACTORY_BEGIN(). The class \a Class can be used
     in APIs of other COM classes exported through QAXTYPE() or QAXCLASS().
 
     Instances of type \a Class can only be retrieved using APIs of already

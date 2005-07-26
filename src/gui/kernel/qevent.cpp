@@ -2145,7 +2145,7 @@ void QDropEvent::setDropAction(Qt::DropAction action)
 
     Sets the drop action to be the proposed action.
 
-    \sa setDropAction(), proposedAction(), accept()
+    \sa setDropAction(), proposedAction(), {QEvent::accept()}{accept()}
 */
 
 #ifdef QT3_SUPPORT
