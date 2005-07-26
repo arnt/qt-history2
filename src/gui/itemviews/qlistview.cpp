@@ -996,7 +996,7 @@ QModelIndex QListView::indexAt(const QPoint &p) const
 */
 int QListView::horizontalOffset() const
 {
-    return isRightToLeft() ? -horizontalScrollBar()->value() : horizontalScrollBar()->value();
+    return isRightToLeft() ? horizontalScrollBar()->maximum() - horizontalScrollBar()->value() : horizontalScrollBar()->value();
 }
 
 /*!
@@ -1856,12 +1856,12 @@ QRect QListViewPrivate::mapToViewport(const QRect &rect) const
     // If the listview is in "listbox-mode", the items are as wide as the view.
     if (!wrap && movement == QListView::Static && flow == QListView::TopToBottom) {
         if (q_func()->isRightToLeft()) {
-            // We don't have to adjust the offset if the viewport is larger than contentsSize,
-            // therefore, set offset to 0 if this is the case.
-            int offset = qMin(0, viewport->width() - contentsSize.width());
-            result.setLeft(result.right() - qMax(contentsSize.width(), viewport->width()) + offset);
+            // Adjust the rect by expanding the left edge
+            result.setLeft(result.right() - qMax(contentsSize.width(), viewport->width()));
+        } else {
+            // Adjust the rect by expanding the right edge
+            result.setWidth(qMax(contentsSize.width(), viewport->width()));
         }
-        result.setWidth(qMax(contentsSize.width(), viewport->width()));
     }
     
     int dx = -q->horizontalOffset();

@@ -437,8 +437,12 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
     if (pixmapRect->isValid())
         pm = option.decorationSize;
     if (hint) {
-        w = qMax(textRect->width(), pm.width());
-        h = qMax(textRect->height(), pm.height());
+        h = qMax(textRect->height(), pm.height());        
+        if (option.decorationPosition == QStyleOptionViewItem::Left || option.decorationPosition == QStyleOptionViewItem::Right) {
+            w = textRect->width() + pm.width();
+        } else {
+            w = qMax(textRect->width(), pm.width());
+        }
     } else {
         w = option.rect.width();
         h = option.rect.height();
@@ -447,11 +451,16 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
     int cw = 0;
     QRect check;
     if (checkRect->isValid()) {
-        check.setRect(x, y, checkRect->width() + textMargin * 2, h);
-        cw = check.width();
-        if (option.direction == Qt::LeftToRight)
-            x += cw;
+        cw = checkRect->width() + textMargin * 2;
+        if (hint) w += cw;
+        if (option.direction == Qt::RightToLeft) {
+            check.setRect(x + w - cw, y, cw, h);
+        } else {
+            check.setRect(x, y, cw, h);
+        }
     }
+    
+    // at this point w should be the *total* width
 
     QRect display;
     QRect decoration;
@@ -462,36 +471,55 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
         else if (position == QStyleOptionViewItem::Left)
             position = QStyleOptionViewItem::Right;
     }
+
     switch (position) {
     case QStyleOptionViewItem::Top: {
         if (!pm.isEmpty())
             pm.setHeight(pm.height() + textMargin); // add space
-        decoration.setRect(x, y, w, pm.height());
         h = hint ? textRect->height() : h - pm.height();
-        display.setRect(x, y + pm.height(), w, h);
+        
+        if (option.direction == Qt::RightToLeft) {
+            decoration.setRect(x, y, w - cw, pm.height());
+            display.setRect(x, y + pm.height(), w - cw, h);
+        } else {
+            decoration.setRect(x + cw, y, w - cw, pm.height());
+            display.setRect(x + cw, y + pm.height(), w - cw, h);
+        }
         break; }
     case QStyleOptionViewItem::Bottom: {
         if (!textRect->isEmpty())
             textRect->setHeight(textRect->height() + textMargin); // add space
         h = hint ? textRect->height() + pm.height() : h;
-        decoration.setRect(x, y + h - pm.height(), w, pm.height());
-        h = hint ? textRect->height() : h - pm.height();
-        display.setRect(x, y, w, h);
+        
+        if (option.direction == Qt::RightToLeft) {
+            display.setRect(x, y, w - cw, h);
+            decoration.setRect(x, y + h, w - cw, pm.height());
+        } else {
+            display.setRect(x + cw, y, w - cw, h);
+            decoration.setRect(x + cw, y + h, w - cw, pm.height());        
+        }
         break; }
     case QStyleOptionViewItem::Left: {
         if (!pm.isEmpty())
             pm.setWidth(pm.width() + textMargin); // add space
-        decoration.setRect(x, y, pm.width(), h);
-        w = hint ? textRect->width() : w - pm.width() - cw;
-        display.setRect(x + pm.width(), y, w, h);
+        
+        if (option.direction == Qt::RightToLeft) {
+            decoration.setRect(x, y, pm.width(), h);
+        } else {
+            decoration.setRect(x + cw, y, pm.width(), h);
+        }
+        display.setRect(decoration.right() + textMargin, y, w - cw - pm.width(), h);
         break; }
     case QStyleOptionViewItem::Right: {
-        if (!textRect->isEmpty())
-            textRect->setWidth(textRect->width() + textMargin); // add space
-        w = hint ? textRect->width() + pm.width() : w;
-        decoration.setRect(x + w - pm.width() - cw, y, pm.width(), h);
-        w = hint ? textRect->width() : w - pm.width() - cw;
-        display.setRect(x, y, w, h);
+        if (!pm.isEmpty())
+            pm.setWidth(pm.width() + textMargin); // add space
+
+        if (option.direction == Qt::RightToLeft) {
+            display.setRect(x, y, w - pm.width() - cw, h);
+        } else {
+            display.setRect(x + cw, y, w - pm.width() - cw, h);        
+        }
+        decoration.setRect(display.right() + textMargin, y, pm.width(), h);
         break; }
     default:
         qWarning("doLayout: decoration positon is invalid");
@@ -657,10 +685,10 @@ bool QItemDelegate::editorEvent(QEvent *event,
 
     // check if the event happened in the right place
     QVariant value = model->data(index, Qt::CheckStateRole);
-    QRect checkRect = QStyle::alignedRect(option.direction, Qt::AlignCenter,
+    QRect checkRect = QStyle::alignedRect(option.direction, Qt::AlignLeft | Qt::AlignVCenter,
                                           check(option, option.rect, value).size(),
                                           QRect(option.rect.x(), option.rect.y(),
-                                                option.rect.height(), option.rect.height()));
+                                                option.rect.width(), option.rect.height()));
     if (checkRect.contains(static_cast<QMouseEvent*>(event)->pos())) {
         Qt::CheckState state = static_cast<Qt::CheckState>(value.toInt());
         return model->setData(index, (state == Qt::Unchecked ? Qt::Checked : Qt::Unchecked),
