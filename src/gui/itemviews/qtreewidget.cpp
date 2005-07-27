@@ -97,6 +97,7 @@ protected:
     void emitDataChanged(QTreeWidgetItem *item, int column);
     void beginInsertItems(QTreeWidgetItem *parent, int row, int count);
     void beginRemoveItems(QTreeWidgetItem *parent, int row, int count);
+    void beginRemoveItems(QTreeWidgetItem *parent, int firstRow, int lastRow);
     void sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortOrder order);
 
 private:
@@ -723,6 +724,11 @@ QTreeWidgetItem* QTreeModel::previousSibling(const QTreeWidgetItem* item)
     return 0;
 }
 
+void QTreeModel::beginRemoveItems(QTreeWidgetItem *parent, int firstRow, int lastRow)
+{
+    beginRemoveRows(index(parent, 0), firstRow, lastRow);
+}
+
 void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::SortOrder order)
 {
     // store the original order of indexes
@@ -1228,12 +1234,18 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after
 
 QTreeWidgetItem::~QTreeWidgetItem()
 {
-    for (int i = 0; i < children.count(); ++i) {
+    int count = children.count();
+    if (model && count > 0)
+        model->beginRemoveItems(this, 0, count - 1);
+    for (int i = 0; i < count; ++i) {
         QTreeWidgetItem *child = children.at(i);
         child->par = 0; // make sure the child doesn't try to remove itself from children list
         child->view = 0; // make sure the child doesn't try to remove itself from the top level list
         delete child;
     }
+    if (model && count > 0)
+        model->endRemoveRows();
+    
     children.clear();
 
     if (par) {
