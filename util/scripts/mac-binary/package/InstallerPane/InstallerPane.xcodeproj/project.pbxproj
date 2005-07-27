@@ -311,7 +311,7 @@
 			};
 			name = "Debug-Commercial";
 		};
-		CA72A7B10894D77F001196EE /* Release-Commerical */ = {
+		CA72A7B10894D77F001196EE /* Release-Commercial */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
@@ -328,7 +328,7 @@
 				WRAPPER_EXTENSION = bundle;
 				ZERO_LINK = NO;
 			};
-			name = "Release-Commerical";
+			name = "Release-Commercial";
 		};
 		CA72A7B40894D77F001196EE /* Debug-Commercial */ = {
 			isa = XCBuildConfiguration;
@@ -338,11 +338,11 @@
 			};
 			name = "Debug-Commercial";
 		};
-		CA72A7B50894D77F001196EE /* Release-Commerical */ = {
+		CA72A7B50894D77F001196EE /* Release-Commercial */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 			};
-			name = "Release-Commerical";
+			name = "Release-Commercial";
 		};
 		CAEBD75C0896974E0003461D /* Release-Eval */ = {
 			isa = XCBuildConfiguration;
@@ -378,7 +378,7 @@
 			buildConfigurations = (
 				CA72A7B00894D77F001196EE /* Debug-Commercial */,
 				CA1E6BC90897938F0079C491 /* Debug-Eval */,
-				CA72A7B10894D77F001196EE /* Release-Commerical */,
+				CA72A7B10894D77F001196EE /* Release-Commercial */,
 				CAEBD75C0896974E0003461D /* Release-Eval */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -389,7 +389,7 @@
 			buildConfigurations = (
 				CA72A7B40894D77F001196EE /* Debug-Commercial */,
 				CA1E6BCA0897938F0079C491 /* Debug-Eval */,
-				CA72A7B50894D77F001196EE /* Release-Commerical */,
+				CA72A7B50894D77F001196EE /* Release-Commercial */,
 				CAEBD75D0896974E0003461D /* Release-Eval */,
 			);
 			defaultConfigurationIsVisible = 0;
