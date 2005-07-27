@@ -759,8 +759,8 @@ void QWidgetPrivate::setWindowIcon_sys()
     if (!x->winIconBig)
         x->winIconBig = x->winIconSmall;
 
-    SendMessageA(q->winId(), WM_SETICON, 0 /* ICON_SMALL */, (long)x->winIconSmall);
-    SendMessageA(q->winId(), WM_SETICON, 1 /* ICON_BIG */, (long)x->winIconBig);
+    SendMessageA(q->winId(), WM_SETICON, 0 /* ICON_SMALL */, (LPARAM)x->winIconSmall);
+    SendMessageA(q->winId(), WM_SETICON, 1 /* ICON_BIG */, (LPARAM)x->winIconBig);
 }
 
 

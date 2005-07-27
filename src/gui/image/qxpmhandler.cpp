@@ -730,7 +730,7 @@ static int rgb_cmp(const void *d1, const void *d2)
 
 static bool qt_get_named_xpm_rgb(const char *name, QRgb *rgb)
 {
-    int len = strlen(name) + 1;
+    int len = int(strlen(name)) + 1;
     char *name_no_space = (char *)malloc(len);
     for(int o = 0, i = 0; i < len; i++) {
 	if(name[i] != '\t' && name[i] != ' ')

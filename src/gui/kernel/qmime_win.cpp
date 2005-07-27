@@ -627,7 +627,7 @@ QVariant QWindowsMimeURI::convertToMime(const QString &mimeType, LPDATAOBJECT pD
                 int i=0;
                 while (files[i]) {
                     urls += QUrl::fromLocalFile(QString::fromLocal8Bit(files+i));
-                    i += strlen(files+i)+1;
+                    i += int(strlen(files+i))+1;
                 }
             }
 
