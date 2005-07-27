@@ -117,9 +117,7 @@ public:
             rowPositions[row] = rowPositions.at(row - 1) + heights.at(row - 1) + border + cellSpacing + border;
     }
 
-    QRectF cellRect(int row, int rowSpan, int colum, int colSpan) const;
-    inline QRectF cellRect(const QTextTableCell &cell) const
-    { return cellRect(cell.row(), cell.rowSpan(), cell.column(), cell.columnSpan()); }
+    QRectF cellRect(const QTextTableCell &cell) const;
 
     inline QPointF cellPosition(int row, int col) const
     { return QPointF(columnPositions.at(col) + cellPadding, rowPositions.at(row) + cellPadding); }
@@ -157,13 +155,17 @@ void QTextTableData::updateSize()
     size = QSizeF(contentsWidth + 2*effectiveMargin, height);
 }
 
-QRectF QTextTableData::cellRect(int row, int rowSpan, int column, int colSpan) const
+QRectF QTextTableData::cellRect(const QTextTableCell &cell) const
 {
-    QRectF r(columnPositions.at(column),
-             rowPositions.at(row),
-             columnPositions.at(column + colSpan - 1) + widths.at(column + colSpan - 1) - columnPositions.at(column),
-             rowPositions.at(row + rowSpan - 1) + heights.at(row + rowSpan - 1) - rowPositions.at(row));
-    return r;
+    const int row = cell.row();
+    const int rowSpan = cell.rowSpan();
+    const int column = cell.column();
+    const int colSpan = cell.columnSpan();
+
+    return QRectF(columnPositions.at(column),
+                  rowPositions.at(row),
+                  columnPositions.at(column + colSpan - 1) + widths.at(column + colSpan - 1) - columnPositions.at(column),
+                  rowPositions.at(row + rowSpan - 1) + heights.at(row + rowSpan - 1) - rowPositions.at(row));
 }
 
 static inline bool isEmptyBlockBeforeTable(const QTextBlock &block, const QTextFrame::Iterator &nextIt)
@@ -711,7 +713,7 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
                         continue;
                 }
 
-                QRectF cellRect = td->cellRect(r, rspan, c, cspan);
+                QRectF cellRect = td->cellRect(cell);
 
                 cellRect.translate(off);
                 if (context.clip.isValid() && !cellRect.intersects(context.clip))
