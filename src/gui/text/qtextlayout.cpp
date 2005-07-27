@@ -1184,6 +1184,8 @@ void QTextLine::layout_helper(int maxGlyphs)
             spaceData.length++;
             newItem = item + 1;
             ++glyphCount;
+            if (check_full(eng, line, tmpData, spaceData, glyphCount, maxGlyphs, minw, pos))
+                goto found;
         } else if (current.isObject) {
             QTextFormat format = eng->formats()->format(eng->formatIndex(&eng->layoutData->items[item]));
             if (eng->block.docHandle())
