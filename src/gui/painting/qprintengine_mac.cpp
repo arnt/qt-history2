@@ -558,6 +558,7 @@ QVariant QMacPrintEngine::property(PrintEnginePropertyKey key) const
         ret = false;
         break;
     case PPK_ColorMode:
+        ret = QPrinter::Color;
         break;
     case PPK_Creator:
         break;

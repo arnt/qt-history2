@@ -1113,7 +1113,7 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
     case PPK_ColorMode:
         {
             if (!d->devMode)
-                value = QPrinter::GrayScale;
+                value = QPrinter::Color;
             int mode;
             QT_WA( {
                 mode = d->devModeW()->dmColor;
