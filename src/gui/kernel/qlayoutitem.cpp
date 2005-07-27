@@ -162,8 +162,10 @@ void QLayoutItem::setAlignment(Qt::Alignment alignment)
 /*!
     \fn Qt::Orientations QLayoutItem::expandingDirections() const
 
-    Implemented in subclasses to return the direction(s) this item
-    "wants" to expand in (if any).
+    Returns whether this layout item can make use of more space than
+    sizeHint(). A value of Qt::Vertical or Qt::Horizontal means that
+    it wants to grow in only one dimension, whereas Qt::Vertical |
+    Qt::Horizontal means that it wants to grow in both dimensions.
 */
 
 /*!

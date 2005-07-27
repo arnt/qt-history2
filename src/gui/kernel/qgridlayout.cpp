@@ -945,7 +945,7 @@ int QGridLayout::columnCount() const
 }
 
 /*!
-    Returns the preferred size of this grid.
+    \reimp
 */
 QSize QGridLayout::sizeHint() const
 {
@@ -955,7 +955,7 @@ QSize QGridLayout::sizeHint() const
 }
 
 /*!
-    Returns the minimum size needed by this grid.
+    \reimp
 */
 QSize QGridLayout::minimumSize() const
 {
@@ -965,7 +965,7 @@ QSize QGridLayout::minimumSize() const
 }
 
 /*!
-    Returns the maximum size needed by this grid.
+    \reimp
 */
 QSize QGridLayout::maximumSize() const
 {
@@ -982,8 +982,7 @@ QSize QGridLayout::maximumSize() const
 }
 
 /*!
-    Returns true if this layout's preferred height depends on its
-    width; otherwise returns false.
+    \reimp
 */
 bool QGridLayout::hasHeightForWidth() const
 {
@@ -991,7 +990,7 @@ bool QGridLayout::hasHeightForWidth() const
 }
 
 /*!
-    Returns the layout's preferred height when it is \a w pixels wide.
+    \reimp
 */
 int QGridLayout::heightForWidth(int w) const
 {
@@ -999,7 +998,9 @@ int QGridLayout::heightForWidth(int w) const
     return that->d_func()->heightForWidth(w, margin(), spacing());
 }
 
-/*! \internal */
+/*!
+    \reimp
+*/
 int QGridLayout::minimumHeightForWidth(int w) const
 {
     QGridLayout *that = (QGridLayout*)this;
@@ -1061,23 +1062,21 @@ QLayoutItem *QGridLayout::takeAt(int index)
 }
 
 /*!
-  \fn void QGridLayout::getItemPosition(int index, int *row, int *column, int *rowSpan, int *columnSpan)
-
   Returns the position information of the item with the given \a index.
 
   The variables passed as \a row and \a column are updated with the position of the
   item in the layout, and the \a rowSpan and \a columnSpan variables are updated
   with the vertical and horizontal spans of the item.
 */
-void QGridLayout::getItemPosition(int idx, int *row, int *column, int *rowSpan, int *columnSpan)
+void QGridLayout::getItemPosition(int index, int *row, int *column, int *rowSpan, int *columnSpan)
 {
     Q_D(QGridLayout);
-    d->getItemPosition(idx, row, column, rowSpan, columnSpan);
+    d->getItemPosition(index, row, column, rowSpan, columnSpan);
 }
 
 
 /*!
-    Resizes managed widgets within the rectangle \a rect.
+    \reimp
 */
 void QGridLayout::setGeometry(const QRect &rect)
 {
@@ -1122,9 +1121,7 @@ void QGridLayout::expand(int nRows, int nCols)
 #endif
 
 /*!
-    \overload
-
-    Adds \a item to the next free position of this layout.
+    \reimp
 */
 void QGridLayout::addItem(QLayoutItem *item)
 {
@@ -1377,10 +1374,7 @@ int QGridLayout::columnMinimumWidth(int column) const
 }
 
 /*!
-    Returns whether this layout can make use of more space than
-    sizeHint(). A value of \c Qt::Vertical or \c Qt::Horizontal means that it wants
-    to grow in only one dimension, whereas \c BothDirections means that
-    it wants to grow in both dimensions.
+    \reimp
 */
 Qt::Orientations QGridLayout::expandingDirections() const
 {
@@ -1413,7 +1407,7 @@ Qt::Corner QGridLayout::originCorner() const
 }
 
 /*!
-    Resets cached information.
+    \reimp
 */
 void QGridLayout::invalidate()
 {

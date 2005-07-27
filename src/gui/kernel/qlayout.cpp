@@ -359,8 +359,13 @@ void QLayout::setSpacing(int spacing)
 }
 
 /*!
-    Returns the parent widget of this layout, or 0 if
-    this layout is a sub-layout that is not yet inserted.
+    Returns the parent widget of this layout, or 0 if this layout is
+    not installed on any widget.
+
+    If the layout is a sub-layout, this function returns the parent
+    widget of the parent layout.
+
+    \sa parent()
 */
 QWidget *QLayout::parentWidget() const
 {
@@ -380,8 +385,7 @@ QWidget *QLayout::parentWidget() const
 }
 
 /*!
-    Returns true if this layout is empty. The default implementation
-    iterates over all items and returns true if all child items are empty.
+    \reimp
 */
 bool QLayout::isEmpty() const
 {
@@ -397,10 +401,7 @@ bool QLayout::isEmpty() const
 }
 
 /*!
-    This function is reimplemented in subclasses to perform layout.
-
-    The default implementation maintains the geometry() information
-    given by rect \a r. Reimplementors must call this function.
+    \reimp
 */
 void QLayout::setGeometry(const QRect &r)
 {
@@ -418,7 +419,7 @@ QRect QLayout::geometry() const
 }
 
 /*!
-    Invalidates cached information. Reimplementations must call this.
+    \reimp
 */
 void QLayout::invalidate()
 {
@@ -768,19 +769,21 @@ void QLayout::addChildWidget(QWidget *w)
 /*!
   \compat
 
-  Sets this layout's parent widget to a fixed size with width \a w and
-  height \a h, stopping the user form resizing it, and also prevents the
-  layout from resizing it, even if the layout's size hint should
-  change. Does nothing if this is not a toplevel layout (if parent()->isWidgetType()).
+    Sets this layout's parent widget to a fixed size with width \a w
+    and height \a h, stopping the user form resizing it, and also
+    prevents the layout from resizing it, even if the layout's size
+    hint should change. Does nothing if this is not a top-level
+    layout (i.e., if parent()->isWidgetType()).
 
-  As a special case, if both \a w and \a h are 0, then the layout's
-  current sizeHint() is used.
+    As a special case, if both \a w and \a h are 0, then the layout's
+    current sizeHint() is used.
 
-  Use \c setResizeMode(Fixed) to stop the widget from being resized by
-  the user, while still allowing the layout to resize it when the sizeHint() changes.
+    Use \c setResizeMode(Fixed) to stop the widget from being resized
+    by the user, while still allowing the layout to resize it when
+    the sizeHint() changes.
 
-  Use \c setResizeMode(FreeResize) to allow the user to resize the
-  widget, while preventing the layout from resizing it.
+    Use \c setResizeMode(FreeResize) to allow the user to resize the
+    widget, while preventing the layout from resizing it.
 
 */
 void QLayout::freeze(int w, int h)
@@ -833,10 +836,12 @@ QWidget *QLayout::menuBar() const
 
 
 /*!
-    Returns the minimum size of this layout. This is the smallest size
-    that the layout can have while still respecting the
-    specifications. Does not include what's needed by QWidget::setContentsMargins() or
-    menuBar().
+    Returns the minimum size of this layout. This is the smallest
+    size that the layout can have while still respecting the
+    specifications.
+
+    The returned value doesn't include the space required by
+    QWidget::setContentsMargins() or menuBar().
 
     The default implementation allows unlimited resizing.
 */
@@ -848,8 +853,10 @@ QSize QLayout::minimumSize() const
 /*!
     Returns the maximum size of this layout. This is the largest size
     that the layout can have while still respecting the
-    specifications. Does not include what's needed by QWidget::setContentsMargins() or
-    menuBar().
+    specifications.
+
+    The returned value doesn't include the space required by
+    QWidget::setContentsMargins() or menuBar().
 
     The default implementation allows unlimited resizing.
 */
@@ -864,7 +871,11 @@ QSize QLayout::maximumSize() const
     it wants to grow in only one dimension, whereas Qt::Vertical |
     Qt::Horizontal means that it wants to grow in both dimensions.
 
-    The default implementation returns Qt::Vertical | Qt::Horizontal.
+    The default implementation returns Qt::Horizontal | Qt::Vertical.
+    Subclasses reimplement it to return a meaningful value based on
+    their child widgets's \l{QSizePolicy}{size policies}.
+
+    \sa sizeHint()
 */
 Qt::Orientations QLayout::expandingDirections() const
 {

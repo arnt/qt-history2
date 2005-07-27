@@ -1191,7 +1191,7 @@ void QWidget::releaseMouse()
 /*!
     Grabs the keyboard input.
 
-    This widget reveives all keyboard events until releaseKeyboard()
+    This widget receives all keyboard events until releaseKeyboard()
     is called; other widgets get no keyboard events at all. Mouse
     events are not affected. Use grabMouse() if you want to grab that.
 
