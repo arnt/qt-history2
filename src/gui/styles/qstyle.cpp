@@ -909,7 +909,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SC_SpinBoxEditField  Spinwidget edit field
 
     \value SC_ComboBoxEditField  Combobox edit field; see also QComboBox
-    \value SC_ComboBoxArrow  Combobox arrow
+    \value SC_ComboBoxArrow  Combobox arrow button
     \value SC_ComboBoxFrame  Combobox frame
     \value SC_ComboBoxListBoxPopup  Combobox list box
 
