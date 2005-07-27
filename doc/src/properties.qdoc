@@ -54,8 +54,7 @@
     Properties can be read and written through generic functions in
     QObject without knowing anything about the class in use. In the
     code snippet below, the QObject::setProperty() call is equivalent
-    QAbstractButton::setDown() call is equivalent to the
-    QObject::setProperty() call:
+    to the QAbstractButton::setDown() call:
 
     \code
         QPushButton *button = new QPushButton;
@@ -66,7 +65,7 @@
         object->setProperty("down", true);
     \endcode
 
-    Equivalent, that is, except that the first is faster, and provides
+    Equivalent, that is, except that the first is faster and provides
     much better diagnostics at compile time. When practical, the first is
     better. However, since you can get a list of all available properties
     for any QObject through its QMetaObject, QObject::setProperty()
