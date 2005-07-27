@@ -1499,7 +1499,7 @@ QByteArray qgetenv(const char *varName)
     getenv_s(&requiredSize, 0, 0, varName);
     if (requiredSize == 0)
         return buffer;
-    buffer.resize(requiredSize);
+    buffer.resize(int(requiredSize));
     getenv_s(&requiredSize, buffer.data(), requiredSize, varName);
     return buffer;
 #else

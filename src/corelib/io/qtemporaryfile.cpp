@@ -54,7 +54,7 @@ bool QTemporaryFileEngine::open(int)
     d->fd = mkstemp(filename);
 #else
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-    int len = strnlen(filename, _MAX_FNAME) + 1;
+    int len = int(strnlen(filename, _MAX_FNAME)) + 1;
     if(_mktemp_s(filename, len) == 0) {
 #else
     if(mktemp(filename)) {

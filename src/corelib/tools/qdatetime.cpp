@@ -3598,7 +3598,7 @@ bool QDateTimeParser::fromString(const QString &string, QDate *dateIn, QTime *ti
                 }
                 const QLatin1String tmp2(nameArray[j - 1]);
                 if (rest.startsWith(tmp2)) {
-                    add = strlen(tmp2.latin1());
+                    add = int(strlen(tmp2.latin1()));
                     break;
                 }
             }

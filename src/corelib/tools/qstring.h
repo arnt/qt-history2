@@ -796,7 +796,7 @@ inline QStdWString QString::toStdWString() const
     return str;
 }
 inline QString QString::fromStdWString(const QStdWString &s)
-{ return fromWCharArray(s.c_str(), s.length()); }
+{ return fromWCharArray(s.c_str(), int(s.length())); }
 # endif
 #endif
 
