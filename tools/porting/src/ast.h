@@ -61,6 +61,7 @@ enum NodeType
     NodeType_ForStatement,
     NodeType_SwitchStatement,
     NodeType_DeclarationStatement,
+    NodeType_LabeledStatement,
     NodeType_ReturnStatement,
     NodeType_TranslationUnit,
     NodeType_FunctionDefinition,
@@ -1438,6 +1439,32 @@ private:
 private:
     DeclarationStatementAST(const DeclarationStatementAST &source);
     void operator = (const DeclarationStatementAST &source);
+};
+
+/*
+    LabeledStatementAST:
+        case constant-expression : statement
+        default : statement (expression is 0)
+*/
+class LabeledStatementAST: public StatementAST
+{
+public:
+    enum { Type = NodeType_LabeledStatement };
+public:
+    LabeledStatementAST();
+
+    inline StatementAST *statement() const { return m_statement; }
+    void setStatement(StatementAST *statement);
+
+    inline AbstractExpressionAST *expression() const { return m_expression; }
+    void setExpression(AbstractExpressionAST *expression);
+private:
+    StatementAST* m_statement;
+    AbstractExpressionAST *m_expression;
+
+private:
+    LabeledStatementAST(const LabeledStatementAST &source);
+    void operator = (const LabeledStatementAST &source);
 };
 
 class FunctionDefinitionAST: public DeclarationAST

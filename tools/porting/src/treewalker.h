@@ -62,6 +62,7 @@ public:
     virtual void parseDoStatement(DoStatementAST *node);
     virtual void parseForStatement(ForStatementAST *node);
     virtual void parseSwitchStatement(SwitchStatementAST *node);
+    virtual void parseLabeledStatement(LabeledStatementAST *node);
     virtual void parseReturnStatement(ReturnStatementAST *node);
     virtual void parseStatementList(StatementListAST *node);
     virtual void parseDeclarationStatement(DeclarationStatementAST *node);
@@ -99,6 +100,7 @@ inline void TreeWalker::parseNode(AST *node)
     case NodeType_DoStatement:
     case NodeType_ForStatement:
     case NodeType_SwitchStatement:
+    case NodeType_LabeledStatement:
     case NodeType_StatementList:
     case NodeType_DeclarationStatement:
     case NodeType_ReturnStatement:

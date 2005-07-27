@@ -308,6 +308,10 @@ void TreeWalker::parseStatement(StatementAST *node)
         parseSwitchStatement(static_cast<SwitchStatementAST*>(node));
         break;
 
+    case NodeType_LabeledStatement:
+        parseLabeledStatement(static_cast<LabeledStatementAST*>(node));
+        break;
+
     case NodeType_StatementList:
         parseStatementList(static_cast<StatementListAST*>(node));
         break;
@@ -367,6 +371,12 @@ void TreeWalker::parseForStatement(ForStatementAST *node)
 void TreeWalker::parseSwitchStatement(SwitchStatementAST *node)
 {
     parseNode(node->condition());
+    parseNode(node->statement());
+}
+
+void TreeWalker::parseLabeledStatement(LabeledStatementAST *node)
+{
+    parseNode(node->expression());
     parseNode(node->statement());
 }
 

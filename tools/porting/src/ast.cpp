@@ -758,6 +758,24 @@ void DeclarationStatementAST::setDeclaration(DeclarationAST *declaration)
 }
 
 // --------------------------------------------------------------------------
+LabeledStatementAST::LabeledStatementAST()
+    : m_statement(0), m_expression(0)
+{
+}
+
+void LabeledStatementAST::setStatement(StatementAST *statement)
+{
+    m_statement = statement;
+    if (m_statement) m_statement->setParent(this);
+}
+
+void LabeledStatementAST::setExpression(AbstractExpressionAST *expression)
+{
+    m_expression = expression;
+    if (m_expression) m_expression->setParent(this);
+}
+
+// --------------------------------------------------------------------------
 ExpressionStatementAST::ExpressionStatementAST()
     : m_expression(0)
 {

@@ -2733,8 +2733,8 @@ bool Parser::parseSwitchStatement(StatementAST *&node)
     ADVANCE(')', ")");
 
     StatementAST *stmt = 0;
-    if (!parseCompoundStatement(stmt)) {
-        syntaxError();
+    if (!parseStatement(stmt)) {
+          syntaxError();
         return false;
     }
 
@@ -2757,8 +2757,10 @@ bool Parser::parseLabeledStatement(StatementAST *&node)
             advance();
 
             StatementAST *stmt = 0;
+            LabeledStatementAST *ast = CreateNode<LabeledStatementAST>(m_pool);
+            node = ast;
             if (parseStatement(stmt)) {
-                node = stmt;
+                ast->setStatement(stmt);
                 return true;
             }
         }
@@ -2781,15 +2783,18 @@ bool Parser::parseLabeledStatement(StatementAST *&node)
         ADVANCE(':', ":");
 
         StatementAST *stmt = 0;
+        LabeledStatementAST *ast = CreateNode<LabeledStatementAST>(m_pool);
+        node = ast;
+        ast->setExpression(expr);
+
         if (parseStatement(stmt)) {
-            node = stmt;
+            ast->setStatement(stmt);
             return true;
         }
     }
     break;
 
     }
-
     return false;
 }
 
@@ -4051,7 +4056,6 @@ bool Parser::parseLogicalOrExpression(AbstractExpressionAST *&node, bool templAr
 bool Parser::parseConditionalExpression(AbstractExpressionAST *&node)
 {
     int start = tokenStream->cursor();
-
     AbstractExpressionAST *ast = 0;
     if (!parseLogicalOrExpression(ast))
         return false;
