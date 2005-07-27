@@ -526,11 +526,6 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
                                                 -d->deviceRect.x(),
                                                 -d->deviceRect.y());
         }
-    } else {
-        QRegion sysClip = systemClip();
-        if (!sysClip.isEmpty()) {
-            d->baseClip.addRegion(sysClip);
-        }
     }
 #if defined(Q_WS_QWS)
     else if (device->devType() == QInternal::Pixmap) {
@@ -540,6 +535,12 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
             d->baseClip.addRegion(sysClip);
     }
 #endif
+    else {
+        QRegion sysClip = systemClip();
+        if (!sysClip.isEmpty()) {
+            d->baseClip.addRegion(sysClip);
+        }
+    }
 
     bool isBitmap = false;
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS)
