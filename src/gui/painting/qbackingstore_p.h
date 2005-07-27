@@ -41,6 +41,7 @@ class QWidgetBackingStore
 #endif
 
     bool isOpaque(const QWidget *widget);
+    bool hasBackground(const QWidget *widget);
     enum PaintFlags { AsRoot = 0x01, Recursive = 0x02, PaintSym = 0x04 };
     void paintWidget(const QRegion &rgn, QWidget *widget, const QPoint &offset, uint flags);
     void paintBuffer(QWidget *widget, const QPoint &offset, uint flags);
@@ -54,6 +55,7 @@ class QWidgetBackingStore
 public:
     QWidgetBackingStore(QWidget *t);
     ~QWidgetBackingStore();
+    bool isBuffered() const;
     void scrollRegion(const QRegion &rgn, int dx, int dy, QWidget *widget=0);
     void dirtyRegion(const QRegion &rgn, QWidget *widget=0);
     void cleanRegion(const QRegion &rgn, QWidget *widget=0);

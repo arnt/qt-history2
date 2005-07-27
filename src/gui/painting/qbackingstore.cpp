@@ -27,12 +27,26 @@
   Top Level Window backing store
  *****************************************************************************/
 
+static bool qt_bufferBackingStore(const QWidget *tlw)
+{
+    static char checked_env = -1;
+    if(checked_env == -1)
+        checked_env = (qgetenv("QT_NO_BACKINGSTORE") == "1") ? 1 : 0;
+
+    bool ret = false;
+    if(checked_env == 1)
+        ret = false;
+    else
+        ret = !tlw->testAttribute(Qt::WA_PaintOnScreen);
+    return ret;
+}
+
 void qt_syncBackingStores()
 {
     QWidgetList tlws = QApplication::topLevelWidgets();
     for(int i = 0; i < tlws.size(); ++i) {
         QWidget *tlw = tlws.at(i);
-        if(!tlw->testAttribute(Qt::WA_PaintOnScreen))
+        if(qt_bufferBackingStore(tlw))
             qt_syncBackingStore(tlw->d_func()->topData()->backingStore->dirty, tlw);
     }
 }
@@ -44,10 +58,12 @@ void qt_syncBackingStore(QRegion rgn, QWidget *widget)
 #endif
 
     QWidget *tlw = widget->window();
-    if(tlw->testAttribute(Qt::WA_PaintOnScreen))
-        tlw->d_func()->topData()->backingStore->paintWidget(rgn, widget, QPoint(0, 0), 0);
-    else
+    if(qt_bufferBackingStore(tlw))
         tlw->d_func()->topData()->backingStore->cleanRegion(rgn, widget);
+    else
+        tlw->d_func()->topData()->backingStore->paintWidget(rgn, widget,
+                                                            widget->mapTo(tlw, QPoint(0, 0)),
+                                                            QWidgetBackingStore::AsRoot);
 }
 
 QWidgetBackingStore::QWidgetBackingStore(QWidget *t) : tlw(t)
@@ -63,9 +79,14 @@ QWidgetBackingStore::~QWidgetBackingStore()
 
 }
 
+bool QWidgetBackingStore::isBuffered() const
+{
+    return qt_bufferBackingStore(tlw);
+}
+
 void QWidgetBackingStore::scrollRegion(const QRegion &rgn, int dx, int dy, QWidget *widget)
 {
-    if(tlw->testAttribute(Qt::WA_PaintOnScreen))
+    if(!isBuffered())
         return;
 
     QRegion wrgn(rgn);
@@ -122,7 +143,7 @@ void QWidgetBackingStore::scrollRegion(const QRegion &rgn, int dx, int dy, QWidg
 
 void QWidgetBackingStore::dirtyRegion(const QRegion &rgn, QWidget *widget)
 {
-    if(tlw->testAttribute(Qt::WA_PaintOnScreen))
+    if(!isBuffered())
         return;
 
     QRegion wrgn(rgn);
@@ -143,7 +164,7 @@ void QWidgetBackingStore::dirtyRegion(const QRegion &rgn, QWidget *widget)
 
 void QWidgetBackingStore::paintBuffer(QWidget *widget, const QPoint &offset, uint flags)
 {
-    if(tlw->testAttribute(Qt::WA_PaintOnScreen))
+    if(!isBuffered())
         return;
 
     //update the in paint event flag
@@ -194,7 +215,7 @@ void QWidgetBackingStore::paintBuffer(QWidget *widget, const QPoint &offset, uin
 
 void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget)
 {
-    if(tlw->testAttribute(Qt::WA_PaintOnScreen))
+    if(!isBuffered())
         return;
 
     QRegion toClean;
@@ -229,7 +250,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget)
             dirtyTrans.translate(-tlwOffset);
             toClean &= dirtyTrans;
 
-            toClean &= background->d_func()->clipRegion();
+            toClean &= background->rect();
 
             widget = background;
         }
@@ -277,6 +298,19 @@ bool QWidgetBackingStore::isOpaque(const QWidget *widget)
         const QPalette &pal = widget->palette();
         QPalette::ColorRole bg = widget->backgroundRole();
         QBrush bgBrush = pal.brush(bg);
+        return (bgBrush.style() != Qt::NoBrush && bgBrush.isOpaque() &&
+                ((widget->isWindow() || widget->windowType() == Qt::SubWindow)
+                 || (widget->d_func()->bg_role != QPalette::NoRole || (pal.resolve() & (1<<bg)))));
+    }
+    return false;
+}
+
+bool QWidgetBackingStore::hasBackground(const QWidget *widget)
+{
+    if (!widget->testAttribute(Qt::WA_NoBackground) && !widget->testAttribute(Qt::WA_NoSystemBackground)) {
+        const QPalette &pal = widget->palette();
+        QPalette::ColorRole bg = widget->backgroundRole();
+        QBrush bgBrush = pal.brush(bg);
         return (bgBrush.style() != Qt::NoBrush &&
                 ((widget->isWindow() || widget->windowType() == Qt::SubWindow)
                  || (widget->d_func()->bg_role != QPalette::NoRole || (pal.resolve() & (1<<bg)))));
@@ -296,9 +330,7 @@ void QWidgetBackingStore::paintWidget(const QRegion &rgn, QWidget *widget, const
     widget->setAttribute(Qt::WA_WState_InPaintEvent);
 
     //clip away the new area
-    if(tlw->testAttribute(Qt::WA_PaintOnScreen)) {
-        widget->paintEngine()->setSystemClip(rgn);
-    } else {
+    if(isBuffered()) {
         QPainter::setRedirected(widget, &buffer, -offset);
         QRegion wrgn = rgn;
         wrgn.translate(offset);
@@ -309,15 +341,17 @@ void QWidgetBackingStore::paintWidget(const QRegion &rgn, QWidget *widget, const
 	SelectClipRgn(engine_dc, wrgn.handle());
         engine->releaseDC(engine_dc);
 #endif
+    } else {
+        buffer.paintEngine()->setSystemClip(rgn);
    }
 
     //paint the background
     QWidget *background = 0;
-    if(isOpaque(widget)) {
+    if(hasBackground(widget)) {
         background = widget;
     } else if(flags & AsRoot) {
         for(QWidget *w = widget; w; w = w->parentWidget()) {
-            if(w->isWindow() || isOpaque(w)) {
+            if(w->isWindow() || hasBackground(w)) {
                 background = w;
                 break;
             }
@@ -329,7 +363,7 @@ void QWidgetBackingStore::paintWidget(const QRegion &rgn, QWidget *widget, const
     }
 
 #if 0
-    qDebug() << "painting" << widget << "opaque ==" << isOpaque(widget) << "background ==" << background;
+    qDebug() << "painting" << widget << "opaque ==" << hasBackground(widget) << "background ==" << background;
     qDebug() << "clipping to" << rgn << "location == " << offset
              << "geometry ==" << QRect(widget->mapTo(tlw, QPoint(0, 0)), widget->size());
     fflush(stderr);
@@ -337,26 +371,36 @@ void QWidgetBackingStore::paintWidget(const QRegion &rgn, QWidget *widget, const
 
     //actually send the paint event
     widget->setAttribute(Qt::WA_PendingUpdate, false);
-    if(0 && widget->inherits("QDesignerWidget")) {
-        QPainter p(widget);
-        p.setClipRegion(rgn);
-        p.fillRect(widget->rect(), Qt::green);
-    } else {
-        paintWidget_sys(rgn, widget);
-    }
+    paintWidget_sys(rgn, widget);
 
     //restore
-    if(tlw->testAttribute(Qt::WA_PaintOnScreen)) {
-        widget->paintEngine()->setSystemClip(QRegion());
-    } else {
+    if(isBuffered()) {
         buffer.paintEngine()->setSystemClip(QRegion());
         QPainter::restoreRedirected(widget);
+    } else {
+        QPaintEngine *engine = widget->paintEngine();
+#ifdef Q_WS_WIN
+        if (engine && engine->type() == QPaintEngine::Raster) {
+            bool tmp_dc = !widget->d_func()->hd;
+            if (tmp_dc)
+                widget->d_func()->hd = GetDC(widget->winId());
+
+            static_cast<QRasterPaintEngine *>(engine)->flush(widget, QPoint(0, 0));
+
+            if (tmp_dc) {
+                ReleaseDC(widget->winId(), (HDC)widget->d_func()->hd);
+                widget->d_func()->hd = 0;
+            }
+        }
+#endif
+
+        engine->setSystemClip(QRegion());
     }
     widget->setAttribute(Qt::WA_WState_InPaintEvent, false);
     if(!widget->testAttribute(Qt::WA_PaintOutsidePaintEvent) && widget->paintingActive())
         qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
 
-    if(flags & PaintSym)
+    if((flags & PaintSym) && isBuffered())
         paintBuffer(widget, offset, 0);
 
     //be recursive
@@ -386,8 +430,9 @@ void QWidgetPrivate::scrollBuffer(const QRegion &rgn, int dx, int dy)
 {
     Q_Q(QWidget);
     QWidget *tlw = q->window();
-    if(!tlw->testAttribute(Qt::WA_PaintOnScreen))
-        tlw->d_func()->topData()->backingStore->scrollRegion(rgn, dx, dy, q);
+    QTLWExtra* x = tlw->d_func()->topData();
+    if(x->backingStore->isBuffered())
+        x->backingStore->scrollRegion(rgn, dx, dy, q);
 }
 
 void QWidgetPrivate::invalidateBuffer(const QRegion &rgn)
@@ -396,21 +441,23 @@ void QWidgetPrivate::invalidateBuffer(const QRegion &rgn)
         return;
     Q_Q(QWidget);
     QWidget *tlw = q->window();
-    if(tlw->testAttribute(Qt::WA_PaintOnScreen))
-        tlw->d_func()->topData()->backingStore->updateWidget_sys(rgn, q);
+    QTLWExtra* x = tlw->d_func()->topData();
+    if(x->backingStore->isBuffered())
+        x->backingStore->dirtyRegion(rgn, q);
     else
-        tlw->d_func()->topData()->backingStore->dirtyRegion(rgn, q);
+        x->backingStore->updateWidget_sys(rgn, q);
 }
 
 void QWidget::repaint(const QRegion& rgn)
 {
     QWidget *tlw = window();
     QTLWExtra* x = tlw->d_func()->topData();
-    if(tlw->testAttribute(Qt::WA_PaintOnScreen)) {
-        x->backingStore->paintWidget(rgn, this, mapTo(tlw, QPoint(0, 0)), 0);
-    } else {
+    if(x->backingStore->isBuffered()) {
         x->backingStore->dirtyRegion(rgn, this);
         x->backingStore->cleanRegion(rgn, this);
+    } else {
+        x->backingStore->paintWidget(rgn, this, mapTo(tlw, QPoint(0, 0)),
+                                     QWidgetBackingStore::AsRoot);
     }
 }
 
@@ -432,9 +479,9 @@ void QWidget::update(const QRegion& rgn)
 
     QWidget *tlw = window();
     QTLWExtra* x = tlw->d_func()->topData();
-    if(tlw->testAttribute(Qt::WA_PaintOnScreen))
-        x->backingStore->updateWidget_sys(rgn, this);
-    else
+    if(x->backingStore->isBuffered())
         x->backingStore->dirtyRegion(rgn, this);
+    else
+        x->backingStore->updateWidget_sys(rgn, this);
 }
 
