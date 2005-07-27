@@ -146,6 +146,7 @@ while [ -n "$1" ]; do
    esac  
 done
 
+
 #get the QTDIR setup
 [ -z "$BINARY_DIR" ] && [ -z "$SOURCE_PACKAGE" ] && BINARY_DIR="$QTDIR"
 if [ ! -z "$BINARY_DIR" ] && [ -z "$SOURCE_PACKAGE" ]; then
@@ -289,6 +290,21 @@ else
    exit 1
 fi
 
+# build the InstallerPane plugin
+INSTALLERPANE_PATH=InstallerPane
+INSTALLERPANE_CONFIGURATION="Release-Commercial"
+if [ "$LICENSETYPE" = "eval" ]; then
+    INSTALLERPANE_CONFIGURATION="Release-Eval"
+fi
+
+INSTALLERPANE_BUILDPARAMS="-project ""$INSTALLERPANE_PATH/InstallerPane.xcodeproj"" -configuration ""$INSTALLERPANE_CONFIGURATION"
+
+echo "/usr/bin/xcodebuild $INSTALLERPANE_BUILDPARAMS"
+if !(/usr/bin/xcodebuild $INSTALLERPANE_BUILDPARAMS || grep '** BUILD SUCCEEDED **'); then
+    echo "Could not build installer pane plugin"
+    exit 100;
+fi
+
 #create the packages
 PKG_CREATED=
 for package in $PACKAGES; do
@@ -368,6 +384,12 @@ for package in $PACKAGES; do
             fi
         fi
     done
+    # Copy over the plugin
+    plugin_dir=$package_dir/Contents/Plugins
+    mkdir $plugin_dir
+    cp -r $INSTALLERPANE_PATH/build/$INSTALLERPANE_CONFIGURATION/InstallerPane.bundle $plugin_dir
+    cp $INSTALLERPANE_PATH/InstallerSections.plist $plugin_dir
+
     PKG_CREATED="$PKG_CREATED $package_dir"
 done
 if [ -z "$PKG_CREATED" ] && [ "$PACKAGES" = " none" ]; then
