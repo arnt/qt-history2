@@ -128,6 +128,12 @@ public:
 
     void removeSelectedRows();
 
+    virtual bool selectionAllowed(const QModelIndex &index) const
+    {
+        // in some views we want to go ahead with selections, even if the index is invalid
+        return index.isValid();
+    }
+
     QPointer<QAbstractItemModel> model;
     QPointer<QAbstractItemDelegate> delegate;
     QPointer<QItemSelectionModel> selectionModel;

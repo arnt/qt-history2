@@ -977,14 +977,17 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
             return;
         }
     }
-
-    setState(DragSelectingState);
 #endif
-
+    
+    setState(DragSelectingState);
+    
     if (selectionModel() && index.isValid())
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
-    QRect selectionRect = QRect(topLeft, bottomRight).normalized();
-    setSelection(selectionRect, selectionCommand(index, e));
+
+    if (d->selectionAllowed(index)) {
+        QRect selectionRect = QRect(topLeft, bottomRight).normalized();
+        setSelection(selectionRect, selectionCommand(index, e));
+    }
 }
 
 /*!

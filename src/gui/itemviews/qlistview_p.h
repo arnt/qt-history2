@@ -318,6 +318,13 @@ public:
 
     QModelIndex closestIndex(const QPoint &target, const QVector<QModelIndex> &candidates) const;
 
+    bool selectionAllowed(const QModelIndex &index) const
+    {
+        if (movement == QListView::Static)
+            return index.isValid();
+        return true;
+    }
+
     QRect elasticBand;
 
     bool wrap;
