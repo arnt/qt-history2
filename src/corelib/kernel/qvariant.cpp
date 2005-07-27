@@ -1288,8 +1288,15 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
 /*!
     \fn QVariant::QVariant(int typeOrUserType, const void *copy)
 
+    \internal
+
     Constructs variant of type \a typeOrUserType, and initializes with
     \a copy if \a copy is not 0.
+
+    Note that you have to pass the address of the variable you want stored.
+    That includes the usage of VoidStar, QObjectStar and QWidgetStar.
+
+    \sa qVariantFromValue()
 */
 
 /*!
