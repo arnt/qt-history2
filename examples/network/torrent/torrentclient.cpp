@@ -54,7 +54,8 @@ static const int MaxUploads = 4;
 static const int UploadScheduleInterval = 20000;
 static const char ClientID[] = "-QB1000-";
 
-struct TorrentPiece {
+class TorrentPiece {
+public:
     int index;
     int length;
     QBitArray completedBlocks;
