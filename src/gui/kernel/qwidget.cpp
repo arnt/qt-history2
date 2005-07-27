@@ -1311,7 +1311,7 @@ QRegion QWidgetPrivate::clipRegion() const
         r &= QRegion(ox, oy, w->width(), w->height());
 
         int i = 0;
-        while(w->d_func()->children.at(i++) != ignoreUpTo)
+        while(w->d_func()->children.at(i++) != static_cast<const QObject *>(ignoreUpTo))
             ;
         for ( ; i < w->d_func()->children.size(); ++i) {
             if(QWidget *sibling = qobject_cast<QWidget *>(w->d_func()->children.at(i))) {
