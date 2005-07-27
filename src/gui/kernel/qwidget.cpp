@@ -3097,12 +3097,13 @@ void QWidgetPrivate::resolveLayoutDirection()
         setLayoutDirection_helper(q->isWindow() ? QApplication::layoutDirection() : q->parentWidget()->layoutDirection());
 }
 
-/*!\property QWidget::layoutDirection
+/*!
+    \property QWidget::layoutDirection
 
-   \brief the layout direction for this widget
+    \brief the layout direction for this widget
 
-   \sa QApplication::layoutDirection
- */
+    \sa QApplication::layoutDirection
+*/
 void QWidget::setLayoutDirection(Qt::LayoutDirection direction)
 {
     Q_D(QWidget);
@@ -5975,25 +5976,40 @@ QRegion QWidget::mask() const
 }
 
 /*!
-    Returns the layout engine that manages the geometry of this
-    widget's children.
+    Returns the layout manager that is installed on this widget, or 0
+    if no layout manager is installed.
 
-    If the widget does not have a layout, layout() returns 0.
+    The layout manager sets the geometry of the widget's children
+    that have been added to the layout.
 
-    \sa  setLayout(), sizePolicy()
+    \sa setLayout(), sizePolicy(), {Layout Classes}
 */
-QLayout* QWidget::layout() const
+QLayout *QWidget::layout() const
 {
     return d_func()->layout;
 }
 
 
 /*!
-    Sets the layout engine for this widget to \a l.
+    \fn void QWidget::setLayout(QLayout *layout)
 
-    There can be only one top-level layout for a widget.
+    Sets the layout manager for this widget to \a layout.
 
-    \sa layout()
+    If there already is a layout manager installed on this widget,
+    QWidget won't let you install another. You must first delete the
+    existing layout manager (returned by layout()) before you can
+    call setLayout() with the new layout.
+
+    Example:
+
+    \quotefromfile tutorial/t10/lcdrange.cpp
+    \skipto = new QVBoxLayout
+    \printuntil setLayout
+
+    An alternative to calling this function is to pass this widget to
+    the layout's constructor.
+
+    \sa layout(), {Layout Classes}
 */
 
 void QWidget::setLayout(QLayout *l)
