@@ -155,7 +155,9 @@ void QDockWidgetPrivate::init() {
     top->setSpacing(0);
     top->setColumnStretch(1, 1);
 
-    box = new QVBoxLayout();
+    box = new QVBoxLayout;
+    box->setMargin(0);
+    box->setSpacing(0);
     top->addLayout(box, 1, 1);
 
     leftSpacer = new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::Ignored);
