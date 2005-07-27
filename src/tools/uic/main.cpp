@@ -17,6 +17,7 @@
 
 #include <qfile.h>
 #include <qtextstream.h>
+#include <qtextcodec.h>
 
 static const char *error = 0;
 
@@ -112,6 +113,7 @@ int main(int argc, char *argv[])
             return 1;
         }
         out = new QTextStream(&f);
+        out->setCodec(QTextCodec::codecForName("UTF-8"));
     }
 
     bool rtn = driver.uic(inputFile, out);
