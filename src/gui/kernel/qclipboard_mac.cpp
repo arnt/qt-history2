@@ -171,17 +171,15 @@ QVariant QClipboardWatcher::retrieveData(const QString &format, QVariant::Type) 
         int flav = c->flavorFor(format);
         if(flav) {
             if(GetScrapFlavorSize(scrap, flav, &flavorsize) == noErr) {
-                char *buffer = (char *)malloc(flavorsize);
-                GetScrapFlavorData(scrap, flav, &flavorsize, buffer);
-                QByteArray r = QByteArray::fromRawData(buffer, flavorsize);
+                QByteArray buffer(flavorsize, 0);
+                GetScrapFlavorData(scrap, flav, &flavorsize, buffer.data());
                 QVariant tr;
                 {
                     QList<QByteArray> lst;
-                    lst.append(r);
+                    lst.append(buffer);
                     tr = c->convertToMime(format, lst, flav);
                 }
                 tr.detach();
-                free(buffer);
                 return tr;
             }
         }
