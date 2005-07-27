@@ -167,6 +167,7 @@ QHashData::Node *QHashData::nextNode(Node *node)
         QHashData *d;
     };
     next = node->next;
+    Q_ASSERT_X(next, "QHash", "Iterating beyond end()");
     if (next->next)
         return next;
 
@@ -212,6 +213,7 @@ QHashData::Node *QHashData::previousNode(Node *node)
         --bucket;
         --start;
     }
+    Q_ASSERT_X(start >= 0, "QHash", "Iterating backward beyond begin()");
     return e;
 }
 
