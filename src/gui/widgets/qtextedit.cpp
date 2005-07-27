@@ -390,11 +390,18 @@ void QTextEditPrivate::init(Qt::TextFormat format, const QString &text, QTextDoc
 #endif
 
     if (!text.isEmpty()) {
+        // clear 'our' cursor for insertion to prevent
+        // the emission of the cursorPositionChanged() signal.
+        // instead we emit it only once at the end instead of
+        // at the end of the document after loading and when
+        // positioning the cursor again to the start of the
+        // document.
+        cursor = QTextCursor();
         if (format == Qt::PlainText)
             doc->setPlainText(text);
         else
             doc->setHtml(text);
-        cursor.movePosition(QTextCursor::Start);
+        cursor = QTextCursor(doc);
     }
 
     QTextFrame *rootFrame = doc->rootFrame();
@@ -405,10 +412,9 @@ void QTextEditPrivate::init(Qt::TextFormat format, const QString &text, QTextDoc
     doc->setUndoRedoEnabled(!q->isReadOnly());
     cursor.movePosition(QTextCursor::Start);
     updateCurrentCharFormatAndSelection();
-
     doc->setModified(false);
-
     anchorToScrollToWhenVisible.clear();
+    emit q->cursorPositionChanged();
 }
 
 #ifndef QT_NO_DRAGANDDROP
