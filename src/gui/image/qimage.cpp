@@ -1065,8 +1065,6 @@ QRect QImage::rect() const
 }
 
 /*!
-    \fn int QImage::depth() const
-
     Returns the depth of the image.
 
     The image depth is the number of bits used to encode a single
@@ -1074,7 +1072,7 @@ QRect QImage::rect() const
 
     The supported depths are 1, 8 and 32.
 
-    \sa convertDepth()
+    \sa convertToFormat()
 */
 int QImage::depth() const
 {
@@ -2788,7 +2786,7 @@ QImage QImage::convertToFormat(Format format, const QVector<QRgb> &colorTable, Q
     result (e.g. converting from 32-bit to 8-bit), use the \a
     flags to specify how you'd prefer this to happen.
 
-    \sa Qt::ImageConversionFlags depth() isNull()
+    \sa depth() isNull()
 */
 
 QImage QImage::convertDepth(int depth, Qt::ImageConversionFlags flags) const
@@ -3821,8 +3819,6 @@ QDataStream &operator>>(QDataStream &s, QImage &image)
     change in future implementations.
 
     Currently inefficient for non-32-bit images.
-
-    \sa Qt::ImageConversionFlags
 */
 QImage QImage::convertDepthWithPalette(int d, QRgb* palette, int palette_count, Qt::ImageConversionFlags flags) const
 {
