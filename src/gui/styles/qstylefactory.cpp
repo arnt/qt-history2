@@ -30,7 +30,22 @@
 #if !defined(QT_NO_STYLE_MAC) && defined(Q_WS_MAC)
 #  include <private/qt_mac_p.h>
 #  include "qmacstyle_mac.h"
-QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
+QString qt_mac_get_style_name()
+{
+    QString ret;
+    Collection c = NewCollection();
+    if (c) {
+        GetTheme(c);
+        Str255 str;
+        long int s = 256;
+        if(!GetCollectionItem(c, kThemeNameTag, 0, &s, &str)) {
+            extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
+            ret = qt_mac_from_pascal_string(str);
+        }
+    }
+    DisposeCollection(c);
+    return ret;
+}
 #endif
 
 #ifndef QT_NO_LIBRARY
@@ -93,10 +108,14 @@ QStyle *QStyleFactory::create(const QString& key)
         ret = new QPlastiqueStyle;
     else
 #endif
-#if !defined(QT_NO_STYLE_MAC) && defined(Q_WS_MAC)
-    if(style.left(9) == "macintosh")
+#ifndef QT_NO_STYLE_MAC
+    if(style.left(9) == "macintosh") {
         ret = new QMacStyle;
-    else
+#  ifdef Q_WS_MAC
+        if(style == "macintosh")
+            style +=" (" + qt_mac_get_style_name() + ")";
+#  endif
+    } else
 #endif
     { } // Keep these here - they make the #ifdefery above work
 #ifndef QT_NO_LIBRARY
@@ -142,20 +161,13 @@ QStringList QStyleFactory::keys()
     if (!list.contains("Plastique"))
         list << "Plastique";
 #endif
-#if !defined(QT_NO_STYLE_MAC) && defined(Q_WS_MAC)
+#ifndef QT_NO_STYLE_MAC
     QString mstyle = "Macintosh";
-    Collection c = NewCollection();
-    if (c) {
-        GetTheme(c);
-        Str255 str;
-        long int s = 256;
-        if(!GetCollectionItem(c, kThemeNameTag, 0, &s, &str))
-            mstyle += " (" + qt_mac_from_pascal_string(str) + ")";
-    }
+# ifdef Q_WS_MAC
+    mstyle += " (" + qt_mac_get_style_name() + ")";
+# endif
     if (!list.contains(mstyle))
         list << mstyle;
-    DisposeCollection(c);
 #endif
-
     return list;
 }

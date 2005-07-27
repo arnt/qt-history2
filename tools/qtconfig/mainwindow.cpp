@@ -167,12 +167,12 @@ MainWindow::MainWindow()
 
     QString currentstyle = settings.value("style").toString();
     if (currentstyle.isNull())
-        currentstyle = QApplication::style()->className();
+        currentstyle = QApplication::style()->name();
     {
         int s = 0;
         QStringList::Iterator git = gstyles.begin();
         while (git != gstyles.end()) {
-            if (*git == currentstyle)
+            if ((*git).lower() == currentstyle.lower())
                 break;
             s++;
             git++;
@@ -305,13 +305,16 @@ MainWindow::MainWindow()
     stylecombo->setCurrentItem(i);
 
     i = 0;
-    while (i < psizecombo->count()) {
-        if (psizecombo->text(i) == QString::number(QApplication::font().pointSize())) {
+    for (int psize = QApplication::font().pointSize(); i < psizecombo->count(); ++i) {
+        const int sz = psizecombo->text(i).toInt();
+        if (sz == psize) {
+            psizecombo->setCurrentItem(i);
+            break;
+        } else if(sz > psize) {
+            psizecombo->insertItem(i, QString::number(psize));
             psizecombo->setCurrentItem(i);
             break;
         }
-
-        i++;
     }
 
     QStringList subs = QFont::substitutes(familysubcombo->currentText());
