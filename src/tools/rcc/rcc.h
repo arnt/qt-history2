@@ -68,7 +68,7 @@ public:
 private:
     RCCFileInfo *root;
     bool addFile(const QString &alias, const RCCFileInfo &file);
-    bool interpretResourceFile(QIODevice *inputDevice, QString currentPath = QString());
+    bool interpretResourceFile(QIODevice *inputDevice, QString file, QString currentPath = QString());
 
     bool writeHeader(FILE *out);
     bool writeDataBlobs(FILE *out);
@@ -105,7 +105,7 @@ struct RCCFileInfo
     };
 
     inline RCCFileInfo(QString name = QString(), QFileInfo fileInfo = QFileInfo(),
-                       QLocale locale = QLocale(), uint flags = NoFlags, 
+                       QLocale locale = QLocale(), uint flags = NoFlags,
                        int compressLevel = CONSTANT_COMPRESSLEVEL_DEFAULT, int compressThreshold = CONSTANT_COMPRESSTHRESHOLD_DEFAULT);
     ~RCCFileInfo() { qDeleteAll(children); }
     inline QString resourceName() {
@@ -130,7 +130,7 @@ struct RCCFileInfo
     bool   writeDataInfo(FILE *out, RCCResourceLibrary::Format format);
 };
 
-inline RCCFileInfo::RCCFileInfo(QString name, QFileInfo fileInfo, QLocale locale, uint flags, 
+inline RCCFileInfo::RCCFileInfo(QString name, QFileInfo fileInfo, QLocale locale, uint flags,
                                 int compressLevel, int compressThreshold)
 {
     this->name = name;

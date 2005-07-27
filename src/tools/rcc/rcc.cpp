@@ -210,13 +210,21 @@ RCCResourceLibrary::~RCCResourceLibrary()
     delete root;
 }
 
-bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString currentPath)
+bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString fname, QString currentPath)
 {
     if (!currentPath.isEmpty() && !currentPath.endsWith(QLatin1String("/")))
         currentPath += '/';
 
     QDomDocument document;
-    document.setContent(inputDevice);
+    {
+        QString errorMsg;
+        int errorLine, errorColumn;
+        if(!document.setContent(inputDevice, &errorMsg, &errorLine, &errorColumn)) {
+            fprintf(stderr, "RCC Parse Error:%s:%d:%d [%s]\n", fname.toLatin1().constData(),
+                    errorLine, errorColumn, errorMsg.toLatin1().constData());
+            return false;
+        }
+    }
     for(QDomElement root = document.firstChild().toElement(); !root.isNull();
         root = root.nextSibling().toElement()) {
         if (root.tagName() != QLatin1String(TAG_RCC))
@@ -344,17 +352,28 @@ bool RCCResourceLibrary::readFiles()
     if (mVerbose)
         fprintf(stderr, "Processing %d files\n", mFileNames.size());
     for (int i=0; i<mFileNames.size(); ++i) {
-        QFile fileIn(mFileNames.at(i));
-        if (!fileIn.open(QFile::ReadOnly)) {
-            fprintf(stderr, "Unable to open file: %s\n",
-                    mFileNames.at(i).toLatin1().constData());
-            return false;
+        QFile fileIn;
+        QString fname = mFileNames.at(i), pwd;
+        if(fname == "-") {
+            fname = "(stdin)";
+            pwd = QDir::currentPath();
+            fileIn.setFileName(fname);
+            if (!fileIn.open(stdin, QIODevice::ReadOnly)) {
+                fprintf(stderr, "Unable to open file: %s\n", fname.toLatin1().constData());
+                return false;
+            }
+        } else {
+            pwd = QFileInfo(fname).path();
+            fileIn.setFileName(fname);
+            if (!fileIn.open(QIODevice::ReadOnly)) {
+                fprintf(stderr, "Unable to open file: %s\n", fname.toLatin1().constData());
+                return false;
+            }
         }
-
         if (mVerbose)
-            fprintf(stderr, "Interpreting %s\n", mFileNames.at(i).toLatin1().constData());
+            fprintf(stderr, "Interpreting %s\n", fname.toLatin1().constData());
 
-        if (!interpretResourceFile(&fileIn, QFileInfo(mFileNames.at(i)).path()))
+        if (!interpretResourceFile(&fileIn, fname, pwd))
             return false;
     }
     return true;
