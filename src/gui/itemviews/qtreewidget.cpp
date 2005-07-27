@@ -96,7 +96,6 @@ public:
 protected:
     void emitDataChanged(QTreeWidgetItem *item, int column);
     void beginInsertItems(QTreeWidgetItem *parent, int row, int count);
-    void beginRemoveItems(QTreeWidgetItem *parent, int row, int count);
     void beginRemoveItems(QTreeWidgetItem *parent, int firstRow, int lastRow);
     void sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortOrder order);
 
@@ -679,9 +678,9 @@ void QTreeModel::beginInsertItems(QTreeWidgetItem *parent, int row, int count)
     beginInsertRows(index(parent, 0), row, row + count - 1);
 }
 
-void QTreeModel::beginRemoveItems(QTreeWidgetItem *parent, int row, int count)
+void QTreeModel::beginRemoveItems(QTreeWidgetItem *parent, int firstRow, int lastRow)
 {
-    beginRemoveRows(index(parent, 0), row, row + count - 1);
+    beginRemoveRows(index(parent, 0), firstRow, lastRow);
     // now update the iterators
     QList<QTreeWidgetItem*> items;
     if (parent)
@@ -722,11 +721,6 @@ QTreeWidgetItem* QTreeModel::previousSibling(const QTreeWidgetItem* item)
     if (i >= 0 && i < siblings.count())
         return siblings.at(i);
     return 0;
-}
-
-void QTreeModel::beginRemoveItems(QTreeWidgetItem *parent, int firstRow, int lastRow)
-{
-    beginRemoveRows(index(parent, 0), firstRow, lastRow);
 }
 
 void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::SortOrder order)
@@ -1245,7 +1239,7 @@ QTreeWidgetItem::~QTreeWidgetItem()
     }
     if (model && count > 0)
         model->endRemoveRows();
-    
+
     children.clear();
 
     if (par) {
