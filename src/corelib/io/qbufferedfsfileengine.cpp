@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include <qdatetime.h>
-#include <stdio.h>
-#include <qdebug.h>
 #include <errno.h>
+#include <stdio.h>
 
+#include "qdatetime.h"
+#include "qdebug.h"
 #include "qfileengine.h"
 #include "qbufferedfsfileengine_p.h"
 
@@ -34,25 +34,6 @@
 #  ifndef S_ISSOCK
 #    define S_ISSOCK(x) false
 #  endif
-#  ifndef fseeko
-#    define fseeko fseek
-#  endif
-#  ifndef ftello
-#    define ftello ftell
-#  endif
-#  ifdef off_t
-#    undef off_t
-#  endif
-#  define off_t long
-#endif
-
-#ifdef QT_BUILD_QMAKE
-#ifndef ftello
-#define ftello ftell
-#endif
-#ifndef fseeko
-#define fseeko fseek
-#endif
 #endif
 
 QBufferedFSFileEngine::QBufferedFSFileEngine(const QString &fileName)
@@ -102,7 +83,7 @@ bool QBufferedFSFileEngine::open(int flags)
         if (flags & QIODevice::ReadOnly)
             mode += "+";
     }
-    d->fh = fopen(QFile::encodeName(d->file).constData(), mode.constData());
+    d->fh = QT_FOPEN(QFile::encodeName(d->file).constData(), mode.constData());
     if (!d->fh) {
         QString errString = QT_TRANSLATE_NOOP(QBufferedFSFileEngine, "Unknown error");
         d->setError(errno == EMFILE ? QFile::ResourceError : QFile::OpenError,
@@ -110,12 +91,12 @@ bool QBufferedFSFileEngine::open(int flags)
         return false;
     }
     if (flags & QIODevice::Append)
-        fseeko(d->fh, 0, SEEK_END);
+        QT_FSEEK(d->fh, 0, SEEK_END);
 
     d->closeFileHandle = true;
     d->fd = fileno(d->fh);
-    struct stat st;
-    if (::fstat(fileno(d->fh), &st) != 0)
+    QT_STATBUF st;
+    if (QT_FSTAT(QT_FILENO(d->fh), &st) != 0)
 	return false;
     d->sequential = S_ISCHR(st.st_mode) || S_ISFIFO(st.st_mode) || S_ISSOCK(st.st_mode);
 
@@ -127,8 +108,8 @@ bool QBufferedFSFileEngine::open(int /* flags */, FILE *fh)
     Q_D(QBufferedFSFileEngine);
     d->fh = fh;
     d->fd = fileno(fh);
-    struct stat st;
-    if (::fstat(fileno(fh), &st) != 0)
+    QT_STATBUF st;
+    if (QT_FSTAT(fileno(fh), &st) != 0)
 	return false;
     d->sequential = S_ISCHR(st.st_mode) || S_ISFIFO(st.st_mode) || S_ISSOCK(st.st_mode);
     d->closeFileHandle = false;
@@ -149,16 +130,16 @@ bool QBufferedFSFileEngine::close()
 void QBufferedFSFileEngine::flush()
 {
     Q_D(QBufferedFSFileEngine);
-    if(!d->fh)
+    if (!d->fh)
         return;
 #ifdef Q_OS_WIN
-    fpos_t pos;
-    int gotPos = fgetpos(d->fh, &pos);
+    QT_FPOS_T pos;
+    int gotPos = QT_FGETPOS(d->fh, &pos);
 #endif
     fflush(d->fh);
 #ifdef Q_OS_WIN
     if (gotPos == 0)
-        fsetpos(d->fh, &pos);
+        QT_FSETPOS(d->fh, &pos);
 #endif
     d->lastIOCommand = QBufferedFSFileEnginePrivate::IOFlushCommand;
 }
@@ -166,17 +147,17 @@ void QBufferedFSFileEngine::flush()
 qint64 QBufferedFSFileEngine::at() const
 {
     Q_D(const QBufferedFSFileEngine);
-    if(!d->fh)
+    if (!d->fh)
         return -1;
-    return qint64(ftell(d->fh));
+    return qint64(QT_FTELL(d->fh));
 }
 
 bool QBufferedFSFileEngine::seek(qint64 offset)
 {
     Q_D(QBufferedFSFileEngine);
-    if(!d->fh)
+    if (!d->fh)
         return false;
-    if (fseeko(d->fh, off_t(offset), SEEK_SET) == -1) {
+    if (QT_FSEEK(d->fh, QT_OFF_T(offset), SEEK_SET) == -1) {
         d->setError(QFile::ReadError, qt_error_string(int(errno)));
         return false;
     }
@@ -190,7 +171,7 @@ qint64 QBufferedFSFileEngine::read(char *data, qint64 maxlen)
         flush();
         d->lastIOCommand = QBufferedFSFileEnginePrivate::IOReadCommand;
     }
-    if(!d->fh)
+    if (!d->fh)
         return -1;
 
     if (feof(d->fh))
@@ -247,7 +228,7 @@ qint64 QBufferedFSFileEngine::read(char *data, qint64 maxlen)
 qint64 QBufferedFSFileEngine::readLine(char *data, qint64 maxlen)
 {
     Q_D(QBufferedFSFileEngine);
-    if(!d->fh)
+    if (!d->fh)
         return -1;
     if (d->lastIOCommand != QBufferedFSFileEnginePrivate::IOReadCommand) {
         flush();
@@ -270,7 +251,7 @@ qint64 QBufferedFSFileEngine::readLine(char *data, qint64 maxlen)
 qint64 QBufferedFSFileEngine::write(const char *data, qint64 len)
 {
     Q_D(QBufferedFSFileEngine);
-    if(!d->fh)
+    if (!d->fh)
         return -1;
     if (d->lastIOCommand != QBufferedFSFileEnginePrivate::IOWriteCommand) {
         flush();

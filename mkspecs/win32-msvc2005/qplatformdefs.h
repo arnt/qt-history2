@@ -71,6 +71,14 @@
 # define QT_OPEN_BINARY		_O_BINARY
 #endif
 
+#define QT_FOPEN                ::fopen
+#define QT_FSEEK                ::fseek
+#define QT_FTELL                ::ftell
+#define QT_FGETPOS              ::fgetpos
+#define QT_FSETPOS              ::fsetpos
+#define QT_FPOS_T               fpos_t
+#define QT_OFF_T                long
+
 #define QT_SIGNAL_ARGS		int
 
 #define QT_VSNPRINTF(buffer, count, format, arg) \

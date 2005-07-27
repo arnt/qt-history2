@@ -55,6 +55,14 @@
 #  define QT_STAT_LNK		_S_IFLNK
 #endif
 
+#define QT_FOPEN                ::fopen
+#define QT_FSEEK                ::fseek
+#define QT_FTELL                ::ftell
+#define QT_FGETPOS              ::fgetpos
+#define QT_FSETPOS              ::fsetpos
+#define QT_FPOS_T               fpos_t
+#define QT_OFF_T                long
+
 #define QT_FILENO		_fileno
 #define QT_OPEN			::open
 #define QT_CLOSE		::_close

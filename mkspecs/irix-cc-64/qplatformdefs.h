@@ -53,6 +53,24 @@
 #define QT_LSEEK                ::lseek
 #endif
 
+#ifdef QT_LARGEFILE_SUPPORT
+#define QT_FOPEN                ::fopen64
+#define QT_FSEEK                ::fseeko
+#define QT_FTELL                ::ftello
+#define QT_FGETPOS              ::fgetpos64
+#define QT_FSETPOS              ::fsetpos64
+#define QT_FPOS_T               fpos64_t
+#define QT_OFF_T                off_t
+#else
+#define QT_FOPEN                ::fopen
+#define QT_FSEEK                ::fseek
+#define QT_FTELL                ::ftell
+#define QT_FGETPOS              ::fgetpos
+#define QT_FSETPOS              ::fsetpos
+#define QT_FPOS_T               fpos_t
+#define QT_OFF_T                long
+#endif
+
 #define QT_STAT_REG		S_IFREG
 #define QT_STAT_DIR		S_IFDIR
 #define QT_STAT_MASK		S_IFMT
