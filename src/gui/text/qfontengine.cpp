@@ -97,9 +97,8 @@ bool QFontEngineBox::stringToCMap(const QChar *, int len, QGlyphLayout *glyphs, 
         return false;
     }
 
-    memset(glyphs, 0, len * sizeof(QGlyphLayout));
-
     for (int i = 0; i < len; i++) {
+        glyphs[i].glyph = 0;
         glyphs[i].advance.rx() = _size;
         glyphs[i].advance.ry() = 0;
     }
