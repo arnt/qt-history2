@@ -1,9 +1,7 @@
 /* InstallerPanePane */
 
-#import <InstallerPlugins/InstallerPlugins.h>
+#import <InstallerPlugins/InstallerPane.h>
 #import <Cocoa/Cocoa.h>
-
-enum LicenseValues { LicenseOK = 0, InvalidLicense, InvalidProduct, InvalidPlatform, InvalidType };
 
 @interface InstallerPanePane : InstallerPane
 {

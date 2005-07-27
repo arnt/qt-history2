@@ -1,56 +1,5 @@
 #import "InstallerPanePane.h"
-#import "keydec.h"
-#import <stdio.h>
-
-
-static FILE *getQtLicenseFile(const char *mode)
-{
-    const char *homeDir = getenv("HOME");
-    static const char LicenseFile[] = ".qt-license";
-    char *filename = 0;
-    FILE *licenseFile = 0;
-    if (homeDir) {
-        int sizeEnv = strlen(homeDir);
-        int sizeLicense = strlen(LicenseFile);
-        filename = (char *)malloc(sizeLicense + sizeEnv + 2);
-        strncpy(filename, homeDir, sizeEnv);
-        filename[sizeEnv] = '/';
-        strncpy(filename + sizeEnv + 1, LicenseFile, sizeLicense);
-        licenseFile = fopen(filename, mode);
-    }
-    return licenseFile;
-}
-
-
-static int validateLicense(const char *string)
-{
-    KeyDecoder key(string);
-    int ret = InvalidLicense;
-    if (key.IsValid()) {
-        if (!(key.getProducts() & (KeyDecoder::QtUniversal | KeyDecoder::QtDesktop
-                                   | KeyDecoder::QtDesktopLight))) {
-            ret = InvalidProduct;
-        } else {
-            if (!(key.getPlatforms() & KeyDecoder::Mac)) {
-                ret = InvalidPlatform;
-            } else {
-#ifdef QT_EVAL
-                if (!(key.getLicenseSchema() & (KeyDecoder::SupportedEvaluation
-                                                | KeyDecoder::UnsupportedEvaluation
-                                                | KeyDecoder::FullSourceEvaluation)))
-#else
-                if (!(key.getLicenseSchema() & KeyDecoder::FullCommercial))    
-#endif
-                {
-                    ret = InvalidType;
-                } else {
-                    ret = LicenseOK;
-                }
-            }
-        }
-    }
-    return ret;
-}
+#import "helpfulfunc.h"
 
 @implementation InstallerPanePane
 - (NSString *)title
@@ -72,14 +21,17 @@ static int validateLicense(const char *string)
 
 - (BOOL)shouldExitPane:(InstallerSectionDirection)dir
 { 
-    if((dir == InstallerDirectionForward) 
-       && (licenseStatus != LicenseOK) && !nameCheckOK){ 
-        return NO;
+    if ((dir == InstallerDirectionForward)) {
+        if ((licenseStatus != LicenseOK) && !nameCheckOK)
+            return NO;
+        FILE *licenseFile = getQtLicenseFile("w");
+        char outputString[sizeof(LicenseeString) + 5 + sizeof(LicenseKeyExtString) + 4];
+        snprintf(outputString, sizeof(outputString), "%s\"%%s\"\n%s%%s\n", LicenseeString,
+                 LicenseKeyExtString);
+        fprintf(licenseFile, outputString,
+                [[nameField stringValue] UTF8String], [fullLicenseKey UTF8String]);
+        fclose(licenseFile);
     }
-    FILE *licenseFile = getQtLicenseFile("w");
-    fprintf(licenseFile, "Licensee=\"%s\"\nLicenseKeyExt=%s\n",
-            [[nameField stringValue] UTF8String], [fullLicenseKey UTF8String]);
-    fclose(licenseFile);
     return YES; 
 }
 
