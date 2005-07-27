@@ -1715,36 +1715,46 @@ void QPSPrintEngineFontFT::drawText(QTextStream &stream, QPSPrintEnginePrivate *
 
     stream << "<";
     if (ti.flags & QTextItem::RightToLeft) {
-        for (int i = len-1; i >=0; i--) {
+        stream << toHex(mapUnicode(glyphs[len-1].glyph));
+        qreal last_advance = glyphs[len-1].advance.x();
+        for (int i = len-2; i >=0; i--) {
             // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
-            unsigned short glyph;
-            glyph = glyphs[i].glyph;
-            Q_ASSERT(glyph < face->num_glyphs);
-            stream << toHex(mapUnicode(glyph));
-            if (i != len-1) {
-                xyarray += QByteArray::number(xo + glyphs[i].offset.x() + glyphs[i+1].advance.x());
-                xyarray += " ";
-                xyarray += QByteArray::number(yo + glyphs[i].offset.y());
-                xyarray += " ";
-                xo = -glyphs[i].offset.x();
-                yo = -glyphs[i].offset.y();
+            if (glyphs[i].nKashidas) {
+                QChar ch(0x640); // Kashida character
+                QGlyphLayout g[8];
+                int nglyphs = 7;
+                ti.fontEngine->stringToCMap(&ch, 1, g, &nglyphs, 0);
+                for (uint k = 0; k < glyphs[i].nKashidas; ++k) {
+                    xyarray += QByteArray::number(xo + g[0].offset.x() + last_advance);
+                    xyarray += " ";
+                    xyarray += QByteArray::number(yo + g[0].offset.y());
+                    xyarray += " ";
+                    stream << toHex(mapUnicode(g[0].glyph));
+                    last_advance = g[0].advance.x();
+                    xo = -g[0].offset.x();
+                    yo = -g[0].offset.y();
+                }
             }
+            xyarray += QByteArray::number(xo + glyphs[i].offset.x() + last_advance);
+            xyarray += " ";
+            xyarray += QByteArray::number(yo + glyphs[i].offset.y());
+            xyarray += " ";
+            stream << toHex(mapUnicode(glyphs[i].glyph));
+            xo = -glyphs[i].offset.x();
+            yo = -glyphs[i].offset.y();
+            last_advance = glyphs[i].advance.x() + (glyphs[i].nKashidas ? 0. : qreal(glyphs[i].space_18d6)/qreal(64));
         }
     } else {
-        for (int i = 0; i < len; i++) {
+        stream << toHex(mapUnicode(glyphs[0].glyph));
+        for (int i = 1; i < len; i++) {
             // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
-            unsigned short glyph;
-            glyph = glyphs[i].glyph;
-            Q_ASSERT(glyph < face->num_glyphs);
-            stream << toHex(mapUnicode(glyph));
-            if (i) {
-                xyarray += QByteArray::number(xo + glyphs[i].offset.x() + glyphs[i-1].advance.x());
-                xyarray += " ";
-                xyarray += QByteArray::number(yo + glyphs[i].offset.y());
-                xyarray += " ";
-                xo = -glyphs[i].offset.x();
-                yo = -glyphs[i].offset.y();
-            }
+            stream << toHex(mapUnicode(glyphs[i].glyph));
+            xyarray += QByteArray::number(xo + glyphs[i].offset.x() + glyphs[i-1].advance.x() + qreal(glyphs[i-1].space_18d6)/qreal(64));
+            xyarray += " ";
+            xyarray += QByteArray::number(yo + glyphs[i].offset.y());
+            xyarray += " ";
+            xo = -glyphs[i].offset.x();
+            yo = -glyphs[i].offset.y();
         }
     }
     stream << ">";
