@@ -46,6 +46,15 @@
 #  define off_t long
 #endif
 
+#ifdef QT_BUILD_QMAKE
+#ifndef ftello
+#define ftello ftell
+#endif
+#ifndef fseeko
+#define fseeko fseek
+#endif
+#endif
+
 QBufferedFSFileEngine::QBufferedFSFileEngine(const QString &fileName)
     : QFSFileEngine(*new QBufferedFSFileEnginePrivate)
 {
