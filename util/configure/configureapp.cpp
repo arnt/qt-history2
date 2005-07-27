@@ -629,13 +629,13 @@ void Configure::parseCmdLine()
 	dictionary[ "QMAKESPEC" ].endsWith( "-icc" ) ||
         dictionary[ "QMAKESPEC" ].endsWith( "-msvc2005" )) {
 	dictionary[ "MAKE" ] = "nmake";
- 	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
+ 	dictionary[ "QMAKEMAKEFILE" ] = "Makefile.win32";
     } else if ( dictionary[ "QMAKESPEC" ] == QString( "win32-g++" ) ) {
 	dictionary[ "MAKE" ] = "mingw32-make";
     	dictionary[ "QMAKEMAKEFILE" ] = "Makefile.win32-g++";
     } else {
 	dictionary[ "MAKE" ] = "make";
-	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
+	dictionary[ "QMAKEMAKEFILE" ] = "Makefile.win32";
     }
 
 #if !defined(EVAL)
