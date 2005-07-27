@@ -588,7 +588,7 @@ static Symbols preprocess(const QByteArray &filename, const Symbols &symbols, Ma
             Preprocessor::preprocessedIncludes.insert(include);
 
             QFile file(QString::fromLocal8Bit(include));
-            if (!file.open(QFile::ReadOnly))
+			if (!file.open(QFile::ReadOnly|QFile::Text))
                 continue;
 
             if (Preprocessor::onlyPreprocess) {
