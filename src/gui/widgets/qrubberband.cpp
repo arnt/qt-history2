@@ -48,9 +48,9 @@ QStyleOptionRubberBand QRubberBandPrivate::getStyleOption() const
 }
 
 /*!
-   \class QRubberBand qrubberband.h
-   \brief The QRubberBand class provides a rectangle or line that can
-   indicate a selection or a boundary.
+    \class QRubberBand
+    \brief The QRubberBand class provides a rectangle or line that can
+    indicate a selection or a boundary.
 
     \ingroup misc
     \mainclass
@@ -64,11 +64,15 @@ QStyleOptionRubberBand QRubberBandPrivate::getStyleOption() const
 
     You can create a QRubberBand whenever you need to render a rubber
     band around a given area (or to represent a single line), then
-    call setGeometry(), move() or resize() to position and size it;
-    hiding (or destroying) the widget will make the rubber band
-    disappear. The rubber band can be a \c Rectangle or a \c Line
-    (vertical or horizontal), depending on the shape() it was given
-    when constructed.
+    call setGeometry(), move() or resize() to position and size it.
+    Positions are specified in global coordinates, even if the rubber
+    band has a parent.
+
+    Like other \l{QWidget}s, you must also call show() to make it
+    visible. Hiding or destroying the widget will make the rubber
+    band disappear. The rubber band can be a \l Rectangle or a \l
+    Line (vertical or horizontal), depending on the shape() it was
+    given when constructed.
 */
 
 // ### DOC: How about some nice convenience constructors?
