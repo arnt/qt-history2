@@ -25,7 +25,7 @@ class Q_CORE_EXPORT Qt {
     Q_OBJECT
     Q_ENUMS(Orientation TextFormat BackgroundMode DateFormat ScrollBarPolicy FocusPolicy ContextMenuPolicy CaseSensitivity LayoutDirection ArrowType)
     Q_ENUMS(ToolButtonStyle)
-    Q_ENUMS(PenStyle PenCapStyle PenJoinStyle BrushStyle FillRule BGMode ClipOperation)
+    Q_ENUMS(PenStyle PenCapStyle PenJoinStyle BrushStyle FillRule BGMode ClipOperation GlobalColor)
     Q_FLAGS(Alignment)
     Q_FLAGS(Orientations)
     Q_FLAGS(DockWidgetAreas)
