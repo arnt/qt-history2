@@ -64,10 +64,36 @@ enum POSITION {
     NPOSITIONS
 };
 
+static inline void validateToolBarArea(Qt::ToolBarArea &area)
+{
+    switch (area) {
+    case Qt::LeftToolBarArea:   
+    case Qt::RightToolBarArea:  
+    case Qt::TopToolBarArea:    
+    case Qt::BottomToolBarArea:
+        break;
+    default:
+        area = Qt::TopToolBarArea;
+    }
+}
+
+static inline void validateDockWidgetArea(Qt::DockWidgetArea &area)
+{
+    switch (area) {
+    case Qt::LeftDockWidgetArea: 
+    case Qt::RightDockWidgetArea:
+    case Qt::TopDockWidgetArea:  
+    case Qt::BottomDockWidgetArea:
+        break;
+    default:
+        area = Qt::LeftDockWidgetArea;
+    }
+}
+
 static inline uint areaForPosition(int pos)
 { return ((1u << pos) & 0xf); }
 
-static inline POSITION positionForArea(uint area)
+static inline POSITION positionForArea(Qt::DockWidgetArea area)
 {
     switch (area) {
     case Qt::LeftDockWidgetArea:   return LEFT;
@@ -211,6 +237,7 @@ void QMainWindowLayout::setCentralWidget(QWidget *cw)
 void QMainWindowLayout::addToolBarBreak(Qt::ToolBarArea area)
 {
     ToolBarLineInfo newLine;
+    validateToolBarArea(area);
     newLine.pos = positionForArea(area);
     switch (newLine.pos) {
     case TOP:
@@ -262,6 +289,7 @@ void QMainWindowLayout::addToolBar(Qt::ToolBarArea area,
     else
         removeToolBarInfo(toolbar);
 
+    validateToolBarArea(area);
     POSITION pos = positionForArea(area);
     // see if we have an existing line in the tb - append it in the last in line
     for (int line = 0; line < tb_layout_info.size(); ++line) {
@@ -335,6 +363,7 @@ Qt::ToolBarArea QMainWindowLayout::toolBarArea(QToolBar *toolbar) const
 #ifndef QT_NO_DOCKWIDGET
 QDockWidgetLayout *QMainWindowLayout::layoutForArea(Qt::DockWidgetArea area)
 {
+    validateDockWidgetArea(area);
     POSITION pos = positionForArea(area);
     QMainWindowLayoutInfo &info = layout_info[pos];
     QDockWidgetLayout *l = 0;

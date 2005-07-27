@@ -571,11 +571,11 @@ void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget
 {
     Q_ASSERT_X(dockwidget->isAreaAllowed(area),
                "QMainWindow::addDockWidget", "specified 'area' is not an allowed area");
-    Qt::Orientation orientation = Qt::Horizontal;
+    Qt::Orientation orientation = Qt::Vertical;
     switch (area) {
-    case Qt::LeftDockWidgetArea:
-    case Qt::RightDockWidgetArea:
-        orientation = Qt::Vertical;
+    case Qt::TopDockWidgetArea:
+    case Qt::BottomDockWidgetArea:
+        orientation = Qt::Horizontal;
         break;
     default:
         break;
@@ -628,9 +628,7 @@ void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget
 void QMainWindow::splitDockWidget(QDockWidget *after, QDockWidget *dockwidget,
                                   Qt::Orientation orientation)
 {
-    Qt::DockWidgetArea area = dockWidgetArea(after);
-    Q_UNUSED(area);
-    Q_ASSERT_X(dockwidget->isAreaAllowed(area),
+    Q_ASSERT_X(dockwidget->isAreaAllowed(dockWidgetArea(after)),
                "QMainWindow::splitDockWidget", "specified 'area' is not an allowed area");
     d_func()->layout->splitDockWidget(after, dockwidget, orientation);
     if (isVisible())

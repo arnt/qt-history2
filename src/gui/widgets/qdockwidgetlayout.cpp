@@ -1308,33 +1308,48 @@ void QDockWidgetLayout::extend(QDockWidget *dockwidget, Qt::Orientation directio
     }
 }
 
-void QDockWidgetLayout::split(QDockWidget *existing, QDockWidget *with, Qt::DockWidgetArea area)
+static void locateDockWidget(QDockWidget *w, QDockWidgetLayout **layout, int *where)
 {
-    int which = -1;
-    for (int i = 0; which == -1 && i < layout_info.count(); ++i) {
-	const QDockWidgetLayoutInfo &info = layout_info.at(i);
+    QDockWidgetLayout *l = *layout;
+    *where = -1;
+    for (int i = 0; i < l->layout_info.count(); ++i) {
+	const QDockWidgetLayoutInfo &info = l->layout_info.at(i);
 	if (info.is_sep)
             continue;
-	if (existing == info.item->widget())
-            which = i;
+	if (w == info.item->widget()) {
+            *where = i;
+            *layout = l;
+        } else if (QLayout *lout = info.item->layout()) {
+            *layout = qobject_cast<QDockWidgetLayout *>(lout);
+            locateDockWidget(w, layout, where);
+        }
+        if (*where != -1) 
+            return;
     }
+}
+
+void QDockWidgetLayout::split(QDockWidget *existing, QDockWidget *with, Qt::DockWidgetArea area)
+{
+    QDockWidgetLayout *layout = this;
+    int which = -1;
+    locateDockWidget(existing, &layout, &which);
     Q_ASSERT(which != -1);
-    const QDockWidgetLayoutInfo &info = layout_info.at(which);
+    const QDockWidgetLayoutInfo &info = layout->layout_info.at(which);
 
     Q_ASSERT(relayout_type == QInternal::RelayoutNormal);
     relayout_type = QInternal::RelayoutDropped;
 
     int save_size = info.cur_size;
-    removeWidget(existing);
+    layout->removeWidget(existing);
     // note: info is invalid from now on
 
     // create a nested window dock in place of the current widget
     QDockWidgetLayout *nestedLayout =
         new QDockWidgetLayout(area, orientation == Qt::Horizontal ? Qt::Vertical : Qt::Horizontal);
-    nestedLayout->setParent(this);
+    nestedLayout->setParent(layout);
     nestedLayout->setObjectName(objectName() + "_nestedLayout");
-    insert(which / 2, nestedLayout).cur_size = save_size;
-    invalidate();
+    layout->insert(which / 2, nestedLayout).cur_size = save_size;
+    layout->invalidate();
 
     switch (area) {
     case Qt::LeftDockWidgetArea:
@@ -1354,7 +1369,7 @@ void QDockWidgetLayout::split(QDockWidget *existing, QDockWidget *with, Qt::Dock
         break;
     }
 
-    relayout_type = QInternal::RelayoutNormal;
+    layout->relayout_type = QInternal::RelayoutNormal;
 }
 
 void QDockWidgetLayout::maybeDelete()
