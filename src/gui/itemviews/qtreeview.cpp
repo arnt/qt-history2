@@ -1231,6 +1231,12 @@ void QTreeView::selectAll()
 void QTreeView::columnResized(int column, int /* oldSize */, int /* newSize */)
 {
     Q_D(QTreeView);
+    int i;
+    for (i = 0; i < d->header->count(); i++) {
+        if (d->header->resizeMode(i) == QHeaderView::Stretch) break;
+    }
+    column = qMin(i, column);
+        
     int x = columnViewportPosition(column);
     QRect rect;
     if (isRightToLeft())

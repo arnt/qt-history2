@@ -1080,6 +1080,11 @@ void QTableView::rowResized(int row, int, int)
 void QTableView::columnResized(int column, int, int)
 {
     Q_D(QTableView);
+    int i;
+    for (i = 0; i < d->horizontalHeader->count(); i++) {
+        if (d->horizontalHeader->resizeMode(i) == QHeaderView::Stretch) break;
+    }
+    column = qMin(i, column);
 
     int x = columnViewportPosition(column);
     QRect rect;
