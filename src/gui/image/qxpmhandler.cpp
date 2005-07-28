@@ -848,7 +848,11 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
     if (!read_xpm_string(buf, device, source, index, state))
         return false;
 
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+	if (sscanf_s(buf, "%d %d %d %d", &w, &h, &ncols, &cpp) < 4)
+#else
     if (sscanf(buf, "%d %d %d %d", &w, &h, &ncols, &cpp) < 4)
+#endif
         return false;                                        // < 4 numbers parsed
 
     if (cpp > 15)
@@ -942,7 +946,7 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
                 char b[16];
                 b[cpp] = '\0';
                 for (x=0; x<w && d<end; x++) {
-                    strncpy(b, (char *)d, cpp);
+                    memcpy(b, (char *)d, sizeof(char)*cpp);
                     *p++ = (uchar)colorMap[xpmHash(b)];
                     d += cpp;
                 }
@@ -955,7 +959,7 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
             char b[16];
             b[cpp] = '\0';
             for (x=0; x<w && d<end; x++) {
-                strncpy(b, (char *)d, cpp);
+                memcpy(b, (char *)d, sizeof(char)*cpp);
                 *p++ = (QRgb)colorMap[xpmHash(b)];
                 d += cpp;
             }

@@ -133,11 +133,19 @@ static bool write_xbm_image(const QImage &sourceImage, QIODevice *device, const 
     QString    s = fileName; // get file base name
     char *buf = new char[s.length() + 100];
 
-    sprintf(buf, "#define %s_width %d\n", s.toAscii().data(), w);
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+	sprintf_s(buf, s.length() + 100, "#define %s_width %d\n", s.toAscii().data(), w);
+    device->write(buf, qstrlen(buf));
+    sprintf_s(buf, s.length() + 100, "#define %s_height %d\n", s.toAscii().data(), h);
+    device->write(buf, qstrlen(buf));
+    sprintf_s(buf, s.length() + 100, "static char %s_bits[] = {\n ", s.toAscii().data());
+#else
+	sprintf(buf, "#define %s_width %d\n", s.toAscii().data(), w);
     device->write(buf, qstrlen(buf));
     sprintf(buf, "#define %s_height %d\n", s.toAscii().data(), h);
     device->write(buf, qstrlen(buf));
     sprintf(buf, "static char %s_bits[] = {\n ", s.toAscii().data());
+#endif
     device->write(buf, qstrlen(buf));
 
     if (image.format() != QImage::Format_MonoLSB)
@@ -183,7 +191,11 @@ static bool write_xbm_image(const QImage &sourceImage, QIODevice *device, const 
             }
         }
     }
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+	strcpy_s(p, sizeof(" };\n"), " };\n");
+#else
     strcpy(p, " };\n");
+#endif
     if ((int)qstrlen(buf) != device->write(buf, qstrlen(buf))) {
         delete [] buf;
         return false;

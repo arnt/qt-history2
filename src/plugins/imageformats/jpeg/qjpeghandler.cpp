@@ -216,8 +216,13 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
 
 
         } else if (params.contains("Scale")) {
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+			sscanf_s(params.toLatin1().data(), "Scale(%i, %i, %1023s)",
+                   &sWidth, &sHeight, sModeStr, sizeof(sModeStr));
+#else
             sscanf(params.toLatin1().data(), "Scale(%i, %i, %1023s)",
                    &sWidth, &sHeight, sModeStr);
+#endif
 
             QString sModeQStr(sModeStr);
             if (sModeQStr == "IgnoreAspectRatio") {

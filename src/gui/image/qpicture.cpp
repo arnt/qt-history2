@@ -1502,7 +1502,7 @@ QByteArray QPictureIO::pictureFormat(QIODevice *d)
     if (rdlen != buflen)
         return format;
 
-    strncpy(buf2, buf, buflen);
+    memcpy(buf2, buf, sizeof(char)*buflen);
 
     for (int n = 0; n < rdlen; n++)
         if (buf[n] == '\0')

@@ -669,7 +669,7 @@ bool QBmpHandler::write(const QImage &image)
     s.setByteOrder(QDataStream::LittleEndian);
 
     // build file header
-    strncpy(bf.bfType, "BM", 2);
+    memcpy(bf.bfType, "BM", sizeof(char)*2);
 
     // write file header
     bf.bfReserved1 = 0;
