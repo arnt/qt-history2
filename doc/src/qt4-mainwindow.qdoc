@@ -118,8 +118,8 @@
     In this example, the toolbar is restricted to the top and bottom
     toolbar areas of the main window, and is initially placed in the
     top tool bar area. We can see that the actions specified by \c
-    openAction and \c saveAction will be displayed both on the
-    toolbar and in the file menu.
+    newAct and \c openAct will be displayed both on the toolbar and in
+    the file menu.
 
     QDockWidget is used in a similar way to QToolBar. We create a
     dock widget as a child of the main window, and add widgets as children

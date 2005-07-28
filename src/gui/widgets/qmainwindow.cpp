@@ -93,7 +93,7 @@ void QMainWindowPrivate::init()
 
     QMainWindow provides a main application window, with a menu bar,
     tool bars, dock widgets and a status bar around a large central
-    widget, such as a text edit, drawing canvas or Q3Workspace (for MDI
+    widget, such as a text edit, drawing canvas or QWorkspace (for MDI
     applications).
 
     Topics:

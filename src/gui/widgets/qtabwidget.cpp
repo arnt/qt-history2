@@ -263,12 +263,7 @@ QTabWidget::~QTabWidget()
 /*!
     Adds another tab and page to the tab view.
 
-    The new page is \a child; the tab's label is \a label. Note the
-    difference between the widget name (which you supply to widget
-    constructors and to setTabEnabled(), for example) and the tab
-    label. The name is internal to the program and invariant, whereas
-    the label is shown on-screen and may vary according to language
-    and other factors.
+    The new page is \a child; the tab's label is \a label.
 
     If the tab's \a label contains an ampersand, the letter following
     the ampersand is used as a shortcut for the tab, e.g. if the

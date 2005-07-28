@@ -514,35 +514,6 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
     and can pop up a list of selectable items. A combobox may be editable,
     allowing the user to modify each item in the list.
 
-    QComboBox supports three different display styles: Aqua/Motif 1.x,
-    Motif 2.0 and Windows. In Motif 1.x, a combobox was called
-    XmOptionMenu. In Motif 2.0, OSF introduced an improved combobox
-    and named that XmComboBox. QComboBox provides both.
-
-    QComboBox provides two different constructors. The simplest
-    constructor creates an "old-style" combobox in Motif (or Aqua)
-    style:
-    \code
-        QComboBox *c = new QComboBox(this, "read-only combobox");
-    \endcode
-
-    The other constructor creates a new-style combobox in Motif style,
-    and can create both read-only and editable comboboxes:
-    \code
-        QComboBox *c1 = new QComboBox(false, this, "read-only combobox" );
-        QComboBox *c2 = new QComboBox(true, this, "editable combobox" );
-    \endcode
-
-    New-style comboboxes use a list box in both Motif and Windows
-    styles, and both the content size and the on-screen size of the
-    list box can be limited with maxVisibleItems() and setMaxCount()
-    respectively. Old-style comboboxes use a popup in Aqua and Motif
-    style, and that popup will happily grow larger than the desktop if
-    you put enough data into it.
-
-    The two constructors create identical-looking comboboxes in
-    Windows style.
-
     Comboboxes can contain pixmaps as well as strings; the
     insertItem() and changeItem() functions are suitably overloaded.
     For editable comboboxes, the function clearEdit() is provided,
