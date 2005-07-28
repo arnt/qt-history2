@@ -50,7 +50,7 @@ static int numberLength( const char *s )
 static QByteArray zeroKey( const char *key )
 {
     QByteArray zeroed;
-    zeroed.resize( strlen(key) + 1 );
+    zeroed.resize( int(strlen(key)) + 1 );
     char *z = zeroed.data();
     int i = 0, j = 0;
     int len;

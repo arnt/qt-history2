@@ -178,7 +178,7 @@ QMap<QString, QString> proFileTagMap( const QString& text )
                 char buff[256];
                 FILE *proc = QT_POPEN( callToSystem.cap(1).toLatin1().constData(), "r" );
                 while ( proc && !feof(proc) ) {
-                    int read_in = fread( buff, 1, 255, proc );
+                    int read_in = int(fread( buff, 1, 255, proc ));
                     if ( !read_in )
                         break;
                     for ( int i = 0; i < read_in; i++ ) {
