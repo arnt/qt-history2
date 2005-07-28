@@ -148,14 +148,19 @@ public:
     void createEventDispatcher();
 
     static void dispatchEnterLeave(QWidget *enter, QWidget *leave);
+    static QWidget *widgetAt_sys(int x, int y);
+
+    //modality
     static void enterModal(QWidget*);
     static void leaveModal(QWidget*);
+    static void enterModal_sys(QWidget*);
+    static void leaveModal_sys(QWidget*);
+    static bool isBlockedByModal(QWidget *widget);
     static bool modalState();
     static bool tryModalHelper(QWidget *widget, QWidget **rettop = 0);
 #ifdef Q_WS_MAC
-    static QWidget *tryModalHelperMac(QWidget *top);
+    static QWidget *tryModalHelper_sys(QWidget *top);
 #endif
-    static QWidget *widgetAt_sys(int x, int y);
 
     bool notify_helper(QObject *receiver, QEvent * e);
 
@@ -189,7 +194,7 @@ public:
 #ifndef QT_NO_SHORTCUT
     QShortcutMap shortcutMap;
 #endif
-    
+
 #ifdef QT3_SUPPORT
     bool qt_compat_used;
     bool qt_compat_resolved;

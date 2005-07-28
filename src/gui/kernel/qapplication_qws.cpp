@@ -1556,14 +1556,14 @@ bool QApplicationPrivate::qws_apply_settings()
         .arg(QT_VERSION >> 16)
         .arg((QT_VERSION & 0xff00) >> 8);
     QStringList pathlist = settings.value(libpathkey).toString().split(QLatin1Char(':'));
-#ifndef QT_NO_LIBRARY    
+#ifndef QT_NO_LIBRARY
     if (! pathlist.isEmpty()) {
         QStringList::ConstIterator it = pathlist.begin();
         while (it != pathlist.end())
             QApplication::addLibraryPath(*it++);
     }
 #endif
-    
+
     // read new QStyle
     QString stylename = settings.value(QLatin1String("style")).toString();
     if (QCoreApplication::startingUp()) {
@@ -1589,7 +1589,7 @@ bool QApplicationPrivate::qws_apply_settings()
                        QApplication::wheelScrollLines()).toInt();
     QApplication::setWheelScrollLines(num);
 #endif
-    
+
     QString colorspec = settings.value(QLatin1String("colorSpec"),
                                        QVariant(QLatin1String("default"))).toString();
     if (colorspec == QLatin1String("normal"))
@@ -1649,7 +1649,7 @@ bool QApplicationPrivate::qws_apply_settings()
 
     return true;
 #else
-    return false;    
+    return false;
 #endif // QT_NO_SETTINGS
 }
 
@@ -2283,7 +2283,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
         }
     }
 #endif // QT_NO_QWS_MANAGER
-    
+
     QETWidget *keywidget=0;
     bool grabbed=false;
     if (event->type==QWSEvent::Key || event->type == QWSEvent::IMEvent || event->type == QWSEvent::IMQuery) {
@@ -2681,23 +2681,15 @@ bool QApplicationPrivate::modalState()
     return app_do_modal;
 }
 
-void QApplicationPrivate::enterModal(QWidget *widget)
+void QApplicationPrivate::enterModal_sys(QWidget *widget)
 {
-    if (!qt_modal_stack) {                        // create modal stack
+    if (!qt_modal_stack)
         qt_modal_stack = new QWidgetList;
-    }
-
     qt_modal_stack->insert(0, widget);
     app_do_modal = true;
-
-    if (widget->parentWidget()) {
-        QEvent e(QEvent::WindowBlocked);
-        QApplication::sendEvent(widget->parentWidget(), &e);
-    }
 }
 
-
-void QApplicationPrivate::leaveModal(QWidget *widget)
+void QApplicationPrivate::leaveModal_sys(QWidget *widget)
 {
     if (qt_modal_stack && qt_modal_stack->removeAll(widget)) {
         if (qt_modal_stack->isEmpty()) {
@@ -2706,13 +2698,7 @@ void QApplicationPrivate::leaveModal(QWidget *widget)
         }
     }
     app_do_modal = qt_modal_stack != 0;
-
-    if (widget->parentWidget()) {
-        QEvent e(QEvent::WindowUnblocked);
-        QApplication::sendEvent(widget->parentWidget(), &e);
-    }
 }
-
 
 static bool qt_try_modal(QWidget *widget, QWSEvent *event)
 {

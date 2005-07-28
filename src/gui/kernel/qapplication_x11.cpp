@@ -3038,25 +3038,18 @@ bool QApplicationPrivate::modalState()
     return app_do_modal;
 }
 
-void QApplicationPrivate::enterModal(QWidget *widget)
+void QApplicationPrivate::enterModal_sys(QWidget *widget)
 {
-    if (!qt_modal_stack) {                        // create modal stack
+    if (!qt_modal_stack)
         qt_modal_stack = new QWidgetList;
-    }
 
     QApplicationPrivate::dispatchEnterLeave(0, QWidget::find((WId)curWin));
     qt_modal_stack->insert(0, widget);
     app_do_modal = true;
     curWin = 0;
-
-    if (widget->parentWidget()) {
-        QEvent e(QEvent::WindowBlocked);
-        QApplication::sendEvent(widget->parentWidget(), &e);
-    }
 }
 
-
-void QApplicationPrivate::leaveModal(QWidget *widget)
+void QApplicationPrivate::leaveModal_sys(QWidget *widget)
 {
     if (qt_modal_stack && qt_modal_stack->removeAll(widget)) {
         if (qt_modal_stack->isEmpty()) {
@@ -3069,13 +3062,7 @@ void QApplicationPrivate::leaveModal(QWidget *widget)
         }
     }
     app_do_modal = qt_modal_stack != 0;
-
-    if (widget->parentWidget()) {
-        QEvent e(QEvent::WindowUnblocked);
-        QApplication::sendEvent(widget->parentWidget(), &e);
-    }
 }
-
 
 bool qt_try_modal(QWidget *widget, XEvent *event)
 {

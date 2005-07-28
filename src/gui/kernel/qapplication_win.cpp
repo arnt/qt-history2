@@ -2065,30 +2065,10 @@ bool QApplicationPrivate::modalState()
     return app_do_modal;
 }
 
-static bool qt_blocked_modal(QWidget *widget)
+void QApplicationPrivate::enterModal_sys(QWidget *widget)
 {
-    if (!app_do_modal)
-        return false;
-    if (qApp->activePopupWidget())
-        return false;
-    if ((widget->windowType() == Qt::Tool))        // allow tool windows
-        return false;
-
-    QWidget *modal=0, *top=qt_modal_stack->first();
-
-    widget = widget->window();
-    if (widget->testAttribute(Qt::WA_ShowModal))        // widget is modal
-        modal = widget;
-    if (!top || modal == top)                                // don't block event
-        return false;
-    return true;
-}
-
-void QApplicationPrivate::enterModal(QWidget *widget)
-{
-    if (!qt_modal_stack) {                        // create modal stack
+    if (!qt_modal_stack)
         qt_modal_stack = new QWidgetList;
-    }
 
     releaseAutoCapture();
     QApplicationPrivate::dispatchEnterLeave(0, QWidget::find((WId)curWin));
@@ -2097,17 +2077,9 @@ void QApplicationPrivate::enterModal(QWidget *widget)
     curWin = 0;
     qt_button_down = 0;
     qt_win_ignoreNextMouseReleaseEvent = false;
-
-    QList<QWidget*> windows = qApp->topLevelWidgets();
-    QEvent e(QEvent::WindowBlocked);
-    for (int i = 0; i < windows.count(); ++i) {
-        QWidget *window = windows.at(i);
-        if (qt_blocked_modal(window))
-            QApplication::sendEvent(window, &e);
-    }
 }
 
-void QApplicationPrivate::leaveModal(QWidget *widget)
+void QApplicationPrivate::leaveModal_sys(QWidget *widget)
 {
     if (qt_modal_stack && qt_modal_stack->removeAll(widget)) {
         if (qt_modal_stack->isEmpty()) {
@@ -2122,12 +2094,6 @@ void QApplicationPrivate::leaveModal(QWidget *widget)
         qt_win_ignoreNextMouseReleaseEvent = true;
     }
     app_do_modal = qt_modal_stack != 0;
-
-    QList<QWidget*> windows = qApp->topLevelWidgets();
-    QEvent e(QEvent::WindowUnblocked);
-    for (int i = 0; i < windows.count(); ++i) {
-        QApplication::sendEvent(windows.at(i), &e);
-    }
 }
 
 bool qt_try_modal(QWidget *widget, MSG *msg, int& ret)

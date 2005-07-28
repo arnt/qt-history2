@@ -1497,22 +1497,20 @@ bool QApplicationPrivate::do_mouse_down(const QPoint &pt, bool *mouse_down_unhan
     return false;
 }
 
-
 bool QApplicationPrivate::modalState()
 {
     return app_do_modal;
 }
 
-void QApplicationPrivate::enterModal(QWidget *widget)
+void QApplicationPrivate::enterModal_sys(QWidget *widget)
 {
 #ifdef DEBUG_MODAL_EVENTS
     Q_ASSERT(widget);
     qDebug("Entering modal state with %s::%s::%p (%d)", widget->metaObject()->className(), widget->objectName().toLocal8Bit().constData(),
            widget, qt_modal_stack ? (int)qt_modal_stack->count() : -1);
 #endif
-    if(!qt_modal_stack) {                        // create modal stack
+    if(!qt_modal_stack)
         qt_modal_stack = new QWidgetList;
-    }
 
     dispatchEnterLeave(0, qt_mouseover);
     qt_mouseover = 0;
@@ -1521,15 +1519,9 @@ void QApplicationPrivate::enterModal(QWidget *widget)
     if(!app_do_modal)
         qt_event_request_menubarupdate();
     app_do_modal = true;
-
-    if (widget->parentWidget()) {
-        QEvent e(QEvent::WindowBlocked);
-        QApplication::sendEvent(widget->parentWidget(), &e);
-    }
 }
 
-
-void QApplicationPrivate::leaveModal(QWidget *widget)
+void QApplicationPrivate::leaveModal_sys(QWidget *widget)
 {
     if(qt_modal_stack && qt_modal_stack->removeAll(widget)) {
 #ifdef DEBUG_MODAL_EVENTS
@@ -1552,14 +1544,9 @@ void QApplicationPrivate::leaveModal(QWidget *widget)
     app_do_modal = (qt_modal_stack != 0);
     if(!app_do_modal)
         qt_event_request_menubarupdate();
-
-    if (widget->parentWidget()) {
-        QEvent e(QEvent::WindowUnblocked);
-        QApplication::sendEvent(widget->parentWidget(), &e);
-    }
 }
 
-QWidget *QApplicationPrivate::tryModalHelperMac(QWidget *top) {
+QWidget *QApplicationPrivate::tryModalHelper_sys(QWidget *top) {
     if(top && qt_mac_is_macsheet(top) && !IsWindowVisible(qt_mac_window_for(top))) {
         if(WindowPtr wp = GetFrontWindowOfClass(kSheetWindowClass, true)) {
             if(QWidget *sheet = qt_mac_find_window(wp))

@@ -22,6 +22,7 @@
 #include "qfile.h"
 #include "qfileinfo.h"
 #include "qhash.h"
+#include "qset.h"
 #include "qlayout.h"
 #include "qmessagebox.h"
 #include "qsessionmanager.h"
@@ -411,7 +412,6 @@ QDesktopWidget *qt_desktopWidget = 0;                // root window widgets
 QClipboard              *qt_clipboard = 0;        // global clipboard object
 #endif
 QWidgetList * qt_modal_stack=0;                // stack of modal widgets
-
 
 /*!
     \internal
@@ -1985,6 +1985,75 @@ Q_GUI_EXPORT bool qt_tryModalHelper(QWidget *widget, QWidget **rettop)
 }
 
 /*!\internal
+ */
+bool QApplicationPrivate::isBlockedByModal(QWidget *widget)
+{
+    if (!modalState())
+        return false;
+    if (qApp->activePopupWidget())
+        return false;
+    if ((widget->windowType() == Qt::Tool))        // allow tool windows
+        return false;
+
+    QWidget *modal=0, *top=qt_modal_stack->first();
+
+    widget = widget->window();
+    if (widget->testAttribute(Qt::WA_ShowModal))        // widget is modal
+        modal = widget;
+    if (!top || modal == top)                                // don't block event
+        return false;
+    return true;
+}
+
+/*!\internal
+ */
+void QApplicationPrivate::enterModal(QWidget *widget)
+{
+    QSet<QWidget*> blocked;
+    QList<QWidget*> windows = qApp->topLevelWidgets();
+    for (int i = 0; i < windows.count(); ++i) {
+        QWidget *window = windows.at(i);
+        if (isBlockedByModal(window))
+            blocked.insert(window);
+    }
+
+    enterModal_sys(widget);
+
+    windows = qApp->topLevelWidgets();
+    QEvent e(QEvent::WindowBlocked);
+    for (int i = 0; i < windows.count(); ++i) {
+        QWidget *window = windows.at(i);
+        if (!blocked.contains(widget) && isBlockedByModal(window))
+            QApplication::sendEvent(window, &e);
+    }
+}
+
+/*!\internal
+ */
+void QApplicationPrivate::leaveModal(QWidget *widget)
+{
+    QSet<QWidget*> blocked;
+    QList<QWidget*> windows = qApp->topLevelWidgets();
+    for (int i = 0; i < windows.count(); ++i) {
+        QWidget *window = windows.at(i);
+        if (isBlockedByModal(window))
+            blocked.insert(window);
+    }
+
+    leaveModal_sys(widget);
+
+    windows = qApp->topLevelWidgets();
+    QEvent e(QEvent::WindowUnblocked);
+    for (int i = 0; i < windows.count(); ++i) {
+        QWidget *window = windows.at(i);
+        if(blocked.contains(window) && !isBlockedByModal(window))
+            QApplication::sendEvent(window, &e);
+    }
+}
+
+
+
+/*!\internal
 
   Called from qapplication_\e{platform}.cpp, returns true
   if the widget should accept the event.
@@ -1997,7 +2066,7 @@ bool QApplicationPrivate::tryModalHelper(QWidget *widget, QWidget **rettop) {
         return true;
 
 #ifdef Q_WS_MAC
-    top = QApplicationPrivate::tryModalHelperMac(top);
+    top = QApplicationPrivate::tryModalHelper_sys(top);
     if (rettop) *rettop = top;
 #endif
 
