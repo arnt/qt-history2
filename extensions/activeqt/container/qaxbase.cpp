@@ -3462,7 +3462,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
 int QAxBase::qt_metacall(QMetaObject::Call call, int id, void **v)
 {
     const QMetaObject *mo = metaObject();
-    if (isNull()) {
+    if (isNull() && mo->property(id + mo->propertyOffset()).name() != QByteArray("control")) {
         qWarning("QAxBase::qt_metacall: Object is not initialized, or initialization failed!");
         return id;
     }
