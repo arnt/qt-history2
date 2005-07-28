@@ -25,13 +25,13 @@ struct MimeData
 
 class QMimeDataPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QMimeData);
+    Q_DECLARE_PUBLIC(QMimeData)
 public:
     void setData(const QString &format, const QVariant &data);
     QVariant getData(const QString &format) const;
 
     QVariant retrieveTypedData(const QString &format, QVariant::Type type) const;
-    
+
     QList<MimeData> dataList;
 };
 
