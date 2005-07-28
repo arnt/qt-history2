@@ -634,7 +634,7 @@ End_Profile( RAS_ARG )
 {
     Long      h;
     PProfile  oldProfile;
-    
+
     h = (Long)( ras.top - ras.cProfile->offset );
 
     if ( h < 0 )
@@ -1099,17 +1099,18 @@ Bezier_Up( RAS_ARGS Int        degree,
     if ( y2 < miny || y1 > maxy )
         goto Fin;
 
-    e2 = FLOOR( y2 );
-    if ( e2 > maxy )
+    if ( y2 > maxy ) {
         e2 = FLOOR(maxy);
-    if (FRAC(y2) == 0 && ras.cProfile->flow == Flow_Up)
-        e2 -= ras.precision;
+    } else {
+        e2 = FLOOR( y2 );
+        if (FRAC(y2) == 0  && ras.cProfile->flow == Flow_Up)
+            e2 -= ras.precision;
+    }
 
-    if ( y1 < miny )
+    if ( y1 < miny ) {
         e = CEILING(miny);
-    else
-    {
-        e  = CEILING( y1 );
+    } else {
+        e  = CEILING(y1);
         if (FRAC(y1) == 0 && ras.cProfile->flow == Flow_Down)
             e += ras.precision;
     }
