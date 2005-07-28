@@ -876,7 +876,8 @@ void QTextDocument::print(QPrinter *printer) const
     QPainter p(printer);
 
     // Check that there is a valid device to print to.
-    if (!p.device()) return;
+    if (!p.isActive())
+        return;
 
     const int dpiy = p.device()->logicalDpiY();
     const int margin = (int) ((2/2.54)*dpiy); // 2 cm margins

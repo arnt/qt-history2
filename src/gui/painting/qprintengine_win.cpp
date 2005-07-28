@@ -354,7 +354,8 @@ bool QWin32PrintEngine::abort()
 int QWin32PrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
 {
     Q_D(const QWin32PrintEngine);
-    Q_ASSERT(d->hdc);
+    if (!isActive())
+        return 0;
     int val;
     int res = d->resolution;
 
