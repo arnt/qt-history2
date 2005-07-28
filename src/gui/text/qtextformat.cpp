@@ -661,7 +661,7 @@ int QTextFormat::intProperty(int propertyId) const
 
     \sa setProperty() boolProperty() intProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() Property
 */
-double QTextFormat::doubleProperty(int propertyId) const
+qreal QTextFormat::doubleProperty(int propertyId) const
 {
     if (!d)
         return 0.;
