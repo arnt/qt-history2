@@ -166,7 +166,7 @@ void QSqlRelationalTableModelPrivate::clearChanges()
     column 3.
 
     If you use a read-write QSqlRelationalTableModel, you probably
-    want to use QSqlRelatinalDelegate on the view. Unlike the default
+    want to use QSqlRelationalDelegate on the view. Unlike the default
     delegate, QSqlRelationalDelegate provides a combobox for fields
     that are foreign keys into other tables. To use the class, simply
     call QAbstractItemView::setItemDelegate() on the view with an
