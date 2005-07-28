@@ -115,6 +115,9 @@
     \printline }
     \printline }
 
+    See also the \l{Styles Example} for a more detailed description of
+    how custom styles can be created.
+
     \section1 Comparison with Qt 3
 
     The QStyle class has a similar API in Qt 4 as in Qt 3, with
