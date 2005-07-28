@@ -3221,7 +3221,7 @@ static void localToUtc(QDate &date, QTime &time, int isdst)
     brokenDown = gmtime_r(&secsSince1Jan1970UTC, &res);
 #else
 # if defined(_MSC_VER) && _MSC_VER >= 1400
-    if (!_gmtime64_s(brokenDown, &secsSince1Jan1970UTC))
+    if (!_gmtime64_s(&res, &secsSince1Jan1970UTC))
 		brokenDown = &res;
 	else
 		brokenDown = 0;
