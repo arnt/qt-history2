@@ -155,30 +155,6 @@ QPoint SpreadSheetItem::convertCoords(const QString coords) const
     return QPoint(c, r);
 }
 
-//   Here we subclass QTableWidget to change the selection behavior to only select with the left mouse button
-//   (so we keep the selection when opening the context menu on an item).
-
-class SpreadSheetTable : public QTableWidget
-{
-    Q_OBJECT
-public:
-    SpreadSheetTable(int rows, int columns, QWidget *parent) :
-        QTableWidget(rows, columns, parent) {}
-
-    QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex &index,
-                                                         const QEvent *event) const;
-};
-
-QItemSelectionModel::SelectionFlags SpreadSheetTable::selectionCommand(const QModelIndex &index,
-                                                                       const QEvent *event) const
-{
-    const QMouseEvent *me = event && event->type() == QEvent::MouseButtonPress
-                            ? static_cast<const QMouseEvent *>(event) : 0;
-    if (me && (me->buttons() & Qt::RightButton || me->buttons() & Qt::MidButton))
-        return QItemSelectionModel::NoUpdate;
-    return QTableWidget::selectionCommand(index, event);
-}
-
 class SpreadSheet : public QMainWindow
 {
     Q_OBJECT
@@ -205,7 +181,6 @@ protected:
     void setupContextMenu();
     void setupContents();
 
-    void setupToolBar();
     void setupMenuBar();
     void createActions();
 
@@ -249,7 +224,7 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     toolBar->addWidget(cellLabel);
     toolBar->addWidget(formulaInput);
 
-    table = new SpreadSheetTable(rows, cols, this);
+    table = new QTableWidget(rows, cols, this);
     for (int c = 0; c < cols; ++c) {
         QString character(QChar('A' + c));
         table->setHorizontalHeaderItem(c, new QTableWidgetItem(character));
@@ -260,7 +235,6 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     createActions();
 
     updateColor(0);
-    setupToolBar();
     setupMenuBar();
     setupContextMenu();
     setupContents();
@@ -348,17 +322,6 @@ void SpreadSheet::setupMenuBar()
 
     QMenu *aboutMenu = menuBar()->addMenu(tr("&Help"));
     aboutMenu->addAction(aboutSpreadSheet);
-}
-
-void SpreadSheet::setupToolBar()
-{
-//     toolBar->addAction(cell_sumAction);
-
-//     toolBar->addAction(firstSeparator);
-//     toolBar->addAction(fontAction);
-//     toolBar->addAction(colorAction);
-//     toolBar->addAction(secondSeparator);
-//     toolBar->addAction(clearAction);
 }
 
 void SpreadSheet::updateStatus(QTableWidgetItem *item)
