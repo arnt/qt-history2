@@ -86,9 +86,6 @@ void QComboBoxPrivate::updateArrow(QStyle::StateFlag state)
     q->update(q->style()->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow));
 }
 
-/*!
-    \internal
-*/
 void QComboBoxPrivate::modelDestroyed()
 {
     Q_Q(QComboBox);
@@ -96,9 +93,6 @@ void QComboBoxPrivate::modelDestroyed()
     q->setModel(new QStandardItemModel(0, 1, q));
 }
 
-/*!
-    \internal
-*/
 bool QComboBoxPrivate::updateHoverControl(const QPoint &pos)
 {
 
@@ -114,9 +108,6 @@ bool QComboBoxPrivate::updateHoverControl(const QPoint &pos)
     return !doesHover;
 }
 
-/*!
-    \internal
-*/
 QStyle::SubControl QComboBoxPrivate::newHoverControl(const QPoint &pos)
 {
     Q_Q(QComboBox);
@@ -128,10 +119,6 @@ QStyle::SubControl QComboBoxPrivate::newHoverControl(const QPoint &pos)
                    : QRect();
     return hoverControl;
 }
-
-/*!
-    \internal
-*/
 
 QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView, QComboBox *parent)
     : QFrame(parent, Qt::Popup), combo(parent), view(0), top(0), bottom(0)
@@ -170,10 +157,6 @@ QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView
     }
 }
 
-/*!
-    \internal
-*/
-
 void QComboBoxPrivateContainer::scrollItemView(int action)
 {
 #ifndef QT_NO_SCROLLBAR
@@ -183,9 +166,7 @@ void QComboBoxPrivateContainer::scrollItemView(int action)
 }
 
 /*
-  \internal
-
-  Hides or shows the scrollers when we emulate a popupmenu
+    Hides or shows the scrollers when we emulate a popupmenu
 */
 void QComboBoxPrivateContainer::updateScrollers()
 {
@@ -217,11 +198,9 @@ void QComboBoxPrivateContainer::updateScrollers()
 }
 
 /*
-  \internal
-
-  Sets currentIndex on entered if the LeftButton is not pressed. This
-  means that if mouseTracking(...) is on, we setCurrentIndex and select
-  even when LeftButton is not pressed.
+    Sets currentIndex on entered if the LeftButton is not pressed. This
+    means that if mouseTracking(...) is on, we setCurrentIndex and select
+    even when LeftButton is not pressed.
 */
 void QComboBoxPrivateContainer::setCurrentIndex(const QModelIndex &index)
 {
@@ -229,9 +208,7 @@ void QComboBoxPrivateContainer::setCurrentIndex(const QModelIndex &index)
 }
 
 /*
-  \internal
-
-  Returns the item view used for the combobox popup.
+    Returns the item view used for the combobox popup.
 */
 QAbstractItemView *QComboBoxPrivateContainer::itemView() const
 {
@@ -239,9 +216,7 @@ QAbstractItemView *QComboBoxPrivateContainer::itemView() const
 }
 
 /*!
-  \internal
-
-  Sets the item view to be used for the combobox popup.
+    Sets the item view to be used for the combobox popup.
 */
 void QComboBoxPrivateContainer::setItemView(QAbstractItemView *itemView)
 {
@@ -296,9 +271,7 @@ void QComboBoxPrivateContainer::setItemView(QAbstractItemView *itemView)
 }
 
 /*!
-  \internal
-
-  returns the spacing between the items in the view
+    Returns the spacing between the items in the view.
 */
 int QComboBoxPrivateContainer::spacing() const
 {
@@ -307,10 +280,6 @@ int QComboBoxPrivateContainer::spacing() const
         return lview->spacing();
     return 0;
 }
-
-/*!
-    \internal
-*/
 
 bool QComboBoxPrivateContainer::eventFilter(QObject *o, QEvent *e)
 {
@@ -353,9 +322,6 @@ bool QComboBoxPrivateContainer::eventFilter(QObject *o, QEvent *e)
 }
 
 
-/*!
-    \internal
-*/
 void QComboBoxPrivateContainer::hideEvent(QHideEvent *)
 {
     emit resetButton();
@@ -382,9 +348,6 @@ void QComboBoxPrivateContainer::mouseReleaseEvent(QMouseEvent *e)
     emit resetButton();
 }
 
-/*!
-  \internal
-*/
 QStyleOptionComboBox QComboBoxPrivateContainer::comboStyleOption() const
 {
     QStyleOptionComboBox opt;
@@ -555,10 +518,6 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
 
     \sa QLineEdit, QSpinBox, QRadioButton, QButtonGroup,
         {fowler}{GUI Design Handbook: Combo Box, Drop-Down List Box}
-*/
-
-/*!
-    \internal
 */
 
 void QComboBoxPrivate::init()
@@ -754,9 +713,7 @@ void QComboBoxPrivate::returnPressed()
 }
 
 /*
-  \internal
-
-  handles auto completion
+    Handles auto completion.
 */
 void QComboBoxPrivate::complete()
 {
@@ -1245,10 +1202,9 @@ void QComboBox::setModel(QAbstractItemModel *model)
 }
 
 /*!
-   \internal
-
     Returns the root model item index for the items in the combobox.
 
+    \sa setRootModelIndex()
 */
 
 QModelIndex QComboBox::rootModelIndex() const
@@ -1258,9 +1214,9 @@ QModelIndex QComboBox::rootModelIndex() const
 }
 
 /*!
-    \internal
-
     Sets the root model item \a index for the items in the combobox.
+
+    \sa rootModelIndex()
 */
 
 void QComboBox::setRootModelIndex(const QModelIndex &index)
@@ -1411,8 +1367,6 @@ void QComboBox::insertItems(int index, const QStringList &list)
 }
 
 /*!
-    \internal
-
     Removes the item at the given \a index from the combobox.
     This will update the current index if the index is removed.
 */
