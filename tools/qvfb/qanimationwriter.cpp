@@ -14,6 +14,7 @@
 #define QT_CLEAN_NAMESPACE
 #include "qanimationwriter.h"
 #include <qfile.h>
+#include <limits.h>
 #include <png.h>
 #include <netinet/in.h> // for htonl
 #include <Q3CString>
