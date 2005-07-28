@@ -546,6 +546,9 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
     Q_D(QTableView);
     Q_UNUSED(modifiers);
 
+    if (!model())
+        return QModelIndex();
+    
     int bottom = model()->rowCount(rootIndex()) - 1;
     int right = model()->columnCount(rootIndex()) - 1;
     QModelIndex current = currentIndex();
@@ -1276,6 +1279,9 @@ void QTableView::verticalScrollbarAction(int action)
 {
     Q_D(QTableView);
 
+    int count = d->verticalHeader->count();
+    if (count == 0)
+        return; // nothing to do
     int steps = verticalStepsPerItem();
     int value = verticalScrollBar()->value();
     int row = value / steps;
@@ -1285,7 +1291,7 @@ void QTableView::verticalScrollbarAction(int action)
     if (action == QScrollBar::SliderPageStepAdd) {
         // go down to the bottom of the page
         int h = d->viewport->height();
-        while (y < h && row < d->model->rowCount(rootIndex()))
+        while (y < h && row < count)
             y += d->verticalHeader->sectionSize(row++);
         value = row * steps; // i is now the last item on the page
         if (y > h && row)
@@ -1310,6 +1316,9 @@ void QTableView::horizontalScrollbarAction(int action)
 {
     Q_D(QTableView);
 
+    int count = d->horizontalHeader->count();
+    if (count == 0)
+        return; // nothing to do
     int steps = horizontalStepsPerItem();
     int value = horizontalScrollBar()->value();
     int column = value / steps;
@@ -1319,7 +1328,7 @@ void QTableView::horizontalScrollbarAction(int action)
     if (action == QScrollBar::SliderPageStepAdd) {
         // go down to the right of the page
         int w = d->viewport->width();
-        while (x < w && column < d->model->columnCount(rootIndex()))
+        while (x < w && column < count)
             x += d->horizontalHeader->sectionSize(column++);
         value = column * steps; // i is now the last item on the page
         if (x > w && column)
