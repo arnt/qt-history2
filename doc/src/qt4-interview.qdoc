@@ -143,8 +143,7 @@
     \quotefromfile snippets/stringlistmodel/model.h
     \skipto class StringListModel
     \printuntil headerData
-    \printline
-    \printline
+    \printline role
     \skipto private:
     \printuntil /^\};/
 
