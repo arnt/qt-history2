@@ -55,6 +55,7 @@ void merge( MetaTranslator *tor, const MetaTranslator *virginTor, bool verbose )
             } else {
                 switch ( m.type() ) {
                 case MetaTranslatorMessage::Finished:
+                default:
                     newType = MetaTranslatorMessage::Finished;
                     known++;
                     break;

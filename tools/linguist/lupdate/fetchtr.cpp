@@ -306,11 +306,13 @@ static int getToken()
                                 yyString[yyStringLen++] = (char) n;
                         } else if ( yyCh >= '0' && yyCh < '8' ) {
                             QByteArray oct = "";
+                            int n = 0;
 
                             do {
                                 oct += (char) yyCh;
+                                ++n;
                                 yyCh = getChar();
-                            } while ( yyCh >= '0' && yyCh < '8' );
+                            } while ( yyCh >= '0' && yyCh < '8' && n < 3 );
                             sscanf( oct, "%o", &n );
                             if ( yyStringLen < sizeof(yyString) - 1 )
                                 yyString[yyStringLen++] = (char) n;
