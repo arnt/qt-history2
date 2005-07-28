@@ -140,9 +140,17 @@ int main( int argc, char **argv )
 
         QFile f( argv[i] );
         if ( !f.open(QIODevice::ReadOnly) ) {
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+			char buf[100];
+			strerror_s(buf, sizeof(buf), errno);
+			fprintf( stderr,
+                     "lrelease error: Cannot open file '%s': %s\n", argv[i],
+                     buf );
+#else
             fprintf( stderr,
                      "lrelease error: Cannot open file '%s': %s\n", argv[i],
                      strerror(errno) );
+#endif
             return 1;
         }
 

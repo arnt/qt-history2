@@ -301,7 +301,11 @@ static int getToken()
                                 hex += (char) yyCh;
                                 yyCh = getChar();
                             }
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+							sscanf_s( hex, "%x", &n );
+#else
                             sscanf( hex, "%x", &n );
+#endif
                             if ( yyStringLen < sizeof(yyString) - 1 )
                                 yyString[yyStringLen++] = (char) n;
                         } else if ( yyCh >= '0' && yyCh < '8' ) {
@@ -313,7 +317,11 @@ static int getToken()
                                 ++n;
                                 yyCh = getChar();
                             } while ( yyCh >= '0' && yyCh < '8' && n < 3 );
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+							sscanf_s( oct, "%o", &n );
+#else
                             sscanf( oct, "%o", &n );
+#endif
                             if ( yyStringLen < sizeof(yyString) - 1 )
                                 yyString[yyStringLen++] = (char) n;
                         } else {
@@ -653,12 +661,23 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
                   const char *defaultContext, bool mustExist )
 {
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+	if (fopen_s(&yyInFile, fileName, "r")) {
+		if ( mustExist ) {
+			char buf[100];
+			strerror_s(buf, sizeof(buf), errno);
+			fprintf( stderr,
+                     "lupdate error: Cannot open C++ source file '%s': %s\n",
+                     fileName, buf );
+		}
+#else
     yyInFile = fopen( fileName, "r" );
-    if ( yyInFile == 0 ) {
+	if ( yyInFile == 0 ) {
         if ( mustExist )
             fprintf( stderr,
                      "lupdate error: Cannot open C++ source file '%s': %s\n",
                      fileName, strerror(errno) );
+#endif
         return;
     }
 
@@ -787,9 +806,17 @@ void fetchtr_ui( const char *fileName, MetaTranslator *tor,
 {
     QFile f( fileName );
     if ( !f.open(QIODevice::ReadOnly) ) {
-        if ( mustExist )
+		if ( mustExist ) {
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+			char buf[100];
+			strerror_s(buf, sizeof(buf), errno);
+			fprintf( stderr, "lupdate error: cannot open UI file '%s': %s\n",
+                     fileName, buf );
+#else
             fprintf( stderr, "lupdate error: cannot open UI file '%s': %s\n",
                      fileName, strerror(errno) );
+#endif
+		}
         return;
     }
 
