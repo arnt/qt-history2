@@ -793,23 +793,23 @@ int QTableView::sizeHintForRow(int row) const
 {
     Q_D(const QTableView);
 
-
     if (!model())
         return -1;
 
-    int columnfirst = columnAt(0);
-    int columnlast = columnAt(d->viewport->width());
-    if (columnlast < 0)
-        columnlast = d->horizontalHeader->count() - 1;
+    int left = qMax(0, columnAt(0));
+    int right = columnAt(d->viewport->width());
+    if (right == -1) // the table don't have enought columns to fill the viewport
+        right = model()->columnCount(rootIndex()) - 1;
 
     QStyleOptionViewItem option = viewOptions();
 
     int hint = 0;
     QModelIndex index;
-    for (int column = columnfirst; column <= columnlast; ++column) {
+    for (int column = left; column <= right; ++column) {
         index = d->model->index(row, column, rootIndex());
         hint = qMax(hint, itemDelegate()->sizeHint(option, index).height());
     }
+
     return d->showGrid ? hint + 1 : hint;
 }
 
@@ -835,19 +835,20 @@ int QTableView::sizeHintForColumn(int column) const
     if (!model())
         return -1;
 
-    int rowfirst = rowAt(0);
-    int rowlast = rowAt(d->viewport->height());
-    if (rowlast < 0)
-        rowlast = d->verticalHeader->count() - 1;
+    int top = qMax(0, rowAt(0));
+    int bottom = rowAt(d->viewport->height());
+    if (bottom == -1) // the table don't have enought rows to fill the viewport
+        bottom = model()->rowCount(rootIndex()) - 1;
 
     QStyleOptionViewItem option = viewOptions();
 
     int hint = 0;
     QModelIndex index;
-    for (int row = rowfirst; row <= rowlast; ++row) {
+    for (int row = top; row <= bottom; ++row) {
         index = d->model->index(row, column, rootIndex());
         hint = qMax(hint, itemDelegate()->sizeHint(option, index).width());
     }
+
     return d->showGrid ? hint + 1 : hint;
 }
 
