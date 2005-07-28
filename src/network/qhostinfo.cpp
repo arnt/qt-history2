@@ -83,7 +83,7 @@ Q_GLOBAL_STATIC(QHostInfoAgent, agent)
     To retrieve the name of the local host, use the static
     QHostInfo::localHostName() function.
 
-    \sa QAbstractSocket, {http://ietf.org/rfc/rfc3492}{RFC 3492}
+    \sa QAbstractSocket, {http://www.rfc-editor.org/rfc/rfc3492.txt}{RFC 3492}
 */
 
 static QBasicAtomic idCounter = Q_ATOMIC_INIT(1);

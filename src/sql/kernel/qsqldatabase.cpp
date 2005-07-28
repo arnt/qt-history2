@@ -392,6 +392,9 @@ void QSqlDatabasePrivate::disable()
     connectionName is given, use database(\a connectionName) to
     retrieve a pointer to the database connection.
 
+    \warning If you add a database with the same name as an
+    existing database, the new database will replace the old one.
+
     To make use of the connection, you will need to set it up, for
     example by calling some or all of setDatabaseName(),
     setUserName(), setPassword(), setHostName(), setPort(), and
@@ -1343,6 +1346,9 @@ bool QSqlDatabase::isDriverAvailable(const QString& name)
     the QTDSDriver for creating new connections for internal
     queries. This is to prevent the simultaneous usage of several
     QSqlQuery/\l{QSqlCursor} objects from blocking each other.
+
+    \warning If you add a database with the same name as an
+    existing database, the new database will replace the old one.
 
     \warning The SQL framework takes ownership of the \a driver pointer,
     and it should not be deleted. If you want to

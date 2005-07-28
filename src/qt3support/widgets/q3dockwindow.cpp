@@ -1793,7 +1793,27 @@ QSize Q3DockWindow::minimumSizeHint() const
     return msh;
 }
 
-/*! \internal */
+/*!
+    \fn void Q3DockWindow::undock()
+
+    Undocks the Q3DockWindow from its current dock area if it is
+    docked; otherwise does nothing.
+
+    \sa dock() Q3DockArea::moveDockWindow(),
+    Q3DockArea::removeDockWindow(), Q3MainWindow::moveDockWindow(),
+    Q3MainWindow::removeDockWindow()
+*/
+
+/*!
+    \fn void Q3DockWindow::undock(QWidget *widget)
+
+    Undocks the specified \a widget from its current dock area if it is
+    docked; otherwise does nothing.
+
+    \sa dock() Q3DockArea::moveDockWindow(),
+    Q3DockArea::removeDockWindow(), Q3MainWindow::moveDockWindow(),
+    Q3MainWindow::removeDockWindow()
+*/
 void Q3DockWindow::undock(QWidget *w)
 {
     Q3MainWindow *mw = 0;
@@ -1840,17 +1860,6 @@ void Q3DockWindow::undock(QWidget *w)
         parentWidget()->setActiveWindow();
     emit placeChanged(place());
 }
-
-/*!
-    \fn void Q3DockWindow::undock()
-
-    Undocks the Q3DockWindow from its current dock area if it is
-    docked; otherwise does nothing.
-
-    \sa dock() Q3DockArea::moveDockWindow(),
-    Q3DockArea::removeDockWindow(), Q3MainWindow::moveDockWindow(),
-    Q3MainWindow::removeDockWindow()
-*/
 
 void Q3DockWindow::removeFromDock(bool fixNewLines)
 {

@@ -1294,9 +1294,9 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \a copy if \a copy is not 0.
 
     Note that you have to pass the address of the variable you want stored.
-    That includes the usage of VoidStar, QObjectStar and QWidgetStar.
+    That includes the usage of \c VoidStar, \c QObjectStar and \c QWidgetStar.
 
-    \sa qVariantFromValue()
+    \sa qVariantFromValue(), Type
 */
 
 /*!

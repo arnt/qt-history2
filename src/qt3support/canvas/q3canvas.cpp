@@ -5100,14 +5100,14 @@ void Q3CanvasSprite::advance(int phase)
 
 
 /*!
-    \internal
+    Moves the sprite to (\a x, \a y).
 */
 void Q3CanvasSprite::move(double x, double y) { Q3CanvasItem::move(x,y); }
 
 /*!
     \fn void Q3CanvasSprite::move(double nx, double ny, int nf)
 
-    Set the position of the sprite to \a nx, \a ny and the current
+    Moves the sprite to (\a nx, \a ny) and sets the current
     frame to \a nf. \a nf will be ignored if it is larger than
     frameCount() or smaller than 0.
 */

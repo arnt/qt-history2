@@ -149,6 +149,8 @@ QSqlQueryPrivate::~QSqlQueryPrivate()
     You can retrieve the values of all the fields in a single variable
     (a map) using boundValues().
 
+    \section1 Approaches to Binding Values
+
     Below we present the same example using each of the four
     different binding approaches, as well as one example of binding
     values to a stored procedure.
@@ -305,11 +307,12 @@ bool QSqlQuery::isNull(int field) const
 
     \quotefromfile snippets/sqldatabase/sqldatabase.cpp
     \skipto QSqlQuery_snippets()
-    \skipto typical loop
+    \skipto named with named
     \skipto QSqlQuery query
-    \printuntil }
+    \printuntil exec()
 
-    \sa isActive() isValid() next() previous() first() last() seek()
+    \sa isActive(), isValid(), next(), previous(), first(), last(),
+        seek()
 */
 
 bool QSqlQuery::exec(const QString& query)

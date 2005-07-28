@@ -1762,8 +1762,8 @@ void Q3Dns::setLabel( const QHostAddress & address )
     QStringList list = myDns.qualifiedNames();
     QStringList::Iterator it = list.begin();
     while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
+        myProcessing( *it );
+        ++it;
     }
     \endcode
 
@@ -1806,7 +1806,7 @@ void Q3Dns::setLabel( const QHostAddress & address )
     \value Txt  arbitrary TeXT for domains.
 
     We expect that some support for the
-    \link http://www.dns.net/dnsrd/rfc/rfc2535.html RFC-2535 \endlink
+    \l{http://www.rfc-editor.org/rfc/rfc2535.txt}{RFC 2535}
     extensions will be added in future versions.
 */
 
@@ -1963,8 +1963,8 @@ bool Q3Dns::isWorking() const
     Q3ValueList<QHostAddress> list = myDns.addresses();
     Q3ValueList<QHostAddress>::Iterator it = list.begin();
     while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
+        myProcessing( *it );
+        ++it;
     }
     \endcode
 
@@ -2013,8 +2013,8 @@ Q3ValueList<QHostAddress> Q3Dns::addresses() const
     Q3ValueList<Q3Dns::MailServer> list = myDns.mailServers();
     Q3ValueList<Q3Dns::MailServer>::Iterator it = list.begin();
     while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
+        myProcessing( *it );
+        ++it;
     }
     \endcode
 
@@ -2066,8 +2066,8 @@ Q3ValueList<Q3Dns::MailServer> Q3Dns::mailServers() const
     Q3ValueList<Q3Dns::Server> list = myDns.servers();
     Q3ValueList<Q3Dns::Server>::Iterator it = list.begin();
     while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
+        myProcessing( *it );
+        ++it;
     }
     \endcode
 */
@@ -2104,8 +2104,8 @@ Q3ValueList<Q3Dns::Server> Q3Dns::servers() const
     QStringList list = myDns.hostNames();
     QStringList::Iterator it = list.begin();
     while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
+        myProcessing( *it );
+        ++it;
     }
     \endcode
 
@@ -2143,8 +2143,8 @@ QStringList Q3Dns::hostNames() const
     QStringList list = myDns.texts();
     QStringList::Iterator it = list.begin();
     while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
+        myProcessing( *it );
+        ++it;
     }
     \endcode
 */
