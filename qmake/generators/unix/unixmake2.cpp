@@ -1111,9 +1111,9 @@ UnixMakefileGenerator::writeLibtoolFile()
 	char buf[26];
 	if (!ctime_s(buf, 26, &now))
 		t << buf;
-#else  	
-	t << ctime(&now)
-#endif	  
+#else
+	t << ctime(&now);
+#endif
 	t << "\n";
 
     t << "# The name that we can dlopen(3).\n"
