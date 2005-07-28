@@ -390,13 +390,28 @@ void QFSFileEnginePrivate::init()
     fileAttrib = INVALID_FILE_ATTRIBUTES;
 }
 
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+#include <share.h>
+#endif
 int QFSFileEnginePrivate::sysOpen(const QString &fileName, int flags)
 {
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+	QT_WA({
+		int fd;
+		_wsopen_s(&fd, (TCHAR*)fileName.utf16(), flags, _SH_DENYNO, _S_IREAD | _S_IWRITE);
+		return fd;
+	} , {
+		int fd;
+		_sopen_s(&fd, QFSFileEnginePrivate::win95Name(fileName), flags, _SH_DENYNO, _S_IREAD | _S_IWRITE);
+		return fd;
+	});
+#else
     QT_WA({
 	return ::_wopen((TCHAR*)QFSFileEnginePrivate::longFileName(fileName).utf16(), flags, _S_IREAD | _S_IWRITE);
     } , {
 	return  QT_OPEN(QFSFileEnginePrivate::win95Name(fileName), flags, _S_IREAD | _S_IWRITE);
     });
+#endif
 }
 
 bool QFSFileEngine::remove()

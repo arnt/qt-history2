@@ -83,8 +83,15 @@ bool QBufferedFSFileEngine::open(int flags)
         if (flags & QIODevice::ReadOnly)
             mode += "+";
     }
-    d->fh = QT_FOPEN(QFile::encodeName(d->file).constData(), mode.constData());
-    if (!d->fh) {
+
+
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+	if (fopen_s(&(d->fh), QFile::encodeName(d->file).constData(), mode.constData())) {
+		d->fh = 0;
+#else
+	d->fh = QT_FOPEN(QFile::encodeName(d->file).constData(), mode.constData());    
+	if (!d->fh) {
+#endif
         QString errString = QT_TRANSLATE_NOOP(QBufferedFSFileEngine, "Unknown error");
         d->setError(errno == EMFILE ? QFile::ResourceError : QFile::OpenError,
                     qt_error_string(int(errno)));
@@ -94,7 +101,8 @@ bool QBufferedFSFileEngine::open(int flags)
         QT_FSEEK(d->fh, 0, SEEK_END);
 
     d->closeFileHandle = true;
-    d->fd = fileno(d->fh);
+    d->fd = QT_FILENO(d->fh);
+
     QT_STATBUF st;
     if (QT_FSTAT(QT_FILENO(d->fh), &st) != 0)
 	return false;
@@ -107,9 +115,9 @@ bool QBufferedFSFileEngine::open(int /* flags */, FILE *fh)
 {
     Q_D(QBufferedFSFileEngine);
     d->fh = fh;
-    d->fd = fileno(fh);
+    d->fd = QT_FILENO(fh);
     QT_STATBUF st;
-    if (QT_FSTAT(fileno(fh), &st) != 0)
+    if (QT_FSTAT(QT_FILENO(fh), &st) != 0)
 	return false;
     d->sequential = S_ISCHR(st.st_mode) || S_ISFIFO(st.st_mode) || S_ISSOCK(st.st_mode);
     d->closeFileHandle = false;

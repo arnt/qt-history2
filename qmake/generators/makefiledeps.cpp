@@ -31,6 +31,7 @@
 #if defined(_MSC_VER) && _MSC_VER >= 1400
 #include <share.h>
 #endif
+#include <qplatformdefs.h>
 
 #if 1
 #define qmake_endOfLine(c) (c == '\r' || c == '\n')
@@ -153,8 +154,14 @@ void SourceFiles::addFile(SourceFile *p, const char *k)
         k = ba;
     int h = hash(k) % num_nodes;
     SourceFileNode *pn = new SourceFileNode;
-    pn->key = strdup(k);
-    pn->file = p;
+	int len = int(strlen(k)) + 1;
+	pn->key = (char*)(malloc(sizeof(char)*len));
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+	strcpy_s(pn->key, len, k);
+#else
+	strcpy(pn->key, k);
+#endif
+	pn->file = p;
     pn->next = nodes[h];
     nodes[h] = pn;
 }
@@ -341,7 +348,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
         int fd;
 #if defined(_MSC_VER) && _MSC_VER >= 1400
         if (_sopen_s(&fd, fixPathForFile(file->file, true).local().toLatin1().constData(),
-            _O_RDONLY, _SH_DENYRW, _S_IREAD) != 0)
+            _O_RDONLY, _SH_DENYNO, _S_IREAD) != 0)
             fd = -1;
 #else
         fd = open(fixPathForFile(file->file, true).local().toLatin1().constData(), O_RDONLY);
@@ -350,9 +357,9 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
             return false;
         buffer = getBuffer(fst.st_size);
         for(int have_read = 0;
-            (have_read = read(fd, buffer + buffer_len, fst.st_size - buffer_len));
+            (have_read = QT_READ(fd, buffer + buffer_len, fst.st_size - buffer_len));
             buffer_len += have_read);
-        close(fd);
+        QT_CLOSE(fd);
     }
     if(!buffer)
         return false;
@@ -650,9 +657,9 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
             return false; //shouldn't happen
         buffer = getBuffer(fst.st_size);
         for(int have_read = buffer_len = 0;
-            (have_read = read(fd, buffer + buffer_len, fst.st_size - buffer_len));
+            (have_read = QT_READ(fd, buffer + buffer_len, fst.st_size - buffer_len));
             buffer_len += have_read);
-        close(fd);
+        QT_CLOSE(fd);
     }
 
     debug_msg(2, "findMocs: %s", file->file.local().toLatin1().constData());

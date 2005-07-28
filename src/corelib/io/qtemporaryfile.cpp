@@ -49,12 +49,19 @@ bool QTemporaryFileEngine::open(int)
     if(!qfilename.endsWith(QLatin1String("XXXXXX")))
         qfilename += QLatin1String(".XXXXXX");
     d->external_file = 0;
-    char *filename = strdup(qfilename.toLocal8Bit());
+	int len = int(strlen(qfilename.toLocal8Bit())) + 1;
+	char *filename = (char*)(malloc(sizeof(char)*len));
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+	strcpy_s(filename, len, qfilename.toLocal8Bit());
+#else
+	strcpy(filename, qfilename.toLocal8Bit());
+#endif
+    
 #ifdef HAS_MKSTEMP
     d->fd = mkstemp(filename);
 #else
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-    int len = int(strnlen(filename, _MAX_FNAME)) + 1;
+    len = int(strlen(filename)) + 1;
     if(_mktemp_s(filename, len) == 0) {
 #else
     if(mktemp(filename)) {
