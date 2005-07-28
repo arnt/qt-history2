@@ -669,7 +669,7 @@ QString Win32MakefileGenerator::defaultInstall(const QString &t)
                 uninst.append("\n\t");
             uninst.append("-$(DEL_FILE) \"" + dst_prl + "\"");
         }
-        if(project->isActiveConfig("shared")) {
+        if(project->isActiveConfig("shared") && !project->isActiveConfig("plugin")) {
             QString lib_target = QString(project->first("TARGET")+project->first("TARGET_VERSION_EXT")+".lib");
             lib_target.remove('"');
             QString src_targ = "$(DESTDIR)" + lib_target;

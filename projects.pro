@@ -44,7 +44,11 @@ INSTALLS += translations
 
 #qmake
 qmake.path=$$[QT_INSTALL_BINS]
-qmake.files=$$QT_BUILD_TREE/bin/qmake #exe itself
+win32 {
+   qmake.files=$$QT_BUILD_TREE/bin/qmake.exe
+} else {
+   qmake.files=$$QT_BUILD_TREE/bin/qmake
+}
 INSTALLS += qmake
 
 #mkspecs
