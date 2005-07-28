@@ -63,6 +63,9 @@ public:
     bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value,
                        int role);
 
+    bool insertRows(int row, int count, const QModelIndex &parent);
+    bool removeRows(int row, int count, const QModelIndex &parent);
+
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void sort(int column, Qt::SortOrder order);
@@ -72,6 +75,8 @@ public:
                                 const QPair<QTreeWidgetItem*,int> &right);
 
     void insertInTopLevel(int row, QTreeWidgetItem *item);
+    void removeFromTopLevel(QTreeWidgetItem *item);
+    QTreeWidgetItem *takeFromTopLevel(int row);
 
     void insertListInTopLevel(int row, const QList<QTreeWidgetItem*> &items);
 
@@ -403,6 +408,84 @@ bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
 
 /*!
   \internal
+
+  Inserts a tree view item into the \a parent item at the given
+  \a row. Returns true if successful; otherwise returns false.
+
+  An empty item will be created by this function.
+*/
+
+bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
+{
+    beginInsertRows(parent, row, row + count - 1);
+
+    QTreeWidgetItem *c = 0;
+    if (parent.isValid()) {
+        // add items
+        QTreeWidgetItem *p = item(parent);
+        Q_ASSERT(p);
+        for (int r = row; r < row + count; ++r) {
+            c = new QTreeWidgetItem();
+            c->view = p->view;
+            c->model = p->model;
+            c->par = p;
+            p->children.insert(r, c);
+        }
+    } else {
+        // add items
+        QTreeWidget *view = ::qobject_cast<QTreeWidget*>(QObject::parent());
+        for (int r = row; r < row + count; ++r) {
+            c = new QTreeWidgetItem();
+            c->view = view;
+            c->model = this;
+            c->par = 0;
+            tree.insert(r, c);
+        }
+    }
+
+    endInsertRows();
+    return true;
+}
+
+/*!
+  \internal
+
+  Removes the given \a row from the \a parent item, and returns true
+  if successful; otherwise false is returned.
+*/
+
+bool QTreeModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    beginRemoveRows(parent, row, row + count - 1);
+
+    QTreeWidgetItem *c = 0;
+    if (parent.isValid()) {
+        // remove items
+        QTreeWidgetItem *p = item(parent);
+        Q_ASSERT(p);
+        for (int r = row; r < row + count; ++r) {
+             c = p->children.takeAt(r);
+             c->par = 0;
+             c->view = 0;
+             c->model = 0;
+             delete c;
+        }
+    } else {
+        // remove items
+        for (int r = row; r < row + count; ++r) {
+            c = tree.takeAt(r);
+            c->view = 0;
+            c->model = 0;
+            delete c;
+        }
+    }
+
+    endRemoveRows();
+    return true;
+}
+
+/*!
+  \internal
   \reimp
 
   Returns the flags for the item refered to the given \a index.
@@ -481,6 +564,39 @@ void QTreeModel::insertInTopLevel(int row, QTreeWidgetItem *item)
     beginInsertRows(QModelIndex(), row, row);
     tree.insert(row, item);
     endInsertRows();
+}
+
+/*!
+  \internal
+
+  Remove the treeview toplevel \a item from the tree model.
+*/
+
+void QTreeModel::removeFromTopLevel(QTreeWidgetItem *item)
+{
+    int row = tree.indexOf(item);
+    Q_ASSERT(row != -1);
+    beginRemoveRows(QModelIndex(), row, row);
+    tree.removeAt(row);
+    endRemoveRows();
+}
+
+/*!
+  \internal
+
+  Takes the treeview toplevel item in \a row from the tree model.
+*/
+
+QTreeWidgetItem *QTreeModel::takeFromTopLevel(int row)
+{
+    Q_ASSERT(row != -1);
+    beginRemoveRows(QModelIndex(), row, row);
+    QTreeWidgetItem *item = tree.takeAt(row);
+    item->model = 0;
+    item->view = 0;
+    item->par = 0;
+    endRemoveRows();
+    return item;
 }
 
 /*!
@@ -1112,29 +1228,27 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after
 
 QTreeWidgetItem::~QTreeWidgetItem()
 {
-    if (par) {
-        int i = par->children.indexOf(this);
-        if (model) model->beginRemoveItem(par, i);
-        par->children.takeAt(i);
-        if (model) model->endRemoveRows();
-    } else if (model) {
-        int i = model->tree.indexOf(this);
-        model->beginRemoveRows(QModelIndex(), i, i);
-        model->tree.takeAt(i);
-        model->endRemoveRows();
-    }
-    // at this point the persistent indexes for the children should also be invalidated since we invalidated the parent
-    for (int i = 0; i < children.count(); ++i) {
+    int count = children.count();
+    if (model && count > 0)
+        model->beginRemoveItems(this, 0, count - 1);
+    for (int i = 0; i < count; ++i) {
         QTreeWidgetItem *child = children.at(i);
         child->par = 0; // make sure the child doesn't try to remove itself from children list
         child->view = 0; // make sure the child doesn't try to remove itself from the top level list
-        child->model = 0; // make sure the child doesn't try to invalidate its index in the model
         delete child;
     }
     if (model && count > 0)
         model->endRemoveRows();
-    
+
     children.clear();
+
+    if (par) {
+        int i = par->indexOfChild(this);
+        par->takeChild(i);
+    } else if (view) {
+        int i = view->indexOfTopLevelItem(this);
+        view->takeTopLevelItem(i);
+    }
 }
 
 /*!
@@ -1807,8 +1921,7 @@ QTreeWidgetItem *QTreeWidget::takeTopLevelItem(int index)
 {
     Q_D(QTreeWidget);
     if (index >= 0 && index < d->model()->tree.count()) {
-        d->model()->beginRemoveRows(QModelIndex(), index, index);
-        QTreeWidgetItem *item = d->model()->tree.takeAt(index);
+        QTreeWidgetItem *item = d->model()->takeFromTopLevel(index);
         QStack<QTreeWidgetItem*> stack;
         stack.push(item);
         while (!stack.isEmpty()) {
@@ -1818,7 +1931,6 @@ QTreeWidgetItem *QTreeWidget::takeTopLevelItem(int index)
             for (int c = 0; c < i->children.count(); ++c)
                 stack.push(i->children.at(c));
         }
-        d->model()->endRemoveRows();
         return item;
     }
     return 0;
