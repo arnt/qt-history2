@@ -29,6 +29,9 @@ public:
     explicit QPageSetupDialog(QPrinter *printer, QWidget *parent = 0);
 
     virtual int exec();
+#ifdef qdoc
+    QPrinter *printer();
+#endif
 };
 
 #endif // QT_NO_PRINTDIALOG

@@ -17,6 +17,7 @@
 #ifndef QT_NO_PRINTDIALOG
 
 /*!
+    \internal
     \class QAbstractPageSetupDialog
 
     \brief The QAbstractPageSetupDialog class provides a base for

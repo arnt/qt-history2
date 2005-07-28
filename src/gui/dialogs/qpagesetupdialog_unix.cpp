@@ -149,7 +149,6 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
     layout->addItem(spacer);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
-    buttonLayout->setSpacing(layout->spacing()); // ### should not be necessary
     QSpacerItem *buttonSpacer = new QSpacerItem(71, 20, QSizePolicy::Expanding,
                                                 QSizePolicy::Minimum);
     QPushButton *okButton = new QPushButton(tr("OK"), this);
@@ -159,7 +158,7 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
 
-    layout->addItem(buttonLayout);
+    layout->addLayout(buttonLayout);
 
     setAttribute(Qt::WA_WState_Polished, false);
 
@@ -183,12 +182,8 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
 }
 
 /*!
-    \fn int QPageSetupDialog::exec()
-
-    Executes the the page setup dialog. The printer will be configure
-    according to the users choices when the function exists.
+    \internal
 */
-
 int QPageSetupDialog::exec()
 {
     Q_D(QPageSetupDialog);
@@ -203,5 +198,12 @@ int QPageSetupDialog::exec()
     }
     return ret;
 }
+
+/*!
+    \fn QPrinter *QPageSetupDialog::printer()
+
+    Returns the printer that was passed to the QPageSetupDialog
+    constructor.
+*/
 
 #endif // QT_NO_PRINTDIALOG
