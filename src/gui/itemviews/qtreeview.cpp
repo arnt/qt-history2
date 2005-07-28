@@ -339,9 +339,7 @@ bool QTreeView::isRowHidden(int row, const QModelIndex &parent) const
     Q_D(const QTreeView);
     if (d->hiddenIndexes.count() <= 0)
         return false;
-    QModelIndex index = model()->index(row, 0, parent);
-    QPersistentModelIndex persistent(index);
-    return d->hiddenIndexes.contains(persistent);
+    return d->hiddenIndexes.contains(model()->index(row, 0, parent));
 }
 
 /*!
@@ -813,11 +811,21 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *e)
     Q_D(QTreeView);
     int i = d->itemDecorationAt(e->pos());
     if (i == -1) {
-        QAbstractItemView::mouseDoubleClickEvent(e);
         i = d->item(e->y());
-        if (i == -1 || state() != NoState || !d->itemsExpandable)
-            return; // the double click triggered editing or we clicked outside the items
-        if (model()->hasChildren(d->viewItems.at(i).index)) {
+        if (i == -1)
+            return; // user clicked outside the items
+
+        // signal handlers may change the model
+        QPersistentModelIndex persistent = d->viewItems.at(i).index;
+        emit doubleClicked(persistent);
+
+        if (edit(persistent, DoubleClicked, e) || state() != NoState)
+            return; // the double click triggered editing
+        
+        if (!style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
+            emit activated(persistent);
+        
+        if (d->itemsExpandable && model()->hasChildren(d->viewItems.at(i).index)) {
             if (d->viewItems.at(i).expanded) {
                 setState(ExpandingState);
                 d->collapse(i);
