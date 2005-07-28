@@ -464,9 +464,8 @@ QFileInfo::canonicalFilePath() const
 
 
 /*!
-    Returns the file's path absolute path.
-
-    This does not include the file name.
+    Returns the file's path absolute path. This doesn't include the
+    file name.
 
     \sa dir(), filePath(), fileName(), isRelative(), path()
 */
@@ -503,7 +502,7 @@ QFileInfo::canonicalPath() const
 
 
 /*!
-    Returns the file's path.
+    Returns the file's path. This doesn't include the file name.
 
     \sa dir(), filePath(), fileName(), isRelative(), absolutePath()
 */
