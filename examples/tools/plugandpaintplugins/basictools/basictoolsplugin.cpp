@@ -18,7 +18,7 @@
 
 #include "basictoolsplugin.h"
 
-const float Pi = 3.14159;
+const float Pi = 3.14159f;
 
 QStringList BasicToolsPlugin::brushes() const
 {

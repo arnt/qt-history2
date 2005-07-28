@@ -18,7 +18,7 @@
 #include "renderarea.h"
 #include "window.h"
 
-const float Pi = 3.14159;
+const float Pi = 3.14159f;
 
 Window::Window()
 {
