@@ -14,6 +14,10 @@ static const char * const dont_mess_with_me =
     "The evaluation expires in %4 days\n\n"
     "Contact sales@trolltech.com for pricing and purchasing information.\n";
 
+static const char * const dont_mess_with_edus =
+    "This software is using the educational version of the Qt GUI toolkit.\n"
+    "The license period has expired. If you have any questions about Qt,\n"
+    "contact us at: sales@trolltech.com.\n\n";
 
 static const char * const dont_mess_with_me_either =
     "This software is using the trial version of the Qt GUI toolkit.\n"
@@ -31,6 +35,8 @@ static const char * const dont_mess_with_you_huh2 =
     "Contact sales@trolltech.com for pricing and purchasing information.\n";
 
 static const char qt_eval_key_data[512 + 12]     = "qt_qevalkey=\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+
+static bool qt_is_educational = false;
 
 // expiration date really
 static int qt_eval_figure_out()
@@ -56,7 +62,10 @@ static int qt_eval_figure_out()
 #endif
             return -100001;
 
-        if ((schema & 0x07) == 0)
+        if (schema == 0x20) {
+            qt_is_educational = true;
+            return today.daysTo(expiry);
+        } else if ((schema & 0x07) == 0)
             return -100002;
 
         return today.daysTo(expiry);
@@ -112,7 +121,12 @@ public:
 void qt_core_eval_init(uint type)
 {
     if (qt_eval_is_expired()) {
-        fprintf(stderr, "%s\n", dont_mess_with_me_either);
+
+        if (qt_is_educational) {
+            fprintf(stderr, "%s\n", dont_mess_with_edus);
+        } else {
+            fprintf(stderr, "%s\n", dont_mess_with_me_either);
+        }
 
         int code = qt_eval_figure_out();
         if (code <= -100000)
@@ -122,7 +136,7 @@ void qt_core_eval_init(uint type)
             // if we're a console app only.
             exit(0);
         }
-    } else {
+    } else if (!qt_is_educational) {
         fprintf(stderr, "%s\n", qPrintable(qt_eval_string()));
         if (type == 0) {
             Q_UNUSED(new QCoreFuriCuri());
@@ -220,9 +234,14 @@ public:
     {
         setWindowTitle(" ");
 
-        QString str = expired
-                      ? QString(QLatin1String(dont_mess_with_me_either))
-                      : qt_eval_string();
+        QString str;
+        if (expired) {
+            str = qt_is_educational
+                  ? QLatin1String(dont_mess_with_edus)
+                  : QLatin1String(dont_mess_with_me_either);
+        } else if (!qt_is_educational) {
+            str = qt_eval_string();
+        }
         str = str.trimmed();
 
         QFrame *border = new QFrame(this);
@@ -299,19 +318,23 @@ void qt_gui_eval_init(uint type)
             EvalMessageBox box(true);
             box.exec();
             QApplication::exit(0);
-        } else {
+        } else if (!qt_is_educational) {
             QString eval_string = qt_eval_string();
             EvalMessageBox *box = new EvalMessageBox(false);
             box->show();
         }
 
-        Q_UNUSED(new QGuiFuriCuri());
+        if (!qt_is_educational)
+            Q_UNUSED(new QGuiFuriCuri());
     }
 }
 
 QString qt_eval_adapt_window_title(const QString &title)
 {
-    return QLatin1String("[Qt Evaluation] ") + title;
+    QString title_prefix = qt_is_educational
+                           ? QLatin1String("[Qt Educational] ")
+                           : QLatin1String("[Qt Evaluation] ");
+    return title_prefix + title;
 }
 
 void qt_eval_init_widget(QWidget *w)
