@@ -15,7 +15,6 @@
 
 #include <QtDesigner/abstractformwindow.h>
 #include <QtDesigner/abstractformwindowmanager.h>
-#include <QtDesigner/abstractimagecollection.h>
 #include <QtDesigner/abstractmetadatabase.h>
 #include <QtDesigner/abstractwidgetbox.h>
 #include <QtDesigner/abstractwidgetfactory.h>
