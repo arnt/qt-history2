@@ -57,6 +57,7 @@ public:
     bool end();
 
     void updateState(const QPaintEngineState &state);
+    void updateMatrix(const QMatrix &matrix);
 
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
     void updateClipPath(const QPainterPath &path, Qt::ClipOperation op);
@@ -114,6 +115,9 @@ public:
     Type type() const { return Raster; }
 
     QPoint coordinateOffset() const;
+
+protected:
+    QRasterPaintEngine(QRasterPaintEnginePrivate &d);
 };
 
 

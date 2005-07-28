@@ -468,6 +468,31 @@ QRasterPaintEngine::QRasterPaintEngine()
     d->dashStroker = 0;
 }
 
+
+QRasterPaintEngine::QRasterPaintEngine(QRasterPaintEnginePrivate &dd)
+    : QPaintEngine(dd, QPaintEngine::PaintEngineFeatures(AllFeatures))
+{
+    Q_D(QRasterPaintEngine);
+
+    d->rasterBuffer = new QRasterBuffer();
+    d->fontRasterBuffer = new QRasterBuffer();
+    d->outlineMapper = new QFTOutlineMapper;
+    if (!qt_gray_raster || !qt_black_raster) {
+        qt_initialize_ft();
+    };
+
+    d->fillData = new FillData;
+    d->solidFillData = new SolidFillData;
+    d->textureFillData = new TextureFillData;
+    d->linearGradientData = new LinearGradientData;
+    d->radialGradientData = new RadialGradientData;
+    d->conicalGradientData = new ConicalGradientData;
+
+    d->flushOnEnd = true;
+}
+
+
+
 QRasterPaintEngine::~QRasterPaintEngine()
 {
     Q_D(QRasterPaintEngine);
@@ -729,6 +754,30 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
 #endif
 }
 
+void QRasterPaintEngine::updateMatrix(const QMatrix &matrix)
+{
+    Q_D(QRasterPaintEngine);
+
+    d->matrix = matrix;
+    d->int_xform = false;
+    if (d->matrix.m12() != 0 || d->matrix.m21() != 0) {
+        d->txop = QPainterPrivate::TxRotShear;
+    } else if (d->matrix.m11() != 1 || d->matrix.m22() != 1) {
+        d->txop = QPainterPrivate::TxScale;
+        d->int_xform = qreal(int(d->matrix.dx())) == d->matrix.dx()
+                            && qreal(int(d->matrix.dy())) == d->matrix.dy()
+                            && qreal(int(d->matrix.m11())) == d->matrix.m11()
+                            && qreal(int(d->matrix.m22())) == d->matrix.m22();
+    } else if (d->matrix.dx() != 0 || d->matrix.dy() != 0) {
+        d->txop = QPainterPrivate::TxTranslate;
+        d->int_xform = qreal(int(d->matrix.dx())) == d->matrix.dx()
+                            && qreal(int(d->matrix.dy())) == d->matrix.dy();
+    } else {
+        d->txop = QPainterPrivate::TxNone;
+        d->int_xform = true;
+    }
+    d->outlineMapper->setMatrix(d->matrix, d->txop);
+}
 
 void QRasterPaintEngine::updateState(const QPaintEngineState &state)
 {
@@ -740,25 +789,7 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
 
     if (flags & DirtyTransform) {
         update_fast_pen = true;
-        d->matrix = state.matrix();
-        d->int_xform = false;
-        if (d->matrix.m12() != 0 || d->matrix.m21() != 0) {
-            d->txop = QPainterPrivate::TxRotShear;
-        } else if (d->matrix.m11() != 1 || d->matrix.m22() != 1) {
-            d->txop = QPainterPrivate::TxScale;
-            d->int_xform = qreal(int(d->matrix.dx())) == d->matrix.dx()
-                             && qreal(int(d->matrix.dy())) == d->matrix.dy()
-                             && qreal(int(d->matrix.m11())) == d->matrix.m11()
-                             && qreal(int(d->matrix.m22())) == d->matrix.m22();
-        } else if (d->matrix.dx() != 0 || d->matrix.dy() != 0) {
-            d->txop = QPainterPrivate::TxTranslate;
-            d->int_xform = qreal(int(d->matrix.dx())) == d->matrix.dx()
-                             && qreal(int(d->matrix.dy())) == d->matrix.dy();
-        } else {
-            d->txop = QPainterPrivate::TxNone;
-            d->int_xform = true;
-        }
-        d->outlineMapper->setMatrix(d->matrix, d->txop);
+        updateMatrix(state.matrix());
     }
 
     if (flags & DirtyPen) {
