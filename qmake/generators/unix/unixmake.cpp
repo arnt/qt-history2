@@ -301,7 +301,7 @@ UnixMakefileGenerator::findLibraries()
     QList<QMakeLocalFileName> libdirs, frameworkdirs;
     frameworkdirs.append(QMakeLocalFileName("/System/Library/Frameworks"));
     frameworkdirs.append(QMakeLocalFileName("/Library/Frameworks"));
-    const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString() };
+    const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LFLAGS", "QMAKE_LIBS", QString() };
     for(int i = 0; !lflags[i].isNull(); i++) {
         QStringList &l = project->variables()[lflags[i]];
         for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
@@ -401,7 +401,7 @@ UnixMakefileGenerator::processPrlFiles()
     QList<QMakeLocalFileName> libdirs, frameworkdirs;
     frameworkdirs.append(QMakeLocalFileName("/System/Library/Frameworks"));
     frameworkdirs.append(QMakeLocalFileName("/Library/Frameworks"));
-    const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString() };
+    const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LFLAGS", "QMAKE_LIBS", QString() };
     for(int i = 0; !lflags[i].isNull(); i++) {
             QStringList &l = project->variables()[lflags[i]];
         for(int lit = 0; lit < l.size(); ++lit) {
@@ -434,17 +434,17 @@ UnixMakefileGenerator::processPrlFiles()
                     } else if(Option::target_mode == Option::TARG_MACX_MODE && opt.startsWith("-F")) {
                         frameworkdirs.append(QMakeLocalFileName(opt.right(opt.length()-2)));
                     } else if(Option::target_mode == Option::TARG_MACX_MODE && opt.startsWith("-framework")) {
-                    if(opt.length() > 11)
+                        if(opt.length() > 11)
                             opt = opt.mid(11);
-                    else
-                        opt = l.at(++lit);
-                    opt = opt.trimmed();
-                        for(QList<QMakeLocalFileName>::Iterator dep_it = frameworkdirs.begin();
-                            dep_it != frameworkdirs.end(); ++dep_it) {
+                        else
+                            opt = l.at(++lit);
+                        opt = opt.trimmed();
+                        const QList<QMakeLocalFileName> dirs = frameworkdirs + libdirs;
+                        for(QList<QMakeLocalFileName>::ConstIterator dep_it = dirs.begin(); dep_it != dirs.end(); ++dep_it) {
                             QString prl = (*dep_it).local() + "/" + opt + ".framework/" + opt + Option::prl_ext;
-                        if(processPrlFile(prl))
+                            if(processPrlFile(prl))
                                 break;
-                            }
+                        }
                     }
                 } else if(!opt.isNull()) {
                     QString lib = opt;
