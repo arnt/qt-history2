@@ -12,7 +12,6 @@ HEADERS += $$PWD/abstractformeditor.h \
     $$PWD/abstractwidgetdatabase.h \
     $$PWD/abstractmetadatabase.h \
     $$PWD/abstractwidgetfactory.h \
-    $$PWD/abstractimagecollection.h \
     $$PWD/abstractobjectinspector.h \
     $$PWD/abstracticoncache.h \
     $$PWD/propertysheet.h \
@@ -33,7 +32,6 @@ SOURCES += $$PWD/abstractformeditor.cpp \
     $$PWD/abstractwidgetdatabase.cpp \
     $$PWD/abstractmetadatabase.cpp \
     $$PWD/abstractwidgetfactory.cpp \
-    $$PWD/abstractimagecollection.cpp \
     $$PWD/abstractobjectinspector.cpp \
     $$PWD/abstractwidgetbox.cpp \
     $$PWD/extrainfo.cpp
