@@ -2170,7 +2170,14 @@
     use in subclass. (A subclass normally doesn't know whether the
     base class uses timers or not.)
 
-    The QObject::name property has been renamed QObject::objectName.
+    The \c QObject::name property has been renamed
+    QObject::objectName.
+
+    \c QObject::objectTrees() has been removed because maintaining a
+    global tree of all objects in a multithreaded application was
+    judged too expensive. If you are primarly interested in widgets,
+    use QApplication::allWidgets() or
+    QApplication::topLevelWidgets().
 
     \section1 QObjectDictionary
 
