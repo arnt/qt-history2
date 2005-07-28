@@ -1772,10 +1772,9 @@ void QAbstractFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, 
 */
 QIcon QAbstractFormBuilder::nameToIcon(const QString &filePath, const QString &qrcPath)
 {
-    Q_UNUSED(filePath);
     Q_UNUSED(qrcPath);
-
-    return QIcon();
+    QFileInfo fileInfo(workingDirectory(), filePath);
+    return QIcon(fileInfo.absoluteFilePath());
 }
 
 /*!
@@ -1801,10 +1800,9 @@ QString QAbstractFormBuilder::iconToQrcPath(const QIcon &pm) const
 */
 QPixmap QAbstractFormBuilder::nameToPixmap(const QString &filePath, const QString &qrcPath)
 {
-    Q_UNUSED(filePath);
     Q_UNUSED(qrcPath);
-
-    return QPixmap();
+    QFileInfo fileInfo(workingDirectory(), filePath);
+    return QPixmap(fileInfo.absoluteFilePath());
 }
 
 /*!
