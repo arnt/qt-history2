@@ -747,7 +747,7 @@ bool qax_winEventFilter(void *message)
         QT_WA({
             axbase = (QAxServerBase*)GetWindowLongPtrW(baseHwnd, GWLP_USERDATA);
         }, {
-            axbase = (QAxServerBase*)GetWindowLongW(baseHwnd, GWLP_USERDATA);
+            axbase = (QAxServerBase*)GetWindowLongPtrA(baseHwnd, GWLP_USERDATA);
         });
 #else
         QT_WA({
@@ -1325,7 +1325,7 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
         QT_WA({
             SetWindowLongPtrW(hWnd, GWLP_USERDATA, (LONG_PTR)that);
         }, {
-            SetWindowLongPtrW(hWnd, GWLP_USERDATA, (LONG_PTR)that);
+            SetWindowLongPtrA(hWnd, GWLP_USERDATA, (LONG_PTR)that);
         });
 #else
         QT_WA({
@@ -1350,7 +1350,7 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
     QT_WA({
         that = (QAxServerBase*)GetWindowLongPtrW(hWnd, GWLP_USERDATA);
     }, {
-        that = (QAxServerBase*)GetWindowLongW(hWnd, GWLP_USERDATA);
+        that = (QAxServerBase*)GetWindowLongPtrA(hWnd, GWLP_USERDATA);
     });
 #else
     QT_WA({

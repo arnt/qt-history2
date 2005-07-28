@@ -217,7 +217,7 @@ public:
         int i = 0;
         while (type_conversion[i][0]) {
             int ti = pi;
-            int len = strlen(type_conversion[i][0]);
+            int len = int(strlen(type_conversion[i][0]));
             while ((ti = signalname.indexOf(type_conversion[i][0], ti)) != -1)
 	        signalname.replace(ti, len, type_conversion[i][1]);
             ++i;
@@ -1480,7 +1480,7 @@ private:
     {
         int i = 0;
         while (type_conversion[i][0]) {
-            int len = strlen(type_conversion[i][0]);
+            int len = int(strlen(type_conversion[i][0]));
             int ti;
             if ((ti = type.indexOf(type_conversion[i][0])) != -1) {
                 QByteArray rtype(type);
