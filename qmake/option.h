@@ -57,6 +57,7 @@ struct Option
     static QString lex_mod;
     static QString yacc_mod;
     static QString dir_sep;
+    static QString dirlist_sep;
     static QString sysenv_mod;
     static QString pro_ext;
     static QString res_ext;
@@ -149,6 +150,7 @@ private:
 };
 
 inline QString fixEnvVariables(const QString &x) { return Option::fixString(x, Option::FixEnvVars); }
+inline QStringList splitPathList(const QString paths) { return paths.split(Option::dirlist_sep); }
 
 // this is a stripped down version of the one found in QtCore
 class QLibraryInfo

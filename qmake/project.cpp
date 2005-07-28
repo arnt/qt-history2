@@ -280,24 +280,10 @@ QStringList qmake_feature_paths(QMakeProperty *prop=0)
     const QString mkspecs_concat = QDir::separator() + QString("mkspecs");
     QStringList feature_roots;
     QByteArray mkspec_path = qgetenv("QMAKEFEATURES");
-    if(!mkspec_path.isNull()) {
-#ifdef Q_OS_WIN
-        QStringList lst = QString::fromLocal8Bit(mkspec_path).split(';');
-        for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
-            feature_roots += (*it).split(':');
-#else
-        feature_roots += QString::fromLocal8Bit(mkspec_path).split(':');
-#endif
-    }
-    if(prop) {
-#ifdef Q_OS_WIN
-        QStringList lst = prop->value("QMAKEFEATURES").split(';');
-        for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
-            feature_roots += (*it).split(':');
-#else
-        feature_roots += prop->value("QMAKEFEATURES").split(':');
-#endif
-    }
+    if(!mkspec_path.isNull())
+        feature_roots += splitPathList(QString::fromLocal8Bit(mkspec_path));
+    if(prop)
+        feature_roots += splitPathList(prop->value("QMAKEFEATURES"));
     if(!Option::mkfile::cachefile.isEmpty()) {
         QString path;
         int last_slash = Option::mkfile::cachefile.lastIndexOf(Option::dir_sep);
@@ -309,24 +295,12 @@ QStringList qmake_feature_paths(QMakeProperty *prop=0)
     }
     QByteArray qmakepath = qgetenv("QMAKEPATH");
     if (!qmakepath.isNull()) {
-#ifdef Q_OS_WIN
-        QStringList lst = QString::fromLocal8Bit(qmakepath).split(';');
-        for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
-            QStringList lst2 = (*it).split(':');
-            for(QStringList::Iterator it2 = lst2.begin(); it2 != lst2.end(); ++it2) {
-                for(QStringList::Iterator concat_it = concat.begin();
-                    concat_it != concat.end(); ++concat_it)
-                    feature_roots << ((*it2) + mkspecs_concat + (*concat_it));
-            }
-        }
-#else
-        QStringList lst = QString::fromLocal8Bit(qmakepath).split(':');
-        for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
+        const QStringList lst = splitPathList(QString::fromLocal8Bit(qmakepath));
+        for(QStringList::ConstIterator it = lst.begin(); it != lst.end(); ++it) {
             for(QStringList::Iterator concat_it = concat.begin();
                 concat_it != concat.end(); ++concat_it)
-                feature_roots << ((*it) + mkspecs_concat + (*concat_it));
+                    feature_roots << ((*it) + mkspecs_concat + (*concat_it));
         }
-#endif
     }
     if(!Option::mkfile::qmakespec.isEmpty())
         feature_roots << Option::mkfile::qmakespec + QDir::separator() + "features";
@@ -361,18 +335,9 @@ QStringList qmake_mkspec_paths()
     const QString concat = QDir::separator() + QString("mkspecs");
     QByteArray qmakepath = qgetenv("QMAKEPATH");
     if (!qmakepath.isEmpty()) {
-#ifdef Q_OS_WIN
-        QStringList lst = QString::fromLocal8Bit(qmakepath).split(';');
-        for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
-            QStringList lst2 = (*it).split(':');
-            for(QStringList::Iterator it2 = lst2.begin(); it2 != lst2.end(); ++it2)
-                ret << ((*it2) + concat);
-        }
-#else
-        QStringList lst = QString::fromLocal8Bit(qmakepath).split(':');
-        for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
+        const QStringList lst = splitPathList(QString::fromLocal8Bit(qmakepath));
+        for(QStringList::ConstIterator it = lst.begin(); it != lst.end(); ++it)
             ret << ((*it) + concat);
-#endif
     }
     ret << QLibraryInfo::location(QLibraryInfo::DataPath) + concat;
 
@@ -502,7 +467,6 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
         symbols[SLASH] = QChar('\\').unicode();
         symbols[SEMICOLON] = QChar(';').unicode();
     }
-
 
     ushort unicode;
     const QChar *vals_data = vals.data();
@@ -2556,6 +2520,8 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
                         replacement = qmake_getpwd();
                     } else if(var == QLatin1String("DIR_SEPARATOR")) {
                         replacement = Option::dir_sep;
+                    } else if(var == QLatin1String("DIRLIST_SEPARATOR")) {
+                        replacement = Option::dirlist_sep;
                     } else if(var == QLatin1String("_LINE_")) { //parser line number
                         replacement = QString::number(parser.line_no);
                     } else if(var == QLatin1String("_FILE_")) { //parser file

@@ -34,6 +34,7 @@ QString Option::lex_ext;
 QString Option::yacc_ext;
 QString Option::pro_ext;
 QString Option::dir_sep;
+QString Option::dirlist_sep;
 QString Option::h_moc_mod;
 QString Option::cpp_moc_mod;
 QString Option::yacc_mod;
@@ -320,6 +321,11 @@ Option::init(int argc, char **argv)
     Option::lex_ext = ".l";
     Option::yacc_ext = ".y";
     Option::pro_ext = ".pro";
+#ifdef Q_OS_WIN
+    Option::dirlist_sep = ";";
+#else
+    Option::dirlist_sep = ":";
+#endif
     Option::sysenv_mod = "QMAKE_ENV_";
     Option::field_sep = ' ';
 
@@ -490,6 +496,8 @@ bool Option::postProcessProject(QMakeProject *project)
         Option::yacc_mod = project->first("QMAKE_MOD_YACC");
     if(!project->isEmpty("QMAKE_DIR_SEP"))
         Option::dir_sep = project->first("QMAKE_DIR_SEP");
+    if(!project->isEmpty("QMAKE_DIRLIST_SEP"))
+        Option::dirlist_sep = project->first("QMAKE_DIRLIST_SEP");
     if(!project->isEmpty("QMAKE_MOD_SYSTEM_ENV"))
         Option::sysenv_mod = project->first("QMAKE_MOD_SYSTEM_ENV");
     return true;
