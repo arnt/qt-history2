@@ -535,70 +535,70 @@ void Configure::parseCmdLine()
 	    ++i;
 	    if(i==argCount)
 		break;
-	    //dictionary[ "QT_INSTALL_PREFIX" ] = configCmdLine.at(i);
+	    dictionary[ "QT_INSTALL_PREFIX" ] = configCmdLine.at(i);
 	}
 
         else if( configCmdLine.at(i) == "-bindir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    //dictionary[ "QT_INSTALL_BINS" ] = configCmdLine.at(i);
+	    dictionary[ "QT_INSTALL_BINS" ] = configCmdLine.at(i);
 	}
 
         else if( configCmdLine.at(i) == "-libdir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    //dictionary[ "QT_INSTALL_LIBS" ] = configCmdLine.at(i);
+	    dictionary[ "QT_INSTALL_LIBS" ] = configCmdLine.at(i);
 	}
 
         else if( configCmdLine.at(i) == "-docdir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    //dictionary[ "QT_INSTALL_DOCS" ] = configCmdLine.at(i);
+	    dictionary[ "QT_INSTALL_DOCS" ] = configCmdLine.at(i);
 	}
 
 	else if( configCmdLine.at(i) == "-headerdir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    //dictionary[ "QT_INSTALL_HEADERS" ] = configCmdLine.at(i);
+	    dictionary[ "QT_INSTALL_HEADERS" ] = configCmdLine.at(i);
 	}
 
 	else if( configCmdLine.at(i) == "-plugindir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    //dictionary[ "QT_INSTALL_PLUGINS" ] = configCmdLine.at(i);
+	    dictionary[ "QT_INSTALL_PLUGINS" ] = configCmdLine.at(i);
 	}
 
 	else if( configCmdLine.at(i) == "-datadir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    //dictionary[ "QT_INSTALL_DATA" ] = configCmdLine.at(i);
+	    dictionary[ "QT_INSTALL_DATA" ] = configCmdLine.at(i);
 	}
 
 	else if( configCmdLine.at(i) == "-translationdir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    //dictionary[ "QT_INSTALL_TRANSLATIONS" ] = configCmdLine.at(i);
+	    dictionary[ "QT_INSTALL_TRANSLATIONS" ] = configCmdLine.at(i);
 	}
 
 	else if( configCmdLine.at(i) == "-examplesdir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    //dictionary[ "QT_INSTALL_EXAMPLES" ] = configCmdLine.at(i);
+	    dictionary[ "QT_INSTALL_EXAMPLES" ] = configCmdLine.at(i);
 	}
 
 	else if( configCmdLine.at(i) == "-demosdir" ) {
 	    ++i;
 	    if(i==argCount)
 		break;
-	    //dictionary[ "QT_INSTALL_DEMOS" ] = configCmdLine.at(i);
+	    dictionary[ "QT_INSTALL_DEMOS" ] = configCmdLine.at(i);
 	}
 
 	else if( configCmdLine.at(i).indexOf( QRegExp( "^-(en|dis)able-" ) ) != -1 ) {
@@ -825,7 +825,7 @@ bool Configure::displayHelp()
 
         desc("Installation options:\n\n");
 #if !defined(EVAL)
-/*        desc(" These are optional, but you may specify install directories.\n\n", 0, 1);
+        desc(" These are optional, but you may specify install directories.\n\n", 0, 1);
 
         desc(                   "-prefix dir",          "This will install everything relative to dir\n(default $QT_INSTALL_PREFIX)\n");
 
@@ -840,7 +840,6 @@ bool Configure::displayHelp()
 	desc(                   "-translationdir <dir>","Translations of Qt programs will be installed to dir\n(default PREFIX/translations)\n");
 	desc(                   "-examplesdir <dir>",       "Examples will be installed to dir\n(default PREFIX/examples)");
 	desc(                   "-demosdir <dir>",       "Demos will be installed to dir\n(default PREFIX/demos)");
-*/
         desc(" You may use these options to turn on strict plugin loading:\n\n", 0, 1);
 
 	desc(                   "-buildkey <key>",      "Build the Qt library and plugins using the specified <key>.  "
@@ -1375,21 +1374,24 @@ void Configure::generateCachefile()
 	    cacheStream << (*var) << endl;
 	}
 	cacheStream << "CONFIG+=" << qmakeConfig.join( " " ) << " incremental create_prl link_prl depend_includepath" << endl;
-	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
+	if(QFile::exists(dictionary[ "QT_SOURCE_TREE" ] + "/mkspecs/" + dictionary[ "QMAKESPEC" ]))
+	    cacheStream << "QMAKESPEC="
+			<< dictionary[ "QT_SOURCE_TREE" ] << "/mkspecs/" << dictionary[ "QMAKESPEC" ] << endl;
+	else
+	    cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
         cacheStream << "ARCH=" << dictionary[ "ARCHITECTURE" ] << endl;
 	cacheStream << "QT_BUILD_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
 	cacheStream << "QT_SOURCE_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
-        cacheStream << "QT_INSTALL_PREFIX=" << dictionary[ "QT_INSTALL_PREFIX" ] << endl;
         cacheStream << "DEFINES *= QT_EDITION=QT_EDITION_DESKTOP" << endl;
-        cacheStream << "docs.path=" << dictionary[ "QT_INSTALL_DOCS" ] << endl;
-	cacheStream << "headers.path=" << dictionary[ "QT_INSTALL_HEADERS" ] << endl;
-	cacheStream << "plugins.path=" << dictionary[ "QT_INSTALL_PLUGINS" ] << endl;
-	cacheStream << "libs.path=" << dictionary[ "QT_INSTALL_LIBS" ] << endl;
-	cacheStream << "bins.path=" << dictionary[ "QT_INSTALL_BINS" ] << endl;
-	cacheStream << "data.path=" << dictionary[ "QT_INSTALL_DATA" ] << endl;
-	cacheStream << "translations.path=" << dictionary[ "QT_INSTALL_TRANSLATIONS" ] << endl;
-	cacheStream << "examples.path=" << dictionary[ "QT_INSTALL_EXAMPLES" ] << endl;
-	cacheStream << "demos.path=" << dictionary[ "QT_INSTALL_DEMOS" ] << endl;
+
+	//so that we can build without an install first (which would be impossible)
+	cacheStream << "QMAKE_MOC = $$QT_BUILD_TREE/bin/moc.exe" << endl;
+	cacheStream << "QMAKE_UIC = $$QT_BUILD_TREE/bin/uic.exe" << endl;
+	cacheStream << "QMAKE_UIC3 = $$QT_BUILD_TREE/bin/uic3.exe" << endl;
+	cacheStream << "QMAKE_RCC = $$QT_BUILD_TREE/bin/rcc.exe" << endl;
+	cacheStream << "QMAKE_DUMPCPP = $$QT_BUILD_TREE/bin/dumpcpp.exe" << endl;
+	cacheStream << "QMAKE_INCDIR_QT = $$QT_BUILD_TREE/include" << endl;
+	cacheStream << "QMAKE_LIBDIR_QT = $$QT_BUILD_TREE/lib" << endl;
         cacheStream.flush();
 	cacheFile.close();
     }

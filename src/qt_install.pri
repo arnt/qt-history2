@@ -1,4 +1,8 @@
 #always install the library
+win32 {
+   dlltarget.path=$$[QT_INSTALL_BINS]
+   INSTALLS += dlltarget
+}
 target.path=$$[QT_INSTALL_LIBS]
 INSTALLS += target
 

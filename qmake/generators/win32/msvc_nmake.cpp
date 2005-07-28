@@ -124,6 +124,14 @@ void NmakeMakefileGenerator::init()
             project->variables()["MAKEFILE"].append("Makefile");
         if(project->variables()["QMAKE_QMAKE"].isEmpty())
             project->variables()["QMAKE_QMAKE"].append("qmake");
+        if(project->isEmpty("QMAKE_COPY_FILE"))
+            project->variables()["QMAKE_COPY_FILE"].append("$(COPY)");
+        if(project->isEmpty("QMAKE_COPY_DIR"))
+            project->variables()["QMAKE_COPY_DIR"].append("xcopy /s /q /y /i");
+        if(project->isEmpty("QMAKE_INSTALL_FILE"))
+            project->variables()["QMAKE_INSTALL_FILE"].append("$(COPY_FILE)");
+        if(project->isEmpty("QMAKE_INSTALL_DIR"))
+            project->variables()["QMAKE_INSTALL_DIR"].append("$(COPY_DIR)");
         return;
     }
 
@@ -166,7 +174,7 @@ void NmakeMakefileGenerator::init()
     }
 
     QString version = project->first("TARGET_VERSION_EXT");
-    if(project->isActiveConfig("dll")) {
+    if(project->isActiveConfig("shared")) {
         project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".exp");
     }
     if(project->isActiveConfig("debug")) {
@@ -241,13 +249,13 @@ void NmakeMakefileGenerator::writeImplicitRulesPart(QTextStream &t)
 void NmakeMakefileGenerator::writeBuildRulesPart(QTextStream &t)
 {
     t << "first: all" << endl;
-    t << "all: " << fileFixify(Option::output.fileName()) << " " << varGlue("ALL_DEPS"," "," "," ") << "$(TARGET)" << endl << endl;
-    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) " << var("POST_TARGETDEPS");
+    t << "all: " << fileFixify(Option::output.fileName()) << " " << varGlue("ALL_DEPS"," "," "," ") << "$(DESTDIR_TARGET)" << endl << endl;
+    t << "$(DESTDIR_TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) " << var("POST_TARGETDEPS");
     if(project->isActiveConfig("staticlib")) {
-        t << "\n\t" << "$(LIB) /OUT:\"$(TARGET)\" @<<" << "\n\t  "
+        t << "\n\t" << "$(LIB) /OUT:\"$(DESTDIR_TARGET)\" @<<" << "\n\t  "
           << "$(OBJECTS)";
     } else {
-        t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:\"$(TARGET)\" @<< " << "\n\t  "
+        t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:\"$(DESTDIR_TARGET)\" @<< " << "\n\t  "
           << "$(OBJECTS) $(LIBS)";
     }
     t << endl << "<<" << endl;

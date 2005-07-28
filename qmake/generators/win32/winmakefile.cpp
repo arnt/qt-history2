@@ -289,14 +289,12 @@ void Win32MakefileGenerator::processVars()
 
 void Win32MakefileGenerator::fixTargetExt()
 {
-    if (project->isActiveConfig("dll")) {
-            project->variables()["TARGET_EXT"].append(project->first("TARGET_VERSION_EXT") + ".dll");
-    } else {
-        if (!project->variables()["QMAKE_APP_FLAG"].isEmpty())
-            project->variables()["TARGET_EXT"].append(".exe");
-        else
-            project->variables()["TARGET_EXT"].append(".lib");
-    }
+    if (!project->variables()["QMAKE_APP_FLAG"].isEmpty())
+        project->variables()["TARGET_EXT"].append(".exe");
+    else if (project->isActiveConfig("shared"))
+        project->variables()["TARGET_EXT"].append(project->first("TARGET_VERSION_EXT") + ".dll");
+    else
+        project->variables()["TARGET_EXT"].append(".lib");
 }
 
 void Win32MakefileGenerator::processRcFileVar()
@@ -305,7 +303,7 @@ void Win32MakefileGenerator::processRcFileVar()
         && project->variables()["RC_FILE"].isEmpty()
         && project->variables()["RES_FILE"].isEmpty()
         && !project->isActiveConfig("no_generated_target_info")
-        && (project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty())) {
+        && (project->isActiveConfig("shared") || !project->variables()["QMAKE_APP_FLAG"].isEmpty())) {
 
         QByteArray rcString;
         QTextStream ts(&rcString, QFile::WriteOnly);
@@ -353,7 +351,7 @@ void Win32MakefileGenerator::processRcFileVar()
         ts << "\tFILEFLAGS 0x0L" << endl;
         ts << "#endif" << endl;
         ts << "\tFILEOS VOS__WINDOWS32" << endl;
-        if (project->isActiveConfig("dll"))
+        if (project->isActiveConfig("shared"))
             ts << "\tFILETYPE VFT_DLL" << endl;
         else
             ts << "\tFILETYPE VFT_APP" << endl;
@@ -453,7 +451,7 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
     t << endl << endl;
 
     t << "distclean: clean"
-      << "\n\t-$(DEL_FILE) \"$(TARGET)\"" << endl;
+      << "\n\t-$(DEL_FILE) \"$(DESTDIR_TARGET)\"" << endl;
     {
         QString ofile = Option::fixPathToTargetOS(fileFixify(Option::output.fileName()));
         if(!ofile.isEmpty())
@@ -534,12 +532,10 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
         destDir += Option::dir_sep;
     // The comment is important to maintain variable compatability with Unix
     // Makefiles, while not interpreting a trailing-slash as a linebreak
-    t << "DESTDIR       = " << destDir << " #avoid trailing-slash linebreak" << endl;
-    t << "TARGET        = ";
-    QString target = destDir + project->first("TARGET") + project->first("TARGET_EXT");
-    target.remove('"');
-    t << target;
-    t << endl << endl;
+    t << "DESTDIR        = " << destDir << " #avoid trailing-slash linebreak" << endl;
+    t << "TARGET         = " << QString(project->first("TARGET")+project->first("TARGET_EXT")).remove('"') << endl;
+    t << "DESTDIR_TARGET = $(DESTDIR)$(TARGET)" << endl;
+    t << endl;
 
     t << "####### Implicit rules" << endl << endl;
     writeImplicitRulesPart(t);
@@ -550,10 +546,10 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     if (!project->variables()["QMAKE_POST_LINK"].isEmpty())
         t << "\t" <<var("QMAKE_POST_LINK") << endl;
 
-    if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
+    if(project->isActiveConfig("shared") && !project->variables()["DLLDESTDIR"].isEmpty()) {
         QStringList dlldirs = project->variables()["DLLDESTDIR"];
         for (QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir) {
-            t << "\n\t" << "-$(COPY_FILE) \"$(TARGET)\" " << Option::fixPathToTargetOS(*dlldir, false);
+            t << "\n\t" << "-$(COPY_FILE) \"$(DESTDIR_TARGET)\" " << Option::fixPathToTargetOS(*dlldir, false);
         }
     }
     t << endl << endl;
@@ -647,24 +643,24 @@ void Win32MakefileGenerator::writeRcFilePart(QTextStream &t)
 
 QString Win32MakefileGenerator::defaultInstall(const QString &t)
 {
-    if(t != "target" || project->first("TEMPLATE") == "subdirs")
-        return QString();
+    if((t != "target" && t != "dlltarget") ||
+       (t == "dlltarget" && (project->first("TEMPLATE") != "lib" || !project->isActiveConfig("shared"))) ||
+        project->first("TEMPLATE") == "subdirs")
+       return QString();
 
     const QString root = "$(INSTALL_ROOT)";
     QStringList &uninst = project->variables()[t + ".uninstall"];
     QString ret;
-    QString targetdir = Option::fixPathToTargetOS(project->first("target.path"), false);
+    QString targetdir = Option::fixPathToTargetOS(project->first(t + ".path"), false);
     targetdir = fileFixify(targetdir, FileFixifyAbsolute);
     if(targetdir.right(1) != Option::dir_sep)
         targetdir += Option::dir_sep;
 
-    QStringList links;
-    QString target="$(TARGET)";
-    if(project->first("TEMPLATE") == "lib") {
+    if(t == "target" && project->first("TEMPLATE") == "lib") {
         if(project->isActiveConfig("create_prl") && !project->isActiveConfig("no_install_prl") &&
            !project->isEmpty("QMAKE_INTERNAL_PRL_FILE")) {
-            QString dst_prl = project->first("QMAKE_INTERNAL_PRL_FILE");
-            int slsh = dst_prl.lastIndexOf('/');
+            QString dst_prl = Option::fixPathToTargetOS(project->first("QMAKE_INTERNAL_PRL_FILE"));
+            int slsh = dst_prl.lastIndexOf(Option::dir_sep);
             if(slsh != -1)
                 dst_prl = dst_prl.right(dst_prl.length() - slsh - 1);
             dst_prl = filePrefixRoot(root, targetdir + dst_prl);
@@ -673,15 +669,29 @@ QString Win32MakefileGenerator::defaultInstall(const QString &t)
                 uninst.append("\n\t");
             uninst.append("-$(DEL_FILE) \"" + dst_prl + "\"");
         }
+        if(project->isActiveConfig("shared")) {
+            QString lib_target = QString(project->first("TARGET")+project->first("TARGET_VERSION_EXT")+".lib");
+            lib_target.remove('"');
+            QString src_targ = "$(DESTDIR)" + lib_target;
+            QString dst_targ = filePrefixRoot(root, fileFixify(targetdir + lib_target, FileFixifyAbsolute));
+            if(!ret.isEmpty())
+                ret += "\n\t";
+            ret += QString("-$(INSTALL_FILE)") + " \"" + src_targ + "\" \"" + dst_targ + "\"";
+            if(!uninst.isEmpty())
+                uninst.append("\n\t");
+            uninst.append("-$(DEL_FILE) \"" + dst_targ + "\"");
+        }
     }
 
-    QString src_targ = target;
-    QString dst_targ = filePrefixRoot(root, fileFixify(targetdir + target, FileFixifyAbsolute));
-    if(!ret.isEmpty())
-        ret += "\n\t";
-    ret += QString("-$(INSTALL_FILE)") + " \"" + src_targ + "\" \"" + dst_targ + "\"";
-    if(!uninst.isEmpty())
-        uninst.append("\n\t");
-    uninst.append("-$(DEL_FILE) \"" + dst_targ + "\"");
+    if(t == "dlltarget" || project->values(t + ".CONFIG").indexOf("no_dll") == -1) {
+        QString src_targ = "$(DESTDIR_TARGET)";
+        QString dst_targ = filePrefixRoot(root, fileFixify(targetdir + "$(TARGET)", FileFixifyAbsolute));
+        if(!ret.isEmpty())
+            ret += "\n\t";
+        ret += QString("-$(INSTALL_FILE)") + " \"" + src_targ + "\" \"" + dst_targ + "\"";
+        if(!uninst.isEmpty())
+            uninst.append("\n\t");
+        uninst.append("-$(DEL_FILE) \"" + dst_targ + "\"");
+    }
     return ret;
 }

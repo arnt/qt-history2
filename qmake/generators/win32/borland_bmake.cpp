@@ -74,6 +74,14 @@ BorlandMakefileGenerator::init()
         project->variables()["QMAKE_LIB_FLAG"].append("1");
     } else if(project->first("TEMPLATE") == "subdirs") {
         MakefileGenerator::init();
+        if(project->isEmpty("QMAKE_COPY_FILE"))
+            project->variables()["QMAKE_COPY_FILE"].append("$(COPY)");
+        if(project->isEmpty("QMAKE_COPY_DIR"))
+            project->variables()["QMAKE_COPY_DIR"].append("xcopy /s /q /y /i");
+        if(project->isEmpty("QMAKE_INSTALL_FILE"))
+            project->variables()["QMAKE_INSTALL_FILE"].append("$(COPY_FILE)");
+        if(project->isEmpty("QMAKE_INSTALL_DIR"))
+            project->variables()["QMAKE_INSTALL_DIR"].append("$(COPY_DIR)");
         if(project->variables()["MAKEFILE"].isEmpty())
             project->variables()["MAKEFILE"].append("Makefile");
         if(project->variables()["QMAKE_QMAKE"].isEmpty())
@@ -100,16 +108,16 @@ BorlandMakefileGenerator::init()
 void BorlandMakefileGenerator::writeBuildRulesPart(QTextStream &t)
 {
     t << "first: all" << endl;
-    t << "all: " << fileFixify(Option::output.fileName()) << " " << varGlue("ALL_DEPS"," "," "," ") << " $(TARGET)" << endl << endl;
-    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) " << var("POST_TARGETDEPS");
+    t << "all: " << fileFixify(Option::output.fileName()) << " " << varGlue("ALL_DEPS"," "," "," ") << " $(DESTDIR_TARGET)" << endl << endl;
+    t << "$(DESTDIR_TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) " << var("POST_TARGETDEPS");
     if(project->isActiveConfig("staticlib")) {
-        t << "\n\t-$(DEL_FILE) $(TARGET)"
-	      << "\n\t" << "$(LIB) $(TARGET) @&&|" << " \n+"
+        t << "\n\t-$(DEL_FILE) $(DESTDIR_TARGET)"
+	      << "\n\t" << "$(LIB) $(DESTDIR_TARGET) @&&|" << " \n+"
 	      << project->variables()["OBJECTS"].join(" \\\n+") << " \\\n+"
 	      << project->variables()["OBJMOC"].join(" \\\n+");
     } else {
         t << "\n\t" << "$(LINK) @&&|" << "\n\t"
-	      << "$(LFLAGS) $(OBJECTS) $(OBJMOC),$(TARGET),,$(LIBS),$(DEF_FILE),$(RES_FILE)";
+	      << "$(LFLAGS) $(OBJECTS) $(OBJMOC),$(DESTDIR_TARGET),,$(LIBS),$(DEF_FILE),$(RES_FILE)";
     }
     t << endl << "|" << endl;
 }
@@ -126,6 +134,6 @@ void BorlandMakefileGenerator::writeCleanParts(QTextStream &t)
     t << endl;
 
     t << "distclean: clean"
-      << "\n\t-$(DEL_FILE) $(TARGET)"
+      << "\n\t-$(DEL_FILE) $(DESTDIR_TARGET)"
       << endl << endl;
 }

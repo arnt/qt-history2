@@ -6,11 +6,9 @@ TEMPLATE	= lib
 VERSION=4.1.0
 
 #load up the headers info
-unix {
-    CONFIG += qt_install_headers
-    HEADERS_PRI = $$QT_BUILD_TREE/include/$$TARGET/headers.pri
-    include($$HEADERS_PRI)|clear(HEADERS_PRI)
-}
+CONFIG += qt_install_headers
+HEADERS_PRI = $$QT_BUILD_TREE/include/$$TARGET/headers.pri
+include($$HEADERS_PRI)|clear(HEADERS_PRI)
 
 #version overriding
 win32 {
@@ -26,8 +24,8 @@ win32 {
 }
 
 #other
-DESTDIR		= $$QMAKE_LIBDIR_QT
-win32:DLLDESTDIR	= $$[QT_INSTALL_PREFIX]/bin
+DESTDIR		 = $$QMAKE_LIBDIR_QT
+win32:DLLDESTDIR = $$[QT_INSTALL_PREFIX]/bin
 
 CONFIG		+= qt warn_on depend_includepath
 CONFIG          += qmake_cache target_qt 

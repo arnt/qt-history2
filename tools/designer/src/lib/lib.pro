@@ -35,6 +35,10 @@ PRECOMPILED_HEADER=lib_pch.h
 include(../components/component.pri)
 include(../sharedcomponents.pri)
 
+win32:dll {
+   dlltarget.path=$$[QT_INSTALL_BINS]
+   INSTALLS        += dlltarget
+}
 target.path=$$[QT_INSTALL_LIBS]
 INSTALLS        += target
 
