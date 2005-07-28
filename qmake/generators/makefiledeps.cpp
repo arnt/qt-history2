@@ -157,7 +157,7 @@ void SourceFiles::addFile(SourceFile *p, const char *k)
 	int len = int(strlen(k)) + 1;
 	pn->key = (char*)(malloc(sizeof(char)*len));
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-	strcpy_s(pn->key, len, k);
+	strcpy_s(pn->key, sizeof(char)*len, k);
 #else
 	strcpy(pn->key, k);
 #endif

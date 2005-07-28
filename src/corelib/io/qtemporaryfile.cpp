@@ -52,7 +52,7 @@ bool QTemporaryFileEngine::open(int)
 	int len = int(strlen(qfilename.toLocal8Bit())) + 1;
 	char *filename = (char*)(malloc(sizeof(char)*len));
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-	strcpy_s(filename, len, qfilename.toLocal8Bit());
+	strcpy_s(filename, sizeof(char)*len, qfilename.toLocal8Bit());
 #else
 	strcpy(filename, qfilename.toLocal8Bit());
 #endif
