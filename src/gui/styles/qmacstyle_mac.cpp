@@ -3086,6 +3086,7 @@ int QMacStylePrivate::HIThemePixelMetric(QStyle::PixelMetric metric, const QStyl
             HIRect rect;
             HIShapeGetBounds(region, &rect);
             ret = int(rect.size.height);
+            ret += 4;
         }
         break;
     default:
@@ -4645,6 +4646,7 @@ int QMacStylePrivate::AppManPixelMetric(QStyle::PixelMetric metric, const QStyle
             GetRegionBounds(rgn, &r);
             ret = (r.bottom - r.top);
             qt_mac_dispose_rgn(rgn);
+            ret += 4;
         }
         break;
     default:
