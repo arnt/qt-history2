@@ -292,11 +292,7 @@ fi
 
 # build the InstallerPane plugin
 INSTALLERPANE_PATH=InstallerPane
-INSTALLERPANE_CONFIGURATION="Release-Commercial"
-if [ "$LICENSETYPE" = "eval" ]; then
-    INSTALLERPANE_CONFIGURATION="Release-Eval"
-fi
-
+INSTALLERPANE_CONFIGURATION="Release-$LICENSETYPE"
 INSTALLERPANE_BUILDPARAMS="-project ""$INSTALLERPANE_PATH/InstallerPane.xcodeproj"" -configuration ""$INSTALLERPANE_CONFIGURATION"
 
 echo "/usr/bin/xcodebuild $INSTALLERPANE_BUILDPARAMS"
@@ -477,10 +473,12 @@ if [ "$MAKE_IMAGE" = "yes" ] && [ ! -z "$PKG_CREATED" ]; then
     #copy
     echo "  Copying..."
     DISKIMAGE="$TMP_DIR/diskimage"
-    mkdir -p "$DISKIMAGE/.images"
-    cp finderbackground.png "$DISKIMAGE/.images"
+    mkdir -p "$DISKIMAGE/.background"
+    cp "backgrounds/DiskImage-${LICENSETYPE}.png" "$DISKIMAGE/.background/findersbackground.png"
     cp model-DS_Store-${QT_VERSION_STRING} "$DISKIMAGE/.DS_Store"
     chmod 755 "$DISKIMAGE/.DS_Store"
+    cp "backgrounds/DriveIcon.icns" "$DISKIMAGE/.VolumeIcon.icns"
+    /Developer/Tools/SetFile -a C "$DISKIMAGE"
 
     for package in $PKG_CREATED; do 
 	[ -z "$package" ] && continue

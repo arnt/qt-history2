@@ -272,7 +272,7 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		CA1E6BC90897938F0079C491 /* Debug-Eval */ = {
+		CA1E6BC90897938F0079C491 /* Debug-eval */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
@@ -291,18 +291,18 @@
 				WRAPPER_EXTENSION = bundle;
 				ZERO_LINK = YES;
 			};
-			name = "Debug-Eval";
+			name = "Debug-eval";
 		};
-		CA1E6BCA0897938F0079C491 /* Debug-Eval */ = {
+		CA1E6BCA0897938F0079C491 /* Debug-eval */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				OTHER_CFLAGS = "-DQT_EVAL";
 				ZERO_LINK = YES;
 			};
-			name = "Debug-Eval";
+			name = "Debug-eval";
 		};
-		CA72A7B00894D77F001196EE /* Debug-Commercial */ = {
+		CA72A7B00894D77F001196EE /* Debug-commercial */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
@@ -321,9 +321,9 @@
 				WRAPPER_EXTENSION = bundle;
 				ZERO_LINK = YES;
 			};
-			name = "Debug-Commercial";
+			name = "Debug-commercial";
 		};
-		CA72A7B10894D77F001196EE /* Release-Commercial */ = {
+		CA72A7B10894D77F001196EE /* Release-commercial */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
@@ -340,23 +340,23 @@
 				WRAPPER_EXTENSION = bundle;
 				ZERO_LINK = NO;
 			};
-			name = "Release-Commercial";
+			name = "Release-commercial";
 		};
-		CA72A7B40894D77F001196EE /* Debug-Commercial */ = {
+		CA72A7B40894D77F001196EE /* Debug-commercial */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				ZERO_LINK = YES;
 			};
-			name = "Debug-Commercial";
+			name = "Debug-commercial";
 		};
-		CA72A7B50894D77F001196EE /* Release-Commercial */ = {
+		CA72A7B50894D77F001196EE /* Release-commercial */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 			};
-			name = "Release-Commercial";
+			name = "Release-commercial";
 		};
-		CAEBD75C0896974E0003461D /* Release-Eval */ = {
+		CAEBD75C0896974E0003461D /* Release-eval */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
@@ -373,14 +373,14 @@
 				WRAPPER_EXTENSION = bundle;
 				ZERO_LINK = NO;
 			};
-			name = "Release-Eval";
+			name = "Release-eval";
 		};
-		CAEBD75D0896974E0003461D /* Release-Eval */ = {
+		CAEBD75D0896974E0003461D /* Release-eval */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				OTHER_CFLAGS = "-DQT_EVAL";
 			};
-			name = "Release-Eval";
+			name = "Release-eval";
 		};
 /* End XCBuildConfiguration section */
 
@@ -388,24 +388,24 @@
 		CA72A7AF0894D77F001196EE /* Build configuration list for PBXNativeTarget "InstallerPane" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				CA72A7B00894D77F001196EE /* Debug-Commercial */,
-				CA1E6BC90897938F0079C491 /* Debug-Eval */,
-				CA72A7B10894D77F001196EE /* Release-Commercial */,
-				CAEBD75C0896974E0003461D /* Release-Eval */,
+				CA72A7B00894D77F001196EE /* Debug-commercial */,
+				CA1E6BC90897938F0079C491 /* Debug-eval */,
+				CA72A7B10894D77F001196EE /* Release-commercial */,
+				CAEBD75C0896974E0003461D /* Release-eval */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Debug-Commercial";
+			defaultConfigurationName = "Debug-commercial";
 		};
 		CA72A7B30894D77F001196EE /* Build configuration list for PBXProject "InstallerPane" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				CA72A7B40894D77F001196EE /* Debug-Commercial */,
-				CA1E6BCA0897938F0079C491 /* Debug-Eval */,
-				CA72A7B50894D77F001196EE /* Release-Commercial */,
-				CAEBD75D0896974E0003461D /* Release-Eval */,
+				CA72A7B40894D77F001196EE /* Debug-commercial */,
+				CA1E6BCA0897938F0079C491 /* Debug-eval */,
+				CA72A7B50894D77F001196EE /* Release-commercial */,
+				CAEBD75D0896974E0003461D /* Release-eval */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Debug-Commercial";
+			defaultConfigurationName = "Debug-commercial";
 		};
 /* End XCConfigurationList section */
 	};
