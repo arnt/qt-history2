@@ -2543,7 +2543,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
              && replayPopupMouseEvent) {
             // the popup dissappeared. Replay the event
             QWidget* w = QApplication::widgetAt(gpos.x, gpos.y);
-            if (w && !qt_blocked_modal(w)) {
+            if (w && !QApplicationPrivate::isBlockedByModal(w)) {
                 if (QWidget::mouseGrabber() == 0)
                     setAutoCapture(w->winId());
                 POINT widgetpt = gpos;
