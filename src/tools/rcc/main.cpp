@@ -50,8 +50,12 @@ bool processResourceFile(const QStringList &filenamesIn, const QString &filename
     //open output
     FILE *out_fd = stdout;
     if (!filenameOut.isEmpty() && filenameOut != QLatin1String("-")) {
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+		if (fopen_s(&out_fd, filenameOut.toLocal8Bit().constData(), "w")) {
+#else
         out_fd = fopen(filenameOut.toLocal8Bit().constData(), "w");
         if(!out_fd) {
+#endif
             fprintf(stderr, "Unable to open %s for writing\n", filenameOut.toLatin1().constData());
             return false;
         }
