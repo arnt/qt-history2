@@ -288,7 +288,7 @@ void QHostInfoAgent::run()
 	    if (queries.isEmpty())
 		continue;
 #else
-	    if (quries.isEmpty())
+	    if (queries.isEmpty())
 		return;
 #endif
             query = queries.takeFirst();

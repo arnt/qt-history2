@@ -128,6 +128,7 @@ qint64 RCCFileInfo::writeDataBlob(FILE *out, qint64 offset, RCCResourceLibrary::
     }
     QByteArray data = file.readAll();
 
+#ifndef QT_NO_COMPRESS
     // Check if compression is useful for this file
     if (mCompressLevel != 0) {
         QByteArray compressed = qCompress(reinterpret_cast<uchar *>(data.data()), data.size(), mCompressLevel);
@@ -138,7 +139,8 @@ qint64 RCCFileInfo::writeDataBlob(FILE *out, qint64 offset, RCCResourceLibrary::
             flags |= Compressed;
         }
     }
-
+#endif // QT_NO_COMPRESS
+    
     //some info
     if(format == RCCResourceLibrary::C_Code)
         fprintf(out, "  // %s\n  ", fileInfo.absoluteFilePath().toLatin1().constData());

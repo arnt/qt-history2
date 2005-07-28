@@ -3302,11 +3302,9 @@ full)
     echo "/* Everything */" >$outpath/src/corelib/global/qconfig.h.new
     ;;
 *)
-    QCONFIGFILE=qconfig-$CFG_QCONFIG.h
     tmpconfig=$outpath/src/corelib/global/qconfig.h.new
     echo "#ifndef QT_BOOTSTRAPPED" >$tmpconfig
-    echo "/* Copied from $QCONFIGFILE */" >>$tmpconfig
-    cat $relpath/src/corelib/global/$QCONFIGFILE >>$tmpconfig
+    echo "#include <qconfig-$CFG_QCONFIG.h>" >>$tmpconfig
     echo "#endif" >>$tmpconfig
     ;;
 esac

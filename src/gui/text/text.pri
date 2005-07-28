@@ -86,7 +86,7 @@ embedded {
 	SOURCES += \
 		text/qfont_qws.cpp \
 		text/qfontengine_qws.cpp
-	CONFIG += have_freetype
+	contains(QT_CONFIG,ft):CONFIG += have_freetype
 }
 
 have_freetype {

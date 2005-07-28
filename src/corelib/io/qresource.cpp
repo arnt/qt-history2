@@ -198,10 +198,15 @@ QByteArray QResource::data(const QString &path) const
         const uint data_length = (payloads[data_offset+0] << 24) + (payloads[data_offset+1] << 16) +
                                  (payloads[data_offset+2] << 8) + (payloads[data_offset+3] << 0);
         const uchar *data = payloads+data_offset+4;
+#ifndef QT_NO_COMPRESS
         if(flags & Compressed)
             ret = qUncompress(data, data_length);
         else
             ret = QByteArray((char*)data, data_length);
+#else
+        Q_ASSERT_X(!(flags & Compressed), "QResource::data",
+                   "Qt built without support for compression");        
+#endif
     }
     return ret;
 }

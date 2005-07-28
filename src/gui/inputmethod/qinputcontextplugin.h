@@ -36,7 +36,8 @@
 
 QT_MODULE(Gui)
 
-#ifndef QT_NO_IM
+#if !defined(QT_NO_IM) && !defined(QT_NO_LIBRARY)
+
 class QInputContext;
 class QInputContextPluginPrivate;
 
