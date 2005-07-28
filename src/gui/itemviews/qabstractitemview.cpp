@@ -894,7 +894,9 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     QPoint pos = e->pos();
     QModelIndex index = indexAt(pos);
 
-    if (!selectionModel() || (d->state == EditingState && d->editors.contains(index)))
+    if (!selectionModel()
+        || (d->state == EditingState && d->editors.contains(index))
+        || e->button() != Qt::LeftButton)
         return;
 
     QPoint offset(horizontalOffset(), verticalOffset());
@@ -915,8 +917,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     emit pressed(index);
     index = persistent;
 
-    if (e->button() == Qt::LeftButton)
-        edit(index, SelectedClicked, e);
+    edit(index, SelectedClicked, e);
 }
 
 /*!
@@ -930,7 +931,9 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     QPoint topLeft;
     QPoint bottomRight = e->pos();
 
-    if (state() == ExpandingState || state() == CollapsingState)
+    if (state() == ExpandingState
+        || state() == CollapsingState
+        || e->buttons() != Qt::LeftButton)
         return;
 #ifndef QT_NO_DRAGANDDROP
     if (state() == DraggingState) {
@@ -965,9 +968,6 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         index = persistent;
     }
 
-    if (!(e->buttons() & Qt::LeftButton))
-        return; // if the left button is not pressed there is nothing more to do
-
 #ifndef QT_NO_DRAGANDDROP
     if (index.isValid() && d->dragEnabled && state() != DragSelectingState) {
         bool dragging = model()->flags(index) & Qt::ItemIsDragEnabled;
@@ -1000,7 +1000,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
     QPoint pos = e->pos();
     QModelIndex index = indexAt(pos);
 
-    if (state() == EditingState)
+    if (state() == EditingState || e->button() != Qt::LeftButton)
         return;
 
     setState(NoState);
