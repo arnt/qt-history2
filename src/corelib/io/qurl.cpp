@@ -54,8 +54,7 @@
     to resolved(), which returns an absolute URL. isParentOf() is used
     for determining whether one URL is a parent of another.
 
-    isLocalFile() tells whether the URL represents the path to a local
-    file or not. fromLocalFile() constructs a QUrl by parsing a local
+    fromLocalFile() constructs a QUrl by parsing a local
     file path. toLocalFile() converts a URL to a local file path.
 
     The human readable representation of the URL is fetched with
@@ -2091,8 +2090,6 @@ QString QUrl::fragment() const
     one level higher than the original. Similarly, calling resolved()
     with "../.." removes two levels from the path. If \a relative is
     "/", the path becomes "/".
-
-    The algorithm for this merge is described
 
     \sa isRelative()
 */
