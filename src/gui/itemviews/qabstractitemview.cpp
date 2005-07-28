@@ -894,9 +894,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     QPoint pos = e->pos();
     QModelIndex index = indexAt(pos);
 
-    if (!selectionModel()
-        || (d->state == EditingState && d->editors.contains(index))
-        || e->button() != Qt::LeftButton)
+    if (!selectionModel() || (d->state == EditingState && d->editors.contains(index)))
         return;
 
     QPoint offset(horizontalOffset(), verticalOffset());
@@ -905,10 +903,8 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     QItemSelectionModel::SelectionFlags command = selectionCommand(index, e);
     if ((command & QItemSelectionModel::Current) == 0)
         d->pressedPosition = pos + offset;
-
-    if (index.isValid())
+    if (index.isValid() && command != QItemSelectionModel::NoUpdate)
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
-
     QRect rect(d->pressedPosition - offset, pos);
     setSelection(rect.normalized(), command);
 
@@ -931,9 +927,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     QPoint topLeft;
     QPoint bottomRight = e->pos();
 
-    if (state() == ExpandingState
-        || state() == CollapsingState
-        || e->buttons() != Qt::LeftButton)
+    if (state() == ExpandingState || state() == CollapsingState)
         return;
 #ifndef QT_NO_DRAGANDDROP
     if (state() == DraggingState) {
@@ -981,12 +975,12 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     
     setState(DragSelectingState);
     
-    if (selectionModel() && index.isValid())
-        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
-
-    if (d->selectionAllowed(index)) {
+    if (d->selectionAllowed(index) && selectionModel()) {
+        QItemSelectionModel::SelectionFlags command = selectionCommand(index, e);
+        if (index.isValid() && command != QItemSelectionModel::NoUpdate)
+            selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
         QRect selectionRect = QRect(topLeft, bottomRight).normalized();
-        setSelection(selectionRect, selectionCommand(index, e));
+        setSelection(selectionRect, command);
     }
 }
 
@@ -1000,7 +994,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
     QPoint pos = e->pos();
     QModelIndex index = indexAt(pos);
 
-    if (state() == EditingState || e->button() != Qt::LeftButton)
+    if (state() == EditingState)
         return;
 
     setState(NoState);
@@ -1395,23 +1389,17 @@ QModelIndexList QAbstractItemView::selectedIndexes() const
 
     \sa closeEditor()
 */
-bool QAbstractItemView::edit(const QModelIndex &index,
-                             EditTrigger trigger,
-                             QEvent *event)
+bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEvent *event)
 {
     Q_D(QAbstractItemView);
-    if (!model())
-        return false;
 
     QModelIndex buddy = model()->buddy(index);
-
     QStyleOptionViewItem options = viewOptions();
     options.rect = visualRect(buddy);
     options.state |= (buddy == currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
-
     if (event && itemDelegate()->editorEvent(event, model(), options, buddy))
         return true; // the delegate handled the event
-
+    
     if (!d->shouldEdit(trigger, buddy))
         return false;
 
@@ -1419,9 +1407,7 @@ bool QAbstractItemView::edit(const QModelIndex &index,
     if (!editor)
         return false;
 
-    if (event && event->type() == QEvent::KeyPress
-        && d->editTriggers & AnyKeyPressed
-        && trigger & AnyKeyPressed)
+    if (event && event->type() == QEvent::KeyPress && (trigger & d->editTriggers) == AnyKeyPressed)
         QApplication::sendEvent(editor->focusProxy() ? editor->focusProxy() : editor, event);
     setState(EditingState);
     editor->show();
@@ -2133,7 +2119,7 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::multiSelectionComm
                 if (static_cast<const QKeyEvent*>(event)->modifiers() & Qt::ControlModifier)
                     return QItemSelectionModel::NoUpdate;
                 break;
-            case Qt::Key_Space: // Select/Deselect on Space
+            case Qt::Key_Space:
                 if (selectionModel->isSelected(index))
                     return QItemSelectionModel::Deselect|selectionBehaviorFlags();
                 return QItemSelectionModel::Select|selectionBehaviorFlags();
@@ -2141,11 +2127,15 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::multiSelectionComm
                 return QItemSelectionModel::NoUpdate;
             } // switch
             return QItemSelectionModel::NoUpdate;
-        case QEvent::MouseButtonPress: // Select/Deselect on MouseButtonPress
+        case QEvent::MouseButtonPress:
+            if (static_cast<const QMouseEvent*>(event)->button() != Qt::LeftButton)
+                break; // do nothing on anything other than left button
             if (selectionModel->isSelected(index))
                 return QItemSelectionModel::Deselect|selectionBehaviorFlags();
             return QItemSelectionModel::Select|selectionBehaviorFlags();
-        case QEvent::MouseMove: // ToggleCurrent on MouseMove
+        case QEvent::MouseMove:
+            if (static_cast<const QMouseEvent*>(event)->button() != Qt::LeftButton)
+                break; // do nothing on anything anything other than left button
             return QItemSelectionModel::ToggleCurrent|selectionBehaviorFlags();
         default:
             break;
@@ -2166,11 +2156,11 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionC
             if (modifiers & Qt::ControlModifier)
                 return QItemSelectionModel::ToggleCurrent|selectionBehaviorFlags();
             break;
-        case QEvent::MouseButtonPress: {// NoUpdate when pressing without modifiers on a selected item
+        case QEvent::MouseButtonPress: {
             modifiers = static_cast<const QMouseEvent*>(event)->modifiers();
-            if (!(pressedModifiers & Qt::ShiftModifier)
-                && !(pressedModifiers & Qt::ControlModifier)
-                && index.isValid()
+            // NoUpdate when pressing without modifiers on a selected item
+            if (!(modifiers & Qt::ShiftModifier)
+                && !(modifiers & Qt::ControlModifier)
                 && selectionModel->isSelected(index))
                 return QItemSelectionModel::NoUpdate;
             // Clear on MouseButtonPress on non-valid item with no modifiers and not Qt::RightButton
@@ -2178,6 +2168,9 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionC
             if (!index.isValid() && !(button & Qt::RightButton)
                 && !(modifiers & Qt::ShiftModifier) && !(modifiers & Qt::ControlModifier))
                 return QItemSelectionModel::Clear;
+             // just pressing on an invalid index should not select anything, also pressing with anything but the left mouse button should not do anything
+            if (!index.isValid() || button != Qt::LeftButton)
+                return QItemSelectionModel::NoUpdate;
             break; }
         case QEvent::MouseButtonRelease: // ClearAndSelect on MouseButtonRelease if MouseButtonPress on selected item
             modifiers = static_cast<const QMouseEvent*>(event)->modifiers();
@@ -2274,6 +2267,9 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::EditTrigger trigger
         return false;
     if (editors.contains(index))
         return false;
+    if ((trigger & editTriggers) == QAbstractItemView::SelectedClicked
+        && !selectionModel->isSelected(index))
+        return false;
     return (trigger & editTriggers);
 }
 
@@ -2281,7 +2277,7 @@ bool QAbstractItemViewPrivate::shouldAutoScroll(const QPoint &pos)
 {
     if (!autoScroll)
         return false;
-    QRect area = static_cast<QAbstractItemView*>(viewport)->d_func()->clipRect();  // access QWidget private by bending C++ rules
+    QRect area = static_cast<QAbstractItemView*>(viewport)->d_func()->clipRect(); // access QWidget private by bending C++ rules
     return (pos.y() - area.top() < autoScrollMargin)
         || (area.bottom() - pos.y() < autoScrollMargin)
         || (pos.x() - area.left() < autoScrollMargin)
@@ -2328,4 +2324,5 @@ void QAbstractItemViewPrivate::removeSelectedRows()
         model->removeRows((*it).top(), count, parent);
     }
 }
+
 #endif // QT_NO_ITEMVIEWS
