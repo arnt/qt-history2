@@ -29,6 +29,7 @@ private:
     void writeBuildRulesPart(QTextStream &t);
     void writeRcFilePart(QTextStream &t);
     void init();
+    void processPrlVariable(const QString &var, const QStringList &l);
 
     virtual bool findLibraries();
     void fixTargetExt();
