@@ -377,6 +377,7 @@ void QItemDelegate::drawFocus(QPainter *painter,
         QStyleOptionFocusRect o;
         o.QStyleOption::operator=(option);
         o.rect = rect;
+        o.state |= QStyle::State_KeyboardFocusChange;
         QPalette::ColorGroup cg = (option.state & QStyle::State_Enabled)
                                   ? QPalette::Normal : QPalette::Disabled;
         o.backgroundColor = option.palette.color(cg, (option.state & QStyle::State_Selected)
