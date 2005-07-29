@@ -20,6 +20,8 @@
 	<string>AdminAuthorization</string>
 	<key>IFPkgFlagDefaultLocation</key>
 	<string>/</string>
+	<key>IFPkgFlagFollowLinks</key>
+	<true/>
 	<key>IFPkgFlagInstallFat</key>
 	<false/>
 	<key>IFPkgFlagIsRequired</key>

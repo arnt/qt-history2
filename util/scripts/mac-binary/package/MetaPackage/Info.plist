@@ -14,6 +14,8 @@
         <integer>$VERSION_MAJOR$</integer>
 	    <key>IFPkgFlagAuthorizationAction</key>
 	    <string>AdminAuthorization</string>
+	    <key>IFPkgFlagFollowLinks</key>
+	    <true/>
         <key>IFMinorVersion</key>
         <integer>$VERSION_MINOR$</integer>
         <key>IFPkgFlagComponentDirectory</key>
