@@ -2150,7 +2150,7 @@ QVariantMap QVariant::toMap() const
   \fn QPointF QVariant::toPointF() const
 
   Returns the variant as a QPointF if the variant has type()
-  Point or PointF; otherwise returns an invalid QPointF.
+  Point or PointF; otherwise returns a null QPointF.
  */
 
 /*!
