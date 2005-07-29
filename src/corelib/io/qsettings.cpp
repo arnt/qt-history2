@@ -62,7 +62,7 @@ typedef QCache<QString, QConfFile> ConfFileCache;
 
 Q_GLOBAL_STATIC(ConfFileHash, usedHashFunc)
 Q_GLOBAL_STATIC(ConfFileCache, unusedCacheFunc)
-Q_GLOBAL_STATIC(QMutex, mutex)
+Q_GLOBAL_STATIC(QMutex, globalMutex)
 Q_GLOBAL_STATIC(QString, defaultSystemIniPath)
 Q_GLOBAL_STATIC(QString, defaultUserIniPath)
 
@@ -101,7 +101,7 @@ QConfFile *QConfFile::fromName(const QString &fileName)
     ConfFileHash *usedHash = usedHashFunc();
     ConfFileCache *unusedCache = unusedCacheFunc();
 
-    QMutexLocker locker(mutex());
+    QMutexLocker locker(globalMutex());
 
     if (!(confFile = usedHash->value(absPath))) {
         if ((confFile = unusedCache->take(absPath)))
@@ -116,7 +116,7 @@ QConfFile *QConfFile::fromName(const QString &fileName)
 
 void QConfFile::clearCache()
 {
-    QMutexLocker locker(mutex());
+    QMutexLocker locker(globalMutex());
     unusedCacheFunc()->clear();
 }
 
@@ -960,7 +960,7 @@ QConfFileSettingsPrivate::QConfFileSettingsPrivate(const QString &fileName,
 
 QConfFileSettingsPrivate::~QConfFileSettingsPrivate()
 {
-    QMutexLocker locker(mutex());
+    QMutexLocker locker(globalMutex());
     ConfFileHash *usedHash = usedHashFunc();
     ConfFileCache *unusedCache = unusedCacheFunc();
 
@@ -973,7 +973,7 @@ QConfFileSettingsPrivate::~QConfFileSettingsPrivate()
                 delete confFiles[i];
             } else if (unusedCache) {
                 unusedCache->insert(confFiles[i]->name, confFiles[i],
-                                      10 + (confFiles[i]->originalKeys.size() / 4));
+                                    10 + (confFiles[i]->originalKeys.size() / 4));
             }
         }
     }
@@ -990,7 +990,7 @@ void QConfFileSettingsPrivate::remove(const QString &key)
     QSettingsKey prefix(key + QLatin1Char('/'), cs);
 
     QConfFile *confFile = confFiles[spec];
-    QMutexLocker locker(mutex());
+    QMutexLocker locker(&confFile->mutex);
 
     SettingsKeyMap::iterator i = confFile->addedKeys.lowerBound(prefix);
     while (i != confFile->addedKeys.end() && i.key().startsWith(prefix))
@@ -1016,7 +1016,7 @@ void QConfFileSettingsPrivate::set(const QString &key, const QVariant &value)
     QSettingsKey theKey(key, cs);
 
     QConfFile *confFile = confFiles[spec];
-    QMutexLocker locker(mutex());
+    QMutexLocker locker(&confFile->mutex);
     confFile->removedKeys.remove(theKey);
     confFile->addedKeys.insert(theKey, value);
 }
@@ -1027,10 +1027,10 @@ bool QConfFileSettingsPrivate::get(const QString &key, QVariant *value) const
     SettingsKeyMap::const_iterator j;
     bool found = false;
 
-    QMutexLocker locker(mutex());
-
     for (int i = 0; i < NumConfFiles; ++i) {
         if (QConfFile *confFile = confFiles[i]) {
+            QMutexLocker locker(&confFile->mutex);
+
             if (!confFile->addedKeys.isEmpty()) {
                 j = confFile->addedKeys.find(theKey);
                 found = (j != confFile->addedKeys.constEnd());
@@ -1061,10 +1061,10 @@ QStringList QConfFileSettingsPrivate::children(const QString &prefix, ChildSpec 
     QSettingsKey thePrefix(prefix, cs);
     int startPos = prefix.size();
 
-    QMutexLocker locker(mutex());
-
     for (int i = 0; i < NumConfFiles; ++i) {
         if (QConfFile *confFile = confFiles[i]) {
+            QMutexLocker locker(&confFile->mutex);
+
             j = confFile->originalKeys.lowerBound(thePrefix);
             while (j != confFile->originalKeys.constEnd() && j.key().startsWith(thePrefix)) {
                 if (!confFile->removedKeys.contains(j.key()))
@@ -1093,21 +1093,21 @@ void QConfFileSettingsPrivate::clear()
     }
 
     QConfFile *confFile = confFiles[spec];
-    QMutexLocker locker(mutex());
+    QMutexLocker locker(&confFile->mutex);
     confFile->addedKeys.clear();
     confFile->removedKeys = confFiles[spec]->originalKeys;
 }
 
 void QConfFileSettingsPrivate::sync()
 {
-    QMutexLocker locker(mutex());
-
     // people probably won't be checking the status a whole lot, so in case of
     // error we just try to go on and make the best of it
 
     for (int i = 0; i < NumConfFiles; ++i) {
         QConfFile *confFile = confFiles[i];
         if (confFile) {
+            QMutexLocker locker(&confFile->mutex);
+
             if (!readFile(confFile)) {
                 // Only problems with the file we actually write to change the status. The
                 // other files are just optional fallbacks.

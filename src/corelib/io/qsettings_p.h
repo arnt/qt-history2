@@ -105,6 +105,7 @@ public:
     SettingsKeyMap addedKeys;
     SettingsKeyMap removedKeys;
     QAtomic ref;
+    QMutex mutex;
 
 #ifdef Q_OS_WIN
     HANDLE semHandle; // semaphore used for synchronizing access to this file
