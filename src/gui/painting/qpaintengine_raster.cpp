@@ -2939,7 +2939,7 @@ void ConicalGradientData::init(const QPointF &pt, qreal a, const QMatrix &matrix
     imatrix = matrix.inverted();
 
     initColorTable();
-};
+}
 
 
 #ifdef Q_WS_WIN
