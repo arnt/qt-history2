@@ -83,4 +83,8 @@ private:
     QHostAddressPrivate *d;
 };
 
+#ifndef QT_NO_DEBUG_STREAM
+Q_NETWORK_EXPORT QDebug operator<<(QDebug, const QHostAddress &);
+#endif
+
 #endif // QHOSTADDRESS_H

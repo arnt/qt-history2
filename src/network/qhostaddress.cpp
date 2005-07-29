@@ -13,6 +13,7 @@
 
 #include "qhostaddress.h"
 #include "qstringlist.h"
+#include "qdebug.h"
 
 #define QT_ENSURE_PARSED(a) \
     do { \
@@ -533,3 +534,11 @@ bool QHostAddress::isNull() const
 
     Use protocol() instead.
 */
+
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug d, const QHostAddress &address)
+{
+    d.maybeSpace() << "QHostAddress(" << address.toString() << ")";
+    return d.space();
+}
+#endif
