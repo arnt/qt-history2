@@ -217,3 +217,13 @@ int QDesignerWidgetBoxInterface::findOrInsertCategory(const QString &categoryNam
 /*!
     \fn bool QDesignerWidgetBoxInterface::Category::isNull() const
 */
+
+/*!
+    \typedef QDesignerWidgetBoxInterface::CategoryList
+    \internal
+*/
+
+/*!
+    \typedef QDesignerWidgetBoxInterface::WidgetList
+    \internal
+*/
