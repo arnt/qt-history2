@@ -1704,6 +1704,9 @@ void QPainter::setClipPath(const QPainterPath &path, Qt::ClipOperation op)
 */
 void QPainter::strokePath(const QPainterPath &path, const QPen &pen)
 {
+    if (!isActive())
+        return;
+
     Q_D(QPainter);
     QBrush oldBrush = d->state->brush;
     QPen oldPen = d->state->pen;
@@ -1726,6 +1729,9 @@ void QPainter::strokePath(const QPainterPath &path, const QPen &pen)
 */
 void QPainter::fillPath(const QPainterPath &path, const QBrush &brush)
 {
+    if (!isActive())
+        return;
+
     Q_D(QPainter);
     QBrush oldBrush = d->state->brush;
     QPen oldPen = d->state->pen;
