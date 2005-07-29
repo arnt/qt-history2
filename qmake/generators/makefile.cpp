@@ -1375,18 +1375,18 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
 
         if(!target.isEmpty()) {
             if(noBuild || project->variables()[(*it) + ".CONFIG"].indexOf("no_build") != -1)
-                t << "install_" << (*it) << ": ";
+                t << "install_" << (*it) << ":";
             else if(project->isActiveConfig("build_all"))
-                t << "install_" << (*it) << ": all ";
+                t << "install_" << (*it) << ": all";
             else
-                t << "install_" << (*it) << ": first ";
+                t << "install_" << (*it) << ": first";
             const QStringList &deps = project->variables()[(*it) + ".depends"];
             if(!deps.isEmpty()) {
                 for(QStringList::ConstIterator dep_it = deps.begin(); dep_it != deps.end(); ++dep_it) {
                     QString targ = var((*dep_it) + ".target");
                     if(targ.isEmpty())
                         targ = (*dep_it);
-                    t << targ;
+                    t << " " << targ;
                 }
             }
             if(project->isEmpty("QMAKE_NOFORCE"))
