@@ -26,7 +26,10 @@ static BOOL checkForLicenseFile()
                     char licenseString[LICENSESIZE];
                     strncpy(licenseString, location, LICENSESIZE);
                     licenseString[LICENSESIZE - 1] = '\0';
-                    return validateLicense(licenseString) != LicenseOK;
+                    location = strstr(licenseString, "\n");
+                    if (location)
+                        *location = '\0';
+                    return validateLicense(licenseString) == LicenseOK;
                 }
                 
             }
@@ -41,7 +44,7 @@ static BOOL checkForLicenseFile()
 
 - (BOOL)shouldLoad
 {
-    return checkForLicenseFile();
+    return !checkForLicenseFile();
 }
 
 @end
