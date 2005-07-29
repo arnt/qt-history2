@@ -3012,7 +3012,7 @@ MakefileGenerator::specdir()
 {
     if(!spec.isEmpty())
         return spec;
-    spec = fileFixify(Option::mkfile::qmakespec);
+    spec = fileFixify(Option::mkfile::qmakespec, FileFixifyAbsolute);
     return spec;
 }
 
