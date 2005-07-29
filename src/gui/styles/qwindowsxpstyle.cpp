@@ -2034,8 +2034,10 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(option))
         {
             if (const QDockWidget *dw = qobject_cast<const QDockWidget *>(widget))
-                if (!dw->isFloating())
-                    return QWindowsStyle::drawControl(element, option, p, widget);
+                if (!dw->isFloating()) {
+                    QWindowsStyle::drawControl(element, option, p, widget);
+                    return;
+                }
 
             name = "WINDOW";
             if (dwOpt->state & State_Enabled)
