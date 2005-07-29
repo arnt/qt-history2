@@ -683,7 +683,7 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
         int firstRow = 0;
         int lastRow = rows;
 
-        {
+        if (context.clip.isValid()) {
             QVector<qreal>::ConstIterator rowIt = qLowerBound(td->rowPositions.begin(), td->rowPositions.end(), context.clip.top() - off.y());
             if (rowIt != td->rowPositions.end() && rowIt != td->rowPositions.begin()) {
                 --rowIt;
