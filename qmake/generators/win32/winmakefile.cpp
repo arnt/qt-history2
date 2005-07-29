@@ -519,6 +519,14 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     t << "####### Files" << endl << endl;
     t << "SOURCES       = " << varList("SOURCES") << " " << varList("GENERATED_SOURCES") << endl;
 
+    // do this here so we can set DEST_TARGET to be the complete path to the final target if it is needed.
+    QString orgDestDir = var("DESTDIR");
+    QString destDir = Option::fixPathToTargetOS(orgDestDir, false);
+    if (orgDestDir.endsWith('/') || orgDestDir.endsWith(Option::dir_sep))
+        destDir += Option::dir_sep;
+    QString target = QString(project->first("TARGET")+project->first("TARGET_EXT")).remove('"');
+    project->variables()["DEST_TARGET"].prepend(destDir + target);
+    
     writeObjectsPart(t);
 
     writeExtraCompilerVariables(t);
@@ -526,14 +534,10 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
 
     t << "DIST          = " << varList("DISTFILES") << endl;
     t << "QMAKE_TARGET  = " << var("QMAKE_ORIG_TARGET") << endl;
-    QString orgDestDir = var("DESTDIR");
-    QString destDir = Option::fixPathToTargetOS(orgDestDir, false);
-    if (orgDestDir.endsWith('/') || orgDestDir.endsWith('/') || orgDestDir.endsWith(Option::dir_sep))
-        destDir += Option::dir_sep;
     // The comment is important to maintain variable compatability with Unix
     // Makefiles, while not interpreting a trailing-slash as a linebreak
     t << "DESTDIR        = " << destDir << " #avoid trailing-slash linebreak" << endl;
-    t << "TARGET         = " << QString(project->first("TARGET")+project->first("TARGET_EXT")).remove('"') << endl;
+    t << "TARGET         = " << target << endl;
     t << "DESTDIR_TARGET = $(DESTDIR)$(TARGET)" << endl;
     t << endl;
 

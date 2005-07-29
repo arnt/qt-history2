@@ -84,20 +84,39 @@ bool MingwMakefileGenerator::writeMakefile(QTextStream &t)
     return false;
  }
 
-void createLdObjectScriptFile(const QString &fileName, QStringList &objList)
+void createLdObjectScriptFile(const QString &fileName, const QStringList &objList)
 {
     QString filePath = Option::output_dir + QDir::separator() + fileName;
     QFile file(filePath);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream t(&file);
         t << "INPUT(" << endl;
-        for (QStringList::Iterator it = objList.begin(); it != objList.end(); ++it) {
+        for (QStringList::ConstIterator it = objList.constBegin(); it != objList.constEnd(); ++it) {
             if (QDir::isRelativePath(*it))
 		t << "./" << *it << endl;
 	    else
 		t << *it << endl;
         }
         t << ");" << endl;
+	t.flush();
+        file.close();
+    }
+}
+
+void createArObjectScriptFile(const QString &fileName, const QString &target, const QStringList &objList)
+{
+    QString filePath = Option::output_dir + QDir::separator() + fileName;
+    QFile file(filePath);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream t(&file);
+        t << "CREATE " << target << endl;
+        for (QStringList::ConstIterator it = objList.constBegin(); it != objList.constEnd(); ++it) {
+            if (QDir::isRelativePath(*it))
+		t << "ADDMOD " << *it << endl;
+	    else
+		t << *it << endl;
+        }
+        t << "SAVE" << endl;
 	t.flush();
         file.close();
     }
@@ -199,9 +218,15 @@ void MingwMakefileGenerator::writeLibsPart(QTextStream &t)
 
 void MingwMakefileGenerator::writeObjectsPart(QTextStream &t)
 {
-    if(project->isActiveConfig("staticlib")
-        || project->variables()["OBJECTS"].count() < var("QMAKE_LINK_OBJECT_MAX").toInt()) {
+    if (project->variables()["OBJECTS"].count() < var("QMAKE_LINK_OBJECT_MAX").toInt()) {
         objectsLinkLine = "$(OBJECTS)";
+    } else if (project->isActiveConfig("staticlib")) {
+	QString ar_script_file = var("QMAKE_LINK_OBJECT_SCRIPT") + "." + var("TARGET");
+	if (!var("BUILD_NAME").isEmpty()) {
+	    ar_script_file += "." + var("BUILD_NAME");
+	}
+	createArObjectScriptFile(ar_script_file, var("DEST_TARGET"), project->variables()["OBJECTS"]);
+        objectsLinkLine = "ar -M < " + ar_script_file;
     } else {
         QString ld_script_file = var("QMAKE_LINK_OBJECT_SCRIPT") + "." + var("TARGET");
 	if (!var("BUILD_NAME").isEmpty()) {
@@ -219,7 +244,11 @@ void MingwMakefileGenerator::writeBuildRulesPart(QTextStream &t)
     t << "all: " << fileFixify(Option::output.fileName()) << " " << varGlue("ALL_DEPS"," "," "," ") << " $(DESTDIR_TARGET)" << endl << endl;
     t << "$(DESTDIR_TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) " << var("POST_TARGETDEPS");
     if(project->isActiveConfig("staticlib")) {
-        t << "\n\t" << "$(LIB) \"$(DESTDIR_TARGET)\" " << objectsLinkLine << " " ;
+	if (project->variables()["OBJECTS"].count() < var("QMAKE_LINK_OBJECT_MAX").toInt()) {
+            t << "\n\t" << "$(LIB) \"$(DESTDIR_TARGET)\" " << objectsLinkLine << " " ;
+        } else {
+            t << "\n\t" << objectsLinkLine << " " ;
+        }
     } else {
         t << "\n\t" << "$(LINK) $(LFLAGS) -o \"$(DESTDIR_TARGET)\" " << objectsLinkLine << " " << " $(LIBS)";
     }
