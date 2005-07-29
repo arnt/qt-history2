@@ -9,7 +9,7 @@
     support for GUI programming issues. The user interface for an
     OpenGL application must be created with another toolkit, such as
     Motif on the X platform, Microsoft Foundation Classes (MFC) under
-    Windows, or Qt on \e both platforms.
+    Windows, or Qt on both platforms.
 
     \bold{Note:} OpenGL is a trademark of Silicon Graphics, Inc. in
     the United States and other countries.
@@ -25,6 +25,8 @@
     but with much more non-OpenGL-specific GUI functionality, i.e. the
     whole Qt API.
 
+    \warning The OpenGL module isn't part of Qtopia Core.
+
     \section1 Installation
 
     When you install Qt for X11, the configure script will autodetect if
@@ -34,19 +36,31 @@
     you may need to change the QMAKE_INCDIR_OPENGL and/or
     QMAKE_LIBDIR_OPENGL in the config file for your system).
 
-    When you install Qt for Windows, the Qt OpenGL module is always
-    included.
+    When you install Qt for Windows and Mac OS X, the Qt OpenGL
+    module is always included.
+
+    Applications that use Qt's OpenGL classes need to be
+    configured to be built against the QtOpenGL module. The following
+    declaration in a \c qmake project file ensures that an
+    application is compiled and linked appropriately:
+
+    \code
+        QT += opengl
+    \endcode
+
+    This line is necessary because only the QtCore and QtGui modules
+    are used in the default build process.
 
     \section1 The QGL Classes
 
     The OpenGL support classes in Qt are:
     \list
-    \i \link QGLWidget QGLWidget\endlink: An easy-to-use Qt
+    \o \link QGLWidget QGLWidget\endlink: An easy-to-use Qt
       widget for rendering OpenGL scenes.
-    \i \link QGLContext QGLContext\endlink: Encapsulates an OpenGL rendering context.
-    \i \link QGLFormat QGLFormat\endlink: Specifies the
+    \o \link QGLContext QGLContext\endlink: Encapsulates an OpenGL rendering context.
+    \o \link QGLFormat QGLFormat\endlink: Specifies the
     display format of a rendering context.
-    \i \link QGLColormap QGLColormap\endlink: Handles indexed
+    \o \link QGLColormap QGLColormap\endlink: Handles indexed
     colormaps in GL-index mode.
     \endlist
 

@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-/*! \page sql.html
-
+/*!
+    \page sql.html
     \title SQL Module
 
     Qt's SQL classes help you provide seamless database integration
@@ -31,6 +31,20 @@
     understanding of SQL is highly recommended. A standard text
     covering SQL databases is \e {An Introduction to Database Systems}
     (7th Ed.) by C. J. Date, ISBN 0201385902.
+
+    \section1 Configuring the Build Process
+
+    Applications that use Qt's SQL classes need to be configured to
+    be built against the QtSql module. The following declaration in a
+    \c qmake project file ensures that an application is compiled and
+    linked appropriately:
+
+    \code
+        QT += sql
+    \endcode
+
+    This line is necessary because only the QtCore and QtGui modules
+    are used in the default build process.
 
     \section1 SQL Module Architecture
 

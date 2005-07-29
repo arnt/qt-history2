@@ -21,10 +21,6 @@
     \target overview
     \section1 Overview of the XML Architecture in Qt
 
-    The XML module provides a well-formed XML parser using the SAX2
-    (Simple API for XML) interface plus an implementation of the DOM Level
-    2 (Document Object Model).
-
     SAX is an event-based standard interface for XML parsers.
     The Qt interface follows the design of the SAX2 Java implementation.
     Its naming scheme was adapted to fit the Qt naming conventions.
@@ -49,7 +45,7 @@
     group who provide, for example, classes that support SOAP and MML with
     the Qt XML classes.
 
-    The \l{qtxml.html}{QtXml module} provides the following SAX and DOM classes:
+    The QtXml module provides the following SAX and DOM classes:
 
     \table
     \header \i Class \i Description
@@ -116,6 +112,20 @@
     \row \i \l QXmlSimpleReader
          \i Implementation of a simple XML reader (a SAX2 parser)
     \endtable
+
+    \section1 Configuring the Build Process
+
+    Applications that use Qt's XML classes need to be configured to
+    be built against the QtXml module. The following declaration in a
+    \c qmake project file ensures that an application is compiled and
+    linked appropriately:
+
+    \code
+        QT += xml
+    \endcode
+
+    This line is necessary because only the QtCore and QtGui modules
+    are used in the default build process.
 
     \target sax2
     \section1 The Qt SAX2 Classes
