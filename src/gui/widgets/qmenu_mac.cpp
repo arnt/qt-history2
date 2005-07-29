@@ -47,6 +47,10 @@ enum {
 
     kHICommandAboutQt = 'AOQT'
 };
+struct {
+    QPointer<QMenuBar> qmenubar;
+    bool modal;
+} qt_mac_current_menubar = { 0, false };
 
 /*****************************************************************************
   Externals
@@ -900,7 +904,6 @@ bool QMenuBar::macUpdateMenuBar()
         return true;
 
     QMenuBar *mb = 0;
-    bool fall_back_to_empty = false;
     //find a menubar
     QWidget *w = qApp->activeWindow();
     if(!w) {
@@ -938,9 +941,7 @@ bool QMenuBar::macUpdateMenuBar()
         while(w && !mb)
             mb = menubars()->value((w = w->parentWidget()));
     }
-    if(!w || (!(w->windowType() == Qt::Tool) && !(w->windowType() == Qt::Popup)))
-        fall_back_to_empty = true;
-    if(!mb)
+    if(!mb && !(!w || (!(w->windowType() == Qt::Tool) && !(w->windowType() == Qt::Popup))))
         mb = fallback;
     //now set it
     bool ret = false;
@@ -950,7 +951,19 @@ bool QMenuBar::macUpdateMenuBar()
             if(mb != menubars()->value(qApp->activeModalWidget()))
                 qt_mac_set_modal_state(menu, QApplicationPrivate::modalState());
         }
+        qt_mac_current_menubar.qmenubar = mb;
+        qt_mac_current_menubar.modal = QApplicationPrivate::modalState();
         ret = true;
+    } else if(qt_mac_current_menubar.qmenubar) {
+        const bool modal = QApplicationPrivate::modalState();
+        if(modal != qt_mac_current_menubar.modal) {
+            if(MenuRef menu = qt_mac_current_menubar.qmenubar->macMenu()) {
+                SetRootMenu(menu);
+                if(qt_mac_current_menubar.qmenubar != menubars()->value(qApp->activeModalWidget()))
+                    qt_mac_set_modal_state(menu, QApplicationPrivate::modalState());
+            }
+            qt_mac_current_menubar.modal = modal;
+        }
     }
     return ret;
 }
