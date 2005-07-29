@@ -177,7 +177,7 @@
     \section2 Menu Bar
 
     Qt/Mac will automatically detect your menu bars for you and turn them
-    into Mac native menu bars. Fitting this into your existing Qt application
+    into Mac native menubars. Fitting this into your existing Qt application
     will normally be automatic, however, if you have special needs the Qt/Mac
     implementation currently selects a menu bar by starting at the active window
     (i.e. QApplication::activeWindow()), and applying:
@@ -198,12 +198,15 @@
 
     \section1 Limitations
 
-    \section2 Menu Items
+    \section2 Menu Actions
 
     \list
 
-    \i Items with accelerators that have more than one keystroke
-    (QKeySequence) will not be honored, and the first key will be used.
+    \i Actions in into a QMenu with accelerators that have more than one
+    keystroke (QKeySequence) will not display correctly when the QMenu is
+    translated into a Mac native menubar. The first key will be displayed,
+    however the shortcut will still be activated as on all other
+    platforms.
 
     \endlist
 
