@@ -13,16 +13,7 @@
 
 #include "abstractformeditor.h"
 
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformwindowmanager.h>
-#include <QtDesigner/abstractmetadatabase.h>
-#include <QtDesigner/abstractwidgetbox.h>
-#include <QtDesigner/abstractwidgetfactory.h>
-#include <QtDesigner/abstractpropertyeditor.h>
-#include <QtDesigner/abstractwidgetdatabase.h>
-#include <QtDesigner/abstractobjectinspector.h>
-#include <QtDesigner/qextensionmanager.h>
-#include <QtDesigner/abstracticoncache.h>
+#include <QtDesigner/QtDesigner>
 
 class PluginManager;
 
