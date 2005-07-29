@@ -436,6 +436,8 @@ struct QX11Data
 
         _NET_WM_PID,
 
+        _NET_WM_WINDOW_OPACITY,
+
         _NET_WM_STATE,
         _NET_WM_STATE_ABOVE,
         _NET_WM_STATE_FULLSCREEN,

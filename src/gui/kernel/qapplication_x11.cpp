@@ -175,6 +175,8 @@ static const char * x11_atomnames = {
 
     "_NET_WM_PID\0"
 
+    "_NET_WM_WINDOW_OPACITY\0"
+
     "_NET_WM_STATE\0"
     "_NET_WM_STATE_ABOVE\0"
     "_NET_WM_STATE_FULLSCREEN\0"
@@ -3933,6 +3935,22 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                 }
             }
         }
+    } else if (event->xproperty.atom == ATOM(_NET_WM_WINDOW_OPACITY)) {
+        // the window opacity was changed
+        if (event->xproperty.state == PropertyNewValue) {
+            e = XGetWindowProperty(event->xclient.display,
+                                   event->xclient.window,
+                                   ATOM(_NET_WM_WINDOW_OPACITY),
+                                   0, 1, False, XA_CARDINAL,
+                                   &ret, &format, &nitems, &after, &data);
+
+            if (e == Success && ret == XA_CARDINAL && format == 32 && nitems == 1
+                && after == 0 && data) {
+                ulong value = *(ulong*)(data);
+                d->topData()->opacity = uint(value >> 24);
+            }
+        } else
+            d->topData()->opacity = 255;
     }
 
     if (data)

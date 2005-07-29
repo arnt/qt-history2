@@ -991,9 +991,7 @@ void QWidgetPrivate::createTLExtra()
         createExtra();
     if (!extra->topextra) {
         QTLWExtra* x = extra->topextra = new QTLWExtra;
-#if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined (Q_WS_QWS)
         x->opacity = 255;
-#endif
         x->icon = 0;
         x->iconPixmap = 0;
         x->fleft = x->fright = x->ftop = x->fbottom = 0;

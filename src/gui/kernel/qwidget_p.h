@@ -71,9 +71,7 @@ struct QTLWExtra {
     QPixmap *iconPixmap;
     short incw, inch; // size increments
     ulong fleft, fright, ftop, fbottom; // frame strut
-#if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
-    uint opacity : 8; // Stores opacity level on Windows/Mac OS X.
-#endif
+    uint opacity : 8;
 #if defined(Q_WS_WIN)
     ulong savedFlags; // Save window flags while showing fullscreen
 #ifdef QT_USE_BACKINGSTORE

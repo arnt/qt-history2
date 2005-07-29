@@ -2594,13 +2594,23 @@ void QWidgetPrivate::updateFrameStrut() const
    data.fstrut_dirty = 0;
 }
 
-void QWidget::setWindowOpacity(qreal)
+void QWidget::setWindowOpacity(qreal opacity)
 {
+    if (isTopLevel()) {
+        ulong value = ulong(opacity * 0xffffffff);
+        XChangeProperty(x11Display(), winId(), ATOM(_NET_WM_WINDOW_OPACITY), XA_CARDINAL,
+                        32, PropModeReplace, (uchar*)&value, 1);
+    }
 }
 
 qreal QWidget::windowOpacity() const
 {
-    return 1.0;
+    Q_D(const QWidget);
+    if (isTopLevel()) {
+        QTLWExtra *topData = d->topData();
+        return double(topData->opacity) / 255.;
+    } else
+        return 1.0;
 }
 
 /*!
