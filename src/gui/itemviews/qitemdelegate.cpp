@@ -33,7 +33,7 @@
 #include <private/qdnd_p.h>
 #include <qdebug.h>
 
-static const int textMargin = 2;
+static const int textMargin = 1;
 
 class QItemDelegatePrivate : public QObjectPrivate
 {
@@ -434,10 +434,13 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
     textRect->adjust(-textMargin, 0, textMargin, 0); // add width padding
 
     QSize pm(0, 0);
-    if (pixmapRect->isValid())
+    if (pixmapRect->isValid()) {
         pm = option.decorationSize;
+        pm.rheight() += 2 * textMargin;
+        pm.rwidth() += 2 * textMargin;
+    }
     if (hint) {
-        h = qMax(textRect->height(), pm.height());        
+        h = qMax(textRect->height(), pm.height());
         if (option.decorationPosition == QStyleOptionViewItem::Left || option.decorationPosition == QStyleOptionViewItem::Right) {
             w = textRect->width() + pm.width();
         } else {
@@ -451,7 +454,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
     int cw = 0;
     QRect check;
     if (checkRect->isValid()) {
-        cw = checkRect->width() + textMargin * 2;
+        cw = checkRect->width() + 2 * textMargin;
         if (hint) w += cw;
         if (option.direction == Qt::RightToLeft) {
             check.setRect(x + w - cw, y, cw, h);
@@ -464,15 +467,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
 
     QRect display;
     QRect decoration;
-    QStyleOptionViewItem::Position position = option.decorationPosition;
-    if (option.direction == Qt::RightToLeft) {
-        if (position == QStyleOptionViewItem::Right)
-            position = QStyleOptionViewItem::Left;
-        else if (position == QStyleOptionViewItem::Left)
-            position = QStyleOptionViewItem::Right;
-    }
-
-    switch (position) {
+    switch (option.decorationPosition) {
     case QStyleOptionViewItem::Top: {
         if (!pm.isEmpty())
             pm.setHeight(pm.height() + textMargin); // add space
@@ -492,37 +487,33 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
         h = hint ? textRect->height() + pm.height() : h;
         
         if (option.direction == Qt::RightToLeft) {
-            display.setRect(x, y, w - cw, h);
-            decoration.setRect(x, y + h, w - cw, pm.height());
+            display.setRect(x, y, w - cw, textRect->height());
+            decoration.setRect(x, y + h, w - cw, h - textRect->height());
         } else {
-            display.setRect(x + cw, y, w - cw, h);
-            decoration.setRect(x + cw, y + h, w - cw, pm.height());        
+            display.setRect(x + cw, y, w - cw, textRect->height());
+            decoration.setRect(x + cw, y + h, w - cw, h - textRect->height());        
         }
         break; }
     case QStyleOptionViewItem::Left: {
-        if (!pm.isEmpty())
-            pm.setWidth(pm.width() + textMargin); // add space
-        
-        if (option.direction == Qt::RightToLeft) {
-            decoration.setRect(x, y, pm.width(), h);
-        } else {
+        if (option.direction == Qt::LeftToRight) {
             decoration.setRect(x + cw, y, pm.width(), h);
+            display.setRect(decoration.right() + 1, y, w - pm.width() - cw, h);
+        } else {
+            display.setRect(x, y, w - pm.width() - cw, h);
+            decoration.setRect(display.right() + 1, y, pm.width(), h);
         }
-        display.setRect(decoration.right() + textMargin, y, w - cw - pm.width(), h);
         break; }
     case QStyleOptionViewItem::Right: {
-        if (!pm.isEmpty())
-            pm.setWidth(pm.width() + textMargin); // add space
-
-        if (option.direction == Qt::RightToLeft) {
-            display.setRect(x, y, w - pm.width() - cw, h);
+        if (option.direction == Qt::LeftToRight) {
+            display.setRect(x + cw, y, w - pm.width() - cw, h);
+            decoration.setRect(display.right() + 1, y, pm.width(), h);
         } else {
-            display.setRect(x + cw, y, w - pm.width() - cw, h);        
+            decoration.setRect(x, y, pm.width(), h);
+            display.setRect(decoration.right() + 1, y, w - pm.width() - cw, h);
         }
-        decoration.setRect(display.right() + textMargin, y, pm.width(), h);
         break; }
     default:
-        qWarning("doLayout: decoration positon is invalid");
+        qWarning("doLayout: decoration position is invalid");
         decoration = *pixmapRect;
         break;
     }
