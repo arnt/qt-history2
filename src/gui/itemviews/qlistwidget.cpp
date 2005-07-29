@@ -517,8 +517,12 @@ void QListWidgetItem::write(QDataStream &out) const
 }
 
 /*!
-  \internal
-    Assigns \a other to this list widget item.
+    Assigns \a other's data and flags to this item. Note that type()
+    and listWidget() are not copied.
+
+    This function is useful when reimplementing clone().
+
+    \sa data(), flags()
 */
 QListWidgetItem &QListWidgetItem::operator=(const QListWidgetItem &other)
 {

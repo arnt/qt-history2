@@ -1053,8 +1053,12 @@ QDataStream &operator<<(QDataStream &out, const QTableWidgetItem &item)
 #endif // QT_NO_DATASTREAM
 
 /*!
-  \internal
-    Assigns \a other to this object.
+    Assigns \a other's data and flags to this item. Note that type()
+    and tableWidget() are not copied.
+
+    This function is useful when reimplementing clone().
+
+    \sa data(), flags()
 */
 QTableWidgetItem &QTableWidgetItem::operator=(const QTableWidgetItem &other)
 {
