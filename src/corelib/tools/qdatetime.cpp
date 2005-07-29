@@ -3151,22 +3151,19 @@ static QDateTimePrivate::Spec utcToLocal(QDate &date, QTime &time)
     }
 
     time_t secsSince1Jan1970UTC = toTime_t(fakeDate, time);
-	tm res;
-	tm *brokenDown = 0;
+    tm *brokenDown = 0;
 
 #if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
     // use the reentrant version of localtime() where available
+    tm res;
     brokenDown = localtime_r(&secsSince1Jan1970UTC, &res);
-#else
-# if defined(_MSC_VER) && _MSC_VER >= 1400
+#elif defined(_MSC_VER) && _MSC_VER >= 1400
+    tm res;
     if (!_localtime64_s(&res, &secsSince1Jan1970UTC))
-		brokenDown = &res;
-	else
-		brokenDown = 0;
-# else
-	brokenDown = localtime(&secsSince1Jan1970UTC);
-# endif
-#endif // QT_THREAD_SUPPORT && _POSIX_THREAD_SAFE_FUNCTIONS
+        brokenDown = &res;
+#else
+    brokenDown = localtime(&secsSince1Jan1970UTC);
+#endif
     if (!brokenDown) {
         date = QDate(1970, 1, 1);
         time = QTime();
@@ -3188,7 +3185,7 @@ static QDateTimePrivate::Spec utcToLocal(QDate &date, QTime &time)
 static void localToUtc(QDate &date, QTime &time, int isdst)
 {
     if (!date.isValid())
-	    return;
+        return;
 
     QDate lowerLimit(LowerYear, 1, 2);
     QDate upperLimit(2037, 12, 30);
@@ -3213,21 +3210,18 @@ static void localToUtc(QDate &date, QTime &time, int isdst)
     localTM.tm_isdst = (int)isdst;
 
     time_t secsSince1Jan1970UTC = mktime(&localTM);
-	tm res;
-	tm *brokenDown = 0;
+    tm *brokenDown = 0;
 
 #if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
     // use the reentrant version of gmtime() where available
+    tm res;
     brokenDown = gmtime_r(&secsSince1Jan1970UTC, &res);
-#else
-# if defined(_MSC_VER) && _MSC_VER >= 1400
+#elif defined(_MSC_VER) && _MSC_VER >= 1400
+    tm res;
     if (!_gmtime64_s(&res, &secsSince1Jan1970UTC))
-		brokenDown = &res;
-	else
-		brokenDown = 0;
-# else
-	brokenDown = gmtime(&secsSince1Jan1970UTC);
-# endif    
+        brokenDown = &res;
+#else
+    brokenDown = gmtime(&secsSince1Jan1970UTC);
 #endif // QT_THREAD_SUPPORT && _POSIX_THREAD_SAFE_FUNCTIONS
     if (!brokenDown) {
         date = QDate(1970, 1, 1);
