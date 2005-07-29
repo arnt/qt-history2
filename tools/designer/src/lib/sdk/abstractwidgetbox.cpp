@@ -18,7 +18,6 @@
     \brief The QDesignerWidgetBoxInterface class provides an interface that is used to
     control Qt Designer's widget box component.
     \inmodule QtDesigner
-    \internal
 */
 
 /*!
@@ -35,6 +34,7 @@ QDesignerWidgetBoxInterface::~QDesignerWidgetBoxInterface()
 }
 
 /*!
+    \internal
 */
 int QDesignerWidgetBoxInterface::findOrInsertCategory(const QString &categoryName)
 {
@@ -51,38 +51,47 @@ int QDesignerWidgetBoxInterface::findOrInsertCategory(const QString &categoryNam
 
 /*!
     \fn int QDesignerWidgetBoxInterface::categoryCount() const
+    \internal
 */
 
 /*!
     \fn Category QDesignerWidgetBoxInterface::category(int cat_idx) const
+    \internal
 */
 
 /*!
     \fn void QDesignerWidgetBoxInterface::addCategory(const Category &cat)
+    \internal
 */
 
 /*!
     \fn void QDesignerWidgetBoxInterface::removeCategory(int cat_idx)
+    \internal
 */
 
 /*!
     \fn int QDesignerWidgetBoxInterface::widgetCount(int cat_idx) const
+    \internal
 */
 
 /*!
     \fn Widget QDesignerWidgetBoxInterface::widget(int cat_idx, int wgt_idx) const
+    \internal
 */
 
 /*!
     \fn void QDesignerWidgetBoxInterface::addWidget(int cat_idx, const Widget &wgt)
+    \internal
 */
 
 /*!
     \fn void QDesignerWidgetBoxInterface::removeWidget(int cat_idx, int wgt_idx)
+    \internal
 */
 
 /*!
     \fn void QDesignerWidgetBoxInterface::dropWidgets(const QList<QDesignerDnDItemInterface*> &item_list, const QPoint &global_mouse_pos)
+    \internal
 */
 
 /*!
@@ -105,6 +114,7 @@ int QDesignerWidgetBoxInterface::findOrInsertCategory(const QString &categoryNam
 /*!
     \class QDesignerWidgetBoxInterface::Widget
     \brief The Widget class specified a widget in Qt Designer's widget box component.
+    \internal
 */
 
 /*!
@@ -158,6 +168,7 @@ int QDesignerWidgetBoxInterface::findOrInsertCategory(const QString &categoryNam
 /*!
     \class QDesignerWidgetBoxInterface::Category
     \brief The Category class specifies a category in Qt Designer's widget box component.
+    \internal
 */
 
 /*!

@@ -100,7 +100,9 @@ void QDesignerFormEditorInterface::setExtensionManager(QExtensionManager *extens
 { m_extensionManager = extensionManager; }
 
 /*!
-    Returns an interface to the meta database used by the form editor.*/
+    Returns an interface to the meta database used by the form editor.
+    \internal
+*/
 QDesignerMetaDataBaseInterface *QDesignerFormEditorInterface::metaDataBase() const
 { return m_metaDataBase; }
 
@@ -111,7 +113,9 @@ void QDesignerFormEditorInterface::setMetaDataBase(QDesignerMetaDataBaseInterfac
 { m_metaDataBase = metaDataBase; }
 
 /*!
-    Returns an interface to the widget database used by the form editor.*/
+    Returns an interface to the widget database used by the form editor.
+    \internal
+*/
 QDesignerWidgetDataBaseInterface *QDesignerFormEditorInterface::widgetDataBase() const
 { return m_widgetDataBase; }
 
@@ -123,7 +127,9 @@ void QDesignerFormEditorInterface::setWidgetDataBase(QDesignerWidgetDataBaseInte
 
 /*!
     Returns an interface to the widget factory used by the form editor to create widgets
-    for the form.*/
+    for the form.
+    \internal
+*/
 QDesignerWidgetFactoryInterface *QDesignerFormEditorInterface::widgetFactory() const
 { return m_widgetFactory; }
 
@@ -144,7 +150,9 @@ void QDesignerFormEditorInterface::setObjectInspector(QDesignerObjectInspectorIn
 { m_objectInspector = objectInspector; }
 
 /*!
-    Returns an interface to the icon cache used by the form editor to manage icons.*/
+    Returns an interface to the icon cache used by the form editor to manage icons.
+    \internal
+*/
 QDesignerIconCacheInterface *QDesignerFormEditorInterface::iconCache() const
 { return m_iconCache; }
 
@@ -155,7 +163,9 @@ void QDesignerFormEditorInterface::setIconCache(QDesignerIconCacheInterface *cac
 { m_iconCache = cache; }
 
 /*!
-    Returns the plugin manager used by the form editor.*/
+    Returns the plugin manager used by the form editor.
+    \internal
+*/
 PluginManager *QDesignerFormEditorInterface::pluginManager() const
 { return m_pluginManager; }
 
@@ -165,7 +175,9 @@ void QDesignerFormEditorInterface::setPluginManager(PluginManager *pluginManager
 { m_pluginManager = pluginManager; }
 
 /*!
-    Returns the path to the resources used by the form editor.*/
+    Returns the path to the resources used by the form editor.
+    \internal
+*/
 QString QDesignerFormEditorInterface::resourceLocation() const
 {
 #ifdef Q_WS_MAC

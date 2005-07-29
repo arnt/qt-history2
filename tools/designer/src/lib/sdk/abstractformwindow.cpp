@@ -256,6 +256,8 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
     \fn virtual int QDesignerFormWindowInterface::toolCount() const = 0
 
     Returns the number of tools available.
+
+    \internal
 */
 
 /*!
@@ -264,6 +266,8 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
     Returns the index of the current tool in use.
 
     \sa setCurrentTool()
+
+    \internal
 */
 
 /*!
@@ -272,6 +276,8 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
     Sets the current tool to be the one with the given \a index.
 
     \sa currentTool()
+
+    \internal
 */
 
 /*!
@@ -284,6 +290,8 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
     \fn virtual void QDesignerFormWindowInterface::registerTool(QDesignerFormWindowToolInterface *tool) = 0
 
     Registers the given \a tool with the form window.
+
+    \internal
 */
 
 /*!
@@ -331,6 +339,8 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 
     Returns an object that can be used to obtain the commands used so far in the construction
     of the form.
+
+    \internal
 */
 
 /*!
@@ -341,6 +351,8 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
     that they are recorded on the undo stack.
 
     \sa endCommand()
+
+    \internal
 */
 
 /*!
@@ -349,6 +361,8 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
     Ends execution of the current command.
 
     \sa beginCommand()
+
+    \internal
 */
 
 /*!
@@ -357,11 +371,11 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
     Simplifies the selection of widgets specified by \a widgets.
 
     \sa selectionChanged()
+    \internal
 */
 
 /*!
     \fn virtual void QDesignerFormWindowInterface::emitSelectionChanged() = 0
-    \internal
 
     Emits the selectionChanged() signal.
 */
@@ -388,6 +402,8 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
     \fn virtual void QDesignerFormWindowInterface::ensureUniqueObjectName(QObject *object) = 0
 
     Ensures that the specified \a object has a unique name amongst the other objects on the form.
+
+    \internal
 */
 
 // Slots
@@ -432,7 +448,7 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 
     \omit
      If \a changePropertyDisplay is true, the
-    property editor will be updated to indicate that 
+    property editor will be updated to indicate that
     \endomit
 */
 
@@ -470,7 +486,9 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 
     Switches the form window into editing mode.
 
-    \sa \link Qt Designer's Form Editing Mode \endlink
+    \sa \l {Qt Designer's Form Editing Mode}
+
+    \internal
 */
 
 // Signals
@@ -488,6 +506,8 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
     This signal is emitted whenever the current tool changes.
     The specified \a toolIndex is the index of the new tool in the list of
     tools in the widget box.
+
+    \internal
 */
 
 /*!

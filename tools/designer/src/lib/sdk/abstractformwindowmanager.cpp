@@ -224,3 +224,9 @@ QAction *QDesignerFormWindowManagerInterface::actionRedo() const
 
     This signal is emitted ...
 */
+
+/*!
+    \fn void QDesignerFormWindowManagerInterface::dragItems(const QList<QDesignerDnDItemInterface*> &item_list)
+
+    \internal
+*/

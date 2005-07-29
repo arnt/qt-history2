@@ -20,6 +20,8 @@
     interface that enables tools to be used on items in a form window.
 
     \inmodule QtDesigner
+
+    \internal
 */
 
 /*!
