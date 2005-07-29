@@ -1030,7 +1030,8 @@ void QHeaderView::resizeSections()
     int hint = stretchSecs > 0 ? stretchSize / stretchSecs : 0;
     int stretchSectionSize = qMax(hint, minimum);
     for (int i = 0; i < count; ++i) {
-        d->sections[i].position = position;
+        int oldSize = d->sections.at(i + 1).position - d->sections.at(i).position;
+        d->sections[i].position = position;        
         if(d->sections[i].hidden)
             continue;
         mode = (i == last ? Stretch : sections.at(i).mode);
@@ -1040,8 +1041,12 @@ void QHeaderView::resizeSections()
             position += section_sizes.front();
             section_sizes.removeFirst();
         }
+        int newSize = position - d->sections.at(i).position;
+        if (newSize != oldSize)
+            emit sectionResized(i, oldSize, newSize);
     }
     d->sections[count].position = position;
+    d->viewport->update();
 }
 
 /*!
