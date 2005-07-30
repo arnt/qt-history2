@@ -427,17 +427,20 @@ void QAbstractItemModelPrivate::rowsInserted(const QModelIndex &parent,
 }
 
 void QAbstractItemModelPrivate::rowsAboutToBeRemoved(const QModelIndex &parent,
-                                                        int first, int last)
+                                                     int first, int last)
 {
     persistent.changed.clear();
     persistent.invalidated.clear();
     for (int position = 0; position < persistent.indexes.count(); ++position) {
         QModelIndex index = persistent.indexes.at(position)->index;
         if (index.isValid() && index.parent() == parent) {
-            if (index.row() > last) // below the removed rows
+            if (index.row() > last) { // below the removed rows
                 persistent.changed.append(position);
-            else if (index.row() >= first) // about to be removed
+            } else if (index.row() >= first) { // about to be removed
+                if (q_func()->hasChildren(index)) // the children are invalidated too                    
+                    rowsAboutToBeRemoved(index, 0, q_func()->rowCount(index) - 1);
                 persistent.invalidated.append(position);
+            }
         }
     }
 }
