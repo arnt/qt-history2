@@ -30,13 +30,17 @@ for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support; do
         continue
     fi
     cp -R "$BINDIR/lib/${lib}.framework" "$FRAMEWORK_DIR/" >/dev/null 2>&1
+    ./fix_prl_paths.pl "$FRAMEWORK_DIR/${lib}.framework/${lib}.prl" "$FRAMEWORK_DIR/${lib}.framework/${lib}.prl.fixed" 
+    mv "$FRAMEWORK_DIR/${lib}.framework/${lib}.prl.fixed" "$FRAMEWORK_DIR/${lib}.framework/${lib}.prl" 
     ./fix_config_paths.pl "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/$lib" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/${lib}.fixed" 
     mv "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/${lib}.fixed" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/$lib" 
     if [ "$DO_DEBUG" = "no" ]; then
-	find "$BINDIR/lib/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}" -name '*_debug*' -exec rm -f {} \; >/dev/null 2>&1
+	find "$BINDIR/lib/${lib}.framework/" -name '*_debug*' -exec rm -f {} \; >/dev/null 2>&1
     elif [ -e "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/${lib}_debug" ]; then
 	./fix_config_paths.pl "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/${lib}_debug" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/${lib}_debug.fixed" 
 	mv "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/${lib}_debug.fixed" "$FRAMEWORK_DIR/${lib}.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/${lib}_debug" 
+        ./fix_prl_paths.pl "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.prl" "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.prl.fixed" 
+        mv "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.prl.fixed" "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.prl" 
     fi
     #no headers
     find "$FRAMEWORK_DIR/${lib}.framework/" -name Headers -exec rm -rf {} \; >/dev/null 2>&1

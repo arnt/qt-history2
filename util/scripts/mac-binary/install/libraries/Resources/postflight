@@ -36,3 +36,4 @@ for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support; do
    [ -e "${lib}_debug" ] && t "${lib}_debug" "$Licensee" "$Products" "$LicenseKeyExt")
 done
 
+exit 0
