@@ -972,9 +972,9 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         }
     }
 #endif
-    
+
     setState(DragSelectingState);
-    
+
     if (d->selectionAllowed(index) && selectionModel()) {
         QItemSelectionModel::SelectionFlags command = selectionCommand(index, e);
         if (index.isValid() && command != QItemSelectionModel::NoUpdate)
@@ -1393,6 +1393,9 @@ bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEve
 {
     Q_D(QAbstractItemView);
 
+    if (!model() || !index.isValid())
+        return false;
+    
     QModelIndex buddy = model()->buddy(index);
     QStyleOptionViewItem options = viewOptions();
     options.rect = visualRect(buddy);
