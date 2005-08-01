@@ -11,663 +11,459 @@
 **
 ****************************************************************************/
 
-#include "main.h"
-#include <qapplication.h>
-#include <qfile.h>
-#include <qtextstream.h>
-#include <qlistview.h>
-#include <qhbox.h>
-#include <qlabel.h>
-#include <qmessagebox.h>
-#include <qpopupmenu.h>
-#include <qmenubar.h>
-#include <qtoolbutton.h>
-#include <qstatusbar.h>
-#include <qsplitter.h>
-#include <qregexp.h>
-#if defined(Q_OS_WIN32)
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
-#include <stdlib.h>
+#include "graphics.h"
+#include "feature.h"
+#include "featuretreemodel.h"
+
+#include <QtGui>
+
+static const QString defaultPath =
+    QLibraryInfo::location(QLibraryInfo::PrefixPath) + "/src/corelib/global";
 
 
-/* XPM */
-static const char * const logo_xpm[] = {
-/* width height ncolors chars_per_pixel */
-"50 50 17 1",
-/* colors */
-"  c #000000",
-". c #495808",
-"X c #2A3304",
-"o c #242B04",
-"O c #030401",
-"+ c #9EC011",
-"@ c #93B310",
-"# c #748E0C",
-"$ c #A2C511",
-"% c #8BA90E",
-"& c #99BA10",
-"* c #060701",
-"= c #181D02",
-"- c #212804",
-"; c #61770A",
-": c #0B0D01",
-"/ c None",
-/* pixels */
-"/$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$/",
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",
-"$$$$$$$$$$$$$$$$$$$$$$$+++$$$$$$$$$$$$$$$$$$$$$$$$",
-"$$$$$$$$$$$$$$$$$$$@;.o=::=o.;@$$$$$$$$$$$$$$$$$$$",
-"$$$$$$$$$$$$$$$$+#X*         **X#+$$$$$$$$$$$$$$$$",
-"$$$$$$$$$$$$$$$#oO*         O  **o#+$$$$$$$$$$$$$$",
-"$$$$$$$$$$$$$&.* OO              O*.&$$$$$$$$$$$$$",
-"$$$$$$$$$$$$@XOO            * OO    X&$$$$$$$$$$$$",
-"$$$$$$$$$$$@XO OO  O  **:::OOO OOO   X@$$$$$$$$$$$",
-"$$$$$$$$$$&XO      O-;#@++@%.oOO      X&$$$$$$$$$$",
-"$$$$$$$$$$.O  :  *-#+$$$$$$$$+#- : O O*.$$$$$$$$$$",
-"$$$$$$$$$#*OO  O*.&$$$$$$$$$$$$+.OOOO **#$$$$$$$$$",
-"$$$$$$$$+-OO O *;$$$$$$$$$$$&$$$$;*     o+$$$$$$$$",
-"$$$$$$$$#O*  O .+$$$$$$$$$$@X;$$$+.O    *#$$$$$$$$",
-"$$$$$$$$X*    -&$$$$$$$$$$@- :;$$$&-    OX$$$$$$$$",
-"$$$$$$$@*O  *O#$$$$$$$$$$@oOO**;$$$#    O*%$$$$$$$",
-"$$$$$$$;     -+$$$$$$$$$@o O OO ;+$$-O   *;$$$$$$$",
-"$$$$$$$.     ;$$$$$$$$$@-OO OO  X&$$;O    .$$$$$$$",
-"$$$$$$$o    *#$$$$$$$$@o  O O O-@$$$#O   *o$$$$$$$",
-"$$$$$$+=    *@$$$$$$$@o* OO   -@$$$$&:    =$$$$$$$",
-"$$$$$$+:    :+$$$$$$@-      *-@$$$$$$:    :+$$$$$$",
-"$$$$$$+:    :+$$$$$@o* O    *-@$$$$$$:    :+$$$$$$",
-"$$$$$$$=    :@$$$$@o*OOO      -@$$$$@:    =+$$$$$$",
-"$$$$$$$-    O%$$$@o* O O    O O-@$$$#*   OX$$$$$$$",
-"$$$$$$$. O *O;$$&o O*O* *O      -@$$;    O.$$$$$$$",
-"$$$$$$$;*   Oo+$$;O*O:OO--      Oo@+=    *;$$$$$$$",
-"$$$$$$$@*  O O#$$$;*OOOo@@-O     Oo;O*  **@$$$$$$$",
-"$$$$$$$$X* OOO-+$$$;O o@$$@-    O O     OX$$$$$$$$",
-"$$$$$$$$#*  * O.$$$$;X@$$$$@-O O        O#$$$$$$$$",
-"$$$$$$$$+oO O OO.+$$+&$$$$$$@-O         o+$$$$$$$$",
-"$$$$$$$$$#*    **.&$$$$$$$$$$@o      OO:#$$$$$$$$$",
-"$$$$$$$$$+.   O* O-#+$$$$$$$$+;O    OOO:@$$$$$$$$$",
-"$$$$$$$$$$&X  *O    -;#@++@#;=O    O    -@$$$$$$$$",
-"$$$$$$$$$$$&X O     O*O::::O      OO    Oo@$$$$$$$",
-"$$$$$$$$$$$$@XOO                  OO    O*X+$$$$$$",
-"$$$$$$$$$$$$$&.*       **  O      ::    *:#$$$$$$$",
-"$$$$$$$$$$$$$$$#o*OO       O    Oo#@-OOO=#$$$$$$$$",
-"$$$$$$$$$$$$$$$$+#X:* *     O**X#+$$@-*:#$$$$$$$$$",
-"$$$$$$$$$$$$$$$$$$$%;.o=::=o.#@$$$$$$@X#$$$$$$$$$$",
-"$$$$$$$$$$$$$$$$$$$$$$$$+++$$$$$$$$$$$+$$$$$$$$$$$",
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",
-"/$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$/",
-};
-
-
-#define FIXED_LAYOUT
-
-static const char * back_xpm[]={
-"16 16 5 1",
-"# c #000000",
-"a c #ffffff",
-"c c #808080",
-"b c #c0c0c0",
-". c None",
-"................",
-".......#........",
-"......##........",
-".....#a#........",
-"....#aa########.",
-"...#aabaaaaaaa#.",
-"..#aabbbbbbbbb#.",
-"...#abbbbbbbbb#.",
-"...c#ab########.",
-"....c#a#ccccccc.",
-".....c##c.......",
-"......c#c.......",
-".......cc.......",
-"........c.......",
-"................",
-"......................"};
-
-static const char * forward_xpm[]={
-"16 16 5 1",
-"# c #000000",
-"a c #ffffff",
-"c c #808080",
-"b c #c0c0c0",
-". c None",
-"................",
-"................",
-".........#......",
-".........##.....",
-".........#a#....",
-"..########aa#...",
-"..#aaaaaaabaa#..",
-"..#bbbbbbbbbaa#.",
-"..#bbbbbbbbba#..",
-"..########ba#c..",
-"..ccccccc#a#c...",
-"........c##c....",
-"........c#c.....",
-"........cc......",
-"........c.......",
-"................",
-"................"};
-
-class ChoiceItem : public QCheckListItem {
+class FeatureTextBrowser : public QTextBrowser {
+    Q_OBJECT
 public:
-    QString id;
-    ChoiceItem(const QString& i, QListViewItem* parent) :
-	QCheckListItem(parent,
-	    i.mid(6), // strip "QT_NO_" as we reverse the logic
-	    CheckBox),
-	id(i)
+    FeatureTextBrowser(QWidget *parent) : QTextBrowser(parent) {}
+
+signals:
+    void featureClicked(const QString &feature);
+
+public slots:
+    void setSource(const QUrl &url)
     {
-	setOpen(true);
-	label = text(0);
-	avl = true;
+        if (url.scheme() == "feature") 
+            emit featureClicked(url.authority());        
+        else 
+            QTextBrowser::setSource(url);
     }
-
-    // We reverse the logic
-    void setDefined(bool y) { setOn(!y); }
-    bool isDefined() const { return !isOn(); }
-
-    void setAvailable(bool y)
-    {
-	if ( avl != y ) {
-	    avl = y;
-	    repaint();
-	}
-    }
-    bool isAvailable() const { return avl; }
-
-    virtual void setOn(bool y)
-    {
-	QCheckListItem::setOn(y);
-	setOpen(y);
-/*
-	for (QListViewItem* i=firstChild(); i; i = i->nextSibling() ) {
-	    ChoiceItem* ci = (ChoiceItem*)i; // all are ChoiceItem
-	    if ( ci->isSelectable() != y ) {
-		ci->setSelectable(y);
-		listView()->repaintItem(ci);
-	    }
-	}
-*/
-    }
-
-    void paintBranches( QPainter * p, const QColorGroup & cg,
-                            int w, int y, int h)
-    {
-	QListViewItem::paintBranches(p,cg,w,y,h);
-    }
-
-    void paintCell( QPainter * p, const QColorGroup & cg,
-                               int column, int width, int align )
-    {
-	if ( !isSelectable() || !isAvailable() ) {
-	    QColorGroup c = cg;
-	    c.setColor(QColorGroup::Text, lightGray);
-	    QCheckListItem::paintCell(p,c,column,width,align);
-	} else {
-	    QCheckListItem::paintCell(p,cg,column,width,align);
-	}
-    }
-
-    void setInfo(const QString& l, const QString& d)
-    {
-	label = l;
-	doc = d;
-	setText(0,label);
-    }
-
-    QString label;
-
-    QString info() const
-    {
-	return "<h2>"+label+"</h2>"+doc;
-    }
-
-private:
-    QString doc;
-    bool avl;
 };
+    
+class Main : public QMainWindow {
+    Q_OBJECT
+public:
+    Main();
+    ~Main();
+    void loadFeatures(const QString& filename);
+    void loadConfig(const QString& filename);
+
+public slots:
+    void modelChanged();    
+    void showInfo(const QModelIndex &index);
+    void showInfo(const QString &feature);
+    void openConfig();
+    void saveConfig();
+    void expandView();
+    void collapseView();
+    void about();
+    void aboutQt();
+    void quit();    
+    void clear();    
+    void enableAll();
+    void disableAll();
+    
+private:
+    QTextBrowser *textBrowser;
+    QTreeView *featureTree;    
+    FeatureTreeModel *featureModel;    
+
+    void init();
+    void updateStatus(int numFeatures = -1);    
+    void completelyExpandIndex(const QModelIndex &parent);    
+};
+
+template<typename Func>
+void foreachIndex_helper(const QModelIndex &parent, Func func)
+{
+    const QAbstractItemModel *model = parent.model();
+    const int rows = model->rowCount(parent);
+    for (int i = 0; i < rows; ++i) {
+        const QModelIndex child = model->index(i, 0, parent);        
+        func(child);
+        foreachIndex_helper(child, func);
+    }
+}
+
+template<typename Func>
+void foreachIndex(const QAbstractItemModel *model, Func func)
+{
+    const int rows = model->rowCount(QModelIndex());
+    for (int i = 0; i < rows; ++i) {
+        const QModelIndex child = model->index(i, 0, QModelIndex());        
+        func(child);
+        foreachIndex_helper(child, func);
+    }
+}
+
+struct CheckStateSetter {
+
+    CheckStateSetter(Qt::CheckState state, QAbstractItemModel *m)
+        : checkState(state), model(m) {}
+
+    void operator()(const QModelIndex &index) {
+        model->setData(index, checkState, Qt::CheckStateRole);
+    }
+
+    Qt::CheckState checkState;
+    QAbstractItemModel *model;
+};
+
+void Main::disableAll()
+{
+    QAbstractItemModel *model = featureTree->model();
+    foreachIndex(model, CheckStateSetter(Qt::Unchecked, model));
+}
+
+void Main::enableAll()
+{
+    QAbstractItemModel *model = featureTree->model();
+    foreachIndex(model, CheckStateSetter(Qt::Checked, model));
+}
 
 Main::Main()
 {
-    setIcon( (const char**)logo_xpm );
-#ifdef FIXED_LAYOUT
-    QHBox* horizontal = new QHBox(this);
-#else
-    QSplitter* horizontal = new QSplitter(this);
-#endif
+    setWindowIcon(QIcon(QPixmap(logo_xpm)));
 
-    lv = new QListView(horizontal);
-    lv->setSorting(-1);
-    lv->setRootIsDecorated(true);
-    lv->addColumn("ID");
+    QSplitter *splitter = new QSplitter(this);
 
-    info = new Info(horizontal);
-    info->setBackgroundMode(PaletteBase);
-    info->setMargin(10);
-    info->setFrameStyle(QFrame::WinPanel|QFrame::Sunken);
-    info->setAlignment(AlignTop);
+    featureModel = new FeatureTreeModel(this);
+    featureTree = new QTreeView(splitter);    
+    featureTree->setRootIsDecorated(true);
+    featureTree->setModel(featureModel);
+    featureTree->show();    
+    
+    textBrowser = new FeatureTextBrowser(splitter);
+    textBrowser->setFrameStyle(QFrame::WinPanel|QFrame::Sunken);
+    textBrowser->show();    
+    
+    connect(textBrowser, SIGNAL(featureClicked(const QString&)),
+            this, SLOT(showInfo(const QString&)));
+    connect(featureTree, SIGNAL(activated(QModelIndex)),
+	    this, SLOT(showInfo(QModelIndex)));
+    connect(featureModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)),
+            this, SLOT(modelChanged()));
+    connect(featureTree, SIGNAL(clicked(QModelIndex)),
+            this, SLOT(showInfo(QModelIndex)));
+    
+    setCentralWidget(splitter);
 
-    connect(info, SIGNAL(idClicked(QString)),
-	    this, SLOT(selectId(QString)));
+    QMenu *file = menuBar()->addMenu("&File");
+    file->addAction("&Open...", this, SLOT(openConfig()),
+                    Qt::CTRL + Qt::Key_O);
+    file->addAction("&Save As...", this, SLOT(saveConfig()),
+                    Qt::CTRL + Qt::Key_S);
+    file->addSeparator();
+    file->addAction("&Reset",  this, SLOT(clear()));
+    file->addSeparator();
+    file->addAction("E&xit",  this, SLOT(quit()), Qt::CTRL + Qt::Key_Q);
 
-#ifdef FIXED_LAYOUT
-    horizontal->setStretchFactor(info,2);
-#endif
+    QMenu *edit = menuBar()->addMenu("&Tools");
+    edit->addAction("&Enable all features", this, SLOT(enableAll()));
+    edit->addAction("&Disable all features", this, SLOT(disableAll()));
+    
+    menuBar()->addSeparator();
 
-    connect(lv, SIGNAL(pressed(QListViewItem*)),
-	    this, SLOT(updateAvailability(QListViewItem*)));
-    connect(lv, SIGNAL(selectionChanged(QListViewItem*)),
-	    this, SLOT(showInfo(QListViewItem*)));
+    QMenu *help = menuBar()->addMenu("&Help");
+    help->addAction("&About", this, SLOT(about()));
+    help->addAction("About &Qt", this, SLOT(aboutQt()));
 
-    setCentralWidget(horizontal);
+    QToolBar *tb = new QToolBar("Expand/Collapse features");
+    QToolButton *button;
 
-    QToolBar* tb = new QToolBar( this, "browser controls" );
-    tb->setLabel( "Browser Controls" );
-    (void)new QToolButton( QPixmap(back_xpm), "Back", QString(),
-                           info, SLOT(back()), tb, "back" );
-    (void)new QToolButton( QPixmap(forward_xpm), "Forward", QString(),
-                           info, SLOT(forward()), tb, "forward" );
+    button = new QToolButton(tb);
+    button->setIcon(QIcon(QPixmap(collapsed_xpm)));
+    button->setText("Collapse");
+    button->setToolTip("Collapse");
+    connect(button, SIGNAL(clicked()), this, SLOT(collapseView()));
+    tb->addWidget(button);
 
-    QPopupMenu* file = new QPopupMenu( menuBar() );
-    file->insertItem( "&Open",  this, SLOT(open()), CTRL+Key_O );
-    file->insertItem( "&Save", this, SLOT(save()), CTRL+Key_S );
-    file->insertSeparator();
-    file->insertItem( "&Test all", this, SLOT(testAll()), CTRL+Key_T );
-    file->insertSeparator();
-    file->insertItem( "E&xit",  qApp, SLOT(quit()), CTRL+Key_Q );
-
-    menuBar()->insertItem( "&File",file );
-
-    menuBar()->insertSeparator();
-
-    QPopupMenu *help = new QPopupMenu( menuBar() );
-    help->insertItem( "&About", this, SLOT(about()) );
-    help->insertItem( "About &Qt", this, SLOT(aboutQt()) );
-
-    menuBar()->insertItem( "&Help", help );
-
-    statusBar()->showMessage( "Ready" );
+    button = new QToolButton(tb);
+    button->setIcon(QIcon(QPixmap(expanded_xpm)));
+    button->setText("Expand");
+    button->setToolTip("Expand");
+    connect(button, SIGNAL(clicked()), this, SLOT(expandView()));
+    tb->addWidget(button);
+    addToolBar(tb);    
+    
+    init();
 }
 
-void Main::open()
+Main::~Main()
 {
+    delete textBrowser;    
+    delete featureModel;
+    delete featureTree;
 }
 
-void Main::save()
+void Main::clear()
 {
+    QSettings settings;
+    settings.clear();
+    featureModel->clear();
+    featureTree->reset();
+    init();
 }
 
-void Main::testAll()
+void Main::quit()
 {
-    QString qtdir = getenv("QTDIR");
-    chdir((qtdir+"/src").ascii());
-    QString c;
-    for (QStringList::ConstIterator it = choices.begin(); it != choices.end(); ++it)
-    {
-	c += "Feature: ";
-	c += *it;
-	c += "\n";
-
-	c += "Section: ";
-	c += section[*it];
-	c += "\n";
-
-	c += "Requires: ";
-	c += dependencies[*it].join(" ");
-	c += "\n";
-
-	c += "Name: ";
-	c += label[*it];
-	c += "\n";
-
-	c += "SeeAlso: ???\n";
-
-	c += "\n";
+    if (isWindowModified()) {
+        int button = QMessageBox::question(this, "Quit Program",
+                                           "You have unsaved changes.\n"
+                                           "Do you want to quit anyway?",
+                                           QMessageBox::Yes,
+                                           QMessageBox::No);
+        if (static_cast<QMessageBox::Button>(button) != QMessageBox::Yes) 
+            return;            
     }
-    QFile f("features.txt");
-    f.open(IO_WriteOnly);
-    f.writeBlock(c.ascii(),c.length());
-    f.close();
-    // system("./feature_size_calculator");
+    QApplication::instance()->quit();
+}
 
-#if 0
-    system("mv ../include/qconfig.h ../include/qconfig.h-orig");
-    for (QStringList::ConstIterator it = choices.begin(); it != choices.end(); ++it)
-    {
-	QString choice = *it;
-	QFile f("../include/qconfig.h");
-	f.open(IO_WriteOnly);
-	QCString s = "#define ";
-	s += choice.latin1();
-	s += "\n";
-	f.writeBlock(s,s.length());
-	f.close();
-	int err = system("make");
-	if ( err != 0 )
-	    break;
+/*
+  Recursively expand expand \a parent and all of its children.
+*/
+void Main::completelyExpandIndex(const QModelIndex &parent)
+{
+    featureTree->setExpanded(parent, true);
+
+    const QAbstractItemModel *model = featureTree->model();
+    const int rows = model->rowCount(parent);
+    for (int i = 0; i < rows; ++i)
+        completelyExpandIndex(model->index(i, 0, parent));
+}
+
+void Main::expandView()
+{
+    completelyExpandIndex(QModelIndex());
+}
+
+void Main::collapseView()
+{
+    const QAbstractItemModel *model = featureTree->model();
+    const int rows = model->rowCount(QModelIndex());
+    for (int i = 0; i < rows; ++i) {
+        QModelIndex index = model->index(i, 0, QModelIndex());
+        featureTree->setExpanded(index, false);
     }
-    system("mv ../include/qconfig.h-orig ../include/qconfig.h");
-#endif
 }
 
-
-// ##### should be in QMap?
-template <class K, class D>
-QValueList<K> keys(QMap<K,D> map)
+void Main::updateStatus(int numFeatures)
 {
-    QValueList<K> result;
-    for (Q_TYPENAME QMap<K,D>::ConstIterator it = map.begin(); it!=map.end(); ++it)
-	result.append(it.key());
-    return result;
+    QSettings settings;
+    QString featureFile = settings.value("featureFile").toString();
+    QString configFile = settings.value("lastConfig").toString();
+    QString message("Using features from %1");
+
+    if (numFeatures >= 0) {
+        QString s("%1 features loaded from %2");
+        statusBar()->showMessage(s.arg(numFeatures).arg(featureFile));
+    }
+    QString appName = QApplication::applicationName();
+    if (configFile.isEmpty())
+        configFile = "New File";
+    setWindowTitle(appName + " - " + configFile + "[*]");
 }
 
-void Main::loadFeatures(const QString& filename)
+void Main::modelChanged()
 {
+    setWindowModified(true);
+}
+
+void Main::init()
+{
+    QSettings settings;
+    QString features = settings.value("featureFile").toString();
+
+    if (features.isEmpty() || !QFileInfo(features).isFile()) {
+        features = QFileDialog::getOpenFileName(this,
+                                                "Open a feature file",
+                                                defaultPath,
+                                                "Qt Features (qfeatures.txt)");
+    }
+    settings.setValue("featureFile", features);    
+    loadFeatures(features);
+    
+    expandView();
+    collapseView();
+
+    QString confFile = settings.value("lastConfig").toString();
+    if (confFile.isEmpty())
+        return;
+    loadConfig(confFile);
+}
+
+void Main::openConfig()
+{
+    QSettings settings;
+    QString configDir;
+
+    QString prevFile = settings.value("lastConfig").toString();
+    if (!prevFile.isEmpty())
+        configDir = QFileInfo(prevFile).path();
+
+    if (configDir.isEmpty()) 
+        configDir = defaultPath;
+    
+    QString configFile;
+    configFile = QFileDialog::getOpenFileName(this,
+                                              "Open a configuration file",
+                                              configDir,
+                                              "Header files (*.h)");    
+    enableAll();    
+    if (!configFile.isEmpty())
+        loadConfig(configFile);
+    settings.setValue("lastConfig", QFileInfo(configFile).absoluteFilePath()); 
+}
+
+void Main::saveConfig()
+{
+    QSettings settings;
+    QString configDir;
+    
+    QString prevFile = settings.value("lastConfig").toString();
+    if (!prevFile.isEmpty())
+        configDir = QFileInfo(prevFile).path();
+
+    if (configDir.isEmpty()) 
+        configDir = defaultPath;
+
+    QString configFile;
+    configFile = QFileDialog::getSaveFileName(this,
+                                              "Save configuration file",
+                                              configDir,
+                                              "Header files (*.h)");
+    if (configFile.isEmpty())
+        return;
+    
+    QFile file(configFile);
+    if (!file.open(QIODevice::WriteOnly)) {
+	QMessageBox::warning(this,"Warning",
+                             "Cannot write to file " + configFile);
+	return;
+    }
+
+    QTextStream stream(&file);
+    FeatureTreeModel *model;
+    model = static_cast<FeatureTreeModel*>(featureTree->model());
+    model->writeConfig(stream);
+    
+    settings.setValue("lastConfig", QFileInfo(configFile).absoluteFilePath());
+    setWindowModified(false);    
+    updateStatus();    
+}
+
+void Main::loadConfig(const QString &filename)
+{
+    if (!QFileInfo(filename).isFile())
+	return;
+        
     QFile file(filename);
-    if ( !file.open(IO_ReadOnly) ) {
+    if (!file.open(QIODevice::ReadOnly)) {
 	QMessageBox::warning(this,"Warning", "Cannot open file " + filename);
 	return;
     }
+    
+    QTextStream stream(&file);    
+    FeatureTreeModel *model;
+    model = static_cast<FeatureTreeModel*>(featureTree->model());
+    model->readConfig(stream);
+    
+    QSettings settings;
+    settings.setValue("lastConfig", QFileInfo(filename).absoluteFilePath());
+    setWindowModified(false);    
+    updateStatus();
+}
+
+void Main::loadFeatures(const QString &filename)
+{
+    Feature::clear();    
+    
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly)) {
+	QMessageBox::warning(this,"Warning", "Cannot open file " + filename);
+	return;
+    }
+
+    Feature *feature = 0;
+    int numFeatures = 0;
+    updateStatus(numFeatures);
     QTextStream s(&file);
-    QRegExp qt_no_xxx("QT_NO_[A-Z_0-9]*");
-    QStringList sections;
-
-#if 1
-    QString line = s.readLine();
-    QString feature, lab, sec;
-    QStringList deps, seealso;
-    QMap<QString,QStringList> sectioncontents;
-    while (!s.atEnd()) {
-	if ( line.length() <= 1 ) {
-	    if ( !feature.isEmpty() ) {
-		dependencies[feature] = deps;
-		for (QStringList::ConstIterator it = deps.begin(); it!=deps.end(); ++it)
-		    rdependencies[*it].append(feature);
-		label[feature] = lab;
-		links[feature] = seealso;
-		section[feature] = sec;
-		sectioncontents[sec].append(feature);
-		choices.append(feature);
-	    } else {
-		qDebug("Unparsed text");
-	    }
-
-	    feature.clear(); lab.clear(); sec.clear();
-	    deps.clear(); seealso.clear();
-	    line = s.readLine();
+    for (QString line = s.readLine(); !s.atEnd(); line = s.readLine()) {
+	line = line.simplified();
+	if (line.isEmpty())
+	    continue;
+	if (line.startsWith('#'))
+	    continue;
+	
+	int colon = line.indexOf(':');
+	if (colon < 0) {
 	    continue;
 	}
 
-	QString nextline = s.readLine();
-	while ( nextline[0] == ' ' ) {
-	    line += nextline;
-	    nextline = s.readLine();
+	QString tag = line.left(colon);
+	QString value = line.mid(colon+1).simplified();
+	if (tag == "Feature") {
+            if (feature)
+                featureModel->addFeature(feature);
+            feature = Feature::getInstance(value);
+            updateStatus(++numFeatures);            
+	} else if (tag == "Requires") {
+            Q_ASSERT(feature);
+            feature->setDependencies(value.split(' ', QString::SkipEmptyParts));
+	} else if (tag == "Name") {
+	    Q_ASSERT(feature);
+            feature->setTitle(value);
+	} else if (tag == "Section") {
+	    Q_ASSERT(feature);
+            feature->setSection(value);            
+	} else if (tag == "SeeAlso") {
+	    Q_ASSERT(feature);
+            feature->setRelations(value.split(' ', QString::SkipEmptyParts));
 	}
-
-	int colon = line.find(':');
-	if ( colon < 0 ) {
-	    qDebug("Cannot parse: %s",line.ascii());
-	} else {
-	    QString tag = line.left(colon);
-	    QString value = line.mid(colon+1).stripWhiteSpace();
-	    if ( tag == "Feature" )
-		feature = value;
-	    else if ( tag == "Requires" )
-		deps = QStringList::split(QChar(' '),value);
-	    else if ( tag == "Name" )
-		lab = value;
-	    else if ( tag == "Section" )
-		sec = value;
-	    else if ( tag == "SeeAlso" )
-		seealso = QStringList::split(QChar(' '),value);
-	}
-
-	line = nextline;
     }
-    sections = keys(sectioncontents);
+    if (feature)
+        featureModel->addFeature(feature);
 
-#else
-    QString sec;
-    QString lab;
-    QString doc;
-    bool on = false;
-    bool docmode = false;
-    QStringList deps;
+    featureTree->resizeColumnToContents(0);
 
-    do {
-	QString line = s.readLine();
-	line.replace(QRegExp("# *define"),"#define");
+    QSettings settings;
+    settings.setValue("featureFile", QFileInfo(filename).absoluteFilePath());
 
-	QStringList token = QStringList::split(QChar(' '),line);
-	if ( on ) {
-	    if ( docmode ) {
-		if ( token[0] == "*/" )
-		    docmode = false;
-		else if ( lab.isEmpty() )
-		    lab = line.stripWhiteSpace();
-		else
-		    doc += line.simplifyWhiteSpace() + "\n";
-	    } else if ( token[0] == "//#define" || token[0] == "#define" ) {
-		dependencies[token[1]] = deps;
-		for (QStringList::ConstIterator it = deps.begin(); it!=deps.end(); ++it)
-		    rdependencies[*it].append(token[1]);
-		section[token[1]] = sec;
-		documentation[token[1]] = doc;
-		label[token[1]] = lab;
-		choices.append(token[1]);
-		doc = "";
-		lab = "";
-	    } else if ( token[0] == "/*!" ) {
-		docmode = true;
-	    } else if ( token[0] == "//" ) {
-		token.remove(token.begin());
-		sec = token.join(" ");
-		sections.append(sec);
-	    } else if ( token[0] == "#if" ) {
-		Q_ASSERT(deps.isEmpty());
-		for (int i=1; i<(int)token.count(); i++) {
-		    if ( token[i][0] == 'd' ) {
-			int index;
-			int len;
-			index = qt_no_xxx.match(token[i],0,&len);
-			if ( index >= 0 ) {
-			    QString d = token[i].mid(index,len);
-			    deps.append(d);
-			}
-		    }
-		}
-	    } else if ( token[0] == "#endif" ) {
-		deps.clear();
-	    } else if ( token[0].isEmpty() ) {
-	    } else {
-		qDebug("Cannot parse: %s",token.join(" ").ascii());
-	    }
-	} else if ( token[0] == "#include" ) {
-	    on = true;
-	}
-    } while (!s.atEnd());
-#endif
-
-    lv->clear();
-    sections.sort();
-    // ##### QListView default sort order is reverse of insertion order
-    for (QStringList::Iterator se = sections.fromLast(); se != sections.end(); --se) {
-	sectionitem[*se] = new QListViewItem(lv,*se);
-    }
-    for (QStringList::Iterator ch = choices.begin(); ch != choices.end(); ++ch) {
-	createItem(*ch);
-    }
-
-#ifdef FIXED_LAYOUT
-    lv->setFixedWidth(lv->sizeHint().width());
-#endif
+    updateStatus();
 }
 
-void Main::createItem(const QString& ch)
+void Main::showInfo(const QModelIndex &index)
 {
-    if ( !item[ch] ) {
-	QStringList deps = dependencies[ch];
-	QString sec = section[ch];
-	QListViewItem* parent = 0;
-	for (QStringList::Iterator dp = deps.begin(); dp != deps.end(); ++dp) {
-	    QString dsec = section[*dp];
-	    if ( dsec.isEmpty() )
-		qDebug("No section for %s",(*dp).latin1());
-	    if ( !parent && dsec == sec ) {
-		createItem(*dp);
-		parent = item[*dp];
-	    }
-	}
-	if ( !parent )
-	    parent = sectionitem[section[ch]];
-	ChoiceItem* ci = new ChoiceItem(ch,parent);
-	item[ch] = ci;
-	if ( !label[ch].isEmpty() )
-	    ci->setInfo(label[ch],documentation[ch]);
+    FeatureTreeModel *model;
+    model = static_cast<FeatureTreeModel*>(featureTree->model());
+        
+    if (const Feature *feature = model->getFeature(index)) 
+	textBrowser->setHtml(feature->toHtml());
+    
+    // Ensure index is visible
+    QModelIndex parent = model->parent(index);
+    while (parent.isValid()) {
+        featureTree->setExpanded(parent, true);
+        parent = model->parent(parent);        
     }
+    
+    featureTree->scrollTo(index);
+    featureTree->setCurrentIndex(index);
 }
 
-void Main::loadConfig(const QString& filename)
+void Main::showInfo(const QString &feature)
 {
-    QFile file(filename);
-    if ( !file.open(IO_ReadOnly) ) {
-	QMessageBox::warning(this,"Warning", "Cannot open file " + filename);
-	return;
-    }
-    QTextStream s(&file);
-    QRegExp qt_no_xxx("QT_NO_[A-Z_0-9]*");
-
-    for (QStringList::Iterator ch = choices.begin(); ch != choices.end(); ++ch) {
-	item[*ch]->setDefined(false);
-    }
-    do {
-	QString line = s.readLine();
-	QStringList token = QStringList::split(QChar(' '),line);
-	if ( token[0] == "#define" ) {
-	    ChoiceItem* i = item[token[1]];
-	    if ( i )
-		i->setDefined(true);
-	    else
-		qDebug("The item %s is not used by qfeatures.h", token[1].latin1());
-	}
-    } while (!s.atEnd());
-}
-
-void Main::updateAvailability(QListViewItem* i)
-{
-    if ( !i || !i->parent() ) {
-        // section. do nothing for now
-    } else {
-        ChoiceItem* choice = (ChoiceItem*)i;
-	QStringList deps = rdependencies[choice->id];
-	for (QStringList::ConstIterator it = deps.begin();
-		it != deps.end(); ++it)
-	{
-	    ChoiceItem* d = item[*it];
-	    QStringList ddeps = dependencies[d->id];
-	    bool av = true;
-	    for (QStringList::ConstIterator dit = ddeps.begin();
-		    av && dit != ddeps.end(); ++dit)
-	    {
-		ChoiceItem* dd = item[*dit];
-		if ( dd ) {
-		    if ( dd->isDefined() || !dd->isAvailable() )
-			av = false;
-		} else
-		    qDebug("%s ???",(*dit).latin1());
-	    }
-	    if ( d->isAvailable() != av ) {
-		d->setAvailable(av);
-		updateAvailability(d);
-	    }
-	}
-qDebug("%s: %d",choice->id.latin1(),choice->isAvailable());
-    }
-}
-
-void Main::showInfo(QListViewItem* i)
-{
-    if ( !i )
-	return;
-    if ( !i->parent() ) {
-	// section. do nothing for now
-    } else {
-	ChoiceItem* choice = (ChoiceItem*)i;
-	QString i = choice->info();
-	QStringList deps = dependencies[choice->id];
-	if ( !deps.isEmpty() ) {
-	    i += "<h3>Requires:</h3><ul>";
-	    for (QStringList::ConstIterator it = deps.begin();
-		    it != deps.end(); ++it)
-	    {
-		ChoiceItem* d = item[*it];
-		if ( d ) {
-		    bool got = d->isAvailable() && !d->isDefined();
-		    i += "<li>";
-		    if ( !got ) i += "<font color=red>";
-		    i += "<a href=id://"+d->id+">"+d->label+"</a>";
-		    if ( !got ) i += "</font>";
-		}
-	    }
-	    i += "</ul>";
-	}
-	QStringList rdeps = rdependencies[choice->id];
-	if ( !rdeps.isEmpty() ) {
-	    i += "<h3>Required for:</h3><ul>";
-	    for (QStringList::ConstIterator it = rdeps.begin();
-		    it != rdeps.end(); ++it)
-	    {
-		ChoiceItem* d = item[*it];
-		if ( d )
-		    i += "<li><a href=id://"+d->id+">"+d->label+"</a>";
-	    }
-	    i += "</ul>";
-	}
-	info->setText(i);
-    }
-}
-
-void Main::selectId(const QString& id)
-{
-    QListViewItem* it = item[id];
-    if ( it ) {
-	lv->setSelected(it,true);
-	lv->ensureItemVisible(it);
-    }
-}
-
-Info::Info( QWidget* parent, const char* name ) :
-    QTextBrowser(parent, name)
-{
-}
-
-void Info::setSource(const QString& name)
-{
-    if ( name.left(5) == "id://" ) {
-	emit idClicked(name.mid(5,name.length()-6)); // skip trailing "/" too
-    } else {
-	QTextBrowser::setSource(name);
-    }
+    const Feature *f = Feature::getInstance(feature);
+    FeatureTreeModel *model;
+    model = static_cast<FeatureTreeModel*>(featureTree->model());
+    showInfo(model->index(f));    
 }
 
 void Main::about()
 {
     QMessageBox::about(this, "About qconfig",
-	"<p><b><font size=+2>Qt/Embedded build configuration</font></b></p>"
+	"<p><b><font size=\"+2\">Qt/Embedded build configuration</font></b></p>"
 	"<p></p>"
-	"<p>Version 1.0</p>"
+	"<p>Version 2.0</p>"
 	"<p>Copyright (C) 2001-$THISYEAR$ Trolltech AS. All rights reserved.</p>"
 	"<p></p>"
 	"<p>This program is licensed to you under the terms of the GNU General "
@@ -689,23 +485,21 @@ void Main::aboutQt()
 int main(int argc, char** argv)
 {
     QApplication app(argc,argv);
+    app.setOrganizationDomain("trolltech.com");
+    app.setOrganizationName("Trolltech");
+    app.setApplicationName("QConfig");
     Main m;
-    QString qtdir = getenv("QTDIR");
-    QString qfeatures = qtdir + "/src/tools/qfeatures.txt";
-    //QString qfeatures = qtdir + "/include/qfeatures.h";
-    QString qconfig = qtdir + "/include/qconfig.h";
-    for (int i=1; i<argc; i++) {
+
+    for (int i = 1; i < argc; ++i) {
 	QString arg = argv[i];
-	if ( arg == "-f" && i+i<argc ) {
-	    qfeatures = argv[++i];
-	} else {
-	    qconfig = argv[i];
-	}
+	if (arg == "-f" && i+1 < argc)
+            m.loadFeatures(argv[++i]);            
+	else if (arg == "-c" && i+1 < argc)
+            m.loadConfig(argv[++i]);            
     }
-    m.loadFeatures(qfeatures);
-    m.loadConfig(qconfig);
-    m.resize(m.sizeHint()+QSize(500,300));
-    app.setMainWidget(&m);
+    m.resize(m.sizeHint() + QSize(500,300));
     m.show();
     return app.exec();
 }
+
+#include "main.moc"
