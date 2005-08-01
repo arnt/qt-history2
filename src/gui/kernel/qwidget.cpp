@@ -888,7 +888,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
        && parentWidget() && parentWidget()->testAttribute(Qt::WA_ShowModal))
         setAttribute(Qt::WA_ShowModal);
 
-    if ( type != Qt::Widget && type != Qt::Window)
+    if ( type != Qt::Widget && type != Qt::Window && type != Qt::Dialog)
         setAttribute(Qt::WA_QuitOnClose, false);
 
     d->create_sys(window, initializeWindow, destroyOldWindow);
@@ -4504,14 +4504,14 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
         qApp->quit();
 #endif
     if (quitOnClose) {
-        /* if there is no non-withdrawn top level window left
-           (except the desktop, popups, or dialogs/tools with
-           parents), we emit the lastWindowClosed signal */
+        /* if there is no non-withdrawn primary window left (except
+           the ones without QuitOnClose), we emit the lastWindowClosed
+           signal */
         QWidgetList list = QApplication::topLevelWidgets();
         bool lastWindowClosed = true;
         for (int i = 0; i < list.size(); ++i) {
             QWidget *w = list.at(i);
-            if (!w->isVisible() || !w->testAttribute(Qt::WA_QuitOnClose))
+            if (!w->isVisible() || w->parentWidget() || !w->testAttribute(Qt::WA_QuitOnClose))
                 continue;
             lastWindowClosed = false;
             break;
@@ -4546,10 +4546,10 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
     matter if the widget is visible or not.
 
     The \l QApplication::lastWindowClosed() signal is emitted when the
-    last visible top level widget with the Qt::WA_QuitOnClose
-    attribute set is closed. By default this attribute is set for all
-    widgets except transient top level widgets such as splash screens,
-    popup menus, and dialogs.
+    last visible primary window (i.e. window with no parent) with the
+    Qt::WA_QuitOnClose attribute set is closed. By default this
+    attribute is set for all widgets except transient windows such as
+    splash screens, tool windows, and popup menus.
 
 */
 
