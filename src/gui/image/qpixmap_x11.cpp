@@ -430,7 +430,7 @@ void QPixmap::fill(const QColor &fillColor)
     GC gc = XCreateGC(X11->display, data->hd, 0, 0);
     if (depth() == 1) {
         XSetForeground(X11->display, gc, qGray(fillColor.rgb()) > 127 ? 0 : 1);
-    } else if (X11->use_xrender) {
+    } else if (X11->use_xrender && data->d >= 24) {
         XSetForeground(X11->display, gc, fillColor.rgba());
     } else {
         XSetForeground(X11->display, gc,
