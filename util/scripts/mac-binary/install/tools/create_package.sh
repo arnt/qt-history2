@@ -94,17 +94,14 @@ EOF
         rm -f /tmp/tmp.exe
 
         #copy designer headers
-        mkdir -p "$OUTDIR/usr/include/QtDesigner/private"
+        mkdir -p "$OUTDIR/usr/include/QtDesigner"
         for header in `find "${BINDIR}/include/QtDesigner" -type f`; do
             case $header in
-            *_p.h)
-                copyHeader "$header" "$OUTDIR/usr/include/QtDesigner/private"
+            *_pch.h|*_p.h|headers.pri)
+                continue
                 ;;
             *)
                 copyHeader "$header" "$OUTDIR/usr/include/QtDesigner"
-                ;;
-            headers.pri)
-                continue
                 ;;
             esac
         done

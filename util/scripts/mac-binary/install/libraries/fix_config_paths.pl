@@ -5,7 +5,7 @@ use strict;
 #globals
 my %VARS = ( 
     "docs" => "/Developer/Documentation/Qt", 
-    "libs" => "/System/Library", 
+    "libs" => "/Library/Frameworks", 
     "plug" => "/Developer/Applications/Qt/plugins", 
     "trns" => "/Developer/Applications/Qt/translations",
 #   "data" => "/usr/local/Qt$VERSION_MAJOR.$VERSION_MINOR",
