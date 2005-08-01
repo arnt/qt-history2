@@ -941,7 +941,7 @@ bool QMenuBar::macUpdateMenuBar()
         while(w && !mb)
             mb = menubars()->value((w = w->parentWidget()));
     }
-    if(!mb && !(!w || (!(w->windowType() == Qt::Tool) && !(w->windowType() == Qt::Popup))))
+    if(!mb)
         mb = fallback;
     //now set it
     bool ret = false;
