@@ -154,13 +154,7 @@ void SourceFiles::addFile(SourceFile *p, const char *k)
         k = ba;
     int h = hash(k) % num_nodes;
     SourceFileNode *pn = new SourceFileNode;
-	int len = int(strlen(k)) + 1;
-	pn->key = (char*)(malloc(sizeof(char)*len));
-#if defined(_MSC_VER) && _MSC_VER >= 1400
-	strcpy_s(pn->key, sizeof(char)*len, k);
-#else
-	strcpy(pn->key, k);
-#endif
+    pn->key = qstrdup(k);
 	pn->file = p;
     pn->next = nodes[h];
     nodes[h] = pn;
