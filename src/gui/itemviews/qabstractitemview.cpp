@@ -973,9 +973,8 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     }
 #endif
 
-    setState(DragSelectingState);
-
     if (d->selectionAllowed(index) && selectionModel()) {
+        setState(DragSelectingState);
         QItemSelectionModel::SelectionFlags command = selectionCommand(index, e);
         if (index.isValid() && command != QItemSelectionModel::NoUpdate)
             selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
