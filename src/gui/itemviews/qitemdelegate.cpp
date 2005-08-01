@@ -625,20 +625,20 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
         switch (static_cast<QKeyEvent *>(event)->key()) {
         case Qt::Key_Tab:
             emit commitData(editor);
-            emit closeEditor(editor, EditNextItem);
+            emit closeEditor(editor, QAbstractItemDelegate::EditNextItem);
             return true;
         case Qt::Key_Backtab:
             emit commitData(editor);
-            emit closeEditor(editor, EditPreviousItem);
+            emit closeEditor(editor, QAbstractItemDelegate::EditPreviousItem);
             return true;
         case Qt::Key_Enter:
         case Qt::Key_Return:
             emit commitData(editor);
-            emit closeEditor(editor, SubmitModelCache);
+            emit closeEditor(editor, QAbstractItemDelegate::SubmitModelCache);
             return true;
         case Qt::Key_Escape:
             // don't commit data
-            emit closeEditor(editor, RevertModelCache);
+            emit closeEditor(editor, QAbstractItemDelegate::RevertModelCache);
             return true;
         default:
             break;
