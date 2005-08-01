@@ -682,7 +682,8 @@ uchar * QLinuxFbScreen::cache(int amount)
  */
 void QLinuxFbScreen::uncache(uchar * c)
 {
-    sync();
+    // need to sync graphics card
+    
     deleteEntry(c);
 }
 
@@ -828,11 +829,6 @@ void QLinuxFbScreen::setMode(int nw,int nh,int nd)
     memset(&finfo, 0, sizeof(finfo));
     //#######################
 
-    if (ioctl(fd, FBIOGET_FSCREENINFO, &finfo)) {
-        perror("reading /dev/fb0");
-        qFatal("Error reading fixed information");
-    }
-
     if (ioctl(fd, FBIOGET_VSCREENINFO, &vinfo)) {
         qFatal("Error reading variable information in mode change");
     }
@@ -847,6 +843,11 @@ void QLinuxFbScreen::setMode(int nw,int nh,int nd)
 
     if (ioctl(fd, FBIOGET_VSCREENINFO, &vinfo)) {
         qFatal("Error reading changed variable information in mode change");
+    }
+    
+    if (ioctl(fd, FBIOGET_FSCREENINFO, &finfo)) {
+	perror("reading /dev/fb0");
+	qFatal("Error reading fixed information");
     }
 
     w=vinfo.xres;
