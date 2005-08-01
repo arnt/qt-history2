@@ -1854,6 +1854,11 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         break; }
 
     case Qt::Key_Right:
+        if (!d->currentAction) {
+            d->setFirstActionActive();
+            key_consumed = true;
+            break;
+        }
         if (d->currentAction && d->currentAction->isEnabled() && d->currentAction->menu()) {
             d->popupAction(d->currentAction, 0, true);
             key_consumed = true;
@@ -1920,14 +1925,17 @@ void QMenu::keyPressEvent(QKeyEvent *e)
 #endif
     case Qt::Key_Return:
     case Qt::Key_Enter: {
-            if (!d->currentAction)
-                break;
-            if (d->currentAction->menu())
-                d->popupAction(d->currentAction, 20, true);
-            else
-                d->activateAction(d->currentAction, QAction::Trigger);
+        if (!d->currentAction) {
+            d->setFirstActionActive();
             key_consumed = true;
-            break; }
+            break;
+        }
+        if (d->currentAction->menu())
+            d->popupAction(d->currentAction, 0, true);
+        else
+            d->activateAction(d->currentAction, QAction::Trigger);
+        key_consumed = true;
+        break; }
 
 #ifndef QT_NO_WHATSTHIS
     case Qt::Key_F1:
@@ -2123,7 +2131,8 @@ void QMenu::internalSetSloppyAction()
 void QMenu::internalDelayedPopup()
 {
     Q_D(QMenu);
-    if (!d->currentAction || !d->currentAction || d->currentAction->menu() == d->activeMenu)
+
+    if (!d->currentAction || !d->currentAction->menu() || d->currentAction->menu()->isVisible())
         return;
 
     //hide the current item
