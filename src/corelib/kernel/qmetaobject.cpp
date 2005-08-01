@@ -23,6 +23,7 @@
 #include <qvarlengtharray.h>
 #include <qvariant.h>
 #include <qhash.h>
+#include <qdebug.h>
 #include <ctype.h>
 
 /*!
@@ -678,7 +679,7 @@ static inline bool is_space(char s)
 }
 
 // WARNING: a copy of this function is in moc.cpp
-static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixScope = true, bool adjustConst = true)
+static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixScope = false, bool adjustConst = true)
 {
     int len = e - t;
     if (strncmp("void", t, len) == 0)

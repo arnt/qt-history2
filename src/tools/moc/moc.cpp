@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 // WARNING: a copy of this function is in qmetaobject.cpp
-static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixScope = true, bool adjustConst = true)
+static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixScope = false, bool adjustConst = true)
 {
     int len = e - t;
     if (strncmp("void", t, len) == 0)
