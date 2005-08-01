@@ -296,7 +296,7 @@ QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegio
     }
     return *pm;
 #else
-    return 0;
+    return QPixmap();
 #endif
 }
 

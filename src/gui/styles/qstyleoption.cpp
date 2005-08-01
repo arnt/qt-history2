@@ -2357,7 +2357,7 @@ QStyleHintReturnMask::QStyleHintReturnMask() : QStyleHintReturn(Version, Type)
     Returns a T or 0 depending on the type of \a hint.
 */
 
-#ifndef QT_NO_DEBUG
+#if !defined(QT_NO_DEBUG) && !defined(QT_NO_DEBUG_STREAM)
 QDebug operator<<(QDebug debug, const QStyleOption::OptionType &optionType)
 {
     switch (optionType) {

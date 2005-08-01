@@ -113,9 +113,7 @@ QLayout::QLayout(QLayoutPrivate &dd, QLayout *lay, QWidget *w)
 QLayoutPrivate::QLayoutPrivate()
     : QObjectPrivate(), insideSpacing(-1), outsideBorder(-1), topLevel(false), enabled(true),
       activated(true), autoNewChild(false), constraint(QLayout::SetDefaultConstraint)
-#ifndef QT_NO_MENUBAR
       , menubar(0)
-#endif
 {
 }
 

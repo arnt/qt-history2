@@ -1861,7 +1861,7 @@ QIcon QStyle::standardIconSlot(StandardPixmap standardIcon, const QStyleOption *
     return QIcon(standardPixmap(standardIcon, option, widget));
 }
 
-#ifndef QT_NO_DEBUG
+#if !defined(QT_NO_DEBUG) && !defined(QT_NO_DEBUG_STREAM)
 QDebug operator<<(QDebug debug, QStyle::State state)
 {
     debug << "QStyle::State(";

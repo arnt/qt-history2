@@ -226,8 +226,10 @@ protected:
     virtual void focusOutEvent(QFocusEvent *e);
     virtual void showEvent(QShowEvent *);
     virtual void changeEvent(QEvent *e);
+#ifndef QT_NO_WHEELEVENT
     virtual void wheelEvent(QWheelEvent *e);
-
+#endif
+    
     virtual QMimeData *createMimeDataFromSelection() const;
     virtual bool canInsertFromMimeData(const QMimeData *source) const;
     virtual void insertFromMimeData(const QMimeData *source);

@@ -205,8 +205,8 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
     if (!pixelSize || style->smoothScalable && pixelSize == SMOOTH_SCALABLE)
         pixelSize = request.pixelSize;
 
-    if ( foundry->name != QLatin1String("qt") ) { ///#### is this the best way????
 #ifndef QT_NO_FREETYPE
+    if ( foundry->name != QLatin1String("qt") ) { ///#### is this the best way????
 
         FT_Face face;
 
@@ -226,8 +226,9 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 
         QFontEngine *fe = new QFontEngineFT(request, face);
         return fe;
+    } else
 #endif // QT_NO_FREETYPE
-    } else {
+    {
 #ifndef QT_NO_QWS_QPF
         QString fn;
 #ifndef QT_NO_LIBRARY
