@@ -49,6 +49,7 @@ UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
 PLATFORM_X11=no
 PLATFORM_MAC=no
 PLATFORM_QWS=no
+PLATFORM_THN=no
 
 if [ -f $relpath/src/gui/kernel/qapplication_mac.cpp ] && [ -d /System/Library/Frameworks/Carbon.framework ]; then
     # Qt/Mac
@@ -56,6 +57,12 @@ if [ -f $relpath/src/gui/kernel/qapplication_mac.cpp ] && [ -d /System/Library/F
     # ~ src/gui/base/qapplication_mac.cpp is present
     # ~ this is the internal edition and Qt/Mac sources exist
     PLATFORM_MAC=maybe
+elif [ -f $relpath/src/gui/kernel/qapplication_thn.cpp ]; then
+    # Qt/Thin
+    # ~ src/gui/base/qapplication_qws.cpp is present
+    # ~ this is the free or commercial edition
+    # ~ this is the internal edition and Qt/Embedded is explicitly enabled
+    PLATFORM_THN=maybe
 elif [ -f $relpath/src/gui/kernel/qapplication_qws.cpp ]; then
     # Qt/Embedded
     # ~ src/gui/base/qapplication_qws.cpp is present
@@ -72,6 +79,7 @@ if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]; then
     # Open Source edition - may only be used under the terms of the QPL or GPL.
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
+    [ "$PLATFORM_THN" = "maybe" ] && PLATFORM_THN=yes
     Licensee="Open Source"
     Edition="OpenSource"
     QT_EDITION="QT_EDITION_OPENSOURCE"
@@ -85,6 +93,7 @@ else
     # one of commercial editions
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
+    [ "$PLATFORM_THN" = "maybe" ] && PLATFORM_THN=yes
 
     # read in the license file
     if [ -f $HOME/.qt-license ]; then
@@ -287,6 +296,8 @@ fi
 
 if [ "$PLATFORM_QWS" = "yes" ]; then
     Platform="Qt/Embedded"
+elif [ "$PLATFORM_THN" = "yes" ]; then
+    Platform="Qt/Thin"
 elif [ "$PLATFORM_MAC" = "yes" ]; then
     Platform="Qt/Mac"
 else
@@ -620,12 +631,25 @@ while [ "$#" -gt 0 ]; do
     buildkey)
         CFG_USER_BUILD_KEY="$VAL"
         ;;
+    thin)
+        if [ "$PLATFORM_THN" != "no" ]; then
+            if [ "$PLATFORM_THN" = "maybe" ]; then
+                PLATFORM_X11=no
+                PLATFORM_MAC=no
+                PLATFORM_QWS=no
+                PLATFORM_THN=yes
+            fi
+        else
+            echo "No license exists to enable Qt/Thin. Disabling."
+            PLATFORM_THN=no
+        fi
     embedded)
         CFG_EMBEDDED="$VAL"
         if [ "$PLATFORM_QWS" != "no" ]; then
             if [ "$PLATFORM_QWS" = "maybe" ]; then
                 PLATFORM_X11=no
                 PLATFORM_MAC=no
+                PLATFORM_THN=no
                 PLATFORM_QWS=yes
             fi
         else
@@ -676,11 +700,9 @@ while [ "$#" -gt 0 ]; do
         ;;
     x11)
         if [ "$Edition" = "Trolltech" ] && [ "$VAL" = "yes" ]; then
-            if [ "$PLATFORM_MAC" = "yes" ]; then
-                PLATFORM_MAC=no
-            elif [ "$PLATFORM_QWS" = "yes" ]; then
-                PLATFORM_QWS=no
-            fi
+            PLATFORM_MAC=no
+            PLATFORM_QWS=no
+            PLATFORM_THN=no
             PLATFORM_X11=yes
         else
             UNKNOWN_OPT=yes
@@ -1205,8 +1227,13 @@ if [ "$OPT_SHADOW" = "maybe" ]; then
         fi
     fi
 fi
-if [ "$OPT_VERBOSE" = "yes" -a "$OPT_SHADOW" = "yes" ]; then
-    echo "Performing shadow build..."
+if [ "$OPT_SHADOW" = "yes" ]; then
+    if [ -e "$relpath/.qmake.cache" ]; then
+        echo "You cannot make a shadow build from a source tree containing a previous build."
+        echo "Cannot proceed."
+        exit 1
+    fi
+    [ "$OPT_VERBOSE" = "yes" ] && echo "Performing shadow build..."
 fi
 
 # detect build style
@@ -2493,7 +2520,7 @@ if [ "$Edition" = "OpenSource" ]; then
         elif [ "$acceptance" = "G" -o "$acceptance" = "g" ]; then
             more $relpath/LICENSE.GPL
         elif [ "$acceptance" = "Q" -o "$acceptance" = "q" ]; then
-            if [ "$PLATFORM_QWS" != "yes" ]; then
+            if [ "$PLATFORM_QWS" != "yes" -a "$PLATFORM_THN" != "yes" ]; then
                 more $relpath/LICENSE.QPL
             fi
         fi
@@ -2972,6 +2999,10 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
     QT_CONFIG="$QT_CONFIG embedded"
     rm -f src/.moc/$QMAKE_OUTDIR/allmoc.cpp # needs remaking if config changes
+fi
+if [ "$PLATFORM_QWS" = "yes" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG thin"
+    QT_CONFIG="$QT_CONFIG thin"
 fi
 QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\""
 QMAKE_VARS="$QMAKE_VARS \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
