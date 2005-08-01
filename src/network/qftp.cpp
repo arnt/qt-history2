@@ -81,7 +81,7 @@ signals:
 private slots:
     void socketConnected();
     void socketReadyRead();
-    void socketError(QTcpSocket::SocketError);
+    void socketError(QAbstractSocket::SocketError);
     void socketConnectionClosed();
     void socketBytesWritten(qint64);
     void setupSocket();
@@ -151,7 +151,7 @@ private slots:
     void connectionClosed();
     void delayedCloseFinished();
     void readyRead();
-    void error(QTcpSocket::SocketError);
+    void error(QAbstractSocket::SocketError);
 
     void dtpConnectState(int);
 
@@ -297,7 +297,7 @@ void QFtpDTP::connectToHost(const QString & host, quint16 port)
     socket->setObjectName("QFtpDTP Passive state socket");
     connect(socket, SIGNAL(connected()), SLOT(socketConnected()));
     connect(socket, SIGNAL(readyRead()), SLOT(socketReadyRead()));
-    connect(socket, SIGNAL(error(SocketError)), SLOT(socketError(SocketError)));
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(socketError(QAbstractSocket::SocketError)));
     connect(socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()));
     connect(socket, SIGNAL(bytesWritten(qint64)), SLOT(socketBytesWritten(qint64)));
 
@@ -630,7 +630,7 @@ void QFtpDTP::socketReadyRead()
     }
 }
 
-void QFtpDTP::socketError(QTcpSocket::SocketError e)
+void QFtpDTP::socketError(QAbstractSocket::SocketError e)
 {
     if (e == QTcpSocket::HostNotFoundError) {
 #if defined(QFTPDTP_DEBUG)
@@ -675,7 +675,7 @@ void QFtpDTP::setupSocket()
     socket->setObjectName("QFtpDTP Active state socket");
     connect(socket, SIGNAL(connected()), SLOT(socketConnected()));
     connect(socket, SIGNAL(readyRead()), SLOT(socketReadyRead()));
-    connect(socket, SIGNAL(error(SocketError)), SLOT(socketError(SocketError)));
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(socketError(QAbstractSocket::SocketError)));
     connect(socket, SIGNAL(disconnected()), SLOT(socketConnectionClosed()));
     connect(socket, SIGNAL(bytesWritten(qint64)), SLOT(socketBytesWritten(qint64)));
 
@@ -713,8 +713,8 @@ QFtpPI::QFtpPI(QObject *parent) :
             SLOT(connectionClosed()));
     connect(&commandSocket, SIGNAL(readyRead()),
             SLOT(readyRead()));
-    connect(&commandSocket, SIGNAL(error(SocketError)),
-            SLOT(error(SocketError)));
+    connect(&commandSocket, SIGNAL(error(QAbstractSocket::SocketError)),
+            SLOT(error(QAbstractSocket::SocketError)));
 
     connect(&dtp, SIGNAL(connectState(int)),
              SLOT(dtpConnectState(int)));
@@ -800,7 +800,7 @@ void QFtpPI::delayedCloseFinished()
     emit connectState(QFtp::Unconnected);
 }
 
-void QFtpPI::error(QTcpSocket::SocketError e)
+void QFtpPI::error(QAbstractSocket::SocketError e)
 {
     if (e == QTcpSocket::HostNotFoundError) {
         emit connectState(QFtp::Unconnected);

@@ -32,7 +32,7 @@ public:
 private slots:
     void requestNewFortune();
     void readFortune();
-    void displayError(QTcpSocket::SocketError socketError);
+    void displayError(QAbstractSocket::SocketError socketError);
     void enableGetFortuneButton();
 
 private:

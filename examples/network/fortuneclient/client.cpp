@@ -48,7 +48,7 @@ Client::Client(QWidget *parent)
             this, SLOT(requestNewFortune()));
     connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
     connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readFortune()));
-    connect(tcpSocket, SIGNAL(error(SocketError)), this, SLOT(displayError(SocketError)));
+    connect(tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(displayError(QAbstractSocket::SocketError)));
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addStretch(1);
@@ -105,7 +105,7 @@ void Client::readFortune()
     getFortuneButton->setEnabled(true);
 }
 
-void Client::displayError(QTcpSocket::SocketError socketError)
+void Client::displayError(QAbstractSocket::SocketError socketError)
 {
     switch (socketError) {
     case QAbstractSocket::RemoteHostClosedError:

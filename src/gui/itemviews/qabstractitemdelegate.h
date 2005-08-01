@@ -75,7 +75,7 @@ public:
                               Qt::TextElideMode mode, const QString &text);
 signals:
     void commitData(QWidget *editor);
-    void closeEditor(QWidget *editor, EndEditHint hint = NoHint);
+    void closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint = NoHint);
 
 protected:
     Q_DISABLE_COPY(QAbstractItemDelegate)

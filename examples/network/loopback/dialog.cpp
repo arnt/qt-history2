@@ -37,8 +37,8 @@ Dialog::Dialog(QWidget *parent)
     connect(&tcpClient, SIGNAL(connected()), this, SLOT(startTransfer()));
     connect(&tcpClient, SIGNAL(bytesWritten(qint64)),
             this, SLOT(updateClientProgress(qint64)));
-    connect(&tcpClient, SIGNAL(error(SocketError)),
-            this, SLOT(displayError(SocketError)));
+    connect(&tcpClient, SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(displayError(QAbstractSocket::SocketError)));
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addStretch(1);
@@ -85,8 +85,8 @@ void Dialog::acceptConnection()
     tcpServerConnection = tcpServer.nextPendingConnection();
     connect(tcpServerConnection, SIGNAL(readyRead()),
             this, SLOT(updateServerProgress()));
-    connect(tcpServerConnection, SIGNAL(error(SocketError)),
-            this, SLOT(displayError(SocketError)));
+    connect(tcpServerConnection, SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(displayError(QAbstractSocket::SocketError)));
 
     serverStatusLabel->setText(tr("Accepted connection"));
     tcpServer.close();
@@ -127,7 +127,7 @@ void Dialog::updateClientProgress(qint64 numBytes)
                                .arg(bytesWritten / (1024 * 1024)));
 }
 
-void Dialog::displayError(QTcpSocket::SocketError socketError)
+void Dialog::displayError(QAbstractSocket::SocketError socketError)
 {
     if (socketError == QTcpSocket::RemoteHostClosedError)
         return;

@@ -461,7 +461,7 @@ QWSClient::QWSClient(QObject* parent, QTcpSocket* sock, int id)
         socketDescriptor = csocket->socketDescriptor();
         connect(csocket, SIGNAL(readyRead()), this, SIGNAL(readyRead()));
         connect(csocket, SIGNAL(disconnected()), this, SLOT(closeHandler()));
-        connect(csocket, SIGNAL(error(SocketError)), this, SLOT(errorHandler()));
+        connect(csocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(errorHandler()));
     }
 #else
     isClosed = false;

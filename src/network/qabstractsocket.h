@@ -118,8 +118,8 @@ signals:
     void hostFound();
     void connected();
     void disconnected();
-    void stateChanged(SocketState);
-    void error(SocketError);
+    void stateChanged(QAbstractSocket::SocketState);
+    void error(QAbstractSocket::SocketError);
 
 protected:
     qint64 readData(char *data, qint64 maxlen);

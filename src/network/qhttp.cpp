@@ -76,7 +76,7 @@ public:
     void startNextRequest();
     void slotReadyRead();
     void slotConnected();
-    void slotError(QTcpSocket::SocketError);
+    void slotError(QAbstractSocket::SocketError);
     void slotClosed();
     void slotBytesWritten(qint64 numBytes);
     void slotDoFinished();
@@ -2229,7 +2229,7 @@ void QHttpPrivate::slotConnected()
     }
 }
 
-void QHttpPrivate::slotError(QTcpSocket::SocketError err)
+void QHttpPrivate::slotError(QAbstractSocket::SocketError err)
 {
     postDevice = 0;
 
@@ -2571,7 +2571,7 @@ void QHttpPrivate::setSock(QTcpSocket *sock)
     QObject::connect(socket, SIGNAL(connected()), q, SLOT(slotConnected()));
     QObject::connect(socket, SIGNAL(disconnected()), q, SLOT(slotClosed()));
     QObject::connect(socket, SIGNAL(readyRead()), q, SLOT(slotReadyRead()));
-    QObject::connect(socket, SIGNAL(error(SocketError)), q, SLOT(slotError(SocketError)));
+    QObject::connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), q, SLOT(slotError(QAbstractSocket::SocketError)));
     QObject::connect(socket, SIGNAL(bytesWritten(qint64)),
                      q, SLOT(slotBytesWritten(qint64)));
 }
