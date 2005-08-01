@@ -743,7 +743,8 @@ void QTextHtmlParser::parseTag()
     pos++;
 
     if (node->wsm != QTextHtmlParserNode::WhiteSpacePre
-        && node->wsm != QTextHtmlParserNode::WhiteSpacePreWrap)
+        && node->wsm != QTextHtmlParserNode::WhiteSpacePreWrap
+        && !textEditMode)
         eatSpace();
 
     if (node->mayNotHaveChildren() || tagClosed) {
