@@ -964,6 +964,8 @@ bool
 QFile::resize(qint64 sz)
 {
     Q_D(QFile);
+    if (fileEngine()->at() > sz)
+        fileEngine()->seek(sz);
     if(fileEngine()->setSize(sz)) {
         unsetError();
         return true;
