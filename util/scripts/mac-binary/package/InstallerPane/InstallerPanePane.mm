@@ -24,22 +24,41 @@
     if ((dir == InstallerDirectionForward)) {
         if ((licenseStatus != LicenseOK) && !nameCheckOK)
             return NO;
-        FILE *licenseFile = getQtLicenseFile("w");
-        char outputString[sizeof(LicenseeString) + 5 + sizeof(LicenseKeyExtString) + 4];
-        snprintf(outputString, sizeof(outputString), "%s\"%%s\"\n%s%%s\n", LicenseeString,
-                 LicenseKeyExtString);
-        fprintf(licenseFile, outputString,
-                [[nameField stringValue] UTF8String], [fullLicenseKey UTF8String]);
-        fclose(licenseFile);
+        
+        // Copy the file first
+        NSFileManager *fm = [NSFileManager defaultManager];
+        NSString *qtLicense = [NSHomeDirectory() stringByAppendingPathComponent: @".qt-license"];
+        
+        
+        if ([fm fileExistsAtPath:qtLicense]) {
+            NSMutableString *alternatePlace = [NSMutableString stringWithCapacity: 256];
+            [alternatePlace setString : [NSHomeDirectory() stringByAppendingPathComponent: @".qt-license.bak"]];
+            NSNumber *backNumber = [NSNumber numberWithInt:1];
+            int index = [alternatePlace length] - 1;
+            
+            while ([fm fileExistsAtPath:alternatePlace]) {
+                [alternatePlace insertString:[backNumber stringValue] atIndex:index];
+                int foo = [backNumber intValue];
+                ++foo;
+                backNumber = [NSNumber numberWithInt:foo];
+            }
+            [fm copyPath:qtLicense toPath:alternatePlace handler:nil];
+        }
+
+        NSMutableString *finalString = [NSMutableString stringWithCapacity:256];
+        [finalString appendString:[NSString stringWithUTF8String: LicenseeString]];
+        [finalString appendString:[nameField stringValue]];
+        [finalString appendString:@"\n"];
+        [finalString appendString:[NSString stringWithUTF8String: LicenseKeyExtString]];
+        [finalString appendString:fullLicenseKey];
+        [finalString appendString:@"\n"];
+            
+        const char *finalFinalString = [finalString UTF8String];
+        
+        NSData *data = [NSData dataWithBytes:finalFinalString length:strlen(finalFinalString)];
+        [fm createFileAtPath:qtLicense contents:data attributes:nil];
     }
     return YES; 
-}
-
-- (BOOL)shouldLoad
-{
-    BOOL okToLoad = NO;
- 
-    return okToLoad;
 }
 
 - (void)didEnterPane:(InstallerSectionDirection)dir

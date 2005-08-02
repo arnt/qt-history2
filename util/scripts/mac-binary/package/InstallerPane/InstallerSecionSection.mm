@@ -14,29 +14,25 @@
 
 static BOOL checkForLicenseFile()
 {
-    static const int BUFFERSIZE = 8192;
     static const int LICENSESIZE = 42;
-    if (FILE *licenseFile = getQtLicenseFile("r")) {
-        char charBuffer[BUFFERSIZE];
-        while (!feof(licenseFile)) {
-            if (fgets(charBuffer, 8192, licenseFile)) {
-                char *location = strstr(charBuffer, LicenseKeyExtString);
-                if (location) {
-                    location += strlen(LicenseKeyExtString);
-                    char licenseString[LICENSESIZE];
-                    strncpy(licenseString, location, LICENSESIZE);
-                    licenseString[LICENSESIZE - 1] = '\0';
-                    location = strstr(licenseString, "\n");
-                    if (location)
-                        *location = '\0';
-                    return validateLicense(licenseString) == LicenseOK;
-                }
-                
-            }
+    int value = -1;
+    static NSString *qtLicense = [NSHomeDirectory() stringByAppendingPathComponent: @".qt-license"];
+    NSData *fileContents = [[NSFileManager defaultManager] contentsAtPath: qtLicense];
+    if (fileContents != nil) {
+        const char *charBuffer = (const char *)[fileContents bytes];
+        int length = [fileContents length];
+        char *location = strnstr(charBuffer, LicenseKeyExtString, length);
+        if (location) {
+            location += strlen(LicenseKeyExtString);
+            char licenseString[LICENSESIZE];
+            strncpy(licenseString, location, LICENSESIZE);
+            licenseString[LICENSESIZE - 1] = '\0';
+            while (location = strstr(licenseString, "\n"))
+                *location = '\0';
+            value = validateLicense(licenseString);      
         }
-        return NO;
     }
-    return NO;
+    return value == LicenseOK;
 }
 
 
