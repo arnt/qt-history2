@@ -221,7 +221,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void startNextRequest())
     Q_PRIVATE_SLOT(d_func(), void slotReadyRead())
     Q_PRIVATE_SLOT(d_func(), void slotConnected())
-    Q_PRIVATE_SLOT(d_func(), void slotError(QTcpSocket::SocketError))
+    Q_PRIVATE_SLOT(d_func(), void slotError(QAbstractSocket::SocketError))
     Q_PRIVATE_SLOT(d_func(), void slotClosed())
     Q_PRIVATE_SLOT(d_func(), void slotBytesWritten(qint64 numBytes))
     Q_PRIVATE_SLOT(d_func(), void slotDoFinished())

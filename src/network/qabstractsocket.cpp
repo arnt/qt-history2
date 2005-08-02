@@ -148,7 +148,7 @@
 */
 
 /*!
-    \fn void QAbstractSocket::error(SocketError socketError)
+    \fn void QAbstractSocket::error(QAbstractSocket::SocketError socketError)
 
     This signal is emitted after an error occurred. The \a socketError
     parameter describes the type of error that occurred.
@@ -157,7 +157,7 @@
 */
 
 /*!
-    \fn void QAbstractSocket::stateChanged(SocketState socketState)
+    \fn void QAbstractSocket::stateChanged(QAbstractSocket::SocketState socketState)
 
     This signal is emitted whenever QAbstractSocket's state changes.
     The \a socketState parameter is the new state.
