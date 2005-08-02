@@ -8,7 +8,7 @@ static const char * const dont_mess_with_me =
     "Copyright (C) 1992-$THISYEAR$ by Trolltech AS.\n"
     "All rights reserved.\n\n"
     "This trial version may only be used for evaluation purposes\n"
-    "and will shut down after 30 minuttes.\n"
+    "and will shut down after 30 minutes.\n"
     "Registered to:\n"
     "   Licensee: %2\n\n"
     "The evaluation expires in %4 days\n\n"
@@ -26,7 +26,7 @@ static const char * const dont_mess_with_me_either =
     "at: sales@trolltech.com.\n\n";
 
 static const char * const dont_mess_with_you_huh =
-    "\nThe evaluation of Qt will SHUT DOWN in 1 minutte.\n"
+    "\nThe evaluation of Qt will SHUT DOWN in 1 minute.\n"
     "Contact sales@trolltech.com for pricing and purchasing information.\n";
 
 static const char * const dont_mess_with_you_huh2 =
