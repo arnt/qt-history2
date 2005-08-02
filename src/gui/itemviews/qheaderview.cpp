@@ -609,7 +609,7 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
 bool QHeaderView::isSectionHidden(int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    if (logicalIndex <= 0 || logicalIndex >= d->sections.count() - 1)
+    if (logicalIndex < 0 || logicalIndex >= d->sections.count() - 1)
         return false;
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
