@@ -113,8 +113,8 @@ public slots:
 signals:
     void started();
     void finished(int exitCode);
-    void error(ProcessError error);
-    void stateChanged(ProcessState state);
+    void error(QProcess::ProcessError error);
+    void stateChanged(QProcess::ProcessState state);
 
     void readyReadStandardOutput();
     void readyReadStandardError();
