@@ -851,16 +851,6 @@ void WriteInitialization::acceptTabStops(DomTabStops *tabStops)
     }
 }
 
-QString WriteInitialization::translate(const QString &text, const QString &className) const
-{
-    if (option.translateFunction.size())
-        return option.translateFunction + QLatin1String("(") + text + QLatin1String(")");
-
-    Q_UNUSED(className);
-
-    return QLatin1String("QApplication::translate(\"") + m_generatedClass + QLatin1String("\", ") + text + QLatin1String(", 0, QApplication::UnicodeUTF8)");
-}
-
 void WriteInitialization::acceptLayoutDefault(DomLayoutDefault *node)
 {
     m_defaultMargin = INT_MIN;
@@ -1246,7 +1236,12 @@ void WriteInitialization::initializeTableWidget(DomWidget *w)
 
 QString WriteInitialization::trCall(const QString &str, const QString &className) const
 {
-    return translate(fixString(str), className);
+    if (option.translateFunction.size())
+        return option.translateFunction + QLatin1String("(") + fixString(str) + QLatin1String(")");
+
+    Q_UNUSED(className);
+
+    return QLatin1String("QApplication::translate(\"") + m_generatedClass + QLatin1String("\", ") + fixString(str) + QLatin1String(", 0, QApplication::UnicodeUTF8)");
 }
 
 void WriteInitialization::initializeSqlDataTable(DomWidget *w)

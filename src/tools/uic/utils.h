@@ -26,23 +26,33 @@ inline bool toBool(const QString &str)
 inline QString toString(const DomString *str)
 { return str ? str->text() : QString(); }
 
-inline QString fixString(const QString &str, bool encode=false)
+inline QString fixString(const QString &str)
 {
-    QString s;
-    if (!encode) {
-        s = str;
-        s.replace(QLatin1String("\\"), QLatin1String("\\\\"));
-        s.replace(QLatin1String("\""), QLatin1String("\\\""));
-        s.replace(QLatin1String("\r"), QLatin1String(""));
-        s.replace(QLatin1String("\n"), QLatin1String("\\n\"\n\""));
-    } else {
-        QByteArray utf8 = str.toUtf8();
-        const int l = utf8.length();
-        for (int i = 0; i < l; ++i)
-            s += QLatin1String("\\x") + QString::number((uchar)utf8[i], 16);
+	QByteArray utf8 = str.toUtf8();
+	uchar cbyte;
+    QString result;
+
+    for (int i = 0; i < utf8.length(); ++i) {
+		cbyte = utf8.at(i);
+		if (cbyte >= 0x80) {
+			result += QLatin1String("\\") + QString::number(cbyte, 8);
+		} else {
+			switch(cbyte) {
+			case '\\':
+				result += QLatin1String("\\\\"); break;
+			case '\"':
+				result += QLatin1String("\\\""); break;
+			case '\r':
+				break;
+			case '\n':
+				result += QLatin1String("\\n\"\n\""); break;
+			default:
+				result += QChar(cbyte);
+			}
+		}
     }
 
-    return QLatin1String("\"") + s + QLatin1String("\"");
+	return QLatin1String("\"") + result + QLatin1String("\"");
 }
 
 inline QHash<QString, DomProperty *> propertyMap(const QList<DomProperty *> &properties)
