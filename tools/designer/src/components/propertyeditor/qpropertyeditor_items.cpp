@@ -545,7 +545,13 @@ FontProperty::FontProperty(const QFont &value, const QString &name)
     i->setParent(this);
     m_properties << i;
 
-    IntProperty *ii = new IntProperty(value.pointSize(), QLatin1String("Point Size"));
+    int pointSize = value.pointSize();
+    if (pointSize < 1) {
+        // try to convert from pixel size and resolved font
+        // see also code in FontProperty::setValue
+        pointSize = QFontInfo(value).pointSize();
+    }
+    IntProperty *ii = new IntProperty(pointSize, QLatin1String("Point Size"));
     ii->setFake(true);
     ii->setRange(1, INT_MAX); // ### check
     ii->setParent(this);
@@ -592,7 +598,15 @@ void FontProperty::setValue(const QVariant &value)
     int family = fontDatabase()->families().indexOf(fnt.family());
 
     propertyAt(0)->setValue(family);
-    propertyAt(1)->setValue(fnt.pointSize());
+
+    int pointSize = fnt.pointSize();
+    if (pointSize < 1) {
+        // try to convert from pixel size and resolved font
+        // see also code in FontProperty constructor
+        pointSize = QFontInfo(fnt).pointSize();
+    }
+    propertyAt(1)->setValue(pointSize);
+
     propertyAt(2)->setValue(fnt.bold());
     propertyAt(3)->setValue(fnt.italic());
     propertyAt(4)->setValue(fnt.underline());
