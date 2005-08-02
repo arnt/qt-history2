@@ -28,7 +28,7 @@
 */
 
 QThreadData::QThreadData()
-    : id(-1), quitNow(false), eventDispatcher(0), tls(0)
+    : id(-1), quitNow(false), eventDispatcher(0), canWait(true), tls(0)
 { }
 
 QThreadData::~QThreadData()

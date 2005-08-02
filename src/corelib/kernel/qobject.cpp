@@ -1796,11 +1796,14 @@ void QObject::removeEventFilter(QObject *obj)
 */
 
 /*!
-    Performs a deferred deletion of this object.
+    Schedules this object for deletion.
 
-    Instead of an immediate deletion this function schedules a
-    deferred delete event for processing when Qt returns to the main
-    event loop.
+    The object will be deleted when control returns to the event loop.
+
+    Note that entering and leaving a new event loop (e.g., by opening a modal
+    dialog) will \e not perform the deferred deletion; for the object to be
+    deleted, the control must return to the event loop from which
+    deleteLater() was called.
 
     \sa destroyed(), QPointer
 */

@@ -138,7 +138,8 @@ int QEventLoop::exec(ProcessEventsFlags flags)
     data->eventLoops.push(this);
 
     while (!d->exit)
-        processEvents(flags | WaitForMoreEvents);
+        processEvents(flags | WaitForMoreEvents | ProcessEventsFlag(0x10)); // 0x10 == QEventLoop::DeferredDeletion
+
 
     QEventLoop *eventLoop = data->eventLoops.pop();
     Q_ASSERT_X(eventLoop == this, "QEventLoop::exec()", "internal error");

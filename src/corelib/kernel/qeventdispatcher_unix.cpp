@@ -723,12 +723,12 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
 
     // we are awake, broadcast it
     emit awake();
-
-    QCoreApplication::sendPostedEvents();
+    // 0x10 == QEventLoop::DeferredDeletion. To be fixed for 4.1.
+    QCoreApplication::sendPostedEvents(0, (flags & 0x10) ? -1 : 0);
 
     int nevents = 0;
     QThreadData *data = QThreadData::get(thread());
-    const bool canWait = (data->postEventList.size() == 0
+    const bool canWait = (data->canWait
                           && !d->interrupt
                           && (flags & QEventLoop::WaitForMoreEvents));
 

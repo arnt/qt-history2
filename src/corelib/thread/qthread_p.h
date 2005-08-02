@@ -73,6 +73,7 @@ public:
     QAbstractEventDispatcher *eventDispatcher;
     QStack<QEventLoop *> eventLoops;
     QPostEventList postEventList;
+    bool canWait;
     void **tls;
 };
 

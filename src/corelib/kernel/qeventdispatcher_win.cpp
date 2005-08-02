@@ -365,8 +365,9 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
     bool retVal = false;
     do {
         QThreadData *data = QThreadData::get(thread());
-        QCoreApplication::sendPostedEvents();
-
+        // 0x10 == QEventLoop::DeferredDeletion. To be fixed for 4.1.
+        QCoreApplication::sendPostedEvents(0, (flags & 0x10) ? -1 : 0);
+    
         DWORD waitRet = 0;
         HANDLE pHandles[MAXIMUM_WAIT_OBJECTS - 1];
         while (!d->interrupt) {
@@ -429,7 +430,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
 
         // still nothing - wait for message or signalled objects
         canWait = (!retVal
-                   && data->postEventList.size() == 0
+                   && data->canWait
                    && !d->interrupt
                    && (flags & QEventLoop::WaitForMoreEvents));
         if (canWait) {

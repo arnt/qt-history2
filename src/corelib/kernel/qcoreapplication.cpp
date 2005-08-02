@@ -760,6 +760,7 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
             }
         }
         data->postEventList.append(QPostEvent(receiver, event));
+        data->canWait = false;
     }
 
     if (data->eventDispatcher)
@@ -817,6 +818,15 @@ bool QCoreApplication::compressEvent(QEvent *event, QObject *receiver, QPostEven
 
 void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 {
+
+    bool doDeferredDeletion = (event_type == QEvent::DeferredDelete);
+    if (event_type == -1) {
+        // uglehack - this is to detect that we were called by the event
+        // dispatcher. if possible it should be fixed for 4.1.
+        doDeferredDeletion = true;
+        event_type = 0;
+    }
+    
     QThread *currentThread = QThread::currentThread();
     if (self) {
         // allow sendPostedEvents() to be called when QCoreApplication
@@ -859,6 +869,11 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         return;
     }
 
+    // by default, we assume that the event dispatcher can go to sleep after
+    // processing all events. if any new events are posted while we send
+    // events, canWait will be set to false.
+    data->canWait = true;
+
     // okay. here is the tricky loop. be careful about optimizing
     // this, it looks the way it does for good reasons.
     int i = 0;
@@ -877,6 +892,26 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
             continue;
         if (event_type && event_type != pe.event->type())
             continue;
+
+        if (pe.event->type() == QEvent::DeferredDelete) {
+            const QEventLoop *const savedEventLoop = reinterpret_cast<QEventLoop *>(pe.event->d);
+            const QEventLoop *const currentEventLoop =
+                data->eventLoops.isEmpty() ? 0 : data->eventLoops.top();
+
+            // DeferredDelete events are only sent when we are explicitly
+            // asked to (s.a. QEventLoop::DeferredDeletion), and then only if
+            // there is no current event loop, or if the current event loop is
+            // equal to the loop in which deleteLater() was called.
+            if (!doDeferredDeletion || (currentEventLoop && savedEventLoop != currentEventLoop)) {
+                // cannot send deferred delete
+                if (!event_type && !receiver) {
+                    // don't lose the event
+                    data->postEventList.append(pe);
+                    const_cast<QPostEvent &>(pe).event = 0;
+                }
+                continue;
+            }
+        }
 
         // first, we diddle the event so that we can deliver
         // it, and that noone will try to touch it later.
