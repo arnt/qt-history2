@@ -511,16 +511,29 @@ qint64 QProcessPrivate::readFromStderr(char *data, qint64 maxlen)
     return bytesRead;
 }
 
+
+static BOOL CALLBACK qt_terminateApp(HWND hwnd, LPARAM procId)
+{
+    DWORD currentProcId = 0;
+    GetWindowThreadProcessId(hwnd, &currentProcId);
+    if (currentProcId == (DWORD)procId)
+	    PostMessage(hwnd, WM_CLOSE, 0, 0);
+
+    return TRUE;
+}
+
 void QProcessPrivate::terminateProcess()
 {
     if (pid)
-        PostThreadMessage(pid->dwThreadId, WM_CLOSE, 0, 0);
+        EnumWindows(qt_terminateApp, (LPARAM)pid->dwProcessId);
 }
 
 void QProcessPrivate::killProcess()
 {
-    if (pid)
+    if (pid) {
         TerminateProcess(pid->hProcess, 0xf291);
+        PostThreadMessage(pid->dwThreadId, WM_CLOSE, 0, 0);
+    }
 }
 
 bool QProcessPrivate::waitForStarted(int)
