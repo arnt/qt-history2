@@ -549,6 +549,10 @@ bool QProcessPrivate::processDied()
     if (!waitForDeadChild())
         return false;
 #endif
+#ifdef Q_OS_WIN
+    if (processFinishedNotifier)
+        processFinishedNotifier->setEnabled(false);
+#endif
 
     // the process may have died before it got a chance to report that it was
     // either running or stopped, so we will call startupNotification() and
