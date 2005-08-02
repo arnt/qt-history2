@@ -1781,7 +1781,8 @@ void QWidget::insertAction(QAction *before, QAction *action)
 
     Q_D(QWidget);
     if(d->actions.contains(action))
-        d->actions.removeAll(action);
+        removeAction(action);
+
     int pos = d->actions.indexOf(before);
     if (pos < 0) {
         before = 0;
