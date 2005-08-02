@@ -381,10 +381,10 @@ for package in $PACKAGES; do
         fi
     done
     # Copy over the plugin
-    plugin_dir=$package_dir/Contents/Plugins
-    mkdir $plugin_dir
-    cp -r $INSTALLERPANE_PATH/build/$INSTALLERPANE_CONFIGURATION/InstallerPane.bundle $plugin_dir
-    cp $INSTALLERPANE_PATH/InstallerSections.plist $plugin_dir
+    plugin_dir="$package_dir/Contents/Plugins"
+    mkdir "$plugin_dir"
+    cp -r "$INSTALLERPANE_PATH/build/$INSTALLERPANE_CONFIGURATION/InstallerPane.bundle" "$plugin_dir"
+    cp "$INSTALLERPANE_PATH/InstallerSections.plist" "$plugin_dir"
 
     PKG_CREATED="$PKG_CREATED $package_dir"
 done
@@ -401,6 +401,13 @@ if [ "$MAKE_META" = "yes" ]; then
     rm -rf "$OUTPUT_DIR/Qt.mpkg/"
     mkdir -p "$OUTPUT_DIR/Qt.mpkg/"
     cp -R "MetaPackage" "$OUTPUT_DIR/Qt.mpkg/Contents"
+
+    # Copy over the plugin
+    plugin_dir="$OUTPUT_DIR/Qt.mpkg/Contents/Plugins"
+    mkdir -p "$plugin_dir"
+    cp -r "$INSTALLERPANE_PATH/build/$INSTALLERPANE_CONFIGURATION/InstallerPane.bundle" "$plugin_dir"
+    cp "$INSTALLERPANE_PATH/InstallerSections.plist" "$plugin_dir"
+
     mkdir -p "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
     cp -R Resources/* "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
     cp "Welcome-${LICENSETYPE}.rtf" "$OUTPUT_DIR/Qt.mpkg/Contents/Resources/Welcome.rtf"
@@ -490,11 +497,9 @@ if [ "$MAKE_IMAGE" = "yes" ] && [ ! -z "$PKG_CREATED" ]; then
 
     echo -n "  Creating Image..."
     hdiutil create -format UDRW -volname "$IMAGE_NAME" -srcfolder "$DISKIMAGE" "$TMPIMAGE" | grep -v ^created:
-    # the following _WILL_ break if another volume with the same name is mounted, probably
-    # not a big deal, but we should grab the output from attach.
-    hdiutil attach "$TMPIMAGE"
-    /Developer/Tools/SetFile -a C "/Volumes/${IMAGE_NAME}"
-    hdiutil detach "/Volumes/${IMAGE_NAME}"
+    mountpoint=`hdiutil attach "$TMPIMAGE" | grep '/Volumes' | cut -f 3`
+    /Developer/Tools/SetFile -a C "$mountpoint"
+    hdiutil detach "$mountpoint"
     hdiutil convert "$TMPIMAGE"  -format UDZO -o "$IMAGE" -imagekey zlib-level=6 | grep -v ^created:
     rm "$TMPIMAGE"
     echo " done!"
