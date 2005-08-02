@@ -4,11 +4,14 @@ CONFIG += qt debug_and_release depend_prl
 DESTDIR = $$QT_BUILD_TREE/lib
 DLLDESTDIR = $$QT_BUILD_TREE/bin
 
-VERSION = 4.1.0
+VERSION = 4.0.1
 QMAKE_TARGET_COMPANY = Trolltech AS
 QMAKE_TARGET_PRODUCT = Designer
 QMAKE_TARGET_DESCRIPTION = Graphical user interface designer.
 QMAKE_TARGET_COPYRIGHT = Copyright (c) 2003-2005 Trolltech
+
+target.path=$$[QT_INSTALL_LIBS]
+INSTALLS        += target
 
 SOURCES += qdesigner_components.cpp
 
@@ -26,14 +29,6 @@ INCLUDEPATH += . .. \
     $$QT_SOURCE_TREE/tools/designer/src/lib/extension \
     $$QT_SOURCE_TREE/tools/designer/src/lib/uilib \
     $$QT_SOURCE_TREE/tools/designer/src/lib/shared
-
-
-win32:dll {
-   dlltarget.path=$$[QT_INSTALL_BINS]
-   INSTALLS        += dlltarget
-}
-target.path=$$[QT_INSTALL_LIBS]
-INSTALLS        += target
 
 include(../propertyeditor/propertyeditor.pri)
 include(../objectinspector/objectinspector.pri)

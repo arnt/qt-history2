@@ -5,7 +5,7 @@ CONFIG += qt debug_and_release
 DESTDIR = ../../../../lib
 DLLDESTDIR = ../../../../bin
 
-VERSION = 4.1.0
+VERSION = 4.0.1
 QMAKE_TARGET_COMPANY = Trolltech AS
 QMAKE_TARGET_PRODUCT = Designer
 QMAKE_TARGET_DESCRIPTION = Graphical user interface designer.
@@ -35,10 +35,6 @@ PRECOMPILED_HEADER=lib_pch.h
 include(../components/component.pri)
 include(../sharedcomponents.pri)
 
-win32:dll {
-   dlltarget.path=$$[QT_INSTALL_BINS]
-   INSTALLS        += dlltarget
-}
 target.path=$$[QT_INSTALL_LIBS]
 INSTALLS        += target
 
