@@ -488,6 +488,9 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
             case QVariant::Bool:
                 p = new BoolProperty(value.toBool(), pname);
                 break;
+            case QVariant::ByteArray:
+                p = new StringProperty(QString::fromUtf8(value.toByteArray()), pname);
+                break;
             case QVariant::String:
                 p = new StringProperty(value.toString(), pname);
                 break;
