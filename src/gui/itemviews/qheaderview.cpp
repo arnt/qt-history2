@@ -635,7 +635,7 @@ void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
         d->hiddenSectionSize.insert(logicalIndex, size);
         resizeSection(logicalIndex, 0);
         d->sections[visual].hidden = true;
-    } else {
+    } else if (d->sections.at(visual).hidden) {
         int size = d->hiddenSectionSize.value(logicalIndex);
         d->hiddenSectionSize.remove(logicalIndex);
         d->sections[visual].hidden = false;
