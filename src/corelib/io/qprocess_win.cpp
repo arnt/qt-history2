@@ -524,16 +524,16 @@ static BOOL CALLBACK qt_terminateApp(HWND hwnd, LPARAM procId)
 
 void QProcessPrivate::terminateProcess()
 {
-    if (pid)
+    if (pid) {
         EnumWindows(qt_terminateApp, (LPARAM)pid->dwProcessId);
+        PostThreadMessage(pid->dwThreadId, WM_CLOSE, 0, 0);
+    }
 }
 
 void QProcessPrivate::killProcess()
 {
-    if (pid) {
+    if (pid)
         TerminateProcess(pid->hProcess, 0xf291);
-        PostThreadMessage(pid->dwThreadId, WM_CLOSE, 0, 0);
-    }
 }
 
 bool QProcessPrivate::waitForStarted(int)
