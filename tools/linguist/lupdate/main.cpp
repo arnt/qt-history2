@@ -26,7 +26,7 @@
 
 // defined in fetchtr.cpp
 extern void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
-                         const char *defaultContext, bool mustExist );
+                         const char *defaultContext, bool mustExist, const QByteArray &codecForSource );
 extern void fetchtr_ui( const char *fileName, MetaTranslator *tor,
                         const char *defaultContext, bool mustExist );
 
@@ -52,15 +52,15 @@ static void printUsage()
 }
 
 static void updateTsFiles( const MetaTranslator& fetchedTor,
-                           const QStringList& tsFileNames, const QString& codec,
-                           bool noObsolete, bool verbose )
+                           const QStringList& tsFileNames, const QString& codecForTr,
+						   bool noObsolete, bool verbose )
 {
     QStringList::ConstIterator t = tsFileNames.begin();
     while ( t != tsFileNames.end() ) {
         MetaTranslator tor;
         tor.load( *t );
-        if ( !codec.isEmpty() )
-            tor.setCodec( codec.toLatin1() );
+        if ( !codecForTr.isEmpty() )
+            tor.setCodec( codecForTr.toLatin1() );
         if ( verbose )
             fprintf( stderr, "Updating '%s'...\n", (*t).toLatin1().data() );
         merge( &tor, &fetchedTor, verbose );
@@ -86,7 +86,8 @@ int main( int argc, char **argv )
 {
     QString defaultContext = "@default";
     MetaTranslator fetchedTor;
-    QByteArray codec;
+    QByteArray codecForTr;
+	QByteArray codecForSource;
     QStringList tsFileNames;
 
     bool verbose = false;
@@ -150,7 +151,8 @@ int main( int argc, char **argv )
 
         if ( standardSyntax ) {
             fetchedTor = MetaTranslator();
-            codec.truncate( 0 );
+            codecForTr.clear();
+			codecForSource.clear();
             tsFileNames.clear();
 
             QMap<QString, QString> tagMap = proFileTagMap( fullText );
@@ -162,25 +164,27 @@ int main( int argc, char **argv )
 
                 for ( t = toks.begin(); t != toks.end(); ++t ) {
                     if ( it.key() == "HEADERS" || it.key() == "SOURCES" ) {
-                        fetchtr_cpp( (*t).toAscii(), &fetchedTor, defaultContext.toAscii(), true );
+                        fetchtr_cpp( (*t).toAscii(), &fetchedTor, defaultContext.toAscii(), true, codecForSource );
                         metSomething = true;
                     } else if ( it.key() == "INTERFACES" ||
                                 it.key() == "FORMS" ) {
                         fetchtr_ui( (*t).toAscii(), &fetchedTor, defaultContext.toAscii(), true );
-                        fetchtr_cpp( (*t).toAscii() + ".h", &fetchedTor, defaultContext.toAscii(), false );
+                        fetchtr_cpp( (*t).toAscii() + ".h", &fetchedTor, defaultContext.toAscii(), false, codecForSource );
                         metSomething = true;
                     } else if ( it.key() == "TRANSLATIONS" ) {
                         tsFileNames.append( *t );
                         metSomething = true;
                     } else if ( it.key() == "CODEC" ||
-                                it.key() == "DEFAULTCODEC" ) {
-                        codec = (*t).toLatin1();
+                                it.key() == "DEFAULTCODEC" ||
+                                it.key() == "CODECFORTR" ) {
+                        codecForTr = (*t).toLatin1();
+                    } else if ( it.key() == "CODECFORSRC" ) {
+                        codecForSource = (*t).toLatin1();
                     }
                 }
             }
 
-            updateTsFiles( fetchedTor, tsFileNames, codec, noObsolete,
-                           verbose );
+            updateTsFiles( fetchedTor, tsFileNames, codecForTr, noObsolete, verbose );
 
             if ( !metSomething ) {
                 fprintf( stderr,
@@ -215,9 +219,9 @@ int main( int argc, char **argv )
                 if ( QString(argv[i]).toLower().endsWith(".ui") ) {
                     fetchtr_ui( fi.fileName().toAscii(), &fetchedTor, defaultContext.toAscii(), true );
                     fetchtr_cpp( fi.fileName().toAscii() + ".h", &fetchedTor,
-                                 defaultContext.toAscii(), false );
+                                 defaultContext.toAscii(), false, codecForSource );
                 } else {
-                    fetchtr_cpp( fi.fileName().toAscii(), &fetchedTor, defaultContext.toAscii(), true );
+                    fetchtr_cpp( fi.fileName().toAscii(), &fetchedTor, defaultContext.toAscii(), true, codecForSource );
                 }
             }
         }
@@ -225,7 +229,7 @@ int main( int argc, char **argv )
     }
 
     if ( !standardSyntax )
-        updateTsFiles( fetchedTor, tsFileNames, codec, noObsolete, verbose );
+        updateTsFiles( fetchedTor, tsFileNames, codecForTr, noObsolete, verbose );
 
     if ( numFiles == 0 ) {
         printUsage();

@@ -77,7 +77,9 @@ public:
     void stripObsoleteMessages();
     void stripEmptyContexts();
 
-    void setCodec( const char *name );
+	void setCodec( const char *name ); // kill me
+	void setCodecForTr( const char *name ) { setCodec(name); }
+	QTextCodec *codecForTr() const { return codec; }
     QString toUnicode( const char *str, bool utf8 ) const;
 
     QList<MetaTranslatorMessage> messages() const;

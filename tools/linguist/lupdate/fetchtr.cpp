@@ -25,6 +25,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <QTextCodec>
+
 /* qmake ignore Q_OBJECT */
 
 static const char MagicComment[] = "TRANSLATOR ";
@@ -80,6 +82,8 @@ static int yyLineNo;
 static int yyCurLineNo;
 static int yyBraceLineNo;
 static int yyParenLineNo;
+static QTextCodec *yyCodecForTr = 0;
+static QTextCodec *yyCodecForSource = 0;
 
 // the file to read from (if reading from a file)
 static FILE *yyInFile;
@@ -89,6 +93,8 @@ static QString yyInStr;
 static int yyInPos;
 
 static int (*getChar)();
+
+static bool yyParsingUtf8;
 
 static int getCharFromFile()
 {
@@ -107,7 +113,7 @@ static int getCharFromString()
     }
 }
 
-static void startTokenizer( const char *fileName, int (*getCharFunc)() )
+static void startTokenizer( const char *fileName, int (*getCharFunc)(), QTextCodec *codecForTr, QTextCodec *codecForSource )
 {
     yyInPos = 0;
     getChar = getCharFunc;
@@ -121,6 +127,13 @@ static void startTokenizer( const char *fileName, int (*getCharFunc)() )
     yyCurLineNo = 1;
     yyBraceLineNo = 1;
     yyParenLineNo = 1;
+	yyCodecForTr = codecForTr;
+	if (!yyCodecForTr)
+		yyCodecForTr = QTextCodec::codecForName("ISO-8859-1");
+	Q_ASSERT(yyCodecForTr);
+	yyCodecForSource = codecForSource;
+
+	yyParsingUtf8 = false;
 }
 
 static int getToken()
@@ -128,6 +141,7 @@ static int getToken()
     const char tab[] = "abfnrtv";
     const char backTab[] = "\a\b\f\n\r\t\v";
     uint n;
+	bool quiet;
 
     yyIdentLen = 0;
     yyCommentLen = 0;
@@ -149,15 +163,19 @@ static int getToken()
                 if ( strcmp(yyIdent + 1, "_OBJECT") == 0 ) {
                     return Tok_Q_OBJECT;
                 } else if ( strcmp(yyIdent + 1, "T_TR_NOOP") == 0 ) {
+					yyParsingUtf8 = false;
                     return Tok_tr;
                 } else if ( strcmp(yyIdent + 1, "T_TRANSLATE_NOOP") == 0 ) {
+					yyParsingUtf8 = false;
                     return Tok_translate;
                 }
                 break;
             case 'T':
                 // TR() for when all else fails
-                if ( qstricmp(yyIdent + 1, "R") == 0 )
+				if ( qstricmp(yyIdent + 1, "R") == 0 ) {
+					yyParsingUtf8 = false;
                     return Tok_tr;
+				}
                 break;
             case 'c':
                 if ( strcmp(yyIdent + 1, "lass") == 0 )
@@ -185,10 +203,13 @@ static int getToken()
                 break;
             case 't':
                 if ( strcmp(yyIdent + 1, "r") == 0 ) {
+					yyParsingUtf8 = false;
                     return Tok_tr;
                 } else if ( qstrcmp(yyIdent + 1, "rUtf8") == 0 ) {
+					yyParsingUtf8 = true;
                     return Tok_trUtf8;
                 } else if ( qstrcmp(yyIdent + 1, "ranslate") == 0 ) {
+					yyParsingUtf8 = false;
                     return Tok_translate;
                 }
             }
@@ -286,6 +307,7 @@ static int getToken()
                 break;
             case '"':
                 yyCh = getChar();
+				quiet = false;
 
                 while ( yyCh != EOF && yyCh != '\n' && yyCh != '"' ) {
                     if ( yyCh == '\\' ) {
@@ -332,9 +354,43 @@ static int getToken()
                             yyCh = getChar();
                         }
                     } else {
-                        if ( yyStringLen < sizeof(yyString) - 1 )
-                            yyString[yyStringLen++] = (char) yyCh;
-                        yyCh = getChar();
+						if (!yyCodecForSource) {
+							if ( yyParsingUtf8 && yyCh >= 0x80 && !quiet) {
+								qWarning( "%s:%d: Non-ASCII character detected in trUtf8 string",
+										  (const char *) yyFileName, yyLineNo );
+								quiet = true;
+							}
+							// common case: optimized
+							if ( yyStringLen < sizeof(yyString) - 1 )
+								yyString[yyStringLen++] = (char) yyCh;
+							yyCh = getChar();
+						} else {
+							QByteArray originalBytes;
+							while ( yyCh != EOF && yyCh != '\n' && yyCh != '"' && yyCh != '\\' ) {
+								if ( yyParsingUtf8 && yyCh >= 0x80 && !quiet) {
+									qWarning( "%s:%d: Non-ASCII character detected in trUtf8 string",
+											(const char *) yyFileName, yyLineNo );
+									quiet = true;
+								}
+								originalBytes += (char)yyCh;
+								yyCh = getChar();
+							}
+
+							QString unicodeStr = yyCodecForSource->toUnicode(originalBytes);
+							QByteArray convertedBytes;
+
+							if (!yyCodecForTr->canEncode(unicodeStr) && !quiet) {
+								qWarning( "%s:%d: Cannot convert C++ string from %s to %s",
+										  (const char *) yyFileName, yyLineNo, yyCodecForSource->name().constData(),
+										  yyCodecForTr->name().constData() );
+								quiet = true;
+							}
+							convertedBytes = yyCodecForTr->fromUnicode(unicodeStr);
+
+							size_t len = qMin((size_t)convertedBytes.size(), sizeof(yyString) - yyStringLen - 1);
+							memcpy(yyString + yyStringLen, convertedBytes.constData(), len);
+							yyStringLen += len;
+						}
                     }
                 }
                 yyString[yyStringLen] = '\0';
@@ -459,8 +515,7 @@ static bool matchEncoding( bool *utf8 )
     }
 }
 
-static void parse( MetaTranslator *tor, const char *initialContext,
-                   const char *defaultContext )
+static void parse( MetaTranslator *tor, const char *initialContext, const char *defaultContext )
 {
     QMap<QByteArray, QByteArray> qualifiedContexts;
     QStringList namespaces;
@@ -659,7 +714,7 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 }
 
 void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
-                  const char *defaultContext, bool mustExist )
+                  const char *defaultContext, bool mustExist, const QByteArray &codecForSource )
 {
 #if defined(_MSC_VER) && _MSC_VER >= 1400
 	if (fopen_s(&yyInFile, fileName, "r")) {
@@ -681,7 +736,7 @@ void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
         return;
     }
 
-    startTokenizer( fileName, getCharFromFile );
+	startTokenizer( fileName, getCharFromFile, tor->codecForTr(), QTextCodec::codecForName(codecForSource) );
     parse( tor, 0, defaultContext );
     fclose( yyInFile );
 }
@@ -698,7 +753,7 @@ void fetchtr_inlined_cpp( const char *fileName, const QString& in,
                           MetaTranslator *tor, const char *context )
 {
     yyInStr = in;
-    startTokenizer( fileName, getCharFromString );
+    startTokenizer( fileName, getCharFromString, 0, 0 );
     parse( tor, context, 0 );
     yyInStr.clear();
 }
