@@ -64,6 +64,30 @@ elif [ -f $relpath/src/gui/kernel/qapplication_qws.cpp ]; then
     PLATFORM_QWS=maybe
 fi
 
+#-----------------------------------------------------------------------------
+# Qt version detection
+#-----------------------------------------------------------------------------
+QT_VERSION=`grep '^# *define *QT_VERSION_STR' $relpath/src/corelib/global/qglobal.h`
+QT_MAJOR_VERSION=
+QT_MINOR_VERSION=0
+QT_PATCH_VERSION=0
+if [ -n "$QT_VERSION" ]; then
+   QT_VERSION=`echo $QT_VERSION | sed 's,^# *define *QT_VERSION_STR "*\([^ ]*\)"$,\1,'`
+   MAJOR=`echo $QT_VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\1,'`
+   if [ -n "$MAJOR" ]; then
+     MINOR=`echo $QT_VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\2,'`
+      PATCH=`echo $QT_VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\3,'`
+      QT_MAJOR_VERSION="$MAJOR"
+      [ -z "$MINOR" ] || QT_MINOR_VERSION="$MINOR"
+      [ -z "$PATCH" ] || QT_PATCH_VERSION="$PATCH"
+   fi
+fi
+if [ -z "$QT_MAJOR_VERSION" ]; then
+   echo "Cannot process version from qglobal.h: $QT_VERSION"
+   echo "Cannot proceed."
+   exit 1
+fi
+
 #-------------------------------------------------------------------------------
 # check the license
 #-------------------------------------------------------------------------------
@@ -1131,7 +1155,6 @@ if [ -z "$QT_INSTALL_PREFIX" ]; then
 	QT_INSTALL_PREFIX=$outpath
     else
         # the default install prefix is /usr/local/Trolltech/Qt-$QT_VERSION
-        QT_VERSION=`grep \^VERSION= $relpath/src/qbase.pri | sed -e 's,^VERSION=,,'`
         QT_INSTALL_PREFIX=/usr/local/Trolltech/Qt-${QT_VERSION}
     fi
 fi
@@ -3535,9 +3558,17 @@ if [ "$CFG_UNIVERSAL_BINARY" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG x86 ppc"
 fi
 cat >>$QTCONFIG.tmp <<EOF
+#configuration
 CONFIG += $QTCONFIG_CONFIG
 QT_EDITION = $Edition
 QT_CONFIG += $QT_CONFIG
+
+#versioning
+QT_VERSION = $QT_VERSION
+QT_MAJOR_VERSION = $QT_MAJOR_VERSION
+QT_MINOR_VERSION = $QT_MINOR_VERSION
+QT_PATCH_VERSION = $QT_PATCH_VERSION
+
 EOF
 if [ "$CFG_RPATH" = "yes" ]; then
     echo "QMAKE_RPATHDIR += $QT_INSTALL_LIBS" >> $QTCONFIG.tmp

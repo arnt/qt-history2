@@ -1,9 +1,11 @@
 isEmpty(TARGET):error(You must set TARGET before include()'ing $${_FILE_})
 INCLUDEPATH *= $$QMAKE_INCDIR_QT/$$TARGET #just for today to have some compat
 TEMPLATE	= lib
-
-# note the configure script relies on the VERSION=X.Y.Z line not having any whitespace
-VERSION=4.1.0
+isEmpty(QT_MAJOR_VERSION) {
+   VERSION=4.1.0
+} else {
+   VERSION=$${QT_MAJOR_VERSION}.$${QT_MINOR_VERSION}.$${QT_PATCH_VERSION}
+}
 
 #load up the headers info
 CONFIG += qt_install_headers
