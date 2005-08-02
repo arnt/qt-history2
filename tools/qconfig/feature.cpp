@@ -60,7 +60,7 @@ QString Feature::toHtml() const
 	   << "<h2><font size=\"+2\">" << title() << "</font></h2>"
 	   << listToHtml("Section", QStringList(section()))
 	   << listToHtml("Requires", dependencies())
-	   << listToHtml("Requred for", supports())
+	   << listToHtml("Required for", supports())
 	   << listToHtml("See also", relations());
     return str;
 }
