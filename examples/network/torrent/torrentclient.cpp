@@ -884,7 +884,7 @@ void TorrentClient::initializeConnection(PeerWireClient *client)
             this, SLOT(setupOutgoingConnection()));
     connect(client, SIGNAL(disconnected()),
             this, SLOT(removeClient()));
-    connect(client, SIGNAL(error(SocketError)),
+    connect(client, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(removeClient()));
     connect(client, SIGNAL(piecesAvailable(const QSet<int> &)),
             this, SLOT(peerPiecesAvailable(const QSet<int> &)));
