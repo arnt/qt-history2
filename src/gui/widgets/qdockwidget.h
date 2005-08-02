@@ -72,7 +72,7 @@ public:
 #endif
 
 signals:
-    void featuresChanged(DockWidgetFeatures features);
+    void featuresChanged(QDockWidget::DockWidgetFeatures features);
     void topLevelChanged(bool topLevel);
     void allowedAreasChanged(Qt::DockWidgetAreas allowedAreas);
 
