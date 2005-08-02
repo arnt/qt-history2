@@ -311,6 +311,8 @@ static QRegion qt_mac_get_widget_rgn(const QWidget *widget)
                 }
             }
         }
+        if(clip->isWindow())
+            break;
         clip_pos -= clip->pos();
     }
     qt_mac_dispose_rgn(macr);
