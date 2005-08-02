@@ -48,7 +48,7 @@ private slots:
     void socketConnectionClosed();
     void readPort();
     void procError(QProcess::ProcessError err);
-    void socketError(QTcpSocket::SocketError err);
+    void socketError(QAbstractSocket::SocketError err);
     void readStdError();
 
 private:
