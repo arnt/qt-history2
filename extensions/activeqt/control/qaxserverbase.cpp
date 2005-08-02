@@ -719,10 +719,8 @@ private:
 // callback for DLL server to hook into non-Qt eventloop
 LRESULT CALLBACK axs_FilterProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
-    if (qApp) {        
-        qApp->sendPostedEvents();
-        qApp->sendPostedEvents(0, QEvent::DeferredDelete);
-    }
+    if (qApp)
+        qApp->sendPostedEvents(0, -1);
 
     return CallNextHookEx(qax_hhook, nCode, wParam, lParam);
 }
