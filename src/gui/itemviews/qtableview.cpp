@@ -551,52 +551,65 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
     
     int bottom = model()->rowCount(rootIndex()) - 1;
     int right = model()->columnCount(rootIndex()) - 1;
+    if (bottom == -1 || right == -1)
+        return QModelIndex(); // model is empty
+
     QModelIndex current = currentIndex();
 
     if (!current.isValid()) {
-        if (bottom == -1 || right == -1)
-            return QModelIndex();
         int row = 0;
-        int col = 0;
-        while (isColumnHidden(col) && col <= right)
-            ++col;
-        while (isRowHidden(row) && row <= bottom)
+        int column = 0;
+        while (isColumnHidden(column) && column < right)
+            ++column;
+        while (isRowHidden(row) && row < bottom)
             ++row;
-        if (row > bottom || col > right)
+        if (row > bottom || column > right)
             return QModelIndex();
-        return model()->index(row, col, rootIndex());
+        return model()->index(row, column, rootIndex());
     }
+    
     int visualRow = verticalHeader()->visualIndex(current.row());
     int visualColumn = horizontalHeader()->visualIndex(current.column());
-    int verticalStep = 0;
-    int horizontalStep = 0;
+
+    if (isRightToLeft()) {
+        if (cursorAction == MoveLeft)
+            cursorAction = MoveRight;
+        else if (cursorAction == MoveRight)
+            cursorAction = MoveLeft;
+    }
 
     switch (cursorAction) {
     case MoveUp:
-        verticalStep = -1;
-        visualRow += verticalStep;
+        --visualRow;
+        while (visualRow > 0 && isRowHidden(verticalHeader()->logicalIndex(visualRow)))
+            --visualRow;
         break;
     case MoveDown:
-        verticalStep = 1;
-        visualRow += verticalStep;
+        ++visualRow;
+        while (visualRow < bottom && isRowHidden(verticalHeader()->logicalIndex(visualRow)))
+            ++visualRow;
         break;
     case MovePrevious:
     case MoveLeft:
-        horizontalStep = isRightToLeft() ? 1 : -1;
-        visualColumn += horizontalStep;
+        --visualColumn;
+        while (visualColumn < right && isRowHidden(verticalHeader()->logicalIndex(visualRow)))
+            --visualColumn;
         break;
     case MoveNext:
     case MoveRight:
-        horizontalStep = isRightToLeft() ? -1 : 1;
-        visualColumn += horizontalStep;
+        ++visualColumn;
+        while (visualColumn < right && isRowHidden(verticalHeader()->logicalIndex(visualRow)))
+            ++visualColumn;
         break;
     case MoveHome:
-        verticalStep = 1;
         visualRow = 0;
+        while (visualRow < bottom && isRowHidden(verticalHeader()->logicalIndex(visualRow)))
+            ++visualRow;
         break;
     case MoveEnd:
-        verticalStep = -1;
         visualRow = bottom;
+        while (visualRow > 0 && isRowHidden(verticalHeader()->logicalIndex(visualRow)))
+            --visualRow;
         break;
     case MovePageUp: {
         int newRow = rowAt(visualRect(current).top() - d->viewport->height());
@@ -606,21 +619,12 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
         return model()->index(newRow >= 0 ? newRow : bottom, current.column(), rootIndex());}
     }
 
-    while (verticalStep != 0
-           && visualRow >= 0
-           && visualRow <= bottom
-           && verticalHeader()->isSectionHidden(verticalHeader()->logicalIndex(visualRow)))
-        visualRow += verticalStep;
-
-    while (horizontalStep != 0
-           && visualColumn >= 0
-           && visualColumn <= right
-           && horizontalHeader()->isSectionHidden(horizontalHeader()->logicalIndex(visualColumn)))
-        visualColumn += horizontalStep;
-
     int logicalRow = verticalHeader()->logicalIndex(visualRow);
     int logicalColumn = horizontalHeader()->logicalIndex(visualColumn);
-    if (model()->hasIndex(logicalRow, logicalColumn, rootIndex()))
+    if (!model()->hasIndex(logicalRow, logicalColumn, rootIndex()))
+        return QModelIndex();
+    QModelIndex result = model()->index(logicalRow, logicalColumn, rootIndex());
+    if (!isIndexHidden(result))
         return model()->index(logicalRow, logicalColumn, rootIndex());
     return QModelIndex();
 }
