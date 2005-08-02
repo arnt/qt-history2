@@ -609,7 +609,7 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
 bool QHeaderView::isSectionHidden(int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    if (logicalIndex <= 0 || logicalIndex >= d->sections.count())
+    if (logicalIndex <= 0 || logicalIndex >= d->sections.count() - 1)
         return false;
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
@@ -861,7 +861,7 @@ void QHeaderView::setSortIndicator(int logicalIndex, Qt::SortOrder order)
     d->sortIndicatorSection = logicalIndex;
     d->sortIndicatorOrder = order;
 
-    if (logicalIndex < 0 || logicalIndex >= d->sections.count())
+    if (logicalIndex < 0 || logicalIndex >= d->sections.count() - 1)
         return; // nothing to do
 
     if (old != logicalIndex && resizeMode(logicalIndex) == Custom) {
