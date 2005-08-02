@@ -132,6 +132,12 @@ void QAbstractItemViewPrivate::init()
     by using setSelectionModel() with an instance of
     QItemSelectionModel.
 
+    When implimenting a view that will have scrollbars you want to overload
+    resizeEvent to set the scrollbars range so they will turn of and off, for example:
+    \code
+        horizontalScrollBar()->setRange(0, realWidth - width());
+    \endcode
+    
     For complete control over the display and editing of items you can
     specify a delegate with setItemDelegate().
 
@@ -246,6 +252,10 @@ void QAbstractItemViewPrivate::init()
     \fn QRect QAbstractItemView::visualRect(const QModelIndex &index) const = 0
     Returns the rectangle on the viewport occupied by the item at \a index.
 
+    If your item is displayed in several areas then visualRect should return
+    the primary area that contains index and not the complete area that index
+    might encompasses, touch or cause drawing.
+    
     In the base class this is a pure virtual function.
 */
 
@@ -360,6 +370,11 @@ void QAbstractItemViewPrivate::init()
 
     Applies the selection \a flags to the items in or touched by the
     rectangle, \a rect.
+
+    When implementing your own itemview setSelection should call
+    selectionModel()->select(selection, flags) where selection
+    is either an empty QModelIndex or a QItemSelection that contains
+    all items that are contained in \a rect.
 
     \sa selectionCommand()
 */
