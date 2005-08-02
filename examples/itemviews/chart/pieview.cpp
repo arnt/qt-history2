@@ -466,7 +466,6 @@ void PieView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlag
     }
 
     selectionRect = rect;
-    viewport()->update();
 }
 
 void PieView::updateGeometries()
