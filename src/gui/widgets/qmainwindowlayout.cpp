@@ -1049,7 +1049,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     // at this point the space for the tool bars have been shaved off
     // the main rect, continue laying out each tool bar line
     int tb_fill = 0;
-    if (tb_layout_info.size() != 0) {
+    if (!tb_layout_info.isEmpty() && !tb_layout_info.at(0).list.isEmpty()) {
 	tb_fill = tb_layout_info.at(0).list.at(0).item->widget()->layout()->margin() * 2
                   + QApplication::style()->pixelMetric(QStyle::PM_ToolBarHandleExtent)
 		  + QApplication::style()->pixelMetric(QStyle::PM_ToolBarItemSpacing) * 2
