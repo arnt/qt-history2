@@ -338,6 +338,9 @@ void QTextEditPrivate::init(Qt::TextFormat format, const QString &text, QTextDoc
 {
     Q_Q(QTextEdit);
 
+    // for use when called from setPlainText. we may want to re-use the currently
+    // set char format then.
+    const QTextCharFormat charFormatForInsertion = cursor.charFormat();
 
     bool clearDocument = true;
     if (!doc) {
@@ -397,10 +400,13 @@ void QTextEditPrivate::init(Qt::TextFormat format, const QString &text, QTextDoc
         // positioning the cursor again to the start of the
         // document.
         cursor = QTextCursor();
-        if (format == Qt::PlainText)
-            doc->setPlainText(text);
-        else
+        if (format == Qt::PlainText) {
+            QTextCursor insertionCursor(doc);
+            insertionCursor.setCharFormat(charFormatForInsertion);
+            insertionCursor.insertText(text);
+        } else {
             doc->setHtml(text);
+        }
         cursor = QTextCursor(doc);
     }
 
@@ -1276,6 +1282,8 @@ void QTextEdit::paste()
 
 /*!
     Deletes all the text in the text edit.
+
+    Note that the undo/redo history is cleared by this function.
 
     \sa cut() setPlainText() setHtml()
 */
