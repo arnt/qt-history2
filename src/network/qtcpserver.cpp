@@ -213,9 +213,9 @@ bool QTcpServer::listen(const QHostAddress &address, quint16 port)
     // anyway -- furthermore, the meaning of reusable on Windows is different:
     // it means that you can use the same address-port for multiple listening
     // sockets.
-    if (!d->socketLayer.setOption(QSocketLayer::AddressReusable, 1)) {
-        d->serverSocketError = d->socketLayer.error();
-        d->serverSocketErrorString = d->socketLayer.errorString();
+    if (!d->socketEngine.setOption(QAbstractSocketEngine::AddressReusable, 1)) {
+        d->serverSocketError = d->socketEngine.error();
+        d->serverSocketErrorString = d->socketEngine.errorString();
         return false;
     }
 #endif
@@ -242,7 +242,7 @@ bool QTcpServer::listen(const QHostAddress &address, quint16 port)
 
 #if defined (QTCPSERVER_DEBUG)
     qDebug("QTcpServer::listen(%i, \"%s\") == true (listening on port %i)", port,
-           address.toString().toLatin1().constData(), d->socketLayer.localPort());
+           address.toString().toLatin1().constData(), d->socketEngine.localPort());
 #endif
     return true;
 }
