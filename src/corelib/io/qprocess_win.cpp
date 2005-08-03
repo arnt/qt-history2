@@ -725,8 +725,9 @@ void QProcessPrivate::notified()
 
     if (bytesAvailableFromStderr())
         canReadStandardError();
-
-    notifier->start(NOTIFYTIMEOUT);
+    
+    if (processState != QProcess::NotRunning)
+        notifier->start(NOTIFYTIMEOUT);
 }
 
 bool QProcessPrivate::startDetached(const QString &program, const QStringList &arguments)
