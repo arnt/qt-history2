@@ -128,10 +128,6 @@ static DMExtendedNotificationUPP mac_display_changeUPP = 0;
 static EventHandlerRef app_proc_handler = 0;
 static EventHandlerUPP app_proc_handlerUPP = 0;
 static AEEventHandlerUPP app_proc_ae_handlerUPP = NULL;
-//popup variables
-static QWidget     *popupButtonFocus = 0;
-static QWidget     *popupOfPopupButtonFocus = 0;
-static bool            popupCloseDownMode = false;
 
 class QETWidget : public QWidget
 {
@@ -2684,14 +2680,9 @@ void QApplicationPrivate::closePopup(QWidget *popup)
         return;
 
     QApplicationPrivate::popupWidgets->removeAll(popup);
-    if(popup == popupOfPopupButtonFocus) {
-        popupButtonFocus = 0;
-        popupOfPopupButtonFocus = 0;
-    }
     if(popup == qt_button_down)
         qt_button_down = 0;
     if(QApplicationPrivate::popupWidgets->isEmpty()) {  // this was the last popup
-        popupCloseDownMode = true;                      // control mouse events
         delete QApplicationPrivate::popupWidgets;
         QApplicationPrivate::popupWidgets = 0;
         if (QApplicationPrivate::active_window) {
