@@ -144,6 +144,8 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent )
     pageBuffer = "";
     connect( proc, SIGNAL(readyReadStandardError()),
              this, SLOT(readStdError()) );
+    connect( proc, SIGNAL(error(QProcess::ProcessError)),
+        this, SLOT(procError(QProcess::ProcessError)) );    
 }
 
 /*!
@@ -198,9 +200,7 @@ void QAssistantClient::openAssistant()
 
     connect( proc, SIGNAL(readyReadStandardOutput()),
         this, SLOT(readPort()) );
-    connect( proc, SIGNAL(error(ProcessError)),
-        this, SLOT(procError(ProcessError)) );
-
+    
     proc->start(assistantCommand, args);
 }
 
@@ -299,7 +299,7 @@ void QAssistantClient::socketError(QAbstractSocket::SocketError err)
         emit error( tr( "Could not connect to Assistant: Connection refused" ) );
     else if (err == QTcpSocket::HostNotFoundError)
         emit error( tr( "Could not connect to Assistant: Host not found" ) );
-    else
+    else if (err != QTcpSocket::QAbstractSocket::RemoteHostClosedError)
         emit error( tr( "Communication error" ) );
 }
 
