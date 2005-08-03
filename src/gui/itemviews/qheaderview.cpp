@@ -22,6 +22,7 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qvector.h>
+#include <qvarlengtharray.h>
 #include <qabstractitemdelegate.h>
 #include <private/qheaderview_p.h>
 
@@ -458,8 +459,10 @@ int QHeaderView::sectionViewportPosition(int logicalIndex) const
 void QHeaderView::moveSection(int from, int to)
 {
     Q_D(QHeaderView);
-    Q_ASSERT(from >= 0 && from < d->sections.count());
-    Q_ASSERT(to >= 0 && to < d->sections.count());
+
+    d->executePostedLayout();
+    Q_ASSERT(from >= 0 && from < d->sections.count() - 1);
+    Q_ASSERT(to >= 0 && to < d->sections.count() - 1);
 
     if (from == to) {
         int visual = visualIndex(from);
@@ -482,9 +485,12 @@ void QHeaderView::moveSection(int from, int to)
     int logical = sections[from].logical;
     int visual = from;
     bool hidden = sections[from].hidden;
-    
+    QVarLengthArray<int> sizes(qAbs(to - from));
+
     if (to > from) {
         while (visual < to) {
+            sizes[sizes.size() - 1 - (visual - from)] = sections[visual + 1].position
+                                                      - sections[visual].position;
             sections[visual].hidden = sections[visual + 1].hidden;
             sections[visual].logical = sections[visual + 1].logical;
             visualIndices[sections[visual].logical] = visual;
@@ -492,6 +498,8 @@ void QHeaderView::moveSection(int from, int to)
         }
     } else {
         while (visual > to) {
+            sizes[sizes.size() - (visual - to)] = sections[visual].position
+                                                      - sections[visual - 1].position;
             sections[visual].hidden = sections[visual - 1].hidden;
             sections[visual].logical = sections[visual - 1].logical;
             visualIndices[sections[visual].logical] = visual;
@@ -504,20 +512,11 @@ void QHeaderView::moveSection(int from, int to)
 
     // move positions
     if (to > from) {
-        int delta;
-        for (visual = from; visual < to; ++visual) {
-            delta = (sections[visual + 1].position - sections[visual].position)
-                    - (sections[visual + 2].position - sections[visual + 1].position);
-            sections[visual + 1].position -= delta; // update next
-        }
+        for (visual = from; visual < to; ++visual)
+            sections[visual + 1].position = sections[visual].position + sizes[visual - from];
     } else {
-        int tmp;
-        int size = sections[from + 1].position - sections[from].position;
-        for (visual = to; visual < from; ++visual) {
-            tmp = sections[visual + 1].position - sections[visual].position;
-            sections[visual + 1].position = sections[visual].position + size;
-            size = tmp;
-        }
+        for (visual = to; visual < from; ++visual)
+            sections[visual + 1].position = sections[visual].position + sizes[visual - to];
     }
 
     d->viewport->update();
