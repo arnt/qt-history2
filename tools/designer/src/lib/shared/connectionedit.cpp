@@ -1148,9 +1148,9 @@ void ConnectionEdit::mousePressEvent(QMouseEvent *e)
 void ConnectionEdit::mouseDoubleClickEvent(QMouseEvent *e)
 {
     e->accept();
-
     switch (state()) {
         case Connecting:
+            abortConnection();
             break;
         case Dragging:
             break;
