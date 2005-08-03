@@ -11,20 +11,20 @@
 **
 ****************************************************************************/
 
-#ifndef QSOCKETLAYER_P_H
-#define QSOCKETLAYER_P_H
+#ifndef QNATIVESOCKETENGINE_P_H
+#define QNATIVESOCKETENGINE_P_H
 
 #include <qhostaddress.h>
 #include <private/qabstractsocketengine_p.h>
 
-class QSocketLayerPrivate;
+class QNativeSocketEnginePrivate;
 
-class QSocketLayer : public QAbstractSocketEngine 
+class QNativeSocketEngine : public QAbstractSocketEngine 
 {
     Q_OBJECT
 public:
-    QSocketLayer(QObject *parent = 0);
-    ~QSocketLayer();
+    QNativeSocketEngine(QObject *parent = 0);
+    ~QNativeSocketEngine();
 
     bool initialize(QAbstractSocket::SocketType type, QAbstractSocket::NetworkLayerProtocol protocol = QAbstractSocket::IPv4Protocol);
     bool initialize(int socketDescriptor, QAbstractSocket::SocketState socketState = QAbstractSocket::ConnectedState);
@@ -67,8 +67,8 @@ public:
 			    int msecs = 30000, bool *timedOut = 0) const;
 
 private:
-    Q_DECLARE_PRIVATE(QSocketLayer)
-    Q_DISABLE_COPY(QSocketLayer)
+    Q_DECLARE_PRIVATE(QNativeSocketEngine)
+    Q_DISABLE_COPY(QNativeSocketEngine)
 };
 
 #ifdef Q_OS_WIN
@@ -81,12 +81,12 @@ public:
 };
 #endif
 
-class QSocketLayerPrivate : public QAbstractSocketEnginePrivate
+class QNativeSocketEnginePrivate : public QAbstractSocketEnginePrivate
 {
-    Q_DECLARE_PUBLIC(QSocketLayer)
+    Q_DECLARE_PUBLIC(QNativeSocketEngine)
 public:
-    QSocketLayerPrivate();
-    ~QSocketLayerPrivate();
+    QNativeSocketEnginePrivate();
+    ~QNativeSocketEnginePrivate();
 
     int socketDescriptor;
 
@@ -122,8 +122,8 @@ public:
     void setError(QAbstractSocket::SocketError error, ErrorString errorString) const;
 
     // native functions
-    int option(QSocketLayer::SocketOption option) const;
-    bool setOption(QSocketLayer::SocketOption option, int value);
+    int option(QNativeSocketEngine::SocketOption option) const;
+    bool setOption(QNativeSocketEngine::SocketOption option, int value);
 
     bool createNewSocket(QAbstractSocket::SocketType type, QAbstractSocket::NetworkLayerProtocol protocol);
 
@@ -150,4 +150,4 @@ public:
     bool fetchConnectionParameters();
 };
 
-#endif // QSOCKETLAYER_P_H
+#endif // QNATIVESOCKETENGINE_P_H

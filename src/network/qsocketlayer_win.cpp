@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Unix implementation of platform specifics in the QSocketLayer class.
+** Unix implementation of platform specifics in the QNativeSocketEngine class.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -18,9 +18,9 @@
 #include <qabstracteventdispatcher.h>
 #include <qsocketnotifier.h>
 
-//#define QSOCKETLAYER_DEBUG
+//#define QNATIVESOCKETENGINE_DEBUG
 
-#if defined(QSOCKETLAYER_DEBUG)
+#if defined(QNATIVESOCKETENGINE_DEBUG)
 
 #include <qstring.h>
 #include <qbytearray.h>
@@ -278,7 +278,7 @@ QWindowsSockInit::~QWindowsSockInit()
     WSACleanup();
 }
 
-bool QSocketLayerPrivate::createNewSocket(QAbstractSocket::SocketType socketType, QAbstractSocket::NetworkLayerProtocol socketProtocol)
+bool QNativeSocketEnginePrivate::createNewSocket(QAbstractSocket::SocketType socketType, QAbstractSocket::NetworkLayerProtocol socketProtocol)
 {
 
     //### no ip6 support on winsocket 1.1 but we will try not to use this !!!!!!!!!!!!1
@@ -328,24 +328,24 @@ bool QSocketLayerPrivate::createNewSocket(QAbstractSocket::SocketType socketType
 
     Returns the value of the socket option \a opt.
 */
-int QSocketLayerPrivate::option(QSocketLayer::SocketOption opt) const
+int QNativeSocketEnginePrivate::option(QNativeSocketEngine::SocketOption opt) const
 {
-    Q_Q(const QSocketLayer);
+    Q_Q(const QNativeSocketEngine);
     if (!q->isValid())
         return -1;
 
     int n = -1;
     switch (opt) {
-    case QSocketLayer::ReceiveBufferSocketOption:
+    case QNativeSocketEngine::ReceiveBufferSocketOption:
         n = SO_RCVBUF;
         break;
-    case QSocketLayer::SendBufferSocketOption:
+    case QNativeSocketEngine::SendBufferSocketOption:
         n = SO_SNDBUF;
         break;
-    case QSocketLayer::BroadcastSocketOption:
+    case QNativeSocketEngine::BroadcastSocketOption:
         n = SO_BROADCAST;
         break;
-    case QSocketLayer::NonBlockingSocketOption: {
+    case QNativeSocketEngine::NonBlockingSocketOption: {
         unsigned long buf = 0;
         if (WSAIoctl(socketDescriptor, FIONBIO, 0,0, &buf, sizeof(buf), 0,0,0) == 0)
             return buf;
@@ -353,7 +353,7 @@ int QSocketLayerPrivate::option(QSocketLayer::SocketOption opt) const
             return -1;
         break;
     }
-    case QSocketLayer::AddressReusable:
+    case QNativeSocketEngine::AddressReusable:
         n = SO_REUSEADDR;
         break;
     }
@@ -369,24 +369,24 @@ int QSocketLayerPrivate::option(QSocketLayer::SocketOption opt) const
 /*! \internal
     Sets the socket option \a opt to \a v.
 */
-bool QSocketLayerPrivate::setOption(QSocketLayer::SocketOption opt, int v)
+bool QNativeSocketEnginePrivate::setOption(QNativeSocketEngine::SocketOption opt, int v)
 {
-    Q_Q(const QSocketLayer);
+    Q_Q(const QNativeSocketEngine);
     if (!q->isValid())
         return false;
 
     int n = 0;
     switch (opt) {
-    case QSocketLayer::ReceiveBufferSocketOption:
+    case QNativeSocketEngine::ReceiveBufferSocketOption:
         n = SO_RCVBUF;
         break;
-    case QSocketLayer::SendBufferSocketOption:
+    case QNativeSocketEngine::SendBufferSocketOption:
         n = SO_SNDBUF;
         break;
-    case QSocketLayer::BroadcastSocketOption:
+    case QNativeSocketEngine::BroadcastSocketOption:
         n = SO_BROADCAST;
         break;
-    case QSocketLayer::NonBlockingSocketOption:
+    case QNativeSocketEngine::NonBlockingSocketOption:
         {
         unsigned long buf = v;
         unsigned long outBuf;
@@ -398,7 +398,7 @@ bool QSocketLayerPrivate::setOption(QSocketLayer::SocketOption opt, int v)
         return true;
         break;
         }
-    case QSocketLayer::AddressReusable:
+    case QNativeSocketEngine::AddressReusable:
         n = SO_REUSEADDR;
         break;
     }
@@ -414,7 +414,7 @@ bool QSocketLayerPrivate::setOption(QSocketLayer::SocketOption opt, int v)
     Fetches information about both ends of the connection: whatever is
     available.
 */
-bool QSocketLayerPrivate::fetchConnectionParameters()
+bool QNativeSocketEnginePrivate::fetchConnectionParameters()
 {
     localPort = 0;
     localAddress.clear();
@@ -468,7 +468,7 @@ bool QSocketLayerPrivate::fetchConnectionParameters()
 
     socketType = qt_socket_getType(socketDescriptor);
 
-#if defined (QSOCKETLAYER_DEBUG)
+#if defined (QNATIVESOCKETENGINE_DEBUG)
     QString socketProtocolStr = "UnknownProtocol";
     if (socketProtocol == QAbstractSocket::IPv4Protocol) socketProtocolStr = "IPv4Protocol";
     else if (socketProtocol == QAbstractSocket::IPv6Protocol) socketProtocolStr = "IPv6Protocol";
@@ -477,18 +477,18 @@ bool QSocketLayerPrivate::fetchConnectionParameters()
     if (socketType == QAbstractSocket::TcpSocket) socketTypeStr = "TcpSocket";
     else if (socketType == QAbstractSocket::UdpSocket) socketTypeStr = "UdpSocket";
 
-    qDebug("QSocketLayerPrivate::fetchConnectionParameters() localAddress == %s, localPort = %i, peerAddress == %s, peerPort = %i, socketProtocol == %s, socketType == %s", localAddress.toString().toLatin1().constData(), localPort, peerAddress.toString().toLatin1().constData(), peerPort, socketProtocolStr.toLatin1().constData(), socketTypeStr.toLatin1().constData());
+    qDebug("QNativeSocketEnginePrivate::fetchConnectionParameters() localAddress == %s, localPort = %i, peerAddress == %s, peerPort = %i, socketProtocol == %s, socketType == %s", localAddress.toString().toLatin1().constData(), localPort, peerAddress.toString().toLatin1().constData(), peerPort, socketProtocolStr.toLatin1().constData(), socketTypeStr.toLatin1().constData());
 #endif
 
     return true;
 }
 
 
-bool QSocketLayerPrivate::nativeConnect(const QHostAddress &address, quint16 port)
+bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &address, quint16 port)
 {
 
-#if defined (QSOCKETLAYER_DEBUG)
-    qDebug("QSocketLayerPrivate::nativeConnect() to %s :: %i", address.toString().toLatin1().constData(), port);
+#if defined (QNATIVESOCKETENGINE_DEBUG)
+    qDebug("QNativeSocketEnginePrivate::nativeConnect() to %s :: %i", address.toString().toLatin1().constData(), port);
 #endif
 
     struct sockaddr_in sockAddrIPv4;
@@ -532,8 +532,8 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &address, quint16 por
                 break;
             case WSAEINVAL:
                 if (!firstChanceWSAEINVAL) {
-#if defined (QSOCKETLAYER_DEBUG)
-                    qDebug("QSocketLayerPrivate::nativeConnect got WSAEINVAL trying again.");
+#if defined (QNATIVESOCKETENGINE_DEBUG)
+                    qDebug("QNativeSocketEnginePrivate::nativeConnect got WSAEINVAL trying again.");
 #endif
                     firstChanceWSAEINVAL = true;
                     continue;
@@ -544,8 +544,8 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &address, quint16 por
                 break;
             }
             if (socketState != QAbstractSocket::ConnectedState) {
-#if defined (QSOCKETLAYER_DEBUG)
-                qDebug("QSocketLayerPrivate::nativeConnect(%s, %i) == false (%s)",
+#if defined (QNATIVESOCKETENGINE_DEBUG)
+                qDebug("QNativeSocketEnginePrivate::nativeConnect(%s, %i) == false (%s)",
                         address.toString().toLatin1().constData(), port,
                         socketState == QAbstractSocket::ConnectingState
                         ? "Connection in progress" : socketErrorString.toLatin1().constData());
@@ -556,8 +556,8 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &address, quint16 por
         break;
     }
 
-#if defined (QSOCKETLAYER_DEBUG)
-    qDebug("QSocketLayerPrivate::nativeConnect(%s, %i) == true",
+#if defined (QNATIVESOCKETENGINE_DEBUG)
+    qDebug("QNativeSocketEnginePrivate::nativeConnect(%s, %i) == true",
            address.toString().toLatin1().constData(), port);
 #endif
 
@@ -566,7 +566,7 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &address, quint16 por
 }
 
 
-bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, quint16 port)
+bool QNativeSocketEnginePrivate::nativeBind(const QHostAddress &address, quint16 port)
 {
     struct sockaddr_in sockAddrIPv4;
     qt_sockaddr_in6 sockAddrIPv6;
@@ -597,16 +597,16 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, quint16 port)
             break;
         }
 
-#if defined (QSOCKETLAYER_DEBUG)
-        qDebug("QSocketLayerPrivate::nativeBind(%s, %i) == false (%s)",
+#if defined (QNATIVESOCKETENGINE_DEBUG)
+        qDebug("QNativeSocketEnginePrivate::nativeBind(%s, %i) == false (%s)",
                address.toString().toLatin1().constData(), port, socketErrorString.toLatin1().constData());
 #endif
 
         return false;
     }
 
-#if defined (QSOCKETLAYER_DEBUG)
-    qDebug("QSocketLayerPrivate::nativeBind(%s, %i) == true",
+#if defined (QNATIVESOCKETENGINE_DEBUG)
+    qDebug("QNativeSocketEnginePrivate::nativeBind(%s, %i) == true",
            address.toString().toLatin1().constData(), port);
 #endif
     socketState = QAbstractSocket::BoundState;
@@ -614,7 +614,7 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, quint16 port)
 }
 
 
-bool QSocketLayerPrivate::nativeListen(int backlog)
+bool QNativeSocketEnginePrivate::nativeListen(int backlog)
 {
     if (::listen(socketDescriptor, backlog) == SOCKET_ERROR) {
         WS_ERROR_DEBUG
@@ -630,22 +630,22 @@ bool QSocketLayerPrivate::nativeListen(int backlog)
             break;
         }
 
-#if defined (QSOCKETLAYER_DEBUG)
-        qDebug("QSocketLayerPrivate::nativeListen(%i) == false (%s)",
+#if defined (QNATIVESOCKETENGINE_DEBUG)
+        qDebug("QNativeSocketEnginePrivate::nativeListen(%i) == false (%s)",
                backlog, socketErrorString.toLatin1().constData());
 #endif
         return false;
     }
 
-#if defined (QSOCKETLAYER_DEBUG)
-    qDebug("QSocketLayerPrivate::nativeListen(%i) == true", backlog);
+#if defined (QNATIVESOCKETENGINE_DEBUG)
+    qDebug("QNativeSocketEnginePrivate::nativeListen(%i) == true", backlog);
 #endif
 
     socketState = QAbstractSocket::ListeningState;
     return true;
 }
 
-int QSocketLayerPrivate::nativeAccept()
+int QNativeSocketEnginePrivate::nativeAccept()
 {
     int acceptedDescriptor = WSAAccept(socketDescriptor, 0,0,0,0);
 	if (acceptedDescriptor != -1 && QAbstractEventDispatcher::instance()) {
@@ -657,14 +657,14 @@ int QSocketLayerPrivate::nativeAccept()
 		n.setEnabled(true);
 		n.setEnabled(false);
 	}
-#if defined (QSOCKETLAYER_DEBUG)
-    qDebug("QSocketLayerPrivate::nativeAccept() == %i", acceptedDescriptor);
+#if defined (QNATIVESOCKETENGINE_DEBUG)
+    qDebug("QNativeSocketEnginePrivate::nativeAccept() == %i", acceptedDescriptor);
 #endif
     return acceptedDescriptor;
 }
 
 
-qint64 QSocketLayerPrivate::nativeBytesAvailable() const
+qint64 QNativeSocketEnginePrivate::nativeBytesAvailable() const
 {
     unsigned long  nbytes = 0;
     unsigned long dummy = 0;
@@ -692,7 +692,7 @@ qint64 QSocketLayerPrivate::nativeBytesAvailable() const
 }
 
 
-bool QSocketLayerPrivate::nativeHasPendingDatagrams() const
+bool QNativeSocketEnginePrivate::nativeHasPendingDatagrams() const
 {
     // Create a sockaddr struct and reset its port number.
 #if !defined(QT_NO_IPV6)
@@ -732,15 +732,15 @@ bool QSocketLayerPrivate::nativeHasPendingDatagrams() const
 #endif
         result = (storagePtrIPv4->sin_port != 0);
     }
-#if defined (QSOCKETLAYER_DEBUG)
-    qDebug("QSocketLayerPrivate::nativeHasPendingDatagrams() == %s",
+#if defined (QNATIVESOCKETENGINE_DEBUG)
+    qDebug("QNativeSocketEnginePrivate::nativeHasPendingDatagrams() == %s",
            result ? "true" : "false");
 #endif
     return result;
 }
 
 
-qint64 QSocketLayerPrivate::nativePendingDatagramSize() const
+qint64 QNativeSocketEnginePrivate::nativePendingDatagramSize() const
 {
     qint64 ret = -1;
     int recvResult = 0;
@@ -778,15 +778,15 @@ qint64 QSocketLayerPrivate::nativePendingDatagramSize() const
     if (buf)
         delete buf;
 
-#if defined (QSOCKETLAYER_DEBUG)
-    qDebug("QSocketLayerPrivate::nativePendingDatagramSize() == %li", ret);
+#if defined (QNATIVESOCKETENGINE_DEBUG)
+    qDebug("QNativeSocketEnginePrivate::nativePendingDatagramSize() == %li", ret);
 #endif
 
     return ret;
 }
 
 
-qint64 QSocketLayerPrivate::nativeReceiveDatagram(char *data, qint64 maxLength,
+qint64 QNativeSocketEnginePrivate::nativeReceiveDatagram(char *data, qint64 maxLength,
                                                       QHostAddress *address, quint16 *port)
 {
     qint64 ret = 0;
@@ -821,8 +821,8 @@ qint64 QSocketLayerPrivate::nativeReceiveDatagram(char *data, qint64 maxLength,
 
     qt_socket_getPortAndAddress(socketDescriptor, (struct sockaddr *) &aa, port, address);
 
-#if defined (QSOCKETLAYER_DEBUG)
-    qDebug("QSocketLayerPrivate::nativeReceiveDatagram(%p \"%s\", %li, %s, %i) == %li",
+#if defined (QNATIVESOCKETENGINE_DEBUG)
+    qDebug("QNativeSocketEnginePrivate::nativeReceiveDatagram(%p \"%s\", %li, %s, %i) == %li",
            data, qt_prettyDebug(data, qMin<qint64>(ret, 16), ret).data(), maxLength,
            address ? address->toString().toLatin1().constData() : "(nil)",
            port ? *port : 0, ret);
@@ -832,7 +832,7 @@ qint64 QSocketLayerPrivate::nativeReceiveDatagram(char *data, qint64 maxLength,
 }
 
 
-qint64 QSocketLayerPrivate::nativeSendDatagram(const char *data, qint64 len,
+qint64 QNativeSocketEnginePrivate::nativeSendDatagram(const char *data, qint64 len,
                                                    const QHostAddress &address, quint16 port)
 {
     qint64 ret = -1;
@@ -867,8 +867,8 @@ qint64 QSocketLayerPrivate::nativeSendDatagram(const char *data, qint64 len,
             ret = qint64(bytesSent);
         }
     }
-#if defined (QSOCKETLAYER_DEBUG)
-    qDebug("QSocketLayerPrivate::nativeSendDatagram(%p \"%s\", %li, \"%s\", %i) == %li", data,
+#if defined (QNATIVESOCKETENGINE_DEBUG)
+    qDebug("QNativeSocketEnginePrivate::nativeSendDatagram(%p \"%s\", %li, \"%s\", %i) == %li", data,
            qt_prettyDebug(data, qMin<qint64>(len, 16), len).data(), 0, address.toString().toLatin1().constData(),
            port, ret);
 #endif
@@ -877,9 +877,9 @@ qint64 QSocketLayerPrivate::nativeSendDatagram(const char *data, qint64 len,
 }
 
 
-qint64 QSocketLayerPrivate::nativeWrite(const char *data, qint64 len)
+qint64 QNativeSocketEnginePrivate::nativeWrite(const char *data, qint64 len)
 {
-    Q_Q(QSocketLayer);
+    Q_Q(QNativeSocketEngine);
     qint64 ret = 0;
     // don't send more than 49152 per call to WSASendTo to avoid getting a WSAENOBUFS
     for (;;) {
@@ -917,15 +917,15 @@ qint64 QSocketLayerPrivate::nativeWrite(const char *data, qint64 len)
         }
     }
 
-#if defined (QSOCKETLAYER_DEBUG)
-    qDebug("QSocketLayerPrivate::nativeWrite(%p \"%s\", %li) == %li",
+#if defined (QNATIVESOCKETENGINE_DEBUG)
+    qDebug("QNativeSocketEnginePrivate::nativeWrite(%p \"%s\", %li) == %li",
            data, qt_prettyDebug(data, qMin((int)ret, 16), (int)ret).data(), (int)len, (int)ret);
 #endif
 
     return ret;
 }
 
-qint64 QSocketLayerPrivate::nativeRead(char *data, qint64 maxLength)
+qint64 QNativeSocketEnginePrivate::nativeRead(char *data, qint64 maxLength)
 {
     qint64 ret = -1;
     WSABUF buf;
@@ -942,7 +942,7 @@ qint64 QSocketLayerPrivate::nativeRead(char *data, qint64 maxLength)
             break;
         case WSAECONNRESET:
         case WSAECONNABORTED:
-            // for tcp sockets this will be handled in QSocketLayer::read
+            // for tcp sockets this will be handled in QNativeSocketEngine::read
             ret = 0;
             break;
         default:
@@ -953,15 +953,15 @@ qint64 QSocketLayerPrivate::nativeRead(char *data, qint64 maxLength)
 	ret = qint64(bytesRead);
     }
 
-#if defined (QSOCKETLAYER_DEBUG)
-    qDebug("QSocketLayerPrivate::nativeRead(%p \"%s\", %l) == %li",
+#if defined (QNATIVESOCKETENGINE_DEBUG)
+    qDebug("QNativeSocketEnginePrivate::nativeRead(%p \"%s\", %l) == %li",
            data, qt_prettyDebug(data, qMin((int)bytesRead, 16), (int)bytesRead).data(), (int)maxLength, (int)ret);
 #endif
 
     return ret;
 }
 
-int QSocketLayerPrivate::nativeSelect(int timeout, bool selectForRead) const
+int QNativeSocketEnginePrivate::nativeSelect(int timeout, bool selectForRead) const
 {
     fd_set fds;
     memset(&fds, 0, sizeof(fd_set));
@@ -978,7 +978,7 @@ int QSocketLayerPrivate::nativeSelect(int timeout, bool selectForRead) const
         return select(0, 0, &fds, 0, timeout < 0 ? 0 : &tv);
 }
 
-int QSocketLayerPrivate::nativeSelect(int timeout,
+int QNativeSocketEnginePrivate::nativeSelect(int timeout,
                                       bool checkRead, bool checkWrite,
                                       bool *selectForRead, bool *selectForWrite) const
 {
@@ -1009,10 +1009,10 @@ int QSocketLayerPrivate::nativeSelect(int timeout,
     return ret;
 }
 
-void QSocketLayerPrivate::nativeClose()
+void QNativeSocketEnginePrivate::nativeClose()
 {
 #if defined (QTCPSOCKETENGINE_DEBUG)
-    qDebug("QSocketLayerPrivate::nativeClose()");
+    qDebug("QNativeSocketEnginePrivate::nativeClose()");
 #endif
     ::closesocket(socketDescriptor);
 }

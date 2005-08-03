@@ -178,7 +178,7 @@ int QHostInfo::lookupHost(const QString &name, QObject *receiver,
     }
 
 #if defined Q_OS_WIN32
-    QSocketLayer bust; // makes sure WSAStartup was callled
+    QWindowsSockInit bust; // makes sure WSAStartup was callled
 #endif
 
     // Support for IDNA by first splitting the name into labels, then
