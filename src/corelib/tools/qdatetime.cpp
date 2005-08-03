@@ -1742,8 +1742,10 @@ QTime QTime::fromString(const QString& s, Qt::DateFormat f)
     int hour(s.mid(0, 2).toInt());
     int minute(s.mid(3, 2).toInt());
     int second(s.mid(6, 2).toInt());
-    int msec(s.mid(9, 3).toInt());
-    return QTime(hour, minute, second, msec);
+
+    QString msec_s(QLatin1String("0.") + s.mid(9, 4));
+    float msec(msec_s.toFloat());
+    return QTime(hour, minute, second, qRound(msec * 1000.0));
 }
 #endif
 
@@ -2616,9 +2618,17 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
         qWarning("QDateTime::fromString: Parameter out of range");
         return QDateTime();
     }
-    if (f == Qt::ISODate) {
-        return QDateTime(QDate::fromString(s.mid(0, 10), Qt::ISODate),
-                         QTime::fromString(s.mid(11), Qt::ISODate));
+    if (f == Qt::ISODate) {        
+        QString tmp = s;        
+        Qt::TimeSpec ts = Qt::LocalTime;
+
+        // Recognize UTC specifications
+        if (tmp.endsWith(QLatin1Char('Z'))) {            
+            ts = Qt::UTC;
+            tmp.chop(1);
+        }
+        return QDateTime(QDate::fromString(tmp.mid(0, 10), Qt::ISODate),
+                         QTime::fromString(tmp.mid(11), Qt::ISODate), ts);
     }
 #if !defined(QT_NO_REGEXP) && !defined(QT_NO_TEXTDATE)
     else if (f == Qt::TextDate) {
