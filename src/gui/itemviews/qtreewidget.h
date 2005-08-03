@@ -41,6 +41,7 @@ public:
     explicit QTreeWidgetItem(QTreeWidgetItem *parent, int type = Type);
     QTreeWidgetItem(QTreeWidgetItem *parent, const QStringList &strings, int type = Type);
     QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after, int type = Type);
+    QTreeWidgetItem(const QTreeWidgetItem &other);
     virtual ~QTreeWidgetItem();
 
     virtual QTreeWidgetItem *clone() const;

@@ -122,7 +122,7 @@ private:
 */
 
 QTreeModel::QTreeModel(int columns, QObject *parent)
-    : QAbstractItemModel(parent), header(new QTreeWidgetItem()),
+    : QAbstractItemModel(parent), header(new QTreeWidgetItem),
       sorting(Qt::AscendingOrder)
 {
     setColumnCount(columns);
@@ -402,7 +402,6 @@ bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
 }
 
 /*!
-  \internal
   \reimp
 
   Returns the flags for the item refered to the given \a index.
@@ -602,9 +601,7 @@ QTreeWidgetItem* QTreeModel::previousSibling(const QTreeWidgetItem* item)
     else
         siblings = item->model->tree;
     int i = siblings.indexOf(const_cast<QTreeWidgetItem*>(item)) - 1;
-    if (i >= 0 && i < siblings.count())
-        return siblings.at(i);
-    return 0;
+    return siblings.value(i);
 }
 
 void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::SortOrder order)
@@ -1136,13 +1133,11 @@ QTreeWidgetItem::~QTreeWidgetItem()
 }
 
 /*!
-  Creates a deep copy of the item and it's children.
+    Creates a deep copy of the item and of its children.
 */
-
 QTreeWidgetItem *QTreeWidgetItem::clone() const
 {
-    QTreeWidgetItem *copy = new QTreeWidgetItem();
-    *copy = *this;
+    QTreeWidgetItem *copy = new QTreeWidgetItem(*this);
 
     QStack<const QTreeWidgetItem*> stack;
     QStack<QTreeWidgetItem*> parentStack;
@@ -1158,8 +1153,7 @@ QTreeWidgetItem *QTreeWidgetItem::clone() const
         parent = parentStack.pop();
 
         // copy item
-        copy = new QTreeWidgetItem();
-        *copy = *item;
+        copy = new QTreeWidgetItem(*item);
         if (!root)
             root = copy;
 
@@ -1258,6 +1252,22 @@ void QTreeWidgetItem::read(QDataStream &in)
 void QTreeWidgetItem::write(QDataStream &out) const
 {
     out << values;
+}
+
+/*!
+    \since 4.1
+
+    Constructs a copy of \a other. Note that type() and treeWidget()
+    are not copied.
+
+    This function is useful when reimplementing clone().
+
+    \sa data(), flags()
+*/
+QTreeWidgetItem::QTreeWidgetItem(const QTreeWidgetItem &other)
+    : rtti(Type), values(other.values), view(0), model(0), par(0),
+      itemFlags(other.itemFlags)
+{
 }
 
 /*!
