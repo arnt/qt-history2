@@ -1048,8 +1048,16 @@ QWidget *QApplicationPrivate::widgetAt_sys(int x, int y)
     HIViewRef child;
     const QPoint qpt = widget->mapFromGlobal(QPoint(x, y));
     const HIPoint pt = CGPointMake(qpt.x(), qpt.y());
-    if(HIViewGetSubviewHit((HIViewRef)widget->winId(), &pt, true, &child) == noErr && child)
+    if(HIViewGetSubviewHit((HIViewRef)widget->winId(), &pt, true, &child) == noErr && child) {
         widget = QWidget::find((WId)child);
+        while (widget && widget->testAttribute(Qt::WA_TransparentForMouseEvents)) {
+            if (HIViewRef parent = HIViewGetSuperview(child)) {
+                widget = QWidget::find((WId)parent);
+            } else {
+                widget = 0;
+            }
+        }
+    }
     return widget;
 }
 
