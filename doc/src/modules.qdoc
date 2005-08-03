@@ -1,0 +1,39 @@
+/*!
+    \page modules.html
+    \title Qt's Modules
+    \startpage index.html Qt Reference Documentation
+    \nextpage QtCore
+
+    Qt 4 consists of several modules, each of which lives in a
+    separate library.
+
+    \table 80%
+    \row \o \l{QtCore} \o Core non-GUI classes used by other modules
+    \row \o \l{QtGui} \o Graphical user interface components
+    \row \o \l{QtNetwork} \o Classes for network programming
+    \row \o \l{QtOpenGL} \o OpenGL support classes
+    \row \o \l{QtSql} \o Classes for database integration using SQL
+    \row \o \l{QtXml} \o Classes for handling XML
+    \row \o \l{QtDesigner} \o Classes for extending \QD
+    \row \o \l{QtAssistant} \o Support for online help
+    \row \o \l{Qt3Support} \o Qt 3 compatibility classes
+    \endtable
+
+    The following extension modules are available in the \l{Qt
+    Commercial Editions} on Windows:
+
+    \table 80%
+    \row \o \l{QAxContainer} \o Extension for accessing ActiveX controls
+    \row \o \l{QAxServer} \o Extension for writing ActiveX servers
+    \endtable
+
+    If you use \l qmake to build your projects, the QtCore and QtGui
+    modules are included by default. To link only against QtCore, add
+    the following line to your \c .pro file:
+
+    \code
+        QT -= gui
+    \endcode
+
+    \sa {Qt's Classes}
+*/

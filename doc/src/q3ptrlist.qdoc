@@ -747,25 +747,25 @@
 */
 
 /*!
-    \enum Q3PtrList::iterator
+    \typedef Q3PtrList::iterator
 
     \internal
 */
 
 /*!
-    \enum Q3PtrList::Iterator
+    \typedef Q3PtrList::Iterator
 
     \internal
 */
 
 /*!
-    \enum Q3PtrList::ConstIterator
+    \typedef Q3PtrList::ConstIterator
 
     \internal
 */
 
 /*!
-    \enum Q3PtrList::const_iterator
+    \typedef Q3PtrList::const_iterator
 
     \internal
 */

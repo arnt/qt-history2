@@ -47,7 +47,7 @@
     different platforms supported by Qt. Atomic reference counting is
     very fast, much faster than using a mutex.
 
-    See the \l{threads.html}{Thread Overview} for more information.
+    See \l{Thread Support in Qt} for more information.
 
     \section1 Comparison with Qt 3
 

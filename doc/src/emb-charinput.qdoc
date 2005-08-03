@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-/* NOT DOCUMENTED
+/*!
     \page emb-charinput.html
 
     \title Character Input in Qtopia Core
@@ -27,8 +27,8 @@
     \row \i \c{keycode}
          \i Qt keycode value as defined in \c qnamespace.h
     \row \i \c{modifier}
-         \i A bitfield consisting of some of \c Qt::ShiftButton,
-	    \c Qt::ControlButton, and \c Qt::AltButton.
+         \i A bitfield consisting of some of Qt::ShiftButton,
+	    Qt::ControlButton, and Qt::AltButton.
     \row \i \c{is_press}
          \i true if this is a key press, false if it is a key release.
     \row \i \c{is_auto_repeat}
@@ -40,7 +40,7 @@
     the right window, if any. Key events may come from several different
     sources.
 
-    \section1 Keyboard drivers
+    \section1 Keyboard Drivers
 
     A keyboard driver reads data from a device and gives key events to the
     server.
@@ -75,7 +75,7 @@
     and call QWSPC101KeyboardHandler::doKey() with the keycodes as
     keys are pressed.
 
-    \section1 Pen input
+    \section1 Pen Input
 
     Key events do not need to come from a keyboard device. The server
     process may call QWSServer::sendKeyEvent() at any time.

@@ -1,6 +1,5 @@
-/* NOT DOCUMENTED
+/*!
     \page emb-vnc.html
-
     \title Qtopia Core as a VNC Server
 
     The \link http://www.uk.research.att.com/vnc/ VNC \endlink protocol

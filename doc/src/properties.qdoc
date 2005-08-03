@@ -135,7 +135,7 @@
         obj->setProperty("priority", "VeryHigh");
     \endcode
 
-    In the case of \c QList and \c QMap properties, the value passes
+    In the case of QList and QMap properties, the value passes
     is a QVariant whose value is the entire list or map.
 
     \section1 Header Files

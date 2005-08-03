@@ -112,8 +112,8 @@
     initialization of the object is complete.
 
     To create events of a custom type, you need to define an event
-    number, which must be greater than \c QEvent::User, and probably
+    number, which must be greater than QEvent::User, and probably
     you also need to subclass QEvent in order to pass characteristics
-    about your custom event. See the \l QEvent documentation for
+    about your custom event. See the QEvent documentation for
     details.
 */

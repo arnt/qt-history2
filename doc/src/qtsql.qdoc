@@ -1,27 +1,56 @@
-/****************************************************************************
-**
-** Documentation for sql programming.
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the Qt GUI Toolkit.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
-
 /*!
-    \page sql.html
-    \title SQL Module
+    \module QtSql
+    \title QtSql Module
+    \contentspage Qt's Modules
+    \previouspage QtOpenGL
+    \nextpage QtXml
 
-    Qt's SQL classes help you provide seamless database integration
-    to your Qt applications.
+    \brief The QtSql module helps you provide seamless database
+    integration to your Qt applications.
 
-    This document is divided into the following sections:
+    The SQL classes are divided into three layers:
 
-    \tableofcontents
+    \table
+    \header \o Layer     \o Description
+    \row    \o \bold{Driver Layer}
+            \o This comprises the classes QSqlDriver,
+               QSqlDriverCreator<T>, QSqlDriverCreatorBase,
+               QSqlDriverPlugin, and QSqlResult. This layer provides the
+               low-level bridge between the specific databases and the
+               SQL API layer. See \l{SQL Database Drivers} for more
+               information.
+    \row    \o \bold{SQL API Layer}
+            \o These classes provide access to databases. Connections
+               are made using the QSqlDatabase class. Database
+               interaction is achieved by using the QSqlQuery class.
+               In addition to QSqlDatabase and QSqlQuery, the SQL API
+               layer is supported by QSqlError, QSqlField, QSqlIndex,
+               and QSqlRecord.
+
+    \row    \o \bold{User Interface Layer}
+            \o These classes link the data from a database to
+               data-aware widgets. They include QSqlQueryModel,
+               QSqlTableModel, and QSqlRelationalTableModel. These
+               classes are designed to work with Qt's model/view
+               framework.
+    \endtable
+
+    To include the definitions of the module's classes, use the
+    following directive:
+
+    \code
+        #include <QtSql>
+    \endcode
+
+    To link against the module, add this line to your \l qmake \c
+    .pro file:
+
+    \code
+        QT += sql
+    \endcode
+
+    The QtSql module is part of the \l{Qt Console Edition}, the \l{Qt
+    Desktop Edition}, and the \l{Qt Open Source Edition}.
 
     This overview assumes that you have at least a basic knowledge of
     SQL. You should be able to understand simple \c SELECT, \c
@@ -32,47 +61,9 @@
     covering SQL databases is \e {An Introduction to Database Systems}
     (7th Ed.) by C. J. Date, ISBN 0201385902.
 
-    \section1 Configuring the Build Process
+    Topics:
 
-    Applications that use Qt's SQL classes need to be configured to
-    be built against the QtSql module. The following declaration in a
-    \c qmake project file ensures that an application is compiled and
-    linked appropriately:
-
-    \code
-        QT += sql
-    \endcode
-
-    This line is necessary because only the QtCore and QtGui modules
-    are used in the default build process.
-
-    \section1 SQL Module Architecture
-
-    The SQL classes are divided into three layers:
-
-    \list
-    \o \bold{Driver Layer.}
-            This comprises the classes QSqlDriver,
-            QSqlDriverCreator<T>, QSqlDriverCreatorBase,
-            QSqlDriverPlugin, and QSqlResult. This layer provides the
-            low-level bridge between the specific databases and the
-            SQL API layer. It is \l{sql-driver.html}{documented
-            separately} since it is only relevant to driver writers.
-
-    \o \bold{SQL API Layer.}
-            These classes provide access to databases. Connections
-            are made using the QSqlDatabase class. Database
-            interaction is achieved by using the QSqlQuery class. In
-            addition to QSqlDatabase and QSqlQuery, the SQL API layer
-            is supported by QSqlError, QSqlField, QSqlIndex, and
-            QSqlRecord.
-
-    \o \bold{User Interface Layer.}
-            These classes link the data from a database to data-aware
-            widgets. They include QSqlQueryModel, QSqlTableModel, and
-            QSqlRelationalTableModel. These classes are designed to
-            work with Qt's \l{model/view classes}.
-    \endlist
+    \tableofcontents
 
     \section1 Connecting to Databases
 
@@ -139,7 +130,7 @@
     The QSqlQueryModel and QSqlTableModel classes described in the
     next section provide a higher-level interface for accessing
     databases. If you are unfamiliar with SQL, you might want to skip
-    directly to the next section (\l{Using SQL Model Classes}).
+    directly to the next section (\l{Using the SQL Model Classes}).
 
     \section2 Executing a Query
 

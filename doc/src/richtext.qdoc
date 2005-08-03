@@ -6,7 +6,7 @@
 
 The Scribe framework provides a set of classes for reading and manipulating
 structured rich text documents. Unlike previous rich text support in Qt, the
-new classes are centered around the \c QTextDocument class rather than raw
+new classes are centered around the QTextDocument class rather than raw
 textual information. This enables the developer to create and modify
 structured rich text documents without having to prepare content in an
 intermediate markup format.
@@ -53,7 +53,7 @@ displayed. Generally, frames and tables are used to group other
 structures while text blocks contain the actual textual information.
 
 New elements are created and inserted into the document programmatically
-\l{richtext-cursor.html}{with a \c QTextCursor} or by using an editor
+\l{richtext-cursor.html}{with a QTextCursor} or by using an editor
 widget, such as QTextEdit. Elements can be given a particular format when
 they are created; otherwise they take the cursor's current format for the
 element.
@@ -338,8 +338,8 @@ document elements to more complex manipulation of document structures.
 
 At the simplest level, text documents are made up of a string of characters,
 marked up in some way to represent the block structure of the text within the
-document. \c QTextCursor provides a cursor-based interface that allows the
-contents of a \c QTextDocument to be manipulated at the character level. Since
+document. QTextCursor provides a cursor-based interface that allows the
+contents of a QTextDocument to be manipulated at the character level. Since
 the elements (blocks, frames, tables, etc.) are also encoded in the character
 stream, the document structure can itself be changed by the cursor.
 
@@ -388,8 +388,8 @@ many useful operations together.
 \section2 Multiple Cursors
 
 Multiple cursors can be used to simultaneously edit the same document,
-although only one will be visible to the user in a \c QTextEdit widget.
-The \c QTextDocument ensures that each cursor writes text correctly and
+although only one will be visible to the user in a QTextEdit widget.
+The QTextDocument ensures that each cursor writes text correctly and
 does not interfere with any of the others. 
 
 \omit
@@ -579,7 +579,7 @@ different kinds of symbol for the bullet points in each level of the list.
 
 Inline images are added to documents through the cursor in the usual manner.
 Unlike many other elements, all of the image properties are specified by the
-image's format. This means that a \c QTextImageFormat object has to be
+image's format. This means that a QTextImageFormat object has to be
 created before an image can be inserted:
 
 \quotefromfile snippets/textdocument-images/main.cpp
@@ -603,8 +603,8 @@ The method used to derive this name is described in
 
 There are a number of tasks that are often performed by developers
 when editing and processing text documents using Qt. These include the use
-of display widgets such as \c QTextBrowser and \c QTextEdit, creation of
-documents with \c QTextDocument, editing using a \c QTextCursor, and
+of display widgets such as QTextBrowser and QTextEdit, creation of
+documents with QTextDocument, editing using a QTextCursor, and
 exporting the document structure.
 This document outlines some of the more common ways of using the rich
 text classes to perform these tasks, showing convenient patterns that can
@@ -635,7 +635,7 @@ The text editor's cursor may also be used to edit a document:
     QTextCursor cursor = editor->textCursor();
 \endcode
 
-Although a document can be edited using many cursors at once, a \c QTextEdit
+Although a document can be edited using many cursors at once, a QTextEdit
 only displays a single cursor at a time. Therefore, if we want to update the
 editor to display a particular cursor or its selection, we need to set the
 editor's cursor after we have modified the document:
@@ -659,13 +659,13 @@ selecting text:
 \skipto cursor.movePosition(QTextCursor::StartOfWord);
 \printuntil cursor.movePosition(QTextCursor::EndOfWord
 
-In the above code, a whole word is selected using this method. \c QTextCursor
+In the above code, a whole word is selected using this method. QTextCursor
 provides a number of common move operations for selecting individual
 characters, words, lines, and whole blocks.
 
 \section1 Finding Text
 
-\c QTextDocument provides a cursor-based interface for searching, making
+QTextDocument provides a cursor-based interface for searching, making
 it easy to find and modify text in the style of a text editor. The following
 code finds all the instances of a particular word in a document, and changes
 the color of each:

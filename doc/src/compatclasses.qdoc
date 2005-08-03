@@ -1,0 +1,12 @@
+/*!
+    \page compatclasses.html
+    \title Qt 3 Compatibility Classes
+
+    This is a list of the classes that Qt provides for compatibility
+    with Qt 3. The vast majority of these are provided by the
+    Qt3Support module.
+
+    \generatelist compatclasses
+
+    \sa {Qt's Classes}, {Qt's Modules}
+*/

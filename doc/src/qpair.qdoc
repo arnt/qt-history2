@@ -54,14 +54,14 @@
     \sa {Generic Containers}
 */
 
-/*! \enum QPair::first_type
+/*! \typedef QPair::first_type
 
     The type of the first element in the pair (T1).
 
     \sa first
 */
 
-/*! \enum QPair::second_type
+/*! \typedef QPair::second_type
 
     The type of the second element in the pair (T2).
 

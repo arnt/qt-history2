@@ -114,15 +114,15 @@
     Automatically converts the Q3MemArray<type> into a QVector<type>.
 */
 
-/*! \enum Q3MemArray::Iterator
+/*! \typedef Q3MemArray::Iterator
     A Q3MemArray iterator.
     \sa begin() end()
 */
-/*! \enum Q3MemArray::ConstIterator
+/*! \typedef Q3MemArray::ConstIterator
     A const Q3MemArray iterator.
     \sa begin() end()
 */
-/*! \enum Q3MemArray::ValueType
+/*! \typedef Q3MemArray::ValueType
     \internal
 */
 

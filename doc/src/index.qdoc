@@ -156,10 +156,10 @@
         <li><a href="qt4-mainwindow.html">Main Window Architecture</a></li>
         <li><a href="richtext.html">Rich Text Processing</a></li>
         <li><a href="model-view-programming.html">Model/View Programming</a></li>
-        <li><a href="sql.html">SQL Module</a></li>
-        <li><a href="networking.html">Network Module</a></li>
-        <li><a href="xml.html">XML Module</a></li>
-        <li><a href="opengl.html">OpenGL Module</a></li>
+        <li><a href="qtnetwork.html">Network Module</a></li>
+        <li><a href="qtopengl.html">OpenGL Module</a></li>
+        <li><a href="qtsql.html">SQL Module</a></li>
+        <li><a href="qtxml.html">XML Module</a></li>
         </ul>
         </td>
         </tr>

@@ -1,6 +1,6 @@
 /*!
     \class Q3PopupMenu
-    \brief The Q3PopupMenu is a thin compatibility wrapper around QMenu.
+    \brief The Q3PopupMenu class is a thin compatibility wrapper around QMenu.
     \compat
 
     Use QMenu in new applications.

@@ -95,11 +95,11 @@
     There are two flags that are helpful when wanting to define Mac OS X specific code:
 
     \list
-    \o \c Q_OS_DARWIN is defined when Qt detects you are on a Darwin-based system (including the Open Source version)
-    \o \c Q_WS_MAC is defined when we the Mac OS X GUI is present.
+    \o Q_OS_DARWIN is defined when Qt detects you are on a Darwin-based system (including the Open Source version)
+    \o Q_WS_MAC is defined when we the Mac OS X GUI is present.
     \endlist
 
-    \c Q_OS_MAC is defined as a convenience and is available whenever Q_OS_DARWIN is defined.
+    Q_OS_MAC is defined as a convenience and is available whenever Q_OS_DARWIN is defined.
 
     If you desire to define for specific versions of Mac OS X, use the
     availability macros defined in /usr/include/AvailabilityMacros.h.

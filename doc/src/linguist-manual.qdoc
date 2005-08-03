@@ -136,16 +136,36 @@
 		          superapp_se.ts
     \endcode
 
-    \l QTextCodec::setCodecForTr() makes it possible to choose a
+     QTextCodec::setCodecForTr() makes it possible to choose a
     8-bit encoding for literal strings that appear within \c tr() calls.
     This is useful for applications whose source language is, for example,
     Chinese or Japanese. If no encoding is set, \c tr() uses Latin1.
 
-    If you do use the \l QTextCodec::codecForTr() mechanism in your
-    application, \e {Qt Linguist} needs you to set the \c DEFAULTCODEC
+    If you do use the QTextCodec::codecForTr() mechanism in your
+    application, \e {Qt Linguist} needs you to set the \c CODECFORTR
     entry in the \c .pro file as well. For example:
+
     \code
-        DEFAULTCODEC    = ISO-8859-5
+        CODECFORTR      = ISO-8859-5
+    \endcode
+
+    Also, if your compiler uses a different encoding for its runtime
+    system as for its source code and you want to use  non-ASCII
+    characters in string literals, you will need to set the \c
+    CODECFORSRC. For example:
+    
+    \code
+        CODECFORSRC     = UTF-8
+    \endcode
+
+    Microsoft Visual Studio 2005 .NET appears to be the only compiler
+    for which this is necessary. However, if you want to write
+    portable code, we recommend that you avoid non-ASCII characters
+    in your source files. You can still specify non-ASCII characters
+    portably using escape sequences, for example:
+
+    \code
+        label->setText(tr("F\252r \310lise"));
     \endcode
 
     \section1 lupdate
@@ -879,7 +899,7 @@
         button = new QPushButton(tr("&Quit"), this);
     \endcode
 
-    All \l QObject subclasses that use the \c Q_OBJECT macro implement
+    All \l QObject subclasses that use the Q_OBJECT macro implement
     the \c tr() function.
 
     Although the \c tr() call is normally made directly since it is

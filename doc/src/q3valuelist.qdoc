@@ -159,23 +159,23 @@
     \sa Q3ValueListIterator
 */
 
-/*! \enum Q3ValueList::iterator
+/*! \typedef Q3ValueList::iterator
 	The list's iterator type, Q3ValueListIterator. */
-/*! \enum Q3ValueList::const_iterator
+/*! \typedef Q3ValueList::const_iterator
 	The list's const iterator type, Q3ValueListConstIterator. */
-/*! \enum Q3ValueList::value_type
+/*! \typedef Q3ValueList::value_type
 	The type of the object stored in the list, T. */
-/*! \enum Q3ValueList::pointer
+/*! \typedef Q3ValueList::pointer
 	The pointer to T type. */
-/*! \enum Q3ValueList::const_pointer
+/*! \typedef Q3ValueList::const_pointer
 	The const pointer to T type. */
-/*! \enum Q3ValueList::reference
+/*! \typedef Q3ValueList::reference
 	The reference to T type. */
-/*! \enum Q3ValueList::const_reference
+/*! \typedef Q3ValueList::const_reference
 	The const reference to T type. */
-/*! \enum Q3ValueList::size_type
+/*! \typedef Q3ValueList::size_type
 	An unsigned integral type, used to represent various sizes. */
-/*! \enum Q3ValueList::difference_type
+/*! \typedef Q3ValueList::difference_type
     \internal
 */
 /*!
@@ -569,7 +569,7 @@
 */
 
 /*!
-    \enum Q3ValueList::Iterator
+    \typedef Q3ValueList::Iterator
 
     This iterator is an instantiation of Q3ValueListIterator for the
     same type as this Q3ValueList. In other words, if you instantiate
@@ -586,7 +586,7 @@
 */
 
 /*!
-    \enum Q3ValueList::ConstIterator
+    \typedef Q3ValueList::ConstIterator
 
     This iterator is an instantiation of Q3ValueListConstIterator for
     the same type as this Q3ValueList. In other words, if you

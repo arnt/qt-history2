@@ -1,4 +1,4 @@
-/* NOT DOCUMENTED
+/*!
     \page emb-differences.html
     \title Porting Your Applications to Qtopia Core
 
@@ -21,8 +21,9 @@
 
     The default configuration of Qtopia Core requires the following flags to be defined when compiling
     applications:
+
     \code
-    -DQWS -fno-exceptions -fno-rtti
+        -DQWS -fno-exceptions -fno-rtti
     \endcode
 
     Exceptions and RTTI are disabled in Qtopia Core because they incur a large

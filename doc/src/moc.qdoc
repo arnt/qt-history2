@@ -20,7 +20,7 @@
     \l{Meta-Object System}{Qt's C++ extensions}.
 
     The \c moc tool reads a C++ header file. If it finds one or more
-    class declarations that contain the \c Q_OBJECT macro, it
+    class declarations that contain the Q_OBJECT macro, it
     produces a C++ source file containing the meta-object code for
     those classes. Among other things, meta-object code is required
     for the signals and slots mechanism, the run-time type information,
@@ -73,7 +73,7 @@
     will fail in the final link phase. If you use \c qmake, this is
     done automatically. Whenever \c qmake is run, it parses the
     project's header files and generates make rules to invoke \c moc
-    for those files that contain a \c Q_OBJECT macro.
+    for those files that contain a Q_OBJECT macro.
 
     If the class declaration is found in the file \c myclass.h, the
     moc output should be put in a file called \c moc_myclass.cpp.
@@ -96,7 +96,7 @@
     If you want to create your makefiles yourself, here are some tips
     on how to include moc handling.
 
-    For \c Q_OBJECT class declarations in header files, here is a
+    For Q_OBJECT class declarations in header files, here is a
     useful makefile rule if you only use GNU make:
 
     \code
@@ -120,7 +120,7 @@
     use any other extension, such as \c .C, \c .cc, \c .CC, \c .cxx,
     and \c .c++, if you prefer.)
 
-    For \c Q_OBJECT class declarations in implementation (\c .cpp)
+    For Q_OBJECT class declarations in implementation (\c .cpp)
     files, we suggest a makefile rule like this:
 
     \code
@@ -215,7 +215,7 @@
     \section1 Diagnostics
 
     \c moc will warn you about a number of dangerous or illegal
-    constructs in the \c Q_OBJECT class declarations.
+    constructs in the Q_OBJECT class declarations.
 
     If you get linkage errors in the final building phase of your
     program, saying that \c YourClass::className() is undefined or

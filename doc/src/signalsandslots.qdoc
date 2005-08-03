@@ -117,7 +117,7 @@
     signal, \c{valueChanged()}, and it has a slot which other objects
     can send signals to.
 
-    All classes that contain signals or slots must mention \c
+    All classes that contain signals or slots must mention
     Q_OBJECT at the top of their declaration. They must also derive
     (directly or indirectly) from QObject.
 
@@ -313,7 +313,7 @@
     knowledge, via QFrame and QWidget. It is somewhat similar to the
     built-in QLCDNumber widget.
 
-    The \c Q_OBJECT macro is expanded by the preprocessor to declare
+    The Q_OBJECT macro is expanded by the preprocessor to declare
     several member functions that are implemented by the \c{moc}; if
     you get compiler errors along the lines of "undefined reference
     to vtable for \c{LcdNumber}", you have probably forgotten to

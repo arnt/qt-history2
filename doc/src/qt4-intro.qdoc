@@ -51,7 +51,7 @@
     any device (widget, pixmap, etc.).
     \o Enhanced \l{qt4-threads.html}{thread support}, with signal-slot
     connections across threads and per-thread event loops.
-    \o A new \l{resources.html}{resource system} for embedding images
+    \o A new \l{resource system} for embedding images
     and other resource files into the application executable.
     \endlist
 
@@ -175,7 +175,7 @@
     Qt 4; you must write \c Qt::yellow or add the "using namespace"
     directive and drop the \c Qt:: prefix.
 
-    The \l{qt3to4.html}{qt3to4 porting tool} automates this conversion.
+    The \l qt3to4.html porting tool automates this conversion.
 
     \section1 QObject/QWidget Constructors
 

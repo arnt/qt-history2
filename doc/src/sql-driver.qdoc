@@ -12,17 +12,17 @@
 **
 ****************************************************************************/
 
-/*! \page sql-driver.html
-
+/*!
+    \page sql-driver.html
     \title SQL Database Drivers
 
-    The \l{sql.html}{SQL Module} uses driver
-    \l{plugins-howto.html}{plugins} to communicate with the different
-    database APIs. Since Qt's SQL Module API is database-independent,
-    all database-specific code is contained within these drivers.
-    Several drivers are supplied with Qt and other drivers can be
-    added. The driver source code is supplied and can be used as a
-    model for \l{#development}{writing your own drivers}.
+    The QtSql module uses driver \l{How to Create Qt
+    Plugins}{plugins} to communicate with the different database
+    APIs. Since Qt's SQL Module API is database-independent, all
+    database-specific code is contained within these drivers. Several
+    drivers are supplied with Qt and other drivers can be added. The
+    driver source code is supplied and can be used as a model for
+    \l{#development}{writing your own drivers}.
 
     \tableofcontents
 
@@ -122,9 +122,9 @@
     \c{libmysqlclient.so}. Depending on your Linux distribution you may
     need to install a package which is usually called "mysql-devel".
 
-    Tell \link qmake-manual.html qmake\endlink where to find the MySQL
-    header files and shared libraries (here it is assumed that MySQL is
-    installed in \c{/usr/local}) and run \c{make}:
+    Tell \l qmake where to find the MySQL header files and shared
+    libraries (here it is assumed that MySQL is installed in
+    \c{/usr/local}) and run \c{make}:
 
     \code
         cd $QTDIR/src/plugins/sqldrivers/mysql
@@ -638,13 +638,12 @@
     Qt SQL driver, both of these classes must to be subclassed and the
     abstract virtual methods in each class must be implemented. 
 
-    To implement a Qt SQL driver as a plugin (so that it is recognized and
-    loaded by the Qt library at runtime), the driver must use the
-    \c Q_EXPORT_PLUGIN macro. Read the \link plugins-howto.html Qt
-    Plugin\endlink documentation for more information on this. You can
-    also check out how this is done in the SQL plugins that are provided
-    with Qt in \c{QTDIR/src/plugins/sqldrivers} and
-    \c{QTDIR/src/sql/drivers}.
+    To implement a Qt SQL driver as a plugin (so that it is
+    recognized and loaded by the Qt library at runtime), the driver
+    must use the Q_EXPORT_PLUGIN() macro. Read \l{How to Create Qt
+    Plugins} for more information on this. You can also check out how
+    this is done in the SQL plugins that are provided with Qt in
+    \c{QTDIR/src/plugins/sqldrivers} and \c{QTDIR/src/sql/drivers}.
 
     The following code can be used as a skeleton for a SQL driver:
 

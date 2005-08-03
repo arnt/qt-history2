@@ -2,6 +2,8 @@
     \page qt3to4.html
     \title qt3to4 - The Qt 3 to 4 Porting Tool
 
+    \keyword qt3to4
+
     The \c qt3to4 tool provides help when moving a project from Qt 3
     to Qt 4. It is designed to automate the most tedious part of the
     porting effort.

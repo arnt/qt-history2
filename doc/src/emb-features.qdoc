@@ -1,18 +1,4 @@
-/****************************************************************************
-**
-** Qt feature definition file documentation.
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the Qt GUI Toolkit.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
-
-/* NOT DOCUMENTED
+/*!
     \page emb-features.html
 
     \title The Feature Definition File
@@ -27,7 +13,7 @@
     important and the application set is often fixed.
 
     \bold{Note: Qtopia Core 4.0 does not support the \c -qconfig option.}
-\endomit
+
     \omit ### the set of features will change
     The \c qconfig.h definition file simply defines macros to disable
     features. Some features are dependent on other features and these
@@ -36,215 +22,217 @@
     The available options are:
 
     \table
-    \header \i Macro \i Disables \i Set automatically by
+    \header \o Macro \o Disables \o Set automatically by
 
     \header \i31 Images (\l QImageIO)
-    \row \i \c QT_NO_IMAGEIO_BMP
-         \i Microsoft Bitmap image file format.
-         \i
-    \row \i \c QT_NO_IMAGEIO_PPM
-         \i Portable Pixmap image file format.
-         \i
-    \row \i \c QT_NO_IMAGEIO_XBM
-         \i X11 Bitmap image file format.
-         \i
-    \row \i \c QT_NO_IMAGEIO_XPM
-         \i X11 Pixmap image file format.
-         \i
-    \row \i \c QT_NO_IMAGEIO_PNG
-         \i Portable Network Graphics image file format.
-         \i
+    \row \o \c QT_NO_IMAGEIO_BMP
+         \o Microsoft Bitmap image file format.
+         \o
+    \row \o \c QT_NO_IMAGEIO_PPM
+         \o Portable Pixmap image file format.
+         \o
+    \row \o \c QT_NO_IMAGEIO_XBM
+         \o X11 Bitmap image file format.
+         \o
+    \row \o \c QT_NO_IMAGEIO_XPM
+         \o X11 Pixmap image file format.
+         \o
+    \row \o \c QT_NO_IMAGEIO_PNG
+         \o Portable Network Graphics image file format.
+         \o
 
     \header \i31 Animation
-    \row \i \c QT_NO_ASYNC_IMAGE_IO
-         \i Asynchronous Image I/O and GIF image support (\l QImageDecoder, ...)
-         \i
-    \row \i \c QT_NO_MOVIE
-         \i Animation support (\l QMovie)
-         \i \c QT_NO_ASYNC_IO, \c QT_NO_ASYNC_IMAGE_IO
+    \row \o \c QT_NO_ASYNC_IMAGE_IO
+         \o Asynchronous Image I/O and GIF image support (\l QImageDecoder, ...)
+         \o
+    \row \o \c QT_NO_MOVIE
+         \o Animation support (\l QMovie)
+         \o \c QT_NO_ASYNC_IO, \c QT_NO_ASYNC_IMAGE_IO
 
     \header \i31 Fonts
-    \row \i \c QT_NO_TRUETYPE
-         \i TrueType (TTF and TTC) font file format, only used by Qtopia Core.
-         \i
-    \row \i \c QT_NO_BDF
-         \i Bitmap Distribution Format (BDF) font file format, only used by Qtopia Core.
-         \i
-    \row \i \c QT_NO_FONTDATABASE
-         \i Font database.
-         \i
+    \row \o \c QT_NO_TRUETYPE
+         \o TrueType (TTF and TTC) font file format, only used by Qtopia Core.
+         \o
+    \row \o \c QT_NO_BDF
+         \o Bitmap Distribution Format (BDF) font file format, only used by Qtopia Core.
+         \o
+    \row \o \c QT_NO_FONTDATABASE
+         \o Font database.
+         \o
 
     \header \i31 Internationalization
-    \row \i \c QT_NO_I18N
-         \i Conversions between Unicode and 8-bit encodings.
-         \i
-    \row \i \c QT_NO_UNICODETABLES
-         \i Large tables defining such things as upper and lowercase conversions
+    \row \o \c QT_NO_I18N
+         \o Conversions between Unicode and 8-bit encodings.
+         \o
+    \row \o \c QT_NO_UNICODETABLES
+         \o Large tables defining such things as upper and lowercase conversions
      for all Unicode characters.
-         \i
+         \o
 
     \header \i31 MIME
-    \row \i \c QT_NO_MIME
-         \i Multipurpose Internet Mail Extensions, an Internet standard for encoding
+    \row \o \c QT_NO_MIME
+         \o Multipurpose Internet Mail Extensions, an Internet standard for encoding
      and tagging typed data (eg. text, images, colors) (\l QMimeSource)
-         \i
-    \row \i \c QT_NO_RICHTEXT
-         \i HTML-like text (\l QStyleSheet, \l QLabel)
-         \i \c QT_NO_MIME
-    \row \i \c QT_NO_DRAGANDDROP
-         \i Drag and drop data between applications (\l QDragObject)
-         \i \c QT_NO_MIME
-    \row \i \c QT_NO_CLIPBOARD
-         \i Cut and paste data between applications (\l QClipboard)
-         \i \c QT_NO_MIME
+         \o
+    \row \o \c QT_NO_RICHTEXT
+         \o HTML-like text (\l QStyleSheet, \l QLabel)
+         \o \c QT_NO_MIME
+    \row \o \c QT_NO_DRAGANDDROP
+         \o Drag and drop data between applications (\l QDragObject)
+         \o \c QT_NO_MIME
+    \row \o \c QT_NO_CLIPBOARD
+         \o Cut and paste data between applications (\l QClipboard)
+         \o \c QT_NO_MIME
 
     \header \i31 Sound
-    \row \i \c QT_NO_SOUND
-         \i Playing audio files (\l QSound)
-         \i
+    \row \o \c QT_NO_SOUND
+         \o Playing audio files (\l QSound)
+         \o
 
     \header \i31 Scripting
-    \row \i \c QT_NO_PROPERTIES
-         \i Scripting Qt-based applications.
-         \i
+    \row \o \c QT_NO_PROPERTIES
+         \o Scripting Qt-based applications.
+         \o
 
     \header \i31 Qtopia Core specific
-    \row \i \c QT_NO_QWS_CURSOR
-         \i The cursor sprite in Qtopia Core. Pen-operated devices would not
+    \row \o \c QT_NO_QWS_CURSOR
+         \o The cursor sprite in Qtopia Core. Pen-operated devices would not
      normally need this feature.
-         \i
-    \row \i \c QT_NO_QWS_DEPTH_8GRAYSCALE
+         \o
+    \row \o \c QT_NO_QWS_DEPTH_8GRAYSCALE
          \i11 8 bits per pixel: 256 levels of gray.
      Incompatible with \c QWS_DEPTH_8.
-         \i
-    \row \i \c QT_NO_QWS_DEPTH_8
+         \o
+    \row \o \c QT_NO_QWS_DEPTH_8
          \i11 8 bits per pixel: 216-color cube with 40 auxiliary colors.
      Incompatible with \c QWS_DEPTH_8GRAYSCALE.
-         \i
-    \row \i \c QT_NO_QWS_DEPTH_15
+         \o
+    \row \o \c QT_NO_QWS_DEPTH_15
          \i11 15 bits per pixel: 32 levels for each of red, green and blue.
-         \i
-    \row \i \c QT_NO_QWS_DEPTH_16
+         \o
+    \row \o \c QT_NO_QWS_DEPTH_16
          \i11 16 bits per pixel: 64 levels of green, 32 levels for red and for blue.
-         \i
-    \row \i \c QT_NO_QWS_DEPTH_32
+         \o
+    \row \o \c QT_NO_QWS_DEPTH_32
          \i11 32 bits per pixel: 256 levels for each of red, green and blue.
-         \i
-    \row \i \c QT_NO_QWS_MACH64
-         \i Mach64 accelerated driver (demonstration only).
-         \i
-    \row \i \c QT_NO_QWS_VFB
-         \i \link emb-qvfb.html Virtual framebuffer\endlink running on X11.
-         \i
+         \o
+    \row \o \c QT_NO_QWS_MACH64
+         \o Mach64 accelerated driver (demonstration only).
+         \o
+    \row \o \c QT_NO_QWS_VFB
+         \o \link emb-qvfb.html Virtual framebuffer\endlink running on X11.
+         \o
 
     \header \i31 Networking
-    \row \i \c QT_NO_NETWORKPROTOCOL
-         \i Abstract multi-protocol data retrieval,
+    \row \o \c QT_NO_NETWORKPROTOCOL
+         \o Abstract multi-protocol data retrieval,
      with local file retrieval included (\l QNetworkProtocol)
-         \i
-    \row \i \c QT_NO_NETWORKPROTOCOL_FTP
-         \i FTP-protocol data retrieval.
-         \i \c QT_NO_NETWORKPROTOCOL
-    \row \i \c QT_NO_NETWORKPROTOCOL_HTTP
-         \i HTTP-protocol data retrieval.
-         \i \c QT_NO_NETWORKPROTOCOL
+         \o
+    \row \o \c QT_NO_NETWORKPROTOCOL_FTP
+         \o FTP-protocol data retrieval.
+         \o \c QT_NO_NETWORKPROTOCOL
+    \row \o \c QT_NO_NETWORKPROTOCOL_HTTP
+         \o HTTP-protocol data retrieval.
+         \o \c QT_NO_NETWORKPROTOCOL
 
     \header \i31 Painting/drawing
-    \row \i \c QT_NO_COLORNAMES
-         \i Color names such as "red", used by some \l QColor constructors
+    \row \o \c QT_NO_COLORNAMES
+         \o Color names such as "red", used by some \l QColor constructors
      and by some HTML documents (\l QColor, \l QStyleSheet)
-         \i
-    \row \i \c QT_NO_TRANSFORMATIONS
-         \i Used by a number of classes in Qt. With this, rotation and
+         \o
+    \row \o \c QT_NO_TRANSFORMATIONS
+         \o Used by a number of classes in Qt. With this, rotation and
      scaling are possible. Without it you can only do coordinate
      translation (\l QWMatrix)
-         \i
-    \row \i \c QT_NO_PSPRINTER
-         \i PostScript printer support.
-         \i
-    \row \i \c QT_NO_PRINTER
-         \i Printer support (\l QPrinter)
-         \i \c QT_NO_PSPRINTER (Unix only)
-    \row \i \c QT_NO_PICTURE
-         \i Save Qt drawing commands to a files (\l QPicture)
-         \i
+         \o
+    \row \o \c QT_NO_PSPRINTER
+         \o PostScript printer support.
+         \o
+    \row \o \c QT_NO_PRINTER
+         \o Printer support (\l QPrinter)
+         \o \c QT_NO_PSPRINTER (Unix only)
+    \row \o \c QT_NO_PICTURE
+         \o Save Qt drawing commands to a files (\l QPicture)
+         \o
 
     \header \i31 Widgets
-    \row \i \c QT_NO_WIDGETS
-         \i Disabling this disables all widgets except \l QWidget.
-         \i
-    \row \i \c QT_NO_TEXTVIEW
-         \i HTML document viewing (\l QTextView)
-         \i \c QT_NO_WIDGETS, \c QT_NO_RICHTEXT
-    \row \i \c QT_NO_TEXTBROWSER
-         \i HTML document browsing (\l QTextBrowser)
-         \i \c QT_NO_TEXTVIEW
-    \row \i \c QT_NO_ICONVIEW
-         \i Labelled icons (\l QIconView)
-         \i \c QT_NO_WIDGETS, \c QT_NO_DRAGANDDROP
-    \row \i \c QT_NO_LISTVIEW
-         \i Lists of information (\l QListView)
-         \i \c QT_NO_WIDGETS
-    \row \i \c QT_NO_CANVAS
-         \i Object canvas (\l QCanvas)
-         \i \c QT_NO_WIDGETS
-    \row \i \c QT_NO_DIAL
-         \i Value control (\l QDial)
-         \i \c QT_NO_WIDGETS
-    \row \i \c QT_NO_WORKSPACE
-         \i MDI (Multiple Document Interface) (\l QWorkspace)
-         \i \c QT_NO_WIDGETS
-    \row \i \c QT_NO_LCDNUMBER
-         \i LCD-like number display (\l QLCDNumber)
-         \i \c QT_NO_WIDGETS
+    \row \o \c QT_NO_WIDGETS
+         \o Disabling this disables all widgets except \l QWidget.
+         \o
+    \row \o \c QT_NO_TEXTVIEW
+         \o HTML document viewing (\l QTextView)
+         \o \c QT_NO_WIDGETS, \c QT_NO_RICHTEXT
+    \row \o \c QT_NO_TEXTBROWSER
+         \o HTML document browsing (\l QTextBrowser)
+         \o \c QT_NO_TEXTVIEW
+    \row \o \c QT_NO_ICONVIEW
+         \o Labelled icons (\l QIconView)
+         \o \c QT_NO_WIDGETS, \c QT_NO_DRAGANDDROP
+    \row \o \c QT_NO_LISTVIEW
+         \o Lists of information (\l QListView)
+         \o \c QT_NO_WIDGETS
+    \row \o \c QT_NO_CANVAS
+         \o Object canvas (\l QCanvas)
+         \o \c QT_NO_WIDGETS
+    \row \o \c QT_NO_DIAL
+         \o Value control (\l QDial)
+         \o \c QT_NO_WIDGETS
+    \row \o \c QT_NO_WORKSPACE
+         \o MDI (Multiple Document Interface) (\l QWorkspace)
+         \o \c QT_NO_WIDGETS
+    \row \o \c QT_NO_LCDNUMBER
+         \o LCD-like number display (\l QLCDNumber)
+         \o \c QT_NO_WIDGETS
 
     \header \i31 GUI Styles
-    \row \i \c QT_NO_STYLE_WINDOWS
-         \i Microsoft Windows style (\l QWindowsStyle)
-         \i \c QT_NO_WIDGETS
-    \row \i \c QT_NO_STYLE_MOTIF
-         \i OSF Motif style (\l QMotifStyle)
-         \i \c QT_NO_WIDGETS
-    \row \i \c QT_NO_STYLE_CDE
-         \i Open Group CDE style (\l QCDEStyle)
-         \i \c QT_NO_STYLE_MOTIF
-    \row \i \c QT_NO_STYLE_MAC
-         \i Mac OS X style (\l QMacStyle)
-    \row \i \c QT_NO_STYLE_PLATINUM
-         \i Mac OS 9 style (\l QPlatinumStyle)
-         \i \c QT_NO_WIDGETS
-    \row \i \c QT_NO_STYLE_SGI
-         \i SGI style (\l QSGIStyle)
-         \i \c QT_NO_STYLE_MOTIF
+    \row \o \c QT_NO_STYLE_WINDOWS
+         \o Microsoft Windows style (\l QWindowsStyle)
+         \o \c QT_NO_WIDGETS
+    \row \o \c QT_NO_STYLE_MOTIF
+         \o OSF Motif style (\l QMotifStyle)
+         \o \c QT_NO_WIDGETS
+    \row \o \c QT_NO_STYLE_CDE
+         \o Open Group CDE style (\l QCDEStyle)
+         \o \c QT_NO_STYLE_MOTIF
+    \row \o \c QT_NO_STYLE_MAC
+         \o Mac OS X style (\l QMacStyle)
+    \row \o \c QT_NO_STYLE_PLATINUM
+         \o Mac OS 9 style (\l QPlatinumStyle)
+         \o \c QT_NO_WIDGETS
+    \row \o \c QT_NO_STYLE_SGI
+         \o SGI style (\l QSGIStyle)
+         \o \c QT_NO_STYLE_MOTIF
 
     \header \i31 Dialogs
-    \row \i \c QT_NO_DIALOGS
-         \i Disabling this disables all common dialogs (for example, \l
+    \row \o \c QT_NO_DIALOGS
+         \o Disabling this disables all common dialogs (for example, \l
          QFileDialog, QFontDialog, and QColorDialog)
-         \i \c QT_NO_WIDGETS
-    \row \i \c QT_NO_FILEDIALOG
-         \i The file selection dialog (\l QFileDialog)
-         \i \c QT_NO_DIALOGS, \c QT_NO_NETWORKPROTOCOL, \c QT_NO_LISTVIEW
-    \row \i \c QT_NO_FONTDIALOG
-         \i The font selection dialog (\l QFontDialog)
-         \i \c QT_NO_DIALOGS, \c QT_NO_FONTDATABASE
-    \row \i \c QT_NO_COLORDIALOG
-         \i The color selection dialog (\l QColorDialog)
-         \i \c QT_NO_DIALOGS
-    \row \i \c QT_NO_INPUTDIALOG
-         \i Text input dialog (\l QInputDialog)
-         \i \c QT_NO_DIALOGS
-    \row \i \c QT_NO_MESSAGEBOX
-         \i Message/prompting dialog (\l QMessageBox)
-         \i \c QT_NO_DIALOGS
-    \row \i \c QT_NO_PROGRESSDIALOG
-         \i Long-computation progress dialog (\l QProgressDialog)
-         \i \c QT_NO_DIALOGS
-    \row \i \c QT_NO_TABDIALOG
-         \i Tabbed-pages dialog (\l QTabDialog)
-         \i \c QT_NO_DIALOGS
-    \row \i \c QT_NO_WIZARD
-         \i Multi-step dialog (\l QWizard)
-         \i \c QT_NO_DIALOGS
+         \o \c QT_NO_WIDGETS
+    \row \o \c QT_NO_FILEDIALOG
+         \o The file selection dialog (\l QFileDialog)
+         \o \c QT_NO_DIALOGS, \c QT_NO_NETWORKPROTOCOL, \c QT_NO_LISTVIEW
+    \row \o \c QT_NO_FONTDIALOG
+         \o The font selection dialog (\l QFontDialog)
+         \o \c QT_NO_DIALOGS, \c QT_NO_FONTDATABASE
+    \row \o \c QT_NO_COLORDIALOG
+         \o The color selection dialog (\l QColorDialog)
+         \o \c QT_NO_DIALOGS
+    \row \o \c QT_NO_INPUTDIALOG
+         \o Text input dialog (\l QInputDialog)
+         \o \c QT_NO_DIALOGS
+    \row \o \c QT_NO_MESSAGEBOX
+         \o Message/prompting dialog (\l QMessageBox)
+         \o \c QT_NO_DIALOGS
+    \row \o \c QT_NO_PROGRESSDIALOG
+         \o Long-computation progress dialog (\l QProgressDialog)
+         \o \c QT_NO_DIALOGS
+    \row \o \c QT_NO_TABDIALOG
+         \o Tabbed-pages dialog (\l QTabDialog)
+         \o \c QT_NO_DIALOGS
+    \row \o \c QT_NO_WIZARD
+         \o Multi-step dialog (\l QWizard)
+         \o \c QT_NO_DIALOGS
     \endtable
+
+    \endomit
 */

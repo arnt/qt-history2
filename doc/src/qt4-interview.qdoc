@@ -90,7 +90,7 @@
     knowledge of the underlying model/view architecture.
 
     For details about how to use the model/view classes, see the
-    \l{model-view-programming.html}{Model/View Programming} document.
+    \l{Model/View Programming} document.
 
     See also the \l{qt4-sql.html}{Database GUI Layer} document for
     information about Qt 4's database models.

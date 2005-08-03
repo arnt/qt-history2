@@ -1,17 +1,23 @@
 /*!
-    \page networking.html
-    \title Network Module
+    \module QtNetwork
+    \title QtNetwork Module
+    \contentspage Qt's Modules
+    \previouspage QtGui
+    \nextpage QtOpenGL
+
+    \brief The QtNetwork module offers classes that allow you to
+    write TCP/IP clients and servers.
 
     The network module provides classes to make network programming
     easier and portable. It offers both high-level classes such as
     QHttp and QFtp that implement specific application-level
     protocols, and lower-level classes such as QTcpSocket,
-    QTcpServer, and QUdpSocket, that enable you to write your own
-    TCP/IP clients and servers.
+    QTcpServer, and QUdpSocket.
 
-    This document is an overview of the main classes in the network
-    module. See the individual classes' reference documentation for
-    details.
+    The QtNetwork module is part of the \l{Qt Console Edition}, the
+    \l{Qt Desktop Edition}, and the \l{Qt Open Source Edition}.
+
+    Topics:
 
     \tableofcontents
 
@@ -28,6 +34,13 @@
 
     This line is necessary because only the QtCore and QtGui modules
     are used in the default build process.
+
+    To include the definitions of the module's classes, use the
+    following directive:
+
+    \code
+        #include <QtNetwork>
+    \endcode
 
     \section1 Writing HTTP and FTP Clients with QHttp and QFtp
 
@@ -98,9 +111,7 @@
     enables you to provide detailed feedback to the user.
 
     The \l{network/http}{HTTP} and \l{network/ftp}{FTP} examples
-    illustrate how to write an HTTP and an FTP client. In addition,
-    the \l{network/torrent}{Torrent} example uses QHttp to track
-    transfer progress.
+    illustrate how to write an HTTP and an FTP client.
 
     Writing your own HTTP or FTP server is possible using the
     lower-level classes QTcpSocket and QTcpServer.
@@ -173,10 +184,6 @@
     and \l{network/threadedfortuneserver}{Threaded Fortune Server}
     for an example of a multithreaded TCP server with one thread per
     active client.
-
-    Finally, the \l{network/torrent}{Torrent} example is a larger
-    application that uses QTcpSocket and other network classes to
-    implement a fully functional BitTorrent client.
 
     \section1 Using UDP with QUdpSocket
 

@@ -1,0 +1,20 @@
+/*!
+    \module QtCore
+    \title QtCore Module
+    \contentspage Qt's Modules
+    \previouspage Qt's Modules
+    \nextpage QtGui
+
+    \keyword QtCore
+
+    \brief The QtCore module contains core non-GUI functionality.
+
+    All other Qt modules rely on this module. To include the
+    definitions of the module's classes, use the following directive:
+
+    \code
+        #include <QtCore>
+    \endcode
+
+    The QtCore module is part of all \l{Qt editions}.
+*/

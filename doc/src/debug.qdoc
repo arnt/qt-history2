@@ -14,7 +14,6 @@
 
 /*!
     \page debug.html
-
     \title Debugging Techniques
 
     Here we present some useful hints to help you with debugging your
@@ -144,7 +143,7 @@
     \section1 Common Bugs
 
     There is one bug that is so common that it deserves mention here:
-    If you include the \c Q_OBJECT macro in a class declaration and
+    If you include the Q_OBJECT macro in a class declaration and
     run \link moc.html the meta-object compiler\endlink (\c{moc}),
     but forget to link the \c{moc}-generated object code into your
     executable, you will get very confusing error messages. Any link

@@ -10,8 +10,8 @@
 **
 ****************************************************************************/
 
-/*! \page threads.html
-
+/*!
+    \page threads.html
     \title Thread Support in Qt
 
     Qt provides thread support in the form of platform-independent
@@ -373,14 +373,13 @@
 
     \section1 Threads and Implicit Sharing
 
-    Qt uses an optimization called \l{shclass.html}{implicit sharing}
-    for many of its value class, notably QImage and QString. In many
-    people's minds, implicit sharing and multithreading are
-    incompatible concepts, because of the way the reference counting
-    is typically done. One solution is to protect the internal
-    reference counter with a mutex, but this is prohibitively slow.
-    Earlier versions of Qt didn't provide a satisfactory solution to
-    this problem.
+    Qt uses an optimization called \l{implicit data sharing} for many
+    of its value class, notably QImage and QString. In many people's
+    minds, implicit sharing and multithreading are incompatible
+    concepts, because of the way the reference counting is typically
+    done. One solution is to protect the internal reference counter
+    with a mutex, but this is prohibitively slow. Earlier versions of
+    Qt didn't provide a satisfactory solution to this problem.
 
     Beginning with Qt 4, implicit shared classes can safely be copied
     across threads, like any other value classes. They are fully
@@ -402,7 +401,7 @@
 
     \section1 Threads and the SQL Module
 
-    The classes in the \l{SQL Module} can be used in separate
+    The classes in the \l QtSql module can be used in separate
     threads, as long as the rules for QObject based classes are followed.
 
     The third-party libraries used to implement the SQL drivers can

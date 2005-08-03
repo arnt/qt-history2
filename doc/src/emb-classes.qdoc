@@ -10,7 +10,7 @@
 **
 ****************************************************************************/
 
-/* NOT DOCUMENTED
+/*!
     \page emb-classes.html
 
     \title The Qtopia Core Specific Classes
@@ -23,7 +23,7 @@
     indicates inheritance.
 
     \tableofcontents
-\endomit
+
     \omit ### Font system is completely changed
     \section1 QFontManager
 
@@ -276,4 +276,5 @@
     analogous to Unix-domain sockets (a byte-oriented, reliable, ordered
     transmission mechanism, although you can probably implement it with
     something like a message queue as well).
+    \endomit
 */

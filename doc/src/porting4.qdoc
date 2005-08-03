@@ -51,8 +51,8 @@
 
     This document describes porting applications from Qt 3 to Qt 4.
     If you haven't yet made the decision about porting, or are unsure
-    about whether it is worth it, take a look at the \link
-    qt4-intro.html key features\endlink offered by Qt 4. See also
+    about whether it is worth it, take a look at the \l{What's New in
+    Qt 4}{key features} offered by Qt 4. See also
     \l{http://www.trolltech.com/products/qt/readyforqt4.html}{Getting
     Ready for Qt 4} for tips on how to write Qt 3 code that is easy
     to port to Qt 4.
@@ -79,13 +79,11 @@
     \o Add the line \c{QT += qt3support} to your \c .pro file if you use
        \c qmake; otherwise, edit your makefile or project file to
        link against the Qt3Support library and add \c -DQT3_SUPPORT to your
-       compiler flags. (You might also need to
-       specify other libraries. See
-       \l{qt4-intro.html}{What's New in Qt 4} for
-       details.)
+       compiler flags. (You might also need to specify other
+       libraries. See \l{What's New in Qt 4} for details.)
 
-    \o Run the \l{qt3to4.html}{qt3to4 porting tool}. The tool will go
-       through your source code and adapt it to Qt 4.
+    \o Run the \l qt3to4 porting tool. The tool will go through your
+       source code and adapt it to Qt 4.
 
     \o Follow the instructions in the \l{Porting .ui Files to Qt 4}
        page to port Qt Designer files.
@@ -97,10 +95,10 @@
 
     \endlist
 
-    The \l{qt3to4.html}{qt3to4 porting tool} replaces occurrences of
-    Qt 3 classes that don't exist anymore in Qt 4 with the
-    corresponding Qt 3 support class; for example, \c QListBox is
-    turned into \c Q3ListBox.
+    The \l qt3to4 porting tool replaces occurrences of Qt 3 classes
+    that don't exist anymore in Qt 4 with the corresponding Qt 3
+    support class; for example, \c QListBox is turned into \c
+    Q3ListBox.
 
     At some point, you might want to stop linking against the Qt 3
     support library (\l{Qt3Support}) and take advantage of Qt 4's
@@ -193,8 +191,7 @@
 
     Whenever you see an occurrence of the name on the left, you can
     safely replace it with the Qt 4 equivalent in your program. The
-    \l{qt3to4.html}{qt3to4} tool performs the conversion
-    automatically.
+    \l qt3to4 tool performs the conversion automatically.
 
     \table
     \header \o Qt 3 class name \o Qt 4 class name
@@ -207,7 +204,7 @@
 
     Whenever you see an occurrence of the name on the left, you can
     safely replace it with the Qt 4 equivalent in your program. The
-    \l{qt3to4.html}{qt3to4} tool handles performs the conversion
+    \l qt3to4 tool handles performs the conversion
     automatically.
 
     \table
@@ -228,8 +225,7 @@
 
     Whenever you see an occurrence of the name on the left, you can
     safely replace it with the Qt 4 equivalent in your program. The
-    \l{qt3to4.html}{qt3to4} tool handles performs the conversion
-    automatically.
+    \l qt3to4 tool handles performs the conversion automatically.
 
     \table
     \header \o Qt 3 enum value name \o Qt 4 enum value name
@@ -1070,7 +1066,7 @@
     use Q3DataBrowser for creating data-aware forms or you can roll
     your own.
 
-    See \l{sql.html}{SQL Module} for an overview of the new SQL
+    See \l{QtSql Module} for an overview of the new SQL
     classes.
 
     \section1 QDataPump
@@ -1099,8 +1095,7 @@
     Q3DataTable for creating data-aware forms or you can roll your
     own.
 
-    See \l{sql.html}{SQL Module} for an overview of the new SQL
-    classes.
+    See \l{QtSql Module} for an overview of the new SQL classes.
 
     \section1 QDataView
 
@@ -1110,8 +1105,7 @@
     Q3DataTable for creating data-aware forms or you can roll your
     own.
 
-    See \l{sql.html}{SQL Module} for an overview of the new SQL
-    classes.
+    See \l{QtSql Module} for an overview of the new SQL classes.
 
     \section1 QDateEdit
 
@@ -1499,8 +1493,7 @@
     The \c QEditorFactory class has been renamed Q3EditorFactory and
     moved to the Qt3Support library.
 
-    See \l{sql.html}{SQL Module} for an overview of the new SQL
-    classes.
+    See \l{QtSql Module} for an overview of the new SQL classes.
 
     \section1 QEventLoop
 
@@ -1701,8 +1694,8 @@
     you use QTableView or QAbstractItemView for presenting tabular
     data.
 
-    See \l{model-view-programming.html}{Model/View Programming} for
-    an overview of the new item view classes.
+    See \l{Model/View Programming} for an overview of the new item
+    view classes.
 
     \target qgroupbox.section
     \section1 QGroupBox
@@ -1760,8 +1753,8 @@
     the Qt3Support library. In Qt 4, it is replaced
     by the QHeaderView class.
 
-    See \l{model-view-programming.html}{Model/View Programming} for
-    an overview of the new item view classes.
+    See \l{Model/View Programming} for an overview of the new item
+    view classes.
 
     \section1 QHttp
 
@@ -1789,8 +1782,8 @@
     QListView::setViewMode(QListView::IconMode) to obtain an "icon
     view" look.
 
-    See \l{model-view-programming.html}{Model/View Programming} for
-    an overview of the new item view classes.
+    See \l{Model/View Programming} for an overview of the new item
+    view classes.
 
     \omit
     ###
@@ -2007,8 +2000,8 @@
     moved to the Qt3Support library. New Qt applications
     should use QListWidget or its base class QListView instead.
 
-    See \l{model-view-programming.html}{Model/View Programming} for
-    an overview of the new item view classes.
+    See \l{Model/View Programming} for an overview of the new item
+    view classes.
 
     \section1 QListView
 
@@ -2020,8 +2013,8 @@
     instead: QTreeView or QTreeWidget for tree-like structures;
     QListWidget or the new QListView class for one-dimensional lists.
 
-    See \l{model-view-programming.html}{Model/View Programming} for
-    an overview of the new item view classes.
+    See \l{Model/View Programming} for an overview of the new item
+    view classes.
 
     \section1 QLocalFs
 
@@ -2103,9 +2096,8 @@
     \section1 QMimeSourceFactory
 
     The \c QMimeSourceFactory has been renamed Q3MimeSourceFactory
-    and moved to the Qt3Support library. New Qt
-    applications should use Qt 4's \l{resources.html}{Resource
-    System} instead.
+    and moved to the Qt3Support library. New Qt applications should
+    use Qt 4's \l{Resource System} instead.
 
     \section1 QMovie
 
@@ -3088,7 +3080,7 @@
     The \c QSimpleRichText class has been renamed Q3SimpleRichText
     and moved to the Qt3Support library.
 
-    See \l{richtext.html}{Rich Text} for an overview of the Qt 4 rich
+    See \l{Rich Text Processing} for an overview of the Qt 4 rich
     text classes.
 
     \section1 QSlider
@@ -3161,8 +3153,7 @@
     whether you want a low-level or a high-level interface for
     accessing databases.
 
-    See \l{sql.html}{SQL Module} for an overview of the new SQL
-    classes.
+    See \l{QtSql Module} for an overview of the new SQL classes.
 
     \section1 QSqlDatabase
 
@@ -3175,7 +3166,7 @@
     The \c QSqlEditorFactory class has been renamed
     Q3SqlEditorFactory and moved to Qt3Support.
 
-    See \l{SQL Module} for an overview of the new SQL classes.
+    See \l{QtSql Module} for an overview of the new SQL classes.
 
     \section1 QSqlError
 
@@ -3194,24 +3185,21 @@
     The QSqlFieldInfo class has been moved to Qt3Support. Its
     functionality is now provided by the QSqlField class.
 
-    See \l{sql.html}{SQL Module} for an overview of the new SQL
-    classes.
+    See \l{QtSql Module} for an overview of the new SQL classes.
 
     \section1 QSqlForm
 
     The \c QSqlForm class has been renamed Q3SqlForm and moved to the
     Qt3Support library.
 
-    See \l{sql.html}{SQL Module} for an overview of the new SQL
-    classes.
+    See \l{QtSql Module} for an overview of the new SQL classes.
 
     \section1 QSqlPropertyMap
 
     The \c QSqlPropertyMap class has been renamed Q3SqlPropertyMap
     moved to the Qt3Support library.
 
-    See \l{sql.html}{SQL Module} for an overview of the new SQL
-    classes.
+    See \l{QtSql Module} for an overview of the new SQL classes.
 
     \section1 QSqlQuery
 
@@ -3230,16 +3218,14 @@
     The QSqlRecordInfo class has been moved to Qt3Support. Its
     functionality is now provided by the QSqlRecord class.
 
-    See \l{sql.html}{SQL Module} for an overview of the new SQL
-    classes.
+    See \l{QtSql Module} for an overview of the new SQL classes.
 
     \section1 QSqlSelectCursor
 
     The \c QSqlSelectCursor class has been renamed Q3SqlSelectCursor
     and moved to the Qt3Support library.
 
-    See \l{sql.html}{SQL Module} for an overview of the new SQL
-    classes.
+    See \l{QtSql Module} for an overview of the new SQL classes.
 
     \section1 QStoredDrag
 
@@ -3371,7 +3357,7 @@
     \section1 QStyle
 
     The QStyle API has been overhauled and improved. Most of the information on
-    why this change was done is described in \l{qt4-styles.html}{the QStyle overview}.
+    why this change was done is described in \l{The Qt 4 Style API}{the QStyle overview}.
 
     Since QStyle is mostly used internally by Qt's widgets and styles and since
     it is not essential to the good functioning of an application, there is no
@@ -3466,7 +3452,7 @@
     Q3StyleSheet and Q3StyleSheetItem, and have been moved to the
     Qt3Support library.
 
-    See \l{richtext.html}{Rich Text} for an overview of the Qt 4 rich
+    See \l{Rich Text Processing} for an overview of the Qt 4 rich
     text classes.
 
     \section1 QSyntaxHighlighter
@@ -3474,7 +3460,7 @@
     The QSyntaxHighlighter class has been renamed Q3SyntaxHighlighter
     and moved to the Qt3Support library.
 
-    See \l{richtext.html}{Rich Text} for an overview of the Qt 4 rich
+    See \l{Rich Text Processing} for an overview of the Qt 4 rich
     text classes.
 
     \section1 QTabBar
@@ -3507,8 +3493,8 @@
     New Qt applications should use the new QTableWidget or QTableView
     class instead.
 
-    See \l{model-view-programming.html}{Model/View Programming} for
-    an overview of the new item view classes.
+    See \l{Model/View Programming} for an overview of the new item
+    view classes.
 
     \section1 QTextDrag
 
@@ -3522,7 +3508,7 @@
     Q3TextEdit and Q3TextBrowser, and have been moved to Qt3Support.
     The new QTextEdit and QTextBrowser have a somewhat different API.
 
-    See \l{richtext.html}{Rich Text} for an overview of the Qt 4 rich
+    See \l{Rich Text Processing} for an overview of the Qt 4 rich
     text classes.
 
     \section1 QTextOStreamIterator

@@ -1,0 +1,12 @@
+/*!
+    \module QtAssistant
+    \title QtAssistant Module
+    \contentspage Qt's Modules
+    \previouspage QAxServer
+    \nextpage Qt3Support
+
+    \brief The QtAssistant module provides a means of launching \QA
+    to provide online help.
+
+    \sa {Qt Assistant Manual}
+*/

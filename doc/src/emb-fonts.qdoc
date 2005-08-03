@@ -1,4 +1,4 @@
-/* NOT DOCUMENTED
+/*!
     \page emb-fonts.html
     \title Fonts in Qtopia Core
 
@@ -35,9 +35,9 @@
     you can initially enable TTF and BDF formats, save QPF files for the
     fonts and sizes you need, then remove TTF and BDF support.
 
-    See \link makeqpf.html tools/makeqpf\endlink for a tool that helps
-    produce QPF files from the TTF and BDF, or just run your application
-    with the \c -savefonts option.
+    See \l makeqpf for a tool that helps produce QPF files from the
+    TTF and BDF, or just run your application with the \c -savefonts
+    option.
 
     \section1 Memory Requirements
 

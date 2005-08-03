@@ -1,25 +1,12 @@
-/****************************************************************************
-**
-** Documentation on the xml module.
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the Qt GUI Toolkit.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
+/*!
+    \module QtXml
+    \title QtXml Module
+    \contentspage Qt's Modules
+    \previouspage QtSql
+    \nextpage QtDesigner
 
-/*! 
-    \page xml.html
-    \title XML Module
-
-    \tableofcontents
-
-    \target overview
-    \section1 Overview of the XML Architecture in Qt
+    \brief The QtXml module provides C++ implementations
+    of SAX and DOM.
 
     SAX is an event-based standard interface for XML parsers.
     The Qt interface follows the design of the SAX2 Java implementation.
@@ -31,7 +18,7 @@
     development. The Qt implementation does not include the SAX1
     compatibility classes present in the Java interface.
     For an introduction to Qt's SAX2 classes see
-    \l{#sax2}{The Qt SAX2 classes}.
+    \l{The Qt SAX2 classes}.
 
     DOM Level 2 is a W3C Recommendation for XML interfaces that maps the
     constituents of an XML document to a tree structure. The specification
@@ -45,73 +32,26 @@
     group who provide, for example, classes that support SOAP and MML with
     the Qt XML classes.
 
-    The QtXml module provides the following SAX and DOM classes:
+    To include the definitions of the module's classes, use the
+    following directive:
 
-    \table
-    \header \i Class \i Description
-    \row \i \l QDomAttr
-         \i Represents one attribute of a QDomElement
-    \row \i \l QDomCDATASection
-         \i Represents an XML CDATA section
-    \row \i \l QDomCharacterData
-         \i Represents a generic string in the DOM
-    \row \i \l QDomComment
-         \i Represents an XML comment
-    \row \i \l QDomDocument
-         \i The representation of an XML document
-    \row \i \l QDomDocumentFragment
-         \i Tree of QDomNodes which is usually not a complete QDomDocument
-    \row \i \l QDomDocumentType
-         \i The representation of the DTD in the document tree
-    \row \i \l QDomElement
-         \i Represents one element in the DOM tree
-    \row \i \l QDomEntity
-         \i Represents an XML entity
-    \row \i \l QDomEntityReference
-         \i Represents an XML entity reference
-    \row \i \l QDomImplementation
-         \i Information about the features of the DOM implementation
-    \row \i \l QDomNamedNodeMap
-         \i Collection of nodes that can be accessed by name
-    \row \i \l QDomNode
-         \i The base class for all nodes of the DOM tree
-    \row \i \l QDomNodeList
-         \i List of QDomNode objects
-    \row \i \l QDomNotation
-         \i Represents an XML notation
-    \row \i \l QDomProcessingInstruction
-         \i Represents an XML processing instruction
-    \row \i \l QDomText
-         \i Represents textual data in the parsed XML document
-    \row \i \l QXmlAttributes
-         \i XML attributes
-    \row \i \l QXmlContentHandler
-         \i Interface to report logical content of XML data
-    \row \i \l QXmlDeclHandler
-         \i Interface to report declaration content of XML data
-    \row \i \l QXmlDefaultHandler
-         \i Default implementation of all XML handler classes
-    \row \i \l QXmlDTDHandler
-         \i Interface to report DTD content of XML data
-    \row \i \l QXmlEntityResolver
-         \i Interface to resolve extern entities contained in XML data
-    \row \i \l QXmlErrorHandler
-         \i Interface to report errors in XML data
-    \row \i \l QXmlInputSource
-         \i The input data for the QXmlReader subclasses
-    \row \i \l QXmlLexicalHandler
-         \i Interface to report lexical content of XML data
-    \row \i \l QXmlLocator
-         \i The XML handler classes with information about the actual parsing position
-    \row \i \l QXmlNamespaceSupport
-         \i Helper class for XML readers which want to include namespace support
-    \row \i \l QXmlParseException
-         \i Used to report errors with the QXmlErrorHandler interface
-    \row \i \l QXmlReader
-         \i Interface for XML readers (i.e. for SAX2 parsers)
-    \row \i \l QXmlSimpleReader
-         \i Implementation of a simple XML reader (a SAX2 parser)
-    \endtable
+    \code
+        #include <QtXml>
+    \endcode
+
+    To link against the module, add this line to your \l qmake \c
+    .pro file:
+
+    \code
+        QT += xml
+    \endcode
+
+    This module is part of the \l{Qt Console Edition}, the \l{Qt
+    Desktop Edition}, and the \l{Qt Open Source Edition}.
+
+    Topics:
+
+    \tableofcontents
 
     \section1 Configuring the Build Process
 
@@ -127,10 +67,8 @@
     This line is necessary because only the QtCore and QtGui modules
     are used in the default build process.
 
-    \target sax2
     \section1 The Qt SAX2 Classes
 
-    \target sax2Intro
     \section2 Introduction to SAX2
 
     The SAX2 interface is an event-driven mechanism to provide the user with
@@ -146,9 +84,9 @@
     Whilst reading (a SAX2 parser is usually referred to as "reader") 
     the above document three events would be triggered:
     \list 1
-    \i A start tag occurs (\c{<quote>}).
-    \i Character data (i.e. text) is found, "A quotation.".
-    \i An end tag is parsed (\c{</quote>}).
+    \o A start tag occurs (\c{<quote>}).
+    \o Character data (i.e. text) is found, "A quotation.".
+    \o An end tag is parsed (\c{</quote>}).
     \endlist
 
     Each time such an event occurs the parser reports it; you can set up
@@ -168,21 +106,21 @@
 
     The reader reports parsing events through special handler classes:
     \table
-    \header \i Handler class \i Description
-    \row \i \l QXmlContentHandler
-         \i Reports events related to the content of a document (e.g. the start tag
+    \header \o Handler class \o Description
+    \row \o \l QXmlContentHandler
+         \o Reports events related to the content of a document (e.g. the start tag
             or characters).
-    \row \i \l QXmlDTDHandler
-         \i Reports events related to the DTD (e.g. notation declarations).
-    \row \i \l QXmlErrorHandler
-         \i Reports errors or warnings that occurred during parsing.
-    \row \i \l QXmlEntityResolver
-         \i Reports external entities during parsing and allows users to resolve
+    \row \o \l QXmlDTDHandler
+         \o Reports events related to the DTD (e.g. notation declarations).
+    \row \o \l QXmlErrorHandler
+         \o Reports errors or warnings that occurred during parsing.
+    \row \o \l QXmlEntityResolver
+         \o Reports external entities during parsing and allows users to resolve
             external entities themselves instead of leaving it to the reader.
-    \row \i \l QXmlDeclHandler
-         \i Reports further DTD related events (e.g. attribute declarations).
-    \row \i \l QXmlLexicalHandler
-         \i Reports events related to the lexical structure of the
+    \row \o \l QXmlDeclHandler
+         \o Reports further DTD related events (e.g. attribute declarations).
+    \row \o \l QXmlLexicalHandler
+         \o Reports events related to the lexical structure of the
             document (the beginning of the DTD, comments etc.).
     \endtable
 
@@ -196,32 +134,30 @@
     Apart from those already mentioned, the following SAX2 support classes 
     provide additional useful functionality:
     \table
-    \header \i Class \i Description
-    \row \i \l QXmlAttributes
-         \i Used to pass attributes in a start element event.
-    \row \i \l QXmlLocator
-         \i Used to obtain the actual parsing position of an event.
-    \row \i \l QXmlNamespaceSupport
-         \i Used to implement \link xml.html#namespaces namespace\endlink
-            support for a reader. Note that namespaces do not change the
-            parsing behavior. They are only reported through the handler.
+    \header \o Class \o Description
+    \row \o \l QXmlAttributes
+         \o Used to pass attributes in a start element event.
+    \row \o \l QXmlLocator
+         \o Used to obtain the actual parsing position of an event.
+    \row \o \l QXmlNamespaceSupport
+         \o Used to implement namespace support for a reader. Note that
+	    namespaces do not change the parsing behavior. They are only
+	    reported through the handler.
     \endtable
 
+    \section2 SAX2 Features
 
-    \target sax2Features
-    \section2 Features
-
-    The behaviour of an XML reader depends on its support for certain
+    The behavior of an XML reader depends on its support for certain
     optional features. For example, a reader may have the feature "report
-    attributes used for \link xml.html#namespaces namespace\endlink
-    declarations and prefixes along with the local name of a tag". Like
-    every other feature this has a unique name represented by a URI: it is
-    called \e http://xml.org/sax/features/namespace-prefixes.
+    attributes used for namespace declarations and prefixes along with
+    the local name of a tag". Like every other feature this has a unique
+    name represented by a URI: it is called
+    \e http://xml.org/sax/features/namespace-prefixes.
 
     The Qt SAX2 implementation can report whether the reader has
-    particular functionality using the \l QXmlReader::hasFeature()
+    particular functionality using the QXmlReader::hasFeature()
     function. Available features can be tested with QXmlReader::feature(),
-    and switched on or off using \l QXmlReader::setFeature(). 
+    and switched on or off using QXmlReader::setFeature(). 
 
     Consider the example 
     \code 
@@ -252,24 +188,22 @@
     \l QXmlSimpleReader is not validating, so it
     does not support \e http://xml.org/sax/features/validation.
 
-
-    \target sax2Namespaces
     \section2 Namespace Support via Features
 
-    As we have seen in the \link #sax2Features previous section\endlink
-    we can configure the behavior of the reader when it comes to namespace
+    As we have seen in the previous section, we can configure the
+    behavior of the reader when it comes to namespace
     processing. This is done by setting and unsetting the 
     \e http://xml.org/sax/features/namespaces and
     \e http://xml.org/sax/features/namespace-prefixes features.
 
     They influence the reporting behavior in the following way:
     \list 1
-    \i Namespace prefixes and local parts of elements and attributes can
+    \o Namespace prefixes and local parts of elements and attributes can
     be reported.
-    \i The qualified names of elements and attributes are reported.
-    \i \l QXmlContentHandler::startPrefixMapping() and \l
+    \o The qualified names of elements and attributes are reported.
+    \o \l QXmlContentHandler::startPrefixMapping() and \l
     QXmlContentHandler::endPrefixMapping() are called by the reader.
-    \i Attributes that declare namespaces (i.e. the attribute \e xmlns and
+    \o Attributes that declare namespaces (i.e. the attribute \e xmlns and
     attributes starting with \e{xmlns:}) are reported.
     \endlist
 
@@ -315,26 +249,24 @@
     note that the combination of both features set to
     false is illegal.
 
-    \target sax2NamespacesSummary
     \section3 Summary
 
     \l QXmlSimpleReader implements the following behavior:
 
     \table
-    \header \i (namespaces, namespace-prefixes)
-            \i Namespace prefix and local part
-            \i Qualified names
-            \i Prefix mapping
-            \i xmlns attributes
-    \row \i (true, false) \i Yes \i Yes* \i Yes \i No
-    \row \i (true, true) \i Yes \i Yes \i Yes \i Yes
-    \row \i (false, true) \i No* \i Yes \i No* \i Yes
-    \row \i (false, false) \i41 Illegal
+    \header \o (namespaces, namespace-prefixes)
+            \o Namespace prefix and local part
+            \o Qualified names
+            \o Prefix mapping
+            \o xmlns attributes
+    \row \o (true, false) \o Yes \o Yes* \o Yes \o No
+    \row \o (true, true) \o Yes \o Yes \o Yes \o Yes
+    \row \o (false, true) \o No* \o Yes \o No* \o Yes
+    \row \o (false, false) \i41 Illegal
     \endtable
 
     The behavior of the entries marked with an asterisk (*) is not specified by SAX.
 
-    \target sax2Properties
     \section2 Properties
 
     Properties are a more general concept. They have a unique name,
@@ -375,60 +307,60 @@
     Here are the available node classes and their potential child classes:
 
     \list
-    \i \l QDomDocument: Possible children are
+    \o \l QDomDocument: Possible children are
             \list
-            \i \l QDomElement (at most one)
-            \i \l QDomProcessingInstruction
-            \i \l QDomComment
-            \i \l QDomDocumentType
+            \o \l QDomElement (at most one)
+            \o \l QDomProcessingInstruction
+            \o \l QDomComment
+            \o \l QDomDocumentType
             \endlist
-    \i \l QDomDocumentFragment: Possible children are
+    \o \l QDomDocumentFragment: Possible children are
             \list
-            \i \l QDomElement
-            \i \l QDomProcessingInstruction
-            \i \l QDomComment
-            \i \l QDomText
-            \i \l QDomCDATASection
-            \i \l QDomEntityReference
+            \o \l QDomElement
+            \o \l QDomProcessingInstruction
+            \o \l QDomComment
+            \o \l QDomText
+            \o \l QDomCDATASection
+            \o \l QDomEntityReference
             \endlist
-    \i \l QDomDocumentType: No children
-    \i \l QDomEntityReference: Possible children are
+    \o \l QDomDocumentType: No children
+    \o \l QDomEntityReference: Possible children are
             \list
-            \i \l QDomElement
-            \i \l QDomProcessingInstruction
-            \i \l QDomComment
-            \i \l QDomText
-            \i \l QDomCDATASection
-            \i \l QDomEntityReference
+            \o \l QDomElement
+            \o \l QDomProcessingInstruction
+            \o \l QDomComment
+            \o \l QDomText
+            \o \l QDomCDATASection
+            \o \l QDomEntityReference
             \endlist
-    \i \l QDomElement: Possible children are
+    \o \l QDomElement: Possible children are
             \list
-            \i \l QDomElement
-            \i \l QDomText
-            \i \l QDomComment
-            \i \l QDomProcessingInstruction
-            \i \l QDomCDATASection
-            \i \l QDomEntityReference
+            \o \l QDomElement
+            \o \l QDomText
+            \o \l QDomComment
+            \o \l QDomProcessingInstruction
+            \o \l QDomCDATASection
+            \o \l QDomEntityReference
             \endlist
-    \i \l QDomAttr: Possible children are
+    \o \l QDomAttr: Possible children are
             \list
-            \i \l QDomText
-            \i \l QDomEntityReference
+            \o \l QDomText
+            \o \l QDomEntityReference
             \endlist
-    \i \l QDomProcessingInstruction: No children
-    \i \l QDomComment: No children
-    \i \l QDomText: No children
-    \i \l QDomCDATASection: No children
-    \i \l QDomEntity: Possible children are
+    \o \l QDomProcessingInstruction: No children
+    \o \l QDomComment: No children
+    \o \l QDomText: No children
+    \o \l QDomCDATASection: No children
+    \o \l QDomEntity: Possible children are
             \list
-            \i \l QDomElement
-            \i \l QDomProcessingInstruction
-            \i \l QDomComment
-            \i \l QDomText
-            \i \l QDomCDATASection
-            \i \l QDomEntityReference
+            \o \l QDomElement
+            \o \l QDomProcessingInstruction
+            \o \l QDomComment
+            \o \l QDomText
+            \o \l QDomCDATASection
+            \o \l QDomEntityReference
             \endlist
-    \i \l QDomNotation: No children
+    \o \l QDomNotation: No children
     \endlist
 
     With \l QDomNodeList and \l QDomNamedNodeMap two collection classes 
@@ -562,10 +494,10 @@
     default namespace. So why didn't we simply use the default namespace
     we'd already declared? The answer is quite complex:
     \list
-    \i attributes without a prefix don't belong to any XML namespace at
+    \o attributes without a prefix don't belong to any XML namespace at
     all, not even to the default namespace;
-    \i additionally omitting the prefix would lead to a \e title-title clash;
-    \i writing it as \e xmlns:title would declare a new namespace with the
+    \o additionally omitting the prefix would lead to a \e title-title clash;
+    \o writing it as \e xmlns:title would declare a new namespace with the
     prefix \e title instead of applying the default \e xmlns namespace.
     \endlist
 
@@ -584,16 +516,16 @@
     The following terms are used to distinguish the parts of names within
     the context of namespaces:
     \list
-    \i  The \e {qualified name}
+    \o  The \e {qualified name}
         is the name as it appears in the document. (In the above example \e
         book:title is a qualified name.)
-    \i  A \e {namespace prefix} in a qualified name
+    \o  A \e {namespace prefix} in a qualified name
         is the part to the left of the ":". (\e book is the namespace prefix in
         \e book:title.)
-    \i  The \e {local part} of a name (also refered to as the \e {local
+    \o  The \e {local part} of a name (also refered to as the \e {local
         name}) appears to the right of the ":". (Thus \e title is the
         local part of \e book:title.)
-    \i  The \e {namespace URI} ("Uniform Resource Identifier") is a unique
+    \o  The \e {namespace URI} ("Uniform Resource Identifier") is a unique
         identifier for a namespace. It looks like a URL
         (e.g. \e http://trolltech.com/fnord/ ) but does not require
         data to be accessible by the given protocol at the named address.

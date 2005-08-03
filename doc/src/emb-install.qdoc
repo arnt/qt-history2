@@ -1,4 +1,4 @@
-/* NOT DOCUMENTED
+/*!
     \page emb-install.html
 
     \title Installing Qtopia Core
@@ -79,8 +79,7 @@
        \c /dev/mouse is normally a symbolic link; the actual mouse device
        must be readable.)
 
-\endomit
-    \omit ### this doesn't exist anymore
+\omit ### this doesn't exist anymore
     \i How to run the demonstration program.
 
        Log into a virtual console and do this:
@@ -138,6 +137,7 @@
     \i This document shows how to use Qtopia Core with the Linux framebuffer. For
     development and debugging purposes it is often easier to use the \link
     emb-qvfb.html Qtopia Core virtual framebuffer\endlink instead.
+\endomit
 
     \endlist
 */

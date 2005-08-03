@@ -1,4 +1,14 @@
-// Doc: Interface only
+/*!
+    \module QtDesigner
+    \title QtDesigner Module
+    \contentspage Qt's Modules
+    \previouspage QtXml
+    \nextpage QtAssistant
+
+    \brief The QtDesigner module provides classes for extending \QD.
+
+    \sa {Qt Designer Manual}
+*/
 
 /*!
     \class QDesignerMemberSheetExtension

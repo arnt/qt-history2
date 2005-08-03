@@ -387,15 +387,13 @@
 
     \table
     \header \o Option                     \o Features
-    \row    \o core (included by default) \o Classes that provide fundamental Qt
-                                             features
-    \row    \o gui  (included by default) \o Widgets and other GUI classes
-    \row    \o network    \o \l{Network Module} classes
-    \row    \o opengl     \o \l{OpenGL Module} classes
-    \row    \o sql        \o \l{SQL Module} classes
-    \row    \o xml        \o \l{XML Module} classes
-    \row    \o qt3support \o Enables the use of Qt 3 support classes (see the
-                          \l{Porting to Qt 4} guide)
+    \row    \o core (included by default) \o QtCore module
+    \row    \o gui  (included by default) \o QtGui module
+    \row    \o network                    \o QtNetwork module
+    \row    \o opengl                     \o QtOpenGL module
+    \row    \o sql                        \o QtSql module
+    \row    \o xml                        \o QtXml module
+    \row    \o qt3support                 \o Qt3Support module
     \endtable
 
     \section1 Configuration Features
