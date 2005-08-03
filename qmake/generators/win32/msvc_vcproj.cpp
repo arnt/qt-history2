@@ -195,6 +195,7 @@ DotNET which_dotnet_version()
     // Fallback to .NET 2002
     current_version = NET2002;
 
+    QStringList warnPath;
     int installed = 0;
     int i = 0;
     for(; dotNetCombo[i].version; ++i) {
@@ -202,6 +203,7 @@ DotNET which_dotnet_version()
         if(!path.isEmpty()) {
             ++installed;
             current_version = dotNetCombo[i].version;
+			warnPath += QString("%1").arg(dotNetCombo[i].versionStr);
         }
     }
 
@@ -209,26 +211,37 @@ DotNET which_dotnet_version()
         return current_version;
 
     // More than one version installed, search directory path
-    QString warnPath;
     QString paths = qgetenv("PATH");
     QStringList pathlist = paths.toLower().split(";");
 
     i = installed = 0;
     for(; dotNetCombo[i].version; ++i) {
         QString productPath = readRegistryKey(HKEY_LOCAL_MACHINE, dotNetCombo[i].regKey).toLower();
+		if (productPath.isEmpty())
+			continue;
         QStringList::iterator it;
         for(it = pathlist.begin(); it != pathlist.end(); ++it) {
             if((*it).contains(productPath)) {
                 ++installed;
                 current_version = dotNetCombo[i].version;
-                warnPath += QString("%1 in path. ").arg(dotNetCombo[i].versionStr);
-                break;
+                warnPath += QString("%1 in path").arg(dotNetCombo[i].versionStr);
+				break;
             }
         }
     }
-    if (installed > 1)
-        warn_msg(WarnLogic, "Generator: MSVC.NET: Found more than one version of Visual Studio in"
-                 " your path! Fallback to lowest version (%s)", warnPath.toLatin1().data());
+	switch(installed) {
+	case 1:
+		break;
+	case 0:
+		warn_msg(WarnLogic, "Generator: MSVC.NET: Found more than one version of Visual Studio, but"
+				 " non in your path! Fallback to lowest version (%s)", warnPath.join(", ").toLatin1().data());
+		break;
+	default:
+		warn_msg(WarnLogic, "Generator: MSVC.NET: Found more than one version of Visual Studio in"
+				 " your path! Fallback to lowest version (%s)", warnPath.join(", ").toLatin1().data());
+		break;
+	}
+
     return current_version;
 #endif
 };
