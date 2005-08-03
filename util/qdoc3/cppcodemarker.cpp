@@ -259,7 +259,7 @@ QString CppCodeMarker::markedUpEnumValue(const QString &enumValue, const Node *r
 {
     const Node *node = relative->parent();
     QString fullName;
-    for (;;) {
+    while (node->parent()) {
 	fullName.prepend(markedUpName(node));
 	if (node->parent() == relative || node->parent()->name().isEmpty())
 	    break;
