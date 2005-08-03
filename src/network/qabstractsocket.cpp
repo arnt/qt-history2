@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-//#define QABSTRACTSOCKET_DEBUG
+#define QABSTRACTSOCKET_DEBUG
 
 /*! \class QAbstractSocket
 
@@ -258,6 +258,11 @@
 
 #include <time.h>
 
+#define Q_CHECK_SOCKETENGINE(returnValue) do { \
+    if (!d->socketEngine) { \
+        return returnValue; \
+    } } while (0)
+
 #define QABSTRACTSOCKET_BUFFERSIZE 32768
 #define QT_CONNECT_TIMEOUT 30000
 #define QT_TRANSFER_TIMEOUT 120000
@@ -308,6 +313,7 @@ QAbstractSocketPrivate::QAbstractSocketPrivate()
       emittedBytesWritten(false),
       closeCalled(false),
       port(0),
+      socketEngine(0),
       readSocketNotifier(0),
       writeSocketNotifier(0),
       readBufferMaxSize(0),
@@ -330,8 +336,6 @@ QAbstractSocketPrivate::QAbstractSocketPrivate()
 */
 QAbstractSocketPrivate::~QAbstractSocketPrivate()
 {
-    if (socketEngine.isValid())
-        socketEngine.close();
 }
 
 /*! \internal
@@ -355,8 +359,10 @@ void QAbstractSocketPrivate::resetSocketLayer()
     delete writeSocketNotifier;
     writeSocketNotifier = 0;
 
-    if (socketEngine.isValid())
-        socketEngine.close();
+    if (socketEngine) {
+        socketEngine->close();
+        socketEngine = 0;
+    }
 }
 
 /*! \internal
@@ -368,9 +374,9 @@ void QAbstractSocketPrivate::resetSocketLayer()
 void QAbstractSocketPrivate::setupSocketNotifiers()
 {
     Q_Q(QAbstractSocket);
-    readSocketNotifier = new QSocketNotifier(socketEngine.socketDescriptor(),
+    readSocketNotifier = new QSocketNotifier(socketEngine->socketDescriptor(),
                                              QSocketNotifier::Read, q);
-    writeSocketNotifier = new QSocketNotifier(socketEngine.socketDescriptor(),
+    writeSocketNotifier = new QSocketNotifier(socketEngine->socketDescriptor(),
                                               QSocketNotifier::Write, q);
     readSocketNotifier->setEnabled(false);
     writeSocketNotifier->setEnabled(false);
@@ -403,15 +409,15 @@ bool QAbstractSocketPrivate::initSocketLayer(QAbstractSocket::SocketType type,
 #endif
 
     resetSocketLayer();
-
-    if (!socketEngine.initialize(type, protocol)) {
+    socketEngine = new QNativeSocketEngine(q);
+    if (!socketEngine->initialize(type, protocol)) {
 #if defined (QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocketPrivate::initSocketLayer(%s, %s) failed (%s)",
                typeStr.toLatin1().constData(), protocolStr.toLatin1().constData(),
-               socketLayer.errorString().toLatin1().constData());
+               socketEngine->errorString().toLatin1().constData());
 #endif
-        socketError = socketEngine.error();
-	q->setErrorString(socketEngine.errorString());
+        socketError = socketEngine->error();
+	q->setErrorString(socketEngine->errorString());
         return false;
     }
 
@@ -578,10 +584,10 @@ bool QAbstractSocketPrivate::canWriteNotification(int)
 bool QAbstractSocketPrivate::flush()
 {
     Q_Q(QAbstractSocket);
-    if (!socketEngine.isValid() || writeBuffer.isEmpty()) {
+    if (!socketEngine->isValid() || writeBuffer.isEmpty()) {
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocketPrivate::flush() nothing to do: valid ? %s, writeBuffer.isEmpty() ? %s",
-           socketEngine.isValid() ? "yes" : "no", writeBuffer.isEmpty() ? "yes" : "no");
+           socketEngine->isValid() ? "yes" : "no", writeBuffer.isEmpty() ? "yes" : "no");
 #endif
         return false;
     }
@@ -590,14 +596,14 @@ bool QAbstractSocketPrivate::flush()
     char *ptr = writeBuffer.readPointer();
 
     // Attempt to write it all in one chunk.
-    qint64 written = socketEngine.write(ptr, nextSize);
+    qint64 written = socketEngine->write(ptr, nextSize);
     if (written < 0) {
-        socketError = socketEngine.error();
-        q->setErrorString(socketEngine.errorString());
+        socketError = socketEngine->error();
+        q->setErrorString(socketEngine->errorString());
         emit q->error(socketError);
         // an unexpected error so close the socket.
 #if defined (QABSTRACTSOCKET_DEBUG)
-        qDebug() << "QAbstractSocketPrivate::flush() write error, aborting." << socketEngine.errorString();
+        qDebug() << "QAbstractSocketPrivate::flush() write error, aborting." << socketEngine->errorString();
 #endif
         q->abort();
         return false;
@@ -727,8 +733,8 @@ void QAbstractSocketPrivate::connectToNextAddress()
 
         // Perhaps reinitialize the socket layer if its protocol
         // doesn't match the address.
-        if (!socketEngine.isValid() || socketEngine.protocol() != protocol
-            || socketEngine.state() != QAbstractSocket::UnconnectedState) {
+        if (!socketEngine || !socketEngine->isValid() || socketEngine->protocol() != protocol
+            || socketEngine->state() != QAbstractSocket::UnconnectedState) {
             // ### might fail
             initSocketLayer(q->socketType(), protocol);
         }
@@ -736,7 +742,7 @@ void QAbstractSocketPrivate::connectToNextAddress()
         // Tries to connect to the address. If it succeeds immediately
         // (localhost address on BSD or any UDP connect), emit
         // connected() and return.
-        if (socketEngine.connectToHost(host, port)) {
+        if (socketEngine->connectToHost(host, port)) {
             state = QAbstractSocket::ConnectedState;
             emit q->stateChanged(state);
             if (readSocketNotifier)
@@ -749,13 +755,13 @@ void QAbstractSocketPrivate::connectToNextAddress()
 
         // Check that we're in delayed connection state. If not, an
         // error has occurred.
-        if (socketEngine.state() != QAbstractSocket::ConnectingState) {
+        if (socketEngine->state() != QAbstractSocket::ConnectingState) {
 #if defined(QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocketPrivate::connectToNextAddress(), connection failed (%s)",
-                   socketEngine.errorString().toLatin1().constData());
+                   socketEngine->errorString().toLatin1().constData());
 #endif
-            socketError = socketEngine.error();
-            q->setErrorString(socketEngine.errorString());
+            socketError = socketEngine->error();
+            q->setErrorString(socketEngine->errorString());
             emit q->error(socketError);
             return;
         }
@@ -791,7 +797,7 @@ void QAbstractSocketPrivate::testConnection()
             connectTimer->stop();
     }
 
-    if (socketEngine.state() == QAbstractSocket::ConnectedState || socketEngine.connectToHost(host, port)) {
+    if (socketEngine->state() == QAbstractSocket::ConnectedState || socketEngine->connectToHost(host, port)) {
         state = QAbstractSocket::ConnectedState;
         emit q->stateChanged(state);
 
@@ -830,7 +836,7 @@ void QAbstractSocketPrivate::abortConnectionAttempt()
     if (writeSocketNotifier)
         writeSocketNotifier->setEnabled(false);
 
-    if (socketEngine.isValid())
+    if (socketEngine->isValid())
         testConnection();
 }
 
@@ -843,7 +849,7 @@ bool QAbstractSocketPrivate::readFromSocket()
 {
     Q_Q(QAbstractSocket);
     // Find how many bytes we can read from the socket layer.
-    qint64 bytesToRead = socketEngine.bytesAvailable();
+    qint64 bytesToRead = socketEngine->bytesAvailable();
     if (readBufferMaxSize && bytesToRead > (readBufferMaxSize - readBuffer.size()))
         bytesToRead = readBufferMaxSize - readBuffer.size();
 
@@ -854,13 +860,13 @@ bool QAbstractSocketPrivate::readFromSocket()
 
     // Read from the socket, store data in the read buffer.
     char *ptr = readBuffer.reserve(bytesToRead);
-    qint64 readBytes = socketEngine.read(ptr, bytesToRead);
+    qint64 readBytes = socketEngine->read(ptr, bytesToRead);
     if (readBytes > 0)
         readBuffer.truncate((int) (bytesToRead - readBytes));
 
-    if (!socketEngine.isValid()) {
-        socketError = socketEngine.error();
-        q->setErrorString(socketEngine.errorString());
+    if (!socketEngine->isValid()) {
+        socketError = socketEngine->error();
+        q->setErrorString(socketEngine->errorString());
         emit q->error(socketError);
 #if defined(QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocketPrivate::readFromSocket() read failed: %s",
@@ -928,7 +934,7 @@ QAbstractSocket::~QAbstractSocket()
 */
 bool QAbstractSocket::isValid() const
 {
-    return d_func()->socketEngine.isValid();
+    return d_func()->socketEngine->isValid();
 }
 
 /*!
@@ -1034,11 +1040,12 @@ qint64 QAbstractSocket::bytesToWrite() const
 qint64 QAbstractSocket::bytesAvailable() const
 {
     Q_D(const QAbstractSocket);
+    Q_CHECK_SOCKETENGINE(0);
     qint64 available = QIODevice::bytesAvailable();
     if (d->isBuffered)
         available += (qint64) d->readBuffer.size();
-    else if (d->socketEngine.isValid())
-        available += d->socketEngine.bytesAvailable();
+    else if (d->socketEngine->isValid())
+        available += d->socketEngine->bytesAvailable();
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::bytesAvailable() == %llu", available);
 #endif
@@ -1054,9 +1061,8 @@ qint64 QAbstractSocket::bytesAvailable() const
 quint16 QAbstractSocket::localPort() const
 {
     Q_D(const QAbstractSocket);
-    if (!d->socketEngine.isValid())
-        return 0;
-    return d->socketEngine.localPort();
+    Q_CHECK_SOCKETENGINE(0);
+    return d->socketEngine->localPort();
 }
 
 /*!
@@ -1072,9 +1078,8 @@ quint16 QAbstractSocket::localPort() const
 QHostAddress QAbstractSocket::localAddress() const
 {
     Q_D(const QAbstractSocket);
-    if (!d->socketEngine.isValid())
-        return QHostAddress();
-    return d->socketEngine.localAddress();
+    Q_CHECK_SOCKETENGINE(QHostAddress());
+    return d->socketEngine->localAddress();
 }
 
 /*!
@@ -1086,9 +1091,8 @@ QHostAddress QAbstractSocket::localAddress() const
 quint16 QAbstractSocket::peerPort() const
 {
     Q_D(const QAbstractSocket);
-    if (!d->socketEngine.isValid())
-        return 0;
-    return d->socketEngine.peerPort();
+    Q_CHECK_SOCKETENGINE(0);
+    return d->socketEngine->peerPort();
 }
 
 /*!
@@ -1100,9 +1104,8 @@ quint16 QAbstractSocket::peerPort() const
 QHostAddress QAbstractSocket::peerAddress() const
 {
     Q_D(const QAbstractSocket);
-    if (!d->socketEngine.isValid())
-        return QHostAddress();
-    return d->socketEngine.peerAddress();
+    Q_CHECK_SOCKETENGINE(QHostAddress());
+    return d->socketEngine->peerAddress();
 }
 
 /*!
@@ -1142,7 +1145,9 @@ bool QAbstractSocket::canReadLine() const
 */
 int QAbstractSocket::socketDescriptor() const
 {
-    return d_func()->socketEngine.socketDescriptor();
+    Q_D(const QAbstractSocket);
+    Q_CHECK_SOCKETENGINE(-1);
+    return d->socketEngine->socketDescriptor();
 }
 
 /*!
@@ -1157,11 +1162,13 @@ int QAbstractSocket::socketDescriptor() const
 bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, SocketState socketState,
                                           OpenMode openMode)
 {
-    Q_D(QAbstractSocket);
-    bool result = d->socketEngine.initialize(socketDescriptor, socketState);
+    Q_D(QAbstractSocket);    
+    d->resetSocketLayer();
+    d->socketEngine = new QNativeSocketEngine(this);
+    bool result = d->socketEngine->initialize(socketDescriptor, socketState);
     if (!result) {
-        d->socketError = d->socketEngine.error();
-        setErrorString(d->socketEngine.errorString());
+        d->socketError = d->socketEngine->error();
+        setErrorString(d->socketEngine->errorString());
         return false;
     }
 
@@ -1254,7 +1261,7 @@ bool QAbstractSocket::waitForConnected(int msecs)
                msecs, timeout / 1000.0, attempt++);
 #endif
         timedOut = false;
-        d->socketEngine.waitForWrite(timeout, &timedOut);
+        d->socketEngine->waitForWrite(timeout, &timedOut);
         d->testConnection();
     }
 
@@ -1299,10 +1306,10 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
     forever {
         bool readyToRead = false;
         bool readyToWrite = false;
-        if (!d->socketEngine.waitForReadOrWrite(&readyToRead, &readyToWrite, true, !d->writeBuffer.isEmpty(),
+        if (!d->socketEngine->waitForReadOrWrite(&readyToRead, &readyToWrite, true, !d->writeBuffer.isEmpty(),
                                                qt_timeout_value(msecs, stopWatch.elapsed()))) {
-            d->socketError = d->socketEngine.error();
-            setErrorString(d->socketEngine.errorString());
+            d->socketError = d->socketEngine->error();
+            setErrorString(d->socketEngine->errorString());
 #if defined (QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocket::waitForReadyRead(%i) failed (%i, %s)",
                    msecs, d->socketError, errorString().toLatin1().constData());
@@ -1357,10 +1364,10 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
     forever {
         bool readyToRead = false;
         bool readyToWrite = false;
-        if (!d->socketEngine.waitForReadOrWrite(&readyToRead, &readyToWrite, true, !d->writeBuffer.isEmpty(),
+        if (!d->socketEngine->waitForReadOrWrite(&readyToRead, &readyToWrite, true, !d->writeBuffer.isEmpty(),
                                                qt_timeout_value(msecs, stopWatch.elapsed()))) {
-            d->socketError = d->socketEngine.error();
-            setErrorString(d->socketEngine.errorString());
+            d->socketError = d->socketEngine->error();
+            setErrorString(d->socketEngine->errorString());
 #if defined (QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocket::waitForBytesWritten(%i) failed (%i, %s)",
                    msecs, d->socketError, errorString().toLatin1().constData());
@@ -1435,11 +1442,11 @@ bool QAbstractSocket::waitForDisconnected(int msecs)
     forever {
         bool readyToRead = false;
         bool readyToWrite = false;
-        if (!d->socketEngine.waitForReadOrWrite(&readyToRead, &readyToWrite, state() == ConnectedState,
+        if (!d->socketEngine->waitForReadOrWrite(&readyToRead, &readyToWrite, state() == ConnectedState,
                                                !d->writeBuffer.isEmpty(),
                                                qt_timeout_value(msecs, stopWatch.elapsed()))) {
-            d->socketError = d->socketEngine.error();
-            setErrorString(d->socketEngine.errorString());
+            d->socketError = d->socketEngine->error();
+            setErrorString(d->socketEngine->errorString());
 #if defined (QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocket::waitForReadyRead(%i) failed (%i, %s)",
                    msecs, d->socketError, errorString().toLatin1().constData());
@@ -1520,6 +1527,7 @@ bool QAbstractSocket::atEnd() const
 bool QAbstractSocket::flush()
 {
     Q_D(QAbstractSocket);
+    Q_CHECK_SOCKETENGINE(false);
     return d->flush();
 }
 
@@ -1529,10 +1537,10 @@ qint64 QAbstractSocket::readData(char *data, qint64 maxSize)
 {
     Q_D(QAbstractSocket);
     if (!d->isBuffered) {
-        qint64 readBytes = d->socketEngine.read(data, maxSize);
+        qint64 readBytes = d->socketEngine->read(data, maxSize);
         if (readBytes < 0) {
-            d->socketError = d->socketEngine.error();
-            setErrorString(d->socketEngine.errorString());
+            d->socketError = d->socketEngine->error();
+            setErrorString(d->socketEngine->errorString());
         }
 #if defined (QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocket::readData(%p \"%s\", %lli) == %lld",
@@ -1590,10 +1598,10 @@ qint64 QAbstractSocket::writeData(const char *data, qint64 size)
 {
     Q_D(QAbstractSocket);
     if (!d->isBuffered) {
-        qint64 written = d->socketEngine.write(data, size);
+        qint64 written = d->socketEngine->write(data, size);
         if (written < 0) {
-            d->socketError = d->socketEngine.error();
-            setErrorString(d->socketEngine.errorString());
+            d->socketError = d->socketEngine->error();
+            setErrorString(d->socketEngine->errorString());
         } else if (d->writeSocketNotifier && !d->writeBuffer.isEmpty()) {
             d->writeSocketNotifier->setEnabled(true);
         }

@@ -93,14 +93,14 @@
         setErrorString(QT_TRANSLATE_NOOP("QUdpSocket", "This platform does not support IPv6")); \
         return (a); \
     } \
-    if (!d_func()->socketEngine.isValid() || d_func()->socketEngine.protocol() != proto) \
+    if (!d_func()->socketEngine || !d_func()->socketEngine->isValid() || d_func()->socketEngine->protocol() != proto) \
         if (!d_func()->initSocketLayer(QUdpSocket::UdpSocket, proto)) \
             return (a); \
     } while (0)
 #else
 #define QT_ENSURE_INITIALIZED(a) do { \
     QAbstractSocket::NetworkLayerProtocol proto = address.protocol(); \
-    if (!d_func()->socketEngine.isValid() || d_func()->socketEngine.protocol() != proto) \
+    if (!d_func()->socketEngine || !d_func()->socketEngine->isValid() || d_func()->socketEngine->protocol() != proto) \
         if (!d_func()->initSocketLayer(QUdpSocket::UdpSocket, proto)) \
             return (a); \
     } while (0)
@@ -153,10 +153,10 @@ bool QUdpSocket::bind(const QHostAddress &address, quint16 port)
 {
     QT_ENSURE_INITIALIZED(false);
 
-    bool result = d_func()->socketEngine.bind(address, port);
+    bool result = d_func()->socketEngine->bind(address, port);
     if (!result) {
-        d_func()->socketError = d_func()->socketEngine.error();
-        setErrorString(d_func()->socketEngine.errorString());
+        d_func()->socketError = d_func()->socketEngine->error();
+        setErrorString(d_func()->socketEngine->errorString());
         emit error(d_func()->socketError);
         return false;
     }
@@ -185,7 +185,7 @@ bool QUdpSocket::bind(quint16 port)
 bool QUdpSocket::hasPendingDatagrams() const
 {
     QT_CHECK_BOUND("QUdpSocket::hasPendingDatagrams()", false);
-    return d_func()->socketEngine.hasPendingDatagrams();
+    return d_func()->socketEngine->hasPendingDatagrams();
 }
 
 /*!
@@ -197,7 +197,7 @@ bool QUdpSocket::hasPendingDatagrams() const
 qint64 QUdpSocket::pendingDatagramSize() const
 {
     QT_CHECK_BOUND("QUdpSocket::pendingDatagramSize()", -1);
-    return d_func()->socketEngine.pendingDatagramSize();
+    return d_func()->socketEngine->pendingDatagramSize();
 }
 
 /*!
@@ -226,12 +226,12 @@ qint64 QUdpSocket::writeDatagram(const char *data, qint64 size, const QHostAddre
            address.toString().toLatin1().constData(), port);
 #endif
     QT_ENSURE_INITIALIZED(-1);
-    qint64 sent = d->socketEngine.writeDatagram(data, size, address, port);
+    qint64 sent = d->socketEngine->writeDatagram(data, size, address, port);
     if (sent >= 0) {
         emit bytesWritten(sent);
     } else {
-        d->socketError = d->socketEngine.error();
-        setErrorString(d->socketEngine.errorString());
+        d->socketError = d->socketEngine->error();
+        setErrorString(d->socketEngine->errorString());
         emit error(d->socketError);
     }
     return sent;
@@ -269,10 +269,10 @@ qint64 QUdpSocket::readDatagram(char *data, qint64 maxSize, QHostAddress *addres
     qDebug("QUdpSocket::readDatagram(%p, %llu, %p, %p)", data, maxSize, address, port);
 #endif
     QT_CHECK_BOUND("QUdpSocket::readDatagram()", -1);
-    qint64 readBytes = d->socketEngine.readDatagram(data, maxSize, address, port);
+    qint64 readBytes = d->socketEngine->readDatagram(data, maxSize, address, port);
     if (readBytes < 0) {
-        d->socketError = d->socketEngine.error();
-        setErrorString(d->socketEngine.errorString());
+        d->socketError = d->socketEngine->error();
+        setErrorString(d->socketEngine->errorString());
         emit error(d->socketError);
     }
     d->readSocketNotifier->setEnabled(true);

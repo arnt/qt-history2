@@ -54,7 +54,7 @@ public:
     QHostAddress host;
     QList<QHostAddress> addresses;
 
-    QNativeSocketEngine socketEngine;
+    QAbstractSocketEngine *socketEngine;
 
     QSocketNotifier *readSocketNotifier;
     QSocketNotifier *writeSocketNotifier;
