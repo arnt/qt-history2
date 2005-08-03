@@ -95,7 +95,7 @@
 */
 
 /*!
-    \fn void QAbstractItemDelegate::closeEditor(QWidget *editor, EndEditHint hint)
+    \fn void QAbstractItemDelegate::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)
 
     This signal is emitted when the user has finished editing an item using
     the specified \a editor.
