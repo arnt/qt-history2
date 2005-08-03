@@ -15,7 +15,7 @@
 
 #include "qplatformdefs.h"
 
-#include "qsocketlayer_p.h"
+#include "qnativesocketengine_p.h"
 #include "qiodevice.h"
 #include "qhostaddress.h"
 #include "qvarlengtharray.h"

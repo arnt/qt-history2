@@ -13,7 +13,7 @@
 
 #include <winsock2.h>
 
-#include "qsocketlayer_p.h"
+#include "qnativesocketengine_p.h"
 
 #include <qabstracteventdispatcher.h>
 #include <qsocketnotifier.h>

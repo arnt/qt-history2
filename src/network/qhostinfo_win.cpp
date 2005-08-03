@@ -14,7 +14,7 @@
 #include <winsock2.h>
 
 #include "qhostinfo_p.h"
-#include "qsocketlayer_p.h"
+#include "qnativesocketengine_p.h"
 #include <ws2tcpip.h>
 #include <qlibrary.h>
 #include <qtimer.h>

@@ -19,7 +19,7 @@
 #include <qcoreapplication.h>
 #include <qmetaobject.h>
 #include <qregexp.h>
-#include <private/qsocketlayer_p.h>
+#include <private/qnativesocketengine_p.h>
 #include <qstringlist.h>
 #include <qthread.h>
 #include <qtimer.h>

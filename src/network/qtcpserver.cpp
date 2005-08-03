@@ -69,7 +69,7 @@
 #include "qhostaddress.h"
 #include "qlist.h"
 #include "qpointer.h"
-#include "qsocketlayer_p.h"
+#include "qnativesocketengine_p.h"
 #include "qsocketnotifier.h"
 #include "qtcpserver.h"
 #include "qtcpsocket.h"

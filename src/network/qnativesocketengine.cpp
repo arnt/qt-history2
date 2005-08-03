@@ -68,7 +68,7 @@
     errorString() can be called to determine the cause of the error.
 */
 
-#include "qsocketlayer_p.h"
+#include "qnativesocketengine_p.h"
 
 #define Q_VOID
 

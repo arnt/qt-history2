@@ -13,7 +13,7 @@ HEADERS += qftp.h \
            qhttp.h \
            qhostaddress.h \
            qabstractsocketengine_p.h \
-           qsocketlayer_p.h \
+           qnativesocketengine_p.h \
            qabstractsocket.h \
            qabstractsocket_p.h \
            qtcpsocket.h \
@@ -27,7 +27,7 @@ SOURCES	= qftp.cpp \
           qhttp.cpp \
           qhostaddress.cpp \
           qabstractsocketengine.cpp \
-          qsocketlayer.cpp \
+          qnativesocketengine.cpp \
           qabstractsocket.cpp \
           qtcpsocket.cpp \
           qudpsocket.cpp \
@@ -35,8 +35,8 @@ SOURCES	= qftp.cpp \
           qhostinfo.cpp \
           qurlinfo.cpp
 
-unix:SOURCES += qhostinfo_unix.cpp qsocketlayer_unix.cpp
-win32:SOURCES += qhostinfo_win.cpp qsocketlayer_win.cpp
+unix:SOURCES += qhostinfo_unix.cpp qnativesocketengine_unix.cpp
+win32:SOURCES += qhostinfo_win.cpp qnativesocketengine_win.cpp
 
 
 mac:INCLUDEPATH += ../3rdparty/dlcompat #qdns.cpp uses it (on Jaguar)

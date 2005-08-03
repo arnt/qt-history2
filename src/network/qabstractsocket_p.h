@@ -19,7 +19,7 @@
 #include <private/qiodevice_p.h>
 #include <qbytearray.h>
 #include <qlist.h>
-#include <private/qsocketlayer_p.h>
+#include <private/qnativesocketengine_p.h>
 #include <qsocketnotifier.h>
 #include <qtimer.h>
 
