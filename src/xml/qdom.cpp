@@ -859,6 +859,10 @@ QDomNodePrivate* QDomNodeListPrivate::item(int index)
         return 0;
     if (timestamp < qt_nodeListTime)
         createList();
+
+    if (index >= list.size())
+        return 0;
+
     return list.at(index);
 }
 
