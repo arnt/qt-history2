@@ -908,7 +908,7 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
 void QWidgetPrivate::updateSystemBackground()
 {
     Q_Q(QWidget);
-    QBrush brush = q->palette().brush(q->backgroundRole());
+    QBrush brush = q->palette().brush(QPalette::Active, q->backgroundRole());
     Qt::WindowType type = q->windowType();
     if (brush.style() == Qt::NoBrush
         || q->testAttribute(Qt::WA_NoSystemBackground)

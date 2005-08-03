@@ -5082,21 +5082,8 @@ bool QWidget::event(QEvent *e)
 #ifdef QT3_SUPPORT
         windowActivationChange(e->type() != QEvent::WindowActivate);
 #endif
-        if (isVisible()) {
-            for(int role=0; role < (int)QPalette::NColorRoles; role++) {
-                if(data->pal.brush(QPalette::Active, (QPalette::ColorRole)role) !=
-                   data->pal.brush(QPalette::Inactive, (QPalette::ColorRole)role)) {
-                    QPalette::ColorRole bg_role = backgroundRole();
-                    if (!testAttribute(Qt::WA_NoSystemBackground) && bg_role < QPalette::NColorRoles &&
-                         (role == bg_role || (role < bg_role && data->pal.brush(QPalette::Active, bg_role) !=
-                                              data->pal.brush(QPalette::Inactive, bg_role))))
-                        d->updateSystemBackground();
-                    else if(role <= QPalette::Shadow)
-                        update();
-                    break;
-                }
-            }
-        }
+        if (isVisible() && !palette().isEqual(QPalette::Active, QPalette::Inactive))
+            update();
         QList<QObject*> childList = d->children;
         for (int i = 0; i < childList.size(); ++i) {
             QWidget *w = qobject_cast<QWidget *>(childList.at(i));

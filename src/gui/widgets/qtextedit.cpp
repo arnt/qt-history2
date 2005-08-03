@@ -2227,9 +2227,6 @@ void QTextEdit::changeEvent(QEvent *e)
             it.value()->invalidate();
         d->relayoutDocument();
     }  else if(e->type() == QEvent::ActivationChange) {
-        if (!palette().isEqual(QPalette::Active, QPalette::Inactive))
-            update();
-
         if (!isActiveWindow())
             d->autoScrollTimer.stop();
     }
@@ -2425,7 +2422,7 @@ QMimeData *QTextEdit::createMimeDataFromSelection() const
 /*!
     This function returns true if the contents of the MIME data object, specified
     by \a source, can be decoded and inserted into the document. It is called
-    for example when during a drag operation the mouse enters this widget and it 
+    for example when during a drag operation the mouse enters this widget and it
     is necessary to determine whether it is possible to accept the drag.
  */
 bool QTextEdit::canInsertFromMimeData(const QMimeData *source) const
