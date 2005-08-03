@@ -534,18 +534,20 @@ void QAbstractItemModelPrivate::reset()
 
     This class is used as an index into item models derived from
     QAbstractItemModel. The index is used by item views, delegates, and
-    selection models to locate an item in the model. QModelIndex objects are
-    created by the model.
+    selection models to locate an item in the model.
 
-    Model indexes contain all the information required to specify the items
-    they refer to in a model. Indexes are located in a row and a column, and
-    they may have a parent index; use row(), column(), and parent() to obtain
-    this information. Top-level items in a model are represented by model
-    indexes that do not have a parent index - in this case, parent() will
-    return an invalid model index that is equivalent to an index constructed
-    with the zero argument form of the QModelIndex() constructor.
+    New QModelIndex objects are created by the model using the
+    QAbstractItemModel::createIndex() function.
 
-    To obtain a model index that refers to an item in a model, call
+    Model indexes refer to items in models, and contain all the information
+    required to specify their locations in those models. Each index is located
+    in a given row and column, and may have a parent index; use row(), column(),
+    and parent() to obtain this information. Each top-level item in a model is
+    represented by a model index that does not have a parent index - in this
+    case, parent() will return an invalid model index, equivalent to an index
+    constructed with the zero argument form of the QModelIndex() constructor.
+
+    To obtain a model index that refers to an existing item in a model, call
     QAbstractItemModel::index() with the required row and column
     values, and the model index of the parent. When referring to
     top-level items in a model, supply QModelIndex() as the parent index.
@@ -756,6 +758,15 @@ void QAbstractItemModelPrivate::reset()
 
     You can also reimplement headerData() and setHeaderData() to control
     the way the headers for your model are presented.
+
+    Custom models need to create model indexes for other components to use.
+    To do this, call createIndex() with suitable row and column numbers for
+    the item, and supply a unique identifier for the item, either as a
+    pointer or as an integer value. Custom models typically use these
+    unique identifiers in other reimplemented functions to retrieve item
+    data and access information about the item's parents and children.
+    See the \l{Simple Tree Model} example for more information about unique
+    identifiers.
 
     Models that provide interfaces to resizable data structures can
     provide implementations of insertRows(), removeRows(), insertColumns(),
