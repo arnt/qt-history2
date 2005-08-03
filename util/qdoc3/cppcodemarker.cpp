@@ -95,24 +95,27 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
 	func = (const FunctionNode *) node;
 	if (style != SeparateList && !func->returnType().isEmpty())
 	    synopsis = typified(func->returnType()) + " ";
-	synopsis += name + " (";
-	if ( !func->parameters().isEmpty() ) {
-	    synopsis += " ";
-	    QList<Parameter>::ConstIterator p = func->parameters().begin();
-	    while ( p != func->parameters().end() ) {
-		if ( p != func->parameters().begin() )
-		    synopsis += ", ";
-		synopsis += typified((*p).leftType());
-                if (style != SeparateList && !(*p).name().isEmpty())
-                    synopsis += " <@param>" + protect((*p).name()) + "</@param>";
-                synopsis += protect((*p).rightType());
-		if (style != SeparateList && !(*p).defaultValue().isEmpty())
-		    synopsis += " = " + protect( (*p).defaultValue() );
-		++p;
+	synopsis += name;
+        if (func->metaness() != FunctionNode::MacroWithoutParams) {
+            synopsis += " (";
+	    if ( !func->parameters().isEmpty() ) {
+	        synopsis += " ";
+	        QList<Parameter>::ConstIterator p = func->parameters().begin();
+	        while ( p != func->parameters().end() ) {
+		    if ( p != func->parameters().begin() )
+		        synopsis += ", ";
+		    synopsis += typified((*p).leftType());
+                    if (style != SeparateList && !(*p).name().isEmpty())
+                        synopsis += " <@param>" + protect((*p).name()) + "</@param>";
+                    synopsis += protect((*p).rightType());
+		    if (style != SeparateList && !(*p).defaultValue().isEmpty())
+		        synopsis += " = " + protect( (*p).defaultValue() );
+		    ++p;
+	        }
+	        synopsis += " ";
 	    }
-	    synopsis += " ";
-	}
-	synopsis += ")";
+	    synopsis += ")";
+        }
 	if ( func->isConst() )
 	    synopsis += " const";
 
@@ -330,7 +333,7 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
             while (r != classe->relatedNodes().end()) {
                 if ((*r)->type() == Node::Function) {
                     FunctionNode *func = static_cast<FunctionNode *>(*r);
-                    if (func->metaness() == FunctionNode::Macro)
+                    if (func->isMacro())
                         insert(macros, *r, style, status);
                     else
                         insert(relatedNonMembers, *r, style, status);
@@ -451,7 +454,7 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
             while (r != classe->relatedNodes().end()) {
                 if ((*r)->type() == Node::Function) {
                     FunctionNode *func = static_cast<FunctionNode *>(*r);
-                    if (func->metaness() == FunctionNode::Macro)
+                    if (func->isMacro())
                         insert(macros, *r, style, status);
                     else
                         insert(relatedNonMembers, *r, style, status);
@@ -537,7 +540,7 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 	        case Node::Function:
                     {
                         FunctionNode *func = static_cast<FunctionNode *>(*n);
-                        if (func->metaness() == FunctionNode::Macro)
+                        if (func->isMacro())
 		            insert(macros, *n, style, status);
                         else
 		            insert(functions, *n, style, status);
@@ -568,7 +571,8 @@ const Node *CppCodeMarker::resolveTarget(const QString &target, const Tree *tree
         funcName.chop(2);
 
         QStringList path = funcName.split("::");
-        if ((func = tree->findFunctionNode(path, relative, Tree::SearchBaseClasses)))
+        if ((func = tree->findFunctionNode(path, relative, Tree::SearchBaseClasses))
+                && func->metaness() != FunctionNode::MacroWithoutParams)
             return func;
     } else if (target.contains("#")) {
         int hashAt = target.indexOf("#");
@@ -597,8 +601,7 @@ const Node *CppCodeMarker::resolveTarget(const QString &target, const Tree *tree
         const Node *node;
         if ((node = tree->findNode(path, relative,
                                    Tree::SearchBaseClasses | Tree::SearchEnumValues
-                                   | Tree::NonFunction))
-                && node->type() != Node::Function)
+                                   | Tree::NonFunction)))
             return node;
     }
     return 0;

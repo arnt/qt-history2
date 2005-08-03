@@ -590,6 +590,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 			    skipToNextPreprocessorCommand();
 		        break;
 		    case CMD_IMAGE:
+                        leaveValueList();
 		        append( Atom::Image, getArgument() );
 		        append( Atom::ImageText, getRestOfLine() );
 		        break;
@@ -1017,7 +1018,6 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
                             ++pos;
                         } else if (isdigit(latin1Ch)) {
                             if (pos > startPos) {
-                                ++numStrangeSymbols;
                                 ++pos;
                             } else {
                                 break;

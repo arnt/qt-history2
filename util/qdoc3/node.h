@@ -302,7 +302,7 @@ class PropertyNode;
 class FunctionNode : public LeafNode
 {
 public:
-    enum Metaness { Plain, Signal, Slot, Ctor, Dtor, Macro };
+    enum Metaness { Plain, Signal, Slot, Ctor, Dtor, MacroWithParams, MacroWithoutParams };
     enum Virtualness { NonVirtual, ImpureVirtual, PureVirtual };
 
     FunctionNode(InnerNode *parent, const QString &name);
@@ -320,6 +320,7 @@ public:
 
     const QString& returnType() const { return rt; }
     Metaness metaness() const { return met; }
+    bool isMacro() const { return met == MacroWithParams || met == MacroWithoutParams; }
     Virtualness virtualness() const { return vir; }
     bool isConst() const { return con; }
     bool isStatic() const { return sta; }

@@ -84,6 +84,7 @@ private:
     int tok;
     Node::Access access;
     FunctionNode::Metaness metaness;
+    QString moduleName;
     QStringList lastPath;
     QRegExp varComment;
     QRegExp sep;

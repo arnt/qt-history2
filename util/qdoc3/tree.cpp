@@ -97,7 +97,9 @@ const Node *Tree::findNode(const QStringList &path, const Node *relative, int fi
             }
             node = next;
         }
-        if (node && i == path.size() && (!(findFlags & NonFunction) || node->type() != Node::Function))
+        if (node && i == path.size()
+                && (!(findFlags & NonFunction) || node->type() != Node::Function
+                    || ((FunctionNode *)node)->metaness() == FunctionNode::MacroWithoutParams))
             return node;
         relative = relative->parent();
     } while (relative);
@@ -602,7 +604,11 @@ void Tree::readIndexSection(const QDomElement &element,
         else if (element.attribute("meta") == "destructor")
             meta = FunctionNode::Dtor;
         else if (element.attribute("meta") == "macro")
-            meta = FunctionNode::Macro;
+            meta = FunctionNode::MacroWithParams;
+        else if (element.attribute("meta") == "macrowithparams")
+            meta = FunctionNode::MacroWithParams;
+        else if (element.attribute("meta") == "macrowithoutparams")
+            meta = FunctionNode::MacroWithoutParams;
         else
             return;
 
@@ -890,8 +896,11 @@ void Tree::generateIndexSubSections(QString indent, QTextStream& out,
             case FunctionNode::Dtor:
                 thisStream << " meta=\"destructor\"";
                 break;
-            case FunctionNode::Macro:
-                thisStream << " meta=\"macro\"";
+            case FunctionNode::MacroWithParams:
+                thisStream << " meta=\"macrowithparams\"";
+                break;
+            case FunctionNode::MacroWithoutParams:
+                thisStream << " meta=\"macrowithoutparams\"";
                 break;
             default:
                 break;

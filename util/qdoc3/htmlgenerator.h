@@ -45,12 +45,15 @@ protected:
     virtual QString fileExtension();
 
 private:
+    enum SubTitleSize { SmallSubTitle, LargeSubTitle };
+
     const QPair<QString,QString> anchorForNode(const Node *node);
     const Node *findNodeForTarget(const QString &target, const Node *relative,
                                   CodeMarker *marker, const Atom *atom = 0);
     void generateHeader(const QString& title, const Node *node = 0,
                         CodeMarker *marker = 0);
-    void generateTitle( const QString& title, const QString &subTitle = QString());
+    void generateTitle(const QString& title, const Text &subTitle, SubTitleSize subTitleSize,
+                       const Node *relative, CodeMarker *marker);
     void generateFooter( const Node *node = 0 );
     void generateBrief(const Node *node, CodeMarker *marker);
     void generateIncludes(const InnerNode *inner, CodeMarker *marker);

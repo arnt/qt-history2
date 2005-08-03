@@ -326,19 +326,62 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 
 void Generator::generateAlsoList( const Node *node, CodeMarker *marker )
 {
-    QList<Text>::ConstIterator a;
-    int index;
+    QList<Text> alsoList = node->doc().alsoList();
 
-    if ( !node->doc().alsoList().isEmpty() ) {
+    if (node->type() == Node::Function) {
+        const FunctionNode *func = static_cast<const FunctionNode *>(node);
+        if (func->overloadNumber() == 1) {
+            QString alternateName;
+            const FunctionNode *alternateFunc = 0;
+
+            if (func->name().startsWith("set") && func->name().size() >= 4) {
+                alternateName = func->name()[3].toLower();
+                alternateName += func->name().mid(4);
+                alternateFunc = func->parent()->findFunctionNode(alternateName);
+
+                if (!alternateFunc) {
+                    alternateName = "is" + func->name().mid(3);
+                    alternateFunc = func->parent()->findFunctionNode(alternateName);
+                    if (!alternateFunc) {
+                        alternateName = "has" + func->name().mid(3);
+                        alternateFunc = func->parent()->findFunctionNode(alternateName);
+                    }
+                }
+            } else if (!func->name().isEmpty()) {
+                alternateName = "set";
+                alternateName += func->name()[0].toUpper();
+                alternateName += func->name().mid(1);
+                alternateFunc = func->parent()->findFunctionNode(alternateName);
+            }
+
+            if (alternateFunc && alternateFunc->access() != Node::Private) {
+                int i;
+                for (i = 0; i < alsoList.size(); ++i) {
+                    if (alsoList.at(i).toString().contains(alternateName))
+                        break;
+                }
+
+                if (i == alsoList.size()) {
+                    alternateName += "()";
+
+                    Text also;
+                    also << Atom(Atom::Link, alternateName)
+                         << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
+                         << alternateName
+                         << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK);
+                    alsoList.prepend(also);
+                }
+            }
+        }
+    }
+
+    if (!alsoList.isEmpty()) {
 	Text text;
 	text << Atom::ParaLeft << "See also ";
 
-	a = node->doc().alsoList().begin();
-	index = 0;
-        while ( a != node->doc().alsoList().end() ) {
-	    text << *a << separator( index++, node->doc().alsoList().count() );
-            ++a;
-        }
+	for (int i = 0; i < alsoList.size(); ++i)
+	    text << alsoList.at(i) << separator(i, alsoList.size());
+
         text << Atom::ParaRight;
 	generateText( text, node, marker );
     }
@@ -412,12 +455,12 @@ void Generator::generateExampleFiles(const FakeNode *fake, CodeMarker *marker)
     generateText(text, fake, marker);
 }
 
-void Generator::generateModuleName(const ClassNode *classe, CodeMarker *marker)
+void Generator::generateModuleWarning(const ClassNode *classe, CodeMarker *marker)
 {
     QString module = classe->moduleName();
     if (!module.isEmpty()) {
         Text text;
-        if (Tokenizer::isTrue("defined(console)") && module != "QtCore"
+        if (Tokenizer::isTrue("defined(consoleedition)") && module != "QtCore"
                 && module != "QtNetwork" && module != "QtSql"
                 && module != "QtXml") {
             text << Atom::ParaLeft
@@ -425,22 +468,22 @@ void Generator::generateModuleName(const ClassNode *classe, CodeMarker *marker)
                  << "This class is not part of the Qt Console Edition."
                  << Atom(Atom::FormattingRight, ATOM_FORMATTING_BOLD)
                  << Atom::ParaRight;
-        } else if (Tokenizer::isTrue("defined(desktoplight)") && module != "QtCore"
-                && module != "QtGui") {
+        } else if (Tokenizer::isTrue("defined(desktoplightedition)") && module != "QtCore"
+                && module != "QtGui" && module != "Qt3SupportLight") {
             text << Atom::ParaLeft
                  << Atom(Atom::FormattingLeft, ATOM_FORMATTING_BOLD)
                  << "This class is not part of the Qt Desktop Light Edition."
                  << Atom(Atom::FormattingRight, ATOM_FORMATTING_BOLD)
                  << Atom::ParaRight;
-        } else {
-	    text << Atom::ParaLeft << "Part of the "
-                 << Atom(Atom::Link, module.toLower() + ".html")
-                 << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
-                 << module
-                 << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK)
-                 << " module."
-                 << Atom::ParaRight;
+        } else if (module == "Qt3Support" && Tokenizer::isTrue("defined(opensourceedition)")) {
+            text << Atom::ParaLeft << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD )
+                 << "Note to Qt Desktop Light Edition users:"
+                 << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
+                 << " This class is only available in the "
+                 << Atom(Atom::AutoLink, "Qt Desktop Edition")
+                 << "." << Atom::ParaRight;
         }
+
         generateText(text, classe, marker);
     }
 }
@@ -584,16 +627,14 @@ void Generator::generateStatus( const Node *node, CodeMarker *marker )
         }
         break;
     case Node::Compat:
+        // reimplemented in HtmlGenerator subclass
         if (node->isInnerNode()) {
 	    text << Atom::ParaLeft << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
-	         << typeString( node ) << " is part of the Qt 3 support library."
+	         << typeString( node ) << " is part of the Qt 3 compatibility layer."
 	         << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
 	         << " It is provided to keep old source code working. We strongly advise against "
-                 << "using it in new code. See the "
-                 << Atom(Atom::Link, "porting4.html")
-                 << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
-                 << Atom(Atom::String, "Porting Guide")
-                 << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK)
+                 << "using it in new code. See "
+                 << Atom(Atom::AutoLink, "Porting to Qt 4")
                  << " for more information."
                  << Atom::ParaRight;
         }

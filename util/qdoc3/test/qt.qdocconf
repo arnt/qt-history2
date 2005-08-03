@@ -101,7 +101,6 @@ Cpp.ignoredirectives    = Q_DECLARE_INTERFACE \
                           Q_ENUMS \
                           Q_FLAGS \
                           Q_INTERFACES \
-			  QT_MODULE \
                           __attribute__
 HTML.style              = "h3.fn,span.fn { margin-left: 1cm; text-indent: -1cm; }\n" \
                           "a:link { color: #004faf; text-decoration: none }\n" \
@@ -123,10 +122,10 @@ HTML.postheader         = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0
                           "<font color=\"#004faf\">All&nbsp;Classes</font></a>&nbsp;&middot;" \
                           " <a href=\"mainclasses.html\">" \
                           "<font color=\"#004faf\">Main&nbsp;Classes</font></a>&nbsp;&middot;" \
-                          " <a href=\"annotated.html\">" \
-                          "<font color=\"#004faf\">Annotated</font></a>&nbsp;&middot;" \
                           " <a href=\"groups.html\">" \
                           "<font color=\"#004faf\">Grouped&nbsp;Classes</font></a>&nbsp;&middot;" \
+                          " <a href=\"modules.html\">" \
+                          "<font color=\"#004faf\">Modules</font></a>&nbsp;&middot;" \
                           " <a href=\"functions.html\">" \
                           "<font color=\"#004faf\">Functions</font></a>" \
                           "</td>\n" \

@@ -64,7 +64,7 @@ protected:
 				  CodeMarker *marker, bool generate,
 				  int& numGeneratedAtoms );
     void generateExampleFiles(const FakeNode *fake, CodeMarker *marker);
-    void generateModuleName( const ClassNode *classe, CodeMarker *marker);
+    void generateModuleWarning( const ClassNode *classe, CodeMarker *marker);
 
     const QString& outputDir() { return outDir; }
     QString indent( int level, const QString& markedCode );

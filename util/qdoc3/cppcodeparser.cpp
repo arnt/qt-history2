@@ -270,34 +270,39 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 	QStringList parentPath;
 	FunctionNode *func = 0;
 
-	if ( !makeFunctionNode(arg, &parentPath, &func, tre->root())) {
-	    doc.location().warning( tr("Invalid syntax in '\\%1'")
-				    .arg(COMMAND_MACRO) );
-        } else if (!parentPath.isEmpty()) {
-	    doc.location().warning( tr("Invalid syntax in '\\%1'")
-				    .arg(COMMAND_MACRO) );
-            delete func;
-            func = 0;
-        } else {
-            func->setMetaness(FunctionNode::Macro);
-            QList<Parameter> params = func->parameters();
-            for (int i = 0; i < params.size(); ++i) {
-                Parameter &param = params[i];
-                if (param.name().isEmpty() && !param.leftType().isEmpty()
-                        && param.leftType() != "...")
-                    param = Parameter("", "", param.leftType());
+	if ( makeFunctionNode(arg, &parentPath, &func, tre->root())) {
+            if (!parentPath.isEmpty()) {
+	        doc.location().warning( tr("Invalid syntax in '\\%1'")
+				        .arg(COMMAND_MACRO) );
+                delete func;
+                func = 0;
+            } else {
+                func->setMetaness(FunctionNode::MacroWithParams);
+                QList<Parameter> params = func->parameters();
+                for (int i = 0; i < params.size(); ++i) {
+                    Parameter &param = params[i];
+                    if (param.name().isEmpty() && !param.leftType().isEmpty()
+                            && param.leftType() != "...")
+                        param = Parameter("", "", param.leftType());
+                }
+                func->setParameters(params);
             }
-            func->setParameters(params);
+            return func;
+        } else if (QRegExp("[A-Za-z_][A-Za-z0-9_]+").exactMatch(arg)) {
+            func = new FunctionNode(tre->root(), arg);
+            func->setAccess(Node::Public);
+            func->setLocation(doc.location());
+            func->setMetaness(FunctionNode::MacroWithoutParams);
+        } else {
+	    doc.location().warning( tr("Invalid syntax in '\\%1'")
+				    .arg(COMMAND_MACRO) );
+
         }
         return func;
     } else if ( nodeTypeMap.contains(command) ) {
 	// ### split(" ") hack is there to support header file syntax
 	QStringList path = arg.split(" ")[0].split("::");
-	Node *node = tre->findNode(path
-#ifndef QDOC2_COMPAT
-				   , nodeTypeMap[command]
-#endif
-				   );
+	Node *node = tre->findNode(path, nodeTypeMap[command]);
 	if ( node == 0 ) {
 	    doc.location().warning(tr("Cannot find '%1' specified with '\\%2'")
 				   .arg(arg).arg(command));
@@ -356,7 +361,7 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
 	    if ( func->reimplementedFrom() == 0 )
 		doc.location().warning( tr("Cannot find base function for '\\%1'")
 					.arg(COMMAND_REIMP) );
-            func->setAccess( Node::Private );
+            func->setAccess(Node::Private);
 	} else {
 	    doc.location().warning( tr("Ignored '\\%1'").arg(COMMAND_REIMP) );
 	}
@@ -856,6 +861,8 @@ bool CppCodeParser::matchClassDecl( InnerNode *parent )
     classe->setLocation( location() );
     if (compat)
         classe->setStatus(Node::Compat);
+    if (!moduleName.isEmpty())
+        classe->setModuleName(moduleName);
 
     if ( match(Tok_Colon) && !matchBaseList(classe) )
 	return false;
@@ -1158,6 +1165,14 @@ bool CppCodeParser::matchDeclList( InnerNode *parent )
                         enumNode->setFlagsType(flagsNode);
                 }
             }
+            match(Tok_RightParen);
+            break;
+        case Tok_QT_MODULE:
+            readToken();
+            if (match(Tok_LeftParen) && match(Tok_Ident))
+                moduleName = previousLexeme();
+            if (!moduleName.startsWith("Qt"))
+                moduleName.prepend("Qt");
             match(Tok_RightParen);
             break;
 	default:
