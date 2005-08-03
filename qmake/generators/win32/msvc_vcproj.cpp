@@ -49,9 +49,15 @@ struct {
     const char *versionStr;
     const char *regKey;
 } dotNetCombo[] = {
+#ifdef Q_OS_WIN64
+    {NET2005, "MSVC.NET 2005 (8.0)", "Software\\Wow6432Node\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir"},
+    {NET2003, "MSVC.NET 2003 (7.1)", "Software\\Wow6432Node\\Microsoft\\VisualStudio\\7.1\\Setup\\VC\\ProductDir"},
+    {NET2002, "MSVC.NET 2002 (7.0)", "Software\\Wow6432Node\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir"},
+#else
     {NET2005, "MSVC.NET 2005 (8.0)", "Software\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir"},
     {NET2003, "MSVC.NET 2003 (7.1)", "Software\\Microsoft\\VisualStudio\\7.1\\Setup\\VC\\ProductDir"},
     {NET2002, "MSVC.NET 2002 (7.0)", "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir"},
+#endif
     {NETUnknown, "", ""},
 };
 
@@ -752,7 +758,9 @@ void VcprojGenerator::initProject()
     vcProject.Name = project->first("QMAKE_ORIG_TARGET");
     switch(which_dotnet_version()) {
     case NET2005:
-        vcProject.Version = "8.00";
+		//### using ',' because of a bug in 2005 B2
+		//### VS uses '.' or ',' depending on the regional settings! Using ',' always works.
+        vcProject.Version = "8,00";
         break;
     case NET2003:
         vcProject.Version = "7.10";

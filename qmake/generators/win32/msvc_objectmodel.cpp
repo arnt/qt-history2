@@ -185,6 +185,7 @@ const char _ValidateParameters[]                = "ValidateParameters";
 const char _VCCLCompilerTool[]                  = "VCCLCompilerTool";
 const char _VCLibrarianTool[]                   = "VCLibrarianTool";
 const char _VCLinkerTool[]                      = "VCLinkerTool";
+const char _VCCustomBuildTool[]                 = "VCCustomBuildTool";
 const char _VCResourceCompilerTool[]            = "VCResourceCompilerTool";
 const char _VCMIDLTool[]                        = "VCMIDLTool";
 const char _Version[]                           = "Version";
@@ -1820,8 +1821,8 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
     CustomBuildTool.CommandLine.clear();
     CustomBuildTool.Description.clear();
     CustomBuildTool.Outputs.clear();
-    CustomBuildTool.ToolName.clear();
     CustomBuildTool.ToolPath.clear();
+	CustomBuildTool.ToolName = QLatin1String(_VCCustomBuildTool);
 
     for (int x = 0; x < extraCompilers.count(); ++x) {
         const QString &extraCompilerName = extraCompilers.at(x);
@@ -1936,11 +1937,6 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
         CustomBuildTool.CommandLine += cmd;
         int space = cmd.indexOf(' ');
         QFileInfo finf(cmd.left(space));
-        if (extraCompilers.count() > 1 && x == 0)
-            CustomBuildTool.ToolName = "Tools collection:";
-        if (!CustomBuildTool.ToolName.isEmpty())
-            CustomBuildTool.ToolName += " ";
-        CustomBuildTool.ToolName += finf.baseName();
         if (CustomBuildTool.ToolPath.isEmpty())
             CustomBuildTool.ToolPath += finf.path();
         CustomBuildTool.Outputs += out;
