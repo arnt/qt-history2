@@ -912,11 +912,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             wclass = kMovableModalWindowClass;
         else if(type == Qt::ToolTip)
             wclass = kHelpWindowClass;
-        else if(tool
-                || (dialog && parentWidget && !parentWidget->window()->windowType() == Qt::Desktop))
+        else if(tool)
             wclass = kFloatingWindowClass;
-        else if(dialog)
-            wclass = kToolbarWindowClass;
         else
             wclass = kDocumentWindowClass;
 
@@ -930,23 +927,18 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             // Shift things around a bit to get the correct window class based on the presence
             // (or lack) of the border.
             if(flags & Qt::FramelessWindowHint) {
-                if(wclass == kDocumentWindowClass)
+                if(wclass == kDocumentWindowClass) {
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3
                     wclass = kSimpleWindowClass;
 #else
                     wclass = kPlainWindowClass;
 #endif
-                else if(wclass == kFloatingWindowClass)
+                } else if(wclass == kFloatingWindowClass) {
                     wclass = kToolbarWindowClass;
+                }
             } else {
                 if(wclass != kModalWindowClass)
                     wattr |= kWindowResizableAttribute;
-                if(wclass == kToolbarWindowClass) {
-                    if(!parentWidget || parentWidget->window()->windowType() == Qt::Desktop)
-                        wclass = kDocumentWindowClass;
-                    else
-                        wclass = kFloatingWindowClass;
-                }
             }
             // Only add extra decorations (well, buttons) for widgets that can have them
             // and have an actual border we can put them on.
