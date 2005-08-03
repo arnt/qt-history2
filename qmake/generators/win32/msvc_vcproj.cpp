@@ -234,7 +234,7 @@ DotNET which_dotnet_version()
 		break;
 	case 0:
 		warn_msg(WarnLogic, "Generator: MSVC.NET: Found more than one version of Visual Studio, but"
-				 " non in your path! Fallback to lowest version (%s)", warnPath.join(", ").toLatin1().data());
+				 " none in your path! Fallback to lowest version (%s)", warnPath.join(", ").toLatin1().data());
 		break;
 	default:
 		warn_msg(WarnLogic, "Generator: MSVC.NET: Found more than one version of Visual Studio in"
