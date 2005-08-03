@@ -1924,7 +1924,29 @@ QStringList QDir::nameFiltersFromString(const QString &nameFilter)
         Q_INIT_RESOURCE(myapp);
     \endcode
 
-    \sa {The Qt Resource System}
+    \sa Q_CLEANUP_RESOURCE(), {The Qt Resource System}
+*/
+
+/*!
+    \since 4.1
+    \macro void Q_CLEANUP_RESOURCE(name)
+    \relates QDir
+
+    Unloads the resources specified by the \c .qrc file with the base
+    name \a name.
+
+    Normally, Qt resources are unloaded automatically when the
+    application terminates, but if the resources are located in a
+    plugin that is being unloaded, call Q_CLEANUP_RESOURCE() to force
+    removal of your resources.
+
+    Example:
+
+    \code
+        Q_CLEANUP_RESOURCE(myapp);
+    \endcode
+
+    \sa Q_INIT_RESOURCE(), {The Qt Resource System}
 */
 
 #ifdef QT3_SUPPORT
