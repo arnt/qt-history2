@@ -251,6 +251,9 @@ QAbstractSlider::~QAbstractSlider()
 void QAbstractSlider::setOrientation(Qt::Orientation orientation)
 {
     Q_D(QAbstractSlider);
+    if (d->orientation == orientation)
+        return;
+
     d->orientation = orientation;
     if (!testAttribute(Qt::WA_WState_OwnSizePolicy)) {
         QSizePolicy sp = sizePolicy();
