@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#define QABSTRACTSOCKET_DEBUG
+//#define QABSTRACTSOCKET_DEBUG
 
 /*! \class QAbstractSocket
 
