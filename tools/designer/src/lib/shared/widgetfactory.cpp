@@ -18,6 +18,7 @@
 #include "qdesigner_tabwidget_p.h"
 #include "qdesigner_toolbox_p.h"
 #include "qdesigner_stackedbox_p.h"
+#include "qdesigner_toolbar_p.h"
 #include "qdesigner_promotedwidget_p.h"
 #include "abstractformwindow.h"
 
@@ -79,6 +80,8 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         w = new QDesignerStackedWidget(parentWidget);
     } else if (widgetName == QLatin1String("QToolBox")) {
         w = new QDesignerToolBox(parentWidget);
+    } else if (widgetName == QLatin1String("QToolBar")) {
+        w = new QDesignerToolBar(parentWidget);
     } else if (widgetName == QLatin1String("Spacer")) {
         w = new Spacer(parentWidget);
     } else if (widgetName == QLatin1String("QLayoutWidget")) {

@@ -33,6 +33,7 @@ HEADERS += \
     qdesigner_widgetbox.h \
     qdesigner_propertyeditor.h \
     qdesigner_objectinspector.h \
+    qdesigner_actioneditor.h \
     qdesigner_actions.h \
     qdesigner_resourceeditor.h \
     saveformastemplate.h \
@@ -58,6 +59,7 @@ SOURCES += main.cpp \
     qdesigner_widgetbox.cpp \
     qdesigner_propertyeditor.cpp \
     qdesigner_objectinspector.cpp \
+    qdesigner_actioneditor.cpp \
     qdesigner_actions.cpp \
     qdesigner_resourceeditor.cpp \
     saveformastemplate.cpp \

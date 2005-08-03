@@ -21,6 +21,7 @@
 #include "qdesigner_propertyeditor.h"
 #include "qdesigner_objectinspector.h"
 #include "qdesigner_signalsloteditor.h"
+#include "qdesigner_actioneditor.h"
 #include "qdesigner_resourceeditor.h"
 
 #include <QtDesigner/QtDesigner>
@@ -201,6 +202,9 @@ void QDesignerWorkbench::initialize()
     addToolWindow(tw);
     tw = new QDesignerResourceEditor(this);
     tw->setObjectName(QLatin1String("qt_designer_resourceeditor"));
+    addToolWindow(tw);
+    tw = new QDesignerActionEditor(this);
+    tw->setObjectName(QLatin1String("qt_designer_actioneditor"));
     addToolWindow(tw);
 
     m_integration = new QDesignerIntegration(core(), this);

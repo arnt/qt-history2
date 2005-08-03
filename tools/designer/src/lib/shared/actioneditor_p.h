@@ -1,0 +1,62 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of Qt Designer.  This header
+// file may change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#ifndef ACTIONEDITOR_H
+#define ACTIONEDITOR_H
+
+#include "shared_global_p.h"
+#include <QtDesigner/QDesignerActionEditorInterface>
+
+class ActionRepository;
+class QDesignerPropertyEditorInterface;
+class QListWidget;
+class QListWidgetItem;
+class QSplitter;
+
+class QT_SHARED_EXPORT ActionEditor: public QDesignerActionEditorInterface
+{
+    Q_OBJECT
+public:
+    ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    virtual ~ActionEditor();
+
+    virtual void setFormWindow(QDesignerFormWindowInterface *formWindow);
+
+    virtual QDesignerFormEditorInterface *core() const;
+
+public slots:
+    void filter(const QString &filter);
+
+private slots:
+    void slotItemChanged(QListWidgetItem *item);
+    void slotActionChanged();
+
+private:
+    QDesignerFormEditorInterface *m_core;
+    QSplitter *splitter;
+    QListWidget *m_actionGroups;
+    ActionRepository *m_actionRepository;
+};
+
+#endif // ACTIONEDITOR_H

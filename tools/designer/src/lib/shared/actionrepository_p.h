@@ -1,0 +1,66 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of Qt Designer.  This header
+// file may change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#ifndef ACTIONREPOSITORY_H
+#define ACTIONREPOSITORY_H
+
+#include "shared_global_p.h"
+#include <QtCore/QMimeData>
+#include <QtGui/QListWidget>
+
+class QT_SHARED_EXPORT ActionRepository: public QListWidget
+{
+    Q_OBJECT
+public:
+    enum
+    {
+        ActionRole = Qt::UserRole + 1000
+    };
+
+public:
+    ActionRepository(QWidget *parent = 0);
+    virtual ~ActionRepository();
+
+public slots:
+    void filter(const QString &text);
+
+protected:
+    virtual void startDrag(Qt::DropActions supportedActions);
+    virtual QMimeData *mimeData(const QList<QListWidgetItem*> items) const;
+};
+
+class QT_SHARED_EXPORT ActionRepositoryMimeData: public QMimeData
+{
+    Q_OBJECT
+public:
+    ActionRepositoryMimeData() {}
+    virtual ~ActionRepositoryMimeData() {}
+
+    QList<QAction*> items;
+
+    virtual bool hasFormat(const QString &mimeType) const
+    { return mimeType == QLatin1String("action-repository/actions"); }
+};
+
+#endif // ACTIONREPOSITORY_H

@@ -49,33 +49,46 @@ void QDesignerIntegration::initialize()
 
 void QDesignerIntegration::updateProperty(const QString &name, const QVariant &value)
 {
-    if (QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow()) {
+    Q_ASSERT(core()->propertyEditor() != 0);
+    Q_ASSERT(core()->propertyEditor()->object() != 0);
 
+    if (QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow()) {
+        QObject *object = core()->propertyEditor()->object();
+        QWidget *widget = qobject_cast<QWidget*>(object);
+
+        QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), object);
+        Q_ASSERT(sheet != 0);
+
+        int propertyIndex = sheet->indexOf(name);
         QDesignerFormWindowCursorInterface *cursor = formWindow->cursor();
 
-        if (cursor->isWidgetSelected(formWindow->mainContainer())) {
-            if (name == QLatin1String("windowTitle")) {
-                QString filename = formWindow->fileName().isEmpty()
-                        ? QString::fromUtf8("Untitled")
-                        : formWindow->fileName();
+        if (widget && cursor->isWidgetSelected(widget)) {
+            if (cursor->isWidgetSelected(formWindow->mainContainer())) {
+                if (name == QLatin1String("windowTitle")) {
+                    QString filename = formWindow->fileName().isEmpty()
+                            ? QString::fromUtf8("Untitled")
+                            : formWindow->fileName();
 
-                formWindow->setWindowTitle(QString::fromUtf8("%1 - (%2)")
-                                           .arg(value.toString())
-                                           .arg(filename));
+                    formWindow->setWindowTitle(QString::fromUtf8("%1 - (%2)")
+                                            .arg(value.toString())
+                                            .arg(filename));
 
-            } else if (name == QLatin1String("geometry")) {
-                if (QWidget *container = containerWindow(formWindow)) {
-                    QRect r = containerWindow(formWindow)->geometry();
-                    r.setSize(value.toRect().size());
-                    container->setGeometry(r);
-                    emit propertyChanged(formWindow, name, value);
+                } else if (name == QLatin1String("geometry")) {
+                    if (QWidget *container = containerWindow(formWindow)) {
+                        QRect r = containerWindow(formWindow)->geometry();
+                        r.setSize(value.toRect().size());
+                        container->setGeometry(r);
+                        emit propertyChanged(formWindow, name, value);
+                    }
+
+                    return;
                 }
-
-                return;
             }
-        }
 
-        cursor->setProperty(name, value);
+            cursor->setProperty(name, value);
+        } else if (propertyIndex != -1) {
+            sheet->setProperty(propertyIndex, value);
+        }
 
         if (name == QLatin1String("objectName") && core()->objectInspector()) {
             core()->objectInspector()->setFormWindow(formWindow);
@@ -83,13 +96,7 @@ void QDesignerIntegration::updateProperty(const QString &name, const QVariant &v
 
         emit propertyChanged(formWindow, name, value);
 
-        if (core()->propertyEditor() && core()->propertyEditor()->object()) {
-            QObject *o = core()->propertyEditor()->object();
-            QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), o);
-            int index = sheet->indexOf(name);
-            if (index != -1)
-                core()->propertyEditor()->setPropertyValue(name, sheet->property(index));
-        }
+        core()->propertyEditor()->setPropertyValue(name, sheet->property(propertyIndex));
     }
 }
 
@@ -119,6 +126,9 @@ void QDesignerIntegration::updateSelection()
 
     if (QDesignerObjectInspectorInterface *objectInspector = core()->objectInspector())
         objectInspector->setFormWindow(formWindow);
+
+    if (QDesignerActionEditorInterface *actionEditor = core()->actionEditor())
+        actionEditor->setFormWindow(formWindow);
 
     if (QDesignerPropertyEditorInterface *propertyEditor = core()->propertyEditor()) {
         propertyEditor->setObject(selection);

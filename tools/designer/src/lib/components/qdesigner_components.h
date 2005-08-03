@@ -23,6 +23,7 @@ class QDesignerFormEditorInterface;
 class QDesignerWidgetBoxInterface;
 class QDesignerPropertyEditorInterface;
 class QDesignerObjectInspectorInterface;
+class QDesignerActionEditorInterface;
 
 class QDESIGNER_COMPONENTS_EXPORT QDesignerComponents
 {
@@ -33,6 +34,7 @@ public:
     static QDesignerWidgetBoxInterface *createWidgetBox(QDesignerFormEditorInterface *core, QWidget *parent);
     static QDesignerPropertyEditorInterface *createPropertyEditor(QDesignerFormEditorInterface *core, QWidget *parent);
     static QDesignerObjectInspectorInterface *createObjectInspector(QDesignerFormEditorInterface *core, QWidget *parent);
+    static QDesignerActionEditorInterface *createActionEditor(QDesignerFormEditorInterface *core, QWidget *parent);
 
     static QObject *createTaskMenu(QDesignerFormEditorInterface *core, QObject *parent);
     static QWidget *createResourceEditor(QDesignerFormEditorInterface *core, QWidget *parent);

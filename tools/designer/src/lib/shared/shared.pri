@@ -39,7 +39,10 @@ HEADERS += \
     $$PWD/resourcefile_p.h \
     $$PWD/iconloader_p.h \
     $$PWD/findicondialog_p.h \
-    $$PWD/richtexteditor_p.h
+    $$PWD/richtexteditor_p.h \
+    $$PWD/actioneditor_p.h \
+    $$PWD/actionrepository_p.h \
+    $$PWD/qdesigner_toolbar_p.h
 
 
 SOURCES += \
@@ -71,5 +74,8 @@ SOURCES += \
     $$PWD/promotetocustomwidgetdialog.cpp \
     $$PWD/resourcefile.cpp \
     $$PWD/findicondialog.cpp \
-    $$PWD/richtexteditor.cpp
+    $$PWD/richtexteditor.cpp \
+    $$PWD/actioneditor.cpp \
+    $$PWD/actionrepository.cpp \
+    $$PWD/qdesigner_toolbar.cpp
 

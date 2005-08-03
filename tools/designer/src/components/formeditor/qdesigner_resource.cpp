@@ -16,6 +16,7 @@
 #include "qdesigner_tabwidget_p.h"
 #include "qdesigner_toolbox_p.h"
 #include "qdesigner_stackedbox_p.h"
+#include "qdesigner_toolbar_p.h"
 
 // shared
 #include <widgetdatabase_p.h>
@@ -69,6 +70,7 @@ QDesignerResource::QDesignerResource(FormWindow *formWindow)
     m_internal_to_qt.insert(QLatin1String("QDesignerDialog"), QLatin1String("QDialog"));
     m_internal_to_qt.insert(QLatin1String("QDesignerLabel"), QLatin1String("QLabel"));
     m_internal_to_qt.insert(QLatin1String("QDesignerToolBox"), QLatin1String("QToolBox"));
+    m_internal_to_qt.insert(QLatin1String("QDesignerToolBar"), QLatin1String("QToolBar"));
 
     // invert
     QHashIterator<QString, QString> it(m_internal_to_qt);
@@ -1274,10 +1276,13 @@ QActionGroup *QDesignerResource::create(DomActionGroup *ui_action_group, QObject
 
 DomActionRef *QDesignerResource::createActionRefDom(QAction *action)
 {
-    if (core()->metaDataBase()->item(action) != 0 && (action->objectName().isEmpty() == false || action->isSeparator()))
-        return QAbstractFormBuilder::createActionRefDom(action);
+    QDesignerMetaDataBaseItemInterface *item = core()->metaDataBase()->item(action);
 
-    return 0;
+    if (!item || qobject_cast<SentinelAction*>(action)
+              || (!action->isSeparator() && action->objectName().isEmpty()))
+        return 0;
+
+    return QAbstractFormBuilder::createActionRefDom(action);
 }
 
 void QDesignerResource::addMenuAction(QAction *action)

@@ -15,8 +15,6 @@
 
 #include <QtDesigner/QtDesigner>
 
-class PluginManager;
-
 /*!
     \class QDesignerFormEditorInterface
     \brief The QDesignerFormEditorInterface class provides an interface that is used to
@@ -28,15 +26,7 @@ class PluginManager;
     Constructs a form editor interface with the given \a parent.*/
 QDesignerFormEditorInterface::QDesignerFormEditorInterface(QObject *parent)
     : QObject(parent),
-      m_topLevel(0),
-      m_widgetBox(0),
-      m_propertyEditor(0),
-      m_formWindowManager(0),
-      m_extensionManager(0),
-      m_metaDataBase(0),
-      m_widgetDataBase(0),
-      m_widgetFactory(0),
-      m_objectInspector(0)
+      m_pluginManager(0)
 {
 }
 
@@ -65,6 +55,16 @@ QDesignerPropertyEditorInterface *QDesignerFormEditorInterface::propertyEditor()
 Sets the property editor used by the form editor to the specified \a propertyEditor.*/
 void QDesignerFormEditorInterface::setPropertyEditor(QDesignerPropertyEditorInterface *propertyEditor)
 { m_propertyEditor = propertyEditor; }
+
+/*!
+    Returns an interface to the action editor used by the form editor.*/
+QDesignerActionEditorInterface *QDesignerFormEditorInterface::actionEditor() const
+{ return m_actionEditor; }
+
+/*!
+Sets the action editor used by the form editor to the specified \a actionEditor.*/
+void QDesignerFormEditorInterface::setActionEditor(QDesignerActionEditorInterface *actionEditor)
+{ m_actionEditor = actionEditor; }
 
 /*!
     Returns the top-level widget used by the form editor.*/

@@ -13,6 +13,8 @@
 
 #include <QtDesigner/QDesignerComponents>
 
+#include <actioneditor_p.h>
+
 #include <formeditor/formeditor.h>
 #include <widgetbox/widgetbox.h>
 #include <propertyeditor/propertyeditor.h>
@@ -114,6 +116,13 @@ QDesignerPropertyEditorInterface *QDesignerComponents::createPropertyEditor(QDes
 QDesignerObjectInspectorInterface *QDesignerComponents::createObjectInspector(QDesignerFormEditorInterface *core, QWidget *parent)
 {
     return new qdesigner_internal::ObjectInspector(core, parent);
+}
+
+/*!
+    Returns a new action editor interface with the given \a parent for the \a core interface.*/
+QDesignerActionEditorInterface *QDesignerComponents::createActionEditor(QDesignerFormEditorInterface *core, QWidget *parent)
+{
+    return new ActionEditor(core, parent);
 }
 
 /*!
