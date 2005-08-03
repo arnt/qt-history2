@@ -29,51 +29,51 @@ void verboseWSErrorDebug(int r)
 {
     switch (r) {
         case WSANOTINITIALISED : qDebug("WSA error : WSANOTINITIALISED"); break;
-	case WSAEINTR: qDebug("WSA error : WSAEINTR"); break;
-	case WSAEBADF: qDebug("WSA error : WSAEBADF"); break;
-	case WSAEACCES: qDebug("WSA error : WSAEACCES"); break;
-	case WSAEFAULT: qDebug("WSA error : WSAEFAULT"); break;
-	case WSAEINVAL: qDebug("WSA error : WSAEINVAL"); break;
-	case WSAEMFILE: qDebug("WSA error : WSAEMFILE"); break;
-	case WSAEWOULDBLOCK: qDebug("WSA error : WSAEWOULDBLOCK"); break;
-	case WSAEINPROGRESS: qDebug("WSA error : WSAEINPROGRESS"); break;
-	case WSAEALREADY: qDebug("WSA error : WSAEALREADY"); break;
-	case WSAENOTSOCK: qDebug("WSA error : WSAENOTSOCK"); break;
-	case WSAEDESTADDRREQ: qDebug("WSA error : WSAEDESTADDRREQ"); break;
-	case WSAEMSGSIZE: qDebug("WSA error : WSAEMSGSIZE"); break;
-	case WSAEPROTOTYPE: qDebug("WSA error : WSAEPROTOTYPE"); break;
-	case WSAENOPROTOOPT: qDebug("WSA error : WSAENOPROTOOPT"); break;
-	case WSAEPROTONOSUPPORT: qDebug("WSA error : WSAEPROTONOSUPPORT"); break;
-	case WSAESOCKTNOSUPPORT: qDebug("WSA error : WSAESOCKTNOSUPPORT"); break;
-	case WSAEOPNOTSUPP: qDebug("WSA error : WSAEOPNOTSUPP"); break;
-	case WSAEPFNOSUPPORT: qDebug("WSA error : WSAEPFNOSUPPORT"); break;
-	case WSAEAFNOSUPPORT: qDebug("WSA error : WSAEAFNOSUPPORT"); break;
-	case WSAEADDRINUSE: qDebug("WSA error : WSAEADDRINUSE"); break;
-	case WSAEADDRNOTAVAIL: qDebug("WSA error : WSAEADDRNOTAVAIL"); break;
-	case WSAENETDOWN: qDebug("WSA error : WSAENETDOWN"); break;
-	case WSAENETUNREACH: qDebug("WSA error : WSAENETUNREACH"); break;
-	case WSAENETRESET: qDebug("WSA error : WSAENETRESET"); break;
-	case WSAECONNABORTED: qDebug("WSA error : WSAECONNABORTED"); break;
-	case WSAECONNRESET: qDebug("WSA error : WSAECONNRESET"); break;
-	case WSAENOBUFS: qDebug("WSA error : WSAENOBUFS"); break;
-	case WSAEISCONN: qDebug("WSA error : WSAEISCONN"); break;
-	case WSAENOTCONN: qDebug("WSA error : WSAENOTCONN"); break;
-	case WSAESHUTDOWN: qDebug("WSA error : WSAESHUTDOWN"); break;
-	case WSAETOOMANYREFS: qDebug("WSA error : WSAETOOMANYREFS"); break;
-	case WSAETIMEDOUT: qDebug("WSA error : WSAETIMEDOUT"); break;
-	case WSAECONNREFUSED: qDebug("WSA error : WSAECONNREFUSED"); break;
-	case WSAELOOP: qDebug("WSA error : WSAELOOP"); break;
-	case WSAENAMETOOLONG: qDebug("WSA error : WSAENAMETOOLONG"); break;
-	case WSAEHOSTDOWN: qDebug("WSA error : WSAEHOSTDOWN"); break;
-	case WSAEHOSTUNREACH: qDebug("WSA error : WSAEHOSTUNREACH"); break;
-	case WSAENOTEMPTY: qDebug("WSA error : WSAENOTEMPTY"); break;
-	case WSAEPROCLIM: qDebug("WSA error : WSAEPROCLIM"); break;
-	case WSAEUSERS: qDebug("WSA error : WSAEUSERS"); break;
-	case WSAEDQUOT: qDebug("WSA error : WSAEDQUOT"); break;
-	case WSAESTALE: qDebug("WSA error : WSAESTALE"); break;
-	case WSAEREMOTE: qDebug("WSA error : WSAEREMOTE"); break;
-	case WSAEDISCON: qDebug("WSA error : WSAEDISCON"); break;
-	default: qDebug("WSA error : Unknown"); break;
+        case WSAEINTR: qDebug("WSA error : WSAEINTR"); break;
+        case WSAEBADF: qDebug("WSA error : WSAEBADF"); break;
+        case WSAEACCES: qDebug("WSA error : WSAEACCES"); break;
+        case WSAEFAULT: qDebug("WSA error : WSAEFAULT"); break;
+        case WSAEINVAL: qDebug("WSA error : WSAEINVAL"); break;
+        case WSAEMFILE: qDebug("WSA error : WSAEMFILE"); break;
+        case WSAEWOULDBLOCK: qDebug("WSA error : WSAEWOULDBLOCK"); break;
+        case WSAEINPROGRESS: qDebug("WSA error : WSAEINPROGRESS"); break;
+        case WSAEALREADY: qDebug("WSA error : WSAEALREADY"); break;
+        case WSAENOTSOCK: qDebug("WSA error : WSAENOTSOCK"); break;
+        case WSAEDESTADDRREQ: qDebug("WSA error : WSAEDESTADDRREQ"); break;
+        case WSAEMSGSIZE: qDebug("WSA error : WSAEMSGSIZE"); break;
+        case WSAEPROTOTYPE: qDebug("WSA error : WSAEPROTOTYPE"); break;
+        case WSAENOPROTOOPT: qDebug("WSA error : WSAENOPROTOOPT"); break;
+        case WSAEPROTONOSUPPORT: qDebug("WSA error : WSAEPROTONOSUPPORT"); break;
+        case WSAESOCKTNOSUPPORT: qDebug("WSA error : WSAESOCKTNOSUPPORT"); break;
+        case WSAEOPNOTSUPP: qDebug("WSA error : WSAEOPNOTSUPP"); break;
+        case WSAEPFNOSUPPORT: qDebug("WSA error : WSAEPFNOSUPPORT"); break;
+        case WSAEAFNOSUPPORT: qDebug("WSA error : WSAEAFNOSUPPORT"); break;
+        case WSAEADDRINUSE: qDebug("WSA error : WSAEADDRINUSE"); break;
+        case WSAEADDRNOTAVAIL: qDebug("WSA error : WSAEADDRNOTAVAIL"); break;
+        case WSAENETDOWN: qDebug("WSA error : WSAENETDOWN"); break;
+        case WSAENETUNREACH: qDebug("WSA error : WSAENETUNREACH"); break;
+        case WSAENETRESET: qDebug("WSA error : WSAENETRESET"); break;
+        case WSAECONNABORTED: qDebug("WSA error : WSAECONNABORTED"); break;
+        case WSAECONNRESET: qDebug("WSA error : WSAECONNRESET"); break;
+        case WSAENOBUFS: qDebug("WSA error : WSAENOBUFS"); break;
+        case WSAEISCONN: qDebug("WSA error : WSAEISCONN"); break;
+        case WSAENOTCONN: qDebug("WSA error : WSAENOTCONN"); break;
+        case WSAESHUTDOWN: qDebug("WSA error : WSAESHUTDOWN"); break;
+        case WSAETOOMANYREFS: qDebug("WSA error : WSAETOOMANYREFS"); break;
+        case WSAETIMEDOUT: qDebug("WSA error : WSAETIMEDOUT"); break;
+        case WSAECONNREFUSED: qDebug("WSA error : WSAECONNREFUSED"); break;
+        case WSAELOOP: qDebug("WSA error : WSAELOOP"); break;
+        case WSAENAMETOOLONG: qDebug("WSA error : WSAENAMETOOLONG"); break;
+        case WSAEHOSTDOWN: qDebug("WSA error : WSAEHOSTDOWN"); break;
+        case WSAEHOSTUNREACH: qDebug("WSA error : WSAEHOSTUNREACH"); break;
+        case WSAENOTEMPTY: qDebug("WSA error : WSAENOTEMPTY"); break;
+        case WSAEPROCLIM: qDebug("WSA error : WSAEPROCLIM"); break;
+        case WSAEUSERS: qDebug("WSA error : WSAEUSERS"); break;
+        case WSAEDQUOT: qDebug("WSA error : WSAEDQUOT"); break;
+        case WSAESTALE: qDebug("WSA error : WSAESTALE"); break;
+        case WSAEREMOTE: qDebug("WSA error : WSAEREMOTE"); break;
+        case WSAEDISCON: qDebug("WSA error : WSAEDISCON"); break;
+        default: qDebug("WSA error : Unknown"); break;
     }
 }
 
@@ -330,6 +330,7 @@ bool QSocketLayerPrivate::createNewSocket(QAbstractSocket::SocketType socketType
 */
 int QSocketLayerPrivate::option(QSocketLayer::SocketOption opt) const
 {
+    Q_Q(const QSocketLayer);
     if (!q->isValid())
         return -1;
 
@@ -370,6 +371,7 @@ int QSocketLayerPrivate::option(QSocketLayer::SocketOption opt) const
 */
 bool QSocketLayerPrivate::setOption(QSocketLayer::SocketOption opt, int v)
 {
+    Q_Q(const QSocketLayer);
     if (!q->isValid())
         return false;
 
@@ -877,6 +879,7 @@ qint64 QSocketLayerPrivate::nativeSendDatagram(const char *data, qint64 len,
 
 qint64 QSocketLayerPrivate::nativeWrite(const char *data, qint64 len)
 {
+    Q_Q(QSocketLayer);
     qint64 ret = 0;
     // don't send more than 49152 per call to WSASendTo to avoid getting a WSAENOBUFS
     for (;;) {
@@ -921,7 +924,6 @@ qint64 QSocketLayerPrivate::nativeWrite(const char *data, qint64 len)
 
     return ret;
 }
-
 
 qint64 QSocketLayerPrivate::nativeRead(char *data, qint64 maxLength)
 {
@@ -1014,5 +1016,3 @@ void QSocketLayerPrivate::nativeClose()
 #endif
     ::closesocket(socketDescriptor);
 }
-
-

@@ -15,28 +15,20 @@
 #define QSOCKETLAYER_P_H
 
 #include <qhostaddress.h>
-#include <qabstractsocket.h>
+#include <private/qabstractsocketengine_p.h>
 
 class QSocketLayerPrivate;
 
-class QSocketLayer
+class QSocketLayer : public QAbstractSocketEngine 
 {
+    Q_OBJECT
 public:
-    enum SocketOption {
-        NonBlockingSocketOption,
-        BroadcastSocketOption,
-        ReceiveBufferSocketOption,
-        SendBufferSocketOption,
-        AddressReusable
-    };
-
-    QSocketLayer();
+    QSocketLayer(QObject *parent = 0);
     ~QSocketLayer();
 
     bool initialize(QAbstractSocket::SocketType type, QAbstractSocket::NetworkLayerProtocol protocol = QAbstractSocket::IPv4Protocol);
     bool initialize(int socketDescriptor, QAbstractSocket::SocketState socketState = QAbstractSocket::ConnectedState);
-    QAbstractSocket::SocketType socketType() const;
-    QAbstractSocket::NetworkLayerProtocol protocol() const;
+
     int socketDescriptor() const;
 
     bool isValid() const;
@@ -59,20 +51,12 @@ public:
     bool hasPendingDatagrams() const;
     qint64 pendingDatagramSize() const;
 
-    QAbstractSocket::SocketState state() const;
-
-    QHostAddress localAddress() const;
-    quint16 localPort() const;
-    QHostAddress peerAddress() const;
-    quint16 peerPort() const;
-
     qint64 receiveBufferSize() const;
     void setReceiveBufferSize(qint64 bufferSize);
 
     qint64 sendBufferSize() const;
     void setSendBufferSize(qint64 bufferSize);
 
-    // native functions
     int option(SocketOption option) const;
     bool setOption(SocketOption option, int value);
     
@@ -82,13 +66,9 @@ public:
 			    bool checkRead, bool checkWrite,
 			    int msecs = 30000, bool *timedOut = 0) const;
 
-    QAbstractSocket::SocketError error() const;
-    QString errorString() const;
-
 private:
+    Q_DECLARE_PRIVATE(QSocketLayer)
     Q_DISABLE_COPY(QSocketLayer)
-
-    QSocketLayerPrivate *d;
 };
 
 #ifdef Q_OS_WIN
@@ -101,26 +81,14 @@ public:
 };
 #endif
 
-class QSocketLayerPrivate
+class QSocketLayerPrivate : public QAbstractSocketEnginePrivate
 {
+    Q_DECLARE_PUBLIC(QSocketLayer)
 public:
     QSocketLayerPrivate();
     ~QSocketLayerPrivate();
 
     int socketDescriptor;
-
-    QAbstractSocket::SocketType socketType;
-    QAbstractSocket::NetworkLayerProtocol socketProtocol;
-    QAbstractSocket::SocketState socketState;
-    mutable QAbstractSocket::SocketError socketError;
-    mutable QString socketErrorString;
-
-    QHostAddress peerAddress;
-    quint16 peerPort;
-
-    QHostAddress localAddress;
-    quint16 localPort;
-
 
 #ifdef Q_OS_WIN
     QWindowsSockInit winSock;
@@ -180,8 +148,6 @@ public:
     void nativeClose();
 
     bool fetchConnectionParameters();
-
-    QSocketLayer *q;
 };
 
 #endif // QSOCKETLAYER_P_H

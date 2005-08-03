@@ -116,15 +116,7 @@
 */
 QSocketLayerPrivate::QSocketLayerPrivate()
 {
-    socketDescriptor = -1;
-    socketState = QAbstractSocket::UnconnectedState;
-    socketType = QAbstractSocket::UnknownSocketType;
-    socketProtocol = QAbstractSocket::UnknownNetworkLayerProtocol;
-    socketError = QAbstractSocket::UnknownSocketError;
-    socketErrorString = Q_TR("Unknown error");
-
-    peerPort = 0;
-    localPort = 0;
+    socketDescriptor = -1;   
 }
 
 /*! \internal
@@ -146,6 +138,7 @@ void QSocketLayerPrivate::setError(QAbstractSocket::SocketError error, ErrorStri
         return;
 
     socketError = error;
+
     switch (errorString) {
     case NonBlockingInitFailedErrorString: 
         socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Unable to initialize a non-blocking socket"); 
@@ -221,10 +214,9 @@ void QSocketLayerPrivate::setError(QAbstractSocket::SocketError error, ErrorStri
 
     \sa initialize()
 */
-QSocketLayer::QSocketLayer()
+QSocketLayer::QSocketLayer(QObject *parent)
+    : QAbstractSocketEngine(*new QSocketLayerPrivate(), parent)
 {
-    d = new QSocketLayerPrivate;
-    d->q = this;
 }
 
 /*!
@@ -232,9 +224,9 @@ QSocketLayer::QSocketLayer()
 */
 QSocketLayer::~QSocketLayer()
 {
+    Q_D(QSocketLayer);
     if (d->socketDescriptor != -1)
         close();
-    delete d;
 }
 
 /*!
@@ -250,6 +242,7 @@ QSocketLayer::~QSocketLayer()
 */
 bool QSocketLayer::initialize(QAbstractSocket::SocketType socketType, QAbstractSocket::NetworkLayerProtocol protocol)
 {
+    Q_D(QSocketLayer);
     if (isValid())
         close();
 
@@ -315,6 +308,8 @@ bool QSocketLayer::initialize(QAbstractSocket::SocketType socketType, QAbstractS
  */
 bool QSocketLayer::initialize(int socketDescriptor, QAbstractSocket::SocketState socketState)
 {
+    Q_D(QSocketLayer);
+
     if (isValid())
         close();
 
@@ -360,37 +355,8 @@ bool QSocketLayer::initialize(int socketDescriptor, QAbstractSocket::SocketState
 */
 bool QSocketLayer::isValid() const
 {
+    Q_D(const QSocketLayer);
     return d->socketDescriptor != -1;
-}
-
-/*!
-    Returns the socket's state.
-
-    \sa QSocketLayer::SocketState
-*/
-QAbstractSocket::SocketState QSocketLayer::state() const
-{
-    return d->socketState;
-}
-
-/*!
-    Returns the socket's type.
-
-    \sa QSocketLayer::SocketType
-*/
-QAbstractSocket::SocketType QSocketLayer::socketType() const
-{
-    return d->socketType;
-}
-
-/*!
-    Returns the socket's network layer protocol.
-
-    \sa QSocketLayer::NetworkLayerProtocol
-*/
-QAbstractSocket::NetworkLayerProtocol QSocketLayer::protocol() const
-{
-    return d->socketProtocol;
 }
 
 /*!
@@ -399,46 +365,8 @@ QAbstractSocket::NetworkLayerProtocol QSocketLayer::protocol() const
 */
 int QSocketLayer::socketDescriptor() const
 {
+    Q_D(const QSocketLayer);
     return d->socketDescriptor;
-}
-
-/*!
-    If the socket is in BoundState or ListeningState, this function
-    returns the local address that the socket is bound to; otherwise
-    QHostAddress::Null is returned.
-*/
-QHostAddress QSocketLayer::localAddress() const
-{
-    return d->localAddress;
-}
-
-/*!
-    If the socket is in BoundState or ListeningState, this function
-    returns the local port that the socket is bound to; otherwise 0 is
-    returned.
-*/
-quint16 QSocketLayer::localPort() const
-{
-    return d->localPort;
-}
-
-/*!
-    If the socket is in ConnectedState, this function returns the
-    address of the connected peer; otherwise QHostAddress::Null
-    is returned.
-*/
-QHostAddress QSocketLayer::peerAddress() const
-{
-    return d->peerAddress;
-}
-
-/*!
-    If the socket is in ConnectedState, this function returns the port
-    of the connected peer; otherwise 0 is returned.
-*/
-quint16 QSocketLayer::peerPort() const
-{
-    return d->peerPort;
 }
 
 /*!
@@ -474,6 +402,7 @@ quint16 QSocketLayer::peerPort() const
 */
 bool QSocketLayer::connectToHost(const QHostAddress &address, quint16 port)
 {
+    Q_D(QSocketLayer);
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::connectToHost(), false);
 
 #if defined (QT_NO_IPV6)
@@ -505,6 +434,7 @@ bool QSocketLayer::connectToHost(const QHostAddress &address, quint16 port)
 */
 bool QSocketLayer::bind(const QHostAddress &address, quint16 port)
 {
+    Q_D(QSocketLayer);
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::bind(), false);
 
 #if defined (QT_NO_IPV6)
@@ -549,6 +479,7 @@ bool QSocketLayer::bind(const QHostAddress &address, quint16 port)
 */
 bool QSocketLayer::listen()
 {
+    Q_D(QSocketLayer);
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::listen(), false);
     Q_CHECK_STATE(QSocketLayer::listen(), QAbstractSocket::BoundState, false);
     Q_CHECK_TYPE(QSocketLayer::listen(), QAbstractSocket::TcpSocket, false);
@@ -569,6 +500,7 @@ bool QSocketLayer::listen()
 */
 int QSocketLayer::accept()
 {
+    Q_D(QSocketLayer);
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::accept(), -1);
     Q_CHECK_STATE(QSocketLayer::accept(), QAbstractSocket::ListeningState, false);
     Q_CHECK_TYPE(QSocketLayer::accept(), QAbstractSocket::TcpSocket, false);
@@ -586,6 +518,7 @@ int QSocketLayer::accept()
 */
 qint64 QSocketLayer::bytesAvailable() const
 {
+    Q_D(const QSocketLayer);
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::bytesAvailable(), -1);
     Q_CHECK_NOT_STATE(QSocketLayer::bytesAvailable(), QAbstractSocket::UnconnectedState, false);
 
@@ -599,6 +532,7 @@ qint64 QSocketLayer::bytesAvailable() const
 */
 bool QSocketLayer::hasPendingDatagrams() const
 {
+    Q_D(const QSocketLayer);
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::hasPendingDatagrams(), false);
     Q_CHECK_NOT_STATE(QSocketLayer::hasPendingDatagrams(), QAbstractSocket::UnconnectedState, false);
     Q_CHECK_TYPE(QSocketLayer::hasPendingDatagrams(), QAbstractSocket::UdpSocket, false);
@@ -614,6 +548,7 @@ bool QSocketLayer::hasPendingDatagrams() const
 */
 qint64 QSocketLayer::pendingDatagramSize() const
 {
+    Q_D(const QSocketLayer);
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::pendingDatagramSize(), -1);
     Q_CHECK_TYPE(QSocketLayer::pendingDatagramSize(), QAbstractSocket::UdpSocket, false);
 
@@ -638,6 +573,7 @@ qint64 QSocketLayer::pendingDatagramSize() const
 qint64 QSocketLayer::readDatagram(char *data, qint64 maxSize, QHostAddress *address,
                                       quint16 *port)
 {
+    Q_D(QSocketLayer);
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::readDatagram(), -1);
     Q_CHECK_TYPE(QSocketLayer::readDatagram(), QAbstractSocket::UdpSocket, false);
 
@@ -665,6 +601,7 @@ qint64 QSocketLayer::readDatagram(char *data, qint64 maxSize, QHostAddress *addr
 qint64 QSocketLayer::writeDatagram(const char *data, qint64 size,
                                        const QHostAddress &host, quint16 port)
 {
+    Q_D(QSocketLayer);
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::writeDatagram(), -1);
     Q_CHECK_TYPE(QSocketLayer::writeDatagram(), QAbstractSocket::UdpSocket, -1);
     return d->nativeSendDatagram(data, size, host, port);
@@ -676,6 +613,7 @@ qint64 QSocketLayer::writeDatagram(const char *data, qint64 size,
 */
 qint64 QSocketLayer::write(const char *data, qint64 size)
 {
+    Q_D(QSocketLayer);
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::write(), -1);
     Q_CHECK_STATE(QSocketLayer::write(), QAbstractSocket::ConnectedState, -1);
     return d->nativeWrite(data, size);
@@ -687,6 +625,7 @@ qint64 QSocketLayer::write(const char *data, qint64 size)
 */
 qint64 QSocketLayer::read(char *data, qint64 maxSize)
 {
+    Q_D(QSocketLayer);
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::read(), -1);
     Q_CHECK_STATES(QSocketLayer::read(), QAbstractSocket::ConnectedState, QAbstractSocket::BoundState, -1);
 
@@ -709,6 +648,7 @@ qint64 QSocketLayer::read(char *data, qint64 maxSize)
 */
 void QSocketLayer::close()
 {
+    Q_D(QSocketLayer);
     d->nativeClose();
     d->socketDescriptor = -1;
     d->socketState = QAbstractSocket::UnconnectedState;
@@ -735,6 +675,7 @@ void QSocketLayer::close()
 */
 bool QSocketLayer::waitForRead(int msecs, bool *timedOut) const
 {
+    Q_D(const QSocketLayer);
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::waitForRead(), false);
     Q_CHECK_NOT_STATE(QSocketLayer::waitForRead(),
                       QAbstractSocket::UnconnectedState, false);
@@ -768,6 +709,7 @@ bool QSocketLayer::waitForRead(int msecs, bool *timedOut) const
 */
 bool QSocketLayer::waitForWrite(int msecs, bool *timedOut) const
 {
+    Q_D(const QSocketLayer);
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::waitForWrite(), false);
     Q_CHECK_NOT_STATE(QSocketLayer::waitForWrite(),
                       QAbstractSocket::UnconnectedState, false);
@@ -788,6 +730,7 @@ bool QSocketLayer::waitForReadOrWrite(bool *readyToRead, bool *readyToWrite,
                                       bool checkRead, bool checkWrite,
                                       int msecs, bool *timedOut) const
 {
+    Q_D(const QSocketLayer);
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::waitForWrite(), false);
     Q_CHECK_NOT_STATE(QSocketLayer::waitForReadOrWrite(),
                       QAbstractSocket::UnconnectedState, false);
@@ -862,32 +805,13 @@ void QSocketLayer::setSendBufferSize(qint64 size)
     setOption(SendBufferSocketOption, size);
 }
 
-/*!
-    Returns the type of error that last occurred.
-
-    \sa SocketError
-*/
-QAbstractSocket::SocketError QSocketLayer::error() const
-{
-    return d->socketError;
-}
-
-/*!
-    Returns a human readable description of the last error that
-    occurred.
-
-    \sa error()
-*/
-QString QSocketLayer::errorString() const
-{
-    return d->socketErrorString;
-}
 
 /*!
     Sets the option \a option to the value \a value.
 */
 bool QSocketLayer::setOption(SocketOption option, int value)
 {
+    Q_D(QSocketLayer);
     return d->setOption(option, value);
 }
 
@@ -896,5 +820,7 @@ bool QSocketLayer::setOption(SocketOption option, int value)
 */
 int QSocketLayer::option(SocketOption socketOption) const
 {
+    Q_D(const QSocketLayer);
     return d->option(socketOption);
 }
+

@@ -176,6 +176,7 @@ bool QSocketLayerPrivate::createNewSocket(QAbstractSocket::SocketType socketType
 */
 int QSocketLayerPrivate::option(QSocketLayer::SocketOption opt) const
 {
+    Q_Q(const QSocketLayer);
     if (!q->isValid())
         return -1;
 
@@ -209,6 +210,7 @@ int QSocketLayerPrivate::option(QSocketLayer::SocketOption opt) const
 */
 bool QSocketLayerPrivate::setOption(QSocketLayer::SocketOption opt, int v)
 {
+    Q_Q(QSocketLayer);
     if (!q->isValid())
         return false;
 
@@ -706,6 +708,8 @@ void QSocketLayerPrivate::nativeClose()
 
 qint64 QSocketLayerPrivate::nativeWrite(const char *data, qint64 len)
 {
+    Q_Q(QSocketLayer);
+
     // ignore the SIGPIPE signal
     qt_ignore_sigpipe();
 
@@ -747,6 +751,7 @@ qint64 QSocketLayerPrivate::nativeWrite(const char *data, qint64 len)
 */
 qint64 QSocketLayerPrivate::nativeRead(char *data, qint64 maxSize)
 {
+    Q_Q(QSocketLayer);
     if (!q->isValid()) {
         qWarning("QSocketLayer::unbufferedRead: Invalid socket");
         return -1;

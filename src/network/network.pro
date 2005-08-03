@@ -12,6 +12,7 @@ PRECOMPILED_HEADER = ../corelib/global/qt_pch.h
 HEADERS += qftp.h \
            qhttp.h \
            qhostaddress.h \
+           qabstractsocketengine_p.h \
            qsocketlayer_p.h \
            qabstractsocket.h \
            qabstractsocket_p.h \
@@ -25,6 +26,7 @@ HEADERS += qftp.h \
 SOURCES	= qftp.cpp \
           qhttp.cpp \
           qhostaddress.cpp \
+          qabstractsocketengine.cpp \
           qsocketlayer.cpp \
           qabstractsocket.cpp \
           qtcpsocket.cpp \
