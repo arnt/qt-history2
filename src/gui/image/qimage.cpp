@@ -377,6 +377,8 @@ QImageData::~QImageData()
 /*!
     \enum QImage::Format
 
+    The following image formats are available in all versions of Qt:
+
     \value Format_Invalid   The image is invalid.
     \value Format_Mono      The image is stored using 1-bit per pixel. Bytes are
                             packed with the most significant bit (MSB) first.
@@ -393,7 +395,8 @@ QImageData::~QImageData()
                             by the alpha component divided by 255. (If RR, GG, or BB
                             has a higher value than the alpha channel, the results are undefined.)
 
-    \omit
+    The following image formats are specific to \l{Qtopia Core}:
+
     \value Format_RGB16     The image is stored using a 16-bit RGB format.
     \value Format_RGB15     The image is stored using a 15-bit RGB format.
     \value Format_Grayscale16   The image is stored with 65536 levels of gray
@@ -412,7 +415,6 @@ QImageData::~QImageData()
                                 contain the first pixel value and the most
                                 significant bits contain the last pixel value in
                                 each byte containing a group of 4 pixels.
-    \endomit
 
     \sa format(), convertToFormat()
 */
@@ -3040,12 +3042,12 @@ bool QImage::isGrayscale() const
     and height \a h according to \a aspectRatioMode and \a transformMode.
 
     \list
-    \i If \a aspectRatioMode is \c Qt::IgnoreAspectRatio, the image
+    \i If \a aspectRatioMode is Qt::IgnoreAspectRatio, the image
        is scaled to (\a w, \a h).
-    \i If \a aspectRatioMode is \c Qt::KeepAspectRatio, the image is
+    \i If \a aspectRatioMode is Qt::KeepAspectRatio, the image is
        scaled to a rectangle as large as possible inside (\a w, \a
        h), preserving the aspect ratio.
-    \i If \a aspectRatioMode is \c Qt::KeepAspectRatioByExpanding,
+    \i If \a aspectRatioMode is Qt::KeepAspectRatioByExpanding,
        the image is scaled to a rectangle as small as possible
        outside (\a w, \a h), preserving the aspect ratio.
     \endlist

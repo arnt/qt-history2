@@ -577,14 +577,10 @@ bool Q3IconDragData::operator==(const Q3IconDragData &i) const
 
     The fileiconview example program demonstrates the use of the
     Q3IconDrag class including subclassing and reimplementing
-    dragObject(), format(), encodedData() and canDecode(). See the files
-    \c qt/examples/fileiconview/qfileiconview.h and
-    \c qt/examples/fileiconview/qfileiconview.cpp.
+    dragObject(), format(), encodedData() and canDecode().
 
     \sa QMimeSource::format()
 */
-// ### consider using \dontinclude and friends there
-// ### Not here in the module overview instead...
 
 /*!
     Constructs a drag object called \a name, which is a child of \a
@@ -1385,18 +1381,18 @@ void Q3IconViewItem::setSelected(bool s)
 
     If \a s is false, the item is unselected.
 
-    If \a s is true and Q3IconView::selectionMode() is \c Single, the
+    If \a s is true and Q3IconView::selectionMode() is \l Single, the
     item is selected and the item previously selected is unselected.
 
-    If \a s is true and Q3IconView::selectionMode() is \c Extended, the
+    If \a s is true and Q3IconView::selectionMode() is \l Extended, the
     item is selected. If \a cb is true, the selection state of the
     other items is left unchanged. If \a cb is false (the default) all
     other items are unselected.
 
-    If \a s is true and Q3IconView::selectionMode() is \c Multi, the
+    If \a s is true and Q3IconView::selectionMode() is \l Multi, the
     item is selected.
 
-    Note that \a cb is used only if Q3IconView::selectionMode() is \c
+    Note that \a cb is used only if Q3IconView::selectionMode() is \l
     Extended; cb defaults to false.
 
     All items whose selection status changes repaint themselves.
@@ -2233,12 +2229,12 @@ void Q3IconViewItem::checkRect()
 
     When an item is inserted the Q3IconView allocates a position for it.
     Existing items are rearranged if autoArrange() is true. The
-    default arrangement is \c LeftToRight -- the Q3IconView fills up
+    default arrangement is \l LeftToRight -- the Q3IconView fills up
     the \e left-most column from top to bottom, then moves one column
     \e right and fills that from top to bottom and so on. The
     arrangement can be modified with any of the following approaches:
     \list
-    \i Call setArrangement(), e.g. with \c TopToBottom which will fill
+    \i Call setArrangement(), e.g. with \l TopToBottom which will fill
     the \e top-most row from left to right, then moves one row \e down
     and fills that row from left to right and so on.
     \i Construct each Q3IconViewItem using a constructor which allows
@@ -2260,7 +2256,7 @@ void Q3IconViewItem::checkRect()
 
     Items which are \link Q3IconViewItem::isSelectable()
     selectable\endlink may be selected depending on the SelectionMode;
-    the default is \c Single. Because Q3IconView offers multiple
+    the default is \l Single. Because Q3IconView offers multiple
     selection it must display keyboard focus and selection state
     separately. Therefore there are functions to set the selection
     state of an item (setSelected()) and to select which item displays
@@ -2412,10 +2408,10 @@ void Q3IconViewItem::checkRect()
 
     \value NoSelection  Items cannot be selected.
 
-    To summarise: \c Single is a real single-selection icon view; \c
-    Multi a real multi-selection icon view; \c Extended is an icon
+    To summarize: \l Single is a real single-selection icon view; \l
+    Multi a real multi-selection icon view; \l Extended is an icon
     view in which users can select multiple items but usually want to
-    select either just one or a range of contiguous items; and \c
+    select either just one or a range of contiguous items; and \l
     NoSelection mode is for an icon view where the user can look but
     not touch.
 */
@@ -3165,18 +3161,18 @@ void Q3IconView::setCurrentItem(Q3IconViewItem *item)
 
     If \a s is false, \a item is unselected.
 
-    If \a s is true and Q3IconView::selectionMode() is \c Single, \a
+    If \a s is true and Q3IconView::selectionMode() is \l Single, \a
     item is selected, and the item which was selected is unselected.
 
-    If \a s is true and Q3IconView::selectionMode() is \c Extended, \a
+    If \a s is true and Q3IconView::selectionMode() is \l Extended, \a
     item is selected. If \a cb is true, the selection state of the
     icon view's other items is left unchanged. If \a cb is false (the
     default) all other items are unselected.
 
-    If \a s is true and Q3IconView::selectionMode() is \c Multi \a item
+    If \a s is true and Q3IconView::selectionMode() is \l Multi \a item
     is selected.
 
-    Note that \a cb is used only if Q3IconView::selectionMode() is \c
+    Note that \a cb is used only if Q3IconView::selectionMode() is \l
     Extended. \a cb defaults to false.
 
     All items whose selection status is changed repaint themselves.
@@ -3551,7 +3547,7 @@ void Q3IconView::showEvent(QShowEvent *)
     \property Q3IconView::selectionMode
     \brief the selection mode of the icon view
 
-    This can be \c Single (the default), \c Extended, \c Multi or \c
+    This can be \l Single (the default), \l Extended, \l Multi or \l
     NoSelection.
 */
 
@@ -4004,7 +4000,7 @@ int Q3IconView::spacing() const
     \property Q3IconView::itemTextPos
     \brief the position where the text of each item is drawn.
 
-    Valid values are \c Bottom or \c Right. The default is \c Bottom.
+    Valid values are \l Bottom or \l Right. The default is \l Bottom.
 */
 
 void Q3IconView::setItemTextPos(ItemTextPos pos)
@@ -4050,7 +4046,7 @@ QBrush Q3IconView::itemTextBackground() const
     \property Q3IconView::arrangement
     \brief the arrangement mode of the icon view
 
-    This can be \c LeftToRight or \c TopToBottom. The default is \c
+    This can be \l LeftToRight or \l TopToBottom. The default is \l
     LeftToRight.
 */
 
@@ -4076,7 +4072,7 @@ Q3IconView::Arrangement Q3IconView::arrangement() const
     \property Q3IconView::resizeMode
     \brief the resize mode of the icon view
 
-    This can be \c Fixed or \c Adjust. The default is \c Fixed.
+    This can be \l Fixed or \l Adjust. The default is \l Fixed.
     See \l ResizeMode.
 */
 
@@ -5576,7 +5572,7 @@ Q3IconViewItem* Q3IconView::findItemByName(Q3IconViewItem *start)
 }
 
 /*!
-    Lays out a row of icons (if Arrangement == \c TopToBottom this is
+    Lays out a row of icons (if Arrangement == \l TopToBottom this is
     a column). Starts laying out with the item \a begin. \a y is the
     starting coordinate. Returns the last item of the row (column) and
     sets the new starting coordinate to \a y. The \a changed parameter
@@ -6264,11 +6260,11 @@ bool Q3IconView::isRenaming() const
     \value EndsWith The target string ends with the search string.
     \value Contains The target string contains the search string.
 
-    If you OR these flags together (excluding \c CaseSensitive), the
-    search criteria be applied in the following order: \c ExactMatch,
-    \c BeginsWith, \c EndsWith, \c Contains.
+    If you OR these flags together (excluding \l CaseSensitive), the
+    search criteria be applied in the following order: \l ExactMatch,
+    \l BeginsWith, \l EndsWith, \l Contains.
 
-    Matching is case-insensitive unless \c CaseSensitive is set. \c
+    Matching is case-insensitive unless \l CaseSensitive is set. \l
     CaseSensitive can be OR-ed with any combination of the other
     flags.
 

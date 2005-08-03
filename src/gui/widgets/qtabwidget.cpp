@@ -724,7 +724,7 @@ void QTabWidgetPrivate::updateTabBarPosition()
     \property QTabWidget::tabPosition
     \brief the position of the tabs in this tab widget
 
-    Possible values for this property are \c QTabWidget::North and \c
+    Possible values for this property are QTabWidget::North and
     QTabWidget::South.
 
     \sa TabPosition
@@ -748,8 +748,8 @@ void QTabWidget::setTabPosition(TabPosition pos)
     \property QTabWidget::tabShape
     \brief the shape of the tabs in this tab widget
 
-    Possible values for this property are \c QTabWidget::Rounded
-    (default) or \c QTabWidget::Triangular.
+    Possible values for this property are QTabWidget::Rounded
+    (default) or QTabWidget::Triangular.
 
     \sa TabShape
 */

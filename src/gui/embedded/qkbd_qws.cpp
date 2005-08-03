@@ -126,7 +126,7 @@ void QWSKeyboardHandler::processKeyEvent(int unicode, int keycode, Qt::KeyboardM
 }
 
 /*!
-    Transforms an arrow key with keycode \a key (\c Qt::Key_Left, \c Qt::Key_Up, \c Qt::Key_Right, \c
+    Transforms an arrow key with keycode \a key (Qt::Key_Left, Qt::Key_Up, Qt::Key_Right,
     Qt::Key_Down) to the orientation of the display and returns the transformed keycode.
  */
 int QWSKeyboardHandler::transformDirKey(int key)

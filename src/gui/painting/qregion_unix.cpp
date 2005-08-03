@@ -2256,7 +2256,7 @@ QRegion::QRegion(const QRegion &r)
     Constructs a region from the bitmap \a bm.
 
     The resulting region consists of the pixels in bitmap \a bm that
-    are \c Qt::color1, as if each pixel was a 1 by 1 rectangle.
+    are Qt::color1, as if each pixel was a 1 by 1 rectangle.
 
     This constructor may create complex regions that will slow down
     painting when used. Note that drawing masked pixmaps can be done

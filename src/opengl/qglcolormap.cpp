@@ -21,8 +21,7 @@
 
     QGLColormap provides a platform independent way of specifying and
     installing indexed colormaps into QGLWidgets. QGLColormap is
-    especially useful when using the \link opengl.html OpenGL\endlink
-    color-index mode.
+    especially useful when using the OpenGL color-index mode.
 
     Under X11 you must use an X server that supports either a \c
     PseudoColor or \c DirectColor visual class. If your X server

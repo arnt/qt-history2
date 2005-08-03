@@ -34,7 +34,7 @@
 
 
 /*!
-    \enum Q3PtrCollection::Item
+    \typedef Q3PtrCollection::Item
 
     This type is the generic "item" in a Q3PtrCollection.
 */

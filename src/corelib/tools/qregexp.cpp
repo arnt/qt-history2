@@ -3443,8 +3443,8 @@ void QRegExp::setPattern(const QString &pattern)
 }
 
 /*!
-    Returns \c Qt::CaseSensitive if the regexp is matched case
-    sensitively; otherwise returns \c Qt::CaseInsensitive.
+    Returns Qt::CaseSensitive if the regexp is matched case
+    sensitively; otherwise returns Qt::CaseInsensitive.
 
     \sa setCaseSensitivity()
 */
@@ -3456,7 +3456,7 @@ Qt::CaseSensitivity QRegExp::caseSensitivity() const
 /*!
     Sets case sensitive matching to \a cs.
 
-    If \a cs is \c Qt::CaseSensitive, \bold{\\.txt$} matches
+    If \a cs is Qt::CaseSensitive, \bold{\\.txt$} matches
     \c{readme.txt} but not \c{README.TXT}.
 
     \sa caseSensitivity()

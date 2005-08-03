@@ -183,7 +183,7 @@ QObject *QMetaObject::cast(QObject *obj) const
 /*!
     \internal
 
-    Forwards a tr() call from the \c Q_OBJECT macro to the QApplication.
+    Forwards a tr() call from the Q_OBJECT macro to the QApplication.
 */
 QString QMetaObject::tr(const char *s, const char *c) const
 {
@@ -195,7 +195,7 @@ QString QMetaObject::tr(const char *s, const char *c) const
 /*!
     \internal
 
-    Forwards a trUtf8() call from the \c Q_OBJECT macro to the
+    Forwards a trUtf8() call from the Q_OBJECT macro to the
     QApplication.
 */
 QString QMetaObject::trUtf8(const char *s, const char *c) const
@@ -616,8 +616,8 @@ QMetaProperty QMetaObject::property(int index) const
         class MyClass
         {
             Q_OBJECT
-            Q_CLASSINFO("author", "Sabrina Schweinsteiger");
-            Q_CLASSINFO("url", "http://doc.moosesoft.co.uk/1.0/");
+            Q_CLASSINFO("author", "Sabrina Schweinsteiger")
+            Q_CLASSINFO("url", "http://doc.moosesoft.co.uk/1.0/")
 
         public:
             ...
@@ -859,7 +859,7 @@ QByteArray QMetaObject::normalizedSignature(const char *method)
     \a val2, \a val3, \a val4, \a val5, \a val6, \a val7, \a val8,
     and \a val9) to the \a member function.
 
-    \c QGenericArgument and \c QGenericReturnArgument are internal
+    QGenericArgument and QGenericReturnArgument are internal
     helper classes. Because signals and slots can be dynamically
     invoked, you must enclose the arguments using the Q_ARG() and
     Q_RETURN_ARG() macros. Q_ARG() takes a type name and a
@@ -1250,8 +1250,8 @@ QMetaMethod::MethodType QMetaMethod::methodType() const
 /*!
     Returns the name of the enumerator (without the scope).
 
-    For example, the \c Qt::AlignmentFlag enumeration has \c
-    AlignmentFlag as the name and \c Qt as the scope.
+    For example, the Qt::AlignmentFlag enumeration has \c
+    AlignmentFlag as the name and \l Qt as the scope.
 
     \sa isValid(), scope()
 */
@@ -1327,7 +1327,7 @@ bool QMetaEnum::isFlag() const
 /*!
     Returns the scope this enumerator was declared in.
 
-    For example, the \c Qt::AlignmentFlag enumeration has \c Qt as
+    For example, the Qt::AlignmentFlag enumeration has \c Qt as
     the scope and \c AlignmentFlag as the name.
 
     \sa name()
@@ -1862,8 +1862,8 @@ bool QMetaProperty::isEditable(const QObject *object) const
         class MyClass
         {
             Q_OBJECT
-            Q_CLASSINFO("author", "Sabrina Schweinsteiger");
-            Q_CLASSINFO("url", "http://doc.moosesoft.co.uk/1.0/");
+            Q_CLASSINFO("author", "Sabrina Schweinsteiger")
+            Q_CLASSINFO("url", "http://doc.moosesoft.co.uk/1.0/")
 
         public:
             ...
@@ -1922,7 +1922,7 @@ const char* QMetaClassInfo::value() const
     \relates QMetaObject
 
     This macro takes a \a Type and a non-const reference to a \a
-    value of that type and returns a \c QGenericReturnArgument object
+    value of that type and returns a QGenericReturnArgument object
     that can be passed to QMetaObject::invokeMethod().
 
     \sa Q_ARG()

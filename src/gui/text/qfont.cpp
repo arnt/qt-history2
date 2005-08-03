@@ -1921,7 +1921,7 @@ int QFontInfo::weight() const
 /*!
     \fn bool QFontInfo::bold() const
 
-    Returns true if weight() would return a value greater than \c
+    Returns true if weight() would return a value greater than
     QFont::Normal; otherwise returns false.
 
     \sa weight(), QFont::bold()

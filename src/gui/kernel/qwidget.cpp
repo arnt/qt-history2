@@ -461,7 +461,7 @@ void QWidget::setEditFocus(bool on)
     \i \c{QWidget *parent = 0} is the parent of the new widget.
     If it is 0 (the default), the new widget will be a window.
     If not, it will be a child of \e parent, and be constrained by \e
-    parent's geometry (unless you specify \c Qt::Window as
+    parent's geometry (unless you specify Qt::Window as
     window flag).
     \i \c{Qt::WFlags f = 0} (where available) sets the window flags; the
     default is suitable for almost all widgets, but to get, for
@@ -1564,8 +1564,8 @@ bool QWidget::isMaximized() const
 
 
 /*!  Returns the current window state. The window state is a OR'ed
-  combination of Qt::WindowState: \c Qt::WindowMinimized, \c
-  Qt::WindowMaximized, \c Qt::WindowFullScreen and \c Qt::WindowActive.
+  combination of Qt::WindowState: Qt::WindowMinimized,
+  Qt::WindowMaximized, Qt::WindowFullScreen, and Qt::WindowActive.
 
   \sa Qt::WindowState setWindowState()
  */
@@ -1588,8 +1588,8 @@ void QWidget::overrideWindowState(Qt::WindowStates newstate)
   \fn void QWidget::setWindowState(Qt::WindowStates windowState)
 
   Sets the window state to \a windowState. The window state is a OR'ed
-  combination of Qt::WindowState: \c Qt::WindowMinimized, \c
-  Qt::WindowMaximized, \c Qt::WindowFullScreen and \c Qt::WindowActive.
+  combination of Qt::WindowState: Qt::WindowMinimized,
+  Qt::WindowMaximized, Qt::WindowFullScreen, and Qt::WindowActive.
 
   If the window is not visible (i.e. isVisible() returns false), the
   window state will take effect when show() is called. For visible
@@ -1607,7 +1607,7 @@ void QWidget::overrideWindowState(Qt::WindowStates newstate)
         w->setWindowState(w->windowState() & ~Qt::WindowMinimized | Qt::WindowActive);
   \endcode
 
-  Note: On some window systems \c Qt::WindowActive is not immediate, and may be
+  Note: On some window systems Qt::WindowActive is not immediate, and may be
   ignored in certain cases.
 
   \sa Qt::WindowState windowState()
@@ -1742,7 +1742,7 @@ bool QWidget::isEnabledTo(QWidget* ancestor) const
 /*!
     Appends the action \a action to this widget's list of actions.
 
-    All QWidgets have list of QActions, however they can be
+    All QWidgets have a list of \l{QAction}s, however they can be
     represented graphically in many different ways. The default use of
     the QAction list (as returned by actions()) is to create a context
     QMenu.
@@ -2885,7 +2885,7 @@ QPalette::ColorRole QWidget::backgroundRole() const
   The background role defines the brush from the widget's \l palette that
   is used to render the background.
 
-  If \a role is \c QPalette::NoRole, then the widget inherits its
+  If \a role is QPalette::NoRole, then the widget inherits its
   parent's background role.
 
   \sa backgroundRole(), foregroundRole()
@@ -2943,7 +2943,7 @@ QPalette::ColorRole QWidget::foregroundRole() const
   The foreground role defines the color from the widget's \l palette that
   is used to draw the foreground.
 
-  If \a role is \c QPalette::NoRole, the widget uses a foreground role
+  If \a role is QPalette::NoRole, the widget uses a foreground role
   that contrasts with the background role.
 
   \sa foregroundRole(), backgroundRole()
@@ -3773,7 +3773,8 @@ bool QWidget::isActiveWindow() const
     \e not like this:
 
     \code
-        setTabOrder(c, d); // c to d   WRONG
+        // WRONG
+        setTabOrder(c, d); // c to d
         setTabOrder(a, b); // a to b AND c to d
         setTabOrder(b, c); // a to b to c, but not c to d
     \endcode
@@ -4081,10 +4082,10 @@ void QWidget::setContextMenuPolicy(Qt::ContextMenuPolicy policy)
     \property QWidget::focusPolicy
     \brief the way the widget accepts keyboard focus
 
-    The policy is \c Qt::TabFocus if the widget accepts keyboard
-    focus by tabbing, \c Qt::ClickFocus if the widget accepts
-    focus by clicking, \c Qt::StrongFocus if it accepts both, and
-    \c Qt::NoFocus (the default) if it does not accept focus at
+    The policy is Qt::TabFocus if the widget accepts keyboard
+    focus by tabbing, Qt::ClickFocus if the widget accepts
+    focus by clicking, Qt::StrongFocus if it accepts both, and
+    Qt::NoFocus (the default) if it does not accept focus at
     all.
 
     You must enable keyboard focus for a widget if it processes
@@ -4542,7 +4543,7 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
     ignores\endlink the event, nothing happens. The default
     implementation of QWidget::closeEvent() accepts the close event.
 
-    If the widget has the \c Qt::WA_DeleteOnClose flag, the widget
+    If the widget has the Qt::WA_DeleteOnClose flag, the widget
     is also deleted. A close events is delivered to the widget no
     matter if the widget is visible or not.
 
@@ -4632,6 +4633,9 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
 }
 
 #ifdef QT3_SUPPORT
+/*!
+    Use visibleRegion() instead.
+*/
 QRect QWidget::visibleRect() const
 {
     return d_func()->clipRect();
@@ -4744,7 +4748,7 @@ QSize QWidget::sizeHint() const
 
     \l QLayout will never resize a widget to a size smaller than the
     minimum size hint unless minimumSize() is set or the size policy is
-    set to \c QSizePolicy::Ignore. If minimumSize() is set, the minimum
+    set to QSizePolicy::Ignore. If minimumSize() is set, the minimum
     size hint will be ignored.
 
     \sa QSize::isValid(), resize(), setMinimumSize(), sizePolicy()
@@ -5431,7 +5435,7 @@ void QWidget::keyReleaseEvent(QKeyEvent *e)
     is passed in the \a event parameter
 
     A widget normally must setFocusPolicy() to something other than
-    \c Qt::NoFocus in order to receive focus events. (Note that the
+    Qt::NoFocus in order to receive focus events. (Note that the
     application programmer can call setFocus() on any widget, even
     those that do not normally accept focus.)
 
@@ -5457,7 +5461,7 @@ void QWidget::focusInEvent(QFocusEvent *)
     passed in the \a event parameter.
 
     A widget normally must setFocusPolicy() to something other than
-    \c Qt::NoFocus in order to receive focus events. (Note that the
+    Qt::NoFocus in order to receive focus events. (Note that the
     application programmer can call setFocus() on any widget, even
     those that do not normally accept focus.)
 
@@ -6373,7 +6377,7 @@ void QWidget::repaint(const QRect &r)
     paintEvent() call.
 
     Qt normally erases the widget's area before the paintEvent() call.
-    If the \c Qt::WRepaintNoErase widget flag is set, the widget is
+    If the Qt::WRepaintNoErase widget flag is set, the widget is
     responsible for painting all its pixels itself.
 
     \sa repaint() paintEvent(), setUpdatesEnabled()
@@ -6942,13 +6946,6 @@ void QWidget::fontChange(const QFont &) { }  // compat
 void QWidget::windowActivationChange(bool) { }  // compat
 void QWidget::languageChange() { }  // compat
 
-
-/*!
-    \property QWidget::visibleRect
-    \brief holds the widget's visible rectangle
-
-    \compat
-*/
 
 /*!
     \enum QWidget::BackgroundOrigin

@@ -749,7 +749,7 @@ QString QSqlResult::boundValueName(int index) const
 
 /*!
     Returns true if at least one of the query's bound values is a \c
-    QSql::Out or a \c QSql::InOut; otherwise returns false.
+    QSql::Out or a QSql::InOut; otherwise returns false.
 
     \sa bindValueType()
 */

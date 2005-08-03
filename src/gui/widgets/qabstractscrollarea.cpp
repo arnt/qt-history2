@@ -228,7 +228,7 @@ QSize QAbstractScrollArea::maximumViewportSize() const
     \property QAbstractScrollArea::verticalScrollBarPolicy
     \brief the policy for the vertical scroll bar
 
-    The default policy is \c Qt::ScrollBarAsNeeded.
+    The default policy is Qt::ScrollBarAsNeeded.
 
     \sa horizontalScrollBarPolicy
 */
@@ -263,7 +263,7 @@ QScrollBar *QAbstractScrollArea::verticalScrollBar() const
     \property QAbstractScrollArea::horizontalScrollBarPolicy
     \brief the policy for the horizontal scroll bar
 
-    The default policy is \c Qt::ScrollBarAsNeeded.
+    The default policy is Qt::ScrollBarAsNeeded.
 
     \sa verticalScrollBarPolicy
 */

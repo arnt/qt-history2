@@ -795,7 +795,7 @@ qint64 Q3SocketDevice::readData( char *data, qint64 maxlen )
     Writes \a len bytes to the socket from \a data and returns the
     number of bytes written. Returns -1 if an error occurred.
 
-    This is used for \c Q3SocketDevice::Stream sockets.
+    This is used for Q3SocketDevice::Stream sockets.
 */
 qint64 Q3SocketDevice::writeData( const char *data, qint64 len )
 {
@@ -880,7 +880,7 @@ qint64 Q3SocketDevice::writeData( const char *data, qint64 len )
     Writes \a len bytes to the socket from \a data and returns the
     number of bytes written. Returns -1 if an error occurred.
 
-    This is used for \c Q3SocketDevice::Datagram sockets. You must
+    This is used for Q3SocketDevice::Datagram sockets. You must
     specify the \a host and \a port of the destination of the data.
 */
 Q_LONG Q3SocketDevice::writeBlock( const char * data, Q_ULONG len,

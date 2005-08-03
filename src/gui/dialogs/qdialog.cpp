@@ -118,9 +118,9 @@
     dialog will initially appear as a partial dialog, but with a
     "More" toggle button. If the user presses the "More" button down,
     the full dialog will appear. The extension widget will be resized
-    to its sizeHint(). If orientation is \c Qt::Horizontal the extension
+    to its sizeHint(). If orientation is Qt::Horizontal the extension
     widget's height() will be expanded to the height() of the dialog.
-    If the orientation is \c Qt::Vertical the extension widget's width()
+    If the orientation is Qt::Vertical the extension widget's width()
     will be expanded to the width() of the dialog. Extensibility is
     controlled with setExtension(), setOrientation() and
     showExtension().
@@ -323,7 +323,7 @@ void QDialog::hideSpecial()
 /*!
   Returns the modal dialog's result code, \c Accepted or \c Rejected.
 
-  Do not call this function if the dialog was constructed with the \c
+  Do not call this function if the dialog was constructed with the
   Qt::WA_DeleteOnClose attribute.
 */
 int QDialog::result() const
@@ -390,7 +390,7 @@ int QDialog::exec()
   is shown with exec(), done() causes the local event loop to finish,
   and exec() to return \a r.
 
-  As with QWidget::close(), done() deletes the dialog if the \c
+  As with QWidget::close(), done() deletes the dialog if the
   Qt::WA_DeleteOnClose flag is set. If the dialog is the application's
   main widget, the application terminates. If the dialog is the
   last window closed, the QApplication::lastWindowClosed() signal is
@@ -731,8 +731,8 @@ void QDialog::adjustPosition(QWidget* w)
 
 
 /*!
-    If \a orientation is \c Qt::Horizontal, the extension will be displayed
-    to the right of the dialog's main area. If \a orientation is \c
+    If \a orientation is Qt::Horizontal, the extension will be displayed
+    to the right of the dialog's main area. If \a orientation is
     Qt::Vertical, the extension will be displayed below the dialog's main
     area.
 

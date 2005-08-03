@@ -47,7 +47,7 @@ public:
    provide the user with feedback that the application is loading.
 
    The splash screen appears centered on the screen. It may be useful to add
-   the \c Qt::WStyle_StaysOnTop if you desire to keep above all the windows in the
+   the Qt::WStyle_StaysOnTop if you desire to keep above all the windows in the
    GUI.
 
    Some X11 window managers do not support the "stays on top" flag. A
@@ -104,7 +104,7 @@ public:
     Construct a splash screen that will display the \a pixmap.
 
     There should be no need to set the widget flags, \a f, except
-    perhaps \c Qt::WStyle_StaysOnTop.
+    perhaps Qt::WindowStaysOnTopHint.
 */
 QSplashScreen::QSplashScreen(const QPixmap &pixmap, Qt::WFlags f)
     : QWidget(*(new QSplashScreenPrivate()), 0, Qt::SplashScreen | f)

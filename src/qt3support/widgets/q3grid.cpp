@@ -36,7 +36,8 @@
     \sa Q3VBox Q3HBox QGridLayout
 */
 
-/*! \enum Q3Grid::Direction
+/*!
+    \typedef Q3Grid::Direction
     \internal
 */
 

@@ -416,7 +416,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
 /*!
     \fn bool QTextFormat::isValid() const
 
-    Returns true if the format is valid (i.e. is not \c
+    Returns true if the format is valid (i.e. is not
     InvalidFormat); otherwise returns false.
 */
 
@@ -625,7 +625,7 @@ QTextImageFormat QTextFormat::toImageFormat() const
 
 /*!
     Returns the value of the property specified by \a propertyId. If the
-    property isn't of \c QTextFormat::Bool type, false is returned instead.
+    property isn't of QTextFormat::Bool type, false is returned instead.
 
     \sa setProperty() intProperty() doubleProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() Property
 */
@@ -641,7 +641,7 @@ bool QTextFormat::boolProperty(int propertyId) const
 
 /*!
     Returns the value of the property specified by \a propertyId. If the
-    property is not of \c QTextFormat::Integer type, 0 is returned instead.
+    property is not of QTextFormat::Integer type, 0 is returned instead.
 
     \sa setProperty() boolProperty() doubleProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() Property
 */
@@ -657,7 +657,7 @@ int QTextFormat::intProperty(int propertyId) const
 
 /*!
     Returns the value of the property specified by \a propertyId. If the
-    property isn't of \c QVariant::Double type, 0 is returned instead.
+    property isn't of QVariant::Double type, 0 is returned instead.
 
     \sa setProperty() boolProperty() intProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() Property
 */
@@ -673,7 +673,7 @@ qreal QTextFormat::doubleProperty(int propertyId) const
 
 /*!
     Returns the value of the property given by \a propertyId; if the
-    property isn't of \c QVariant::String type, an empty string is
+    property isn't of QVariant::String type, an empty string is
     returned instead.
 
     \sa setProperty() boolProperty() intProperty() doubleProperty() colorProperty() lengthProperty() lengthVectorProperty() Property
@@ -690,7 +690,7 @@ QString QTextFormat::stringProperty(int propertyId) const
 
 /*!
     Returns the value of the property given by \a propertyId; if the
-    property isn't of \c QVariant::Color type, an invalid color is
+    property isn't of QVariant::Color type, an invalid color is
     returned instead.
 
     \sa setProperty(), boolProperty(), intProperty(), doubleProperty(),
@@ -708,7 +708,7 @@ QColor QTextFormat::colorProperty(int propertyId) const
 
 /*!
     Returns the value of the property given by \a propertyId; if the
-    property isn't of \c QVariant::Pen type, Qt::NoPen is
+    property isn't of QVariant::Pen type, Qt::NoPen is
     returned instead.
 
     \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() lengthProperty() lengthVectorProperty() Property
@@ -725,7 +725,7 @@ QPen QTextFormat::penProperty(int propertyId) const
 
 /*!
     Returns the value of the property given by \a propertyId; if the
-    property isn't of \c QVariant::Brush type, Qt::NoBrush is
+    property isn't of QVariant::Brush type, Qt::NoBrush is
     returned instead.
 
     \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() lengthProperty() lengthVectorProperty() Property
@@ -754,7 +754,7 @@ QTextLength QTextFormat::lengthProperty(int propertyId) const
 
 /*!
     Returns the value of the property given by \a propertyId. If the
-    property isn't of \c QTextFormat::LengthVector type, an empty length
+    property isn't of QTextFormat::LengthVector type, an empty length
     vector is returned instead.
 
     \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() colorProperty() lengthProperty() Property

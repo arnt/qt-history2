@@ -352,7 +352,7 @@ bool QToolBar::isMovable() const
     \property QToolBar::allowedAreas
     \brief areas where the toolbar may be placed
 
-    The default is \c Qt::AllToolBarAreas.
+    The default is Qt::AllToolBarAreas.
 
     This property only makes sense if the toolbar is in a
     QMainWindow.
@@ -376,7 +376,7 @@ Qt::ToolBarAreas QToolBar::allowedAreas() const
 /*! \property QToolBar::orientation
     \brief orientation of the toolbar
 
-    The default is \c Qt::Horizontal.
+    The default is Qt::Horizontal.
 
     The orientation is updated automatically when the toolbar is
     managed by QMainWindow.

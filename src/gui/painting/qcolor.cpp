@@ -42,19 +42,19 @@
     illegal. For performance reasons, QColor mostly disregards illegal
     colors. Therefore, the result of using an invalid color is undefined.
 
-    There are 20 predefined QColor objects: \c white, \c black, \c
-    red, \c darkRed, \c green, \c darkGreen, \c blue, \c darkBlue, \c
-    cyan, \c darkCyan, \c magenta, \c darkMagenta, \c yellow, \c
-    darkYellow, \c gray, \c darkGray, \c lightGray, \c color0, \c
-    color1, and \c transparent, accessible as members of the Qt
-    namespace (i.e. \c Qt::red).
+    There are 20 predefined QColor objects: Qt::white, Qt::black,
+    Qt::red, Qt::darkRed, Qt::green, Qt::darkGreen, Qt::blue,
+    Qt::darkBlue, Qt::cyan, Qt::darkCyan, Qt::magenta,
+    Qt::darkMagenta, Qt::yellow, Qt::darkYellow, Qt::gray,
+    Qt::darkGray, Qt::lightGray, Qt::color0, Qt::color1, and
+    Qt::transparent.
 
     \img qt-colors.png Qt Colors
 
-    The colors \c Qt::color0 (zero pixel value) and \c Qt::color1 (non-zero
-    pixel value) are special colors for drawing in QBitmaps. Painting with \c
+    The colors Qt::color0 (zero pixel value) and Qt::color1 (non-zero
+    pixel value) are special colors for drawing in QBitmaps. Painting with
     Qt::color0 sets the bitmap bits to 0 (transparent, i.e. background), and
-    painting with \c Qt::color1 sets the bits to 1 (opaque, i.e. foreground).
+    painting with Qt::color1 sets the bits to 1 (opaque, i.e. foreground).
 
     QColor is platform and device independent. The QColormap class maps the
     color to the hardware.

@@ -340,7 +340,7 @@ void QStyle::polish(QPalette & /* pal */)
     If \a rect is larger than the area needed to render the \a text
     the rectangle that is returned will be offset within \a rect in
     accordance with the alignment \a alignment. For example, if \a
-    alignment is \c Qt::AlignCenter, the returned rectangle will be
+    alignment is Qt::AlignCenter, the returned rectangle will be
     centered within \a rect. If \a rect is smaller than the area
     needed, the rectangle that is returned will be \e larger than \a
     rect (the smallest rectangle large enough to render the \a text).
@@ -520,10 +520,14 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \sa drawPrimitive()
 */
-/*! \enum QStyle::SFlags
+
+/*!
+    \typedef QStyle::SFlags
     \internal
 */
-/*! \enum QStyle::SCFlags
+
+/*!
+    \typedef QStyle::SCFlags
     \internal
 */
 
@@ -1301,12 +1305,12 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
         SubControl.
 
     \value SH_TabBar_Alignment  The alignment for tabs in a
-        QTabWidget. Possible values are \c Qt::AlignLeft, \c
-        Qt::AlignCenter and \c Qt::AlignRight.
+        QTabWidget. Possible values are Qt::AlignLeft,
+        Qt::AlignCenter and Qt::AlignRight.
 
     \value SH_Header_ArrowAlignment The placement of the sorting
         indicator may appear in list or table headers. Possible values
-        are \c Qt::Left or \c Qt::Right.
+        are Qt::Left or Qt::Right.
 
     \value SH_Slider_SnapToValue  Sliders snap to values while moving,
         as they do on Windows.

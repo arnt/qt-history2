@@ -77,7 +77,7 @@ QFont QTextItem::font() const
   If one wants to use QPainter to draw to a different backend, such as
   PDF, one must subclass QPaintEngine and reimplement all its virtual
   functions. The QPaintEngine implementation is then made available by
-  subclassing QPaintDevice and reimplementing the virtual function \c
+  subclassing QPaintDevice and reimplementing the virtual function
   QPaintDevice::paintEngine().
 
   QPaintEngine is created and owned by the QPaintDevice that created it.
@@ -122,15 +122,6 @@ QFont QTextItem::font() const
 */
 
 /*!
-  \enum QPaintEngine::DirtyFlags
-
-  \internal
-
-  This enum is used by QPainter to trigger lazy updates of the various states
-  in the QPaintEngine
-*/
-
-/*!
     \enum QPaintEngine::PolygonDrawMode
 
     \value OddEvenMode The polygon should be drawn using OddEven fill
@@ -148,8 +139,12 @@ QFont QTextItem::font() const
 
 /*!
     \enum QPaintEngine::DirtyFlag
+    \typedef QPaintEngine::DirtyFlags
 
     \internal
+
+    These types are used by QPainter to trigger lazy updates of the
+    various states in the QPaintEngine.
 */
 
 /*!

@@ -2100,7 +2100,7 @@ static QStringList makeFiltersList(const QString &filter)
   is set to \e this and it is given the identification name - "open file
   dialog". The caption at the top of file dialog is set to "Choose a
   file". If you want to use multiple filters, separate each one with
-  \e two semi-colons, e.g.
+  \e two semicolons, e.g.
   \code
   "Images (*.png *.xpm *.jpg);;Text files (*.txt);;XML files (*.xml)"
   \endcode
@@ -2114,11 +2114,11 @@ static QStringList makeFiltersList(const QString &filter)
     fd->setMode(Q3FileDialog::AnyFile);
   \endcode
 
-  In the above example, the mode of the file dialog is set to \c
+  In the above example, the mode of the file dialog is set to \l
   AnyFile, meaning that the user can select any file, or even specify a
   file that doesn't exist. This mode is useful for creating a "File Save
-  As" file dialog. Use \c ExistingFile if the user must select an
-  existing file or \c Directory if only a directory may be selected.
+  As" file dialog. Use \l ExistingFile if the user must select an
+  existing file or \l Directory if only a directory may be selected.
   (See the \l Q3FileDialog::Mode enum for the complete list of modes.)
 
   You can retrieve the dialog's mode with mode(). Use setFilter() to set
@@ -2158,7 +2158,7 @@ static QStringList makeFiltersList(const QString &filter)
   the user clicked OK, then the file they selected is put in \c
   fileName.
 
-  If you are using the \c ExistingFiles mode then you will need to use
+  If you are using the \l ExistingFiles mode then you will need to use
   selectedFiles() which will return the selected files in a QStringList.
 
   The dialog's working directory can be set with setDir(). The display
@@ -2914,7 +2914,7 @@ void Q3FileDialog::setSelectedFilter(const QString& mask)
   the mode isn't ExistingFiles selectedFiles is an empty list.
 
   It is more convenient to use selectedFile() if the mode is
-  \c ExistingFile, \c Directory or \c DirectoryOnly.
+  \l ExistingFile, \c Directory or \c DirectoryOnly.
 
   Note that if you want to iterate over the list, you should
   iterate over a copy, e.g.
@@ -3033,7 +3033,7 @@ QString Q3FileDialog::dirPath() const
 
   If \a newFilter contains a pair of parentheses containing one or more
   of "anything*something" separated by spaces or by
-  semi-colons then only the text contained in the parentheses is used as
+  semicolons then only the text contained in the parentheses is used as
   the filter. This means that these calls are all equivalent:
 
   \code
@@ -4471,7 +4471,7 @@ QString Q3FileDialog::getExistingDirectory(const QString & dir,
   \property Q3FileDialog::mode
   \brief the file dialog's mode
 
-  The default mode is \c ExistingFile.
+  The default mode is \l ExistingFile.
 */
 
 void Q3FileDialog::setMode(Mode newMode)
@@ -5333,7 +5333,7 @@ bool Q3FileDialog::eventFilter(QObject * o, QEvent * e)
 
 /*!
   Sets the filters used in the file dialog to \a filters. Each group
-  of filters must be separated by \c{;;} (\e two semi-colons).
+  of filters must be separated by \c{;;} (\e two semicolons).
 
   \code
     QString types("Image files (*.png *.xpm *.jpg);;"

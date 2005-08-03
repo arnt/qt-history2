@@ -126,7 +126,7 @@ public:
 
     The \a type argument must match the actual socket type; use \c
     Q3SocketDevice::Stream for a reliable, connection-oriented TCP
-    socket, or \c Q3SocketDevice::Datagram for an unreliable,
+    socket, or Q3SocketDevice::Datagram for an unreliable,
     connectionless UDP socket.
 */
 Q3SocketDevice::Q3SocketDevice( int socket, Type type )
@@ -144,7 +144,7 @@ Q3SocketDevice::Q3SocketDevice( int socket, Type type )
 /*!
     Creates a Q3SocketDevice object for a stream or datagram socket.
 
-    The \a type argument must be either \c Q3SocketDevice::Stream for a
+    The \a type argument must be either Q3SocketDevice::Stream for a
     reliable, connection-oriented TCP socket, or \c
     Q3SocketDevice::Datagram for an unreliable UDP socket.
 
@@ -167,7 +167,7 @@ Q3SocketDevice::Q3SocketDevice( Type type )
 /*!
     Creates a Q3SocketDevice object for a stream or datagram socket.
 
-    The \a type argument must be either \c Q3SocketDevice::Stream for a
+    The \a type argument must be either Q3SocketDevice::Stream for a
     reliable, connection-oriented TCP socket, or \c
     Q3SocketDevice::Datagram for an unreliable UDP socket.
 
@@ -221,8 +221,8 @@ bool Q3SocketDevice::isValid() const
 /*!
     \fn Type Q3SocketDevice::type() const
 
-    Returns the socket type which is either \c Q3SocketDevice::Stream
-    or \c Q3SocketDevice::Datagram.
+    Returns the socket type which is either Q3SocketDevice::Stream
+    or Q3SocketDevice::Datagram.
 
     \sa socket()
 */
@@ -267,7 +267,7 @@ int Q3SocketDevice::socket() const
 
     The \a type argument must match the actual socket type; use \c
     Q3SocketDevice::Stream for a reliable, connection-oriented TCP
-    socket, or \c Q3SocketDevice::Datagram for an unreliable,
+    socket, or Q3SocketDevice::Datagram for an unreliable,
     connectionless UDP socket.
 
     Any existing socket is closed.
@@ -507,7 +507,7 @@ void Q3SocketDevice::setError( Error err )
     Writes \a len bytes to the socket from \a data and returns the
     number of bytes written. Returns -1 if an error occurred.
 
-    This is used for \c QSocketDevice::Stream sockets.
+    This is used for Q3SocketDevice::Stream sockets.
 */
 
 /*!

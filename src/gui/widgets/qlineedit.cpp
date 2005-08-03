@@ -117,7 +117,7 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
 
     Note that if there is a validator set on the line edit, the
     returnPressed()/editingFinished() signals will only be emitted if
-    the validator returns \c Acceptable.
+    the validator returns QValidator::Acceptable.
 
     By default, QLineEdits have a frame as specified by the Windows
     and Motif style guides; you can turn it off by calling
@@ -320,7 +320,7 @@ QLineEdit::~QLineEdit()
 
     Setting this property clears the selection, clears the undo/redo
     history, moves the cursor to the end of the line and resets the
-    \c modified property to false. The text is not validated when
+    \l modified property to false. The text is not validated when
     inserted with setText().
 
     The text is truncated to maxLength() length.
@@ -350,10 +350,10 @@ void QLineEdit::setText(const QString& text)
     \property QLineEdit::displayText
     \brief the displayed text
 
-    If \c EchoMode is \c Normal this returns the same as text(); if
-    \c EchoMode is \c Password it returns a string of asterisks
-    text().length() characters long, e.g. "******"; if \c EchoMode is
-    \c NoEcho returns an empty string, "".
+    If \l echoMode is \l Normal this returns the same as text(); if
+    \l EchoMode is \l Password it returns a string of asterisks
+    text().length() characters long, e.g. "******"; if \l EchoMode is
+    \l NoEcho returns an empty string, "".
 
     \sa setEchoMode() text() EchoMode
 */
@@ -450,8 +450,8 @@ void QLineEdit::setFrame(bool enable)
     \property QLineEdit::echoMode
     \brief the line edit's echo mode
 
-    The initial setting is \c Normal, but QLineEdit also supports \c
-    NoEcho and \c Password modes.
+    The initial setting is \l Normal, but QLineEdit also supports \l
+    NoEcho and \l Password modes.
 
     The widget's display and the ability to copy or drag the text is
     affected by this setting.
@@ -579,7 +579,7 @@ void QLineEdit::setCursorPosition(int pos)
 }
 
 /*!
-    Returns the \c cursorPostion under the point \a pos.
+    Returns the cursor position under the point \a pos.
 */
 // ### What should this do if the point is outside of contentsRect? Currently returns 0.
 int QLineEdit::cursorPositionAt(const QPoint &pos)
@@ -1042,7 +1042,7 @@ bool QLineEdit::hasAcceptableInput() const
     \row \i \c > \i All following alphabetic characters are uppercased.
     \row \i \c < \i All following alphabetic characters are lowercased.
     \row \i \c ! \i Switch off case conversion.
-    \row \i <tt>\\</tt> \i Use <tt>\\</tt> to escape the special
+    \row \i \tt{\\} \i Use \tt{\\} to escape the special
                            characters listed above to use them as
                            separators.
     \endtable
@@ -1177,7 +1177,7 @@ void QLineEdit::redo()
     \brief whether the line edit is read only.
 
     In read-only mode, the user can still copy the text to the
-    clipboard, or drag and drop the text (if echoMode() is \c Normal),
+    clipboard, or drag and drop the text (if echoMode() is \l Normal),
     but cannot edit it.
 
     QLineEdit does not show a cursor in read-only mode.
@@ -1202,7 +1202,7 @@ void QLineEdit::setReadOnly(bool enable)
 #ifndef QT_NO_CLIPBOARD
 /*!
     Copies the selected text to the clipboard and deletes it, if there
-    is any, and if echoMode() is \c Normal.
+    is any, and if echoMode() is \l Normal.
 
     If the current validator disallows deleting the selected text,
     cut() will copy without deleting.
@@ -1221,7 +1221,7 @@ void QLineEdit::cut()
 
 /*!
     Copies the selected text to the clipboard, if there is any, and if
-    echoMode() is \c Normal.
+    echoMode() is \l Normal.
 
     \sa cut() paste()
 */
@@ -1470,7 +1470,8 @@ void QLineEdit::mouseDoubleClickEvent(QMouseEvent* e)
     This signal is emitted when the Return or Enter key is pressed.
     Note that if there is a validator() or inputMask() set on the line
     edit, the returnPressed() signal will only be emitted if the input
-    follows the inputMask() and the validator() returns \c Acceptable.
+    follows the inputMask() and the validator() returns
+    QValidator::Acceptable.
 */
 
 /*!
@@ -1480,7 +1481,7 @@ void QLineEdit::mouseDoubleClickEvent(QMouseEvent* e)
     the line edit looses focus. Note that if there is a validator() or
     inputMask() set on the line edit and enter/return is pressed, the
     editingFinished() signal will only be emitted if the input follows
-    the inputMask() and the validator() returns \c Acceptable.
+    the inputMask() and the validator() returns QValidator::Acceptable.
 */
 
 /*!

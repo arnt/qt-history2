@@ -985,7 +985,7 @@ QFileInfo::groupId() const
 
 /*!
     Tests for file permissions. The \a permissions argument can be
-    several flags of type \c QFile::Permissions OR-ed together to check
+    several flags of type QFile::Permissions OR-ed together to check
     for permission combinations.
 
     On systems where files do not have permissions this function

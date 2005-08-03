@@ -366,8 +366,8 @@ QModelIndexList QItemSelection::indexes() const
   Merges the \a other selection with this QItemSelection using the
   \a command given. This method guarantees that no ranges are overlapping.
 
-  Note that only \c QItemSelectionModel::Select,
-  \c QItemSelectionModel::Deselect, and \c QItemSelectionModel::Toggle are
+  Note that only QItemSelectionModel::Select,
+  QItemSelectionModel::Deselect, and QItemSelectionModel::Toggle are
   supported.
 
   \sa split()

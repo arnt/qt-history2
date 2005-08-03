@@ -1208,7 +1208,7 @@ Q3ScrollView::ScrollBarMode Q3ScrollView::vScrollBarMode() const
     \property Q3ScrollView::vScrollBarMode
     \brief the mode for the vertical scroll bar
 
-    The default mode is \c Q3ScrollView::Auto.
+    The default mode is Q3ScrollView::Auto.
 
     \sa hScrollBarMode
 */
@@ -1225,7 +1225,7 @@ void  Q3ScrollView::setVScrollBarMode(ScrollBarMode mode)
     \property Q3ScrollView::hScrollBarMode
     \brief the mode for the horizontal scroll bar
 
-    The default mode is \c Q3ScrollView::Auto.
+    The default mode is Q3ScrollView::Auto.
 
     \sa vScrollBarMode
 */

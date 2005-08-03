@@ -186,12 +186,12 @@ QString QGroupBox::title() const
 
     The alignment is one of the following flags:
     \list
-    \i \c Qt::AlignLeft aligns the title text to the left.
-    \i \c Qt::AlignRight aligns the title text to the right.
-    \i \c Qt::AlignHCenter aligns the title text centered.
+    \i Qt::AlignLeft aligns the title text to the left.
+    \i Qt::AlignRight aligns the title text to the right.
+    \i Qt::AlignHCenter aligns the title text centered.
     \endlist
 
-    The default alignment is \c Qt::AlignLeft.
+    The default alignment is Qt::AlignLeft.
 
     \sa Qt::Alignment
 */

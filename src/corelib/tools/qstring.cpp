@@ -455,8 +455,12 @@ const QString::Null QString::null = QString::Null();
 /*!
     \enum QString::SplitBehavior
 
-    \value KeepEmptyParts
-    \value SkipEmptyParts
+    This enum specifies how split() should behave with respect to empty strings.
+
+    \value KeepEmptyParts  If a field is empty, keep it in the result.
+    \value SkipEmptyParts  If a field is empty, don't include it in the result.
+
+    \sa split()
 */
 
 QString::Data QString::shared_null = { Q_ATOMIC_INIT(1), 0, 0, shared_null.array, 0, 0, 0, 0, 0, {0} };

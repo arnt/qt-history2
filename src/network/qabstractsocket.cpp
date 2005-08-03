@@ -1841,17 +1841,20 @@ void QAbstractSocket::setSocketError(SocketError socketError)
     \value ErrSocketRead Use QAbstractSocket::UnknownSocketError instead.
 */
 
-/*! \enum QAbstractSocket::State
+/*! \typedef QAbstractSocket::State
     \compat
 
     Use QAbstractSocket::SocketState instead.
 
-    \value Idle Use QAbstractSocket::UnconnectedState instead.
-    \value HostLookup Use QAbstractSocket::HostLookupState instead.
-    \value Connecting Use QAbstractSocket::ConnectingState instead.
-    \value Connected Use QAbstractSocket::ConnectedState instead.
-    \value Closing Use QAbstractSocket::ClosingState instead.
-    \value Connection Use QAbstractSocket::ConnectedState instead.
+    \table
+    \header \o Qt 3 enum value \o Qt 4 enum value
+    \row \o \c Idle            \o \l UnconnectedState
+    \row \o \c HostLookup      \o \l HostLookupState
+    \row \o \c Connecting      \o \l ConnectingState
+    \row \o \c Connected       \o \l ConnectedState
+    \row \o \c Closing         \o \l ClosingState
+    \row \o \c Connection      \o \l ConnectedState
+    \endtable
 */
 
 /*!

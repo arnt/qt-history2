@@ -315,8 +315,7 @@ void QAbstractSpinBox::setFrame(bool enable)
     \property QAbstractSpinBox::alignment
     \brief the alignment of the spin box
 
-    Possible Values are \c Qt::AlignLeft, \c
-    Qt::AlignRight and \c Qt::AlignHCenter.
+    Possible Values are Qt::AlignLeft, Qt::AlignRight, and Qt::AlignHCenter.
 
     By default, the alignment is Qt::AlignLeft
 
@@ -461,8 +460,8 @@ void QAbstractSpinBox::stepDown()
 /*!
     Virtual function that is called whenever the user triggers a step.
     The \a steps parameter indicates how many steps were taken, e.g.
-    Pressing \c Qt::Key_Down will trigger a call to stepBy(-1),
-    whereas pressing \c Qt::Key_Prior will trigger a call to
+    Pressing Qt::Key_Down will trigger a call to stepBy(-1),
+    whereas pressing Qt::Key_Prior will trigger a call to
     stepBy(10).
 
     If you subclass QAbstractSpinBox you must reimplement this

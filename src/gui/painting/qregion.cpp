@@ -357,7 +357,7 @@ const QRegion QRegion::operator^(const QRegion &r) const
 /*!
     Applies the unite() function to this region and \a r and assigns
     the result to this region. \c r1|=r2 is equivalent to \c
-    r1=r1.unite(r2)
+    r1=r1.unite(r2).
 
     \sa unite()
 */
@@ -367,7 +367,7 @@ QRegion& QRegion::operator|=(const QRegion &r)
 /*!
     Applies the unite() function to this region and \a r and assigns
     the result to this region. \c r1+=r2 is equivalent to \c
-    r1=r1.unite(r2)
+    r1=r1.unite(r2).
 
     \sa intersect()
 */
@@ -377,7 +377,7 @@ QRegion& QRegion::operator+=(const QRegion &r)
 /*!
     Applies the intersect() function to this region and \a r and
     assigns the result to this region. \c r1&=r2 is equivalent to \c
-    r1=r1.intersect(r2)
+    r1=r1.intersect(r2).
 
     \sa intersect()
 */
@@ -387,7 +387,7 @@ QRegion& QRegion::operator&=(const QRegion &r)
 /*!
     Applies the subtract() function to this region and \a r and
     assigns the result to this region. \c r1-=r2 is equivalent to \c
-    r1=r1.subtract(r2)
+    r1=r1.subtract(r2).
 
     \sa subtract()
 */
@@ -397,7 +397,7 @@ QRegion& QRegion::operator-=(const QRegion &r)
 /*!
     Applies the eor() function to this region and \a r and
     assigns the result to this region. \c r1^=r2 is equivalent to \c
-    r1=r1.eor(r2)
+    r1=r1.eor(r2).
 
     \sa eor()
 */

@@ -131,10 +131,10 @@ void QSize::transpose()
     to the Qt::AspectRatioMode \a mode.
 
     \list
-    \i If \a mode is \c Qt::IgnoreAspectRatio, the size is set to (\a w, \a h).
-    \i If \a mode is \c Qt::KeepAspectRatio, the current size is scaled to a rectangle
+    \i If \a mode is Qt::IgnoreAspectRatio, the size is set to (\a w, \a h).
+    \i If \a mode is Qt::KeepAspectRatio, the current size is scaled to a rectangle
        as large as possible inside (\a w, \a h), preserving the aspect ratio.
-    \i If \a mode is \c Qt::KeepAspectRatioByExpanding, the current size is scaled to a rectangle
+    \i If \a mode is Qt::KeepAspectRatioByExpanding, the current size is scaled to a rectangle
        as small as possible outside (\a w, \a h), preserving the aspect ratio.
     \endlist
 
@@ -544,10 +544,10 @@ void QSizeF::transpose()
     to the Qt::AspectRatioMode \a mode.
 
     \list
-    \i If \a mode is \c Qt::IgnoreAspectRatio, the size is set to (\a w, \a h).
-    \i If \a mode is \c Qt::KeepAspectRatio, the current size is scaled to a rectangle
+    \i If \a mode is Qt::IgnoreAspectRatio, the size is set to (\a w, \a h).
+    \i If \a mode is Qt::KeepAspectRatio, the current size is scaled to a rectangle
        as large as possible inside (\a w, \a h), preserving the aspect ratio.
-    \i If \a mode is \c Qt::KeepAspectRatioByExpanding, the current size is scaled to a rectangle
+    \i If \a mode is Qt::KeepAspectRatioByExpanding, the current size is scaled to a rectangle
        as small as possible outside (\a w, \a h), preserving the aspect ratio.
     \endlist
 

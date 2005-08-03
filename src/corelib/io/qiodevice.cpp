@@ -190,14 +190,14 @@ QIODevicePrivate::~QIODevicePrivate()
 */
 
 /*!
-    \enum QIODevice::Offset
+    \typedef QIODevice::Offset
     \compat
 
     Use \c qint64 instead.
 */
 
 /*!
-    \enum QIODevice::Status
+    \typedef QIODevice::Status
     \compat
 
     Use QIODevice::OpenMode instead, or see the documentation for

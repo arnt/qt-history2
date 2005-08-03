@@ -1482,7 +1482,7 @@ QString Q3DataTable::falseText() const
     \brief the format used for displaying date/time values
 
     The dateFormat property is used for displaying date/time values in
-    the table. The default value is \c Qt::LocalDate.
+    the table. The default value is Qt::LocalDate.
 */
 
 void Q3DataTable::setDateFormat( const Qt::DateFormat f )

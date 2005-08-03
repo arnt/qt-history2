@@ -642,7 +642,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
   a text label and an icon.
 
   The QTreeWidgetItem class is a convenience class that replaces the
-  \c QListViewItem class in Qt 3. It provides an item for use with
+  QListViewItem class in Qt 3. It provides an item for use with
   the QTreeWidget class.
 
   Items are usually constructed with a parent that is either a QTreeWidget
@@ -1562,7 +1562,7 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 
   The QTreeWidget class is a convenience class that provides a standard
   tree widget with a classic item-based interface similar to that used by
-  the \c QListView class in Qt 3.
+  the QListView class in Qt 3.
   This class is based on Qt's Model/View architecture and uses a default
   model to hold items, each of which is a QTreeWidgetItem.
 

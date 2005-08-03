@@ -487,8 +487,8 @@ QMetaCallEvent::~QMetaCallEvent()
     \l{qobject_cast()}{qobject_cast}<QWidget>(\e{obj}) or
     \e{obj}->\l{inherits()}{inherits}("QWidget").
 
-    Some QObject functions, e.g. children(), return a \c QObjectList.
-    \c QObjectList is a typedef for QList<QObject *>.
+    Some QObject functions, e.g. children(), return a QObjectList.
+    QObjectList is a typedef for QList<QObject *>.
 
     \sa QMetaObject, QPointer, QObjectCleanupHandler,
         {Object Trees and Object Ownership}
@@ -1832,8 +1832,7 @@ void QObject::deleteLater()
 */
 
 /*!
-    \fn QString QObject::trUtf8(const char *sourceText,
-                                 const char *comment)
+    \fn QString QObject::trUtf8(const char *sourceText, const char *comment)
     \reentrant
 
     Returns a translated version of \a sourceText, or
@@ -1846,7 +1845,15 @@ void QObject::deleteLater()
     translators while performing translations is not supported. Doing
     so will probably result in crashes or other undesirable behavior.
 
-    \sa tr() QApplication::translate()
+    \warning For portability reasons, we recommend that you use
+    escape sequences for specifying non-ASCII characters in string
+    literals to trUtf8(). For example:
+
+    \code
+        label->setText(tr("F\252r \310lise"));
+    \endcode
+
+    \sa tr(), QApplication::translate(), {Internationalization with Qt}
 */
 
 
@@ -3083,6 +3090,26 @@ QDebug operator<<(QDebug dbg, const QObject *o) {
     \endcode
 
     \sa {Qt's Property System}
+*/
+
+/*!
+    \macro Q_OBJECT
+    \relates QObject
+
+    The Q_OBJECT macro must appear in the private section of a class
+    definition that declares its own signals and slots or that uses
+    other services provided by Qt's meta-object system.
+
+    For example:
+
+    \quotefromfile snippets/signalsandslots/signalsandslots.h
+    \skipto ObjectCounter
+    \skipto include <QObject>
+    \printline include
+    \printline class Counter
+    \printuntil };
+
+    \sa {Meta-Object System}, {Signals and Slots}, {Qt's Property System}
 */
 
 #include "moc_qobject.cpp"

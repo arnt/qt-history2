@@ -222,7 +222,7 @@ void Q3SqlPropertyMap::setProperty(QWidget * widget, const QVariant & value)
 
 /*!
   Insert a new classname/property pair, which is used for custom SQL
-  field editors. There \e must be a \c Q_PROPERTY clause in the \a
+  field editors. There \e must be a Q_PROPERTY() clause in the \a
   classname class declaration for the \a property.
 */
 void Q3SqlPropertyMap::insert(const QString & classname,

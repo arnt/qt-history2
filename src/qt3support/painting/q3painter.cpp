@@ -18,7 +18,7 @@
 
 /*!
     \class Q3Painter q3painter.h
-    \brief Q3Painter is the compat version of QPainter.
+    \brief The Q3Painter class is a Qt 3 compatibility wrapper for QPainter.
 
     \compat
 

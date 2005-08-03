@@ -75,10 +75,10 @@ QPaintDevice::~QPaintDevice()
 
     \internal
 
-    Returns the device type identifier, which is \c QInternal::Widget
-    if the device is a QWidget, \c QInternal::Pixmap if it's a
-    QPixmap, \c QInternal::Printer if it's a QPrinter, \c
-    QInternal::Picture if it's a QPicture or \c
+    Returns the device type identifier, which is QInternal::Widget
+    if the device is a QWidget, QInternal::Pixmap if it's a
+    QPixmap, QInternal::Printer if it's a QPrinter,
+    QInternal::Picture if it's a QPicture, or
     QInternal::UnknownDevice in other cases.
 */
 

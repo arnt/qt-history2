@@ -272,7 +272,7 @@ QDataStream::QDataStream(QIODevice *d)
 
     Constructs a data stream that operates on the given \a array. The
     \a mode specifies how the byte array is to be used, and is
-    usually either \c QIODevice::ReadOnly or \c QIODevice::WriteOnly.
+    usually either QIODevice::ReadOnly or QIODevice::WriteOnly.
 */
 QDataStream::QDataStream(QByteArray *a, int mode)
 {
@@ -441,8 +441,8 @@ void QDataStream::setStatus(Status status)
 /*!
     \fn int QDataStream::byteOrder() const
 
-    Returns the current byte order setting -- either \c BigEndian or
-    \c LittleEndian.
+    Returns the current byte order setting -- either BigEndian or
+    LittleEndian.
 
     \sa setByteOrder()
 */
@@ -450,7 +450,7 @@ void QDataStream::setStatus(Status status)
 /*!
     Sets the serialization byte order to \a bo.
 
-    The \a bo parameter can be \c QDataStream::BigEndian or \c
+    The \a bo parameter can be QDataStream::BigEndian or
     QDataStream::LittleEndian.
 
     The default setting is big endian. We recommend leaving this

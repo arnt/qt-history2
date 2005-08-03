@@ -15,7 +15,7 @@
 
 /*!
     \class Q3Shared
-    \brief The QShared class is used internally for implementing shared classes.
+    \brief The Q3Shared class is used internally for implementing shared classes.
     \compat
 
     Use QSharedData and QSharedDataPointer instead.

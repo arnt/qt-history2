@@ -1951,7 +1951,7 @@ bool Q3Dns::isWorking() const
 
 /*!
     Returns a list of the addresses for this name if this Q3Dns object
-    has a recordType() of \c Q3Dns::A or \c Q3Dns::Aaaa and the answer
+    has a recordType() of Q3Dns::A or Q3Dns::Aaaa and the answer
     is available; otherwise returns an empty list.
 
     As a special case, if label() is a valid numeric IP address, this
@@ -2001,7 +2001,7 @@ Q3ValueList<QHostAddress> Q3Dns::addresses() const
 
 /*!
     Returns a list of mail servers if the record type is \c Mx. The
-    class \c Q3Dns::MailServer contains the following public variables:
+    class Q3Dns::MailServer contains the following public variables:
     \list
     \i QString Q3Dns::MailServer::name
     \i Q_UINT16 Q3Dns::MailServer::priority
@@ -2052,7 +2052,7 @@ Q3ValueList<Q3Dns::MailServer> Q3Dns::mailServers() const
 
 /*!
     Returns a list of servers if the record type is \c Srv. The class
-    \c Q3Dns::Server contains the following public variables:
+    Q3Dns::Server contains the following public variables:
     \list
     \i QString Q3Dns::Server::name
     \i Q_UINT16 Q3Dns::Server::priority

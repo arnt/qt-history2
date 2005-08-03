@@ -254,7 +254,7 @@ void Q3SocketPrivate::setSocketDevice( Q3Socket *q, Q3SocketDevice *device )
 
 
 /*!
-    Creates a Q3Socket object in \c Q3Socket::Idle state.
+    Creates a Q3Socket object in Q3Socket::Idle state.
 
     The \a parent and \a name arguments are passed on to the QObject
     constructor.
@@ -564,7 +564,7 @@ void Q3Socket::tryConnecting()
     This signal is emitted when a delayed close is finished.
 
     If you call close() and there is buffered output data to be
-    written, Q3Socket goes into the \c Q3Socket::Closing state and
+    written, Q3Socket goes into the Q3Socket::Closing state and
     returns immediately. It will then keep writing to the socket until
     all the data has been written. Then, the delayedCloseFinished()
     signal is emitted.
@@ -630,9 +630,9 @@ bool Q3Socket::open( int m )
     If the output buffer is empty, the state is set to \c
     Q3Socket::Idle and the connection is terminated immediately. If the
     output buffer still contains data to be written, Q3Socket goes into
-    the \c Q3Socket::Closing state and the rest of the data will be
+    the Q3Socket::Closing state and the rest of the data will be
     written. When all of the outgoing data have been written, the
-    state is set to \c Q3Socket::Idle and the connection is terminated.
+    state is set to Q3Socket::Idle and the connection is terminated.
     At this point, the delayedCloseFinished() signal is emitted.
 
     If you don't want that the data of the output buffer is written, call

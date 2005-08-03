@@ -537,7 +537,7 @@ void QApplicationPrivate::process_cmdline()
        on an 8-bit display.
   \o -ncols \e count, limits the number of colors allocated in the
        color cube on an 8-bit display, if the application is using the
-       \c QApplication::ManyColor color specification. If \e count is
+       QApplication::ManyColor color specification. If \e count is
        216 then a 6x6x6 color cube is used (i.e. 6 levels of red, 6 of green,
        and 6 of blue); for other values, a cube
        approximately proportional to a 2x3x1 cube is used.
@@ -600,7 +600,7 @@ QApplication::QApplication(int &argc, char **argv, bool GUIenabled )
   Constructs an application object with \a argc command line arguments
   in \a argv.
 
-  For Qtopia Core, passing \c QApplication::GuiServer for \a type
+  For Qtopia Core, passing QApplication::GuiServer for \a type
   makes this application the server (equivalent to running with the
   \c -qws option).
 */

@@ -368,7 +368,7 @@ static void qAccessibleCleanup()
 }
 
 /*!
-    \enum QAccessible::InterfaceFactory
+    \typedef QAccessible::InterfaceFactory
 
     A function pointer type. Use a function with this prototype to install
     interface factories with installFactory().
@@ -383,7 +383,7 @@ static void qAccessibleCleanup()
 */
 
 /*!
-    \enum QAccessible::UpdateHandler
+    \typedef QAccessible::UpdateHandler
 
     A function pointer type. Use a function with this prototype to install
     your own update function.
@@ -392,7 +392,7 @@ static void qAccessibleCleanup()
 */
 
 /*!
-    \enum QAccessible::RootObjectHandler
+    \typedef QAccessible::RootObjectHandler
 
     A function pointer type. Use a function with this prototype to install
     your own root object handler.
@@ -695,7 +695,7 @@ const QAccessibleInterface *other, int otherChild) const
     the \a other object, e.g. if this object is a child of \a other
     the return value will be \c Child.
 
-    The return value is a combination of the bit flags in the \c
+    The return value is a combination of the bit flags in the
     QAccessible::Relation enumeration.
 
     All objects provide this information.

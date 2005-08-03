@@ -26,6 +26,62 @@
 #endif
 
 /*!
+    \macro Q_DECLARE_TYPEINFO(Type, Flag)
+    \relates <QtGlobal>
+
+    You can use this macro to specify information about a custom type
+    \a Type. With accurate type information, Qt's \l{generic
+    containers} can choose appropriate storage methods and algorithms.
+
+    \a Flag can be one of the following:
+
+    \list
+    \o \c Q_PRIMITIVE_TYPE specifies that \a Type is a POD (plain old
+       data) type with no constructor or destructor.
+    \o \c Q_MOVABLE_TYPE specifies that \a Type has a constructor
+       and/or a destructor but can be moved in memory using \c
+       memcpy().
+    \o \c Q_COMPLEX_TYPE (the default) specifies that \a Type has
+       constructors and/or a destructor and that it may not be moved
+       in memory.
+    \endlist
+
+    Example of a "primitive" type:
+
+    \code
+        struct Point2D
+        {
+            int x;
+            int y;
+        };
+
+        Q_DECLARE_TYPEINFO(Point2D, Q_PRIMITIVE_TYPE);
+    \endcode
+    
+    Example of a movable type:
+
+    \code
+        class Point2D
+        {
+        public:
+            Point2D() { data = new int[2]; }
+            Point2D(const Point2D &other) { ... }
+            ~Point2D() { delete[] data; }
+
+            Point2D &operator=(const Point2D &other) { ... }
+
+            int x() const { return data[0]; }
+            int y() const { return data[1]; }
+
+        private:
+            int *data;
+        };
+
+        Q_DECLARE_TYPEINFO(Point2D, Q_MOVABLE_TYPE);
+    \endcode
+*/
+
+/*!
     \class QFlag
     \brief The QFlag class is a helper data type for QFlags.
 
@@ -641,14 +697,48 @@
 */
 
 /*!
+    \macro QT_VERSION
     \relates <QtGlobal>
 
-    Returns the Qt version number as a string, for example, "4.0.1" or
-    "4.1.3".
+    This macro expands a numeric value of the form 0xMMNNPP (MM =
+    major, NN = minor, PP = patch) that specifies Qt's version
+    number. For example, if you compile your application against Qt
+    4.1.2, the QT_VERSION macro will expand to 0x040102.
 
-    The \c QT_VERSION define has the numeric value in the form:
-    0xMMNNPP (MM = major, NN = minor, PP = patch). For example, Qt
-    4.0.1's \c QT_VERSION is 0x040001.
+    You can use QT_VERSION to use the latest Qt features where
+    available. For example:
+
+    \code
+        #if QT_VERSION >= 0x040100
+            QIcon icon = style()->standardIcon(QStyle::SP_TrashIcon);
+        #else
+            QPixmap pixmap = style()->standardPixmap(QStyle::SP_TrashIcon);
+            QIcon icon(pixmap);
+        #endif
+    \endcode
+
+    \sa QT_VERSION_STR, qVersion()
+*/
+
+/*!
+    \macro QT_VERSION_STR
+    \relates <QtGlobal>
+
+    This macro expands to a string that specifies Qt's version number
+    (for example, "4.1.2"). This is the version against which the
+    application is compiled.
+
+    \sa qVersion(), QT_VERSION
+*/
+
+/*!
+    \relates <QtGlobal>
+
+    Returns the version number of the Qt runtime as a string (for
+    example, "4.1.2"). This may be a different version than the
+    version against which the application was compiled.
+
+    \sa QT_VERSION_STR
 */
 
 const char *qVersion()
@@ -685,7 +775,7 @@ bool qSharedBuild()
     \endlist
 
     Some constants are defined only on certain platforms. You can use
-    the preprocessor symbols \c Q_WS_WIN and \c Q_WS_MAC to test that
+    the preprocessor symbols Q_WS_WIN and Q_WS_MAC to test that
     the application is compiled under Windows or Mac.
 
     \sa QLibraryInfo
@@ -778,6 +868,413 @@ bool qSharedBuild()
     \value MV_TIGER    Apple codename for MV_10_4
 
     \sa WinVersion
+*/
+
+/*!
+    \macro Q_OS_DARWIN
+    \relates <QtGlobal>
+
+    Defined on Darwin OS (synonym for Q_OS_MAC).
+*/
+
+/*!
+    \macro Q_OS_MSDOS
+    \relates <QtGlobal>
+
+    Defined on MS-DOS and Windows.
+*/
+
+/*!
+    \macro Q_OS_OS2
+    \relates <QtGlobal>
+
+    Defined on OS/2.
+*/
+
+/*!
+    \macro Q_OS_OS2EMX
+    \relates <QtGlobal>
+
+    Defined on XFree86 on OS/2 (not PM).
+*/
+
+/*!
+    \macro Q_OS_WIN32
+    \relates <QtGlobal>
+
+    Defined on Win32 (Windows 95/98/ME and Windows NT/2000/XP).
+*/
+
+/*!
+    \macro Q_OS_CYGWIN
+    \relates <QtGlobal>
+
+    Defined on Cygwin.
+*/
+
+/*!
+    \macro Q_OS_SOLARIS
+    \relates <QtGlobal>
+
+    Defined on Sun Solaris.
+*/
+
+/*!
+    \macro Q_OS_HPUX
+    \relates <QtGlobal>
+
+    Defined on HP-UX.
+*/
+
+/*!
+    \macro Q_OS_ULTRIX
+    \relates <QtGlobal>
+
+    Defined on DEC Ultrix.
+*/
+
+/*!
+    \macro Q_OS_LINUX
+    \relates <QtGlobal>
+
+    Defined on Linux.
+*/
+
+/*!
+    \macro Q_OS_FREEBSD
+    \relates <QtGlobal>
+
+    Defined on FreeBSD.
+*/
+
+/*!
+    \macro Q_OS_NETBSD
+    \relates <QtGlobal>
+
+    Defined on NetBSD.
+*/
+
+/*!
+    \macro Q_OS_OPENBSD
+    \relates <QtGlobal>
+
+    Defined on OpenBSD.
+*/
+
+/*!
+    \macro Q_OS_BSDI
+    \relates <QtGlobal>
+
+    Defined on BSD/OS.
+*/
+
+/*!
+    \macro Q_OS_IRIX
+    \relates <QtGlobal>
+
+    Defined on SGI Irix.
+*/
+
+/*!
+    \macro Q_OS_OSF
+    \relates <QtGlobal>
+
+    Defined on HP Tru64 UNIX.
+*/
+
+/*!
+    \macro Q_OS_SCO
+    \relates <QtGlobal>
+
+    Defined on SCO OpenServer 5.
+*/
+
+/*!
+    \macro Q_OS_UNIXWARE
+    \relates <QtGlobal>
+
+    Defined on UnixWare 7, Open UNIX 8.
+*/
+
+/*!
+    \macro Q_OS_AIX
+    \relates <QtGlobal>
+
+    Defined on AIX.
+*/
+
+/*!
+    \macro Q_OS_HURD
+    \relates <QtGlobal>
+
+    Defined on GNU Hurd.
+*/
+
+/*!
+    \macro Q_OS_DGUX
+    \relates <QtGlobal>
+
+    Defined on DG/UX.
+*/
+
+/*!
+    \macro Q_OS_RELIANT
+    \relates <QtGlobal>
+
+    Defined on Reliant UNIX.
+*/
+
+/*!
+    \macro Q_OS_DYNIX
+    \relates <QtGlobal>
+
+    Defined on DYNIX/ptx.
+*/
+
+/*!
+    \macro Q_OS_QNX
+    \relates <QtGlobal>
+
+    Defined on QNX.
+*/
+
+/*!
+    \macro Q_OS_QNX6
+    \relates <QtGlobal>
+
+    Defined on QNX RTP 6.1.
+*/
+
+/*!
+    \macro Q_OS_LYNX
+    \relates <QtGlobal>
+
+    Defined on LynxOS.
+*/
+
+/*!
+    \macro Q_OS_BSD4
+    \relates <QtGlobal>
+
+    Defined on Any BSD 4.4 system.
+*/
+
+/*!
+    \macro Q_OS_UNIX
+    \relates <QtGlobal>
+
+    Defined on Any UNIX BSD/SYSV system.
+*/
+
+/*!
+    \macro Q_CC_SYM
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    Digital Mars C/C++ (used to be Symantec C++).
+*/
+
+/*!
+    \macro Q_CC_MWERKS
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    Metrowerks CodeWarrior.
+*/
+
+/*!
+    \macro Q_CC_MSVC
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    Microsoft Visual C/C++, Intel C++ for Windows.
+*/
+
+/*!
+    \macro Q_CC_BOR
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    Borland/Turbo C++.
+*/
+
+/*!
+    \macro Q_CC_WAT
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    Watcom C++.
+*/
+
+/*!
+    \macro Q_CC_GNU
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    GNU C++.
+*/
+
+/*!
+    \macro Q_CC_COMEAU
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    Comeau C++.
+*/
+
+/*!
+    \macro Q_CC_EDG
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    Edison Design Group C++.
+*/
+
+/*!
+    \macro Q_CC_OC
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    CenterLine C++.
+*/
+
+/*!
+    \macro Q_CC_SUN
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    Forte Developer, or Sun Studio C++.
+*/
+
+/*!
+    \macro Q_CC_MIPS
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    MIPSpro C++.
+*/
+
+/*!
+    \macro Q_CC_DEC
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    DEC C++.
+*/
+
+/*!
+    \macro Q_CC_HPACC
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    HP aC++.
+*/
+
+/*!
+    \macro Q_CC_USLC
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    SCO OUDK and UDK.
+*/
+
+/*!
+    \macro Q_CC_CDS
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    Reliant C++.
+*/
+
+/*!
+    \macro Q_CC_KAI
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    KAI C++.
+*/
+
+/*!
+    \macro Q_CC_INTEL
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    Intel C++ for Linux, Intel C++ for Windows.
+*/
+
+/*!
+    \macro Q_CC_HIGHC
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    MetaWare High C/C++.
+*/
+
+/*!
+    \macro Q_CC_PGI
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    Portland Group C++.
+*/
+
+/*!
+    \macro Q_CC_GHS
+    \relates <QtGlobal>
+
+    Defined if the the application is compiled using
+    Green Hills Optimizing C++ Compilers.
+*/
+
+/*!
+    \macro Q_OS_MACX
+    \relates <QtGlobal>
+
+    Defined for Mac OS X.
+*/
+
+/*!
+    \macro Q_OS_MAC9
+    \relates <QtGlobal>
+
+    Defined for Mac OS 9.
+*/
+
+/*!
+    \macro Q_OS_QWS
+    \relates <QtGlobal>
+
+    Defined for Qtopia Core.
+*/
+
+/*!
+    \macro Q_OS_WIN32
+    \relates <QtGlobal>
+
+    Defined for 32-bit Windows.
+*/
+
+/*!
+    \macro Q_OS_X11
+    \relates <QtGlobal>
+
+    Defined for the X Window System.
+*/
+
+/*!
+    \macro Q_OS_PM
+    \relates <QtGlobal>
+    \internal
+
+    Defined for unsupported.
+*/
+
+/*!
+    \macro Q_OS_WIN16
+    \relates <QtGlobal>
+    \internal
+
+    Defined for unsupported.
 */
 
 #if !defined(Q_BYTE_ORDER) && defined(QT_BUILD_QMAKE)
@@ -944,10 +1441,9 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
     during compilation.
 
     Example:
+
     \code
-        //
         // File: div.cpp
-        //
 
         #include <QtGlobal>
 
@@ -962,7 +1458,7 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
     message using the qFatal() function:
 
     \code
-        ASSERT: "b == 0" in file div.cpp, line 9
+        ASSERT: "b == 0" in file div.cpp, line 7
     \endcode
 
     \sa Q_ASSERT_X(), qFatal(), {Debugging Techniques}
@@ -980,17 +1476,16 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
     compilation.
 
     Example:
+
     \code
-        //
         // File: div.cpp
-        //
 
         #include <QtGlobal>
 
         int divide(int a, int b)
         {
             Q_ASSERT_X(b != 0, "divide", "division by zero");
-            return a/b;
+            return a / b;
         }
     \endcode
 
@@ -998,7 +1493,7 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
     message using the qFatal() function:
 
     \code
-        ASSERT failure in divide: "division by zero", file div.cpp, line 9
+        ASSERT failure in divide: "division by zero", file div.cpp, line 7
     \endcode
 
     \sa Q_ASSERT(), qFatal(), {Debugging Techniques}
@@ -1015,12 +1510,13 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
     compilation.
 
     Example:
+
     \code
         int *a;
 
-        Q_CHECK_PTR(a = new int[80]);  // WRONG!
+        Q_CHECK_PTR(a = new int[80]);   // WRONG!
 
-        a = new (nothrow) int[80];       // Right
+        a = new (nothrow) int[80];      // Right
         Q_CHECK_PTR(a);
     \endcode
 
@@ -1201,6 +1697,7 @@ QString qt_error_string(int errorCode)
     To restore the message handler, call \c qInstallMsgHandler(0).
 
     Example:
+
     \code
         #include <qapplication.h>
         #include <stdio.h>
@@ -1209,27 +1706,27 @@ QString qt_error_string(int errorCode)
         void myMessageOutput(QtMsgType type, const char *msg)
         {
             switch (type) {
-                case QtDebugMsg:
-                    fprintf(stderr, "Debug: %s\n", msg);
-                    break;
-                case QtWarningMsg:
-                    fprintf(stderr, "Warning: %s\n", msg);
-                    break;
-                case QtCriticalMsg:
-                    fprintf(stderr, "Critical: %s\n", msg);
-                    break;
-                case QtFatalMsg:
-                    fprintf(stderr, "Fatal: %s\n", msg);
-                    abort(); // deliberately core dump
+            case QtDebugMsg:
+                fprintf(stderr, "Debug: %s\n", msg);
+                break;
+            case QtWarningMsg:
+                fprintf(stderr, "Warning: %s\n", msg);
+                break;
+            case QtCriticalMsg:
+                fprintf(stderr, "Critical: %s\n", msg);
+                break;
+            case QtFatalMsg:
+                fprintf(stderr, "Fatal: %s\n", msg);
+                abort();
             }
         }
 
         int main(int argc, char **argv)
         {
             qInstallMsgHandler(myMessageOutput);
-            QApplication a(argc, argv);
+            QApplication app(argc, argv);
             ...
-            return a.exec();
+            return app.exec();
         }
     \endcode
 
@@ -1295,14 +1792,18 @@ void qt_message_output(QtMsgType msgType, const char *buf)
     it works in similar way to the C printf() function.
 
     Example:
+
     \code
-        qDebug("items in list: %d", myList.size());
+        qDebug("Items in list: %d", myList.size());
     \endcode
 
-    A more convenient syntax is also available:
+    If you include \c <QtDebug>, a more convenient syntax is also
+    available:
+
     \code
         qDebug() << "Brush:" << myQBrush << "Other value:" << i;
     \endcode
+
     This syntax automatically puts a single space between each item,
     and outputs a newline at the end. It supports many C++ and Qt
     types.
@@ -1384,11 +1885,11 @@ void qWarning(const char *msg, ...)
 
     Example:
     \code
-        void load(const QString &filename)
+        void load(const QString &fileName)
         {
-            QFile file(filename);
+            QFile file(fileName);
             if (!file.exists())
-                qCritical("file '%s' does not exist!", filename.toLocal8Bit());
+                qCritical("File '%s' does not exist!", qPrintable(fileName));
         }
     \endcode
 
@@ -1584,6 +2085,81 @@ QByteArray qgetenv(const char *varName)
     \endcode
 
     \sa QT_TR_NOOP(), {Internationalization with Qt}
+*/
+
+/*!
+    \macro QT_POINTER_SIZE
+    \relates <QtGlobal>
+
+    Expands to the size of a pointer in bytes (4 or 8). This is
+    equivalent to \c sizeof(void *) but can be used in a preprocessor
+    directive.
+*/
+
+/*!
+    \macro TRUE
+    \relates <QtGlobal>
+    \obsolete
+
+    Synonym for \c true.
+
+    \sa FALSE
+*/
+
+/*!
+    \macro FALSE
+    \relates <QtGlobal>
+    \obsolete
+
+    Synonym for \c false.
+
+    \sa TRUE
+*/
+
+/*!
+    \macro QABS(n)
+    \relates <QtGlobal>
+    \obsolete
+
+    Use qAbs(\a n) instead.
+
+    \sa QMIN(), QMAX()
+*/
+
+/*!
+    \macro QMIN(x, y)
+    \relates <QtGlobal>
+    \obsolete
+
+    Use qMin(\a x, \a y) instead.
+
+    \sa QMAX(), QABS()
+*/
+
+/*!
+    \macro QMAX(x, y)
+    \relates <QtGlobal>
+    \obsolete
+
+    Use qMax(\a x, \a y) instead.
+
+    \sa QMIN(), QABS()
+*/
+
+/*!
+    \macro const char *qPrintable(const QString &str)
+    \relates <QtGlobal>
+
+    Returns \a str as a \c{const char *}. This is equivalent to
+    \a{str}.toAscii().constData().
+
+    Example:
+
+    \code
+        qWarning("%s: %s", qPrintable(key), qPrintable(value));
+    \endcode
+
+    \sa qDebug(), qWarning(), qCritical(), qFatal()
 */
 
 #if defined(QT3_SUPPORT) && !defined(QT_NO_SETTINGS)

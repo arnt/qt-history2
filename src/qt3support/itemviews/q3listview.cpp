@@ -2543,7 +2543,7 @@ void Q3ListViewItem::ignoreDoubleClick()
     This constructor sets the \c WA_StaticContent and the \c
     Qt::WA_NoBackground attributes to boost performance when drawing
     Q3ListViewItems. This may be unsuitable for custom Q3ListViewItem
-    classes, in which case \c Qt::WA_StaticContents and \c Qt::WA_NoBackground
+    classes, in which case Qt::WA_StaticContents and Qt::WA_NoBackground
     should be cleared on the viewport() after construction.
 
     \sa QWidget::setAttribute()

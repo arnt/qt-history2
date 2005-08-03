@@ -726,10 +726,10 @@ void Q3PolygonScanner::scan(const Q3PointArray& pa, bool winding, int index, int
 
     The \a edges is any bitwise combination of:
     \list
-    \i \c Q3PolygonScanner::Left
-    \i \c Q3PolygonScanner::Right
-    \i \c Q3PolygonScanner::Top
-    \i \c Q3PolygonScanner::Bottom
+    \i Q3PolygonScanner::Left
+    \i Q3PolygonScanner::Right
+    \i Q3PolygonScanner::Top
+    \i Q3PolygonScanner::Bottom
     \endlist
     \a edges determines which edges are included.
 

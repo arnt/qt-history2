@@ -2086,7 +2086,7 @@ void QPainter::drawPoints(const QPoint *points, int pointCount)
 
 /*!
     Sets the background mode of the painter to \a mode, which must be
-    either \c Qt::TransparentMode (the default) or \c Qt::OpaqueMode.
+    either Qt::TransparentMode (the default) or Qt::OpaqueMode.
 
     Transparent mode draws stippled lines and text without setting the
     background pixels. Opaque mode fills these space with the current
@@ -2129,7 +2129,7 @@ Qt::BGMode QPainter::backgroundMode() const
 /*!
     \overload
 
-    Sets the painter's pen to have style \c Qt::SolidLine, width 0 and the
+    Sets the painter's pen to have style Qt::SolidLine, width 0 and the
     specified \a color.
 
     \sa pen(), QPen
@@ -2987,8 +2987,8 @@ void QPainter::drawPolyline(const QPoint *points, int pointCount)
     The first point is implicitly connected to the last point.
 
     The polygon is filled with the current brush(). If \a fillRule is
-    \c Qt::WindingFill, the polygon is filled using the winding fill algorithm.
-    If \a fillRule is \c Qt::OddEvenFill, the polygon is filled using the
+    Qt::WindingFill, the polygon is filled using the winding fill algorithm.
+    If \a fillRule is Qt::OddEvenFill, the polygon is filled using the
     odd-even fill algorithm. See \l{Qt::FillRule} for a more detailed
     description of these fill rules.
 
@@ -3659,21 +3659,21 @@ QRect QPainter::boundingRect(const QRect &rect, int flags, const QString &str)
     the bitwise OR of the following flags:
     \table
     \header \i Flag \i Meaning
-    \row \i \c Qt::AlignLeft \i aligns to the left border, or to the right border for right-to-left languages.
-    \row \i \c Qt::AlignRight \i aligns to the right border, or to the left border for right-to-left languages.
-    \row \i \c Qt::AlignHCenter \i aligns horizontally centered.
-    \row \i \c Qt::AlignTop \i aligns to the top border.
-    \row \i \c Qt::AlignBottom \i aligns to the bottom border.
-    \row \i \c Qt::AlignVCenter \i aligns vertically centered.
-    \row \i \c Qt::AlignCenter \i (== \c Qt::AlignHCenter | \c Qt::AlignVCenter).
-    \row \i \c Qt::TextSingleLine \i ignores newline characters in the text.
-    \row \i \c Qt::TextExpandTabs \i expands tabs.
-    \row \i \c Qt::TextShowMnemonic \i interprets "&x" as \underline{x}.
-    \row \i \c Qt::TextWordWrap \i breaks the text to fit the rectangle.
+    \row \i Qt::AlignLeft \i aligns to the left border, or to the right border for right-to-left languages.
+    \row \i Qt::AlignRight \i aligns to the right border, or to the left border for right-to-left languages.
+    \row \i Qt::AlignHCenter \i aligns horizontally centered.
+    \row \i Qt::AlignTop \i aligns to the top border.
+    \row \i Qt::AlignBottom \i aligns to the bottom border.
+    \row \i Qt::AlignVCenter \i aligns vertically centered.
+    \row \i Qt::AlignCenter \i (== Qt::AlignHCenter | Qt::AlignVCenter).
+    \row \i Qt::TextSingleLine \i ignores newline characters in the text.
+    \row \i Qt::TextExpandTabs \i expands tabs.
+    \row \i Qt::TextShowMnemonic \i interprets "&x" as \underline{x}.
+    \row \i Qt::TextWordWrap \i breaks the text to fit the rectangle.
     \endtable
 
-    Qt::Horizontal alignment defaults to \c Qt::AlignLeft and vertical
-    alignment defaults to \c Qt::AlignTop.
+    Qt::Horizontal alignment defaults to Qt::AlignLeft and vertical
+    alignment defaults to Qt::AlignTop.
 
     If several of the horizontal or several of the vertical alignment flags
     are set, the resulting alignment is undefined.

@@ -136,7 +136,7 @@ void QTableViewPrivate::updateHorizontalScrollbar()
 
     A QTableView implements a table view that displays items from a
     model. This class is used to provide standard tables that were
-    previously provided by the \c QTable class, but using the more
+    previously provided by the QTable class, but using the more
     flexible approach provided by Qt's model/view architecture.
 
     The QTableView class is one of the \l{Model/View Classes}

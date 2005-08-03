@@ -254,7 +254,7 @@ QCursor::QCursor(const QPixmap &pixmap, int hotX, int hotY)
     \o B=1 and M=0 gives an undefined result.
     \endlist
 
-    Use the global Qt color \c Qt::color0 to draw 0-pixels and \c Qt::color1 to
+    Use the global Qt color Qt::color0 to draw 0-pixels and Qt::color1 to
     draw 1-pixels in the bitmaps.
 
     Valid cursor sizes depend on the display hardware (or the

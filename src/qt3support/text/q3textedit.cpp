@@ -224,9 +224,9 @@ static bool block_set_alignment = false;
     conjunction with QSyntaxHighlighter.
 
     We recommend that you always call setTextFormat() to set the mode
-    you want to use. If you use \c Qt::AutoText then setText() and
+    you want to use. If you use Qt::AutoText then setText() and
     append() will try to determine whether the text they are given is
-    plain text or rich text. If you use \c Qt::RichText then setText() and
+    plain text or rich text. If you use Qt::RichText then setText() and
     append() will assume that the text they are given is rich text.
     insert() simply inserts the text it is given.
 
@@ -386,7 +386,7 @@ static bool block_set_alignment = false;
     \target logtextmode
     \section2 Using Q3TextEdit in Qt::LogText Mode
 
-    Setting the text format to \c Qt::LogText puts the widget in a special
+    Setting the text format to Qt::LogText puts the widget in a special
     mode which is optimized for very large texts. In this mode editing
     and rich text support are disabled (the widget is explicitly set
     to read-only mode). This allows the text to be stored in a
@@ -697,7 +697,7 @@ static bool block_set_alignment = false;
 
     Sets the font of the current format to \a f.
 
-    If the widget is in \c Qt::LogText mode this function will do
+    If the widget is in Qt::LogText mode this function will do
     nothing. Use setFont() instead.
 
     \sa currentFont() setPointSize() setFamily()
@@ -2853,7 +2853,7 @@ void Q3TextEdit::insert(const QString &text, bool indent,
 
     The default flags are \c CheckNewLines | \c RemoveSelected.
 
-    If the widget is in \c Qt::LogText mode this function will do nothing.
+    If the widget is in Qt::LogText mode this function will do nothing.
 
     \sa paste() pasteSubType()
 */
@@ -3406,8 +3406,8 @@ void Q3TextEdit::setParagType(Q3StyleSheetItem::DisplayMode dm,
 
 /*!
     Sets the alignment of the current paragraph to \a a. Valid
-    alignments are \c Qt::AlignLeft, \c Qt::AlignRight,
-    \c Qt::AlignJustify and \c Qt::AlignCenter (which centers
+    alignments are Qt::AlignLeft, Qt::AlignRight,
+    Qt::AlignJustify and Qt::AlignCenter (which centers
     horizontally).
 */
 
@@ -3614,7 +3614,7 @@ QString Q3TextEdit::text() const
 
     Returns the text of paragraph \a para.
 
-    If textFormat() is \c Qt::RichText the text will contain HTML
+    If textFormat() is Qt::RichText the text will contain HTML
     formatting tags.
 */
 
@@ -3638,7 +3638,7 @@ QString Q3TextEdit::text(int para) const
     context to \a context. Any previous text is removed.
 
     \a text may be interpreted either as plain text or as rich text,
-    depending on the textFormat(). The default setting is \c Qt::AutoText,
+    depending on the textFormat(). The default setting is Qt::AutoText,
     i.e. the text edit auto-detects the format from \a text.
 
     For rich text the rendering style and available tags are defined
@@ -3712,7 +3712,7 @@ void Q3TextEdit::setText(const QString &text, const QString &context)
     On setting, any previous text is deleted.
 
     The text may be interpreted either as plain text or as rich text,
-    depending on the textFormat(). The default setting is \c Qt::AutoText,
+    depending on the textFormat(). The default setting is Qt::AutoText,
     i.e. the text edit auto-detects the format of the text.
 
     For richtext, calling text() on an editable Q3TextEdit will cause
@@ -3982,7 +3982,7 @@ void Q3TextEdit::getSelection(int *paraFrom, int *indexFrom,
     limited set of formatting tags (color, bold, underline and italic
     settings).
     \i Qt::AutoText - this is the default. The text edit autodetects which
-    rendering style is best, \c Qt::PlainText or \c Qt::RichText. This is done
+    rendering style is best, Qt::PlainText or Qt::RichText. This is done
     by using the Q3StyleSheet::mightBeRichText() function.
     \endlist
 */
@@ -4569,8 +4569,8 @@ bool Q3TextEdit::hasSelectedText() const
     \brief The selected text (from selection 0) or an empty string if
     there is no currently selected text (in selection 0).
 
-    The text is always returned as \c Qt::PlainText if the textFormat() is
-    \c Qt::PlainText or \c Qt::AutoText, otherwise it is returned as HTML.
+    The text is always returned as Qt::PlainText if the textFormat() is
+    Qt::PlainText or Qt::AutoText, otherwise it is returned as HTML.
 
     \sa hasSelectedText
 */
@@ -4674,7 +4674,7 @@ QString Q3TextEdit::context() const
     \property Q3TextEdit::documentTitle
     \brief the title of the document parsed from the text.
 
-    For \c Qt::PlainText the title will be an empty string. For \c
+    For Qt::PlainText the title will be an empty string. For \c
     Qt::RichText the title will be the text between the \c{<title>} tags,
     if present, otherwise an empty string.
 */
@@ -4724,7 +4724,7 @@ void Q3TextEdit::scrollToAnchor(const QString& name)
 }
 
 /*!
-    Returns the text for the attribute \a attr (\c Qt::AnchorHref by
+    Returns the text for the attribute \a attr (Qt::AnchorHref by
     default) if there is an anchor at position \a pos (in contents
     coordinates); otherwise returns an empty string.
 */

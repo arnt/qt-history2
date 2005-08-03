@@ -867,7 +867,7 @@ bool QSqlQuery::exec()
     Set the placeholder \a placeholder to be bound to value \a val in
     the prepared statement. Note that the placeholder mark (e.g \c{:})
     must be included when specifying the placeholder name. If \a paramType
-    is \c QSql::Out or \c QSql::InOut, the placeholder will be
+    is QSql::Out or QSql::InOut, the placeholder will be
     overwritten with data from the database after the exec() call.
 
     \sa addBindValue(), prepare(), exec(), boundValue() boundValues()
@@ -884,7 +884,7 @@ void QSqlQuery::bindValue(const QString& placeholder, const QVariant& val,
 
     Set the placeholder in position \a pos to be bound to value \a val
     in the prepared statement. Field numbering starts at 0. If \a paramType
-    is \c QSql::Out or \c QSql::InOut, the placeholder will be
+    is QSql::Out or QSql::InOut, the placeholder will be
     overwritten with data from the database after the exec() call.
 */
 void QSqlQuery::bindValue(int pos, const QVariant& val, QSql::ParamType paramType)
@@ -896,7 +896,7 @@ void QSqlQuery::bindValue(int pos, const QVariant& val, QSql::ParamType paramTyp
     Adds the value \a val to the list of values when using positional
     value binding. The order of the addBindValue() calls determines
     which placeholder a value will be bound to in the prepared query.
-    If \a paramType is \c QSql::Out or \c QSql::InOut, the placeholder will
+    If \a paramType is QSql::Out or QSql::InOut, the placeholder will
     be overwritten with data from the database after the exec() call.
 
     \sa bindValue(), prepare(), exec(), boundValue() boundValues()

@@ -235,6 +235,8 @@ QTemporaryFile::~QTemporaryFile()
    it, and finally on function return it will automatically clean up
    after itself.
 
+   Auto-remove is on by default.
+
    \sa setAutoRemove(), remove()
 */
 bool QTemporaryFile::autoRemove() const
@@ -245,6 +247,8 @@ bool QTemporaryFile::autoRemove() const
 
 /*!
     Sets the QTemporaryFile into auto-remove mode if \a b is true.
+
+    Auto-remove is on by default.
 
     \sa autoRemove(), remove()
 */
@@ -300,6 +304,7 @@ void QTemporaryFile::setFileTemplate(const QString &name)
 
 /*!
     \fn QTemporaryFile *QTemporaryFile::createLocalFile(const QString &fileName)
+    \overload
 
     Works on the given \a fileName rather than an existing QFile
     object.
@@ -308,7 +313,7 @@ void QTemporaryFile::setFileTemplate(const QString &name)
 
 /*!
     Creates and returns a local temporary file whose contents are a
-    copy of the contens of the given \a file.
+    copy of the contents of the given \a file.
 */
 QTemporaryFile *QTemporaryFile::createLocalFile(QFile &file)
 {

@@ -142,10 +142,10 @@ void QBinTree<T>::init(const QRect &area, int depth, NodeType type, int index)
     models derived from the QAbstractItemModel class.
 
     Items in a list view can be displayed using one of two view modes:
-    In \c ListMode, the items are displayed in the form of a simple list;
-    in \c IconMode, the list view takes the form of an \e{icon view} in
+    In \l ListMode, the items are displayed in the form of a simple list;
+    in \l IconMode, the list view takes the form of an \e{icon view} in
     which the items are displayed with icons like files in a file manager.
-    By default, the list view is in \c ListMode. To change the view mode,
+    By default, the list view is in \l ListMode. To change the view mode,
     use the setViewMode() function, and to determine the current view mode,
     use viewMode().
 
@@ -245,9 +245,9 @@ QListView::~QListView()
     grid, or cannot be moved at all.
 
     This property determines how the user can move the items in the
-    view. \c Static means that the items can't be moved the user. \c
+    view. \l Static means that the items can't be moved the user. \l
     Free means that the user can drag and drop the items to any
-    position in the view. \c Snap means that the user can drag and
+    position in the view. \l Snap means that the user can drag and
     drop the items, but only to the positions in a notional grid
     signified by the gridSize property.
 
@@ -281,10 +281,10 @@ QListView::Movement QListView::movement() const
     \property QListView::flow
     \brief which direction the items layout should flow.
 
-    If this property is \c LeftToRight, the items will be laid out left
+    If this property is \l LeftToRight, the items will be laid out left
     to right. If the \l isWrapping property is true, the layout will wrap
     when it reaches the right side of the visible area. If this
-    property is \c TopToBottom, the items will be laid out from the top
+    property is \l TopToBottom, the items will be laid out from the top
     of the visible area, wrapping when it reaches the bottom.
 
     Setting this property when the view is visible will cause the
@@ -333,8 +333,8 @@ bool QListView::isWrapping() const
     \property QListView::resizeMode
     \brief whether the items are laid out again when the view is resized.
 
-    If this property is \c Adjust, the items will be laid out again
-    when the view is resized. If the value is \c Fixed, the items will
+    If this property is \l Adjust, the items will be laid out again
+    when the view is resized. If the value is \l Fixed, the items will
     not be laid out when the view is resized.
 */
 void QListView::setResizeMode(ResizeMode mode)
@@ -354,8 +354,8 @@ QListView::ResizeMode QListView::resizeMode() const
     \brief whether the layout of items should happen immediately or be delayed.
 
     This property holds the layout mode for the items. When the mode
-    is \c Instant (the default), the items are laid out all in one go.
-    When the mode is \c Batched, the items are laid out in batches of 100
+    is \l SinglePass (the default), the items are laid out all in one go.
+    When the mode is \l Batched, the items are laid out in batches of 100
     items, while processing events. This makes it possible to
     instantly view and interact with the visible items while the rest
     are being laid out.

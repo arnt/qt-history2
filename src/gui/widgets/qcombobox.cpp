@@ -391,7 +391,7 @@ QStyleOptionComboBox QComboBoxPrivateContainer::comboStyleOption() const
 
     \value AdjustToContents              The combobox will always adjust to the contens
     \value AdjustToContentsOnFirstShow   The combobox will adjust to its contents the first time it is show.
-    \value AdjustToMinimumContentsLength The combobox only adjusts to the \c minimumContentsLength
+    \value AdjustToMinimumContentsLength The combobox only adjusts to the \l minimumContentsLength
 */
 
 /*!
@@ -485,7 +485,7 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
 
     A combobox emits two signals, activated() and highlighted(), when
     a new item has been activated (selected) or highlighted (made
-    current). Both signals exist in two versions, one with a \c
+    current). Both signals exist in two versions, one with a
     QString argument and one with an \c int argument. If the user
     highlights or activates a pixmap, only the \c int signals are
     emitted. Whenever the text of an editable combobox is changed the
@@ -493,7 +493,7 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
 
     When the user enters a new string in an editable combobox, the
     widget may or may not insert it, and it can insert it in several
-    locations. The default policy is is \c AtBottom but you can change
+    locations. The default policy is is \l AtBottom but you can change
     this using setInsertPolicy().
 
     It is possible to constrain the input to an editable combobox
@@ -901,7 +901,7 @@ int QComboBox::findData(const QVariant &data, int role, Qt::MatchFlags flags) co
     \brief the policy used to determine where user-inserted items should
     appear in the combobox
 
-    The default value is \c AtBottom, indicating that new items will appear
+    The default value is \l AtBottom, indicating that new items will appear
     at the bottom of the list of items.
 
     \sa InsertPolicy
@@ -924,8 +924,7 @@ void QComboBox::setInsertPolicy(InsertPolicy policy)
     \brief the policy describing how the size of the combobox changes
     when the content changes
 
-
-    The default value is \c AdjustToContentsOnFirstShow
+    The default value is \l AdjustToContentsOnFirstShow.
 
     \sa SizeAdjustPolicy
 */
@@ -952,7 +951,7 @@ void QComboBox::setSizeAdjustPolicy(QComboBox::SizeAdjustPolicy policy)
     \brief the value describing the minimum number of characters that
     will fit into the combobox.
 
-    This value is ignored if \c AdjustToMinimumContentsLength is not
+    This value is ignored if \l AdjustToMinimumContentsLength is not
     set. The default value is 0.
 
     \sa sizeAdjustPolicy
@@ -1449,7 +1448,7 @@ QSize QComboBox::minimumSizeHint() const
 
     This implementation caches the size hint to avoid resizing when
     the contents change dynamically. To invalidate the cached value
-    change the \c sizeAdjustPolicy.
+    change the \l sizeAdjustPolicy.
 */
 QSize QComboBox::sizeHint() const
 {

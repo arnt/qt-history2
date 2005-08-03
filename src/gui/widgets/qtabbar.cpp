@@ -167,13 +167,13 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
 
     The \l shape property defines the tabs' appearance. The choice of
     shape is a matter of taste, although tab dialogs (for preferences
-    and similar) invariably use \c RoundedNorth.
+    and similar) invariably use \l RoundedNorth.
     Tab controls in windows other than dialogs almost
-    always use either \c RoundedSouth or \c TriangularSouth. Many
+    always use either \l RoundedSouth or \l TriangularSouth. Many
     spreadsheets and other tab controls in which all the pages are
-    essentially similar use \c TriangularSouth, whereas \c
+    essentially similar use \l TriangularSouth, whereas \l
     RoundedSouth is used mostly when the pages are different (e.g. a
-    multi-page tool palette). The default in QTabBar is \c
+    multi-page tool palette). The default in QTabBar is \l
     RoundedNorth.
 
     The most important part of QTabBar's API is the currentChanged()
@@ -485,8 +485,8 @@ QTabBar::~QTabBar()
     \property QTabBar::shape
     \brief the shape of the tabs in the tab bar
 
-    The value of this property is one of the following: \c
-    RoundedNorth (default), \c RoundedSouth, \c TriangularNorth or \c
+    The value of this property is one of the following: \l
+    RoundedNorth (default), \l RoundedSouth, \l TriangularNorth or \l
     TriangularBelow.
 
     \sa Shape

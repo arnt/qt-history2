@@ -607,19 +607,19 @@ QString QDate::longDayName(int weekday)
     Returns the date as a string. The \a format parameter determines
     the format of the string.
 
-    If the \a format is \c Qt::TextDate, the string is formatted in
+    If the \a format is Qt::TextDate, the string is formatted in
     the default way. QDate::shortDayName() and QDate::shortMonthName()
     are used to generate the string, so the day and month names will
     be localized names. An example of this formatting is
     "Sat May 20 1995".
 
-    If the \a format is \c Qt::ISODate, the string format corresponds
+    If the \a format is Qt::ISODate, the string format corresponds
     to the ISO 8601 extended specification for representations of
     dates and times, taking the form YYYY-MM-DD, where YYYY is the
     year, MM is the month of the year (between 01 and 12), and DD is
     the day of the month between 01 and 31.
 
-    If the \a format is \c Qt::LocalDate, the string format depends
+    If the \a format is Qt::LocalDate, the string format depends
     on the locale settings of the system.
 
     If the datetime is invalid, an empty string will be returned.
@@ -981,11 +981,11 @@ QDate QDate::currentDate()
     \a format given, or an invalid date if the string cannot be
     parsed.
 
-    Note for \c Qt::TextDate: It is recommended that you use the
+    Note for Qt::TextDate: It is recommended that you use the
     English short month names (e.g. "Jan"). Although localized month
     names can also be used, they depend on the user's locale settings.
 
-    \warning \c Qt::LocalDate cannot be used here.
+    \warning Qt::LocalDate cannot be used here.
 */
 QDate QDate::fromString(const QString& s, Qt::DateFormat f)
 {
@@ -1389,10 +1389,10 @@ int QTime::msec() const
     Returns the time as a string. Milliseconds are not included. The
     \a f parameter determines the format of the string.
 
-    If \a f is \c Qt::TextDate, the string format is HH:MM:SS; e.g. 1
+    If \a f is Qt::TextDate, the string format is HH:MM:SS; e.g. 1
     second before midnight would be "23:59:59".
 
-    If \a f is \c Qt::ISODate, the string format corresponds to the
+    If \a f is Qt::ISODate, the string format corresponds to the
     ISO 8601 extended specification for representations of dates,
     which is also HH:MM:SS.
 
@@ -1728,7 +1728,7 @@ QTime QTime::currentTime()
     Returns the time represented in the \a string as a QTime using the
     \a format given, or an invalid time if this is not possible.
 
-    \warning Note that \c Qt::LocalDate cannot be used here.
+    \warning Note that Qt::LocalDate cannot be used here.
 */
 QTime QTime::fromString(const QString& s, Qt::DateFormat f)
 {
@@ -2140,7 +2140,7 @@ static uint toTime_t(const QDate &utcDate, const QTime &utcTime)
     since 1970-01-01T00:00:00, Coordinated Universal Time (Qt::UTC).
 
     On systems that do not support timezones, this function will
-    behave as if local time were \c Qt::UTC.
+    behave as if local time were Qt::UTC.
 
     \sa setTime_t()
 */
@@ -2190,17 +2190,17 @@ void QDateTime::setTime_t(uint secsSince1Jan1970UTC)
 
     Returns the datetime as a string in the \a format given.
 
-    If the \a format is \c Qt::TextDate, the string is formatted in
+    If the \a format is Qt::TextDate, the string is formatted in
     the default way. QDate::shortDayName(), QDate::shortMonthName(),
     and QTime::toString() are used to generate the string, so the
     day and month names will be localized names. An example of this
     formatting is "Wed May 20 03:40:13 1998".
 
-    If the \a format is \c Qt::ISODate, the string format corresponds
+    If the \a format is Qt::ISODate, the string format corresponds
     to the ISO 8601 extended specification for representations of
     dates and times, taking the form YYYY-MM-DDTHH:MM:SS.
 
-    If the \a format is \c Qt::LocalDate, the string format depends
+    If the \a format is Qt::LocalDate, the string format depends
     on the locale settings of the system.
 
     If the datetime is invalid, an empty string will be returned.
@@ -2606,11 +2606,11 @@ QDateTime QDateTime::currentDateTime()
     Returns the QDateTime represented by the \a string, using the
     \a format given, or an invalid datetime if this is not possible.
 
-    Note for \c Qt::TextDate: It is recommended that you use the
+    Note for Qt::TextDate: It is recommended that you use the
     English short month names (e.g. "Jan"). Although localized month
     names can also be used, they depend on the user's locale settings.
 
-    \warning Note that \c Qt::LocalDate cannot be used here.
+    \warning Note that Qt::LocalDate cannot be used here.
 */
 QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
 {

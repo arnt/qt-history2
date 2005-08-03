@@ -1380,7 +1380,7 @@ QString QHttpRequestHeader::toString() const
     The \l{network/http}{HTTP} example illustrates how to write HTTP
     clients using QHttp.
 
-    \sa {Network Module}, QFtp
+    \sa QFtp
 */
 
 /*!

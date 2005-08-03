@@ -740,7 +740,7 @@ void QTextEditPrivate::extendLinewiseSelection(int suggestedNewPosition)
     \l FixedPixelWidth, or character column (e.g. 80 column) \l
     FixedColumnWidth with the pixels or columns specified with
     setLineWrapColumnOrWidth(). If you use word wrap to the widget's width
-    \c WidgetWidth, you can specify whether to break on whitespace or
+    \l WidgetWidth, you can specify whether to break on whitespace or
     anywhere with setWrapPolicy().
 
     The find() function can be used to find and select a given string
@@ -1033,8 +1033,8 @@ QFont QTextEdit::currentFont() const
 
 /*!
     Sets the alignment of the current paragraph to \a a. Valid
-    alignments are \c Qt::AlignLeft, \c Qt::AlignRight,
-    \c Qt::AlignJustify and \c Qt::AlignCenter (which centers
+    alignments are Qt::AlignLeft, Qt::AlignRight,
+    Qt::AlignJustify and Qt::AlignCenter (which centers
     horizontally).
 */
 void QTextEdit::setAlignment(Qt::Alignment a)
@@ -2540,11 +2540,11 @@ QTextCharFormat QTextEdit::currentCharFormat() const
     \property QTextEdit::autoFormatting
     \brief the enabled set of auto formatting features
 
-    The value can be any combination of the values in the \c
-    AutoFormattingFlag enum.  The default is \c AutoNone. Choose \c
+    The value can be any combination of the values in the
+    AutoFormattingFlag enum.  The default is AutoNone. Choose
     AutoAll to enable all automatic formatting.
 
-    Currently, the only automatic formatting feature provided is \c
+    Currently, the only automatic formatting feature provided is
     AutoBulletList; future versions of Qt may offer more.
 */
 
@@ -2692,11 +2692,11 @@ void QTextEdit::setTabChangesFocus(bool b)
     \property QTextEdit::lineWrapMode
     \brief the line wrap mode
 
-    The default mode is \c WidgetWidth which causes words to be
+    The default mode is WidgetWidth which causes words to be
     wrapped at the right edge of the text edit. Wrapping occurs at
     whitespace, keeping whole words intact. If you want wrapping to
     occur within words use setWrapPolicy(). If you set a wrap mode of
-    \c FixedPixelWidth or \c FixedColumnWidth you should also call
+    FixedPixelWidth or FixedColumnWidth you should also call
     setWrapColumnOrWidth() with the width you want.
 
     \sa lineWrapColumnOrWidth
@@ -2721,9 +2721,9 @@ void QTextEdit::setLineWrapMode(LineWrapMode wrap)
     \property QTextEdit::lineWrapColumnOrWidth
     \brief the position (in pixels or columns depending on the wrap mode) where text will be wrapped
 
-    If the wrap mode is \c FixedPixelWidth, the value is the number of
+    If the wrap mode is FixedPixelWidth, the value is the number of
     pixels from the left edge of the text edit at which text should be
-    wrapped. If the wrap mode is \c FixedColumnWidth, the value is the
+    wrapped. If the wrap mode is FixedColumnWidth, the value is the
     column number (in character columns) from the left edge of the
     text edit at which text should be wrapped.
 

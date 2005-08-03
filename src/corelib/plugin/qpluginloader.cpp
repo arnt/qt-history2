@@ -29,25 +29,22 @@
     \mainclass
     \ingroup plugins
 
-    QPlugingLoader provides a means for accessing a \l{How to Create
-    Qt Plugins}{Qt plugin}. Qt plugins are stored in a shared library
-    (a "DLL") and follow offer a few benefits over plain shared
-    libraries accessed using QLibrary:
+    QPluginLoader provides access to a \l{How to Create Qt
+    Plugins}{Qt plugin}. A Qt plugin is stored in a shared library (a
+    DLL) and offers these benefits over shared libraries accessed
+    using QLibrary:
 
     \list
-    \o Plugins offer safety in cases where a plugin is linked against
-       different versions of Qt. (This typically would result in the
-       application crashing when opening such a library with
-       QLibrary.)
-    \o Plugin offers direct access to a root component object
-       (instance()), instead of forcing you to resolve a C function
-       manually.
+    \o QPluginLoader checks that a plugin is linked against the same
+       version of Qt as the application.
+    \o QPluginLoader provides direct access to a root component object
+       (instance()), instead of forcing you to resolve a C function manually.
     \endlist
 
     An instance of a QPluginLoader object operates on a single shared
     library file, which we call a plugin. It provides access to the
     functionality in the plugin in a platform-independent way. To
-    specify which plugin to load, you can either pass a file name in
+    specify which plugin to load, either pass a file name in
     the constructor or set it with setFileName().
 
     The most important functions are load() to dynamically load the

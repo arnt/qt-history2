@@ -1090,7 +1090,7 @@ bool QAbstractItemModel::setData(const QModelIndex &index, const QVariant &value
 */
 
 /*!
-    For every \c Qt::ItemDataRole in \a roles, sets the role data for the item at
+    For every Qt::ItemDataRole in \a roles, sets the role data for the item at
     \a index to the associated value in \a roles. Returns true if
     successful; otherwise returns false.
 
@@ -1170,7 +1170,7 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
 /*!
   Returns the drop actions supported by this model.
 
-  The default implementation returns \c Qt::CopyAction. It is only necessary to reimplement
+  The default implementation returns Qt::CopyAction. It is only necessary to reimplement
   this function in subclasses if you wish to support more types of drag and drop
   operation.
 

@@ -359,7 +359,7 @@ void QWellArray::setCellBrush(int row, int col, const QBrush &b)
 
 /*
   Returns the brush set for the cell at \a row, \a column. If no brush is
-  set, \c Qt::NoBrush is returned.
+  set, Qt::NoBrush is returned.
 */
 
 QBrush QWellArray::cellBrush(int row, int col)

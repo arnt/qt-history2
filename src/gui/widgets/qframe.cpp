@@ -59,9 +59,9 @@ QFramePrivate::QFramePrivate()
     the frame from surrounding widgets. These properties can be set
     together using the setFrameStyle() function and read with frameStyle().
 
-    The frame shapes are \c NoFrame, \c Box, \c Panel, \c StyledPanel,
-    HLine and \c VLine; the shadow styles are \c Plain, \c Raised and
-    \c Sunken.
+    The frame shapes are \l NoFrame, \l Box, \l Panel, \l StyledPanel,
+    HLine and \l VLine; the shadow styles are \l Plain, \l Raised and
+    \l Sunken.
 
     A frame widget has three attributes that describe the thickness of the
     border: \l lineWidth, \l midLineWidth, and \l frameWidth.
@@ -72,8 +72,8 @@ QFramePrivate::QFramePrivate()
 
     \o The mid-line width specifies the width of an extra line in the
        middle of the frame, which uses a third color to obtain a special
-       3D effect. Notice that a mid-line is only drawn for \c Box, \c
-       HLine and \c VLine frames that are raised or sunken.
+       3D effect. Notice that a mid-line is only drawn for \l Box, \l
+       HLine and \l VLine frames that are raised or sunken.
 
     \o The frame width is determined by the frame style, and the frameWidth()
        function is used to obtain the value defined for the style used.
@@ -163,7 +163,7 @@ QFramePrivate::QFramePrivate()
 */
 
 /*!
-    Constructs a frame widget with frame style \c NoFrame and a
+    Constructs a frame widget with frame style \l NoFrame and a
     1-pixel frame width.
 
     The \a parent and \a f arguments are passed to the QWidget
@@ -262,7 +262,7 @@ void QFrame::setFrameShadow(QFrame::Shadow s)
     styles in \l{QFrame::Shadow}.
 
     If a mid-line width greater than 0 is specified, an additional
-    line is drawn for \c Raised or \c Sunken \c Box, \c HLine, and \c
+    line is drawn for \l Raised or \l Sunken \l Box, \l HLine, and \l
     VLine frames. The mid-color of the current color group is used for
     drawing middle lines.
 
@@ -295,8 +295,8 @@ void QFrame::setFrameStyle(int style)
     \property QFrame::lineWidth
     \brief the line width
 
-    Note that the \e total line width for frames used as separators (\c HLine and
-    \c VLine) is specified by \l frameWidth, not \c lineWidth.
+    Note that the \e total line width for frames used as separators
+    (\l HLine and \l VLine) is specified by \l frameWidth.
 
     The default value is 1.
 
@@ -407,7 +407,7 @@ void QFramePrivate::updateFrameWidth()
 
     Note that the frame width depends on the \l{QFrame::setFrameStyle()}{frame style},
     not only the line width and the mid-line width. For example, the style specified
-    by \c NoFrame always has a frame width of 0, whereas the style \c Panel has a
+    by \l NoFrame always has a frame width of 0, whereas the style \l Panel has a
     frame width equivalent to the line width.
 
     \sa lineWidth(), midLineWidth(), frameStyle()
@@ -428,8 +428,8 @@ int QFrame::frameWidth() const
     does \e not cause a widget update. The frame rectangle is
     automatically adjusted when the widget changes size.
 
-    If you set the rectangle to a null rectangle (for example
-    \c{QRect(0, 0, 0, 0)}), then the resulting frame rectangle is
+    If you set the rectangle to a null rectangle (for example,
+    QRect(0, 0, 0, 0)), then the resulting frame rectangle is
     equivalent to the \link QWidget::rect() widget rectangle\endlink.
 */
 

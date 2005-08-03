@@ -809,7 +809,7 @@ void QPainterPath::addRegion(const QRegion &region)
 
 /*!
     Returns the fill rule of the painter path. The default fill rule
-    is \c Qt::OddEvenFill.
+    is Qt::OddEvenFill.
 
     \sa Qt::FillRule setFillRule()
 */

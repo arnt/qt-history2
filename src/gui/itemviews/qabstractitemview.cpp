@@ -1395,7 +1395,7 @@ QModelIndexList QAbstractItemView::selectedIndexes() const
 
 /*!
     Starts editing the item at \a index, creating an editor if
-    necessary, and returns true if the view's \l{State} is now \c
+    necessary, and returns true if the view's \l{State} is now
     EditingState; otherwise returns false.
 
     The action that caused the editing process is described by

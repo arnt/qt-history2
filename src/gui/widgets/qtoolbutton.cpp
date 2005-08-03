@@ -180,9 +180,9 @@ QToolButton::QToolButton(const QIcon& icon, const QString &textLabel,
 
 
 /*!
-    Constructs a tool button as an arrow button. The \c Qt::ArrowType \a
-    type defines the arrow direction. Possible values are \c
-    Qt::LeftArrow, \c Qt::RightArrow, \c Qt::UpArrow and \c Qt::DownArrow.
+    Constructs a tool button as an arrow button. The Qt::ArrowType \a
+    type defines the arrow direction. Possible values are
+    Qt::LeftArrow, Qt::RightArrow, Qt::UpArrow, and Qt::DownArrow.
 
     An arrow button has auto-repeat turned on by default.
 

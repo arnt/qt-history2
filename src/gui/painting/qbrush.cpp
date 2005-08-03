@@ -100,9 +100,9 @@ struct QGradientBrushData : public QBrushData
     custom pattern, which is defined by a QPixmap.
 
     The brush style defines the fill pattern. The default brush style
-    is \c Qt::NoBrush (depending on how you construct a brush). This style
+    is Qt::NoBrush (depending on how you construct a brush). This style
     tells the painter to not fill shapes. The standard style for
-    filling is \c Qt::SolidPattern.
+    filling is Qt::SolidPattern.
 
     The brush color defines the color of the fill pattern. The QColor
     documentation lists the predefined colors.
@@ -156,7 +156,7 @@ void QBrush::init(const QColor &color, Qt::BrushStyle style)
 }
 
 /*!
-    Constructs a default black brush with the style \c Qt::NoBrush (this brush will
+    Constructs a default black brush with the style Qt::NoBrush (this brush will
     not fill shapes).
 */
 
@@ -443,7 +443,7 @@ QPixmap QBrush::texture() const
 }
 
 /*!
-    Sets the brush pixmap to \a pixmap. The style is set to \c
+    Sets the brush pixmap to \a pixmap. The style is set to
     Qt::TexturePattern.
 
     The current brush color will only have an effect for monochrome

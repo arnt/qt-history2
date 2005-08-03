@@ -1335,7 +1335,7 @@ int QFtpPrivate::addCommand(QFtpCommand *cmd)
     The \l{network/ftp}{FTP} example illustrates how to write FTP clients
     using QFtp.
 
-    \sa {Network Module}, QHttp
+    \sa QHttp
 */
 
 

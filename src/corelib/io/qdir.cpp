@@ -439,8 +439,8 @@ QDir::QDir(const QString &path) : d_ptr(new QDirPrivate(this))
     also sorts the names using \a sort.
 
     The default \a nameFilter is an empty string, which excludes
-    nothing; the default \a filters is \c TypeMask, which also means
-    exclude nothing. The default \a sort is \c Name|IgnoreCase,
+    nothing; the default \a filters is \l TypeMask, which also means
+    exclude nothing. The default \a sort is \l Name | \l IgnoreCase,
     i.e. sort by name case-insensitively.
 
     If \a path is an empty string, QDir uses "." (the current
@@ -925,21 +925,21 @@ QDir::Filters QDir::filter() const
 
     \omitvalue DefaultFilter
     \omitvalue TypeMask
-    \omitvalue  RWEMask
+    \omitvalue RWEMask
     \omitvalue AccessMask
     \omitvalue PermissionMask
     \omitvalue NoFilter
 
-    Functions that use \c Filter enum values to filter lists of files
+    Functions that use Filter enum values to filter lists of files
     and directories will include symbolic links to files and directories
-    unless you set the \c NoSymLinks value.
+    unless you set the NoSymLinks value.
 
-    If you do not set any of \c Readable, \c Writable, or \c
+    If you do not set any of Readable, Writable, or
     Executable, QDir will set all three of them. This makes the
     default easy to write, and at the same time useful.
 
-    Examples: \c Readable|Writable means list all files for which the
-    application has read access, write access or both. \c Dirs|Drives
+    Examples: Readable | Writable means list all files for which the
+    application has read access, write access or both. Dirs | Drives
     means list drives, directories, all files that the application can
     read, write or execute, and also symlinks to such
     files/directories.
@@ -999,7 +999,7 @@ QDir::SortFlags QDir::sorting() const
 
     You can only specify one of the first four.
 
-    If you specify both \c DirsFirst and \c Reversed, directories are
+    If you specify both DirsFirst and Reversed, directories are
     still put first, but in reverse order; the files will be listed
     after the directories, again in reverse order.
 */

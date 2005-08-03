@@ -1630,7 +1630,7 @@ QTextList *QTextCursor::createList(const QTextListFormat &format)
     Creates and returns a new list with the given \a style, making the
     cursor's current paragraph the first list item.
 
-    The style to be used is defined by the \c QTextListFormat::Style enum.
+    The style to be used is defined by the QTextListFormat::Style enum.
 
     \sa insertList() currentList()
  */

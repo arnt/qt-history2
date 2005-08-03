@@ -1352,9 +1352,11 @@ void Q3Process::setWroteStdinConnected( bool value )
     wroteToStdinConnected = value;
 }
 
-/*! \enum Q3Process::PID
-  \internal
+/*!
+    \typedef Q3Process::PID
+    \internal
 */
+
 /*!
     Returns platform dependent information about the process. This can
     be used together with platform specific system calls.

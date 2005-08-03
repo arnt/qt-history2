@@ -778,7 +778,7 @@ void QSplitter::setResizeMode(QWidget *w, ResizeMode mode)
 
         This function tries to simulate the Qt 3.x ResizeMode
         behavior using QSizePolicy stretch factors. This isn't easy,
-        because the default \c ResizeMode was \c Stretch, not \c
+        because the default \l ResizeMode was \l Stretch, not \l
         KeepSize, whereas the default stetch factor is 0.
 
         So what we do is this: When the user calls setResizeMode()
@@ -1385,7 +1385,7 @@ void QSplitter::moveSplitter(int pos, int index)
 
 /*!
     Returns the valid range of the splitter with index \a index in
-    \c{*}\a{min} and \c{*}\a{max} if \a min and \a max are not 0.
+    *\a{min} and *\a{max} if \a min and \a max are not 0.
 */
 
 void QSplitter::getRange(int index, int *min, int *max) const

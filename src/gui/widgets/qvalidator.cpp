@@ -34,37 +34,37 @@
     fixup().
 
     \l validate() must be implemented by every subclass. It returns
-    \c Invalid, \c Intermediate or \c Acceptable depending on whether
+    \l Invalid, \l Intermediate or \l Acceptable depending on whether
     its argument is valid (for the subclass's definition of valid).
 
-    These three states require some explanation. An \c Invalid string
-    is \e clearly invalid. \c Intermediate is less obvious: the
+    These three states require some explanation. An \l Invalid string
+    is \e clearly invalid. \l Intermediate is less obvious: the
     concept of validity is difficult to apply when the string is
-    incomplete (still being edited). QValidator defines \c Intermediate
+    incomplete (still being edited). QValidator defines \l Intermediate
     as the property of a string that is neither clearly invalid nor
-    acceptable as a final result. \c Acceptable means that the string
+    acceptable as a final result. \l Acceptable means that the string
     is acceptable as a final result. One might say that any string
-    that is a plausible intermediate state during entry of an \c
-    Acceptable string is \c Intermediate.
+    that is a plausible intermediate state during entry of an \l
+    Acceptable string is \l Intermediate.
 
     Here are some examples:
 
     \list
 
     \i For a line edit that accepts integers from 10 to 999 inclusive,
-    42 and 123 are \c Acceptable, the empty string and 5 are \c
-    Intermediate, and "asdf" and 1114 is \c Invalid.
+    42 and 123 are \l Acceptable, the empty string and 5 are \l
+    Intermediate, and "asdf" and 1114 is \l Invalid.
 
     \i For an editable combobox that accepts URLs, any well-formed URL
-    is \c Acceptable, "http://www.trolltech.com/," is \c Intermediate
+    is \l Acceptable, "http://www.trolltech.com/," is \l Intermediate
     (it might be a cut and paste action that accidentally took in a
-    comma at the end), the empty string is \c Intermediate (the user
+    comma at the end), the empty string is \l Intermediate (the user
     might select and delete all of the text in preparation for entering
-    a new URL) and "http:///./" is \c Invalid.
+    a new URL) and "http:///./" is \l Invalid.
 
-    \i For a spin box that accepts lengths, "11cm" and "1in" are \c
-    Acceptable, "11" and the empty string are \c Intermediate, and
-    "http://www.trolltech.com" and "hour" are \c Invalid.
+    \i For a spin box that accepts lengths, "11cm" and "1in" are \l
+    Acceptable, "11" and the empty string are \l Intermediate, and
+    "http://www.trolltech.com" and "hour" are \l Invalid.
 
     \endlist
 
@@ -72,8 +72,8 @@
     errors. The default implementation does nothing. QLineEdit, for
     example, will call fixup() if the user presses Enter (or Return)
     and the content is not currently valid. This allows the fixup()
-    function the opportunity of performing some magic to make an \c
-    Invalid string \c Acceptable.
+    function the opportunity of performing some magic to make an \l
+    Invalid string \l Acceptable.
 
     QValidator is typically used with QLineEdit, QSpinBox and
     QComboBox.
@@ -133,11 +133,11 @@ QValidator::~QValidator()
 /*!
     \fn QValidator::State QValidator::validate(QString &input, int &pos) const
 
-    This virtual function returns \c Invalid if \a input is invalid
-    according to this validator's rules, \c Intermediate if it
+    This virtual function returns \l Invalid if \a input is invalid
+    according to this validator's rules, \l Intermediate if it
     is likely that a little more editing will make the input
     acceptable (e.g. the user types "4" into a widget which accepts
-    integers between 10 and 99), and \c Acceptable if the input is
+    integers between 10 and 99), and \l Acceptable if the input is
     valid.
 
     The function can change both \a input and \a pos (the cursor position)
@@ -293,9 +293,9 @@ QIntValidator::~QIntValidator()
 /*!
     \fn QValidator::State QIntValidator::validate(QString &input, int &pos) const
 
-    Returns \c Acceptable if the \a input is an integer within the
-    valid range, \c Intermediate if the \a input is an integer outside
-    the valid range and \c Invalid if the \a input is not an integer.
+    Returns \l Acceptable if the \a input is an integer within the
+    valid range, \l Intermediate if the \a input is an integer outside
+    the valid range and \l Invalid if the \a input is not an integer.
 
     Note: If the valid range consists of just positive integers (e.g. 32 to 100)
     and \a input is a negative integer then Invalid is returned.
@@ -472,17 +472,17 @@ QDoubleValidator::~QDoubleValidator()
 /*!
     \fn QValidator::State QDoubleValidator::validate(QString &input, int &pos) const
 
-    Returns \c Acceptable if the string \a input contains a double
+    Returns \l Acceptable if the string \a input contains a double
     that is within the valid range and is in the correct format.
 
-    Returns \c Intermediate if \a input contains a double that is
+    Returns \l Intermediate if \a input contains a double that is
     outside the range or is in the wrong format; e.g. with too many
     digits after the decimal point or is empty.
 
-    Returns \c Invalid if the \a input is not a double.
+    Returns \l Invalid if the \a input is not a double.
 
     Note: If the valid range consists of just positive doubles (e.g. 0.0 to 100.0)
-    and \a input is a negative double then \c Invalid is returned.
+    and \a input is a negative double then \l Invalid is returned.
 
     By default, the \a pos parameter is not used by this validator.
 */
@@ -593,8 +593,8 @@ void QDoubleValidator::setDecimals(int decimals)
     \ingroup misc
 
     QRegExpValidator uses a regular expression (regexp) to
-    determine whether an input string is \c Acceptable, \c
-    Intermediate, or \c Invalid. The regexp can either be supplied
+    determine whether an input string is \l Acceptable, \l
+    Intermediate, or \l Invalid. The regexp can either be supplied
     when the QRegExpValidator is constructed, or at a later time.
 
     The regexp is treated as if it begins with the start of string
@@ -718,16 +718,16 @@ QRegExpValidator::~QRegExpValidator()
 }
 
 /*!
-    Returns \c Acceptable if \a input is matched by the regular
-    expression for this validator, \c Intermediate if it has matched
+    Returns \l Acceptable if \a input is matched by the regular
+    expression for this validator, \l Intermediate if it has matched
     partially (i.e. could be a valid match if additional valid
-    characters are added), and \c Invalid if \a input is not matched.
+    characters are added), and \l Invalid if \a input is not matched.
 
     The \a pos parameter is set to the length of the \a input parameter.
 
     For example, if the regular expression is \bold{\\w\\d\\d}
-    (word-character, digit, digit) then "A57" is \c Acceptable,
-    "E5" is \c Intermediate, and "+9" is \c Invalid.
+    (word-character, digit, digit) then "A57" is \l Acceptable,
+    "E5" is \l Intermediate, and "+9" is \l Invalid.
 
     \sa QRegExp::exactMatch()
 */

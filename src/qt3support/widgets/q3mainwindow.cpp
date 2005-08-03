@@ -677,7 +677,7 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     Constructs an empty main window. The \a parent, \a name and widget
     flags \a f, are passed on to the QWidget constructor.
 
-    By default, the widget flags are set to \c Qt::WType_TopLevel rather
+    By default, the widget flags are set to Qt::WType_TopLevel rather
     than 0 as they are with QWidget. If you don't want your
     Q3MainWindow to be a top level widget then you will need to set \a
     f to 0.
@@ -1744,7 +1744,7 @@ QList<Q3ToolBar *> Q3MainWindow::toolBars(Qt::Dock dock) const
     Returns a list of all the dock windows which are in the \a dock
     dock area, regardless of their state.
 
-    For example, the \c Qt::DockTornOff dock area may contain closed dock
+    For example, the Qt::DockTornOff dock area may contain closed dock
     windows but these are returned along with the visible dock
     windows.
 */

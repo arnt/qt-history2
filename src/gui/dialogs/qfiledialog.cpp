@@ -148,11 +148,11 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
     fd->setMode(QFileDialog::AnyFile);
   \endcode
 
-  In the above example, the mode of the file dialog is set to \c
+  In the above example, the mode of the file dialog is set to
   AnyFile, meaning that the user can select any file, or even specify a
   file that doesn't exist. This mode is useful for creating a
-  "Save As" file dialog. Use \c ExistingFile if the user must select an
-  existing file, or \c Directory if only a directory may be selected.
+  "Save As" file dialog. Use ExistingFile if the user must select an
+  existing file, or \l Directory if only a directory may be selected.
   See the \l QFileDialog::FileMode enum for the complete list of modes.
 
   You can retrieve the dialog's mode with mode(). Use setFilter() to set

@@ -391,7 +391,7 @@ void Q3Header::init(int n)
     \property Q3Header::orientation
     \brief the header's orientation
 
-    The orientation is either \c Qt::Vertical or \c Qt::Horizontal (the
+    The orientation is either Qt::Vertical or Qt::Horizontal (the
     default).
 
     Call setOrientation() before adding labels if you don't provide a

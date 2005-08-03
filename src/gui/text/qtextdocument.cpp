@@ -119,9 +119,9 @@ QString Qt::escape(const QString& plain)
     Auxiliary function. Converts the plain text string \a plain to a
     rich text formatted paragraph while preserving most of its look.
 
-    \a mode defines the whitespace mode. Possible values are \c
+    \a mode defines the whitespace mode. Possible values are
     QStyleSheetItem::WhiteSpacePre (no wrapping, all whitespaces
-    preserved) and \c QStyleSheetItem::WhiteSpaceNormal (wrapping,
+    preserved) and QStyleSheetItem::WhiteSpaceNormal (wrapping,
     simplified whitespaces).
 
     \sa escape()

@@ -602,7 +602,7 @@ void QPrinter::setPageSize(PageSize newPageSize)
 /*!
     Sets the page order to \a pageOrder.
 
-    The page order can be \c QPrinter::FirstPageFirst or \c
+    The page order can be QPrinter::FirstPageFirst or
     QPrinter::LastPageFirst. The application is responsible for
     reading the page order and printing accordingly.
 

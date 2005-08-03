@@ -642,7 +642,7 @@ void QMainWindow::removeDockWidget(QDockWidget *dockwidget)
 { d_func()->layout->removeRecursive(dockwidget); }
 
 /*!
-    Returns the \c Qt::DockWidgetArea for \a dockwidget.
+    Returns the Qt::DockWidgetArea for \a dockwidget.
 
     \sa addDockWidget() splitDockWidget() Qt::DockWidgetArea
 */

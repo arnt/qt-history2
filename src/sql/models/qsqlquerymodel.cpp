@@ -334,7 +334,7 @@ void QSqlQueryModel::clear()
     the specified \a value. This is useful if the model is used to
     display data in a view (e.g., QTableView).
 
-    Returns true if \a role is \c Qt::DisplayRole and
+    Returns true if \a role is Qt::DisplayRole and
     the \a section refers to a valid section; otherwise returns
     false.
 

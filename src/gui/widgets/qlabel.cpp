@@ -297,7 +297,7 @@ void QLabelPrivate::init()
 
     The text will be interpreted either as a plain text or as a rich
     text, depending on the text format setting; see setTextFormat().
-    The default setting is \c Qt::AutoText, i.e. QLabel will try to
+    The default setting is Qt::AutoText, i.e. QLabel will try to
     auto-detect the format of the text set.
 
     If the text is interpreted as a plain text and a buddy has been
@@ -515,9 +515,9 @@ bool QLabel::wordWrap() const
     \brief the label's text indent in pixels
 
     If a label displays text, the indent applies to the left edge if
-    alignment() is \c Qt::AlignLeft, to the right edge if alignment() is
-    \c Qt::AlignRight, to the top edge if alignment() is \c Qt::AlignTop, and
-    to to the bottom edge if alignment() is \c Qt::AlignBottom.
+    alignment() is Qt::AlignLeft, to the right edge if alignment() is
+    Qt::AlignRight, to the top edge if alignment() is Qt::AlignTop, and
+    to to the bottom edge if alignment() is Qt::AlignBottom.
 
     If indent is negative, or if no indent has been set, the label
     computes the effective indent as follows: If frameWidth() is 0,
@@ -917,7 +917,7 @@ void QLabelPrivate::updateLabel()
     The buddy mechanism is only available for QLabels that contain
     plain text in which one letter is prefixed with an ampersand, \&.
     This letter is set as the shortcut key. The letter is displayed
-    underlined, and the '\&' is not displayed (i.e. the \c Qt::TextShowMnemonic
+    underlined, and the '\&' is not displayed (i.e. the Qt::TextShowMnemonic
     alignment flag is turned on; see setAlignment()).
 
     In a dialog, you might create two data entry widgets and a label

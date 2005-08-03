@@ -735,7 +735,7 @@ bool Q3SqlCursor::select(const QSqlIndex & filter, const QSqlIndex & sort)
 /*!
     Sets the cursor mode to \a mode. This value can be an OR'ed
     combination of \l Q3SqlCursor::Mode values. The default mode for a
-    cursor is \c Q3SqlCursor::Writable.
+    cursor is Q3SqlCursor::Writable.
 
     \code
     Q3SqlCursor cur("Employee");

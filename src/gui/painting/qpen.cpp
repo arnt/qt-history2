@@ -29,8 +29,8 @@
 
     A pen has a style, width, brush, cap style and join style.
 
-    The pen style defines the line type. The default pen style is \c
-    Qt::SolidLine. Setting the style to \c Qt::NoPen tells the painter to
+    The pen style defines the line type. The default pen style is
+    Qt::SolidLine. Setting the style to Qt::NoPen tells the painter to
     not draw lines or outlines.
 
     The pen brush defines the fill of lines and text. The default pen
@@ -327,7 +327,7 @@ Qt::PenCapStyle QPen::capStyle() const
 /*!
     Sets the pen's cap style to \a c.
 
-    The default value is \c Qt::SquareCap.
+    The default value is Qt::SquareCap.
 
     \img pen-cap-styles.png Pen Cap Styles
 
@@ -355,7 +355,7 @@ Qt::PenJoinStyle QPen::joinStyle() const
 /*!
     Sets the pen's join style to \a j.
 
-    The default value is \c Qt::BevelJoin.
+    The default value is Qt::BevelJoin.
 
     \img pen-join-styles.png Pen Join Styles
 

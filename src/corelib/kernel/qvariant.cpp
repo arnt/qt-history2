@@ -1152,11 +1152,11 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
 
     \code
         QDataStream out(...);
-        QVariant v(123);            // The variant now contains an int
+        QVariant v(123);                // The variant now contains an int
         int x = v.toInt();              // x = 123
         out << v;                       // Writes a type tag and an int to out
-        v = QVariant("hello");      // The variant now contains a QByteArray
-        v = QVariant(tr("hello"));  // The variant now contains a QString
+        v = QVariant("hello");          // The variant now contains a QByteArray
+        v = QVariant(tr("hello"));      // The variant now contains a QString
         int y = v.toInt();              // y = 0 since v cannot be converted to an int
         QString s = v.toString();       // s = tr("hello")  (see QObject::tr())
         out << v;                       // Writes a type tag and a QString to out
@@ -1166,7 +1166,7 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
         int z = v.toInt();              // z = 123
         qDebug("Type is %s",            // prints "Type is int"
                 v.typeName());
-        v = v.toInt() + 100;            // The variant now hold the value 223.
+        v = v.toInt() + 100;            // The variant now hold the value 223
         v = QVariant(QStringList());
     \endcode
 
@@ -2682,8 +2682,8 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
         QVariant v;
 
         v.setValue(5);
-        int i = v.toInt(); // i is now 5
-        QString s = v.toString() // s is now "5"
+        int i = v.toInt();         // i is now 5
+        QString s = v.toString()   // s is now "5"
 
         MyCustomStruct c;
         v.setValue(c);
@@ -2720,8 +2720,8 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
             c = v.value<MyCustomStruct>(v);
 
         v = 7;
-        int i = v.value<int>(); // same as v.toInt()
-        QString s = v.value<QString>(); // same as v.toString(), s is now "7"
+        int i = v.value<int>();                        // same as v.toInt()
+        QString s = v.value<QString>();                // same as v.toString(), s is now "7"
         MyCustomStruct c2 = v.value<MyCustomStruct>(); // conversion failed, c2 is empty
     \endcode
 
@@ -2742,14 +2742,14 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     \code
         QVariant v = 42;
 
-        v.canConvert<int>(); // returns true
-        v.canConvert<QString>(); // returns true
+        v.canConvert<int>();              // returns true
+        v.canConvert<QString>();          // returns true
 
         MyCustomStruct s;
         v.setValue(s);
 
-        v.canConvert<int>(); // returns false
-        v.canConvert<MyCustomStruct>(); // returns true
+        v.canConvert<int>();              // returns false
+        v.canConvert<MyCustomStruct>();   // returns true
     \endcode
 
     \warning This function is not available with MSVC 6. Use

@@ -258,7 +258,7 @@ static const char * const qtlogo_xpm[] = {
     \printuntil }
 
     QMessageBox defines two enum types: Icon and an unnamed button type.
-    Icon defines the \c Question, \c Information, \c Warning, and \c
+    Icon defines the \l Question, \l Information, \l Warning, and \l
     Critical icons for each GUI style. It is used by the constructor
     and by the static member functions question(), information(),
     warning() and critical(). A function called standardIcon() gives
@@ -435,11 +435,11 @@ QMessageBox::QMessageBox(QWidget *parent)
     than three buttons in your message box. If you don't specify any
     buttons at all, QMessageBox will provide an Ok button.
 
-    One of the buttons can be OR-ed with the \c QMessageBox::Default
+    One of the buttons can be OR-ed with the QMessageBox::Default
     flag to make it the default button (clicked when Enter is
     pressed).
 
-    One of the buttons can be OR-ed with the \c QMessageBox::Escape
+    One of the buttons can be OR-ed with the QMessageBox::Escape
     flag to make it the cancel or close button (clicked when Escape is
     pressed).
 
@@ -615,7 +615,7 @@ int QMessageBoxPrivate::indexOf(int button) const
 
     The text will be interpreted either as a plain text or as rich
     text, depending on the text format setting (\l
-    QMessageBox::textFormat). The default setting is \c Qt::AutoText, i.e.
+    QMessageBox::textFormat). The default setting is Qt::AutoText, i.e.
     the message box will try to auto-detect the format of the text.
 
     The default value of this property is an empty string.
@@ -1064,8 +1064,8 @@ void QMessageBox::closeEvent(QCloseEvent *e)
     If you don't want all three buttons, set the last button, or last
     two buttons to QMessageBox::NoButton.
 
-    One button can be OR-ed with \c QMessageBox::Default, and one
-    button can be OR-ed with \c QMessageBox::Escape.
+    One button can be OR-ed with QMessageBox::Default, and one
+    button can be OR-ed with QMessageBox::Escape.
 
     Returns the identity (QMessageBox::Ok, or QMessageBox::No, etc.)
     of the button that was clicked.
@@ -1109,8 +1109,8 @@ int QMessageBox::information(QWidget *parent, const QString& caption, const QStr
     If you don't want all three buttons, set the last button, or last
     two buttons to QMessageBox::NoButton.
 
-    One button can be OR-ed with \c QMessageBox::Default, and one
-    button can be OR-ed with \c QMessageBox::Escape.
+    One button can be OR-ed with QMessageBox::Default, and one
+    button can be OR-ed with QMessageBox::Escape.
 
     Returns the identity (QMessageBox::Yes, or QMessageBox::No, etc.)
     of the button that was clicked.
@@ -1156,8 +1156,8 @@ int QMessageBox::question(QWidget *parent,
     If you don't want all three buttons, set the last button, or last
     two buttons to QMessageBox::NoButton.
 
-    One button can be OR-ed with \c QMessageBox::Default, and one
-    button can be OR-ed with \c QMessageBox::Escape.
+    One button can be OR-ed with QMessageBox::Default, and one
+    button can be OR-ed with QMessageBox::Escape.
 
     Returns the identity (QMessageBox::Ok, or QMessageBox::No, etc.)
     of the button that was clicked.
@@ -1203,8 +1203,8 @@ int QMessageBox::warning(QWidget *parent,
     If you don't want all three buttons, set the last button, or last
     two buttons to QMessageBox::NoButton.
 
-    One button can be OR-ed with \c QMessageBox::Default, and one
-    button can be OR-ed with \c QMessageBox::Escape.
+    One button can be OR-ed with QMessageBox::Default, and one
+    button can be OR-ed with QMessageBox::Escape.
 
     Returns the identity (QMessageBox::Ok, or QMessageBox::No, etc.)
     of the button that was clicked.
@@ -1546,7 +1546,7 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
     The current text format used by the message box. See the \l
     Qt::TextFormat enum for an explanation of the possible options.
 
-    The default format is \c Qt::AutoText.
+    The default format is Qt::AutoText.
 
     \sa setText()
 */

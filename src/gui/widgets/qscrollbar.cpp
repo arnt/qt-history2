@@ -138,7 +138,7 @@
     \endlist
 
     A scroll bar can be controlled by the keyboard, but it has a
-    default focusPolicy() of \c Qt::NoFocus. Use setFocusPolicy() to
+    default focusPolicy() of Qt::NoFocus. Use setFocusPolicy() to
     enable keyboard interaction with the scrollbar:
     \list
          \i Left/Right move a horizontal scrollbar by one single step.

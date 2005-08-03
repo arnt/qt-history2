@@ -148,9 +148,9 @@
     \fn void QAbstractSlider::actionTriggered(int action)
 
     This signal is emitted when the slider action \a action is
-    triggered. Actions are \c SliderSingleStepAdd, \c
-    SliderSingleStepSub, \c SliderPageStepAdd, \c SliderPageStepSub,
-    \c SliderToMinimum, \c SliderToMaximum, and \c SliderMove.
+    triggered. Actions are \l SliderSingleStepAdd, \l
+    SliderSingleStepSub, \l SliderPageStepAdd, \l SliderPageStepSub,
+    \l SliderToMinimum, \l SliderToMaximum, and \l SliderMove.
 
     When the signal is emitted, the \l sliderPosition has been
     adjusted according to the action, but the \l value has not yet
@@ -531,9 +531,9 @@ void QAbstractSlider::setInvertedControls(bool invert)
     d->invertedControls = invert;
 }
 
-/*!  Triggers a slider \a action.  Possible actions are \c
-  SliderSingleStepAdd, \c SliderSingleStepSub, \c SliderPageStepAdd,
-  \c SliderPageStepSub, \c SliderToMinimum, \c SliderToMaximum, and \c
+/*!  Triggers a slider \a action.  Possible actions are \l
+  SliderSingleStepAdd, \l SliderSingleStepSub, \l SliderPageStepAdd,
+  \l SliderPageStepSub, \l SliderToMinimum, \l SliderToMaximum, and \l
   SliderMove.
 
   \sa actionTriggered()
@@ -612,8 +612,8 @@ void QAbstractSlider::timerEvent(QTimerEvent *e)
 
 /*!
     Reimplement this virtual function to track slider changes such as
-    \c SliderRangeChange, \c SliderOrientationChange, \c
-    SliderStepsChange, or \c SliderValueChange. The default
+    \l SliderRangeChange, \l SliderOrientationChange, \l
+    SliderStepsChange, or \l SliderValueChange. The default
     implementation only updates the display and ignores the \a change
     parameter.
  */

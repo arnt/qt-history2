@@ -2442,8 +2442,6 @@ bool QWidgetPrivate::setAcceptDrops_sys(bool on)
 
     Note that this effect can be slow if the region is particularly
     complex.
-
-    \sa setMask(), clearMask()
 */
 
 void QWidget::setMask(const QRegion& region)

@@ -1043,12 +1043,12 @@ void QPixmap::deref()
     and height \a h according to \a aspectRatioMode and \a transformMode.
 
     \list
-    \i If \a aspectRatioMode is \c Qt::IgnoreAspectRatio, the pixmap
+    \i If \a aspectRatioMode is Qt::IgnoreAspectRatio, the pixmap
        is scaled to (\a w, \a h).
-    \i If \a aspectRatioMode is \c Qt::KeepAspectRatio, the pixmap is
+    \i If \a aspectRatioMode is Qt::KeepAspectRatio, the pixmap is
        scaled to a rectangle as large as possible inside (\a w, \a
        h), preserving the aspect ratio.
-    \i If \a aspectRatioMode is \c Qt::KeepAspectRatioByExpanding,
+    \i If \a aspectRatioMode is Qt::KeepAspectRatioByExpanding,
        the pixmap is scaled to a rectangle as small as possible
        outside (\a w, \a h), preserving the aspect ratio.
     \endlist
