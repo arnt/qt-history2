@@ -92,9 +92,9 @@ void QTextCursorPrivate::setX()
 
 void QTextCursorPrivate::remove()
 {
-    currentCharFormat = -1;
     if (anchor == position)
         return;
+    currentCharFormat = -1;
     int pos1 = position;
     int pos2 = adjusted_anchor;
     QTextUndoCommand::Operation op = QTextUndoCommand::KeepCursor;
