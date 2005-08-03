@@ -49,6 +49,12 @@ void QTableViewPrivate::updateVerticalScrollbar()
 
     int height = viewport->height();
     int count = verticalHeader->count();
+    
+    // if the header is out of sync we have to relayout
+    if (count != model->rowCount(root)) {
+        verticalHeader->doItemsLayout();
+        count = verticalHeader->count();
+    }
 
     // if we have no viewport or no rows, there is nothing to do
     if (height <= 0 || count <= 0) {
@@ -90,6 +96,12 @@ void QTableViewPrivate::updateHorizontalScrollbar()
 
     int width = viewport->width();
     int count = horizontalHeader->count();
+    
+    // if the header is out of sync we have to relayout
+    if (count != model->columnCount(root)) {
+        horizontalHeader->doItemsLayout();
+        count = horizontalHeader->count();
+    }
 
     // if we have no viewport or no columns, there is nothing to do
     if (width <= 0 || count <= 0) {
@@ -928,10 +940,7 @@ bool QTableView::isRowHidden(int row) const
 */
 void QTableView::setRowHidden(int row, bool hide)
 {
-    if (hide)
-        hideRow(row);
-    else
-        showRow(row);
+    d_func()->verticalHeader->setSectionHidden(row, hide);
 }
 
 /*!
@@ -948,10 +957,7 @@ bool QTableView::isColumnHidden(int column) const
 */
 void QTableView::setColumnHidden(int column, bool hide)
 {
-    if (hide)
-        hideColumn(column);
-    else
-        showColumn(column);
+    d_func()->horizontalHeader->setSectionHidden(column, hide);
 }
 
 /*!

@@ -172,6 +172,7 @@ public:
     QListWidgetItem *itemAt(const QPoint &p) const;
     inline QListWidgetItem *itemAt(int x, int y) const;
     QRect visualItemRect(const QListWidgetItem *item) const;
+    void setItemPosition(const QPoint &p, const QListWidgetItem *item);
 
     void sortItems(Qt::SortOrder order = Qt::AscendingOrder);
 

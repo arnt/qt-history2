@@ -417,9 +417,9 @@ void QTreeView::expand(const QModelIndex &index)
     Q_D(QTreeView);
     if (!index.isValid())
         return;
-    int idx = d->viewIndex(index);
-    if (idx > -1) { // is visible
-        d->expand(idx);
+    int i = d->viewIndex(index);
+    if (i != -1) { // is visible
+        d->expand(i);
         updateGeometries();
         viewport()->update();
     } else {
@@ -438,13 +438,13 @@ void QTreeView::collapse(const QModelIndex &index)
     if (!index.isValid())
         return;
     int i = d->viewIndex(index);
-    if (i > -1) { // is visible
+    if (i != -1) { // is visible
         d->collapse(i);
         updateGeometries();
         viewport()->update();
     } else {
         i = d->expandedIndexes.indexOf(index);
-        if (i > -1)
+        if (i != -1)
             d->expandedIndexes.remove(i);
     }
 }
@@ -459,7 +459,7 @@ bool QTreeView::isExpanded(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
     int i = d->viewIndex(index);
-    if (i > -1) // is visible - FIXME: this is a workaround for a bug!
+    if (i != -1) // is visible
         return d->viewItems.at(i).expanded;
     return d->expandedIndexes.contains(index);
 }
@@ -525,10 +525,15 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
         parent = parent.parent();
     }    
     
-    // check if we really need to do anything
+
+    if (!model())
+        return;
+    
     QRect rect = visualRect(index);
     if (rect.isEmpty())
         return;
+
+    // check if we really need to do anything
     QRect area = d->viewport->rect();
     if (hint == EnsureVisible && area.contains(rect)) {
         d->setDirtyRegion(rect);
@@ -1240,6 +1245,8 @@ void QTreeView::columnResized(int column, int /* oldSize */, int /* newSize */)
 {
     Q_D(QTreeView);
 
+    if (column < 0 || column >= d->header->count())
+        return;
     int x = columnViewportPosition(column);
     QRect rect;
     if (isRightToLeft())
@@ -1405,20 +1412,16 @@ void QTreeViewPrivate::expand(int i)
 {
     Q_Q(QTreeView);
 
-    if (!model || i < 0)
+    if (!model || i == -1 || viewItems.at(i).expanded)
         return;
 
     QModelIndex index = viewItems.at(i).index;
-
-    if (viewItems.at(i).expanded)
-        return;
-
     expandedIndexes.append(index);
 
     viewItems[i].expanded = true;
     layout(i);
 
-    // make sure we expand children that are already expanded
+    // make sure we expand children that were previously expanded
     if (model->hasChildren(index))
         reexpandChildren(index);
 
@@ -1428,8 +1431,10 @@ void QTreeViewPrivate::expand(int i)
 void QTreeViewPrivate::collapse(int i)
 {
     Q_Q(QTreeView);
-    if (!model || i < 0 || expandedIndexes.isEmpty())
+
+    if (!model || i == -1 || expandedIndexes.isEmpty())
         return;
+    
     int total = viewItems.at(i).total;
     QModelIndex index = viewItems.at(i).index;
     int idx = expandedIndexes.indexOf(index);
@@ -1692,8 +1697,15 @@ void QTreeViewPrivate::updateVerticalScrollbar()
 void QTreeViewPrivate::updateHorizontalScrollbar()
 {
     Q_Q(QTreeView);
+
     int width = viewport->width();
     int count = header->count();
+
+    // if the header is out of sync we have to relayout
+    if (count != model->columnCount(root)) {
+        header->doItemsLayout();
+        count = header->count();
+    }
 
     // if we have no viewport or no columns, there is nothing to do
     if (width <= 0 || count <= 0) {

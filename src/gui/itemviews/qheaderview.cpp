@@ -343,7 +343,7 @@ int QHeaderView::visualIndexAt(int position) const
 {
     Q_D(const QHeaderView);
     d->executePostedLayout();
-    if (count() < 1 || position < 0 || position >= length())
+    if (count() < 1 || position < 0 || position > length())
         return -1;
 
     if (d->reverse())
@@ -632,8 +632,8 @@ void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
         return;
     if (hide) {
         int size = sectionSize(logicalIndex);
-        d->hiddenSectionSize.insert(logicalIndex, size);
         resizeSection(logicalIndex, 0);
+        d->hiddenSectionSize.insert(logicalIndex, size);
         d->sections[visual].hidden = true;
     } else if (d->sections.at(visual).hidden) {
         int size = d->hiddenSectionSize.value(logicalIndex);
@@ -667,16 +667,13 @@ int QHeaderView::visualIndex(int logicalIndex) const
     Q_D(const QHeaderView);
     d->executePostedLayout();
     if (d->visualIndices.isEmpty()) { // nothing has been moved, so we have no mapping
-        if (logicalIndex >= 0 && logicalIndex < d->sections.count() - 1)
-            return logicalIndex;
-    } else { // the logical index was outside the vector, so it is obviously wrong
-        if (logicalIndex >= 0 && logicalIndex < d->visualIndices.count() - 1) {
-            int visual = d->visualIndices.at(logicalIndex);
-            Q_ASSERT(visual < d->sections.count() - 1);
-            return visual;
-        }
-    }
-    return -1;
+        Q_ASSERT(logicalIndex >= 0 && logicalIndex < d->sections.count() - 1);
+        return logicalIndex;
+    } // the logical index was outside the vector, so it is obviously wrong
+    Q_ASSERT(logicalIndex >= 0 && logicalIndex < d->visualIndices.count() - 1);
+    int visual = d->visualIndices.at(logicalIndex);
+    Q_ASSERT(visual < d->sections.count() - 1);
+    return visual;
 }
 
 /*!

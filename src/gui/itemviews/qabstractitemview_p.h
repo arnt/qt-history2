@@ -100,7 +100,10 @@ public:
     }
 
     inline void executePostedLayout() const {
-        if (layoutPosted) const_cast<QAbstractItemView*>(q_func())->doItemsLayout();
+        if (layoutPosted) {
+            layoutPosted = false;
+            const_cast<QAbstractItemView*>(q_func())->doItemsLayout();
+        }
     }
 
     inline void setDirtyRegion(const QRegion &visualRegion) {
@@ -128,8 +131,7 @@ public:
 
     void removeSelectedRows();
 
-    virtual bool selectionAllowed(const QModelIndex &index) const
-    {
+    virtual bool selectionAllowed(const QModelIndex &index) const {
         // in some views we want to go ahead with selections, even if the index is invalid
         return index.isValid();
     }
@@ -169,7 +171,7 @@ public:
     int autoScrollInterval;
     int autoScrollCount;
 
-    bool layoutPosted;
+    mutable bool layoutPosted;
     bool alternatingColors;
 
     QSize iconSize;
