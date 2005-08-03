@@ -34,7 +34,7 @@ void ActionRepository::startDrag(Qt::DropActions supportedActions)
         QIcon icon = qvariant_cast<QIcon>(model()->data(indexes.front(), Qt::DecorationRole));
         drag->setPixmap(icon.pixmap(QSize(22, 22)));
         drag->setMimeData(model()->mimeData(indexes));
-        Q_ASSERT(drag->start(supportedActions) != Qt::MoveAction);
+        drag->start(supportedActions);
     }
 }
 
