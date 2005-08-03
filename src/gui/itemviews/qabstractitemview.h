@@ -232,22 +232,22 @@ protected:
     void stopAutoScroll();
     void doAutoScroll();
 
-    bool viewportEvent(QEvent *e);
-    void mousePressEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void mouseDoubleClickEvent(QMouseEvent *e);
+    bool viewportEvent(QEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
 #ifndef QT_NO_DRAGANDDROP  
-    void dragEnterEvent(QDragEnterEvent *e);
-    void dragMoveEvent(QDragMoveEvent *e);
-    void dragLeaveEvent(QDragLeaveEvent *e);
-    void dropEvent(QDropEvent *e);
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dragMoveEvent(QDragMoveEvent *event);
+    void dragLeaveEvent(QDragLeaveEvent *event);
+    void dropEvent(QDropEvent *event);
 #endif
-    void focusInEvent(QFocusEvent *e);
-    void focusOutEvent(QFocusEvent *e);
-    void keyPressEvent(QKeyEvent *e);
-    void resizeEvent(QResizeEvent *e);
-    void timerEvent(QTimerEvent *e);
+    void focusInEvent(QFocusEvent *event);
+    void focusOutEvent(QFocusEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+    void resizeEvent(QResizeEvent *event);
+    void timerEvent(QTimerEvent *event);
 
 private:
     Q_DECLARE_PRIVATE(QAbstractItemView)

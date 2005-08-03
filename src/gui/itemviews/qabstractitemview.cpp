@@ -841,15 +841,15 @@ Qt::TextElideMode QAbstractItemView::textElideMode() const
     QEvent::WhatsThis, or a QEvent::StatusTip. It passes all other
     events on to its base class viewportEvent() handler.
 */
-bool QAbstractItemView::viewportEvent(QEvent *e)
+bool QAbstractItemView::viewportEvent(QEvent *event)
 {
     Q_D(QAbstractItemView);
-    switch (e->type()) {
+    switch (event->type()) {
 #ifndef QT_NO_TOOLTIP
     case QEvent::ToolTip: {
         if (!isActiveWindow())
             break;
-        QHelpEvent *he = static_cast<QHelpEvent*>(e);
+        QHelpEvent *he = static_cast<QHelpEvent*>(event);
         if (!he)
             break;
         QModelIndex index = indexAt(he->pos());
@@ -861,7 +861,7 @@ bool QAbstractItemView::viewportEvent(QEvent *e)
 #endif
 #ifndef QT_NO_WHATSTHIS
     case QEvent::WhatsThis: {
-        QHelpEvent *he = static_cast<QHelpEvent*>(e);
+        QHelpEvent *he = static_cast<QHelpEvent*>(event);
         QModelIndex index = indexAt(he->pos());
         if (index.isValid()) {
             QString whatsthis = model()->data(index, Qt::WhatsThisRole).toString();
@@ -870,7 +870,7 @@ bool QAbstractItemView::viewportEvent(QEvent *e)
         return true; }
 #endif
     case QEvent::StatusTip: {
-        QHelpEvent *he = static_cast<QHelpEvent*>(e);
+        QHelpEvent *he = static_cast<QHelpEvent*>(event);
         QModelIndex index = indexAt(he->pos());
         if (index.isValid()) {
             QString statustip = model()->data(index, Qt::StatusTipRole).toString();
@@ -886,7 +886,7 @@ bool QAbstractItemView::viewportEvent(QEvent *e)
         if (!d->tabKeyNavigation)
             break;
         // This is to avoid loosing focus on Tab and Backtab
-        QKeyEvent *ke = static_cast<QKeyEvent*>(e);
+        QKeyEvent *ke = static_cast<QKeyEvent*>(event);
         if (ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab) {
             keyPressEvent(ke);
             return ke->isAccepted();
@@ -895,7 +895,7 @@ bool QAbstractItemView::viewportEvent(QEvent *e)
     default:
         break;
     }
-    return QAbstractScrollArea::viewportEvent(e);
+    return QAbstractScrollArea::viewportEvent(event);
 }
 
 /*!
@@ -903,10 +903,10 @@ bool QAbstractItemView::viewportEvent(QEvent *e)
     item is pressed on it is made into the current item. This function
     emits the pressed() signal.
 */
-void QAbstractItemView::mousePressEvent(QMouseEvent *e)
+void QAbstractItemView::mousePressEvent(QMouseEvent *event)
 {
     Q_D(QAbstractItemView);
-    QPoint pos = e->pos();
+    QPoint pos = event->pos();
     QModelIndex index = indexAt(pos);
 
     if (!selectionModel() || (d->state == EditingState && d->editors.contains(index)))
@@ -914,8 +914,8 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
 
     QPoint offset(horizontalOffset(), verticalOffset());
     d->pressedIndex = index;
-    d->pressedModifiers = e->modifiers();
-    QItemSelectionModel::SelectionFlags command = selectionCommand(index, e);
+    d->pressedModifiers = event->modifiers();
+    QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
     if ((command & QItemSelectionModel::Current) == 0)
         d->pressedPosition = pos + offset;
     if (index.isValid() && command != QItemSelectionModel::NoUpdate)
@@ -928,7 +928,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     emit pressed(index);
     index = persistent;
 
-    edit(index, SelectedClicked, e);
+    edit(index, SelectedClicked, event);
 }
 
 /*!
@@ -936,11 +936,11 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     selection is in progress and new items are moved over the
     selection is extended; if a drag is in progress it is continued.
 */
-void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
+void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
 {
     Q_D(QAbstractItemView);
     QPoint topLeft;
-    QPoint bottomRight = e->pos();
+    QPoint bottomRight = event->pos();
 
     if (state() == ExpandingState || state() == CollapsingState)
         return;
@@ -990,7 +990,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 
     if (d->selectionAllowed(index) && selectionModel()) {
         setState(DragSelectingState);
-        QItemSelectionModel::SelectionFlags command = selectionCommand(index, e);
+        QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
         if (index.isValid() && command != QItemSelectionModel::NoUpdate)
             selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
         QRect selectionRect = QRect(topLeft, bottomRight).normalized();
@@ -1003,9 +1003,9 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     occurs. It will emit the clicked() signal if an item was being
     pressed.
 */
-void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
+void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
 {
-    QPoint pos = e->pos();
+    QPoint pos = event->pos();
     QModelIndex index = indexAt(pos);
 
     if (state() == EditingState)
@@ -1014,7 +1014,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
     setState(NoState);
 
     if (selectionModel() && index == selectionModel()->currentIndex())
-        selectionModel()->select(index, selectionCommand(index, e));
+        selectionModel()->select(index, selectionCommand(index, event));
 
     if (index == d_func()->pressedIndex) {
         // signal handlers may change the model
@@ -1030,15 +1030,15 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
     occurs. If the double-click is on a valid item it emits the
     doubleClicked() signal and calls edit() on the item.
 */
-void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
+void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    QModelIndex index = indexAt(e->pos());
+    QModelIndex index = indexAt(event->pos());
     if (!index.isValid())
         return;
     // signal handlers may change the model
     QPersistentModelIndex persistent = index;
     emit doubleClicked(persistent);
-    if (!edit(persistent, DoubleClicked, e)
+    if (!edit(persistent, DoubleClicked, event)
         && !style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
         emit activated(persistent);
 }
@@ -1052,12 +1052,12 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
 
     \sa dropEvent() startDrag()
 */
-void QAbstractItemView::dragEnterEvent(QDragEnterEvent *e)
+void QAbstractItemView::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (d_func()->canDecode(e))
-        e->accept();
+    if (d_func()->canDecode(event))
+        event->accept();
     else
-        e->ignore();
+        event->ignore();
 }
 
 /*!
@@ -1067,24 +1067,24 @@ void QAbstractItemView::dragEnterEvent(QDragEnterEvent *e)
 
     \sa dropEvent() startDrag()
 */
-void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
+void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
 {
     Q_D(QAbstractItemView);
     // the ignore by default
-    e->ignore();
+    event->ignore();
 
     if (!model())
         return;
 
-    QModelIndex index = indexAt(e->pos());
+    QModelIndex index = indexAt(event->pos());
     index = model()->sibling(index.row(), 0, index);
 
-    if (d->canDecode(e)) {
+    if (d->canDecode(event)) {
         if (index.isValid()) {
             // update the drag indicator geometry
             QRect rect = visualRect(index);
             QRect global(d->viewport->mapToGlobal(rect.topLeft()), rect.size());
-            switch (d->position(e->pos(), rect, 2)) {
+            switch (d->position(event->pos(), rect, 2)) {
             case QAbstractItemViewPrivate::Above: {
                 QRect geometry(global.left(), global.top() - 2, global.width(), 4);
                 if (geometry != d->dropIndicator->geometry())
@@ -1112,13 +1112,13 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
                 d->dropIndicator->show();
                 d->dropIndicator->raise();
             }
-            e->accept(); // allow dropping on dropenabled items
+            event->accept(); // allow dropping on dropenabled items
         } else {
-            e->accept(); // allow dropping in empty areas
+            event->accept(); // allow dropping in empty areas
         }
     } // can decode
 
-    if (d->shouldAutoScroll(e->pos()))
+    if (d->shouldAutoScroll(event->pos()))
         startAutoScroll();
 }
 
@@ -1141,24 +1141,24 @@ void QAbstractItemView::dragLeaveEvent(QDragLeaveEvent *)
 
     \sa startDrag()
 */
-void QAbstractItemView::dropEvent(QDropEvent *e)
+void QAbstractItemView::dropEvent(QDropEvent *event)
 {
     Q_D(QAbstractItemView);
     QModelIndex index;
     // if we drop on the viewport
-    if (d->viewport->rect().contains(e->pos())) {
-        index = indexAt(e->pos());
+    if (d->viewport->rect().contains(event->pos())) {
+        index = indexAt(event->pos());
         if (!index.isValid())
             index = rootIndex(); // drop on viewport
     }
     // if we are allowed to do the drop
-    if (model()->supportedDropActions() & e->proposedAction()) {
+    if (model()->supportedDropActions() & event->proposedAction()) {
         int row = -1;
         int col = -1;
         if (index.isValid() &&
             (model()->flags(index) & Qt::ItemIsDropEnabled
              || model()->flags(index.parent()) & Qt::ItemIsDropEnabled)) {
-            switch (d->position(e->pos(), visualRect(index), 2)) {
+            switch (d->position(event->pos(), visualRect(index), 2)) {
             case QAbstractItemViewPrivate::Above:
                 row = index.row();
                 col = index.column();
@@ -1173,8 +1173,8 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
                 break;
             }
         }
-        if (model()->dropMimeData(e->mimeData(), e->proposedAction(), row, col, index))
-            e->acceptProposedAction();
+        if (model()->dropMimeData(event->mimeData(), event->proposedAction(), row, col, index))
+            event->acceptProposedAction();
     }
     stopAutoScroll();
     d->dropIndicator->hide();
@@ -1186,9 +1186,9 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
     This function is called when focus event \a e occurs and is a
     focus in event.
 */
-void QAbstractItemView::focusInEvent(QFocusEvent *e)
+void QAbstractItemView::focusInEvent(QFocusEvent *event)
 {
-    QAbstractScrollArea::focusInEvent(e);
+    QAbstractScrollArea::focusInEvent(event);
     QModelIndex index = currentIndex();
     if (index.isValid())
         d_func()->viewport->update(visualRect(index));
@@ -1198,9 +1198,9 @@ void QAbstractItemView::focusInEvent(QFocusEvent *e)
     This function is called when focus event \a e occurs and is a
     focus out event.
 */
-void QAbstractItemView::focusOutEvent(QFocusEvent *e)
+void QAbstractItemView::focusOutEvent(QFocusEvent *event)
 {
-    QAbstractScrollArea::focusOutEvent(e);
+    QAbstractScrollArea::focusOutEvent(event);
     QModelIndex index = currentIndex();
     if (index.isValid())
         d_func()->viewport->update(visualRect(index));
@@ -1216,7 +1216,7 @@ void QAbstractItemView::focusOutEvent(QFocusEvent *e)
 
     \sa edit()
 */
-void QAbstractItemView::keyPressEvent(QKeyEvent *e)
+void QAbstractItemView::keyPressEvent(QKeyEvent *event)
 {
     Q_D(QAbstractItemView);
     if (!model())
@@ -1248,41 +1248,41 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 
     QModelIndex current = currentIndex();
     QModelIndex newCurrent;
-    switch (e->key()) {
+    switch (event->key()) {
     case Qt::Key_Down:
-        newCurrent = moveCursor(MoveDown, e->modifiers());
+        newCurrent = moveCursor(MoveDown, event->modifiers());
         break;
     case Qt::Key_Up:
-        newCurrent = moveCursor(MoveUp, e->modifiers());
+        newCurrent = moveCursor(MoveUp, event->modifiers());
         break;
     case Qt::Key_Left:
-        newCurrent = moveCursor(MoveLeft, e->modifiers());
+        newCurrent = moveCursor(MoveLeft, event->modifiers());
         break;
     case Qt::Key_Right:
-        newCurrent = moveCursor(MoveRight, e->modifiers());
+        newCurrent = moveCursor(MoveRight, event->modifiers());
         break;
     case Qt::Key_Home:
-        newCurrent = moveCursor(MoveHome, e->modifiers());
+        newCurrent = moveCursor(MoveHome, event->modifiers());
         break;
     case Qt::Key_End:
-        newCurrent = moveCursor(MoveEnd, e->modifiers());
+        newCurrent = moveCursor(MoveEnd, event->modifiers());
         break;
     case Qt::Key_PageUp:
-        newCurrent = moveCursor(MovePageUp, e->modifiers());
+        newCurrent = moveCursor(MovePageUp, event->modifiers());
         break;
     case Qt::Key_PageDown:
-        newCurrent = moveCursor(MovePageDown, e->modifiers());
+        newCurrent = moveCursor(MovePageDown, event->modifiers());
         break;
     case Qt::Key_Tab:
-        newCurrent = moveCursor(MoveNext, e->modifiers());
+        newCurrent = moveCursor(MoveNext, event->modifiers());
         break;
     case Qt::Key_Backtab:
-        newCurrent = moveCursor(MovePrevious, e->modifiers());
+        newCurrent = moveCursor(MovePrevious, event->modifiers());
         break;
     }
 
     if (newCurrent != current && newCurrent.isValid()) {
-        QItemSelectionModel::SelectionFlags command = selectionCommand(newCurrent, e);
+        QItemSelectionModel::SelectionFlags command = selectionCommand(newCurrent, event);
         if (command & QItemSelectionModel::Current) {
             selectionModel()->setCurrentIndex(newCurrent, QItemSelectionModel::NoUpdate);
             QPoint offset(horizontalOffset(), verticalOffset());
@@ -1296,13 +1296,13 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         return;
     }
 
-    switch (e->key()) {
+    switch (event->key()) {
     // ignored keys
     case Qt::Key_Down:
     case Qt::Key_Up:
 #ifdef QT_KEYPAD_NAVIGATION
         if (QApplication::keypadNavigationEnabled()) {
-            e->accept(); // don't change focus
+            event->accept(); // don't change focus
             break;
         }
 #endif
@@ -1315,28 +1315,28 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Escape:
     case Qt::Key_Shift:
     case Qt::Key_Control:
-        e->ignore();
+        event->ignore();
         break;
     case Qt::Key_Backtab:
     case Qt::Key_Tab:
-        e->accept(); // don't change focus
+        event->accept(); // don't change focus
         break;
     case Qt::Key_Space:
-        selectionModel()->select(currentIndex(), selectionCommand(currentIndex(), e));
+        selectionModel()->select(currentIndex(), selectionCommand(currentIndex(), event));
         break;
 #ifdef Q_WS_MAC
     case Qt::Key_Return:
-        if (!edit(currentIndex(), EditKeyPressed, e))
-            e->ignore();
+        if (!edit(currentIndex(), EditKeyPressed, event))
+            event->ignore();
         break;
     case Qt::Key_O:
-        if (e->modifiers() & Qt::ControlModifier)
+        if (event->modifiers() & Qt::ControlModifier)
             emit activated(currentIndex());
         break;
 #else
     case Qt::Key_F2:
-        if (!edit(currentIndex(), EditKeyPressed, e))
-            e->ignore();
+        if (!edit(currentIndex(), EditKeyPressed, event))
+            event->ignore();
         break;
     case Qt::Key_Return:
     case Qt::Key_Select:
@@ -1344,18 +1344,18 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         break;
 #endif
     case Qt::Key_A:
-        if (e->modifiers() & Qt::ControlModifier) {
+        if (event->modifiers() & Qt::ControlModifier) {
             SelectionMode mode = selectionMode();
             if (mode == MultiSelection || mode == ExtendedSelection)
                 selectAll();
             break;
         }
     default:
-        if (!e->text().isEmpty()) {
-            if (!edit(currentIndex(), AnyKeyPressed, e))
-                keyboardSearch(e->text());
+        if (!event->text().isEmpty()) {
+            if (!edit(currentIndex(), AnyKeyPressed, event))
+                keyboardSearch(event->text());
         }
-        e->ignore();
+        event->ignore();
         break;
     }
 }
@@ -1363,21 +1363,21 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 /*!
     This function is called when a resize event \a e occurs.
 */
-void QAbstractItemView::resizeEvent(QResizeEvent *e)
+void QAbstractItemView::resizeEvent(QResizeEvent *event)
 {
-    QAbstractScrollArea::resizeEvent(e);
+    QAbstractScrollArea::resizeEvent(event);
     updateGeometries();
 }
 
 /*!
   This function is called when a timer event \a e occurs.
 */
-void QAbstractItemView::timerEvent(QTimerEvent *e)
+void QAbstractItemView::timerEvent(QTimerEvent *event)
 {
     Q_D(QAbstractItemView);
-    if (e->timerId() == d->autoScrollTimer.timerId())
+    if (event->timerId() == d->autoScrollTimer.timerId())
         doAutoScroll();
-    else if (e->timerId() == d->updateTimer.timerId())
+    else if (event->timerId() == d->updateTimer.timerId())
         d->updateDirtyRegion();
 }
 
