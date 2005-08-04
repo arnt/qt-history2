@@ -123,9 +123,9 @@ public:
     const QAbstractItemModel *model() const;
 
 public slots:
-    void setCurrentIndex(const QModelIndex &index, SelectionFlags command);
-    virtual void select(const QModelIndex &index, SelectionFlags command);
-    virtual void select(const QItemSelection &selection, SelectionFlags command);
+    void setCurrentIndex(const QModelIndex &index, QItemSelectionModel::SelectionFlags command);
+    virtual void select(const QModelIndex &index, QItemSelectionModel::SelectionFlags command);
+    virtual void select(const QItemSelection &selection, QItemSelectionModel::SelectionFlags command);
     virtual void clear();
     virtual void reset();
 

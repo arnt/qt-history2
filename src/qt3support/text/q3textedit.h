@@ -289,9 +289,9 @@ public slots:
     virtual void setPaper(const QBrush& pap);
     virtual void setLinkUnderline(bool);
 
-    virtual void setWordWrap(WordWrap mode);
+    virtual void setWordWrap(Q3TextEdit::WordWrap mode);
     virtual void setWrapColumnOrWidth(int);
-    virtual void setWrapPolicy(WrapPolicy policy);
+    virtual void setWrapPolicy(Q3TextEdit::WrapPolicy policy);
 
     virtual void copy();
     virtual void append(const QString& text);
@@ -327,7 +327,7 @@ public slots:
     virtual void setFamily(const QString &f);
     virtual void setPointSize(int s);
     virtual void setColor(const QColor &c);
-    virtual void setVerticalAlignment(VerticalAlignment a);
+    virtual void setVerticalAlignment(Q3TextEdit::VerticalAlignment a);
     virtual void setAlignment(int a);
 
     // do not use, will go away
@@ -342,8 +342,8 @@ public slots:
     virtual void setFormat(Q3TextFormat *f, int flags);
     virtual void ensureCursorVisible();
     virtual void placeCursor(const QPoint &pos, Q3TextCursor *c = 0);
-    virtual void moveCursor(CursorAction action, bool select);
-    virtual void doKeyboardAction(KeyboardAction action);
+    virtual void moveCursor(Q3TextEdit::CursorAction action, bool select);
+    virtual void doKeyboardAction(Q3TextEdit::KeyboardAction action);
     virtual void removeSelectedText(int selNum = 0);
     virtual void removeSelection(int selNum = 0);
     virtual void setCurrentFont(const QFont &f);
@@ -381,7 +381,7 @@ signals:
     void currentFontChanged(const QFont &f);
     void currentColorChanged(const QColor &c);
     void currentAlignmentChanged(int a);
-    void currentVerticalAlignmentChanged(VerticalAlignment a);
+    void currentVerticalAlignmentChanged(Q3TextEdit::VerticalAlignment a);
     void cursorPositionChanged(Q3TextCursor *c);
     void cursorPositionChanged(int para, int pos);
     void returnPressed();

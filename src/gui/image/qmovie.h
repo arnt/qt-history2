@@ -84,7 +84,7 @@ signals:
     void started();
     void resized(const QSize &size);
     void updated(const QRect &rect);
-    void stateChanged(MovieState state);
+    void stateChanged(QMovie::MovieState state);
     void error(QImageReader::ImageReaderError error);
     void finished();
 

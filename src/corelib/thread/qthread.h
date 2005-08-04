@@ -59,7 +59,7 @@ public:
     void exit(int retcode = 0);
 
 public slots:
-    void start(Priority = InheritPriority);
+    void start(QThread::Priority = InheritPriority);
     void terminate();
     void quit();
 

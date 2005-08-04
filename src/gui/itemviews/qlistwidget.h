@@ -192,7 +192,7 @@ public:
     void setItemHidden(const QListWidgetItem *item, bool hide);
 
 public slots:
-    void scrollToItem(const QListWidgetItem *item, ScrollHint hint = EnsureVisible);
+    void scrollToItem(const QListWidgetItem *item, QAbstractItemView::ScrollHint hint = EnsureVisible);
     void clear();
 
 signals:

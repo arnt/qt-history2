@@ -137,7 +137,7 @@ public slots:
         { setIconSize(enable?QSize(32,32):QSize(22,22)); }
     QT_MOC_COMPAT void setUsesTextLabel(bool enable)
         { setToolButtonStyle(enable?Qt::ToolButtonTextUnderIcon : Qt::ToolButtonIconOnly); }
-    QT_MOC_COMPAT void setTextPosition(TextPosition pos)
+    QT_MOC_COMPAT void setTextPosition(QToolButton::TextPosition pos)
         { setToolButtonStyle(pos == BesideIcon ? Qt::ToolButtonTextBesideIcon : Qt::ToolButtonTextUnderIcon); }
 
 #endif

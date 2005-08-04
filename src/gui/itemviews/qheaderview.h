@@ -112,7 +112,7 @@ signals:
     void sectionDoubleClicked(int logicalIndex);
     void sectionCountChanged(int oldCount, int newCount);
     void sectionHandleDoubleClicked(int logicalIndex);
-    void sectionAutoResize(int logicalIndex, ResizeMode mode);
+    void sectionAutoResize(int logicalIndex, QHeaderView::ResizeMode mode);
 
 protected slots:
     void updateSection(int logicalIndex);
