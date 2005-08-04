@@ -503,32 +503,18 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 
 
 #ifndef QT_NO_XRENDER
-static XRenderColor preMultiply(const QColor &c)
-{
-    XRenderColor color;
-    const uint A = c.alpha(),
-               R = c.red(),
-               G = c.green(),
-               B = c.blue();
-    color.alpha = (A | A << 8);
-    color.red   = (R | R << 8) * color.alpha / 0x10000;
-    color.green = (G | G << 8) * color.alpha / 0x10000;
-    color.blue  = (B | B << 8) * color.alpha / 0x10000;
-    return color;
-}
-
 static Picture getPatternFill(int screen, const QBrush &b, const QBrush &bg, bool opaque_bg)
 {
     if (!X11->use_xrender)
         return XNone;
 
-    XRenderColor color = preMultiply(b.color());
+    XRenderColor color = X11->preMultiply(b.color());
     XRenderColor bg_color;
 
     if (opaque_bg)
-        bg_color = preMultiply(bg.color());
+        bg_color = X11->preMultiply(bg.color());
     else
-        bg_color = preMultiply(QColor(0, 0, 0, 0));
+        bg_color = X11->preMultiply(QColor(0, 0, 0, 0));
 
     for (int i = 0; i < X11->pattern_fill_count; ++i) {
         if (X11->pattern_fills[i].screen == screen
@@ -896,7 +882,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
     {
         XRenderColor xc;
         if (!d->has_texture && !d->has_pattern)
-            xc = preMultiply(d->cbrush.color());
+            xc = X11->preMultiply(d->cbrush.color());
 
         for (int i = 0; i < rectCount; ++i) {
             QRect r(rects[i]);
@@ -2281,10 +2267,14 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
         ::Picture src = X11->getSolidFill(screen, pen);
 
         int i = 0;
+        //server doesn't deal too well with a 0 mask on argb visuals
+        //(i'll have to fix it in the server at some point)
+        XRenderPictFormat *maskFormat = XRenderFindStandardFormat(X11->display, PictStandardA8);
         while (i < nGlyphs) {
             // ############ inefficient
-            XRenderCompositeText32 (X11->display, PictOpOver, src, d->picture, 0 /*mask format */,
-                                    0, 0, 0, 0, glyphSpec.data() + i, 1);
+            XRenderCompositeText32 (X11->display, PictOpOver, src, d->picture,
+                                    maskFormat, 0, 0, 0, 0,
+                                    glyphSpec.data() + i, 1);
             i++;
         }
         return;

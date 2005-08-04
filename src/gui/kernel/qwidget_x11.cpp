@@ -2663,7 +2663,7 @@ Qt::HANDLE QWidget::x11PictureHandle() const
 }
 
 #ifndef QT_NO_XRENDER
-static XRenderColor preMultiply(const QColor &c)
+XRenderColor QX11Data::preMultiply(const QColor &c)
 {
     XRenderColor color;
     const uint A = c.alpha(),

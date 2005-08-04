@@ -372,6 +372,7 @@ struct QX11Data
         Picture picture;
     } pattern_fills[pattern_fill_count];
     Picture getSolidFill(int screen, const QColor &c);
+    XRenderColor preMultiply(const QColor &c);
 #endif
 
     bool has_fontconfig;
