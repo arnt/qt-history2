@@ -43,6 +43,7 @@ HEADERS += \
     $$PWD/actioneditor_p.h \
     $$PWD/actionrepository_p.h \
     $$PWD/qdesigner_toolbar_p.h \
+    $$PWD/qdesigner_menubar_p.h \
     $$PWD/qdesigner_menu_p.h
 
 
@@ -79,4 +80,5 @@ SOURCES += \
     $$PWD/actioneditor.cpp \
     $$PWD/actionrepository.cpp \
     $$PWD/qdesigner_toolbar.cpp \
+    $$PWD/qdesigner_menubar.cpp \
     $$PWD/qdesigner_menu.cpp

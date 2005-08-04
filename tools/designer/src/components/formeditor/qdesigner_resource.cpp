@@ -71,6 +71,8 @@ QDesignerResource::QDesignerResource(FormWindow *formWindow)
     m_internal_to_qt.insert(QLatin1String("QDesignerLabel"), QLatin1String("QLabel"));
     m_internal_to_qt.insert(QLatin1String("QDesignerToolBox"), QLatin1String("QToolBox"));
     m_internal_to_qt.insert(QLatin1String("QDesignerToolBar"), QLatin1String("QToolBar"));
+    m_internal_to_qt.insert(QLatin1String("QDesignerMenuBar"), QLatin1String("QMenu"));
+    m_internal_to_qt.insert(QLatin1String("QDesignerMenuBar"), QLatin1String("QMenuBar"));
     m_internal_to_qt.insert(QLatin1String("QDesignerMenu"), QLatin1String("QMenu"));
 
     // invert
