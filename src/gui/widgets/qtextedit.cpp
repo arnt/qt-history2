@@ -1634,6 +1634,13 @@ process:
             }
 
             if (!text.isEmpty() && (text.at(0).isPrint() || text.at(0) == QLatin1Char('\t'))) {
+                if (d->overwriteMode
+                    // no need to call deleteChar() if we have a selection, insertText
+                    // does it already
+                    && !d->cursor.hasSelection()
+                    && !d->cursor.atBlockEnd())
+                    d->cursor.deleteChar();
+
                 d->cursor.insertText(text);
                 d->selectionChanged();
             } else {
@@ -2394,6 +2401,18 @@ QString QTextEdit::anchorAt(const QPoint& pos) const
 {
     Q_D(const QTextEdit);
     return d->doc->documentLayout()->anchorAt(d->mapToContents(pos));
+}
+
+bool QTextEdit::overwriteMode() const
+{
+    Q_D(const QTextEdit);
+    return d->overwriteMode;
+}
+
+void QTextEdit::setOverwriteMode(bool overwrite)
+{
+    Q_D(QTextEdit);
+    d->overwriteMode = overwrite;
 }
 
 /*!

@@ -49,7 +49,8 @@ public:
 #endif
           lineWrap(QTextEdit::WidgetWidth), lineWrapColumnOrWidth(0),
           lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText),
-          preferRichText(false)
+          preferRichText(false),
+          overwriteMode(false)
     {}
 
     bool cursorMoveKeyEvent(QKeyEvent *e);
@@ -159,6 +160,8 @@ public:
 #ifdef QT_KEYPAD_NAVIGATION
     QBasicTimer deleteAllTimer;
 #endif
+
+    bool overwriteMode;
 };
 
 #endif // QT_NO_TEXTEDIT
