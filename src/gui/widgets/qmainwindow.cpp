@@ -364,6 +364,7 @@ QStatusBar *QMainWindow::statusBar() const
     if (!statusbar) {
 	QMainWindow *self = const_cast<QMainWindow *>(this);
 	statusbar = new QStatusBar(self);
+        statusbar->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
 	self->setStatusBar(statusbar);
     }
     return statusbar;
