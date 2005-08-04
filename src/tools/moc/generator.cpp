@@ -312,7 +312,7 @@ void Generator::generateCode()
         fprintf(out, "const QMetaObject %s::staticMetaObject = {\n", cdef->qualified.constData());
 
     if (isQObject)
-        fprintf(out, "    { &staticQtMetaObject, ");
+        fprintf(out, "    { 0, ");
     else if (cdef->superclassList.size())
         fprintf(out, "    { &%s::staticMetaObject, ", purestSuperClass.constData());
     else

@@ -598,7 +598,12 @@ QMetaProperty QMetaObject::property(int index) const
                     scope_name = enum_name.left(s);
                     enum_name = enum_name.mid(s + 2);
                 }
-                if (const QMetaObject *scope = QMetaObject_findMetaObject(this, scope_name))
+                const QMetaObject *scope = 0;
+                if (scope_name == "Qt")
+                    scope = &QObject::staticQtMetaObject;
+                else
+                    scope = QMetaObject_findMetaObject(this, scope_name);
+                if (scope)
                     result.menum = scope->enumerator(scope->indexOfEnumerator(enum_name));
             }
         }
