@@ -1035,26 +1035,45 @@ QWidget *QApplication::topLevelAt(const QPoint &p)
     return widget;
 }
 
-QWidget *QApplicationPrivate::widgetAt_sys(int x, int y)
+static QWidget *qt_mac_recursive_widgetAt(QWidget *widget, int x, int y)
 {
-    QWidget *widget = QApplication::topLevelAt(x, y);
     if(!widget)
-        return 0;
-
-    HIViewRef child;
-    const QPoint qpt = widget->mapFromGlobal(QPoint(x, y));
-    const HIPoint pt = CGPointMake(qpt.x(), qpt.y());
-    if(HIViewGetSubviewHit((HIViewRef)widget->winId(), &pt, true, &child) == noErr && child) {
-        widget = QWidget::find((WId)child);
-        while (widget && widget->testAttribute(Qt::WA_TransparentForMouseEvents)) {
-            if (HIViewRef parent = HIViewGetSuperview(child)) {
-                widget = QWidget::find((WId)parent);
-            } else {
-                widget = 0;
-            }
-        }
+	return 0;
+    const QObjectList kids = widget->children();
+    for(int i = kids.size()-1; i >= 0; --i) {
+	if(QWidget *kid = qobject_cast<QWidget*>(kids.at(i))) {
+	    if(kid->isVisible() && !kid->isTopLevel() &&
+               !kid->testAttribute(Qt::WA_TransparentForMouseEvents)) {
+		const int wx=kid->x(), wy=kid->y(),
+                         wx2=wx+kid->width(), wy2=wy+kid->height();
+		if(x >= wx && y >= wy && x < wx2 && y < wy2) {
+                    const QRegion mask = kid->mask();
+		    if(!mask.isNull() && !mask.contains(QPoint(x-wx, y-wy)))
+			continue;
+		    return qt_mac_recursive_widgetAt(kid, x-wx, y-wy);
+		}
+	    }
+	}
     }
     return widget;
+}
+
+QWidget *QApplicationPrivate::widgetAt_sys(int x, int y)
+{
+    QWidget *tlw = QApplication::topLevelAt(x, y);
+    if(!tlw)
+        return 0;
+    QWidget *ret = tlw;
+
+    HIViewRef child;
+    const QPoint qpt = tlw->mapFromGlobal(QPoint(x, y));
+    const HIPoint pt = CGPointMake(qpt.x(), qpt.y());
+    if(HIViewGetSubviewHit((HIViewRef)tlw->winId(), &pt, true, &child) == noErr && child) {
+        ret = QWidget::find((WId)child);
+        if(ret && ret->testAttribute(Qt::WA_TransparentForMouseEvents))
+            return qt_mac_recursive_widgetAt(tlw, x, y); //oh well, try the old way
+    }
+    return ret;
 }
 
 void QApplication::beep()
