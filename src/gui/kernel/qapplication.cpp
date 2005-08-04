@@ -1646,7 +1646,7 @@ QFontMetrics QApplication::fontMetrics()
 
     The windows are closed in random order, until one window does not
     accept the close event. The application quits when the last window
-    was successfully closed. This can be turned of by setting \l
+    was successfully closed; this can be turned of by setting \l
     quitOnLastWindowClosed to false.
 
     \sa quitOnLastWindowClosed, lastWindowClosed()  QWidget::close(), QWidget::closeEvent(), lastWindowClosed(),
@@ -1662,7 +1662,7 @@ void QApplication::closeAllWindows()
         did_close = w->close();
     }
     QWidgetList list = QApplication::topLevelWidgets();
-    for (int i = 0; i < list.size(); ++i) {
+    for (int i = 0; did_close && i < list.size(); ++i) {
         w = list.at(i);
         if (w->isVisible() && w->windowType() != Qt::Desktop) {
             did_close = w->close();
