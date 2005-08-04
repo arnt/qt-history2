@@ -86,11 +86,10 @@ QStyleOptionSlider QDialPrivate::getStyleOption() const
     if (!showNotches) {
         opt.subControls &= ~QStyle::SC_DialTickmarks;
         opt.tickPosition = QSlider::TicksAbove;
-        opt.tickInterval = q->notchSize();
     } else {
         opt.tickPosition = QSlider::NoTicks;
-        opt.tickInterval = 0;
     }
+    opt.tickInterval = q->notchSize();
     return opt;
 }
 
@@ -399,10 +398,9 @@ qreal QDial::notchTarget() const
 
 void QDial::setNotchesVisible(bool visible)
 {
-    // d->showNotches = visible;
-    // update();
-    // ### fix after beta2
-    Q_UNUSED(visible);
+    Q_D(QDial);
+    d->showNotches = visible;
+    update();
 }
 
 /*!
