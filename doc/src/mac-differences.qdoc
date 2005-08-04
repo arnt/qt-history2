@@ -132,9 +132,9 @@
 
     \section2 Translating the Application Menu and Native Dialogs
 
-    The items in the Application Menu will be merged correctly for you
+    The items in the Application Menu will be merged correctly for your
     localized application, but they will not show up translated until
-    you add a localized resource folder inside the Bundle see:
+    you add a localized resource folder inside the Bundle. See:
 
     http://developer.apple.com/documentation/CoreFoundation/Conceptual/CFBundles/index.html
 
