@@ -80,6 +80,18 @@ public:
     QHostAddress peerAddress() const;
     quint16 peerPort() const;
     
+    virtual bool isReadNotificationEnabled() const = 0;
+    virtual void setReadNotificationEnabled(bool enable) = 0;
+    virtual bool isWriteNotificationEnabled() const = 0;
+    virtual void setWriteNotificationEnabled(bool enable) = 0;
+    virtual bool isExceptionNotificationEnabled() const = 0;
+    virtual void setExceptionNotificationEnabled(bool enable) = 0;
+
+signals:
+    void readNotification();
+    void writeNotification();
+    void exceptionNotification();
+
 protected:
     QAbstractSocketEngine(QAbstractSocketEnginePrivate &dd, QObject* parent = 0);
     

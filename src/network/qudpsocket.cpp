@@ -163,7 +163,7 @@ bool QUdpSocket::bind(const QHostAddress &address, quint16 port)
 
     d_func()->state = BoundState;
     emit stateChanged(d_func()->state);
-    d_func()->readSocketNotifier->setEnabled(true);
+    d_func()->socketEngine->setReadNotificationEnabled(true);
     return true;
 }
 
@@ -275,7 +275,7 @@ qint64 QUdpSocket::readDatagram(char *data, qint64 maxSize, QHostAddress *addres
         setErrorString(d->socketEngine->errorString());
         emit error(d->socketError);
     }
-    d->readSocketNotifier->setEnabled(true);
+    d_func()->socketEngine->setReadNotificationEnabled(true);
     return readBytes;
 }
 #endif QT_NO_UDPSOCKET

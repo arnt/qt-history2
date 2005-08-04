@@ -70,7 +70,6 @@
 #include "qlist.h"
 #include "qpointer.h"
 #include "qnativesocketengine_p.h"
-#include "qsocketnotifier.h"
 #include "qtcpserver.h"
 #include "qtcpsocket.h"
 
@@ -100,10 +99,8 @@ public:
 
     int maxConnections;
 
-    QSocketNotifier *readSocketNotifier;
-
     // private slots
-    void processIncomingConnection(int socketDescriptor);
+    void processIncomingConnection();
 };
 
 /*! \internal
@@ -114,7 +111,6 @@ QTcpServerPrivate::QTcpServerPrivate()
     socketEngine = 0;
     serverSocketError = QAbstractSocket::UnknownSocketError;
     maxConnections = 30;
-    readSocketNotifier = 0;
 }
 
 /*! \internal
@@ -125,7 +121,7 @@ QTcpServerPrivate::~QTcpServerPrivate()
 
 /*! \internal
 */
-void QTcpServerPrivate::processIncomingConnection(int)
+void QTcpServerPrivate::processIncomingConnection()
 {
     Q_Q(QTcpServer);
     for (;;) {
@@ -133,8 +129,8 @@ void QTcpServerPrivate::processIncomingConnection(int)
 #if defined (QTCPSERVER_DEBUG)
             qDebug("QTcpServerPrivate::processIncomingConnection() too many connections");
 #endif
-            if (readSocketNotifier && readSocketNotifier->isEnabled())
-                readSocketNotifier->setEnabled(false);
+            if (socketEngine->isReadNotificationEnabled())
+                socketEngine->setReadNotificationEnabled(false);
             return;
         }
 
@@ -243,9 +239,8 @@ bool QTcpServer::listen(const QHostAddress &address, quint16 port)
         return false;
     }
 
-    d->readSocketNotifier = new QSocketNotifier(d->socketEngine->socketDescriptor(),
-                                                QSocketNotifier::Read, this);
-    connect(d->readSocketNotifier, SIGNAL(activated(int)), SLOT(processIncomingConnection(int)));
+    connect(d->socketEngine, SIGNAL(readNotification()), SLOT(processIncomingConnection()));
+    d->socketEngine->setReadNotificationEnabled(true);
 
     d->state = QAbstractSocket::ListeningState;
     d->address = address;
@@ -280,10 +275,6 @@ bool QTcpServer::isListening() const
 void QTcpServer::close()
 {
     Q_D(QTcpServer);
-    if (d->readSocketNotifier && d->readSocketNotifier->isEnabled())
-        d->readSocketNotifier->setEnabled(false);
-    delete d->readSocketNotifier;
-    d->readSocketNotifier = 0;
 
     qDeleteAll(d->pendingConnections);
     d->pendingConnections.clear();
@@ -339,9 +330,7 @@ bool QTcpServer::setSocketDescriptor(int socketDescriptor)
         return false;
     }
 
-    d->readSocketNotifier = new QSocketNotifier(d->socketEngine->socketDescriptor(),
-                                                QSocketNotifier::Read, this);
-    connect(d->readSocketNotifier, SIGNAL(activated(int)), SLOT(processIncomingConnection(int)));
+    connect(d->socketEngine, SIGNAL(readNotification()), SLOT(processIncomingConnection()));
 
     d->state = d->socketEngine->state();
     d->address = d->socketEngine->localAddress();
@@ -411,7 +400,7 @@ bool QTcpServer::waitForNewConnection(int msec, bool *timedOut)
     if (timedOut && *timedOut)
         return false;
 
-    d->processIncomingConnection(0);
+    d->processIncomingConnection();
 
     return true;
 }
@@ -444,8 +433,8 @@ QTcpSocket *QTcpServer::nextPendingConnection()
     if (d->pendingConnections.isEmpty())
         return 0;
 
-    if (d->readSocketNotifier && !d->readSocketNotifier->isEnabled())
-        d->readSocketNotifier->setEnabled(true);
+    if (!d->socketEngine->isReadNotificationEnabled())
+        d->socketEngine->setReadNotificationEnabled(true);
 
     return d->pendingConnections.takeFirst();
 }

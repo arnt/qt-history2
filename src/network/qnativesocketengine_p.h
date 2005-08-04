@@ -66,6 +66,13 @@ public:
 			    bool checkRead, bool checkWrite,
 			    int msecs = 30000, bool *timedOut = 0) const;
 
+    bool isReadNotificationEnabled() const;
+    void setReadNotificationEnabled(bool enable);
+    bool isWriteNotificationEnabled() const;
+    void setWriteNotificationEnabled(bool enable);
+    bool isExceptionNotificationEnabled() const;
+    void setExceptionNotificationEnabled(bool enable);
+
 private:
     Q_DECLARE_PRIVATE(QNativeSocketEngine)
     Q_DISABLE_COPY(QNativeSocketEngine)
@@ -81,6 +88,8 @@ public:
 };
 #endif
 
+class QSocketNotifier;
+
 class QNativeSocketEnginePrivate : public QAbstractSocketEnginePrivate
 {
     Q_DECLARE_PUBLIC(QNativeSocketEngine)
@@ -89,6 +98,8 @@ public:
     ~QNativeSocketEnginePrivate();
 
     int socketDescriptor;
+
+    QSocketNotifier *readNotifier, *writeNotifier, *exceptNotifier;
 
 #ifdef Q_OS_WIN
     QWindowsSockInit winSock;

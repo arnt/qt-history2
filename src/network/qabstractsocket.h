@@ -140,8 +140,8 @@ private:
     Q_PRIVATE_SLOT(d_func(), void startConnecting(const QHostInfo &))
     Q_PRIVATE_SLOT(d_func(), void abortConnectionAttempt())
     Q_PRIVATE_SLOT(d_func(), void testConnection())
-    Q_PRIVATE_SLOT(d_func(), bool canReadNotification(int))
-    Q_PRIVATE_SLOT(d_func(), bool canWriteNotification(int))
+    Q_PRIVATE_SLOT(d_func(), bool canReadNotification())
+    Q_PRIVATE_SLOT(d_func(), bool canWriteNotification())
 
 #ifdef QT3_SUPPORT
 public:

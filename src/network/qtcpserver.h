@@ -58,7 +58,7 @@ signals:
     void newConnection();
 
 private:
-    Q_PRIVATE_SLOT(d_func(), void processIncomingConnection(int))
+    Q_PRIVATE_SLOT(d_func(), void processIncomingConnection())
     Q_DISABLE_COPY(QTcpServer)
     Q_DECLARE_PRIVATE(QTcpServer)
 };

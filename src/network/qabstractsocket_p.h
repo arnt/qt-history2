@@ -20,7 +20,6 @@
 #include <qbytearray.h>
 #include <qlist.h>
 #include <private/qnativesocketengine_p.h>
-#include <qsocketnotifier.h>
 #include <qtimer.h>
 
 class QHostInfo;
@@ -36,8 +35,8 @@ public:
     void connectToNextAddress();
     void startConnecting(const QHostInfo &hostInfo);
     void testConnection();
-    bool canReadNotification(int);
-    bool canWriteNotification(int);
+    bool canReadNotification();
+    bool canWriteNotification();
     void abortConnectionAttempt();
 
     bool readSocketNotifierCalled;
@@ -55,9 +54,6 @@ public:
     QList<QHostAddress> addresses;
 
     QAbstractSocketEngine *socketEngine;
-
-    QSocketNotifier *readSocketNotifier;
-    QSocketNotifier *writeSocketNotifier;
 
     void resetSocketLayer();
     bool flush();
