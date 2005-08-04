@@ -225,8 +225,7 @@ const FakeNode *Tree::findFakeNodeByTitle(const QString &title) const
 
 const Node *Tree::findUnambiguousTarget(const QString &target, Atom *&atom) const
 {
-    Target bestTarget;
-    bestTarget.priority = INT_MAX;
+    Target bestTarget = {0, 0, INT_MAX};
     int numBestTargets = 0;
 
     for (int pass = 0; pass < NumSuffixes; ++pass) {
