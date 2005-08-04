@@ -21,6 +21,8 @@
 #include <qvalidator.h>
 #include <qdebug.h>
 
+#include <math.h>
+
 //#define QSPINBOX_QSBDEBUG
 #ifdef QSPINBOX_QSBDEBUG
 #  define QSBDEBUG qDebug
