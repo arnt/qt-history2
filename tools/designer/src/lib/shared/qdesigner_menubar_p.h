@@ -63,7 +63,6 @@ protected:
 
     void adjustIndicator(const QPoint &pos);
     int findAction(const QPoint &pos) const;
-    bool isMenuBarHandle(QWidget *widget) const;
 
     bool blockSentinelChecker(bool b);
 

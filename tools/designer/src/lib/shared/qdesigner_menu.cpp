@@ -55,7 +55,7 @@ QDesignerMenu::~QDesignerMenu()
 
 bool QDesignerMenu::handleEvent(QWidget *widget, QEvent *event)
 {
-    if (!formWindow() || isMenuHandle(widget))
+   if (!formWindow())
         return false;
 
     switch (event->type()) {
@@ -89,6 +89,7 @@ bool QDesignerMenu::handleMousePressEvent(QWidget *, QMouseEvent *event)
     QAction *action = actions().at(index);
     removeAction(action);
 
+    adjustSize();
     adjustIndicator(event->pos());
 
     QDrag *drag = new QDrag(this);
@@ -146,7 +147,7 @@ void QDesignerMenu::slotRemoveSelectedAction(QAction *action)
 
 bool QDesignerMenu::eventFilter(QObject *object, QEvent *event)
 {
-    if (object == qApp->activePopupWidget())
+    if (object == qApp->activePopupWidget() && !qobject_cast<QDesignerMenu*>(object))
         return false;
 
     switch (event->type()) {
@@ -241,6 +242,7 @@ void QDesignerMenu::dropEvent(QDropEvent *event)
             int index = findAction(event->pos());
             index = qMin(index, actions().count() - 1);
             insertAction(actions().at(index), action);
+            adjustSize();
         }
     }
 
@@ -258,15 +260,7 @@ void QDesignerMenu::actionEvent(QActionEvent *event)
 
 QDesignerFormWindowInterface *QDesignerMenu::formWindow() const
 {
-    return QDesignerFormWindowInterface::findFormWindow(const_cast<QDesignerMenu*>(this));
-}
-
-bool QDesignerMenu::isMenuHandle(QWidget *widget) const
-{
-    if (!qstrcmp(widget->metaObject()->className(), "QMenuHandle"))
-        return true;
-
-    return false;
+    return QDesignerFormWindowInterface::findFormWindow(parentWidget());
 }
 
 void QDesignerMenu::slotCheckSentinel()

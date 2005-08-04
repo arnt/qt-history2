@@ -55,7 +55,7 @@ QDesignerMenuBar::~QDesignerMenuBar()
 
 bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
 {
-    if (!formWindow() || isMenuBarHandle(widget))
+    if (!formWindow())
         return false;
 
     switch (event->type()) {
@@ -259,14 +259,6 @@ void QDesignerMenuBar::actionEvent(QActionEvent *event)
 QDesignerFormWindowInterface *QDesignerMenuBar::formWindow() const
 {
     return QDesignerFormWindowInterface::findFormWindow(const_cast<QDesignerMenuBar*>(this));
-}
-
-bool QDesignerMenuBar::isMenuBarHandle(QWidget *widget) const
-{
-    if (!qstrcmp(widget->metaObject()->className(), "QMenuBarHandle"))
-        return true;
-
-    return false;
 }
 
 void QDesignerMenuBar::slotCheckSentinel()
