@@ -811,31 +811,21 @@ bool QWinSettingsPrivate::isWritable() const
     return writeHandle() != 0;
 }
 
-QSettingsPrivate *QSettingsPrivate::create(QSettings::Format format,
-                                           QSettings::Scope scope,
-                                           const QString &organization,
-                                           const QString &application)
+QSettingsPrivate *QSettingsPrivate::create(QSettings::Format format, QSettings::Scope scope,
+                                           const QString &organization, const QString &application)
 {
     if (format == QSettings::NativeFormat) {
-        QWinSettingsPrivate *p = new QWinSettingsPrivate(scope, organization, application);
-        return p;
+        return new QWinSettingsPrivate(scope, organization, application);
     } else {
-        QConfFileSettingsPrivate *p = new QConfFileSettingsPrivate(format, scope,
-                                                                   organization, application);
-        p->init();
-        return p;
+        return new QConfFileSettingsPrivate(format, scope, organization, application);
     }
 }
 
-QSettingsPrivate *QSettingsPrivate::create(const QString &fileName,
-                                           QSettings::Format format)
+QSettingsPrivate *QSettingsPrivate::create(const QString &fileName, QSettings::Format format)
 {
     if (format == QSettings::NativeFormat) {
-        QWinSettingsPrivate *p = new QWinSettingsPrivate(fileName);
-        return p;
+        return new QWinSettingsPrivate(fileName);
     } else {
-        QConfFileSettingsPrivate *p = new QConfFileSettingsPrivate(fileName, format);
-        p->init();
-        return p;
+        return new QConfFileSettingsPrivate(fileName, format);
     }
 }

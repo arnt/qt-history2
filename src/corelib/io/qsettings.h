@@ -56,7 +56,25 @@ public:
 
     enum Format {
         NativeFormat,
-        IniFormat
+        IniFormat,
+
+        InvalidFormat = 16,
+        CustomFormat1,
+        CustomFormat2,
+        CustomFormat3,
+        CustomFormat4,
+        CustomFormat5,
+        CustomFormat6,
+        CustomFormat7,
+        CustomFormat8,
+        CustomFormat9,
+        CustomFormat10,
+        CustomFormat11,
+        CustomFormat12,
+        CustomFormat13,
+        CustomFormat14,
+        CustomFormat15,
+        CustomFormat16
     };
 
     enum Scope {
@@ -69,10 +87,9 @@ public:
 #endif
     };
 
-
 #ifndef QT_NO_QOBJECT
     explicit QSettings(const QString &organization,
-              const QString &application = QString(), QObject *parent = 0);
+                       const QString &application = QString(), QObject *parent = 0);
     QSettings(Scope scope, const QString &organization,
               const QString &application = QString(), QObject *parent = 0);
     QSettings(Format format, Scope scope, const QString &organization,
@@ -81,7 +98,7 @@ public:
     explicit QSettings(QObject *parent = 0);
 #else
     explicit QSettings(const QString &organization,
-              const QString &application = QString());
+                       const QString &application = QString());
     QSettings(Scope scope, const QString &organization,
               const QString &application = QString());
     QSettings(Format format, Scope scope, const QString &organization,
@@ -119,8 +136,16 @@ public:
 
     QString fileName() const;
 
-    static void setSystemIniPath(const QString &dir);
-    static void setUserIniPath(const QString &dir);
+    static void setSystemIniPath(const QString &dir); // ### remove in 5.0 (use setPath() instead)
+    static void setUserIniPath(const QString &dir);   // ### remove in 5.0 (use setPath() instead)
+    static void setPath(Format format, Scope scope, const QString &path);
+
+    typedef QMap<QString, QVariant> SettingsMap;
+    typedef bool (*ReadFunc)(QIODevice &device, SettingsMap &map);
+    typedef bool (*WriteFunc)(QIODevice &device, const SettingsMap &map);
+
+    static Format registerFormat(const QString &extension, ReadFunc readFunc, WriteFunc writeFunc,
+                                 Qt::CaseSensitivity caseSensitivity = Qt::CaseSensitive);
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT bool writeEntry(const QString &key, bool value)

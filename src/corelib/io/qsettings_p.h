@@ -55,7 +55,7 @@ private:
     QString theRealKey;
 };
 
-typedef QMap<QSettingsKey, QVariant> SettingsKeyMap;
+typedef QMap<QSettingsKey, QVariant> InternalSettingsMap;
 
 class QSettingsGroup
 {
@@ -93,7 +93,7 @@ inline QString QSettingsGroup::toString() const
 class Q_CORE_EXPORT QConfFile
 {
 public:
-    SettingsKeyMap mergedKeyMap() const;
+    InternalSettingsMap mergedKeyMap() const;
 
     static QConfFile *fromName(const QString &name);
     static void clearCache();
@@ -101,9 +101,9 @@ public:
     QString name;
     QDateTime timeStamp;
     qint64 size;
-    SettingsKeyMap originalKeys;
-    SettingsKeyMap addedKeys;
-    SettingsKeyMap removedKeys;
+    InternalSettingsMap originalKeys;
+    InternalSettingsMap addedKeys;
+    InternalSettingsMap removedKeys;
     QAtomic ref;
     QMutex mutex;
 
@@ -176,14 +176,14 @@ public:
 
     /*
     The numeric values of these enums define their search order. For example,
-    F_User | F_Organization is searched before F_Global |
-    F_Application, because their values are respectively 1 and 2.
+    F_User | F_Organization is searched before F_System | F_Application,
+    because their values are respectively 1 and 2.
     */
     enum {
        F_Application = 0x0,
        F_Organization = 0x1,
        F_User = 0x0,
-       F_Global = 0x2,
+       F_System = 0x2,
        NumConfFiles = 4
     };
 
@@ -216,21 +216,24 @@ public:
     bool isWritable() const;
     QString fileName() const;
 
-    void init();
-
 private:
+    void initFormat();
+    void initAccess();
     void syncConfFile(int confFileNo);
     bool readIniLine(QIODevice &device, QByteArray &line, int &len, int &equalsCharPos);
-    bool readIniFile(QIODevice &device, SettingsKeyMap *map);
-    bool writeIniFile(QIODevice &device, const SettingsKeyMap &map);
+    bool readIniFile(QIODevice &device, InternalSettingsMap *map);
+    bool writeIniFile(QIODevice &device, const InternalSettingsMap &map);
 #ifdef Q_OS_MAC
-    bool readPlistFile(const QString &fileName, SettingsKeyMap *map) const;
-    bool writePlistFile(const QString &fileName, const SettingsKeyMap &map) const;
+    bool readPlistFile(const QString &fileName, InternalSettingsMap *map) const;
+    bool writePlistFile(const QString &fileName, const InternalSettingsMap &map) const;
 #endif
 
     QConfFile *confFiles[NumConfFiles];
     QSettings::Format format;
-    Qt::CaseSensitivity cs;
+    QSettings::ReadFunc readFunc;
+    QSettings::WriteFunc writeFunc;
+    QString extension;
+    Qt::CaseSensitivity caseSensitivity;
 };
 
 #endif // QSETTINGS_P_H

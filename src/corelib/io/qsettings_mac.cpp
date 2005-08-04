@@ -511,13 +511,9 @@ QSettingsPrivate *QSettingsPrivate::create(QSettings::Format format,
                                            const QString &application)
 {
     if (format == QSettings::NativeFormat) {
-        QMacSettingsPrivate *p = new QMacSettingsPrivate(scope, organization, application);
-        return p;
+        return new QMacSettingsPrivate(scope, organization, application);
     } else {
-        QConfFileSettingsPrivate *p = new QConfFileSettingsPrivate(format, scope,
-                                                                   organization, application);
-        p->init();
-        return p;
+        return new QConfFileSettingsPrivate(format, scope, organization, application);
     }
 }
 
@@ -527,7 +523,7 @@ static QCFType<CFURLRef> urlFromFileName(const QString &fileName)
                                          kCFURLPOSIXPathStyle, false);
 }
 
-bool QConfFileSettingsPrivate::readPlistFile(const QString &fileName, SettingsKeyMap *map) const
+bool QConfFileSettingsPrivate::readPlistFile(const QString &fileName, InternalSettingsMap *map) const
 {
     QCFType<CFDataRef> resource;
     SInt32 code;
@@ -560,12 +556,12 @@ bool QConfFileSettingsPrivate::readPlistFile(const QString &fileName, SettingsKe
 }
 
 bool QConfFileSettingsPrivate::writePlistFile(const QString &fileName,
-                                              const SettingsKeyMap &map) const
+                                              const InternalSettingsMap &map) const
 {
     QVarLengthArray<QCFType<CFStringRef> > cfkeys(map.size());
     QVarLengthArray<QCFType<CFPropertyListRef> > cfvalues(map.size());
     int i = 0;
-    SettingsKeyMap::const_iterator j;
+    InternalSettingsMap::const_iterator j;
     for (j = map.constBegin(); j != map.constEnd(); ++j) {
         cfkeys[i] = macKey(j.key());
         cfvalues[i] = macValue(j.value());
