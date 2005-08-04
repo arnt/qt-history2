@@ -1621,6 +1621,8 @@ bool QPainterPath::contains(const QRectF &rect) const
                         return false;
                     i += 2;
                     break;
+                default:
+                    break;
                 }
             }
 
