@@ -1,3 +1,16 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "feature.h"
 #include <QTextStream>
 
@@ -43,9 +56,10 @@ static QString listToHtml(const QString &title, const QList<Feature*> &list)
 {
     QStringList stringlist;
     foreach (Feature *f, list) {
-	QString s = "<a href=\"feature://" + f->key() + "\">"
-	    + f->key() + "</a>";
-	stringlist << s;
+        QString s("[%3] <a href=\"feature://%1\">%2</a>");
+        s = s.arg(f->key()).arg(f->key());
+        s = s.arg(f->selectable() && f->enabled() ? "On" : "Off");
+        stringlist << s;
     }
     return listToHtml(title, stringlist);
 }
@@ -138,21 +152,24 @@ void Feature::setEnabled(bool on)
 
     d->enabled = on;
     foreach (Feature *f, supports())
-	f->updateSelectable(this);
+	f->updateSelectable();
     emit changed();    
 }
 
 /*
-  Update whether this feature should be selectable after
-  a change in \a feature.
+  Update whether this feature should be selectable.
+  A feature is selectable if all it's dependencies is enabled.  
 */
-void Feature::updateSelectable(const Feature *feature)
+void Feature::updateSelectable()
 {
-    bool selectable = feature->enabled() && feature->selectable();
+    bool selectable = true;
+    foreach (Feature *f, dependencies())
+        if (!f->selectable() || !f->enabled())
+            selectable = false;
     if (selectable != d->selectable) {
         d->selectable = selectable;
         foreach (Feature *f, supports())
-            f->updateSelectable(this);
+            f->updateSelectable();
         emit changed();
     }
 }
