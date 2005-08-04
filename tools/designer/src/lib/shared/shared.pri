@@ -42,7 +42,8 @@ HEADERS += \
     $$PWD/richtexteditor_p.h \
     $$PWD/actioneditor_p.h \
     $$PWD/actionrepository_p.h \
-    $$PWD/qdesigner_toolbar_p.h
+    $$PWD/qdesigner_toolbar_p.h \
+    $$PWD/qdesigner_menu_p.h
 
 
 SOURCES += \
@@ -77,5 +78,5 @@ SOURCES += \
     $$PWD/richtexteditor.cpp \
     $$PWD/actioneditor.cpp \
     $$PWD/actionrepository.cpp \
-    $$PWD/qdesigner_toolbar.cpp
-
+    $$PWD/qdesigner_toolbar.cpp \
+    $$PWD/qdesigner_menu.cpp
