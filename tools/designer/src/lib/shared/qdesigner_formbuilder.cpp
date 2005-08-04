@@ -30,6 +30,9 @@
 #include <pluginmanager_p.h>
 
 #include <QtGui/QWidget>
+#include <QtGui/QMenu>
+#include <QtGui/QToolBar>
+#include <QtGui/QMenuBar>
 
 #include <QtCore/QBuffer>
 #include <QtCore/qdebug.h>
@@ -50,8 +53,21 @@ QWidget *QDesignerFormBuilder::createWidgetFromContents(const QString &contents,
 
 QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name)
 {
-    QWidget *widget = core()->widgetFactory()->createWidget(widgetName, parentWidget);
-    widget->setObjectName(name);
+    QWidget *widget = 0;
+
+    if (widgetName == QLatin1String("QToolBar")) {
+        widget = new QToolBar(parentWidget);
+    } else if (widgetName == QLatin1String("QMenu")) {
+        widget = new QMenu(parentWidget);
+    } else if (widgetName == QLatin1String("QMenuBar")) {
+        widget = new QMenuBar(parentWidget);
+    } else {
+        widget = core()->widgetFactory()->createWidget(widgetName, parentWidget);
+    }
+
+    if (widget)
+        widget->setObjectName(name);
+
     return widget;
 }
 

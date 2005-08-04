@@ -21,6 +21,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QRubberBand>
+#include <QtGui/QToolButton>
 #include <QtGui/QMenu>
 #include <QtGui/qevent.h>
 
@@ -39,7 +40,10 @@ QDesignerToolBar::QDesignerToolBar(QWidget *parent)
 
     setAcceptDrops(true); // ### fake
 
-    m_sentinel = new SentinelAction(this);       // ### use a special widget as indicator
+    Sentinel *btn = new Sentinel(this);
+    connect(btn, SIGNAL(clicked()), this, SLOT(slotNewToolBar()));
+
+    m_sentinel = addWidget(btn);
     addAction(m_sentinel);
 
     m_sentinelChecker = new QTimer(this);
@@ -54,7 +58,7 @@ QDesignerToolBar::~QDesignerToolBar()
 
 bool QDesignerToolBar::handleEvent(QWidget *widget, QEvent *event)
 {
-    if (!formWindow() || isToolBarHandle(widget))
+    if (!formWindow() || isPassiveWidget(widget))
         return false;
 
     switch (event->type()) {
@@ -105,13 +109,21 @@ bool QDesignerToolBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
     return true;
 }
 
-bool QDesignerToolBar::handleMouseReleaseEvent(QWidget *, QMouseEvent *)
+bool QDesignerToolBar::handleMouseReleaseEvent(QWidget *, QMouseEvent *event)
 {
+    QPoint pos = mapFromGlobal(event->globalPos());
+    int index = findAction(pos);
+    if (index >= actions().count() - 1)
+        return false;
     return true;
 }
 
-bool QDesignerToolBar::handleMouseMoveEvent(QWidget *, QMouseEvent *)
+bool QDesignerToolBar::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
 {
+    QPoint pos = mapFromGlobal(event->globalPos());
+    int index = findAction(pos);
+    if (index >= actions().count() - 1)
+        return false;
     return true;
 }
 
@@ -267,9 +279,11 @@ QDesignerFormWindowInterface *QDesignerToolBar::formWindow() const
     return QDesignerFormWindowInterface::findFormWindow(const_cast<QDesignerToolBar*>(this));
 }
 
-bool QDesignerToolBar::isToolBarHandle(QWidget *widget) const
+bool QDesignerToolBar::isPassiveWidget(QWidget *widget) const
 {
-    if (!qstrcmp(widget->metaObject()->className(), "QToolBarHandle"))
+    if (qobject_cast<Sentinel*>(widget))
+        return true;
+    else if (!qstrcmp(widget->metaObject()->className(), "QToolBarHandle"))
         return true;
 
     return false;
@@ -291,6 +305,19 @@ bool QDesignerToolBar::blockSentinelChecker(bool b)
     return old;
 }
 
+void QDesignerToolBar::slotNewToolBar()
+{
+    if (QDesignerFormWindowInterface *fw = formWindow()) {
+        QDesignerFormEditorInterface *core = fw->core();
+        QToolBar *tb = qobject_cast<QToolBar*>(core->widgetFactory()->createWidget("QToolBar", fw->mainContainer()));
+        core->metaDataBase()->add(tb);
+
+        if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), fw->mainContainer())) {
+            container->addWidget(tb);
+        }
+    }
+}
+
 SentinelAction::SentinelAction(QWidget *widget)
     : QAction(widget)
 {
@@ -301,3 +328,14 @@ SentinelAction::~SentinelAction()
 {
 }
 
+Sentinel::Sentinel(QWidget *widget)
+    : QToolButton(widget)
+{
+    setObjectName(QString::fromUtf8("__qt__passive_new"));
+    setText(tr("=>"));
+    setToolButtonStyle(Qt::ToolButtonTextOnly);
+}
+
+Sentinel::~Sentinel()
+{
+}

@@ -29,6 +29,7 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QToolBar>
+#include <QtGui/QToolButton>
 
 class QRubberBand;
 class QTimer;
@@ -39,6 +40,14 @@ class QT_SHARED_EXPORT SentinelAction: public QAction
 public:
     SentinelAction(QWidget *widget);
     virtual ~SentinelAction();
+};
+
+class QT_SHARED_EXPORT Sentinel: public QToolButton
+{
+    Q_OBJECT
+public:
+    Sentinel(QWidget *widget);
+    virtual ~Sentinel();
 };
 
 class QT_SHARED_EXPORT QDesignerToolBar: public QToolBar
@@ -55,6 +64,7 @@ public:
 private slots:
     void slotRemoveSelectedAction(QAction *action);
     void slotCheckSentinel();
+    void slotNewToolBar();
 
 protected:
     virtual void actionEvent(QActionEvent *event);
@@ -71,7 +81,7 @@ protected:
 
     void adjustIndicator(const QPoint &pos);
     int findAction(const QPoint &pos) const;
-    bool isToolBarHandle(QWidget *widget) const;
+    bool isPassiveWidget(QWidget *widget) const;
 
     bool blockSentinelChecker(bool b);
 

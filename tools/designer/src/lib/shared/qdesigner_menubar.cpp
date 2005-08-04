@@ -223,7 +223,7 @@ void QDesignerMenuBar::dropEvent(QDropEvent *event)
         event->acceptProposedAction();
 
         QAction *action = d->items.first();
-        if (action && !actions().contains(action)) {
+        if (action && action->menu() && !actions().contains(action)) {
             int index = findAction(event->pos());
             index = qMin(index, actions().count() - 1);
             insertAction(actions().at(index), action);
