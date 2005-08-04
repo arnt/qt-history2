@@ -1164,14 +1164,13 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
         file.open(QFile::ReadOnly);
 
 #ifdef Q_OS_WIN
-    if (file.isOpen()) {
-        static const int FileLockSemMax = 50;
-        int numLocks = readOnly ? 1 : FileLockSemMax;
+    HANDLE semaphore = 0;
+    static const int FileLockSemMax = 50;
+    int numLocks = readOnly ? 1 : FileLockSemMax;
 
+    if (file.isOpen()) {
         QString semName = QLatin1String("QSettings semaphore ");
         semName.append(file.fileName());
-
-        HANDLE semaphore;
 
         QT_WA( {
             semaphore = CreateSemaphoreW(0, FileLockSemMax, FileLockSemMax, reinterpret_cast<const wchar_t *>(semName.utf16()));
@@ -1181,7 +1180,7 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
 
         if (semaphore) {
             for (int i = 0; i < numLocks; ++i)
-                WaitForSingleObject(confFile->semaphore, INFINITE);
+                WaitForSingleObject(semaphore, INFINITE);
         } else {
             setStatus(QSettings::AccessError);
             return;
@@ -1269,8 +1268,10 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
         Release the file lock.
     */
 #ifdef Q_OS_WIN
-    ReleaseSemaphore(semaphore, numLocks, 0);
-    CloseHandle(semaphore);
+    if (semaphore != 0) {
+        ReleaseSemaphore(semaphore, numLocks, 0);
+        CloseHandle(semaphore);
+    }
 #endif
 }
 
