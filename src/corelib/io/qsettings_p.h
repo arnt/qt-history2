@@ -93,7 +93,7 @@ inline QString QSettingsGroup::toString() const
 class Q_CORE_EXPORT QConfFile
 {
 public:
-    bool mergeKeyMaps();
+    SettingsKeyMap mergedKeyMap() const;
 
     static QConfFile *fromName(const QString &name);
     static void clearCache();
@@ -106,10 +106,6 @@ public:
     SettingsKeyMap removedKeys;
     QAtomic ref;
     QMutex mutex;
-
-#ifdef Q_OS_WIN
-    HANDLE semHandle; // semaphore used for synchronizing access to this file
-#endif
 
 private:
 #ifdef Q_DISABLE_COPY
@@ -223,9 +219,7 @@ public:
     void init();
 
 private:
-    bool readFile(QConfFile *confFile);
-    bool writeFile(QConfFile *confFile);
-
+    void syncConfFile(int confFileNo);
     bool readIniLine(QIODevice &device, QByteArray &line, int &len, int &equalsCharPos);
     bool readIniFile(QIODevice &device, SettingsKeyMap *map);
     bool writeIniFile(QIODevice &device, const SettingsKeyMap &map);
@@ -237,8 +231,6 @@ private:
     QConfFile *confFiles[NumConfFiles];
     QSettings::Format format;
     Qt::CaseSensitivity cs;
-    bool readAccess;
-    bool writeAccess;
 };
 
 #endif // QSETTINGS_P_H

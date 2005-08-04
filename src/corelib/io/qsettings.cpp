@@ -66,41 +66,44 @@ Q_GLOBAL_STATIC(QMutex, globalMutex)
 Q_GLOBAL_STATIC(QString, defaultSystemIniPath)
 Q_GLOBAL_STATIC(QString, defaultUserIniPath)
 
+#ifndef Q_OS_WIN
+static bool unixLock(int handle, int lockType)
+{
+    struct flock fl;
+    fl.l_whence = SEEK_SET;
+    fl.l_start = 0;
+    fl.l_len = 0;
+    fl.l_type = lockType;
+    return !fcntl(handle, F_SETLKW, &fl);
+}
+#endif
+
 QConfFile::QConfFile(const QString &fileName)
     : name(fileName), size(0), ref(1)
 {
     usedHashFunc()->insert(name, this);
-#ifdef Q_OS_WIN
-    semHandle = 0;
-#endif
 }
 
-bool QConfFile::mergeKeyMaps()
+SettingsKeyMap QConfFile::mergedKeyMap() const
 {
-    if (addedKeys.isEmpty() && removedKeys.isEmpty())
-        return false;
-
+    SettingsKeyMap result = originalKeys;
     SettingsKeyMap::const_iterator i;
 
     for (i = removedKeys.begin(); i != removedKeys.end(); ++i)
-        originalKeys.remove(i.key());
-    removedKeys.clear();
-
+        result.remove(i.key());
     for (i = addedKeys.begin(); i != addedKeys.end(); ++i)
-        originalKeys.insert(i.key(), i.value());
-    addedKeys.clear();
-
-    return true;
+        result.insert(i.key(), i.value());
+    return result;
 }
 
 QConfFile *QConfFile::fromName(const QString &fileName)
 {
-    QConfFile *confFile;
     QString absPath = QFileInfo(fileName).absoluteFilePath();
 
     ConfFileHash *usedHash = usedHashFunc();
     ConfFileCache *unusedCache = unusedCacheFunc();
 
+    QConfFile *confFile;
     QMutexLocker locker(globalMutex());
 
     if (!(confFile = usedHash->value(absPath))) {
@@ -458,7 +461,7 @@ void QSettingsPrivate::iniEscapedKey(const QString &key, QByteArray &result)
 
 bool QSettingsPrivate::iniUnescapedKey(const QByteArray &key, int from, int to, QString &result)
 {
-    bool lowerCaseOnly = true;
+    bool lowercaseOnly = true;
     int i = from;
     while (i < to) {
         int ch = (uchar)key.at(i);
@@ -471,7 +474,7 @@ bool QSettingsPrivate::iniUnescapedKey(const QByteArray &key, int from, int to, 
 
         if (ch != '%' || i == to - 1) {
             if (isupper((uchar)ch))
-                lowerCaseOnly = false;
+                lowercaseOnly = false;
             result += QLatin1Char(ch);
             ++i;
             continue;
@@ -502,11 +505,11 @@ bool QSettingsPrivate::iniUnescapedKey(const QByteArray &key, int from, int to, 
 
         QChar qch(ch);
         if (qch.toLower() != qch)
-            lowerCaseOnly = false;
+            lowercaseOnly = false;
         result += qch;
         i = firstDigitPos + numDigits;
     }
-    return lowerCaseOnly;
+    return lowercaseOnly;
 }
 
 void QSettingsPrivate::iniEscapedString(const QString &str, QByteArray &result)
@@ -655,7 +658,7 @@ QStringList *QSettingsPrivate::iniUnescapedStringList(const QByteArray &str, int
                     state = StSkipSpaces;
                     break;
                 }
-                /* fallthrough */
+                // fallthrough
             default:
                 result += QLatin1Char(ch);
             }
@@ -759,24 +762,19 @@ QStringList QSettingsPrivate::splitArgs(const QString &s, int idx)
 // ************************************************************************
 // QConfFileSettingsPrivate
 
-static void checkAccess(const QString &name, bool *read, bool *write)
+/*
+    If we don't have the permission to read the file, returns false.
+    If the file doesn't exist, returns true.
+*/
+static bool checkAccess(const QString &name)
 {
     QFileInfo fileInfo(name);
 
     if (fileInfo.exists()) {
-        /*
-            The best way to check that an existing file is
-            writable is to open it for writing.
-        */
         QFile file(name);
-        *read = file.open(QIODevice::ReadOnly);
-        file.close();
-
-        *write = file.open(QIODevice::Append);
+        // if the file exists but we can't open it, report an error
+        return file.open(QFile::ReadOnly);
     } else {
-        // files that don't exist are considered readable
-        *read = true;
-
         QDir dir;
         if (QDir::isRelativePath(name))
             dir = QDir::current();
@@ -788,31 +786,30 @@ static void checkAccess(const QString &name, bool *read, bool *write)
         */
         QStringList pathElements = name.split(QLatin1Char('/'), QString::SkipEmptyParts);
         for (int i = 0; i < pathElements.size() - 1; ++i) {
-            QString elt = pathElements[i];
+            const QString &elt = pathElements.at(i);
             if (dir.cd(elt))
                 continue;
 
-            if (!dir.mkdir(elt) || !dir.cd(elt))
-                break;
-        }
+            if (dir.mkdir(elt) && dir.cd(elt))
+                continue;
 
-        /*
-            The best way to check if we can create the file is to
-            try to create a temporary file.
-        */
-        QTemporaryFile file(name + QLatin1String(".XXXXXX"));
-        *write = file.open();
+            if (dir.cd(elt))
+                continue;
+
+            // if the path can't be created/reached, report an error
+            return false;
+        }
+        // we treat non-existent files as if they existed but were empty
+        return true;
     }
 }
 
 void QConfFileSettingsPrivate::init()
 {
-    if (confFiles[spec] == 0) {
-        readAccess = false;
-        writeAccess = false;
-    } else {
-        checkAccess(confFiles[spec]->name, &readAccess, &writeAccess);
-    }
+    bool readAccess = false;
+    if (confFiles[spec])
+        readAccess = checkAccess(confFiles[spec]->name);
+
     if (!readAccess)
         setStatus(QSettings::AccessError);
 
@@ -854,14 +851,14 @@ static QString windowsConfigPath(int type)
 
     if (result.isEmpty()) {
         switch (type) {
-            case CSIDL_COMMON_APPDATA:
-                result = QLatin1String("C:\\temp\\qt-common");
-                break;
-            case CSIDL_APPDATA:
-                result = QLatin1String("C:\\temp\\qt-user");
-                break;
-            default:
-                break;
+        case CSIDL_COMMON_APPDATA:
+            result = QLatin1String("C:\\temp\\qt-common");
+            break;
+        case CSIDL_APPDATA:
+            result = QLatin1String("C:\\temp\\qt-user");
+            break;
+        default:
+            ;
         }
     }
 
@@ -981,15 +978,12 @@ QConfFileSettingsPrivate::~QConfFileSettingsPrivate()
 
 void QConfFileSettingsPrivate::remove(const QString &key)
 {
-    if (!writeAccess) {
-        setStatus(QSettings::AccessError);
+    QConfFile *confFile = confFiles[spec];
+    if (!confFile)
         return;
-    }
 
     QSettingsKey theKey(key, cs);
     QSettingsKey prefix(key + QLatin1Char('/'), cs);
-
-    QConfFile *confFile = confFiles[spec];
     QMutexLocker locker(&confFile->mutex);
 
     SettingsKeyMap::iterator i = confFile->addedKeys.lowerBound(prefix);
@@ -1008,14 +1002,11 @@ void QConfFileSettingsPrivate::remove(const QString &key)
 
 void QConfFileSettingsPrivate::set(const QString &key, const QVariant &value)
 {
-    if (!writeAccess) {
-        setStatus(QSettings::AccessError);
+    QConfFile *confFile = confFiles[spec];
+    if (!confFile)
         return;
-    }
 
     QSettingsKey theKey(key, cs);
-
-    QConfFile *confFile = confFiles[spec];
     QMutexLocker locker(&confFile->mutex);
     confFile->removedKeys.remove(theKey);
     confFile->addedKeys.insert(theKey, value);
@@ -1087,15 +1078,13 @@ QStringList QConfFileSettingsPrivate::children(const QString &prefix, ChildSpec 
 
 void QConfFileSettingsPrivate::clear()
 {
-    if (!writeAccess) {
-        setStatus(QSettings::AccessError);
-        return;
-    }
-
     QConfFile *confFile = confFiles[spec];
+    if (!confFile)
+        return;
+
     QMutexLocker locker(&confFile->mutex);
     confFile->addedKeys.clear();
-    confFile->removedKeys = confFiles[spec]->originalKeys;
+    confFile->removedKeys = confFile->originalKeys;
 }
 
 void QConfFileSettingsPrivate::sync()
@@ -1107,17 +1096,7 @@ void QConfFileSettingsPrivate::sync()
         QConfFile *confFile = confFiles[i];
         if (confFile) {
             QMutexLocker locker(&confFile->mutex);
-
-            if (!readFile(confFile)) {
-                // Only problems with the file we actually write to change the status. The
-                // other files are just optional fallbacks.
-                if (i == spec)
-                    setStatus(QSettings::FormatError);
-            }
-            if (i == spec && confFile->mergeKeyMaps()) {
-                if (!writeFile(confFile))
-                    setStatus(QSettings::AccessError);
-            }
+            syncConfFile(i);
         }
     }
 }
@@ -1130,169 +1109,169 @@ void QConfFileSettingsPrivate::flush()
 QString QConfFileSettingsPrivate::fileName() const
 {
     QConfFile *confFile = confFiles[spec];
-    if (confFile == 0)
+    if (!confFile)
         return QString();
     return confFile->name;
 }
 
 bool QConfFileSettingsPrivate::isWritable() const
 {
-    return writeAccess;
-}
-
-/*
-    The following openFile() and closeFile() functions lock the file
-    (using fcntl() on Unix and a global mutex on Windows), ensuring
-    that if two instances of the same applications access the file at
-    the same time, the file isn't corrupted.
-*/
-
-#ifdef Q_OS_UNIX
-const int ReadFlags = O_RDONLY | O_CREAT;
-const int WriteFlags = O_WRONLY | O_CREAT | O_APPEND;
-#else
-static const int FileLockSemMax = 50;
-static const int ReadFlags = 1;
-static const int WriteFlags = 2;
-const char SemNamePrefix[] = "QSettings semaphore ";
-#endif
-
-static bool openFile(QFile &file, QConfFile &confFile, int flags)
-{
-#ifdef Q_OS_UNIX
-    Q_UNUSED(confFile);
-    int fd = QT_OPEN(QFile::encodeName(file.fileName()), flags, S_IRUSR | S_IWUSR);
-    if (fd < 0)
+    QConfFile *confFile = confFiles[spec];
+    if (!confFile)
         return false;
 
-    struct flock fl;
-    fl.l_whence = SEEK_SET;
-    fl.l_start = 0;
-    fl.l_len = 0;
-    fl.l_type = (flags == WriteFlags) ? F_WRLCK : F_RDLCK;
-    fcntl(fd, F_SETLKW, &fl);
+    if (QFile::exists(confFile->name)) {
+        QFile file(confFile->name);;
+        return file.open(QFile::ReadWrite);
+    } else {
+        // we use a temporary file to avoid race conditions
+        QTemporaryFile file(confFile->name);
+        return file.open();
+    }
+}
 
-    if (flags == WriteFlags)
-        QT_FTRUNCATE(fd, 0);
+void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
+{
+    QConfFile *confFile = confFiles[confFileNo];
+    bool readOnly = confFile->addedKeys.isEmpty() && confFile->removedKeys.isEmpty();
+    bool ok;
 
-    return file.open(fd, flags == WriteFlags ? QIODevice::WriteOnly | QIODevice::Text
-                     : QIODevice::OpenMode(QIODevice::ReadOnly));
-#else
-    // on Windows we use a named semaphore
-    if (confFile.semHandle == 0) {
-        QString semName = QString::fromAscii(SemNamePrefix);
+    /*
+        We can often optimize the read-only case, if the file on disk
+        hasn't changed.
+    */
+    if (readOnly) {
+        QFileInfo fileInfo(confFile->name);
+        if (confFile->size == fileInfo.size() && confFile->timeStamp == fileInfo.lastModified())
+            return;
+    }
+
+    /*
+        Open the configuration file and try to use it using a named
+        semaphore on Windows and an advisory lock on Unix-based
+        systems. This protect us against other QSettings instances
+        trying to access the same file from other threads or
+        processes.
+
+        As it stands now, the locking mechanism doesn't work for
+        .plist files.
+    */
+    QFile file(confFile->name);
+
+    if (!readOnly)
+        file.open(QFile::ReadWrite);
+    if (!file.isOpen())
+        file.open(QFile::ReadOnly);
+
+#ifdef Q_OS_WIN
+    if (file.isOpen()) {
+        static const int FileLockSemMax = 50;
+        int numLocks = readOnly ? 1 : FileLockSemMax;
+
+        QString semName = QLatin1String("QSettings semaphore ");
         semName.append(file.fileName());
+
+        HANDLE semaphore;
+
         QT_WA( {
-            confFile.semHandle = CreateSemaphoreW(0, FileLockSemMax, FileLockSemMax, reinterpret_cast<const wchar_t *>(semName.utf16()));
+            semaphore = CreateSemaphoreW(0, FileLockSemMax, FileLockSemMax, reinterpret_cast<const wchar_t *>(semName.utf16()));
         } , {
-            confFile.semHandle = CreateSemaphoreA(0, FileLockSemMax, FileLockSemMax, semName.toLocal8Bit());
+            semaphore = CreateSemaphoreA(0, FileLockSemMax, FileLockSemMax, semName.toLocal8Bit());
         } );
-    }
 
-    if (confFile.semHandle != 0) {
-        int decrement;
-        if (flags == ReadFlags)
-            decrement = 1;
-        else
-            decrement = FileLockSemMax;
-
-        for (int i = 0; i < decrement; ++i)
-            WaitForSingleObject(confFile.semHandle, INFINITE);
-    }
-
-    return file.open(flags == WriteFlags ? QIODevice::WriteOnly | QIODevice::Text
-                                         : QIODevice::OpenMode(QIODevice::ReadOnly));
-#endif
-}
-
-static void closeFile(QFile &file, QConfFile &confFile)
-{
-#ifdef Q_OS_UNIX
-    Q_UNUSED(confFile);
-    int fd = file.handle();
-    file.close();
-    QT_CLOSE(fd);
-#else
-    int increment;
-    if (file.openMode() & QIODevice::ReadOnly)
-        increment = 1;
-    else
-        increment = FileLockSemMax;
-
-    ReleaseSemaphore(confFile.semHandle, increment, 0);
-    CloseHandle(confFile.semHandle);
-    confFile.semHandle = 0;
-
-    file.close();
-#endif
-}
-
-/*
-    This only returns false on format errors. Files which don't exist, or which
-    we don't have read permission for, are treated as empty sets of keys.
-*/
-bool QConfFileSettingsPrivate::readFile(QConfFile *confFile)
-{
-    QFileInfo fileInfo(confFile->name);
-    int actualSize = fileInfo.size();
-    QDateTime actualTimeStamp = fileInfo.lastModified();
-
-    if (confFile->size == actualSize) {
-        // no need to reload the file if the timestamps and file sizes match
-        if (confFile->timeStamp == actualTimeStamp)
-            return true;
-    }
-
-    SettingsKeyMap newKeys;
-
-    bool ok = true; // we treat unexisting/unreadable files the same as empty files
-
-    if (actualSize != 0) {
-#ifdef Q_OS_MAC
-        if (format == QSettings::NativeFormat) {
-            ok = readPlistFile(confFile->name, &newKeys);
-        } else
-#endif
-        {
-            QFile file(confFile->name);
-            if (openFile(file, *confFile, ReadFlags)) {
-                ok = readIniFile(file, &newKeys);
-                closeFile(file, *confFile);
-            }
-        }
-    }
-
-    confFile->originalKeys = newKeys;
-    confFile->size = actualSize;
-    confFile->timeStamp = actualTimeStamp;
-
-    return ok;
-}
-
-bool QConfFileSettingsPrivate::writeFile(QConfFile *confFile)
-{
-    bool ok = false;
-
-#ifdef Q_OS_MAC
-    if (format == QSettings::NativeFormat) {
-        ok = writePlistFile(confFile->name, confFile->originalKeys);
-    } else
-#endif
-    {
-        QFile file(confFile->name);
-        if (openFile(file, *confFile, WriteFlags)) {
-            ok = writeIniFile(file, confFile->originalKeys);
-            closeFile(file, *confFile);
+        if (semaphore) {
+            for (int i = 0; i < numLocks; ++i)
+                WaitForSingleObject(confFile->semaphore, INFINITE);
         } else {
-            return false;
+            setStatus(QSettings::AccessError);
+            return;
+        }
+    }
+#else
+    if (file.isOpen())
+        unixLock(file.handle(), readOnly ? F_RDLCK : F_WRLCK);
+#endif
+
+    /*
+        We hold the lock. Let's reread the file if it has changed
+        since last time we read it.
+    */
+    QFileInfo fileInfo(confFile->name);
+    bool mustReadFile = true;
+
+    if (!readOnly) {
+        mustReadFile = (confFile->size != fileInfo.size()
+                        || (confFile->size != 0 && confFile->timeStamp != fileInfo.lastModified()));
+    }
+
+    if (mustReadFile) {
+        SettingsKeyMap newKeys;
+
+        /*
+            Files that we can't read (because of permissions or
+            because they don't exist) are treated as empty files.
+        */
+        if (file.isReadable() && fileInfo.size() != 0) {
+#ifdef Q_OS_MAC
+            if (format == QSettings::NativeFormat) {
+                ok = readPlistFile(confFile->name, &newKeys);
+            } else
+#endif
+            {
+                ok = readIniFile(file, &newKeys);
+            }
+
+            if (!ok)
+                setStatus(QSettings::FormatError);
+        }
+
+        confFile->originalKeys = newKeys;
+        confFile->size = fileInfo.size();
+        confFile->timeStamp = fileInfo.lastModified();
+    }
+
+    /*
+        We also need to save the file. We still hold the file lock,
+        so everything is under control.
+    */
+    if (!readOnly) {
+        SettingsKeyMap mergedKeys = confFile->mergedKeyMap();
+
+        if (file.isWritable()) {
+#ifdef Q_OS_MAC
+            if (format == QSettings::NativeFormat) {
+                ok = writePlistFile(confFile->name, mergedKeys);
+            } else
+#endif
+            {
+                file.seek(0); // shouldn't be necessary
+                file.resize(0);
+                ok = writeIniFile(file, mergedKeys);
+            }
+        } else {
+            ok = false;
+        }
+
+        if (ok) {
+            confFile->originalKeys = mergedKeys;
+            confFile->addedKeys.clear();
+            confFile->removedKeys.clear();
+
+            QFileInfo fileInfo(confFile->name);
+            confFile->size = fileInfo.size();
+            confFile->timeStamp = fileInfo.lastModified();
+        } else {
+            setStatus(QSettings::AccessError);
         }
     }
 
-    QFileInfo fileInfo(confFile->name);
-    confFile->size = fileInfo.size();
-    confFile->timeStamp = fileInfo.lastModified();
-
-    return ok;
+    /*
+        Release the file lock.
+    */
+#ifdef Q_OS_WIN
+    ReleaseSemaphore(semaphore, numLocks, 0);
+    CloseHandle(semaphore);
+#endif
 }
 
 bool QConfFileSettingsPrivate::readIniLine(QIODevice &device, QByteArray &line, int &len,
@@ -1403,7 +1382,7 @@ end:
 bool QConfFileSettingsPrivate::readIniFile(QIODevice &device, SettingsKeyMap *map)
 {
     QString currentSection;
-    bool currentSectionIsLowerCase = true;
+    bool currentSectionIsLowercase = true;
     QByteArray line;
     line.resize(512);
     int equalsCharPos;
@@ -1432,7 +1411,7 @@ bool QConfFileSettingsPrivate::readIniFile(QIODevice &device, SettingsKeyMap *ma
                 currentSection += QLatin1Char('/');
             } else {
                 currentSection.clear();
-                currentSectionIsLowerCase = iniUnescapedKey(iniSection, 0, iniSection.size(),
+                currentSectionIsLowercase = iniUnescapedKey(iniSection, 0, iniSection.size(),
                                                             currentSection);
                 currentSection += QLatin1Char('/');
             }
@@ -1443,8 +1422,8 @@ bool QConfFileSettingsPrivate::readIniFile(QIODevice &device, SettingsKeyMap *ma
             }
 
             QString key = currentSection;
-            bool keyIsLowerCase = (iniUnescapedKey(line, 0, equalsCharPos, key)
-                                   && currentSectionIsLowerCase);
+            bool keyIsLowercase = (iniUnescapedKey(line, 0, equalsCharPos, key)
+                                   && currentSectionIsLowercase);
 
             QString strValue;
             strValue.reserve(len - equalsCharPos);
@@ -1461,9 +1440,9 @@ bool QConfFileSettingsPrivate::readIniFile(QIODevice &device, SettingsKeyMap *ma
             /*
                 We try to avoid the expensive toLower() call in
                 QSettingsKey by passing Qt::CaseSensitive when the
-                key is already in lower-case.
+                key is already in lowercase.
             */
-            map->insert(QSettingsKey(key, keyIsLowerCase ? Qt::CaseSensitive : Qt::CaseInsensitive),
+            map->insert(QSettingsKey(key, keyIsLowercase ? Qt::CaseSensitive : Qt::CaseInsensitive),
                         variant);
         }
     }
@@ -1476,6 +1455,12 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     typedef QMap<QString, QVariantMap> IniMap;
     IniMap iniMap;
     IniMap::const_iterator i;
+
+#ifdef Q_OS_WIN
+    const char * const eol = "\r\n";
+#else
+    const char eol = '\n';
+#endif
 
     for (SettingsKeyMap::const_iterator j = map.constBegin(); j != map.constEnd(); ++j) {
         QString section;
@@ -1505,8 +1490,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
         }
 
         if (i != iniMap.constBegin())
-            realSection.prepend('\n');
-        realSection += '\n';
+            realSection.prepend(eol);
+        realSection += eol;
 
         device.write(realSection);
 
@@ -1522,7 +1507,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
             } else {
                 iniEscapedString(variantToString(value), block);
             }
-            block += '\n';
+            block += eol;
             if (device.write(block) == -1) {
                 writeError = true;
                 break;
@@ -1826,12 +1811,13 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     any other QSettings objects that operate on the same location
     and that live in the same process.
 
-    QSettings can safely be used from different processes (which
-    can be different instances of your application running at the
-    same time or different applications altogether) to read and write
-    to the same system locations. It uses a smart merging algorithm
-    to ensure data integrity. Changes performed by another process
-    aren't visible in the current process until sync() is called.
+    QSettings can safely be used from different processes (which can
+    be different instances of your application running at the same
+    time or different applications altogether) to read and write to
+    the same system locations. It uses advisory file locking and a
+    smart merging algorithm to ensure data integrity. Changes
+    performed by another process aren't visible in the current
+    process until sync() is called.
 
     \section1 Platform-Specific Notes
 
@@ -1928,14 +1914,14 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
         Calling setFallbacksEnabled(false) will hide these global
         settings.
 
-    \o  On Mac OS X, the APIs used by QSettings expect an Internet
-        domain name rather than an organization name. To provide a
-        uniform API, QSettings derives a fake domain name from the
-        organization name (unless the organization name already is a
-        domain name, e.g. OpenOffice.org). The algorithm appends
-        ".com" to the company name and replaces spaces and other
-        illegal characters with hyphens. If you want to specify a
-        different domain name, call
+    \o  On Mac OS X, the CFPreferences API used by QSettings expects
+        Internet domain names rather than organization names. To
+        provide a uniform API, QSettings derives a fake domain name
+        from the organization name (unless the organization name
+        already is a domain name, e.g. OpenOffice.org). The algorithm
+        appends ".com" to the company name and replaces spaces and
+        other illegal characters with hyphens. If you want to specify
+        a different domain name, call
         QCoreApplication::setOrganizationDomain(),
         QCoreApplication::setOrganizationName(), and
         QCoreApplication::setApplicationName() in your \c main()
