@@ -69,8 +69,7 @@ LayoutInfo::Type LayoutInfo::layoutType(QDesignerFormEditorInterface *core, QLay
 */
 LayoutInfo::Type LayoutInfo::layoutType(QDesignerFormEditorInterface *core, QWidget *w)
 {
-    QLayout *l = 0;
-    return layoutType(core, w, l);
+    return layoutType(core, w->layout());
 }
 
 QWidget *LayoutInfo::layoutParent(QDesignerFormEditorInterface *core, QLayout *layout)
