@@ -2596,7 +2596,7 @@ void QWidget::setWindowOpacity(qreal opacity)
 {
     if (isTopLevel()) {
         ulong value = ulong(opacity * 0xffffffff);
-        XChangeProperty(x11Display(), winId(), ATOM(_NET_WM_WINDOW_OPACITY), XA_CARDINAL,
+        XChangeProperty(QX11Info::display(), winId(), ATOM(_NET_WM_WINDOW_OPACITY), XA_CARDINAL,
                         32, PropModeReplace, (uchar*)&value, 1);
     }
 }
