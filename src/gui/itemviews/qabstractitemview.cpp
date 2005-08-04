@@ -1223,7 +1223,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         return;
 
 #ifdef QT_KEYPAD_NAVIGATION
-    switch( e->key() ) {
+    switch( event->key() ) {
     case Qt::Key_Select:
         if (QApplication::keypadNavigationEnabled()) {
             if (!hasEditFocus()) {
@@ -1236,11 +1236,11 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         if (QApplication::keypadNavigationEnabled() && hasEditFocus())
             setEditFocus(false);
         else
-            e->ignore();
+            event->ignore();
         return;
     default:
         if (QApplication::keypadNavigationEnabled() && !hasEditFocus()) {
-            e->ignore();
+            event->ignore();
             return;
         }
     }
