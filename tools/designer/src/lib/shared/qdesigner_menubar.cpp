@@ -74,46 +74,19 @@ bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
     return true;
 }
 
-bool QDesignerMenuBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
+bool QDesignerMenuBar::handleMousePressEvent(QWidget *, QMouseEvent *)
 {
-    if (event->button() != Qt::LeftButton) {
-        event->accept();
-        return true;
-    }
-
-    QPoint pos = mapFromGlobal(event->globalPos());
-    int index = findAction(pos);
-    if (index >= actions().count() - 1)
-        return false;
-
-    QAction *action = actions().at(index);
-    removeAction(action);
-
-    adjustIndicator(event->pos());
-
-    QDrag *drag = new QDrag(this);
-    drag->setPixmap(action->icon().pixmap(QSize(22, 22)));
-
-    ActionRepositoryMimeData *data = new ActionRepositoryMimeData();
-    data->items.append(action);
-    drag->setMimeData(data);
-
-    if (drag->start() == Qt::IgnoreAction) {
-        QAction *previous = actions().at(index);
-        insertAction(previous, action);
-    }
-
-    return true;
+    return false;
 }
 
 bool QDesignerMenuBar::handleMouseReleaseEvent(QWidget *, QMouseEvent *)
 {
-    return true;
+    return false;
 }
 
 bool QDesignerMenuBar::handleMouseMoveEvent(QWidget *, QMouseEvent *)
 {
-    return true;
+    return false;
 }
 
 bool QDesignerMenuBar::handleContextMenuEvent(QWidget *, QContextMenuEvent *event)
@@ -191,7 +164,20 @@ int QDesignerMenuBar::findAction(const QPoint &pos) const
 
 void QDesignerMenuBar::adjustIndicator(const QPoint &pos)
 {
-    QRect g = actionGeometry(actions().at(findAction(pos)));
+    QAction *action = actions().at(findAction(pos));
+
+    QRect g = actionGeometry(action);
+
+    QMenu *menu = action->menu();
+    if (menu && menu != m_activeMenu) {
+        if (m_activeMenu)
+            m_activeMenu->hide();
+
+        m_activeMenu = menu;
+        m_activeMenu->move(mapToGlobal(g.bottomLeft()));
+        m_activeMenu->show();
+    }
+
     g.moveTop(0);
     g.setHeight(height());
     g.setWidth(2);
@@ -276,4 +262,3 @@ bool QDesignerMenuBar::blockSentinelChecker(bool b)
     m_blockSentinelChecker = b;
     return old;
 }
-

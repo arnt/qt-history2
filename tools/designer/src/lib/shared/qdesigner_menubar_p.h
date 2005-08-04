@@ -27,6 +27,7 @@
 
 #include "shared_global_p.h"
 
+#include <QtCore/QPointer>
 #include <QtGui/QAction>
 #include <QtGui/QMenuBar>
 
@@ -71,6 +72,7 @@ private:
     QTimer *m_sentinelChecker;
     QAction *m_sentinel;
     bool m_blockSentinelChecker;
+    QPointer<QMenu> m_activeMenu;
 };
 
 #endif // QDESIGNER_MENUBAR_H
