@@ -278,4 +278,4 @@ qint64 QUdpSocket::readDatagram(char *data, qint64 maxSize, QHostAddress *addres
     d_func()->socketEngine->setReadNotificationEnabled(true);
     return readBytes;
 }
-#endif QT_NO_UDPSOCKET
+#endif // QT_NO_UDPSOCKET
