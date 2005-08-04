@@ -20,7 +20,6 @@
 #include <qlocale.h>
 #include <qvalidator.h>
 #include <qdebug.h>
-#include <math.h>
 
 //#define QSPINBOX_QSBDEBUG
 #ifdef QSPINBOX_QSBDEBUG
@@ -809,7 +808,7 @@ void QDoubleSpinBox::setRange(double min, double max)
      \brief the precision of the spin box, in decimals
 
      Sets how many decimals the spinbox will use for displaying and
-     interpreting doubles. The valid decimal range is 0-14. The
+     interpreting doubles. The valid decimal range is 0-13. The
      default is 2.
 
      Note: The maximum, minimum and value might change as a result of
@@ -826,8 +825,8 @@ int QDoubleSpinBox::decimals() const
 void QDoubleSpinBox::setDecimals(int decimals)
 {
     Q_D(QDoubleSpinBox);
-    Q_ASSERT_X(decimals >= 0 && decimals < 15, "QDoubleSpinBox::setDecimals(int)",
-               "Invalid decimals. Must be between 0 and 14");
+    Q_ASSERT_X(decimals >= 0 && decimals <= 13, "QDoubleSpinBox::setDecimals(int)",
+               "Invalid decimals. Must be between 0 and 13");
     d->decimals = decimals;
 
     setRange(minimum(), maximum()); // make sure values are rounded
@@ -1241,39 +1240,24 @@ QVariant QDoubleSpinBoxPrivate::valueFromText(const QString &f) const
     E.g. // decimals = 2
 
     round(5.555) => 5.56
-*/
+    */
 
 double QDoubleSpinBoxPrivate::round(double value) const
 {
-    long double tmp = value;
-    int i;
-    double add = 0.5;
-    for (i=0; i<decimals; ++i) {
-        add /= 10;
-    }
-    if (value < 0) {
-        tmp -= add;
-    } else {
-        tmp += add;
-    }
-    for (i=0; i<decimals; ++i) {
-        tmp *= 10;
-    }
+    const int dec = decimals + 1;
+    const QString strDbl = QString::number(value, 'f', dec);
 
-#if 0
-    // truncl(3) first appeared in POSIX.1-2001
-    tmp = truncl(tmp);
-#else
-    // could use qRound(), but we don't have one that takes a long double
-    tmp = (tmp >= 0.0
-           ? qint64(tmp + 0.5)
-           : qint64(tmp - qint64(tmp - 1.0) + 0.5) + qint64(tmp - 1.0));
-#endif
+    const double intPart = strDbl.left(strDbl.length() - dec - 1).toDouble();
 
-    for (i=0; i<decimals; ++i) {
-        tmp /= 10;
-    }
-    return (double)tmp;
+    qlonglong decPart = strDbl.right(dec).toLongLong();
+    decPart = (decPart + 5) / 10;
+
+    const double power = pow(10, decimals);
+
+    if (value >= 0.0)
+        return intPart + decPart / power;
+    else
+        return intPart - decPart / power;
 }
 
 
