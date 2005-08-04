@@ -14,17 +14,21 @@
 #ifndef QSORTINGPROXYMODEL_H
 #define QSORTINGPROXYMODEL_H
 
-#include <QtGui/qproxymodel.h>
+#include <QtCore/qabstractitemmodel.h>
 #include <QtCore/qmap.h>
 
-class QSortingProxyModel : public QProxyModel
+class QSortingProxyModelPrivate;
+
+class Q_GUI_EXPORT QSortingProxyModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
     QSortingProxyModel(QObject *parent = 0);
     ~QSortingProxyModel();
-    void setModel(QAbstractItemModel *model);
+
+    virtual void setModel(QAbstractItemModel *model);
+    QAbstractItemModel *model() const;
 
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &child) const;
@@ -60,6 +64,8 @@ public:
     void clear();
 
 protected:
+    QSortingProxyModel(QSortingProxyModelPrivate &, QObject *parent);
+
     static bool lessThan(const QModelIndex &left, const QModelIndex &right);
     static bool greaterThan(const QModelIndex &left, const QModelIndex &right);
 
@@ -69,6 +75,8 @@ protected:
 protected slots:
     void sourceDataChanged(const QModelIndex &source_top_left,
                            const QModelIndex &source_bottom_right);
+
+    void sourceHeaderDataChanged(Qt::Orientation orientation, int start, int end);
 
     void sourceRowsAboutToBeInserted(const QModelIndex &source_parent, int start, int end);
     void sourceRowsInserted();
@@ -82,17 +90,17 @@ protected slots:
     void sourceColumnsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end);
     void sourceColumnsRemoved();
 
-    void sourceModelReset();
-    void sourceLayoutChanged();
+    void clearAndSort();
 
 protected:
-    void clearAndSort();
-    void *p_id(const QModelIndex &source_index) const;
-    mutable QMap<void*, QModelIndex> id_to_source_index_map; // maps the internal ids to source model indexes (not sorted)
-    mutable QMap<void*, int> id_to_proxy_row_map; // maps the internal ids to row numbers (sorted)
-    bool row_iid; // used when the source has the same internal id for each row
+    mutable QMap<QModelIndex, QModelIndex> proxy_to_source; // mapping
+
     int sort_column;
     Qt::SortOrder sort_order;
+
+private:
+    Q_DECLARE_PRIVATE(QSortingProxyModel)
+    Q_DISABLE_COPY(QSortingProxyModel)
 };
 
 #endif // QSORTINGPROXYMODEL_H
