@@ -1091,8 +1091,10 @@ void QHeaderView::sectionsAboutToBeRemoved(const QModelIndex &parent,
     if (d->visualIndices.isEmpty()) {
         int delta = d->sections.at(logicalLast + 1).position
                     - d->sections.at(logicalFirst).position;
-        for (int i = logicalLast + 1; i < d->sections.count(); ++i)
+        for (int i = logicalLast + 1; i < d->sections.count(); ++i) {
             d->sections[i].position -= delta;
+            d->sections[i].logical -= changeCount;
+        }
         d->sections.remove(logicalFirst, changeCount);
     } else {
         for (int l = logicalLast; l >= logicalFirst; --l) {
