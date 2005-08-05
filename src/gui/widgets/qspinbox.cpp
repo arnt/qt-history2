@@ -1254,7 +1254,7 @@ double QDoubleSpinBoxPrivate::round(double value) const
     qlonglong decPart = strDbl.right(dec).toLongLong();
     decPart = (decPart + 5) / 10;
 
-    const double power = pow(10, decimals);
+    const double power = pow(10.0, decimals);
 
     if (value >= 0.0)
         return intPart + decPart / power;
