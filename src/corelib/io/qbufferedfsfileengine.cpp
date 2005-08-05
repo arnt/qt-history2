@@ -251,7 +251,7 @@ qint64 QBufferedFSFileEngine::readLine(char *data, qint64 maxlen)
     // solves this.
     if (!fgets(data, int(maxlen + 1), d->fh)) {
         d->setError(QFile::ReadError, qt_error_string(int(errno)));
-	return 0;
+	return -1;
     }
     return qstrlen(data);
 }

@@ -52,8 +52,7 @@ DocuParser *DocuParser::createParser(const QString &fileName)
     int majVer = 0, minVer = 0, serVer = 0;
     static QRegExp re(QLatin1String("assistantconfig +version=\"(\\d)\\.(\\d)\\.(\\d)\""), Qt::CaseInsensitive);
     Q_ASSERT(re.isValid());
-    while(!file.atEnd()) {
-        str = file.readLine(maxlen);
+    while(!(str = file.readLine(maxlen)).isEmpty()) {
         if(re.indexIn(str) >= 0) {
             majVer = re.cap(1).toInt();
             minVer = re.cap(2).toInt();
