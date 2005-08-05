@@ -33,6 +33,7 @@ public:
     enum { Type = 0, UserType = 1000 };
     explicit QListWidgetItem(QListWidget *view = 0, int type = Type);
     explicit QListWidgetItem(const QString &text, QListWidget *view = 0, int type = Type);
+    QListWidgetItem(const QListWidgetItem &other);
     virtual ~QListWidgetItem();
 
     virtual QListWidgetItem *clone() const;

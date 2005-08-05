@@ -189,7 +189,7 @@ bool QStandardItemModel::setData(const QModelIndex &index, const QVariant &value
             modelRow->items.insert(count, index.column() + 1 - count, 0);
         // make sure we have a QStdModelItem at the position
         if (!modelRow->items.at(index.column()))
-            modelRow->items[index.column()] = new QStdModelItem();
+            modelRow->items[index.column()] = new QStdModelItem;
         modelRow->items.at(index.column())->setValue(role, value);
         emit dataChanged(index, index);
         return true;
@@ -242,7 +242,7 @@ bool QStandardItemModel::setHeaderData(int section, Qt::Orientation orientation,
         header.resize(section + 1);
     headerItem = header[section];
     if (!headerItem) {
-        headerItem = new QStdModelItem();
+        headerItem = new QStdModelItem;
         header.replace(section, headerItem);
     }
 

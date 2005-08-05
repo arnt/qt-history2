@@ -105,9 +105,7 @@ void QListModel::clear()
 
 QListWidgetItem *QListModel::at(int row) const
 {
-    if (row >= 0 && row < lst.count())
-        return lst.at(row);
-    return 0;
+    return lst.value(row);
 }
 
 void QListModel::remove(QListWidgetItem *item)
@@ -190,14 +188,14 @@ bool QListModel::insertRows(int row, int count, const QModelIndex &)
     QListWidgetItem *itm = 0;
     if (row < rowCount()) {
         for (int r = row; r < row + count; ++r) {
-            itm = new QListWidgetItem();
+            itm = new QListWidgetItem;
             itm->view = view;
             itm->model = this;
             lst.insert(r, itm);
         }
     } else {
         for (int r = 0; r < count; ++r) {
-            itm = new QListWidgetItem();
+            itm = new QListWidgetItem;
             itm->view = view;
             itm->model = this;
             lst.append(itm);
@@ -444,9 +442,7 @@ QListWidgetItem::~QListWidgetItem()
 */
 QListWidgetItem *QListWidgetItem::clone() const
 {
-    QListWidgetItem * item = new QListWidgetItem();
-    *item = *this;
-    return item;
+    return new QListWidgetItem(*this);
 }
 
 /*!
@@ -514,6 +510,22 @@ void QListWidgetItem::read(QDataStream &in)
 void QListWidgetItem::write(QDataStream &out) const
 {
     out << values;
+}
+
+/*!
+    \since 4.1
+
+    Constructs a copy of \a other. Note that type() and listWidget()
+    are not copied.
+
+    This function is useful when reimplementing clone().
+
+    \sa data(), flags()
+*/
+QListWidgetItem::QListWidgetItem(const QListWidgetItem &other)
+    : rtti(Type), values(other.values), view(0), model(0),
+      itemFlags(other.itemFlags)
+{
 }
 
 /*!

@@ -53,6 +53,7 @@ public:
     enum { Type = 0, UserType = 1000 };
     QTableWidgetItem(int type = Type);
     explicit QTableWidgetItem(const QString &text, int type = Type);
+    QTableWidgetItem(const QTableWidgetItem &other);
     virtual ~QTableWidgetItem();
 
     virtual QTableWidgetItem *clone() const;

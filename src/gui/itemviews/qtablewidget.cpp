@@ -87,7 +87,7 @@ public:
     void itemChanged(QTableWidgetItem *item);
 
     inline QTableWidgetItem *createItem() const
-        { return prototype ? prototype->clone() : new QTableWidgetItem(); }
+        { return prototype ? prototype->clone() : new QTableWidgetItem; }
     inline const QTableWidgetItem *itemPrototype() const
         { return prototype; }
     inline void setItemPrototype(const QTableWidgetItem *item)
@@ -393,11 +393,14 @@ QVariant QTableModel::data(const QModelIndex &index, int role) const
 bool QTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     QTableWidgetItem *itm = item(index);
-
     if (itm) {
         itm->setData(role, value);
         return true;
     }
+
+    // don't create dummy table items for empty values
+    if (!value.isValid())
+        return false;
 
     QTableWidget *view = qobject_cast<QTableWidget*>(QObject::parent());
     if (!view)
@@ -948,13 +951,11 @@ QTableWidgetItem::~QTableWidgetItem()
 }
 
 /*!
-  Creates an exact copy of the item.
+    Creates a copy of the item.
 */
 QTableWidgetItem *QTableWidgetItem::clone() const
 {
-    QTableWidgetItem *item = new QTableWidgetItem();
-    *item = *this;
-    return item;
+    return new QTableWidgetItem(*this);
 }
 
 /*!
@@ -966,6 +967,9 @@ void QTableWidgetItem::setData(int role, const QVariant &value)
     role = (role == Qt::EditRole ? Qt::DisplayRole : role);
     for (int i = 0; i < values.count(); ++i) {
         if (values.at(i).role == role) {
+            if (values[i].value == value)
+                return;
+
             values[i].value = value;
             found = true;
             break;
@@ -1051,6 +1055,22 @@ QDataStream &operator<<(QDataStream &out, const QTableWidgetItem &item)
 }
 
 #endif // QT_NO_DATASTREAM
+
+/*!
+    \since 4.1
+
+    Constructs a copy of \a other. Note that type() and tableWidget()
+    are not copied.
+
+    This function is useful when reimplementing clone().
+
+    \sa data(), flags()
+*/
+QTableWidgetItem::QTableWidgetItem(const QTableWidgetItem &other)
+    : rtti(Type), values(other.values), view(0), model(0),
+      itemFlags(other.itemFlags)
+{
+}
 
 /*!
     Assigns \a other's data and flags to this item. Note that type()
@@ -1964,7 +1984,7 @@ QTableWidgetItem *QTableWidget::itemFromIndex(const QModelIndex &index) const
 }
 
 /*!
-  \internal
+    \internal
 */
 void QTableWidget::setModel(QAbstractItemModel *model)
 {
