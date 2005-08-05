@@ -16,6 +16,7 @@
 #include "private/qpixmap_p.h"
 
 #include "qapplication.h"
+#include "qdebug.h"
 #include "qfont.h"
 #include "qwidget.h"
 #include "qbitmap.h"
@@ -44,8 +45,6 @@
 #include <private/qt_x11_p.h>
 #include <private/qnumeric_p.h>
 #include <limits.h>
-
-#include "qdebug.h"
 
 extern Drawable qt_x11Handle(const QPaintDevice *pd);
 extern const QX11Info *qt_x11Info(const QPaintDevice *pd);

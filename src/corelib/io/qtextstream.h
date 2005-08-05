@@ -48,6 +48,9 @@ public:
         AlignCenter,
         AlignAccountingStyle
     };
+#ifdef Status
+#error This file has to be included before any system files that define Status
+#endif
     enum Status {
         Ok,
         ReadPastEnd,

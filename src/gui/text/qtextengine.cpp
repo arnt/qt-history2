@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "qdebug.h"
 #include "qtextformat.h"
 #include "qtextformat_p.h"
 #include "qtextengine_p.h"

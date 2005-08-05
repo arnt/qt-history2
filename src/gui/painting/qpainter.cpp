@@ -10,6 +10,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+// QtCore
+#include <qdebug.h>
 
 // QtGui
 #include "qbitmap.h"
@@ -32,8 +34,6 @@
 #include <private/qpainterpath_p.h>
 #include <private/qtextengine_p.h>
 #include <private/qwidget_p.h>
-// QtCore
-#include <qdebug.h>
 
 // Other
 #include <math.h>

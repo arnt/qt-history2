@@ -25,6 +25,7 @@
 **
 ****************************************************************************/
 
+#include "qdebug.h"
 #include "qximinputcontext_p.h"
 
 #if !defined(QT_NO_IM)
@@ -42,7 +43,6 @@
 #include "qtextformat.h"
 
 #include "qx11info_x11.h"
-#include <qdebug.h>
 
 #include <stdlib.h>
 #include <limits.h>

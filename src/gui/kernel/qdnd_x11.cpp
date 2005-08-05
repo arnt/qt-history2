@@ -29,11 +29,11 @@
 #include "qvariant.h"
 #include "qvector.h"
 #include "qurl.h"
+#include "qdebug.h"
 
 #include "qdnd_p.h"
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
-#include "qdebug.h"
 
 #include "qwidget_p.h"
 #include "qcursor_p.h"

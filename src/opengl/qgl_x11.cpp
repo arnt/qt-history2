@@ -21,9 +21,9 @@
 #include "qpixmap.h"
 #include "qhash.h"
 #include "qlibrary.h"
+#include "qdebug.h"
 #include <private/qfontengine_p.h>
 #include <private/qt_x11_p.h>
-#include <qdebug.h>
 
 #define INT8  dummy_INT8
 #define INT32 dummy_INT32

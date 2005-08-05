@@ -16,6 +16,7 @@
 // #define FONTENGINE_DEBUG
 
 #include <qbytearray.h>
+#include <qdebug.h>
 #include <qtextcodec.h>
 
 #include "qfontdatabase.h"
@@ -36,8 +37,6 @@
 
 #include <private/qt_x11_p.h>
 #include "qx11info_x11.h"
-
-#include <qdebug.h>
 
 #include <math.h>
 #include <limits.h>

@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qfontdatabase.h"
+#include "qdebug.h"
 
 
 #include <qalgorithms.h>

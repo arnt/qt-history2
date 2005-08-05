@@ -27,6 +27,7 @@
 
 #include "qplatformdefs.h"
 
+#include "qdebug.h"
 #include "qiodevice.h"
 #include "qpixmap_p.h"
 #include "qbitmap.h"
@@ -38,7 +39,6 @@
 #include <private/qt_x11_p.h>
 #include "qx11info_x11.h"
 #include <private/qdrawhelper_p.h>
-#include  "qdebug.h"
 
 #include <stdlib.h>
 

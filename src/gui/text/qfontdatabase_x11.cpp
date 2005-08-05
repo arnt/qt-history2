@@ -14,11 +14,11 @@
 #include <qplatformdefs.h>
 
 #include <qdatetime.h>
+#include <qdebug.h>
 #include <qpaintdevice.h>
 
 #include <private/qt_x11_p.h>
 #include "qx11info_x11.h"
-#include <qdebug.h>
 
 #include <ctype.h>
 #include <stdlib.h>

@@ -13,6 +13,7 @@
 
 #include "qscriptengine_p.h"
 
+#include "qdebug.h"
 #include "qstring.h"
 #include "qrect.h"
 #include "qfont.h"
