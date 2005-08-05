@@ -800,6 +800,7 @@ void QTextCursorPrivate::setCharFormat(const QTextCharFormat &format, QTextDocum
            is not positioned within a string of selectable characters, no
            text is selected.
     \value LineUnderCursor Selects the line of text under the cursor.
+    \value BlockUnderCursor Selects the block of text under the cursor.
 */
 
 /*!
@@ -1123,18 +1124,31 @@ void QTextCursor::select(SelectionType selection)
         return;
 
     clearSelection();
-    if (selection == LineUnderCursor) {
-        movePosition(StartOfLine);
-        movePosition(EndOfLine, KeepAnchor);
-    } else if (selection == WordUnderCursor) {
-        const QTextBlock b = d->block();
-        const int relativePos = d->position - b.position();
 
-        if (relativePos == b.length() - 1)
-            return;
+    const QTextBlock block = d->block();
+    const int relativePos = d->position - block.position();
 
-        movePosition(StartOfWord);
-        movePosition(EndOfWord, KeepAnchor);
+    switch (selection) {
+        case LineUnderCursor:
+            movePosition(StartOfLine);
+            movePosition(EndOfLine, KeepAnchor);
+            break;
+        case WordUnderCursor:
+            if (relativePos == block.length() - 1)
+                break;
+
+            movePosition(StartOfWord);
+            movePosition(EndOfWord, KeepAnchor);
+            break;
+        case BlockUnderCursor:
+            movePosition(StartOfBlock);
+            // also select the paragraph separator
+            if (movePosition(PreviousBlock)) {
+                movePosition(EndOfBlock);
+                movePosition(NextBlock, KeepAnchor);
+            }
+            movePosition(EndOfBlock, KeepAnchor);
+            break;
     }
 }
 
