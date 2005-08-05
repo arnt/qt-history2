@@ -1127,7 +1127,7 @@ void QWSDisplay::sendIMUpdate(int type, int winId, int widgetid)
 {
     QWSIMUpdateCommand cmd;
     cmd.simpleData.windowid = winId;
-    cmd.simpleData.windowid = widgetid;
+    cmd.simpleData.widgetid = widgetid;
 
     cmd.simpleData.type = type;
 

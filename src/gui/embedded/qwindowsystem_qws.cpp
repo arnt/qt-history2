@@ -147,9 +147,8 @@ static int get_object_id()
 #ifndef QT_NO_QWS_INPUTMETHODS
 static QWSInputMethod *current_IM = 0;
 
-static bool current_IM_ComposeMode = false;
-static QWSWindow* current_IM_win=0;
-static int current_IM_winId=-1;
+static QWSWindow *current_IM_composing_win = 0;
+static int current_IM_winId = -1;
 static bool force_reject_strokeIM = 0;
 #endif
 
@@ -431,8 +430,8 @@ void QWSWindow::operation(QWSWindowOperationEvent::Operation o)
 QWSWindow::~QWSWindow()
 {
 #ifndef QT_NO_QWS_INPUTMETHODS
-    if (current_IM_win == this)
-        current_IM_win = 0;
+    if (current_IM_composing_win == this)
+        current_IM_composing_win = 0;
 #endif
     delete backingStore;
 }
@@ -1279,7 +1278,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
     } else {
 	tpos = pos;
     }
-#ifndef QT_NO_QWS_IM
+#if 0 //###ndef QT_NO_QWS_IM
     int stroke_count; // number of strokes to keep shown.
     if (force_reject_strokeIM || qwsServer->mouseGrabber
 	    || !current_IM) {
@@ -1296,7 +1295,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
     // stop force reject after stroke ends.
     if (state&btnMask && force_reject_strokeIM)
 	force_reject_strokeIM = FALSE;
-    // on end of stroke, force_rejct 
+    // on end of stroke, force_rejct
     // and once a stroke is rejected, do not try again till pen is lifted
 #else
     sendMouseEventUnfiltered(pos, state, wheel);
@@ -1351,10 +1350,7 @@ void QWSServer::sendMouseEventUnfiltered(const QPoint &pos, int state, int wheel
     QWSClient *winClient = win ? win->client() : 0;
 
 #ifndef QT_NO_QWS_INPUTMETHODS
-    //reset input method if we click outside
-    //####### we can't do this; IM may want to do something different
-
-    // TODO: add an attribute IMTransparent
+    //tell the input method if we click on a different window that is not IM transparent
 
     static int oldstate = 0;
     bool isPress = state > oldstate;
@@ -1522,7 +1518,7 @@ void QWSServer::sendKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers mod
 
 #ifndef QT_NO_QWS_INPUTMETHODS
 
-    if (!current_IM || !current_IM->filterKey(unicode, keycode, modifiers, isPress, autoRepeat))
+    if (!current_IM || !current_IM->filter(unicode, keycode, modifiers, isPress, autoRepeat))
         sendKeyEventUnfiltered(unicode, keycode, modifiers, isPress, autoRepeat);
 #else
     sendKeyEventUnfiltered(unicode, keycode, modifiers, isPress, autoRepeat);
@@ -1632,64 +1628,50 @@ bool QWSServer::isCursorVisible()
 #ifndef QT_NO_QWS_INPUTMETHODS
 
 
-//### qt 3 support: ???
-
-
 /*!
-    This function sends an input method event to the server. The
-    current state is passed in \a state and the current text in \a
-    txt. The cursor's position in the text is given by \a cpos, and
-    the selection length (which could be 0) is given in \a selLen.
+    This function sends the input method event \a ime to the server.
+
+    If there is a window currently in compose mode, the event is sent
+    to that window. Otherwise, the event is sent to the current focus window.
 */
-void QWSServer::sendIMEvent(IMState state, const QString& txt, int cpos, int selLen)
+
+
+void QWSServer::sendIMEvent(const QInputMethodEvent *ime)
 {
     QWSIMEvent event;
 
     QWSWindow *win = keyboardGrabber ? keyboardGrabber :
                      qwsServer->focusw;
 
-    if (state == InputMethodCommitToPrev && current_IM_win)
-        win = current_IM_win;
+    //if currently composing then event must go to the composing window
+
+    if (current_IM_composing_win)
+        win = current_IM_composing_win;
 
     event.simpleData.window = win ? win->winId() : 0;
-    event.simpleData.replaceFrom = 0;
-    event.simpleData.replaceLength = 0;
-
-    QString com = (state == InputMethodPreedit) ? QString() : txt;
-    QString pre = (state == InputMethodPreedit) ? txt : QString();
+    event.simpleData.replaceFrom = ime->replacementStart();;
+    event.simpleData.replaceLength = ime->replacementLength();
 
     QBuffer buffer;
     buffer.open(QIODevice::WriteOnly);
     QDataStream out(&buffer);
 
-    out << pre;
-    out << com;
+    out << ime->preeditString();
+    out << ime->commitString();
 
-#ifndef QT_NO_IM
-    if (state == InputMethodPreedit) {
-        if (cpos > 0)
-            out << int(QInputMethodEvent::TextFormat) << 0 <<cpos << QVariant(int(QInputContext::PreeditFormat));
-
-        if (selLen)
-            out << int(QInputMethodEvent::TextFormat) << cpos << selLen << QVariant(int(QInputContext::SelectionFormat));
-        if (cpos + selLen < txt.length())
-            out << int(QInputMethodEvent::TextFormat) << cpos + selLen << txt.length() - cpos - selLen
-                << QVariant(int(QInputContext::PreeditFormat));
-
-        out << int(QInputMethodEvent::Cursor) << cpos << 0 << QVariant();
+    const QList<QInputMethodEvent::Attribute> &attributes = ime->attributes();
+    for (int i = 0; i < attributes.count(); ++i) {
+        const QInputMethodEvent::Attribute &a = attributes.at(i);
+        out << a.type << a.start << a.length << a.value;
     }
-#endif // QT_NO_IM
-    
     event.setData(buffer.data(), buffer.size());
-
-    QWSClient *serverClient = qwsServer->clientMap[-1];
+     QWSClient *serverClient = qwsServer->clientMap[-1];
     if (serverClient)
         serverClient->sendEvent(&event);
     if (win && win->client() && win->client() != serverClient)
         win->client()->sendEvent(&event);
 
-    current_IM_ComposeMode = (state == InputMethodPreedit);
-    current_IM_win = win;
+    current_IM_composing_win = ime->preeditString().isEmpty() ? 0 : win;
     current_IM_winId = win->winId();
 }
 
@@ -1697,7 +1679,7 @@ void QWSServer::sendIMEvent(IMState state, const QString& txt, int cpos, int sel
 /*!
   Sends an input method query for the specified \a property.
 
-  You must reimplement the QWSInputMethod::responseHandler() event handler
+  You must reimplement the virtual function QWSInputMethod::queryResponse()
   in a subclass of QWSInputMethod if you want to receive responses to
   input method queries.
 */
@@ -1707,8 +1689,8 @@ void QWSServer::sendIMQuery(int property)
 
     QWSWindow *win = keyboardGrabber ? keyboardGrabber :
                      qwsServer->focusw;
-    if (current_IM_ComposeMode && current_IM_win)
-        win = current_IM_win;
+    if (current_IM_composing_win)
+        win = current_IM_composing_win;
 
     event.simpleData.window = win ? win->winId() : 0;
     event.simpleData.property = property;
@@ -2190,25 +2172,22 @@ void QWSServer::resetInputMethod()
     if (current_IM && qwsServer) {
       current_IM->reset();
     }
-    current_IM_winId = -1;
-    current_IM_win = 0;
 }
 
 void QWSServer::invokeIMResponse(const QWSIMResponseCommand *cmd,
                                  QWSClient *)
 {
     if (current_IM)
-        current_IM->responseHandler(cmd->simpleData.property, cmd->result);
+        current_IM->queryResponse(cmd->simpleData.property, cmd->result);
 }
 
 void QWSServer::invokeIMUpdate(const QWSIMUpdateCommand *cmd,
                                  QWSClient *)
 {
-    if (cmd->simpleData.type == QWSIMUpdateCommand::Update ||
-        cmd->simpleData.type == QWSIMUpdateCommand::FocusIn)
+    if (cmd->simpleData.type == QWSIMUpdateCommand::FocusIn)
         current_IM_winId = cmd->simpleData.windowid;
 
-    if (current_IM)
+    if (current_IM && current_IM_winId == cmd->simpleData.windowid)
         current_IM->updateHandler(cmd->simpleData.type);
 }
 
@@ -3031,8 +3010,10 @@ QWSInputMethod::~QWSInputMethod()
 */
 void QWSInputMethod::reset()
 {
-    if (current_IM_ComposeMode)
-        sendIMEvent(QWSServer::InputMethodCommitToPrev, QString(), 0, 0);
+    if (current_IM_composing_win) {
+        QInputMethodEvent ime;
+        sendEvent(&ime);
+    }
 }
 
 /*!
@@ -3066,7 +3047,7 @@ void QWSInputMethod::updateHandler(int type)
 
   \sa sendIMQuery()
 */
-void QWSInputMethod::responseHandler(int property, const QVariant &result)
+void QWSInputMethod::queryResponse(int property, const QVariant &result)
 {
     Q_UNUSED(property);
     Q_UNUSED(result);
@@ -3096,41 +3077,113 @@ void QWSInputMethod::mouseHandler(int, int state)
 }
 
 
+/*!
+  Sends an input method event with preedit string \a preeditString
+  and cursor position \a cursorPosition. \a selectionLength is the
+  number of characters to be marked as selected (starting at
+  cursorPosition). If \a selectionLength is negative, the text before
+  \a cursorPosition is marked.
 
+  This is a convenience function for sendEvent().
 
+  The preedit string is marked with \c QInputContext::PreeditFormat,
+  and the selected part is marked with
+  \c QInputContext::SelectionFormat.
 
+  Sending an input method event with a non-empty preedit string will
+  cause the input method to enter compose mode.  Sending an input
+  method event with an empty preedit string will cause the input
+  method to leave compose mode.
+
+  \sa sendEvent, sendCommitString, QInputMethodEvent
+*/
+
+void QWSInputMethod::sendPreeditString(const QString &preeditString, int cursorPosition, int selectionLength)
+{
+    QList<QInputMethodEvent::Attribute> attributes;
+
+    int selPos = cursorPosition;
+    if (selectionLength == 0) {
+        selPos = 0;
+    } else if (selectionLength < 0) {
+        selPos += selectionLength;
+        selectionLength = -selectionLength;
+    }
+    if (selPos > 0)
+        attributes += QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, 0, selPos,
+                                                   QVariant(int(QInputContext::PreeditFormat)));
+
+    if (selectionLength)
+        attributes += QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, selPos, selectionLength,
+                                                   QVariant(int(QInputContext::SelectionFormat)));
+
+    if (selPos + selectionLength < preeditString.length())
+        attributes += QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
+                                                   selPos + selectionLength,
+                                                   preeditString.length() - selPos - selectionLength,
+                                                   QVariant(int(QInputContext::PreeditFormat)));
+
+    attributes += QInputMethodEvent::Attribute(QInputMethodEvent::Cursor, cursorPosition,  0, QVariant());
+
+    QInputMethodEvent ime(preeditString, attributes);
+    qwsServer->sendIMEvent(&ime);
+}
+
+/*!
+  Sends an input method event with commit string \a
+  commitString. This is a convenience function for sendEvent().
+
+  If \a replaceLength is greater than 0, the commit string will
+  replace \a replaceLength characters of the receiving widget's
+  previous text, starting at \a replaceFrom relative to the start of
+  the preedit string.
+
+  This will cause the input method to leave compose mode.
+
+  \sa sendEvent, sendPreeditString, QInputMethodEvent
+*/
+void QWSInputMethod::sendCommitString(const QString &commitString, int replaceFrom, int replaceLength)
+{
+    QInputMethodEvent ime;
+    ime.setCommitString(commitString, replaceFrom, replaceLength);
+    qwsServer->sendIMEvent(&ime);
+}
 
 /*!
     \fn QWSInputMethod::sendIMEvent(QWSServer::IMState state, const QString &txt, int cpos, int selLen)
 
     Causes a QIMEvent to be sent to the focus widget.
 
-    \a txt is the text being composed (or the finished text if state
-    is QWSServer::InputMethodCommit). \a cpos is the current cursor position.
+    \a txt is the preedit string if \a state is QWSServer::IMCompose,
+    or the commit string if \a state is QWSServer::IMEnd.
 
-    If \a state is QWSServer::InputMethodPreedit, \a selLen is the number of characters in
-    the composition string (starting at \a cpos) that should be
-    marked as selected by the input widget receiving the event.
+    If \a state is QWSServer::IMCompose, \a cpos is the cursor
+    position within the preedit string, and \a selLen is the number of
+    characters (starting at \a cpos) that should be marked as selected
+    by the input widget receiving the event.
+
+    Use sendEvent(), sendPreeditString() or sendCommitString() instead.
 */
 
 /*!
-  \fn void QWSInputMethod::sendIMQuery(int property)
+  \fn void QWSInputMethod::sendQuery(int property)
 
   Sends an input method query for the specified \a property.
 
-  You must reimplement the responseHandler() event handler in your
-  subclasses if you want to receive responses to input method queries.
+  Reimplement the virtual function queryResponse() to receive
+  responses to input method queries.
 
-  \sa responseHandler()
+  \sa queryResponse()
 */
 
+#if 0 //#########
 /*!
   If \a isHigh is true and the device has a pointer device resolution twice or
   more of the screen resolution, then positions passed to filterMouse will be presented
   at the higher resolution.  Otherwise resoltion of positions passed to filterMouse
   will be equal to that of the screen resolution.
 
-  Returns the resulting number of bits to shift down to go from pointer resolution to 
+  Returns the resulting number of bits to shift down to go from pointer resolution to
   screen resolution in filterMouse.
 
   \sa filterMouse()
@@ -3142,7 +3195,7 @@ uint QWSInputMethod::setInputResolution(bool isHigh)
 }
 
 /*!
-  Returns the number of bits to shift down to go from pointer resolution to 
+  Returns the number of bits to shift down to go from pointer resolution to
   screen resolution in filterMouse.
 */
 uint QWSInputMethod::inputResolutionShift() const
@@ -3171,12 +3224,13 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
     // because something else will transform it back later.
     qwsServer->sendMouseEventUnfiltered( tpos, state, wheel );
 }
+#endif
 
 /*!
   \fn QWSInputMethod::sendKeyEvent( int unicode, int keycode, Qt::KeyboardModifiers modifiers, bool isPress, bool isAutoRepeat)
 
   Sends a key event at the parameters \a unicode, \a keycode, \a modifiers, \a isPress and \a isQAutoRepeat.
-  The event will be not be tested by the filterKey function.
+  The event will be not be tested by the filter() function.
 
   \note calling QWSServer::sendKeyEvent() will result in the event being filtered by the
   current inputmethod.
