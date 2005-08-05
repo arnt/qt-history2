@@ -154,6 +154,9 @@ QModelIndex QSortingProxyModel::index(int row, int column, const QModelIndex &pa
     if (!proxy_to_source.contains(proxy_index)) {
         QModelIndex source_parent = proxy_to_source.value(parent);
         QModelIndex source_index = model()->index(row, column, source_parent);
+        Q_ASSERT(proxy_index.isValid());
+        Q_ASSERT(source_index.isValid());
+        Q_ASSERT(!proxy_to_source.contains(proxy_index));
         proxy_to_source.insert(proxy_index, source_index);
     }
 
@@ -165,10 +168,16 @@ QModelIndex QSortingProxyModel::index(int row, int column, const QModelIndex &pa
 */
 QModelIndex QSortingProxyModel::parent(const QModelIndex &child) const
 {
-    if (child.isValid()) {
+    if (child.isValid() && child.internalPointer() != 0) { // is valid and not toplevel
+#if 1
         QModelIndex source_child = proxy_to_source.value(child);
         QModelIndex source_parent = model()->parent(source_child);
         return proxyIndex(source_parent);
+#else
+        QMap<QModelIndex,QModelIndex>::iterator it =
+            reinterpret_cast<QMap<QModelIndex,QModelIndex>::iterator>(child.internalPointer());
+        return it.key(); // the parent index
+#endif
     }
     return QModelIndex();
 }
@@ -213,8 +222,6 @@ QVariant QSortingProxyModel::data(const QModelIndex &index, int role) const
 {
     if (index.isValid()) {
         QModelIndex source_index = proxy_to_source.value(index);
-        //qDebug() << "*key*" << index;
-        //qDebug() << "*val*" << source_index;
         Q_ASSERT(source_index.isValid());
         return model()->data(source_index, role);
     }
@@ -260,8 +267,16 @@ bool QSortingProxyModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
 */
 bool QSortingProxyModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-    QModelIndex source_index = sourceIndex(row, 0, parent);
-    return model()->insertRows(source_index.row(), count, source_index.parent());
+    QModelIndex source_parent = proxy_to_source.value(parent);
+    int source_row;
+    int source_row_count = model()->rowCount(source_parent);
+    if (row >= source_row_count) {
+        source_row = source_row_count;
+    } else {
+        QModelIndex source_index = sourceIndex(row, 0, parent);
+        source_row = source_index.row();
+    }
+    return model()->insertRows(source_row, count, source_parent);
 }
 
 /*!
@@ -269,8 +284,16 @@ bool QSortingProxyModel::insertRows(int row, int count, const QModelIndex &paren
 */
 bool QSortingProxyModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
-    QModelIndex source_index = sourceIndex(0, column, parent);
-    return model()->insertColumns(source_index.column(), count, source_index.parent());
+    QModelIndex source_parent = proxy_to_source.value(parent);
+    int source_column;
+    int source_column_count = model()->columnCount(source_parent);
+    if (column >= source_column_count) {
+        source_column = source_column_count;
+    } else {
+        QModelIndex source_index = sourceIndex(0, column, parent);
+        source_column = source_index.column();
+    }
+    return model()->insertColumns(source_column, count, source_parent);
 }
 
 /*!
@@ -334,13 +357,13 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
 
     QStack<QModelIndex> source_parent_stack;
     source_parent_stack.push(QModelIndex());
+
     QList<QModelIndex> source_children;
     LessThan compare = (order == Qt::AscendingOrder ? &lessThan : &greaterThan);
 
     while (!source_parent_stack.isEmpty()) {
 
         QModelIndex source_parent = source_parent_stack.pop();
-        
         for (int row = 0; row < model()->rowCount(source_parent); ++row) {
             QModelIndex source_index = model()->index(row, column, source_parent);
             if (model()->hasChildren(source_index))
@@ -353,13 +376,16 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
         QModelIndex proxy_parent = proxy_to_source.key(source_parent); // ### slow
         void *parent_node = 0;
         if (proxy_parent.isValid())
-            parent_node = proxy_to_source.find(proxy_parent);
+            parent_node = proxy_to_source.find(proxy_parent); // get the QMap node, used as uid in the proxy index
 
+        // for each proxy_row, go through the source_column (same as proxy columns) and update the mapping
         int source_column_count = model()->columnCount(source_parent);
-        for (int proxy_row = 0; proxy_row < source_children.count(); ++proxy_row) {
+        int proxy_row_count = source_children.count();
+        for (int proxy_row = 0; proxy_row < proxy_row_count; ++proxy_row) {
             int source_row = source_children.at(proxy_row).row();
             for (int source_column = 0; source_column < source_column_count; ++source_column) {
-                QModelIndex source_index = model()->index(source_row, source_column, source_parent);
+                QModelIndex source_index = model()->index(source_row, source_column,
+                                                          source_parent);
                 Q_ASSERT(source_index.isValid());
                 QModelIndex old_proxy_index = proxy_to_source.key(source_index);
                 QModelIndex new_proxy_index = createIndex(proxy_row, source_column, parent_node);
@@ -367,8 +393,9 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
                     changePersistentIndex(old_proxy_index, new_proxy_index);
                     proxy_to_source.remove(old_proxy_index);
                 }
+                Q_ASSERT(new_proxy_index.isValid());
+                Q_ASSERT(source_index.isValid());
                 proxy_to_source.insert(new_proxy_index, source_index);
-                qDebug() << "#" << model()->data(source_index).toString() << proxy_row;
             }
         }
         
@@ -463,18 +490,11 @@ QModelIndex QSortingProxyModel::proxyIndex(const QModelIndex &source_index) cons
         return proxy_index;
 
     // not found in the map; create the index and insert it into the map
-    QModelIndex source_parent = source_index.parent();
     QModelIndex proxy_parent;
+    QModelIndex source_parent = model()->parent(source_index);
     if (source_parent.isValid())
-        proxy_parent = proxy_to_source.key(source_parent); // ### slow
-    
-    void *parent_node = 0;
-    if (proxy_parent.isValid())
-        parent_node = proxy_to_source.find(proxy_parent); // ### slow
-    proxy_index = createIndex(source_index.row(), source_index.column(), parent_node);
-    
-    proxy_to_source.insert(proxy_index, source_index);
-    return proxy_index;
+        proxy_parent = proxyIndex(source_parent);
+    return createMappedProxyIndex(proxy_parent, source_index);
 }
 
 /*!
@@ -491,9 +511,12 @@ QModelIndex QSortingProxyModel::sourceIndex(int row, int column, const QModelInd
     QModelIndex proxy_index = createIndex(row, column, parent_node);
     QModelIndex source_index = proxy_to_source.value(proxy_index);
 
-    if (!source_index.isValid()) {
+    if (!source_index.isValid()) { // not found
         QModelIndex source_parent = proxy_to_source.value(parent);
         source_index = model()->index(row, column, source_parent);
+        Q_ASSERT(proxy_index.isValid());
+        Q_ASSERT(source_index.isValid());
+        Q_ASSERT(!proxy_to_source.contains(proxy_index));
         proxy_to_source.insert(proxy_index, source_index);
     }
 
@@ -611,4 +634,18 @@ void QSortingProxyModel::clearAndSort()
     proxy_to_source.clear();
     if (sort_column != -1)
         sort(sort_column, sort_order);
+}
+
+QModelIndex QSortingProxyModel::createMappedProxyIndex(const QModelIndex &proxy_parent,
+                                                       const QModelIndex &source_index) const
+{
+    void *parent_node = 0;
+    if (proxy_parent.isValid())
+        parent_node = proxy_to_source.find(proxy_parent); // ### slow
+    QModelIndex proxy_index = createIndex(source_index.row(), source_index.column(), parent_node);
+    Q_ASSERT(proxy_index.isValid());
+    Q_ASSERT(source_index.isValid());
+    Q_ASSERT(!proxy_to_source.contains(proxy_index));
+    proxy_to_source.insert(proxy_index, source_index);
+    return proxy_index;
 }

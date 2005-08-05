@@ -92,6 +92,9 @@ protected slots:
 
     void clearAndSort();
 
+    QModelIndex createMappedProxyIndex(const QModelIndex &proxy_parent,
+                                       const QModelIndex &source_index) const;
+
 protected:
     mutable QMap<QModelIndex, QModelIndex> proxy_to_source; // mapping
 
