@@ -62,7 +62,7 @@ public:
     QRect mapToDevice(const QRect &, const QSize &) const;
     QRect mapFromDevice(const QRect &, const QSize &) const;
 
-#if 1
+#if 0
     QRegion mapToDevice(const QRegion &, const QSize &) const;
     QRegion mapFromDevice(const QRegion &, const QSize &) const;
 #endif

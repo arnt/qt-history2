@@ -334,7 +334,7 @@ QRect QTransformedScreen::mapFromDevice(const QRect &r, const QSize &s) const
     return tr.normalized();
 }
 
-#if 1
+#if 0
 QRegion QTransformedScreen::mapToDevice(const QRegion &rgn, const QSize &s) const
 {
     if (trans == None)
