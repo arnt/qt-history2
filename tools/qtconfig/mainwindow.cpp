@@ -36,6 +36,7 @@
 
 #include <stdlib.h>
 
+#include <private/qapplication_p.h>
 
 // from qapplication.cpp and qapplication_x11.cpp - These are NOT for
 // external use ignore them
@@ -336,6 +337,8 @@ MainWindow::MainWindow()
 
     settings.endGroup(); // Qt
 
+    helpview->setText(tr(appearance_text));
+
     setModified(false);
 }
 
@@ -344,6 +347,9 @@ MainWindow::~MainWindow()
 {
 }
 
+#ifdef Q_WS_X11
+extern void qt_x11_apply_settings_in_all_apps();
+#endif
 
 void MainWindow::fileSave()
 {
@@ -443,8 +449,7 @@ void MainWindow::fileSave()
     }
 
 #if defined(Q_WS_X11)
-    // ###### use _QT_SETTINGS_TIMESTAMP_
-//    QApplication::x11_apply_settings();
+    qt_x11_apply_settings_in_all_apps();
 #endif // Q_WS_X11
 
     setModified(false);

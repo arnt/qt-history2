@@ -316,10 +316,6 @@ TabletDeviceDataList *qt_tablet_devices()
 extern bool qt_tabletChokeMouse;
 #endif
 
-// last timestamp read from QSettings
-static uint appliedstamp = 0;
-
-
 static bool qt_x11EventFilter(XEvent* ev)
 {
     long unused;
@@ -498,62 +494,25 @@ static void qt_x11_create_intern_atoms()
 #endif
 }
 
+void qt_x11_apply_settings_in_all_apps()
+{
+    QByteArray stamp;
+    QDataStream s(&stamp, QIODevice::WriteOnly);
+    s << QDateTime::currentDateTime();
+
+    XChangeProperty(QX11Info::display(), QX11Info::appRootWindow(0),
+                    ATOM(_QT_SETTINGS_TIMESTAMP), ATOM(_QT_SETTINGS_TIMESTAMP), 8,
+                    PropModeReplace, (unsigned char *)stamp.data(), stamp.size());
+}
 
 /*! \internal
     apply the settings to the application
 */
 bool QApplicationPrivate::x11_apply_settings()
 {
-    Atom type;
-    int format;
-    long offset = 0;
-    unsigned long nitems, after = 1;
-    unsigned char *data = 0;
-    QDateTime timestamp, settingsstamp;
-    bool update_timestamp = false;
-
-    if (XGetWindowProperty(X11->display, QX11Info::appRootWindow(0),
-                           ATOM(_QT_SETTINGS_TIMESTAMP), 0, 0,
-                           False, AnyPropertyType, &type, &format, &nitems,
-                           &after, &data) == Success && format == 8) {
-        if (data)
-            XFree(data);
-
-        QBuffer ts;
-        ts.open(QIODevice::WriteOnly);
-
-        while (after > 0) {
-            XGetWindowProperty(X11->display, QX11Info::appRootWindow(0),
-                               ATOM(_QT_SETTINGS_TIMESTAMP),
-                               offset, 1024, False, AnyPropertyType,
-                               &type, &format, &nitems, &after, &data);
-            if (format == 8) {
-                ts.write(reinterpret_cast<char *>(data), nitems);
-                offset += nitems / 4;
-            }
-
-            XFree(data);
-        }
-
-	QByteArray buf = ts.buffer();
-        QDataStream ds(&buf, QIODevice::ReadOnly);
-        ds >> timestamp;
-    }
-
     QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
-    settingsstamp = QFileInfo(settings.fileName()).lastModified();
-    if (!settingsstamp.isValid())
-        return false;
-
-    if (appliedstamp && appliedstamp == settingsstamp.toTime_t())
-        return true;
 
     settings.beginGroup(QLatin1String("Qt"));
-
-    appliedstamp = settingsstamp.toTime_t();
-
-    if (! timestamp.isValid() || settingsstamp > timestamp)
-        update_timestamp = true;
 
     /*
       Qt settings. This is now they are written into the datastream.
@@ -732,16 +691,6 @@ bool QApplicationPrivate::x11_apply_settings()
         X11->default_im = QLatin1String("imsw-multi");
     } else {
         X11->default_im = settings.value("DefaultInputMethod", QLatin1String("xim")).toString();
-    }
-
-    if (update_timestamp) {
-        QByteArray stamp;
-        QDataStream s(&stamp, QIODevice::WriteOnly);
-        s << settingsstamp;
-
-        XChangeProperty(X11->display, QX11Info::appRootWindow(0),
-                        ATOM(_QT_SETTINGS_TIMESTAMP), ATOM(_QT_SETTINGS_TIMESTAMP), 8,
-                        PropModeReplace, (unsigned char *)stamp.data(), stamp.size());
     }
 
     settings.endGroup(); // Qt
@@ -1945,8 +1894,6 @@ void QApplicationPrivate::x11_initialize_style()
 
 void qt_cleanup()
 {
-    appliedstamp = 0;
-
     if (app_save_rootinfo)                        // root window must keep state
         qt_save_rootinfo();
 
