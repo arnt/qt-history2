@@ -2088,10 +2088,10 @@ QPixmap QPixmap::copy(const QRect &rect) const
     pm.data->uninit = false;
     pm.data->xinfo = data->xinfo;
     pm.data->d = data->d;
-    pm.data->w = data->w;
-    pm.data->h = data->h;
+    pm.data->w = s.width();
+    pm.data->h = s.height();
     pm.data->hd = (Qt::HANDLE)XCreatePixmap(X11->display, RootWindow(X11->display, data->xinfo.screen()),
-                                            data->w, data->h, data->d);
+                                            s.width(), s.height(), data->d);
 #ifndef QT_NO_XRENDER
     if (X11->use_xrender) {
         XRenderPictFormat *format = pm.data->d == 32
