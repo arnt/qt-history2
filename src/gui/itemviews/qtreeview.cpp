@@ -1746,6 +1746,8 @@ int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
     Q_Q(const QTreeView);
     int x = pos.x();
     int column = header->logicalIndexAt(x);
+    if (column == -1)
+        return -1; // no logical index at x
     int position = header->sectionViewportPosition(column);
     int size = header->sectionSize(column);
     int cx = (q->isRightToLeft() ? size - x + position : x - position);
