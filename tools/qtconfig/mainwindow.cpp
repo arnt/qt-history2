@@ -36,8 +36,6 @@
 
 #include <stdlib.h>
 
-#include <private/qapplication_p.h>
-
 // from qapplication.cpp and qapplication_x11.cpp - These are NOT for
 // external use ignore them
 // extern bool Q_CORE_EXPORT qt_resolve_symlinks;
