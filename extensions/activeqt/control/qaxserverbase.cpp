@@ -848,7 +848,8 @@ public:
             qInstallMsgHandler(qWinMsgHandler);
             qax_ownQApp = true;
             int argc = 0;
-            (void)new QApplication(argc, 0);
+            QApplication *app = new QApplication(argc, 0);
+            app->setQuitOnLastWindowClosed(false);
         }
 
         if (qAxOutProcServer)
@@ -1267,7 +1268,7 @@ bool QAxServerBase::internalCreate()
 		::SetWindowLongA(qt.widget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
 	    });
 	}
-
+    qt.widget->setAttribute(Qt::WA_QuitOnClose, false);
 	qt.widget->setGeometry(rcPos.left, rcPos.top, rcPos.right-rcPos.left, rcPos.bottom-rcPos.top);
 	updateGeometry();
     }
