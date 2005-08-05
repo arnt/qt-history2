@@ -48,6 +48,11 @@ public:
         AlignCenter,
         AlignAccountingStyle
     };
+    enum Status {
+        Ok,
+        ReadPastEnd,
+        ReadCorruptData
+    };
     enum NumberFlag {
         ShowBase = 0x1,
         ForcePoint = 0x2,
@@ -56,12 +61,6 @@ public:
         UppercaseDigits = 0x10
     };
     Q_DECLARE_FLAGS(NumberFlags, NumberFlag)
-
-    enum Status {
-        Ok,
-        ReadPastEnd,
-	ReadCorruptData
-    };
 
     QTextStream();
     explicit QTextStream(QIODevice *device);
