@@ -1082,6 +1082,9 @@ void QHeaderView::sectionsAboutToBeRemoved(const QModelIndex &parent,
     Q_D(QHeaderView);
     if (parent != rootIndex() || !d->model)
         return; // we only handle changes in the top level
+    if (qMin(logicalFirst, logicalLast) < 0
+        || qMax(logicalLast, logicalFirst) >= d->sections.count() - 1)
+        return; // should could assert here, but since models could emit signals with strange args, we are a bit forgiving
     // the sections have not been removed from the model yet
     int oldCount = this->count();
     int changeCount = logicalLast - logicalFirst + 1;
