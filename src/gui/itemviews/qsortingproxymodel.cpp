@@ -33,7 +33,7 @@ typedef bool(*LessThan)(const QModelIndex &left, const QModelIndex &right);
 
 QSortingProxyModel::QSortingProxyModel(QObject *parent)
     : QAbstractItemModel(*new QSortingProxyModelPrivate, parent),
-      sort_column(-1), sort_order(Qt::Ascending)
+      sort_column(-1), sort_order(Qt::AscendingOrder)
 {
     Q_D(QSortingProxyModel);
     setModel(&d->empty);
