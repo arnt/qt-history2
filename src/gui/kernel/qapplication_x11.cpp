@@ -494,7 +494,7 @@ static void qt_x11_create_intern_atoms()
 #endif
 }
 
-void qt_x11_apply_settings_in_all_apps()
+Q_GUI_EXPORT void qt_x11_apply_settings_in_all_apps()
 {
     QByteArray stamp;
     QDataStream s(&stamp, QIODevice::WriteOnly);
