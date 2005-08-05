@@ -32,6 +32,7 @@
 
 class QRubberBand;
 class QTimer;
+class QDesignerFormWindowInterface;
 
 class QT_SHARED_EXPORT QDesignerMenu: public QMenu
 {

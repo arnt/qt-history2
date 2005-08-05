@@ -21,6 +21,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QItemDelegate>
 #include <QtGui/QPainter>
+#include <QtGui/QVBoxLayout>
 
 Q_DECLARE_METATYPE(QAction*)
 Q_DECLARE_METATYPE(QListWidgetItem*)
