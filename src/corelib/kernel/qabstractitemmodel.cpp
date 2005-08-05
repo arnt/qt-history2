@@ -1070,7 +1070,7 @@ QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
     The base class implementation returns false. This function and
     data() must be reimplemented for editable models.
 
-    \sa data() itemData()
+    \sa Qt::ItemDataRole, data(), itemData()
 */
 bool QAbstractItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
@@ -1086,7 +1086,7 @@ bool QAbstractItemModel::setData(const QModelIndex &index, const QVariant &value
     Returns the data stored under the given \a role for the item referred to
     by the \a index.
 
-    \sa Qt::ItemDataRole
+    \sa Qt::ItemDataRole, setData(), headerData()
 */
 
 /*!
@@ -1455,7 +1455,7 @@ void QAbstractItemModel::revert()
   Returns the data for the given \a role and \a section in the header
   with the specified \a orientation.
 
-  \sa Qt::ItemDataRole
+  \sa Qt::ItemDataRole, setHeaderData()
 */
 
 QVariant QAbstractItemModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -2035,3 +2035,10 @@ bool QAbstractListModel::hasChildren(const QModelIndex &parent) const
 {
     return !parent.isValid();
 }
+
+/*!
+    \typedef QModelIndexList
+    \relates QModelIndex
+
+    Synonym for QList<QModelIndex>.
+*/
