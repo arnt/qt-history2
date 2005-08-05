@@ -57,6 +57,12 @@ public:
     };
     Q_DECLARE_FLAGS(NumberFlags, NumberFlag)
 
+    enum Status {
+        Ok,
+        ReadPastEnd,
+	ReadCorruptData
+    };
+
     QTextStream();
     explicit QTextStream(QIODevice *device);
     explicit QTextStream(FILE *fileHandle, QIODevice::OpenMode openMode = QIODevice::ReadWrite);
@@ -80,6 +86,10 @@ public:
 
     void setString(QString *string, QIODevice::OpenMode openMode = QIODevice::ReadWrite);
     QString *string() const;
+
+    Status status() const;
+    void setStatus(Status status);
+    void resetStatus();
 
     bool atEnd() const;
     void reset();

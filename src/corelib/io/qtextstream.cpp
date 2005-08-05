@@ -246,14 +246,28 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     Q_D(QTextStream); \
     CHECK_VALID_STREAM(*this); \
     qulonglong tmp; \
-    i = d->getNumber(&tmp) ? (type)tmp : (type)0; \
+    switch (d->getNumber(&tmp)) { \
+    case QTextStreamPrivate::npsOk: \
+        i = (type)tmp; \
+        break; \
+    case QTextStreamPrivate::npsMissingDigit: \
+    case QTextStreamPrivate::npsInvalidPrefix: \
+        i = (type)0; \
+        setStatus(atEnd() ? QTextStream::ReadPastEnd : QTextStream::ReadCorruptData); \
+        break; \
+    } \
     return *this; } while (0)
 
 #define IMPLEMENT_STREAM_RIGHT_REAL_OPERATOR(type) do { \
     Q_D(QTextStream); \
     CHECK_VALID_STREAM(*this); \
     double tmp; \
-    f = d->getReal(&tmp) ? (type)tmp : (type)0; \
+    if (d->getReal(&tmp)) { \
+        f = (type)tmp; \
+    } else { \
+        f = (type)0; \
+        setStatus(atEnd() ? QTextStream::ReadPastEnd : QTextStream::ReadCorruptData); \
+    } \
     return *this; } while (0)
 
 #ifndef QT_NO_QOBJECT
@@ -322,10 +336,17 @@ public:
     inline void consume(int nchars);
     int lastTokenSize;
 
+    // Return value type for getNumber()
+    enum NumberParsingStatus {
+        npsOk,
+        npsMissingDigit,
+        npsInvalidPrefix
+    };
+
     inline bool write(const QString &data);
     inline bool getChar(QChar *ch);
     inline void ungetChar(const QChar &ch);
-    bool getNumber(qulonglong *l);
+    NumberParsingStatus getNumber(qulonglong *l);
     bool getReal(double *f);
 
     bool putNumber(qulonglong number, bool negative);
@@ -347,6 +368,9 @@ public:
     QTextStream::FieldAlignment fieldAlignment;
     QTextStream::RealNumberNotation realNumberNotation;
     QTextStream::NumberFlags numberFlags;
+
+    // status
+    QTextStream::Status status;
 
     QTextStream *q_ptr;
 };
@@ -763,6 +787,8 @@ QTextStream::QTextStream()
 #if defined (QTEXTSTREAM_DEBUG)
     qDebug("QTextStream::QTextStream()");
 #endif
+    Q_D(QTextStream);
+    d->status = Ok;
 }
 
 /*!
@@ -780,6 +806,7 @@ QTextStream::QTextStream(QIODevice *device)
 #ifndef QT_NO_QOBJECT
     d->deviceClosedNotifier.setupDevice(this, d->device);
 #endif
+    d->status = Ok;
 }
 
 /*!
@@ -796,6 +823,7 @@ QTextStream::QTextStream(QString *string, QIODevice::OpenMode openMode)
     Q_D(QTextStream);
     d->string = string;
     d->stringOpenMode = openMode;
+    d->status = Ok;
 }
 
 /*!
@@ -817,6 +845,7 @@ QTextStream::QTextStream(QByteArray *array, QIODevice::OpenMode openMode)
 #ifndef QT_NO_QOBJECT
     d->deviceClosedNotifier.setupDevice(this, d->device);
 #endif
+    d->status = Ok;
 }
 
 /*!
@@ -857,6 +886,7 @@ QTextStream::QTextStream(const QByteArray &array, QIODevice::OpenMode openMode)
 #ifndef QT_NO_QOBJECT
     d->deviceClosedNotifier.setupDevice(this, d->device);
 #endif
+    d->status = Ok;
 }
 
 /*!
@@ -890,6 +920,7 @@ QTextStream::QTextStream(FILE *fileHandle, QIODevice::OpenMode openMode)
 #ifndef QT_NO_QOBJECT
     d->deviceClosedNotifier.setupDevice(this, d->device);
 #endif
+    d->status = Ok;
 }
 
 /*!
@@ -1256,6 +1287,41 @@ int QTextStream::realNumberPrecision() const
 }
 
 /*!
+    Returns the status of the text stream.
+
+    \sa Status setStatus() resetStatus()
+*/
+
+QTextStream::Status QTextStream::status() const
+{
+    Q_D(const QTextStream);
+    return d->status;
+}
+
+/*!
+    Resets the status of the text stream.
+
+    \sa Status status() setStatus()
+*/
+void QTextStream::resetStatus()
+{
+    Q_D(QTextStream);
+    d->status = Ok;
+}
+
+/*!
+    Sets the status of the text stream to the \a status given.
+
+    \sa Status status() resetStatus()
+*/
+void QTextStream::setStatus(Status status)
+{
+    Q_D(QTextStream);
+    if (d->status == Ok)
+        d->status = status;
+}
+
+/*!
     Returns true if there is no more data to be read from the
     QTextStream; otherwise returns false. This is similar to, but not
     the same as calling QIODevice::atEnd(), as QTextStream also takes
@@ -1327,7 +1393,7 @@ QString QTextStream::readLine(qint64 maxlen)
 
 /*! \internal
 */
-bool QTextStreamPrivate::getNumber(qulonglong *ret)
+QTextStreamPrivate::NumberParsingStatus QTextStreamPrivate::getNumber(qulonglong *ret)
 {
     scan(0, 0, 0, NotSpace);
     consumeLastToken();
@@ -1337,12 +1403,13 @@ bool QTextStreamPrivate::getNumber(qulonglong *ret)
     if (base == 0) {
         QChar ch;
         if (!getChar(&ch))
-            return false;
+            return npsInvalidPrefix;
         if (ch == QLatin1Char('0')) {
             QChar ch2;
             if (!getChar(&ch2)) {
-                ungetChar(ch);
-                return false;
+                // Result is the number 0
+                *ret = 0;
+                return npsOk;
             }
             ch2 = ch2.toLower();
 
@@ -1360,56 +1427,84 @@ bool QTextStreamPrivate::getNumber(qulonglong *ret)
             base = 10;
         } else {
             ungetChar(ch);
-            return false;
+            return npsInvalidPrefix;
         }
         ungetChar(ch);
+        // State of the stream is now the same as on entry
+        // (cursor is at prefix),
+        // and local variable 'base' has been set appropriately.
     }
 
     qulonglong val=0;
     switch (base) {
     case 2: {
-        QChar tmp;
-        if (!getChar(&tmp) || tmp != QLatin1Char('0'))
-            return false;
-        if (!getChar(&tmp) || tmp.toLower() != QLatin1Char('b'))
-            return false;
-        while (getChar(&tmp)) {
-            int n = tmp.toLower().unicode();
+        QChar pf1, pf2, dig;
+        // Parse prefix '0b'
+        if (!getChar(&pf1) || pf1 != QLatin1Char('0'))
+            return npsInvalidPrefix;
+        if (!getChar(&pf2) || pf2.toLower() != QLatin1Char('b'))
+            return npsInvalidPrefix;
+        // Parse digits
+        int ndigits = 0;
+        while (getChar(&dig)) {
+            int n = dig.toLower().unicode();
             if (n == '0' || n == '1') {
                 val <<= 1;
                 val += n - '0';
             } else {
-                ungetChar(tmp);
+                ungetChar(dig);
                 break;
             }
+            ndigits++;
+        }
+        if (ndigits == 0) {
+            // Unwind the prefix and abort
+            ungetChar(pf2);
+            ungetChar(pf1);
+            return npsMissingDigit;
         }
         break;
     }
     case 8: {
-        QChar tmp;
-        if (!getChar(&tmp) || tmp != QLatin1Char('0'))
-            return false;
-        while (getChar(&tmp)) {
-            int n = tmp.toLower().unicode();
+        QChar pf, dig;
+        // Parse prefix '0'
+        if (!getChar(&pf) || pf != QLatin1Char('0'))
+            return npsInvalidPrefix;
+        // Parse digits
+        int ndigits = 0;
+        while (getChar(&dig)) {
+            int n = dig.toLower().unicode();
             if (n >= '0' && n <= '7') {
                 val *= 8;
                 val += n - '0';
             } else {
-                ungetChar(tmp);
+                ungetChar(dig);
                 break;
             }
+            ndigits++;
+        }
+        if (ndigits == 0) {
+            // Unwind the prefix and abort
+            ungetChar(pf);
+            return npsMissingDigit;
         }
         break;
     }
     case 10: {
+        // Parse sign (or first digit)
         QChar sign;
+        int ndigits = 0;
         if (!getChar(&sign))
-            return false;
+            return npsMissingDigit;
         if (sign != QLatin1Char('-') && sign != QLatin1Char('+')) {
-            if (!sign.isDigit())
-                return false;
+            if (!sign.isDigit()) {
+                ungetChar(sign);
+                return npsMissingDigit;
+            }
             val += sign.digitValue();
+            ndigits++;
         }
+        // Parse digits
         QChar ch;
         while (getChar(&ch)) {
             if (ch.isDigit()) {
@@ -1419,7 +1514,10 @@ bool QTextStreamPrivate::getNumber(qulonglong *ret)
                 ungetChar(ch);
                 break;
             }
+            ndigits++;
         }
+        if (ndigits == 0)
+            return npsMissingDigit;
         if (sign == QLatin1Char('-')) {
             qlonglong ival = qlonglong(val);
             if (ival > 0)
@@ -1429,13 +1527,16 @@ bool QTextStreamPrivate::getNumber(qulonglong *ret)
         break;
     }
     case 16: {
-        QChar tmp;
-        if (!getChar(&tmp) || tmp != QLatin1Char('0'))
-            return false;
-        if (!getChar(&tmp) || tmp.toLower() != QLatin1Char('x'))
-            return false;
-        while (getChar(&tmp)) {
-            int n = tmp.toLower().unicode();
+        QChar pf1, pf2, dig;
+        // Parse prefix ' 0x'
+        if (!getChar(&pf1) || pf1 != QLatin1Char('0'))
+            return npsInvalidPrefix;
+        if (!getChar(&pf2) || pf2.toLower() != QLatin1Char('x'))
+            return npsInvalidPrefix;
+        // Parse digits
+        int ndigits = 0;
+        while (getChar(&dig)) {
+            int n = dig.toLower().unicode();
             if (n >= '0' && n <= '9') {
                 val <<= 4;
                 val += n - '0';
@@ -1443,19 +1544,24 @@ bool QTextStreamPrivate::getNumber(qulonglong *ret)
                 val <<= 4;
                 val += 10 + (n - 'a');
             } else {
-                ungetChar(tmp);
+                ungetChar(dig);
                 break;
             }
+            ndigits++;
+        }
+        if (ndigits == 0) {
+            return npsMissingDigit;
         }
         break;
     }
     default:
-        return false;
+        // Unsupported integerBase
+        return npsInvalidPrefix;
     }
 
     if (ret)
         *ret = val;
-    return true;
+    return npsOk;
 }
 
 /*! \internal
@@ -1533,6 +1639,7 @@ bool QTextStreamPrivate::getReal(double *f)
         state = ParserState(table[state][input]);
 
         if  (state == Init || state == Done || i > (BufferSize - 5)) {
+            ungetChar(c);
             if (i > (BufferSize - 5)) { // ignore rest of digits
                 while (getChar(&c)) {
                     if (!c.isDigit()) {
@@ -1546,6 +1653,10 @@ bool QTextStreamPrivate::getReal(double *f)
 
         buf[i++] = c.toLatin1();
     }
+
+    if (i == 0)
+        return false;
+
     buf[i] = '\0';
 
     if (f)
@@ -1572,7 +1683,8 @@ QTextStream &QTextStream::operator>>(QChar &c)
     Q_D(QTextStream);
     CHECK_VALID_STREAM(*this);
     d->scan(0, 0, 0, QTextStreamPrivate::NotSpace);
-    d->getChar(&c);
+    if (!d->getChar(&c))
+        setStatus(ReadPastEnd);
     return *this;
 }
 
@@ -1733,8 +1845,10 @@ QTextStream &QTextStream::operator>>(QString &str)
 
     const QChar *ptr;
     int length;
-    if (!d->scan(&ptr, &length, 0, QTextStreamPrivate::Space))
+    if (!d->scan(&ptr, &length, 0, QTextStreamPrivate::Space)) {
+        setStatus(ReadPastEnd);
         return *this;
+    }
 
     str = QString(ptr, length);
     d->consumeLastToken();
@@ -1759,8 +1873,10 @@ QTextStream &QTextStream::operator>>(QByteArray &array)
 
     const QChar *ptr;
     int length;
-    if (!d->scan(&ptr, &length, 0, QTextStreamPrivate::Space))
+    if (!d->scan(&ptr, &length, 0, QTextStreamPrivate::Space)) {
+        setStatus(ReadPastEnd);
         return *this;
+    }
 
     for (int i = 0; i < length; ++i)
         array += ptr[i].toLatin1();
@@ -1792,8 +1908,10 @@ QTextStream &QTextStream::operator>>(char *c)
 
     const QChar *ptr;
     int length;
-    if (!d->scan(&ptr, &length, 0, QTextStreamPrivate::Space))
+    if (!d->scan(&ptr, &length, 0, QTextStreamPrivate::Space)) {
+        setStatus(ReadPastEnd);
         return *this;
+    }
 
     for (int i = 0; i < length; ++i)
         *c++ = ptr[i].toLatin1();
