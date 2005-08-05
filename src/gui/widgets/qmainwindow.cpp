@@ -96,6 +96,11 @@ void QMainWindowPrivate::init()
     widget, such as a text edit, drawing canvas or QWorkspace (for MDI
     applications).
 
+    Note that QMainWindow comes with its own customized layout and
+    that setting a layout on a QMainWindow, or creating a layout with
+    a QMainWindow as a parent is considered an error. You should set your
+    layout on the \l{centralWidget()}{central widget} instead.
+
     Topics:
 
     \tableofcontents
