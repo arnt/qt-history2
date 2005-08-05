@@ -2127,9 +2127,11 @@ QPixmap QPixmap::copy(const QRect &rect) const
                   rect.x(), rect.y(), pm.width(), pm.height(),
                   0, 0);
         if (data->x11_mask) {
-            XCopyArea(X11->display, data->x11_mask, pm.data->x11_mask, gc,
+            GC monogc = XCreateGC(X11->display, pm.data->x11_mask, 0, 0);
+            XCopyArea(X11->display, data->x11_mask, pm.data->x11_mask, monogc,
                       rect.x(), rect.y(), pm.data->w, pm.data->h,
                       0, 0);
+            XFreeGC(X11->display, monogc);
         }
         XFreeGC(X11->display, gc);
     }
