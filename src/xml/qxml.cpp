@@ -1336,7 +1336,7 @@ void QXmlInputSource::fetchData()
 QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
 {
 #ifdef QT_NO_TEXTCODEC
-    return QString(data);    
+    return QString(data);
 #else
     if (data.size() == 0)
         return QString();
@@ -1346,9 +1346,19 @@ QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
     }
     if (d->encMapper == 0) {
         int mib = 106; // UTF-8
+
         // look for byte order mark and read the first 5 characters
-        if (data.size() >= 2 && (data.startsWith("\xfe\xff") || data.startsWith("\xff\xfe")))
-            mib = 1015; // UTF-16
+        if (data.size() >= 2) {
+            uchar ch1 = data.at(0);
+            uchar ch2 = data.at(1);
+
+            if (ch1 == 0xfe && ch2 == 0xff || ch1 == 0xff && ch2 == 0xfe)
+                mib = 1015; // UTF-16 with byte order mark
+            else if (ch1 == 0x3c && ch2 == 0x00)
+                mib = 1014; // UTF-16LE
+            else if (ch1 == 0x00 && ch2 == 0x3c)
+                mib = 1013; // UTF-16BE
+        }
 
         QTextCodec *codec = QTextCodec::codecForMib(mib);
         Q_ASSERT(codec);
