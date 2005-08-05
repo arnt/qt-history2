@@ -142,10 +142,10 @@ embedded {
 #		SOURCES += embedded/qscreenvga16_qws.cpp
 #	}
 #
-#	contains( gfx-drivers, transformed ) {
-#		HEADERS += embedded/qscreentransformed_qws.h
-#		SOURCES += embedded/qscreentransformed_qws.cpp
-#	}
+	contains( gfx-drivers, transformed ) {
+		HEADERS += embedded/qscreentransformed_qws.h
+		SOURCES += embedded/qscreentransformed_qws.cpp
+	}
 #
 #	contains( gfx-drivers, mach64 ) {
 #		HEADERS += embedded/qscreenmach64_qws.h \
