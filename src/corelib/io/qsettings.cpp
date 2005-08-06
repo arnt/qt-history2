@@ -1628,7 +1628,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const InternalSet
     (window sizes and positions, options, etc.) across sessions. This
     information is often stored in the system registry on Windows,
     and in XML preferences files on Mac OS X. On Unix systems, in the
-    absense of a standard, many applications (including the KDE
+    absence of a standard, many applications (including the KDE
     applications) use INI text files.
 
     QSettings is an abstraction around these technologies, enabling
