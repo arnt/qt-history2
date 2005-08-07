@@ -1458,11 +1458,8 @@
     and a number of \c{QListWidgetItem}s. A list widget is constructed in the
     same way as any other widget:
 
-    \quotefromfile snippets/qlistwidget-using/mainwindow.h
-    \skipto QListWidget *
-    \printuntil QListWidget *
     \quotefromfile snippets/qlistwidget-using/mainwindow.cpp
-    \skipto listWidget = new
+    \skipto QListWidget *
     \printuntil listWidget = new
 
     List items can be added directly to the list widget when they are
@@ -1509,11 +1506,8 @@
     child items of its own, and can display a number of columns of
     information. Tree widgets are created just like any other widget:
 
-    \quotefromfile snippets/qtreewidget-using/mainwindow.h
-    \skipto QTreeWidget *
-    \printuntil QTreeWidget *
     \quotefromfile snippets/qtreewidget-using/mainwindow.cpp
-    \skipto treeWidget = new
+    \skipto QTreeWidget *
     \printuntil treeWidget = new
 
     Before items can be added to the tree widget, the number of columns must
