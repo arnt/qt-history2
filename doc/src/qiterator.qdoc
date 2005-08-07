@@ -1,4 +1,7 @@
-/*! \class QListIterator
+/*! 
+    \class QListIterator
+    \inmodule QtCore
+
     \brief The QListIterator class provides a Java-style const iterator for QList and QQueue.
 
     QList has both \l{Java-style iterators} and \l{STL-style
@@ -21,9 +24,9 @@
     the elements sequentially:
 
     \code
-	QList<float> list;
+        QList<float> list;
         ...
-	QListIterator<float> i(list);
+        QListIterator<float> i(list);
         while (i.hasNext())
 	    qDebug() << i.next();
     \endcode
@@ -42,7 +45,7 @@
     Here's how to iterate over the elements in reverse order:
 
     \code
-	QListIterator<float> i(list);
+        QListIterator<float> i(list);
         i.toBack();
         while (i.hasPrevious())
 	    qDebug() << i.previous();
@@ -59,7 +62,10 @@
     \sa QMutableListIterator, QList::const_iterator
 */
 
-/*! \class QLinkedListIterator
+/*! 
+    \class QLinkedListIterator
+    \inmodule QtCore
+
     \brief The QLinkedListIterator class provides a Java-style const iterator for QLinkedList.
 
     QLinkedList has both \l{Java-style iterators} and
@@ -77,9 +83,9 @@
     iterate over all the elements sequentially:
 
     \code
-	QLinkedList<float> list;
+        QLinkedList<float> list;
         ...
-	QLinkedListIterator<float> i(list);
+        QLinkedListIterator<float> i(list);
         while (i.hasNext())
 	    qDebug() << i.next();
     \endcode
@@ -98,7 +104,7 @@
     Here's how to iterate over the elements in reverse order:
 
     \code
-	QLinkedListIterator<float> i(list);
+        QLinkedListIterator<float> i(list);
         i.toBack();
         while (i.hasPrevious())
 	    qDebug() << i.previous();
@@ -115,7 +121,9 @@
     \sa QMutableLinkedListIterator, QLinkedList::const_iterator
 */
 
-/*! \class QVectorIterator
+/*! 
+    \class QVectorIterator
+    \inmodule QtCore
     \brief The QVectorIterator class provides a Java-style const iterator for QVector and QStack.
 
     QVector has both \l{Java-style iterators} and \l{STL-style
@@ -138,9 +146,9 @@
     all the elements sequentially:
 
     \code
-	QVector<float> vector;
+        QVector<float> vector;
         ...
-	QVectorIterator<float> i(vector);
+        QVectorIterator<float> i(vector);
         while (i.hasNext())
 	    qDebug() << i.next();
     \endcode
@@ -159,7 +167,7 @@
     Here's how to iterate over the elements in reverse order:
 
     \code
-	QVectorIterator<float> i(vector);
+        QVectorIterator<float> i(vector);
         i.toBack();
         while (i.hasPrevious())
 	    qDebug() << i.previous();
@@ -176,7 +184,9 @@
     \sa QMutableVectorIterator, QVector::const_iterator
 */
 
-/*! \class QSetIterator
+/*! 
+    \class QSetIterator
+    \inmodule QtCore
     \brief The QSetIterator class provides a Java-style const iterator for QSet.
 
     QSet supports both \l{Java-style iterators} and \l{STL-style
@@ -191,11 +201,11 @@
     sequentially:
 
     \code
-	QSet<QString> set;
+        QSet<QString> set;
         ...
-	QSetIterator<QString> i(set);
+        QSetIterator<QString> i(set);
         while (i.hasNext())
-	    qDebug() << i.next();
+            qDebug() << i.next();
     \endcode
 
     The next() function returns the next item in the set and
@@ -212,10 +222,10 @@
     Here's how to iterate over the elements in reverse order:
 
     \code
-	QSetIterator<QString> i(set);
+        QSetIterator<QString> i(set);
         i.toBack();
         while (i.hasPrevious())
-	    qDebug() << i.previous();
+            qDebug() << i.previous();
     \endcode
 
     If you want to find all occurrences of a particular value, use
@@ -229,7 +239,10 @@
     \sa QSet::const_iterator
 */
 
-/*! \class QMutableListIterator
+/*! 
+    \class QMutableListIterator
+    \inmodule QtCore
+
     \brief The QMutableListIterator class provides a Java-style non-const iterator for QList and QQueue.
 
     QList has both \l{Java-style iterators} and \l{STL-style
@@ -253,9 +266,9 @@
     all the elements sequentially:
 
     \code
-	QList<float> list;
+        QList<float> list;
         ...
-	QMutableListIterator<float> i(list);
+        QMutableListIterator<float> i(list);
         while (i.hasNext())
 	    qDebug() << i.next();
     \endcode
@@ -274,7 +287,7 @@
     Here's how to iterate over the elements in reverse order:
 
     \code
-	QMutableListIterator<float> i(list);
+        QMutableListIterator<float> i(list);
         i.toBack();
         while (i.hasPrevious())
 	    qDebug() << i.previous();
@@ -290,13 +303,13 @@
 
     Example:
     \code
-	QMutableListIterator<int> i(list);
+        QMutableListIterator<int> i(list);
         while (i.hasNext()) {
-	    int val = i.next();
+            int val = i.next();
             if (val < 0) {
-		i.setValue(-val);
+                i.setValue(-val);
             } else if (val == 0) {
-		i.remove();
+                i.remove();
             }
         }
     \endcode
@@ -313,7 +326,10 @@
     \sa QListIterator, QList::iterator
 */
 
-/*! \class QMutableLinkedListIterator
+/*! 
+    \class QMutableLinkedListIterator
+    \inmodule QtCore
+
     \brief The QMutableLinkedListIterator class provides a Java-style non-const iterator for QLinkedList.
 
     QLinkedList has both \l{Java-style iterators} and
@@ -332,9 +348,9 @@
     iterate over all the elements sequentially:
 
     \code
-	QLinkedList<float> list;
+        QLinkedList<float> list;
         ...
-	QMutableLinkedListIterator<float> i(list);
+        QMutableLinkedListIterator<float> i(list);
         while (i.hasNext())
 	    qDebug() << i.next();
     \endcode
@@ -353,7 +369,7 @@
     Here's how to iterate over the elements in reverse order:
 
     \code
-	QMutableLinkedListIterator<float> i(list);
+        QMutableLinkedListIterator<float> i(list);
         i.toBack();
         while (i.hasPrevious())
 	    qDebug() << i.previous();
@@ -369,13 +385,13 @@
 
     Example:
     \code
-	QMutableLinkedListIterator<int> i(list);
+        QMutableLinkedListIterator<int> i(list);
         while (i.hasNext()) {
-	    int val = i.next();
+            int val = i.next();
             if (val < 0) {
-		i.setValue(-val);
+                i.setValue(-val);
             } else if (val == 0) {
-		i.remove();
+                i.remove();
             }
         }
     \endcode
@@ -392,7 +408,10 @@
     \sa QLinkedListIterator, QLinkedList::iterator
 */
 
-/*! \class QMutableVectorIterator
+/*! 
+    \class QMutableVectorIterator
+    \inmodule QtCore
+
     \brief The QMutableVectorIterator class provides a Java-style non-const iterator for QVector and QStack.
 
     QVector has both \l{Java-style iterators} and \l{STL-style
@@ -416,9 +435,9 @@
     iterate over all the elements sequentially:
 
     \code
-	QVector<float> vector;
+        QVector<float> vector;
         ...
-	QMutableVectorIterator<float> i(vector);
+        QMutableVectorIterator<float> i(vector);
         while (i.hasNext())
 	    qDebug() << i.next();
     \endcode
@@ -437,7 +456,7 @@
     Here's how to iterate over the elements in reverse order:
 
     \code
-	QMutableVectorIterator<float> i(vector);
+        QMutableVectorIterator<float> i(vector);
         i.toBack();
         while (i.hasPrevious())
 	    qDebug() << i.previous();
@@ -453,13 +472,13 @@
 
     Example:
     \code
-	QMutableVectorIterator<int> i(vector);
+        QMutableVectorIterator<int> i(vector);
         while (i.hasNext()) {
-	    int val = i.next();
+            int val = i.next();
             if (val < 0) {
-		i.setValue(-val);
+                i.setValue(-val);
             } else if (val == 0) {
-		i.remove();
+                i.remove();
             }
         }
     \endcode
@@ -892,7 +911,10 @@
     \sa remove(), setValue()
 */
 
-/*! \class QMapIterator
+/*! 
+    \class QMapIterator
+    \inmodule QtCore
+
     \brief The QMapIterator class provides a Java-style const iterator for QMap and QMultiMap.
 
     QMap has both \l{Java-style iterators} and \l{STL-style
@@ -910,9 +932,9 @@
     the elements sequentially:
 
     \code
-	QMap<int, QWidget *> map;
+        QMap<int, QWidget *> map;
         ...
-	QMapIterator<QString, QWidget *> i(map);
+        QMapIterator<QString, QWidget *> i(map);
         while (i.hasNext()) {
 	    i.next();
 	    qDebug() << i.key() << ": " << i.value();
@@ -935,7 +957,7 @@
     Here's how to iterate over the elements in reverse order:
 
     \code
-	QMapIterator<int, QWidget *> i(map);
+        QMapIterator<int, QWidget *> i(map);
         i.toBack();
         while (i.hasPrevious()) {
 	    i.previous();
@@ -947,7 +969,7 @@
     findNext() or findPrevious() in a loop. For example:
 
     \code
-	QMapIterator<int, QWidget *> i(map);
+        QMapIterator<int, QWidget *> i(map);
         while (i.findNext(widget)) {
 	    qDebug() << "Found widget " << widget << " under key "
 		     << i.key();
@@ -962,7 +984,9 @@
     \sa QMutableMapIterator, QMap::const_iterator
 */
 
-/*! \class QHashIterator
+/*! 
+    \class QHashIterator
+    \inmodule QtCore
 
     \brief The QHashIterator class provides a Java-style const iterator for QHash and QMultiHash.
 
@@ -981,9 +1005,9 @@
     the elements sequentially:
 
     \code
-	QHash<int, QWidget *> hash;
+        QHash<int, QWidget *> hash;
         ...
-	QHashIterator<QString, QWidget *> i(hash);
+        QHashIterator<QString, QWidget *> i(hash);
         while (i.hasNext()) {
 	    i.next();
 	    qDebug() << i.key() << ": " << i.value();
@@ -1006,7 +1030,7 @@
     Here's how to iterate over the elements in reverse order:
 
     \code
-	QHashIterator<int, QWidget *> i(hash);
+        QHashIterator<int, QWidget *> i(hash);
         i.toBack();
         while (i.hasPrevious()) {
 	    i.previous();
@@ -1018,7 +1042,7 @@
     findNext() or findPrevious() in a loop. For example:
 
     \code
-	QHashIterator<int, QWidget *> i(hash);
+        QHashIterator<int, QWidget *> i(hash);
         while (i.findNext(widget)) {
 	    qDebug() << "Found widget " << widget << " under key "
 		     << i.key();
@@ -1033,7 +1057,10 @@
     \sa QMutableHashIterator, QHash::const_iterator
 */
 
-/*! \class QMutableMapIterator
+/*! 
+    \class QMutableMapIterator
+    \inmodule QtCore
+
     \brief The QMutableMapIterator class provides a Java-style non-const iterator for QMap and QMultiMap.
 
     QMap has both \l{Java-style iterators} and \l{STL-style
@@ -1052,9 +1079,9 @@
     all the elements sequentially:
 
     \code
-	QMap<int, QWidget *> map;
+        QMap<int, QWidget *> map;
         ...
-	QMutableMapIterator<QString, QWidget *> i(map);
+        QMutableMapIterator<QString, QWidget *> i(map);
         while (i.hasNext()) {
 	    i.next();
 	    qDebug() << i.key() << ": " << i.value();
@@ -1077,7 +1104,7 @@
     Here's how to iterate over the elements in reverse order:
 
     \code
-	QMutableMapIterator<int, QWidget *> i(map);
+        QMutableMapIterator<int, QWidget *> i(map);
         i.toBack();
         while (i.hasPrevious()) {
 	    i.previous();
@@ -1089,7 +1116,7 @@
     findNext() or findPrevious() in a loop. For example:
 
     \code
-	QMutableMapIterator<int, QWidget *> i(map);
+        QMutableMapIterator<int, QWidget *> i(map);
         while (i.findNext(widget)) {
 	    qDebug() << "Found widget " << widget << " under key "
 		     << i.key();
@@ -1103,11 +1130,11 @@
     Example:
 
     \code
-	QMutableMapIterator<QString, QString> i(map);
+        QMutableMapIterator<QString, QString> i(map);
         while (i.hasNext()) {
-	    i.next();
+            i.next();
             if (i.key() == i.value())
-		i.remove();
+                i.remove();
         }
     \endcode
 
@@ -1123,7 +1150,10 @@
     \sa QMapIterator, QMap::iterator
 */
 
-/*! \class QMutableHashIterator
+/*! 
+    \class QMutableHashIterator
+    \inmodule QtCore
+
     \brief The QMutableHashIterator class provides a Java-style non-const iterator for QHash and QMultiHash.
 
     QHash has both \l{Java-style iterators} and \l{STL-style
@@ -1142,9 +1172,9 @@
     all the elements sequentially:
 
     \code
-	QHash<int, QWidget *> hash;
+        QHash<int, QWidget *> hash;
         ...
-	QMutableHashIterator<QString, QWidget *> i(hash);
+        QMutableHashIterator<QString, QWidget *> i(hash);
         while (i.hasNext()) {
 	    i.next();
 	    qDebug() << i.key() << ": " << i.value();
@@ -1167,7 +1197,7 @@
     Here's how to iterate over the elements in reverse order:
 
     \code
-	QMutableHashIterator<int, QWidget *> i(hash);
+        QMutableHashIterator<int, QWidget *> i(hash);
         i.toBack();
         while (i.hasPrevious()) {
 	    i.previous();
@@ -1179,7 +1209,7 @@
     findNext() or findPrevious() in a loop. For example:
 
     \code
-	QMutableHashIterator<int, QWidget *> i(hash);
+        QMutableHashIterator<int, QWidget *> i(hash);
         while (i.findNext(widget)) {
 	    qDebug() << "Found widget " << widget << " under key "
 		     << i.key();
@@ -1193,11 +1223,11 @@
     Example:
 
     \code
-	QMutableHashIterator<QString, QString> i(hash);
+        QMutableHashIterator<QString, QString> i(hash);
         while (i.hasNext()) {
-	    i.next();
+            i.next();
             if (i.key() == i.value())
-		i.remove();
+         i.remove();
         }
     \endcode
 
