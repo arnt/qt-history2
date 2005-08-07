@@ -513,8 +513,7 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
     setAutoCompletion() and whether or not the user can add duplicates
     is set with setDuplicatesEnabled().
 
-    \inlineimage macintosh-combobox.png Screenshot in Macintosh style
-    \inlineimage windows-combobox.png Screenshot in Windows style
+    \image qstyle-comboboxes.png Comboboxes in the different built-in styles.
 
     \sa QLineEdit, QSpinBox, QRadioButton, QButtonGroup,
         {fowler}{GUI Design Handbook: Combo Box, Drop-Down List Box}
