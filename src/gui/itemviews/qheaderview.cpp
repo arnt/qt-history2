@@ -665,6 +665,7 @@ int QHeaderView::visualIndex(int logicalIndex) const
 {
     Q_D(const QHeaderView);
     d->executePostedLayout();
+#if 0 // for debugging
     if (d->visualIndices.isEmpty()) { // nothing has been moved, so we have no mapping
         Q_ASSERT(logicalIndex >= 0 && logicalIndex < d->sections.count() - 1);
         return logicalIndex;
@@ -673,6 +674,17 @@ int QHeaderView::visualIndex(int logicalIndex) const
     int visual = d->visualIndices.at(logicalIndex);
     Q_ASSERT(visual < d->sections.count() - 1);
     return visual;
+#else
+    if (d->visualIndices.isEmpty()) { // nothing has been moved, so we have no mapping
+        if (logicalIndex >= 0 && logicalIndex < d->sections.count() - 1)
+            return logicalIndex;
+    } else if (logicalIndex >= 0 && logicalIndex < d->visualIndices.count() - 1) {        
+        int visual = d->visualIndices.at(logicalIndex);
+        Q_ASSERT(visual < d->sections.count() - 1);
+        return visual;
+    }
+    return -1;
+#endif
 }
 
 /*!
