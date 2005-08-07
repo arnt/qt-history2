@@ -64,7 +64,7 @@ element.
 \i \bold{Basic structure}
 
 The "top level" of a document might be populated in the way shown.
-Each document always contains a root frame, and this contains always contains
+Each document always contains a root frame, and this always contains
 at least one text block.
 
 For documents with some textual content, the root
@@ -205,7 +205,7 @@ elements. As a result, all frames except the root frame have a parent
 frame.
 
 Since text blocks are used to separate other document elements, each
-frame will always contain at least one text block, and may contain no
+frame will always contain at least one text block, and zero or more
 child frames. We can inspect the contents of a frame by using a
 QTextFrame::iterator to traverse the frame's child elements:
 
@@ -383,7 +383,8 @@ If editing operations are not grouped, the document automatically records
 the individual operations so that they can be undone later. Grouping
 operations into larger packages can make editing more efficient both for
 the user and for the application, but care has to be taken not to group too
-many useful operations together.
+many operations together as the user may want find-grained control over the
+undo process.
 
 \section2 Multiple Cursors
 
@@ -700,4 +701,10 @@ then configured using a QPrintDialog. If the user accepts the printer's
 configuration then the document is formatted and printed using the
 \l{QTextDocument::print()}{print()} function.
 
+\omit
+Ideas for other sections:
+
+ * Hiding QTextBlock elements.
+ * Changing the word wrapping mode in QTextEdit. Custom word wrapping?
+\endomit
 */
