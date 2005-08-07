@@ -39,6 +39,7 @@ class QTcpServer;
 class QBrush;
 class QVariant;
 class QInputMethodEvent;
+class QWSInputMethod;
 class QWSBackingStore;
 
 
