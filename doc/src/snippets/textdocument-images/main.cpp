@@ -1,5 +1,10 @@
 #include <QtGui>
 
+QString tr(const char *text)
+{
+    return QApplication::translate(text, text);
+}
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -16,7 +21,7 @@ int main(int argc, char *argv[])
     cursor.insertText("Code less. Create more.");
 
     editor->setDocument(document);
-    editor->setWindowTitle(QObject::tr("Text Document Images"));
+    editor->setWindowTitle(tr("Text Document Images"));
     editor->resize(320, 480);
     editor->show();
     return app.exec();

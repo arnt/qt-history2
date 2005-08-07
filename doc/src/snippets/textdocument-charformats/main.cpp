@@ -1,5 +1,10 @@
 #include <QtGui>
 
+QString tr(const char *text)
+{
+    return QApplication::translate(text, text);
+}
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -23,22 +28,22 @@ int main(int argc, char *argv[])
     QTextCharFormat underlineFormat = plainFormat;
     underlineFormat.setFontUnderline(true);
 
-    cursor.insertText(QObject::tr("Character formats"),
+    cursor.insertText(tr("Character formats"),
                       headingFormat);
 
     cursor.insertBlock();
 
-    cursor.insertText(QObject::tr("Text can be displayed in a variety of "
+    cursor.insertText(tr("Text can be displayed in a variety of "
                                   "different character formats. "), plainFormat);
-    cursor.insertText(QObject::tr("We can emphasize text by "));
-    cursor.insertText(QObject::tr("making it italic"), emphasisFormat);
-    cursor.insertText(QObject::tr(", give it a "), plainFormat);
-    cursor.insertText(QObject::tr("different color "), qtFormat);
-    cursor.insertText(QObject::tr("to the default text color, "), plainFormat);
-    cursor.insertText(QObject::tr("underline it"), underlineFormat);
-    cursor.insertText(QObject::tr(", and use many other effects."), plainFormat);
+    cursor.insertText(tr("We can emphasize text by "));
+    cursor.insertText(tr("making it italic"), emphasisFormat);
+    cursor.insertText(tr(", give it a "), plainFormat);
+    cursor.insertText(tr("different color "), qtFormat);
+    cursor.insertText(tr("to the default text color, "), plainFormat);
+    cursor.insertText(tr("underline it"), underlineFormat);
+    cursor.insertText(tr(", and use many other effects."), plainFormat);
 
-    editor->setWindowTitle(QObject::tr("Text Document Character Formats"));
+    editor->setWindowTitle(tr("Text Document Character Formats"));
     editor->resize(320, 480);
     editor->show();
     return app.exec();

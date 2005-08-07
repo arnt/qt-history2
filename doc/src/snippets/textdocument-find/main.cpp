@@ -1,5 +1,10 @@
 #include <QtGui>
 
+QString tr(const char *text)
+{
+    return QApplication::translate(text, text);
+}
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -12,15 +17,15 @@ int main(int argc, char *argv[])
     QTextCharFormat colorFormat = plainFormat;
     colorFormat.setForeground(Qt::red);
 
-    cursor.insertText(QObject::tr("Text can be displayed in a variety of "
+    cursor.insertText(tr("Text can be displayed in a variety of "
                                   "different character "
                                   "formats. "), plainFormat);
-    cursor.insertText(QObject::tr("We can emphasize text by making it "));
-    cursor.insertText(QObject::tr("italic, give it a different color "));
-    cursor.insertText(QObject::tr("to the default text color, underline it, "));
-    cursor.insertText(QObject::tr("and use many other effects."));
+    cursor.insertText(tr("We can emphasize text by making it "));
+    cursor.insertText(tr("italic, give it a different color "));
+    cursor.insertText(tr("to the default text color, underline it, "));
+    cursor.insertText(tr("and use many other effects."));
 
-    QString searchString = QObject::tr("text");
+    QString searchString = tr("text");
 
     QTextDocument *document = editor->document();
     QTextCursor newCursor(document);
@@ -36,7 +41,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    editor->setWindowTitle(QObject::tr("Text Document Find"));
+    editor->setWindowTitle(tr("Text Document Find"));
     editor->resize(320, 480);
     editor->show();
     return app.exec();

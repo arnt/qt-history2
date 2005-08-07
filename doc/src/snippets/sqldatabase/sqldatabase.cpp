@@ -5,6 +5,11 @@
 
 using namespace std;
 
+QString tr(const char *text)
+{
+    return QApplication::translate(text, text);
+}
+
 void QSqlDatabase_snippets()
 {
     {
@@ -148,8 +153,8 @@ void QSqlQueryModel_snippets()
     {
     QSqlQueryModel *model = new QSqlQueryModel;
     model->setQuery("SELECT name, salary FROM employee");
-    model->setHeaderData(0, Qt::Horizontal, QObject::tr("Name"));
-    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Salary"));
+    model->setHeaderData(0, Qt::Horizontal, tr("Name"));
+    model->setHeaderData(1, Qt::Horizontal, tr("Salary"));
 
     QTableView *view = new QTableView;
     view->setModel(model);
@@ -197,8 +202,8 @@ void QSqlTableModel_snippets()
     model->setEditStrategy(QSqlTableModel::OnManualSubmit);
     model->select();
     model->removeColumn(0); // don't show the ID
-    model->setHeaderData(0, Qt::Horizontal, QObject::tr("Name"));
-    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Salary"));
+    model->setHeaderData(0, Qt::Horizontal, tr("Name"));
+    model->setHeaderData(1, Qt::Horizontal, tr("Salary"));
 
     QTableView *view = new QTableView;
     view->setModel(model);
