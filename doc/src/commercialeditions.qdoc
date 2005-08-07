@@ -49,6 +49,15 @@
     \row    \o \l{ActiveQt}                  \o            \o                  \o \bold{X}
     \endtable
 
+    Lists of the classes available in each edition are available on the
+    following pages:
+
+    \list
+    \o \l{Qt Console Edition Classes}
+    \o \l{Qt Desktop Light Edition Classes}
+    \o \l{Qt Desktop Edition Classes}
+    \endlist
+
     Please see the
     \l{http://www.trolltech.com/developer/platforms/supported.html}
     {list of supported platforms} for up-to-date information about
@@ -74,4 +83,25 @@
 
     Phone, Norway office (for the rest of the world): \bold{+47 21 60
     48 00}.
+*/
+
+/*!
+    \page console-edition-classes.html
+    \title Qt Console Edition Classes
+
+    \generatelist{classesbyedition Console}
+*/
+
+/*!
+    \page desktop-edition-classes.html
+    \title Qt Desktop Edition Classes
+
+    \generatelist{classesbyedition Desktop}
+*/
+
+/*!
+    \page desktop-light-edition-classes.html
+    \title Qt Desktop Light Edition Classes
+
+    \generatelist{classesbyedition DesktopLight}
 */
