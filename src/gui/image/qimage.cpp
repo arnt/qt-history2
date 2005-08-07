@@ -887,7 +887,7 @@ void QImage::detach()
     The returned image always has the size of the rectangle \a r. In
     areas beyond this image pixels are filled with pixel 0.
 
-    If \a r is a ull rectangle the entire image is copied.
+    If \a r is a null rectangle the entire image is copied.
 */
 QImage QImage::copy(const QRect& r) const
 {

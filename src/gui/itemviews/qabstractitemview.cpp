@@ -899,9 +899,9 @@ bool QAbstractItemView::viewportEvent(QEvent *event)
 }
 
 /*!
-    This function is called when a mouse event \a e occurs. If a valid
-    item is pressed on it is made into the current item. This function
-    emits the pressed() signal.
+    This function is called with the given \a event when a mouse button is pressed
+    while the cursor is inside the widget. If a valid item is pressed on it is made
+    into the current item. This function emits the pressed() signal.
 */
 void QAbstractItemView::mousePressEvent(QMouseEvent *event)
 {
@@ -932,9 +932,9 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
 }
 
 /*!
-    This function is called when a mouse move event \a e occurs. If a
-    selection is in progress and new items are moved over the
-    selection is extended; if a drag is in progress it is continued.
+    This function is called with the given \a event when a mouse move event is
+    sent to the widget. If a selection is in progress and new items are moved
+    over the selection is extended; if a drag is in progress it is continued.
 */
 void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
 {
@@ -999,9 +999,9 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
 }
 
 /*!
-    This function is called when a mouse release event \a e
-    occurs. It will emit the clicked() signal if an item was being
-    pressed.
+    This function is called with the given \a event when a mouse button is released
+    while the cursor is inside the widget. It will emit the clicked() signal if an
+    item was being pressed.
 */
 void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
 {
@@ -1026,9 +1026,9 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
 }
 
 /*!
-    This function is called when a mouse double-click event \a e
-    occurs. If the double-click is on a valid item it emits the
-    doubleClicked() signal and calls edit() on the item.
+    This function is called with the given \a event when a mouse button is
+    double clicked inside the widget. If the double-click is on a valid item it
+    emits the doubleClicked() signal and calls edit() on the item.
 */
 void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *event)
 {
@@ -1046,9 +1046,9 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *event)
 #ifndef QT_NO_DRAGANDDROP
 
 /*!
-    This function is called when drag enter event \a e occurs. If the
-    drag is over a valid dropping place (e.g. over an item that
-    accepts drops), the event is accepted.
+    This function is called with the given \a event when a drag and drop operation enters
+    the widget. If the drag is over a valid dropping place (e.g. over an item that
+    accepts drops), the event is accepted; otherwise it is ignored.
 
     \sa dropEvent() startDrag()
 */
@@ -1061,9 +1061,10 @@ void QAbstractItemView::dragEnterEvent(QDragEnterEvent *event)
 }
 
 /*!
-    This function is called when drag move event \a e occurs. It can
-    cause the view to scroll, for example if the user drags a
-    selection to view's right or bottom edge.
+    This function is called continuously with the given \a event during a drag and
+    drop operation over the widget. It can cause the view to scroll if, for example,
+    the user drags a selection to view's right or bottom edge. In this case, the
+    event will be accepted; otherwise it will be ignored.
 
     \sa dropEvent() startDrag()
 */
@@ -1135,9 +1136,9 @@ void QAbstractItemView::dragLeaveEvent(QDragLeaveEvent *)
 }
 
 /*!
-    This function is called when drop event \a e occurs. If there's a
-    valid item under the mouse pointer when the drop occurs, the drop
-    is accepted.
+    This function is called with the given \a event when a drop event occurs over
+    the widget. If there's a valid item under the mouse pointer when the drop
+    occurs, the drop event is accepted; otherwise it is ignored.
 
     \sa startDrag()
 */
@@ -1183,8 +1184,10 @@ void QAbstractItemView::dropEvent(QDropEvent *event)
 #endif // QT_NO_DRAGANDDROP
 
 /*!
-    This function is called when focus event \a e occurs and is a
-    focus in event.
+    This function is called with the given \a event when the widget obtains the focus.
+    By default, the event is ignored.
+
+    \sa setFocus(), focusOutEvent()
 */
 void QAbstractItemView::focusInEvent(QFocusEvent *event)
 {
@@ -1195,8 +1198,10 @@ void QAbstractItemView::focusInEvent(QFocusEvent *event)
 }
 
 /*!
-    This function is called when focus event \a e occurs and is a
-    focus out event.
+    This function is called with the given \a event when the widget obtains the focus.
+    By default, the event is ignored.
+
+    \sa clearFocus(), focusInEvent()
 */
 void QAbstractItemView::focusOutEvent(QFocusEvent *event)
 {
@@ -1207,11 +1212,11 @@ void QAbstractItemView::focusOutEvent(QFocusEvent *event)
 }
 
 /*!
-    This function is called when a key event \a e occurs. It handles
-    basic cursor movement, e.g. Up, Down, Left, Right, Home, PageUp,
-    and PageDown, and emits the returnPressed(), spacePressed(), and
-    deletePressed() signals is the associated key is pressed. This
-    function is where editing is initiated by key press, e.g. if F2 is
+    This function is called with the given \a event when a key event is sent to
+    the widget. The default implementation handles basic cursor movement, e.g. Up,
+    Down, Left, Right, Home, PageUp, and PageDown, and emits the returnPressed(),
+    spacePressed(), and deletePressed() signals if the associated key is pressed.
+    This function is where editing is initiated by key press, e.g. if F2 is
     pressed.
 
     \sa edit()
@@ -1361,7 +1366,10 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
 }
 
 /*!
-    This function is called when a resize event \a e occurs.
+    This function is called with the given \a event when a resize event is sent to
+    the widget.
+
+    \sa QWidget::resizeEvent()
 */
 void QAbstractItemView::resizeEvent(QResizeEvent *event)
 {
@@ -1370,7 +1378,10 @@ void QAbstractItemView::resizeEvent(QResizeEvent *event)
 }
 
 /*!
-  This function is called when a timer event \a e occurs.
+  This function is called with the given \a event when a timer event is sent
+  to the widget.
+
+  \sa QObject::timerEvent()
 */
 void QAbstractItemView::timerEvent(QTimerEvent *event)
 {
