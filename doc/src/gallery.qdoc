@@ -13,6 +13,11 @@
 
   The Plastique style is provided by QPlastiqueStyle.
 
+  \row \i \inlineimage windowsxp-tabwidget.png
+  \i \bold{\l{gallery-windowsxp.html}{Windows XP Style Widget Gallery}}
+
+  The Windows XP style is provided by QWindowsXPStyle.
+
   \row \i \inlineimage macintosh-tabwidget.png
   \i \bold{\l{gallery-macintosh.html}{Macintosh Style Widget Gallery}}
 
