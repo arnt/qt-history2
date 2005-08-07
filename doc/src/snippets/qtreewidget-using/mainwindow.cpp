@@ -26,6 +26,9 @@ MainWindow::MainWindow()
     menuBar()->addMenu(fileMenu);
     menuBar()->addMenu(itemsMenu);
 
+/*  For convenient quoting:
+    QTreeWidget *treeWidget = new QTreeWidget(this);
+*/
     treeWidget = new QTreeWidget(this);
     treeWidget->setColumnCount(2);
     QStringList headers;

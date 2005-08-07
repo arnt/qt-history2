@@ -19,6 +19,9 @@ MainWindow::MainWindow()
     menuBar()->addMenu(fileMenu);
     menuBar()->addMenu(itemsMenu);
 
+/*  For convenient quoting:
+    QListWidget *listWidget = new QListWidget(this);
+*/
     listWidget = new QListWidget(this);
     listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 
