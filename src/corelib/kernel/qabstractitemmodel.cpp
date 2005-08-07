@@ -360,7 +360,7 @@ QDebug operator<<(QDebug dbg, const QModelIndex &idx)
 {
 #ifndef Q_BROKEN_DEBUG_STREAM
     dbg.nospace() << "QModelIndex(" << idx.row() << "," << idx.column()
-                  << "," << idx.internalId() << "," << idx.model() << ")";
+                  << "," << idx.internalPointer() << "," << idx.model() << ")";
     return dbg.space();
 #else
     qWarning("This compiler doesn't support streaming QModelIndex to QDebug");

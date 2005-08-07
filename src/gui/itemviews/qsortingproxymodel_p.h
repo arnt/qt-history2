@@ -26,30 +26,19 @@
 //
 //
 
+#include <qnamespace.h>
+#include <private/qmappingproxymodel_p.h>
 
-// FIXME: the empty model should maybe be public (it's usefull)
-
-#include <private/qabstractitemmodel_p.h>
-
-class QEmptyModel : public QAbstractItemModel
-{
-public:
-    explicit QEmptyModel(QObject *parent = 0) : QAbstractItemModel(parent) {}
-    QModelIndex index(int, int, const QModelIndex &) const { return QModelIndex(); }
-    QModelIndex parent(const QModelIndex &) const { return QModelIndex(); }
-    int rowCount(const QModelIndex &) const { return 0; }
-    int columnCount(const QModelIndex &) const { return 0; }
-    bool hasChildren(const QModelIndex &) const { return false; }
-    QVariant data(const QModelIndex &, int) const { return QVariant(); }
-};
-
-class QSortingProxyModelPrivate : private QAbstractItemModelPrivate
+class QSortingProxyModelPrivate : private QMappingProxyModelPrivate
 {
     Q_DECLARE_PUBLIC(QSortingProxyModel)
 public:
-    QSortingProxyModelPrivate() : QAbstractItemModelPrivate(), model(0) {}
-    QAbstractItemModel *model;
-    QEmptyModel empty;
+    QSortingProxyModelPrivate()
+        : QMappingProxyModelPrivate(),
+          sort_column(-1),
+          sort_order(Qt::AscendingOrder) {}
+    int sort_column;
+    Qt::SortOrder sort_order;
 };
 
 #endif // QSORTINGPROXYMODEL_P_H
