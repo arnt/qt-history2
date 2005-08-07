@@ -322,15 +322,15 @@
     these flags only make sense in the context of printing:
 
     \value TextSingleLine Treats all whitespace as spaces and prints just
-	one line.
+           one line.
     \value TextDontClip If it's impossible to stay within the given bounds,
-	it prints outside.
+           it prints outside.
     \value TextExpandTabs Makes the U+0009 (ASCII tab) character move to
-	the next tab stop.
+           the next tab stop.
     \value TextShowMnemonic Displays the string "\&P" as \underline{P}
-	(see QButton for an example). For an ampersand, use "\&\&".
+           (see QButton for an example). For an ampersand, use "\&\&".
     \value TextWordWrap Breaks lines at appropriate points, e.g. at word
-	boundaries.
+           boundaries.
     \value TextWrapAnywhere Breaks lines anywhere, even within words.
     \value TextHideMnemonic Same as Qt::TextShowMnemonic but doesn't draw the underlines.
     \value TextDontPrint Treat this text as "hidden" and don't print
@@ -349,7 +349,7 @@
     \omitvalue WordBreak
 
     You can use as many modifier flags as you want, except that
-    Qt::TextSingleLine and Qt::TextWordBreak cannot be combined.
+    Qt::TextSingleLine and Qt::TextWordWrap cannot be combined.
 
     Flags that are inappropriate for a given use are generally
     ignored.
