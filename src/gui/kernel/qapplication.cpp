@@ -1052,8 +1052,9 @@ QStyle *QApplication::style()
     object is transferred to QApplication, so QApplication will delete
     the style object on application exit or when a new style is set.
 
-    To ensure that the application's style is set correctly, it is best to
-    call this function before the QApplication constructor, if possible.
+    \warning To ensure that the application's style is set correctly, it
+    is best to call this function before the QApplication constructor,
+    if possible.
 
     Example usage:
     \code
@@ -1135,6 +1136,10 @@ void QApplication::setStyle(QStyle *style)
 
   Returns 0 if an unknown \a style is passed, otherwise the QStyle object
   returned is set as the application's GUI style.
+
+  \warning To ensure that the application's style is set correctly, it is
+  best to call this function before the QApplication constructor, if
+  possible.
 */
 QStyle* QApplication::setStyle(const QString& style)
 {
