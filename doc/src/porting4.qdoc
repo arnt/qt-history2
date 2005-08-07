@@ -1419,6 +1419,9 @@
 
     QDir::match() now always matches case insensitively.
 
+    QDir::homeDirPath() has been removed. Use QDir::home() instead, and
+    extract the path separately.
+
     \section1 QDns
 
     Qt 3 used its own implementation of the DNS protocol and provided
@@ -2987,6 +2990,11 @@
             }
         };
     \endcode
+
+    \section1 QRegExp
+
+    The search() and searchRev() functions have been renamed to indexIn()
+    and lastIndexIn() respectively.
 
     \section1 QRegion
 
