@@ -287,7 +287,7 @@ void PeerWireClient::timerEvent(QTimerEvent *event)
 	// Rotate the upload / download records.
 	for (int i = 6; i >= 0; --i) {
 	    uploadSpeedData[i + i] = uploadSpeedData[i];
-	    downloadSpeedData[i + 1] = uploadSpeedData[i];
+	    downloadSpeedData[i + 1] = downloadSpeedData[i];
 	}
 	uploadSpeedData[0] = 0;
 	downloadSpeedData[0] = 0;
