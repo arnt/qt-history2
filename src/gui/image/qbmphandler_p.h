@@ -16,6 +16,7 @@
 
 #include "qimageiohandler.h"
 
+#ifndef QT_NO_IMAGEFORMAT_BMP
 class Q_GUI_EXPORT QBmpHandler : public QImageIOHandler
 {
 public:
@@ -27,5 +28,6 @@ public:
 
     static bool canRead(QIODevice *device);
 };
+#endif
 
 #endif

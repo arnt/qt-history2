@@ -13,6 +13,8 @@
 
 #include "private/qbmphandler_p.h"
 
+#ifndef QT_NO_IMAGEFORMAT_BMP
+
 #include <qimage.h>
 #include <qvector.h>
 
@@ -686,3 +688,4 @@ QByteArray QBmpHandler::name() const
 {
     return "bmp";
 }
+#endif // QT_NO_IMAGEFORMAT_BMP

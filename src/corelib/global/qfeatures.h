@@ -83,14 +83,14 @@
 // Alpha-blended cursor
 //#define QT_NO_QWS_ALPHA_CURSOR
 
+// 
+//#define QT_NO_QWS_DECORATION_DEFAULT
+
 // Input methods
 //#define QT_NO_QWS_INPUTMETHODS
 
 // Console keyboard
 //#define QT_NO_QWS_KEYBOARD
-
-// Window Manager
-//#define QT_NO_QWS_MANAGER
 
 // Mouse
 //#define QT_NO_QWS_MOUSE
@@ -246,13 +246,18 @@
 #endif
 
 // 
-#if !defined(QT_NO_QWS_DECORATION_DEFAULT) && (defined(QT_NO_QWS_MANAGER))
-#define QT_NO_QWS_DECORATION_DEFAULT
+#if !defined(QT_NO_QWS_DECORATION_STYLED) && (defined(QT_NO_QWS_DECORATION_DEFAULT))
+#define QT_NO_QWS_DECORATION_STYLED
 #endif
 
 // The "Windows" style
-#if !defined(QT_NO_QWS_DECORATION_WINDOWS) && (defined(QT_NO_QWS_MANAGER))
+#if !defined(QT_NO_QWS_DECORATION_WINDOWS) && (defined(QT_NO_QWS_DECORATION_DEFAULT))
 #define QT_NO_QWS_DECORATION_WINDOWS
+#endif
+
+// Window Manager
+#if !defined(QT_NO_QWS_MANAGER) && (defined(QT_NO_QWS_DECORATION_DEFAULT))
+#define QT_NO_QWS_MANAGER
 #endif
 
 // Scroll bars
@@ -273,11 +278,6 @@
 // CDE style
 #if !defined(QT_NO_STYLE_CDE) && (defined(QT_NO_STYLE_MOTIF))
 #define QT_NO_STYLE_CDE
-#endif
-
-// Plastique style
-#if !defined(QT_NO_STYLE_PLASTIQUE) && (defined(QT_NO_STYLE_WINDOWS))
-#define QT_NO_STYLE_PLASTIQUE
 #endif
 
 // WindowsXP style
@@ -305,11 +305,6 @@
 #define QT_NO_MENUBAR
 #endif
 
-// 
-#if !defined(QT_NO_QWS_DECORATION_STYLED) && (defined(QT_NO_QWS_DECORATION_DEFAULT))
-#define QT_NO_QWS_DECORATION_STYLED
-#endif
-
 // QScrollArea
 #if !defined(QT_NO_SCROLLAREA) && (defined(QT_NO_SCROLLBAR))
 #define QT_NO_SCROLLAREA
@@ -333,6 +328,11 @@
 // Spin boxes
 #if !defined(QT_NO_SPINBOX) && (defined(QT_NO_SPINWIDGET) || defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR))
 #define QT_NO_SPINBOX
+#endif
+
+// Plastique style
+#if !defined(QT_NO_STYLE_PLASTIQUE) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_IMAGEFORMAT_XPM))
+#define QT_NO_STYLE_PLASTIQUE
 #endif
 
 // Rich text edit

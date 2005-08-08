@@ -1380,7 +1380,7 @@ void QWidgetPrivate::updateCursor(const QRegion &r) const
 void QWidget::setWindowOpacity(qreal level)
 {
     Q_D(QWidget);
-    level = qMin<qreal>(qMax(level, 0.0), 1.0);
+    level = qMin<qreal>(qMax(level, qreal(0.0)), qreal(1.0));
     uchar opacity = uchar(level * 255);
     d->topData()->opacity = opacity;
     if (isWindow() && isVisible())

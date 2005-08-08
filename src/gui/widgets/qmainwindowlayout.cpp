@@ -1709,6 +1709,7 @@ void QMainWindowLayout::saveLayoutInfo()
     save_layout_info = new QVector<QMainWindowLayoutInfo>(layout_info);
     relayout_type = QInternal::RelayoutDragging;
 
+#ifndef QT_NO_DOCKWIDGET
     for (int i = 0; i < 4; ++i) {
         if (!layout_info[i].item) continue;
 
@@ -1717,6 +1718,7 @@ void QMainWindowLayout::saveLayoutInfo()
         Q_ASSERT(layout != 0);
         layout->saveLayoutInfo();
     }
+#endif
 }
 
 void QMainWindowLayout::resetLayoutInfo()
@@ -1724,6 +1726,7 @@ void QMainWindowLayout::resetLayoutInfo()
     Q_ASSERT(save_layout_info != 0);
     layout_info = *save_layout_info;
 
+#ifndef QT_NO_DOCKWIDGET
     for (int i = 0; i < 4; ++i) {
         if (!layout_info[i].item) continue;
 
@@ -1732,6 +1735,7 @@ void QMainWindowLayout::resetLayoutInfo()
         Q_ASSERT(layout != 0);
         layout->resetLayoutInfo();
     }
+#endif
 }
 
 void QMainWindowLayout::discardLayoutInfo()
@@ -1742,6 +1746,7 @@ void QMainWindowLayout::discardLayoutInfo()
 
     relayout_type = QInternal::RelayoutNormal;
 
+#ifndef QT_NO_DOCKWIDGET
     for (int i = 0; i < 4; ++i) {
         if (!layout_info[i].item) continue;
 
@@ -1750,6 +1755,7 @@ void QMainWindowLayout::discardLayoutInfo()
         Q_ASSERT(layout != 0);
         layout->discardLayoutInfo();
     }
+#endif
 }
 
 void QMainWindowLayout::beginConstrain()
@@ -1767,6 +1773,7 @@ void QMainWindowLayout:: endConstrain()
 #endif
 }
 
+#ifndef QT_NO_DOCKWIDGET
 int QMainWindowLayout::constrain(QDockWidgetLayout *dock, int delta)
 {
     QVector<QMainWindowLayoutInfo> info = save_layout_info ? *save_layout_info : layout_info;
@@ -1861,6 +1868,7 @@ int QMainWindowLayout::constrain(QDockWidgetLayout *dock, int delta)
 
     return delta;
 }
+#endif // QT_NO_DOCKWIDGET
 
 static
 Qt::DockWidgetAreas areasForMousePosition(const QRect &r, const QPoint &p, bool floatable = false)

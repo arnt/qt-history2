@@ -111,13 +111,15 @@ static QImageIOHandler *createWriteHandler(QIODevice *device, const QByteArray &
     
     // check if any built-in handlers can write the image
     if (!handler && !format.isEmpty()) {
+	if (false) {
 #ifndef QT_NO_IMAGEFORMAT_PNG
-        if (form == "png") {
+        } else if (form == "png") {
             handler = new QPngHandler;
-        } else
 #endif
-        if (form == "bmp") {
+#ifndef QT_NO_IMAGEFORMAT_BMP
+        } else if (form == "bmp") {
             handler = new QBmpHandler;
+#endif
 #ifndef QT_NO_IMAGEFORMAT_XPM
         } else if (form == "xpm") {
             handler = new QXpmHandler;

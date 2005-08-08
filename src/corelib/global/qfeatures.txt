@@ -482,7 +482,7 @@ SeeAlso: ???
 
 Feature: STYLE_PLASTIQUE
 Section: Styles
-Requires: STYLE_WINDOWS
+Requires: STYLE_WINDOWS IMAGEFORMAT_XPM
 Name: Plastique style
 SeeAlso: ???
 
@@ -722,20 +722,20 @@ SeeAlso: ???
 
 Feature: QWS_MANAGER
 Section: Qt/Embedded-specific
-Requires:
+Requires: QWS_DECORATION_DEFAULT
 Name: Window Manager
-SeeAlso: ???
-
-Feature: QWS_DECORATION_WINDOWS
-Section: Qt/Embedded-specific
-Requires: QWS_MANAGER
-Name: The "Windows" style
 SeeAlso: ???
 
 Feature: QWS_DECORATION_DEFAULT
 Section: Qt/Embedded-specific
-Requires: QWS_MANAGER
+Requires: 
 Name:
+SeeAlso: ???
+
+Feature: QWS_DECORATION_WINDOWS
+Section: Qt/Embedded-specific
+Requires: QWS_DECORATION_DEFAULT
+Name: The "Windows" style
 SeeAlso: ???
 
 Feature: QWS_DECORATION_STYLED

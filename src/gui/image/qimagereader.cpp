@@ -130,13 +130,15 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
 
     // check if we have built-in support for the format name
     if (!format.isEmpty()) {
+	if (false) {	
 #ifndef QT_NO_IMAGEFORMAT_PNG
-        if (form == "png") {
+	} else if (form == "png") {
             handler = new QPngHandler;
-        } else
 #endif
-        if (form == "bmp") {
+#ifndef QT_NO_IMAGEFORMAT_BMP
+        } else if (form == "bmp") {
             handler = new QBmpHandler;
+#endif
 #ifndef QT_NO_IMAGEFORMAT_XPM
         } else if (form == "xpm") {
             handler = new QXpmHandler;
@@ -158,13 +160,15 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
     // check if any of our built-in formats can read images from the device
     if (!handler) {
         QByteArray subType;
+	if (false) {	
 #ifndef QT_NO_IMAGEFORMAT_PNG
-        if (QPngHandler::canRead(device)) {
+	} else if (QPngHandler::canRead(device)) {
             handler = new QPngHandler;
-        } else
 #endif
-	if (QBmpHandler::canRead(device)) {
+#ifndef QT_NO_IMAGEFORMAT_BMP
+        } else if (QBmpHandler::canRead(device)) {
             handler = new QBmpHandler;
+#endif
 #ifndef QT_NO_IMAGEFORMAT_XPM
         } else if (QXpmHandler::canRead(device)) {
             handler = new QXpmHandler;

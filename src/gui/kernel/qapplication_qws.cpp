@@ -1828,10 +1828,12 @@ void qt_init(QApplicationPrivate *priv, int type)
             decoration = QString::fromLatin1("default");
 #endif
         }
+#ifndef QT_NO_QWS_DECORATION_DEFAULT
         qws_decoration = QApplication::qwsSetDecoration(decoration);
         if (!qws_decoration)
             QApplication::qwsSetDecoration(new QDecorationDefault);
 #endif
+#endif // QT_NO_QWS_MANAGER
 #ifndef QT_NO_QWS_INPUTMETHODS
         qApp->setInputContext(new QWSInputContext);
 #endif

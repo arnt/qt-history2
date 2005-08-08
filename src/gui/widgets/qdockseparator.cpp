@@ -18,7 +18,7 @@
 #include "qmainwindow.h"
 #include "qmainwindowlayout_p.h"
 
-#ifndef QT_NO_MAINWINDOW
+#ifndef QT_NO_DOCKWIDGET
 
 #include <qapplication.h>
 #include <qevent.h>
@@ -128,4 +128,4 @@ void QDockSeparator::paintEvent(QPaintEvent *)
     style()->drawPrimitive(QStyle::PE_IndicatorDockWidgetResizeHandle, &opt, &p, this);
 }
 
-#endif // QT_NO_MAINWINDOW
+#endif // QT_NO_DOCKWIDGET

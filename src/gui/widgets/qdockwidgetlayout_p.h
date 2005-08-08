@@ -28,7 +28,7 @@
 #include <qlayout.h>
 #include <qlist.h>
 
-#ifndef QT_NO_MAINWINDOW
+#ifndef QT_NO_DOCKWIDGET
 
 class QDockWidget;
 class QDockWidgetSeparator;

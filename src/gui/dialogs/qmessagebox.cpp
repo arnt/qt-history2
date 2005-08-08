@@ -55,6 +55,7 @@ public:
     QPushButton        *pb[3];                  // buttons
 };
 
+#ifndef QT_NO_IMAGEFORMAT_XPM
 /* XPM */
 static const char * const qtlogo_xpm[] = {
 /* width height ncolors chars_per_pixel */
@@ -129,6 +130,7 @@ static const char * const qtlogo_xpm[] = {
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",
 "/$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$/",
 };
+#endif // QT_NO_IMAGEFORMAT_XPM
 
 
 /*!
@@ -1486,7 +1488,7 @@ int QMessageBox::critical(QWidget *parent, const QString &caption,
 #ifndef QT_NO_IMAGEFORMAT_XPM
 // helper
 extern void qt_read_xpm_image_or_array(QImageReader *, const char * const *, QImage &);
-#endif
+#endif 
 
 /*!
     Displays a simple message box about Qt, with caption \a caption
@@ -1510,7 +1512,11 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
         c = tr("About Qt");
     mb.setWindowTitle(c);
     mb.setText(*translatedTextAboutQt);
+#ifndef QT_NO_IMAGEFORMAT_XPM
     QImage logo(qtlogo_xpm);
+#else
+    QImage logo;
+#endif
 
     if (qGray(mb.palette().color(QPalette::Active, QPalette::Text).rgb()) >
         qGray(mb.palette().color(QPalette::Active, QPalette::Base).rgb()))

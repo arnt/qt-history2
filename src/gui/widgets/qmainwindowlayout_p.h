@@ -105,12 +105,14 @@ public:
 
     void beginConstrain();
     void endConstrain();
+#ifndef QT_NO_DOCKWIDGET
     int constrain(QDockWidgetLayout *dock, int delta);
-
+    
     Qt::DockWidgetArea locateDockWidget(QDockWidget *dockwidget, const QPoint &mouse) const;
     QRect placeDockWidget(QDockWidget *dockwidget, const QRect &r, const QPoint &mouse);
     void dropDockWidget(QDockWidget *dockwidget, const QRect &r, const QPoint &mouse);
-
+#endif
+    
 #ifndef QT_NO_TOOLBAR
     int locateToolBar(QToolBar *toolbar, const QPoint &mouse) const;
     void dropToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset);

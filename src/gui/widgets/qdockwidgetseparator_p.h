@@ -27,7 +27,7 @@
 
 #include <qwidget.h>
 
-#ifndef QT_NO_MAINWINDOW
+#ifndef QT_NO_DOCKWIDGET
 
 class QDockWidget;
 class QDockWidgetLayout;

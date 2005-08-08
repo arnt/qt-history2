@@ -475,8 +475,10 @@ private slots:
 
 QWhatsThisAction::QWhatsThisAction(QObject *parent) : QAction(tr("What's This?"), parent)
 {
+#ifndef QT_NO_IMAGEFORMAT_XPM
     QPixmap p((const char**)button_image);
     setIcon(p);
+#endif
     setCheckable(true);
     connect(this, SIGNAL(triggered()), this, SLOT(actionTriggered()));
 #ifndef QT_NO_SHORTCUT
