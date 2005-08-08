@@ -1093,8 +1093,11 @@ void QApplication::setStyle(QStyle *style)
     // take care of possible palette requirements of certain gui
     // styles. Do it before polishing the application since the style
     // might call QApplication::setStyle() itself
-    QApplication::setPalette(QApplicationPrivate::set_pal
-                             ? *QApplicationPrivate::set_pal : *QApplicationPrivate::sys_pal);
+    if (QApplicationPrivate::set_pal || QApplicationPrivate::sys_pal)
+        QApplication::setPalette(QApplicationPrivate::set_pal
+                                 ? *QApplicationPrivate::set_pal : *QApplicationPrivate::sys_pal);
+    else
+        qWarning("QApplication::setStyle(): Called before creating QApplication, palette undefined.");
 
     // initialize the application with the new style
     QApplicationPrivate::app_style->polish(qApp);

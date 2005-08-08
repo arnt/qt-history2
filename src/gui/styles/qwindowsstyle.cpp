@@ -167,7 +167,7 @@ QWindowsStyle::~QWindowsStyle()
 void QWindowsStyle::polish(QApplication *app)
 {
     // We only need the overhead when shortcuts are sometimes hidden
-    if (!styleHint(SH_UnderlineShortcut, 0)) {
+    if (!styleHint(SH_UnderlineShortcut, 0) && app) {
         d = new Private(this);
         app->installEventFilter(d);
     }
