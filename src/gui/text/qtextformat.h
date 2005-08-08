@@ -88,6 +88,8 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QTextFormat &);
 
 class Q_GUI_EXPORT QTextFormat
 {
+    Q_GADGET
+    Q_ENUMS(FormatType Property ObjectTypes)
 public:
     enum FormatType {
         InvalidFormat = -1,
