@@ -71,13 +71,13 @@ void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
   application, and later used to access information in a model.
   Unlike the QModelIndex class, it is safe to store a
   QPersistentModelIndex since the model will ensure that references
-  to data will continue to be valid as long as that data exists within
-  the model.
+  to items will continue to be valid as long as they can be accessed
+  by the model.
 
   It is good practice to check that persistent model indexes are valid
   before using them.
 
-  \sa \link model-view-programming.html Model/View Programming\endlink QModelIndex QAbstractItemModel
+  \sa {Model/View Programming}, QModelIndex, QAbstractItemModel
 */
 
 

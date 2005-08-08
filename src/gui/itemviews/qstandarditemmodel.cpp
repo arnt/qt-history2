@@ -36,9 +36,7 @@
     QDirModel provides a model interface to the underlying file system, and does
     not actually store file information internally.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel
-
-    An example useage of QStandardItemModel to create a table:
+    An example usage of QStandardItemModel to create a table:
     \quotefromfile itemviews/spinboxdelegate/main.cpp
     \skipto  model = new QStandardItemModel
     \printline model
@@ -58,6 +56,9 @@
             model->setData(index, i);
         }
     \endcode
+
+    \sa {Model/View Programming}, QAbstractItemModel,
+        {itemviews/simpletreemodel}{Simple Tree Model} example
 */
 
 /*!

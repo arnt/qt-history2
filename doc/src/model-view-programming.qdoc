@@ -1212,6 +1212,32 @@
     For an example of a more complex model, see the
     \l{itemviews/simpletreemodel}{Simple Tree Model} example.
 
+    \section1 Designing a Model
+
+    When creating a new model for an existing data structure, it is important
+    to consider which type of model should be used to provide an interface
+    onto the data. If the data structure can be represented as a
+    list or table of items, you can subclass QAbstractListModel or
+    QAbstractTableModel since these classes provide suitable default
+    implementations for many functions.
+
+    However, if the underlying data structure can only be represented by a
+    hierarchical tree structure, it is necessary to subclass
+    QAbstractItemModel. This approach is taken in the
+    \l{itemviews/simpletreemodel}{Simple Tree Model} example.
+
+    In this chapter, we will implement a simple model based on a list of
+    strings, so the QAbstractListModel provides an ideal base class on
+    which to build.
+
+    Whatever form the underlying data structure takes, it is
+    usually a good idea to supplement the standard QAbstractItemModel API
+    in specialized models with one that allows more natural access to the
+    underlying data structure. This makes it easier to populate the model
+    with data, yet still enables other general model/view components to
+    interact with it using the standard API. The model described below
+    provides a custom constructor for just this purpose.
+
     \section1 A Read-Only Example Model
 
     The model implemented here is a simple, non-hierarchical, read-only data
