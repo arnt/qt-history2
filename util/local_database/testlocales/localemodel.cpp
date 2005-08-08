@@ -1,4 +1,5 @@
 #include <QtCore/QLocale>
+#include <QtCore/qdebug.h>
 
 #include "localemodel.h"
 
@@ -149,20 +150,30 @@ LocaleModel::LocaleModel(QObject *parent)
 QVariant LocaleModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid()
-        || role != Qt::DisplayRole
+        || role != Qt::DisplayRole && role != Qt::EditRole
         || index.column() >= g_model_cols
-        || index.row() >= g_locale_list_count)
+        || index.row() >= g_locale_list_count + 1)
         return QVariant();
 
-    LocaleListItem item = g_locale_list[index.row()];
-    QLocale locale((QLocale::Language)item.language, (QLocale::Country)item.country);
     QVariant data = m_data_list.at(index.column());
 
-    switch (index.row()) {
-        case 0:
-            return locale.toString(data.toDouble());
-        default:
-            break;
+    if (index.row() == 0) {
+        switch (index.column()) {
+            case 0:
+                return data.toDouble();
+            default:
+                break;
+        }
+    } else {
+        LocaleListItem item = g_locale_list[index.row() - 1];
+        QLocale locale((QLocale::Language)item.language, (QLocale::Country)item.country);
+
+        switch (index.column()) {
+            case 0:
+                return locale.toString(data.toDouble());
+            default:
+                break;
+        }
     }
 
     return QVariant();
@@ -181,12 +192,16 @@ QVariant LocaleModel::headerData(int section, Qt::Orientation orientation, int r
                 break;
         }
     } else {
-        if (section >= g_locale_list_count)
+        if (section >= g_locale_list_count + 1)
             return QVariant();
-        LocaleListItem item = g_locale_list[section];
-        return QLocale::languageToString((QLocale::Language)item.language)
-                + QLatin1Char('/')
-                + QLocale::countryToString((QLocale::Country)item.country);
+        if (section == 0) {
+            return QLatin1String("None");
+        } else {
+            LocaleListItem item = g_locale_list[section - 1];
+            return QLocale::languageToString((QLocale::Language)item.language)
+                    + QLatin1Char('/')
+                    + QLocale::countryToString((QLocale::Country)item.country);
+        }
     }
 
     return QVariant();
@@ -196,7 +211,7 @@ QModelIndex LocaleModel::index(int row, int column,
                     const QModelIndex &parent) const
 {
     if (parent.isValid()
-        || row >= g_locale_list_count
+        || row >= g_locale_list_count + 1
         || column >= g_model_cols)
         return QModelIndex();
 
@@ -217,6 +232,30 @@ int LocaleModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
-    return g_locale_list_count;
+    return g_locale_list_count + 1;
 }
 
+Qt::ItemFlags LocaleModel::flags(const QModelIndex &index) const
+{
+    if (!index.isValid())
+        return 0;
+    if (index.row() == 0)
+        return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+}
+
+bool LocaleModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (!index.isValid()
+        || index.row() != 0
+        || index.column() >= g_model_cols
+        || role != Qt::EditRole
+        || m_data_list.at(index.column()).type() != value.type())
+        return false;
+
+    m_data_list[index.column()] = value;
+    emit dataChanged(createIndex(1, index.column()),
+            createIndex(g_locale_list_count, index.column()));
+
+    return true;
+}
