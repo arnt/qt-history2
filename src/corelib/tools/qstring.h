@@ -24,7 +24,7 @@
 #endif
 
 #ifndef QT_NO_STL
-# if defined (Q_CC_MSVC_NET) && _MSV_VER < 1310 // Avoids nasty warning for xlocale, line 450
+# if defined (Q_CC_MSVC_NET) && _MSC_VER < 1310 // Avoids nasty warning for xlocale, line 450
 #  pragma warning (push)
 #  pragma warning (disable : 4189)
 #  include <string>
