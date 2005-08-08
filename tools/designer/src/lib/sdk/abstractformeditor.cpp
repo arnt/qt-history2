@@ -170,7 +170,10 @@ PluginManager *QDesignerFormEditorInterface::pluginManager() const
 { return m_pluginManager; }
 
 /*!
-Sets the plugin manager used by the form editor to the specified \a pluginManager.*/
+Sets the plugin manager used by the form editor to the specified \a pluginManager.
+
+\internal
+*/
 void QDesignerFormEditorInterface::setPluginManager(PluginManager *pluginManager)
 { m_pluginManager = pluginManager; }
 
