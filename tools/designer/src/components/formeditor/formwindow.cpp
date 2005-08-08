@@ -325,7 +325,7 @@ bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouse
 
         drawRubber = true;
         currRect = QRect();
-        startRectDraw(e->pos(), this, Rubber);
+        startRectDraw(mapFromGlobal(e->globalPos()), this, Rubber);
         return true;
     }
 
@@ -373,12 +373,13 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
     if (e->buttons() != Qt::LeftButton || startPos.isNull())
         return true;
 
+    QPoint pos = mapFromGlobal(e->globalPos());
+
     if (drawRubber == true) {
-        continueRectDraw(e->pos(), this, Rubber);
+        continueRectDraw(pos, this, Rubber);
         return true;
     }
 
-    QPoint pos = mapFromGlobal(e->globalPos());
     bool canStartDrag = (startPos - pos).manhattanLength() > QApplication::startDragDistance();
 
     if (canStartDrag == false) {
