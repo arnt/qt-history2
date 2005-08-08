@@ -1501,7 +1501,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                         image.setColor(1, alphaLightTextColor.light(130).rgba());
                         image.setColor(2, alphaLightTextColor.light(110).rgba());
                     } else {
-                        image.setColor(0, option->palette.text().color().rgba());
+                        image.setColor(0, option->palette.foreground().color().rgba());
                         image.setColor(1, alphaTextColor.rgba());
                     }
                     checkBoxPainter.drawImage(pixmapRect.x() + 2, pixmapRect.y() + 2, image);
@@ -1574,10 +1574,10 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                     image = QImage(qt_plastique_radio_check);
                     if (button->state & State_Sunken) {
                         image.setColor(1, mergedColors(button->palette.background().color(), alphaTextColor).rgba());
-                        image.setColor(2, mergedColors(button->palette.background().color(), button->palette.text().color()).rgba());
+                        image.setColor(2, mergedColors(button->palette.background().color(), button->palette.foreground().color()).rgba());
                     } else {
                         image.setColor(1, alphaTextColor.rgba());
-                        image.setColor(2, button->palette.text().color().rgba());
+                        image.setColor(2, button->palette.foreground().color().rgba());
                     }
                     radioButtonPainter.drawImage(pixmapRect, image);
                 }
@@ -3133,7 +3133,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     // Arrows
                     if (horizontal) {
                         QImage arrow(reverse ? qt_scrollbar_button_arrow_right : qt_scrollbar_button_arrow_left);
-                        arrow.setColor(1, scrollBar->palette.text().color().rgba());
+                        arrow.setColor(1, scrollBar->palette.foreground().color().rgba());
 
                         if ((scrollBar->activeSubControls & SC_ScrollBarSubLine) && sunken) {
                             subLinePainter.drawImage(QPoint(pixmapRect.left() + 6, pixmapRect.top() + 5), arrow);
@@ -3142,7 +3142,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                         }
                     } else {
                         QImage arrow(qt_scrollbar_button_arrow_up);
-                        arrow.setColor(1, scrollBar->palette.text().color().rgba());
+                        arrow.setColor(1, scrollBar->palette.foreground().color().rgba());
 
                         if ((scrollBar->activeSubControls & SC_ScrollBarSubLine) && sunken) {
                             subLinePainter.drawImage(QPoint(pixmapRect.left() + 5, pixmapRect.top() + 7), arrow);
@@ -3208,7 +3208,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     // Arrow
                     if (horizontal) {
                         QImage arrow(reverse ? qt_scrollbar_button_arrow_left : qt_scrollbar_button_arrow_right);
-                        arrow.setColor(1, scrollBar->palette.text().color().rgba());
+                        arrow.setColor(1, scrollBar->palette.foreground().color().rgba());
 
                         if ((scrollBar->activeSubControls & SC_ScrollBarAddLine) && sunken) {
                             addLinePainter.drawImage(QPoint(pixmapRect.left() + 7, pixmapRect.top() + 5), arrow);
@@ -3217,7 +3217,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                         }
                     } else {
                         QImage arrow(qt_scrollbar_button_arrow_down);
-                        arrow.setColor(1, scrollBar->palette.text().color().rgba());
+                        arrow.setColor(1, scrollBar->palette.foreground().color().rgba());
 
                         if ((scrollBar->activeSubControls & SC_ScrollBarAddLine) && sunken) {
                             addLinePainter.drawImage(QPoint(pixmapRect.left() + 5, pixmapRect.top() + 7), arrow);
@@ -3428,7 +3428,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 if (spinBox->buttonSymbols == QAbstractSpinBox::PlusMinus) {
                     int centerX = upRect.center().x();
                     int centerY = upRect.center().y();
-                    cachePainter.setPen(spinBox->palette.text().color());
+                    cachePainter.setPen(spinBox->palette.foreground().color());
 
                     // plus/minus
                     if (spinBox->activeSubControls == SC_SpinBoxUp && (spinBox->state & State_Sunken)) {
@@ -3449,7 +3449,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 } else {
                     // arrows
                     QImage upArrow(qt_scrollbar_button_arrow_up);
-                    upArrow.setColor(1, spinBox->palette.text().color().rgba());
+                    upArrow.setColor(1, spinBox->palette.foreground().color().rgba());
                     if (spinBox->activeSubControls == SC_SpinBoxUp && (spinBox->state & State_Sunken)) {
                         cachePainter.drawImage(1 + upRect.center().x() - upArrow.width() / 2,
                                                2 + upRect.center().y() - upArrow.height() / 2,
@@ -3460,7 +3460,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                                                upArrow);
                     }
                     QImage downArrow(qt_scrollbar_button_arrow_down);
-                    downArrow.setColor(1, spinBox->palette.text().color().rgba());
+                    downArrow.setColor(1, spinBox->palette.foreground().color().rgba());
                     if (spinBox->activeSubControls == SC_SpinBoxDown && (spinBox->state & State_Sunken)) {
                         cachePainter.drawImage(1 + downRect.center().x() - downArrow.width() / 2,
                                                1 + downRect.center().y() - downArrow.height() / 2,
@@ -3611,7 +3611,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 
                 // Draw the little arrow
                 QImage downArrow(qt_scrollbar_button_arrow_down);
-                downArrow.setColor(1, comboBox->palette.text().color().rgba());
+                downArrow.setColor(1, comboBox->palette.foreground().color().rgba());
                 if (sunken)
                     downArrowRect = downArrowRect.adjusted(1, 1, 1, 1);
                 cachePainter.drawImage(downArrowRect.center().x() - downArrow.width() / 2,
