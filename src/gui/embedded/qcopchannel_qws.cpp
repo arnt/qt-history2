@@ -391,14 +391,14 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
             }
             return;
         }
-        qWarning() << "QCopChannel: unknown internal command %s" << msg;
+        qWarning() << "QCopChannel: unknown internal command" << msg;
         QWSServer::sendQCopEvent(cl, "", "bad", data);
         return;
     }
 
     QList<QWSClient*> clist = (*qcopServerMap)[ch];
     if (clist.isEmpty()) {
-        qWarning() << "QCopChannel: no client registered for channel %s" << ch;
+        qWarning() << "QCopChannel: no client registered for channel" << ch;
         return;
     }
 
