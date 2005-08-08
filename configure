@@ -1230,8 +1230,8 @@ if [ "$OPT_SHADOW" = "maybe" ]; then
 fi
 if [ "$OPT_SHADOW" = "yes" ]; then
     if [ -e "$relpath/.qmake.cache" -o -e "$relpath/src/corelib/global/qconfig.h" ]; then
-        echo "You cannot make a shadow build from a source tree containing a previous build."
-        echo "Cannot proceed."
+        echo >&2 "You cannot make a shadow build from a source tree containing a previous build."
+        echo >&2 "Cannot proceed."
         exit 1
     fi
     [ "$OPT_VERBOSE" = "yes" ] && echo "Performing shadow build..."
@@ -1373,8 +1373,8 @@ if [ -z "$MAKE" ]; then
         fi
     done
     if [ -z "$MAKE" ]; then
-        echo "You don't seem to have 'make' or 'gmake' in your PATH."
-        echo "Cannot proceed."
+        echo >&2 "You don't seem to have 'make' or 'gmake' in your PATH."
+        echo >&2 "Cannot proceed."
         exit 1
     fi
 fi
