@@ -99,9 +99,9 @@ QLayout::QLayout(QLayoutPrivate &dd, QLayout *lay, QWidget *w)
     } else if (w) {
         if (w->layout()) {
             qWarning("QLayout \"%s\" added to %s \"%s\", which already has a"
-                     " layout", QObject::objectName().toLocal8Bit().data(), w->metaObject()->className(),
+                     " layout. This may cause memory leaks.",
+                     qPrintable(QObject::objectName()), w->metaObject()->className(),
                      w->objectName().toLocal8Bit().data());
-            w->layout()->setParent(0);
         } else {
             d->topLevel = true;
             w->d_func()->layout = this;
