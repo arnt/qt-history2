@@ -1921,7 +1921,10 @@ void QLineEdit::focusInEvent(QFocusEvent *e)
     if (e->reason() == Qt::TabFocusReason ||
          e->reason() == Qt::BacktabFocusReason  ||
          e->reason() == Qt::ShortcutFocusReason)
-        d->maskData ? d->moveCursor(d->nextMaskBlank(0)) : selectAll();
+        if (d->maskData)
+            d->moveCursor(d->nextMaskBlank(0));
+        else if (!d->hasSelectedText())
+            selectAll();
     if (!d->cursorTimer) {
         int cft = QApplication::cursorFlashTime();
         d->cursorTimer = cft ? startTimer(cft/2) : -1;
