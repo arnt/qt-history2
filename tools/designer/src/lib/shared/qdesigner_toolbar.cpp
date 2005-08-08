@@ -86,7 +86,7 @@ bool QDesignerToolBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
 
     QPoint pos = mapFromGlobal(event->globalPos());
     int index = findAction(pos);
-    if (index >= actions().count() - 1)
+    if (index == actions().count() - 1)
         return false;
 
     QAction *action = actions().at(index);
@@ -113,7 +113,7 @@ bool QDesignerToolBar::handleMouseReleaseEvent(QWidget *, QMouseEvent *event)
 {
     QPoint pos = mapFromGlobal(event->globalPos());
     int index = findAction(pos);
-    if (index >= actions().count() - 1)
+    if (index == actions().count() - 1)
         return false;
     return true;
 }
@@ -122,7 +122,7 @@ bool QDesignerToolBar::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
 {
     QPoint pos = mapFromGlobal(event->globalPos());
     int index = findAction(pos);
-    if (index >= actions().count() - 1)
+    if (index == actions().count() - 1)
         return false;
     return true;
 }
@@ -185,19 +185,17 @@ bool QDesignerToolBar::eventFilter(QObject *object, QEvent *event)
 
 int QDesignerToolBar::findAction(const QPoint &pos) const
 {
-    for (int i = 0; i<actions().size() - 1; ++i) {
-        QRect g = actionGeometry(actions().at(i));
+    QList<QAction*> lst = actions();
+    int index = 0;
+    for (; index<lst.size() - 1; ++index) {
+        QRect g = actionGeometry(lst.at(index));
         g.setTopLeft(QPoint(0, 0));
 
-        if (g.contains(pos)) {
-            if (pos.x() > g.right() - 10) // ### 10px
-                return i + 1;
-
-            return i;
-        }
+        if (g.contains(pos))
+            break;
     }
 
-    return actions().size() - 1; // the sentinel
+    return index;
 }
 
 void QDesignerToolBar::adjustIndicator(const QPoint &pos)
