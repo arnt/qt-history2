@@ -341,6 +341,8 @@ void QTableView::scrollContentsBy(int dx, int dy)
     if (dx) { // horizontal
         int value = horizontalScrollBar()->value();
         int section = d->horizontalHeader->logicalIndex(value / horizontalStepsPerItem());
+        while (d->horizontalHeader->isSectionHidden(section))
+            ++section;
         int steps = horizontalStepsPerItem();
         int left = (value % steps) * d->horizontalHeader->sectionSize(section);
         int offset = (left / steps) + d->horizontalHeader->sectionPosition(section);
@@ -354,6 +356,8 @@ void QTableView::scrollContentsBy(int dx, int dy)
     if (dy) { // vertical
         int value = verticalScrollBar()->value();
         int section = d->verticalHeader->logicalIndex(value / verticalStepsPerItem());
+        while (d->verticalHeader->isSectionHidden(section))
+            ++section;
         int steps = verticalStepsPerItem();
         int above = (value % steps) * d->verticalHeader->sectionSize(section);
         int offset = (above / steps) + d->verticalHeader->sectionPosition(section);

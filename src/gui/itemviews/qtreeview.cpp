@@ -1085,6 +1085,8 @@ void QTreeView::scrollContentsBy(int dx, int dy)
         int steps = horizontalStepsPerItem();
         int scrollbarValue = horizontalScrollBar()->value();
         int column = d->header->logicalIndex(scrollbarValue / steps);
+        while (d->header->isSectionHidden(column))
+           ++column;
         int left = (scrollbarValue % steps) * d->header->sectionSize(column);
         int offset = (left / steps) + d->header->sectionPosition(column);
         if (isRightToLeft())
