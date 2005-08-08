@@ -18,17 +18,10 @@
 
 QT_MODULE(Gui)
 
-#if !defined(QT_NO_STYLE_PLASTIQUE) || defined(QT_PLUGIN)
-
-#if defined(QT_PLUGIN)
-#define Q_GUI_EXPORT_STYLE_PLASTIQUE
-#else
-#define Q_GUI_EXPORT_STYLE_PLASTIQUE Q_GUI_EXPORT
-#endif
-
+#if !defined(QT_NO_STYLE_PLASTIQUE)
 
 class QPlastiqueStylePrivate;
-class Q_GUI_EXPORT_STYLE_PLASTIQUE QPlastiqueStyle : public QWindowsStyle
+class Q_GUI_EXPORT QPlastiqueStyle : public QWindowsStyle
 {
     Q_OBJECT
 public:

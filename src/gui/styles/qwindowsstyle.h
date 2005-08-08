@@ -18,16 +18,9 @@
 
 QT_MODULE(Gui)
 
-#if !defined(QT_NO_STYLE_WINDOWS) || defined(QT_PLUGIN)
+#if !defined(QT_NO_STYLE_WINDOWS)
 
-#if defined(QT_PLUGIN)
-#define Q_GUI_EXPORT_STYLE_WINDOWS
-#else
-#define Q_GUI_EXPORT_STYLE_WINDOWS Q_GUI_EXPORT
-#endif
-
-
-class Q_GUI_EXPORT_STYLE_WINDOWS QWindowsStyle : public QCommonStyle
+class Q_GUI_EXPORT QWindowsStyle : public QCommonStyle
 {
     Q_OBJECT
 public:

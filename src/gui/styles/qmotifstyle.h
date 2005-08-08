@@ -19,19 +19,13 @@
 
 QT_MODULE(Gui)
 
-#if !defined(QT_NO_STYLE_MOTIF) || defined(QT_PLUGIN)
+#if !defined(QT_NO_STYLE_MOTIF)
 
 class QPalette;
 class QFocusFrame;
 
-#if defined(QT_PLUGIN)
-#define Q_GUI_EXPORT_STYLE_MOTIF
-#else
-#define Q_GUI_EXPORT_STYLE_MOTIF Q_GUI_EXPORT
-#endif
-
 class QMotifStylePrivate;
-class Q_GUI_EXPORT_STYLE_MOTIF QMotifStyle : public QCommonStyle
+class Q_GUI_EXPORT QMotifStyle : public QCommonStyle
 {
     Q_OBJECT
 public:
