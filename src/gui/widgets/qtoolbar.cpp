@@ -199,6 +199,16 @@ int QToolBarPrivate::indexOf(QAction *action) const
     top of the window), or it can be movable (isMovable()) between
     toolbar areas; see allowedAreas() and isAreaAllowed().
 
+    When a toolbar is resized in such a way that it is too small to
+    show all the items it contains, an extension button will appear as
+    the last item in the toolbar. Pressing the extension button will
+    pop up a menu containing the items that does not currently fit in
+    the toolbar. Note that only action based items will be shown in
+    the menu. If only non-action based items are to appear in the
+    extension menu (e.g. a QSpinBox), the extension button will appear
+    as usual, but it will be disabled to indicate that some items in
+    the toolbar are currently not visible.
+
     \sa QToolButton
 */
 
