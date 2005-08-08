@@ -504,7 +504,7 @@ bool QIODevice::seek(qint64 pos)
 {
     Q_D(QIODevice);
     qint64 offset = pos - this->pos();
-    if (offset > 0)
+    if (offset >= 0)
         d->ungetBuffer.chop(offset);
     else
         d->ungetBuffer.clear();
@@ -782,7 +782,6 @@ qint64 QIODevice::readLine(char *data, qint64 maxSize)
     }
 
     return readSoFar;
-
 }
 
 /*!
