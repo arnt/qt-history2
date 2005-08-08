@@ -243,13 +243,13 @@ PreprocessorController::PreprocessorController(IncludeFiles includeFiles,
             }
         }
     }
-
+    
     //connect include callback
     connect(&m_rppTreeEvaluator,
-        SIGNAL(includeCallback(Source *&, const Source *,
-        const QString &, RppTreeEvaluator::IncludeType)),
-        SLOT(includeSlot(Source *&, const Source *,
-        const QString &, RppTreeEvaluator::IncludeType)));
+        SIGNAL(includeCallback(::Rpp::Source *&, const ::Rpp::Source *,
+        const QString &, ::Rpp::RppTreeEvaluator::IncludeType)),
+        SLOT(includeSlot(::Rpp::Source *&, const ::Rpp::Source *,
+        const QString &, ::Rpp::RppTreeEvaluator::IncludeType)));
 
     // connect readFile callback
     connect(&m_preprocessorCache, SIGNAL(readFile(QByteArray&,QString)),

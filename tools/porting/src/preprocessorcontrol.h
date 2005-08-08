@@ -67,8 +67,8 @@ public:
 
     TokenEngine::TokenSectionSequence evaluate(const QString &filename, Rpp::DefineMap *activedefinitions);
 public slots:
-    void includeSlot(Rpp::Source *&includee, const Rpp::Source *includer,
-         const QString &filename, Rpp::RppTreeEvaluator::IncludeType includeType);
+    void includeSlot(::Rpp::Source *&includee, const ::Rpp::Source *includer,
+         const QString &filename, ::Rpp::RppTreeEvaluator::IncludeType includeType);
     void readFile(QByteArray &contents, QString filename);
 signals:
     void error(QString type, QString text);

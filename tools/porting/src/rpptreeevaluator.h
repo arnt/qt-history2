@@ -38,8 +38,8 @@ public:
                                               DefineMap *activedefinitions);
     enum IncludeType {QuoteInclude, AngleBracketInclude};
 signals:
-    void includeCallback(Source *&includee, const Source *includer,
-                         const QString &filename, IncludeType includeType);
+    void includeCallback(::Rpp::Source *&includee, const ::Rpp::Source *includer,
+                         const QString &filename, ::Rpp::RppTreeEvaluator::IncludeType includeType);
 protected:
     void evaluateIncludeDirective(const IncludeDirective *directive);
     void evaluateDefineDirective(const DefineDirective *directive);
