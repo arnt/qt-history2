@@ -1179,24 +1179,6 @@ qint64 QFile::readLineData(char *data, qint64 maxlen)
                 }
             }
 
-            // strip '\r' if in Text mode
-            if (openMode() & Text) {
-                char *readPtr = ptr;
-                char *endPtr = ptr + i;
-
-                while (*readPtr != '\r' && readPtr != endPtr)
-                    ++readPtr;
-                char *writePtr = readPtr;
-
-                while (readPtr != endPtr && i > 0) {
-                    char ch = *readPtr;
-                    if (ch != '\r')
-                        *writePtr++ = ch;
-                    else
-                        --i;
-                }
-            }
-
             memcpy(data + readSoFar, ptr, i);
             d->buffer.free(i);
             readSoFar += i;

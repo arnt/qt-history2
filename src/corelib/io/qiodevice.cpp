@@ -770,9 +770,18 @@ qint64 QIODevice::readLine(char *data, qint64 maxSize)
         data[readSoFar] = '\0';
         return readSoFar ? readSoFar : -1;
     }
+    readSoFar += readBytes;
+    data[readSoFar] = '\0';
 
-    data[readSoFar + readBytes] = '\0';
-    return readSoFar + readBytes;
+    if (d->openMode & Text) {
+        if (readSoFar > 1 && data[readSoFar - 1] == '\n' && data[readSoFar - 2] == '\r') {
+            data[readSoFar - 2] = '\n';
+            data[readSoFar - 1] = '\0';
+            --readSoFar;
+        }
+    }
+
+    return readSoFar;
 
 }
 
@@ -818,9 +827,6 @@ QByteArray QIODevice::readLine(qint64 maxSize)
     This function is called by readLine(), and provides its base
     implementation, using getChar(). Buffered devices can improve the
     performance of readLine() by reimplementing this function.
-
-    When reimplementing this function, keep in mind that you must
-    handle the \l Text flag which translates end-of-line characters.
 
     readLine() appends a '\0' byte to \a data; readLineData() does not
     need to do this.
