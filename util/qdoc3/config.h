@@ -71,6 +71,7 @@ private:
 #define CONFIG_BASE                     "base"      // ### don't document for now
 #define CONFIG_DEFINES                  "defines"
 #define CONFIG_DESCRIPTION              "description"
+#define CONFIG_EDITION                  "edition"
 #define CONFIG_EXAMPLEDIRS              "exampledirs"
 #define CONFIG_EXAMPLES                 "examples"
 #define CONFIG_EXTRAIMAGES              "extraimages"

@@ -69,6 +69,19 @@ void HtmlGenerator::initializeGenerator(const Config &config)
     projectUrl = config.getString(CONFIG_URL);
     if (projectUrl.isEmpty())
         projectUrl = "http://www.trolltech.com/products/" + project.toLower();
+
+    QSet<QString> editionNames = config.subVars(CONFIG_EDITION);
+    QSet<QString>::ConstIterator edition = editionNames.begin();
+    while (edition != editionNames.end()) {
+        QString editionName = *edition;
+        QStringList editionModules = config.getStringList(
+                                    CONFIG_EDITION + Config::dot + editionName);
+        
+        if (!editionModules.isEmpty())
+            editionModuleMap[editionName] = editionModules;
+
+        ++edition;
+    }
 }
 
 void HtmlGenerator::terminateGenerator()
@@ -271,6 +284,18 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
                 "classesbymodule") + 15).trimmed();
             if (moduleClassMap.contains(moduleName))
 	        generateAnnotatedList(relative, marker, moduleClassMap[moduleName]);
+	} else if (atom->string().contains("classesbyedition")) {
+            QString arg = atom->string().trimmed();
+            QString editionName = atom->string().mid(atom->string().indexOf(
+                "classesbyedition") + 16).trimmed();
+            if (editionModuleMap.contains(editionName)) {
+                QMap<QString, const Node *> editionClasses;
+                foreach (QString moduleName, editionModuleMap[editionName]) {
+                    if (moduleClassMap.contains(moduleName))
+                        editionClasses.unite(moduleClassMap[moduleName]);
+                }
+	        generateAnnotatedList(relative, marker, editionClasses);
+            }
 	} else if (atom->string() == "classhierarchy") {
 	    generateClassHierarchy(relative, marker, nonCompatClasses);
 	} else if (atom->string() == "compatclasses") {
@@ -2033,8 +2058,10 @@ void HtmlGenerator::findAllClasses(const InnerNode *node)
 		        mainClasses.insert((*c)->name(), *c);
                 }
                 QString moduleName = (*c)->moduleName();
-                if (moduleName == "Qt3SupportLight")
+                if (moduleName == "Qt3SupportLight") {
+                    moduleClassMap[moduleName].insert((*c)->name(), *c);
                     moduleName = "Qt3Support";
+                }
                 if (!moduleName.isEmpty())
                     moduleClassMap[moduleName].insert((*c)->name(), *c);
 	    } else if ((*c)->isInnerNode()) {

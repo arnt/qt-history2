@@ -3,6 +3,13 @@ include(compat.qdocconf)
 project                 = Qt
 description             = Qt Reference Documentation
 url                     = http://doc.trolltech.com/4.0
+
+edition.Console         = QtCore QtNetwork QtSql QtXml
+edition.Desktop         = QtCore QtGui QtNetwork QtOpenGL QtSql QtXml \
+                          QtDesigner QtAssistant Qt3Support QAxContainer \
+                          QAxServer
+edition.DesktopLight    = QtCore QtGui Qt3SupportLight
+
 language                = Cpp
 headerdirs              = $QTDIR/src \
                           $QTDIR/extensions/activeqt \
