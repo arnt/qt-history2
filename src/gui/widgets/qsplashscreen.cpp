@@ -245,11 +245,13 @@ void QSplashScreenPrivate::drawContents()
 {
     Q_Q(QSplashScreen);
     QPixmap textPix = pixmap;
-    QPainter painter(&textPix);
-    q->drawContents(&painter);
-    QPalette p = q->palette();
-    p.setBrush(q->backgroundRole(), QBrush(textPix));
-    q->setPalette(p);
+    if (!textPix.isNull()) {
+        QPainter painter(&textPix);
+        q->drawContents(&painter);
+        QPalette p = q->palette();
+        p.setBrush(q->backgroundRole(), QBrush(textPix));
+        q->setPalette(p);
+    }
 }
 
 /*!
