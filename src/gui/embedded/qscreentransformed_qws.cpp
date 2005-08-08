@@ -41,6 +41,38 @@ void qws_setScreenTransformation(int t)
     }
 }
 
+// -------------------------------------------------------------------------------------------------
+// Transformed Cursor
+// -------------------------------------------------------------------------------------------------
+#ifndef QT_NO_QWS_CURSOR
+class QTransformedScreenCursor : public QT_TRANS_CURSOR_BASE
+{
+public:
+    QTransformedScreenCursor(QTransformedScreen *s);
+    void set(const QImage &image, int hotx, int hoty);
+};
+
+QTransformedScreenCursor::QTransformedScreenCursor(QTransformedScreen *s)
+    : QT_TRANS_CURSOR_BASE((QT_TRANS_SCREEN_BASE *)s)
+{
+}
+
+void QTransformedScreenCursor::set(const QImage &image, int hotx, int hoty)
+{
+    double dx2 = image.width() / 2.0;
+    double dy2 = image.height() / 2.0;
+    // Create rotation matrix
+    QMatrix rotMatrix;
+    rotMatrix.translate(dx2, dy2);
+    rotMatrix.rotate(qt_trans_screen->transformOrientation());
+    rotMatrix.translate(-dx2, -dy2);
+    // Rotate image and hot-point   // ### Why do we require 8-bit cursors?
+    QImage rimg = image.transformed(rotMatrix, Qt::SmoothTransformation).convertToFormat(QImage::Format_Indexed8);
+    QPoint tp = rotMatrix.map(QPoint(hotx, hoty));
+    // Set it using the base class
+    QT_TRANS_CURSOR_BASE::set(rimg, tp.x(), tp.y());
+}
+#endif
 
 // -------------------------------------------------------------------------------------------------
 // Transformed PaintEngine
@@ -123,6 +155,23 @@ bool QTransformedScreen::connect(const QString &displaySpec)
         setTransformation((Transformation)displaySpec.mid(indexOfRot + 4).toInt());
 
     return result;
+}
+
+/*
+    The end_of_location parameter is unusual: it's the address
+    after the cursor data.
+*/
+int QTransformedScreen::initCursor(void *end_of_location, bool init)
+{
+#ifndef QT_NO_QWS_CURSOR
+    qt_sw_cursor = true;
+    SWCursorData *data_eol = (SWCursorData *)end_of_location - 1;
+    qt_screencursor = new QTransformedScreenCursor(this);
+    qt_screencursor->init(data_eol, init);
+    return sizeof(SWCursorData);
+#else
+    return 0;
+#endif
 }
 
 int QTransformedScreen::transformOrientation() const
