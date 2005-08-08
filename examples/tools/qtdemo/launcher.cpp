@@ -84,6 +84,7 @@ Launcher::Launcher(QWidget *parent)
     setCentralWidget(display);
     setMaximumSize(QApplication::desktop()->screenGeometry().size());
     setWindowTitle(tr("Qt Examples and Demos"));
+    setWindowIcon(QPixmap(":/images/qt4-logo.png"));
 }
 
 bool Launcher::setup()
@@ -193,7 +194,7 @@ int Launcher::readInfo(const QString &resource, const QDir &dir)
     QDomNodeList categoryNodes = documentElement.elementsByTagName("category");
 
     readCategoryDescription(dir, "[main]");
-    qtLogo.load(imagesDir.absoluteFilePath(":/images/qt-logo.png"));
+    qtLogo.load(imagesDir.absoluteFilePath(":/images/qt4-logo.png"));
     trolltechLogo.load(imagesDir.absoluteFilePath(":/images/trolltech-logo.png"));
 
     for (int i = 0; i < int(categoryNodes.length()); ++i) {
