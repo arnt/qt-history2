@@ -101,8 +101,8 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
         opt.state |= QStyle::State_Selected;
     if (isCurrent && q->hasFocus())
         opt.state |= QStyle::State_HasFocus;
-    if (q->isEnabled() && ptab->enabled)
-        opt.state |= QStyle::State_Enabled;
+    if (!ptab->enabled)
+        opt.state &= ~QStyle::State_Enabled;
     if (q->isActiveWindow())
         opt.state |= QStyle::State_Active;
     if (opt.rect == hoverRect)
