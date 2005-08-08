@@ -331,6 +331,7 @@ bool QTcpServer::setSocketDescriptor(int socketDescriptor)
     }
 
     connect(d->socketEngine, SIGNAL(readNotification()), SLOT(processIncomingConnection()));
+    d->socketEngine->setReadNotificationEnabled(true);
 
     d->state = d->socketEngine->state();
     d->address = d->socketEngine->localAddress();
