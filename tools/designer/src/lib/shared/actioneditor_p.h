@@ -45,18 +45,29 @@ public:
 
     virtual QDesignerFormEditorInterface *core() const;
 
+    QAction *actionNew() const;
+    QAction *actionDelete() const;
+
+    QString filter() const;
+
 public slots:
-    void filter(const QString &filter);
+    void setFilter(const QString &filter);
 
 private slots:
     void slotItemChanged(QListWidgetItem *item);
     void slotActionChanged();
+    void slotNewAction();
+    void slotDeleteAction();
+    void slotNotImplemented();
 
 private:
     QDesignerFormEditorInterface *m_core;
     QSplitter *splitter;
     QListWidget *m_actionGroups;
     ActionRepository *m_actionRepository;
+    QAction *m_actionNew;
+    QAction *m_actionDelete;
+    QString m_filter;
 };
 
 #endif // ACTIONEDITOR_H

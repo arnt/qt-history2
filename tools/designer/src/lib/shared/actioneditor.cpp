@@ -16,15 +16,41 @@
 
 #include <QtDesigner/QtDesigner>
 
+#include <QtGui/QMessageBox>
 #include <QtGui/QListWidget>
+#include <QtGui/QToolBar>
 #include <QtGui/QSplitter>
 #include <QtGui/QAction>
 #include <QtGui/QItemDelegate>
 #include <QtGui/QPainter>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QLineEdit>
 
 Q_DECLARE_METATYPE(QAction*)
 Q_DECLARE_METATYPE(QListWidgetItem*)
+
+class ActionFilterWidget: public QWidget
+{
+public:
+    ActionFilterWidget(ActionEditor *actionEditor, QToolBar *parent)
+        : QWidget(parent),
+          m_actionEditor(actionEditor)
+    {
+        QHBoxLayout *l = new QHBoxLayout(this);
+        l->setMargin(0);
+        l->setSpacing(0);
+
+        l->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        m_editor = new QLineEdit(this);
+        l->addWidget(m_editor);
+
+        connect(m_editor, SIGNAL(textChanged(QString)), actionEditor, SLOT(setFilter(QString)));
+    }
+
+private:
+    QLineEdit *m_editor;
+    ActionEditor *m_actionEditor;
+};
 
 class ActionGroupDelegate: public QItemDelegate
 {
@@ -47,11 +73,26 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     : QDesignerActionEditorInterface(parent, flags),
       m_core(core)
 {
+    setWindowTitle(tr("Actions"));
+
     QVBoxLayout *l = new QVBoxLayout(this);
     l->setMargin(0);
+    l->setSpacing(0);
 
-    setWindowTitle(tr("Actions"));
+    QToolBar *toolbar = new QToolBar(this);
+    toolbar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    l->addWidget(toolbar);
+
+    m_actionNew = toolbar->addAction(tr("New..."));
+    connect(m_actionNew, SIGNAL(triggered()), this, SLOT(slotNotImplemented()));
+
+    m_actionDelete = toolbar->addAction(tr("Delete"));
+    toolbar->addWidget(new ActionFilterWidget(this, toolbar));
+    connect(m_actionDelete, SIGNAL(triggered()), this, SLOT(slotNotImplemented()));
+
     splitter = new QSplitter(Qt::Horizontal, this);
+    splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
     l->addWidget(splitter);
 
 #if 0 // ### implement me
@@ -73,6 +114,16 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
 
 ActionEditor::~ActionEditor()
 {
+}
+
+QAction *ActionEditor::actionNew() const
+{
+    return m_actionNew;
+}
+
+QAction *ActionEditor::actionDelete() const
+{
+    return m_actionDelete;
 }
 
 void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
@@ -103,6 +154,8 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
 
         connect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
     }
+
+    setFilter(m_filter);
 }
 
 void ActionEditor::slotItemChanged(QListWidgetItem *item)
@@ -134,7 +187,26 @@ QDesignerFormEditorInterface *ActionEditor::core() const
     return m_core;
 }
 
-void ActionEditor::filter(const QString &f)
+QString ActionEditor::filter() const
 {
-    m_actionRepository->filter(f);
+    return m_filter;
+}
+
+void ActionEditor::setFilter(const QString &f)
+{
+    m_filter = f;
+    m_actionRepository->filter(m_filter);
+}
+
+void ActionEditor::slotNewAction()
+{
+}
+
+void ActionEditor::slotDeleteAction()
+{
+}
+
+void ActionEditor::slotNotImplemented()
+{
+    QMessageBox::information(this, tr("Designer"), tr("Feature not implemented!"));
 }

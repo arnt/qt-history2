@@ -143,6 +143,7 @@ void QDesignerMenu::slotRemoveSelectedAction(QAction *action)
     QAction *a = qvariant_cast<QAction*>(action->data());
     Q_ASSERT(a != 0);
     removeAction(a);
+    adjustSize();
 }
 
 bool QDesignerMenu::eventFilter(QObject *object, QEvent *event)
