@@ -2266,13 +2266,11 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
         ::Picture src = X11->getSolidFill(screen, pen);
 
         int i = 0;
-        //server doesn't deal too well with a 0 mask on argb visuals
-        //(i'll have to fix it in the server at some point)
-        XRenderPictFormat *maskFormat = XRenderFindStandardFormat(X11->display, PictStandardA8);
+
         while (i < nGlyphs) {
             // ############ inefficient
             XRenderCompositeText32 (X11->display, PictOpOver, src, d->picture,
-                                    maskFormat, 0, 0, 0, 0,
+                                    0, 0, 0, 0, 0,
                                     glyphSpec.data() + i, 1);
             i++;
         }
