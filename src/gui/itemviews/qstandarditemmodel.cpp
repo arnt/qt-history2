@@ -50,7 +50,7 @@
     \code
         QStandardItemModel *model = new QStandardItemModel();
         QModelIndex parent;
-        for (int i = 0; i < 4; ++i) { 
+        for (int i = 0; i < 4; ++i) {
             parent = model->index(0, 0, parent);
             model->insertRows(0, 1, parent);
             model->insertColumns(0, 1, parent);
@@ -89,7 +89,7 @@ QStandardItemModel::~QStandardItemModel()
 
 /*!
     Returns a model index for the given \a row, \a column, and \a parent.
-    
+
     \sa data()
 */
 QModelIndex QStandardItemModel::index(int row, int column, const QModelIndex &parent) const
@@ -164,7 +164,7 @@ int QStandardItemModel::columnCount(const QModelIndex &parent) const
     false.
 
     To add children use insertColumns() and insertRows().
-    
+
     \sa rowCount(), columnCount(), parent()
 */
 bool QStandardItemModel::hasChildren(const QModelIndex &parent) const
@@ -202,7 +202,7 @@ QVariant QStandardItemModel::data(const QModelIndex &index, int role) const
 
 /*!
     Sets the data for the given \a index and \a role to the \a value specified.
-    
+
     Returns false if index isn't valid.
 
     \sa Qt::ItemDataRole, data(), itemData(), setHeaderData()
@@ -294,7 +294,7 @@ bool QStandardItemModel::setHeaderData(int section, Qt::Orientation orientation,
     Note that a row with no columns will not show up in the treeview.
 
     Returns true if the rows were successfully inserted; otherwise returns false.
-    
+
     \sa insertRow() insertColumns() removeRows() rowCount()
 */
 bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &parent)
