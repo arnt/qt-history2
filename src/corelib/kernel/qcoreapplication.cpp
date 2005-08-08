@@ -902,7 +902,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
             // asked to (s.a. QEventLoop::DeferredDeletion), and then only if
             // there is no current event loop, or if the current event loop is
             // equal to the loop in which deleteLater() was called.
-            if (!doDeferredDeletion || (currentEventLoop && savedEventLoop != currentEventLoop)) {
+            if (!doDeferredDeletion || (currentEventLoop && savedEventLoop && savedEventLoop != currentEventLoop)) {
                 // cannot send deferred delete
                 if (!event_type && !receiver) {
                     // don't lose the event
