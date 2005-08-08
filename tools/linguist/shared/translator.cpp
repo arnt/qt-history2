@@ -700,10 +700,10 @@ void Translator::squeeze(SaveMode mode)
         QMap<int, const char *>::const_iterator entry = hashMap.constBegin();
         while (entry != hashMap.constEnd()) {
             int i = entry.key();
-            const char *con = entry.value();
             hTable[i] = (quint16)(upto >> 1);
 
             do {
+	            const char *con = entry.value();
                 uint len = (uint)qstrlen(con);
                 len = qMin(len, 255u);
                 t << (quint8)len;
