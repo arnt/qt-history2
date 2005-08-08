@@ -792,6 +792,8 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
 void QTreeView::mousePressEvent(QMouseEvent *e)
 {
     Q_D(QTreeView);
+    if (!d->viewport->rect().contains(e->pos()))
+        return;
     int i = d->itemDecorationAt(e->pos());
     if (i == -1) {
         QAbstractItemView::mousePressEvent(e);
@@ -814,6 +816,9 @@ void QTreeView::mousePressEvent(QMouseEvent *e)
 void QTreeView::mouseDoubleClickEvent(QMouseEvent *e)
 {
     Q_D(QTreeView);
+    if (!d->viewport->rect().contains(e->pos()))
+        return;
+    
     int i = d->itemDecorationAt(e->pos());
     if (i == -1) {
         i = d->item(e->y());
