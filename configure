@@ -99,6 +99,13 @@ if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]; then
     Licensee="Open Source"
     Edition="OpenSource"
     QT_EDITION="QT_EDITION_OPENSOURCE"
+elif [ -f $relpath/LICENSE.PREVIEW ]; then
+    # tech preview
+    [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
+    [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
+    Licensee="Preview"
+    Edition="Preview"
+    QT_EDITION="QT_EDITION_OPENSOURCE"
 elif [ -f $relpath/LICENSE.TROLL ]; then
     # internal Trolltech edition
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
@@ -1619,7 +1626,7 @@ if [ "$PLATFORM_MAC" = "yes" ]; then
       echo "   built with 'macx-g++'" >&2
       echo >&2
       exit 2
-  fi
+    fi
 fi
 
 # check specified platforms are supported
@@ -2524,6 +2531,37 @@ if [ "$Edition" = "OpenSource" ]; then
             if [ "$PLATFORM_QWS" != "yes" ]; then
                 more $relpath/LICENSE.QPL
             fi
+        fi
+    done
+elif [ "$Edition" == "Preview" ]; then
+    while true; do
+        if [ "$OPT_CONFIRM_LICENSE" = "yes" ]; then
+            echo "You have already accepted the terms of the $LicenseType license."
+            acceptance=yes
+        else
+            echo "You are licensed to use this software under the terms of"
+            echo "the Qt PREVIEW VERSION LICENSE AGREEMENT"
+            echo
+            echo "Type '?' to read the Preview License."
+            echo "Type 'yes' to accept this license offer."
+            echo "Type 'no' to decline this license offer."
+            echo
+            if echo '\c' | grep '\c' >/dev/null; then
+                echo -n "Do you accept the terms of the license? "
+            else
+                echo "Do you accept the terms of the license? \c"
+            fi
+            read acceptance
+        fi
+        echo
+        if [ "$acceptance" = "yes" ]; then
+            break
+        elif [ "$acceptance" = "no" ] ;then
+            echo "You are not licensed to use this software."
+            echo
+            exit 0
+        elif [ "$acceptance" = "?" ]; then
+            more $relpath/LICENSE.PREVIEW
         fi
     done
 elif [ "$Edition" != "Trolltech" ]; then
