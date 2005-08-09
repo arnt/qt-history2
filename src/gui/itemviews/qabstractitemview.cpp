@@ -269,11 +269,11 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn QModelIndex QAbstractItemView::indexAt(const QPoint &p) const
+    \fn QModelIndex QAbstractItemView::indexAt(const QPoint &point) const
 
     \overload
 
-    Returns the model index of the item at point \a p.
+    Returns the model index of the item at point \a point.
 
     In the base class this is a pure virtual function.
 */

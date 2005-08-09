@@ -129,7 +129,7 @@ public:
 
     virtual QRect visualRect(const QModelIndex &index) const = 0;
     virtual void scrollTo(const QModelIndex &index, ScrollHint hint = EnsureVisible) = 0;
-    virtual QModelIndex indexAt(const QPoint &p) const = 0;
+    virtual QModelIndex indexAt(const QPoint &point) const = 0;
 
     QSize sizeHintForIndex(const QModelIndex &index) const;
     virtual int sizeHintForRow(int row) const;
