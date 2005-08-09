@@ -1124,7 +1124,7 @@ QRect QDockWidgetLayout::place(QDockWidget *dockwidget, const QRect &r, const QP
             DEBUG() << "END of place, in-place reorder, target is" << target;
             return target;
         } else {
-            DEBUG() << "  cannot swap" << endl;
+            DEBUG() << "  cannot swap";
             if (horizontal)
                 allowedAreas &= ~(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
             else
