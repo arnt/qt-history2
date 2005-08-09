@@ -452,7 +452,11 @@ bool QAxScriptEngine::initialize(IUnknown **ptr)
         return false;
     }
     
-    hres = parser->ParseScriptText(QStringToBSTR(script_code->scriptCode()), 0, 0, 0, DWORD_PTR(this), 0, SCRIPTTEXT_ISVISIBLE, 0, 0);
+#ifdef Q_OS_WIN64
+	hres = parser->ParseScriptText(QStringToBSTR(script_code->scriptCode()), 0, 0, 0, DWORDLONG(this), 0, SCRIPTTEXT_ISVISIBLE, 0, 0);
+#else
+	hres = parser->ParseScriptText(QStringToBSTR(script_code->scriptCode()), 0, 0, 0, DWORD(this), 0, SCRIPTTEXT_ISVISIBLE, 0, 0);
+#endif
     
     parser->Release();
     parser = 0;
