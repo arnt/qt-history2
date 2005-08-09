@@ -42,8 +42,12 @@ AccessibleFactory::AccessibleFactory()
 QStringList AccessibleFactory::keys() const
 {
     QStringList list;
+#ifndef QT_NO_LINEEDIT
     list << "QLineEdit";
+#endif
+#ifndef QT_NO_COMBOBOX
     list << "QComboBox";
+#endif
 #ifndef QT_NO_SPINBOX
     list << "QSpinBox";
 #endif
@@ -96,10 +100,15 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         return iface;
     QWidget *widget = static_cast<QWidget*>(object);
 
-    if (classname == "QLineEdit") {
+    if (false) {
+#ifndef QT_NO_LINEEDIT
+    } else if (classname == "QLineEdit") {
         iface = new QAccessibleLineEdit(widget);
+#endif
+#ifndef QT_NO_COMBOBOX
     } else if (classname == "QComboBox") {
         iface = new QAccessibleComboBox(widget);
+#endif
 #ifndef QT_NO_SPINBOX
     } else if (classname == "QSpinBox") {
         iface = new QAccessibleSpinBox(widget);

@@ -67,6 +67,7 @@ private:
 };
 #endif // QT_NO_TABBAR
 
+#ifndef QT_NO_COMBOBOX
 class QAccessibleComboBox : public QAccessibleWidget
 {
 public:
@@ -94,6 +95,7 @@ public:
 protected:
     QComboBox *comboBox() const;
 };
+#endif // QT_NO_COMBOBOX
 
 #endif // QT_NO_ACCESSIBILITY
 #endif // COMPLEXWIDGETS_H

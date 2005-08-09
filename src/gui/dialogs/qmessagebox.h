@@ -112,10 +112,8 @@ public:
 
     static void about(QWidget *parent, const QString &caption,
                        const QString& text);
-#ifndef QT_NO_IMAGEFORMAT_XPM
     static void aboutQt(QWidget *parent,
                          const QString& caption=QString());
-#endif
     QSize sizeHint() const;
 
 #ifdef QT3_SUPPORT
