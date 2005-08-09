@@ -159,6 +159,7 @@ QHeaderView::QHeaderView(Qt::Orientation orientation, QWidget *parent)
 {
     Q_D(QHeaderView);
     d->orientation = orientation;
+    d->defaultSectionSize = (orientation == Qt::Horizontal ? 100 : 30);
     initialize();
 }
 
@@ -171,6 +172,7 @@ QHeaderView::QHeaderView(QHeaderViewPrivate &dd,
 {
     Q_D(QHeaderView);
     d->orientation = orientation;
+    d->defaultSectionSize = (orientation == Qt::Horizontal ? 100 : 30);
     initialize();
 }
 
@@ -926,7 +928,24 @@ void QHeaderView::setStretchLastSection(bool stretch)
     if (stretch)
         resizeSections();
     else if (count())
-        resizeSection(count() - 1, d->defaultSectionSize());
+        resizeSection(count() - 1, d->defaultSectionSize);
+}
+
+/*!
+    \property QHeaderView::defaultSectionSize
+    \brief the default size of the header sections before resizing.
+
+*/
+int QHeaderView::defaultSectionSize() const
+{
+    Q_D(const QHeaderView);
+    return d->defaultSectionSize;
+}
+
+void QHeaderView::setDefaultSectionSize(int size)
+{
+    Q_D(QHeaderView);
+    d->defaultSectionSize = size;
 }
 
 /*!
@@ -1169,7 +1188,7 @@ void QHeaderView::initializeSections(int start, int end)
     QHeaderViewPrivate::HeaderSection *sections = d->sections.data() + start;
     int l = start;
     int num = end - start + 1;
-    int size = d->defaultSectionSize();
+    int size = d->defaultSectionSize;
 
     // set resize mode
     ResizeMode mode = d->globalResizeMode;

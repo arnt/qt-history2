@@ -67,9 +67,6 @@ public:
             sectionSelection.fill(false, sections.count() * 2);
           else sectionSelection.fill(false); }
 
-    inline int defaultSectionSize() const
-        { return (orientation == Qt::Horizontal ? 100 : 30); }
-
     inline bool reverse() const
         { return q_func()->isRightToLeft() && orientation == Qt::Horizontal; }
 
@@ -105,6 +102,7 @@ public:
     bool stretchLastSection;
     int stretchSections;
     int sectionIndicatorOffset;
+    int defaultSectionSize;
     QLabel *sectionIndicator;
     QStyleOptionHeader getStyleOption() const;
     QHeaderView::ResizeMode globalResizeMode;
