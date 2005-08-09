@@ -19,15 +19,57 @@
 #include <QtDesigner/QExtensionFactory>
 
 #include <QtCore/QPointer>
+#include <QWidget>
+
+#include <QPixmap>
 
 class QAxWidget;
+
+class QActiveXPluginObject : public QWidget
+{
+public:
+    QActiveXPluginObject(QWidget *parent);
+    ~QActiveXPluginObject();
+
+    const QMetaObject *metaObject() const;
+    int qt_metacall(QMetaObject::Call, int, void **);
+    static const QMetaObject QActiveXPluginObject::staticMetaObject;
+
+    bool setControl(const QString &clsid);
+    QSize sizeHint() const;
+
+    bool loaded() { return (m_axobject != 0); }
+protected:
+    void paintEvent (QPaintEvent *event);
+
+    void resizeControlPixmap();
+    void cleanup();
+private:
+    QAxWidget *m_axobject;
+    QPixmap m_axImage;
+    QMap<int, QVariant *> m_propValues;
+};
+
+#if defined Q_CC_MSVC && _MSC_VER < 1300
+template <> inline QActiveXPluginObject *qobject_cast_helper<QActiveXPluginObject*>(QObject *o, QActiveXPluginObject *)
+#else
+template <> inline QActiveXPluginObject *qobject_cast<QActiveXPluginObject*>(QObject *o)
+#endif
+{
+    void *result = 0;
+
+    if (o && strcmp(o->metaObject()->className(), "QAxWidget") == 0)
+        result = static_cast<QActiveXPluginObject*>(o);
+
+    return (QActiveXPluginObject*)(result);
+}
 
 class QAxWidgetExtraInfo: public QObject, public QDesignerExtraInfoExtension
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerExtraInfoExtension)
 public:
-    QAxWidgetExtraInfo(QAxWidget *widget, QDesignerFormEditorInterface *core, QObject *parent);
+    QAxWidgetExtraInfo(QActiveXPluginObject *widget, QDesignerFormEditorInterface *core, QObject *parent);
 
     virtual QWidget *widget() const;
     virtual QDesignerFormEditorInterface *core() const;
@@ -39,7 +81,7 @@ public:
     virtual bool loadWidgetExtraInfo(DomWidget *ui_widget);
 
 private:
-    QPointer<QAxWidget> m_widget;
+    QPointer<QActiveXPluginObject> m_widget;
     QPointer<QDesignerFormEditorInterface> m_core;
 };
 

@@ -25,10 +25,12 @@
 #include <QtGui/QPainter>
 
 #include <ActiveQt/QAxWidget>
+#include <QMetaProperty>
 
 #include <olectl.h>
 #include "../container/qaxselect.h"
 #include "activeqt_extrainfo.h"
+#include "../shared/qaxtypes.h"
 
 /* XPM */
 static const char *widgetIcon[]={
@@ -64,67 +66,132 @@ static const char *widgetIcon[]={
 
 class QActiveXPlugin;
 
-class QActiveXPluginObject : public QAxWidget
-{
-public:
-    QActiveXPluginObject(QWidget *parent)
-        : QAxWidget(parent), m_hasControl(false)
-    {
-        m_axImage = QPixmap(widgetIcon);
-    }
+static const uint qt_meta_data_QActiveXPluginObject[] = {
 
-    ~QActiveXPluginObject()
-    {
-    }
+ // content:
+       1,       // revision
+       0,       // classname
+       0,    0, // classinfo
+       0,    0, // methods
+       0,    0, // properties
+       0,    0, // enums/sets
 
-    bool setControl(const QString &clsid)
-    {
-        m_hasControl = QAxWidget::setControl(clsid);
-        return m_hasControl;
-    }
-
-    QSize sizeHint() const
-    {
-        return QSize(80,70);
-    }
-
-protected:
-    void paintEvent (QPaintEvent *event)
-    {
-        if (!m_hasControl)
-        {
-            QPainter p(this);
-            QRect r = contentsRect();
-            p.drawRect(r.adjusted(0,0,-1,-1));
-            p.drawPixmap((r.width()-m_axImage.width())/2,
-                (r.height()-m_axImage.height())/2,m_axImage);
-        }
-        else
-        {
-            QAxWidget::paintEvent(event);
-        }
-    }
-
-private:
-    QPixmap m_axImage;
-    bool m_hasControl;
+       0        // eod
 };
+
+static const char qt_meta_stringdata_QActiveXPluginObject[] = {
+    "QAxWidget\0"
+};
+
+const QMetaObject QActiveXPluginObject::staticMetaObject = {
+    { &QWidget::staticMetaObject, qt_meta_stringdata_QActiveXPluginObject,
+      qt_meta_data_QActiveXPluginObject, 0 }
+};
+
+QActiveXPluginObject::QActiveXPluginObject(QWidget *parent)
+    : QWidget(parent), m_axobject(0)
+{
+    m_axImage = QPixmap(widgetIcon);
+}
+
+QActiveXPluginObject::~QActiveXPluginObject()
+{
+    foreach (QVariant *qvar, m_propValues) {
+        delete qvar;        
+    }
+
+    delete m_axobject;
+}
+
+const QMetaObject *QActiveXPluginObject::metaObject() const
+{
+    if (m_axobject)
+        return m_axobject->metaObject();
+
+    return &staticMetaObject;
+}
+
+int QActiveXPluginObject::qt_metacall(QMetaObject::Call call, int signal, void **argv)
+{
+    if (m_axobject) {
+        const QMetaObject *mo = metaObject();
+        int ioffset = mo->indexOfProperty("control");
+        
+        if (ioffset == signal)
+            return m_axobject->qt_metacall(call,signal,argv);
+
+        ioffset = mo->propertyOffset();
+        if (signal < ioffset)
+            return QWidget::qt_metacall(call,signal,argv);
+
+
+        if (call == QMetaObject::WriteProperty) {
+            QMetaProperty mprop = mo->property(signal);
+            QVariant qVar(mprop.type(), argv[0]);
+            m_propValues.insert(signal, new QVariant(qVar));
+            return 1;
+        } else if(call == QMetaObject::ReadProperty) {
+            if (m_propValues.contains(signal)) {
+                QMetaProperty mprop = mo->property(signal);
+                QVariantToVoidStar(*m_propValues.value(signal), *argv, mprop.typeName(), mprop.type());
+                return 1;
+            } else {
+                return m_axobject->qt_metacall(call,signal,argv);
+            }
+        }
+    }
+
+    return QWidget::qt_metacall(call,signal,argv);
+}
+
+bool QActiveXPluginObject::setControl(const QString &clsid)
+{
+    m_axobject = new QAxWidget();
+
+    if (!m_axobject->setControl(clsid)) {
+        delete m_axobject;
+        m_axobject = 0;
+        return false;
+    }
+
+    return true;
+}
+
+QSize QActiveXPluginObject::sizeHint() const
+{
+    return QSize(80,70);
+}
+
+void QActiveXPluginObject::paintEvent (QPaintEvent *event)
+{
+    QPainter p(this);
+    QRect r = contentsRect();
+
+    if (m_axobject) {
+        p.setBrush(QBrush(Qt::green, Qt::BDiagPattern));
+        p.drawRect(r.adjusted(0,0,-1,-1));
+        p.drawText(5,r.height()-5,tr("Control loaded"));
+    } else {
+        p.drawRect(r.adjusted(0,0,-1,-1));
+    }
+
+    p.drawPixmap((r.width()-m_axImage.width())/2,
+        (r.height()-m_axImage.height())/2,m_axImage);
+
+    Q_UNUSED(event);
+}
 
 class QActiveXPropertySheet: public QDesignerPropertySheet
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerPropertySheetExtension)
 public:
-    QActiveXPropertySheet(QAxWidget *object, QObject *parent = 0)
+    QActiveXPropertySheet(QActiveXPluginObject *object, QObject *parent = 0)
         : QDesignerPropertySheet(object, parent)
     {
         int index = indexOf(QLatin1String("control"));
-        if (index == -1) {
-            createFakeProperty(QLatin1String("control"), QString());
-            index = indexOf(QLatin1String("control"));
-        }
-
-        setVisible(index, false);
+        if (index != -1)
+            setVisible(index, false);
     }
 
     virtual ~QActiveXPropertySheet()
@@ -134,24 +201,36 @@ public:
 
     void setProperty(int index, const QVariant &value)
     {
-        QDesignerPropertySheet::setProperty(index, value);
-
-        if (isAdditionalProperty(index)
-            && (propertyName(index) == QLatin1String("control")))
+        if (propertyName(index) == QLatin1String("control"))
         {
             QString clsid = value.toString();
             if (!clsid.isEmpty()) {
-                static_cast<QActiveXPluginObject*>(m_object)->setControl(clsid);
-
                 // don't update the property sheet if the widget isn't in a form (preview)
                 if (QDesignerFormWindowInterface::findFormWindow(static_cast<QWidget*>(m_object)))
                 {
-                    m_currentProperties.clsid = clsid;
-                    m_currentProperties.widget = static_cast<QWidget*>(m_object);
+                    QActiveXPluginObject *pluginObject = static_cast<QActiveXPluginObject*>(m_object);
+                    
+                    if (!pluginObject->loaded()) {
+                        
+                        // compute the changed properties
+                        for (int i = 0; i<count(); ++i) {
+                            if (propertyName(i) == QLatin1String("control"))
+                                m_currentProperties.changedProperties[propertyName(i)] = property(i);
+                            if (isChanged(i))
+                                m_currentProperties.changedProperties[propertyName(i)] = property(i);
+                        }
 
-                    QTimer::singleShot(100, this, SLOT(updatePropertySheet()));
+                        if (pluginObject->setControl(clsid)) {
+                            m_currentProperties.clsid = clsid;
+                            m_currentProperties.widget = static_cast<QWidget*>(m_object);
+
+                            QTimer::singleShot(100, this, SLOT(updatePropertySheet()));
+                        }
+                    }
                 }
             }
+        } else {
+            QDesignerPropertySheet::setProperty(index, value);
         }
     }
 
@@ -171,12 +250,6 @@ public:
 private slots:
     void updatePropertySheet()
     {
-        // compute the changed properties
-        for (int i = 0; i<count(); ++i) {
-            if (isChanged(i))
-                m_currentProperties.changedProperties[propertyName(i)] = property(i);
-        }
-
         // refresh the property sheet (we are deleting m_currentProperties)
         struct SavedProperties tmp = m_currentProperties;
         delete this;
@@ -218,8 +291,8 @@ class QActiveXTaskMenu: public QObject, public QDesignerTaskMenuExtension
     Q_OBJECT
     Q_INTERFACES(QDesignerTaskMenuExtension)
 public:
-    QActiveXTaskMenu(QAxWidget *object, QObject *parent = 0)
-        : QObject(parent), m_axwidget(object) { }
+    QActiveXTaskMenu(QActiveXPluginObject *object, QObject *parent = 0)
+        : QObject(parent), m_axwidget(object), m_action(0) { }
     virtual ~QActiveXTaskMenu() { }
 
     virtual QList<QAction*> taskActions() const
@@ -227,13 +300,12 @@ public:
         if (!m_taskActions.isEmpty())
             return m_taskActions;
 
-        QAction *action = 0;
         QActiveXTaskMenu *that = const_cast<QActiveXTaskMenu*>(this);
 
-        action = new QAction(that);
-        action->setText(tr("Set Control"));
-        connect(action, SIGNAL(triggered()), this, SLOT(setActiveXControl()));
-        m_taskActions.append(action);
+        m_action = new QAction(that);
+        m_action->setText(tr("Set Control"));
+        connect(m_action, SIGNAL(triggered()), this, SLOT(setActiveXControl()));
+        m_taskActions.append(m_action);
 
         return m_taskActions;
     }
@@ -276,6 +348,7 @@ private slots:
 
                 formWin->selectWidget(m_axwidget, true);
 
+                m_action->setEnabled(false);
                 if (key.isEmpty())
                     formWin->cursor()->setProperty(QLatin1String("control"), clsid.toString());
                 else
@@ -286,7 +359,8 @@ private slots:
     }
 
 private:
-    QAxWidget *m_axwidget;
+    QActiveXPluginObject *m_axwidget;
+    mutable QAction *m_action;
     mutable QList<QAction*> m_taskActions;
 };
 
@@ -301,7 +375,7 @@ public:
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const
     {
-        QAxWidget *w = qobject_cast<QAxWidget*>(object);
+        QActiveXPluginObject *w = qobject_cast<QActiveXPluginObject*>(object);
 
         if (!w)
             return 0;

@@ -11,9 +11,11 @@ CONFIG(debug, debug|release) {
 
 # Input
 SOURCES += plugin.cpp \
-    activeqt_extrainfo.cpp
+    activeqt_extrainfo.cpp \
+    ../shared/qaxtypes.cpp
 
-HEADERS += activeqt_extrainfo.h
+HEADERS += activeqt_extrainfo.h \
+    ../shared/qaxtypes.h
 
 # install
 target.path = $$[QT_INSTALL_PLUGINS]/designer

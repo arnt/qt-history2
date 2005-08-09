@@ -17,9 +17,7 @@
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/ui4.h>
 
-#include <ActiveQt/QAxWidget>
-
-QAxWidgetExtraInfo::QAxWidgetExtraInfo(QAxWidget *widget, QDesignerFormEditorInterface *core, QObject *parent)
+QAxWidgetExtraInfo::QAxWidgetExtraInfo(QActiveXPluginObject *widget, QDesignerFormEditorInterface *core, QObject *parent)
     : QObject(parent), m_widget(widget), m_core(core)
 {}
 
@@ -60,7 +58,7 @@ QObject *QAxWidgetExtraInfoFactory::createExtension(QObject *object, const QStri
     if (iid != Q_TYPEID(QDesignerExtraInfoExtension))
         return 0;
 
-    if (QAxWidget *w = qobject_cast<QAxWidget*>(object))
+    if (QActiveXPluginObject *w = qobject_cast<QActiveXPluginObject*>(object))
         return new QAxWidgetExtraInfo(w, m_core, parent);
 
     return 0;
