@@ -10,7 +10,7 @@ const qdocCommand = qdocDir + "/qdoc3";
 const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "embedded"];
-const validLicenses = ["opensource", "commercial"];
+const validLicenses = ["opensource", "commercial", "preview"];
 const validSwitches = ["gzip", "bzip", "zip", "binaries", "snapshots", "eval"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
 
@@ -643,7 +643,7 @@ function createBinary(platform, license, packageName, compiler)
     // copy a valid license file
     if (license != "opensource") {
 	p4Copy("//depot/infra/main/licensekeys/qt-license" + 
-	       "-" + platform + "-" + license + "-desktop",
+	       "-" + platform + "-desktop",
 	       distDir + "/tmp-qt-license");
 	execute(["scp", distDir + "/tmp-qt-license", login + ":.qt-license"]);
     }
@@ -847,9 +847,11 @@ function copyDist(packageDir, platform, license)
     if (license == "opensource") {
 	keyFiles.push("LICENSE.GPL");
 	keyFiles.push("LICENSE.QPL");
-    } else {
+    } else if (license == "commercial") {
 	keyFiles.push(".LICENSE");
 	keyFiles.push(".LICENSE-US");
+    } else if (license == "preview") {
+        keyFiles.push("LICENSE.PREVIEW");
     }
     for (var i in keyFiles) {
 	if (!File.exists(packageDir + "/" + keyFiles[i]))
