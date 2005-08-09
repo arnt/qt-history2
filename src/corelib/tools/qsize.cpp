@@ -141,15 +141,15 @@ void QSize::transpose()
     Example:
     \code
         QSize t1(10, 12);
-        t1.scale(60, 60, QSize::IgnoreAspectRatio);
+        t1.scale(60, 60, Qt::IgnoreAspectRatio);
         // t1 is (60, 60)
 
         QSize t2(10, 12);
-        t2.scale(60, 60, QSize::KeepAspectRatio);
+        t2.scale(60, 60, Qt::KeepAspectRatio);
         // t2 is (50, 60)
 
         QSize t3(10, 12);
-        t3.scale(60, 60, QSize::KeepAspectRatioByExpanding);
+        t3.scale(60, 60, Qt::KeepAspectRatioByExpanding);
         // t3 is (60, 72)
     \endcode
 
@@ -554,15 +554,15 @@ void QSizeF::transpose()
     Example:
     \code
         QSizeF t1(10, 12);
-        t1.scale(60, 60, QSizeF::IgnoreAspectRatio);
+        t1.scale(60, 60, Qt::IgnoreAspectRatio);
         // t1 is (60, 60)
 
         QSizeF t2(10, 12);
-        t2.scale(60, 60, QSizeF::KeepAspectRatio);
+        t2.scale(60, 60, Qt::KeepAspectRatio);
         // t2 is (50, 60)
 
         QSizeF t3(10, 12);
-        t3.scale(60, 60, QSizeF::KeepAspectRatioByExpanding);
+        t3.scale(60, 60, Qt::KeepAspectRatioByExpanding);
         // t3 is (60, 72)
     \endcode
 
@@ -593,8 +593,8 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
             wd = rw;
             ht = s.ht;
         } else {
-            wd = s.wd;
             ht = s.wd * ht / wd;
+            wd = s.wd;
         }
     }
 }
