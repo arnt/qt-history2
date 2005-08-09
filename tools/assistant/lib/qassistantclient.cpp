@@ -299,7 +299,7 @@ void QAssistantClient::socketError(QAbstractSocket::SocketError err)
         emit error( tr( "Could not connect to Assistant: Connection refused" ) );
     else if (err == QTcpSocket::HostNotFoundError)
         emit error( tr( "Could not connect to Assistant: Host not found" ) );
-    else if (err != QTcpSocket::QAbstractSocket::RemoteHostClosedError)
+    else if (err != QTcpSocket::RemoteHostClosedError)
         emit error( tr( "Communication error" ) );
 }
 
