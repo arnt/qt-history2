@@ -1963,6 +1963,20 @@
                     <data>d MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -2016,6 +2030,20 @@
                     <data>dd-MMM-yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Amajjii;Guraandhala;Bitooteessa;Elba;Caamsa;Waxabajjii;Adooleessa;Hagayya;Fuulbana;Onkololeessa;Sadaasa;Muddee;</utf8>
                 <code>
@@ -2069,6 +2097,20 @@
                     <data>dd-MMM-yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Amajjii;Guraandhala;Bitooteessa;Elba;Caamsa;Waxabajjii;Adooleessa;Hagayya;Fuulbana;Onkololeessa;Sadaasa;Muddee;</utf8>
                 <code>
@@ -2122,6 +2164,20 @@
                     <data>dd-MMM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Qunxa Garablu;Naharsi Kudo;Ciggilta Kudo;Agda Baxisso;Caxah Alsa;Qasa Dirri;Qado Dirri;Leqeeni;Waysu;Diteli;Ximoli;Kaxxa Garablu;</utf8>
                 <code>
@@ -2175,6 +2231,20 @@
                     <data>dd-MMM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Qunxa Garablu;Kudo;Ciggilta Kudo;Agda Baxis;Caxah Alsa;Qasa Dirri;Qado Dirri;Liiqen;Waysu;Diteli;Ximoli;Kaxxa Garablu;</utf8>
                 <code>
@@ -2228,6 +2298,20 @@
                     <data>dd-MMM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Qunxa Garablu;Kudo;Ciggilta Kudo;Agda Baxis;Caxah Alsa;Qasa Dirri;Qado Dirri;Liiqen;Waysu;Diteli;Ximoli;Kaxxa Garablu;</utf8>
                 <code>
@@ -2281,6 +2365,20 @@
                     <data>dd MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Januarie;Februarie;Maart;April;Mei;Junie;Julie;Augustus;September;Oktober;November;Desember;</utf8>
                 <code>
@@ -2334,6 +2432,20 @@
                     <data>yyyy-MM-dd</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h.mm.ss.a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h.mm.ss.a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss.a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss.a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>janar;shkurt;mars;prill;maj;qershor;korrik;gusht;shtator;tetor;nëntor;dhjetor;</utf8>
                 <code>
@@ -2387,6 +2499,20 @@
                     <data>dd-MMM-yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>ጃንዩወሪ;ፌብሩወሪ;ማርች;ኤፕረል;ሜይ;ጁን;ጁላይ;ኦገስት;ሴፕቴምበር;ኦክተውበር;ኖቬምበር;ዲሴምበር;</utf8>
                 <code>
@@ -2440,6 +2566,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>z h:mm:ss a</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>z h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>يناير;فبراير;مارس;أبريل;مايو;يونيو;يوليو;أغسطس;سبتمبر;أكتوبر;نوفمبر;ديسمبر;</utf8>
                 <code>
@@ -2493,6 +2633,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>z h:mm:ss a</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>z h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>يناير;فبراير;مارس;أبريل;مايو;يونيو;يوليو;أغسطس;سبتمبر;أكتوبر;نوفمبر;ديسمبر;</utf8>
                 <code>
@@ -2546,6 +2700,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>z h:mm:ss a</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>z h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>يناير;فبراير;مارس;أبريل;مايو;يونيو;يوليو;أغسطس;سبتمبر;أكتوبر;نوفمبر;ديسمبر;</utf8>
                 <code>
@@ -2599,6 +2767,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>z h:mm:ss a</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>z h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>يناير;فبراير;مارس;أبريل;مايو;يونيو;يوليو;أغسطس;سبتمبر;أكتوبر;نوفمبر;ديسمبر;</utf8>
                 <code>
@@ -2652,6 +2834,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>z h:mm:ss a</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>z h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>كانون الثاني;شباط;آذار;نيسان;أيار;حزيران;تموز;آب;أيلول;تشرين الأول;تشرين الثاني;كانون الأول;</utf8>
                 <code>
@@ -2705,6 +2901,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>z h:mm:ss a</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>z h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>يناير;فبراير;مارس;أبريل;مايو;يونيو;يوليو;أغسطس;سبتمبر;أكتوبر;نوفمبر;ديسمبر;</utf8>
                 <code>
@@ -2758,6 +2968,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>z h:mm:ss a</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>z h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>كانون الثاني;شباط;آذار;نيسان;نوار;حزيران;تموز;آب;أيلول;تشرين الأول;تشرين الثاني;كانون الأول;</utf8>
                 <code>
@@ -2811,6 +3035,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>z h:mm:ss a</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>z h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>يناير;فبراير;مارس;أبريل;مايو;يونيو;يوليو;أغسطس;سبتمبر;أكتوبر;نوفمبر;ديسمبر;</utf8>
                 <code>
@@ -2864,6 +3102,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>z h:mm:ss a</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>z h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>يناير;فبراير;مارس;أبريل;مايو;يونيو;يوليو;أغسطس;سبتمبر;أكتوبر;نوفمبر;ديسمبر;</utf8>
                 <code>
@@ -2917,6 +3169,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>z h:mm:ss a</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>z h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>يناير;فبراير;مارس;أبريل;مايو;يونيو;يوليو;أغسطس;سبتمبر;أكتوبر;نوفمبر;ديسمبر;</utf8>
                 <code>
@@ -2970,6 +3236,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>z h:mm:ss a</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>z h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>يناير;فبراير;مارس;أبريل;مايو;يونيو;يوليو;أغسطس;سبتمبر;أكتوبر;نوفمبر;ديسمبر;</utf8>
                 <code>
@@ -3023,6 +3303,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>z h:mm:ss a</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>z h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>يناير;فبراير;مارس;أبريل;مايو;يونيو;يوليو;أغسطس;سبتمبر;أكتوبر;نوفمبر;ديسمبر;</utf8>
                 <code>
@@ -3076,6 +3370,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>z h:mm:ss a</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>z h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>يناير;فبراير;مارس;أبريل;مايو;يونيو;يوليو;أغسطس;سبتمبر;أكتوبر;نوفمبر;ديسمبر;</utf8>
                 <code>
@@ -3129,6 +3437,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>z h:mm:ss a</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>z h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>كانون الثاني;شباط;آذار;نيسان;نوار;حزيران;تموز;آب;أيلول;تشرين الأول;تشرين الثاني;كانون الأول;</utf8>
                 <code>
@@ -3182,6 +3504,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>z h:mm:ss a</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>z h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>يناير;فبراير;مارس;أبريل;مايو;يونيو;يوليو;أغسطس;سبتمبر;أكتوبر;نوفمبر;ديسمبر;</utf8>
                 <code>
@@ -3235,6 +3571,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>z h:mm:ss a</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>z h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>يناير;فبراير;مارس;أبريل;مايو;يونيو;يوليو;أغسطس;سبتمبر;أكتوبر;نوفمبر;ديسمبر;</utf8>
                 <code>
@@ -3288,6 +3638,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>z h:mm:ss a</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>z h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>يناير;فبراير;مارس;أبريل;مايو;يونيو;يوليو;أغسطس;سبتمبر;أكتوبر;نوفمبر;ديسمبر;</utf8>
                 <code>
@@ -3341,6 +3705,20 @@
                     <data>MMM d, yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Յունուար;Փետրուար;Մարտ;Ապրիլ;Մայիս;Յունիս;Յուլիս;Օգոստոս;Սեպտեմբեր;Հոկտեմբեր;Նոյեմբեր;Դեկտեմբեր;</utf8>
                 <code>
@@ -3394,6 +3772,20 @@
                     <data>dd-MM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h.mm.ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h.mm.ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h.mm.ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h.mm.ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>জানুয়াৰী;ফেব্ৰুয়াৰী;মাৰ্চ;এপ্ৰিল;মে;জুন;জুলাই;আগষ্ট;সেপ্টেম্বৰ;অক্টোবৰ;নভেম্বৰ;ডিসেম্বৰ;</utf8>
                 <code>
@@ -3447,6 +3839,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Yanvar;Fevral;Mart;Aprel;May;İyun;İyul;Avqust;Sentyabr;Oktyabr;Noyabr;Dekabr;</utf8>
                 <code>
@@ -3500,6 +3906,20 @@
                     <data>yy'-'MMM'-'dd</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>urtarrila;otsaila;martxoa;apirila;maiatza;ekaina;uztaila;abuztua;iraila;urria;azaroa;abendua;</utf8>
                 <code>
@@ -3553,6 +3973,20 @@
                     <data>dd-MM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>জানুয়ারী;ফেব্রুয়ারী;মার্চ;এপ্রিল;মে;জুন;জুলাই;আগস্ট;সেপ্টেম্বর;অক্টোবর;নভেম্বর;ডিসেম্বর;</utf8>
                 <code>
@@ -3606,6 +4040,20 @@
                     <data>\xe0\xbd\xa6\xe0\xbe\xa4\xe0\xbe\xb1\xe0\xbd\xb2\xe0\xbc\x8b\xe0\xbd\xa3\xe0\xbd\xbc\xe0\xbc\x8byyyy \xe0\xbd\x9f\xe0\xbe\xb3\xe0\xbc\x8b MMM \xe0\xbd\x9a\xe0\xbd\xba\xe0\xbd\xa6\xe0\xbc\x8b dd</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>ཆུ་ཚོད་ h སྐར་མ་ mm སྐར་ཆཱ་ ss a zzzz</utf8>
+                <code>
+                    <byteCount>77</byteCount>
+                    <data>\xe0\xbd\x86\xe0\xbd\xb4\xe0\xbc\x8b\xe0\xbd\x9a\xe0\xbd\xbc\xe0\xbd\x91\xe0\xbc\x8b h \xe0\xbd\xa6\xe0\xbe\x90\xe0\xbd\xa2\xe0\xbc\x8b\xe0\xbd\x98\xe0\xbc\x8b mm \xe0\xbd\xa6\xe0\xbe\x90\xe0\xbd\xa2\xe0\xbc\x8b\xe0\xbd\x86\xe0\xbd\xb1\xe0\xbc\x8b ss a zzzz</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>ཆུ་ཚོད་h:mm:ss a</utf8>
+                <code>
+                    <byteCount>30</byteCount>
+                    <data>\xe0\xbd\x86\xe0\xbd\xb4\xe0\xbc\x8b\xe0\xbd\x9a\xe0\xbd\xbc\xe0\xbd\x91\xe0\xbc\x8bh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>སྤྱི་ཟླཝ་དངཔ་;སྤྱི་ཟླཝ་གཉིས་པ་;སྤྱི་ཟླཝ་གསུམ་པ་;སྤྱི་ཟླཝ་བཞི་པ་;སྤྱི་ཟླཝ་ལྔ་པ་;སྤྱི་ཟླཝ་དྲུག་པ་;སྤྱི་ཟླཝ་བདུན་པ་;སྤྱི་ཟླཝ་བརྒྱད་པ་;སྤྱི་ཟླཝ་དགུ་པ་;སྤྱི་ཟླཝ་བཅུ་པ་;སྤྱི་ཟླཝ་བཅུ་གཅིག་པ་;སྤྱི་ཟླཝ་བཅུ་གཉིས་པ་;</utf8>
                 <code>
@@ -3659,6 +4107,20 @@
                     <data>dd.MM.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>януари;февруари;март;април;май;юни;юли;август;септември;октомври;ноември;декември;</utf8>
                 <code>
@@ -3712,6 +4174,20 @@
                     <data>d.M.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH.mm.ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH.mm.ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH.mm.ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH.mm.ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>студзень;люты;сакавік;красавік;май;чэрвень;ліпень;жнівень;верасень;кастрычнік;лістапад;снежань;</utf8>
                 <code>
@@ -3765,6 +4241,20 @@
                     <data>d MMMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H' ម៉ោង 'm' នាទី 'ss' វិនាទី​' z</utf8>
+                <code>
+                    <byteCount>62</byteCount>
+                    <data>H' \xe1\x9e\x98\xe1\x9f\x89\xe1\x9f\x84\xe1\x9e\x84 'm' \xe1\x9e\x93\xe1\x9e\xb6\xe1\x9e\x91\xe1\x9e\xb8 'ss' \xe1\x9e\x9c\xe1\x9e\xb7\xe1\x9e\x93\xe1\x9e\xb6\xe1\x9e\x91\xe1\x9e\xb8\xe2\x80\x8b' z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>មករា;កុម្ភៈ;មិនា;មេសា;ឧសភា;មិថុនា;កក្កដា;សីហា;កញ្ញា;តុលា;វិច្ឆិកា;ធ្នូ;</utf8>
                 <code>
@@ -3818,6 +4308,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H:mm:ss z</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>H:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>gener;febrer;març;abril;maig;juny;juliol;agost;setembre;octubre;novembre;desembre;</utf8>
                 <code>
@@ -3871,6 +4375,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>一月;二月;三月;四月;五月;六月;七月;八月;九月;十月;十一月;十二月;</utf8>
                 <code>
@@ -3924,6 +4442,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>一月;二月;三月;四月;五月;六月;七月;八月;九月;十月;十一月;十二月;</utf8>
                 <code>
@@ -3977,6 +4509,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>一月;二月;三月;四月;五月;六月;七月;八月;九月;十月;十一月;十二月;</utf8>
                 <code>
@@ -4030,6 +4576,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>一月;二月;三月;四月;五月;六月;七月;八月;九月;十月;十一月;十二月;</utf8>
                 <code>
@@ -4083,6 +4643,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>一月;二月;三月;四月;五月;六月;七月;八月;九月;十月;十一月;十二月;</utf8>
                 <code>
@@ -4136,6 +4710,20 @@
                     <data>yyyy.MM.dd</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>siječnja;veljače;ožujka;travnja;svibnja;lipnja;srpnja;kolovoza;rujna;listopada;studenoga;prosinca;</utf8>
                 <code>
@@ -4189,6 +4777,20 @@
                     <data>d.M.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H:mm:ss z</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>H:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>ledna;února;března;dubna;května;června;července;srpna;září;října;listopadu;prosince;</utf8>
                 <code>
@@ -4242,6 +4844,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H.mm.ss z</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>H.mm.ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H.mm.ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H.mm.ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>januar;februar;marts;april;maj;juni;juli;august;september;oktober;november;december;</utf8>
                 <code>
@@ -4295,6 +4911,20 @@
                     <data>d-MMM-yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH.mm' u. 'z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>HH.mm' u. 'z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>januari;februari;maart;april;mei;juni;juli;augustus;september;oktober;november;december;</utf8>
                 <code>
@@ -4348,6 +4978,20 @@
                     <data>d-MMM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H:mm:ss' uur' z</utf8>
+                <code>
+                    <byteCount>15</byteCount>
+                    <data>H:mm:ss' uur' z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>januari;februari;maart;april;mei;juni;juli;augustus;september;oktober;november;december;</utf8>
                 <code>
@@ -4401,6 +5045,20 @@
                     <data>MMM d, yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -4454,6 +5112,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -4507,6 +5179,20 @@
                     <data>dd MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH' h 'mm' min 'ss' s 'z</utf8>
+                <code>
+                    <byteCount>24</byteCount>
+                    <data>HH' h 'mm' min 'ss' s 'z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -4560,6 +5246,20 @@
                     <data>dd-MMM-yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -4613,6 +5313,20 @@
                     <data>MMM dd,yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -4666,6 +5380,20 @@
                     <data>d-MMM-yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -4719,6 +5447,20 @@
                     <data>MMM d, yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -4772,6 +5514,20 @@
                     <data>d MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -4825,6 +5581,20 @@
                     <data>dd-MMM-yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -4878,6 +5648,20 @@
                     <data>d MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -4931,6 +5715,20 @@
                     <data>MMM d, yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -4984,6 +5782,20 @@
                     <data>dd MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -5037,6 +5849,20 @@
                     <data>MMM d, yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -5090,6 +5916,20 @@
                     <data>d/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -5143,6 +5983,20 @@
                     <data>MMM d, yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -5196,6 +6050,20 @@
                     <data>dd-MMM-yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -5249,6 +6117,20 @@
                     <data>MM d, yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -5302,6 +6184,20 @@
                     <data>dd-MMM-yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>a hh:mm:ss</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>a hh:mm:ss</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>a hh:mm</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>a hh:mm</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -5355,6 +6251,20 @@
                     <data>dd MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -5408,6 +6318,20 @@
                     <data>MMM d, yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -5461,6 +6385,20 @@
                     <data>d MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -5514,6 +6452,20 @@
                     <data>MMM d, yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -5567,6 +6519,20 @@
                     <data>MMM d, yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -5620,6 +6586,20 @@
                     <data>MMM d, yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -5673,6 +6653,20 @@
                     <data>dd MMM,yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>January;February;March;April;May;June;July;August;September;October;November;December;</utf8>
                 <code>
@@ -5726,6 +6720,20 @@
                     <data>dd.MM.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H:mm:ss z</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>H:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>jaanuar;veebruar;märts;aprill;mai;juuni;juuli;august;september;oktoober;november;detsember;</utf8>
                 <code>
@@ -5779,6 +6787,20 @@
                     <data>dd-MM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>januar;februar;mars;apríl;mai;juni;juli;august;september;oktober;november;desember;</utf8>
                 <code>
@@ -5832,6 +6854,20 @@
                     <data>d.M.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H.mm.ss z</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>H.mm.ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H.mm.ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H.mm.ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>tammikuu;helmikuu;maaliskuu;huhtikuu;toukokuu;kesäkuu;heinäkuu;elokuu;syyskuu;lokakuu;marraskuu;joulukuu;</utf8>
                 <code>
@@ -5885,6 +6921,20 @@
                     <data>dd-MMM-yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H' h 'mm' min 'ss' s 'z</utf8>
+                <code>
+                    <byteCount>23</byteCount>
+                    <data>H' h 'mm' min 'ss' s 'z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>janvier;février;mars;avril;mai;juin;juillet;août;septembre;octobre;novembre;décembre;</utf8>
                 <code>
@@ -5938,6 +6988,20 @@
                     <data>yy-MM-dd</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH' h 'mm' min 'ss' s 'z</utf8>
+                <code>
+                    <byteCount>24</byteCount>
+                    <data>HH' h 'mm' min 'ss' s 'z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>janvier;février;mars;avril;mai;juin;juillet;août;septembre;octobre;novembre;décembre;</utf8>
                 <code>
@@ -5991,6 +7055,20 @@
                     <data>d MMM yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH' h 'mm z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>HH' h 'mm z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>janvier;février;mars;avril;mai;juin;juillet;août;septembre;octobre;novembre;décembre;</utf8>
                 <code>
@@ -6044,6 +7122,20 @@
                     <data>d MMM yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH' h 'mm z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>HH' h 'mm z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>janvier;février;mars;avril;mai;juin;juillet;août;septembre;octobre;novembre;décembre;</utf8>
                 <code>
@@ -6097,6 +7189,20 @@
                     <data>d MMM yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH' h 'mm z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>HH' h 'mm z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>janvier;février;mars;avril;mai;juin;juillet;août;septembre;octobre;novembre;décembre;</utf8>
                 <code>
@@ -6150,6 +7256,20 @@
                     <data>d MMM yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH.mm:ss' h' z</utf8>
+                <code>
+                    <byteCount>14</byteCount>
+                    <data>HH.mm:ss' h' z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>janvier;février;mars;avril;mai;juin;juillet;août;septembre;octobre;novembre;décembre;</utf8>
                 <code>
@@ -6203,6 +7323,20 @@
                     <data>MMM dd,yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Xaneiro;Febreiro;Marzo;Abril;Maio;Xuño;Xullo;Agosto;Setembro;Outubro;Novembro;Decembro;</utf8>
                 <code>
@@ -6256,6 +7390,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>1;2;3;4;5;6;7;8;9;10;11;12;</utf8>
                 <code>
@@ -6309,6 +7457,20 @@
                     <data>dd.MM.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm' Uhr 'z</utf8>
+                <code>
+                    <byteCount>13</byteCount>
+                    <data>HH:mm' Uhr 'z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Jänner;Februar;März;April;Mai;Juni;Juli;August;September;Oktober;November;Dezember;</utf8>
                 <code>
@@ -6362,6 +7524,20 @@
                     <data>d-MMM-yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH 'h' mm 'min' ss 's' z</utf8>
+                <code>
+                    <byteCount>24</byteCount>
+                    <data>HH 'h' mm 'min' ss 's' z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Januar;Februar;März;April;Mai;Juni;Juli;August;September;Oktober;November;Dezember;</utf8>
                 <code>
@@ -6415,6 +7591,20 @@
                     <data>dd.MM.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H:mm' Uhr 'z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>H:mm' Uhr 'z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Januar;Februar;März;April;Mai;Juni;Juli;August;September;Oktober;November;Dezember;</utf8>
                 <code>
@@ -6468,6 +7658,20 @@
                     <data>dd.MM.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H:mm' Uhr 'z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>H:mm' Uhr 'z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Januar;Februar;März;April;Mai;Juni;Juli;August;September;Oktober;November;Dezember;</utf8>
                 <code>
@@ -6521,6 +7725,20 @@
                     <data>dd.MM.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H:mm' Uhr 'z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>H:mm' Uhr 'z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Januar;Februar;März;April;Mai;Juni;Juli;August;September;Oktober;November;Dezember;</utf8>
                 <code>
@@ -6574,6 +7792,20 @@
                     <data>dd.MM.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H:mm' Uhr 'z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>H:mm' Uhr 'z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Januar;Februar;März;April;Mai;Juni;Juli;August;September;Oktober;November;Dezember;</utf8>
                 <code>
@@ -6627,6 +7859,20 @@
                     <data>dd MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Ιανουαρίου;Φεβρουαρίου;Μαρτίου;Απριλίου;Μαΐου;Ιουνίου;Ιουλίου;Αυγούστου;Σεπτεμβρίου;Οκτωβρίου;Νοεμβρίου;Δεκεμβρίου;</utf8>
                 <code>
@@ -6680,6 +7926,20 @@
                     <data>dd MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Ιανουαρίου;Φεβρουαρίου;Μαρτίου;Απριλίου;Μαΐου;Ιουνίου;Ιουλίου;Αυγούστου;Σεπτεμβρίου;Οκτωβρίου;Νοεμβρίου;Δεκεμβρίου;</utf8>
                 <code>
@@ -6733,6 +7993,20 @@
                     <data>MMM dd,yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>januari;februari;martsi;aprili;maji;juni;juli;augustusi;septemberi;oktoberi;novemberi;decemberi;</utf8>
                 <code>
@@ -6786,6 +8060,20 @@
                     <data>dd-MM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>જાન્યુઆરી;ફેબ્રુઆરી;માર્ચ;એપ્રિલ;મે;જૂન;જુલાઈ;ઑગસ્ટ;સપ્ટેમ્બર;ઑક્ટ્બર;નવેમ્બર;ડિસેમ્બર;</utf8>
                 <code>
@@ -6839,6 +8127,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>ינואר;פברואר;מרץ;אפריל;מאי;יוני;יולי;אוגוסט;ספטמבר;אוקטובר;נובמבר;דצמבר;</utf8>
                 <code>
@@ -6892,6 +8194,20 @@
                     <data>dd-MM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>जनवरी;फरवरी;मार्च;अप्रैल;मई;जून;जुलाई;अगस्त;सितम्बर;अक्तूबर;नवम्बर;दिसम्बर;</utf8>
                 <code>
@@ -6945,6 +8261,20 @@
                     <data>yyyy.MM.dd.</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H:mm:ss z</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>H:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>január;február;március;április;május;június;július;augusztus;szeptember;október;november;december;</utf8>
                 <code>
@@ -6998,6 +8328,20 @@
                     <data>d.M.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>janúar;febrúar;mars;apríl;maí;júní;júlí;ágúst;september;október;nóvember;desember;</utf8>
                 <code>
@@ -7051,6 +8395,20 @@
                     <data>dd MMM yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Januari;Februari;Maret;April;Mei;Juni;Juli;Agustus;September;Oktober;November;Desember;</utf8>
                 <code>
@@ -7104,6 +8462,20 @@
                     <data>d MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Eanáir;Feabhra;Márta;Aibreán;Bealtaine;Meitheamh;Iúil;Lúnasa;Meán Fómhair;Deireadh Fómhair;Samhain;Nollaig;</utf8>
                 <code>
@@ -7157,6 +8529,20 @@
                     <data>dd/MMM/yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>gennaio;febbraio;marzo;aprile;maggio;giugno;luglio;agosto;settembre;ottobre;novembre;dicembre;</utf8>
                 <code>
@@ -7210,6 +8596,20 @@
                     <data>d-MMM-yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH.mm:ss' h' z</utf8>
+                <code>
+                    <byteCount>14</byteCount>
+                    <data>HH.mm:ss' h' z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>gennaio;febbraio;marzo;aprile;maggio;giugno;luglio;agosto;settembre;ottobre;novembre;dicembre;</utf8>
                 <code>
@@ -7263,6 +8663,20 @@
                     <data>yyyy/MM/dd</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H'時'mm'分'ss'秒'z</utf8>
+                <code>
+                    <byteCount>21</byteCount>
+                    <data>H'\xe6\x99\x82'mm'\xe5\x88\x86'ss'\xe7\xa7\x92'z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>1月;2月;3月;4月;5月;6月;7月;8月;9月;10月;11月;12月;</utf8>
                 <code>
@@ -7316,6 +8730,20 @@
                     <data>dd-MM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>ಜನವರೀ;ಫೆಬ್ರವರೀ;ಮಾರ್ಚ್;ಎಪ್ರಿಲ್;ಮೆ;ಜೂನ್;ಜುಲೈ;ಆಗಸ್ಟ್;ಸಪ್ಟೆಂಬರ್;ಅಕ್ಟೋಬರ್;ನವೆಂಬರ್;ಡಿಸೆಂಬರ್;</utf8>
                 <code>
@@ -7369,6 +8797,20 @@
                     <data>dd.MM.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>қаңтар;ақпан;наурыз;сәуір;мамыр;маусым;шілде;тамыз;қыркүйек;қазан;қараша;желтоқсан;</utf8>
                 <code>
@@ -7422,6 +8864,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>1;2;3;4;5;6;7;8;9;10;11;12;</utf8>
                 <code>
@@ -7475,6 +8931,20 @@
                     <data>yyyy. MM. dd</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>a hh'시' mm'분' ss'초' z</utf8>
+                <code>
+                    <byteCount>27</byteCount>
+                    <data>a hh'\xec\x8b\x9c' mm'\xeb\xb6\x84' ss'\xec\xb4\x88' z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>a h:mm:ss</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>a h:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>1월;2월;3월;4월;5월;6월;7월;8월;9월;10월;11월;12월;</utf8>
                 <code>
@@ -7528,6 +8998,20 @@
                     <data>d MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H'ໂມງ 'm'ນາທີ 'ss' ວິນາທີ</utf8>
+                <code>
+                    <byteCount>51</byteCount>
+                    <data>H'\xe0\xbb\x82\xe0\xba\xa1\xe0\xba\x87 'm'\xe0\xba\x99\xe0\xba\xb2\xe0\xba\x97\xe0\xba\xb5 'ss' \xe0\xba\xa7\xe0\xba\xb4\xe0\xba\x99\xe0\xba\xb2\xe0\xba\x97\xe0\xba\xb5</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>ມັງກອນ;ກຸມພາ;ມີນາ;ເມສາ;ພຶດສະພາ;ມິຖຸນາ;ກໍລະກົດ;ສິງຫາ;ກັນຍາ;ຕຸລາ;ພະຈິກ;ທັນວາ;</utf8>
                 <code>
@@ -7581,6 +9065,20 @@
                     <data>yyyy.d.M</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>janvāris;februāris;marts;aprīlis;maijs;jūnijs;jūlijs;augusts;septembris;oktobris;novembris;decembris;</utf8>
                 <code>
@@ -7634,6 +9132,20 @@
                     <data>yyyy.MM.dd</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>sausio;vasario;kovo;balandžio;gegužės;birželio;liepos;rugpjūčio;rugsėjo;spalio;lapkričio;gruodžio;</utf8>
                 <code>
@@ -7687,6 +9199,20 @@
                     <data>dd.M.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>јануари;февруари;март;април;мај;јуни;јули;август;септември;октомври;ноември;декември;</utf8>
                 <code>
@@ -7740,6 +9266,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss aa</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>h:mm:ss aa</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Januari;Februari;Mac;April;Mei;Jun;Julai;Ogos;September;Oktober;November;Disember;</utf8>
                 <code>
@@ -7793,6 +9333,20 @@
                     <data>dd MMMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Januari;Februari;Mac;April;Mei;Jun;Julai;Ogos;September;Oktober;November;Disember;</utf8>
                 <code>
@@ -7846,6 +9400,20 @@
                     <data>dd-MM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>ജനുവരി;ഫിബ്റവരി;മാറ്അച്അച്;ഏപ്റില്അ;മെയ്;ജൂണ്അ;ജൂൈല;ആഗസ്ത്അ;സെപ്തംബറ്അ;ഒക്ടൈബറ്അ;നവംബറ്അ;ഡിസംബറ്അ;</utf8>
                 <code>
@@ -7899,6 +9467,20 @@
                     <data>dd MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Jannar;Frar;Marzu;April;Mejju;Ġunju;Lulju;Awissu;Settembru;Ottubru;Novembru;Diċembru;</utf8>
                 <code>
@@ -7952,6 +9534,20 @@
                     <data>dd-MM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>जानेवारी;फेबृवारी;मार्च;एप्रिल;मे;जून;जुलै;ओगस्ट;सेप्टेंबर;ओक्टोबर;नोव्हेंबर;डिसेंबर;</utf8>
                 <code>
@@ -8005,6 +9601,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Хулгана;Үхэр;Бар;Туулай;Луу;Могой;Морь;Хонь;Бич;Тахиа;Нохой;Гахай;</utf8>
                 <code>
@@ -8058,6 +9668,20 @@
                     <data>d. MMM. yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>'kl. 'HH.mm.ss z</utf8>
+                <code>
+                    <byteCount>16</byteCount>
+                    <data>'kl. 'HH.mm.ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH.mm.ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH.mm.ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>januar;februar;mars;april;mai;juni;juli;august;september;oktober;november;desember;</utf8>
                 <code>
@@ -8111,6 +9735,20 @@
                     <data>dd-MM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>ଜାନୁଆରୀ;ଫେବ୍ରୁୟାରୀ;ମାର୍ଚ୍ଚ;ଅପ୍ରେଲ;ମେ;ଜୁନ;ଜୁଲାଇ;ଅଗଷ୍ଟ;ସେପ୍ଟେମ୍ବର;ଅକ୍ଟୋବର;ନଭେମ୍ବର;ଡିସେମ୍ବର;</utf8>
                 <code>
@@ -8164,6 +9802,20 @@
                     <data>d MMMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H:mm:ss (z)</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>H:mm:ss (z)</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>جنوري;فبروري;مارچ;اپریل;می;جون;جولای;اګست;سپتمبر;اکتوبر;نومبر;دسمبر;</utf8>
                 <code>
@@ -8217,6 +9869,20 @@
                     <data>yyyy/MM/d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss (z)</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>HH:mm:ss (z)</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>جنوری;فبروری;مارچ;اپریل;می;جون;جولای;اگست;سپتمبر;اکتوبر;نومبر;دسمبر;</utf8>
                 <code>
@@ -8270,6 +9936,20 @@
                     <data>yyyy/MM/d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss (z)</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>HH:mm:ss (z)</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>ژانویه;فوریه;مارس;آوریل;مه;ژوئن;ژوئیه;اوت;سپتامبر;اکتبر;نوامبر;دسامبر;</utf8>
                 <code>
@@ -8323,6 +10003,20 @@
                     <data>yyyy-MM-dd</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>stycznia;lutego;marca;kwietnia;maja;czerwca;lipca;sierpnia;września;października;listopada;grudnia;</utf8>
                 <code>
@@ -8376,6 +10070,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH'h'mm'min'ss's' z</utf8>
+                <code>
+                    <byteCount>19</byteCount>
+                    <data>HH'h'mm'min'ss's' z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>janeiro;fevereiro;março;abril;maio;junho;julho;agosto;setembro;outubro;novembro;dezembro;</utf8>
                 <code>
@@ -8429,6 +10137,20 @@
                     <data>yyyy/MM/dd</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH'H'mm'm'ss's' z</utf8>
+                <code>
+                    <byteCount>17</byteCount>
+                    <data>HH'H'mm'm'ss's' z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>janeiro;fevereiro;março;abril;maio;junho;julho;agosto;setembro;outubro;novembro;dezembro;</utf8>
                 <code>
@@ -8482,6 +10204,20 @@
                     <data>dd-MM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>ਜਨਵਰੀ;ਫ਼ਰਵਰੀ;ਮਾਰਚ;ਅਪ੍ਰੈਲ;ਮਈ;ਜੂਨ;ਜੁਲਾਈ;ਅਗਸਤ;ਸਤੰਬਰ;ਅਕਤੂਬਰ;ਨਵੰਬਰ;ਦਸੰਬਰ;</utf8>
                 <code>
@@ -8535,6 +10271,20 @@
                     <data>dd.MM.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>ianuarie;februarie;martie;aprilie;mai;iunie;iulie;august;septembrie;octombrie;noiembrie;decembrie;</utf8>
                 <code>
@@ -8588,6 +10338,20 @@
                     <data>dd.MM.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H:mm:ss z</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>H:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>января;февраля;марта;апреля;мая;июня;июля;августа;сентября;октября;ноября;декабря;</utf8>
                 <code>
@@ -8641,6 +10405,20 @@
                     <data>d MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>января;февраля;марта;апреля;мая;июня;июля;августа;сентября;октября;ноября;декабря;</utf8>
                 <code>
@@ -8694,6 +10472,20 @@
                     <data>dd-MM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>1;2;3;4;5;6;7;8;9;10;11;12;</utf8>
                 <code>
@@ -8747,6 +10539,20 @@
                     <data>dd.MM.yyyy.</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH.mm.ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH.mm.ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH.mm.ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH.mm.ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>јануар;фебруар;март;април;мај;јун;јул;август;септембар;октобар;новембар;децембар;</utf8>
                 <code>
@@ -8800,6 +10606,20 @@
                     <data>dd.MM.yyyy.</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH.mm.ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH.mm.ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH.mm.ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH.mm.ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>јануар;фебруар;март;април;мај;јун;јул;август;септембар;октобар;новембар;децембар;</utf8>
                 <code>
@@ -8853,6 +10673,20 @@
                     <data>dd.MM.yyyy.</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH.mm.ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH.mm.ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH.mm.ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH.mm.ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>јануар;фебруар;март;април;мај;јун;јул;август;септембар;октобар;новембар;децембар;</utf8>
                 <code>
@@ -8906,6 +10740,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>1;2;3;4;5;6;7;8;9;10;11;12;</utf8>
                 <code>
@@ -8959,6 +10807,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>1;2;3;4;5;6;7;8;9;10;11;12;</utf8>
                 <code>
@@ -9012,6 +10874,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>1;2;3;4;5;6;7;8;9;10;11;12;</utf8>
                 <code>
@@ -9065,6 +10941,20 @@
                     <data>d.M.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H:mm:ss z</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>H:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>január;február;marec;apríl;máj;jún;júl;august;september;október;november;december;</utf8>
                 <code>
@@ -9118,6 +11008,20 @@
                     <data>d.M.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H:mm:ss z</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>H:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>januar;februar;marec;april;maj;junij;julij;avgust;september;oktober;november;december;</utf8>
                 <code>
@@ -9171,6 +11075,20 @@
                     <data>dd-MMM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Bisha Koobaad;Bisha Labaad;Bisha Saddexaad;Bisha Afraad;Bisha Shanaad;Bisha Lixaad;Bisha Todobaad;Bisha Sideedaad;Bisha Sagaalaad;Bisha Tobnaad;Bisha Kow iyo Tobnaad;Bisha Laba iyo Tobnaad;</utf8>
                 <code>
@@ -9224,6 +11142,20 @@
                     <data>dd-MMM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Bisha Koobaad;Bisha Labaad;Bisha Saddexaad;Bisha Afraad;Bisha Shanaad;Bisha Lixaad;Bisha Todobaad;Bisha Sideedaad;Bisha Sagaalaad;Bisha Tobnaad;Bisha Kow iyo Tobnaad;Bisha Laba iyo Tobnaad;</utf8>
                 <code>
@@ -9277,6 +11209,20 @@
                     <data>dd-MMM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Bisha Koobaad;Bisha Labaad;Bisha Saddexaad;Bisha Afraad;Bisha Shanaad;Bisha Lixaad;Bisha Todobaad;Bisha Sideedaad;Bisha Sagaalaad;Bisha Tobnaad;Bisha Kow iyo Tobnaad;Bisha Laba iyo Tobnaad;</utf8>
                 <code>
@@ -9330,6 +11276,20 @@
                     <data>dd-MMM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Bisha Koobaad;Bisha Labaad;Bisha Saddexaad;Bisha Afraad;Bisha Shanaad;Bisha Lixaad;Bisha Todobaad;Bisha Sideedaad;Bisha Sagaalaad;Bisha Tobnaad;Bisha Kow iyo Tobnaad;Bisha Laba iyo Tobnaad;</utf8>
                 <code>
@@ -9383,6 +11343,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH'h'''mm z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>HH'h'''mm z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -9436,6 +11410,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -9489,6 +11477,20 @@
                     <data>dd-MM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -9542,6 +11544,20 @@
                     <data>d/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -9595,6 +11611,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -9648,6 +11678,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -9701,6 +11745,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -9754,6 +11812,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -9807,6 +11879,20 @@
                     <data>d/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -9860,6 +11946,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -9913,6 +12013,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -9966,6 +12080,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -10019,6 +12147,20 @@
                     <data>MM/dd/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -10072,6 +12214,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -10125,6 +12281,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -10178,6 +12348,20 @@
                     <data>MM/dd/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -10231,6 +12415,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH'H'mm''ss" z</utf8>
+                <code>
+                    <byteCount>14</byteCount>
+                    <data>HH'H'mm''ss" z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -10284,6 +12482,20 @@
                     <data>MMM d, yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -10337,6 +12549,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -10390,6 +12616,20 @@
                     <data>dd/MM/yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre;</utf8>
                 <code>
@@ -10443,6 +12683,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Januari;Februari;Machi;Aprili;Mei;Juni;Julai;Agosti;Septemba;Oktoba;Novemba;Desemba;</utf8>
                 <code>
@@ -10496,6 +12750,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Januari;Februari;Machi;Aprili;Mei;Juni;Julai;Agosti;Septemba;Oktoba;Novemba;Desemba;</utf8>
                 <code>
@@ -10549,6 +12817,20 @@
                     <data>d MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>'kl. 'HH.mm.ss z</utf8>
+                <code>
+                    <byteCount>16</byteCount>
+                    <data>'kl. 'HH.mm.ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH.mm.ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH.mm.ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>januari;februari;mars;april;maj;juni;juli;augusti;september;oktober;november;december;</utf8>
                 <code>
@@ -10602,6 +12884,20 @@
                     <data>d MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>'kl. 'HH.mm.ss z</utf8>
+                <code>
+                    <byteCount>16</byteCount>
+                    <data>'kl. 'HH.mm.ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH.mm.ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH.mm.ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>januari;februari;mars;april;maj;juni;juli;augusti;september;oktober;november;december;</utf8>
                 <code>
@@ -10655,6 +12951,20 @@
                     <data>dd-MM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>ஜனவரி;பிப்ரவரி;மார்ச்;ஏப்ரல்;மே;ஜூன்;ஜூலை;ஆகஸ்ட்;செப்டம்பர்;அக்டோபர்;நவம்பர்;டிசம்பர்;</utf8>
                 <code>
@@ -10708,6 +13018,20 @@
                     <data>dd.MM.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>1;2;3;4;5;6;7;8;9;10;11;12;</utf8>
                 <code>
@@ -10761,6 +13085,20 @@
                     <data>dd-MM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a z</utf8>
+                <code>
+                    <byteCount>11</byteCount>
+                    <data>h:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>జనవరి;ఫిబ్రవరి;మార్చి;ఏప్రిల్;మే;జూన్;జూలై;ఆగస్టు;సెప్టెంబర్;అక్టోబర్;నవంబర్;డిసెంబర్;</utf8>
                 <code>
@@ -10814,6 +13152,20 @@
                     <data>d MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>H' นาฬิกา 'm' นาที 'ss' วินาที'</utf8>
+                <code>
+                    <byteCount>63</byteCount>
+                    <data>H' \xe0\xb8\x99\xe0\xb8\xb2\xe0\xb8\xac\xe0\xb8\xb4\xe0\xb8\x81\xe0\xb8\xb2 'm' \xe0\xb8\x99\xe0\xb8\xb2\xe0\xb8\x97\xe0\xb8\xb5 'ss' \xe0\xb8\xa7\xe0\xb8\xb4\xe0\xb8\x99\xe0\xb8\xb2\xe0\xb8\x97\xe0\xb8\xb5'</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>H:mm:ss</utf8>
+                <code>
+                    <byteCount>7</byteCount>
+                    <data>H:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>มกราคม;กุมภาพันธ์;มีนาคม;เมษายน;พฤษภาคม;มิถุนายน;กรกฎาคม;สิงหาคม;กันยายน;ตุลาคม;พฤศจิกายน;ธันวาคม;</utf8>
                 <code>
@@ -10867,6 +13219,20 @@
                     <data>dd-MMM-yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>ጥሪ;ለካቲት;መጋቢት;ሚያዝያ;ግንቦት;ሰነ;ሓምለ;ነሓሰ;መስከረም;ጥቅምቲ;ሕዳር;ታሕሳስ;</utf8>
                 <code>
@@ -10920,6 +13286,20 @@
                     <data>dd-MMM-yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>h:mm:ss a</utf8>
+                <code>
+                    <byteCount>9</byteCount>
+                    <data>h:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>ጃንዩወሪ;ፌብሩወሪ;ማርች;ኤፕረል;ሜይ;ጁን;ጁላይ;ኦገስት;ሴፕቴምበር;ኦክተውበር;ኖቬምበር;ዲሴምበር;</utf8>
                 <code>
@@ -10973,6 +13353,20 @@
                     <data>dd.MMM.yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Ocak;Şubat;Mart;Nisan;Mayıs;Haziran;Temmuz;Ağustos;Eylül;Ekim;Kasım;Aralık;</utf8>
                 <code>
@@ -11026,6 +13420,20 @@
                     <data>d MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>січня;лютого;березня;квітня;травня;червня;липня;серпня;вересня;жовтня;листопада;грудня;</utf8>
                 <code>
@@ -11079,6 +13487,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>1;2;3;4;5;6;7;8;9;10;11;12;</utf8>
                 <code>
@@ -11132,6 +13554,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Муҳаррам;Сафар;Рабиул-аввал;Рабиул-охир;Жумодиул-уло;Жумодиул-ухро;Ражаб;Шаъбон;Рамазон;Шаввол;Зил-қаъда;Зил-ҳижжа;</utf8>
                 <code>
@@ -11185,6 +13621,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Муҳаррам;Сафар;Рабиул-аввал;Рабиул-охир;Жумодиул-уло;Жумодиул-ухро;Ражаб;Шаъбон;Рамазон;Шаввол;Зил-қаъда;Зил-ҳижжа;</utf8>
                 <code>
@@ -11238,6 +13688,20 @@
                     <data>dd-MM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>tháng một;tháng hai;tháng ba;tháng tư;tháng năm;tháng sáu;tháng bảy;tháng tám;tháng chín;tháng mười;tháng mười một;tháng mười hai;</utf8>
                 <code>
@@ -11291,6 +13755,20 @@
                     <data>d MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Ionawr;Chwefror;Mawrth;Ebrill;Mai;Mehefin;Gorffenaf;Awst;Medi;Hydref;Tachwedd;Rhagfyr;</utf8>
                 <code>
@@ -11344,6 +13822,20 @@
                     <data>d. MMM. yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>'kl. 'HH.mm.ss z</utf8>
+                <code>
+                    <byteCount>16</byteCount>
+                    <data>'kl. 'HH.mm.ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH.mm.ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH.mm.ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>januar;februar;mars;april;mai;juni;juli;august;september;oktober;november;desember;</utf8>
                 <code>
@@ -11397,6 +13889,20 @@
                     <data>yyyy MMM d</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Januar;Februar;Mart;April;Maj;Juni;Juli;Avgust;Septembar;Oktobar;Novembar;Decembar;</utf8>
                 <code>
@@ -11450,6 +13956,20 @@
                     <data>dd-MM-yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>hh:mm:ss a z</utf8>
+                <code>
+                    <byteCount>12</byteCount>
+                    <data>hh:mm:ss a z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>hh:mm:ss a</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>hh:mm:ss a</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>1;2;3;4;5;6;7;8;9;10;11;12;</utf8>
                 <code>
@@ -11503,6 +14023,20 @@
                     <data>MMM dd,yy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Jerrey-geuree;Toshiaght-arree;Mayrnt;Averil;Boaldyn;Mean-souree;Jerrey-souree;Luanistyn;Mean-fouyir;Jerrey-fouyir;Mee Houney;Mee ny Nollick;</utf8>
                 <code>
@@ -11556,6 +14090,20 @@
                     <data>d MMM yyyy</data>
                 </code>
             </shortDateFormat>
+            <longTimeFormat>
+                <utf8>HH:mm:ss z</utf8>
+                <code>
+                    <byteCount>10</byteCount>
+                    <data>HH:mm:ss z</data>
+                </code>
+            </longTimeFormat>
+            <shortTimeFormat>
+                <utf8>HH:mm:ss</utf8>
+                <code>
+                    <byteCount>8</byteCount>
+                    <data>HH:mm:ss</data>
+                </code>
+            </shortTimeFormat>
             <longMonths>
                 <utf8>Mys Genver;Mys Whevrel;Mys Merth;Mys Ebrel;Mys Me;Mys Efan;Mys Gortheren;Mye Est;Mys Gwyngala;Mys Hedra;Mys Du;Mys Kevardhu;</utf8>
                 <code>
