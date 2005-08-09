@@ -225,6 +225,7 @@ protected:
     void scheduleDelayedItemsLayout();
     void executeDelayedItemsLayout();
 
+    void setDirtyRegion(const QRegion &region);
     void scrollDirtyRegion(int dx, int dy);
     QPoint dirtyRegionOffset() const;
     

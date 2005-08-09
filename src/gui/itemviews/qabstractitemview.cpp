@@ -2014,6 +2014,19 @@ void QAbstractItemView::executeDelayedItemsLayout()
 }
 
 /*!
+  Marks the given \a region as dirty and schedules it to be updated.
+  You only need to call this function if you are implementing
+  your own view subclass.
+
+  \sa scrollDirtyRegion(), dirtyRegionOffset()
+*/
+
+void QAbstractItemView::setDirtyRegion(const QRegion &region)
+{
+    d_func()->setDirtyRegion(region);
+}
+
+/*!
   Prepares the view for scrolling by (\a{dx},\a{dy}) pixels by moving the dirty regions in the
   opposite direction. You only need to call this function if you are implementing a scrolling
   viewport in your view subclass.
@@ -2021,7 +2034,7 @@ void QAbstractItemView::executeDelayedItemsLayout()
   If you implement scrollContentsBy() in a subclass of QAbstractItemView, call this function
   before you call QWidget::scroll() on the viewport. Alternatively, just call update().
 
-  \sa scrollContentsBy(), dirtyRegionOffset()
+  \sa scrollContentsBy(), dirtyRegionOffset(), setDirtyRegion()
 */
 void QAbstractItemView::scrollDirtyRegion(int dx, int dy)
 {
@@ -2034,7 +2047,7 @@ void QAbstractItemView::scrollDirtyRegion(int dx, int dy)
   If you use scrollDirtyRegion() and implementa paintEvent() in a subclass of QAbstractItemView,
   you should translate the area given by the paint event with the offset returned from this function.
 
-  \sa scrollDirtyRegion()
+  \sa scrollDirtyRegion(), setDirtyRegion()
 */
 QPoint QAbstractItemView::dirtyRegionOffset() const
 {
