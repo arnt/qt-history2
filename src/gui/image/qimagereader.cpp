@@ -672,15 +672,15 @@ int QImageReader::loopCount() const
 
 /*!
     For image formats that support animation, this function returns
-    the number of images in the animation. Otherwise, -1 is returned.
+    the number of images in the animation. Otherwise, 0 is returned.
 
     Certain animation formats do not support this feature, in which
-    case -1 is returned.
+    case 0 is returned.
 */
 int QImageReader::imageCount() const
 {
     if (!d->initHandler())
-        return -1;
+        return 0;
     return d->handler->imageCount();
 }
 
