@@ -494,10 +494,13 @@ void QAbstractItemModelPrivate::columnsAboutToBeRemoved(const QModelIndex &paren
     for (int position = 0; position < persistent.indexes.count(); ++position) {
         QModelIndex index = persistent.indexes.at(position)->index;
         if (index.isValid() && index.parent() == parent) {
-            if (index.column() > last) // after the removed columns
+            if (index.column() > last) { // after the removed columns
                 persistent.changed.append(position);
-            else if (index.column() >= first) // about to be removed
+            } else if (index.column() >= first) { // about to be removed
+                if (q_func()->hasChildren(index)) // children are invalidated too
+                    columnsAboutToBeRemoved(index, 0, q_func()->columnCount(index) - 1);
                 persistent.invalidated.append(position);
+            }
         }
     }
 }
