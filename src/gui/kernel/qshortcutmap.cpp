@@ -55,7 +55,7 @@ struct QShortcutEntry
     QObject *owner;
 };
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_STREAM
 /*! \internal
     QDebug operator<< for easy debug output of the shortcut entries.
 */
@@ -67,7 +67,7 @@ QDebug &operator<<(QDebug &dbg, const QShortcutEntry *se) {
         << "), id(" << se->id << "), enabled(" << se->enabled << ") owner(" << se->owner << ")";
     return dbg.space();
 }
-#endif // QT_NO_DEBUG
+#endif // QT_NO_DEBUGSTREAM
 
 /* \internal
     Private data for QShortcutMap

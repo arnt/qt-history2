@@ -106,7 +106,7 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
 
     fd=open(dev.toLatin1().constData(), O_RDWR);
     if (fd<0) {
-        qCritical() << "Can't open framebuffer device" << dev;
+        qCritical("Can't open framebuffer device %s", qPrintable(dev));
         return false;
     }
 

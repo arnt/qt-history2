@@ -114,8 +114,8 @@ QLock::QLock(const QString &filename, char id, bool create)
     }
 #endif
     if (data->id == -1) {
-        qWarning() << "Cannot" << (create ? "create" : "get") << "semaphore"
-                   << filename << "'" << id << "'";
+        qWarning("Cannot %s semaphore %s '%c'", (create ? "create" : "get"),
+                 qPrintable(filename), id);
         qDebug() << "Error" << errno << strerror(errno);
     }
 #endif

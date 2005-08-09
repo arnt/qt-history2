@@ -122,8 +122,6 @@ public:
 };
 #undef qDebug
 inline QNoDebug qDebug() { return QNoDebug(); }
-inline QNoDebug qWarning() { return QNoDebug(); }
-inline QNoDebug qCritical() { return QNoDebug(); }
 #define qDebug if(1) ; else qDebug
 
 #ifdef QT_NO_MEMBER_TEMPLATES

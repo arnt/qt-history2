@@ -1025,8 +1025,9 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         idx = index(row, column, idx); // will check row and lazily populate
         // hit an invalid element (could be hidden or just not found)
         if (!idx.isValid()) {
-            qWarning() << "The file or directory" << pathElements.at(i)
-                       << "in the path" << path << "could not be found.";
+            qWarning("The file or directory %s in the path %s could not be found",
+                     qPrintable(pathElements.at(i)),
+                     qPrintable(path));
             break; // return an invalid index
         }
     }
