@@ -41,6 +41,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *);
     void hideEvent(QHideEvent*);
     void sliderChange(SliderChange change);
+    void contextMenuEvent(QContextMenuEvent *);
 
 #ifdef QT3_SUPPORT
 public:

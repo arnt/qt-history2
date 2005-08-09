@@ -18,6 +18,7 @@
 #include "qscrollbar.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
+#include "qmenu.h"
 
 #ifndef QT_NO_SCROLLBAR
 
@@ -364,6 +365,48 @@ void QScrollBarPrivate::init()
         sp.transpose();
     q->setSizePolicy(sp);
     q->setAttribute(Qt::WA_WState_OwnSizePolicy, false);
+}
+
+/*! \reimp */
+void QScrollBar::contextMenuEvent(QContextMenuEvent *event)
+{
+    bool horiz = HORIZONTAL;
+    QMenu menu;
+        QAction *actScrollHere = 
+            menu.addAction(tr("Scroll here"));
+        menu.addSeparator();
+        QAction *actScrollTop = 
+            menu.addAction(horiz ? tr("Left edge") : tr("Top"));
+        QAction *actScrollBottom = 
+            menu.addAction(horiz ? tr("Right edge") : tr("Bottom"));
+        menu.addSeparator();
+        QAction *actPageUp = 
+            menu.addAction(horiz ? tr("Page left") : tr("Page up"));
+        QAction *actPageDn = 
+            menu.addAction(horiz ? tr("Page right") : tr("Page down"));
+        menu.addSeparator();
+        QAction *actScrollUp = 
+            menu.addAction(horiz ? tr("Scroll left") : tr("Scroll up"));
+        QAction *actScrollDn = 
+            menu.addAction(horiz ? tr("Scroll right") : tr("Scroll down"));
+
+    QAction *actionSelected = menu.exec(event->globalPos());
+    if (actionSelected == 0) 
+        /* do nothing */ ;
+    else if (actionSelected == actScrollHere)
+        setValue(d_func()->pixelPosToRangeValue(horiz ? event->pos().x() : event->pos().y()));
+    else if (actionSelected == actScrollTop)
+        triggerAction(QAbstractSlider::SliderToMinimum);
+    else if (actionSelected == actScrollBottom)
+        triggerAction(QAbstractSlider::SliderToMaximum);
+    else if (actionSelected == actPageUp)
+        triggerAction(QAbstractSlider::SliderPageStepSub);
+    else if (actionSelected == actPageDn)
+        triggerAction(QAbstractSlider::SliderPageStepAdd);
+    else if (actionSelected == actScrollUp)
+        triggerAction(QAbstractSlider::SliderSingleStepSub);
+    else if (actionSelected == actScrollDn)
+        triggerAction(QAbstractSlider::SliderSingleStepAdd);        
 }
 
 
