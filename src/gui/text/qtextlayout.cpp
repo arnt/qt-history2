@@ -1423,7 +1423,8 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
 
     int lineEnd = line.from + line.length;
     // don't draw trailing spaces or take them into the layout.
-    if (!(eng->option.flags() & QTextOption::IncludeTrailingSpaces)) {
+    if (!(eng->option.flags() & QTextOption::IncludeTrailingSpaces)
+        && eng->option.textDirection() == Qt::LeftToRight) {
         const QCharAttributes *attributes = eng->attributes();
         while (lineEnd > line.from && attributes[lineEnd-1].whiteSpace)
             --lineEnd;
@@ -1672,7 +1673,10 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
 
     int lineEnd = line.from + line.length;
     // don't draw trailing spaces or take them into the layout.
-    if (!(eng->option.flags() & QTextOption::IncludeTrailingSpaces)) {
+    // unless we're in RTL context where trailing whitespace becomes
+    // leading whitespace and the cursor can be positioned inside
+    if (!(eng->option.flags() & QTextOption::IncludeTrailingSpaces)
+        && eng->option.textDirection() == Qt::LeftToRight) {
         const QCharAttributes *attributes = eng->attributes();
         while (lineEnd > line.from && attributes[lineEnd-1].whiteSpace)
             --lineEnd;
@@ -1763,11 +1767,6 @@ int QTextLine::xToCursor(qreal x, CursorPosition cpos) const
     int line_length = line.length;
 
     if (line_length > 0 && eng->layoutData->string.at(line.from + line_length - 1) == QChar::LineSeparator)
-        --line_length;
-
-    // don't draw trailing spaces or take them into the layout.
-    const QCharAttributes *a = eng->attributes() + line.from;
-    while (line_length && a[line_length-1].whiteSpace)
         --line_length;
 
     if (!line_length)
