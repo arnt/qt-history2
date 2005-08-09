@@ -46,6 +46,7 @@
 #include <Qt3Support/Q3GroupBox>
 #include <Qt3Support/Q3ButtonGroup>
 #include <Qt3Support/Q3IconView>
+#include <Qt3Support/Q3ProgressBar>
 
 WidgetInfo::WidgetInfo()
 {
@@ -113,6 +114,8 @@ const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
         return &QLCDNumber::staticMetaObject;
     else if (widgetName == QLatin1String("QProgressBar"))
         return &QProgressBar::staticMetaObject;
+    else if (widgetName == QLatin1String("Q3ProgressBar"))
+        return &Q3ProgressBar::staticMetaObject;
     else if (widgetName == QLatin1String("QTextView")
              || widgetName == QLatin1String("Q3TextView"))
         return &Q3TextView::staticMetaObject;
@@ -204,7 +207,7 @@ QString WidgetInfo::resolveEnumerator(const QString &className, const QString &n
         if (e.size())
             return e;
 
-        return QLatin1String(name);
+        return name;
     }
 
     return resolveEnumerator(meta, name);
@@ -218,7 +221,7 @@ QString WidgetInfo::resolveEnumerator(const QMetaObject *meta, const QString &na
             return e;
     }
 
-    return QString();
+    return resolveEnumerator(&staticQtMetaObject, name);
 }
 
 QString WidgetInfo::resolveEnumerator(const QMetaEnum &metaEnum, const QString &name)

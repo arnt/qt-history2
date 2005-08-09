@@ -14,11 +14,13 @@
 #ifndef WIDGETINFO_H
 #define WIDGETINFO_H
 
+#include <QtCore/QObject>
+
 class QString;
 struct QMetaObject;
 class QMetaEnum;
 
-class WidgetInfo
+class WidgetInfo: public QObject
 {
 protected:
     WidgetInfo();
