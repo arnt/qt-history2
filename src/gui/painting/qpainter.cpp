@@ -77,6 +77,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
 
     QPainterPath path = originalPath * state->matrix;
     QRectF pathBounds = path.boundingRect();
+    QRectF strokeBounds;
     bool doStroke = (op & StrokeDraw) && (state->pen.style() != Qt::NoPen);
     if (doStroke) {
         qreal penWidth = state->pen.widthF();
@@ -91,9 +92,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
                 stroker.setJoinStyle(state->pen.joinStyle());
                 stroker.setCapStyle(state->pen.capStyle());
                 QPainterPath stroke = stroker.createStroke(originalPath);
-                QRectF strokeBounds = (stroke * state->matrix).boundingRect();
-                strokeOffsetX = pathBounds.x() - strokeBounds.x();
-                strokeOffsetY = pathBounds.y() - strokeBounds.y();
+                strokeBounds = (stroke * state->matrix).boundingRect();
             } else {
                 strokeOffsetX = penWidth / 2.0 * state->matrix.m11();
                 strokeOffsetY = penWidth / 2.0 * state->matrix.m22();
@@ -102,10 +101,17 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
     }
 
     const qreal ROUND_UP_TRICK = 0.9999;
-    devMinX = int(pathBounds.left() - strokeOffsetX);
-    devMaxX = int(pathBounds.right() + strokeOffsetX + ROUND_UP_TRICK);
-    devMinY = int(pathBounds.top() - strokeOffsetY);
-    devMaxY = int(pathBounds.bottom() + strokeOffsetY + ROUND_UP_TRICK);
+    if (!strokeBounds.isEmpty()) {
+        devMinX = int(strokeBounds.left());
+        devMaxX = int(strokeBounds.right() + ROUND_UP_TRICK);
+        devMinY = int(strokeBounds.top());
+        devMaxY = int(strokeBounds.bottom() + ROUND_UP_TRICK);
+    } else {
+        devMinX = int(pathBounds.left() - strokeOffsetX);
+        devMaxX = int(pathBounds.right() + strokeOffsetX + ROUND_UP_TRICK);
+        devMinY = int(pathBounds.top() - strokeOffsetY);
+        devMaxY = int(pathBounds.bottom() + strokeOffsetY + ROUND_UP_TRICK);
+    }
 
     QRect absPathRect(devMinX, devMinY, devMaxX - devMinX, devMaxY - devMinY);
 
@@ -117,7 +123,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
 
 
 //     qDebug("\nQPainterPrivate::draw_helper(), x=%d, y=%d, w=%d, h=%d",
-//            devMinX, devMinY, devWidth, devHeight);
+//            devMinX, devMinY, device->width(), device->height());
 //     qDebug() << " - matrix" << state->matrix;
 //     qDebug() << " - originalPath.bounds" << originalPath.boundingRect();
 //     qDebug() << " - path.bounds" << path.boundingRect();
