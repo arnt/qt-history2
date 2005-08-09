@@ -19,7 +19,6 @@
 
 #define Q_VOID
 
-#ifdef QT_DEBUG
 #define CHECK_MAXLEN(function, returnType) \
     do { \
         if (maxSize < 0) { \
@@ -43,11 +42,6 @@
            return returnType; \
        } \
    } while (0)
-#else
-#define CHECK_MAXLEN(a, b)
-#define CHECK_WRITABLE(a, b)
-#define CHECK_READABLE(a, b)
-#endif
 
 #define CHECK_OPEN(function, returnType) \
     do { \
