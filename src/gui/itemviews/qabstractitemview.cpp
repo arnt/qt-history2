@@ -133,10 +133,13 @@ void QAbstractItemViewPrivate::init()
     QItemSelectionModel.
 
     When implimenting a view that will have scrollbars you want to overload
-    resizeEvent to set the scrollbars range so they will turn of and off, for example:
+    resizeEvent to set the scrollbars range so they will turn on and off, for example:
     \code
         horizontalScrollBar()->setRange(0, realWidth - width());
     \endcode
+    Note that QAbstractScrollView wont turn on/off the scroolbars based upon the
+    ranges until the widget is shown.  They should be manually turned 
+    on and off in if other functions require that information.
     
     For complete control over the display and editing of items you can
     specify a delegate with setItemDelegate().
