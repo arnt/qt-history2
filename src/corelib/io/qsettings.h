@@ -32,6 +32,7 @@ QT_MODULE(Core)
 #undef Status
 #endif
 
+class QIODevice;
 class QSettingsPrivate;
 
 #ifndef QT_NO_QOBJECT
