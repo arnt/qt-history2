@@ -3112,4 +3112,11 @@ QDebug operator<<(QDebug dbg, const QObject *o) {
     \sa {Meta-Object System}, {Signals and Slots}, {Qt's Property System}
 */
 
+/*!
+    \typedef QObjectList
+    \relates QObject
+
+    Synonym for QList<QObject>.
+*/
+
 #include "moc_qobject.cpp"
