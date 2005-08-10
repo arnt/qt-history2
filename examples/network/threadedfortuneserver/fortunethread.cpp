@@ -37,6 +37,6 @@ void FortuneThread::run()
     out << (quint16)(block.size() - sizeof(quint16));
 
     tcpSocket.write(block);
-    tcpSocket.flush();
-    tcpSocket.close();
+    tcpSocket.disconnectFromHost();
+    tcpSocket.waitForDisconnected();
 }

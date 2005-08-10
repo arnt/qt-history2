@@ -40,8 +40,10 @@ void FortuneThread::requestNewFortune(const QString &hostName, quint16 port)
 
 void FortuneThread::run()
 {
+    mutex.lock();
     QString serverName = hostName;
     quint16 serverPort = port;
+    mutex.unlock();
 
     while (!quit) {
         const int Timeout = 5 * 1000;

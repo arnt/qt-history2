@@ -76,5 +76,5 @@ void Server::sendFortune()
             clientConnection, SLOT(deleteLater()));
 
     clientConnection->write(block);
-    clientConnection->close();
+    clientConnection->disconnectFromHost();
 }
