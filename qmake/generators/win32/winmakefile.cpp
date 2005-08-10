@@ -611,7 +611,10 @@ void Win32MakefileGenerator::writeLibsPart(QTextStream &t)
 
 void Win32MakefileGenerator::writeLibDirPart(QTextStream &t)
 {
-    t << varGlue("QMAKE_LIBDIR","-L\"","\" -L\"","\"") << " ";
+    QStringList libDirs = project->variables()["QMAKE_LIBDIR"];
+    for (int i = 0; i < libDirs.size(); ++i)
+        libDirs[i].remove("\"");
+    t << valGlue(libDirs,"-L\"","\" -L\"","\"") << " ";
 }
 
 void Win32MakefileGenerator::writeObjectsPart(QTextStream &t)

@@ -187,7 +187,10 @@ void NmakeMakefileGenerator::init()
 
 void NmakeMakefileGenerator::writeLibDirPart(QTextStream &t)
 {
-    t << varGlue("QMAKE_LIBDIR","/LIBPATH:\"","\" /LIBPATH:\"","\"") << " ";
+    QStringList libDirs = project->variables()["QMAKE_LIBDIR"];
+    for (int i = 0; i < libDirs.size(); ++i)
+        libDirs[i].remove("\"");
+    t << valGlue(libDirs,"/LIBPATH:\"","\" /LIBPATH:\"","\"") << " ";
 }
 
 void NmakeMakefileGenerator::writeImplicitRulesPart(QTextStream &t)
