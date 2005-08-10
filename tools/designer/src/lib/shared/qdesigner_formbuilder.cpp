@@ -108,7 +108,8 @@ void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
         QVariant v = toVariant(o->metaObject(), p);
 
         if (!v.isNull()) {
-            sheet->setProperty(index, v);
+            if (strcmp(o->metaObject()->className(), "QAxWidget") != 0)
+                sheet->setProperty(index, v);
 
             if (o->metaObject()->indexOfProperty(p->attributeName().toUtf8()) != -1)
                 o->setProperty(p->attributeName().toUtf8(), v);

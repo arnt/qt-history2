@@ -207,23 +207,18 @@ public:
         m_currentProperties.changedProperties[propertyName(index)] = value;
 
         if (propertyName(index) == QLatin1String("control"))
-        {
-            QString clsid = value.toString();
+        {            
+            QString clsid = value.toString();            
             if (!clsid.isEmpty()) {
-                // don't update the property sheet if the widget isn't in a form (preview)
-                if (QDesignerFormWindowInterface::findFormWindow(static_cast<QWidget*>(m_object)))
-                {
-                    QActiveXPluginObject *pluginObject = static_cast<QActiveXPluginObject*>(m_object);
-                    
-                    if (!pluginObject->loaded()) {
-                        if (pluginObject->setControl(clsid)) {
-                            m_currentProperties.clsid = clsid;
-                            m_currentProperties.widget = static_cast<QWidget*>(m_object);
+                QActiveXPluginObject *pluginObject = static_cast<QActiveXPluginObject*>(m_object);
+                if (!pluginObject->loaded()) {
+                    if (pluginObject->setControl(clsid)) {
+                        m_currentProperties.clsid = clsid;
+                        m_currentProperties.widget = static_cast<QWidget*>(m_object);
 
-                            QTimer::singleShot(100, this, SLOT(updatePropertySheet()));
-                        }
+                        QTimer::singleShot(100, this, SLOT(updatePropertySheet()));
                     }
-                }
+                }                
             }
         } else {
             QDesignerPropertySheet::setProperty(index, value);
