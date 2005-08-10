@@ -45,7 +45,7 @@ int QDecorationStyled::titleBarHeight(const QWidget *widget)
     opt.rect = widget->rect();
 
     QStyle *style = QApplication::style();
-    if (!style)
+    if (!style) 
         return 18;
 
     return style->pixelMetric(QStyle::PM_TitleBarHeight, &opt, widget);
@@ -63,8 +63,8 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
     if (!isActive) {
         //pal.setCurrentColorGroup(QPalette::Disabled); //Can't do this either, because of palette limitations
         //copied from Q3TitleBar:
-         pal.setColor(QPalette::Inactive, QPalette::Highlight,
-                      pal.color(QPalette::Inactive, QPalette::Dark));
+	pal.setColor(QPalette::Inactive, QPalette::Highlight,
+		     pal.color(QPalette::Inactive, QPalette::Dark));
         pal.setColor(QPalette::Inactive, QPalette::Base,
                       pal.color(QPalette::Inactive, QPalette::Dark));
         pal.setColor(QPalette::Inactive, QPalette::HighlightedText,
@@ -72,7 +72,7 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
     }
 
     QRegion oldClipRegion = painter->clipRegion();
-
+    
     Qt::WindowFlags flags = widget->windowFlags();
     bool hasBorder = !widget->isMaximized();
     bool hasTitle = flags & Qt::WindowTitleHint;
@@ -80,19 +80,25 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
     bool hasContextHelp = flags & Qt::WindowContextHelpButtonHint;
     bool hasMinimize = flags & Qt::WindowMinimizeButtonHint;
     bool hasMaximize = flags & Qt::WindowMaximizeButtonHint;
-    int  titleHeight = titleBarHeight(widget);
 
     bool paintAll = (DecorationRegion(decorationRegion) == All);
     bool handled = false;
 
     QStyle *style = QApplication::style();
 
+    // In the case of a borderless titlebar, the titlebar must be expanded one
+    // borderWidth to the left, right and up.
+    bool noTitleBorder = style->styleHint(QStyle::SH_TitleBar_NoBorder, 0, widget);
+    int borderWidth = style->pixelMetric(QStyle::PM_MDIFrameWidth, 0, widget);
+    int titleHeight = titleBarHeight(widget) + (noTitleBorder ? borderWidth : 0);
+    int titleExtra = noTitleBorder ? borderWidth : 0;
+    
     if ((paintAll || decorationRegion & Borders) && state == Normal && hasBorder) {
         painter->save();
         if (hasTitle) { // reduce flicker
             QRect rect(widget->rect());
-            QRect r(rect.left(), rect.top() - titleHeight,
-                    rect.width(), titleHeight);
+            QRect r(rect.left() - titleExtra, rect.top() - titleHeight,
+                    rect.width() + 2 * titleExtra, titleHeight);
             painter->setClipRegion(oldClipRegion - r);
         }
         QRect br = QDecoration::region(widget).boundingRect();
@@ -100,7 +106,8 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
         QStyleOptionFrame opt;
         opt.palette = pal;
         opt.rect = br;
-        opt.lineWidth = 2;
+	opt.lineWidth = borderWidth;
+
         if (isActive)
             opt.state |= QStyle::State_Active;
         painter->fillRect(br, pal.background());
@@ -132,10 +139,12 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
             opt.titleBarState |= QStyle::State_Active;
         opt.text = widget->windowTitle();
         opt.palette = pal;
-
-        opt.rect = QRect(widget->rect().x(), -titleHeight, widget->rect().width(), titleHeight);
-        // If we're not painting all, then lets clip to only those who are not painted
-        if (!paintAll) {
+        opt.rect = QRect(widget->rect().x() - titleExtra, -titleHeight,
+                         widget->rect().width() + 2 * titleExtra, titleHeight);
+        
+	if (paintAll) {
+	    painter->setClipRegion(opt.rect);
+	} else {	    
             const QRect widgetRect = widget->rect();
             QRegion newClip = opt.rect;
             if (!(decorationRegion & Menu) && hasSysMenu)
@@ -169,9 +178,17 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
 
 QRegion QDecorationStyled::region(const QWidget *widget, const QRect &rect, int decorationRegion)
 {
-    int titleHeight = titleBarHeight(widget);
-    QRect inside(rect.x(), rect.top() - titleHeight, rect.width(), titleHeight);
+    QStyle *style = QApplication::style();
+    
+    // In the case of a borderless titlebar, the titlebar must be expanded one
+    // borderWidth to the left, right and up.
+    bool noTitleBorder = style->styleHint(QStyle::SH_TitleBar_NoBorder, 0, widget);
+    int borderWidth = style->pixelMetric(QStyle::PM_MDIFrameWidth, 0, widget);
+    int titleHeight = titleBarHeight(widget) + (noTitleBorder ? borderWidth : 0);
+    int titleExtra = noTitleBorder ? borderWidth : 0;
 
+    QRect inside = QRect(rect.x() - titleExtra, rect.top() - titleHeight,
+                         rect.width() + 2 * titleExtra, titleHeight);
 
     Qt::WindowFlags flags = widget->windowFlags();
     bool hasSysMenu = flags & Qt::WindowSystemMenuHint;
@@ -190,8 +207,6 @@ QRegion QDecorationStyled::region(const QWidget *widget, const QRect &rect, int 
     opt.text = widget->windowTitle();
     opt.icon = widget->windowIcon();
     opt.rect = inside;
-
-    QStyle *style = QApplication::style();
 
     QRegion region;
     switch (decorationRegion) {
