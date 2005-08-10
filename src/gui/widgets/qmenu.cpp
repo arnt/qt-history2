@@ -1354,6 +1354,10 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
             else
                 qScrollEffect(this, hGuess | vGuess);
         } else {
+            // kill any running effect
+            qFadeEffect(0);
+            qScrollEffect(0);
+
             show();
         }
     } else

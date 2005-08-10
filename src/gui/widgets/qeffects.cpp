@@ -120,7 +120,6 @@ void QAlphaWidget::run(int time)
 
     showWidget = true;
     qApp->installEventFilter(this);
-    widget->setAttribute(Qt::WA_WState_Hidden, false); // We need a hide event
 
     move(widget->geometry().x(),widget->geometry().y());
     resize(widget->size().width(), widget->size().height());
@@ -157,7 +156,6 @@ bool QAlphaWidget::eventFilter(QObject* o, QEvent* e)
         update();
         break;
     case QEvent::Hide:
-    case QEvent::HideToParent:
     case QEvent::Close:
         if (o != widget)
             break;
@@ -389,7 +387,6 @@ bool QRollEffect::eventFilter(QObject* o, QEvent* e)
         update();
         break;
     case QEvent::Hide:
-    case QEvent::HideToParent:
     case QEvent::Close:
         if (o != widget || done)
             break;
@@ -469,7 +466,6 @@ void QRollEffect::run(int time)
 
     move(widget->geometry().x(),widget->geometry().y());
     resize(qMin(currentWidth, totalWidth), qMin(currentHeight, totalHeight));
-    widget->setAttribute(Qt::WA_WState_Hidden, false); // We need a hide event
 
     show();
     setEnabled(false);
@@ -570,6 +566,9 @@ void qScrollEffect(QWidget* w, QEffects::DirFlags orient, int time)
         q_roll = 0;
     }
 
+    if (!w)
+        return;
+
     qApp->sendPostedEvents(w, QEvent::Move);
     qApp->sendPostedEvents(w, QEvent::Resize);
     Qt::WFlags flags = Qt::ToolTip;
@@ -588,6 +587,9 @@ void qFadeEffect(QWidget* w, int time)
         delete q_blend;
         q_blend = 0;
     }
+
+    if (!w)
+        return;
 
     qApp->sendPostedEvents(w, QEvent::Move);
     qApp->sendPostedEvents(w, QEvent::Resize);
