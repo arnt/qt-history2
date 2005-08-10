@@ -39,7 +39,7 @@ public:
 signals:
     void embedded();
     void containerClosed();
-    void error(Error error);
+    void error(QX11EmbedWidget::Error error);
 
 protected:
     bool x11Event(XEvent *);
@@ -77,7 +77,7 @@ public:
 signals:
     void clientIsEmbedded();
     void clientClosed();
-    void error(Error);
+    void error(QX11EmbedContainer::Error);
 
 protected:
     bool x11Event(XEvent *);
