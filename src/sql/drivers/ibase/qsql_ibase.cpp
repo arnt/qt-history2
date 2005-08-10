@@ -339,7 +339,7 @@ bool QIBaseResultPrivate::writeBlob(int i, const QByteArray &ba)
                  QSqlError::StatementError)) {
         int i = 0;
         while (i < ba.size()) {
-            isc_put_segment(status, &handle, qMin(ba.size() - i, SHRT_MAX), const_cast<char*>(ba.data()));
+            isc_put_segment(status, &handle, qMin(ba.size() - i, SHRT_MAX), const_cast<char*>(ba.data()) + i);
             if (isError(QT_TRANSLATE_NOOP("QIBaseResult", "Unable to write BLOB")))
                 return false;
             i += SHRT_MAX;
@@ -360,25 +360,24 @@ QVariant QIBaseResultPrivate::fetchBlob(ISC_QUAD *bId)
 
     unsigned short len = 0;
     QByteArray ba;
-    ba.resize(255);
-    ISC_STATUS stat = isc_get_segment(status, &handle, &len, ba.size(), ba.data());
-    while (status[1] == isc_segment) {
-        uint osize = ba.size();
-        // double the amount of data fetched on each iteration
-        ba.resize(qMin(ba.size() * 2, SHRT_MAX));
-        stat = isc_get_segment(status, &handle, &len, osize, ba.data() + osize);
+    int chunkSize = SHRT_MAX; // for some reason it only works with 32kB chunks    
+    ba.resize(chunkSize);
+    int read = 0;
+    while ( isc_get_segment(status, &handle, &len, chunkSize, ba.data() + read) == 0 || status[1] == isc_segment ){
+	read += len;
+	if ( len < chunkSize  )
+	    break;
+	ba.resize(ba.size() + chunkSize);
     }
+    
     bool isErr = isError(QT_TRANSLATE_NOOP("QIBaseResult", "Unable to read BLOB"),
                          QSqlError::StatementError);
     isc_close_blob(status, &handle);
+    
     if (isErr)
         return QVariant();
 
-    if (ba.size() > 255)
-        ba.resize(ba.size() / 2 + len);
-    else
-        ba.resize(len);
-
+    ba.resize(read);
     return ba;
 }
 
