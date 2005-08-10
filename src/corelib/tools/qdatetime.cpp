@@ -2618,12 +2618,12 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
         qWarning("QDateTime::fromString: Parameter out of range");
         return QDateTime();
     }
-    if (f == Qt::ISODate) {        
-        QString tmp = s;        
+    if (f == Qt::ISODate) {
+        QString tmp = s;
         Qt::TimeSpec ts = Qt::LocalTime;
 
         // Recognize UTC specifications
-        if (tmp.endsWith(QLatin1Char('Z'))) {            
+        if (tmp.endsWith(QLatin1Char('Z'))) {
             ts = Qt::UTC;
             tmp.chop(1);
         }
@@ -3575,8 +3575,8 @@ bool QDateTimeParser::fromString(const QString &string, QDate *dateIn, QTime *ti
             break; }
 
 #ifndef QT_NO_TEXTDATE
-        case QDateTimeParser::Day3: num = &day; nameFunction = &QDate::shortDayName; nameArray = qt_shortDayNames; max = 7; break;
-        case QDateTimeParser::Day4: num = &day; nameFunction = &QDate::longDayName; nameArray = qt_longDayNames; max = 7; break;
+        case QDateTimeParser::Day3: num = &dayOfWeek; nameFunction = &QDate::shortDayName; nameArray = qt_shortDayNames; max = 7; break;
+        case QDateTimeParser::Day4: num = &dayOfWeek; nameFunction = &QDate::longDayName; nameArray = qt_longDayNames; max = 7; break;
         case QDateTimeParser::Month3: num = &month; nameFunction = &QDate::shortMonthName; nameArray = qt_shortMonthNames; max = 12; break;
         case QDateTimeParser::Month4: num = &month; nameFunction = &QDate::longMonthName; nameArray = qt_longMonthNames; max = 12; break;
 #else
