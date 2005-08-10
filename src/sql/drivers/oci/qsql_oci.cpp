@@ -225,7 +225,7 @@ int QOCIPrivate::bindValues(QVector<QVariant> &values, IndicatorArray &indicator
                                   (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
                 break;
             case QVariant::UInt:
-                r - OCIBindByPos(sql, &hbnd, err,
+                r = OCIBindByPos(sql, &hbnd, err,
                                  i + 1,
                                  (dvoid *) data,
                                  sizeof(uint),
