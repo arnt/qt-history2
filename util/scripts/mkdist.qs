@@ -179,6 +179,8 @@ licenseRemove["opensource"] = [ new RegExp("^extensions"),
 				new RegExp("^mkspecs/macx-mwerks"),
 				new RegExp("^README-QT.TXT") ];
 
+licenseRemove["preview"] = licenseRemove["opensource"];
+
 var finalRemove = [ new RegExp("^dist") ];
 
 /************************************************************
@@ -294,6 +296,7 @@ for (var p in validPlatforms) {
 		    dir.rmdirs();
 		dir.mkdir();
 		copyEval(platDir);
+                replaceTags(platDir, getEvalFileList(platDir), platform, license, platName);
 		compress(platform, platDir, platName.replace("commercial", "evalpatches"));
  		if (options["binaries"] && platform == "win") {
  		    createBinary(platform, "eval", platName, "vs2003");
@@ -859,6 +862,17 @@ function copyDist(packageDir, platform, license)
     }
 }
 
+
+/************************************************************
+ * returns the source files contained in the eval-patches package
+ */
+function getEvalFileList()
+{
+    evalFiles = new Array();
+    evalFiles.push("/src/corelib/kernel/qtcore_eval.cpp");
+    return evalFiles;
+}
+
 /************************************************************
  * copies the directory and files needed to make eval binares from src package
  */
@@ -866,8 +880,14 @@ function copyEval(packageDir)
 {
     p4Copy(p4BranchPath + "/src/corelib/eval.pri" + "@" + p4Label,
 	   packageDir + "/src/corelib/eval.pri");
-    p4Copy(p4BranchPath + "/src/corelib/kernel/qtcore_eval.cpp" + "@" + p4Label,
-	   packageDir + "/src/corelib/kernel/qtcore_eval.cpp");
+    
+    var evalFiles = getEvalFileList();
+    for (var i in evalFiles) {
+        var evalFile = evalFiles[i];
+        p4Copy(p4BranchPath + evalFile + "@" + p4Label,
+	       packageDir + evalFile);
+    }
+
     checkout("util/licensekeys/shared/...", packageDir + "/util/licensekeys/shared");
 }
 
