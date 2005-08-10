@@ -1224,30 +1224,3 @@ void QIODevice::resetStatus()
 }
 #endif
 
-#if !defined(QT_NO_DEBUG_STREAM)
-QDebug operator<<(QDebug debug, QIODevice::OpenMode modes)
-{
-    debug << "OpenMode(";
-    QStringList modeList;
-    if (modes == QIODevice::NotOpen) {
-        modeList << "NotOpen";
-    } else {
-        if (modes & QIODevice::ReadOnly)
-            modeList << "ReadOnly";
-        if (modes & QIODevice::WriteOnly)
-            modeList << "WriteOnly";
-        if (modes & QIODevice::Append)
-            modeList << "Append";
-        if (modes & QIODevice::Truncate)
-            modeList << "Truncate";
-        if (modes & QIODevice::Text)
-            modeList << "Text";
-        if (modes & QIODevice::Unbuffered)
-            modeList << "Unbuffered";
-    }
-    qSort(modeList);
-    debug << modeList.join("|");
-    debug << ")";
-    return debug;
-}
-#endif
