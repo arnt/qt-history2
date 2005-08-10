@@ -1534,10 +1534,10 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
 
             // for col/rowspans
             if (cell.row() != row)
-                break;
+                continue;
 
             if (cell.column() != col)
-                break;
+                continue;
 
             html += QLatin1String("<td");
 
