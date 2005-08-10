@@ -1144,8 +1144,11 @@ void QTextLine::layout_helper(int maxGlyphs)
         if (newItem != item) {
             item = newItem;
             const QScriptItem &current = eng->layoutData->items[item];
-            if (!current.num_glyphs)
+            if (!current.num_glyphs) {
                 eng->shape(item);
+                attributes = eng->attributes();
+                logClusters = eng->logClustersPtr;
+            }
             pos = qMax(line.from, current.position);
             end = current.position + eng->length(item);
             glyphs = eng->glyphs(&current);
