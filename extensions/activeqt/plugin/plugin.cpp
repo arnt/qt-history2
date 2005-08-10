@@ -153,7 +153,8 @@ bool QActiveXPluginObject::setControl(const QString &clsid)
         m_axobject = 0;
         return false;
     }
-
+	
+    update();
     return true;
 }
 
@@ -170,6 +171,7 @@ void QActiveXPluginObject::paintEvent (QPaintEvent *event)
     if (m_axobject) {
         p.setBrush(QBrush(Qt::green, Qt::BDiagPattern));
         p.drawRect(r.adjusted(0,0,-1,-1));
+	p.setPen(Qt::black);
         p.drawText(5,r.height()-5,tr("Control loaded"));
     } else {
         p.drawRect(r.adjusted(0,0,-1,-1));
@@ -201,6 +203,9 @@ public:
 
     void setProperty(int index, const QVariant &value)
     {
+        // take care of all changed properties
+        m_currentProperties.changedProperties[propertyName(index)] = value;
+
         if (propertyName(index) == QLatin1String("control"))
         {
             QString clsid = value.toString();
@@ -211,15 +216,6 @@ public:
                     QActiveXPluginObject *pluginObject = static_cast<QActiveXPluginObject*>(m_object);
                     
                     if (!pluginObject->loaded()) {
-                        
-                        // compute the changed properties
-                        for (int i = 0; i<count(); ++i) {
-                            if (propertyName(i) == QLatin1String("control"))
-                                m_currentProperties.changedProperties[propertyName(i)] = property(i);
-                            if (isChanged(i))
-                                m_currentProperties.changedProperties[propertyName(i)] = property(i);
-                        }
-
                         if (pluginObject->setControl(clsid)) {
                             m_currentProperties.clsid = clsid;
                             m_currentProperties.widget = static_cast<QWidget*>(m_object);
@@ -252,7 +248,7 @@ private slots:
     {
         // refresh the property sheet (we are deleting m_currentProperties)
         struct SavedProperties tmp = m_currentProperties;
-        delete this;
+        delete this; //we delete the property sheet, because this forces a recreation
         reloadPropertySheet(tmp);
     }
 
@@ -304,6 +300,8 @@ public:
 
         m_action = new QAction(that);
         m_action->setText(tr("Set Control"));
+        m_action->setEnabled(!m_axwidget->loaded());
+
         connect(m_action, SIGNAL(triggered()), this, SLOT(setActiveXControl()));
         m_taskActions.append(m_action);
 
