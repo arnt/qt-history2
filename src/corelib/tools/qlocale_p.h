@@ -94,11 +94,16 @@ public:
     bool numberToCLocale(const QString &num,
     	    	    	  GroupSeparatorMode group_sep_mode,
                           CharBuff *result) const;
-                          
+
     quint32 m_language_id, m_country_id;
 
     quint16 m_decimal, m_group, m_list, m_percent,
         m_zero, m_minus, m_exponential;
+
+    quint32 m_short_data_format_idx, m_long_date_format_idx;
+    quint32 m_short_time_format_idx, m_long_time_format_idx;
+    quint32 m_short_month_names_idx, m_long_month_names_idx;
+    quint32 m_short_day_names_idx, m_long_day_names_idx;
 
     static QByteArray systemLocaleName();
 };

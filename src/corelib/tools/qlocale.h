@@ -169,7 +169,11 @@ public:
         Zhuang = 139,
         Zulu = 140,
         Nynorsk = 141,
-        LastLanguage = Nynorsk
+        Bosnian = 142,
+        Divehi = 143,
+        Manx = 144,
+        Cornish = 145,
+        LastLanguage = Cornish
     };
 
     enum Country {
@@ -414,7 +418,8 @@ public:
         Yugoslavia = 238,
         Zambia = 239,
         Zimbabwe = 240,
-        LastCountry = Zimbabwe
+        SerbiaAndMontenegro = 241,
+        LastCountry = SerbiaAndMontenegro
     };
 
     QLocale();
