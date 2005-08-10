@@ -489,6 +489,33 @@ static const char * const qt_simple_toolbarhandle[] = {
     ".+@",
     " @@"};
 
+static const char * const qt_titlebar_context_help[] = {
+    "20 21 3 1",
+    " 	c None",
+    ".	c #BFBFBF",
+    "+	c #979797",
+    "                    ",    
+    "                    ",    
+    "                    ",    
+    "                    ",    
+    "                    ",    
+    "                    ",    
+    "        .++.        ",    
+    "       .+  ++       ",    
+    "       ..  .+.      ",    
+    "           ++       ",    
+    "         .+.        ",    
+    "         ++         ",    
+    "                    ",    
+    "         ++         ",    
+    "         ..         ",    
+    "                    ",    
+    "                    ",    
+    "                    ",    
+    "                    ",    
+    "                    ",    
+    "                    "};
+
 static QColor mergedColors(const QColor &colorA, const QColor &colorB, int factor = 50)
 {
     const int maxFactor = 100;
@@ -3834,10 +3861,40 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 
             // context help button
             if (titleBar->subControls & SC_TitleBarContextHelpButton) {
-                // ### add context help icon
                 bool hover = (titleBar->activeSubControls & SC_TitleBarContextHelpButton) && (titleBar->state & State_MouseOver);
 		QRect contextHelpButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarContextHelpButton, widget);
                 qt_plastique_draw_mdibutton(painter, titleBar, contextHelpButtonRect, hover, contentsPropagated);
+
+                QString helpName = QString("titlebar_helpbutton_%1_%2_%3_%4");
+                helpName = helpName.arg(contextHelpButtonRect.width());
+                helpName = helpName.arg(contextHelpButtonRect.height());
+                helpName = helpName.arg(hover);
+                helpName = helpName.arg(active);
+                
+                QPixmap cache;
+                if (!UsePixmapCache || !QPixmapCache::find(helpName, cache)) {
+                    cache = QPixmap(contextHelpButtonRect.size());
+                    cache.fill(Qt::transparent);
+                    QColor blend;                
+                    // ### Use palette colors                    
+                    if (active) {
+                        blend = mergedColors(QColor(hover ? 0x7d8bb1 : 0x55689a),
+                                             QColor(hover ? 0x939ebe : 0x7381ab));
+                    } else {
+                        blend = mergedColors(QColor(hover ? 0x9e9e9e : 0x818181),
+                                             QColor(hover ? 0xababab : 0x929292));
+                    }
+                    QImage image(qt_titlebar_context_help);
+                    image.setColor(1, mergedColors(blend, textColor).rgba());
+                    image.setColor(2, textColor.rgba());
+                    QPainter cachePainter(&cache);
+                    cachePainter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+                    cachePainter.drawImage(cache.rect(), image);
+                    cachePainter.end();
+                    if (UsePixmapCache)
+                        QPixmapCache::insert(helpName, cache);
+                }
+                painter->drawPixmap(contextHelpButtonRect, cache);
             }
 
             // shade button
