@@ -1624,12 +1624,6 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 #if defined(QT_NON_COMMERCIAL)
                 QT_NC_SYSCOMMAND
 #endif
-            case SC_MAXIMIZE:
-                window_state_change = true;
-                widget->dataPtr()->window_state &= ~Qt::WindowMinimized;
-                widget->dataPtr()->window_state |= Qt::WindowMaximized;
-                result = false;
-                break;
             case SC_MINIMIZE:
                 window_state_change = true;
                 widget->dataPtr()->window_state |= Qt::WindowMinimized;
@@ -1640,6 +1634,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 }
                 result = false;
                 break;
+            case SC_MAXIMIZE:
             case SC_RESTORE:
                 window_state_change = true;
                 if (widget->isMinimized()) {
@@ -1647,9 +1642,11 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     widget->showChildren(true);
                     QShowEvent e;
                     qt_sendSpontaneousEvent(widget, &e);
-                } else {
+                } 
+                if (wParam == SC_MAXIMIZE)
+                    widget->dataPtr()->window_state |= Qt::WindowMaximized;
+                else
                     widget->dataPtr()->window_state &= ~Qt::WindowMaximized;
-                }
                 result = false;
                 break;
             default:
