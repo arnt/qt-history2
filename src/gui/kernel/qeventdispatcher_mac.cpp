@@ -382,7 +382,9 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
         QThreadData *threadData = QThreadData::get(thread());
         if (threadData->postEventList.size() > 0)
             retVal = true;
-        QApplication::sendPostedEvents();
+        
+        // 0x10 == QEventLoop::DeferredDeletion. To be fixed for 4.1.
+        QApplication::sendPostedEvents(0, (flags & 0x10) ? -1 : 0);
         if (d->activateTimers() > 0) //send null timers
             retVal = true;
 
@@ -417,11 +419,12 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
                 retVal = true;
             ReleaseEvent(event);
         } while(!d->interrupt && GetNumEventsInQueue(GetMainEventQueue()));
-
-        QApplication::sendPostedEvents();
+        
+        // 0x10 == QEventLoop::DeferredDeletion. To be fixed for 4.1.
+        QApplication::sendPostedEvents(0, (flags & 0x10) ? -1 : 0);
 
         bool canWait = (!retVal
-                        && threadData->postEventList.size() == 0
+                        && threadData->canWait
                         && !d->interrupt
                         && (flags & QEventLoop::WaitForMoreEvents)
                         && !d->zero_timer_count);
