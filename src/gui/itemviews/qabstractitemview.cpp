@@ -362,8 +362,11 @@ void QAbstractItemViewPrivate::init()
 /*!
   \fn bool QAbstractItemView::isIndexHidden(const QModelIndex &index) const
 
-  Returns true if the item refered to by the given \a index is hidden,
+  Returns true if the item refered to by the given \a index is hidden in the view,
   otherwise returns false.
+
+  Hiding is a view specific feature.  For example in TableView a column can be marked
+  as hidden or a row in the TreeView.
 
   In the base class this is a pure virtual function.
 */
