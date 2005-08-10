@@ -221,7 +221,10 @@ QString WidgetInfo::resolveEnumerator(const QMetaObject *meta, const QString &na
             return e;
     }
 
-    return resolveEnumerator(&staticQtMetaObject, name);
+    if (meta != &staticQtMetaObject)
+        return resolveEnumerator(&staticQtMetaObject, name);
+
+    return QString();
 }
 
 QString WidgetInfo::resolveEnumerator(const QMetaEnum &metaEnum, const QString &name)
