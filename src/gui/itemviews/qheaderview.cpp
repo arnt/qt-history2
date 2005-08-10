@@ -970,6 +970,18 @@ bool QHeaderView::sectionsMoved() const
 }
 
 /*!
+  Returns true if sections in the header has been hidden;
+  otherwise returns false;
+
+  \sa setSectionHidden()
+*/
+bool QHeaderView::sectionsHidden() const
+{
+    Q_D(const QHeaderView);
+    return !d->hiddenSectionSize.isEmpty();
+}
+
+/*!
   Updates the changed header sections with the given \a orientation, from
   \a logicalFirst to \a logicalLast inclusive.
 */

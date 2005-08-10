@@ -103,6 +103,7 @@ public:
 
     void doItemsLayout();
     bool sectionsMoved() const;
+    bool sectionsHidden() const;
 
 public slots:
     void setOffset(int offset);
