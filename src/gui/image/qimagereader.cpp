@@ -680,14 +680,14 @@ int QImageReader::loopCount() const
 int QImageReader::imageCount() const
 {
     if (!d->initHandler())
-        return 0;
+        return -1;
     return d->handler->imageCount();
 }
 
 /*!
     For image formats that support animation, this function returns
     the number of milliseconds to wait until displaying the next frame
-    in the animation. Otherwise, -1 is returned.
+    in the animation. Otherwise, 0 is returned.
 */
 int QImageReader::nextImageDelay() const
 {
