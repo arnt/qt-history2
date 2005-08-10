@@ -73,8 +73,7 @@ void QPSQLDriverPrivate::appendTables(QStringList &tl, QSqlQuery &t, QChar type)
                   "left join pg_namespace on (pg_class.relnamespace = pg_namespace.oid) "
                   "where (pg_class.relkind = '%1') and (pg_class.relname !~ '^Inv') "
                   "and (pg_class.relname !~ '^pg_') "
-                  "and (pg_namespace.nspname != 'information_schema') "
-                  "and pg_table_is_visible(pg_class.oid)").arg(type);
+                  "and (pg_namespace.nspname != 'information_schema') ").arg(type);
     } else {
         query = QString::fromLatin1("select relname, null from pg_class where (relkind = 'r') "
                   "and (relname !~ '^Inv') "
@@ -683,10 +682,9 @@ QSqlIndex QPSQLDriver::primaryIndex(const QString& tablename) const
                 " (SELECT oid FROM pg_class WHERE lower(relname) = '%2')) "
                 "AND pg_attribute.attrelid = pg_class.oid "
                 "AND pg_attribute.attisdropped = false "
-                "AND pg_table_is_visible(pg_class.oid) "
                 "ORDER BY pg_attribute.attnum");
         if (schema.isEmpty())
-            stmt = stmt.arg(QLatin1String(""));
+            stmt = stmt.arg(QLatin1String("pg_table_is_visible(pg_class.oid) AND"));
         else
             stmt = stmt.arg(QString::fromLatin1("pg_class.relnamespace = (select oid from "
                    "pg_namespace where pg_namespace.nspname = '%1') AND ").arg(schema.toLower()));
@@ -752,20 +750,19 @@ QSqlRecord QPSQLDriver::record(const QString& tablename) const
                 "left join pg_attrdef on (pg_attrdef.adrelid = "
                 "pg_attribute.attrelid and pg_attrdef.adnum = pg_attribute.attnum) "
                 "where %1 "
-                "lower(pg_class.relname) = '%2' "
+                "and lower(pg_class.relname) = '%2' "
                 "and pg_attribute.attnum > 0 "
                 "and pg_attribute.attrelid = pg_class.oid "
                 "and pg_attribute.attisdropped = false "
-                "and pg_table_is_visible(pg_class.oid) "
                 "order by pg_attribute.attnum ");
         if (schema.isEmpty())
-            stmt = stmt.arg(QLatin1String(""));
+            stmt = stmt.arg(QLatin1String("pg_table_is_visible(pg_class.oid)"));
         else
             stmt = stmt.arg(QString::fromLatin1("pg_class.relnamespace = (select oid from "
-                   "pg_namespace where pg_namespace.nspname = '%1') and ").arg(schema.toLower()));
+                   "pg_namespace where pg_namespace.nspname = '%1')").arg(schema.toLower()));
         break;
     }
-
+    
     QSqlQuery query(createResult());
     query.exec(stmt.arg(tbl.toLower()));
     if (d->pro >= QPSQLDriver::Version71) {
@@ -891,6 +888,8 @@ QString QPSQLDriver::formatValue(const QSqlField &field,
 
 QString QPSQLDriver::escapeIdentifier(const QString &identifier, IdentifierType type) const
 {
+    Q_UNUSED(type);
+
     QString res = identifier;
     res.replace(QLatin1Char('"'), QLatin1String("\"\""));
     res.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
