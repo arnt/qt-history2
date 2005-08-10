@@ -332,14 +332,14 @@ static QVariant qGetBinaryData(SQLHANDLE hStmt, int column)
         r = SQLGetData(hStmt,
                         column+1,
                         SQL_C_BINARY,
-                        (SQLPOINTER)(fieldVal.constData() - read),
-                        fieldVal.size() - read,
+                        (SQLPOINTER)(fieldVal.constData() + read),
+                        colSize,
                         &lengthIndicator);
         if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO)
             break;
         if (lengthIndicator == SQL_NULL_DATA)
             return QVariant(QVariant::ByteArray);
-        if (lengthIndicator == SQL_NO_TOTAL) {
+        if (lengthIndicator > colSize || lengthIndicator == SQL_NO_TOTAL) {
             read += colSize;
             colSize = 65536;
         } else {
