@@ -27,7 +27,6 @@
 #include <qstyle.h>
 #include <qtimer.h>
 #include "private/qtextdocumentlayout_p.h"
-#include "private/qtextdocument_p.h"
 #include "qtextdocument.h"
 #include "qtextlist.h"
 
@@ -2229,11 +2228,6 @@ void QTextEdit::changeEvent(QEvent *e)
     if (e->type() == QEvent::ApplicationFontChange
         || e->type() == QEvent::FontChange) {
         d->doc->setDefaultFont(font());
-        // ####
-        for (QFragmentMap<QTextBlockData>::ConstIterator it = d->doc->docHandle()->blockMap().begin();
-             !it.atEnd(); ++it)
-            it.value()->invalidate();
-        d->relayoutDocument();
     }  else if(e->type() == QEvent::ActivationChange) {
         if (!isActiveWindow())
             d->autoScrollTimer.stop();
