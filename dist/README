@@ -24,14 +24,15 @@ DEMOS AND EXAMPLES
 Once Qt is installed, we suggest that you take a look at the demos and
 examples to see Qt in action. Run the Qt Examples and Demos either by
 typing 'qtdemo' on the command line or through the desktop's Start
-menu.
+menu. On Mac OS X, you can find it in /Developers/Applications/Qt.
 
 
 REFERENCE DOCUMENTATION
 
 The Qt reference documentation is available locally in Qt's doc/html
 directory. You can use Qt Assistant to view it; to launch Assistant,
-type 'assistant' on the command line or use the Start menu. The latest
+type 'assistant' on the command line or use the Start menu. On Mac
+OS X, you can find it in /Developer/Applications/Qt.  The latest
 documentation is available at http://doc.trolltech.com/.
 
 
