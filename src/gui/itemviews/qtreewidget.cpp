@@ -2080,20 +2080,14 @@ void QTreeWidget::setItemWidget(QTreeWidgetItem *item, int column, QWidget *widg
 }
 
 /*!
-  Returns true if the \a item is selected and not-hidden and does not
-  have hidden parents; otherwise returns false.
+  Returns true if the \a item is selected; otherwise returns false.
 */
 bool QTreeWidget::isItemSelected(const QTreeWidgetItem *item) const
 {
     Q_D(const QTreeWidget);
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
-    if (selectionModel()->isSelected(index)) {
-        while (index.isValid() && !isIndexHidden(index))
-            index = index.parent();
-        if (!index.isValid())
-            return true;
-    }
-    return false;
+    return selectionModel()->isSelected(index);
+
 }
 
 /*!

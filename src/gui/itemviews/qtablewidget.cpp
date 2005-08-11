@@ -1693,7 +1693,7 @@ bool QTableWidget::isItemSelected(const QTableWidgetItem *item) const
 {
     Q_D(const QTableWidget);
     QModelIndex index = d->model()->index(item);
-    return selectionModel()->isSelected(index) && !isIndexHidden(index);
+    return selectionModel()->isSelected(index);
 }
 
 /*!

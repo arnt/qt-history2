@@ -1260,13 +1260,13 @@ void QListWidget::setItemWidget(QListWidgetItem *item, QWidget *widget)
 }
 
 /*!
-  Returns true if \a item is selected and not hidden; otherwise returns false.
+  Returns true if \a item is selected; otherwise returns false.
 */
 bool QListWidget::isItemSelected(const QListWidgetItem *item) const
 {
     Q_D(const QListWidget);
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
-    return selectionModel()->isSelected(index) && !isIndexHidden(index);
+    return selectionModel()->isSelected(index);
 }
 
 /*!
