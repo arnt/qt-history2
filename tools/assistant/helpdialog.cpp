@@ -434,7 +434,21 @@ void HelpDialog::setupTitleMap()
 {
     if (titleMapDone)
         return;
-    if (Config::configuration()->docRebuild()) {
+
+    bool needRebuild = false;
+    if (Config::configuration()->profileName() == QLatin1String("default")) {
+        const QStringList docuFiles = Config::configuration()->docFiles();
+        for(QStringList::ConstIterator it = docuFiles.begin(); it != docuFiles.end(); it++) {
+            if (!QFile::exists(*it)) {
+                Config::configuration()->saveProfile(Profile::createDefaultProfile());
+                Config::configuration()->loadDefaultProfile();
+                needRebuild = true;
+                break;
+            }
+        }
+    }
+
+    if (Config::configuration()->docRebuild() || needRebuild) {
         removeOldCacheFiles();
         Config::configuration()->setDocRebuild(false);
         Config::configuration()->saveProfile(Config::configuration()->profile());
