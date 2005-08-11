@@ -2308,18 +2308,27 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
                 // Try to compress key events.
                 if (!asString.isEmpty() && widget->testAttribute(Qt::WA_KeyCompression)) {
+                    EventTime lastTime = GetEventTime(event);
                     for (;;) {
                         EventRef releaseEvent = FindSpecificEventInQueue(GetMainEventQueue(),
                                                                          qt_KeyEventComparatorProc,
                                                                          (void*)kEventRawKeyUp);
                         if (!releaseEvent)
                             break;
+                        const EventTime releaseTime = GetEventTime(releaseEvent);
+                        if(releaseTime < lastTime)
+                            break;
+                        lastTime = releaseTime;
 
                         EventRef pressEvent = FindSpecificEventInQueue(GetMainEventQueue(),
                                                                        qt_KeyEventComparatorProc,
                                                                        (void*)kEventRawKeyDown);
                         if (!pressEvent)
                             break;
+                        const EventTime pressTime = GetEventTime(pressEvent);
+                        if(pressTime < lastTime)
+                            break;
+                        lastTime = pressTime;
 
                         Qt::KeyboardModifiers compressMod;
                         int compressQtKey;
@@ -2343,11 +2352,17 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                             || (compressQtKey == 0)
                             || (compressChar == QLatin1Char('\n'));
                         if (compressMod == modifiers && !compressChar.isNull() && !stopCompression) {
+#ifdef DEBUG_KEY_MAPS
+                            qDebug("compressing away %c", compressChar.toLatin1());
+#endif
                             asString += compressChar;
                             // Clean up
                             RemoveEventFromQueue(GetMainEventQueue(), releaseEvent);
                             RemoveEventFromQueue(GetMainEventQueue(), pressEvent);
                         } else {
+#ifdef DEBUG_KEY_MAPS
+                            qDebug("stoping compression..");
+#endif
                             break;
                         }
                     }
