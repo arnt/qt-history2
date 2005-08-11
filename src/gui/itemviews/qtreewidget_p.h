@@ -26,6 +26,10 @@
 
 
 #include <QtCore/qabstractitemmodel.h>
+#include <qpair.h>
+
+class QTreeWidgetItem;
+
 class QTreeModel : public QAbstractItemModel
 {
     Q_OBJECT

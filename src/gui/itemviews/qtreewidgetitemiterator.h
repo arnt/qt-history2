@@ -13,6 +13,8 @@
 #ifndef QTREEWIDGETITEMITERATOR_H
 #define QTREEWIDGETITEMITERATOR_H
 
+#include <qglobal.h>
+
 class QTreeWidget;
 class QTreeWidgetItem;
 class QTreeModel;
@@ -71,11 +73,11 @@ inline const QTreeWidgetItemIterator QTreeWidgetItemIterator::operator++(int)
 { QTreeWidgetItemIterator it = *this; ++(*this); return it; }
 
 inline const QTreeWidgetItemIterator QTreeWidgetItemIterator::operator--(int)
-{ QTreeWidgetItemIterator it = *this; --(*this); return it; 
+{ QTreeWidgetItemIterator it = *this; --(*this); return it;
 }
 
 inline QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator-=(int n)
-{ 
+{
     return (*this)+=(-n);
 }
 
