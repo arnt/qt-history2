@@ -545,12 +545,18 @@ static int evaluateCondition(const Macros &macros, const Symbol &symbol)
     return expression.value();
 }
 
-
+static void preprocess(const QByteArray &filename, const Symbols &symbols, Macros &macros, Symbols &preprocessed);
 static Symbols preprocess(const QByteArray &filename, const Symbols &symbols, Macros &macros)
 {
-    static int depth = 0;
     Symbols preprocessed;
-    preprocessed.reserve(symbols.size());
+    preprocess(filename, symbols, macros, preprocessed);
+    return preprocessed;
+}
+
+static void preprocess(const QByteArray &filename, const Symbols &symbols, Macros &macros, Symbols &preprocessed)
+{
+    static int depth = 0;
+    preprocessed.reserve(preprocessed.size() + symbols.size());
     int i = 0;
     while (hasNext(symbols,i)) {
         Symbol sym = next(symbols, i);
@@ -609,7 +615,6 @@ static Symbols preprocess(const QByteArray &filename, const Symbols &symbols, Ma
             Symbols symbols = tokenize(phase1);
             // phase 3: preprocess conditions and substitute macros
             ++depth;
-            symbols = preprocess(include, symbols, macros);
 
             Symbol includeSym;
             includeSym.lexem_data = "\n#moc_include_begin \"";
@@ -617,7 +622,7 @@ static Symbols preprocess(const QByteArray &filename, const Symbols &symbols, Ma
             includeSym.lexem_data += "\"\n";
             preprocessed += includeSym;
 
-            preprocessed += symbols;
+            preprocess(include, symbols, macros, preprocessed);
 
             includeSym.lexem_data = "\n#moc_include_end ";
             includeSym.lexem_data += QByteArray::number(sym.lineNum);
@@ -684,7 +689,6 @@ static Symbols preprocess(const QByteArray &filename, const Symbols &symbols, Ma
         }
         preprocessed += sym;
     }
-    return preprocessed;
 }
 
 QByteArray Preprocessor::preprocessed(const QByteArray &filename, FILE *file)
