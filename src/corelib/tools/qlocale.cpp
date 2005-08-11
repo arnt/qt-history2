@@ -18,6 +18,8 @@
 #include "qlocale.h"
 #include "qlocale_p.h"
 #include "qnamespace.h"
+#include "qdatetime.h"
+#include "qstringlist.h"
 
 #include <ctype.h>
 #include <float.h>
@@ -150,6 +152,38 @@ QString QLocalePrivate::infinity() const
 QString QLocalePrivate::nan() const
 {
     return QString::fromLatin1("nan");
+}
+
+QString QLocalePrivate::dateFormat(bool short_format) const
+{
+    quint32 idx = short_format ? m_short_date_format_idx : m_long_date_format_idx;
+    return QString::fromUtf8(date_format_data + idx);
+}
+
+QString QLocalePrivate::timeFormat(bool short_format) const
+{
+    quint32 idx = short_format ? m_short_time_format_idx : m_long_time_format_idx;
+    return QString::fromUtf8(time_format_data + idx);
+}
+
+QString QLocalePrivate::month(int index, bool short_format) const
+{
+    if (index < 0 || index >= 12)
+        return QString();
+
+    quint32 idx = short_format ? m_short_month_names_idx : m_long_month_names_idx;
+    QStringList month_names = QString::fromUtf8(months_data + idx).split(QLatin1Char(';'));
+    return month_names.at(index);
+}
+
+QString QLocalePrivate::day(int index, bool short_format) const
+{
+    if (index < 0 || index >= 7)
+        return QString();
+
+    quint32 idx = short_format ? m_short_day_names_idx : m_long_day_names_idx;
+    QStringList day_names = QString::fromUtf8(days_data + idx).split(QLatin1Char(';'));
+    return day_names.at(index);
 }
 
 #ifndef QT_NO_DATASTREAM
@@ -1464,6 +1498,252 @@ QString QLocale::toString(qulonglong i) const
 {
     return d->unsLongLongToString(i, -1, 10, -1, QLocalePrivate::ThousandsGroup);
 }
+
+static int repeatCount(const QString &s, int i)
+{
+    QChar c = s.at(i);
+    int j = i + 1;
+    while (j < s.size() && s.at(j) == c)
+        ++j;
+    return j - i;
+}
+
+/*!
+    Returns a localized string representation of \a date. If \a format is specified,
+    the string is formatted according to it. If \a format is an empty strig (the
+    default value), something happens, but I'm not certain what it is.
+*/
+
+QString QLocale::toString(const QDate &date, const QString &format) const
+{
+    QString result;
+
+    bool escape = false;
+    int i = 0;
+    while (i < format.size()) {
+        QChar c = format.at(i);
+        int repeat = repeatCount(format, i);
+
+        if (c.unicode() == '\'') {
+            if (escape) {
+                escape = false;
+                ++i;
+                continue;
+            }
+
+            if (repeat >= 2) {
+                result.append(c);
+                i += 2;
+                continue;
+            }
+
+            escape = true;
+            ++i;
+            continue;
+        }
+
+        if (escape) {
+            result.append(c);
+            ++i;
+            continue;
+        }
+
+        switch (c.unicode()) {
+            case 'y':
+                if (repeat >= 4)
+                    repeat = 4;
+                else if (repeat >= 2)
+                    repeat = 2;
+                else
+                    repeat = 1;
+
+                switch (repeat) {
+                    case 4:
+                        result.append(d->longLongToString(date.year()));
+                        break;
+                    case 2:
+                        result.append(d->longLongToString(date.year()%100));
+                        break;
+                    default:
+                        result.append(c);
+                        break;
+                }
+                break;
+
+            case 'M':
+                if (repeat > 4)
+                    repeat = 4;
+                switch (repeat) {
+                    case 1:
+                        result.append(d->longLongToString(date.month()));
+                        break;
+                    case 2:
+                        result.append(d->longLongToString(date.month(), -1, 10, 2, QLocalePrivate::ZeroPadded));
+                        break;
+                    case 3:
+                        result.append(d->month(date.month() - 1, true));
+                        break;
+                    case 4:
+                        result.append(d->month(date.month() - 1));
+                        break;
+                    default:
+                        break;
+                }
+                break;
+
+            case 'd':
+                if (repeat > 2)
+                    repeat = 2;
+                switch (repeat) {
+                    case 1:
+                        result.append(d->longLongToString(date.day()));
+                        break;
+                    case 2:
+                        result.append(d->longLongToString(date.day(), -1, 10, 2, QLocalePrivate::ZeroPadded));
+                        break;
+                    default:
+                        break;
+                }
+                break;
+
+            case 'E':
+                if (repeat > 4)
+                    repeat = 4;
+                switch (repeat) {
+                    case 1:
+                        result.append(d->longLongToString(date.dayOfWeek()));
+                        break;
+                    case 2:
+                        result.append(d->longLongToString(date.dayOfWeek(), -1, 10, 2, QLocalePrivate::ZeroPadded));
+                        break;
+                    case 3:
+                        result.append(d->day(date.dayOfWeek() - 1, true));
+                        break;
+                    case 4:
+                        result.append(d->day(date.dayOfWeek() - 1));
+                        break;
+                    default:
+                        break;
+                }
+                break;
+
+            default:
+                repeat = 1;
+                result.append(c);
+                break;
+        }
+
+        i += repeat;
+    }
+
+    return result;
+}
+
+QString QLocale::toString(const QDate &date, FormatType format) const
+{
+    QString format_str = d->dateFormat(format == ShortFormat);
+    return toString(date, format_str);
+}
+
+QString QLocale::toString(const QTime &time, const QString &format) const
+{
+    QString result;
+
+    bool escape = false;
+    int i = 0;
+    while (i < format.size()) {
+        QChar c = format.at(i);
+        int repeat = repeatCount(format, i);
+
+        if (c.unicode() == '\'') {
+            if (escape) {
+                escape = false;
+                ++i;
+                continue;
+            }
+
+            if (repeat >= 2) {
+                result.append(c);
+                i += 2;
+                continue;
+            }
+
+            escape = true;
+            ++i;
+            continue;
+        }
+
+        if (escape) {
+            result.append(c);
+            ++i;
+            continue;
+        }
+
+        switch (c.unicode()) {
+            case 'h':
+                if (repeat > 2)
+                    repeat = 2;
+
+                switch (repeat) {
+                    case 1:
+                        result.append(d->longLongToString(time.hour()));
+                        break;
+                    case 2:
+                        result.append(d->longLongToString(time.hour(), -1, 10, 2, QLocalePrivate::ZeroPadded));
+                        break;
+                    default:
+                        break;
+                }
+                break;
+
+            case 'm':
+                if (repeat > 2)
+                    repeat = 2;
+                switch (repeat) {
+                    case 1:
+                        result.append(d->longLongToString(time.minute()));
+                        break;
+                    case 2:
+                        result.append(d->longLongToString(time.minute(), -1, 10, 2, QLocalePrivate::ZeroPadded));
+                        break;
+                    default:
+                        break;
+                }
+                break;
+
+            case 's':
+                if (repeat > 2)
+                    repeat = 2;
+                switch (repeat) {
+                    case 1:
+                        result.append(d->longLongToString(time.second()));
+                        break;
+                    case 2:
+                        result.append(d->longLongToString(time.second(), -1, 10, 2, QLocalePrivate::ZeroPadded));
+                        break;
+                    default:
+                        break;
+                }
+                break;
+
+            default:
+                repeat = 1;
+                result.append(c);
+                break;
+        }
+
+        i += repeat;
+    }
+
+    return result;
+}
+
+QString QLocale::toString(const QTime &time, FormatType format) const
+{
+    QString format_str = d->timeFormat(format == ShortFormat);
+    return toString(time, format_str);
+}
+
 
 static bool qIsUpper(char c)
 {

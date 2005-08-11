@@ -95,12 +95,17 @@ public:
     	    	    	  GroupSeparatorMode group_sep_mode,
                           CharBuff *result) const;
 
+    QString dateFormat(bool short_format = false) const;
+    QString timeFormat(bool short_format = false) const;
+    QString month(int index, bool short_format = false) const;
+    QString day(int index, bool short_format = false) const;
+
     quint32 m_language_id, m_country_id;
 
     quint16 m_decimal, m_group, m_list, m_percent,
         m_zero, m_minus, m_exponential;
 
-    quint32 m_short_data_format_idx, m_long_date_format_idx;
+    quint32 m_short_date_format_idx, m_long_date_format_idx;
     quint32 m_short_time_format_idx, m_long_time_format_idx;
     quint32 m_short_month_names_idx, m_long_month_names_idx;
     quint32 m_short_day_names_idx, m_long_day_names_idx;

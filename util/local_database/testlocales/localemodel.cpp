@@ -1,9 +1,10 @@
 #include <QtCore/QLocale>
+#include <QtCore/QDate>
 #include <QtCore/qdebug.h>
 
 #include "localemodel.h"
 
-static const int g_model_cols = 1;
+static const int g_model_cols = 5;
 
 struct LocaleListItem
 {
@@ -201,6 +202,10 @@ LocaleModel::LocaleModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
     m_data_list.append(1234.5678);
+    m_data_list.append(QDate::currentDate());
+    m_data_list.append(QDate::currentDate());
+    m_data_list.append(QTime::currentTime());
+    m_data_list.append(QTime::currentTime());
 }
 
 QVariant LocaleModel::data(const QModelIndex &index, int role) const
@@ -217,6 +222,14 @@ QVariant LocaleModel::data(const QModelIndex &index, int role) const
         switch (index.column()) {
             case 0:
                 return data.toDouble();
+            case 1:
+                return data.toDate();
+            case 2:
+                return data.toDate();
+            case 3:
+                return data.toTime();
+            case 4:
+                return data.toTime();
             default:
                 break;
         }
@@ -227,6 +240,14 @@ QVariant LocaleModel::data(const QModelIndex &index, int role) const
         switch (index.column()) {
             case 0:
                 return locale.toString(data.toDouble());
+            case 1:
+                return locale.toString(data.toDate(), QLocale::LongFormat);
+            case 2:
+                return locale.toString(data.toDate(), QLocale::ShortFormat);
+            case 3:
+                return locale.toString(data.toTime(), QLocale::LongFormat);
+            case 4:
+                return locale.toString(data.toTime(), QLocale::ShortFormat);
             default:
                 break;
         }
@@ -244,6 +265,14 @@ QVariant LocaleModel::headerData(int section, Qt::Orientation orientation, int r
         switch (section) {
             case 0:
                 return QLatin1String("Double");
+            case 1:
+                return QLatin1String("Long Date");
+            case 2:
+                return QLatin1String("Short Date");
+            case 3:
+                return QLatin1String("Long Time");
+            case 4:
+                return QLatin1String("Short Time");
             default:
                 break;
         }

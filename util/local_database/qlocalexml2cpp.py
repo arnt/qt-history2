@@ -123,7 +123,7 @@ class StringData:
         for d in self.data:
             if d == s:
                 return result
-            result += len(s) + 1
+            result += len(d) + 1
         self.data.append(s)
         return result
 
