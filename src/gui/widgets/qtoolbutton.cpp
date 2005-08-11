@@ -879,8 +879,12 @@ void QToolButton::setDefaultAction(QAction *action)
     setStatusTip(action->statusTip());
     setWhatsThis(action->whatsThis());
 #ifndef QT_NO_MENU
-    if (QMenu *menu = action->menu())
+    if (QMenu *menu = action->menu()) {
+        // new 'default' popup mode defined introduced by tool bar. We
+        // should have changed QToolButton's default instead.
+        setPopupMode(QToolButton::MenuButtonPopup);
         setMenu(menu);
+    }
 #endif
     setCheckable(action->isCheckable());
     setChecked(action->isChecked());
