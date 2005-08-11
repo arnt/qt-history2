@@ -2992,8 +2992,24 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             if (option->subControls & SC_SliderTickmarks) {
                 QPen oldPen = painter->pen();
                 painter->setPen(borderColor);
-                int nticks = 15;
                 int tickSize = pixelMetric(PM_SliderTickmarkOffset, option, widget);
+                int available = pixelMetric(PM_SliderSpaceAvailable, slider, widget);
+                int interval = slider->tickInterval;
+                if (interval <= 0) {
+                    interval = slider->singleStep;
+                    if (QStyle::sliderPositionFromValue(slider->minimum, slider->maximum, interval,
+                                                        available)
+                        - QStyle::sliderPositionFromValue(slider->minimum, slider->maximum,
+                                                          0, available) < 3)
+                        interval = slider->pageStep;
+                }
+                if (interval <= 0)
+                    interval = 1;
+
+                int sliderLength = slider->maximum - slider->minimum + 1;
+                int nticks = sliderLength / interval + 1; // add one to get the end tickmark
+                if (sliderLength % interval > 0)
+                    nticks++; // round up the number of tick marks
 
                 // draw ticks
                 if (horizontal) {
