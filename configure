@@ -2533,7 +2533,7 @@ if [ "$Edition" = "OpenSource" ]; then
             fi
         fi
     done
-elif [ "$Edition" == "Preview" ]; then
+elif [ "$Edition" = "Preview" ]; then
     while true; do
         if [ "$OPT_CONFIRM_LICENSE" = "yes" ]; then
             echo "You have already accepted the terms of the $LicenseType license."
