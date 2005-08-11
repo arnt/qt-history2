@@ -1276,7 +1276,9 @@ void QTextEdit::copy()
 
 void QTextEdit::paste()
 {
-    insertFromMimeData(QApplication::clipboard()->mimeData());
+    const QMimeData *md = QApplication::clipboard()->mimeData();
+    if (md)
+        insertFromMimeData(md);
 }
 #endif
 
@@ -1955,7 +1957,9 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *e)
                && !d->readOnly
                && QApplication::clipboard()->supportsSelection()) {
         d->setCursorPosition(e->pos());
-        insertFromMimeData(QApplication::clipboard()->mimeData(QClipboard::Selection));
+        const QMimeData *md = QApplication::clipboard()->mimeData(QClipboard::Selection);
+        if (md)
+            insertFromMimeData(md);
 #endif
     }
 
@@ -2286,7 +2290,8 @@ QMenu *QTextEdit::createStandardContextMenu()
 #if !defined(QT_NO_CLIPBOARD)
     if (!d->readOnly) {
         a = menu->addAction(tr("&Paste") + ACCEL_KEY(V), this, SLOT(paste()));
-        a->setEnabled(canInsertFromMimeData(QApplication::clipboard()->mimeData()));
+        const QMimeData *md = QApplication::clipboard()->mimeData();
+        a->setEnabled(md && canInsertFromMimeData(md));
     }
 #endif
 
