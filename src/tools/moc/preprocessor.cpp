@@ -748,10 +748,14 @@ QByteArray Preprocessor::preprocessed(const QByteArray &filename, FILE *file)
         }
         secondlast = last;
         last = sym.pp_token;
-        while (sym.lineNum > lineNum) {
-            output += '\n';
-            ++lineNum;
+
+        const int padding = sym.lineNum - lineNum;
+        if (padding > 0) {
+            output.resize(output.size() + padding);
+            qMemSet(output.data() + output.size() - padding, '\n', padding);
+            lineNum = sym.lineNum;
         }
+
         output += sym.lexem();
     }
 
