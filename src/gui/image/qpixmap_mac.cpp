@@ -398,6 +398,9 @@ QPixmapData::macSetAlphaChannel(const QPixmap *pix, bool asMask)
                 else
                     *(drow+x) = 0x00000000;
             }
+        } else if(d == 8) {
+            for (int x=0; x < w; ++x)
+                *(drow+x) = (*(drow+x) & RGB_MASK) | (*(srow+x) << 24);
         } else if(asMask) {
             for (int x=0; x < w; ++x) {
                 if(*(srow+x) & RGB_MASK)
