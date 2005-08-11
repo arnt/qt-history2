@@ -1279,10 +1279,10 @@ void QSplitter::setRubberBand(int pos)
     if (!d->rubberBand)
         d->rubberBand = new QRubberBand(QRubberBand::Line, this);
     if (d->orient == Qt::Horizontal)
-        d->rubberBand->setGeometry(QRect(mapToGlobal(QPoint(pos + hw / 2 - rBord, r.y())),
-                                   QSize(2 * rBord, r.height())));
+        d->rubberBand->setGeometry(QRect(QPoint(pos + hw / 2 - rBord, r.y()),
+                                         QSize(2 * rBord, r.height())));
     else
-        d->rubberBand->setGeometry(QRect(mapToGlobal(QPoint(r.x(), pos + hw / 2 - rBord)),
+        d->rubberBand->setGeometry(QRect(QPoint(r.x(), pos + hw / 2 - rBord),
                                    QSize(r.width(), 2 * rBord)));
     if (!d->rubberBand->isVisible())
         d->rubberBand->show();
