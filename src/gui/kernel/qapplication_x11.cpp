@@ -197,7 +197,7 @@ static const char * x11_atomnames = {
     "_NET_WM_WINDOW_TYPE_UTILITY\0"
 
     "_KDE_NET_WM_FRAME_STRUT\0"
-    
+
     "_NET_STARTUP_INFO\0"
     "_NET_STARTUP_INFO_BEGIN\0"
 
@@ -1238,7 +1238,7 @@ void qt_init(QApplicationPrivate *priv, int,
 #endif
 
     X11->startupId = 0;
-    
+
     int argc = priv->argc;
     char **argv = priv->argv;
 
@@ -1804,7 +1804,7 @@ void qt_init(QApplicationPrivate *priv, int,
             XFreeDeviceList(devices);
         }
 #endif // QT_NO_TABLET_SUPPORT
-       
+
         X11->startupId = getenv("DESKTOP_STARTUP_ID");
         putenv(strdup("DESKTOP_STARTUP_ID="));
 
@@ -2756,14 +2756,10 @@ int QApplication::x11ProcessEvent(XEvent* event)
             QWidget* event_widget = QWidget::find(ev.xcrossing.window);
             if(event_widget && event_widget->x11Event(&ev))
                 break;
-            if (ev.type == LeaveNotify && ev.xcrossing.mode == NotifyNormal){
-                enter = event_widget;
-                XPutBackEvent(X11->display, &ev);
-                break;
-            }
-            if (ev.xcrossing.mode != NotifyNormal ||
-                ev.xcrossing.detail == NotifyVirtual  ||
-                ev.xcrossing.detail == NotifyNonlinearVirtual)
+            if (ev.type == LeaveNotify
+                || ev.xcrossing.mode != NotifyNormal
+                || ev.xcrossing.detail == NotifyVirtual
+                || ev.xcrossing.detail == NotifyNonlinearVirtual)
                 continue;
             enter = event_widget;
             if (ev.xcrossing.focus &&
@@ -2787,7 +2783,12 @@ int QApplication::x11ProcessEvent(XEvent* event)
             QApplicationPrivate::dispatchEnterLeave(widget, 0);
 
         QApplicationPrivate::dispatchEnterLeave(enter, widget);
-        curWin = enter ? enter->winId() : 0;
+        if (enter) {
+            curWin = enter->winId();
+            static_cast<QETWidget *>(enter)->translateMouseEvent(&ev); //we don't get MotionNotify, emulate it
+        } else {
+            curWin = 0;
+        }
     }
         break;
 
