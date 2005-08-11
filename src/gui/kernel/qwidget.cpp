@@ -893,6 +893,15 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
     d->create_sys(window, initializeWindow, destroyOldWindow);
 
+    for(QWidget *p = parentWidget(); p; p = p->parentWidget()) {
+        if(p->testAttribute(Qt::WA_ForceAcceptDrops)) {
+            d->setAcceptDrops_helper(true);
+            break;
+        }
+        if(p->isWindow())
+            break;
+    }
+
 #ifdef QT_EVAL
     extern void qt_eval_init_widget(QWidget *w);
     qt_eval_init_widget(this);

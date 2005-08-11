@@ -534,22 +534,25 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
         } else if(ekind == kEventControlDragEnter || ekind == kEventControlDragWithin ||
                   ekind == kEventControlDragLeave || ekind == kEventControlDragReceive) {
             handled_event = false;
+            bool drag_allowed = false;
             if(widget) {
                 //these are really handled in qdnd_mac.cpp just to modularize the code a little..
                 DragRef drag;
                 GetEventParameter(event, kEventParamDragRef, typeDragRef, NULL, sizeof(drag), NULL, &drag);
-                if(widget->d_func()->qt_mac_dnd_event(ekind, drag))
+                if(widget->d_func()->qt_mac_dnd_event(ekind, drag)) {
+                    drag_allowed = true;
                     handled_event = true;
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-                if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-                    if(ekind == kEventControlDragEnter) {
-                        const Boolean wouldAccept = handled_event ? true : false;
-                        SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean,
-                                          sizeof(wouldAccept), &wouldAccept);
-                    }
                 }
-#endif
             }
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+            if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
+                if(ekind == kEventControlDragEnter) {
+                    const Boolean wouldAccept = drag_allowed ? true : false;
+                    SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean,
+                                      sizeof(wouldAccept), &wouldAccept);
+                }
+            }
+#endif
         }
         break; }
     default:
@@ -1179,11 +1182,11 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
 
     //recreate and setup flags
     QObjectPrivate::setParent_helper(parent);
-    bool     dropable = q->acceptDrops();
-    bool     enable = q->isEnabled();
+    bool dropable = q->acceptDrops();
+    bool enable = q->isEnabled();
     Qt::FocusPolicy fp = q->focusPolicy();
-    QPoint   pt = q->pos();
-    QSize    s = q->size();
+    QPoint pt = q->pos();
+    QSize s = q->size();
     bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
     setWinId(0); //do after the above because they may want the id
 
@@ -1220,7 +1223,8 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     q->setFocusPolicy(fp);
     if (extra && !extra->mask.isEmpty())
         q->setMask(extra->mask);
-    q->setAcceptDrops(dropable);
+    if(dropable)
+        setAcceptDrops_helper(true);
     if(setcurs)
         q->setCursor(oldcurs);
 
