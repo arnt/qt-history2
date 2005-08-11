@@ -2900,6 +2900,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             QWidget* w = static_cast<QWidget *>(receiver);
             QHelpEvent *help = static_cast<QHelpEvent*>(e);
             QPoint relpos = help->pos();
+            bool eventAccepted = help->isAccepted();
             while (w) {
                 QHelpEvent he(help->type(), relpos, help->globalPos());
                 he.spont = e->spontaneous();
@@ -2911,6 +2912,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 relpos += w->pos();
                 w = w->parentWidget();
             }
+            help->setAccepted(eventAccepted);
         }
         break;
 
