@@ -37,6 +37,7 @@ public:
     bool exclusive() const;
 
     void addButton(QAbstractButton *);
+    void addButton(QAbstractButton *, int id);
     void removeButton(QAbstractButton *);
 
     QList<QAbstractButton*> buttons() const;
@@ -44,8 +45,14 @@ public:
     QAbstractButton * checkedButton() const;
     // no setter on purpose!
 
+    QAbstractButton *button(int id) const;
+    void setId(QAbstractButton *button, int id);
+    int id(QAbstractButton *button) const;
+    int checkedId() const;
+
 signals:
     void buttonClicked(QAbstractButton *);
+    void buttonClicked(int);
 
 #ifdef QT3_SUPPORT
 public:

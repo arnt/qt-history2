@@ -42,6 +42,14 @@
     was checked. The list of buttons in the group is returned by
     buttons().
 
+    In addition, QButtonGroup can map between integers and
+    buttons. You can assign an integer id to a button with setId(),
+    and retrieve it with id(). The id of the currently checked button
+    is available with checkedId(), and there is an overloaded signal
+    buttonClicked() which emits the id of the button. The purpose of
+    the mapping mechanism is to simply the representation of enum
+    values in a user interface.
+
     \sa QGroupBox QPushButton, QCheckBox, QRadioButton
 */
 
@@ -76,11 +84,20 @@
     \sa checkedButton(), QAbstractButton::clicked()
 */
 
+/*!
+    \fn void QButtonGroup::buttonClicked(int id)
+
+    This signal is emitted when a button with the given \id is
+    clicked.
+
+    \sa checkedButton(), QAbstractButton::clicked()
+*/
+
 
 /*!
-    \fn void QButtonGroup::addButton(QAbstractButton *button);
+    \fn void QButtonGroup::addButton(QAbstractButton *button, int id = -1);
 
-    Adds the given \a button to the button group.
+    Adds the given \a button to the button group, with the given \a id.
 
     \sa removeButton() buttons()
 */
@@ -108,6 +125,38 @@
     checked.
 
     \sa buttonClicked()
+*/
+
+/*!
+\fn QAbstractButton *QButtonGroup::button(int id) const;
+
+Returns the button with the specified \a id, or 0 if no such button
+exists.
+*/
+
+/*!
+\fn void QButtonGroup::setId(QAbstractButton *button, int id) const;
+
+Sets the \a id for the specified \a button.
+
+\sa id()
+*/
+
+/*!
+\fn int QButtonGroup::id(QAbstractButton *button) const;
+
+Returns the id for the specified \a button, or -1 if no such button
+exists.
+
+\sa setId()
+*/
+
+/*!
+\fn int QButtonGroup::checkedId() const;
+
+Returns the id of the checkedButton(), or -1 if no button is checked.
+
+\sa setId()
 */
 
 
