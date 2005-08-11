@@ -681,6 +681,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     const QModelIndex parent = index.parent();
     const QHeaderView *header = d->header;
     const QModelIndex current = currentIndex();
+    const QModelIndex hover = d->hover;
     const bool focus = (hasFocus() || d->viewport->hasFocus()) && current.isValid();
     const bool reverse = isRightToLeft();
     const QStyle::State state = opt.state;
@@ -705,6 +706,10 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             opt.state |= QStyle::State_Selected;
         if (focus && current == modelIndex)
             opt.state |= QStyle::State_HasFocus;
+        if (modelIndex == hover)
+            opt.state |= QStyle::State_MouseOver;
+        else
+            opt.state &= ~QStyle::State_MouseOver;
         QPalette::ColorGroup cg;
         if ((model()->flags(index) & Qt::ItemIsEnabled) == 0) {
             opt.state &= ~QStyle::State_Enabled;

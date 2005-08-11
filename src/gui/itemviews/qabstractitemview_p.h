@@ -156,6 +156,7 @@ public:
     QAbstractItemView::EditTriggers editTriggers;
 
     QPersistentModelIndex root;
+    QPersistentModelIndex hover;
     int horizontalStepsPerItem;
     int verticalStepsPerItem;
 

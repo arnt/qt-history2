@@ -399,6 +399,7 @@ void QTableView::paintEvent(QPaintEvent *e)
     const QHeaderView *verticalHeader = d->verticalHeader;
     const QHeaderView *horizontalHeader = d->horizontalHeader;
     const QModelIndex current = currentIndex();
+    const QModelIndex hover = d->hover;
     const bool focus = (hasFocus() || d->viewport->hasFocus()) && current.isValid();
     const QStyle::State state = option.state;
     const bool alternate = d->alternatingColors;
@@ -464,6 +465,10 @@ void QTableView::paintEvent(QPaintEvent *e)
                     option.state = state;
                     if (sels && sels->isSelected(index))
                         option.state |= QStyle::State_Selected;
+                    if (index == hover)
+                        option.state |= QStyle::State_MouseOver;
+                    else
+                        option.state &= ~QStyle::State_MouseOver;
                     QPalette::ColorGroup cg;
                     if ((model()->flags(index) & Qt::ItemIsEnabled) == 0) {
                         option.state &= ~QStyle::State_Enabled;

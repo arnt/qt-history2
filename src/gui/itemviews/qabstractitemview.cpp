@@ -851,6 +851,22 @@ bool QAbstractItemView::viewportEvent(QEvent *event)
 {
     Q_D(QAbstractItemView);
     switch (event->type()) {
+    case QEvent::HoverEnter: {
+        QHoverEvent *he = static_cast<QHoverEvent*>(event);
+        d->hover = indexAt(he->pos());
+        d->viewport->update(visualRect(d->hover));
+        break; }
+    case QEvent::HoverLeave: {
+        d->viewport->update(visualRect(d->hover)); // update old
+        d->hover = QModelIndex();
+        break; }
+    case QEvent::HoverMove: {
+        QHoverEvent *he = static_cast<QHoverEvent*>(event);
+        QModelIndex old = d->hover;
+        d->hover = indexAt(he->pos());
+        if (d->hover != old)
+            d->viewport->update(visualRect(old)|visualRect(d->hover));
+        break; }
 #ifndef QT_NO_TOOLTIP
     case QEvent::ToolTip: {
         if (!isActiveWindow())

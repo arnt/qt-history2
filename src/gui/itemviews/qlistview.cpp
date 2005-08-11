@@ -924,6 +924,7 @@ void QListView::paintEvent(QPaintEvent *e)
 
     const QPoint offset = d->scrollDelayOffset;
     const QModelIndex current = currentIndex();
+    const QModelIndex hover = d->hover;
     const QAbstractItemDelegate *delegate = itemDelegate();
     const QItemSelectionModel *selections = selectionModel();
     const bool focus = (hasFocus() || d->viewport->hasFocus()) && current.isValid();
@@ -948,6 +949,11 @@ void QListView::paintEvent(QPaintEvent *e)
             if (this->state() == EditingState)
                 option.state |= QStyle::State_Editing;
         }
+        if (*it == hover)
+            option.state |= QStyle::State_MouseOver;
+        else
+            option.state &= ~QStyle::State_MouseOver;
+        
         if (alternate) {
             option.palette.setBrush(QPalette::Base, (*it).row() & 1 ? baseBrush : alternateBrush);
             painter.fillRect(option.rect, (*it).row() & 1 ? baseBrush : alternateBrush);
