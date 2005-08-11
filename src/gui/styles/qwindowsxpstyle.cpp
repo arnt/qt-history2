@@ -2584,8 +2584,9 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 }
             }
             if (sub & SC_ToolButtonMenu) {
-                theme.rect = subControlRect(CC_ToolButton, option, SC_ToolButtonMenu, widget);
-                drawPrimitive(PE_IndicatorButtonDropDown, option, p, widget);
+                QStyleOptionToolButton menuOption = *toolbutton;
+                menuOption.rect = subControlRect(CC_ToolButton, option, SC_ToolButtonMenu, widget);
+                drawPrimitive(PE_IndicatorButtonDropDown, &menuOption, p, widget);
             }
 
             QStyleOptionToolButton label = *toolbutton;
