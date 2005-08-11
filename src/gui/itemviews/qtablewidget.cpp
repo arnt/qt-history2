@@ -1747,7 +1747,7 @@ QList<QTableWidgetSelectionRange> QTableWidget::selectedRanges() const
 QList<QTableWidgetItem*> QTableWidget::selectedItems()
 {
     Q_D(QTableWidget);
-    QModelIndexList indexes = selectedIndexes();
+    QModelIndexList indexes = selectionModel()->selectedIndexes();
     QList<QTableWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i) {
         QModelIndex index = indexes.at(i);

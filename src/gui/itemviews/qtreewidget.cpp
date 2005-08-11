@@ -2111,7 +2111,7 @@ void QTreeWidget::setItemSelected(const QTreeWidgetItem *item, bool select)
 QList<QTreeWidgetItem*> QTreeWidget::selectedItems() const
 {
     Q_D(const QTreeWidget);
-    QModelIndexList indexes = selectedIndexes();
+    QModelIndexList indexes = selectionModel()->selectedIndexes();
     QList<QTreeWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i) {
         QTreeWidgetItem *item = d->model()->item(indexes.at(i));

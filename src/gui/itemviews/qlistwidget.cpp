@@ -1289,7 +1289,7 @@ void QListWidget::setItemSelected(const QListWidgetItem *item, bool select)
 QList<QListWidgetItem*> QListWidget::selectedItems() const
 {
     Q_D(const QListWidget);
-    QModelIndexList indexes = selectedIndexes();
+    QModelIndexList indexes = selectionModel()->selectedIndexes();
     QList<QListWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i)
         items.append(d->model()->at(indexes.at(i).row()));
