@@ -70,19 +70,41 @@ protected:
 };
 
 inline const QTreeWidgetItemIterator QTreeWidgetItemIterator::operator++(int)
-{ QTreeWidgetItemIterator it = *this; ++(*this); return it; }
+{
+    QTreeWidgetItemIterator it = *this;
+    ++(*this);
+    return it;
+}
 
 inline const QTreeWidgetItemIterator QTreeWidgetItemIterator::operator--(int)
-{ QTreeWidgetItemIterator it = *this; --(*this); return it;
+{
+    QTreeWidgetItemIterator it = *this;
+    --(*this);
+    return it;
+}
+
+inline QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator+=(int n)
+{
+    if (n < 0)
+        return (*this) -= (-n);
+    while (current && n++)
+        ++(*this);
+    return *this;
 }
 
 inline QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator-=(int n)
 {
-    return (*this)+=(-n);
+    if (n < 0)
+        return (*this) += (-n);
+    while (current && n--)
+        --(*this);
+    return *this;
 }
 
 inline QTreeWidgetItem *QTreeWidgetItemIterator::operator*() const
-{ return current; }
+{
+    return current;
+}
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QTreeWidgetItemIterator::IteratorFlags)
 

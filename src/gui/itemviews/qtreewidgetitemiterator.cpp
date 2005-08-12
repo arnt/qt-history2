@@ -136,20 +136,6 @@ QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator--()
     return *this;
 }
 
-QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator+=(int n)
-{ 
-    while (current && n) {
-        if (n > 0) {
-            ++(*this);
-            n--;
-        } else {
-            n++;
-            --(*this);
-        }
-    }
-    return *this;
-}
-
 /*!
   \internal
 */
