@@ -119,7 +119,6 @@ QFontEngineMac::recalcAdvances(int numGlyphs, QGlyphLayout *glyphs,
             glyphs[i].advance.rx() = advances[i];
             glyphs[i].advance.ry() = 0;
         }
-        free(advances);
     } else { //fall back to something (widths)
         for (int i = 0; i < numGlyphs; ++i) {
             bool surrogate = false;
@@ -406,6 +405,17 @@ qreal QFontEngineMac::maxCharWidth() const
     }
     return st->maxWidth;
 }
+
+static float *advances_buffer = 0;
+static int advances_buffer_len = 0;
+static void cleanupAdvancesBuffer() {
+    if(advances_buffer) {
+        free(advances_buffer);
+        advances_buffer = 0;
+    }
+    advances_buffer_len = 0;
+}
+
 #define DoubleToFixed(x) int(x * (1 << 16))
 int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar task,
                                qreal x, qreal y, QPaintEngine *p, void **data) const
@@ -625,6 +635,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         if(use_len == 1 && s->unicode() < widthCacheSize && ret < 0x100)
             widthCache[s->unicode()] = ret ? ret : -777; //mark so that 0 is cached..
     }
+#if 1
     if(task & ADVANCES) {
         Q_ASSERT(data);
         ATSUGlyphInfoArray info[use_len];
@@ -633,16 +644,24 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         if(err == noErr) {
             //sanity
             Q_ASSERT(info[0].numGlyphs == (uint)use_len);
-            float *advances = (float*)malloc(sizeof(float)*use_len);
+            if(!advances_buffer || use_len > advances_buffer_len) {
+                advances_buffer_len = use_len;
+                if(!advances_buffer) {
+                    qAddPostRoutine(cleanupAdvancesBuffer);
+                    advances_buffer = (float*)malloc(sizeof(float)*use_len);
+                } else {
+                    advances_buffer = (float*)realloc(advances_buffer, sizeof(float)*use_len);
+                }
+            }
 
             //calculate the positions
             int last = 0;
             for(int i = 0; i < use_len-1; ++i) {
-                advances[i] = info[0].glyphs[i+1].screenX - last;
+                advances_buffer[i] = info[0].glyphs[i+1].screenX - last;
 #ifdef DEBUG_ADVANCES
                 qDebug("%d [%d]) %d(%d)::%f::%d::%d -- %f", i, (s+pos+i)->latin1(), info[0].glyphs[i+1].screenX, last,
                        info[0].glyphs[i+1].idealX, (int)info[0].glyphs[i+1].charIndex,
-                       (int)info[0].glyphs[i+1].layoutFlags, advances[i]);
+                       (int)info[0].glyphs[i+1].layoutFlags, advances_buffer[i]);
 #endif
                 last = info[0].glyphs[i+1].screenX;
             }
@@ -656,18 +675,19 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 #ifdef DEBUG_ADVANCES
             qDebug("Last %d) %f-%f == %f", use_len-1, FixedToFloat(right), FixedToFloat(left), FixedToFloat(right-left));
 #endif
-            advances[use_len-1] = FixedToFloat(right-left);
+            advances_buffer[use_len-1] = FixedToFloat(right-left);
 
             //finally make sure surrogates are in Qt order..
             for(int i = 0; i < use_len-1; ++i) {
-                if(!advances[i]) {
-                    advances[i] = advances[i+1];
-                    advances[++i] = 0;
+                if(!advances_buffer[i]) {
+                    advances_buffer[i] = advances_buffer[i+1];
+                    advances_buffer[++i] = 0;
                 }
             }
-            (*data) = advances;
+            (*data) = advances_buffer;
         }
     }
+#endif
     if(task & DRAW) {
         bool transform = false;
         CGAffineTransform oldMatrix = CGContextGetCTM(ctx), newMatrix;
