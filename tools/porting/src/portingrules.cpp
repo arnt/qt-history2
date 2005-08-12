@@ -15,12 +15,8 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
-#include <iostream>
 #include "logger.h"
 #include "qtsimplexml.h"
-using std::cout;
-using std::endl;
-
 PortingRules *PortingRules::theInstance  = 0;
 
 void PortingRules::createInstance(QString xmlFilePath)
@@ -34,8 +30,7 @@ PortingRules *PortingRules::instance()
     if(theInstance) {
         return theInstance;
     } else {
-        cout << "Error: must create a PortingRules instance with"
-             << "createInstance() before calling instance()" << endl;
+        qWarning("Error: must create a PortingRules instance with createInstance() before calling instance()\n");
         return 0;
     }
 }

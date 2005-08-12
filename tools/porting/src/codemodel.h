@@ -14,7 +14,6 @@
 #ifndef CODEMODEL_H
 #define CODEMODEL_H
 
-#include <iostream>
 #include <QByteArray>
 #include <QList>
 #include <QMap>

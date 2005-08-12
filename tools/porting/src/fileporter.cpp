@@ -10,7 +10,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include <iostream>
 #include <QFile>
 #include <QDir>
 #include <QFileInfo>
@@ -24,8 +23,6 @@
 
 using namespace TokenEngine;
 using namespace Rpp;
-using std::cout;
-using std::endl;
 
 FilePorter::FilePorter(PreprocessorCache &preprocessorCache)
 :preprocessorCache(preprocessorCache)

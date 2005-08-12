@@ -14,7 +14,6 @@
 #ifndef RPP_H
 #define RPP_H
 
-#include <iostream>
 #include <cctype>
 #include <QHash>
 #include <QStringList>
@@ -27,8 +26,6 @@
 #include "tokens.h"
 #include "smallobject.h"
 
-using std::cout;
-using std::endl;
 namespace Rpp
 {
 

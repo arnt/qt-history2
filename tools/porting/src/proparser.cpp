@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "proparser.h"
-#include <iostream>
 
 #include <qdir.h>
 #include <qfile.h>
@@ -20,8 +19,6 @@
 #include <qregexp.h>
 #include <qstringlist.h>
 #include <qtextstream.h>
-
-using namespace std;
 
 #ifdef Q_OS_UNIX
 #include <unistd.h>

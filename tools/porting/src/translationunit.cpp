@@ -11,9 +11,7 @@
 **
 ****************************************************************************/
 #include "translationunit.h"
-#include <iostream>
 
-using namespace std;
 using namespace TokenEngine;
 using namespace CodeModel;
 using namespace TokenStreamAdapter;

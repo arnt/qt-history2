@@ -368,7 +368,7 @@ Rpp::DefineMap *defaultMacros(PreprocessorCache &cache)
 void StandardOutErrorHandler::error(QString type, QString text)
 {
     Q_UNUSED(type);
-    cout << qPrintable(text) << endl;
+    puts(qPrintable(text));
 }
 
 /*

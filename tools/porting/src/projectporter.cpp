@@ -82,7 +82,7 @@ void ProjectPorter::portFile(QString fileName)
 void ProjectPorter::error(QString type, QString text)
 {
    if (warnings && type == "Error")
-        cout << "Warning: " << text.toLocal8Bit().constData() << endl;
+        printf("Warning: %s\n", text.toLocal8Bit().constData());
 }
 
 void ProjectPorter::portProject(QString basePath, QString proFileName)
@@ -90,7 +90,7 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
     QString fullInFileName = basePath + "/" + proFileName;
     QFileInfo infileInfo(fullInFileName);
     if (!infileInfo.exists()) {
-        cout << "Could not open file: " << QDir::convertSeparators(fullInFileName).toLocal8Bit().constData() << endl;
+        printf("Could not open file: %s\n", QDir::convertSeparators(fullInFileName).toLocal8Bit().constData());
         return;
     }
 
@@ -125,7 +125,7 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
     }
 
     if (analyze) {
-        cout << "Parsing";
+        printf("Parsing");
         // Get include paths from the pro file.
         QStringList includeProPaths = proFileMap["INCLUDEPATH"].split(" ", QString::SkipEmptyParts);
         QStringList dependProPaths = proFileMap["DEPENDPATH"].split(" ", QString::SkipEmptyParts);
@@ -147,7 +147,8 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
 
         // Analyze each translation unit. (one per cpp file)
         foreach(QString sourceFile, sources) {
-            cout << "." << std::flush;
+            printf(".");
+            fflush(stdout);
             Rpp::DefineMap definitionsCopy = *defaultDefinitions;
             TokenSectionSequence translationUnit =
                 preprocessorController.evaluate(sourceFile, &definitionsCopy);
@@ -159,7 +160,7 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
 
             codeModelAttributes.createAttributes(translationUnitData);
         }
-        cout << endl;
+        puts("");
     }
 
 
@@ -191,8 +192,7 @@ void ProjectPorter::portFiles(QString basePath, QStringList fileNames)
 
         QFileInfo fullFilePathInfo(fullFilePath);
         if (!fullFilePathInfo.exists()) {
-            cout << "Could not find file:" <<
-                QDir::convertSeparators(fullFilePath).toLocal8Bit().constData() <<endl;
+            printf("Could not find file: %s\n", QDir::convertSeparators(fullFilePath).toLocal8Bit().constData());
             continue;
         }
 

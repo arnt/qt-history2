@@ -13,10 +13,8 @@
 ****************************************************************************/
 #include "rpp.h"
 
-#include <iostream>
 #include "rppexpressionbuilder.h"
 
-using namespace std;
 using namespace TokenEngine;
 
 namespace Rpp

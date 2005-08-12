@@ -13,7 +13,6 @@
 #ifndef TOKENENGINE_H
 #define TOKENENGINE_H
 
-#include <iostream>
 #include <QByteArray>
 #include <QVector>
 #include <QString>

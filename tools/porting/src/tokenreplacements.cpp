@@ -14,9 +14,7 @@
 #include "tokenreplacements.h"
 #include "logger.h"
 #include "portingrules.h"
-#include <iostream>
 using namespace TokenEngine;
-using namespace std;
 
 void addLogSourceEntry(const QString &text, const TokenContainer &tokenContainer, const int index)
 {

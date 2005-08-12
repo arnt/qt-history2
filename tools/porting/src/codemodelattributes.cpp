@@ -12,10 +12,8 @@
 ****************************************************************************/
 
 #include "codemodelattributes.h"
-#include <iostream>
 #include "tokenengine.h"
 
-using namespace std;
 using namespace CodeModel;
 using namespace TokenEngine;
 

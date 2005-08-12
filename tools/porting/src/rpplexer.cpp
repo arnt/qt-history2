@@ -12,11 +12,8 @@
 **
 ****************************************************************************/
 #include "rpplexer.h"
-#include <iostream>
-#include <locale>
 #include <QChar>
 
-using namespace std;
 using namespace TokenEngine;
 
 namespace Rpp {

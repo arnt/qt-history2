@@ -12,8 +12,6 @@
 ****************************************************************************/
 
 #include "textreplacement.h"
-#include <iostream>
-using namespace std;
 
 bool TextReplacements::insert(QByteArray newText, int insertPosition, int currentLenght)
 {

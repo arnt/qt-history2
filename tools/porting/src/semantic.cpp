@@ -19,10 +19,10 @@
 #include "smallobject.h"
 #include "tokenengine.h"
 
+
 using namespace TokenStreamAdapter;
 using namespace TokenEngine;
 using namespace CodeModel;
-using namespace std;
 
 Semantic::Semantic(CodeModel::NamespaceScope *globalScope,
                    TokenStreamAdapter::TokenStream *tokenStream,

@@ -15,12 +15,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
-#include <iostream>
-
-using std::cout;
-using std::cin;
-using std::endl;
-
 
 FileWriter *FileWriter::theInstance  = 0;
 
@@ -53,8 +47,7 @@ FileWriter::WriteResult FileWriter::writeFileVerbously(QString filePath, QByteAr
     const WriteResult result = writeFile(filePath, contents);
     if (result == WriteSucceeded) {
         QString cleanPath = QDir::cleanPath(filePath);
-        cout << "Wrote to file: ";
-        cout << QDir::convertSeparators(cleanPath).toLocal8Bit().constData() << endl;
+        printf("Wrote to file: %s \n", QDir::convertSeparators(cleanPath).toLocal8Bit().constData());
     }
     return result;
 }
@@ -65,26 +58,23 @@ FileWriter::WriteResult FileWriter::writeFile(QString filePath, QByteArray conte
         return WriteFailed;
     QString path = QFileInfo(filePath).path();
     if (!QDir().mkpath(path)){
-         cout << "Error creating path " <<
-         cout << QDir::convertSeparators(path).toLocal8Bit().constData() << endl;
+         printf("Error creating path %s \n", QDir::convertSeparators(path).toLocal8Bit().constData());
     }
 
     QString cleanPath = QDir::cleanPath(filePath);
     QFile f(cleanPath);
     if (f.exists()) {
         if (overWriteFiles == DontOverWrite) {
-            cout << "Error writing file ";
-            cout << QDir::convertSeparators(cleanPath).toLatin1().constData();
-            cout << " It already exists" <<endl;
+            printf("Error writing file %s: It already exists \n",
+                QDir::convertSeparators(cleanPath).toLatin1().constData());
             return WriteFailed;
         } else if(overWriteFiles == AskOnOverWrite) {
-            cout << overwriteMessage.toLatin1().constData();
-            cout << QDir::convertSeparators(cleanPath).toLatin1().constData();
-            cout << "? (Y)es, (N)o, (A)ll ";
-
+            printf("%s%s? (Y)es, (N)o, (A)ll ", overwriteMessage.toLatin1().constData(),
+                QDir::convertSeparators(cleanPath).toLatin1().constData());
+            
             char answer = 0;
             while (answer != 'y' && answer != 'n' && answer != 'a') {
-                cin >> answer;
+                scanf("%c", &answer);
                 answer = tolower(answer);
             }
 
@@ -99,9 +89,9 @@ FileWriter::WriteResult FileWriter::writeFile(QString filePath, QByteArray conte
     if (f.isOpen() && f.write(contents) == contents.size())
         return WriteSucceeded;
 
-    cout << "Could not write to to file: ";
-    cout << QDir::convertSeparators(filePath).toLatin1().constData();
-    cout << ". Is it write protected?" << endl;
+    printf("Could not write to to file: %s. Is it write protected?\n",
+        QDir::convertSeparators(filePath).toLatin1().constData());
+
     return WriteFailed;
 }
 
