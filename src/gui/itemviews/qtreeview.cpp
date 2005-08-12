@@ -831,7 +831,9 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *e)
             return; // user clicked outside the items
 
         // signal handlers may change the model
-        QPersistentModelIndex persistent = d->viewItems.at(i).index;
+        QModelIndex index = d->viewItems.at(i).index;
+        int column = d->header->logicalIndexAt(e->x());
+        QPersistentModelIndex persistent = index.sibling(index.row(), column);
         emit doubleClicked(persistent);
 
         if (edit(persistent, DoubleClicked, e) || state() != NoState)
