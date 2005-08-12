@@ -138,7 +138,7 @@ QAbstractItemModel *QMappingProxyModel::model() const
 }
 
 /*!
-    \reimpl
+    \reimp
 */
 QModelIndex QMappingProxyModel::index(int row, int column, const QModelIndex &parent) const
 {
@@ -160,7 +160,7 @@ QModelIndex QMappingProxyModel::index(int row, int column, const QModelIndex &pa
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 QModelIndex QMappingProxyModel::parent(const QModelIndex &child) const
 {
@@ -179,7 +179,7 @@ QModelIndex QMappingProxyModel::parent(const QModelIndex &child) const
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 int QMappingProxyModel::rowCount(const QModelIndex &parent) const
 {
@@ -190,7 +190,7 @@ int QMappingProxyModel::rowCount(const QModelIndex &parent) const
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 int QMappingProxyModel::columnCount(const QModelIndex &parent) const
 {
@@ -201,7 +201,7 @@ int QMappingProxyModel::columnCount(const QModelIndex &parent) const
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 bool QMappingProxyModel::hasChildren(const QModelIndex &parent) const
 {
@@ -212,7 +212,7 @@ bool QMappingProxyModel::hasChildren(const QModelIndex &parent) const
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 QVariant QMappingProxyModel::data(const QModelIndex &index, int role) const
 {
@@ -225,7 +225,7 @@ QVariant QMappingProxyModel::data(const QModelIndex &index, int role) const
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 bool QMappingProxyModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
@@ -237,7 +237,7 @@ bool QMappingProxyModel::setData(const QModelIndex &index, const QVariant &value
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 QMimeData *QMappingProxyModel::mimeData(const QModelIndexList &indexes) const
 {
@@ -248,7 +248,7 @@ QMimeData *QMappingProxyModel::mimeData(const QModelIndexList &indexes) const
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 bool QMappingProxyModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
                                       int row, int column, const QModelIndex &parent)
@@ -260,7 +260,7 @@ bool QMappingProxyModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 bool QMappingProxyModel::insertRows(int row, int count, const QModelIndex &parent)
 {
@@ -278,7 +278,7 @@ bool QMappingProxyModel::insertRows(int row, int count, const QModelIndex &paren
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 bool QMappingProxyModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
@@ -296,7 +296,7 @@ bool QMappingProxyModel::insertColumns(int column, int count, const QModelIndex 
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 bool QMappingProxyModel::removeRows(int row, int count, const QModelIndex &parent)
 {
@@ -306,7 +306,7 @@ bool QMappingProxyModel::removeRows(int row, int count, const QModelIndex &paren
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 bool QMappingProxyModel::removeColumns(int column, int count, const QModelIndex &parent)
 {
@@ -316,7 +316,7 @@ bool QMappingProxyModel::removeColumns(int column, int count, const QModelIndex 
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 void QMappingProxyModel::fetchMore(const QModelIndex &parent)
 {
@@ -327,7 +327,7 @@ void QMappingProxyModel::fetchMore(const QModelIndex &parent)
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 bool QMappingProxyModel::canFetchMore(const QModelIndex &parent) const
 {
@@ -338,7 +338,7 @@ bool QMappingProxyModel::canFetchMore(const QModelIndex &parent) const
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 Qt::ItemFlags QMappingProxyModel::flags(const QModelIndex &index) const
 {
@@ -349,7 +349,7 @@ Qt::ItemFlags QMappingProxyModel::flags(const QModelIndex &index) const
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 QModelIndex QMappingProxyModel::buddy(const QModelIndex &index) const
 {
@@ -362,7 +362,7 @@ QModelIndex QMappingProxyModel::buddy(const QModelIndex &index) const
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 QModelIndexList QMappingProxyModel::match(const QModelIndex &start, int role,
                                           const QVariant &value, int hits,
@@ -376,7 +376,7 @@ QModelIndexList QMappingProxyModel::match(const QModelIndex &start, int role,
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 QSize QMappingProxyModel::span(const QModelIndex &index) const
 {

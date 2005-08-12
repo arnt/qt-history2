@@ -139,7 +139,7 @@
 */
 
 /*!
-    \fn void QHeaderView::sectionAutoResize(int logicalIndex, ResizeMode mode)
+    \fn void QHeaderView::sectionAutoResize(int logicalIndex, QHeaderView::ResizeMode mode)
 
     This signal is emitted when a section is automatically resized.
     The section's logical index is specified by \a logicalIndex, and the

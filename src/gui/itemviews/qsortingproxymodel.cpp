@@ -54,7 +54,7 @@ QSortingProxyModel::~QSortingProxyModel()
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 void QSortingProxyModel::sort(int column, Qt::SortOrder order)
 {

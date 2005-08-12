@@ -928,7 +928,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, int type)
 }
 
 /*!
-  \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *parent, const QStringList &texts, int type)
+  \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *parent, const QStringList &strings, int type)
 
   Constructs a tree widget item of the specified \a type and appends it
   to the items in the given \a parent. The given list of \a strings will be set as
