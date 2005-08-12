@@ -106,9 +106,11 @@ void QAbstractScrollAreaPrivate::init()
     q->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     q->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     hbar = new QScrollBar(Qt::Horizontal, q);
+    hbar->setVisible(false);
     QObject::connect(hbar, SIGNAL(valueChanged(int)), q, SLOT(hslide(int)));
     QObject::connect(hbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), Qt::QueuedConnection);
     vbar = new QScrollBar(Qt::Vertical, q);
+    vbar->setVisible(false);
     QObject::connect(vbar, SIGNAL(valueChanged(int)), q, SLOT(vslide(int)));
     QObject::connect(vbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), Qt::QueuedConnection);
     viewport = new QAbstractScrollAreaHelper(q);
