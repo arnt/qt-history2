@@ -140,7 +140,8 @@ void QMenuBarPrivate::popupAction(QAction *action, bool activateFirst)
     if (action->isEnabled() && action->menu()->isEnabled()) {
         closePopupMode = 0;
         activeMenu = action->menu();
-        activeMenu->d_func()->causedPopup = q;
+        activeMenu->d_func()->causedPopup.widget = q;
+        activeMenu->d_func()->causedPopup.action = action;
 
         QRect adjustedActionRect = actionRect(action);
         QPoint pos(q->mapToGlobal(QPoint(adjustedActionRect.left(), adjustedActionRect.bottom() + 1)));

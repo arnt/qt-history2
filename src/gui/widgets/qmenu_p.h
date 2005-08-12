@@ -108,7 +108,11 @@ public:
     bool mouseEventTaken(QMouseEvent *);
 
     //used to walk up the popup list
-    QPointer<QWidget> causedPopup;
+    struct QMenuCaused {
+        QPointer<QWidget> widget;
+        QPointer<QAction> action;
+    };
+    QMenuCaused causedPopup;
     void hideUpToMenuBar();
 
     //index mappings
