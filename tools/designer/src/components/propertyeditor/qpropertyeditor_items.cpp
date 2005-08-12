@@ -665,6 +665,9 @@ void MapProperty::setValue(const QVariant &value)
    if (qVariantCanConvert<EnumType>(value)) {
         EnumType e = qvariant_cast<EnumType>(value);
         m_value = e.value;
+    } else if (qVariantCanConvert<FlagType>(value)) {
+        FlagType e = qvariant_cast<FlagType>(value);
+        m_value = e.value;
     } else {
         m_value = value;
     }
