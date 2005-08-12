@@ -66,7 +66,7 @@ QVariant FlagBoxModel::data(const QModelIndex &index, int role) const
         return item.name();
 
     case Qt::CheckStateRole:
-        return item.isChecked();
+        return item.isChecked() ? Qt::Checked : Qt::Unchecked;
 
     default:
         return QVariant();
@@ -86,7 +86,8 @@ bool FlagBoxModel::setData(const QModelIndex &index, const QVariant &value, int 
     } return true;
 
     case Qt::CheckStateRole: {
-        item.setChecked(value.toBool());
+        Qt::CheckState state = static_cast<Qt::CheckState>(value.toInt());
+        item.setChecked(state == Qt::Unchecked ? false : true);
         emit dataChanged(index, index);
     } return true;
 
