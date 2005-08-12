@@ -80,7 +80,7 @@ bool QFontDef::exactMatch(const QFontDef &other) const
     QString this_family, this_foundry, other_family, other_foundry;
     QFontDatabase::parseFontName(family, this_foundry, this_family);
     QFontDatabase::parseFontName(other.family, other_foundry, other_family);
-    
+
     return (styleHint     == other.styleHint
             && styleStrategy == other.styleStrategy
             && weight        == other.weight
@@ -101,7 +101,7 @@ extern HDC shared_dc;
 
 extern bool qt_is_gui_used;
 
-int qt_defaultDpi()
+Q_GUI_EXPORT int qt_defaultDpi()
 {
     if (!qt_is_gui_used)
         return 75;
