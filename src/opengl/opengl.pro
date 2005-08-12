@@ -14,20 +14,27 @@ contains(QT_CONFIG, opengl):CONFIG += opengl
 
 HEADERS += qgl.h \
 	   qglcolormap.h \
-	   qpaintengine_opengl_p.h
+	   qpaintengine_opengl_p.h \
+	   qglpbuffer.h
 SOURCES	+= qgl.cpp \
 	   qglcolormap.cpp \
-	   qpaintengine_opengl.cpp
+	   qpaintengine_opengl.cpp \
+	   qglpbuffer.cpp
 x11 {
-    SOURCES += qgl_x11.cpp
+    SOURCES += qgl_x11.cpp \
+	       qglpbuffer_x11.cpp
     contains(QT_CONFIG, fontconfig):INCLUDEPATH += $$FREETYPE2_INCDIR
 }
 
 mac {
-    SOURCES += qgl_mac.cpp
+    SOURCES += qgl_mac.cpp \
+	       qglpbuffer_mac.cpp
     LIBS += -framework Carbon
 }
-win32:SOURCES += qgl_win.cpp
+win32 {
+    SOURCES += qgl_win.cpp \
+	       qglpbuffer_win.cpp
+}
 
 QMAKE_LIBS += $$QMAKE_LIBS_OPENGL
 

@@ -1280,7 +1280,8 @@ public:
         Pixmap = 0x02,
         Image = 0x03,
         Printer = 0x04,
-        Picture = 0x05
+        Picture = 0x05,
+        Pbuffer = 0x06
     };
     enum RelayoutType {
         RelayoutNormal,

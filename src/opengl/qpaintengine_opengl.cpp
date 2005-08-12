@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <qdebug.h>
 #include <private/qpaintengine_p.h>
 #include "qapplication.h"
 #include "qbrush.h"
@@ -21,7 +22,7 @@
 #include "qpen.h"
 #include "qvarlengtharray.h"
 #include <private/qpainter_p.h>
-#include <qdebug.h>
+#include "qglpbuffer.h"
 
 #ifdef Q_OS_MAC
 # include <OpenGL/glu.h>
@@ -49,7 +50,7 @@
 
 class QGLDrawable {
 public:
-    QGLDrawable() : widget(0) {}
+    QGLDrawable() : widget(0), buffer(0) {}
     inline void setDevice(QPaintDevice *pdev);
     inline void setAutoBufferSwap(bool);
     inline bool autoBufferSwap() const;
@@ -63,56 +64,79 @@ public:
 
 private:
     QGLWidget *widget;
+    QGLPbuffer *buffer;
 };
 
 void QGLDrawable::setDevice(QPaintDevice *pdev)
 {
-    widget = static_cast<QGLWidget *>(pdev);
+    if (pdev->devType() == QInternal::Widget)
+        widget = static_cast<QGLWidget *>(pdev);
+    else if (pdev->devType() == QInternal::Pbuffer)
+        buffer = static_cast<QGLPbuffer *>(pdev);
 }
 
 inline void QGLDrawable::setAutoBufferSwap(bool enable)
 {
-    widget->setAutoBufferSwap(enable);
+    if (widget)
+        widget->setAutoBufferSwap(enable);
 }
 
 inline bool QGLDrawable::autoBufferSwap() const
 {
-    return widget->autoBufferSwap();
+    return widget && widget->autoBufferSwap();
 }
 
 inline void QGLDrawable::swapBuffers()
 {
-    widget->swapBuffers();
+    if (widget)
+        widget->swapBuffers();
 }
 
 inline void QGLDrawable::makeCurrent()
 {
-    widget->makeCurrent();
+    if (widget)
+        widget->makeCurrent();
+    else if (buffer)
+        buffer->makeCurrent();
 }
 
 inline QSize QGLDrawable::size() const
 {
-    return widget->size();
+    if (widget)
+        return widget->size();
+    else if (buffer)
+        return buffer->size();
+    return QSize();
 }
 
 inline QGLFormat QGLDrawable::format() const
 {
-    return widget->format();
+    if (widget)
+        return widget->format();
+    else if (buffer)
+        return buffer->format();
+    return QGLFormat();
 }
 
 inline GLuint QGLDrawable::bindTexture(const QImage &image, GLenum target, GLint format)
 {
-    return widget->bindTexture(image, target, format);
+    if (widget)
+        return widget->bindTexture(image, target, format);
+    return 0;
 }
 
 inline GLuint QGLDrawable::bindTexture(const QPixmap &pixmap, GLenum target, GLint format)
 {
-    return widget->bindTexture(pixmap, target, format);
+    if (widget)
+        return widget->bindTexture(pixmap, target, format);
+    return 0;
 }
 
 inline QColor QGLDrawable::backgroundColor() const
 {
-   return widget->palette().brush(QPalette::Background).color();
+    if (widget)
+        return widget->palette().brush(QPalette::Background).color();
+    return QColor();
 }
 
 
@@ -171,7 +195,6 @@ QOpenGLPaintEngine::~QOpenGLPaintEngine()
 bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 {
     Q_D(QOpenGLPaintEngine);
-    Q_ASSERT(static_cast<const QGLWidget *>(pdev));
     d->drawable.setDevice(pdev);
     d->has_clipping = false;
     d->has_autoswap = d->drawable.autoBufferSwap();
