@@ -67,9 +67,9 @@ enum POSITION {
 static inline void validateToolBarArea(Qt::ToolBarArea &area)
 {
     switch (area) {
-    case Qt::LeftToolBarArea:   
-    case Qt::RightToolBarArea:  
-    case Qt::TopToolBarArea:    
+    case Qt::LeftToolBarArea:
+    case Qt::RightToolBarArea:
+    case Qt::TopToolBarArea:
     case Qt::BottomToolBarArea:
         break;
     default:
@@ -80,9 +80,9 @@ static inline void validateToolBarArea(Qt::ToolBarArea &area)
 static inline void validateDockWidgetArea(Qt::DockWidgetArea &area)
 {
     switch (area) {
-    case Qt::LeftDockWidgetArea: 
+    case Qt::LeftDockWidgetArea:
     case Qt::RightDockWidgetArea:
-    case Qt::TopDockWidgetArea:  
+    case Qt::TopDockWidgetArea:
     case Qt::BottomDockWidgetArea:
         break;
     default:
@@ -1094,12 +1094,11 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
                 Q_ASSERT_X(prevIndex != -1, "QMainWindowLayout", "internal error");
 
                 ToolBarLayoutInfo &prev = lineInfo.list[prevIndex];
-		QSize min_size = get_item_sh(info.item->widget()->layout());
-		set_perp(where, min_size, pick_perp(where, min_size) + tb_fill);
+		QSize min_size = info.item->widget()->minimumSize();
                 const int cur_pt = info.size.isEmpty()
                                    ? (pick_perp(where, prev.pos) + pick_perp(where, get_real_sh(prev.item->widget()->layout())))
                                    : pick_perp(where, prev.pos) + pick_perp(where, prev.size);
- 		const int prev_min = pick_perp(where, get_item_sh(prev.item->widget()->layout())) + tb_fill;
+ 		const int prev_min = pick_perp(where, prev.item->widget()->minimumSize());
                 const int snap_dist = 12;
 
                 info.pos = tb_rect[line].topLeft();

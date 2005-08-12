@@ -836,15 +836,16 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 	--i;
     }
 
+    int box_spacing = (d->items.size() > 1) ? box->spacing()*2 : box->spacing();
     if (orientation == Qt::Horizontal) {
-        setMinimumSize(d->handle->sizeHint().width() + box->spacing()*2 + extension_size + margin*2
+        setMinimumSize(d->handle->sizeHint().width() + box_spacing + extension_size + margin*2
                        + (d->items.isEmpty()
                           ? d->iconSize.width()
                           : d->items[0].widget->sizeHint().width()),
                        max_item_extent + margin*2);
     } else {
         setMinimumSize(max_item_extent + margin*2,
-                       d->handle->sizeHint().height() + box->spacing()*2 + extension_size
+                       d->handle->sizeHint().height() + box_spacing + extension_size
                        + margin*2 + (d->items.isEmpty()
                                      ? d->iconSize.height()
                                      : d->items[0].widget->sizeHint().height()));
