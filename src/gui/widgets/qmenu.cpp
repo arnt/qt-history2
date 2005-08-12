@@ -308,12 +308,22 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, bool activateFir
     sloppyAction = 0;
     if (!sloppyRegion.isEmpty())
         sloppyRegion = QRegion();
+    QAction *previousAction = currentAction;
     currentAction = action;
     if (action && !action->isSeparator()) {
         activateAction(action, QAction::Hover);
         if (popup != -1)
             popupAction(currentAction, popup, activateFirst);
         q->update(actionRect(action));
+    }  else if (previousAction) {
+        QWidget *w = causedPopup;
+        while (QMenu *m = qobject_cast<QMenu*>(w))
+            w = m->d_func()->causedPopup;
+        if (w) {
+            QString empty;
+            QStatusTipEvent tip(empty);
+            QApplication::sendEvent(w, &tip);
+        }
     }
     if (activeMenu && (!action || !action->menu())) { //otherwise done in popupAction
         QMenu *menu = activeMenu;
