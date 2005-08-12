@@ -87,7 +87,7 @@
 /*!
     \fn void QButtonGroup::buttonClicked(int id)
 
-    This signal is emitted when a button with the given \id is
+    This signal is emitted when a button with the given \a id is
     clicked.
 
     \sa checkedButton(), QAbstractButton::clicked()
