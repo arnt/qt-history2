@@ -29,6 +29,7 @@
 #include <qpair.h>
 
 class QTreeWidgetItem;
+class QTreeWidgetItemIterator;
 
 class QTreeModel : public QAbstractItemModel
 {
