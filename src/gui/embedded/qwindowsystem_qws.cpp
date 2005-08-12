@@ -14,6 +14,7 @@
 #include "qwindowsystem_qws.h"
 #include "qwsevent_qws.h"
 #include "qwscommand_qws.h"
+#include "qtransportauth_qws.h"
 #include "qwsutils_qws.h"
 #include "qwscursor_qws.h"
 #include "qwsdisplay_qws.h"
@@ -37,6 +38,9 @@
 #include "qinputcontext.h"
 #include "qpainter.h"
 
+#ifdef QTRANSPORTAUTH_DEBUG
+#include <qdebug.h>
+#endif
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -869,6 +873,16 @@ void QWSServer::newConnection()
     while (QTcpSocket *sock = ssocket->nextPendingConnection()) {
         int socket = sock->socketDescriptor();
 
+        // Note:  Check the Trusted and Connection assertions against
+        // the doc in QTransportAuth for particular installations
+        QTransportAuth::getInstance()->connectTransport(
+                QTransportAuth::Trusted |
+                QTransportAuth::Connection |
+                QTransportAuth::UnixStreamSock, socket );
+#ifdef QTRANSPORTAUTH_DEBUG
+        qDebug( "Transport auth connected: unix stream socket %d", socket );
+#endif
+
         clientMap[socket] = new QWSClient(this,sock, get_object_id());
         connect(clientMap[socket], SIGNAL(readyRead()),
                 this, SLOT(doClient()));
@@ -1030,6 +1044,18 @@ void QWSServer::doClient()
 void QWSServer::doClient(QWSClient *client)
 {
     QWSCommand* command=client->readMoreCommand();
+
+    if ( QTransportAuth::getInstance()->authFromSocket(
+                QTransportAuth::UnixStreamSock, client->socket() ) ==
+            QTransportAuth::Deny )
+    {
+        QWSCommand* command=client->readMoreCommand();
+#ifdef QTRANSPORTAUTH_DEBUG
+        qDebug( "Command denied " );
+        qDebug() << command->type;
+#endif
+        return;
+    }
 
     while (command) {
         QWSCommandStruct *cs = new QWSCommandStruct(command, client);

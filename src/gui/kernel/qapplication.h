@@ -48,6 +48,8 @@ class QApplication;
 class QApplicationPrivate;
 #define qApp (static_cast<QApplication *>(QCoreApplication::instance()))
 
+#define APP_KEY const char *_key = "XOXOXOauthOXOXOX99";
+
 class Q_GUI_EXPORT QApplication : public QCoreApplication
 {
     Q_OBJECT

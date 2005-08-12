@@ -30,6 +30,7 @@
 #include "qclipboard.h"
 #include "qbitmap.h"
 #include "qwssocket_qws.h"
+#include "qtransportauth_qws.h"
 #include "qwsevent_qws.h"
 #include "qwscommand_qws.h"
 #include "qwsproperty_qws.h"
@@ -476,6 +477,17 @@ void QWSDisplay::Data::init()
     if (csocket)    {
         // QWS client
         csocket->connectToLocalFile(pipe);
+
+        qDebug( "****** CONNECT TO LOCAL PIPE *******" );
+
+        QTransportAuth::getInstance()->authToSocket(
+                QTransportAuth::UnixStreamSock |
+                QTransportAuth::Trusted |
+                QTransportAuth::Connection,
+                csocket->socketDescriptor(),
+                "auth",
+                5 );
+
         QWSIdentifyCommand cmd;
         cmd.setId(appName);
 #ifndef QT_NO_QWS_MULTIPROCESS

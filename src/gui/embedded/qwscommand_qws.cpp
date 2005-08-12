@@ -13,7 +13,7 @@
 
 #include "qwscommand_qws.h"
 
-//#define QWSCOMMAND_DEBUG // Uncomment to debug client/server communication
+// #define QWSCOMMAND_DEBUG // Uncomment to debug client/server communication
 
 #ifdef QWSCOMMAND_DEBUG
 # include <qdebug.h>
@@ -112,7 +112,7 @@ void QWSHexDump::hexDump()
 
         outstrm->setFieldWidth(2);
         outstrm->setPadChar('0');
-        outstrm->setf(0, QTextStream::showbase);
+        outstrm->setNumberFlags( QTextStream::ShowBase );
         *outstrm << hex << c;
         dirty = true;
 
@@ -141,7 +141,7 @@ void QWSHexDump::sideviewDump(int at)
         *outstrm << " [";
         outstrm->setPadChar(' ');
         outstrm->setFieldWidth(wrap);
-        outstrm->setf(QTextStream::left, QTextStream::adjustfield);
+        outstrm->setFieldAlignment( QTextStream::AlignLeft );
         *outstrm << sideview;
         *outstrm << "]";
     }
