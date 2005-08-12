@@ -1821,7 +1821,7 @@ QRect QTableWidget::visualItemRect(const QTableWidgetItem *item) const
     \a item should be located after the operation.
 */
 
-void QTableWidget::scrollToItem(const QTableWidgetItem *item, ScrollHint hint)
+void QTableWidget::scrollToItem(const QTableWidgetItem *item, QAbstractItemView::ScrollHint hint)
 {
     Q_ASSERT(item);
     Q_D(QTableWidget);

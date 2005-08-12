@@ -565,7 +565,7 @@ QItemSelectionModel::~QItemSelectionModel()
 
   \sa QItemSelectionModel::SelectionFlags
 */
-void QItemSelectionModel::select(const QModelIndex &index, SelectionFlags command)
+void QItemSelectionModel::select(const QModelIndex &index, QItemSelectionModel::SelectionFlags command)
 {
     if (index.isValid()) {
         QItemSelection selection(index, index);
@@ -639,7 +639,7 @@ void QItemSelectionModel::select(const QModelIndex &index, SelectionFlags comman
 
   \sa QItemSelectionModel::SelectionFlag
 */
-void QItemSelectionModel::select(const QItemSelection &selection, SelectionFlags command)
+void QItemSelectionModel::select(const QItemSelection &selection, QItemSelectionModel::SelectionFlags command)
 {
     Q_D(QItemSelectionModel);
     if (command == NoUpdate)
@@ -722,7 +722,7 @@ void QItemSelectionModel::reset()
   of the current selection.
   \sa select()
 */
-void QItemSelectionModel::setCurrentIndex(const QModelIndex &index, SelectionFlags command)
+void QItemSelectionModel::setCurrentIndex(const QModelIndex &index, QItemSelectionModel::SelectionFlags command)
 {
     Q_D(QItemSelectionModel);
     if (index == d->currentIndex) {

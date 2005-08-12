@@ -1333,7 +1333,7 @@ void QListWidget::setItemHidden(const QListWidgetItem *item, bool hide)
     \a item should be located after the operation.
 */
 
-void QListWidget::scrollToItem(const QListWidgetItem *item, ScrollHint hint)
+void QListWidget::scrollToItem(const QListWidgetItem *item, QAbstractItemView::ScrollHint hint)
 {
     Q_ASSERT(item);
     Q_D(QListWidget);
