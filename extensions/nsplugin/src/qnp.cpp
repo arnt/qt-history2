@@ -1,18 +1,15 @@
 /****************************************************************************
 **
-** Implementation of Qt extension classes for Netscape Plugin support.
-**
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+** This file is part of the $MODULE$ of the Qt Toolkit.
 **
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+** $LICENSE$
 **
 ****************************************************************************/
 
-
+// Implementation of Qt extension classes for Netscape Plugin support.
+//
 // Remaining Q_WS_X11 considerations:
 //   - What if !piApp upon NPP_NewStream?  Are we safe?
 //      - Yes, but users need to know of this:  that no GUI can be

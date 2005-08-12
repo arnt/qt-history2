@@ -2,11 +2,9 @@
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
-** This file is part of the Qt GUI Toolkit Professional Edition.
-** EDITIONS: PROFESSIONAL
+** This file is part of the $MODULE$ of the Qt Toolkit.
 **
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+** $LICENSE$
 **
 ****************************************************************************/
 

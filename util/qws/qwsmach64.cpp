@@ -1,3 +1,13 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+****************************************************************************/
+
 #include "qwsmach64.h"
 #include "qwsmach64defs.h"
 #include <sys/mman.h>

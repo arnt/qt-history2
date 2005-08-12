@@ -1,3 +1,13 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+****************************************************************************/
+
 #include "qws.h"
 #include "qwsevent.h"
 #include "qwscommand.h"

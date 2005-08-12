@@ -1,3 +1,13 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+****************************************************************************/
+
 // Mach64 card initialisation, done by QWS server
 
 // Takes pointer to /proc/bus/pci/xxx
