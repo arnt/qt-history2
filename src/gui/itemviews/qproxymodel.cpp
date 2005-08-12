@@ -79,8 +79,8 @@ void QProxyModel::setModel(QAbstractItemModel *model)
     if (d->model && d->model != &d->empty) {
         disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                    this, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
-        disconnect(d->model, SIGNAL(headerDataChanged(Orientation,int,int)),
-                   this, SIGNAL(headerDataChanged(Orientation,int,int)));
+        disconnect(d->model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
+                   this, SIGNAL(headerDataChanged(Qt::Orientation,int,int)));
         disconnect(d->model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
                    this, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
@@ -105,8 +105,8 @@ void QProxyModel::setModel(QAbstractItemModel *model)
         d->model = model;
         connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                 this, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
-        connect(d->model, SIGNAL(headerDataChanged(Orientation,int,int)),
-                this, SIGNAL(headerDataChanged(Orientation,int,int)));
+        connect(d->model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
+                this, SIGNAL(headerDataChanged(Qt::Orientation,int,int)));
         connect(d->model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
                 this, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)));
         connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
