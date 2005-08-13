@@ -1129,6 +1129,7 @@ QListWidgetItem *QListWidget::currentItem() const
 */
 void QListWidget::setCurrentItem(QListWidgetItem *item)
 {
+    Q_ASSERT(item);
     Q_D(QListWidget);
     selectionModel()->setCurrentIndex(d->model()->index(item),
                                       d->selectionMode == SingleSelection

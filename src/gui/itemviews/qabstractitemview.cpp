@@ -689,7 +689,7 @@ void QAbstractItemView::clearSelection()
     \internal
 
     This function is intended to lay out the items in the view.
-    The default implementation just calls updateGeometries() and updates the viewport.
+    The default implementatiidon just calls updateGeometries() and updates the viewport.
 */
 void QAbstractItemView::doItemsLayout()
 {
@@ -946,11 +946,12 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
     setSelection(rect.normalized(), command);
 
     // signal handlers may change the model
-    QPersistentModelIndex persistent = index;
-    emit pressed(index);
-    index = persistent;
-
-    edit(index, SelectedClicked, event);
+    if (index.isValid()) {
+        QPersistentModelIndex persistent = index;
+        emit pressed(index);
+        index = persistent;
+        edit(index, SelectedClicked, event);
+    }
 }
 
 /*!
@@ -1038,7 +1039,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
     if (selectionModel() && index == selectionModel()->currentIndex())
         selectionModel()->select(index, selectionCommand(index, event));
 
-    if (index == d_func()->pressedIndex) {
+    if (index == d_func()->pressedIndex && index.isValid()) {
         // signal handlers may change the model
         QPersistentModelIndex persistent = index;
         emit clicked(persistent);
