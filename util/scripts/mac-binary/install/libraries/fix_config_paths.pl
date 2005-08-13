@@ -8,7 +8,8 @@ my %VARS = (
     "libs" => "/Library/Frameworks", 
     "plug" => "/Developer/Applications/Qt/plugins", 
     "trns" => "/Developer/Applications/Qt/translations",
-#   "data" => "/usr/local/Qt$VERSION_MAJOR.$VERSION_MINOR",
+# This is a Qt 4.0-only hack.
+    "data" => "/usr/local/Qt4.0",
     "bins" => "/Developer/Tools/Qt",
     "demo" => "/Developer/Examples/Qt/Demos",
     "xmpl" => "/Developer/Examples/Qt/"

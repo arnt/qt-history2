@@ -36,7 +36,7 @@ copyHeader()
 [ -z "$OUTDIR" ] && exit 1
 
 #copy tools
-for a in qmake uic uic3 rcc moc assistant Linguist Designer rccdump lrelease qm2ts lupdate findtr; do
+for a in qmake uic uic3 rcc moc assistant Linguist Designer qt3to4 rccdump lrelease qm2ts lupdate findtr; do
     EXE=
     if [ -d "${BINDIR}/bin/${a}.app" ]; then
 	mkdir -p "$OUTDIR/Developer/Applications/Qt/"
@@ -115,5 +115,8 @@ EOF
     strip "$EXE" >/dev/null 2>&1
     chmod a+x "$EXE" 
 done
+
+#copy q3porting.xml. qt3to4 looks for it in QLibraryInfo::DataPath and QLibraryInfo::PrefixPath
+cp $BINDIR/tools/porting/src/q3porting.xml $OUTDIR/usr/local/Qt${VERSION_MAJOR}.${VERSION_MINOR}/q3porting.xml
 
 exit 0
