@@ -442,7 +442,8 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
     }
     if (hint) {
         h = qMax(textRect->height(), pm.height());
-        if (option.decorationPosition == QStyleOptionViewItem::Left || option.decorationPosition == QStyleOptionViewItem::Right) {
+        if (option.decorationPosition == QStyleOptionViewItem::Left
+            || option.decorationPosition == QStyleOptionViewItem::Right) {
             w = textRect->width() + pm.width();
         } else {
             w = qMax(textRect->width(), pm.width());
@@ -524,11 +525,17 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
                                          checkRect->size(), check);
         *pixmapRect = QStyle::alignedRect(option.direction, option.decorationAlignment,
                                           pixmapRect->size(), decoration);
+        // the text takes up all awailable space, unless the decoration is not shown as selected
+        if (option.showDecorationSelected)
+            *textRect = display;
+        else
+            *textRect = QStyle::alignedRect(option.direction, option.displayAlignment,
+                                            textRect->size().boundedTo(display.size()), display);
     } else {
         *checkRect = check;
         *pixmapRect = decoration;
+        *textRect = display;
     }
-    *textRect = display;
 }
 
 

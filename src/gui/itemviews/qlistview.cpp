@@ -687,8 +687,9 @@ void QListView::mouseMoveEvent(QMouseEvent *e)
 {
     Q_D(QListView);
     QAbstractItemView::mouseMoveEvent(e);
-    if (d->viewMode == IconMode
-        && state() == DragSelectingState && d->selectionMode != SingleSelection) {
+    if (d->movement != Static
+        && state() == DragSelectingState
+        && d->selectionMode != SingleSelection) {
         QRect rect(d->pressedPosition, e->pos() + QPoint(horizontalOffset(), verticalOffset()));
         rect = rect.normalized();
         d->setDirtyRegion(d->mapToViewport(rect.unite(d->elasticBand)));
@@ -896,6 +897,7 @@ QStyleOptionViewItem QListView::viewOptions() const
     if (d->viewMode == IconMode) {
         option.showDecorationSelected = false;
         option.decorationPosition = QStyleOptionViewItem::Top;
+        option.displayAlignment = Qt::AlignCenter;
     } else {
         option.decorationPosition = QStyleOptionViewItem::Left;
     }
@@ -1582,11 +1584,13 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
         } else {
             // if we are not using a grid, we need to find the deltas
             if (useItemSize) {
-                if (flow == QListView::LeftToRight) {
+                if (flow == QListView::LeftToRight)
                     deltaFlowPosition = item->w + gap;
-                } else {
+                else
                     deltaFlowPosition = item->h + gap;
-                }
+            } else {
+                item->w = gridSize.width();
+                item->h = gridSize.height();
             }
             // create new segment
             if (wrap
