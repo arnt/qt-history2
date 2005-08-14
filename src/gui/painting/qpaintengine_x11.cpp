@@ -1334,6 +1334,9 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
     int clippedCount = 0;
     qt_float_point *clippedPoints = 0;
 
+    //can change if we switch to pen if gcMode != BrushGC
+    bool has_fill_texture = has_texture;
+    bool has_fill_pattern = has_pattern;
 #ifndef QT_NO_XRENDER
     ::Picture src;
 #endif
@@ -1352,9 +1355,12 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
         fill = QBrush(cpen.brush());
         fill_gc = gc;
 #ifndef QT_NO_XRENDER
-        if (has_texture)
+        //we use the pens brush
+        has_fill_texture = (fill.style() == Qt::TexturePattern);
+        has_fill_pattern = (fill.style() >= Qt::Dense1Pattern && fill.style() <= Qt::DiagCrossPattern);
+        if (has_fill_texture)
             src = fill.texture().x11PictureHandle();
-        else if (has_pattern)
+        else if (has_fill_pattern)
             src = getPatternFill(scrn, fill, bg_brush, bg_mode == Qt::OpaqueMode);
         else
             src = X11->getSolidFill(scrn, fill.color());
@@ -1365,11 +1371,9 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
                                &clippedPoints, &clippedCount);
 
 #if !defined(QT_NO_XRENDER)
-    bool has_texture = (fill.style() == Qt::TexturePattern);
-    bool has_pattern = (fill.style() >= Qt::Dense1Pattern && fill.style() <= Qt::DiagCrossPattern);
     bool antialias = render_hints & QPainter::Antialiasing;
     if (X11->use_xrender && fill.style() != Qt::NoBrush &&
-        (has_texture || antialias || fill.color().alpha() != 255))
+        (has_fill_texture || antialias || fill.color().alpha() != 255))
     {
         if (picture) {
 
@@ -1381,7 +1385,7 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
                 qt_tesselate_polygon(&traps, (QPointF *)clippedPoints, clippedCount,
                                      mode == QPaintEngine::WindingMode);
 
-                if (has_pattern || has_texture) {
+                if (has_fill_pattern || has_fill_texture) {
                     x_offset = qRound(XFixedToDouble(traps.at(0).left.p1.x) - bg_origin.x());
                     y_offset = qRound(XFixedToDouble(traps.at(0).left.p1.y) - bg_origin.y());
                 }
