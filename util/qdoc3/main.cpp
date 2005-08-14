@@ -57,11 +57,12 @@ static void printHelp()
 {
     Location::information( tr("Usage: qdoc [options] file1.qdocconf ...\n"
 			      "Options:\n"
-			      "    -help  Display this information and exit\n"
-			      "    -verbose\n"
-			      "           Explain what is being done\n"
-			      "    -version\n"
-			      "           Display version of qdoc and exit") );
+			      "    -help     "
+			      "Display this information and exit\n"
+			      "    -version  "
+			      "Display version of qdoc and exit\n"
+			      "    -D<name>  "
+			      "Define <name> as a macro while parsing sources") );
 }
 
 static void printVersion()
