@@ -429,6 +429,32 @@ QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view, int typ
 }
 
 /*!
+    \fn QListWidgetItem::QListWidgetItem(const QString &text, const QIcon &icon, QListWidget *parent, int type)
+
+    Constructs an empty list widget item of the specified \a type with the
+    given \a icon, \a text and \a parent.
+    If the parent is not specified, the item will need to be inserted into a
+    list widget with QListWidget::insertItem().
+
+    \sa type()
+*/
+QListWidgetItem::QListWidgetItem(const QIcon &icon,const QString &text,
+                                 QListWidget *view, int type)
+    : rtti(type), view(view), model(0),
+      itemFlags(Qt::ItemIsSelectable
+                |Qt::ItemIsUserCheckable
+                |Qt::ItemIsEnabled
+                |Qt::ItemIsDragEnabled)
+{
+    setData(Qt::DisplayRole, text);
+    setData(Qt::DecorationRole, icon);
+    if (view)
+        model = ::qobject_cast<QListModel*>(view->model());
+    if (model)
+        model->insert(model->rowCount(), this);
+}
+
+/*!
   Destroys the list item.
 */
 QListWidgetItem::~QListWidgetItem()
@@ -1130,11 +1156,7 @@ QListWidgetItem *QListWidget::currentItem() const
 void QListWidget::setCurrentItem(QListWidgetItem *item)
 {
     Q_ASSERT(item);
-    Q_D(QListWidget);
-    selectionModel()->setCurrentIndex(d->model()->index(item),
-                                      d->selectionMode == SingleSelection
-                                      ? QItemSelectionModel::ClearAndSelect
-                                      : QItemSelectionModel::NoUpdate);
+    setCurrentRow(row(item));
 }
 
 /*!
@@ -1150,10 +1172,13 @@ int QListWidget::currentRow() const
 void QListWidget::setCurrentRow(int row)
 {
     Q_D(QListWidget);
-    selectionModel()->setCurrentIndex(d->model()->index(row),
-                                      d->selectionMode == SingleSelection
-                                      ? QItemSelectionModel::ClearAndSelect
-                                      : QItemSelectionModel::NoUpdate);
+    QModelIndex index = d->model()->index(row);
+    if (d->selectionMode == SingleSelection)
+        selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
+    else if (d->selectionMode == NoSelection)
+        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+    else
+        selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
 }
 
 /*!
