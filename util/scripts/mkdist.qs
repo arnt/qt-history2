@@ -650,7 +650,7 @@ function createBinary(platform, license, packageName, compiler)
     // copy a valid license file
     if (license != "opensource") {
 	p4Copy("//depot/infra/main/licensekeys/qt-license" + 
-	       "-" + platform + "-desktop",
+	       "-" + platform + "-" + license + "-desktop",
 	       distDir + "/tmp-qt-license");
 	execute(["scp", distDir + "/tmp-qt-license", login + ":.qt-license"]);
     }
