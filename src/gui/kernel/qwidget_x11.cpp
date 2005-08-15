@@ -2612,8 +2612,8 @@ qreal QWidget::windowOpacity() const
 }
 
 /*!
-    Returns information about the configuration of the X display used to display the
-    widget.
+    Returns information about the configuration of the X display used to display
+    the widget.
 
     \warning This function is only available on X11.
 */
