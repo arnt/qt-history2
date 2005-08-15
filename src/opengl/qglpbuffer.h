@@ -17,7 +17,7 @@
 #include <qgl.h>
 
 class QGLPbufferPrivate;
-class QGLPbuffer : public QPaintDevice
+class Q_OPENGL_EXPORT QGLPbuffer : public QPaintDevice
 {
     Q_DECLARE_PRIVATE(QGLPbuffer)
 public:
