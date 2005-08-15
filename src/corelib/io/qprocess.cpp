@@ -252,28 +252,28 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 */
 
 /*!
-    \fn QProcess::error(ProcessError error)
+    \fn void QProcess::error(QProcess::ProcessError error)
 
     This signal is emitted when an error occurs with the process. The
     specified \a error describes the type of error that occurred.
 */
 
 /*!
-    \fn QProcess::started()
+    \fn void QProcess::started()
 
     This signal is emitted by QProcess when the process has started,
     and state() returns \l Running.
 */
 
 /*!
-    \fn QProcess::stateChanged(ProcessState newState)
+    \fn void QProcess::stateChanged(QProcess::ProcessState newState)
 
     This signal is emitted whenever the state of QProcess changes. The
     \a newState argument is the state QProcess changed to.
 */
 
 /*!
-    \fn QProcess::finished(int exitCode)
+    \fn void QProcess::finished(int exitCode)
 
     This signal is emitted when the process finishes. \a exitCode is
     the exit code of the process. After the process has finished, the
@@ -282,7 +282,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 */
 
 /*!
-    \fn QProcess::readyReadStandardOutput()
+    \fn void QProcess::readyReadStandardOutput()
 
     This signal is emitted when the process has made new data
     available through its standard output channel (\c stdout). It is
@@ -292,7 +292,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 */
 
 /*!
-    \fn QProcess::readyReadStandardError()
+    \fn void QProcess::readyReadStandardError()
 
     This signal is emitted when the process has made new data
     available through its standard error channel (\c stderr). It is

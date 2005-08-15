@@ -178,13 +178,13 @@
     \sa QX11EmbedWidget, {XEmbed Specification}
 */
 
-/*! \fn QX11EmbedWidget::embedded()
+/*! \fn void QX11EmbedWidget::embedded()
 
     This signal is emitted by the widget that has been embedded by an
     XEmbed container.
 */
 
-/*! \fn QX11EmbedWidget::containerClosed()
+/*! \fn void QX11EmbedWidget::containerClosed()
 
     This signal is emitted by the client widget when the container
     closes the widget. This can happen if the container itself
@@ -195,20 +195,20 @@
     widget into a container that already has an embedded widget.
 */
 
-/*! \fn QX11EmbedContainer::clientIsEmbedded()
+/*! \fn void QX11EmbedContainer::clientIsEmbedded()
 
     This signal is emitted by the container when a client widget has
     been embedded.
 */
 
-/*! \fn QX11EmbedContainer::clientClosed()
+/*! \fn void QX11EmbedContainer::clientClosed()
 
     This signal is emitted by the container when the client widget
     closes.
 */
 
 /*!
-    \fn void QX11EmbedWidget::error(Error error)
+    \fn void QX11EmbedWidget::error(QX11EmbedWidget::Error error)
 
     This signal is emitted if an error occurred as a result of
     embedding into or communicating with a container. The specified
@@ -218,12 +218,12 @@
 */
 
 /*!
-    \fn QX11EmbedContainer::Error QX11EmbedContainer::error() const
+    \fn void QX11EmbedContainer::Error QX11EmbedContainer::error() const
 
     Returns the last error that occurred.
 */
 
-/*! \fn void QX11EmbedContainer::error(Error error)
+/*! \fn void QX11EmbedContainer::error(QX11EmbedContainer::Error error)
 
     This signal is emitted if an error occurred when embedding or
     communicating with a client. The specified \a error describes the
@@ -243,7 +243,7 @@
     \omitvalue Internal
 */
 
-/*! 
+/*!
     \enum QX11EmbedContainer::Error
 
     \value Unknown An unrecognized error occurred.

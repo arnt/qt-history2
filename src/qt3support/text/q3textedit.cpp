@@ -766,7 +766,7 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \fn void Q3TextEdit::currentVerticalAlignmentChanged(VerticalAlignment a)
+    \fn void Q3TextEdit::currentVerticalAlignmentChanged(Q3TextEdit::VerticalAlignment a)
 
     This signal is emitted if the vertical alignment of the current
     format has changed.

@@ -837,7 +837,7 @@ QAction * QDockWidget::toggleViewAction() const
 #endif // QT_NO_ACTION
 
 /*!
-    \fn void QDockWidget::featuresChanged(DockWidgetFeatures features)
+    \fn void QDockWidget::featuresChanged(QDockWidget::DockWidgetFeatures features)
 
     This signal is emitted when the \l features property changes. The
     \a features parameter gives the new value of the property.

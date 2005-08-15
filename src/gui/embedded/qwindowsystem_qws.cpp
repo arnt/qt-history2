@@ -3071,7 +3071,7 @@ void QWSInputMethod::updateHandler(int type)
   The specified \a property and \a result contain the property
   queried and the result returned in the reply.
 
-  \sa sendIMQuery()
+  \sa QWSServer::sendIMQuery()
 */
 void QWSInputMethod::queryResponse(int property, const QVariant &result)
 {
@@ -3121,7 +3121,7 @@ void QWSInputMethod::mouseHandler(int, int state)
   method event with an empty preedit string will cause the input
   method to leave compose mode.
 
-  \sa sendEvent, sendCommitString, QInputMethodEvent
+  \sa sendEvent(), sendCommitString(), QInputMethodEvent
 */
 
 void QWSInputMethod::sendPreeditString(const QString &preeditString, int cursorPosition, int selectionLength)
@@ -3166,7 +3166,7 @@ void QWSInputMethod::sendPreeditString(const QString &preeditString, int cursorP
 
   This will cause the input method to leave compose mode.
 
-  \sa sendEvent, sendPreeditString, QInputMethodEvent
+  \sa sendEvent(), sendPreeditString(), QInputMethodEvent
 */
 void QWSInputMethod::sendCommitString(const QString &commitString, int replaceFrom, int replaceLength)
 {

@@ -84,13 +84,13 @@
     \value Running The movie is running.
 */
 
-/*! \fn QMovie::started()
+/*! \fn void QMovie::started()
 
     This signal is emitted after QMovie::start() has been called, and QMovie
     has entered QMovie::Running state.
 */
 
-/*! \fn QMovie::resized(const QSize &size)
+/*! \fn void QMovie::resized(const QSize &size)
 
     This signal is emitted when the current frame has been resized to \a
     size. This effect is sometimes used in animations as an alternative to
@@ -98,14 +98,14 @@
     copy of the updated frame.
 */
 
-/*! \fn QMovie::updated(const QRect &rect)
+/*! \fn void QMovie::updated(const QRect &rect)
 
     This signal is emitted when the rect \a rect in the current frame has been
     updated. You can call currentImage() or currentPixmap() to get a copy of the
     updated frame.
 */
 
-/*! \fn QMovie::stateChanged(MovieState state)
+/*! \fn void QMovie::stateChanged(QMovie::MovieState state)
 
     This signal is emitted every time QMovie's state changes. \a state is the
     new state of QMovie.
@@ -113,13 +113,13 @@
     \sa QMovie::state()
 */
 
-/*! \fn QMovie::error(QImageReader::ImageReaderError error)
+/*! \fn void QMovie::error(QImageReader::ImageReaderError error)
 
     This signal is emitted by QMovie when the error \a error occurred during
     playback.  QMovie will stop the movie, and enter QMovie::NotRunning state.
 */
 
-/*! \fn QMovie::finished()
+/*! \fn void QMovie::finished()
 
     This signal is emitted when the movie has finished.
 

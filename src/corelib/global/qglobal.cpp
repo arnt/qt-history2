@@ -26,7 +26,7 @@
 #endif
 
 /*!
-    \macro Q_DECLARE_TYPEINFO(Type, Flag)
+    \macro Q_DECLARE_TYPEINFO(Type, Flags)
     \relates <QtGlobal>
 
     You can use this macro to specify information about a custom type
@@ -57,7 +57,7 @@
 
         Q_DECLARE_TYPEINFO(Point2D, Q_PRIMITIVE_TYPE);
     \endcode
-    
+
     Example of a movable type:
 
     \code
@@ -408,7 +408,7 @@
     on all platforms supported by Qt.
 */
 
-/*! 
+/*!
     \typedef quint8
     \relates <QtGlobal>
 
@@ -423,7 +423,7 @@
     16-bit on all platforms supported by Qt.
 */
 
-/*! 
+/*!
     \typedef quint16
     \relates <QtGlobal>
 
@@ -438,7 +438,7 @@
     on all platforms supported by Qt.
 */
 
-/*! 
+/*!
     \typedef quint32
     \relates <QtGlobal>
 
@@ -461,7 +461,7 @@
     \sa Q_INT64_C(), quint64
 */
 
-/*! 
+/*!
     \typedef quint64
     \relates <QtGlobal>
 
@@ -514,7 +514,7 @@
     \sa Q_INT64_C(), qulonglong
 */
 
-/*! 
+/*!
     \typedef qulonglong
     \relates <QtGlobal>
 
