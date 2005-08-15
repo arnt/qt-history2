@@ -417,7 +417,9 @@ void QTabWidget::setTabEnabled(int index, bool enable)
 }
 
 /*!
-  Sets widget \a w to be the shown in the specified \a corner of the
+  \fn void QTabWidget::setCornerWidget(QWidget *widget, Qt::Corner corner)
+
+  Sets the given \a widget to be shown in the specified \a corner of the
   tab widget.
 
   Only the horizontal element of the \a corner will be used.
@@ -472,7 +474,7 @@ QWidget * QTabWidget::currentWidget() const
 }
 
 /*!
-    Makes\a widget the current widget. The \a widget must be a page in
+    Makes \a widget the current widget. The \a widget used must be a page in
     this tab widget.
 
     \sa addTab(), setCurrentIndex(), currentWidget()
