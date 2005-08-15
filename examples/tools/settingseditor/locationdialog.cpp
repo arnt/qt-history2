@@ -62,7 +62,7 @@ LocationDialog::LocationDialog(QWidget *parent)
     locationsTable->setColumnCount(2);
     locationsTable->setHorizontalHeaderLabels(labels);
     locationsTable->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
-    locationsTable->horizontalHeader()->resizeSection(2, 180);
+    locationsTable->horizontalHeader()->resizeSection(1, 180);
 
     okButton = new QPushButton(tr("OK"));
     cancelButton = new QPushButton(tr("Cancel"));
