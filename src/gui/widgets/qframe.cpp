@@ -92,7 +92,7 @@ QFramePrivate::QFramePrivate()
 /*!
     \enum QFrame::Shape
 
-    This enum type defines the shapes of a QFrame's frame.
+    This enum type defines the shapes of frame available.
 
     \value NoFrame  QFrame draws nothing
     \value Box  QFrame draws a box around its contents
@@ -127,7 +127,8 @@ QFramePrivate::QFramePrivate()
 /*!
     \enum QFrame::Shadow
 
-    This enum type defines the 3D effect used for QFrame's frame.
+    This enum type defines the types of shadow that are used to give
+    a 3D effect to frames.
 
     \value Plain  the frame and contents appear level with the
     surroundings; draws using the palette foreground color (without
