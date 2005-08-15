@@ -29,6 +29,7 @@
 #include "qstyleoption.h"
 
 #ifndef QT_NO_MENUBAR
+class QMenuBarExtension;
 class QMenuBarPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QMenuBar)
@@ -86,6 +87,8 @@ public:
 
     //extra widgets in the menubar
     QPointer<QWidget> leftWidget, rightWidget;
+    QMenuBarExtension *extension;
+    bool isVisible(QAction *action);
 
     //menu fading/scrolling effects
     bool doChildEffects;
