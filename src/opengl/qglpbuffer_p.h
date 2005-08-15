@@ -30,6 +30,8 @@ public:
     QPaintEngine *paintEngine;
 };
 #elif defined(Q_WS_WIN)
+DECLARE_HANDLE(HPBUFFERARB);
+
 class QGLPbufferPrivate {
     Q_DECLARE_PUBLIC(QGLPbuffer)
 public:
@@ -42,6 +44,7 @@ public:
     HDC dc;
     HPBUFFERARB pbuf;
     HGLRC ctx;
+    QPaintEngine *paintEngine;
 };
 #elif defined(Q_WS_MACX)
 #include <AGL/agl.h>

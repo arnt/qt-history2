@@ -15,11 +15,13 @@
 #include <qgl.h>
 #include <private/qgl_p.h>
 
+#include "qglpbuffer.h"
+#include "qglpbuffer_p.h"
+
 #include <qimage.h>
 #include <qdebug.h>
 
 /* WGL_WGLEXT_PROTOTYPES */
-DECLARE_HANDLE(HPBUFFERARB);
 typedef const char * (WINAPI * PFNWGLGETEXTENSIONSSTRINGARBPROC) (HDC hdc);
 typedef HPBUFFERARB (WINAPI * PFNWGLCREATEPBUFFERARBPROC) (HDC hDC, int iPixelFormat, int iWidth, int iHeight, const int *piAttribList);
 typedef HDC (WINAPI * PFNWGLGETPBUFFERDCARBPROC) (HPBUFFERARB hPbuffer);
@@ -151,7 +153,8 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
     : d_ptr(new QGLPbufferPrivate)
 {
     Q_D(QGLPbuffer);
-    qt_init_glpbuffer_extensions();
+    if (!qt_init_glpbuffer_extensions())
+        return;
 
     d->dc = GetDC(d->dmy.winId());
     Q_ASSERT(d->dc);
@@ -216,8 +219,10 @@ QGLPbuffer::~QGLPbuffer()
     Q_D(QGLPbuffer);
     wglMakeCurrent(d->dc, 0);
     wglDeleteContext(d->ctx);
-    wglReleasePbufferDCARB(d->pbuf, d->dc);
-    wglDestroyPbufferARB(d->pbuf);
+    if (!d->invalid) {
+        wglReleasePbufferDCARB(d->pbuf, d->dc);
+        wglDestroyPbufferARB(d->pbuf);
+    }
     delete d_ptr;
 }
 
@@ -256,38 +261,6 @@ bool QGLPbuffer::doneCurrent()
     return wglMakeCurrent(d->dc, 0);
 }
 
-QSize QGLPbuffer::size() const
-{
-    Q_D(const QGLPbuffer);
-    return d->size;
-}
-
-QImage QGLPbuffer::toImage() const
-{
-    Q_D(const QGLPbuffer);
-    if (d->invalid)
-        return QImage();
-
-    const_cast<QGLPbuffer *>(this)->makeCurrent();
-    QImage img(d->size, QImage::Format_ARGB32);
-    glReadPixels(0, 0, d->size.width(), d->size.height(), GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
-    return img.rgbSwapped();
-}
-
-Qt::HANDLE QGLPbuffer::handle() const
-{
-    Q_D(const QGLPbuffer);
-    if (d->invalid)
-        return 0;
-    return 0;
-}
-
-bool QGLPbuffer::isValid() const
-{
-    Q_D(const QGLPbuffer);
-    return !d->invalid;;
-}
-
 void QGLPbuffer::copyToTexture(GLuint texture_id, GLenum target, GLint format)
 {
     Q_D(QGLPbuffer);
@@ -308,18 +281,6 @@ GLuint QGLPbuffer::generateTexture(GLenum target, GLint format)
     glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     return texture;
 }
-
-QPaintEngine *QGLPbuffer::paintEngine() const
-{
-    return 0;
-}
-
-
-int QGLPbuffer::metric(PaintDeviceMetric) const
-{
-    return 0;
-}
-
 
 bool qt_init_glpbuffer_extensions()
 {
