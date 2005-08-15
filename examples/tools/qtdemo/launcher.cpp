@@ -26,6 +26,7 @@ Launcher::Launcher(QWidget *parent)
     titleFont.setWeight(QFont::Bold);
     buttonFont = font();
     fontRatio = 0.8;
+    documentFont = font();
     inFullScreenResize = false;
     currentCategory = "[starting]";
 
@@ -133,9 +134,11 @@ bool Launcher::setup()
         mainDescription += tr("\n");
 
     categoryDescriptions["[main]"] = mainDescription + tr(
-        "Press Escape, Backspace, or %1 to return to a previous menu.\n"
-        "Press %2 to switch between normal and full screen modes.\n"
-        "Use %3 to exit the launcher.").arg(QString(
+        "<p>Press <tt>Escape</tt>, <tt>Backspace</tt>, or <tt>%1</tt> to "
+        "return to a previous menu.</p>\n"
+        "<p>Press <tt>%2</tt> to switch between normal and full screen "
+        "modes.</p>\n"
+        "<p>Use <tt>%3</tt> to exit the launcher.</p>").arg(QString(
             QKeySequence(tr("Alt+Left")))).arg(QString(
             QKeySequence(tr("Ctrl+F")))).arg(QString(
             QKeySequence(tr("Ctrl+Q"))));
@@ -321,7 +324,8 @@ void Launcher::readCategoryDescription(const QDir &categoryDir,
         if (!currentPara.isEmpty())
             paragraphs.append(currentPara.join(" "));
 
-        categoryDescriptions[categoryName] = paragraphs.join("\n");
+        categoryDescriptions[categoryName] = "<p>" + \
+            paragraphs.join("\n</p><p>") + "</p>\n";
     }
 }
 
@@ -441,18 +445,80 @@ void Launcher::newPage()
     disconnect(display, SIGNAL(displayEmpty()), this, 0);
 }
 
-void Launcher::showCategories()
+DisplayShape *Launcher::addTitle(const QString &title, qreal verticalMargin)
 {
-    newPage();
-    currentCategory = "";
-    currentExample = "";
+    QPointF titlePosition = QPointF(0.0, 2*verticalMargin);
 
+    DisplayShape *newTitle = new TitleShape(title, titleFont,
+        QPen(Qt::white), titlePosition,
+        QSizeF(0.5 * width(), 2*verticalMargin),
+        Qt::AlignHCenter | Qt::AlignTop);
+
+    newTitle->setPosition(QPointF(-newTitle->rect().width(), titlePosition.y()));
+    newTitle->setTarget(QPointF(0.25*width(), titlePosition.y()));
+    newTitle->setMetaData("fade", 15);
+
+    display->appendShape(newTitle);
+
+    return newTitle;
+}
+
+DisplayShape *Launcher::addTitleBackground(DisplayShape *titleShape)
+{
+    QPainterPath backgroundPath;
+    backgroundPath.addRect(0, -titleShape->rect().height()*0.3,
+                           width(), titleShape->rect().height()*1.6);
+
+    DisplayShape *titleBackground = new PanelShape(backgroundPath,
+        QBrush(QColor("#a6ce39")), QBrush(QColor("#a6ce39")), Qt::NoPen,
+            QPointF(width(), titleShape->position().y()),
+            backgroundPath.boundingRect().size());
+
+    titleBackground->setTarget(QPointF(0.0, titleShape->position().y()));
+
+    display->insertShape(0, titleBackground);
+
+    return titleBackground;
+}
+
+void Launcher::addVersionAndCopyright(const QRectF &rect)
+{
+    DisplayShape *versionCaption = new TitleShape(
+        QString("Qt %1").arg(QT_VERSION_STR), font(),
+        QPen(QColor(0,0,0,0)),
+        QPointF(rect.center().x(), rect.top()),
+        QSizeF(0.5*rect.width(), rect.height()),
+        Qt::AlignRight | Qt::AlignVCenter);
+
+    versionCaption->setMetaData("fade", 15);
+    display->appendShape(versionCaption);
+
+    DisplayShape *copyrightCaption = new TitleShape(
+        QString("Copyright \xa9 2005 Trolltech"), font(),
+        QPen(QColor(0,0,0,0)),
+        rect.topLeft(), QSizeF(0.5*rect.width(), rect.height()),
+        Qt::AlignLeft | Qt::AlignVCenter);
+
+    copyrightCaption->setMetaData("fade", 15);
+    display->appendShape(copyrightCaption);
+}
+
+void Launcher::fadeShapes()
+{
     for (int i = 0; i < display->shapesCount(); ++i) {
         DisplayShape *shape = display->shape(i);
 
         shape->setMetaData("fade", -15);
         shape->setMetaData("fade minimum", 0);
     }
+}
+
+void Launcher::showCategories()
+{
+    newPage();
+    fadeShapes();
+    currentCategory = "";
+    currentExample = "";
 
     qreal horizontalMargin = 0.025*width();
     qreal verticalMargin = 0.025*height();
@@ -550,8 +616,8 @@ void Launcher::showCategories()
     qreal rightMargin = width() - 3*horizontalMargin;
 
     DocumentShape *description = new DocumentShape(categoryDescriptions["[main]"],
-        font(), QPen(QColor(0,0,0,0)), QPointF(leftMargin, topMargin),
-        QSizeF(rightMargin - leftMargin, space));
+        documentFont, QPointF(leftMargin, topMargin),
+        QSizeF(rightMargin - leftMargin, space), 0);
 
     description->setMetaData("fade", 10);
     display->appendShape(description);
@@ -582,73 +648,27 @@ void Launcher::showCategories()
                                       verticalMargin));
     display->insertShape(0, trolltechShape);
 
-    DisplayShape *versionCaption = new TitleShape(
-        QString("Qt %1").arg(QT_VERSION_STR), font(),
-        QPen(QColor(0,0,0,0)),
-        QPointF(0.5*width(), height() - verticalMargin - textHeight),
-        QSizeF(0.5*width()-2*horizontalMargin, textHeight),
-        Qt::AlignRight | Qt::AlignVCenter);
-
-    versionCaption->setMetaData("fade", 15);
-    display->appendShape(versionCaption);
-
-    DisplayShape *copyrightCaption = new TitleShape(
-        QString("Copyright \xa9 2005 Trolltech"), font(),
-        QPen(QColor(0,0,0,0)),
-        QPointF(2*horizontalMargin, height() - verticalMargin - textHeight),
-        QSizeF(0.5*width()-2*horizontalMargin, textHeight),
-        Qt::AlignLeft | Qt::AlignVCenter);
-
-    copyrightCaption->setMetaData("fade", 15);
-    display->appendShape(copyrightCaption);
+    addVersionAndCopyright(QRectF(2*horizontalMargin,
+                           height() - verticalMargin - textHeight,
+                           width()-4*horizontalMargin, textHeight));
 }
 
 void Launcher::showExamples(const QString &category)
 {
     newPage();
+    fadeShapes();
     currentCategory = category;
     currentExample = "";
-
-    for (int i = 0; i < display->shapesCount(); ++i) {
-        DisplayShape *shape = display->shape(i);
-
-        shape->setMetaData("fade", -15);
-        shape->setMetaData("fade minimum", 0);
-    }
 
     qreal horizontalMargin = 0.025*width();
     qreal verticalMargin = 0.025*height();
 
-    QPointF titlePosition = QPointF(0.0, 2*verticalMargin);
-
-    DisplayShape *newTitle = new TitleShape(category, titleFont,
-        QPen(Qt::white), titlePosition,
-        QSizeF(0.5 * width(), 2*verticalMargin),
-        Qt::AlignHCenter | Qt::AlignTop);
-
-    newTitle->setPosition(QPointF(-newTitle->rect().width(), titlePosition.y()));
-    newTitle->setTarget(QPointF(0.25*width(), titlePosition.y()));
-    newTitle->setMetaData("fade", 15);
-
-    QPainterPath backgroundPath;
-    backgroundPath.addRect(0, -newTitle->rect().height()*0.3,
-                           width(), newTitle->rect().height()*1.6);
-
-    DisplayShape *titleBackground = new PanelShape(backgroundPath,
-        QBrush(QColor("#a6ce39")), QBrush(QColor("#a6ce39")), Qt::NoPen,
-            QPointF(width(), titlePosition.y()),
-            backgroundPath.boundingRect().size());
-
-    titleBackground->setTarget(QPointF(0.0, titlePosition.y()));
-
-    display->insertShape(0, titleBackground);
-    display->appendShape(newTitle);
-
+    DisplayShape *newTitle = addTitle(category, verticalMargin);
+    addTitleBackground(newTitle);
+    
     qreal topMargin = 6*verticalMargin;
     qreal bottomMargin = height() - 3.2*verticalMargin;
     qreal space = bottomMargin - topMargin;
-    //qreal topMargin = 0.075 * height() + titleBackground->rect().bottom();
-    //qreal space = 0.95*height() - topMargin;
     qreal step = qMin(newTitle->rect().height() / fontRatio,
                       space/qreal(maximumLabels));
     qreal textHeight = fontRatio * step;
@@ -721,33 +741,17 @@ void Launcher::showExamples(const QString &category)
     qreal rightMargin = width() - 3*horizontalMargin;
 
     DocumentShape *description = new DocumentShape(
-        categoryDescriptions[currentCategory], font(),
-        QPen(QColor(0,0,0,0)), QPointF(leftMargin, topMargin),
-        QSizeF(rightMargin - leftMargin, space));
+        categoryDescriptions[currentCategory], documentFont,
+        QPointF(leftMargin, topMargin), QSizeF(rightMargin - leftMargin, space),
+        0);
 
     description->setMetaData("fade", 10);
 
     display->appendShape(description);
 
-    DisplayShape *versionCaption = new TitleShape(
-        QString("Qt %1").arg(QT_VERSION_STR), font(),
-        QPen(QColor(0,0,0,0)),
-        QPointF(0.5*width(), height() - verticalMargin - textHeight),
-        QSizeF(0.5*width()-2*horizontalMargin, textHeight),
-        Qt::AlignRight | Qt::AlignVCenter);
-
-    versionCaption->setMetaData("fade", 15);
-    display->appendShape(versionCaption);
-
-    DisplayShape *copyrightCaption = new TitleShape(
-        QString("Copyright \xa9 2005 Trolltech"), font(),
-        QPen(QColor(0,0,0,0)),
-        QPointF(2*horizontalMargin, height() - verticalMargin - textHeight),
-        QSizeF(0.5*width()-2*horizontalMargin, textHeight),
-        Qt::AlignLeft | Qt::AlignVCenter);
-
-    copyrightCaption->setMetaData("fade", 15);
-    display->appendShape(copyrightCaption);
+    addVersionAndCopyright(QRectF(2*horizontalMargin,
+                           height() - verticalMargin - textHeight,
+                           width()-4*horizontalMargin, textHeight));
 }
 
 void Launcher::showExampleDocumentation(const QString &example)
@@ -761,41 +765,14 @@ void Launcher::showExampleDocumentation(const QString &example)
 void Launcher::showExampleSummary(const QString &example)
 {
     newPage();
+    fadeShapes();
     currentExample = example;
-
-    for (int i = 0; i < display->shapesCount(); ++i) {
-        DisplayShape *shape = display->shape(i);
-
-        shape->setMetaData("fade", -15);
-        shape->setMetaData("fade minimum", 0);
-    }
 
     qreal horizontalMargin = 0.025*width();
     qreal verticalMargin = 0.025*height();
 
-    QPointF titlePosition = QPointF(0.0, 2*verticalMargin);
-
-    DisplayShape *newTitle = new TitleShape(example, titleFont,
-        QPen(Qt::white), titlePosition,
-        QSizeF(0.5 * width(), 2*verticalMargin),
-        Qt::AlignHCenter | Qt::AlignTop);
-
-    newTitle->setPosition(QPointF(-newTitle->rect().width(), titlePosition.y()));
-    newTitle->setTarget(QPointF(0.25*width(), titlePosition.y()));
-    newTitle->setMetaData("fade", 15);
-
-    QPainterPath backgroundPath;
-    backgroundPath.addRect(0, -newTitle->rect().height()*0.3,
-                           width(), newTitle->rect().height()*1.6);
-
-    DisplayShape *titleBackground = new PanelShape(backgroundPath,
-        QBrush(QColor("#a6ce39")), QBrush(QColor("#a6ce39")), Qt::NoPen,
-            QPointF(width(), titlePosition.y()),
-            backgroundPath.boundingRect().size());
-
-    titleBackground->setTarget(QPointF(0.0, titlePosition.y()));
-    display->insertShape(0, titleBackground);
-    display->appendShape(newTitle);
+    DisplayShape *newTitle = addTitle(example, verticalMargin);
+    DisplayShape *titleBackground = addTitleBackground(newTitle);
 
     qreal topMargin = 2*verticalMargin + titleBackground->rect().bottom();
     qreal bottomMargin = height() - 8*verticalMargin;
@@ -810,9 +787,9 @@ void Launcher::showExampleSummary(const QString &example)
 
     if (exampleDescriptions.contains(example)) {
         DocumentShape *description = new DocumentShape(
-            exampleDescriptions[currentExample], font(),
-            QPen(QColor(0,0,0,0)), QPointF(leftMargin, topMargin),
-            QSizeF(rightMargin-leftMargin, space));
+            exampleDescriptions[currentExample], documentFont,
+            QPointF(leftMargin, topMargin),
+            QSizeF(rightMargin-leftMargin, space), 0);
 
         description->setMetaData("fade", 10);
 
@@ -971,25 +948,9 @@ void Launcher::showExampleSummary(const QString &example)
         display->insertShape(0, background);
     }
 
-    DisplayShape *versionCaption = new TitleShape(
-        QString("Qt %1").arg(QT_VERSION_STR), font(),
-        QPen(QColor(0,0,0,0)),
-        QPointF(0.5*width(), height() - verticalMargin - textHeight),
-        QSizeF(0.5*width()-2*horizontalMargin, textHeight),
-        Qt::AlignRight | Qt::AlignVCenter);
-
-    versionCaption->setMetaData("fade", 15);
-    display->appendShape(versionCaption);
-
-    DisplayShape *copyrightCaption = new TitleShape(
-        QString("Copyright \xa9 2005 Trolltech"), font(),
-        QPen(QColor(0,0,0,0)),
-        QPointF(2*horizontalMargin, height() - verticalMargin - textHeight),
-        QSizeF(0.5*width()-2*horizontalMargin, textHeight),
-        Qt::AlignLeft | Qt::AlignVCenter);
-
-    copyrightCaption->setMetaData("fade", 15);
-    display->appendShape(copyrightCaption);
+    addVersionAndCopyright(QRectF(2*horizontalMargin,
+                           height() - verticalMargin - textHeight,
+                           width()-4*horizontalMargin, textHeight));
 }
 
 void Launcher::updateExampleSummary()
@@ -1041,6 +1002,11 @@ void Launcher::resizeWindow()
 void Launcher::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
+
+    documentFont = font();
+    documentFont.setPointSizeF(qMin(documentFont.pointSizeF()*width()/640.0,
+                                    documentFont.pointSizeF()*height()/480.0));
+    
     if (inFullScreenResize) {
         emit windowResized();
         inFullScreenResize = false;

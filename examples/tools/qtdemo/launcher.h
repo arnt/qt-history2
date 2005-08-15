@@ -60,14 +60,21 @@ private slots:
     void resizeWindow();
 
 private:
+    DisplayShape *addTitle(const QString &title, qreal verticalMargin);
+    DisplayShape *addTitleBackground(DisplayShape *titleShape);
+
     QString readExampleDescription(const QDomNode &parentNode) const;
+    QString findExecutable(const QDir &dir) const;
+
+    int readInfo(const QString &resource, const QDir &dir);
+
+    void addVersionAndCopyright(const QRectF &rect);
+    void fadeShapes();
     void findDescriptionAndImages(const QString &exampleName,
                                   const QString &docName);
-    QString findExecutable(const QDir &dir) const;
     void newPage();
     void readCategoryDescription(const QDir &categoryDir,
                                  const QString &categoryName);
-    int readInfo(const QString &resource, const QDir &dir);
 
     bool inFullScreenResize;
     int maximumLabels;
@@ -81,6 +88,7 @@ private:
     QDir demosDir;
     QDir examplesDir;
     QFont buttonFont;
+    QFont documentFont;
     QFont textFont;
     QFont titleFont;
     QImage qtLogo;

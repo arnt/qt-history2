@@ -275,11 +275,15 @@ ImageShape::ImageShape(const QImage &original, const QPointF &position,
     : DisplayShape(position, maxSize), alpha(alpha), alignment(alignment)
 {
     source = original.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-    scale = qMin(qMin(maxSize.width()/source.width(),
-                      maxSize.height()/source.height()), 1.0);
-    image = QImage(int(ceil(scale * source.width())),
-                   int(ceil(scale * source.height())),
-                   QImage::Format_ARGB32_Premultiplied);
+    qreal scale = qMin(qMin(maxSize.width()/source.width(),
+                            maxSize.height()/source.height()), 1.0);
+
+    source = source.scaled(int(ceil(source.width() * scale)),
+                           int(ceil(source.height() * scale)),
+                           Qt::KeepAspectRatio,
+                           Qt::SmoothTransformation);
+
+    image = QImage(source.size(), source.format());
 
     offset = QPointF(0.0, 0.0);
 
@@ -302,9 +306,7 @@ void ImageShape::redraw()
 
     QPainter painter;
     painter.begin(&image);
-    painter.setRenderHint(QPainter::SmoothPixmapTransform);
     painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
-    painter.scale(scale, scale);
     painter.drawImage(0, 0, source);
     painter.end();
 }
@@ -342,29 +344,42 @@ bool ImageShape::animate()
     return DisplayShape::animate() || updated;
 }
 
-DocumentShape::DocumentShape(const QString &text, const QFont &f,
-                       const QPen &pen, const QPointF &position,
-                       const QSizeF &maxSize)
-    : DisplayShape(position, maxSize), font(f), pen(pen)
+DocumentShape::DocumentShape(const QString &text, const QFont &font,
+                             const QPointF &position, const QSizeF &maxSize,
+                             int alpha)
+    : DisplayShape(position, maxSize), alpha(alpha)
 {
-    paragraphs = text.split("\n", QString::SkipEmptyParts);
+    textDocument.setHtml(text);
+    textDocument.setDefaultFont(font);
+    textDocument.setPageSize(maxSize);
+    QSizeF documentSize = textDocument.documentLayout()->documentSize();
 
-    QFontMetricsF fm(font);
-    qreal scale = qMax(maxSize.height()/(fm.lineSpacing()*20), 1.0);
-    font.setPointSizeF(font.pointSizeF() * scale);
+    source = QImage(int(ceil(documentSize.width())),
+                    int(ceil(documentSize.height())),
+                    QImage::Format_ARGB32_Premultiplied);
+    source.fill(qRgba(255, 255, 255, 255));
 
-    qreal oldHeight = maxSize.height();
-    qreal height = formatText();
-    if (height > oldHeight) {
-        font.setPointSizeF(font.pointSizeF() * oldHeight/height);
-        formatText();
-    }
+    QAbstractTextDocumentLayout::PaintContext context;
+    textDocument.documentLayout()->setPaintDevice(&source);
+
+    QPainter painter;
+    painter.begin(&source);
+    painter.setRenderHint(QPainter::TextAntialiasing);
+    painter.setRenderHint(QPainter::Antialiasing);
+    textDocument.documentLayout()->draw(&painter, context);
+    painter.end();
+
+    source = source.scaled(int(ceil(maxSize.width())),
+                           int(ceil(maxSize.height())),
+                           Qt::KeepAspectRatio,
+                           Qt::SmoothTransformation);
+
+    image = QImage(source.size(), source.format());
+    redraw();
 }
 
 DocumentShape::~DocumentShape()
 {
-    qDeleteAll(layouts);
-    layouts.clear();
 }
 
 bool DocumentShape::animate()
@@ -373,19 +388,14 @@ bool DocumentShape::animate()
 
     if (!meta.contains("destroy")) {
         if (meta.contains("fade")) {
-            QColor penColor = pen.color();
-            int penAlpha = penColor.alpha();
+            alpha = qBound(meta.value("fade minimum").toInt(),
+                           alpha + meta.value("fade").toInt(), 255);
+            redraw();
 
-            penAlpha = qBound(meta.value("fade minimum").toInt(),
-                              penAlpha + meta.value("fade").toInt(), 255);
-
-            penColor.setAlpha(penAlpha);
-            pen.setColor(penColor);
-
-            if (penAlpha == 0) {
+            if (alpha == 0) {
                 meta["destroy"] = true;
                 meta.remove("fade");
-            } else if (penAlpha == 255)
+            } else if (alpha == 255)
                 meta.remove("fade");
 
             updated = true;
@@ -395,51 +405,20 @@ bool DocumentShape::animate()
     return DisplayShape::animate() || updated;
 }
 
-qreal DocumentShape::formatText()
+void DocumentShape::redraw()
 {
-    qDeleteAll(layouts);
-    layouts.clear();
+    image.fill(qRgba(alpha, alpha, alpha, alpha));
 
-    QFontMetricsF fm(font);
-    qreal lineHeight = fm.height();
-    qreal y = 0.0;
-    qreal leftMargin = 0.0;
-    qreal rightMargin = maxSize.width();
-
-    foreach (QString paragraph, paragraphs) {
-
-        QTextLayout *textLayout = new QTextLayout(paragraph, font);
-        textLayout->beginLayout();
-
-        while (true) {
-            QTextLine line = textLayout->createLine();
-            if (!line.isValid())
-                break;
-
-            line.setLineWidth(rightMargin - leftMargin);
-            line.setPosition(QPointF(leftMargin, y));
-            y += line.height();
-        }
-
-        textLayout->endLayout();
-        layouts.append(textLayout);
-
-        y += lineHeight;
-    }
-
-    maxSize.setHeight(y);
-    return y;
+    QPainter painter;
+    painter.begin(&image);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    painter.drawImage(0, 0, source);
+    painter.end();
 }
 
 void DocumentShape::paint(QPainter *painter) const
 {
-    painter->save();
-    painter->setRenderHint(QPainter::TextAntialiasing);
-    painter->setPen(pen);
-    painter->setFont(font);
-    foreach (QTextLayout *layout, layouts)
-        layout->draw(painter, pos);
-    painter->restore();
+    painter->drawImage(pos, image);
 }
 
 QRectF DocumentShape::rect() const
