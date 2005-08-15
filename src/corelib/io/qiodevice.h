@@ -205,7 +205,7 @@ inline QT3_SUPPORT int QIODevice::state() const
 
 #if !defined(QT_NO_DEBUG_STREAM)
 class QDebug;
-QDebug operator<<(QDebug debug, QIODevice::OpenMode modes);
+Q_CORE_EXPORT QDebug operator<<(QDebug debug, QIODevice::OpenMode modes);
 #endif
 
 #endif // QIODEVICE_H
