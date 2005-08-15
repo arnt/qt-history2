@@ -905,6 +905,7 @@ static QString getPath(QSettings::Format format, QSettings::Scope scope)
     Q_ASSERT((int)QSettings::NativeFormat == 0);
     Q_ASSERT((int)QSettings::IniFormat == 1);
 
+    QString homePath = QDir::homePath();
     QMutexLocker locker(globalMutex());
     PathHash *pathHash = pathHashFunc();
 
@@ -924,7 +925,7 @@ static QString getPath(QSettings::Format format, QSettings::Scope scope)
         QString userPath;
         char *env = getenv("XDG_CONFIG_HOME");
         if (env == 0) {
-            userPath = QDir::homePath();
+            userPath = homePath;
             userPath += QLatin1Char('/');
 #ifdef Q_WS_QWS
             userPath += QLatin1String("Settings");
@@ -934,7 +935,7 @@ static QString getPath(QSettings::Format format, QSettings::Scope scope)
         } else if (*env == '/') {
             userPath = QLatin1String(env);
         } else {
-            userPath = QDir::homePath();
+            userPath = homePath;
             userPath += QLatin1Char('/');
             userPath += QLatin1String(env);
         }
@@ -3002,7 +3003,7 @@ void QSettings::setPath(Format format, Scope scope, const QString &path)
 
     The \a extension is the file
     extension associated to the format (without the '.').
-    
+
     The \a readFunc and \a writeFunc parameters are pointers to
     functions that read and write a set of (key, value) pairs. The
     QIODevice parameter to the read and write functions is always
