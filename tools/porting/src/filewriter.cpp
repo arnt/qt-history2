@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "filewriter.h"
+#include <ctype.h>
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>

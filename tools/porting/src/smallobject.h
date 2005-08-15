@@ -15,11 +15,11 @@
 #ifndef SMALLOBJECT_H
 #define SMALLOBJECT_H
 
-#include <cassert>
-#include <cstring>
-#include <cstdio>
-#include <cstdlib>
 #include <QList>
+
+#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 struct block_t
 {

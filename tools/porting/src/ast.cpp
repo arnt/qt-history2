@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 #include "ast.h"
-
+#include <stdio.h>
 #include <qstringlist.h>
 
 int AST::N = 0;

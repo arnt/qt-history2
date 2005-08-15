@@ -12,6 +12,7 @@
 **
 ****************************************************************************/
 #include "rpplexer.h"
+#include <ctype.h>
 #include <QChar>
 
 using namespace TokenEngine;
