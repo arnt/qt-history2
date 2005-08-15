@@ -30,6 +30,19 @@ public:
     QPaintEngine *paintEngine;
 };
 #elif defined(Q_WS_WIN)
+class QGLPbufferPrivate {
+    Q_DECLARE_PUBLIC(QGLPbuffer)
+public:
+    QGLPbufferPrivate() : invalid(true), dc(0) {}
+
+    bool invalid;
+    QSize size;
+    QGLPbuffer *q_ptr;
+    QGLWidget dmy;
+    HDC dc;
+    HPBUFFERARB pbuf;
+    HGLRC ctx;
+};
 #elif defined(Q_WS_MACX)
 #include <AGL/agl.h>
 
