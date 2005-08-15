@@ -1260,7 +1260,7 @@
     \skipto class
     \printuntil headerData
     \printuntil const;
-    \skipto /^\};/
+    \skipto private:
     \printuntil /^\};/
 
     Apart from the model's constructor, we only need to implement two
@@ -1277,6 +1277,9 @@
     would also have to implement the
     \l{QAbstractItemModel::index()}{index()} and
     \l{QAbstractItemModel::parent()}{parent()} functions.
+
+    The list of strings are stored internally in the \c stringList
+    private member variable.
 
     \section2 Dimensions of The Model
 
