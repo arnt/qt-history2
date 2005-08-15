@@ -3250,7 +3250,7 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap standardPixmap, const QStyle
     case SP_ToolBarHorizontalExtensionButton:
         if (QApplication::layoutDirection() == Qt::RightToLeft) {
             QImage im(tb_extension_arrow_h_xpm);
-            im = im.mirrored(true, false);
+            im = im.convertToFormat(QImage::Format_ARGB32).mirrored(true, false);
             return QPixmap::fromImage(im);
         }
         return QPixmap(tb_extension_arrow_h_xpm);
