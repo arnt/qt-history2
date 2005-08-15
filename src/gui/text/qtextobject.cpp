@@ -153,6 +153,8 @@ QTextDocumentPrivate *QTextObject::docHandle() const
     \brief The QTextBlockGroup class provides a container for text blocks within
     a QTextDocument.
 
+    \ingroup text
+
     Block groups can be used to organize blocks of text within a document.
     They maintain an up-to-date list of the text blocks that belong to
     them, even when text blocks are being edited.
@@ -563,6 +565,8 @@ void QTextFramePrivate::remove_me()
     \brief The QTextFrame::iterator class provides an iterator for reading
     the contents of a QTextFrame.
 
+    \ingroup text
+
     A frame consists of an arbitrary sequence of \l{QTextBlock}s and
     child \l{QTextFrame}s. This class provides a way to iterate over the
     child objects of a frame, and read their contents. It does not provide
@@ -855,6 +859,8 @@ QTextBlockUserData::~QTextBlockUserData()
     \class QTextBlock::iterator
     \brief The QTextBlock::iterator class provides an iterator for reading
     the contents of a QTextBlock.
+
+    \ingroup text
 
     A block consists of a sequence of text fragments. This class provides
     a way to iterate over these, and read their contents. It does not provide
@@ -1273,6 +1279,8 @@ QTextBlock::iterator &QTextBlock::iterator::operator--()
     \brief The QTextFragment class holds a piece of text in a
     QTextDocument with a single QTextCharFormat.
 
+    \ingroup text
+
     A text fragment describes a piece of text that is stored with a single
     character format. Text in which the character format changes can be
     represented by sequences of text fragments with different formats.
@@ -1426,7 +1434,7 @@ int QTextFragment::charFormatIndex() const
 /*!
     Returns the text fragment's as plain text.
 
-    \sa length() charFormat()
+    \sa length(), charFormat()
 */
 QString QTextFragment::text() const
 {
