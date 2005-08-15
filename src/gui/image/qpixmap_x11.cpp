@@ -2025,8 +2025,10 @@ bool QPixmap::hasAlphaChannel() const
 }
 
 /*!
-    Returns a pointer to a QX11Info object. This pointer is owned by
-    QPixmap and should not be deleted.
+    Returns information about the configuration of the X display used to display the
+    widget.
+
+    \warning This function is only available on X11.
 */
 const QX11Info &QPixmap::x11Info() const
 {
