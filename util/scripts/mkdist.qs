@@ -181,6 +181,10 @@ licenseRemove["opensource"] = [ new RegExp("^extensions"),
 
 licenseRemove["preview"] = licenseRemove["opensource"];
 
+var skipTagReplace = [ new RegExp("^examples/tools/codecs/encodedfiles/"),
+                       new RegExp("^tools/designer/src/designer/extra/names.txt") ];
+
+
 var finalRemove = [ new RegExp("^dist") ];
 
 /************************************************************
@@ -950,8 +954,16 @@ function replaceTags(packageDir, fileList, platform, license, platName, addition
     for (var i in fileList) {
 	fileName = fileList[i];
 	absFileName = packageDir + "/" + fileName;
-	//only replace for non binary files
-	if (File.isFile(absFileName) &&  !binaryFile(absFileName)) {
+        var doIgnore = false;
+        for (var r in skipTagReplace) {
+            if (fileName.find(skipTagReplace[r]) != -1) {
+                doIgnore = true;
+            }
+        }
+        if (doIgnore) {
+            // do nothing
+        } else if (File.isFile(absFileName) && !binaryFile(absFileName)) {
+	    //only replace for non binary files
 	    content = File.read(absFileName);
 	    for (var i in replace)
 		content = content.replace(replace[i], i);
