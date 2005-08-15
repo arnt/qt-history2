@@ -87,7 +87,7 @@ inline QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator+=(int n)
 {
     if (n < 0)
         return (*this) -= (-n);
-    while (current && n++)
+    while (current && n--)
         ++(*this);
     return *this;
 }
