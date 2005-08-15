@@ -120,8 +120,8 @@ public:
     QString errorString() const;
 
 signals:
-    void stateChanged(State state);
-    void error(Error error);
+    void stateChanged(TorrentClient::State state);
+    void error(TorrentClient::Error error);
 
     void downloadCompleted();
     void peerInfoUpdated();

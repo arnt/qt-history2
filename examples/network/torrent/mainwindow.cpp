@@ -331,13 +331,13 @@ bool MainWindow::addTorrent(const QString &fileName, const QString &destinationF
     client->setDumpedState(resumeState);
 
     // Setup the client connections.
-    connect(client, SIGNAL(stateChanged(State)), this, SLOT(updateState(State)));
+    connect(client, SIGNAL(stateChanged(TorrentClient::State)), this, SLOT(updateState(TorrentClient::State)));
     connect(client, SIGNAL(peerInfoUpdated()), this, SLOT(updatePeerInfo()));
     connect(client, SIGNAL(progressUpdated(int)), this, SLOT(updateProgress(int)));
     connect(client, SIGNAL(downloadRateUpdated(int)), this, SLOT(updateDownloadRate(int)));
     connect(client, SIGNAL(uploadRateUpdated(int)), this, SLOT(updateUploadRate(int)));
     connect(client, SIGNAL(stopped()), this, SLOT(torrentStopped()));
-    connect(client, SIGNAL(error(Error)), this, SLOT(torrentError(Error)));
+    connect(client, SIGNAL(error(TorrentClient::Error)), this, SLOT(torrentError(TorrentClient::Error)));
 
     // Add the client to the list of downloading jobs.
     Job job;
