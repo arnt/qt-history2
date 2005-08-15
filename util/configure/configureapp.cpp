@@ -241,10 +241,14 @@ void Configure::parseCmdLine()
     }
     else if( configCmdLine.at(i) == "-loadconfig" ) {
 	++i;
-	dictionary[ "REDO" ] = "yes";
-	dictionary[ "CUSTOMCONFIG" ] = "_" + configCmdLine.at(i);
-	configCmdLine.clear();
-	reloadCmdLine();
+        if (i != argCount) {
+            dictionary[ "REDO" ] = "yes";
+	    dictionary[ "CUSTOMCONFIG" ] = "_" + configCmdLine.at(i);
+	    configCmdLine.clear();
+	    reloadCmdLine();
+        } else {
+            dictionary[ "HELP" ] = "yes";
+        }
     }
 #endif
 
