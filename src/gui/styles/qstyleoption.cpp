@@ -47,7 +47,7 @@
         void MyPushButton::paintEvent()
         {
             QStyleOptionButton option;
-            option.init(this);
+            option.initFrom(this);
             option.state = isDown() ? QStyle::State_Sunken : QStyle::State_Raised;
             if (isDefault())
                 option.features |= QStyleOptionButton::DefaultButton;
@@ -158,11 +158,22 @@ QStyleOption::~QStyleOption()
 }
 
 /*!
+    \fn void QStyleOption::initFrom(const QWidget *widget)
+
     Initializes the \l state, \l direction, \l rect, \l palette, and
     \l fontMetrics member variables based on \a widget.
 
     This function is provided only for convenience. You can also
     initialize the variables manually if you want.
+
+    \sa QWidget::layoutDirection(), QWidget::rect(),
+        QWidget::palette(), QWidget::fontMetrics()
+*/
+
+/*!
+    \obsolete
+
+    Use initFrom(\a widget) instead.
 */
 void QStyleOption::init(const QWidget *widget)
 {
@@ -287,7 +298,7 @@ QStyleOption &QStyleOption::operator=(const QStyleOption &other)
 QStyleOptionFocusRect::QStyleOptionFocusRect()
     : QStyleOption(Version, SO_FocusRect)
 {
-    state |= QStyle::State_KeyboardFocusChange; // assume we had one, will be corrected in init()
+    state |= QStyle::State_KeyboardFocusChange; // assume we had one, will be corrected in initFrom()
 }
 
 /*!
@@ -296,7 +307,7 @@ QStyleOptionFocusRect::QStyleOptionFocusRect()
 QStyleOptionFocusRect::QStyleOptionFocusRect(int version)
     : QStyleOption(version, SO_FocusRect)
 {
-    state |= QStyle::State_KeyboardFocusChange;  // assume we had one, will be corrected in init()
+    state |= QStyle::State_KeyboardFocusChange;  // assume we had one, will be corrected in initFrom()
 }
 
 /*!

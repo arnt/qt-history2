@@ -58,6 +58,7 @@ public:
     ~QStyleOption();
 
     void init(const QWidget *w);
+    inline void initFrom(const QWidget *w) { init(w); }
     QStyleOption &operator=(const QStyleOption &other);
 };
 
