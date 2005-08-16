@@ -84,8 +84,7 @@ public:
     updated data to the model; releaseEditor() indicates that the user has
     completed editing the data, and that the editor widget can be destroyed.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemDelegate
-
+    \sa {Model/View Programming}, QAbstractItemDelegate
 */
 
 /*!
@@ -288,6 +287,8 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
 /*!
   Returns the editor factory used by the item delegate.
   If no editor factory is set, the function will return null.
+
+  \sa setItemEditorFactory()
 */
 QItemEditorFactory *QItemDelegate::itemEditorFactory() const
 {
@@ -299,6 +300,8 @@ QItemEditorFactory *QItemDelegate::itemEditorFactory() const
   Sets the editor factory to be used by the item delegate to be the \a factory
   specified. If no editor factory is set, the item delegate will use the
   default editor factory.
+
+  \sa itemEditorFactory()
 */
 void QItemDelegate::setItemEditorFactory(QItemEditorFactory *factory)
 {
