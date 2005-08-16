@@ -18,8 +18,6 @@
 #include "q3cstring.h"
 #include "qdir.h"
 
-#include <stdlib.h>
-
 // used by q3filedialog.cpp
 bool qt_resolve_symlinks = true;
 
@@ -763,7 +761,7 @@ bool Q3Url::parse( const QString& url )
 
     if ( !port.isEmpty() ) {
 	port.remove( (uint)0, 1 );
-	d->port = atoi( port.latin1() );
+	d->port = port.toInt();
     }
 
     // error
