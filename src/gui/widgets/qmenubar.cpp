@@ -45,7 +45,6 @@ public:
     explicit QMenuBarExtension(QWidget *parent);
 
     QSize sizeHint() const;
-    bool isShown() const;
 };
 
 QMenuBarExtension::QMenuBarExtension(QWidget *parent)
@@ -66,12 +65,6 @@ QSize QMenuBarExtension::sizeHint() const
     return QSize(ext, ext);
 }
 
-bool QMenuBarExtension::isShown() const
-{
-    // FIXME how am I supposed to know?
-    return false;
-}
-
 QAction *QMenuBarPrivate::actionAt(QPoint p) const
 {
     Q_Q(const QMenuBar);
@@ -87,7 +80,7 @@ bool QMenuBarPrivate::isVisible(QAction *action)
 {
     Q_Q(QMenuBar);
 
-    if (extension->isShown()) {
+    if (!extension->isHidden()) {
         int hmargin = q->style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, q);
         QRect menuRect = q->rect();
         if (QApplication::layoutDirection() == Qt::RightToLeft)
@@ -150,7 +143,7 @@ void QMenuBarPrivate::updateGeometries()
     QList<QAction *> hiddenActions;
     int hmargin = q->style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, q);
     QRect menuRect = q->rect();
-    if (extension->isShown()) {
+    if (!extension->isHidden()) {
         if (QApplication::layoutDirection() == Qt::RightToLeft)
             menuRect.setLeft(menuRect.left() + extension->width() + hmargin);
         else
@@ -1309,7 +1302,7 @@ QSize QMenuBar::sizeHint() const
 /*!
   \reimp
 */
-int QMenuBar::heightForWidth(int max_width) const
+int QMenuBar::heightForWidth(int) const
 {
     Q_D(const QMenuBar);
 #ifdef Q_WS_MAC
