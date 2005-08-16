@@ -632,7 +632,7 @@ QVariant QJpegHandler::option(ImageOption option) const
 
 void QJpegHandler::setOption(ImageOption option, const QVariant &value)
 {
-    if (option == Name)
+    if (option == Quality)
         quality = value.toInt();
 //    else if (option == Parameters)
 //        parameters = value.toByteArray();
