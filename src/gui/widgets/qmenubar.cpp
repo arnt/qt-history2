@@ -45,6 +45,7 @@ public:
     explicit QMenuBarExtension(QWidget *parent);
 
     QSize sizeHint() const;
+    bool isShown() const;
 };
 
 QMenuBarExtension::QMenuBarExtension(QWidget *parent)
@@ -65,6 +66,11 @@ QSize QMenuBarExtension::sizeHint() const
     return QSize(ext, ext);
 }
 
+bool QMenuBarExtension::isShown() const
+{
+    // FIXME how am I supposed to know?
+    return false;
+}
 
 QAction *QMenuBarPrivate::actionAt(QPoint p) const
 {
