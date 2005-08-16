@@ -13,7 +13,7 @@
 #ifndef QTREEWIDGETITEMITERATOR_H
 #define QTREEWIDGETITEMITERATOR_H
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 class QTreeWidget;
 class QTreeWidgetItem;
