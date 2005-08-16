@@ -26,7 +26,7 @@
 
 
 #include <QtCore/qabstractitemmodel.h>
-#include <QtCore/QPair.h>
+#include <QtCore/qpair.h>
 
 class QTreeWidgetItem;
 class QTreeWidgetItemIterator;
