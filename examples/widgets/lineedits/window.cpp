@@ -123,32 +123,30 @@ Window::Window()
 void Window::slotEchoChanged(int index)
 {
     switch (index) {
-        case 0:
-            echoLineEdit->setEchoMode(QLineEdit::Normal);
-            break;
-        case 1:
-            echoLineEdit->setEchoMode(QLineEdit::Password);
-            break;
-        case 2:
-    	    echoLineEdit->setEchoMode(QLineEdit::NoEcho);
-            break;
-        }
+    case 0:
+        echoLineEdit->setEchoMode(QLineEdit::Normal);
+        break;
+    case 1:
+        echoLineEdit->setEchoMode(QLineEdit::Password);
+        break;
+    case 2:
+    	echoLineEdit->setEchoMode(QLineEdit::NoEcho);
+    }
 }
 
 void Window::slotValidatorChanged(int index)
 {
     switch (index) {
-        case 0:
-            validatorLineEdit->setValidator(0);
-            break;
-        case 1:
-            validatorLineEdit->setValidator(new QIntValidator(
-                validatorLineEdit));
-            break;
-        case 2:
-            validatorLineEdit->setValidator(new QDoubleValidator(-999.0,
-                999.0, 2, validatorLineEdit));
-            break;
+    case 0:
+        validatorLineEdit->setValidator(0);
+        break;
+    case 1:
+        validatorLineEdit->setValidator(new QIntValidator(
+            validatorLineEdit));
+        break;
+    case 2:
+        validatorLineEdit->setValidator(new QDoubleValidator(-999.0,
+            999.0, 2, validatorLineEdit));
     }
 
     validatorLineEdit->setText("");
@@ -157,35 +155,33 @@ void Window::slotValidatorChanged(int index)
 void Window::slotAlignmentChanged(int index)
 {
     switch (index) {
-        case 0:
-            alignmentLineEdit->setAlignment(Qt::AlignLeft);
-            break;
-        case 1:
-            alignmentLineEdit->setAlignment(Qt::AlignCenter);
-            break;
-        case 2:
-    	    alignmentLineEdit->setAlignment(Qt::AlignRight);
-            break;
-        }
+    case 0:
+        alignmentLineEdit->setAlignment(Qt::AlignLeft);
+        break;
+    case 1:
+        alignmentLineEdit->setAlignment(Qt::AlignCenter);
+        break;
+    case 2:
+    	alignmentLineEdit->setAlignment(Qt::AlignRight);
+    }
 }
 
 void Window::slotInputMaskChanged(int index)
 {
     switch (index) {
-        case 0:
-            inputMaskLineEdit->setInputMask(QString());
-            break;
-        case 1:
-            inputMaskLineEdit->setInputMask("+99 99 99 99 99;_");
-            break;
-        case 2:
-            inputMaskLineEdit->setInputMask("0000-00-00");
-            inputMaskLineEdit->setText("00000000");
-            inputMaskLineEdit->setCursorPosition(0);
-            break;
-        case 3:
-            inputMaskLineEdit->setInputMask(">AAAAA-AAAAA-AAAAA-AAAAA-AAAAA;#");
-            break;
+    case 0:
+        inputMaskLineEdit->setInputMask("");
+        break;
+    case 1:
+        inputMaskLineEdit->setInputMask("+99 99 99 99 99;_");
+        break;
+    case 2:
+        inputMaskLineEdit->setInputMask("0000-00-00");
+        inputMaskLineEdit->setText("00000000");
+        inputMaskLineEdit->setCursorPosition(0);
+        break;
+    case 3:
+        inputMaskLineEdit->setInputMask(">AAAAA-AAAAA-AAAAA-AAAAA-AAAAA;#");
     }
 }
 
@@ -197,6 +193,5 @@ void Window::slotAccessChanged(int index)
         break;
     case 1:
         accessLineEdit->setReadOnly(true);
-        break;
     }
 }

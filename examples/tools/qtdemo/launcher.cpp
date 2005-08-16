@@ -284,7 +284,7 @@ QString Launcher::findExecutable(const QDir &dir) const
             }
         }
     }
-    return QString();
+    return "";
 }
 
 void Launcher::readCategoryDescription(const QDir &categoryDir,
