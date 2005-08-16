@@ -20,7 +20,7 @@ WorldTimeClockPlugin::WorldTimeClockPlugin(QObject *parent)
     initialized = false;
 }
 
-void WorldTimeClockPlugin::initialize(QDesignerFormEditorInterface * /*core*/)
+void WorldTimeClockPlugin::initialize(QDesignerFormEditorInterface * /* core */)
 {
     if (initialized)
         return;
@@ -40,12 +40,12 @@ QWidget *WorldTimeClockPlugin::createWidget(QWidget *parent)
 
 QString WorldTimeClockPlugin::name() const
 {
-    return QLatin1String("WorldTimeClock");
+    return "WorldTimeClock";
 }
 
 QString WorldTimeClockPlugin::group() const
 {
-    return QLatin1String("Display Widgets [Examples]");
+    return "Display Widgets [Examples]";
 }
 
 QIcon WorldTimeClockPlugin::icon() const
@@ -55,12 +55,12 @@ QIcon WorldTimeClockPlugin::icon() const
 
 QString WorldTimeClockPlugin::toolTip() const
 {
-    return QString();
+    return "";
 }
 
 QString WorldTimeClockPlugin::whatsThis() const
 {
-    return QString();
+    return "";
 }
 
 bool WorldTimeClockPlugin::isContainer() const
@@ -70,26 +70,26 @@ bool WorldTimeClockPlugin::isContainer() const
 
 QString WorldTimeClockPlugin::domXml() const
 {
-    return QLatin1String("<widget class=\"WorldTimeClock\" name=\"worldTimeClock\">\n"
-                         " <property name=\"geometry\">\n"
-                         "  <rect>\n"
-                         "   <x>0</x>\n"
-                         "   <y>0</y>\n"
-                         "   <width>100</width>\n"
-                         "   <height>100</height>\n"
-                         "  </rect>\n"
-                         " </property>\n"
-                         "</widget>\n");
+    return "<widget class=\"WorldTimeClock\" name=\"worldTimeClock\">\n"
+           " <property name=\"geometry\">\n"
+           "  <rect>\n"
+           "   <x>0</x>\n"
+           "   <y>0</y>\n"
+           "   <width>100</width>\n"
+           "   <height>100</height>\n"
+           "  </rect>\n"
+           " </property>\n"
+           "</widget>\n";
 }
 
 QString WorldTimeClockPlugin::includeFile() const
 {
-    return QLatin1String("worldtimeclock.h");
+    return "worldtimeclock.h";
 }
 
 QString WorldTimeClockPlugin::codeTemplate() const
 {
-    return QString();
+    return "";
 }
 
 Q_EXPORT_PLUGIN(WorldTimeClockPlugin)

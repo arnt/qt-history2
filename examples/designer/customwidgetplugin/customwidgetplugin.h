@@ -14,8 +14,8 @@
 #include <QtDesigner/QDesignerContainerExtension>
 #include <QtDesigner/QDesignerCustomWidgetInterface>
 
-#include <QtCore/qplugin.h>
-#include <QtGui/QIcon>
+#include <QIcon>
+#include <QPlugin>
 
 class QDesignerFormEditorInterface;
 
@@ -23,8 +23,10 @@ class AnalogClockPlugin : public QObject, public QDesignerCustomWidgetInterface
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
+
 public:
     AnalogClockPlugin(QObject *parent = 0);
+
     bool isContainer() const;
     bool isInitialized() const;
     QIcon icon() const;

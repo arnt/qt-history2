@@ -204,21 +204,21 @@ int MainWindow::rowOfClient(TorrentClient *client) const
 void MainWindow::loadSettings()
 {
     // Load base settings (last working directory, upload/download limits).
-    QSettings settings(QLatin1String("Trolltech"), QLatin1String("QTorrent"));
-    lastDirectory = settings.value(QLatin1String("LastDirectory")).toString();
+    QSettings settings("Trolltech", "Torrent");
+    lastDirectory = settings.value("LastDirectory").toString();
     if (lastDirectory.isEmpty())
         lastDirectory = QDir::currentPath();
-    int up = settings.value(QLatin1String("UploadLimit")).toInt();
-    int down = settings.value(QLatin1String("DownloadLimit")).toInt();
+    int up = settings.value("UploadLimit").toInt();
+    int down = settings.value("DownloadLimit").toInt();
     uploadLimitSlider->setValue(up ? up : 170);
     downloadLimitSlider->setValue(down ? down : 550);
 
     // Resume all previous downloads.
-    int size = settings.beginReadArray(QLatin1String("Torrents"));
+    int size = settings.beginReadArray("Torrents");
     for (int i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
         QByteArray resumeState = settings.value("resumeState").toByteArray();
-        QString fileName = settings.value(QLatin1String("sourceFileName")).toString();
+        QString fileName = settings.value("sourceFileName").toString();
         QString dest = settings.value("destinationFolder").toString();
 
         if (addTorrent(fileName, dest, resumeState)) {
@@ -355,9 +355,9 @@ bool MainWindow::addTorrent(const QString &fileName, const QString &destinationF
 
     item->setText(0, baseFileName);
     item->setText(1, tr("0 / 0 / ?"));
-    item->setText(2, QLatin1String("0"));
-    item->setText(3, QLatin1String("0.0 KB/s"));
-    item->setText(4, QLatin1String("0.0 KB/s"));
+    item->setText(2, "0");
+    item->setText(3, "0.0 KB/s");
+    item->setText(4, "0.0 KB/s");
     item->setText(5, tr("Idle"));
     item->setFlags(item->flags() & ~Qt::ItemIsEditable);
     item->setTextAlignment(1, Qt::AlignHCenter);
@@ -377,22 +377,22 @@ void MainWindow::saveSettings()
     saveChanges = false;
 
     // Prepare and reset the settings
-    QSettings settings(QLatin1String("Trolltech"), QLatin1String("QTorrent"));
+    QSettings settings("Trolltech", "Torrent");
     settings.clear();
 
-    settings.setValue(QLatin1String("LastDirectory"), lastDirectory);
-    settings.setValue(QLatin1String("UploadLimit"), uploadLimitSlider->value());
-    settings.setValue(QLatin1String("DownloadLimit"), downloadLimitSlider->value());
+    settings.setValue("LastDirectory", lastDirectory);
+    settings.setValue("UploadLimit", uploadLimitSlider->value());
+    settings.setValue("DownloadLimit", downloadLimitSlider->value());
 
     // Store data on all known torrents
-    settings.beginWriteArray(QLatin1String("Torrents"));
+    settings.beginWriteArray("Torrents");
     for (int i = 0; i < jobs.size(); ++i) {
         settings.setArrayIndex(i);
-        settings.setValue(QLatin1String("sourceFileName"), jobs.at(i).torrentFileName);
-        settings.setValue(QLatin1String("destinationFolder"), jobs.at(i).destinationDirectory);
-        settings.setValue(QLatin1String("uploadedBytes"), jobs.at(i).client->uploadedBytes());
-        settings.setValue(QLatin1String("downloadedBytes"), jobs.at(i).client->downloadedBytes());
-        settings.setValue(QLatin1String("resumeState"), jobs.at(i).client->dumpedState());
+        settings.setValue("sourceFileName", jobs.at(i).torrentFileName);
+        settings.setValue("destinationFolder", jobs.at(i).destinationDirectory);
+        settings.setValue("uploadedBytes", jobs.at(i).client->uploadedBytes());
+        settings.setValue("downloadedBytes", jobs.at(i).client->downloadedBytes());
+        settings.setValue("resumeState", jobs.at(i).client->dumpedState());
     }
     settings.endArray();
     settings.sync();
@@ -626,8 +626,8 @@ void TorrentView::dragMoveEvent(QDragMoveEvent *event)
 {
     // Accept file actions with a '.torrent' extension.
     QUrl url(event->mimeData()->text());
-    if (url.isValid() && url.scheme().toLower() == QLatin1String("file")
-        && url.path().toLower().endsWith(".torrent"))
+    if (url.isValid() && url.scheme().toLower() == "file"
+            && url.path().toLower().endsWith(".torrent"))
         event->acceptProposedAction();
 }
 
