@@ -151,6 +151,7 @@ QVFb::QVFb( int display_id, int w, int h, int d, int r, const QString &skin, QWi
 	    const char *name, uint flags )
     : QMainWindow( parent, name, static_cast<Qt::WFlags>(flags) )
 {
+    qApp->setQuitOnLastWindowClosed(false);
     view = 0;
     scroller = 0;
     this->skin = 0;
