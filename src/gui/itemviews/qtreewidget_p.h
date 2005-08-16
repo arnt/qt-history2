@@ -26,7 +26,7 @@
 
 
 #include <QtCore/qabstractitemmodel.h>
-#include <qpair.h>
+#include <QtCore/QPair.h>
 
 class QTreeWidgetItem;
 class QTreeWidgetItemIterator;
@@ -85,6 +85,8 @@ public:
     // used by the iterator
     static QTreeWidgetItem* nextSibling(const QTreeWidgetItem* item);
     static QTreeWidgetItem* previousSibling(const QTreeWidgetItem* item);
+    static void ensureValidIterator(QTreeWidgetItemIterator *iterator, const QTreeWidgetItem *itemToBeRemoved);
+    static QTreeWidgetItem* walk(const QTreeWidgetItem *current);
 
 protected:
     void emitDataChanged(QTreeWidgetItem *item, int column);

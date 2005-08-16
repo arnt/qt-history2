@@ -21,6 +21,8 @@ class QTreeModel;
 
 class Q_GUI_EXPORT QTreeWidgetItemIterator
 {
+    friend class QTreeModel;
+
 public:
     enum IteratorFlag {
         All           = 0x00000000,
@@ -41,7 +43,8 @@ public:
         Enabled       = 0x00004000,
         Disabled      = 0x00008000,
         Editable      = 0x00010000,
-        NotEditable   = 0x00020000
+        NotEditable   = 0x00020000,
+        UserFlag      = 0x01000000, // The first flag that can be used by the user.
     };
     Q_DECLARE_FLAGS(IteratorFlags, IteratorFlag)
 

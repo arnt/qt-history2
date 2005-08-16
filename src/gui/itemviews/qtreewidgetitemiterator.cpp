@@ -101,15 +101,7 @@ QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator++()
 {
     if (current)
         do {
-            QTreeWidgetItem *item = 0;
-            if (current->children.isEmpty()) {
-                while (!(item = QTreeModel::nextSibling(current)))
-                    if (!(current = current->parent()))
-                        break;
-            } else {
-                item = current->children.first();
-            }
-            current = item;
+            current = QTreeModel::walk(current);
         } while (current && !matchesFlags(current));
     return *this;
 }
@@ -172,7 +164,7 @@ bool QTreeWidgetItemIterator::matchesFlags(const QTreeWidgetItem *item) const
     }
 
     {
-        Qt::CheckState check = item->checkState(0); // FIXME
+        Qt::CheckState check = item->checkState(0); //###FIXME
         // Not sure why the FIXME is here,
         // but we (jasaethe && mariusbm) decided that Qt::PartiallyChecked should match as Checked.
         if ((flags & Checked) && (check == Qt::Unchecked))  
@@ -269,4 +261,5 @@ bool QTreeWidgetItemIterator::matchesFlags(const QTreeWidgetItem *item) const
     \value Disabled
     \value Editable
     \value NotEditable
+    \value UserFlag
 */

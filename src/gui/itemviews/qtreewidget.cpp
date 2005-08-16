@@ -492,19 +492,60 @@ void QTreeModel::beginInsertItems(QTreeWidgetItem *parent, int row, int count)
     beginInsertRows(index(parent, 0), row, row + count - 1);
 }
 
+QTreeWidgetItem* QTreeModel::walk(const QTreeWidgetItem *current)
+{
+    Q_ASSERT(current);
+    QTreeWidgetItem *item = 0;
+    if (current->children.isEmpty()) {
+        QTreeWidgetItem *parent = const_cast<QTreeWidgetItem *>(current);
+        while (!(item = QTreeModel::nextSibling(parent)))
+            if (!(parent = parent->parent()))
+                break;
+    } else {
+        item = current->children.first();
+    }
+    return item;
+}
+
+// recursive
+void QTreeModel::ensureValidIterator(QTreeWidgetItemIterator *iterator, const QTreeWidgetItem *itemToBeRemoved)
+{
+    Q_ASSERT(itemToBeRemoved);
+    Q_ASSERT(iterator);
+    if (!itemToBeRemoved->children.isEmpty()) {
+        // We have to walk *all* descendants in order to check if the iterator points
+        // to an item that is about to be deleted.
+        QTreeWidgetItem *walkItem = walk(itemToBeRemoved);
+        QTreeWidgetItem *nextSibling = QTreeModel::nextSibling(itemToBeRemoved);
+        while(walkItem != nextSibling) {
+            if (*(*iterator) == walkItem) {
+                ensureValidIterator(iterator, walkItem);    // recurse
+            }
+            walkItem = walk(walkItem);            
+        }
+        (*iterator).current = nextSibling;
+        // This does not have to be valid, iterate to the next if it doesn't match our flags
+        if (!(*iterator).matchesFlags(nextSibling)) ++(*iterator);
+    } else {
+        if (itemToBeRemoved == *(*iterator)) ++(*iterator);
+    }
+}
+
 void QTreeModel::beginRemoveItems(QTreeWidgetItem *parent, int row, int count)
 {
     beginRemoveRows(index(parent, 0), row, row + count - 1);
     // now update the iterators
-    QList<QTreeWidgetItem*> items;
-    if (parent)
-        items = parent->children;
-    else
-        items = tree;
-    for (int i = 0; i < iterators.count(); ++i)
-        for (int j = 0; j < items.count(); ++j)
-            if (*(*iterators.at(i)) == items.at(j))
-                ++(*iterators[i]);
+    for (int i = 0; i < iterators.count(); ++i) {
+        for (int j = 0; j < count; j++) {
+            QTreeWidgetItem *c;
+            if (parent) {
+                c = parent->child(row + j);
+            } else {
+                c = tree.at(row + j);
+            }
+            ensureValidIterator(iterators[i], c);
+        }
+    }
 }
 
 QTreeWidgetItem* QTreeModel::nextSibling(const QTreeWidgetItem* item)
@@ -1051,7 +1092,7 @@ QTreeWidgetItem::~QTreeWidgetItem()
         if (model) model->endRemoveRows();
     } else if (model) {
         int i = model->tree.indexOf(this);
-        model->beginRemoveRows(QModelIndex(), i, i);
+        model->beginRemoveItems(0, i, 1);
         model->tree.takeAt(i);
         model->endRemoveRows();
     }
