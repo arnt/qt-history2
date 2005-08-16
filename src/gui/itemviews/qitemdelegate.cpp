@@ -76,6 +76,7 @@ public:
     the delegate, and editing data from the model. The paint() and
     sizeHint() virtual functions defined in QAbstractItemDelegate are
     implemented to ensure that the delegate is presented correctly.
+
     Only the standard editing functions for widget-based delegates are
     reimplemented here: editor() returns the widget used to change data
     from the model; setEditorData() provides the widget with data to
@@ -83,6 +84,14 @@ public:
     correctly with respect to the item view; setModelData() returns the
     updated data to the model; releaseEditor() indicates that the user has
     completed editing the data, and that the editor widget can be destroyed.
+
+    \section2 Subclassing
+
+    When subclassing QItemDelegate to create a delegate that displays items
+    using a custom renderer, it is important to ensure that the delegate can
+    render items suitably for all the required states; e.g. selected,
+    disabled, checked. The documentation for the paint() function contains
+    some hints to show how this can be achieved.
 
     \sa {Model/View Programming}, QAbstractItemDelegate
 */
@@ -108,6 +117,20 @@ QItemDelegate::~QItemDelegate()
 /*!
     Renders the delegate using the given \a painter and style \a option for
     the item specified by \a index.
+
+    When reimplementing this function in a subclass, you should use the
+    \a option to determine the state of the item to be displated and adjust
+    the way it is painted accordingly.
+
+    For example, a selected item may need to be displayed differently to
+    unselected items, as shown in the following code:
+
+    \quotefromfile itemviews/pixelator/pixeldelegate.cpp
+    \skipto QStyle::State_Selected
+    \printuntil else
+    \dots
+
+    \sa QStyle::State
 */
 
 void QItemDelegate::paint(QPainter *painter,
