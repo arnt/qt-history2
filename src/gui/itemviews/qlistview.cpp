@@ -1589,8 +1589,8 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
                 else
                     deltaFlowPosition = item->h + gap;
             } else {
-                item->w = gridSize.width();
-                item->h = gridSize.height();
+                item->w = qMin<int>(gridSize.width(), item->w);
+                item->h = qMin<int>(gridSize.height(), item->h);
             }
             // create new segment
             if (wrap
@@ -1716,6 +1716,7 @@ void QListViewPrivate::drawItems(QPainter *painter, const QVector<QModelIndex> &
 {
     Q_Q(const QListView);
     QStyleOptionViewItem option = q->viewOptions();
+    option.state &= ~QStyle::State_MouseOver;
     QVector<QModelIndex>::const_iterator it = indexes.begin();
     QListViewItem item = indexToListViewItem(*it);
     for (; it != indexes.end(); ++it) {
