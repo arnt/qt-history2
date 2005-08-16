@@ -1303,7 +1303,7 @@ QTextBlock::iterator &QTextBlock::iterator::operator--()
     of the start of the fragment. To determine whether the fragment contains
     a particular position within the document, use the contains() function.
 
-    \sa QTextDocument
+    \sa QTextDocument, {Rich Text Document Structure}
 */
 
 /*!
