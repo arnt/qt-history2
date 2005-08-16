@@ -249,9 +249,6 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
 
     Returns the button that caused the event.
 
-    Possible return values are Qt::LeftButton, Qt::RightButton,
-    Qt::MidButton, and Qt::NoButton.
-
     Note that the returned value is always Qt::NoButton for mouse
     move events.
 
