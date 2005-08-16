@@ -376,8 +376,7 @@ void QAbstractSocketPrivate::setupSocketNotifiers()
     network layer protocol \a protocol. Resets the socket layer first
     if it's already initialized. Sets up the socket notifiers.
 */
-bool QAbstractSocketPrivate::initSocketLayer(QAbstractSocket::SocketType type,
-                                            QAbstractSocket::NetworkLayerProtocol protocol)
+bool QAbstractSocketPrivate::initSocketLayer(const QHostAddress &host, QAbstractSocket::SocketType type)
 {
     Q_Q(QAbstractSocket);
 #if defined (QABSTRACTSOCKET_DEBUG)
@@ -386,14 +385,14 @@ bool QAbstractSocketPrivate::initSocketLayer(QAbstractSocket::SocketType type,
     else if (type == QAbstractSocket::UdpSocket) typeStr = "UdpSocket";
     else typeStr = "UnknownSocketType";
     QString protocolStr;
-    if (protocol == QAbstractSocket::IPv4Protocol) protocolStr = "IPv4Protocol";
-    else if (protocol == QAbstractSocket::IPv6Protocol) protocolStr = "IPv6Protocol";
+    if (host.protocol() == QAbstractSocket::IPv4Protocol) protocolStr = "IPv4Protocol";
+    else if (host.protocol() == QAbstractSocket::IPv6Protocol) protocolStr = "IPv6Protocol";
     else protocolStr = "UnknownNetworkLayerProtocol";
 #endif
 
     resetSocketLayer();
-    socketEngine = new QNativeSocketEngine(q);
-    if (!socketEngine->initialize(type, protocol)) {
+    socketEngine = QAbstractSocketEngine::createSocketEngine(host, type, q);
+    if (!socketEngine->initialize(type, host.protocol())) {
 #if defined (QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocketPrivate::initSocketLayer(%s, %s) failed (%s)",
                typeStr.toLatin1().constData(), protocolStr.toLatin1().constData(),
@@ -708,12 +707,9 @@ void QAbstractSocketPrivate::connectToNextAddress()
         }
 #endif
 
-        // Perhaps reinitialize the socket layer if its protocol
-        // doesn't match the address.
-        if (!socketEngine || !socketEngine->isValid() || socketEngine->protocol() != protocol
-            || socketEngine->state() != QAbstractSocket::UnconnectedState) {
-            // ### might fail
-            initSocketLayer(q->socketType(), protocol);
+        if (!initSocketLayer(host, q->socketType())) {
+            // hope that the next address is better
+            continue;
         }
 
         // Tries to connect to the address. If it succeeds immediately
@@ -1135,7 +1131,7 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, SocketState sock
 {
     Q_D(QAbstractSocket);    
     d->resetSocketLayer();
-    d->socketEngine = new QNativeSocketEngine(this);
+    d->socketEngine = QAbstractSocketEngine::createSocketEngine(socketDescriptor, this);
     bool result = d->socketEngine->initialize(socketDescriptor, socketState);
     if (!result) {
         d->socketError = d->socketEngine->error();

@@ -1,4 +1,26 @@
 #include "qabstractsocketengine_p.h"
+#include "qnativesocketengine_p.h"
+#include <qmutex.h>
+
+class QSocketEngineHandlerList : public QList<QSocketEngineHandler*>
+{
+public:
+    QMutex mutex;
+};
+
+Q_GLOBAL_STATIC(QSocketEngineHandlerList, socketHandlers);
+
+QSocketEngineHandler::QSocketEngineHandler()
+{   
+    QMutexLocker locker(&socketHandlers()->mutex);
+    socketHandlers()->prepend(this);
+}
+
+QSocketEngineHandler::~QSocketEngineHandler()
+{
+    QMutexLocker locker(&socketHandlers()->mutex);
+    socketHandlers()->removeAll(this);
+}
 
 QAbstractSocketEnginePrivate::QAbstractSocketEnginePrivate()
     : socketError(QAbstractSocket::UnknownSocketError)
@@ -19,6 +41,26 @@ QAbstractSocketEngine::QAbstractSocketEngine(QObject *parent)
 QAbstractSocketEngine::QAbstractSocketEngine(QAbstractSocketEnginePrivate &dd, QObject* parent)
     : QObject(dd, parent)
 {
+}
+
+QAbstractSocketEngine *QAbstractSocketEngine::createSocketEngine(const QHostAddress &address, QAbstractSocket::SocketType socketType, QObject *parent)
+{
+    QMutexLocker locker(&socketHandlers()->mutex);
+    for(int i = 0; i < socketHandlers()->size(); i++) {
+        if(QAbstractSocketEngine *ret = socketHandlers()->at(i)->createSocketEngine(address, socketType, parent))
+            return ret;
+    }
+    return new QNativeSocketEngine(parent);
+}
+
+QAbstractSocketEngine *QAbstractSocketEngine::createSocketEngine(int socketDescripter, QObject *parent)
+{
+    QMutexLocker locker(&socketHandlers()->mutex);
+    for(int i = 0; i < socketHandlers()->size(); i++) {
+        if(QAbstractSocketEngine *ret = socketHandlers()->at(i)->createSocketEngine(socketDescripter, parent))
+            return ret;
+    }
+    return new QNativeSocketEngine(parent);
 }
 
 QAbstractSocket::SocketError QAbstractSocketEngine::error() const

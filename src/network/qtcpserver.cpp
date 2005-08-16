@@ -207,7 +207,7 @@ bool QTcpServer::listen(const QHostAddress &address, quint16 port)
 
     if (d->socketEngine)
         delete d->socketEngine;
-    d->socketEngine = new QNativeSocketEngine(this);
+    d->socketEngine = QAbstractSocketEngine::createSocketEngine(address, QAbstractSocket::TcpSocket, this);
     if (!d->socketEngine->initialize(QAbstractSocket::TcpSocket, proto)) {
         d->serverSocketError = d->socketEngine->error();
         d->serverSocketErrorString = d->socketEngine->errorString();
@@ -319,7 +319,7 @@ bool QTcpServer::setSocketDescriptor(int socketDescriptor)
 
     if (d->socketEngine)
         delete d->socketEngine;
-    d->socketEngine = new QNativeSocketEngine(this);
+    d->socketEngine = QAbstractSocketEngine::createSocketEngine(socketDescriptor, this);
     if (!d->socketEngine->initialize(socketDescriptor, QAbstractSocket::ListeningState)) {
         d->serverSocketError = d->socketEngine->error();
         d->serverSocketErrorString = d->socketEngine->errorString();

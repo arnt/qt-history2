@@ -24,6 +24,10 @@ class QAbstractSocketEngine : public QObject
 {
     Q_OBJECT
 public:
+
+    static QAbstractSocketEngine *createSocketEngine(const QHostAddress &address, QAbstractSocket::SocketType socketType, QObject *parent);
+    static QAbstractSocketEngine *createSocketEngine(int socketDescripter, QObject *parent);
+    
     QAbstractSocketEngine(QObject *parent = 0);
 
     enum SocketOption {
@@ -124,6 +128,19 @@ public:
     quint16 localPort;
     QHostAddress peerAddress;
     quint16 peerPort;
+};
+
+
+class QSocketEngineHandler
+{
+protected:
+    QSocketEngineHandler();
+    virtual ~QSocketEngineHandler();
+    virtual QAbstractSocketEngine *createSocketEngine(const QHostAddress &address, QAbstractSocket::SocketType socketType, QObject *parent) = 0;
+    virtual QAbstractSocketEngine *createSocketEngine(int socketDescripter, QObject *parent) = 0;
+
+private:
+    friend class QAbstractSocketEngine;
 };
 
 #endif // QABSTRACTSOCKETENGINE_H

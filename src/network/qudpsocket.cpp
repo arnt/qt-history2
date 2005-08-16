@@ -94,14 +94,14 @@
         return (a); \
     } \
     if (!d_func()->socketEngine || !d_func()->socketEngine->isValid() || d_func()->socketEngine->protocol() != proto) \
-        if (!d_func()->initSocketLayer(QUdpSocket::UdpSocket, proto)) \
+        if (!d_func()->initSocketLayer(address, QUdpSocket::UdpSocket)) \
             return (a); \
     } while (0)
 #else
 #define QT_ENSURE_INITIALIZED(a) do { \
     QAbstractSocket::NetworkLayerProtocol proto = address.protocol(); \
     if (!d_func()->socketEngine || !d_func()->socketEngine->isValid() || d_func()->socketEngine->protocol() != proto) \
-        if (!d_func()->initSocketLayer(QUdpSocket::UdpSocket, proto)) \
+        if (!d_func()->initSocketLayer(address, QUdpSocket::UdpSocket)) \
             return (a); \
     } while (0)
 #endif

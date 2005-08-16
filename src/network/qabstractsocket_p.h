@@ -58,7 +58,7 @@ public:
     void resetSocketLayer();
     bool flush();
 
-    bool initSocketLayer(QAbstractSocket::SocketType socketType, QAbstractSocket::NetworkLayerProtocol protocol);
+    bool initSocketLayer(const QHostAddress &host, QAbstractSocket::SocketType socketType);
     void setupSocketNotifiers();
     bool readFromSocket();
 
