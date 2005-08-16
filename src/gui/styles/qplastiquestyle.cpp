@@ -1156,6 +1156,8 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     case PE_PanelToolBar: {
         // Draws the light line above and the dark line below menu bars and
         // tool bars.
+        if (qobject_cast<QToolBar *>(widget->parentWidget()))
+            break;
         QPen oldPen = painter->pen();
         if (element == PE_PanelMenuBar || (option->state & State_Horizontal)) {
             painter->setPen(alphaCornerColor);
@@ -3890,8 +3892,8 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 
                 qt_plastique_draw_mdibutton(painter, titleBar, contextHelpButtonRect, hover, contentsPropagated);
 
-                QColor blend;                
-                // ### Use palette colors                    
+                QColor blend;
+                // ### Use palette colors
                 if (active) {
                     blend = mergedColors(QColor(hover ? 0x7d8bb1 : 0x55689a),
                                          QColor(hover ? 0x939ebe : 0x7381ab));
@@ -3904,7 +3906,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 image.setColor(3, mergedColors(blend, textColor, 30).rgba());
                 image.setColor(2, mergedColors(blend, textColor, 70).rgba());
                 image.setColor(1, mergedColors(blend, textColor, 90).rgba());
-                
+
                 painter->drawImage(contextHelpButtonRect, image);
             }
 

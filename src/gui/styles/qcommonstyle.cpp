@@ -27,6 +27,7 @@
 #include <qslider.h>
 #include <qstyleoption.h>
 #include <qtabbar.h>
+#include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <qrubberband.h>
 #include <private/qcommonstylepixmaps_p.h>
@@ -183,6 +184,8 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         break;
     case PE_PanelMenuBar:
     case PE_PanelToolBar:
+        if (qobject_cast<QToolBar *>(widget->parentWidget()))
+            break;
         if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt))
             qDrawShadePanel(p, frame->rect, frame->palette, false, frame->lineWidth,
                             &frame->palette.brush(QPalette::Button));
