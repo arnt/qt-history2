@@ -1,8 +1,8 @@
-#include <stdio.h>
-#include <malloc.h>
-#include <string.h>
-
 #include "keydec.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define MAX_STRSIZE 256
 #define NUMBER_OF_PARTS 7
