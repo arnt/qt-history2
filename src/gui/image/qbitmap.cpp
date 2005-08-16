@@ -53,7 +53,7 @@
     \link shclass.html implicit sharing\endlink, so it is very
     efficient to pass QBitmap objects as arguments.
 
-    \sa QPixmap, QPainter::drawPixmap(), bitBlt(), \link shclass.html Shared Classes\endlink
+    \sa QPixmap, QPainter::drawPixmap(), bitBlt(), {shclass.html}{Shared Classes}
 */
 
 

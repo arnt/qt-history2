@@ -347,7 +347,7 @@ QImageData::~QImageData()
     New image formats can be added as \link plugins-howto.html
     plugins\endlink.
 
-    \sa QImageReader, QImageWriter, QPixmap QColor {shclass.html}{Shared Classes}
+    \sa QImageReader, QImageWriter, QPixmap, QColor, {shclass.html}{Shared Classes}
 */
 
 /*!

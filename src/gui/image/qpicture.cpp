@@ -63,6 +63,7 @@
     picture is available, for example, size(), isNull() and
     boundingRect().
 
+    \sa QMovie
 */
 
 const char  *qt_mfhdr_tag = "QPIC"; // header tag

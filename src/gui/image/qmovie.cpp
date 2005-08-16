@@ -11,7 +11,8 @@
 **
 ****************************************************************************/
 
-/*! \class QMovie
+/*! 
+    \class QMovie
 
     \brief The QMovie class is a convenience class for playing movies
     with QImageReader.
@@ -64,8 +65,7 @@
     movie should loop before finishing. nextFrameDelay() returns the number of
     milliseconds the current frame should be displayed.
 
-
-   \sa QLabel, QImageReader
+    \sa QLabel, QImageReader
 */
 
 /*! \enum QMovie::MovieState
@@ -105,10 +105,11 @@
     updated frame.
 */
 
-/*! \fn void QMovie::stateChanged(QMovie::MovieState state)
+/*! 
+    \fn void QMovie::stateChanged(QMovie::MovieState state)
 
-    This signal is emitted every time QMovie's state changes. \a state is the
-    new state of QMovie.
+    This signal is emitted every time the state of the movie changes. The new
+    state is specified by \a state.
 
     \sa QMovie::state()
 */
