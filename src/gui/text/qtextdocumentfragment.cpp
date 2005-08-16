@@ -460,7 +460,7 @@ void QTextHtmlImporter::import()
         } else if (node->id == Html_body) {
             containsCompleteDoc = true;
             if (node->bgColor.isValid()) {
-                QTextFrameFormat fmt;
+                QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
                 fmt.setBackground(node->bgColor);
                 doc->rootFrame()->setFrameFormat(fmt);
                 const_cast<QTextHtmlParserNode *>(node)->bgColor = QColor();

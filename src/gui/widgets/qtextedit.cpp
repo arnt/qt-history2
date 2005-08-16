@@ -409,11 +409,6 @@ void QTextEditPrivate::init(Qt::TextFormat format, const QString &text, QTextDoc
         cursor = QTextCursor(doc);
     }
 
-    QTextFrame *rootFrame = doc->rootFrame();
-    QTextFrameFormat ffmt = rootFrame->frameFormat();
-    ffmt.setMargin(4);
-    rootFrame->setFrameFormat(ffmt);
-
     doc->setUndoRedoEnabled(!q->isReadOnly());
     cursor.movePosition(QTextCursor::Start);
     updateCurrentCharFormatAndSelection();

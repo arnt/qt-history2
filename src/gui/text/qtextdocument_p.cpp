@@ -162,7 +162,9 @@ QTextDocumentPrivate::QTextDocumentPrivate()
 
 void QTextDocumentPrivate::init()
 {
-    frame = qobject_cast<QTextFrame *>(createObject(QTextFrameFormat()));
+    QTextFrameFormat defaultRootFrameFormat;
+    defaultRootFrameFormat.setMargin(4);
+    frame = qobject_cast<QTextFrame *>(createObject(defaultRootFrameFormat));
     framesDirty = false;
 
     bool undoState = undoEnabled; 
