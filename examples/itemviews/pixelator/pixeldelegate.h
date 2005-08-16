@@ -24,21 +24,25 @@ class QObject;
 class QPainter;
 
 static const int ItemSize = 256;
-static const int PixelSize = 12;
 
 class PixelDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
 
 public:
-    PixelDelegate(QObject *parent = 0)
-        : QAbstractItemDelegate(parent) {}
+    PixelDelegate(QObject *parent = 0);
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const;
 
     QSize sizeHint(const QStyleOptionViewItem &option,
                    const QModelIndex &index ) const;
+
+public slots:
+    void setPixelSize(int size);
+
+private:
+    int pixelSize;
 };
 
 #endif

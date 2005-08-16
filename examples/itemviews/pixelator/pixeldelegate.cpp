@@ -15,14 +15,29 @@
 
 #include "pixeldelegate.h"
 
+PixelDelegate::PixelDelegate(QObject *parent)
+    : QAbstractItemDelegate(parent)
+{
+    pixelSize = 12;
+}
+
 void PixelDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const
 {
     painter->setRenderHint(QPainter::Antialiasing);
-    painter->setBrush(QBrush(Qt::white));
     painter->setPen(Qt::NoPen);
+
+    if (option.showDecorationSelected && option.state & QStyle::State_Selected)
+        painter->setBrush(option.palette.highlight());
+    else
+        painter->setBrush(QBrush(Qt::white));
+
     painter->drawRect(option.rect);
-    painter->setBrush(QBrush(Qt::black));
+
+    if (option.showDecorationSelected && option.state & QStyle::State_Selected)
+        painter->setBrush(option.palette.highlightedText());
+    else
+        painter->setBrush(QBrush(Qt::black));
 
     int size = qMin(option.rect.width(), option.rect.height());
     int brightness = index.model()->data(index, Qt::DisplayRole).toInt();
@@ -38,5 +53,10 @@ void PixelDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 QSize PixelDelegate::sizeHint(const QStyleOptionViewItem & /* option */,
                               const QModelIndex & /* index */) const
 {
-    return QSize(PixelSize, PixelSize);
+    return QSize(pixelSize, pixelSize);
+}
+
+void PixelDelegate::setPixelSize(int size)
+{
+    pixelSize = size;
 }

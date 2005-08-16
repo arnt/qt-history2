@@ -33,6 +33,7 @@ public slots:
     void chooseImage();
     void printImage();
     void showAboutBox();
+    void updateView();
 
 private:
     QAbstractItemModel *model;
