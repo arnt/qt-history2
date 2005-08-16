@@ -1063,8 +1063,10 @@ QRect QTableView::visualRect(const QModelIndex &index) const
     if (!index.isValid() || index.parent() != rootIndex())
         return QRect();
     d_func()->executePostedLayout();
+
+    int i = showGrid() ? 1 : 0;
     return QRect(columnViewportPosition(index.column()), rowViewportPosition(index.row()),
-                 columnWidth(index.column()) - 1, rowHeight(index.row()) - 1);
+                 columnWidth(index.column()) - i, rowHeight(index.row()) - i);
 }
 
 /*!
