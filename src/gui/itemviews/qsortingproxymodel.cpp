@@ -17,8 +17,6 @@
 #include <qdebug.h>
 #include <private/qsortingproxymodel_p.h>
 
-typedef bool(*LessThan)(const QModelIndex &left, const QModelIndex &right);
-
 /*!
   \class QSortingProxyModel
   \brief The QSortingProxyModel class provides support for sorting data
@@ -66,7 +64,7 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
     source_parent_stack.push(QModelIndex());
 
     QList<QModelIndex> source_children;
-    LessThan compare = (order == Qt::AscendingOrder ? &lessThan : &greaterThan);
+    Compare *compare = (order == Qt::AscendingOrder ? d->less : d->greater);
 
     while (!source_parent_stack.isEmpty()) {
 
@@ -77,8 +75,8 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
                 source_parent_stack.push(source_index);
             source_children.append(source_index);
         }
-        
-        qSort(source_children.begin(), source_children.end(), compare);
+
+        qSort(source_children.begin(), source_children.end(), *compare);
 
         QModelIndex proxy_parent = proxy_to_source.key(source_parent); // ### slow
         void *parent_node = 0;
@@ -123,29 +121,23 @@ void QSortingProxyModel::clear()
     QMappingProxyModel::clear();    
 }
 
+/*!
+  Sets the given \a function to be used as the < operator when sorting;
+*/
+void QSortingProxyModel::setLessThan(Compare *function)
+{
+    d_func()->less = function;
+}
+
+/*!
+  Sets the given \a function to be used as the > operator when sorting;
+*/
+void QSortingProxyModel::setGreaterThan(Compare *function)
+{
+    d_func()->greater = function;
+}
+
 // protected
-
-/*!
-  Returns true if the data in the item in \a source_left is less than
-  the data in \a source_right; other wise returns false.
-*/
-bool QSortingProxyModel::lessThan(const QModelIndex &source_left,
-                                  const QModelIndex &source_right)
-{
-    QVariant leftValue = source_left.model()->data(source_left, Qt::DisplayRole);
-    QVariant rightValue = source_right.model()->data(source_right, Qt::DisplayRole);
-    return leftValue.toString() < rightValue.toString();
-}
-
-/*!
-  Returns true if the data in the item in \a source_left is greater than
-  the data in \a source_right; other wise returns false.
-*/
-bool QSortingProxyModel::greaterThan(const QModelIndex &source_left,
-                                     const QModelIndex &source_right)
-{
-    return lessThan(source_right, source_left);
-}
 
 /*!
   \internal

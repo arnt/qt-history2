@@ -32,13 +32,33 @@
 class QSortingProxyModelPrivate : private QMappingProxyModelPrivate
 {
     Q_DECLARE_PUBLIC(QSortingProxyModel)
+
 public:
+
+    static bool defaultLessThan(const QModelIndex &left, const QModelIndex &right)
+    {
+        return (left.model()->data(left, Qt::DisplayRole).toString()
+                < right.model()->data(right, Qt::DisplayRole).toString());
+    }
+
+    static bool defaultGreaterThan(const QModelIndex &left, const QModelIndex &right)
+    {
+        return (left.model()->data(left, Qt::DisplayRole).toString()
+                > right.model()->data(right, Qt::DisplayRole).toString());
+    }
+    
     QSortingProxyModelPrivate()
         : QMappingProxyModelPrivate(),
           sort_column(-1),
-          sort_order(Qt::AscendingOrder) {}
+          sort_order(Qt::AscendingOrder),
+          less(&defaultLessThan),
+          greater(&defaultGreaterThan) {}
+ 
     int sort_column;
     Qt::SortOrder sort_order;
+
+    QSortingProxyModel::Compare *less;
+    QSortingProxyModel::Compare *greater;
 };
 
 #endif // QSORTINGPROXYMODEL_P_H

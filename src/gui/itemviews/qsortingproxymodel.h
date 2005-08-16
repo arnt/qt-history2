@@ -29,12 +29,12 @@ public:
     void sort(int column, Qt::SortOrder order);
     void clear();
 
+    typedef bool(Compare)(const QModelIndex &left, const QModelIndex &right);
+    void setLessThan(Compare *function);
+    void setGreaterThan(Compare *function);
+
 protected:
     QSortingProxyModel(QSortingProxyModelPrivate &, QObject *parent);
-
-    static bool lessThan(const QModelIndex &left, const QModelIndex &right);
-    static bool greaterThan(const QModelIndex &left, const QModelIndex &right);
-
     void sourceLayoutChanged();
 
 private:
