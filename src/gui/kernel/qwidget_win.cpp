@@ -1356,10 +1356,27 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 
     if (isResize && !q->testAttribute(Qt::WA_StaticContents))
         ValidateRgn(q->winId(), 0);
-
-    if (isResize)
+   
+    if (isResize) 
         data.window_state &= ~Qt::WindowMaximized;
-    data.window_state &= ~Qt::WindowFullScreen;
+    
+    if (data.window_state & Qt::WindowFullScreen) {
+        // We need to update these flags when we remove the full screen state
+        // or the frame will not be updated
+        UINT style = topData()->savedFlags;
+        if (q->isVisible())
+            style |= WS_VISIBLE;
+        SetWindowLongA(q->winId(), GWL_STYLE, style);
+
+        UINT swpf = SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOSIZE | SWP_NOMOVE;
+        if (data.window_state & Qt::WindowActive)
+            swpf |= SWP_NOACTIVATE;
+        SetWindowPos(q->winId(), 0, 0, 0, 0, 0, swpf);
+        updateFrameStrut();
+
+        data.window_state &= ~Qt::WindowFullScreen;
+    }
+    
     if (q->testAttribute(Qt::WA_WState_ConfigPending)) {        // processing config event
         qWinRequestConfig(q->winId(), isMove ? 2 : 1, x, y, w, h);
     } else {
