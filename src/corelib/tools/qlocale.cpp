@@ -1508,6 +1508,39 @@ static int repeatCount(const QString &s, int i)
     return j - i;
 }
 
+static QString readEscapedFormatString(const QString &format, int *idx)
+{
+    int &i = *idx;
+
+    Q_ASSERT(format.at(i++).unicode() == '\'');
+    if (i == format.size())
+        return QString();
+    if (format.at(i).unicode() == '\'') { // "''" outside of a quoted stirng
+        ++i;
+        return QLatin1String("'");
+    }
+
+    QString result;
+
+    while (i < format.size()) {
+        if (format.at(i).unicode() == '\'') {
+            if (i + 1 < format.size() && format.at(i + 1).unicode() == '\'') {
+                // "''" inside of a quoted string
+                result.append(QLatin1Char('\''));
+                i += 2;
+            } else {
+                break;
+            }
+        } else {
+            result.append(format.at(i++));
+        }
+    }
+    if (i < format.size())
+        ++i;
+
+    return result;
+}
+
 /*!
     Returns a localized string representation of \a date. If \a format is specified,
     the string is formatted according to it. If \a format is an empty strig (the
@@ -1518,35 +1551,15 @@ QString QLocale::toString(const QDate &date, const QString &format) const
 {
     QString result;
 
-    bool escape = false;
     int i = 0;
     while (i < format.size()) {
+        if (format.at(i).unicode() == '\'') {
+            result.append(readEscapedFormatString(format, &i));
+            continue;
+        }
+
         QChar c = format.at(i);
         int repeat = repeatCount(format, i);
-
-        if (c.unicode() == '\'') {
-            if (escape) {
-                escape = false;
-                ++i;
-                continue;
-            }
-
-            if (repeat >= 2) {
-                result.append(c);
-                i += 2;
-                continue;
-            }
-
-            escape = true;
-            ++i;
-            continue;
-        }
-
-        if (escape) {
-            result.append(c);
-            ++i;
-            continue;
-        }
 
         switch (c.unicode()) {
             case 'y':
@@ -1592,29 +1605,14 @@ QString QLocale::toString(const QDate &date, const QString &format) const
                 break;
 
             case 'd':
-                if (repeat > 2)
-                    repeat = 2;
+                if (repeat > 4)
+                    repeat = 4;
                 switch (repeat) {
                     case 1:
                         result.append(d->longLongToString(date.day()));
                         break;
                     case 2:
                         result.append(d->longLongToString(date.day(), -1, 10, 2, QLocalePrivate::ZeroPadded));
-                        break;
-                    default:
-                        break;
-                }
-                break;
-
-            case 'E':
-                if (repeat > 4)
-                    repeat = 4;
-                switch (repeat) {
-                    case 1:
-                        result.append(d->longLongToString(date.dayOfWeek()));
-                        break;
-                    case 2:
-                        result.append(d->longLongToString(date.dayOfWeek(), -1, 10, 2, QLocalePrivate::ZeroPadded));
                         break;
                     case 3:
                         result.append(d->day(date.dayOfWeek() - 1, true));
@@ -1645,39 +1643,57 @@ QString QLocale::toString(const QDate &date, FormatType format) const
     return toString(date, format_str);
 }
 
+static bool timeFormatContainsAP(const QString &format)
+{
+    int i = 0;
+    while (i + 1 < format.size()) {
+        if (format.at(i).unicode() == '\'') {
+            readEscapedFormatString(format, &i);
+            continue;
+        }
+
+        QChar c1 = format.at(i);
+        QChar c2 = format.at(i + 1);
+        if (c1.unicode() == 'a' && c2.unicode() == 'p'
+            || c1.unicode() == 'A' && c2.unicode() == 'P')
+            return true;
+
+        ++i;
+    }
+    return false;
+}
+
 QString QLocale::toString(const QTime &time, const QString &format) const
 {
     QString result;
 
-    bool escape = false;
+    int hour = time.hour();
+    enum { AM, PM } am_pm = AM;
+    if (timeFormatContainsAP(format)) {
+        // you can't go wrong this way :)
+        if (hour == 0) {
+            am_pm = AM;
+            hour = 12;
+        } else if (hour < 12) {
+            am_pm = AM;
+        } else if (hour == 12) {
+            am_pm = PM;
+        } else {
+            am_pm = PM;
+            hour -= 12;
+        }
+    }
+
     int i = 0;
+
     while (i < format.size()) {
+        if (format.at(i).unicode() == '\'') {
+            result.append(readEscapedFormatString(format, &i));
+            continue;
+        }
+
         QChar c = format.at(i);
         int repeat = repeatCount(format, i);
-
-        if (c.unicode() == '\'') {
-            if (escape) {
-                escape = false;
-                ++i;
-                continue;
-            }
-
-            if (repeat >= 2) {
-                result.append(c);
-                i += 2;
-                continue;
-            }
-
-            escape = true;
-            ++i;
-            continue;
-        }
-
-        if (escape) {
-            result.append(c);
-            ++i;
-            continue;
-        }
 
         switch (c.unicode()) {
             case 'h':
@@ -1686,10 +1702,10 @@ QString QLocale::toString(const QTime &time, const QString &format) const
 
                 switch (repeat) {
                     case 1:
-                        result.append(d->longLongToString(time.hour()));
+                        result.append(d->longLongToString(hour));
                         break;
                     case 2:
-                        result.append(d->longLongToString(time.hour(), -1, 10, 2, QLocalePrivate::ZeroPadded));
+                        result.append(d->longLongToString(hour, -1, 10, 2, QLocalePrivate::ZeroPadded));
                         break;
                     default:
                         break;
@@ -1723,6 +1739,26 @@ QString QLocale::toString(const QTime &time, const QString &format) const
                         break;
                     default:
                         break;
+                }
+                break;
+
+            case 'a':
+                if (i + 1 < format.length() && format.at(i + 1).unicode() == 'p') {
+                    repeat = 2;
+                    result.append(am_pm == AM ? QLatin1String("am") : QLatin1String("pm"));
+                } else {
+                    repeat = 1;
+                    result.append(c);
+                }
+                break;
+
+            case 'A':
+                if (i + 1 < format.length() && format.at(i + 1).unicode() == 'P') {
+                    repeat = 2;
+                    result.append(am_pm == AM ? QLatin1String("AM") : QLatin1String("PM"));
+                } else {
+                    repeat = 1;
+                    result.append(c);
                 }
                 break;
 

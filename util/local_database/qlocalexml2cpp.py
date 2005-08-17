@@ -72,6 +72,42 @@ def countryNameToId(name, country_map):
             return key
     return -1
 
+def convertFormat(format):
+    result = ""
+    i = 0
+    while i < len(format):
+        if format[i] == "'":
+            result += "'"
+            i += 1
+            while i < len(format) and format[i] != "'":
+                result += format[i]
+                i += 1
+            if i < len(format):
+                result += "'"
+                i += 1
+        else:
+            s = format[i:]
+            if s.startswith("EEEE"):
+                result += "dddd"
+                i += 4
+            elif s.startswith("EEE"):
+                result += "ddd"
+                i += 3
+            elif s.startswith("HH"):
+                result += "hh"
+                i += 2
+            elif s.startswith("H"):
+                result += "h"
+                i += 1
+            elif s.startswith("a"):
+                result += "AP"
+                i += 1
+            else:
+                result += format[i]
+                i += 1
+
+    return result
+
 class Locale:
     def __init__(self, elt):
         self.language = eltText(firstChildElt(elt, "language"))
@@ -83,10 +119,10 @@ class Locale:
         self.zero = int(eltText(firstChildElt(elt, "zero")))
         self.minus = int(eltText(firstChildElt(elt, "minus")))
         self.exp = int(eltText(firstChildElt(elt, "exp")))
-        self.longDateFormat = eltText(firstChildElt(elt, "longDateFormat"))
-        self.shortDateFormat = eltText(firstChildElt(elt, "shortDateFormat"))
-        self.longTimeFormat = eltText(firstChildElt(elt, "longTimeFormat"))
-        self.shortTimeFormat = eltText(firstChildElt(elt, "shortTimeFormat"))
+        self.longDateFormat = convertFormat(eltText(firstChildElt(elt, "longDateFormat")))
+        self.shortDateFormat = convertFormat(eltText(firstChildElt(elt, "shortDateFormat")))
+        self.longTimeFormat = convertFormat(eltText(firstChildElt(elt, "longTimeFormat")))
+        self.shortTimeFormat = convertFormat(eltText(firstChildElt(elt, "shortTimeFormat")))
         self.longMonths = eltText(firstChildElt(elt, "longMonths"))
         self.shortMonths = eltText(firstChildElt(elt, "shortMonths"))
         self.longDays = eltText(firstChildElt(elt, "longDays"))
