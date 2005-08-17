@@ -1095,6 +1095,7 @@ QTextList *QTextBlock::textList() const
 }
 
 /*!
+    \since 4.1
     Returns a pointer to a QTextBlockUserData object if previously set with
     setUserData() or a null pointer.
 */
@@ -1108,6 +1109,7 @@ QTextBlockUserData *QTextBlock::userData() const
 }
 
 /*!
+    \since 4.1
     Attaches the given \a data object to the text block, which can be used
     to store custom settings. For example a programming editor may want to
     store additional information like debugger breakpoints in an object derived
@@ -1125,6 +1127,7 @@ void QTextBlock::setUserData(QTextBlockUserData *data)
 }
 
 /*!
+    \since 4.1
     Returns the integer value previously set with setUserState() or -1.
 */
 int QTextBlock::userState() const
@@ -1137,6 +1140,7 @@ int QTextBlock::userState() const
 }
 
 /*!
+    \since 4.1
     Stores the specified \a state integer value in the text block. This may be
     useful for example in a syntax highlighter to store a text parsing state.
 */
