@@ -1565,7 +1565,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
             if (outlinePen.style() != Qt::NoPen)
                 outlineRect = outlineRect.unite(rect);
             p->save();
-            p->setClipRect(rect);
+            p->setClipRect(rect, Qt::IntersectClip);
         }
 
 
