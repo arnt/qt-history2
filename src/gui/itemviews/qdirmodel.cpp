@@ -211,29 +211,60 @@ QString QFileIconProvider::type(const QFileInfo &info) const
 class QDirModelPrivate : public QAbstractItemModelPrivate
 {
     Q_DECLARE_PUBLIC(QDirModel)
+
 public:
+    struct QFileInfoNode
+    {
+        QFileInfoNode(const QFileInfo &info = QFileInfo()) { setInfo(info); }
+        QFileInfoNode &operator=(const QFileInfo &info) { setInfo(info); return *this; }
+
+        QFileInfo fileInfo() const { return QFileInfo(absFilePath); }
+        QDir dir() const { return QFileInfo(absFilePath).dir(); }
+        QString readLink() const { return QFileInfo(absFilePath).readLink(); }
+        
+        QString absoluteFilePath() const { return absFilePath; }
+        QString fileName() const { return name; }
+        QDateTime lastModified() const { return modified; }
+        qint64 size() const { return siz; }
+        bool isRoot() const { return root;  }
+        bool isDir() const { return directory; }
+        bool isSymLink() const { return symlink; }
+        bool isWritable() const { return writable; }
+
+        void setInfo(const QFileInfo &info) {
+            absFilePath = info.absoluteFilePath();
+            name = info.fileName();
+            modified = info.lastModified();
+            root = info.isRoot();
+            directory = info.isDir();
+            symlink = info.isSymLink();
+            writable = info.isWritable();
+        }
+
+        QString absFilePath;
+        QString name;
+        QDateTime modified;
+        qint64 siz;
+        uint root : 1;
+        uint directory : 1;
+        uint symlink : 1;
+        uint writable : 1;
+    };
+
     struct QDirNode
     {
         QDirNode *parent;
-        QFileInfo info;
+        QFileInfoNode info;
         mutable QVector<QDirNode> children;
         mutable bool populated; // have we read the children
-#ifndef Q_DIRMODEL_CACHED
-        inline qint64 size() const { return info.size(); }
-        inline QDateTime lastModified() const { return info.lastModified(); }
-#else
-        inline qint64 size() const { return cached_size; }
-        inline QDateTime lastModified() const { return cached_modified; }
-        qint64 cached_size;
-        QDateTime cached_modified;
-#endif
     };
 
     QDirModelPrivate()
         : resolveSymlinks(true),
           readOnly(true),
           lazyChildCount(false),
-          iconProvider(&defaultProvider) {}
+          iconProvider(&defaultProvider)
+    { }
 
     void init();
     QDirNode *node(int row, QDirNode *parent) const;
@@ -500,9 +531,9 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
                     return name;
                 }
                 return node->info.fileName();
-        case 1: return node->size();
-        case 2: return d->iconProvider->type(node->info);
-        case 3: return node->lastModified();
+        case 1: return node->info.size();
+        case 2: return d->iconProvider->type(node->info.fileInfo());
+        case 3: return node->info.lastModified();
         default:
             qWarning("data: invalid display value column %d", index.column());
             return QVariant();
@@ -1218,7 +1249,7 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
         static_cast<QDirModelPrivate::QDirNode*>(index.internalPointer());
     Q_ASSERT(node);
 
-    return node->info;
+    return node->info.fileInfo();
 }
 
 /*
@@ -1261,31 +1292,27 @@ QDirModelPrivate::QDirNode *QDirModelPrivate::parent(QDirNode *child) const
 QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent) const
 {
     Q_ASSERT(parent);
-    QFileInfoList info;
+    QFileInfoList infoList;
     if (parent == &root) {
         parent = 0;
-        info = QDir::drives();
+        infoList = QDir::drives();
     } else if (parent->info.isDir()) {
         if (resolveSymlinks && parent->info.isSymLink()) {
             QString link = parent->info.readLink();
             if (link.at(link.size() - 1) == QDir::separator())
                 link.chop(1);
-            info = entryInfoList(link);
+            infoList = entryInfoList(link);
         } else {
-            info = entryInfoList(parent->info.filePath());
+            infoList = entryInfoList(parent->info.absoluteFilePath());
         }
     }
 
-    QVector<QDirNode> nodes(info.count());
-    for (int i = 0; i < info.count(); ++i) {
+    QVector<QDirNode> nodes(infoList.count());
+    for (int i = 0; i < infoList.count(); ++i) {
         QDirNode &node = nodes[i];
         node.parent = parent;
-        node.info = info.at(i);
+        node.info = infoList.at(i);
         node.populated = false;
-#ifdef Q_DIRMODEL_CACHED
-        node.cached_size = info.at(i).size();
-        node.cached_modified = info.at(i).lastModified();
-#endif
     }
 
     return nodes;
@@ -1307,25 +1334,25 @@ int QDirModelPrivate::idx(QDirNode *node) const
 
 void QDirModelPrivate::refresh(QDirNode *parent)
 {
-    QFileInfoList info;
+    QFileInfoList infoList;
     if (!parent)
-        info = QDir::drives();
+        infoList = QDir::drives();
     else if (parent->info.isDir())
-        info = entryInfoList(parent->info.filePath());
+        infoList = entryInfoList(parent->info.absoluteFilePath());
 
     QVector<QDirNode> *nodes = parent ? &(parent->children) : &(root.children);
-    if (nodes->count() != info.count())
-        nodes->resize(info.count());
+    if (nodes->count() != infoList.count())
+        nodes->resize(infoList.count());
 
-    for (int i = 0; i < (int)info.count(); ++i) {
+    for (int i = 0; i < infoList.count(); ++i) {
         (*nodes)[i].parent = parent;
-        if (resolveSymlinks && info.at(i).isSymLink()) {
-            QString link = info.at(i).readLink();
+        if (resolveSymlinks && infoList.at(i).isSymLink()) {
+            QString link = infoList.at(i).readLink();
             if (link.at(link.size() - 1) == QDir::separator())
                 link.chop(1);
             (*nodes)[i].info = QFileInfo(link);
         } else {
-            (*nodes)[i].info = info.at(i);
+            (*nodes)[i].info = infoList.at(i);
         }
         if (nodes->at(i).children.count() > 0)
             refresh(&(*nodes)[i]);
