@@ -2411,6 +2411,26 @@ void QTextEdit::setOverwriteMode(bool overwrite)
 }
 
 /*!
+    \property QTextEdit::tabStopWidth
+    \brief the tab stop width in pixels
+*/
+
+int QTextEdit::tabStopWidth() const
+{
+    Q_D(const QTextEdit);
+    if (QTextDocumentLayout *layout = qobject_cast<QTextDocumentLayout *>(d->doc->documentLayout()))
+        return qRound(layout->tabStopWidth());
+    return 0;
+}
+
+void QTextEdit::setTabStopWidth(int width)
+{
+    Q_D(QTextEdit);
+    if (QTextDocumentLayout *layout = qobject_cast<QTextDocumentLayout *>(d->doc->documentLayout()))
+        layout->setTabStopWidth(qreal(width));
+}
+
+/*!
     This function returns a new MIME data object to represent the contents
     of the text edit's current selection. It is called when the selection needs
     to be encapsulated into a new QMimeData object; for example, when a drag

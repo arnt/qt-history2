@@ -54,6 +54,7 @@ class Q_GUI_EXPORT QTextEdit : public QAbstractScrollArea
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
     Q_PROPERTY(QString html READ toHtml WRITE setHtml)
     Q_PROPERTY(bool overwriteMode READ overwriteMode WRITE setOverwriteMode)
+    Q_PROPERTY(int tabStopWidth READ tabStopWidth WRITE setTabStopWidth);
 public:
     enum LineWrapMode {
         NoWrap,
@@ -166,6 +167,9 @@ public:
 
     bool overwriteMode() const;
     void setOverwriteMode(bool overwrite);
+
+    int tabStopWidth() const;
+    void setTabStopWidth(int width);
 
 public slots:
     void setFontPointSize(qreal s);

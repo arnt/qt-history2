@@ -279,7 +279,8 @@ public:
 
     QTextDocumentLayoutPrivate()
         : blockTextFlags(0), wordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere),
-          fixedColumnWidth(-1)
+          fixedColumnWidth(-1),
+          tabStopWidth(80) // same default as in qtextengine.cpp
     { }
 
     bool pagedLayout;
@@ -291,6 +292,7 @@ public:
 #endif
 
     int fixedColumnWidth;
+    qreal tabStopWidth;
 
     qreal indent(QTextBlock bl) const;
 
@@ -1663,6 +1665,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
         option.setWrapMode(QTextOption::ManualWrap);
     else
         option.setWrapMode(wordWrapMode);
+    option.setTabStop(tabStopWidth);
     tl->setTextOption(option);
 
     const bool haveWordOrAnyWrapMode = (option.wrapMode() == QTextOption::WrapAtWordBoundaryOrAnywhere);
@@ -2122,6 +2125,18 @@ QTextOption::WrapMode QTextDocumentLayout::wordWrapMode() const
 {
     Q_D(const QTextDocumentLayout);
     return d->wordWrapMode;
+}
+
+void QTextDocumentLayout::setTabStopWidth(qreal width)
+{
+    Q_D(QTextDocumentLayout);
+    d->tabStopWidth = width;
+}
+
+qreal QTextDocumentLayout::tabStopWidth() const
+{
+    Q_D(const QTextDocumentLayout);
+    return d->tabStopWidth;
 }
 
 void QTextDocumentLayout::setFixedColumnWidth(int width)

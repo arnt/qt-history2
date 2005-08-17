@@ -57,6 +57,9 @@ public:
     void setWordWrapMode(QTextOption::WrapMode mode);
     QTextOption::WrapMode wordWrapMode() const;
 
+    void setTabStopWidth(qreal width);
+    qreal tabStopWidth() const;
+
     // internal, to support the ugly FixedColumnWidth wordwrap mode in QTextEdit
     void setFixedColumnWidth(int width);
 
