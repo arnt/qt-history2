@@ -11,12 +11,7 @@
 **
 ****************************************************************************/
 
-#include <QtDesigner/QDesignerContainerExtension>
 #include <QtDesigner/QDesignerCustomWidgetInterface>
-
-#include <QIcon>
-
-class QDesignerFormEditorInterface;
 
 class AnalogClockPlugin : public QObject, public QDesignerCustomWidgetInterface
 {

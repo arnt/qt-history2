@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include <QtPlugin>
+
 #include "analogclock.h"
 #include "customwidgetplugin.h"
 

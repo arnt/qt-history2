@@ -11,10 +11,7 @@
 **
 ****************************************************************************/
 
-#include <QtDesigner/QDesignerContainerExtension>
 #include <QtDesigner/QDesignerCustomWidgetInterface>
-
-#include <QIcon>
 
 class WorldTimeClockPlugin : public QObject,
                              public QDesignerCustomWidgetInterface
