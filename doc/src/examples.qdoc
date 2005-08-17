@@ -107,7 +107,7 @@
     \section1 Painting Examples
 
     \list
-    \o \l{painting/basicdrawing}{Basic Drawing}
+    \o \l{painting/basicdrawing}{Basic Drawing}\raisedaster
     \o \l{painting/concentriccircles}{Concentric Circles}
     \o \l{painting/painterpaths}{Painter Paths}
     \o \l{painting/transformations}{Transformations}
@@ -195,6 +195,7 @@
     \o \l{designer/calculatorbuilder}{Calculator Builder}\raisedaster
     \o \l{designer/calculatorform}{Calculator Form}\raisedaster
     \o \l{designer/customwidgetplugin}{Custom Widget Plugin}\raisedaster
+    \o \l{designer/taskmenuextension}{Task Menu Extension}\raisedaster
     \o \l{designer/worldtimeclockplugin}{World Time Clock Plugin}
     \endlist
 
