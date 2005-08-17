@@ -21,6 +21,7 @@
 #include <qvector.h>
 #include <qobject.h>
 #include <qdatetime.h>
+#include <qlocale.h>
 #include <qstyle.h>
 #include <qapplication.h>
 #include <private/qabstractitemmodel_p.h>
@@ -215,7 +216,9 @@ class QDirModelPrivate : public QAbstractItemModelPrivate
 public:
     struct QFileInfoNode
     {
-        inline QFileInfoNode(const QFileInfo &info = QFileInfo()) { setInfo(info); }
+
+        QFileInfoNode() : siz(0), root(false), directory(false), symlink(false), writable(false) {}
+        inline QFileInfoNode(const QFileInfo &info) { setInfo(info); }
         inline QFileInfoNode &operator=(const QFileInfo &info) { setInfo(info); return *this; }
 
         inline QFileInfo fileInfo() const { return QFileInfo(absFilePath); }
@@ -224,7 +227,7 @@ public:
         
         inline QString absoluteFilePath() const { return absFilePath; }
         inline QString fileName() const { return name; }
-        inline QDateTime lastModified() const { return modified; }
+        inline QString lastModified() const { return modified; }
         inline qint64 size() const { return siz; }
         inline bool isRoot() const { return root;  }
         inline bool isDir() const { return directory; }
@@ -234,7 +237,7 @@ public:
         void setInfo(const QFileInfo &info) {
             absFilePath = info.absoluteFilePath();
             name = info.fileName();
-            modified = info.lastModified();
+            modified = info.lastModified().toString("yyyy-MM-dd hh:mm:ss");
             root = info.isRoot();
             directory = info.isDir();
             symlink = info.isSymLink();
@@ -243,7 +246,7 @@ public:
 
         QString absFilePath;
         QString name;
-        QDateTime modified;
+        QString modified;
         qint64 siz;
         uint root : 1;
         uint directory : 1;
@@ -531,7 +534,16 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
                     return name;
                 }
                 return node->info.fileName();
-        case 1: return node->info.size();
+        case 1: {
+            quint64 bytes = node->info.size();
+            if (bytes >= 1000000000)
+                return QLocale().toString(bytes / 1000000000) + QString(" GB");
+            if (bytes >= 1000000)
+                return QLocale().toString(bytes / 1000000) + QString(" MB");
+            if (bytes >= 1000)
+                return QLocale().toString(bytes / 1000) + QString(" KB");
+            return QLocale().toString(bytes) + QString(" bytes");
+        }
         case 2: return d->iconProvider->type(node->info.fileInfo());
         case 3: return node->info.lastModified();
         default:
