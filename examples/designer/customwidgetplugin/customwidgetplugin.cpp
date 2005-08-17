@@ -14,6 +14,8 @@
 #include "analogclock.h"
 #include "customwidgetplugin.h"
 
+#include <QtCore/qplugin.h>
+
 AnalogClockPlugin::AnalogClockPlugin(QObject *parent)
     : QObject(parent)
 {

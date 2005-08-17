@@ -15,7 +15,6 @@
 #include <QtDesigner/QDesignerCustomWidgetInterface>
 
 #include <QIcon>
-#include <QPlugin>
 
 class QDesignerFormEditorInterface;
 
