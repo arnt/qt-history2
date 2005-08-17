@@ -150,11 +150,11 @@ void MainWindow::updateWindowMenu()
 
         QString text;
         if (i < 9) {
-            text = tr("&%1. %2").arg(i + 1)
-                                .arg(child->userFriendlyCurrentFile());
-        } else {
-            text = tr("%1. %2").arg(i + 1)
+            text = tr("&%1 %2").arg(i + 1)
                                .arg(child->userFriendlyCurrentFile());
+        } else {
+            text = tr("%1 %2").arg(i + 1)
+                              .arg(child->userFriendlyCurrentFile());
         }
         QAction *action  = windowMenu->addAction(text);
         action->setCheckable(true);

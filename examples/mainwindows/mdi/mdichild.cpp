@@ -18,6 +18,7 @@
 MdiChild::MdiChild()
 {
     setAttribute(Qt::WA_DeleteOnClose);
+    isUntitled = true;
 
     connect(document(), SIGNAL(contentsChanged()),
             this, SLOT(documentWasModified()));
@@ -131,6 +132,7 @@ bool MdiChild::maybeSave()
 void MdiChild::setCurrentFile(const QString &fileName)
 {
     curFile = QFileInfo(fileName).canonicalFilePath();
+    isUntitled = false;
     document()->setModified(false);
     setWindowModified(false);
     setWindowTitle(userFriendlyCurrentFile() + "[*]");
