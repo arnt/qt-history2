@@ -55,7 +55,6 @@ QMenuBarExtension::QMenuBarExtension(QWidget *parent)
 #ifndef QT_NO_MENU
     setPopupMode(QToolButton::InstantPopup);
 #endif
-    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     setIcon(style()->standardPixmap(QStyle::SP_ToolBarHorizontalExtensionButton));
 }
 
@@ -143,7 +142,7 @@ void QMenuBarPrivate::updateGeometries()
     QList<QAction *> hiddenActions;
     int hmargin = q->style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, q);
     QRect menuRect = q->rect();
-    if (!extension->isHidden()) {
+    if (!extension->isHidden() && (menuRect.width() < q->sizeHint().width())) {
         if (QApplication::layoutDirection() == Qt::RightToLeft)
             menuRect.setLeft(menuRect.left() + extension->width() + hmargin);
         else
@@ -163,11 +162,11 @@ void QMenuBarPrivate::updateGeometries()
         pop->clear();
         pop->addActions(hiddenActions);
 
-        QRect itemRect = actionRect(actionList.first());
+        int vmargin = q->style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, q);
         int x = QApplication::layoutDirection() == Qt::RightToLeft
                 ? hmargin
                 : q->width() - extension->sizeHint().width() - hmargin;
-        extension->setGeometry(x, itemRect.y(), extension->sizeHint().width(), itemRect.height());
+        extension->setGeometry(x, vmargin, extension->sizeHint().width(), menuRect.height() - vmargin*2);
         extension->show();
     } else {
         extension->hide();
@@ -1236,7 +1235,56 @@ QRect QMenuBar::actionGeometry(QAction *act) const
 */
 QSize QMenuBar::minimumSizeHint() const
 {
-    return sizeHint();
+    Q_D(const QMenuBar);
+#ifdef Q_WS_MAC
+    const bool as_gui_menubar = !d->mac_menubar;
+#else
+    const bool as_gui_menubar = true;
+#endif
+
+    ensurePolished();
+    QSize ret(0, 0);
+    if(as_gui_menubar) {
+        QMap<QAction*, QRect> actionRects;
+        QList<QAction*> actionList;
+        int w = QApplication::desktop()->width();
+        int fw = style()->pixelMetric(QStyle::PM_MenuBarPanelWidth, 0, this);
+        d->calcActionRects(w - (2 * fw), 0, actionRects, actionList);
+        if (d->actionList.count() > 0) {
+            ret = d->actionRect(d->actionList.at(0)).size();
+            if (!d->extension->isHidden())
+                ret += QSize(d->extension->sizeHint().width(), 0);
+        }
+        const int hmargin = style()->pixelMetric(QStyle::PM_MenuBarHMargin, 0, this),
+                  vmargin = style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, this);
+        ret += QSize(2*fw + hmargin, 2*fw + vmargin);
+    }
+
+    if(d->leftWidget) {
+        QSize sz = d->leftWidget->minimumSizeHint();
+        ret.setWidth(ret.width() + sz.width());
+        if(sz.height() > ret.height())
+            ret.setHeight(sz.height());
+    }
+    if(d->rightWidget) {
+        QSize sz = d->rightWidget->minimumSizeHint();
+        ret.setWidth(ret.width() + sz.width());
+        if(sz.height() > ret.height())
+            ret.setHeight(sz.height());
+    }
+    if(as_gui_menubar) {
+        QStyleOptionMenuItem opt;
+        opt.rect = rect();
+        opt.menuRect = rect();
+        opt.state = QStyle::State_None;
+        opt.menuItemType = QStyleOptionMenuItem::Normal;
+        opt.checkType = QStyleOptionMenuItem::NotCheckable;
+        opt.palette = palette();
+        return (style()->sizeFromContents(QStyle::CT_MenuBar, &opt,
+                                         ret.expandedTo(QApplication::globalStrut()),
+                                         this));
+    }
+    return ret;
 }
 
 /*!

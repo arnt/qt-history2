@@ -34,8 +34,9 @@ static QStyleOption getStyleOption(const QToolBarHandle *tbh)
 }
 
 QToolBarHandle::QToolBarHandle(QToolBar *parent)
-    : QWidget(parent), orient(parent->orientation()), state(0)
+    : QWidget(parent), state(0)
 {
+    setOrientation(parent->orientation());
 #ifndef QT_NO_CURSOR
     setCursor(Qt::SizeAllCursor);
 #endif

@@ -841,14 +841,14 @@ void QToolBar::resizeEvent(QResizeEvent *event)
         setMinimumSize(d->handle->sizeHint().width() + box_spacing + extension_size + margin*2
                        + (d->items.isEmpty()
                           ? d->iconSize.width()
-                          : d->items[0].widget->sizeHint().width()),
+                          : d->items[0].widget->minimumSizeHint().width()),
                        max_item_extent + margin*2);
     } else {
         setMinimumSize(max_item_extent + margin*2,
                        d->handle->sizeHint().height() + box_spacing + extension_size
                        + margin*2 + (d->items.isEmpty()
                                      ? d->iconSize.height()
-                                     : d->items[0].widget->sizeHint().height()));
+                                     : d->items[0].widget->minimumSizeHint().height()));
     }
 
     if (hidden_count > 0) {
