@@ -90,6 +90,9 @@ public:
     inline qint64 write(const QByteArray &data)
     { return write(data.constData(), data.size()); }
 
+    qint64 peek(char *data, qint64 maxlen);
+    QByteArray peek(qint64 maxlen);
+
     virtual bool waitForReadyRead(int msecs);
     virtual bool waitForBytesWritten(int msecs);
 

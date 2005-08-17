@@ -973,6 +973,75 @@ void QIODevice::ungetChar(char c)
 }
 
 /*!
+    Peeks at most \a maxSize bytes from the device into \a data, without side
+    effects (i.e., if you call read() after peek(), you will get the same
+    data).  Returns the number of bytes peeked.  If an error occurs, such as
+    when attempting to peek a device opened in WriteOnly mode, this function
+    returns -1.
+
+    0 is returned when no more data is available for reading. Example:
+
+    \code
+        bool isExeFile(QFile *file)
+        {
+            char buf[2];
+            if (file->peek(buf, sizeof(buf)) == sizeof(buf))
+                return buf[0] == 'M' && buf[1] == 'Z';
+            return false;
+        }
+    \endcode
+    
+    \sa read()
+*/
+qint64 QIODevice::peek(char *data, qint64 maxSize)
+{
+    qint64 oldPos = pos();
+    qint64 readBytes = read(data, maxSize);
+    if (isSequential()) {
+        int i = readBytes;
+        while (i > 0)
+            ungetChar(data[i-- - 1]);
+    } else {
+        seek(oldPos);
+    }
+    return readBytes;
+}
+
+/*!
+    \overload
+
+    Peeks at most \a maxSize bytes from the device, returning the data peeked
+    as a QByteArray. Example:
+
+    \code
+        bool isExeFile(QFile *file)
+        {
+            return file->peek(2) == "MZ";
+        }
+    \endcode
+    
+    This function has no way of reporting errors; returning an empty
+    QByteArray() can mean either that no data was currently available
+    for peeking, or that an error occurred.
+
+    \sa read()
+*/
+QByteArray QIODevice::peek(qint64 maxSize)
+{
+    qint64 oldPos = pos();
+    QByteArray result = read(maxSize);
+    if (isSequential()) {
+        int i = result.size();
+        const char *data = result.constData();
+        while (i > 0)
+            ungetChar(data[i-- - 1]);
+    } else {
+        seek(oldPos);
+    }
+    return result;
+}
+
+/*!
     Blocks until data is available for reading and the readyRead()
     signal has been emitted, or until \a msecs milliseconds have
     passed. If msecs is -1, this function will not time out.
