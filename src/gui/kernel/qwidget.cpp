@@ -1960,10 +1960,16 @@ void QWidgetPrivate::setAcceptDrops_helper(bool on)
     if (on == q->testAttribute(Qt::WA_AcceptDrops))
         return; // nothing to do
 
+    // set the attribute before setAcceptDrops_sys because on x11 it
+    // calls checkChildrenDnd() which traverses the widget tree upwards
+    // and sets extra->children_use_dnd if any child has the AcceptDrops
+    // attribute set. so when the iteration in checkChildrenDnd() checks
+    // our parent's children (that includes us) the attribute needs to be
+    // set
+    q->setAttribute(Qt::WA_AcceptDrops, on);
+
     if (!setAcceptDrops_sys(on))
         return; // nothing was changed
-
-    q->setAttribute(Qt::WA_AcceptDrops, on);
 
     Qt::WidgetAttribute attribute = on ? Qt::WA_AcceptDrops : Qt::WA_ForceAcceptDrops;
     for (int i = 0; i < children.size(); ++i) {
