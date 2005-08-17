@@ -26,6 +26,7 @@ HEADERS += \
 	itemviews/qmappingproxymodel_p.h \
 	itemviews/qsortingproxymodel.h \
 	itemviews/qsortingproxymodel_p.h \
+        itemviews/qfilteringproxymodel.h \
 	itemviews/qitemeditorfactory.h \
 	itemviews/qstandarditemmodel.h \
 	itemviews/qstandarditemmodel_p.h \
@@ -48,6 +49,7 @@ SOURCES += \
 	itemviews/qproxymodel.cpp \
 	itemviews/qmappingproxymodel.cpp \
 	itemviews/qsortingproxymodel.cpp \
+        itemviews/qfilteringproxymodel.cpp \
 	itemviews/qitemeditorfactory.cpp \
 	itemviews/qstandarditemmodel.cpp \
 	itemviews/qstringlistmodel.cpp \
