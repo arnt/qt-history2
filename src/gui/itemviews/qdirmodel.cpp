@@ -215,21 +215,21 @@ class QDirModelPrivate : public QAbstractItemModelPrivate
 public:
     struct QFileInfoNode
     {
-        QFileInfoNode(const QFileInfo &info = QFileInfo()) { setInfo(info); }
-        QFileInfoNode &operator=(const QFileInfo &info) { setInfo(info); return *this; }
+        inline QFileInfoNode(const QFileInfo &info = QFileInfo()) { setInfo(info); }
+        inline QFileInfoNode &operator=(const QFileInfo &info) { setInfo(info); return *this; }
 
-        QFileInfo fileInfo() const { return QFileInfo(absFilePath); }
-        QDir dir() const { return QFileInfo(absFilePath).dir(); }
-        QString readLink() const { return QFileInfo(absFilePath).readLink(); }
+        inline QFileInfo fileInfo() const { return QFileInfo(absFilePath); }
+        inline QDir dir() const { return QFileInfo(absFilePath).dir(); }
+        inline QString readLink() const { return QFileInfo(absFilePath).readLink(); }
         
-        QString absoluteFilePath() const { return absFilePath; }
-        QString fileName() const { return name; }
-        QDateTime lastModified() const { return modified; }
-        qint64 size() const { return siz; }
-        bool isRoot() const { return root;  }
-        bool isDir() const { return directory; }
-        bool isSymLink() const { return symlink; }
-        bool isWritable() const { return writable; }
+        inline QString absoluteFilePath() const { return absFilePath; }
+        inline QString fileName() const { return name; }
+        inline QDateTime lastModified() const { return modified; }
+        inline qint64 size() const { return siz; }
+        inline bool isRoot() const { return root;  }
+        inline bool isDir() const { return directory; }
+        inline bool isSymLink() const { return symlink; }
+        inline bool isWritable() const { return writable; }
 
         void setInfo(const QFileInfo &info) {
             absFilePath = info.absoluteFilePath();
