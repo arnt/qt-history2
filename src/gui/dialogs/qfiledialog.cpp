@@ -43,6 +43,8 @@
 #include <qdebug.h>
 #include <private/qfiledialog_p.h>
 
+#include <stdlib.h> // getenv
+
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
 bool Q_GUI_EXPORT qt_use_native_dialogs = true; // for the benefit of testing tools, until we have a proper API
 #endif
