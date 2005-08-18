@@ -671,16 +671,12 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
             // Specify the outline as 4 separate lines since a quad or a
             // polygon won't give us exactly what we want
             glColor4ubv(d->pen_color);
-            glBegin(GL_LINES);
+            glBegin(GL_LINE_LOOP);
             {
                 glVertex2d(x, y);
                 glVertex2d(x+w, y);
-                glVertex2d(x+w, y-1);
-                glVertex2d(x+w, y+h);
                 glVertex2d(x+w, y+h);
                 glVertex2d(x, y+h);
-                glVertex2d(x, y+h);
-                glVertex2d(x, y);
             }
             glEnd();
         }
