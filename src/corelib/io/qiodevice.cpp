@@ -976,8 +976,8 @@ void QIODevice::ungetChar(char c)
     Peeks at most \a maxSize bytes from the device into \a data, without side
     effects (i.e., if you call read() after peek(), you will get the same
     data).  Returns the number of bytes peeked.  If an error occurs, such as
-    when attempting to peek a device opened in WriteOnly mode, this function
-    returns -1.
+    when attempting to peek a device opened in \l{OpenModeFlag}{WriteOnly} mode,
+    this function returns -1.
 
     0 is returned when no more data is available for reading. Example:
 
@@ -990,7 +990,7 @@ void QIODevice::ungetChar(char c)
             return false;
         }
     \endcode
-    
+
     \sa read()
 */
 qint64 QIODevice::peek(char *data, qint64 maxSize)
