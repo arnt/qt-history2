@@ -411,6 +411,10 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
                 def->isInvokable = true;
             else if (def->type == "Q_SCRIPTABLE")
                 def->isInvokable = def->isScriptable = true;
+            else if (def->type == "Q_SIGNAL")
+                error();
+            else if (def->type == "Q_SLOT")
+                error();
             else {
                 if (!def->tag.isEmpty())
                     def->tag += ' ';
@@ -461,6 +465,10 @@ bool Moc::parseMaybeFunction(FunctionDef *def)
                 def->isInvokable = true;
             else if (def->type == "Q_SCRIPTABLE")
                 def->isInvokable = def->isScriptable = true;
+            else if (def->type == "Q_SIGNAL")
+                def->isSignal = true;
+            else if (def->type == "Q_SLOT")
+                def->isSlot = true;
             else {
                 if (!def->tag.isEmpty())
                     def->tag += ' ';
@@ -634,7 +642,21 @@ void Moc::parse()
                     if (parseMaybeFunction(&funcDef)) {
                         if (access == FunctionDef::Public)
                             def.publicList += funcDef;
-                        if (funcDef.isInvokable) {
+                        if (funcDef.isSlot) {
+                            def.slotList += funcDef;
+                            while (funcDef.arguments.size() > 0 && funcDef.arguments.last().isDefault) {
+                                funcDef.wasCloned = true;
+                                funcDef.arguments.removeLast();
+                                def.slotList += funcDef;
+                            }
+                        } else if (funcDef.isSignal) {
+                            def.signalList += funcDef;
+                            while (funcDef.arguments.size() > 0 && funcDef.arguments.last().isDefault) {
+                                funcDef.wasCloned = true;
+                                funcDef.arguments.removeLast();
+                                def.signalList += funcDef;
+                            }
+                        } else if (funcDef.isInvokable) {
                             def.methodList += funcDef;
                             while (funcDef.arguments.size() > 0 && funcDef.arguments.last().isDefault) {
                                 funcDef.wasCloned = true;

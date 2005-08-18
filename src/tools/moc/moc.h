@@ -37,7 +37,7 @@ struct ArgumentDef
 
 struct FunctionDef
 {
-    FunctionDef(): access(Private), isConst(false), isVirtual(false), inlineCode(false), wasCloned(false), isCompat(false), isInvokable(false), isScriptable(false) {}
+    FunctionDef(): access(Private), isConst(false), isVirtual(false), inlineCode(false), wasCloned(false), isCompat(false), isInvokable(false), isScriptable(false), isSlot(false), isSignal(false) {}
     QByteArray type, normalizedType;
     QByteArray tag;
     QByteArray name;
@@ -55,6 +55,8 @@ struct FunctionDef
     bool isCompat;
     bool isInvokable;
     bool isScriptable;
+    bool isSlot;
+    bool isSignal;
 };
 
 struct PropertyDef
