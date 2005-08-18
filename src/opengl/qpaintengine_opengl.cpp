@@ -663,13 +663,9 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
         if (d->has_brush) {
             glColor4ubv(d->brush_color);
             glRectd(x, y, x+w, y+h);
-            if (!d->has_pen)
-                continue;
         }
 
         if (d->has_pen) {
-            // Specify the outline as 4 separate lines since a quad or a
-            // polygon won't give us exactly what we want
             glColor4ubv(d->pen_color);
             glBegin(GL_LINE_LOOP);
             {
