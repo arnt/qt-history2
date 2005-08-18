@@ -333,7 +333,22 @@ void QTextEditPrivate::createAutoBulletList()
     cursor.endEditBlock();
 }
 
-void QTextEditPrivate::init(Qt::TextFormat format, const QString &text, QTextDocument *document)
+void QTextEditPrivate::init(const QString &html)
+{
+    Q_Q(QTextEdit);
+
+    setContent(Qt::RichText, html);
+
+    hbar->setSingleStep(20);
+    vbar->setSingleStep(20);
+
+    viewport->setBackgroundRole(QPalette::Base);
+    viewport->setAcceptDrops(true);
+    q->setFocusPolicy(Qt::WheelFocus);
+    q->setAttribute(Qt::WA_KeyCompression);
+}
+
+void QTextEditPrivate::setContent(Qt::TextFormat format, const QString &text, QTextDocument *document)
 {
     Q_Q(QTextEdit);
 
@@ -357,9 +372,6 @@ void QTextEditPrivate::init(Qt::TextFormat format, const QString &text, QTextDoc
         doc->setDefaultFont(q->font());
         doc->documentLayout()->setPaintDevice(viewport);
 
-        hbar->setSingleStep(20);
-        vbar->setSingleStep(20);
-
         QObject::connect(doc, SIGNAL(contentsChanged()), q, SLOT(updateCurrentCharFormatAndSelection()));
         QObject::connect(doc, SIGNAL(cursorPositionChanged(QTextCursor)), q, SLOT(emitCursorPosChanged(QTextCursor)));
 
@@ -367,11 +379,6 @@ void QTextEditPrivate::init(Qt::TextFormat format, const QString &text, QTextDoc
         QObject::connect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
         QObject::connect(doc, SIGNAL(undoAvailable(bool)), q, SIGNAL(undoAvailable(bool)));
         QObject::connect(doc, SIGNAL(redoAvailable(bool)), q, SIGNAL(redoAvailable(bool)));
-
-        viewport->setBackgroundRole(QPalette::Base);
-        viewport->setAcceptDrops(true);
-        q->setFocusPolicy(Qt::WheelFocus);
-        q->setAttribute(Qt::WA_KeyCompression);
     }
 
     doc->setUndoRedoEnabled(false);
@@ -927,7 +934,7 @@ QTextEdit::QTextEdit(const QString &text, QWidget *parent)
     : QAbstractScrollArea(*new QTextEditPrivate, parent)
 {
     Q_D(QTextEdit);
-    d->init(Qt::RichText, text);
+    d->init(text);
 }
 
 #ifdef QT3_SUPPORT
@@ -1077,7 +1084,7 @@ void QTextEdit::setDocument(QTextDocument *document)
         delete d->doc;
 
     d->doc = 0;
-    d->init(Qt::RichText, QString(), document);
+    d->setContent(Qt::RichText, QString(), document);
     d->relayoutDocument();
 }
 
@@ -1287,7 +1294,8 @@ void QTextEdit::paste()
 void QTextEdit::clear()
 {
     Q_D(QTextEdit);
-    d->init();
+    // clears and sets empty content
+    d->setContent();
 }
 
 
@@ -1357,7 +1365,7 @@ void QTextEdit::timerEvent(QTimerEvent *e)
 void QTextEdit::setPlainText(const QString &text)
 {
     Q_D(QTextEdit);
-    d->init(Qt::PlainText, text);
+    d->setContent(Qt::PlainText, text);
     d->preferRichText = false;
 }
 
@@ -1386,7 +1394,7 @@ void QTextEdit::setPlainText(const QString &text)
 void QTextEdit::setHtml(const QString &text)
 {
     Q_D(QTextEdit);
-    d->init(Qt::RichText, text);
+    d->setContent(Qt::RichText, text);
     d->preferRichText = true;
 }
 

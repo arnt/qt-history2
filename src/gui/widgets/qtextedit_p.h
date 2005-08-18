@@ -65,8 +65,9 @@ public:
 
     void createAutoBulletList();
 
-    void init(Qt::TextFormat format = Qt::RichText, const QString &text = QString(),
-              QTextDocument *document = 0);
+    void init(const QString &html = QString());
+    void setContent(Qt::TextFormat format = Qt::RichText, const QString &text = QString(),
+                    QTextDocument *document = 0);
 #ifndef QT_NO_DRAGANDDROP
     void startDrag();
 #endif
