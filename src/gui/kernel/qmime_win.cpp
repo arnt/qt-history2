@@ -69,6 +69,7 @@ static bool setData(const QByteArray &data, STGMEDIUM *pmedium)
     GlobalUnlock(hData);
     pmedium->tymed = TYMED_HGLOBAL;
     pmedium->hGlobal = hData;
+    pmedium->pUnkForRelease = 0;
     return true;
 }
 
