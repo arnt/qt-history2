@@ -341,6 +341,7 @@ public:
     QVector<QCheckPoint> checkPoints;
 
     QTextFrame::Iterator iteratorForYPosition(qreal y) const;
+    QTextFrame::Iterator iteratorForTextPosition(int position) const;
 };
 
 QTextFrame::Iterator QTextDocumentLayoutPrivate::iteratorForYPosition(qreal y) const
@@ -362,6 +363,15 @@ QTextFrame::Iterator QTextDocumentLayoutPrivate::iteratorForYPosition(qreal y) c
         --checkPoint;
 
     const int position = rootFrame->firstPosition() + checkPoint->positionInFrame;
+    return iteratorForTextPosition(position);
+}
+
+QTextFrame::Iterator QTextDocumentLayoutPrivate::iteratorForTextPosition(int position) const
+{
+    Q_Q(const QTextDocumentLayout);
+    const QTextDocumentPrivate *doc = q->document()->docHandle();
+    QTextFrame *rootFrame = doc->rootFrame();
+
     const QTextDocumentPrivate::BlockMap &map = doc->blockMap();
     const int begin = map.findNode(rootFrame->firstPosition());
     const int end = map.findNode(rootFrame->lastPosition()+1);
