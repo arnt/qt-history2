@@ -253,13 +253,13 @@ enum {
     TextIndentValue = 40
 };
 
-struct CheckPoint
+struct QCheckPoint
 {
     qreal y;
     int positionInFrame;
 };
 
-static bool operator<(const CheckPoint &checkPoint, qreal y)
+static bool operator<(const QCheckPoint &checkPoint, qreal y)
 {
     return checkPoint.y < y;
 }
@@ -340,7 +340,7 @@ public:
     void floatMargins(qreal y, const LayoutStruct *layoutStruct, qreal *left, qreal *right) const;
     qreal findY(qreal yFrom, const LayoutStruct *layoutStruct, qreal requiredWidth) const;
 
-    QVector<CheckPoint> checkPoints;
+    QVector<QCheckPoint> checkPoints;
 
     QTextFrame::Iterator iteratorForYPosition(qreal y) const;
 };
@@ -356,7 +356,7 @@ QTextFrame::Iterator QTextDocumentLayoutPrivate::iteratorForYPosition(qreal y) c
         || y < 0 || y > data(rootFrame)->size.height())
         return rootFrame->begin();
 
-    QVector<CheckPoint>::ConstIterator checkPoint = qLowerBound(checkPoints.begin(), checkPoints.end(), y);
+    QVector<QCheckPoint>::ConstIterator checkPoint = qLowerBound(checkPoints.begin(), checkPoints.end(), y);
     if (checkPoint == checkPoints.end())
         return rootFrame->begin();
 
@@ -1521,7 +1521,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
     const bool inRootFrame = (it.parentFrame() == q->document()->rootFrame());
     if (inRootFrame) {
         checkPoints.clear();
-        CheckPoint cp;
+        QCheckPoint cp;
         cp.y = 0;
         cp.positionInFrame = 0;
         checkPoints << cp;
@@ -1537,7 +1537,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
             qreal left, right;
             floatMargins(layoutStruct->y, layoutStruct, &left, &right);
             if (left == layoutStruct->x_left && right == layoutStruct->x_right) {
-                CheckPoint p;
+                QCheckPoint p;
                 p.y = layoutStruct->y;
                 if (it.currentFrame()) {
                     p.positionInFrame = it.currentFrame()->firstPosition();
@@ -1631,7 +1631,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
     }
 
     if (inRootFrame) {
-        CheckPoint cp;
+        QCheckPoint cp;
         cp.y = layoutStruct->y;
         cp.positionInFrame = q->document()->docHandle()->length();
         checkPoints.append(cp);
