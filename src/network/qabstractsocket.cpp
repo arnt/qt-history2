@@ -349,7 +349,8 @@ void QAbstractSocketPrivate::resetSocketLayer()
 
     if (socketEngine) {
         socketEngine->close();
-        delete socketEngine;
+        socketEngine->disconnect();
+        socketEngine->deleteLater();
         socketEngine = 0;
     }
 }
@@ -469,14 +470,12 @@ bool QAbstractSocketPrivate::canReadNotification()
         }
     }
 
-#ifdef QT_NETWORK_WORKAROUND
     // only emit readyRead() when not recursing.
     if (!emittedReadyRead) {
         emittedReadyRead = true;
         emit q->readyRead();
         emittedReadyRead = false;
     }
-#endif
 
     // If we were closed as a result of the readyRead() signal,
     // return.
@@ -487,14 +486,7 @@ bool QAbstractSocketPrivate::canReadNotification()
         readSocketNotifierCalled = false;
         return true;
     }
-#ifndef QT_NETWORK_WORKAROUND
-    // only emit readyRead() when not recursing.
-    if (!emittedReadyRead) {
-        emittedReadyRead = true;
-        emit q->readyRead();
-        emittedReadyRead = false;
-    }
-#endif
+
     // reset the read socket notifier state if we reentered inside the
     // readyRead() connected slot.
     if (readSocketNotifierStateSet && readSocketNotifierState != socketEngine->isReadNotificationEnabled()) {
@@ -603,7 +595,7 @@ bool QAbstractSocketPrivate::flush()
         }
     }
 
-    if (writeBuffer.isEmpty() && socketEngine->isWriteNotificationEnabled())
+    if (writeBuffer.isEmpty() && socketEngine && socketEngine->isWriteNotificationEnabled())
         socketEngine->setWriteNotificationEnabled(false);
     if (state == QAbstractSocket::ClosingState)
         q->close();
@@ -1678,10 +1670,6 @@ void QAbstractSocket::disconnectFromHost()
 #endif
     }
 
-    // Disable and delete write notification
-    if (d->socketEngine)
-        d->socketEngine->setWriteNotificationEnabled(false);
-    
     d->resetSocketLayer();
     d->state = UnconnectedState;
     emit stateChanged(d->state);
