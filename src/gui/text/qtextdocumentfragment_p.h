@@ -83,7 +83,7 @@ public:
     uint containsCompleteDocument : 1;
     uint importedFromPlainText : 1;
 private:
-    Q_DISABLE_COPY(QTextDocumentFragmentPrivate);
+    Q_DISABLE_COPY(QTextDocumentFragmentPrivate)
 };
 
 class QTextHtmlImporter : public QTextHtmlParser
