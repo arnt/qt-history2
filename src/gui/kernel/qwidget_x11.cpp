@@ -26,8 +26,10 @@
 #include "qstack.h"
 #include "qcolormap.h"
 #include "qdebug.h"
+#include "private/qbackingstore_p.h"
 
 extern bool qt_reuse_double_buffer; // declared in qapplication_x11.cpp
+extern bool qt_sendSpontaneousEvent(QObject *, QEvent *); //qapplication_x11.cpp
 
 #include <private/qpixmap_p.h>
 #include <private/qpaintengine_x11_p.h>
@@ -689,6 +691,9 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 {
     Q_D(QWidget);
+#ifdef QT_USE_BACKINGSTORE
+    d->invalidateBuffer(rect());
+#endif
     d->deactivateWidgetCleanup();
     if (testAttribute(Qt::WA_WState_Created)) {
         setAttribute(Qt::WA_WState_Created, false);
@@ -782,6 +787,9 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     bool     enable = q->isEnabled();                // remember status
     Qt::FocusPolicy fp = q->focusPolicy();
     QSize    s            = q->size();
+#ifdef QT_USE_BACKINGSTORE
+    invalidateBuffer(q->rect());
+#endif
     bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
 
     data.window_flags = f;
@@ -804,6 +812,9 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
                 w->d_func()->parent = 0;
                 w->setParent(q);
             } else if (!w->isWindow()) {
+#ifdef QT_USE_BACKINGSTORE
+                w->d_func()->invalidateBuffer(w->rect());
+#endif
                 XReparentWindow(X11->display, w->winId(), q->winId(),
                                 w->geometry().x(), w->geometry().y());
             } else if ((w->windowType() == Qt::Popup)
@@ -864,6 +875,9 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
         topData()->dnd = 0;
         X11->dndEnable(q, (extra && extra->children_use_dnd));
     }
+#ifdef QT_USE_BACKINGSTORE
+    invalidateBuffer(q->rect());
+#endif
 }
 
 
@@ -1294,6 +1308,19 @@ void QWidget::activateWindow()
 }
 
 
+#ifdef QT_USE_BACKINGSTORE
+void QWidgetBackingStore::updateWidget_sys(const QRegion &rgn, QWidget *widget)
+{
+    if (!rgn.isEmpty())
+        QApplication::postEvent(widget, new QEvent(QEvent::UpdateRequest));
+}
+
+void QWidgetBackingStore::paintWidget_sys(const QRegion& rgn, QWidget *widget)
+{
+    QPaintEvent e(rgn);
+    qt_sendSpontaneousEvent(widget, &e);
+}
+#else
 void QWidget::update()
 {
     Q_D(QWidget);
@@ -1550,6 +1577,7 @@ void QWidget::repaint(const QRegion& rgn)
     if (testAttribute(Qt::WA_ContentsPropagated))
         d->updatePropagatedBackground(&rgn);
 }
+#endif
 
 void QWidget::setWindowState(Qt::WindowStates newstate)
 {
@@ -1821,7 +1849,12 @@ void QWidgetPrivate::show_sys()
             qt_x11_wait_for_window_manager(q);
             return;
         }
+    } else {
+#ifdef QT_USE_BACKINGSTORE
+        invalidateBuffer(q->rect());
+#endif
     }
+
 
     if (q->testAttribute(Qt::WA_OutsideWSRange))
         return;
@@ -1835,7 +1868,7 @@ void QWidgetPrivate::show_sys()
         return;
     }
     XMapWindow(X11->display, q->winId());
-    
+
     // Freedesktop.org Startup Notification
     if (X11->startupId && q->isWindow()) {
         QByteArray message("remove: ID=");
@@ -1857,7 +1890,7 @@ void QWidgetPrivate::sendStartupMessage(const char *message) const
     if (!message)
         return;
 
-    XEvent xevent; 
+    XEvent xevent;
     xevent.xclient.type = ClientMessage;
     xevent.xclient.message_type = ATOM(_NET_STARTUP_INFO_BEGIN);
     xevent.xclient.display = X11->display;
@@ -1868,14 +1901,14 @@ void QWidgetPrivate::sendStartupMessage(const char *message) const
     uint sent = 0;
     uint length = strlen(message) + 1;
     do {
-        if (sent == 20) 
+        if (sent == 20)
             xevent.xclient.message_type = ATOM(_NET_STARTUP_INFO);
-        
+
         for (uint i = 0; i < 20 && i + sent <= length; i++)
-            xevent.xclient.data.b[i] = message[i + sent++]; 
-            
+            xevent.xclient.data.b[i] = message[i + sent++];
+
         XSendEvent(X11->display, rootWindow, false, PropertyChangeMask, &xevent);
-    } while (sent <= length); 
+    } while (sent <= length);
 }
 
 
@@ -1903,6 +1936,9 @@ void QWidgetPrivate::hide_sys()
 
         XFlush(X11->display);
     } else {
+#ifdef QT_USE_BACKINGSTORE
+        invalidateBuffer(q->rect());
+#endif
         q->setAttribute(Qt::WA_Mapped, false);
         if (q->winId()) // in nsplugin, may be 0
             XUnmapWindow(X11->display, q->winId());
@@ -1913,12 +1949,20 @@ void QWidgetPrivate::raise_sys()
 {
     Q_Q(QWidget);
     XRaiseWindow(X11->display, q->winId());
+#ifdef QT_USE_BACKINGSTORE
+    if(!q->isWindow())
+        invalidateBuffer(q->rect());
+#endif
 }
 
 void QWidgetPrivate::lower_sys()
 {
     Q_Q(QWidget);
     XLowerWindow(X11->display, q->winId());
+#ifdef QT_USE_BACKINGSTORE
+    if(!q->isWindow())
+        invalidateBuffer(q->rect());
+#endif
 }
 
 void QWidgetPrivate::stackUnder_sys(QWidget* w)
@@ -1928,6 +1972,10 @@ void QWidgetPrivate::stackUnder_sys(QWidget* w)
     stack[0] = w->winId();;
     stack[1] = q->winId();
     XRestackWindows(X11->display, stack, 2);
+#ifdef QT_USE_BACKINGSTORE
+    if(!q->isWindow())
+        invalidateBuffer(q->rect());
+#endif
 }
 
 
@@ -2172,7 +2220,20 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         } else if (isResize)
             XResizeWindow(dpy, data.winid, w, h);
     } else {
+#ifdef QT_USE_BACKINGSTORE
+        if(q->isVisible() && !q->isHidden()) {
+            if(isMove)
+                q->parentWidget()->d_func()->scrollBuffer(QRect(oldPos, oldSize),
+                                                          x - q->x(), y - q->y());
+            else
+                q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, oldSize));
+        }
+#endif
         setWSGeometry();
+#ifdef QT_USE_BACKINGSTORE
+        if(q->isVisible() && !q->isHidden() && isResize)
+            invalidateBuffer(q->rect()); //after the resize
+#endif
     }
 
     if (q->isVisible()) {
@@ -2193,6 +2254,10 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 
             QResizeEvent e(q->size(), oldSize);
             QApplication::sendEvent(q, &e);
+#ifndef QT_USE_BACKINGSTORE
+            if (!q->testAttribute(Qt::WA_StaticContents))
+                q->update();
+#endif
         }
     } else {
         if (isMove && q->pos() != oldPos)
@@ -2247,11 +2312,16 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     bool valid_rect = r.isValid();
     bool just_update = qAbs(dx) > width() || qAbs(dy) > height();
     QRect sr = valid_rect ? r : d->clipRect();
+#ifdef QT_USE_BACKINGSTORE
+    if (just_update)
+        update();
+#else
     if (just_update) {
         update();
     } else if (!valid_rect){
         d->invalidated_region.translate(dx, dy);
     }
+#endif
 
     int x1, y1, x2, y2, w = sr.width(), h = sr.height();
     if (dx > 0) {
@@ -2286,6 +2356,9 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     }
 
     if (!valid_rect && !d->children.isEmpty()) {        // scroll children
+#ifdef QT_USE_BACKINGSTORE
+        d->scrollBuffer(sr, dx, dy);
+#endif
         QPoint pd(dx, dy);
         for (int i = 0; i < d->children.size(); ++i) { // move all children
             register QObject *object = d->children.at(i);
@@ -2295,6 +2368,10 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
                     w->move(w->pos() + pd);
             }
         }
+    } else {
+#ifdef QT_USE_BACKINGSTORE
+        d->invalidateBuffer(rect());
+#endif
     }
 
     if (just_update)
@@ -2384,6 +2461,9 @@ void QWidgetPrivate::deleteSysExtra()
 void QWidgetPrivate::createTLSysExtra()
 {
     extra->topextra->iconMask = 0;
+#ifdef QT_USE_BACKINGSTORE
+    extra->topextra->backingStore = new QWidgetBackingStore(q_func());
+#endif
 }
 
 void QWidgetPrivate::deleteTLSysExtra()
@@ -2392,6 +2472,10 @@ void QWidgetPrivate::deleteTLSysExtra()
     // QWidget::destroy() destroyInputContext();
     delete extra->topextra->iconMask;
     extra->topextra->iconMask = 0;
+#ifdef QT_USE_BACKINGSTORE
+    if (extra->topextra->backingStore)
+        delete extra->topextra->backingStore;
+#endif
 }
 
 /*

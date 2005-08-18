@@ -4865,6 +4865,11 @@ bool translateBySips(QWidget* that, QRect& paintRect)
     return false;
 }
 
+bool qt_sendSpontaneousEvent(QObject *receiver, QEvent *event)
+{
+    return QCoreApplication::sendSpontaneousEvent(receiver, event);
+}
+
 void QETWidget::removePendingPaintEvents()
 {
     XEvent xevent;
@@ -4877,8 +4882,6 @@ void QETWidget::removePendingPaintEvents()
         ;
 }
 
-
-
 void QETWidget::translatePaintEvent(const XEvent *event)
 {
     Q_D(QWidget);
@@ -4890,11 +4893,15 @@ void QETWidget::translatePaintEvent(const XEvent *event)
     translateBySips(this, paintRect);
     paintRect = d->mapFromWS(paintRect);
 
+    QRect clipRect = d->clipRect();
+#ifdef QT_USE_BACKINGSTORE
+    QRegion paintRegion = paintRect;
+#else
     QRegion paintRegion = d->invalidated_region;
     paintRegion |= paintRect;
     d->invalidated_region = QRegion();
-    QRect clipRect = d->clipRect();
     paintRegion &= clipRect;
+#endif
 
     // WARNING: this is O(number_of_events * number_of_matching_events)
     while (XCheckIfEvent(X11->display,&xevent,isPaintOrScrollDoneEvent,
@@ -4909,19 +4916,29 @@ void QETWidget::translatePaintEvent(const XEvent *event)
                            xevent.xexpose.height);
             translateBySips(this, exposure);
             exposure = d->mapFromWS(exposure);
+#ifdef QT_USE_BACKINGSTORE
+            paintRegion |= paintRegion.unite(exposure);
+#else
             if (clipRect.contains(exposure)) {
                 paintRegion = paintRegion.unite(exposure);
             } else if (!paintRegion.isEmpty()) {
                 repaint(paintRegion);
                 paintRegion = exposure;
             }
+#endif
         } else {
             translateScrollDoneEvent(&xevent);
         }
     }
 
-    if (!paintRegion.isEmpty())
+    if (!paintRegion.isEmpty()) {
+#ifdef QT_USE_BACKINGSTORE
+        extern void qt_syncBackingStore(QRegion rgn, QWidget *widget);
+        qt_syncBackingStore(paintRegion, this);
+#else
         repaint(paintRegion);
+#endif
+    }
 }
 
 //
@@ -5032,7 +5049,11 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
 
     if (wasResize && !testAttribute(Qt::WA_StaticContents)) {
         removePendingPaintEvents();
+#ifdef QT_US_BACKINGSTORE
+        repaint();
+#else
         testAttribute(Qt::WA_WState_InPaintEvent)?update():repaint();
+#endif
     }
 
     return true;

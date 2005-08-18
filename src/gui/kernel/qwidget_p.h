@@ -82,6 +82,9 @@ struct QTLWExtra {
 #endif
     short basew, baseh; // base sizes
 #if defined(Q_WS_X11)
+#ifdef QT_USE_BACKINGSTORE
+    QWidgetBackingStore *backingStore;
+#endif
     WId parentWinId; // parent window Id (valid after reparenting)
     uint embedded : 1; // window is embedded in another Qt application
     uint spont_unmapped: 1; // window was spontaneously unmapped
@@ -208,7 +211,9 @@ public:
 
 #if defined(Q_WS_X11)
     void checkChildrenDnd();
+#ifndef QT_USE_BACKINGSTORE
     QRegion invalidated_region;
+#endif
 
     void setWindowRole(const char *role);
     void sendStartupMessage(const char *message) const;

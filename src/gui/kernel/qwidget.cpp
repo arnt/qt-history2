@@ -5135,6 +5135,12 @@ bool QWidget::event(QEvent *e)
         break;
 
 #if defined(Q_WS_X11)
+#ifdef QT_USE_BACKINGSTORE
+    case QEvent::UpdateRequest: {
+        extern void qt_syncBackingStore(QRegion rgn, QWidget *widget);
+        qt_syncBackingStore(rect(), this); //##maybe should pass a proper region
+        break; }
+#else
     case QEvent::UpdateRequest:
         if (!d->invalidated_region.isEmpty()) {
             QRegion rgn = d->invalidated_region;
@@ -5142,6 +5148,7 @@ bool QWidget::event(QEvent *e)
             repaint(rgn);
         }
         break;
+#endif
 #endif
 #if defined(Q_WS_QWS)
     case QEvent::QWSUpdate:
@@ -6323,9 +6330,6 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
 void QWidget::repaint()
 {
     Q_D(QWidget);
-#if defined(Q_WS_X11)
-//     d->removePendingPaintEvents(); // ### this is far too slow to go in
-#endif
     repaint(d->clipRect());
 }
 

@@ -1092,7 +1092,8 @@ void QWidgetPrivate::hide_sys()
     deactivateWidgetCleanup();
     ShowWindow(q->winId(), SW_HIDE);
 #ifdef QT_USE_BACKINGSTORE
-    invalidateBuffer(q->rect());
+    if(!q->isWindow())
+        invalidateBuffer(q->rect());
 #endif
 }
 
@@ -1131,7 +1132,8 @@ void QWidgetPrivate::show_sys()
 
     UpdateWindow(q->winId());
 #ifdef QT_USE_BACKINGSTORE
-    invalidateBuffer(q->rect());
+    if(!q->isWindow())
+        invalidateBuffer(q->rect());
 #endif
 }
 
@@ -1177,7 +1179,8 @@ void QWidget::show_sys()
         SetForegroundWindow(winId());
     UpdateWindow(winId());
 #ifdef QT_USE_BACKINGSTORE
-    invalidateBuffer(q->rect());
+    if(!q->isWindow())
+        invalidateBuffer(q->rect());
 #endif
 }
 
@@ -1188,9 +1191,9 @@ void QWidgetPrivate::raise_sys()
     Q_Q(QWidget);
     SetWindowPos(q->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
 #ifdef QT_USE_BACKINGSTORE
-    invalidateBuffer(q->rect());
+    if(!q->isWindow())
+        invalidateBuffer(q->rect());
 #endif
-
 }
 
 void QWidgetPrivate::lower_sys()
@@ -1356,10 +1359,10 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 
     if (isResize && !q->testAttribute(Qt::WA_StaticContents))
         ValidateRgn(q->winId(), 0);
-   
-    if (isResize) 
+
+    if (isResize)
         data.window_state &= ~Qt::WindowMaximized;
-    
+
     if (data.window_state & Qt::WindowFullScreen) {
         // We need to update these flags when we remove the full screen state
         // or the frame will not be updated
@@ -1393,10 +1396,10 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         top->fleft = data.crect.left() - fr.left;
         top->fbottom = fr.bottom - data.crect.bottom();
         top->fright = fr.right - data.crect.right();
-        
+
         data.window_state &= ~Qt::WindowFullScreen;
     }
-       
+
     if (q->testAttribute(Qt::WA_WState_ConfigPending)) {        // processing config event
         qWinRequestConfig(q->winId(), isMove ? 2 : 1, x, y, w, h);
     } else {
@@ -1414,7 +1417,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                 InvalidateRect(q->winId(), 0, false);
             RECT rect;
             GetClientRect(q->winId(), &rect);
-    	    data.crect.setRect(x, y, rect.right - rect.left, rect.bottom - rect.top);            
+    	    data.crect.setRect(x, y, rect.right - rect.left, rect.bottom - rect.top);
         } else {
 #ifdef QT_USE_BACKINGSTORE
             if(q->isVisible() && !q->isHidden()) {

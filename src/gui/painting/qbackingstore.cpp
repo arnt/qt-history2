@@ -11,17 +11,18 @@
 **
 ****************************************************************************/
 #include <qglobal.h>
+#include <qapplication.h>
 #ifdef Q_WS_WIN
 # include "qt_windows.h"
 # include <private/qpaintengine_raster_p.h>
-#endif
-#ifdef Q_WS_X11
-# include "qt_x11_p.h"
 #endif
 #include "qbackingstore_p.h"
 #include "private/qwidget_p.h"
 #include <qdebug.h>
 #include <qstack.h>
+#ifdef Q_WS_X11
+# include "private/qt_x11_p.h"
+#endif
 
 /*****************************************************************************
   Top Level Window backing store

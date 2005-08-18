@@ -372,7 +372,9 @@ QWidget *QApplicationPrivate::oldEditFocus = 0;
 bool qt_tabletChokeMouse = false;
 static bool force_reverse = false;
 
+#ifndef QT_USE_BACKINGSTORE
 int qt_double_buffer_timer = 0;
+#endif
 
 Q_GUI_EXPORT void qt_qws_set_max_window_rect(const QRect& r)
 {
@@ -800,9 +802,11 @@ QApplication::~QApplication()
     qt_call_post_routines();
 
     // kill timers before closing down the dispatcher
+#ifndef QT_USE_BACKINGSTORE
     if (qt_double_buffer_timer)
         qApp->killTimer(qt_double_buffer_timer);
     qt_double_buffer_timer = 0;
+#endif
     d->toolTipWakeUp.stop();
     d->toolTipFallAsleep.stop();
 
@@ -1759,7 +1763,15 @@ bool QApplication::event(QEvent *e)
     } else if (e->type() == QEvent::Timer) {
         QTimerEvent *te = static_cast<QTimerEvent*>(e);
         Q_ASSERT(te != 0);
-        if (te->timerId() == qt_double_buffer_timer) {
+        if (te->timerId() == d->toolTipWakeUp.timerId()) {
+            d->toolTipWakeUp.stop();
+            d->toolTipFallAsleep.start(2000, this);
+            if (d->toolTipWidget) {
+                QHelpEvent e(QEvent::ToolTip, d->toolTipPos, d->toolTipGlobalPos);
+                QApplication::sendEvent(d->toolTipWidget, &e);
+            }
+#ifndef QT_USE_BACKINGSTORE
+        } else if (te->timerId() == qt_double_buffer_timer) {
             if (!QApplicationPrivate::active_window) {
 #if defined(Q_WS_X11) && !defined(QT_RASTER_PAINTENGINE)
                 extern void qt_discard_double_buffer();
@@ -1770,13 +1782,7 @@ bool QApplication::event(QEvent *e)
             killTimer(qt_double_buffer_timer);
             qt_double_buffer_timer = 0;
             return true;
-        } else if (te->timerId() == d->toolTipWakeUp.timerId()) {
-            d->toolTipWakeUp.stop();
-            d->toolTipFallAsleep.start(2000, this);
-            if (d->toolTipWidget) {
-                QHelpEvent e(QEvent::ToolTip, d->toolTipPos, d->toolTipGlobalPos);
-                QApplication::sendEvent(d->toolTipWidget, &e);
-            }
+#endif
         } else if (te->timerId() == d->toolTipFallAsleep.timerId()) {
             d->toolTipFallAsleep.stop();
         }
@@ -1875,6 +1881,7 @@ void QApplication::setActiveWindow(QWidget* act)
             QApplicationPrivate::active_window->focusNextPrevChild(true);
     }
 
+#ifndef QT_USE_BACKINGSTORE
     if (!QApplicationPrivate::active_window) {
         // (re)start the timer to discard the global double buffer
         // while the application doesn't have any active windows
@@ -1882,6 +1889,7 @@ void QApplication::setActiveWindow(QWidget* act)
             qApp->killTimer(qt_double_buffer_timer);
         qt_double_buffer_timer = qApp->startTimer(500);
     }
+#endif
 }
 
 

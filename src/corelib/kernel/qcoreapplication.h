@@ -152,9 +152,7 @@ private:
     friend class QShortcutMap;
     friend class QWidget;
     friend class QWidgetPrivate;
-#if defined(Q_WS_WIN) || defined (Q_WS_MAC) || defined (Q_WS_QWS)
     friend bool qt_sendSpontaneousEvent(QObject*, QEvent*);
-#endif
 };
 
 inline bool QCoreApplication::sendEvent(QObject *receiver, QEvent *event)
