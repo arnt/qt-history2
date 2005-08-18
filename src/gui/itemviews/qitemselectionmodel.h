@@ -163,7 +163,7 @@ public:
 };
 
 #ifndef QT_NO_DEBUG_STREAM
-Q_CORE_EXPORT QDebug operator<<(QDebug, const QItemSelectionRange &);
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QItemSelectionRange &);
 #endif
 
 #endif // QT_NO_ITEMVIEWS
