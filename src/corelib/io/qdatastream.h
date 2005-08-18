@@ -124,6 +124,8 @@ public:
     QDataStream &writeBytes(const char *, uint len);
     int writeRawData(const char *, int len);
 
+    int skipRawData(int len);
+
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT QDataStream &readRawBytes(char *str, uint len)
         { readRawData(str, (int)len); return *this; }
