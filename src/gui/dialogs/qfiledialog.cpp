@@ -863,6 +863,8 @@ void QFileDialog::accept()
     case ExistingFiles:
         for (int i = 0; i < files.count(); ++i) {
             QFileInfo info(files.at(i));
+            if (!info.exists())
+                info = QFileInfo(d->getEnvironmentVariable(files.at(i)));
             if (!info.exists()) {
                 QString message = tr("\nFile not found.\nPlease verify the "
                                      "correct file name was given");
@@ -990,6 +992,10 @@ void QFileDialogPrivate::enterDirectory(const QString &path)
 {
     Q_Q(QFileDialog);
     QModelIndex index = model->index(path);
+    if (!index.isValid()) {
+        index = model->index(getEnvironmentVariable(path));
+    }
+
     if (index.isValid() || path.isEmpty() || path == QObject::tr("My Computer")) {
         enterDirectory(index);
     } else {
@@ -1765,6 +1771,22 @@ QModelIndex QFileDialogPrivate::matchName(const QString &name, const QModelIndex
         return QModelIndex();
     return matches.first();
 }
+
+
+QString QFileDialogPrivate::getEnvironmentVariable(const QString &str)
+{
+#ifdef Q_OS_UNIX
+    if (str.size() > 1 && str.startsWith(QLatin1Char('$'))) {
+        return QString::fromLocal8Bit(getenv(str.mid(1).toLatin1().constData()));
+    }
+#else
+    if (str.size() > 2 && str.startsWith(QLatin1Char('%')) && str.endsWith(QLatin1Char('%'))) {
+        return QString::fromLocal8Bit(getenv(str.mid(1, str.size() - 2).toLatin1().constData()));
+    }
+#endif
+    return str;
+}
+
 
 /******************************************************************
  *

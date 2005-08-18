@@ -89,6 +89,8 @@ public:
     QModelIndex matchDir(const QString &text, const QModelIndex &first) const;
     QModelIndex matchName(const QString &name, const QModelIndex &first) const;
 
+    static QString getEnvironmentVariable(const QString &str);
+
     // inlined stuff
     inline QString tr(const char *text) const { return QObject::tr(text); }
     inline QString toNative(const QString &path) const
