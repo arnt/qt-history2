@@ -1288,7 +1288,8 @@ void VcprojGenerator::initOld()
     QStringList &incs = project->variables()["INCLUDEPATH"];
     for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
         QString inc = (*incit);
-        inc.replace(QRegExp("\""), "");
+        if (inc.contains(' ') && !inc.startsWith('"') && !inc.endsWith('"'))
+            inc = QString("\"%1\"").arg(inc); // Quote path if needed
         project->variables()["MSVCPROJ_INCPATH"].append("-I" + inc);
     }
     project->variables()["MSVCPROJ_INCPATH"].append("-I" + specdir());
