@@ -59,6 +59,9 @@ public:
     void scrollRegion(const QRegion &rgn, int dx, int dy, QWidget *widget=0);
     void dirtyRegion(const QRegion &rgn, QWidget *widget=0);
     void cleanRegion(const QRegion &rgn, QWidget *widget=0);
+#ifndef Q_WS_WIN
+    QPixmap backingPixmap() const { return buffer; }
+#endif
 };
 
 #endif /* __QBACKINGSTORE_P_H__ */

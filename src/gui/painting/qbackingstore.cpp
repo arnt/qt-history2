@@ -267,6 +267,9 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget)
             dirty -= cleaned;
         }
         paintWidget(toClean, widget, tlwOffset, Recursive|PaintSym|AsRoot);
+#ifdef Q_WS_X11
+        tlw->d_func()->updateSystemBackground();
+#endif
 
 #if 0
         static int foo = 0;

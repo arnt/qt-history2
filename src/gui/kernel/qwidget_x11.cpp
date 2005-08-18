@@ -922,22 +922,33 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
 void QWidgetPrivate::updateSystemBackground()
 {
     Q_Q(QWidget);
-    QBrush brush = q->palette().brush(QPalette::Active, q->backgroundRole());
-    Qt::WindowType type = q->windowType();
-    if (brush.style() == Qt::NoBrush
-        || q->testAttribute(Qt::WA_NoSystemBackground)
-        || q->testAttribute(Qt::WA_UpdatesDisabled)
-        || type == Qt::Popup || type == Qt::ToolTip
-        )
-        XSetWindowBackgroundPixmap(X11->display, q->winId(), XNone);
-    else if (isBackgroundInherited())
-        XSetWindowBackgroundPixmap(X11->display, q->winId(), ParentRelative);
-    else if (brush.style() == Qt::TexturePattern)
-        XSetWindowBackgroundPixmap(X11->display, q->winId(),
-                                   brush.texture().data->x11ConvertToDefaultDepth());
-    else
-        XSetWindowBackground(X11->display, q->winId(),
-                             QColormap::instance(xinfo.screen()).pixel(brush.color()));
+#ifdef QT_USE_BACKINGSTORE
+    if(extra && extra->topextra && extra->topextra->backingStore && extra->topextra->backingStore->isBuffered()) {
+        QPixmap pm = extra->topextra->backingStore->backingPixmap();
+        if(q->isWindow())
+            XSetWindowBackgroundPixmap(X11->display, q->winId(), pm.data->x11ConvertToDefaultDepth());
+        else
+            XSetWindowBackgroundPixmap(X11->display, q->winId(), ParentRelative);
+    } else
+#endif
+    {
+        QBrush brush = q->palette().brush(QPalette::Active, q->backgroundRole());
+        Qt::WindowType type = q->windowType();
+        if (brush.style() == Qt::NoBrush
+            || q->testAttribute(Qt::WA_NoSystemBackground)
+            || q->testAttribute(Qt::WA_UpdatesDisabled)
+            || type == Qt::Popup || type == Qt::ToolTip
+            )
+            XSetWindowBackgroundPixmap(X11->display, q->winId(), XNone);
+        else if (isBackgroundInherited())
+            XSetWindowBackgroundPixmap(X11->display, q->winId(), ParentRelative);
+        else if (brush.style() == Qt::TexturePattern)
+            XSetWindowBackgroundPixmap(X11->display, q->winId(),
+                                       brush.texture().data->x11ConvertToDefaultDepth());
+        else
+            XSetWindowBackground(X11->display, q->winId(),
+                                 QColormap::instance(xinfo.screen()).pixel(brush.color()));
+    }
 }
 
 void QWidget::setCursor(const QCursor &cursor)
@@ -2231,8 +2242,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 #endif
         setWSGeometry();
 #ifdef QT_USE_BACKINGSTORE
-        if(q->isVisible() && !q->isHidden() && isResize)
-            invalidateBuffer(q->rect()); //after the resize
+        invalidateBuffer(q->rect()); //after the resize
 #endif
     }
 
