@@ -595,7 +595,7 @@ inline QRectF::QRectF(const QRect &r)
 }
 
 inline bool QRectF::isNull() const
-{ return w == 0 && h == 0; }
+{ return qFuzzyCompare(w, 0) && qFuzzyCompare(h, 0); }
 
 inline bool QRectF::isEmpty() const
 { return w <= 0. || h <= 0.; }
@@ -763,12 +763,14 @@ inline QRectF QRectF::unite(const QRectF &r) const
 
 inline bool operator==(const QRectF &r1, const QRectF &r2)
 {
-    return r1.xp == r2.xp && r1.yp == r2.yp && r1.w == r2.w && r1.h == r2.h;
+    return qFuzzyCompare(r1.xp, r2.xp) && qFuzzyCompare(r1.yp, r2.yp)
+           && qFuzzyCompare(r1.w, r2.w) && qFuzzyCompare(r1.h, r2.h);
 }
 
 inline bool operator!=(const QRectF &r1, const QRectF &r2)
 {
-    return r1.xp != r2.xp || r1.yp != r2.yp || r1.w != r2.w || r1.h != r2.h;
+    return !qFuzzyCompare(r1.xp, r2.xp) || !qFuzzyCompare(r1.yp, r2.yp)
+           || !qFuzzyCompare(r1.w, r2.w) || !qFuzzyCompare(r1.h, r2.h);
 }
 
 inline QRect QRectF::toRect() const

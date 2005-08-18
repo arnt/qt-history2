@@ -68,9 +68,11 @@ public:
     inline qreal rawValue() const { return fixedValueOrPercentage; }
 
     inline bool operator==(const QTextLength &other) const
-    { return lengthType == other.lengthType && fixedValueOrPercentage == other.fixedValueOrPercentage; }
+    { return lengthType == other.lengthType
+             && qFuzzyCompare(fixedValueOrPercentage, other.fixedValueOrPercentage); }
     inline bool operator!=(const QTextLength &other) const
-    { return lengthType != other.lengthType || fixedValueOrPercentage != other.fixedValueOrPercentage; }
+    { return !lengthType != other.lengthType
+             || !qFuzzyCompare(fixedValueOrPercentage, other.fixedValueOrPercentage); }
     operator QVariant() const;
 
 private:

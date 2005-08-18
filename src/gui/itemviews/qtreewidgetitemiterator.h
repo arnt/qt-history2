@@ -44,7 +44,7 @@ public:
         Disabled      = 0x00008000,
         Editable      = 0x00010000,
         NotEditable   = 0x00020000,
-        UserFlag      = 0x01000000, // The first flag that can be used by the user.
+        UserFlag      = 0x01000000 // The first flag that can be used by the user.
     };
     Q_DECLARE_FLAGS(IteratorFlags, IteratorFlag)
 

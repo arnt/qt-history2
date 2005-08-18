@@ -51,7 +51,8 @@ public:
 
         operator QPointF () const { return QPointF(x, y); }
 
-        bool operator==(const Element &e) const { return x == e.x && y == e.y && type == e.type; }
+        bool operator==(const Element &e) const { return qFuzzyCompare(x, e.x)
+            && qFuzzyCompare(y, e.y) && type == e.type; }
     };
 
     QPainterPath();

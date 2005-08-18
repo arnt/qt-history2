@@ -55,7 +55,7 @@ protected:
 
 private:
     Q_DISABLE_COPY(QSyntaxHighlighter)
-    Q_PRIVATE_SLOT(d_func(), void reformatBlocks(int from, int charsRemoved, int charsAdded));
+    Q_PRIVATE_SLOT(d_func(), void reformatBlocks(int from, int charsRemoved, int charsAdded))
 };
 
 #endif // QSYNTAXHIGHLIGHTER_H

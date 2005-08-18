@@ -66,7 +66,7 @@ public:
     QMatrix &shear(qreal sh, qreal sv);
     QMatrix &rotate(qreal a);
 
-    bool isInvertible() const { return (_m11*_m22 - _m12*_m21) != 0; }
+    bool isInvertible() const { return !qFuzzyCompare(_m11*_m22 - _m12*_m21, 0); }
     qreal det() const { return _m11*_m22 - _m12*_m21; }
 
     QMatrix inverted(bool *invertible = 0) const;
@@ -111,7 +111,8 @@ Q_GUI_EXPORT QPainterPath operator *(const QPainterPath &p, const QMatrix &m);
 
 inline bool QMatrix::isIdentity() const
 {
-    return _m11 == 1.0 && _m22 == 1.0 && _m12 == 0.0 && _m21 == 0.0 && _dx == 0.0 && _dy == 0.0;
+    return qFuzzyCompare(_m11, 1) && qFuzzyCompare(_m22, 1) && qFuzzyCompare(_m12, 0)
+           && qFuzzyCompare(_m21, 0) && qFuzzyCompare(_dx, 0) && qFuzzyCompare(_dy, 0);
 }
 
 /*****************************************************************************

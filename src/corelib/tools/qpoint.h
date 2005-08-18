@@ -134,7 +134,7 @@ inline const QPoint operator-(const QPoint &p)
 
 inline QPoint &QPoint::operator/=(qreal c)
 {
-    Q_ASSERT(c != 0);
+    Q_ASSERT(!qFuzzyCompare(c, 0));
     xp = qRound(xp/c);
     yp = qRound(yp/c);
     return *this;
@@ -142,7 +142,7 @@ inline QPoint &QPoint::operator/=(qreal c)
 
 inline const QPoint operator/(const QPoint &p, qreal c)
 {
-    Q_ASSERT(c != 0.0);
+    Q_ASSERT(!qFuzzyCompare(c, 0));
     return QPoint(qRound(p.xp/c), qRound(p.yp/c));
 }
 
@@ -216,7 +216,7 @@ inline QPointF::QPointF(const QPoint &p) : xp(p.x()), yp(p.y()) { }
 
 inline bool QPointF::isNull() const
 {
-    return xp == 0 && yp == 0;
+    return qFuzzyCompare(xp, 0) && qFuzzyCompare(yp, 0);
 }
 
 inline qreal QPointF::x() const
@@ -268,12 +268,12 @@ inline QPointF &QPointF::operator*=(qreal c)
 
 inline bool operator==(const QPointF &p1, const QPointF &p2)
 {
-    return p1.xp == p2.xp && p1.yp == p2.yp;
+    return qFuzzyCompare(p1.xp, p2.xp) && qFuzzyCompare(p1.yp, p2.yp);
 }
 
 inline bool operator!=(const QPointF &p1, const QPointF &p2)
 {
-    return p1.xp != p2.xp || p1.yp != p2.yp;
+    return !qFuzzyCompare(p1.xp, p2.xp) || !qFuzzyCompare(p1.yp, p2.yp);
 }
 
 inline const QPointF operator+(const QPointF &p1, const QPointF &p2)
@@ -303,7 +303,7 @@ inline const QPointF operator-(const QPointF &p)
 
 inline QPointF &QPointF::operator/=(qreal c)
 {
-    Q_ASSERT(c != 0);
+    Q_ASSERT(!qFuzzyCompare(c, 0));
     xp/=c;
     yp/=c;
     return *this;
@@ -311,7 +311,7 @@ inline QPointF &QPointF::operator/=(qreal c)
 
 inline const QPointF operator/(const QPointF &p, qreal c)
 {
-    Q_ASSERT(c != 0);
+    Q_ASSERT(!qFuzzyCompare(c, 0));
     return QPointF(p.xp/c, p.yp/c);
 }
 

@@ -113,14 +113,4 @@ static inline bool qIsFinite(float d)
     }
 }
 
-static inline bool qFuzzyCompare(double p1, double p2)
-{
-    return qAbs(p1 - p2) < 0.00000000001;
-}
-
-static inline bool qFuzzyCompare(float p1, float p2)
-{
-    return qAbs(p1 - p2) < 0.000001;
-}
-
 #endif // QNUMERIC_P_H

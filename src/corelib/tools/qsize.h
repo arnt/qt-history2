@@ -139,14 +139,14 @@ inline const QSize operator*(qreal c, const QSize &s)
 
 inline QSize &QSize::operator/=(qreal c)
 {
-    Q_ASSERT(c != 0.0);
+    Q_ASSERT(!qFuzzyCompare(c, 0));
     wd = qRound(wd/c); ht = qRound(ht/c);
     return *this;
 }
 
 inline const QSize operator/(const QSize &s, qreal c)
 {
-    Q_ASSERT(c != 0.0);
+    Q_ASSERT(!qFuzzyCompare(c, 0));
     return QSize(qRound(s.wd/c), qRound(s.ht/c));
 }
 
@@ -237,7 +237,7 @@ inline QSizeF::QSizeF(qreal w, qreal h)
 { wd = w; ht = h; }
 
 inline bool QSizeF::isNull() const
-{ return wd == 0 && ht == 0; }
+{ return qFuzzyCompare(wd, 0) && qFuzzyCompare(ht, 0); }
 
 inline bool QSizeF::isEmpty() const
 { return wd <= 0. || ht <= 0.; }
@@ -276,10 +276,10 @@ inline QSizeF &QSizeF::operator*=(qreal c)
 { wd *= c; ht *= c; return *this; }
 
 inline bool operator==(const QSizeF &s1, const QSizeF &s2)
-{ return s1.wd == s2.wd && s1.ht == s2.ht; }
+{ return qFuzzyCompare(s1.wd, s2.wd) && qFuzzyCompare(s1.ht, s2.ht); }
 
 inline bool operator!=(const QSizeF &s1, const QSizeF &s2)
-{ return s1.wd != s2.wd || s1.ht != s2.ht; }
+{ return !qFuzzyCompare(s1.wd, s2.wd) || !qFuzzyCompare(s1.ht, s2.ht); }
 
 inline const QSizeF operator+(const QSizeF & s1, const QSizeF & s2)
 { return QSizeF(s1.wd+s2.wd, s1.ht+s2.ht); }
@@ -295,14 +295,14 @@ inline const QSizeF operator*(qreal c, const QSizeF &s)
 
 inline QSizeF &QSizeF::operator/=(qreal c)
 {
-    Q_ASSERT(c != 0.0);
+    Q_ASSERT(!qFuzzyCompare(c, 0));
     wd = wd/c; ht = ht/c;
     return *this;
 }
 
 inline const QSizeF operator/(const QSizeF &s, qreal c)
 {
-    Q_ASSERT(c != 0.0);
+    Q_ASSERT(!qFuzzyCompare(c, 0));
     return QSizeF(s.wd/c, s.ht/c);
 }
 

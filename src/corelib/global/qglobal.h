@@ -1225,6 +1225,16 @@ inline bool operator!=(QBool b1, bool b2) { return !b1 != !b2; }
 inline bool operator!=(bool b1, QBool b2) { return !b1 != !b2; }
 inline bool operator!=(QBool b1, QBool b2) { return !b1 != !b2; }
 
+static inline bool qFuzzyCompare(double p1, double p2)
+{
+    return qAbs(p1 - p2) < 0.00000000001;
+}
+
+static inline bool qFuzzyCompare(float p1, float p2)
+{
+    return qAbs(p1 - p2) < 0.000001;
+}
+
 /*
  compilers which follow outdated template instantiation rules
  require a class to have a comparison operator to exist when
