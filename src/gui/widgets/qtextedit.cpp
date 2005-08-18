@@ -502,12 +502,16 @@ void QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
     Q_Q(QTextEdit);
     int targetY = vbar->value() - viewport->height();
     bool moved = false;
+    qreal y;
+    // move to the targetY using movePosition to keep the cursor's x
     do {
-        q->ensureCursorVisible();
+        const QRect r = q->cursorRect();
+        y = vbar->value() + r.y() - r.height();
         moved = cursor.movePosition(QTextCursor::Up, moveMode);
-    } while (moved && vbar->value() > targetY);
+    } while (moved && y > targetY);
 
     if (moved) {
+        q->ensureCursorVisible();
         emit q->cursorPositionChanged();
         q->updateMicroFocus();
     }
@@ -516,14 +520,17 @@ void QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
 void QTextEditPrivate::pageDown(QTextCursor::MoveMode moveMode)
 {
     Q_Q(QTextEdit);
-    int targetY = vbar->value() + viewport->height();
+    int targetY = vbar->value() + 2 * viewport->height();
     bool moved = false;
+    qreal y;
+    // move to the targetY using movePosition to keep the cursor's x
     do {
-        q->ensureCursorVisible();
+        y = vbar->value() + q->cursorRect().bottom();
         moved = cursor.movePosition(QTextCursor::Down, moveMode);
-    } while (moved && vbar->value() < targetY);
+    } while (moved && y < targetY);
 
     if (moved) {
+        q->ensureCursorVisible();
         emit q->cursorPositionChanged();
         q->updateMicroFocus();
     }
