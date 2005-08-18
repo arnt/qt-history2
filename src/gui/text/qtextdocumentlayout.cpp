@@ -318,8 +318,6 @@ public:
     HitPoint hitTest(QTextTable *table, const QPointF &point, int *position) const;
     HitPoint hitTest(QTextBlock bl, const QPointF &point, int *position) const;
 
-    void relayoutDocument();
-
     LayoutStruct layoutCell(QTextTable *t, const QTextTableCell &cell, qreal width,
                             int layoutFrom, int layoutTo);
     void setCellPosition(QTextTable *t, const QTextTableCell &cell, const QPointF &pos);
@@ -1020,14 +1018,6 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPointF &offset, QPainter *p
     }
 
     painter->restore();
-}
-
-
-void QTextDocumentLayoutPrivate::relayoutDocument()
-{
-    Q_Q(QTextDocumentLayout);
-    const QTextDocument *doc = q->document();
-    q->documentChanged(0, 0, doc->docHandle()->length());
 }
 
 static bool isFrameInCell(const QTextTableCell &cell, QTextFrame *frame)
