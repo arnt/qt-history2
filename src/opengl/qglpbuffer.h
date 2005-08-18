@@ -40,14 +40,9 @@ public:
     Qt::HANDLE handle() const;
     QImage toImage() const;
 
-    void setAutoBufferSwap(bool) {}
-    void swapBuffers() {}
-    int width() { return size().width(); }
-    int height() { return size().height(); }
     QPaintEngine *paintEngine() const;
     int metric(PaintDeviceMetric metric) const;
     QGLFormat format() const { return QGLFormat::defaultFormat(); }
-
     int devType() const { return QInternal::Pbuffer; }
 
 private:

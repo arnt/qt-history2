@@ -32,12 +32,66 @@
 #include <private/qpaintengine_opengl_p.h>
 #include <qimage.h>
 
+/*! \fn bool QGLPbuffer::makeCurrent()
+
+    Makes this pbuffer the current GL rendering context. Returns true
+    on success, false otherwise.
+ */
+
+/*! \fn bool QGLPbuffer::doneCurrent()
+
+    Makes no context the current GL context. Returns true on success, false
+    otherwise.
+ */
+
+/*! \fn GLuint QGLPbuffer::generateTexture(GLenum target, GLint format)
+
+    This is a convenience function that generates and binds a GL
+    texture that is the same size as the pbuffer, using target as
+    texture target and format as texture format. The generated texture
+    id is returned.
+*/
+
+/*! \fn void QGLPbuffer::copyToTexture(GLuint texture_id, GLenum target, GLint format)
+
+    This is a convenience function that copies the pbuffer contents
+    (using \c {glCopyTexImage2D()}) into the texture specified with \c
+    {texture_id}.
+ */
+
+/*! \fn bool QGLPbuffer::bind(GLuint texture_id, GLenum target)
+
+    Binds the texture specified with \c {texture_id} to the
+    pbuffer. Returns true on success, false otherwise.
+
+    This function uses the \c {render_texture} extension, which is
+    currently not supported under X11. Under X11 you can achieve the
+    same by copying the pbuffer contents to a texture after drawing
+    into the pbuffer using copyToTexture().
+ */
+
+/*! \fn bool QGLPbuffer::release()
+
+    Releases the pbuffer from any previously bound texture. Returns
+    true on success, false otherwise.
+
+    This function uses the \c {render_texture} extension, which is
+    currently not supported under X11.
+*/
+
+/*!
+    Returns the size of the pbuffer.
+ */
 QSize QGLPbuffer::size() const
 {
     Q_D(const QGLPbuffer);
     return d->size;
 }
 
+
+/*!
+    Returns the contents of the pbuffer as a QImage.
+ */
 QImage QGLPbuffer::toImage() const
 {
     Q_D(const QGLPbuffer);
@@ -89,6 +143,9 @@ Qt::HANDLE QGLPbuffer::handle() const
     return 0;
 }
 
+/*!
+    Returns true if this pbuffer is valid.
+ */
 bool QGLPbuffer::isValid() const
 {
     Q_D(const QGLPbuffer);
@@ -162,3 +219,5 @@ int QGLPbuffer::metric(PaintDeviceMetric metric) const
     }
     return 0;
 }
+
+
