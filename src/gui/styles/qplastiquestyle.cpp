@@ -1156,7 +1156,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     case PE_PanelToolBar: {
         // Draws the light line above and the dark line below menu bars and
         // tool bars.
-        if (qobject_cast<QToolBar *>(widget->parentWidget()))
+        if (widget && qobject_cast<QToolBar *>(widget->parentWidget()))
             break;
         QPen oldPen = painter->pen();
         if (element == PE_PanelMenuBar || (option->state & State_Horizontal)) {

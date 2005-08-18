@@ -184,7 +184,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         break;
     case PE_PanelMenuBar:
     case PE_PanelToolBar:
-        if (qobject_cast<QToolBar *>(widget->parentWidget()))
+        if (widget && qobject_cast<QToolBar *>(widget->parentWidget()))
             break;
         if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt))
             qDrawShadePanel(p, frame->rect, frame->palette, false, frame->lineWidth,
