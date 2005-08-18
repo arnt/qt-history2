@@ -263,7 +263,7 @@ bool QTransportAuth::addAuth( char *msg, int msgLen, QTransportAuth::Data d )
 */
 void QTransportAuth::authToSocket( unsigned char properties, int descriptor, char *msg, int len )
 {
-    qDebug( "auth to socket %d: %s", msg );
+    qDebug( "auth to socket %d: %s", descriptor, msg );
     struct Data d;
     d.properties = properties;
     d.descriptor = descriptor;
