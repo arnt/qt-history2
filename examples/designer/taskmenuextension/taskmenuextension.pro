@@ -1,6 +1,6 @@
 TEMPLATE = lib
-CONFIG  += designer release plugin
-DESTDIR  = $(QTDIR)/plugins/designer
+CONFIG  += designer plugin
+DESTDIR  = $$QT_BUILD_TREE/plugins/designer
 
 # Input
 HEADERS += tictactoe.h \
@@ -11,3 +11,9 @@ SOURCES += tictactoe.cpp \
            tictactoedialog.cpp \
            tictactoeplugin.cpp \
            tictactoetaskmenu.cpp
+
+# install
+target.path = $$[QT_INSTALL_PLUGINS]/designer
+sources.files = $$SOURCES $$HEADERS *.pro
+sources.path = $$[QT_INSTALL_EXAMPLES]/designer/taskmenuextension
+INSTALLS += target sources
