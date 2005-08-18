@@ -1847,7 +1847,7 @@ int QTextLine::xToCursor(qreal x, CursorPosition cpos) const
                     return si.position;
                 bool left_half = (x - pos) < item_width/2.;
 
-                if (bool(si.analysis.bidiLevel % 2) ^ left_half)
+                if (bool(si.analysis.bidiLevel % 2) != left_half)
                     return si.position;
                 return si.position + 1;
             }

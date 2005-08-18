@@ -103,7 +103,7 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
     opt.tickPosition = (QSlider::TickPosition)tickPosition;
     opt.tickInterval = tickInterval;
     opt.upsideDown = (orientation == Qt::Horizontal) ?
-                     (invertedAppearance ^  (opt.direction == Qt::RightToLeft))
+                     (invertedAppearance != (opt.direction == Qt::RightToLeft))
                      : (!invertedAppearance);
     opt.direction = Qt::LeftToRight; // we use the upsideDown option instead
     opt.sliderPosition = position;

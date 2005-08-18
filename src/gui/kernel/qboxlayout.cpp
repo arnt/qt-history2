@@ -609,7 +609,7 @@ void QBoxLayout::setGeometry(const QRect &r)
         qGeomCalc(a, 0, n, pos, space, spacing());
 
         bool reverse = (horz(visualDir)
-                        ? ((r.right() > rect.right()) ^ (visualDir == RightToLeft))
+                        ? ((r.right() > rect.right()) != (visualDir == RightToLeft))
                         : r.bottom() > rect.bottom());
         for (int j = 0; j < n; j++) {
             int i = reverse ? n-j-1 : j;

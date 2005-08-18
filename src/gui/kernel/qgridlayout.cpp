@@ -688,7 +688,7 @@ void QGridLayoutPrivate::distribute(QRect r, int spacing)
     int i;
 
     bool reverse = ((r.bottom() > rect.bottom()) || (r.bottom() == rect.bottom()
-                                                     && ((r.right() > rect.right()) ^ visualHReversed)));
+                                                     && ((r.right() > rect.right()) != visualHReversed)));
     int n = things.size();
     for (i = 0; i < n; ++i) {
         QGridBox *box = things.at(reverse ? n-i-1 : i);

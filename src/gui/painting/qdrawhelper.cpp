@@ -305,18 +305,18 @@ static void blend_transformed_bilinear_argb(void *t, const QSpan *span,
         int idistx = 256 - distx;
         int idisty = 256 - disty;
 
-        bool x1_out = ((x1 < 0) | (x1 >= image_width));
-        bool x2_out = ((x2 < 0) | (x2 >= image_width));
-        bool y1_out = ((y1 < 0) | (y1 >= image_height));
-        bool y2_out = ((y2 < 0) | (y2 >= image_height));
+        bool x1_out = ((x1 < 0) || (x1 >= image_width));
+        bool x2_out = ((x2 < 0) || (x2 >= image_width));
+        bool y1_out = ((y1 < 0) || (y1 >= image_height));
+        bool y2_out = ((y2 < 0) || (y2 >= image_height));
 
         int y1_offset = y1 * image_width;
         int y2_offset = y1_offset + image_width;
 
-        uint tl = (x1_out | y1_out) ? uint(0) : image_bits[y1_offset + x1];
-        uint tr = (x2_out | y1_out) ? uint(0) : image_bits[y1_offset + x2];
-        uint bl = (x1_out | y2_out) ? uint(0) : image_bits[y2_offset + x1];
-        uint br = (x2_out | y2_out) ? uint(0) : image_bits[y2_offset + x2];
+        uint tl = (x1_out || y1_out) ? uint(0) : image_bits[y1_offset + x1];
+        uint tr = (x2_out || y1_out) ? uint(0) : image_bits[y1_offset + x2];
+        uint bl = (x1_out || y2_out) ? uint(0) : image_bits[y2_offset + x1];
+        uint br = (x2_out || y2_out) ? uint(0) : image_bits[y2_offset + x2];
 
         uint xtop = INTERPOLATE_PIXEL_256(tl, idistx, tr, distx);
         uint xbot = INTERPOLATE_PIXEL_256(bl, idistx, br, distx);
@@ -413,8 +413,8 @@ static void blend_transformed_argb(void *t, const QSpan *span,
         int px = x >> 16;
         int py = y >> 16;
 
-        bool out = (px < 0) | (px >= image_width)
-                   | (py < 0) | (py >= image_height);
+        bool out = (px < 0) || (px >= image_width)
+                   || (py < 0) || (py >= image_height);
 
         int y_offset = py * image_width;
         uint pixel = out ? uint(0) : image_bits[y_offset + px];
@@ -743,18 +743,18 @@ static void blend_transformed_bilinear_rgb32(void *t, const QSpan *span,
         int idistx = 256 - distx;
         int idisty = 256 - disty;
 
-        bool x1_out = ((x1 < 0) | (x1 >= image_width));
-        bool x2_out = ((x2 < 0) | (x2 >= image_width));
-        bool y1_out = ((y1 < 0) | (y1 >= image_height));
-        bool y2_out = ((y2 < 0) | (y2 >= image_height));
+        bool x1_out = ((x1 < 0) || (x1 >= image_width));
+        bool x2_out = ((x2 < 0) || (x2 >= image_width));
+        bool y1_out = ((y1 < 0) || (y1 >= image_height));
+        bool y2_out = ((y2 < 0) || (y2 >= image_height));
 
         int y1_offset = y1 * image_width;
         int y2_offset = y1_offset + image_width;
 
-        uint tl = (x1_out | y1_out) ? uint(0) : image_bits[y1_offset + x1];
-        uint tr = (x2_out | y1_out) ? uint(0) : image_bits[y1_offset + x2];
-        uint bl = (x1_out | y2_out) ? uint(0) : image_bits[y2_offset + x1];
-        uint br = (x2_out | y2_out) ? uint(0) : image_bits[y2_offset + x2];
+        uint tl = (x1_out || y1_out) ? uint(0) : image_bits[y1_offset + x1];
+        uint tr = (x2_out || y1_out) ? uint(0) : image_bits[y1_offset + x2];
+        uint bl = (x1_out || y2_out) ? uint(0) : image_bits[y2_offset + x1];
+        uint br = (x2_out || y2_out) ? uint(0) : image_bits[y2_offset + x2];
 
         uint xtop = INTERPOLATE_PIXEL_256(tl, idistx, tr, distx);
         uint xbot = INTERPOLATE_PIXEL_256(bl, idistx, br, distx);
@@ -843,8 +843,8 @@ static void blend_transformed_rgb32(void *t, const QSpan *span,
         int px = x >> 16;
         int py = y >> 16;
 
-        bool out = (px < 0) | (px >= image_width)
-                   | (py < 0) | (py >= image_height);
+        bool out = (px < 0) || (px >= image_width)
+                   || (py < 0) || (py >= image_height);
 
         int y_offset = py * image_width;
 
@@ -1022,8 +1022,8 @@ static void blend_transformed_mono(void *t, const QSpan *span,
         int px = x >> 16;
         int py = y >> 16;
 
-        bool out = (px < 0) | (px >= image_width)
-                   | (py < 0) | (py >= image_height);
+        bool out = (px < 0) || (px >= image_width)
+                   || (py < 0) || (py >= image_height);
         if (out)
             continue;
 
@@ -1279,8 +1279,8 @@ static void blend_transformed_mono_lsb(void *t, const QSpan *span,
         int px = x >> 16;
         int py = y >> 16;
 
-        bool out = (px < 0) | (px >= image_width)
-                   | (py < 0) | (py >= image_height);
+        bool out = (px < 0) || (px >= image_width)
+                   || (py < 0) || (py >= image_height);
         if (out)
             continue;
 
@@ -1580,18 +1580,18 @@ static void blend_transformed_bilinear_rgb16(void *t, const QSpan *span,
         int idistx = 256 - distx;
         int idisty = 256 - disty;
 
-        bool x1_out = ((x1 < 0) | (x1 >= image_width));
-        bool x2_out = ((x2 < 0) | (x2 >= image_width));
-        bool y1_out = ((y1 < 0) | (y1 >= image_height));
-        bool y2_out = ((y2 < 0) | (y2 >= image_height));
+        bool x1_out = ((x1 < 0) || (x1 >= image_width));
+        bool x2_out = ((x2 < 0) || (x2 >= image_width));
+        bool y1_out = ((y1 < 0) || (y1 >= image_height));
+        bool y2_out = ((y2 < 0) || (y2 >= image_height));
 
         int y1_offset = y1 * image_width;
         int y2_offset = y1_offset + image_width;
 
-        uint tl = (x1_out | y1_out) ? uint(0) : image_bits[y1_offset + x1];
-        uint tr = (x2_out | y1_out) ? uint(0) : image_bits[y1_offset + x2];
-        uint bl = (x1_out | y2_out) ? uint(0) : image_bits[y2_offset + x1];
-        uint br = (x2_out | y2_out) ? uint(0) : image_bits[y2_offset + x2];
+        uint tl = (x1_out || y1_out) ? uint(0) : image_bits[y1_offset + x1];
+        uint tr = (x2_out || y1_out) ? uint(0) : image_bits[y1_offset + x2];
+        uint bl = (x1_out || y2_out) ? uint(0) : image_bits[y2_offset + x1];
+        uint br = (x2_out || y2_out) ? uint(0) : image_bits[y2_offset + x2];
 
         uint xtop = INTERPOLATE_PIXEL_256(tl, idistx, tr, distx);
         uint xbot = INTERPOLATE_PIXEL_256(bl, idistx, br, distx);
@@ -1686,8 +1686,8 @@ static void blend_transformed_rgb16(void *t, const QSpan *span,
         int px = x >> 16;
         int py = y >> 16;
 
-        bool out = (px < 0) | (px >= image_width)
-                   | (py < 0) | (py >= image_height);
+        bool out = (px < 0) || (px >= image_width)
+                   || (py < 0) || (py >= image_height);
 
         int y_offset = py * image_width;
 
