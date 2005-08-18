@@ -1322,8 +1322,11 @@ void QWidget::activateWindow()
 #ifdef QT_USE_BACKINGSTORE
 void QWidgetBackingStore::updateWidget_sys(const QRegion &rgn, QWidget *widget)
 {
-    if (!rgn.isEmpty())
-        QApplication::postEvent(widget, new QEvent(QEvent::UpdateRequest));
+    if (!rgn.isEmpty()) {
+        QRect bounds = rgn.boundingRect();
+        XClearArea(X11->display, widget->winId(), bounds.x(), bounds.y(), bounds.width(),
+                   bounds.height(), true);
+    }
 }
 
 void QWidgetBackingStore::paintWidget_sys(const QRegion& rgn, QWidget *widget)
