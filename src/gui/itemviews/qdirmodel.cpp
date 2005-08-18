@@ -207,8 +207,6 @@ QString QFileIconProvider::type(const QFileInfo &info) const
     return QObject::tr("Unknown");
 }
 
-#define Q_DIRMODEL_CACHED
-
 class QDirModelPrivate : public QAbstractItemModelPrivate
 {
     Q_DECLARE_PUBLIC(QDirModel)
@@ -1034,10 +1032,6 @@ QModelIndex QDirModel::index(const QString &path, int column) const
             node.parent = 0;
             node.info = info;
             node.populated = false;
-#ifdef Q_DIRMODEL_CACHED
-            node.cached_size = info.size();
-            node.cached_modified = info.lastModified();
-#endif
             d->root.children.append(node);
         }
         idx = index(r, 0, QModelIndex());
