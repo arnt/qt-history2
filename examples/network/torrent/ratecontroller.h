@@ -29,39 +29,37 @@
 #define RATECONTROLLER_H
 
 #include <QtCore/QObject>
+#include <QtCore/QSet>
+#include <QtCore/QTime>
 
 class PeerWireClient;
-template<typename T> class QList;
-class QTimerEvent;
 
 class RateController : public QObject
 {
     Q_OBJECT
 public:
-    RateController();
+    inline RateController(QObject *parent = 0)
+        : QObject(parent), transferScheduled(false) { }
     static RateController *instance();
 
-    inline int uploadLimit() const { return uploadLimitBytes; }
-    inline void setUploadLimit(int bytesPerSecond) { uploadLimitBytes = bytesPerSecond; }
+    void addSocket(PeerWireClient *socket);
+    void removeSocket(PeerWireClient *socket);
 
-    inline int downloadLimit() const { return downloadLimitBytes; }
-    inline void setDownloadLimit(int bytesPerSecond) { downloadLimitBytes = bytesPerSecond; }
+    inline int uploadLimit() const { return upLimit; }
+    inline int downloadLimit() const { return downLimit; }
+    inline void setUploadLimit(int bytesPerSecond) { upLimit = bytesPerSecond; }
+    void setDownloadLimit(int bytesPerSecond);
 
-    void addClient(PeerWireClient *client);
-    void removeClient(PeerWireClient *client);
-
-protected:
-    void timerEvent(QTimerEvent *event);
+public slots:
+    void transfer();
+    void scheduleTransfer();
 
 private:
-    void setNewTimerDelay(int msecs);
-
-    int transmitTimer;
-    int timerDelay;
-    int uploadLimitBytes;
-    int downloadLimitBytes;
-    QList<PeerWireClient *> clients;
+    QTime stopWatch;
+    QSet<PeerWireClient *> sockets;
+    int upLimit;
+    int downLimit;
+    bool transferScheduled;
 };
 
 #endif
-

@@ -750,7 +750,7 @@ void TorrentClient::connectToPeers()
     // Start as many connections as we can
     while (!weighedPeers.isEmpty() && (d->connections.size() < d->maxConnections)) {
         PeerWireClient *client = new PeerWireClient(this);
-        RateController::instance()->addClient(client);
+        RateController::instance()->addSocket(client);
 
         initializeConnection(client);
         d->connections << client;
@@ -851,7 +851,7 @@ void TorrentClient::setupIncomingConnection(PeerWireClient *client)
     }
 
     // Initialize this client
-    RateController::instance()->addClient(client);
+    RateController::instance()->addSocket(client);
     d->connections << client;
 
     client->initialize(d->infoHash, d->peerId, d->pieceCount);
@@ -907,7 +907,7 @@ void TorrentClient::removeClient()
     PeerWireClient *client = static_cast<PeerWireClient *>(sender());
 
     // Remove the client from RateController and all structures.
-    RateController::instance()->removeClient(client);
+    RateController::instance()->removeSocket(client);
     d->connections.removeAll(client);
     TorrentPiece *piece = d->payloads.value(client);
     if (piece) {

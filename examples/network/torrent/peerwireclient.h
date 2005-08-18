@@ -30,11 +30,9 @@
 
 class QHostAddress;
 class QTimerEvent;
-template<typename T> class QSet;
 
-#include <QtCore/QBitArray>
-#include <QtCore/QByteArray>
 #include <QtCore/QList>
+#include <QtCore/QSet>
 #include <QtNetwork/QTcpSocket>
 
 class PeerWireClient : public QTcpSocket
@@ -42,10 +40,10 @@ class PeerWireClient : public QTcpSocket
     Q_OBJECT
 public:
     enum PeerWireStateFlag {
-	ChokingPeer = 0x1,
-	InterestedInPeer = 0x2,
-	ChokedByPeer = 0x4,
-	PeerIsInterested = 0x8
+        ChokingPeer = 0x1,
+        InterestedInPeer = 0x2,
+        ChokedByPeer = 0x4,
+        PeerIsInterested = 0x8
     };
     Q_DECLARE_FLAGS(PeerWireState, PeerWireStateFlag)
 
@@ -70,12 +68,18 @@ public:
 
     // Rate control
     int bufferedBytesToWrite() const;
-    int acceptBytesToWrite(int bytes);
-    int acceptBytesToRead(int bytes);
+    qint64 writeToSocket(qint64 bytes);
+    qint64 readFromSocket(qint64 bytes);
     qint64 downloadSpeed() const;
     qint64 uploadSpeed() const;
 
+    bool canTransferMore() const;
+    inline qint64 bytesAvailable() const { return incomingBuffer.size(); }
+    inline qint64 bytesToWrite() const { return outgoingBuffer.size(); }
+
 signals:
+    void readyToTransfer();
+
     void choked();
     void unchoked();
     void interested();
@@ -87,9 +91,14 @@ signals:
     void blockReceived(int pieceIndex, int begin, const QByteArray &data);
 
     void bytesReceived(qint64 size);
-    
+
 protected slots:
     void timerEvent(QTimerEvent *event);
+
+protected:
+    qint64 readData(char *data, qint64 maxlen);
+    qint64 readLineData(char *data, qint64 maxlen);
+    qint64 writeData(const char *data, qint64 len);
 
 private slots:
     void sendHandShake();
@@ -97,26 +106,21 @@ private slots:
     void closeConnection();
 
 private:
-    void writeToBuffer(const char *data, int size);
-    void writeToBuffer(const QByteArray &data);
-    int readFromBuffer(char *data, int size);
-    QByteArray readFromBuffer(int size);
-
     // Data waiting to be read/written
     QByteArray incomingBuffer;
     QByteArray outgoingBuffer;
     QList<QByteArray> pendingBlocks;
 
     enum PacketType {
-	ChokePacket = 0,
-	UnchokePacket = 1,
-	InterestedPacket = 2,
-	NotInterestedPacket = 3,
-	HavePacket = 4,
-	BitFieldPacket = 5,
-	RequestPacket = 6,
-	PiecePacket = 7,
-	CancelPacket = 8
+        ChokePacket = 0,
+        UnchokePacket = 1,
+        InterestedPacket = 2,
+        NotInterestedPacket = 3,
+        HavePacket = 4,
+        BitFieldPacket = 5,
+        RequestPacket = 6,
+        PiecePacket = 7,
+        CancelPacket = 8
     };
 
     // State
@@ -138,7 +142,8 @@ private:
     // Checksum, peer ID and set of available pieces
     QByteArray infoHash;
     QByteArray peerIdString;
-    QBitArray peerPieces;
+    QSet<int> peerPieces;
+    int pieceCount;
 };
 
 #endif

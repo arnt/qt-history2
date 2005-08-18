@@ -30,112 +30,103 @@
 
 #include <QtCore/QtCore>
 
-Q_GLOBAL_STATIC(RateController, rateController);
-
-static const int MaxTimerDelay = 500;
-static const int DefaultTimerDelay = 250;
-static const int MinimumTimerDelay = 50;
-
-RateController::RateController()
-{
-    uploadLimitBytes = 1024 * 15;
-    downloadLimitBytes = 1024 * 1024;
-    transmitTimer = startTimer(DefaultTimerDelay);
-    timerDelay = DefaultTimerDelay;
-}
+Q_GLOBAL_STATIC(RateController, rateController)
 
 RateController *RateController::instance()
 {
     return rateController();
 }
 
-void RateController::addClient(PeerWireClient *client)
+void RateController::addSocket(PeerWireClient *socket)
 {
-    client->setReadBufferSize(downloadLimitBytes * 2);
-    clients << client;
+    connect(socket, SIGNAL(readyToTransfer()), this, SLOT(scheduleTransfer()));
+    socket->setReadBufferSize(downLimit * 4);
+    sockets << socket;
+    scheduleTransfer();
 }
 
-void RateController::removeClient(PeerWireClient *client)
+void RateController::removeSocket(PeerWireClient *socket)
 {
-    clients.removeAll(client);
+    disconnect(socket, SIGNAL(readyToTransfer()), this, SLOT(scheduleTransfer()));
+    socket->setReadBufferSize(0);
+    sockets.remove(socket);
 }
 
-void RateController::setNewTimerDelay(int msecs)
+void RateController::setDownloadLimit(int bytesPerSecond)
 {
-    if (msecs != timerDelay) {
-        timerDelay = msecs;
-        killTimer(transmitTimer);
-        transmitTimer = startTimer(timerDelay);
-    }
+    downLimit = bytesPerSecond;
+    foreach (PeerWireClient *socket, sockets)
+        socket->setReadBufferSize(downLimit * 4);
 }
 
-void RateController::timerEvent(QTimerEvent *event)
+void RateController::scheduleTransfer()
 {
-    if (event->timerId() != transmitTimer) {
-        QObject::timerEvent(event);
+    if (transferScheduled)
+        return;
+    transferScheduled = true;
+    QTimer::singleShot(50, this, SLOT(transfer()));
+}
+
+void RateController::transfer()
+{
+    transferScheduled = false;
+    if (sockets.isEmpty())
+        return;
+
+    int msecs = 1000;
+    if (!stopWatch.isNull())
+        msecs = qMin(msecs, stopWatch.elapsed());
+
+    qint64 bytesToWrite = (upLimit * msecs) / 1000;
+    qint64 bytesToRead = (downLimit * msecs) / 1000;
+    if (bytesToWrite == 0 && bytesToRead == 0) {
+        scheduleTransfer();
         return;
     }
 
-    // Find all clients that are waiting to transmit data.
-    QList<PeerWireClient *> transmittingClients;
-    foreach (PeerWireClient *client, clients) {
-        if (client->state() == QAbstractSocket::ConnectedState
-            && (client->bufferedBytesToWrite() > 0 || client->bytesAvailable() > 0)) {
-            transmittingClients << client;
-        }
+    QSet<PeerWireClient *> pendingSockets;
+    foreach (PeerWireClient *client, sockets) {
+        if (client->canTransferMore())
+            pendingSockets << client;
     }
-
-    // If none exist, slow down the timer and return.
-    if (transmittingClients.isEmpty()) {
-        setNewTimerDelay(qMin(timerDelay + 10, MaxTimerDelay));
+    if (pendingSockets.isEmpty())
         return;
-    }
 
-    // Speed up the timer, and process pending transmissions.
-    setNewTimerDelay(qMax(timerDelay - 20, MinimumTimerDelay));
+    stopWatch.start();
 
-    // Find how many bytes we can distribute in this go, and what the
-    // average chunk size per connection is.
-    int bytesLeftToWrite = uploadLimitBytes / (1000 / timerDelay);
-    int bytesLeftToRead = downloadLimitBytes / (1000 / timerDelay);
-    int writeChunk = bytesLeftToWrite / transmittingClients.size();
-    int readChunk = bytesLeftToRead / transmittingClients.size();
+    qint64 writeChunk = qMax<qint64>(1, bytesToWrite / pendingSockets.size());
+    qint64 readChunk = qMax<qint64>(1, bytesToRead / pendingSockets.size());
 
-    // Loop as long as we have bytes to distribute and clients that
-    // can transmit more data.
+    bool canTransferMore;
     do {
-        foreach (PeerWireClient *client, transmittingClients) {
-            // Clients that are not connected are removed from the list.
-            if (client->state() != QAbstractSocket::ConnectedState) {
-                transmittingClients.removeAll(client);
+        canTransferMore = false;
+        foreach (PeerWireClient *socket, pendingSockets) {
+            if (socket->state() != QAbstractSocket::ConnectedState) {
+                pendingSockets.remove(socket);
                 continue;
             }
 
-            // Distribute bytes to write
-            int bytesToWrite = 0;
-            int maxWindowSize = uploadLimitBytes / transmittingClients.size() - client->bytesToWrite();
-            if (maxWindowSize > 0) {
-                bytesToWrite = qMin(qMin(bytesLeftToWrite, writeChunk), client->bufferedBytesToWrite());
-                bytesToWrite = qMin(bytesToWrite, maxWindowSize);
-                if (bytesToWrite > 0) {
-                    int written = client->acceptBytesToWrite(bytesToWrite);
-                    if (written > 0) {
-                        bytesLeftToWrite -= written;
-                    } else {
-                        transmittingClients.removeAll(client);
-                        continue;
-                    }
-                }
-            } 
+            bool dataTransferred = false;
+            qint64 readBytes = socket->readFromSocket(qMin<qint64>(readChunk, bytesToRead));
+            if (readBytes > 0) {
+                bytesToRead -= readBytes;
+                dataTransferred = true;
+            }
 
-            // Distribute bytes to read
-            int bytesToRead = qMin<int>(qMin(bytesLeftToRead, readChunk), client->bytesAvailable());
-            if (bytesToRead > 0)
-                bytesLeftToRead -= client->acceptBytesToRead(bytesToRead);
+            qint64 chunkSize = qMin<qint64>(writeChunk, bytesToWrite);
+            qint64 writtenBytes = socket->writeToSocket(qMin(upLimit - socket->bytesToWrite(), chunkSize));
+            if (writtenBytes > 0) {
+                bytesToWrite -= writtenBytes;
+                dataTransferred = true;
+            }
 
-            if (bytesToWrite == 0 && bytesToRead == 0)
-                transmittingClients.removeAll(client);
+            if (dataTransferred && socket->canTransferMore())
+                canTransferMore = true;
+            else
+                pendingSockets.remove(socket);
         }
-    } while (!transmittingClients.isEmpty() && (bytesLeftToWrite > 0 || bytesLeftToRead > 0));
-}
+    } while (canTransferMore && bytesToWrite > 0 && bytesToRead > 0 && !pendingSockets.isEmpty());
 
+    if (canTransferMore)
+        scheduleTransfer();
+}
