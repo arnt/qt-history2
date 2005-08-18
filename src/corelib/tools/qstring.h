@@ -20,7 +20,7 @@
 #include "QtCore/qnamespace.h"
 
 #ifdef QT_INCLUDE_COMPAT
-#include <qcstring.h>
+#include <Qt3Support/q3cstring.h>
 #endif
 
 #ifndef QT_NO_STL

@@ -22,7 +22,7 @@
 #include "QtCore/qstringmatcher.h"
 
 #ifdef QT_INCLUDE_COMPAT
-#include <qvaluelist.h>
+#include <Qt3Support/q3valuelist.h>
 #endif
 
 QT_MODULE(Core)
