@@ -664,7 +664,7 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
             glColor4ubv(d->brush_color);
             glRectd(x, y, x+w, y+h);
             if (!d->has_pen)
-                return;
+                continue;
         }
 
         if (d->has_pen) {
