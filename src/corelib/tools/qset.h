@@ -111,7 +111,7 @@ public:
     inline QSet<T> &operator+=(const QSet<T> &other) { unite(other); return *this; }
     inline QSet<T> &operator+=(const T &value) { insert(value); return *this; }
     inline QSet<T> &operator-=(const QSet<T> &other) { subtract(other); return *this; }
-    inline QSet<T> &operator-=(const T &value) { subtract(value); return *this; }
+    inline QSet<T> &operator-=(const T &value) { remove(value); return *this; }
     inline QSet<T> operator|(const QSet<T> &other)
         { QSet<T> result = *this; result |= other; return result; }
     inline QSet<T> operator&(const QSet<T> &other)
