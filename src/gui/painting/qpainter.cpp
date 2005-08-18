@@ -2741,8 +2741,7 @@ void QPainter::drawLines(const QLineF *lines, int lineCount)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawLine(), p1=(%.2f,%.2f), p2=(%.2f,%.2f)\n",
-               l.x1(), l.y1(), l.x2(), l.y2());
+        printf("QPainter::drawLines(), line count=%d\n", lineCount);
 #endif
 
     if (!isActive())
@@ -2785,8 +2784,7 @@ void QPainter::drawLines(const QLine *lines, int lineCount)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawLine(), p1=(%.2f,%.2f), p2=(%.2f,%.2f)\n",
-               l.x1(), l.y1(), l.x2(), l.y2());
+        printf("QPainter::drawLine(), line count=%d\n", lineCount);
 #endif
 
     if (!isActive())
