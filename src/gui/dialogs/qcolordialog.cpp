@@ -1092,7 +1092,7 @@ QColorShower::QColorShower(QWidget *parent)
     alphaEd = new QColSpinBox(this);
     alphaLab = new QLabel(QColorDialog::tr("A&lpha channel:"), this);
 #ifndef QT_NO_SHORTCUT
-    l->setBuddy(alphaEd);
+    alphaLab->setBuddy(alphaEd);
 #endif
     alphaLab->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(alphaLab, 3, 1, 1, 3);
