@@ -536,13 +536,15 @@ bool QAbstractSocketPrivate::canWriteNotification()
     int tmp = writeBuffer.size();
     flush();
 
+    if ( socketEngine ) {
 #if defined (Q_OS_WIN)
-    if (!writeBuffer.isEmpty())
-        socketEngine->setWriteNotificationEnabled(true);
+	if (!writeBuffer.isEmpty())
+	    socketEngine->setWriteNotificationEnabled(true);
 #else
-    if (writeBuffer.isEmpty())
-        socketEngine->setWriteNotificationEnabled(false);
+	if (writeBuffer.isEmpty())
+	    socketEngine->setWriteNotificationEnabled(false);
 #endif
+    }
 
     return (writeBuffer.size() < tmp);
 }
