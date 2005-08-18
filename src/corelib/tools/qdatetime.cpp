@@ -1979,7 +1979,7 @@ QDateTime::QDateTime()
 
 
 /*!
-    Constructs a datetime with the given \a date, and a null but valid
+    Constructs a datetime with the given \a date, and a valid
     time (00:00:00.000).
 */
 
@@ -1987,6 +1987,7 @@ QDateTime::QDateTime(const QDate &date)
 {
     d = new QDateTimePrivate;
     d->date = date;
+    d->time = QTime(0, 0, 0);
 }
 
 /*!
