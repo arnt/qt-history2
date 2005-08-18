@@ -1413,7 +1413,7 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
     setupWidgets(grid);
 
     // Insert paths in the "lookin" combobox
-    lookInCombo->addItem(model->fileIcon(QModelIndex()), model->fileName(QModelIndex())); // root
+    lookInCombo->addItem(model->fileIcon(QModelIndex()), tr("My Computer")); // root
     for (int r = 0; r < model->rowCount(QModelIndex()); ++r) { // drives
         QModelIndex index = model->index(r, 0, QModelIndex());
         QString path = model->filePath(index);
@@ -1625,8 +1625,6 @@ void QFileDialogPrivate::setupToolButtons(const QModelIndex &current, QGridLayou
 
     grid->addLayout(box, 0, 4, 1, 2);
 }
-
-#include <qsizegrip.h>
 
 void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
 {
