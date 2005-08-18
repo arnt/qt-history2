@@ -533,7 +533,7 @@ QComboBoxPrivateContainer* QComboBoxPrivate::viewContainer()
         return container;
 
     Q_Q(QComboBox);
-    container = new QComboBoxPrivateContainer(new QListView(), q);
+    container = new QComboBoxPrivateContainer(new QComboBoxListView(), q);
     container->itemView()->setModel(model);
     QStyleOptionComboBox opt = getStyleOption();
     if (q->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, q) && !q->isEditable())

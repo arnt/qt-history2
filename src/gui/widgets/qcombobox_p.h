@@ -44,6 +44,19 @@
 
 #include <limits.h>
 
+class QComboBoxListView : public QListView
+{
+    Q_OBJECT
+protected:
+    QStyleOptionViewItem viewOptions() const
+    {
+        QStyleOptionViewItem option = QListView::viewOptions();
+        option.showDecorationSelected = true;
+        return option;
+    }
+};
+
+
 class QStandardItemModel;
 
 class QComboBoxPrivateScroller : public QWidget
