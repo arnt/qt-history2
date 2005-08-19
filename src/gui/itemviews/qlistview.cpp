@@ -738,13 +738,26 @@ void QListView::resizeEvent(QResizeEvent *e)
 {
     Q_D(QListView);
     QAbstractItemView::resizeEvent(e);
-    if (d->resizeMode == Adjust && state() == NoState) {
-        QSize delta = e->size() - e->oldSize();
-        if (!d->layoutPosted
-            && ((d->flow == LeftToRight && delta.width() != 0)
-                || (d->flow == TopToBottom && delta.height() != 0))) {
-            d->layoutPosted = true;
-            d->startLayoutTimer.start(100, this); // wait 1/10 sec before starting the layout
+    if (state() == NoState) {
+        // if the scrollbars are turned off, we resize the contents to the viewport
+        if (d->movement == Fixed && !d->wrap) {
+            if (d->flow == TopToBottom) {
+                if (horizontalScrollBarPolicy() == Qt::ScrollBarAlwaysOff)
+                    resizeContents(viewport()->width(), contentsSize().height());
+            } else { // LeftToRight
+                if (verticalScrollBarPolicy() == Qt::ScrollBarAlwaysOff)
+                    resizeContents(contentsSize().width(), viewport()->height());
+            }
+        }
+        // if we are in adjust mode, post a delayed layout
+        if (d->resizeMode == Adjust) {
+            QSize delta = e->size() - e->oldSize();
+            if (!d->layoutPosted
+                && ((d->flow == LeftToRight && delta.width() != 0)
+                    || (d->flow == TopToBottom && delta.height() != 0))) {
+                d->layoutPosted = true;
+                d->startLayoutTimer.start(100, this); // wait 1/10 sec before starting the layout
+            }
         }
     }
 }
