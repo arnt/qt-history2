@@ -864,16 +864,18 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 
     QMutexLocker locker(&data->postEventList.mutex);
 
+    // by default, we assume that the event dispatcher can go to sleep after
+    // processing all events. if any new events are posted while we send
+    // events, canWait will be set to false.
+    data->canWait = (data->postEventList.size() == 0);
+
     if (data->postEventList.size() == 0 || (receiver && !receiver->d_func()->postedEvents)) {
         --data->postEventList.recursion;
         return;
     }
 
-    // by default, we assume that the event dispatcher can go to sleep after
-    // processing all events. if any new events are posted while we send
-    // events, canWait will be set to false.
     data->canWait = true;
-
+    
     // okay. here is the tricky loop. be careful about optimizing
     // this, it looks the way it does for good reasons.
     int i = 0;
@@ -886,13 +888,11 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         const QPostEvent &pe = data->postEventList.at(i);
         ++i;
 
-        if (!pe.event)
+        if (!pe.event || (receiver && receiver != pe.receiver) || (event_type && event_type != pe.event->type())) {
+            data->canWait = false;
             continue;
-        if (receiver && receiver != pe.receiver)
-            continue;
-        if (event_type && event_type != pe.event->type())
-            continue;
-
+        }
+        
         if (pe.event->type() == QEvent::DeferredDelete) {
             const QEventLoop *const savedEventLoop = reinterpret_cast<QEventLoop *>(pe.event->d);
             const QEventLoop *const currentEventLoop =
