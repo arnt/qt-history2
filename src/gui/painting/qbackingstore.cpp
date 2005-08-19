@@ -268,19 +268,20 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget)
         }
         paintWidget(toClean, widget, tlwOffset, Recursive|PaintSym|AsRoot);
 #ifdef Q_WS_X11
-        tlw->d_func()->updateSystemBackground();
-#endif
-
-#if 0
-        static int foo = 0;
-#  if defined(Q_WS_X11)
-        buffer.save(QString::number(foo) + "foo.png", "PNG");
-#  elif defined(Q_WS_WIN)
-        static_cast<QRasterPaintEngine*>(buffer.paintEngine())->saveBuffer(QString::number(foo) + "foo.png");
-#  endif
-        qDebug("%d) doink", foo);
-        foo++;
-#endif
+        QStack<QWidget*> widgets;
+        widgets.push(tlw);
+        while(!widgets.isEmpty()) {
+            QWidget *widget = widgets.pop();
+            widget->d_func()->updateSystemBackground();
+            QObjectList children = widget->children();
+            for(int i = 0; i < children.size(); ++i) {
+                if(QWidget *child = qobject_cast<QWidget*>(children.at(i))) {
+                    if(!child->isWindow())
+                        widgets.push(child);
+                }
+            }
+        }
+#else
     } else if(widget && widget != tlw) {
         QWidget *background = 0;
         for(QWidget *w = widget; w; w = w->parentWidget()) {
@@ -293,6 +294,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget)
             paintBuffer(background, background->mapTo(tlw, QPoint(0, 0)), AsRoot|Recursive);
     } else {
         paintBuffer(tlw, QPoint(0, 0), AsRoot|Recursive);
+#endif
     }
 }
 

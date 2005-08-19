@@ -923,8 +923,10 @@ void QWidgetPrivate::updateSystemBackground()
 {
     Q_Q(QWidget);
 #ifdef QT_USE_BACKINGSTORE
-    if(extra && extra->topextra && extra->topextra->backingStore && extra->topextra->backingStore->isBuffered()) {
-        QPixmap pm = extra->topextra->backingStore->backingPixmap();
+    QWidget *tlw = q->window();
+    QTLWExtra* x = tlw->d_func()->topData();
+    if(x->backingStore->isBuffered()) {
+        QPixmap pm = x->backingStore->backingPixmap();
         if(q->isWindow())
             XSetWindowBackgroundPixmap(X11->display, q->winId(), pm.data->x11ConvertToDefaultDepth());
         else
