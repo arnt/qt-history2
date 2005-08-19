@@ -34,7 +34,7 @@ static int usage(const char *argv0, const char *un=NULL) {
     fprintf(stderr, "\nKey Info:\n");
     fprintf(stderr, " -win          : Windows Archive\n");
     fprintf(stderr, " -unix         : Unix Archive\n");
-    fprintf(stderr, " -mac          : MacOSX Archive\n");
+    fprintf(stderr, " -mac          : Mac OS X Archive\n");
     fprintf(stderr, " -embedded     : Embedded Archive\n");
 
     fprintf(stderr, "\nThe following options are not for packaging and can't be\n" );
