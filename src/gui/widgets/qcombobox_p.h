@@ -48,10 +48,17 @@ class QComboBoxListView : public QListView
 {
     Q_OBJECT
 protected:
+    void resizeEvent(QResizeEvent *event)
+    {
+        QListView::resizeEvent(event);
+        resizeContents(viewport()->width(), contentsSize().height());
+    }
+
     QStyleOptionViewItem viewOptions() const
     {
         QStyleOptionViewItem option = QListView::viewOptions();
         option.showDecorationSelected = true;
+        option.textElideMode = Qt::ElideMiddle;
         return option;
     }
 };
