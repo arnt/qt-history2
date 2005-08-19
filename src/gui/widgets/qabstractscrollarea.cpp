@@ -102,9 +102,6 @@ QAbstractScrollAreaPrivate::QAbstractScrollAreaPrivate()
 void QAbstractScrollAreaPrivate::init()
 {
     Q_Q(QAbstractScrollArea);
-    q->setFocusPolicy(Qt::WheelFocus);
-    q->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-    q->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     hbar = new QScrollBar(Qt::Horizontal, q);
     hbar->setVisible(false);
     QObject::connect(hbar, SIGNAL(valueChanged(int)), q, SLOT(hslide(int)));
@@ -116,6 +113,9 @@ void QAbstractScrollAreaPrivate::init()
     viewport = new QAbstractScrollAreaHelper(q);
     viewport->setBackgroundRole(QPalette::Base);
     viewport->setFocusProxy(q);
+    q->setFocusPolicy(Qt::WheelFocus);
+    q->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+    q->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
 void QAbstractScrollAreaPrivate::layoutChildren()
