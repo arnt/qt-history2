@@ -79,22 +79,16 @@ struct QConnection {
     int signal;
     QObject *receiver;
     int method;
-    int type; // 0 == auto, 1 == direct, 2 == queued
+    int inUse:1;
+    int type:31; // 0 == auto, 1 == direct, 2 == queued
     int *types;
 };
+Q_DECLARE_TYPEINFO(QConnection, Q_MOVABLE_TYPE);
 
 class QConnectionList
 {
 public:
-    inline QConnectionList()
-        : invariant(0)
-    { }
-
     QReadWriteLock lock;
-
-    // if zero, we can reuse "free" slots, otherwise we always
-    // append... used in QMetaObject::activate()
-    QAtomic invariant;
 
     typedef QMultiHash<const QObject *, int> Hash;
     Hash sendersHash, receiversHash;
@@ -148,7 +142,9 @@ void QConnectionList::remove(QObject *object)
                     }
                 }
 
+                int inUse = c.inUse;
                 memset(&c, 0, sizeof(c));
+                c.inUse = inUse;
                 Q_ASSERT(!unusedConnections.contains(at));
                 unusedConnections.prepend(at);
             } else {
@@ -165,16 +161,20 @@ void QConnectionList::addConnection(QObject *sender, int signal,
                                     QObject *receiver, int method,
                                     int type, int *types)
 {
-    QConnection c = { sender, signal, receiver, method, type, types };
-    int at;
-    if (unusedConnections.isEmpty() || invariant != 0) {
+    QConnection c = { sender, signal, receiver, method, 0, type, types };
+    int at = -1;
+    for (int i = 0; i < unusedConnections.size(); ++i) {
+        if (!connections.at(unusedConnections.at(i)).inUse) {
+            // reuse an unused connection
+            at = unusedConnections.takeAt(i);
+            connections[at] = c;
+            break;
+        }
+    }
+    if (at == -1) {
         // append new connection
         at = connections.size();
         connections << c;
-    } else {
-        // reuse an unused connection
-        at = unusedConnections.takeFirst();
-        connections[at] = c;
     }
     sendersHash.insert(sender, at);
     receiversHash.insert(receiver, at);
@@ -215,7 +215,9 @@ bool QConnectionList::removeConnection(QObject *sender, int signal,
                 }
             }
 
+            int inUse = c.inUse;
             memset(&c, 0, sizeof(c));
+            c.inUse = inUse;
             unusedConnections << at;
             success = true;
         } else {
@@ -2638,18 +2640,20 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
         return;
     }
 
-    list->invariant.ref();
-
     QThread * const currentThread = QThread::currentThread();
     const int currentQThreadId = currentThread ? QThreadData::get(currentThread)->id : -1;
 
     QVarLengthArray<int> connections;
-    for (; it != end && it.key() == sender; ++it)
+    for (; it != end && it.key() == sender; ++it) {
         connections.append(it.value());
+        list->connections[it.value()].inUse = 1;
+    }
+    
     for (int i = 0; i < connections.size(); ++i) {
         const int at = connections.constData()[connections.size() - (i + 1)];
         QConnectionList * const list = ::connectionList();
-        const QConnection &c = list->connections.at(at);
+        QConnection &c = list->connections[at];
+        c.inUse = 0;
         if (!c.receiver || (c.signal < from_signal_index || c.signal > to_signal_index))
             continue;
 
@@ -2692,8 +2696,6 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
             c.receiver->d_func()->currentSender = previousSender;
     }
 
-    list->invariant.deref();
-  
     if (qt_signal_spy_callback_set.signal_end_callback != 0) {
         locker.unlock(); 
         qt_signal_spy_callback_set.signal_end_callback(sender, from_signal_index);
