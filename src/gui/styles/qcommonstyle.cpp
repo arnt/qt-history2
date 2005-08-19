@@ -1245,6 +1245,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 iconRect = alignedRect(cb->direction, Qt::AlignLeft, iconRect.size(), comboRect);
                 editRect = alignedRect(cb->direction, Qt::AlignRight, editRect.size(), comboRect);
                 p->setClipRect(iconRect);
+                p->fillRect(iconRect, opt->palette.brush(QPalette::Base));
                 cb->currentIcon.paint(p, iconRect);
             }
 
