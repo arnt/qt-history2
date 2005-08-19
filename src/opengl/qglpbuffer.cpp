@@ -22,13 +22,18 @@
     be rendered into using full hardware acceleration. This is usually
     much faster than rendering into a system pixmap, since software
     rendering is often used in that case. Under Windows and on the Mac
-    it is also possible to bind the pbuffer directly as a texture,
-    thus eliminating the need for additional copy operations to
-    generate dynamic textures.
+    it is also possible to bind the pbuffer directly as a texture
+    using the \c render_texture, thus eliminating the need for
+    additional copy operations to generate dynamic textures.
+
+    Note that when makeing use of the \c render_texture extension, the
+    well known power-of-2 rule applies to the size of the pbuffer. If
+    the size of the pbuffer is a non-power of 2 size, it can not be
+    bound to a texture.
 */
 
-#include "qglpbuffer.h"
-#include "qglpbuffer_p.h"
+#include <qglpbuffer.h>
+#include <private/qglpbuffer_p.h>
 #include <private/qpaintengine_opengl_p.h>
 #include <qimage.h>
 
@@ -40,28 +45,22 @@
 
 /*! \fn bool QGLPbuffer::doneCurrent()
 
-    Makes no context the current GL context. Returns true on success, false
-    otherwise.
+    Makes no context the current GL context. Returns true on success,
+    false otherwise.
  */
 
-/*! \fn GLuint QGLPbuffer::generateTexture(GLenum target, GLint format)
+/*! \fn GLuint QGLPbuffer::generateTexture(GLint format)
 
-    This is a convenience function that generates and binds a GL
-    texture that is the same size as the pbuffer, using target as
-    texture target and format as texture format. The generated texture
-    id is returned.
+    This is a convenience function that generates and binds a 2D GL
+    texture that is the same size as the pbuffer, using \a format as
+    the internal texture format. The default internal format of the
+    generated texture is \c GL_RGBA8. The generated texture id is
+    returned.
 */
 
-/*! \fn void QGLPbuffer::copyToTexture(GLuint texture_id, GLenum target, GLint format)
+/*! \fn bool QGLPbuffer::bind(GLuint texture_id)
 
-    This is a convenience function that copies the pbuffer contents
-    (using \c {glCopyTexImage2D()}) into the texture specified with \c
-    {texture_id}.
- */
-
-/*! \fn bool QGLPbuffer::bind(GLuint texture_id, GLenum target)
-
-    Binds the texture specified with \c {texture_id} to the
+    Binds the texture specified with \a texture_id to this
     pbuffer. Returns true on success, false otherwise.
 
     This function uses the \c {render_texture} extension, which is
@@ -78,6 +77,22 @@
     This function uses the \c {render_texture} extension, which is
     currently not supported under X11.
 */
+
+/*! \fn void QGLPbuffer::copyToTexture(GLuint texture_id, GLint format)
+
+    This is a convenience function that copies the pbuffer contents
+    (using \c {glCopyTexImage2D()}) into the texture specified with \a
+    texture_id, which has the internal format \a format. The default
+    format is \c GL_RGBA8.
+ */
+void QGLPbuffer::copyToTexture(GLuint texture_id, GLint format)
+{
+    Q_D(QGLPbuffer);
+    if (d->invalid)
+        return;
+    glBindTexture(GL_TEXTURE_2D, texture_id);
+    glCopyTexImage2D(GL_TEXTURE_2D, 0, format, 0, 0, d->size.width(), d->size.height(), 0);
+}
 
 /*!
     Returns the size of the pbuffer.
@@ -124,15 +139,6 @@ QImage QGLPbuffer::toImage() const
 	img = img.rgbSwapped();
     }
     return img.mirrored();
-
-//     Q_D(const QGLPbuffer);
-//     if (d->invalid)
-//         return QImage();
-
-//     const_cast<QGLPbuffer *>(this)->makeCurrent();
-//     QImage img(d->size, QImage::Format_ARGB32);
-//     glReadPixels(0, 0, d->size.width(), d->size.height(), GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
-//     return img.rgbSwapped();
 }
 
 Qt::HANDLE QGLPbuffer::handle() const

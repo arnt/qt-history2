@@ -30,11 +30,11 @@ public:
     bool makeCurrent();
     bool doneCurrent();
 
-    GLuint generateTexture(GLenum target = GL_TEXTURE_2D, GLint format = GL_RGBA8);
-    bool bind(GLuint texture_id, GLenum target = GL_TEXTURE_2D);
+    GLuint generateTexture(GLint format = GL_RGBA8);
+    bool bind(GLuint texture_id);
     bool release();
 
-    void copyToTexture(GLuint texture_id, GLenum target = GL_TEXTURE_2D, GLint format = GL_RGBA8);
+    void copyToTexture(GLuint texture_id, GLint format = GL_RGBA8);
 
     QSize size() const;
     Qt::HANDLE handle() const;

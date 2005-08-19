@@ -65,14 +65,14 @@ QGLPbuffer::~QGLPbuffer()
     delete d_ptr;
 }
 
-bool QGLPbuffer::bind(GLuint texture_id, GLenum target)
+bool QGLPbuffer::bind(GLuint texture_id)
 {
     Q_D(QGLPbuffer);
     if (d->invalid)
 	return false;
-    glBindTexture(target, texture_id);
+    glBindTexture(GL_TEXTURE_2D, texture_id);
     aglTexImagePBuffer(d->share_ctx, d->pbuf, GL_FRONT);
-    glBindTexture(target, texture_id); // updates texture target
+    glBindTexture(GL_TEXTURE_2D, texture_id); // updates texture target
     return true;
 }
 
@@ -98,24 +98,15 @@ bool QGLPbuffer::doneCurrent()
     return false;
 }
 
-void QGLPbuffer::copyToTexture(GLuint texture_id, GLenum target, GLint format)
-{
-    Q_D(QGLPbuffer);
-    if (d->invalid)
-        return;
-    glBindTexture(target, texture_id);
-    glCopyTexImage2D(target, 0, format, 0, 0, d->size.width(), d->size.height(), 0);
-}
-
-GLuint QGLPbuffer::generateTexture(GLenum target, GLint format)
+GLuint QGLPbuffer::generateTexture(GLint format)
 {
     Q_D(QGLPbuffer);
     GLuint texture;
     glGenTextures(1, &texture);
-    glBindTexture(target, texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
     aglTexImagePBuffer(d->share_ctx, d->pbuf, GL_FRONT);
-    glBindTexture(target, texture); // updates texture target
-    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, texture); // updates texture target
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     return texture;
 }
