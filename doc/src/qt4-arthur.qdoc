@@ -185,7 +185,7 @@
     painter.drawLine(0, 0, width()/2, height());
 
     // One line with anti-aliasing
-    painter.setRenderHints(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::Antialiasing);
     painter.drawLine(width()/2, 0, width()/2, height());
     \endcode
 
