@@ -47,6 +47,7 @@ public slots:
 protected:
     virtual void drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const;
     virtual void keyPressEvent(QKeyEvent *ev);
+    virtual QStyleOptionViewItem viewOptions() const;
 
 private:
     QPropertyEditorModel *m_model;

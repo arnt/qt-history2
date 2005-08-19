@@ -116,3 +116,10 @@ void QPropertyEditor::keyPressEvent(QKeyEvent *ev)
 /*    QApplication::syncX();*/
     QTreeView::keyPressEvent(ev);
 }
+
+QStyleOptionViewItem QPropertyEditor::viewOptions() const
+{
+    QStyleOptionViewItem option = QTreeView::viewOptions();
+    option.showDecorationSelected = true;
+    return option;
+}
