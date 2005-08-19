@@ -161,7 +161,8 @@ void QConnectionList::addConnection(QObject *sender, int signal,
                                     QObject *receiver, int method,
                                     int type, int *types)
 {
-    QConnection c = { sender, signal, receiver, method, 0, type, types };
+    QConnection c = { sender, signal, receiver, method, 0, 0, types };
+    c.type = type; // don't warn on VC++6
     int at = -1;
     for (int i = 0; i < unusedConnections.size(); ++i) {
         if (!connections.at(unusedConnections.at(i)).inUse) {
