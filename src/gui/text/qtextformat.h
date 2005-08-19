@@ -71,7 +71,7 @@ public:
     { return lengthType == other.lengthType
              && qFuzzyCompare(fixedValueOrPercentage, other.fixedValueOrPercentage); }
     inline bool operator!=(const QTextLength &other) const
-    { return !lengthType != other.lengthType
+    { return lengthType != other.lengthType
              || !qFuzzyCompare(fixedValueOrPercentage, other.fixedValueOrPercentage); }
     operator QVariant() const;
 
