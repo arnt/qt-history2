@@ -33,7 +33,12 @@
 #include <private/qdnd_p.h>
 #include <qdebug.h>
 
+void qt_format_text(const QFont&, const QRectF&,
+                    int, const QString&, QRectF *,
+                    int, int*, int, QPainter*);
+
 static const int textMargin = 1;
+static const bool doEliding = true;
 
 class QItemDelegatePrivate : public QObjectPrivate
 {
@@ -159,14 +164,27 @@ void QItemDelegate::paint(QPainter *painter,
         opt.palette.setColor(QPalette::Text, qvariant_cast<QColor>(value));
 
     // do layout
+
+    // decoration
     value = model->data(index, Qt::DecorationRole);
     QPixmap pixmap = decoration(opt, value);
-    QRect pixmapRect = pixmap.rect();
+    QRect pixmapRect = (pixmap.isNull() ? QRect(0, 0, 0, 0)
+                        : QRect(QPoint(0, 0), option.decorationSize));
 
-    QFontMetrics fontMetrics(opt.font);
+    // display
     QString text = model->data(index, Qt::DisplayRole).toString();
-    QRect textRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
+    QRect textRect;
+    if (!text.contains('\n')) {
+        QFontMetrics fontMetrics(opt.font);
+        textRect = QRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
+    } else {
+        QRectF result;
+        qt_format_text(opt.font, option.rect, Qt::TextDontPrint|Qt::TextDontClip,
+                       text, &result, 0, 0, 0, painter);
+        textRect = result.toRect();
+    }
 
+    // check
     value = model->data(index, Qt::CheckStateRole);
     QRect checkRect = check(opt, opt.rect, value);
     Qt::CheckState checkState = static_cast<Qt::CheckState>(value.toInt());
@@ -208,17 +226,30 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     if (value.isValid())
         return qvariant_cast<QSize>(value);
 
+    // display
     value = model->data(index, Qt::FontRole);
     QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
     QString text = model->data(index, Qt::DisplayRole).toString();
+    QRect textRect;
+    if (!text.contains('\n')) {
+        QFontMetrics fontMetrics(fnt);
+        textRect = QRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
+    } else {
+        QRectF result;
+        qt_format_text(fnt, option.rect, Qt::TextDontPrint|Qt::TextDontClip,
+                       text, &result, 0, 0, 0, 0);
+        textRect = result.toRect();
+    }
+
+    // decoration
     QRect pixmapRect;
     if (model->data(index, Qt::DecorationRole).isValid())
         pixmapRect = QRect(0, 0, option.decorationSize.width(),
                            option.decorationSize.height());
 
-    QFontMetrics fontMetrics(fnt);
-    QRect textRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
+    // checkbox
     QRect checkRect = check(option, textRect, model->data(index, Qt::CheckStateRole));
+
     doLayout(option, &checkRect, &pixmapRect, &textRect, true);
 
     return (pixmapRect|textRect|checkRect).size();
@@ -357,18 +388,11 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
         painter->restore();
     }
 
-    QFont font = painter->font();
-    painter->setFont(option.font);
     QRect textRect = rect.adjusted(textMargin, 0, -textMargin, 0); // remove width padding
-    if (painter->fontMetrics().width(text) > textRect.width())
-        painter->drawText(textRect, option.displayAlignment,
-                          elidedText(painter->fontMetrics(), textRect.width(),
-                                     option.textElideMode, text));
-    else
-        painter->drawText(textRect, option.displayAlignment, text);
-    painter->setFont(font);
-    painter->setPen(pen);
-
+    QString str = text;
+    if (painter->fontMetrics().width(text) > textRect.width() && !text.contains('\n'))
+        str = elidedText(option.fontMetrics, textRect.width(), option.textElideMode, text);
+    qt_format_text(option.font, textRect, option.displayAlignment, str, 0, 0, 0, 0, painter);
 }
 
 /*!
