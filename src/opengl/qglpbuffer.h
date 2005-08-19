@@ -41,8 +41,10 @@ public:
     QImage toImage() const;
 
     QPaintEngine *paintEngine() const;
-    int metric(PaintDeviceMetric metric) const;
     QGLFormat format() const { return QGLFormat::defaultFormat(); }
+
+protected:
+    int metric(PaintDeviceMetric metric) const;
     int devType() const { return QInternal::Pbuffer; }
 
 private:
