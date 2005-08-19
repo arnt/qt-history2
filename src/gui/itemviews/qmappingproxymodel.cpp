@@ -125,6 +125,8 @@ void QMappingProxyModel::setModel(QAbstractItemModel *model)
     } else {
         d->model = &d->empty;
     }
+
+    clear();
 }
 
 /*!
