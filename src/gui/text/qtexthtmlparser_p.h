@@ -132,6 +132,8 @@ struct QTextHtmlParserAttribute {
 };
 Q_DECLARE_TYPEINFO(QTextHtmlParserAttribute, Q_MOVABLE_TYPE);
 
+enum QTriState { Off = 0, On = 1, Unspecified = 2 };
+
 struct QTextHtmlParserNode {
     enum WhiteSpaceMode {
         WhiteSpaceNormal,
@@ -153,11 +155,11 @@ struct QTextHtmlParserNode {
     uint isListStart : 1;
     uint isTableCell : 1;
     uint isAnchor : 1;
-    uint fontItalic : 1;
-    uint fontUnderline : 1;
-    uint fontOverline : 1;
-    uint fontStrikeOut : 1;
-    uint fontFixedPitch : 1;
+    uint fontItalic : 2; // Tristate
+    uint fontUnderline : 2; // Tristate
+    uint fontOverline : 2; // Tristate
+    uint fontStrikeOut : 2; // Tristate
+    uint fontFixedPitch : 2; // Tristate
     uint cssFloat : 2;
     uint hasOwnListStyle : 1;
     uint hasFontPointSize : 1;

@@ -404,11 +404,11 @@ static QString quoteNewline(const QString &s)
 
 QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), id(-1), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
-      fontItalic(false), fontUnderline(false), fontOverline(false), fontStrikeOut(false), fontFixedPitch(false),
+      fontItalic(Unspecified), fontUnderline(Unspecified), fontOverline(Unspecified), fontStrikeOut(Unspecified), fontFixedPitch(Unspecified),
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false), hasFontSizeAdjustment(false),
       hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), isTableFrame(false), direction(3),
       displayMode(QTextHtmlElement::DisplayInline), fontPointSize(-1), fontSizeAdjustment(0),
-      fontWeight(QFont::Normal), alignment(0), verticalAlignment(QTextCharFormat::AlignNormal),
+      fontWeight(-1), alignment(0), verticalAlignment(QTextCharFormat::AlignNormal),
       listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0),
       tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0), cssBlockIndent(0),
       cssListIndent(0), text_indent(0), wsm(WhiteSpaceModeUndefined)
@@ -423,18 +423,29 @@ QTextCharFormat QTextHtmlParserNode::charFormat() const
 {
     QTextCharFormat format;
 
-    format.setFontItalic(fontItalic);
-    format.setFontUnderline(fontUnderline);
-    format.setFontOverline(fontOverline);
-    format.setFontStrikeOut(fontStrikeOut);
-    format.setFontFixedPitch(fontFixedPitch);
+    if (fontItalic != Unspecified) {
+        format.setFontItalic(fontItalic == On);
+    }
+    if (fontUnderline != Unspecified) {
+        format.setFontUnderline(fontUnderline == On);
+    }
+    if (fontOverline != Unspecified) {
+        format.setFontOverline(fontOverline == On);
+    }
+    if (fontStrikeOut != Unspecified) {
+        format.setFontStrikeOut(fontStrikeOut == On);
+    }
+    if (fontFixedPitch != Unspecified) {
+        format.setFontFixedPitch(fontFixedPitch == On);
+    }
     if (fontFamily.size())
         format.setFontFamily(fontFamily);
     if (hasFontPointSize)
         format.setFontPointSize(fontPointSize);
     if (hasFontSizeAdjustment)
         format.setProperty(QTextFormat::FontSizeAdjustment, fontSizeAdjustment);
-    format.setFontWeight(fontWeight);
+    if (fontWeight > 0)
+        format.setFontWeight(fontWeight);
     if (color.isValid())
         format.setForeground(QBrush(color));
     if (verticalAlignment != QTextCharFormat::AlignNormal)
@@ -727,7 +738,7 @@ void QTextHtmlParser::parseTag()
 
     // special handling for anchors with href attribute (hyperlinks)
     if (node->isAnchor && !node->anchorHref.isEmpty()) {
-        node->fontUnderline = true; // ####
+        node->fontUnderline = On; // ####
         node->color = Qt::blue; // ####
     }
 
@@ -1003,7 +1014,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
         case Html_address:
         case Html_var:
         case Html_dfn:
-            fontItalic = true;
+            fontItalic = On;
             break;
         case Html_big:
             fontSizeAdjustment = 1;
@@ -1083,7 +1094,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
         case Html_samp:
             fontFamily = QString::fromLatin1("Courier New,courier");
             // <tt> uses a fixed font, so set the property
-            fontFixedPitch = true;
+            fontFixedPitch = On;
             break;
         case Html_br:
             text = QChar(QChar::LineSeparator);
@@ -1095,7 +1106,7 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             margin[QTextHtmlParser::MarginTop] = 12;
             margin[QTextHtmlParser::MarginBottom] = 12;
             // <pre> uses a fixed font
-            fontFixedPitch = true;
+            fontFixedPitch = On;
             break;
         case Html_blockquote:
             margin[QTextHtmlParser::MarginLeft] = 40;
@@ -1109,10 +1120,10 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             margin[QTextHtmlParser::MarginLeft] = 30;
             break;
         case Html_u:
-            fontUnderline = true;
+            fontUnderline = On;
             break;
         case Html_s:
-            fontStrikeOut = true;
+            fontStrikeOut = On;
             break;
         case Html_nobr:
             wsm = WhiteSpaceNoWrap;
@@ -1313,9 +1324,9 @@ void QTextHtmlParser::parseAttributes()
                 } if (style.startsWith(QLatin1String("font-style:"))) {
                     QString s = style.mid(11).trimmed();
                     if (s == QLatin1String("normal"))
-                        node->fontItalic = false;
+                        node->fontItalic = Off;
                     else if (s == QLatin1String("italic") || s == QLatin1String("oblique"))
-                        node->fontItalic = true;
+                        node->fontItalic = On;
                 } else if (style.startsWith(QLatin1String("font-weight:"))) {
                     QString s = style.mid(12);
                     bool ok = true;
@@ -1326,9 +1337,9 @@ void QTextHtmlParser::parseAttributes()
                     node->fontFamily = style.mid(12).trimmed();
                 } else if (style.startsWith(QLatin1String("text-decoration:"))) {
                     QString s = style.mid(16);
-                    node->fontUnderline = static_cast<bool>(s.contains("underline"));
-                    node->fontOverline = static_cast<bool>(s.contains("overline"));
-                    node->fontStrikeOut = static_cast<bool>(s.contains("line-through"));
+                    node->fontUnderline = static_cast<bool>(s.contains("underline")) ? On : Off;
+                    node->fontOverline = static_cast<bool>(s.contains("overline")) ? On : Off;
+                    node->fontStrikeOut = static_cast<bool>(s.contains("line-through")) ? On : Off;
 #if 0
                 } else if (style.startsWith(QLatin1String("vertical-align:"))) {
                     QString s = style.mid(15).trimmed();
