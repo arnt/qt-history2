@@ -441,6 +441,11 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
         } else if(file->type == QMakeSourceFileInfo::TYPE_QRC) {
         } else if(file->type == QMakeSourceFileInfo::TYPE_C) {
             for(int beginning=1; x < buffer_len; ++x) {
+                while(x < buffer_len) {
+                    if(*(buffer+x) != ' ' && *(buffer+x) != '\t')
+                        break;
+                    ++x;
+                }
                 if(*(buffer+x) == '/') {
                     ++x;
                     if(buffer_len >= x) {
@@ -476,11 +481,15 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     }
                 }
                 if(qmake_endOfLine(*(buffer+x))) {
+                    ++x;
                     ++line_count;
-                    if(x < buffer_len-1 && *(buffer+(x+1)) == '#') {
+                    while(x < buffer_len) {
+                        if(*(buffer+x) != ' ' && *(buffer+x) != '\t')
+                            break;
                         ++x;
-                        break;
                     }
+                    if(*(buffer+x) == '#')
+                        break;
                 } else if(beginning && *(buffer+x) == '#') {
                     break;
                 } else {
@@ -528,6 +537,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                 for(inc_len = 0; *(buffer + x + inc_len) != term && !qmake_endOfLine(*(buffer + x + inc_len)); ++inc_len);
                 *(buffer + x + inc_len) = '\0';
                 inc = buffer + x;
+                x += inc_len;
             } else if(keyword_len == 13 && !strncmp(keyword, "qmake_warning", keyword_len)) {
                 char term = 0;
                 if(*(buffer + x) == '"')
@@ -542,6 +552,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                               !qmake_endOfLine(*(buffer + x + msg_len)); ++msg_len);
                 *(buffer + x + msg_len) = '\0';
                 debug_msg(0, "%s:%d %s -- %s", file->file.local().toLatin1().constData(), line_count, keyword, buffer+x);
+                x += msg_len;
             } else if(*(buffer+x) == '\'' || *(buffer+x) == '"') {
                 const char term = *(buffer+(x++));
                 while(x < buffer_len) {
@@ -707,7 +718,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
                   (*(buffer + x) < '0' || *(buffer + x) > '9')) {
             ++x;
             int match = 0;
-            static const char *interesting[] = { "OBJECT", "GADGET", 
+            static const char *interesting[] = { "OBJECT", "GADGET",
                                                  "M_OBJECT" };
             for(int interest = 0, m1, m2; interest < 3; ++interest) {
                 if(interest == 0 && ignore_qobject)
