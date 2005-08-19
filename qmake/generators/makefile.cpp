@@ -165,10 +165,12 @@ MakefileGenerator::initOutPaths()
     for(int x = 0; true; x++) {
         if(dirs[x].isNull())
             break;
-        if(!v[dirs[x]].isEmpty()) {
-            const QString orig_path = v[dirs[x]].first();
 
-            QString &pathRef = v[dirs[x]].first();
+        QStringList dirList = v[dirs[x]];
+        for (int d = 0; d < dirList.count(); ++d) {
+            const QString orig_path = dirList.at(d);
+
+            QString &pathRef = dirList[d];
             pathRef = fileFixify(pathRef, Option::output_dir, Option::output_dir);
 
 #ifdef Q_WS_WIN
