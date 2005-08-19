@@ -263,7 +263,7 @@ void QListView::setMovement(Movement movement)
     d->movement = movement;
 
 #ifndef QT_NO_DRAGANDDROP
-    bool movable = (movement != QListView::Static);
+    bool movable = (movement != Static);
     setDragEnabled(movable);
     d->viewport->setAcceptDrops(movable);
 #endif
@@ -466,7 +466,7 @@ void QListView::setViewMode(ViewMode mode)
     }
 
 #ifndef QT_NO_DRAGANDDROP
-    bool movable = (d->movement != QListView::Static);
+    bool movable = (d->movement != Static);
     setDragEnabled(movable);
     setAcceptDrops(movable);
 #endif
@@ -644,7 +644,7 @@ QSize QListView::contentsSize() const
 void QListView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     Q_D(QListView);
-    if (d->movement != QListView::Static
+    if (d->movement != Static
         && d->column >= topLeft.column()
         && d->column <= bottomRight.column()) {
         QStyleOptionViewItem option = viewOptions();
@@ -1263,7 +1263,7 @@ void QListView::updateGeometries()
         verticalScrollBar()->setRange(0, d->contentsSize.height() - d->viewport->height() - 1);
     }
     // if the scrollbars are turned off, we resize the contents to the viewport
-    if (d->movement == Fixed && !d->wrap) {
+    if (d->movement == Static && !d->wrap) {
         if (d->flow == TopToBottom) {
             if (horizontalScrollBarPolicy() == Qt::ScrollBarAlwaysOff)
                 resizeContents(viewport()->width(), contentsSize().height());
