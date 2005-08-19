@@ -1068,10 +1068,10 @@ QPrinter::PrinterState QPrinter::printerState() const
     left, bottom, and right margins.
 
     This function has been superceded by paperRect() and pageRect().
-    Use pageRect().top() - paperRect().top() for the top margin,
-    pageRect().left() - paperRect().left() for the left margin,
-    pageRect().bottom() - paperRect().bottom() for the bottom margin,
-    and pageRect().right() - paperRect().right() for the right
+    Use paperRect().top() - pageRect().top() for the top margin,
+    paperRect().left() - pageRect().left() for the left margin,
+    paperRect().bottom() - pageRect().bottom() for the bottom margin,
+    and papaerRect().right() - pageRect().right() for the right
     margin.
 
     \oldcode
@@ -1079,8 +1079,8 @@ QPrinter::PrinterState QPrinter::printerState() const
         uint bottomMargin;
         printer->margins(0, 0, &bottomMargin, &rightMargin);
     \newcode
-        int rightMargin = printer->pageRect().right() - printer->paperRect().right();
-        int bottomMargin = printer->pageRect().bottom() - printer->paperRect().bottom();
+        int rightMargin = printer->paperRect().right() - printer->pageRect().right();
+        int bottomMargin = printer->paperRect().bottom() - printer->pageRect().bottom();
     \endcode
 */
 
@@ -1091,16 +1091,16 @@ QPrinter::PrinterState QPrinter::printerState() const
     Returns a QSize containing the left margin and the top margin.
 
     This function has been superceded by paperRect() and pageRect().
-    Use pageRect().left() - paperRect().left() for the left margin,
-    and pageRect().top() - paperRect().top() for the top margin.
+    Use paperRect().left() - pageRect().left() for the left margin,
+    and paperRect().top() - pageRect().top() for the top margin.
 
     \oldcode
         QSize margins = printer->margins();
         int leftMargin = margins.width();
         int topMargin = margins.height();
     \newcode
-        int leftMargin = printer->pageRect().left() - printer->paperRect().left();
-        int topMargin = printer->pageRect().top() - printer->paperRect().top();
+        int leftMargin = printer->paperRect().left() - printer->pageRect().left();
+        int topMargin = printer->paperRect().top() - printer->pageRect().top();
     \endcode
 */
 
