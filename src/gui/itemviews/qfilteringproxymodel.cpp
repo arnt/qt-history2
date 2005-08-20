@@ -24,7 +24,16 @@ QFilteringProxyModel::QFilteringProxyModel(QObject *parent)
 }
 
 /*!
-    Destroys the mapping proxy model.
+    \internal
+*/
+QFilteringProxyModel::QFilteringProxyModel(QMappingProxyModelPrivate &dd, QObject *parent)
+    : QMappingProxyModel(dd, parent)
+{
+
+}
+
+/*!
+    Destroys the filtering proxy model.
 */
 QFilteringProxyModel::~QFilteringProxyModel()
 {
@@ -32,7 +41,7 @@ QFilteringProxyModel::~QFilteringProxyModel()
 }
 
 /*!
-  Clears the sorting proxy model, removing all map.
+  Clears the filtering proxy model, removing the mapping.
 */
 void QFilteringProxyModel::clear()
 {

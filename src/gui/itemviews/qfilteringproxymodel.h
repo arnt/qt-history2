@@ -19,7 +19,6 @@
 class Q_GUI_EXPORT QFilteringProxyModel : public QMappingProxyModel
 {
     Q_OBJECT
-
 public:
     QFilteringProxyModel(QObject *parent = 0);
     ~QFilteringProxyModel();
@@ -30,11 +29,12 @@ public:
     int rowCount(const QModelIndex &parent) const;
 
 protected:
+    QFilteringProxyModel(QMappingProxyModelPrivate&, QObject *parent);
+
     virtual bool filterRow(int source_row, const QModelIndex &source_parent) const = 0;
-
-    void mapChildren(const QModelIndex &parent) const;
+    virtual void mapChildren(const QModelIndex &parent) const;
     void sourceLayoutChanged();
-
+    
     mutable QMap<QModelIndex, int> filtered_row_count; // maps the parent to the  number of  rows filtered out
 };
 
