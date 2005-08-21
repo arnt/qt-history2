@@ -1,0 +1,80 @@
+Welcome to the Preview of the next-generation embedded Linux port of Qt
+
+Dear Trolltech embedded user,
+
+We are pleased to present our Preview release, based on Qt 4.0.1, 
+for the next-generation embedded Linux port of Qt. We are releasing
+this code snapshot to our users because we want to show you the new 
+technologies that will go into the final release, and because we 
+want you to have the opportunity to give us your feedback. The 
+feedback we receive will help us to ensure that the final release 
+provides as much value and productivity as possible.
+
+This product preview is licensed under a non-commercial license.
+It is not meant to be used in production code or even for 
+application development.
+
+You can write new small programs just to experience what the
+next generation of Qt4-based embedded programming will be like. 
+
+In particular, this product makes use of the five new Qt 4 
+technologies:
+- A new set of template container classes	
+- A model/view architecture for item views
+- The Qt 4 painting framework
+- The Unicode text renderer with a public API for performing
+  low-level text layout
+- Main-window, a modern action-based main-window, toolbar, 
+  menu, and docking architecture.
+
+We hope that besides improving productivity of our customers
+and refining the quality of their software, we can make 
+embedded development with Qt 4-based technology a lot more 
+pleasurable. 
+
+This product profits from all the improvements that have been
+introduced in Qt 4 and is a huge technological leap over
+previous embedded Qt offerings.
+
+Since the last preview, we have made improvements all around the
+embedded Linux port of Qt but in particular we have significantly 
+enhanced rendering performance.
+
+We would like to point out that even though we are committed to
+bringing unparallel embedded performance in this product,
+most of our improvements in the performance area did not make it 
+into this preview release. Among those improvements are:
+- elimination of the floating point usage in most areas,
+- introduction of the hardware accelerated rendering framework. 
+  For devices that support it we are planning to utilize EGL and 
+  OpenVG to redefine graphics performance on embedded devices.
+- general improvements in the non-accelerated paths in the rendering
+  framework. 
+
+So, keep this in mind if you attempt to start porting your 
+Qt/embedded 2 or 3 based projects over. See qt4-getting-started.html 
+to get an overview of the main portability issues or porting.html 
+for a more in depth description.
+
+For a more detailed description of the Qt 4 features, which constitute
+the core of this embedded technology, please consult qt4-intro.html 
+found in doc/html.
+
+How to Provide Feedback
+
+We encourage you to use the Qt-embedded-interest mailing list for
+discussion of issues related to this Preview. To subscribe, send 
+a message containing just the word "subscribe" (without the quotes)
+to  qt-embedded-interest-request@trolltech.com. 
+See http://lists.trolltech.com/ for more information on Trolltech's 
+mailing lists, including archived discussions.
+
+Roadmap
+
+We plan a commercial release of the next generation embedded Linux 
+port of Qt early Q4 2005.
+
+Enjoy the Technology Preview. We hope you will have as much fun and
+pleasure experimenting as we had designing and building it.
+
+--The Trolltech Team
