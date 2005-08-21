@@ -254,7 +254,7 @@ public:
             return *this;
         }
         inline const_iterator operator--(int) {
-            iterator r = *this;
+            const_iterator r = *this;
             i = i->backward;
             return r;
         }
