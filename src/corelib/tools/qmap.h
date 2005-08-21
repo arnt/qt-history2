@@ -193,7 +193,7 @@ public:
             return *this;
         }
         inline iterator operator++(int) {
-            const_iterator r = *this;
+            iterator r = *this;
             i = i->forward[0];
             return r;
         }
@@ -202,7 +202,7 @@ public:
             return *this;
         }
         inline iterator operator--(int) {
-            const_iterator r = *this;
+            iterator r = *this;
             i = i->backward;
             return r;
         }
@@ -270,7 +270,10 @@ public:
     inline iterator begin() { detach(); return iterator(e->forward[0]); }
     inline const_iterator begin() const { return const_iterator(e->forward[0]); }
     inline const_iterator constBegin() const { return const_iterator(e->forward[0]); }
-    inline iterator end() { detach(); return iterator(e); }
+    inline iterator end() {
+        detach();
+        return iterator(e);
+    }
     inline const_iterator end() const { return const_iterator(e); }
     inline const_iterator constEnd() const { return const_iterator(e); }
     iterator erase(iterator it);
