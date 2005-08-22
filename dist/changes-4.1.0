@@ -43,6 +43,9 @@ Qt Assistant
 General Fixes
 -------------
 
+  * Fixed QMap's and QHash's operator>>() to read back multiple
+    values associated to a same key correctly.
+
 
 Platform-Specific Issues
 ------------------------
