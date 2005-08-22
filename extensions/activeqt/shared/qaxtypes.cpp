@@ -1046,7 +1046,9 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
         proptype = QVariant::nameToType(typeName);
     if (proptype != QVariant::LastType && proptype != QVariant::Invalid && var.type() != proptype) {
         if (var.canConvert(proptype)) {
-            var.convert(proptype);
+            QVariant oldvar = var;
+            if (oldvar.convert(proptype))
+                var = oldvar;
         } else if (proptype == QVariant::StringList && var.type() == QVariant::List) {
             bool allStrings = true;
             QStringList strings;
