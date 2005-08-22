@@ -883,11 +883,9 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 
     List widgets are constructed in the same way as other widgets:
 
-    \quotefile snippets/qlistwidget-using/mainwindow.h
-    \skipto QListWidget *
-    \printuntil QListWidget *
     \quotefile snippets/qlistwidget-using/mainwindow.cpp
-    \skipto listWidget = new
+    \skipto = new QListWidget
+    \printline = new
 
     The selectionMode() of a list widget determines how many of the items in
     the list can be selected at the same time, and whether complex selections
