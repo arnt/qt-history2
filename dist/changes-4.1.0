@@ -43,8 +43,15 @@ Qt Assistant
 General Fixes
 -------------
 
-  * Fixed QMap's and QHash's operator>>() to read back multiple
-    values associated to a same key correctly.
+- QMap/QHash
+	Fixed operator>>() to read back multiple values associated
+	to a same key correctly.
+
+- QMap/QHash
+	Const-correctness in const_iterator's operator--(int).
+
+- QFileDialog
+	Fix shortcut and focus for "Alpha channel" spinbox.
 
 
 Platform-Specific Issues
