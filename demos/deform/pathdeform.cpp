@@ -22,7 +22,7 @@ PathDeformWidget::PathDeformWidget(QWidget *parent)
 
     ArthurGroupBox *radiusGroup = new ArthurGroupBox(mainGroup);
     radiusGroup->setAttribute(Qt::WA_ContentsPropagated);
-    radiusGroup->setTitle("Lens radius");
+    radiusGroup->setTitle("Lens Radius");
     QSlider *radiusSlider = new QSlider(Qt::Horizontal, radiusGroup);
     radiusSlider->setRange(50, 150);
     radiusSlider->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
