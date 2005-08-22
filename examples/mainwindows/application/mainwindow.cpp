@@ -88,7 +88,7 @@ void MainWindow::about()
 
 void MainWindow::documentWasModified()
 {
-    setWindowModified(true);
+    setWindowModified(textEdit->document()->isModified());
 }
 
 void MainWindow::createActions()
