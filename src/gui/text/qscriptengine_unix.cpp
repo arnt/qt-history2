@@ -2506,7 +2506,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
     }
 
     // write coeng + ro if found
-    if (coengRo > 0) {
+    if (coengRo > -1) {
         reordered[len] = C_COENG;
         properties[len] = PreForm;
         ++len;
