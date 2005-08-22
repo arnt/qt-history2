@@ -53,7 +53,7 @@ static void initializeDb()
     QString fn;
 #ifndef QT_NO_LIBRARY
     fn = QLibraryInfo::location(QLibraryInfo::PrefixPath);
-#endif    
+#endif
     fn += "/lib/fonts/fontdir";
     FILE* fontdef=fopen(fn.toLocal8Bit().constData(),"r");
     if(!fontdef) {
@@ -221,7 +221,13 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
             FM_DEBUG("loading font file %s failed, err=%x", file.toLocal8Bit().constData(), err);
             Q_ASSERT(!err);
         }
-        FT_Set_Pixel_Sizes(face, pixelSize, pixelSize);
+        if (face->num_fixed_sizes == 1)
+            pixelSize = face->available_sizes->height;
+        err = FT_Set_Pixel_Sizes(face, pixelSize, pixelSize);
+        if (err) {
+            FM_DEBUG("FT_Set_Pixel_Sizes file %s pixelSize %d failed with error %d", file.toLocal8Bit().constData(), pixelSize, err);
+            Q_ASSERT(!err);
+        }
         FD_DEBUG("setting pixel size to %d", pixelSize);
 
         QFontEngine *fe = new QFontEngineFT(request, face);
