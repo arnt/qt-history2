@@ -281,7 +281,7 @@ void SpreadSheet::createActions()
     fontAction->setShortcut(Qt::CTRL|Qt::Key_F);
     connect(fontAction, SIGNAL(triggered()), this, SLOT(selectFont()));
 
-    colorAction = new QAction(QPixmap(16, 16), tr("Background &Color"), this);
+    colorAction = new QAction(QPixmap(16, 16), tr("Background &Color..."), this);
     connect(colorAction, SIGNAL(triggered()), this, SLOT(selectColor()));
 
     clearAction = new QAction(tr("Clear"), this);
