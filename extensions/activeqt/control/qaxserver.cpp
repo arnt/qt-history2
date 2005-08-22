@@ -260,6 +260,30 @@ HRESULT UpdateRegistry(BOOL bRegister)
                 settings.setValue("/CLSID/" + classId + "/VersionIndependentProgID/.", module + "." + className);
                 settings.setValue("/CLSID/" + classId + "/ProgID/.", module + "." + className + "." + classVersion.left(classVersion.indexOf('.')));
 
+                QString mime = QLatin1String(mo->classInfo(mo->indexOfClassInfo("MIME")).value());
+                if (!mime.isEmpty()) {
+                    QStringList mimeTypes = mime.split(';');
+                    for (int m = 0; m < mimeTypes.count(); ++m) {
+                        mime = mimeTypes.at(m);
+                        if (mime.isEmpty())
+                            continue;
+                        QString extension;
+                        while (mime.contains(':')) {
+                            extension = mime.mid(mime.lastIndexOf(':') + 1);
+                            mime = mime.left(mime.length() - extension.length() - 1);
+                        }
+
+                        if (!extension.isEmpty()) {
+                            settings.setValue("/." + extension + "/.", module + "." + className);
+                            settings.setValue("/." + extension + "/Content Type", mime);
+
+                            mime = mime.replace("/", "\\");
+                            settings.setValue("/MIME/Database/Content Type/" + mime + "/CLSID", classId);
+                            settings.setValue("/MIME/Database/Content Type/" + mime + "/Extension", extension);
+                        }
+                    }
+                }
+
                 delete object;
             }
 
@@ -304,6 +328,31 @@ HRESULT UpdateRegistry(BOOL bRegister)
             settings.remove("/CLSID/" + classId + "/ProgID/.");
             settings.remove("/CLSID/" + classId + "/.");
             settings.remove("/CLSID/" + classId);
+
+            QString mime = QLatin1String(mo->classInfo(mo->indexOfClassInfo("MIME")).value());
+            if (!mime.isEmpty()) {
+                QStringList mimeTypes = mime.split(';');
+                for (int m = 0; m < mimeTypes.count(); ++m) {
+                    mime = mimeTypes.at(m);
+                    if (mime.isEmpty())
+                        continue;
+                    QString extension;
+                    while (mime.contains(':')) {
+                        extension = mime.mid(mime.lastIndexOf(':') + 1);
+                        mime = mime.left(mime.length() - extension.length() - 1);
+                    }
+                    if (!extension.isEmpty()) {
+                        settings.remove("/." + extension + "/Content Type");
+                        settings.remove("/." + extension + "/.");
+                        settings.remove("/." + extension);
+                        mime = mime.replace("/", "\\");
+                        settings.remove("/MIME/Database/Content Type/" + mime + "/Extension");
+                        settings.remove("/MIME/Database/Content Type/" + mime + "/CLSID");
+                        settings.remove("/MIME/Database/Content Type/" + mime + "/.");
+                        settings.remove("/MIME/Database/Content Type/" + mime);
+                    }
+                }
+            }
         }
     }
     
