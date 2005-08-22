@@ -81,7 +81,8 @@ void MainWindow::print()
 void MainWindow::save()
 {
     QString fileName = QFileDialog::getSaveFileName(this,
-                        tr("Choose a file name"), ".", tr("HTML (*.html *.htm)"));
+                        tr("Choose a file name"), ".",
+                        tr("HTML (*.html *.htm)"));
     if (fileName.isEmpty())
         return;
     QFile file(fileName);
