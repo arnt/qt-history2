@@ -647,14 +647,21 @@ void Q3StyleSheetItem::setWhiteSpaceMode(WhiteSpaceMode m)
     Returns the width of margin \a m in pixels.
 
     The margin, \a m, can be MarginLeft, MarginRight,
-    MarginTop, MarginBottom, MarginAll, MarginVertical, or
-    MarginHorizontal.
+    MarginTop, MarginBottom, or MarginFirstLine
 
     \sa setMargin() Margin
 */
 int Q3StyleSheetItem::margin(Margin m) const
 {
-    return d->margin[m];
+    if (m == MarginAll) {
+        return d->margin[MarginLeft];
+    } else if (m == MarginVertical) {
+        return d->margin[MarginTop];
+    } else if (m == MarginHorizontal) {
+        return d->margin[MarginLeft];
+    } else {
+        return d->margin[m];
+    }
 }
 
 
@@ -662,18 +669,19 @@ int Q3StyleSheetItem::margin(Margin m) const
     Sets the width of margin \a m to \a v pixels.
 
     The margin, \a m, can be \c MarginLeft, \c MarginRight, \c
-    MarginTop, \c MarginBottom, \c MarginAll, \c MarginVertical or \c
-    MarginHorizontal. The value \a v must be >= 0.
+    MarginTop, \c MarginBottom, MarginFirstLine, \c MarginAll,
+    \c MarginVertical or \c MarginHorizontal. The value \a v must
+    be >= 0.
 
     \sa margin()
 */
 void Q3StyleSheetItem::setMargin(Margin m, int v)
 {
     if (m == MarginAll) {
-        d->margin[0] = v;
-        d->margin[1] = v;
-        d->margin[2] = v;
-        d->margin[3] = v;
+        d->margin[MarginLeft] = v;
+        d->margin[MarginRight] = v;
+        d->margin[MarginTop] = v;
+        d->margin[MarginBottom] = v;
     } else if (m == MarginVertical) {
         d->margin[MarginTop] = v;
         d->margin[MarginBottom] = v;
