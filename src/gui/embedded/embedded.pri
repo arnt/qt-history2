@@ -49,7 +49,6 @@ embedded {
 	contains(QT_CONFIG, ft) {
 	    SOURCES += \
 		../3rdparty/freetype/builds/unix/ftsystem.c \
-		../3rdparty/freetype/src/autohint/autohint.c \
 		../3rdparty/freetype/src/base/ftbase.c \
 		../3rdparty/freetype/src/base/ftbbox.c \
 		../3rdparty/freetype/src/base/ftdebug.c \
