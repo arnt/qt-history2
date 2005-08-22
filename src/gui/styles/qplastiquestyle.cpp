@@ -1784,12 +1784,13 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             int lowerTop = selected ? 0 : 3; // to make the selected tab bigger than the rest
             QRect adjustedRect;
             bool atEnd = (tab->position == QStyleOptionTab::End) || onlyTab;
-            bool atBeginning = ((tab->position == QStyleOptionTab::Beginning) || onlyTab) && !leftCornerWidget;
+            bool atBeginning = ((tab->position == QStyleOptionTab::Beginning) || onlyTab) 
+                && !leftCornerWidget;
             bool reverseShadow = false;
 
             int borderThickness = pixelMetric(PM_TabBarBaseOverlap, tab, widget);
             int marginLeft = 0;
-            if ((atBeginning && !selected) || (selected && leftCornerWidget && (tab->position == QStyleOptionTab::Beginning) || onlyTab)) {
+            if ((atBeginning && !selected) || (selected && leftCornerWidget && ((tab->position == QStyleOptionTab::Beginning) || onlyTab))) {
                 marginLeft = 1;
             }
 
