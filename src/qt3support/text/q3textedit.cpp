@@ -3763,6 +3763,9 @@ void Q3TextEdit::setText(const QString &text, const QString &context)
     Please note that this function will make the next occurrence of
     the string (if found) the current selection, and will thus
     modify the cursor position.
+
+    Using the \a para and \a index parameters will not work correctly
+    in case the document contains tables.
 */
 
 bool Q3TextEdit::find(const QString &expr, bool cs, bool wo, bool forward,
