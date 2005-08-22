@@ -1236,6 +1236,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         break;
     case CE_ComboBoxLabel:
         if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
+            p->save();
             QRect editRect = subControlRect(CC_ComboBox, cb, SC_ComboBoxEditField, widget);
             if (!cb->currentIcon.isNull()) {
                 QRect comboRect(editRect);
@@ -1245,7 +1246,8 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 iconRect = alignedRect(cb->direction, Qt::AlignLeft, iconRect.size(), comboRect);
                 editRect = alignedRect(cb->direction, Qt::AlignRight, editRect.size(), comboRect);
                 p->setClipRect(iconRect);
-                p->fillRect(iconRect, opt->palette.brush(QPalette::Base));
+                if (cb->editable)
+                    p->fillRect(iconRect, opt->palette.brush(QPalette::Base));
                 cb->currentIcon.paint(p, iconRect);
             }
 
@@ -1255,6 +1257,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                             visualAlignment(cb->direction, Qt::AlignLeft | Qt::AlignVCenter),
                             cb->currentText);
             }
+            p->restore();
         }
         break;
     default:
