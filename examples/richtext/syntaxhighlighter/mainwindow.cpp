@@ -81,7 +81,7 @@ void MainWindow::setupFileMenu()
     QMenu *fileMenu = new QMenu(tr("&File"), this);
     menuBar()->addMenu(fileMenu);
 
-    fileMenu->addAction(tr("&New..."), this, SLOT(newFile()),
+    fileMenu->addAction(tr("&New"), this, SLOT(newFile()),
                         QKeySequence(tr("Ctrl+N", "File|New")));
     fileMenu->addAction(tr("&Open..."), this, SLOT(openFile()),
                         QKeySequence(tr("Ctrl+O", "File|Open")));
