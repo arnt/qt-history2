@@ -394,6 +394,8 @@ void QSqlDatabasePrivate::disable()
 
     \warning If you add a database with the same name as an
     existing database, the new database will replace the old one.
+    This will happen automatically if you call this function more
+    than once without specifying \a connectionName.
 
     To make use of the connection, you will need to set it up, for
     example by calling some or all of setDatabaseName(),
