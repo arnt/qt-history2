@@ -213,7 +213,7 @@
 
     \title Qt Tutorial 2 - Calling it Quits
 
-    \image t2.png Screenshot of tutorial two
+    \image t2.png Screenshot of Chapter 2
 
     Having created a window in \l{tutorial/t1}{Chapter 1,} we will
     now go on to make the application quit properly when the user tells it to.
@@ -284,9 +284,8 @@
 
     \section1 Exercises
 
-    Try to resize the window. Press the button. Oops! That
-    \l{QObject::connect()}{connect()} would seem to make some
-    difference.
+    Try to resize the window. Press the button to close the
+    application.
 
     Are there any other signals in QPushButton you can connect to
     quit? [Hint: The QPushButton inherits most of its functionality
@@ -301,7 +300,7 @@
 
     \title Qt Tutorial 3 - Family Values
 
-    \image t3.png Screenshot of tutorial three
+    \image t3.png Screenshot of Chapter 3
 
     This example shows how to create parent and child widgets.
 
@@ -346,13 +345,11 @@
 
     \printline quit
 
-    A child is born.
-
-    This QPushButton is created with a parent widget (\c window). A
-    child widget is always displayed within its parent's area. When
-    displayed, it is clipped by its parent's bounds. By default,
-    it is rooted at the top-left corner of its parent, at position (0,
-    0).
+    A child is born. This QPushButton is created with a parent widget
+    (\c window). A child widget is always displayed within its
+    parent's area. When displayed, it is clipped by its parent's
+    bounds. By default, it is rooted at the top-left corner of its
+    parent, at position (0, 0).
 
     \skipto setGeometry
     \printline setGeometry
@@ -392,7 +389,7 @@
 
     \title Qt Tutorial 4 - Let There Be Widgets
 
-    \image t4.png Screenshot of tutorial four
+    \image t4.png Screenshot of Chapter 4
 
     This example shows how to create your own widget, and describes
     how to control the minimum and maximum sizes of a widget.
@@ -442,6 +439,14 @@
     Here we create and set up a child widget of this widget (the new
     widget's parent is \c this, i.e. the \c MyWidget instance).
 
+    The \l{QObject::tr()}{tr()} function call around the string
+    literal "Quit" marks the string for translation, making it
+    possible to change it at run-time based on the contents of a
+    translation file. It is a good habit to use
+    \l{QObject::tr()}{tr()} around all user-visible strings, in case
+    you decide later to translate your application to other
+    languages.
+
     Note that \c quit is a local variable in the constructor.
     \c MyWidget does not keep track of it; Qt does, and will
     automatically delete it when the \c MyWidget object is deleted.
@@ -487,7 +492,7 @@
 
     \title Qt Tutorial 5 - Building Blocks
 
-    \image t5.png Screenshot of tutorial five
+    \image t5.png Screenshot of Chapter 5
 
     This example shows how to create and connect together several widgets
     by using signals and slots, and how to handle resizes.
@@ -507,10 +512,19 @@
     \printuntil }
 
     \target constructor
-    \printuntil lcd
+    \printuntil lcd->setSegmentStyle
 
-    \c lcd is a QLCDNumber, a widget that displays numbers in an LCD-like
-    fashion. This instance is set up to display two digits.
+    \c lcd is a QLCDNumber, a widget that displays numbers in an
+    LCD-like fashion. This instance is set up to display two digits.
+    We set the \l QLCDNumber::segmentStyle property to \l
+    QLCDNumber::Filled to make the LCDs more readable.
+
+    Historical note: QLCDNumber was the first widget ever written for
+    Qt, back in the days when QPainter supported only one drawing
+    primitive: \l{QPainter::drawLine()}{drawLine()}. The original
+    version of the \l{widgets/tetrix}{Tetrix} example, which uses
+    QLCDNumber to display the score, was also written around that
+    time.
 
     \printline QSlider
     \printline slider
@@ -535,8 +549,8 @@
     when the signal is broadcast. Neither of the objects knows about
     the other. This is essential in component programming.
 
-    Slots are otherwise normal C++ member functions and follow the normal
-    C++ access rules.
+    Slots are otherwise normal C++ member functions and follow the
+    normal C++ access rules.
 
     \printline layout
     \printuntil setLayout
@@ -556,6 +570,13 @@
     automatically reparents the widgets in the layout so that they are
     children of \c MyWidget. Because of this, we didn't need to specify
     \c this as the parent for the \c quit, \c lcd and \c slider widgets.
+
+    In Qt, widgets are either children of other widgets (e.g. \c
+    this), or they have no parent. A widget can be \e added to a
+    layout, in which case the layout becomes responsible for managing
+    the geometry of that widget, but the layout can never act as a
+    parent itself. Indeed, QWidget's constructor takes a QWidget
+    pointer for the parent, and QLayout doesn't inherit from QWidget.
 
     \section1 Running the Application
 
@@ -585,7 +606,7 @@
 
     \title Qt Tutorial 6 - Building Blocks Galore!
 
-    \image t6.png Screenshot of tutorial six
+    \image t6.png Screenshot of Chapter 6
 
     This example shows how to encapsulate two widgets into a new component and
     how easy it is to use many widgets. For the first time, we use a custom
@@ -631,7 +652,7 @@
 
     \printline grid
 
-    We create a QWidget with a QGridLayout that will contain four columns.
+    We create a QWidget with a QGridLayout that will contain three columns.
     The QGridLayout automatically arranges its widgets in rows and columns;
     you can specify the row and column numbers when adding widgets to the
     layout, and QGridLayout will fit them into the grid.
@@ -642,8 +663,8 @@
     \printline }
     \printline }
 
-    We create 16 \c LCDRange widgets, all of which are children of
-    the grid object. The QGridLayout will arrange them in four
+    We create nine \c LCDRange widgets, all of which are children of
+    the grid object, and we arrange them in three rows and three
     columns.
 
     \skipto }
@@ -670,7 +691,7 @@
 
     \title Qt Tutorial 7 - One Thing Leads to Another
 
-    \image t7.png Screenshot of tutorial seven
+    \image t7.png Screenshot of Chapter 7
 
     This example shows how to create custom widgets with signals and
     slots, and how to connect them together in more complex ways. For the
@@ -806,12 +827,12 @@
     \printline }
 
     All of \c main.cpp is copied from the previous chapter except in
-    the constructor for \c MyWidget. When we create the 16 \c
-    LCDRange objects, we now connect them using the \l{signals and
-    slots} mechanism. Each has its \c valueChanged() signal connected
-    to the previous one's \c setValue() slot. Because \c LCDRange
-    emits the \c valueChanged() signal when its value changes, we are
-    here creating a chain of signals and slots.
+    the constructor for \c MyWidget. When we create the nine \c
+    LCDRange objects, we connect them using the \l{signals and slots}
+    mechanism. Each has its \c valueChanged() signal connected to the
+    previous one's \c setValue() slot. Because \c LCDRange emits the
+    \c valueChanged() signal when its value changes, we are here
+    creating a chain of signals and slots.
 
     \target compiling
     \section1 Compiling the Application
@@ -855,7 +876,7 @@
 
     \title Qt Tutorial 8 - Preparing for Battle
 
-    \image t8.png Screenshot of tutorial eight
+    \image t8.png Screenshot of Chapter 8
 
     In this example, we introduce the first custom widget that can paint
     itself. We also add a useful keyboard interface (with two lines of
@@ -942,6 +963,11 @@
     This palette uses the indicated color as background and picks other
     colors suitably. (For this widget only the background and text
     colors will actually be used.)
+
+    The QColor is specified as a RGB (red-green-blue) triplet, where
+    each value is between 0 (dark) and 255 (bright). We could also
+    have used a predefined color such as Qt::yellow instead of
+    specifying an RGB value.
 
     \skipto ::setAngle
     \printuntil emit
@@ -1125,9 +1151,10 @@
     Leave out the QWidget::setFocus() call. Which behavior do you
     prefer?
 
-    Try to change "Quit" to "&Quit" in the QAbstractButton::setText()
-    call. How does the button's look change? What happens if you
-    press \key{Alt+Q} while the program is running?
+    Try to change "Quit" to "&Quit". How does the button's look
+    change? (Whether it does change or not depends on the platform.)
+    What happens if you press \key{Alt+Q} while the program is
+    running?
 
     Center the text in the \c CannonField.
 */
@@ -1140,7 +1167,7 @@
 
     \title Qt Tutorial 9 - With Cannon You Can
 
-    \image t9.png Screenshot of tutorial nine
+    \image t9.png Screenshot of Chapter 9
 
     In this example we become graphic by drawing a cute little blue
     cannon. Only \c cannonfield.cpp differs from the previous
@@ -1209,9 +1236,9 @@
     coordinate system has been transformed (translated, rotated, scaled, or
     sheared) as above.
 
-    In this case the coordinate system is first translated and then rotated.
-    If the rectangle QRect(33, -4, 15, 8) had been drawn in the translated
-    coordinate system, it would have looked like this:
+    In this case the coordinate system is first translated and then
+    rotated. If the rectangle QRect(30, -5, 20, 10) had been drawn in
+    the translated coordinate system, it would have looked like this:
 
     \image t9_1.png The cannon translated but not rotated
 
@@ -1247,7 +1274,7 @@
 
     \title Qt Tutorial 10 - Smooth as Silk
 
-    \image t10.png Screenshot of tutorial ten
+    \image t10.png Screenshot of Chapter 10
 
     In this example, we add a force control.
 
@@ -1383,7 +1410,7 @@
 
     \title Qt Tutorial 11 - Giving It a Shot
 
-    \image t11.png Screenshot of tutorial eleven
+    \image t11.png Screenshot of Chapter 11
 
     In this example we introduce a timer to implement animated shooting.
 
@@ -1570,7 +1597,7 @@
 
     \title Qt Tutorial 12 - Hanging in the Air the Way Bricks Don't
 
-    \image t12.png Screenshot of tutorial twelve
+    \image t12.png Screenshot of Chapter 12
 
     In this example, we extend our \c LCDRange class to include a
     text label. We also provide something to shoot at.
@@ -1857,7 +1884,7 @@
 
     \title Qt Tutorial 13 - Game Over
 
-    \image t13.png Screenshot of tutorial thirteen
+    \image t13.png Screenshot of Chapter 13
 
     In this example we start to approach a real playable game with a
     score. We give \c MyWidget a new name (\c{GameBoard}) and add some
@@ -2059,12 +2086,10 @@
     \printuntil addStretch
     \printline addWidget
 
-    The number of widgets in the top-right cell is getting large. Once it
-    was empty; now it's full enough that we group together the layout
-    setting for better overview.
-
-    Notice that we let all the widgets have their preferred sizes, instead
-    putting the stretch just to the left of the \gui{New Game} button.
+    The top-right cell of the QGridLayout is starting to get crowded.
+    We put a stretch just to the left of the \gui{New Game} button to
+    ensure that this button will always appear on the right side of
+    the window.
 
     \skipto newGame
     \printline newGame
@@ -2133,7 +2158,7 @@
 
     \title Qt Tutorial 14 - Facing the Wall
 
-    \image t14.png Screenshot of tutorial fourteen
+    \image t14.png Screenshot of Chapter 14
 
     This is the final example: a complete game.
 
@@ -2294,7 +2319,8 @@
     \printline QFrame
     \printline setFrameStyle
 
-    We create and set up a QFrame, and set its frame style.
+    We create and set up a QFrame, and set its frame style. This
+    results in a 3D frame around the \c CannonField.
 
     \skipto QShortcut
     \printline QShortcut
