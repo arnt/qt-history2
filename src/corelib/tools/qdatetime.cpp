@@ -2447,7 +2447,7 @@ int QDateTime::daysTo(const QDateTime &other) const
     \code
         QDateTime now = QDateTime::currentDateTime();
         QDateTime xmas(QDate(now.date().year(), 12, 25), QTime(0, 0));
-        qDebug("There are %d seconds to Christmas", dt.secsTo(xmas));
+        qDebug("There are %d seconds to Christmas", now.secsTo(xmas));
     \endcode
 
     \sa addSecs(), daysTo(), QTime::secsTo()
