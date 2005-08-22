@@ -824,6 +824,10 @@
        OLE and accessible from the running object table (ie. clients
        can connect to an already running instance of this class). This
        attribute is only supported in out-of-process servers.
+    \o MIME
+    \o The object can handle data and files of the format specified in the 
+       value. The value has the format mime:extension:description. Multiple 
+       formats are separated by a semicolon.
     \endtable
 
     Note that both keys and values are case sensitive.
