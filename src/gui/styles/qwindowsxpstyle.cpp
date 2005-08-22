@@ -1963,6 +1963,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             QRect vTextRect = textRect;
             QString s = menuitem->text;
             if (!s.isEmpty()) {
+                p->save();
                 int t = s.indexOf('\t');
                 int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 if (!styleHint(SH_UnderlineShortcut, menuitem, widget))
@@ -1979,12 +1980,17 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                     p->drawText(vShortcutRect, text_flags, s.mid(t + 1));
                     s = s.left(t);
                 }
+                QFont font = menuitem->font;
+                if (menuitem->menuItemType == QStyleOptionMenuItem::DefaultItem)
+                    font.setBold(true);
+                p->setFont(font);
                 if (dis && !act) {
                     p->setPen(menuitem->palette.light().color());
                     p->drawText(vTextRect.adjusted(1,1,1,1), text_flags, s.left(t));
                     p->setPen(textColor);
                 }
                 p->drawText(vTextRect, text_flags, s);
+                p->restore();
             }
 
             // draw sub menu arrow --------------------------------------------

@@ -135,7 +135,7 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
             } else {
                 QKeySequence seq = action->shortcut();
                 if (!seq.isEmpty())
-                    tabWidth = qMax(int(tabWidth), fm.width(seq));
+                    tabWidth = qMax(int(tabWidth), qfm.width(seq));
 #endif
             }
             int w = fm.width(s);
