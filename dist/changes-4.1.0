@@ -1,0 +1,68 @@
+****************************************************************************
+*                          Important Notices                               *
+****************************************************************************
+
+
+****************************************************************************
+*                             New Features                                 *
+****************************************************************************
+
+ActiveQt
+--------
+
+QAxServer now supports mime-type handling - a ActiveX control can be 
+registered to handle a certain file extension and mime-type, in which case
+QAxBindable::load and QAxBindable::save can be reimplemented to serialize
+the object.
+
+
+****************************************************************************
+*                                Changes                                   *
+****************************************************************************
+
+Qt Designer
+-----------
+
+
+Qt Linguist
+-----------
+
+
+Qt 3 to 4 Porting Tool
+----------------------
+
+
+Meta Object Compiler (moc)
+--------------------------
+
+
+Qt Assistant
+------------
+
+
+General Fixes
+-------------
+
+
+Platform-Specific Issues
+------------------------
+
+Windows:
+
+
+X11:
+
+
+UNIX:
+
+
+Mac OS X:
+
+
+Tools
+-----
+
+
+
+Documentation
+-------------
