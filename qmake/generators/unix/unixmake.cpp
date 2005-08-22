@@ -132,7 +132,14 @@ UnixMakefileGenerator::init()
         QString prefix_flags = project->first("QMAKE_CFLAGS_PREFIX_INCLUDE");
         if(prefix_flags.isEmpty())
             prefix_flags = "-include";
-        compile_flag += " " + prefix_flags + " " + project->first("QMAKE_ORIG_TARGET");
+        QString includename;
+        if(!project->isEmpty("OBJECTS_DIR")) {
+            includename = Option::fixPathToTargetOS(project->first("OBJECTS_DIR"));
+            if(!includename.endsWith(Option::dir_sep))
+                includename += Option::dir_sep;
+        }
+        includename += project->first("QMAKE_ORIG_TARGET");
+        compile_flag += " " + prefix_flags + " " + includename;
     }
     if(project->isEmpty("QMAKE_RUN_CC"))
         project->variables()["QMAKE_RUN_CC"].append("$(CC) " + compile_flag + " $(CFLAGS) $(INCPATH) -o $obj $src");
@@ -275,7 +282,10 @@ QStringList
     // as dependency, so don't add precompiled header then
     if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPILED_HEADER")
        && file != project->first("QMAKE_IMAGE_COLLECTION")) {
-        QString header_prefix = project->first("QMAKE_ORIG_TARGET") + ".gch" + Option::dir_sep;
+        QString header_prefix;
+        if(!project->isEmpty("OBJECTS_DIR"))
+            header_prefix = project->first("OBJECTS_DIR");
+        header_prefix += project->first("QMAKE_ORIG_TARGET") + ".gch" + Option::dir_sep;
         header_prefix += project->first("QMAKE_PRECOMP_PREFIX");
         if(file.endsWith(".c")) {
             QString precomp_h = header_prefix + "c";

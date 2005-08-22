@@ -161,7 +161,7 @@ MakefileGenerator::initOutPaths()
     //some builtin directories
     QString dirs[] = { QString("OBJECTS_DIR"), QString("DESTDIR"),
                        QString("SUBLIBS_DIR"), QString("DLLDESTDIR"),
-                       QString() };
+                       QString("PRECOMPILED_DIR"), QString() };
     for(int x = 0; true; x++) {
         if(dirs[x].isNull())
             break;
