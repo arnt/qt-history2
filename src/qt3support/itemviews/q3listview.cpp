@@ -6113,7 +6113,7 @@ void Q3CheckListItem::setState(ToggleState s, bool update, bool store)
              && ((Q3CheckListItem*)parent())->type() == CheckBoxController)
             ((Q3CheckListItem*)parent())->updateController(update, store);
     } else if (myType == CheckBoxController) {
-        if (s == NoChange) {
+        if (s == NoChange && childCount()) {
             restoreState(this);
         } else {
             Q3ListViewItem *item = firstChild();
