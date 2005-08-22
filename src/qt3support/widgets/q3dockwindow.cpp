@@ -1384,7 +1384,8 @@ void Q3DockWindow::updatePosition(const QPoint &globalPos)
         QApplication::sendPostedEvents(this, QEvent::LayoutHint);
         if (qobject_cast<Q3ToolBar*>(this))
             adjustSize();
-        setAttribute(Qt::WA_Resized, false); // Ensures size is recalculated (non-opaque).
+        if (lastSize == QSize(-1, -1))
+            setAttribute(Qt::WA_Resized, false); // Ensures size is recalculated (non-opaque).
         show();
         if (parentWidget() && isWindow())
             parentWidget()->setActiveWindow();
@@ -1847,7 +1848,8 @@ void Q3DockWindow::undock(QWidget *w)
         adjustSize();
     if (!w) {
         if (!parentWidget() || parentWidget()->isVisible()) {
-            setAttribute(Qt::WA_Resized, false);// Ensures size is recalculated (opaque).
+            if (lastSize == QSize(-1, -1))
+                setAttribute(Qt::WA_Resized, false);// Ensures size is recalculated (opaque).
             show();
         }
     } else {
