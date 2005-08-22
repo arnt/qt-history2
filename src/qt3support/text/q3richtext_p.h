@@ -855,7 +855,7 @@ public:
 #endif
 
     void setPlainText(const QString &text);
-    void setRichText(const QString &text, const QString &context);
+    void setRichText(const QString &text, const QString &context, const Q3TextFormat *initialFormat = 0);
     QString richText() const;
     QString plainText() const;
 
@@ -908,7 +908,7 @@ private:
     QChar parseHTMLSpecialChar(const QChar* doc, int length, int& pos);
     QString parseWord(const QChar* doc, int length, int& pos, bool lower = true);
     QChar parseChar(const QChar* doc, int length, int& pos, Q3StyleSheetItem::WhiteSpaceMode wsm);
-    void setRichTextInternal(const QString &text, Q3TextCursor* cursor = 0);
+    void setRichTextInternal(const QString &text, Q3TextCursor* cursor = 0, const Q3TextFormat *initialFormat = 0);
     void setRichTextMarginsInternal(QList< QVector<Q3StyleSheetItem *> *>& styles, Q3TextParagraph* stylesPar);
 
     struct Q_COMPAT_EXPORT Focus {

@@ -1550,7 +1550,7 @@ struct Q3TextDocumentTag {
     } while(false);
 
 
-void Q3TextDocument::setRichText(const QString &text, const QString &context)
+void Q3TextDocument::setRichText(const QString &text, const QString &context, const Q3TextFormat *initialFormat)
 {
     preferRichText = true;
     if (!context.isEmpty())
@@ -1559,16 +1559,18 @@ void Q3TextDocument::setRichText(const QString &text, const QString &context)
     fParag = lParag = createParagraph(this);
     oTextValid = true;
     oText = text;
-    setRichTextInternal(text);
+    setRichTextInternal(text, 0, initialFormat);
     fParag->rtext = true;
 }
 
-void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* cursor)
+void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* cursor, const Q3TextFormat *initialFormat)
 {
     Q3TextParagraph* curpar = lParag;
     int pos = 0;
     QStack<Q3TextDocumentTag> tags;
-    Q3TextDocumentTag initag("", sheet_->item(""), *formatCollection()->defaultFormat());
+    if (!initialFormat)
+        initialFormat = formatCollection()->defaultFormat();
+    Q3TextDocumentTag initag("", sheet_->item(""), *initialFormat);
     if (bodyText.isValid())
         initag.format.setColor(bodyText);
     Q3TextDocumentTag curtag = initag;
@@ -8045,8 +8047,7 @@ Q3TextTableCell::Q3TextTableCell(Q3TextTable* table,
     richtext->setUseFormatCollection(table->parent->useFormatCollection());
     richtext->setMimeSourceFactory(&factory);
     richtext->setStyleSheet(sheet);
-    richtext->setDefaultFormat(fmt.font(), fmt.color());
-    richtext->setRichText(doc, context);
+    richtext->setRichText(doc, context, &fmt);
     rowspan_ = 1;
     colspan_ = 1;
 
