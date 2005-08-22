@@ -513,7 +513,18 @@ void Configure::parseCmdLine()
 	    ++i;
 	    if (i==argCount)
 		break;
-	    qmakeLibs += configCmdLine.at(i);
+            QFileInfo check(configCmdLine.at(i));
+            if (!check.isDir()) {
+                cout << "Argument passed to -L option is not a directory path. Did you mean the -l option?" << endl;
+                dictionary[ "DONE" ] = "error";
+                break;
+            }
+	    qmakeLibs += QString("-L" + configCmdLine.at(i));
+	} else if( configCmdLine.at(i) == "-l" ) {
+	    ++i;
+	    if (i==argCount)
+		break;
+	    qmakeLibs += QString("-l" + configCmdLine.at(i));
 	}
 
         else if( ( configCmdLine.at(i) == "-override-version" ) || ( configCmdLine.at(i) == "-version-override" ) ){
@@ -898,7 +909,8 @@ bool Configure::displayHelp()
 #if !defined(EVAL)
         desc(                   "-D <define>",          "Add an explicit define to the preprocessor.");
         desc(                   "-I <includepath>",     "Add an explicit include path.");
-        desc(                   "-L <librarypath>",     "Add an explicit library path.\n");
+        desc(                   "-L <librarypath>",     "Add an explicit library path.");
+        desc(                   "-l <libraryname>",     "Add an explicit library name, residing in a librarypath.\n");
 #endif
 
         desc(                   "-help, -h, -?",        "Display this information.\n");
