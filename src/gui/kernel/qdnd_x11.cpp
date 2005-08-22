@@ -915,8 +915,11 @@ Window findRealWindow(const QPoint & pos, Window w, int md)
         return 0;
 
     if (md) {
+        X11->ignoreBadwindow();
         XWindowAttributes attr;
         XGetWindowAttributes(X11->display, w, &attr);
+        if (X11->badwindow())
+            return 0;
 
         if (attr.map_state == IsViewable
             && QRect(attr.x,attr.y,attr.width,attr.height).contains(pos)) {
@@ -960,7 +963,11 @@ Window findRealWindow(const QPoint & pos, Window w, int md)
 void QDragManager::move(const QPoint & globalPos)
 {
     DEBUG() << "QDragManager::move enter";
-    Q_ASSERT(object != 0);
+    if (!object) {
+        // perhaps the target crashed?
+        return;
+    }
+
     int screen = QCursor::x11Screen();
     if ((qt_xdnd_current_screen == -1 && screen != X11->defaultScreen) || (screen != qt_xdnd_current_screen)) {
         // recreate the pixmap on the new screen...
