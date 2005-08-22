@@ -1119,6 +1119,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t\t" << "SECTORDER_FLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "WARNING_CFLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "PREBINDING = " << (project->isEmpty("QMAKE_DO_PREBINDING") ? "NO" : "YES") << ";" << "\n";
+    if(project->isActiveConfig("debug"))
+        t << "\t\t\t\t" << "GCC_OPTIMIZATION_LEVEL = 0" << ";" << "\n";
     if(!project->isEmpty("PRECOMPILED_HEADER")) {
         if(pbVersion >= 38) {
             t << "\t\t\t\t" << "GCC_PRECOMPILE_PREFIX_HEADER = \"YES\";" << "\n"
@@ -1515,9 +1517,9 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
         if(version.isEmpty() && version_plist.contains("Xcode")) {
             ret = "39";
         } else {
-            if(version == "2.1")
+            if(version.startsWith("2."))
                 ret = "42";
-            else if(version == "1.5" || version.startsWith("2."))
+            else if(version == "1.5")
                 ret = "39";
             else if(version == "1.1")
                 ret = "34";
