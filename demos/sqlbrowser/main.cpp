@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     mainWin.setCentralWidget(&browser);
 
     QMenu *menu = mainWin.menuBar()->addMenu(QObject::tr("&File"));
-    menu->addAction(QObject::tr("Add &connection"), &browser, SLOT(addConnection()));
+    menu->addAction(QObject::tr("Add &Connection..."), &browser, SLOT(addConnection()));
     menu->addSeparator();
     menu->addAction(QObject::tr("&Quit"), &app, SLOT(quit()));
 
