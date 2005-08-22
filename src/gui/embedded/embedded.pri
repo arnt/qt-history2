@@ -55,6 +55,7 @@ embedded {
 		../3rdparty/freetype/src/base/ftglyph.c \
 		../3rdparty/freetype/src/base/ftinit.c \
 		../3rdparty/freetype/src/base/ftmm.c \
+                ../3rdparty/freetype/src/base/ftbitmap.c\
 		../3rdparty/freetype/src/bdf/bdf.c \
 		../3rdparty/freetype/src/cache/ftcache.c \
 		../3rdparty/freetype/src/cff/cff.c \
@@ -72,7 +73,23 @@ embedded {
 		../3rdparty/freetype/src/type1/type1.c \
 		../3rdparty/freetype/src/type42/type42.c \
 		../3rdparty/freetype/src/winfonts/winfnt.c \
-		../3rdparty/freetype/src/lzw/ftlzw.c
+		../3rdparty/freetype/src/lzw/ftlzw.c\
+                ../3rdparty/freetype/src/otvalid/otvalid.c\
+                ../3rdparty/freetype/src/otvalid/otvbase.c\
+                ../3rdparty/freetype/src/otvalid/otvgdef.c\
+                ../3rdparty/freetype/src/otvalid/otvjstf.c\
+                ../3rdparty/freetype/src/otvalid/otvcommn.c\
+                ../3rdparty/freetype/src/otvalid/otvgpos.c\
+                ../3rdparty/freetype/src/otvalid/otvgsub.c\
+                ../3rdparty/freetype/src/otvalid/otvmod.c\
+                ../3rdparty/freetype/src/autofit/afangles.c\
+                ../3rdparty/freetype/src/autofit/afglobal.c\
+                ../3rdparty/freetype/src/autofit/aflatin.c\
+                ../3rdparty/freetype/src/autofit/afmodule.c\
+                ../3rdparty/freetype/src/autofit/afdummy.c\
+                ../3rdparty/freetype/src/autofit/afhints.c\
+                ../3rdparty/freetype/src/autofit/afloader.c\
+                ../3rdparty/freetype/src/autofit/autofit.c
 
 	    INCLUDEPATH += \
 		../3rdparty/freetype/src \
