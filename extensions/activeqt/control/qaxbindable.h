@@ -17,6 +17,7 @@
 #include <QtGui/qwidget.h>
 
 class QAxAggregated;
+class QIODevice;
 struct IAxServerBase;
 struct IUnknown;
 
@@ -29,6 +30,9 @@ public:
 
     virtual QAxAggregated *createAggregate();
     void reportError(int code, const QString &src, const QString &desc, const QString &help = QString());
+
+    virtual bool load(QIODevice *source);
+    virtual bool save(QIODevice *sink);
 
 protected:
     bool requestPropertyChange(const char *property);

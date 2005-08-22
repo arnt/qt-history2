@@ -2681,6 +2681,11 @@ HRESULT WINAPI QAxServerBase::Load(IStream *pStm)
     }
 
     QBuffer qtbuffer(&qtarray);
+    QAxBindable *axb = (QAxBindable*)qt.object->qt_metacast("QAxBindable");
+    if (axb && axb->load(&qtbuffer))
+        return S_OK;
+
+    qtbuffer.close(); // resets
     qtbuffer.open(QIODevice::ReadOnly | QIODevice::Text);
     QDataStream qtstream(&qtbuffer);
     int version;
@@ -2710,30 +2715,34 @@ HRESULT WINAPI QAxServerBase::Load(IStream *pStm)
 HRESULT WINAPI QAxServerBase::Save(IStream *pStm, BOOL clearDirty)
 {
     QBuffer qtbuffer;
-    qtbuffer.open(QIODevice::WriteOnly | QIODevice::Text);
-    QDataStream qtstream(&qtbuffer);
-    qtstream << qtstream.version();
+    QAxBindable *axb = (QAxBindable*)qt.object->qt_metacast("QAxBindable");
+    if (!axb || !axb->save(&qtbuffer)) {
+        qtbuffer.open(QIODevice::WriteOnly | QIODevice::Text);
+        QDataStream qtstream(&qtbuffer);
+        qtstream << qtstream.version();
 
-    const QMetaObject *mo = qt.object->metaObject();
+        const QMetaObject *mo = qt.object->metaObject();
 
-    for (int prop = 0; prop < mo->propertyCount(); ++prop) {
-	if (!isPropertyExposed(prop))
-	    continue;
-	QMetaProperty metaprop = mo->property(prop);
-        if (QByteArray(metaprop.typeName()).endsWith('*'))
-            continue;
-	QString property = QLatin1String(metaprop.name());
-	QVariant qvar = qt.object->property(metaprop.name());
-	if (qvar.isValid()) {
-	    qtstream << int(1);
-	    qtstream << property;
-	    qtstream << qvar;
-	}
+        for (int prop = 0; prop < mo->propertyCount(); ++prop) {
+	    if (!isPropertyExposed(prop))
+	        continue;
+	    QMetaProperty metaprop = mo->property(prop);
+            if (QByteArray(metaprop.typeName()).endsWith('*'))
+                continue;
+	    QString property = QLatin1String(metaprop.name());
+	    QVariant qvar = qt.object->property(metaprop.name());
+	    if (qvar.isValid()) {
+	        qtstream << int(1);
+	        qtstream << property;
+	        qtstream << qvar;
+	    }
+        }
+
+        qtstream << int(0);
+
+        qtbuffer.close();
     }
 
-    qtstream << int(0);
-
-    qtbuffer.close();
     QByteArray qtarray = qtbuffer.buffer();
     ULONG written = 0;
     const char *data = qtarray.constData();
@@ -3511,7 +3520,7 @@ HRESULT WINAPI QAxServerBase::Close(DWORD dwSaveOption)
     return S_OK;
 }
 
-bool qax_disable_inplaceframe = false;
+bool qax_disable_inplaceframe = true;
 
 /*
     Executes the steps to activate the control.

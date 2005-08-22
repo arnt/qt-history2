@@ -175,6 +175,36 @@ void QAxBindable::reportError(int code, const QString &src, const QString &desc,
 }
 
 /*!
+    Reimplement this virtual function to initialize the COM object
+    from the data in \a source. Return true to indicate success. If
+    the function returns false, then ActiveQt will process the data 
+    by setting the properties through the meta object system.
+
+    You have to open \a source for reading before you can read from it.
+
+    The default implementation does nothing and returns false.
+*/
+bool QAxBindable::load(QIODevice *source)
+{
+    return false;
+}
+
+/*!
+    Reimplement this virtual function to store the COM object in
+    \a sink. Return true to indicate success. If the function returns 
+    false, then ActiveQt will serialize the object by storing the property
+    values.
+
+    You have to open \a sink for writing before you can write to it.
+
+    The default implementation does nothing and returns false.
+*/
+bool QAxBindable::save(QIODevice *sink)
+{
+    return false;
+}
+
+/*!
     \class QAxAggregated
     \brief The QAxAggregated class is an abstract base class for implementations of
     additional COM interfaces.
