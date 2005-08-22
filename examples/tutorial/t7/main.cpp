@@ -11,16 +11,9 @@
 **
 ****************************************************************************/
 
-/****************************************************************
-**
-** Qt tutorial 7
-**
-****************************************************************/
-
 #include <QApplication>
 #include <QFont>
 #include <QGridLayout>
-#include <QLCDNumber>
 #include <QPushButton>
 #include <QWidget>
 
@@ -35,7 +28,7 @@ public:
 MyWidget::MyWidget(QWidget *parent)
     : QWidget(parent)
 {
-    QPushButton *quit = new QPushButton("Quit");
+    QPushButton *quit = new QPushButton(tr("Quit"));
     quit->setFont(QFont("Times", 18, QFont::Bold));
 
     connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));
@@ -43,8 +36,8 @@ MyWidget::MyWidget(QWidget *parent)
     QGridLayout *grid = new QGridLayout;
     LCDRange *previousRange = 0;
 
-    for (int row = 0; row < 4; ++row) {
-        for (int column = 0; column < 4; ++column) {
+    for (int row = 0; row < 3; ++row) {
+        for (int column = 0; column < 3; ++column) {
             LCDRange *lcdRange = new LCDRange;
             grid->addWidget(lcdRange, row, column);
             if (previousRange)

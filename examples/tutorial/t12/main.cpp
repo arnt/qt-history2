@@ -11,17 +11,10 @@
 **
 ****************************************************************************/
 
-/****************************************************************
-**
-** Qt tutorial 12
-**
-****************************************************************/
-
 #include <QApplication>
 #include <QFont>
 #include <QGridLayout>
 #include <QHBoxLayout>
-#include <QLCDNumber>
 #include <QPushButton>
 #include <QVBoxLayout>
 
@@ -37,15 +30,15 @@ public:
 MyWidget::MyWidget(QWidget *parent)
     : QWidget(parent)
 {
-    QPushButton *quit = new QPushButton("&Quit");
+    QPushButton *quit = new QPushButton(tr("&Quit"));
     quit->setFont(QFont("Times", 18, QFont::Bold));
 
     connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));
 
-    LCDRange *angle = new LCDRange("ANGLE");
+    LCDRange *angle = new LCDRange(tr("ANGLE"));
     angle->setRange(5, 70);
 
-    LCDRange *force = new LCDRange("FORCE");
+    LCDRange *force = new LCDRange(tr("FORCE"));
     force->setRange(10, 50);
 
     CannonField *cannonField = new CannonField;
@@ -60,7 +53,7 @@ MyWidget::MyWidget(QWidget *parent)
     connect(cannonField, SIGNAL(forceChanged(int)),
             force, SLOT(setValue(int)));
 
-    QPushButton *shoot = new QPushButton("&Shoot");
+    QPushButton *shoot = new QPushButton(tr("&Shoot"));
     shoot->setFont(QFont("Times", 18, QFont::Bold));
 
     connect(shoot, SIGNAL(clicked()), cannonField, SLOT(shoot()));

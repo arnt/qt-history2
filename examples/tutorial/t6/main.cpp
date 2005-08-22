@@ -11,12 +11,6 @@
 **
 ****************************************************************************/
 
-/****************************************************************
-**
-** Qt tutorial 6
-**
-****************************************************************/
-
 #include <QApplication>
 #include <QFont>
 #include <QGridLayout>
@@ -36,6 +30,8 @@ LCDRange::LCDRange(QWidget *parent)
     : QWidget(parent)
 {
     QLCDNumber *lcd = new QLCDNumber(2);
+    lcd->setSegmentStyle(QLCDNumber::Filled);
+
     QSlider *slider = new QSlider(Qt::Horizontal);
     slider->setRange(0, 99);
     slider->setValue(0);
@@ -57,14 +53,15 @@ public:
 MyWidget::MyWidget(QWidget *parent)
     : QWidget(parent)
 {
-    QPushButton *quit = new QPushButton("Quit");
+    QPushButton *quit = new QPushButton(tr("Quit"));
     quit->setFont(QFont("Times", 18, QFont::Bold));
     connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));
 
     QGridLayout *grid = new QGridLayout;
-    for (int row = 0; row < 4; ++row) {
-        for (int column = 0; column < 4; ++column) {
-            grid->addWidget(new LCDRange, row, column);
+    for (int row = 0; row < 3; ++row) {
+        for (int column = 0; column < 3; ++column) {
+            LCDRange *lcdRange = new LCDRange;
+            grid->addWidget(lcdRange, row, column);
         }
     }
 

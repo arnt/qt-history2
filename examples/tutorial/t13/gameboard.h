@@ -11,12 +11,6 @@
 **
 ****************************************************************************/
 
-/****************************************************************
-**
-** Definition of GameBoard class, Qt tutorial 13
-**
-****************************************************************/
-
 #ifndef GAMEBOARD_H
 #define GAMEBOARD_H
 
@@ -44,4 +38,4 @@ private:
     CannonField *cannonField;
 };
 
-#endif // GAMEBOARD_H
+#endif

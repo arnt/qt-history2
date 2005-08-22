@@ -11,16 +11,9 @@
 **
 ****************************************************************************/
 
-/****************************************************************
-**
-** Qt tutorial 8
-**
-****************************************************************/
-
 #include <QApplication>
 #include <QFont>
 #include <QGridLayout>
-#include <QLCDNumber>
 #include <QPushButton>
 
 #include "cannonfield.h"
@@ -35,7 +28,7 @@ public:
 MyWidget::MyWidget(QWidget *parent)
     : QWidget(parent)
 {
-    QPushButton *quit = new QPushButton("Quit");
+    QPushButton *quit = new QPushButton(tr("Quit"));
     quit->setFont(QFont("Times", 18, QFont::Bold));
 
     connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));

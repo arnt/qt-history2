@@ -11,12 +11,6 @@
 **
 ****************************************************************************/
 
-/****************************************************************
-**
-** Implementation CannonField class, Qt tutorial 12
-**
-****************************************************************/
-
 #include <QDateTime>
 #include <QPaintEvent>
 #include <QPainter>
@@ -131,7 +125,7 @@ void CannonField::paintTarget(QPainter &painter)
     painter.drawRect(targetRect());
 }
 
-const QRect barrelRect(33, -4, 15, 8);
+const QRect barrelRect(30, -5, 20, 10);
 
 void CannonField::paintCannon(QPainter &painter)
 {
@@ -157,7 +151,7 @@ QRect CannonField::shotRect() const
 {
     const double gravity = 4;
 
-    double time = timerCount / 40.0;
+    double time = timerCount / 20.0;
     double velocity = shootForce;
     double radians = shootAngle * 3.14159265 / 180;
 

@@ -11,12 +11,6 @@
 **
 ****************************************************************************/
 
-/****************************************************************
-**
-** Implementation of GameBoard class, Qt tutorial 13
-**
-****************************************************************/
-
 #include <QApplication>
 #include <QFont>
 #include <QGridLayout>
@@ -33,15 +27,15 @@
 GameBoard::GameBoard(QWidget *parent)
     : QWidget(parent)
 {
-    QPushButton *quit = new QPushButton("&Quit");
+    QPushButton *quit = new QPushButton(tr("&Quit"));
     quit->setFont(QFont("Times", 18, QFont::Bold));
 
     connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));
 
-    LCDRange *angle = new LCDRange("ANGLE");
+    LCDRange *angle = new LCDRange(tr("ANGLE"));
     angle->setRange(5, 70);
 
-    LCDRange *force = new LCDRange("FORCE");
+    LCDRange *force = new LCDRange(tr("FORCE"));
     force->setRange(10, 50);
 
     cannonField = new CannonField;
@@ -61,7 +55,7 @@ GameBoard::GameBoard(QWidget *parent)
     connect(cannonField, SIGNAL(missed()),
             this, SLOT(missed()));
 
-    QPushButton *shoot = new QPushButton("&Shoot");
+    QPushButton *shoot = new QPushButton(tr("&Shoot"));
     shoot->setFont(QFont("Times", 18, QFont::Bold));
 
     connect(shoot, SIGNAL(clicked()),
@@ -69,15 +63,19 @@ GameBoard::GameBoard(QWidget *parent)
     connect(cannonField, SIGNAL(canShoot(bool)),
             shoot, SLOT(setEnabled(bool)));
 
-    QPushButton *restart = new QPushButton("&New Game");
+    QPushButton *restart = new QPushButton(tr("&New Game"));
     restart->setFont(QFont("Times", 18, QFont::Bold));
 
     connect(restart, SIGNAL(clicked()), this, SLOT(newGame()));
 
     hits = new QLCDNumber(2);
+    hits->setSegmentStyle(QLCDNumber::Filled);
+
     shotsLeft = new QLCDNumber(2);
-    QLabel *hitsLabel = new QLabel("HITS");
-    QLabel *shotsLeftLabel = new QLabel("SHOTS LEFT");
+    shotsLeft->setSegmentStyle(QLCDNumber::Filled);
+
+    QLabel *hitsLabel = new QLabel(tr("HITS"));
+    QLabel *shotsLeftLabel = new QLabel(tr("SHOTS LEFT"));
 
     QHBoxLayout *topLayout = new QHBoxLayout;
     topLayout->addWidget(shoot);
