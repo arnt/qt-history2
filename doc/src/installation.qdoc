@@ -58,8 +58,8 @@ The installation procedure is different for the different Qt platforms:
     To configure the Qt library for your machine type:
 
 \code
-        cd /tmp/%DISTNAME%
-        ./configure
+    cd /tmp/qt-x11-opensource-desktop-%VERSION%
+    ./configure
 \endcode
 
     Type \c{./configure -help} to get a list of all available options.
@@ -68,14 +68,14 @@ The installation procedure is different for the different Qt platforms:
     and tutorials, type:
 
 \code
-        make
+    make
 \endcode
 
     To install the library, demos, examples, tools, and tutorials,
     type:
 
 \code
-        su -c "make install"
+    su -c "make install"
 \endcode
 
     and enter the root password. Qt is by default installed into
@@ -92,7 +92,7 @@ The installation procedure is different for the different Qt platforms:
     extended.
 
 \code
-        PATH               - to locate qmake, moc and other Qt tools
+    PATH               - to locate qmake, moc and other Qt tools
 \endcode
 
     This is done like this:
@@ -101,14 +101,14 @@ The installation procedure is different for the different Qt platforms:
     following lines:
 
 \code
-        PATH=/usr/local/Trolltech/Qt-%VERSION%/bin:$PATH
-        export PATH
+    PATH=/usr/local/Trolltech/Qt-%VERSION%/bin:$PATH
+    export PATH
 \endcode
 
     In \c{.login} (in case your shell is csh or tcsh), add the following line:
 
 \code
-        setenv PATH /usr/local/Trolltech/Qt-%VERSION%/bin:$PATH
+    setenv PATH /usr/local/Trolltech/Qt-%VERSION%/bin:$PATH
 \endcode
 
     If you use a different shell, please modify your environment
@@ -175,7 +175,7 @@ The installation procedure is different for the different Qt platforms:
     This is done by pasing \c{-platform <spec>} to configure; for example:
 
 \code
-  configure -platform win32-msvc
+    configure -platform win32-msvc
 \endcode
 
     In some cases you need to set up the compilation environment before running
@@ -192,7 +192,7 @@ The installation procedure is different for the different Qt platforms:
     compile all the demos, examples, tools and tutorials type:
 
 \code
-        nmake
+    nmake
 \endcode
 
 \o Environment variables
@@ -201,7 +201,7 @@ The installation procedure is different for the different Qt platforms:
    extended.
 
 \code
-        PATH               - to locate qmake, moc and other Qt tools
+    PATH               - to locate qmake, moc and other Qt tools
 \endcode
 
    This is done by adding \c{c:\Qt\%VERSION%\bin} to the \c PATH variable.
@@ -259,7 +259,7 @@ The installation procedure is different for the different Qt platforms:
     To configure the Qt library for your machine type:
 
 \code
-    cd /tmp/%DISTNAME%
+    cd /tmp/qt-mac-opensource-desktop-%VERSION%
     ./configure
 \endcode
 
@@ -269,14 +269,14 @@ The installation procedure is different for the different Qt platforms:
     and tutorials, type:
 
 \code
-        make
+    make
 \endcode
 
     To install the library, demos, examples, tools, and tutorials,
     type:
 
 \code
-        su -c "make install"
+    su -c "make install"
 \endcode
 
     and enter the root password. Qt is by default installed into
@@ -289,7 +289,7 @@ The installation procedure is different for the different Qt platforms:
     extended.
 
 \code
-        PATH               - to locate qmake, moc and other Qt tools
+    PATH               - to locate qmake, moc and other Qt tools
 \endcode
 
     This is done like this:
@@ -297,14 +297,14 @@ The installation procedure is different for the different Qt platforms:
     In \c{.profile} (if your shell is bash), add the following lines:
 
 \code
-        PATH=/usr/local/Trolltech/Qt-%VERSION%/bin:$PATH
-        export PATH
+    PATH=/usr/local/Trolltech/Qt-%VERSION%/bin:$PATH
+    export PATH
 \endcode
 
     In \c{.login} (in case your shell is csh or tcsh), add the following line:
 
 \code
-        setenv PATH /usr/local/Trolltech/Qt-%VERSION%/bin:$PATH
+    setenv PATH /usr/local/Trolltech/Qt-%VERSION%/bin:$PATH
 \endcode
 
     If you use a different shell, please modify your environment
