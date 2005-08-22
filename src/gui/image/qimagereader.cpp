@@ -766,9 +766,29 @@ QByteArray QImageReader::imageFormat(QIODevice *device)
 }
 
 /*!
-    Returns a list of image formats supported by QImageReader.
+    Returns the list of image formats supported by QImageReader.
 
-    \sa setFormat(), QImageWriter::supportedImageFormats()
+    By default, Qt can read the following formats:
+
+    \table
+    \header \o Format \o Description
+    \row    \o BMP    \o Windows Bitmap
+    \row    \o GIF    \o Graphic Interchange Format (optional)
+    \row    \o JPG    \o Joint Photographic Experts Group
+    \row    \o JPEG   \o Joint Photographic Experts Group
+    \row    \o PNG    \o Portable Network Graphics
+    \row    \o PBM    \o Portable Bitmap
+    \row    \o PGM    \o Portable Graymap
+    \row    \o PPM    \o Portable Pixmap
+    \row    \o XBM    \o X11 Bitmap
+    \row    \o XPM    \o X11 Pixmap
+    \endtable
+
+    To configure Qt with GIF support, pass \c -qt-gif to the \c
+    configure script or check the appropriate option in the graphical
+    installer.
+
+    \sa setFormat(), QImageWriter::supportedImageFormats(), QImageIOPlugin
 */
 QList<QByteArray> QImageReader::supportedImageFormats()
 {

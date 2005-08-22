@@ -469,7 +469,20 @@ QString QImageWriter::errorString() const
 /*!
     Returns the list of image formats supported by QImageWriter.
 
-    \sa setFormat(), QImageReader::supportedImageFormats()
+    By default, Qt can write the following formats:
+
+    \table
+    \header \o Format \o Description
+    \row    \o BMP    \o Windows Bitmap
+    \row    \o JPG    \o Joint Photographic Experts Group
+    \row    \o JPEG   \o Joint Photographic Experts Group
+    \row    \o PNG    \o Portable Network Graphics
+    \row    \o PPM    \o Portable Pixmap
+    \row    \o XBM    \o X11 Bitmap
+    \row    \o XPM    \o X11 Pixmap
+    \endtable
+
+    \sa setFormat(), QImageReader::supportedImageFormats(), QImageIOPlugin
 */
 QList<QByteArray> QImageWriter::supportedImageFormats()
 {

@@ -326,12 +326,31 @@ QImageData::~QImageData()
     an image in-place, for example, setAlphaChannel(), setColor(),
     setDotsPerMeterX() and setDotsPerMeterY() and setNumColors().
 
-    Images can be loaded and saved in the supported formats. Images
-    are saved to a file with save(). Images are loaded from a file
-    with load() (or in the constructor) or from an array of data with
-    loadFromData(). The lists of supported formats are available from
-    QImageReader::supportedImageFormats() and
-    QImageWriter::supportedImageFormats().
+    Images can be loaded and saved in the supported file formats.
+    Images are saved to a file with save(). Images are loaded from a
+    file with load() (or in the constructor) or from an array of data
+    with loadFromData(). The lists of supported formats are available
+    from QImageReader::supportedImageFormats() and
+    QImageWriter::supportedImageFormats(). By default, Qt supports
+    the following formats:
+
+    \table
+    \header \o Format \o Description                      \o Qt's support
+    \row    \o BMP    \o Windows Bitmap                   \o Read/write
+    \row    \o GIF    \o Graphic Interchange Format (optional) \o Read
+    \row    \o JPG    \o Joint Photographic Experts Group \o Read/write
+    \row    \o JPEG   \o Joint Photographic Experts Group \o Read/write
+    \row    \o PNG    \o Portable Network Graphics        \o Read/write
+    \row    \o PBM    \o Portable Bitmap                  \o Read
+    \row    \o PGM    \o Portable Graymap                 \o Read
+    \row    \o PPM    \o Portable Pixmap                  \o Read/write
+    \row    \o XBM    \o X11 Bitmap                       \o Read/write
+    \row    \o XPM    \o X11 Pixmap                       \o Read/write
+    \endtable
+
+    (To configure Qt with GIF support, pass \c -qt-gif to the \c
+    configure script or check the appropriate option in the graphical
+    installer.)
 
     When loading an image, the file name can be either refer to an
     actual file on disk or to one of the application's embedded
