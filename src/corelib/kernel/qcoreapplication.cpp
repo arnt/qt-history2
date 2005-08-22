@@ -19,6 +19,7 @@
 #include "qeventloop.h"
 #include <qdatastream.h>
 #include <qdatetime.h>
+#include <qdebug.h>
 #include <qdir.h>
 #include <qfile.h>
 #include <qfileinfo.h>
@@ -147,7 +148,8 @@ static QThread* mainThread() { return QThread::currentThread(); }
 #endif
 
 QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc, char **aargv)
-    : QObjectPrivate(), argc(aargc), argv(aargv), application_type(0), eventFilter(0)
+    : QObjectPrivate(), argc(aargc), argv(aargv), application_type(0), eventFilter(0),
+      in_exec(false)
 {
     static const char *const empty = "";
     if (argc == 0 || argv == 0) {
@@ -625,8 +627,10 @@ int QCoreApplication::exec()
         return -1;
     }
     QEventLoop eventLoop;
+    self->d_func()->in_exec = true;
     int returnCode = eventLoop.exec();
     if (self) {
+        self->d_func()->in_exec = false;
         emit self->aboutToQuit();
         sendPostedEvents(0, QEvent::DeferredDelete);
     }
@@ -826,7 +830,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         doDeferredDeletion = true;
         event_type = 0;
     }
-    
+
     QThread *currentThread = QThread::currentThread();
     if (self) {
         // allow sendPostedEvents() to be called when QCoreApplication
@@ -875,7 +879,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
     }
 
     data->canWait = true;
-    
+
     // okay. here is the tricky loop. be careful about optimizing
     // this, it looks the way it does for good reasons.
     int i = 0;
@@ -892,7 +896,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
             data->canWait = false;
             continue;
         }
-        
+
         if (pe.event->type() == QEvent::DeferredDelete) {
             const QEventLoop *const savedEventLoop = reinterpret_cast<QEventLoop *>(pe.event->d);
             const QEventLoop *const currentEventLoop =

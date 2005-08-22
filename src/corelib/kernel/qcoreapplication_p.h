@@ -67,6 +67,8 @@ public:
 
     QCoreApplication::EventFilter eventFilter;
 
+    bool in_exec;
+
     static QAbstractEventDispatcher *eventDispatcher;
     static bool is_app_running;
     static bool is_app_closing;
