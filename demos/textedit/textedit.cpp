@@ -54,6 +54,8 @@ TextEdit::TextEdit(QWidget *parent)
     setupEditActions();
     setupTextActions();
 
+    setWindowTitle(tr("Rich Text [*]"));
+
     tabWidget = new QTabWidget(this);
     connect(tabWidget, SIGNAL(currentChanged(int)),
             this, SLOT(editorChanged()));
@@ -68,8 +70,6 @@ TextEdit::TextEdit(QWidget *parent)
         for (int i = 1; i < qApp->argc(); ++i)
             load(qApp->argv()[i]);
     }
-
-    setWindowTitle(tr("Rich Text [*]"));
 }
 
 void TextEdit::setupFileActions()
@@ -83,7 +83,7 @@ void TextEdit::setupFileActions()
 
     QAction *a;
 
-    a = new QAction(QIcon(rsrcPath + "/filenew.png"), tr("&New..."), this);
+    a = new QAction(QIcon(rsrcPath + "/filenew.png"), tr("&New"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_N);
     connect(a, SIGNAL(triggered()), this, SLOT(fileNew()));
     tb->addAction(a);
@@ -97,7 +97,7 @@ void TextEdit::setupFileActions()
 
     menu->addSeparator();
 
-    actionSave = a = new QAction(QIcon(rsrcPath + "/filesave.png"), tr("&Save..."), this);
+    actionSave = a = new QAction(QIcon(rsrcPath + "/filesave.png"), tr("&Save"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_S);
     connect(a, SIGNAL(triggered()), this, SLOT(fileSave()));
     a->setEnabled(false);
