@@ -6592,7 +6592,8 @@ bool QWidget::testAttribute_helper(Qt::WidgetAttribute attribute) const
 
   By default the value of this property is 1.0.
 
-  This feature is only present on Mac OS X and Windows 2000 and up.
+  This feature is available on Mac OS X, X11 platforms that support the
+  Composite extension, and Windows 2000 and later.
 
   \warning Changing this property from opaque to transparent might issue a
   paint event that needs to be processed before the window is displayed
