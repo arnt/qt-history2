@@ -1142,7 +1142,7 @@ QMakeProject::read(uchar cmd)
             }
 
             if(QDir::isRelativePath(Option::mkfile::qmakespec) &&
-               !QFile::exists(Option::mkfile::qmakespec)) {
+               !QFile::exists(Option::mkfile::qmakespec)+"/qmake.conf") {
                 bool found_mkspec = false;
                 for(QStringList::ConstIterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
                     QString mkspec = (*it) + QDir::separator() + Option::mkfile::qmakespec;
