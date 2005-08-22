@@ -375,7 +375,7 @@ ProjectBuilderSources::ProjectBuilderSources(const QString &k, const QString &g,
             group = "Headers";
         else if(k == "QMAKE_INTERNAL_INCLUDED_FILES")
             group = "Sources [qmake]";
-        else if(k == "GENERATED_SOURCES")
+        else if(k == "GENERATED_SOURCES" || k == "GENERATED_FILES")
             group = "Temporary Sources";
         else
             fprintf(stderr, "No group available for %s!\n", k.toLatin1().constData());
@@ -457,6 +457,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     QList<ProjectBuilderSources> sources;
     sources.append(ProjectBuilderSources("SOURCES"));
     sources.append(ProjectBuilderSources("GENERATED_SOURCES"));
+    sources.append(ProjectBuilderSources("GENERATED_FILES"));
     sources.append(ProjectBuilderSources("HEADERS"));
     sources.append(ProjectBuilderSources("QMAKE_INTERNAL_INCLUDED_FILES"));
     if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
