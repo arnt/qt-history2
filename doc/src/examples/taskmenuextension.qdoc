@@ -76,25 +76,26 @@
     recognized as a plugin by Qt by using the Q_EXPORT_PLUGIN macro to
     export the relevant widget information.
 
-    The \c CONFIG variable contains three values: \c designer, \c
-    release and \c plugin.
+    The \c CONFIG variable contains two values, \c designer and \c
+    plugin:
 
     \list
         \o \c designer: Since custom widgets plugins rely on components
            supplied with \QD, this value makes our plugin link against
            \QD's library (\c libQtDesigner.so).
 
-        \o \c release: When Qt is configured to build in both debug
-           and release modes, \QD will be built in release mode.
-           When this occurs, it is necessary to ensure that plugins
-           are also built in release mode. If plugins are built in a
-           mode that is incompatible with \QD, they won't be loaded
-           and installed. For more information about plugins, see
-           the \l {How to Create Qt Plugins} document.
-
         \o \c plugin: We need to ensure that \c qmake considers the
            custom widget a \e plugin library.
     \endlist
+
+    When Qt is configured to build in both debug and release modes,
+    \QD will be built in release mode.  When this occurs, it is
+    necessary to ensure that plugins are also built in release
+    mode. For that reason you might have to add \c release value to
+    your \c CONFIG variable. Because if plugins are built in a mode
+    that is incompatible with \QD, they won't be loaded and
+    installed. For more information about plugins, see the \l {How to
+    Create Qt Plugins} document.
 
     The \c DESTDIR variable's value makes qmake install the plugin
     alongside the other \QD widget plugins in \c
@@ -134,13 +135,10 @@
     QDesignerFormEditorInterface. It is important to remember, when
     using multiple inheritance, to ensure that all the interfaces
     (i.e. the classes that doesn't inherit Q_OBJECT) are made known to
-    the meta object system using the Q_INTERFACES macro.
+    the meta object system using the Q_INTERFACES() macro.
 
-    This makes it possible to use \c qobject_cast to query for
-    supported interfaces using nothing but a QObject pointer: We can
-    use \c qobject_cast to convert a QObject pointer, which points to
-    an instance of our custom widget class, to a pointer to the plugin
-    interface.
+    This enables \QD to use \c qobject_cast to query for supported
+    interfaces using nothing but a QObject pointer.
 
     \section1 TicTacToePlugin Class Implementation
 
