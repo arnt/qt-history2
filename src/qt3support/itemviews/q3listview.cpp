@@ -5666,9 +5666,8 @@ void Q3ListView::widthChanged(const Q3ListViewItem* item, int c)
         if (d->column[col].wmode == Maximum) {
             int w = item->width(fm, this, col);
             if (showSortIndicator()) {
-                QString title = header()->label(col);
-                int tw = fm.width(title);
-                tw += 40;
+                int tw = d->h->sectionSizeHint( col, fm ).width();
+                tw += 40; //add space for the sort indicator
                 w = qMax(w, tw);
             }
             if (col == 0) {
