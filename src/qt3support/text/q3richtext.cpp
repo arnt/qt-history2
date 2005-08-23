@@ -7222,7 +7222,14 @@ QChar Q3TextDocument::parseHTMLSpecialChar(const QChar* doc, int length, int& po
     pos++;
 
     if (s.length() > 1 && s[0] == '#') {
-        int num = s.mid(1).toInt();
+        int off = 1;
+        int base = 10;
+        if (s[1] == 'x') {
+            off = 2;
+            base = 16;
+        }
+        bool ok;
+	int num = s.mid(off).toInt(&ok, base);
         if (num == 151) // ### hack for designer manual
             return '-';
         return num;
