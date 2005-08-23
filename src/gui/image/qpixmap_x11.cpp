@@ -1976,6 +1976,11 @@ int QPixmap::x11SetDefaultScreen(int screen)
 */
 void QPixmap::x11SetScreen(int screen)
 {
+    if (paintingActive()) {
+        qWarning("QPixmap::x11SetScreen(): Cannot change screens during painting");
+        return;
+    }
+
     if (screen < 0)
         screen = QX11Info::appScreen();
 
