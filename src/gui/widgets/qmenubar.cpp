@@ -289,7 +289,8 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
     //calculate size
     const QFontMetrics fm = q->fontMetrics();
     const int hmargin = q->style()->pixelMetric(QStyle::PM_MenuBarHMargin, 0, q),
-              vmargin = q->style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, q);
+              vmargin = q->style()->pixelMetric(QStyle::PM_MenuBarVMargin, 0, q),
+                icone = q->style()->pixelMetric(QStyle::PM_SmallIconSize, 0, q);
     for(int i = 0; i < items.count(); i++) {
         QAction *action = items.at(i);
         if(!action->isVisible())
@@ -304,10 +305,21 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
             continue; //we don't really position these!
         } else {
             QString s = action->text();
-            int w = fm.width(s);
-            w -= s.count('&') * fm.width('&');
-            w += s.count("&&") * fm.width('&');
-            sz = QSize(w, fm.height());
+            if(!s.isEmpty()) {
+                int w = fm.width(s);
+                w -= s.count('&') * fm.width('&');
+                w += s.count("&&") * fm.width('&');
+                sz = QSize(w, fm.height());
+            }
+
+            QIcon is = action->icon();
+            if (!is.isNull()) {
+                QSize is_sz = QSize(icone, icone);
+                if (is_sz.height() > sz.height())
+                    sz.setHeight(is_sz.height());
+                if (is_sz.width() > sz.width())
+                    sz.setWidth(is_sz.width());
+            }
         }
 
         //let the style modify the above size..
