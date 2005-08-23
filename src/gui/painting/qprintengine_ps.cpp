@@ -3688,6 +3688,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
                 int i;
                 for (i = 0; i < lphack.size(); ++i)
                     lpargs[i+1] = (char *)lphack.at(i).constData();
+#ifndef Q_OS_OSF
                 if (psToStr[d->pageSize]) {
                     lpargs[++i] = "-o";
                     lpargs[++i] = (char *)psToStr[d->pageSize];
@@ -3696,6 +3697,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
                     media += psToStr[d->pageSize];
                     lpargs[++i] = (char *)media.constData();
                 }
+#endif
                 lpargs[++i] = 0;
                 char **lprargs = new char *[lprhack.size()+2];
                 lprargs[0] = "lpr";
