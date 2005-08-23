@@ -19,9 +19,12 @@
 QT_MODULE(Core)
 
 #ifndef Q_MOC_RUN
-namespace Qt {
+namespace
 #else
-class Q_CORE_EXPORT Qt {
+class Q_CORE_EXPORT
+#endif
+Qt {
+#ifdef Q_MOC_RUN
     Q_OBJECT
     Q_ENUMS(Orientation TextFormat BackgroundMode DateFormat ScrollBarPolicy FocusPolicy ContextMenuPolicy CaseSensitivity LayoutDirection ArrowType)
     Q_ENUMS(ToolButtonStyle)
@@ -865,10 +868,11 @@ public:
 #ifndef qdoc
     typedef int MacintoshVersion;
 
-    enum {
+    enum
 #else
-    enum MacintoshVersion {
+    enum MacintoshVersion
 #endif
+    {
         //Unknown
         MV_Unknown  = 0x0000,
 
@@ -893,10 +897,11 @@ public:
 #ifndef qdoc
     typedef int WindowsVersion;
 
-    enum {
+    enum
 #else
-    enum WindowsVersion {
+    enum WindowsVersion
 #endif
+    {
         WV_32s = QSysInfo::WV_32s,
         WV_95 = QSysInfo::WV_95,
         WV_98 = QSysInfo::WV_98,
@@ -1258,6 +1263,10 @@ public:
 #endif
     typedef WindowFlags WFlags;
 }
+#ifdef Q_MOC_RUN
+ ;
+#endif
+
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::MouseButtons)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Orientations)
