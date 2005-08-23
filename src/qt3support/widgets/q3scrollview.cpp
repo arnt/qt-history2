@@ -235,9 +235,7 @@ void Q3ScrollViewData::hideOrShowAll(Q3ScrollView* sv, bool isScroll)
         int nx = (viewport->width() - clipped_viewport->width()) / 2;
         int ny = (viewport->height() - clipped_viewport->height()) / 2;
         clipped_viewport->move(nx,ny);
-        // no need to update, we'll receive a paintevent after move
-        // (with the safe assumption that the newly exposed area
-        // covers the entire viewport)
+        clipped_viewport->update();
     }
     for (QSVChildRec *r = children.first(); r; r=children.next()) {
         r->hideOrShow(sv, clipped_viewport);
