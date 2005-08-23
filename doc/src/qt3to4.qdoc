@@ -108,15 +108,13 @@
 
     \section1 Limitations
 
-    \list
-    \o  In some cases, you might get compiler errors because of identifiers
-        in the global namespace (e.g., \c CTRL). Adding
+    In some cases, you might get compiler errors because of identifiers
+    in the global namespace (e.g., \c CTRL). Adding
 
-        \code
+    \code
         using namespace Qt;
-        \endcode
+    \endcode
 
-        at the beginning of the source file that contains the
-        indentifier solves the problem.
-    \endlist
+    at the beginning of the source file that contains
+    the indentifier solves the problem.
 */
