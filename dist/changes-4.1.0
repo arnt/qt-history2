@@ -62,6 +62,8 @@ Windows:
 
 X11:
 
+- QWidget
+        Added support for freedesktop.org startup notifications.
 
 UNIX:
 
