@@ -14,6 +14,7 @@
 #include "qcolordialog.h"
 #if !defined(QT_NO_COLORDIALOG) && defined(Q_WS_MAC)
 #include <qapplication.h>
+#include <private/qapplication_p.h>
 #include <qdesktopwidget.h>
 #include <private/qt_mac_p.h>
 #include <string.h>
