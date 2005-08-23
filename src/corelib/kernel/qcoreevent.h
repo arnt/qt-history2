@@ -174,6 +174,7 @@ public:
         EnterEditFocus = 150,                   // enter edit mode in keypad navigation
         LeaveEditFocus = 151,                   // enter edit mode in keypad navigation
 #endif
+        AcceptDropsChange = 152,
 
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id

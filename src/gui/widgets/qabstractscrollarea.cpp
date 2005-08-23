@@ -80,8 +80,9 @@ inline  bool QAbstractScrollAreaPrivate::viewportEvent(QEvent *e)
 
 class QAbstractScrollAreaHelper : public QWidget
 {
+    Q_OBJECT
 public:
-    QAbstractScrollAreaHelper(QWidget *parent):QWidget(parent){}
+    QAbstractScrollAreaHelper(QWidget *parent):QWidget(parent){ setObjectName("qt_scrollarea_helper"); }
     bool event(QEvent *e);
     friend class QAbstractScrollArea;
 };
@@ -322,6 +323,9 @@ bool QAbstractScrollArea::event(QEvent *e)
 {
     Q_D(QAbstractScrollArea);
     switch (e->type()) {
+    case QEvent::AcceptDropsChange:
+        d->viewport->setAcceptDrops(acceptDrops());
+        break;
     case QEvent::MouseTrackingChange:
         d->viewport->setMouseTracking(hasMouseTracking());
         break;
@@ -667,4 +671,5 @@ QSize QAbstractScrollArea::sizeHint() const
 }
 
 #include "moc_qabstractscrollarea.cpp"
+#include "qabstractscrollarea.moc"
 #endif // QT_NO_SCROLLAREA

@@ -6521,6 +6521,10 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
             d->high_attributes[int_off] &= ~(1<<(x-(int_off*8*sizeof(uint))));
     }
     switch (attribute) {
+    case Qt::WA_AcceptDrops: {
+        QEvent e(QEvent::AcceptDropsChange);
+        QApplication::sendEvent(this, &e);
+        break; }
     case Qt::WA_NoChildEventsForParent:
         d->sendChildEvents = !on;
         break;
