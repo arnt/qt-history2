@@ -44,7 +44,7 @@ public:
     inline DocuParser *docuParser() const { return dparser; }
     inline void setDocuParser( DocuParser *dp ) { dparser = dp; }
 
-    static Profile* createDefaultProfile();
+    static Profile* createDefaultProfile(const QString &docPath = QString());
     static QString makeRelativePath( const QString &base, const QString &path );
 
     uint valid:1;
