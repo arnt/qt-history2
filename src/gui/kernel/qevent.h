@@ -618,9 +618,11 @@ class Q_GUI_EXPORT QWindowStateChangeEvent: public QEvent
 {
 public:
     QWindowStateChangeEvent(Qt::WindowStates aOldState);
+    QWindowStateChangeEvent(Qt::WindowStates aOldState, bool isOverride);
     ~QWindowStateChangeEvent();
 
     inline Qt::WindowStates oldState() const { return ostate; }
+    bool isOverride() const;
 
 private:
     Qt::WindowStates ostate;

@@ -939,7 +939,7 @@ QWorkspacePrivate::init()
     toolPopup->addAction(actions[QWorkspacePrivate::ShadeAct]);
     toolPopup->addAction(actions[QWorkspacePrivate::CloseAct]);
 
-#ifndef QT_NO_SHORTCUT    
+#ifndef QT_NO_SHORTCUT
     // Set up shortcut bindings (id -> slot), most used first
     shortcutMap.insert(q->grabShortcut(Qt::CTRL + Qt::Key_Tab), "activateNextWindow");
     shortcutMap.insert(q->grabShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Tab), "activatePreviousWindow");
@@ -950,7 +950,7 @@ QWorkspacePrivate::init()
     shortcutMap.insert(q->grabShortcut(Qt::Key_Forward), "activateNextWindow");
     shortcutMap.insert(q->grabShortcut(Qt::Key_Back), "activatePreviousWindow");
 #endif // QT_NO_SHORTCUT
-    
+
     q->setAttribute(Qt::WA_NoBackground, true);
     q->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
@@ -1552,8 +1552,11 @@ void QWorkspacePrivate::maximizeWindow(QWidget* w)
     c->show();
     c->internalRaise();
     if (oldMaxWindow != c) {
-        if (oldMaxWindow)
+        if (oldMaxWindow) {
             oldMaxWindow->setGeometry(maxRestore);
+            oldMaxWindow->overrideWindowState(Qt::WindowNoState);
+            oldMaxWindow->windowWidget()->overrideWindowState(Qt::WindowNoState);
+        }
         maxRestore = r;
     }
 
@@ -2555,6 +2558,8 @@ bool QWorkspaceChild::eventFilter(QObject * o, QEvent * e)
         ((QWorkspace*)parentWidget())->d_func()->showWindow(windowWidget());
         break;
     case QEvent::WindowStateChange: {
+        if (static_cast<QWindowStateChangeEvent*>(e)->isOverride())
+            break;
         Qt::WindowStates state = windowWidget()->windowState();
 
         if (state & Qt::WindowMinimized) {
