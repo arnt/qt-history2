@@ -4037,6 +4037,8 @@ static const unsigned int KeyTbl[] = {                // keyboard mapping table
     XK_Hyper_R,                Qt::Key_Hyper_R,
     XK_Help,                Qt::Key_Help,
     0x1000FF74,         Qt::Key_Backtab,     // hardcoded HP backtab
+    0x1005FF10,         Qt::Key_F11,         // hardcoded Sun F36 (labeled F11)
+    0x1005FF11,         Qt::Key_F12,         // hardcoded Sun F37 (labeled F12)
 
     // International input method support keys
 
