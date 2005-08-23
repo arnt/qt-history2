@@ -1004,7 +1004,7 @@ void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::S
                 g = loadGlyph(glyphs[i].glyph);
             }
             // for uncachable glyph, get advance from glyphslot
-            glyphs[i].advance.rx() = g ? g->linearAdvance/65536. : face->glyph->linearHoriAdvance/65536.;
+            glyphs[i].advance.rx() = g ? g->linearAdvance/64. : face->glyph->linearHoriAdvance/65536.;
             glyphs[i].advance.ry() = 0.;
         }
     } else {
