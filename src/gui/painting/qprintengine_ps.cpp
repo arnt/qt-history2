@@ -68,6 +68,7 @@
 #endif
 
 static bool qt_gen_epsf = false;
+static bool embedFonts = false;
 
 void qt_generate_epsf(bool b)
 {
@@ -825,7 +826,6 @@ public:
 //     QFont currentUsed;
     qreal scale;
 
-    bool embedFonts;
     QStringList fontpath;
     bool        collate;
     int         copies;
@@ -966,6 +966,10 @@ static QString makePSFontName(const QFontEngine *fe, int *listpos = 0, int *ftyp
   FT_Face face = ft_face(fe);
   if (face) {
       ps = FT_Get_Postscript_Name(face);
+      if (listpos)
+          *listpos = 0;
+      if (ftype)
+          *ftype = 0;
       if (!ps.isEmpty())
           return ps;
   }
@@ -1003,7 +1007,7 @@ static QString makePSFontName(const QFontEngine *fe, int *listpos = 0, int *ftyp
   QString lowerName = ps.toLower();
   while(postscriptFonts[i].input &&
          postscriptFonts[i].input != lowerName)
-    i++;
+    ++i;
   const psfont *psf = postscriptFonts[i].ps;
 
   int type = addPsFontNameExtension(fe, ps, psf);
@@ -1410,7 +1414,7 @@ void QPSPrintEngineFont::downloadMapping(QTextStream &s, bool global)
           << psname
           << "-ENC-"
           << toHex((uchar)(range + rangeOffset));
-        if (embedded()) {
+        if (embedded() && embedFonts) {
             s << " /"
               << psname
               << " MFEmb\n";
@@ -1508,10 +1512,18 @@ QPSPrintEngineFontFT::QPSPrintEngineFontFT(QFontEngine *f)
     Q_ASSERT(face);
 
     psname = FT_Get_Postscript_Name(face);
+    replacementList = makePSFontNameList(f, psname);
 }
 
 void QPSPrintEngineFontFT::download(QTextStream& s, bool global)
 {
+    emitPSFontNameList( s, psname, replacementList);
+    
+    if ( !embedFonts ) {
+        downloadMapping(s, global);
+        return;
+    }
+    
     //qDebug("downloading ttf font %s", psname.latin1());
     //qDebug("target type=%d", target_type);
     global_dict = global;
@@ -1520,8 +1532,6 @@ void QPSPrintEngineFontFT::download(QTextStream& s, bool global)
         subsetDict = &page_subset;
 
     downloaded  = true;
-
-    emitPSFontNameList(s, psname, replacementList);
 
     // === write header ===
 
@@ -2800,7 +2810,7 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
     embedFonts = true;
 #endif
 #if defined(Q_WS_X11) && defined(QT_NO_FONTCONFIG)
-    if (embedFonts && !X11->use_xrender)
+    if (!X11->use_xrender)
         fontpath = ::fontPath();
 #endif
 }
@@ -2834,7 +2844,7 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
         multi = true;
     }
 #if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
-    else if (embedFonts) {
+    else { 
 #ifdef Q_WS_X11
 #ifndef QT_NO_FONTCONFIG
         if (X11->use_xrender && fontType == QFontEngine::Freetype && FT_IS_SCALABLE(ft_face(fe))) {
@@ -2989,7 +2999,7 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
 
     ps.append(' ');
     ps.prepend(' ');
-    if (!fontsUsed.contains(ps))
+    if (!fontsUsed.contains(ps) && !ps.startsWith(" Multi:") && !ps.startsWith(" NonEmbed:"))
         fontsUsed += ps;
 }
 
