@@ -3616,7 +3616,7 @@ HRESULT QAxServerBase::internalActivate()
 		    }
 		    statusBar = qt.widget ? qFindChild<QStatusBar*>(qt.widget) : 0;
 		    if (statusBar && !statusBar->isVisible()) {
-			const int index = statusBar->metaObject()->indexOfSignal("messageChanged(const QString&)");
+			const int index = statusBar->metaObject()->indexOfSignal("messageChanged(QString)");
 			QMetaObject::connect(statusBar, index, this, -1);
 			statusBar->hide();
 			statusBar->installEventFilter(this);
