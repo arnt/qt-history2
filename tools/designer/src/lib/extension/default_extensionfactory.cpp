@@ -18,12 +18,83 @@
 
 /*!
     \class QExtensionFactory
-    \brief The QExtensionFactory class provides a standard extension factory for Qt Designer.
+
+    \brief The QExtensionFactory class allows you to create a factory
+    that is able to make instances of plugin extensions in Qt
+    Designer.
+
     \inmodule QtDesigner
 
+    In Qt Designer the extensions are not created until they are
+    required. For that reason, when implementing a custom extension,
+    you must also create a QExtensionFactory, i.e a class that is able
+    to make an instance of your extension, and register it using a
+    QExtensionManager.
 
+    The QExtensionManager class provides extension management
+    facilities for Qt Designer. When an extension is required, Qt
+    Designer will run through all its registered factories calling
+    QExtensionFactory::createExtension() for each until the first one
+    that is able to create a requested extension, is found. This
+    factory will then make an instance of the extension for the
+    plugin.
 
-    \sa QExtensionManager, QAbstractExtensionFactory
+    There are four available types of extensions in Qt Designer:
+    QDesignerContainerExtension , QDesignerMemberSheetExtension,
+    QDesignerPropertySheetExtension and QDesignerTaskMenuExtension. Qt
+    Designer's behavior is the same whether the requested extension is
+    associated with a multi page container, a member sheet, a property
+    sheet or a task menu.
+
+    You can either create a new QExtensionFactory and reimplement the
+    QExtensionFactory::createExtension() function. For example:
+
+    \code
+        QObject *ANewExtensionFactory::createExtension(QObject *object,
+                const QString &iid, QObject *parent) const
+        {
+            if (iid != Q_TYPEID(QDesignerContainerExtension))
+                return 0;
+
+            if (MyCustomWidget *widget = qobject_cast<MyCustomWidget*>
+                   (object))
+                return new MyContainerExtension(widget, parent);
+
+            return 0;
+        }
+    \endcode
+
+    Or you can use an existing factory, expanding the
+    QExtensionFactory::createExtension() function to make the factory
+    able to create your extension as well. For example:
+
+    \code
+        QObject *AGeneralExtensionFactory::createExtension(QObject *object,
+                const QString &iid, QObject *parent) const
+        {
+            if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
+                if (MyCustomWidget *widget = qobject_cast<MyCustomWidget*>
+                        (object))
+                    return new MyTaskMenuExtension(widget, parent);
+
+            } else if (iid == Q_TYPEID(QDesignerContainerExtension)) {
+                if (MyCustomWidget *widget = qobject_cast<MyCustomWidget*>
+                        (object))
+                    return new MyContainerExtension(widget, parent);
+
+            } else {
+                return 0;
+            }
+        }
+    \endcode
+
+    For a complete example using the QExtensionFactory class, see the
+    \l {designer/taskmenuextension}{Task Menu Extension example}. The
+    example shows how to create a custom widget plugin for Qt
+    Designer, and how to to use the QDesignerTaskMenuExtension class
+    to add custom items to Qt Designer's task menu.
+
+    \sa QExtensionManager, QAbstractExtensionFactory, qt_extension()
 */
 
 /*!
