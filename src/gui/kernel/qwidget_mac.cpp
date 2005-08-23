@@ -1047,6 +1047,9 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             InstallWindowEventHandler(window, make_win_eventUPP(), GetEventTypeCount(window_events),
                                       window_events, static_cast<void *>(qApp), &window_event);
         }
+#if QT_MACOSX_VERSION >= 0x1030
+        HIWindowChangeFeatures(window, kWindowCanCollapse, 0);
+#endif
 	if((flags & Qt::WindowStaysOnTopHint))
 	    ChangeWindowAttributes(window, kWindowNoAttributes, kWindowHideOnSuspendAttribute);
         if(qt_mac_is_macdrawer(q) && parentWidget)
