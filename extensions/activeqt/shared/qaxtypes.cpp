@@ -842,14 +842,12 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
                     QObject *qObj = iface->qObject();
                     iface->Release();
                     var = QVariant(qRegisterMetaType<QObject*>(qObj ? QByteArray(qObj->metaObject()->className()) + "*" : typeName), &qObj);
-//                    qVariantSetValue(var, qObj, qObj ? QByteArray(qObj->metaObject()->className()) + "*" : typeName);
                 } else
 #endif
                 {
                     if (!typeName.isEmpty()) {
                         if (arg.vt & VT_BYREF) {
                             var = QVariant(qRegisterMetaType<IDispatch**>("IDispatch**"), &arg.ppdispVal);
-//                            qVariantSetValue(var, arg.ppdispVal, "IDispatch**");
                         } else {
 #ifndef QAX_SERVER
                             if (typeName != "IDispatch*" && QMetaType::type(typeName)) {
@@ -857,11 +855,9 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
                                 Q_ASSERT(metaType != 0);
                                 QAxObject *object = (QAxObject*)qax_createObjectWrapper(metaType, disp);
                                 var = QVariant(QMetaType::type(typeName), &object);
-//                                qVariantSetValue(var, qax_createObjectWrapper(metaType, disp), typeName);
                             } else
 #endif
                                 var = QVariant(qRegisterMetaType<IDispatch*>(typeName), &disp);
-//                                qVariantSetValue(var, disp, typeName);
                         }
                     }
                 }
@@ -877,7 +873,6 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
             else
                 unkn = arg.punkVal;
             qVariantSetValue(var, unkn);
-//            qVariantSetValue(var, unkn, "IUnknown*");
         }
         break;
     case VT_ARRAY|VT_VARIANT:
@@ -1062,6 +1057,8 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
             }
             if (allStrings)
                 var = strings;
+        } else {
+            var = QVariant();
         }
     }
     return var;
