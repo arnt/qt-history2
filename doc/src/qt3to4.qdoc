@@ -93,7 +93,7 @@
 
     You can tell \c qt3to4 where to look for headers by using the
     \c{-I} command-line option. Qt 3.3 header information is built
-    in, so it is normaly not neccesary to specify the location of the
+    in, so it is normaly not necessary to specify the location of the
     Qt headers. If you are porting from a different version of Qt 3,
     you may want to disable the built-in headers with
     \c{-disableBuiltInQt3Headers}, and then add the path to the
