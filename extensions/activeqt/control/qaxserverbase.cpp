@@ -2679,11 +2679,16 @@ HRESULT WINAPI QAxServerBase::Load(IStream *pStm)
 	qtarray.resize(stat.cbSize.LowPart);
 	pStm->Read(qtarray.data(), stat.cbSize.LowPart, &read);
     }
+    const QMetaObject *mo = qt.object->metaObject();
 
     QBuffer qtbuffer(&qtarray);
-    QAxBindable *axb = (QAxBindable*)qt.object->qt_metacast("QAxBindable");
-    if (axb && axb->load(&qtbuffer))
-        return S_OK;
+    QByteArray mimeType = mo->classInfo(mo->indexOfClassInfo("MIME")).value();
+    if (!mimeType.isEmpty()) {
+        mimeType = mimeType.left(mimeType.indexOf(':')); // first type
+        QAxBindable *axb = (QAxBindable*)qt.object->qt_metacast("QAxBindable");
+        if (axb && axb->readData(&qtbuffer, QString::fromLatin1(mimeType)))
+            return S_OK;
+    }
 
     qtbuffer.close(); // resets
     qtbuffer.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -2694,7 +2699,6 @@ HRESULT WINAPI QAxServerBase::Load(IStream *pStm)
     int more = 0;
     qtstream >> more;
 
-    const QMetaObject *mo = qt.object->metaObject();
     while (!qtbuffer.atEnd() && more) {
 	QString propname;
 	QVariant value;
@@ -2714,14 +2718,22 @@ HRESULT WINAPI QAxServerBase::Load(IStream *pStm)
 
 HRESULT WINAPI QAxServerBase::Save(IStream *pStm, BOOL clearDirty)
 {
+    const QMetaObject *mo = qt.object->metaObject();
+
     QBuffer qtbuffer;
-    QAxBindable *axb = (QAxBindable*)qt.object->qt_metacast("QAxBindable");
-    if (!axb || !axb->save(&qtbuffer)) {
+    bool saved = false;
+    QByteArray mimeType = mo->classInfo(mo->indexOfClassInfo("MIME")).value();
+    if (!mimeType.isEmpty()) {
+        QAxBindable *axb = (QAxBindable*)qt.object->qt_metacast("QAxBindable");
+        saved = axb && axb->writeData(&qtbuffer);
+        qtbuffer.close();
+    }
+
+    if (!saved) {
         qtbuffer.open(QIODevice::WriteOnly | QIODevice::Text);
         QDataStream qtstream(&qtbuffer);
         qtstream << qtstream.version();
 
-        const QMetaObject *mo = qt.object->metaObject();
 
         for (int prop = 0; prop < mo->propertyCount(); ++prop) {
 	    if (!isPropertyExposed(prop))

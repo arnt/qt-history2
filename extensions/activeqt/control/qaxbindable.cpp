@@ -175,34 +175,43 @@ void QAxBindable::reportError(int code, const QString &src, const QString &desc,
 }
 
 /*!
-    Reimplement this virtual function to initialize the COM object
-    from the data in \a source, which is provided in \a format.
+    If the COM object supports a MIME type then this function is called
+    to initialize the COM object from the data \a source in \a format.
+    You have to open \a source for reading before you can read from it.
 
     Return true to indicate success. If the function returns false, 
     then ActiveQt will process the data by setting the properties 
     through the meta object system.
-
-    You have to open \a source for reading before you can read from it.
-
+    
+    If you reimplement this function you also have to implement writeData.
     The default implementation does nothing and returns false.
+
+    \sa writeData
 */
 bool QAxBindable::readData(QIODevice *source, const QString &format)
 {
+    Q_UNUSED(source);
+    Q_UNUSED(format);
     return false;
 }
 
 /*!
-    Reimplement this virtual function to store the COM object in
-    \a sink. Return true to indicate success. If the function returns 
-    false, then ActiveQt will serialize the object by storing the property
-    values.
-
+    If the COM object supports a MIME type then this function is called
+    to store the COM object into \a sink.
     You have to open \a sink for writing before you can write to it.
 
+    Return true to indicate success. If the function returns false, 
+    then ActiveQt will serialize the object by storing the property
+    values.
+
+    If you reimplement this function you also have to implement readData.
     The default implementation does nothing and returns false.
+
+    \sa writeData
 */
 bool QAxBindable::writeData(QIODevice *sink)
 {
+    Q_UNUSED(sink);
     return false;
 }
 
