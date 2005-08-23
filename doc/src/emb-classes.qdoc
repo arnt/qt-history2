@@ -24,7 +24,7 @@
 
     \tableofcontents
 
-    \omit ### Font system is completely changed
+    \omit ### font system is completely changed
     \section1 QFontManager
 
     There is one of these per application. At application startup time it
