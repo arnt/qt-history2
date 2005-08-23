@@ -948,30 +948,29 @@ QAxMetaObject *QAxBase::internalMetaObject() const
 */
 bool QAxBase::setControl(const QString &c)
 {
-    if (c == d->ctrl)
+    if (c.toLower() == d->ctrl.toLower())
         return !d->ctrl.isEmpty();
 
-    clear();
-    d->ctrl = c;
+    QString search = c;
     // don't waste time for DCOM requests
-    if (c.indexOf(QLatin1String("/{")) != c.length()-39 && !c.endsWith(QLatin1String("}&"))) {
-        QUuid uuid(d->ctrl);
+    if (search.indexOf(QLatin1String("/{")) != search.length()-39 && !search.endsWith(QLatin1String("}&"))) {
+        QUuid uuid(search);
         if (uuid.isNull()) {
             CLSID clsid;
             HRESULT res = CLSIDFromProgID((WCHAR*)c.utf16(), &clsid);
             if (res == S_OK)
-                d->ctrl = QUuid(clsid).toString();
+                search = QUuid(clsid).toString();
             else {
                 QSettings controls(QLatin1String("HKEY_LOCAL_MACHINE\\Software\\Classes\\") + c, QSettings::NativeFormat);
-                d->ctrl = controls.value(QLatin1String("/CLSID/Default")).toString();
-                if (d->ctrl.isEmpty()) {
+                search = controls.value(QLatin1String("/CLSID/Default")).toString();
+                if (search.isEmpty()) {
                     controls.beginGroup(QLatin1String("/CLSID"));
                     QStringList clsids = controls.childGroups();
                     for (QStringList::Iterator it = clsids.begin(); it != clsids.end(); ++it) {
                         QString clsid = *it;
                         QString name = controls.value(clsid + QLatin1String("/Default")).toString();
                         if (name == c) {
-                            d->ctrl = clsid;
+                            search = clsid;
                             break;
                         }
                     }
@@ -979,9 +978,16 @@ bool QAxBase::setControl(const QString &c)
                 }
             }
         }
-        if (d->ctrl.isEmpty())
-            d->ctrl = c;
+        if (search.isEmpty())
+            search = c;
     }
+
+    if (search.toLower() == d->ctrl.toLower())
+        return !d->ctrl.isEmpty();
+
+    clear();
+    d->ctrl = search;
+
     d->tryCache = true;
     if (!initialize(&d->ptr))
         d->initialized = true;
