@@ -1227,8 +1227,31 @@ void Q3ListViewItem::takeItem(Q3ListViewItem * item)
             }
         }
 
-        if (lv->d->selectAnchor == item)
-            lv->d->selectAnchor = lv->d->focusItem;
+        // reset anchors etc. if they are set to this or any child
+        // items
+        const Q3ListViewItem *ptr = lv->d->selectAnchor;
+        while (ptr && ptr != item)
+            ptr = ptr->parentItem;
+	if (ptr == item)
+	    lv->d->selectAnchor = lv->d->focusItem;
+
+        ptr = lv->d->startDragItem;
+        while (ptr && ptr != item)
+            ptr = ptr->parentItem;
+	if (ptr == item)
+	    lv->d->startDragItem = 0;
+
+        ptr = lv->d->pressedItem;
+        while (ptr && ptr != item)
+            ptr = ptr->parentItem;
+	if (ptr == item)
+	    lv->d->pressedItem = 0;
+
+        ptr = lv->d->highlighted;
+        while (ptr && ptr != item)
+            ptr = ptr->parentItem;
+	if (ptr == item)
+	    lv->d->highlighted = 0;
     }
 
     nChildren--;
