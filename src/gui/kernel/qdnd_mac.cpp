@@ -141,11 +141,18 @@ static const char* default_pm[] = {
 };
 
 //action management
-#define MAP_MAC_ENUM(x) x
+#ifdef DEBUG_DRAG_EVENTS
+# define MAP_MAC_ENUM(x) x, #x
+#else
+# define MAP_MAC_ENUM(x) x
+#endif
 struct mac_enum_mapper
 {
     int mac_code;
     int qt_code;
+#ifdef DEBUG_DRAG_EVENTS
+    char *qt_desc;
+#endif
 };
 static mac_enum_mapper dnd_action_symbols[] = {
     { kDragActionAlias, MAP_MAC_ENUM(Qt::LinkAction) },
@@ -164,8 +171,15 @@ static DragActions qt_mac_dnd_map_qt_actions(Qt::DropActions qActions)
 }
 static Qt::DropActions qt_mac_dnd_map_mac_actions(DragActions macActions)
 {
+#ifdef DEBUG_DRAG_EVENTS
+    qDebug("Converting DND ActionList: 0x%lx", macActions);
+#endif
     Qt::DropActions ret = Qt::IgnoreAction;
     for(int i = 0; dnd_action_symbols[i].qt_code; ++i) {
+#ifdef DEBUG_DRAG_EVENTS
+        qDebug(" %d) [%s] : %s", i, dnd_action_symbols[i].qt_desc,
+               (macActions & dnd_action_symbols[i].mac_code) ? "true" : "false");
+#endif
         if(macActions & dnd_action_symbols[i].mac_code)
             ret |= Qt::DropAction(dnd_action_symbols[i].qt_code);
     }
@@ -175,12 +189,23 @@ static Qt::DropAction qt_mac_dnd_map_mac_default_action(DragActions macActions)
 {
     static Qt::DropAction preferred_actions[] = { Qt::CopyAction, Qt::LinkAction, //in order
                                                      Qt::MoveAction, Qt::IgnoreAction };
+    Qt::DropAction ret = Qt::IgnoreAction;
     const Qt::DropActions qtActions = qt_mac_dnd_map_mac_actions(macActions);
     for(int i = 0; preferred_actions[i] != Qt::IgnoreAction; ++i) {
-        if(qtActions & preferred_actions[i])
-            return preferred_actions[i];
+        if(qtActions & preferred_actions[i]) {
+            ret = preferred_actions[i];
+            break;
+        }
     }
-    return Qt::IgnoreAction;
+#ifdef DEBUG_DRAG_EVENTS
+    for(int i = 0; dnd_action_symbols[i].qt_code; ++i) {
+        if(dnd_action_symbols[i].qt_code == ret) {
+            qDebug("Got default action: %s [0x%lx]", dnd_action_symbols[i].qt_desc, macActions);
+            break;
+        }
+    }
+#endif
+    return ret;
 }
 static void qt_mac_dnd_update_action(DragReference dragRef) {
     SInt16 modifiers;
