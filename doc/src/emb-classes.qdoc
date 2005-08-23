@@ -102,7 +102,7 @@
 
     These encapsulate the framebuffer Qtopia Core is drawing to, provide
     support for mapping of coordinates for rotating framebuffers, allow
-    manipulation of the colour palette and provide access to offscreen
+    manipulation of the color palette and provide access to offscreen
     graphics memory for devices with separate framebuffer memories.
 
     \section1 QScreenCursor > accelerated cursor > QVfbCursor
