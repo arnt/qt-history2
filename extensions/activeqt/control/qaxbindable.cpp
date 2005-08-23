@@ -176,15 +176,17 @@ void QAxBindable::reportError(int code, const QString &src, const QString &desc,
 
 /*!
     Reimplement this virtual function to initialize the COM object
-    from the data in \a source. Return true to indicate success. If
-    the function returns false, then ActiveQt will process the data 
-    by setting the properties through the meta object system.
+    from the data in \a source, which is provided in \a format.
+
+    Return true to indicate success. If the function returns false, 
+    then ActiveQt will process the data by setting the properties 
+    through the meta object system.
 
     You have to open \a source for reading before you can read from it.
 
     The default implementation does nothing and returns false.
 */
-bool QAxBindable::load(QIODevice *source)
+bool QAxBindable::readData(QIODevice *source, const QString &format)
 {
     return false;
 }
@@ -199,7 +201,7 @@ bool QAxBindable::load(QIODevice *source)
 
     The default implementation does nothing and returns false.
 */
-bool QAxBindable::save(QIODevice *sink)
+bool QAxBindable::writeData(QIODevice *sink)
 {
     return false;
 }
