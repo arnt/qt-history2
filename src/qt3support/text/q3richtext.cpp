@@ -1680,6 +1680,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                         Q3TextFormat format = curtag.format.makeTextFormat(nstyle, attr, scaleFontsFactor);
                         curpar->append(QString(QChar(QChar::LineSeparator)));
                         curpar->setFormat(index, 1, &format);
+                        hasNewPar = false;
                     }  else if (tagname == "hr") {
                         emptyTag = space = true;
 #ifndef QT_NO_TEXTCUSTOMITEM
