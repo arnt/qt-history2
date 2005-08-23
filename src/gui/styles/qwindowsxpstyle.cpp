@@ -1557,14 +1557,6 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             stateId = GBS_NORMAL;
         break;
 
-    //case PE_SizeGrip:
-    //    name = "STATUS";
-    //    partId = SP_GRIPPER;
-    //    // empiric correction values...
-    //    rect.adjust(-4, -8, 0, 0);
-    //    mirror = qApp->reverseLayout();
-    //    break;
-
     case PE_IndicatorProgressChunk:
         name = "PROGRESS";
         partId = PP_CHUNK;
@@ -1711,6 +1703,21 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
     int partId = 0;
     int stateId = 0;
     switch (element) {
+    case CE_SizeGrip:
+        {
+            name = "STATUS";
+            partId = SP_GRIPPER;
+            SIZE sz;
+            XPThemeData theme(0, p, name, partId, 0);
+            pGetThemePartSize(theme.handle(), 0, partId, 0, 0, TS_TRUE, &sz);
+            --sz.cy;
+            if ((hMirrored = qApp->reverseLayout()))
+                rect = QRect(rect.left() + 1, rect.bottom() - sz.cy, sz.cx, sz.cy);
+            else
+                rect = QRect(rect.right() - sz.cx, rect.bottom() - sz.cy, sz.cx, sz.cy);
+        }
+        break;
+
     case CE_HeaderSection:
         name = "HEADER";
         partId = HP_HEADERITEM;
