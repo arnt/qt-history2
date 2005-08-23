@@ -1166,23 +1166,8 @@ void QWorkspacePrivate::activateWindow(QWidget* w, bool change_focus)
         return;
 
     if (maxWindow && maxWindow != active && active->windowWidget() &&
-        (active->windowWidget()->windowFlags() & Qt::WindowMaximizeButtonHint)) {
+        (active->windowWidget()->windowFlags() & Qt::WindowMaximizeButtonHint))
         active->showMaximized();
-        if (maxtools) {
-            QIcon icon = w->windowIcon();
-            if (!icon.isNull()) {
-                int iconSize = maxtools->size().height();
-                QPixmap pm(icon.pixmap(QSize(iconSize, iconSize)));
-                maxtools->setPixmap(pm);
-            } else
-            {
-                QPixmap pm(14,14);
-                pm.fill(Qt::color1);
-                pm.setMask(pm.createHeuristicMask());
-                maxtools->setPixmap(pm);
-            }
-        }
-    }
 
     active->internalRaise();
 
