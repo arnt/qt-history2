@@ -272,7 +272,7 @@
     but do not offer all the necessary functionality. The QODBC plugin
     therefore checks whether the data source can be used after a
     connection has been established and refuses to work if the check
-    fails. If you don't like this behaviour, you can remove the \c{#define
+    fails. If you don't like this behavior, you can remove the \c{#define
     ODBC_CHECK_DRIVER} line from the file \c{qsql_odbc.cpp}. Do this at
     your own risk!
 

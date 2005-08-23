@@ -613,7 +613,7 @@
 
     \value WA_QuitOnClose Makes Qt quit the application when the last
     widget with the attribute set has accepted closeEvent(). This
-    behaviour can be adjusted with the
+    behavior can be adjusted with the
     QApplication::quitOnLastWindowClosed property. By default the
     attribute is set for all widgets of type Qt::Window.
 

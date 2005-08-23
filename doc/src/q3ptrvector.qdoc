@@ -22,7 +22,7 @@
     Unless otherwise stated, all functions that remove items from the
     vector will also delete the element pointed to if \link
     setAutoDelete() auto-deletion\endlink is enabled. By default,
-    auto-deletion is disabled; see setAutoDelete(). This behaviour can
+    auto-deletion is disabled; see setAutoDelete(). This behavior can
     be changed in a subclass by reimplementing the virtual function
     deleteItem().
 

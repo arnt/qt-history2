@@ -33,7 +33,7 @@
     take an item out of the dictionary with take().
 
     Calling setAutoDelete(TRUE) for a dictionary tells it to delete
-    items that are removed. The default behaviour is not to delete
+    items that are removed. The default behavior is not to delete
     items when they are removed.
    
     When an item is inserted, the key is converted (hashed) to an

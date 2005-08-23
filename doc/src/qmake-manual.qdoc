@@ -2407,7 +2407,7 @@
     against this library will need to know where to find the symbols that
     the linked in library will require. To help with this situation \c
     qmake will follow a library's dependencies when it feels appropriate,
-    however this behaviour must be enabled in \c qmake. To enable requires
+    however this behavior must be enabled in \c qmake. To enable requires
     two steps. First, you must enable it in the library - to do this you
     must tell \c qmake to save information about this library:
 
