@@ -1059,7 +1059,8 @@ void QObject::customEvent(QEvent * /* event */)
         {
             if (obj == textEdit) {
                 if (event->type() == QEvent::KeyPress) {
-                    qDebug("Ate key press");
+                    QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+                    qDebug() << "Ate key press" << keyEvent->key();
                     return true;
                 } else {
                     return false;
