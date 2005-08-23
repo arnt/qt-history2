@@ -923,7 +923,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         WindowGroupRef grp = 0;
         WindowAttributes wattr = kWindowCompositingAttribute;
         if(qt_mac_is_macsheet(q)) {
-            grp = GetWindowGroupOfClass(kMovableModalWindowClass);
+            //grp = GetWindowGroupOfClass(kMovableModalWindowClass);
             wclass = kSheetWindowClass;
         } else {
             grp = GetWindowGroupOfClass(wclass);
@@ -1418,15 +1418,12 @@ void QWidget::activateWindow()
     qt_mac_set_fullscreen_mode((tlw->windowState() & Qt::WindowFullScreen) &&
                                !qApp->desktop()->screenNumber(this));
     WindowPtr window = qt_mac_window_for(tlw);
-    if((tlw->windowType() == Qt::Popup) || (tlw->windowType() == Qt::Tool) || qt_mac_is_macdrawer(tlw)) {
+    if((tlw->windowType() == Qt::Popup) || (tlw->windowType() == Qt::Tool) ||
+       qt_mac_is_macdrawer(tlw) || IsWindowActive(window)) {
         ActivateWindow(window, true);
-    } else {
-        if(IsWindowActive(window)) {
-            ActivateWindow(window, true);
-            qApp->setActiveWindow(tlw);
-        } else if(!isMinimized()){
-            SelectWindow(window);
-        }
+        qApp->setActiveWindow(tlw);
+    } else if(!isMinimized()){
+        SelectWindow(window);
     }
     SetUserFocusWindow(window);
 }
