@@ -544,6 +544,10 @@ Q3PtrList<Q3NetworkOperation> Q3UrlOperator::copy( const QString &from, const QS
     // prepare some string for later usage
     QString frm = *uFrom;
     QString file = uFrom->fileName();
+
+    if (frm == to + file)
+         return ops;
+    
     file.prepend( "/" );
 
     // uFrom and uTo are deleted when the Q3NetworkProtocol deletes itself via
