@@ -959,7 +959,8 @@ bool QClipboard::event(QEvent *e)
             // someone wants our data
             XSelectionRequestEvent *req = &xevent->xselectionrequest;
 
-            if (req->requestor == requestor->winId()) break;
+            if (requestor && req->requestor == requestor->winId())
+                break;
 
             XEvent event;
             event.xselection.type      = SelectionNotify;
