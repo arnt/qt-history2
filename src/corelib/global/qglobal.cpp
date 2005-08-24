@@ -87,7 +87,7 @@
 
     It is equivalent to a plain \c int, except with respect to
     function overloading and type conversions. You should never need
-    to use it in your applications.
+    to use this class in your applications.
 
     \sa QFlags
 */
@@ -117,10 +117,10 @@
     enum values.
 
     The traditional C++ approach for storing OR-combinations of enum
-    values is to use a \c int or \c uint variable. The inconvenient
+    values is to use an \c int or \c uint variable. The inconvenient
     with that approach is that there's no type checking at all; any
     enum value can be OR'd with any other enum value and passed on to
-    a function that takes a \c int or \c uint.
+    a function that takes an \c int or \c uint.
 
     Qt uses QFlags to provide type safety. For example, the
     Qt::Alignment type is simply a typedef for
@@ -135,7 +135,7 @@
     If you try to pass a value from another enum, the compiler will
     report an error.
 
-    If you want to use QFlags for your own enum types, you must use
+    If you want to use QFlags for your own enum types, use
     the Q_DECLARE_FLAGS() and Q_DECLARE_OPERATORS_FOR_FLAGS().
     For example:
 
