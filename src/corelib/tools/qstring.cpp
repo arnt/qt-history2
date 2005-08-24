@@ -2594,7 +2594,7 @@ QString QString::section(const QRegExp &reg, int start, int end, SectionFlags fl
         sections.append(section_chunk(last_len, QString(uc + last_m, m - last_m)));
         last_m = m;
         last_len = sep.matchedLength();
-        m += sep.matchedLength();
+        m += qMax(sep.matchedLength(), 1);
     }
     sections.append(section_chunk(last_len, QString(uc + last_m, n - last_m)));
 
