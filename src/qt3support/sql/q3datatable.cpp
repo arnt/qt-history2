@@ -190,7 +190,9 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
     The filter (see setFilter()) and sort defined within the table are
     used instead of the filter and sort set on the cursor. For sorting
     options see setSort(), sortColumn(), sortAscending() and
-    sortDescending().
+    sortDescending(). Note that sorting operations will not behave as
+    expected if you are using a QSqlSelectCursor because it uses
+    user-defined SQL queries to obtain data.
 
     The text used to represent NULL, true and false values can be
     changed with setNullText(), setTrueText() and setFalseText()
