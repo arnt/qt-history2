@@ -82,7 +82,7 @@ void QAbstractItemViewPrivate::init()
     q->setHorizontalStepsPerItem(64);
     q->setVerticalStepsPerItem(64);
 
-    dropIndicator = new QRubberBand(QRubberBand::Line, viewport);
+    dropIndicator = new QRubberBand(QRubberBand::Line, q);
 
     doDelayedItemsLayout();
 }
@@ -138,9 +138,9 @@ void QAbstractItemViewPrivate::init()
         horizontalScrollBar()->setRange(0, realWidth - width());
     \endcode
     Note that QAbstractScrollView wont turn on/off the scroolbars based upon the
-    ranges until the widget is shown.  They should be manually turned 
+    ranges until the widget is shown.  They should be manually turned
     on and off in if other functions require that information.
-    
+
     For complete control over the display and editing of items you can
     specify a delegate with setItemDelegate().
 
@@ -258,7 +258,7 @@ void QAbstractItemViewPrivate::init()
     If your item is displayed in several areas then visualRect should return
     the primary area that contains index and not the complete area that index
     might encompasses, touch or cause drawing.
-    
+
     In the base class this is a pure virtual function.
 */
 
@@ -1107,32 +1107,29 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
         if (index.isValid()) {
             // update the drag indicator geometry
             QRect rect = visualRect(index);
-            QRect global(d->viewport->mapToGlobal(rect.topLeft()), rect.size());
+            bool updateDropIndicator = false;
             switch (d->position(event->pos(), rect, 2)) {
             case QAbstractItemViewPrivate::Above: {
-                QRect geometry(global.left(), global.top() - 2, global.width(), 4);
-                if (geometry != d->dropIndicator->geometry())
-                    d->dropIndicator->setGeometry(geometry);
+                updateDropIndicator = true;
+                d->dropIndicator->setGeometry(rect);
                 break; }
             case QAbstractItemViewPrivate::Below: {
-                QRect geometry(global.left(), global.bottom() - 1, global.width(), 4);
-                if (geometry != d->dropIndicator->geometry())
-                    d->dropIndicator->setGeometry(geometry);
+                updateDropIndicator = true;
+                d->dropIndicator->setGeometry(rect);
                 break; }
             case QAbstractItemViewPrivate::On: {
                 if (model()->flags(index) & Qt::ItemIsDropEnabled) {
-                    if (global != d->dropIndicator->geometry()) {
-                        d->dropIndicator->setGeometry(global);
-                        QRegion top(0, 0, rect.width(), 3);
-                        QRegion left(0, 0, 3, rect.height());
-                        QRegion bottom(0, rect.height() - 3, rect.width(), 3);
-                        QRegion right(rect.width() - 3, 0, 3, rect.height());
-                        d->dropIndicator->setMask(top + left + bottom + right);
-                    }
+                    updateDropIndicator = true;
+                    d->dropIndicator->setGeometry(rect);
+                    QRegion top(0, 0, rect.width(), 3);
+                    QRegion left(0, 0, 3, rect.height());
+                    QRegion bottom(0, rect.height() - 3, rect.width(), 3);
+                    QRegion right(rect.width() - 3, 0, 3, rect.height());
+                    d->dropIndicator->setMask(top + left + bottom + right);
                 }
                 break; }
             }
-            if (!d->dropIndicator->isVisible() && d->showDropIndicator) {
+            if (updateDropIndicator && !d->dropIndicator->isVisible() && d->showDropIndicator) {
                 d->dropIndicator->show();
                 d->dropIndicator->raise();
             }
@@ -1443,14 +1440,14 @@ bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEve
 
     if (!model() || !index.isValid())
         return false;
-    
+
     QModelIndex buddy = model()->buddy(index);
     QStyleOptionViewItem options = viewOptions();
     options.rect = visualRect(buddy);
     options.state |= (buddy == currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
     if (event && itemDelegate()->editorEvent(event, model(), options, buddy))
         return true; // the delegate handled the event
-    
+
     if (!d->shouldEdit(trigger, buddy))
         return false;
 

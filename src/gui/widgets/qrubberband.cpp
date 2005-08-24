@@ -232,7 +232,8 @@ void QRubberBand::setGeometry(const QRect &geom)
     QRect mygeom = geom.normalized();
     if(QWidget *p = parentWidget()) {
         mygeom.moveTo(p->mapToGlobal(mygeom.topLeft()));
-        const QRect prect(p->mapToGlobal(QPoint(0, 0)), p->size());
+        QRect prect = static_cast<QRubberBand*>(p)->d_func()->clipRect();
+        prect.moveTo(p->mapToGlobal(prect.topLeft()));
         if(!prect.contains(mygeom)) {
             if(mygeom.left() < prect.left()) {
                 const int diff = prect.left()-mygeom.left();
