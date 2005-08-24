@@ -653,7 +653,7 @@ QSize QWorkspaceTitleBar::sizeHint() const
     a number of child windows, each of which is a widget.
 
     The workspace itself is an ordinary Qt widget. It has a standard
-    constructor that takes a parent widget and an object name.
+    constructor that takes a parent widget.
     Workspaces can be placed in any layout, but are typically given
     as the central widget in a QMainWindow:
 
