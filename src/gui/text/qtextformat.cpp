@@ -237,6 +237,8 @@ void QTextFormatPrivate::recalcFont() const
 
     if (props.contains(QTextFormat::FontPointSize))
         f.setPointSizeF(props.value(QTextFormat::FontPointSize).toDouble());
+    else if (props.contains(QTextFormat::FontPixelSize))
+        f.setPixelSize(props.value(QTextFormat::FontPixelSize).toInt());
 
     if (props.contains(QTextFormat::FontWeight))
         f.setWeight(props.value(QTextFormat::FontWeight).toInt());
@@ -1316,7 +1318,16 @@ QTextCharFormat::QTextCharFormat() : QTextFormat(CharFormat) {}
 void QTextCharFormat::setFont(const QFont &font)
 {
     setFontFamily(font.family());
-    setFontPointSize(font.pointSizeF());
+
+    const qreal pointSize = font.pointSizeF();
+    if (pointSize > 0) {
+        setFontPointSize(pointSize);
+    } else {
+        const int pixelSize = font.pixelSize();
+        if (pixelSize > 0)
+            setProperty(QTextFormat::FontPixelSize, pixelSize);
+    }
+
     setFontWeight(font.weight());
     setFontItalic(font.italic());
     setFontUnderline(font.underline());

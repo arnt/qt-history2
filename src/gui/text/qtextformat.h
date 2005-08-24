@@ -137,6 +137,7 @@ public:
         FontOverline = 0x2006,
         FontStrikeOut = 0x2007,
         FontFixedPitch = 0x2008,
+        FontPixelSize = 0x2009,
 
         TextUnderlineColor = 0x2010,
 
