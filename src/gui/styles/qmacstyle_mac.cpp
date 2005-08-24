@@ -2560,6 +2560,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
     case QStyle::CC_TitleBar:
         if (const QStyleOptionTitleBar *titlebar
                 = qstyleoption_cast<const QStyleOptionTitleBar *>(opt)) {
+            tds = kThemeStateActive;
             HIThemeWindowDrawInfo wdi;
             wdi.version = qt_mac_hitheme_version;
             wdi.state = tds;
