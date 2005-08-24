@@ -728,8 +728,8 @@ bool Q3SVGPaintEngine::play(QPainter *pt)
             } else if (w == 0 || h == 0) {
                 return true;
             }
-            pt->translate(-x, -y);
             pt->scale(width/w, height/h);
+            pt->translate(-x, -y);
         }
     }
 
