@@ -1273,8 +1273,7 @@ bool QLineEdit::event(QEvent * e)
              || ke->modifiers() == Qt::KeypadModifier) {
             if (ke->key() < Qt::Key_Escape) {
                 ke->accept();
-            } else if (ke->modifiers() == Qt::NoModifier
-                        || ke->modifiers() == Qt::ShiftModifier) {
+            } else {
                 switch (ke->key()) {
                 case Qt::Key_Delete:
                 case Qt::Key_Home:

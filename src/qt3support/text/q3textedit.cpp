@@ -1077,8 +1077,7 @@ bool Q3TextEdit::event(QEvent *e)
         case Qt::ShiftButton:
             if (ke->key() < Qt::Key_Escape) {
                 ke->accept();
-            } else if (ke->state() == Qt::NoButton
-                        || ke->state() == Qt::ShiftButton) {
+            } else {
                 switch (ke->key()) {
                 case Qt::Key_Return:
                 case Qt::Key_Enter:
