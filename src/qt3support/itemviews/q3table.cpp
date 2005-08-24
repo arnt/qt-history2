@@ -5871,6 +5871,11 @@ void Q3Table::setCellWidget(int row, int col, QWidget *e)
     clearCellWidget(row, col);
     if (e->parent() != viewport())
 	e->reparent(viewport(), QPoint(0,0));
+    Q3TableItem *itm = item(row, col);
+    if (itm) { // get the correct row and col if the item is spanning
+        row = itm->row();
+        col = itm->col();
+    }
     insertWidget(row, col, e);
     QRect cr = cellGeometry(row, col);
     e->resize(cr.size());
