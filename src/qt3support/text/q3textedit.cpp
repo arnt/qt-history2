@@ -7046,7 +7046,7 @@ int Q3TextEdit::maxLogLines() const
  */
 void Q3TextEdit::optimCheckLimit(const QString& str)
 {
-    if (d->maxLogLines > -1 && d->maxLogLines == d->od->numLines) {
+    if (d->maxLogLines > -1 && d->maxLogLines <= d->od->numLines) {
         // NB! Removing the top line in the buffer will potentially
         // destroy the structure holding the formatting tags - if line
         // spanning tags are used.
