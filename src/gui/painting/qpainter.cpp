@@ -525,9 +525,6 @@ void QPainterPrivate::updateState(QPainterState *newState)
     QPaintDevice. QPainter supports a static function to do this,
     setRedirected().
 
-    setTabStops() and setTabArray() can change where the tab stops
-    are, but these are very seldomly used.
-
     \warning Unless a widget has the Qt::WA_PaintOutsidePaintEvent attribute
     set. A QPainter can only be used on a widget inside a paintEvent() or a
     function called by a paintEvent(). On Mac OS X, you can only paint on a
