@@ -20,6 +20,7 @@
 #include "QtGui/qpixmap.h"
 #include "QtGui/qimage.h"
 #include "QtGui/qtextoption.h"
+#include "QtGui/qdrawutil.h"
 
 #ifndef QT_INCLUDE_COMPAT
 #include "QtGui/qpolygon.h"
@@ -406,6 +407,8 @@ private:
     friend class QWin32PaintEngine;
     friend class QWin32PaintEnginePrivate;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QPainter::RenderHints)
 
 //
 // functions

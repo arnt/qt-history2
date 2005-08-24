@@ -104,4 +104,6 @@ public:
     virtual QImageIOHandler *create(QIODevice *device, const QByteArray &format = QByteArray()) const = 0;
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QImageIOPlugin::Capabilities)
+
 #endif

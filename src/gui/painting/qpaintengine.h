@@ -278,7 +278,7 @@ inline void QPaintEngine::clearDirty(DirtyFlags df)
     state->dirtyFlags &= ~static_cast<uint>(df);
 }
 
-
+Q_DECLARE_OPERATORS_FOR_FLAGS(QTextItem::RenderFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::PaintEngineFeatures)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::DirtyFlags)
 

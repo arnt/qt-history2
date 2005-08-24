@@ -185,4 +185,6 @@ private:
     Q_DECLARE_PRIVATE(QTextDocument)
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QTextDocument::FindFlags)
+
 #endif // QTEXTDOCUMENT_H

@@ -161,6 +161,8 @@ public:
 #endif // Q_WS_WIN
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QFontEngine::FECaps)
+
 class QGlyph;
 
 #if defined(Q_WS_QWS)

@@ -74,6 +74,8 @@ private:
     QTextOptionPrivate *d;
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QTextOption::Flags)
+
 inline void QTextOption::setAlignment(Qt::Alignment aalignment)
 { align = aalignment; }
 

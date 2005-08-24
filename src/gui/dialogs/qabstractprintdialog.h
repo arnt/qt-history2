@@ -73,6 +73,8 @@ private:
     Q_DISABLE_COPY(QAbstractPrintDialog)
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractPrintDialog::PrintDialogOptions)
+
 #endif // QT_NO_PRINTDIALOG
 
 #endif // QABSTRACTPRINTDIALOG_H
