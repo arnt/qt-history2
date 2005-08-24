@@ -1378,6 +1378,7 @@ void Q3ListBox::clear()
     blockSignals(true);
     d->clearing = true;
     d->current = 0;
+    d->tmpCurrent = 0;
     Q3ListBoxItem * i = d->head;
     d->head = 0;
     while (i) {
@@ -3979,7 +3980,8 @@ void Q3ListBox::takeItem(const Q3ListBoxItem * item)
         emit highlighted(tmp2);
         emit currentChanged(i);
     }
-
+    if (d->tmpCurrent == item)
+        d->tmpCurrent = d->current;
     if (d->selectAnchor == item)
         d->selectAnchor = d->current;
 
