@@ -786,8 +786,8 @@ bool QDockWidget::event(QEvent *event)
 #ifndef QT_NO_ACTION
     case QEvent::Show:
         d->toggleViewAction->setChecked(event->type() == QEvent::Show);
-        break;
 #endif
+        break;
     case QEvent::StyleChange:
         d->updateButtons();
         break;
