@@ -146,4 +146,6 @@ private:
     int pieceCount;
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(PeerWireClient::PeerWireState)
+
 #endif
