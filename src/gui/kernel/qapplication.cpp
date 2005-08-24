@@ -2922,7 +2922,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 he.spont = e->spontaneous();
                 res = d->notify_helper(w, w == receiver ? help : &he);
                 e->spont = false;
-                if ((res && (w == receiver ? help : &he)->isAccepted()) || w->isWindow())
+                eventAccepted = (w == receiver ? help : &he)->isAccepted();
+                if ((res && eventAccepted) || w->isWindow())
                     break;
 
                 relpos += w->pos();

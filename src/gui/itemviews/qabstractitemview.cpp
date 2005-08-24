@@ -872,24 +872,30 @@ bool QAbstractItemView::viewportEvent(QEvent *event)
         if (!isActiveWindow())
             break;
         QHelpEvent *he = static_cast<QHelpEvent*>(event);
-        if (!he)
-            break;
         QModelIndex index = indexAt(he->pos());
         if (index.isValid()) {
             QString tooltip = model()->data(index, Qt::ToolTipRole).toString();
             QToolTip::showText(he->globalPos(), tooltip, this);
+            return true;
         }
-        return true; }
+        break; }
 #endif
 #ifndef QT_NO_WHATSTHIS
+    case QEvent::QueryWhatsThis: {
+        QHelpEvent *he = static_cast<QHelpEvent*>(event);
+        QModelIndex index = indexAt(he->pos());
+        if (index.isValid() && model()->data(index, Qt::WhatsThisRole).isValid())
+            return true;
+        break ; }
     case QEvent::WhatsThis: {
         QHelpEvent *he = static_cast<QHelpEvent*>(event);
         QModelIndex index = indexAt(he->pos());
         if (index.isValid()) {
             QString whatsthis = model()->data(index, Qt::WhatsThisRole).toString();
             QWhatsThis::showText(he->globalPos(), whatsthis, this);
+            return true;
         }
-        return true; }
+        break ; }
 #endif
     case QEvent::StatusTip: {
         QHelpEvent *he = static_cast<QHelpEvent*>(event);
