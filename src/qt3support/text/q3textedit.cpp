@@ -1735,13 +1735,12 @@ void Q3TextEdit::readFormats(Q3TextCursor &c1, Q3TextCursor &c2, Q3TextString &t
             text.insert(lastIndex++, c1.paragraph()->at(i), true);
         int num = 2; // start and end, being different
         text += "\n"; lastIndex++;
-        Q3TextParagraph *p = c1.paragraph()->next();
-        while (p && p != c2.paragraph()) {
-            for (i = 0; i < p->length()-1; ++i)
-                text.insert(lastIndex++ , p->at(i), true);
-            text += "\n"; num++; lastIndex++;
-            p = p->next();
+
+        if (c1.paragraph()->next() != c2.paragraph()) {
+            num += text.appendParagraphs(c1.paragraph()->next(), c2.paragraph());
+            lastIndex = text.length();
         }
+
         for (i = 0; i < c2.index(); ++i)
             text.insert(i + lastIndex, c2.paragraph()->at(i), true);
 #ifndef QT_NO_DATASTREAM

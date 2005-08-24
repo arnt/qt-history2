@@ -180,6 +180,7 @@ public:
     void operator=(const QString &s) { clear(); insert(0, s, 0); }
     void operator+=(const QString &s) { insert(length(), s, 0); }
     void prepend(const QString &s) { insert(0, s, 0); }
+    int appendParagraphs( Q3TextParagraph *start, Q3TextParagraph *end );
 
     // return next and previous valid cursor positions.
     bool validCursorPosition(int idx);

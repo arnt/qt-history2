@@ -3733,6 +3733,47 @@ void Q3TextString::insert(int index, Q3TextStringChar *c, bool doAddRefFormat )
     bidiDirty = true;
 }
 
+int Q3TextString::appendParagraphs( Q3TextParagraph *start, Q3TextParagraph *end )
+{
+    int paragCount = 0;
+    int newLength = data.size();
+    for (Q3TextParagraph *p = start; p != end; p = p->next()) {
+        newLength += p->length();
+        ++paragCount;
+    }
+
+    const int oldLength = data.size();
+    data.resize(newLength);
+
+    Q3TextStringChar *d = &data[oldLength];
+    for (Q3TextParagraph *p = start; p != end; p = p->next()) {
+        const Q3TextStringChar * const src = p->at(0);
+        int i = 0;
+        for (; i < p->length() - 1; ++i) {
+            d[i].c = src[i].c;
+            d[i].x = 0;
+            d[i].lineStart = 0;
+            d[i].rightToLeft = 0;
+            d[i].type = Q3TextStringChar::Regular;
+            d[i].nobreak = false;
+            d[i].p.format = src[i].format();
+            if (d[i].p.format)
+                d[i].p.format->addRef();
+        }
+        d[i].x = 0;
+        d[i].lineStart = 0;
+        d[i].nobreak = false;
+        d[i].type = Q3TextStringChar::Regular;
+        d[i].p.format = 0;
+        d[i].rightToLeft = 0;
+        d[i].c = '\n';
+        d += p->length();
+    }
+
+    bidiDirty = true;
+    return paragCount;
+}
+
 void Q3TextString::truncate(int index)
 {
     index = qMax(index, 0);
