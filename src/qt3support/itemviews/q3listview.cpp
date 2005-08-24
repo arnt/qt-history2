@@ -3286,6 +3286,7 @@ void Q3ListView::removeColumn(int index)
     if (d->column.count() == 0)
         clear();
     updateGeometry();
+    viewport()->update();
 }
 
 /*!
