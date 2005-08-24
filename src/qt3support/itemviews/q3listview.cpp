@@ -7848,6 +7848,10 @@ Q3ListViewItem *Q3ListView::findItem(const QString& text, int column,
     Hides the column specified at \a column. This is a convenience
     function that calls setColumnWidth(column, 0).
 
+    Note: The user may still be able to resize the hidden column using
+    the header handles. To prevent this, call setResizeEnabled(false,
+    \a column) on the list views header.
+
     \sa setColumnWidth()
 */
 
