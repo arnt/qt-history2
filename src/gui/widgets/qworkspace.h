@@ -69,6 +69,7 @@ public slots:
     void activatePreviousWindow();
 
 protected:
+    bool event(QEvent *e);
     void paintEvent(QPaintEvent *e);
     void changeEvent(QEvent *);
     void childEvent(QChildEvent *);

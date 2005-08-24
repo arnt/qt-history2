@@ -960,8 +960,6 @@ QWorkspacePrivate::init()
 
     inTitleChange = false;
     updateWorkspace();
-
-    q->window()->installEventFilter(q);
 }
 
 /*!
@@ -1623,6 +1621,20 @@ QWidgetList QWorkspace::windowList(WindowOrder order) const
     return windows;
 }
 
+
+/*! \reimp */
+bool QWorkspace::event(QEvent *e)
+{
+    Q_D(QWorkspace);
+    if (e->type() == QEvent::Shortcut) {
+        QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
+        const char *theSlot = d->shortcutMap.value(se->shortcutId(), 0);
+        if (theSlot)
+            QMetaObject::invokeMethod(this, theSlot);
+    }
+    return QWidget::event(e);
+}
+
 /*! \reimp */
 bool QWorkspace::eventFilter(QObject *o, QEvent * e)
 {
@@ -1698,14 +1710,6 @@ bool QWorkspace::eventFilter(QObject *o, QEvent * e)
             d->popup->hide();
         }
         d->updateWorkspace();
-        break;
-    case QEvent::Shortcut:
-        {
-            QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
-            const char *theSlot = d->shortcutMap.value(se->shortcutId(), 0);
-            if (theSlot)
-                QMetaObject::invokeMethod(this, theSlot);
-        }
         break;
     default:
         break;
