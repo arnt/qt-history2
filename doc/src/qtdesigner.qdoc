@@ -26,7 +26,7 @@
 
     \code
         QDesignerMemberSheetExtension *memberSheet  = 0;
-        QExtensionManager manager = core()->extensionManager();
+        QExtensionManager manager = formEditor->extensionManager();
 
         memberSheet = qt_extension<QDesignerMemberSheetExtension*>(manager, widget);
         int index = memberSheet->indexOf(setEchoMode);
@@ -34,6 +34,10 @@
 
         delete sheet;
     \endcode
+
+    When implementing a custom widget plugin, the form editor
+    interface (\c formEditor) is provided by the
+    QDesignerCustomWidgetInterface::initialize() function's parameter.
 
     The member sheet (and any other extension), can be retrieved by
     querying \QD's extension manager using the qt_extension()
@@ -76,16 +80,15 @@
     required. For that reason, when implementing a property sheet
     extension, you must also create a QExtensionFactory, i.e a class
     that is able to make an instance of your extension, and register
-    it using a QExtensionManager.
+    it using \QD's \l {QExtensionManager}{extension manager}.
 
-    The QExtensionManager class provides extension management
-    facilities for Qt Designer. When a widget's member sheet extension
-    is required, Qt Designer will run through all its registered
-    factories calling QExtensionFactory::createExtension() for each
-    until the first one that is able to create a member sheet
-    extension for that widget, is found. This factory will then make
-    an instance of the extension. If no such factory is found, \QD
-    will use the default member sheet.
+    When a widget's member sheet extension is required, Qt Designer
+    will run through all its registered factories calling
+    QExtensionFactory::createExtension() for each until the first one
+    that is able to create a member sheet extension for that widget,
+    is found. This factory will then make an instance of the
+    extension. If no such factory is found, \QD will use the default
+    member sheet.
 
     There are four available types of extensions in Qt Designer:
     QDesignerContainerExtension , QDesignerMemberSheetExtension,
@@ -465,11 +468,11 @@
     In Qt Designer the extensions are not created until they are
     required. For that reason you must also create a
     QExtensionFactory, i.e a class that is able to make an instance of
-    your extension, and register it using a QExtensionManager.
+    your extension, and register it using \QD's \l
+    {QExtensionManager}{extension manager}.
 
-    The QExtensionManager class provides extension management
-    facilities for \QD. When a container extension is required, Qt
-    Designer will run through all its registered factories calling
+    When a container extension is required, Qt Designer will run
+    through all its registered factories calling
     QExtensionFactory::createExtension() for each until the first one
     that is able to create a container extension, is found. This
     factory will then create the extension for the plugin.
@@ -671,11 +674,10 @@
     right mouse button over a widget in \QD's workspace. For that
     reason you must also create a QExtensionFactory, i.e a class that
     is able to make an instance of your extension, and register it
-    using a QExtensionManager.
+    using \QD's \l {QExtensionManager}{extension manager}.
 
-    The QExtensionManager class provides extension management
-    facilities for \QD. When a task menu extension is required, Qt
-    Designer will run through all its registered factories calling
+    When a task menu extension is required, Qt Designer will run
+    through all its registered factories calling
     QExtensionFactory::createExtension() for each until the first one
     that is able to create a task menu extension for the selected
     widget, is found. This factory will then make an instance of the
@@ -1079,7 +1081,7 @@
 
     \code
         QDesignerPropertySheetExtension *propertySheet  = 0;
-        QExtensionManager manager = core()->extensionManager();
+        QExtensionManager manager = formEditor->extensionManager();
 
         propertySheet = qt_extension<QDesignerPropertySheetExtension*>(manager, widget);
         int index = propertySheet->indexOf(QLatin1String("margin"));
@@ -1089,6 +1091,10 @@
 
         delete sheet;
     \endcode
+
+    When implementing a custom widget plugin, the form editor
+    interface (\c formEditor) is provided by the
+    QDesignerCustomWidgetInterface::initialize() function's parameter.
 
     The property sheet, or any other extension, can be retrieved by
     querying \QD's extension manager using the qt_extension()
@@ -1132,16 +1138,15 @@
     required. For that reason, when implementing a property sheet
     extension, you must also create a QExtensionFactory, i.e a class
     that is able to make an instance of your extension, and register
-    it using a QExtensionManager.
+    it using \QD's \l {QExtensionManager}{extension manager}.
 
-    The QExtensionManager class provides extension management
-    facilities for Qt Designer. When a property sheet extension is
-    required, Qt Designer will run through all its registered
-    factories calling QExtensionFactory::createExtension() for each
-    until the first one that is able to create a property sheet
-    extension for the selected widget, is found. This factory will
-    then make an instance of the extension. If no such factory can be
-    found, \QD will use the default property sheet.
+    When a property sheet extension is required, Qt Designer will run
+    through all its registered factories calling
+    QExtensionFactory::createExtension() for each until the first one
+    that is able to create a property sheet extension for the selected
+    widget, is found. This factory will then make an instance of the
+    extension. If no such factory can be found, \QD will use the
+    default property sheet.
 
     There are four available types of extensions in Qt Designer:
     QDesignerContainerExtension, QDesignerMemberSheetExtension,
