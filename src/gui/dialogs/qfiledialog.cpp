@@ -941,10 +941,12 @@ void QFileDialogPrivate::reload()
 */
 void QFileDialogPrivate::navigateToPrevious()
 {
-    QModelIndex root = history.back();
-    history.pop_back();
-    setRootIndex(root);
-    updateButtons(root);
+    if (!history.isEmpty()) {
+        QModelIndex root = history.back();
+        history.pop_back();
+        setRootIndex(root);
+        updateButtons(root);
+    }
 }
 
 /*!
@@ -1499,7 +1501,7 @@ void QFileDialogPrivate::setupActions()
 void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *grid)
 {
     Q_Q(QFileDialog);
-    listView = new QListView(q);
+    listView = new QFileDialogListView(this);
 
     listView->setModel(model);
     listView->setSelectionModel(selections);
@@ -1514,7 +1516,7 @@ void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *
 #ifndef QT_NO_DRAGANDDROP
     listView->setDragEnabled(true);
 #endif
-    
+
     grid->addWidget(listView, 1, 0, 1, 6);
 
     QObject::connect(listView, SIGNAL(activated(QModelIndex)), q, SLOT(enterDirectory(QModelIndex)));
@@ -1531,7 +1533,7 @@ void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *
 void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *grid)
 {
     Q_Q(QFileDialog);
-    treeView = new QTreeView(q);
+    treeView = new QFileDialogTreeView(this);
 
     treeView->setModel(model);
     treeView->setSelectionModel(selections);
@@ -1770,6 +1772,29 @@ QModelIndex QFileDialogPrivate::matchName(const QString &name, const QModelIndex
     if (matches.count() <= 0)
         return QModelIndex();
     return matches.first();
+}
+
+bool QFileDialogPrivate::itemViewKeyboardEvent(QKeyEvent *e)
+{
+    switch (e->key()) {
+    case Qt::Key_Backspace:
+        navigateToParent();
+        return true;
+    case Qt::Key_Back:
+#ifdef QT_KEYPAD_NAVIGATION
+        if (QApplication::keypadNavigationEnabled())
+            return false;
+#endif
+    case Qt::Key_Left:
+        if (e->key() == Qt::Key_Back || e->modifiers() == Qt::AltModifier) {
+            navigateToPrevious();
+            return true;
+        }
+        break;
+    default:
+        break;
+    }
+    return false;
 }
 
 

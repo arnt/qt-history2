@@ -39,6 +39,8 @@ class QPushButton;
 class QFileDialogLineEdit;
 class QGridLayout;
 class QLabel;
+class QFileDialogListView;
+class QFileDialogTreeView;
 
 class QFileDialogPrivate : public QDialogPrivate
 {
@@ -89,6 +91,8 @@ public:
     QModelIndex matchDir(const QString &text, const QModelIndex &first) const;
     QModelIndex matchName(const QString &name, const QModelIndex &first) const;
 
+    bool itemViewKeyboardEvent(QKeyEvent *e);
+
     static QString getEnvironmentVariable(const QString &str);
 
     // inlined stuff
@@ -117,9 +121,9 @@ public:
     // data
     QDirModel *model;
     QItemSelectionModel *selections;
-    QListView *listView;
-    QTreeView *treeView;
-    
+    QFileDialogListView *listView;
+    QFileDialogTreeView *treeView;
+
     QFileDialog::FileMode fileMode;
     QFileDialog::AcceptMode acceptMode;
     bool confirmOverwrite;
@@ -168,6 +172,44 @@ struct QFileDialogArgs
     QString filter;
     QFileDialog::FileMode mode;
     QFileDialog::Options options;
+};
+
+class QFileDialogListView : public QListView
+{
+public:
+    QFileDialogListView(QFileDialogPrivate *d_pointer)
+        : QListView(qobject_cast<QWidget*>(d_pointer->q_ptr)), d_ptr(d_pointer)
+    {}
+protected:
+    void keyPressEvent(QKeyEvent *e)
+    {
+        if (d_ptr->itemViewKeyboardEvent(e)) {
+            e->accept();
+        } else {
+            QListView::keyPressEvent(e);
+        }
+    }
+private:
+    QFileDialogPrivate *d_ptr;
+};
+
+class QFileDialogTreeView : public QTreeView
+{
+public:
+    QFileDialogTreeView(QFileDialogPrivate *d_pointer)
+        : QTreeView(qobject_cast<QWidget*>(d_pointer->q_ptr)), d_ptr(d_pointer)
+    {}
+protected:
+    void keyPressEvent(QKeyEvent *e)
+    {
+        if (d_ptr->itemViewKeyboardEvent(e)) {
+            e->accept();
+        } else {
+            QTreeView::keyPressEvent(e);
+        }
+    }
+private:
+    QFileDialogPrivate *d_ptr;
 };
 
 #endif // QFILEDIALOG_P_H
