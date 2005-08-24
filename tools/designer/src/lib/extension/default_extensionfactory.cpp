@@ -20,7 +20,7 @@
     \class QExtensionFactory
 
     \brief The QExtensionFactory class allows you to create a factory
-    that is able to make instances of plugin extensions in Qt
+    that is able to make instances of custom extensions in Qt
     Designer.
 
     \inmodule QtDesigner
@@ -28,16 +28,16 @@
     In Qt Designer the extensions are not created until they are
     required. For that reason, when implementing a custom extension,
     you must also create a QExtensionFactory, i.e a class that is able
-    to make an instance of your extension, and register it using a
-    QExtensionManager.
+    to make an instance of your extension, and register it using \QD's
+    \l {QExtensionManager}{extension manager}.
 
     The QExtensionManager class provides extension management
     facilities for Qt Designer. When an extension is required, Qt
     Designer will run through all its registered factories calling
     QExtensionFactory::createExtension() for each until the first one
-    that is able to create a requested extension, is found. This
-    factory will then make an instance of the extension for the
-    plugin.
+    that is able to create a requested extension for the selected
+    object, is found. This factory will then make an instance of the
+    extension.
 
     There are four available types of extensions in Qt Designer:
     QDesignerContainerExtension , QDesignerMemberSheetExtension,
@@ -94,7 +94,7 @@
     Designer, and how to to use the QDesignerTaskMenuExtension class
     to add custom items to Qt Designer's task menu.
 
-    \sa QExtensionManager, QAbstractExtensionFactory, qt_extension()
+    \sa QExtensionManager, QAbstractExtensionFactory
 */
 
 /*!

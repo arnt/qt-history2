@@ -22,9 +22,10 @@
     \inmodule QtDesigner
 
     In \QD the extensions are not created until they are required. For
-    that reason you must, when implementing an extension, also create
+    that reason, when implementing an extension, you must also create
     a QExtensionFactory, i.e a class that is able to make an instance
-    of your extension, and register it using a QExtensionManager.
+    of your extension, and register it using \QD's \l
+    {QExtensionManager}{extension manager}.
 
     The registration of an extension factory is typically made in the
     QDesignerCustomWidgetInterface::initialize() function:
@@ -45,20 +46,20 @@
         }
     \endcode
 
-    The QDesignerCustomWidgetInterface class is used to expose the
-    custom widget to \QD. The \l
-    {QDesignerCustomWidgetInterface::initialize()}{initialize()}
-    function is called after the plugin is loaded into Qt
-    Designer. The function's QDesignerFormWindowInterface parameter
-    provides the plugin with a gateway to all of \QD's API's; we can
-    use this parameter and retrieve \QD's extension manager to
-    register our extension factory.
+    The QExtensionManager is not intended to be instantiated
+    directly. You can retrieve an interface to \QD's extension manager
+    using the QDesignerFormEditorInterface::extensionManager()
+    function. The form editor interface (\c formEditor) is provided by
+    the QDesignerCustomWidgetInterface::initialize() function's
+    parameter. When implementing a custom widget plugin, you must
+    subclass the QDesignerCustomWidgetInterface to expose your plugin
+    to \QD.
 
     Then, when an extension is required, \QD will run through all its
     registered factories calling QExtensionFactory::createExtension()
     for each until the first one that is able to create the requested
-    extension for the selected widget, is found. This factory will
-    then create the extension.
+    extension for the selected object, is found. This factory will
+    then make an instance of the extension.
 
     There are four available types of extensions in \QD:
     QDesignerContainerExtension , QDesignerMemberSheetExtension,
@@ -85,7 +86,8 @@ QExtensionManager::QExtensionManager(QObject *parent)
 }
 
 /*!
-    Register the given extension \a factory specified by \a iid.
+    Register the extension specified by the given \a factory and
+    extension identifier \a iid.
 */
 void QExtensionManager::registerExtensions(QAbstractExtensionFactory *factory, const QString &iid)
 {
@@ -101,7 +103,8 @@ void QExtensionManager::registerExtensions(QAbstractExtensionFactory *factory, c
 }
 
 /*!
-    Unregister the given \a factory specified by \a iid.
+    Unregister the extension specified by the given \a factory and
+    extension identifier \a iid.
 */
 void QExtensionManager::unregisterExtensions(QAbstractExtensionFactory *factory, const QString &iid)
 {
