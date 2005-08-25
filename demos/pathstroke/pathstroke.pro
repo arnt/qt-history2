@@ -1,6 +1,5 @@
 SOURCES += main.cpp pathstroke.cpp
 HEADERS += pathstroke.h
-QT += opengl
 
 SHARED_FOLDER = ../shared
 

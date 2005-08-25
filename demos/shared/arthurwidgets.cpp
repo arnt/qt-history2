@@ -13,7 +13,7 @@
 extern QPixmap cached(const QString &img);
 
 ArthurFrame::ArthurFrame(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent), m_prefer_image(false)
 {
     m_document = 0;
     m_show_doc = false;
