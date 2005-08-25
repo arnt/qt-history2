@@ -5323,6 +5323,10 @@ bool Q3TextEdit::getParagraphFormat(int para, QFont *font, QColor *color,
     at the document position \a pos. If you want to create a custom
     popup menu, reimplement this function and return the created popup
     menu. Ownership of the popup menu is transferred to the caller.
+
+    \warning The QPopupMenu ID values 0-7 are reserved, and they map to the
+    standard operations. When inserting items into your custom popup menu, be
+    sure to specify ID values larger than 7.
 */
 
 Q3PopupMenu *Q3TextEdit::createPopupMenu(const QPoint& pos)
