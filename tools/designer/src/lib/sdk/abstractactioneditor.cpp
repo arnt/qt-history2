@@ -15,12 +15,28 @@
 
 /*!
     \class QDesignerActionEditorInterface
-    \brief The QDesignerActionEditorInterface class provides an interface that is used to
-    control Qt Designer's action editor component.
+
+    \brief The QDesignerActionEditorInterface class allows you to
+    change the focus of Qt Designer's action editor.
+
     \inmodule QtDesigner
+
+    The QDesignerActionEditorInterface class is not intended to be
+    instantiated directly. You can retrieve an interface to \QD's
+    action editor using the
+    QDesignerFormEditorInterface::actionEditor() function.
+
+    QDesignerActionEditorInterface provides the core() function that
+    you can use to retrieve \QD's form editor, and the setFormWindow()
+    function that enables you to change the currently selected form
+    window.
+
+    \sa QDesignerFormEditorInterface, QDesignerFormWindowInterface
 */
 
 /*!
+    Constructs an action editor interface with the given \a parent and
+    specified window \a flags.
 */
 QDesignerActionEditorInterface::QDesignerActionEditorInterface(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)
@@ -28,12 +44,14 @@ QDesignerActionEditorInterface::QDesignerActionEditorInterface(QWidget *parent, 
 }
 
 /*!
+    Destroys the action editor interface.
 */
 QDesignerActionEditorInterface::~QDesignerActionEditorInterface()
 {
 }
 
 /*!
+    Returns an interface to \QD's form editor.
 */
 QDesignerFormEditorInterface *QDesignerActionEditorInterface::core() const
 {
@@ -41,5 +59,8 @@ QDesignerFormEditorInterface *QDesignerActionEditorInterface::core() const
 }
 
 /*!
-    \fn virtual void QDesignerActionEditorInterface::setFormWindow(QDesignerFormWindowInterface *formWindow) = 0
+    \fn void QDesignerActionEditorInterface::setFormWindow(QDesignerFormWindowInterface *formWindow)
+
+    Sets the currently selected form window to \a formWindow.
+
 */

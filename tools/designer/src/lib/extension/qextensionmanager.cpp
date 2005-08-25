@@ -24,8 +24,7 @@
     In \QD the extensions are not created until they are required. For
     that reason, when implementing an extension, you must also create
     a QExtensionFactory, i.e a class that is able to make an instance
-    of your extension, and register it using \QD's \l
-    {QExtensionManager}{extension manager}.
+    of your extension, and register it using \QD's extension manager.
 
     The registration of an extension factory is typically made in the
     QDesignerCustomWidgetInterface::initialize() function:
