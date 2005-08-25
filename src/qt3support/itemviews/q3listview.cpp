@@ -6872,6 +6872,9 @@ void Q3ListViewItem::moveToJustAfter(Q3ListViewItem * olderSibling)
     Move the item to be after item \a after, which must be one of the
     item's siblings. To move an item in the hierarchy, use takeItem()
     and insertItem().
+
+    Note that this function will have no effect if sorting is enabled
+    in the list view.
 */
 
 void Q3ListViewItem::moveItem(Q3ListViewItem *after)
