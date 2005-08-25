@@ -232,8 +232,8 @@ void Q3SocketPrivate::setSocketDevice( Q3Socket *q, Q3SocketDevice *device )
     the IP address and port used for the connection. The peerAddress()
     and peerPort() functions return the IP address and port used by
     the peer, and peerName() returns the name of the peer (normally
-    the name that was passed to connectToHost()). socket() returns a
-    pointer to the Q3SocketDevice used for this socket.
+    the name that was passed to connectToHost()). socketDevice()
+    returns a pointer to the Q3SocketDevice used for this socket.
 
     Q3Socket inherits QIODevice, and reimplements some functions. In
     general, you can treat it as a QIODevice for writing, and mostly
