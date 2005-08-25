@@ -440,8 +440,15 @@ QByteArray QLocalePrivate::systemLocaleName()
 #endif
 
 #if defined(Q_WS_WIN)
-    if (!lang.isEmpty())
-        return lang;
+    if ( !lang.isEmpty() ) {
+        long id = 0;
+        bool ok = false;
+        id = qstrtoll(lang.data(), 0, 0, &ok);        
+        if ( !ok || id == 0 || id < INT_MIN || id > INT_MAX )
+            return lang;
+        else
+            return winLangCodeToIsoName( (int)id );
+    }
 
     if (QSysInfo::WindowsVersion == QSysInfo::WV_95) {
         lang = winLangCodeToIsoName(GetUserDefaultLangID());
