@@ -45,11 +45,12 @@
     \row \o \link #QTDS QTDS\endlink \o Sybase Adaptive Server
     \endtable
 
-    To build a driver plugin, you need the client API that is shipped
-    with your Database Management System (DBMS). Most installation
-    programs also allow you to install "development libraries", and
-    these are what you need. These libraries are responsible for the
-    low-level communication with the DBMS.
+    \bold{Note:} To build a driver plugin you need to have the appropriate
+    client library for your Database Management System (DBMS). This provides
+    access to the API exposed by the DBMS, and is typically shipped with it.
+    Most installation programs also allow you to install "development
+    libraries", and these are what you need. These libraries are responsible
+    for the low-level communication with the DBMS.
 
     \target building
     \section1 Building the Drivers Using Configure
@@ -178,7 +179,7 @@
     For Oracle 10g, all you need is the "Instant Client Package - Basic" and
     "Instant Client Package - SDK". For Oracle prior to 10g, you require
     the standard Oracle client and the SDK packages.
-    
+
     Oracle library files required to build the driver:
 
     \list
