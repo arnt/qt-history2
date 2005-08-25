@@ -382,6 +382,8 @@ int QKeySequence::assign(const QString &ks)
             if (' ' == keyseq[p+1]) { // Space after comma
                 diff = 1;
                 p++;
+            } else if ( '\0' == keyseq[p+1] ) { // Last comma 'Ctrl+,'
+                p = -1;
             } else {
                 diff = 0;
             }
