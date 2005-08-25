@@ -1328,7 +1328,7 @@ void QFileDialogPrivate::deleteCurrent()
 
 void QFileDialogPrivate::sortByName()
 {
-    QDir::SortFlags sort = QDir::SortFlags(QDir::Name|QDir::DirsFirst);
+    QDir::SortFlags sort = QDir::SortFlags(QDir::Name|QDir::LocaleAware|QDir::DirsFirst);
     if (model->filter() & QDir::Reversed)
         sort |= QDir::Reversed;
     setDirSorting(sort);
@@ -1342,7 +1342,7 @@ void QFileDialogPrivate::sortByName()
 
 void QFileDialogPrivate::sortBySize()
 {
-    QDir::SortFlags sort = QDir::SortFlags(QDir::Size|QDir::DirsFirst);
+    QDir::SortFlags sort = QDir::SortFlags(QDir::Size|QDir::DirsFirst|QDir::LocaleAware);
     if(model->filter() & QDir::Reversed)
         sort |= QDir::Reversed;
     setDirSorting(sort);
@@ -1356,7 +1356,7 @@ void QFileDialogPrivate::sortBySize()
 
 void QFileDialogPrivate::sortByDate()
 {
-    QDir::SortFlags sort = QDir::SortFlags(QDir::Time|QDir::DirsFirst);
+    QDir::SortFlags sort = QDir::SortFlags(QDir::Time|QDir::DirsFirst|QDir::LocaleAware);
     if(model->filter() & QDir::Reversed)
         sort |= QDir::Reversed;
     setDirSorting(sort);
@@ -1395,7 +1395,7 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
 
     // QDirModel
     QDir::Filters filters = filterForMode(fileMode);
-    QDir::SortFlags sort = QDir::SortFlags(QDir::Name|QDir::IgnoreCase|QDir::DirsFirst);
+    QDir::SortFlags sort = QDir::SortFlags(QDir::Name|QDir::LocaleAware|QDir::IgnoreCase|QDir::DirsFirst);
     QStringList cleanedFilter = qt_clean_filter_list(nameFilter.first());
     model = new QDirModel(cleanedFilter, filters, sort, q);
     model->setReadOnly(false);
