@@ -207,7 +207,12 @@ void QFontPrivate::load(int script)
 HFONT QFont::handle() const
 {
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
-    return engine->hfont;
+    Q_ASSERT(engine != 0);
+    if (engine->type() == QFontEngine::Multi)
+        engine = static_cast<QFontEngineMulti *>(engine)->engine(0);
+    if (engine->type() == QFontEngine::Win)
+	return engine->hfont;
+    return 0;
 }
 
 QString QFont::rawName() const
