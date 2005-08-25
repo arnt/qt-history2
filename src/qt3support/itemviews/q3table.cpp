@@ -1924,6 +1924,8 @@ QSize Q3CheckTableItem::sizeHint() const
     This signal is emitted when mouse button \a button is clicked. The
     cell where the event took place is at \a row, \a col, and the
     mouse's position is in \a mousePos.
+
+    \sa Qt::MouseButton
 */
 
 /*!
@@ -1932,6 +1934,8 @@ QSize Q3CheckTableItem::sizeHint() const
     This signal is emitted when mouse button \a button is
     double-clicked. The cell where the event took place is at \a row,
     \a col, and the mouse's position is in \a mousePos.
+
+    \sa Qt::MouseButton
 */
 
 /*!
@@ -1940,6 +1944,8 @@ QSize Q3CheckTableItem::sizeHint() const
     This signal is emitted when mouse button \a button is pressed. The
     cell where the event took place is at \a row, \a col, and the
     mouse's position is in \a mousePos.
+
+    \sa Qt::MouseButton
 */
 
 /*!
