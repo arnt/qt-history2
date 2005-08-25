@@ -4792,12 +4792,14 @@ void Q3ListView::keyPressEvent(QKeyEvent * e)
     case Qt::Key_Home:
         selectCurrent = false;
         i = firstChild();
+        if (!i->height() || !i->isEnabled())
+            i = i->itemBelow();
         d->currentPrefix.truncate(0);
         break;
     case Qt::Key_End:
         selectCurrent = false;
         i = firstChild();
-        while (i->nextSibling())
+        while (i->nextSibling() && i->nextSibling()->height() && i->nextSibling()->isEnabled())
             i = i->nextSibling();
         while (i->itemBelow())
             i = i->itemBelow();
