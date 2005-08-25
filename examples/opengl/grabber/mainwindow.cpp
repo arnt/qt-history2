@@ -169,8 +169,8 @@ QSize MainWindow::getSize()
 
     QRegExp regExp(tr("([0-9]+) *x *([0-9]+)"));
     if (regExp.exactMatch(text)) {
-        int width = regExp.cap(0).toInt();
-        int height = regExp.cap(1).toInt();
+        int width = regExp.cap(1).toInt();
+        int height = regExp.cap(2).toInt();
         if (width > 0 && width < 2048 && height > 0 && height < 2048)
             return QSize(width, height);
     }
