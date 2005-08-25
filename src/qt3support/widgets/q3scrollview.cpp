@@ -2643,9 +2643,9 @@ QSize Q3ScrollView::sizeHint() const
     } else {
         sz += QSize(d->contentsWidth(), contentsHeight());
     }
-    if (d->hMode == AlwaysOn)
-        sz.setWidth(sz.width() + d->hbar->sizeHint().width());
     if (d->vMode == AlwaysOn)
+        sz.setWidth(sz.width() + d->vbar->sizeHint().width());
+    if (d->hMode == AlwaysOn)
         sz.setHeight(sz.height() + d->hbar->sizeHint().height());
     return sz.expandedTo(QSize(12 * h, 8 * h))
              .boundedTo(QSize(36 * h, 24 * h));
