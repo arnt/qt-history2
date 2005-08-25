@@ -23,6 +23,8 @@
     The internationalization of an application is the process of making
     the application usable by people in countries other than one's own. 
 
+    \tableofcontents
+
     In some cases internationalization is simple, for example, making a US
     application accessible to Australian or British users may require
     little more than a few spelling corrections. But to make a US
@@ -160,8 +162,8 @@
     \code
         LoginWidget::LoginWidget()
         {
-	    QLabel *label = new QLabel(tr("Password:"));
-	    ...
+            QLabel *label = new QLabel(tr("Password:"));
+            ...
         }
     \endcode
 
@@ -176,13 +178,13 @@
     \code
         void some_global_function(LoginWidget *logwid)
         {
-	    QLabel *label = new QLabel(
+            QLabel *label = new QLabel(
                         LoginWidget::tr("Password:"), logwid);
         }
 
         void same_global_function(LoginWidget *logwid)
         {
-	    QLabel *label = new QLabel(
+            QLabel *label = new QLabel(
                         qApp->translate("LoginWidget", "Password:"), logwid);
         }
     \endcode
@@ -198,11 +200,11 @@
     \code
         QString FriendlyConversation::greeting(int type)
         {
-	    static const char *greeting_strings[] = {
-	        QT_TR_NOOP("Hello"),
-	        QT_TR_NOOP("Goodbye")
-	    };
-	    return tr(greeting_strings[type]);
+            static const char *greeting_strings[] = {
+                QT_TR_NOOP("Hello"),
+                QT_TR_NOOP("Goodbye")
+            };
+            return tr(greeting_strings[type]);
         }
     \endcode
 
@@ -210,19 +212,19 @@
 
     \code
         static const char *greeting_strings[] = {
-	    QT_TRANSLATE_NOOP("FriendlyConversation", "Hello"),
-	    QT_TRANSLATE_NOOP("FriendlyConversation", "Goodbye")
+            QT_TRANSLATE_NOOP("FriendlyConversation", "Hello"),
+            QT_TRANSLATE_NOOP("FriendlyConversation", "Goodbye")
         };
 
         QString FriendlyConversation::greeting(int type)
         {
-	    return tr(greeting_strings[type]);
+            return tr(greeting_strings[type]);
         }
 
         QString global_greeting(int type)
         {
-	    return qApp->translate("FriendlyConversation",
-				   greeting_strings[type]);
+            return qApp->translate("FriendlyConversation",
+                                   greeting_strings[type]);
         }
     \endcode
 
@@ -256,12 +258,12 @@
     arguments:
     \code
         void FileCopier::showProgress(int done, int total,
-				      const QString &currentFile)
+                                      const QString &currentFile)
         {
-	    label.setText(tr("%1 of %2 files copied.\nCopying: %3")
-			  .arg(done)
-			  .arg(total)
-			  .arg(currentFile));
+            label.setText(tr("%1 of %2 files copied.\nCopying: %3")
+                          .arg(done)
+                          .arg(total)
+                          .arg(currentFile));
         }
     \endcode
 
@@ -324,15 +326,15 @@
 
     \code
         HEADERS         = funnydialog.h \
-		          wackywidget.h
+                          wackywidget.h
         SOURCES         = funnydialog.cpp \
-		          main.cpp \
-		          wackywidget.cpp
+                          main.cpp \
+                          wackywidget.cpp
         FORMS           = fancybox.ui
         TRANSLATIONS    = superapp_dk.ts \
-		          superapp_fi.ts \
-		          superapp_no.ts \
-		          superapp_se.ts
+                          superapp_fi.ts \
+                          superapp_no.ts \
+                          superapp_se.ts
     \endcode
 
     When you run \c lupdate or \c lrelease, you must give the name of the
@@ -367,18 +369,18 @@
     \code
         int main(int argc, char *argv[])
         {
-	    QApplication app(argc, argv);
+            QApplication app(argc, argv);
 
-	    QTranslator qtTranslator;
-	    qtTranslator.load("qt_" + QLocale::system());
-	    app.installTranslator(&qtTranslator);
+            QTranslator qtTranslator;
+            qtTranslator.load("qt_" + QLocale::system());
+            app.installTranslator(&qtTranslator);
 
-	    QTranslator myappTranslator;
-	    myappTranslator.load("myapp_" + QLocale::system());
-	    app.installTranslator(&myappTranslator);
+            QTranslator myappTranslator;
+            myappTranslator.load("myapp_" + QLocale::system());
+            app.installTranslator(&myappTranslator);
 
-	    ...
-	    return app.exec();
+            ...
+            return app.exec();
         }
     \endcode
 
@@ -455,11 +457,11 @@
     \code
         void Clock::setTime(const QTime &time)
         {
-	    if (tr("AMPM") == "AMPM") {
-	        // 12-hour clock
-	    } else {
-	        // 24-hour clock
-	    }
+            if (tr("AMPM") == "AMPM") {
+                // 12-hour clock
+            } else {
+                // 24-hour clock
+            }
         }
     \endcode
 
@@ -475,6 +477,29 @@
     stretched metaphors. The exception is for images of left and right
     pointing arrows which may need to be reversed for Arabic and Hebrew
     locales.
+
+    \section1 Dynamic Translation
+
+    Some applications, such as Qt Linguist, must be able to support changes
+    to the user's language settings while they are still running. To make
+    widgets aware of changes to the system language, implement a public
+    slot called \c languageChange() in each widget that needs to be notified.
+    In this slot, you should update the text displayed by widgets using the
+    \l{QObject::tr()}{tr()} function in the usual way; for example:
+
+    \code
+    void MyWidget::languageChange()
+    {
+        titleLabel->setText(tr("Document Title"));
+        ...
+        okPushButton->setText(tr("&OK"));
+    }
+    \endcode
+
+    The default event handler for QWidget subclasses responds to the
+    \link QEvent::Type LanguageChange\endlink event, and will call this slot
+    when necessary; other application components can also connect signals
+    to this slot to force widgets to update themselves.
 
     \section1 System Support
 
