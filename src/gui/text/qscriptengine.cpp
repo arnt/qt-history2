@@ -74,7 +74,7 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
         QPointF p;
         glyph_metrics_t markInfo = f->boundingBox(mark);
         QRectF markRect(markInfo.x, markInfo.y, markInfo.width, markInfo.height);
-//         qDebug("markInfo: %f/%f (%f/%f) off=%f/%f", markInfo.x, markInfo.y, markInfo.width, markInfo.height, markInfo.xoff, markInfo.yoff);
+//          qDebug("markInfo: %f/%f (%f/%f) off=%f/%f", markInfo.x, markInfo.y, markInfo.width, markInfo.height, markInfo.xoff, markInfo.yoff);
 
         qreal offset = offsetBase;
         unsigned char cmb = glyphs[gfrom+i].attributes.combiningClass;
@@ -168,7 +168,7 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
             default:
                 break;
         }
-//         qDebug("char=%x combiningClass = %d offset=%f/%f", mark, cmb, p.x(), p.y());
+//          qDebug("char=%x combiningClass = %d offset=%f/%f", mark, cmb, p.x(), p.y());
         markRect.translate(p.x(), p.y());
         attachmentRect |= markRect;
         lastCmb = cmb;
@@ -204,23 +204,21 @@ void qt_heuristicPosition(QShaperItem *item)
 // set the glyph attributes heuristically. Assumes a 1 to 1 relationship between chars and glyphs
 // and no reordering.
 // also computes logClusters heuristically
-static void heuristicSetGlyphAttributes(QShaperItem *item)
+static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int length)
 {
     // ### zeroWidth and justification are missing here!!!!!
 
-    Q_ASSERT(item->num_glyphs <= item->length);
+    Q_ASSERT(item->num_glyphs <= length);
 
 //     qDebug("QScriptEngine::heuristicSetGlyphAttributes, num_glyphs=%d", item->num_glyphs);
     QGlyphLayout *glyphs = item->glyphs;
     unsigned short *logClusters = item->log_clusters;
 
-    // honour the logClusters array if it exists.
-    const QChar *uc = item->string->unicode() + item->from;
 
 #ifndef Q_WS_MAC
     int glyph_pos = 0;
-    for (int i = 0; i < item->length; i++) {
-        bool surrogate = (uc[i].unicode() >= 0xd800 && uc[i].unicode() < 0xdc00 && i < item->length-1
+    for (int i = 0; i < length; i++) {
+        bool surrogate = (uc[i].unicode() >= 0xd800 && uc[i].unicode() < 0xdc00 && i < length-1
                           && uc[i+1].unicode() >= 0xdc00 && uc[i+1].unicode() < 0xe000);
         logClusters[i] = glyph_pos;
         if (surrogate) {
@@ -230,12 +228,12 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
     }
     Q_ASSERT(glyph_pos == item->num_glyphs);
 #else
-    for (int i = 0; i < item->length; ++i) {
+    for (int i = 0; i < length; ++i) {
         bool surrogate = i > 0 && (uc[i - 1].unicode() >= 0xd800 && uc[i - 1].unicode() < 0xdc00                          && uc[i].unicode() >= 0xdc00 && uc[i].unicode() < 0xe000);
         logClusters[i] = surrogate ? i - 1 : i;
 
     }
-    Q_ASSERT(item->num_glyphs == item->length);
+    Q_ASSERT(item->num_glyphs == length);
 #endif
 
     // first char in a run is never (treated as) a mark
@@ -245,7 +243,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
 
     int pos = 0;
     QChar::Category lastCat = ::category(uc[0]);
-    for (int i = 1; i < item->length; ++i) {
+    for (int i = 1; i < length; ++i) {
         if (logClusters[i] == pos)
             // same glyph
             continue;
@@ -309,12 +307,18 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
 
         lastCat = cat;
     }
-    pos = logClusters[item->length-1];
+    pos = logClusters[length-1];
     if (lastCat == QChar::Separator_Space)
         glyphs[pos].attributes.justification = QGlyphLayout::Space;
     else
         glyphs[pos].attributes.justification = QGlyphLayout::Character;
 }
+
+static void heuristicSetGlyphAttributes(QShaperItem *item)
+{
+    heuristicSetGlyphAttributes(item, item->string->unicode() + item->from, item->length);
+}
+
 
 static bool basic_shape(QShaperItem *item)
 {
@@ -322,8 +326,7 @@ static bool basic_shape(QShaperItem *item)
         return false;
 
     heuristicSetGlyphAttributes(item);
-    if (!(item->flags & QTextEngine::WidthOnly))
-        qt_heuristicPosition(item);
+    qt_heuristicPosition(item);
     return true;
 }
 
@@ -379,8 +382,7 @@ static bool unicode_shape(QShaperItem *item)
     }
 
     heuristicSetGlyphAttributes(item);
-    if (!(item->flags & QTextEngine::WidthOnly))
-        qt_heuristicPosition(item);
+    qt_heuristicPosition(item);
     return true;
 }
 #endif
@@ -392,6 +394,149 @@ static bool unicode_shape(QShaperItem *item)
 //
 // --------------------------------------------------------------------------------------------------------------------------------------------
 
+/* Hebrew shaping. In the non opentype case we try to use the
+   presentation forms specified for Hebrew. Especially for the
+   ligatures with Dagesh this gives much better results than we could
+   achieve manually.
+*/
+static bool hebrew_shape(QShaperItem *item)
+{
+    Q_ASSERT(item->script == QUnicodeTables::Hebrew);
+
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
+    QOpenType *openType = item->font->openType();
+
+    if (openType && openType->supportsScript(item->script)) {
+        int nglyphs = item->num_glyphs;
+        if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+            return false;
+        heuristicSetGlyphAttributes(item);
+        openType->init(item);
+
+        openType->applyGSUBFeature(FT_MAKE_TAG('c', 'c', 'm', 'p'));
+        // Uniscribe also defines dlig for Hebrew, but we leave this out for now, as it's mostly
+        // ligatures one does not want in modern Hebrew (as lam-alef ligatures).
+
+        openType->applyGPOSFeatures();
+        item->num_glyphs = nglyphs;
+        return openType->appendTo(item);
+    }
+#endif
+
+    enum {
+        Dagesh = 0x5bc,
+        ShinDot = 0x5c1,
+        SinDot = 0x5c2,
+        Patah = 0x5b7,
+        Qamats = 0x5b8, 
+        Holam = 0x5b9,
+        Rafe = 0x5bf
+    };
+    unsigned short chars[512];
+    QChar *shapedChars = item->length > 256 ? (QChar *)::malloc(2*item->length * sizeof(QChar)) : (QChar *)chars;
+
+    const QChar *uc = item->string->unicode() + item->from;
+    unsigned short *logClusters = item->log_clusters;
+    QGlyphLayout *glyphs = item->glyphs;
+    
+    *shapedChars = *uc;
+    logClusters[0] = 0;
+    int slen = 1;
+    int cluster_start = 0;
+    for (int i = 1; i < item->length; ++i) {
+        ushort base = shapedChars[slen-1].unicode();
+        ushort shaped = 0;
+        bool invalid = false;
+        if (uc[i].unicode() == Dagesh) {
+            if (base >= 0x5d0
+                && base <= 0x5ea
+                && base != 0x5d7
+                && base != 0x5dd 
+                && base != 0x5df 
+                && base != 0x5e2 
+                && base != 0x5e5) {
+                shaped = base - 0x5d0 + 0xfb30;
+            } else if (base == 0xfb2a || base == 0xfb2b /* Shin with Shin or Sin dot */) {
+                shaped = base + 2;
+            } else {
+                invalid = true;
+            }
+        } else if (uc[i].unicode() == ShinDot) {
+            if (base == 0x05e9)
+                shaped = 0xfb2a;
+            else if (base == 0xfb49)
+                shaped = 0xfb2c;
+            else
+                invalid = true;
+        } else if (uc[i].unicode() == SinDot) {
+            if (base == 0x05e9)
+                shaped = 0xfb2b;
+            else if (base == 0xfb49)
+                shaped = 0xfb2d;
+            else
+                invalid = true;
+        } else if (uc[i].unicode() == Patah) {
+            if (base == 0x5d0)
+                shaped = 0xfb2e;
+        } else if (uc[i].unicode() == Qamats) {
+            if (base == 0x5d0)
+                shaped = 0xfb2f;
+        } else if (uc[i].unicode() == Holam) {
+            if (base == 0x5d5)
+                shaped = 0xfb4b;
+        } else if (uc[i].unicode() == Rafe) {
+            if (base == 0x5d1)
+                shaped = 0xfb4c;
+            else if (base == 0x5db)
+                shaped = 0xfb4d;
+            else if (base == 0x5e4)
+                shaped = 0xfb4e;
+        }
+
+        if (invalid) {
+            shapedChars[slen] = 0x25cc;
+            glyphs[slen].attributes.clusterStart = true;
+            glyphs[slen].attributes.mark = false;
+            glyphs[slen].attributes.combiningClass = 0;
+            cluster_start = slen;
+            ++slen;
+        }
+        if (shaped) {
+            if (item->font->canRender((QChar *)&shaped, 1)) {
+                shapedChars[slen-1] = QChar(shaped);
+            } else
+                shaped = 0;
+        }
+        if (!shaped) {
+            shapedChars[slen] = uc[i];
+            if (::category(uc[i]) != QChar::Mark_NonSpacing) {
+                glyphs[slen].attributes.clusterStart = true;
+                glyphs[slen].attributes.mark = false;
+                glyphs[slen].attributes.combiningClass = 0;
+                cluster_start = slen;
+            } else {
+                glyphs[slen].attributes.clusterStart = false;
+                glyphs[slen].attributes.mark = true;
+                glyphs[slen].attributes.combiningClass = ::combiningClass(uc[i]);
+            }
+            ++slen;
+        }
+        logClusters[i] = cluster_start;
+    }
+    
+    if (!item->font->stringToCMap(shapedChars, slen, glyphs, &item->num_glyphs, QFlag(item->flags)))
+        return false;
+    for (int i = 0; i < item->num_glyphs; ++i) {
+        if (glyphs[i].attributes.mark) {
+            glyphs[i].advance.rx() = 0;
+        }
+    }
+    qt_heuristicPosition(item);
+
+    if (item->length > 256)
+        ::free(shapedChars);
+    return true;
+}
 
 // these groups correspond to the groups defined in the Unicode standard.
 // Some of these groups are equal whith regards to both joining and line breaking behaviour,

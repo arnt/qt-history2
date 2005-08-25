@@ -20,33 +20,6 @@
 #include <qdebug.h>
 
 // #### stil missing: identify invalid character combinations
-static bool hebrew_shape(QShaperItem *item)
-{
-    Q_ASSERT(item->script == QUnicodeTables::Hebrew);
-
-#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
-    QOpenType *openType = item->font->openType();
-
-    if (openType && openType->supportsScript(item->script)) {
-        int nglyphs = item->num_glyphs;
-        if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
-            return false;
-        heuristicSetGlyphAttributes(item);
-        openType->init(item);
-
-        openType->applyGSUBFeature(FT_MAKE_TAG('c', 'c', 'm', 'p'));
-        // Uniscribe also defines dlig for Hebrew, but we leave this out for now, as it's mostly
-        // ligatures one does not want in modern Hebrew (as lam-alef ligatures).
-
-        openType->applyGPOSFeatures();
-        item->num_glyphs = nglyphs;
-        return openType->appendTo(item);
-    }
-#endif
-    return basic_shape(item);
-}
-
-// #### stil missing: identify invalid character combinations
 static bool syriac_shape(QShaperItem *item)
 {
     Q_ASSERT(item->script == QUnicodeTables::Syriac);

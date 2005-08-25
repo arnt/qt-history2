@@ -15,7 +15,7 @@ const q_scriptEngine qt_scriptEngines[] = {
     // Common
     { basic_shape, basic_attributes },
     // Hebrew
-    { basic_shape, basic_attributes },
+    { hebrew_shape, basic_attributes },
     // Arabic
     { arabic_shape, arabic_attributes },
     // Syriac
