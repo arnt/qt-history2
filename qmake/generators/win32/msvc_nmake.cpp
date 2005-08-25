@@ -60,8 +60,8 @@ QStringList &NmakeMakefileGenerator::findDependencies(const QString &file)
         return aList;
     for(QStringList::Iterator it = Option::cpp_ext.begin(); it != Option::cpp_ext.end(); ++it) {
         if(file.endsWith(*it)) {
-            if(!aList.contains(precompH))
-                aList += precompH;
+            if(!precompObj.isEmpty() && !aList.contains(precompObj))
+                aList += precompObj;
             break;
         }
     }
