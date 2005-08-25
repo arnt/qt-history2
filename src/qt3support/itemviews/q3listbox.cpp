@@ -3262,8 +3262,11 @@ void Q3ListBox::setBottomItem(int index)
 
 
 /*!
-    Returns the item at point \a p, which is in on-screen coordinates,
+    Returns the item at point \a p, specified in viewport coordinates,
     or a 0 if there is no item at \a p.
+
+    Use contentsToViewport() to convert between widget coordinates and
+    viewport coordinates.
 */
 
 Q3ListBoxItem * Q3ListBox::itemAt(const QPoint& p) const
