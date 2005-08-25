@@ -2,7 +2,234 @@
     \example itemviews/pixelator
     \title Pixelator Example
 
-    The Pixelator example shows how delegates can be used to customize item view rendering.
+    The Pixelator example shows how delegates can be used to customize the way that
+    items are rendered in standard item views.
 
     \image pixelator-example.png
+
+    By default, QTreeView, QTableView, and QListView use a standard item delegate
+    to display and edit a set of common data types that are sufficient for many
+    applications. However, an application may need to represent items of data in a
+    particular way, or provide support for rendering more specialized data types,
+    and this often requires the use of a custom delegate.
+
+    In this example, we show how to use custom delegates to modify the appearance
+    of standard views. To do this, we implement the following components:
+
+    \list
+    \i A model which represents each pixel in an image as an item of data, where each
+       item contains a value for the brightness of the corresponding pixel.
+    \i A custom delegate that uses the information supplied by the model to represent
+       each pixel as a black circle on a white background, where the radius of the
+       circle corresponds to the darkness of the pixel.
+    \endlist
+
+    This example may be useful for developers who want to implement their own table
+    models or custom delegates. The process of creating custom delegates for editing
+    item data is covered in the \l{Spin Box Delegate Example}{Spin Box Delegate}
+    example.
+
+    \section1 ImageModel Class Definition
+
+    The \c ImageModel class is defined as follows:
+
+    \quotefromfile itemviews/pixelator/imagemodel.h
+    \skipto class ImageModel
+    \printuntil /^\};/
+
+    Since we only require a simple, read-only table model, we only need to implement
+    functions to indicate the dimensions of the image and supply data to other
+    components.
+
+    For convenience, the image to be used is passed in the constructor.
+
+    \section1 ImageModel Class Implementation
+
+    The constructor is only used to store the image that will be used by the model:
+
+    \quotefromfile itemviews/pixelator/imagemodel.cpp
+    \skipto ImageModel::ImageModel
+    \printuntil /^\}/
+
+    The \c rowCount() and \c columnCount() functions return the height and width of
+    the image respectively:
+
+    \skipto ImageModel::rowCount
+    \printuntil ImageModel::columnCount
+    \printuntil /^\}/
+
+    Since the image is a simple two-dimensional structure, the \c parent arguments
+    to these functions are unused. They both simply return the relevant size from
+    the underlying image object.
+
+    The \c data() function returns data for the item that corresponds to a given
+    model index in a format that is suitable for a particular role:
+
+    \skipto ImageModel::data
+    \printuntil /^\}/
+
+    In this implementation, we only check that the model index is valid, and that
+    the role requested is the \l{Qt::ItemDataRole}{DisplayRole}. If so, the function
+    returns the grayscale value of the relevant pixel in the image; otherwise, a null
+    model index is returned.
+
+    This model can be used with QTableView to display the integer brightness values
+    for the pixels in the image. However, we will implement a custom delegate to
+    display this information in a more artistic way.
+
+    \section1 PixelDelegate Class Definition
+
+    The \c PixelDelegate class is defined as follows:
+
+    \quotefromfile itemviews/pixelator/pixeldelegate.h
+    \skipto class PixelDelegate
+    \printuntil /^\};/
+
+    This class provides only basic features for a delegate so, unlike the
+    \l{Spin Box Delegate Example}{Spin Box Delegate} example, we subclass
+    QAbstractItemDelegate instead of QItemDelegate.
+
+    We only need to reimplement \l{QAbstractItemDelegate::paint()}{paint()} and
+    \l{QAbstractItemDelegate::sizeHint()}{sizeHint()} in this class.
+    However, we also provide a delegate-specific \c setPixelSize() function so
+    that we can change the delegate's behavior via the signals and slots mechanism.
+
+    \section1 PixelDelegate Class Implementation
+
+    The \c PixelDelegate constructor is used to set up a default value for
+    the size of each "pixel" that it renders. The base class constructor is
+    also called to ensure that the delegate is set up with a parent object,
+    if one is supplied:
+
+    \quotefromfile itemviews/pixelator/pixeldelegate.cpp
+    \skipto PixelDelegate::PixelDelegate
+    \printuntil /^\}/
+
+    Each item is rendered by the delegate's
+    \l{QAbstractItemDelegate::paint()}{paint()} function. The view calls this
+    function with a ready-to-use QPainter object, style information that the
+    delegate should use to correctly draw the item, and an index to the item in
+    the model:
+
+    \skipto PixelDelegate::paint
+    \printuntil setPen
+
+    For this delegate, we do not need to use a pen, but we would like the output
+    to be antialiased.
+
+    The first task the delegate has to perform is to draw the item's background
+    correctly. Usually, selected items appear differently to non-selected items,
+    so we begin by testing the state passed in the style option and setting the
+    painter's brush accordingly:
+
+    \skipto if
+    \printuntil Qt::white
+
+    This ensures that the background of each item in the view has the correct
+    style for both selected and unselected items. Ideally, we would also test for
+    other states and draw each item in the appropriate style, too.
+
+    The foreground of the item (the circle representing a pixel) must also be
+    rendered using an appropriate brush. For unselected items, we will use a
+    solid black brush; selected items are drawn using a predefined brush from
+    the style option's palette:
+
+    \skipto if
+    \printuntil Qt::black
+
+    The radius of each circle is calculated in the following three lines of code:
+
+    \skipto int size
+    \printuntil double radius
+
+    First, the largest possible radius of the circle is determined by taking the
+    smallest dimension of the style option's \c rect attribute.
+    Using the model index supplied, we obtain a value for the brightness of the
+    relevant pixel in the image. The radius of the circle is calculated by
+    scaling the brightness to fit within the item and subtracting it from the
+    largest possible radius.
+
+    Finally, we paint the circle within the rectangle specified by the style
+    option:
+
+    \skipto painter->drawEllipse
+    \printuntil /^\}/
+
+    The \c paint() function does not have to be particularly complicated; it is
+    only necessary to ensure that the state of the painter when the function
+    returns is approximately the same as it was when it was called. This usually
+    means that any transformations applied to the painter must be surrounded by
+    \l{QPainter::save()}{save()}...\l{QPainter::restore()}{restore()} calls.
+
+    The delegate's \l{QAbstractItemDelegate::sizeHint()}{sizeHint()} function
+    returns a size for the item based on the predefined pixel size, initially set
+    up in the constructor:
+
+    \skipto PixelDelegate::sizeHint
+    \printuntil /^\}/
+
+    The delegate's size is updated whenever the pixel size is changed.
+    We provide a custom slot to do this:
+
+    \skipto PixelDelegate::setPixelSize
+    \printuntil /^\}/
+
+    \section1 Using The Custom Delegate
+
+    In this example, we use a main window to display a table of data, using the
+    custom delegate to render each cell in a particular way. Much of the
+    \c MainWindow class performs tasks that are not related to item views. Here,
+    we only quote the parts that are relevant. You can look at the rest of the
+    implementation by following the links to the code at the top of this
+    document.
+
+    In the constructor, we set up a table view, turn off its grid, and hide its
+    headers:
+
+    \quotefromfile itemviews/pixelator/mainwindow.cpp
+    \skipto MainWindow
+    \printuntil /^\{/
+    \dots
+    \skipto view = new QTableView
+    \printuntil view->verticalHeader
+
+    This enables the items to be drawn without any gaps between them. Removing
+    the headers also prevents the user from adjusting the sizes of individual
+    rows and columns.
+
+    The custom delegate is constructed with the main window as its parent, so
+    that it will be deleted correctly later, and we set it on the table view.
+
+    \skipto PixelDelegate
+    \printuntil setItemDelegate
+
+    Each item in the table view will be rendered by the \c PixelDelegate
+    instance.
+
+    We construct a spin box to allow the user to change the size of each "pixel"
+    drawn by the delegate:
+
+    \skipto pixelSizeLabel
+    \printuntil setValue
+
+    This spin box is connected to the custom slot we implemented in the
+    \c PixelDelegate class. This ensures that the delegate always draws each
+    pixel at the currently specified size:
+
+    \skipto connect(pixelSizeSpinBox
+    \printuntil updateView
+    \dots
+    \skipto /^\}/
+    \printuntil /^\}/
+
+    We also connect the spin box to a slot in the \c MainWindow class. This
+    forces the view to take into account the new size hints for each item;
+    these are provided by the delegate in its \c sizeHint() function.
+
+    \skipto MainWindow::updateView
+    \printuntil /^\}/
+
+    The view will automatically update after receiving this information. Note
+    that we only have to iterate over each row and column, rather than over
+    each item in the model, since they all have the same dimensions.
 */
