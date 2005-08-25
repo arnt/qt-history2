@@ -28,10 +28,11 @@
 #include <private/qdialog_p.h>
 #include <qitemselectionmodel.h>
 #include <qabstractitemview.h>
+#include <qlistview.h>
+#include <qtreeview.h>
 #include <qtoolbutton.h>
+#include <qevent.h>
 
-class QListView;
-class QTreeView;
 class QDirModel;
 class QComboBox;
 class QAction;
