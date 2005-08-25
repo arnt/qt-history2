@@ -15,12 +15,80 @@
 
 /*!
     \class QDesignerWidgetBoxInterface
-    \brief The QDesignerWidgetBoxInterface class provides an interface that is used to
-    control Qt Designer's widget box component.
+
+    \brief The QDesignerWidgetBoxInterface class allows you to control
+    the contents of Qt Designer's widget box.
+
     \inmodule QtDesigner
+
+    QDesignerWidgetBoxInterface contains a collection of functions
+    that is typically used to manipulate the contents of \QD's widget
+    box.
+
+    \QD uses an XML file to populate its widget box. The name of that
+    file is one of the widget box's properties, and you can retrieve
+    it using the fileName() function.
+
+    QDesignerWidgetBoxInterface also provides the save() function that
+    saves the contents of the widget box in the file specified by the
+    widget box's file name property. If you have made changes to the
+    widget box, for example by dropping a widget into the widget box,
+    without calling the save() function, the original content can be
+    restored by a simple invocation of the load() function:
+
+    \code
+        QDesignerWidgetBoxInterface *widgetBox = 0:
+        widgetBox = formEditor->widgetBox();
+
+        widgetBox->load();
+    \endcode
+
+    The QDesignerWidgetBoxInterface class is not intended to be
+    instantiated directly. You can retrieve an interface to Qt
+    Designer's widget box using the
+    QDesignerFormEditorInterface::widgetBox() function. An interface
+    to Qt Designer's form editor (\c formEditor) is provided by the
+    QDesignerCustomWidgetInterface::initialize() function's
+    parameter. When implementing a custom widget plugin, you must
+    subclass the QDesignerCustomWidgetInterface to expose your plugin
+    to Qt Designer.
+
+    If you want to save your changes, and at the same time preserve
+    the original contents, you can use the save() function combined
+    with the setFileName() function to save your changes into another
+    file. Remember to store the name of the original file first:
+
+    \code
+        QString originalFile = widgetBox->fileName();
+
+        widgetBox->setFileName("myWidgetBox.xml");
+        widgetBox->save();
+    \endcode
+
+    Then you can restore the original contents of the widget box by
+    resetting the file name to the original file and calling load():
+
+    \code
+        widgetBox->setFileName(originalFile);
+        widgetBox->load();
+    \endcode
+
+    In a similar way, you can later use your customized XML file:
+
+    \code
+        if (widgetBox->filename() != "myWidgetBox.xml") {
+            widgetBox->setFileName("myWidgetBox.xml");
+            widgetBox->load();
+        }
+    \endcode
+
+
+    \sa QDesignerFormEditorInterface, QDesignerCustomWidgetInterface
 */
 
 /*!
+    Constructs a widget box interface with the given \a parent and
+    specified window \a flags.
 */
 QDesignerWidgetBoxInterface::QDesignerWidgetBoxInterface(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)
@@ -28,6 +96,7 @@ QDesignerWidgetBoxInterface::QDesignerWidgetBoxInterface(QWidget *parent, Qt::Wi
 }
 
 /*!
+    Destroys the widget box interface.
 */
 QDesignerWidgetBoxInterface::~QDesignerWidgetBoxInterface()
 {
@@ -50,71 +119,98 @@ int QDesignerWidgetBoxInterface::findOrInsertCategory(const QString &categoryNam
 }
 
 /*!
+    \internal
     \fn int QDesignerWidgetBoxInterface::categoryCount() const
-    \internal
 */
 
 /*!
+    \internal
     \fn Category QDesignerWidgetBoxInterface::category(int cat_idx) const
-    \internal
 */
 
 /*!
+    \internal
     \fn void QDesignerWidgetBoxInterface::addCategory(const Category &cat)
-    \internal
 */
 
 /*!
+    \internal
     \fn void QDesignerWidgetBoxInterface::removeCategory(int cat_idx)
-    \internal
 */
 
 /*!
+    \internal
     \fn int QDesignerWidgetBoxInterface::widgetCount(int cat_idx) const
-    \internal
 */
 
 /*!
+    \internal
     \fn Widget QDesignerWidgetBoxInterface::widget(int cat_idx, int wgt_idx) const
-    \internal
 */
 
 /*!
+    \internal
     \fn void QDesignerWidgetBoxInterface::addWidget(int cat_idx, const Widget &wgt)
-    \internal
 */
 
 /*!
+    \internal
     \fn void QDesignerWidgetBoxInterface::removeWidget(int cat_idx, int wgt_idx)
-    \internal
 */
 
 /*!
+    \internal
     \fn void QDesignerWidgetBoxInterface::dropWidgets(const QList<QDesignerDnDItemInterface*> &item_list, const QPoint &global_mouse_pos)
-    \internal
+
 */
 
 /*!
-    \fn void QDesignerWidgetBoxInterface::setFileName(const QString &file_name)
+    \fn void QDesignerWidgetBoxInterface::setFileName(const QString &fileName)
+
+    Sets the XML file that \QD will use to populate its widget box, to
+    \a fileName. You must call load() to update the widget box with
+    the new XML file.
+
+    \sa fileName(), load()
 */
 
 /*!
     \fn QString QDesignerWidgetBoxInterface::fileName() const
+
+    Returns the name of the XML file \QD is currently using to
+    populate its widget box.
+
+    \sa setFileName()
 */
 
 /*!
     \fn bool QDesignerWidgetBoxInterface::load()
+
+    Populates \QD's widget box by loading (or reloading) the currently
+    specified XML file. Returns true if the file is successfully
+    loaded; otherwise false.
+
+    \sa setFileName()
 */
 
 /*!
     \fn bool QDesignerWidgetBoxInterface::save()
+
+    Saves the contents of \QD's widget box in the file specified by
+    the fileName() function. Returns true if the content is
+    successfully saved; otherwise false.
+
+    \sa fileName(), setFileName()
 */
 
 
 /*!
-    \class QDesignerWidgetBoxInterface::Widget
-    \brief The Widget class specified a widget in Qt Designer's widget box component.
     \internal
+
+    \class QDesignerWidgetBoxInterface::Widget
+
+    \brief The Widget class specified a widget in Qt Designer's widget
+    box component.
 */
 
 /*!
