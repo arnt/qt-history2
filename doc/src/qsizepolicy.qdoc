@@ -59,10 +59,12 @@
     \value Minimum  The sizeHint() is minimal, and sufficient. The
         widget can be expanded, but there is no advantage to it being
         larger (e.g. the horizontal direction of a push button).
+        It cannot be smaller than the size provided by sizeHint().
 
     \value Maximum  The sizeHint() is a maximum. The widget can be
         shrunk any amount without detriment if other widgets need the
         space (e.g. a separator line).
+        It cannot be larger than the size provided by sizeHint().
 
     \value Preferred  The sizeHint() is best, but the widget can be
         shrunk and still be useful. The widget can be expanded, but there
