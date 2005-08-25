@@ -202,7 +202,9 @@ static int qt_cmp_si(const void *n1, const void *n2)
             f2->suffix_cache = ic ? f2->item.suffix().toLower()
                                : f2->item.suffix();
 
-        r = f1->suffix_cache.compare(f2->suffix_cache);
+	r = qt_cmp_si_sort_flags & QDir::LocaleAware
+            ? f1->suffix_cache.localeAwareCompare(f2->filename_cache)
+            : f1->suffix_cache.compare(f2->filename_cache);
       }
         break;
       default:
@@ -220,7 +222,9 @@ static int qt_cmp_si(const void *n1, const void *n2)
             f2->filename_cache = ic ? f2->item.fileName().toLower()
                                     : f2->item.fileName();
 
-        r = f1->filename_cache.compare(f2->filename_cache);
+	r = qt_cmp_si_sort_flags & QDir::LocaleAware
+            ? f1->filename_cache.localeAwareCompare(f2->filename_cache)
+            : f1->filename_cache.compare(f2->filename_cache);
     }
 
     if (r == 0) // Enforce an order - the order the items appear in the array
