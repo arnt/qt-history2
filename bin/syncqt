@@ -28,10 +28,9 @@ my %modules = ( # path to module name map
 	    "QtSql" => "$basedir/src/sql",
 	    "QtNetwork" => "$basedir/src/network",
 	    "Qt3Support" => "$basedir/src/qt3support",
-	    "ActiveQt" => "$basedir/extensions/activeqt/container;$basedir/extensions/activeqt/control",
+	    "ActiveQt" => "$basedir/src/activeqt/container;$basedir/src/activeqt/control",
 	    "QtAssistant" => "$basedir/tools/assistant/lib",
 	    "QtDesigner" => "$basedir/tools/designer/src/lib;",
-	    "QtNsPlugin" => "$basedir/extensions/nsplugin/src",
 );
 #$modules{"QtCore"} .= ";$basedir/mkspecs/" . $ENV{"MKSPEC"} if defined $ENV{"MKSPEC"};
 

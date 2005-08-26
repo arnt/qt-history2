@@ -9,6 +9,7 @@ contains(QT_CONFIG, qt3support): SUBDIRS += qt3support
 !cross_compile {
     contains(QT_CONFIG, qt3support): SUBDIRS += tools/uic3
 }
+win32:SUBDIRS += activeqt
 SUBDIRS += plugins
 
 # This gives us a top level debug/release
