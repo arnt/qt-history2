@@ -32,9 +32,9 @@ class QByteArray;
 class QFile;
 class QTimerEvent;
 
+#include <QtCore/QBitArray>
 #include <QtCore/QList>
 #include <QtCore/QMutex>
-#include <QtCore/QSet>
 #include <QtCore/QThread>
 #include <QtCore/QWaitCondition>
 
@@ -58,8 +58,8 @@ public:
     inline int pieceCount() const { return numPieces; }
     int pieceLengthAt(int pieceIndex) const;
 
-    QSet<int> completedPieces() const;
-    void setCompletedPieces(const QSet<int> &pieces);
+    QBitArray completedPieces() const;
+    void setCompletedPieces(const QBitArray &pieces);
 
     QString errorString() const;
 
@@ -103,7 +103,7 @@ private:
     MetaInfo metaInfo;
     QList<QFile *> files;
     QList<QByteArray> sha1s;
-    QSet<int> verifiedPieces;
+    QBitArray verifiedPieces;
 
     bool newFile;
     int pieceLength;
@@ -118,6 +118,7 @@ private:
     QList<ReadRequest> readRequests;
     QList<int> pendingVerificationRequests;
     QList<int> newPendingVerificationRequests;
+    QList<int> fileSizes;
 
     mutable QMutex mutex;
     mutable QWaitCondition cond;

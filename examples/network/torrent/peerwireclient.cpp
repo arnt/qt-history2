@@ -28,7 +28,6 @@
 #include "peerwireclient.h"
 
 #include <QtCore/QListIterator>
-#include <QtCore/QSet>
 #include <QtCore/QTimerEvent>
 
 static const int ClientTimeout = 60 * 1000;
@@ -82,12 +81,13 @@ void PeerWireClient::initialize(const QByteArray &infoHash, const QByteArray &pe
 {
     this->peerIdString = peerId;
     this->infoHash = infoHash;
-    this->pieceCount = pieceCount;
     if (!sentHandShake)
         sendHandShake();
+
+    peerPieces.resize(pieceCount);
 }
 
-QSet<int> PeerWireClient::availablePieces() const
+QBitArray PeerWireClient::availablePieces() const
 {
     return peerPieces;
 }
@@ -144,7 +144,7 @@ void PeerWireClient::sendPieceNotification(int piece)
 }
 
 // Sends the complete list of pieces that we have downloaded.
-void PeerWireClient::sendPieceList(const QSet<int> &bitField)
+void PeerWireClient::sendPieceList(const QBitArray &bitField)
 {
     // The bitfield message may only be sent immediately after the
     // handshaking sequence is completed, and before any other
@@ -153,17 +153,21 @@ void PeerWireClient::sendPieceList(const QSet<int> &bitField)
         sendHandShake();
 
     // Don't send the bit field unless we have pieces.
-    if (bitField.size() == 0)
+    int bitFieldSize = bitField.size();
+    if (bitFieldSize == 0)
         return;
 
-    int size = pieceCount / 8;
-    if (pieceCount % 8)
-        ++size;
+    // ### Can't we simply use bitField.data()? ;-)
+    int size = bitFieldSize / 8;
+    if (bitFieldSize % 8)
+	++size;
     QByteArray bits(size, '\0');
-    foreach (int pieceIndex, bitField) {
-        quint32 byte = quint32(pieceIndex) / 8;
-        quint32 bit = quint32(pieceIndex) % 8;
-        bits[byte] = uchar(bits.at(byte)) | (1 << (7 - bit));
+    for (int i = 0; i < bitFieldSize; ++i) {
+	if (bitField.testBit(i)) {
+	    quint32 byte = quint32(i) / 8;
+	    quint32 bit = quint32(i) % 8;
+	    bits[byte] = uchar(bits.at(byte)) | (1 << (7 - bit));
+	}
     }
 
     char message[] = {0, 0, 0, 1, 5};
@@ -219,16 +223,6 @@ void PeerWireClient::sendBlock(int piece, int offset, const QByteArray &data)
     emit readyToTransfer();
 }
 
-// Returns the number of bytes waiting to be written.
-int PeerWireClient::bufferedBytesToWrite() const
-{
-    int toWrite = outgoingBuffer.size();
-    QListIterator<QByteArray> it(pendingBlocks);
-    while (it.hasNext())
-        toWrite += it.next().size();
-    return toWrite;
-}
-
 // Attempts to write 'bytes' bytes to the socket from the buffer.
 // This is used by RateController, which precisely controls how much
 // each client can write.
@@ -236,7 +230,7 @@ qint64 PeerWireClient::writeToSocket(qint64 bytes)
 {
     qint64 totalWritten = 0;
     do {
-        if (outgoingBuffer.size() < (bytes - totalWritten) && !pendingBlocks.isEmpty())
+        if (outgoingBuffer.isEmpty() && !pendingBlocks.isEmpty())
             outgoingBuffer += pendingBlocks.takeFirst();
         qint64 written = QTcpSocket::writeData(outgoingBuffer.constData(),
                                                qMin<qint64>(bytes - totalWritten, outgoingBuffer.size()));
@@ -428,7 +422,7 @@ void PeerWireClient::processIncomingData()
         case HavePacket: {
             // The peer has a new piece available.
             quint32 index = fromNetworkData(&packet.data()[1]);
-            peerPieces << int(index);
+            peerPieces.setBit(int(index));
             emit piecesAvailable(availablePieces());
             break;
         }
@@ -437,7 +431,7 @@ void PeerWireClient::processIncomingData()
             for (int i = 1; i < packet.size(); ++i) {
                 for (int bit = 0; bit < 8; ++bit) {
                     if (packet.at(i) & (1 << (7 - bit)))
-                        peerPieces << int(((i - 1) * 8) + bit);
+                        peerPieces.setBit(int(((i - 1) * 8) + bit));
                 }
             }
             emit piecesAvailable(availablePieces());

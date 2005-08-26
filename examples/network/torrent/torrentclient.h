@@ -156,7 +156,7 @@ private slots:
     void setupOutgoingConnection();
     void initializeConnection(PeerWireClient *client);
     void removeClient();
-    void peerPiecesAvailable(const QSet<int> &pieces);
+    void peerPiecesAvailable(const QBitArray &pieces);
     void peerRequestsBlock(int pieceIndex, int begin, int length);
     void blockReceived(int pieceIndex, int begin, const QByteArray &data);
     void peerWireBytesWritten(qint64 bytes);

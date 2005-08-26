@@ -32,12 +32,19 @@
 #include <QDebug>
 #include <QDir>
 #include <QFile>
-#include <QSet>
 #include <QTimer>
 #include <QTimerEvent>
 
 extern "C" {
 #include "3rdparty/sha1.h"
+}
+
+static inline int bitCount(const QBitArray &bits)
+{
+    int count = 0;
+    for (int i = 0; i < bits.size(); ++i)
+	count += bits.testBit(i);
+    return count;
 }
 
 FileManager::FileManager(QObject *parent)
@@ -50,6 +57,7 @@ FileManager::FileManager(QObject *parent)
     wokeUp = false;
     newFile = false;
     numPieces = 0;
+    verifiedPieces.fill(false);
 }
 
 FileManager::~FileManager()
@@ -118,13 +126,13 @@ int FileManager::pieceLengthAt(int pieceIndex) const
         ? (totalLength % pieceLength) : pieceLength;
 }
 
-QSet<int> FileManager::completedPieces() const
+QBitArray FileManager::completedPieces() const
 {
     QMutexLocker locker(&mutex);
     return verifiedPieces;
 }
 
-void FileManager::setCompletedPieces(const QSet<int> &pieces)
+void FileManager::setCompletedPieces(const QBitArray &pieces)
 {
     QMutexLocker locker(&mutex);
     verifiedPieces = pieces;
@@ -141,7 +149,7 @@ void FileManager::run()
         return;
 
     do {
-      {
+        {
             // Go to sleep if there's nothing to do.
             QMutexLocker locker(&mutex);
             if (!quit && readRequests.isEmpty() && writeRequests.isEmpty() && !startVerification)
@@ -236,6 +244,7 @@ bool FileManager::generateFiles()
                 return false;
             }
         }
+	fileSizes << file->size();
         files << file;
         file->close();
 
@@ -290,6 +299,7 @@ bool FileManager::generateFiles()
                     return false;
                 }
             }
+	    fileSizes << file->size();
             files << file;
             file->close();
 
@@ -311,7 +321,7 @@ QByteArray FileManager::readBlock(int pieceIndex, int offset, int length)
 
     for (int i = 0; !quit && i < files.size() && length > 0; ++i) {
         QFile *file = files[i];
-        qint64 currentFileSize = file->size();
+        qint64 currentFileSize = fileSizes.at(i);
         if ((currentIndex + currentFileSize) > startReadIndex) {
             if (!file->isOpen()) {
                 if (!file->open(QFile::ReadWrite)) {
@@ -350,7 +360,7 @@ bool FileManager::writeBlock(int pieceIndex, int offset, const QByteArray &data)
 
     for (int i = 0; !quit && i < files.size(); ++i) {
         QFile *file = files[i];
-        qint64 currentFileSize = file->size();
+        qint64 currentFileSize = fileSizes.at(i);
 
         if ((currentIndex + currentFileSize) > startWriteIndex) {
             if (!file->isOpen()) {
@@ -389,10 +399,13 @@ void FileManager::verifyFileContents()
 {
     // Verify all pieces the first time
     if (newPendingVerificationRequests.isEmpty()) {
-        if (verifiedPieces.isEmpty()) {
+        if (bitCount(verifiedPieces) == 0) {
+	    verifiedPieces.resize(sha1s.size());
+
             int oldPercent = 0;
             if (!newFile) {
                 int numPieces = sha1s.size();
+
                 for (int index = 0; index < numPieces; ++index) {
                     verifySinglePiece(index);
 
@@ -440,7 +453,7 @@ bool FileManager::verifySinglePiece(int pieceIndex)
 
     if (sha1Sum != sha1s.at(pieceIndex))
         return false;
-    verifiedPieces << pieceIndex;
+    verifiedPieces.setBit(pieceIndex);
     return true;
 }
 

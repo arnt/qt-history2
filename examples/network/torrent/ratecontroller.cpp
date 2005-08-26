@@ -64,11 +64,12 @@ void RateController::scheduleTransfer()
     if (transferScheduled)
         return;
     transferScheduled = true;
-    QTimer::singleShot(0, this, SLOT(transfer()));
+    QTimer::singleShot(50, this, SLOT(transfer()));
 }
 
 void RateController::transfer()
 {
+    transferScheduled = false;
     if (sockets.isEmpty())
         return;
 
@@ -79,10 +80,9 @@ void RateController::transfer()
     qint64 bytesToWrite = (upLimit * msecs) / 1000;
     qint64 bytesToRead = (downLimit * msecs) / 1000;
     if (bytesToWrite == 0 && bytesToRead == 0) {
-        QTimer::singleShot(50, this, SLOT(transfer()));
+	scheduleTransfer();
         return;
     }
-    transferScheduled = false;
 
     QSet<PeerWireClient *> pendingSockets;
     foreach (PeerWireClient *client, sockets) {
@@ -130,5 +130,5 @@ void RateController::transfer()
     } while (canTransferMore && bytesToWrite > 0 && bytesToRead > 0 && !pendingSockets.isEmpty());
 
     if (canTransferMore)
-        QTimer::singleShot(50, this, SLOT(scheduleTransfer()));
+	scheduleTransfer();
 }

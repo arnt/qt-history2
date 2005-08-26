@@ -31,8 +31,8 @@
 class QHostAddress;
 class QTimerEvent;
 
+#include <QtCore/QBitArray>
 #include <QtCore/QList>
-#include <QtCore/QSet>
 #include <QtNetwork/QTcpSocket>
 
 class PeerWireClient : public QTcpSocket
@@ -53,7 +53,7 @@ public:
 
     // State
     inline PeerWireState peerWireState() const { return pwState; }
-    QSet<int> availablePieces() const;
+    QBitArray availablePieces() const;
 
     // Protocol
     void chokePeer();
@@ -61,13 +61,12 @@ public:
     void sendInterested();
     void sendNotInterested();
     void sendPieceNotification(int piece);
-    void sendPieceList(const QSet<int> &bitField);
+    void sendPieceList(const QBitArray &bitField);
     void requestBlock(int piece, int offset, int length);
     void cancelRequest(int piece, int offset, int length);
     void sendBlock(int piece, int offset, const QByteArray &data);
 
     // Rate control
-    int bufferedBytesToWrite() const;
     qint64 writeToSocket(qint64 bytes);
     qint64 readFromSocket(qint64 bytes);
     qint64 downloadSpeed() const;
@@ -75,7 +74,7 @@ public:
 
     bool canTransferMore() const;
     inline qint64 bytesAvailable() const { return incomingBuffer.size(); }
-    inline qint64 bytesToWrite() const { return outgoingBuffer.size(); }
+    inline qint64 bytesToWrite() const { return outgoingBuffer.size() + QTcpSocket::bytesToWrite(); }
 
 signals:
     void readyToTransfer();
@@ -85,7 +84,7 @@ signals:
     void interested();
     void notInterested();
 
-    void piecesAvailable(const QSet<int> &pieces);
+    void piecesAvailable(const QBitArray &pieces);
     void blockRequested(int pieceIndex, int begin, int length);
     void requestCanceled(int pieceIndex, int begin, int length);
     void blockReceived(int pieceIndex, int begin, const QByteArray &data);
@@ -142,8 +141,7 @@ private:
     // Checksum, peer ID and set of available pieces
     QByteArray infoHash;
     QByteArray peerIdString;
-    QSet<int> peerPieces;
-    int pieceCount;
+    QBitArray peerPieces;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(PeerWireClient::PeerWireState)
