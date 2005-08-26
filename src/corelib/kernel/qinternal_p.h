@@ -42,7 +42,8 @@ public:
                                           curr_buff(0), buff_growth(growth) { }
 
     char *alloc(uint buflen);
-    char *take(uint maxsize, uint *realsize=0);
+    QByteArray take(uint size);
+    char *take(uint maxsize, uint *realsize);
     inline void free(uint buflen);
     void push(char c);
     inline void truncate(uint len) { curr_used -= len; }
@@ -75,6 +76,20 @@ inline char *QCircularBuffer::alloc(uint size)
     else
         off += start_off;
     return buf[curr_buff].data()+off;
+}
+inline QByteArray QCircularBuffer::take(uint size)
+{
+    if(size > curr_used) {
+        qWarning("Warning: asked to take too much %d [%d]", size, curr_used);
+        size = curr_used;
+    }
+    QByteArray ret;
+    ret.resize(size);
+    const uint firstBufferSize = qMin(size, buf[start_buff].size() - start_off);
+    if(firstBufferSize)
+        memcpy(ret.data(), buf[start_buff].data()+start_off, firstBufferSize);
+    memcpy(ret.data()+firstBufferSize, buf[!start_buff].data(), size-firstBufferSize);
+    return ret;
 }
 inline char *QCircularBuffer::take(uint size, uint *real_size)
 {
