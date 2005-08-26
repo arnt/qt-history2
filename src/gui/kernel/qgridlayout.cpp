@@ -144,7 +144,7 @@ public:
 private:
     void setNextPosAfter(int r, int c);
     void recalcHFW(int w, int s);
-    void addHfwData (QGridBox *box, int width);
+    void addHfwData(QGridBox *box, int width);
     void init();
     QSize findSize(int QLayoutStruct::*, int) const;
     void addData(QGridBox *b, bool r = true, bool c = true);
@@ -225,7 +225,7 @@ void QGridLayoutPrivate::recalcHFW(int w, int spacing)
 {
     /*
       Go through all children, using colData and heightForWidth()
-      and put the results in hfw_rowData.
+      and put the results in hfwData.
     */
     if (!hfwData)
         hfwData = new QVector<QLayoutStruct>(rr);
@@ -612,10 +612,8 @@ void QGridLayoutPrivate::addHfwData(QGridBox *box, int width)
     } else {
         QSize hint = box->sizeHint();
         QSize minS = box->minimumSize();
-        rData[box->row].sizeHint = qMax(hint.height(),
-                                         rData[box->row].sizeHint);
-        rData[box->row].minimumSize = qMax(minS.height(),
-                                            rData[box->row].minimumSize);
+        rData[box->row].sizeHint = qMax(hint.height(), rData[box->row].sizeHint);
+        rData[box->row].minimumSize = qMax(minS.height(), rData[box->row].minimumSize);
     }
 }
 
@@ -627,40 +625,46 @@ void QGridLayoutPrivate::addHfwData(QGridBox *box, int width)
 void QGridLayoutPrivate::setupHfwLayoutData(int spacing)
 {
     QVector<QLayoutStruct> &rData = *hfwData;
-    int i;
-    for (i = 0; i < rr; i++) {
+    for (int i = 0; i < rr; i++) {
         rData[i] = rowData[i];
-        rData[i].minimumSize = rData[i].sizeHint = 0;
+        rData[i].minimumSize = rData[i].sizeHint = rSpacing[i];
     }
-    for (i = 0; i < things.size(); ++i) {
-        QGridBox *box = things.at(i);
-        int r1 = box->row;
-        int c1 = box->col;
-        int r2 = box->torow;
-        int c2 = box->tocol;
-        if (r2 < 0)
-            r2 = rr-1;
-        if (c2 < 0)
-            c2 = cc-1;
-        int w = colData[c2].pos + colData[c2].size - colData[c1].pos;
-        if (r1 == r2) {
-            addHfwData(box, w);
-        } else {
-            QSize hint = box->sizeHint();
-            QSize min = box->minimumSize();
-            if (box->hasHeightForWidth()) {
-                int hfwh = box->heightForWidth(w);
-                if (hfwh > hint.height())
-                    hint.setHeight(hfwh);
-                if (hfwh > min.height())
-                    min.setHeight(hfwh);
+
+    for (int pass = 0; pass < 2; ++pass) {
+        for (int i = 0; i < things.size(); ++i) {
+            QGridBox *box = things.at(i);
+            int r1 = box->row;
+            int c1 = box->col;
+            int r2 = box->torow;
+            int c2 = box->tocol;
+            if (r2 < 0)
+                r2 = rr-1;
+            if (c2 < 0)
+                c2 = cc-1;
+            int w = colData[c2].pos + colData[c2].size - colData[c1].pos;
+
+            if (r1 == r2) {
+                if (pass == 0)
+                    addHfwData(box, w);
+            } else {
+                if (pass == 1) {
+                    QSize hint = box->sizeHint();
+                    QSize min = box->minimumSize();
+                    if (box->hasHeightForWidth()) {
+                        int hfwh = box->heightForWidth(w);
+                        if (hfwh > hint.height())
+                            hint.setHeight(hfwh);
+                        if (hfwh > min.height())
+                            min.setHeight(hfwh);
+                    }
+                    distributeMultiBox(rData, spacing, r1, r2,
+                                       min.height(), hint.height(),
+                                       rStretch, box->vStretch());
+                }
             }
-            distributeMultiBox(rData, spacing, r1, r2,
-                                min.height(), hint.height(),
-                                rStretch, box->vStretch());
         }
     }
-    for (i = 0; i < rr; i++)
+    for (int i = 0; i < rr; i++)
         rData[i].expansive = rData[i].expansive || rData[i].stretch > 0;
 }
 

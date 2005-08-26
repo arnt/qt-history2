@@ -285,8 +285,6 @@ Q_GUI_EXPORT QSize qSmartMinSize(const QWidgetItem *i)
         s.setWidth(min.width());
     if (min.height() > 0)
         s.setHeight(min.height());
-    else if (i->hasHeightForWidth() && s.width() > 0)
-        s = s.expandedTo(QSize(0, i->heightForWidth(s.width())));
 
     return s.expandedTo(QSize(0,0));
 }
