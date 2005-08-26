@@ -5,8 +5,8 @@ CONFIG	+= qt warn_off qaxserver dll
 
 SOURCES	 = main.cpp
 HEADERS	 = ax1.h ax2.h
-RC_FILE	 = ../../../extensions/activeqt/control/qaxserver.rc
-DEF_FILE = ../../../extensions/activeqt/control/qaxserver.def
+RC_FILE	 = $$QT_SOURCE_TREE/src/activeqt/control/qaxserver.rc
+DEF_FILE = $$QT_SOURCE_TREE/src/activeqt/control/qaxserver.def
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/activeqt/multiple
