@@ -88,20 +88,22 @@ inline QByteArray QCircularBuffer::take(uint size)
     const uint firstBufferSize = qMin(size, buf[start_buff].size() - start_off);
     if(firstBufferSize)
         memcpy(ret.data(), buf[start_buff].constData()+start_off, firstBufferSize);
-    if(start_buff != curr_buff && firstBufferSize < size) {
-        qDebug("ROLL OVER!!");
-        memcpy(ret.data()+firstBufferSize, buf[curr_buff].constData(), size-firstBufferSize);
+    if(firstBufferSize < size) {
+        if(start_buff != curr_buff)
+            memcpy(ret.data()+firstBufferSize, buf[curr_buff].constData(), size-firstBufferSize);
+        else
+            memcpy(ret.data()+firstBufferSize, buf[start_buff].constData(), size-firstBufferSize);
     }
     return ret;
 }
 inline char *QCircularBuffer::take(uint size, uint *real_size)
 {
+    Q_ASSERT(real_size);
     if(size > curr_used) {
         qWarning("Warning: asked to take too much %d [%d]", size, curr_used);
         size = curr_used;
     }
-    if(real_size)
-        *real_size = qMin(size, buf[start_buff].size() - start_off);
+    *real_size = qMin(size, buf[start_buff].size() - start_off);
     return buf[start_buff].data()+start_off;
 }
 
