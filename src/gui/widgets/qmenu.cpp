@@ -258,7 +258,7 @@ void QMenuPrivate::hideUpToMenuBar()
 void QMenuPrivate::popupAction(QAction *action, int delay, bool activateFirst)
 {
     Q_Q(QMenu);
-    if (action && action->isEnabled() && action->menu()) {
+    if (action && action->isEnabled()) {
         if (!delay) {
             q->internalDelayedPopup();
         } else {
@@ -271,7 +271,7 @@ void QMenuPrivate::popupAction(QAction *action, int delay, bool activateFirst)
             menuDelayTimer->setSingleShot(true);
             menuDelayTimer->start(delay);
         }
-        if (activateFirst)
+        if (activateFirst && action->menu())
             action->menu()->d_func()->setFirstActionActive();
     }
 }
