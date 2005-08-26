@@ -52,10 +52,6 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^translations"),
 		       new RegExp("^pics"),
 		       new RegExp("^bin/syncqt.bat"),
-		       new RegExp("^extensions/motif"),
-		       new RegExp("^extensions/nsplugin"),
-		       new RegExp("^extensions/xt"),
-		       new RegExp("^examples/motif"),
 		       new RegExp("^src/corelib/eval.pri"),
 		       new RegExp("^src/corelib/kernel/qtcore_eval.cpp"),
 		       new RegExp("^src/gui/styles/qsgi"),
@@ -108,8 +104,10 @@ platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("^src/plugins/decorations"),
 			  new RegExp("^qmake/Makefile$"),
 			  new RegExp("^qmake/Makefile.win32-g++"),
-			  new RegExp("^extensions"),
-			  new RegExp("^examples/activeqt"),
+			  new RegExp("^/src/activeqt"),
+			  new RegExp("^/tools/activeqt"),
+			  new RegExp("^/tools/designer/src/plugins/activeqt"),
+			  new RegExp("^/examples/activeqt"),
 			  new RegExp("_win"),
 			  new RegExp("_qws"),
 			  new RegExp("_wce"),
@@ -127,8 +125,10 @@ platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("^src/plugins/decorations"),
 			  new RegExp("^qmake/Makefile$"),
 			  new RegExp("^qmake/Makefile.win32-g++"),
-			  new RegExp("^extensions"),
-			  new RegExp("^examples/activeqt"),
+			  new RegExp("^/src/activeqt"),
+			  new RegExp("^/tools/activeqt"),
+			  new RegExp("^/tools/designer/src/plugins/activeqt"),
+			  new RegExp("^/examples/activeqt"),
 			  new RegExp("_win"),
 			  new RegExp("_qws"),
 			  new RegExp("_wce"),
@@ -148,8 +148,10 @@ platformRemove["embedded"] = [ new RegExp("^gif"),
 			       new RegExp("_wce"),
 			       new RegExp("_mac"),
 			       new RegExp("^src/plugins/styles/mac"),
-			       new RegExp("^extensions"),
-			       new RegExp("^examples/activeqt"),
+			       new RegExp("^/src/activeqt"),
+			       new RegExp("^/tools/activeqt"),
+			       new RegExp("^/tools/designer/src/plugins/activeqt"),
+			       new RegExp("^/examples/activeqt"),
 			       new RegExp("_qnx4"),
 			       new RegExp("_qnx6"),
 			       new RegExp("^LICENSE.QPL"),
@@ -159,8 +161,10 @@ var licenseRemove = new Array();
 
 licenseRemove["commercial"] = [ new RegExp("LICENSE.GPL") ];
 
-licenseRemove["opensource"] = [ new RegExp("^extensions"),
-				new RegExp("^examples/activeqt"),
+licenseRemove["opensource"] = [ new RegExp("^/src/activeqt"),
+				new RegExp("^/tools/activeqt"),
+				new RegExp("^/tools/designer/src/plugins/activeqt"),
+				new RegExp("^/examples/activeqt"),
 				new RegExp("^src/plugins/sqldrivers/db2"),
 				new RegExp("^src/plugins/sqldrivers/oci"),
 				new RegExp("^src/plugins/sqldrivers/tds"),
@@ -199,6 +203,7 @@ moduleMap["QtNetwork module"]            = new RegExp("^src/network");
 moduleMap["QtOpenGL module"]             = new RegExp("^src/opengl");
 moduleMap["QtSql module"]                = new RegExp("^src/sql");
 moduleMap["QtXML module"]                = new RegExp("^src/xml");
+moduleMap["ActiveQt Framework"]          = new RegExp("^src/activeqt");
 
 // main applications
 moduleMap["Qt Designer"]                 = new RegExp("^tools/designer");
@@ -211,7 +216,6 @@ moduleMap["qmake application"]           = new RegExp("^qmake");
 moduleMap["demonstration applications"]  = new RegExp("^demos");
 moduleMap["documentation"]               = new RegExp("^doc");
 moduleMap["example classes"]             = new RegExp("^examples");
-moduleMap["ActiveQt Framework"]          = new RegExp("^extensions/activeqt");
 moduleMap["tools applications"]          = new RegExp("(^src/tools|^tools/)");
 moduleMap["window classes"]              = new RegExp("^src/winmain");
 moduleMap["plugins"]                     = new RegExp("^src/plugins");
