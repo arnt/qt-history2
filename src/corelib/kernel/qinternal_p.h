@@ -87,8 +87,11 @@ inline QByteArray QCircularBuffer::take(uint size)
     ret.resize(size);
     const uint firstBufferSize = qMin(size, buf[start_buff].size() - start_off);
     if(firstBufferSize)
-        memcpy(ret.data(), buf[start_buff].data()+start_off, firstBufferSize);
-    memcpy(ret.data()+firstBufferSize, buf[!start_buff].data(), size-firstBufferSize);
+        memcpy(ret.data(), buf[start_buff].constData()+start_off, firstBufferSize);
+    if(start_buff != curr_buff && firstBufferSize < size) {
+        qDebug("ROLL OVER!!");
+        memcpy(ret.data()+firstBufferSize, buf[curr_buff].constData(), size-firstBufferSize);
+    }
     return ret;
 }
 inline char *QCircularBuffer::take(uint size, uint *real_size)
@@ -119,7 +122,7 @@ inline void QCircularBuffer::free(uint size)
         start_off += size;
     } else if(start_buff != curr_buff) {
         start_buff = curr_buff;
-        start_off = start_size - size;
+        start_off = size - start_size;
     } else {
         start_off = 0;
     }
