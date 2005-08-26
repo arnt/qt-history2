@@ -20,10 +20,7 @@
 
 #include <qt_windows.h>
 
-#include "../../shared/qaxtypes.h"
-
-#include <oaidl.h>
-
+extern QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint type = 0);
 QAxObject *ax_mainWindow = 0;
 
 static QTextEdit *debuglog = 0;
