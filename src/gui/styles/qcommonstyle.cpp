@@ -191,8 +191,18 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                             &frame->palette.brush(QPalette::Button));
         break;
     case PE_IndicatorProgressChunk:
-        p->fillRect(opt->rect.x(), opt->rect.y() + 3, opt->rect.width() -2, opt->rect.height() - 6,
-                    opt->palette.brush(QPalette::Highlight));
+        {
+            bool vertical = false;
+            if (const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt))
+                vertical = (pb2->orientation == Qt::Vertical);
+            if (!vertical) {
+                p->fillRect(opt->rect.x(), opt->rect.y() + 3, opt->rect.width() -2, opt->rect.height() - 6,
+                            opt->palette.brush(QPalette::Highlight));
+            } else {
+                p->fillRect(opt->rect.x() + 2, opt->rect.y(), opt->rect.width() -6, opt->rect.height() - 2,
+                            opt->palette.brush(QPalette::Highlight));
+            }
+        }
         break;
     case PE_Q3CheckListController:
 #ifndef QT_NO_IMAGEFORMAT_XPM
@@ -754,7 +764,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
     case CE_ProgressBar:
         if (const QStyleOptionProgressBar *pb
                 = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
-            QStyleOptionProgressBar subopt = *pb;
+            QStyleOptionProgressBarV2 subopt = *pb;
             subopt.rect = subElementRect(SE_ProgressBarGroove, pb, widget);
             drawControl(CE_ProgressBarGroove, &subopt, p, widget);
             subopt.rect = subElementRect(SE_ProgressBarContents, pb, widget);
@@ -771,37 +781,65 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         break;
     case CE_ProgressBarLabel:
         if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
-            QPalette::ColorRole textRole = QPalette::NoRole;
-            if ((pb->textAlignment & Qt::AlignCenter) && pb->textVisible
-                && pb->progress * 2 >= pb->maximum)
-                textRole = QPalette::HighlightedText;
-            drawItemText(p, pb->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->palette,
-                         pb->state & State_Enabled, pb->text, textRole);
+            bool vertical = false;
+            if (const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt)) {
+                vertical = (pb2->orientation == Qt::Vertical);
+            }
+            if (!vertical) {
+                QPalette::ColorRole textRole = QPalette::NoRole;
+                if ((pb->textAlignment & Qt::AlignCenter) && pb->textVisible
+                    && pb->progress * 2 >= pb->maximum) {
+                    textRole = QPalette::HighlightedText;
+                }
+                drawItemText(p, pb->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->palette,
+                             pb->state & State_Enabled, pb->text, textRole);
+            }
         }
         break;
     case CE_ProgressBarContents:
         if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
+
+            QRect rect = pb->rect;
+            bool vertical = false;
+            bool inverted = false;
+
+            // Get extra style options if version 2
+            const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt);
+            if (pb2) {
+                vertical = (pb2->orientation == Qt::Vertical);
+                inverted = pb2->invertedAppearance;
+            }
+
+            QMatrix m;
+            if (vertical) {
+                rect = QRect(rect.left(), rect.top(), rect.height(), rect.width()); // flip width and height
+                m.translate(rect.height(), 0.0);
+                m.rotate(90);
+            }
+
             QPalette pal2 = pb->palette;
             // Correct the highlight color if it is the same as the background
             if (pal2.highlight() == pal2.background())
                 pal2.setColor(QPalette::Highlight, pb->palette.color(QPalette::Active,
                                                                      QPalette::Highlight));
-            bool reverse = pb->direction == Qt::RightToLeft;
+            bool reverse = ((!vertical && (pb->direction == Qt::RightToLeft)) || vertical);
+            if (inverted)
+                reverse = !reverse;
             int fw = 2;
-            int w = pb->rect.width() - 2 * fw;
+            int w = rect.width() - 2 * fw;
             if (pb->minimum == 0 && pb->maximum == 0) {
                 // draw busy indicator
                 int x = pb->progress % (w * 2);
                 if (x > w)
                     x = 2 * w - x;
-                x = reverse ? pb->rect.right() - x : x + pb->rect.x();
+                x = reverse ? rect.right() - x : x + rect.x();
                 p->setPen(QPen(pal2.highlight().color(), 4));
-                p->drawLine(x, pb->rect.y() + 1, x, pb->rect.height() - fw);
+                p->drawLine(x, rect.y() + 1, x, rect.height() - fw);
             } else {
                 const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, pb, widget);
                 int u;
                 if (unit_width > 1)
-                    u = (pb->rect.width() + unit_width / 3) / unit_width;
+                    u = (rect.width() + unit_width / 3) / unit_width;
                 else
                     u = w / unit_width;
                 int p_v = pb->progress;
@@ -825,15 +863,18 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 // color, all in a sunken panel with a percentage text
                 // display at the end.
                 int x = 0;
-                int x0 = reverse ? pb->rect.right() - ((unit_width > 1) ? unit_width : fw)
-                                 : pb->rect.x() + fw;
-                QStyleOptionProgressBar pbBits = *pb;
+                int x0 = reverse ? rect.right() - ((unit_width > 1) ? unit_width : fw)
+                                 : rect.x() + fw;
+
+                QStyleOptionProgressBarV2 pbBits = *pb;
+                pbBits.rect = rect;
                 pbBits.palette = pal2;
                 int myY = pbBits.rect.y();
                 int myHeight = pbBits.rect.height();
                 pbBits.state = State_None;
                 for (int i = 0; i < nu; ++i) {
                     pbBits.rect.setRect(x0 + x, myY, unit_width, myHeight);
+                    pbBits.rect = m.mapRect(pbBits.rect);
                     drawPrimitive(PE_IndicatorProgressChunk, &pbBits, p, widget);
                     x += reverse ? -unit_width : unit_width;
                 }
@@ -844,6 +885,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                     int pixels_left = w - (nu * unit_width);
                     int offset = reverse ? x0 + x + unit_width-pixels_left : x0 + x;
                     pbBits.rect.setRect(offset, myY, pixels_left, myHeight);
+                    pbBits.rect = m.mapRect(pbBits.rect);
                     drawPrimitive(PE_IndicatorProgressChunk, &pbBits, p, widget);
                 }
             }
@@ -1420,8 +1462,14 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
     case SE_ProgressBarLabel:
         if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
             int textw = 0;
-            if (pb->textVisible)
-                textw = qMax(pb->fontMetrics.width(pb->text), pb->fontMetrics.width("100%")) + 6;
+            bool vertical = false;
+            if (const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt)) {
+                vertical = (pb2->orientation == Qt::Vertical);
+            }
+            if (!vertical) {
+                if (pb->textVisible)
+                    textw = qMax(pb->fontMetrics.width(pb->text), pb->fontMetrics.width(QLatin1String("100%"))) + 6;
+            }
 
             if ((pb->textAlignment & Qt::AlignCenter) == 0) {
                 if (sr != SE_ProgressBarLabel)

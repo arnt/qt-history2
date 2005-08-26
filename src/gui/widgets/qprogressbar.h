@@ -26,14 +26,20 @@ class QProgressBarPrivate;
 class Q_GUI_EXPORT QProgressBar : public QWidget
 {
     Q_OBJECT
+    Q_ENUMS(Direction)
     Q_PROPERTY(int minimum READ minimum WRITE setMinimum)
     Q_PROPERTY(int maximum READ maximum WRITE setMaximum)
     Q_PROPERTY(QString text READ text)
     Q_PROPERTY(int value READ value WRITE setValue NOTIFY valueChanged)
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
     Q_PROPERTY(bool textVisible READ isTextVisible WRITE setTextVisible)
+    Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
+    Q_PROPERTY(bool invertedAppearance READ invertedAppearance WRITE setInvertedAppearance)
+    Q_PROPERTY(Direction textDirection READ textDirection WRITE setTextDirection)
 
 public:
+    enum Direction { TopToBottom, BottomToTop };
+
     explicit QProgressBar(QWidget *parent = 0);
 
     int minimum() const;
@@ -52,11 +58,19 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
+    Qt::Orientation orientation() const;
+
+    void setInvertedAppearance(bool invert);
+    bool invertedAppearance();
+    void setTextDirection(QProgressBar::Direction textDirection);
+    QProgressBar::Direction textDirection();
+
 public slots:
     void reset();
     void setMinimum(int minimum);
     void setMaximum(int maximum);
     void setValue(int value);
+    void setOrientation(Qt::Orientation);
 
 signals:
     void valueChanged(int value);

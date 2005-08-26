@@ -36,25 +36,33 @@ public:
     Qt::Alignment alignment;
     uint textVisible : 1;
     int lastPaintedValue;
-    QStyleOptionProgressBar getStyleOption() const;
+    Qt::Orientation orientation;
+    bool invertedAppearance;
+    QProgressBar::Direction textDirection;
+    QStyleOptionProgressBarV2 getStyleOption() const;
     inline int bound(int val) const { return qMax(minimum-1, qMin(maximum, val)); }
     bool repaintRequired() const;
 };
 
 QProgressBarPrivate::QProgressBarPrivate()
     : minimum(0), maximum(100), value(-1), alignment(Qt::AlignLeft), textVisible(true),
-      lastPaintedValue(-1)
+      lastPaintedValue(-1), orientation(Qt::Horizontal), invertedAppearance(false), textDirection(QProgressBar::TopToBottom)
 {
 }
 
 void QProgressBarPrivate::init()
 {
-    q_func()->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+    Q_Q(QProgressBar);
+    QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    if (orientation == Qt::Vertical)
+        sp.transpose();
+    q->setSizePolicy(sp);
+    q->setAttribute(Qt::WA_WState_OwnSizePolicy, false);
 }
 
-QStyleOptionProgressBar QProgressBarPrivate::getStyleOption() const
+QStyleOptionProgressBarV2 QProgressBarPrivate::getStyleOption() const
 {
-    QStyleOptionProgressBar opt;
+    QStyleOptionProgressBarV2 opt;
     opt.init(q_func());
 
     opt.minimum = minimum;
@@ -63,6 +71,9 @@ QStyleOptionProgressBar QProgressBarPrivate::getStyleOption() const
     opt.textAlignment = alignment;
     opt.textVisible = textVisible;
     opt.text = q_func()->text();
+    opt.orientation = orientation;
+    opt.invertedAppearance = invertedAppearance;
+    opt.bottomToTop = (textDirection == QProgressBar::BottomToTop);
 
     return opt;
 }
@@ -81,7 +92,7 @@ bool QProgressBarPrivate::repaintRequired() const
         return true;
 
     // Check if the bar needs to be repainted
-    QStyleOptionProgressBar opt = getStyleOption();
+    QStyleOptionProgressBarV2 opt = getStyleOption();
     int cw = q->style()->pixelMetric(QStyle::PM_ProgressBarChunkWidth, &opt, q);
     QRect groove  = q->style()->subElementRect(QStyle::SE_ProgressBarGroove, &opt, q);
     // This expression is basically
@@ -92,7 +103,7 @@ bool QProgressBarPrivate::repaintRequired() const
 
 /*!
     \class QProgressBar qprogressbar.h
-    \brief The QProgressBar widget provides a horizontal progress bar.
+    \brief The QProgressBar widget provides a horizontal or vertical progress bar.
 
     \ingroup advanced
     \mainclass
@@ -288,7 +299,7 @@ Qt::Alignment QProgressBar::alignment() const
 void QProgressBar::paintEvent(QPaintEvent *)
 {
     QStylePainter paint(this);
-    QStyleOptionProgressBar opt = d_func()->getStyleOption();
+    QStyleOptionProgressBarV2 opt = d_func()->getStyleOption();
     paint.drawControl(QStyle::CE_ProgressBar, opt);
     d_func()->lastPaintedValue = d_func()->value;
 }
@@ -300,10 +311,12 @@ QSize QProgressBar::sizeHint() const
 {
     ensurePolished();
     QFontMetrics fm = fontMetrics();
-    QStyleOptionProgressBar opt = d_func()->getStyleOption();
+    QStyleOptionProgressBarV2 opt = d_func()->getStyleOption();
     int cw = style()->pixelMetric(QStyle::PM_ProgressBarChunkWidth, &opt, this);
-    return style()->sizeFromContents(QStyle::CT_ProgressBar, &opt,
-                                    QSize(cw * 7 + fm.width('0') * 4, fm.height() + 8), this);
+    QSize size = QSize(cw * 7 + fm.width('0') * 4, fm.height() + 8);
+    if (opt.orientation == Qt::Vertical)
+        size.transpose();
+    return style()->sizeFromContents(QStyle::CT_ProgressBar, &opt, size, this);
 }
 
 /*!
@@ -311,7 +324,12 @@ QSize QProgressBar::sizeHint() const
 */
 QSize QProgressBar::minimumSizeHint() const
 {
-    return QSize(sizeHint().width(), fontMetrics().height() + 2);
+    QSize size;
+    if (orientation() == Qt::Horizontal)
+        size = QSize(sizeHint().width(), fontMetrics().height() + 2);
+    else
+        size = QSize(fontMetrics().height() + 2, sizeHint().height());
+    return size;
 }
 
 /*!
@@ -346,5 +364,69 @@ QString QProgressBar::text() const
     return tr("%1%").arg(progress * 100 / totalSteps);
 }
 
+/*!
+    \property QProgressBar::orientation
+    \brief the orientation of the progress bar
+
+    The orientation must be \l Qt::Horizontal (the default) or \l
+    Qt::Vertical.
+*/
+
+void QProgressBar::setOrientation(Qt::Orientation orientation)
+{
+    Q_D(QProgressBar);
+    if (d->orientation == orientation)
+        return;
+    d->orientation = orientation;
+    if (!testAttribute(Qt::WA_WState_OwnSizePolicy)) {
+        QSizePolicy sp = sizePolicy();
+        sp.transpose();
+        setSizePolicy(sp);
+        setAttribute(Qt::WA_WState_OwnSizePolicy, false);
+    }
+    update();
+    updateGeometry();
+}
+
+Qt::Orientation QProgressBar::orientation() const
+{
+    Q_D(const QProgressBar);
+    return d->orientation;
+}
+
+/*!
+    \property QProgressBar::invertedAppearance
+    \brief whether or not a progress bar shows its progress inverted
+*/
+
+void QProgressBar::setInvertedAppearance(bool invert)
+{
+    Q_D(QProgressBar);
+    d->invertedAppearance = invert;
+    update();
+}
+
+bool QProgressBar::invertedAppearance()
+{
+    Q_D(QProgressBar);
+    return d->invertedAppearance;
+}
+
+/*!
+    \property QProgressBar::textDirection
+    \brief determines the reading direction of the progress bar label when its orientation is vertical
+*/
+void QProgressBar::setTextDirection(QProgressBar::Direction textDirection)
+{
+    Q_D(QProgressBar);
+    d->textDirection = textDirection;
+    update();
+}
+
+QProgressBar::Direction QProgressBar::textDirection()
+{
+    Q_D(QProgressBar);
+    return d->textDirection;
+}
 
 #endif

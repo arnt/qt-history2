@@ -1558,10 +1558,20 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         break;
 
     case PE_IndicatorProgressChunk:
+        {
+        Qt::Orientation orient = Qt::Horizontal;
+        if (const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(option))
+            orient = pb2->orientation;
+        if (orient == Qt::Horizontal) {
+            partId = PP_CHUNK;
+            rect = QRect(option->rect.x(), option->rect.y() + 3, option->rect.width(), option->rect.height() - 5);
+        } else {
+            partId = PP_CHUNKVERT;
+            rect = QRect(option->rect.x() + 2, option->rect.y() - 1, option->rect.width() - 5, option->rect.height());
+        }
         name = "PROGRESS";
-        partId = PP_CHUNK;
         stateId = 1;
-        rect = QRect(option->rect.x(), option->rect.y() + 3, option->rect.width(), option->rect.height() - 5);
+        }
         break;
 
     case PE_Q3DockWindowSeparator:
@@ -1886,9 +1896,14 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         break;
 
     case CE_ProgressBarGroove:
+        {
+        Qt::Orientation orient = Qt::Horizontal;
+        if (const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(option))
+            orient = pb2->orientation;
+        partId = (orient == Qt::Horizontal) ? PP_BAR : PP_BARVERT;
         name = "PROGRESS";
-        partId = PP_BAR;
         stateId = 1;
+        }
         break;
 
     case CE_MenuEmptyArea:
@@ -2872,11 +2887,14 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
 
     case PM_ProgressBarChunkWidth:
         {
-            XPThemeData theme(widget, 0, "PROGRESS", PP_CHUNK);
+            Qt::Orientation orient = Qt::Horizontal;
+            if (const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(option))
+                orient = pb2->orientation;
+            XPThemeData theme(widget, 0, "PROGRESS", (orient == Qt::Horizontal) ? PP_CHUNK : PP_CHUNKVERT);
             if (theme.isValid()) {
                 SIZE size;
                 pGetThemePartSize(theme.handle(), 0, theme.partId, theme.stateId, 0, TS_TRUE, &size);
-                res = size.cx;
+                res = (orient == Qt::Horizontal) ? size.cx : size.cy;
             }
         }
         break;

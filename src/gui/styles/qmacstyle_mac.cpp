@@ -1993,6 +1993,15 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             tdi.version = qt_mac_hitheme_version;
             tdi.reserved = 0;
             bool isIndeterminate = (pb->minimum == 0 && pb->maximum == 0);
+            bool vertical = false;
+            bool inverted = false;
+            if (const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt)) {
+                vertical = (pb2->orientation == Qt::Vertical);
+                inverted = pb2->invertedAppearance;
+            }
+            bool reverse = (!vertical && (pb->direction == Qt::RightToLeft));
+            if (inverted)
+                reverse = !reverse;
             switch (qt_aqua_size_constrain(w)) {
             case QAquaSizeUnknown:
             case QAquaSizeLarge:
@@ -2015,7 +2024,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             tdi.max = pb->maximum;
             tdi.min = pb->minimum;
             tdi.value = pb->progress;
-            tdi.attributes = kThemeTrackHorizontal;
+            tdi.attributes = vertical ? 0 : kThemeTrackHorizontal;
             tdi.trackInfo.progress.phase = progressFrame;
             if (!(pb->state & QStyle::State_Active))
                 tdi.enableState = kThemeTrackInactive;

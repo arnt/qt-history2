@@ -652,8 +652,18 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         break; }
 
     case PE_IndicatorProgressChunk:
-        p->fillRect(opt->rect.x(), opt->rect.y() + 2, opt->rect.width(),
-                    opt->rect.height() - 4, opt->palette.brush(QPalette::Highlight));
+        {
+            bool vertical = false;
+            if (const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt))
+                vertical = (pb2->orientation == Qt::Vertical);
+            if (!vertical) {
+                p->fillRect(opt->rect.x(), opt->rect.y() + 2, opt->rect.width(),
+                            opt->rect.height() - 4, opt->palette.brush(QPalette::Highlight));
+            } else {
+                p->fillRect(opt->rect.x() + 1, opt->rect.y(), opt->rect.width() - 4, opt->rect.height(),
+                            opt->palette.brush(QPalette::Highlight));
+            }
+        }
         break;
 
     default:
@@ -880,8 +890,30 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
 
     case CE_ProgressBarLabel:
         if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
+            QMatrix oldMatrix = p->matrix();
+            QRect rect = pb->rect;
+            bool vertical = false;
+            bool invert = false;
+            bool bottomToTop = false;
+            if (const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt)) {
+                vertical = (pb2->orientation == Qt::Vertical);
+                invert = pb2->invertedAppearance;
+                bottomToTop = pb2->bottomToTop;
+            }
+            if (vertical) {
+                QMatrix m;
+                rect = QRect(rect.left(), rect.top(), rect.height(), rect.width()); // flip width and height
+                if (bottomToTop) {
+                    m.translate(0.0, rect.width());
+                    m.rotate(-90);
+                } else {
+                    m.translate(rect.height(), 0.0);
+                    m.rotate(90);
+                }
+                p->setMatrix(m);
+            }
             const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, opt, widget);
-            int u = opt->rect.width() / unit_width;
+            int u = rect.width() / unit_width;
             int p_v = pb->progress;
             int t_s = qMax(0, pb->maximum - pb->minimum);
             if (u > 0 && pb->progress >= INT_MAX / u && t_s >= u) {
@@ -892,20 +924,25 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             if (pb->textVisible && t_s) {
                 int nu = (u * p_v + t_s/2) / t_s;
                 int x = unit_width * nu;
-                QRect left(opt->rect.x(), opt->rect.y(), x, opt->rect.height());
-                QRect right(opt->rect.x() + x, opt->rect.y(), opt->rect.width() - x, opt->rect.height());
-                const QRect &highlighted = visualRect(pb->direction, pb->rect, left);
-                const QRect &background = visualRect(pb->direction, pb->rect, right);
+                QRect left(rect.x(), rect.y(), x, rect.height());
+                QRect right(rect.x() + x, rect.y(), rect.width() - x, rect.height());
+                Qt::LayoutDirection dir;
+                dir = vertical ? (bottomToTop ? Qt::LeftToRight : Qt::RightToLeft) : pb->direction;
+                if (invert)
+                    dir = (dir == Qt::LeftToRight) ? Qt::RightToLeft : Qt::LeftToRight;
+                const QRect highlighted = visualRect(dir, rect, left);
+                const QRect background = visualRect(dir, rect, right);
                 p->setPen(opt->palette.highlightedText().color());
                 p->setClipRect(highlighted);
-                p->drawText(opt->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->text);
+                p->drawText(rect, Qt::AlignCenter | Qt::TextSingleLine, pb->text);
 
                 if (pb->progress != pb->maximum) {
                     p->setClipRect(background);
                     p->setPen(opt->palette.highlight().color());
-                    p->drawText(opt->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->text);
+                    p->drawText(rect, Qt::AlignCenter | Qt::TextSingleLine, pb->text);
                 }
             }
+            p->setMatrix(oldMatrix);
             break;
         }
 

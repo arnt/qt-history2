@@ -845,6 +845,85 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 */
 
 /*!
+    Constructs a QStyleOptionProgressBarV2. The members variables are
+    initialized to default values.
+*/
+
+QStyleOptionProgressBarV2::QStyleOptionProgressBarV2()
+    : QStyleOptionProgressBar(2),
+      orientation(Qt::Horizontal), invertedAppearance(false), bottomToTop(false)
+{
+}
+
+/*!
+    \internal
+*/
+QStyleOptionProgressBarV2::QStyleOptionProgressBarV2(int version)
+    : QStyleOptionProgressBar(version),
+      orientation(Qt::Horizontal), invertedAppearance(false), bottomToTop(false)
+{
+}
+
+/*!
+    \internal
+*/
+QStyleOptionProgressBarV2::QStyleOptionProgressBarV2(const QStyleOptionProgressBar &other)
+    : QStyleOptionProgressBar(2), orientation(Qt::Horizontal), invertedAppearance(false), bottomToTop(false)
+{
+    const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(&other);
+    if (pb2)
+        *this = *pb2;
+    else
+        *((QStyleOptionProgressBar *)this) = other;
+}
+
+/*!
+\internal
+*/
+QStyleOptionProgressBarV2::QStyleOptionProgressBarV2(const QStyleOptionProgressBarV2 &other)
+    : QStyleOptionProgressBar(2), orientation(Qt::Horizontal), invertedAppearance(false), bottomToTop(false)
+{
+    *this = other;
+}
+
+/*!
+    \internal
+*/
+QStyleOptionProgressBarV2 &QStyleOptionProgressBarV2::operator=(const QStyleOptionProgressBar &other)
+{
+    QStyleOptionProgressBar::operator=(other);
+
+    const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(&other);
+    if (pb2) {
+        orientation = pb2->orientation;
+        invertedAppearance = pb2->invertedAppearance;
+        bottomToTop = pb2->bottomToTop;
+    }
+    return *this;
+}
+
+/*!
+    \variable QStyleOptionProgressBarV2::orientation
+    \brief the progress bar's orientation (horizontal or vertical)
+
+    \sa QProgressBar::Orientation
+*/
+
+/*!
+    \variable QStyleOptionProgressBarV2::invertedAppearance
+    \brief whether the progress bar's appearance is inverted
+
+    \sa QProgressBar::invertedAppearance
+*/
+
+/*!
+    \variable QStyleOptionProgressBarV2::bottomToTop
+    \brief whether the text reads from bottom to top when the progress bar is vertical
+
+    \sa QProgressBar::textDirection
+*/
+
+/*!
     \class QStyleOptionMenuItem
     \brief The QStyleOptionMenuItem class is used to describe the
     parameter necessary for drawing a menu item.

@@ -2203,9 +2203,34 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->setFont(font);
             painter->setPen(bar->palette.text().color());
 
+            bool vertical = false;
+            bool inverted = false;
+            bool bottomToTop = false;
+            // Get extra style options if version 2
+            if (const QStyleOptionProgressBarV2 *bar2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(option)) {
+                vertical = (bar2->orientation == Qt::Vertical);
+                inverted = bar2->invertedAppearance;
+                bottomToTop = bar2->bottomToTop;
+            }
+
+            if (vertical) {
+                rect = QRect(rect.left(), rect.top(), rect.height(), rect.width()); // flip width and height
+                QMatrix m;
+                if (bottomToTop) {
+                    m.translate(0.0, rect.width());
+                    m.rotate(-90);
+                } else {
+                    m.translate(rect.height(), 0.0);
+                    m.rotate(90);
+                }
+                painter->setMatrix(m);
+            }
+
             int progressIndicatorPos = int(((bar->progress - bar->minimum) / double(bar->maximum - bar->minimum)) * rect.width());
 
-            if (bar->direction == Qt::RightToLeft) {
+            bool flip = (!vertical && (((bar->direction == Qt::RightToLeft) && !inverted)
+                          || ((bar->direction == Qt::LeftToRight) && inverted))) || (vertical && ((!inverted && !bottomToTop) || (inverted && bottomToTop)));
+            if (flip) {
                 int indicatorPos = rect.width() - progressIndicatorPos;
                 if (indicatorPos >= 0 && indicatorPos <= rect.width()) {
                     painter->setPen(bar->palette.base().color());
@@ -2217,38 +2242,61 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                 }
             } else {
                 if (progressIndicatorPos >= 0 && progressIndicatorPos <= rect.width()) {
-		    leftRect = QRect(rect.left(), rect.top(), progressIndicatorPos, rect.height());
+                    leftRect = QRect(rect.left(), rect.top(), progressIndicatorPos, rect.height());
                 } else if (progressIndicatorPos > rect.width()) {
-		    painter->setPen(bar->palette.base().color());
+                    painter->setPen(bar->palette.base().color());
                 } else {
-  		    painter->setPen(bar->palette.text().color());
+                    painter->setPen(bar->palette.text().color());
                 }
             }
 
             painter->drawText(rect, bar->text, QTextOption(Qt::AlignAbsolute | Qt::AlignHCenter | Qt::AlignVCenter));
             if (!leftRect.isNull()) {
-                painter->setPen(bar->direction == Qt::RightToLeft ? bar->palette.text().color() : bar->palette.base().color());
+                painter->setPen(flip ? bar->palette.text().color() : bar->palette.base().color());
                 painter->setClipRect(leftRect, Qt::IntersectClip);
                 painter->drawText(rect, bar->text, QTextOption(Qt::AlignAbsolute | Qt::AlignHCenter | Qt::AlignVCenter));
             }
+
             painter->restore();
         }
         break;
     case CE_ProgressBarContents:
         if (const QStyleOptionProgressBar *bar = qstyleoption_cast<const QStyleOptionProgressBar *>(option)) {
             QPen oldPen = painter->pen();
+            QMatrix oldMatrix = painter->matrix();
+            QRect rect = bar->rect;
+            bool vertical = false;
+            bool inverted = false;
 
-            int maxWidth = bar->rect.width() - 4;
+            // Get extra style options if version 2
+            if (const QStyleOptionProgressBarV2 *bar2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(option)) {
+                vertical = (bar2->orientation == Qt::Vertical);
+                inverted = bar2->invertedAppearance;
+            }
+
+            // If the orientation is vertical, we use a transform to rotate the progress bar 90 degrees clockwise.
+            // This way we can use the same rendering code for both orientations.
+            if (vertical) {
+                rect = QRect(rect.left(), rect.top(), rect.height(), rect.width()); // flip width and height
+                QMatrix m;
+                m.translate(rect.height()-1, 0.0);
+                m.rotate(90.0);
+                painter->setMatrix(m);
+            }
+
+            int maxWidth = rect.width() - 4;
             int minWidth = 4;
             int progress = qMax(bar->progress, bar->minimum); // workaround for bug in QProgressBar
             int width = qMax(int((((progress - bar->minimum)) / double(bar->maximum - bar->minimum)) * maxWidth), minWidth);
-            bool reverse = bar->direction == Qt::RightToLeft;
+            bool reverse = (!vertical && (bar->direction == Qt::RightToLeft)) || vertical;
+            if (inverted)
+                reverse = !reverse;
 
             QRect progressBar;
             if (!reverse) {
-                progressBar.setRect(bar->rect.left() + 2, bar->rect.top() + 2, width, bar->rect.height() - 4);
+                progressBar.setRect(rect.left() + 2, rect.top() + 2, width, rect.height() - 4);
             } else {
-                progressBar.setRect(bar->rect.right() - 1 - width, bar->rect.top() + 2, width, bar->rect.height() - 4);
+                progressBar.setRect(rect.right() - 1 - width, rect.top() + 2, width, rect.height() - 4);
             }
 
             // outline
@@ -2340,6 +2388,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     int adjustedRectStart = qMax(rectStart, progressBar.left() + 1);
                     QRect section(adjustedRectStart, progressBar.top() + 2,
                                   (rectWidth - (adjustedRectStart - rectStart)), progressBar.height() - 4);
+                    section.adjust(0, -1, 0, 0);
                     if (section.width() == 1) {
                         painter->setPen(rectColor);
                         painter->drawLine(section.left(), section.top(), section.left(), section.bottom());
@@ -2349,10 +2398,11 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                         painter->drawLine(section.right(), section.top(), section.right(), section.bottom());
                     }
                 } else {
-                    int adjustedRectStart = qMin(rectStart, progressBar.right());
+                    int adjustedRectStart = qMin(rectStart, progressBar.right() - 1);
                     rectWidth -= (rectStart - adjustedRectStart);
                     QRect section(adjustedRectStart - rectWidth, progressBar.top() + 2,
                                   rectWidth, progressBar.height() - 4);
+                    section.adjust(1, -1, 1, 0);
                     if (section.width() == 1) {
                         painter->setPen(rectColor);
                         painter->drawLine(section.right(), section.top(), section.right(), section.bottom());
@@ -2391,6 +2441,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     lineColor = lineColor.light(105);
             }
 
+            painter->setMatrix(oldMatrix);
             painter->setPen(oldPen);
         }
         break;

@@ -238,6 +238,25 @@ protected:
     QStyleOptionProgressBar(int version);
 };
 
+// Adds style info for vertical progress bars
+class Q_GUI_EXPORT QStyleOptionProgressBarV2 : public QStyleOptionProgressBar
+{
+public:
+    enum { Type = SO_ProgressBar };
+    enum { Version = 2 };
+    Qt::Orientation orientation;
+    bool invertedAppearance;
+    bool bottomToTop;
+
+    QStyleOptionProgressBarV2();
+    QStyleOptionProgressBarV2(const QStyleOptionProgressBar &other);
+    QStyleOptionProgressBarV2(const QStyleOptionProgressBarV2 &other);
+    QStyleOptionProgressBarV2 &operator=(const QStyleOptionProgressBar &other);
+
+protected:
+    QStyleOptionProgressBarV2(int version);
+};
+
 class Q_GUI_EXPORT QStyleOptionMenuItem : public QStyleOption
 {
 public:
@@ -532,7 +551,7 @@ protected:
 template <typename T>
 T qstyleoption_cast(const QStyleOption *opt)
 {
-    if (opt && opt->version <= static_cast<T>(0)->Version && (opt->type == static_cast<T>(0)->Type
+    if (opt && opt->version >= static_cast<T>(0)->Version && (opt->type == static_cast<T>(0)->Type
         || int(static_cast<T>(0)->Type) == QStyleOption::SO_Default
         || (int(static_cast<T>(0)->Type) == QStyleOption::SO_Complex
             && opt->type > QStyleOption::SO_Complex)))
@@ -543,7 +562,7 @@ T qstyleoption_cast(const QStyleOption *opt)
 template <typename T>
 T qstyleoption_cast(QStyleOption *opt)
 {
-    if (opt && opt->version <= static_cast<T>(0)->Version && (opt->type == static_cast<T>(0)->Type
+    if (opt && opt->version >= static_cast<T>(0)->Version && (opt->type == static_cast<T>(0)->Type
         || int(static_cast<T>(0)->Type) == QStyleOption::SO_Default
         || (int(static_cast<T>(0)->Type) == QStyleOption::SO_Complex
             && opt->type > QStyleOption::SO_Complex)))
