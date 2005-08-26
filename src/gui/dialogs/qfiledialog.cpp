@@ -1966,7 +1966,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
     }
 #elif defined(Q_WS_MAC)
     if (qt_use_native_dialogs && !(args.options & DontUseNativeDialog)) {
-        QStringList files = qt_mac_get_open_file_names(args, &directory, selectedFilter);
+        QStringList files = qt_mac_get_open_file_names(args, dir.isEmpty() ? 0 : &directory, selectedFilter);
         if (!files.isEmpty())
             return QUnicodeTables::normalize(files.first(), QString::NormalizationForm_C);
         return QString();
@@ -2067,7 +2067,7 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
     }
 #elif defined(Q_WS_MAC)
     if (qt_use_native_dialogs && !(args.options & DontUseNativeDialog)) {
-        QString result = qt_mac_get_save_file_name(args, &directory, selectedFilter);
+        QString result = qt_mac_get_save_file_name(args, dir.isEmpty() ? 0 : &directory, selectedFilter);
         return QUnicodeTables::normalize(result, QString::NormalizationForm_C);
     }
 #endif
@@ -2257,7 +2257,7 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
     }
 #elif defined(Q_WS_MAC)
     if (qt_use_native_dialogs && !(args.options & DontUseNativeDialog)) {
-        QStringList result = qt_mac_get_open_file_names(args, &directory, selectedFilter);
+        QStringList result = qt_mac_get_open_file_names(args, dir.isEmpty() ? 0 : &directory, selectedFilter);
         for (int i = 0; i < result.count(); ++i)
             result.replace(i, QUnicodeTables::normalize(result.at(i), QString::NormalizationForm_C));
         return result;
