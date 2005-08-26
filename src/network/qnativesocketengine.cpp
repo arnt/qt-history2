@@ -661,6 +661,18 @@ void QNativeSocketEngine::close()
     d->localAddress.clear();
     d->peerPort = 0;
     d->peerAddress.clear();
+    if (d->readNotifier) {
+        delete d->readNotifier;
+        d->readNotifier = 0;
+    }
+    if (d->writeNotifier) {
+        delete d->writeNotifier;
+        d->writeNotifier = 0;
+    }
+    if (d->exceptNotifier) {
+        delete d->exceptNotifier;
+        d->exceptNotifier = 0;
+    }
 }
 
 /*!
