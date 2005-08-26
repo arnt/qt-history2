@@ -3644,6 +3644,26 @@ bool QImage::load(const QString &fileName, const char* format)
 }
 
 /*!
+    \overload
+
+    This function reads a QImage from the QIODevice, \a device. This
+    can be used, for example, to load an image directly into a
+    QByteArray.
+*/
+
+bool QImage::load(QIODevice* device, const char* format)
+{
+    if (isNull())
+        return false;                                // nothing to save
+    QImage image = QImageReader(device, format).read();
+    if(!image.isNull()) {
+        operator=(image);
+        return true;
+    }
+    return false;
+}
+
+/*!
     Loads an image from the first \a len bytes of binary data in \a
     data. Returns true if the image was successfully loaded; otherwise
     returns false.
