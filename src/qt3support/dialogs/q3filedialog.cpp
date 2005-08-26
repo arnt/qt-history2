@@ -1932,7 +1932,14 @@ QString Q3FileDialogPrivate::File::text(int column) const
 
     switch(column) {
     case 0:
-        return info.name();
+        {
+            QString name = info.name();
+#ifdef Q_OS_WIN
+            if (info.isSymLink() && name.endsWith(".lnk"))
+                name = name.left(name.length() - 4);
+#endif
+            return name;
+        }
     case 1:
         if (info.isFile()) {
             QIODevice::Offset size = info.size();
@@ -5079,6 +5086,12 @@ QWindowsIconProvider::~QWindowsIconProvider()
 
 const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
 {
+    if (fi.isSymLink()) {
+        QString real = fi.readLink();
+        if (!real.isEmpty())
+            return pixmap(QFileInfo(real));
+    }
+
     QString ext = fi.extension(false).upper();
     QString key = ext;
     ext.prepend(".");
