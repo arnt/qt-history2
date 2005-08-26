@@ -907,8 +907,10 @@ void Q3UrlOperator::getNetworkProtocol()
 
 void Q3UrlOperator::deleteNetworkProtocol()
 {
-    d->networkProtocol->deleteLater();
-    d->networkProtocol = 0;
+    if (d->networkProtocol) {
+        d->networkProtocol->deleteLater();
+        d->networkProtocol = 0;
+    }
 }
 
 /*!
