@@ -1,0 +1,105 @@
+<ui version="4.0" stdsetdef="1" >
+  <author></author>
+  <comment></comment>
+  <exportmacro></exportmacro>
+  <class>ControlInfo</class>
+  <widget class="QDialog" name="ControlInfo" >
+    <property name="objectName" >
+      <string notr="true" >ControlInfo</string>
+    </property>
+    <property name="geometry" >
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>600</width>
+        <height>480</height>
+      </rect>
+    </property>
+    <property name="windowTitle" >
+      <string>Control Details</string>
+    </property>
+    <layout class="QVBoxLayout" >
+      <property name="objectName" >
+        <string notr="true" >unnamed</string>
+      </property>
+      <property name="margin" >
+        <number>11</number>
+      </property>
+      <property name="spacing" >
+        <number>6</number>
+      </property>
+      <item>
+        <widget class="QTreeWidget" name="listInfo" >
+          <property name="objectName" >
+            <string notr="true" >listInfo</string>
+          </property>
+          <property name="selectionMode" >
+            <enum>QTreeWidget::NoSelection</enum>
+          </property>
+          <column>
+            <property name="text" >
+              <string>Item</string>
+            </property>
+            <property name="clickable" >
+              <bool>true</bool>
+            </property>
+            <property name="resizeable" >
+              <bool>true</bool>
+            </property>
+          </column>
+          <column>
+            <property name="text" >
+              <string>Value</string>
+            </property>
+            <property name="clickable" >
+              <bool>true</bool>
+            </property>
+            <property name="resizeable" >
+              <bool>true</bool>
+            </property>
+          </column>
+        </widget>
+      </item>
+      <item>
+        <layout class="QHBoxLayout" >
+          <property name="objectName" >
+            <string notr="true" >unnamed</string>
+          </property>
+          <property name="margin" >
+            <number>0</number>
+          </property>
+          <property name="spacing" >
+            <number>6</number>
+          </property>
+          <item>
+            <spacer name="Spacer1" >
+              <property name="sizeHint" >
+                <size>
+                  <width>1</width>
+                  <height>1</height>
+                </size>
+              </property>
+              <property name="sizeType" >
+                <enum>Expanding</enum>
+              </property>
+              <property name="orientation" >
+                <enum>Horizontal</enum>
+              </property>
+            </spacer>
+          </item>
+          <item>
+            <widget class="QPushButton" name="buttonClose" >
+              <property name="objectName" >
+                <string notr="true" >PushButton1</string>
+              </property>
+              <property name="text" >
+                <string>C&amp;lose</string>
+              </property>
+            </widget>
+          </item>
+        </layout>
+      </item>
+    </layout>
+  </widget>
+  <layoutdefault spacing="6" margin="11" />
+</ui>

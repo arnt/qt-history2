@@ -8,6 +8,7 @@ no-png {
 			porting
     !contains(QT_EDITION, Console):SUBDIRS += designer
     unix:SUBDIRS        += qtconfig
+    win32:SUBDIRS       += activeqt
 }
 
 CONFIG+=ordered
