@@ -62,11 +62,12 @@ inline char *QCircularBuffer::alloc(uint size)
         if(curr_buff == start_buff && buf[curr_buff].size()) {
             buf[curr_buff].resize(start_off + curr_used);
             curr_buff = !curr_buff;
-            if(!buf[curr_buff].size())
-                buf[curr_buff].resize(buff_growth*2);
+            if((uint)buf[curr_buff].size() < size)
+                buf[curr_buff].resize(qMax(size, buff_growth*2));
         } else {
-            int sz = buf[curr_buff].size();
-            buf[curr_buff].resize(qMax((uint)sz + (sz / 2), (buff_growth*2)));
+            uint sz = buf[curr_buff].size();
+            sz = qMax((uint)sz + (sz / 2), (buff_growth*2));
+            buf[curr_buff].resize(qMax(sz, size));
         }
     }
     int off = curr_used;
