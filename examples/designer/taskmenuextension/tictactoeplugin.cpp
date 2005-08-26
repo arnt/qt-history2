@@ -17,27 +17,27 @@ TicTacToePlugin::TicTacToePlugin(QObject *parent)
 
 QString TicTacToePlugin::name() const
 {
-    return QLatin1String("TicTacToe");
+    return QString("TicTacToe");
 }
 
 QString TicTacToePlugin::group() const
 {
-    return QLatin1String("Display Widgets [Examples]");
+    return QString("Display Widgets [Examples]");
 }
 
 QString TicTacToePlugin::toolTip() const
 {
-    return QString();
+    return "";
 }
 
 QString TicTacToePlugin::whatsThis() const
 {
-    return QString();
+    return "";
 }
 
 QString TicTacToePlugin::includeFile() const
 {
-    return QLatin1String("tictactoe.h");
+    return QString("tictactoe.h");
 }
 
 QIcon TicTacToePlugin::icon() const
