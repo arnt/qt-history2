@@ -65,9 +65,9 @@ inline char *QCircularBuffer::alloc(uint size)
             if((uint)buf[curr_buff].size() < size)
                 buf[curr_buff].resize(qMax(size, buff_growth*2));
         } else {
-            uint sz = buf[curr_buff].size();
-            sz = qMax((uint)sz + (sz / 2), (buff_growth*2));
-            buf[curr_buff].resize(qMax(sz, size));
+            const uint buf_sz = buf[curr_buff].size();
+            uint sz = qMax((uint)buf_sz + (buf_sz / 2), (buff_growth*2));
+            buf[curr_buff].resize(qMax(sz, buf_sz+size));
         }
     }
     int off = curr_used;
@@ -90,10 +90,11 @@ inline QByteArray QCircularBuffer::take(uint size)
     if(firstBufferSize)
         memcpy(ret.data(), buf[start_buff].constData()+start_off, firstBufferSize);
     if(firstBufferSize < size) {
-        if(start_buff != curr_buff)
+        if(start_buff != curr_buff) {
             memcpy(ret.data()+firstBufferSize, buf[curr_buff].constData(), size-firstBufferSize);
-        else
+        } else {
             memcpy(ret.data()+firstBufferSize, buf[start_buff].constData(), size-firstBufferSize);
+        }
     }
     return ret;
 }
