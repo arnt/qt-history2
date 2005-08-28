@@ -547,7 +547,7 @@ QLayoutItem *QBoxLayout::itemAt(int index) const
 QLayoutItem *QBoxLayout::takeAt(int index)
 {
     Q_D(QBoxLayout);
-    if (index >= d->list.count())
+    if (index < 0 || index >= d->list.count())
         return 0;
     QBoxLayoutItem *b = d->list.takeAt(index);
     QLayoutItem *item = b->item;
