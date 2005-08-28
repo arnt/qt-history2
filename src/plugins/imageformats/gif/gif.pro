@@ -12,5 +12,3 @@ SOURCES += main.cpp \
 
 target.path += $$[QT_INSTALL_PLUGINS]/imageformats
 INSTALLS += target
-
-QT += qt3support

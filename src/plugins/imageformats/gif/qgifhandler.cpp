@@ -298,14 +298,14 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
                     sheight = newtop + height;
 
                 if (image->isNull()) {
-                    (*image) = QImage(swidth, sheight, 32);
+                    (*image) = QImage(swidth, sheight,
+		                      trans_index >= 0 ? QImage::Format_ARGB32 : QImage::Format_RGB32);
                     memset(image->bits(), 0, image->numBytes());
 
                     // ### size of the upcoming frame, should rather
                     // be known before decoding it.
                     *nextSize = QSize(swidth, sheight);
                 }
-                image->setAlphaBuffer(trans_index >= 0);
 
                 disposePrevious(image);
                 disposed = false;
@@ -371,7 +371,7 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
                         // We just use the backing store as a byte array
                         backingstore = QImage(qMax(backingstore.width(), w),
                                               qMax(backingstore.height(), h),
-                                              32);
+                                              QImage::Format_RGB32);
                         memset(image->bits(), 0, image->numBytes());
                     }
                     for (int ln=0; ln<h; ln++) {
