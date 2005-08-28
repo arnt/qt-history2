@@ -179,11 +179,12 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate()
 QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &_cursor)
     : ref(1), doc(0), containsCompleteDocument(false), importedFromPlainText(false)
 {
+    doc = new QTextDocument;
+    doc->setUndoRedoEnabled(false);
+
     if (!_cursor.hasSelection())
         return;
 
-    doc = new QTextDocument;
-    doc->setUndoRedoEnabled(false);
     doc->docHandle()->beginEditBlock();
 
     if (_cursor.selectionStart() == 0 && _cursor.selectionEnd() == _cursor.d->priv->length() - 1) {
