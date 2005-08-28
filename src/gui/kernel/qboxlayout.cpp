@@ -553,6 +553,8 @@ QLayoutItem *QBoxLayout::takeAt(int index)
     QLayoutItem *item = b->item;
     b->item = 0;
     delete b;
+
+    invalidate();
     return item;
 }
 
