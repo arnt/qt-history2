@@ -388,11 +388,14 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
         painter->restore();
     }
 
+    QFont font = painter->font();
+    painter->setFont(option.font);
     QRect textRect = rect.adjusted(textMargin, 0, -textMargin, 0); // remove width padding
     QString str = text;
     if (painter->fontMetrics().width(text) > textRect.width() && !text.contains('\n'))
         str = elidedText(option.fontMetrics, textRect.width(), option.textElideMode, text);
     qt_format_text(option.font, textRect, option.displayAlignment, str, 0, 0, 0, 0, painter);
+    painter->setFont(font);
 }
 
 /*!
