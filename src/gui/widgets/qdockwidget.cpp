@@ -362,9 +362,12 @@ void QDockWidgetPrivate::mousePressEvent(QMouseEvent *event)
 
 void QDockWidgetPrivate::mouseDoubleClickEvent(QMouseEvent *event)
 {
+    Q_Q(QDockWidget);
     if (event->button() != Qt::LeftButton)
         return;
     if (!titleArea.contains(event->pos()))
+        return;
+    if (!::hasFeature(q, QDockWidget::DockWidgetFloatable))
         return;
     toggleTopLevel();
 }
