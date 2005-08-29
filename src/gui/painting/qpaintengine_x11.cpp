@@ -849,8 +849,8 @@ void QX11PaintEngine::drawLines(const QLine *lines, int lineCount)
             }
             if (clipLine(&linef, d->polygonClipper.boundingRect())) {
                 XDrawLine(d->dpy, d->hd, d->gc,
-                          qRound(linef.x1()), qRound(linef.y1()),
-                          qRound(linef.x2()), qRound(linef.y2()));
+                          qFloor(linef.x1()), qFloor(linef.y1()),
+                          qFloor(linef.x2()), qFloor(linef.y2()));
             }
         }
     }
@@ -972,10 +972,10 @@ void QX11PaintEngine::drawPoints(const QPointF *points, int pointCount)
 
     for (int i = 0; i < pointCount; ++i) {
         QPointF xformed = d->matrix.map(points[i]);
-        int x = qRound(xformed.x());
-        int y = qRound(xformed.y());
+        int x = qFloor(xformed.x());
+        int y = qFloor(xformed.y());
         if (x >= SHRT_MIN && y >= SHRT_MIN && x < SHRT_MAX && y < SHRT_MAX)
-            XDrawPoint(d->dpy, d->hd, d->gc, qRound(xformed.x()), qRound(xformed.y()));
+            XDrawPoint(d->dpy, d->hd, d->gc, x, y);
     }
 }
 
@@ -1441,30 +1441,28 @@ void QX11PaintEnginePrivate::strokePolygon_translated(const QPointF *polygonPoin
 
 void QX11PaintEnginePrivate::strokePolygon_dev(const QPointF *polygonPoints, int pointCount, bool close)
 {
-    if (has_pen) {
-        int clippedCount = 0;
-        qt_float_point *clippedPoints = 0;
-        polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
-                                   &clippedPoints, &clippedCount, close);
+    int clippedCount = 0;
+    qt_float_point *clippedPoints = 0;
+    polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
+                               &clippedPoints, &clippedCount, close);
 
-        if (clippedCount > 0) {
-            QVarLengthArray<XPoint> xpoints(clippedCount);
-            for (int i = 0; i < clippedCount; ++i) {
-                xpoints[i].x = qRound(clippedPoints[i].x);
-                xpoints[i].y = qRound(clippedPoints[i].y);
-            }
-            uint numberPoints = qMin(clippedCount, xlibMaxLinePoints);
-            XPoint *pts = xpoints.data();
-            XDrawLines(dpy, hd, gc, pts, numberPoints, CoordModeOrigin);
+    if (clippedCount > 0) {
+        QVarLengthArray<XPoint> xpoints(clippedCount);
+        for (int i = 0; i < clippedCount; ++i) {
+            xpoints[i].x = qFloor(clippedPoints[i].x);
+            xpoints[i].y = qFloor(clippedPoints[i].y);
+        }
+        uint numberPoints = qMin(clippedCount, xlibMaxLinePoints);
+        XPoint *pts = xpoints.data();
+        XDrawLines(dpy, hd, gc, pts, numberPoints, CoordModeOrigin);
+        pts += numberPoints;
+        clippedCount -= numberPoints;
+        numberPoints = qMin(clippedCount, xlibMaxLinePoints-1);
+        while (clippedCount) {
+            XDrawLines(dpy, hd, gc, pts-1, numberPoints+1, CoordModeOrigin);
             pts += numberPoints;
             clippedCount -= numberPoints;
             numberPoints = qMin(clippedCount, xlibMaxLinePoints-1);
-            while (clippedCount) {
-                XDrawLines(dpy, hd, gc, pts-1, numberPoints+1, CoordModeOrigin);
-                pts += numberPoints;
-                clippedCount -= numberPoints;
-                numberPoints = qMin(clippedCount, xlibMaxLinePoints-1);
-            }
         }
     }
 }

@@ -945,10 +945,10 @@ void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
             if (had_brush) {
                 QRect rect = rects->normalized();
                 rect.translate(offset_x, offset_y);
-                int x1 = qMax(qRound(rect.x()), 0);
-                int x2 = qMin(qRound(rect.width() + rect.x()), d->rasterBuffer->width());
-                int y1 = qMax(qRound(rect.y()), 0);
-                int y2 = qMin(qRound(rect.height() + rect.y()), d->rasterBuffer->height());;
+                int x1 = qMax(rect.x(), 0);
+                int x2 = qMin(rect.width() + rect.x(), d->rasterBuffer->width());
+                int y1 = qMax(rect.y(), 0);
+                int y2 = qMin(rect.height() + rect.y(), d->rasterBuffer->height());;
 
                 int len = x2 - x1;
 
@@ -1086,7 +1086,10 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 
             // Draw the all the line segments.
             for (int i=1; i<pointCount; ++i) {
-                drawLine_midpoint_i((QLineF(points[i-1], points[i]) * d->matrix).toLine(),
+                QPointF lp1 = points[i-1] * d->matrix;
+                QPointF lp2 = points[i] * d->matrix;
+                drawLine_midpoint_i(QLine(qFloor(lp1.x()), qFloor(lp1.y()),
+                                           qFloor(lp2.x()), qFloor(lp2.y())),
                                     fillData.callback, fillData.data,
                                     i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
                                     devRect);
@@ -1094,7 +1097,10 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 
             // Polygons are implicitly closed.
             if (needs_closing) {
-                drawLine_midpoint_i((QLineF(points[pointCount - 1], points[0]) * d->matrix).toLine(),
+                QPointF lp1 = points[pointCount-1] * d->matrix;
+                QPointF lp2 = points[0] * d->matrix;
+                drawLine_midpoint_i(QLine(qFloor(lp1.x()), qFloor(lp1.y()),
+                                          qFloor(lp2.x()), qFloor(lp2.y())),
                                     fillData.callback, fillData.data, LineDrawIncludeLastPixel,
                                     devRect);
             }

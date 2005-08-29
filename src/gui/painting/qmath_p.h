@@ -53,6 +53,8 @@ inline int qRoundAIX(double d)
 #define qRound qRoundAIX
 #endif
 
+inline int qFloor(double d)
+{ return d >= 0.0 ? int(d) : int(d - 0.9999); }
 
 #if defined(Q_CC_GNU) && defined(__i386__)
 
