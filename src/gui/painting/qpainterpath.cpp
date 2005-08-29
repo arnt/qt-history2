@@ -1150,6 +1150,9 @@ QPolygonF QPainterPath::toFillPolygon(const QMatrix &matrix) const
 
     \sa toSubpathPolygons(), toFillPolygon()
 */
+
+// #define QPP_FILLPOLYGONS_DEBUG
+
 QList<QPolygonF> QPainterPath::toFillPolygons(const QMatrix &matrix) const
 {
     QList<QPolygonF> polys;
@@ -1164,20 +1167,27 @@ QList<QPolygonF> QPainterPath::toFillPolygons(const QMatrix &matrix) const
     for (int i=0; i<count; ++i)
         bounds += subpaths.at(i).boundingRect();
 
+#ifdef QPP_FILLPOLYGONS_DEBUG
+    printf("QPainterPath::toFillPolygons, subpathCount=%d\n", count);
+    for (int i=0; i<bounds.size(); ++i)
+        qDebug() << " bounds" << i << bounds.at(i);
+#endif
+
     QVector< QList<int> > isects;
     isects.resize(count);
 
+    // find all intersections
     for (int j=0; j<count; ++j) {
         QRectF cbounds = bounds.at(j);
-        for (int i=j+1; i<count; ++i) {
+        for (int i=0; i<count; ++i) {
             if (cbounds.intersects(bounds.at(i))) {
                 isects[j] << i;
             }
         }
     }
 
-
-#if QPP_FILLPOLYGONS_DEBUG
+#ifdef QPP_FILLPOLYGONS_DEBUG
+    printf("Intersections before flattening:\n");
     for (int i = 0; i < count; ++i) {
         printf("%d: ", i);
         for (int j = 0; j < isects[i].size(); ++j) {
@@ -1187,41 +1197,44 @@ QList<QPolygonF> QPainterPath::toFillPolygons(const QMatrix &matrix) const
     }
 #endif
 
+    // flatten the sets of intersections
     for (int i=0; i<count; ++i) {
-        if (isects[i].isEmpty()) {
-            polys += subpaths.at(i);
-            // Close if not closed...
-            if (!subpaths.at(i).isClosed())
-                polys[polys.size()-1] += subpaths.at(i).first();
-        } else {
-            QList<int> l = isects[i];
-            if (l.first() == -1)
+        const QList<int> &current_isects = isects.at(i);
+        for (int j=0; j<current_isects.size(); ++j) {
+            int isect_j = current_isects.at(j);
+            if (isect_j == i)
                 continue;
-            QPolygonF buildUp = subpaths.at(i);
-            QPointF rewindPt = buildUp.first();
-            // Close if not closed...
-            if (!buildUp.isClosed())
-                buildUp += rewindPt;
-
-            for (int il=0; il<l.size(); ++il) {
-                const QList<int> &currentISects = isects.at(l.at(il));
-
-                // Insert only unique new polys
-                for (int ai=0; ai<currentISects.size(); ++ai)
-                    if (!l.contains(currentISects.at(ai)) && currentISects.at(ai) != -1)
-                        l.append(currentISects.at(ai));
-
-                // They are added to current so skip for later.
-                isects[l.at(il)].clear();
-                isects[l.at(il)] += -1;
-
-                // Add path to current buildup.
-                buildUp += subpaths.at(l.at(il));
-                if (!subpaths.at(l.at(il)).isClosed())
-                    buildUp += subpaths.at(l.at(il)).first();
-                buildUp += rewindPt;
+            for (int k=0; k<isects[isect_j].size(); ++k) {
+                int isect_k = isects[isect_j][k];
+                if (isect_k != i && !isects.at(i).contains(isect_k)) {
+                    isects[i] += isect_k;
+                }
             }
+            isects[isect_j].clear();
+        }
+    }
 
+#ifdef QPP_FILLPOLYGONS_DEBUG
+    printf("Intersections after flattening:\n");
+    for (int i = 0; i < count; ++i) {
+        printf("%d: ", i);
+        for (int j = 0; j < isects[i].size(); ++j) {
+            printf("%d ", isects[i][j]);
+        }
+        printf("\n");
+    }
+#endif
+
+    // Join the intersected subpaths as rewinded polygons
+    for (int i=0; i<count; ++i) {
+        const QList<int> &subpath_list = isects[i];
+        if (!subpath_list.isEmpty()) {
+            QPolygonF buildUp;
+            for (int j=0; j<subpath_list.size(); ++j) {
+                buildUp += subpaths.at(subpath_list.at(j));
+                if (!buildUp.isClosed())
+                    buildUp += buildUp.first();
+            }
             polys += buildUp;
         }
     }
