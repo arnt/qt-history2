@@ -264,7 +264,8 @@ void Q3LocalFs::operationGet( Q3NetworkOperation *op )
 	} else {
 	    s.resize( blockSize );
 	    int remaining = f.size();
-	    while ( remaining > 0 ) {
+	    QPointer<QObject> that = this;
+	    while ( that && remaining > 0 ) {
 		if ( operationInProgress() != op )
 		    return;
 		if ( remaining >= blockSize ) {
@@ -279,11 +280,10 @@ void Q3LocalFs::operationGet( Q3NetworkOperation *op )
 		    emit dataTransferProgress( f.size() - remaining, f.size(), op );
 		    remaining -= remaining;
 		}
-                QPointer<QObject> that = this;
                 qApp->processEvents();
-                if (!that)
-                    return;
 	    }
+	    if ( !that )
+	        return;
 #ifdef QLOCALFS_DEBUG
 	    qDebug( "Q3LocalFs: got all %d bytes step by step", f.size() );
 #endif
