@@ -1015,7 +1015,7 @@ bool QLastResortMimes::convertFromMime(const FORMATETC &formatetc, const QMimeDa
         && setData(QInternalMimeData::renderDataHelper(formats.value(getCf(formatetc)), mimeData), pmedium);
 }
 
-QVector<FORMATETC> QLastResortMimes::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
+QVector<FORMATETC> QLastResortMimes::formatsForMime(const QString &mimeType, const QMimeData * /*mimeData*/) const
 {
     QVector<FORMATETC> formatetcs;
     if (!formats.keys(mimeType).isEmpty()) {
