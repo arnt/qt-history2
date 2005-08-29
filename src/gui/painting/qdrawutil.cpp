@@ -21,8 +21,6 @@
 /*!
     \relates QPainter
 
-    \c{#include <qdrawutil.h>}
-
     Draws a horizontal (\a y1 == \a y2) or vertical (\a x1 == \a x2)
     shaded line using the painter \a p.
 
@@ -136,8 +134,6 @@ void qDrawShadeLine(QPainter *p, int x1, int y1, int x2, int y2,
 /*!
     \relates QPainter
 
-    \c{#include <qdrawutil.h>}
-
     Draws the shaded rectangle specified by (\a x, \a y, \a w, \a h)
     using the painter \a p.
 
@@ -244,8 +240,6 @@ void qDrawShadeRect(QPainter *p, int x, int y, int w, int h,
 
 /*!
     \relates QPainter
-
-    \c{#include <qdrawutil.h>}
 
     Draws the shaded panel specified by (\a x, \a y, \a w, \a h) using
     the painter \a p.
@@ -390,8 +384,6 @@ static void qDrawWinShades(QPainter *p,
 /*!
     \relates QPainter
 
-    \c{#include <qdrawutil.h>}
-
     Draws the Windows-style button specified by (\a x, \a y, \a w, \a
     h) using the painter \a p.
 
@@ -430,8 +422,6 @@ void qDrawWinButton(QPainter *p, int x, int y, int w, int h,
 
 /*!
     \relates QPainter
-
-    \c{#include <qdrawutil.h>}
 
     Draws the Windows-style panel specified by (\a x, \a y, \a w, \a
     h) using the painter \a p.
@@ -473,8 +463,6 @@ void qDrawWinPanel(QPainter *p, int x, int y, int w, int h,
 
 /*!
     \relates QPainter
-
-    \c{#include <qdrawutil.h>}
 
     Draws the plain rectangle specified by (\a x, \a y, \a w, \a h)
     using the painter \a p.
