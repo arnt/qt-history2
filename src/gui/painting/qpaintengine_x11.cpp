@@ -1036,6 +1036,11 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     d->has_pen = (ps != Qt::NoPen);
     d->alpha_pen = (pen.color().alpha() != 255);
 
+    // forces the use of the same drawing algorithm for strokes/fills
+    // to avoid drawing errors
+    if (d->alpha_pen && !d->alpha_brush)
+        d->alpha_brush = true;
+
     switch (pen.capStyle()) {
     case Qt::SquareCap:
         cp = CapProjecting;
@@ -1169,6 +1174,11 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     d->has_pattern = bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern;
     d->has_texture = bs == Qt::TexturePattern;
     d->alpha_brush = brush.color().alpha() != 255;
+
+    // forces the use of the same drawing algorithm for strokes/fills
+    // to avoid drawing errors
+    if (d->alpha_brush && !d->alpha_pen)
+        d->alpha_pen = true;
 
     ulong mask = GCForeground | GCBackground | GCGraphicsExposures
                  | GCLineStyle | GCCapStyle | GCJoinStyle | GCFillStyle;
@@ -1373,7 +1383,7 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
 #if !defined(QT_NO_XRENDER)
     bool antialias = render_hints & QPainter::Antialiasing;
     if (X11->use_xrender && fill.style() != Qt::NoBrush &&
-        (has_fill_texture || antialias || fill.color().alpha() != 255))
+        (has_fill_texture || antialias || fill.color().alpha() != 255 || alpha_pen))
     {
         if (picture) {
 
@@ -1462,7 +1472,7 @@ void QX11PaintEnginePrivate::strokePolygon_dev(const QPointF *polygonPoints, int
 void QX11PaintEngine::drawPolygon(const QPointF *polygonPoints, int pointCount, PolygonDrawMode mode)
 {
     Q_D(QX11PaintEngine);
-    if (d->use_path_fallback) {
+    if (d->use_path_fallback || d->alpha_pen) {
         QPainterPath path(polygonPoints[0]);
         for (int i = 1; i < pointCount; ++i)
             path.lineTo(polygonPoints[i]);
