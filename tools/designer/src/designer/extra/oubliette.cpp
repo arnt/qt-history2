@@ -23,10 +23,10 @@
 #include <QtGui/QScrollArea>
 #include <qdebug.h>
 
-#include <cstdio>
 #include "oubliette.h"
 #include "fov.h"
 #include "itemdialog.h"
+#include <stdio.h>
 
 static const int TileWidth = 32;
 static const int TileHeight = 32;

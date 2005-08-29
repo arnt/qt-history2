@@ -20,7 +20,7 @@
 #include "lexer.h"
 #include "tokens.h"
 #include <qdatetime.h>
-#include <cctype>
+#include <ctype.h>
 
 #include <qhash.h>
 

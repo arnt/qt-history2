@@ -14,7 +14,6 @@
 #ifndef RPP_H
 #define RPP_H
 
-#include <cctype>
 #include <QHash>
 #include <QStringList>
 #include <QFile>
@@ -25,6 +24,7 @@
 #include "rpplexer.h"
 #include "tokens.h"
 #include "smallobject.h"
+#include <ctype.h>
 
 namespace Rpp
 {

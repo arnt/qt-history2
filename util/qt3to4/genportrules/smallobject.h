@@ -20,10 +20,10 @@
 #ifndef SMALLOBJECT_H
 #define SMALLOBJECT_H
 
-#include <cassert>
-#include <cstring>
-#include <cstdio>
-#include <cstdlib>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 
 struct block_t
 {
