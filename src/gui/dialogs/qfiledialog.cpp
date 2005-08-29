@@ -143,12 +143,12 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
   \endcode
 
   You can create your own QFileDialog without using the static
-  functions. By calling setMode(), you can specify what the user must
+  functions. By calling setFileMode(), you can specify what the user must
   select in the dialog:
 
   \code
     QFileDialog *fd = new QFileDialog(this);
-    fd->setMode(QFileDialog::AnyFile);
+    fd->setFileMode(QFileDialog::AnyFile);
   \endcode
 
   In the above example, the mode of the file dialog is set to
