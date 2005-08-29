@@ -36,7 +36,7 @@
     the options in the ImageOption enum.
 
     To write your own image handler, you must at least reimplement
-    name(), canRead() and read(). Then create a QImageIOPlugin that
+    canRead() and read(). Then create a QImageIOPlugin that
     can create the handler. Finally, install your plugin, and
     QImageReader and QImageWriter will then automatically load the
     plugin, and start using it.
@@ -230,6 +230,11 @@ QImageIOHandler::~QImageIOHandler()
     Sets the device of the QImageIOHandler to \a device. The image
     handler will use this device when reading and writing images.
 
+    The device can only be set once and must be set before calling
+    canRead(), read(), write(), etc. If you need to read multiple
+    files, construct multiple instances of the appropriate
+    QImageIOHandler subclass.
+
     \sa device()
 */
 void QImageIOHandler::setDevice(QIODevice *device)
@@ -285,25 +290,30 @@ QByteArray QImageIOHandler::format() const
 */
 
 /*!
-    \fn bool QImageIOHandler::canRead() const = 0
+    \fn bool QImageIOHandler::canRead() const
 
     Returns true if an image can be read from the device (i.e., the
     image format is supported, the device can be read from and the
     initial header information suggests that the image can be read);
     otherwise returns false.
 
-    \sa read()
+    When reimplementing canRead(), make sure that the I/O device
+    (device()) is left in its original state (e.g., by using peek()
+    rather than read()).
+
+    \sa read(), QIODevice::peek()
 */
 
 /*!
-    \fn QByteArray QImageIOHandler::name() const = 0
+    \obsolete
 
-    Returns the name of the image handler. For handlers that support
-    only one image format, this should be common identifier of that
-    format. For example, a JPEG handler should return "jpeg", and a
-    TIFF handler should return "tiff". The name should be returned in
-    lowercase; otherwise Qt will convert it to lowercase.
+    Use format() instead.
 */
+
+QByteArray QImageIOHandler::name() const
+{
+    return format();
+}
 
 /*!
     Writes the image \a image to the assigned device. Returns true on

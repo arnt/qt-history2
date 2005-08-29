@@ -759,9 +759,12 @@ QByteArray QImageReader::imageFormat(const QString &fileName)
 */
 QByteArray QImageReader::imageFormat(QIODevice *device)
 {
-    QImageIOHandler *handler = ::createReadHandler(device, QByteArray());
-    QByteArray format = handler ? handler->name() : QByteArray();
-    delete handler;
+    QByteArray format;
+    QImageIOHandler *handler = ::createReadHandler(device, format);
+    if (handler) {
+        format = handler->format();
+        delete handler;
+    }
     return format;
 }
 

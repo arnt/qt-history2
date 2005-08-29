@@ -38,7 +38,7 @@ public:
     void setFormat(const QByteArray &format);
     QByteArray format() const;
 
-    virtual QByteArray name() const = 0;
+    virtual QByteArray name() const;
 
     virtual bool canRead() const = 0;
     virtual bool read(QImage *image) = 0;
