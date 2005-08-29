@@ -2113,7 +2113,7 @@ int QMainWindowLayout::locateToolBar(QToolBar *toolbar, const QPoint &mouse) con
     const int dx = qAbs(p.x() - p2.x()),
               dy = qAbs(p.y() - p2.y());
 
-    POSITION pos = CENTER;
+    POSITION pos = positionForArea(toolBarArea(toolbar));
     if (dx > dy) {
         if (p.x() < p2.x() && toolbar->isAreaAllowed(Qt::LeftToolBarArea)) {
             pos = LEFT;
@@ -2137,7 +2137,6 @@ int QMainWindowLayout::locateToolBar(QToolBar *toolbar, const QPoint &mouse) con
                 pos = RIGHT;
         }
     }
-    Q_ASSERT(pos != CENTER);
 
     for (int line = 0; line < tb_layout_info.size(); ++line) {
         const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
