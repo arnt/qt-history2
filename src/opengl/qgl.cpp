@@ -2347,10 +2347,6 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
         sz = QSize(w, h);
 
 #if defined(Q_WS_X11)
-    // If we are using OpenGL widgets under X11 we HAVE to make sure
-    // that the default visual is GL enabled, and that the Pixmap has
-    // the same depth as the GL window.
-
     extern int qt_x11_preferred_pixmap_depth;
     int old_depth = qt_x11_preferred_pixmap_depth;
     qt_x11_preferred_pixmap_depth = x11Info().depth();
@@ -2358,6 +2354,7 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
     qt_x11_preferred_pixmap_depth = old_depth;
     QX11Info xinfo = x11Info();
 
+    // make sure we use a pixmap with the same depth/visual as the widget
     if (xinfo.visual() != QX11Info::appVisual()) {
         QX11InfoData* xd = pm.x11Info().getX11Data(true);
         xd->depth = xinfo.depth();
