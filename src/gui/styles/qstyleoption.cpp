@@ -750,7 +750,10 @@ QStyleOptionTab::QStyleOptionTab(int version)
     \brief The QStyleOptionProgressBar class is used to describe the
     parameters necessary for drawing a progress bar.
 
-    The QStyleOptionProgressBar class is used to draw \l QProgressBar.
+    Since Qt 4.1, Qt uses the QStyleOptionProgressBarV2 subclass for
+    drawing QProgressBar.
+
+    \sa QStyleOptionProgressBarV2
 */
 
 /*!
@@ -845,6 +848,36 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 */
 
 /*!
+    \class QStyleOptionProgressBarV2
+    \brief The QStyleOptionProgressBarV2 class is used to describe the
+    parameters necessary for drawing a progress bar in Qt 4.1 or above.
+
+    An instance of this class has \l type SO_ProgressBar and \l version 2.
+
+    If you create your own QStyle subclass, you should handle both
+    QStyleOptionProgressBar and QStyleOptionProgressBarV2. One way
+    to achieve this is to use the QStyleOptionProgressBarV2 copy
+    constructor.
+
+    If the parameter's version is 1, the extra members (\l
+    orientation, \l invertedAppearance, and \l textDirection) are set to
+    default values. If the parameter's version is 2, the
+    constructor will copy the extra members.
+
+    Example:
+    \code
+        if (const QStyleOptionProgressBar *pbOpt =
+               qstyleoption_cast<const QStyleOptionProgressBar *>(option)) {
+            QStyleOptionProgressBarV2 pbOptV2(*pbOpt);
+
+            // draw the progress bar using pbOptV2
+        }
+    \endcode
+
+    \sa QStyleOptionProgressBar
+*/
+
+/*!
     Constructs a QStyleOptionProgressBarV2. The members variables are
     initialized to default values.
 */
@@ -865,7 +898,14 @@ QStyleOptionProgressBarV2::QStyleOptionProgressBarV2(int version)
 }
 
 /*!
-    \internal
+    Constructs a copy of \a other.
+
+    If \a{other}'s version is 1, the extra members (\l
+    orientation, \l invertedAppearance, and \l textDirection) are set to
+    default values. If \a{other}'s version is 2, the extra members are
+    copied.
+    
+    \sa version
 */
 QStyleOptionProgressBarV2::QStyleOptionProgressBarV2(const QStyleOptionProgressBar &other)
     : QStyleOptionProgressBar(2), orientation(Qt::Horizontal), invertedAppearance(false), bottomToTop(false)
@@ -878,7 +918,7 @@ QStyleOptionProgressBarV2::QStyleOptionProgressBarV2(const QStyleOptionProgressB
 }
 
 /*!
-\internal
+    Constructs a copy of \a other.
 */
 QStyleOptionProgressBarV2::QStyleOptionProgressBarV2(const QStyleOptionProgressBarV2 &other)
     : QStyleOptionProgressBar(2), orientation(Qt::Horizontal), invertedAppearance(false), bottomToTop(false)

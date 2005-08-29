@@ -136,6 +136,17 @@ bool QProgressBarPrivate::repaintRequired() const
 */
 
 /*!
+    \since 4.1
+    \enum QProgressBar::Direction
+    \brief Specifies the reading direction of the \l text for vertical progress bars.
+    
+    \value TopToBottom The text is rotated 90 degrees clockwise.
+    \value BottomToTop The text is rotated 90 degrees counter-clockwise.
+
+    \sa textDirection
+*/
+
+/*!
     \fn void QProgressBar::valueChanged(int value)
 
     This signal is emitted when the value shown in the progress bar changes.
@@ -261,6 +272,8 @@ void QProgressBar::setRange(int minimum, int maximum)
 /*!
     \property QProgressBar::textVisible
     \brief whether the current completed percentage should be displayed
+
+    \sa textDirection
 */
 void QProgressBar::setTextVisible(bool visible)
 {
@@ -365,11 +378,14 @@ QString QProgressBar::text() const
 }
 
 /*!
+    \since 4.1
     \property QProgressBar::orientation
     \brief the orientation of the progress bar
 
     The orientation must be \l Qt::Horizontal (the default) or \l
     Qt::Vertical.
+
+    \sa invertedAppearance, textDirection
 */
 
 void QProgressBar::setOrientation(Qt::Orientation orientation)
@@ -395,8 +411,15 @@ Qt::Orientation QProgressBar::orientation() const
 }
 
 /*!
+    \since 4.1
     \property QProgressBar::invertedAppearance
     \brief whether or not a progress bar shows its progress inverted
+
+    If this property is false, the progress bar grows in the other
+    direction (e.g. from right to left). By default, the progress bar
+    is not inverted.
+
+    \sa orientation, layoutDirection
 */
 
 void QProgressBar::setInvertedAppearance(bool invert)
@@ -413,8 +436,14 @@ bool QProgressBar::invertedAppearance()
 }
 
 /*!
+    \since 4.1
     \property QProgressBar::textDirection
-    \brief determines the reading direction of the progress bar label when its orientation is vertical
+    \brief the reading direction of the \l text for vertical progress bars
+
+    This property has no impact on horizontal progress bars.
+    By default, the reading direction is QProgressBar::TopToBottom.
+
+    \sa orientation, textVisible
 */
 void QProgressBar::setTextDirection(QProgressBar::Direction textDirection)
 {
