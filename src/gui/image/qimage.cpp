@@ -3653,8 +3653,6 @@ bool QImage::load(const QString &fileName, const char* format)
 
 bool QImage::load(QIODevice* device, const char* format)
 {
-    if (isNull())
-        return false;                                // nothing to save
     QImage image = QImageReader(device, format).read();
     if(!image.isNull()) {
         operator=(image);
