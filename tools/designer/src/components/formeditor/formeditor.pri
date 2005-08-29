@@ -17,6 +17,7 @@ HEADERS += \
            $$PWD/spacer_propertysheet.h \
            $$PWD/line_propertysheet.h \
            $$PWD/default_container.h \
+           $$PWD/default_actionprovider.h \
            $$PWD/qmainwindow_container.h \
            $$PWD/qdockwidget_container.h \
            $$PWD/qworkspace_container.h \
@@ -41,6 +42,7 @@ SOURCES += \
            $$PWD/qworkspace_container.cpp \
            $$PWD/default_container.cpp \
            $$PWD/default_layoutdecoration.cpp \
+           $$PWD/default_actionprovider.cpp \
            $$PWD/tool_widgeteditor.cpp \
            $$PWD/iconcache.cpp
 

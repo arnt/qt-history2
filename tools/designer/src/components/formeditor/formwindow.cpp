@@ -33,6 +33,7 @@
 #include <invisible_widget_p.h>
 #include <layoutinfo_p.h>
 #include <connectionedit_p.h>
+#include <actionprovider_p.h>
 
 // sdk
 #include <QtDesigner/QtDesigner>
@@ -1600,6 +1601,7 @@ QWidget *FormWindow::findContainer(QWidget *w, bool excludeLayout) const
             }
 
             bool isContainer = widgetDataBase->isContainer(w, true) || w == mainContainer();
+
             if (!isContainer || (excludeLayout && qobject_cast<QLayoutWidget*>(w))) { // ### skip QSplitter
                 w = w->parentWidget();
             } else {
@@ -1705,7 +1707,14 @@ void FormWindow::highlightWidget(QWidget *widget, const QPoint &pos, HighlightMo
     if (container == 0 || core()->metaDataBase()->item(container) == 0)
         return;
 
-    if (QDesignerLayoutDecorationExtension *g = qt_extension<QDesignerLayoutDecorationExtension*>(core()->extensionManager(), container)) {
+    if (QDesignerActionProviderExtension *g = qt_extension<QDesignerActionProviderExtension*>(core()->extensionManager(), container)) {
+        if (mode == Restore) {
+            g->adjustIndicator(QPoint());
+        } else {
+            QPoint pt = widget->mapTo(container, pos);
+            g->adjustIndicator(pt);
+        }
+    } else if (QDesignerLayoutDecorationExtension *g = qt_extension<QDesignerLayoutDecorationExtension*>(core()->extensionManager(), container)) {
         if (mode == Restore) {
             g->adjustIndicator(QPoint(), -1);
         } else {

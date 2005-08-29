@@ -21,6 +21,7 @@
 #include "qworkspace_container.h"
 #include "default_container.h"
 #include "default_layoutdecoration.h"
+#include "default_actionprovider.h"
 #include "qlayoutwidget_propertysheet.h"
 #include "spacer_propertysheet.h"
 #include "line_propertysheet.h"
@@ -63,6 +64,7 @@ FormEditor::FormEditor(QObject *parent)
     mgr->registerExtensions(new QWorkspaceContainerFactory(mgr),            Q_TYPEID(QDesignerContainerExtension));
 
     mgr->registerExtensions(new QDesignerLayoutDecorationFactory(mgr),      Q_TYPEID(QDesignerLayoutDecorationExtension));
+    mgr->registerExtensions(new QDesignerActionProviderFactory(mgr),        Q_TYPEID(QDesignerActionProviderExtension));
 
     mgr->registerExtensions(new QDesignerPropertySheetFactory(mgr),         Q_TYPEID(QDesignerPropertySheetExtension));
     mgr->registerExtensions(new QLayoutWidgetPropertySheetFactory(mgr),     Q_TYPEID(QDesignerPropertySheetExtension));

@@ -44,7 +44,8 @@ HEADERS += \
     $$PWD/actionrepository_p.h \
     $$PWD/qdesigner_toolbar_p.h \
     $$PWD/qdesigner_menubar_p.h \
-    $$PWD/qdesigner_menu_p.h
+    $$PWD/qdesigner_menu_p.h \
+    $$PWD/actionprovider_p.h
 
 
 SOURCES += \
