@@ -212,11 +212,11 @@ QSqlRelationalTableModel::~QSqlRelationalTableModel()
 */
 QVariant QSqlRelationalTableModel::data(const QModelIndex &index, int role) const
 {
-    Q_D(const QSqlRelationalTableModel);
-    if (role == Qt::DisplayRole && index.column() > 0 && index.column() < d->relations.count()) {
+    Q_D(const QSqlRelationalTableModel);    
+    if (role == Qt::DisplayRole && index.column() > 0 && index.column() < d->relations.count()) {      
         const QVariant v = d->relations.at(index.column()).displayValues.value(index.row());
         if (v.isValid())
-            return v;
+            return v;       
     }
 
     return QSqlTableModel::data(index, role);
@@ -311,13 +311,14 @@ QString QSqlRelationalTableModel::selectStatement() const
     for (int i = 0; i < rec.count(); ++i) {
         QSqlRelation relation = d->relations.value(i, nullRelation).rel;
         if (relation.isValid()) {
-            fList.append(relation.tableName()).append(QLatin1Char('.'));
+            QString relTableAlias = QString::fromLatin1("relTblAl_%1").arg(i);
+            fList.append(relTableAlias).append(QLatin1Char('.'));
             fList.append(relation.displayColumn()).append(QLatin1Char(','));
             if (!tables.contains(relation.tableName()))
-                tables.append(relation.tableName());
+                tables.append(relation.tableName().append(QLatin1String(" AS ")).append(relTableAlias));
             where.append(tableName()).append(QLatin1Char('.')).append(rec.fieldName(i));
-            where.append(QLatin1Char('=')).append(relation.tableName()).append(QLatin1Char('.'));
-            where.append(relation.indexColumn()).append(QLatin1String(" and "));
+            where.append(QLatin1Char('=')).append(relTableAlias).append(QLatin1Char('.'));
+            where.append(relation.indexColumn()).append(QLatin1String(" AND "));
         } else {
             fList.append(tableName()).append(QLatin1Char('.')).append(rec.fieldName(i)).append(
                             QLatin1Char(','));
