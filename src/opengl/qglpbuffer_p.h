@@ -17,6 +17,10 @@
 #ifdef Q_WS_X11
 #include <GL/glx.h>
 
+#ifndef GLXPbuffer
+typedef XID GLXPbuffer;
+#endif
+
 class QGLPbufferPrivate {
     Q_DECLARE_PUBLIC(QGLPbuffer)
 public:
