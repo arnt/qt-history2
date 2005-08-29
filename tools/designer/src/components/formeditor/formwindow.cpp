@@ -1060,7 +1060,7 @@ void FormWindow::paste()
     if (w && LayoutInfo::layoutType(m_core, w) == LayoutInfo::NoLayout) {
         clearSelection(true);
 
-        QByteArray code = qApp->clipboard()->text().toAscii();
+        QByteArray code = qApp->clipboard()->text().toUtf8();
         QBuffer b(&code);
         b.open(QIODevice::ReadOnly);
 
