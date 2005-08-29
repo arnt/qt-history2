@@ -2356,26 +2356,13 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
     qt_x11_preferred_pixmap_depth = x11Info().depth();
     QPixmap pm(sz);
     qt_x11_preferred_pixmap_depth = old_depth;
-    Visual *gl_visual = (Visual *) d->glcx->d_func()->vi;
-    Visual *gl_pixmap_visual = 0;
+    QX11Info xinfo = x11Info();
 
-    if (gl_visual != QX11Info::appVisual()) {
-        int nvis = 0;
-        XVisualInfo visInfo;
-        memset(&visInfo, 0, sizeof(XVisualInfo));
-        visInfo.visualid = XVisualIDFromVisual(gl_visual);
-        visInfo.screen = QX11Info::appScreen();
-        XVisualInfo *vi = XGetVisualInfo(QX11Info::display(),
-                                         VisualIDMask | VisualScreenMask,
-                                         &visInfo, &nvis);
-        gl_pixmap_visual = vi->visual;
-        if (vi) {
-            QX11InfoData* xd = pm.x11Info().getX11Data(true);
-            xd->depth = vi->depth;
-            xd->visual = (Visual *) vi->visual;
-            const_cast<QX11Info &>(pm.x11Info()).setX11Data(xd);
-            XFree(vi);
-        }
+    if (xinfo.visual() != QX11Info::appVisual()) {
+        QX11InfoData* xd = pm.x11Info().getX11Data(true);
+        xd->depth = xinfo.depth();
+        xd->visual = static_cast<Visual *>(xinfo.visual());
+        const_cast<QX11Info &>(pm.x11Info()).setX11Data(xd);
     }
 
 #else
@@ -2416,7 +2403,7 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
 
     if (success) {
 #if defined(Q_WS_X11)
-        if (gl_pixmap_visual) {
+        if (xinfo.visual() != QX11Info::appVisual()) {
             QImage image = pm.toImage();
             QPixmap p = QPixmap::fromImage(image);
             return p;
