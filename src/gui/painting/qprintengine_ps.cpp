@@ -4324,6 +4324,7 @@ QVariant QPSPrintEngine::property(PrintEnginePropertyKey key) const
         break;
     case PPK_PaperRect:
         ret = d->paperRect();
+        break;
     case PPK_PageRect:
         ret = d->pageRect();
         break;
