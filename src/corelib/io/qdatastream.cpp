@@ -974,9 +974,9 @@ QDataStream &QDataStream::operator<<(qint64 i)
 {
     CHECK_STREAM_PRECOND(*this)
     if (version() < 6) {
-        quint32 i1, i2;
-        *this >> i2 >> i1;
-        i = ((quint64)i1 << 32) + i2;
+	quint32 i1 = i & 0xffffffff;
+	quint32 i2 = i >> 32;
+	*this << i2 << i1;
     } else if (noswap) {                        // no conversion needed
         dev->write((char *)&i, sizeof(qint64));
     } else {                                        // swap bytes
