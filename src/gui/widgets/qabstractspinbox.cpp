@@ -219,8 +219,7 @@ void QAbstractSpinBox::setSpecialValueText(const QString &s)
     Q_D(QAbstractSpinBox);
 
     d->specialValueText = s;
-    d->cachedText.clear();
-    d->cachedValue.clear();
+    d->clearCache();
     d->update();
 }
 
@@ -591,7 +590,8 @@ bool QAbstractSpinBox::event(QEvent *event)
         if (d->edit->event(event))
             return true;
         break;
-    default: break;
+    default:
+        break;
     }
     return QWidget::event(event);
 }
@@ -1539,8 +1539,7 @@ void QAbstractSpinBoxPrivate::update()
 
 void QAbstractSpinBoxPrivate::setRange(const QVariant &min, const QVariant &max)
 {
-    cachedText.clear();
-    cachedValue.clear();
+    clearCache();
     minimum = min;
     maximum = qMax(min, max);
 
@@ -1634,12 +1633,19 @@ void QAbstractSpinBoxPrivate::interpret(EmitPolicy ep)
     if (doInterpret) {
         v = valueFromText(tmp);
     }
-    cachedValue.clear();
-    cachedText.clear();
+    clearCache();
     setValue(v, ep, true);
     if (oldpos != pos)
         edit->setCursorPosition(pos);
 }
+
+void QAbstractSpinBoxPrivate::clearCache() const
+{
+    cachedText.clear();
+    cachedValue.clear();
+    cachedState = QValidator::Acceptable;
+}
+
 
 // --- QSpinBoxValidator ---
 

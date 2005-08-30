@@ -118,6 +118,8 @@ protected:
     virtual void focusInEvent(QFocusEvent *e);
     virtual bool focusNextPrevChild(bool next);
     virtual QValidator::State validate(QString &input, int &pos) const;
+    virtual void fixup(QString &input) const;
+
     virtual QDateTime dateTimeFromText(const QString &text) const;
     virtual QString textFromDateTime(const QDateTime &dt) const;
     virtual StepEnabled stepEnabled() const;
