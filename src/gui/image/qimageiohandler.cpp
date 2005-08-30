@@ -123,11 +123,10 @@
     which are used internally by QImageReader and QImageWriter to add
     support for different image formats to Qt.
 
-    Writing an picture format plugin is achieved by subclassing this
-    base class, reimplementing the pure virtual functions keys(),
-    loadPicture(), savePicture(), and installIOHandler(), and
-    exporting the class with the Q_EXPORT_PLUGIN() macro. See
-    \l{How to Create Qt Plugins} for details.
+    Writing an image I/O plugin is achieved by subclassing this
+    base class, reimplementing the pure virtual functions capabilities(),
+    create(), and keys(), and exporting the class with the
+    Q_EXPORT_PLUGIN() macro. See \l{How to Create Qt Plugins} for details.
 
     An image format plugin can support three capabilities: reading (\l
     CanRead), writing (\l CanWrite) and \e incremental reading (\l
