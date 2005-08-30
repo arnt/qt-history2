@@ -40,6 +40,7 @@ enum {
 };
 
 
+
 #ifdef Q_WS_MAC
 #include <private/qt_mac_p.h>
 extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
@@ -2265,16 +2266,18 @@ int QDateTimeEditPrivate::sectionValue(int sectionIndex, QString &text, int inde
     if (sectionIndex == currentSectionIndex) {
         const int diff = text.size() - textFromValue(value).size();
         if (diff < 0) { // text has been removed
-            if (sectionIndex + 1 < sectionNodes.size() || !separators.last().isEmpty())
-                sectiontext.chop(qAbs(diff));
+            if (sectionIndex + 1 < sectionNodes.size() || !separators.last().isEmpty()) {
+                int maxSize = sectionMaxSize(sectionIndex);
+                sectiontext.chop(qMin(sectiontext.size() - maxSize, qAbs(diff)));
+            }
 //            index += diff; // this doesn't seem to work very well
         }
 //        qDebug() << "FOOO" << sectiontext << text.mid(index, sectionMaxSize(sectionIndex));
     }
 
-//     qDebug() << "sectionValue for" << sectionName(sn.type)
-//              << "with text" << text << "and st" << sectiontext
-//              << index << sectiontext;
+    QDTEDEBUG << "sectionValue for" << sectionName(sn.type)
+              << "with text" << text << "and st" << sectiontext
+              << index << sectiontext;
 
     int used = 0;
     if (sectiontext.trimmed().isEmpty()) {
@@ -2467,6 +2470,7 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
             current = 0;
             sn = sectionNodes.at(i);
             int used;
+
             num = sectionValue(i, input, index, tmpstate, &used);
             QDTEDEBUG << "sectionValue" << sectionName(sectionType(i)) << input << index << used << stateName(tmpstate);
             if (fixup && tmpstate == QValidator::Intermediate && isFixedNumericSection(i) && used < sn.count) {
@@ -2553,7 +2557,8 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
             if (!QDate::isValid(year, month, day)) {
                 if (day < 32) {
                     cachedDay = day;
-                } else if (day > 28 && QDate::isValid(year, month, 1)) {
+                }
+                if (state == QValidator::Acceptable && day > 28 && QDate::isValid(year, month, 1)) {
                     fixday = true;
                 }
             }
@@ -2567,8 +2572,9 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
                 }
             }
 
-//            QDTEDEBUG << year << month << day << hour << minute << second << msec;
             tmp = QVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec)));
+            QDTEDEBUG << year << month << day << hour << minute << second << msec;
+
         }
         QDTEDEBUGN("'%s' => '%s'(%s)", input.toLatin1().constData(),
                    tmp.toString().toLatin1().constData(), stateName(state).toLatin1().constData());
@@ -2617,7 +2623,7 @@ int QDateTimeEditPrivate::findMonth(const QString &str1, int startMonth, int sec
 
         if (str1.startsWith(str2)) {
             if (used) {
-//                qDebug() << __LINE__ << "used is set to" << str2.size();
+                QDTEDEBUG << __LINE__ << "used is set to" << str2.size();
                 *used = str2.size();
             }
             if (usedMonth)
@@ -2626,7 +2632,8 @@ int QDateTimeEditPrivate::findMonth(const QString &str1, int startMonth, int sec
         }
 
         const int limit = qMin(str1.size(), str2.size());
-//        qDebug() << "limit is" << limit << str1 << str2;
+
+        QDTEDEBUG << "limit is" << limit << str1 << str2;
         bool found = true;
         for (int i=0; i<limit; ++i) {
             if (str1.at(i) != str2.at(i)) {
@@ -2641,16 +2648,17 @@ int QDateTimeEditPrivate::findMonth(const QString &str1, int startMonth, int sec
         }
         if (found) {
             if (used) {
-//                qDebug() << __LINE__ << "used is set to" << limit;
                 *used = limit;
             }
             if (usedMonth)
                 *usedMonth = nameFunction(month);
+            QDTEDEBUG << __LINE__ << "used is set to" << limit << *usedMonth;
+
             return month;
         }
     }
     if (used) {
-//        qDebug() << __LINE__ << "used is set to" << bestMatch;
+        QDTEDEBUG << __LINE__ << "used is set to" << bestMatch;
         *used = bestCount;
     }
     if (usedMonth && bestMatch != -1)
