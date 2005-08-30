@@ -98,10 +98,9 @@ QIODevicePrivate::~QIODevicePrivate()
     random-access devices.
 
     \o Sequential devices don't support seeking to arbitrary
-    positions. The data must be read in one pass. Functions
-    like pos(), seek(), and size() don't work for sequential
-    devices. QTcpSocket and QProcess are examples of sequential
-    devices.
+    positions. The data must be read in one pass. The functions
+    pos() and size() don't work for sequential devices.
+    QTcpSocket and QProcess are examples of sequential devices.
     \endlist
 
     You can use isSequential() to determine the type of device.
@@ -574,13 +573,13 @@ qint64 QIODevice::read(char *data, qint64 maxSize)
     if (int ungetSize = d->ungetBuffer.size()) {
         do {
             if (readSoFar + 1 > maxSize) {
-                d->ungetBuffer.resize(d->ungetBuffer.size() - readSoFar);
+                seek(pos() + readSoFar);
                 return readSoFar;
             }
 
             data[readSoFar++] = d->ungetBuffer[ungetSize-- - 1];
         } while (ungetSize > 0);
-        d->ungetBuffer.resize(d->ungetBuffer.size() - readSoFar);
+        seek(pos() + readSoFar);
     }
 
     qint64 ret = readData(data + readSoFar, maxSize - readSoFar);
