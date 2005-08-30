@@ -2334,8 +2334,7 @@ int QDateTimeEditPrivate::sectionValue(int sectionIndex, QString &text, int inde
                     QString str = text;
                     text.replace(index, used, sectiontext.left(used));
                 } else {
-                    state = QValidator::Invalid;
-                    QDTEDEBUG << "invalid because" << sectiontext << "doesn't match any month name";
+                    state = QValidator::Intermediate;
                 }
                 break;
             }
@@ -2623,6 +2622,8 @@ int QDateTimeEditPrivate::findMonth(const QString &str1, int startMonth, int sec
                                   ? &QDate::shortMonthName
                                   : &QDate::longMonthName;
 
+//    qDebug() << "findMonth" << str1 << startMonth << sectionIndex;
+
     for (int month=startMonth; month<=12; ++month) {
         QString str2 = nameFunction(month).toLower();
 
@@ -2663,7 +2664,7 @@ int QDateTimeEditPrivate::findMonth(const QString &str1, int startMonth, int sec
         }
     }
     if (used) {
-        QDTEDEBUG << __LINE__ << "used is set to" << bestMatch;
+        QDTEDEBUG << __LINE__ << "used is set to" << bestCount;
         *used = bestCount;
     }
     if (usedMonth && bestMatch != -1)
