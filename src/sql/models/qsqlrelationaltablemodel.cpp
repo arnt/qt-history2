@@ -183,8 +183,16 @@ void QSqlRelationalTableModelPrivate::clearChanges()
 
     \image relationaltable.png
 
-    Note: The table's primary key may not contain a relation to
-    another table.
+    Notes:
+
+    \list
+    \o The table's primary key may not contain a relation to
+       another table.
+    \o If a relational table contains keys that refer to non-existent
+       rows in the referenced table, the rows containing the invalid
+       keys will not be exposed through the model. The user or the
+       database is responsible for keeping referential integrity.
+    \endlist
 
     \sa QSqlRelation, QSqlRelationalDelegate
 */
