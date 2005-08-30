@@ -20,6 +20,7 @@
 #include <QtCore/QDir>
 
 #include <QtGui/QDesktopWidget>
+#include <QtGui/QStyle>
 
 #include <QtCore/qdebug.h>
 
@@ -157,13 +158,9 @@ void QDesignerSettings::setUseBigIcons(bool useBig)
 
 bool QDesignerSettings::useBigIcons() const
 {
-    return value(QLatin1String("UI/useBigIcons"),
-#ifdef Q_WS_MAC
-                 true
-#else
-                 false
-#endif
-            ).toBool();
+    int toolSize = qDesigner->style()->pixelMetric(QStyle::PM_ToolBarIconSize);
+    int largeSize = qDesigner->style()->pixelMetric(QStyle::PM_LargeIconSize);
+    return value(QLatin1String("UI/useBigIcons"), toolSize == largeSize).toBool();
 }
 
 QByteArray QDesignerSettings::mainWindowState() const
