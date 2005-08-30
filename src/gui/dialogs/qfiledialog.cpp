@@ -392,7 +392,8 @@ void QFileDialog::selectFile(const QString &filename)
     } else { // faster than asking for model()->index(currentPath + filename)
         QStringList entries = directory().entryList(d->model->filter(), d->model->sorting());
         int r = entries.indexOf(filename);
-        index = (r >= 0 ? d->model->index(r, 0, d->rootIndex()) : QModelIndex());
+        if (r >= 0)
+            index = d->model->index(r, 0, d->rootIndex());
     }
     if (index.isValid()) {
         d->selections->select(index, QItemSelectionModel::Select|QItemSelectionModel::Rows);
