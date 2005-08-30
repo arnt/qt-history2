@@ -53,6 +53,6 @@ int main()
         // MASK
         QPixmap alpha("image-with-alpha.png");
         QPixmap alphacopy = alpha;
-        alphacopy.setMask(*alphacopy.mask());
+        alphacopy.setMask(alphacopy.mask());
     }
 }

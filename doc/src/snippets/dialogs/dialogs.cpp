@@ -6,6 +6,11 @@ typedef QDialog FindDialog;
 #define this 0
 #define setWordCount(x) isVisible()
 
+QString tr(const char *text)
+{
+    return QApplication::translate(text, text);
+}
+
 class EditorWindow : public QMainWindow
 {
 public:

@@ -7,7 +7,7 @@ MainWindow::MainWindow()
 {
     QMenu *fileMenu = new QMenu(tr("&File"));
 
-    QAction *saveAction = fileMenu->addAction(tr("&Save"));
+    QAction *saveAction = fileMenu->addAction(tr("&Save..."));
     saveAction->setShortcut(tr("Ctrl+S"));
     QAction *quitAction = fileMenu->addAction(tr("E&xit"));
     quitAction->setShortcut(tr("Ctrl+Q"));
