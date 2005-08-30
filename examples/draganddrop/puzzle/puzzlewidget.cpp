@@ -139,6 +139,9 @@ void PuzzleWidget::mousePressEvent(QMouseEvent *event)
         piecePixmaps.insert(found, pixmap);
         pieceRects.insert(found, square);
         update(targetSquare(event->pos()));
+
+        if (location == QPoint(square.x()/80, square.y()/80))
+            inPlace++;
     }
 }
 
