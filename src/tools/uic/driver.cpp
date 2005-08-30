@@ -102,11 +102,7 @@ QString Driver::unique(const QString &instanceName, const QString &className)
         name = instanceName;
         name.replace(QRegExp(QLatin1String("[^a-zA-Z_0-9]")), QLatin1String("_"));
 
-        bool alreadyUsed = false;
-        while (true) {
-            if (!m_nameRepository.contains(name))
-                break;
-
+        while (m_nameRepository.contains(name)) {
             alreadyUsed = true;
             name = instanceName + QString::number(id++);
         }
@@ -117,7 +113,7 @@ QString Driver::unique(const QString &instanceName, const QString &className)
     }
 
     if (alreadyUsed && className.size()) {
-        fprintf(stderr, "Warning: name %s is already used\n", instanceName.toLatin1().data());
+        fprintf(stderr, "Warning: name %s is already used\n", qPrintable(instanceName));
     }
 
     m_nameRepository.insert(name, true);
