@@ -1,30 +1,26 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <qvariant.h>
-
-class GammaView;
-
-#include <qaction.h>
-#include <q3buttongroup.h>
-#include <qvariant.h>
-#include <qbuttongroup.h>
-#include <qradiobutton.h>
-#include <qslider.h>
+#include <Qt3Support/Q3ButtonGroup>
+#include <Qt3Support/Q3GroupBox>
+#include <QtCore/QVariant>
+#include <QtGui/QAction>
+#include <QtGui/QApplication>
+#include <QtGui/QButtonGroup>
+#include <QtGui/QCheckBox>
+#include <QtGui/QComboBox>
+#include <QtGui/QDialog>
+#include <QtGui/QGridLayout>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QPushButton>
+#include <QtGui/QRadioButton>
+#include <QtGui/QSlider>
+#include <QtGui/QSpinBox>
+#include <QtGui/QVBoxLayout>
 #include "gammaview.h"
-#include <qapplication.h>
-#include <qspinbox.h>
-#include <qcheckbox.h>
-#include <qlayout.h>
-#include <q3groupbox.h>
-#include <qlabel.h>
-#include <qpushbutton.h>
-#include <qcombobox.h>
-#include <qdialog.h>
 
-namespace Ui {
-
-class Config
+class Ui_Config
 {
 public:
     QVBoxLayout *vboxLayout;
@@ -72,33 +68,22 @@ public:
     QPushButton *buttonOk;
     QPushButton *buttonCancel;
 
-    inline void setupUi(QDialog *Config);
-    inline void retranslateUi(QDialog *Config);
-
-protected:
-    enum IconID
+    void setupUi(QDialog *Config)
     {
-        image0_ID,
-        unknown_ID
-    };
-
-    static QPixmap icon(IconID id);
-};
-
-inline void Config::setupUi(QDialog *Config)
-{
     Config->setObjectName(QString::fromUtf8("Config"));
     Config->resize(QSize(585, 756).expandedTo(Config->minimumSizeHint()));
     Config->setSizeGripEnabled(true);
     vboxLayout = new QVBoxLayout(Config);
-    vboxLayout->setMargin(11);
     vboxLayout->setSpacing(6);
+    vboxLayout->setMargin(11);
+    vboxLayout->setObjectName(QString::fromUtf8("vboxLayout"));
     hboxLayout = new QHBoxLayout();
-    hboxLayout->setMargin(0);
     hboxLayout->setSpacing(6);
+    hboxLayout->setMargin(0);
+    hboxLayout->setObjectName(QString::fromUtf8("hboxLayout"));
     ButtonGroup1 = new Q3ButtonGroup(Config);
     ButtonGroup1->setObjectName(QString::fromUtf8("ButtonGroup1"));
-    QSizePolicy sizePolicy((QSizePolicy::SizeType)5, (QSizePolicy::SizeType)5);
+    QSizePolicy sizePolicy((QSizePolicy::Policy)5, (QSizePolicy::Policy)5);
     sizePolicy.setHorizontalStretch(0);
     sizePolicy.setVerticalStretch(0);
     sizePolicy.setHeightForWidth(ButtonGroup1->sizePolicy().hasHeightForWidth());
@@ -108,6 +93,7 @@ inline void Config::setupUi(QDialog *Config)
     ButtonGroup1->layout()->setMargin(11);
     vboxLayout1 = new QVBoxLayout(ButtonGroup1->layout());
     vboxLayout1->setAlignment(Qt::AlignTop);
+    vboxLayout1->setObjectName(QString::fromUtf8("vboxLayout1"));
     vboxLayout1->setMargin(11);
     vboxLayout1->setSpacing(6);
     size_176_220 = new QRadioButton(ButtonGroup1);
@@ -131,11 +117,12 @@ inline void Config::setupUi(QDialog *Config)
     vboxLayout1->addWidget(size_640_480);
 
     hboxLayout1 = new QHBoxLayout();
-    hboxLayout1->setMargin(0);
     hboxLayout1->setSpacing(6);
+    hboxLayout1->setMargin(0);
+    hboxLayout1->setObjectName(QString::fromUtf8("hboxLayout1"));
     size_custom = new QRadioButton(ButtonGroup1);
     size_custom->setObjectName(QString::fromUtf8("size_custom"));
-    QSizePolicy sizePolicy1((QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0);
+    QSizePolicy sizePolicy1((QSizePolicy::Policy)0, (QSizePolicy::Policy)0);
     sizePolicy1.setHorizontalStretch(0);
     sizePolicy1.setVerticalStretch(0);
     sizePolicy1.setHeightForWidth(size_custom->sizePolicy().hasHeightForWidth());
@@ -145,7 +132,7 @@ inline void Config::setupUi(QDialog *Config)
 
     size_width = new QSpinBox(ButtonGroup1);
     size_width->setObjectName(QString::fromUtf8("size_width"));
-    QSizePolicy sizePolicy2((QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0);
+    QSizePolicy sizePolicy2((QSizePolicy::Policy)7, (QSizePolicy::Policy)0);
     sizePolicy2.setHorizontalStretch(0);
     sizePolicy2.setVerticalStretch(0);
     sizePolicy2.setHeightForWidth(size_width->sizePolicy().hasHeightForWidth());
@@ -159,7 +146,7 @@ inline void Config::setupUi(QDialog *Config)
 
     size_height = new QSpinBox(ButtonGroup1);
     size_height->setObjectName(QString::fromUtf8("size_height"));
-    QSizePolicy sizePolicy3((QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0);
+    QSizePolicy sizePolicy3((QSizePolicy::Policy)7, (QSizePolicy::Policy)0);
     sizePolicy3.setHorizontalStretch(0);
     sizePolicy3.setVerticalStretch(0);
     sizePolicy3.setHeightForWidth(size_height->sizePolicy().hasHeightForWidth());
@@ -184,6 +171,7 @@ inline void Config::setupUi(QDialog *Config)
     ButtonGroup2->layout()->setMargin(11);
     vboxLayout2 = new QVBoxLayout(ButtonGroup2->layout());
     vboxLayout2->setAlignment(Qt::AlignTop);
+    vboxLayout2->setObjectName(QString::fromUtf8("vboxLayout2"));
     vboxLayout2->setMargin(11);
     vboxLayout2->setSpacing(6);
     depth_1 = new QRadioButton(ButtonGroup2);
@@ -223,8 +211,9 @@ inline void Config::setupUi(QDialog *Config)
     vboxLayout->addLayout(hboxLayout);
 
     hboxLayout2 = new QHBoxLayout();
-    hboxLayout2->setMargin(0);
     hboxLayout2->setSpacing(6);
+    hboxLayout2->setMargin(0);
+    hboxLayout2->setObjectName(QString::fromUtf8("hboxLayout2"));
     TextLabel1_3 = new QLabel(Config);
     TextLabel1_3->setObjectName(QString::fromUtf8("TextLabel1_3"));
 
@@ -232,7 +221,7 @@ inline void Config::setupUi(QDialog *Config)
 
     skin = new QComboBox(Config);
     skin->setObjectName(QString::fromUtf8("skin"));
-    QSizePolicy sizePolicy4((QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0);
+    QSizePolicy sizePolicy4((QSizePolicy::Policy)7, (QSizePolicy::Policy)0);
     sizePolicy4.setHorizontalStretch(0);
     sizePolicy4.setVerticalStretch(0);
     sizePolicy4.setHeightForWidth(skin->sizePolicy().hasHeightForWidth());
@@ -255,7 +244,7 @@ inline void Config::setupUi(QDialog *Config)
 
     TextLabel1 = new QLabel(Config);
     TextLabel1->setObjectName(QString::fromUtf8("TextLabel1"));
-    QSizePolicy sizePolicy5((QSizePolicy::SizeType)5, (QSizePolicy::SizeType)1);
+    QSizePolicy sizePolicy5((QSizePolicy::Policy)5, (QSizePolicy::Policy)1);
     sizePolicy5.setHorizontalStretch(0);
     sizePolicy5.setVerticalStretch(0);
     sizePolicy5.setHeightForWidth(TextLabel1->sizePolicy().hasHeightForWidth());
@@ -270,6 +259,7 @@ inline void Config::setupUi(QDialog *Config)
     GroupBox1->layout()->setMargin(11);
     gridLayout = new QGridLayout(GroupBox1->layout());
     gridLayout->setAlignment(Qt::AlignTop);
+    gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
     gridLayout->setMargin(11);
     gridLayout->setSpacing(6);
     TextLabel3 = new QLabel(GroupBox1);
@@ -294,6 +284,8 @@ inline void Config::setupUi(QDialog *Config)
     palette.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(11), QColor(0, 0, 0));
     palette.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(12), QColor(10, 95, 137));
     palette.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(13), QColor(255, 255, 255));
+    palette.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(14), QColor(0, 0, 0));
+    palette.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(15), QColor(0, 0, 0));
     palette.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(0), QColor(0, 0, 0));
     palette.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(1), QColor(0, 0, 255));
     palette.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(2), QColor(127, 127, 255));
@@ -308,6 +300,8 @@ inline void Config::setupUi(QDialog *Config)
     palette.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(11), QColor(0, 0, 0));
     palette.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(12), QColor(10, 95, 137));
     palette.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(13), QColor(255, 255, 255));
+    palette.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(14), QColor(0, 0, 0));
+    palette.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(15), QColor(0, 0, 0));
     palette.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(0), QColor(128, 128, 128));
     palette.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(1), QColor(0, 0, 255));
     palette.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(2), QColor(127, 127, 255));
@@ -322,6 +316,8 @@ inline void Config::setupUi(QDialog *Config)
     palette.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(11), QColor(0, 0, 0));
     palette.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(12), QColor(10, 95, 137));
     palette.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(13), QColor(255, 255, 255));
+    palette.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(14), QColor(0, 0, 0));
+    palette.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(15), QColor(0, 0, 0));
     bslider->setPalette(palette);
     bslider->setMaximum(400);
     bslider->setValue(100);
@@ -356,6 +352,8 @@ inline void Config::setupUi(QDialog *Config)
     palette1.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(11), QColor(0, 0, 0));
     palette1.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(12), QColor(10, 95, 137));
     palette1.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(13), QColor(255, 255, 255));
+    palette1.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(14), QColor(0, 0, 0));
+    palette1.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(15), QColor(0, 0, 0));
     palette1.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(0), QColor(0, 0, 0));
     palette1.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(1), QColor(0, 255, 0));
     palette1.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(2), QColor(127, 255, 127));
@@ -370,6 +368,8 @@ inline void Config::setupUi(QDialog *Config)
     palette1.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(11), QColor(0, 0, 0));
     palette1.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(12), QColor(10, 95, 137));
     palette1.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(13), QColor(255, 255, 255));
+    palette1.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(14), QColor(0, 0, 0));
+    palette1.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(15), QColor(0, 0, 0));
     palette1.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(0), QColor(128, 128, 128));
     palette1.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(1), QColor(0, 255, 0));
     palette1.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(2), QColor(127, 255, 127));
@@ -384,6 +384,8 @@ inline void Config::setupUi(QDialog *Config)
     palette1.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(11), QColor(0, 0, 0));
     palette1.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(12), QColor(10, 95, 137));
     palette1.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(13), QColor(255, 255, 255));
+    palette1.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(14), QColor(0, 0, 0));
+    palette1.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(15), QColor(0, 0, 0));
     gslider->setPalette(palette1);
     gslider->setMaximum(400);
     gslider->setValue(100);
@@ -423,6 +425,8 @@ inline void Config::setupUi(QDialog *Config)
     palette2.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(11), QColor(0, 0, 0));
     palette2.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(12), QColor(10, 95, 137));
     palette2.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(13), QColor(255, 255, 255));
+    palette2.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(14), QColor(0, 0, 0));
+    palette2.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(15), QColor(0, 0, 0));
     palette2.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(0), QColor(0, 0, 0));
     palette2.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(1), QColor(255, 255, 255));
     palette2.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(2), QColor(255, 255, 255));
@@ -437,6 +441,8 @@ inline void Config::setupUi(QDialog *Config)
     palette2.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(11), QColor(0, 0, 0));
     palette2.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(12), QColor(10, 95, 137));
     palette2.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(13), QColor(255, 255, 255));
+    palette2.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(14), QColor(0, 0, 0));
+    palette2.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(15), QColor(0, 0, 0));
     palette2.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(0), QColor(128, 128, 128));
     palette2.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(1), QColor(255, 255, 255));
     palette2.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(2), QColor(255, 255, 255));
@@ -451,6 +457,8 @@ inline void Config::setupUi(QDialog *Config)
     palette2.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(11), QColor(0, 0, 0));
     palette2.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(12), QColor(10, 95, 137));
     palette2.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(13), QColor(255, 255, 255));
+    palette2.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(14), QColor(0, 0, 0));
+    palette2.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(15), QColor(0, 0, 0));
     gammaslider->setPalette(palette2);
     gammaslider->setMaximum(400);
     gammaslider->setValue(100);
@@ -485,6 +493,8 @@ inline void Config::setupUi(QDialog *Config)
     palette3.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(11), QColor(0, 0, 0));
     palette3.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(12), QColor(10, 95, 137));
     palette3.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(13), QColor(255, 255, 255));
+    palette3.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(14), QColor(0, 0, 0));
+    palette3.setColor(QPalette::Active, static_cast<QPalette::ColorRole>(15), QColor(0, 0, 0));
     palette3.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(0), QColor(0, 0, 0));
     palette3.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(1), QColor(255, 0, 0));
     palette3.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(2), QColor(255, 127, 127));
@@ -499,6 +509,8 @@ inline void Config::setupUi(QDialog *Config)
     palette3.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(11), QColor(0, 0, 0));
     palette3.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(12), QColor(10, 95, 137));
     palette3.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(13), QColor(255, 255, 255));
+    palette3.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(14), QColor(0, 0, 0));
+    palette3.setColor(QPalette::Inactive, static_cast<QPalette::ColorRole>(15), QColor(0, 0, 0));
     palette3.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(0), QColor(128, 128, 128));
     palette3.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(1), QColor(255, 0, 0));
     palette3.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(2), QColor(255, 127, 127));
@@ -513,6 +525,8 @@ inline void Config::setupUi(QDialog *Config)
     palette3.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(11), QColor(0, 0, 0));
     palette3.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(12), QColor(10, 95, 137));
     palette3.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(13), QColor(255, 255, 255));
+    palette3.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(14), QColor(0, 0, 0));
+    palette3.setColor(QPalette::Disabled, static_cast<QPalette::ColorRole>(15), QColor(0, 0, 0));
     rslider->setPalette(palette3);
     rslider->setMaximum(400);
     rslider->setValue(100);
@@ -549,92 +563,88 @@ inline void Config::setupUi(QDialog *Config)
     retranslateUi(Config);
 
     QMetaObject::connectSlotsByName(Config);
-}
+    } // setupUi
 
-inline void Config::retranslateUi(QDialog *Config)
-{
-    Config->setWindowTitle(QApplication::translate("Config", "Configure"));
-    ButtonGroup1->setTitle(QApplication::translate("Config", "Size"));
-    size_176_220->setText(QApplication::translate("Config", "176x220 \"SmartPhone\""));
-    size_240_320->setText(QApplication::translate("Config", "240x320 \"PDA\""));
-    size_320_240->setText(QApplication::translate("Config", "320x240 \"TV\" / \"QVGA\""));
-    size_640_480->setText(QApplication::translate("Config", "640x480 \"VGA\""));
-    size_custom->setText(QApplication::translate("Config", "Custom"));
-    ButtonGroup2->setTitle(QApplication::translate("Config", "Depth"));
-    depth_1->setText(QApplication::translate("Config", "1 bit monochrome"));
-    depth_4gray->setText(QApplication::translate("Config", "4 bit grayscale"));
-    depth_8->setText(QApplication::translate("Config", "8 bit"));
-    depth_12->setText(QApplication::translate("Config", "12 (16) bit"));
-    depth_16->setText(QApplication::translate("Config", "16 bit"));
-    depth_32->setText(QApplication::translate("Config", "32 bit"));
-    TextLabel1_3->setText(QApplication::translate("Config", "Skin"));
-    skin->clear();
-    skin->insertItem(QApplication::translate("Config", "None"));
-    touchScreen->setText(QApplication::translate("Config", "Emulate touch screen (no mouse move)"));
-    lcdScreen->setText(QApplication::translate("Config", "Emulate LCD screen (Only with fixed zoom of 3.0 times magnification)"));
-    TextLabel1->setText(QApplication::translate("Config", "<p>Note that any applications using the virtual framebuffer will be terminated if you change the Size or Depth <i>above</i>. You may freely modify the Gamma <i>below</i>."));
-    GroupBox1->setTitle(QApplication::translate("Config", "Gamma"));
-    TextLabel3->setText(QApplication::translate("Config", "Blue"));
-    blabel->setText(QApplication::translate("Config", "1.0"));
-    TextLabel2->setText(QApplication::translate("Config", "Green"));
-    glabel->setText(QApplication::translate("Config", "1.0"));
-    TextLabel7->setText(QApplication::translate("Config", "All"));
-    TextLabel8->setText(QApplication::translate("Config", "1.0"));
-    TextLabel1_2->setText(QApplication::translate("Config", "Red"));
-    rlabel->setText(QApplication::translate("Config", "1.0"));
-    PushButton3->setText(QApplication::translate("Config", "Set all to 1.0"));
-    buttonOk->setText(QApplication::translate("Config", "&OK"));
-    buttonCancel->setText(QApplication::translate("Config", "&Cancel"));
-}
+    void retranslateUi(QDialog *Config)
+    {
+    Config->setWindowTitle(QApplication::translate("Config", "Configure", 0, QApplication::UnicodeUTF8));
+    ButtonGroup1->setTitle(QApplication::translate("Config", "Size", 0, QApplication::UnicodeUTF8));
+    size_176_220->setText(QApplication::translate("Config", "176x220 \"SmartPhone\"", 0, QApplication::UnicodeUTF8));
+    size_240_320->setText(QApplication::translate("Config", "240x320 \"PDA\"", 0, QApplication::UnicodeUTF8));
+    size_320_240->setText(QApplication::translate("Config", "320x240 \"TV\" / \"QVGA\"", 0, QApplication::UnicodeUTF8));
+    size_640_480->setText(QApplication::translate("Config", "640x480 \"VGA\"", 0, QApplication::UnicodeUTF8));
+    size_custom->setText(QApplication::translate("Config", "Custom", 0, QApplication::UnicodeUTF8));
+    ButtonGroup2->setTitle(QApplication::translate("Config", "Depth", 0, QApplication::UnicodeUTF8));
+    depth_1->setText(QApplication::translate("Config", "1 bit monochrome", 0, QApplication::UnicodeUTF8));
+    depth_4gray->setText(QApplication::translate("Config", "4 bit grayscale", 0, QApplication::UnicodeUTF8));
+    depth_8->setText(QApplication::translate("Config", "8 bit", 0, QApplication::UnicodeUTF8));
+    depth_12->setText(QApplication::translate("Config", "12 (16) bit", 0, QApplication::UnicodeUTF8));
+    depth_16->setText(QApplication::translate("Config", "16 bit", 0, QApplication::UnicodeUTF8));
+    depth_32->setText(QApplication::translate("Config", "32 bit", 0, QApplication::UnicodeUTF8));
+    TextLabel1_3->setText(QApplication::translate("Config", "Skin", 0, QApplication::UnicodeUTF8));
+    skin->addItem(QApplication::translate("Config", "None", 0, QApplication::UnicodeUTF8));
+    touchScreen->setText(QApplication::translate("Config", "Emulate touch screen (no mouse move)", 0, QApplication::UnicodeUTF8));
+    lcdScreen->setText(QApplication::translate("Config", "Emulate LCD screen (Only with fixed zoom of 3.0 times magnification)", 0, QApplication::UnicodeUTF8));
+    TextLabel1->setText(QApplication::translate("Config", "<p>Note that any applications using the virtual framebuffer will be terminated if you change the Size or Depth <i>above</i>. You may freely modify the Gamma <i>below</i>.", 0, QApplication::UnicodeUTF8));
+    GroupBox1->setTitle(QApplication::translate("Config", "Gamma", 0, QApplication::UnicodeUTF8));
+    TextLabel3->setText(QApplication::translate("Config", "Blue", 0, QApplication::UnicodeUTF8));
+    blabel->setText(QApplication::translate("Config", "1.0", 0, QApplication::UnicodeUTF8));
+    TextLabel2->setText(QApplication::translate("Config", "Green", 0, QApplication::UnicodeUTF8));
+    glabel->setText(QApplication::translate("Config", "1.0", 0, QApplication::UnicodeUTF8));
+    TextLabel7->setText(QApplication::translate("Config", "All", 0, QApplication::UnicodeUTF8));
+    TextLabel8->setText(QApplication::translate("Config", "1.0", 0, QApplication::UnicodeUTF8));
+    TextLabel1_2->setText(QApplication::translate("Config", "Red", 0, QApplication::UnicodeUTF8));
+    rlabel->setText(QApplication::translate("Config", "1.0", 0, QApplication::UnicodeUTF8));
+    PushButton3->setText(QApplication::translate("Config", "Set all to 1.0", 0, QApplication::UnicodeUTF8));
+    buttonOk->setText(QApplication::translate("Config", "&OK", 0, QApplication::UnicodeUTF8));
+    buttonCancel->setText(QApplication::translate("Config", "&Cancel", 0, QApplication::UnicodeUTF8));
+    Q_UNUSED(Config);
+    } // retranslateUi
 
-inline QPixmap Config::icon(Config::IconID id)
-{
-    static const char* const image0_data[] = { 
-"22 22 2 1",
-". c None",
-"# c #a4c610",
-"........######........",
-".....###########......",
-"....##############....",
-"...################...",
-"..######......######..",
-"..#####........#####..",
-".#####.......#..#####.",
-".####.......###..####.",
-"####.......#####..####",
-"####......#####...####",
-"####....#######...####",
-"####....######....####",
-"####...########...####",
-".####.##########..####",
-".####..####.#########.",
-".#####..##...########.",
-"..#####.......#######.",
-"..######......######..",
-"...###################",
-"....##################",
-"......###########.###.",
-"........######.....#.."};
+
+protected:
+    enum IconID
+    {
+        image0_ID,
+        unknown_ID
+    };
+    static QPixmap icon(IconID id)
+    {
+    static const unsigned char image0_data[] = { 
+    0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+    0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x16,
+    0x08, 0x06, 0x00, 0x00, 0x00, 0xc4, 0xb4, 0x6c, 0x3b, 0x00, 0x00, 0x00,
+    0xc7, 0x49, 0x44, 0x41, 0x54, 0x18, 0x95, 0xad, 0x55, 0xdb, 0x11, 0x84,
+    0x20, 0x0c, 0x4c, 0x18, 0x0b, 0xb0, 0x05, 0xea, 0xb1, 0xcd, 0x6b, 0x81,
+    0x12, 0xb4, 0x0d, 0x4b, 0xf1, 0xbe, 0xe2, 0x48, 0x6e, 0xf3, 0x00, 0x6f,
+    0xbf, 0x1c, 0x93, 0xec, 0xe6, 0x05, 0xf0, 0x7e, 0xec, 0xe4, 0xe1, 0xa4,
+    0xed, 0x42, 0xff, 0x2b, 0x35, 0xf6, 0xe2, 0x96, 0x11, 0x32, 0xe4, 0x63,
+    0x09, 0x94, 0x19, 0x52, 0xed, 0x8f, 0x62, 0x8a, 0x76, 0x1a, 0x21, 0xf5,
+    0x62, 0x17, 0xcb, 0x20, 0xb0, 0x4a, 0x45, 0xfe, 0x27, 0x6d, 0x97, 0xf8,
+    0xff, 0xb4, 0x22, 0x43, 0x1a, 0xd9, 0x6e, 0x62, 0xa4, 0xee, 0x05, 0x7a,
+    0x83, 0x13, 0x1b, 0xcc, 0x38, 0x43, 0x1a, 0x6d, 0x05, 0x7f, 0x8e, 0xb5,
+    0xcb, 0x36, 0x43, 0x8a, 0xfc, 0xb5, 0xcd, 0xed, 0x71, 0x96, 0x14, 0x01,
+    0x1e, 0x90, 0x88, 0x30, 0x83, 0x74, 0xc6, 0x1a, 0xa9, 0xad, 0xb0, 0xe0,
+    0x65, 0x1b, 0x55, 0x52, 0xb4, 0xb2, 0x9e, 0xfa, 0xac, 0xb0, 0x99, 0x31,
+    0x2a, 0xd5, 0xda, 0x5b, 0x2d, 0x50, 0xa9, 0x31, 0x24, 0x46, 0x3b, 0x2a,
+    0xdf, 0x51, 0x6f, 0xbb, 0x8c, 0xbd, 0x13, 0x54, 0xa9, 0xb1, 0xb6, 0x67,
+    0xc8, 0xa7, 0x87, 0x67, 0x41, 0x44, 0xf9, 0xf9, 0x82, 0xbc, 0xb9, 0x36,
+    0x35, 0xba, 0x8c, 0xb3, 0xfd, 0x1b, 0x26, 0x16, 0xf2, 0x51, 0x01, 0x34,
+    0x03, 0xfe, 0xe7, 0x63, 0xfa, 0xbc, 0xe8, 0xbf, 0xf0, 0xaa, 0x6c, 0x98,
+    0x11, 0x45, 0x2e, 0x15, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44,
+    0xae, 0x42, 0x60, 0x82
+};
 
     switch (id) {
-        case image0_ID: return QPixmap((const char**)image0_data);
+        case image0_ID:  { QImage img; img.loadFromData(image0_data, sizeof(image0_data), "PNG"); return QPixmap::fromImage(img); }
         default: return QPixmap();
-    }
-}
-
-}
-
-class Config : public QDialog, public Ui::Config
-{
-    Q_OBJECT
-
-public:
-    Config(QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0);
-    ~Config();
-
-protected slots:
-    virtual void languageChange();
+    } // switch
+    } // icon
 
 };
+
+namespace Ui {
+    class Config: public Ui_Config {};
+} // namespace Ui
 
 #endif // CONFIG_H

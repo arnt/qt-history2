@@ -444,9 +444,23 @@ void QVFb::findSkins(const QString &currentSkin)
     }
 }
 
+class Config : public QDialog, public Ui::Config
+{
+public:
+    Config(QWidget *parent)
+        : QDialog(parent)
+    {
+        setupUi(this);
+        setModal(TRUE);
+
+        connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
+        connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
+    }
+};
+
 void QVFb::configure()
 {
-    config = new Config(this,0,TRUE);
+    config = new Config(this);
 
     int w = view->displayWidth();
     int h = view->displayHeight();

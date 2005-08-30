@@ -20,8 +20,7 @@ SOURCES         = qvfb.cpp \
 		  qvfbratedlg.cpp \
                   main.cpp \
 		  qanimationwriter.cpp \
-		  skin.cpp \
-                  config.cpp
+		  skin.cpp
 
 contains(QT_CONFIG, system-png) {
 	LIBS += -lpng
