@@ -529,7 +529,7 @@ QString QKeySequence::encodeString(int key)
     key &= ~(Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier);
     QString p;
 
-    if (key && key < Qt::Key_Escape) {
+    if (key && key < Qt::Key_Escape && key != Qt::Key_Space) {
         if (key < 0x10000) {
             p = QChar(key & 0xffff).toUpper();
         } else {
