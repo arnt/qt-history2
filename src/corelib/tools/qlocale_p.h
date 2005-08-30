@@ -95,8 +95,6 @@ public:
     	    	    	  GroupSeparatorMode group_sep_mode,
                           CharBuff *result) const;
 
-    QString dateFormat(bool short_format = false) const;
-    QString timeFormat(bool short_format = false) const;
     QString month(int index, bool short_format = false) const;
     QString day(int index, bool short_format = false) const;
 

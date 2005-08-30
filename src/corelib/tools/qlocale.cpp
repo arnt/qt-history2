@@ -154,18 +154,6 @@ QString QLocalePrivate::nan() const
     return QString::fromLatin1("nan");
 }
 
-QString QLocalePrivate::dateFormat(bool short_format) const
-{
-    quint32 idx = short_format ? m_short_date_format_idx : m_long_date_format_idx;
-    return QString::fromUtf8(date_format_data + idx);
-}
-
-QString QLocalePrivate::timeFormat(bool short_format) const
-{
-    quint32 idx = short_format ? m_short_time_format_idx : m_long_time_format_idx;
-    return QString::fromUtf8(time_format_data + idx);
-}
-
 QString QLocalePrivate::month(int index, bool short_format) const
 {
     if (index < 0 || index >= 12)
@@ -1646,7 +1634,7 @@ QString QLocale::toString(const QDate &date, const QString &format) const
 
 QString QLocale::toString(const QDate &date, FormatType format) const
 {
-    QString format_str = d->dateFormat(format == ShortFormat);
+    QString format_str = dateFormat(format);
     return toString(date, format_str);
 }
 
@@ -1783,10 +1771,39 @@ QString QLocale::toString(const QTime &time, const QString &format) const
 
 QString QLocale::toString(const QTime &time, FormatType format) const
 {
-    QString format_str = d->timeFormat(format == ShortFormat);
+    QString format_str = timeFormat(format);
     return toString(time, format_str);
 }
 
+/*!
+     Returns the date format used for the current locale.
+
+     If \a format is ShortFormat the format will be a short version.
+     Otherwise it uses a longer version.
+
+     \sa QDate::toString, QDate::fromString
+*/
+
+QString QLocale::dateFormat(FormatType format) const
+{
+    const quint32 idx = (format == ShortFormat ? d->m_short_date_format_idx : d->m_long_date_format_idx);
+    return QString::fromUtf8(date_format_data + idx);
+}
+
+/*!
+     Returns the time format used for the current locale.
+
+     If \a format is ShortFormat the format will be a short version.
+     Otherwise it uses a longer version.
+
+     \sa QTime::toString, QTime::fromString
+*/
+
+QString QLocale::timeFormat(FormatType format) const
+{
+    const quint32 idx = (format == ShortFormat ? d->m_short_time_format_idx : d->m_long_time_format_idx);
+    return QString::fromUtf8(time_format_data + idx);
+}
 
 static bool qIsUpper(char c)
 {

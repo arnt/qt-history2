@@ -459,6 +459,9 @@ public:
     QString toString(const QTime &time, const QString &formatStr) const;
     QString toString(const QTime &time, FormatType format = LongFormat) const;
 
+    QString dateFormat(FormatType format = LongFormat) const;
+    QString timeFormat(FormatType format = LongFormat) const;
+
     inline bool operator==(const QLocale &other) const;
     inline bool operator!=(const QLocale &other) const;
 
