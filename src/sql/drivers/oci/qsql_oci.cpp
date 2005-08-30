@@ -712,6 +712,12 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
             dataSize = 50;  // magic number
 #endif //SQLT_INTERVAL_DS
 #endif //SQLT_INTERVAL_YM
+        else if (ofi.oraType == SQLT_NUM || ofi.oraType == SQLT_VNU){
+            if (ofi.oraPrecision > 0 || ofi.oraScale > 0)
+                dataSize = ((ofi.oraPrecision > ofi.oraScale ? ofi.oraPrecision : ofi.oraScale) + 1) * sizeof(utext);
+            else 
+                dataSize = (38 + 1) * sizeof(utext);
+        }
         else
             dataSize = ofi.oraLength;
         fieldInf[idx].typ = ofi.type;
