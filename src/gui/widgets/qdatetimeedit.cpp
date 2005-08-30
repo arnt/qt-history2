@@ -2563,11 +2563,11 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
                 if (day < 32) {
                     cachedDay = day;
                 }
-                if (state == QValidator::Acceptable && day > 28 && QDate::isValid(year, month, 1)) {
+                if (day > 28 && QDate::isValid(year, month, 1)) {
                     fixday = true;
                 }
             }
-            if (fixday) {
+            if (fixday && state == QValidator::Acceptable) {
                 day = qMin<int>(day, QDate(year, month, 1).daysInMonth());
 
                 int i = 0;
