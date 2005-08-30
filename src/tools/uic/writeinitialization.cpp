@@ -594,9 +594,18 @@ void WriteInitialization::writeProperties(const QString &varName,
         if (p->hasAttributeStdset())
             stdset = p->attributeStdset();
 
-        QString setFunction = stdset
-                ? QLatin1String("->set") + propertyName.left(1).toUpper() + propertyName.mid(1) + QLatin1String("(")
-                : QLatin1String("->setProperty(\"") + propertyName + QLatin1String("\", QVariant(");
+        QString setFunction;
+
+        if (stdset) {
+            setFunction = QLatin1String("->set")
+                + propertyName.left(1).toUpper()
+                + propertyName.mid(1)
+                + QLatin1String("(");
+        } else {
+            setFunction = QLatin1String("->setProperty(\"")
+                + propertyName
+                + QLatin1String("\", QVariant(");
+        }
 
         switch (p->kind()) {
         case DomProperty::Bool: {
