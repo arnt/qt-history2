@@ -604,7 +604,7 @@ QDateTimeEdit::Section QDateTimeEdit::currentSection() const
     }
 }
 
-void QDateTimeEdit::setCurrentSection(Section section, int index)
+void QDateTimeEdit::setCurrentSection(Section section)
 {
     Q_D(QDateTimeEdit);
     const QDateTimeEditPrivate::Section s = (QDateTimeEditPrivate::Section)section;
@@ -612,7 +612,7 @@ void QDateTimeEdit::setCurrentSection(Section section, int index)
         return;
 
     d->updateCache(d->value, d->edit->displayText());
-    const int sectionIndex = d->absoluteIndex(s, index);
+    const int sectionIndex = d->absoluteIndex(s, 0);
     if (sectionIndex >= 0 && sectionIndex < d->sectionNodes.size()) {
         d->edit->setCursorPosition(d->sectionPos(sectionIndex));
     }
@@ -628,7 +628,7 @@ void QDateTimeEdit::setCurrentSection(Section section, int index)
   \sa currentSection()
 */
 
-QString QDateTimeEdit::sectionText(Section section, int index) const
+QString QDateTimeEdit::sectionText(Section section) const
 {
     Q_D(const QDateTimeEdit);
     const QDateTimeEditPrivate::Section s = (QDateTimeEditPrivate::Section)section;
@@ -636,7 +636,7 @@ QString QDateTimeEdit::sectionText(Section section, int index) const
         return QString();
 
     d->updateCache(d->value, d->edit->displayText());
-    const int sectionIndex = d->absoluteIndex(s, index);
+    const int sectionIndex = d->absoluteIndex(s, 0);
 
     return d->sectionText(d->edit->displayText(), sectionIndex, d->sectionPos(sectionIndex));
 }
