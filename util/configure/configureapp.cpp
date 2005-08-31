@@ -829,9 +829,9 @@ bool Configure::displayHelp()
 	            "[-no-accessibility] [-accessibility] [-no-rtti] [-rtti]\n"
 	            "[-no-stl] [-stl] [-no-sql-<driver>] [-qt-sql-<driver>]\n"
 	            "[-plugin-sql-<driver>] [-arch <arch>] [-platform <spec>]\n"
-	            "[-qconfig <local>] [-D <define>] [-I <includepath>]\n"
-                    "[-L <librarypath>] [-help] [-no-dsp] [-dsp] [-no-vcproj]\n"
-                    "[-vcproj] [-no-qmake] [-qmake] [-dont-process] [-process]\n"
+	            "[-D <define>] [-I <includepath>] [-L <librarypath>]\n"
+                    "[-help] [-no-dsp] [-dsp] [-no-vcproj] [-vcproj]\n"
+                    "[-no-qmake] [-qmake] [-dont-process] [-process]\n"
                     "[-no-style-<style>] [-qt-style-<style>] [-redo]\n"
                     "[-saveconfig <config>] [-loadconfig <config>] [-no-zlib]\n"
                     "[-qt-zlib] [-system-zlib] [-no-gif] [-qt-gif] [-no-libpng]\n"
@@ -972,10 +972,13 @@ bool Configure::displayHelp()
         desc("STYLE_MOTIF", "yes", "",                  "  motif", ' ');
         desc("STYLE_CDE", "yes", "",                    "  cde\n", ' ');
 
+/*      We do not support -qconfig on Windows yet
+
         desc(                   "-qconfig <local>",     "Use src/tools/qconfig-local.h rather than the default.\nPossible values for local:");
 	for (int i=0; i<allConfigs.size(); ++i)
 	    desc(               "",                     qPrintable(QString("  %1").arg(allConfigs.at(i))), false, ' ');
         printf("\n");
+*/
 #endif
         desc(                   "-loadconfig <config>", "Run configure with the parameters from file configure_<config>.cache.");
         desc(                   "-saveconfig <config>", "Run configure and save the parameters in file configure_<config>.cache.");
