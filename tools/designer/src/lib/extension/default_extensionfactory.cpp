@@ -72,15 +72,13 @@
         QObject *AGeneralExtensionFactory::createExtension(QObject *object,
                 const QString &iid, QObject *parent) const
         {
-            if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
-                if (MyCustomWidget *widget = qobject_cast<MyCustomWidget*>
-                        (object))
-                    return new MyTaskMenuExtension(widget, parent);
+            MyCustomWidget *widget = qobject_cast<MyCustomWidget*>(object);
 
-            } else if (iid == Q_TYPEID(QDesignerContainerExtension)) {
-                if (MyCustomWidget *widget = qobject_cast<MyCustomWidget*>
-                        (object))
-                    return new MyContainerExtension(widget, parent);
+            if (widget && (iid == Q_TYPEID(QDesignerTaskMenuExtension))) {
+                return new MyTaskMenuExtension(widget, parent);
+
+            } else if (widget && (iid == Q_TYPEID(QDesignerContainerExtension))) {
+                return new MyContainerExtension(widget, parent);
 
             } else {
                 return 0;
