@@ -313,7 +313,7 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
             if (margin != INT_MIN) {
                 QString value = QString::number(margin);
-                if (!m_marginFunction.isEmpty() && spacing == m_defaultMargin)
+                if (!m_marginFunction.isEmpty() && margin == m_defaultMargin)
                     value = m_marginFunction + QLatin1String("()");
 
                 output << option.indent << parent << "->layout()->setMargin(" << margin << ");\n";
@@ -368,7 +368,7 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
         if (margin != INT_MIN) {
             QString value = QString::number(margin);
-            if (!m_marginFunction.isEmpty() && spacing == m_defaultMargin)
+            if (!m_marginFunction.isEmpty() && margin == m_defaultMargin)
                 value = m_marginFunction + QLatin1String("()");
 
             output << option.indent << varName << "->setMargin(" << margin << ");\n";
