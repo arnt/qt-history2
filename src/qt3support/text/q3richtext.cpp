@@ -3131,6 +3131,7 @@ void Q3TextDocument::doLayout(QPainter *p, int w)
     withoutDoubleBuffer = (p != 0);
     QPainter * oldPainter = Q3TextFormat::painter();
     Q3TextFormat::setPainter(p);
+    tStopWidth = formatCollection()->defaultFormat()->width( 'x' ) * 8;
     flow_->setWidth(w);
     cw = w;
     vw = w;
