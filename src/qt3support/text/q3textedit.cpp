@@ -1509,6 +1509,8 @@ void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
 
     if (hasSelectedText())
         removeSelectedText();
+    clearUndoRedo();
+    undoRedoInfo.type = UndoRedoInfo::IME;
 
     bool oldupdate = updatesEnabled();
     if (oldupdate)
@@ -1532,37 +1534,47 @@ void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
         cursor->setIndex(cursor->index() + e->replacementLength());
         doc->setSelectionEnd(Q3TextDocument::Standard, *cursor);
         removeSelectedText();
+	if (undoRedoInfo.type == UndoRedoInfo::IME)
+	    undoRedoInfo.type = UndoRedoInfo::Invalid;
         insert(e->commitString());
+	undoRedoInfo.type = UndoRedoInfo::IME;
         cursor->setIndex(c);
     }
 
     if (!e->preeditString().isEmpty()) {
         d->preeditStart = cursor->index();
         d->preeditLength = e->preeditString().length();
-        insert(e->preeditString());
-        cursor->setIndex(d->preeditStart);
+	insert(e->preeditString());
+	// insert can trigger an imEnd event as it emits a textChanged signal, so better
+	// be careful
+	if(d->preeditStart != -1) { 
+	    cursor->setIndex(d->preeditStart);
 
-        Q3TextCursor c = *cursor;
-        for (int i = 0; i < e->attributes().size(); ++i) {
-            const QInputMethodEvent::Attribute &a = e->attributes().at(i);
-            if (a.type == QInputMethodEvent::Cursor)
-                cursor->setIndex(cursor->index() + a.start);
-            else if (a.type != QInputMethodEvent::TextFormat)
-                continue;
-            QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
-            if (f.isValid()) {
-                Q3TextCursor c2 = c;
-                c2.setIndex(c.index() + a.start);
-                doc->setSelectionStart(preeditSelectionBase + d->numPreeditSelections, c2);
-                c2.setIndex(c.index() + a.start + a.length);
-                doc->setSelectionEnd(preeditSelectionBase + d->numPreeditSelections, c2);
+	    Q3TextCursor c = *cursor;
+	    for (int i = 0; i < e->attributes().size(); ++i) {
+		const QInputMethodEvent::Attribute &a = e->attributes().at(i);
+		if (a.type == QInputMethodEvent::Cursor)
+		    cursor->setIndex(cursor->index() + a.start);
+		else if (a.type != QInputMethodEvent::TextFormat)
+		    continue;
+		QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
+		if (f.isValid()) {
+		    Q3TextCursor c2 = c;
+		    c2.setIndex(c.index() + a.start);
+		    doc->setSelectionStart(preeditSelectionBase + d->numPreeditSelections, c2);
+		    c2.setIndex(c.index() + a.start + a.length);
+		    doc->setSelectionEnd(preeditSelectionBase + d->numPreeditSelections, c2);
 
-                doc->setSelectionColor(preeditSelectionBase + d->numPreeditSelections, f.background().color());
-                doc->setSelectionTextColor(preeditSelectionBase + d->numPreeditSelections, f.foreground().color());
-                ++d->numPreeditSelections;
-            }
-        }
+		    doc->setSelectionColor(preeditSelectionBase + d->numPreeditSelections, f.background().color());
+		    doc->setSelectionTextColor(preeditSelectionBase + d->numPreeditSelections, f.foreground().color());
+		    ++d->numPreeditSelections;
+		}
+	    }
+	}
+    } else {
+	undoRedoInfo.type = UndoRedoInfo::Invalid;
     }
+
     if (oldupdate)
         setUpdatesEnabled(true);
     repaintChanged();
@@ -2877,7 +2889,7 @@ void Q3TextEdit::insert(const QString &text, uint insertionFlags)
     Q3TextCursor c2 = *cursor;
     int oldLen = 0;
 
-    if (undoEnabled && !isReadOnly()) {
+    if ( undoEnabled && !isReadOnly() && undoRedoInfo.type != UndoRedoInfo::IME ) {
         checkUndoRedoInfo(UndoRedoInfo::Insert);
 
         // If we are inserting at the end of the previous insertion, we keep this in
@@ -2913,7 +2925,7 @@ void Q3TextEdit::insert(const QString &text, uint insertionFlags)
     ensureCursorVisible();
     drawCursor(true);
 
-    if (undoEnabled && !isReadOnly()) {
+    if ( undoEnabled && !isReadOnly() && undoRedoInfo.type != UndoRedoInfo::IME ) {
         undoRedoInfo.d->text += txt;
         if (!doc->preProcessor()) {
             for (int i = 0; i < (int)txt.length(); ++i) {

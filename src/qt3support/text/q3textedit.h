@@ -437,7 +437,7 @@ private slots:
 
 private:
     struct Q_COMPAT_EXPORT UndoRedoInfo {
-        enum Type { Invalid, Insert, Delete, Backspace, Return, RemoveSelected, Format, Style };
+        enum Type { Invalid, Insert, Delete, Backspace, Return, RemoveSelected, Format, Style, IME };
 
         UndoRedoInfo(Q3TextDocument *dc);
         ~UndoRedoInfo();
