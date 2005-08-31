@@ -126,15 +126,13 @@
         QObject *AGeneralExtensionFactory::createExtension(QObject *object,
                 const QString &iid, QObject *parent) const
         {
-            if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
-                if (MyCustomWidget *widget = qobject_cast<MyCustomWidget*>
-                        (object))
-                    return new MyTaskMenuExtension(widget, parent);
+            MyCustomWidget *widget = qobject_cast<MyCustomWidget*>(object);
 
-            } else if (iid == Q_TYPEID(QDesignerMemberSheetExtension)) {
-                if (MyCustomWidget *widget = qobject_cast<MyCustomWidget*>
-                        (object))
-                    return new MyMemberSheetExtension(widget, parent);
+            if (widget && (iid == Q_TYPEID(QDesignerTaskMenuExtension))) {
+                return new MyTaskMenuExtension(widget, parent);
+
+            } else if (widget && (iid == Q_TYPEID(QDesignerMemberSheetExtension))) {
+                return new MyMemberSheetExtension(widget, parent);
 
             } else {
                 return 0;
@@ -513,15 +511,13 @@
         QObject *AGeneralExtensionFactory::createExtension(QObject *object,
                 const QString &iid, QObject *parent) const
         {
-            if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
-                if (MyCustomWidget *widget = qobject_cast<MyCustomWidget*>
-                        (object))
-                    return new MyTaskMenuExtension(widget, parent);
+            MyCustomWidget *widget = qobject_cast<MyCustomWidget*>(object);
 
-            } else if (iid == Q_TYPEID(QDesignerContainerExtension)) {
-                if (MyCustomWidget *widget = qobject_cast<MyCustomWidget*>
-                        (object))
-                    return new MyContainerExtension(widget, parent);
+            if (widget && (iid == Q_TYPEID(QDesignerTaskMenuExtension))) {
+                return new MyTaskMenuExtension(widget, parent);
+
+            } else if (widget && (iid == Q_TYPEID(QDesignerContainerExtension))) {
+                return new MyContainerExtension(widget, parent);
 
             } else {
                 return 0;
@@ -718,15 +714,13 @@
         QObject *AGeneralExtensionFactory::createExtension(QObject *object,
                 const QString &iid, QObject *parent) const
         {
-            if (iid == Q_TYPEID(QDesignerContainerExtension)) {
-                if (MyCustomWidget *widget = qobject_cast<MyCustomWidget*>
-                        (object))
-                    return new MyContainerExtension(widget, parent);
+            MyCustomWidget *widget = qobject_cast<MyCustomWidget*>(object);
 
-            } else if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
-                if (MyCustomWidget *widget = qobject_cast<MyCustomWidget*>
-                        (object))
-                    return new MyTaskMenuExtension(widget, parent);
+            if (widget && (iid == Q_TYPEID(QDesignerContainerExtension))) {
+                return new MyContainerExtension(widget, parent);
+
+            } else if (widget && (iid == Q_TYPEID(QDesignerTaskMenuExtension))) {
+                return new MyTaskMenuExtension(widget, parent);
 
             } else {
                 return 0;
@@ -773,21 +767,91 @@
 
 /*!
     \class QDesignerCustomWidgetCollectionInterface
-    \brief The QDesignerCustomWidgetCollectionInterface class provides an interface that is used
-    to manage collections of custom widgets in \QD.
+
+    \brief The QDesignerCustomWidgetCollectionInterface class allows
+    you to include several custom widgets in one single library.
+
     \inmodule QtDesigner
+
+    When implementing a custom widget plugin, you build it as a
+    separate library. If you want to include several custom widget
+    plugins in the same library, you must in addition subclass
+    QDesignerCustomWidgetCollectionInterface.
+
+    For example, if you have several custom widgets \c
+    CustomWidgetOne, \c CustomWidgetTwo and \c CustomWidgetThree, the
+    class definition may look like this:
+
+    \code
+    #include customwidgetoneinterface.h
+    #include customwidgettwointerface.h
+    #include customwidgetthreeinterface.h
+
+    #include <QtDesigner/QtDesigner>
+    #include <QtCore/qplugin.h>
+
+    class MyCustomWidgets: public QObject, public QDesignerCustomWidgetCollectionInterface
+    {
+        Q_OBJECT
+        Q_INTERFACES(QDesignerCustomWidgetCollectionInterface)
+
+    public:
+        MyCustomWidgets(QObject *parent = 0);
+
+        virtual QList<QDesignerCustomWidgetInterface*> customWidgets() const;
+
+    private:
+        QList<QDesignerCustomWidgetInterface*> widgets;
+    };
+    \endcode
+
+    In the class constructor you add the interfaces to your custom
+    widgets to the list which you return in the customWidgets()
+    function:
+
+    \code
+    MyCustomWidgets::MyCustomWidgets(QObject *parent)
+            : QObject(parent)
+    {
+        widgets.append(new CustomWidgetOneInterface(this));
+        widgets.append(new CustomWidgetTwoInterface(this));
+        widgets.append(new CustomWidgetThreeInterface(this));
+    }
+
+    QList<QDesignerCustomWidgetInterface*> MyCustomWidgets::customWidgets() const
+    {
+        return widgets;
+    }
+
+    Q_EXPORT_PLUGIN(MyCustomWidgets)
+    \endcode
+
+    Instead of exporting each custom widget plugin using the
+    Q_EXPORT_PLUGIN() macro, you export the entire collection. The
+    Q_EXPORT_PLUGIN() macro ensures that \QD can access and construct
+    the custom widgets. Without this macro, there is no way for \QD to
+    use them.
+
+    QDesignerCustomWidgetCollectionInterface contains one single
+    function returning a list of the collection's
+    QDesignerCustomWidgetInterface objects. Qt Designer uses the
+    interface to manage the collection of custom widgets as one single
+    library in its workspace.
+
+    \sa QDesignerCustomWidgetInterface, {Creating Custom Widgets for
+    Qt Designer}
 */
 
 /*!
     \fn QDesignerCustomWidgetCollectionInterface::~QDesignerCustomWidgetCollectionInterface() {
 
-    Destroys the interface.
+    Destroys the custom widget collection interface.
 */
 
 /*!
     \fn QList<QDesignerCustomWidgetInterface*> QDesignerCustomWidgetCollectionInterface::customWidgets() const
 
-    Returns a list of interfaces to the custom widgets in the container.
+    Returns a list of interfaces to the collection's custom widgets.
 */
 
 
@@ -795,11 +859,80 @@
 
 /*!
     \class QDesignerCustomWidgetInterface
-    \brief The QDesignerCustomWidgetInterface class provides an interface to a custom widget in
-    \QD.
+
+    \brief The QDesignerCustomWidgetInterface class enables Qt Designer
+    to access and construct a custom widget.
+
     \inmodule QtDesigner
 
-    \sa {Creating Custom Widgets for Qt Designer}
+    QDesignerCustomWidgetInterface provides a custom widget with an
+    interface. The class contains a set of functions that gives \QD
+    the basic information about the widget, such as its class name and
+    its include file. Furthermore the interface is able to create
+    instances of the custom widget, and it defines the initialize()
+    function which is called after the custom widget plugin is loaded
+    into Qt Designer. This latter function's
+    QDesignerFormWindowInterface parameter provides the plugin with a
+    gateway to all of Qt Designer's API's.
+
+    When implementing a custom widget you must subclass
+    QDesignerCustomWidgetInterface to expose your widget to \QD. For
+    example:
+
+    \code
+    class MyCustomWidgetPlugin : public QObject, public QDesignerCustomWidgetInterface
+    {
+        Q_OBJECT
+        Q_INTERFACES(QDesignerCustomWidgetInterface)
+
+    public:
+        MyCustomWidgetPlugin(QObject *parent = 0);
+
+        bool isContainer() const;
+        bool isInitialized() const;
+        QIcon icon() const;
+        QString codeTemplate() const;
+        QString domXml() const;
+        QString group() const;
+        QString includeFile() const;
+        QString name() const;
+        QString toolTip() const;
+        QString whatsThis() const;
+        QWidget *createWidget(QWidget *parent);
+        void initialize(QDesignerFormEditorInterface *core);
+
+    private:
+        bool initialized;
+    };
+    \endcode
+
+    Note that the only part of the class definition that is specific
+    to this particular custom widget is the class name. In addition,
+    since we are implementing an interface, we must ensure that it's
+    made known to the meta object system using the Q_INTERFACES()
+    macro. This enables \QD to use the qobject_cast() function to
+    query for supported interfaces using nothing but a QObject
+    pointer.
+
+    In the implementation of the class you must remember to export
+    your custom widget plugin to \QD using the Q_EXPORT_PLUGIN()
+    macro:
+
+    \code
+     Q_EXPORT_PLUGIN(MyCustomWidget)
+    \endcode
+
+    This macro ensures that Qt Designer can access and construct the
+    custom widget. Without this macro, there is no way for Qt
+    Designer to use it.
+
+    For a complete example using the QDesignerCustomWidgetInterface
+    class, see the \l {designer/customwidgetplugin}{Custom Widget
+    Example}. The example shows how to create a custom widget plugin
+    for Qt Designer.
+
+    \sa QDesignerCustomWidgetCollectionInterface {Creating Custom
+    Widgets for Qt Designer}
 */
 
 /*!
@@ -823,58 +956,64 @@
 /*!
     \fn QString QDesignerCustomWidgetInterface::toolTip() const
 
-    Returns a short description of the widget that can be used by \QD in a tool tip.
+    Returns a short description of the widget that can be used by \QD
+    in a tool tip.
 */
 
 /*!
     \fn QString QDesignerCustomWidgetInterface::whatsThis() const
 
-    Returns a description of the widget that can be used by \QD in "What's This?" help for the
-    widget.
+    Returns a description of the widget that can be used by \QD in
+    "What's This?" help for the widget.
 */
 
 /*!
     \fn QString QDesignerCustomWidgetInterface::includeFile() const
 
-    Returns the path to the include file that \l uic uses when creating code for the custom
-    widget.
+    Returns the path to the include file that \l uic uses when
+    creating code for the custom widget.
 */
 
 /*!
     \fn QIcon QDesignerCustomWidgetInterface::icon() const
 
-    Returns the icon used to represent the custom widget in \QD's widget box.
+    Returns the icon used to represent the custom widget in \QD's
+    widget box.
 */
 
 /*!
     \fn bool QDesignerCustomWidgetInterface::isContainer() const
 
-    Returns true if the custom widget is intended to be used as a container; otherwise returns
-    false.
+    Returns true if the custom widget is intended to be used as a
+    container; otherwise returns false.
 
-    Most custom widgets are not used to hold other widgets, so their implementations of this
-    function will return false, but custom containers will return true to ensure that they
-    behave correctly in \QD.
+    Most custom widgets are not used to hold other widgets, so their
+    implementations of this function will return false, but custom
+    containers will return true to ensure that they behave correctly
+    in \QD.
 */
 
 /*!
     \fn QWidget *QDesignerCustomWidgetInterface::createWidget(QWidget *parent)
 
-    Returns a new widget with the given \a parent.
+    Returns a new instance of the custom widget, with the given \a
+    parent.
 */
 
 /*!
     \fn bool QDesignerCustomWidgetInterface::isInitialized() const
 
-    Returns true if the widget has been initialized; otherwise returns false.
+    Returns true if the widget has been initialized; otherwise returns
+    false.
 
     \sa initialize()
 */
 
 /*!
-    \fn void QDesignerCustomWidgetInterface::initialize(QDesignerFormEditorInterface *core)
+    \fn void QDesignerCustomWidgetInterface::initialize(QDesignerFormEditorInterface *formEditor)
 
-    Initializes the widget for use with the form editor with the specified \a core interface.
+    Initializes the widget for use with the specified \a formEditor
+    interface.
 
     \sa isInitialized()
 */
@@ -882,16 +1021,18 @@
 /*!
     \fn QString QDesignerCustomWidgetInterface::domXml() const
 
-    Returns the XML that is used to describe widget properties to \QD.
+    Returns the XML that is used to describe the custom widget's
+    properties to \QD.
 */
 
 /*!
     \fn QString QDesignerCustomWidgetInterface::codeTemplate() const
 
-    Returns the code template that \QD includes in forms that contain the custom widget when
-    they are saved.
+    Returns the code template that \QD includes in forms that contain
+    the custom widget when they are saved.
 
-    \l uic uses the code template to provide code for constructing the custom widget.
+    \l uic uses the code template to provide code for constructing the
+    custom widget.
 */
 
 
@@ -1185,15 +1326,13 @@
         QObject *AGeneralExtensionFactory::createExtension(QObject *object,
                 const QString &iid, QObject *parent) const
         {
-            if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
-                if (MyCustomWidget *widget = qobject_cast<MyCustomWidget*>
-                        (object))
-                    return new MyTaskMenuExtension(widget, parent);
+            MyCustomWidget *widget = qobject_cast<MyCustomWidget*>(object);
 
-            } else if (iid == Q_TYPEID(QDesignerPropertySheetExtension)) {
-                if (MyCustomWidget *widget = qobject_cast<MyCustomWidget*>
-                        (object))
-                    return new MyPropertySheetExtension(widget, parent);
+            if (widget && (iid == Q_TYPEID(QDesignerTaskMenuExtension))) {
+                return new MyTaskMenuExtension(widget, parent);
+
+            } else if (widget && (iid == Q_TYPEID(QDesignerPropertySheetExtension))) {
+                return new MyPropertySheetExtension(widget, parent);
 
             } else {
                 return 0;
