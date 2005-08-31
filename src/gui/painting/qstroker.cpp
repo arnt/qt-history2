@@ -760,6 +760,10 @@ QPointF qt_curves_for_arc(const QRectF &rect, qreal startAngle, qreal sweepLengt
 
     QPointF first_point;
 
+    if (iterations == 0)
+        first_point = rect.center() + QPointF(a * qCos(ANGLE(startAngle)),
+                                              -b * qSin(ANGLE(startAngle)));
+
     for (int i=0; i<iterations; ++i) {
         qreal cangle = startAngle + i * clength;
 
