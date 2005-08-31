@@ -332,7 +332,7 @@ static QString nativeAbsoluteFilePath(const QString &path)
     QVarLengthArray<wchar_t, MAX_PATH> buf(MAX_PATH);
     wchar_t *fileName = 0;
     DWORD retLen = GetFullPathNameW((wchar_t*)path.utf16(), buf.size(), buf.data(), &fileName);
-    if (retLen > buf.size()) {
+    if (retLen > (DWORD)buf.size()) {
         buf.resize(retLen);
         retLen = GetFullPathNameW((wchar_t*)path.utf16(), buf.size(), buf.data(), &fileName);
     }
@@ -451,7 +451,6 @@ bool QFSFileEngine::rename(const QString &newName)
 qint64 QFSFileEngine::size() const
 {
     Q_D(const QFSFileEngine);
-    int ret = 0;
     if(d->fd != -1) {
         HANDLE fh = (HANDLE)_get_osfhandle(d->fd);
         if (fh != INVALID_HANDLE_VALUE) {

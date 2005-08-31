@@ -71,6 +71,7 @@ Q_CORE_EXPORT QString qAppName()                        // get application name
 
 Q_CORE_EXPORT void qWinMsgHandler(QtMsgType t, const char* str)
 {
+    Q_UNUSED(t);
     // OutputDebugString is not threadsafe.
     static QMutex staticMutex;
 
