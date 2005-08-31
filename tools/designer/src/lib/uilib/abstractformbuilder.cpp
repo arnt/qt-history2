@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "abstractformbuilder.h"
-#include <QtDesigner/ui4.h>
+#include "ui4.h"
 
 #include <QtCore/QVariant>
 #include <QtCore/QMetaProperty>
@@ -45,6 +45,38 @@
 #include <QtCore/qdebug.h>
 
 #include <limits.h>
+
+#ifdef QFORMINTERNAL_NAMESPACE
+using namespace QFormInternal;
+#endif
+
+class QFriendlyLayout: public QLayout
+{
+public:
+    inline QFriendlyLayout() { Q_ASSERT(0); }
+
+#ifdef QFORMINTERNAL_NAMESPACE
+    friend class QFormInternal::QAbstractFormBuilder;
+#else
+    friend class QAbstractFormBuilder;
+#endif
+};
+
+class QAbstractFormBuilderGadget: public QWidget
+{
+    Q_OBJECT
+    Q_PROPERTY(Qt::Orientation orientation READ fakeOrientation)
+    Q_PROPERTY(QSizePolicy::Policy sizeType READ fakeSizeType)
+    Q_PROPERTY(QPalette::ColorRole colorRole READ fakeColorRole)
+    Q_PROPERTY(QPalette::ColorGroup colorGroup READ fakeColorGroup)
+public:
+    QAbstractFormBuilderGadget() { Q_ASSERT(0); }
+
+    Qt::Orientation fakeOrientation() const     { Q_ASSERT(0); return Qt::Horizontal; }
+    QSizePolicy::Policy fakeSizeType() const    { Q_ASSERT(0); return QSizePolicy::Expanding; }
+    QPalette::ColorGroup fakeColorGroup() const { Q_ASSERT(0); return static_cast<QPalette::ColorGroup>(0); }
+    QPalette::ColorRole fakeColorRole() const   { Q_ASSERT(0); return static_cast<QPalette::ColorRole>(0); }
+};
 
 #ifdef Q_WS_MAC
 static struct {
@@ -214,29 +246,6 @@ static QString platformNeutralKeySequence(const QKeySequence &ks)
 }
 #endif
 
-class FriendlyLayout: public QLayout
-{
-public:
-    inline FriendlyLayout() { Q_ASSERT(0); }
-
-    friend class QAbstractFormBuilder;
-};
-
-class QAbstractFormBuilderGadget: public QWidget
-{
-    Q_OBJECT
-    Q_PROPERTY(Qt::Orientation orientation READ fakeOrientation)
-    Q_PROPERTY(QSizePolicy::Policy sizeType READ fakeSizeType)
-    Q_PROPERTY(QPalette::ColorRole colorRole READ fakeColorRole)
-    Q_PROPERTY(QPalette::ColorGroup colorGroup READ fakeColorGroup)
-public:
-    QAbstractFormBuilderGadget() { Q_ASSERT(0); }
-
-    Qt::Orientation fakeOrientation() const     { Q_ASSERT(0); return Qt::Horizontal; }
-    QSizePolicy::Policy fakeSizeType() const    { Q_ASSERT(0); return QSizePolicy::Expanding; }
-    QPalette::ColorGroup fakeColorGroup() const { Q_ASSERT(0); return static_cast<QPalette::ColorGroup>(0); }
-    QPalette::ColorRole fakeColorRole() const   { Q_ASSERT(0); return static_cast<QPalette::ColorRole>(0); }
-};
 
 /*!
     \class QAbstractFormBuilder
@@ -559,9 +568,9 @@ QLayout *QAbstractFormBuilder::create(DomLayout *ui_layout, QLayout *parentLayou
 bool QAbstractFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)
 {
     if (item->widget()) {
-        static_cast<FriendlyLayout*>(layout)->addChildWidget(item->widget());
+        static_cast<QFriendlyLayout*>(layout)->addChildWidget(item->widget());
     } else if (item->layout()) {
-        static_cast<FriendlyLayout*>(layout)->addChildLayout(item->layout());
+        static_cast<QFriendlyLayout*>(layout)->addChildLayout(item->layout());
     } else if (item->spacerItem()) {
         // nothing to do
     } else {

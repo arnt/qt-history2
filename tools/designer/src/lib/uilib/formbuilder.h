@@ -22,6 +22,11 @@
 
 class QDesignerCustomWidgetInterface;
 
+#ifdef QFORMINTERNAL_NAMESPACE
+namespace QFormInternal
+{
+#endif
+
 class QT_UILIB_EXPORT QFormBuilder: public QAbstractFormBuilder
 {
 public:
@@ -59,5 +64,9 @@ private:
     QStringList m_pluginPaths;
     QMap<QString, QDesignerCustomWidgetInterface*> m_customWidgets;
 };
+
+#ifdef QFORMINTERNAL_NAMESPACE
+}
+#endif
 
 #endif // QDESIGNERFORMBUILDER_H

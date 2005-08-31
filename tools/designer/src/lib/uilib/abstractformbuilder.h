@@ -23,35 +23,40 @@
 #include <QtGui/QSizePolicy>
 #include <QtGui/QPalette>
 
-class QIcon;
-class QObject;
-class QVariant;
-class QWidget;
-class QListWidget;
-class QTreeWidget;
-class QComboBox;
-class QLayout;
-class QLayoutItem;
-class QSpacerItem;
-class QIODevice;
 class QAction;
 class QActionGroup;
+class QComboBox;
+class QIODevice;
+class QIcon;
+class QLayout;
+class QLayoutItem;
+class QListWidget;
+class QObject;
+class QSpacerItem;
+class QTreeWidget;
+class QVariant;
+class QWidget;
 
-class DomUI;
-class DomWidget;
-class DomLayout;
-class DomLayoutItem;
-class DomProperty;
-class DomColorGroup;
-class DomSpacer;
-class DomString;
-class DomTabStops;
-class DomConnections;
-class DomCustomWidgets;
+#ifdef QFORMINTERNAL_NAMESPACE
+namespace QFormInternal
+{
+#endif
+
 class DomAction;
 class DomActionGroup;
 class DomActionRef;
+class DomColorGroup;
+class DomConnections;
+class DomCustomWidgets;
+class DomLayout;
+class DomLayoutItem;
+class DomProperty;
 class DomResources;
+class DomSpacer;
+class DomString;
+class DomTabStops;
+class DomUI;
+class DomWidget;
 
 class QT_UILIB_EXPORT QAbstractFormBuilder
 {
@@ -162,5 +167,9 @@ private:
     QAbstractFormBuilder(const QAbstractFormBuilder &other);
     void operator = (const QAbstractFormBuilder &other);
 };
+
+#ifdef QFORMINTERNAL_NAMESPACE
+}
+#endif
 
 #endif // QABSTRACTFORMBUILDER_H

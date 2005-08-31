@@ -33,6 +33,12 @@ class QDomElement;
 #    define QT_UI4_EXPORT
 #endif
 
+#ifdef QFORMINTERNAL_NAMESPACE
+namespace QFormInternal
+{
+#endif
+
+
 /*******************************************************************************
 ** Forward declarations
 */
@@ -1925,6 +1931,11 @@ private:
     DomConnectionHint(const DomConnectionHint &other);
     void operator = (const DomConnectionHint&other);
 };
+
+#ifdef QFORMINTERNAL_NAMESPACE
+}
+#endif
+
 
 #endif // UI4_H
 

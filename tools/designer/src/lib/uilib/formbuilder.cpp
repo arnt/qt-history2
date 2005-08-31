@@ -17,6 +17,11 @@
 
 #include <QtGui/QtGui>
 
+#ifdef QFORMINTERNAL_NAMESPACE
+using namespace QFormInternal;
+#endif
+
+
 /*!
     \class QFormBuilder
     \brief The QFormBuilder class is used to dynamically construct user interfaces from .ui files at run-time.

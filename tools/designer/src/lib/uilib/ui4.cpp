@@ -10,8 +10,12 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include <QtDesigner/ui4.h>
+#include "ui4.h"
 #include <QtXml/QDomDocument>
+
+#ifdef QFORMINTERNAL_NAMESPACE
+using namespace QFormInternal;
+#endif
 
 /*******************************************************************************
 ** Implementations
