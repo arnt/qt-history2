@@ -2990,7 +2990,7 @@ QRect QMacStylePrivate::HIThemeSubControlRect(QStyle::ComplexControl cc,
             HIThemeGetButtonContentBounds(&hirect, &bdi, &outrect);
             ret = qt_qrectForHIRect(outrect);
             if (combo->editable) {
-                ret.adjust(-5, 2, 8, -3);
+                ret.adjust(-6, 2, 10, -1);
             } else {
                 ret.adjust(0, -1, 0, 0);
             }
@@ -4565,8 +4565,9 @@ QRect QMacStylePrivate::AppManSubControlRect(QStyle::ComplexControl cc,
                                             kThemeAdornmentNone };
                 GetThemeButtonContentBounds(&macRect, kThemePopupButton, &bdi, &outRect);
                 if (combo->editable) {
-                    ret.setRect(outRect.left - 6, outRect.top + 2, (outRect.right - outRect.left) + 10,
-                                (outRect.bottom - outRect.top) - 3);
+                    ret.setRect(outRect.left - 5, outRect.top + 0,
+                                (outRect.right - outRect.left) + 14,
+                                (outRect.bottom - outRect.top) - 1);
                 } else {
                     ret.setRect(outRect.left, outRect.top - 1, outRect.right - outRect.left,
                                 outRect.bottom - outRect.top);
@@ -4807,12 +4808,6 @@ void QMacStyle::unpolish(QApplication *)
 /*! \reimp */
 void QMacStyle::polish(QWidget* w)
 {
-    if (QLineEdit *lined = qobject_cast<QLineEdit*>(w)) {
-        if (qobject_cast<QComboBox*>(lined->parentWidget())
-                && !lined->testAttribute(Qt::WA_SetFont))
-            lined->setFont(qt_app_fonts_hash()->value("QComboLineEdit"));
-    }
-
     if (d->useHITheme)
         d->HIThemePolish(w);
     else
@@ -5966,7 +5961,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     if (ct == QStyle::CT_PushButton || ct == QStyle::CT_ToolButton || ct == QStyle::CT_ComboBox) {
         if (const QStyleOptionComboBox *combo = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             if (combo->editable) {
-                sz.rheight() += 1;
+                sz.rheight() += 4;
                 return sz;
             }
         }
