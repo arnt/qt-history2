@@ -17,7 +17,7 @@
 #ifdef Q_WS_X11
 #include <GL/glx.h>
 
-#ifndef GLXPbuffer
+#ifndef GLX_VERSION_1_3
 typedef XID GLXPbuffer;
 #endif
 

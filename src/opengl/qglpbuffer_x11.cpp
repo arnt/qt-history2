@@ -29,6 +29,16 @@ const char *glXGetClientString(Display *, int) { return 0; }
 #endif
 
 #ifndef GLX_VERSION_1_3
+#define GLX_RENDER_TYPE         0x00000001
+#define GLX_RGBA_BIT            0x00000002
+#define GLX_PBUFFER_BIT         0x00000004
+#define GLX_DRAWABLE_TYPE       0x8010
+#define GLX_RGBA_TYPE           0x8014
+#define GLX_PBUFFER_HEIGHT      0x8040
+#define GLX_PBUFFER_WIDTH       0x8041
+typedef XID GLXWindow;
+typedef void* GLXFBConfig;
+
 GLXFBConfig *glXChooseFBConfig(Display *, int, const int *, int *) { return 0; }
 GLXContext glXCreateNewContext(Display *, GLXFBConfig, int, GLXContext, Bool) { return 0; }
 GLXPbuffer glXCreatePbuffer(Display *, GLXFBConfig, const int *) { return 0; }
