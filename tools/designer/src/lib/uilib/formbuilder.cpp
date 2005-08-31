@@ -11,7 +11,10 @@
 **
 ****************************************************************************/
 
-#include <QtDesigner/QtDesigner>
+#include "customwidget.h"
+#include "formbuilder.h"
+#include "ui4.h"
+
 #include <QtGui/QtGui>
 
 /*!

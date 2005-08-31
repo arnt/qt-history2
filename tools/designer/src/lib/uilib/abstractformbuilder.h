@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef RESOURCE_H
-#define RESOURCE_H
+#ifndef QABSTRACTFORMBUILDER_H
+#define QABSTRACTFORMBUILDER_H
 
 #include <QtDesigner/uilib_global.h>
 
@@ -163,4 +163,4 @@ private:
     void operator = (const QAbstractFormBuilder &other);
 };
 
-#endif // RESOURCE_H
+#endif // QABSTRACTFORMBUILDER_H

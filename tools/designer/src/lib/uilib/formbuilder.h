@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef FORMBUILDER_H
-#define FORMBUILDER_H
+#ifndef QDESIGNERFORMBUILDER_H
+#define QDESIGNERFORMBUILDER_H
 
 #include <QtDesigner/uilib_global.h>
 #include <QtDesigner/QAbstractFormBuilder>
@@ -60,4 +60,4 @@ private:
     QMap<QString, QDesignerCustomWidgetInterface*> m_customWidgets;
 };
 
-#endif // FORMBUILDER_H
+#endif // QDESIGNERFORMBUILDER_H
