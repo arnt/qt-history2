@@ -71,9 +71,10 @@ public:
 
 inline bool QBitArray::fill(bool aval, int asize)
 { *this = QBitArray((asize < 0 ? this->size() : asize), aval); return true; }
-QBitArray operator&(const QBitArray &, const QBitArray &);
-QBitArray operator|(const QBitArray &, const QBitArray &);
-QBitArray operator^(const QBitArray &, const QBitArray &);
+
+Q_CORE_EXPORT QBitArray operator&(const QBitArray &, const QBitArray &);
+Q_CORE_EXPORT QBitArray operator|(const QBitArray &, const QBitArray &);
+Q_CORE_EXPORT QBitArray operator^(const QBitArray &, const QBitArray &);
 
 inline bool QBitArray::testBit(int i) const
 { Q_ASSERT(i >= 0 && i < size());
