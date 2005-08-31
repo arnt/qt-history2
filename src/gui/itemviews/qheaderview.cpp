@@ -638,6 +638,9 @@ void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
         d->sections[visual].hidden = true;
     } else if (d->sections.at(visual).hidden) {
         int size = d->hiddenSectionSize.value(logicalIndex);
+        // See autotests for an explanation for the next line (change# 191692 and 191691)
+        // Afterall, unhiding a section should make sure that the size of the section is not 0
+        if (size == 0) size = d->defaultSectionSize;
         d->hiddenSectionSize.remove(logicalIndex);
         d->sections[visual].hidden = false;
         resizeSection(logicalIndex, size);
