@@ -144,39 +144,6 @@ int QHostInfo::lookupHost(const QString &name, QObject *receiver,
 
     qRegisterMetaType<QHostInfo>("QHostInfo");
 
-    // Don't start a thread if we don't have to do any lookup.
-    QHostAddress addr;
-    if (addr.setAddress(name)) {
-        if (!member || !member[0]) {
-            qWarning("QHostInfo::lookupHost() called with invalid slot [%s]", member);
-            return -1;
-        }
-
-        QByteArray arr(member + 1);
-        if (!arr.contains('(')) {
-            qWarning("QHostInfo::lookupHost() called with invalid slot [%s]", member);
-            return -1;
-        }
-
-        QHostInfo info(::qt_qhostinfo_newid());
-        info.setAddresses(QList<QHostAddress>() << addr);
-        arr.resize(arr.indexOf('('));
-
-        // To mimic the same behavior that the lookup would have if it was not
-        // an IP, we need to choose a Qt::QueuedConnection if there is thread support;
-        // otherwise Qt::DirectConnection.
-        if (!QMetaObject::invokeMethod(receiver, arr,
-#if !defined QT_NO_THREAD
-                         Qt::QueuedConnection,
-#else
-                         Qt::DirectConnection,
-#endif
-                         QGenericArgument("QHostInfo", &info))) {
-            qWarning("QHostInfo::lookupHost() called with invalid slot (QMetaObject::invokeMethod failed)");
-        }
-        return info.lookupId();
-    }
-
 #if defined Q_OS_WIN32
     QWindowsSockInit bust; // makes sure WSAStartup was callled
 #endif
@@ -239,14 +206,6 @@ QHostInfo QHostInfo::fromName(const QString &name)
 #if defined QHOSTINFO_DEBUG
     qDebug("QHostInfo::fromName(\"%s\")",name.toLatin1().constData());
 #endif
-
-    // If the address string is an IP address, don't do a lookup.
-    QHostAddress addr;
-    if (addr.setAddress(name)) {
-        QHostInfo info;
-        info.setAddresses(QList<QHostAddress>() << addr);
-        return info;
-    }
 
     // Support for IDNA by first splitting the name into labels, then
     // running the punycode decoder on each part, then merging

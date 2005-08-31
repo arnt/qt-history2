@@ -36,8 +36,29 @@ struct qt_addrinfo
     qt_addrinfo *ai_next;
 };
 
+// sockaddr_in6 size changed between old and new SDK
+// Only the new version is the correct one, so always
+// use this structure.
+struct qt_in6_addr {
+    uchar qt_s6_addr[16];
+};
+
+struct qt_sockaddr_in6 {
+    short   sin6_family;            /* AF_INET6 */
+    u_short sin6_port;              /* Transport level port number */
+    u_long  sin6_flowinfo;          /* IPv6 flow information */
+    struct  qt_in6_addr sin6_addr;  /* IPv6 address */
+    u_long  sin6_scope_id;          /* set of interfaces for a scope */
+};
+
+//###
+#define QT_SOCKLEN_T int
+#define NI_MAXHOST 1024
+
+typedef int (__stdcall *getnameinfoProto)(const sockaddr *, QT_SOCKLEN_T, const char *, DWORD, const char *, DWORD, int);
 typedef int (__stdcall *getaddrinfoProto)(const char *, const char *, const qt_addrinfo *, qt_addrinfo **);
 typedef int (__stdcall *freeaddrinfoProto)(qt_addrinfo *);
+static getnameinfoProto local_getnameinfo = 0;
 static getaddrinfoProto local_getaddrinfo = 0;
 static freeaddrinfoProto local_freeaddrinfo = 0;
 
@@ -73,6 +94,47 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
            (local_getaddrinfo && local_freeaddrinfo) ? "enabled" : "disabled");
 #endif
 
+    QHostAddress address;
+    if (address.setAddress(hostName)) {
+        // Reverse lookup
+        if (local_getnameinfo) {
+            sockaddr_in sa4;
+            qt_sockaddr_in6 sa6;
+            sockaddr *sa;
+            QT_SOCKLEN_T saSize;
+            if (address.isIPv4Address()) {
+                sa = (sockaddr *)&sa4;
+                saSize = sizeof(sa4);
+                memset(&sa4, 0, sizeof(sa4));
+                sa4.sin_family = AF_INET;
+                sa4.sin_addr.s_addr = htonl(address.toIPv4Address());
+            } else {
+                sa = (sockaddr *)&sa6;
+                saSize = sizeof(sa6);
+                memset(&sa6, 0, sizeof(sa6));
+                sa6.sin6_family = AF_INET6;
+                memcpy(sa6.sin6_addr.qt_s6_addr, address.toIPv6Address().c, sizeof(sa6.sin6_addr.qt_s6_addr));
+            }
+
+            char hbuf[NI_MAXHOST];
+            if (local_getnameinfo(sa, saSize, hbuf, sizeof(hbuf), 0, 0, 0) != 0) {
+                results.setError(QHostInfo::HostNotFound);
+                results.setErrorString(tr("Host not found"));
+                return results;
+            }
+            results.setHostName(QString::fromLatin1(hbuf));
+        } else {
+            unsigned long addr = inet_addr(hostName.toLatin1().constData());
+            struct hostent *ent = gethostbyaddr((const char*)&addr, sizeof(addr), AF_INET);
+            if (!ent) {
+                results.setError(QHostInfo::HostNotFound);
+                results.setErrorString(tr("Host not found"));
+                return results;
+            }
+            results.setHostName(QString::fromLatin1(ent->h_name));
+        }
+    }
+
     if (local_getaddrinfo && local_freeaddrinfo) {
         // Call getaddrinfo, and place all IPv4 addresses at the start
         // and the IPv6 addresses at the end of the address list in
@@ -92,7 +154,7 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
                     break;
                 case AF_INET6: {
                     QHostAddress addr;
-		    addr.setAddress(((sockaddr_in6 *) p->ai_addr)->sin6_addr.s6_addr);
+		    addr.setAddress(((qt_sockaddr_in6 *) p->ai_addr)->sin6_addr.qt_s6_addr);
                     if (!addresses.contains(addr))
                         addresses.append(addr);
                 }
