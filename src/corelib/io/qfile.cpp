@@ -73,6 +73,7 @@ QFilePrivate::openExternalFile(int flags, int fd)
 {
     delete fileEngine;
     QFSFileEngine *fe = new QFSFileEngine;
+    fe->setFileName(fileName);
     fileEngine = fe;
     return fe->open(flags, fd);
 }
@@ -82,6 +83,7 @@ QFilePrivate::openExternalFile(int flags, FILE *fh)
 {
     delete fileEngine;
     QBufferedFSFileEngine *fe = new QBufferedFSFileEngine;
+    fe->setFileName(fileName);
     fileEngine = fe;
     return fe->open(flags, fh);
 }
