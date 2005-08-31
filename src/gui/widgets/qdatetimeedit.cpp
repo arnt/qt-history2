@@ -854,7 +854,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
             d->setSelected(newSection, true);
         return; }
     default:
-        inserted = select = !e->text().isEmpty() && e->text().at(0).isPrint() && !(e->state() & ~Qt::ShiftModifier);
+        inserted = select = !e->text().isEmpty() && e->text().at(0).isPrint() && !(e->modifiers() & ~Qt::ShiftModifier);
         break;
     }
     QAbstractSpinBox::keyPressEvent(e);
@@ -1926,7 +1926,7 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
         } else if (i < newFormat.size() && status != quote) {
             const bool last = (i + 1 == newFormat.size());
             const int repeat = qMin(4, countRepeat(newFormat, i));
-            switch (newFormat.at(i).latin1()) {
+            switch (newFormat.at(i).toLatin1()) {
             case 'h': {
                 const SectionNode sn = { HourSection, i - add, qMin(2, repeat) };
                 newSectionNodes << sn;
