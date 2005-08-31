@@ -18,145 +18,74 @@
 
 extern Q_CORE_EXPORT char q_atomic_lock;
 
-inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
+inline char q_atomic_swp(volatile char *ptr, char newval)
 {
-    register int tmp = 1, ret = 0;
-    asm volatile(
-                 // lock
-                 "1:\n"
-                 "    swpb %0,%0,[%2]\n"
-                 "    teq %0,#0\n"
-                 "    bne 1b\n"
-                 // increment
-                 "    ldr %1,[%3]\n"
-                 "    teq %4,%1\n"
-                 "    streq %5,[%3]\n"
-                 "    moveq %1,#1\n"
-                 "    movne %1,#0\n"
-                 // unlock
-                 "    mov %0,#0\n"
-                 "    swpb %0,%0,[%2]\n"
-
-                 : "+r"(tmp), "+r"(ret)
-                 : "r"(&q_atomic_lock), "r"(ptr), "r"(expected), "r"(newval)
+    register int ret;
+    asm volatile("swpb %0,%1,[%2]"
+                 : "=r"(ret)
+                 : "r"(newval), "r"(ptr)
                  : "cc", "memory");
     return ret;
+}
+
+inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
+{
+    int ret = 0;
+    while (q_atomic_swp(&q_atomic_lock, ~0) != 0);
+    if (*ptr == expected) {
+	*ptr = newval;
+	ret = 1;
+    }
+    q_atomic_swp(&q_atomic_lock, 0);
+    return ret;    
 }
 
 inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
 {
-    register int tmp = 1, ret = 0;
-    asm volatile(
-                 // lock
-                 "1:\n"
-                 "    swpb %0,%0,[%2]\n"
-                 "    teq %0,#0\n"
-                 "    bne 1b\n"
-                 // increment
-                 "    ldr %1,[%3]\n"
-                 "    teq %4,%1\n"
-                 "    streq %5,[%3]\n"
-                 "    moveq %1,#1\n"
-                 "    movne %1,#0\n"
-                 // unlock
-                 "    mov %0,#0\n"
-                 "    swpb %0,%0,[%2]\n"
-
-                 : "+r"(tmp), "+r"(ret)
-                 : "r"(&q_atomic_lock), "r"(ptr), "r"(expected), "r"(newval)
-                 : "cc", "memory");
-    return ret;
+    int ret = 0;    
+    while (q_atomic_swp(&q_atomic_lock, ~0) != 0) ;
+    if (*reinterpret_cast<void * volatile *>(ptr) == expected) {
+	*reinterpret_cast<void * volatile *>(ptr) = newval;
+	ret = 1;
+    }
+    q_atomic_swp(&q_atomic_lock, 0);
+    return ret;    
 }
 
 inline int q_atomic_increment(volatile int *ptr)
 {
-    register int tmp = 1, ret = 0;
-    asm volatile(
-                 // lock
-                 "1:\n"
-                 "    swpb %0,%0,[%2]\n"
-                 "    teq %0,#0\n"
-                 "    bne 1b\n"
-                 // increment
-                 "    ldr %1,[%3]\n"
-                 "    add %1,%1,#1\n"
-                 "    str %1,[%3]\n"
-                 // unlock
-                 "    mov %0,#0\n"
-                 "    swpb %0,%0,[%2]\n"
-
-                 : "+r"(tmp), "+r"(ret)
-                 : "r"(&q_atomic_lock), "r"(ptr)
-                 : "cc", "memory");
-    return ret;
+    while (q_atomic_swp(&q_atomic_lock, ~0) != 0) ;
+    int originalValue = *ptr;
+    *ptr = originalValue + 1;
+    q_atomic_swp(&q_atomic_lock, 0);
+    return originalValue != -1;    
 }
 
 inline int q_atomic_decrement(volatile int *ptr)
 {
-    register int tmp = 1, ret = 0;
-    asm volatile(
-                 // lock
-                 "1:\n"
-                 "    swpb %0,%0,[%2]\n"
-                 "    teq %0,#0\n"
-                 "    bne 1b\n"
-                 // increment
-                 "    ldr %1,[%3]\n"
-                 "    sub %1,%1,#1\n"
-                 "    str %1,[%3]\n"
-                 // unlock
-                 "    mov %0,#0\n"
-                 "    swpb %0,%0,[%2]\n"
-
-                 : "+r"(tmp), "+r"(ret)
-                 : "r"(&q_atomic_lock), "r"(ptr)
-                 : "cc", "memory");
-    return ret;
+    while (q_atomic_swp(&q_atomic_lock, ~0) != 0) ;
+    int originalValue = *ptr;
+    *ptr = originalValue - 1;
+    q_atomic_swp(&q_atomic_lock, 0);
+    return originalValue != 1;    
 }
 
 inline int q_atomic_set_int(volatile int *ptr, int newval)
 {
-    register int tmp = 1, ret = 0;
-    asm volatile(
-                 // lock
-                 "1:\n"
-                 "    swpb %0,%0,[%2]\n"
-                 "    teq %0,#0\n"
-                 "    bne 1b\n"
-                 // increment
-                 "    ldr %1,[%3]\n"
-                 "    str %4,[%3]\n"
-                 // unlock
-                 "    mov %0,#0\n"
-                 "    swpb %0,%0,[%2]\n"
-
-                 : "+r"(tmp), "+r"(ret)
-                 : "r"(&q_atomic_lock), "r"(ptr), "r"(newval)
-                 : "cc", "memory");
-    return ret;
+    while (q_atomic_swp(&q_atomic_lock, ~0) != 0) ;
+    int originalValue = *ptr;
+    *ptr = newval;
+    q_atomic_swp(&q_atomic_lock, 0);
+    return originalValue;    
 }
 
 inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 {
-    register int tmp = 1;
-    register void *ret = 0;
-    asm volatile(
-                 // lock
-                 "1:\n"
-                 "    swpb %0,%0,[%2]\n"
-                 "    teq %0,#0\n"
-                 "    bne 1b\n"
-                 // increment
-                 "    ldr %1,[%3]\n"
-                 "    str %4,[%3]\n"
-                 // unlock
-                 "    mov %0,#0\n"
-                 "    swpb %0,%0,[%2]\n"
-
-                 : "+r"(tmp), "+r"(ret)
-                 : "r"(&q_atomic_lock), "r"(ptr), "r"(newval)
-                 : "cc", "memory");
-    return ret;
+    while (q_atomic_swp(&q_atomic_lock, ~0) != 0) ;
+    void *originalValue = *reinterpret_cast<void * volatile *>(ptr);
+    *reinterpret_cast<void * volatile *>(ptr) = newval;
+    q_atomic_swp(&q_atomic_lock, 0);
+    return originalValue;    
 }
 
 #endif // ARM_QATOMIC_H
