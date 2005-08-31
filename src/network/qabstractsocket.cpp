@@ -691,10 +691,8 @@ void QAbstractSocketPrivate::connectToNextAddress()
                host.toString().toLatin1().constData(), port);
 #endif
 
-        // Determine its protocol.
-        QAbstractSocket::NetworkLayerProtocol protocol = host.protocol();
 #if defined(QT_NO_IPV6)
-        if (protocol == QAbstractSocket::IPv6Protocol) {
+        if (host.protocol() == QAbstractSocket::IPv6Protocol) {
             // If we have no IPv6 support, then we will not be able to
             // connect. So we just pretend we didn't see this address.
             continue;
@@ -950,7 +948,9 @@ void QAbstractSocket::connectToHost(const QString &hostName, quint16 port,
 
     QHostAddress temp;
     if (temp.setAddress(hostName)) {
-        d->startConnecting(QHostInfo::fromName(hostName));
+        QHostInfo info;
+        info.setAddresses(QList<QHostAddress>() << temp);
+        d->startConnecting(info);
     } else {
         if (QAbstractEventDispatcher::instance(thread()))
             d->hostLookupId = QHostInfo::lookupHost(hostName, this, SLOT(startConnecting(QHostInfo)));
