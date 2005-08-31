@@ -4829,8 +4829,9 @@ void bitBlt(QPaintDevice *dst, const QPoint &dp, const QPaintDevice *src, const 
 }
 
 void bitBlt(QPaintDevice *dst, int dx, int dy,
-            const QImage *src, int sx, int sy, int sw, int sh, Qt::ImageConversionFlags flags)
+            const QImage *src, int sx, int sy, int sw, int sh, int fl)
 {
+    Qt::ImageConversionFlags flags(fl);
     QPixmap srcPixmap = QPixmap::fromImage(*src, flags);
     bitBlt_helper(dst, QPoint(dx, dy), &srcPixmap, QRect(sx, sy, sw, sh), false);
 }
