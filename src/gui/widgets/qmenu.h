@@ -234,8 +234,10 @@ public:
         return false;
     }
     inline QT3_SUPPORT void setItemChecked(int id, bool check) {
-        if(QAction *act = findActionForId(id))
+        if(QAction *act = findActionForId(id)) {
+            act->setCheckable(true);
             act->setChecked(check);
+        }
     }
     inline QT3_SUPPORT bool isItemVisible(int id) const {
         if(QAction *act = findActionForId(id))
