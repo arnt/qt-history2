@@ -1442,7 +1442,7 @@ bool  QFontDatabase::isScalable(const QString &family,
 QList<int> QFontDatabase::pointSizes(const QString &family,
                                            const QString &style)
 {
-#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
+#if defined(Q_WS_WIN)
     // windows and macosx are always smoothly scalable
     Q_UNUSED(family);
     Q_UNUSED(style);

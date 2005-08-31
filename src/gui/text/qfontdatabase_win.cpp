@@ -274,33 +274,37 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
 {
     const int script = -1;
     const QString foundryName;
-    const bool smoothScalable = true;
     Q_UNUSED(script);
-    Q_UNUSED(smoothScalable);
 
     bool italic = false;
     QString familyName;
     int weight;
     bool fixed;
     bool ttf;
-
+    bool scalable;
+    int size;
+ 
     // ### make non scalable fonts work
 
     QT_WA({
         familyName = QString::fromUtf16((ushort*)f->elfLogFont.lfFaceName);
         italic = f->elfLogFont.lfItalic;
         weight = f->elfLogFont.lfWeight;
-        TEXTMETRIC *tm = (TEXTMETRIC *)textmetric;
-        fixed = !(tm->tmPitchAndFamily & TMPF_FIXED_PITCH);
+	NEWTEXTMETRIC *tm = (NEWTEXTMETRIC *)textmetric;
+	fixed = !(tm->tmPitchAndFamily & TMPF_FIXED_PITCH);
         ttf = (tm->tmPitchAndFamily & TMPF_TRUETYPE);
+	scalable = tm->tmPitchAndFamily & (TMPF_VECTOR|TMPF_TRUETYPE);
+	size = scalable ? SMOOTH_SCALABLE : tm->tmHeight;
     } , {
         ENUMLOGFONTEXA* fa = (ENUMLOGFONTEXA *)f;
         familyName = QString::fromLocal8Bit(fa->elfLogFont.lfFaceName);
         italic = fa->elfLogFont.lfItalic;
         weight = fa->elfLogFont.lfWeight;
-        TEXTMETRICA *tm = (TEXTMETRICA *)textmetric;
-        fixed = !(tm->tmPitchAndFamily & TMPF_FIXED_PITCH);
+	NEWTEXTMETRICA *tm = (NEWTEXTMETRICA *)textmetric;
+	fixed = !(tm->tmPitchAndFamily & TMPF_FIXED_PITCH);
         ttf = (tm->tmPitchAndFamily & TMPF_TRUETYPE);
+	scalable = tm->tmPitchAndFamily & (TMPF_VECTOR|TMPF_TRUETYPE);
+	size = scalable ? SMOOTH_SCALABLE : tm->tmHeight;
     });
     // the "@family" fonts are just the same as "family". Ignore them.
     if (familyName[0] != '@') {
@@ -327,31 +331,31 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
 
         QtFontFoundry *foundry = family->foundry(foundryName, true);
         QtFontStyle *style = foundry->style(styleKey, true);
-        style->smoothScalable = true;
-        style->pixelSize(SMOOTH_SCALABLE, true);
+	style->smoothScalable = scalable;
+	style->pixelSize( size, TRUE);
 
         // add fonts windows can generate for us:
         if (styleKey.weight <= QFont::DemiBold) {
             QtFontStyle::Key key(styleKey);
             key.weight = QFont::Bold;
             QtFontStyle *style = foundry->style(key, true);
-            style->smoothScalable = true;
-            style->pixelSize(SMOOTH_SCALABLE, true);
+	    style->smoothScalable = scalable;
+	    style->pixelSize( size, TRUE);
         }
         if (styleKey.style != QFont::StyleItalic) {
             QtFontStyle::Key key(styleKey);
             key.style = QFont::StyleItalic;
             QtFontStyle *style = foundry->style(key, true);
-            style->smoothScalable = true;
-            style->pixelSize(SMOOTH_SCALABLE, true);
+	    style->smoothScalable = scalable;
+	    style->pixelSize( size, TRUE);
         }
         if (styleKey.weight <= QFont::DemiBold && styleKey.style != QFont::StyleItalic) {
             QtFontStyle::Key key(styleKey);
             key.weight = QFont::Bold;
             key.style = QFont::StyleItalic;
             QtFontStyle *style = foundry->style(key, true);
-            style->smoothScalable = true;
-            style->pixelSize(SMOOTH_SCALABLE, true);
+	    style->smoothScalable = scalable;
+	    style->pixelSize( size, TRUE);
         }
 
         family->fixedPitch = fixed;
@@ -515,8 +519,14 @@ static void initializeDb()
             qDebug("        %s", foundry->name.latin1());
             for (int s = 0; s < foundry->count; s++) {
                 QtFontStyle *style = foundry->styles[s];
-                qDebug("            style: style=%d weight=%d", style->key.style, style->key.weight);
-            }
+		qDebug("            style: italic=%d oblique=%d weight=%d smooth=%d",  style->key.italic,
+		       style->key.oblique, style->key.weight, style->smoothScalable );
+		if(!style->smoothScalable) {
+		    for(int i = 0; i < style->count; ++i) {
+			qDebug("                %d", style->pixelSizes[i].pixelSize);
+		    }
+		}
+	    }
         }
     }
 #endif // QFONTDATABASE_DEBUG
