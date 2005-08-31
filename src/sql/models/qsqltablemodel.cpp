@@ -873,7 +873,7 @@ QString QSqlTableModel::orderByClause() const
     QSqlField f = d->rec.field(d->sortColumn);
     if (!f.isValid())
         return s;
-    s.append(QLatin1String("ORDER BY ")).append(f.name());
+    s.append(QLatin1String("ORDER BY ")).append(d->tableName).append(QLatin1Char('.')).append(f.name());
     s += d->sortOrder == Qt::AscendingOrder ? QLatin1String(" ASC") : QLatin1String(" DESC");
     return s;
 }

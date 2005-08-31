@@ -455,7 +455,7 @@ QString QSqlRelationalTableModel::orderByClause() const
         return QSqlTableModel::orderByClause();
 
     QString s = QLatin1String("ORDER BY ");
-    s.append(rel.tableName()).append(QLatin1Char('.')).append(d->rec.field(d->sortColumn).name());
+    s.append(QString::fromLatin1("relTblAl_%1").arg(d->sortColumn)).append(QLatin1Char('.')).append(rel.displayColumn());      
     s += d->sortOrder == Qt::AscendingOrder ? QLatin1String(" ASC") : QLatin1String(" DESC");
     return s;
 }
