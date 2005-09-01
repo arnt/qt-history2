@@ -22,8 +22,8 @@
 // We mean it.
 //
 
-#ifndef QDESIGNER_PROMOTED_WIDGET_h
-#define QDESIGNER_PROMOTED_WIDGET_H
+#ifndef QDESIGNER_PROMOTEDWIDGET_H
+#define QDESIGNER_PROMOTEDWIDGET_H
 
 #include <QtCore/QVariant>
 
@@ -105,4 +105,4 @@ private:
     QWidget *m_child;
 };
 
-#endif // QDESIGNER_PROMOTED_WIDGET_H
+#endif // QDESIGNER_PROMOTEDWIDGET_H

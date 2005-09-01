@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDESIGNERFORMBUILDER_H
-#define QDESIGNERFORMBUILDER_H
+#ifndef FORMBUILDER_H
+#define FORMBUILDER_H
 
 #include <QtDesigner/uilib_global.h>
 #include <QtDesigner/QAbstractFormBuilder>
@@ -69,4 +69,4 @@ private:
 }
 #endif
 
-#endif // QDESIGNERFORMBUILDER_H
+#endif // FORMBUILDER_H

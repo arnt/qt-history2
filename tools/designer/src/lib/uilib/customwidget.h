@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDESIGNERCUSTOMWIDGETINTERFACE_H
-#define QDESIGNERCUSTOMWIDGETINTERFACE_H
+#ifndef CUSTOMWIDGET_H
+#define CUSTOMWIDGET_H
 
 #include <QtDesigner/extension.h>
 #include <QtCore/QObject>
@@ -61,4 +61,4 @@ public:
 };
 Q_DECLARE_INTERFACE(QDesignerCustomWidgetCollectionInterface, "com.trolltech.Qt.Designer.CustomWidgetCollection")
 
-#endif // QDESIGNERCUSTOMWIDGETINTERFACE_H
+#endif // CUSTOMWIDGET_H

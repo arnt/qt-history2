@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef OUBLIETTELEVEL_H
-#define OUBLIETTELEVEL_H
+#ifndef OUBLIETTEPLAN_H
+#define OUBLIETTEPLAN_H
 
 #include <QtCore/QtCore>
 #include "tile.h"
@@ -85,4 +85,4 @@ private:
     int m_totalLevels;
 };
 
-#endif // OUBLIETTELEVEL_H
+#endif // OUBLIETTEPLAN_H

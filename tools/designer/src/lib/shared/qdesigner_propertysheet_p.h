@@ -22,8 +22,8 @@
 // We mean it.
 //
 
-#ifndef DEFAULT_PROPERTYSHEET_H
-#define DEFAULT_PROPERTYSHEET_H
+#ifndef QDESIGNER_PROPERTYSHEET_H
+#define QDESIGNER_PROPERTYSHEET_H
 
 #include "shared_global_p.h"
 #include <QtDesigner/propertysheet.h>
@@ -111,4 +111,4 @@ protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
 
-#endif // DEFAULT_PROPERTYSHEET_H
+#endif // QDESIGNER_PROPERTYSHEET_H

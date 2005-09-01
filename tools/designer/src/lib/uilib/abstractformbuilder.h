@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QABSTRACTFORMBUILDER_H
-#define QABSTRACTFORMBUILDER_H
+#ifndef ABSTRACTFORMBUILDER_H
+#define ABSTRACTFORMBUILDER_H
 
 #include <QtDesigner/uilib_global.h>
 
@@ -172,4 +172,4 @@ private:
 }
 #endif
 
-#endif // QABSTRACTFORMBUILDER_H
+#endif // ABSTRACTFORMBUILDER_H

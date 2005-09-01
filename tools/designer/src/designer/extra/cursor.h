@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef CHARACTER_H
-#define CHARACTER_H
+#ifndef CURSOR_H
+#define CURSOR_H
 
 #include <QtCore/QPoint>
 #include <QtCore/QList>
@@ -38,4 +38,5 @@ private:
     int m_totalSteps;
 
 };
+
 #endif
