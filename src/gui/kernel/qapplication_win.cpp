@@ -211,7 +211,7 @@ void qt_erase_background(HDC hdc, int x, int y, int w, int h,
     HPALETTE oldPal = 0;
     HPALETTE hpal = QColormap::hPal();
     if (hpal) {
-        oldPal = SelectPalette(hdc, hpal, false);
+        oldPal = SelectPalette(hdc, hpal, FALSE);
         RealizePalette(hdc);
     }
     if (brush.style() == Qt::LinearGradientPattern) {
@@ -325,7 +325,7 @@ public:
 
 static void qt_show_system_menu(QWidget* tlw)
 {
-    HMENU menu = GetSystemMenu(tlw->winId(), false);
+    HMENU menu = GetSystemMenu(tlw->winId(), FALSE);
     if (!menu)
         return; // no menu for this window
 
@@ -3332,8 +3332,8 @@ bool QETWidget::sendKeyEvent(QEvent::Type type, int code,
 bool QETWidget::translatePaintEvent(const MSG &)
 {
     QRegion rgn(0, 0, 1, 1);
-    int res = GetUpdateRgn(winId(), rgn.handle(), false);
-    if (!GetUpdateRect(winId(), 0, false)  // The update bounding rect is invalid
+    int res = GetUpdateRgn(winId(), rgn.handle(), FALSE);
+    if (!GetUpdateRect(winId(), 0, FALSE)  // The update bounding rect is invalid
          || (res == ERROR)
          || (res == NULLREGION)) {
         d_func()->hd = 0;

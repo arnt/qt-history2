@@ -444,7 +444,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                     w = 100;
                     h = 30;
                 }
-                MoveWindow(q->winId(), x, y, w, h, true);
+                MoveWindow(q->winId(), x, y, w, h, TRUE);
             }
             GetWindowRect(id, &fr);                // update rects
             GetClientRect(id, &cr);

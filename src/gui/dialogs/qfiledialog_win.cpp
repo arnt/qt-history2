@@ -589,9 +589,9 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
         if (!initDir->isEmpty()) {
             // ### Lars asks: is this correct for the A version????
             QT_WA({
-                SendMessage(hwnd, BFFM_SETSELECTION, true, LPARAM(initDir->utf16()));
+                SendMessage(hwnd, BFFM_SETSELECTION, TRUE, LPARAM(initDir->utf16()));
             } , {
-                SendMessageA(hwnd, BFFM_SETSELECTION, true, LPARAM(initDir->utf16()));
+                SendMessageA(hwnd, BFFM_SETSELECTION, TRUE, LPARAM(initDir->utf16()));
             });
         }
     } else if (uMsg == BFFM_SELCHANGED) {

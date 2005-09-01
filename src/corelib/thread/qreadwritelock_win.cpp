@@ -23,12 +23,12 @@ QReadWriteLock::QReadWriteLock()
     d->accessCount = 0;
     d->waitingWriters = 0;
     d->waitingReaders = 0;
-    d->readerWait = QT_WA_INLINE(CreateEventW(0, false, false, 0),
-                                 CreateEventA(0, false, false, 0));
+    d->readerWait = QT_WA_INLINE(CreateEventW(0, FALSE, FALSE, 0),
+                                 CreateEventA(0, FALSE, FALSE, 0));
     if (!d->readerWait)
         qWarning("QReadWriteLock::QReadWriteLock(): Creating reader event failed");
-    d->writerWait = QT_WA_INLINE(CreateEventW(0, false, false, 0),
-                                 CreateEventA(0, false, false, 0));
+    d->writerWait = QT_WA_INLINE(CreateEventW(0, FALSE, FALSE, 0),
+                                 CreateEventA(0, FALSE, FALSE, 0));
     if (!d->writerWait)
         qWarning("QReadWriteLock::QReadWriteLock(): Creating writer event failed");
 }

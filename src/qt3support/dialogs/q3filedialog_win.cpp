@@ -581,9 +581,9 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
         if (!initDir->isEmpty()) {
             // ### Lars asks: is this correct for the A version????
             QT_WA({
-                SendMessage(hwnd, BFFM_SETSELECTION, true, Q_ULONG(initDir->ucs2()));
+                SendMessage(hwnd, BFFM_SETSELECTION, TRUE, Q_ULONG(initDir->ucs2()));
             } , {
-                SendMessageA(hwnd, BFFM_SETSELECTION, true, Q_ULONG(initDir->ucs2()));
+                SendMessageA(hwnd, BFFM_SETSELECTION, TRUE, Q_ULONG(initDir->ucs2()));
             });
         }
     } else if (uMsg == BFFM_SELCHANGED) {
