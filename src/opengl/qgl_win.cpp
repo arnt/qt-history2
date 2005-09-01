@@ -1004,11 +1004,11 @@ void QGLContext::makeCurrent()
 
     HPALETTE hpal = QColormap::hPal();
     if (hpal) {
-        SelectPalette(d->dc, hpal, false);
+        SelectPalette(d->dc, hpal, FALSE);
         RealizePalette(d->dc);
     }
     if (d->glFormat.plane()) {
-        wglRealizeLayerPalette(d->dc, d->glFormat.plane(), true);
+        wglRealizeLayerPalette(d->dc, d->glFormat.plane(), TRUE);
     }
 
     if (!wglMakeCurrent(d->dc, d->rc))
@@ -1065,7 +1065,7 @@ uint QGLContext::colorIndex(const QColor& c) const
             if (idx >= 0) {
                 COLORREF r = RGB(qRed(c.rgb()),qGreen(c.rgb()),qBlue(c.rgb()));
                 wglSetLayerPaletteEntries(d->dc, d->glFormat.plane(), idx, 1, &r);
-                wglRealizeLayerPalette(d->dc, d->glFormat.plane(), true);
+                wglRealizeLayerPalette(d->dc, d->glFormat.plane(), TRUE);
                 return idx;
             }
         }
@@ -1270,7 +1270,7 @@ void QGLWidgetPrivate::cleanupColormaps()
     Q_Q(QGLWidget);
     if (cmap.handle()) {
         HDC hdc = GetDC(q->winId());
-        SelectPalette(hdc, (HPALETTE) GetStockObject(DEFAULT_PALETTE), false);
+        SelectPalette(hdc, (HPALETTE) GetStockObject(DEFAULT_PALETTE), FALSE);
         DeleteObject((HPALETTE) cmap.handle());
         ReleaseDC(q->winId(), hdc);
         cmap.setHandle(0);
@@ -1311,7 +1311,7 @@ void QGLWidget::setColormap(const QGLColormap & c)
 
     if (d->cmap.handle()) { // already have an allocated cmap
         HDC hdc = GetDC(winId());
-        SelectPalette(hdc, (HPALETTE) d->cmap.handle(), false);
+        SelectPalette(hdc, (HPALETTE) d->cmap.handle(), FALSE);
         qStoreColors((HPALETTE) d->cmap.handle(), c);
         RealizePalette(hdc);
         ReleaseDC(winId(), hdc);
@@ -1325,7 +1325,7 @@ void QGLWidget::setColormap(const QGLColormap & c)
 
         if (d->cmap.handle()) {
             HDC hdc = GetDC(winId());
-            SelectPalette(hdc, (HPALETTE) d->cmap.handle(), false);
+            SelectPalette(hdc, (HPALETTE) d->cmap.handle(), FALSE);
             qStoreColors((HPALETTE) d->cmap.handle(), c);
             RealizePalette(hdc);
             ReleaseDC(winId(), hdc);
