@@ -98,14 +98,14 @@ QString QMultiInputContext::language()
 #if defined(Q_WS_X11)
 bool QMultiInputContext::x11FilterEvent(QWidget *keywidget, XEvent *event)
 {
-    return (slave()) ? slave()->x11FilterEvent(keywidget, event) : FALSE;
+    return (slave()) ? slave()->x11FilterEvent(keywidget, event) : false;
 }
 #endif // Q_WS_X11
 
 
 bool QMultiInputContext::filterEvent(const QEvent *event)
 {
-    return (slave()) ? slave()->filterEvent(event) : FALSE;
+    return (slave()) ? slave()->filterEvent(event) : false;
 }
 
 void QMultiInputContext::reset()
@@ -151,7 +151,7 @@ void QMultiInputContext::widgetDestroyed(QWidget *w)
 
 bool QMultiInputContext::isComposing() const
 {
-    return (slave()) ? slave()->isComposing() : FALSE;
+    return (slave()) ? slave()->isComposing() : false;
 }
 
 QList<QAction *> QMultiInputContext::actions()
