@@ -829,8 +829,6 @@ void BreakLayoutCommand::redo()
     formWindow()->clearSelection(false);
     m_layout->breakLayout();
 
-    core->metaDataBase()->add(lb);
-
     foreach (QWidget *widget, m_widgets) {
         widget->resize(widget->size().expandedTo(QSize(16, 16)));
     }
