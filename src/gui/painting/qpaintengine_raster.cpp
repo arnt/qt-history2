@@ -2141,10 +2141,12 @@ QImage QRasterPaintEnginePrivate::colorizeBitmap(const QImage &image, const QCol
     QRgb fg = PREMUL(color.rgba());
     QRgb bg = opaqueBackground ? PREMUL(bgBrush.color().rgba()) : 0;
 
-    for (int y=0; y<sourceImage.height(); ++y) {
+    int height = sourceImage.height();
+    int width = sourceImage.width();
+    for (int y=0; y<height; ++y) {
         uchar *source = sourceImage.scanLine(y);
         QRgb *target = reinterpret_cast<QRgb *>(dest.scanLine(y));
-        for (int x=0; x < sourceImage.width(); ++x)
+        for (int x=0; x < width; ++x)
             target[x] = (source[x>>3] >> (x&7)) & 1 ? fg : bg;
     }
     return dest;
