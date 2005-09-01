@@ -35,6 +35,6 @@
     widget flags \a f.
  */
 Q3VBox::Q3VBox( QWidget *parent, const char *name, Qt::WFlags f )
-    :Q3HBox( FALSE, parent, name, f )
+    :Q3HBox( false, parent, name, f )
 {
 }
