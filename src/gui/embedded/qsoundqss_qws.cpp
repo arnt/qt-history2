@@ -126,7 +126,7 @@ QWSSoundServerClient::QWSSoundServerClient(QTcpSocket *s, QObject* parent) :
     QObject( parent )
 {
     socket = s;
-    priExist = FALSE;
+    priExist = false;
     mCurrentID = nextId();
     connect(socket,SIGNAL(readyRead()),
         this,SLOT(tryReadCommand()));
@@ -137,7 +137,7 @@ QWSSoundServerClient::QWSSoundServerClient(QTcpSocket *s, QObject* parent) :
 QWSSoundServerClient::~QWSSoundServerClient()
 {
     if (priExist)
-	playPriorityOnly(FALSE);
+	playPriorityOnly(false);
     emit stopAll(mCurrentID);
     socket->deleteLater();
 }
@@ -252,7 +252,7 @@ public:
     {
 	leftVolume = maxVolume>>1;
 	rightVolume = maxVolume>>1;
-	isPriority = FALSE;
+	isPriority = false;
         samples_due = 0;
 	max1 = max2 = out = 0;//= sound_buffer_size;
 	data = data1;
@@ -484,8 +484,8 @@ public:
     {
 	dev = d;
 	wavedata_remaining = -1;
-	mFinishedRead = FALSE;
-	mInsufficientSamples = FALSE;
+	mFinishedRead = false;
+	mInsufficientSamples = false;
     }
     ~QWSSoundServerBucket()
     {
@@ -1001,7 +1001,7 @@ void QWSSoundServerPrivate::setVolume(int wid, int sid, int lv, int rv)
     nv.sid = sid;
     nv.left = lv;
     nv.right = rv;
-    nv.mute = FALSE;
+    nv.mute = false;
     volumes.append(nv);
 }
 

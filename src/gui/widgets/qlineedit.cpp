@@ -1834,7 +1834,7 @@ bool QLineEditPrivate::sendMouseEventToInputContext( QMouseEvent *e )
     Q_UNUSED(e);
 #endif
 
-    return FALSE;
+    return false;
 }
 
 /*! \reimp

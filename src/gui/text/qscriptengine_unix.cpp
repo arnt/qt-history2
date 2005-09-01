@@ -2391,7 +2391,7 @@ static const signed char khmerStateTable[][CC_COUNT] =
 //
 static inline int khmer_nextSyllableBoundary(const QString &s, int start, int end, bool *invalid)
 {
-    *invalid = FALSE;
+    *invalid = false;
     const QChar *uc = s.unicode() + start;
     int state = 0;
     int pos = start;
@@ -2600,13 +2600,13 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
 
     KHDEBUG("after shaping: len=%d", len);
     for (int i = 0; i < len; i++) {
-	item->glyphs[i].attributes.mark = FALSE;
-	item->glyphs[i].attributes.clusterStart = FALSE;
+	item->glyphs[i].attributes.mark = false;
+	item->glyphs[i].attributes.clusterStart = false;
 	item->glyphs[i].attributes.justification = 0;
-	item->glyphs[i].attributes.zeroWidth = FALSE;
+	item->glyphs[i].attributes.zeroWidth = false;
 	KHDEBUG("    %d: %4x property=%x", i, reordered[i], properties[i]);
     }
-    item->glyphs[0].attributes.clusterStart = TRUE;
+    item->glyphs[0].attributes.clusterStart = true;
 
     // now we have the syllable in the right order, and can start running it through open type.
 
@@ -2648,7 +2648,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
 
 	openType->applyGPOSFeatures();
 
-	openType->appendTo(item, FALSE);
+	openType->appendTo(item, false);
     } else
 #endif
     {
@@ -2721,18 +2721,18 @@ static void khmer_attributes( int script, const QString &text, int from, int len
 	int boundary = khmer_nextSyllableBoundary( text, from+i, end, &invalid ) - from;
 
 	attributes[i].whiteSpace = ::isSpace(*uc);
-	attributes[i].softBreak = FALSE;
-	attributes[i].charStop = TRUE;
-	attributes[i].wordStop = FALSE;
+	attributes[i].softBreak = false;
+	attributes[i].charStop = true;
+	attributes[i].wordStop = false;
 	attributes[i].invalid = invalid;
 
 	if ( boundary > len-1 ) boundary = len;
 	i++;
 	while ( i < boundary ) {
 	    attributes[i].whiteSpace = ::isSpace(*uc);
-	    attributes[i].softBreak = FALSE;
-	    attributes[i].charStop = FALSE;
-	    attributes[i].wordStop = FALSE;
+	    attributes[i].softBreak = false;
+	    attributes[i].charStop = false;
+	    attributes[i].wordStop = false;
 	    attributes[i].invalid = invalid;
 	    ++uc;
 	    ++i;
