@@ -52,7 +52,7 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
         sockaddr_in6 sa6;
         sockaddr *sa;
         QT_SOCKLEN_T saSize;
-        if (address.isIPv4Address()) {
+        if (address.protocol() == QAbstractSocket::IPv4Protocol) {
             sa = (sockaddr *)&sa4;
             saSize = sizeof(sa4);
             memset(&sa4, 0, sizeof(sa4));
