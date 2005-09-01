@@ -673,21 +673,16 @@ QByteArray QIODevice::readAll()
         forever {
             tmp.resize(tmp.size() + chunkSize);
             qint64 readBytes = read(tmp.data() + totalRead, chunkSize);
-            if (readBytes < chunkSize) {
-                tmp.chop(chunkSize - (readBytes < 0 ? qint64(0) : readBytes));
+            tmp.chop(chunkSize - (readBytes < 0 ? 0 : readBytes));
+            if (readBytes <= 0)
                 return tmp;
-            }
             totalRead += readBytes;
         }
     } else {
         // Read it all in one go.
         tmp.resize(int(bytesAvailable()));
         qint64 readBytes = read(tmp.data(), tmp.size());
-        if (readBytes < tmp.size()) {
-            if (readBytes == -1)
-                return QByteArray();
-            tmp.resize(int(readBytes));
-        }
+        tmp.resize(readBytes < 0 ? 0 : int(readBytes));
     }
     return tmp;
 }
@@ -759,7 +754,7 @@ qint64 QIODevice::readLine(char *data, qint64 maxSize)
     }
 
     qint64 readBytes = readLineData(data + readSoFar, maxSize - readSoFar);
-    if (readBytes == -1) {
+    if (readBytes <= 0) {
         data[readSoFar] = '\0';
         return readSoFar ? readSoFar : -1;
     }
