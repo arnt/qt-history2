@@ -460,7 +460,7 @@ void QFontEngineMultiFT::loadEngine(int at)
  * for matching sizes in the BDF and PCF loaders.
  * This has been fixed for 2.1.8.
  */
-#if HAVE_FT_BITMAP_SIZE_Y_PPEM
+#if (FREETYPE_MAJOR*10000+FREETYPE_MINOR*100+FREETYPE_PATCH) >= 20105
 #define X_SIZE(face,i) ((face)->available_sizes[i].x_ppem)
 #define Y_SIZE(face,i) ((face)->available_sizes[i].y_ppem)
 #else
