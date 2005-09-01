@@ -85,6 +85,7 @@ QAxObject::QAxObject(IUnknown *iface, QObject *parent)
 */
 QAxObject::~QAxObject()
 {
+    clear();
 }
 
 /*!
