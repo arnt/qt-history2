@@ -1388,7 +1388,7 @@ QString QFSFileEngine::owner(FileOwner own) const
     return QString("");
 }
 
-bool QFSFileEngine::chmod(uint perms)
+bool QFSFileEngine::setPermissions(uint perms)
 {
     Q_D(QFSFileEngine);
     bool ret = false;
