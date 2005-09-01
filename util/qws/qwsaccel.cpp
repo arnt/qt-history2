@@ -28,7 +28,7 @@ AccelCard * probed_card=0;
 
 static char * bus_pos="/proc/bus/pci/01/00.0";
 
-static bool unaccelerated = FALSE;
+static bool unaccelerated = false;
 
 static void check_file(char * file,int w,int h,int d)
 {
@@ -58,7 +58,7 @@ static void check_file(char * file,int w,int h,int d)
 		    probed_card->vesa_init(w,h,d);
 		}
 	} else {
-	    unaccelerated = TRUE;
+	    unaccelerated = true;
 	    return;
 	}
     }

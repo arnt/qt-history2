@@ -42,7 +42,7 @@ public:
 	//if ( p.x()+zX() < 0 ) p.rx() = -zX();
 	//if ( p.y()+zY() < 0 ) p.ry() = -zY();
 	move(p);
-	repaint(FALSE);
+	repaint(false);
     }
 
     void paintEvent(QPaintEvent*)
@@ -67,8 +67,8 @@ DummyFramebuffer::DummyFramebuffer( QWidget* parent ) :
     setFocusPolicy(StrongFocus);
     setFocus();
     setBackgroundMode(NoBackground);
-    setMouseTracking(TRUE);
-    showregions = FALSE;
+    setMouseTracking(true);
+    showregions = false;
 }
 
 QSize DummyFramebuffer::sizeHint() const
@@ -110,7 +110,7 @@ void DummyFramebuffer::serve(int depth, int refresh_delay)
 void DummyFramebuffer::setRegionDisplay(bool y)
 {
     showregions = y;
-    repaint(FALSE);
+    repaint(false);
 }
 
 void DummyFramebuffer::setZoomBox(bool y)
@@ -124,7 +124,7 @@ void DummyFramebuffer::setZoomBox(bool y)
 void DummyFramebuffer::timerEvent(QTimerEvent*)
 {
     if ( showregions || img.depth() != 32 ) {
-	repaint(FALSE);
+	repaint(false);
     } else {
 	int y;
 	for (y=0; y<img.height()-1; y++) {
@@ -166,7 +166,7 @@ rightfound:
 	bitBlt(&oldimg,minx,miny,&img,minx,miny,maxx-minx+1,maxy-miny+1);
 	repaint(r);
 	if ( zoombox )
-	    zoombox->repaint(FALSE); // ### could optimize
+	    zoombox->repaint(false); // ### could optimize
     }
 }
 

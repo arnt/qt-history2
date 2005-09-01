@@ -43,7 +43,7 @@ int main( int argc, char *argv[] )
     int height = 0;
     int depth = 32;
     int rotation = 0;
-    bool cursor = TRUE;
+    bool cursor = true;
     double zoom = 1.0;
     QString displaySpec( ":0" );
     QString skin;
@@ -59,7 +59,7 @@ int main( int argc, char *argv[] )
 	} else if ( arg == "-depth" ) {
 	    depth = atoi( argv[++i] );
 	} else if ( arg == "-nocursor" ) {
-	    cursor = FALSE;
+	    cursor = false;
 	} else if ( arg == "-zoom" ) {
 	    zoom = atof( argv[++i] );
 	} else if ( arg == "-qwsdisplay" ) {

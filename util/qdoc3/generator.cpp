@@ -196,7 +196,7 @@ void Generator::generateText( const Text& text, const Node *relative,
     if ( text.firstAtom() != 0 ) {
 	int numAtoms = 0;
 	startText( relative, marker );
-	generateAtomList( text.firstAtom(), relative, marker, TRUE, numAtoms );
+	generateAtomList( text.firstAtom(), relative, marker, true, numAtoms );
 	endText( relative, marker );
     }
 }

@@ -53,7 +53,7 @@ QWSClient::QWSClient( QObject* parent, int socket, int shmid,
     command(0)
 {
     setSocket(socket);
-    isClosed = FALSE;
+    isClosed = false;
     QWSHeader header;
     header.width = swidth;
     header.height = sheight;
@@ -89,7 +89,7 @@ QWSClient::~QWSClient()
 void QWSClient::closeHandler()
 {
     qDebug( "Client %p closed", this );
-    isClosed = TRUE;
+    isClosed = true;
     emit connectionClosed();
 }
 
@@ -108,7 +108,7 @@ void QWSClient::errorHandler( int err )
 	break;
     }
     qDebug( "Client %p error %d (%s)", this, err, s.ascii() );
-    isClosed = TRUE;
+    isClosed = true;
     flush(); //####We need to clean out the pipes, this in not the the way.
     emit connectionClosed();
 }
@@ -243,12 +243,12 @@ struct QWSCommandStruct
 QWSServer::QWSServer( int sw, int sh, int simulate_depth, int flags,
 		      QObject *parent, const char *name ) :
     QServerSocket(QTFB_PORT,16,parent,name),
-    disablePainting(FALSE), pending_region_acks(0)
+    disablePainting(false), pending_region_acks(0)
 {
     focusw = 0;
     mouseGrabber = 0;
-    mouseGrabbing = FALSE;
-    cursorNeedsUpdate=FALSE;
+    mouseGrabbing = false;
+    cursorNeedsUpdate=false;
     cursorPos = QPoint(-1,-1); //no software cursor
     swidth = sw;
     sheight = sh;
@@ -438,12 +438,12 @@ QWSCommand* QWSClient::readMoreCommand()
 
 void QWSServer::doClient()
 {
-    static bool active = FALSE;
+    static bool active = false;
     if (active) {
 	qDebug( "QWSServer::doClient() reentrant call, ignoring" );
 	return;
     }
-    active = TRUE;
+    active = true;
     QWSClient* client = (QWSClient*)sender();
     QWSCommand* command=client->readMoreCommand();
 
@@ -523,7 +523,7 @@ void QWSServer::doClient()
 	if (cursorNeedsUpdate)
 	    showCursor();
     }
-    active = FALSE;
+    active = false;
 }
 
 
@@ -533,10 +533,10 @@ void QWSServer::showCursor()
 	return;
 
     if ( pending_region_acks != 0 ) {
-	cursorNeedsUpdate = TRUE;
+	cursorNeedsUpdate = true;
 	return;
     }
-    cursorNeedsUpdate = FALSE;
+    cursorNeedsUpdate = false;
     if ( cursorPos == mousePos )
 	return;
     cursorPos = mousePos;
@@ -569,12 +569,12 @@ void QWSServer::enablePainting(bool e)
 {
     if (e)
     {
-	disablePainting = FALSE;
+	disablePainting = false;
 	setWindowRegion( 0, QRegion() );
     }
     else
     {
-	disablePainting = TRUE;
+	disablePainting = true;
 	setWindowRegion( 0, QRegion(0,0,swidth,sheight) );
     }
 }
@@ -592,14 +592,14 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
     if ( mouseGrabbing && state == 0 ) {
 	//Note that if a window disappears, mouseGrabbing may be
 	//true while mouseGrabber is 0
-	mouseGrabbing = FALSE;
+	mouseGrabbing = false;
 	mouseGrabber = 0;
     }
 
     if ( mouseGrabbing && state == 0 ) {
 	//Note that if a window disappears, mouseGrabbing may be
 	//true while mouseGrabber is 0
-	mouseGrabbing = FALSE;
+	mouseGrabbing = false;
 	mouseGrabber = 0;
     }
 
@@ -611,7 +611,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 
     if ( !mouseGrabbing && win && state != 0 ) {
 	//button has been pressed
-	mouseGrabbing = TRUE;
+	mouseGrabbing = true;
 	mouseGrabber = win;
     }
     event.simpleData.x_root=pos.x();
@@ -692,7 +692,7 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
      }
     setWindowRegion( changingw, region );
     if ( focusw == changingw && region.isEmpty() )
-	setFocus(changingw,FALSE);
+	setFocus(changingw,false);
 }
 
 
@@ -899,13 +899,13 @@ void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *clie
 
     // ### set cursor in hardware
 
-    cursorNeedsUpdate = TRUE;
+    cursorNeedsUpdate = true;
 }
 
 /*!
   Adds \a r to the window's allocated region.
 
-  If \a isAck is TRUE the event passed to the client has the \c is_ack
+  If \a isAck is true the event passed to the client has the \c is_ack
   flag set; ie. the event is in response to a Region command for this
   window.
 */
@@ -927,9 +927,9 @@ bool QWSWindow::removeAllocation(QRegion r)
 	//##### using window ID for event ID is a hack! reconsider
 	c->sendRegionRemoveEvent( id, id, r );
 
-	return TRUE; // ack required
+	return true; // ack required
     }
-    return FALSE;
+    return false;
 }
 
 static int global_focus_time_counter=0;
@@ -1030,7 +1030,7 @@ void QWSServer::lowerWindow( QWSWindow *changingw, int )
   clients, and waits for all required acknowledgements.
 
   If \a changingw is 0, the server's reserved region is changed.
-  If \a onlyAllocate is TRUE, the requested region is not changed, only
+  If \a onlyAllocate is true, the requested region is not changed, only
   the allocated region. Be careful using this option, it is only really
   useful if the windows list changes.
 */
@@ -1066,7 +1066,7 @@ void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r )
 	if ( w == changingw ) {
 	    windex = i;
 	    allocation = r;
-	    deeper = TRUE;
+	    deeper = true;
 	} else if ( deeper ) {
 	    if ( w->removeAllocation(r) ) {
 		w->pending_acks++;
@@ -1115,7 +1115,7 @@ void QWSServer::givePendingRegion()
     if ( pendingWindex >= 0 ) {
 	QWSWindow* changingw = windows.at( pendingWindex );
 	Q_ASSERT( changingw );
-	changingw->addAllocation( pendingAllocation, TRUE );
+	changingw->addAllocation( pendingAllocation, true );
     } else if (!disablePainting) {
 	paintServerRegion();
     }

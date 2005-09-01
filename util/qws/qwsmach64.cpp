@@ -22,7 +22,7 @@
 Mach64Accel::Mach64Accel(unsigned char * pcifile,unsigned char * config)
     : AccelCard(pcifile,config)
 {
-    inited=FALSE;
+    inited=false;
     if(iopl(3)) {
 	qDebug("Can't iopl");
 	return;
@@ -78,7 +78,7 @@ Mach64Accel::Mach64Accel(unsigned char * pcifile,unsigned char * config)
 		}
 	    }
 	}
-	inited=TRUE;
+	inited=true;
     }
     if(s & 0x1) {
 	qFatal("Third memory area is IO space - not right");
@@ -192,10 +192,10 @@ void Mach64Accel::vesa_init(int width,int height,int depth)
     regw(CLR_CMP_MASK,0xffffffff);
     regw(CLR_CMP_CNTL,0);
 
-    cursor_enabled(TRUE);
+    cursor_enabled(true);
 }
 
-bool made_cursor=FALSE;
+bool made_cursor=false;
 
 int gval(QRgb r)
 {
@@ -210,7 +210,7 @@ int gval(QRgb r)
 
 void Mach64Accel::setup_cursor()
 {
-    made_cursor=TRUE;
+    made_cursor=true;
     QString fn=getenv("HOME");
     fn+="/cursor.bmp";
     QImage i(fn);

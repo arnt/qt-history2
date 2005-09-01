@@ -168,23 +168,23 @@ bool Skin::parseSkinFileHeader(QTextStream& ts,
 	if ( viewH ) *viewH = h;
 	if ( numberOfAreas ) *numberOfAreas = na;
     }
-    return TRUE;
+    return true;
 }
 
 Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) : 
-    QWidget(p), view(0), buttonPressed(FALSE), buttonIndex(0), skinValid(FALSE),
+    QWidget(p), view(0), buttonPressed(false), buttonIndex(0), skinValid(false),
     zoom(1.0), numberOfAreas(0), areas(0),
     cursorw(0),
     joystick(-1), joydown(0),
-    flipped_open(TRUE)
+    flipped_open(true)
 {
-    setMouseTracking(TRUE);
+    setMouseTracking(true);
     setBackgroundMode(Qt::NoBackground);
     parent = p;
 
     QString _skinFileName = skinFileName(skinFile,&prefix);
     if ( _skinFileName.isEmpty() ) {
-        skinValid = FALSE;
+        skinValid = false;
         return;
     }
     QFile f( _skinFileName );
@@ -246,14 +246,14 @@ Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) :
     t_parentmove = new QTimer( this );
     connect( t_parentmove, SIGNAL(timeout()), this, SLOT(moveParent()) );
 
-    skinValid = TRUE;
+    skinValid = true;
 }
 
 void Skin::skinKeyRepeat()
 {
     if ( view ) {
-	view->skinKeyReleaseEvent( areas[buttonIndex].keyCode, areas[buttonIndex].text, TRUE );
-	view->skinKeyPressEvent( areas[buttonIndex].keyCode, areas[buttonIndex].text, TRUE );
+	view->skinKeyReleaseEvent( areas[buttonIndex].keyCode, areas[buttonIndex].text, true );
+	view->skinKeyPressEvent( areas[buttonIndex].keyCode, areas[buttonIndex].text, true );
 	t_skinkey->start(key_repeat_period);
     }
 }
@@ -370,7 +370,7 @@ void Skin::paintEvent( QPaintEvent * )
     QPainter p( this );
     if ( flipped_open ) {
 	p.drawPixmap( 0, 0, skinImageUp );
-	if (buttonPressed == TRUE) {
+	if (buttonPressed == true) {
 	    ButtonAreas *ba = &areas[buttonIndex];
 	    QRect r = ba->region.boundingRect();
 	    if ( ba->area.count() > 2 )
@@ -388,17 +388,17 @@ void Skin::mousePressEvent( QMouseEvent *e )
     if (e->button() == Qt::RightButton) {
 	parent->popupMenu();
     } else {
-	buttonPressed = FALSE;
+	buttonPressed = false;
 
 	onjoyrelease = -1;
 	if ( !flipped_open ) {
-	    flip(TRUE);
+	    flip(true);
 	} else {
 	    for (int i = 0; i < numberOfAreas; i++) {
 		ButtonAreas *ba = &areas[i];
 		if ( ba->region.contains( e->pos() ) ) {
 		    if ( joystick == i ) {
-			joydown = TRUE;
+			joydown = true;
 		    } else {
 			if ( joydown )
 			    onjoyrelease = i;
@@ -430,22 +430,22 @@ void Skin::flip(bool open)
 	view->skinKeyPressEvent( Qt::Key(Key_Flip), "Flip" );
     }
     flipped_open = open;
-    repaint(FALSE);
+    repaint(false);
 }
 
 void Skin::startPress(int i)
 {
-    buttonPressed = TRUE;
+    buttonPressed = true;
     buttonIndex = i;
     if (view) {
 	if ( areas[buttonIndex].keyCode == Key_Flip ) {
-	    flip(FALSE);
+	    flip(false);
 	} else {
 	    view->skinKeyPressEvent( areas[buttonIndex].keyCode, areas[buttonIndex].text );
 	    t_skinkey->start(key_repeat_delay);
 	}
 	ButtonAreas *ba = &areas[buttonIndex];
-	repaint( ba->region.boundingRect(), FALSE );
+	repaint( ba->region.boundingRect(), false );
     }
 }
 
@@ -454,9 +454,9 @@ void Skin::endPress()
     if (view && areas[buttonIndex].keyCode != Key_Flip )
 	view->skinKeyReleaseEvent( areas[buttonIndex].keyCode, areas[buttonIndex].text );
     t_skinkey->stop();
-    buttonPressed = FALSE;
+    buttonPressed = false;
     ButtonAreas *ba = &areas[buttonIndex];
-    repaint( ba->region.boundingRect(), FALSE );
+    repaint( ba->region.boundingRect(), false );
 }
 
 void Skin::mouseMoveEvent( QMouseEvent *e )
@@ -487,10 +487,10 @@ void Skin::mouseMoveEvent( QMouseEvent *e )
 	    } else if ( buttonPressed ) {
 		endPress();
 	    }
-	} else if ( buttonPressed == FALSE ) {
+	} else if ( buttonPressed == false ) {
 	    parentpos = newpos;
 	    if ( !t_parentmove->isActive() )
-		t_parentmove->start(50,TRUE);
+		t_parentmove->start(50,true);
 	}
     }
     if ( cursorw )
@@ -507,7 +507,7 @@ void Skin::mouseReleaseEvent( QMouseEvent * )
     if ( buttonPressed )
 	endPress();
     if ( joydown ) {
-	joydown = FALSE;
+	joydown = false;
 	if ( onjoyrelease >= 0 ) {
 	    startPress(onjoyrelease);
 	    endPress();
@@ -541,7 +541,7 @@ void Skin::setupDefaultButtons()
 bool CursorWindow::eventFilter( QObject *, QEvent *ev)
 {
     handleMouseEvent(ev);
-    return FALSE;
+    return false;
 }
 
 bool CursorWindow::event( QEvent *ev )
@@ -604,7 +604,7 @@ CursorWindow::CursorWindow( const QString& fn, QPoint hot, QWidget* sk)
 	hotspot(hot)
 {
     mouseRecipient = 0;
-    setMouseTracking(TRUE);
+    setMouseTracking(true);
     setCursor(Qt::BlankCursor);
     QImage img( fn );
     QPixmap p;

@@ -23,13 +23,13 @@
 
 QWSPropertyManager::QWSPropertyManager()
 {
-    properties.setAutoDelete( TRUE );
+    properties.setAutoDelete( true );
 }
 
 bool QWSPropertyManager::setProperty( int winId, int property, int mode, const char *data, int len )
 {
     if ( !hasProperty( winId, property ) )
-	return FALSE;
+	return false;
     char *key = createKey( winId, property );
 
     switch ( mode ) {
@@ -78,7 +78,7 @@ bool QWSPropertyManager::setProperty( int winId, int property, int mode, const c
 
     delete [] key;
 
-    return TRUE;
+    return true;
 }
 
 bool QWSPropertyManager::hasProperty( int winId, int property )
@@ -94,27 +94,27 @@ bool QWSPropertyManager::removeProperty( int winId, int property )
     char *key = createKey( winId, property );
     if ( !properties.find( key ) ) {
 	delete [] key;
-	return FALSE;
+	return false;
     }
 
     qDebug( "QWSPropertyManager::removeProperty %d %d (%s)", winId, property, key );
     properties.remove( key );
     delete [] key;
-    return TRUE;
+    return true;
 }
 
 bool QWSPropertyManager::addProperty( int winId, int property )
 {
     char *key = createKey( winId, property );
     if ( properties.find( key ) )
-	return FALSE;
+	return false;
 
     Property *prop = new Property;
     prop->len = -1;
     prop->data = 0;
     properties.insert( key, prop );
     qDebug( "QWSPropertyManager::addProperty: %d %d (%s)", winId, property, key );
-    return TRUE;
+    return true;
 }
 
 bool QWSPropertyManager::getProperty( int winId, int property, char *&data, int &len )
@@ -124,7 +124,7 @@ bool QWSPropertyManager::getProperty( int winId, int property, char *&data, int 
 	delete [] key;
 	data = 0;
 	len = -1;
-	return FALSE;
+	return false;
     }
 
     Property *prop = properties[ key ];
@@ -132,7 +132,7 @@ bool QWSPropertyManager::getProperty( int winId, int property, char *&data, int 
     data = prop->data;
     delete [] key;
 
-    return TRUE;
+    return true;
 }
 
 char *QWSPropertyManager::createKey( int winId, int property ) const

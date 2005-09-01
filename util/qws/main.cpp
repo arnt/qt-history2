@@ -25,7 +25,7 @@ main(int argc, char** argv)
 #ifdef Q_WS_X11
     bool useGUI = getenv( "DISPLAY" ) != 0;
 #else
-    bool useGUI = FALSE;
+    bool useGUI = false;
 #endif
     QApplication app(argc, argv, useGUI);
 
@@ -64,10 +64,10 @@ main(int argc, char** argv)
 	int i = 1;
 	while ( i < argc  ) {
 	    //OK, OK this isn't the world's best command line parser
-	    bool ok = FALSE;
+	    bool ok = false;
 	    QCString s = argv[i++];
 	    if ( s[0] == '-' ) {
-		ok = TRUE;
+		ok = true;
 		if ( s.find( 'a' ) > 0 )
 		    flags |= QWSServer::DisableAccel;
 		if ( s.find( 'm' ) > 0 )
@@ -75,13 +75,13 @@ main(int argc, char** argv)
 		if ( s.find( 'k' ) > 0 )
 		    flags |= QWSServer::DisableKeyboard;
 		if ( s.find( 'h' ) > 0 )
-		    ok = FALSE; //give help
+		    ok = false; //give help
 	    } else if ( s[0] == '+' ) {
-		ok = TRUE;
+		ok = true;
 		if ( s.find( 'k' ) > 0 )
 		    flags &= ~QWSServer::DisableKeyboard;
 		else
-		    ok = FALSE;
+		    ok = false;
 	    } else {
 		int x = s.find( 'x' );
 		if ( x > 0 ) {
@@ -122,4 +122,3 @@ void handleHardExit(int sig)
     if (sig == SIGSEGV)
 	abort();
 }
-

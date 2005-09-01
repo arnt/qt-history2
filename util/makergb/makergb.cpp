@@ -30,7 +30,7 @@ class ColorVector : public QPtrVector<Color>	// vector of Color data
 {
 public:
     ColorVector( uint sz ) : QPtrVector<Color>(sz)
-	{ setAutoDelete(TRUE); }
+	{ setAutoDelete(true); }
    ~ColorVector()
 	{ clear(); }
 private:

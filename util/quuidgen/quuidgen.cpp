@@ -15,9 +15,9 @@ extern "C" {
 #endif
 
 QUuidGen::QUuidGen()
-    : QUuidBase( 0, 0, TRUE )
+    : QUuidBase( 0, 0, true )
 {
-    formatMacro->setChecked( TRUE );
+    formatMacro->setChecked( true );
     newUuid();
 }
 

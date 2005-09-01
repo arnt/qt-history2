@@ -132,7 +132,7 @@ private:
 Zoomer::Zoomer(QVFb* target) :
     qvfb(target)
 {
-    (new QVBoxLayout(this))->setAutoAdd(TRUE);
+    (new QVBoxLayout(this))->setAutoAdd(true);
     QSlider *sl = new QSlider(10,64,1,32,Qt::Horizontal,this);
     connect(sl,SIGNAL(valueChanged(int)),this,SLOT(zoom(int)));
     label = new QLabel(this);
@@ -166,7 +166,7 @@ QVFb::QVFb( int display_id, int w, int h, int d, int r, const QString &skin, QWi
     // avoid scroll bars in the main window
     createMenu( menuBar() );
     init( display_id, w, h, d, r, skin );
-    enableCursor( TRUE );
+    enableCursor( true );
 #else
     init( display_id, w, h, d, r, skin );
     createMenu( menuBar() );
@@ -238,7 +238,7 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 
      	if ( currentSkinIndex!=-1 ) {
 	    clearMask();
-	    reparent( 0, 0, pos(), TRUE );
+	    reparent( 0, 0, pos(), true );
 	    //unset fixed size:
 	    setMinimumSize(0,0);
 	    setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
@@ -310,7 +310,7 @@ QMenu* QVFb::createViewMenu()
     viewMenu->setCheckable( true );
     cursorId = viewMenu->insertItem( "Show &Cursor", this, SLOT(toggleCursor()) );
     if ( view )	
-	enableCursor(TRUE);
+	enableCursor(true);
     viewMenu->insertItem( "&Refresh Rate...", this, SLOT(changeRate()) );
     viewMenu->insertSeparator();
     viewMenu->insertItem( "Zoom scale &0.5", this, SLOT(setZoomHalf()) );
@@ -451,7 +451,7 @@ public:
         : QDialog(parent)
     {
         setupUi(this);
-        setModal(TRUE);
+        setModal(true);
 
         connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
         connect(buttonCancel, SIGNAL(clicked()), this, SLOT(reject()));
@@ -551,13 +551,13 @@ void QVFb::configure()
 
 void QVFb::chooseSize(const QSize& sz)
 {
-    config->size_width->blockSignals(TRUE);
-    config->size_height->blockSignals(TRUE);
+    config->size_width->blockSignals(true);
+    config->size_height->blockSignals(true);
     config->size_width->setValue(sz.width());
     config->size_height->setValue(sz.height());
-    config->size_width->blockSignals(FALSE);
-    config->size_height->blockSignals(FALSE);
-    config->size_custom->setChecked(TRUE); // unless changed by settings below
+    config->size_width->blockSignals(false);
+    config->size_height->blockSignals(false);
+    config->size_custom->setChecked(true); // unless changed by settings below
     config->size_176_220->setChecked(sz == QSize(176,220));
     config->size_240_320->setChecked(sz == QSize(240,320));
     config->size_320_240->setChecked(sz == QSize(320,240));

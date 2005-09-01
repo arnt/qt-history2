@@ -49,11 +49,11 @@ static struct {
   int depth;
 } qfb;
 
-static bool fb_open = FALSE;
+static bool fb_open = false;
 
 void QWSServer::openDisplay()
 {
-  fb_open = TRUE;
+  fb_open = true;
   qfb.fbp=0;
  /* Open the file for reading and writing */
   qfb.fbfd = open("/dev/fb0", O_RDWR);

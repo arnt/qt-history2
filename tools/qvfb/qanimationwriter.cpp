@@ -28,7 +28,7 @@ public:
     void setFrameRate(int d) { framerate = d; }
     virtual ~QAnimationWriterData() { }
     virtual void setImage(const QImage& src)=0;
-    virtual bool canCompose() const { return FALSE; }
+    virtual bool canCompose() const { return false; }
     virtual void composeImage(const QImage&, const QPoint& ) { }
 
 protected:
@@ -44,7 +44,7 @@ class QAnimationWriterMNG : public QAnimationWriterData {
 public:
     QAnimationWriterMNG(QIODevice* d) : QAnimationWriterData(d)
     {
-	first = TRUE;
+	first = true;
 	begin_png();
     }
 
@@ -212,13 +212,13 @@ public:
     void setImage(const QImage& src)
     {
 	if ( first ) {
-	    first = FALSE;
+	    first = false;
 	    writeMHDR(src.size(),framerate);
 	}
 	composeImage(src,QPoint(0,0));
     }
 
-    bool canCompose() const { return TRUE; }
+    bool canCompose() const { return true; }
 
     void composeImage(const QImage& src, const QPoint& offset)
     {
@@ -275,11 +275,11 @@ void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 	    QRgb** pjt = (QRgb**)prev.jumpTable() + offset.y();
 
 	    // Find left edge of change
-	    done = FALSE;
+	    done = false;
 	    for (minx = 0; minx < w && !done; minx++) {
 		for (int ty = 0; ty < h; ty++) {
 		    if ( jt[ty][minx] != pjt[ty][minx+offset.x()] ) {
-			done = TRUE;
+			done = true;
 			break;
 		    }
 		}
@@ -287,11 +287,11 @@ void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 	    minx--;
 
 	    // Find right edge of change
-	    done = FALSE;
+	    done = false;
 	    for (maxx = w-1; maxx >= 0 && !done; maxx--) {
 		for (int ty = 0; ty < h; ty++) {
 		    if ( jt[ty][maxx] != pjt[ty][maxx+offset.x()] ) {
-			done = TRUE;
+			done = true;
 			break;
 		    }
 		}
@@ -299,11 +299,11 @@ void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 	    maxx++;
 
 	    // Find top edge of change
-	    done = FALSE;
+	    done = false;
 	    for (miny = 0; miny < h && !done; miny++) {
 		for (int tx = 0; tx < w; tx++) {
 		    if ( jt[miny][tx] != pjt[miny][tx+offset.x()] ) {
-			done = TRUE;
+			done = true;
 			break;
 		    }
 		}
@@ -311,11 +311,11 @@ void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 	    miny--;
 
 	    // Find right edge of change
-	    done = FALSE;
+	    done = false;
 	    for (maxy = h-1; maxy >= 0 && !done; maxy--) {
 		for (int tx = 0; tx < w; tx++) {
 		    if ( jt[maxy][tx] != pjt[maxy][tx+offset.x()] ) {
-			done = TRUE;
+			done = true;
 			break;
 		    }
 		}
@@ -335,7 +335,7 @@ void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 
 	    QImage diff(dw, dh, 32);
 
-	    diff.setAlphaBuffer(TRUE);
+	    diff.setAlphaBuffer(true);
 	    int x, y;
 	    for (y = 0; y < dh; y++) {
 		QRgb* li = (QRgb*)frame.scanLine(y+miny)+minx;
@@ -388,7 +388,7 @@ void QAnimationWriter::appendFrame(const QImage& frm)
 void QAnimationWriter::appendBlankFrame()
 {
     QImage i(1,1,32);
-    i.setAlphaBuffer(TRUE);
+    i.setAlphaBuffer(true);
     i.fill(0);
     d->composeImage(i,QPoint(0,0));
 }

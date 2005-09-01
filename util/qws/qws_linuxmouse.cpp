@@ -97,19 +97,19 @@ void QWSServer::openMouse()
     // Clear pending input
     tcflush(mouseFD,TCIFLUSH);
 
-    bool ps2 = FALSE;
+    bool ps2 = false;
 
     switch (mouseProtocol) {
 
 	case MouseMan:
-	    ps2 = TRUE;
+	    ps2 = true;
 	    write(mouseFD,"",1);
 	    usleep(50000);
 	    write(mouseFD,"@EeI!",5);
 	    break;
 
 	case IntelliMouse: {
-		ps2 = TRUE;
+		ps2 = true;
 		const unsigned char init[] = { 243, 200, 243, 100, 243, 80 };
 		write(mouseFD,"",1);
 		usleep(50000);
@@ -177,14 +177,14 @@ void QWSServer::handleMouseData()
     int idx = 0;
     int bstate = 0;
     int dx = 0, dy = 0;
-    bool sendEvent = FALSE;
+    bool sendEvent = false;
 
     while ( mouseIdx-idx >= mouseData[mouseProtocol].bytesPerPacket ) {
 	uchar *mb = mouseBuf+idx;
 	bstate = 0;
 	dx = 0;
 	dy = 0;
-	sendEvent = FALSE;
+	sendEvent = false;
 	switch (mouseProtocol) {
 	    case MouseMan:
 	    case IntelliMouse:
@@ -206,7 +206,7 @@ void QWSServer::handleMouseData()
 		    dx = xs ? mb[1]-256 : mb[1];
 		    dy = ys ? mb[2]-256 : mb[2];
 
-		    sendEvent = TRUE;
+		    sendEvent = true;
 		}
 #if 0 //debug
 		if (mouseProtocol == MouseMan)

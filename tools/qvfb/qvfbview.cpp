@@ -103,7 +103,7 @@ QVFbView::QVFbView( int display_id, int _w, int _h, int d, Rotation r, QWidget *
 {
     displayid = display_id;
     rotation = r;
-    setMouseTracking( TRUE );
+    setMouseTracking( true );
     setFocusPolicy( Qt::StrongFocus );
     setBackgroundMode( Qt::NoBackground );
     hzm = 1;
@@ -229,7 +229,7 @@ QVFbView::QVFbView( int display_id, int _w, int _h, int d, Rotation r, QWidget *
 QVFbView::~QVFbView()
 {
     stopAnimation();
-    sendKeyboardData( 0, 0, 0, TRUE, FALSE ); // magic die key
+    sendKeyboardData( 0, 0, 0, true, false ); // magic die key
     struct shmid_ds shm;
     shmdt( (char*)data );
     shmctl( shmId, IPC_RMID, &shm );
@@ -530,7 +530,7 @@ void QVFbView::drawScreen()
 
     DisplayLock();
     QRect r( hdr->update );
-    hdr->dirty = FALSE;
+    hdr->dirty = false;
     hdr->update = QRect();
     //qDebug( "update %d, %d, %dx%d", r.y(), r.x(), r.width(), r.height() );
     r = r.intersect( QRect(0, 0, hdr->width, hdr->height ) );
@@ -627,7 +627,7 @@ void QVFbView::drawScreen()
 //{
 //    if ( obj == this &&
 //	 (e->type() == QEvent::FocusIn || e->type() == QEvent::FocusOut) )
-//	return TRUE;
+//	return true;
 //
 //    return QWidgetView::eventFilter( obj, e );
 //}
@@ -646,7 +646,7 @@ void QVFbView::setDirty( const QRect& r )
 {
     DisplayLock();
     hdr->update |= mapToDevice( r, QSize(displayWidth(), displayHeight()), rotation ).normalize();
-    hdr->dirty = TRUE;
+    hdr->dirty = true;
 }
 
 void QVFbView::mousePressEvent( QMouseEvent *e )
@@ -701,14 +701,14 @@ void QVFbView::keyPressEvent( QKeyEvent *e )
 {
     sendKeyboardData(e->text()[0].unicode(), e->key(),
 		     e->state()&(Qt::ShiftButton|Qt::ControlButton|Qt::AltButton),
-		     TRUE, e->isAutoRepeat());
+		     true, e->isAutoRepeat());
 }
 
 void QVFbView::keyReleaseEvent( QKeyEvent *e )
 {
     sendKeyboardData(e->ascii(), e->key(),
 		     e->state()&(Qt::ShiftButton|Qt::ControlButton|Qt::AltButton),
-		     FALSE, e->isAutoRepeat());
+		     false, e->isAutoRepeat());
 }
 
 
