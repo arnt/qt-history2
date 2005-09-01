@@ -615,9 +615,16 @@ void QAbstractItemView::reset()
     Q_D(QAbstractItemView);
     QMap<QPersistentModelIndex, QWidget*>::iterator it = d->editors.begin();
     for (; it != d->editors.end(); ++it) {
-        QObject::disconnect(it.value(), SIGNAL(destroyed(QObject*)),
+        QWidget *editor = it.value();
+        QObject::disconnect(editor, SIGNAL(destroyed(QObject*)),
                             this, SLOT(editorDestroyed(QObject*)));
-        d->releaseEditor(it.value());
+        
+        // releaseEditor will do a deleteLater on the editor, and that is a 
+        // problem if you call reset and display a modal dialog in a signal.
+        // Therefore, we in addition hide the editor so that it will remain hidden until deleteLater is issued.
+        // This was a suggestion from Brad.
+        editor->hide();
+        d->releaseEditor(editor);
     }
     d->editors.clear();
     d->persistent.clear();
