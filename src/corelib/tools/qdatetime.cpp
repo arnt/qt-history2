@@ -22,11 +22,12 @@
 #endif
 #if defined(Q_OS_WIN32)
 #include <windows.h>
-#include <time.h>
 #endif
 #ifndef Q_WS_WIN
 #include <locale.h>
 #endif
+
+#include <time.h>
 
 #if defined(Q_WS_MAC)
 #include <private/qcore_mac_p.h>
