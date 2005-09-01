@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QGFXVGA16_QWS_H
-#define QGFXVGA16_QWS_H
+#ifndef QSCREENVGA16_QWS_H
+#define QSCREENVGA16_QWS_H
 
 #include "QtGui/qscreenlinuxfb_qws.h"
 
@@ -53,4 +53,4 @@ private:
 
 #endif // QT_NO_QWS_VGA16
 
-#endif // QGFXVGA16_QWS_H
+#endif // QSCREENVGA16_QWS_H

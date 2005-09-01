@@ -50,4 +50,4 @@ private:
 };
 
 #endif
-#endif
+#endif // Q3DATAVIEW_H

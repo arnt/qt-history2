@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QVIEWPORT_P_H
-#define QVIEWPORT_P_H
+#ifndef QABSTRACTSCROLLAREA_P_H
+#define QABSTRACTSCROLLAREA_P_H
 
 //
 //  W A R N I N G
@@ -54,4 +54,4 @@ public:
     void showOrHideScrollBars();
 };
 #endif // QT_NO_SCROLLAREA
-#endif // QVIEWPORT_P_H
+#endif // QABSTRACTSCROLLAREA_P_H

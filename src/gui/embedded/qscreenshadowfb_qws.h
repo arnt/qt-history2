@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QGFXSHADOWFB_QWS_H
-#define QGFXSHADOWFB_QWS_H
+#ifndef QSCREENSHADOWFB_QWS_H
+#define QSCREENSHADOWFB_QWS_H
 
 #ifndef QT_NO_QWS_SHADOWFB
 
@@ -117,4 +117,4 @@ private:
 
 #endif
 
-#endif // QGFXSHADOWFB_QWS_H
+#endif // QSCREENSHADOWFB_QWS_H

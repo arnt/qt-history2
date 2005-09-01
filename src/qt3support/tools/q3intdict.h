@@ -87,4 +87,4 @@ public:
     type *operator+=(uint j)  { return (type *)Q3GDictIterator::operator+=(j);}
 };
 
-#endif // QINTDICT_H
+#endif // Q3INTDICT_H

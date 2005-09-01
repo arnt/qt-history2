@@ -155,4 +155,4 @@ private:
 
 #endif // QT_NO_SPINWIDGET
 
-#endif // QRANGECONTROL_H
+#endif // Q3RANGECONTROL_H

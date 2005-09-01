@@ -1,5 +1,4 @@
 /****************************************************************************
-** $Id: .emacs,v 1.3 1998/02/20 15:06:53 agulbra Exp $
 **
 ** Definition of something or other
 **
@@ -39,4 +38,5 @@ private:
     int shmid;
     void *shmaddr;
 };
-#endif
+
+#endif // QWIDGET_QWS_P_H

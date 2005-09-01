@@ -10,8 +10,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef __QRESOURCE_P_H__
-#define __QRESOURCE_P_H__
+#ifndef QRESOURCE_P_H
+#define QRESOURCE_P_H
 
 #include <qabstractfileengine.h>
 
@@ -69,4 +69,4 @@ public:
     bool supportsExtension(Extension extension) const;
 };
 
-#endif /* __QRESOURCE_P_H__ */
+#endif // QRESOURCE_P_H

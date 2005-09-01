@@ -57,4 +57,4 @@ private:
     void init();
 };
 
-#endif
+#endif // QWININPUTCONTEXT_P_H

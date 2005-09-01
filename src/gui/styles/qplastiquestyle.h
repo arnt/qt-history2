@@ -61,4 +61,4 @@ private:
 };
 
 #endif // QT_NO_STYLE_PLASTIQUE
-#endif
+#endif // QPLASTIQUESTYLE_H

@@ -59,4 +59,4 @@ private:
     QSize nextSize;
 };
 
-#endif
+#endif // QGIFHANDLER_H

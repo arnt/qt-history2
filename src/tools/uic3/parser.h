@@ -22,4 +22,4 @@ public:
     static QString cleanArgs( const QString &func );
 };
 
-#endif
+#endif // PARSER_H

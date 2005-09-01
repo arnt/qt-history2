@@ -38,4 +38,4 @@ private:
     int quality;
 };
 
-#endif
+#endif // QPNGHANDLER_H

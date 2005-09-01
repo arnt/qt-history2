@@ -144,4 +144,4 @@ private:
 
 #endif
 
-#endif
+#endif // Q3DATABROWSER_H

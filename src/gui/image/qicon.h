@@ -85,5 +85,4 @@ Q_DECLARE_TYPEINFO(QIcon, Q_MOVABLE_TYPE);
 typedef QIcon QIconSet;
 #endif
 
-
-#endif
+#endif // QICON_H

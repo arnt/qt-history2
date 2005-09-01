@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #ifndef QPAINTENGINE_PIC_P_H
+#define QPAINTENGINE_PIC_P_H
 
 //
 //  W A R N I N G

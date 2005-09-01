@@ -104,4 +104,4 @@ private:
     QList<QTreeWidgetItemIterator*> iterators;
 };
 
-#endif /*QTREEWIDGET_P_H*/
+#endif // QTREEWIDGET_P_H

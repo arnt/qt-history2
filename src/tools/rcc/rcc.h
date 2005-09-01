@@ -143,4 +143,4 @@ inline RCCFileInfo::RCCFileInfo(QString name, QFileInfo fileInfo, QLocale locale
     this->mCompressThreshold = compressThreshold;
 }
 
-#endif
+#endif // RCC_H

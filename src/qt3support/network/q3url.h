@@ -100,6 +100,6 @@ private:
 
 };
 
-#endif //QT_NO_URL
+#endif // QT_NO_URL
 
-#endif
+#endif // Q3URL_H

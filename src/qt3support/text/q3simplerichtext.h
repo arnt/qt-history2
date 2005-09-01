@@ -70,4 +70,4 @@ private:
 
 #endif // QT_NO_RICHTEXT
 
-#endif // QSIMPLERICHTEXT_H
+#endif // Q3SIMPLERICHTEXT_H

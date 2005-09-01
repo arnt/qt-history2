@@ -11,8 +11,8 @@
  **
  ****************************************************************************/
 
-#ifndef QDECORATIONFACTORY_H
-#define QDECORATIONFACTORY_H
+#ifndef QDECORATIONFACTORY_QWS_H
+#define QDECORATIONFACTORY_QWS_H
 
 #include "QtCore/qstringlist.h"
 
@@ -27,4 +27,4 @@ public:
     static QDecoration *create(const QString&);
 };
 
-#endif // QDECORATIONFACTORY_H
+#endif // QDECORATIONFACTORY_QWS_H

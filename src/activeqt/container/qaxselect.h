@@ -30,4 +30,4 @@ private slots:
     void on_ActiveXList_doubleClicked(const QModelIndex &index);
 };
 
-#endif
+#endif // QAXSELECT_H

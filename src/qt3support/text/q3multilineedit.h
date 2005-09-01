@@ -104,4 +104,4 @@ private:
 
 #endif // QT_NO_MULTILINEEDIT
 
-#endif // QMULTILINEEDIT_H
+#endif // Q3MULTILINEEDIT_H

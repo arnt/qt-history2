@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QBMPHANDLER_H
-#define QBMPHANDLER_H
+#ifndef QBMPHANDLER_P_H
+#define QBMPHANDLER_P_H
 
 #include "qimageiohandler.h"
 
@@ -30,4 +30,4 @@ public:
 };
 #endif
 
-#endif
+#endif // QBMPHANDLER_P_H

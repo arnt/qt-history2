@@ -10,8 +10,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef __QFOCUSFRAME_H__
-#define __QFOCUSFRAME_H__
+
+#ifndef QFOCUSFRAME_H
+#define QFOCUSFRAME_H
 
 #include <QtGui/qwidget.h>
 
@@ -37,5 +38,4 @@ private:
     Q_DISABLE_COPY(QFocusFrame)
 };
 
-
-#endif /* __QFOCUSFRAME_H__ */
+#endif // QFOCUSFRAME_H

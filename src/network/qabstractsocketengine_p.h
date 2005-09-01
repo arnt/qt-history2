@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QABSTRACTSOCKETENGINE_H
-#define QABSTRACTSOCKETENGINE_H
+#ifndef QABSTRACTSOCKETENGINE_P_H
+#define QABSTRACTSOCKETENGINE_P_H
 
 #include <qhostaddress.h>
 #include <qabstractsocket.h>
@@ -143,4 +143,4 @@ private:
     friend class QAbstractSocketEngine;
 };
 
-#endif // QABSTRACTSOCKETENGINE_H
+#endif // QABSTRACTSOCKETENGINE_P_H

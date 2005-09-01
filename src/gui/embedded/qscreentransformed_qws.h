@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QGFXTRANSFORMED_QWS_H
-#define QGFXTRANSFORMED_QWS_H
+#ifndef QSCREENTRANSFORMED_QWS_H
+#define QSCREENTRANSFORMED_QWS_H
 
 #include "QtGui/qscreenvfb_qws.h"
 #include "QtGui/qscreenlinuxfb_qws.h"
@@ -81,4 +81,4 @@ private:
 };
 
 #endif // QT_NO_QWS_TRANSFORMED
-#endif // QGFXTRANSFORMED_QWS_H
+#endif // QSCREENTRANSFORMED_QWS_H

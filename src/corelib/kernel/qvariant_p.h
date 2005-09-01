@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QCOREVARIANT_P_H
-#define QCOREVARIANT_P_H
+#ifndef QVARIANT_P_H
+#define QVARIANT_P_H
 
 //
 //  W A R N I N G
@@ -91,5 +91,4 @@ inline void v_clear(QVariant::Private *d, T* = 0)
     }
 }
 
-#endif
-
+#endif // QVARIANT_P_H

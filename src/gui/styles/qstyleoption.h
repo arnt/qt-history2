@@ -620,4 +620,4 @@ Q_GUI_EXPORT QDebug operator<<(QDebug debug, const QStyleOption::OptionType &opt
 Q_GUI_EXPORT QDebug operator<<(QDebug debug, const QStyleOption &option);
 #endif
 
-#endif
+#endif // QSTYLEOPTION_H

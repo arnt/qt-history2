@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSQL_SQLITE_H
-#define QSQL_SQLITE_H
+#ifndef QSQL_SQLITE2_H
+#define QSQL_SQLITE2_H
 
 #include <QtSql/qsqldriver.h>
 #include <QtSql/qsqlresult.h>
@@ -83,4 +83,4 @@ private:
     QSQLite2DriverPrivate* d;
 };
 
-#endif // QSQL_SQLITE_H
+#endif // QSQL_SQLITE2_H

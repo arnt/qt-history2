@@ -211,4 +211,4 @@ private:
 };
 
 #endif
-#endif
+#endif // Q3DATATABLE_H

@@ -26,4 +26,4 @@ Q_COMPAT_EXPORT void q3InitNetworkProtocols();
 
 #endif
 
-#endif
+#endif // Q3NETWORK_H

@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef QAXTYPES_H
+#define QAXTYPES_H
 
 #ifndef _WINDOWS_
 #error "Must include windows.h first!"
@@ -55,4 +55,4 @@ extern QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName
 extern bool QVariantToVoidStar(const QVariant &var, void *data, const QByteArray &typeName, uint type = 0);
 extern void clearVARIANT(VARIANT *var);
 
-#endif //TYPES_H
+#endif // QAXTYPES_H

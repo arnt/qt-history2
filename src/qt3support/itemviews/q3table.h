@@ -508,4 +508,4 @@ private:
     Q_DISABLE_COPY(Q3Table)
 };
 
-#endif // TABLE_H
+#endif // Q3TABLE_H

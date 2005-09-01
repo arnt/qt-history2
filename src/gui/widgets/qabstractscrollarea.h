@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QVIEWPORT_H
-#define QVIEWPORT_H
+#ifndef QABSTRACTSCROLLAREA_H
+#define QABSTRACTSCROLLAREA_H
 
 #include "QtGui/qframe.h"
 
@@ -86,4 +86,4 @@ private:
 };
 
 #endif // QT_NO_SCROLLAREA
-#endif // QVIEWPORT_H
+#endif // QABSTRACTSCROLLAREA_H

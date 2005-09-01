@@ -82,4 +82,4 @@ private:
     Q_DISABLE_COPY(Q3SVGPaintEngine)
 };
 
-#endif
+#endif // Q3PAINTENGINE_SVG_P_H

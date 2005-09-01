@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QFONTDATA_P_H
-#define QFONTDATA_P_H
+#ifndef QFONT_P_H
+#define QFONT_P_H
 
 //
 //  W A R N I N G
@@ -257,4 +257,4 @@ public:
     int timer_id;
 };
 
-#endif // QFONTDATA_P_H
+#endif // QFONT_P_H

@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef __QLIBRARYINFO_H__
-#define __QLIBRARYINFO_H__
+#ifndef QLIBRARYINFO_H
+#define QLIBRARYINFO_H
 
 #include <QtCore/qstring.h>
 
@@ -48,6 +48,5 @@ private:
     QLibraryInfo();
 };
 
-
 #endif /* QT_NO_SETTINGS */
-#endif /* __QLIBRARYINFO_H__ */
+#endif // QLIBRARYINFO_H

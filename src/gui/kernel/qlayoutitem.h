@@ -105,4 +105,5 @@ public:
 private:
     QWidget *wid;
 };
-#endif
+
+#endif // QLAYOUTITEM_H

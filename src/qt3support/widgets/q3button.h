@@ -32,4 +32,4 @@ protected:
 
 };
 
-#endif
+#endif // Q3BUTTON_H

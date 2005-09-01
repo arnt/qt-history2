@@ -1,11 +1,10 @@
 /****************************************************************************
-** $Id: .emacs,v 1.3 1998/02/20 15:06:53 agulbra Exp $
 **
 ** Definition of something or other
 **
 ** Created : 979899
 **
-** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1997 by Trolltech AS.  All rights reserved.
 **
 ****************************************************************************/
 
@@ -46,4 +45,4 @@ public:
     static bool translateIMInitEvent(const QWSIMInitEvent *e);
 };
 #endif // QT_NO_QWS_INPUTMETHODS
-#endif
+#endif // QWSINPUTCONTEXT_P_H

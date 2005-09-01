@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDRAWHELPER_H
-#define QDRAWHELPER_H
+#ifndef QDRAWHELPER_P_H
+#define QDRAWHELPER_P_H
 
 #include <qglobal.h>
 #include <qcolor.h>
@@ -289,4 +289,4 @@ const uint qt_bayer_matrix[16][16] = {
       0xa9, 0x69, 0x99, 0x59, 0xa5, 0x65, 0x95, 0x55}
 };
 
-#endif
+#endif // QDRAWHELPER_P_H

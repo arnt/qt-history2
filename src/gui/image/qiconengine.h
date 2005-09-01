@@ -36,4 +36,4 @@ public:
 #endif
 };
 
-#endif
+#endif // QICONENGINE_H

@@ -391,4 +391,4 @@ private:
 
 #endif // QT_NO_LISTBOX
 
-#endif // QLISTBOX_H
+#endif // Q3LISTBOX_H

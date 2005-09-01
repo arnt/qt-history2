@@ -75,4 +75,4 @@ inline QStringList unique(const QStringList &lst)
     return h.keys();
 }
 
-#endif
+#endif // UTILS_H

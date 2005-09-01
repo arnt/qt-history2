@@ -155,4 +155,4 @@ void QCache<Key,T>::trim(int m)
     }
 }
 
-#endif
+#endif // QCACHE_H

@@ -63,4 +63,4 @@ Q_COMPAT_EXPORT QImage qImageFromMimeSource(const QString &abs_name);
 
 #endif // QT_NO_MIMEFACTORY
 
-#endif // QMIMEFACTORY_H
+#endif // Q3MIMEFACTORY_H

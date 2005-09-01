@@ -35,5 +35,5 @@ private:
     Q_DISABLE_COPY(Q3TextView)
 };
 
-#endif //QT_NO_TEXTVIEW
-#endif //QTEXTVIEW_H
+#endif // QT_NO_TEXTVIEW
+#endif // Q3TEXTVIEW_H

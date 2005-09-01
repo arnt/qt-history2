@@ -60,4 +60,4 @@ public:
     QStringList fallbacks;
 };
 
-#endif
+#endif // QFONTENGINE_WIN_P_H

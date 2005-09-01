@@ -64,5 +64,4 @@ private:
     Q_DECLARE_PRIVATE(QMimeData)
 };
 
-#endif
-
+#endif // QMIMEDATA_H

@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QGFXVOODOO_QWS_H
-#define QGFXVOODOO_QWS_H
+#ifndef QSCREENVOODOO_QWS_H
+#define QSCREENVOODOO_QWS_H
 
 #include "QtGui/qscreenlinuxfb_qws.h"
 
@@ -39,4 +39,4 @@ public:
 
 #endif // QT_NO_QWS_VOODOO
 
-#endif // QGFXVOODOO_QWS_H
+#endif // QSCREENVOODOO_QWS_H

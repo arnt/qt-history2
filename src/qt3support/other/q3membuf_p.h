@@ -68,4 +68,4 @@ inline bool Q3Membuf::canReadLine() const
 inline qint64 Q3Membuf::size() const
 { return _size; }
 
-#endif
+#endif // Q3MEMBUF_P_H

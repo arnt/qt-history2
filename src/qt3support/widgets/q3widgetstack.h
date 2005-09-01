@@ -73,4 +73,4 @@ private:
     Q_DISABLE_COPY(Q3WidgetStack)
 };
 
-#endif // QWIDGETSTACK_H
+#endif // Q3WIDGETSTACK_H

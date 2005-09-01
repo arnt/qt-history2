@@ -28,8 +28,8 @@
 **
 **********************************************************************/
 
-#ifndef QGFXSNAP_QWS_H
-#define QGFXSNAP_QWS_H
+#ifndef QSCREENSNAP_QWS_H
+#define QSCREENSNAP_QWS_H
 
 #ifndef QT_NO_QWS_SNAP
 
@@ -111,4 +111,4 @@ private:
 
 #endif // QT_NO_QWS_SNAP
 
-#endif // QGFXSNAP_QWS_H
+#endif // QSCREENSNAP_QWS_H

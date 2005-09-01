@@ -38,4 +38,4 @@ private:
     QByteArray parameters;
 };
 
-#endif
+#endif // QJPEGHANDLER_H

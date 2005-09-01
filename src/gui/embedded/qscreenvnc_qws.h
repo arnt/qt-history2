@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QGFXVNC_QWS_H
-#define QGFXVNC_QWS_H
+#ifndef QSCREENVNC_QWS_H
+#define QSCREENVNC_QWS_H
 
 #define VNCSCREEN_BASE QLinuxFbScreen
 #include "QtGui/qscreenlinuxfb_qws.h"
@@ -51,4 +51,4 @@ public:
 
 #endif // QT_NO_QWS_VNC
 
-#endif // QGFXVNC_QWS_H
+#endif // QSCREENVNC_QWS_H

@@ -68,4 +68,4 @@ private:
     QImageWriterPrivate *d;
 };
 
-#endif
+#endif // QIMAGEWRITER_H

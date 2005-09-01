@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTRANSPORTAUTH_H
-#define QTRANSPORTAUTH_H
+#ifndef QTRANSPORTAUTH_QWS_H
+#define QTRANSPORTAUTH_QWS_H
 
 #include <QtCore/qobject.h>
 #include <QtCore/qhash.h>
@@ -189,4 +189,4 @@ int hmac_md5(
 void stringify_key( char *buf, const unsigned char* key, size_t sz );
 #endif
 
-#endif
+#endif // QTRANSPORTAUTH_QWS_H

@@ -241,4 +241,4 @@ private:
 
 #endif
 
-#endif
+#endif // Q3HTTP_H

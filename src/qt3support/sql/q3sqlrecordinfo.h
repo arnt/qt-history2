@@ -79,6 +79,6 @@ inline QSqlRecord Q3SqlRecordInfo::toRecord() const
     return buf;
 }
 
-#endif        // QT_NO_SQL
+#endif // QT_NO_SQL
 
-#endif
+#endif // Q3SQLRECORDINFO_H

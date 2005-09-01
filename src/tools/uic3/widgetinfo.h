@@ -42,4 +42,4 @@ private:
     static QString resolveEnumerator(const QMetaEnum &metaEnum, const QString &name);
 };
 
-#endif
+#endif // WIDGETINFO_H

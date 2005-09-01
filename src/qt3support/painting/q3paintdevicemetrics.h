@@ -38,5 +38,4 @@ private:
     const QPaintDevice *pdev;
 };
 
-
-#endif // QPAINTDEVICEMETRICS_H
+#endif // Q3PAINTDEVICEMETRICS_H

@@ -36,4 +36,4 @@ public:
     const T& top() const { return this->last(); }
 };
 
-#endif
+#endif // Q3VALUESTACK_H

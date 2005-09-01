@@ -192,8 +192,7 @@ inline QLayoutItem *QLayoutIterator::takeCurrent() { return layout->takeAt(index
 inline void QLayoutIterator::deleteCurrent() { delete  layout->takeAt(index); }
 #endif
 
-
-#endif
+#endif // QLAYOUT_H
 
 //### support old includes
 #if 1 //def QT3_SUPPORT

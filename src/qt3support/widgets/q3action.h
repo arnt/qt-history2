@@ -186,4 +186,4 @@ private:
 
 #endif
 
-#endif
+#endif // Q3ACTION_H

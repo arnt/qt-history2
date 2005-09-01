@@ -248,4 +248,4 @@ private:
 };
 
 #endif
-#endif
+#endif // Q3DATETIMEEDIT_H

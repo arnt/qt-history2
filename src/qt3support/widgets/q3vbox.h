@@ -28,5 +28,4 @@ private:
     Q_DISABLE_COPY(Q3VBox)
 };
 
-
-#endif // QVBOX_H
+#endif // Q3VBOX_H

@@ -39,4 +39,4 @@ private:
 };
 
 #endif // QT_NO_IMAGEFORMAT_PPM
-#endif
+#endif // QPPMHANDLER_H

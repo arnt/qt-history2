@@ -180,4 +180,4 @@ private:
     Porting *m_porting;
 };
 
-#endif
+#endif // UI3READER_H

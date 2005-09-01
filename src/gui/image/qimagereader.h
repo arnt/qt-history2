@@ -83,4 +83,4 @@ private:
     QImageReaderPrivate *d;
 };
 
-#endif
+#endif // QIMAGEREADER_H

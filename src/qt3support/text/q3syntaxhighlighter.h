@@ -51,4 +51,4 @@ private:
 
 };
 
-#endif
+#endif // Q3SYNTAXHIGHLIGHTER_H

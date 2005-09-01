@@ -125,4 +125,4 @@ private:
 
 #endif
 
-#endif
+#endif // Q3SQLMANAGER_P_H

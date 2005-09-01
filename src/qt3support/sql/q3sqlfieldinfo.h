@@ -126,6 +126,6 @@ public:
 
 };
 
-#endif        // QT_NO_SQL
+#endif // QT_NO_SQL
 
-#endif
+#endif // Q3SQLFIELDINFO_H

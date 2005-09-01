@@ -93,4 +93,4 @@ private:
     Q_DISABLE_COPY(QX11EmbedContainer)
 };
 
-#endif
+#endif // QX11EMBED_H

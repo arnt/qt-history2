@@ -209,4 +209,4 @@ QList<T> QList<T>::fromSet(const QSet<T> &set)
 
 Q_DECLARE_SEQUENTIAL_ITERATOR(Set)
 
-#endif
+#endif // QSET_H

@@ -10,8 +10,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef __QBACKINGSTORE_P_H__
-#define __QBACKINGSTORE_P_H__
+
+#ifndef QBACKINGSTORE_P_H
+#define QBACKINGSTORE_P_H
 
 #include <private/qpaintengine_raster_p.h>
 
@@ -64,4 +65,4 @@ public:
 #endif
 };
 
-#endif /* __QBACKINGSTORE_P_H__ */
+#endif // QBACKINGSTORE_P_H

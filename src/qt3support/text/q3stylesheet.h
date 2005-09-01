@@ -198,4 +198,4 @@ private:
 
 #endif // QT_NO_RICHTEXT
 
-#endif // QSTYLESHEET_H
+#endif // Q3STYLESHEET_H

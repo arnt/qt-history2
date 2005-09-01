@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef Q3TL_H
 #define Q3TL_H
 
@@ -172,4 +173,4 @@ inline void qBubbleSort(Container &c)
     qBubbleSort(c.begin(), c.end());
 }
 
-#endif
+#endif // Q3TL_H

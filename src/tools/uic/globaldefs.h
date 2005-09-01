@@ -17,4 +17,4 @@
 enum { BOXLAYOUT_DEFAULT_MARGIN = 11 };
 enum { BOXLAYOUT_DEFAULT_SPACING = 6 };
 
-#endif
+#endif // GLOBALDEFS_H

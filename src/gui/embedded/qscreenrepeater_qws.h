@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QGFXREPEATER_QWS_H
-#define QGFXREPEATER_QWS_H
+#ifndef QSCREENREPEATER_QWS_H
+#define QSCREENREPEATER_QWS_H
 
 #include "QtGui/qscreen_qws.h"
 
@@ -52,4 +52,4 @@ private:
 
 #endif // QT_NO_QWS_REPEATER
 
-#endif // QGFXREPEATER_QWS_H
+#endif // QSCREENREPEATER_QWS_H

@@ -82,4 +82,4 @@ protected:
 #endif
 };
 
-#endif
+#endif // QFSFILEENGINE_P_H

@@ -75,5 +75,4 @@ protected:
     QFSFileEngine(QFSFileEnginePrivate &dd);
 };
 
-#endif
-
+#endif // QFSFILEENGINE_H

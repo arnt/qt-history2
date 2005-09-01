@@ -106,4 +106,4 @@ public:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QImageIOPlugin::Capabilities)
 
-#endif
+#endif // QIMAGEIOHANDLER_H
