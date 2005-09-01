@@ -866,7 +866,7 @@ void QWidget::activateWindow()
 void QWidgetBackingStore::updateWidget_sys(const QRegion &rgn, QWidget *widget)
 {
     if (!rgn.isEmpty())
-        InvalidateRgn(widget->winId(), rgn.handle(), false);
+        InvalidateRgn(widget->winId(), rgn.handle(), FALSE);
 }
 
 void QWidgetBackingStore::paintWidget_sys(const QRegion& rgn, QWidget *widget)
@@ -880,7 +880,7 @@ void QWidgetBackingStore::paintWidget_sys(const QRegion& rgn, QWidget *widget)
 void QWidget::update()
 {
     if (isVisible() && updatesEnabled()) {
-        InvalidateRect(winId(), 0, false);
+        InvalidateRect(winId(), 0, FALSE);
         setAttribute(Qt::WA_PendingUpdate);
     }
 }
@@ -889,7 +889,7 @@ void QWidget::update(const QRegion &rgn)
 {
     if (isVisible() && updatesEnabled()) {
         if (!rgn.isEmpty()) {
-            InvalidateRgn(winId(), rgn.handle(), false);
+            InvalidateRgn(winId(), rgn.handle(), FALSE);
             setAttribute(Qt::WA_PendingUpdate);
         }
     }
@@ -910,7 +910,7 @@ void QWidget::update(const QRect &r)
             r.bottom = data->crect.height();
         else
             r.bottom = y + h;
-        InvalidateRect(winId(), &r, false);
+        InvalidateRect(winId(), &r, FALSE);
         setAttribute(Qt::WA_PendingUpdate);
     }
 }
@@ -1414,7 +1414,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             }
             MoveWindow(q->winId(), fr.x(), fr.y(), fr.width(), fr.height(), true);
             if (!q->isVisible())
-                InvalidateRect(q->winId(), 0, false);
+                InvalidateRect(q->winId(), 0, FALSE);
             RECT rect;
             GetClientRect(q->winId(), &rect);
     	    data.crect.setRect(x, y, rect.right - rect.left, rect.bottom - rect.top);

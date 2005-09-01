@@ -48,7 +48,7 @@ QAuServerWindows::QAuServerWindows(QObject* parent) :
     QAuServer(parent), current(0)
 {
     mutex = CreateMutexA(0, 0, 0);
-    event = CreateEventA(0, false, false, 0);
+    event = CreateEventA(0, FALSE, FALSE, 0);
 }
 
 QAuServerWindows::~QAuServerWindows()

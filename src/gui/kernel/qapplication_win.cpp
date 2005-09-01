@@ -230,7 +230,7 @@ void qt_erase_background(HDC hdc, int x, int y, int w, int h,
         DeleteObject(hbrush);
     }
     if (hpal) {
-        SelectPalette(hdc, oldPal, true);
+        SelectPalette(hdc, oldPal, TRUE);
         RealizePalette(hdc);
     }
 }
@@ -1782,11 +1782,11 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         case WM_QUERYNEWPALETTE:                // realize own palette
             if (QColormap::hPal()) {
                 HDC hdc = GetDC(widget->winId());
-                HPALETTE hpalOld = SelectPalette(hdc, QColormap::hPal(), false);
+                HPALETTE hpalOld = SelectPalette(hdc, QColormap::hPal(), FALSE);
                 uint n = RealizePalette(hdc);
                 if (n)
-                    InvalidateRect(widget->winId(), 0, true);
-                SelectPalette(hdc, hpalOld, true);
+                    InvalidateRect(widget->winId(), 0, TRUE);
+                SelectPalette(hdc, hpalOld, TRUE);
                 RealizePalette(hdc);
                 ReleaseDC(widget->winId(), hdc);
                 RETURN(n);

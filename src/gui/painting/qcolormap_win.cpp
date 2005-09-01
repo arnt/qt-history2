@@ -76,7 +76,7 @@ void QColormap::initialize()
         qErrnoWarning("QColor::initialize: Failed to create logical palette");
     free (pal);
 
-    SelectPalette(dc, screenMap->hpal, false);
+    SelectPalette(dc, screenMap->hpal, FALSE);
     RealizePalette(dc);
 
     PALETTEENTRY paletteEntries[256];

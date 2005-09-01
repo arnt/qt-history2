@@ -31,9 +31,9 @@ public:
     inline QWaitConditionEvent() : priority(0)
     {
         QT_WA ({
-            event = CreateEvent(NULL, true, false, NULL);
+            event = CreateEvent(NULL, TRUE, FALSE, NULL);
         }, {
-            event = CreateEventA(NULL, true, false, NULL);
+            event = CreateEventA(NULL, TRUE, FALSE, NULL);
         });
     }
     inline ~QWaitConditionEvent() { CloseHandle(event); }
