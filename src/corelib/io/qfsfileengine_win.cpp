@@ -1419,7 +1419,7 @@ bool QFSFileEngine::setSize(qint64 size)
         if (fh == INVALID_HANDLE_VALUE)
             return false;
 
-        qint64 currentPos = at();
+        qint64 currentPos = pos();
         if (seek(size) && SetEndOfFile(fh)) {
             seek(qMin(currentPos, size));
             return true;
