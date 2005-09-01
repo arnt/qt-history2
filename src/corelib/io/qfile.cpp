@@ -14,8 +14,7 @@
 #include <qplatformdefs.h>
 
 #include "qfile.h"
-#include <qfileengine.h>
-#include "qbufferedfsfileengine_p.h"
+#include "qfsfileengine.h"
 #include <qtemporaryfile.h>
 #include <qlist.h>
 #include <qfileinfo.h>
@@ -54,11 +53,8 @@ static QString locale_decode(const QByteArray &f)
 QFile::EncoderFn QFilePrivate::encoder = locale_encode;
 QFile::DecoderFn QFilePrivate::decoder = locale_decode;
 
-QFilePrivate::QFilePrivate() :
-#ifndef QT_NO_FILE_BUFFER
-    buffer(read_cache_size),
-#endif
-    fileEngine(0), error(QFile::NoError)
+QFilePrivate::QFilePrivate()
+    : fileEngine(0), error(QFile::NoError)
 {
 }
 
@@ -75,17 +71,19 @@ QFilePrivate::openExternalFile(int flags, int fd)
     QFSFileEngine *fe = new QFSFileEngine;
     fe->setFileName(fileName);
     fileEngine = fe;
-    return fe->open(flags, fd);
+    return fe->open(QIODevice::OpenMode(flags), fd);
 }
 
 bool
 QFilePrivate::openExternalFile(int flags, FILE *fh)
 {
     delete fileEngine;
-    QBufferedFSFileEngine *fe = new QBufferedFSFileEngine;
+    QFSFileEngine *fe = new QFSFileEngine;
     fe->setFileName(fileName);
     fileEngine = fe;
-    return fe->open(flags, fh);
+    if (flags & QIODevice::Unbuffered)
+        qWarning("QFile::open() QIODevice::Unbuffered is incompatible with FILE *; ignoring");
+    return fe->open(QIODevice::OpenMode(flags & ~QIODevice::Unbuffered), fh);
 }
 
 void
@@ -331,10 +329,9 @@ QFile::~QFile()
 
     \sa setFileName(), QFileInfo::fileName()
 */
-QString
-QFile::fileName() const
+QString QFile::fileName() const
 {
-    return fileEngine()->fileName(QFileEngine::DefaultName);
+    return fileEngine()->fileName(QAbstractFileEngine::DefaultName);
 }
 
 /*!
@@ -484,7 +481,7 @@ QFile::setDecodingFunction(DecoderFn f)
 bool
 QFile::exists() const
 {
-    return (fileEngine()->fileFlags(QFileEngine::FlagsMask) & QFileEngine::ExistsFlag);
+    return (fileEngine()->fileFlags(QAbstractFileEngine::FlagsMask) & QAbstractFileEngine::ExistsFlag);
 }
 
 /*!
@@ -514,7 +511,7 @@ QFile::exists(const QString &fileName)
 QString
 QFile::readLink() const
 {
-    return fileEngine()->fileName(QFileEngine::LinkName);
+    return fileEngine()->fileName(QAbstractFileEngine::LinkName);
 }
 
 /*!
@@ -795,7 +792,6 @@ bool QFile::open(OpenMode mode)
     }
     if (mode & Append)
         mode |= WriteOnly;
-    mode |= Unbuffered;
 
     unsetError();
     if ((mode & (ReadOnly | WriteOnly)) == 0) {
@@ -860,10 +856,6 @@ bool QFile::open(FILE *fh, OpenMode mode)
         qWarning("QFile::open: File access not specified");
         return false;
     }
-
-    // Implicitly set Unbuffered mode; buffering is already handled.
-    mode |= Unbuffered;
-
     if(d->openExternalFile(mode, fh)) {
         setOpenMode(mode);
         return true;
@@ -935,9 +927,9 @@ QFile::handle() const
 {
     if (!isOpen())
         return -1;
-    QFileEngine *engine = fileEngine();
-    if(engine->type() == QFileEngine::File || engine->type() == QFileEngine::BufferedFile)
-        return static_cast<QFSFileEngine*>(engine)->handle();
+    
+    if (QAbstractFileEngine *engine = fileEngine())
+        return engine->handle();
     return -1;
 }
 
@@ -966,7 +958,7 @@ bool
 QFile::resize(qint64 sz)
 {
     Q_D(QFile);
-    if (fileEngine()->at() > sz)
+    if (fileEngine()->pos() > sz)
         fileEngine()->seek(sz);
     if(fileEngine()->setSize(sz)) {
         unsetError();
@@ -1003,7 +995,7 @@ QFile::resize(const QString &fileName, qint64 sz)
 QFile::Permissions
 QFile::permissions() const
 {
-    QFileEngine::FileFlags perms = fileEngine()->fileFlags(QFileEngine::PermsMask) & QFileEngine::PermsMask;
+    QAbstractFileEngine::FileFlags perms = fileEngine()->fileFlags(QAbstractFileEngine::PermsMask) & QAbstractFileEngine::PermsMask;
     return QFile::Permissions((int)perms); //ewww
 }
 
@@ -1030,7 +1022,7 @@ bool
 QFile::setPermissions(Permissions permissions)
 {
     Q_D(QFile);
-    if(fileEngine()->chmod(permissions)) {
+    if(fileEngine()->setPermissions(permissions)) {
         unsetError();
         return true;
     }
@@ -1074,9 +1066,6 @@ QFile::close()
     QIODevice::close();
 
     unsetError();
-#ifndef QT_NO_FILE_BUFFER
-    d->buffer.clear();
-#endif
     if(!fileEngine()->close())
         d->setError(fileEngine()->error(), fileEngine()->errorString());
 }
@@ -1096,14 +1085,9 @@ qint64 QFile::size() const
 
 qint64 QFile::pos() const
 {
-    Q_D(const QFile);
     if (!isOpen())
         return 0;
-#ifndef QT_NO_FILE_BUFFER
-    return fileEngine()->at() - d->buffer.used();
-#else
-    return fileEngine()->at();
-#endif
+    return fileEngine()->pos();
 }
 
 /*!
@@ -1112,11 +1096,8 @@ qint64 QFile::pos() const
 
 bool QFile::atEnd() const
 {
-    Q_D(const QFile);
     if (!isOpen())
         return true;
-    if(!d->buffer.isEmpty())
-        return false;
     return QIODevice::atEnd();
 }
 
@@ -1140,9 +1121,6 @@ bool QFile::seek(qint64 off)
         d->setError(err, fileEngine()->errorString());
         return false;
     }
-#ifndef QT_NO_FILE_BUFFER
-    d->buffer.clear();
-#endif
     unsetError();
     return true;
 }
@@ -1152,74 +1130,7 @@ bool QFile::seek(qint64 off)
 */
 qint64 QFile::readLineData(char *data, qint64 maxlen)
 {
-    Q_D(QFile);
-#ifndef QT_NO_FILE_BUFFER
-    if (openMode() & Unbuffered)
-        if (fileEngine()->type() == QFileEngine::BufferedFile) {
-            return static_cast<QBufferedFSFileEngine *>(fileEngine())->readLine(data, maxlen);
-        } else
-#endif
-        return QIODevice::readLineData(data, maxlen);
-
-#ifndef QT_NO_FILE_BUFFER
-    qint64 readSoFar = 0;
-    bool foundEndOfLine = false;
-
-    forever {
-        // get a pointer to the buffer
-        uint realSize = 0;
-        char *ptr = d->buffer.take(d->buffer.used(), &realSize);
-
-        // search for a '\n' character, copy over data as we search
-        if (realSize > 0) {
-            uint i = 0;
-            while (i < realSize) {
-                ++i;
-                if (ptr[i - 1] == '\n') {
-                    foundEndOfLine = true;
-                    break;
-                }
-            }
-
-            memcpy(data + readSoFar, ptr, i);
-            d->buffer.free(i);
-            readSoFar += i;
-        }
-
-        // return if it was found
-        if (foundEndOfLine) {
-            if (readSoFar < maxlen)
-                data[readSoFar] = '\0';
-            return readSoFar;
-        }
-
-        // read more data
-        int bytesToRead = qMin(read_cache_size, int(maxlen - readSoFar));
-        if (bytesToRead == 0) {
-            if (readSoFar < maxlen)
-                data[readSoFar] = '\0';
-            return readSoFar;
-        }
-
-        char *buffer = d->buffer.alloc(bytesToRead);
-        qint64 bytesRead = fileEngine()->read(buffer, bytesToRead);
-
-        if (bytesRead != bytesToRead) {
-            if (bytesRead < 0)
-                d->buffer.truncate(bytesToRead);
-            else
-                d->buffer.truncate(bytesToRead - bytesRead);
-        }
-
-        if (bytesRead <= 0) {
-            if (readSoFar < maxlen)
-                data[readSoFar] = '\0';
-            return readSoFar > 0 ? readSoFar : qint64(-1);
-        }
-
-    }
-#endif
-    return 0;
+    return fileEngine()->readLine(data, maxlen);
 }
 
 /*!
@@ -1231,48 +1142,10 @@ qint64 QFile::readData(char *data, qint64 len)
     Q_D(QFile);
     unsetError();
 
-   qint64 ret = 0;
-#ifndef QT_NO_FILE_BUFFER
-    if ((openMode() & Unbuffered) == 0) {
-        //from buffer
-        while(ret != len && !d->buffer.isEmpty()) {
-            uint buffered = qMin(len, (qint64)d->buffer.used());
-            char *buffer = d->buffer.take(buffered, &buffered);
-            memcpy(data+ret, buffer, buffered);
-            d->buffer.free(buffered);
-            ret += buffered;
-        }
-        //from the device
-        if(ret < len) {
-            if(len > read_cache_size) {
-                qint64 read = fileEngine()->read(data+ret, len-ret);
-                if(read != -1)
-                    ret += read;
-            } else {
-                char *buffer = d->buffer.alloc(read_cache_size);
-                qint64 got = fileEngine()->read(buffer, read_cache_size);
-                if(got != -1) {
-                    if(got < read_cache_size)
-                        d->buffer.truncate(read_cache_size - got);
-                    const qint64 need = qMin(len-ret, got);
-                    memcpy(data+ret, buffer, need);
-                    d->buffer.free(need);
-                    ret += need;
-                } else {
-                    if(!ret)
-                        ret = -1;
-                    d->buffer.truncate(read_cache_size);
-                }
-            }
-        }
-    } else {
-#endif
-        qint64 read = fileEngine()->read(data+ret, len-ret);
-        if(read != -1)
-            ret += read;
-#ifndef QT_NO_FILE_BUFFER
-    }
-#endif
+    qint64 ret = 0;
+    qint64 read = fileEngine()->read(data+ret, len-ret);
+    if (read != -1)
+        ret += read;
 
     if(ret < 0) {
         QFile::FileError err = fileEngine()->error();
@@ -1293,10 +1166,6 @@ QFile::writeData(const char *data, qint64 len)
     Q_D(QFile);
     unsetError();
 
-#ifndef QT_NO_FILE_BUFFER
-    if(!d->buffer.isEmpty())
-        seek(pos());
-#endif
     qint64 ret = fileEngine()->write(data, len);
     if(ret < 0) {
         QFile::FileError err = fileEngine()->error();
@@ -1308,16 +1177,14 @@ QFile::writeData(const char *data, qint64 len)
 }
 
 /*!
-  \internal
-  Returns the QIOEngine for this QFile object.
+    \internal
+    Returns the QIOEngine for this QFile object.
 */
-
-QFileEngine
-*QFile::fileEngine() const
+QAbstractFileEngine *QFile::fileEngine() const
 {
     Q_D(const QFile);
     if(!d->fileEngine)
-        d->fileEngine = QFileEngine::createFileEngine(d->fileName);
+        d->fileEngine = QAbstractFileEngine::create(d->fileName);
     return d->fileEngine;
 }
 

@@ -27,9 +27,7 @@
 
 #include <private/qiodevice_p.h>
 #include <private/qinternal_p.h>
-#include <qfileengine.h>
-
-//#define QT_NO_FILE_BUFFER
+#include <qabstractfileengine.h>
 
 class QFilePrivate : public QIODevicePrivate
 {
@@ -42,11 +40,8 @@ protected:
     bool openExternalFile(int flags, int fd);
     bool openExternalFile(int flags, FILE *fh);
 
-#ifndef QT_NO_FILE_BUFFER
-    QCircularBuffer buffer;
-#endif
     QString fileName;
-    mutable QFileEngine *fileEngine;
+    mutable QAbstractFileEngine *fileEngine;
     bool isOpen;
 
     QFile::FileError error;

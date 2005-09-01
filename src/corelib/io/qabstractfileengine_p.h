@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QFILEENGINE_P_H
-#define QFILEENGINE_P_H
+#ifndef QABSTRACTFILEENGINE_P_H
+#define QABSTRACTFILEENGINE_P_H
 
 //
 //  W A R N I N G
@@ -25,20 +25,23 @@
 // We mean it.
 //
 
-#include <qplatformdefs.h>
-#include <qiodevice.h>
-#include <qfileengine.h>
+#include "qabstractfileengine.h"
+#include "qfile.h"
 
-class QFileEnginePrivate
+class QAbstractFileEnginePrivate
 {
 public:
-    QFileEnginePrivate() { }
-    virtual ~QFileEnginePrivate() { }
-protected:
-    QFileEngine *q_ptr;
-    Q_DECLARE_PUBLIC(QFileEngine)
-private:
-    //just in case I need this later --Sam
+    inline QAbstractFileEnginePrivate()
+        : fileError(QFile::UnspecifiedError)
+    {
+    }
+    inline virtual ~QAbstractFileEnginePrivate() { }
+
+    QFile::FileError fileError;
+    QString errorString;
+
+    QAbstractFileEngine *q_ptr;
+    Q_DECLARE_PUBLIC(QAbstractFileEngine)
 };
 
-#endif // QFILEENGINE_P_H
+#endif // QABSTRACTFILEENGINE_P_H

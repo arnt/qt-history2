@@ -13,7 +13,7 @@
 
 #define _POSIX_
 #include <qplatformdefs.h>
-#include <qfileengine.h>
+#include <qabstractfileengine.h>
 #include <private/qfsfileengine_p.h>
 
 #include <qfile.h>
@@ -1096,10 +1096,10 @@ bool QFSFileEngine::link(const QString &newName)
 #endif // QT_NO_LIBRARY
 }
 
-QFileEngine::FileFlags
+QAbstractFileEngine::FileFlags
 QFSFileEnginePrivate::getPermissions() const
 {
-    QFileEngine::FileFlags ret = 0;
+    QAbstractFileEngine::FileFlags ret = 0;
 
 #if !defined(QT_NO_LIBRARY)
     if((qt_ntfs_permission_lookup > 0) && ((QSysInfo::WindowsVersion&QSysInfo::WV_NT_based) > QSysInfo::WV_NT)) {
@@ -1122,33 +1122,33 @@ QFSFileEnginePrivate::getPermissions() const
                     if(ptrGetEffectiveRightsFromAclW(pDacl, &currentUserTrusteeW, &access_mask) != ERROR_SUCCESS)
                         access_mask = (ACCESS_MASK)-1;
 		    if(access_mask & ReadMask)
-			ret |= QFileEngine::ReadUserPerm;
+			ret |= QAbstractFileEngine::ReadUserPerm;
 		    if(access_mask & WriteMask)
-			ret |= QFileEngine::WriteUserPerm;
+			ret |= QAbstractFileEngine::WriteUserPerm;
 		    if(access_mask & ExecMask)
-			ret |= QFileEngine::ExeUserPerm;
+			ret |= QAbstractFileEngine::ExeUserPerm;
                 }
                 { //owner
                     ptrBuildTrusteeWithSidW(&trustee, pOwner);
                     if(ptrGetEffectiveRightsFromAclW(pDacl, &trustee, &access_mask) != ERROR_SUCCESS)
                         access_mask = (ACCESS_MASK)-1;
 		    if(access_mask & ReadMask)
-			ret |= QFileEngine::ReadOwnerPerm;
+			ret |= QAbstractFileEngine::ReadOwnerPerm;
 		    if(access_mask & WriteMask)
-			ret |= QFileEngine::WriteOwnerPerm;
+			ret |= QAbstractFileEngine::WriteOwnerPerm;
 		    if(access_mask & ExecMask)
-			ret |= QFileEngine::ExeOwnerPerm;
+			ret |= QAbstractFileEngine::ExeOwnerPerm;
                 }
                 { //group
                     ptrBuildTrusteeWithSidW(&trustee, pGroup);
                     if(ptrGetEffectiveRightsFromAclW(pDacl, &trustee, &access_mask) != ERROR_SUCCESS)
                         access_mask = (ACCESS_MASK)-1;
 		    if(access_mask & ReadMask)
-			ret |= QFileEngine::ReadGroupPerm;
+			ret |= QAbstractFileEngine::ReadGroupPerm;
 		    if(access_mask & WriteMask)
-			ret |= QFileEngine::WriteGroupPerm;
+			ret |= QAbstractFileEngine::WriteGroupPerm;
 		    if(access_mask & ExecMask)
-			ret |= QFileEngine::ExeGroupPerm;
+			ret |= QAbstractFileEngine::ExeGroupPerm;
                 }
                 { //other (world)
                     // Create SID for Everyone (World)
@@ -1159,11 +1159,11 @@ QFSFileEnginePrivate::getPermissions() const
                         if(ptrGetEffectiveRightsFromAclW(pDacl, &trustee, &access_mask) != ERROR_SUCCESS)
                             access_mask = (ACCESS_MASK)-1; // ###
 			if(access_mask & ReadMask)
-			    ret |= QFileEngine::ReadOtherPerm;
+			    ret |= QAbstractFileEngine::ReadOtherPerm;
 			if(access_mask & WriteMask)
-			    ret |= QFileEngine::WriteOtherPerm;
+			    ret |= QAbstractFileEngine::WriteOtherPerm;
 			if(access_mask & ExecMask)
-			    ret |= QFileEngine::ExeOtherPerm;
+			    ret |= QAbstractFileEngine::ExeOtherPerm;
                     }
                     ptrFreeSid(pWorld);
                 }
@@ -1176,33 +1176,33 @@ QFSFileEnginePrivate::getPermissions() const
 	//### what to do with permissions if we don't use ntfs or are not on a NT system
 	// for now just add all permissions and what about exe missions ??
 	// also qt_ntfs_permission_lookup is now not set by defualt ... should it ?
-    	ret |= QFileEngine::ReadOtherPerm | QFileEngine::ReadGroupPerm
-	    | QFileEngine::ReadOwnerPerm | QFileEngine::ReadUserPerm
-	    | QFileEngine::WriteUserPerm | QFileEngine::WriteOwnerPerm
-	    | QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm;
+    	ret |= QAbstractFileEngine::ReadOtherPerm | QAbstractFileEngine::ReadGroupPerm
+	    | QAbstractFileEngine::ReadOwnerPerm | QAbstractFileEngine::ReadUserPerm
+	    | QAbstractFileEngine::WriteUserPerm | QAbstractFileEngine::WriteOwnerPerm
+	    | QAbstractFileEngine::WriteGroupPerm | QAbstractFileEngine::WriteOtherPerm;
     }
 
     if (doStat()) {
-        if (ret & (QFileEngine::WriteOwnerPerm | QFileEngine::WriteUserPerm |
-            QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm)) {
+        if (ret & (QAbstractFileEngine::WriteOwnerPerm | QAbstractFileEngine::WriteUserPerm |
+            QAbstractFileEngine::WriteGroupPerm | QAbstractFileEngine::WriteOtherPerm)) {
             if (fileAttrib & FILE_ATTRIBUTE_READONLY)
-                ret &= ~(QFileEngine::WriteOwnerPerm | QFileEngine::WriteUserPerm |
-                QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm);
+                ret &= ~(QAbstractFileEngine::WriteOwnerPerm | QAbstractFileEngine::WriteUserPerm |
+                QAbstractFileEngine::WriteGroupPerm | QAbstractFileEngine::WriteOtherPerm);
         }
         
         QString ext = file.right(4).toLower();
         if (ext == ".exe" || ext == ".com" || ext == ".bat" ||
             ext == ".pif" || ext == ".cmd" || (fileAttrib & FILE_ATTRIBUTE_DIRECTORY))
-            ret |= QFileEngine::ExeOwnerPerm | QFileEngine::ExeGroupPerm | 
-            QFileEngine::ExeOtherPerm | QFileEngine::ExeUserPerm;
+            ret |= QAbstractFileEngine::ExeOwnerPerm | QAbstractFileEngine::ExeGroupPerm | 
+            QAbstractFileEngine::ExeOtherPerm | QAbstractFileEngine::ExeUserPerm;
     }
     return ret;
 }
 
-QFileEngine::FileFlags QFSFileEngine::fileFlags(QFileEngine::FileFlags type) const
+QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::FileFlags type) const
 {
     Q_D(const QFSFileEngine);
-    QFileEngine::FileFlags ret = 0;
+    QAbstractFileEngine::FileFlags ret = 0;
     if (type & PermsMask) {
         ret |= d->getPermissions();
         // ### Workaround pascals ### above. Since we always set all properties to true
@@ -1224,7 +1224,7 @@ QFileEngine::FileFlags QFSFileEngine::fileFlags(QFileEngine::FileFlags type) con
     }
     if (type & FlagsMask) {
         if(d->doStat()) {
-            ret |= QFileEngine::FileFlags(ExistsFlag | LocalDiskFlag);
+            ret |= QAbstractFileEngine::FileFlags(ExistsFlag | LocalDiskFlag);
             if (d->fileAttrib & FILE_ATTRIBUTE_HIDDEN)
                 ret |= HiddenFlag;
             if (d->file == "/" || (d->file[0].isLetter() && d->file.mid(1,d->file.length()) == ":/")

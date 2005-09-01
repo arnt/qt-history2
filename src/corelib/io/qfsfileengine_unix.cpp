@@ -16,7 +16,7 @@
 # include <qregexp.h>
 #endif
 
-#include <qfileengine.h>
+#include <qabstractfileengine.h>
 #include <private/qfsfileengine_p.h>
 #include <qfile.h>
 #include <qdir.h>
@@ -259,10 +259,10 @@ QFileInfoList QFSFileEngine::drives()
 
 bool QFSFileEnginePrivate::doStat() const
 {
-    if(!tried_stat) {
+    if (tried_stat == 0) {
         QFSFileEnginePrivate *that = const_cast<QFSFileEnginePrivate*>(this);
-	that->tried_stat = true;
-	that->could_stat = true;
+	that->tried_stat = 1;
+	that->could_stat = 1;
         if(fd != -1) {
             that->could_stat = !QT_FSTAT(fd, &st);
         } else {
@@ -275,10 +275,10 @@ bool QFSFileEnginePrivate::doStat() const
     return could_stat;
 }
 
-QFileEngine::FileFlags QFSFileEngine::fileFlags(QFileEngine::FileFlags type) const
+QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::FileFlags type) const
 {
     Q_D(const QFSFileEngine);
-    QFileEngine::FileFlags ret = 0;
+    QAbstractFileEngine::FileFlags ret = 0;
     if(!d->doStat())
         return ret;
     if(type & PermsMask) {
@@ -332,7 +332,7 @@ QFileEngine::FileFlags QFSFileEngine::fileFlags(QFileEngine::FileFlags type) con
         }
     }
     if(type & FlagsMask) {
-        ret |= QFileEngine::FileFlags(ExistsFlag | LocalDiskFlag);
+        ret |= QAbstractFileEngine::FileFlags(ExistsFlag | LocalDiskFlag);
         if(fileName(BaseName)[0] == QLatin1Char('.'))
             ret |= HiddenFlag;
         if(d->file == QLatin1String("/"))
@@ -481,7 +481,7 @@ QString QFSFileEngine::owner(FileOwner own) const
     return QString();
 }
 
-bool QFSFileEngine::chmod(uint perms)
+bool QFSFileEngine::setPermissions(uint perms)
 {
     Q_D(QFSFileEngine);
     mode_t mode = 0;

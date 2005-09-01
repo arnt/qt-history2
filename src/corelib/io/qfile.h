@@ -25,7 +25,7 @@
 
 QT_MODULE(Core)
 
-class QFileEngine;
+class QAbstractFileEngine;
 class QFilePrivate;
 class Q_CORE_EXPORT QFile : public QIODevice
 {
@@ -129,7 +129,7 @@ public:
 
     int handle() const;
 
-    virtual QFileEngine *fileEngine() const;
+    virtual QAbstractFileEngine *fileEngine() const;
 
 #ifdef QT3_SUPPORT
     typedef Permission PermissionSpec;

@@ -34,14 +34,13 @@ bootstrap { #Qt code
    SOURCES+= \
         qbitarray.cpp \
         qbuffer.cpp \
-	qbufferedfsfileengine.cpp \
         qbytearray.cpp \
         qbytearraymatcher.cpp \
         qchar.cpp \
         qdatetime.cpp \
         qdir.cpp \
         qfile.cpp \
-        qfileengine.cpp \
+        qabstractfileengine.cpp \
         qfileinfo.cpp \
         qfsfileengine.cpp \
         qglobal.cpp \
@@ -68,7 +67,6 @@ bootstrap { #Qt code
    HEADERS+= \
         qbitarray.h \
         qbuffer.h \
-	qbufferedfsfileengine_p.h \
         qbytearray.h \
         qbytearraymatcher.h \
         qchar.h \
@@ -76,7 +74,7 @@ bootstrap { #Qt code
         qdatetime_p.h \
         qdir.h \
         qfile.h \
-        qfileengine.h \
+        qabstractfileengine.h \
         qfileinfo.h \
         qglobal.h \
         qhash.h \

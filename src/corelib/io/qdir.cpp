@@ -14,8 +14,8 @@
 #include <qplatformdefs.h>
 
 #include "qdir.h"
-#include <qfileengine.h>
-#include <private/qfsfileengine_p.h>
+#include <qabstractfileengine.h>
+#include <qfsfileengine.h>
 #include <qdatetime.h>
 #include <qstring.h>
 #include <qregexp.h>
@@ -97,7 +97,7 @@ private:
         QDir::SortFlags sort;
         QDir::Filters filters;
 
-        mutable QFileEngine *fileEngine;
+        mutable QAbstractFileEngine *fileEngine;
 
         mutable uint listsDirty : 1;
         mutable QStringList files;
@@ -283,7 +283,7 @@ void QDirPrivate::initFileEngine(const QString &path)
     delete data->fileEngine;
     data->fileEngine = 0;
     data->clear();
-    data->fileEngine = QFileEngine::createFileEngine(path);
+    data->fileEngine = QAbstractFileEngine::create(path);
 }
 
 void QDirPrivate::detach(bool createFileEngine)
@@ -291,7 +291,7 @@ void QDirPrivate::detach(bool createFileEngine)
     qAtomicDetach(data);
     if (createFileEngine) {
         delete data->fileEngine;
-        data->fileEngine = QFileEngine::createFileEngine(data->path);
+        data->fileEngine = QAbstractFileEngine::create(data->path);
     }
 }
 
@@ -592,7 +592,7 @@ QString QDir::canonicalPath() const
 
     if(!d->data->fileEngine)
         return QLatin1String("");
-    return cleanPath(d->data->fileEngine->fileName(QFileEngine::CanonicalName));
+    return cleanPath(d->data->fileEngine->fileName(QAbstractFileEngine::CanonicalName));
 }
 
 /*!
@@ -1295,11 +1295,11 @@ bool QDir::isReadable() const
 
     if(!d->data->fileEngine)
         return false;
-    const QFileEngine::FileFlags info = d->data->fileEngine->fileFlags(QFileEngine::DirectoryType
-                                                                       |QFileEngine::PermsMask);
-    if(!(info & QFileEngine::DirectoryType))
+    const QAbstractFileEngine::FileFlags info = d->data->fileEngine->fileFlags(QAbstractFileEngine::DirectoryType
+                                                                       |QAbstractFileEngine::PermsMask);
+    if(!(info & QAbstractFileEngine::DirectoryType))
         return false;
-    return info & QFileEngine::ReadUserPerm;
+    return info & QAbstractFileEngine::ReadUserPerm;
 }
 
 /*!
@@ -1318,11 +1318,11 @@ bool QDir::exists() const
 
     if(!d->data->fileEngine)
         return false;
-    const QFileEngine::FileFlags info = d->data->fileEngine->fileFlags(QFileEngine::DirectoryType
-                                                                       |QFileEngine::ExistsFlag);
-    if(!(info & QFileEngine::DirectoryType))
+    const QAbstractFileEngine::FileFlags info = d->data->fileEngine->fileFlags(QAbstractFileEngine::DirectoryType
+                                                                       |QAbstractFileEngine::ExistsFlag);
+    if(!(info & QAbstractFileEngine::DirectoryType))
         return false;
-    return info & QFileEngine::ExistsFlag;
+    return info & QAbstractFileEngine::ExistsFlag;
 }
 
 /*!
@@ -1349,7 +1349,7 @@ bool QDir::isRoot() const
 
     if(!d->data->fileEngine)
         return true;
-    return d->data->fileEngine->fileFlags(QFileEngine::FlagsMask) & QFileEngine::RootFlag;
+    return d->data->fileEngine->fileFlags(QAbstractFileEngine::FlagsMask) & QAbstractFileEngine::RootFlag;
 }
 
 /*!
@@ -1402,13 +1402,13 @@ bool QDir::makeAbsolute() // ### What do the return values signify?
 
     if(!d->data->fileEngine)
         return false;
-    QString absolutePath = d->data->fileEngine->fileName(QFileEngine::AbsoluteName);
+    QString absolutePath = d->data->fileEngine->fileName(QAbstractFileEngine::AbsoluteName);
     if(QDir::isRelativePath(absolutePath))
         return false;
     d->detach();
     d->data->path = absolutePath;
     d->data->fileEngine->setFileName(absolutePath);
-    if(!(d->data->fileEngine->fileFlags(QFileEngine::TypesMask) & QFileEngine::DirectoryType))
+    if(!(d->data->fileEngine->fileFlags(QAbstractFileEngine::TypesMask) & QAbstractFileEngine::DirectoryType))
         return false;
     return true;
 }
@@ -1437,8 +1437,7 @@ bool QDir::operator==(const QDir &dir) const
     if(d->data == other->data)
         return true;
     Q_ASSERT(d->data->fileEngine && other->data->fileEngine);
-    if(d->data->fileEngine->type() != other->data->fileEngine->type() ||
-       d->data->fileEngine->caseSensitive() != other->data->fileEngine->caseSensitive())
+    if(d->data->fileEngine->caseSensitive() != other->data->fileEngine->caseSensitive())
         return false;
     if(d->data->filters == other->data->filters
        && d->data->sort == other->data->sort

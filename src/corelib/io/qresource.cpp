@@ -19,7 +19,7 @@
 #include <qbytearray.h>
 #include <qstringlist.h>
 #include <qvector.h>
-#include <private/qfileengine_p.h>
+#include <private/qabstractfileengine_p.h>
 
 #include "qresource_p.h"
 
@@ -395,14 +395,14 @@ Q_CORE_EXPORT bool qUnregisterResourceData(int version, const unsigned char *tre
 }
 
 //file type handler
-class QResourceFileEngineHandler : public QFileEngineHandler
+class QResourceFileEngineHandler : public QAbstractFileEngineHandler
 {
 public:
     QResourceFileEngineHandler() { }
     ~QResourceFileEngineHandler() { }
-    QFileEngine *createFileEngine(const QString &path);
+    QAbstractFileEngine *create(const QString &path) const;
 };
-QFileEngine *QResourceFileEngineHandler::createFileEngine(const QString &path)
+QAbstractFileEngine *QResourceFileEngineHandler::create(const QString &path) const
 {
     if (path.size() > 0 && path.startsWith(QLatin1Char(':')))
         return new QResourceFileEngine(path);
@@ -410,7 +410,7 @@ QFileEngine *QResourceFileEngineHandler::createFileEngine(const QString &path)
 }
 
 //resource engine
-class QResourceFileEnginePrivate : public QFileEnginePrivate
+class QResourceFileEnginePrivate : public QAbstractFileEnginePrivate
 {
 protected:
     Q_DECLARE_PUBLIC(QResourceFileEngine)
@@ -482,7 +482,7 @@ bool QResourceFileEngine::caseSensitive() const
 }
 
 QResourceFileEngine::QResourceFileEngine(const QString &file) :
-    QFileEngine(*new QResourceFileEnginePrivate)
+    QAbstractFileEngine(*new QResourceFileEnginePrivate)
 {
     Q_D(QResourceFileEngine);
     d->resource.setFileName(file);
@@ -498,7 +498,7 @@ void QResourceFileEngine::setFileName(const QString &file)
     d->resource.setFileName(file);
 }
 
-bool QResourceFileEngine::open(int flags)
+bool QResourceFileEngine::open(QIODevice::OpenMode flags)
 {
     Q_D(QResourceFileEngine);
     if (d->resource.fileName().isEmpty()) {
@@ -519,9 +519,9 @@ bool QResourceFileEngine::close()
     return true;
 }
 
-void QResourceFileEngine::flush()
+bool QResourceFileEngine::flush()
 {
-
+    return false;
 }
 
 qint64 QResourceFileEngine::read(char *data, qint64 len)
@@ -537,11 +537,6 @@ qint64 QResourceFileEngine::read(char *data, qint64 len)
 }
 
 qint64 QResourceFileEngine::write(const char *, qint64)
-{
-    return -1;
-}
-
-int QResourceFileEngine::ungetch(int)
 {
     return -1;
 }
@@ -574,7 +569,7 @@ qint64 QResourceFileEngine::size() const
     return d->resource.data().size();
 }
 
-qint64 QResourceFileEngine::at() const
+qint64 QResourceFileEngine::pos() const
 {
     Q_D(const QResourceFileEngine);
     return d->offset;
@@ -605,14 +600,14 @@ bool QResourceFileEngine::isSequential() const
     return false;
 }
 
-QFileEngine::FileFlags QResourceFileEngine::fileFlags(QFileEngine::FileFlags type) const
+QAbstractFileEngine::FileFlags QResourceFileEngine::fileFlags(QAbstractFileEngine::FileFlags type) const
 {
     Q_D(const QResourceFileEngine);
-    QFileEngine::FileFlags ret = 0;
+    QAbstractFileEngine::FileFlags ret = 0;
     if(!d->resource.exists())
         return ret;
     if(type & PermsMask)
-        ret |= QFileEngine::FileFlags(ReadOwnerPerm|ReadUserPerm|ReadGroupPerm|ReadOtherPerm);
+        ret |= QAbstractFileEngine::FileFlags(ReadOwnerPerm|ReadUserPerm|ReadGroupPerm|ReadOtherPerm);
     if(type & TypesMask) {
         if(d->resource.isContainer())
             ret |= DirectoryType;
@@ -627,7 +622,7 @@ QFileEngine::FileFlags QResourceFileEngine::fileFlags(QFileEngine::FileFlags typ
     return ret;
 }
 
-bool QResourceFileEngine::chmod(uint)
+bool QResourceFileEngine::setPermissions(uint)
 {
     return false;
 }
@@ -677,9 +672,18 @@ QDateTime QResourceFileEngine::fileTime(FileTime) const
     return QDateTime();
 }
 
-QFileEngine::Type QResourceFileEngine::type() const
+bool QResourceFileEngine::extension(Extension extension, const ExtensionOption *option, ExtensionReturn *output)
 {
-    return QFileEngine::Resource;
+    Q_UNUSED(extension);
+    Q_UNUSED(option);
+    Q_UNUSED(output);
+    return false;
+}
+
+bool QResourceFileEngine::supportsExtension(Extension extension) const
+{
+    Q_UNUSED(extension);
+    return false;
 }
 
 //Initialization and cleanup

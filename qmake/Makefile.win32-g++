@@ -44,10 +44,9 @@ QTOBJS= \
 	qfile.o \
 	qtemporaryfile.o \
 	qfileinfo.o \
-	qfileengine.o \
+	qabstractfileengine.o \
 	qfsfileengine.o \
 	qfsfileengine_win.o \
-	qbufferedfsfileengine.o \
 	qglobal.o \
 	qhash.o \
 	qiodevice.o \
@@ -154,17 +153,14 @@ qfile.o: ..\src\corelib\io\qfile.cpp
 qtemporaryfile.o: ..\src\corelib\io\qtemporaryfile.cpp
 	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qtemporaryfile.cpp
 
-qfileengine.o: ..\src\corelib\io\qfileengine.cpp
-	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qfileengine.cpp
+qabstractfileengine.o: ..\src\corelib\io\qabstractfileengine.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qabstractfileengine.cpp
 
 qfsfileengine_win.o: ..\src\corelib\io\qfsfileengine_win.cpp
 	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qfsfileengine_win.cpp
 
 qfsfileengine.o: ..\src\corelib\io\qfsfileengine.cpp
 	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qfsfileengine.cpp
-
-qbufferedfsfileengine.o: ..\src\corelib\io\qbufferedfsfileengine.cpp
-	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qbufferedfsfileengine.cpp
 
 qtextcodec.o: ..\src\codecs\qtextcodec.cpp
 	$(CXX) $(CXXFLAGS) ..\src\codecs\qtextcodec.cpp

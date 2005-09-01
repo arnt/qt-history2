@@ -41,8 +41,7 @@ SOURCES	+= ../../corelib/global/qglobal.cpp \
 	   ../../corelib/tools/qstringlist.cpp	\
 	   ../../corelib/tools/qstringmatcher.cpp \
 	   ../../corelib/tools/qvector.cpp          \
-           ../../corelib/io/qbufferedfsfileengine.cpp  \
-           ../../corelib/io/qfileengine.cpp  \
+           ../../corelib/io/qabstractfileengine.cpp  \
            ../../corelib/tools/qbytearray.cpp	\
            ../../corelib/tools/qbitarray.cpp	\
            ../../corelib/tools/qunicodetables.cpp	\
