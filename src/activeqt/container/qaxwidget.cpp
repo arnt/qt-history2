@@ -960,7 +960,7 @@ HRESULT WINAPI QAxClientSite::OnUIDeactivate(BOOL)
     AX_DEBUG(QAxClientSite::OnUIDeactivate);
     if (host && host->hasFocus) {
         qApp->removeEventFilter(host);
-        host->hasFocus = FALSE;
+        host->hasFocus = false;
     }
     return S_OK;
 }

@@ -232,9 +232,9 @@ void MainWindow::on_actionScriptingRun_triggered()
 	return;
     }
 
-    bool ok = FALSE;
+    bool ok = false;
     QStringList macroList = scripts->functions(QAxScript::FunctionNames);
-    QString macro = QInputDialog::getItem(this, "Select Macro", "Macro:", macroList, 0, TRUE, &ok);
+    QString macro = QInputDialog::getItem(this, "Select Macro", "Macro:", macroList, 0, true, &ok);
 
     if (!ok)
 	return;
@@ -272,7 +272,7 @@ void MainWindow::on_actionScriptingLoad_triggered()
     if (script) {
 	connect(script, SIGNAL(error(int, const QString&, int, const QString&)),
 		this,   SLOT(logMacro(int,  const QString&, int, const QString&)));
-	actionScriptingRun->setEnabled(TRUE);
+	actionScriptingRun->setEnabled(true);
     }
 #else
     QMessageBox::information(this, "Function not available",
@@ -285,8 +285,8 @@ void MainWindow::updateGUI()
     QAxWidget *container = qobject_cast<QAxWidget*>(workspace->activeWindow());
 
     bool hasControl = container && !container->isNull();
-    actionFileNew->setEnabled(TRUE);
-    actionFileLoad->setEnabled(TRUE);
+    actionFileNew->setEnabled(true);
+    actionFileLoad->setEnabled(true);
     actionFileSave->setEnabled(hasControl);
     actionContainerSet->setEnabled(container != 0);
     actionContainerClear->setEnabled(hasControl);

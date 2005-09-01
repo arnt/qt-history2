@@ -516,7 +516,7 @@ public:
 		if ( nr != n ) {
 		    // XXX check error? or don't we care?
 		    wavedata_remaining = 0;
-		    mFinishedRead = TRUE;
+		    mFinishedRead = true;
 		} else if ( qstrncmp(chunk.id,"data",4) == 0 ) {
 		    wavedata_remaining = chunk.size;
 
@@ -527,38 +527,38 @@ public:
 		    if ( read(dev, d, 4) != 4 ) {
 			// XXX check error? or don't we care?
 			//qDebug("couldn't read riff");
-			mInsufficientSamples = TRUE;
-			mFinishedRead = TRUE;
+			mInsufficientSamples = true;
+			mFinishedRead = true;
 			return 0;
 		    } else if ( qstrncmp(d,"WAVE",4) != 0 ) {
 			// skip
 			if ( chunk.size > 1000000000 || lseek(dev,chunk.size-4, SEEK_CUR) == -1 ) {
 			    //qDebug("oversized wav chunk");
-			    mFinishedRead = TRUE;
+			    mFinishedRead = true;
 			}
 		    }
 		} else if ( qstrncmp(chunk.id,"fmt ",4) == 0 ) {
 		    if ( ::read(dev,(char*)&chunkdata,sizeof(chunkdata)) != sizeof(chunkdata) ) {
 			// XXX check error? or don't we care?
 			//qDebug("couldn't ready chunkdata");
-			mFinishedRead = TRUE;
+			mFinishedRead = true;
 		    }
 #define WAVE_FORMAT_PCM 1
 		    else if ( chunkdata.formatTag != WAVE_FORMAT_PCM ) {
 			//qDebug("WAV file: UNSUPPORTED FORMAT %d",chunkdata.formatTag);
-			mFinishedRead = TRUE;
+			mFinishedRead = true;
 		    }
 		} else {
 		    // ignored chunk
 		    if ( chunk.size > 1000000000 || lseek(dev, chunk.size, SEEK_CUR) == -1) {
 			//qDebug("chunk size too big");
-			mFinishedRead = TRUE;
+			mFinishedRead = true;
 		    }
 		}
 	    }
 	    // this looks wrong.
 	    if (wavedata_remaining <= 0) {
-		mFinishedRead = TRUE;
+		mFinishedRead = true;
 	    }
 
 	}
@@ -575,12 +575,12 @@ public:
 		wavedata_remaining -= read;
 		updateBuffer(read);
 		if (read <= 0) // data unexpectidly ended
-		    mFinishedRead = TRUE;
+		    mFinishedRead = true;
 	    }
 	}
 	int possible = devSamples();
 	if (possible == 0)
-	    mInsufficientSamples = TRUE;
+	    mInsufficientSamples = true;
 	return possible;
     }
 
@@ -1031,7 +1031,7 @@ void QWSSoundServerPrivate::setMute(int wid, int sid, bool m)
         nv.sid = sid;
         nv.left = maxVolume>>1;
         nv.right = maxVolume>>1;
-        nv.mute = TRUE;
+        nv.mute = true;
         volumes.append(nv);
     }
 }

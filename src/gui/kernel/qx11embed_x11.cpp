@@ -1410,7 +1410,7 @@ bool QX11EmbedContainer::x11Event(XEvent *event)
 	if (!d->clientIsXEmbed) {
             setFocus(Qt::MouseFocusReason);
             XAllowEvents(x11Info().display(), ReplayPointer, CurrentTime);
-            return TRUE;
+            return true;
 	}
 	break;
     case XButtonRelease:

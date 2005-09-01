@@ -1315,12 +1315,12 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
 
     if (stroke_count == 0) {
 	if (state&btnMask)
-	    force_reject_strokeIM = TRUE;
+	    force_reject_strokeIM = true;
 	sendMouseEventUnfiltered(pos, state);
     }
     // stop force reject after stroke ends.
     if (state&btnMask && force_reject_strokeIM)
-	force_reject_strokeIM = FALSE;
+	force_reject_strokeIM = false;
     // on end of stroke, force_rejct
     // and once a stroke is rejected, do not try again till pen is lifted
 #else
@@ -2353,7 +2353,7 @@ void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
 
 
 #if !defined(QT_NO_QWS_CURSOR) && !defined(QT_QWS_ACCEL_CURSOR)
-# define SCREEN_PAINT_START(r) bool swc_do_save=FALSE; \
+# define SCREEN_PAINT_START(r) bool swc_do_save=false; \
                     if(qt_sw_cursor) \
                         swc_do_save = qt_screencursor->restoreUnder(r);
 # define SCREEN_PAINT_END if(qt_sw_cursor && swc_do_save) \
@@ -3365,4 +3365,3 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
     \value Active The window has become the active window (has keyboard focus).
     \value Name The window has been named.
 */
-

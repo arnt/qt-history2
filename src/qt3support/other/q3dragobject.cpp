@@ -1124,7 +1124,7 @@ bool Q3UriDrag::decode(const QMimeSource* e, Q3StrList& l)
     QByteArray payload = e->encodedData("text/uri-list");
     if (payload.size()) {
         l.clear();
-        l.setAutoDelete(TRUE);
+        l.setAutoDelete(true);
         uint c=0;
         const char* data = payload.data();
         while ((int)c < payload.size() && data[c]) {

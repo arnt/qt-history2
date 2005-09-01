@@ -64,9 +64,9 @@ public slots:
 	if ( !requestPropertyChange( "text" ) )
 	    return;
 
-	edit->blockSignals( TRUE );
+	edit->blockSignals( true );
 	edit->setText( string );
-	edit->blockSignals( FALSE );
+	edit->blockSignals( false );
 	emit someSignal();
 	emit textChanged( string );
 
@@ -81,9 +81,9 @@ public slots:
     {
 	if ( !requestPropertyChange( "value" ) )
 	    return;
-	slider->blockSignals( TRUE );
+	slider->blockSignals( true );
 	slider->setValue( i );
-	slider->blockSignals( FALSE );
+	slider->blockSignals( false );
 	LCD->display( i );
 	emit valueChanged( i );
 
