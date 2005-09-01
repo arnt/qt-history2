@@ -42,20 +42,26 @@ Q_GLOBAL_STATIC(QHostInfoAgent, agent)
     \ingroup io
 
     QHostInfo uses the lookup mechanisms provided by the operating
-    system to find the IP address(es) associated with a host name.
+    system to find the IP address(es) associated with a host name,
+    or the host name associated with an IP address.
     The class provides two static convenience functions: one that
     works asynchronously and emits a signal once the host is found,
     and one that blocks and returns a QHostInfo object.
 
     To look up a host's IP addresses asynchronously, call lookupHost(),
-    which takes the host name, a receiver object, and a slot
+    which takes the host name or IP address, a receiver object, and a slot
     signature as arguments and returns an ID. You can abort the
     lookup by calling abortHostLookup() with the lookup ID.
 
     Example:
 
     \code
+        // To find the IP address of www.trolltech.com
         QHostInfo::lookupHost("www.trolltech.com",
+                              this, SLOT(printResults(QHostInfo)));
+
+        // To find the host name for 4.2.2.1
+        QHostInfo::lookupHost("4.2.2.1",
                               this, SLOT(printResults(QHostInfo)));
     \endcode
 
@@ -128,6 +134,17 @@ static int qt_qhostinfo_newid()
         }
     \endcode
 
+    If you pass a literal IP address to \a name instead of a host name,
+    QHostInfo will search for the domain name for the IP (i.e., QHostInfo will
+    perform a \e reverse lookup). On success, the resulting QHostInfo will
+    contain both the resolved domain name and IP addresses for the host
+    name. Example:
+    
+    \code
+        QHostInfo::lookupHost("4.2.2.1",
+                              this, SLOT(lookedUp(QHostInfo)));
+    \endcode
+
     \sa abortHostLookup(), addresses(), error(), fromName()
 */
 int QHostInfo::lookupHost(const QString &name, QObject *receiver,
@@ -198,6 +215,11 @@ void QHostInfo::abortHostLookup(int id)
     function blocks during the lookup which means that execution of
     the program is suspended until the results of the lookup are
     ready. Returns the result of the lookup in a QHostInfo object.
+
+    If you pass a literal IP address to \a name instead of a host name,
+    QHostInfo will search for the domain name for the IP (i.e., QHostInfo will
+    perform a \e reverse lookup). On success, the returned QHostInfo will
+    contain both the resolved domain name and IP addresses for the host name.
 
     \sa lookupHost()
 */
