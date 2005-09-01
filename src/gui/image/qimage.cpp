@@ -965,10 +965,10 @@ QImage QImage::copy(const QRect& r) const
     image.d->colortable = d->colortable;
 
     int pixels_to_copy = w - dx;
-    if (pixels_to_copy > x + d->width)
+    if (pixels_to_copy > d->width - x)
         pixels_to_copy = d->width - x;
     int lines_to_copy = h - dy;
-    if (lines_to_copy > y + d->height)
+    if (lines_to_copy > d->height - h)
         lines_to_copy = d->height - y;
 
     bool byteAligned = true;
