@@ -1923,12 +1923,12 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush)
     Q_ASSERT(fillData);
 
     fillData->rasterBuffer = rasterBuffer;
-    fillData->callback = 0;
-    fillData->data = 0;
 
     switch (brush.style()) {
-
+ 
     case Qt::NoBrush:
+        fillData->callback = 0;
+        fillData->data = 0;
         break;
 
     case Qt::SolidPattern:
@@ -2058,8 +2058,10 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush)
         }
         break;
 
-
+        
     default:
+        fillData->callback = 0;
+        fillData->data = 0;
         break;
     }
 
@@ -3220,7 +3222,7 @@ void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
 static void drawLine_midpoint_i(const QLine &line, qt_span_func span_func, void *data, LineDrawMode style, const QRect &devRect)
 {
 #ifdef QT_DEBUG_DRAW
-    qDebug() << "   - drawLine_midpoint_f" << line;
+    qDebug() << "   - drawLine_midpoint_i" << line;
 #endif
 
     int x, y;
@@ -3239,8 +3241,8 @@ static void drawLine_midpoint_i(const QLine &line, qt_span_func span_func, void 
     // specialcase horizontal lines
     if (dy == 0) {
         if (y1 >= 0 && y1 < devRect.height()) {
-            int start = qMax(0, qRound(qMin(x1, x2)));
-            int stop = qRound(qMax(x1, x2)) + 1;
+            int start = qMax(0, qMin(x1, x2));
+            int stop = qMax(x1, x2) + 1;
             int stop_clipped = qMin(devRect.width(), stop);
             int len = stop_clipped - start;
             if (len > 0) {
@@ -3254,8 +3256,8 @@ static void drawLine_midpoint_i(const QLine &line, qt_span_func span_func, void 
         return;
     } else if (dx == 0) {
         if (x1 >= 0 && x1 < devRect.width()) {
-            int start = qMax(0, qRound(qMin(y1, y2)));
-            int stop = qRound(qMax(y1, y2)) + 1;
+            int start = qMax(0, qMin(y1, y2));
+            int stop = qMax(y1, y2) + 1;
             int stop_clipped = qMin(devRect.height(), stop);
             if (style == LineDrawNormal && stop == stop_clipped)
                 --stop;
@@ -3290,8 +3292,8 @@ static void drawLine_midpoint_i(const QLine &line, qt_span_func span_func, void 
             return;
         }
 
-        x = qRound(x1);
-        y = qRound(y1);
+        int x = x1;
+        int y = y1;
 
         if (x>=0 && y>=0 && y < devRect.height()) {
             Q_ASSERT(x >= 0 && y >= 0 && x < devRect.width() && y < devRect.height());
@@ -3383,8 +3385,8 @@ static void drawLine_midpoint_i(const QLine &line, qt_span_func span_func, void 
             return;
         }
 
-        x = qRound(x1);
-        y = qRound(y1);
+        x = x1;
+        y = y1;
 
         if (x>=0 && y>=0 && x < devRect.width()) {
             Q_ASSERT(x >= 0 && y >= 0 && x < devRect.width() && y < devRect.height());
