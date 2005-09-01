@@ -11,15 +11,43 @@
 **
 ****************************************************************************/
 
-#include "qhostaddress.h"
-#include "qstringlist.h"
 #include "qdebug.h"
+#include "qhostaddress.h"
+#include "qplatformdefs.h"
+#include "qstringlist.h"
 
 #define QT_ENSURE_PARSED(a) \
     do { \
         if (!(a)->d->isParsed) \
             (a)->d->parse(); \
     } while (0)
+
+#ifdef Q_OS_WIN
+#    if !defined (QT_NO_IPV6)
+// sockaddr_in6 size changed between old and new SDK
+// Only the new version is the correct one, so always
+// use this structure.
+struct qt_in6_addr {
+    u_char qt_s6_addr[16];
+};
+typedef struct {
+    short   sin6_family;            /* AF_INET6 */
+    u_short sin6_port;              /* Transport level port number */
+    u_long  sin6_flowinfo;          /* IPv6 flow information */
+    struct  qt_in6_addr sin6_addr;  /* IPv6 address */
+    u_long  sin6_scope_id;          /* set of interfaces for a scope */
+} qt_sockaddr_in6;
+#    else
+typedef void * qt_sockaddr_in6 ;
+#    endif
+#    ifndef AF_INET6
+#        define AF_INET6        23  /* Internetwork Version 6 */
+#    endif
+#else
+#define qt_sockaddr_in6 sockaddr_in6
+#define qt_s6_addr s6_addr
+#endif
+
 
 class QHostAddressPrivate
 {
@@ -276,6 +304,16 @@ QHostAddress::QHostAddress(const QString &address)
     d->isParsed = false;
 }
 
+QHostAddress::QHostAddress(const struct sockaddr *sockaddr)
+{
+    if (sockaddr->sa_family == AF_INET)
+        setAddress(htonl(((sockaddr_in *)sockaddr)->sin_addr.s_addr));
+#ifndef QT_NO_IPV6
+    else if (sockaddr->sa_family == AF_INET6)
+        setAddress(((qt_sockaddr_in6 *)sockaddr)->sin6_addr.qt_s6_addr);
+#endif
+}
+
 /*!
     Constructs a copy of the given \a address.
 */
@@ -330,6 +368,18 @@ QHostAddress &QHostAddress::operator=(const QHostAddress &address)
 }
 
 /*!
+    Assigns the host address \a address to this object, and returns a
+    reference to this object.
+
+    \sa setAddress()
+*/
+QHostAddress &QHostAddress::operator=(const QString &address)
+{
+    setAddress(address);
+    return *this;
+}
+
+/*!
     Sets the host address to 0.0.0.0.
 */
 void QHostAddress::clear()
@@ -380,6 +430,24 @@ bool QHostAddress::setAddress(const QString &address)
 {
     d->ipString = address;
     return d->parse();
+}
+
+/*!
+    \overload
+
+    Sets the IPv4 or IPv6 address specified by the native structure \a
+    sockaddr.  Returns true and sets the address if the address was
+    successfully parsed; otherwise returns false.
+*/
+void QHostAddress::setAddress(const struct sockaddr *sockaddr)
+{
+    clear();
+    if (sockaddr->sa_family == AF_INET)
+        setAddress(htonl(((sockaddr_in *)sockaddr)->sin_addr.s_addr));
+#ifndef QT_NO_IPV6
+    else if (sockaddr->sa_family == AF_INET6)
+        setAddress(((qt_sockaddr_in6 *)sockaddr)->sin6_addr.qt_s6_addr);
+#endif
 }
 
 /*!
