@@ -141,7 +141,7 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractFileEngine::FileFlags)
 
-class QAbstractFileEngineHandler
+class Q_CORE_EXPORT QAbstractFileEngineHandler
 {
 public:
     QAbstractFileEngineHandler();
