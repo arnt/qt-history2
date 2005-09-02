@@ -493,15 +493,15 @@ static void setup()
 
     \list
     \o Apple Roman
-    \o Big5
-    \o Big5-HKSCS
-    \o EUC-JP
-    \o EUC-KR
-    \o GB18030-0
+    \o \l{Big5 Text Codec}{Big5}
+    \o \l{Big5-HKSCS Text Codec}{Big5-HKSCS}
+    \o \l{EUC-JP Text Codec}{EUC-JP}
+    \o \l{EUC-KR Text Codec}{EUC-KR}
+    \o \l{GBK Text Codec}{GB18030-0}
     \o IBM 850
     \o IBM 866
     \o IBM 874
-    \o ISO 2022-JP
+    \o \l{ISO 2022-JP (JIS) Text Codec}{ISO 2022-JP}
     \o ISO 8859-1 to 10
     \o ISO 8859-13 to 16
     \o Iscii-Bng, Dev, Gjr, Knd, Mlm, Ori, Pnj, Tlg, and Tml
@@ -511,9 +511,9 @@ static void setup()
     \o KOI8-U
     \o MuleLao-1
     \o ROMAN8
-    \o Shift-JIS
+    \o \l{Shift-JIS Text Codec}{Shift-JIS}
     \o TIS-620
-    \o TSCII
+    \o \l{TSCII Text Codec}{TSCII}
     \o UTF-8
     \o UTF-16
     \o UTF-16BE
