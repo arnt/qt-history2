@@ -1515,6 +1515,8 @@ void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
     bool oldupdate = updatesEnabled();
     if (oldupdate)
         setUpdatesEnabled(false);
+    bool sigs_blocked = signalsBlocked();
+    blockSignals(true);
     const int preeditSelectionBase = 31900;
     for (int i = 0; i < d->numPreeditSelections; ++i)
         doc->removeSelection(preeditSelectionBase + i);
@@ -1545,38 +1547,36 @@ void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
         d->preeditStart = cursor->index();
         d->preeditLength = e->preeditString().length();
 	insert(e->preeditString());
-	// insert can trigger an imEnd event as it emits a textChanged signal, so better
-	// be careful
-	if(d->preeditStart != -1) { 
-	    cursor->setIndex(d->preeditStart);
+        cursor->setIndex(d->preeditStart);
 
-	    Q3TextCursor c = *cursor;
-	    for (int i = 0; i < e->attributes().size(); ++i) {
-		const QInputMethodEvent::Attribute &a = e->attributes().at(i);
-		if (a.type == QInputMethodEvent::Cursor)
-		    cursor->setIndex(cursor->index() + a.start);
-		else if (a.type != QInputMethodEvent::TextFormat)
-		    continue;
-		QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
-		if (f.isValid()) {
-		    Q3TextCursor c2 = c;
-		    c2.setIndex(c.index() + a.start);
-		    doc->setSelectionStart(preeditSelectionBase + d->numPreeditSelections, c2);
-		    c2.setIndex(c.index() + a.start + a.length);
-		    doc->setSelectionEnd(preeditSelectionBase + d->numPreeditSelections, c2);
+        Q3TextCursor c = *cursor;
+        for (int i = 0; i < e->attributes().size(); ++i) {
+            const QInputMethodEvent::Attribute &a = e->attributes().at(i);
+            if (a.type == QInputMethodEvent::Cursor)
+                cursor->setIndex(cursor->index() + a.start);
+            else if (a.type != QInputMethodEvent::TextFormat)
+                continue;
+            QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
+            if (f.isValid()) {
+                Q3TextCursor c2 = c;
+                c2.setIndex(c.index() + a.start);
+                doc->setSelectionStart(preeditSelectionBase + d->numPreeditSelections, c2);
+                c2.setIndex(c.index() + a.start + a.length);
+                doc->setSelectionEnd(preeditSelectionBase + d->numPreeditSelections, c2);
 
-		    doc->setSelectionColor(preeditSelectionBase + d->numPreeditSelections, f.background().color());
-		    doc->setSelectionTextColor(preeditSelectionBase + d->numPreeditSelections, f.foreground().color());
-		    ++d->numPreeditSelections;
-		}
-	    }
+                doc->setSelectionColor(preeditSelectionBase + d->numPreeditSelections, f.background().color());
+                doc->setSelectionTextColor(preeditSelectionBase + d->numPreeditSelections, f.foreground().color());
+                ++d->numPreeditSelections;
+            }
 	}
     } else {
 	undoRedoInfo.type = UndoRedoInfo::Invalid;
     }
-
+    blockSignals(sigs_blocked);
     if (oldupdate)
         setUpdatesEnabled(true);
+    if (!e->commitString().isEmpty())
+        emit textChanged();
     repaintChanged();
 }
 
