@@ -833,6 +833,33 @@ QPrinter::PaperSource QPrinter::paperSource() const
     return QPrinter::PaperSource(d->printEngine->property(QPrintEngine::PPK_PaperSource).toInt());
 }
 
+
+/*!
+  Enabled or disables font embedding
+
+  Currently this option is only supported on X11.
+
+  \sa fontEmbeddingEnabled()
+*/
+void QPrinter::setFontEmbeddingEnabled(bool enable)
+{
+    Q_D(QPrinter);
+    d->printEngine->setProperty(QPrintEngine::PPK_FontEmbedding, enable);
+}
+
+/*!
+  Returns true is font embedding is enabled.
+
+  Currently this option is only supported on X11.
+
+  \sa fontEmbeddingEnabled()
+*/
+bool QPrinter::fontEmbeddingEnabled() const
+{
+    Q_D(const QPrinter);
+    return d->printEngine->property(QPrintEngine::PPK_FontEmbedding).toBool();
+}
+
 /*!
     Returns the page's rectangle; this is usually smaller than the
     paperRect() since the page normally has margins between its

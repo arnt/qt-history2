@@ -119,6 +119,9 @@ public:
 
     QList<int> supportedResolutions() const;
 
+    void setFontEmbeddingEnabled(bool enable);
+    bool fontEmbeddingEnabled() const;
+
 #ifdef Q_WS_WIN
     void setWinPageSize(int winPageSize);
     int winPageSize() const;

@@ -68,7 +68,6 @@
 #endif
 
 static bool qt_gen_epsf = false;
-static bool embedFonts = false;
 
 void qt_generate_epsf(bool b)
 {
@@ -843,6 +842,7 @@ public:
     bool fullPage;
     QPrinter::PaperSource paperSource;
     QPrinter::PrinterState printerState;
+    bool embedFonts;
 };
 
 
@@ -872,6 +872,7 @@ public:
 
     QFontEngine *fontEngine() const { return fe; }
 
+    bool embedFonts;
 protected:
     QString psname;
     QStringList replacementList;
@@ -2912,7 +2913,6 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
         fonts[fontKey] = currentPSFont;
     }
 
-
 #if 0
     // map some scripts to something more useful
     if (script == QFont::Han) {
@@ -2981,6 +2981,8 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
         break;
     }
 #endif
+
+    currentPSFont->embedFonts = embedFonts;
 
     QString ps = currentPSFont->postScriptFontName();
 
@@ -4267,6 +4269,9 @@ void QPSPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &val
     case PPK_SelectionOption:
         d->selectionOption = value.toString();
         break;
+    case PPK_FontEmbedding:
+        d->embedFonts = value.toBool();
+        break;
     default:
         break;
     }
@@ -4330,6 +4335,9 @@ QVariant QPSPrintEngine::property(PrintEnginePropertyKey key) const
         break;
     case PPK_SelectionOption:
         ret = d->selectionOption;
+        break;
+    case PPK_FontEmbedding:
+        ret = d->embedFonts;
         break;
     default:
         break;
