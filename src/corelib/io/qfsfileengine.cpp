@@ -184,7 +184,7 @@ QFSFileEngine::open(QIODevice::OpenMode flags)
 }
 
 bool
-QFSFileEngine::open(QIODevice::OpenMode /*flags*/, int fd)
+QFSFileEngine::open(QIODevice::OpenMode flags, int fd)
 {
     Q_D(QFSFileEngine);
     d->closeFileHandle = false;
@@ -210,6 +210,8 @@ QFSFileEngine::open(QIODevice::OpenMode /*flags*/, int fd)
         return false;
     d->sequential = S_ISCHR(st.st_mode) || S_ISFIFO(st.st_mode) || S_ISSOCK(st.st_mode);
     return true;
+#else
+    Q_UNUSED(flags);
 #endif
     d->fd = fd;
     if(d->fd != -1) {
