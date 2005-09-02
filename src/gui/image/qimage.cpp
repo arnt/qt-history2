@@ -3043,14 +3043,14 @@ bool QImage::isGrayscale() const
 /*!
     \fn QImage QImage::smoothScale(int width, int height, Qt::AspectRatioMode mode) const
 
-    Use scale(\a width, \a height, \a mode, Qt::SmoothTransformation) instead.
+    Use scaled(\a width, \a height, \a mode, Qt::SmoothTransformation) instead.
 */
 
 /*!
     \fn QImage QImage::smoothScale(const QSize &size, Qt::AspectRatioMode mode) const
     \overload
 
-    Use scale(\a size, \a mode, Qt::SmoothTransformation) instead.
+    Use scaled(\a size, \a mode, Qt::SmoothTransformation) instead.
 */
 
 /*!

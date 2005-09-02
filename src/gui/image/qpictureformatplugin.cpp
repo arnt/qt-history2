@@ -71,23 +71,33 @@ QPictureFormatPlugin::~QPictureFormatPlugin()
 }
 
 
-/*!\internal
- */
-bool QPictureFormatPlugin::loadPicture(const QString &format, const QString &filename, QPicture *pic)
+/*!
+    Loads the picture stored in the file called \a fileName, with the
+    given \a format, into *\a picture. Returns true on success;
+    otherwise returns false.
+
+    \sa savePicture()
+*/
+bool QPictureFormatPlugin::loadPicture(const QString &format, const QString &fileName, QPicture *picture)
 {
     Q_UNUSED(format)
-    Q_UNUSED(filename)
-    Q_UNUSED(pic)
+    Q_UNUSED(fileName)
+    Q_UNUSED(picture)
     return false;
 }
 
-/*! \internal
- */
-bool QPictureFormatPlugin::savePicture(const QString &format, const QString &filename, const QPicture &pic)
+/*!
+    Saves the given \a picture into the file called \a fileName,
+    using the specified \a format. Returns true on success; otherwise
+    returns false.
+
+    \sa loadPicture()
+*/
+bool QPictureFormatPlugin::savePicture(const QString &format, const QString &fileName, const QPicture &picture)
 {
     Q_UNUSED(format)
-    Q_UNUSED(filename)
-    Q_UNUSED(pic)
+    Q_UNUSED(fileName)
+    Q_UNUSED(picture)
     return false;
 }
 

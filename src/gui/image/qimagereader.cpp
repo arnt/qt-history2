@@ -48,6 +48,22 @@
     formats, in addition to any image format plugins that support
     reading.
 
+    \legalese
+    Qt supports GIF reading if it is configured that way during
+    installation. If it is, we are required to state that "The
+    Graphics Interchange Format(c) is the Copyright property of
+    CompuServe Incorporated. GIF(sm) is a Service Mark property of
+    CompuServe Incorporated."
+
+    \warning If you are in a country that recognizes software patents
+    and in which Unisys holds a patent on LZW compression and/or
+    decompression and you want to use GIF, Unisys may require you to
+    license that technology. Such countries include Canada, Japan,
+    the US, France, Germany, Italy and the UK.
+
+    GIF support may be removed completely in a future version of Qt.
+    We recommend using the MNG or PNG format.
+
     \sa QImageWriter, QImageIOHandler, QImageIOPlugin
 */
 

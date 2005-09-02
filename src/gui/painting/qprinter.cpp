@@ -96,9 +96,7 @@
   by David Chappell of Trinity College Computing Center.
 
   \legalese
-  \code
-
-  Copyright 1995, Trinity College Computing Center.
+  Copyright 1995, Trinity College Computing Center. \BR
   Written by David Chappell.
 
   Permission to use, copy, modify, and distribute this software and
@@ -120,7 +118,6 @@
   notice or indicate any restrictions on use.
 
   Last revised 11 July 1995.
-  \endcode
 */
 
 /*!
