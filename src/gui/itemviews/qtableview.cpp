@@ -137,6 +137,44 @@ void QTableViewPrivate::updateHorizontalScrollbar()
     }
 }
 
+/*
+ * Trims away indices that are hidden in the treeview due to hidden horizontal or vertical sections.
+ *
+ */
+void QTableViewPrivate::trimHiddenSelections(QItemSelectionRange *range) const
+{
+    Q_ASSERT(range);
+    Q_ASSERT(range->topLeft().isValid() && range->bottomRight().isValid());
+
+    QModelIndex indexTopLeft = range->topLeft();
+    int tlrow = indexTopLeft.row();
+    int tlcol = indexTopLeft.column();    
+    QModelIndex indexBottomRight = range->bottomRight();
+    int brrow = indexBottomRight.row();
+    int brcol = indexBottomRight.column();
+
+    while (verticalHeader->isSectionHidden(brrow) && brrow >= tlrow) brrow--;
+    while (horizontalHeader->isSectionHidden(brcol) && brcol >= tlcol) brcol--;
+    if (tlrow > brrow || tlcol > brcol) {
+        // return an invalid one if *all* is hidden
+        *range = QItemSelectionRange();
+        return;
+    }
+    indexBottomRight = model->index(brrow, brcol, indexBottomRight.parent());
+    
+    while (verticalHeader->isSectionHidden(tlrow) && tlrow <= brrow) tlrow++;
+    while (horizontalHeader->isSectionHidden(tlcol) && tlcol <= brcol) tlcol++;
+    if (tlrow > brrow || tlcol > brcol) {
+        // return an invalid one if *all* is hidden
+        *range = QItemSelectionRange();
+        return;
+    }
+    indexTopLeft = model->index(tlrow, tlcol, indexTopLeft.parent());
+
+    *range = QItemSelectionRange(indexTopLeft, indexBottomRight);
+}
+
+
 /*!
     \class QTableView qtableview.h
 
@@ -775,6 +813,7 @@ QRegion QTableView::visualRegionForSelection(const QItemSelection &selection) co
             QItemSelectionRange range = selection.at(i);
             if (range.parent() != rootIndex() || !range.isValid())
                 continue;
+            d->trimHiddenSelections(&range);
             QRect tl = visualRect(range.topLeft());
             QRect br = visualRect(range.bottomRight());
             selectionRegion += QRegion(tl|br);
@@ -1057,10 +1096,11 @@ void QTableView::setGridStyle(Qt::PenStyle style)
 
     Returns the rectangle on the viewport occupied by the given \a
     index.
+    If the index is hidden in the view it will return a null QRect.
 */
 QRect QTableView::visualRect(const QModelIndex &index) const
 {
-    if (!index.isValid() || index.parent() != rootIndex())
+    if (!index.isValid() || index.parent() != rootIndex() || isIndexHidden(index.column) )
         return QRect();
     d_func()->executePostedLayout();
 
