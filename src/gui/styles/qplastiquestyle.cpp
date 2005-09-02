@@ -4444,6 +4444,7 @@ int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const
         ret = true;
         break;
     case SH_ToolBox_SelectedPageTitleBold:
+    case SH_ScrollBar_MiddleClickAbsolutePosition:
         ret = true;
         break;
     default:
@@ -4609,6 +4610,8 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
     case PM_TitleBarHeight:
         ret = qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 30);
         break;
+    case PM_MaximumDragDistance:
+        return -1;
     default:
         break;
     }
