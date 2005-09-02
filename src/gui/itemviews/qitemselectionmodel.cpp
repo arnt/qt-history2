@@ -64,10 +64,10 @@
 */
 
 /*!
-    \fn QItemSelectionRange::QItemSelectionRange(const QModelIndex &parent, const QModelIndex &index)
+    \fn QItemSelectionRange::QItemSelectionRange(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 
-    Constructs a new selection range containing only the model item specified
-    by the \a parent and the model \a index.
+    Constructs a new selection range containing only the index specified
+    by the \a topLeft and the index \a bottomRight.
 
 */
 
@@ -75,7 +75,7 @@
     \fn QItemSelectionRange::QItemSelectionRange(const QModelIndex &index)
 
     Constructs a new selection range containing only the model item specified
-    by the model \a index.
+    by the model index \a index.
 */
 
 /*!
