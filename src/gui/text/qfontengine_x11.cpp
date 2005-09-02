@@ -525,6 +525,11 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
     cache_cost = 100;
     fontDef = fd;
     _pattern = pattern;
+    transform = false;
+    matrix.xx = 0x10000;
+    matrix.yy = 0x10000;
+    matrix.xy = 0;
+    matrix.yx = 0;
 //     FcPatternPrint(pattern);
 
     antialias = X11->fc_antialias;
@@ -551,6 +556,11 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
         freetype->lock = 0;
         freetype->xsize = 0;
         freetype->ysize = 0;
+        freetype->matrix.xx = 0x10000;
+        freetype->matrix.yy = 0x10000;
+        freetype->matrix.xy = 0;
+        freetype->matrix.yx = 0;
+
         FcCharSet *cs;
         FcPatternGetCharSet (pattern, FC_CHARSET, 0, &cs);
         freetype->charset = FcCharSetCopy(cs);
@@ -572,6 +582,15 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
     if (FT_IS_SCALABLE(face)) {
         line_thickness =  FT_MulFix(face->underline_thickness, face->size->metrics.y_scale)/64.;
         underline_position = -FT_MulFix(face->underline_position, face->size->metrics.y_scale)/64.;
+        FcMatrix *fc_matrix;
+        if (FcPatternGetMatrix (pattern, FC_MATRIX, 0, &fc_matrix) == FcResultMatch) {
+            matrix.xx = qRound(0x10000 * fc_matrix->xx);
+            matrix.yy = qRound(0x10000 * fc_matrix->yy);
+            matrix.xy = qRound(0x10000 * fc_matrix->xy);
+            matrix.yx = qRound(0x10000 * fc_matrix->yx);
+            FT_Set_Transform(face, &matrix, 0);
+            transform = true;
+        }            
     } else {
         // copied from QFontEngineQPF
         // ad hoc algorithm
@@ -591,16 +610,16 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
 
 #ifndef QT_NO_XRENDER
     if (X11->use_xrender) {
-    int format = PictStandardA8;
-    if (!antialias) {
-        format = PictStandardA1;
-    } else {
-        if (subpixel == FC_RGBA_RGB || subpixel == FC_RGBA_BGR) {
-            format = PictStandardARGB32;
-        } else if (subpixel == FC_RGBA_VRGB || subpixel == FC_RGBA_VBGR) {
-            format = PictStandardARGB32;
+        int format = PictStandardA8;
+        if (!antialias) {
+            format = PictStandardA1;
+        } else {
+            if (subpixel == FC_RGBA_RGB || subpixel == FC_RGBA_BGR) {
+                format = PictStandardARGB32;
+            } else if (subpixel == FC_RGBA_VRGB || subpixel == FC_RGBA_VBGR) {
+                format = PictStandardARGB32;
+            }
         }
-    }
         glyphSet = XRenderCreateGlyphSet(X11->display,
                                          XRenderFindStandardFormat(X11->display, format));
     } else {
@@ -647,6 +666,14 @@ FT_Face QFontEngineFT::lockFace() const
         freetype->xsize = xsize;
         freetype->ysize = ysize;
     }
+    if (freetype->matrix.xx != matrix.xx ||
+        freetype->matrix.yy != matrix.yy ||
+        freetype->matrix.xy != matrix.xy ||
+        freetype->matrix.yx != matrix.yx) {
+        freetype->matrix = matrix;
+        FT_Set_Transform(face, &freetype->matrix, 0);
+    }
+
     return face;
 }
 
@@ -694,6 +721,8 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
         }
 
     }
+    if (transform)
+        load_flags |= FT_LOAD_NO_BITMAP;
 
     {
         Glyph *g = glyph_data.value(glyph);
@@ -709,10 +738,48 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
 
     FT_GlyphSlot slot = face->glyph;
 
-    int left  = FLOOR(slot->metrics.horiBearingX);
-    int right = CEIL(slot->metrics.horiBearingX + slot->metrics.width);
-    int top    = CEIL(slot->metrics.horiBearingY);
-    int bottom = FLOOR(slot->metrics.horiBearingY - slot->metrics.height);
+    int left  = slot->metrics.horiBearingX;
+    int right = slot->metrics.horiBearingX + slot->metrics.width;
+    int top    = slot->metrics.horiBearingY;
+    int bottom = slot->metrics.horiBearingY - slot->metrics.height;
+    if(transform && slot->format != FT_GLYPH_FORMAT_BITMAP) {
+        int l, r, t, b;
+        FT_Vector vector;
+        vector.x = left;
+        vector.y = top;
+        FT_Vector_Transform(&vector, &matrix);
+        l = r = vector.x;
+        t = b = vector.y;
+        vector.x = right;
+        vector.y = top;
+        FT_Vector_Transform(&vector, &matrix);
+        if (l > vector.x) l = vector.x;
+        if (r < vector.x) r = vector.x;
+        if (t < vector.y) t = vector.y;
+        if (b > vector.y) b = vector.y;
+        vector.x = right;
+        vector.y = bottom;
+        FT_Vector_Transform(&vector, &matrix);
+        if (l > vector.x) l = vector.x;
+        if (r < vector.x) r = vector.x;
+        if (t < vector.y) t = vector.y;
+        if (b > vector.y) b = vector.y;
+        vector.x = left;
+        vector.y = bottom;
+        FT_Vector_Transform(&vector, &matrix);
+        if (l > vector.x) l = vector.x;
+        if (r < vector.x) r = vector.x;
+        if (t < vector.y) t = vector.y;
+        if (b > vector.y) b = vector.y;
+        left = l;
+        right = r;
+        top = t;
+        bottom = b;
+    }
+    left = FLOOR(left);
+    right = CEIL(right);
+    bottom = FLOOR(bottom);
+    top = CEIL(top);
 
 #ifndef QT_NO_XRENDER
     XGlyphInfo info;

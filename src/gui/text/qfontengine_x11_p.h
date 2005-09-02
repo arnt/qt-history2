@@ -110,6 +110,7 @@ struct QFreetypeFace {
     FcCharSet *charset;
     int xsize; // 26.6
     int ysize; // 26.6
+    FT_Matrix matrix;
 
     enum { cmapCacheSize = 0x200 };
     glyph_t cmapCache[cmapCacheSize];
@@ -184,6 +185,8 @@ private:
     bool antialias;
     bool outline_drawing;
     int subpixel;
+    bool transform;
+    mutable FT_Matrix matrix; // need mutable because the freetype API doesn't use const
 
 public:
     enum GlyphFormat {
