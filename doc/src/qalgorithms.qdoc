@@ -33,7 +33,7 @@
     qFill():
 
     \code
-	QList<QString> list;
+	QStringList list;
         list << "one" << "two" << "three";
 
         qFill(list.begin(), list.end(), "eleven");
@@ -200,7 +200,7 @@
 
     Example:
     \code
-        QList<QString> list;
+        QStringList list;
 	list << "one" << "two" << "three";
 
 	QVector<QString> vect1(3);
@@ -227,7 +227,7 @@
 
     Example:
     \code
-        QList<QString> list;
+        QStringList list;
 	list << "one" << "two" << "three";
 
 	QVector<QString> vect(5);
@@ -247,7 +247,7 @@
 
     Example:
     \code
-	QList<QString> list;
+	QStringList list;
         list << "one" << "two << "three";
 
 	QVector<QString> vect[3];
@@ -276,7 +276,7 @@
 
     Example:
     \code
-	QList<QString> list;
+	QStringList list;
         list << "one" << "two" << "three";
 
         qFill(list.begin(), list.end(), "eleven");
@@ -298,15 +298,13 @@
 
     Example:
     \code
-        QList<QString> list;
+        QStringList list;
         list << "one" << "two" << "three";
 
-        QList<QString>::Iterator i1 = qFind(list.begin(), list.end(),
-				            "two");
+        QStringList::iterator i1 = qFind(list.begin(), list.end(), "two");
 	// i1 == list.begin() + 1
 
-        QList<QString>::Iterator i2 = qFind(list.begin(), list.end(),
-					    "seventy");
+        QStringList::iterator i2 = qFind(list.begin(), list.end(), "seventy");
 	// i2 == list.end()
     \endcode
 
@@ -396,7 +394,7 @@
     Uses the \a lessThan function instead of \c operator<() to
     compare the items.
 
-    For example, here's how to sort the strings in a QList<QString>
+    For example, here's how to sort the strings in a QStringList
     in case-insensitive alphabetical order:
 
     \code
@@ -407,7 +405,7 @@
 
         int doSomething()
         {
-	    QList<QString> list;
+	    QStringList list;
             list << "AlPha" << "beTA" << "gamma" << "DELTA";
 	    qSort(list.begin(), list.end(), caseInsensitiveLessThan);
             // list: [ "AlPha", "beTA", "DELTA", "gamma" ]
@@ -427,6 +425,25 @@
     If of two items neither is "less than" the other, the items are
     taken to be equal. It is then undefined which one of the two
     items will appear before the other after the sort.
+
+    An alternative to using qSort() is to put the items to sort in a
+    QMap, using the sort key as the QMap key. This is often more
+    convenient than defining a \a lessThan function. For example, the
+    following code shows how to sort a list of strings case
+    insensitively using QMap:
+
+    \code
+        QStringList list;
+        list << "AlPha" << "beTA" << "gamma" << "DELTA";
+
+        QMap<QString, QString> map;
+        foreach (QString str, list)
+            map.insert(str.toLower(), str);
+
+        list = map.values();
+    \endcode
+
+    \sa QMap
 */
 
 /*! \fn void qSort(Container &container)
@@ -473,7 +490,7 @@
     Uses the \a lessThan function instead of \c operator<() to
     compare the items.
 
-    For example, here's how to sort the strings in a QList<QString>
+    For example, here's how to sort the strings in a QStringList
     in case-insensitive alphabetical order:
 
     \code
@@ -484,7 +501,7 @@
 
         int doSomething()
         {
-	    QList<QString> list;
+	    QStringList list;
             list << "AlPha" << "beTA" << "gamma" << "DELTA";
 	    qStableSort(list.begin(), list.end(), caseInsensitiveLessThan);
             // list: [ "AlPha", "beTA", "DELTA", "gamma" ]
@@ -531,7 +548,7 @@
 	QList<int> list;
         list << 3 << 3 << 6 << 6 << 6 << 8;
 
-        QList<int>::Iterator i = qLowerBound(list.begin(), list.end(), 5);
+        QList<int>::iterator i = qLowerBound(list.begin(), list.end(), 5);
 	list.insert(i, 5);
         // list: [ 3, 3, 5, 6, 6, 6, 8 ]
 
@@ -549,12 +566,12 @@
     \code
 	QVector<int> vect;
         vect << 3 << 3 << 6 << 6 << 6 << 8;
-        QVector<int>::Iterator begin6 =
+        QVector<int>::iterator begin6 =
 	        qLowerBound(vect.begin(), vect.end(), 6);
-        QVector<int>::Iterator end6 =
+        QVector<int>::iterator end6 =
 	        qUpperBound(begin6, vect.end(), 6);
 
-	QVector<int>::Iterator i = begin6;
+	QVector<int>::iterator i = begin6;
         while (i != end6) {
 	    *i = 7;
             ++i;
@@ -581,7 +598,7 @@
 	QList<int> list;
         list << 3 << 3 << 6 << 6 << 6 << 8;
 
-        QList<int>::Iterator i = qUpperBound(list.begin(), list.end(), 5);
+        QList<int>::iterator i = qUpperBound(list.begin(), list.end(), 5);
 	list.insert(i, 5);
         // list: [ 3, 3, 5, 6, 6, 6, 8 ]
 
@@ -599,12 +616,12 @@
     \code
 	QVector<int> vect;
         vect << 3 << 3 << 6 << 6 << 6 << 8;
-        QVector<int>::Iterator begin6 =
+        QVector<int>::iterator begin6 =
 	        qLowerBound(vect.begin(), vect.end(), 6);
-        QVector<int>::Iterator end6 =
+        QVector<int>::iterator end6 =
 	        qUpperBound(vect.begin(), vect.end(), 6);
 
-	QVector<int>::Iterator i = begin6;
+	QVector<int>::iterator i = begin6;
         while (i != end6) {
 	    *i = 7;
             ++i;
@@ -634,7 +651,7 @@
 	QVector<int> vect;
         vect << 3 << 3 << 6 << 6 << 6 << 8;
 
-	QVector<int>::Iterator i =
+	QVector<int>::iterator i =
 		qBinaryFind(vect.begin(), vect.end(), 6);
 	// i == vect.begin() + 2 (or 3 or 4)
     \endcode

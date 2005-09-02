@@ -45,9 +45,10 @@
 
     \section1 AnalogClockPlugin Class Definition
 
-    The \c AnalogClock class is exposed to \QD through the \c AnalogClockPlugin
-    class. This class inherits from both QObject and the \c ICustomWidget class,
-    and implements an interface defined by \c ICustomWidget:
+    The \c AnalogClock class is exposed to \QD through the \c
+    AnalogClockPlugin class. This class inherits from both QObject
+    and the QDesignerCustomWidgetInterface class, and implements an
+    interface defined by QDesignerCustomWidgetInterface:
 
     \quotefromfile designer/customwidgetplugin/customwidgetplugin.h
     \skipto class AnalogClockPlugin
@@ -168,8 +169,8 @@
     The code template is optionally used to specify how the widget is used
     in application code.
 
-    Finally, we use the \c Q_EXPORT_PLUGIN macro to export the \c AnalogClockPlugin
-    class for use with \QD:
+    Finally, we use the Q_EXPORT_PLUGIN() macro to export the \c
+    AnalogClockPlugin class for use with \QD:
 
     \skipto Q_EXPORT_PLUGIN
     \printuntil Q_EXPORT_PLUGIN

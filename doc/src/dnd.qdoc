@@ -354,8 +354,6 @@
     and Trolltech. Here is the original copyright notice:
 
     \legalese
-    \code
-
     Copyright 1996 Daniel Dardailler.
 
     Permission to use, copy, modify, distribute, and sell this software
@@ -370,8 +368,6 @@
 
     Modifications Copyright 1999 Matt Koss, under the same license as
     above.
-    \endcode
 
     \omit NOTE: The copyright notice is from qmotifdnd_x11.cpp. \endomit
-
 */

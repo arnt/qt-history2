@@ -2552,7 +2552,7 @@
     \table
     \header \o QPtrList function \o QListIterator equivalent
     \row \o QPtrList::at() \o N/A
-    \row \o QPtrList::current() \o QListIterator::value()
+    \row \o QPtrList::current() \o QMutableListIterator::value()
     \row \o QPtrList::currentNode() \o N/A
     \row \o QPtrList::findNext(const T *) \o QListIterator::findNext(const T *)
     \row \o QPtrList::findNextRef(const T *) \o QListIterator::findNext(const T *)
@@ -2599,12 +2599,12 @@
     \row \o QPtrListIterator::atFirst() \o !QListIterator::hasPrevious() (notice the \c{!})
     \row \o QPtrListIterator::atLast() \o !QListIterator::hasNext() (notice the \c{!})
     \row \o QPtrListIterator::count() \o QList::count() or QList::size()
-    \row \o QPtrListIterator::current() \o QListIterator::value()
+    \row \o QPtrListIterator::current() \o QMutableListIterator::value()
     \row \o QPtrListIterator::isEmpty() \o QList::isEmpty()
     \row \o QPtrListIterator::toFirst() \o QListIterator::toFront()
     \row \o QPtrListIterator::toLast() \o QListIterator::toBack()
-    \row \o QPtrListIterator::operator() \o QListIterator::value()
-    \row \o QPtrListIterator::operator*() \o QListIterator::value()
+    \row \o QPtrListIterator::operator() \o QMutableListIterator::value()
+    \row \o QPtrListIterator::operator*() \o QMutableListIterator::value()
     \endtable
 
     Again, be aware that QListIterator has a different way of
@@ -3847,7 +3847,6 @@
     \o QWidget::setSizeIncrement(int w, int h)
     \o QWidget::setSizePolicy(QSizePolicy)
     \o QWidget::setUpdatesEnabled(bool enable)
-    \o QWidget::setWFlags(WFlags)
     \o QWidget::setWState(uint)
     \o QWidget::showFullScreen()
     \o QWidget::showMaximized()
@@ -3855,6 +3854,8 @@
     \o QWidget::showNormal()
     \o QWidget::unsetCursor()
     \endlist
+
+    \c QWidget::setWFlags() was renamed QWidget::setWindowFlags().
 
     See \l{#properties}{Properties} for a list of QWidget properties
     in Qt 3 that have changed in Qt 4.
