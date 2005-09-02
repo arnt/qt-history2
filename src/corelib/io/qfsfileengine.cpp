@@ -184,7 +184,7 @@ QFSFileEngine::open(QIODevice::OpenMode flags)
 }
 
 bool
-QFSFileEngine::open(QIODevice::OpenMode flags, int fd)
+QFSFileEngine::open(QIODevice::OpenMode /*flags*/, int fd)
 {
     Q_D(QFSFileEngine);
     d->closeFileHandle = false;
