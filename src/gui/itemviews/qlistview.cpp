@@ -1134,7 +1134,7 @@ QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
 QRect QListView::rectForIndex(const QModelIndex &index) const
 {
     Q_D(const QListView);
-    if (!index.isValid() || index.parent() != rootIndex() || index.column() != d->column)
+    if (!index.isValid() || index.parent() != rootIndex() || index.column() != d->column || isIndexHidden(index))
         return QRect();
     d->executePostedLayout();
     QListViewItem item = d->indexToListViewItem(index);
