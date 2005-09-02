@@ -82,7 +82,7 @@
         General
         </th>
         <th bgcolor="#a2c511" width="33%">
-        Qt Community
+        Developer Resources
         </th>
         </tr>
         <tr>
@@ -107,10 +107,10 @@
         <td valign="top">
         <ul>
         <li><a href="http://lists.trolltech.com">Mailing Lists</a></li>
+        <li><a href="http://www.trolltech.com/developer/community_resources.html">Qt Community Web Sites</a></li>
         <li><a href="http://doc.trolltech.com/qq/">Qt Quarterly</a></li>
-        <li><a href="http://www.trolltech.com/products/solutions/">Qt Solutions</a></li>
-        <li><a href="http://www.trolltech.com/freesoftware/">Contributed Qt Components</a></li>
         <li><a href="bughowto.html">How to Report a Bug</a></li>
+        <li><a href="http://www.trolltech.com/developer/">More...</a></li>
         </ul>
         </td>
         </tr>
@@ -148,6 +148,7 @@
         <li><a href="containers.html">Tool and Container Classes</a></li>
         <li><a href="i18n.html">Internationalization</a></li>
         <li><a href="plugins-howto.html">Plugin System</a></li>
+        <li><a href="gallery.html">Qt Widget Gallery</a></li>
         </ul>
         </td>
         <td valign="top">
@@ -160,12 +161,13 @@
         <li><a href="qtopengl.html">OpenGL Module</a></li>
         <li><a href="qtsql.html">SQL Module</a></li>
         <li><a href="qtxml.html">XML Module</a></li>
+        <li><a href="activeqt.html">ActiveQt Framework</a></li>
         </ul>
         </td>
         </tr>
         <tr>
         <th bgcolor="#a2c511">
-        Platforms
+        Add-ons &amp; Services
         </th>
         <th bgcolor="#a2c511">
         Tools
@@ -177,10 +179,11 @@
         <tr>
         <td valign="top">
         <ul>
-        <li><a href="winsystem.html">Platform-Specific Notes</a></li>
-        <li><a href="winsystem.html#sec.4">Qtopia Core</a></li>
-        <li><a href="activeqt.html">ActiveQt Framework</a></li>
-        <li><a href="gallery.html">Qt Widget Gallery</a></li>
+        <li><a href="http://www.trolltech.com/products/solutions/">Qt Solutions</a></li>
+        <li><a href="http://www.trolltech.com/products/3rdparty/">Partner Add-ons</a></li>
+        <li><a href="http://www.trolltech.com/freesoftware/">Contributed Qt Components</a></li>
+        <li><a href="http://www.trolltech.com/support/">Support</a></li>
+        <li><a href="http://www.trolltech.com/training/">Training</a></li>
         </ul>
         </td>
         <td valign="top">
