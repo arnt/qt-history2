@@ -733,7 +733,7 @@
     Additional non-template types that compete with Qt's template
     containers are QBitArray, QByteArray, QString, and QStringList.
 
-    \section1 Algoritmic Complexity
+    \section1 Algorithmic Complexity
 
     Algorithmic complexity is concerned about how fast (or slow) each
     function is as the number of items in the container grow. For
