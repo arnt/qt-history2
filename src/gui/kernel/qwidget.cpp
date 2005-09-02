@@ -6603,6 +6603,10 @@ bool QWidget::testAttribute_helper(Qt::WidgetAttribute attribute) const
   This feature is available on Mac OS X, X11 platforms that support the
   Composite extension, and Windows 2000 and later.
 
+  Note that under X11 you need to have a composite manager running,
+  and the X11 specific _NET_WM_WINDOW_OPACITY atom needs to be
+  supported by the window manager you are using.
+
   \warning Changing this property from opaque to transparent might issue a
   paint event that needs to be processed before the window is displayed
   correctly. This affects mainly the use of QPixmap::grabWindow(). Also note
