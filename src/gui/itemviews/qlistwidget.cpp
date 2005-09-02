@@ -39,6 +39,7 @@ public:
     void clear();
     QListWidgetItem *at(int row) const;
     void insert(int row, QListWidgetItem *item);
+    void insert(int row, const QStringList &items);
     void remove(QListWidgetItem *item);
     QListWidgetItem *take(int row);
 
@@ -131,6 +132,21 @@ void QListModel::insert(int row, QListWidgetItem *item)
         row = lst.count();
     beginInsertRows(QModelIndex(), row, row);
     lst.insert(row, item);
+    endInsertRows();
+}
+
+void QListModel::insert(int row, const QStringList &labels)
+{
+    const int count = labels.count();
+    if (count <= 0)
+        return;
+    if (row < 0)
+        row = 0;
+    else if (row > lst.count())
+        row = lst.count();
+    beginInsertRows(QModelIndex(), row, row + count - 1);
+    for (int i = 0; i < count; ++i)
+        lst.insert(row++, new QListWidgetItem(labels.at(i)));
     endInsertRows();
 }
 
@@ -1103,10 +1119,7 @@ void QListWidget::insertItem(int row, const QString &label)
 void QListWidget::insertItems(int row, const QStringList &labels)
 {
     Q_D(QListWidget);
-    QListModel *model = d->model();
-    int r = (row > -1 && row <= count()) ? row : count();
-    for (int i = 0; i < labels.count(); ++i)
-        model->insert(r + i, new QListWidgetItem(labels.at(i)));
+    d->model()->insert(row, labels);
 }
 
 /*!
