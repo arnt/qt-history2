@@ -1,10 +1,13 @@
 /****************************************************************************
 **
-** Definition of something or other
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
-** Created : 979899
+** This file is part of the $MODULE$ of the Qt Toolkit.
 **
-** Copyright (C) 1997 by Trolltech AS.  All rights reserved.
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
 
@@ -44,5 +47,6 @@ public:
     static bool translateIMQueryEvent(QWidget *w, const QWSIMQueryEvent *e);
     static bool translateIMInitEvent(const QWSIMInitEvent *e);
 };
+
 #endif // QT_NO_QWS_INPUTMETHODS
 #endif // QWSINPUTCONTEXT_P_H
