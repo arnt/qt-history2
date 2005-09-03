@@ -11,8 +11,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef __ast_h
-#define __ast_h
+
+#ifndef AST_H
+#define AST_H
 
 #include "smallobject.h"
 #include "list.h"
@@ -1562,5 +1563,4 @@ SNOC(List<InitDeclaratorAST *>, InitDeclaratorAST)
 SNOC(List<TemplateParameterAST *>, TemplateParameterAST)
 SNOC(List<StatementAST *>, StatementAST)
 
-
-#endif
+#endif // AST_H

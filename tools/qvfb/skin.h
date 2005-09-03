@@ -11,6 +11,9 @@
 **
 ****************************************************************************/
 
+#ifndef SKIN_H
+#define SKIN_H
+
 #include <qwidget.h>
 #include <Q3PointArray>
 #include <qregion.h>
@@ -109,4 +112,4 @@ private:
     QString prefix;
 };
 
-
+#endif

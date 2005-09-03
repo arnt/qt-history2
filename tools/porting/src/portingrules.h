@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef RULESFROMXML_H
-#define RULESFROMXML_H
+#ifndef PORTINGRULES_H
+#define PORTINGRULES_H
 
 #include <QList>
 #include <QPair>
@@ -79,4 +79,4 @@ private:
     void addLogError(const QString text) const;
 };
 
-#endif
+#endif // PORTINGRULES_H

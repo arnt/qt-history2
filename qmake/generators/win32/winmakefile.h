@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef __WINMAKEFILE_H__
-#define __WINMAKEFILE_H__
+#ifndef WINMAKEFILE_H
+#define WINMAKEFILE_H
 
 #include "makefile.h"
 
@@ -58,6 +58,4 @@ inline Win32MakefileGenerator::~Win32MakefileGenerator()
 inline bool Win32MakefileGenerator::findLibraries()
 { return findLibraries("QMAKE_LIBS"); }
 
-
-
-#endif /* __WINMAKEFILE_H__ */
+#endif // WINMAKEFILE_H

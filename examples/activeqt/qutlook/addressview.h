@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef AB_CENTRALWIDGET_H
-#define AB_CENTRALWIDGET_H
+#ifndef ADDRESSVIEW_H
+#define ADDRESSVIEW_H
 
 #include <qwidget.h>
 

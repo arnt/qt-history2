@@ -11,6 +11,9 @@
 **
 ****************************************************************************/
 
+#ifndef AX1_H
+#define AX1_H
+
 #include <qwidget.h>
 #include <qpainter.h>
 
@@ -56,3 +59,5 @@ protected:
 private:
     int line_width;
 };
+
+#endif

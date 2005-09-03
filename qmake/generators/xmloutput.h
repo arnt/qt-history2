@@ -10,8 +10,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef __XMLOUTPUT_H__
-#define __XMLOUTPUT_H__
+
+#ifndef XMLOUTPUT_H
+#define XMLOUTPUT_H
 
 #include <qtextstream.h>
 #include <qstack.h>
@@ -174,4 +175,4 @@ inline XmlOutput::xml_output cdata(const QString &text)
     return XmlOutput::xml_output(XmlOutput::tCDATA, text, QString());
 }
 
-#endif // __XMLOUTPUT_H__
+#endif // XMLOUTPUT_H

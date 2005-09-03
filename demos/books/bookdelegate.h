@@ -1,5 +1,5 @@
-#ifndef RATINGDELEGATE_H
-#define RATINGDELEGATE_H
+#ifndef BOOKDELEGATE_H
+#define BOOKDELEGATE_H
 
 #include <QModelIndex>
 #include <QPixmap>

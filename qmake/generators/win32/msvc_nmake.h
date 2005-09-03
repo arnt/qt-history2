@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef __MSVC_NMAKE_H__
-#define __MSVC_NMAKE_H__
+#ifndef MSVC_NMAKE_H
+#define MSVC_NMAKE_H
 
 #include "winmakefile.h"
 
@@ -41,4 +41,4 @@ public:
 inline NmakeMakefileGenerator::~NmakeMakefileGenerator()
 { }
 
-#endif /* __MSVC_NMAKE_H__ */
+#endif // MSVC_NMAKE_H

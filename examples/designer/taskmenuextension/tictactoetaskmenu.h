@@ -1,5 +1,5 @@
-#ifndef TICTACTOE_TASKMENU_H
-#define TICTACTOE_TASKMENU_H
+#ifndef TICTACTOETASKMENU_H
+#define TICTACTOETASKMENU_H
 
 #include <QtDesigner/QDesignerTaskMenuExtension>
 #include <QtDesigner/QExtensionFactory>

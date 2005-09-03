@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef FEATURETREEMODEL_INCLUDED
-#define FEATURETREEMODEL_INCLUDED
+#ifndef FEATURETREEMODEL_H
+#define FEATURETREEMODEL_H
 
 #include <QAbstractItemModel>
 #include <QMap>
@@ -69,4 +69,4 @@ private:
     mutable QHash<const Feature*, QModelIndex> featureIndexMap;    
 };
 
-#endif // FEATURETREEMODEL_INCLUDED
+#endif // FEATURETREEMODEL_H

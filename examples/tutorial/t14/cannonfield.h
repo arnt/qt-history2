@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef CANNON_H
-#define CANNON_H
+#ifndef CANNONFIELD_H
+#define CANNONFIELD_H
 
 #include <QWidget>
 

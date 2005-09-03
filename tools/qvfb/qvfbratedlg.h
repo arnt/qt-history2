@@ -11,6 +11,9 @@
 **
 ****************************************************************************/
 
+#ifndef QVFBRATEDLG_H
+#define QVFBRATEDLG_H
+
 #include <qdialog.h>
 
 class QLabel;
@@ -36,4 +39,4 @@ private:
     int oldRate;
 };
 
-
+#endif

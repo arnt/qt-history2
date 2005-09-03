@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef __METROWERKS_XML_H__
-#define __METROWERKS_XML_H__
+#ifndef METROWERKS_XML_H
+#define METROWERKS_XML_H
 
 #include "makefile.h"
 
@@ -44,4 +44,4 @@ protected:
 inline MetrowerksMakefileGenerator::~MetrowerksMakefileGenerator()
 { }
 
-#endif /* __METROWERKS_XML_H__ */
+#endif // METROWERKS_XML_H

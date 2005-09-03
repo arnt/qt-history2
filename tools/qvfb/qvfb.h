@@ -11,6 +11,9 @@
 **
 ****************************************************************************/
 
+#ifndef QVFB_H
+#define QVFB_H
+
 #include <qmainwindow.h>
 #include <qstringlist.h>
 
@@ -106,3 +109,4 @@ private slots:
     void updateGammaLabels();
 };
 
+#endif

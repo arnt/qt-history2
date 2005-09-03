@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef FEATURE_INCLUDED
-#define FEATURE_INCLUDED
+#ifndef FEATURE_H
+#define FEATURE_H
 
 #include <QString>
 #include <QStringList>
@@ -90,4 +90,4 @@ private:
     FeaturePrivate *d;
 };
 
-#endif // FEATURE_INCLUDED
+#endif // FEATURE_H

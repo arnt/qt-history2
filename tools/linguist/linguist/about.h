@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef ABOUTDIALOG_H
-#define ABOUTDIALOG_H
+#ifndef ABOUT_H
+#define ABOUT_H
 
 #include <qvariant.h>
 #include "ui_about.h"
@@ -30,4 +30,4 @@ protected slots:
     virtual void languageChange();
 };
 
-#endif // ABOUTDIALOG_H
+#endif // ABOUT_H

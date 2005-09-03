@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef __MSVC_OBJECTMODEL_H__
-#define __MSVC_OBJECTMODEL_H__
+#ifndef MSVC_OBJECTMODEL_H
+#define MSVC_OBJECTMODEL_H
 
 #include "project.h"
 #include "xmloutput.h"
@@ -964,4 +964,4 @@ XmlOutput &operator<<(XmlOutput &, VCFilter &);
 XmlOutput &operator<<(XmlOutput &, const VCProjectSingleConfig &);
 XmlOutput &operator<<(XmlOutput &, VCProject &);
 
-#endif //__MSVC_OBJECTMODEL_H__
+#endif //MSVC_OBJECTMODEL_H

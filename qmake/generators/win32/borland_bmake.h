@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef __BORLAND_BMAKE_H__
-#define __BORLAND_BMAKE_H__
+#ifndef BORLAND_BMAKE_H
+#define BORLAND_BMAKE_H
 
 #include "winmakefile.h"
 
@@ -33,4 +33,4 @@ public:
 inline BorlandMakefileGenerator::~BorlandMakefileGenerator()
 { }
 
-#endif /* __BORLAND_BMAKE_H__ */
+#endif // BORLAND_BMAKE_H

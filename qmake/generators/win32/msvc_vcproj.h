@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef __MSVC_VCPROJ_H__
-#define __MSVC_VCPROJ_H__
+#ifndef MSVC_VCPROJ_H
+#define MSVC_VCPROJ_H
 
 #include "winmakefile.h"
 #include "msvc_objectmodel.h"
@@ -112,4 +112,4 @@ inline bool VcprojGenerator::findLibraries()
     return Win32MakefileGenerator::findLibraries("MSVCPROJ_LIBS");
 }
 
-#endif /* __MSVC_VCPROJ_H__ */
+#endif // MSVC_VCPROJ_H

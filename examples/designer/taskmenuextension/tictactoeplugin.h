@@ -1,5 +1,5 @@
-#ifndef TICTACTOE_PLUGIN_H
-#define TICTACTOE_PLUGIN_H
+#ifndef TICTACTOEPLUGIN_H
+#define TICTACTOEPLUGIN_H
 
 #include <QtDesigner/QDesignerCustomWidgetInterface>
 
@@ -27,6 +27,5 @@ public:
 private:
     bool initialized;
 };
-
 
 #endif

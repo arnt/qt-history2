@@ -11,6 +11,9 @@
 **
 ****************************************************************************/
 
+#ifndef AX2_H
+#define AX2_H
+
 #include <qwidget.h>
 #include <qpainter.h>
 
@@ -50,3 +53,5 @@ protected:
 private:
     QColor fill_color;
 };
+
+#endif

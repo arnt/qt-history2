@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef SETTINGSDIALOGIMPL_H
-#define SETTINGSDIALOGIMPL_H
+#ifndef SETTINGSDIALOG_H
+#define SETTINGSDIALOG_H
 
 #include "ui_settingsdialog.h"
 
@@ -47,4 +47,4 @@ private:
     Ui::SettingsDialog ui;
 };
 
-#endif
+#endif // SETTINGSDIALOG_H

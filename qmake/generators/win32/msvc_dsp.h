@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef __MSVC_DSP_H__
-#define __MSVC_DSP_H__
+#ifndef MSVC_DSP_H
+#define MSVC_DSP_H
 
 #include "winmakefile.h"
 
@@ -84,4 +84,4 @@ inline DspMakefileGenerator::~DspMakefileGenerator()
 inline bool DspMakefileGenerator::findLibraries()
 { return Win32MakefileGenerator::findLibraries("MSVCDSP_LIBS"); }
 
-#endif /* __MSVC_DSP_H__ */
+#endif // MSVC_DSP_H

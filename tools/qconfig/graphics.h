@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_INCLUDED
-#define GRAPHICS_INCLUDED
+#ifndef GRAPHICS_H
+#define GRAPHICS_H
 
 static const char *logo_xpm[] = {
 /* width height ncolors chars_per_pixel */
@@ -151,4 +151,4 @@ static const char *collapsed_xpm[] = {
 " ##                             ",
 " ##                             "};
 
-#endif // GRAPHICS_INCLUDED
+#endif // GRAPHICS_H

@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef __UNIXMAKE_H__
-#define __UNIXMAKE_H__
+#ifndef UNIXMAKE_H
+#define UNIXMAKE_H
 
 #include "makefile.h"
 
@@ -52,5 +52,4 @@ private:
 inline UnixMakefileGenerator::~UnixMakefileGenerator()
 { }
 
-
-#endif /* __UNIXMAKE_H__ */
+#endif // UNIXMAKE_H

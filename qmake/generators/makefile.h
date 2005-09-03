@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef __MAKEFILE_H__
-#define __MAKEFILE_H__
+#ifndef MAKEFILE_H
+#define MAKEFILE_H
 
 #include "option.h"
 #include "project.h"
@@ -188,4 +188,4 @@ inline MakefileGenerator::~MakefileGenerator()
 
 QString mkdir_p_asstring(const QString &dir);
 
-#endif /* __MAKEFILE_H__ */
+#endif // MAKEFILE_H

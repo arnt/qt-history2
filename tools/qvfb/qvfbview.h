@@ -11,6 +11,9 @@
 **
 ****************************************************************************/
 
+#ifndef QVFBVIEW_H
+#define QVFBVIEW_H
+
 #include <QWidget>
 
 class QImage;
@@ -113,3 +116,4 @@ private:
     Rotation rotation;
 };
 
+#endif

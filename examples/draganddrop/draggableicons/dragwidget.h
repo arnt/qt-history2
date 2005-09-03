@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef WINDOW_H
-#define WINDOW_H
+#ifndef DRAGWIDGET_H
+#define DRAGWIDGET_H
 
 #include <QFrame>
 

@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef __MINGW_MAKE_H__
-#define __MINGW_MAKE_H__
+#ifndef MINGW_MAKE_H
+#define MINGW_MAKE_H
 
 #include "winmakefile.h"
 
@@ -41,4 +41,4 @@ private:
 inline MingwMakefileGenerator::~MingwMakefileGenerator()
 { }
 
-#endif /* __MINGW_MAKE_H__ */
+#endif // MINGW_MAKE_H

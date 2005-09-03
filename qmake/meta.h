@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef __META_H__
-#define __META_H__
+#ifndef META_H
+#define META_H
 
 #include <qmap.h>
 #include <qstringlist.h>
@@ -68,4 +68,4 @@ inline QMap<QString, QStringList> &QMakeMetaInfo::variables()
 inline bool QMakeMetaInfo::libExists(QString lib)
 { return !findLib(lib).isNull(); }
 
-#endif /* __META_H__ */
+#endif // META_H

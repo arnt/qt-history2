@@ -1,5 +1,5 @@
-#ifndef ARTHUR_WIDGETS
-#define ARTHUR_WIDGETS
+#ifndef ARTHURWIDGETS_H
+#define ARTHURWIDGETS_H
 
 #include <qbitmap.h>
 #include <qpushbutton.h>

@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef BROWSERWIDGET_H
-#define BROWSERWIDGET_H
+#ifndef BROWSER_H
+#define BROWSER_H
 
 #include <qwidget.h>
 #include "ui_browserwidget.h"
