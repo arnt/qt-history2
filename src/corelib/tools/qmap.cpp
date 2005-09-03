@@ -389,7 +389,7 @@ void QMapData::dump()
     Constructs a copy of \a other.
 
     This function is only available if Qt is configured with STL
-    compabitility enabled.
+    compatibility enabled.
 
     \sa toStdMap()
 */
@@ -399,7 +399,7 @@ void QMapData::dump()
     Returns an STL map equivalent to this QMap.
 
     This function is only available if Qt is configured with STL
-    compabitility enabled.
+    compatibility enabled.
 */
 
 /*! \fn QMap::~QMap()

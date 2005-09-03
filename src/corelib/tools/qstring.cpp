@@ -562,7 +562,7 @@ inline int QString::grow(int size)
     fromAscii().
 
     This constructor is only available if Qt is configured with STL
-    compabitility enabled.
+    compatibility enabled.
 
     \sa  fromAscii(), fromLatin1(), fromLocal8Bit(), fromUtf8()
 */
@@ -575,7 +575,7 @@ inline int QString::grow(int size)
     if the size of wchar_t is 4 bytes (most Unix systems).
 
     This constructor is only available if Qt is configured with STL
-    compabitility enabled.
+    compatibility enabled.
 
     \sa fromUtf16(), fromLatin1(), fromLocal8Bit(), fromUtf8()
 */
@@ -618,7 +618,7 @@ QString QString::fromWCharArray(const wchar_t *a, int l)
     that accepts a std::wstring object.
 
     This operator is only available if Qt is configured with STL
-    compabitility enabled.
+    compatibility enabled.
 
     \sa utf16(), toAscii(), toLatin1(), toUtf8(), toLocal8Bit()
 */
@@ -6029,7 +6029,7 @@ void QString::updateProperties() const
     std::string constructor.
 
     This operator is only available if Qt is configured with STL
-    compabitility enabled.
+    compatibility enabled.
 
     \sa toAscii(), toLatin1(), toUtf8(), toLocal8Bit()
 */
