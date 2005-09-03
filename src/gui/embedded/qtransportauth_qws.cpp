@@ -86,7 +86,7 @@ void QTransportAuth::connectTransport( unsigned char properties, int descriptor 
     d.properties = properties;
     d.descriptor = descriptor;
     d.status = Pending;
-    data[d] = d;
+    data.append( d );
 }
 
 /**
@@ -168,7 +168,7 @@ QTransportAuth *QTransportAuth::getInstance()
   and can be written by the "install_key" tool, and appended to by the
   "PackageManager".
 */
-inline void QTransportAuth::setKeyFilePath( const QString &path )
+void QTransportAuth::setKeyFilePath( const QString &path )
 {
     keyFilePath = path;
 }
@@ -186,7 +186,8 @@ void QTransportAuth::closeTransport( unsigned char properties, int descriptor )
     Data d;
     d.properties = properties;
     d.descriptor = descriptor;
-    data.remove( d );
+    int pos = data.indexOf( d );
+    if ( pos != -1 ) data.removeAt( pos );
 }
 
 /**
@@ -247,6 +248,10 @@ bool QTransportAuth::addAuth( char *msg, int msgLen, QTransportAuth::Data d )
 
     qDebug( "adding auth to message %s against prog id %u and key %s\n",
             AUTH_DATA(msg), authKey.progId, keydisplay );
+
+    char authhdr[HEADER_LEN*2+1];
+    stringify_key( authhdr, (unsigned char *)msg, HEADER_LEN );
+    qDebug( "message header is %s", authhdr );
 #endif
 
     // TODO implement sequence to prevent replay attack, not required
@@ -263,13 +268,18 @@ bool QTransportAuth::addAuth( char *msg, int msgLen, QTransportAuth::Data d )
 */
 void QTransportAuth::authToSocket( unsigned char properties, int descriptor, char *msg, int len )
 {
+#ifdef QTRANSPORTAUTH_DEBUG
     qDebug( "auth to socket %d: %s", descriptor, msg );
+#endif
     struct Data d;
     d.properties = properties;
     d.descriptor = descriptor;
-    if ( data.contains( d ))
-        d = data[d];
-    if ( connection( d ))
+    int pos = data.indexOf( d );
+    if ( pos != -1 )
+        d = data.at( pos );
+    else
+        d.status = 0;
+    if ( connection( d ) && (( d.status & ErrMask ) != Pending ))
         return;
     char buf[AUTH_SPACE(AMOUNT_TO_AUTHENTICATE)];
     if ( len > AMOUNT_TO_AUTHENTICATE )
@@ -281,6 +291,8 @@ void QTransportAuth::authToSocket( unsigned char properties, int descriptor, cha
     int rs = ::send( d.descriptor, buf, len, 0 );
     if ( rs == -1 )
         perror( "putting auth data on socket" );
+    d.status = ( d.status | Success );
+    data.append( d );
 }
 
 static struct AuthCookie *keyCache[ KEY_CACHE_SIZE ] = { 0 };
@@ -321,6 +333,11 @@ const unsigned char *QTransportAuth::getClientKey( unsigned char progId )
         i = 0;
     memset( &kr, 0, sizeof( kr ));
     fd = ::open( keyFilePath.toLocal8Bit().constData(), O_RDONLY );
+    if ( fd == -1 )
+    {
+        perror( "couldnt open keyfile" );
+        qWarning( "check keyfile path %s", keyFilePath.toLocal8Bit().constData() );
+    }
     while ( ::read( fd, &kr, sizeof( struct AuthCookie )) != 0 )
     {
         if ( kr.progId == progId )
@@ -328,9 +345,13 @@ const unsigned char *QTransportAuth::getClientKey( unsigned char progId )
             if ( keyCache[i] == NULL )
                 keyCache[i] = (AuthCookie *)(malloc( sizeof( kr )));
             memcpy( keyCache[i]->key, kr.key, KEY_LEN );
+#ifdef QTRANSPORTAUTH_DEBUG
+            qDebug( "Found client key for prog %u", progId );
+#endif
             return keyCache[i]->key;
         }
     }
+    qWarning( "Not found client key for prog %u", progId );
     return NULL;
 }
 
@@ -369,6 +390,13 @@ bool QTransportAuth::checkAuth( char *msg, int msgLen, QTransportAuth::Data &d )
         emit authViolation( d );
         return false;
     }
+
+#ifdef QTRANSPORTAUTH_DEBUG
+    char authhdr[HEADER_LEN*2+1];
+    stringify_key( authhdr, (unsigned char *)msg, HEADER_LEN );
+    qDebug( "message header is %s", authhdr );
+#endif
+
     // if no magic bytes, exit straight away
     int m;
     unsigned char *mptr = (unsigned char *)msg;
@@ -444,8 +472,14 @@ QTransportAuth::Result QTransportAuth::authFromSocket( unsigned char properties,
     struct Data d;
     d.properties = properties;
     d.descriptor = descriptor;
-    if ( data.contains( d ))
-        d = data[d];
+    int pos = data.indexOf( d );
+    if ( pos != -1 )
+    {
+#ifdef QTRANSPORTAUTH_DEBUG
+        qDebug( "found previous cached connection with descriptor %d, properties %x, status %x", descriptor, properties, d.status );
+#endif
+        d = data.at( pos );
+    }
     if ( connection( d ))
     {
         if (( d.status & ErrMask ) == Success )
@@ -467,6 +501,8 @@ QTransportAuth::Result QTransportAuth::authFromSocket( unsigned char properties,
     if ( authGood || (( d.status & ErrMask ) != NoMagic
             && ( d.status & ErrMask ) != TooSmall ))
         rs = ::recv( d.descriptor, buf, AUTH_SPACE( 0 ), 0 );
+    if ( pos == -1 )
+        data.append( d );
     return Success;
 }
 
@@ -478,12 +514,19 @@ QTransportAuth::Result QTransportAuth::authFromSocket( unsigned char properties,
 
   The target buf should be [ key_len * 2 + 1 ] in size
 */
+#include <QSysInfo>
+
 void stringify_key( char *buf, const unsigned char* key, size_t key_len )
 {
-    unsigned int i;
-    const unsigned int *iptr = (const unsigned int *)key;
-    for ( i = 0; i < key_len; i += sizeof(i), buf += sizeof(i)*2, iptr++ )
-        sprintf( buf, "%x", *iptr );
+    unsigned int i, p;
+    for ( i = 0, p = 0; i < key_len; i++, p+=2 )
+    {
+        unsigned char lo_nibble = key[i] & 0x0f;
+        unsigned char hi_nibble = key[i] >> 4;
+        buf[p] = (int)hi_nibble > 9 ? hi_nibble-10 + 'A' : hi_nibble + '0';
+        buf[p+1] = (int)lo_nibble > 9 ? lo_nibble-10 + 'A' : lo_nibble + '0';
+    }
+    buf[p] = '\0';
 }
 #endif
 

@@ -1043,19 +1043,23 @@ void QWSServer::doClient()
 
 void QWSServer::doClient(QWSClient *client)
 {
-    QWSCommand* command=client->readMoreCommand();
 
-    if ( QTransportAuth::getInstance()->authFromSocket(
-                QTransportAuth::UnixStreamSock, client->socket() ) ==
-            QTransportAuth::Deny )
+    QTransportAuth::Result r = QTransportAuth::Allow;
+    if ( client->socket() != -1 ) // server socket, no auth for that
+        r = QTransportAuth::getInstance()->authFromSocket(
+                QTransportAuth::UnixStreamSock, client->socket() );
+    if (( r & QTransportAuth::StatusMask ) == QTransportAuth::Deny )
     {
+        qWarning( "Transport not valid" );
         QWSCommand* command=client->readMoreCommand();
 #ifdef QTRANSPORTAUTH_DEBUG
-        qDebug( "Command denied " );
+        qDebug( "command denied " );
         qDebug() << command->type;
 #endif
         return;
     }
+
+    QWSCommand* command=client->readMoreCommand();
 
     while (command) {
         QWSCommandStruct *cs = new QWSCommandStruct(command, client);

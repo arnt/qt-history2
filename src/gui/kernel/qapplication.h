@@ -28,6 +28,7 @@
 #endif
 #ifdef Q_WS_QWS
 # include "QtGui/qrgb.h"
+#include "qtransportauth_qws.h"
 #endif
 
 QT_MODULE(Gui)
@@ -43,12 +44,9 @@ class QInputContext;
 class QDecoration;
 #endif
 
-
 class QApplication;
 class QApplicationPrivate;
 #define qApp (static_cast<QApplication *>(QCoreApplication::instance()))
-
-#define APP_KEY const char *_key = "XOXOXOauthOXOXOX99";
 
 class Q_GUI_EXPORT QApplication : public QCoreApplication
 {

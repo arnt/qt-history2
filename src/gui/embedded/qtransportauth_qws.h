@@ -21,14 +21,32 @@
 QT_MODULE(Gui)
 
 // Uncomment to generate debug output
-#define QTRANSPORTAUTH_DEBUG 1
+// #define QTRANSPORTAUTH_DEBUG 1
+
+#define KEY_TEMPLATE "XOXOXOauthOXOXOX99"
+#define APP_KEY const char *_key = KEY_TEMPLATE;
+#define QL_APP_KEY const char *_ql_key = KEY_TEMPLATE;
 
 #define KEY_LEN 16
 #define MAGIC_BYTES 4
+#define MAX_PROG_ID 255
 
 /**
   \internal
   \class AuthCookie
+  Struct to carry process authentication key and id
+*/
+#define HEADER_LEN 24
+struct AuthCookie
+{
+    unsigned char key[KEY_LEN];
+    unsigned char pad;
+    unsigned char progId;
+};
+
+/**
+  \macro AUTH_ID
+  Macro to manage authentication header.  Format of header is:
   \table
   \header \i BYTES  \i  CONTENT
      \row \i 0-3    \i  magic numbers
@@ -39,14 +57,10 @@ QT_MODULE(Gui)
      \row \i 23     \i  sequence number
   \endtable
   Total length of the header is 24 bytes
+
+  However this may change.  Instead of coding these numbers use the AUTH_ID,
+  AUTH_KEY, AUTH_DATA and AUTH_SPACE macros.
 */
-#define HEADER_LEN 24
-struct AuthCookie
-{
-    unsigned char key[KEY_LEN];
-    unsigned char progId;
-    unsigned char seq;
-};
 
 #define AUTH_ID(k) ((unsigned char)(k[KEY_LEN]))
 #define AUTH_KEY(k) ((unsigned char *)(k))
@@ -59,6 +73,8 @@ const unsigned char magic[MAGIC_BYTES] = { 0xBA, 0xD4, 0xF7, 0x38 };
 #define KEY_IDX 6
 #define PROG_IDX 22
 #define SEQ_IDX 23
+
+#define KEYFILE "keyfile"
 
 /**
   \class QTransportAuth
@@ -137,8 +153,13 @@ public:
 
         bool operator==( const Data &rhs ) const
         {
-            return ( this->properties & TransportType == rhs.properties & TransportType &&
+            return ((( this->properties & TransportType ) ==
+                        ( rhs.properties & TransportType )) &&
                     this->descriptor == rhs.descriptor );
+        }
+        const char *error() const
+        {
+            return ( errorStrings[(int)( status & ErrMask )] );
         }
     };
 
@@ -171,7 +192,7 @@ private:
     bool keyInitialised;
     QString keyFilePath;
     AuthCookie authKey;
-    QHash<Data, Data> data;
+    QList<Data> data;
 };
 
 uint qHash( QTransportAuth::Data );

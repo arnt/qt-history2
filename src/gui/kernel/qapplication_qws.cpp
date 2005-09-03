@@ -478,8 +478,6 @@ void QWSDisplay::Data::init()
         // QWS client
         csocket->connectToLocalFile(pipe);
 
-        qDebug( "****** CONNECT TO LOCAL PIPE *******" );
-
         QTransportAuth::getInstance()->authToSocket(
                 QTransportAuth::UnixStreamSock |
                 QTransportAuth::Trusted |
