@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QGFXMATROX_QWS_H
-#define QGFXMATROX_QWS_H
+#ifndef QSCREENMATROX_QWS_H
+#define QSCREENMATROX_QWS_H
 
 #include "QtGui/qscreenlinuxfb_qws.h"
 
@@ -41,7 +41,5 @@ private:
     unsigned int src_pixel_offset;
 };
 
-
 #endif // QT_NO_QWS_MATROX
-
-#endif // QGFXMATROX_QWS_H
+#endif // QSCREENMATROX_QWS_H

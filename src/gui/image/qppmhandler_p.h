@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QPPMHANDLER_H
-#define QPPMHANDLER_H
+#ifndef QPPMHANDLER_P_H
+#define QPPMHANDLER_P_H
 
 #include "qimageiohandler.h"
 
@@ -39,4 +39,4 @@ private:
 };
 
 #endif // QT_NO_IMAGEFORMAT_PPM
-#endif // QPPMHANDLER_H
+#endif // QPPMHANDLER_P_H

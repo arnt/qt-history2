@@ -168,4 +168,3 @@ static const char * const filedialog_end_xpm[]={
     "aaeeeeeeeeeeeee.",
     "aaa.............",
     "aaaaaaaaaaaaaaaa"};
-

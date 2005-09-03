@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QXBMHANDLER_H
-#define QXBMHANDLER_H
+#ifndef QXBMHANDLER_P_H
+#define QXBMHANDLER_P_H
 
 #include "qimageiohandler.h"
 
@@ -38,4 +38,4 @@ private:
 };
 
 #endif // QT_NO_IMAGEFORMAT_XBM
-#endif // QXBMHANDLER_H
+#endif // QXBMHANDLER_P_H

@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef MAC_QATOMIC_H
-#define MAC_QATOMIC_H
+#ifndef MACOSX_QATOMIC_H
+#define MACOSX_QATOMIC_H
 
 #include <QtCore/qglobal.h>
 
@@ -213,4 +213,4 @@ extern "C" {
 
 #endif //__i386__
 
-#endif // MAC_QATOMIC_H
+#endif // MACOSX_QATOMIC_H

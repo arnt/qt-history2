@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDOCKWINDOWSEPARATOR_P_H
-#define QDOCKWINDOWSEPARATOR_P_H
+#ifndef QDOCKWIDGETSEPARATOR_P_H
+#define QDOCKWIDGETSEPARATOR_P_H
 
 //
 //  W A R N I N G
@@ -59,4 +59,4 @@ public:
 };
 
 #endif // QT_NO_MAINWINDOW
-#endif // QDOCKWINDOWSEPARATOR_P_H
+#endif // QDOCKWIDGETSEPARATOR_P_H

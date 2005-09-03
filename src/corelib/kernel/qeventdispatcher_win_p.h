@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QEVENTDISPATCHER_WIN_H
-#define QEVENTDISPATCHER_WIN_H
+#ifndef QEVENTDISPATCHER_WIN_P_H
+#define QEVENTDISPATCHER_WIN_P_H
 
 #include "QtCore/qabstracteventdispatcher.h"
 #include "QtCore/qt_windows.h"
@@ -54,4 +54,4 @@ private:
     friend LRESULT CALLBACK qt_internal_proc(HWND hwnd, UINT message, WPARAM wp, LPARAM lp);
 };
 
-#endif // QEVENTDISPATCHER_WIN_H
+#endif // QEVENTDISPATCHER_WIN_P_H

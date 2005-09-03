@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWIDGETVIEW_H
-#define QWIDGETVIEW_H
+#ifndef QSCROLLAREA_H
+#define QSCROLLAREA_H
 
 #include "QtGui/qabstractscrollarea.h"
 
@@ -52,4 +52,4 @@ private:
 };
 
 #endif // QT_NO_SCROLLAREA
-#endif // QWIDGETVIEW_H
+#endif // QSCROLLAREA_H

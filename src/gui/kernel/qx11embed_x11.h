@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QX11EMBED_H
-#define QX11EMBED_H
+#ifndef QX11EMBED_X11_H
+#define QX11EMBED_X11_H
 
 #include <QtGui/qwidget.h>
 
@@ -93,4 +93,4 @@ private:
     Q_DISABLE_COPY(QX11EmbedContainer)
 };
 
-#endif // QX11EMBED_H
+#endif // QX11EMBED_X11_H

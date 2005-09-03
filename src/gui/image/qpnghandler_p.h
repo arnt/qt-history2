@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QPNGHANDLER_H
-#define QPNGHANDLER_H
+#ifndef QPNGHANDLER_P_H
+#define QPNGHANDLER_P_H
 
 #include "qimageiohandler.h"
 
@@ -38,4 +38,4 @@ private:
     int quality;
 };
 
-#endif // QPNGHANDLER_H
+#endif // QPNGHANDLER_P_H

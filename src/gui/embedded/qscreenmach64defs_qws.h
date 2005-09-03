@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QGFXMACH64DEFS_QWS_H
-#define QGFXMACH64DEFS_QWS_H
+#ifndef QSCREENMACH64DEFS_QWS_H
+#define QSCREENMACH64DEFS_QWS_H
 
 #define GEN_TEST_CNTL 0x00d0
 #define FIFO_STAT 0x0310
@@ -176,4 +176,4 @@
 #define CUR_OFFSET 0x0068
 #define CUR_HORZ_VERT_OFF 0x0070
 
-#endif // QGFXMACH64DEFS_QWS_H
+#endif // QSCREENMACH64DEFS_QWS_H

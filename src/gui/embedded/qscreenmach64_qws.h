@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QGFXMACH64_QWS_H
-#define QGFXMACH64_QWS_H
+#ifndef QSCREENMACH64_QWS_H
+#define QSCREENMACH64_QWS_H
 
 #include "QtGui/qscreenlinuxfb_qws.h"
 
@@ -40,4 +40,4 @@ protected:
 
 #endif // QT_NO_QWS_MACH64
 
-#endif // QGFXMACH64_QWS_H
+#endif // QSCREENMACH64_QWS_H

@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QGFXMATROXDEFS_QWS_H
-#define QGFXMATROXDEFS_QWS_H
+#ifndef QSCREENMATROXDEFS_QWS_H
+#define QSCREENMATROXDEFS_QWS_H
 
 #include "QtCore/qglobal.h"
 
@@ -84,4 +84,4 @@ QT_MODULE(Gui)
 #define XYSTRT 0x1c40
 #define XYEND 0x1c44
 
-#endif // QGFXMATROXDEFS_QWS_H
+#endif // QSCREENMATROXDEFS_QWS_H
