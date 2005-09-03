@@ -34,11 +34,14 @@
 **
 ****************************************************************************/
 
+#ifndef QMULTIINPUTCONTEXTPLUGIN_H
+#define QMULTIINPUTCONTEXTPLUGIN_H
+
 #ifndef QT_NO_IM
+
 #include "qmultiinputcontext.h"
 #include <qinputcontextplugin.h>
 #include <qstringlist.h>
-
 
 class QMultiInputContextPlugin : public QInputContextPlugin
 {
@@ -55,3 +58,4 @@ public:
 };
 
 #endif
+#endif // QMULTIINPUTCONTEXTPLUGIN_H

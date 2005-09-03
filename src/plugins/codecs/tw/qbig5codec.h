@@ -15,8 +15,8 @@
 // is included in Qt with the author's permission, and the grateful
 // thanks of the Trolltech team.
 
-#ifndef QBIG5CODEC_P_H
-#define QBIG5CODEC_P_H
+#ifndef QBIG5CODEC_H
+#define QBIG5CODEC_H
 
 #include "qtextcodec.h"
 #include <qlist.h>
@@ -49,8 +49,6 @@ public:
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 };
-
-
 
 #ifdef Q_WS_X11
 class Q_CORE_EXPORT QFontBig5Codec : public QTextCodec
@@ -89,4 +87,4 @@ public:
 
 #endif // Q_WS_X11
 #endif // QT_NO_TEXTCODECPLUGIN
-#endif // QBIG5CODEC_P_H
+#endif // QBIG5CODEC_H

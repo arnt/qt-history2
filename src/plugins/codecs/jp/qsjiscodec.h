@@ -40,8 +40,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef QSJISCODEC_P_H
-#define QSJISCODEC_P_H
+#ifndef QSJISCODEC_H
+#define QSJISCODEC_H
 
 #include "qtextcodec.h"
 #include "qjpunicode.h"
@@ -67,5 +67,6 @@ public:
 protected:
     const QJpUnicodeConv *conv;
 };
+
 #endif // QT_NO_TEXTCODECPLUGIN
-#endif // QSJISCODEC_P_H
+#endif // QSJISCODEC_H

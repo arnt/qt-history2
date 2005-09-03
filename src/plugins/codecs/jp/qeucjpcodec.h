@@ -40,8 +40,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef QEUCJPCODEC_P_H
-#define QEUCJPCODEC_P_H
+#ifndef QEUCJPCODEC_H
+#define QEUCJPCODEC_H
 
 #include "qtextcodec.h"
 #include "qjpunicode.h"
@@ -70,4 +70,4 @@ protected:
 };
 
 #endif // QT_NO_TEXTCODECPLUGIN
-#endif // QEUCJPCODEC_P_H
+#endif // QEUCJPCODEC_H

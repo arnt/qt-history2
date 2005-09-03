@@ -36,8 +36,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef QEUCKRCODEC_P_H
-#define QEUCKRCODEC_P_H
+#ifndef QEUCKRCODEC_H
+#define QEUCKRCODEC_H
 
 #include "qtextcodec.h"
 #include <qlist.h>
@@ -56,7 +56,6 @@ public:
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 };
-
 
 #ifdef Q_WS_X11
 class QFontKsc5601Codec : public QTextCodec
@@ -77,5 +76,6 @@ public:
 
 };
 #endif
+
 #endif // QT_NO_TEXTCODECPLUGIN
-#endif // QEUCKRCODEC_P_H
+#endif // QEUCKRCODEC_H
