@@ -150,8 +150,6 @@ public:
     inline QString toHtml() const
     { return document()->toHtml(); }
 
-    void append(const QString &text);
-
     void ensureCursorVisible();
 
     virtual QVariant loadResource(int type, const QUrl &name);
@@ -195,6 +193,8 @@ public slots:
 
     void insertPlainText(const QString &text);
     void insertHtml(const QString &text);
+
+    void append(const QString &text);
 
     void scrollToAnchor(const QString &name);
 
