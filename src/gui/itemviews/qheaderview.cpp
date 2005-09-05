@@ -1550,7 +1550,6 @@ void QHeaderView::mouseDoubleClickEvent(QMouseEvent *e)
 
 bool QHeaderView::viewportEvent(QEvent *e)
 {
-    Q_D(QHeaderView);
     switch (e->type()) {
 #ifndef QT_NO_TOOLTIP
     case QEvent::ToolTip: {
