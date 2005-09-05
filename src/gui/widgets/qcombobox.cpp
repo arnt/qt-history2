@@ -1168,7 +1168,10 @@ QAbstractItemModel *QComboBox::model() const
 void QComboBox::setModel(QAbstractItemModel *model)
 {
     Q_D(QComboBox);
+
     Q_ASSERT(model);
+    if (!model)
+        return;
 
     if (d->model) {
         disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
