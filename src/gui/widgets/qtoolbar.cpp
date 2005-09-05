@@ -735,30 +735,15 @@ void QToolBar::childEvent(QChildEvent *event)
 {
     Q_D(QToolBar);
     QWidget *widget = qobject_cast<QWidget *>(event->child());
-    if (widget) {
-#if !defined(QT_NO_DEBUG)
-        if (!widget->isWindow() && event->type() == QEvent::ChildPolished) {
-            bool found = (d->handle == widget || d->extension == widget);
-            for (int i = 0; !found && i < d->items.size(); ++i) {
-                const QToolBarItem &item = d->items.at(i);
-                if (item.widget == widget)
-                    found = true;
-            }
-            if (!found)
-                qWarning("QToolBar: child widget '%s::%s' not added, use QToolBar::addWidget()",
-                         widget->objectName().toLocal8Bit().constData(), widget->metaObject()->className());
-        } else
-#endif
-        if (event->type() == QEvent::ChildRemoved) {
-            for (int i = 0; i < d->items.size(); ++i) {
-                const QToolBarItem &item = d->items.at(i);
-                QToolBarWidgetAction *widgetAction = 0;
-                if (item.widget == widget
-                    && (widgetAction = qobject_cast<QToolBarWidgetAction *>(item.action))) {
-                    removeAction(widgetAction);
-                    // ### should we delete the action, or is it the programmers reponsibility?
-                    // delete widgetAction;
-                }
+    if (widget && event->type() == QEvent::ChildRemoved) {
+        for (int i = 0; i < d->items.size(); ++i) {
+            const QToolBarItem &item = d->items.at(i);
+            QToolBarWidgetAction *widgetAction = 0;
+            if (item.widget == widget
+                && (widgetAction = qobject_cast<QToolBarWidgetAction *>(item.action))) {
+                removeAction(widgetAction);
+                // ### should we delete the action, or is it the programmers reponsibility?
+                // delete widgetAction;
             }
         }
     }

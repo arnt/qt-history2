@@ -212,7 +212,7 @@ void QToolButtonPrivate::init()
     menu = 0;
 #endif
     defaultAction = 0;
-    autoRaise = false;
+    autoRaise = qobject_cast<QToolBar *>(q->parentWidget()) ? true : false;
     arrowType = Qt::NoArrow;
     menuButtonDown = false;
     popupMode = QToolButton::DelayedPopup;
