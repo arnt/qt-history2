@@ -5,7 +5,100 @@
     \previouspage QtXml
     \nextpage QtAssistant
 
-    \brief The QtDesigner module provides classes for extending \QD.
+    \brief The QtDesigner module provides classes that allow you to
+    create your own custom widget plugins for Qt Designer, and classes
+    that enable you to access Qt Designer's components.
+
+    In addition the QFormBuilder class provides the possibility of
+    constructing user interfaces from \c .ui files at run-time.
+
+    \tableofcontents
+
+    \section1 Creating Custom Widget Plugins
+
+    When implementing a custom widget plugin for \QD, you must
+    subclass QDesignerCustomWidgetInterface to expose your custom
+    widget to \QD. A single custom widget plugin is build as a
+    separate library. If you want to include several custom widget
+    plugins in the same library, you must in addition subclass
+    QDesignerCustomWidgetCollectionInterface.
+
+    To provide your custom widget plugin with the expected behavior
+    and functionality within \QD's workspace you can subclass the
+    associated extension classes:
+
+    The QDesignerContainerExtension class allows you to add pages to a
+    multipage container plugin in \QD. The QDesignerTaskMenuExtension
+    class allows you to add custom menu entries to \QD's task
+    menu. The QDesignerMemberSheetExtension class allows you to
+    manipulate a widget's member functions which is displayed in \QD's
+    signal and slot editor. And finally, the
+    QDesignerPropertyEditorInterface class allows you to query and
+    manipulate the current state of \QD's property editor.
+
+    \image qtdesignerextensions.png
+
+    In \QD the extensions are not created until they are required. For
+    that reason, when implementing extensions, you must also subclass
+    QExtensionFactory, i.e create a class that is able to make
+    instances of your extensions. In addition you must make \QD's
+    extension manager register your factory; the extension manager
+    controls the construction of extensions as they are required, and
+    you can access it through QDesignerFormEditorInterface and
+    QExtensionManager.
+
+    For a complete example creating a custom widget plugin with an
+    extension, see the \l {designer/taskmenuextension}{Task Menu
+    Extension example}.
+
+    \section1 Retrieving Access to \QD Components
+
+    The purpose of the classes mentioned in this section is to provide
+    access to \QD's components, managers and workspace, and they are
+    not intended to be instantiated directly.
+
+    \QD is composed by several components. It has an action editor, a
+    property editor, widget box and object inspector which you can
+    view in its workspace.
+
+    \image qtdesignerscreenshot.png
+
+    \QD also has a non-visual form editor. The form editor holds
+    information about all of \QD's components. You can use the
+    QDesignerFormEditorInterface to retrieve interfaces accessing the
+    visually available components:
+
+    \list
+    \o QDesignerActionEditorInterface
+    \o QDesignerObjectInspectorInterface
+    \o QDesignerPropertyEditorInterface
+    \o QDesignerWidgetBoxInterface
+    \endlist
+
+    In addition, you can use QDesignerFormEditorInterface to retrieve
+    interfaces to \QD's extension manager (QExtensionManager) and form
+    window manager (QDesignerFormWindowManagerInterface). The
+    extension manager controls the construction of extensions as they
+    are required, while the form window manager controls the form
+    windows appearing in \QD's workspace.
+
+    Once you have an interface to \QD's form window manager
+    (QDesignerFormWindowManagerInterface), you also have access to all
+    the form windows currently appearing in \QD's workspace: The
+    QDesignerFormWindowInterface class allows you to query and
+    manipulate the form windows, and it provides an interface to the
+    form windows' cursors; QDesignerFormWindowCursorInterface is a
+    convenience class allowing you to query and modify a given form
+    window's widget selection, and in addition modify the properties
+    of all the form's widgets.
+
+    \section1 Creating User Interfaces at Run-Time
+
+    The QFormBuilder class provides a mechanism for dynamically
+    creating user interfaces at run-time, based on \c .ui files
+    created with \QD. For a complete example using QFormBuilder, see
+    the \l {designer/calculatorbuilder}{Calculator Builder example}.
+
 
     \sa {Qt Designer Manual}
 */
@@ -51,7 +144,7 @@
 
     \warning \QD uses the QDesignerMemberSheetExtension to feed its
     signal and slot editor. Whenever a connection between two widgets
-    is requested, Qt Designer will query for the widgets' member sheet
+    is requested, \QD will query for the widgets' member sheet
     extensions. If a widget has an implemented member sheet extension,
     this extension will override the default member sheet.
 
@@ -73,16 +166,16 @@
        }
     \endcode
 
-    This enables Qt Designer to use qobject_cast() to query for
+    This enables \QD to use qobject_cast() to query for
     supported interfaces using nothing but a QObject pointer.
 
-    In Qt Designer the extensions are not created until they are
+    In \QD the extensions are not created until they are
     required. For that reason, when implementing a property sheet
     extension, you must also create a QExtensionFactory, i.e a class
     that is able to make an instance of your extension, and register
     it using \QD's \l {QExtensionManager}{extension manager}.
 
-    When a widget's member sheet extension is required, Qt Designer
+    When a widget's member sheet extension is required, \QD
     will run through all its registered factories calling
     QExtensionFactory::createExtension() for each until the first one
     that is able to create a member sheet extension for that widget,
@@ -90,10 +183,10 @@
     extension. If no such factory is found, \QD will use the default
     member sheet.
 
-    There are four available types of extensions in Qt Designer:
+    There are four available types of extensions in \QD:
     QDesignerContainerExtension , QDesignerMemberSheetExtension,
     QDesignerPropertySheetExtension and
-    QDesignerTaskMenuExtension. Qt Designer's behavior is the same
+    QDesignerTaskMenuExtension. \QD's behavior is the same
     whether the requested extension is associated with a multi page
     container, a member sheet, a property sheet or a task menu.
 
@@ -144,7 +237,7 @@
     {designer/taskmenuextension}{Task Menu Extension example}. The
     example shows how to create a custom widget plugin for Qt
     Designer, and how to to use the QDesignerTaskMenuExtension class
-    to add custom items to Qt Designer's task menu.
+    to add custom items to \QD's task menu.
 
     \sa QExtensionFactory, QExtensionManager, {Qt Designer}
 */
@@ -463,13 +556,13 @@
     the insertWidget() function to add a given page to the container by
     inserting it at a specified index in the list of pages.
 
-    In Qt Designer the extensions are not created until they are
+    In \QD the extensions are not created until they are
     required. For that reason you must also create a
     QExtensionFactory, i.e a class that is able to make an instance of
     your extension, and register it using \QD's \l
     {QExtensionManager}{extension manager}.
 
-    When a container extension is required, Qt Designer will run
+    When a container extension is required, \QD will run
     through all its registered factories calling
     QExtensionFactory::createExtension() for each until the first one
     that is able to create a container extension, is found. This
@@ -613,8 +706,8 @@
     custom task menu extensions. It is typically used to create task
     menu entries that is specific to a plugin in \QD.
 
-    Qt Designer uses the QDesignerTaskMenuExtension to feed its task
-    menu. Whenever a task menu is requested, Qt Designer will query
+    \QD uses the QDesignerTaskMenuExtension to feed its task
+    menu. Whenever a task menu is requested, \QD will query
     for the selected widget's task menu extension.
 
     \image taskmenuextension-example-faded.png
@@ -672,7 +765,7 @@
     is able to make an instance of your extension, and register it
     using \QD's \l {QExtensionManager}{extension manager}.
 
-    When a task menu extension is required, Qt Designer will run
+    When a task menu extension is required, \QD will run
     through all its registered factories calling
     QExtensionFactory::createExtension() for each until the first one
     that is able to create a task menu extension for the selected
@@ -731,7 +824,7 @@
     For a complete example using the QDesignerTaskMenuExtension class,
     see the \l {designer/taskmenuextension}{Task Menu Extension
     example}. The example shows how to create a custom widget plugin
-    for Qt Designer, and how to to use the QDesignerTaskMenuExtension
+    for \QD, and how to to use the QDesignerTaskMenuExtension
     class to add custom items to \QD's task menu.
 
     \sa QExtensionFactory, QExtensionManager, {Qt Designer}
@@ -834,7 +927,7 @@
 
     QDesignerCustomWidgetCollectionInterface contains one single
     function returning a list of the collection's
-    QDesignerCustomWidgetInterface objects. Qt Designer uses the
+    QDesignerCustomWidgetInterface objects. \QD uses the
     interface to manage the collection of custom widgets as one single
     library in its workspace.
 
@@ -871,9 +964,9 @@
     its include file. Furthermore the interface is able to create
     instances of the custom widget, and it defines the initialize()
     function which is called after the custom widget plugin is loaded
-    into Qt Designer. This latter function's
+    into \QD. This latter function's
     QDesignerFormWindowInterface parameter provides the plugin with a
-    gateway to all of Qt Designer's API's.
+    gateway to all of \QD's API's.
 
     When implementing a custom widget you must subclass
     QDesignerCustomWidgetInterface to expose your widget to \QD. For
@@ -922,14 +1015,14 @@
      Q_EXPORT_PLUGIN(MyCustomWidget)
     \endcode
 
-    This macro ensures that Qt Designer can access and construct the
+    This macro ensures that \QD can access and construct the
     custom widget. Without this macro, there is no way for Qt
     Designer to use it.
 
     For a complete example using the QDesignerCustomWidgetInterface
     class, see the \l {designer/customwidgetplugin}{Custom Widget
     Example}. The example shows how to create a custom widget plugin
-    for Qt Designer.
+    for \QD.
 
     \sa QDesignerCustomWidgetCollectionInterface {Creating Custom
     Widgets for Qt Designer}
@@ -1275,13 +1368,13 @@
     This enables \QD to use qobject_cast() to query for supported
     interfaces using nothing but a QObject pointer.
 
-    In Qt Designer the extensions are not created until they are
+    In \QD the extensions are not created until they are
     required. For that reason, when implementing a property sheet
     extension, you must also create a QExtensionFactory, i.e a class
     that is able to make an instance of your extension, and register
     it using \QD's \l {QExtensionManager}{extension manager}.
 
-    When a property sheet extension is required, Qt Designer will run
+    When a property sheet extension is required, \QD will run
     through all its registered factories calling
     QExtensionFactory::createExtension() for each until the first one
     that is able to create a property sheet extension for the selected
@@ -1289,7 +1382,7 @@
     extension. If no such factory can be found, \QD will use the
     default property sheet.
 
-    There are four available types of extensions in Qt Designer:
+    There are four available types of extensions in \QD:
     QDesignerContainerExtension, QDesignerMemberSheetExtension,
     QDesignerPropertySheetExtension and QDesignerTaskMenuExtension. Qt
     Designer's behavior is the same whether the requested extension is
@@ -1344,7 +1437,7 @@
     {designer/taskmenuextension}{Task Menu Extension example}. The
     example shows how to create a custom widget plugin for Qt
     Designer, and how to to use the QDesignerTaskMenuExtension class
-    to add custom items to Qt Designer's task menu.
+    to add custom items to \QD's task menu.
 
     \sa QExtensionFactory, QExtensionManager, {Qt Designer}
 */
