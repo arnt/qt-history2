@@ -253,11 +253,10 @@ class QResourceInfo
     QString file, searchFile;
     ResourceList related;
     uint container : 1;
-
     mutable uint hasData : 1;
-    mutable QByteArray mData;
-
     mutable uint hasChildren : 1;
+    mutable uint initialized : 1;
+    mutable QByteArray mData;
     mutable QStringList mChildren;
 
     inline void clear() {
@@ -266,24 +265,27 @@ class QResourceInfo
         hasData = hasChildren = 0;
         container = 0;
         related.clear();
+        initialized = 0;
     }
     bool loadResource(const QString &);
 public:
     QResourceInfo() { clear(); }
-    QResourceInfo(const QString &f) { setFileName(f); }
+    QResourceInfo(const QString &f) : file(f), initialized(0) {}
 
-    void setFileName(const QString &f);
+    void setFileName(const QString &f) { clear(); file = f; }
     QString fileName() const { return file; }
-    QString searchFileName() const { return searchFile; }
+    QString searchFileName() const { ensureInitialized(); return searchFile; }
 
-    bool exists() const { return !related.isEmpty(); }
-    bool isContainer() const { return container; }
+    bool exists() const { ensureInitialized(); return !related.isEmpty(); }
+    bool isContainer() const { ensureInitialized(); return container; }
     QByteArray data() const;
     QStringList children() const;
+    void ensureInitialized() const;
 };
 bool
 QResourceInfo::loadResource(const QString &path)
 {
+    ensureInitialized();
     const ResourceList *list = resourceList();
     for(int i = 0; i < list->size(); ++i) {
         QResource res = list->at(i);
@@ -297,30 +299,30 @@ QResourceInfo::loadResource(const QString &path)
     }
     return !related.isEmpty();
 }
-void
-QResourceInfo::setFileName(const QString &f)
+void QResourceInfo::ensureInitialized() const
 {
-    if(file == f)
+    if (initialized)
         return;
-    clear();
-    file = f;
+
+    initialized = 1;
+    QResourceInfo *that = const_cast<QResourceInfo *>(this);
     if(file == QLatin1String(":"))
-        file += QLatin1Char('/');
-    searchFile = file;
+        that->file += QLatin1Char('/');
+    that->searchFile = file;
 
     QString path = file;
     if(path.startsWith(QLatin1Char(':')))
         path = path.mid(1);
     if(path.startsWith(QLatin1Char('/'))) {
-        loadResource(path);
+        that->loadResource(path);
         return;
     } else {
         QStringList searchPaths = *qt_resource_search_paths();
         searchPaths << QLatin1String("");
         for(int i = 0; i < searchPaths.size(); ++i) {
             const QString searchPath(searchPaths.at(i) + QLatin1Char('/') + path);
-            if(loadResource(searchPath)) {
-                searchFile = QLatin1Char(':') + searchPath;
+            if(that->loadResource(searchPath)) {
+                that->searchFile = QLatin1Char(':') + searchPath;
                 break;
             }
         }
