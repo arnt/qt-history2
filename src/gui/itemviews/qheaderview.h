@@ -139,6 +139,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
     void mouseDoubleClickEvent(QMouseEvent *e);
+    bool viewportEvent(QEvent *e);
 
     virtual void paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const;
     virtual QSize sectionSizeFromContents(int logicalIndex) const;

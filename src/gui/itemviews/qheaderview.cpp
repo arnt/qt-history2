@@ -19,6 +19,8 @@
 #include <qevent.h>
 #include <qpainter.h>
 #include <qscrollbar.h>
+#include <qtooltip.h>
+#include <qwhatsthis.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qvector.h>
@@ -1540,6 +1542,63 @@ void QHeaderView::mouseDoubleClickEvent(QMouseEvent *e)
         emit sectionHandleDoubleClicked(handle);
     else
         emit sectionDoubleClicked(logicalIndexAt(e->pos()));
+}
+
+/*!
+  \reimp
+*/
+
+bool QHeaderView::viewportEvent(QEvent *e)
+{
+    Q_D(QHeaderView);
+    switch (e->type()) {
+#ifndef QT_NO_TOOLTIP
+    case QEvent::ToolTip: {
+        if (!isActiveWindow())
+            break;
+        QHelpEvent *he = static_cast<QHelpEvent*>(e);
+        int logical = logicalIndexAt(he->pos());
+        if (logical != -1) {
+            QString tooltip = model()->headerData(logical, orientation(),
+                                                  Qt::ToolTipRole).toString();
+            QToolTip::showText(he->globalPos(), tooltip, this);
+            return true;
+        }
+        break; }
+#endif
+#ifndef QT_NO_WHATSTHIS
+    case QEvent::QueryWhatsThis: {
+        QHelpEvent *he = static_cast<QHelpEvent*>(e);
+        int logical = logicalIndexAt(he->pos());
+        if (logical != -1
+            && model()->headerData(logical, orientation(), Qt::WhatsThisRole).isValid())
+            return true;
+        break; }
+    case QEvent::WhatsThis: {
+        QHelpEvent *he = static_cast<QHelpEvent*>(e);
+        int logical = logicalIndexAt(he->pos());
+        if (logical != -1) {
+             QString whatsthis = model()->headerData(logical, orientation(),
+                                                     Qt::WhatsThisRole).toString();
+             QWhatsThis::showText(he->globalPos(), whatsthis, this);
+             return true;
+        }
+        break; }
+    case QEvent::StatusTip: {
+        QHelpEvent *he = static_cast<QHelpEvent*>(e);
+        int logical = logicalIndexAt(he->pos());
+        if (logical != -1) {
+            QString statustip = model()->headerData(logical, orientation(),
+                                                    Qt::StatusTipRole).toString();
+            if (!statustip.isEmpty())
+                setStatusTip(statustip);
+        }
+        return true; }
+#endif
+    default:
+        break;
+    }
+    return QAbstractItemView::viewportEvent(e);
 }
 
 /*!
