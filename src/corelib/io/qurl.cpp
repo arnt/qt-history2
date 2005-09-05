@@ -1730,13 +1730,33 @@ void QUrl::setPort(int port)
 }
 
 /*!
-    Returns the port of the URL, or -1 if the port is undefined.
+    Returns the port of the URL, or -1 if the port is unspecified.
 */
 int QUrl::port() const
 {
     if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
 
     return d->port;
+}
+
+/*!
+    \overload
+    \since 4.1
+
+    Returns the port of the URL, or \a defaultPort if the port is
+    unspecified.
+
+    Example:
+
+    \code
+        QFtp ftp;
+        ftp.connectToHost(url.host(), url.port(21));
+    \endcode
+*/
+int QUrl::port(int defaultPort) const
+{
+    if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
+    return d->port == -1 ? defaultPort : d->port;
 }
 
 /*!

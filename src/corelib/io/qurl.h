@@ -77,6 +77,8 @@ public:
 
     void setPort(int port);
     int port() const;
+    int port(int defaultPort) const;
+    // ### Qt 5: merge the two port() functions, with defaultPort = -1
 
     void setPath(const QString &path);
     QString path() const;
