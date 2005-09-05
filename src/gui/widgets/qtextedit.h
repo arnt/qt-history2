@@ -211,6 +211,7 @@ signals:
     void cursorPositionChanged();
 
 protected:
+    virtual bool event(QEvent *e);
     virtual void timerEvent(QTimerEvent *e);
     virtual void keyPressEvent(QKeyEvent *e);
 #ifdef QT_KEYPAD_NAVIGATION

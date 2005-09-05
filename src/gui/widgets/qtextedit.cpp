@@ -1325,6 +1325,24 @@ void QTextEdit::selectAll()
 
 /*! \internal
 */
+bool QTextEdit::event(QEvent *e)
+{
+    if (e->type() == QEvent::ContextMenu
+        && static_cast<QContextMenuEvent *>(e)->reason() == QContextMenuEvent::Keyboard) {
+        Q_D(QTextEdit);
+        ensureCursorVisible();
+        const QPoint cursorPos = cursorRect().center();
+        QContextMenuEvent ce(QContextMenuEvent::Keyboard, cursorPos, d->viewport->mapToGlobal(cursorPos));
+        ce.setAccepted(e->isAccepted());
+        const bool result = QAbstractScrollArea::event(&ce);
+        e->setAccepted(ce.isAccepted());
+        return result;
+    }
+    return QAbstractScrollArea::event(e);
+}
+
+/*! \internal
+*/
 
 void QTextEdit::timerEvent(QTimerEvent *e)
 {
@@ -2174,7 +2192,7 @@ QVariant QTextEdit::inputMethodQuery(Qt::InputMethodQuery property) const
     QTextBlock block = d->cursor.block();
     switch(property) {
     case Qt::ImMicroFocus:
-        return cursorRect();
+        return cursorRect().translated(d->viewport->pos());
     case Qt::ImFont:
         return QVariant(currentFont());
     case Qt::ImCursorPosition:
