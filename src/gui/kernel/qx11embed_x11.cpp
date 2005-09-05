@@ -40,7 +40,8 @@
 
 #include "qx11embed_x11.h"
 
-/*! \class QX11EmbedWidget
+/*! 
+    \class QX11EmbedWidget
 
     \brief The QX11EmbedWidget class provides an XEmbed client widget.
 
@@ -108,7 +109,8 @@
     \sa QX11EmbedContainer, {XEmbed Specification}
 */
 
-/*! \class QX11EmbedContainer
+/*! 
+    \class QX11EmbedContainer
 
     \brief The QX11EmbedContainer class provides an XEmbed container
     widget.
@@ -218,7 +220,7 @@
 */
 
 /*!
-    \fn void QX11EmbedContainer::Error QX11EmbedContainer::error() const
+    \fn QX11EmbedContainer::Error QX11EmbedContainer::error() const
 
     Returns the last error that occurred.
 */
@@ -232,7 +234,8 @@
     \sa QX11EmbedContainer::Error
 */
 
-/*! \enum QX11EmbedWidget::Error
+/*! 
+    \enum QX11EmbedWidget::Error
 
     \value Unknown An unrecognized error occurred.
 
@@ -251,6 +254,8 @@
     \value InvalidWindowID The X11 window ID of the container was
         invalid. This error is usually triggered by passing an invalid
         window ID to embed().
+
+    \omitvalue Internal
 */
 
 const int XButtonPress = ButtonPress;
