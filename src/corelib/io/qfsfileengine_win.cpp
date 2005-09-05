@@ -1203,6 +1203,10 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::Fil
 {
     Q_D(const QFSFileEngine);
     QAbstractFileEngine::FileFlags ret = 0;
+    
+    // explicit rest so state is tried again, otherwise file flags maybe be stale.
+    d->tried_stat = false;
+    
     if (type & PermsMask) {
         ret |= d->getPermissions();
         // ### Workaround pascals ### above. Since we always set all properties to true
