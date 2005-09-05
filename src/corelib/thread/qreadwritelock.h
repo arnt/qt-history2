@@ -19,6 +19,8 @@
 
 QT_MODULE(Core)
 
+#ifndef QT_NO_THREAD
+
 struct QReadWriteLockPrivate;
 
 class Q_CORE_EXPORT QReadWriteLock
@@ -91,5 +93,55 @@ private:
 inline QWriteLocker::QWriteLocker(QReadWriteLock *areadWriteLock)
     : q_lock(areadWriteLock)
 { relock(); }
+
+#else // QT_NO_THREAD
+
+class Q_CORE_EXPORT QReadWriteLock
+{
+public:
+    inline explicit QReadWriteLock() { }
+    inline ~QReadWriteLock() { }
+
+    static inline void lockForRead() { }
+    static inline bool tryLockForRead() { return true; }
+
+    static inline void lockForWrite() { }
+    static inline bool tryLockForWrite() { return true; }
+
+    static inline void unlock() { }
+
+private:
+    Q_DISABLE_COPY(QReadWriteLock)
+};
+
+class Q_CORE_EXPORT QReadLocker
+{
+public:
+    inline QReadLocker(QReadWriteLock *) { }
+    inline ~QReadLocker() { }
+
+    static inline void unlock() { }
+    static inline void relock() { }
+    static inline QReadWriteLock *readWriteLock() { return 0; }
+
+private:
+    Q_DISABLE_COPY(QReadLocker)
+};
+
+class Q_CORE_EXPORT QWriteLocker
+{
+public:
+    inline explicit QWriteLocker(QReadWriteLock *) { }
+    inline ~QWriteLocker() { }
+
+    static inline void unlock() { }
+    static inline void relock() { }
+    static inline QReadWriteLock *readWriteLock() { return 0; }
+
+private:
+    Q_DISABLE_COPY(QWriteLocker)
+};
+
+#endif // QT_NO_THREAD
 
 #endif // QREADWRITELOCK_H
