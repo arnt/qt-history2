@@ -90,7 +90,7 @@ public:
     updated data to the model; releaseEditor() indicates that the user has
     completed editing the data, and that the editor widget can be destroyed.
 
-    \section2 Subclassing
+    \section1 Subclassing
 
     When subclassing QItemDelegate to create a delegate that displays items
     using a custom renderer, it is important to ensure that the delegate can
