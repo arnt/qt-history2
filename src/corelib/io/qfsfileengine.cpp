@@ -172,6 +172,7 @@ QFSFileEngine::open(QIODevice::OpenMode flags)
         if (flags & QFile::Append)
             QT_LSEEK(d->fd, 0, SEEK_END);
 
+        d->closeFileHandle = true;
         d->sequential = 0;
         struct stat st;
         ::fstat(d->fd, &st);
