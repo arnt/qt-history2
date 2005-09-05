@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-bool qt_disable_lowpriority_timers=false;
+Q_CORE_EXPORT bool qt_disable_lowpriority_timers=false;
 
 // Internal operator functions for timevals
 static inline bool operator<(const timeval &t1, const timeval &t2)

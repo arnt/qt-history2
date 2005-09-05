@@ -30,7 +30,7 @@
 #include "qplatformdefs.h"
 #include "qstring.h"
 
-class QSharedMemory {
+class Q_CORE_EXPORT QSharedMemory {
 public:
         QSharedMemory() {};
         QSharedMemory(int, const QString &, char c = 'Q');
