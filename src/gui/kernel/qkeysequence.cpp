@@ -76,6 +76,19 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
     \omitvalue Identical
 */
 
+/*!
+    \enum QKeySequence::SequenceFormat
+
+    \value NativeText The key sequence as a platform specific string.
+    This means that it will be shown translated and on the Mac it will
+    resemble a keysequenc from the menu bar. This enum is best used when you
+    want to display the string to the user.
+
+    \value PortableText The key sequence is given in a "portable" format,
+    suitable for reading and writing to a file. In many cases, it will look
+    similar to the native text on Windows and X11.
+*/
+
 static struct {
     int key;
     const char* name;
@@ -201,6 +214,8 @@ public:
     }
     QAtomic ref;
     int key[4];
+    static QString encodeString(int key, QKeySequence::SequenceFormat format);
+    static int decodeString(const QString &keyStr, QKeySequence::SequenceFormat format);
 };
 
 
@@ -405,44 +420,62 @@ struct ModifKeyName {
 };
 
 Q_GLOBAL_STATIC(QList<ModifKeyName>, globalModifs)
+Q_GLOBAL_STATIC(QList<ModifKeyName>, globalPortableModifs)
 
 /*!
   Constructs a single key from the string \a str.
 */
 int QKeySequence::decodeString(const QString &str)
 {
+    return QKeySequencePrivate::decodeString(str, NativeText);
+}
+
+int QKeySequencePrivate::decodeString(const QString &str, QKeySequence::SequenceFormat format)
+{
     int ret = 0;
     QString accel = str.toLower();
+    bool nativeText = (format == QKeySequence::NativeText);
 
-    QList<ModifKeyName> *gmodifs = globalModifs();
-    if (!gmodifs) return ret;
-
-    if (gmodifs->isEmpty()) {
+    QList<ModifKeyName> *gmodifs;
+    if (nativeText) {
+        gmodifs = globalModifs();
+        if (gmodifs->isEmpty()) {
 #ifdef QMAC_CTRL
-        *gmodifs << ModifKeyName(Qt::CTRL, QMAC_CTRL);
+            *gmodifs << ModifKeyName(Qt::CTRL, QMAC_CTRL);
 #endif
 #ifdef QMAC_ALT
-        *gmodifs << ModifKeyName(Qt::ALT, QMAC_ALT);
+            *gmodifs << ModifKeyName(Qt::ALT, QMAC_ALT);
 #endif
 #ifdef QMAC_META
-        *gmodifs << ModifKeyName(Qt::META, QMAC_META);
+            *gmodifs << ModifKeyName(Qt::META, QMAC_META);
 #endif
 #ifdef QMAC_SHIFT
-        *gmodifs << ModifKeyName(Qt::SHIFT, QMAC_SHIFT);
+            *gmodifs << ModifKeyName(Qt::SHIFT, QMAC_SHIFT);
 #endif
-        *gmodifs << ModifKeyName(Qt::CTRL, "ctrl+")
-                 << ModifKeyName(Qt::SHIFT, "shift+")
-                 << ModifKeyName(Qt::ALT, "alt+")
-                 << ModifKeyName(Qt::META, "meta+");
+            *gmodifs << ModifKeyName(Qt::CTRL, "ctrl+")
+                     << ModifKeyName(Qt::SHIFT, "shift+")
+                     << ModifKeyName(Qt::ALT, "alt+")
+                     << ModifKeyName(Qt::META, "meta+");
+        }
+    } else {
+        gmodifs = globalPortableModifs();
+        if (gmodifs->isEmpty()) {
+            *gmodifs << ModifKeyName(Qt::CTRL, "ctrl+")
+                     << ModifKeyName(Qt::SHIFT, "shift+")
+                     << ModifKeyName(Qt::ALT, "alt+")
+                     << ModifKeyName(Qt::META, "meta+");
+        }
     }
+    if (!gmodifs) return ret;
+
 
     QList<ModifKeyName> modifs = *gmodifs;
-    modifs << ModifKeyName(Qt::CTRL, QShortcut::tr("Ctrl").toLower().append(QLatin1Char('+')))
-           << ModifKeyName(Qt::SHIFT, QShortcut::tr("Shift").toLower().append(QLatin1Char('+')))
-           << ModifKeyName(Qt::ALT, QShortcut::tr("Alt").toLower().append(QLatin1Char('+')))
-           << ModifKeyName(Qt::ALT, QShortcut::tr("Meta").toLower().append(QLatin1Char('+')));
-
-
+    if (nativeText) {
+        modifs << ModifKeyName(Qt::CTRL, QShortcut::tr("Ctrl").toLower().append(QLatin1Char('+')))
+               << ModifKeyName(Qt::SHIFT, QShortcut::tr("Shift").toLower().append(QLatin1Char('+')))
+               << ModifKeyName(Qt::ALT, QShortcut::tr("Alt").toLower().append(QLatin1Char('+')))
+               << ModifKeyName(Qt::ALT, QShortcut::tr("Meta").toLower().append(QLatin1Char('+')));
+    }
 
     QString sl = accel;
     for (int i = 0; i < modifs.size(); ++i) {
@@ -464,12 +497,16 @@ int QKeySequence::decodeString(const QString &str)
     } else if (accel[0] == 'f' && (fnum = accel.mid(1).toInt())) {
         ret |= Qt::Key_F1 + fnum - 1;
     } else {
-        // Check through translation table for the correct key name
-        // ...or fall back on english table.
+        // For NativeText, check the traslation table first,
+        // if we don't find anything then try it out with just the untranlated stuff.
+        // PortableText will only try the untranlated table.
         bool found = false;
+        bool secondPass = false;
         for (int tran = 0; tran < 2; ++tran) {
+            if (!nativeText)
+                ++tran;
             for (int i = 0; keyname[i].name; ++i) {
-                QString keyName(tran
+                QString keyName(tran == 0
                                 ? QShortcut::tr(keyname[i].name)
                                 : QString::fromLatin1(keyname[i].name));
                 if (accel == keyName.toLower()) {
@@ -478,13 +515,12 @@ int QKeySequence::decodeString(const QString &str)
                     break;
                 }
             }
-            if(found)
+            if (found)
                 break;
         }
     }
     return ret;
 }
-
 
 /*!
     Creates a shortcut string for \a key. For example,
@@ -493,37 +529,45 @@ int QKeySequence::decodeString(const QString &str)
  */
 QString QKeySequence::encodeString(int key)
 {
+    return QKeySequencePrivate::encodeString(key, NativeText);
+}
+
+static inline void addKey(QString &str, const QString &theKey, QKeySequence::SequenceFormat format)
+{
+    if (!str.isEmpty())
+        str += (format == QKeySequence::NativeText) ? QShortcut::tr("+")
+                                                    : QString(QLatin1String("+"));
+    str += theKey;
+}
+
+QString QKeySequencePrivate::encodeString(int key, QKeySequence::SequenceFormat format)
+{
+    bool nativeText = (format == QKeySequence::NativeText);
     QString s;
-#if defined(Q_OS_MAC) && !defined(QWS)
-    // On MAC the order is Meta, Alt, Shift, Control.
-    if ((key & Qt::META) == Qt::META)
-        s += QMAC_META;
-    if ((key & Qt::ALT) == Qt::ALT)
-        s += QMAC_ALT;
-    if ((key & Qt::SHIFT) == Qt::SHIFT)
-        s += QMAC_SHIFT;
-    if ((key & Qt::CTRL) == Qt::CTRL)
-        s += QMAC_CTRL;
-#else
-    // On other systems the order is Meta, Control, Alt, Shift
-    if ((key & Qt::META) == Qt::META)
-        s += QShortcut::tr("Meta");
-    if ((key & Qt::CTRL) == Qt::CTRL) {
-        if (!s.isEmpty())
-            s += QShortcut::tr("+");
-        s += QShortcut::tr("Ctrl");
-    }
-    if ((key & Qt::ALT) == Qt::ALT) {
-        if (!s.isEmpty())
-            s += QShortcut::tr("+");
-        s += QShortcut::tr("Alt");
-    }
-    if ((key & Qt::SHIFT) == Qt::SHIFT) {
-        if (!s.isEmpty())
-            s += QShortcut::tr("+");
-        s += QShortcut::tr("Shift");
-    }
+#if defined(Q_WS_MAC)
+    if (nativeText) {
+        // On MAC the order is Meta, Alt, Shift, Control.
+        if ((key & Qt::META) == Qt::META)
+            s += QMAC_META;
+        if ((key & Qt::ALT) == Qt::ALT)
+            s += QMAC_ALT;
+        if ((key & Qt::SHIFT) == Qt::SHIFT)
+            s += QMAC_SHIFT;
+        if ((key & Qt::CTRL) == Qt::CTRL)
+            s += QMAC_CTRL;
+    } else
 #endif
+    {
+        // On other systems the order is Meta, Control, Alt, Shift
+        if ((key & Qt::META) == Qt::META)
+            s = nativeText ? QShortcut::tr("Meta") : QString(QLatin1String("Meta"));
+        if ((key & Qt::CTRL) == Qt::CTRL)
+            addKey(s, nativeText ? QShortcut::tr("Ctrl") : QString(QLatin1String("Ctrl")), format);
+        if ((key & Qt::ALT) == Qt::ALT)
+            addKey(s, nativeText ? QShortcut::tr("Alt") : QString(QLatin1String("Alt")), format);
+        if ((key & Qt::SHIFT) == Qt::SHIFT)
+            addKey(s, nativeText ? QShortcut::tr("Shift") : QString(QLatin1String("Shift")), format);
+    }
 
 
     key &= ~(Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier);
@@ -537,14 +581,16 @@ QString QKeySequence::encodeString(int key)
             p += QChar((key-0x10000)%400+0xdc00);
         }
     } else if (key >= Qt::Key_F1 && key <= Qt::Key_F35) {
-        p = QShortcut::tr("F%1").arg(key - Qt::Key_F1 + 1);
+            p = nativeText ? QShortcut::tr("F%1").arg(key - Qt::Key_F1 + 1)
+                           : QString(QLatin1String("F%1")).arg(key - Qt::Key_F1 + 1);
     } else if (key > Qt::Key_Space && key <= Qt::Key_AsciiTilde) {
         p.sprintf("%c", key);
     } else if (key) {
         int i=0;
         while (keyname[i].name) {
             if (key == keyname[i].key) {
-                p = QShortcut::tr(keyname[i].name);
+                p = nativeText ? QShortcut::tr(keyname[i].name)
+                               : QString(QLatin1String(keyname[i].name));
                 break;
             }
             ++i;
@@ -563,15 +609,14 @@ QString QKeySequence::encodeString(int key)
         }
     }
 
-#ifndef Q_OS_MAC
-    if (!s.isEmpty())
-        s += QShortcut::tr("+");
+#ifdef Q_WS_MAC
+    if (nativeText)
+        s += p;
+    else
 #endif
-
-    s += p;
+    addKey(s, p, format);
     return s;
 }
-
 /*!
     Matches the sequence with \a seq. Returns ExactMatch if
     successful, PartialMatch if \a seq matches incompletely,
@@ -613,19 +658,12 @@ QKeySequence::SequenceMatch QKeySequence::matches(const QKeySequence &seq) const
 
     On Mac OS X, the string returned resembles the sequence that is
     shown in the menubar.
+
+    \sa toString()
 */
 QKeySequence::operator QString() const
 {
-    QString complete;
-    int end = count();
-    int i = 0;
-    while (i < end) {
-        complete += encodeString(d->key[i]);
-        i++;
-        if (i != end)
-            complete += ", ";
-    }
-    return complete;
+    return QKeySequence::toString(QKeySequence::NativeText);
 }
 
 /*!
@@ -744,6 +782,40 @@ bool QKeySequence::operator< (const QKeySequence &other) const
 bool QKeySequence::isDetached() const
 {
     return d->ref == 1;
+}
+
+/*!
+    Return a string representation of the key sequence based on \a format
+
+    \sa fromString() operator QString()
+*/
+QString QKeySequence::toString(SequenceFormat format) const
+{
+    QString finalString;
+    // A standard string, with no translation or anything like that. In some ways it will
+    // look like our latin case on Windows and X11
+    int end = count();
+    for (int i = 0; i < end; ++i) {
+        finalString += d->encodeString(d->key[i], format);
+        finalString += QLatin1String(", ");
+    }
+    finalString.truncate(finalString.length() - 2);
+    return finalString;
+}
+
+/*!
+    Return a QKeySequence from the string \a str based on \a format
+
+    \sa toString()
+*/
+QKeySequence QKeySequence::fromString(const QString &str, SequenceFormat format)
+{
+    QStringList sl = str.split(QLatin1String(", "));
+    int keys[4] = {0, 0, 0, 0};
+    int total = qMin(sl.count(), 4);
+    for (int i = 0; i < total; ++i)
+        keys[i] = QKeySequencePrivate::decodeString(sl[i], format);
+    return QKeySequence(keys[0], keys[1], keys[2], keys[3]);
 }
 
 /*****************************************************************************
