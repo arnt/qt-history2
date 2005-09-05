@@ -814,7 +814,7 @@ void AnimationSaveWidget::convertToMpeg(QString filename)
 	// redirect stdout to log file
 	freopen("/tmp/qvfb_tmp_output.log", "w", stdout);
 	// ppmtompeg tool is from the netpbm package
-	::execlp("ppmtompeg", "ppmtompeg", "/tmp/qvfb_tmp_ppmtompeg.params", 0);
+	::execlp("ppmtompeg", "ppmtompeg", "/tmp/qvfb_tmp_ppmtompeg.params", (void *)0);
 	exit(0);
     }
 
