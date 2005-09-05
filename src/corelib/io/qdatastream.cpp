@@ -499,7 +499,7 @@ void QDataStream::setByteOrder(ByteOrder bo)
     \value Qt_3_0 Version 4 (Qt 3.0)
     \value Qt_3_1 Version 5 (Qt 3.1, 3.2)
     \value Qt_3_3 Version 6 (Qt 3.3)
-    \value Qt_4_0 Version 7 (Qt 4.0)
+    \value Qt_4_0 Version 7 (Qt 4.0, Qt 4.1)
 
     \sa setVersion(), version()
 */
