@@ -625,6 +625,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     \value Bhutani
     \value Bihari
     \value Bislama
+    \value Bosnian
     \value Breton
     \value Bulgarian
     \value Burmese
@@ -632,10 +633,12 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     \value Cambodian
     \value Catalan
     \value Chinese
+    \value Cornish
     \value Corsican
     \value Croatian
     \value Czech
     \value Danish
+    \value Divehi
     \value Dutch
     \value English
     \value Esperanto
@@ -685,6 +688,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     \value Malay
     \value Malayalam
     \value Maltese
+    \value Manx
     \value Maori
     \value Marathi
     \value Moldavian
@@ -946,6 +950,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     \value SaoTomeAndPrincipe
     \value SaudiArabia
     \value Senegal
+    \value SerbiaAndMontenegro
     \value Seychelles
     \value SierraLeone
     \value Singapore
