@@ -2745,6 +2745,7 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
     }
 
 #ifdef Q_WS_QWS
+#ifdef QT_QWS_DEPTH_16
     if (format == Format_RGB16) {
         QImage tmp;
         if (d->format == Format_RGB32 || d->format == Format_ARGB32)
@@ -2763,6 +2764,7 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
         else
             return image.convertToFormat(format);
     }
+#endif
 #endif
 
     return QImage();
