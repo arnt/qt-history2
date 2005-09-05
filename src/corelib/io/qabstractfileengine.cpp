@@ -129,7 +129,8 @@ QAbstractFileEngineHandler::~QAbstractFileEngineHandler()
 */
 QAbstractFileEngine *QAbstractFileEngine::create(const QString &fileName)
 {
-    QMutexLocker locker(fileEngineHandlerMutex());
+    // FIXME Temporarily disabled so that Qtopia/Qtopia Desktop can run
+    //QMutexLocker locker(fileEngineHandlerMutex());
     if (!fileEngineHandlers)
         fileEngineHandlers = new QList<QAbstractFileEngineHandler *>;
     
