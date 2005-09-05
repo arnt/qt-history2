@@ -314,14 +314,14 @@ QIBaseResultPrivate::QIBaseResultPrivate(QIBaseResult *d, const QIBaseDriver *dd
 
 void QIBaseResultPrivate::cleanup()
 {
+    commit();
+    if (!localTransaction)
+        trans = 0;
+
     if (stmt) {
         isc_dsql_free_statement(status, &stmt, DSQL_drop);
         stmt = 0;
     }
-
-    commit();
-    if (!localTransaction)
-        trans = 0;
 
     delDA(sqlda);
     delDA(inda);
@@ -784,7 +784,7 @@ QIBaseResult::~QIBaseResult()
 
 bool QIBaseResult::prepare(const QString& query)
 {
-    //qDebug("prepare: %s", query.ascii());
+    //qDebug("prepare: %s\n", qPrintable(query));
     if (!driver() || !driver()->isOpen() || driver()->isOpenError())
         return false;
     d->cleanup();
@@ -845,6 +845,9 @@ bool QIBaseResult::exec()
 {
     bool ok = true;
 
+    if (!d->trans)
+        d->transaction();
+
     if (!driver() || !driver()->isOpen() || driver()->isOpenError())
         return false;
     setActive(false);
@@ -868,9 +871,10 @@ bool QIBaseResult::exec()
             if (d->inda->sqlvar[para].sqltype & 1) {
                 if (val.isNull()) {
                     // set null indicator
-                    *(d->inda->sqlvar[para].sqlind) = 1;
+                    *(d->inda->sqlvar[para].sqlind) = -1;
                     // and set the value to 0, otherwise it would count as empty string.
-                    *((short*)d->inda->sqlvar[para].sqldata) = 0;
+                    // it seems to be working with just setting sqlind to -1
+                    //*((char*)d->inda->sqlvar[para].sqldata) = 0;
                     continue;
                 }
                 // a value of 0 means non-null.
@@ -938,6 +942,9 @@ bool QIBaseResult::exec()
         isc_dsql_execute(d->status, &d->trans, &d->stmt, FBVERSION, d->inda);
         if (d->isError(QT_TRANSLATE_NOOP("QIBaseResult", "Unable to execute query")))
             return false;
+    
+        if (d->queryType != isc_info_sql_stmt_select)
+             d->commit();
 
         setActive(true);
         return true;
