@@ -399,6 +399,7 @@ CFG_ACCESSIBILITY=auto
 CFG_QT3SUPPORT=yes
 CFG_ENDIAN=auto
 CFG_GETADDRINFO=auto
+CFG_IPV6IFNAME=auto
 CFG_RPATH=yes
 CFG_FRAMEWORK=auto
 CFG_UNIVERSAL_BINARY=auto
@@ -2932,6 +2933,15 @@ if [ "$CFG_GETADDRINFO" = "auto" ]; then
     fi
 fi
 
+# find if the platform provides if_nametoindex (ipv6 interface name support)
+if [ "$CFG_IPV6IFNAME" = "auto" ]; then
+    if $unixtests/ipv6ifname.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
+        CFG_IPV6IFNAME=no
+    else
+        CFG_IPV6IFNAME=yes
+    fi
+fi
+
 # find if the platform supports X/Open Large File compilation environment
 if [ "$CFG_LARGEFILE" = "auto" ]; then
     if $unixtests/largefile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
@@ -3063,6 +3073,9 @@ if [ "$CFG_IPV6" = "yes" ]; then
 fi
 if [ "$CFG_GETADDRINFO" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG getaddrinfo"
+fi
+if [ "$CFG_IPV6IFNAME" = "yes" ]; then
+    QT_CONFIG="$QT_CONFIG ipv6ifname"
 fi
 if [ "$CFG_LIBJPEG" = "system" ]; then
     QT_CONFIG="$QT_CONFIG system-jpeg"
@@ -3496,6 +3509,7 @@ done
 # X11/Unix/Mac only configs
 [ "$CFG_CUPS" = "no" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_CUPS"
 [ "$CFG_GETADDRINFO" = "no" ]&& QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GETADDRINFO"
+[ "$CFG_IPV6IFNAME" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IPV6IFNAME"
 [ "$CFG_NAS" = "yes" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NAS_SUPPORT"
 [ "$CFG_NIS" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_NIS"
 [ "$CFG_SM" = "no" ]         && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_SM_SUPPORT"
@@ -3768,6 +3782,7 @@ echo "Qt3 compatibility.... $CFG_QT3SUPPORT"
 echo "STL support ......... $CFG_STL"
 echo "PCH support ......... $CFG_PRECOMPILE"
 echo "IPv6 support ........ $CFG_IPV6"
+echo "IPv6 ifname support . $CFG_IPV6IFNAME"
 echo "getaddrinfo support . $CFG_GETADDRINFO"
 echo "Accessibility ....... $CFG_ACCESSIBILITY"
 echo "NIS support ......... $CFG_NIS"

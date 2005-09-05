@@ -33,6 +33,9 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <netinet/in.h>
+#ifndef QT_NO_IPV6IFNAME
+#include <net/if.h>
+#endif
 
 #ifdef QT_LARGEFILE_SUPPORT
 #define QT_STATBUF              struct stat64

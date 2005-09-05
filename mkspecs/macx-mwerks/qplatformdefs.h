@@ -26,6 +26,9 @@
 #define QT_NO_LIBRARY_UNLOAD
 
 #include <netinet/in.h>
+#ifndef QT_NO_IPV6IFNAME
+#include <net/if.h>
+#endif
 
 #define QT_FOPEN                ::fopen
 #define QT_FSEEK                ::fseeko

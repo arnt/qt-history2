@@ -110,6 +110,13 @@ static inline void qt_socket_getPortAndAddress(struct sockaddr *sa, quint16 *por
             QHostAddress tmpAddress;
             tmpAddress.setAddress(tmp);
             *addr = tmpAddress;
+#ifndef QT_NO_IPV6IFNAME
+            char scopeid[IFNAMSIZ];
+            if (::if_indextoname(sa6->sin6_scope_id, scopeid) > 0) {
+                addr->setScopeId(scopeid);
+            } else
+#endif
+            addr->setScopeId(QString::number(sa6->sin6_scope_id));
         }
         if (port)
             *port = ntohs(sa6->sin6_port);
@@ -251,6 +258,11 @@ bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &addr, quint16
         memset(&sockAddrIPv6, 0, sizeof(sockAddrIPv6));
         sockAddrIPv6.sin6_family = AF_INET6;
         sockAddrIPv6.sin6_port = htons(port);
+#ifndef QT_NO_IPV6IFNAME
+        sockAddrIPv6.sin6_scope_id = ::if_nametoindex(addr.scopeId().toLatin1().data());
+#else
+        sockAddrIPv6.sin6_scope_id = addr.scopeId().toInt();
+#endif
         Q_IPV6ADDR ip6 = addr.toIPv6Address();
         memcpy(&sockAddrIPv6.sin6_addr.s6_addr, &ip6, sizeof(ip6));
 
@@ -346,6 +358,11 @@ bool QNativeSocketEnginePrivate::nativeBind(const QHostAddress &address, quint16
         memset(&sockAddrIPv6, 0, sizeof(sockAddrIPv6));
         sockAddrIPv6.sin6_family = AF_INET6;
         sockAddrIPv6.sin6_port = htons(port);
+#ifndef QT_NO_IPV6IFNAME
+        sockAddrIPv6.sin6_scope_id = ::if_nametoindex(address.scopeId().toLatin1().data());
+#else
+        sockAddrIPv6.sin6_scope_id = address.scopeId().toInt();
+#endif
         Q_IPV6ADDR tmp = address.toIPv6Address();
         memcpy(&sockAddrIPv6.sin6_addr.s6_addr, &tmp, sizeof(tmp));
         sockAddrSize = sizeof(sockAddrIPv6);

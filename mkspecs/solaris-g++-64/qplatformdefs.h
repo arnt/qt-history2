@@ -34,6 +34,9 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <netinet/in.h>
+#ifndef QT_NO_IPV6IFNAME
+#include <net/if.h>
+#endif
 
 // On 64-bit platforms sockets use socklen_t
 #define QT_SOCKLEN_T		socklen_t

@@ -69,6 +69,9 @@ public:
 
     QString toString() const;
 
+    QString scopeId() const;
+    void setScopeId(const QString &id);
+
     bool operator ==(const QHostAddress &address) const;
     bool operator ==(SpecialAddress address) const;
     bool isNull() const;

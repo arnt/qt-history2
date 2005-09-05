@@ -34,8 +34,9 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <netinet/in.h>
-
-
+#ifndef QT_NO_IPV6IFNAME
+#include <net/if.h>
+#endif
 
 #if defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE-0 >= 500) && (_XOPEN_VERSION-0 >= 500)
 // Solaris 7 and better with specific feature test macros

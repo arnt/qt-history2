@@ -34,6 +34,9 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <netinet/in.h>
+#ifndef QT_NO_IPV6IFNAME
+#include <net/if.h>
+#endif
 
 #define QT_FOPEN                ::fopen
 #define QT_FSEEK                ::fseeko

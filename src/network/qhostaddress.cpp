@@ -68,6 +68,7 @@ private:
 
     QString ipString;
     bool isParsed;
+    QString scopeId;
 
     friend class QHostAddress;
 };
@@ -122,9 +123,18 @@ static bool parseIp4(const QString& address, quint32 *addr)
     return true;
 }
 
-static bool parseIp6(const QString &address, quint8 *addr)
+static bool parseIp6(const QString &address, quint8 *addr, QString *scopeId)
 {
-    QStringList ipv6 = address.split(":");
+    QString tmp = address;
+    int scopeIdPos = tmp.lastIndexOf('%');
+    if (scopeIdPos != -1) {
+        *scopeId = tmp.mid(scopeIdPos + 1);
+        tmp.chop(tmp.size() - scopeIdPos);
+    } else {
+        scopeId->clear();
+    }
+
+    QStringList ipv6 = tmp.split(":");
     int count = ipv6.count();
     if (count < 3 || count > 8)
         return false;
@@ -192,7 +202,7 @@ bool QHostAddressPrivate::parse()
     // All IPv6 addresses contain a ':', and may contain a '.'.
     if (a.contains(':')) {
         quint8 maybeIp6[16];
-        if (parseIp6(a, maybeIp6)) {
+        if (parseIp6(a, maybeIp6, &scopeId)) {
             setAddress(maybeIp6);
             protocol = QAbstractSocket::IPv6Protocol;
             return true;
@@ -525,10 +535,68 @@ QString QHostAddress::toString() const
         QString s;
         s.sprintf("%X:%X:%X:%X:%X:%X:%X:%X",
                   ugle[0], ugle[1], ugle[2], ugle[3], ugle[4], ugle[5], ugle[6], ugle[7]);
+        if (!d->scopeId.isEmpty())
+            s.append(QLatin1Char('%') + d->scopeId);
         return s;
     }
 
     return QString();
+}
+
+/*!
+    Returns the scope ID of an IPv6 address. For IPv4 addresses, or if the
+    address does not contain a scope ID, an empty QString is returned.
+
+    The IPv6 scope ID specifies the scope of \e reachability for non-global
+    IPv6 addresses, limiting the area in which the address can be used. All
+    IPv6 addresses are associated with such a reachability scope. The scope ID
+    is used to disambiguate addresses that are not guaranteed to be globally
+    unique.
+
+    IPv6 specifies the following four levels of reachability:
+    
+    \list
+    
+    \o Node-local: Addresses that are only used for communicating with
+    services on the same interface (e.g., the loopback interface "::1").
+
+    \o Link-local: Addresses that are local to the network interface
+    (\e{link}). There is always one link-local address for each IPv6 interface
+    on your host. Link-local addresses ("fe80...") are generated from the MAC
+    address of the local network adaptor, and are not guaranteed to be unique.
+
+    \o Site-local: Addresses that are local to the site / private network
+    (e.g., the company intranet). Site-local addresses ("fec0...")  are
+    usually distributed by the site router, and are not guaranteed to be
+    unique outside of the local site.
+
+    \o Global: For globally routable addresses, such as public servers on the
+    Internet.
+    
+    \endlist
+
+    When using a link-local or site-local address for IPv6 connections, you
+    must specify the scope ID. The scope ID for a link-local address is
+    usually the same as the interface name (e.g., "eth0", "en1") or number
+    (e.g., "1", "2").
+
+    \sa setScopeId()
+*/
+QString QHostAddress::scopeId() const
+{
+    QT_ENSURE_PARSED(this);
+    return (d->protocol == QAbstractSocket::IPv6Protocol) ? d->scopeId : QString();
+}
+
+/*!
+    Sets the IPv6 scope ID of the address. If the address protocol is not
+    IPv6, this function does nothing.
+*/
+void QHostAddress::setScopeId(const QString &id)
+{
+    QT_ENSURE_PARSED(this);
+    if (d->protocol == QAbstractSocket::IPv6Protocol)
+        d->scopeId = id;
 }
 
 /*!
