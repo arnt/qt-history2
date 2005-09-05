@@ -14,6 +14,7 @@
 #include "qmetatype.h"
 #include "qobjectdefs.h"
 #include "qbytearray.h"
+#include "qreadwritelock.h"
 #include "qvector.h"
 
 /*!
@@ -190,6 +191,7 @@ public:
 };
 
 Q_GLOBAL_STATIC(QVector<QCustomTypeInfo>, customTypes)
+Q_GLOBAL_STATIC(QReadWriteLock, customTypesLock)
 
 #ifndef QT_NO_DATASTREAM
 /*! \internal
@@ -200,9 +202,11 @@ void QMetaType::registerStreamOperators(const char *typeName, SaveOperator saveO
     int idx = type(typeName);
     if (!idx)
         return;
+
     QVector<QCustomTypeInfo> *ct = customTypes();
     if (!ct)
         return;
+    QWriteLocker locker(customTypesLock());
     (*ct)[idx - User].setOperators(saveOp, loadOp);
 }
 #endif
@@ -211,6 +215,8 @@ void QMetaType::registerStreamOperators(const char *typeName, SaveOperator saveO
     Returns the type name associated with the given \a type, or 0 if no
     matching type was found. The returned pointer must not be deleted.
 
+    \threadsafe
+
     \sa type(), isRegistered(), Type
 */
 const char *QMetaType::typeName(int type)
@@ -218,9 +224,11 @@ const char *QMetaType::typeName(int type)
     if (type >= User) {
         if (!isRegistered(type))
             return 0;
+
         const QVector<QCustomTypeInfo> * const ct = customTypes();
         if (!ct)
             return 0;
+        QReadLocker locker(customTypesLock());
         return ct->at(type - User).typeName.constData();
     }
     int i = 0;
@@ -233,6 +241,9 @@ const char *QMetaType::typeName(int type)
 }
 
 /*! \internal
+
+    \threadsafe
+
     Registers a user type for marshalling, with \a typeName, a \a
     destructor, and a \a constructor. Returns the type's handle,
     or -1 if the type could not be registered.
@@ -241,10 +252,12 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
                             Constructor constructor)
 {
     QVector<QCustomTypeInfo> *ct = customTypes();
-    static int currentIdx = User;
     if (!ct || !typeName || !destructor || !constructor)
         return -1;
     int idx = type(typeName);
+
+    QWriteLocker locker(customTypesLock());
+    static int currentIdx = User;
     if (idx) {
         if (idx < User) {
             qWarning("cannot re-register basic type '%s'", typeName);
@@ -263,10 +276,14 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
     Returns true if the custom datatype with ID \a type is registered;
     otherwise returns false.
 
+    \threadsafe
+
     \sa type(), typeName(), Type
 */
 bool QMetaType::isRegistered(int type)
 {
+    QReadLocker locker(customTypesLock());
+
     const QVector<QCustomTypeInfo> * const ct = customTypes();
     return (type >= User) && (ct && ct->count() > type - User);
 }
@@ -274,6 +291,8 @@ bool QMetaType::isRegistered(int type)
 /*!
     Returns a handle to the type called \a typeName, or 0 if there is
     no such type.
+
+    \threadsafe
 
     \sa isRegistered(), typeName(), Type
 */
@@ -286,6 +305,10 @@ int QMetaType::type(const char *typeName)
         ++i;
     if (!types[i].type) {
         const QVector<QCustomTypeInfo> * const ct = customTypes();
+        if (!ct)
+            return 0;
+
+        QReadLocker locker(customTypesLock());
         for (int v = 0; ct && v < ct->count(); ++v) {
             if (strcmp(ct->at(v).typeName, typeName) == 0)
                 return v + User;
@@ -305,7 +328,13 @@ bool QMetaType::save(QDataStream &stream, int type, const void *data)
     const QVector<QCustomTypeInfo> * const ct = customTypes();
     if (!ct)
         return false;
-    QMetaType::SaveOperator saveOp = ct->at(type - User).saveOp;
+
+    SaveOperator saveOp = 0;
+    {
+        QReadLocker locker(customTypesLock());
+        saveOp = ct->at(type - User).saveOp;
+    }
+
     if (!saveOp)
         return false;
     saveOp(stream, data);
@@ -322,7 +351,13 @@ bool QMetaType::load(QDataStream &stream, int type, void *data)
     const QVector<QCustomTypeInfo> * const ct = customTypes();
     if (!ct)
         return false;
-    QMetaType::LoadOperator loadOp = ct->at(type - User).loadOp;
+
+    LoadOperator loadOp = 0;
+    {
+        QReadLocker locker(customTypesLock());
+        loadOp = ct->at(type - User).loadOp;
+    }
+
     if (!loadOp)
         return false;
     loadOp(stream, data);
@@ -333,6 +368,8 @@ bool QMetaType::load(QDataStream &stream, int type, void *data)
 /*!
     Returns a copy of \a copy, assuming it is of type \a type. If \a
     copy is zero, creates a default type.
+
+    \threadsafe
 
     \sa destroy(), isRegistered(), Type
 */
@@ -418,14 +455,23 @@ void *QMetaType::construct(int type, const void *copy)
         }
     }
 
-    const QVector<QCustomTypeInfo> * const ct = customTypes();
-    if (type >= User && (ct && ct->count() > type - User))
-        return ct->at(type - User).constr(copy);
-    return 0;
+    Constructor constr = 0;
+    {
+        const QVector<QCustomTypeInfo> * const ct = customTypes();
+        QReadLocker locker(customTypesLock());
+        if (type < User || !ct || ct->count() <= type - User)
+            return 0;
+
+        constr = ct->at(type - User).constr;
+    } // unlock to prevent reentrancy
+
+    return constr(copy);
 }
 
 /*!
     Destroys the \a data, assuming it is of the \a type given.
+
+    \threadsafe
 
     \sa construct(), isRegistered(), Type
 */
@@ -485,9 +531,16 @@ void QMetaType::destroy(int type, void *data)
         break;
     default:
         {
+
             const QVector<QCustomTypeInfo> * const ct = customTypes();
-            if (type >= User && (ct && ct->count() > type - User))
-                ct->at(type - User).destr(data);
+            Destructor destr = 0;
+            {
+                QReadLocker locker(customTypesLock());
+                if (type < User || !ct || ct->count() <= type - User)
+                    break;
+                destr = ct->at(type - User).destr;
+            } // unlock to prevent reentrancy
+            destr(data);
             break;
         }
     }
@@ -513,6 +566,8 @@ void QMetaType::destroy(int type, void *data)
 
     You don't need to pass any value for the \a dummy parameter. It
     is there because of an MSVC 6 limitation.
+
+    \threadsafe
 
     \sa QMetaType::isRegistered(), Q_DECLARE_METATYPE()
 */
