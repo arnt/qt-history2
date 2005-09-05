@@ -24,25 +24,65 @@ using namespace QFormInternal;
 
 /*!
     \class QFormBuilder
-    \brief The QFormBuilder class is used to dynamically construct user interfaces from .ui files at run-time.
+
+    \brief The QFormBuilder class is used to dynamically construct
+    user interfaces from .ui files at run-time.
+
     \inmodule QtDesigner
 
-    The QFormBuilder class provides a mechanism for dynamically creating user interfaces
-    at run-time, based on \c{.ui} files created with \QD.
+    The QFormBuilder class provides a mechanism for dynamically
+    creating user interfaces at run-time, based on \c{.ui} files
+    created with \QD. For example:
 
-    This class extends the QAbstractFormBuilder base class with a number of functions that
-    are used to support custom widget plugins:
+    \code
+        MyForm::MyForm(QWidget *parent)
+            : QWidget(parent)
+        {
+            QFormBuilder builder;
+            QFile file(":/forms/myWidget.ui");
+            file.open(QFile::ReadOnly);
+            QWidget *myWidget = builder.load(&file, this);
+            file.close();
+
+            QVBoxLayout *layout = new QVBoxLayout;
+            layout->addWidget(myWidget);
+            setLayout(layout);
+        }
+    \endcode
+
+    By including the user interface in the example's resources (\c
+    myForm.grc), we ensure that it will be present when the example is
+    run:
+
+    \code
+    <!DOCTYPE RCC><RCC version="1.0">
+    <qresource prefix="/forms">
+       <file>mywidget.ui</file>
+    </qresource>
+    </RCC>
+    \endcode
+
+    QFormBuilder extends the QAbstractFormBuilder base class with a
+    number of functions that are used to support custom widget
+    plugins:
 
     \list
-    \o pluginPaths() returns the list of paths that the form builder searches when loading
-       custom widget plugins.
-    \o addPluginPath() allows additional paths to be registered with the form builder.
-    \o setPluginPath() is used to replace the existing list of paths with a list obtained
-       from some other source.
-    \o clearPluginPaths() removes all paths registered with the form builder.
-    \o customWidgets() returns a list of interfaces to plugins that can be used to create
-       new instances of registered custom widgets.
+    \o pluginPaths() returns the list of paths that the form builder
+       searches when loading custom widget plugins.
+    \o addPluginPath() allows additional paths to be registered with
+       the form builder.
+    \o setPluginPath() is used to replace the existing list of paths
+       with a list obtained from some other source.
+    \o clearPluginPaths() removes all paths registered with the form
+       builder.
+    \o customWidgets() returns a list of interfaces to plugins that
+       can be used to create new instances of registered custom widgets.
     \endlist
+
+    For a complete example using QFormBuilder, see the \l
+    {designer/calculatorbuilder}{Calculator Builder example} which
+    shows how to create a user interface from a \QD form at runtime,
+    using the QFormBuilder class.
 
     \sa QAbstractFormBuilder
 */

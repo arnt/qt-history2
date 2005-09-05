@@ -24,43 +24,131 @@
 
 /*!
     \class QDesignerFormWindowInterface
-    \brief The QDesignerFormWindowInterface class provides an interface that is used to control
-    form windows provided by Qt Designer's form editing component.
+
+    \brief The QDesignerFormWindowInterface class allows you to query
+    and manipulate form windows appearing in Qt Designer's workspace.
+
     \inmodule QtDesigner
 
-    \sa QDesignerFormEditorInterface
+    QDesignerFormWindowInterface provides you with information about
+    the associated form window as well as allowing you to alter its
+    properties. The interface is not intended to be instantiated
+    directly, but to provide access to \QD's current form windows
+    controlled by \QD's \l {QDesignerFormWindowManagerInterface}{form
+    window manager}.
+
+    If you are looking for the form window containing a specific
+    widget, you can use the static
+    QDesignerFormWindowInterface::findFormWindow() function:
+
+    \code
+    QDesignerFormWindowInterface *formWindow;
+    formWindow = QDesignerFormWindowInterface::findFormWindow(myWidget);
+    \endcode
+
+    But in addition, you can access any of the current form windows
+    through \QD's form window manager: Use the
+    QDesignerFormEditorInterface::formWindowManager() function to
+    retrieve an interface to the manager. Once you have this
+    interface, you have access to all of \QD's current form windows
+    through the QDesignerFormWindowManagerInterface::formWindow()
+    function. For example:
+
+    \code
+    QList<QDesignerFormWindowInterface *> forms;
+    QDesignerFormWindowInterface *formWindow;
+
+    QDesignerFormWindowManagerInterface *manager = formEditor->formWindowManager();
+
+    for (int i = 0; i < manager->formWindowCount(); i++) {
+        formWindow = manager->formWindow(i);
+        forms.append(formWindow);
+    }
+    \endcode
+
+    The interface to \QD's form editor (\c formEditor) is
+    provided by the QDesignerCustomWidgetInterface::initialize()
+    function's parameter. When implementing a custom widget plugin,
+    you must subclass the QDesignerCustomWidgetInterface class to
+    expose your plugin to \QD.
+
+    Once you have the form window, you can query its properties or
+    define them yourself. For example, a plain custom widget plugin is
+    managed by \QD only at its top level, i.e. none of its child
+    widgets can, for example, be resized in \QD's workspace. But
+    QDesignerFormWindowInterface provides you with functions enabling
+    you to control whether a widget should be managed by \QD, or not:
+
+    \code
+        if (formWindow->isManaged(myWidget))
+            formWindow->manageWidget(myWidget->childWidget);
+    \endcode
+
+    The complete list of functions concerning widget management is:
+    isManaged(), manageWidget() and unmanageWidget(). There is also
+    several associated signals: widgetManaged(), widgetRemoved(),
+    aboutToUnmanageWidget() and widgetUnmanaged().
+
+    In addition to controlling the management of widgets, you can
+    control the current selection in the form window using the
+    selectWidget(), clearSelection() and emitSelectionChanged()
+    functions, and the selectionChanged() signal.
+
+    You can also retrieve information about where the form is stored
+    using absoluteDir(), its include files using includeHints(), and
+    its layout and pixmap functions using layoutDefault(),
+    layoutFunction() and pixmapFunction(). You can find out whether
+    the form window has been modified (but not saved) or not, using
+    the isDirty() function. You can retrieve its author(), its
+    contents(), its fileName(), associated comment() and
+    exportMacro(), its mainContainer(), its features(), its grid() and
+    its resourceFiles().
+
+    The interface provides you with functions and slots allowing you
+    to alter most of this information as well. The exception is the
+    directory storing the form window. Finally, there is several
+    signals associated with changes to the information mentioned above
+    and to the form window in general.
+
+    \sa QDesignerFormWindowCursorInterface,
+    QDesignerFormEditorInterface, QDesignerFormWindowManagerInterface
 */
 
 /*!
     \enum QDesignerFormWindowInterface::FeatureFlag
 
-    This enum describes the features that are available and can be controlled by the
-    form window interface. These values are used when querying the form window to determine
-    which features it supports:
+    This enum describes the features that are available and can be
+    controlled by the form window interface. These values are used
+    when querying the form window to determine which features it
+    supports:
 
     \value EditFeature      Form editing
     \value GridFeature      Grid display and snap-to-grid facilities for editing
     \value TabOrderFeature  Tab order management
     \value DefaultFeature   Support for default features (form editing and grid)
 
-    \sa hasFeature()
+    \sa hasFeature(), features()
 */
 
 /*!
-    Constructs a form window interface with the given \a parent and specified window \a flags.*/
+    Constructs a form window interface with the given \a parent and
+    specified window \a flags.
+*/
 QDesignerFormWindowInterface::QDesignerFormWindowInterface(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)
 {
 }
 
 /*!
-    Destroys the form window interface.*/
+    Destroys the form window interface.
+*/
 QDesignerFormWindowInterface::~QDesignerFormWindowInterface()
 {
 }
 
 /*!
-    Returns the core form editor interface associated with this interface.*/
+    Returns an interface to \QD's form editor.
+*/
 QDesignerFormEditorInterface *QDesignerFormWindowInterface::core() const
 {
     return 0;
@@ -69,7 +157,8 @@ QDesignerFormEditorInterface *QDesignerFormWindowInterface::core() const
 /*!
     \fn QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidget *widget)
 
-    Returns the form window interface for the given \a widget.*/
+    Returns the form window interface for the given \a widget.
+*/
 QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidget *w)
 {
     while (w != 0) {
@@ -86,28 +175,30 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 }
 
 /*!
-    \fn virtual QString QDesignerFormWindowInterface::fileName() const = 0
+    \fn virtual QString QDesignerFormWindowInterface::fileName() const
 
-    Returns the file name of the .ui file that describes the form currently being shown.
+    Returns the file name of the .ui file that describes the form
+    currently being shown.
 
     \sa setFileName()
 */
 
 /*!
-    \fn virtual QDir QDesignerFormWindowInterface::absoluteDir() const = 0
+    \fn virtual QDir QDesignerFormWindowInterface::absoluteDir() const
 
-    Returns the absolute location of the directory containing the form shown in the form
-    window.
+    Returns the absolute location of the directory containing the form
+    shown in the form window.
 */
 
 /*!
-    \fn virtual QString QDesignerFormWindowInterface::contents() const = 0
+    \fn virtual QString QDesignerFormWindowInterface::contents() const
 
-    Returns details of the contents of the form currently being displayed in the window.
+    Returns details of the contents of the form currently being
+    displayed in the window.
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::setContents(QIODevice *device) = 0
+    \fn virtual void QDesignerFormWindowInterface::setContents(QIODevice *device)
 
     Sets the form's contents using data obtained from the given \a device.
 
@@ -115,55 +206,62 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 */
 
 /*!
-    \fn virtual Feature QDesignerFormWindowInterface::features() const = 0
+    \fn virtual Feature QDesignerFormWindowInterface::features() const
 
-    Returns a combination of the features provided by the form window associated with the
-    interface. The value returned can be tested against the \l Feature enum values to
-    determine which features are supported by the window.
+    Returns a combination of the features provided by the form window
+    associated with the interface. The value returned can be tested
+    against the \l Feature enum values to determine which features are
+    supported by the window.
 
-    \sa setFeatures()
+    \sa setFeatures(), hasFeature()
 */
 
 /*!
-    \fn virtual bool QDesignerFormWindowInterface::hasFeature(Feature feature) const = 0
+    \fn virtual bool QDesignerFormWindowInterface::hasFeature(Feature feature) const
 
-    Returns true if the form window offers the specified \a feature; otherwise returns false.
+    Returns true if the form window offers the specified \a feature;
+    otherwise returns false.
+
+    \sa features()
 */
 
 /*!
-    \fn virtual QString QDesignerFormWindowInterface::author() const = 0
+    \fn virtual QString QDesignerFormWindowInterface::author() const
 
-    Returns details of the author or creator of the form currently being displayed in the window.
+    Returns details of the author or creator of the form currently
+    being displayed in the window.
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::setAuthor(const QString &author) = 0
+    \fn virtual void QDesignerFormWindowInterface::setAuthor(const QString &author)
 
-    Sets the details for the author or creator of the form to the \a author specified.
+    Sets the details for the author or creator of the form to the \a
+    author specified.
 */
 
 /*!
-    \fn virtual QString QDesignerFormWindowInterface::comment() const = 0
+    \fn virtual QString QDesignerFormWindowInterface::comment() const
 
     Returns comments about the form currently being displayed in the window.
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::setComment(const QString &comment) = 0
+    \fn virtual void QDesignerFormWindowInterface::setComment(const QString &comment)
 
-    Sets the information about the form to the \a comment specified. This information should
-    be a human-readable comment about the form.
+    Sets the information about the form to the \a comment
+    specified. This information should be a human-readable comment
+    about the form.
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::layoutDefault(int *margin, int *spacing) = 0
+    \fn virtual void QDesignerFormWindowInterface::layoutDefault(int *margin, int *spacing)
 
-    Fills in the default margin and spacing for the form's default layout in the \a margin and
-    \a spacing variables specified.
+    Fills in the default margin and spacing for the form's default
+    layout in the \a margin and \a spacing variables specified.
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::setLayoutDefault(int margin, int spacing) = 0
+    \fn virtual void QDesignerFormWindowInterface::setLayoutDefault(int margin, int spacing)
 
     Sets the default \a margin and \a spacing for the form's layout.
 
@@ -171,14 +269,14 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::layoutFunction(QString *margin, QString *spacing) = 0
+    \fn virtual void QDesignerFormWindowInterface::layoutFunction(QString *margin, QString *spacing)
 
-    Fills in the current margin and spacing for the form's layout in the \a margin and
-    \a spacing variables specified.
+    Fills in the current margin and spacing for the form's layout in
+    the \a margin and \a spacing variables specified.
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::setLayoutFunction(const QString &margin, const QString &spacing) = 0
+    \fn virtual void QDesignerFormWindowInterface::setLayoutFunction(const QString &margin, const QString &spacing)
 
     Sets the \a margin and \a spacing for the form's layout.
 
@@ -186,74 +284,75 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 */
 
 /*!
-    \fn virtual QString QDesignerFormWindowInterface::pixmapFunction() const = 0
+    \fn virtual QString QDesignerFormWindowInterface::pixmapFunction() const
 
-    Returns the name of the function used to generate a pixmap for the form window.
-
-    \omit
-    ### Explain
-    \endomit
+    Returns the name of the function used to load pixmaps into the
+    form window.
 
     \sa setPixmapFunction()
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::setPixmapFunction(const QString &pixmapFunction) = 0
+    \fn virtual void QDesignerFormWindowInterface::setPixmapFunction(const QString &pixmapFunction)
 
-    Sets the function used to generate the pixmap for the form window to the given
-    \a pixmapFunction.
+    Sets the function used to load pixmaps into the form window
+    to the given \a pixmapFunction.
 
     \sa pixmapFunction()
 */
 
 /*!
-    \fn virtual QString QDesignerFormWindowInterface::exportMacro() const = 0
+    \fn virtual QString QDesignerFormWindowInterface::exportMacro() const
 
-    Returns the export macro associated with the form currently being displayed in the window.
-    The export macro is used when the form is compiled to create a widget plugin.
+    Returns the export macro associated with the form currently being
+    displayed in the window.  The export macro is used when the form
+    is compiled to create a widget plugin.
 
     \sa {Creating Custom Widgets for Qt Designer}
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::setExportMacro(const QString &exportMacro) = 0
+    \fn virtual void QDesignerFormWindowInterface::setExportMacro(const QString &exportMacro)
 
-    Sets the form window's export macro to \a exportMacro. The export macro is used when building
-    a widget plugin to export the form's interface to other components.
+    Sets the form window's export macro to \a exportMacro. The export
+    macro is used when building a widget plugin to export the form's
+    interface to other components.
 */
 
 /*!
-    \fn virtual QStringList QDesignerFormWindowInterface::includeHints() const = 0
+    \fn virtual QStringList QDesignerFormWindowInterface::includeHints() const
 
-    Returns a list of hints.
+    Returns a list of the header files that will be included in the
+    form window's associated \c .ui file.
 
-    \omit
-    ### Explain
-    \endomit
+    Header files may be local, i.e. relative to the project's
+    directory,\c "mywidget.h", or global, i.e. part of Qt or the
+    compilers standard libraries:\c <QtGui/QWidget>.
 
     \sa setIncludeHints()
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::setIncludeHints(const QStringList &includeHints) = 0
+    \fn virtual void QDesignerFormWindowInterface::setIncludeHints(const QStringList &includeHints)
 
-    Sets the include hints used by the form to the list specified by \a includeHints.
+    Sets the header files that will be included in the form window's
+    associated \c .ui file to the specified \a includeHints.
 
-    \omit
-    ### Explain
-    \endomit
+    Header files may be local, i.e. relative to the project's
+    directory,\c "mywidget.h", or global, i.e. part of Qt or the
+    compilers standard libraries:\c <QtGui/QWidget>.
 
     \sa includeHints()
 */
 
 /*!
-    \fn virtual QDesignerFormWindowCursorInterface *QDesignerFormWindowInterface::cursor() const = 0
+    \fn virtual QDesignerFormWindowCursorInterface *QDesignerFormWindowInterface::cursor() const
 
     Returns the cursor interface used by the form window.
 */
 
 /*!
-    \fn virtual int QDesignerFormWindowInterface::toolCount() const = 0
+    \fn virtual int QDesignerFormWindowInterface::toolCount() const
 
     Returns the number of tools available.
 
@@ -261,7 +360,7 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 */
 
 /*!
-    \fn virtual int QDesignerFormWindowInterface::currentTool() const = 0
+    \fn virtual int QDesignerFormWindowInterface::currentTool() const
 
     Returns the index of the current tool in use.
 
@@ -271,7 +370,7 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::setCurrentTool(int index) = 0
+    \fn virtual void QDesignerFormWindowInterface::setCurrentTool(int index)
 
     Sets the current tool to be the one with the given \a index.
 
@@ -281,13 +380,15 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 */
 
 /*!
-    \fn virtual QDesignerFormWindowToolInterface *QDesignerFormWindowInterface::tool(int index) const = 0
+    \fn virtual QDesignerFormWindowToolInterface *QDesignerFormWindowInterface::tool(int index) const
 
     Returns an interface to the tool with the given \a index.
+
+    \internal
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::registerTool(QDesignerFormWindowToolInterface *tool) = 0
+    \fn virtual void QDesignerFormWindowInterface::registerTool(QDesignerFormWindowToolInterface *tool)
 
     Registers the given \a tool with the form window.
 
@@ -303,7 +404,7 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 */
 
 /*!
-    \fn virtual QWidget *QDesignerFormWindowInterface::mainContainer() const = 0
+    \fn virtual QWidget *QDesignerFormWindowInterface::mainContainer() const
 
     Returns the main container widget for the form window.
 
@@ -311,44 +412,48 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::setMainContainer(QWidget *mainContainer) = 0
+    \fn virtual void QDesignerFormWindowInterface::setMainContainer(QWidget *mainContainer)
 
-    Sets the main container widget on the form to the specified \a mainContainer.
+    Sets the main container widget on the form to the specified \a
+    mainContainer.
 
-    \sa mainContainer()
+    \sa mainContainer(), mainContainerChanged()
 */
 
 /*!
-    \fn virtual bool QDesignerFormWindowInterface::isManaged(QWidget *widget) const = 0
+    \fn virtual bool QDesignerFormWindowInterface::isManaged(QWidget *widget) const
 
-    Returns true if the specified \a widget is managed by the form window; otherwise returns
-    false.
+    Returns true if the specified \a widget is managed by the form
+    window; otherwise returns false.
+
+    \sa manageWidget()
 */
 
 /*!
-    \fn virtual bool QDesignerFormWindowInterface::isDirty() const = 0
+    \fn virtual bool QDesignerFormWindowInterface::isDirty() const
 
-    Returns true if the form window is "dirty" (is modified but not saved); otherwise returns
-    false.
+    Returns true if the form window is "dirty" (is modified but not
+    saved); otherwise returns false.
 
     \sa setDirty()
 */
 
 /*!
-    \fn virtual QtUndoStack *QDesignerFormWindowInterface::commandHistory() const = 0
+    \fn virtual QtUndoStack *QDesignerFormWindowInterface::commandHistory() const
 
-    Returns an object that can be used to obtain the commands used so far in the construction
-    of the form.
+    Returns an object that can be used to obtain the commands used so
+    far in the construction of the form.
 
     \internal
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::beginCommand(const QString &description) = 0
+    \fn virtual void QDesignerFormWindowInterface::beginCommand(const QString &description)
 
-    Begins execution of a command with the given \a description. Commands are
-    executed between beginCommand() and endCommand() function calls to ensure
-    that they are recorded on the undo stack.
+    Begins execution of a command with the given \a
+    description. Commands are executed between beginCommand() and
+    endCommand() function calls to ensure that they are recorded on
+    the undo stack.
 
     \sa endCommand()
 
@@ -356,7 +461,7 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::endCommand() = 0
+    \fn virtual void QDesignerFormWindowInterface::endCommand()
 
     Ends execution of the current command.
 
@@ -366,7 +471,7 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::simplifySelection(QList<QWidget*> *widgets) const = 0
+    \fn virtual void QDesignerFormWindowInterface::simplifySelection(QList<QWidget*> *widgets) const
 
     Simplifies the selection of widgets specified by \a widgets.
 
@@ -375,33 +480,44 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::emitSelectionChanged() = 0
+    \fn virtual void QDesignerFormWindowInterface::emitSelectionChanged()
 
     Emits the selectionChanged() signal.
+
+    \sa selectWidget(), clearSelection()
 */
 
 /*!
-    \fn virtual QStringList QDesignerFormWindowInterface::resourceFiles() const = 0
+    \fn virtual QStringList QDesignerFormWindowInterface::resourceFiles() const
 
-    Returns a list of paths to resource files that are currently being used by the form window.
+    Returns a list of paths to resource files that are currently being
+    used by the form window.
+
+    \sa addResourceFile(), removeResourceFile()
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::addResourceFile(const QString &path) = 0
+    \fn virtual void QDesignerFormWindowInterface::addResourceFile(const QString &path)
 
     Adds the resource file at the given \a path to those used by the form.
+
+    \sa resourceFiles(), resourceFilesChanged()
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::removeResourceFile(const QString &path) = 0
+    \fn virtual void QDesignerFormWindowInterface::removeResourceFile(const QString &path)
 
-    Removes the resource file at the specified \a path from the list of those used by the form.
+    Removes the resource file at the specified \a path from the list
+    of those used by the form.
+
+    \sa resourceFiles(), resourceFilesChanged()
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::ensureUniqueObjectName(QObject *object) = 0
+    \fn virtual void QDesignerFormWindowInterface::ensureUniqueObjectName(QObject *object)
 
-    Ensures that the specified \a object has a unique name amongst the other objects on the form.
+    Ensures that the specified \a object has a unique name amongst the
+    other objects on the form.
 
     \internal
 */
@@ -409,15 +525,15 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 // Slots
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::manageWidget(QWidget *widget) = 0
+    \fn virtual void QDesignerFormWindowInterface::manageWidget(QWidget *widget)
 
     Instructs the form window to manage the specified \a widget.
 
-    \sa isManaged()
+    \sa isManaged(), unmanageWidget(), widgetManaged()
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::unmanageWidget(QWidget *widget) = 0
+    \fn virtual void QDesignerFormWindowInterface::unmanageWidget(QWidget *widget)
 
     Instructs the form window not to manage the specified \a widget.
 
@@ -425,64 +541,71 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::setFeatures(Feature features) = 0
+    \fn virtual void QDesignerFormWindowInterface::setFeatures(Feature features)
 
     Enables the specified \a features for the form window.
 
-    \sa features()
+    \sa features(), featureChanged()
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::setDirty(bool dirty) = 0
+    \fn virtual void QDesignerFormWindowInterface::setDirty(bool dirty)
 
-    If \a dirty is true, the form window is marked as dirty, meaning that it has been modified
-    but not saved. If \a dirty is false, the form window is considered to be unmodified.
+    If \a dirty is true, the form window is marked as dirty, meaning
+    that it has been modified but not saved. If \a dirty is false, the
+    form window is considered to be unmodified.
 
     \sa isDirty()
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::clearSelection(bool changePropertyDisplay) = 0
+\fn virtual void QDesignerFormWindowInterface::clearSelection(bool update)
 
-    Clears the current selection in the form window.
+    Clears the current selection in the form window. If \a update is
+    true, the emitSelectionChanged() function is called, emitting the
+    selectionChanged() signal.
 
-    \omit
-     If \a changePropertyDisplay is true, the
-    property editor will be updated to indicate that
-    \endomit
+    \sa selectWidget()
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::selectWidget(QWidget *widget, bool select) = 0
+    \fn virtual void QDesignerFormWindowInterface::selectWidget(QWidget *widget, bool select)
 
-    If \a select is true, the given \a widget is selected; otherwise the \a widget is deselected.
+    If \a select is true, the given \a widget is selected; otherwise
+    the \a widget is deselected.
+
+    \sa clearSelection(), selectionChanged()
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::setGrid(const QPoint &grid) = 0
+    \fn virtual void QDesignerFormWindowInterface::setGrid(const QPoint &grid)
 
-    Sets the grid size for the form window to the point specified by \a grid. In this function,
-    the coordinates in the QPoint are used to specify the dimensions of a rectangle in the grid.
+    Sets the grid size for the form window to the point specified by
+    \a grid. In this function, the coordinates in the QPoint are used
+    to specify the dimensions of a rectangle in the grid.
 
     \sa grid()
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::setFileName(const QString &fileName) = 0
+    \fn virtual void QDesignerFormWindowInterface::setFileName(const QString &fileName)
 
     Sets the file name for the form to the given \a fileName.
 
-    \sa fileName()
+    \sa fileName(), fileNameChanged()
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::setContents(const QString &contents) = 0
+    \fn virtual void QDesignerFormWindowInterface::setContents(const QString &contents)
 
-    Sets the contents of the form using data read from the specified \a contents string.
+    Sets the contents of the form using data read from the specified
+    \a contents string.
+
+    \sa contents()
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowInterface::editWidgets() = 0
+    \fn virtual void QDesignerFormWindowInterface::editWidgets()
 
     Switches the form window into editing mode.
 
@@ -498,6 +621,8 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 
     This signal is emitted whenever the main container changes.
     The new container is specified by \a mainContainer.
+
+    \sa setMainContainer()
 */
 
 /*!
@@ -515,6 +640,8 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 
     This signal is emitted whenever the file name of the form changes.
     The new file name is specified by \a fileName.
+
+    \sa setFileName()
 */
 
 /*!
@@ -522,6 +649,8 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 
     This signal is emitted whenever a feature changes in the form.
     The new feature is specified by \a feature.
+
+    \sa setFeatures()
 */
 
 /*!
@@ -529,15 +658,13 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 
     This signal is emitted whenever the selection in the form changes.
 
-    \sa geometryChanged()
+    \sa selectWidget(), clearSelection()
 */
 
 /*!
     \fn void QDesignerFormWindowInterface::geometryChanged()
 
     This signal is emitted whenever the form's geometry changes.
-
-    \sa selectionChanged()
 */
 
 /*!
@@ -545,6 +672,8 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 
     This signal is emitted whenever the list of resource files used by the
     form changes.
+
+    \sa resourceFiles()
 */
 
 /*!
@@ -552,6 +681,8 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 
     This signal is emitted whenever a widget on the form becomes managed.
     The newly managed widget is specified by \a widget.
+
+    \sa manageWidget()
 */
 
 /*!
@@ -559,14 +690,19 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 
     This signal is emitted whenever a widget on the form becomes unmanaged.
     The newly released widget is specified by \a widget.
+
+    \sa unmanageWidget(), aboutToUnmanageWidget()
 */
 
 /*!
     \fn void QDesignerFormWindowInterface::aboutToUnmanageWidget(QWidget *widget)
 
-    This signal is emitted whenever a widget on the form is about to become unmanaged.
-    When this signal is emitted, the specified \a widget is still managed, and a
-    widgetUnmanaged() signal will follow, indicating when it is no longer managed.
+    This signal is emitted whenever a widget on the form is about to
+    become unmanaged.  When this signal is emitted, the specified \a
+    widget is still managed, and a widgetUnmanaged() signal will
+    follow, indicating when it is no longer managed.
+
+    \sa unmanageWidget(), isManaged()
 */
 
 /*!

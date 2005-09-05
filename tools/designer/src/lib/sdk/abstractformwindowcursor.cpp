@@ -15,9 +15,58 @@
 
 /*!
     \class QDesignerFormWindowCursorInterface
-    \brief The QDesignerFormWindowCursorInterface class provides an interface to the form window's
-    text cursor.
+
+    \brief The QDesignerFormWindowCursorInterface class allows you to
+    query and modify a form window's widget selection, and in addition
+    modify the properties of all the form's widgets.
+
     \inmodule QtDesigner
+
+    QDesignerFormWindowCursorInterface is a convenience class that
+    provides an interface to the associated form window's text cursor;
+    it provides a collection of functions that enables you to query a
+    given form window's selection, and change the selection's focus
+    according to defined modes (MoveMode) and movements
+    (MoveOperation). You can also query the form's widgets and change
+    their properties.
+
+    The interface is not intended to be instantiated directly, but to
+    provide access to the selections and widgets of \QD's current form
+    windows. QDesignerFormWindowInterface always provides an
+    associated cursor interface. The form window for a given widget
+    can be retrieved using the static
+    QDesignerFormWindowInterface::findFormWindow() functions. For
+    example:
+
+    \code
+    QDesignerFormWindowInterface *formWindow = 0;
+    formWindow = QDesignerFormWindowInterface::findFormWindow(myWidget);
+
+    formWindow->cursor()->setProperty(myWidget, myProperty, newValue);
+    \endcode
+
+    You can retrieve any of \QD's current form windows through
+    \QD's \l {QDesignerFormWindowManagerInterface}{form window
+    manager}.
+
+    Once you have a form window's cursor interface, you can check if
+    the form window has a selection at all using the hasSelection()
+    function. You can query the form window for its total
+    widgetCount() and selectedWidgetCount(). You can retrieve the
+    currently selected widget (or widgets) using the current() or
+    selectedWidget() functions.
+
+    You can retrieve any of the form window's widgets using the
+    widget() function, and check if a widget is selected using the
+    isWidgetSelected() function. You can setProperty() for the
+    selected widget, and setWidgetProperty() or resetWidgetProperty()
+    for any given widget.
+
+    Finally, you can change the selection by changing the text
+    cursor's position() using the setPosition() and movePosition()
+    functions.
+
+    \sa QDesignerFormWindowInterface, QDesignerFormWindowManagerInterface
 */
 
 /*!
@@ -46,7 +95,9 @@
 */
 
 /*!
-    Returns true if the specified \a widget is selected; otherwise returns false.*/
+    Returns true if the specified \a widget is selected; otherwise
+    returns false.
+*/
 bool QDesignerFormWindowCursorInterface::isWidgetSelected(QWidget *widget) const
 {
     for (int index=0; index<selectedWidgetCount(); ++index) {
@@ -64,97 +115,110 @@ bool QDesignerFormWindowCursorInterface::isWidgetSelected(QWidget *widget) const
 */
 
 /*!
-    \fn virtual QDesignerFormWindowInterface *QDesignerFormWindowCursorInterface::formWindow() const = 0
+    \fn virtual QDesignerFormWindowInterface *QDesignerFormWindowCursorInterface::formWindow() const
 
-    Returns the interface to the form window associated with this interface.
+    Returns the form window interface associated with this cursor interface.
 */
 
 /*!
-    \fn virtual bool QDesignerFormWindowCursorInterface::movePosition(MoveOperation operation, MoveMode mode) = 0
+    \fn virtual bool QDesignerFormWindowCursorInterface::movePosition(MoveOperation operation, MoveMode mode)
 
-    Performs the given \a operation on the cursor using the specified \a mode, and returns true
-    if it completed successfully; otherwise returns false.
+    Performs the given \a operation on the cursor using the specified
+    \a mode, and returns true if it completed successfully; otherwise
+    returns false.
+
+    \sa position(), setPosition()
 */
 
 /*!
-    \fn virtual int QDesignerFormWindowCursorInterface::position() const = 0
+    \fn virtual int QDesignerFormWindowCursorInterface::position() const
 
     Returns the cursor position.
 
-    \sa setPosition()
+    \sa setPosition(), movePosition()
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowCursorInterface::setPosition(int position, MoveMode mode = MoveAnchor) = 0
+    \fn virtual void QDesignerFormWindowCursorInterface::setPosition(int position, MoveMode mode = MoveAnchor)
 
-    Sets the position of the cursor to the given \a position using the \a mode to specify
-    how it is moved there.
+    Sets the position of the cursor to the given \a position using the
+    \a mode to specify how it is moved there.
 
-    \sa position()
+    \sa position(), movePosition()
 */
 
 /*!
-    \fn virtual QWidget *QDesignerFormWindowCursorInterface::current() const = 0
+    \fn virtual QWidget *QDesignerFormWindowCursorInterface::current() const
 
-    Returns the current widget in the form.
+    Returns the currently selected widget in the form window.
 
     \sa selectedWidget()
 */
 
 /*!
-    \fn virtual int QDesignerFormWindowCursorInterface::widgetCount() const = 0
+    \fn virtual int QDesignerFormWindowCursorInterface::widgetCount() const
 
     Returns the number of widgets in the form window.
+
+    \sa selectedWidgetCount()
 */
 
 /*!
-    \fn virtual QWidget *QDesignerFormWindowCursorInterface::widget(int index) const = 0
+    \fn virtual QWidget *QDesignerFormWindowCursorInterface::widget(int index) const
 
-    Returns the widget with the given \a index in the list of widgets on the form.
+    Returns the widget with the given \a index in the list of widgets
+    in the form window.
 
     \sa selectedWidget()
 */
 
 /*!
-    \fn virtual bool QDesignerFormWindowCursorInterface::hasSelection() const = 0
+    \fn virtual bool QDesignerFormWindowCursorInterface::hasSelection() const
 
-    Returns true if the form window contains a selection; otherwise returns false.
+    Returns true if the form window contains a selection; otherwise
+    returns false.
 */
 
 /*!
-    \fn virtual int QDesignerFormWindowCursorInterface::selectedWidgetCount() const = 0
+    \fn virtual int QDesignerFormWindowCursorInterface::selectedWidgetCount() const
 
     Returns the number of selected widgets in the form window.
+
+    \sa widgetCount()
 */
 
 /*!
-    \fn virtual QWidget *QDesignerFormWindowCursorInterface::selectedWidget(int index) const = 0
+    \fn virtual QWidget *QDesignerFormWindowCursorInterface::selectedWidget(int index) const
 
-    Returns the widget with the given \a index in the list of selected widgets.
+    Returns the widget with the given \a index in the list of selected
+    widgets.
 
-    \sa widget()
+    \sa current(), widget()
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowCursorInterface::setProperty(const QString &name, const QVariant &value) = 0
+    \fn virtual void QDesignerFormWindowCursorInterface::setProperty(const QString &name, const QVariant &value)
 
-    Sets the property with the given \a name in the current widget to the specified \a value.
+    Sets the property with the given \a name for the currently
+    selected widget to the specified \a value.
 
     \sa setWidgetProperty(), resetWidgetProperty()
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowCursorInterface::setWidgetProperty(QWidget *widget, const QString &name, const QVariant &value) = 0
+    \fn virtual void QDesignerFormWindowCursorInterface::setWidgetProperty(QWidget *widget, const QString &name, const QVariant &value)
 
-    Sets the property with the given \a name in the \a widget to the specified \a value.
+    Sets the property with the given \a name for the given \a widget
+    to the specified \a value.
 
     \sa resetWidgetProperty(), setProperty()
 */
 
 /*!
-    \fn virtual void QDesignerFormWindowCursorInterface::resetWidgetProperty(QWidget *widget, const QString &name) = 0
+    \fn virtual void QDesignerFormWindowCursorInterface::resetWidgetProperty(QWidget *widget, const QString &name)
 
-    Resets the property with the given \a name in the specified \a widget to its default value.
+    Resets the property with the given \a name for the specified \a
+    widget to its default value.
 
-    \sa setProperty()
+    \sa setProperty(), setWidgetProperty()
 */

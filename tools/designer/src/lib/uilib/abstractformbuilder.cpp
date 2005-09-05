@@ -249,26 +249,54 @@ static QString platformNeutralKeySequence(const QKeySequence &ks)
 
 /*!
     \class QAbstractFormBuilder
-    \brief The QAbstractFormBuilder class provides a default implementation for classes that
-    create user interfaces at run-time.
-    \inmodule QtDesigner
 
-    QAbstractFormBuilder provides a standard interface and a default implementation for
-    constructing forms from user interface files. It is not intended to be instantiated
-    directly. Use the QFormBuilder class to create user interfaces from \c{.ui} files at
+    \brief The QAbstractFormBuilder class provides a default
+    implementation for classes that create user interfaces at
     run-time.
 
-    To override certain aspects of the form builder's behavior, subclass QAbstractFormBuilder
-    and reimplement the relevant virtual functions:
+    \inmodule QtDesigner
+
+    QAbstractFormBuilder provides a standard interface and a default
+    implementation for constructing forms from user interface
+    files. It is not intended to be instantiated directly. Use the
+    QFormBuilder class to create user interfaces from \c{.ui} files at
+    run-time. For example:
+
+    \code
+        MyForm::MyForm(QWidget *parent)
+            : QWidget(parent)
+        {
+            QFormBuilder builder;
+            QFile file(":/forms/myWidget.ui");
+            file.open(QFile::ReadOnly);
+            QWidget *myWidget = builder.load(&file, this);
+            file.close();
+
+            QVBoxLayout *layout = new QVBoxLayout;
+            layout->addWidget(myWidget);
+            setLayout(layout);
+        }
+    \endcode
+
+    To override certain aspects of the form builder's behavior,
+    subclass QAbstractFormBuilder and reimplement the relevant virtual
+    functions:
 
     \list
-    \o load() handles reading of \c{.ui} format files from arbitrary QIODevices, and
-       construction of widgets from the XML data they contain.
-    \o save() handles saving of widget details in \c{.ui} format to arbitrary QIODevices.
-    \o workingDirectory() and setWorkingDirectory() control the directory in which forms
-       are held. The form builder looks for other resources on paths relative to this
-       directory.
+    \o load() handles reading of \c{.ui} format files from arbitrary
+       QIODevices, and construction of widgets from the XML data
+       they contain.
+    \o save() handles saving of widget details in \c{.ui} format to
+       arbitrary QIODevices.
+    \o workingDirectory() and setWorkingDirectory() control the
+       directory in which forms are held. The form builder looks for
+       other resources on paths relative to this directory.
     \endlist
+
+    For a complete example using QFormBuilder, see the \l
+    {designer/calculatorbuilder}{Calculator Builder example} which
+    shows how to create a user interface from a \QD form at runtime,
+    using the QFormBuilder class.
 
     \sa QFormBuilder
 */
