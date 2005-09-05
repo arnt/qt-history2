@@ -1757,7 +1757,9 @@ void QAbstractItemModel::endRemoveColumns()
     the model is now invalid and has to be queried for again.
 
     When a model radically changes its data it can sometimes be easier
-    to just emit this signal rather than dataChanged().
+    to just call this function rather than emit dataChanged() to inform
+    other components when the underlying data source, or its structure,
+    has changed.
 */
 void QAbstractItemModel::reset()
 {
