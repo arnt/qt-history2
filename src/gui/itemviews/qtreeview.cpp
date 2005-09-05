@@ -1422,7 +1422,7 @@ void QTreeViewPrivate::initialize()
     q->setHeader(header);
 }
 
-void QTreeViewPrivate::expand(int i)
+void QTreeViewPrivate::expand(int i, bool emitSignal)
 {
     Q_Q(QTreeView);
 
@@ -1437,12 +1437,13 @@ void QTreeViewPrivate::expand(int i)
 
     // make sure we expand children that were previously expanded
     if (model->hasChildren(index))
-        reexpandChildren(index);
+        reexpandChildren(index, emitSignal);
 
-    emit q->expanded(index);
+    if (emitSignal)
+        emit q->expanded(index);
 }
 
-void QTreeViewPrivate::collapse(int i)
+void QTreeViewPrivate::collapse(int i, bool emitSignal)
 {
     Q_Q(QTreeView);
 
@@ -1466,7 +1467,8 @@ void QTreeViewPrivate::collapse(int i)
     }
     viewItems.remove(i + 1, total); // collapse
 
-    emit q->collapsed(index);
+    if (emitSignal)
+        emit q->collapsed(index);
 }
 
 void QTreeViewPrivate::layout(int i)
@@ -1635,8 +1637,8 @@ void QTreeViewPrivate::relayout(const QModelIndex &parent)
     if (parent.isValid()) {
         int parentViewIndex = viewIndex(parent);
         if (parentViewIndex > -1 && viewItems.at(parentViewIndex).expanded) {
-            collapse(parentViewIndex);
-            expand(parentViewIndex);
+            collapse(parentViewIndex, false); // remove the current layout
+            expand(parentViewIndex, false); // do the relayout
             q->updateGeometries();
             viewport->update();
         }
@@ -1646,7 +1648,7 @@ void QTreeViewPrivate::relayout(const QModelIndex &parent)
     }
 }
 
-void QTreeViewPrivate::reexpandChildren(const QModelIndex &parent)
+void QTreeViewPrivate::reexpandChildren(const QModelIndex &parent, bool emitSignal)
 {
     // FIXME: this is slow: optimize
     QVector<QPersistentModelIndex> o = expandedIndexes;
