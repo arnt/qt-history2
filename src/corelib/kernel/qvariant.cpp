@@ -1288,13 +1288,15 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
 /*!
     \fn QVariant::QVariant(int typeOrUserType, const void *copy)
 
-    \internal
-
     Constructs variant of type \a typeOrUserType, and initializes with
     \a copy if \a copy is not 0.
 
     Note that you have to pass the address of the variable you want stored.
-    That includes the usage of \c VoidStar, \c QObjectStar and \c QWidgetStar.
+
+    Usually, you never have to use this constructor, use qVariantFromValue() 
+    instead to construct variants from the pointer types represented by
+    \c QMetaType::VoidStar, \c QMetaType::QObjectStar and
+    \c QMetaType::QWidgetStar.
 
     \sa qVariantFromValue(), Type
 */
@@ -2778,7 +2780,8 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     \sa setValue(), value()
 */
 
-/*! \fn QVariant qVariantFromValue(const T &value)
+/*! 
+    \fn QVariant qVariantFromValue(const T &value)
     \relates QVariant
 
     Returns a variant containing a copy of the given \a value
@@ -2787,6 +2790,14 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     This function is equivalent to QVariant::fromValue(\a value). It
     is provided as a work-around for MSVC 6, which doesn't support
     member template functions.
+
+    For example, a QObject pointer can be stored in a variant with the
+    following code:
+
+    \code
+    QObject *object = getObjectFromSomewhere();
+    QVariant data = qVariantFromValue(object);
+    \endcode
 
     \sa QVariant::fromValue()
 */
