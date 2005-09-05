@@ -1685,6 +1685,9 @@ if [ "$PLATFORM" != "$XPLATFORM" -a "$CFG_EMBEDDED" != "no" ]; then
     x86)
         ARCH=i386
         ;;
+    x86_64)
+        ARCH=x86_64
+        ;;
     ipaq|sharp)
         ARCH=arm
         ;;
