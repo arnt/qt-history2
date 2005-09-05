@@ -1487,7 +1487,8 @@ QObjectList QObject::queryList(const char *inheritsClass,
 }
 #endif
 
-/*! \fn T *QObject::findChild(const QString &name) const
+/*! 
+    \fn T *QObject::findChild(const QString &name) const
 
     Returns the child of this object that can be casted into type T and
     that is called \a name, or 0 if there is no such object.
@@ -3036,7 +3037,7 @@ QDebug operator<<(QDebug dbg, const QObject *o) {
     See the \l{tools/plugandpaintplugins/basictools}{Plug & Paint
     Basic Tools} example for details.
 
-    \sa Q_DECLARE_INTERFACE(), Q_EXPORT_PLUGINS(), {How to Create Qt Plugins}
+    \sa Q_DECLARE_INTERFACE(), Q_EXPORT_PLUGIN(), {How to Create Qt Plugins}
 */
 
 /*!
