@@ -516,7 +516,7 @@ QTransportAuth::Result QTransportAuth::authFromSocket( unsigned char properties,
 */
 #include <QSysInfo>
 
-void stringify_key( char *buf, const unsigned char* key, size_t key_len )
+static void stringify_key( char *buf, const unsigned char* key, size_t key_len )
 {
     unsigned int i, p;
     for ( i = 0, p = 0; i < key_len; i++, p+=2 )
