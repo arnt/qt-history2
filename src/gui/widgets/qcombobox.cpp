@@ -1512,9 +1512,15 @@ void QComboBox::showPopup()
     // use top item as height for complete listView
     int itemHeight = view()->sizeHintForIndex(model()->index(0, d->modelColumn, rootModelIndex())).height()
                      + container->spacing();
-    QRect listRect(rect());
-
     QStyleOptionComboBox opt = d->getStyleOption();
+    QRect listRect(style()->subControlRect(QStyle::CC_ComboBox, &opt,
+                                           QStyle::SC_ComboBoxListBoxPopup, this));
+    QRect screen = QApplication::desktop()->availableGeometry(this);
+    QPoint below = mapToGlobal(listRect.bottomLeft());
+    int belowHeight = screen.bottom() - below.y();
+    QPoint above = mapToGlobal(listRect.topLeft());
+    int aboveHeight = above.y() - screen.y();
+
     if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this))
         listRect.setHeight(itemHeight * count());
     else
@@ -1524,11 +1530,6 @@ void QComboBox::showPopup()
 
     // make sure the widget fits on screen
     //### do horizontally as well
-    QRect screen = QApplication::desktop()->availableGeometry(this);
-    QPoint below = mapToGlobal(rect().bottomLeft());
-    int belowHeight = screen.bottom() - below.y();
-    QPoint above = mapToGlobal(rect().topLeft());
-    int aboveHeight = above.y() - screen.y();
     if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
         listRect.moveTopLeft(above);
         listRect.moveTop(listRect.top() - view()->visualRect(view()->currentIndex()).top());

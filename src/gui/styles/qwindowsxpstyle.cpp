@@ -3072,7 +3072,7 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
                 break;
 
             case SC_ComboBoxListBoxPopup:
-                rect = cmb->popupRect;
+                rect = cmb->rect;
                 break;
             }
         }

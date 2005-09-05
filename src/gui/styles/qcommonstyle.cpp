@@ -2652,7 +2652,7 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
                 ret.setRect(x + margin, y + margin, wi - 2 * margin - 16, he - 2 * margin);
                 break;
             case SC_ComboBoxListBoxPopup:
-                ret = cb->popupRect;
+                ret = cb->rect;
                 break;
             default:
                 break;

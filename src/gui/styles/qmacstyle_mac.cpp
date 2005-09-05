@@ -2560,6 +2560,11 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                             int(outRect.size.width - hirect.size.width),
                             int(outRect.size.height - hirect.size.height + offSet));
             hirect = qt_hirectForQRect(combo->rect, p, false, off_rct);
+            if (combo->editable && QSysInfo::MacintoshVersion == QSysInfo::MV_10_4) {
+                hirect.origin.x += 3;
+                hirect.size.width -= 3;
+                hirect.origin.y += 3;
+            }
             if (!drawColorless)
                 HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
             else
@@ -2990,15 +2995,24 @@ QRect QMacStylePrivate::HIThemeSubControlRect(QStyle::ComplexControl cc,
             HIThemeGetButtonContentBounds(&hirect, &bdi, &outrect);
             ret = qt_qrectForHIRect(outrect);
             if (combo->editable) {
-                ret.adjust(-6, 2, 10, -1);
+                if (QSysInfo::MacintoshVersion == QSysInfo::MV_10_4)
+                    ret.adjust(-4, 4, 10, -1);
+                else
+                    ret.adjust(-6, 2, 10, -1);
             } else {
                 ret.adjust(0, -1, 0, 0);
             }
             switch (sc) {
             default:
-                // I undo the layout that Windows rect has.
-                ret = QStyle::visualRect(combo->direction, combo->rect,
-                                         q->QWindowsStyle::subControlRect(cc, opt, sc, widget));
+                if (sc == QStyle::SC_ComboBoxListBoxPopup && combo->editable) {
+                    ret.setRight(combo->rect.right() - 6);
+                    ret.setTop(combo->rect.top());
+                    ret.setBottom(combo->rect.bottom());
+                } else {
+                    // I undo the layout that Windows rect has.
+                    ret = QStyle::visualRect(combo->direction, combo->rect,
+                                             q->QWindowsStyle::subControlRect(cc, opt, sc, widget));
+                }
                 break;
             case QStyle::SC_ComboBoxEditField:
                 // ret = ret; <-- Already done
@@ -4565,9 +4579,9 @@ QRect QMacStylePrivate::AppManSubControlRect(QStyle::ComplexControl cc,
                                             kThemeAdornmentNone };
                 GetThemeButtonContentBounds(&macRect, kThemePopupButton, &bdi, &outRect);
                 if (combo->editable) {
-                    ret.setRect(outRect.left - 5, outRect.top + 0,
+                    ret.setRect(outRect.left - 5, outRect.top + 1,
                                 (outRect.right - outRect.left) + 14,
-                                (outRect.bottom - outRect.top) - 1);
+                                (outRect.bottom - outRect.top) - 4);
                 } else {
                     ret.setRect(outRect.left, outRect.top - 1, outRect.right - outRect.left,
                                 outRect.bottom - outRect.top);
@@ -5961,7 +5975,7 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     if (ct == QStyle::CT_PushButton || ct == QStyle::CT_ToolButton || ct == QStyle::CT_ComboBox) {
         if (const QStyleOptionComboBox *combo = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             if (combo->editable) {
-                sz.rheight() += 4;
+                sz.rheight() += 7;
                 return sz;
             }
         }

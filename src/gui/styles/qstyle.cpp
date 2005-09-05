@@ -915,7 +915,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SC_ComboBoxEditField  Combobox edit field; see also QComboBox
     \value SC_ComboBoxArrow  Combobox arrow button
     \value SC_ComboBoxFrame  Combobox frame
-    \value SC_ComboBoxListBoxPopup  Combobox list box
+    \value SC_ComboBoxListBoxPopup  The reference rect for the combobox popup
+    Used to calculate the position of the popup.
 
     \value SC_SliderGroove  Special sub-control which contains the area
         in which the slider handle may move
