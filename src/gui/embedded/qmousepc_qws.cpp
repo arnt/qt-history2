@@ -66,6 +66,7 @@ public:
     {
         initState();
     }
+    virtual ~QWSPcMouseSubHandler() {}
 
     int file() const { return fd; }
 
