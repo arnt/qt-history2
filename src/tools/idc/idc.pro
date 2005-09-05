@@ -29,11 +29,11 @@ SOURCES		+= ../../../../src/corelib/global/qglobal.cpp \
                ../../../../src/corelib/tools/qvsnprintf.cpp \
                ../../../../src/corelib/kernel/qinternal.cpp
 
-SOURCES		+= ../../../../src/corelib/io/qbufferedfsfileengine.cpp \
+SOURCES		+= \
                ../../../../src/corelib/io/qdir.cpp \
                ../../../../src/corelib/io/qfile.cpp \
                ../../../../src/corelib/io/qfileinfo.cpp \
-               ../../../../src/corelib/io/qfileengine.cpp \
+               ../../../../src/corelib/io/qabstractfileengine.cpp \
                ../../../../src/corelib/io/qfsfileengine.cpp \
                ../../../../src/corelib/io/qiodevice.cpp \
                ../../../../src/corelib/io/qtemporaryfile.cpp
