@@ -64,7 +64,7 @@ class QTextListPrivate : public QTextBlockGroupPrivate
     The format describes the decoration of the list itself, and not the
     individual items.
 
-    \sa QTextListFormat QTextCursor
+    \sa QTextBlock, QTextListFormat, QTextCursor
 */
 
 /*!
