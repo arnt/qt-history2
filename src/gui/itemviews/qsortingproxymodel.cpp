@@ -22,6 +22,9 @@
   \brief The QSortingProxyModel class provides support for sorting data
   that is passed between another model and a view.
 
+  \ingroup model-view
+
+  \sa QProxyModel, QAbstractItemModel, {Model/View Programming}
 */
 
 /*!
