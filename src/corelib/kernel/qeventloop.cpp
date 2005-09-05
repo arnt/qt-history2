@@ -36,7 +36,7 @@ public:
     \brief The QEventLoop class provides a means of entering and leaving an event loop.
 
     At any time, you can create a QEventLoop object and call exec()
-    on it to start a local event loop. From withing the event loop,
+    on it to start a local event loop. From within the event loop,
     calling exit() will force exec() to return.
 
     \sa QAbstractEventDispatcher
