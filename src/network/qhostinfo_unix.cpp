@@ -74,8 +74,8 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
         }
         results.setHostName(QString::fromLatin1(hbuf));
 #else
-        in_addr_t addr = inet_addr(hostName.toLatin1().constData());
-        struct hostent *ent = gethostbyaddr(&addr, sizeof(addr), AF_INET);
+        in_addr_t inetaddr = inet_addr(hostName.toLatin1().constData());
+        struct hostent *ent = gethostbyaddr(&inetaddr, sizeof(inetaddr), AF_INET);
         if (!ent) {
             results.setError(QHostInfo::HostNotFound);
             results.setErrorString(tr("Host not found"));
