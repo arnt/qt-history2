@@ -38,7 +38,9 @@
     \row \o \link #QIBASE QIBASE\endlink \o Borland InterBase
     \row \o \link #QMYSQL QMYSQL\endlink \o MySQL
     \row \o \link #QOCI QOCI\endlink \o Oracle Call Interface Driver (versions 8, 9, and 10)
-    \row \o \link #QODBC QODBC\endlink \o Open Database Connectivity
+    \row \o \link #QODBC QODBC\endlink
+         \o Open Database Connectivity (ODBC) - Microsoft SQL Server and other
+            ODBC-compliant databases
     \row \o \link #QPSQL QPSQL\endlink \o PostgreSQL (versions 7 and 8)
     \row \o \link #QSQLITE2 QSQLITE2\endlink \o SQLite version 2
     \row \o \link #QSQLITE QSQLITE\endlink \o SQLite version 3
@@ -257,6 +259,10 @@
     that you also need to install and configure ODBC drivers for the ODBC
     driver manager that is installed on your system. The QODBC plugin
     then allows you to use these data sources in your Qt applications.
+
+    \bold{Note:} You should use native drivers in preference to the ODBC
+    driver where they are available. ODBC support can be used as a fallback
+    for compliant databases if no native drivers are available.
 
     On Windows an ODBC driver manager should be installed by default.
     For Unix systems there are some implementations which must be
