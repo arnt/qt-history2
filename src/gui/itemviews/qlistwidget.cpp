@@ -1438,7 +1438,6 @@ Qt::DropActions QListWidget::supportedDropActions() const
   Returns a list of pointers to the items contained in the \a data object.
   If the object was not created by a QListWidget in the same process, the list
   is empty.
-
 */
 QList<QListWidgetItem*> QListWidget::items(const QMimeData *data) const
 {
