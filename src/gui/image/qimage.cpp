@@ -262,7 +262,7 @@ QImageData::~QImageData()
 
     QImage supports a number of \link QImage::Format formats\endlink. These
     include monochrome images, 8-bit images, and 32-bit images with an optional
-    alpha channel. Monochrome and 8-bit images are indexed based and use a
+    alpha channel. Monochrome and 8-bit images are index-based and use a
     color lookup table, while 32-bit images use RGB or ARGB values.
 
     An entry in the color table is an RGB triplet encoded as an \c qRgb
