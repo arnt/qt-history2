@@ -342,7 +342,7 @@ bool QIBaseResultPrivate::writeBlob(int i, const QByteArray &ba)
             isc_put_segment(status, &handle, qMin(ba.size() - i, SHRT_MAX), const_cast<char*>(ba.data()) + i);
             if (isError(QT_TRANSLATE_NOOP("QIBaseResult", "Unable to write BLOB")))
                 return false;
-            i += SHRT_MAX;
+            i += qMin(ba.size() - i, SHRT_MAX);
         }
     }
     isc_close_blob(status, &handle);
