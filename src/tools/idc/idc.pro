@@ -3,7 +3,7 @@ TARGET          = idc
 
 CONFIG         += console warn_off qtinc
 CONFIG	       -= qt
-DESTDIR         = ../../../../bin
+DESTDIR         = ../../../bin
 
 DEFINES        += QT_NO_THREAD QT_LITE_UNICODE QT_NO_CODECS QT_NO_LIBRARY QT_NO_STL QT_NODLL QT_NO_DATASTREAM \
                   QT_NO_REGEXP QT_NO_COMPRESS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_NO_QOBJECT QT_NO_TEXTSTREAM
