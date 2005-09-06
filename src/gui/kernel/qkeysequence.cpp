@@ -501,7 +501,6 @@ int QKeySequencePrivate::decodeString(const QString &str, QKeySequence::Sequence
         // if we don't find anything then try it out with just the untranlated stuff.
         // PortableText will only try the untranlated table.
         bool found = false;
-        bool secondPass = false;
         for (int tran = 0; tran < 2; ++tran) {
             if (!nativeText)
                 ++tran;
