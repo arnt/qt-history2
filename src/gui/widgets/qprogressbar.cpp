@@ -368,6 +368,13 @@ QString QProgressBar::text() const
         return QString();
 
     int totalSteps = d->maximum - d->minimum;
+    
+    // If max and min are equal and we get this far, it means that the 
+    // progress bar has one step and that we are on that step. Return
+    // 100% here in order to avoid division by zero further down.  
+    if (totalSteps == 0)
+        return tr("%1%").arg(100);
+    
     int progress = d->value - d->minimum;
     // Get the values down to something usable.
     if (totalSteps > INT_MAX / 1000) {
