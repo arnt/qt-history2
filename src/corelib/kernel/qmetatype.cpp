@@ -109,6 +109,7 @@
     \brief The QMetaType class manages named types in the meta object system.
 
     \ingroup objectmodel
+    \reentrant
 
     The class is used as a helper to marshall types in QVariant and
     in queued signals and slots connections. It associates a type
@@ -217,8 +218,6 @@ void QMetaType::registerStreamOperators(const char *typeName, SaveOperator saveO
     Returns the type name associated with the given \a type, or 0 if no
     matching type was found. The returned pointer must not be deleted.
 
-    \threadsafe
-
     \sa type(), isRegistered(), Type
 */
 const char *QMetaType::typeName(int type)
@@ -243,8 +242,6 @@ const char *QMetaType::typeName(int type)
 }
 
 /*! \internal
-
-    \threadsafe
 
     Registers a user type for marshalling, with \a typeName, a \a
     destructor, and a \a constructor. Returns the type's handle,
@@ -278,8 +275,6 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
     Returns true if the custom datatype with ID \a type is registered;
     otherwise returns false.
 
-    \threadsafe
-
     \sa type(), typeName(), Type
 */
 bool QMetaType::isRegistered(int type)
@@ -293,8 +288,6 @@ bool QMetaType::isRegistered(int type)
 /*!
     Returns a handle to the type called \a typeName, or 0 if there is
     no such type.
-
-    \threadsafe
 
     \sa isRegistered(), typeName(), Type
 */
@@ -311,7 +304,7 @@ int QMetaType::type(const char *typeName)
             return 0;
 
         QReadLocker locker(customTypesLock());
-        for (int v = 0; ct && v < ct->count(); ++v) {
+        for (int v = 0; v < ct->count(); ++v) {
             if (strcmp(ct->at(v).typeName, typeName) == 0)
                 return v + User;
         }
@@ -370,8 +363,6 @@ bool QMetaType::load(QDataStream &stream, int type, void *data)
 /*!
     Returns a copy of \a copy, assuming it is of type \a type. If \a
     copy is zero, creates a default type.
-
-    \threadsafe
 
     \sa destroy(), isRegistered(), Type
 */
@@ -473,8 +464,6 @@ void *QMetaType::construct(int type, const void *copy)
 /*!
     Destroys the \a data, assuming it is of the \a type given.
 
-    \threadsafe
-
     \sa construct(), isRegistered(), Type
 */
 void QMetaType::destroy(int type, void *data)
@@ -551,6 +540,7 @@ void QMetaType::destroy(int type, void *data)
 /*!
     \fn int qRegisterMetaType(const char *typeName, T *dummy = 0)
     \relates QMetaType
+    \reentrant
 
     Registers the type name \a typeName to the type \c{T}. Returns
     the internal ID used by QMetaType. Any class or struct that has a
@@ -568,8 +558,6 @@ void QMetaType::destroy(int type, void *data)
 
     You don't need to pass any value for the \a dummy parameter. It
     is there because of an MSVC 6 limitation.
-
-    \threadsafe
 
     \sa QMetaType::isRegistered(), Q_DECLARE_METATYPE()
 */

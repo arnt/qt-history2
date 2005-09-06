@@ -15,10 +15,9 @@
 #define QMETATYPE_H
 
 #include "QtCore/qglobal.h"
-#include "QtCore/qstring.h"
 
 #ifndef QT_NO_DATASTREAM
-#include "QtCore/qdatastream.h"
+class QDataStream;
 #endif
 
 #ifdef Bool
@@ -100,8 +99,8 @@ void qRegisterMetaTypeStreamOperators(const char *typeName, T * = 0)
     QMetaType::registerStreamOperators(typeName, reinterpret_cast<QMetaType::SaveOperator>(sptr),
                                        reinterpret_cast<QMetaType::LoadOperator>(lptr));
 }
-
 #endif
+
 template <typename T>
 int qRegisterMetaType(const char *typeName, T * = 0)
 {
@@ -133,11 +132,14 @@ struct QMetaTypeId< TYPE > \
     enum { Defined = 1 }; \
     static int qt_metatype_id() \
     { \
-       static int id = qRegisterMetaType< TYPE >(#TYPE); \
+       static int id = 0; \
+       if (!id) \
+           id = qRegisterMetaType< TYPE >(#TYPE); \
        return id; \
     } \
 };
 
+class QString;
 template<> struct QMetaTypeId<QString>
 { enum { Defined = 1 };
   static inline int qt_metatype_id() { return QMetaType::QString; } };
@@ -153,9 +155,11 @@ template<> struct QMetaTypeId<bool>
 template<> struct QMetaTypeId<double>
 { enum { Defined = 1 };
   static inline int qt_metatype_id() { return QMetaType::Double; } };
+class QByteArray;
 template<> struct QMetaTypeId<QByteArray>
 { enum { Defined = 1 };
   static inline int qt_metatype_id() { return QMetaType::QByteArray; } };
+class QChar;
 template<> struct QMetaTypeId<QChar>
 { enum { Defined = 1 };
   static inline int qt_metatype_id() { return QMetaType::QChar; } };

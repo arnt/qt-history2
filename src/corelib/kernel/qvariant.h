@@ -19,6 +19,7 @@
 #include "QtCore/qlist.h"
 #include "QtCore/qmetatype.h"
 #include "QtCore/qmap.h"
+#include "QtCore/qstring.h"
 
 QT_MODULE(Core)
 
@@ -29,7 +30,6 @@ class QDateTime;
 class QLine;
 class QLineF;
 class QLocale;
-class QString;
 class QStringList;
 class QTime;
 class QPoint;
