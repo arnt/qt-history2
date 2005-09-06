@@ -14,6 +14,7 @@
 #ifndef QDEBUG_H
 #define QDEBUG_H
 
+#include "QtCore/qalgorithms.h"
 #include "QtCore/qlist.h"
 #include "QtCore/qmap.h"
 #include "QtCore/qtextstream.h"
@@ -35,6 +36,7 @@ class Q_CORE_EXPORT QDebug
 public:
     inline QDebug(QtMsgType t) : stream(new Stream(t)) {}
     inline QDebug(const QDebug &o):stream(o.stream) { ++stream->ref; }
+    inline QDebug &operator=(const QDebug &other);
     inline ~QDebug()
         { if (!--stream->ref) { qt_message_output(stream->type, stream->buffer.toLocal8Bit().data()); delete stream; } }
     inline QDebug &space() { stream->space = true; stream->ts << " "; return *this; }
@@ -69,6 +71,15 @@ public:
     inline QDebug &operator<<(QTextStreamManipulator m)
     { stream->ts << m; return *this; }
 };
+
+inline QDebug &QDebug::operator=(const QDebug &other)
+{
+    if (this != &other) {
+        QDebug copy(other);
+        qSwap(stream, copy.stream);
+    }
+    return *this;
+}
 
 template <class T>
 inline QDebug operator<<(QDebug debug, const QList<T> &list)
