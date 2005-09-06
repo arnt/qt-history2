@@ -594,7 +594,7 @@ bool QTextStreamPrivate::scan(const QChar **ptr, int *length, int maxlen, TokenD
         }
         chPtr += startOffset;
 
-        for (; !foundToken && startOffset < endOffset && (!maxlen || totalSize+1 < maxlen); ++startOffset) {
+        for (; !foundToken && startOffset < endOffset && (!maxlen || totalSize < maxlen); ++startOffset) {
             const QChar ch = *chPtr++;
             ++totalSize;
 
@@ -619,8 +619,7 @@ bool QTextStreamPrivate::scan(const QChar **ptr, int *length, int maxlen, TokenD
     // if the token was not found, but we reached the end of input,
     // then we accept what we got. if we are not at the end of input,
     // we return false.
-    if (!foundToken && ((maxlen && totalSize < maxlen)
-                        || totalSize == 0
+    if (!foundToken && (totalSize == 0
                         || (string && stringOffset + totalSize < string->size())
                         || (device && !device->atEnd()))) {
 #if defined (QTEXTSTREAM_DEBUG)
@@ -1383,6 +1382,27 @@ QString QTextStream::readLine(qint64 maxlen)
     const QChar *readPtr;
     int length;
     if (!d->scan(&readPtr, &length, int(maxlen), QTextStreamPrivate::EndOfLine))
+        return QString();
+
+    QString tmp = QString(readPtr, length);
+    d->consumeLastToken();
+    return tmp;
+}
+
+/*!
+    Reads at most \a maxSize characters from the stream, and returns the data
+    read as a QString.
+
+    \sa readAll(), readLine(), QIODevice::read()
+*/
+QString QTextStream::read(qint64 maxlen)
+{
+    Q_D(QTextStream);
+    CHECK_VALID_STREAM(QString());
+
+    const QChar *readPtr;
+    int length;
+    if (!d->scan(&readPtr, &length, int(maxlen), QTextStreamPrivate::EndOfFile))
         return QString();
 
     QString tmp = QString(readPtr, length);

@@ -102,6 +102,7 @@ public:
 
     QString readLine(qint64 maxlen = 0);
     QString readAll();
+    QString read(qint64 maxlen);
 
     void setFieldAlignment(FieldAlignment alignment);
     FieldAlignment fieldAlignment() const;
