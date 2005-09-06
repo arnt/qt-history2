@@ -34,32 +34,81 @@ public:
 
 /*!
     \class QScrollArea
-    \brief The QScrollArea class provides a scrolling view onto another widget.
+
+    \brief The QScrollArea class provides a scrolling view onto
+    another widget.
 
     \ingroup basic
     \mainclass
 
-    A scroll area is used to display the contents of a child widget within
-    a frame. If the widget exceeds the size of the frame, the view can
-    provide scroll bars so that the entire area of the child widget can be
-    viewed.
+    A scroll area is used to display the contents of a child widget
+    within a frame. If the widget exceeds the size of the frame, the
+    view can provide scroll bars so that the entire area of the child
+    widget can be viewed. The child widget must be specified with
+    setWidget(). For example:
 
-    The child widget must be specified with setWidget(); it can be
-    retrieved with widget(). The view can be made to be resizable with
-    the setWidgetResizable() function.
+    \code
+        QLabel imageLabel = new QLabel;
+        QImage image("happyguy.png");
+        imageLabel->setPixmap(QPixmap::fromImage(image));
 
-    When using a scroll area to display the contents of a custom widget,
-    it is important to ensure that the \l{QWidget::sizeHint}{size hint} of the
-    child widget is set to a suitable value. If a standard QWidget is used
-    for the child widget, it may be necessary to call
-    QWidget::setMinimumSize() to ensure that the contents of the widget are
-    shown correctly within the scroll area.
+        scrollArea = new QScrollArea;
+        scrollArea->setBackgroundRole(QPalette::Dark);
+        scrollArea->setWidget(imageLabel);
+    \endcode
+
+    The code above creates a scroll area (shown in the images below)
+    containing an image label. When scaling the image, the scroll area
+    can provide the necessary scroll bars:
+
+    \table
+    \row
+    \o \inlineimage qscrollarea-noscrollbars.png
+    \o \inlineimage qscrollarea-onescrollbar.png
+    \o \inlineimage qscrollarea-twoscrollbars.png
+    \endtable
+
+    The scroll bars appearance depends on the currently set \l
+    {Qt::ScrollBarPolicy}{scroll bar policies}. You can control the
+    appearance of the scroll bars using the inherited functionality
+    from QAbstractScrollArea.
+
+    For example, you can set the
+    QAbstractScrollArea::horizontalScrollBarPolicy and
+    QAbstractScrollArea::verticalScrollBarPolicy properties. Or if you
+    want the scroll bars to adjust dynamically when the contents of
+    the scroll area changes, you can use the \l
+    {QAbstractScrollArea::horizontalScrollBar()}{horizontalScrollBar()}
+    and \l
+    {QAbstractScrollArea::verticalScrollBar()}{verticalScrollBar()}
+    functions (which enable you to access the scroll bars) and set the
+    scroll bars' values whenever the scroll area's contents change,
+    using the QScrollBar::setValue() function.
+
+    You can retrieve the child widget usning the widget()
+    function. The view can be made to be resizable with the
+    setWidgetResizable() function.
+
+    When using a scroll area to display the contents of a custom
+    widget, it is important to ensure that the
+    \l{QWidget::sizeHint}{size hint} of the child widget is set to a
+    suitable value. If a standard QWidget is used for the child
+    widget, it may be necessary to call QWidget::setMinimumSize() to
+    ensure that the contents of the widget are shown correctly within
+    the scroll area.
+
+    For a complete example using the QScrollArea class, see the \l
+    {widgets/imageviewer}{ImageViewer example}. The example shows how
+    to combine QLabel and QScrollArea to display an image.
+
+    \sa QAbstractScrollArea, QScrollBar
 */
 
 
 /*!
-    Constructs a scroll area with the given \a parent, and with no
-    widget; see setWidget().
+    Constructs an empty scroll area with the given \a parent.
+
+    \sa setWidget()
 */
 QScrollArea::QScrollArea(QWidget *parent)
     :QAbstractScrollArea(*new QScrollAreaPrivate,parent)
@@ -72,7 +121,9 @@ QScrollArea::QScrollArea(QWidget *parent)
 }
 
 /*!
-    Destroys the scroll area.
+    Destroys the scroll area and its child widget.
+
+    \sa setWidget()
 */
 QScrollArea::~QScrollArea()
 {
@@ -103,7 +154,7 @@ void QScrollAreaPrivate::updateScrollBars()
 }
 
 /*!
-    Returns the view widget's widget, or 0 if there is none.
+    Returns the scroll area's widget, or 0 if there is none.
 
     \sa setWidget()
 */
@@ -115,10 +166,13 @@ QWidget *QScrollArea::widget() const
 }
 
 /*!
-    Set's the view widget's widget to \a w.
+    \fn void QScrollArea::setWidget(QWidget *widget)
 
-    \a w becomes a child of the scroll area, and will be destroyed
-    when the scroll area is deleted or when a new view widget is set.
+    Sets the scroll area's \a widget.
+
+    The \a widget becomes a child of the scroll area, and will be
+    destroyed when the scroll area is deleted or when a new widget is
+    set.
 
     \sa widget()
 */
@@ -145,8 +199,11 @@ void QScrollArea::setWidget(QWidget *w)
 
 }
 
-/*!  Removes the view widget's widget from the view, and passes
-  ownership of the widget to the caller.
+/*!
+    Removes the scroll area's widget, and passes ownership of the
+    widget to the caller.
+
+    \sa widget()
  */
 QWidget *QScrollArea::takeWidget()
 {
@@ -158,7 +215,8 @@ QWidget *QScrollArea::takeWidget()
     return w;
 }
 
-/*!\reimp
+/*!
+    \reimp
  */
 bool QScrollArea::event(QEvent *e)
 {
@@ -178,7 +236,8 @@ bool QScrollArea::event(QEvent *e)
 }
 
 
-/*!\reimp
+/*!
+    \reimp
  */
 bool QScrollArea::eventFilter(QObject *o, QEvent *e)
 {
@@ -212,7 +271,8 @@ bool QScrollArea::eventFilter(QObject *o, QEvent *e)
     return false;
 }
 
-/*! \reimp
+/*!
+    \reimp
  */
 void QScrollArea::resizeEvent(QResizeEvent *)
 {
@@ -238,14 +298,15 @@ void QScrollArea::scrollContentsBy(int, int)
     \property QScrollArea::widgetResizable
     \brief whether the scroll area should resize the view widget
 
-    If this property is set to false (the default), the view honors
-    the size of its widget. Regardless of this property, you can
-    programmatically resize the widget using widget()->resize(), and
-    the scroll area will automatically adjust itself to the new size.
+    If this property is set to false (the default), the scroll area
+    honors the size of its widget. Regardless of this property, you
+    can programmatically resize the widget using widget()->resize(),
+    and the scroll area will automatically adjust itself to the new
+    size.
 
-    If this property is set to true, the view will automatically
-    resize the widget in order to avoid scroll bars where they can be
-    avoided, or to take advantage of extra space.
+    If this property is set to true, the scroll area will
+    automatically resize the widget in order to avoid scroll bars
+    where they can be avoided, or to take advantage of extra space.
 */
 bool QScrollArea::widgetResizable() const
 {
@@ -261,7 +322,8 @@ void QScrollArea::setWidgetResizable(bool resizable)
     d->updateScrollBars();
 }
 
-/*!\reimp
+/*!
+    \reimp
  */
 QSize QScrollArea::sizeHint() const
 {
@@ -285,7 +347,8 @@ QSize QScrollArea::sizeHint() const
 
 
 
-/*!\reimp
+/*!
+    \reimp
  */
 bool QScrollArea::focusNextPrevChild(bool next)
 {
