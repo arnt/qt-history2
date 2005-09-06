@@ -55,8 +55,8 @@ uint ShadeWidget::colorAt(int x)
         if (pts.at(i-1).x() <= x && pts.at(i).x() >= x) {
             QLineF l(pts.at(i-1), pts.at(i));
             l.setLength(l.length() * ((x - l.x1()) / l.dx()));
-            return m_shade.pixel(qRound(qMin(l.x2(), (double(m_shade.width() - 1)))),
-                                 qRound(qMin(l.y2(), double(m_shade.height() - 1))));
+            return m_shade.pixel(qRound(qMin(l.x2(), (qreal(m_shade.width() - 1)))),
+                                 qRound(qMin(l.y2(), qreal(m_shade.height() - 1))));
         }
     }
     return 0;
