@@ -443,10 +443,23 @@ QRasterPaintEngine::QRasterPaintEngine()
                    QPaintEngine::PaintEngineFeatures(AllFeatures)
         )
 {
+    init();
+}
+
+QRasterPaintEngine::QRasterPaintEngine(QRasterPaintEnginePrivate &dd)
+    : QPaintEngine(dd, QPaintEngine::PaintEngineFeatures(AllFeatures))
+{
+    init();
+}
+
+void QRasterPaintEngine::init()
+{
     Q_D(QRasterPaintEngine);
 
     d->rasterBuffer = new QRasterBuffer();
+#ifdef Q_WS_WIN
     d->fontRasterBuffer = new QRasterBuffer();
+#endif
     d->outlineMapper = new QFTOutlineMapper;
     if (!qt_gray_raster || !qt_black_raster) {
         qt_initialize_ft();
@@ -469,38 +482,16 @@ QRasterPaintEngine::QRasterPaintEngine()
 }
 
 
-QRasterPaintEngine::QRasterPaintEngine(QRasterPaintEnginePrivate &dd)
-    : QPaintEngine(dd, QPaintEngine::PaintEngineFeatures(AllFeatures))
-{
-    Q_D(QRasterPaintEngine);
-
-    d->rasterBuffer = new QRasterBuffer();
-    d->fontRasterBuffer = new QRasterBuffer();
-    d->outlineMapper = new QFTOutlineMapper;
-    if (!qt_gray_raster || !qt_black_raster) {
-        qt_initialize_ft();
-    };
-
-    d->fillData = new FillData;
-    d->solidFillData = new SolidFillData;
-    d->textureFillData = new TextureFillData;
-    d->linearGradientData = new LinearGradientData;
-    d->radialGradientData = new RadialGradientData;
-    d->conicalGradientData = new ConicalGradientData;
-
-    d->flushOnEnd = true;
-}
-
-
-
 QRasterPaintEngine::~QRasterPaintEngine()
 {
     Q_D(QRasterPaintEngine);
 
     delete d->rasterBuffer;
     delete d->outlineMapper;
+#ifdef Q_WS_WIN
     delete d->fontRasterBuffer;
-
+#endif
+    
     delete d->fillData;
     delete d->solidFillData;
     delete d->textureFillData;

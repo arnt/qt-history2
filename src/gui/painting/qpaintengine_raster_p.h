@@ -118,6 +118,8 @@ public:
 
 protected:
     QRasterPaintEngine(QRasterPaintEnginePrivate &d);
+private:
+    void init();
 };
 
 
@@ -160,8 +162,10 @@ public:
     QPaintDevice *device;
     QFTOutlineMapper *outlineMapper;
     QRasterBuffer *rasterBuffer;
+#ifdef Q_WS_WIN
     QRasterBuffer *fontRasterBuffer;
-
+#endif
+    
     QDataBuffer<qreal> stopPoints;
     QDataBuffer<uint> stopColors;
 
