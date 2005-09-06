@@ -77,7 +77,7 @@ public:
     const QString &name() const { return rgnName; }
     const QString &caption() const { return rgnCaption; }
     QWSClient* client() const { return c; }
-    QRegion requestedRegion() const { return requested_region; }
+    const QRegion &requestedRegion() const { return requested_region; }
 //    QRegion allocatedRegion() const { return allocated_region; }
     bool isVisible() const { return !requested_region.isEmpty(); }
 //    bool isPartiallyObscured() const { return requested_region!=allocated_region; }
@@ -89,6 +89,10 @@ public:
     void hide();
     void setActiveWindow();
 
+    bool isOpaque() const {return opaque && _opacity == 255;}
+    uint opacity() const { return _opacity; }
+    QWSBackingStore *backingStore() { return _backingStore; }
+
 private:
     bool hidden() const { return requested_region.isEmpty(); }
     bool forClient(const QWSClient* cl) const { return cl==c; }
@@ -96,14 +100,11 @@ private:
     void setName(const QString &n);
     void setCaption(const QString &c);
 
-    bool isOpaque() const {return opaque && opacity == 255;}
-
     void focus(bool get);
     int focusPriority() const { return last_focus_time; }
     void operation(QWSWindowOperationEvent::Operation o);
     void shuttingDown() { last_focus_time=0; }
 
-    void bltToScreen(const QRegion&);
 private:
     int id;
     QString rgnName;
@@ -115,8 +116,8 @@ private:
 //    QRegion allocated_region;
     QRegion exposed;
     int last_focus_time;
-    QWSBackingStore *backingStore;
-    uchar opacity;
+    QWSBackingStore *_backingStore;
+    uint _opacity;
     bool opaque;
     QWSWindowData *d;
 #ifdef QT3_SUPPORT
@@ -154,7 +155,7 @@ private:
 
 class QWSMouseHandler;
 struct QWSCommandStruct;
-class QRasterPaintEngine;
+
 class QWSServer : public QObject
 {
     friend class QCopChannel;
@@ -238,7 +239,7 @@ public:
     QWSWindow *windowAt(const QPoint& pos);
 
     // For debugging only at this time
-    const QList<QWSWindow*> clientWindows() { return windows; }
+    const QList<QWSWindow*> &clientWindows() { return windows; }
 
     void openMouse();
     void closeMouse();
@@ -282,6 +283,8 @@ public:
     static void setCursorVisible(bool);
     static bool isCursorVisible();
 #endif
+
+    const QBrush &backgroundBrush() const { return *bgBrush; }
 
     enum WindowEvent { Create=0x0001, Destroy=0x0002, Hide=0x0004, Show=0x0008,
                        Raise=0x0010, Lower=0x0020, Geometry=0x0040, Active = 0x0080,
@@ -413,8 +416,6 @@ private:
     uchar* sharedram;
     int ramlen;
 
-    QRasterPaintEngine *paintEngine;
-
     ClientMap clientMap;
 #ifndef QT_NO_QWS_PROPERTIES
     QWSPropertyManager propertyManager;
@@ -459,9 +460,6 @@ private:
     void raiseWindow(QWSWindow *, int = 0);
     void lowerWindow(QWSWindow *, int = -1);
     void exposeRegion(QRegion , int index = 0);
-
-    void compose(int index, QRegion exposed, QRegion &blend, QPixmap &blendbuffer, int changing);
-    void paintBackground(const QRegion &);
 
     void setCursor(QWSCursor *curs);
 

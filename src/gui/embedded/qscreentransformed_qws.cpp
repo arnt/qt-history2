@@ -16,7 +16,6 @@
 
 #include "qscreentransformed_qws.h"
 #include <qvector.h>
-#include <private/qpaintengine_raster_p.h>
 #include <private/qpainter_p.h>
 #include <qdebug.h>
 
@@ -73,69 +72,6 @@ void QTransformedScreenCursor::set(const QImage &image, int hotx, int hoty)
     QT_TRANS_CURSOR_BASE::set(rimg, tp.x(), tp.y());
 }
 #endif
-
-// -------------------------------------------------------------------------------------------------
-// Transformed PaintEngine
-// -------------------------------------------------------------------------------------------------
-class QTransformedPaintEnginePrivate;
-
-class QTransformedPaintEngine : public QT_TRANS_PAINTENGINE_BASE
-{
-    Q_DECLARE_PRIVATE(QTransformedPaintEngine)
-
-public:
-    QTransformedPaintEngine(QTransformedScreen *s);
-
-    void updateTransformation();
-    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
-
-    QTransformedScreen::Transformation cur_trans;
-    QTransformedScreen *screen;
-};
-
-
-// ----------------------------------------------
-// Transformed PaintEngine Private
-// ----------------------------------------------
-class QTransformedPaintEnginePrivate : public QT_TRANS_PAINTENGINE_BASE_P
-{
-    Q_DECLARE_PUBLIC(QTransformedPaintEngine)
-
-public:
-    // Nothing for now
-};
-
-
-QTransformedPaintEngine::QTransformedPaintEngine(QTransformedScreen *s)
-    : QT_TRANS_PAINTENGINE_BASE(*(new QTransformedPaintEnginePrivate)), screen(s)
-{
-    cur_trans = QTransformedScreen::None;
-    qDebug() << "Created QTransformedPaintEngine!";
-}
-
-void QTransformedPaintEngine::updateTransformation()
-{
-    if (cur_trans == screen->transformOrientation())
-        return;
-
-    Q_D(QTransformedPaintEngine);
-    cur_trans = (QTransformedScreen::Transformation)screen->transformOrientation();
-    d->bilinear = (cur_trans != QTransformedScreen::None
-                   && cur_trans != QTransformedScreen::Rot90
-                   && cur_trans != QTransformedScreen::Rot180
-                   && cur_trans != QTransformedScreen::Rot270);
-
-    updateMatrix(screen->matrix());
-}
-
-void QTransformedPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
-{
-//    updateClipPath(QPainterPath(), Qt::NoClip); // ####
-
-    updateTransformation(); // for rotated desktops
-    QT_TRANS_PAINTENGINE_BASE::drawPixmap(r, pm, sr);
-}
-
 
 // -------------------------------------------------------------------------------------------------
 // Transformed Screen
@@ -500,46 +436,5 @@ QRegion QTransformedScreen::mapFromDevice(const QRegion &rgn, const QSize &s) co
     return trgn;
 }
 #endif
-
-QPaintEngine *QTransformedScreen::createPaintEngine(unsigned char *bytes, int w, int h, int d,
-                                                    int linestep)
-{
-    QTransformedPaintEngine *pe = 0;
-    QImage::Format format;
-
-    //##### endianness #####
-    switch (d) {
-    case 1:
-        format = QImage::Format_MonoLSB;
-        break;
-#if 0
-    case 2:
-        format = QImage::Format_Grayscale2LSB;
-        break;
-#endif
-    case 4:
-        format = QImage::Format_Grayscale4LSB;
-        break;
-    case 8:
-        format = QImage::Format_Indexed8;
-        break;
-    case 16:
-        format = QImage::Format_RGB16;
-        break;
-    case 32:
-        format = QImage::Format_RGB32;
-        break;
-    default:
-        qWarning("QScreen::createPaintEngine does not support depth %d", d);
-        return 0;
-    }
-
-    QImage screenimage(bytes, dw, dh, format); //### linestep???
-
-    pe = new QTransformedPaintEngine((QTransformedScreen *)this);
-    pe->begin(&screenimage);
-
-    return pe;
-}
 
 #endif // QT_NO_QWS_TRANSFORMED

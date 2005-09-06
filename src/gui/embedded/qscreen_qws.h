@@ -24,9 +24,10 @@
 QT_MODULE(Gui)
 
 class QScreenCursor;
-class QPaintEngine;
+class QBrush;
+class QWSWindow;
 
-#if !defined(QT_NO_QWS_DEPTH_16) || !defined(QT_NO_QWS_DEPTH_16)
+#if !defined(QT_NO_QWS_DEPTH_16)
 # ifndef QT_QWS_DEPTH16_RGB
 #  define QT_QWS_DEPTH16_RGB 565
 # endif
@@ -182,9 +183,6 @@ public:
     virtual void setMode(int,int,int) = 0;
     virtual bool supportsDepth(int) const;
 
-    virtual QPaintEngine * createPaintEngine(unsigned char *addr,int w, int h, int d, int linestep);
-    QPaintEngine *createScreenEngine();
-
     virtual void save();
     virtual void restore();
     virtual void blank(bool on);
@@ -246,6 +244,15 @@ public:
     virtual void haltUpdates();
     virtual void resumeUpdates();
 
+
+    // composition manager methods
+    virtual void exposeRegion(QRegion r, int changing);
+    virtual void refreshBackground();
+
+    // these work directly on the screen
+    virtual void blit(const QPixmap &pm, const QPoint &topLeft, const QRegion &region);
+    virtual void solidFill(const QColor &color, const QRegion &region);
+    void blit(QWSWindow *bs, const QRegion &clip);
 protected:
 
     // Only used without QT_NO_QWS_REPEATER, but included so that
@@ -292,6 +299,10 @@ protected:
 
     friend class QWSServer;
     static ClearCacheFunc clearCacheFunc;
+    
+private:
+    void compose(int level, QRegion exposed, QRegion &blend, QPixmap &blendbuffer, int changing_level);
+    void paintBackground(const QRegion &);
 };
 
 extern QScreen * qt_screen;

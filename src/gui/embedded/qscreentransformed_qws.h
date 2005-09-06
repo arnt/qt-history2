@@ -70,8 +70,6 @@ public:
     //QImage mapToDevice(const QImage &) const;
     //QImage mapFromDevice(const QImage &) const;
 
-    QPaintEngine *createPaintEngine(unsigned char *addr,int w, int h, int d, int linestep);
-
 private:
     QMatrix deltaCompensation(int deg);
 

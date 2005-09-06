@@ -153,108 +153,8 @@ static QWSInputMethod *current_IM = 0;
 
 static QWSWindow *current_IM_composing_win = 0;
 static int current_IM_winId = -1;
-static bool force_reject_strokeIM = 0;
+//static bool force_reject_strokeIM = 0;
 #endif
-
-void QWSWindow::bltToScreen(const QRegion &globalrgn)
-{
-    QRasterPaintEngine *pe = qwsServer->paintEngine;
-
-    QPixmap *buf = backingStore->pixmap();
-
-    if (!buf || buf->isNull())
-        return;
-
-    QRegion bltRegion = requested_region & globalrgn;
-
-    if (bltRegion.isEmpty())
-        return;
-
-    QPoint topLeft = requested_region.boundingRect().topLeft();
-
-    pe->updateClipRegion(bltRegion, Qt::ReplaceClip);
-
-    backingStore->lock();
-    QRectF destR(topLeft.x(),topLeft.y(), buf->width(), buf->height());
-    QRectF sourceR(0, 0, buf->width(), buf->height());
-    pe->drawPixmap(destR, *buf, sourceR);
-    backingStore->unlock();
-}
-
-void QWSServer::compose(int level, QRegion exposed, QRegion &blend, QPixmap &blendbuffer, int changing_level)
-{
-    bool above_changing = level < changing_level; //0 is topmost
-
-    QWSWindow *win = windows.value(level); //null ptr means background
-
-    QRegion exposedBelow;
-    bool opaque = true;
-
-    if (win) {
-        opaque = win->isOpaque();
-        if (opaque) {
-            exposedBelow = exposed - win->requested_region;
-            if (above_changing)
-                blend -= win->requested_region;
-        } else {
-            blend += exposed & win->requested_region;
-            exposedBelow = exposed;
-        }
-    }
-    if (win && !exposedBelow.isEmpty()) {
-        compose(level+1, exposedBelow, blend, blendbuffer, changing_level);
-    } else {
-        QSize blendSize = blend.boundingRect().size();
-        if (!blendSize.isNull())
-            blendbuffer = QPixmap(blendSize);
-    }
-    if (!win) {
-        paintBackground(exposed-blend);
-    } else if (!above_changing) {
-        win->bltToScreen(exposed-blend);
-    }
-    QRegion blendRegion = exposed&blend;
-    if (win)
-        blendRegion &= win->requested_region;
-    if (!blendRegion.isEmpty()) {
-        QPainter p(&blendbuffer);
-        QRegion clipRgn = blendRegion;
-        QPoint blendOffset = blend.boundingRect().topLeft();
-        clipRgn.translate(-blendOffset);
-        p.setClipRegion(clipRgn); //or should we translate the painter instead???
-        if (!win) { //background
-            if (bgBrush->style() != Qt::NoBrush) {
-                p.setBrushOrigin(-blendOffset);
-                p.fillRect(clipRgn.boundingRect(), *bgBrush);
-            }
-        } else {
-            uchar opacity = win->opacity;
-            QPixmap *buf = win->backingStore->pixmap();
-            QPoint topLeft = win->requested_region.boundingRect().topLeft();
-            Q_ASSERT (buf && !buf->isNull());
-            if (opacity == 255) {
-                win->backingStore->lock();
-                p.drawPixmap(topLeft-blendOffset,*buf);
-                win->backingStore->unlock();
-            } else {
-                QPixmap yuck(blendRegion.boundingRect().size());
-                yuck.fill(QColor(0,0,0,opacity));
-
-                QPainter pp;
-                pp.begin(&yuck);
-                pp.setCompositionMode(QPainter::CompositionMode_SourceIn);
-                win->backingStore->lock();
-                pp.drawPixmap(topLeft-blendRegion.boundingRect().topLeft(), *buf);
-                win->backingStore->unlock();
-                pp.end();
-
-                p.drawPixmap(blendRegion.boundingRect().topLeft()-blendOffset, yuck);
-
-            }
-        }
-    }
-}
-
 
 
 //#define QWS_REGION_DEBUG
@@ -348,9 +248,9 @@ void QWSServer::compose(int level, QRegion exposed, QRegion &blend, QPixmap &ble
 
 QWSWindow::QWSWindow(int i, QWSClient* client)
         : id(i), modified(false),
-          onTop(false), c(client), last_focus_time(0), opacity(255), opaque(true), d(0)
+          onTop(false), c(client), last_focus_time(0), _opacity(255), opaque(true), d(0)
 {
-    backingStore = new QWSBackingStore;
+    _backingStore = new QWSBackingStore;
 }
 
 /*!
@@ -437,7 +337,7 @@ QWSWindow::~QWSWindow()
     if (current_IM_composing_win == this)
         current_IM_composing_win = 0;
 #endif
-    delete backingStore;
+    delete _backingStore;
 }
 
 
@@ -924,43 +824,41 @@ void QWSServer::clientClosed()
     QCopChannel::detach(cl);
 #endif
 
+    // Shut down all windows for this client
+    for (int i = 0; i < windows.size(); ++i) {
+        QWSWindow* w = windows.at(i);
+        if (w->forClient(cl))
+            w->shuttingDown();
+    }
+
+    // Delete all windows for this client
     QRegion exposed;
-    {
-        // Shut down all windows for this client
-        for (int i = 0; i < windows.size(); ++i) {
-            QWSWindow* w = windows.at(i);
-            if (w->forClient(cl))
-                w->shuttingDown();
-        }
-    }
-    {
-        // Delete all windows for this client
-        int i = 0;
-        while (i < windows.size()) {
-            QWSWindow* w = windows.at(i);
-            if (w->forClient(cl)) {
-                w->c = 0; //so we don't send events to it anymore
-                releaseMouse(w);
-                releaseKeyboard(w);
-                exposed += w->requestedRegion(); //### too much, but how often do we do this...
+    i = 0;
+    while (i < windows.size()) {
+        QWSWindow* w = windows.at(i);
+        if (w->forClient(cl)) {
+            w->c = 0; //so we don't send events to it anymore
+            releaseMouse(w);
+            releaseKeyboard(w);
+            exposed += w->requestedRegion(); //### too much, but how often do we do this...
 //                rgnMan->remove(w->allocationIndex());
-                if (focusw == w)
-                    setFocus(focusw,0);
-                if (mouseGrabber == w)
-                    releaseMouse(w);
-                windows.removeAll(w);
+            if (focusw == w)
+                setFocus(focusw,0);
+            if (mouseGrabber == w)
+                releaseMouse(w);
+            windows.removeAll(w);
 #ifndef QT_NO_QWS_PROPERTIES
-                manager()->removeProperties(w->winId());
+            manager()->removeProperties(w->winId());
 #endif
-                emit windowEvent(w, Destroy);
-                d->deletedWindows.append(w);
-            } else {
-                ++i;
-            }
+            emit windowEvent(w, Destroy);
+            d->deletedWindows.append(w);
+        } else {
+            ++i;
         }
-        if (d->deletedWindows.count())
-            QTimer::singleShot(0, this, SLOT(deleteWindowsLater()));
     }
+    if (d->deletedWindows.count())
+        QTimer::singleShot(0, this, SLOT(deleteWindowsLater()));
+
     //qDebug("removing client %d with socket %d", cl->clientId(), cl->socket());
     clientMap.remove(cl->socket());
     if (cl == d->cursorClient)
@@ -968,6 +866,7 @@ void QWSServer::clientClosed()
     if (qt_screen->clearCacheFunc)
         (qt_screen->clearCacheFunc)(qt_screen, cl->clientId());  // remove any remaining cache entries.
     cl->deleteLater();
+    
     exposeRegion(exposed);
 //    syncRegions();
 }
@@ -1051,8 +950,8 @@ void QWSServer::doClient(QWSClient *client)
     if (( r & QTransportAuth::StatusMask ) == QTransportAuth::Deny )
     {
         qWarning( "Transport not valid" );
-        QWSCommand* command=client->readMoreCommand();
 #ifdef QTRANSPORTAUTH_DEBUG
+        QWSCommand* command = client->readMoreCommand();
         qDebug( "command denied " );
         qDebug() << command->type;
 #endif
@@ -1220,7 +1119,7 @@ void QWSServer::enablePainting(bool e)
 */
 void QWSServer::refresh()
 {
-    exposeRegion(QRegion(0,0,swidth,sheight));
+    exposeRegion(QRegion(0, 0, swidth, sheight));
 //    syncRegions();
 }
 
@@ -1293,7 +1192,7 @@ extern int *qt_last_x,*qt_last_y;
 */
 void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
 {
-    const int btnMask = Qt::LeftButton | Qt::RightButton | Qt::MidButton;
+    //const int btnMask = Qt::LeftButton | Qt::RightButton | Qt::MidButton;
     qwsServer->showCursor();
 
     if (state)
@@ -1597,12 +1496,10 @@ void QWSServer::beginDisplayReconfigure()
 */
 void QWSServer::endDisplayReconfigure()
 {
-    delete qwsServer->paintEngine;
     qt_screen->connect(QString());
     qwsServer->swidth = qt_screen->deviceWidth();
     qwsServer->sheight = qt_screen->deviceHeight();
 
-    qwsServer->paintEngine = static_cast<QRasterPaintEngine*>(qt_screen->createScreenEngine());
     QWSDisplay::ungrab();
 #ifndef QT_NO_QWS_CURSOR
     qt_screencursor->show();
@@ -1622,8 +1519,6 @@ void QWSServer::resetEngine()
     qt_screencursor->hide();
     qt_screencursor->show();
 #endif
-    delete qwsServer->paintEngine;
-    qwsServer->paintEngine = static_cast<QRasterPaintEngine*>(qt_screen->createScreenEngine());
 }
 
 
@@ -1809,7 +1704,7 @@ void QWSServer::invokeRegion(QWSRegionCommand *cmd, QWSClient *client)
     QRegion region;
     region.setRects(cmd->rectangles, cmd->simpleData.nrectangles);
 
-    changingw->backingStore->attach(cmd->simpleData.shmid, region.boundingRect().size());
+    changingw->backingStore()->attach(cmd->simpleData.shmid, region.boundingRect().size());
     changingw->opaque = cmd->simpleData.opaque;
 
     setWindowRegion(changingw, region);
@@ -1945,8 +1840,7 @@ void QWSServer::setFocus(QWSWindow* changingw, bool gain)
 
 
 
-void QWSServer::invokeSetOpacity(const QWSSetOpacityCommand *cmd,
-                                   QWSClient *client)
+void QWSServer::invokeSetOpacity(const QWSSetOpacityCommand *cmd, QWSClient *client)
 {
     int winId = cmd->simpleData.windowid;
     int opacity = cmd->simpleData.opacity;
@@ -1959,7 +1853,7 @@ void QWSServer::invokeSetOpacity(const QWSSetOpacityCommand *cmd,
     }
 
     int altitude = windows.indexOf(changingw);
-    changingw->opacity = opacity;
+    changingw->_opacity = opacity;
     exposeRegion(changingw->requested_region, altitude);
 }
 
@@ -2353,42 +2247,9 @@ void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
 }
 
 
-
-
-
-#if !defined(QT_NO_QWS_CURSOR) && !defined(QT_QWS_ACCEL_CURSOR)
-# define SCREEN_PAINT_START(r) bool swc_do_save=false; \
-                    if(qt_sw_cursor) \
-                        swc_do_save = qt_screencursor->restoreUnder(r);
-# define SCREEN_PAINT_END if(qt_sw_cursor && swc_do_save) \
-                        qt_screencursor->saveUnder();
-#else //QT_NO_QWS_CURSOR
-# define SCREEN_PAINT_START(r)
-# define SCREEN_PAINT_END
-#endif //QT_NO_QWS_CURSOR
-
 void QWSServer::exposeRegion(QRegion r, int changing)
 {
-    if (r.isEmpty())
-        return;
-
-    QRegion blendRegion;
-    QPixmap blendBuffer;
-
-    SCREEN_PAINT_START(r.boundingRect());
-
-    compose(0, r, blendRegion, blendBuffer, changing);
-    if (!blendBuffer.isNull()) {
-        //bltToScreen
-        QPoint topLeft = blendRegion.boundingRect().topLeft();
-
-        QRectF destR(topLeft.x(),topLeft.y(), blendBuffer.width(), blendBuffer.height());
-        QRectF sourceR(0,0, blendBuffer.width(), blendBuffer.height());
-        paintEngine->updateClipRegion(blendRegion, Qt::ReplaceClip);
-        paintEngine->drawPixmap(destR, blendBuffer, sourceR);
-    }
-    SCREEN_PAINT_END;
-    qt_screen->setDirty(r.boundingRect());
+    qt_screen->exposeRegion(r, changing);
 }
 
 /*!
@@ -2593,7 +2454,7 @@ void QWSServer::request_region(int wid, int shmid, bool opaque, QRegion region)
     }
     bool isShow = !changingw->isVisible() && !region.isEmpty();
 
-    changingw->backingStore->attach(shmid, region.boundingRect().size());
+    changingw->backingStore()->attach(shmid, region.boundingRect().size());
     changingw->opaque = opaque;
     setWindowRegion(changingw, region);
     if (isShow)
@@ -2641,48 +2502,16 @@ void QWSServer::openDisplay()
 //    rgnMan = qt_fbdpy->regionManager();
     swidth = qt_screen->deviceWidth();
     sheight = qt_screen->deviceHeight();
-    paintEngine = static_cast<QRasterPaintEngine*>(qt_screen->createScreenEngine());
 }
 
 void QWSServer::closeDisplay()
 {
-    delete paintEngine;
     qt_screen->shutdownDevice();
 }
 
-void QWSServer::paintBackground(const QRegion &rr)
-{
-    if (bgBrush->style() == Qt::NoBrush)
-        return;
-    QRegion r = rr;
-    if (!r.isEmpty()) {
-        Q_ASSERT (qt_fbdpy);
-
-        r = qt_screen->mapFromDevice(r, QSize(swidth, sheight));
-
-        paintEngine->updateClipRegion(r, Qt::ReplaceClip);
-        QRect br(r.boundingRect());
-
-        // background also handled in compose
-        paintEngine->qwsFillRect(br.x(), br.y(), br.width(), br.height(), *bgBrush);
-    }
-}
-
-
 void QWSServer::refreshBackground()
 {
-    QRegion r(0, 0, swidth, sheight);
-
-    for (int i=0; i<windows.size(); ++i) {
-        if (r.isEmpty())
-            return; // Nothing left for deeper windows
-        QWSWindow* w = windows.at(i);
-        r -= w->requestedRegion();
-    }
-    SCREEN_PAINT_START(r.boundingRect());
-    paintBackground(r);
-    SCREEN_PAINT_END;
-    qt_screen->setDirty(r.boundingRect());
+    qt_screen->refreshBackground();
 }
 
 

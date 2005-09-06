@@ -15,8 +15,8 @@
 
 #include "qcolormap.h"
 #include "qscreendriverfactory_qws.h"
-
-#include <private/qpaintengine_raster_p.h>
+#include "qwindowsystem_qws.h"
+#include "private/qwidget_qws_p.h"
 
 static const bool simple_8bpp_alloc = true; //### 8bpp support not done
 
@@ -531,8 +531,7 @@ void QScreenCursor::drawCursor()
     if (depth == 8) {
         unsigned char *dptr = (unsigned char *)dest;
         unsigned int srcval;
-        int av,r,g,b;
-        QRgb * screenclut=qt_screen->clut();
+        int av;
 //        simple_8bpp_alloc=true;
         for (int row = startRow; row < endRow; row++)
         {
@@ -545,6 +544,9 @@ void QScreenCursor::drawCursor()
                 }
 # if 0////ndef QT_NO_QWS_ALPHA_CURSOR
                 else if (av != 0) {
+                    int r,g,b;
+                    QRgb * screenclut=qt_screen->clut();
+                    
                     // This is absolutely silly - but we can so we do.
                     r = (srcval & 0xff0000) >> 16;
                     g = (srcval & 0xff00) >> 8;
@@ -669,7 +671,7 @@ void QScreenCursor::drawCursor()
 
   \ingroup qws
 
-  QScreens act as factories for the screen cursor and QPaintEngine. QLinuxFbScreen
+  QScreens act as factories for the screen cursor. QLinuxFbScreen
   manages a Linux framebuffer; accelerated drivers subclass QLinuxFbScreen.
   There can only be one screen in a Qtopia Core application.
 */
@@ -1118,61 +1120,334 @@ QScreen *qt_get_screen(int display_id, const char *spec)
 
 
 
-QPaintEngine * QScreen::createPaintEngine(unsigned char * bytes,int w,int h,int d, int linestep)
-{
-    QRasterPaintEngine *pe = 0;
-    //create screen QImage [pixmap?] somewhere ???
-    QImage::Format format;
+#if !defined(QT_NO_QWS_CURSOR) && !defined(QT_QWS_ACCEL_CURSOR)
+# define SCREEN_PAINT_START(r) bool swc_do_save=false; \
+                    if(qt_sw_cursor) \
+                        swc_do_save = qt_screencursor->restoreUnder(r);
+# define SCREEN_PAINT_END if(qt_sw_cursor && swc_do_save) \
+                        qt_screencursor->saveUnder();
+#else //QT_NO_QWS_CURSOR
+# define SCREEN_PAINT_START(r)
+# define SCREEN_PAINT_END
+#endif //QT_NO_QWS_CURSOR
 
-    //##### endianness #####
-    switch (d) {
-    case 1:
-        format = QImage::Format_MonoLSB;
-        break;
-#if 0
-    case 2:
-        format = QImage::Format_Grayscale2LSB;
-        break;
-#endif
-    case 4:
-        format = QImage::Format_Grayscale4LSB;
-        break;
-    case 8:
-        format = QImage::Format_Indexed8;
+void QScreen::exposeRegion(QRegion r, int changing)
+{
+    if (r.isEmpty())
+        return;
+
+    QRect bounds = r.boundingRect();
+    QRegion blendRegion;
+    QPixmap blendBuffer;
+
+    SCREEN_PAINT_START(r.boundingRect());
+
+    compose(0, r, blendRegion, blendBuffer, changing);
+    if (!blendBuffer.isNull()) {
+        //bltToScreen
+        QPoint topLeft = blendRegion.boundingRect().topLeft();
+        blit(blendBuffer, topLeft, blendRegion);
+    }
+    SCREEN_PAINT_END;
+    qt_screen->setDirty(r.boundingRect());
+}
+
+struct blit_data {
+    const QPixmap *pm;
+    uchar *data;
+    int lineStep;
+    int sx;
+    int sy;
+    int w;
+    int h;
+    int dx;
+    int dy;
+};
+
+typedef void (*blitFunc)(const blit_data *);
+
+static void blit_32_to_32(const blit_data *data)
+{
+    const int sbpl = data->pm->qwsBytesPerLine() / 4;
+    const int dbpl = data->lineStep / 4;
+
+    const uint *src = (const uint *)data->pm->qwsBits();
+    src += data->sy * sbpl + data->sx;
+    uint *dest = (uint *)data->data;
+    dest += data->dy * dbpl + data->dx;
+
+    int h = data->h;
+    int bytes = data->w * 4;
+    while (h) {
+        memcpy(dest, src, bytes);
+        src += sbpl;
+        dest += dbpl;
+        --h;
+    }
+}
+
+static void blit_32_to_16(const blit_data *data)
+{
+    const int sbpl = data->pm->qwsBytesPerLine() / 4;
+    const int dbpl = data->lineStep / 2;
+
+    const uint *src = (const uint *)data->pm->qwsBits();
+    src += data->sy * sbpl + data->sx;
+    ushort *dest = (ushort *)data->data;
+    dest += data->dy * dbpl + data->dx;
+
+    int h = data->h;
+    while (h) {
+        for (int i = 0; i < data->w; ++i) 
+            dest[i] = qt_convRgbTo16(src[i]);
+        src += sbpl;
+        dest += dbpl;
+        --h;
+    }
+}
+
+void QScreen::blit(const QPixmap &pm, const QPoint &topLeft, const QRegion &region)
+{
+    QVector<QRect> rects = region.rects();
+    QRect bound(0, 0, w, h);
+    bound &= QRect(topLeft, pm.size());
+    blit_data data;
+    data.pm = &pm;
+    data.data = this->data;
+    data.lineStep = lstep;
+    blitFunc func = 0;
+    switch(d) {
+    case 32:
+        func = blit_32_to_32;
         break;
     case 16:
-        format = QImage::Format_RGB16;
-        break;
-    case 32:
-        format = QImage::Format_RGB32;
+        func = blit_32_to_16;
         break;
     default:
-        qWarning("QScreen::createPaintEngine does not support depth %d", d);
-        return 0;
+        break;
     }
-    QImage screenimage(bytes, w, h, format); //### linestep???
-
-    pe = new QRasterPaintEngine;
-
-    pe->begin(&screenimage); //?????
-
-    return pe;
+    if (!func)
+        return;
+    for (int i = 0; i < rects.size(); ++i) {
+        QRect r = rects.at(i) & bound;
+        data.w = r.width();
+        data.h = r.height();
+        if (data.w <= 0 || data.h <= 0)
+            continue;
+        data.sx = r.x() - topLeft.x();
+        data.sy = r.y() - topLeft.y();
+        data.dx = r.x();
+        data.dy = r.y();
+        func(&data);
+    }
 }
 
-
-QPaintEngine *QScreen::createScreenEngine()
+void QScreen::blit(QWSWindow *win, const QRegion &clip)
 {
-    return createPaintEngine(data,w,h,d,lstep);
+    QWSBackingStore *bs = win->backingStore();
+    bs->lock();
+    QPixmap *pm = bs->pixmap();
+    QRegion rgn = clip & win->requestedRegion();
+    if (pm) 
+        blit(*pm, win->requestedRegion().boundingRect().topLeft(), rgn);
+    bs->unlock();
+}
+
+
+struct fill_data {
+    uint color;
+    uchar *data;
+    int lineStep;
+    int x;
+    int y;
+    int w;
+    int h;
+};
+
+typedef void (*fillFunc)(const fill_data *);
+
+static void fill_32(const fill_data *data)
+{
+    const int dbpl = data->lineStep / 4;
+
+    uint *dest = (uint *)data->data;
+    dest += data->y * dbpl + data->x;
+
+    int h = data->h;
+    while (h) {
+        for (int i = 0; i < data->w; ++i)
+            dest[i] = data->color;
+        dest += dbpl;
+        --h;
+    }
+}
+
+static void fill_16(const fill_data *data)
+{
+    const int dbpl = data->lineStep / 2;
+    ushort color = qt_convRgbTo16(data->color);
+
+    ushort *dest = (ushort *)data->data;
+    dest += data->y * dbpl + data->x;
+
+    int h = data->h;
+    while (h) {
+        for (int i = 0; i < data->w; ++i)
+            dest[i] = color;
+        dest += dbpl;
+        --h;
+    }
+}
+
+void QScreen::solidFill(const QColor &color, const QRegion &region)
+{
+    QVector<QRect> rects = region.rects();
+    QRect bound(0, 0, w, h);
+    fill_data data;
+    data.color = color.rgba();
+    data.data = this->data;
+    data.lineStep = lstep;
+    fillFunc func = 0;
+    switch(d) {
+    case 32:
+        func = fill_32;
+        break;
+    case 16:
+        func = fill_16;
+        break;
+    default:
+        break;
+    }
+    if (!func)
+        return;
+    for (int i = 0; i < rects.size(); ++i) {
+        QRect r = rects.at(i) & bound;
+        data.w = r.width();
+        data.h = r.height();
+        if (data.w <= 0 || data.h <= 0)
+            continue;
+        data.x = r.x();
+        data.y = r.y();
+        func(&data);
+    }
+}
+
+
+void QScreen::compose(int level, QRegion exposed, QRegion &blend, QPixmap &blendbuffer, int changing_level)
+{
+    bool above_changing = level < changing_level; //0 is topmost
+
+    QWSWindow *win = qwsServer->clientWindows().value(level); //null ptr means background
+
+    QRegion exposedBelow = exposed;
+    bool opaque = true;
+
+    if (win) {
+        opaque = win->isOpaque();
+        if (opaque) {
+            exposedBelow -= win->requestedRegion();
+            if (above_changing)
+                blend -= win->requestedRegion();
+        } else {
+            blend += exposed & win->requestedRegion();
+        }
+    }
+    if (win && !exposedBelow.isEmpty()) {
+        compose(level+1, exposedBelow, blend, blendbuffer, changing_level);
+    } else {
+        QSize blendSize = blend.boundingRect().size();
+        if (!blendSize.isNull())
+            blendbuffer = QPixmap(blendSize);
+    }
+    if (!win) {
+        paintBackground(exposed-blend);
+    } else if (!above_changing) {
+        blit(win, (exposed - blend));
+    }
+    QRegion blendRegion = exposed&blend;
+    if (win)
+        blendRegion &= win->requestedRegion();
+    if (!blendRegion.isEmpty()) {
+        QPainter p(&blendbuffer);
+        QRegion clipRgn = blendRegion;
+        QPoint blendOffset = blend.boundingRect().topLeft();
+        clipRgn.translate(-blendOffset);
+        p.setClipRegion(clipRgn); //or should we translate the painter instead???
+        if (!win) { //background
+            if (qwsServer->backgroundBrush().style() != Qt::NoBrush) {
+                p.setBrushOrigin(-blendOffset);
+                p.fillRect(clipRgn.boundingRect(), qwsServer->backgroundBrush());
+            }
+        } else {
+            uint opacity = win->opacity();
+            const QPixmap *buf = win->backingStore()->pixmap();
+            QPoint topLeft = win->requestedRegion().boundingRect().topLeft();
+            Q_ASSERT (buf && !buf->isNull());
+            if (opacity == 255) {
+                win->backingStore()->lock();
+                p.drawPixmap(topLeft-blendOffset,*buf);
+                win->backingStore()->unlock();
+            } else {
+                QPixmap yuck(blendRegion.boundingRect().size());
+                yuck.fill(QColor(0,0,0,opacity));
+
+                QPainter pp;
+                pp.begin(&yuck);
+                pp.setCompositionMode(QPainter::CompositionMode_SourceIn);
+                win->backingStore()->lock();
+                pp.drawPixmap(topLeft-blendRegion.boundingRect().topLeft(), *buf);
+                win->backingStore()->unlock();
+                pp.end();
+
+                p.drawPixmap(blendRegion.boundingRect().topLeft()-blendOffset, yuck);
+
+            }
+        }
+    }
 }
 
 
 
+void QScreen::paintBackground(const QRegion &rr)
+{
+    const QBrush &bg = qwsServer->backgroundBrush();
+    Qt::BrushStyle bs = bg.style();
+    if (bs == Qt::NoBrush || rr.isEmpty())
+        return;
+
+    QRegion r = qt_screen->mapFromDevice(rr, QSize(dw, dh));
+    
+    if (bs == Qt::SolidPattern) {
+        solidFill(bg.color(), r);
+    } else {
+        // ### Not really fast...
+        QRect br = r.boundingRect();
+        QPixmap pm(br.size());
+        
+        QPainter p(&pm);
+        p.setBrushOrigin(-br.topLeft());
+        p.fillRect(pm.rect(), bg);
+        blit(pm, br.topLeft(), r);
+    }
+}
 
 
+void QScreen::refreshBackground()
+{
+    QRegion r(0, 0, dw, dh);
 
-
-
-
+    const QList<QWSWindow *> windows = qwsServer->clientWindows();
+    for (int i = 0; i < windows.size(); ++i) {
+        if (r.isEmpty())
+            return; // Nothing left for deeper windows
+        QWSWindow* w = windows.at(i);
+        r -= w->requestedRegion();
+    }
+    SCREEN_PAINT_START(r.boundingRect());
+    paintBackground(r);
+    SCREEN_PAINT_END;
+    qt_screen->setDirty(r.boundingRect());
+}
 
 
 
