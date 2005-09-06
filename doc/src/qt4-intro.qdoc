@@ -186,7 +186,38 @@
     Constructors no longer take a "const char *name" parameter. If
     you want to specify a name for a QObject, you must call
     QObject::setObjectName() after construction. The object name is
-    now a QString.
+    now a QString. The reasons for this change are:
+
+    \list
+    \o  Code that used it looked confusing, for example:
+
+        \code
+        QLabel *label1 = new QLabel("Hello", this);
+        QLabel *label2 = new QLabel(this, "Hello");
+        \endcode
+
+        \c label1 is a QLabel that displays the text "Hello"; \c
+        label2 is a QLabel with no text, with the object name
+        "Hello".
+
+    \o  From surveys we did, most users didn't use the name, although
+        they blindly followed Qt's convention and provided a "const
+        char *name" in their subclasses's constructors. For example:
+
+        \code
+	MyWidget::MyWidget(QWidget *parent, const char *name)
+            : QWidget(parent, name)
+        {
+            ...
+        }
+        \endcode
+
+    \o  The name parameter was in Qt since version 1, and it always
+        was documented as: "It is not very useful in the current
+        version of Qt, but it will become increasingly important in
+        the future." Ten years later, it still hasn't fulfilled its
+        promise.
+    \endlist
 
     QWidget's \c WFlags data type has been split in two:
     Qt::WindowFlags specifies low-level window flags (the type of
@@ -198,8 +229,8 @@
     QWidget::setParent(). As a consequence, the constructors of most
     QWidget subclasses don't need to provide a \c WFlags parameter.
 
-    The \e parent parameter of all QObject classes in Qt defaults to a
-    null pointer, as it used to do in Qt 1. This enables a style of
+    The \e parent parameter of all QObject classes in Qt defaults to
+    a 0 pointer, as it used to do in Qt 1. This enables a style of
     programming where widgets are created without parents and then
     inserted in a layout, at which point the layout automatically
     reparents them.
