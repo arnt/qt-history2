@@ -906,16 +906,31 @@ static QString getPath(QSettings::Format format, QSettings::Scope scope)
     Q_ASSERT((int)QSettings::IniFormat == 1);
 
     QString homePath = QDir::homePath();
-    QMutexLocker locker(globalMutex());
-    PathHash *pathHash = pathHashFunc();
+    QString systemPath;
 
+    globalMutex()->lock();
+    PathHash *pathHash = pathHashFunc();
+    bool loadSystemPath = pathHash->isEmpty();
+    globalMutex()->unlock();
+
+    if (loadSystemPath) {
+        /*
+           QLibraryInfo::location() uses QSettings, so in order to
+           avoid a dead-lock, we can't hold the global mutex while
+           calling it.
+       */
+        systemPath = QLibraryInfo::location(QLibraryInfo::SettingsPath);
+        systemPath += QLatin1Char('/');
+    }
+    
+    QMutexLocker locker(globalMutex());
     if (pathHash->isEmpty()) {
         /*
-            Lazy initialization of pathHash. We initialize the
-            IniFormat paths and (on Unix) the NativeFormat paths.
-            (The NativeFormat paths are not configurable for the
-            Windows registry and the Mac CFPreferences.)
-        */
+           Lazy initialization of pathHash. We initialize the
+           IniFormat paths and (on Unix) the NativeFormat paths.
+           (The NativeFormat paths are not configurable for the
+           Windows registry and the Mac CFPreferences.)
+       */
 #ifdef Q_OS_WIN
         pathHash->insert(pathHashKey(QSettings::IniFormat, QSettings::UserScope),
                          windowsConfigPath(CSIDL_APPDATA) + QDir::separator());
@@ -940,9 +955,6 @@ static QString getPath(QSettings::Format format, QSettings::Scope scope)
             userPath += QLatin1String(env);
         }
         userPath += QLatin1Char('/');
-
-        QString systemPath = QLibraryInfo::location(QLibraryInfo::SettingsPath);
-        systemPath += QLatin1Char('/');
 
         pathHash->insert(pathHashKey(QSettings::IniFormat, QSettings::UserScope), userPath);
         pathHash->insert(pathHashKey(QSettings::IniFormat, QSettings::SystemScope), systemPath);
