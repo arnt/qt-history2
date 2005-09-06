@@ -176,6 +176,7 @@ HelpDialog::HelpDialog(QWidget *parent, MainWindow *h)
 
     indexModel = new IndexListModel(this);
     ui.listIndex->setModel(indexModel);
+    ui.listIndex->setLayoutMode(QListView::Batched);
 }
 
 void HelpDialog::initialize()
