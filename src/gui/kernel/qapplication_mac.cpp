@@ -1681,7 +1681,7 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
     static UInt32 tmp_unused_state = 0L;
     char translatedChar = KeyTranslate((void *)GetScriptVariable(smCurrentScript, smKCHRCache),
             (GetCurrentEventKeyModifiers() &
-             (kEventKeyModifierNumLockMask|shiftKey|
+             (kEventKeyModifierNumLockMask|shiftKey|cmdKey|
               rightShiftKey|alphaLock)) | keyCode,
             &tmp_unused_state);
     if(!translatedChar) {
