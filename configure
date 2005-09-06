@@ -1762,6 +1762,12 @@ else
         fi
         ARCH=powerpc
         ;;
+    *:*:s390*)
+    	if [ "$OPT_VERBOSE" = "yes" ]; then
+    	    echo "    IBM S/390 (s390)"
+    	fi
+    	ARCH=s390
+    	;;
     *:*:*)
         if [ "$OPT_VERBOSE" = "yes" ]; then
             echo "    Trying '$UNAME_MACHINE'..."
