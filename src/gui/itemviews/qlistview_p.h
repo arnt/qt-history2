@@ -279,11 +279,12 @@ public:
 
     void intersectingDynamicSet(const QRect &area) const;
     void intersectingStaticSet(const QRect &area) const;
-    inline void intersectingSet(const QRect &area) const
-        {  executePostedLayout();
-           QRect a = (q_func()->isRightToLeft() ? flipX(area) : area);
-           if (movement == QListView::Static) intersectingStaticSet(a);
-           else intersectingDynamicSet(a); }
+    inline void intersectingSet(const QRect &area, bool doLayout = true) const {
+        if (doLayout) executePostedLayout();
+        QRect a = (q_func()->isRightToLeft() ? flipX(area) : area);
+        if (movement == QListView::Static) intersectingStaticSet(a);
+        else intersectingDynamicSet(a);
+    }
 
     void createItems(int to);
     void drawItems(QPainter *painter, const QVector<QModelIndex> &indexes) const;
@@ -317,6 +318,7 @@ public:
     QRect draggedItemsRect() const;
 
     QModelIndex closestIndex(const QPoint &target, const QVector<QModelIndex> &candidates) const;
+    QSize itemSize(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
     bool selectionAllowed(const QModelIndex &index) const
     {
@@ -380,6 +382,8 @@ public:
     QVector<int> hiddenRows;
 
     int column;
+    bool uniformItemSizes;
+    mutable QSize cachedItemSize;
 };
 
 #endif // QT_NO_LISTVIEW

@@ -651,7 +651,7 @@ void QListView::dataChanged(const QModelIndex &topLeft, const QModelIndex &botto
         int bottom = qMin(d->tree.itemCount(), bottomRight.row() + 1);
         for (int row = topLeft.row(); row < bottom; ++row) {
             QModelIndex idx = d->model->index(row, d->column, d->root);
-            d->tree.item(row).resize(d->delegate->sizeHint(option, idx));
+            d->tree.item(row).resize(d->itemSize(option, idx));
         }
     }
     QAbstractItemView::dataChanged(topLeft, bottomRight);
@@ -924,7 +924,7 @@ void QListView::paintEvent(QPaintEvent *e)
 //         d->intersectingSet(rects.at(i).translated(horizontalOffset(), verticalOffset()));
 //         toBeRendered += d->intersectVector;
 //     }
-    d->intersectingSet(e->rect().translated(horizontalOffset(), verticalOffset()));
+    d->intersectingSet(e->rect().translated(horizontalOffset(), verticalOffset()), false);
     toBeRendered = d->intersectVector;
 
     const QPoint offset = d->scrollDelayOffset;
@@ -1252,7 +1252,7 @@ void QListView::updateGeometries()
     } else {
         QModelIndex index = model()->index(0, d->column, rootIndex());
         QStyleOptionViewItem option = viewOptions();
-        QSize size = itemDelegate()->sizeHint(option, index);
+        QSize size = d->itemSize(option, index);
 
         horizontalScrollBar()->setSingleStep(size.width() + d->spacing);
         horizontalScrollBar()->setPageStep(d->viewport->width());
@@ -1308,6 +1308,25 @@ int QListView::modelColumn() const
     return d->column;
 }
 
+/*!
+    \property QListView::uniformItemSizes
+    \brief whether all items in the listview have the same size
+
+    This property should only be set to true if it is guarantied that all items
+    in the view has the same size. This enables the view to do some
+    optimizations.
+*/
+void QListView::setUniformItemSizes(bool enable)
+{
+    Q_D(QListView);
+    d->uniformItemSizes = enable;
+}
+
+bool QListView::uniformItemSizes() const
+{
+    Q_D(const QListView);
+    return d->uniformItemSizes;
+}
 
 /*
  * private object implementation
@@ -1507,8 +1526,7 @@ void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
         } else {
             // if we are not using a grid, we need to find the deltas
             if (useItemSize) {
-                QModelIndex index = model->index(row, column, root);
-                QSize hint = delegate->sizeHint(option, index);
+                QSize hint = itemSize(option, model->index(row, column, root));
                 if (flow == QListView::LeftToRight) {
                     deltaFlowPosition = hint.width() + gap;
                     deltaSegHint = hint.height() + gap;
@@ -1719,7 +1737,7 @@ void QListViewPrivate::createItems(int to)
     QStyleOptionViewItem option = q->viewOptions();
     QModelIndex root = q->rootIndex();
     for (int row = count; row < to; ++row) {
-        size = delegate->sizeHint(option, model->index(row, column, root));
+        size = itemSize(option, model->index(row, column, root));
         QListViewItem item(QRect(0, 0, size.width(), size.height()), row); // default pos
         tree.appendItem(item);
     }
@@ -1781,9 +1799,7 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
         pos.setX(segmentPositions.at(s));
     }
 
-    QStyleOptionViewItem option = q->viewOptions();
-    QAbstractItemDelegate *del = q->itemDelegate();
-    QSize size = del->sizeHint(option, index);
+    QSize size = itemSize(q->viewOptions(), index);
     return QListViewItem(QRect(pos, size), index.row());
 }
 
@@ -1926,4 +1942,14 @@ QModelIndex QListViewPrivate::closestIndex(const QPoint &target,
     }
     return closest;
 }
+
+QSize QListViewPrivate::itemSize(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    if (!uniformItemSizes)
+        return delegate->sizeHint(option, index);
+    if (!cachedItemSize.isValid())
+        cachedItemSize = delegate->sizeHint(option, index);
+    return cachedItemSize;
+}
+
 #endif // QT_NO_LISTVIEW

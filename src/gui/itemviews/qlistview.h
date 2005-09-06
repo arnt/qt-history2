@@ -35,6 +35,7 @@ class Q_GUI_EXPORT QListView : public QAbstractItemView
     Q_PROPERTY(QSize gridSize READ gridSize WRITE setGridSize)
     Q_PROPERTY(ViewMode viewMode READ viewMode WRITE setViewMode)
     Q_PROPERTY(int modelColumn READ modelColumn WRITE setModelColumn)
+    Q_PROPERTY(bool uniformItemSizes READ uniformItemSizes WRITE setUniformItemSizes)
 
 public:
     enum Movement { Static, Free, Snap };
@@ -77,6 +78,9 @@ public:
 
     void setModelColumn(int column);
     int modelColumn() const;
+
+    void setUniformItemSizes(bool enable);
+    bool uniformItemSizes() const;
 
     QRect visualRect(const QModelIndex &index) const;
     void scrollTo(const QModelIndex &index, ScrollHint hint = EnsureVisible);
