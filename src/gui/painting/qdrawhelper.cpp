@@ -25,12 +25,20 @@ void qInitDrawhelperAsm() {}
 
 static const int fixed_scale = 1 << 16;
 static const int half_point = 1 << 15;
+static const int buffer_size = 2048;
 
-typedef uint QT_FASTCALL (*CompositionFunction)(uint dest, uint src);
+typedef void QT_FASTCALL (*CompositionFunction)(uint *dest, const uint *src, int length, int const_alpha);
 
-static uint QT_FASTCALL comp_func_Clear(uint, uint)
+static void QT_FASTCALL comp_func_Clear(uint *dest, const uint *, int length, int const_alpha)
 {
-    return 0;
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = 0;
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i)
+            dest[i] = BYTE_MUL(dest[i], ialpha);
+    }
 }
 
 /*
@@ -39,62 +47,113 @@ Dca' = Sca.Da + Sca.(1 - Da)
 Da'  = Sa.Da + Sa.(1 - Da)
      = Sa
 */
-static inline uint QT_FASTCALL comp_func_Source(uint, uint src)
+static void QT_FASTCALL comp_func_Source(uint *dest, const uint *src, int length, int const_alpha)
 {
-    return src;
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = src[i];
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i)
+            dest[i] = INTERPOLATE_PIXEL_255(src[i], const_alpha, dest[i], ialpha);
+    }
 }
 
-static inline uint QT_FASTCALL comp_func_Destination(uint dest, uint)
-{
-    return dest;
-}
 /*
 Dca' = Sca.Da + Sca.(1 - Da) + Dca.(1 - Sa)
      = Sca + Dca.(1 - Sa)
 Da'  = Sa.Da + Sa.(1 - Da) + Da.(1 - Sa)
      = Sa + Da - Sa.Da
 */
-static inline uint QT_FASTCALL comp_func_SourceOver(uint dest, uint src)
+static void QT_FASTCALL comp_func_SourceOver(uint *dest, const uint *src, int length, int const_alpha)
 {
-    return src + BYTE_MUL(dest, 255 - qAlpha(src));
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = src[i] + BYTE_MUL(dest[i], 255 - qAlpha(src[i]));
+    } else {
+        for (int i = 0; i < length; ++i) {
+            uint s = BYTE_MUL(src[i], const_alpha);
+            dest[i] = s + BYTE_MUL(dest[i], 255 - qAlpha(s));
+        }
+    }
 }
 
-static inline uint QT_FASTCALL comp_func_DestinationOver(uint dest, uint src)
+static void QT_FASTCALL comp_func_DestinationOver(uint *dest, const uint *src, int length, int const_alpha)
 {
-    return comp_func_SourceOver(src, dest);
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = dest[i] + BYTE_MUL(src[i], 255 - qAlpha(dest[i]));
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i) {
+            uint tmp = dest[i] + BYTE_MUL(src[i], 255 - qAlpha(dest[i]));
+            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+        }
+    }
 }
 
 /*
   Dca' = Sca.Da
   Da'  = Sa.Da
 */
-static inline uint QT_FASTCALL comp_func_SourceIn(uint dest, uint src)
+static void QT_FASTCALL comp_func_SourceIn(uint *dest, const uint *src, int length, int const_alpha)
 {
-    int dest_a = qAlpha(dest);
-
-    return BYTE_MUL(src, dest_a);
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = BYTE_MUL(src[i], qAlpha(dest[i]));
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i) {
+            uint tmp = BYTE_MUL(src[i], qAlpha(dest[i]));
+            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+        }
+    }
 }
 
-static inline uint QT_FASTCALL comp_func_DestinationIn(uint dest, uint src)
+static void QT_FASTCALL comp_func_DestinationIn(uint *dest, const uint *src, int length, int const_alpha)
 {
-    return comp_func_SourceIn(src, dest);
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = BYTE_MUL(dest[i], qAlpha(src[i]));
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i) {
+            uint tmp = BYTE_MUL(dest[i], qAlpha(src[i]));
+            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+        }
+    }
 }
 
 /*
  Dca' = Sca.(1 - Da)
  Da'  = Sa.(1 - Da)
 */
-static inline uint QT_FASTCALL comp_func_SourceOut(uint dest, uint src)
+static void QT_FASTCALL comp_func_SourceOut(uint *dest, const uint *src, int length, int const_alpha)
 {
-    int dest_ia  = (255 - qAlpha(dest));
-
-    return BYTE_MUL(src, dest_ia);
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = BYTE_MUL(src[i], 255 - qAlpha(dest[i]));
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i) {
+            uint tmp = BYTE_MUL(src[i], 255 - qAlpha(dest[i]));
+            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+        }
+    }
 }
 
-
-static inline uint QT_FASTCALL comp_func_DestinationOut(uint dest, uint src)
+static void QT_FASTCALL comp_func_DestinationOut(uint *dest, const uint *src, int length, int const_alpha)
 {
-    return comp_func_SourceOut(src, dest);
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = BYTE_MUL(dest[i], 255 - qAlpha(src[i]));
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i) {
+            uint tmp = BYTE_MUL(dest[i], 255 - qAlpha(src[i]));
+            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+        }
+    }
 }
 
 /*
@@ -103,18 +162,32 @@ static inline uint QT_FASTCALL comp_func_DestinationOut(uint dest, uint src)
   Da'  = Sa.Da + Da.(1 - Sa)
        = Da
 */
-static inline uint QT_FASTCALL comp_func_SourceAtop(uint dest, uint src)
+static void QT_FASTCALL comp_func_SourceAtop(uint *dest, const uint *src, int length, int const_alpha)
 {
-    int dest_a = qAlpha(dest);
-    int src_ia = 255 - qAlpha(src);
-
-    return INTERPOLATE_PIXEL_255(src, dest_a, dest, src_ia);
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = INTERPOLATE_PIXEL_255(src[i], qAlpha(dest[i]), dest[i], 255 - qAlpha(src[i]));
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i) {
+            uint tmp = INTERPOLATE_PIXEL_255(src[i], qAlpha(dest[i]), dest[i], 255 - qAlpha(src[i]));
+            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+        }
+    }
 }
 
-
-static inline uint QT_FASTCALL comp_func_DestinationAtop(uint dest, uint src)
+static void QT_FASTCALL comp_func_DestinationAtop(uint *dest, const uint *src, int length, int const_alpha)
 {
-    return comp_func_SourceAtop(src, dest);
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = INTERPOLATE_PIXEL_255(dest[i], qAlpha(src[i]), src[i], 255 - qAlpha(dest[i]));
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i) {
+            uint tmp = INTERPOLATE_PIXEL_255(dest[i], qAlpha(src[i]), src[i], 255 - qAlpha(dest[i]));
+            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+        }
+    }
 }
 
 /*
@@ -122,15 +195,19 @@ static inline uint QT_FASTCALL comp_func_DestinationAtop(uint dest, uint src)
   Da'  = Sa.(1 - Da) + Da.(1 - Sa)
        = Sa + Da - 2.Sa.Da
 */
-static inline uint QT_FASTCALL comp_func_XOR(uint dest, uint src)
+static void QT_FASTCALL comp_func_XOR(uint *dest, const uint *src, int length, int const_alpha)
 {
-    // X = 0; Y = 1; Z = 1;
-    int src_ia = (255 - qAlpha(src));
-    int dest_ia = (255 - qAlpha(dest));
-
-    return INTERPOLATE_PIXEL_255(src, dest_ia, dest, src_ia);
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = INTERPOLATE_PIXEL_255(src[i], 255 - qAlpha(dest[i]), dest[i], 255 - qAlpha(src[i]));
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i) {
+            uint tmp = INTERPOLATE_PIXEL_255(src[i], 255 - qAlpha(dest[i]), dest[i], 255 - qAlpha(src[i]));
+            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+        }
+    }
 }
-
 
 static CompositionFunction functionForMode(QPainter::CompositionMode mode)
 {
@@ -143,8 +220,6 @@ static CompositionFunction functionForMode(QPainter::CompositionMode mode)
         return comp_func_Clear;
     case QPainter::CompositionMode_Source:
         return comp_func_Source;
-    case QPainter::CompositionMode_Destination:
-        return comp_func_Destination;
     case QPainter::CompositionMode_SourceIn:
         return comp_func_SourceIn;
     case QPainter::CompositionMode_DestinationIn:
@@ -159,108 +234,76 @@ static CompositionFunction functionForMode(QPainter::CompositionMode mode)
         return comp_func_DestinationAtop;
     case QPainter::CompositionMode_Xor:
         return comp_func_XOR;
+    case QPainter::CompositionMode_Destination:
+        return 0;
     }
     return 0;
 }
 
 static void blend_color_argb(void *t, const QSpan *span, QPainter::CompositionMode mode, const BlendColorData *data)
 {
+    CompositionFunction func = functionForMode(mode);
+    if (!func)
+        return;
+    uint buffer[buffer_size];
+
     uint *target = ((uint *)t) + span->x;
     uint color = data->color;
-    if (mode == QPainter::CompositionMode_SourceOver) {
-        MASK(color, span->coverage);
-        int alpha = qAlpha(color);
-        if (!alpha)
-            return;
-        if (alpha != 0xff) {
-            const uint *end = target + span->len;
-            while (target < end) {
-                *target = comp_func_SourceOver(*target, color);
-                ++target;
-            }
-        } else {
-#if 1
-            const uint *end = target + span->len;
-            while (target < end) {
-                *target = color;
-                ++target;
-            }
-#else
-            sse_memfill(target, color, span->len);
-#endif
-        }
-    } else {
-        CompositionFunction func = functionForMode(mode);
-        const uint *end = target + span->len;
+    int length = span->len;
 
-        if (span->coverage == 255) {
-            while (target < end) {
-                *target = func(*target, color);
-                ++target;
-            }
-        } else {
-            int icov = 255 - span->coverage;
-            while (target < end) {
-                uint tmp = func(*target, color);
-                *target = INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov);
-                ++target;
-            }
-        }
+    {
+        // #####
+        int l = qMin(length, buffer_size);
+        for (int i = 0; i < l; ++i)
+            buffer[i] = color;
+    }
+    
+    while (length) {
+        int l = qMin(length, buffer_size);
+        func(target, buffer, l, span->coverage);
+        length -= l;
+        target += l;
     }
 }
-
+    
 static void blend_argb(void *t, const QSpan *span, const qreal dx, const qreal dy,
                        const void *ibits, const int image_width, const int image_height,
                        QPainter::CompositionMode mode)
 {
-    uint *target = ((uint *)t) + span->x;
-    uint *image_bits = (uint *)ibits;
+    CompositionFunction func = functionForMode(mode);
+    if (!func)
+        return;
+
     // #### take care of non integer dx/dy
     int x = qRound(dx);
     int y = qRound(dy);
-    if (y < 0 || y >= image_height)
+    if (y < 0 || y >= image_height || x > image_width)
         return;
-
-    const uint *src = image_bits + y*image_width + x;
-    const uint *end = target + span->len;
+    int length = span->len;
+    uint *target = ((uint *)t) + span->x;
+    const uint *src = (uint *)ibits + y*image_width + x;
     if (x < 0) {
         src -= x;
         target -= x;
+        length += x;
         x = 0;
     }
-    if (end - target > image_width)
-        end = target + image_width;
+    if (x + length > image_width)
+        length = image_width - x;
 
-    if (mode == QPainter::CompositionMode_Source && span->coverage == 255) {
-        while (target < end) {
-            *target++ = *src++;
-        }
-        return;
-    }
-
-
-    CompositionFunction func = functionForMode(mode);
-    if (span->coverage == 255) {
-        while (target < end) {
-            *target = func(*target, *src);
-            ++target;
-            ++src;
-        }
-    } else {
-        int icov = 255 - span->coverage;
-        while (target < end) {
-            uint tmp = func(*target, *src);
-            *target = INTERPOLATE_PIXEL_255(tmp, span->coverage, tmp, icov);
-            ++target;
-            ++src;
-        }
-    }
+    func(target, src, length, span->coverage);
 }
 
 static void blend_tiled_argb(void *t, const QSpan *span,
                              const qreal dx, const qreal dy,
-                             const void *ibits, const int image_width, const int image_height, QPainter::CompositionMode mode)
+                             const void *ibits, const int image_width, const int image_height,
+                             QPainter::CompositionMode mode)
 {
+    CompositionFunction func = functionForMode(mode);
+    if (!func)
+        return;
+    uint buffer[buffer_size];
+    
     uint *target = ((uint *)t) + span->x;
     uint *image_bits = (uint *)ibits;
     // #### take care of non integer dx/dy
@@ -273,21 +316,16 @@ static void blend_tiled_argb(void *t, const QSpan *span,
         x += image_width;
     if (y < 0)
         y += image_height;
-
-    CompositionFunction func = functionForMode(mode);
     const uint *src = image_bits + y*image_width;
-    if (span->coverage == 255) {
-        for (int i = x; i < x + span->len; ++i) {
-            *target = func(*target, src[i%image_width]);
-            ++target;
-        }
-    } else {
-        int icov = 255 - span->coverage;
-        for (int i = x; i < x + span->len; ++i) {
-            uint tmp = func(*target, src[i%image_width]);
-            *target = INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov);
-            ++target;
-        }
+
+    int length = span->len;
+    while (length) {
+        int l = qMin(length, buffer_size);
+        for (int i = 0; i < l; ++i)
+            buffer[i] = src[i%image_width];
+        func(target, buffer, l, span->coverage);
+        length -= l;
+        target += l;
     }
 }
 
@@ -296,6 +334,11 @@ static void blend_transformed_bilinear_argb(void *t, const QSpan *span,
                                             const void *ibits, const int image_width, const int image_height,
                                             QPainter::CompositionMode mode)
 {
+    CompositionFunction func = functionForMode(mode);
+    if (!func)
+        return;
+    uint buffer[buffer_size];
+    
     uint *target = ((uint *)t) + span->x;
     uint *image_bits = (uint *)ibits;
     int x = int((ix + dx * span->x) * fixed_scale) - half_point;
@@ -304,42 +347,46 @@ static void blend_transformed_bilinear_argb(void *t, const QSpan *span,
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
 
-    CompositionFunction func = functionForMode(mode);
-    int icov = 255 - span->coverage;
-    const uint *end = target + span->len;
-    while (target < end) {
-        int x1 = (x >> 16);
-        int x2 = x1 + 1;
-        int y1 = (y >> 16);
-        int y2 = y1 + 1;
+    int length = span->len;
+    while (length) {
+        int l = qMin(length, buffer_size);
+        const uint *end = buffer + l;
+        uint *b = buffer;
+        while (buffer < end) {
+            int x1 = (x >> 16);
+            int x2 = x1 + 1;
+            int y1 = (y >> 16);
+            int y2 = y1 + 1;
 
-        int distx = ((x - (x1 << 16)) >> 8);
-        int disty = ((y - (y1 << 16)) >> 8);
-        int idistx = 256 - distx;
-        int idisty = 256 - disty;
+            int distx = ((x - (x1 << 16)) >> 8);
+            int disty = ((y - (y1 << 16)) >> 8);
+            int idistx = 256 - distx;
+            int idisty = 256 - disty;
 
-        bool x1_out = ((x1 < 0) || (x1 >= image_width));
-        bool x2_out = ((x2 < 0) || (x2 >= image_width));
-        bool y1_out = ((y1 < 0) || (y1 >= image_height));
-        bool y2_out = ((y2 < 0) || (y2 >= image_height));
+            bool x1_out = ((x1 < 0) || (x1 >= image_width));
+            bool x2_out = ((x2 < 0) || (x2 >= image_width));
+            bool y1_out = ((y1 < 0) || (y1 >= image_height));
+            bool y2_out = ((y2 < 0) || (y2 >= image_height));
 
-        int y1_offset = y1 * image_width;
-        int y2_offset = y1_offset + image_width;
+            int y1_offset = y1 * image_width;
+            int y2_offset = y1_offset + image_width;
 
-        uint tl = (x1_out || y1_out) ? uint(0) : image_bits[y1_offset + x1];
-        uint tr = (x2_out || y1_out) ? uint(0) : image_bits[y1_offset + x2];
-        uint bl = (x1_out || y2_out) ? uint(0) : image_bits[y2_offset + x1];
-        uint br = (x2_out || y2_out) ? uint(0) : image_bits[y2_offset + x2];
+            uint tl = (x1_out || y1_out) ? uint(0) : image_bits[y1_offset + x1];
+            uint tr = (x2_out || y1_out) ? uint(0) : image_bits[y1_offset + x2];
+            uint bl = (x1_out || y2_out) ? uint(0) : image_bits[y2_offset + x1];
+            uint br = (x2_out || y2_out) ? uint(0) : image_bits[y2_offset + x2];
 
-        uint xtop = INTERPOLATE_PIXEL_256(tl, idistx, tr, distx);
-        uint xbot = INTERPOLATE_PIXEL_256(bl, idistx, br, distx);
-        uint res = INTERPOLATE_PIXEL_256(xtop, idisty, xbot, disty);
+            uint xtop = INTERPOLATE_PIXEL_256(tl, idistx, tr, distx);
+            uint xbot = INTERPOLATE_PIXEL_256(bl, idistx, br, distx);
+            *b = INTERPOLATE_PIXEL_256(xtop, idisty, xbot, disty);
+            ++b;
 
-        uint tmp = func(*target, res);
-        *target = icov ? INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov) : tmp;
-        x += fdx;
-        y += fdy;
-        ++target;
+            x += fdx;
+            y += fdy;
+        }
+        func(target, buffer, l, span->coverage);
+        target += l;
+        length -= l;
     }
 }
 
@@ -348,6 +395,11 @@ static void blend_transformed_bilinear_tiled_argb(void *t, const QSpan *span,
                                                   const void *ibits, const int image_width, const int image_height,
                                                   QPainter::CompositionMode mode)
 {
+    CompositionFunction func = functionForMode(mode);
+    if (!func)
+        return;
+    uint buffer[buffer_size];
+
     uint *target = ((uint *)t) + span->x;
     uint *image_bits = (uint *)ibits;
     int x = int((ix + dx * span->x) * fixed_scale) - half_point;
@@ -356,52 +408,55 @@ static void blend_transformed_bilinear_tiled_argb(void *t, const QSpan *span,
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
 
-    CompositionFunction func = functionForMode(mode);
-    int icov = 255 - span->coverage;
-    const uint *end = target + span->len;
-    while (target < end) {
-        int x1 = (x >> 16);
-        int x2 = (x1 + 1);
-        int y1 = (y >> 16);
-        int y2 = (y1 + 1);
+    int length = span->len;
+    while (length) {
+        int l = qMin(length, buffer_size);
+        const uint *end = buffer + l;
+        uint *b = buffer;
+        while (b < end) {
+            int x1 = (x >> 16);
+            int x2 = (x1 + 1);
+            int y1 = (y >> 16);
+            int y2 = (y1 + 1);
 
-        int distx = ((x - (x1 << 16)) >> 8);
-        int disty = ((y - (y1 << 16)) >> 8);
-        int idistx = 256 - distx;
-        int idisty = 256 - disty;
+            int distx = ((x - (x1 << 16)) >> 8);
+            int disty = ((y - (y1 << 16)) >> 8);
+            int idistx = 256 - distx;
+            int idisty = 256 - disty;
 
-        x1 %= image_width;
-        x2 %= image_width;
-        y1 %= image_height;
-        y2 %= image_height;
+            x1 %= image_width;
+            x2 %= image_width;
+            y1 %= image_height;
+            y2 %= image_height;
 
-        if (x1 < 0) x1 += image_width;
-        if (x2 < 0) x2 += image_width;
-        if (y1 < 0) y1 += image_height;
-        if (y2 < 0) y2 += image_height;
+            if (x1 < 0) x1 += image_width;
+            if (x2 < 0) x2 += image_width;
+            if (y1 < 0) y1 += image_height;
+            if (y2 < 0) y2 += image_height;
 
-        Q_ASSERT(x1 >= 0 && x1 < image_width);
-        Q_ASSERT(x2 >= 0 && x2 < image_width);
-        Q_ASSERT(y1 >= 0 && y1 < image_height);
-        Q_ASSERT(y2 >= 0 && y2 < image_height);
+            Q_ASSERT(x1 >= 0 && x1 < image_width);
+            Q_ASSERT(x2 >= 0 && x2 < image_width);
+            Q_ASSERT(y1 >= 0 && y1 < image_height);
+            Q_ASSERT(y2 >= 0 && y2 < image_height);
 
-        int y1_offset = y1 * image_width;
-        int y2_offset = y2 * image_width;
+            int y1_offset = y1 * image_width;
+            int y2_offset = y2 * image_width;
 
-        uint tl = image_bits[y1_offset + x1];
-        uint tr = image_bits[y1_offset + x2];
-        uint bl = image_bits[y2_offset + x1];
-        uint br = image_bits[y2_offset + x2];
+            uint tl = image_bits[y1_offset + x1];
+            uint tr = image_bits[y1_offset + x2];
+            uint bl = image_bits[y2_offset + x1];
+            uint br = image_bits[y2_offset + x2];
 
-        uint xtop = INTERPOLATE_PIXEL_256(tl, idistx, tr, distx);
-        uint xbot = INTERPOLATE_PIXEL_256(bl, idistx, br, distx);
-        uint res = INTERPOLATE_PIXEL_256(xtop, idisty, xbot, disty);
-
-        uint tmp = func(*target, res);
-        *target = icov ? INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov) : tmp;
-        x += fdx;
-        y += fdy;
-        ++target;
+            uint xtop = INTERPOLATE_PIXEL_256(tl, idistx, tr, distx);
+            uint xbot = INTERPOLATE_PIXEL_256(bl, idistx, br, distx);
+            *b = INTERPOLATE_PIXEL_256(xtop, idisty, xbot, disty);
+            ++b;
+            x += fdx;
+            y += fdy;
+        }
+        func(target, buffer, l, span->coverage);
+        target += l;
+        length -= l;
     }
 }
 
@@ -410,6 +465,11 @@ static void blend_transformed_argb(void *t, const QSpan *span,
                                    const void *ibits, const int image_width, const int image_height,
                                    QPainter::CompositionMode mode)
 {
+    CompositionFunction func = functionForMode(mode);
+    if (!func)
+        return;
+    uint buffer[buffer_size];
+    
     uint *target = ((uint *)t) + span->x;
     uint *image_bits = (uint *)ibits;
 
@@ -419,23 +479,27 @@ static void blend_transformed_argb(void *t, const QSpan *span,
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
 
-    CompositionFunction func = functionForMode(mode);
-    int icov = 255 - span->coverage;
-    const uint *end = target + span->len;
-    while (target < end) {
-        int px = x >> 16;
-        int py = y >> 16;
+    int length = span->len;
+    while (length) {
+        int l = qMin(length, buffer_size);
+        const uint *end = buffer + l;
+        uint *b = buffer;
+        while (b < end) {
+            int px = x >> 16;
+            int py = y >> 16;
 
-        bool out = (px < 0) || (px >= image_width)
-                   || (py < 0) || (py >= image_height);
+            bool out = (px < 0) || (px >= image_width)
+                       || (py < 0) || (py >= image_height);
 
-        int y_offset = py * image_width;
-        uint pixel = out ? uint(0) : image_bits[y_offset + px];
-        uint tmp = func(*target, pixel);
-        *target = icov ? INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov) : tmp;
-        x += fdx;
-        y += fdy;
-        ++target;
+            int y_offset = py * image_width;
+            *b = out ? uint(0) : image_bits[y_offset + px];
+            x += fdx;
+            y += fdy;
+            ++b;
+        }
+        func(target, buffer, l, span->coverage);
+        target += l;
+        length -= l;
     }
 }
 
@@ -444,6 +508,11 @@ static void blend_transformed_tiled_argb(void *t, const QSpan *span,
                                          const void *ibits, const int image_width, const int image_height,
                                          QPainter::CompositionMode mode)
 {
+    CompositionFunction func = functionForMode(mode);
+    if (!func)
+        return;
+    uint buffer[buffer_size];
+
     uint *target = ((uint *)t) + span->x;
     uint *image_bits = (uint *)ibits;
 
@@ -453,61 +522,59 @@ static void blend_transformed_tiled_argb(void *t, const QSpan *span,
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
 
-    CompositionFunction func = functionForMode(mode);
-    int icov = 255 - span->coverage;
-    const uint *end = target + span->len;
-    while (target < end) {
-        int px = x >> 16;
-        int py = y >> 16;
-        px %= image_width;
-        py %= image_height;
-        if (px < 0) px += image_width;
-        if (py < 0) py += image_height;
-        int y_offset = py * image_width;
+    int length = span->len;
+    while (length) {
+        int l = qMin(length, buffer_size);
+        const uint *end = buffer + l;
+        uint *b = buffer;
+        while (b < end) {
+            int px = x >> 16;
+            int py = y >> 16;
+            px %= image_width;
+            py %= image_height;
+            if (px < 0) px += image_width;
+            if (py < 0) py += image_height;
+            int y_offset = py * image_width;
 
-        Q_ASSERT(px >= 0 && px < image_width);
-        Q_ASSERT(py >= 0 && py < image_height);
+            Q_ASSERT(px >= 0 && px < image_width);
+            Q_ASSERT(py >= 0 && py < image_height);
 
-        uint tmp = func(*target, image_bits[y_offset + px]);
-        *target = icov ? INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov) : tmp;
-        x += fdx;
-        y += fdy;
-        ++target;
+            *b = image_bits[y_offset + px];
+            x += fdx;
+            y += fdy;
+            ++b;
+        }
+        func(target, buffer, l, span->coverage);
+        target += l;
+        length -= l;
     }
 }
 
 static void blend_linear_gradient_argb(void *t, const QSpan *span, LinearGradientData *data, qreal ybase, int,
                                        QPainter::CompositionMode mode)
 {
+    if (mode == QPainter::CompositionMode_SourceOver && !data->alphaColor)
+        mode = QPainter::CompositionMode_Source;
+    CompositionFunction func = functionForMode(mode);
+    if (!func)
+        return;
+    uint buffer[buffer_size];
+    
     uint *target = ((uint *)t) + span->x;
     qreal x1 = data->origin.x();
     qreal tt = ybase + data->xincr * (span->x - x1);
 
-    if (mode == QPainter::CompositionMode_SourceOver && !data->alphaColor && span->coverage == 255) {
-        for (int x = span->x; x<span->x + span->len; x++) {
-            *target = qt_gradient_pixel(data, tt);
-            ++target;
+    int length = span->len;
+    while (length) {
+        int l = qMin(length, buffer_size);
+        for (int i = 0; i < l; ++i) {
+            buffer[i] = qt_gradient_pixel(data, tt);
             tt += data->xincr;
         }
-    } else {
-        CompositionFunction func = functionForMode(mode);
-
-        if (span->coverage == 255) {
-            for (int x = span->x; x<span->x + span->len; x++) {
-                *target = func(*target, qt_gradient_pixel(data, tt));
-                ++target;
-                tt += data->xincr;
-            }
-        } else {
-            int icov = 255 - span->coverage;
-            for (int x = span->x; x<span->x + span->len; x++) {
-                uint tmp = func(*target, qt_gradient_pixel(data, tt));
-                *target = INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov);
-                ++target;
-                tt += data->xincr;
-            }
-        }
-    }
+        func(target, buffer, l, span->coverage);
+        target += l;
+        length -= l;
+    }        
 }
 
 inline double determinant(double a, double b, double c)
@@ -524,8 +591,14 @@ inline double realRoots(double a, double b, double detSqrt)
 static void blend_radial_gradient_argb(void *t, const QSpan *span, RadialGradientData *data,
                                        int y, QPainter::CompositionMode mode)
 {
+    if (mode == QPainter::CompositionMode_SourceOver && !data->alphaColor)
+        mode = QPainter::CompositionMode_Source;
+    CompositionFunction func = functionForMode(mode);
+    if (!func)
+        return;
+    uint buffer[buffer_size];
+
     uint *target = ((uint *)t) + span->x;
-    uint *end = target + span->len;
     double dx = data->center.x() - data->focal.x();
     double dy = data->center.y() - data->focal.y();
     double r  = data->radius;
@@ -539,39 +612,35 @@ static void blend_radial_gradient_argb(void *t, const QSpan *span, RadialGradien
     qreal rx = ix + cx * span->x - data->focal.x();
     qreal ry = iy + cy * span->x - data->focal.y();
 
-    if (mode == QPainter::CompositionMode_SourceOver && !data->alphaColor && span->coverage == 255) {
-        while (target < end) {
+    int length = span->len;
+    while (length) {
+        int l = qMin(length, buffer_size);
+        for (int i = 0; i < l; ++i) {
             double b  = 2*(rx*dx + ry*dy);
             double det = determinant(a, b , -(rx*rx + ry*ry));
             double s = realRoots(a, b, sqrt(det));
 
-            *target = qt_gradient_pixel(data,  s);
-            ++target;
+            buffer[i] = qt_gradient_pixel(data,  s);
             rx += cx;
             ry += cy;
         }
-    } else {
-        CompositionFunction func = functionForMode(mode);
-        int icov = 255 - span->coverage;
-        while (target < end) {
-            double b  = 2*(rx*dx + ry*dy);
-            double det = determinant(a, b , -(rx*rx + ry*ry));
-            double s = realRoots(a, b, sqrt(det));
-
-            uint tmp = func(*target, qt_gradient_pixel(data, s));
-            *target = INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov);
-            ++target;
-            rx += cx;
-            ry += cy;
-        }
-    }
+        func(target, buffer, l, span->coverage);
+        target += l;
+        length -= l;
+    }        
 }
 
 static void blend_conical_gradient_argb(void *t, const QSpan *span, ConicalGradientData *data,
                                         int y, QPainter::CompositionMode mode)
 {
+//     if (mode == QPainter::CompositionMode_SourceOver && !data->alphaColor)
+//         mode = QPainter::CompositionMode_Source;
+    CompositionFunction func = functionForMode(mode);
+    if (!func)
+        return;
+    uint buffer[buffer_size];
+
     uint *target = ((uint *)t) + span->x;
-    uint *end = target + span->len;
 
     QMatrix m = data->imatrix;
     qreal ix = m.m21() * y + m.dx();
@@ -581,37 +650,25 @@ static void blend_conical_gradient_argb(void *t, const QSpan *span, ConicalGradi
     qreal rx = ix + cx * span->x - data->center.x();
     qreal ry = iy + cy * span->x - data->center.y();
 
-    int x = span->x;
-    if (mode == QPainter::CompositionMode_SourceOver
-        && !data->alphaColor
-        && span->coverage == 255) {
-        while (target < end) {
+    int length = span->len;
+    while (length) {
+        int l = qMin(length, buffer_size);
+        for (int i = 0; i < l; ++i) {
             double angle = atan2(ry, rx);
             angle += data->angle;
-            *target = qt_gradient_pixel(data, angle / (2*Q_PI));
-            ++target;
-            ++x;
+            buffer[i] = qt_gradient_pixel(data, angle / (2*Q_PI));
             rx += cx;
             ry += cy;
         }
-    } else {
-        CompositionFunction func = functionForMode(mode);
-        int icov = 255 - span->coverage;
-        while (target < end) {
-            double angle = atan2(ry, rx);
-            angle += data->angle;
-            uint tmp = func(*target, qt_gradient_pixel(data, angle / (2*Q_PI)));
-            *target = INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov);
-            ++target;
-            ++x;
-            rx += cx;
-            ry += cy;
-        }
-    }
+        func(target, buffer, l, span->coverage);
+        target += l;
+        length -= l;
+    }        
 }
 
 // ************************** RGB32 handling ******************************
 
+#if 0
 static inline uint qt_blend_pixel_rgb32(uint dest, uint src, uint coverage)
 {
     MASK(src, coverage);
@@ -924,7 +981,7 @@ static void blend_linear_gradient_rgb32(void *t, const QSpan *span, LinearGradie
         }
     }
 }
-
+#endif
 
 /************************************* Mono ************************************/
 
@@ -1967,6 +2024,7 @@ DrawHelper qDrawHelper[DrawHelper::Layout_Count] =
         blend_radial_gradient_argb,
         blend_conical_gradient_argb
     },
+# if 0
     { // Layout_RGB32
         blend_color_rgb32,
         blend_rgb32,
@@ -1979,6 +2037,20 @@ DrawHelper qDrawHelper[DrawHelper::Layout_Count] =
         blend_radial_gradient_argb,
         blend_conical_gradient_argb
     },
+#else
+    { // Layout_ARGB
+        blend_color_argb,
+        blend_argb,
+        blend_tiled_argb,
+        blend_transformed_argb,
+        blend_transformed_tiled_argb,
+        blend_transformed_bilinear_argb,
+        blend_transformed_bilinear_tiled_argb,
+        blend_linear_gradient_argb,
+        blend_radial_gradient_argb,
+        blend_conical_gradient_argb
+    },
+#endif
     { // Layout_Mono
         blend_color_mono,
         blend_mono,
