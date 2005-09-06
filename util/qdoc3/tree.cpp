@@ -695,6 +695,9 @@ void Tree::readIndexSection(const QDomElement &element,
                 readIndexSection(child, inner, indexUrl);
             else if (element.nodeName() == "page")
                 readIndexSection(child, inner, indexUrl);
+            else if (element.nodeName() == "namespace" && !name.isEmpty())
+                // The root node in the index is a namespace with an empty name.
+                readIndexSection(child, inner, indexUrl);
             else
                 readIndexSection(child, parent, indexUrl);
 
