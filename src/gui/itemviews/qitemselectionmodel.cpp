@@ -418,9 +418,9 @@ void QItemSelection::merge(const QItemSelection &other, QItemSelectionModel::Sel
 }
 
 /*!
-  Splits the selection \a range using the selection \a other range, and puts
-  the resulting selection in \a result.
-
+  Splits the selection \a range using the selection \a other range.
+  Removes all items in \a other from \a range and puts the result in \a result.
+  This can be compared with the semantics of the \i subtract operation of a set.
   \sa merge()
 */
 
@@ -437,6 +437,7 @@ void QItemSelection::split(const QItemSelectionRange &range,
     int other_bottom = other.bottom();
     int other_right = other.right();
     const QAbstractItemModel *model = range.model();
+    Q_ASSERT(model);
     if (other_top > top) {
         QModelIndex tl = model->index(top, left, parent);
         QModelIndex br = model->index(other_top - 1, right, parent);
