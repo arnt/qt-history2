@@ -792,13 +792,14 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                 setCharset(dfn);
            break;
         default:
-//            dataSize += ++dataSize; // REMOVE ME
+            // this should make enough space even with character encoding                
+            dataSize = (dataSize + 1) * sizeof(utext) ;
             //qDebug("OCIDefineByPosDef: %d", dataSize);
             r = OCIDefineByPos(d->sql,
                                 &dfn,
                                 d->err,
                                 count,
-                                create(idx, dataSize+1),
+                                create(idx, dataSize),
                                 dataSize+1,
                                 SQLT_STR,
                                 (dvoid *) &(fieldInf[idx].ind),
