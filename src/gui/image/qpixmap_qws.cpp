@@ -68,22 +68,6 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
 /*!
     \internal
 */
-const unsigned char * QPixmap::qwsScanLine(int i) const
-{
-    return data->image.scanLine(i);
-}
-
-/*!
-    \internal
-*/
-int QPixmap::qwsBytesPerLine() const
-{
-    return data->image.bytesPerLine();
-}
-
-/*!
-    \internal
-*/
 QRgb * QPixmap::clut() const
 {
     return data->image.colorTable().data();
@@ -95,4 +79,15 @@ QRgb * QPixmap::clut() const
 int QPixmap::numCols() const
 {
     return data->image.numColors();
+}
+
+
+const uchar *QPixmap::qwsBits() const
+{
+    return data->image.bits();
+}
+
+int QPixmap::qwsBytesPerLine() const
+{
+    return data->image.bytesPerLine();
 }

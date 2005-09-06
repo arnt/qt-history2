@@ -1328,26 +1328,6 @@ void QWidget::clearMask()
     setMask(QRegion());
 }
 
-/*!
-    \internal
-*/
-const unsigned char * QWidget::qwsScanLine(int i) const
-{
-    // Should add widget x() here, maybe
-    unsigned char * base=qwsDisplay()->frameBuffer();
-    if(base)
-        base+=i*qwsBytesPerLine();
-    return base;
-}
-
-/*!
-    \internal
-*/
-int QWidget::qwsBytesPerLine() const
-{
-    return qt_screen->linestep();
-}
-
 void QWidgetPrivate::updateFrameStrut() const
 {
     Q_Q(const QWidget);

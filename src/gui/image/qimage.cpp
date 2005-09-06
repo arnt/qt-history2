@@ -1215,24 +1215,6 @@ int QImage::numBytes() const
     return d ? d->nbytes : 0;
 }
 
-#ifdef Q_WS_QWS
-/*!
-  \reimp
-*/
-const uchar * QImage::qwsScanLine(int i) const
-{
-    return scanLine(i);
-}
-
-/*!
-  \reimp
-*/
-int QImage::qwsBytesPerLine() const
-{
-    return bytesPerLine();
-}
-#endif
-
 /*!
     Returns the number of bytes per image scanline. This is equivalent
     to numBytes()/height().

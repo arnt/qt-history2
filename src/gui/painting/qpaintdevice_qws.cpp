@@ -55,19 +55,3 @@ QWSDisplay *QPaintDevice::qwsDisplay()
 {
     return qt_fbdpy;
 }
-
-/*!
-    \internal
-*/
-const uchar *QPaintDevice::qwsScanLine(int) const
-{
-    return 0;
-}
-
-/*!
-    \internal
-*/
-int QPaintDevice::qwsBytesPerLine() const
-{
-    return 0;
-}

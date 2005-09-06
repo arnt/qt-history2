@@ -177,10 +177,6 @@ public:
 
     int serialNumber() const;
 
-#ifdef Q_WS_QWS
-    virtual const uchar * qwsScanLine(int) const;
-    virtual int qwsBytesPerLine() const;
-#endif
     QPaintEngine *paintEngine() const;
 
     // Auxiliary data
