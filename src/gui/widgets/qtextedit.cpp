@@ -789,7 +789,7 @@ void QTextEditPrivate::extendLinewiseSelection(int suggestedNewPosition)
     applies here.
 
     The current char format's attributes are set with setFontItalic(),
-    setFontBold(), setFontUnderline(), setFontFamily(),
+    setFontWeight(), setFontUnderline(), setFontFamily(),
     setFontPointSize(), setTextColor() and setCurrentFont(). The current
     paragraph's alignment is set with setAlignment().
 
@@ -991,7 +991,7 @@ QString QTextEdit::fontFamily() const
 /*!
     Returns the font weight of the current format.
 
-    \sa setFontWeight() setCurrentFont() setFontPointSize()
+    \sa setFontWeight() setCurrentFont() setFontPointSize() QFont::Weight
 */
 int QTextEdit::fontWeight() const
 {
@@ -1159,7 +1159,7 @@ void QTextEdit::setFontPointSize(qreal s)
 /*!
     Sets the font weight of the current format to \a w.
 
-    \sa fontWeight() setCurrentFont() setFontFamily()
+    \sa fontWeight() setCurrentFont() setFontFamily() QFont::Weight
 */
 void QTextEdit::setFontWeight(int w)
 {
