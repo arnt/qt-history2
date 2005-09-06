@@ -222,7 +222,7 @@ QVariant ColorRoleModel::data(const QModelIndex &index, int role) const
 bool ColorRoleModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (index.isValid() && role == Qt::EditRole) {
-        QColor c = value.value<QColor>();
+        QColor c = qVariantValue<QColor>(value);
         QPalette::ColorRole r = (QPalette::ColorRole)index.row();
         if (m_palette.color(r) == c)
             return true;
@@ -319,8 +319,8 @@ QWidget *ColorDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem
 
 void ColorDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    QColor c = index.model()->data(index, Qt::EditRole).value<QColor>();
-    QString colorName = index.model()->data(index, Qt::DisplayRole).value<QString>();
+    QColor c = qVariantValue<QColor>(index.model()->data(index, Qt::EditRole));
+    QString colorName = qVariantValue<QString>(index.model()->data(index, Qt::DisplayRole));
     ColorEditor *button = static_cast<ColorEditor*>(editor);
     button->setColor(c);
     button->setLabel(colorName);
