@@ -173,6 +173,8 @@ bool QNativeSocketEnginePrivate::createNewSocket(QAbstractSocket::SocketType soc
         return false;
     }
 
+    // Ensure that the socket is closed on exec*().
+    ::fcntl(socket, F_SETFD, FD_CLOEXEC);
     socketDescriptor = socket;
     return true;
 }
@@ -448,6 +450,8 @@ int QNativeSocketEnginePrivate::nativeAccept()
 #if defined (QNATIVESOCKETENGINE_DEBUG)
     qDebug("QNativeSocketEnginePrivate::nativeAccept() == %i", acceptedDescriptor);
 #endif
+    // Ensure that the socket is closed on exec*()
+    ::fcntl(acceptedDescriptor, F_SETFD, FD_CLOEXEC);
     return acceptedDescriptor;
 }
 
