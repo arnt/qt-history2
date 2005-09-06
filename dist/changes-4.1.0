@@ -43,6 +43,9 @@ Qt Assistant
 General Fixes
 -------------
 
+- QFileDialog
+	Fix shortcut and focus for "Alpha channel" spinbox.
+
 - QMap/QHash
 	Fixed operator>>() to read back multiple values associated
 	to a same key correctly.
@@ -50,8 +53,8 @@ General Fixes
 - QMap/QHash
 	Const-correctness in const_iterator's operator--(int).
 
-- QFileDialog
-	Fix shortcut and focus for "Alpha channel" spinbox.
+- QMetaType
+        Class is now fully reentrant.
 
 
 Platform-Specific Issues
