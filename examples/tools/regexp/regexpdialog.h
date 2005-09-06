@@ -14,7 +14,12 @@
 #ifndef REGEXPDIALOG_H
 #define REGEXPDIALOG_H
 
-#include <QtGui>
+#include <QDialog>
+
+class QCheckBox;
+class QComboBox;
+class QLabel;
+class QLineEdit;
 
 class RegExpDialog : public QDialog
 {
