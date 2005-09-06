@@ -190,7 +190,7 @@ QFSFileEngine::open(QIODevice::OpenMode flags, int fd)
     Q_D(QFSFileEngine);
     d->closeFileHandle = false;
 #ifdef Q_OS_UNIX
-    d->fh = fdopen(d->fd, openModeToFopenMode(flags).constData());
+    d->fh = fdopen(fd, openModeToFopenMode(flags).constData());
     if (!d->fh) {
         QString errString = QT_TRANSLATE_NOOP(QFSFileEngine, "Unknown error");
         setError(errno == EMFILE ? QFile::ResourceError : QFile::OpenError,
