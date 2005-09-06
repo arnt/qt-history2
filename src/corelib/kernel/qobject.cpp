@@ -61,7 +61,7 @@ static int *queuedConnectionTypes(const char *signal)
         ++s;
 
         if (type.endsWith('*')) {
-            types[n] = QMetaType::type("void*");
+            types[n] = QMetaType::VoidStar;
         } else {
             types[n] = QMetaType::type(type);
         }
