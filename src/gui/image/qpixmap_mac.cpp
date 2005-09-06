@@ -221,23 +221,28 @@ QImage QPixmap::toImage() const
                   QImage::Format_RGB32);
 
     QImage image(w, h, format);
-    if(format == QImage::Format_Mono || format == QImage::Format_MonoLSB) {
+    quint32 *sptr = data->pixels, *srow;
+    const uint sbpr = data->nbytes / h;
+    if(format == QImage::Format_MonoLSB) {
         image.setNumColors(2);
         image.setColor(0, Qt::color0);
         image.setColor(1, Qt::color1);
+        for (int y = 0; y < h; ++y) {
+            uchar *scanLine = image.scanLine(y);
+            srow = sptr + (y * (sbpr/4));
+            for (int x = 0; x < w; ++x) {
+                if (!(*(srow + x) & RGB_MASK))
+                    scanLine[x >> 3] = scanLine[x >> 3] | (1 << (x & 7));
+            }
+        }
+    } else {
+        for(int y=0;y<h;y++) {
+            srow = sptr + (y * (sbpr/4));
+            memcpy(image.scanLine(y), srow, w * 4);
+        }
+
     }
 
-    quint32 *sptr = data->pixels, *srow;
-    const uint sbpr = data->nbytes / h;
-    for(int y=0;y<h;y++) {
-        srow = sptr + (y * (sbpr/4));
-        for(int x=0;x<w;x++) {
-            if(format == QImage::Format_Mono || format == QImage::Format_MonoLSB)
-                image.setPixel(x, y, (*(srow+x) & RGB_MASK) ? 0 : 1);
-            else
-                image.setPixel(x, y, *(srow+x));
-        }
-    }
     return image;
 }
 
