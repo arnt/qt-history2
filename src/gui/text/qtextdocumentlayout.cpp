@@ -1644,6 +1644,8 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
 void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct *layoutStruct,
                                              int layoutFrom, int layoutTo, const QTextBlock &previousBlock)
 {
+    Q_Q(QTextDocumentLayout);
+
     QTextBlockFormat blockFormat = bl.blockFormat();
     QTextLayout *tl = bl.layout();
 
@@ -1666,6 +1668,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
     else
         option.setWrapMode(wordWrapMode);
     option.setTabStop(tabStopWidth);
+    option.setUseDesignMetrics(q->document()->useDesignMetrics());
     tl->setTextOption(option);
 
     const bool haveWordOrAnyWrapMode = (option.wrapMode() == QTextOption::WrapAtWordBoundaryOrAnywhere);

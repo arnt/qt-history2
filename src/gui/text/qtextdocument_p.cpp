@@ -158,6 +158,8 @@ QTextDocumentPrivate::QTextDocumentPrivate()
 
     undoEnabled = true;
     inContentsChange = false;
+
+    useDesignMetrics = false;
 }
 
 void QTextDocumentPrivate::init()

@@ -79,6 +79,7 @@ class Q_GUI_EXPORT QTextDocument : public QObject
     Q_PROPERTY(bool modified READ isModified WRITE setModified DESIGNABLE false)
     Q_PROPERTY(QSizeF pageSize READ pageSize WRITE setPageSize)
     Q_PROPERTY(QFont defaultFont READ defaultFont WRITE setDefaultFont)
+    Q_PROPERTY(bool useDesignMetrics READ useDesignMetrics WRITE setUseDesignMetrics)
 
 public:
     explicit QTextDocument(QObject *parent = 0);
@@ -159,6 +160,9 @@ public:
     QVector<QTextFormat> allFormats() const;
 
     void markContentsDirty(int from, int length);
+
+    void setUseDesignMetrics(bool b);
+    bool useDesignMetrics() const;
 
 signals:
     void contentsChange(int from, int charsRemoves, int charsAdded);

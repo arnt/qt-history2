@@ -281,6 +281,7 @@ private:
     QMap<QUrl, QVariant> resources;
 
     QTextDocumentConfig docConfig;
+    bool useDesignMetrics;
 
 public:
     bool inContentsChange;

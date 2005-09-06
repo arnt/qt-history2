@@ -304,6 +304,7 @@ QTextDocument *QTextDocument::clone(QObject *parent) const
     QTextCursor(doc).insertFragment(QTextDocumentFragment(this));
     doc->d_func()->config()->title = d->config()->title;
     doc->d_func()->pageSize = d->pageSize;
+    doc->d_func()->useDesignMetrics = d->useDesignMetrics;
     return doc;
 }
 
@@ -392,6 +393,19 @@ void QTextDocument::markContentsDirty(int from, int length)
     d->documentChange(from, length);
     if (!d->inContentsChange)
         d->endEditBlock();
+}
+
+void QTextDocument::setUseDesignMetrics(bool b)
+{
+    Q_D(QTextDocument);
+    d->useDesignMetrics = b;
+    documentLayout()->documentChanged(0, 0, d->length());
+}
+
+bool QTextDocument::useDesignMetrics() const
+{
+    Q_D(const QTextDocument);
+    return d->useDesignMetrics;
 }
 
 /*!
