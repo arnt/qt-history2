@@ -15,6 +15,7 @@
 #include "qobjectdefs.h"
 #include "qbytearray.h"
 #include "qreadwritelock.h"
+#include "qstring.h"
 #include "qvector.h"
 
 /*!
