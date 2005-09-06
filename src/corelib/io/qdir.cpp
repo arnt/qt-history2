@@ -911,6 +911,7 @@ QDir::Filters QDir::filter() const
     \value Drives  List disk drives (ignored under Unix).
     \value NoSymLinks  Do not list symbolic links (ignored by operating
                        systems that don't support symbolic links).
+    \value NoDotAndDotDot Do not list the special entries "." and "..".
     \value All  List directories, files, drives and symlinks (this does not list
                 broken symlinks unless you specify System).
                 NoSymLinks flags.

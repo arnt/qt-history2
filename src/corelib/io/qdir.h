@@ -49,10 +49,12 @@ public:
                   Modified    = 0x080,
                   Hidden      = 0x100,
                   System      = 0x200,
+                 
                   AccessMask  = 0x3F0,
 
                   AllDirs       = 0x400,
                   CaseSensitive = 0x800,
+                  NoDotAndDotDot = 0x1000,
 
                   NoFilter = -1
 #ifdef QT3_SUPPORT

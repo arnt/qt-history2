@@ -698,6 +698,10 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
                     continue;
             if(doModified && !isModified)
                 continue;
+            if(filters & QDir::NoDotAndDotDot
+               && (name == QLatin1String(".") || name == QLatin1String(".."))) {
+                continue;
+            }                
             if(!doHidden && isHidden)
                 continue;
             if(!doSystem && isSystem)
