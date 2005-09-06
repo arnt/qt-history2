@@ -32,6 +32,43 @@
     Q_DECLARE_METATYPE() doesn't actually register the
     type; you must still use qRegisterMetaType() for that.
 
+    This example shows a typical use case of Q_DECLARE_METATYPE():
+
+    \code
+        struct MyStruct
+        {
+            int i;
+            ...
+        };
+
+        Q_DECLARE_METATYPE(MyStruct)
+    \endcode
+
+    If \c MyStruct is in a namespace, the Q_DECLARE_METATYPE() macro
+    has to be outside the namespace:
+
+    \code
+        namespace MyNamespace
+        {
+            ...
+        }
+
+        Q_DECLARE_METATYPE(MyNamespace::MyStruct)
+    \endcode
+
+    Since \c{MyStruct} is now known to QMetaType, it can be used in QVariant:
+
+    \code
+        MyStruct s;
+        QVariant var;
+        var.setValue(s); // copy s into the variant
+
+        ...
+
+        // retrieve the value
+        MyStruct s2 = var.value<MyStruct>();
+    \endcode
+
     \sa qRegisterMetaType()
 */
 
@@ -94,46 +131,11 @@
         }
     \endcode
 
-    \section1 The Q_DECLARE_METATYPE() Macro
+    The \sa Q_DECLARE_METATYPE() macro can be used to register a type
+    at compile time. This is required to use the type as custom type
+    in QVariant.
 
-    The Q_DECLARE_METATYPE() macro makes a custom type known to
-    QMetaType. It is needed to use the type as a custom type in
-    QVariant.
-
-    Ideally, this macro should be placed below the declaration of
-    the class or struct. If that is not possible, it can be put in
-    a private header file which has to be included every time that
-    type is used in a QVariant.
-
-    This example shows a typical use case of Q_DECLARE_METATYPE():
-
-    \code
-        struct MyStruct
-        {
-            int i;
-            ...
-        };
-
-        Q_DECLARE_METATYPE(MyStruct)
-    \endcode
-
-    Since \c{MyStruct} is now known to QMetaType, it can be used in QVariant:
-
-    \code
-        MyStruct s;
-        QVariant var;
-        var.setValue(s); // copy s into the variant
-
-        ...
-
-        // retrieve the value
-        MyStruct s2 = var.value<MyStruct>();
-    \endcode
-
-    Note that Q_DECLARE_METATYPE() doesn't actually register the
-    type; you must still use qRegisterMetaType() for that.
-
-    \sa QVariant::setValue(), QVariant::value(), QVariant::fromValue()
+    \sa Q_DECLARE_METATYPE(), QVariant::setValue(), QVariant::value(), QVariant::fromValue()
 */
 
 static const struct { const char * typeName; int type; } types[] = {
@@ -584,3 +586,26 @@ void QMetaType::destroy(int type, void *data)
 /*! \typedef QMetaType::LoadOperator
     \internal
 */
+
+/*! \fn int qMetaTypeId(T *dummy = 0)
+    \relates QMetaType
+
+    Returns the meta type id of type \c T at compile time. If the
+    type was not declared with Q_DECLARE_METATYPE(), compilation will
+    fail. The \a dummy parameter never has to be specified out, it's a
+    workaround for compiler limitations.
+
+    Typical usage:
+
+    \code
+        int id = qMetaTypeId<QString>(); // id is now QMetaType::QString
+        id = qMetaTypeId<MyStruct>(); // compile error if MyStruct not declared
+    \endcode
+
+    QMetaType::type() returns the same id as qMetaTypeId(), but does a
+    lookup at runtime based on the name of the type. QMetaType::type() is
+    a bit slower, but compilation succeeds if a type is not registered.
+
+    \sa Q_DECLARE_METATYPE(), QMetaType::type()
+*/
+
