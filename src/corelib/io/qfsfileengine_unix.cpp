@@ -278,9 +278,9 @@ bool QFSFileEnginePrivate::doStat() const
 QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::FileFlags type) const
 {
     Q_D(const QFSFileEngine);
-    // explicit rest so state is tried again, otherwise file flags maybe be stale.
-    d->tried_stat = false;
-    
+    // Force a stat, so that we're guaranteed to get up-to-date results
+    d->tried_stat = 0;
+
     QAbstractFileEngine::FileFlags ret = 0;
     if(!d->doStat())
         return ret;
