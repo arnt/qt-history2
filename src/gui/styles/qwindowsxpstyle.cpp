@@ -1955,6 +1955,9 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 QRect pmr(0, 0, pixw, pixh);
                 pmr.moveCenter(vrect.center());
                 p->setPen(menuitem->palette.text().color());
+                p->setBrush(Qt::NoBrush);
+                if (checked)
+                    p->drawRect(pmr.adjusted(-1, -2, 1, 1));
                 p->drawPixmap(pmr.topLeft(), pixmap);
 
                 //int xp = xpos + checkcol + 1;
