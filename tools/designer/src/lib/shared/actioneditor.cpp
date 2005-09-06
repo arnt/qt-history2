@@ -66,7 +66,7 @@ public:
         QItemDelegate::paint(painter, option, index);
     }
 
-    virtual void drawFocus(QPainter */*painter*/, const QStyleOptionViewItem &/*option*/, const QRect &/*rect*/) const {}
+    virtual void drawFocus(QPainter * /*painter*/, const QStyleOptionViewItem &/*option*/, const QRect &/*rect*/) const {}
 };
 
 ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, Qt::WindowFlags flags)

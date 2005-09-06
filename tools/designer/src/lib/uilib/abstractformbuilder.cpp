@@ -889,8 +889,6 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
 */
 void QAbstractFormBuilder::setupColorGroup(QPalette &palette, DomColorGroup *group)
 {
-    const QMetaObject meta = QAbstractFormBuilderGadget::staticMetaObject;
-
     QList<DomColor*> colors = group->elementColor();
     for (int role = 0; role < colors.size(); ++role) {
         DomColor *color = colors.at(role);
