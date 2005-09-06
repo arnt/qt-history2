@@ -208,10 +208,12 @@ int main(int argc, char **argv)
     }
     if (moc.includeFiles.isEmpty()) {
         if (moc.includePath.isEmpty()) {
-            if (filename.size() && output.size())
-                moc.includeFiles.append(combinePath(filename, output));
-            else
-                moc.includeFiles.append(filename);
+            if (filename.size()) {
+                if (output.size())
+                    moc.includeFiles.append(combinePath(filename, output));
+                else
+                    moc.includeFiles.append(filename);
+            }
         } else {
             moc.includeFiles.append(combinePath(filename, filename));
         }
