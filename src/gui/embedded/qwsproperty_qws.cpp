@@ -94,7 +94,7 @@ bool QWSPropertyManager::setProperty(int winId, int property, int mode, const ch
 #ifdef QWS_PROPERTY_DEBUG
         qDebug("PropPrepend");
 #endif
-        int origLen = origLen = prop->len;
+        int origLen = prop->len;
         char *nd = new char[len + origLen];
         memcpy(nd, data, len);
         memcpy(nd+len, prop->data, origLen);

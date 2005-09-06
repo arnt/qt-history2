@@ -386,9 +386,8 @@ bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationStat
     QTLWExtra *topextra = d->managed->d_func()->extra->topextra;
     QDecoration &dec = QApplication::qwsDecoration();
     //### copies too much, but we don't know here what has actually been changed
-    if (result) {
+    if (result) 
         d->managed->d_func()->bltToScreen(dec.region(d->managed, d->managed->geometry()));
-    }
     return result;
 }
 
