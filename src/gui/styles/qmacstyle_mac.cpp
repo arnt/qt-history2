@@ -546,10 +546,22 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         else
             ret.setWidth(w);
     } else if (ct == QStyle::CT_ProgressBar) {
+        int finalValue = -1;
+        Qt::Orientation orient = Qt::Horizontal;
+        if (const QProgressBar *pb = qobject_cast<const QProgressBar *>(widg))
+            orient = pb->orientation();
+
         if (sz == QAquaSizeLarge)
-            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricLargeProgressBarThickness));
+            finalValue = qt_mac_aqua_get_metric(kThemeMetricLargeProgressBarThickness)
+                            + qt_mac_aqua_get_metric(kThemeMetricProgressBarShadowOutset);
         else if (sz == QAquaSizeSmall)
-            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricNormalProgressBarThickness));
+            finalValue = qt_mac_aqua_get_metric(kThemeMetricNormalProgressBarThickness)
+                            + qt_mac_aqua_get_metric(kThemeMetricSmallProgressBarShadowOutset);
+        if (orient == Qt::Horizontal)
+            ret.setHeight(finalValue);
+        else
+            ret.setWidth(finalValue);
+
     } else if (ct == QStyle::CT_LineEdit) {
         if (!widg || !qobject_cast<QComboBox *>(widg->parentWidget())) {
             //should I take into account the font dimentions of the lineedit? -Sam
@@ -1235,7 +1247,10 @@ void QMacStylePrivate::timerEvent(QTimerEvent *)
                 ++i;
             }
         }
-        animated += i;
+        if (i > 0) {
+            ++progressFrame;
+            animated += i;
+        }
     }
     if (animated <= 0) {
         killTimer(timerID);
@@ -1319,7 +1334,7 @@ bool QMacStylePrivate::doAnimate(QMacStylePrivate::Animates as)
             buttonState.dir = ButtonState::ButtonDark;
         buttonState.frame += ((buttonState.dir == ButtonState::ButtonDark) ? 1 : -1);
     } else if (as == AquaProgressBar) {
-        ++progressFrame;
+        // something for later...
     } else if (as == AquaListViewItemOpen) {
         // To be revived later...
     }
