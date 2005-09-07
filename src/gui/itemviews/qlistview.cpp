@@ -1580,7 +1580,7 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
     Q_Q(QListView);
     const bool useItemSize = !gridSize.isValid();
     const int gap = useItemSize ? spacing : 0;
-    const QPoint topLeft = initDynamicLayout(bounds, gap, first);
+    const QPoint topLeft = initDynamicLayout(bounds, spacing, first);
 
     int segStartPosition;
     int segEndPosition;
@@ -1591,7 +1591,7 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
     int segPosition;
 
     if (flow == QListView::LeftToRight) {
-        segStartPosition = bounds.left() + gap;
+        segStartPosition = bounds.left() + spacing;
         segEndPosition = bounds.right();
         deltaFlowPosition = gridSize.width(); // dx
         deltaSegPosition = (useItemSize ? batchSavedDeltaSeg : gridSize.height()); // dy
@@ -1599,7 +1599,7 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
         flowPosition = topLeft.x();
         segPosition = topLeft.y();
     } else { // flow == QListView::TopToBottom
-        segStartPosition = bounds.top() + gap;
+        segStartPosition = bounds.top() + spacing;
         segEndPosition = bounds.bottom();
         deltaFlowPosition = gridSize.height(); // dy
         deltaSegPosition = (useItemSize ? batchSavedDeltaSeg : gridSize.width()); // dx
