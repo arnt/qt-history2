@@ -102,6 +102,15 @@ struct DrawHelper {
 
 extern DrawHelper qDrawHelper[DrawHelper::Layout_Count];
 
+typedef void QT_FASTCALL (*CompositionFunction)(uint *dest, const uint *src, int length, uint const_alpha);
+typedef void QT_FASTCALL (*CompositionFunctionSolid)(uint *dest, int length, uint color, uint const_alpha);
+
+#ifdef QT_HAVE_SSE
+extern const CompositionFunction qt_functionForMode_SSE[];
+extern const CompositionFunctionSolid qt_functionForModeSolid_SSE[];
+#endif
+
+
 void qInitDrawhelperAsm();
 
 class QRasterBuffer;

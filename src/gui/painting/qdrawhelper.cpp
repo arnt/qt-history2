@@ -13,12 +13,6 @@
 
 #include <private/qdrawhelper_p.h>
 
-#if 0//def __x86__
-#include "qdrawhelper_x86.cpp"
-#else
-void qInitDrawhelperAsm() {}
-#endif
-
 #include <math.h>
 #include <private/qmath_p.h>
 #define MASK(src, a) src = BYTE_MUL(src, a)
@@ -27,9 +21,8 @@ static const int fixed_scale = 1 << 16;
 static const int half_point = 1 << 15;
 static const int buffer_size = 2048;
 
-typedef void QT_FASTCALL (*CompositionFunction)(uint *dest, const uint *src, int length, int const_alpha);
 
-static void QT_FASTCALL comp_func_Clear(uint *dest, const uint *, int length, int const_alpha)
+static void QT_FASTCALL comp_func_solid_Clear(uint *dest, int length, const uint, uint const_alpha)
 {
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i)
@@ -47,7 +40,206 @@ Dca' = Sca.Da + Sca.(1 - Da)
 Da'  = Sa.Da + Sa.(1 - Da)
      = Sa
 */
-static void QT_FASTCALL comp_func_Source(uint *dest, const uint *src, int length, int const_alpha)
+static void QT_FASTCALL comp_func_solid_Source(uint *dest, int length, uint color, uint const_alpha)
+{
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = color;
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i)
+            dest[i] = INTERPOLATE_PIXEL_255(color, const_alpha, dest[i], ialpha);
+    }
+}
+
+/*
+Dca' = Sca.Da + Sca.(1 - Da) + Dca.(1 - Sa)
+     = Sca + Dca.(1 - Sa)
+Da'  = Sa.Da + Sa.(1 - Da) + Da.(1 - Sa)
+     = Sa + Da - Sa.Da
+*/
+static void QT_FASTCALL comp_func_solid_SourceOver(uint *dest, int length, uint color, uint const_alpha)
+{
+    if (const_alpha != 255)
+        color = BYTE_MUL(color, const_alpha);
+    if (qAlpha(color) == 255)
+        for (int i = 0; i < length; ++i)
+            dest[i] = color;
+    else
+        for (int i = 0; i < length; ++i)
+            dest[i] = color + BYTE_MUL(dest[i], 255 - qAlpha(color));
+}
+
+static void QT_FASTCALL comp_func_solid_DestinationOver(uint *dest, int length, uint color, uint const_alpha)
+{
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = dest[i] + BYTE_MUL(color, 255 - qAlpha(dest[i]));
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i) {
+            uint tmp = dest[i] + BYTE_MUL(color, 255 - qAlpha(dest[i]));
+            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+        }
+    }
+}
+
+/*
+  Dca' = Sca.Da
+  Da'  = Sa.Da
+*/
+static void QT_FASTCALL comp_func_solid_SourceIn(uint *dest, int length, uint color, uint const_alpha)
+{
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = BYTE_MUL(color, qAlpha(dest[i]));
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i) {
+            uint tmp = BYTE_MUL(color, qAlpha(dest[i]));
+            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+        }
+    }
+}
+
+static void QT_FASTCALL comp_func_solid_DestinationIn(uint *dest, int length, uint color, uint const_alpha)
+{
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = BYTE_MUL(dest[i], qAlpha(color));
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i) {
+            uint tmp = BYTE_MUL(dest[i], qAlpha(color));
+            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+        }
+    }
+}
+
+/*
+ Dca' = Sca.(1 - Da)
+ Da'  = Sa.(1 - Da)
+*/
+static void QT_FASTCALL comp_func_solid_SourceOut(uint *dest, int length, uint color, uint const_alpha)
+{
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = BYTE_MUL(color, 255 - qAlpha(dest[i]));
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i) {
+            uint tmp = BYTE_MUL(color, 255 - qAlpha(dest[i]));
+            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+        }
+    }
+}
+
+static void QT_FASTCALL comp_func_solid_DestinationOut(uint *dest, int length, uint color, uint const_alpha)
+{
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = BYTE_MUL(dest[i], 255 - qAlpha(color));
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i) {
+            uint tmp = BYTE_MUL(dest[i], 255 - qAlpha(color));
+            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+        }
+    }
+}
+
+/*
+  Dca' = Sca.Da + Dca.(1 - Sa)
+  Dca' = Da.(Sca + Dc.(1 - Sa))
+  Da'  = Sa.Da + Da.(1 - Sa)
+       = Da
+*/
+static void QT_FASTCALL comp_func_solid_SourceAtop(uint *dest, int length, uint color, uint const_alpha)
+{
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = INTERPOLATE_PIXEL_255(color, qAlpha(dest[i]), dest[i], 255 - qAlpha(color));
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i) {
+            uint tmp = INTERPOLATE_PIXEL_255(color, qAlpha(dest[i]), dest[i], 255 - qAlpha(color));
+            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+        }
+    }
+}
+
+static void QT_FASTCALL comp_func_solid_DestinationAtop(uint *dest, int length, uint color, uint const_alpha)
+{
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = INTERPOLATE_PIXEL_255(dest[i], qAlpha(color), color, 255 - qAlpha(dest[i]));
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i) {
+            uint tmp = INTERPOLATE_PIXEL_255(dest[i], qAlpha(color), color, 255 - qAlpha(dest[i]));
+            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+        }
+    }
+}
+
+/*
+  Dca' = Sca.(1 - Da) + Dca.(1 - Sa)
+  Da'  = Sa.(1 - Da) + Da.(1 - Sa)
+       = Sa + Da - 2.Sa.Da
+*/
+static void QT_FASTCALL comp_func_solid_XOR(uint *dest, int length, uint color, uint const_alpha)
+{
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = INTERPOLATE_PIXEL_255(color, 255 - qAlpha(dest[i]), dest[i], 255 - qAlpha(color));
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i) {
+            uint tmp = INTERPOLATE_PIXEL_255(color, 255 - qAlpha(dest[i]), dest[i], 255 - qAlpha(color));
+            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+        }
+    }
+}
+
+
+static const CompositionFunctionSolid functionForModeSolid_C[] = {
+        comp_func_solid_SourceOver,
+        comp_func_solid_DestinationOver,
+        comp_func_solid_Clear,
+        comp_func_solid_Source,
+        0,
+        comp_func_solid_SourceIn,
+        comp_func_solid_DestinationIn,
+        comp_func_solid_SourceOut,
+        comp_func_solid_DestinationOut,
+        comp_func_solid_SourceAtop,
+        comp_func_solid_DestinationAtop,
+        comp_func_solid_XOR
+};
+
+static const CompositionFunctionSolid *functionForModeSolid = functionForModeSolid_C;
+
+
+
+static void QT_FASTCALL comp_func_Clear(uint *dest, const uint *, int length, uint const_alpha)
+{
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i)
+            dest[i] = 0;
+    } else {
+        int ialpha = 255 - const_alpha;
+        for (int i = 0; i < length; ++i)
+            dest[i] = BYTE_MUL(dest[i], ialpha);
+    }
+}
+
+/*
+Dca' = Sca.Da + Sca.(1 - Da)
+     = Sca
+Da'  = Sa.Da + Sa.(1 - Da)
+     = Sa
+*/
+static void QT_FASTCALL comp_func_Source(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i)
@@ -65,7 +257,7 @@ Dca' = Sca.Da + Sca.(1 - Da) + Dca.(1 - Sa)
 Da'  = Sa.Da + Sa.(1 - Da) + Da.(1 - Sa)
      = Sa + Da - Sa.Da
 */
-static void QT_FASTCALL comp_func_SourceOver(uint *dest, const uint *src, int length, int const_alpha)
+static void QT_FASTCALL comp_func_SourceOver(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i)
@@ -78,7 +270,7 @@ static void QT_FASTCALL comp_func_SourceOver(uint *dest, const uint *src, int le
     }
 }
 
-static void QT_FASTCALL comp_func_DestinationOver(uint *dest, const uint *src, int length, int const_alpha)
+static void QT_FASTCALL comp_func_DestinationOver(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i)
@@ -96,7 +288,7 @@ static void QT_FASTCALL comp_func_DestinationOver(uint *dest, const uint *src, i
   Dca' = Sca.Da
   Da'  = Sa.Da
 */
-static void QT_FASTCALL comp_func_SourceIn(uint *dest, const uint *src, int length, int const_alpha)
+static void QT_FASTCALL comp_func_SourceIn(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i)
@@ -110,7 +302,7 @@ static void QT_FASTCALL comp_func_SourceIn(uint *dest, const uint *src, int leng
     }
 }
 
-static void QT_FASTCALL comp_func_DestinationIn(uint *dest, const uint *src, int length, int const_alpha)
+static void QT_FASTCALL comp_func_DestinationIn(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i)
@@ -128,7 +320,7 @@ static void QT_FASTCALL comp_func_DestinationIn(uint *dest, const uint *src, int
  Dca' = Sca.(1 - Da)
  Da'  = Sa.(1 - Da)
 */
-static void QT_FASTCALL comp_func_SourceOut(uint *dest, const uint *src, int length, int const_alpha)
+static void QT_FASTCALL comp_func_SourceOut(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i)
@@ -142,7 +334,7 @@ static void QT_FASTCALL comp_func_SourceOut(uint *dest, const uint *src, int len
     }
 }
 
-static void QT_FASTCALL comp_func_DestinationOut(uint *dest, const uint *src, int length, int const_alpha)
+static void QT_FASTCALL comp_func_DestinationOut(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i)
@@ -162,7 +354,7 @@ static void QT_FASTCALL comp_func_DestinationOut(uint *dest, const uint *src, in
   Da'  = Sa.Da + Da.(1 - Sa)
        = Da
 */
-static void QT_FASTCALL comp_func_SourceAtop(uint *dest, const uint *src, int length, int const_alpha)
+static void QT_FASTCALL comp_func_SourceAtop(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i)
@@ -176,7 +368,7 @@ static void QT_FASTCALL comp_func_SourceAtop(uint *dest, const uint *src, int le
     }
 }
 
-static void QT_FASTCALL comp_func_DestinationAtop(uint *dest, const uint *src, int length, int const_alpha)
+static void QT_FASTCALL comp_func_DestinationAtop(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i)
@@ -195,7 +387,7 @@ static void QT_FASTCALL comp_func_DestinationAtop(uint *dest, const uint *src, i
   Da'  = Sa.(1 - Da) + Da.(1 - Sa)
        = Sa + Da - 2.Sa.Da
 */
-static void QT_FASTCALL comp_func_XOR(uint *dest, const uint *src, int length, int const_alpha)
+static void QT_FASTCALL comp_func_XOR(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i)
@@ -209,58 +401,36 @@ static void QT_FASTCALL comp_func_XOR(uint *dest, const uint *src, int length, i
     }
 }
 
-static CompositionFunction functionForMode(QPainter::CompositionMode mode)
-{
-    switch (mode) {
-    case QPainter::CompositionMode_SourceOver:
-        return comp_func_SourceOver;
-    case QPainter::CompositionMode_DestinationOver:
-        return comp_func_DestinationOver;
-    case QPainter::CompositionMode_Clear:
-        return comp_func_Clear;
-    case QPainter::CompositionMode_Source:
-        return comp_func_Source;
-    case QPainter::CompositionMode_SourceIn:
-        return comp_func_SourceIn;
-    case QPainter::CompositionMode_DestinationIn:
-        return comp_func_DestinationIn;
-    case QPainter::CompositionMode_SourceOut:
-        return comp_func_SourceOut;
-    case QPainter::CompositionMode_DestinationOut:
-        return comp_func_DestinationOut;
-    case QPainter::CompositionMode_SourceAtop:
-        return comp_func_SourceAtop;
-    case QPainter::CompositionMode_DestinationAtop:
-        return comp_func_DestinationAtop;
-    case QPainter::CompositionMode_Xor:
-        return comp_func_XOR;
-    case QPainter::CompositionMode_Destination:
-        return 0;
-    }
-    return 0;
-}
+static const CompositionFunction functionForMode_C[] = {
+        comp_func_SourceOver,
+        comp_func_DestinationOver,
+        comp_func_Clear,
+        comp_func_Source,
+        0,
+        comp_func_SourceIn,
+        comp_func_DestinationIn,
+        comp_func_SourceOut,
+        comp_func_DestinationOut,
+        comp_func_SourceAtop,
+        comp_func_DestinationAtop,
+        comp_func_XOR
+};
+
+static const CompositionFunction *functionForMode = functionForMode_C;
 
 static void blend_color_argb(void *t, const QSpan *span, QPainter::CompositionMode mode, const BlendColorData *data)
 {
-    CompositionFunction func = functionForMode(mode);
+    CompositionFunctionSolid func = functionForModeSolid[mode];
     if (!func)
         return;
-    uint buffer[buffer_size];
-
+    
     uint *target = ((uint *)t) + span->x;
     uint color = data->color;
     int length = span->len;
-
-    {
-        // #####
-        int l = qMin(length, buffer_size);
-        for (int i = 0; i < l; ++i)
-            buffer[i] = color;
-    }
     
     while (length) {
         int l = qMin(length, buffer_size);
-        func(target, buffer, l, span->coverage);
+        func(target, l, color, span->coverage);
         length -= l;
         target += l;
     }
@@ -270,7 +440,7 @@ static void blend_argb(void *t, const QSpan *span, const qreal dx, const qreal d
                        const void *ibits, const int image_width, const int image_height,
                        QPainter::CompositionMode mode)
 {
-    CompositionFunction func = functionForMode(mode);
+    CompositionFunction func = functionForMode[mode];
     if (!func)
         return;
 
@@ -299,7 +469,7 @@ static void blend_tiled_argb(void *t, const QSpan *span,
                              const void *ibits, const int image_width, const int image_height,
                              QPainter::CompositionMode mode)
 {
-    CompositionFunction func = functionForMode(mode);
+    CompositionFunction func = functionForMode[mode];
     if (!func)
         return;
     uint buffer[buffer_size];
@@ -334,7 +504,7 @@ static void blend_transformed_bilinear_argb(void *t, const QSpan *span,
                                             const void *ibits, const int image_width, const int image_height,
                                             QPainter::CompositionMode mode)
 {
-    CompositionFunction func = functionForMode(mode);
+    CompositionFunction func = functionForMode[mode];
     if (!func)
         return;
     uint buffer[buffer_size];
@@ -395,7 +565,7 @@ static void blend_transformed_bilinear_tiled_argb(void *t, const QSpan *span,
                                                   const void *ibits, const int image_width, const int image_height,
                                                   QPainter::CompositionMode mode)
 {
-    CompositionFunction func = functionForMode(mode);
+    CompositionFunction func = functionForMode[mode];
     if (!func)
         return;
     uint buffer[buffer_size];
@@ -465,7 +635,7 @@ static void blend_transformed_argb(void *t, const QSpan *span,
                                    const void *ibits, const int image_width, const int image_height,
                                    QPainter::CompositionMode mode)
 {
-    CompositionFunction func = functionForMode(mode);
+    CompositionFunction func = functionForMode[mode];
     if (!func)
         return;
     uint buffer[buffer_size];
@@ -508,7 +678,7 @@ static void blend_transformed_tiled_argb(void *t, const QSpan *span,
                                          const void *ibits, const int image_width, const int image_height,
                                          QPainter::CompositionMode mode)
 {
-    CompositionFunction func = functionForMode(mode);
+    CompositionFunction func = functionForMode[mode];
     if (!func)
         return;
     uint buffer[buffer_size];
@@ -555,7 +725,7 @@ static void blend_linear_gradient_argb(void *t, const QSpan *span, LinearGradien
 {
     if (mode == QPainter::CompositionMode_SourceOver && !data->alphaColor)
         mode = QPainter::CompositionMode_Source;
-    CompositionFunction func = functionForMode(mode);
+    CompositionFunction func = functionForMode[mode];
     if (!func)
         return;
     uint buffer[buffer_size];
@@ -593,7 +763,7 @@ static void blend_radial_gradient_argb(void *t, const QSpan *span, RadialGradien
 {
     if (mode == QPainter::CompositionMode_SourceOver && !data->alphaColor)
         mode = QPainter::CompositionMode_Source;
-    CompositionFunction func = functionForMode(mode);
+    CompositionFunction func = functionForMode[mode];
     if (!func)
         return;
     uint buffer[buffer_size];
@@ -635,7 +805,7 @@ static void blend_conical_gradient_argb(void *t, const QSpan *span, ConicalGradi
 {
 //     if (mode == QPainter::CompositionMode_SourceOver && !data->alphaColor)
 //         mode = QPainter::CompositionMode_Source;
-    CompositionFunction func = functionForMode(mode);
+    CompositionFunction func = functionForMode[mode];
     if (!func)
         return;
     uint buffer[buffer_size];
@@ -2102,3 +2272,79 @@ DrawHelper qDrawHelper[DrawHelper::Layout_Count] =
     }
 #endif
 };
+
+
+
+#ifdef QT_HAVE_SSE
+
+enum CPUFeatures {
+    None = 0,
+    MMX = 0x1,
+    SSE = 0x2,
+    SSE2 = 0x4,
+    CMOV = 0x8
+};
+
+static uint detectCPUFeatures() {
+#ifdef __x86_64__
+    return MMX|SSE|SSE2|CMOV;
+#else
+    uint result;
+    /* see p. 118 of amd64 instruction set manual Vol3 */
+    asm ("push %%ebx\n"
+         "pushf\n"
+         "pop %%eax\n"
+         "mov %%eax, %%ebx\n"
+         "xor $0x00200000, %%eax\n"
+         "push %%eax\n"
+         "popf\n"
+         "pushf\n"
+         "pop %%eax\n"
+         "mov $0x0, %%edx\n"
+         "xor %%ebx, %%eax\n"
+         "jz 1f\n"
+
+         "mov $0x00000001, %%eax\n"
+         "cpuid\n"
+         "1:\n"
+         "pop %%ebx\n"
+         "mov %%edx, %0\n"
+        : "=r" (result)
+        :
+        : "%eax", "%ecx", "%edx"
+        );
+
+    uint features = 0;
+    // result now contains the standard feature bits
+    if (result & (1 << 15))
+        features |= CMOV;
+    if (result & (1 << 23))
+        features |= MMX;
+    if (result & (1 << 25))
+        features |= SSE;
+    if (result & (1 << 26))
+        features |= SSE2;
+    return features;
+#endif
+}
+
+
+void qInitDrawhelperAsm()
+{
+    static uint features = 0;
+    if (features)
+        return;
+    features = detectCPUFeatures();
+
+    if (features & SSE) {
+        qDebug("using mmx code");
+        functionForMode = qt_functionForMode_SSE;
+        functionForModeSolid = qt_functionForModeSolid_SSE;
+    }
+}
+
+#else
+
+void qInitDrawhelperAsm() {}
+
+#endif // Q_HAVE_SSE

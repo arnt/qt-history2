@@ -118,3 +118,18 @@ embedded {
 		painting/qcolormap_qws.cpp \
 		painting/qpaintdevice_qws.cpp 
 }
+
+sse {
+    sse_compiler.commands = $$QMAKE_CXX -c -msse $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+    sse_compiler.dependency_type = TYPE_C
+    sse_compiler.output = $$OBJECTS_DIR/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+    sse_compiler.input = SSE_SOURCES
+    sse_compiler.CONFIG += no_link
+    sse_compiler.variable_out = OBJECTS
+    sse_compiler.name = compiling[sse]  ${QMAKE_FILE_IN}
+    unix:silent:sse_compiler.commands = @echo compiling[sse] ${QMAKE_FILE_IN} && $$sse_compiler.commands
+    QMAKE_EXTRA_COMPILERS += sse_compiler
+    DEFINES += QT_HAVE_SSE
+
+    SSE_SOURCES += painting/qdrawhelper_x86.cpp
+}
