@@ -1565,8 +1565,6 @@ void QWidgetPrivate::createSysExtra()
 
 void QWidgetPrivate::deleteSysExtra()
 {
-    Q_Q(QWidget);
-    q->setAcceptDrops(false);
 }
 
 void QWidgetPrivate::createTLSysExtra()

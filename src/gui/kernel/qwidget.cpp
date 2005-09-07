@@ -922,7 +922,10 @@ QWidget::~QWidget()
     if (paintingActive())
         qWarning("%s (%s): deleted while being painted", className(), name());
 #endif
-
+    
+    // force acceptDrops false before winId is destroyed.
+    d->setAcceptDrops_sys(false);
+    
 #ifndef QT_NO_ACTION
     // remove all actions from this widget
     for (int i = 0; i < d->actions.size(); ++i) {
