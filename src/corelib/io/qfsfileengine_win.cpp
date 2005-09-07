@@ -337,7 +337,7 @@ static QString nativeAbsoluteFilePath(const QString &path)
         retLen = GetFullPathNameW((wchar_t*)path.utf16(), buf.size(), buf.data(), &fileName);
     }
     if (retLen != 0)
-        ret = QString::fromUtf16(buf.data(), retLen);
+        ret = QString::fromUtf16((unsigned short *)buf.data(), retLen);
     return ret;
 }
 
