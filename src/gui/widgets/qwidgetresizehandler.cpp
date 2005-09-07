@@ -91,6 +91,7 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
         if (!widget->rect().contains(widget->mapFromGlobal(e->globalPos())))
             return false;
         if (e->button() == Qt::LeftButton) {
+            widget->grabMouse(widget->cursor());
             emit activate();
             bool me = movingEnabled;
             movingEnabled = (me && o == widget);
