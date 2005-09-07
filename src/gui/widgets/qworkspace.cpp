@@ -951,6 +951,7 @@ QWorkspacePrivate::init()
     shortcutMap.insert(q->grabShortcut(Qt::Key_Back), "activatePreviousWindow");
 #endif // QT_NO_SHORTCUT
 
+    q->setBackgroundRole(QPalette::Dark);
     q->setAttribute(Qt::WA_NoBackground, true);
     q->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
