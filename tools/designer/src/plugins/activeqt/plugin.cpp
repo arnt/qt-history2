@@ -25,12 +25,12 @@
 #include <QtGui/QPainter>
 
 #include <ActiveQt/QAxWidget>
+#include <ActiveQt/qaxselect.h>
+
 #include <QMetaProperty>
 
 #include <olectl.h>
-#include "../container/qaxselect.h"
 #include "activeqt_extrainfo.h"
-#include "../shared/qaxtypes.h"
 
 /* XPM */
 static const char *widgetIcon[]={
@@ -131,11 +131,11 @@ int QActiveXPluginObject::qt_metacall(QMetaObject::Call call, int signal, void *
             m_propValues.insert(signal, new QVariant(qVar));
             return 1;
         } else if(call == QMetaObject::ReadProperty) {
-            if (m_propValues.contains(signal)) {
+/*            if (m_propValues.contains(signal)) {
                 QMetaProperty mprop = mo->property(signal);
                 QVariantToVoidStar(*m_propValues.value(signal), *argv, mprop.typeName(), mprop.type());
                 return 1;
-            } else {
+            } else */{
                 return m_axobject->qt_metacall(call,signal,argv);
             }
         }
