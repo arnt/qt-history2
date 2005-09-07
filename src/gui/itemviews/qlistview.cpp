@@ -1339,7 +1339,8 @@ QListViewPrivate::QListViewPrivate()
       batchStartRow(0),
       batchSavedDeltaSeg(0),
       batchSavedPosition(0),
-      column(0)
+      column(0),
+      uniformItemSizes(false)
 {}
 
 void QListViewPrivate::prepareItemsLayout()
@@ -1349,6 +1350,7 @@ void QListViewPrivate::prepareItemsLayout()
     batchSavedPosition = 0;
     batchSavedDeltaSeg = 0;
     layoutBounds = viewport->rect();
+    cachedItemSize = QSize();
 
     int rowCount = model ? model->rowCount(root) : 0;
     int colCount = model ? model->columnCount(root) : 0;
