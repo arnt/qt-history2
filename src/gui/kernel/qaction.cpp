@@ -814,7 +814,7 @@ QAction::event(QEvent *e)
         return true;
     }
 #endif
-    return false;
+    return QObject::event(e);
 }
 
 /*!
