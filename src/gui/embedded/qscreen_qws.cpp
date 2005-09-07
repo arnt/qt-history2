@@ -17,6 +17,9 @@
 #include "qscreendriverfactory_qws.h"
 #include "qwindowsystem_qws.h"
 #include "private/qwidget_qws_p.h"
+#include <QtGui/qcolor.h>
+#include <QtGui/qpixmap.h>
+#include <QtGui/qpainter.h>
 
 static const bool simple_8bpp_alloc = true; //### 8bpp support not done
 
