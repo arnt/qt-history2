@@ -23,13 +23,13 @@
 
     \inmodule QtDesigner
 
-    \QD's form editor holds information about all \QD's components:
-    The action editor, the object inspector, the property editor, the
-    widget box, and the extension and form window
-    managers. QDesignerFormEditorInterface contains a collection of
-    functions that provides interfaces to all these components. They
-    are typically used to query (and manipulate) the respective
-    component. For example:
+    \QD's current QDesignerFormEditorInterface object holds
+    information about all \QD's components: The action editor, the
+    object inspector, the property editor, the widget box, and the
+    extension and form window managers. QDesignerFormEditorInterface
+    contains a collection of functions that provides interfaces to all
+    these components. They are typically used to query (and
+    manipulate) the respective component. For example:
 
     \code
         QDesignerObjectInspectorInterface *objectInspector = 0;
@@ -42,11 +42,12 @@
     \endcode
 
     QDesignerFormEditorInterface is not intended to be instantiated
-    directly. An interface to \QD's form editor (\c formEditor) is
-    provided by the QDesignerCustomWidgetInterface::initialize()
-    function's parameter. When implementing a custom widget plugin,
-    you must subclass the QDesignerCustomWidgetInterface to expose
-    your plugin to \QD.
+    directly. A pointer to \QD's current QDesignerFormEditorInterface
+    object (\c formEditor) is provided by the
+    QDesignerCustomWidgetInterface::initialize() function's
+    parameter. When implementing a custom widget plugin, you must
+    subclass the QDesignerCustomWidgetInterface to expose your plugin
+    to \QD.
 
     QDesignerFormEditorInterface also provides functions that can set
     the action editor, property editor, object inspector and widget
@@ -60,7 +61,8 @@
 */
 
 /*!
-    Constructs a form editor interface with the given \a parent.
+    Constructs a QDesignerFormEditorInterface object with the given \a
+    parent.
 */
 QDesignerFormEditorInterface::QDesignerFormEditorInterface(QObject *parent)
     : QObject(parent),
@@ -69,7 +71,7 @@ QDesignerFormEditorInterface::QDesignerFormEditorInterface(QObject *parent)
 }
 
 /*!
-    Destroys the form editor interface.
+    Destroys the QDesignerFormEditorInterface object.
 */
 QDesignerFormEditorInterface::~QDesignerFormEditorInterface()
 {

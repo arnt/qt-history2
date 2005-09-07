@@ -38,17 +38,18 @@
     The QDesignerObjectInspectorInterface class is not intended to be
     instantiated directly. You can retrieve an interface to \QD's
     object inspector using the
-    QDesignerFormEditorInterface::objectInspector() function.  An
-    interface to \QD's form editor (\c formEditor) is provided by the
+    QDesignerFormEditorInterface::objectInspector() function.  A
+    pointer to \QD's current QDesignerFormEditorInterface object (\c
+    formEditor) is provided by the
     QDesignerCustomWidgetInterface::initialize() function's
     parameter. When implementing a custom widget plugin, you must
     subclass the QDesignerCustomWidgetInterface to expose your plugin
     to \QD.
 
     The interface provides the core() function that you can use to
-    retrieve an interface to the current form editor, and the
-    setFormWindow() function that enables you to change the currently
-    selected form window.
+    retrieve a pointer to \QD's current QDesignerFormEditorInterface
+    object, and the setFormWindow() function that enables you to
+    change the currently selected form window.
 
     \sa QDesignerFormEditorInterface, QDesignerFormWindowInterface
 */
@@ -70,7 +71,8 @@ QDesignerObjectInspectorInterface::~QDesignerObjectInspectorInterface()
 }
 
 /*!
-    Returns an interface to \QD's form editor.
+    Returns a pointer to \QD's current QDesignerFormEditorInterface
+    object.
 */
 QDesignerFormEditorInterface *QDesignerObjectInspectorInterface::core() const
 {

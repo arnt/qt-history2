@@ -66,11 +66,12 @@
     }
     \endcode
 
-    The interface to \QD's form editor (\c formEditor) is
-    provided by the QDesignerCustomWidgetInterface::initialize()
-    function's parameter. When implementing a custom widget plugin,
-    you must subclass the QDesignerCustomWidgetInterface class to
-    expose your plugin to \QD.
+    The pointer to \QD's current QDesignerFormEditorInterface object
+    (\c formEditor) is provided by the
+    QDesignerCustomWidgetInterface::initialize() function's
+    parameter. When implementing a custom widget plugin, you must
+    subclass the QDesignerCustomWidgetInterface class to expose your
+    plugin to \QD.
 
     Once you have the form window, you can query its properties or
     define them yourself. For example, a plain custom widget plugin is
@@ -147,7 +148,8 @@ QDesignerFormWindowInterface::~QDesignerFormWindowInterface()
 }
 
 /*!
-    Returns an interface to \QD's form editor.
+    Returns a pointer to \QD's current QDesignerFormEditorInterface
+    object.
 */
 QDesignerFormEditorInterface *QDesignerFormWindowInterface::core() const
 {

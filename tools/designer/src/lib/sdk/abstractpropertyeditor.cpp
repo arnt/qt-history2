@@ -61,8 +61,9 @@
     The QDesignerPropertyEditorInterface class is not intended to be
     instantiated directly. You can retrieve an interface to \QD's
     property editor using the
-    QDesignerFormEditorInterface::propertyEditor() function. An
-    interface to \QD's form editor (\c formEditor) is provided by the
+    QDesignerFormEditorInterface::propertyEditor() function. A pointer
+    to \QD's current QDesignerFormEditorInterface object (\c
+    formEditor) is provided by the
     QDesignerCustomWidgetInterface::initialize() function's
     parameter. When implementing a custom widget plugin, you must
     subclass the QDesignerCustomWidgetInterface to expose your plugin
@@ -102,7 +103,8 @@ QDesignerPropertyEditorInterface::~QDesignerPropertyEditorInterface()
 }
 
 /*!
-    Returns an interface to \QD's form editor.
+    Returns a pointer to \QD's current QDesignerFormEditorInterface
+    object.
 */
 QDesignerFormEditorInterface *QDesignerPropertyEditorInterface::core() const
 {

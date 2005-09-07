@@ -27,7 +27,8 @@
     QDesignerFormEditorInterface::actionEditor() function.
 
     QDesignerActionEditorInterface provides the core() function that
-    you can use to retrieve \QD's form editor, and the setFormWindow()
+    you can use to retrieve a pointer to \QD's current
+    QDesignerFormEditorInterface object, and the setFormWindow()
     function that enables you to change the currently selected form
     window.
 
@@ -51,7 +52,8 @@ QDesignerActionEditorInterface::~QDesignerActionEditorInterface()
 }
 
 /*!
-    Returns an interface to \QD's form editor.
+    Returns a pointer to \QD's current QDesignerFormEditorInterface
+    object.
 */
 QDesignerFormEditorInterface *QDesignerActionEditorInterface::core() const
 {

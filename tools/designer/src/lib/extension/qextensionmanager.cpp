@@ -48,8 +48,9 @@
     The QExtensionManager is not intended to be instantiated
     directly. You can retrieve an interface to \QD's extension manager
     using the QDesignerFormEditorInterface::extensionManager()
-    function. The form editor interface (\c formEditor) is provided by
-    the QDesignerCustomWidgetInterface::initialize() function's
+    function. A pointer to \QD's current QDesignerFormEditorInterface
+    object (\c formEditor) is provided by the
+    QDesignerCustomWidgetInterface::initialize() function's
     parameter. When implementing a custom widget plugin, you must
     subclass the QDesignerCustomWidgetInterface to expose your plugin
     to \QD.

@@ -124,9 +124,10 @@
        if(propertySheet) {...}
    \endcode
 
-   When implementing a custom widget plugin, the interface to \QD's
-   form editor (\c formEditor) is provided by the
-   QDesignerCustomWidgetInterface::initialize() function's parameter.
+   When implementing a custom widget plugin, a pointer to \QD's
+   current QDesignerFormEditorInterface object (\c formEditor) is
+   provided by the QDesignerCustomWidgetInterface::initialize()
+   function's parameter.
 
    If the widget in the example above doesn't have a defined
    QDesignerPropertySheetExtension, \c propertySheet will be a null

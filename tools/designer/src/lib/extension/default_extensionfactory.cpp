@@ -25,11 +25,11 @@
 
     \inmodule QtDesigner
 
-    In Qt Designer the extensions are not created until they are
-    required. For that reason, when implementing a custom extension,
-    you must also create a QExtensionFactory, i.e a class that is able
-    to make an instance of your extension, and register it using \QD's
-    \l {QExtensionManager}{extension manager}.
+    In \QD the extensions are not created until they are required. For
+    that reason, when implementing a custom extension, you must also
+    create a QExtensionFactory, i.e a class that is able to make an
+    instance of your extension, and register it using \QD's \l
+    {QExtensionManager}{extension manager}.
 
     The QExtensionManager class provides extension management
     facilities for Qt Designer. When an extension is required, Qt

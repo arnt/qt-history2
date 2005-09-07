@@ -25,7 +25,7 @@
     QDesignerFormWindowManagerInterface is not intended to be
     instantiated directly. \QD uses the form window manager to
     control the various form windows in its workspace. You can
-    retrieve an interface to Qt Designer's form window manager using
+    retrieve an interface to \QD's form window manager using
     the QDesignerFormEditorInterface::formWindowManager()
     function. For example:
 
@@ -39,11 +39,12 @@
         manager->setActiveFormWindow(formWindow);
     \endcode
 
-    When implementing a custom widget plugin, an interface to Qt
-    Designer's form editor (\c formEditor) is provided by the
-    QDesignerCustomWidgetInterface::initialize() function's parameter.
-    You must subclass the QDesignerCustomWidgetInterface to expose
-    your plugin to Qt Designer.
+    When implementing a custom widget plugin, a pointer to \QD's
+    current QDesignerFormEditorInterface object (\c formEditor) is
+    provided by the QDesignerCustomWidgetInterface::initialize()
+    function's parameter.  You must subclass the
+    QDesignerCustomWidgetInterface to expose your plugin to Qt
+    Designer.
 
     The form window manager interface provides the createFormWindow()
     function that enables you to create a new form window which you
@@ -55,8 +56,8 @@
     activeFormWindow() function returning the currently selected form
     window. The removeFormWindow() slot allows you to reduce the
     number of form windows the manager must maintain, and the
-    setActiveFormWindow() slot allows you to change the focus of \QD's
-    \l {QDesignerFormEditorInterface}{form editor}.
+    setActiveFormWindow() slot allows you to change the form window
+    focus in \QD's workspace.
 
     In addition, QDesignerFormWindowManagerInterface contains a
     collection of functions that enables you to intervene and control
@@ -258,7 +259,8 @@ QDesignerFormWindowInterface *QDesignerFormWindowManagerInterface::activeFormWin
 }
 
 /*!
-    Returns an interface to the \QD's form editor.
+    Returns a pointer to \QD's current QDesignerFormEditorInterface
+    object.
 */
 QDesignerFormEditorInterface *QDesignerFormWindowManagerInterface::core() const
 {
