@@ -352,7 +352,7 @@ static void blend_transformed_bilinear_argb(void *t, const QSpan *span,
         int l = qMin(length, buffer_size);
         const uint *end = buffer + l;
         uint *b = buffer;
-        while (buffer < end) {
+        while (b < end) {
             int x1 = (x >> 16);
             int x2 = x1 + 1;
             int y1 = (y >> 16);
