@@ -249,6 +249,7 @@
 #include <qdatetime.h>
 #include <qhostaddress.h>
 #include <qhostinfo.h>
+#include <qmetaobject.h>
 #include <qpointer.h>
 #include <qtimer.h>
 
@@ -313,6 +314,8 @@ QAbstractSocketPrivate::QAbstractSocketPrivate()
       emittedBytesWritten(false),
       closeCalled(false),
       port(0),
+      localPort(0),
+      peerPort(0),
       socketEngine(0),
       readBufferMaxSize(0),
       readBuffer(QABSTRACTSOCKET_BUFFERSIZE),
@@ -767,6 +770,12 @@ void QAbstractSocketPrivate::testConnection()
         socketEngine->setReadNotificationEnabled(true);
         socketEngine->setWriteNotificationEnabled(true);
 
+        localPort = socketEngine->localPort();
+        peerPort = socketEngine->peerPort();
+        localAddress = socketEngine->localAddress();
+        peerAddress = socketEngine->peerAddress();
+        peerName = hostName;
+        
         emit q->connected();
 #if defined(QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocketPrivate::testConnection() connection to %s:%i established",
@@ -921,6 +930,18 @@ bool QAbstractSocket::isValid() const
 void QAbstractSocket::connectToHost(const QString &hostName, quint16 port,
                                     OpenMode openMode)
 {
+    QMetaObject::invokeMethod(this, "connectToHostImplementation",
+                              Q_ARG(QString, hostName),
+                              Q_ARG(quint16, port),
+                              Q_ARG(OpenMode, openMode));
+}
+
+/*!
+    Contains the implementation of connectToHost().
+*/
+void QAbstractSocket::connectToHostImplementation(const QString &hostName, quint16 port,
+                                                  OpenMode openMode)
+{
     Q_D(QAbstractSocket);
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::connectToHost(\"%s\", %i, %i)...", hostName.toLatin1().constData(), port,
@@ -938,6 +959,11 @@ void QAbstractSocket::connectToHost(const QString &hostName, quint16 port,
     d->readBuffer.clear();
     d->writeBuffer.clear();
     d->closeCalled = false;
+    d->localPort = 0;
+    d->peerPort = 0;
+    d->localAddress.clear();
+    d->peerAddress.clear();
+    d->peerName = hostName;
     if (d->hostLookupId != -1) {
         QHostInfo::abortHostLookup(d->hostLookupId);
         d->hostLookupId = -1;
@@ -1017,13 +1043,12 @@ qint64 QAbstractSocket::bytesAvailable() const
     Returns the host port number (in native byte order) of the local
     socket if available; otherwise returns 0.
 
-    \sa localAddress(), peerPort()
+    \sa localAddress(), peerPort(), setLocalPort()
 */
 quint16 QAbstractSocket::localPort() const
 {
     Q_D(const QAbstractSocket);
-    Q_CHECK_SOCKETENGINE(0);
-    return d->socketEngine->localPort();
+    return d->localPort;
 }
 
 /*!
@@ -1034,50 +1059,48 @@ quint16 QAbstractSocket::localPort() const
     QHostAddress::LocalHost (127.0.0.1) for connections to the
     local host.
 
-    \sa localPort(), peerAddress()
+    \sa localPort(), peerAddress(), setLocalAddress()
 */
 QHostAddress QAbstractSocket::localAddress() const
 {
     Q_D(const QAbstractSocket);
-    Q_CHECK_SOCKETENGINE(QHostAddress());
-    return d->socketEngine->localAddress();
+    return d->localAddress;
 }
 
 /*!
     Returns the port of the connected peer if the socket is in
     ConnectedState; otherwise returns 0.
 
-    \sa peerAddress(), localPort()
+    \sa peerAddress(), localPort(), setPeerPort()
 */
 quint16 QAbstractSocket::peerPort() const
 {
     Q_D(const QAbstractSocket);
-    Q_CHECK_SOCKETENGINE(0);
-    return d->socketEngine->peerPort();
+    return d->peerPort;
 }
 
 /*!
     Returns the address of the connected peer if the socket is in
     ConnectedState; otherwise returns QHostAddress::Null.
 
-    \sa peerName(), peerPort(), localAddress()
+    \sa peerName(), peerPort(), localAddress(), setPeerAddress()
 */
 QHostAddress QAbstractSocket::peerAddress() const
 {
     Q_D(const QAbstractSocket);
-    Q_CHECK_SOCKETENGINE(QHostAddress());
-    return d->socketEngine->peerAddress();
+    return d->peerAddress;
 }
 
 /*!
     Returns the name of the peer as specified by connectToHost(), or
     an empty QString if connectToHost() has not been called.
 
-    \sa peerAddress(), peerPort()
+    \sa peerAddress(), peerPort(), setPeerName()
 */
 QString QAbstractSocket::peerName() const
 {
-    return d_func()->hostName;
+    Q_D(const QAbstractSocket);
+    return d->peerName.isEmpty() ? d->hostName : d->peerName;
 }
 
 /*!
@@ -1144,6 +1167,11 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, SocketState sock
     }
 
     d->socketEngine->setReadNotificationEnabled(true);
+    d->localPort = d->socketEngine->localPort();
+    d->peerPort = d->socketEngine->peerPort();
+    d->localAddress = d->socketEngine->localAddress();
+    d->peerAddress = d->socketEngine->peerAddress();
+    
     return true;
 }
 
@@ -1596,6 +1624,64 @@ qint64 QAbstractSocket::writeData(const char *data, qint64 size)
 }
 
 /*!
+    Sets the port on the local side of a connection to \a port.
+
+    \sa localAddress(), setLocalAddress(), setPeerPort()
+*/
+void QAbstractSocket::setLocalPort(quint16 port)
+{
+    Q_D(QAbstractSocket);
+    d->localPort = port;
+}
+
+/*!
+    Sets the address on the local side of a connection to
+    \a address.
+
+    \sa localAddress(), setLocalPort(), setPeerAddress()
+*/
+void QAbstractSocket::setLocalAddress(const QHostAddress &address)
+{
+    Q_D(QAbstractSocket);
+    d->localAddress = address;
+}
+
+/*!
+    Sets the port of the remote side of the connection to
+    \a port.
+
+    \sa peerPort(), setPeerAddress(), setLocalPort()
+*/
+void QAbstractSocket::setPeerPort(quint16 port)
+{
+    Q_D(QAbstractSocket);
+    d->peerPort = port;
+}
+
+/*!
+    Sets the address of the remote side of the connection
+    to \a address.
+
+    \sa peerAddress(), setPeerPort(), setLocalAddress()
+*/
+void QAbstractSocket::setPeerAddress(const QHostAddress &address)
+{
+    Q_D(QAbstractSocket);
+    d->peerAddress = address;
+}
+
+/*!
+    Sets the host name of the remote peer to \a name.
+
+    \sa peerName()
+*/
+void QAbstractSocket::setPeerName(const QString &name)
+{
+    Q_D(QAbstractSocket);
+    d->peerName = name;
+}
+
+/*!
     Attempts to close the socket. If there is pending data waiting to
     be written, QAbstractSocket will enter ClosingState and wait
     until all data has been written. Eventually, it will enter
@@ -1622,6 +1708,14 @@ void QAbstractSocket::close()
     \sa connectToHost()
 */
 void QAbstractSocket::disconnectFromHost()
+{
+    QMetaObject::invokeMethod(this, "disconnectFromHostImplementation");
+}
+
+/*!
+    Contains the implementation of disconnectFromHost().
+*/
+void QAbstractSocket::disconnectFromHostImplementation()
 {
     Q_D(QAbstractSocket);
 #if defined(QABSTRACTSOCKET_DEBUG)
@@ -1679,6 +1773,11 @@ void QAbstractSocket::disconnectFromHost()
 #endif
     emit disconnected();
 
+    d->localPort = 0;
+    d->peerPort = 0;
+    d->localAddress.clear();
+    d->peerAddress.clear();
+    
 #if defined(QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocket::disconnectFromHost() disconnected!");
 #endif

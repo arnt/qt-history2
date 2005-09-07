@@ -121,6 +121,10 @@ signals:
     void stateChanged(QAbstractSocket::SocketState);
     void error(QAbstractSocket::SocketError);
 
+protected slots:
+    void connectToHostImplementation(const QString &hostName, quint16 port, OpenMode mode = ReadWrite);
+    void disconnectFromHostImplementation();
+
 protected:
     qint64 readData(char *data, qint64 maxlen);
     qint64 readLineData(char *data, qint64 maxlen);
@@ -128,8 +132,12 @@ protected:
 
     void setSocketState(SocketState state);
     void setSocketError(SocketError socketError);
+    void setLocalPort(quint16 port);
+    void setLocalAddress(const QHostAddress &address);
+    void setPeerPort(quint16 port);
+    void setPeerAddress(const QHostAddress &address);
+    void setPeerName(const QString &name);
 
-protected:
     QAbstractSocket(SocketType socketType, QAbstractSocketPrivate &dd, QObject *parent = 0);
 
 private:

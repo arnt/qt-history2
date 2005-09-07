@@ -53,6 +53,12 @@ public:
     QHostAddress host;
     QList<QHostAddress> addresses;
 
+    quint16 localPort;
+    quint16 peerPort;
+    QHostAddress localAddress;
+    QHostAddress peerAddress;
+    QString peerName;
+
     QAbstractSocketEngine *socketEngine;
 
     void resetSocketLayer();
