@@ -1,0 +1,24 @@
+#!/bin/sh
+
+FVISIBILITY_SUPPORT=no
+XPLATFORM=`basename $1`
+XCONFIG=$1/qmake.conf
+VERBOSE=$2
+
+cat >>sse.c << EOF
+#include <mmintrin.h>
+#include <xmmintrin.h>
+EOF
+
+COMPILER=`grep QMAKE_CC $XCONFIG | sed "s,.*= *,,"`
+$COMPILER -c -msse sse.c >/dev/null 2>&1 && SSE_SUPPORT=yes
+rm -f sse.c sse.o
+
+# done
+if [ "$SSE_SUPPORT" != "yes" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "sse support disabled."
+    exit 0
+else
+    [ "$VERBOSE" = "yes" ] && echo "sse support enabled."
+    exit 1
+fi

@@ -1814,6 +1814,13 @@ if [ "$CFG_REDUCE_EXPORTS" = "auto" ]; then
     fi
 fi
 
+# detect sse support
+if $unixtests/sse.test $XQMAKESPEC $OPT_VERBOSE; then
+    CFG_HAVE_SSE=no
+else
+    CFG_HAVE_SSE=yes
+fi
+
 # auto-detect SQL-modules support
 MYSQL_REQ="-lmysqlclient mysql.h"
 OCI_REQ="-lclntsh oci.h"
@@ -3073,6 +3080,7 @@ if [ "$CFG_USE_GNUMAKE" = "yes" ]; then
 fi
 [ "$CFG_REDUCE_EXPORTS" = "yes" ] && QT_CONFIG="$QT_CONFIG reduce_exports"
 [ "$CFG_PRECOMPILE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG precompile_header"
+[ "$CFG_HAVE_SSE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sse"
 [ "$CFG_UNIVERSAL_BINARY" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG x86 ppc"
 if [ "$CFG_IPV6" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG ipv6"
@@ -3787,6 +3795,7 @@ echo "Debug................ $CFG_DEBUG"
 echo "Qt3 compatibility.... $CFG_QT3SUPPORT"
 echo "STL support ......... $CFG_STL"
 echo "PCH support ......... $CFG_PRECOMPILE"
+echo "MMX/SSE support ..... $CFG_HAVE_SSE"
 echo "IPv6 support ........ $CFG_IPV6"
 echo "IPv6 ifname support . $CFG_IPV6IFNAME"
 echo "getaddrinfo support . $CFG_GETADDRINFO"
