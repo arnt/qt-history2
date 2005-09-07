@@ -100,10 +100,12 @@ static void QT_FASTCALL comp_func_solid_Clear(uint *dest, int length, const uint
         if (length & 1)
             *dest = 0;
     } else {
-        int ialpha = 255 - const_alpha;
-        for (int i = 0; i < length; ++i)
-            dest[i] = BYTE_MUL(dest[i], ialpha);
+        __m64 ia = negate(loadAlpha(const_alpha));
+        for (int i = 0; i < length; ++i) {
+            dest[i] = store(byte_mul(load(dest[i]), ia));
+        }
     }
+    _mm_empty();
 }
 
 /*
@@ -118,9 +120,13 @@ static void QT_FASTCALL comp_func_solid_Source(uint *dest, int length, uint colo
         for (int i = 0; i < length; ++i)
             dest[i] = color;
     } else {
-        int ialpha = 255 - const_alpha;
-        for (int i = 0; i < length; ++i)
-            dest[i] = INTERPOLATE_PIXEL_255(color, const_alpha, dest[i], ialpha);
+        __m64 a = loadAlpha(const_alpha);
+        __m64 ia = negate(a);
+        __m64 c = byte_mul(load(color), a);
+        for (int i = 0; i < length; ++i) {
+            dest[i] = store(add(c, byte_mul(load(dest[i]), ia)));
+        }
+        _mm_empty();
     }
 }
 
@@ -149,9 +155,13 @@ static void QT_FASTCALL comp_func_solid_SourceOver(uint *dest, int length, uint 
 
 static void QT_FASTCALL comp_func_solid_DestinationOver(uint *dest, int length, uint color, uint const_alpha)
 {
+    __m64 c = load(color);
     if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = dest[i] + BYTE_MUL(color, 255 - qAlpha(dest[i]));
+        for (int i = 0; i < length; ++i) {
+            __m64 d = load(dest[i]);
+            __m64 ia = negate(spread_alpha(d));
+            dest[i] = store(add(d, byte_mul(c, ia)));
+        }
     } else {
         int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i) {
@@ -159,6 +169,7 @@ static void QT_FASTCALL comp_func_solid_DestinationOver(uint *dest, int length, 
             dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
         }
     }
+    _mm_empty();
 }
 
 /*
