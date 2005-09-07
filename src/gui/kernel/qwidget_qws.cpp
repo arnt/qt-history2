@@ -698,6 +698,35 @@ QPixmap *QWSBackingStore::pixmap()
 {
     return pix;
 }
+
+//doesn't work for less than 8 bpp
+void QWSBackingStore::blt(const QRect &r, const QPoint &p)
+{
+    int depth = pix->depth();
+    int lineskip = (pix->width() * depth)/8;
+
+    char *src;
+    char *dest;
+
+    if (r.top() < p.y()) {
+        //backwards
+        src = (char*)shmaddr + r.bottom()*lineskip + r.left()*depth/8;
+        dest = (char*)shmaddr + (p.y()+r.height()-1)*lineskip + p.x()*depth/8;
+        lineskip = -lineskip;
+    } else {
+        src = (char*)shmaddr + r.top()*lineskip + r.left()*depth/8;
+        dest = (char*)shmaddr + p.y()*lineskip + p.x()*depth/8;
+    }
+
+    int bytes = r.width() * depth / 8;
+    int h = r.height();
+    do {
+        memmove(dest, src, bytes);
+        dest += lineskip;
+        src += lineskip;
+    } while (--h);
+}
+
 void QWSBackingStore::detach()
 {
 #ifdef QT_SHAREDMEM_DEBUG
@@ -728,7 +757,7 @@ void QWSBackingStore::create(QSize s)
         return;
     }
     int extradatasize = 0;//2 * sizeof(int); //store height and width ???
-    int datasize = 4 * s.width() * s.height() + extradatasize;
+    int datasize = 4 * s.width() * s.height() + extradatasize; //### hardcoded 32bpp
     shmid = shmget(IPC_PRIVATE, datasize, IPC_CREAT|0600);
     shmaddr = shmat(shmid,0,0);
     QImage img(static_cast<uchar*>(shmaddr)+extradatasize, s.width(), s.height(),
@@ -1136,7 +1165,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         return;
 
     bool valid_rect = r.isValid();
-    QRect sr = valid_rect?r:rect();
+    QRect sr = valid_rect ? r & rect() : rect();
     int x1, y1, x2, y2, w=sr.width(), h=sr.height();
     if (dx > 0) {
         x1 = sr.x();
@@ -1159,34 +1188,37 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 
     if (dx == 0 && dy == 0)
         return;
-#if 0
-    //@@@@
-//    qDebug("QWidget::scroll ### not implemented ###");
-    QSize s(qt_screen->width(), qt_screen->height());
-    QRegion alloc = valid_rect ? d->paintableRegion() : d->allocatedRegion();
 
-    QRegion dAlloc = alloc;
-    QPoint td1 = qt_screen->mapToDevice(QPoint(0,0), s);
-    QPoint td2 = qt_screen->mapToDevice(QPoint(dx,dy), s);
-    dAlloc.translate(td2.x()-td1.x(), td2.y()-td1.y());
+    QRegion update(sr);
 
-    QRegion scrollRegion(alloc & dAlloc);
+    bool fastScroll = false; //####
+    if (fastScroll && h >0 && w >0) {
+        QWidget *tlw = window();
+        QTLWExtra *topextra = tlw->d_func()->extra->topextra;
 
-    if (w > 0 && h > 0) {
-        bool was_unclipped = testAttribute(Qt::WA_PaintUnclipped);
-        setAttribute(Qt::WA_PaintUnclipped);
+        QPoint bsOffset = tlw->mapFromGlobal(mapToGlobal(QPoint(0,0))) - topextra->backingStoreOffset;
 
-        QWSPaintEngine * engine=static_cast<QWSPaintEngine*>(paintEngine());
-        engine->begin(this);
+        QPoint p1(x1,y1);
+        QPoint p2(x2,y2);
 
-        engine->setClipDeviceRegion(scrollRegion);
-        engine->scroll(x2,y2,w,h,x1,y1);
-        engine->end();
-        if (!was_unclipped)
-            setAttribute(Qt::WA_PaintUnclipped,false);
+        QPoint bsp1 = p1 + bsOffset;
+        QPoint bsp2 = p2 + bsOffset;
+
+        QRect bsrect(bsp1, QSize(w,h));
+
+        QWSBackingStore *bs = topextra->backingStore;
+        bs->lock(true);
+        bs->blt(bsrect, bsp2);
+        bs->unlock();
+
+        QRect scrollRect = QRect(mapToGlobal(p2), QSize(w,h));
+        QRegion globalrgn(scrollRect);
+        tlw->d_func()->bltToScreen(globalrgn);
+
+        update -= QRect(p2, QSize(w,h));
     }
-    data->paintable_region_dirty = true;
-#endif
+
+
     QPoint gpos = mapToGlobal(QPoint());
 
     if (!valid_rect && children().size() > 0) {        // scroll children
@@ -1206,27 +1238,8 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
             }
         }
     }
-#if 0
-    QSize ds(qt_screen->deviceWidth(), qt_screen->deviceHeight());
-    scrollRegion = qt_screen->mapFromDevice(scrollRegion, ds);
-    scrollRegion.translate(-gpos.x(), -gpos.y());
-#endif
-    QRegion update(sr);
-#if 0
-    update -= scrollRegion;
-#endif
-    if (dx) {
-        int x = x2 == sr.x() ? sr.x()+w : sr.x();
-        update |= QRect(x, sr.y(), qAbs(dx), sr.height());
-    }
-    if (dy) {
-        int y = y2 == sr.y() ? sr.y()+h : sr.y();
-        update |= QRect(sr.x(), y, sr.width(), qAbs(dy));
-    }
-    repaint(update);
-//    if (!valid_rect)
-//        paint_children(this, update, false);
 
+    repaint(update);
 }
 
 

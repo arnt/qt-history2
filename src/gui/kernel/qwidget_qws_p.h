@@ -31,7 +31,7 @@ public:
 
     QPixmap *pixmap();
 
-
+    void blt(const QRect &src, const QPoint &dest);
 
     int memoryId() const { return shmid; }
     QSize size() const;
