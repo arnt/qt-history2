@@ -63,10 +63,11 @@
 
     \image qtdesignerscreenshot.png
 
-    \QD also has a non-visual form editor. The form editor holds
-    information about all of \QD's components. You can use the
-    QDesignerFormEditorInterface to retrieve interfaces accessing the
-    visually available components:
+    \QD also has an object that works behind the scene; it contains
+    the logic that integrates all of \QD's components into a coherent
+    application. You can access this object, using the
+    QDesignerFormEditorInterface, to retrieve interfaces to \QD's
+    components:
 
     \list
     \o QDesignerActionEditorInterface
@@ -99,7 +100,6 @@
     created with \QD. For a complete example using QFormBuilder, see
     the \l {designer/calculatorbuilder}{Calculator Builder example}.
 
-
     \sa {Qt Designer Manual}
 */
 
@@ -128,9 +128,10 @@
         delete sheet;
     \endcode
 
-    When implementing a custom widget plugin, the form editor
-    interface (\c formEditor) is provided by the
-    QDesignerCustomWidgetInterface::initialize() function's parameter.
+    When implementing a custom widget plugin, a pointer to \QD's
+    current QDesignerFormEditorInterface object (\c formEditor) is
+    provided by the QDesignerCustomWidgetInterface::initialize()
+    function's parameter.
 
     The member sheet (and any other extension), can be retrieved by
     querying \QD's extension manager using the qt_extension()
@@ -1326,9 +1327,10 @@
         delete sheet;
     \endcode
 
-    When implementing a custom widget plugin, the form editor
-    interface (\c formEditor) is provided by the
-    QDesignerCustomWidgetInterface::initialize() function's parameter.
+    When implementing a custom widget plugin, a pointer to \QD's
+    current QDesignerFormEditorInterface object (\c formEditor) is
+    provided by the QDesignerCustomWidgetInterface::initialize()
+    function's parameter.
 
     The property sheet, or any other extension, can be retrieved by
     querying \QD's extension manager using the qt_extension()
