@@ -1242,6 +1242,19 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
         that->scheme = QUrl::fromPercentEncoding(__scheme);
         that->setUserInfo(QUrl::fromPercentEncoding(__userInfo));
         that->host = QUrl::fromPercentEncoding(__host);
+
+        // If the labels in the hostname are Punycode encoded, we decode
+        // them immediately.
+        if (that->host.contains(QLatin1String("xn--"))) {
+            QStringList labels = that->host.split(QLatin1Char('.'));
+            for (int i = 0; i < labels.size(); ++i) {
+                QString label = labels.at(i);
+                if (label.startsWith("xn--"))
+                    labels[i] = QUrl::fromPunycode(label.toLatin1());
+            }
+            that->host = labels.join(QLatin1String("."));
+        }
+
         that->port = __port;
         that->path = QUrl::fromPercentEncoding(__path);
         that->query = __query;
