@@ -3002,6 +3002,7 @@ void QWorkspace::setScrollBarsEnabled(bool enable)
         d->hbar->setObjectName("horizontal scrollbar");
         connect(d->hbar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarChanged()));
         d->corner = new QWidget(this);
+        d->corner->setBackgroundRole(QPalette::Background);
         d->corner->setObjectName("qt_corner");
         d->updateWorkspace();
     } else {
