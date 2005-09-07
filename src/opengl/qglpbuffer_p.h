@@ -24,10 +24,11 @@ typedef XID GLXPbuffer;
 class QGLPbufferPrivate {
     Q_DECLARE_PUBLIC(QGLPbuffer)
 public:
-    QGLPbufferPrivate() : pbuf(0), ctx(0), invalid(true), paintEngine(0) {}
+    QGLPbufferPrivate() : pbuf(0), ctx(0), qctx(0), invalid(true), paintEngine(0) {}
 
     GLXPbuffer pbuf;
     GLXContext ctx;
+    QGLContext *qctx;
     bool invalid;
     QSize size;
     QGLPbuffer *q_ptr;
@@ -43,6 +44,7 @@ public:
 
     bool invalid;
     QSize size;
+    QGLContext *qctx;
     QGLPbuffer *q_ptr;
     QGLWidget dmy;
     HDC dc;
@@ -60,6 +62,7 @@ public:
 
     bool invalid;
     QSize size;
+    QGLContext *qctx;
     QGLPbuffer *q_ptr;
     AGLPbuffer pbuf;
     AGLContext ctx;

@@ -66,6 +66,7 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
     QString extensions(glXGetClientString(QX11Info::display(), GLX_EXTENSIONS));
     QString version(glXGetClientString(QX11Info::display(), GLX_VERSION));
 
+    d->qctx = 0;
     if (version.toFloat() < 1.3f || !extensions.contains("GLX_SGIX_pbuffer")) {
         qWarning() << "GLX_SGIX_pbuffer extension not found - pbuffers not supported on this system.";
         return;
@@ -135,6 +136,7 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
         for (int i = 0; i < num_configs; ++i)
             XFree(configs[i]);
         XFree(configs);
+        d->qctx = new QGLContext(f);
     } else {
         qWarning("Unable to find a context/format match - giving up");
         return;
@@ -147,6 +149,7 @@ QGLPbuffer::~QGLPbuffer()
     glXDestroyContext(QX11Info::display(), d->ctx);
     glXDestroyPbuffer(QX11Info::display(), d->pbuf);
     delete d->paintEngine;
+    delete d->qctx;
     delete d_ptr;
 }
 

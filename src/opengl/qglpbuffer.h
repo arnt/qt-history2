@@ -34,6 +34,12 @@ public:
     bool bind(GLuint texture_id);
     bool release();
 
+    GLuint bindTexture(const QImage &image, GLenum target = GL_TEXTURE_2D,
+		       GLint format = GL_RGBA8);
+    GLuint bindTexture(const QPixmap &pixmap, GLenum target = GL_TEXTURE_2D,
+		       GLint format = GL_RGBA8);
+    GLuint bindTexture(const QString &fileName);
+    void deleteTexture(GLuint texture_id);
     void copyToTexture(GLuint texture_id, GLint format = GL_RGBA8);
 
     QSize size() const;

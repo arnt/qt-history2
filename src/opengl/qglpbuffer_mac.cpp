@@ -26,6 +26,7 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
     Q_D(QGLPbuffer);
     GLint attribs[40];
     int i = 0;
+    d->qctx = 0;
 
     attribs[i++] = AGL_RGBA;
     attribs[i++] = AGL_ACCELERATED;
@@ -54,6 +55,7 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
     aglDestroyPixelFormat(format);
     d->invalid = false;
     d->size = size;
+    d->qctx = new QGLContext(f);
 }
 
 QGLPbuffer::~QGLPbuffer()
@@ -62,6 +64,7 @@ QGLPbuffer::~QGLPbuffer()
     aglSetCurrentContext(0);
     aglDestroyContext(d->ctx);
     aglDestroyPBuffer(d->pbuf);
+    delete d->qctx;
     delete d_ptr;
 }
 

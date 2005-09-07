@@ -153,6 +153,7 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
     : d_ptr(new QGLPbufferPrivate)
 {
     Q_D(QGLPbuffer);
+    d->qctx = 0;
     if (!qt_init_glpbuffer_extensions())
         return;
 
@@ -212,6 +213,7 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
     wglQueryPbufferARB(d->pbuf, WGL_PBUFFER_HEIGHT_ARB, &height);
     d->size = QSize(width, height);
     d->invalid = false;
+    d->qctx = new QGLContext(f);
 }
 
 QGLPbuffer::~QGLPbuffer()
@@ -223,6 +225,7 @@ QGLPbuffer::~QGLPbuffer()
         wglReleasePbufferDCARB(d->pbuf, d->dc);
         wglDestroyPbufferARB(d->pbuf);
     }
+    delete d->qctx;
     delete d_ptr;
 }
 

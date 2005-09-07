@@ -226,4 +226,47 @@ int QGLPbuffer::metric(PaintDeviceMetric metric) const
     return 0;
 }
 
+/*!
+    The same as calling QGLContext::bindTexture().
 
+    \sa deleteTexture()
+*/
+GLuint QGLPbuffer::bindTexture(const QImage &image, GLenum target, GLint format)
+{
+    Q_D(QGLPbuffer);
+    return d->qctx->bindTexture(image, target, format);
+}
+
+
+/*! \overload
+
+    Same as calling QGLContext::bindTexture().
+
+    \sa deleteTexture()
+*/
+GLuint QGLPbuffer::bindTexture(const QPixmap &pixmap, GLenum target, GLint format)
+{
+    Q_D(QGLPbuffer);
+    return d->qctx->bindTexture(pixmap, target, format);
+}
+
+/*! \overload
+
+    The same as calling QGLContext::bindTexture().
+
+    \sa deleteTexture()
+*/
+GLuint QGLPbuffer::bindTexture(const QString &fileName)
+{
+    Q_D(QGLPbuffer);
+    return d->qctx->bindTexture(fileName);
+}
+
+/*!
+    The same as calling QGLContext::deleteTexture().
+ */
+void QGLPbuffer::deleteTexture(GLuint texture_id)
+{
+    Q_D(QGLPbuffer);
+    d->qctx->deleteTexture(texture_id);
+}

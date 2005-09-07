@@ -122,6 +122,8 @@ inline GLuint QGLDrawable::bindTexture(const QImage &image, GLenum target, GLint
 {
     if (widget)
         return widget->bindTexture(image, target, format);
+    else if (buffer)
+        return buffer->bindTexture(image, target, format);
     return 0;
 }
 
@@ -129,6 +131,8 @@ inline GLuint QGLDrawable::bindTexture(const QPixmap &pixmap, GLenum target, GLi
 {
     if (widget)
         return widget->bindTexture(pixmap, target, format);
+    else if (buffer)
+        return buffer->bindTexture(pixmap, target, format);
     return 0;
 }
 
