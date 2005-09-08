@@ -1274,7 +1274,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         sm_cancel = false;
         if (qt_session_manager_self)
             qApp->commitData(*qt_session_manager_self);
-        if (lParam == (LPARAM)ENDSESSION_LOGOFF) {
+        if (lParam & ENDSESSION_LOGOFF) {
             _flushall();
         }
         RETURN(!sm_cancel);
