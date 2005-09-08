@@ -100,7 +100,7 @@ bool QGLPbuffer::doneCurrent()
     return false;
 }
 
-GLuint QGLPbuffer::generateTexture(GLint format)
+GLuint QGLPbuffer::generateTexture(GLint)
 {
     Q_D(QGLPbuffer);
     GLuint texture;
