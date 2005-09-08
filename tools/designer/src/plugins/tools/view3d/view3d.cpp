@@ -16,23 +16,21 @@
 #include <QtOpenGL>
 
 #include "abstractformeditor.h"
-//#include "qextensionmanager.h"
 #include "abstractmetadatabase.h"
-//#include "container.h"
 #include "abstractformwindow.h"
 #include "view3d.h"
 
 #define SELECTION_BUFSIZE 512
 
 /*******************************************************************************
-** View3DWidget
+** QView3DWidget
 */
 
-class View3DWidget : public QGLWidget
+class QView3DWidget : public QGLWidget
 {
     Q_OBJECT
 public:
-    View3DWidget(QWidget *parent);
+    QView3DWidget(QWidget *parent);
     virtual void initializeGL();
     virtual void resizeGL(int w, int h);
     virtual void paintGL();
@@ -73,7 +71,7 @@ private:
     WidgetNameMap m_widget_name_map;
 };
 
-View3DWidget::View3DWidget(QWidget *parent)
+QView3DWidget::QView3DWidget(QWidget *parent)
     : QGLWidget(parent)
     , m_layer_coloring(true)
     , m_form_list_id(0)
@@ -96,7 +94,9 @@ static int nearestSize(int v)
     return 1 << last;
 }
 
-void View3DWidget::addTexture(QWidget *w, const QPixmap &pm)
+// static int pm_cnt = 0;
+
+void QView3DWidget::addTexture(QWidget *w, const QPixmap &pm)
 {
     int tx_w = nearestSize(pm.width());
     int tx_h = nearestSize(pm.height());
@@ -107,6 +107,10 @@ void View3DWidget::addTexture(QWidget *w, const QPixmap &pm)
     p.drawPixmap(0, tx_h - pm.height(), pm);
     p.end();
     QImage tex = tmp.toImage();
+
+//    QString file_name = QString("pixmapDump%1.png").arg(pm_cnt++);
+//    qDebug() << "grabWidget():" << file_name << tex.save(file_name, "PNG");
+
     tex = QGLWidget::convertToGLFormat(tex);
 
     GLuint tx_id;
@@ -126,7 +130,7 @@ void View3DWidget::addTexture(QWidget *w, const QPixmap &pm)
     m_texture_map[w] = tx_id;
 }
 
-void View3DWidget::addWidget(int depth, QWidget *widget)
+void QView3DWidget::addWidget(int depth, QWidget *widget)
 {
     TextureMap::const_iterator it = m_texture_map.find(widget);
     Q_ASSERT(it != m_texture_map.end());
@@ -160,7 +164,7 @@ void View3DWidget::addWidget(int depth, QWidget *widget)
     m_widget_name_map[m_next_widget_name++] = widget;
 }
 
-void View3DWidget::clear()
+void QView3DWidget::clear()
 {
     makeCurrent();
     glDeleteLists(m_form_list_id, 1);
@@ -171,7 +175,7 @@ void View3DWidget::clear()
     m_next_widget_name = 0;
 }
 
-void View3DWidget::beginAddingWidgets(QWidget *form)
+void QView3DWidget::beginAddingWidgets(QWidget *form)
 {
     makeCurrent();
     m_form = form;
@@ -182,13 +186,13 @@ void View3DWidget::beginAddingWidgets(QWidget *form)
     m_next_widget_name = 0;
 }
 
-void View3DWidget::endAddingWidgets()
+void QView3DWidget::endAddingWidgets()
 {
     makeCurrent();
     glEndList();
 }
 
-void View3DWidget::initializeGL()
+void QView3DWidget::initializeGL()
 {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -201,10 +205,10 @@ void View3DWidget::initializeGL()
     glShadeModel(GL_FLAT);
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
-    m_use_mipmaps = extensions.contains("GL_SGIS_generate_mipmap");
+    m_use_mipmaps = false;//  extensions.contains("GL_SGIS_generate_mipmap");
 }
 
-void View3DWidget::resizeGL(int width, int height)
+void QView3DWidget::resizeGL(int width, int height)
 {
     glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
@@ -212,7 +216,7 @@ void View3DWidget::resizeGL(int width, int height)
     glOrtho(-width/2, width/2, height/2, -height/2, -999999, 999999);
 }
 
-void View3DWidget::paintGL()
+void QView3DWidget::paintGL()
 {
     glColor4f(1.0, 1.0, 1.0, 1.0);
     glEnable(GL_TEXTURE_2D);
@@ -243,7 +247,7 @@ void View3DWidget::paintGL()
     glPopAttrib();
 }
 
-QWidget *View3DWidget::widgetAt(const QPoint &pos)
+QWidget *QView3DWidget::widgetAt(const QPoint &pos)
 {
     makeCurrent();
     GLuint selectBuf[SELECTION_BUFSIZE];
@@ -258,7 +262,7 @@ QWidget *View3DWidget::widgetAt(const QPoint &pos)
     return 0;
 }
 
-void View3DWidget::keyReleaseEvent(QKeyEvent *e)
+void QView3DWidget::keyReleaseEvent(QKeyEvent *e)
 {
     if (e->key() == Qt::Key_T) {
         m_layer_coloring = !m_layer_coloring;
@@ -272,17 +276,17 @@ void View3DWidget::keyReleaseEvent(QKeyEvent *e)
     updateGL();
 }
 
-void View3DWidget::mousePressEvent(QMouseEvent *e)
+void QView3DWidget::mousePressEvent(QMouseEvent *e)
 {
     m_old_pos = e->pos();
 }
 
-void View3DWidget::mouseReleaseEvent(QMouseEvent *e)
+void QView3DWidget::mouseReleaseEvent(QMouseEvent *e)
 {
     m_old_pos = e->pos();
 }
 
-void View3DWidget::mouseMoveEvent(QMouseEvent *e)
+void QView3DWidget::mouseMoveEvent(QMouseEvent *e)
 {
     if (e->buttons() & (Qt::LeftButton | Qt::RightButton)) {
         GLfloat rx = (GLfloat) (e->x() - m_old_pos.x()) / width();
@@ -306,7 +310,7 @@ void View3DWidget::mouseMoveEvent(QMouseEvent *e)
     }
 }
 
-void View3DWidget::wheelEvent(QWheelEvent *e)
+void QView3DWidget::wheelEvent(QWheelEvent *e)
 {
     makeCurrent();
     glMatrixMode(GL_MODELVIEW);
@@ -317,7 +321,7 @@ void View3DWidget::wheelEvent(QWheelEvent *e)
     updateGL();
 }
 
-void View3DWidget::contextMenuEvent(QContextMenuEvent *e)
+void QView3DWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     e->accept();
 }
@@ -392,51 +396,48 @@ static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
 
 static QPixmap grabWidget(QWidget * widget, QDesignerFormEditorInterface *core)
 {
-    QPixmap res, buf;
-
     if (!widget)
-        return res;
+        return QPixmap();
 
     QRect r = widget->rect();
+    QSize s = widget->size();
 
-    res = res.scaled(r.size());
-    buf = buf.scaled(r.size());
-    if(!res || !buf)
-        return res;
+    QPixmap res(s), buf(s);
 
     grabWidget_helper(widget, res, buf, r, QPoint(), core);
+
     return res;
 }
 
 /*******************************************************************************
-** View3D
+** QView3D
 */
 
 class AddTexture : public WalkWidgetTreeFunction
 {
 public:
-    inline AddTexture(QDesignerFormEditorInterface *core, View3DWidget *w)
+    inline AddTexture(QDesignerFormEditorInterface *core, QView3DWidget *w)
         : m_core(core), m_3d_widget(w) {}
     inline virtual void operator ()(int, QWidget *w) const
         { m_3d_widget->addTexture(w, ::grabWidget(w, m_core)); }
     QDesignerFormEditorInterface *m_core;
-    View3DWidget *m_3d_widget;
+    QView3DWidget *m_3d_widget;
 };
 
 class AddWidget : public WalkWidgetTreeFunction
 {
 public:
-    inline AddWidget(View3DWidget *w) : m_3d_widget(w) {}
+    inline AddWidget(QView3DWidget *w) : m_3d_widget(w) {}
     inline virtual void operator ()(int depth, QWidget *w) const
         { m_3d_widget->addWidget(depth, w); }
-    View3DWidget *m_3d_widget;
+    QView3DWidget *m_3d_widget;
 };
 
-View3D::View3D(QDesignerFormWindowInterface *form_window, QWidget *parent)
+QView3D::QView3D(QDesignerFormWindowInterface *form_window, QWidget *parent)
     : QWidget(parent)
 {
     m_form_window = form_window;
-    m_3d_widget = new View3DWidget(this);
+    m_3d_widget = new QView3DWidget(this);
     connect(m_3d_widget, SIGNAL(updateForm()), this, SLOT(updateForm()));
 
     QGridLayout *layout = new QGridLayout(this);
@@ -446,7 +447,7 @@ View3D::View3D(QDesignerFormWindowInterface *form_window, QWidget *parent)
     updateForm();
 }
 
-void View3D::updateForm()
+void QView3D::updateForm()
 {
     QWidget *w = m_form_window->mainContainer();
     if (w == 0)

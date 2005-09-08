@@ -27,6 +27,7 @@
 #include <QtDesigner/QtDesigner>
 #include <qdesigner_formbuilder_p.h>
 #include <qtundo_p.h>
+#include <pluginmanager_p.h>
 
 #include <QtAssistant/QAssistantClient>
 
@@ -197,6 +198,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_editWidgetsAction->setChecked(true);
     m_editWidgetsAction->setEnabled(false);
     QList<QObject*> builtinPlugins = QPluginLoader::staticInstances();
+    builtinPlugins += m_core->pluginManager()->instances();
     foreach (QObject *plugin, builtinPlugins) {
         if (QDesignerFormEditorPluginInterface *formEditorPlugin = qobject_cast<QDesignerFormEditorPluginInterface*>(plugin)) {
             m_toolActions->addAction(formEditorPlugin->action());
