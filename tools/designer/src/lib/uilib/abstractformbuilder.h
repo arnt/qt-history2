@@ -23,7 +23,9 @@
 #include <QtGui/QSizePolicy>
 #include <QtGui/QPalette>
 
+#if !defined(Q_CC_GNU)
 #pragma qt_class(QAbstractFormBuilder)
+#endif
 
 class QAction;
 class QActionGroup;

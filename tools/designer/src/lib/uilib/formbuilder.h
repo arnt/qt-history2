@@ -20,7 +20,9 @@
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 
+#if !defined(Q_CC_GNU)
 #pragma qt_class(QFormBuilder)
+#endif
 
 class QDesignerCustomWidgetInterface;
 
