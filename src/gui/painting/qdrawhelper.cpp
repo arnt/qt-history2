@@ -423,17 +423,12 @@ static void blend_color_argb(void *t, const QSpan *span, QPainter::CompositionMo
     CompositionFunctionSolid func = functionForModeSolid[mode];
     if (!func)
         return;
-    
+
     uint *target = ((uint *)t) + span->x;
     uint color = data->color;
     int length = span->len;
-    
-    while (length) {
-        int l = qMin(length, buffer_size);
-        func(target, l, color, span->coverage);
-        length -= l;
-        target += l;
-    }
+
+    func(target, length, color, span->coverage);
 }
     
 static void blend_argb(void *t, const QSpan *span, const qreal dx, const qreal dy,
