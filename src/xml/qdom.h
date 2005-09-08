@@ -79,6 +79,10 @@ public:
     QDomDocumentType createDocumentType(const QString& qName, const QString& publicId, const QString& systemId);
     QDomDocument createDocument(const QString& nsURI, const QString& qName, const QDomDocumentType& doctype);
 
+    enum InvalidDataPolicy { AcceptInvalidChars = 0, DropInvalidChars, ReturnNullNode };
+    static InvalidDataPolicy invalidDataPolicy();
+    static void setInvalidDataPolicy(InvalidDataPolicy policy);
+
     // Qt extension
     bool isNull();
 
