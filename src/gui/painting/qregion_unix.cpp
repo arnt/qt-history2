@@ -69,8 +69,6 @@ typedef void (*NonOverlapFunc)(register QRegionPrivate &dest, register QRect *r,
                                register int y1, register int y2);
 
 static void UnionRegion(QRegionPrivate *reg1, QRegionPrivate *reg2, QRegionPrivate &dest);
-static void IntersectRegion(QRegionPrivate *reg1, QRegionPrivate *reg2,
-                            register QRegionPrivate &dest);
 static void miRegionOp(register QRegionPrivate &dest, QRegionPrivate *reg1, QRegionPrivate *reg2,
                        OverlapFunc overlapFunc, NonOverlapFunc nonOverlap1Func,
                        NonOverlapFunc nonOverlap2Func);
@@ -268,10 +266,10 @@ SOFTWARE.
 static void UnionRectWithRegion(register const QRect *rect, QRegionPrivate *source,
                                 QRegionPrivate &dest)
 {
-    QRegionPrivate region;
-
     if (!rect->width() || !rect->height())
         return;
+
+    QRegionPrivate region;
     region.rects.resize(1);
     region.numRects = 1;
     region.rects[0] = *rect;
@@ -413,24 +411,6 @@ static void miIntersectO(register QRegionPrivate &dest, register QRect *r1, QRec
             ++r2;
         }
     }
-}
-
-static void IntersectRegion(QRegionPrivate *reg1, QRegionPrivate *reg2,
-                            register QRegionPrivate &dest)
-{
-    if (isEmpty(reg1) || isEmpty(reg2) || !EXTENTCHECK(&reg1->extents, &reg2->extents))
-        dest.numRects = 0;
-    else
-        miRegionOp(dest, reg1, reg2, miIntersectO, 0, 0);
-
-    /*
-     * Can't alter dest's extents before we call miRegionOp because
-     * it might be one of the source regions and miRegionOp depends
-     * on the extents of those regions being the same. Besides, this
-     * way there's no checking against rectangles that will be nuked
-     * due to coalescing, so we have to examine fewer rectangles.
-     */
-    miSetExtents(dest);
 }
 
 /*======================================================================
@@ -2450,8 +2430,21 @@ QRegion QRegion::unite(const QRegion &r) const
 QRegion QRegion::intersect(const QRegion &r) const
 {
     QRegion result;
+    if (::isEmpty(d->qt_rgn) || ::isEmpty(r.d->qt_rgn)
+        || !EXTENTCHECK(&d->qt_rgn->extents, &r.d->qt_rgn->extents))
+        return result;
+
     result.detach();
-    IntersectRegion(d->qt_rgn, r.d->qt_rgn, *result.d->qt_rgn);
+    miRegionOp(*result.d->qt_rgn, d->qt_rgn, r.d->qt_rgn, miIntersectO, 0, 0);
+
+    /*
+     * Can't alter dest's extents before we call miRegionOp because
+     * it might be one of the source regions and miRegionOp depends
+     * on the extents of those regions being the same. Besides, this
+     * way there's no checking against rectangles that will be nuked
+     * due to coalescing, so we have to examine fewer rectangles.
+     */
+    miSetExtents(*result.d->qt_rgn);
     return result;
 }
 
