@@ -49,7 +49,7 @@ public:
     QStatusBar *statusBar() const;
     void setStatusBar(QStatusBar *sb);
 #endif
-    
+
     QWidget *centralWidget() const;
     void setCentralWidget(QWidget *cw);
 
@@ -60,8 +60,8 @@ public:
     void insertToolBar(QToolBar *before, QToolBar *toolbar);
     Qt::ToolBarArea toolBarArea(QToolBar *toolbar) const;
 #endif
-    
-#ifndef QT_NO_DOCKWIDGET    
+
+#ifndef QT_NO_DOCKWIDGET
     QDockWidgetLayout *layoutForArea(Qt::DockWidgetArea area);
     void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget,
                        Qt::Orientation orientation);
@@ -107,19 +107,19 @@ public:
     void endConstrain();
 #ifndef QT_NO_DOCKWIDGET
     int constrain(QDockWidgetLayout *dock, int delta);
-    
+
     Qt::DockWidgetArea locateDockWidget(QDockWidget *dockwidget, const QPoint &mouse) const;
     QRect placeDockWidget(QDockWidget *dockwidget, const QRect &r, const QPoint &mouse);
     void dropDockWidget(QDockWidget *dockwidget, const QRect &r, const QPoint &mouse);
 #endif
-    
+
 #ifndef QT_NO_TOOLBAR
     int locateToolBar(QToolBar *toolbar, const QPoint &mouse) const;
     void dropToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset);
 
     void removeToolBarInfo(QToolBar *toolbar);
 #endif
-    
+
     // dock/center-widget layout data
     Qt::DockWidgetArea corners[4];
     struct QMainWindowLayoutInfo
@@ -135,10 +135,12 @@ public:
     // toolbar layout data
     struct ToolBarLayoutInfo
     {
+        ToolBarLayoutInfo() : item(0) {}
 	QLayoutItem *item;
 	QPoint pos;
         QSize size;
 	QPoint offset;
+        QPoint user_pos;
     };
 
     struct ToolBarLineInfo
