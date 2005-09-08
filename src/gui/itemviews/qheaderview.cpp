@@ -242,6 +242,7 @@ void QHeaderView::setModel(QAbstractItemModel *model)
     // Users want to set sizes and modes before the widget is shown.
     // Thus, we have to initialize when the model is set,
     // and not lazily like we do in the other views.
+    d->hiddenSectionSize.clear();
     initializeSections();
 }
 
@@ -640,9 +641,6 @@ void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
         d->sections[visual].hidden = true;
     } else if (d->sections.at(visual).hidden) {
         int size = d->hiddenSectionSize.value(logicalIndex);
-        // See autotests for an explanation for the next line (change# 191692 and 191691)
-        // Afterall, unhiding a section should make sure that the size of the section is not 0
-        if (size == 0) size = d->defaultSectionSize;
         d->hiddenSectionSize.remove(logicalIndex);
         d->sections[visual].hidden = false;
         resizeSection(logicalIndex, size);
@@ -1176,7 +1174,11 @@ void QHeaderView::sectionsAboutToBeRemoved(const QModelIndex &parent,
 void QHeaderView::initializeSections()
 {
     Q_D(QHeaderView);
-    d->hiddenSectionSize.clear();
+    // Do not clear the hiddenSectionSize map, since we want to use this structure to quickly find
+    // the sections that are hidden.
+    for (QMap<int, int>::iterator it = d->hiddenSectionSize.begin(); it != d->hiddenSectionSize.end(); ++it) {
+        it.value() = d->defaultSectionSize;
+    }
     if (!model())
         return;
     if (d->orientation == Qt::Horizontal) {
