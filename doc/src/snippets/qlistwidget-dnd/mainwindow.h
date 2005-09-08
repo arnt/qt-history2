@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 
-class QAction;
 class QListWidget;
 class QListWidgetItem;
 
@@ -14,18 +13,9 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
 
-public slots:
-    void insertItem();
-    void removeItem();
-    void sortAscending();
-    void sortDescending();
-    void updateMenus(QListWidgetItem *current);
-
 private:
     void setupListItems();
 
-    QAction *insertAction;
-    QAction *removeAction;
     QListWidget *listWidget;
 };
 
