@@ -511,24 +511,24 @@ QRect QTreeView::visualRect(const QModelIndex &index) const
     \a index is visible. The \a hint parameter specifies more
     precisely where the item should be located after the
     operation.
-    If any of the parents of the model item are collapsed, they will 
+    If any of the parents of the model item are collapsed, they will
     be expanded to ensure that the model item is visible.
 */
 void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
 {
     Q_D(QTreeView);
-    
+
     // Expand all parents if the parent(s) of the node are not expanded.
     QModelIndex parent = index.parent();
     while (parent.isValid()) {
         if (!isExpanded(parent)) expand(parent);
         parent = parent.parent();
-    }    
-    
+    }
+
 
     if (!model())
         return;
-    
+
     QRect rect = visualRect(index);
     if (rect.isEmpty())
         return;
@@ -626,7 +626,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
         int tmp = d->left;
         d->left = qMin(d->left, d->right);
         d->right = qMax(tmp, d->right);
-        
+
         int i = d->itemAt(v); // first item
         if (i < 0) // couldn't find the first item
             return;
@@ -823,7 +823,7 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *e)
     Q_D(QTreeView);
     if (!d->viewport->rect().contains(e->pos()))
         return;
-    
+
     int i = d->itemDecorationAt(e->pos());
     if (i == -1) {
         i = d->item(e->y());
@@ -838,10 +838,10 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *e)
 
         if (edit(persistent, DoubleClicked, e) || state() != NoState)
             return; // the double click triggered editing
-        
+
         if (!style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
             emit activated(persistent);
-        
+
         if (d->itemsExpandable && model()->hasChildren(d->viewItems.at(i).index)) {
             if (d->viewItems.at(i).expanded) {
                 setState(ExpandingState);
@@ -1392,7 +1392,7 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
     QAbstractItemDelegate *delegate = itemDelegate();
     for (int column = start; column <= end; ++column) {
         QModelIndex idx = index.sibling(index.row(), column);
-        if (idx.isValid() ) 
+        if (idx.isValid() )
             height = qMax(height, delegate->sizeHint(option, idx).height());
     }
 
@@ -1449,7 +1449,7 @@ void QTreeViewPrivate::collapse(int i, bool emitSignal)
 
     if (!model || i == -1 || expandedIndexes.isEmpty())
         return;
-    
+
     int total = viewItems.at(i).total;
     QModelIndex index = viewItems.at(i).index;
     int idx = expandedIndexes.indexOf(index);
@@ -1648,7 +1648,7 @@ void QTreeViewPrivate::relayout(const QModelIndex &parent)
     }
 }
 
-void QTreeViewPrivate::reexpandChildren(const QModelIndex &parent, bool emitSignal)
+void QTreeViewPrivate::reexpandChildren(const QModelIndex &parent, bool)
 {
     // FIXME: this is slow: optimize
     QVector<QPersistentModelIndex> o = expandedIndexes;
