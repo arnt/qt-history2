@@ -288,6 +288,7 @@ public:
     inline int count() const { return d->size; }
     iterator find(const Key &key);
     const_iterator find(const Key &key) const;
+    const_iterator constFind(const Key &key) const;
     iterator lowerBound(const Key &key);
     const_iterator lowerBound(const Key &key) const;
     iterator upperBound(const Key &key);
@@ -484,6 +485,12 @@ Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::insertMulti(cons
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE typename QMap<Key, T>::const_iterator QMap<Key, T>::find(const Key &akey) const
+{
+    return const_iterator(findNode(akey));
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE typename QMap<Key, T>::const_iterator QMap<Key, T>::constFind(const Key &akey) const
 {
     return const_iterator(findNode(akey));
 }

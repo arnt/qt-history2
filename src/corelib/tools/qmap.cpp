@@ -711,12 +711,23 @@ void QMapData::dump()
         }
     \endcode
 
-    \sa value(), values(), lowerBound(), upperBound()
+    \sa constFind(), value(), values(), lowerBound(), upperBound()
 */
 
 /*! \fn QMap::const_iterator QMap::find(const Key &key) const
 
     \overload
+*/
+
+/*! \fn QMap::iterator QMap::constFind(const Key &key) const
+
+    Returns an const iterator pointing to the item with key \a key in the
+    map.
+    
+    If the map contains no item with key \a key, the function
+    returns constEnd().
+
+    \sa find()
 */
 
 /*! \fn QMap::iterator QMap::lowerBound(const Key &key)

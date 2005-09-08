@@ -354,6 +354,7 @@ public:
     inline int count() const { return d->size; }
     iterator find(const Key &key);
     const_iterator find(const Key &key) const;
+    const_iterator constFind(const Key &key) const;
     iterator insert(const Key &key, const T &value);
     iterator insertMulti(const Key &key, const T &value);
     QHash<Key, T> &unite(const QHash<Key, T> &other);
@@ -694,6 +695,12 @@ Q_INLINE_TEMPLATE void QHash<Key, T>::reserve(int asize)
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE typename QHash<Key, T>::const_iterator QHash<Key, T>::find(const Key &akey) const
+{
+    return const_iterator(*findNode(akey));
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE typename QHash<Key, T>::const_iterator QHash<Key, T>::constFind(const Key &akey) const
 {
     return const_iterator(*findNode(akey));
 }
