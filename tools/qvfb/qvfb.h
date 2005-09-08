@@ -60,6 +60,7 @@ protected slots:
     void toggleAnimation();
     void toggleCursor();
     void changeRate();
+    void setRate(int);
     void about();
 
     void configure();
@@ -101,6 +102,7 @@ private:
     Zoomer *zoomer;
     QScrollArea* scroller;
 
+    int refreshRate;
 private slots:
     void setGamma400(int n);
     void setR400(int n);

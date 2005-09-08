@@ -37,7 +37,7 @@ QVFbRateDialog::QVFbRateDialog( int rate, QWidget *parent, const char *name,
 
     hl = new QHBoxLayout( tl );
     QPushButton *pb = new QPushButton( "OK", this );
-    connect( pb, SIGNAL(clicked()), this, SLOT(accept()) );
+    connect( pb, SIGNAL(clicked()), this, SLOT(ok()) );
     hl->addWidget( pb );
     pb = new QPushButton( "Cancel", this );
     connect( pb, SIGNAL(clicked()), this, SLOT(cancel()) );
@@ -58,3 +58,8 @@ void QVFbRateDialog::cancel()
     reject();
 }
 
+void QVFbRateDialog::ok()
+{
+    oldRate = rateSlider->value();
+    accept();
+}

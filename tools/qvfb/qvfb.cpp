@@ -161,6 +161,7 @@ QVFb::QVFb( int display_id, int w, int h, int d, int r, const QString &skin, QWi
     QPixmap pix(":/res/images/logo.png");
     setWindowIcon( pix );
     rateDlg = 0;
+    refreshRate = 30;
 #if QT_VERSION >= 0x030000
     // When compiling with Qt 3 we need to create the menu first to
     // avoid scroll bars in the main window
@@ -222,7 +223,7 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 		setZoom(skinscaleH);
 	    view->show();
 	    if ( vis ) show();
-	} else {	    
+	} else {
 	    delete skin;
 	    skin = 0;
 	}
@@ -256,7 +257,7 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 	// delete defaultbuttons.conf if it was left behind...
 	unlink(QFileInfo(QString("/tmp/qtembedded-%1/defaultbuttons.conf").arg(view->displayId())).absFilePath().latin1());
     }
-
+    view->setRate(refreshRate);
     // Resize QVFb to the new size
     QSize newSize = view->sizeHint();
 
@@ -305,11 +306,11 @@ QMenu* QVFb::createFileMenu()
 }
 
 QMenu* QVFb::createViewMenu()
-{   
+{
     viewMenu = new QMenu( this );
     viewMenu->setCheckable( true );
     cursorId = viewMenu->insertItem( "Show &Cursor", this, SLOT(toggleCursor()) );
-    if ( view )	
+    if ( view )
 	enableCursor(true);
     viewMenu->insertItem( "&Refresh Rate...", this, SLOT(changeRate()) );
     viewMenu->insertSeparator();
@@ -324,7 +325,7 @@ QMenu* QVFb::createViewMenu()
     return viewMenu;
 }
 
-    
+
 QMenu* QVFb::createHelpMenu()
 {
     QMenu *help = new QMenu( this );
@@ -407,12 +408,19 @@ void QVFb::toggleCursor()
 void QVFb::changeRate()
 {
     if ( !rateDlg ) {
-	rateDlg = new QVFbRateDialog( view->rate(), this );
-	connect( rateDlg, SIGNAL(updateRate(int)), view, SLOT(setRate(int)) );
+	rateDlg = new QVFbRateDialog( refreshRate, this );
+	connect( rateDlg, SIGNAL(updateRate(int)), this, SLOT(setRate(int)) );
     }
 
     rateDlg->show();
 }
+
+void QVFb::setRate(int i)
+{
+    refreshRate = i;
+    view->setRate(i);
+}
+
 
 void QVFb::about()
 {
@@ -631,7 +639,7 @@ AnimationSaveWidget::AnimationSaveWidget(QVFbView *v) :
 {
     // Create the animation record UI dialog
     QVBoxLayout *vlayout = new QVBoxLayout( this );
-    
+
     QWidget *hbox = new QWidget( this );
     vlayout->addWidget(hbox);
     QHBoxLayout *hlayout = new QHBoxLayout(hbox);

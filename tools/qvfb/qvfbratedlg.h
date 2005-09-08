@@ -32,6 +32,7 @@ signals:
 protected slots:
     void rateChanged( int r );
     void cancel();
+    void ok();
 
 private:
     QLabel *rateLabel;
