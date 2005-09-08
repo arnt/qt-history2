@@ -1309,7 +1309,7 @@ void QWidgetPrivate::deleteTLSysExtra()
 {
 }
 
-bool QWidgetPrivate::setAcceptDrops_sys(bool on)
+bool QWidgetPrivate::registerDropSite(bool on)
 {
     Q_UNUSED(on);
     return true;

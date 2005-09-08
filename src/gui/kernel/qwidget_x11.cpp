@@ -761,8 +761,8 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     }
 
     // dnd unregister (we will register again below)
-    bool accept_drops = q->acceptDrops();
-    q->setAcceptDrops(false);
+    if (q->testAttribute(Qt::WA_DropSiteRegistered))
+        q->setAttribute(Qt::WA_DropSiteRegistered, false);
 
     QWidget *oldparent = q->parentWidget();
     WId old_winid = data.winid;
@@ -868,9 +868,10 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     if (oldparent)
         oldparent->d_func()->checkChildrenDnd();
 
-    if (accept_drops)
-        q->setAcceptDrops(true);
-    else {
+    if (q->testAttribute(Qt::WA_AcceptDrops) 
+        || (!q->isWindow() && q->parentWidget() && q->parentWidget()->testAttribute(Qt::WA_DropSiteRegistered))) {
+        q->setAttribute(Qt::WA_DropSiteRegistered, true);
+    } else {
         checkChildrenDnd();
         topData()->dnd = 0;
         X11->dndEnable(q, (extra && extra->children_use_dnd));
@@ -2524,7 +2525,7 @@ void QWidgetPrivate::checkChildrenDnd()
     }
 }
 
-bool QWidgetPrivate::setAcceptDrops_sys(bool on)
+bool QWidgetPrivate::registerDropSite(bool on)
 {
     bool ok = X11->dndEnable(q_func(), on);
     checkChildrenDnd(); // ## ???

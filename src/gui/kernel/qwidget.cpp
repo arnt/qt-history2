@@ -893,14 +893,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
     d->create_sys(window, initializeWindow, destroyOldWindow);
 
-    for(QWidget *p = parentWidget(); p; p = p->parentWidget()) {
-        if(p->testAttribute(Qt::WA_ForceAcceptDrops)) {
-            d->setAcceptDrops_helper(true);
-            break;
-        }
-        if(p->isWindow())
-            break;
-    }
+    if (!isWindow() && parentWidget() && parentWidget()->testAttribute(Qt::WA_DropSiteRegistered))
+        setAttribute(Qt::WA_DropSiteRegistered, true);
 
 #ifdef QT_EVAL
     extern void qt_eval_init_widget(QWidget *w);
@@ -924,7 +918,7 @@ QWidget::~QWidget()
 #endif
     
     // force acceptDrops false before winId is destroyed.
-    d->setAcceptDrops_sys(false);
+    d->registerDropSite(false);
     
 #ifndef QT_NO_ACTION
     // remove all actions from this widget
@@ -1953,37 +1947,8 @@ bool QWidget::acceptDrops() const
 
 void QWidget::setAcceptDrops(bool on)
 {
-    setAttribute(Qt::WA_ForceAcceptDrops, on);
-    d_func()->setAcceptDrops_helper(on);
-}
-
-void QWidgetPrivate::setAcceptDrops_helper(bool on)
-{
-    Q_Q(QWidget);
-
-    if (!on && !q->isWindow() && q->parentWidget() && q->parentWidget()->acceptDrops())
-        return; // nothing we can do
-
-    if (on == q->testAttribute(Qt::WA_AcceptDrops))
-        return; // nothing to do
-
-    // set the attribute before setAcceptDrops_sys because on x11 it
-    // calls checkChildrenDnd() which traverses the widget tree upwards
-    // and sets extra->children_use_dnd if any child has the AcceptDrops
-    // attribute set. so when the iteration in checkChildrenDnd() checks
-    // our parent's children (that includes us) the attribute needs to be
-    // set
-    q->setAttribute(Qt::WA_AcceptDrops, on);
-
-    if (!setAcceptDrops_sys(on))
-        return; // nothing was changed
-
-    Qt::WidgetAttribute attribute = on ? Qt::WA_AcceptDrops : Qt::WA_ForceAcceptDrops;
-    for (int i = 0; i < children.size(); ++i) {
-        QWidget *w = qobject_cast<QWidget *>(children.at(i));
-        if (w && !w->testAttribute(attribute))
-            w->d_func()->setAcceptDrops_helper(on);
-    }
+    setAttribute(Qt::WA_AcceptDrops, on);
+    
 }
 
 /*!
@@ -6524,10 +6489,28 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
             d->high_attributes[int_off] &= ~(1<<(x-(int_off*8*sizeof(uint))));
     }
     switch (attribute) {
-    case Qt::WA_AcceptDrops: {
-        QEvent e(QEvent::AcceptDropsChange);
-        QApplication::sendEvent(this, &e);
-        break; }
+
+#ifndef QT_NO_DRAGANDDROP
+    case Qt::WA_AcceptDrops:  {
+            if (on && !testAttribute(Qt::WA_DropSiteRegistered))
+                setAttribute(Qt::WA_DropSiteRegistered, true);
+            else if (!on && (isWindow() || !parentWidget() || !parentWidget()->testAttribute(Qt::WA_DropSiteRegistered)))
+                setAttribute(Qt::WA_DropSiteRegistered, false);
+            QEvent e(QEvent::AcceptDropsChange);
+            QApplication::sendEvent(this, &e);
+            break; 
+        }
+    case Qt::WA_DropSiteRegistered:  {
+            d->registerDropSite(on);
+            for (int i = 0; i < d->children.size(); ++i) {
+                QWidget *w = qobject_cast<QWidget *>(d->children.at(i));
+                if (w && !w->isWindow() && !w->testAttribute(Qt::WA_AcceptDrops) && w->testAttribute(Qt::WA_DropSiteRegistered) != on)
+                    w->setAttribute(Qt::WA_DropSiteRegistered, on);
+            }
+            break; 
+        }
+#endif
+
     case Qt::WA_NoChildEventsForParent:
         d->sendChildEvents = !on;
         break;

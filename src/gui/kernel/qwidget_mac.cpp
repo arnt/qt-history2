@@ -1226,8 +1226,8 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     q->setFocusPolicy(fp);
     if (extra && !extra->mask.isEmpty())
         q->setMask(extra->mask);
-    if(dropable)
-        setAcceptDrops_helper(true);
+//###    if(dropable)
+  //###      setAcceptDrops_helper(true);
     if(setcurs)
         q->setCursor(oldcurs);
 
@@ -2067,7 +2067,7 @@ void QWidgetPrivate::updateFrameStrut() const
     }
 }
 
-bool QWidgetPrivate::setAcceptDrops_sys(bool on)
+bool QWidgetPrivate::registerDropSite(bool on)
 {
     Q_Q(QWidget);
     SetControlDragTrackingEnabled((HIViewRef)q->winId(), on);

@@ -343,7 +343,8 @@ public:
         WA_KeyboardFocusChange = 77,
 
         WA_AcceptDrops = 78,
-        WA_ForceAcceptDrops = 79,
+        WA_DropSiteRegistered = 79, // internal
+        WA_ForceAcceptDrops = WA_DropSiteRegistered,
 
         // Add new attributes above this
         WA_AttributeCount

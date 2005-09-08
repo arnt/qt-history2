@@ -565,9 +565,9 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
         SetParent(data.winid, 0);
     }
 
-    bool accept_drops = q->acceptDrops();
-    if (accept_drops)
-        q->setAcceptDrops(false); // ole dnd unregister (we will register again below)
+    if (q->testAttribute(Qt::WA_DropSiteRegistered))
+        q->setAttribute(Qt::WA_DropSiteRegistered, false); // ole dnd unregister (we will register again below)
+    
     if ((q->windowType() == Qt::Desktop))
         old_winid = 0;
     setWinId(0);
@@ -603,8 +603,10 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     if (old_winid)
         DestroyWindow(old_winid);
 
-    if (accept_drops)
-        q->setAcceptDrops(true);
+    if (q->testAttribute(Qt::WA_AcceptDrops) 
+        || (!q->isWindow() && q->parentWidget() && q->parentWidget()->testAttribute(Qt::WA_DropSiteRegistered)))
+        q->setAttribute(Qt::WA_DropSiteRegistered, true);
+  
 
 #ifdef Q_OS_TEMP
     // Show borderless toplevel windows in tasklist & NavBar
@@ -1588,7 +1590,7 @@ void QWidgetPrivate::deleteTLSysExtra()
 #endif
 }
 
-bool QWidgetPrivate::setAcceptDrops_sys(bool on)
+bool QWidgetPrivate::registerDropSite(bool on)
 {
     Q_Q(QWidget);
     // Enablement is defined by d->extra->dropTarget != 0.
