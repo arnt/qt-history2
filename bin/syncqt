@@ -31,6 +31,7 @@ my %modules = ( # path to module name map
 	    "ActiveQt" => "$basedir/src/activeqt/container;$basedir/src/activeqt/control",
 	    "QtAssistant" => "$basedir/tools/assistant/lib",
 	    "QtDesigner" => "$basedir/tools/designer/src/lib;",
+	    "QtForm" => "$basedir/tools/designer/src/form;",
 );
 #$modules{"QtCore"} .= ";$basedir/mkspecs/" . $ENV{"MKSPEC"} if defined $ENV{"MKSPEC"};
 
@@ -154,6 +155,7 @@ sub classNames {
                         last unless($line =~ /\\$/);
                     }
                 }
+		push(@ret, "$1") if($line =~ m/^#pragma qt_class\(([^)]*)\)$/);
 		$line = 0;
             }
 	    if($line) {
