@@ -174,6 +174,7 @@ static inline bool isEmptyBlockBeforeTable(const QTextBlock &block, const QTextF
            && qobject_cast<QTextTable *>(nextIt.currentFrame())
            && block.isValid()
            && block.length() == 1
+           && !block.blockFormat().hasProperty(QTextFormat::BlockTrailingHorizontalRulerWidth)
            && nextIt.currentFrame()->firstPosition() == block.position() + 1
            ;
 }

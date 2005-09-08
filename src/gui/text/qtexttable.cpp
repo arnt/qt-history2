@@ -260,7 +260,7 @@ QTextTable *QTextTablePrivate::createTable(QTextDocumentPrivate *pieceTable, int
     QTextCharFormat charFmt;
     charFmt.setObjectIndex(table->objectIndex());
     int charIdx = pieceTable->formatCollection()->indexForFormat(charFmt);
-    int cellIdx = pieceTable->blockMap().find(pos)->format;
+    int cellIdx = pieceTable->formatCollection()->indexForFormat(QTextBlockFormat());
 
     for (int i = 0; i < rows*cols; ++i) {
         pieceTable->insertBlock(QTextBeginningOfFrame, pos, cellIdx, charIdx);
