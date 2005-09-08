@@ -35,6 +35,9 @@ QReadWriteLock::QReadWriteLock()
 
 QReadWriteLock::~QReadWriteLock()
 {
+    // Spin-wait until all other threads has exited unlock()
+    while (!d->unlockSenteniel.testAndSet(0,0));
+
     CloseHandle(d->readerWait);
     CloseHandle(d->writerWait);
     delete d;
@@ -113,17 +116,21 @@ bool QReadWriteLock::tryLockForWrite()
 
 void QReadWriteLock::unlock()
 {
+    d->unlockSenteniel.ref();
     Q_ASSERT_X(d->accessCount != 0, "QReadWriteLock::unlock()", "Cannot unlock an unlocked lock");
 
     bool unlocked = q_atomic_test_and_set_int(&d->accessCount, -1, 0) != 0;
     if (!unlocked) {
         unlocked = q_atomic_decrement(&d->accessCount) == 0;
-        if (!unlocked)
+        if (!unlocked) {
+            d->unlockSenteniel.deref();
             return; // still locked, can't wake anyone up
+        }
     }
 
     if (d->waitingWriters != 0)
         SetEvent(d->writerWait);
     else if (d->waitingReaders != 0)
         SetEvent(d->readerWait);
+    d->unlockSenteniel.deref();
 }

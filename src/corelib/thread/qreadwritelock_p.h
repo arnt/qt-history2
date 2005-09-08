@@ -31,6 +31,7 @@ struct QReadWriteLockPrivate
     QAtomic accessCount;
     QAtomic waitingWriters;
     QAtomic waitingReaders;
+    QAtomic unlockSenteniel;
     pthread_mutex_t mutex;
     pthread_cond_t readerWait;
     pthread_cond_t writerWait;
@@ -44,6 +45,7 @@ struct QReadWriteLockPrivate
     volatile int accessCount;
     QAtomic waitingWriters;
     QAtomic waitingReaders;
+    QAtomic unlockSenteniel;
     HANDLE readerWait;
     HANDLE writerWait;
 };

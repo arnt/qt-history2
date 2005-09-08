@@ -104,6 +104,9 @@ QReadWriteLock::QReadWriteLock()
 */
 QReadWriteLock::~QReadWriteLock()
 {
+    // Spin-wait until all other threads has exited unlock()
+    while (!d->unlockSenteniel.testAndSet(0,0));
+
     report_error(pthread_cond_destroy(&d->writerWait), "QReadWriteLock", "cv destroy");
     report_error(pthread_cond_destroy(&d->readerWait), "QReadWriteLock", "cv destroy");
     report_error(pthread_mutex_destroy(&d->mutex), "QReadWriteLock", "mutex destroy");
@@ -239,13 +242,16 @@ bool QReadWriteLock::tryLockForWrite()
 */
 void QReadWriteLock::unlock()
 {
+    d->unlockSenteniel.ref();
     Q_ASSERT_X(d->accessCount != 0, "QReadWriteLock::unlock()", "Cannot unlock an unlocked lock");
 
     bool unlocked = d->accessCount.testAndSet(-1, 0);
     if (!unlocked) {
         unlocked = !d->accessCount.deref();
-        if (!unlocked)
+        if (!unlocked) {
+            d->unlockSenteniel.deref();
             return; // still locked, can't wake anyone up
+        }
     }
 
     if (d->waitingWriters != 0) {
@@ -257,6 +263,7 @@ void QReadWriteLock::unlock()
         pthread_cond_broadcast(&d->readerWait);
         report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::unlock()", "mutex unlock");
     }
+    d->unlockSenteniel.deref();
 }
 
 /*!
