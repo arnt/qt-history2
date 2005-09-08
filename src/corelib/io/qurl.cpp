@@ -29,6 +29,19 @@
     constructor by passing a QString. Otherwise, setUrl() and
     setEncodedUrl() can also be used.
 
+    URLs can be represented in two forms: encoded or unencoded. The
+    unencoded representation is suitable for showing to users, but
+    the encoded representation is typically what you would send to
+    a web server.
+
+    \code
+        // Unencoded URL
+        "http://bühler.example.com/List of applicants.xml"
+
+        // Encoded URL
+        "http://xn--bhler-kva.example.com/List%20of%20applicants.xml"
+    \endcode
+
     A URL can also be constructed piece by piece by calling
     setScheme(), setUserName(), setPassword(), setHost(), setPort(),
     setPath(), setEncodedQuery() and setFragment(). Some convenience
@@ -62,6 +75,33 @@
     URL to a user in unencoded form. The encoded form however, as
     returned by toEncoded(), is for internal use, passing to web
     servers, mail clients and so on.
+*/
+
+/*!
+    \enum QUrl::ParsingMode
+
+    The parsing mode controls the way QUrl parses strings.
+
+    \value TolerantMode QUrl will try to correct some common errors in URLs.
+                        This mode is useful when processing URLs entered by
+                        users.
+
+    \value StrictMode Only valid URLs are accepted. This mode is useful for
+                      general URL validation.
+
+    In TolerantMode, the parser corrects the following invalid input:
+
+    \list
+
+    \o Spaces and "%20": If an encoded URL contains a space, this will be
+    replaced with "%20". If a decoded URL contains "%20", this will be
+    replaced with a single space before the URL is parsed.
+
+    \o Single "%" characters: Any occurrances of a percent character "%" not
+    followed by exactly two hexadecimal characters (e.g., "13% coverage.html")
+    will be replaced by "%25".
+
+    \endlist
 */
 
 /*!
@@ -160,6 +200,7 @@ public:
     QByteArray encodedOriginal;
 
     bool isValid;
+    QUrl::ParsingMode parsingMode;
 
     char valueDelimiter;
     char pairDelimiter;
@@ -380,7 +421,7 @@ static bool QT_FASTCALL _decOctet(char **ptr, QByteArray *octet)
     char c1 = **ptr;
 
     if (c1 < '0' || c1 > '9')
-	return false;
+        return false;
 
     *octet += c1;
 
@@ -481,31 +522,31 @@ static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host)
     // first count the number of (h16 ":") on the left of ::
     while (_h16(ptr, &tmp)) {
 
-	// an h16 not followed by a colon is considered an
-	// error.
+        // an h16 not followed by a colon is considered an
+        // error.
         if (!_char(ptr, ':')) {
-	    *ptr = ptrBackup;
-	    return false;
-	}
-	tmp += ':';
-	++leftHexColons;
+            *ptr = ptrBackup;
+            return false;
+        }
+        tmp += ':';
+        ++leftHexColons;
 
-	// check for case 1, the only time when there can be no ::
-	if (leftHexColons == 6 && _ls32(ptr, &tmp)) {
-	    *host += tmp;
-	    return true;
-	}
+        // check for case 1, the only time when there can be no ::
+        if (leftHexColons == 6 && _ls32(ptr, &tmp)) {
+            *host += tmp;
+            return true;
+        }
     }
 
     // check for case 2 where the address starts with a :
     if (leftHexColons == 0 && _char(ptr, ':'))
-	tmp += ':';
+        tmp += ':';
 
 
     // check for the second colon in ::
     if (!_char(ptr, ':')) {
-	*ptr = ptrBackup;
-	return false;
+        *ptr = ptrBackup;
+        return false;
     }
     tmp += ':';
 
@@ -517,60 +558,60 @@ static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host)
 
     // count the number of (h16 ":") on the right of ::
     for (;;) {
-	tmpBackup = *ptr;
+        tmpBackup = *ptr;
         if (!_h16(ptr, &tmp2)) {
-	    if (!_ls32(ptr, &tmp)) {
-		if (rightHexColons != 0) {
-		    *ptr = ptrBackup;
-		    return false;
-		}
+            if (!_ls32(ptr, &tmp)) {
+                if (rightHexColons != 0) {
+                    *ptr = ptrBackup;
+                    return false;
+                }
 
-		// the address ended with :: (case 9)
-		// only valid if 1 <= leftHexColons <= 7
-		canBeCase = 9;
-	    } else {
-		ls32WasRead = true;
-	    }
-	    break;
-	}
-	++rightHexColons;
-	if (!_char(ptr, ':')) {
-	    // no colon could mean that what was read as an h16
-	    // was in fact the first part of an ls32. we backtrack
-	    // and retry.
-	    char *pb = *ptr;
-	    *ptr = tmpBackup;
-	    if (_ls32(ptr, &tmp)) {
-		ls32WasRead = true;
-		--rightHexColons;
-	    } else {
-		*ptr = pb;
-		// address ends with only 1 h16 after :: (case 8)
-		if (rightHexColons == 1)
-		    canBeCase = 8;
-		tmp += tmp2;
-	    }
-	    break;
-	}
-	tmp += tmp2 + ':';
-	tmp2.truncate(0);
+                // the address ended with :: (case 9)
+                // only valid if 1 <= leftHexColons <= 7
+                canBeCase = 9;
+            } else {
+                ls32WasRead = true;
+            }
+            break;
+        }
+        ++rightHexColons;
+        if (!_char(ptr, ':')) {
+            // no colon could mean that what was read as an h16
+            // was in fact the first part of an ls32. we backtrack
+            // and retry.
+            char *pb = *ptr;
+            *ptr = tmpBackup;
+            if (_ls32(ptr, &tmp)) {
+                ls32WasRead = true;
+                --rightHexColons;
+            } else {
+                *ptr = pb;
+                // address ends with only 1 h16 after :: (case 8)
+                if (rightHexColons == 1)
+                    canBeCase = 8;
+                tmp += tmp2;
+            }
+            break;
+        }
+        tmp += tmp2 + ':';
+        tmp2.truncate(0);
     }
 
     // determine which case it is based on the number of rightHexColons
     if (canBeCase == -1) {
 
-	// check if a ls32 was read. If it wasn't and rightHexColons >= 2 then the
-	// last 2 HexColons are in fact a ls32
-	if (!ls32WasRead && rightHexColons >= 2)
-	    rightHexColons -= 2;
+        // check if a ls32 was read. If it wasn't and rightHexColons >= 2 then the
+        // last 2 HexColons are in fact a ls32
+        if (!ls32WasRead && rightHexColons >= 2)
+            rightHexColons -= 2;
 
-	canBeCase = 7 - rightHexColons;
+        canBeCase = 7 - rightHexColons;
     }
 
     // based on the case we need to check that the number of leftHexColons is valid
     if (leftHexColons > (canBeCase - 2)) {
-	*ptr = ptrBackup;
-	return false;
+        *ptr = ptrBackup;
+        return false;
     }
 
     *host += tmp;
@@ -937,6 +978,7 @@ QUrlPrivate::QUrlPrivate()
     ref = 1;
     port = -1;
     isValid = false;
+    parsingMode = QUrl::TolerantMode;
     valueDelimiter = '=';
     pairDelimiter = '&';
     stateFlags = 0;
@@ -953,6 +995,7 @@ QUrlPrivate::QUrlPrivate(const QUrlPrivate &copy)
       fragment(copy.fragment),
       encodedOriginal(copy.encodedOriginal),
       isValid(copy.isValid),
+      parsingMode(copy.parsingMode),
       valueDelimiter(copy.valueDelimiter),
       pairDelimiter(copy.pairDelimiter),
       stateFlags(copy.stateFlags),
@@ -1172,6 +1215,17 @@ void QUrlPrivate::validate() const
     QUrlPrivate *that = (QUrlPrivate *)this;
     that->encodedOriginal = that->toEncoded(); // may detach
     parse(ParseOnly);
+
+    if (!isValid)
+        return;
+
+    if (scheme == QLatin1String("mailto")) {
+        if (!host.isEmpty() || port != -1 || !userName.isEmpty() || !password.isEmpty())
+            that->isValid = false;
+    } else if (scheme == QLatin1String("ftp") || scheme == QLatin1String("http")) {
+        if (host.isEmpty() && !path.isEmpty())
+            that->isValid = false;
+    }
 }
 
 void QUrlPrivate::parse(ParseOptions parseOptions) const
@@ -1262,7 +1316,7 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
     }
 
     that->isValid = true;
-    QURL_SETFLAG(that->stateFlags, Validated | Parsed);
+    QURL_SETFLAG(that->stateFlags, Parsed);
 
 #if defined (QURL_DEBUG)
     qDebug("QUrl::setUrl(), scheme = %s", QUrl::fromPercentEncoding(__scheme).toLatin1().constData());
@@ -1307,9 +1361,11 @@ QByteArray QUrlPrivate::toEncoded(QUrl::FormattingOptions options) const
         url += ":";
     }
     QString auth = authority();
-    if ((options & QUrl::RemoveAuthority) != QUrl::RemoveAuthority && !auth.isEmpty()) {
-
-	url += "//";
+    bool doFileScheme = scheme == QLatin1String("file") && !path.isEmpty();
+    if ((options & QUrl::RemoveAuthority) != QUrl::RemoveAuthority && (!auth.isEmpty() || doFileScheme)) {
+        if (doFileScheme && !path.startsWith("/"))
+            url += "/";
+        url += "//";
 
         if ((options & QUrl::RemoveUserInfo) != QUrl::RemoveUserInfo) {
             if (!userName.isEmpty()) {
@@ -1341,9 +1397,11 @@ QByteArray QUrlPrivate::toEncoded(QUrl::FormattingOptions options) const
     }
 
     if (!(options & QUrl::RemovePath)) {
-    // check if we need to insert a slash
-        if (!path.isEmpty() && path.at(0) != QLatin1Char('/') && !auth.isEmpty())
-            url += '/';
+        // check if we need to insert a slash
+        if (!path.isEmpty() && !auth.isEmpty()) {
+            if (!path.startsWith(QLatin1Char('/')))
+                url += '/';
+        }
         // pchar = unreserved / pct-encoded / sub-delims / ":" / "@" ... alos "/"
         url += QUrl::toPercentEncoding(path, "!$&'()*+,;=:@/");
     }
@@ -1394,12 +1452,15 @@ const QByteArray & QUrlPrivate::normalized()
 */
 
 /*!
-    Constructs a URL by parsing \a url. \a url is assumed to be in
-    human readable representation, with no percent encoding. Any
-    percent symbols '%' will be interpreted as they are.
+    Constructs a URL by parsing \a url. \a url is assumed to be in human
+    readable representation, with no percent encoding. QUrl will automatically
+    percent encode all characters that are not allowed in a URL.
+
+    Example:
 
     \code
         QUrl url("http://www.example.com/List of holidays.xml");
+        // url.toEncoded() == "http://www.example.com/List of holidays.xml"
     \endcode
 
     To construct a URL from an encoded string, call fromEncoded():
@@ -1407,11 +1468,28 @@ const QByteArray & QUrlPrivate::normalized()
     \code
         QUrl url = QUrl::fromEncoded("http://www.trolltech.com/List%20of%20holidays.xml");
     \endcode
+
+    \sa setUrl(), setEncodedUrl(), fromEncoded(), TolerantMode
 */
 QUrl::QUrl(const QString &url) : d(new QUrlPrivate)
 {
     if (!url.isEmpty())
         setUrl(url);
+}
+
+/*!
+    \overload
+
+    Parses the URL using the parser mode \a parsingMode.
+
+    \sa setUrl()
+*/
+QUrl::QUrl(const QString &url, ParsingMode parsingMode) : d(new QUrlPrivate)
+{
+    if (!url.isEmpty())
+        setUrl(url, parsingMode);
+    else
+        d->parsingMode = parsingMode;
 }
 
 /*!
@@ -1506,8 +1584,28 @@ void QUrl::clear()
 */
 void QUrl::setUrl(const QString &url)
 {
+    setUrl(url, TolerantMode);
+}
+
+/*!
+    \overload
+
+    Parses \a url using the parsing mode \a parsingMode.
+
+    \sa setEncodedUrl()
+*/
+void QUrl::setUrl(const QString &url, ParsingMode parsingMode)
+{
+    // escape all reserved characters and delimiters
     // reserved      = gen-delims / sub-delims
-    setEncodedUrl(QUrl::toPercentEncoding(url, ":/?#[]@!$&'()*+,;="));
+    QString tmp = url;
+    if (parsingMode == TolerantMode) {
+        // Allow %20 in the QString variant
+        tmp.replace(QLatin1String("%20"), QLatin1String(" "));
+        // Replace stray % with %25
+        tmp.replace(QLatin1String("%([^0-9a-fA-F][^0-9a-fA-F])"), QLatin1String("%25\\1"));
+    }
+    setEncodedUrl(QUrl::toPercentEncoding(tmp, ":/?#[]@!$&'()*+,;="), parsingMode);
 }
 
 /*!
@@ -1522,8 +1620,35 @@ void QUrl::setUrl(const QString &url)
 */
 void QUrl::setEncodedUrl(const QByteArray &encodedUrl)
 {
+    setEncodedUrl(encodedUrl, TolerantMode);
+}
+
+inline static bool isHex(char c)
+{
+    c |= 0x20;
+    return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
+}
+
+/*!
+
+*/
+void QUrl::setEncodedUrl(const QByteArray &encodedUrl, ParsingMode parsingMode)
+{
     clear();
-    d->encodedOriginal = encodedUrl;
+    QByteArray tmp = encodedUrl;
+    if ((d->parsingMode = parsingMode) == TolerantMode) {
+        // Allow spaces in the QByteArray variant
+        tmp.replace(" ", "%20");
+        // Replace stray % with %25
+        QByteArray copy = tmp;
+        for (int i = 0; i < copy.size(); ++i) {
+            if (copy.at(i) == '%') {
+                if (i + 2 >= copy.size() || !isHex(copy.at(i + 1)) || !isHex(copy.at(i + 2)))
+                    tmp.replace(i, 1, "%25");
+            }
+        }
+    }
+    d->encodedOriginal = tmp;
 }
 
 /*!
@@ -1748,7 +1873,7 @@ void QUrl::setPort(int port)
 int QUrl::port() const
 {
     if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
-
+    if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Validated)) d->validate();
     return d->port;
 }
 
@@ -2202,18 +2327,22 @@ QString QUrl::toString(FormattingOptions options) const
     if (!(options & QUrl::RemoveScheme) && !d->scheme.isEmpty())
         url += d->scheme + QLatin1Char(':');
     if ((options & QUrl::RemoveAuthority) != QUrl::RemoveAuthority) {
-        QString tmp = d->authority(options);
-        if (!tmp.isEmpty()) {
+
+        bool doFileScheme = d->scheme == QLatin1String("file") && !d->path.isEmpty();
+         QString tmp = d->authority(options);
+        if (!tmp.isEmpty() || doFileScheme) {
+            if (doFileScheme && !d->path.startsWith(QLatin1Char('/')))
+                url += QLatin1Char('/');
             url += QLatin1String("//");
             url += tmp;
         }
     }
     if (!(options & QUrl::RemovePath)) {
-	// check if we need to insert a slash
-	if ((options & QUrl::RemoveAuthority) != QUrl::RemoveAuthority
-	    && !d->authority(options).isEmpty() && !d->path.isEmpty() && d->path.at(0) != QLatin1Char('/'))
-	    url += QLatin1Char('/');
-	url += d->path;
+        // check if we need to insert a slash
+        if ((options & QUrl::RemoveAuthority) != QUrl::RemoveAuthority
+            && !d->authority(options).isEmpty() && !d->path.isEmpty() && d->path.at(0) != QLatin1Char('/'))
+            url += QLatin1Char('/');
+        url += d->path;
     }
     if (!(options & QUrl::RemoveQuery) && !d->query.isEmpty())
         url += QLatin1Char('?') + fromPercentEncoding(d->query);
@@ -2240,11 +2369,29 @@ QByteArray QUrl::toEncoded(FormattingOptions options) const
 /*!
     Parses \a input and returns the corresponding QUrl. \a input is
     assumed to be in encoded form, containing only ASCII characters.
+
+    The URL is parsed using TolerantMode.
+
+    \sa toEncoded(), setUrl()
 */
 QUrl QUrl::fromEncoded(const QByteArray &input)
 {
     QUrl tmp;
-    tmp.setEncodedUrl(input);
+    tmp.setEncodedUrl(input, TolerantMode);
+    return tmp;
+}
+
+/*!
+    \overload
+
+    Parses the URL using \a parsingMode.
+
+    \sa toEncoded(), setUrl()
+*/
+QUrl QUrl::fromEncoded(const QByteArray &input, ParsingMode parsingMode)
+{
+    QUrl tmp;
+    tmp.setEncodedUrl(input, parsingMode);
     return tmp;
 }
 
@@ -2626,6 +2773,13 @@ QUrl &QUrl::operator =(const QUrl &url)
     return *this;
 }
 
+QUrl &QUrl::operator =(const QString &url)
+{
+    QUrl tmp(url);
+    qAtomicAssign(d, tmp.d);
+    return *this;
+}
+
 /*! \internal
 
     Forces a detach.
@@ -2653,15 +2807,17 @@ QUrl QUrl::fromLocalFile(const QString &localFile)
     QString deslashified = localFile;
     deslashified.replace(QLatin1Char('\\'), QLatin1Char('/'));
 
+
+
     // magic for drives on windows
     if (deslashified.length() > 1 && deslashified.at(1) == QLatin1Char(':') && deslashified.at(0) != QLatin1Char('/')) {
         url.setPath(QLatin1String("/") + deslashified);
     // magic for shared drive on windows
     } else if (deslashified.startsWith(QLatin1String("//"))) {
-	int indexOfPath = deslashified.indexOf(QLatin1Char('/'), 2);
-	url.setHost(deslashified.mid(2, indexOfPath - 2));
-	if (indexOfPath > 2)
-	    url.setPath(deslashified.right(deslashified.length() - indexOfPath));
+        int indexOfPath = deslashified.indexOf(QLatin1Char('/'), 2);
+        url.setHost(deslashified.mid(2, indexOfPath - 2));
+        if (indexOfPath > 2)
+            url.setPath(deslashified.right(deslashified.length() - indexOfPath));
     } else {
         url.setPath(deslashified);
     }
@@ -2679,16 +2835,16 @@ QString QUrl::toLocalFile() const
     QString tmp;
     if (d->scheme.isEmpty() || d->scheme.toLower() == QLatin1String("file")) {
 
-	// magic for shared drive on windows
-	if (!d->host.isEmpty()) {
-	    tmp = QLatin1String("//") + d->host + (d->path.length() > 0 && d->path.at(0) != QLatin1Char('/')
-						  ? QLatin1String("/") + d->path :  d->path);
+        // magic for shared drive on windows
+        if (!d->host.isEmpty()) {
+            tmp = QLatin1String("//") + d->host + (d->path.length() > 0 && d->path.at(0) != QLatin1Char('/')
+                                                  ? QLatin1String("/") + d->path :  d->path);
         } else {
-	    tmp = d->path;
-	    // magic for drives on windows
+            tmp = d->path;
+            // magic for drives on windows
             if (d->path.length() > 2 && d->path.at(0) == QLatin1Char('/') && d->path.at(2) == QLatin1Char(':'))
-		tmp.remove(0, 1);
-	}
+                tmp.remove(0, 1);
+        }
     }
 
     return tmp;
@@ -2927,4 +3083,3 @@ QDebug operator<<(QDebug d, const QUrl &url)
     return d.space();
 }
 #endif
-
