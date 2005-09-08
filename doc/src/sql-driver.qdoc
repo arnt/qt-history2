@@ -590,14 +590,15 @@
     \list
     \i Ensure that you are using a shared Qt library; you cannot use the
         plugins with a static build.
-    \i Ensure that the environment variable \c QTDIR points to the right
-        directory. Go to the \c{$QTDIR/plugins/sqldrivers} directory and
-        make sure that the plugin exists in that directory.
+    \i Ensure that the plugin is in the correct directory. You can use
+        QApplication::libraryPaths() to determine where Qt looks for plugins.
     \i Ensure that the client libraries of the DBMS are available on the 
         system. On Unix, run the command \c{ldd} and pass the name of the
         plugin as parameter, for example \c{ldd libqsqlmysql.so}. You will
         get a warning if any of the client libraries couldn't be found.
         On Windows, you can use Visual Studio's dependency walker.
+    \i Compile Qt with \c{QT_DEBUG_COMPONENT} defined to get very verbose
+        debug output when loading plugins.
     \endlist
 
     If you are experiencing problems with loading plugins, and see output
