@@ -95,11 +95,11 @@ void NewForm::on_createButton_clicked()
         int maxUntitled = 0;
         int totalWindows = m_workbench->formWindowCount();
         // This will cause some problems with i18n, but for now I need the string to be "static"
-        QRegExp rx(QLatin1String("Untitled( (\\d+))*"));
+        QRegExp rx(QLatin1String("untitled( (\\d+))?"));
         for (int i = 0; i < totalWindows; ++i) {
             QString title = m_workbench->formWindow(i)->windowTitle();
             title = title.replace(QLatin1String("[*]"), QLatin1String(""));
-            if (rx.exactMatch(title)) {
+            if (rx.indexIn(title) != 1) {
                 if (maxUntitled == 0)
                     ++maxUntitled;
                 if (rx.numCaptures() > 1)
@@ -121,12 +121,13 @@ void NewForm::on_createButton_clicked()
             if (QWidget *container = editor->mainContainer())
                 formWindow->resize(container->size());
         }
-        QString newTitle = QString::fromUtf8("Untitled");
+        QString newTitle = QLatin1String("untitled");
         if (maxUntitled)
-            newTitle += QString::fromUtf8(" ") + QString::number(maxUntitled + 1);
+            newTitle += QLatin1String(" ") + QString::number(maxUntitled + 1);
 
         newTitle.append(QLatin1String("[*]"));
         formWindow->setWindowTitle(newTitle);
+        formWindow->editor()->setFileName("");
         formWindow->show();
     }
 }

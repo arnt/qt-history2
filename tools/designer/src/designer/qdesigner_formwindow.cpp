@@ -104,13 +104,27 @@ QDesignerWorkbench *QDesignerFormWindow::workbench() const
 void QDesignerFormWindow::updateWindowTitle(const QString &fileName)
 {
     QString fn = fileName;
+    QString title;
+    QString format = tr("%2 - %1[*]");
 
-    if (fn.isEmpty())
-        fn = tr("Untitled");
+    if (fn.isEmpty()) {
+        // Try to preserve it's "untitled" number.
+        QRegExp rx(QLatin1String("untitled( (\\d+))?"));
+        if (rx.indexIn(windowTitle()) != -1) {
+            fn = rx.cap(0);
+        } else {
+            fn = QLatin1String("untitled");
+        }
+    }
 
-    fn += QLatin1String("[*]");
+    if (QWidget *mc = m_editor->mainContainer()) {
+        title = mc->windowTitle();
+        setWindowIcon(mc->windowIcon());
+    } else {
+        format = tr("%1[*]");
+    }
 
-    setWindowTitle(fn);
+    setWindowTitle(format.arg(fn).arg(title));
 }
 
 void QDesignerFormWindow::closeEvent(QCloseEvent *ev)
@@ -150,4 +164,5 @@ void QDesignerFormWindow::closeEvent(QCloseEvent *ev)
 void QDesignerFormWindow::updateChanged()
 {
     setWindowModified(m_editor->isDirty());
+    updateWindowTitle(m_editor->fileName());
 }

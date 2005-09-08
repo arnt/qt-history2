@@ -679,8 +679,8 @@ bool QDesignerActions::readInForm(const QString &fileName)
 
     QDesignerFormWindow *formWindow = workbench()->createFormWindow();
     if (QDesignerFormWindowInterface *editor = formWindow->editor()) {
-        editor->setFileName(fileName);
         editor->setContents(&f);
+        editor->setFileName(fileName);
         Q_ASSERT(editor->mainContainer() != 0);
         formWindow->resize(editor->mainContainer()->size());
         formWindowManager->setActiveFormWindow(editor);
