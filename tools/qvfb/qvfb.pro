@@ -12,8 +12,7 @@ HEADERS         = qvfb.h \
 		  qvfbratedlg.h \
 		  qanimationwriter.h \
                   gammaview.h \
-		  skin.h \
-                  config.h
+		  skin.h
 
 SOURCES         = qvfb.cpp \
 		  qvfbview.cpp \
