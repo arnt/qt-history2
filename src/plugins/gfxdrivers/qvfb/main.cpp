@@ -11,37 +11,38 @@
 **
 ****************************************************************************/
 
-#include <qgfxdriverplugin_qws.h>
-#include <qgfxvfb_qws.h>
+#include <qscreendriverplugin_qws.h>
+#include <qscreenvfb_qws.h>
 #include <qstringlist.h>
 
-class GfxVfbDriver : public QGfxDriverPlugin
+class ScreenVfbDriver : public QScreenDriverPlugin
 {
 public:
-    GfxVfbDriver();
+    ScreenVfbDriver();
 
     QStringList keys() const;
     QScreen *create(const QString&, int displayId);
 };
 
-GfxVfbDriver::GfxVfbDriver()
-: QGfxDriverPlugin()
+ScreenVfbDriver::ScreenVfbDriver()
+: QScreenDriverPlugin()
 {
 }
 
-QStringList GfxVfbDriver::keys() const
+QStringList ScreenVfbDriver::keys() const
 {
     QStringList list;
     list << "QVFb";
     return list;
 }
 
-QScreen* GfxVfbDriver::create(const QString& driver, int displayId)
+QScreen* ScreenVfbDriver::create(const QString& driver, int displayId)
 {
+    printf("ScreenVfbDriver create %s\n", driver.toLatin1().constData());
     if (driver.toLower() == "qvfb")
         return new QVFbScreen(displayId);
 
     return 0;
 }
 
-Q_EXPORT_PLUGIN(GfxVfbDriver)
+Q_EXPORT_PLUGIN(ScreenVfbDriver)
