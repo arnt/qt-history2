@@ -432,7 +432,16 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
         parseFunctionArguments(def);
         next(RPAREN);
     }
+
+    // support optional macros with compiler specific options
+    while (test(IDENTIFIER))
+        ;
+
     def->isConst = test(CONST);
+
+    while (test(IDENTIFIER))
+        ;
+
     if (inMacro) {
         next(RPAREN);
     } else {
