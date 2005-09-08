@@ -440,7 +440,11 @@ void QAbstractSlider::setSliderPosition(int position)
         return;
     d->position = position;
     if (!d->blocktracking)
+#ifdef Q_WS_QWS
+        update(); //this gives approx 25% performance increase for QListView scrolling
+#else
         repaint();
+#endif
     emit sliderMoved(position);
     if (d->tracking && !d->blocktracking)
         triggerAction(SliderMove);
