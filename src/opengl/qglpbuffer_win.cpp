@@ -153,7 +153,6 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
     : d_ptr(new QGLPbufferPrivate)
 {
     Q_D(QGLPbuffer);
-    d->qctx = 0;
     if (!qt_init_glpbuffer_extensions())
         return;
 

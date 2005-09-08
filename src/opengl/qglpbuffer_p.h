@@ -16,59 +16,45 @@
 
 #ifdef Q_WS_X11
 #include <GL/glx.h>
-
 #ifndef GLX_VERSION_1_3
 typedef XID GLXPbuffer;
+#endif
+#elif defined(Q_WS_WIN)
+DECLARE_HANDLE(HPBUFFERARB);
+#elif defined(Q_WS_MACX)
+#include <AGL/agl.h>
 #endif
 
 class QGLPbufferPrivate {
     Q_DECLARE_PUBLIC(QGLPbuffer)
 public:
-    QGLPbufferPrivate() : pbuf(0), ctx(0), qctx(0), invalid(true), paintEngine(0) {}
+    QGLPbufferPrivate() : invalid(true), qctx(0), pbuf(0), ctx(0)
+    {
+#ifdef Q_WS_WIN
+        dc = 0;
+#elif defined(Q_WS_MACX)
+        share_ctx = 0;
+#endif
+    }
 
+    bool invalid;
+    QSize size;
+    QGLContext *qctx;
+    QGLPbuffer *q_ptr;
+
+#ifdef Q_WS_X11
     GLXPbuffer pbuf;
     GLXContext ctx;
-    QGLContext *qctx;
-    bool invalid;
-    QSize size;
-    QGLPbuffer *q_ptr;
-    QPaintEngine *paintEngine;
-};
 #elif defined(Q_WS_WIN)
-DECLARE_HANDLE(HPBUFFERARB);
-
-class QGLPbufferPrivate {
-    Q_DECLARE_PUBLIC(QGLPbuffer)
-public:
-    QGLPbufferPrivate() : invalid(true), dc(0) {}
-
-    bool invalid;
-    QSize size;
-    QGLContext *qctx;
-    QGLPbuffer *q_ptr;
     QGLWidget dmy;
     HDC dc;
     HPBUFFERARB pbuf;
     HGLRC ctx;
-    QPaintEngine *paintEngine;
-};
 #elif defined(Q_WS_MACX)
-#include <AGL/agl.h>
-
-class QGLPbufferPrivate {
-    Q_DECLARE_PUBLIC(QGLPbuffer)
-public:
-    QGLPbufferPrivate() : invalid(true) {}
-
-    bool invalid;
-    QSize size;
-    QGLContext *qctx;
-    QGLPbuffer *q_ptr;
     AGLPbuffer pbuf;
     AGLContext ctx;
     AGLContext share_ctx;
-    QPaintEngine *paintEngine;
+#endif
 };
-#endif // Q_WS_
 
 #endif // QGLPBUFFER_P_H

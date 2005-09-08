@@ -151,18 +151,19 @@ Qt::HANDLE QGLPbuffer::handle() const
 
 /*!
     Returns true if this pbuffer is valid.
- */
+*/
 bool QGLPbuffer::isValid() const
 {
     Q_D(const QGLPbuffer);
-    return !d->invalid;;
+    return !d->invalid;
 }
 
+Q_GLOBAL_STATIC(QOpenGLPaintEngine, qt_pbuffer_paintengine)
+/*! \reimp
+*/
 QPaintEngine *QGLPbuffer::paintEngine() const
 {
-    if (!d_ptr->paintEngine)
-        d_ptr->paintEngine = new QOpenGLPaintEngine();
-    return d_ptr->paintEngine;
+    return qt_pbuffer_paintengine();
 }
 
 extern int qt_defaultDpi();

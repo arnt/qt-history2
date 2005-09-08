@@ -26,7 +26,6 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
     Q_D(QGLPbuffer);
     GLint attribs[40];
     int i = 0;
-    d->qctx = 0;
 
     attribs[i++] = AGL_RGBA;
     attribs[i++] = AGL_ACCELERATED;
