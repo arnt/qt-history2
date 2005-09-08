@@ -167,9 +167,25 @@ struct ConicalGradientData : public GradientData
     QPainter::CompositionMode compositionMode;
 };
 
+inline void qt_memfill_uint(uint *dest, int length, uint color)
+{
+    // Duff's device
+    register int n = (length + 7) / 8;
+    switch (length % 8)
+    {
+    case 0: do { *dest++ = color;
+    case 7:      *dest++ = color;
+    case 6:      *dest++ = color;
+    case 5:      *dest++ = color;
+    case 4:      *dest++ = color;
+    case 3:      *dest++ = color;
+    case 2:      *dest++ = color;
+    case 1:      *dest++ = color;
+    } while (--n > 0);
+    }
+}
 
 inline int qt_div_255(int x) { return (x + (x>>8) + 0x80) >> 8; }
-
 
 #if 1
 inline uint INTERPOLATE_PIXEL_256(uint x, uint a, uint y, uint b) {

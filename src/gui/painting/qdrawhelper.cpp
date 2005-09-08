@@ -54,8 +54,7 @@ static uint qt_gradient_pixel(const GradientData *data, double pos)
 static void QT_FASTCALL comp_func_solid_Clear(uint *dest, int length, const uint, uint const_alpha)
 {
     if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = 0;
+        qt_memfill_uint(dest, length, 0);
     } else {
         int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i)
@@ -72,8 +71,7 @@ Da'  = Sa.Da + Sa.(1 - Da)
 static void QT_FASTCALL comp_func_solid_Source(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = color;
+        qt_memfill_uint(dest, length, color);
     } else {
         int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i)
@@ -92,8 +90,7 @@ static void QT_FASTCALL comp_func_solid_SourceOver(uint *dest, int length, uint 
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
     if (qAlpha(color) == 255)
-        for (int i = 0; i < length; ++i)
-            dest[i] = color;
+        qt_memfill_uint(dest, length, color);
     else
         for (int i = 0; i < length; ++i)
             dest[i] = color + BYTE_MUL(dest[i], 255 - qAlpha(color));
@@ -253,8 +250,7 @@ static const CompositionFunctionSolid *functionForModeSolid = functionForModeSol
 static void QT_FASTCALL comp_func_Clear(uint *dest, const uint *, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = 0;
+        qt_memfill_uint(dest, length, 0);
     } else {
         int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i)
@@ -455,10 +451,10 @@ static void blend_color_argb(void *t, const QSpan *span, QPainter::CompositionMo
 
     uint *target = ((uint *)t) + span->x;
     uint color = data->color;
-    
+
     func(target, span->len, color, span->coverage);
 }
-    
+
 static void blend_argb(void *t, const QSpan *span, const qreal dx, const qreal dy,
                        const void *ibits, const int image_width, const int image_height,
                        QPainter::CompositionMode mode)
@@ -496,7 +492,7 @@ static void blend_tiled_argb(void *t, const QSpan *span,
     if (!func)
         return;
     uint buffer[buffer_size];
-    
+
     uint *target = ((uint *)t) + span->x;
     uint *image_bits = (uint *)ibits;
     // #### take care of non integer dx/dy
@@ -531,7 +527,7 @@ static void blend_transformed_bilinear_argb(void *t, const QSpan *span,
     if (!func)
         return;
     uint buffer[buffer_size];
-    
+
     uint *target = ((uint *)t) + span->x;
     uint *image_bits = (uint *)ibits;
     int x = int((ix + dx * span->x) * fixed_scale) - half_point;
@@ -662,7 +658,7 @@ static void blend_transformed_argb(void *t, const QSpan *span,
     if (!func)
         return;
     uint buffer[buffer_size];
-    
+
     uint *target = ((uint *)t) + span->x;
     uint *image_bits = (uint *)ibits;
 
@@ -752,7 +748,7 @@ static void blend_linear_gradient_argb(void *t, const QSpan *span, LinearGradien
     if (!func)
         return;
     uint buffer[buffer_size];
-    
+
     qreal ybase = (y - data->origin.y()) * data->yincr;
     uint *target = ((uint *)t) + span->x;
     qreal x1 = data->origin.x();
@@ -768,7 +764,7 @@ static void blend_linear_gradient_argb(void *t, const QSpan *span, LinearGradien
         func(target, buffer, l, span->coverage);
         target += l;
         length -= l;
-    }        
+    }
 }
 
 static inline double determinant(double a, double b, double c)
@@ -821,7 +817,7 @@ static void blend_radial_gradient_argb(void *t, const QSpan *span, RadialGradien
         func(target, buffer, l, span->coverage);
         target += l;
         length -= l;
-    }        
+    }
 }
 
 static void blend_conical_gradient_argb(void *t, const QSpan *span, ConicalGradientData *data,
@@ -857,7 +853,7 @@ static void blend_conical_gradient_argb(void *t, const QSpan *span, ConicalGradi
         func(target, buffer, l, span->coverage);
         target += l;
         length -= l;
-    }        
+    }
 }
 
 // ************************** RGB32 handling ******************************
