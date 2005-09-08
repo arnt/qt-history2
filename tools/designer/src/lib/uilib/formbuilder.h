@@ -20,6 +20,8 @@
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 
+#pragma qt_class(QFormBuilder)
+
 class QDesignerCustomWidgetInterface;
 
 #ifdef QFORMINTERNAL_NAMESPACE

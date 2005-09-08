@@ -23,6 +23,8 @@
 #include <QtGui/QSizePolicy>
 #include <QtGui/QPalette>
 
+#pragma qt_class(QAbstractFormBuilder)
+
 class QAction;
 class QActionGroup;
 class QComboBox;
