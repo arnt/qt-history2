@@ -238,7 +238,6 @@ public:
 #endif
     QWSWindow *windowAt(const QPoint& pos);
 
-    // For debugging only at this time
     const QList<QWSWindow*> &clientWindows() { return windows; }
 
     void openMouse();
