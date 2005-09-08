@@ -55,7 +55,7 @@ static inline __m64 interpolate_pixel_255(__m64 x, __m64 a, __m64 y, __m64 b) {
     return _mm_srli_pi16(res, 8);
 }
 
-inline __m64 premul(__m64 x) {
+static inline __m64 premul(__m64 x) {
     __m64 a = spread_alpha(x);
     return byte_mul(x, a);
 }

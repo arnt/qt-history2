@@ -742,13 +742,13 @@ static void blend_linear_gradient_argb(void *t, const QSpan *span, LinearGradien
     }        
 }
 
-inline double determinant(double a, double b, double c)
+static inline double determinant(double a, double b, double c)
 {
     return (b * b) - (4 * a * c);
 }
 
 // function to evaluate real roots
-inline double realRoots(double a, double b, double detSqrt)
+static inline double realRoots(double a, double b, double detSqrt)
 {
     return (-b + detSqrt)/(2 * a);
 }
