@@ -135,3 +135,28 @@
 
 */
 
+/*!
+   \macro Q_DECLARE_EXTENSION_INTERFACE(ExtensionName, Identifier)
+
+   \relates QExtensionManager
+
+   Associates the given \a Identifier (a string literal) to the
+   extension class called \a ExtensionName. The \a Identifier must be
+   unique. For example:
+
+   \code
+   Q_DECLARE_EXTENSION_INTERFACE(MyExtension, "com.mycompany.myproduct.myextension")
+   \endcode
+
+   Using the company and product names is a good way to ensure
+   uniqueness of the identifier.
+
+   When implementing a custom extension class, you must use
+   Q_DECLARE_EXTENSION_INTERFACE() to enable usage of the
+   qt_extension() function. The macro is normally located right after the
+   class definition for \a ExtensionName, in the associated header
+   file.
+
+   \sa Q_DECLARE_INTERFACE()
+*/
+
