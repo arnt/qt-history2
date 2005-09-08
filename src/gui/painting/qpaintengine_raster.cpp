@@ -2483,10 +2483,8 @@ static void qt_span_linear_gradient(int y, int count, QT_FT_Span *spans, void *u
     LinearGradientData *data = reinterpret_cast<LinearGradientData *>(userData);
     uchar *baseTarget = data->rasterBuffer->scanLine(y);
 
-    qreal ybase = (y - data->origin.y()) * data->yincr;
-
     while (count--) {
-        data->blendFunc(baseTarget, (const QSpan *)spans, data, ybase, y, data->compositionMode);
+        data->blendFunc(baseTarget, (const QSpan *)spans, data, y, data->compositionMode);
         ++spans;
     }
 }

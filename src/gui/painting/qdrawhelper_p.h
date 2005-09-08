@@ -58,7 +58,7 @@ typedef void (*BlendTransformed)(void *target, const QSpan *span,
 typedef void (*BlendLinearGradient)(void *target,
                                     const QSpan *span,
                                     LinearGradientData *data,
-                                    qreal ybase, int y,
+                                    int y,
                                     QPainter::CompositionMode mode);
 
 typedef void (*BlendRadialGradient)(void *target,

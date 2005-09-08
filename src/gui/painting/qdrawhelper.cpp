@@ -426,9 +426,8 @@ static void blend_color_argb(void *t, const QSpan *span, QPainter::CompositionMo
 
     uint *target = ((uint *)t) + span->x;
     uint color = data->color;
-    int length = span->len;
-
-    func(target, length, color, span->coverage);
+    
+    func(target, span->len, color, span->coverage);
 }
     
 static void blend_argb(void *t, const QSpan *span, const qreal dx, const qreal dy,
@@ -715,7 +714,7 @@ static void blend_transformed_tiled_argb(void *t, const QSpan *span,
     }
 }
 
-static void blend_linear_gradient_argb(void *t, const QSpan *span, LinearGradientData *data, qreal ybase, int,
+static void blend_linear_gradient_argb(void *t, const QSpan *span, LinearGradientData *data, int y,
                                        QPainter::CompositionMode mode)
 {
     if (mode == QPainter::CompositionMode_SourceOver && !data->alphaColor)
@@ -725,6 +724,7 @@ static void blend_linear_gradient_argb(void *t, const QSpan *span, LinearGradien
         return;
     uint buffer[buffer_size];
     
+    qreal ybase = (y - data->origin.y()) * data->yincr;
     uint *target = ((uint *)t) + span->x;
     qreal x1 = data->origin.x();
     qreal tt = ybase + data->xincr * (span->x - x1);
@@ -1125,9 +1125,10 @@ static void blend_transformed_tiled_rgb32(void *t, const QSpan *span,
     }
 }
 
-static void blend_linear_gradient_rgb32(void *t, const QSpan *span, LinearGradientData *data, qreal ybase, int, QPainter::CompositionMode)
+static void blend_linear_gradient_rgb32(void *t, const QSpan *span, LinearGradientData *data, int y, QPainter::CompositionMode)
 {
     uint *target = ((uint *)t) + span->x;
+    qreal ybase = (y - data->origin.y()) * data->yincr;
     qreal x1 = data->origin.x();
     qreal tt = ybase + data->xincr * (span->x - x1);
 
@@ -1316,7 +1317,7 @@ static void blend_transformed_tiled_mono(void *t, const QSpan *span,
     }
 }
 
-static void blend_linear_gradient_mono(void *t, const QSpan *span, LinearGradientData *data, qreal ybase,
+static void blend_linear_gradient_mono(void *t, const QSpan *span, LinearGradientData *data,
                                        int y, QPainter::CompositionMode)
 {
     if (!span->coverage)
@@ -1324,6 +1325,7 @@ static void blend_linear_gradient_mono(void *t, const QSpan *span, LinearGradien
     Q_ASSERT(span->coverage == 0xff);
     uchar *target = (uchar *)t;
 
+    qreal ybase = (y - data->origin.y()) * data->yincr;
     qreal x1 = data->origin.x();
     qreal tt = ybase + data->xincr * (span->x - x1);
 
@@ -1573,7 +1575,7 @@ static void blend_transformed_tiled_mono_lsb(void *t, const QSpan *span,
     }
 }
 
-static void blend_linear_gradient_mono_lsb(void *t, const QSpan *span, LinearGradientData *data, qreal ybase,
+static void blend_linear_gradient_mono_lsb(void *t, const QSpan *span, LinearGradientData *data, 
                                            int y, QPainter::CompositionMode)
 {
     if (!span->coverage)
@@ -1581,6 +1583,7 @@ static void blend_linear_gradient_mono_lsb(void *t, const QSpan *span, LinearGra
     Q_ASSERT(span->coverage == 0xff);
     uchar *target = (uchar *)t;
 
+    qreal ybase = (y - data->origin.y()) * data->yincr;
     qreal x1 = data->origin.x();
     qreal tt = ybase + data->xincr * (span->x - x1);
 
@@ -1972,11 +1975,12 @@ static void blend_transformed_tiled_rgb16(void *t, const QSpan *span,
 #endif
 }
 
-static void blend_linear_gradient_rgb16(void *t, const QSpan *span, LinearGradientData *data, qreal ybase, int, QPainter::CompositionMode)
+static void blend_linear_gradient_rgb16(void *t, const QSpan *span, LinearGradientData *data, int y, QPainter::CompositionMode)
 {
     qDebug("not implemented blend_transformed_bilinear_rgb16");
 #if 0
     uint *target = ((uint *)t) + span->x;
+    qreal ybase = (y - data->origin.y()) * data->yincr;
     qreal x1 = data->origin.x();
     qreal tt = ybase + data->xincr * (span->x - x1);
 
