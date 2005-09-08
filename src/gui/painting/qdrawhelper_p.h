@@ -30,47 +30,36 @@ struct QSpan
     uchar coverage;
 };
 
+struct SolidData;
+struct TextureData;
 struct GradientData;
 struct LinearGradientData;
 struct RadialGradientData;
 struct ConicalGradientData;
 
-struct BlendColorData {
-    int y;
-    uint color;
-};
-
-typedef void (*BlendColor)(void *target, const QSpan *span, QPainter::CompositionMode mode, const BlendColorData *data);
+typedef void (*BlendColor)(void *target, const QSpan *span,
+                           SolidData *data, int y);
 
 typedef void (*Blend)(void *target, const QSpan *span,
-                      const qreal dx, const qreal dy,
-                      const void *image_bits, const int image_width, const int image_height,
-                      QPainter::CompositionMode mode);
+                      TextureData *data, int y);
 
 typedef void (*BlendTransformed)(void *target, const QSpan *span,
-                                 const qreal ix, const qreal iy,
-                                 const qreal dx, const qreal dy,
-                                 const void *image_bits,
-                                 const int image_width, const int image_height,
-                                 QPainter::CompositionMode mode);
+                                 TextureData *data, int y);
 
 typedef void (*BlendLinearGradient)(void *target,
                                     const QSpan *span,
                                     LinearGradientData *data,
-                                    int y,
-                                    QPainter::CompositionMode mode);
+                                    int y);
 
 typedef void (*BlendRadialGradient)(void *target,
                                     const QSpan *span,
                                     RadialGradientData *data,
-                                    int y,
-                                    QPainter::CompositionMode mode);
+                                    int y);
 
 typedef void (*BlendConicalGradient)(void *target,
                                      const QSpan *span,
                                      ConicalGradientData *data,
-                                     int y,
-                                     QPainter::CompositionMode mode);
+                                     int y);
 
 struct DrawHelper {
     enum Layout {
@@ -113,6 +102,31 @@ extern const CompositionFunctionSolid qt_functionForModeSolid_SSE[];
 void qInitDrawhelperAsm();
 
 class QRasterBuffer;
+
+struct SolidData
+{
+    QRasterBuffer *rasterBuffer;
+    uint color;
+    BlendColor blendColor;
+    QPainter::CompositionMode compositionMode;
+};
+
+struct TextureData
+{
+    QRasterBuffer *rasterBuffer;
+    const void *imageData;
+    int width, height;
+    bool hasAlpha;
+    qreal m11, m12, m21, m22, dx, dy;   // inverse xform matrix
+
+    Blend blend;
+    BlendTransformed blendFunc;
+
+    QPainter::CompositionMode compositionMode;
+
+    void init(QRasterBuffer *rasterBuffer, const QImage *image, const QMatrix &matrix,
+              Blend b, BlendTransformed func);
+};
 
 struct GradientData
 {

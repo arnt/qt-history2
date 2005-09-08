@@ -124,30 +124,6 @@ static void qt_span_radial_gradient(int y, int count, QT_FT_Span *spans, void *u
 static void qt_span_conical_gradient(int y, int count, QT_FT_Span *spans, void *userData);
 static void qt_span_clip(int y, int count, QT_FT_Span *spans, void *userData);
 
-struct SolidFillData
-{
-    QRasterBuffer *rasterBuffer;
-    uint color;
-    BlendColor blendColor;
-    QPainter::CompositionMode compositionMode;
-};
-
-struct TextureFillData
-{
-    QRasterBuffer *rasterBuffer;
-    const void *imageData;
-    int width, height;
-    bool hasAlpha;
-    qreal m11, m12, m21, m22, dx, dy;   // inverse xform matrix
-
-    Blend blend;
-    BlendTransformed blendFunc;
-
-    QPainter::CompositionMode compositionMode;
-
-    void init(QRasterBuffer *rasterBuffer, const QImage *image, const QMatrix &matrix,
-              Blend b, BlendTransformed func);
-};
 
 struct FillData
 {
@@ -466,8 +442,8 @@ void QRasterPaintEngine::init()
     };
 
     d->fillData = new FillData;
-    d->solidFillData = new SolidFillData;
-    d->textureFillData = new TextureFillData;
+    d->solidData = new SolidData;
+    d->textureData = new TextureData;
     d->linearGradientData = new LinearGradientData;
     d->radialGradientData = new RadialGradientData;
     d->conicalGradientData = new ConicalGradientData;
@@ -493,8 +469,8 @@ QRasterPaintEngine::~QRasterPaintEngine()
 #endif
     
     delete d->fillData;
-    delete d->solidFillData;
-    delete d->textureFillData;
+    delete d->solidData;
+    delete d->textureData;
     delete d->linearGradientData;
     delete d->radialGradientData;
     delete d->conicalGradientData;
@@ -1161,7 +1137,7 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
                          : img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
     Q_D(QRasterPaintEngine);
-    TextureFillData textureData = {
+    TextureData textureData = {
         d->rasterBuffer,
         image.bits(), image.width(), image.height(), image.format() != QImage::Format_RGB32,
         0., 0., 0., 0., 0., 0.,
@@ -1222,7 +1198,7 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
     else
         image = qt_map_to_32bit(pixmap);
 
-    TextureFillData textureData = {
+    TextureData textureData = {
         d->rasterBuffer,
         ((const QImage &)(image)).bits(), image.width(), image.height(), image.format() != QImage::Format_RGB32,
         0., 0., 0., 0., 0., 0.,
@@ -1924,11 +1900,11 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush)
 
     case Qt::SolidPattern:
         fillData->callback = qt_span_solidfill;
-        fillData->data = solidFillData;
-        solidFillData->color = PREMUL(brush.color().rgba());
-        solidFillData->rasterBuffer = fillData->rasterBuffer;
-        solidFillData->blendColor = drawHelper->blendColor;
-        solidFillData->compositionMode = compositionMode;
+        fillData->data = solidData;
+        solidData->color = PREMUL(brush.color().rgba());
+        solidData->rasterBuffer = fillData->rasterBuffer;
+        solidData->blendColor = drawHelper->blendColor;
+        solidData->compositionMode = compositionMode;
         break;
 
     case Qt::TexturePattern:
@@ -1939,12 +1915,12 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush)
             } else {
                 tempImage = qt_map_to_32bit(brush.texture());
             }
-            fillData->data = textureFillData;
+            fillData->data = textureData;
             fillData->callback = txop > QPainterPrivate::TxTranslate
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
-            textureFillData->compositionMode = compositionMode;
-            textureFillData->init(rasterBuffer, &tempImage, brushMatrix(),
+            textureData->compositionMode = compositionMode;
+            textureData->init(rasterBuffer, &tempImage, brushMatrix(),
                                   drawHelper->blendTiled,
                                   bilinear
                                   ? drawHelper->blendTransformedBilinearTiled
@@ -2036,12 +2012,12 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush)
             Q_ASSERT(pixmap.depth() == 1);
 
             tempImage = colorizeBitmap(pixmap.toImage(), brush.color());
-            fillData->data = textureFillData;
+            fillData->data = textureData;
             fillData->callback = txop > QPainterPrivate::TxTranslate
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
-            textureFillData->compositionMode = compositionMode;
-            textureFillData->init(rasterBuffer, &tempImage, brushMatrix(),
+            textureData->compositionMode = compositionMode;
+            textureData->init(rasterBuffer, &tempImage, brushMatrix(),
                                   drawHelper->blendTiled,
                                   bilinear
                                   ? drawHelper->blendTransformedBilinearTiled
@@ -2373,77 +2349,33 @@ void QRasterBuffer::resizeClipSpan(int y, int size)
 
 static void qt_span_solidfill(int y, int count, QT_FT_Span *spans, void *userData)
 {
-    SolidFillData *data = reinterpret_cast<SolidFillData *>(userData);
-    QRasterBuffer *rb = data->rasterBuffer;
-    uchar *rasterBuffer = rb->scanLine(y);
-//     fprintf(stdout, "qt_span_solidfill, y=%d, count=%d rb->width=%d rb->bytes_per_line=%d\n", y, count, rb->width(), rb->bytesPerLine());
-//     fflush(stdout);
+    SolidData *data = reinterpret_cast<SolidData *>(userData);
+    uchar *base = data->rasterBuffer->scanLine(y);
 
-    Q_ASSERT(y >= 0);
-    Q_ASSERT(y < rb->height());
-
-    BlendColorData bd;
-    bd.color = data->color;
-    bd.y = y;
-
-    for (int span=0; span<count; ++span) {
-        Q_ASSERT(spans->x >= 0);
-        Q_ASSERT(spans->len > 0);
-        Q_ASSERT(spans->x + spans->len <= rb->width());
-        data->blendColor(rasterBuffer, (const QSpan *)spans, data->compositionMode, &bd);
+    while (count--) {
+        data->blendColor(base, (const QSpan *)spans, data, y);
         ++spans;
     }
 }
 
-
 static void qt_span_texturefill(int y, int count, QT_FT_Span *spans, void *userData)
 {
-    TextureFillData *data = reinterpret_cast<TextureFillData *>(userData);
-    QRasterBuffer *rb = data->rasterBuffer;
-    int image_width = data->width;
-    int image_height = data->height;
-    int xoff = qRound(data->dx) % image_width;
-    int yoff = qRound(data->dy) % image_height;
-
-    if (xoff < 0)
-        xoff += image_width;
-    if (yoff < 0)
-        yoff += image_height;
-
-    uchar *baseTarget = rb->scanLine(y);
+    TextureData *data = reinterpret_cast<TextureData *>(userData);
+    uchar *baseTarget = data->rasterBuffer->scanLine(y);
+    
     while (count--) {
-        QPainter::CompositionMode mode = data->compositionMode;
-        if (!data->hasAlpha && mode == QPainter::CompositionMode_SourceOver
-            && spans->coverage == 255)
-            mode = QPainter::CompositionMode_Source;
-        data->blend(baseTarget, (const QSpan *)spans, (xoff + spans->x)%image_width,
-                    ((y + yoff) % image_height), data->imageData, image_width, image_height,
-                    mode);
+        data->blend(baseTarget, (const QSpan *)spans, data, y);
         ++spans;
     }
 }
 
 static void qt_span_texturefill_xform(int y, int count, QT_FT_Span *spans, void *userData)
 {
-    TextureFillData *data = reinterpret_cast<TextureFillData *>(userData);
-    QRasterBuffer *rb = data->rasterBuffer;
-    int image_width = data->width;
-    int image_height = data->height;
-    uchar *baseTarget = rb->scanLine(y);
-
-    // Base point for the inversed transform
-    qreal ix = data->m21 * y + data->dx;
-    qreal iy = data->m22 * y + data->dy;
-
-    // The increment pr x in the scanline
-    qreal dx = data->m11;
-    qreal dy = data->m12;
+    TextureData *data = reinterpret_cast<TextureData *>(userData);
+    uchar *baseTarget = data->rasterBuffer->scanLine(y);
 
     while (count--) {
-        data->blendFunc(baseTarget, (const QSpan *)spans,
-                        ix, iy, dx, dy,
-                        data->imageData, image_width, image_height,
-                        data->compositionMode);
+        data->blendFunc(baseTarget, (const QSpan *)spans, data, y);
         ++spans;
     }
 }
@@ -2454,7 +2386,7 @@ static void qt_span_linear_gradient(int y, int count, QT_FT_Span *spans, void *u
     uchar *baseTarget = data->rasterBuffer->scanLine(y);
 
     while (count--) {
-        data->blendFunc(baseTarget, (const QSpan *)spans, data, y, data->compositionMode);
+        data->blendFunc(baseTarget, (const QSpan *)spans, data, y);
         ++spans;
     }
 }
@@ -2465,7 +2397,7 @@ static void qt_span_radial_gradient(int y, int count, QT_FT_Span *spans, void *u
     uchar *baseTarget = data->rasterBuffer->scanLine(y);
 
     while (count--) {
-        data->blendFunc(baseTarget, (const QSpan *)spans, data, y, data->compositionMode);
+        data->blendFunc(baseTarget, (const QSpan *)spans, data, y);
         ++spans;
     }
 }
@@ -2476,7 +2408,7 @@ static void qt_span_conical_gradient(int y, int count, QT_FT_Span *spans, void *
     uchar *baseTarget = data->rasterBuffer->scanLine(y);
 
     while (count--) {
-        data->blendFunc(baseTarget, (const QSpan *)spans, data, y, data->compositionMode);
+        data->blendFunc(baseTarget, (const QSpan *)spans, data, y);
         ++spans;
     }
 }
@@ -2750,7 +2682,7 @@ void QRasterBuffer::flushToARGBImage(QImage *target) const
     }
 }
 
-void TextureFillData::init(QRasterBuffer *raster, const QImage *image, const QMatrix &matrix,
+void TextureData::init(QRasterBuffer *raster, const QImage *image, const QMatrix &matrix,
                            Blend b, BlendTransformed func)
 {
     rasterBuffer = raster;

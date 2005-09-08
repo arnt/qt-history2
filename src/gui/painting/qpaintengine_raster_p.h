@@ -38,8 +38,8 @@ class QRasterPaintEnginePrivate;
 class QRasterBuffer;
 
 struct FillData;
-struct SolidFillData;
-struct TextureFillData;
+struct SolidData;
+struct TextureData;
 struct LinearGradientData;
 struct RadialGradientData;
 struct ConicalGradientData;
@@ -173,8 +173,8 @@ public:
     QRect deviceRect;
 
     FillData *fillData;
-    SolidFillData *solidFillData;
-    TextureFillData *textureFillData;
+    SolidData *solidData;
+    TextureData *textureData;
     LinearGradientData *linearGradientData;
     RadialGradientData *radialGradientData;
     ConicalGradientData *conicalGradientData;
