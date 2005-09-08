@@ -507,14 +507,26 @@ void QWidget::activateWindow()
 
 void QWidget::update()
 {
-    if (isVisible() && updatesEnabled())
-        QApplication::postEvent(this, new QWSUpdateEvent(visibleRegion()));
+    if (isVisible() && updatesEnabled()) {
+        QTLWExtra *topextra = window()->d_func()->extra->topextra;
+        QPoint globalpos = mapToGlobal(QPoint(0,0));
+        QRegion globalrgn = visibleRegion();
+        globalrgn.translate(globalpos);
+        topextra->dirtyRegion |= globalrgn;
+        QApplication::postEvent(this, new QWSUpdateEvent(QRegion()));
+    }
 }
 
 void QWidget::update(const QRegion &rgn)
 {
-    if (isVisible() && updatesEnabled())
-         QApplication::postEvent(this, new QWSUpdateEvent(rgn & visibleRegion()));
+    if (isVisible() && updatesEnabled()){
+        QTLWExtra *topextra = window()->d_func()->extra->topextra;
+        QPoint globalpos = mapToGlobal(QPoint(0,0));
+        QRegion globalrgn = rgn &visibleRegion();
+        globalrgn.translate(globalpos);
+        topextra->dirtyRegion |= globalrgn;
+        QApplication::postEvent(this, new QWSUpdateEvent(QRegion()));
+    }
 }
 
 void QWidget::update(const QRect &r)
@@ -525,9 +537,14 @@ void QWidget::update(const QRect &r)
             w = data->crect.width()  - x;
         if (h < 0)
             h = data->crect.height() - y;
-        if (w != 0 && h != 0)
-            QApplication::postEvent(this,
-                    new QWSUpdateEvent(visibleRegion().intersect(QRect(x, y, w, h))));
+        if (w != 0 && h != 0){
+        QTLWExtra *topextra = window()->d_func()->extra->topextra;
+        QPoint globalpos = mapToGlobal(QPoint(0,0));
+        QRegion globalrgn = visibleRegion().intersect(QRect(x, y, w, h));
+        globalrgn.translate(globalpos);
+        topextra->dirtyRegion |= globalrgn;
+        QApplication::postEvent(this, new QWSUpdateEvent(QRegion()));
+        }
     }
 }
 
@@ -590,17 +607,26 @@ void QWidgetPrivate::paintHierarchy(const QRegion &rgn)
 
 void QWidget::repaint(const QRegion& rgn)
 {
-    if (!isVisible() || !updatesEnabled() || !testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
+    if (!isVisible() || !updatesEnabled() || !testAttribute(Qt::WA_Mapped))
         return;
-    QRegion globalrgn = rgn;
+    QTLWExtra *topextra = window()->d_func()->extra->topextra;
+    if (!rgn.isEmpty()) {
     QPoint globalPos = mapToGlobal(QPoint(0,0));
+    QRegion globalrgn = rgn;
     globalrgn.translate(globalPos);
+    topextra->dirtyRegion |= globalrgn;
+    }
+
+    QRegion dirtyrgn = topextra->dirtyRegion;
+    if (topextra->inPaintTransaction || dirtyrgn.isEmpty())
+        return;
 
     QWSBackingStore *bs = window()->d_func()->extra->topextra->backingStore;
     bs->lock(true);
-    window()->d_func()->paintHierarchy(globalrgn); //optimizable...
+    window()->d_func()->paintHierarchy(dirtyrgn); //optimizable...
     bs->unlock();
-    window()->d_func()->bltToScreen(globalrgn);
+    window()->d_func()->bltToScreen(dirtyrgn);
+    topextra->dirtyRegion = QRegion();
 }
 
 /*
@@ -1191,7 +1217,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 
     QRegion update(sr);
 
-    bool fastScroll = false; //####
+    bool fastScroll = true; //####
     if (fastScroll && h >0 && w >0) {
         QWidget *tlw = window();
         QTLWExtra *topextra = tlw->d_func()->extra->topextra;
