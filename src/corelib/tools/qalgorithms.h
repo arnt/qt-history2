@@ -31,8 +31,6 @@ inline void qSortHelper(BiIterator begin, BiIterator end, const T &dummy);
 
 template <typename BiIterator, typename T, typename LessThan>
 Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan);
-template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qStableSortHelper2(BiIterator, BiIterator, LessThan, T *);
 template <typename BiIterator, typename T>
 inline void qStableSortHelper(BiIterator, BiIterator, const T &);
 
@@ -313,56 +311,39 @@ inline void qSortHelper(BiIterator begin, BiIterator end, const T &dummy)
     qSortHelper(begin, end, dummy, qLess<T>());
 }
 
-
-template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qStableSortHelper2(BiIterator start, BiIterator end, LessThan lessThan, T * buf)
-{
-    if (end - start < 2)
-       return;
-
-    BiIterator middle = start + (end - start) / 2;
-    qStableSortHelper2(start, middle, lessThan, buf);
-    qStableSortHelper2(middle, end, lessThan, buf);
-
-    BiIterator pos = start;
-    T *bufPos = buf;
-    while (pos != end) {
-        *bufPos++ = *pos++;
-    }
-
-    T *bufEnd = bufPos;
-    T *bufMiddle = buf  + (bufEnd - buf) /2;
-    T *b1 = buf;
-    T *b2 = bufMiddle;
-
-    pos = start;
-    while(b1 < bufMiddle && b2 < bufEnd) {
-        if(lessThan(*b2, *b1))
-            *pos++ = *b2++;
-        else
-            *pos++ = *b1++;
-    }
-
-    while (b1 < bufMiddle)
-        *pos++ = *b1++;
-    while (b2 < bufEnd)
-        *pos++ = *b2++;
-}
-
-
 template <typename BiIterator, typename T, typename LessThan>
 Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan)
 {
-    Q_UNUSED(t);
-    if(end - start < 2)
+    const int span = end - start;
+    if (span < 2)
        return;
-
-    int size = end - start;
-    T *buf = new T[size];
-    qStableSortHelper2(start, end, lessThan, buf);
-    delete[] buf;
+        
+    // Split in half and sort halves.
+    BiIterator middle = start + span / 2;
+    qStableSortHelper(start, middle, t, lessThan);
+    qStableSortHelper(middle, end, t, lessThan);
+    
+    // Merge
+    BiIterator lo = start;
+    BiIterator hi = middle;
+    
+    while (lo != middle && hi != end) {
+        if (!lessThan(*hi, *lo)) {
+            ++lo; // OK, *lo is in its correct position
+        } else {
+            // Move *hi to lo's position, shift values
+            // between lo and hi - 1 one place up.
+            T value = *hi;
+            for (BiIterator i = lo; i != hi; ++i) {
+                *(i + 1) = *i;  // #### is this legal use of a BiIterator?
+            }
+            *lo = value;
+            ++hi;
+            ++lo;
+            ++middle;
+        } 
+    }
 }
-
 
 template <typename BiIterator, typename T>
 inline void qStableSortHelper(BiIterator begin, BiIterator end, const T &dummy)
