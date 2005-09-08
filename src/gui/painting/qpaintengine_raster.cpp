@@ -2448,36 +2448,6 @@ static void qt_span_texturefill_xform(int y, int count, QT_FT_Span *spans, void 
     }
 }
 
-
-uint qt_gradient_pixel(const GradientData *data, double pos)
-{
-    int ipos = qRound(pos * GRADIENT_STOPTABLE_SIZE - 1);
-
-  // calculate the actual offset.
-    if (ipos < 0 || ipos >= GRADIENT_STOPTABLE_SIZE) {
-        if (data->spread == QGradient::RepeatSpread) {
-            ipos = ipos % GRADIENT_STOPTABLE_SIZE;
-            ipos = ipos < 0 ? GRADIENT_STOPTABLE_SIZE + ipos : ipos;
-
-        } else if (data->spread == QGradient::ReflectSpread) {
-            const int limit = GRADIENT_STOPTABLE_SIZE * 2 - 1;
-            ipos = ipos % limit;
-            ipos = ipos < 0 ? limit + ipos : ipos;
-            ipos = ipos >= GRADIENT_STOPTABLE_SIZE ? limit - ipos : ipos;
-
-        } else {
-            if (ipos < 0) ipos = 0;
-            else if (ipos >= GRADIENT_STOPTABLE_SIZE) ipos = GRADIENT_STOPTABLE_SIZE-1;
-        }
-    }
-
-    Q_ASSERT(ipos >= 0);
-    Q_ASSERT(ipos < GRADIENT_STOPTABLE_SIZE);
-
-    return data->colorTable[ipos];
-}
-
-
 static void qt_span_linear_gradient(int y, int count, QT_FT_Span *spans, void *userData)
 {
     LinearGradientData *data = reinterpret_cast<LinearGradientData *>(userData);

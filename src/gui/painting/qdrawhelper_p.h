@@ -34,7 +34,6 @@ struct GradientData;
 struct LinearGradientData;
 struct RadialGradientData;
 struct ConicalGradientData;
-extern uint qt_gradient_pixel(const GradientData *data, double pos);
 
 struct BlendColorData {
     int y;
