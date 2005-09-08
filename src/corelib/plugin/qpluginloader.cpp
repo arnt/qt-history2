@@ -71,9 +71,8 @@
     \relates QPluginLoader
 
     This macro associates the given \a Identifier (a string literal)
-    to the interface class called \a ClassName.
-
-    Example:
+    to the interface class called \a ClassName. The \a Identifier must
+    be unique. For example:
 
     \quotefromfile tools/plugandpaint/interfaces.h
     \skipto Q_DECLARE_INTERFACE
