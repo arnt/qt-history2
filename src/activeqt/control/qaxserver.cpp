@@ -84,7 +84,7 @@ QString qAxInit()
     
     InitializeCriticalSection(&qAxModuleSection);
     
-    libFile = qAxModuleFilename;
+    libFile = QString::fromLocal8Bit(qAxModuleFilename);
     libFile = libFile.toLower();
     if (LoadTypeLibEx((TCHAR*)libFile.utf16(), REGKIND_NONE, &qAxTypeLibrary) == S_OK)
         return libFile;
@@ -976,7 +976,7 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
     QFile file(outfile);
     file.remove();
     
-    QString filebase = qAxModuleFilename;
+    QString filebase = QString::fromLocal8Bit(qAxModuleFilename);
     filebase = filebase.left(filebase.lastIndexOf("."));
     
     QString appID = qAxFactory()->appID().toString().toUpper();

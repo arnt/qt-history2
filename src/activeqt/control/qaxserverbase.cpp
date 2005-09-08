@@ -1106,7 +1106,6 @@ QAxServerBase::~QAxServerBase()
 */
 void QAxServerBase::registerActiveObject(IUnknown *object)
 {
-    extern char qAxModuleFilename[MAX_PATH];
     if (ole_ref || !qt.object || !qAxOutProcServer)
 	return;
 
