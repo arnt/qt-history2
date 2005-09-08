@@ -49,7 +49,7 @@ void QTableViewPrivate::updateVerticalScrollbar()
 
     int height = viewport->height();
     int count = verticalHeader->count();
-    
+
     // if the header is out of sync we have to relayout
     if (count != model->rowCount(root)) {
         verticalHeader->doItemsLayout();
@@ -79,7 +79,7 @@ void QTableViewPrivate::updateVerticalScrollbar()
     }
 
     q->verticalScrollBar()->setRange(0, max);
-    
+
     if (q->verticalScrollBar()->value() == max) {
         int newOffset = 0;
         int oldOffset = verticalHeader->offset();
@@ -96,7 +96,7 @@ void QTableViewPrivate::updateHorizontalScrollbar()
 
     int width = viewport->width();
     int count = horizontalHeader->count();
-    
+
     // if the header is out of sync we have to relayout
     if (count != model->columnCount(root)) {
         horizontalHeader->doItemsLayout();
@@ -148,7 +148,7 @@ void QTableViewPrivate::trimHiddenSelections(QItemSelectionRange *range) const
 
     QModelIndex indexTopLeft = range->topLeft();
     int tlrow = indexTopLeft.row();
-    int tlcol = indexTopLeft.column();    
+    int tlcol = indexTopLeft.column();
     QModelIndex indexBottomRight = range->bottomRight();
     int brrow = indexBottomRight.row();
     int brcol = indexBottomRight.column();
@@ -161,7 +161,7 @@ void QTableViewPrivate::trimHiddenSelections(QItemSelectionRange *range) const
         return;
     }
     indexBottomRight = model->index(brrow, brcol, indexBottomRight.parent());
-    
+
     while (verticalHeader->isSectionHidden(tlrow) && tlrow <= brrow) tlrow++;
     while (horizontalHeader->isSectionHidden(tlcol) && tlcol <= brcol) tlcol++;
     if (tlrow > brrow || tlcol > brcol) {
@@ -607,11 +607,11 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
 
     if (!model())
         return QModelIndex();
-    
+
     int bottom = model()->rowCount(rootIndex()) - 1;
     // make sure that bottom is the bottommost *visible* row
     while (isRowHidden(bottom) && bottom >= 0) --bottom;
-    
+
     int right = model()->columnCount(rootIndex()) - 1;
     // make sure that right is the rightmost *visible* column
     while (isColumnHidden(right) && right >= 0) --right;
@@ -630,7 +630,7 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
             ++row;
         return model()->index(row, column, rootIndex());
     }
-    
+
     int visualRow = verticalHeader()->visualIndex(current.row());
     int visualColumn = horizontalHeader()->visualIndex(current.column());
 
@@ -657,7 +657,7 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
             int left = 0;
             // make sure that left is the leftmost *visible* column
             while (isColumnHidden(left) && left < right) left++;
-            
+
             if (visualColumn == left) {
                 // wrap up to the last column on the previous row
                 visualColumn = right;
@@ -707,7 +707,7 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
     case MoveHome:
         visualColumn = 0;
         while (visualColumn < right && isColumnHidden(horizontalHeader()->logicalIndex(visualColumn)))
-            ++visualColumn;    
+            ++visualColumn;
         if (modifiers & Qt::ControlModifier) {
             visualRow = 0;
             while (visualRow < bottom && isRowHidden(verticalHeader()->logicalIndex(visualRow)))
@@ -1245,7 +1245,8 @@ void QTableView::columnMoved(int, int oldIndex, int newIndex)
 }
 
 /*!
-    Selects the given \a row in the table view.
+    Selects the given \a row in the table view if the current
+    SelectionMode and SelectionBehavior allows rows to be selected.
 
     \sa selectColumn()
 */
@@ -1253,25 +1254,29 @@ void QTableView::selectRow(int row)
 {
     Q_D(QTableView);
 
+    if (selectionBehavior() == SelectColumns ||
+        (selectionMode() == SingleSelection && selectionBehavior() == SelectItems)) {
+        qWarning("selectRow() failed since the current SelectionMode and SelectionBehavior"
+                 " does not allow rows to be selected.");
+        return;
+    }
+
     if (row >= 0 && row < model()->rowCount(rootIndex())) {
-        QItemSelectionModel::SelectionFlags command = selectionCommand(QModelIndex());
         QModelIndex index = model()->index(row, 0, rootIndex());
-        if (selectionMode() == SingleSelection) {
-            selectionModel()->setCurrentIndex(index, command);
-        } else {
-            selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
-            if ((command & QItemSelectionModel::Current) == 0)
-                d->rowSectionAnchor = row;
-            QModelIndex tl = model()->index(qMin(d->rowSectionAnchor, row), 0, rootIndex());
-            QModelIndex br = model()->index(qMax(d->rowSectionAnchor, row),
-                                            model()->columnCount(rootIndex()) - 1, rootIndex());
-            selectionModel()->select(QItemSelection(tl, br), command);
-        }
+        QItemSelectionModel::SelectionFlags command = selectionCommand(index);
+        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+        if (!(command & QItemSelectionModel::Current))
+            d->rowSectionAnchor = row;
+        QModelIndex tl = model()->index(qMin(d->rowSectionAnchor, row), 0, rootIndex());
+        QModelIndex br = model()->index(qMax(d->rowSectionAnchor, row),
+                                        model()->columnCount(rootIndex()) - 1, rootIndex());
+        selectionModel()->select(QItemSelection(tl, br), command);
     }
 }
 
 /*!
-    Selects the given \a column in the table view.
+    Selects the given \a column in the table view if the current
+    SelectionMode and SelectionBehavior allows columns to be selected.
 
     \sa selectRow()
 */
@@ -1279,20 +1284,23 @@ void QTableView::selectColumn(int column)
 {
     Q_D(QTableView);
 
+    if (selectionBehavior() == SelectRows ||
+        (selectionMode() == SingleSelection && selectionBehavior() == SelectItems)) {
+        qWarning("selectColumn() failed since the current SelectionMode and SelectionBehavior"
+                 " does not allow columns to be selected.");
+        return;
+    }
+
     if (column >= 0 && column < model()->columnCount(rootIndex())) {
-        QItemSelectionModel::SelectionFlags command = selectionCommand(QModelIndex());
         QModelIndex index = model()->index(0, column, rootIndex());
-        if (selectionMode() == SingleSelection) {
-            selectionModel()->setCurrentIndex(index, command);
-        } else {
-            selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
-            if ((command & QItemSelectionModel::Current) == 0)
-                d->columnSectionAnchor = column;
-            QModelIndex tl = model()->index(0, qMin(d->columnSectionAnchor, column), rootIndex());
-            QModelIndex br = model()->index(model()->rowCount(rootIndex()) - 1,
-                                            qMax(d->columnSectionAnchor, column), rootIndex());
-            selectionModel()->select(QItemSelection(tl, br), command);
-        }
+        QItemSelectionModel::SelectionFlags command = selectionCommand(index);
+        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+        if (!(command & QItemSelectionModel::Current))
+            d->columnSectionAnchor = column;
+        QModelIndex tl = model()->index(0, qMin(d->columnSectionAnchor, column), rootIndex());
+        QModelIndex br = model()->index(model()->rowCount(rootIndex()) - 1,
+                                        qMax(d->columnSectionAnchor, column), rootIndex());
+        selectionModel()->select(QItemSelection(tl, br), command);
     }
 }
 

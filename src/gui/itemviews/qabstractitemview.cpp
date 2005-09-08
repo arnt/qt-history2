@@ -2211,7 +2211,7 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::multiSelectionComm
         } // switch
     }
 
-    return QItemSelectionModel::NoUpdate;
+    return QItemSelectionModel::ClearAndSelect;
 }
 
 QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionCommand(
