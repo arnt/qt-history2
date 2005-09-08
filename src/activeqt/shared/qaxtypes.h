@@ -14,7 +14,7 @@
 #ifndef QAXTYPES_H
 #define QAXTYPES_H
 
-#ifndef _WINDOWS_
+#if !defined(_WINDOWS_) && !defined(_WINDOWS_H)
 #error "Must include windows.h first!"
 #endif
 
