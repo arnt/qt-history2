@@ -301,7 +301,7 @@ protected:
     static ClearCacheFunc clearCacheFunc;
     
 private:
-    void compose(int level, QRegion exposed, QRegion &blend, QPixmap &blendbuffer, int changing_level);
+    void compose(int level, const QRegion &exposed, QRegion &blend, QPixmap &blendbuffer, int changing_level);
     void paintBackground(const QRegion &);
 };
 

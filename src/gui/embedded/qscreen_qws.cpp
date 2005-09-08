@@ -17,9 +17,9 @@
 #include "qscreendriverfactory_qws.h"
 #include "qwindowsystem_qws.h"
 #include "private/qwidget_qws_p.h"
-#include <QtGui/qcolor.h>
-#include <QtGui/qpixmap.h>
-#include <QtGui/qpainter.h>
+#include "qcolor.h"
+#include "qpixmap.h"
+#include "qpainter.h"
 
 static const bool simple_8bpp_alloc = true; //### 8bpp support not done
 
@@ -1336,12 +1336,18 @@ void QScreen::solidFill(const QColor &color, const QRegion &region)
 }
 
 
-void QScreen::compose(int level, QRegion exposed, QRegion &blend, QPixmap &blendbuffer, int changing_level)
+void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QPixmap &blendbuffer, int changing_level)
 {
-    bool above_changing = level < changing_level; //0 is topmost
 
-    QWSWindow *win = qwsServer->clientWindows().value(level); //null ptr means background
+    QRect exposed_bounds = exposed.boundingRect();
+    QWSWindow *win = 0;
+    do {
+        win = qwsServer->clientWindows().value(level); // null ptr means background
+        ++level;
+    } while (win && !win->requestedRegion().boundingRect().intersects(exposed_bounds));
 
+    bool above_changing = level <= changing_level; //0 is topmost
+    
     QRegion exposedBelow = exposed;
     bool opaque = true;
 
@@ -1356,7 +1362,7 @@ void QScreen::compose(int level, QRegion exposed, QRegion &blend, QPixmap &blend
         }
     }
     if (win && !exposedBelow.isEmpty()) {
-        compose(level+1, exposedBelow, blend, blendbuffer, changing_level);
+        compose(level, exposedBelow, blend, blendbuffer, changing_level);
     } else {
         QSize blendSize = blend.boundingRect().size();
         if (!blendSize.isNull())
@@ -1367,7 +1373,7 @@ void QScreen::compose(int level, QRegion exposed, QRegion &blend, QPixmap &blend
     } else if (!above_changing) {
         blit(win, (exposed - blend));
     }
-    QRegion blendRegion = exposed&blend;
+    QRegion blendRegion = exposed & blend;
     if (win)
         blendRegion &= win->requestedRegion();
     if (!blendRegion.isEmpty()) {
