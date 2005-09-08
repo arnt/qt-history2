@@ -1010,8 +1010,10 @@ void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
     QModelIndex bottomRight = indexAt(br);
     if (selectionBehavior() != SelectRows) {
         QItemSelection selection;
-        selection.append(QItemSelectionRange(topLeft, bottomRight));
-        selectionModel()->select(selection, command);
+        if (topLeft.isValid() && bottomRight.isValid()) {
+            selection.append(QItemSelectionRange(topLeft, bottomRight));
+            selectionModel()->select(selection, command);
+        }
     } else {
         d->select(d->viewIndex(topLeft), d->viewIndex(bottomRight), command);
     }

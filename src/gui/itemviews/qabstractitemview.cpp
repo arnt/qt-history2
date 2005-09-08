@@ -1024,7 +1024,11 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
         QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
         if (index.isValid() && command != QItemSelectionModel::NoUpdate)
             selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
-        QRect selectionRect = QRect(topLeft, bottomRight).normalized();
+        
+        // Do the normalize ourselves, since QRect::normalized() is flawed
+        if (topLeft.y() > bottomRight.y()) qSwap(topLeft.ry(), bottomRight.ry());
+        if (topLeft.x() > bottomRight.x()) qSwap(topLeft.rx(), bottomRight.rx());
+        QRect selectionRect = QRect(topLeft, bottomRight);
         setSelection(selectionRect, command);
     }
 }
