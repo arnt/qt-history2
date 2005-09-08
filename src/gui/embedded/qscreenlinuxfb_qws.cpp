@@ -395,7 +395,7 @@ void QLinuxFbScreen::createPalette(fb_cmap &cmap, fb_var_screeninfo &vinfo, fb_f
 bool QLinuxFbScreen::initDevice()
 {
     // No blankin' screen, no blinkin' cursor!, no cursor!
-    const char termctl[]="\033[9;0]\033[?33l\033[?25l";
+    const char termctl[]="\033[9;0]\033[?33l\033[?25l\033[?1c";
     writeTerm(termctl,sizeof(termctl));
 
     // Grab current mode so we can reset it
@@ -683,7 +683,7 @@ uchar * QLinuxFbScreen::cache(int amount)
 void QLinuxFbScreen::uncache(uchar * c)
 {
     // need to sync graphics card
-    
+
     deleteEntry(c);
 }
 
@@ -844,7 +844,7 @@ void QLinuxFbScreen::setMode(int nw,int nh,int nd)
     if (ioctl(fd, FBIOGET_VSCREENINFO, &vinfo)) {
         qFatal("Error reading changed variable information in mode change");
     }
-    
+
     if (ioctl(fd, FBIOGET_FSCREENINFO, &finfo)) {
 	perror("reading /dev/fb0");
 	qFatal("Error reading fixed information");
