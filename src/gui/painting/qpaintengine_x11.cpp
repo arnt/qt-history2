@@ -52,7 +52,7 @@ extern QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
 
 // hack, so we don't have to make QRegion::clipRectangles() public or include
 // X11 headers in qregion.h
-inline void *qt_getClipRects(const QRegion &r, int &num)
+void *qt_getClipRects(const QRegion &r, int &num)
 {
     return r.clipRectangles(num);
 }

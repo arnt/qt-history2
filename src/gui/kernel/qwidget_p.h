@@ -195,6 +195,8 @@ public:
 
     QRect clipRect() const;
     QRegion clipRegion() const;
+    QRegion visibleRegion() const;
+    bool isOpaque() const;
 
     enum CloseMode {
         CloseNoEvent,

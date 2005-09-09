@@ -788,7 +788,8 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     Qt::FocusPolicy fp = q->focusPolicy();
     QSize    s            = q->size();
 #ifdef QT_USE_BACKINGSTORE
-    invalidateBuffer(q->rect());
+    if (q->isVisible() && oldparent)
+        invalidateBuffer(q->rect());
 #endif
     bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
 
@@ -868,7 +869,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     if (oldparent)
         oldparent->d_func()->checkChildrenDnd();
 
-    if (q->testAttribute(Qt::WA_AcceptDrops) 
+    if (q->testAttribute(Qt::WA_AcceptDrops)
         || (!q->isWindow() && q->parentWidget() && q->parentWidget()->testAttribute(Qt::WA_DropSiteRegistered))) {
         q->setAttribute(Qt::WA_DropSiteRegistered, true);
     } else {
@@ -923,35 +924,22 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
 void QWidgetPrivate::updateSystemBackground()
 {
     Q_Q(QWidget);
-#ifdef QT_USE_BACKINGSTORE
-    QWidget *tlw = q->window();
-    QTLWExtra* x = tlw->d_func()->topData();
-    if(x->backingStore->isBuffered()) {
-        QPixmap pm = x->backingStore->backingPixmap();
-        if(q->isWindow())
-            XSetWindowBackgroundPixmap(X11->display, q->winId(), pm.data->x11ConvertToDefaultDepth());
-        else
-            XSetWindowBackgroundPixmap(X11->display, q->winId(), ParentRelative);
-    } else
-#endif
-    {
-        QBrush brush = q->palette().brush(QPalette::Active, q->backgroundRole());
-        Qt::WindowType type = q->windowType();
-        if (brush.style() == Qt::NoBrush
-            || q->testAttribute(Qt::WA_NoSystemBackground)
-            || q->testAttribute(Qt::WA_UpdatesDisabled)
-            || type == Qt::Popup || type == Qt::ToolTip
-            )
-            XSetWindowBackgroundPixmap(X11->display, q->winId(), XNone);
-        else if (isBackgroundInherited())
-            XSetWindowBackgroundPixmap(X11->display, q->winId(), ParentRelative);
-        else if (brush.style() == Qt::TexturePattern)
-            XSetWindowBackgroundPixmap(X11->display, q->winId(),
-                                       brush.texture().data->x11ConvertToDefaultDepth());
-        else
-            XSetWindowBackground(X11->display, q->winId(),
-                                 QColormap::instance(xinfo.screen()).pixel(brush.color()));
-    }
+    QBrush brush = q->palette().brush(QPalette::Active, q->backgroundRole());
+    Qt::WindowType type = q->windowType();
+    if (brush.style() == Qt::NoBrush
+        || q->testAttribute(Qt::WA_NoSystemBackground)
+        || q->testAttribute(Qt::WA_UpdatesDisabled)
+        || type == Qt::Popup || type == Qt::ToolTip
+        )
+        XSetWindowBackgroundPixmap(X11->display, q->winId(), XNone);
+    else if (isBackgroundInherited())
+        XSetWindowBackgroundPixmap(X11->display, q->winId(), ParentRelative);
+    else if (brush.style() == Qt::TexturePattern)
+        XSetWindowBackgroundPixmap(X11->display, q->winId(),
+                                   brush.texture().data->x11ConvertToDefaultDepth());
+    else
+        XSetWindowBackground(X11->display, q->winId(),
+                             QColormap::instance(xinfo.screen()).pixel(brush.color()));
 }
 
 void QWidget::setCursor(const QCursor &cursor)
@@ -1325,11 +1313,8 @@ void QWidget::activateWindow()
 #ifdef QT_USE_BACKINGSTORE
 void QWidgetBackingStore::updateWidget_sys(const QRegion &rgn, QWidget *widget)
 {
-    if (!rgn.isEmpty()) {
-        QRect bounds = rgn.boundingRect();
-        XClearArea(X11->display, widget->winId(), bounds.x(), bounds.y(), bounds.width(),
-                   bounds.height(), true);
-    }
+    if (!rgn.isEmpty())
+        QApplication::postEvent(widget, new QEvent(QEvent::UpdateRequest));
 }
 
 void QWidgetBackingStore::paintWidget_sys(const QRegion& rgn, QWidget *widget)
@@ -2238,10 +2223,10 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             XResizeWindow(dpy, data.winid, w, h);
     } else {
 #ifdef QT_USE_BACKINGSTORE
-        if(q->isVisible() && !q->isHidden()) {
+        if(q->isVisible()) {
             if(isMove)
                 q->parentWidget()->d_func()->scrollBuffer(QRect(oldPos, oldSize),
-                                                          x - q->x(), y - q->y());
+                                                          x - oldPos.x(), y - oldPos.y());
             else
                 q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, oldSize));
         }

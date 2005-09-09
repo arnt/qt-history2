@@ -240,8 +240,6 @@ void QWidget::setEditFocus(bool on)
     if (QWidgetPrivate::editingWidget && QWidgetPrivate::editingWidget != f)
         QWidgetPrivate::editingWidget->setEditFocus(false);
 
-    qDebug() << "setEditFocus()" << on << this;
-
     if ((!on && !QWidgetPrivate::editingWidget)
         || (on && QWidgetPrivate::editingWidget == f)) {
         update();
@@ -916,10 +914,10 @@ QWidget::~QWidget()
     if (paintingActive())
         qWarning("%s (%s): deleted while being painted", className(), name());
 #endif
-    
+
     // force acceptDrops false before winId is destroyed.
     d->registerDropSite(false);
-    
+
 #ifndef QT_NO_ACTION
     // remove all actions from this widget
     for (int i = 0; i < d->actions.size(); ++i) {
@@ -1299,6 +1297,8 @@ QRect QWidgetPrivate::clipRect() const
 QRegion QWidgetPrivate::clipRegion() const
 {
     Q_Q(const QWidget);
+    if (!q->isVisible())
+        return QRegion();
     QRegion r(q->rect());
     const QWidget * w = q;
     const QWidget *ignoreUpTo;
@@ -1328,9 +1328,70 @@ QRegion QWidgetPrivate::clipRegion() const
             }
         }
     }
-    if (!w->isVisible())
-        return QRegion();
     return r;
+}
+
+/*
+  Returns the widget's visible region (without opaque ancestors or children).
+*/
+QRegion QWidgetPrivate::visibleRegion() const
+{
+    Q_Q(const QWidget);
+    if (!q->isVisible())
+        return QRegion();
+    QRegion r(q->rect());
+    const QWidget * w = q;
+    const QWidget *ignoreUpTo = 0;
+    int ox = 0;
+    int oy = 0;
+    do {
+        int i = 0;
+        if (ignoreUpTo)
+            while(w->d_func()->children.at(i++) != static_cast<const QObject *>(ignoreUpTo))
+                ;
+        for ( ; i < w->d_func()->children.size(); ++i) {
+            if(QWidget *sibling = qobject_cast<QWidget *>(w->d_func()->children.at(i))) {
+                if(sibling->isVisible() && !sibling->isWindow() && sibling->d_func()->isOpaque()) {
+                    QRect siblingRect(ox+sibling->x(), oy+sibling->y(),
+                                      sibling->width(), sibling->height());
+                    if(siblingRect.intersects(q->rect())) {
+                        QRegion siblingRegion(siblingRect);
+                        if(QWExtra *extra = sibling->d_func()->extraData()) {
+                            if(!extra->mask.isEmpty()) {
+                                QRegion siblingMask(extra->mask);
+                                siblingMask.translate(ox+sibling->x(), oy+sibling->y());
+                                siblingRegion &= siblingMask;
+                            }
+                        }
+                        r -= siblingRegion;
+                    }
+                }
+            }
+        }
+        ignoreUpTo = w;
+        ox -= w->x();
+        oy -= w->y();
+        if (w->isWindow())
+            break;
+        w = w->parentWidget();
+        r &= QRegion(ox, oy, w->width(), w->height());
+    } while (w);
+
+    return r;
+}
+
+bool QWidgetPrivate::isOpaque() const
+{
+    Q_Q(const QWidget);
+    if (!q->testAttribute(Qt::WA_NoBackground) && !q->testAttribute(Qt::WA_NoSystemBackground)) {
+        const QPalette &pal = q->palette();
+        QPalette::ColorRole bg = q->backgroundRole();
+        QBrush bgBrush = pal.brush(bg);
+        return (bgBrush.style() != Qt::NoBrush && bgBrush.isOpaque() &&
+                ((q->isWindow() || q->windowType() == Qt::SubWindow)
+                 || (bg_role != QPalette::NoRole || (pal.resolve() & (1<<bg)))));
+    }
+    return false;
 }
 
 /*!

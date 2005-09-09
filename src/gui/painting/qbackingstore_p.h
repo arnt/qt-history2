@@ -43,9 +43,9 @@ class QWidgetBackingStore
 
     bool isOpaque(const QWidget *widget);
     bool hasBackground(const QWidget *widget);
-    enum PaintFlags { AsRoot = 0x01, Recursive = 0x02, PaintSym = 0x04 };
+    enum PaintFlags { AsRoot = 0x01, Recursive = 0x02, Flush = 0x04 };
     void paintWidget(const QRegion &rgn, QWidget *widget, const QPoint &offset, uint flags);
-    void paintBuffer(QWidget *widget, const QPoint &offset, uint flags);
+    void paintBuffer(const QRegion &rgn, QWidget *widget, const QPoint &offset, uint flags);
 
     void paintWidget_sys(const QRegion &rgn, QWidget *widget);
     void updateWidget_sys(const QRegion &rgn, QWidget *widget);

@@ -4919,10 +4919,10 @@ void QETWidget::translatePaintEvent(const XEvent *event)
             translateBySips(this, exposure);
             exposure = d->mapFromWS(exposure);
 #ifdef QT_USE_BACKINGSTORE
-            paintRegion |= paintRegion.unite(exposure);
+            paintRegion |= exposure;
 #else
             if (clipRect.contains(exposure)) {
-                paintRegion = paintRegion.unite(exposure);
+                paintRegion |= exposure;
             } else if (!paintRegion.isEmpty()) {
                 repaint(paintRegion);
                 paintRegion = exposure;
@@ -5051,9 +5051,7 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
 
     if (wasResize && !testAttribute(Qt::WA_StaticContents)) {
         removePendingPaintEvents();
-#ifdef QT_US_BACKINGSTORE
-        repaint();
-#else
+#ifndef QT_USE_BACKINGSTORE
         testAttribute(Qt::WA_WState_InPaintEvent)?update():repaint();
 #endif
     }
