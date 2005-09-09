@@ -567,7 +567,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
 
     if (q->testAttribute(Qt::WA_DropSiteRegistered))
         q->setAttribute(Qt::WA_DropSiteRegistered, false); // ole dnd unregister (we will register again below)
-    
+
     if ((q->windowType() == Qt::Desktop))
         old_winid = 0;
     setWinId(0);
@@ -603,10 +603,10 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     if (old_winid)
         DestroyWindow(old_winid);
 
-    if (q->testAttribute(Qt::WA_AcceptDrops) 
+    if (q->testAttribute(Qt::WA_AcceptDrops)
         || (!q->isWindow() && q->parentWidget() && q->parentWidget()->testAttribute(Qt::WA_DropSiteRegistered)))
         q->setAttribute(Qt::WA_DropSiteRegistered, true);
-  
+
 
 #ifdef Q_OS_TEMP
     // Show borderless toplevel windows in tasklist & NavBar
@@ -1432,13 +1432,14 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 #endif
             data.crect.setRect(x, y, w, h);
             setWSGeometry();
-#ifdef QT_USE_BACKINGSTORE
-            if(q->isVisible() && !q->isHidden() && isResize)
-                invalidateBuffer(q->rect()); //after the resize
-#endif
         }
         q->setAttribute(Qt::WA_WState_ConfigPending, false);
     }
+
+#ifdef QT_USE_BACKINGSTORE
+    if(q->isVisible() && !q->isHidden() && isResize)
+        invalidateBuffer(q->rect()); //after the resize
+#endif
 
     // Process events immediately rather than in translateConfigEvent to
     // avoid windows message process delay.

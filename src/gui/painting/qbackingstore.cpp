@@ -251,6 +251,9 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget)
         qt_x11_preferred_pixmap_depth = widget->x11Info().depth();
         buffer = QPixmap(tlw->size());
         qt_x11_preferred_pixmap_depth = old_qt_x11_preferred_pixmap_depth;
+#elif defined(Q_WS_WIN)
+        if (buffer.paintEngine())
+            ((QRasterPaintEngine *)buffer.paintEngine())->releaseBuffer();
 #endif
         toClean = QRegion(0, 0, tlw->width(), tlw->height());
     } else {
@@ -300,15 +303,26 @@ void QWidgetBackingStore::paintWidget(const QRegion &rgn, QWidget *widget, const
         widget->setAttribute(Qt::WA_WState_InPaintEvent);
 
         if (qt_flushPaint()) {
+            QApplication::flush();
+
             QPainter p(widget);
             p.setClipRegion(toBePainted);
             p.fillRect(widget->rect(), Qt::yellow);
             p.end();
-            QApplication::flush();
+
+            QPaintEngine *pe = widget->paintEngine();
+            QRasterPaintEngine *rpe = 0;
+            if (pe->type() == QPaintEngine::Raster) {
+                rpe = (QRasterPaintEngine *) pe;
+                rpe->setSystemClip(toBePainted);
+                rpe->flush(widget, QPoint());
+                rpe->setSystemClip(QRegion());
+            }
+
 #if defined(Q_OS_UNIX)
             ::usleep(20000);
 #elif defined(Q_OS_WIN)
-            ::Sleep(200);
+            ::Sleep(25);
 #endif
         }
 
@@ -329,7 +343,9 @@ void QWidgetBackingStore::paintWidget(const QRegion &rgn, QWidget *widget, const
         //paint the background
         if(hasBackground(widget) || (flags & AsRoot)) {
             QPainter p(widget);
-            p.fillRect(widget->rect(), widget->palette().brush(widget->backgroundRole()));
+
+            QBrush bg_brush = widget->palette().brush(widget->backgroundRole());
+            p.fillRect(widget->rect(), bg_brush);
         }
 
 #if 0
