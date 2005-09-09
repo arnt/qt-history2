@@ -37,6 +37,7 @@ struct LinearGradientData;
 struct RadialGradientData;
 struct ConicalGradientData;
 struct QSpanFillData;
+class QGradient;
 
 typedef void (*ProcessSpans)(int y, int count, QSpan *spans, void *userData);
 
@@ -137,10 +138,6 @@ struct GradientData
 {
     QGradient::Spread spread;
 
-    int stopCount;
-    qreal *stopPoints;
-    uint *stopColors;
-
     union {
         LinearGradientData linear;
         RadialGradientData radial;
@@ -167,7 +164,7 @@ struct QSpanFillData
     };
     void initMatrix(const QMatrix &matrix);
     void initTexture(const QImage *image);
-    void initGradientColorTable();
+    void initGradient(const QGradient *g);
     void initLinearGradient(const QMatrix &brushMatrix);
 };
 

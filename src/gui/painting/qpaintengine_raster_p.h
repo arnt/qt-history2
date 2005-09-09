@@ -143,9 +143,6 @@ public:
     void drawXLFD(const QPointF &p, const QTextItem &textItem);
 #endif
 
-    qreal *gradientStopPoints(const QGradient *gradient);
-    uint *gradientStopColors(const QGradient *gradient);
-
     QPointF brushOffset;
     QBrush brush;
     QBrush bgBrush;
@@ -160,9 +157,6 @@ public:
     QRasterBuffer *fontRasterBuffer;
 #endif
     
-    QDataBuffer<qreal> stopPoints;
-    QDataBuffer<uint> stopColors;
-
     QPainterPath baseClip;
     QRect deviceRect;
 

@@ -1865,12 +1865,8 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, QSpanFillData 
         {
             const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
             data->blend = drawHelper->blendLinearGradient;
-            data->gradient.spread = g->spread();
             data->gradient.alphaColor = !brush.isOpaque();
-            data->gradient.stopCount = g->stops().size();
-            data->gradient.stopPoints = gradientStopPoints(g);
-            data->gradient.stopColors = gradientStopColors(g);
-            data->initGradientColorTable();
+            data->initGradient(g);
 
             data->gradient.linear.origin.x = g->start().x();
             data->gradient.linear.origin.y = g->start().y();
@@ -1884,12 +1880,8 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, QSpanFillData 
         {
             const QRadialGradient *g = static_cast<const QRadialGradient *>(brush.gradient());
             data->blend = drawHelper->blendRadialGradient;
-            data->gradient.spread = g->spread();
             data->gradient.alphaColor = !brush.isOpaque();
-            data->gradient.stopCount = g->stops().size();
-            data->gradient.stopPoints = gradientStopPoints(g);
-            data->gradient.stopColors = gradientStopColors(g);
-            data->initGradientColorTable();
+            data->initGradient(g);
             data->initMatrix(brushMatrix());
 
             QPointF center = g->center();
@@ -1906,12 +1898,8 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, QSpanFillData 
         {
             const QConicalGradient *g = static_cast<const QConicalGradient *>(brush.gradient());
             data->blend = drawHelper->blendConicalGradient;
-            data->gradient.spread = g->spread();
             data->gradient.alphaColor = !brush.isOpaque();
-            data->gradient.stopCount = g->stops().size();
-            data->gradient.stopPoints = gradientStopPoints(g);
-            data->gradient.stopColors = gradientStopColors(g);
-            data->initGradientColorTable();
+            data->initGradient(g);
             data->initMatrix(brushMatrix());
 
             QPointF center = g->center();
@@ -1954,6 +1942,7 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, QSpanFillData 
                 data->blend = drawHelper->blendTiled;
             }
         }
+        break;
 
     case Qt::NoBrush:
     default:
@@ -2003,27 +1992,6 @@ void QRasterPaintEnginePrivate::updateClip_helper(const QPainterPath &path, Qt::
         rasterBuffer->resetClipSpans(start, rasterBuffer->height() - start);
     }
 }
-
-qreal *QRasterPaintEnginePrivate::gradientStopPoints(const QGradient *gradient)
-{
-    stopPoints.reset();
-    QGradientStops stops = gradient->stops();
-    for (int i=0; i<stops.size(); ++i) {
-        Q_ASSERT(stops.at(i).first >= 0 && stops.at(i).first <= 1);
-        stopPoints.add(stops.at(i).first);
-    }
-    return stopPoints.data();
-}
-
-uint *QRasterPaintEnginePrivate::gradientStopColors(const QGradient *gradient)
-{
-    stopColors.reset();
-    QGradientStops stops = gradient->stops();
-    for (int i=0; i<stops.size(); ++i)
-        stopColors.add(PREMUL(stops.at(i).second.rgba()));
-    return stopColors.data();
-}
-
 
 QImage QRasterPaintEnginePrivate::colorizeBitmap(const QImage &image, const QColor &color)
 {
@@ -2561,19 +2529,21 @@ void QSpanFillData::initTexture(const QImage *image)
     texture.hasAlpha = image->format() != QImage::Format_RGB32;
 }
 
-void QSpanFillData::initGradientColorTable()
+void QSpanFillData::initGradient(const QGradient *g)
 {
-    Q_ASSERT(gradient.stopCount > 0);
+    const QGradientStops stops = g->stops();
+    int stopCount = stops.count();
+    Q_ASSERT(stopCount > 0);
 
     // The position where the gradient begins and ends
-    int begin_pos = int(gradient.stopPoints[0] * GRADIENT_STOPTABLE_SIZE);
-    int end_pos = int(gradient.stopPoints[gradient.stopCount-1] * GRADIENT_STOPTABLE_SIZE);
+    int begin_pos = int(stops[0].first * GRADIENT_STOPTABLE_SIZE);
+    int end_pos = int(stops[stopCount-1].first * GRADIENT_STOPTABLE_SIZE);
 
     int pos = 0; // The position in the color table.
 
     // Up to first point
     while (pos<=begin_pos) {
-        gradient.colorTable[pos] = gradient.stopColors[0];
+        gradient.colorTable[pos] = stops[0].second.rgba();
         ++pos;
     }
 
@@ -2585,13 +2555,13 @@ void QSpanFillData::initGradientColorTable()
     // Gradient area
     while (pos < end_pos) {
 
-        Q_ASSERT(current_stop < gradient.stopCount);
+        Q_ASSERT(current_stop < stopCount);
 
-        uint current_color = gradient.stopColors[current_stop];
-        uint next_color = gradient.stopColors[current_stop+1];
+        uint current_color = stops[current_stop].second.rgba();
+        uint next_color = stops[current_stop+1].second.rgba();
 
-        int dist = (int)(256*(dpos - gradient.stopPoints[current_stop])
-                         / (gradient.stopPoints[current_stop+1] - gradient.stopPoints[current_stop]));
+        int dist = (int)(256*(dpos - stops[current_stop].first)
+                         / (stops[current_stop+1].first - stops[current_stop].first));
         int idist = 256 - dist;
 
         gradient.colorTable[pos] = INTERPOLATE_PIXEL_256(current_color, idist, next_color, dist);
@@ -2599,16 +2569,18 @@ void QSpanFillData::initGradientColorTable()
         ++pos;
         dpos += incr;
 
-        if (dpos > gradient.stopPoints[current_stop+1]) {
+        if (dpos > stops[current_stop+1].first) {
             ++current_stop;
         }
     }
 
     // After last point
     while (pos < GRADIENT_STOPTABLE_SIZE) {
-        gradient.colorTable[pos] = gradient.stopColors[gradient.stopCount-1];
+        gradient.colorTable[pos] = stops[stopCount-1].second.rgba();
         ++pos;
     }
+
+    gradient.spread = g->spread();
 }
 
 /**
