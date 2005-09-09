@@ -99,6 +99,11 @@ QVariant QMimeDataPrivate::retrieveTypedData(const QString &format, QVariant::Ty
             newData.convert(QVariant::Color);
             return newData;
         }
+        case QVariant::List: {
+            if (format != QLatin1String("text/uri-list"))
+                break;
+            // fall through
+        }
         case QVariant::Url: {
             QList<QVariant> list;
             QList<QByteArray> urls = data.toByteArray().split('\n');
