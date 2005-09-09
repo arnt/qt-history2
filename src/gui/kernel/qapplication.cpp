@@ -2945,6 +2945,26 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             }
         }
         break;
+ 
+#ifndef QT_NO_DRAGANDDROP
+    case QEvent::DragEnter:
+    case QEvent::DragMove:
+    case QEvent::Drop:
+    case QEvent::DragLeave: {
+            QWidget* w = static_cast<QWidget *>(receiver);
+            while (w) {
+                if (w->isEnabled() && w->acceptDrops()) {
+                    res = d->notify_helper(w, e);
+                    if (res && e->isAccepted())
+                        break;
+                }
+                if (w->isWindow())
+                    break;
+                w = w->parentWidget();
+            }
+            break;
+        }
+#endif
 
     default:
         res = d->notify_helper(receiver, e);
@@ -2976,24 +2996,6 @@ bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
         if (QLayout *layout=widget->d_func()->layout) {
             layout->widgetEvent(e);
         }
-
-
-#ifndef QT_NO_DRAGANDDROP
-        // throw away dnd events to disabled widgets
-        if (!widget->isEnabled()) {
-            switch(e->type()) {
-            case QEvent::DragEnter:
-            case QEvent::DragMove:
-            case QEvent::DragLeave:
-            case QEvent::DragResponse:
-            case QEvent::Drop:
-                e->spont = false;
-                return false;
-            default:
-                break;
-            }
-        }
-#endif
     }
 
     // send to all receiver event filters
