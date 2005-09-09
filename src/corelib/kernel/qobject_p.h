@@ -34,6 +34,7 @@
 
 class QThreadData;
 
+/* mirrored in QtTestLib, DON'T CHANGE without prior warning */
 struct QSignalSpyCallbackSet
 {
     typedef void (*BeginCallback)(QObject *caller, int method_index, void **argv);
