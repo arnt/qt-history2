@@ -255,6 +255,10 @@ QBrush::QBrush(const QBrush &other)
 */
 QBrush::QBrush(const QGradient &gradient)
 {
+    Q_ASSERT_X(gradient.type() != QGradient::NoGradient, "QBrush::QBrush",
+               "QGradient should not be used directly, use the linear, radial\n"
+               "or conical gradients instead");
+
     const Qt::BrushStyle enum_table[] = {
         Qt::LinearGradientPattern,
         Qt::RadialGradientPattern,
@@ -614,7 +618,7 @@ QDataStream &operator<<(QDataStream &s, const QBrush &b)
                || b.style() == Qt::ConicalGradientPattern) {
         const QGradient *gradient = b.gradient();
         s << gradient->type();
-        s << gradient->m_stops;
+        s << gradient->stops();
 
         if (gradient->type() == QGradient::LinearGradient) {
             s << static_cast<const QLinearGradient *>(gradient)->start();
@@ -826,7 +830,7 @@ void QGradient::setStops(const QGradientStops &stops)
 /*!
     Returns the stops for this gradient.
 
-    If no stops have been spesified a gradient of black at 0 to white
+    If no stops have been specified a gradient of black at 0 to white
     at 1 is used.
 */
 QGradientStops QGradient::stops() const

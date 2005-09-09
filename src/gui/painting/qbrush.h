@@ -127,7 +127,8 @@ public:
     enum Type {
         LinearGradient,
         RadialGradient,
-        ConicalGradient
+        ConicalGradient,
+        NoGradient
     };
 
     enum Spread {
@@ -150,11 +151,11 @@ public:
 
     bool operator==(const QGradient &gradient);
 
+
 private:
     friend class QLinearGradient;
     friend class QRadialGradient;
     friend class QConicalGradient;
-    friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QBrush &);
 
     Type m_type;
     Spread m_spread;
