@@ -343,7 +343,7 @@ void QTextEditPrivate::init(const QString &html)
     vbar->setSingleStep(20);
 
     viewport->setBackgroundRole(QPalette::Base);
-    viewport->setAcceptDrops(true);
+    q->setAcceptDrops(true);
     q->setFocusPolicy(Qt::WheelFocus);
     q->setAttribute(Qt::WA_KeyCompression);
 }
