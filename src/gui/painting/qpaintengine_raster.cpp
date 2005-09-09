@@ -1453,6 +1453,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 #if defined(Q_WS_WIN)
 
     // Decide on which span func to use
+    d->clippedFillForBrush(d->pen.brush(), &d->spanFillData);
     if (!d->spanFillData.blend)
         return;
 
