@@ -892,8 +892,25 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
 {
     // Used to restore across fallthrough cases. Currently only used in PE_IndicatorCheckBox
     bool doRestore = false;
-
+            
     switch (pe) {
+    case PE_IndicatorToolBarSeparator:
+        {    
+            QRect rect = opt->rect;
+            const int hOffset = 2;
+            const int vSpace = 2;
+            p->setPen(QPen(opt->palette.dark().color()));
+            p->drawLine(rect.bottomLeft().x() + hOffset, 
+                        rect.bottomLeft().y() - vSpace, 
+                        rect.topLeft().x() + hOffset, 
+                        rect.topLeft().y() + vSpace);
+            p->setPen(QPen(opt->palette.light().color()));
+            p->drawLine(rect.bottomLeft().x() + hOffset + 1, 
+                        rect.bottomLeft().y() - vSpace, 
+                        rect.topLeft().x() + hOffset + 1, 
+                        rect.topLeft().y() + vSpace);
+        }
+        break;
     case PE_FrameButtonTool:
     case PE_PanelButtonTool: {
         QBrush fill;
