@@ -9,7 +9,7 @@ TicTacToeDialog::TicTacToeDialog(TicTacToe *tic, QWidget *parent)
     : QDialog(parent)
 {
     ticTacToe = tic;
-    editor = new TicTacToe(this);
+    editor = new TicTacToe;
     editor->setState(ticTacToe->state());
 
     cancelButton = new QPushButton(tr("Cancel"));
@@ -21,13 +21,13 @@ TicTacToeDialog::TicTacToeDialog(TicTacToe *tic, QWidget *parent)
     resetButton = new QPushButton(tr("Reset"));
     connect(resetButton, SIGNAL(clicked()), this, SLOT(resetState()));
 
-    buttonLayout = new QHBoxLayout();
+    buttonLayout = new QHBoxLayout;
     buttonLayout->addWidget(resetButton);
     buttonLayout->addStretch();
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
 
-    mainLayout = new QVBoxLayout();
+    mainLayout = new QVBoxLayout;
     mainLayout->addWidget(editor);
     mainLayout->addLayout(buttonLayout);
 
