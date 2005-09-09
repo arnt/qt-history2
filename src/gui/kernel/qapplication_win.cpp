@@ -1610,7 +1610,11 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 #ifndef Q_OS_TEMP
             bool window_state_change = false;
             Qt::WindowStates oldstate = Qt::WindowStates(widget->dataPtr()->window_state);
-            switch(wParam) {
+            // MSDN:In WM_SYSCOMMAND messages, the four low-order bits of the wParam parameter are
+            // used internally by the system. To obtain the correct result when testing the value of
+            // wParam, an application must combine the value 0xFFF0 with the wParam value by using
+            // the bitwise AND operator. 
+            switch(0xfff0 & wParam) {
             case SC_CONTEXTHELP:
 #ifndef QT_NO_WHATSTHIS
                 QWhatsThis::enterWhatsThisMode();
@@ -1643,7 +1647,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     QShowEvent e;
                     qt_sendSpontaneousEvent(widget, &e);
                 } 
-                if (wParam == SC_MAXIMIZE)
+                if ((0xfff0 & wParam) == SC_MAXIMIZE)
                     widget->dataPtr()->window_state |= Qt::WindowMaximized;
                 else
                     widget->dataPtr()->window_state &= ~Qt::WindowMaximized;
@@ -1675,27 +1679,6 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             }
             break;
 
-#ifndef Q_OS_TEMP
-        case WM_NCLBUTTONDBLCLK:
-            if (wParam == HTCAPTION) {
-                bool window_state_changed = false;
-                Qt::WindowStates oldstate = widget->windowState();
-                if (widget->isMaximized()) {
-                    window_state_changed = true;
-                    widget->setWindowState(widget->windowState() & ~Qt::WindowMaximized);
-                } else if (widget->isMaximized()){
-                    window_state_changed = true;
-                    widget->setWindowState(widget->windowState() | Qt::WindowMaximized);
-                }
-
-                if (window_state_changed) {
-                    QWindowStateChangeEvent e(oldstate);
-                    qt_sendSpontaneousEvent(widget, &e);
-                }
-            }
-            result = false;
-            break;
-#endif
         case WM_PAINT:                                // paint event
             result = widget->translatePaintEvent(msg);
             break;
