@@ -53,7 +53,7 @@ namespace Qt
     Q_GUI_EXPORT QString convertFromPlainText(const QString &plain, WhiteSpaceMode mode = WhiteSpacePre);
 
 #ifndef QT_NO_TEXTCODEC
-    Q_GUI_EXPORT QTextCodec *codecForHtml(const QByteArray &ba);
+    Q_GUI_EXPORT QT_COMPAT QTextCodec *codecForHtml(const QByteArray &ba);
 #endif
 }
 

@@ -1467,8 +1467,6 @@ QVariant QDropData::retrieveData_sys(const QString &mimetype, QVariant::Type typ
     QByteArray data = X11->motifdnd_active
                       ? X11->motifdndObtainData(mime)
                       : xdndObtainData(mime);
-    if (type == QVariant::String)
-        return QString::fromUtf8(data);
     return data;
 }
 

@@ -180,35 +180,7 @@ QString Qt::convertFromPlainText(const QString &plain, Qt::WhiteSpaceMode mode)
 */
 QTextCodec *Qt::codecForHtml(const QByteArray &ba)
 {
-    // determine charset
-    int mib = 4; // Latin1
-    int pos;
-    QTextCodec *c = 0;
-
-    if (ba.size() > 1 && (((uchar)ba[0] == 0xfe && (uchar)ba[1] == 0xff)
-                          || ((uchar)ba[0] == 0xff && (uchar)ba[1] == 0xfe))) {
-        mib = 1000; // utf16
-    } else if (ba.size() > 2
-             && (uchar)ba[0] == 0xef
-             && (uchar)ba[1] == 0xbb
-             && (uchar)ba[2] == 0xbf) {
-        mib = 106; // utf-8
-    } else {
-        QByteArray header = ba.left(512).toLower();
-        if ((pos = header.indexOf("http-equiv=")) != -1) {
-            pos = header.indexOf("charset=", pos) + int(strlen("charset="));
-            if (pos != -1) {
-                int pos2 = header.indexOf('\"', pos+1);
-                QByteArray cs = header.mid(pos, pos2-pos);
-                //            qDebug("found charset: %s", cs.data());
-                c = QTextCodec::codecForName(cs);
-            }
-        }
-    }
-    if (!c)
-        c = QTextCodec::codecForMib(mib);
-
-    return c;
+    return QTextCodec::codecForHtml(ba);
 }
 #endif
 

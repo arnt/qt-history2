@@ -46,6 +46,8 @@ public:
     static QTextCodec* codecForCStrings();
     static void setCodecForCStrings(QTextCodec *c);
 
+    static QTextCodec *codecForHtml(const QByteArray &ba);
+
     QTextDecoder* makeDecoder() const;
     QTextEncoder* makeEncoder() const;
 

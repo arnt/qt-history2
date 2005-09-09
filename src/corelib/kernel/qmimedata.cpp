@@ -16,6 +16,7 @@
 #include "private/qobject_p.h"
 #include "qurl.h"
 #include "qstringlist.h"
+#include "qtextcodec.h"
 
 struct MimeData
 {
@@ -86,8 +87,13 @@ QVariant QMimeDataPrivate::retrieveTypedData(const QString &format, QVariant::Ty
     if (data.type() == QVariant::ByteArray) {
         // see if we can convert to the requested type
         switch(type) {
-        case QVariant::String:
-            return QString::fromUtf8(data.toByteArray());
+        case QVariant::String: {
+            const QByteArray ba = data.toByteArray();
+            QTextCodec *codec = QTextCodec::codecForName("utf-8");
+            if (format == QLatin1String("text/html"))
+                codec = QTextCodec::codecForHtml(ba);
+            return codec->toUnicode(ba);
+        }
         case QVariant::Color: {
             QVariant newData = data;
             newData.convert(QVariant::Color);
