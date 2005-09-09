@@ -113,11 +113,8 @@ static void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC 
 /********************************************************************************
  * Span functions
  */
-typedef void (*qt_span_func)(int y, int count, QT_FT_Span *spans, void *userData);
-
-static void qt_span_fill_clipped(int y, int count, QT_FT_Span *spans, void *userData);
-static void qt_span_fill(int y, int count, QT_FT_Span *spans, void *userData);
-static void qt_span_clip(int y, int count, QT_FT_Span *spans, void *userData);
+static void qt_span_fill_clipped(int y, int count, QSpan *spans, void *userData);
+static void qt_span_clip(int y, int count, QSpan *spans, void *userData);
 
 struct ClipData
 {
@@ -126,7 +123,7 @@ struct ClipData
     int lastIntersected;
 };
 
-static void qt_scanconvert(QT_FT_Outline *outline, qt_span_func callback, void *userData, QRasterPaintEnginePrivate *d);
+static void qt_scanconvert(QT_FT_Outline *outline, ProcessSpans callback, void *userData, QRasterPaintEnginePrivate *d);
 
 
 enum LineDrawMode {
@@ -135,7 +132,7 @@ enum LineDrawMode {
     LineDrawIncludeLastPixel
 };
 
-static void drawLine_midpoint_i(const QLine &line, qt_span_func span_func, void *data,
+static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, void *data,
                                 LineDrawMode style, const QRect &devRect);
 // static void drawLine_midpoint_f(const QLineF &line, qt_span_func span_func, void *data,
 //                                 LineDrawMode style, const QRect &devRect);
@@ -855,11 +852,11 @@ void QRasterPaintEngine::fillPath(const QPainterPath &path, QSpanFillData *fillD
     qDebug() << " --- fillPath, bounds=" << path.boundingRect();
 #endif
 
-    if (!fillData->callback)
+    if (!fillData->blend)
         return;
 
     Q_D(QRasterPaintEngine);
-    qt_scanconvert(d->outlineMapper->convertPath(path), fillData->callback, fillData, d);
+    qt_scanconvert(d->outlineMapper->convertPath(path), fillData->blend, fillData, d);
 }
 
 
@@ -896,14 +893,14 @@ void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
                 if (len > 0) {
                     QT_FT_Span span;
 
-                    Q_ASSERT(d->spanFillData.callback);
+                    Q_ASSERT(d->spanFillData.blend);
                     span.x = x1;
                     span.len = x2 - x1;
                     span.coverage = 255;
 
                     // draw the fill
                     for (int y=y1; y<y2; ++y) {
-                        d->spanFillData.callback(y, 1, &span, &d->spanFillData);
+                        d->spanFillData.blend(y, 1, &span, &d->spanFillData);
                     }
                 }
             }
@@ -975,7 +972,7 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
         d->clippedFillForBrush(QBrush(d->pen.brush()), &d->spanFillData);
         d->outlineMapper->endOutline();
 
-        qt_scanconvert(&d->outlineMapper->m_outline, d->spanFillData.callback, &d->spanFillData, d);
+        qt_scanconvert(&d->outlineMapper->m_outline, d->spanFillData.blend, &d->spanFillData, d);
         d->outlineMapper->setMatrix(d->matrix, d->txop);
     }
 
@@ -1007,7 +1004,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 
         // scanconvert.
         d->clippedFillForBrush(d->brush, &d->spanFillData);
-        qt_scanconvert(&d->outlineMapper->m_outline, d->spanFillData.callback, &d->spanFillData, d);
+        qt_scanconvert(&d->outlineMapper->m_outline, d->spanFillData.blend, &d->spanFillData, d);
     }
 
     // Do the outline...
@@ -1031,7 +1028,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
                 QPointF lp2 = points[i] * d->matrix;
                 drawLine_midpoint_i(QLine(qFloor(lp1.x()), qFloor(lp1.y()),
                                            qFloor(lp2.x()), qFloor(lp2.y())),
-                                    d->spanFillData.callback, &d->spanFillData,
+                                    d->spanFillData.blend, &d->spanFillData,
                                     i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
                                     devRect);
             }
@@ -1042,7 +1039,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
                 QPointF lp2 = points[0] * d->matrix;
                 drawLine_midpoint_i(QLine(qFloor(lp1.x()), qFloor(lp1.y()),
                                           qFloor(lp2.x()), qFloor(lp2.y())),
-                                    d->spanFillData.callback, &d->spanFillData, LineDrawIncludeLastPixel,
+                                    d->spanFillData.blend, &d->spanFillData, LineDrawIncludeLastPixel,
                                     devRect);
             }
 
@@ -1064,7 +1061,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             d->clippedFillForBrush(QBrush(d->pen.brush()), &d->spanFillData);
             d->outlineMapper->endOutline();
 
-            qt_scanconvert(&d->outlineMapper->m_outline, d->spanFillData.callback, &d->spanFillData, d);
+            qt_scanconvert(&d->outlineMapper->m_outline, d->spanFillData.blend, &d->spanFillData, d);
 
             d->outlineMapper->setMatrix(d->matrix, d->txop);
         }
@@ -1115,7 +1112,6 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
     textureData.rasterBuffer = d->rasterBuffer;
     textureData.compositionMode = d->compositionMode;
     textureData.initTexture(&image);
-    textureData.callback = qt_span_fill;
 
     bool stretch_sr = r.width() != sr.width() || r.height() != sr.height();
 
@@ -1172,7 +1168,6 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
     textureData.rasterBuffer = d->rasterBuffer;
     textureData.compositionMode = d->compositionMode;
     textureData.initTexture(&image);
-    textureData.callback = qt_span_fill;
 
     if (d->txop > QPainterPrivate::TxTranslate) {
         textureData.blend = d->bilinear
@@ -1211,7 +1206,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
     // Decide on which span func to use
     d->clippedFillForBrush(d->pen.brush(), &d->spanFillData);
 
-    if (!d->spanFillData.callback)
+    if (!d->spanFillData.blend)
         return;
 
     int y0 = (ry < 0) ? -ry : 0;
@@ -1248,7 +1243,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
                 spans.add(span);
             }
             // Call span func for current set of spans.
-            d->spanFillData.callback(y + ry, spans.size(), spans.data(), &d->spanFillData);
+            d->spanFillData.blend(y + ry, spans.size(), spans.data(), &d->spanFillData);
 
         } else {
             for (int x = x0; x < w; ) {
@@ -1269,7 +1264,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
             }
         }
         // Call span func for current set of spans.
-        d->spanFillData.callback(y + ry, spans.size(), spans.data(), &d->spanFillData);
+        d->spanFillData.blend(y + ry, spans.size(), spans.data(), &d->spanFillData);
     }
 }
 
@@ -1284,7 +1279,7 @@ void QRasterPaintEngine::qwsFillRect(int x, int y, int w, int h, const QBrush &b
 
     int len = x2 - x1;
 
-    if (d->spanFillData.callback && len > 0) {
+    if (d->spanFillData.blend && len > 0) {
         QT_FT_Span span;
         span.x = x1;
         span.len = x2 - x1;
@@ -1292,7 +1287,7 @@ void QRasterPaintEngine::qwsFillRect(int x, int y, int w, int h, const QBrush &b
 
         // draw the fill
         for (int y=y1; y<y2; ++y) {
-            d->spanFillData.callback(y, 1, &span, &d->spanFillData);
+            d->spanFillData.blend(y, 1, &span, &d->spanFillData);
         }
     }
 }
@@ -1404,7 +1399,7 @@ void QRasterPaintEnginePrivate::drawXLFD(const QPointF &p, const QTextItem &text
 
     // Decide on which span func to use
     FillData fillData = fillForBrush(pen.brush());
-    if (!fillData.callback)
+    if (!fillData.blend)
         return;
 
     QRectF logRect(p.x(), p.y() - ti.ascent, ti.width, ti.ascent + ti.descent);
@@ -1459,7 +1454,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
     // Decide on which span func to use
     FillData fillData = d->fillForBrush(d->pen.brush());
-    if (!fillData.callback)
+    if (!fillData.blend)
         return;
 
     if (d->txop >= QPainterPrivate::TxScale) {
@@ -1533,7 +1528,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             }
 
             // Call span func for current set of spans.
-            fillData.callback(y, spans.size(), spans.data(), fillData.data);
+            fillData.blend(y, spans.size(), spans.data(), fillData.data);
         }
 
     } else {
@@ -1557,7 +1552,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             }
 
             // Call span func for current set of spans.
-            fillData.callback(y, spans.size(), spans.data(), fillData.data);
+            fillData.blend(y, spans.size(), spans.data(), fillData.data);
         }
     }
 
@@ -1616,7 +1611,7 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
 
     } else {
         d->clippedFillForBrush(d->pen.brush(), &d->spanFillData);
-        if (!d->spanFillData.callback)
+        if (!d->spanFillData.blend)
             return;
 
         QT_FT_Span span = { 0, 1, 255 };
@@ -1633,7 +1628,7 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
             y = qRound(points->y() + dy);
             if (x >= left && x < right && y >= top && y < bottom) {
                 span.x = x;
-                d->spanFillData.callback(y, 1, &span, &d->spanFillData);
+                d->spanFillData.blend(y, 1, &span, &d->spanFillData);
             }
             ++points;
         }
@@ -1662,10 +1657,10 @@ void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
                           l.x2() * int(d->matrix.m11()) + int(d->matrix.dx()),
                           l.y2() * int(d->matrix.m22()) + int(d->matrix.dy()));
 
-                drawLine_midpoint_i(l, d->spanFillData.callback, &d->spanFillData, mode, bounds);
+                drawLine_midpoint_i(l, d->spanFillData.blend, &d->spanFillData, mode, bounds);
             } else {
                 QLineF line = lines[i] * d->matrix;
-                drawLine_midpoint_i(line.toLine(), d->spanFillData.callback, &d->spanFillData, mode, bounds);
+                drawLine_midpoint_i(line.toLine(), d->spanFillData.blend, &d->spanFillData, mode, bounds);
             }
         }
     } else {
@@ -1687,7 +1682,7 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
         for (int i=0; i<lineCount; ++i) {
             QLineF line = lines[i] * d->matrix;
             d->clippedFillForBrush(QBrush(d->pen.brush()), &d->spanFillData);
-            drawLine_midpoint_i(line.toLine(), d->spanFillData.callback, &d->spanFillData, mode, bounds);
+            drawLine_midpoint_i(line.toLine(), d->spanFillData.blend, &d->spanFillData, mode, bounds);
         }
     } else {
         QPaintEngine::drawLines(lines, lineCount);
@@ -1712,7 +1707,7 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
         d->outlineMapper->endOutline();
 
         d->clippedFillForBrush(d->brush, &d->spanFillData);
-        qt_scanconvert(&d->outlineMapper->m_outline, d->spanFillData.callback, &d->spanFillData, d);
+        qt_scanconvert(&d->outlineMapper->m_outline, d->spanFillData.blend, &d->spanFillData, d);
     }
 
     if (d->has_pen) {
@@ -1728,7 +1723,7 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
         d->clippedFillForBrush(QBrush(d->pen.brush()), &d->spanFillData);
         d->outlineMapper->endOutline();
 
-        qt_scanconvert(&d->outlineMapper->m_outline, d->spanFillData.callback, &d->spanFillData, d);
+        qt_scanconvert(&d->outlineMapper->m_outline, d->spanFillData.blend, &d->spanFillData, d);
 
         d->outlineMapper->setMatrix(d->matrix, d->txop);
     }
@@ -1756,7 +1751,7 @@ QPoint QRasterPaintEngine::coordinateOffset() const
 void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm, QSpanFillData *fg)
 {
     Q_ASSERT(fg);
-    Q_ASSERT(fg->callback);
+    Q_ASSERT(fg->blend);
 
     const QImage image = pm.toImage();
     Q_ASSERT(image.depth() == 1);
@@ -1801,7 +1796,7 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
                     ++n;
                 }
                 if (n == spanCount) {
-                    fg->callback(y, n, spans, fg);
+                    fg->blend(y, n, spans, fg);
                     n = 0;
                 }
             }
@@ -1820,14 +1815,14 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
                     ++n;
                 }
                 if (n == spanCount) {
-                    fg->callback(y, n, spans, fg->data);
+                    fg->blend(y, n, spans, fg->data);
                     n = 0;
                 }
             }
         }
 #endif
         if (n) {
-            fg->callback(y, n, spans, fg);
+            fg->blend(y, n, spans, fg);
             n = 0;
         }
     }
@@ -1845,9 +1840,9 @@ void QRasterPaintEnginePrivate::clippedFillForBrush(const QBrush &brush, QSpanFi
 
 void QRasterPaintEnginePrivate::addClip(QSpanFillData *data)
 {
-    if (clipEnabled && data->callback) {
-        data->unclipped_callback = data->callback;
-        data->callback = qt_span_fill_clipped;
+    if (clipEnabled && data->blend) {
+        data->unclipped_blend = data->blend;
+        data->blend = qt_span_fill_clipped;
     }
 }
 
@@ -1856,7 +1851,6 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, QSpanFillData 
 {
     Q_ASSERT(data);
 
-    data->callback = qt_span_fill;
     data->rasterBuffer = rasterBuffer;
     data->compositionMode = compositionMode;
 
@@ -1963,7 +1957,7 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, QSpanFillData 
 
     case Qt::NoBrush:
     default:
-        data->callback = 0;
+        data->blend = 0;
         break;
     }
 }
@@ -2280,17 +2274,6 @@ void QRasterBuffer::resizeClipSpan(int y, int size)
     m_clipSpanCapacity[y] = size;
 }
 
-static void qt_span_fill(int y, int count, QT_FT_Span *spans, void *userData)
-{
-    QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
-    uchar *base = data->rasterBuffer->scanLine(y);
-
-    while (count--) {
-        data->blend(base, (const QSpan *)spans, data, y);
-        ++spans;
-    }
-}
-
 static void qt_intersect_spans(QSpan *clipSpans, int clipSpanCount,
                         QT_FT_Span *spans, int spanCount,
                         QSpan **outSpans, int *outCount)
@@ -2400,7 +2383,7 @@ static void qt_span_fill_clipped(int y, int spanCount, QT_FT_Span *spans, void *
 {
     QSpanFillData *fillData = reinterpret_cast<QSpanFillData *>(userData);
 
-    Q_ASSERT(fillData->callback);
+    Q_ASSERT(fillData->blend);
 
     QRasterBuffer *rb = fillData->rasterBuffer;
 
@@ -2411,7 +2394,7 @@ static void qt_span_fill_clipped(int y, int spanCount, QT_FT_Span *spans, void *
                        spans, spanCount,
                        &clippedSpans, &clippedSpanCount);
 
-    fillData->unclipped_callback(y, clippedSpanCount, (QT_FT_Span *) clippedSpans, fillData);
+    fillData->unclipped_blend(y, clippedSpanCount, (QT_FT_Span *) clippedSpans, fillData);
 }
 
 static void qt_span_clip(int y, int count, QT_FT_Span *spans, void *userData)
@@ -2462,10 +2445,9 @@ static void qt_span_clip(int y, int count, QT_FT_Span *spans, void *userData)
     }
 }
 
-static void qt_scanconvert(QT_FT_Outline *outline, qt_span_func callback, void *userData,
+static void qt_scanconvert(QT_FT_Outline *outline, ProcessSpans callback, void *userData,
                     QRasterPaintEnginePrivate *d)
 {
-    qt_span_func func = callback;
     void *data = userData;
 
     QT_FT_BBox clip_box = { 0, 0, d->deviceRect.width(), d->deviceRect.height() };
@@ -2483,14 +2465,14 @@ static void qt_scanconvert(QT_FT_Outline *outline, qt_span_func callback, void *
 
     if (d->antialiased) {
         rasterParams.flags |= (QT_FT_RASTER_FLAG_AA | QT_FT_RASTER_FLAG_DIRECT);
-        rasterParams.gray_spans = func;
+        rasterParams.gray_spans = callback;
         int error = qt_ft_grays_raster.raster_render(qt_gray_raster, &rasterParams);
         if (error) {
             printf("qt_scanconvert(), gray raster failed...: %d\n", error);
         }
     } else {
         rasterParams.flags |= QT_FT_RASTER_FLAG_DIRECT;
-        rasterParams.black_spans = func;
+        rasterParams.black_spans = callback;
         int error = qt_ft_standard_raster.raster_render(qt_black_raster, &rasterParams);
         if (error) {
             qWarning("black raster failed to render, code=%d", error);
@@ -2981,7 +2963,8 @@ static void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hd
     \a line is already in device coords at this point.
 */
 
-static void drawLine_midpoint_i(const QLine &line, qt_span_func span_func, void *data, LineDrawMode style, const QRect &devRect)
+static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, void *data,
+                                LineDrawMode style, const QRect &devRect)
 {
 #ifdef QT_DEBUG_DRAW
     qDebug() << "   - drawLine_midpoint_i" << line;

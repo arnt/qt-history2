@@ -38,7 +38,7 @@ struct RadialGradientData;
 struct ConicalGradientData;
 struct QSpanFillData;
 
-typedef void (*Blend)(void *target, const QSpan *span, QSpanFillData *data, int y);
+typedef void (*ProcessSpans)(int y, int count, QSpan *spans, void *userData);
 
 struct DrawHelper {
     enum Layout {
@@ -55,16 +55,16 @@ struct DrawHelper {
 #endif
         Layout_Count
     };
-    Blend blendColor;
-    Blend blend;
-    Blend blendTiled;
-    Blend blendTransformed;
-    Blend blendTransformedTiled;
-    Blend blendTransformedBilinear;
-    Blend blendTransformedBilinearTiled;
-    Blend blendLinearGradient;
-    Blend blendRadialGradient;
-    Blend blendConicalGradient;
+    ProcessSpans blendColor;
+    ProcessSpans blend;
+    ProcessSpans blendTiled;
+    ProcessSpans blendTransformed;
+    ProcessSpans blendTransformedTiled;
+    ProcessSpans blendTransformedBilinear;
+    ProcessSpans blendTransformedBilinearTiled;
+    ProcessSpans blendLinearGradient;
+    ProcessSpans blendRadialGradient;
+    ProcessSpans blendConicalGradient;
 };
 
 extern DrawHelper qDrawHelper[DrawHelper::Layout_Count];
@@ -153,15 +153,12 @@ struct GradientData
     uint alphaColor : 1;
 };
 
-typedef void (*qt_span_func)(int y, int count, QT_FT_Span *spans, void *userData);
-
 struct QSpanFillData
 {
     QRasterBuffer *rasterBuffer;
     QPainter::CompositionMode compositionMode;
-    qt_span_func callback;
-    qt_span_func unclipped_callback;
-    Blend blend;
+    ProcessSpans blend;
+    ProcessSpans unclipped_blend;
     qreal m11, m12, m21, m22, dx, dy;   // inverse xform matrix
     union {
         SolidData solid;
