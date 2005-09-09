@@ -365,9 +365,115 @@
     \headerfile <QtGlobal>
     \title Global Qt Declarations
 
-    \brief The <QtGlobal> header file provides basic declarations and is included by all other Qt headers.
+    \brief The <QtGlobal> header file provides basic declarations and
+    is included by all other Qt headers.
 
-    \sa <QtAlgorithms>
+    The declarations include \l {types}, \l functions and
+    \l macros.
+
+    The type definitions are partly convenience definitions for basic
+    types (some of which guarantee certain bit-sizes on all platforms
+    supported by Qt), partly types related to Qt message handling. The
+    functions are related to generating messages, Qt version handling
+    and comparing and adjusting object values. And finally, some of
+    the declared macros enable programmers to add compiler or platform
+    specific code to their applications, while others are convenience
+    macros for larger operations.
+
+    \section1 Types
+
+    The header file declares several type definitions that guarantee a
+    specified bit-size on all platforms supported by Qt for various
+    basic types, for example \l qint8 which is a signed char
+    guaranteed to be 8-bit on all platforms supported by Qt. The
+    header file also declares the \l qlonglong type definition for \c
+    {long long int } (\c unsigned __int64 on Windows).
+
+    Several convenience type definitions are declared: \l qreal for \c
+    double, \l uchar for \c unsigned char, \l uint for \c unsigned
+    int, \l ulong for \c unsigned long and \l ushort for \c unsigned
+    short.
+
+    Finally, the QtMsgType definition identifies the various messages
+    that can be generated and sent to a Qt message handler;
+    QtMsgHandler is a type definition for a pointer to a function with
+    the signature \c {void myMsgHandler(QtMsgType, const char *)}.
+
+    \section1 Functions
+
+    The <QtGlobal> header file contains several functions comparing
+    and adjusting an object's value. These functions take a template
+    type as argument: You can retrieve the absolute value of an object
+    using the qAbs() function, and you can bound a given object's
+    value by given minimum and maximum values using the qBound()
+    function. You can retrieve the minimum and maximum of two given
+    objects using qMin() and qMax() respectively. All these functions
+    return a corresponding template type; the template types can be
+    replaced by any other type. For example:
+
+    \code
+        int myValue = 10;
+        int minValue = 2;
+        int maxValue = 6;
+
+        int boundedValue = qBound(minValue, myValue, maxValue);
+        // boundedValue == 6
+    \endcode
+
+    <QtGlobal> also contains functions that generate messages from the
+    given string argument: qCritical(), qDebug(), qFatal() and
+    qWarning(). These functions call the message handler with the
+    given message. For example:
+
+    \code
+        if (!driver()->isOpen() || driver()->isOpenError()) {
+            qWarning("QSqlQuery::exec: database not open");
+            return false;
+        }
+    \endcode
+
+    The remaining functions are qRound() and qRound64(), which both
+    accept a \l qreal value as their argument returning the value
+    rounded up to the nearest integer and 64-bit integer respectively,
+    the qInstallMsgHandler() function which installs the given
+    QtMsgHandler, and the qVersion() function which returns the
+    version number of Qt at run-time as a string.
+
+    \section1 Macros
+
+    The <QtGlobal> header file provides a range of macros (Q_CC_*)
+    that are defined if the application is compiled using the
+    specified platforms. For example, the Q_CC_SUN macro is defined if
+    the application is compiled using Forte Developer, or Sun Studio
+    C++.  The header file also declares a range of macros (Q_OS_*)
+    that are defined for the specified platforms. For example,
+    Q_OS_X11 which is defined for the X Window System.
+
+    The purpose of these macros is to enable programmers to add
+    compiler or platform specific code to their application.
+
+    The remaining macros are convenience macros for larger operations:
+    The QT_TRANSLATE_NOOP() and QT_TR_NOOP() macros provide the
+    possibility of marking text for dynamic translation,
+    i.e. translation without changing the stored source text. The
+    Q_ASSERT() and Q_ASSERT_X() enables warning messages of various
+    level of refinement. The Q_FOREACH() and foreach() macros
+    implement Qt's foreach loop.
+
+    The Q_INT64_C() and Q_UINT64_C() macros wrap signed and unsigned
+    64-bit integers in a platform-independent way. The Q_CHECK_PTR()
+    macro prints a warning containing the source code's file name and
+    line number, saying that the program ran out of memory, if the
+    pointer is 0.  The qPrintable() macro represent an easy way of
+    printing text.
+
+    Finally, the QT_POINTER_SIZE macro expands to the size of a
+    pointer in bytes, and the QT_VERSION and QT_VERSION_STR macros
+    expand to a numeric value or a string, respectively, specifying
+    Qt's version number, i.e the version the application is compiled
+    against.
+
+    \sa <QtAlgorithms>, QSysInfo
 */
 
 /*!
@@ -452,13 +558,13 @@
     Typedef for \c{long long int} (\c __int64 on Windows). This type
     is guaranteed to be 64-bit on all platforms supported by Qt.
 
-    Literals of that type can be created using the Q_INT64_C() macro:
+    Literals of this type can be created using the Q_INT64_C() macro:
 
     \code
         qint64 value = Q_INT64_C(932838457459459);
     \endcode
 
-    \sa Q_INT64_C(), quint64
+    \sa Q_INT64_C(), quint64, qlonglong
 */
 
 /*!
@@ -469,14 +575,51 @@
     Windows). This type is guaranteed to be 64-bit on all platforms
     supported by Qt.
 
-    Literals of that type can be created using the Q_UINT64_C()
+    Literals of this type can be created using the Q_UINT64_C()
     macro:
 
     \code
         quint64 value = Q_UINT64_C(932838457459459);
     \endcode
 
-    \sa Q_UINT64_C(), qint64
+    \sa Q_UINT64_C(), qint64, qulonglong
+*/
+
+/*!
+    \typedef QtMsgHandler
+    \relates <QtGlobal>
+
+    This is a typedef for a pointer to a function with the following
+    signature:
+
+    \code
+        void myMsgHandler(QtMsgType, const char *);
+    \endcode
+
+    \sa QtMsgType, qInstallMsgHandler()
+*/
+
+/*!
+    \enum QtMsgType
+    \relates <QtGlobal>
+
+    This enum describes the messages that can be sent to a message
+    handler (QtMsgHandler). You can use the enum to identify and
+    associate the various message types with the appropiate
+    actions.
+
+    \value QtDebugMsg
+           A message generated by the qDebug() function.
+    \value QtWarningMsg
+           A message generated by the qWarning() function.
+    \value QtCriticalMsg
+           A message generated by the qCritical() function.
+    \value QtFatalMsg
+           A message generated by the qFatal() function.
+    \value QtSystemMsg
+
+
+    \sa QtMsgHandler, qInstallMsgHandler()
 */
 
 /*! \macro qint64 Q_INT64_C(literal)
@@ -511,7 +654,7 @@
     Typedef for \c{long long int} (\c __int64 on Windows). This is
     the same as \l qint64.
 
-    \sa Q_INT64_C(), qulonglong
+    \sa qulonglong, qint64
 */
 
 /*!
@@ -521,31 +664,61 @@
     Typedef for \c{unsigned long long int} (\c{unsigned __int64} on
     Windows). This is the same as \l quint64.
 
-    \sa Q_UINT64_C(), qlonglong
+    \sa quint64, qlonglong
 */
 
 /*! \fn const T &qAbs(const T &value)
     \relates <QtGlobal>
 
-    Returns the absolute value of \a value.
+    Returns the absolute value of \a value. For example:
+
+    \code
+        int absoluteValue;
+        int myValue = -4;
+
+        absoluteValue = qAbs(myValue);
+        // absoluteValue == 4
+    \endcode
 */
 
-/*! \fn int qRound(double value)
+/*! \fn int qRound(qreal value)
     \relates <QtGlobal>
 
-    Rounds \a value up to the nearest integer.
+    Rounds \a value up to the nearest integer. For example:
+
+    \code
+        qreal value = 2.3;
+
+        int roundedValue = qRound(value);
+        \\ roundedValue = 3
+    \endcode
 */
 
-/*! \fn qint64 qRound64(double value)
+/*! \fn qint64 qRound64(qreal value)
     \relates <QtGlobal>
 
-    Rounds \a value up to the nearest 64-bit integer.
+    Rounds \a value up to the nearest 64-bit integer. For example:
+
+    \code
+        qreal value = 42949672960,7;
+
+        int roundedValue = qRound(value);
+        \\ roundedValue = 42949672961
+    \endcode
 */
 
 /*! \fn const T &qMin(const T &value1, const T &value2)
     \relates <QtGlobal>
 
-    Returns the minimum of \a value1 and \a value2.
+    Returns the minimum of \a value1 and \a value2. For example:
+
+    \code
+        int myValue = 6;
+        int yourValue = 4;
+
+        int minValue = qMin(myValue, yourValue);
+        // minValue == yourValue
+    \endcode
 
     \sa qMax(), qBound()
 */
@@ -553,7 +726,15 @@
 /*! \fn const T &qMax(const T &value1, const T &value2)
     \relates <QtGlobal>
 
-    Returns the maximum of \a value1 and \a value2.
+    Returns the maximum of \a value1 and \a value2. For example:
+
+    \code
+        int myValue = 6;
+        int yourValue = 4;
+
+        int maxValue = qMax(myValue, yourValue);
+        // maxValue == myValue
+    \endcode
 
     \sa qMin(), qBound()
 */
@@ -562,7 +743,16 @@
     \relates <QtGlobal>
 
     Returns \a value bounded by \a min and \a max. This is equivalent
-    to qMax(\a min, qMin(\a value, \a max)).
+    to qMax(\a min, qMin(\a value, \a max)). For example:
+
+    \code
+        int myValue = 10;
+        int minValue = 2;
+        int maxValue = 6;
+
+        int boundedValue = qBound(minValue, myValue, maxValue);
+        // boundedValue == 6
+    \endcode
 
     \sa qMin(), qMax()
 */
@@ -673,7 +863,7 @@
     \fn bool qt_winUnicode()
     \relates <QtGlobal>
 
-    Use !(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) instead.
+    Use QSysInfo::WindowsVersion and QSysInfo::WV_DOS_based instead.
 
     \sa QSysInfo
 */
@@ -734,9 +924,9 @@
 /*!
     \relates <QtGlobal>
 
-    Returns the version number of the Qt runtime as a string (for
+    Returns the version number of Qt at run-time as a string (for
     example, "4.1.2"). This may be a different version than the
-    version against which the application was compiled.
+    version the application was compiled against.
 
     \sa QT_VERSION_STR
 */
@@ -902,7 +1092,7 @@ bool qSharedBuild()
     \macro Q_OS_WIN32
     \relates <QtGlobal>
 
-    Defined on Win32 (Windows 95/98/ME and Windows NT/2000/XP).
+    Defined on Win32 (Windows 98/ME and Windows NT/2000/XP).
 */
 
 /*!
@@ -1070,160 +1260,147 @@ bool qSharedBuild()
     \macro Q_CC_SYM
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    Digital Mars C/C++ (used to be Symantec C++).
+    Defined if the application is compiled using Digital Mars C/C++
+    (used to be Symantec C++).
 */
 
 /*!
     \macro Q_CC_MWERKS
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    Metrowerks CodeWarrior.
+    Defined if the application is compiled using Metrowerks
+    CodeWarrior.
 */
 
 /*!
     \macro Q_CC_MSVC
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    Microsoft Visual C/C++, Intel C++ for Windows.
+    Defined if the application is compiled using Microsoft Visual
+    C/C++, Intel C++ for Windows.
 */
 
 /*!
     \macro Q_CC_BOR
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    Borland/Turbo C++.
+    Defined if the application is compiled using Borland/Turbo C++.
 */
 
 /*!
     \macro Q_CC_WAT
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    Watcom C++.
+    Defined if the application is compiled using Watcom C++.
 */
 
 /*!
     \macro Q_CC_GNU
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    GNU C++.
+    Defined if the application is compiled using GNU C++.
 */
 
 /*!
     \macro Q_CC_COMEAU
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    Comeau C++.
+    Defined if the application is compiled using Comeau C++.
 */
 
 /*!
     \macro Q_CC_EDG
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    Edison Design Group C++.
+    Defined if the application is compiled using Edison Design Group
+    C++.
 */
 
 /*!
     \macro Q_CC_OC
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    CenterLine C++.
+    Defined if the application is compiled using CenterLine C++.
 */
 
 /*!
     \macro Q_CC_SUN
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    Forte Developer, or Sun Studio C++.
+    Defined if the application is compiled using Forte Developer, or
+    Sun Studio C++.
 */
 
 /*!
     \macro Q_CC_MIPS
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    MIPSpro C++.
+    Defined if the application is compiled using MIPSpro C++.
 */
 
 /*!
     \macro Q_CC_DEC
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    DEC C++.
+    Defined if the application is compiled using DEC C++.
 */
 
 /*!
     \macro Q_CC_HPACC
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    HP aC++.
+    Defined if the application is compiled using HP aC++.
 */
 
 /*!
     \macro Q_CC_USLC
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    SCO OUDK and UDK.
+    Defined if the application is compiled using SCO OUDK and UDK.
 */
 
 /*!
     \macro Q_CC_CDS
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    Reliant C++.
+    Defined if the application is compiled using Reliant C++.
 */
 
 /*!
     \macro Q_CC_KAI
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    KAI C++.
+    Defined if the application is compiled using KAI C++.
 */
 
 /*!
     \macro Q_CC_INTEL
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    Intel C++ for Linux, Intel C++ for Windows.
+    Defined if the application is compiled using Intel C++ for Linux,
+    Intel C++ for Windows.
 */
 
 /*!
     \macro Q_CC_HIGHC
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    MetaWare High C/C++.
+    Defined if the application is compiled using MetaWare High C/C++.
 */
 
 /*!
     \macro Q_CC_PGI
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    Portland Group C++.
+    Defined if the application is compiled using Portland Group C++.
 */
 
 /*!
     \macro Q_CC_GHS
     \relates <QtGlobal>
 
-    Defined if the the application is compiled using
-    Green Hills Optimizing C++ Compilers.
+    Defined if the application is compiled using Green Hills
+    Optimizing C++ Compilers.
 */
 
 /*!
@@ -1245,13 +1422,6 @@ bool qSharedBuild()
     \relates <QtGlobal>
 
     Defined for Qtopia Core.
-*/
-
-/*!
-    \macro Q_OS_WIN32
-    \relates <QtGlobal>
-
-    Defined for 32-bit Windows.
 */
 
 /*!
@@ -1500,11 +1670,12 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
 */
 
 /*!
-    \macro void Q_CHECK_PTR(void *p)
+    \macro void Q_CHECK_PTR(void *pointer)
     \relates <QtGlobal>
 
-    If \a p is 0, prints a warning message containing the source code file
-    name and line number, saying that the program ran out of memory.
+    If \a pointer is 0, prints a warning message containing the source
+    code's file name and line number, saying that the program ran out
+    of memory.
 
     Q_CHECK_PTR does nothing if \c QT_NO_DEBUG was defined during
     compilation.
@@ -1675,17 +1846,18 @@ QString qt_error_string(int errorCode)
 }
 
 /*!
+    \fn QtMsgHandler qInstallMsgHandler(QtMsgHandler handler)
     \relates <QtGlobal>
 
-    Installs a Qt message handler \a h. Returns a pointer to the
-    message handler previously defined.
+    Installs a Qt message \a handler whis has been defined
+    previously. Returns a pointer to the message \a handler.
 
     The message handler is a function that prints out debug messages,
-    warnings and fatal error messages. The Qt library (debug version)
-    contains hundreds of warning messages that are printed when
-    internal errors (usually invalid function arguments) occur. If you
-    implement your own message handler, you get total control of these
-    messages.
+    warnings, critical and fatal error messages. The Qt library (debug
+    version) contains hundreds of warning messages that are printed
+    when internal errors (usually invalid function arguments)
+    occur. If you implement your own message handler, you get total
+    control of these messages.
 
     The default message handler prints the message to the standard
     output under X11 or to the debugger under Windows. If it is a
@@ -1730,7 +1902,8 @@ QString qt_error_string(int errorCode)
         }
     \endcode
 
-    \sa qDebug(), qWarning(), qFatal(), {Debugging Techniques}
+    \sa qDebug(), qWarning(), qCritical(), qFatal(), QtMsgType,
+    {Debugging Techniques}
 */
 QtMsgHandler qInstallMsgHandler(QtMsgHandler h)
 {
@@ -2012,10 +2185,11 @@ QByteArray qgetenv(const char *varName)
     \macro foreach(variable, container)
     \relates <QtGlobal>
 
-    This macro is used to implement Qt's \c foreach loop. \a variable
-    is a variable name or variable definition; \a container is a Qt
-    container whose value type corresponds to the type of the
-    variable. See \l{The foreach Keyword} for details.
+    This macro is used to implement Qt's \c foreach loop. The \a
+    variable parameter is a variable name or variable definition; the
+    \a container parameter is a Qt container whose value type
+    corresponds to the type of the variable. See \l{The foreach
+    Keyword} for details.
 
     If you're worried about namespace pollution, you can disable this
     macro by adding the following line to your \c .pro file:
@@ -2031,17 +2205,21 @@ QByteArray qgetenv(const char *varName)
     \macro Q_FOREACH(variable, container)
     \relates <QtGlobal>
 
-    Same as foreach(\a variable, \a container).
+    Same as foreach() which is used to implement Qt's foreach
+    loop. The \a variable parameter is a variable name or variable
+    definition; the \a container parameter is a Qt container whose
+    value type corresponds to the type of the variable.
+
+    \sa foreach()
 */
 
 /*!
     \macro const char *QT_TR_NOOP(const char *sourceText)
     \relates <QtGlobal>
 
-    Marks the string literal \a sourceText for translation in the
-    current context. Expands to \a sourceText.
-
-    Example:
+    Marks the string literal \a sourceText for dynamic translation in
+    the current context (class), i.e the stored \a sourceText will not
+    be altered. For example:
 
     \code
         QString FriendlyConversation::greeting(int type)
@@ -2054,6 +2232,8 @@ QByteArray qgetenv(const char *varName)
         }
     \endcode
 
+    The macro expands to \a sourceText.
+
     \sa QT_TRANSLATE_NOOP(), {Internationalization with Qt}
 */
 
@@ -2061,10 +2241,9 @@ QByteArray qgetenv(const char *varName)
     \macro const char *QT_TRANSLATE_NOOP(const char *context, const char *sourceText)
     \relates <QtGlobal>
 
-    Marks the string literal \a sourceText for translation in the
-    given \a context. Expands to \a sourceText.
-
-    Example:
+    Marks the string literal \a sourceText for dynamic translation in
+    the given \a context, i.e the stored \a sourceText will not be
+    altered. The \a context is typically a class. For example:
 
     \code
         static const char *greeting_strings[] = {
@@ -2083,6 +2262,8 @@ QByteArray qgetenv(const char *varName)
 				   greeting_strings[type]);
         }
     \endcode
+
+    The macro expands to \a sourceText.
 
     \sa QT_TR_NOOP(), {Internationalization with Qt}
 */
