@@ -267,7 +267,7 @@ static bool try_locale_list(const char * const locale[], const char * lang)
 // For the probably_koi8_locales we have to look. the standard says
 // these are 8859-5, but almost all Russian users use KOI8-R and
 // incorrectly set $LANG to ru_RU. We'll check tolower() to see what
-// totoLower() thinks ru_RU means.
+// it thinks ru_RU means.
 
 // If you read the history, it seems that many Russians blame ISO and
 // Perestroika for the confusion.
@@ -591,7 +591,7 @@ static void setup()
 
     \row \o name()
          \o Returns the official name for the encoding. If the
-            encoding is listed in the
+            ncoding is listed in the
             \l{http://www.iana.org/assignments/character-sets}{IANA
             character-sets encoding file}, the name should be the
             preferred MIME name for the encoding.
@@ -599,8 +599,8 @@ static void setup()
     \row \o aliases()
          \o Returns a list of alternative names for the encoding.
             QTextCodec provides a default implementation that returns
-            an empty list. For example, "ISO-8859" has "latin1",
-            "US_ASCII", and "iso-ir-100" as aliases.
+            an empty list. For example, "ISO-8859-1" has "latin1",
+	    "CP819", "IBM819", and "iso-ir-100" as aliases.
 
     \row \o mibEnum()
          \o Return the MIB enum for the encoding if it is listed in

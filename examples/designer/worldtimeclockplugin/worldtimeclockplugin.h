@@ -14,7 +14,7 @@
 #ifndef WORLDTIMECLOCKPLUGIN_H
 #define WORLDTIMECLOCKPLUGIN_H
 
-#include <QtDesigner/QDesignerCustomWidgetInterface>
+#include <QDesignerCustomWidgetInterface>
 
 class WorldTimeClockPlugin : public QObject,
                              public QDesignerCustomWidgetInterface

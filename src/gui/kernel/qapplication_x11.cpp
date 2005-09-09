@@ -2041,8 +2041,6 @@ bool qt_nograb()                                // application no-grab option
 
     Returns the main application widget, or 0 if there is no main
     widget.
-
-    \sa setMainWidget()
 */
 
 /*!

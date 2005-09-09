@@ -967,20 +967,22 @@ void QIODevice::ungetChar(char c)
 }
 
 /*!
-    Peeks at most \a maxSize bytes from the device into \a data, without side
+    Reads at most \a maxSize bytes from the device into \a data, without side
     effects (i.e., if you call read() after peek(), you will get the same
-    data).  Returns the number of bytes peeked.  If an error occurs, such as
-    when attempting to peek a device opened in \l{OpenModeFlag}{WriteOnly} mode,
-    this function returns -1.
+    data).  Returns the number of bytes read. If an error occurs, such as
+    when attempting to peek a device opened in WriteOnly mode, this function
+    returns -1.
 
-    0 is returned when no more data is available for reading. Example:
+    0 is returned when no more data is available for reading.
+
+    Example:
 
     \code
         bool isExeFile(QFile *file)
         {
             char buf[2];
             if (file->peek(buf, sizeof(buf)) == sizeof(buf))
-                return buf[0] == 'M' && buf[1] == 'Z';
+                return (buf[0] == 'M' && buf[1] == 'Z');
             return false;
         }
     \endcode
@@ -1005,8 +1007,10 @@ qint64 QIODevice::peek(char *data, qint64 maxSize)
     \overload
 
     Peeks at most \a maxSize bytes from the device, returning the data peeked
-    as a QByteArray. Example:
+    as a QByteArray.
 
+    Example:
+ 
     \code
         bool isExeFile(QFile *file)
         {

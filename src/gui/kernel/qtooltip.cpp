@@ -50,6 +50,7 @@
     QWidget::event() function and call QToolTip::showText() with the
     text you want to display.
 
+    \sa QWidget::toolTip, QAction::toolTip
 */
 
 class QTipLabel : public QLabel

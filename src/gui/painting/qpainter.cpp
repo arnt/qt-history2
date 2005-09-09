@@ -1483,7 +1483,7 @@ const QMatrix &QPainter::matrix() const
     Returns the matrix that transforms from logical coordinates to
     device coordinates of the platform dependent paintdevice.
 
-    This function is ONLY needed when using platform painting commands
+    This function is \e only needed when using platform painting commands
     on the platform dependent handle, and the platform does not do
     transformations nativly.
 
@@ -4238,10 +4238,7 @@ void QPainter::map(int x, int y, int *rx, int *ry) const
 }
 
 /*!
-    Returns the point \a p transformed from model coordinates to
-    device coordinates.
-
-    \sa xFormDev(), QMatrix::map()
+    Use \a p * matrix() instead.
 */
 
 QPoint QPainter::xForm(const QPoint &p) const
@@ -4256,13 +4253,7 @@ QPoint QPainter::xForm(const QPoint &p) const
 /*!
     \overload
 
-    Returns the rectangle \a r transformed from model coordinates to
-    device coordinates.
-
-    If world transformation is enabled and rotation or shearing has
-    been specified, then the bounding rectangle is returned.
-
-    \sa xFormDev(), QMatrix::map()
+    Use \a r * matrix() instead.
 */
 
 QRect QPainter::xForm(const QRect &r) const
@@ -4276,10 +4267,7 @@ QRect QPainter::xForm(const QRect &r) const
 /*!
     \overload
 
-    Returns the point array \a a transformed from model coordinates
-    to device coordinates.
-
-    \sa xFormDev(), QMatrix::map()
+    Use \a a * matrix() instead.
 */
 
 QPolygon QPainter::xForm(const QPolygon &a) const
@@ -4293,24 +4281,10 @@ QPolygon QPainter::xForm(const QPolygon &a) const
 /*!
     \overload
 
-    Returns the point array \a av transformed from model coordinates
-    to device coordinates. The \a index is the first point in the
-    array and \a npoints denotes the number of points to be
-    transformed. If \a npoints is negative, all points from
-    \a{av}\e{[index]} until the last point in the array are transformed.
+    Use \a av * matrix() instead.
 
-    The returned point array consists of the number of points that
-    were transformed.
-
-    Example:
-    \code
-        QPolygon a(10);
-        QPolygon b;
-        b = painter.xForm(a, 2, 4);  // b.size() == 4
-        b = painter.xForm(a, 2, -1); // b.size() == 8
-    \endcode
-
-    \sa xFormDev(), QMatrix::map()
+    If \a index and \a npoints are specified, you will need to create
+    a sub-QPolygon before you can apply the transformation.
 */
 
 QPolygon QPainter::xForm(const QPolygon &av, int index, int npoints) const
@@ -4325,10 +4299,7 @@ QPolygon QPainter::xForm(const QPolygon &av, int index, int npoints) const
 /*!
     \overload
 
-    Returns the point \a p transformed from device coordinates to
-    model coordinates.
-
-    \sa xForm(), QMatrix::map()
+    Use \a p * matrix().inverted() instead.
 */
 
 QPoint QPainter::xFormDev(const QPoint &p) const
@@ -4344,13 +4315,7 @@ QPoint QPainter::xFormDev(const QPoint &p) const
 }
 
 /*!
-    Returns the rectangle \a r transformed from device coordinates to
-    model coordinates.
-
-    If world transformation is enabled and rotation or shearing is
-    used, then the bounding rectangle is returned.
-
-    \sa xForm(), QMatrix::map()
+    Use \a r * matrix().inverted() instead.
 */
 
 QRect QPainter::xFormDev(const QRect &r)  const
@@ -4368,10 +4333,7 @@ QRect QPainter::xFormDev(const QRect &r)  const
 /*!
     \overload
 
-    Returns the point array \a a transformed from device coordinates
-    to model coordinates.
-
-    \sa xForm(), QMatrix::map()
+    Use \a a * matrix().inverted() instead.
 */
 
 QPolygon QPainter::xFormDev(const QPolygon &a) const
@@ -4389,24 +4351,10 @@ QPolygon QPainter::xFormDev(const QPolygon &a) const
 /*!
     \overload
 
-    Returns the point array \a ad transformed from device coordinates
-    to model coordinates. The \a index is the first point in the array
-    and \a npoints denotes the number of points to be transformed. If
-    \a npoints is negative, all points from \a{ad}\e{[index]} until the
-    last point in the array are transformed.
+    Use \a ad * matrix().inverted() instead.
 
-    The returned point array consists of the number of points that
-    were transformed.
-
-    Example:
-    \code
-        QPolygon a(10);
-        QPolygon b;
-        b = painter.xFormDev(a, 1, 3);  // b.size() == 3
-        b = painter.xFormDev(a, 1, -1); // b.size() == 9
-    \endcode
-
-    \sa xForm(), QMatrix::map()
+    If \a index and \a npoints are specified, you will need to create
+    a sub-QPolygon before you can apply the transformation.
 */
 
 QPolygon QPainter::xFormDev(const QPolygon &ad, int index, int npoints) const

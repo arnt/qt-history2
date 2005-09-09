@@ -42,7 +42,7 @@
     illegal. For performance reasons, QColor mostly disregards illegal
     colors. Therefore, the result of using an invalid color is undefined.
 
-    There are 20 predefined QColor objects: Qt::white, Qt::black,
+    There are 20 predefined \l{QColor}s: Qt::white, Qt::black,
     Qt::red, Qt::darkRed, Qt::green, Qt::darkGreen, Qt::blue,
     Qt::darkBlue, Qt::cyan, Qt::darkCyan, Qt::magenta,
     Qt::darkMagenta, Qt::yellow, Qt::darkYellow, Qt::gray,

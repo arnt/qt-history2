@@ -177,7 +177,7 @@ void QMapData::dump()
        With QMap, the items are always sorted by key.
     \i The key type of a QHash must provide operator==() and a global
        qHash(Key) function. The key type of a QMap must provide
-       operator<().
+       operator<() specifying a total order.
     \endlist
 
     Here's an example QMap with QString keys and \c int values:

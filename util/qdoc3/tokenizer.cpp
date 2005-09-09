@@ -141,7 +141,8 @@ int Tokenizer::getToken()
 		yyCh = getChar();
 
 		if ( yyCh == EOF )
-		    yyTokLoc.warning( tr("Unterminated C++ string literal") );
+		    yyTokLoc.warning(tr("Unterminated C++ string literal"),
+                                     tr("Maybe you forgot '/*!' at the beginning of the file?");
 		else
 		    return Tok_String;
 		break;

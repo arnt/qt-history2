@@ -132,8 +132,8 @@ void AddTorrentDialog::setTorrent(const QString &torrentFile)
             QString name = metaInfo.name();
             if (!name.isEmpty()) {
                 html += name;
-                if (!name.endsWith(QString("/")))
-                    html += QLatin1Char('/');
+                if (!name.endsWith('/'))
+                    html += '/';
             }
             html += file.path + "<br>";
         }

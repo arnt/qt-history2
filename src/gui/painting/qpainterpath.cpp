@@ -602,7 +602,7 @@ void QPainterPath::addRect(const QRectF &r)
 
 /*!
     Adds the \a polygon to path as a new subpath. Current position
-    after the rect has been added is the last point in \a polygon.
+    after the polygon has been added is the last point in \a polygon.
 */
 void QPainterPath::addPolygon(const QPolygonF &polygon)
 {

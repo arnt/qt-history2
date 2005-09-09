@@ -79,14 +79,14 @@ void Dialog::createGridGroupBox()
     for (int i = 0; i < NumGridRows; ++i) {
 	labels[i] = new QLabel(tr("Line %1:").arg(i + 1));
 	lineEdits[i] = new QLineEdit;
-	layout->addWidget(labels[i], i, 0);
-	layout->addWidget(lineEdits[i], i, 1);
+	layout->addWidget(labels[i], i + 1, 0);
+	layout->addWidget(lineEdits[i], i + 1, 1);
     }
 
     smallEditor = new QTextEdit;
     smallEditor->setPlainText(tr("This widget takes up about two thirds of the "
                                  "grid layout."));
-    layout->addWidget(smallEditor, 0, 2, 3, 1);
+    layout->addWidget(smallEditor, 0, 2, 4, 1);
 
     layout->setColumnStretch(1, 10);
     layout->setColumnStretch(2, 20);
