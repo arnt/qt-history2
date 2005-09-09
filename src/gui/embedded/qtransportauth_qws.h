@@ -110,7 +110,7 @@ class Q_GUI_EXPORT QTransportAuth : public QObject
 public:
     static QTransportAuth *getInstance();
 
-    static const char *errorStrings[6];
+    static const char *errorStrings[];
 
     enum Result {
         // Error codes
