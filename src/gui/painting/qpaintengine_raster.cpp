@@ -116,12 +116,7 @@ static void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC 
 typedef void (*qt_span_func)(int y, int count, QT_FT_Span *spans, void *userData);
 
 static void qt_span_fill_clipped(int y, int count, QT_FT_Span *spans, void *userData);
-static void qt_span_solidfill(int y, int count, QT_FT_Span *spans, void *userData);
-static void qt_span_texturefill(int y, int count, QT_FT_Span *spans, void *userData);
-static void qt_span_texturefill_xform(int y, int count, QT_FT_Span *spans, void *userData);
-static void qt_span_linear_gradient(int y, int count, QT_FT_Span *spans, void *userData);
-static void qt_span_radial_gradient(int y, int count, QT_FT_Span *spans, void *userData);
-static void qt_span_conical_gradient(int y, int count, QT_FT_Span *spans, void *userData);
+static void qt_span_fill(int y, int count, QT_FT_Span *spans, void *userData);
 static void qt_span_clip(int y, int count, QT_FT_Span *spans, void *userData);
 
 
@@ -442,11 +437,6 @@ void QRasterPaintEngine::init()
     };
 
     d->fillData = new FillData;
-    d->solidData = new SolidData;
-    d->textureData = new TextureData;
-    d->linearGradientData = new LinearGradientData;
-    d->radialGradientData = new RadialGradientData;
-    d->conicalGradientData = new ConicalGradientData;
     d->dashStroker = 0;
 
     d->flushOnEnd = true;
@@ -469,11 +459,6 @@ QRasterPaintEngine::~QRasterPaintEngine()
 #endif
     
     delete d->fillData;
-    delete d->solidData;
-    delete d->textureData;
-    delete d->linearGradientData;
-    delete d->radialGradientData;
-    delete d->conicalGradientData;
 
     delete d->dashStroker;
 }
@@ -1137,20 +1122,16 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
                          : img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
     Q_D(QRasterPaintEngine);
-    TextureData textureData = {
-        d->rasterBuffer,
-        image.bits(), image.width(), image.height(), image.format() != QImage::Format_RGB32,
-        0., 0., 0., 0., 0., 0.,
-        d->drawHelper->blend,
-        d->bilinear ? d->drawHelper->blendTransformedBilinear : d->drawHelper->blendTransformed,
-        d->compositionMode
-    };
-    FillData fillData = { d->rasterBuffer, 0, &textureData };
+    QSpanFillData textureData;
+    textureData.rasterBuffer = d->rasterBuffer;
+    textureData.compositionMode = d->compositionMode;
+    textureData.initTexture(&image);
+    FillData fillData = { d->rasterBuffer, qt_span_fill, &textureData };
 
     bool stretch_sr = r.width() != sr.width() || r.height() != sr.height();
 
     if (d->txop > QPainterPrivate::TxTranslate || stretch_sr) {
-        fillData.callback = qt_span_texturefill_xform;
+        textureData.blend = d->bilinear ? d->drawHelper->blendTransformedBilinear : d->drawHelper->blendTransformed;
         QMatrix copy = d->matrix;
         copy.translate(r.x(), r.y());
         if (stretch_sr)
@@ -1164,7 +1145,7 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
         textureData.dx = inv.dx();
         textureData.dy = inv.dy();
     } else {
-        fillData.callback = qt_span_texturefill;
+        textureData.blend = d->drawHelper->blend;
         textureData.dx = -(r.x() + d->matrix.dx()) + sr.x();
         textureData.dy = -(r.y() + d->matrix.dy()) + sr.y();
     }
@@ -1198,18 +1179,15 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
     else
         image = qt_map_to_32bit(pixmap);
 
-    TextureData textureData = {
-        d->rasterBuffer,
-        ((const QImage &)(image)).bits(), image.width(), image.height(), image.format() != QImage::Format_RGB32,
-        0., 0., 0., 0., 0., 0.,
-        d->drawHelper->blendTiled,
-        d->bilinear ? d->drawHelper->blendTransformedBilinearTiled : d->drawHelper->blendTransformedTiled,
-        d->compositionMode
-    };
-    FillData fillData = { d->rasterBuffer, 0, &textureData };
+    QSpanFillData textureData;
+    textureData.rasterBuffer = d->rasterBuffer;
+    textureData.compositionMode = d->compositionMode;
+    textureData.initTexture(&image);
+    FillData fillData = { d->rasterBuffer, qt_span_fill, &textureData };
 
     if (d->txop > QPainterPrivate::TxTranslate) {
-        fillData.callback = qt_span_texturefill_xform;
+        textureData.blend = d->bilinear
+                            ? d->drawHelper->blendTransformedBilinearTiled : d->drawHelper->blendTransformedTiled;
         QMatrix copy = d->matrix;
         copy.translate(r.x(), r.y());
         copy.translate(-sr.x(), -sr.y());
@@ -1221,9 +1199,9 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
         textureData.dx = inv.dx();
         textureData.dy = inv.dy();
     } else {
-        fillData.callback = qt_span_texturefill;
-        textureData.dx = -( r.x() + d->matrix.dx()) + sr.x();
-        textureData.dy = -( r.y() + d->matrix.dy()) + sr.y();
+        textureData.blend = d->drawHelper->blendTiled;
+        textureData.dx = -(r.x() + d->matrix.dx()) + sr.x();
+        textureData.dy = -(r.y() + d->matrix.dy()) + sr.y();
     }
 
     FillData clippedFill = d->clipForFill(&fillData);
@@ -1890,104 +1868,75 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush)
     Q_ASSERT(fillData);
 
     fillData->rasterBuffer = rasterBuffer;
+    fillData->data = &spanFillData;
+    fillData->callback = qt_span_fill;
+    spanFillData.rasterBuffer = rasterBuffer;
+    spanFillData.compositionMode = compositionMode;
 
-    switch (brush.style()) {
- 
-    case Qt::NoBrush:
-        fillData->callback = 0;
-        fillData->data = 0;
-        break;
-
+    Qt::BrushStyle brushStyle = brush.style();
+    switch (brushStyle) {
     case Qt::SolidPattern:
-        fillData->callback = qt_span_solidfill;
-        fillData->data = solidData;
-        solidData->color = PREMUL(brush.color().rgba());
-        solidData->rasterBuffer = fillData->rasterBuffer;
-        solidData->blendColor = drawHelper->blendColor;
-        solidData->compositionMode = compositionMode;
-        break;
-
-    case Qt::TexturePattern:
-        {
-            QPixmap texture = brush.texture();
-            if (texture.depth() == 1) {
-                tempImage = colorizeBitmap(texture.toImage(), brush.color());
-            } else {
-                tempImage = qt_map_to_32bit(brush.texture());
-            }
-            fillData->data = textureData;
-            fillData->callback = txop > QPainterPrivate::TxTranslate
-                                 ? qt_span_texturefill_xform
-                                 : qt_span_texturefill;
-            textureData->compositionMode = compositionMode;
-            textureData->init(rasterBuffer, &tempImage, brushMatrix(),
-                                  drawHelper->blendTiled,
-                                  bilinear
-                                  ? drawHelper->blendTransformedBilinearTiled
-                                  : drawHelper->blendTransformedTiled);
-        }
+        spanFillData.solid.color = PREMUL(brush.color().rgba());
+        spanFillData.blend = drawHelper->blendColor;
         break;
 
     case Qt::LinearGradientPattern:
         {
-            linearGradientData->rasterBuffer = fillData->rasterBuffer;
-            linearGradientData->spread = brush.gradient()->spread();
-            linearGradientData->stopCount = brush.gradient()->stops().size();
-            linearGradientData->stopPoints = gradientStopPoints(brush.gradient());
-            linearGradientData->stopColors = gradientStopColors(brush.gradient());
-            const QLinearGradient *lg = static_cast<const QLinearGradient *>(brush.gradient());
-            linearGradientData->origin = lg->start();
-            linearGradientData->end = lg->finalStop();
+            const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
+            spanFillData.blend = drawHelper->blendLinearGradient;
+            spanFillData.gradient.spread = g->spread();
+            spanFillData.gradient.alphaColor = !brush.isOpaque();
+            spanFillData.gradient.stopCount = g->stops().size();
+            spanFillData.gradient.stopPoints = gradientStopPoints(g);
+            spanFillData.gradient.stopColors = gradientStopColors(g);
+            spanFillData.initGradientColorTable();
 
-            linearGradientData->brushMatrix = brushMatrix();
-            linearGradientData->alphaColor = !brush.isOpaque();
-            linearGradientData->init();
-            linearGradientData->initColorTable();
-            linearGradientData->blendFunc = drawHelper->blendLinearGradient;
-            linearGradientData->compositionMode = compositionMode;
-            fillData->callback = qt_span_linear_gradient;
-            fillData->data = linearGradientData;
+            spanFillData.gradient.linear.origin.x = g->start().x();
+            spanFillData.gradient.linear.origin.y = g->start().y();
+            spanFillData.gradient.linear.end.x = g->finalStop().x();
+            spanFillData.gradient.linear.end.y = g->finalStop().y();
+            spanFillData.initLinearGradient(brushMatrix());
             break;
         }
 
     case Qt::RadialGradientPattern:
         {
-            radialGradientData->rasterBuffer = fillData->rasterBuffer;
-            radialGradientData->spread = brush.gradient()->spread();
-            radialGradientData->stopCount = brush.gradient()->stops().size();
-            radialGradientData->stopPoints = gradientStopPoints(brush.gradient());
-            radialGradientData->stopColors = gradientStopColors(brush.gradient());
-            radialGradientData->center =
-                static_cast<const QRadialGradient *>(brush.gradient())->center();
-            radialGradientData->radius =
-                static_cast<const QRadialGradient *>(brush.gradient())->radius();
-            radialGradientData->focal =
-                static_cast<const QRadialGradient *>(brush.gradient())->focalPoint();
-            radialGradientData->alphaColor = !brush.isOpaque();
-            radialGradientData->initColorTable();
-            radialGradientData->imatrix = brushMatrix().inverted();
-            radialGradientData->blendFunc = drawHelper->blendRadialGradient;
-            radialGradientData->compositionMode = compositionMode;
+            const QRadialGradient *g = static_cast<const QRadialGradient *>(brush.gradient());
+            spanFillData.blend = drawHelper->blendRadialGradient;
+            spanFillData.gradient.spread = g->spread();
+            spanFillData.gradient.alphaColor = !brush.isOpaque();
+            spanFillData.gradient.stopCount = g->stops().size();
+            spanFillData.gradient.stopPoints = gradientStopPoints(g);
+            spanFillData.gradient.stopColors = gradientStopColors(g);
+            spanFillData.initGradientColorTable();
+            spanFillData.initMatrix(brushMatrix());
 
-            fillData->data = radialGradientData;
-            fillData->callback = qt_span_radial_gradient;
+            QPointF center = g->center();
+            spanFillData.gradient.radial.center.x = center.x();
+            spanFillData.gradient.radial.center.y = center.y();
+            QPointF focal = g->focalPoint();
+            spanFillData.gradient.radial.focal.x = focal.x();
+            spanFillData.gradient.radial.focal.y = focal.y();
+            spanFillData.gradient.radial.radius = g->radius();
         }
         break;
 
     case Qt::ConicalGradientPattern:
         {
-            conicalGradientData->rasterBuffer = fillData->rasterBuffer;
-            conicalGradientData->spread = QGradient::RepeatSpread; // don't support any anyway
-            conicalGradientData->stopCount = brush.gradient()->stops().size();
-            conicalGradientData->stopPoints = gradientStopPoints(brush.gradient());
-            conicalGradientData->stopColors = gradientStopColors(brush.gradient());
-            conicalGradientData->alphaColor = !brush.isOpaque();
-            conicalGradientData->compositionMode = compositionMode;
-            conicalGradientData->blendFunc = drawHelper->blendConicalGradient;
-            const QConicalGradient *cg = static_cast<const QConicalGradient *>(brush.gradient());
-            conicalGradientData->init(cg->center(), cg->angle(), brushMatrix());
-            fillData->data = conicalGradientData;
-            fillData->callback = qt_span_conical_gradient;
+            const QConicalGradient *g = static_cast<const QConicalGradient *>(brush.gradient());
+            spanFillData.blend = drawHelper->blendConicalGradient;
+            spanFillData.gradient.spread = g->spread();
+            spanFillData.gradient.alphaColor = !brush.isOpaque();
+            spanFillData.gradient.stopCount = g->stops().size();
+            spanFillData.gradient.stopPoints = gradientStopPoints(g);
+            spanFillData.gradient.stopColors = gradientStopColors(g);
+            spanFillData.initGradientColorTable();
+            spanFillData.initMatrix(brushMatrix());
+
+            QPointF center = g->center();
+            spanFillData.gradient.conical.center.x = center.x();
+            spanFillData.gradient.conical.center.y = center.y();
+            spanFillData.gradient.conical.angle = g->angle() * 2 * Q_PI / 360.0;
         }
         break;
 
@@ -2004,28 +1953,28 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush)
     case Qt::BDiagPattern:
     case Qt::FDiagPattern:
     case Qt::DiagCrossPattern:
+    case Qt::TexturePattern:
         {
             extern QPixmap qt_pixmapForBrush(int brushStyle, bool invert);
-            QPixmap pixmap = qt_pixmapForBrush(brush.style(), true);
-
-            Q_ASSERT(!pixmap.isNull());
-            Q_ASSERT(pixmap.depth() == 1);
-
-            tempImage = colorizeBitmap(pixmap.toImage(), brush.color());
-            fillData->data = textureData;
-            fillData->callback = txop > QPainterPrivate::TxTranslate
-                                 ? qt_span_texturefill_xform
-                                 : qt_span_texturefill;
-            textureData->compositionMode = compositionMode;
-            textureData->init(rasterBuffer, &tempImage, brushMatrix(),
-                                  drawHelper->blendTiled,
-                                  bilinear
-                                  ? drawHelper->blendTransformedBilinearTiled
-                                  : drawHelper->blendTransformedTiled);
+            QPixmap texture = brushStyle == Qt::TexturePattern
+                              ? brush.texture() : qt_pixmapForBrush(brushStyle, true);
+            if (texture.depth() == 1) {
+                tempImage = colorizeBitmap(texture.toImage(), brush.color());
+            } else {
+                tempImage = qt_map_to_32bit(brush.texture());
+            }
+            spanFillData.initMatrix(brushMatrix());
+            spanFillData.initTexture(&tempImage);
+            if (txop > QPainterPrivate::TxTranslate) {
+                spanFillData.blend = bilinear  
+                                     ? drawHelper->blendTransformedBilinearTiled
+                                     : drawHelper->blendTransformedTiled;
+            } else {
+                spanFillData.blend = drawHelper->blendTiled;
+            }
         }
-        break;
 
-        
+    case Qt::NoBrush:
     default:
         fillData->callback = 0;
         fillData->data = 0;
@@ -2347,68 +2296,13 @@ void QRasterBuffer::resizeClipSpan(int y, int size)
     m_clipSpanCapacity[y] = size;
 }
 
-static void qt_span_solidfill(int y, int count, QT_FT_Span *spans, void *userData)
+static void qt_span_fill(int y, int count, QT_FT_Span *spans, void *userData)
 {
-    SolidData *data = reinterpret_cast<SolidData *>(userData);
+    QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
     uchar *base = data->rasterBuffer->scanLine(y);
 
     while (count--) {
-        data->blendColor(base, (const QSpan *)spans, data, y);
-        ++spans;
-    }
-}
-
-static void qt_span_texturefill(int y, int count, QT_FT_Span *spans, void *userData)
-{
-    TextureData *data = reinterpret_cast<TextureData *>(userData);
-    uchar *baseTarget = data->rasterBuffer->scanLine(y);
-    
-    while (count--) {
-        data->blend(baseTarget, (const QSpan *)spans, data, y);
-        ++spans;
-    }
-}
-
-static void qt_span_texturefill_xform(int y, int count, QT_FT_Span *spans, void *userData)
-{
-    TextureData *data = reinterpret_cast<TextureData *>(userData);
-    uchar *baseTarget = data->rasterBuffer->scanLine(y);
-
-    while (count--) {
-        data->blendFunc(baseTarget, (const QSpan *)spans, data, y);
-        ++spans;
-    }
-}
-
-static void qt_span_linear_gradient(int y, int count, QT_FT_Span *spans, void *userData)
-{
-    LinearGradientData *data = reinterpret_cast<LinearGradientData *>(userData);
-    uchar *baseTarget = data->rasterBuffer->scanLine(y);
-
-    while (count--) {
-        data->blendFunc(baseTarget, (const QSpan *)spans, data, y);
-        ++spans;
-    }
-}
-
-static void qt_span_radial_gradient(int y, int count, QT_FT_Span *spans, void *userData)
-{
-    RadialGradientData *data = reinterpret_cast<RadialGradientData *>(userData);
-    uchar *baseTarget = data->rasterBuffer->scanLine(y);
-
-    while (count--) {
-        data->blendFunc(baseTarget, (const QSpan *)spans, data, y);
-        ++spans;
-    }
-}
-
-static void qt_span_conical_gradient(int y, int count, QT_FT_Span *spans, void *userData)
-{
-    ConicalGradientData *data = reinterpret_cast<ConicalGradientData *>(userData);
-    uchar *baseTarget = data->rasterBuffer->scanLine(y);
-
-    while (count--) {
-        data->blendFunc(baseTarget, (const QSpan *)spans, data, y);
+        data->blend(base, (const QSpan *)spans, data, y);
         ++spans;
     }
 }
@@ -2682,15 +2576,8 @@ void QRasterBuffer::flushToARGBImage(QImage *target) const
     }
 }
 
-void TextureData::init(QRasterBuffer *raster, const QImage *image, const QMatrix &matrix,
-                           Blend b, BlendTransformed func)
+void QSpanFillData::initMatrix(const QMatrix &matrix)
 {
-    rasterBuffer = raster;
-    imageData = (uint*) image->bits();
-    width = image->width();
-    height = image->height();
-    hasAlpha = image->format() != QImage::Format_RGB32;
-
     QMatrix inv = matrix.inverted();
     m11 = inv.m11();
     m12 = inv.m12();
@@ -2698,24 +2585,29 @@ void TextureData::init(QRasterBuffer *raster, const QImage *image, const QMatrix
     m22 = inv.m22();
     dx = inv.dx();
     dy = inv.dy();
-
-    blend = b;
-    blendFunc = func;
 }
 
-void GradientData::initColorTable()
+void QSpanFillData::initTexture(const QImage *image)
 {
-    Q_ASSERT(stopCount > 0);
+    texture.imageData = image->bits();
+    texture.width = image->width();
+    texture.height = image->height();
+    texture.hasAlpha = image->format() != QImage::Format_RGB32;
+}
+
+void QSpanFillData::initGradientColorTable()
+{
+    Q_ASSERT(gradient.stopCount > 0);
 
     // The position where the gradient begins and ends
-    int begin_pos = int(stopPoints[0] * GRADIENT_STOPTABLE_SIZE);
-    int end_pos = int(stopPoints[stopCount-1] * GRADIENT_STOPTABLE_SIZE);
+    int begin_pos = int(gradient.stopPoints[0] * GRADIENT_STOPTABLE_SIZE);
+    int end_pos = int(gradient.stopPoints[gradient.stopCount-1] * GRADIENT_STOPTABLE_SIZE);
 
     int pos = 0; // The position in the color table.
 
     // Up to first point
     while (pos<=begin_pos) {
-        colorTable[pos] = stopColors[0];
+        gradient.colorTable[pos] = gradient.stopColors[0];
         ++pos;
     }
 
@@ -2727,28 +2619,28 @@ void GradientData::initColorTable()
     // Gradient area
     while (pos < end_pos) {
 
-        Q_ASSERT(current_stop < stopCount);
+        Q_ASSERT(current_stop < gradient.stopCount);
 
-        uint current_color = stopColors[current_stop];
-        uint next_color = stopColors[current_stop+1];
+        uint current_color = gradient.stopColors[current_stop];
+        uint next_color = gradient.stopColors[current_stop+1];
 
-        int dist = (int)(256*(dpos - stopPoints[current_stop])
-                         / (stopPoints[current_stop+1] - stopPoints[current_stop]));
+        int dist = (int)(256*(dpos - gradient.stopPoints[current_stop])
+                         / (gradient.stopPoints[current_stop+1] - gradient.stopPoints[current_stop]));
         int idist = 256 - dist;
 
-        colorTable[pos] = INTERPOLATE_PIXEL_256(current_color, idist, next_color, dist);
+        gradient.colorTable[pos] = INTERPOLATE_PIXEL_256(current_color, idist, next_color, dist);
 
         ++pos;
         dpos += incr;
 
-        if (dpos > stopPoints[current_stop+1]) {
+        if (dpos > gradient.stopPoints[current_stop+1]) {
             ++current_stop;
         }
     }
 
     // After last point
     while (pos < GRADIENT_STOPTABLE_SIZE) {
-        colorTable[pos] = stopColors[stopCount-1];
+        gradient.colorTable[pos] = gradient.stopColors[gradient.stopCount-1];
         ++pos;
     }
 }
@@ -2777,13 +2669,8 @@ void GradientData::initColorTable()
  *
  *
  */
-void LinearGradientData::init()
+void QSpanFillData::initLinearGradient(const QMatrix &brushMatrix)
 {
-    qreal x1 = origin.x();
-    qreal y1 = origin.y();
-    qreal x2 = end.x();
-    qreal y2 = end.y();
-
 #ifdef QT_DEBUG_DRAW
     qDebug("LinearGradientData::init(), x1=%f, y1=%f, x2=%f, y2=%f, spread=%d",
            x1, y1, x2, y2, spread);
@@ -2792,16 +2679,23 @@ void LinearGradientData::init()
     }
 #endif
 
-    // Calculate the normalvector and transform it.
-    QLineF n = brushMatrix.map(QLineF(x1, y1, x2, y2).normalVector() );
-
+    QPointF origin(gradient.linear.origin.x, gradient.linear.origin.y);
+    QPointF end(gradient.linear.end.x, gradient.linear.end.y);
     origin = brushMatrix.map(origin);
     end = brushMatrix.map(end);
 
-    x1 = origin.x();
-    y1 = origin.y();
-    x2 = end.x();
-    y2 = end.y();
+    // Calculate the normalvector and transform it.
+    QLineF n = QLineF(origin, end).normalVector();
+
+    gradient.linear.origin.x = origin.x();
+    gradient.linear.origin.y = origin.y();
+    gradient.linear.end.x = end.x();
+    gradient.linear.end.y = end.y();
+
+    qreal x1 = origin.x();
+    qreal y1 = origin.y();
+    qreal x2 = end.x();
+    qreal y2 = end.y();
 
     qreal dx = x2 - x1;
     qreal dy = y2 - y1;
@@ -2817,29 +2711,20 @@ void LinearGradientData::init()
 
     if (qAbs(ndy) > GRADIENT_EPSILON) {
         qreal l = dx - dy*ndx/ndy;
-        xincr = 1.0/l;
+        gradient.linear.xincr = 1.0/l;
     } else {
-        xincr = 0;
+        gradient.linear.xincr = 0;
     }
 
     if (qAbs(ndx) > GRADIENT_EPSILON) {
         qreal l = dy - dx*ndy/ndx;
-        yincr = 1.0/l;
+        gradient.linear.yincr = 1.0/l;
     } else {
-        yincr = 0;
+        gradient.linear.yincr = 0;
     }
 
     // qDebug() << "inc: " << xincr << "," << yincr;
 
-}
-
-void ConicalGradientData::init(const QPointF &pt, qreal a, const QMatrix &matrix)
-{
-    center = pt;
-    angle = a * 2 * Q_PI / 360.0;
-    imatrix = matrix.inverted();
-
-    initColorTable();
 }
 
 

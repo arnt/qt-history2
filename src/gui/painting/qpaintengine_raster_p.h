@@ -173,11 +173,7 @@ public:
     QRect deviceRect;
 
     FillData *fillData;
-    SolidData *solidData;
-    TextureData *textureData;
-    LinearGradientData *linearGradientData;
-    RadialGradientData *radialGradientData;
-    ConicalGradientData *conicalGradientData;
+    QSpanFillData spanFillData;
 
     DrawHelper *drawHelper;
 

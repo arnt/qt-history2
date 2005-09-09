@@ -443,7 +443,7 @@ static const CompositionFunction functionForMode_C[] = {
 
 static const CompositionFunction *functionForMode = functionForMode_C;
 
-static void blend_color_argb(void *t, const QSpan *span, SolidData *data, int)
+static void blend_color_argb(void *t, const QSpan *span, QSpanFillData *data, int)
 {
     CompositionFunctionSolid func = functionForModeSolid[data->compositionMode];
     if (!func)
@@ -451,20 +451,20 @@ static void blend_color_argb(void *t, const QSpan *span, SolidData *data, int)
 
     uint *target = ((uint *)t) + span->x;
 
-    func(target, span->len, data->color, span->coverage);
+    func(target, span->len, data->solid.color, span->coverage);
 }
 
-static void blend_argb(void *t, const QSpan *span, TextureData *data, int _y)
+static void blend_argb(void *t, const QSpan *span, QSpanFillData *data, int _y)
 {
     QPainter::CompositionMode mode = data->compositionMode;
-    if (!data->hasAlpha && mode == QPainter::CompositionMode_SourceOver && span->coverage == 255)
+    if (!data->texture.hasAlpha && mode == QPainter::CompositionMode_SourceOver && span->coverage == 255)
         mode = QPainter::CompositionMode_Source;
     CompositionFunction func = functionForMode[mode];
     if (!func)
         return;
 
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
     int xoff = qRound(data->dx) % image_width;
     int yoff = qRound(data->dy) % image_height;
 
@@ -473,7 +473,7 @@ static void blend_argb(void *t, const QSpan *span, TextureData *data, int _y)
     if (yoff < 0)
         yoff += image_height;
 
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
     const qreal dx = (xoff + span->x)%image_width;
     const qreal dy = (_y + yoff) % image_height;
 
@@ -497,17 +497,17 @@ static void blend_argb(void *t, const QSpan *span, TextureData *data, int _y)
     func(target, src, length, span->coverage);
 }
 
-static void blend_tiled_argb(void *t, const QSpan *span, TextureData *data, int _y)
+static void blend_tiled_argb(void *t, const QSpan *span, QSpanFillData *data, int _y)
 {
     QPainter::CompositionMode mode = data->compositionMode;
-    if (!data->hasAlpha && mode == QPainter::CompositionMode_SourceOver && span->coverage == 255)
+    if (!data->texture.hasAlpha && mode == QPainter::CompositionMode_SourceOver && span->coverage == 255)
         mode = QPainter::CompositionMode_Source;
     CompositionFunction func = functionForMode[mode];
     if (!func)
         return;
 
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
     int xoff = qRound(data->dx) % image_width;
     int yoff = qRound(data->dy) % image_height;
 
@@ -516,7 +516,7 @@ static void blend_tiled_argb(void *t, const QSpan *span, TextureData *data, int 
     if (yoff < 0)
         yoff += image_height;
 
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
     const qreal dx = (xoff + span->x)%image_width;
     const qreal dy = (_y + yoff) % image_height;
                      
@@ -547,15 +547,15 @@ static void blend_tiled_argb(void *t, const QSpan *span, TextureData *data, int 
     }
 }
 
-static void blend_transformed_bilinear_argb(void *t, const QSpan *span, TextureData *data, int _y)
+static void blend_transformed_bilinear_argb(void *t, const QSpan *span, QSpanFillData *data, int _y)
 {
     CompositionFunction func = functionForMode[data->compositionMode];
     if (!func)
         return;
     uint buffer[buffer_size];
 
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
 
     // Base point for the inversed transform
     qreal ix = data->m21 * _y + data->dx;
@@ -564,7 +564,7 @@ static void blend_transformed_bilinear_argb(void *t, const QSpan *span, TextureD
     // The increment pr x in the scanline
     qreal dx = data->m11;
     qreal dy = data->m12;
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
     
     uint *target = ((uint *)t) + span->x;
     uint *image_bits = (uint *)ibits;
@@ -617,15 +617,15 @@ static void blend_transformed_bilinear_argb(void *t, const QSpan *span, TextureD
     }
 }
 
-static void blend_transformed_bilinear_tiled_argb(void *t, const QSpan *span, TextureData *data, int _y)
+static void blend_transformed_bilinear_tiled_argb(void *t, const QSpan *span, QSpanFillData *data, int _y)
 {
     CompositionFunction func = functionForMode[data->compositionMode];
     if (!func)
         return;
     uint buffer[buffer_size];
 
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
 
     // Base point for the inversed transform
     qreal ix = data->m21 * _y + data->dx;
@@ -634,7 +634,7 @@ static void blend_transformed_bilinear_tiled_argb(void *t, const QSpan *span, Te
     // The increment pr x in the scanline
     qreal dx = data->m11;
     qreal dy = data->m12;
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
 
     uint *target = ((uint *)t) + span->x;
     uint *image_bits = (uint *)ibits;
@@ -696,15 +696,15 @@ static void blend_transformed_bilinear_tiled_argb(void *t, const QSpan *span, Te
     }
 }
 
-static void blend_transformed_argb(void *t, const QSpan *span, TextureData *data, int _y)
+static void blend_transformed_argb(void *t, const QSpan *span, QSpanFillData *data, int _y)
 {
     CompositionFunction func = functionForMode[data->compositionMode];
     if (!func)
         return;
     uint buffer[buffer_size];
 
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
 
     // Base point for the inversed transform
     qreal ix = data->m21 * _y + data->dx;
@@ -713,7 +713,7 @@ static void blend_transformed_argb(void *t, const QSpan *span, TextureData *data
     // The increment pr x in the scanline
     qreal dx = data->m11;
     qreal dy = data->m12;
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
 
     uint *target = ((uint *)t) + span->x;
     uint *image_bits = (uint *)ibits;
@@ -748,15 +748,15 @@ static void blend_transformed_argb(void *t, const QSpan *span, TextureData *data
     }
 }
 
-static void blend_transformed_tiled_argb(void *t, const QSpan *span, TextureData *data, int _y)
+static void blend_transformed_tiled_argb(void *t, const QSpan *span, QSpanFillData *data, int _y)
 {
     CompositionFunction func = functionForMode[data->compositionMode];
     if (!func)
         return;
     uint buffer[buffer_size];
 
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
 
     // Base point for the inversed transform
     qreal ix = data->m21 * _y + data->dx;
@@ -765,7 +765,7 @@ static void blend_transformed_tiled_argb(void *t, const QSpan *span, TextureData
     // The increment pr x in the scanline
     qreal dx = data->m11;
     qreal dy = data->m12;
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
 
     uint *target = ((uint *)t) + span->x;
     uint *image_bits = (uint *)ibits;
@@ -804,27 +804,27 @@ static void blend_transformed_tiled_argb(void *t, const QSpan *span, TextureData
     }
 }
 
-static void blend_linear_gradient_argb(void *t, const QSpan *span, LinearGradientData *data, int y)
+static void blend_linear_gradient_argb(void *t, const QSpan *span, QSpanFillData *data, int y)
 {
     QPainter::CompositionMode mode = data->compositionMode;
-    if (mode == QPainter::CompositionMode_SourceOver && !data->alphaColor)
+    if (mode == QPainter::CompositionMode_SourceOver && !data->gradient.alphaColor)
         mode = QPainter::CompositionMode_Source;
     CompositionFunction func = functionForMode[mode];
     if (!func)
         return;
     uint buffer[buffer_size];
 
-    qreal ybase = (y - data->origin.y()) * data->yincr;
+    qreal ybase = (y - data->gradient.linear.origin.y) * data->gradient.linear.yincr;
     uint *target = ((uint *)t) + span->x;
-    qreal x1 = data->origin.x();
-    qreal tt = ybase + data->xincr * (span->x - x1);
+    qreal x1 = data->gradient.linear.origin.x;
+    qreal tt = ybase + data->gradient.linear.xincr * (span->x - x1);
 
     int length = span->len;
     while (length) {
         int l = qMin(length, buffer_size);
         for (int i = 0; i < l; ++i) {
-            buffer[i] = qt_gradient_pixel(data, tt);
-            tt += data->xincr;
+            buffer[i] = qt_gradient_pixel(&data->gradient, tt);
+            tt += data->gradient.linear.xincr;
         }
         func(target, buffer, l, span->coverage);
         target += l;
@@ -843,11 +843,11 @@ static inline double realRoots(double a, double b, double detSqrt)
     return (-b + detSqrt)/(2 * a);
 }
 
-static void blend_radial_gradient_argb(void *t, const QSpan *span, RadialGradientData *data,
+static void blend_radial_gradient_argb(void *t, const QSpan *span, QSpanFillData *data,
                                        int y)
 {
     QPainter::CompositionMode mode = data->compositionMode;
-    if (mode == QPainter::CompositionMode_SourceOver && !data->alphaColor)
+    if (mode == QPainter::CompositionMode_SourceOver && !data->gradient.alphaColor)
         mode = QPainter::CompositionMode_Source;
     CompositionFunction func = functionForMode[mode];
     if (!func)
@@ -855,18 +855,17 @@ static void blend_radial_gradient_argb(void *t, const QSpan *span, RadialGradien
     uint buffer[buffer_size];
 
     uint *target = ((uint *)t) + span->x;
-    double dx = data->center.x() - data->focal.x();
-    double dy = data->center.y() - data->focal.y();
-    double r  = data->radius;
+    double dx = data->gradient.radial.center.x - data->gradient.radial.focal.x;
+    double dy = data->gradient.radial.center.y - data->gradient.radial.focal.y;
+    double r  = data->gradient.radial.radius;
     double a = r*r - dx*dx - dy*dy;
 
-    QMatrix m = data->imatrix;
-    qreal ix = m.m21() * y + m.dx();
-    qreal iy = m.m22() * y + m.dy();
-    qreal cx = m.m11();
-    qreal cy = m.m12();
-    qreal rx = ix + cx * span->x - data->focal.x();
-    qreal ry = iy + cy * span->x - data->focal.y();
+    qreal ix = data->m21 * y + data->dx;
+    qreal iy = data->m22 * y + data->dy;
+    qreal cx = data->m11;
+    qreal cy = data->m12;
+    qreal rx = ix + cx * span->x - data->gradient.radial.focal.x;
+    qreal ry = iy + cy * span->x - data->gradient.radial.focal.y;
 
     int length = span->len;
     while (length) {
@@ -876,7 +875,7 @@ static void blend_radial_gradient_argb(void *t, const QSpan *span, RadialGradien
             double det = determinant(a, b , -(rx*rx + ry*ry));
             double s = realRoots(a, b, sqrt(det));
 
-            buffer[i] = qt_gradient_pixel(data,  s);
+            buffer[i] = qt_gradient_pixel(&data->gradient,  s);
             rx += cx;
             ry += cy;
         }
@@ -886,10 +885,10 @@ static void blend_radial_gradient_argb(void *t, const QSpan *span, RadialGradien
     }
 }
 
-static void blend_conical_gradient_argb(void *t, const QSpan *span, ConicalGradientData *data,
+static void blend_conical_gradient_argb(void *t, const QSpan *span, QSpanFillData *data,
                                         int y)
 {
-//     if (mode == QPainter::CompositionMode_SourceOver && !data->alphaColor)
+//     if (mode == QPainter::CompositionMode_SourceOver && !data->gradient.alphaColor)
 //         mode = QPainter::CompositionMode_Source;
     CompositionFunction func = functionForMode[data->compositionMode];
     if (!func)
@@ -898,21 +897,20 @@ static void blend_conical_gradient_argb(void *t, const QSpan *span, ConicalGradi
 
     uint *target = ((uint *)t) + span->x;
 
-    QMatrix m = data->imatrix;
-    qreal ix = m.m21() * y + m.dx();
-    qreal iy = m.m22() * y + m.dy();
-    qreal cx = m.m11();
-    qreal cy = m.m12();
-    qreal rx = ix + cx * span->x - data->center.x();
-    qreal ry = iy + cy * span->x - data->center.y();
+    qreal ix = data->m21 * y + data->dx;
+    qreal iy = data->m22 * y + data->dy;
+    qreal cx = data->m11;
+    qreal cy = data->m12;
+    qreal rx = ix + cx * span->x - data->gradient.radial.center.x;
+    qreal ry = iy + cy * span->x - data->gradient.radial.center.y;
 
     int length = span->len;
     while (length) {
         int l = qMin(length, buffer_size);
         for (int i = 0; i < l; ++i) {
             double angle = atan2(ry, rx);
-            angle += data->angle;
-            buffer[i] = qt_gradient_pixel(data, angle / (2*Q_PI));
+            angle += data->gradient.conical.angle;
+            buffer[i] = qt_gradient_pixel(&data->gradient, angle / (2*Q_PI));
             rx += cx;
             ry += cy;
         }
@@ -924,13 +922,13 @@ static void blend_conical_gradient_argb(void *t, const QSpan *span, ConicalGradi
 
 /************************************* Mono ************************************/
 
-static void blend_color_mono(void *t, const QSpan *span, SolidData *data, int y)
+static void blend_color_mono(void *t, const QSpan *span, QSpanFillData *data, int y)
 {
     if (!span->coverage)
         return;
     Q_ASSERT(span->coverage == 0xff);
     uchar *target = (uchar *)t;
-    uint color = data->color;
+    uint color = data->solid.color;
 
     if (color == 0xff000000) {
         for (int i = span->x; i < span->x + span->len; ++i) {
@@ -951,14 +949,14 @@ static void blend_color_mono(void *t, const QSpan *span, SolidData *data, int y)
     }
 }
 
-static void blend_mono(void *t, const QSpan *span, TextureData *data, int _y)
+static void blend_mono(void *t, const QSpan *span, QSpanFillData *data, int _y)
 {
     if (!span->coverage)
         return;
     Q_ASSERT(span->coverage == 0xff);
 
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
     int xoff = qRound(data->dx) % image_width;
     int yoff = qRound(data->dy) % image_height;
 
@@ -967,7 +965,7 @@ static void blend_mono(void *t, const QSpan *span, TextureData *data, int _y)
     if (yoff < 0)
         yoff += image_height;
 
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
     const qreal dx = (xoff + span->x)%image_width;
     const qreal dy = (_y + yoff) % image_height;
     uchar *target = (uchar *)t;
@@ -990,14 +988,14 @@ static void blend_mono(void *t, const QSpan *span, TextureData *data, int _y)
     }
 }
 
-static void blend_tiled_mono(void *t, const QSpan *span, TextureData *data, int _y)
+static void blend_tiled_mono(void *t, const QSpan *span, QSpanFillData *data, int _y)
 {
     if (!span->coverage)
         return;
     Q_ASSERT(span->coverage == 0xff);
 
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
     int xoff = qRound(data->dx) % image_width;
     int yoff = qRound(data->dy) % image_height;
 
@@ -1006,7 +1004,7 @@ static void blend_tiled_mono(void *t, const QSpan *span, TextureData *data, int 
     if (yoff < 0)
         yoff += image_height;
     
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
     const qreal dx = (xoff + span->x)%image_width;
     const qreal dy = (_y + yoff) % image_height;
     
@@ -1037,14 +1035,14 @@ static void blend_tiled_mono(void *t, const QSpan *span, TextureData *data, int 
 }
 
 
-static void blend_transformed_mono(void *t, const QSpan *span, TextureData *data, int _y)
+static void blend_transformed_mono(void *t, const QSpan *span, QSpanFillData *data, int _y)
 {
     if (!span->coverage)
         return;
     Q_ASSERT(span->coverage == 0xff);
 
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
 
     // Base point for the inversed transform
     qreal ix = data->m21 * _y + data->dx;
@@ -1053,7 +1051,7 @@ static void blend_transformed_mono(void *t, const QSpan *span, TextureData *data
     // The increment pr x in the scanline
     qreal dx = data->m11;
     qreal dy = data->m12;
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
 
     uchar *target = (uchar *)t;
     uint *image_bits = (uint *)ibits;
@@ -1087,14 +1085,14 @@ static void blend_transformed_mono(void *t, const QSpan *span, TextureData *data
     }
 }
 
-static void blend_transformed_tiled_mono(void *t, const QSpan *span, TextureData *data, int _y) 
+static void blend_transformed_tiled_mono(void *t, const QSpan *span, QSpanFillData *data, int _y) 
 {
     if (!span->coverage)
         return;
     Q_ASSERT(span->coverage == 0xff);
 
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
 
     // Base point for the inversed transform
     qreal ix = data->m21 * _y + data->dx;
@@ -1103,7 +1101,7 @@ static void blend_transformed_tiled_mono(void *t, const QSpan *span, TextureData
     // The increment pr x in the scanline
     qreal dx = data->m11;
     qreal dy = data->m12;
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
 
     uchar *target = (uchar *)t;
     uint *image_bits = (uint *)ibits;
@@ -1138,53 +1136,52 @@ static void blend_transformed_tiled_mono(void *t, const QSpan *span, TextureData
     }
 }
 
-static void blend_linear_gradient_mono(void *t, const QSpan *span, LinearGradientData *data, int y)
+static void blend_linear_gradient_mono(void *t, const QSpan *span, QSpanFillData *data, int y)
 {
     if (!span->coverage)
         return;
     Q_ASSERT(span->coverage == 0xff);
     uchar *target = (uchar *)t;
 
-    qreal ybase = (y - data->origin.y()) * data->yincr;
-    qreal x1 = data->origin.x();
-    qreal tt = ybase + data->xincr * (span->x - x1);
+    qreal ybase = (y - data->gradient.linear.origin.y) * data->gradient.linear.yincr;
+    qreal x1 = data->gradient.linear.origin.x;
+    qreal tt = ybase + data->gradient.linear.xincr * (span->x - x1);
 
     for (int x = span->x; x<span->x + span->len; x++) {
-        uint p = qt_gradient_pixel(data, tt);
+        uint p = qt_gradient_pixel(&data->gradient, tt);
         if (qGray(p) < int(qt_bayer_matrix[y & 15][x & 15]))
             target[x >> 3] |= 0x80 >> (x & 7);
         else
             target[x >> 3] &= ~(0x80 >> (x & 7));
-        tt += data->xincr;
+        tt += data->gradient.linear.xincr;
     }
 }
 
-static void blend_radial_gradient_mono(void *t, const QSpan *span, RadialGradientData *data, int y)
+static void blend_radial_gradient_mono(void *t, const QSpan *span, QSpanFillData *data, int y)
 {
     if (!span->coverage)
         return;
     Q_ASSERT(span->coverage == 0xff);
     uchar *target = (uchar *)t;
 
-    double dx = data->center.x() - data->focal.x();
-    double dy = data->center.y() - data->focal.y();
-    double r  = data->radius;
+    double dx = data->gradient.radial.center.x - data->gradient.radial.focal.x;
+    double dy = data->gradient.radial.center.y - data->gradient.radial.focal.y;
+    double r  = data->gradient.radial.radius;
     double a = r*r - dx*dx - dy*dy;
 
-    QMatrix m = data->imatrix;
-    qreal ix = m.m21() * y + m.dx();
-    qreal iy = m.m22() * y + m.dy();
-    qreal cx = m.m11();
-    qreal cy = m.m12();
-    qreal rx = ix + cx * span->x - data->focal.x();
-    qreal ry = iy + cy * span->x - data->focal.y();
+    qreal ix = data->m21 * y + data->dx;
+    qreal iy = data->m22 * y + data->dy;
+    qreal cx = data->m11;
+    qreal cy = data->m12;
+    qreal rx = ix + cx * span->x - data->gradient.radial.focal.x;
+    qreal ry = iy + cy * span->x - data->gradient.radial.focal.y;
 
     for (int x = span->x; x<span->x + span->len; x++) {
         double b  = 2*(rx*dx + ry*dy);
         double det = determinant(a, b , -(rx*rx + ry*ry));
         double s = realRoots(a, b, sqrt(det));
 
-        uint p = qt_gradient_pixel(data, s);
+        uint p = qt_gradient_pixel(&data->gradient, s);
         if (qGray(p) < int(qt_bayer_matrix[y & 15][x & 15]))
             target[x >> 3] |= 0x80 >> (x & 7);
         else
@@ -1195,7 +1192,7 @@ static void blend_radial_gradient_mono(void *t, const QSpan *span, RadialGradien
     }
 }
 
-static void blend_conical_gradient_mono(void *t, const QSpan *span, ConicalGradientData *data,
+static void blend_conical_gradient_mono(void *t, const QSpan *span, QSpanFillData *data,
                                         int y)
 {
     if (!span->coverage)
@@ -1203,18 +1200,17 @@ static void blend_conical_gradient_mono(void *t, const QSpan *span, ConicalGradi
     Q_ASSERT(span->coverage == 0xff);
     uchar *target = (uchar *)t;
 
-    QMatrix m = data->imatrix;
-    qreal ix = m.m21() * y + m.dx();
-    qreal iy = m.m22() * y + m.dy();
-    qreal cx = m.m11();
-    qreal cy = m.m12();
-    qreal rx = ix + cx * span->x - data->center.x();
-    qreal ry = iy + cy * span->x - data->center.y();
+    qreal ix = data->m21 * y + data->dx;
+    qreal iy = data->m22 * y + data->dy;
+    qreal cx = data->m11;
+    qreal cy = data->m12;
+    qreal rx = ix + cx * span->x - data->gradient.radial.center.x;
+    qreal ry = iy + cy * span->x - data->gradient.radial.center.y;
 
     for (int x = span->x; x<span->x + span->len; x++) {
         double angle = atan2(ry, rx);
-        angle += data->angle;
-        uint p = qt_gradient_pixel(data, angle / 360.0);
+        angle += data->gradient.conical.angle;
+        uint p = qt_gradient_pixel(&data->gradient, angle / 360.0);
         if (qGray(p) < int(qt_bayer_matrix[y & 15][x & 15]))
             target[x >> 3] |= 0x80 >> (x & 7);
         else
@@ -1228,13 +1224,13 @@ static void blend_conical_gradient_mono(void *t, const QSpan *span, ConicalGradi
 // ************************** Mono LSB ********************************
 
 
-static void blend_color_mono_lsb(void *t, const QSpan *span, SolidData *data, int y)
+static void blend_color_mono_lsb(void *t, const QSpan *span, QSpanFillData *data, int y)
 {
     if (!span->coverage)
         return;
     Q_ASSERT(span->coverage == 0xff);
     uchar *target = (uchar *)t;
-    uint color = data->color;
+    uint color = data->solid.color;
 
     if (color == 0xffffffff) {
         for (int i = span->x; i < span->x + span->len; ++i) {
@@ -1255,14 +1251,14 @@ static void blend_color_mono_lsb(void *t, const QSpan *span, SolidData *data, in
     }
 }
 
-static void blend_mono_lsb(void *t, const QSpan *span, TextureData *data, int _y)
+static void blend_mono_lsb(void *t, const QSpan *span, QSpanFillData *data, int _y)
 {
     if (!span->coverage)
         return;
     Q_ASSERT(span->coverage == 0xff);
 
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
     int xoff = qRound(data->dx) % image_width;
     int yoff = qRound(data->dy) % image_height;
 
@@ -1271,7 +1267,7 @@ static void blend_mono_lsb(void *t, const QSpan *span, TextureData *data, int _y
     if (yoff < 0)
         yoff += image_height;
 
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
     const qreal dx = (xoff + span->x)%image_width;
     const qreal dy = (_y + yoff) % image_height;
     
@@ -1295,14 +1291,14 @@ static void blend_mono_lsb(void *t, const QSpan *span, TextureData *data, int _y
     }
 }
 
-static void blend_tiled_mono_lsb(void *t, const QSpan *span, TextureData *data, int _y)
+static void blend_tiled_mono_lsb(void *t, const QSpan *span, QSpanFillData *data, int _y)
 {
     if (!span->coverage)
         return;
     Q_ASSERT(span->coverage == 0xff);
 
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
     int xoff = qRound(data->dx) % image_width;
     int yoff = qRound(data->dy) % image_height;
 
@@ -1311,7 +1307,7 @@ static void blend_tiled_mono_lsb(void *t, const QSpan *span, TextureData *data, 
     if (yoff < 0)
         yoff += image_height;
 
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
     const qreal dx = (xoff + span->x)%image_width;
     const qreal dy = (_y + yoff) % image_height;
     
@@ -1341,14 +1337,14 @@ static void blend_tiled_mono_lsb(void *t, const QSpan *span, TextureData *data, 
 }
 
 
-static void blend_transformed_mono_lsb(void *t, const QSpan *span, TextureData *data, int _y)
+static void blend_transformed_mono_lsb(void *t, const QSpan *span, QSpanFillData *data, int _y)
 {
     if (!span->coverage)
         return;
     Q_ASSERT(span->coverage == 0xff);
 
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
 
     // Base point for the inversed transform
     qreal ix = data->m21 * _y + data->dx;
@@ -1357,7 +1353,7 @@ static void blend_transformed_mono_lsb(void *t, const QSpan *span, TextureData *
     // The increment pr x in the scanline
     qreal dx = data->m11;
     qreal dy = data->m12;
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
 
     uchar *target = (uchar *)t;
     uint *image_bits = (uint *)ibits;
@@ -1391,14 +1387,14 @@ static void blend_transformed_mono_lsb(void *t, const QSpan *span, TextureData *
     }
 }
 
-static void blend_transformed_tiled_mono_lsb(void *t, const QSpan *span, TextureData *data, int _y)
+static void blend_transformed_tiled_mono_lsb(void *t, const QSpan *span, QSpanFillData *data, int _y)
 {
     if (!span->coverage)
         return;
     Q_ASSERT(span->coverage == 0xff);
 
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
 
     // Base point for the inversed transform
     qreal ix = data->m21 * _y + data->dx;
@@ -1407,7 +1403,7 @@ static void blend_transformed_tiled_mono_lsb(void *t, const QSpan *span, Texture
     // The increment pr x in the scanline
     qreal dx = data->m11;
     qreal dy = data->m12;
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
 
     uchar *target = (uchar *)t;
     uint *image_bits = (uint *)ibits;
@@ -1442,7 +1438,7 @@ static void blend_transformed_tiled_mono_lsb(void *t, const QSpan *span, Texture
     }
 }
 
-static void blend_linear_gradient_mono_lsb(void *t, const QSpan *span, LinearGradientData *data, 
+static void blend_linear_gradient_mono_lsb(void *t, const QSpan *span, QSpanFillData *data, 
                                            int y)
 {
     if (!span->coverage)
@@ -1450,22 +1446,22 @@ static void blend_linear_gradient_mono_lsb(void *t, const QSpan *span, LinearGra
     Q_ASSERT(span->coverage == 0xff);
     uchar *target = (uchar *)t;
 
-    qreal ybase = (y - data->origin.y()) * data->yincr;
-    qreal x1 = data->origin.x();
-    qreal tt = ybase + data->xincr * (span->x - x1);
+    qreal ybase = (y - data->gradient.linear.origin.y) * data->gradient.linear.yincr;
+    qreal x1 = data->gradient.linear.origin.x;
+    qreal tt = ybase + data->gradient.linear.xincr * (span->x - x1);
 
     for (int x = span->x; x<span->x + span->len; x++) {
-        uint p = qt_gradient_pixel(data, tt);
+        uint p = qt_gradient_pixel(&data->gradient, tt);
         if (qGray(p) < int(qt_bayer_matrix[y & 15][x & 15]))
             target[x >> 3] |= 1 << (x & 7);
         else
             target[x >> 3] &= ~(1 << (x & 7));
-        tt += data->xincr;
+        tt += data->gradient.linear.xincr;
     }
 }
 
 
-static void blend_radial_gradient_mono_lsb(void *t, const QSpan *span, RadialGradientData *data,
+static void blend_radial_gradient_mono_lsb(void *t, const QSpan *span, QSpanFillData *data,
                                            int y)
 {
     if (!span->coverage)
@@ -1473,25 +1469,24 @@ static void blend_radial_gradient_mono_lsb(void *t, const QSpan *span, RadialGra
     Q_ASSERT(span->coverage == 0xff);
     uchar *target = (uchar *)t;
 
-    double dx = data->center.x() - data->focal.x();
-    double dy = data->center.y() - data->focal.y();
-    double r  = data->radius;
+    double dx = data->gradient.radial.center.x - data->gradient.radial.focal.x;
+    double dy = data->gradient.radial.center.y - data->gradient.radial.focal.y;
+    double r  = data->gradient.radial.radius;
     double a = r*r - dx*dx - dy*dy;
 
-    QMatrix m = data->imatrix;
-    qreal ix = m.m21() * y + m.dx();
-    qreal iy = m.m22() * y + m.dy();
-    qreal cx = m.m11();
-    qreal cy = m.m12();
-    qreal rx = ix + cx * span->x - data->focal.x();
-    qreal ry = iy + cy * span->x - data->focal.y();
+    qreal ix = data->m21 * y + data->dx;
+    qreal iy = data->m22 * y + data->dy;
+    qreal cx = data->m11;
+    qreal cy = data->m12;
+    qreal rx = ix + cx * span->x - data->gradient.radial.focal.x;
+    qreal ry = iy + cy * span->x - data->gradient.radial.focal.y;
 
     for (int x = span->x; x<span->x + span->len; x++) {
         double b  = 2*(rx*dx + ry*dy);
         double det = determinant(a, b , -(rx*rx + ry*ry));
         double s = realRoots(a, b, sqrt(det));
 
-        uint p = qt_gradient_pixel(data, s);
+        uint p = qt_gradient_pixel(&data->gradient, s);
         if (qGray(p) < int(qt_bayer_matrix[y & 15][x & 15]))
             target[x >> 3] |= 1 >> (x & 7);
         else
@@ -1502,7 +1497,7 @@ static void blend_radial_gradient_mono_lsb(void *t, const QSpan *span, RadialGra
     }
 }
 
-static void blend_conical_gradient_mono_lsb(void *t, const QSpan *span, ConicalGradientData *data,
+static void blend_conical_gradient_mono_lsb(void *t, const QSpan *span, QSpanFillData *data,
                                         int y)
 {
     if (!span->coverage)
@@ -1510,18 +1505,17 @@ static void blend_conical_gradient_mono_lsb(void *t, const QSpan *span, ConicalG
     Q_ASSERT(span->coverage == 0xff);
     uchar *target = (uchar *)t;
 
-    QMatrix m = data->imatrix;
-    qreal ix = m.m21() * y + m.dx();
-    qreal iy = m.m22() * y + m.dy();
-    qreal cx = m.m11();
-    qreal cy = m.m12();
-    qreal rx = ix + cx * span->x - data->center.x();
-    qreal ry = iy + cy * span->x - data->center.y();
+    qreal ix = data->m21 * y + data->dx;
+    qreal iy = data->m22 * y + data->dy;
+    qreal cx = data->m11;
+    qreal cy = data->m12;
+    qreal rx = ix + cx * span->x - data->gradient.radial.center.x;
+    qreal ry = iy + cy * span->x - data->gradient.radial.center.y;
 
     for (int x = span->x; x<span->x + span->len; x++) {
         double angle = atan2(ry, rx);
-        angle += data->angle;
-        uint p = qt_gradient_pixel(data, angle / 360.0);
+        angle += data->gradient.conical.angle;
+        uint p = qt_gradient_pixel(&data->gradient, angle / 360.0);
         if (qGray(p) < int(qt_bayer_matrix[y & 15][x & 15]))
             target[x >> 3] |= 1 << (x & 7);
         else
@@ -1552,10 +1546,10 @@ static inline ushort qt_blend_pixel_rgb16(ushort dest, uint src, uint coverage)
 }
 
 
-static void blend_color_rgb16(void *t, const QSpan *span, SolidData *data, int)
+static void blend_color_rgb16(void *t, const QSpan *span, QSpanFillData *data, int)
 {
     ushort *target = ((ushort *)t) + span->x;
-    uint color = data->color;
+    uint color = data->solid.color;
     MASK(color, span->coverage);
 
     int alpha = qAlpha(color);
@@ -1591,12 +1585,12 @@ static void blend_color_rgb16(void *t, const QSpan *span, SolidData *data, int)
 #endif
 }
 
-static void blend_rgb16(void *t, const QSpan *span, TextureData *data, int _y)
+static void blend_rgb16(void *t, const QSpan *span, QSpanFillData *data, int _y)
 {
     //src is known to be 32 bpp
 
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
     int xoff = qRound(data->dx) % image_width;
     int yoff = qRound(data->dy) % image_height;
 
@@ -1605,7 +1599,7 @@ static void blend_rgb16(void *t, const QSpan *span, TextureData *data, int _y)
     if (yoff < 0)
         yoff += image_height;
 
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
     const qreal dx = (xoff + span->x)%image_width;
     const qreal dy = (_y + yoff) % image_height;
     
@@ -1644,10 +1638,10 @@ static void blend_rgb16(void *t, const QSpan *span, TextureData *data, int _y)
 
 }
 
-static void blend_tiled_rgb16(void *t, const QSpan *span, TextureData *data, int _y)
+static void blend_tiled_rgb16(void *t, const QSpan *span, QSpanFillData *data, int _y)
 {
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
     int xoff = qRound(data->dx) % image_width;
     int yoff = qRound(data->dy) % image_height;
 
@@ -1656,7 +1650,7 @@ static void blend_tiled_rgb16(void *t, const QSpan *span, TextureData *data, int
     if (yoff < 0)
         yoff += image_height;
 
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
     const qreal dx = (xoff + span->x)%image_width;
     const qreal dy = (_y + yoff) % image_height;
     
@@ -1692,12 +1686,12 @@ static inline uchar qt_conv_RgbTo4(QRgb c)
     return qGray(c) >> 4;
 }
 
-static void blend_color_gray4_lsb(void *t, const QSpan *span, SolidData *data, int)
+static void blend_color_gray4_lsb(void *t, const QSpan *span, QSpanFillData *data, int)
 {
     if (!span->coverage)
         return;
     Q_ASSERT(span->coverage == 0xff);
-    uint color = data->color;
+    uint color = data->solid.color;
 
     int x0 = span->x;
     int x1 = span->x + span->len;
@@ -1730,14 +1724,14 @@ static void blend_color_gray4_lsb(void *t, const QSpan *span, SolidData *data, i
 }
 
 
-static void blend_tiled_gray4_lsb(void *t, const QSpan *span, TextureData *data, int _y)
+static void blend_tiled_gray4_lsb(void *t, const QSpan *span, QSpanFillData *data, int _y)
 {
     if (!span->coverage)
         return;
     Q_ASSERT(span->coverage == 0xff);
 
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
     int xoff = qRound(data->dx) % image_width;
     int yoff = qRound(data->dy) % image_height;
 
@@ -1746,7 +1740,7 @@ static void blend_tiled_gray4_lsb(void *t, const QSpan *span, TextureData *data,
     if (yoff < 0)
         yoff += image_height;
     
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
     const qreal dx = (xoff + span->x)%image_width;
     const qreal dy = (_y + yoff) % image_height;
     
@@ -1790,7 +1784,7 @@ static void blend_tiled_gray4_lsb(void *t, const QSpan *span, TextureData *data,
 
 }
 
-static void blend_gray4_lsb(void *t, const QSpan *span, TextureData *data, int _y)
+static void blend_gray4_lsb(void *t, const QSpan *span, QSpanFillData *data, int _y)
 {
 
 
@@ -1798,8 +1792,8 @@ static void blend_gray4_lsb(void *t, const QSpan *span, TextureData *data, int _
         return;
     Q_ASSERT(span->coverage == 0xff);
     
-    int image_width = data->width;
-    int image_height = data->height;
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
     int xoff = qRound(data->dx) % image_width;
     int yoff = qRound(data->dy) % image_height;
 
@@ -1808,7 +1802,7 @@ static void blend_gray4_lsb(void *t, const QSpan *span, TextureData *data, int _
     if (yoff < 0)
         yoff += image_height;
 
-    const void *ibits = data->imageData;
+    const void *ibits = data->texture.imageData;
     const qreal dx = (xoff + span->x)%image_width;
     const qreal dy = (_y + yoff) % image_height;
     

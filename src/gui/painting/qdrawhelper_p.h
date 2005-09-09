@@ -36,30 +36,9 @@ struct GradientData;
 struct LinearGradientData;
 struct RadialGradientData;
 struct ConicalGradientData;
+struct QSpanFillData;
 
-typedef void (*BlendColor)(void *target, const QSpan *span,
-                           SolidData *data, int y);
-
-typedef void (*Blend)(void *target, const QSpan *span,
-                      TextureData *data, int y);
-
-typedef void (*BlendTransformed)(void *target, const QSpan *span,
-                                 TextureData *data, int y);
-
-typedef void (*BlendLinearGradient)(void *target,
-                                    const QSpan *span,
-                                    LinearGradientData *data,
-                                    int y);
-
-typedef void (*BlendRadialGradient)(void *target,
-                                    const QSpan *span,
-                                    RadialGradientData *data,
-                                    int y);
-
-typedef void (*BlendConicalGradient)(void *target,
-                                     const QSpan *span,
-                                     ConicalGradientData *data,
-                                     int y);
+typedef void (*Blend)(void *target, const QSpan *span, QSpanFillData *data, int y);
 
 struct DrawHelper {
     enum Layout {
@@ -76,16 +55,16 @@ struct DrawHelper {
 #endif
         Layout_Count
     };
-    BlendColor blendColor;
+    Blend blendColor;
     Blend blend;
     Blend blendTiled;
-    BlendTransformed blendTransformed;
-    BlendTransformed blendTransformedTiled;
-    BlendTransformed blendTransformedBilinear;
-    BlendTransformed blendTransformedBilinearTiled;
-    BlendLinearGradient blendLinearGradient;
-    BlendRadialGradient blendRadialGradient;
-    BlendConicalGradient blendConicalGradient;
+    Blend blendTransformed;
+    Blend blendTransformedTiled;
+    Blend blendTransformedBilinear;
+    Blend blendTransformedBilinearTiled;
+    Blend blendLinearGradient;
+    Blend blendRadialGradient;
+    Blend blendConicalGradient;
 };
 
 extern DrawHelper qDrawHelper[DrawHelper::Layout_Count];
@@ -105,81 +84,93 @@ class QRasterBuffer;
 
 struct SolidData
 {
-    QRasterBuffer *rasterBuffer;
     uint color;
-    BlendColor blendColor;
-    QPainter::CompositionMode compositionMode;
 };
 
 struct TextureData
 {
-    QRasterBuffer *rasterBuffer;
     const void *imageData;
-    int width, height;
+    int width;
+    int height;
     bool hasAlpha;
-    qreal m11, m12, m21, m22, dx, dy;   // inverse xform matrix
+};
 
-    Blend blend;
-    BlendTransformed blendFunc;
 
-    QPainter::CompositionMode compositionMode;
+struct LinearGradientData
+{
+    struct {
+        qreal x;
+        qreal y;
+    } origin;
+    struct {
+        qreal x;
+        qreal y;
+    } end;
 
-    void init(QRasterBuffer *rasterBuffer, const QImage *image, const QMatrix &matrix,
-              Blend b, BlendTransformed func);
+    qreal xincr;
+    qreal yincr;
+};
+
+struct RadialGradientData
+{
+    struct {
+        qreal x;
+        qreal y;
+    } center;
+    struct {
+        qreal x;
+        qreal y;
+    } focal;
+    qreal radius;
+};
+
+struct ConicalGradientData
+{
+    struct {
+        qreal x;
+        qreal y;
+    } center;
+    qreal angle;
 };
 
 struct GradientData
 {
-    QRasterBuffer *rasterBuffer;
     QGradient::Spread spread;
 
     int stopCount;
     qreal *stopPoints;
     uint *stopColors;
 
+    union {
+        LinearGradientData linear;
+        RadialGradientData radial;
+        ConicalGradientData conical;
+    };
+
 #define GRADIENT_STOPTABLE_SIZE 1024
     uint colorTable[GRADIENT_STOPTABLE_SIZE];
 
     uint alphaColor : 1;
-
-    void initColorTable();
 };
 
-struct LinearGradientData : public GradientData
+struct QSpanFillData
 {
-    QPointF origin;
-    QPointF end;
-
-    void init();
-
-    qreal xincr;
-    qreal yincr;
-    BlendLinearGradient blendFunc;
-
+    QRasterBuffer *rasterBuffer;
     QPainter::CompositionMode compositionMode;
-    QMatrix brushMatrix;
+    Blend blend;
+    qreal m11, m12, m21, m22, dx, dy;   // inverse xform matrix
+    union {
+        SolidData solid;
+        TextureData texture;
+        GradientData gradient;
+    };
+    void initMatrix(const QMatrix &matrix);
+    void initTexture(const QImage *image);
+    void initGradientColorTable();
+    void initLinearGradient(const QMatrix &brushMatrix);
 };
 
-struct RadialGradientData : public GradientData
-{
-    QPointF center;
-    qreal radius;
-    QPointF focal;
 
-    BlendRadialGradient blendFunc;
-    QPainter::CompositionMode compositionMode;
-    QMatrix imatrix;
-};
-
-struct ConicalGradientData : public GradientData
-{
-    QPointF center;
-    qreal angle;
-    QMatrix imatrix;
-    void init(const QPointF &center, qreal angle, const QMatrix &matrix);
-    BlendConicalGradient blendFunc;
-    QPainter::CompositionMode compositionMode;
-};
 
 inline void qt_memfill_uint(uint *dest, int length, uint color)
 {
