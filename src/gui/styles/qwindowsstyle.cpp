@@ -895,20 +895,35 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             
     switch (pe) {
     case PE_IndicatorToolBarSeparator:
-        {    
+        {
             QRect rect = opt->rect;
-            const int hOffset = 2;
-            const int vSpace = 2;
-            p->setPen(QPen(opt->palette.dark().color()));
-            p->drawLine(rect.bottomLeft().x() + hOffset, 
-                        rect.bottomLeft().y() - vSpace, 
-                        rect.topLeft().x() + hOffset, 
-                        rect.topLeft().y() + vSpace);
-            p->setPen(QPen(opt->palette.light().color()));
-            p->drawLine(rect.bottomLeft().x() + hOffset + 1, 
-                        rect.bottomLeft().y() - vSpace, 
-                        rect.topLeft().x() + hOffset + 1, 
-                        rect.topLeft().y() + vSpace);
+            const int margin = 2;
+            if(opt->state & State_Horizontal){
+                const int offset = rect.width()/2;
+                p->setPen(QPen(opt->palette.dark().color()));
+                p->drawLine(rect.bottomLeft().x() + offset, 
+                            rect.bottomLeft().y() - margin, 
+                            rect.topLeft().x() + offset, 
+                            rect.topLeft().y() + margin);
+                p->setPen(QPen(opt->palette.light().color()));
+                p->drawLine(rect.bottomLeft().x() + offset + 1, 
+                            rect.bottomLeft().y() - margin, 
+                            rect.topLeft().x() + offset + 1, 
+                            rect.topLeft().y() + margin);
+            }
+            else{ //Draw vertical separator
+                const int offset = rect.height()/2;
+                p->setPen(QPen(opt->palette.dark().color()));
+                p->drawLine(rect.topLeft().x() + margin , 
+                            rect.topLeft().y() + offset, 
+                            rect.topRight().x() - margin, 
+                            rect.topRight().y() + offset);
+                p->setPen(QPen(opt->palette.light().color()));
+                p->drawLine(rect.topLeft().x() + margin , 
+                            rect.topLeft().y() + offset + 1, 
+                            rect.topRight().x() - margin, 
+                            rect.topRight().y() + offset + 1);
+            }
         }
         break;
     case PE_FrameButtonTool:
