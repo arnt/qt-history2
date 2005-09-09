@@ -39,7 +39,6 @@
   QDnD globals
  *****************************************************************************/
 bool qt_mac_in_drag = false;
-static QPointer<QWidget> qt_mac_current_target;
 static DragReference qt_mac_current_dragRef = 0;
 
 /*****************************************************************************
@@ -401,59 +400,32 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
     //Dispatch events
     bool ret = true;
     if(kind == kEventControlDragWithin) {
-        if(q->testAttribute(Qt::WA_ForceAcceptDrops)) {
-            if(q == qt_mac_current_target) {
-                QDragMoveEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
-                                  QApplication::mouseButtons(), QApplication::keyboardModifiers());
-                QApplication::sendEvent(q, &de);
-            } else {
-                qt_mac_current_target = q;
-                QDragManager::self()->emitTargetChanged(q);
-                QDragEnterEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
-                                   QApplication::mouseButtons(), QApplication::keyboardModifiers());
-                QApplication::sendEvent(q, &de);
-                if(!de.isAccepted())
-                    ret = false;
-            }
-        }
-    } else if(kind == kEventControlDragEnter) {
-        if(!q->testAttribute(Qt::WA_ForceAcceptDrops)) {
-            qt_mac_current_target = 0;
-            QDragManager::self()->emitTargetChanged(0);
-            ret = false;
-        } else {
-            qt_mac_current_target = q;
-            QDragManager::self()->emitTargetChanged(q);
-            QDragEnterEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
-                               QApplication::mouseButtons(), QApplication::keyboardModifiers());
-            QApplication::sendEvent(q, &de);
-            if(!de.isAccepted())
-                ret = false;
-        }
-    } else if(kind == kEventControlDragLeave) {
-        if(q->testAttribute(Qt::WA_ForceAcceptDrops) && q == qt_mac_current_target) {
-            qt_mac_current_target = 0;
-            QDragLeaveEvent de;
-            QApplication::sendEvent(q, &de);
-        }
-    } else if(kind == kEventControlDragReceive) {
-        if(!q->testAttribute(Qt::WA_ForceAcceptDrops) || q != qt_mac_current_target) {
-            SetDragDropAction(dragRef, kDragActionNothing);
-            ret = false;
-        } else {
-            QDropEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
+        QDragMoveEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
                           QApplication::mouseButtons(), QApplication::keyboardModifiers());
+        QApplication::sendEvent(q, &de);
+    } else if(kind == kEventControlDragEnter) {
+        QDragManager::self()->emitTargetChanged(q);
+        QDragEnterEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
+                           QApplication::mouseButtons(), QApplication::keyboardModifiers());
+        QApplication::sendEvent(q, &de);
+        if(!de.isAccepted())
+            ret = false;
+    } else if(kind == kEventControlDragLeave) {
+        QDragLeaveEvent de;
+        QApplication::sendEvent(q, &de);
+    } else if(kind == kEventControlDragReceive) {
+        QDropEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
+                      QApplication::mouseButtons(), QApplication::keyboardModifiers());
+        if(QDragManager::self()->object)
+            QDragManager::self()->dragPrivate()->target = q;
+        QApplication::sendEvent(q, &de);
+        if(!de.isAccepted()) {
+            ret = false;
+            SetDragDropAction(dragRef, kDragActionNothing);
+        } else {
             if(QDragManager::self()->object)
-                QDragManager::self()->dragPrivate()->target = q;
-            QApplication::sendEvent(q, &de);
-            if(!de.isAccepted()) {
-                ret = false;
-                SetDragDropAction(dragRef, kDragActionNothing);
-            } else {
-                if(QDragManager::self()->object)
-                    QDragManager::self()->dragPrivate()->executed_action = de.dropAction();
-                SetDragDropAction(dragRef, qt_mac_dnd_map_qt_actions(de.dropAction()));
-            }
+                QDragManager::self()->dragPrivate()->executed_action = de.dropAction();
+            SetDragDropAction(dragRef, qt_mac_dnd_map_qt_actions(de.dropAction()));
         }
     } else {
         return false;
@@ -551,7 +523,6 @@ Qt::DropAction QDragManager::drag(QDrag *o)
 
     object = o;
     o->d_func()->target = 0;
-    qt_mac_current_target = 0;
 
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::DragDropStart);
