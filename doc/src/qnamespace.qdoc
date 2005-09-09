@@ -1178,6 +1178,17 @@
     \value Key_MediaLast
     \value Key_unknown
 
+    \value Key_Call
+    \value Key_Context1
+    \value Key_Context2
+    \value Key_Context3
+    \value Key_Context4
+    \value Key_Flip
+    \value Key_Hangup
+    \value Key_No
+    \value Key_Select
+    \value Key_Yes
+
     \sa QKeyEvent::key()
 */
 
@@ -1843,6 +1854,8 @@
     \value StatusTipRole  The data displayed in the status bar.
     \value WhatsThisRole  The data displayed for the item in "What's This?"
                           mode.
+    \value SizeHintRole   The size hint for the item that will be supplied
+                          to views.
 
     Roles describing appearance and meta data:
 
