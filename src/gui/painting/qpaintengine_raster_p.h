@@ -37,13 +37,6 @@ class QFTOutlineMapper;
 class QRasterPaintEnginePrivate;
 class QRasterBuffer;
 
-struct FillData;
-struct SolidData;
-struct TextureData;
-struct LinearGradientData;
-struct RadialGradientData;
-struct ConicalGradientData;
-
 /*******************************************************************************
  * QRasterPaintEngine
  */
@@ -64,7 +57,7 @@ public:
 
     void drawPath(const QPainterPath &path);
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
-    void fillPath(const QPainterPath &path, FillData *fillData);
+    void fillPath(const QPainterPath &path, QSpanFillData *fillData);
 
     void drawEllipse(const QRectF &rect);
 
@@ -131,11 +124,12 @@ class QRasterPaintEnginePrivate : public QPaintEnginePrivate
     Q_DECLARE_PUBLIC(QRasterPaintEngine)
 public:
 
-    FillData fillForBrush(const QBrush &brush);
-    FillData clipForFill(FillData *data);
+    void fillForBrush(const QBrush &brush, QSpanFillData *data);
+    void addClip(QSpanFillData *data);
+    void clippedFillForBrush(const QBrush &brush, QSpanFillData *data);
     void updateClip_helper(const QPainterPath &path, Qt::ClipOperation);
 
-    void drawBitmap(const QPointF &pos, const QPixmap &image, FillData *fill);
+    void drawBitmap(const QPointF &pos, const QPixmap &image, QSpanFillData *fill);
     QImage colorizeBitmap(const QImage &image, const QColor &color);
 
     QMatrix brushMatrix() const {
@@ -172,7 +166,6 @@ public:
     QPainterPath baseClip;
     QRect deviceRect;
 
-    FillData *fillData;
     QSpanFillData spanFillData;
 
     DrawHelper *drawHelper;

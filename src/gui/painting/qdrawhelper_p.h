@@ -17,18 +17,18 @@
 #include <qglobal.h>
 #include <qcolor.h>
 #include <qpainter.h>
+#ifndef QT_FT_BEGIN_HEADER
+#define QT_FT_BEGIN_HEADER
+#define QT_FT_END_HEADER
+#endif
+#include <private/qrasterdefs_p.h>
 
 /*******************************************************************************
  * QSpan
  *
  * duplicate definition of FT_Span
  */
-struct QSpan
-{
-    short x;
-    ushort len;
-    uchar coverage;
-};
+typedef QT_FT_Span QSpan;
 
 struct SolidData;
 struct TextureData;
@@ -153,10 +153,14 @@ struct GradientData
     uint alphaColor : 1;
 };
 
+typedef void (*qt_span_func)(int y, int count, QT_FT_Span *spans, void *userData);
+
 struct QSpanFillData
 {
     QRasterBuffer *rasterBuffer;
     QPainter::CompositionMode compositionMode;
+    qt_span_func callback;
+    qt_span_func unclipped_callback;
     Blend blend;
     qreal m11, m12, m21, m22, dx, dy;   // inverse xform matrix
     union {
