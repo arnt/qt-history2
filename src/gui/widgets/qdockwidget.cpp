@@ -782,15 +782,15 @@ bool QDockWidget::event(QEvent *event)
 {
     Q_D(QDockWidget);
     switch (event->type()) {
+#ifndef QT_NO_ACTION
     case QEvent::Hide:
         if (!isHidden())
-            break;
-        // fallthrough intended
-#ifndef QT_NO_ACTION
-    case QEvent::Show:
-        d->toggleViewAction->setChecked(event->type() == QEvent::Show);
-#endif
+            d->toggleViewAction->setChecked(false);
         break;
+    case QEvent::Show:
+        d->toggleViewAction->setChecked(true);
+        break;
+#endif
     case QEvent::StyleChange:
         d->updateButtons();
         break;
