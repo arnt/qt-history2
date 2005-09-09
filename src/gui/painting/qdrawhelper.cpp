@@ -532,7 +532,7 @@ static void blend_tiled_argb(int _y, int count, QT_FT_Span *spans, void *userDat
         const void *ibits = data->texture.imageData;
         const qreal dx = (xoff + spans->x)%image_width;
         const qreal dy = (_y + yoff) % image_height;
-                     
+
         uint buffer[buffer_size];
 
         uint *target = ((uint *)t) + spans->x;
@@ -584,7 +584,7 @@ static void blend_transformed_bilinear_argb(int _y, int count, QT_FT_Span *spans
         qreal dx = data->m11;
         qreal dy = data->m12;
         const void *ibits = data->texture.imageData;
-    
+
         uint *target = ((uint *)t) + spans->x;
         uint *image_bits = (uint *)ibits;
         int x = int((ix + dx * spans->x) * fixed_scale) - half_point;
@@ -1075,11 +1075,11 @@ static void blend_tiled_mono(int _y, int count, QT_FT_Span *spans, void *userDat
             xoff += image_width;
         if (yoff < 0)
             yoff += image_height;
-    
+
         const void *ibits = data->texture.imageData;
         const qreal dx = (xoff + spans->x)%image_width;
         const qreal dy = (_y + yoff) % image_height;
-    
+
         uchar *target = (uchar *)t;
         uint *image_bits = (uint *)ibits;
 
@@ -1165,7 +1165,7 @@ static void blend_transformed_mono(int _y, int count, QT_FT_Span *spans, void *u
     }
 }
 
-static void blend_transformed_tiled_mono(int _y, int count, QT_FT_Span *spans, void *userData) 
+static void blend_transformed_tiled_mono(int _y, int count, QT_FT_Span *spans, void *userData)
 {
     if (!spans->coverage)
         return;
@@ -1383,7 +1383,7 @@ static void blend_mono_lsb(int _y, int count, QT_FT_Span *spans, void *userData)
         const void *ibits = data->texture.imageData;
         const qreal dx = (xoff + spans->x)%image_width;
         const qreal dy = (_y + yoff) % image_height;
-    
+
         uchar *target = (uchar *)t;
         uint *image_bits = (uint *)ibits;
         // #### take care of non integer dx/dy
@@ -1429,7 +1429,7 @@ static void blend_tiled_mono_lsb(int _y, int count, QT_FT_Span *spans, void *use
         const void *ibits = data->texture.imageData;
         const qreal dx = (xoff + spans->x)%image_width;
         const qreal dy = (_y + yoff) % image_height;
-    
+
         uchar *target = (uchar *)t;
         uint *image_bits = (uint *)ibits;
         // #### take care of non integer dx/dy
@@ -1760,7 +1760,7 @@ static void blend_rgb16(int _y, int count, QT_FT_Span *spans, void *userData)
         const void *ibits = data->texture.imageData;
         const qreal dx = (xoff + spans->x)%image_width;
         const qreal dy = (_y + yoff) % image_height;
-    
+
         ushort *target = ((ushort *)t) + spans->x;
         uint *image_bits = (uint *)ibits;
         // #### take care of non integer dx/dy
@@ -1816,7 +1816,7 @@ static void blend_tiled_rgb16(int _y, int count, QT_FT_Span *spans, void *userDa
         const void *ibits = data->texture.imageData;
         const qreal dx = (xoff + spans->x)%image_width;
         const qreal dy = (_y + yoff) % image_height;
-    
+
         ushort *target = ((ushort *)t) + spans->x;
         uint *image_bits = (uint *)ibits;
         // #### take care of non integer dx/dy
@@ -1911,11 +1911,11 @@ static void blend_tiled_gray4_lsb(int _y, int count, QT_FT_Span *spans, void *us
             xoff += image_width;
         if (yoff < 0)
             yoff += image_height;
-    
+
         const void *ibits = data->texture.imageData;
         const qreal dx = (xoff + spans->x)%image_width;
         const qreal dy = (_y + yoff) % image_height;
-    
+
         uint *image_bits = (uint *)ibits;
         // #### take care of non integer dx/dy
         int x = qRound(dx);
@@ -1964,7 +1964,7 @@ static void blend_gray4_lsb(int _y, int count, QT_FT_Span *spans, void *userData
 
     while (count--) {
         Q_ASSERT(spans->coverage == 0xff);
-    
+
         int image_width = data->texture.width;
         int image_height = data->texture.height;
         int xoff = qRound(data->dx) % image_width;
@@ -1978,7 +1978,7 @@ static void blend_gray4_lsb(int _y, int count, QT_FT_Span *spans, void *userData
         const void *ibits = data->texture.imageData;
         const qreal dx = (xoff + spans->x)%image_width;
         const qreal dy = (_y + yoff) % image_height;
-    
+
         uint *image_bits = (uint *)ibits;
         // #### take care of non integer dx/dy
         int x = qRound(dx);
@@ -2166,7 +2166,6 @@ void qInitDrawhelperAsm()
     features = detectCPUFeatures();
 
     if (features & SSE) {
-        qDebug("using mmx code");
         functionForMode = qt_functionForMode_SSE;
         functionForModeSolid = qt_functionForModeSolid_SSE;
     }
