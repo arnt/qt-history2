@@ -43,8 +43,14 @@ that they will look and feel exactly as you intended.
 \list
 \i \l{Using a Component in Your Application}
  \tableofcontents{1 Using a Component in Your Application}
+\endlist
+
+\section1 Customizing Qt Designer
+\list
 \i \l{Creating Custom Widgets for Qt Designer}
  \tableofcontents{1 Creating Custom Widgets for Qt Designer}
+\i \l{Adding New Components to Qt Designer}
+ \tableofcontents{1 Adding New Components to Qt Designer}
 \endlist
 
 \section1 Figures and Hints
@@ -1397,6 +1403,7 @@ without having to write code themselves.
     \page designer-creating-custom-widgets.html
     \previouspage Using a Component in Your Application
     \contentspage {Qt Designer Manual}{Contents}
+    \nextpage Adding New Components to Qt Designer
 
     \title Creating Custom Widgets for Qt Designer
 
