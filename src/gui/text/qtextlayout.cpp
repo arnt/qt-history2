@@ -886,8 +886,8 @@ void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition
 
     A text line is usually created by QTextLayout::createLine().
 
-    After being created, the line can be filled using the layout()
-    function. A line has a number of attributes including the
+    After being created, the line can be filled using the setLineWidth()
+    or setNumColumns() functions. A line has a number of attributes including the
     rectangle it occupies, rect(), its coordinates, x() and y(), its
     textLength(), width() and naturalTextWidth(), and its ascent() and decent()
     relative to the text. The position of the cursor in terms of the
