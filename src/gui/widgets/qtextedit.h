@@ -248,6 +248,8 @@ protected:
 
     QTextEdit(QTextEditPrivate &dd, QWidget *parent);
 
+    virtual void scrollContentsBy(int dx, int dy);
+
 #ifdef QT3_SUPPORT
 signals:
     QT_MOC_COMPAT void currentFontChanged(const QFont &f);

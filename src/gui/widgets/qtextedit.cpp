@@ -2186,6 +2186,14 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
 
 /*!\reimp
 */
+void QTextEdit::scrollContentsBy(int dx, int dy)
+{
+    Q_D(QTextEdit);
+    d->viewport->scroll(dx, dy);
+}
+
+/*!\reimp
+*/
 QVariant QTextEdit::inputMethodQuery(Qt::InputMethodQuery property) const
 {
     Q_D(const QTextEdit);
