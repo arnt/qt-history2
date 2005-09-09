@@ -1287,7 +1287,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
         if (num_tbs > 1) {
             const ToolBarLayoutInfo &last = lineInfo.list.last();
             int target_size = pick_perp(where, tb_rect[line].size());
-            int shave_off = pick_perp(where, last.pos)
+            int shave_off = (pick_perp(where, last.pos) - pick_perp(where, tb_rect[line].topLeft()))
                             + pick_perp(where, get_first_item_sh(last.item->widget()->layout()))
                             + tb_fill - target_size;
             for (int i = num_tbs-2; shave_off > 0 && i >= 0; --i) {
