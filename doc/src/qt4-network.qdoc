@@ -141,7 +141,7 @@
     in the sendFortune() slot is executed:
 
     \skipto QByteArray block;
-    \printuntil clientConnection->close()
+    \printuntil clientConnection->disconnectFromHost()
 
     \section2 UDP Senders and Receivers
 
