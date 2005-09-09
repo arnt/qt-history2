@@ -591,6 +591,13 @@ bool QRasterPaintEngine::end()
     return true;
 }
 
+void QRasterPaintEngine::releaseBuffer()
+{
+    Q_D(QRasterPaintEngine);
+    delete d->rasterBuffer;
+    d->rasterBuffer = new QRasterBuffer;
+}
+
 QSize QRasterPaintEngine::size() const
 {
     Q_D(const QRasterPaintEngine);
@@ -626,7 +633,12 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
         HDC hdc = device->getDC();
 
         Q_ASSERT(d->rasterBuffer->hdc());
-        Q_ASSERT(hdc);
+
+        bool tmp_hdc = false;
+        if (!hdc) {
+            tmp_hdc = true;
+            hdc = GetDC(((QWidget*) device)->winId());
+        }
 
         QRegion sysClip = systemClip();
         if (sysClip.isEmpty()) {
@@ -643,7 +655,12 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
                        SRCCOPY);
             }
         }
-        device->releaseDC(hdc);
+
+        if (tmp_hdc) {
+            ReleaseDC(((QWidget *) device)->winId(), hdc);
+        } else {
+            device->releaseDC(hdc);
+        }
     } else {
 
         QImage *target = 0;
@@ -2144,7 +2161,6 @@ void QRasterBuffer::prepareBuffer(int width, int height)
     GdiFlush();
 
     SelectObject(m_hdc, m_bitmap);
-
     ReleaseDC(0, displayDC);
 }
 #elif defined(Q_WS_X11)

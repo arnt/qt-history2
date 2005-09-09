@@ -89,6 +89,8 @@ public:
     void setFlushOnEnd(bool flush);
     void flush(QPaintDevice *device, const QPoint &offset);
 
+    void releaseBuffer();
+
     QSize size() const;
 
 #ifndef QT_NO_DEBUG
@@ -156,7 +158,7 @@ public:
 #ifdef Q_WS_WIN
     QRasterBuffer *fontRasterBuffer;
 #endif
-    
+
     QPainterPath baseClip;
     QRect deviceRect;
 
