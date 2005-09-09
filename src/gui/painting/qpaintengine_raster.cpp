@@ -1453,8 +1453,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 #if defined(Q_WS_WIN)
 
     // Decide on which span func to use
-    FillData fillData = d->fillForBrush(d->pen.brush());
-    if (!fillData.blend)
+    if (!d->spanFillData.blend)
         return;
 
     if (d->txop >= QPainterPrivate::TxScale) {
@@ -1528,7 +1527,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             }
 
             // Call span func for current set of spans.
-            fillData.blend(y, spans.size(), spans.data(), fillData.data);
+            d->spanFillData.blend(y, spans.size(), spans.data(), &d->spanFillData);
         }
 
     } else {
@@ -1552,7 +1551,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             }
 
             // Call span func for current set of spans.
-            fillData.blend(y, spans.size(), spans.data(), fillData.data);
+            d->spanFillData.blend(y, spans.size(), spans.data(), &d->spanFillData);
         }
     }
 
