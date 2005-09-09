@@ -4663,6 +4663,8 @@ void qt_format_text(const QFont &font, const QRectF &_r,
             l.setPosition(QPointF(0., height));
             height += l.height();
             width = qMax(width, l.naturalTextWidth());
+            if (!br && height >= r.height())
+                break;
         }
         textLayout.endLayout();
     }
