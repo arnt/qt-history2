@@ -57,7 +57,7 @@ public:
 };
 
 
-class QWSScreenSaver
+class Q_GUI_EXPORT QWSScreenSaver
 {
 public:
     virtual ~QWSScreenSaver();
@@ -66,7 +66,7 @@ public:
 };
 
 
-class QWSWindow
+class Q_GUI_EXPORT QWSWindow
 {
     friend class QWSServer;
 public:
@@ -132,7 +132,7 @@ class QWSSoundServer;
 #ifdef QT_USE_OLD_QWS_SOUND
 class QWSSoundServerData;
 
-class QWSSoundServer : public QObject {
+class Q_GUI_EXPORT QWSSoundServer : public QObject {
     Q_OBJECT
 public:
     QWSSoundServer(QObject* parent);
@@ -156,7 +156,7 @@ private:
 class QWSMouseHandler;
 struct QWSCommandStruct;
 
-class QWSServer : public QObject
+class Q_GUI_EXPORT QWSServer : public QObject
 {
     friend class QCopChannel;
     friend class QWSMouseHandler;
@@ -482,7 +482,7 @@ private:
 extern QWSServer *qwsServer; //there can be only one
 
 #ifndef QT_NO_QWS_INPUTMETHODS
-class QWSInputMethod : public QObject
+class Q_GUI_EXPORT QWSInputMethod : public QObject
 {
     Q_OBJECT
 public:
@@ -536,7 +536,7 @@ struct QWSMouseEvent;
 
 typedef QMap<int, QWSCursor*> QWSCursorMap;
 
-class QWSClient : public QObject
+class Q_GUI_EXPORT QWSClient : public QObject
 {
     Q_OBJECT
 public:

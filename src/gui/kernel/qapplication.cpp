@@ -350,7 +350,7 @@ int QApplicationPrivate::wheel_scroll_lines = 3;                // number of lin
 bool qt_is_gui_used;
 bool Q_GUI_EXPORT qt_tab_all_widgets = true;
 bool qt_in_tab_key_event = false;
-QRect qt_maxWindowRect;
+QRect Q_GUI_EXPORT qt_maxWindowRect;
 static int drag_time = 500;
 static int drag_distance = 4;
 static Qt::LayoutDirection layout_direction = Qt::LeftToRight;
@@ -2945,7 +2945,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             }
         }
         break;
- 
+
 #ifndef QT_NO_DRAGANDDROP
     case QEvent::DragEnter:
     case QEvent::DragMove:

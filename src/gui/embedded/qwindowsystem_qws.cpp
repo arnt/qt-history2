@@ -85,7 +85,7 @@
 
 extern void qt_qws_set_max_window_rect(const QRect& r);
 
-QWSServer *qwsServer=0;
+QWSServer Q_GUI_EXPORT *qwsServer=0;
 
 class QWSServerData {
 public:
@@ -866,7 +866,7 @@ void QWSServer::clientClosed()
     if (qt_screen->clearCacheFunc)
         (qt_screen->clearCacheFunc)(qt_screen, cl->clientId());  // remove any remaining cache entries.
     cl->deleteLater();
-    
+
     exposeRegion(exposed);
 //    syncRegions();
 }
