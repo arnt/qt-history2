@@ -46,9 +46,12 @@
     \section1 Dragging
 
     To start a drag, create a QDrag object, and call its
-    start() function. The simplest way to enable dragging from a widget is
-    to reimplement the widget's \l{QWidget::mousePressEvent()}{mousePressEvent()}
-    and start a drag operation:
+    start() function. In most applications, it is a good idea to begin a drag
+    and drop operation only after a mouse button has been pressed and the
+    cursor has been moved a certain distance. However, the simplest way to
+    enable dragging from a widget is to reimplement the widget's
+    \l{QWidget::mousePressEvent()}{mousePressEvent()} and start a drag
+    and drop operation:
 
     \quotefromfile snippets/dragging/mainwindow.cpp
     \skipto mousePressEvent
@@ -83,6 +86,10 @@
     \skipto /^\}/
     \printuntil /^\}/
 
+    This particular approach uses the \l QPoint::manhattanLength() function
+    to get a rough estimate of the distance between where the mouse click
+    occurred and the current cursor position. This function trades accuracy
+    for speed, and is usually suitable for this purpose.
 
     \section1 Dropping
 
