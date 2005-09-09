@@ -445,7 +445,7 @@ QRasterPaintEngine::~QRasterPaintEngine()
 #ifdef Q_WS_WIN
     delete d->fontRasterBuffer;
 #endif
-    
+
     delete d->dashStroker;
 }
 
@@ -1398,8 +1398,8 @@ void QRasterPaintEnginePrivate::drawXLFD(const QPointF &p, const QTextItem &text
     // xlfd: draw into bitmap, convert to image and rasterize that
 
     // Decide on which span func to use
-    FillData fillData = fillForBrush(pen.brush());
-    if (!fillData.blend)
+    clippedFillForBrush(pen.brush(), &spanFillData);
+    if (!spanFillData.blend)
         return;
 
     QRectF logRect(p.x(), p.y() - ti.ascent, ti.width, ti.ascent + ti.descent);
@@ -1431,7 +1431,7 @@ void QRasterPaintEnginePrivate::drawXLFD(const QPointF &p, const QTextItem &text
         painter.drawTextItem(QPointF(0, ti.ascent), item);
     }
 
-    drawBitmap(devRect.topLeft(), bm, &fillData);
+    drawBitmap(devRect.topLeft(), bm, &spanFillData);
 }
 
 void QRasterPaintEnginePrivate::drawBox(const QPointF &, const QTextItem &)
@@ -1947,7 +1947,7 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, QSpanFillData 
             data->initMatrix(brushMatrix());
             data->initTexture(&tempImage);
             if (txop > QPainterPrivate::TxTranslate) {
-                data->blend = bilinear  
+                data->blend = bilinear
                                      ? drawHelper->blendTransformedBilinearTiled
                                      : drawHelper->blendTransformedTiled;
             } else {
