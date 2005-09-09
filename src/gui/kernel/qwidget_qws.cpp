@@ -1215,12 +1215,28 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     if (dx == 0 && dy == 0)
         return;
 
-    QRegion update(sr);
+    QWidget *tlw = window();
+    QTLWExtra *topextra = tlw->d_func()->extra->topextra;
 
-    bool fastScroll = true; //####
-    if (fastScroll && h >0 && w >0) {
-        QWidget *tlw = window();
-        QTLWExtra *topextra = tlw->d_func()->extra->topextra;
+    QPoint globalOffset = mapToGlobal(QPoint(0,0));
+    QRegion globalUpdate(sr.translated(globalOffset));
+
+    if (topextra->inPaintTransaction) {
+        topextra->dirtyRegion |= globalUpdate;
+        return;
+    }
+
+    QWSBackingStore *bs = topextra->backingStore;
+    QRect scrollRect;
+
+
+    // noOverlappingSiblings -> should not happen in real world
+
+    bool hasOwnBackground = true; //###
+    bool dirtyScrollRect = topextra->dirtyRegion.contains(r.translated(globalOffset));
+
+    bool fastScroll = !dirtyScrollRect && h >0 && w >0  && isVisible() && hasOwnBackground;
+    if (fastScroll) {
 
         QPoint bsOffset = tlw->mapFromGlobal(mapToGlobal(QPoint(0,0))) - topextra->backingStoreOffset;
 
@@ -1232,20 +1248,19 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 
         QRect bsrect(bsp1, QSize(w,h));
 
-        QWSBackingStore *bs = topextra->backingStore;
         bs->lock(true);
         bs->blt(bsrect, bsp2);
         bs->unlock();
 
-        QRect scrollRect = QRect(mapToGlobal(p2), QSize(w,h));
-        QRegion globalrgn(scrollRect);
-        tlw->d_func()->bltToScreen(globalrgn);
+        scrollRect = QRect(mapToGlobal(p2), QSize(w,h));
 
-        update -= QRect(p2, QSize(w,h));
+        //scrollRegion = scrollRect;
+
+        globalUpdate -= scrollRect;
+
     }
 
-
-    QPoint gpos = mapToGlobal(QPoint());
+    globalUpdate |= topextra->dirtyRegion;
 
     if (!valid_rect && children().size() > 0) {        // scroll children
 //        d->setChildrenAllocatedDirty();
@@ -1265,9 +1280,16 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         }
     }
 
-    repaint(update);
-}
+//copied from repaint:
+    if (isVisible()) {
+        bs->lock(true);
+        tlw->d_func()->paintHierarchy(globalUpdate); //optimizable...
+        bs->unlock();
+        tlw->d_func()->bltToScreen(globalUpdate+scrollRect);
 
+        topextra->dirtyRegion = QRegion();
+    }
+}
 
 int QWidget::metric(PaintDeviceMetric m) const
 {
