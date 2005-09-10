@@ -3,7 +3,7 @@ DESTDIR       = $$QT_BUILD_TREE/bin
 HEADERS       = displayshape.h \
                 displaywidget.h \
                 launcher.h
-QT            += xml
+QT            += xml network
 RESOURCES     = qtdemo.qrc
 SOURCES       = displayshape.cpp \
                 displaywidget.cpp \
