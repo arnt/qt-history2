@@ -52,7 +52,7 @@ static const char * const qt_shortMonthNames[] = {
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 static const char * const qt_longMonthNames[] = {
-    "January", "February", "Mars", "April", "May", "June",
+    "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December" };
 static const char * const qt_shortDayNames[] = {
     "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
