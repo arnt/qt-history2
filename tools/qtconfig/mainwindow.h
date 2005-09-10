@@ -74,5 +74,4 @@ private:
     bool modified;
 };
 
-
 #endif // MAINWINDOW_H

@@ -172,5 +172,3 @@ void ColorButton::paintEvent(QPaintEvent *)
     QPainter p(this);
     drawButton(&p);
 }
-
-

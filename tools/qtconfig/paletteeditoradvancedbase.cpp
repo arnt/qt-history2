@@ -1,7 +1,21 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "paletteeditoradvancedbase.h"
+#include "colorbutton.h"
 
 #include <qvariant.h>
-#include "colorbutton.h"
+
 /*
  *  Constructs a PaletteEditorAdvancedBase as a child of 'parent', with the
  *  name 'name' and widget flags set to 'f'.
@@ -96,4 +110,3 @@ void PaletteEditorAdvancedBase::paletteSelected(int)
 {
     qWarning("PaletteEditorAdvancedBase::paletteSelected(int): Not implemented yet");
 }
-

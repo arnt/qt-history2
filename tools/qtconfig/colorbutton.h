@@ -38,16 +38,13 @@ public:
     void dragMoveEvent(QDragMoveEvent *);
     void dropEvent(QDropEvent *);
 
-
 signals:
     void colorChanged(const QColor &);
-
 
 protected:
     void paintEvent(QPaintEvent *);
     void drawButton(QPainter *);
     void drawButtonLabel(QPainter *);
-
 
 private slots:
     void changeColor();
@@ -58,6 +55,5 @@ private:
     QPoint presspos;
     bool mousepressed;
 };
-
 
 #endif // COLORBUTTON_H

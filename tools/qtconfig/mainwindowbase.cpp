@@ -1,11 +1,24 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "mainwindowbase.h"
+#include "colorbutton.h"
+#include "previewframe.h"
 
 #include <qvariant.h>
 #include <qimage.h>
 #include <qpixmap.h>
 
-#include "colorbutton.h"
-#include "previewframe.h"
 /*
  *  Constructs a MainWindowBase as a child of 'parent', with the
  *  name 'name' and widget flags set to 'f'.
@@ -200,4 +213,3 @@ void MainWindowBase::upSubstitute()
 {
     qWarning("MainWindowBase::upSubstitute(): Not implemented yet");
 }
-
