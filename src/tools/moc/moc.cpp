@@ -728,7 +728,7 @@ void Moc::generate(FILE *out)
         }
     }
     if (classList.size() && classList.first().classname == "Qt")
-        fprintf(out, "#include <QObject>\n");
+        fprintf(out, "#include <QtCore/QObject>\n");
 
     fprintf(out, "#if !defined(Q_MOC_OUTPUT_REVISION)\n"
             "#error \"The header file '%s' doesn't include <QObject>.\"\n", (const char *)fn);
