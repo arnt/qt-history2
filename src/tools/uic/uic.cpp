@@ -105,7 +105,7 @@ void Uic::writeCopyrightHeader(DomUI *ui)
 {
     QString comment = ui->elementComment();
     if (comment.size())
-        out << "/*\n" << comment << "\n*/\n";
+        out << "/*\n" << comment << "\n*/\n\n";
 }
 
 bool Uic::write(QIODevice *in)
