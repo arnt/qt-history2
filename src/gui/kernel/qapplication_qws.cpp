@@ -478,19 +478,23 @@ void QWSDisplay::Data::init()
         // QWS client
         csocket->connectToLocalFile(pipe);
 
-        QTransportAuth::getInstance()->authToSocket(
+        QWSIdentifyCommand cmd;
+        cmd.setId(appName);
+#ifndef QT_NO_QWS_MULTIPROCESS
+        QBuffer authBuf;
+        authBuf.open( QIODevice::WriteOnly );
+        cmd.write( &authBuf );
+        authBuf.close();
+        authBuf.open( QIODevice::ReadOnly );
+        int len = authBuf.bytesAvailable();
+        char *aptr = authBuf.peek( len ).data();
+        if  (csocket)
+            QTransportAuth::getInstance()->authToSocket(
                 QTransportAuth::UnixStreamSock |
                 QTransportAuth::Trusted |
                 QTransportAuth::Connection,
                 csocket->socketDescriptor(),
-                "auth",
-                5 );
-
-        QWSIdentifyCommand cmd;
-        cmd.setId(appName);
-#ifndef QT_NO_QWS_MULTIPROCESS
-        if  (csocket)
-            cmd.write(csocket);
+                aptr, len );
         else
 #endif
             qt_server_enqueue(&cmd);

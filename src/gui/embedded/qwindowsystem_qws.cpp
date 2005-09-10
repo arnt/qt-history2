@@ -879,22 +879,93 @@ void QWSServer::deleteWindowsLater()
 
 #endif //QT_NO_QWS_MULTIPROCESS
 
+/**
+  \internal
+  The \a csocket has pending authentication information.  Pull it off the
+  socket, and check if the transport is valid.
+
+  For unreliable transports this also means checking the payLoad of the
+  message as well, against a message authentication code.
+
+  For reliable transports the payload is ignored and the shared secret
+  alone is checked.
+*/
+void QWSClient::doAuth( QWSSocket *csocket, QWSCommand *&command, int &command_type )
+{
+    AuthMessage msg;
+    qint64 rs = csocket->read( reinterpret_cast<char *>(msg.authData),
+            sizeof(msg.authData) );
+#ifdef QTRANSPORTAUTH_DEBUG
+    qDebug( "bytes read of auth: %i - payload length %u, buffer len: %u",
+            (int)rs, msg.hdr.len, sizeof(msg.authData));
+#endif
+    if ( rs < sizeof(msg.authData) )
+        if ( rs == -1 )
+            qWarning( "error reading transport auth data %s", strerror( errno ));
+        else
+            qWarning( "short read on auth data" );
+    rs = csocket->read( reinterpret_cast<char *>(msg.payLoad), msg.hdr.len );
+    if ( rs < msg.hdr.len )
+        if ( rs == -1 )
+            qWarning( "error reading transport auth payload %s", strerror( errno ));
+        else
+            qWarning( "short read on auth payload" );
+#ifdef QTRANSPORTAUTH_DEBUG
+    qDebug( "payload read for auth: %i - payload length %u, buffer len: %u",
+            (int)rs, msg.hdr.len, sizeof(msg.authData));
+#endif
+    QTransportAuth::Result r = QTransportAuth::Allow;
+    r = QTransportAuth::getInstance()->authFromSocket(
+            QTransportAuth::UnixStreamSock, socket(),
+            reinterpret_cast<char *>(&msg), AUTH_SPACE(msg.hdr.len) );
+
+    QBuffer abuf;
+    abuf.setData( msg.payLoad );
+    abuf.open( QIODevice::ReadOnly );
+    command_type = qws_read_uint( &abuf );
+
+    if (command_type>=0) {
+        command = QWSCommand::factory(command_type);
+    }
+    if ( command )
+        command->read( &abuf );
+
+    if (( r & QTransportAuth::StatusMask ) == QTransportAuth::Deny )
+    {
+        qWarning( "Transport not valid" );
+#ifdef QTRANSPORTAUTH_DEBUG
+        qDebug() << "command denied " << command->type;
+#endif
+        delete command;
+        command = 0;
+    }
+}
+
 
 QWSCommand* QWSClient::readMoreCommand()
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
-    if (csocket) {
+    if (csocket)
+    {
         // read next command
-        if (!command) {
+        if (!command)
+        {
             int command_type = qws_read_uint(csocket);
 
-            if (command_type>=0) {
+            if ( command_type >= 0 )
                 command = QWSCommand::factory(command_type);
+
+            // authentication header detected, and this is not
+            // a message from myself
+            if ( command_type == magicInt && socket() != -1 )
+            {
+                doAuth( csocket, command, command_type );
             }
         }
-
-        if (command) {
-            if (command->read(csocket)) {
+        if (command)
+        {
+            if (command->read(csocket))
+            {
                 // Finished reading a whole command.
                 QWSCommand* result = command;
                 command = 0;
@@ -911,7 +982,6 @@ QWSCommand* QWSClient::readMoreCommand()
         QList<QWSCommand*> *serverQueue = qt_get_server_queue();
         return serverQueue->isEmpty() ? 0 : serverQueue->takeFirst();
     }
-
 }
 
 
@@ -942,22 +1012,6 @@ void QWSServer::doClient()
 
 void QWSServer::doClient(QWSClient *client)
 {
-
-    QTransportAuth::Result r = QTransportAuth::Allow;
-    if ( client->socket() != -1 ) // server socket, no auth for that
-        r = QTransportAuth::getInstance()->authFromSocket(
-                QTransportAuth::UnixStreamSock, client->socket() );
-    if (( r & QTransportAuth::StatusMask ) == QTransportAuth::Deny )
-    {
-        qWarning( "Transport not valid" );
-#ifdef QTRANSPORTAUTH_DEBUG
-        QWSCommand* command = client->readMoreCommand();
-        qDebug( "command denied " );
-        qDebug() << command->type;
-#endif
-        return;
-    }
-
     QWSCommand* command=client->readMoreCommand();
 
     while (command) {

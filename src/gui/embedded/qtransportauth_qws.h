@@ -18,6 +18,8 @@
 #include <QtCore/qhash.h>
 #include <QtCore/qstring.h>
 
+#include <qdebug.h>
+
 QT_MODULE(Gui)
 
 // Uncomment to generate debug output
@@ -31,18 +33,17 @@ QT_MODULE(Gui)
 #define MAGIC_BYTES 4
 #define MAX_PROG_ID 255
 
+// Number of bytes of each message to authenticate.  Just need to ensure
+// that the command at the beginning hasn't been tampered with.  This value
+// does not matter for trusted transports.
+#define AMOUNT_TO_AUTHENTICATE 200
+
 /**
   \internal
   \class AuthCookie
   Struct to carry process authentication key and id
 */
 #define HEADER_LEN 24
-struct AuthCookie
-{
-    unsigned char key[KEY_LEN];
-    unsigned char pad;
-    unsigned char progId;
-};
 
 /**
   \macro AUTH_ID
@@ -65,7 +66,9 @@ struct AuthCookie
 #define AUTH_ID(k) ((unsigned char)(k[KEY_LEN]))
 #define AUTH_KEY(k) ((unsigned char *)(k))
 
-const unsigned char magic[MAGIC_BYTES] = { 0xBA, 0xD4, 0xF7, 0x38 };
+// must be a largish -ve number under any endianess when cast as an int
+const unsigned char magic[MAGIC_BYTES] = { 0xBA, 0xD4, 0xD4, 0xBA };
+const int magicInt = 0xBAD4D4BA;
 
 #define AUTH_DATA(x) (unsigned char *)((x) + HEADER_LEN)
 #define AUTH_SPACE(x) ((x) + HEADER_LEN)
@@ -75,6 +78,48 @@ const unsigned char magic[MAGIC_BYTES] = { 0xBA, 0xD4, 0xF7, 0x38 };
 #define SEQ_IDX 23
 
 #define KEYFILE "keyfile"
+
+/**
+  Header in above format, less the magic bytes.
+  Useful for reading off the socket
+*/
+struct AuthHeader
+{
+    unsigned char len;
+    unsigned char pad;
+    unsigned char digest[KEY_LEN];
+    unsigned char id;
+    unsigned char seq;
+};
+
+/**
+  Header in a form suitable for authentication routines
+*/
+struct AuthMessage
+{
+    AuthMessage()
+    {
+        ::memset( authData, 0, sizeof(authData) );
+        ::memcpy( pad_magic, magic, MAGIC_BYTES );
+    }
+    unsigned char pad_magic[MAGIC_BYTES];
+    union {
+        AuthHeader hdr;
+        char authData[sizeof(AuthHeader)];
+    };
+    char payLoad[AMOUNT_TO_AUTHENTICATE];
+};
+
+/**
+  Auth data as written to the key file
+*/
+struct AuthCookie
+{
+    unsigned char key[KEY_LEN];
+    unsigned char pad;
+    unsigned char progId;
+};
+
 
 /**
   \class QTransportAuth
@@ -159,7 +204,10 @@ public:
         }
         const char *error() const
         {
-            return ( errorStrings[(int)( status & ErrMask )] );
+            if  (( status & ErrMask ) <= FailMatch )
+                return ( errorStrings[(int)( status & ErrMask )] );
+            else
+                return "Success";
         }
     };
 
@@ -167,9 +215,10 @@ public:
     bool addAuth( char *msg, int msgLen, Data d );
     bool checkAuth( char *msg, int msgLen, Data &d );
     void setKeyFilePath( const QString & );
+    QString keyFilePath() const { return m_keyFilePath; }
     void setProcessKey( const char * );
 
-    Result authFromSocket( unsigned char properties, int descriptor );
+    Result authFromSocket( unsigned char properties, int descriptor, char *msg, int len );
     void authToSocket( unsigned char properties, int descriptor, char *msg, int len );
 
     bool trusted( QTransportAuth::Data );
@@ -190,7 +239,7 @@ private:
     const unsigned char *getClientKey( unsigned char progId );
 
     bool keyInitialised;
-    QString keyFilePath;
+    QString m_keyFilePath;
     AuthCookie authKey;
     QList<Data> data;
 };

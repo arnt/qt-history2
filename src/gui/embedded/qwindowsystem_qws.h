@@ -568,6 +568,8 @@ private slots:
     void closeHandler();
     void errorHandler();
 private:
+    void doAuth( QWSSocket *, QWSCommand *&, int & );
+
     int socketDescriptor;
 #ifndef QT_NO_QWS_MULTIPROCESS
     QWSSocket *csocket;

@@ -302,7 +302,7 @@ extern QWSServer *qwsServer;
  *********************************************************************/
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-void qws_write_command(QWSSocket *socket, int type, char *simpleData, int simpleLen,
+void qws_write_command(QIODevice *socket, int type, char *simpleData, int simpleLen,
                        char *rawData, int rawLen)
 {
 #ifdef QWSCOMMAND_DEBUG
@@ -322,7 +322,7 @@ void qws_write_command(QWSSocket *socket, int type, char *simpleData, int simple
         socket->write(rawData, rawLen);
 }
 
-bool qws_read_command(QWSSocket *socket, char *&simpleData, int &simpleLen,
+bool qws_read_command(QIODevice *socket, char *&simpleData, int &simpleLen,
                       char *&rawData, int &rawLen, int &bytesRead)
 {
     if (rawLen == -1) {
@@ -379,7 +379,7 @@ QWSProtocolItem::~QWSProtocolItem() {
 }
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-void QWSProtocolItem::write(QWSSocket *s) {
+void QWSProtocolItem::write(QIODevice *s) {
 #ifdef QWSCOMMAND_DEBUG
     if (!qwsServer)
         qDebug() << "QWSProtocolItem::write sending type " << static_cast<QWSCommand::Type>(type);
@@ -389,7 +389,7 @@ void QWSProtocolItem::write(QWSSocket *s) {
     qws_write_command(s, type, simpleDataPtr, simpleLen, rawDataPtr, rawLen);
 }
 
-bool QWSProtocolItem::read(QWSSocket *s) {
+bool QWSProtocolItem::read(QIODevice *s) {
 #ifdef QWSCOMMAND_DEBUG
     QLatin1String reread( (rawLen == -1) ? "" : "REREAD");
     if (qwsServer)

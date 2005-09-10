@@ -24,7 +24,7 @@ QT_MODULE(Gui)
  *
  ********************************************************************/
 #ifndef QT_NO_QWS_MULTIPROCESS
-inline int qws_read_uint(QWSSocket *socket)
+inline int qws_read_uint(QIODevice *socket)
 {
     if (!socket || socket->bytesAvailable() < (int)sizeof(int))
         return -1;
@@ -35,7 +35,7 @@ inline int qws_read_uint(QWSSocket *socket)
     return i;
 }
 
-inline void qws_write_uint(QWSSocket *socket, int i)
+inline void qws_write_uint(QIODevice *socket, int i)
 {
     if (!socket)
         return;

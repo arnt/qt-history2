@@ -34,8 +34,8 @@ class QRect;
  *
  *********************************************************************/
 #ifndef QT_NO_QWS_MULTIPROCESS
-void qws_write_command(QWSSocket *socket, int type, char *simpleData, int simpleLen, char *rawData, int rawLen);
-bool qws_read_command(QWSSocket *socket, char *&simpleData, int &simpleLen, char *&rawData, int &rawLen, int &bytesRead);
+void qws_write_command(QIODevice *socket, int type, char *simpleData, int simpleLen, char *rawData, int rawLen);
+bool qws_read_command(QIODevice *socket, char *&simpleData, int &simpleLen, char *&rawData, int &rawLen, int &bytesRead);
 #endif
 /*********************************************************************
  *
@@ -61,8 +61,8 @@ struct QWSProtocolItem
 
     // functions
 #ifndef QT_NO_QWS_MULTIPROCESS
-    void write(QWSSocket *s);
-    bool read(QWSSocket *s);
+    void write(QIODevice *s);
+    bool read(QIODevice *s);
 #endif
     void copyFrom(const QWSProtocolItem *item);
 
