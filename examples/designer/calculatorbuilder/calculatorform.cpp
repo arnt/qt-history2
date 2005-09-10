@@ -1,4 +1,4 @@
-#include <QtGui/QtGui>
+#include <QtGui>
 #include <QtDesigner/QFormBuilder>
 
 #include "calculatorform.h"

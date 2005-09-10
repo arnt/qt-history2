@@ -1,7 +1,7 @@
 #ifndef LOCALEWIDGET_H
 #define LOCALEWIDGET_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 class LocaleModel;
 class QTableView;

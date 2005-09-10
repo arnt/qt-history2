@@ -27,8 +27,8 @@
 ****************************************************************************/
 #include "peerwireclient.h"
 
-#include <QtCore/QListIterator>
-#include <QtCore/QTimerEvent>
+#include <QListIterator>
+#include <QTimerEvent>
 
 static const int ClientTimeout = 60 * 1000;
 static const int ConnectTimeout = 60 * 1000;

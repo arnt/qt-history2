@@ -25,15 +25,16 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef PEERWIRECLIENT_H
 #define PEERWIRECLIENT_H
 
 class QHostAddress;
 class QTimerEvent;
 
-#include <QtCore/QBitArray>
-#include <QtCore/QList>
-#include <QtNetwork/QTcpSocket>
+#include <QBitArray>
+#include <QList>
+#include <QTcpSocket>
 
 class PeerWireClient : public QTcpSocket
 {

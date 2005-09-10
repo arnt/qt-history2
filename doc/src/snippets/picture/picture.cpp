@@ -1,4 +1,4 @@
-#include <QtGui/QtGui>
+#include <QtGui>
 
 void myProcessing(const QString &)
 {

@@ -25,17 +25,18 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef TRACKERCLIENT_H
 #define TRACKERCLIENT_H
 
-#include <QtCore/QByteArray>
-#include <QtCore/QList>
-#include <QtCore/QObject>
-#include <QtNetwork/QHostAddress>
-#include <QtNetwork/QHttp>
-
 #include "metainfo.h"
 #include "torrentclient.h"
+
+#include <QByteArray>
+#include <QList>
+#include <QObject>
+#include <QHostAddress>
+#include <QHttp>
 
 class TorrentClient;
 

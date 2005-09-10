@@ -1,4 +1,4 @@
-#include <QtGui/QtGui>
+#include <QtGui>
 #include <cmath>
 
 class MyWidget : public QWidget

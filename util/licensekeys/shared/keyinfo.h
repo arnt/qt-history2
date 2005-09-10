@@ -1,8 +1,8 @@
 #ifndef KEYINFO_H
 #define KEYINFO_H
 
-#include <QtCore/QDate>
-#include <QtCore/QByteArray>
+#include <QDate>
+#include <QByteArray>
 
 // Products
 enum {

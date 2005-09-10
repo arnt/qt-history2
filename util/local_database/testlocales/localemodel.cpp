@@ -1,8 +1,8 @@
-#include <QtCore/QLocale>
-#include <QtCore/QDate>
-#include <QtCore/qdebug.h>
-
 #include "localemodel.h"
+
+#include <QLocale>
+#include <QDate>
+#include <qdebug.h>
 
 static const int g_model_cols = 5;
 

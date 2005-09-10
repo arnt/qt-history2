@@ -1,9 +1,9 @@
 #ifndef LOCALEMODEL_H
 #define LOCALEMODEL_H
 
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QList>
-#include <QtCore/QVariant>
+#include <QAbstractItemModel>
+#include <QList>
+#include <QVariant>
 
 class LocaleModel : public QAbstractItemModel
 {

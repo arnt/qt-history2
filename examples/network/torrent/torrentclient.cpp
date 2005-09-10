@@ -27,6 +27,7 @@
 **
 **
 ****************************************************************************/
+
 #include "filemanager.h"
 #include "metainfo.h"
 #include "torrentclient.h"
@@ -34,8 +35,8 @@
 #include "peerwireclient.h"
 #include "ratecontroller.h"
 
-#include <QtCore/QtCore>
-#include <QtNetwork/QTcpServer>
+#include <QtCore>
+#include <QTcpServer>
 
 extern "C" {
 #include "3rdparty/sha1.h"

@@ -1,8 +1,8 @@
-#include <QtGui/QTableView>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QItemDelegate>
-#include <QtGui/QItemEditorFactory>
-#include <QtGui/QDoubleSpinBox>
+#include <QTableView>
+#include <QVBoxLayout>
+#include <QItemDelegate>
+#include <QItemEditorFactory>
+#include <QDoubleSpinBox>
 
 #include "localewidget.h"
 #include "localemodel.h"

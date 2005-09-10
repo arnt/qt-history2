@@ -25,6 +25,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef FILEMANAGER_H
 #define FILEMANAGER_H
 
@@ -32,11 +33,11 @@ class QByteArray;
 class QFile;
 class QTimerEvent;
 
-#include <QtCore/QBitArray>
-#include <QtCore/QList>
-#include <QtCore/QMutex>
-#include <QtCore/QThread>
-#include <QtCore/QWaitCondition>
+#include <QBitArray>
+#include <QList>
+#include <QMutex>
+#include <QThread>
+#include <QWaitCondition>
 
 #include "metainfo.h"
 

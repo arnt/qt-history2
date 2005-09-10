@@ -25,11 +25,12 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef TORRENTCLIENT_H
 #define TORRENTCLIENT_H
 
-#include <QtCore/QBitArray>
-#include <QtNetwork/QHostAddress>
+#include <QBitArray>
+#include <QHostAddress>
 
 class MetaInfo;
 class PeerWireClient;

@@ -25,12 +25,13 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef RATECONTROLLER_H
 #define RATECONTROLLER_H
 
-#include <QtCore/QObject>
-#include <QtCore/QSet>
-#include <QtCore/QTime>
+#include <QObject>
+#include <QSet>
+#include <QTime>
 
 class PeerWireClient;
 

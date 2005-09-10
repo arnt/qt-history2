@@ -1,6 +1,6 @@
 #include "keyinfo.h"
 
-#include <QtCore/QList>
+#include <QList>
 
 #include <stdio.h>
 

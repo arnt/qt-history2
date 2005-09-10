@@ -25,11 +25,12 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "bencodeparser.h"
 #include "torrentclient.h"
 #include "trackerclient.h"
 
-#include <QtCore/QtCore>
+#include <QtCore>
 
 quint32 qntoh(quint32 source)
 {

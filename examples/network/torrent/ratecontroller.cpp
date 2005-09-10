@@ -28,7 +28,7 @@
 #include "peerwireclient.h"
 #include "ratecontroller.h"
 
-#include <QtCore/QtCore>
+#include <QtCore>
 
 Q_GLOBAL_STATIC(RateController, rateController)
 

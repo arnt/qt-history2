@@ -25,13 +25,14 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QtCore/QList>
-#include <QtCore/QStringList>
-#include <QtGui/QMainWindow>
-#include <QtGui/QTreeWidget>
+#include <QList>
+#include <QStringList>
+#include <QMainWindow>
+#include <QTreeWidget>
 
 #include "torrentclient.h"
 
