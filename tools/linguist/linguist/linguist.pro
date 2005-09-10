@@ -1,6 +1,6 @@
 TEMPLATE = app
 LANGUAGE = C++
-QT += xml
+QT += xml network
 
 CONFIG        += qt warn_on assistant
 build_all:!build_pass {
