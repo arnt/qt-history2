@@ -437,7 +437,7 @@ void QPainterPrivate::updateState(QPainterState *newState)
     \i backgroundMode() is \c Opaque or \c Transparent, i.e. whether
     background() is used or not.
 
-    \i backgroundColor() only applies when backgroundMode() is Opaque
+    \i background() only applies when backgroundMode() is Opaque
     and pen() is a stipple. In that case, it describes the color of
     the background pixels in the stipple.
 
@@ -3863,12 +3863,12 @@ void QPainter::drawPicture(const QPointF &p, const QPicture &picture)
     \overload
 
     Erases the area inside the rectangle \a rect. Equivalent to
-    \c{fillRect(rect, backgroundColor())}.
+    \c{fillRect(rect, background())}.
 */
 
 /*!
     Erases the area inside the rectangle \a r. Equivalent to
-    \c{fillRect(r, backgroundColor())}.
+    \c{fillRect(r, background())}.
 */
 void QPainter::eraseRect(const QRectF &r)
 {
@@ -3888,7 +3888,7 @@ void QPainter::eraseRect(const QRectF &r)
   \overload
 
     Erases the area inside \a x, \a y, \a w, \a h. Equivalent to
-    \c{fillRect(x, y, w, h, backgroundColor())}.
+    \c{fillRect(x, y, w, h, background())}.
 */
 
 
