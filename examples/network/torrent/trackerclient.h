@@ -29,14 +29,14 @@
 #ifndef TRACKERCLIENT_H
 #define TRACKERCLIENT_H
 
-#include "metainfo.h"
-#include "torrentclient.h"
-
 #include <QByteArray>
 #include <QList>
 #include <QObject>
 #include <QHostAddress>
 #include <QHttp>
+
+#include "metainfo.h"
+#include "torrentclient.h"
 
 class TorrentClient;
 
@@ -49,8 +49,6 @@ public:
     void start(const MetaInfo &info);
     void stop();
 
-    inline int leechCount() const { return leechers; }
-    inline int seedCount() const { return seeders; }
     inline qint64 uploadCount() const { return uploadedBytes; }
     inline qint64 downloadCount() const { return downloadedBytes; }
     inline void setUploadCount(qint64 bytes) { uploadedBytes = bytes; }
@@ -61,8 +59,6 @@ signals:
 
     void failure(const QString &reason);
     void warning(const QString &message);
-    void leechCountUpdated(int leechers);
-    void seedCountUpdated(int seeders);
     void peerListUpdated(const QList<TorrentPeer> &peerList);
 
     void uploadCountUpdated(qint64 newUploadCount);
@@ -85,8 +81,6 @@ private:
     QHttp http;
     MetaInfo metaInfo;
     QByteArray trackerId;
-    int seeders;
-    int leechers;
     QList<TorrentPeer> peers;
     qint64 uploadedBytes;
     qint64 downloadedBytes;

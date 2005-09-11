@@ -35,12 +35,13 @@
 class MetaInfo;
 class PeerWireClient;
 class TorrentClientPrivate;
-struct TorrentPeer;
+class TorrentPeer;
 class TorrentPiece;
 template<typename T> class QList;
 class QTimerEvent;
 
-struct TorrentPeer {
+class TorrentPeer {
+public:
     QHostAddress address;
     quint16 port;
     QString id;
@@ -54,9 +55,9 @@ struct TorrentPeer {
 
     inline bool operator==(const TorrentPeer &other)
     {
-	return port == other.port
-	    && address == other.address
-	    && id == other.id;
+        return port == other.port
+            && address == other.address
+            && id == other.id;
     }
 };
 
@@ -65,21 +66,23 @@ class TorrentClient : public QObject
     Q_OBJECT
 public:
     enum State {
-	Idle,
-	Paused,
-	Stopping,
-	Preparing,
-	Searching,
+        Idle,
+        Paused,
+        Stopping,
+        Preparing,
+        Searching,
         Connecting,
-	Downloading,
-	Seeding
+        WarmingUp,
+        Downloading,
+        Endgame,
+        Seeding
     };
     enum Error {
-	UnknownError,
-	TorrentParseError,
-	InvalidTrackerError,
+        UnknownError,
+        TorrentParseError,
+        InvalidTrackerError,
         FileError,
-	ServerError
+        ServerError
     };
 
     TorrentClient(QObject *parent = 0);
@@ -104,10 +107,8 @@ public:
     qint64 downloadedBytes() const;
     void setUploadedBytes(qint64 bytes);
     qint64 uploadedBytes() const;
-    int visitedPeerCount() const;
     int connectedPeerCount() const;
     int seedCount() const;
-    int leechCount() const;
    
     // Accessors for the tracker
     QByteArray peerId() const;
@@ -139,6 +140,7 @@ public slots:
     void start();
     void stop();
     void setPaused(bool paused);
+    void setupIncomingConnection(PeerWireClient *client);
 
 protected slots:
     void timerEvent(QTimerEvent *event);
@@ -153,7 +155,6 @@ private slots:
     // Connection handling
     void connectToPeers();
     QList<TorrentPeer *> weighedFreePeers() const;
-    void setupIncomingConnection(PeerWireClient *client);
     void setupOutgoingConnection();
     void initializeConnection(PeerWireClient *client);
     void removeClient();
@@ -162,20 +163,19 @@ private slots:
     void blockReceived(int pieceIndex, int begin, const QByteArray &data);
     void peerWireBytesWritten(qint64 bytes);
     void peerWireBytesReceived(qint64 bytes);
-    int blocksInProgressForPiece(const TorrentPiece *piece) const;
     int blocksLeftForPiece(const TorrentPiece *piece) const;
 
     // Scheduling
     void scheduleUploads();
     void scheduleDownloads();
     void schedulePieceForClient(PeerWireClient *client);
-    void requestBlocks(PeerWireClient *client, TorrentPiece *piece);
+    void requestMore(PeerWireClient *client);
+    int requestBlocks(PeerWireClient *client, TorrentPiece *piece, int maxBlocks);
     void peerChoked();
     void peerUnchoked();
 
     // Tracker handling
     void addToPeerList(const QList<TorrentPeer> &peerList);
-    void trackerInfoUpdated();
     void trackerStopped();
 
     // Progress

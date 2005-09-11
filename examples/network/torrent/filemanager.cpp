@@ -29,7 +29,6 @@
 #include "metainfo.h"
 
 #include <QByteArray>
-#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QTimer>
@@ -43,7 +42,7 @@ static inline int bitCount(const QBitArray &bits)
 {
     int count = 0;
     for (int i = 0; i < bits.size(); ++i)
-	count += bits.testBit(i);
+        count += bits.testBit(i);
     return count;
 }
 
@@ -244,7 +243,7 @@ bool FileManager::generateFiles()
                 return false;
             }
         }
-	fileSizes << file->size();
+        fileSizes << file->size();
         files << file;
         file->close();
 
@@ -299,7 +298,7 @@ bool FileManager::generateFiles()
                     return false;
                 }
             }
-	    fileSizes << file->size();
+            fileSizes << file->size();
             files << file;
             file->close();
 
@@ -400,7 +399,7 @@ void FileManager::verifyFileContents()
     // Verify all pieces the first time
     if (newPendingVerificationRequests.isEmpty()) {
         if (bitCount(verifiedPieces) == 0) {
-	    verifiedPieces.resize(sha1s.size());
+            verifiedPieces.resize(sha1s.size());
 
             int oldPercent = 0;
             if (!newFile) {

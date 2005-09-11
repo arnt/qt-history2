@@ -89,8 +89,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     // Initialize some static strings
     QStringList headers;
-    headers << tr("Torrent") << tr("Seen / Known / Seeds") << tr("Progress")
-            << tr("Download rate") << tr("Upload rate") << tr("Status");
+    headers << tr("Torrent") << tr("Peers/Seeds") << tr("Progress")
+            << tr("Down rate") << tr("Up rate") << tr("Status");
 
     // Main torrent list
     torrentView = new TorrentView(this);
@@ -104,15 +104,23 @@ MainWindow::MainWindow(QWidget *parent)
     // Set header resize modes and initial section sizes
     QFontMetrics fm = fontMetrics();
     QHeaderView *header = torrentView->header();
-    header->setResizeMode(0, QHeaderView::Stretch);
-    for (int i = headers.size() - 1; i >= 0; --i)
-        header->resizeSection(i, fm.width("O" + headers.at(i) + "O"));
+    header->resizeSection(0, fm.width("typical-name-for-a-torrent.torrent"));
+    header->resizeSection(1, fm.width(headers.at(1) + "  "));
+    header->resizeSection(2, fm.width(headers.at(2) + "  "));
+    header->resizeSection(3, qMax(fm.width(headers.at(3) + "  "), fm.width(" 1234.0 KB/s ")));
+    header->resizeSection(4, qMax(fm.width(headers.at(4) + "  "), fm.width(" 1234.0 KB/s ")));
+    header->resizeSection(5, qMax(fm.width(headers.at(5) + "  "), fm.width(tr("Downloading") + "  ")));
 
+    // Create common actions
+    QAction *newTorrentAction = new QAction(QIcon(":/icons/bottom.png"), tr("Add &new torrent"), this);
+    pauseTorrentAction = new QAction(QIcon(":/icons/player_pause.png"), tr("&Pause torrent"), this);
+    removeTorrentAction = new QAction(QIcon(":/icons/player_stop.png"), tr("&Remove torrent"), this);
+    
     // File menu
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(QIcon(":/icons/bottom.png"), tr("Add &new torrent"), this, SLOT(addTorrent()));
-    pauseActionMenu = fileMenu->addAction(QIcon(":/icons/player_pause.png"), tr("&Pause torrent"));
-    removeActionMenu = fileMenu->addAction(QIcon(":/icons/player_stop.png"), tr("&Remove torrent"));
+    fileMenu->addAction(newTorrentAction);
+    fileMenu->addAction(pauseTorrentAction);
+    fileMenu->addAction(removeTorrentAction);
     fileMenu->addSeparator();
     fileMenu->addAction(QIcon(":/icons/exit.png"), tr("E&xit"), this, SLOT(close()));
 
@@ -124,9 +132,9 @@ MainWindow::MainWindow(QWidget *parent)
     // Top toolbar
     QToolBar *topBar = new QToolBar(tr("Tools"));
     addToolBar(Qt::TopToolBarArea, topBar);
-    topBar->addAction(QIcon(tr(":/icons/bottom.png")),tr("Add torrent"), this, SLOT(addTorrent()));
-    removeActionTool = topBar->addAction(QIcon(tr(":/icons/player_stop.png")), tr("Remove torrent"));
-    pauseActionTool = topBar->addAction(QIcon(tr(":/icons/player_pause.png")), tr("Pause torrent"));
+    topBar->addAction(newTorrentAction);
+    topBar->addAction(removeTorrentAction);
+    topBar->addAction(pauseTorrentAction);
     topBar->addSeparator();
     downActionTool = topBar->addAction(QIcon(tr(":/icons/1downarrow.png")), tr("Move down"));
     upActionTool = topBar->addAction(QIcon(tr(":/icons/1uparrow.png")), tr("Move up"));
@@ -157,18 +165,12 @@ MainWindow::MainWindow(QWidget *parent)
             this, SLOT(setUploadLimit(int)));
     connect(downloadLimitSlider, SIGNAL(valueChanged(int)),
             this, SLOT(setDownloadLimit(int)));
-    connect(removeActionMenu, SIGNAL(triggered(bool)),
-            this, SLOT(removeTorrent()));
-    connect(removeActionTool, SIGNAL(triggered(bool)),
-            this, SLOT(removeTorrent()));
-    connect(pauseActionMenu, SIGNAL(triggered(bool)),
+    connect(newTorrentAction, SIGNAL(triggered()),
+            this, SLOT(addTorrent()));
+    connect(pauseTorrentAction, SIGNAL(triggered()),
             this, SLOT(pauseTorrent()));
-    connect(pauseActionTool, SIGNAL(triggered(bool)),
-            this, SLOT(pauseTorrent()));
-    connect(upActionTool, SIGNAL(triggered(bool)),
-            this, SLOT(moveTorrentUp()));
-    connect(downActionTool, SIGNAL(triggered(bool)),
-            this, SLOT(moveTorrentDown()));
+    connect(removeTorrentAction, SIGNAL(triggered()),
+            this, SLOT(removeTorrent()));
 
     // Load settings and start
     setWindowTitle(tr("Torrent Client"));
@@ -178,8 +180,17 @@ MainWindow::MainWindow(QWidget *parent)
 
 QSize MainWindow::sizeHint() const
 {
-    QSize desktopSize = QApplication::desktop()->size();
-    return QSize(desktopSize.width() / 2, desktopSize.height() / 4);
+    const QHeaderView *header = torrentView->header();
+
+    // Add up the sizes of all header sections. The last section is
+    // stretched, so its size is relative to the size of the width;
+    // instead of counting it, we count the size of its largest value.
+    int width = fontMetrics().width(tr("Downloading") + "  ");
+    for (int i = 0; i < header->count() - 1; ++i)
+        width += header->sectionSize(i);
+
+    return QSize(width, QMainWindow::sizeHint().height())
+        .expandedTo(QApplication::globalStrut());
 }
 
 const TorrentClient *MainWindow::clientForRow(int row) const
@@ -251,7 +262,7 @@ bool MainWindow::addTorrent()
     addTorrent(fileName, addTorrentDialog->destinationFolder());
     if (!saveChanges) {
         saveChanges = true;
-        QTimer::singleShot(5000, this, SLOT(saveSettings()));
+        QTimer::singleShot(1000, this, SLOT(saveSettings()));
     }
     return true;
 }
@@ -273,6 +284,7 @@ void MainWindow::removeTorrent()
     delete torrentView->takeTopLevelItem(row);
     setActionsEnabled();
 
+    saveChanges = true;
     saveSettings();
 }
 
@@ -296,13 +308,16 @@ void MainWindow::torrentError(TorrentClient::Error)
     TorrentClient *client = qobject_cast<TorrentClient *>(sender());
     int row = rowOfClient(client);
     jobs.removeAt(row);
-    delete torrentView->takeTopLevelItem(row);
-    client->deleteLater();
 
     // Display the warning.
     QMessageBox::warning(this, tr("Error"),
-                         tr("An error occurred while downloading: %1").arg(client->errorString()),
+                         tr("An error occurred while downloading %0: %1")
+                         .arg(jobs.at(row).torrentFileName)
+                         .arg(client->errorString()),
                          tr("&OK"));
+
+    delete torrentView->takeTopLevelItem(row);
+    client->deleteLater();
 }
 
 bool MainWindow::addTorrent(const QString &fileName, const QString &destinationFolder,
@@ -354,7 +369,7 @@ bool MainWindow::addTorrent(const QString &fileName, const QString &destinationF
         baseFileName.remove(baseFileName.size() - 8);
 
     item->setText(0, baseFileName);
-    item->setText(1, tr("0 / 0 / ?"));
+    item->setText(1, tr("0/0"));
     item->setText(2, "0");
     item->setText(3, "0.0 KB/s");
     item->setText(4, "0.0 KB/s");
@@ -416,8 +431,8 @@ void MainWindow::updatePeerInfo()
     int row = rowOfClient(client);
 
     QTreeWidgetItem *item = torrentView->topLevelItem(row);
-    item->setText(1, tr("%1 / %2 / %3").arg(client->connectedPeerCount())
-                  .arg(client->visitedPeerCount()).arg(client->seedCount()));
+    item->setText(1, tr("%1/%2").arg(client->connectedPeerCount())
+                  .arg(client->seedCount()));
 }
 
 void MainWindow::updateProgress(int percent)
@@ -440,22 +455,15 @@ void MainWindow::setActionsEnabled()
     bool pauseEnabled = client && ((client->state() == TorrentClient::Paused)
                                        ||  (client->state() > TorrentClient::Preparing));
 
-    removeActionTool->setEnabled(item != 0);
-    removeActionMenu->setEnabled(item != 0);
-    pauseActionTool->setEnabled(item != 0 && pauseEnabled);
-    pauseActionMenu->setEnabled(item != 0 && pauseEnabled);
+    removeTorrentAction->setEnabled(item != 0);
+    pauseTorrentAction->setEnabled(item != 0 && pauseEnabled);
 
     if (client && client->state() == TorrentClient::Paused) {
-        pauseActionMenu->setIcon(QIcon(":/icons/player_play.png"));
-        pauseActionMenu->setText(tr("Resume torrent"));
-        pauseActionTool->setIcon(QIcon(":/icons/player_play.png"));
-        pauseActionTool->setText(tr("Resume torrent"));
-
+        pauseTorrentAction->setIcon(QIcon(":/icons/player_play.png"));
+        pauseTorrentAction->setText(tr("Resume torrent"));
     } else {
-        pauseActionMenu->setIcon(QIcon(":/icons/player_pause.png"));
-        pauseActionMenu->setText(tr("Pause torrent"));
-        pauseActionTool->setIcon(QIcon(":/icons/player_pause.png"));
-        pauseActionTool->setText(tr("Pause torrent"));
+        pauseTorrentAction->setIcon(QIcon(":/icons/player_pause.png"));
+        pauseTorrentAction->setText(tr("Pause torrent"));
     }
 
     int row = torrentView->indexOfTopLevelItem(item);
@@ -565,10 +573,44 @@ void MainWindow::setDownloadLimit(int value)
 
 void MainWindow::about()
 {
-    QMessageBox::about(this, tr("About Torrent"),
-                       tr("The <b>Torrent</b> example demonstrates how to "
-                          "write complete a complete peer-to-peer file sharing "
-                          "application using Qt's network and thread classes."));
+    QLabel *icon = new QLabel;
+    icon->setPixmap(QPixmap(":/icons/peertopeer.png"));
+
+    QLabel *text = new QLabel;
+    text->setWordWrap(true);
+    text->setText("<p>The <b>Torrent Client</b> example demonstrates how to"
+                  " write complete a complete peer-to-peer file sharing"
+                  " application using Qt's network and thread classes.</p>"
+                  "<p>This feature complete client implementation of"
+                  " the BitTorrent protocol can efficiently"
+                  " maintain several hundred network connections"
+                  " simultaneously.</p>");
+
+    QPushButton *quitButton = new QPushButton("Ok");
+
+    QHBoxLayout *topLayout = new QHBoxLayout;
+    topLayout->setMargin(10);
+    topLayout->setSpacing(10);
+    topLayout->addWidget(icon);
+    topLayout->addWidget(text);
+
+    QHBoxLayout *bottomLayout = new QHBoxLayout;
+    bottomLayout->addStretch();
+    bottomLayout->addWidget(quitButton);
+    bottomLayout->addStretch();
+
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    mainLayout->addLayout(topLayout);
+    mainLayout->addLayout(bottomLayout);
+
+    QDialog about;
+    about.setModal(true);
+    about.setWindowTitle("About Torrent Client");
+    about.setLayout(mainLayout);
+
+    connect(quitButton, SIGNAL(clicked()), &about, SLOT(close()));
+
+    about.exec();
 }
 
 void MainWindow::acceptFileDrop(const QString &fileName)

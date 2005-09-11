@@ -25,16 +25,28 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include <QApplication>
-#include "mainwindow.h"
+#ifndef CONNECTIONMANAGER_H
+#define CONNECTIONMANAGER_H
 
-int main(int argc, char *argv[])
+class PeerWireClient;
+
+#include <QByteArray>
+#include <QSet>
+
+class ConnectionManager
 {
-    QApplication app(argc, argv);
-    Q_INIT_RESOURCE(icons);
+public:
+    static ConnectionManager *instance();
 
-    MainWindow window;
-    window.show();
+    bool canAddConnection() const;
+    void addConnection(PeerWireClient *connection);
+    void removeConnection(PeerWireClient *connection);
+    int maxConnections() const;
+    QByteArray clientId() const;
 
-    return app.exec();
-}
+ private:
+    QSet<PeerWireClient *> connections;
+    mutable QByteArray id;
+};
+
+#endif

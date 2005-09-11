@@ -56,8 +56,8 @@ class MetaInfo
 {
 public:
     enum FileForm {
-	SingleFileForm,
-	MultiFileForm
+        SingleFileForm,
+        MultiFileForm
     };
 
     MetaInfo();

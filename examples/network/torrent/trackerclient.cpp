@@ -27,7 +27,9 @@
 ****************************************************************************/
 
 #include "bencodeparser.h"
+#include "connectionmanager.h"
 #include "torrentclient.h"
+#include "torrentserver.h"
 #include "trackerclient.h"
 
 #include <QtCore>
@@ -51,8 +53,6 @@ TrackerClient::TrackerClient(TorrentClient *downloader, QObject *parent)
     length = 0;
     uploadedBytes = 0;
     downloadedBytes = 0;
-    seeders = 0;
-    leechers = 0;
     requestInterval = 5 * 60;
     requestIntervalTimer = -1;
     firstTrackerRequest = true;
@@ -138,8 +138,8 @@ void TrackerClient::fetchPeerList()
     query += url.path().toLatin1();
     query += "?";
     query += "info_hash=" + encodedSum;
-    query += "&peer_id=" + torrentDownloader->peerId();
-    query += "&port=" + QByteArray::number(torrentDownloader->serverPort());
+    query += "&peer_id=" + ConnectionManager::instance()->clientId();
+    query += "&port=" + QByteArray::number(TorrentServer::instance()->serverPort());
     query += "&uploaded=" + QByteArray::number(uploadedBytes);
     query += "&downloaded=" + QByteArray::number(downloadedBytes);
     query += "&left="+ QByteArray::number(qMax<int>(0, length - downloadedBytes));
@@ -203,24 +203,6 @@ void TrackerClient::httpRequestDone(bool error)
         trackerId = dict.value("tracker id").toByteArray();
     }
 
-    if (dict.contains("complete")) {
-        // store it
-        int tmp = dict.value("complete").toInt();
-        if (tmp != seeders) {
-            seeders = tmp;
-            emit seedCountUpdated(tmp);
-        }
-    }
-
-    if (dict.contains("incomplete")) {
-        // store it
-        int tmp = dict.value("incomplete").toInt();
-        if (tmp != leechers) {
-            leechers = tmp;
-            emit leechCountUpdated(tmp);
-        }
-    }
-
     if (dict.contains("interval")) {
         // Mandatory item
         if (requestIntervalTimer != -1)
@@ -260,4 +242,3 @@ void TrackerClient::httpRequestDone(bool error)
         emit peerListUpdated(peers);
     }
 }
-

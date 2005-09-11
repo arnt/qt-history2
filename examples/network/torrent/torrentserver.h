@@ -25,16 +25,32 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include <QApplication>
-#include "mainwindow.h"
+#ifndef TORRENTSERVER_H
+#define TORRENTSERVER_H
 
-int main(int argc, char *argv[])
+#include <QList>
+#include <QTcpServer>
+class TorrentClient;
+
+class TorrentServer : public QTcpServer
 {
-    QApplication app(argc, argv);
-    Q_INIT_RESOURCE(icons);
+    Q_OBJECT
+public:
+    inline TorrentServer() {}
+    static TorrentServer *instance();
 
-    MainWindow window;
-    window.show();
+    void addClient(TorrentClient *client);
+    void removeClient(TorrentClient *client);
 
-    return app.exec();
-}
+protected:
+    void incomingConnection(int socketDescriptor);
+
+private slots:
+    void removeClient();
+    void processInfoHash(const QByteArray &infoHash);
+
+private:
+    QList<TorrentClient *> clients;
+};
+
+#endif

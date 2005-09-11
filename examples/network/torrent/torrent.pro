@@ -1,22 +1,26 @@
 HEADERS += addtorrentdialog.h \
            bencodeparser.h \
+           connectionmanager.h \
            mainwindow.h \
            metainfo.h \
            peerwireclient.h \
            ratecontroller.h \
            filemanager.h \  
            torrentclient.h \
+           torrentserver.h \
            trackerclient.h
 
 SOURCES += main.cpp \
            addtorrentdialog.cpp \
            bencodeparser.cpp \
+           connectionmanager.cpp \
            mainwindow.cpp \
            metainfo.cpp \
            peerwireclient.cpp \
            ratecontroller.cpp \
            filemanager.cpp \
            torrentclient.cpp \
+           torrentserver.cpp \
            trackerclient.cpp
 
 # 3rdparty SHA-1 algorithm

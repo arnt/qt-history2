@@ -1,5 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="/">
+    <file>icons/peertopeer.png</file>
     <file>icons/1uparrow.png</file>
     <file>icons/1downarrow.png</file>
     <file>icons/bottom.png</file>

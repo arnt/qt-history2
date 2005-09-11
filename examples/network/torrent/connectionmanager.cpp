@@ -25,16 +25,48 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include <QApplication>
-#include "mainwindow.h"
+#include "connectionmanager.h"
 
-int main(int argc, char *argv[])
+#include <QByteArray>
+#include <QDateTime>
+
+static const char ClientID[] = "-QT4100-";
+static const int MaxConnections = 150;
+
+Q_GLOBAL_STATIC(ConnectionManager, connectionManager)
+
+ConnectionManager *ConnectionManager::instance()
 {
-    QApplication app(argc, argv);
-    Q_INIT_RESOURCE(icons);
+    return connectionManager();
+}
 
-    MainWindow window;
-    window.show();
+bool ConnectionManager::canAddConnection() const
+{
+    return (connections.size() < MaxConnections);
+}
 
-    return app.exec();
+void ConnectionManager::addConnection(PeerWireClient *client)
+{
+    connections << client;
+}
+
+void ConnectionManager::removeConnection(PeerWireClient *client)
+{
+    connections.remove(client);
+}
+
+int ConnectionManager::maxConnections() const
+{
+    return MaxConnections;
+}
+
+QByteArray ConnectionManager::clientId() const
+{
+    if (id.isEmpty()) {
+	// Generate peer id
+	int startupTime = int(QDateTime::currentDateTime().toTime_t());
+	id = ClientID + QByteArray::number(startupTime, 16);
+	id += QByteArray(20 - id.size(), '-');
+    }
+    return id;
 }

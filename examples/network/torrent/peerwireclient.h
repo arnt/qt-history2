@@ -31,6 +31,7 @@
 
 class QHostAddress;
 class QTimerEvent;
+class TorrentPeer;
 
 #include <QBitArray>
 #include <QList>
@@ -48,13 +49,16 @@ public:
     };
     Q_DECLARE_FLAGS(PeerWireState, PeerWireStateFlag)
 
-    PeerWireClient(QObject *parent = 0);
-    void initialize(const QByteArray &infoHash, const QByteArray &peerId,
-                    int pieceCount);
+    PeerWireClient(const QByteArray &peerId, QObject *parent = 0);
+    void initialize(const QByteArray &infoHash, int pieceCount);
+
+    void setPeer(TorrentPeer *peer);
+    TorrentPeer *peer() const;
 
     // State
     inline PeerWireState peerWireState() const { return pwState; }
     QBitArray availablePieces() const;
+    int incomingBlockCount() const;
 
     // Protocol
     void chokePeer();
@@ -74,10 +78,11 @@ public:
     qint64 uploadSpeed() const;
 
     bool canTransferMore() const;
-    inline qint64 bytesAvailable() const { return incomingBuffer.size(); }
-    inline qint64 bytesToWrite() const { return outgoingBuffer.size() + QTcpSocket::bytesToWrite(); }
+    qint64 bytesAvailable() const { return incomingBuffer.size(); }
+    qint64 socketBytesAvailable() const { return QTcpSocket::bytesAvailable(); }
 
 signals:
+    void infoHashReceived(const QByteArray &infoHash);
     void readyToTransfer();
 
     void choked();
@@ -87,7 +92,6 @@ signals:
 
     void piecesAvailable(const QBitArray &pieces);
     void blockRequested(int pieceIndex, int begin, int length);
-    void requestCanceled(int pieceIndex, int begin, int length);
     void blockReceived(int pieceIndex, int begin, const QByteArray &data);
 
     void bytesReceived(qint64 size);
@@ -103,13 +107,21 @@ protected:
 private slots:
     void sendHandShake();
     void processIncomingData();
-    void closeConnection();
 
 private:
     // Data waiting to be read/written
     QByteArray incomingBuffer;
     QByteArray outgoingBuffer;
-    QList<QByteArray> pendingBlocks;
+
+    struct BlockInfo {
+        int pieceIndex;
+        int offset;
+        int length;
+        QByteArray block;
+    };
+    QList<BlockInfo> pendingBlocks;
+    int pendingBlockSizes;
+    int numRequestedBlocks;
 
     enum PacketType {
         ChokePacket = 0,
@@ -137,12 +149,14 @@ private:
 
     // Timeout handling
     int timeoutTimer;
+    int pendingRequestTimer;
     bool invalidateTimeout;
 
     // Checksum, peer ID and set of available pieces
     QByteArray infoHash;
     QByteArray peerIdString;
     QBitArray peerPieces;
+    TorrentPeer *torrentPeer;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(PeerWireClient::PeerWireState)

@@ -61,6 +61,10 @@ private slots:
 
     bool addTorrent();
     void removeTorrent();
+    void pauseTorrent();
+    void moveTorrentUp();
+    void moveTorrentDown();
+
     void torrentStopped();
     void torrentError(TorrentClient::Error error);
 
@@ -70,9 +74,6 @@ private slots:
     void updateDownloadRate(int bytesPerSecond);
     void updateUploadRate(int bytesPerSecond);
 
-    void pauseTorrent();
-    void moveTorrentUp();
-    void moveTorrentDown();
     void setUploadLimit(int bytes);
     void setDownloadLimit(int bytes);
 
@@ -83,13 +84,11 @@ private slots:
 private:
     int rowOfClient(TorrentClient *client) const;
     bool addTorrent(const QString &fileName, const QString &destinationFolder,
-		    const QByteArray &resumeState = QByteArray());
+                    const QByteArray &resumeState = QByteArray());
     
     TorrentView *torrentView;
-    QAction *removeActionMenu;
-    QAction *removeActionTool;
-    QAction *pauseActionMenu;
-    QAction *pauseActionTool;
+    QAction *pauseTorrentAction;
+    QAction *removeTorrentAction;
     QAction *upActionTool;
     QAction *downActionTool;
     QSlider *uploadLimitSlider;
@@ -101,9 +100,9 @@ private:
     int downloadLimit;
 
     struct Job {
-	TorrentClient *client;
-	QString torrentFileName;
-	QString destinationDirectory;
+        TorrentClient *client;
+        QString torrentFileName;
+        QString destinationDirectory;
     };
     QList<Job> jobs;
     int jobsStopped;
@@ -111,7 +110,7 @@ private:
 
     QString lastDirectory;
     QProgressDialog *quitDialog;
-    
+
     bool saveChanges;
 };
 

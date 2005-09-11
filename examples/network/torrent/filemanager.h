@@ -88,15 +88,15 @@ private:
     void verifyFileContents();
 
     struct WriteRequest {
-	int pieceIndex;
-	int offset;
-	QByteArray data;
+        int pieceIndex;
+        int offset;
+        QByteArray data;
     };
     struct ReadRequest {
-	int pieceIndex;
-	int offset;
-	int length;
-	int id;
+        int pieceIndex;
+        int offset;
+        int length;
+        int id;
     };
 
     QString errString;
