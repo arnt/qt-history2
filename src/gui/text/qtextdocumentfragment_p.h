@@ -116,6 +116,9 @@ private:
     bool setNamedAnchorInNextOutput;
     QString namedAnchor;
 
+#ifdef Q_CC_SUN
+    friend struct QTextHtmlImporter::Table;
+#endif
     struct TableIterator
     {
         inline TableIterator(QTextTable *t = 0) : table(t), row(0), column(0) {}
