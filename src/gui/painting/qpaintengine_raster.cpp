@@ -113,8 +113,8 @@ static void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC 
 /********************************************************************************
  * Span functions
  */
-static void qt_span_fill_clipped(int count, QSpan *spans, void *userData);
-static void qt_span_clip(int count, QSpan *spans, void *userData);
+static void qt_span_fill_clipped(int count, const QSpan *spans, void *userData);
+static void qt_span_clip(int count, const QSpan *spans, void *userData);
 
 struct ClipData
 {
@@ -2275,7 +2275,7 @@ void QClipData::fixup()
 
 
 static int qt_intersect_spans(const QClipData *clip,
-                              QT_FT_Span *spans, int spanCount,
+                              const QSpan *spans, int spanCount,
                               QSpan **outSpans, int available)
 {
     QSpan *out = *outSpans;
@@ -2331,7 +2331,7 @@ static int qt_intersect_spans(const QClipData *clip,
     return spanIndex;
 }
 
-static void qt_span_fill_clipped(int spanCount, QT_FT_Span *spans, void *userData)
+static void qt_span_fill_clipped(int spanCount, const QSpan *spans, void *userData)
 {
 //     qDebug() << "qt_span_fill_clipped";
     QSpanFillData *fillData = reinterpret_cast<QSpanFillData *>(userData);
@@ -2353,7 +2353,7 @@ static void qt_span_fill_clipped(int spanCount, QT_FT_Span *spans, void *userDat
     }
 }
 
-static void qt_span_clip(int count, QT_FT_Span *spans, void *userData)
+static void qt_span_clip(int count, const QSpan *spans, void *userData)
 {
     ClipData *clipData = reinterpret_cast<ClipData *>(userData);
 

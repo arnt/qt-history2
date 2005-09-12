@@ -443,7 +443,7 @@ static const CompositionFunction functionForMode_C[] = {
 
 static const CompositionFunction *functionForMode = functionForMode_C;
 
-static void blend_color_argb(int count, QT_FT_Span *spans, void *userData)
+static void blend_color_argb(int count, const QSpan *spans, void *userData)
 {
     QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
     CompositionFunctionSolid func = functionForModeSolid[data->compositionMode];
@@ -451,15 +451,14 @@ static void blend_color_argb(int count, QT_FT_Span *spans, void *userData)
         return;
 
     while (count--) {
-        int y = spans->y;
-        void *t = data->rasterBuffer->scanLine(y);
+        void *t = data->rasterBuffer->scanLine(spans->y);
         uint *target = ((uint *)t) + spans->x;
         func(target, spans->len, data->solid.color, spans->coverage);
         ++spans;
     }
 }
 
-static void blend_argb(int count, QT_FT_Span *spans, void *userData)
+static void blend_argb(int count, const QSpan *spans, void *userData)
 {
     QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
     QPainter::CompositionMode mode = data->compositionMode;
@@ -469,20 +468,21 @@ static void blend_argb(int count, QT_FT_Span *spans, void *userData)
     if (!func)
         return;
 
+    const int image_width = data->texture.width;
+    const int image_height = data->texture.height;
+    int xoff = qRound(data->dx) % image_width;
+    int yoff = qRound(data->dy) % image_height;
+    
+    if (xoff < 0)
+        xoff += image_width;
+    if (yoff < 0)
+        yoff += image_height;
+    
+    const void *ibits = data->texture.imageData;
+        
     while (count--) {
         int _y = spans->y;
         void *t = data->rasterBuffer->scanLine(_y);
-        int image_width = data->texture.width;
-        int image_height = data->texture.height;
-        int xoff = qRound(data->dx) % image_width;
-        int yoff = qRound(data->dy) % image_height;
-
-        if (xoff < 0)
-            xoff += image_width;
-        if (yoff < 0)
-            yoff += image_height;
-
-        const void *ibits = data->texture.imageData;
         const qreal dx = (xoff + spans->x)%image_width;
         const qreal dy = (_y + yoff) % image_height;
 
@@ -508,7 +508,7 @@ static void blend_argb(int count, QT_FT_Span *spans, void *userData)
     }
 }
 
-static void blend_tiled_argb(int count, QT_FT_Span *spans, void *userData)
+static void blend_tiled_argb(int count, const QSpan *spans, void *userData)
 {
     QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
     QPainter::CompositionMode mode = data->compositionMode;
@@ -518,21 +518,22 @@ static void blend_tiled_argb(int count, QT_FT_Span *spans, void *userData)
     if (!func)
         return;
 
+    int image_width = data->texture.width;
+    int image_height = data->texture.height;
+    int xoff = qRound(data->dx) % image_width;
+    int yoff = qRound(data->dy) % image_height;
+    
+    if (xoff < 0)
+        xoff += image_width;
+    if (yoff < 0)
+        yoff += image_height;
+    
+    const void *ibits = data->texture.imageData;
+        
     while (count--) {
         int _y = spans->y;
         void *t = data->rasterBuffer->scanLine(_y);
     
-        int image_width = data->texture.width;
-        int image_height = data->texture.height;
-        int xoff = qRound(data->dx) % image_width;
-        int yoff = qRound(data->dy) % image_height;
-
-        if (xoff < 0)
-            xoff += image_width;
-        if (yoff < 0)
-            yoff += image_height;
-
-        const void *ibits = data->texture.imageData;
         const qreal dx = (xoff + spans->x)%image_width;
         const qreal dy = (_y + yoff) % image_height;
 
@@ -556,7 +557,7 @@ static void blend_tiled_argb(int count, QT_FT_Span *spans, void *userData)
         while (length) {
             int l = qMin(length, buffer_size);
             for (int i = 0; i < l; ++i)
-                buffer[i] = src[i%image_width];
+                buffer[i] = src[(i+x)%image_width];
             func(target, buffer, l, spans->coverage);
             length -= l;
             target += l;
@@ -565,7 +566,7 @@ static void blend_tiled_argb(int count, QT_FT_Span *spans, void *userData)
     }
 }
 
-static void blend_transformed_bilinear_argb(int count, QT_FT_Span *spans, void *userData)
+static void blend_transformed_bilinear_argb(int count, const QSpan *spans, void *userData)
 {
     QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
     CompositionFunction func = functionForMode[data->compositionMode];
@@ -642,7 +643,7 @@ static void blend_transformed_bilinear_argb(int count, QT_FT_Span *spans, void *
     }
 }
 
-static void blend_transformed_bilinear_tiled_argb(int count, QT_FT_Span *spans, void *userData)
+static void blend_transformed_bilinear_tiled_argb(int count, const QSpan *spans, void *userData)
 {
     QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
     CompositionFunction func = functionForMode[data->compositionMode];
@@ -728,7 +729,7 @@ static void blend_transformed_bilinear_tiled_argb(int count, QT_FT_Span *spans, 
     }
 }
 
-static void blend_transformed_argb(int count, QT_FT_Span *spans, void *userData)
+static void blend_transformed_argb(int count, const QSpan *spans, void *userData)
 {
     QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
     CompositionFunction func = functionForMode[data->compositionMode];
@@ -788,7 +789,7 @@ static void blend_transformed_argb(int count, QT_FT_Span *spans, void *userData)
     }
 }
 
-static void blend_transformed_tiled_argb(int count, QT_FT_Span *spans, void *userData)
+static void blend_transformed_tiled_argb(int count, const QSpan *spans, void *userData)
 {
     QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
     CompositionFunction func = functionForMode[data->compositionMode];
@@ -851,7 +852,7 @@ static void blend_transformed_tiled_argb(int count, QT_FT_Span *spans, void *use
     }
 }
 
-static void blend_linear_gradient_argb(int count, QT_FT_Span *spans, void *userData)
+static void blend_linear_gradient_argb(int count, const QSpan *spans, void *userData)
 {
     QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
     QPainter::CompositionMode mode = data->compositionMode;
@@ -897,7 +898,7 @@ static inline double realRoots(double a, double b, double detSqrt)
     return (-b + detSqrt)/(2 * a);
 }
 
-static void blend_radial_gradient_argb(int count, QT_FT_Span *spans, void *userData)
+static void blend_radial_gradient_argb(int count, const QSpan *spans, void *userData)
 {
     QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
     QPainter::CompositionMode mode = data->compositionMode;
@@ -945,7 +946,7 @@ static void blend_radial_gradient_argb(int count, QT_FT_Span *spans, void *userD
     }
 }
 
-static void blend_conical_gradient_argb(int count, QT_FT_Span *spans, void *userData)
+static void blend_conical_gradient_argb(int count, const QSpan *spans, void *userData)
 {
     QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
     QPainter::CompositionMode mode = data->compositionMode;
@@ -989,7 +990,7 @@ static void blend_conical_gradient_argb(int count, QT_FT_Span *spans, void *user
 
 /************************************* Mono ************************************/
 
-static void blend_color_mono(int count, QT_FT_Span *spans, void *userData)
+static void blend_color_mono(int count, const QSpan *spans, void *userData)
 {
     QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
     if (!spans->coverage)
@@ -1024,7 +1025,7 @@ static void blend_color_mono(int count, QT_FT_Span *spans, void *userData)
     }
 }
 
-static void blend_mono(int count, QT_FT_Span *spans, void *userData)
+static void blend_mono(int count, const QSpan *spans, void *userData)
 {
     if (!spans->coverage)
         return;
@@ -1070,7 +1071,7 @@ static void blend_mono(int count, QT_FT_Span *spans, void *userData)
     }
 }
 
-static void blend_tiled_mono(int count, QT_FT_Span *spans, void *userData)
+static void blend_tiled_mono(int count, const QSpan *spans, void *userData)
 {
     if (!spans->coverage)
         return;
@@ -1124,7 +1125,7 @@ static void blend_tiled_mono(int count, QT_FT_Span *spans, void *userData)
 }
 
 
-static void blend_transformed_mono(int count, QT_FT_Span *spans, void *userData)
+static void blend_transformed_mono(int count, const QSpan *spans, void *userData)
 {
     if (!spans->coverage)
         return;
@@ -1182,7 +1183,7 @@ static void blend_transformed_mono(int count, QT_FT_Span *spans, void *userData)
     }
 }
 
-static void blend_transformed_tiled_mono(int count, QT_FT_Span *spans, void *userData) 
+static void blend_transformed_tiled_mono(int count, const QSpan *spans, void *userData) 
 {
     if (!spans->coverage)
         return;
@@ -1241,7 +1242,7 @@ static void blend_transformed_tiled_mono(int count, QT_FT_Span *spans, void *use
     }
 }
 
-static void blend_linear_gradient_mono(int count, QT_FT_Span *spans, void *userData)
+static void blend_linear_gradient_mono(int count, const QSpan *spans, void *userData)
 {
     if (!spans->coverage)
         return;
@@ -1270,7 +1271,7 @@ static void blend_linear_gradient_mono(int count, QT_FT_Span *spans, void *userD
     }
 }
 
-static void blend_radial_gradient_mono(int count, QT_FT_Span *spans, void *userData)
+static void blend_radial_gradient_mono(int count, const QSpan *spans, void *userData)
 {
     if (!spans->coverage)
         return;
@@ -1313,7 +1314,7 @@ static void blend_radial_gradient_mono(int count, QT_FT_Span *spans, void *userD
     }
 }
 
-static void blend_conical_gradient_mono(int count, QT_FT_Span *spans, void *userData)
+static void blend_conical_gradient_mono(int count, const QSpan *spans, void *userData)
 {
     if (!spans->coverage)
         return;
@@ -1352,7 +1353,7 @@ static void blend_conical_gradient_mono(int count, QT_FT_Span *spans, void *user
 // ************************** Mono LSB ********************************
 
 
-static void blend_color_mono_lsb(int count, QT_FT_Span *spans, void *userData)
+static void blend_color_mono_lsb(int count, const QSpan *spans, void *userData)
 {
     if (!spans->coverage)
         return;
@@ -1387,7 +1388,7 @@ static void blend_color_mono_lsb(int count, QT_FT_Span *spans, void *userData)
     }
 }
 
-static void blend_mono_lsb(int count, QT_FT_Span *spans, void *userData)
+static void blend_mono_lsb(int count, const QSpan *spans, void *userData)
 {
     if (!spans->coverage)
         return;
@@ -1435,7 +1436,7 @@ static void blend_mono_lsb(int count, QT_FT_Span *spans, void *userData)
     }
 }
 
-static void blend_tiled_mono_lsb(int count, QT_FT_Span *spans, void *userData)
+static void blend_tiled_mono_lsb(int count, const QSpan *spans, void *userData)
 {
     if (!spans->coverage)
         return;
@@ -1489,7 +1490,7 @@ static void blend_tiled_mono_lsb(int count, QT_FT_Span *spans, void *userData)
 }
 
 
-static void blend_transformed_mono_lsb(int count, QT_FT_Span *spans, void *userData)
+static void blend_transformed_mono_lsb(int count, const QSpan *spans, void *userData)
 {
     if (!spans->coverage)
         return;
@@ -1547,7 +1548,7 @@ static void blend_transformed_mono_lsb(int count, QT_FT_Span *spans, void *userD
     }
 }
 
-static void blend_transformed_tiled_mono_lsb(int count, QT_FT_Span *spans, void *userData)
+static void blend_transformed_tiled_mono_lsb(int count, const QSpan *spans, void *userData)
 {
     if (!spans->coverage)
         return;
@@ -1606,7 +1607,7 @@ static void blend_transformed_tiled_mono_lsb(int count, QT_FT_Span *spans, void 
     }
 }
 
-static void blend_linear_gradient_mono_lsb(int count, QT_FT_Span *spans, void *userData)
+static void blend_linear_gradient_mono_lsb(int count, const QSpan *spans, void *userData)
 {
     if (!spans->coverage)
         return;
@@ -1636,7 +1637,7 @@ static void blend_linear_gradient_mono_lsb(int count, QT_FT_Span *spans, void *u
 }
 
 
-static void blend_radial_gradient_mono_lsb(int count, QT_FT_Span *spans, void *userData)
+static void blend_radial_gradient_mono_lsb(int count, const QSpan *spans, void *userData)
 {
     if (!spans->coverage)
         return;
@@ -1679,7 +1680,7 @@ static void blend_radial_gradient_mono_lsb(int count, QT_FT_Span *spans, void *u
     }
 }
 
-static void blend_conical_gradient_mono_lsb(int count, QT_FT_Span *spans, void *userData)
+static void blend_conical_gradient_mono_lsb(int count, const QSpan *spans, void *userData)
 {
     if (!spans->coverage)
         return;
@@ -1734,7 +1735,7 @@ static inline ushort qt_blend_pixel_rgb16(ushort dest, uint src, uint coverage)
 }
 
 
-static void blend_color_rgb16(int count, QT_FT_Span *spans, void *userData)
+static void blend_color_rgb16(int count, const QSpan *spans, void *userData)
 {
     QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
 
@@ -1780,7 +1781,7 @@ static void blend_color_rgb16(int count, QT_FT_Span *spans, void *userData)
     }
 }
 
-static void blend_rgb16(int count, QT_FT_Span *spans, void *userData)
+static void blend_rgb16(int count, const QSpan *spans, void *userData)
 {
     QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
 
@@ -1839,7 +1840,7 @@ static void blend_rgb16(int count, QT_FT_Span *spans, void *userData)
     }
 }
 
-static void blend_tiled_rgb16(int count, QT_FT_Span *spans, void *userData)
+static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
 {
     QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
 
@@ -1895,7 +1896,7 @@ static inline uchar qt_conv_RgbTo4(QRgb c)
     return qGray(c) >> 4;
 }
 
-static void blend_color_gray4_lsb(int count, QT_FT_Span *spans, void *userData)
+static void blend_color_gray4_lsb(int count, const QSpan *spans, void *userData)
 {
     QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
 
@@ -1938,7 +1939,7 @@ static void blend_color_gray4_lsb(int count, QT_FT_Span *spans, void *userData)
 }
 
 
-static void blend_tiled_gray4_lsb(int count, QT_FT_Span *spans, void *userData)
+static void blend_tiled_gray4_lsb(int count, const QSpan *spans, void *userData)
 {
     QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
 
@@ -2002,7 +2003,7 @@ static void blend_tiled_gray4_lsb(int count, QT_FT_Span *spans, void *userData)
     }
 }
 
-static void blend_gray4_lsb(int count, QT_FT_Span *spans, void *userData)
+static void blend_gray4_lsb(int count, const QSpan *spans, void *userData)
 {
     QSpanFillData *data = reinterpret_cast<QSpanFillData *>(userData);
 
