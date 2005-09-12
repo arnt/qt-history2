@@ -14,30 +14,29 @@
     custom widget designed to show the task menu extension feature:
     The TicTacToe widget.
 
-    An extension is an object which modifies the behavior of \QD's
-    components. For example the QDesignerPropertySheetExtension can
-    feed the property editor custom contents when a widget with this
-    extension is selected. Similarily the QDesignerTaskMenuExtension
-    can provide custom task menu entries when a widget with this
-    extension is selected.
+    An extension is an object which modifies the behavior of \QD. The
+    QDesignerTaskMenuExtension can provide custom task menu entries
+    when a widget with this extension is selected.
 
     There are four available types of extensions in \QD:
 
     \list
         \o QDesignerContainerExtension provides an extension that allows
-           you to add pages or child widgets to custom container widgets.
+           you to add (and delete) pages to a multi-page container plugin
+           in \QD.
         \o QDesignerMemberSheetExtension provides an
            extension to a widget's member sheet which is used when
-           editing signal and slots.
+           editing signal and slots in \QD.
         \o QDesignerPropertySheetExtension provides an extension to
-           a widget's property sheet which is displayed in the
+           a widget's property sheet which is displayed in \QD's
            property editor.
         \o QDesignerTaskMenuExtension provides an extension that allows
            you to add custom menu entries to \QD's task menu.
     \endlist
 
     You can use all the extensions following the same pattern as in
-    this example, only replacing the respective extension base class.
+    this example, only replacing the respective extension base
+    class. For more information see the \l {QtDesigner Module}.
 
     The Task Menu Extension example consists of five classes:
 
@@ -132,12 +131,11 @@
     plugin with a gateway to all of \QD's API's.
 
     The \c TicTacToePlugin class inherits from both QObject and
-    QDesignerFormEditorInterface. It is important to remember, when
+    QDesignerCustomWidgetInterface. It is important to remember, when
     using multiple inheritance, to ensure that all the interfaces
     (i.e. the classes that doesn't inherit Q_OBJECT) are made known to
-    the meta object system using the Q_INTERFACES() macro.
-
-    This enables \QD to use \c qobject_cast to query for supported
+    the meta object system using the Q_INTERFACES() macro. This
+    enables \QD to use \l qobject_cast() to query for supported
     interfaces using nothing but a QObject pointer.
 
     \section1 TicTacToePlugin Class Implementation
@@ -156,9 +154,10 @@
     \skipto initialize
     \printuntil {
 
-    The \c initialize() function takes a form editor as argument.  The
-    QDesignerFormEditorInterface class provides an interface that we
-    will use to control Qt Designer's form editor component.
+    The \c initialize() function takes a QDesignerFormEditorInterface
+    object as argument.  The QDesignerFormEditorInterface class
+    provides an interface that we can use to access Qt Designer's
+    components.
 
     In \QD you can create two kinds of plugins: custom widget plugins
     and tool plugins. QDesignerFormEditorInterface provides access to
@@ -173,14 +172,13 @@
 
     When creating extensions associated with custom widget plugins, we
     need to access the extension manager which we retrieve from the
-    form editor parameter.
+    QDesignerFormEditorInterface parameter.
 
     The QExtensionManager class provides extension management
     facilities for \QD. Using an extension manager you can retrieve
     the extension for a given object. You can also register and
     unregister an extension for a given object. Remember that an
-    extension is an object which modifies the behavior of \QD's
-    components.
+    extension is an object which modifies the behavior of \QD.
 
     When registrering an extension it is actually the associated
     extension factory that is registered. In \QD, extension factories
@@ -192,18 +190,27 @@
     \printuntil }
 
     We create a \c TicTacToeTaskMenuFactory object that we register
-    using the QExtensionManager we retrieved from the form editor
-    parameter. The first argument is the newly created factory and the
-    second argument is an extension identifier which is a string. The
-    \c Q_TYPEID macro simply convert the string into a QLatin1String.
+    using the QExtensionManager we retrieved from the
+    QDesignerFormEditorInterface parameter. The first argument is the
+    newly created factory and the second argument is an extension
+    identifier which is a string. The \c Q_TYPEID macro simply convert
+    the string into a QLatin1String.
 
     The \c TicTacToeTaskMenuFactory class is a subclass of
     QExtensionFactory. When the user request a task menu by clicking
     the right mouse button over a widget with the specified task menu
-    extension, \QD will run through all its registered factories
-    invoking the first one which is able to create a task menu
-    extension for that widget. This factory will in turn create a \c
-    TicTacToeTaskMenu object (the extension).
+    extension, \QD's extension manager will run through all its
+    registered factories invoking the first one which is able to
+    create a task menu extension for that widget. This factory will in
+    turn create a \c TicTacToeTaskMenu object (the extension).
+
+    In this example we omit to reimplement the
+    QDesignerCustomWidgetInterface::domXml() function (which include
+    default settings for the widget in the standard XML format used by
+    Qt Designer), since noe default values are necessary. We also omit
+    to reimplement the QDesignerCustomWidgetInterface::codeTemplate()
+    function which normally provide a sample code template for the
+    custom widget.
 
     \printline Q_EXPORT_PLUGIN
 
