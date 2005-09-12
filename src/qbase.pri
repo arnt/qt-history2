@@ -34,6 +34,12 @@ CONFIG          += qmake_cache target_qt
 CONFIG          -= fix_output_dirs
 !macx-xcode:CONFIG += debug_and_release
 
+#enable backingstore by default for now
+win32|x11 {
+     CONFIG += backingstore
+     DEFINES += QT_USE_BACKINGSTORE
+}
+
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 contains(QT_CONFIG, largefile):CONFIG += largefile
 
