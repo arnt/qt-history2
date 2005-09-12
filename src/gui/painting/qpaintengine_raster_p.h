@@ -33,6 +33,8 @@
 #include <private/qpaintengine_p.h>
 #include <private/qstroker_p.h>
 
+#include <stdlib.h>
+
 class QFTOutlineMapper;
 class QRasterPaintEnginePrivate;
 class QRasterBuffer;
