@@ -355,6 +355,7 @@ bool QSqlQueryModel::setHeaderData(int section, Qt::Orientation orientation,
     if (d->headers.size() <= section)
         d->headers.resize(qMax(section + 1, 16));
     d->headers[section][role] = value;
+    emit headerDataChanged(orientation, section, section);
     return true;
 }
 
