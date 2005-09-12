@@ -586,7 +586,7 @@ void MainWindow::about()
                   " maintain several hundred network connections"
                   " simultaneously.</p>");
 
-    QPushButton *quitButton = new QPushButton("Ok");
+    QPushButton *quitButton = new QPushButton("OK");
 
     QHBoxLayout *topLayout = new QHBoxLayout;
     topLayout->setMargin(10);
