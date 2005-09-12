@@ -686,6 +686,16 @@ QAction *QMenuBar::activeAction() const
 }
 
 /*!
+  Sets the currently highlighted action to \a act.
+*/
+void QMenuBar::setActiveAction(QAction *act)
+{
+    Q_D(QMenuBar);
+    d->setCurrentAction(act, true, false);
+}
+
+
+/*!
     Removes all the actions from the menu bar.
 
     \sa removeAction()

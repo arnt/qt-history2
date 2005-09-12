@@ -55,6 +55,7 @@ public:
     void clear();
 
     QAction *activeAction() const;
+    void setActiveAction(QAction *action);
 
     void setDefaultUp(bool);
     bool isDefaultUp() const;
