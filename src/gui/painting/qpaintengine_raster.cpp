@@ -1213,9 +1213,9 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
 
 #ifdef Q_WS_QWS
 //QWS hack
-static inline uchar monoVal(const uchar* s, int x)
+static inline bool monoVal(const uchar* s, int x)
 {
-    return  (s[x>>3] << (x&7)) & 0x80 ? 255 : 0;
+    return  (s[x>>3] << (x&7)) & 0x80;
 }
 void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx,int ry,int w,int h)
 {
@@ -1240,21 +1240,20 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
     int current = 0;
 
     for (int y=y0; y < h; ++y) {
-        const uchar *scanline = static_cast<const uchar *>(src) + y*bpl;
+        const uchar * const scanline = static_cast<const uchar *>(src) + y*bpl;
 
         if (mono) {
             for (int x = x0; x < w; ) {
 
                 // Skip those with 0 coverage
-                while (x < w && monoVal(scanline,x) == 0)
+                while (x < w && !monoVal(scanline,x))
                     ++x;
                 if (x >= w) break;
 
-                int prev = monoVal(scanline,x);
-                QT_FT_Span span = { x + rx, 0, y + ry, prev };
+                QT_FT_Span span = { x + rx, 0, y + ry, 255 };
 
                 // extend span until we find a different one.
-                while (x < w && monoVal(scanline,x) == prev)
+                while (x < w && monoVal(scanline,x))
                     ++x;
                 span.len = x +rx - span.x;
 
