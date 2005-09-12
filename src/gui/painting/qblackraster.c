@@ -78,7 +78,7 @@ static QT_FT_Long QT_FT_MulDiv(QT_FT_Long  a, QT_FT_Long  b, QT_FT_Long  c)
 
 #define MAX(x, y) (x > y ? x : y)
 #define MIN(x, y) (x < y ? x : y)
-#define MAX_SPANS 32
+#define MAX_SPANS 256
 
 /*************************************************************************/
 /*                                                                       */
@@ -2056,7 +2056,7 @@ Draw_Sweep( RAS_ARG )
     TProfileList profile_list;
 
     QT_FT_Span spans[MAX_SPANS];
-    Int span_count;
+    Int span_count = 0;
 
     /* Init empty linked lists */
 
@@ -2148,7 +2148,6 @@ Draw_Sweep( RAS_ARG )
 
         while ( y < y_change )
         {
-            span_count = 0;
 
 #ifdef Q_RASTER_DEBUG
             Q = profile_list;
@@ -2213,9 +2212,6 @@ Draw_Sweep( RAS_ARG )
             }
             ras.Proc_Sweep_Step( RAS_VAR );
 
-            if (span_count > 0)
-                ras.black_spans(span_count, spans, ras.user_data);
-
             y++;
 
             if (y < y_change)
@@ -2235,6 +2231,9 @@ Draw_Sweep( RAS_ARG )
 
     }
 
+    if (span_count > 0)
+        ras.black_spans(span_count, spans, ras.user_data);
+    
     /* for gray-scaling, flushes the bitmap scanline cache */
     while ( y <= max_Y )
     {

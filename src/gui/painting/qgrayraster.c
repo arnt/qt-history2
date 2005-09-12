@@ -292,7 +292,6 @@
 
     QT_FT_Raster_Span_Func  render_span;
     void*                render_span_data;
-    int                  span_y;
 
     int  band_size;
     int  band_shoot;
@@ -1334,7 +1333,6 @@
                        int     acount )
   {
     QT_FT_Span*   span;
-    int        count;
     int        coverage;
 
 
@@ -1370,10 +1368,9 @@
     if ( coverage )
     {
       /* see if we can add this span to the current list */
-      count = ras.num_gray_spans;
-      span  = ras.gray_spans + count - 1;
-      if ( count > 0                          &&
-           ras.span_y == y                    &&
+      span  = ras.gray_spans + ras.num_gray_spans - 1;
+      if ( ras.num_gray_spans > 0             &&
+           span->y == y                    &&
            (int)span->x + span->len == (int)x &&
            span->coverage == coverage )
       {
@@ -1381,21 +1378,21 @@
         return;
       }
 
-      if ( count >= QT_FT_MAX_GRAY_SPANS )
+      if ( ras.num_gray_spans >= QT_FT_MAX_GRAY_SPANS )
       {
         if ( ras.render_span )
-          ras.render_span( count, ras.gray_spans,
+          ras.render_span( ras.num_gray_spans, ras.gray_spans,
                            ras.render_span_data );
         /* ras.render_span( span->y, ras.gray_spans, count ); */
 
 #ifdef DEBUG_GRAYS
 
-        if ( ras.span_y >= 0 )
+        if ( 1 )
         {
           int  n;
 
 
-          fprintf( stderr, "y=%3d ", ras.span_y );
+          fprintf( stderr, "y=%3d ", y );
           span = ras.gray_spans;
           for ( n = 0; n < count; n++, span++ )
             fprintf( stderr, "[%d..%d]:%02x ",
@@ -1406,9 +1403,7 @@
 #endif /* DEBUG_GRAYS */
 
         ras.num_gray_spans = 0;
-        ras.span_y         = y;
 
-        count = 0;
         span  = ras.gray_spans;
       }
       else
@@ -1441,8 +1436,6 @@
     limit = cur + ras.num_cells;
 
     cover              = 0;
-    ras.span_y         = -1;
-    ras.num_gray_spans = 0;
 
     for (;;)
     {
@@ -1496,10 +1489,6 @@
         break;
     }
 
-    if ( ras.render_span && ras.num_gray_spans > 0 )
-      ras.render_span( ras.num_gray_spans,
-                       ras.gray_spans, ras.render_span_data );
-
 #ifdef DEBUG_GRAYS
 
     {
@@ -1507,7 +1496,7 @@
       QT_FT_Span*  span;
 
 
-      fprintf( stderr, "y=%3d ", ras.span_y );
+      fprintf( stderr, "y=%3d ", y );
       span = ras.gray_spans;
       for ( n = 0; n < ras.num_gray_spans; n++, span++ )
         fprintf( stderr, "[%d..%d]:%02x ",
@@ -1806,6 +1795,7 @@
     TPos volatile    min, max, max_y;
     QT_FT_BBox*         clip;
 
+    ras.num_gray_spans = 0;
 
     /* Set up state in the raster object */
     gray_compute_cbox( RAS_VAR );
@@ -1926,6 +1916,10 @@
       }
     }
 
+    if ( ras.render_span && ras.num_gray_spans > 0 )
+      ras.render_span( ras.num_gray_spans,
+                       ras.gray_spans, ras.render_span_data );
+    
     if ( ras.band_shoot > 8 && ras.band_size > 16 )
       ras.band_size = ras.band_size / 2;
 
