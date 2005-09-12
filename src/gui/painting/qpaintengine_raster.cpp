@@ -1541,7 +1541,6 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         for (int y=ymin; y<ymax; ++y) {
             QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y()) - devRect.x();
             // Generate spans for this y coord
-            spans.reset();
             for (int x = xmin; x<xmax; ) {
                 // Skip those with 0 coverage (black on white so inverted)
                 while (x < xmax && qBlue(scanline[x]) > 0x80) ++x;
@@ -1564,7 +1563,6 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         for (int y=ymin; y<ymax; ++y) {
             QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y()) - devRect.x();
             // Generate spans for this y coord
-            spans.reset();
             for (int x = xmin; x<xmax; ) {
                 // Skip those with 0 coverage (black on white so inverted)
                 while (x < xmax && qGray(scanline[x]) == 255) ++x;
