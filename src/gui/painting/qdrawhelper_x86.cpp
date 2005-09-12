@@ -83,7 +83,7 @@ static void QT_FASTCALL comp_func_solid_Clear(uint *dest, int length, const uint
 {
     if (!length)
         return;
-    
+
     if (const_alpha == 255) {
         if (((long)dest) & 0x7) {
             *dest = 0;
@@ -117,7 +117,7 @@ Da'  = Sa.Da + Sa.(1 - Da)
 static void QT_FASTCALL comp_func_solid_Source(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255) {
-        qt_memfill_uint(dest, length, color);        
+        qt_memfill_uint(dest, length, color);
     } else {
         __m64 a = loadAlpha(const_alpha);
         __m64 ia = negate(a);
@@ -396,6 +396,7 @@ static void QT_FASTCALL comp_func_SourceIn(uint *dest, const uint *src, int leng
             __m64 a = spread_alpha(load(dest[i]));
             dest[i] = store(byte_mul(load(src[i]), a));
         }
+        _mm_empty();
     } else {
         int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i) {
