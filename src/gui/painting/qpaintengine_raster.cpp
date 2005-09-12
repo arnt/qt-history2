@@ -1546,12 +1546,11 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
                 while (x < xmax && qBlue(scanline[x]) > 0x80) ++x;
                 if (x >= xmax) break;
 
-                QT_FT_Span span = { x, 0, 255 };
+                QT_FT_Span span = { x, 0, y, 255 };
 
                 // extend span until we find a different one.
                 while (x < xmax && qBlue(scanline[x]) < 0x80) ++x;
                 span.len = x - span.x;
-
                 if (current == NSPANS) {
                     d->spanFillData.blend(current, spans, &d->spanFillData);
                     current = 0;
@@ -1569,7 +1568,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
                 if (x >= xmax) break;
 
                 int prev = qGray(scanline[x]);
-                QT_FT_Span span = { x, 0, 255 - prev };
+                QT_FT_Span span = { x, 0, y, 255 - prev };
 
                 // extend span until we find a different one.
                 while (x < xmax && qGray(scanline[x]) == prev) ++x;
