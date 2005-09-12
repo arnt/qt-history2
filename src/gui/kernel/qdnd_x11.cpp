@@ -1461,7 +1461,7 @@ void QDragManager::updatePixmap()
     }
 }
 
-QVariant QDropData::retrieveData_sys(const QString &mimetype, QVariant::Type type) const
+QVariant QDropData::retrieveData_sys(const QString &mimetype, QVariant::Type) const
 {
     QByteArray mime = mimetype.toLatin1();
     QByteArray data = X11->motifdnd_active
