@@ -1785,7 +1785,8 @@ QPoint QRasterPaintEngine::coordinateOffset() const
 void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm, QSpanFillData *fg)
 {
     Q_ASSERT(fg);
-    Q_ASSERT(fg->blend);
+    if (!fg->blend)
+        return;
 
     const QImage image = pm.toImage();
     Q_ASSERT(image.depth() == 1);
@@ -1876,7 +1877,7 @@ void QRasterPaintEnginePrivate::addClip(QSpanFillData *data)
 {
     if (clipEnabled && data->blend) {
         data->unclipped_blend = data->blend;
-        data->blend = qt_span_fill_clipped;
+        data->blend = data->rasterBuffer->clip ? qt_span_fill_clipped : 0;
     }
 }
 
@@ -2342,9 +2343,10 @@ static void qt_span_fill_clipped(int spanCount, const QSpan *spans, void *userDa
 //     qDebug() << "qt_span_fill_clipped";
     QSpanFillData *fillData = reinterpret_cast<QSpanFillData *>(userData);
 
-    Q_ASSERT(fillData->blend);
+    Q_ASSERT(fillData->blend && fillData->unclipped_blend);
 
     QRasterBuffer *rb = fillData->rasterBuffer;
+    Q_ASSERT(rb->clip);
 
     const int NSPANS = 256;
     QSpan cspans[NSPANS];
@@ -2394,6 +2396,9 @@ static void qt_span_clip(int count, const QSpan *spans, void *userData)
 static void qt_scanconvert(QT_FT_Outline *outline, ProcessSpans callback, void *userData,
                            QRasterPaintEnginePrivate *d)
 {
+    if (!callback)
+        return;
+    
     void *data = userData;
 
     QT_FT_BBox clip_box = { 0, 0, d->deviceRect.width(), d->deviceRect.height() };
