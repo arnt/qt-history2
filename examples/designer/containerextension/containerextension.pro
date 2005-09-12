@@ -6,13 +6,11 @@ DESTDIR  = $$QT_BUILD_TREE/plugins/designer
 HEADERS += multipagewidget.h \
            multipagewidgetplugin.h \ 
            multipagewidgetcontainerextension.h \
-           multipagewidgettaskmenuextension.h \
            multipagewidgetextensionfactory.h 
 
 SOURCES += multipagewidget.cpp \
            multipagewidgetplugin.cpp \
            multipagewidgetcontainerextension.cpp \
-           multipagewidgettaskmenuextension.cpp \
            multipagewidgetextensionfactory.cpp 
 
 # install

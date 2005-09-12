@@ -67,12 +67,10 @@ void MultiPageWidgetPlugin::initialize(QDesignerFormEditorInterface *formEditor)
         return;
 
     QExtensionManager *manager = formEditor->extensionManager();
-    Q_ASSERT(manager != 0);
-
     QExtensionFactory *factory = new MultiPageWidgetExtensionFactory(manager);
 
+    Q_ASSERT(manager != 0);
     manager->registerExtensions(factory, Q_TYPEID(QDesignerContainerExtension));
-    manager->registerExtensions(factory, Q_TYPEID(QDesignerTaskMenuExtension));
 
     initialized = true;
 }
