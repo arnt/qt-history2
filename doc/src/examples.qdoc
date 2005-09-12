@@ -197,7 +197,7 @@
     \o \l{designer/calculatorform}{Calculator Form}\raisedaster
     \o \l{designer/customwidgetplugin}{Custom Widget Plugin}\raisedaster
     \o \l{designer/taskmenuextension}{Task Menu Extension}\raisedaster
-    \o \l{designer/containerextension}{Container Extension}
+    \o \l{designer/containerextension}{Container Extension}\raisedaster
     \o \l{designer/worldtimeclockplugin}{World Time Clock Plugin}
     \endlist
 
