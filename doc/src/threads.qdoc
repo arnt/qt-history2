@@ -401,14 +401,13 @@
 
     \section1 Threads and the SQL Module
 
-    The classes in the \l QtSql module can be used in separate
-    threads, as long as the rules for QObject based classes are followed.
+    A connection can only be used from within the thread that created it.
+    Moving connections between threads or creating queries from a different
+    thread is not supported.
 
-    The third-party libraries used to implement the SQL drivers can
-    impose other restrictions on using the SQL Module in a
-    multithreaded program. For example, the PostgreSQL library
-    requires a separate connection per thread. Consult the
-    documentation for your third-party library for more information.
+    In addition, the third party libraries used by the QSqlDrivers can impose
+    further restrictions on using the SQL Module in a multithreaded program.
+    Consult the manual of your database client for more information
 
     \target reading
     \section1 Recommended Reading
