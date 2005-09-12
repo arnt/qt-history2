@@ -54,7 +54,7 @@ static uint qt_gradient_pixel(const GradientData *data, double pos)
 static void QT_FASTCALL comp_func_solid_Clear(uint *dest, int length, uint, uint const_alpha)
 {
     if (const_alpha == 255) {
-        qt_memfill_uint(dest, length, 0);
+        QT_MEMFILL_UINT(dest, length, 0)
     } else {
         int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i)
@@ -71,7 +71,7 @@ Da'  = Sa.Da + Sa.(1 - Da)
 static void QT_FASTCALL comp_func_solid_Source(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255) {
-        qt_memfill_uint(dest, length, color);
+        QT_MEMFILL_UINT(dest, length, color)
     } else {
         int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i)
@@ -90,7 +90,7 @@ static void QT_FASTCALL comp_func_solid_SourceOver(uint *dest, int length, uint 
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
     if (qAlpha(color) == 255)
-        qt_memfill_uint(dest, length, color);
+        QT_MEMFILL_UINT(dest, length, color)
     else
         for (int i = 0; i < length; ++i)
             dest[i] = color + BYTE_MUL(dest[i], 255 - qAlpha(color));
@@ -250,7 +250,7 @@ static const CompositionFunctionSolid *functionForModeSolid = functionForModeSol
 static void QT_FASTCALL comp_func_Clear(uint *dest, const uint *, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
-        qt_memfill_uint(dest, length, 0);
+        QT_MEMFILL_UINT(dest, length, 0)
     } else {
         int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i)
@@ -472,14 +472,14 @@ static void blend_argb(int count, const QSpan *spans, void *userData)
     const int image_height = data->texture.height;
     int xoff = qRound(data->dx) % image_width;
     int yoff = qRound(data->dy) % image_height;
-    
+
     if (xoff < 0)
         xoff += image_width;
     if (yoff < 0)
         yoff += image_height;
-    
+
     const void *ibits = data->texture.imageData;
-        
+
     while (count--) {
         void *t = data->rasterBuffer->scanLine(spans->y);
         const qreal dx = (xoff + spans->x)%image_width;
@@ -521,17 +521,17 @@ static void blend_tiled_argb(int count, const QSpan *spans, void *userData)
     int image_height = data->texture.height;
     int xoff = qRound(data->dx) % image_width;
     int yoff = qRound(data->dy) % image_height;
-    
+
     if (xoff < 0)
         xoff += image_width;
     if (yoff < 0)
         yoff += image_height;
-    
+
     const void *ibits = data->texture.imageData;
-        
+
     while (count--) {
         void *t = data->rasterBuffer->scanLine(spans->y);
-    
+
         const qreal dx = (xoff + spans->x)%image_width;
         const qreal dy = (spans->y + yoff) % image_height;
 
@@ -870,7 +870,7 @@ static void blend_linear_gradient_argb(int count, const QSpan *spans, void *user
     while (count--) {
         uint *target = ((uint *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
 
-        qreal t, inc;        
+        qreal t, inc;
         if (l == 0) {
             t = inc = 0;
         } else {
@@ -1184,7 +1184,7 @@ static void blend_transformed_mono(int count, const QSpan *spans, void *userData
     }
 }
 
-static void blend_transformed_tiled_mono(int count, const QSpan *spans, void *userData) 
+static void blend_transformed_tiled_mono(int count, const QSpan *spans, void *userData)
 {
     if (!spans->coverage)
         return;
@@ -1262,7 +1262,7 @@ static void blend_linear_gradient_mono(int count, const QSpan *spans, void *user
     while (count--) {
         uint *target = ((uint *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
 
-        qreal t, inc;        
+        qreal t, inc;
         if (l == 0) {
             t = inc = 0;
         } else {
@@ -1633,7 +1633,7 @@ static void blend_linear_gradient_mono_lsb(int count, const QSpan *spans, void *
     while (count--) {
         uint *target = ((uint *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
 
-        qreal t, inc;        
+        qreal t, inc;
         if (l == 0) {
             t = inc = 0;
         } else {

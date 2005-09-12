@@ -117,7 +117,7 @@ Da'  = Sa.Da + Sa.(1 - Da)
 static void QT_FASTCALL comp_func_solid_Source(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255) {
-        qt_memfill_uint(dest, length, color);
+        QT_MEMFILL_UINT(dest, length, color)
     } else {
         __m64 a = loadAlpha(const_alpha);
         __m64 ia = negate(a);
@@ -140,7 +140,7 @@ static void QT_FASTCALL comp_func_solid_SourceOver(uint *dest, int length, uint 
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
     if (qAlpha(color) == 255) {
-        qt_memfill_uint(dest, length, color);
+        QT_MEMFILL_UINT(dest, length, color)
     } else {
         __m64 c = load(color);
         __m64 ia = negate(spread_alpha(c));
@@ -309,7 +309,7 @@ const CompositionFunctionSolid qt_functionForModeSolid_SSE[] = {
 static void QT_FASTCALL comp_func_Clear(uint *dest, const uint *, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
-        qt_memfill_uint(dest, length, 0);
+        QT_MEMFILL_UINT(dest, length, 0)
     } else {
         __m64 ialpha = negate(spread_alpha(load(const_alpha)));
         for (int i = 0; i < length; ++i)

@@ -164,24 +164,24 @@ struct QSpanFillData
     void initGradient(const QGradient *g);
 };
 
-
-
-inline void qt_memfill_uint(uint *dest, int length, uint color)
-{
-    // Duff's device
-    register int n = (length + 7) / 8;
-    switch (length % 8)
-    {
-    case 0: do { *dest++ = color;
-    case 7:      *dest++ = color;
-    case 6:      *dest++ = color;
-    case 5:      *dest++ = color;
-    case 4:      *dest++ = color;
-    case 3:      *dest++ = color;
-    case 2:      *dest++ = color;
-    case 1:      *dest++ = color;
-    } while (--n > 0);
-    }
+#define QT_MEMFILL_UINT(dest, length, color)\
+{                                           \
+    /* Duff's device */                     \
+    uint *d = (dest);                       \
+    uint c = (color);                       \
+    register int n = ((length) + 7) / 8;    \
+    switch ((length) % 8)                   \
+    {                                       \
+    case 0: do { *d++ = c;                  \
+    case 7:      *d++ = c;                  \
+    case 6:      *d++ = c;                  \
+    case 5:      *d++ = c;                  \
+    case 4:      *d++ = c;                  \
+    case 3:      *d++ = c;                  \
+    case 2:      *d++ = c;                  \
+    case 1:      *d++ = c;                  \
+    } while (--n > 0);                      \
+    }                                       \
 }
 
 inline int qt_div_255(int x) { return (x + (x>>8) + 0x80) >> 8; }
