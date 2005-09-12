@@ -31,7 +31,7 @@
 static bool qt_bufferBackingStore(const QWidget *tlw)
 {
     return true;
-    static char checked_env = -1;
+    static signed char checked_env = -1;
     if(checked_env == -1)
         checked_env = (qgetenv("QT_NO_BACKINGSTORE") == "1") ? 1 : 0;
 
@@ -45,7 +45,7 @@ static bool qt_bufferBackingStore(const QWidget *tlw)
 
 static bool qt_flushPaint()
 {
-    static char checked_env = -1;
+    static signed char checked_env = -1;
     if(checked_env == -1)
         checked_env = (qgetenv("QT_FLUSH_PAINT") == "1") ? 1 : 0;
 
