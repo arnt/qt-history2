@@ -1533,7 +1533,9 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     int xmax = qMin(devRect.x() + devRect.width(), d->rasterBuffer->width());
     int xmin = qMax(devRect.x(), 0);
 
-    static QDataBuffer<QT_FT_Span> spans;
+    const int NSPANS = 256;
+    QSpan spans[NSPANS];
+    int current = 0;
 
     if (d->mono_surface) {
         for (int y=ymin; y<ymax; ++y) {
@@ -1551,13 +1553,13 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
                 while (x < xmax && qBlue(scanline[x]) < 0x80) ++x;
                 span.len = x - span.x;
 
-                spans.add(span);
+                if (current == NSPANS) {
+                    d->spanFillData.blend(current, spans, &d->spanFillData);
+                    current = 0;
+                }
+                spans[current++] = span;
             }
-
-            // Call span func for current set of spans.
-            d->spanFillData.blend(y, spans.size(), spans.data(), &d->spanFillData);
         }
-
     } else {
         for (int y=ymin; y<ymax; ++y) {
             QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y()) - devRect.x();
@@ -1575,13 +1577,17 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
                 while (x < xmax && qGray(scanline[x]) == prev) ++x;
                 span.len = x - span.x;
 
-                spans.add(span);
+                if (current == NSPANS) {
+                    d->spanFillData.blend(current, spans, &d->spanFillData);
+                    current = 0;
+                }
+                spans[current++] = span;
             }
-
-            // Call span func for current set of spans.
-            d->spanFillData.blend(y, spans.size(), spans.data(), &d->spanFillData);
         }
     }
+
+    if (current != 0) 
+        d->spanFillData.blend(current, spans, &d->spanFillData);
 
     return;
 
