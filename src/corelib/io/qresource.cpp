@@ -371,7 +371,7 @@ QStringList QResourceInfo::children() const
 Q_CORE_EXPORT bool qRegisterResourceData(int version, const unsigned char *tree,
                                          const unsigned char *name, const unsigned char *data)
 {
-    if(version == 0x01) {
+    if(version == 0x01 && resourceList()) {
         QResource res(tree, name, data);
         if (!resourceList()->contains(res))
             resourceList()->append(res);
@@ -383,7 +383,7 @@ Q_CORE_EXPORT bool qRegisterResourceData(int version, const unsigned char *tree,
 Q_CORE_EXPORT bool qUnregisterResourceData(int version, const unsigned char *tree,
                                            const unsigned char *name, const unsigned char *data)
 {
-    if(version == 0x01) {
+    if(version == 0x01 && resourceList()) {
         QResource res(tree, name, data);
         for(int i = 0; i < resourceList()->size(); ) {
             if(resourceList()->at(i) == res)
