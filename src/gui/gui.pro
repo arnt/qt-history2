@@ -4,9 +4,10 @@ QT = core
 DEFINES   += QT_BUILD_GUI_LIB
 win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x65000000
 
+!win32:!embedded:!mac:CONFIG	  += x11
+
 include(../qbase.pri)
 
-!win32:!embedded:!mac:CONFIG	  += x11
 contains(QT_CONFIG, x11sm):CONFIG += x11sm
 
 #platforms
