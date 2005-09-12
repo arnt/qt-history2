@@ -675,6 +675,15 @@ void QTextTable::removeRows(int pos, int num)
     QTextFormatCollection *collection = p->formatCollection();
     p->beginEditBlock();
 
+    // delete whole table?
+    if (pos == 0 && num == d->nRows) {
+        const int pos = p->fragmentMap().position(d->fragment_start);
+        p->remove(pos, p->fragmentMap().position(d->fragment_end) - pos + 1);
+        p->endEditBlock();
+        return;
+    }
+
+
     for (int r = pos; r < pos + num; ++r) {
         for (int c = 0; c < d->nCols; ++c) {
             int cell = d->grid[r*d->nCols + c];
