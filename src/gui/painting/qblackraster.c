@@ -2200,11 +2200,12 @@ Draw_Sweep( RAS_ARG )
                 if (ix2 > ix1) {
                     spans[span_count].x = (short) ix1;
                     spans[span_count].len = (short) (ix2 - ix1);
+                    spans[span_count].y = y;
                     spans[span_count].coverage = 255;
                     ++span_count;
 
                     if (span_count == MAX_SPANS) {
-                        ras.black_spans(y, span_count, spans, ras.user_data);
+                        ras.black_spans(span_count, spans, ras.user_data);
                         span_count = 0;
                     }
                 }
@@ -2213,7 +2214,7 @@ Draw_Sweep( RAS_ARG )
             ras.Proc_Sweep_Step( RAS_VAR );
 
             if (span_count > 0)
-                ras.black_spans(y, span_count, spans, ras.user_data);
+                ras.black_spans(span_count, spans, ras.user_data);
 
             y++;
 

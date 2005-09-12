@@ -233,7 +233,7 @@
 
 
   /* maximal number of gray spans in a call to the span callback */
-#define QT_FT_MAX_GRAY_SPANS  32
+#define QT_FT_MAX_GRAY_SPANS  256
 
 
 #ifdef GRAYS_COMPACT
@@ -1381,10 +1381,10 @@
         return;
       }
 
-      if ( ras.span_y != y || count >= QT_FT_MAX_GRAY_SPANS )
+      if ( count >= QT_FT_MAX_GRAY_SPANS )
       {
-        if ( ras.render_span && count > 0 )
-          ras.render_span( ras.span_y, count, ras.gray_spans,
+        if ( ras.render_span )
+          ras.render_span( count, ras.gray_spans,
                            ras.render_span_data );
         /* ras.render_span( span->y, ras.gray_spans, count ); */
 
@@ -1417,6 +1417,7 @@
       /* add a gray span to the current list */
       span->x        = (short)x;
       span->len      = (unsigned short)acount;
+      span->y = (short)y;
       span->coverage = (unsigned char)coverage;
       ras.num_gray_spans++;
     }
@@ -1496,7 +1497,7 @@
     }
 
     if ( ras.render_span && ras.num_gray_spans > 0 )
-      ras.render_span( ras.span_y, ras.num_gray_spans,
+      ras.render_span( ras.num_gray_spans,
                        ras.gray_spans, ras.render_span_data );
 
 #ifdef DEBUG_GRAYS

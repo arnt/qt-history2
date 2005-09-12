@@ -39,7 +39,7 @@ struct ConicalGradientData;
 struct QSpanFillData;
 class QGradient;
 
-typedef void (*ProcessSpans)(int y, int count, QSpan *spans, void *userData);
+typedef void (*ProcessSpans)(int count, QSpan *spans, void *userData);
 
 struct DrawHelper {
     enum Layout {

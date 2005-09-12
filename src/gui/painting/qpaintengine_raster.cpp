@@ -113,14 +113,14 @@ static void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC 
 /********************************************************************************
  * Span functions
  */
-static void qt_span_fill_clipped(int y, int count, QSpan *spans, void *userData);
-static void qt_span_clip(int y, int count, QSpan *spans, void *userData);
+static void qt_span_fill_clipped(int count, QSpan *spans, void *userData);
+static void qt_span_clip(int count, QSpan *spans, void *userData);
 
 struct ClipData
 {
-    QRasterBuffer *rasterBuffer;
+    QClipData *oldClip;
+    QClipData *newClip;
     Qt::ClipOperation operation;
-    int lastIntersected;
 };
 
 static void qt_scanconvert(QT_FT_Outline *outline, ProcessSpans callback, void *userData, QRasterPaintEnginePrivate *d);
@@ -916,8 +916,9 @@ void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
                     span.coverage = 255;
 
                     // draw the fill
-                    for (int y=y1; y<y2; ++y) {
-                        d->spanFillData.blend(y, 1, &span, &d->spanFillData);
+                    for (int y = y1; y < y2; ++y) {
+                        span.y = y;
+                        d->spanFillData.blend(1, &span, &d->spanFillData);
                     }
                 }
             }
@@ -1214,7 +1215,7 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
 //QWS hack
 static inline uchar monoVal(const uchar* s, int x)
 {
-    return  (s[x>>3] << (x&7)) & 0x80;
+    return  (s[x>>3] << (x&7)) & 0x80 ? 255 : 0;
 }
 void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx,int ry,int w,int h)
 {
@@ -1234,12 +1235,12 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
     w = qMin(w, rb->width() - rx);
     h = qMin(h, rb->height() - ry);
 
-    static QDataBuffer<QT_FT_Span> spans;
+    const int NSPANS = 256;
+    QSpan spans[NSPANS];
+    int current = 0;
 
     for (int y=y0; y < h; ++y) {
         const uchar *scanline = static_cast<const uchar *>(src) + y*bpl;
-        // Generate spans for this y coord
-        spans.reset();
 
         if (mono) {
             for (int x = x0; x < w; ) {
@@ -1250,18 +1251,19 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
                 if (x >= w) break;
 
                 int prev = monoVal(scanline,x);
-                QT_FT_Span span = { x + rx, 0, prev*255 };
+                QT_FT_Span span = { x + rx, 0, y + ry, prev };
 
                 // extend span until we find a different one.
                 while (x < w && monoVal(scanline,x) == prev)
                     ++x;
                 span.len = x +rx - span.x;
 
-                spans.add(span);
+                if (current == NSPANS) {
+                    d->spanFillData.blend(current, spans, &d->spanFillData);
+                    current = 0;
+                }
+                spans[current++] = span;
             }
-            // Call span func for current set of spans.
-            d->spanFillData.blend(y + ry, spans.size(), spans.data(), &d->spanFillData);
-
         } else {
             for (int x = x0; x < w; ) {
                 // Skip those with 0 coverage
@@ -1270,19 +1272,26 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
                 if (x >= w) break;
 
                 int prev = scanline[x];
-                QT_FT_Span span = { x + rx, 0, scanline[x] };
+                QT_FT_Span span = { x + rx, 0, y + ry, scanline[x] };
 
                 // extend span until we find a different one.
                 while (x < w && scanline[x] == prev)
                     ++x;
                 span.len = x +rx - span.x;
 
-                spans.add(span);
+                if (current == NSPANS) {
+                    d->spanFillData.blend(current, spans, &d->spanFillData);
+                    current = 0;
+                }
+                spans[current++] = span;
             }
         }
-        // Call span func for current set of spans.
-        d->spanFillData.blend(y + ry, spans.size(), spans.data(), &d->spanFillData);
     }
+//     qDebug() << "alphaPenBlt: num spans=" << current
+//              << "span:" << spans->x << spans->y << spans->len << spans->coverage;
+        // Call span func for current set of spans.
+    if (current != 0) 
+        d->spanFillData.blend(current, spans, &d->spanFillData);
 }
 
 void QRasterPaintEngine::qwsFillRect(int x, int y, int w, int h, const QBrush &brush)
@@ -1300,11 +1309,12 @@ void QRasterPaintEngine::qwsFillRect(int x, int y, int w, int h, const QBrush &b
         QT_FT_Span span;
         span.x = x1;
         span.len = x2 - x1;
+        span.y = y;
         span.coverage = 255;
 
         // draw the fill
         for (int y=y1; y<y2; ++y) {
-            d->spanFillData.blend(y, 1, &span, &d->spanFillData);
+            d->spanFillData.blend(1, &span, &d->spanFillData);
         }
     }
 }
@@ -1631,7 +1641,7 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
         if (!d->spanFillData.blend)
             return;
 
-        QT_FT_Span span = { 0, 1, 255 };
+        QT_FT_Span span = { 0, 1, 0, 255 };
         qreal dx = d->matrix.dx();
         qreal dy = d->matrix.dy();
         const QPointF *end = points + pointCount;
@@ -1645,7 +1655,8 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
             y = qRound(points->y() + dy);
             if (x >= left && x < right && y >= top && y < bottom) {
                 span.x = x;
-                d->spanFillData.blend(y, 1, &span, &d->spanFillData);
+                span.y = y;
+                d->spanFillData.blend(1, &span, &d->spanFillData);
             }
             ++points;
         }
@@ -1803,7 +1814,7 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
                     continue;
                 }
                 if (pixel & (0x1 << (src_x & 7))) {
-                    QT_FT_Span span = { xmin + x, 1, 255 };
+                    QT_FT_Span span = { xmin + x, 1, y, 255 };
                     while (src_x < w-1 && src[(src_x+1) >> 3] & (0x1 << ((src_x+1) & 7))) {
                         ++src_x;
                         ++span.len;
@@ -1813,7 +1824,7 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
                     ++n;
                 }
                 if (n == spanCount) {
-                    fg->blend(y, n, spans, fg);
+                    fg->blend(n, spans, fg);
                     n = 0;
                 }
             }
@@ -1822,7 +1833,7 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
             for (int x = 0; x < xmax - xmin; ++x) {
                 bool set = src[x >> 3] & (0x80 >> (x & 7));
                 if (set) {
-                    QT_FT_Span span = { xmin + x, 1, 255 };
+                    QT_FT_Span span = { xmin + x, 1, y, 255 };
                     while (x < w-1 && src[(x+1) >> 3] & (0x80 >> ((x+1) & 7))) {
                         ++x;
                         ++span.len;
@@ -1832,14 +1843,14 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
                     ++n;
                 }
                 if (n == spanCount) {
-                    fg->blend(y, n, spans, fg);
+                    fg->blend(n, spans, fg->data);
                     n = 0;
                 }
             }
         }
 #endif
         if (n) {
-            fg->blend(y, n, spans, fg);
+            fg->blend(n, spans, fg);
             n = 0;
         }
     }
@@ -1969,6 +1980,83 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, QSpanFillData 
 }
 
 
+static void qt_merge_clip(const QClipData *c1, const QClipData *c2, QClipData *result)
+{
+    Q_ASSERT(c1->clipSpanHeight == c2->clipSpanHeight && c1->clipSpanHeight == result->clipSpanHeight);
+    
+    // ### buffer overflow possible
+    const int BUFFER_SIZE = 4096;
+    int buffer[BUFFER_SIZE];
+    int *b = buffer;
+    int bsize = BUFFER_SIZE;
+
+    for (int y = 0; y < c1->clipSpanHeight; ++y) {
+        const QSpan *c1_spans = c1->clipLines[y].spans;
+        int c1_count = c1->clipLines[y].count;
+        const QSpan *c2_spans = c2->clipLines[y].spans;
+        int c2_count = c2->clipLines[y].count;
+
+        if (c1_count == 0 && c2_count == 0)
+            continue;
+        if (c1_count == 0) {
+            result->appendSpans(c2_spans, c2_count);
+            continue;
+        } else if (c2_count == 0) {
+            result->appendSpans(c1_spans, c1_count);
+            continue;
+        }
+
+        // we need to merge the two
+
+        // find required length
+        int max = qMax(c1_spans[c1_count - 1].x + c1_spans[c1_count - 1].len,
+                       c2_spans[c2_count - 1].x + c2_spans[c2_count - 1].len);
+        if (max > bsize) {
+            b = (int *)realloc(bsize == BUFFER_SIZE ? 0 : b, max*sizeof(int));
+            bsize = max;
+        }
+        memset(buffer, 0, BUFFER_SIZE * sizeof(int));
+            
+        // Fill with old spans.
+        for (int i = 0; i < c1_count; ++i) {
+            const QSpan *cs = c1_spans + i;
+            for (int j=cs->x; j<cs->x + cs->len; ++j)
+                buffer[j] = cs->coverage;
+        }
+            
+        // Fill with new spans
+        for (int i = 0; i < c2_count; ++i) {
+            const QSpan *cs = c2_spans + i;
+            for (int j = cs->x; j < cs->x + cs->len; ++j) {
+                buffer[j] += cs->coverage;
+                if (buffer[j] > 255)
+                    buffer[j] = 255;
+            }
+        }
+
+        int x = 0;
+        while (x<max) {
+
+            // Skip to next span
+            while (x < max && buffer[x] == 0) ++x;
+            if (x >= max) break;
+
+            int sx = x;
+            int coverage = buffer[x];
+            
+            // Find length of span
+            while (x < max && buffer[x] == coverage)
+                ++x;
+
+            result->appendSpan(sx, x - sx, y, coverage);
+        }
+    }
+    if (b != buffer)
+        free(b);
+    result->fixup();
+}
+
+
 void QRasterPaintEnginePrivate::updateClip_helper(const QPainterPath &path, Qt::ClipOperation op)
 {
 #ifdef QT_DEBUG_DRAW
@@ -1979,35 +2067,34 @@ void QRasterPaintEnginePrivate::updateClip_helper(const QPainterPath &path, Qt::
         op = Qt::ReplaceClip;
 
     clipEnabled = true;
-    ClipData clipData = { rasterBuffer, op, 0 };
 
-    switch (op) {
-    case Qt::NoClip:
+    if (op == Qt::NoClip) {
         rasterBuffer->resetClip();
         clipEnabled = false;
         return;
-    case Qt::ReplaceClip:
+    }
+    if (op == Qt::ReplaceClip || (op == Qt::IntersectClip && path.isEmpty())) {
         rasterBuffer->resetClip();
-        break;
-    case Qt::UniteClip:
-        break;
-    case Qt::IntersectClip:
-        if (path.isEmpty())
-            rasterBuffer->resetClip();
-        clipData.lastIntersected = -1;
-        break;
     }
 
     if (path.isEmpty())
         return;
 
+    QClipData *newClip = new QClipData(rasterBuffer->height());
+    ClipData clipData = { rasterBuffer->clip, newClip, op };
     qt_scanconvert(outlineMapper->convertPath(path), qt_span_clip, &clipData, this);
+    newClip->fixup();
 
-    // Need to reset the clipspans that where not touched during scan conversion.
-    if (op == Qt::IntersectClip) {
-        int start = clipData.lastIntersected + 1;
-        rasterBuffer->resetClipSpans(start, rasterBuffer->height() - start);
+    if (op == Qt::UniteClip) {
+        // merge clips
+        QClipData *result = new QClipData(rasterBuffer->height());
+        qt_merge_clip(rasterBuffer->clip, newClip, result);
+        delete newClip;
+        newClip = result;
     }
+    
+    delete rasterBuffer->clip;
+    rasterBuffer->clip = newClip;
 }
 
 QImage QRasterPaintEnginePrivate::colorizeBitmap(const QImage &image, const QColor &color)
@@ -2033,19 +2120,8 @@ QImage QRasterPaintEnginePrivate::colorizeBitmap(const QImage &image, const QCol
 
 QRasterBuffer::~QRasterBuffer()
 {
-    if (m_clipSpanCount || m_clipSpanCapacity || m_clipSpans) {
-        Q_ASSERT(m_clipSpanCount);
-        qFree(m_clipSpanCount);
-
-        Q_ASSERT(m_clipSpanCapacity);
-        qFree(m_clipSpanCapacity);
-
-        Q_ASSERT(m_clipSpans);
-        for (int y=0; y<m_height; ++y)
-            qFree((QT_FT_Span *)m_clipSpans[y]);
-        qFree(m_clipSpans);
-    }
-
+    delete clip;
+    
 #if defined (Q_WS_WIN)
     if (m_bitmap || m_hdc) {
         Q_ASSERT(m_hdc);
@@ -2058,10 +2134,7 @@ QRasterBuffer::~QRasterBuffer()
 
 void QRasterBuffer::init()
 {
-    m_clipSpanCount = 0;
-    m_clipSpanCapacity = 0;
-    m_clipSpans = 0;
-    m_clipSpanHeight = 0;
+    clip = 0;
 }
 
 
@@ -2071,7 +2144,6 @@ void QRasterBuffer::prepare(int w, int h)
         return;
 
     prepareBuffer(w, h);
-    prepareClip(w, h);
 
     m_width = w;
     m_height = h;
@@ -2082,46 +2154,11 @@ void QRasterBuffer::prepare(int w, int h)
 void QRasterBuffer::prepare(QImage *image)
 {
     int depth = image->depth();
-    prepareClip(image->width(), image->height());
     m_buffer = (uchar *)image->bits();
     m_width = image->width();
     m_height = image->height();
     bytes_per_line = 4*(depth == 32 ? m_width : (m_width*depth + 31)/32);
 }
-
-void QRasterBuffer::prepareClip(int /*width*/, int height)
-{
-    if (height <= m_clipSpanHeight) {
-        resetClipSpans(0, height);
-    } else {
-
-        m_clipSpanHeight = height;
-
-        // clean up.. Should reuse old_height first elements for improved reallocs.
-        if (m_clipSpanCount || m_clipSpanCapacity || m_clipSpans) {
-            Q_ASSERT(m_clipSpanCount);
-            qFree(m_clipSpanCount);
-
-            Q_ASSERT(m_clipSpanCapacity);
-            qFree(m_clipSpanCapacity);
-
-            Q_ASSERT(m_clipSpans);
-            for (int y=0; y<m_height; ++y)
-                qFree((QT_FT_Span *)m_clipSpans[y]);
-            qFree(m_clipSpans);
-        }
-
-        m_clipSpanCount = (int *) qMalloc(height * sizeof(int));
-        m_clipSpanCapacity = (int *) qMalloc(height * sizeof(int));
-        m_clipSpans = (QSpan **) qMalloc(height * sizeof(QT_FT_Span *));
-        for (int y=0; y<height; ++y) {
-            m_clipSpanCapacity[y] = 4;
-            m_clipSpanCount[y] = 0;
-            m_clipSpans[y] = (QSpan *) qMalloc(m_clipSpanCapacity[y] * sizeof(QSpan));
-        }
-    }
-}
-
 
 void QRasterBuffer::resetBuffer(int val)
 {
@@ -2204,225 +2241,144 @@ void QRasterBuffer::prepareBuffer(int /*width*/, int /*height*/)
 }
 #endif
 
-void QRasterBuffer::appendClipSpan(int x, int y, int len, int coverage)
+
+QClipData::QClipData(int height)
 {
-//     printf("QRasterBuffer::apendClipSpan(x=%d, y=%d, len=%d, oldSize=%d\n", x, y, len,
-//            m_clipSpanCount[y]);
+    clipSpanHeight = height;
+    clipLines = (ClipLine *)calloc(sizeof(ClipLine), height);
 
-    QSpan *span = 0;
-
-    int clipSpanCount = m_clipSpanCount[y];
-
-    if (clipSpanCount == m_clipSpanCapacity[y])
-        resizeClipSpan(y, clipSpanCount << 1);
-
-//     Uncomment for sanity checking
-//     for (int i=0; i<m_clipSpanCount[y]; ++i) {
-//         QSpan *s = m_clipSpans[y] + i;
-//         if (x < s->x + s->len) {
-//             printf("bad append clip for: x=%d, y=%d, len=%d, cov=%d\n", x, y, len, coverage);
-//             Q_ASSERT(0);
-//         }
-//     }
-
-    span = m_clipSpans[y] + clipSpanCount;
-
-    span->x = x;
-    span->len = len;
-    span->coverage = coverage;
-    m_clipSpanCount[y] += 1;
+    allocated = height;
+    spans = (QSpan *)malloc(height*sizeof(QSpan));
+    count = 0;
 }
 
-void QRasterBuffer::replaceClipSpans(int y, QSpan *spans, int spanCount)
+QClipData::~QClipData()
 {
-    if (m_clipSpanCapacity[y] < spanCount)
-        resizeClipSpan(y, spanCount);
-    memcpy(m_clipSpans[y], spans, spanCount * sizeof(QSpan));
-    m_clipSpanCount[y] = spanCount;
+    free(clipLines);
+    free(spans);
 }
 
-void QRasterBuffer::resetClipSpans(int y, int count)
+void QClipData::fixup()
 {
-    memset(m_clipSpanCount + y, 0, count * sizeof(int));
+//     qDebug("QClipData::fixup:");
+    int y = -1;
+    for (int i = 0; i < count; ++i) {
+//         qDebug() << "    " << spans[i].x << spans[i].y << spans[i].len << spans[i].coverage;
+        if (spans[i].y != y) {
+            y = spans[i].y;
+            clipLines[y].spans = spans+i;
+//             qDebug() << "        new line: y=" << y;
+        }
+        ++clipLines[y].count;
+    }
 }
 
-void QRasterBuffer::resetClip()
-{
-    memset(m_clipSpanCount, 0, m_height * sizeof(int));
-}
 
-void QRasterBuffer::resizeClipSpan(int y, int size)
+static int qt_intersect_spans(const QClipData *clip,
+                              QT_FT_Span *spans, int spanCount,
+                              QSpan **outSpans, int available)
 {
-    Q_ASSERT(size > m_clipSpanCount[y]);
-    m_clipSpans[y] = (QSpan *) qRealloc(m_clipSpans[y], size * sizeof(QSpan));
-    m_clipSpanCapacity[y] = size;
-}
-
-static void qt_intersect_spans(QSpan *clipSpans, int clipSpanCount,
-                        QT_FT_Span *spans, int spanCount,
-                        QSpan **outSpans, int *outCount)
-{
-    static QDataBuffer<QSpan> newSpans;
-    newSpans.reset();
-
-    int spanIndex = 0;
+    QSpan *out = *outSpans;
+    
+    const QSpan *clipSpans;
+    int clipSpanCount;
     int clipSpanIndex = 0;
 
-    int sx1, sx2, cx1, cx2;
-
-    while (spanIndex < spanCount && clipSpanIndex < clipSpanCount) {
-        sx1 = spans[spanIndex].x;
-        sx2 = sx1 + spans[spanIndex].len;
-        cx1 = clipSpans[clipSpanIndex].x;
-        cx2 = cx1 + clipSpans[clipSpanIndex].len;
+    int spanIndex = 0;
+    int y = -1;
+    while (available && spanIndex < spanCount) {
+        if (spans[spanIndex].y != y) {
+            y = spans[spanIndex].y;
+            clipSpans = clip->clipLines[y].spans;
+            clipSpanCount = clip->clipLines[y].count;
+            clipSpanIndex = 0;
+        }
+        if (clipSpanIndex >= clipSpanCount) {
+            ++spanIndex;
+            continue;
+        }
+        
+        int sx1 = spans[spanIndex].x;
+        int sx2 = sx1 + spans[spanIndex].len;
+        int cx1 = clipSpans[clipSpanIndex].x;
+        int cx2 = cx1 + clipSpans[clipSpanIndex].len;
 
         if (cx1 < sx1 && cx2 < sx1) {
             ++clipSpanIndex;
+            continue;
         } else if (sx1 < cx1 && sx2 < cx1) {
             ++spanIndex;
+            continue;
+        }
+        int x = qMax(sx1, cx1);
+        int len = qMin(sx2, cx2) - x;
+        if (len) {
+            out->x = qMax(sx1, cx1);
+            out->len = qMin(sx2, cx2) - out->x;
+            out->y = y;
+            out->coverage = qt_div_255(spans[spanIndex].coverage * clipSpans[clipSpanIndex].coverage);
+            ++out;
+            --available;
+        }
+        if (sx2 < cx2) {
+            ++spanIndex;
         } else {
-            QSpan newClip;
-            newClip.x = qMax(sx1, cx1);
-            newClip.len = qMin(sx2, cx2) - newClip.x;
-            newClip.coverage = spans[spanIndex].coverage * clipSpans[clipSpanIndex].coverage / 255;
-            if (newClip.len>0)
-                newSpans.add(newClip);
-            if (sx2 < cx2) {
-                ++spanIndex;
-            } else {
-                ++clipSpanIndex;
-            }
+            ++clipSpanIndex;
         }
     }
 
-    *outSpans = newSpans.data();
-    *outCount = newSpans.size();
+    *outSpans = out;
+    return spanIndex;
 }
 
-static void qt_unite_spans(QSpan *clipSpans, int clipSpanCount,
-                    QT_FT_Span *spans, int spanCount,
-                    QSpan **outSpans, int *outCount)
+static void qt_span_fill_clipped(int spanCount, QT_FT_Span *spans, void *userData)
 {
-
-
-    static QDataBuffer<QSpan> newSpans;
-    newSpans.reset();
-
-
-    // ### will leak for now... BTW, this is a horrible algorithm, but then again it works...
-    const int BUFFER_SIZE = 4096;
-    static int *buffer = (int*) malloc(BUFFER_SIZE * sizeof(int));
-    memset(buffer, 0, BUFFER_SIZE * sizeof(int));
-
-    // Fill with old spans.
-    for (int i=0; i<clipSpanCount; ++i) {
-        QSpan *cs = clipSpans + i;
-        for (int j=cs->x; j<cs->x + cs->len; ++j)
-            buffer[j] += cs->coverage;
-    }
-
-    // Fill with new spans
-    for (int i=0; i<spanCount; ++i) {
-        QT_FT_Span *s = spans + i;
-        for (int j=s->x; j<s->x + s->len; ++j) {
-            buffer[j] += s->coverage;
-            if (buffer[j] > 255) buffer[j] = 255;
-        }
-    }
-
-
-    int maxClip = clipSpanCount > 0
-                  ? clipSpans[clipSpanCount-1].x + clipSpans[clipSpanCount-1].len
-                  : -1;
-    int maxSpan = spanCount > 0
-                  ? spans[spanCount-1].x + spans[spanCount-1].len
-                  : -1;
-
-    int max = qMax(maxClip, maxSpan);
-
-    int x = 0;
-    while (x<max) {
-
-        // Skip to next span
-        while (x < max && buffer[x] == 0) ++x;
-        if (x >= max) break;
-
-        QSpan sp;
-        sp.x = x;
-        sp.coverage = buffer[x];
-
-        // Find length of span
-        while (x < max && buffer[x] == sp.coverage) ++x;
-        sp.len = x - sp.x;
-
-        newSpans.add(sp);
-    }
-
-    *outSpans = newSpans.data();
-    *outCount = newSpans.size();
-}
-
-
-static void qt_span_fill_clipped(int y, int spanCount, QT_FT_Span *spans, void *userData)
-{
+//     qDebug() << "qt_span_fill_clipped";
     QSpanFillData *fillData = reinterpret_cast<QSpanFillData *>(userData);
 
     Q_ASSERT(fillData->blend);
 
     QRasterBuffer *rb = fillData->rasterBuffer;
 
-    QSpan *clippedSpans = 0;
-    int clippedSpanCount = 0;
+    const int NSPANS = 256;
+    QSpan cspans[NSPANS];
+    while (spanCount) {
+        QSpan *clipped = cspans;
+        int processed = qt_intersect_spans(rb->clip, spans, spanCount, &clipped, NSPANS);
+//         qDebug() << "processed " << processed << "clipped" << clipped-cspans
+//                  << "span:" << cspans->x << cspans->y << cspans->len << spans->coverage;
 
-    qt_intersect_spans(rb->clipSpans(y), rb->clipSpanCount(y),
-                       spans, spanCount,
-                       &clippedSpans, &clippedSpanCount);
-
-    fillData->unclipped_blend(y, clippedSpanCount, (QT_FT_Span *) clippedSpans, fillData);
+        fillData->unclipped_blend(clipped - cspans, cspans, fillData);
+        spanCount -= processed;
+    }
 }
 
-static void qt_span_clip(int y, int count, QT_FT_Span *spans, void *userData)
+static void qt_span_clip(int count, QT_FT_Span *spans, void *userData)
 {
     ClipData *clipData = reinterpret_cast<ClipData *>(userData);
-    QRasterBuffer *rb = clipData->rasterBuffer;
 
     switch (clipData->operation) {
 
     case Qt::IntersectClip:
         {
-            QSpan *newSpans;
-            int newSpanCount = 0;
-            qt_intersect_spans(rb->clipSpans(y), rb->clipSpanCount(y),
-                               spans, count,
-                               &newSpans, &newSpanCount);
-
-            // Clear the spans between last y spanned and this.
-            for (int i=clipData->lastIntersected+1; i<y; ++i)
-                rb->replaceClipSpans(i, 0, 0);
-            clipData->lastIntersected = y;
-
-            // Replace this
-            rb->replaceClipSpans(y, newSpans, newSpanCount);
+            QClipData *newClip = clipData->newClip;
+            while (count) {
+                QSpan *newspans = newClip->spans + newClip->count;
+                int processed = qt_intersect_spans(clipData->oldClip, spans, count,
+                                                   &newspans, newClip->allocated - newClip->count);
+                newClip->count += newspans - (newClip->spans + newClip->count);
+                count -= processed;
+                if (count) {
+                    newClip->allocated *= 2;
+                    newClip->spans = (QSpan *)realloc(newClip->spans, newClip->allocated*sizeof(QSpan));
+                }
+            }
         }
         break;
 
     case Qt::UniteClip:
-        {
-            QSpan *newSpans;
-            int newSpanCount = 0;
-            qt_unite_spans(rb->clipSpans(y), rb->clipSpanCount(y),
-                           spans, count,
-                           &newSpans, &newSpanCount);
-
-            rb->replaceClipSpans(y, newSpans, newSpanCount);
-        }
-        break;
-
     case Qt::ReplaceClip:
-        for (int i=0; i<count; ++i) {
-            rb->appendClipSpan(spans->x, y, spans->len, spans->coverage);
-            ++spans;
-        }
+        clipData->newClip->appendSpans(spans, count);
         break;
     case Qt::NoClip:
         break;
@@ -2430,7 +2386,7 @@ static void qt_span_clip(int y, int count, QT_FT_Span *spans, void *userData)
 }
 
 static void qt_scanconvert(QT_FT_Outline *outline, ProcessSpans callback, void *userData,
-                    QRasterPaintEnginePrivate *d)
+                           QRasterPaintEnginePrivate *d)
 {
     void *data = userData;
 
@@ -2472,8 +2428,8 @@ QImage QRasterBuffer::clipImage() const
     image.fill(qRgb(0, 0, 0));
 
     for (int y = 0; y < m_height; ++y) {
-        QSpan *spans = clipSpans(y);
-        int count = clipSpanCount(y);
+        QSpan *spans = clip->clipLines[y].spans;
+        int count = clip->clipLines[y].count;
 
         while (count--) {
             for (int x=spans->x; x<spans->x + spans->len; ++x) {
@@ -2559,7 +2515,7 @@ void QSpanFillData::initGradient(const QGradient *g)
 
     // Up to first point
     while (pos<=begin_pos) {
-        gradient.colorTable[pos] = stops[0].second.rgba();
+        gradient.colorTable[pos] = PREMUL(stops[0].second.rgba());
         ++pos;
     }
 
@@ -2573,8 +2529,8 @@ void QSpanFillData::initGradient(const QGradient *g)
 
         Q_ASSERT(current_stop < stopCount);
 
-        uint current_color = stops[current_stop].second.rgba();
-        uint next_color = stops[current_stop+1].second.rgba();
+        uint current_color = PREMUL(stops[current_stop].second.rgba());
+        uint next_color = PREMUL(stops[current_stop+1].second.rgba());
 
         int dist = (int)(256*(dpos - stops[current_stop].first)
                          / (stops[current_stop+1].first - stops[current_stop].first));
@@ -2592,7 +2548,7 @@ void QSpanFillData::initGradient(const QGradient *g)
 
     // After last point
     while (pos < GRADIENT_STOPTABLE_SIZE) {
-        gradient.colorTable[pos] = stops[stopCount-1].second.rgba();
+        gradient.colorTable[pos] = PREMUL(stops[stopCount-1].second.rgba());
         ++pos;
     }
 
@@ -2966,7 +2922,7 @@ static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, void 
     int y1 = line.y1();
     int y2 = line.y2();
 
-    QT_FT_Span span = { 0, 1, 255 };
+    QT_FT_Span span = { 0, 1, 0, 255 };
 
     dx = x2 - x1;
     dy = y2 - y1;
@@ -2983,7 +2939,8 @@ static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, void 
                     len--;
                 span.x = ushort(start);
                 span.len = ushort(len);
-                span_func(ushort(y1), 1, &span, data);
+                span.y = y1;
+                span_func(1, &span, data);
             }
         }
         return;
@@ -2996,8 +2953,10 @@ static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, void 
                 --stop;
             span.x = ushort(x1);
             span.len = 1;
-            for (int i=start; i<stop_clipped; ++i)
-                span_func(i, 1, &span, data);
+            for (int i=start; i<stop_clipped; ++i) {
+                span.y = i;
+                span_func(1, &span, data);
+            }
         }
         return;
     }
@@ -3031,7 +2990,8 @@ static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, void 
         if (x>=0 && y>=0 && y < devRect.height()) {
             Q_ASSERT(x >= 0 && y >= 0 && x < devRect.width() && y < devRect.height());
             span.x = x;
-            span_func(y, 1, &span, data);
+            span.y = y;
+            span_func(1, &span, data);
         }
 
         if (y2 > y1) { // 315 -> 360 and 135 -> 180 (unit circle degrees)
@@ -3061,7 +3021,8 @@ static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, void 
                 Q_ASSERT(x<devRect.width());
                 Q_ASSERT(y<devRect.height());
                 span.x = x;
-                span_func(y, 1, &span, data);
+                span.y = y;
+                span_func(1, &span, data);
             }
         } else {  // 0-45 and 180->225 (unit circle degrees)
 
@@ -3090,7 +3051,8 @@ static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, void 
 
                 Q_ASSERT(x<devRect.width() && y<devRect.height());
                 span.x = x;
-                span_func(y, 1, &span, data);
+                span.y = y;
+                span_func(1, &span, data);
             }
         }
 
@@ -3124,7 +3086,8 @@ static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, void 
         if (x>=0 && y>=0 && x < devRect.width()) {
             Q_ASSERT(x >= 0 && y >= 0 && x < devRect.width() && y < devRect.height());
             span.x = x;
-            span_func(y, 1, &span, data);
+            span.y = y;
+            span_func(1, &span, data);
         }
 
         if (x2 > x1) { // 90 -> 135 and 270 -> 315 (unit circle degrees)
@@ -3150,7 +3113,8 @@ static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, void 
                     continue;
                 Q_ASSERT(x<devRect.width() && y<devRect.height());
                 span.x = x;
-                span_func(y, 1, &span, data);
+                span.y = y;
+                span_func(1, &span, data);
             }
         } else { // 45 -> 90 and 225 -> 270 (unit circle degrees)
             x1 = qMin(x1, devRect.width() - 1);
@@ -3175,7 +3139,8 @@ static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, void 
                     continue;
                 Q_ASSERT(x>=0 && x<devRect.width() && y>=0 && y<devRect.height());
                 span.x = x;
-                span_func(y, 1, &span, data);
+                span.y = y;
+                span_func(1, &span, data);
             }
         }
     }

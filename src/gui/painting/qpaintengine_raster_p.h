@@ -188,6 +188,49 @@ public:
     uint int_xform : 1;
 };
 
+class QClipData {
+public:
+    QClipData(int height);
+    ~QClipData();
+    int clipSpanHeight;
+    struct ClipLine {
+        int count;
+        QSpan *spans;
+    } *clipLines;
+
+    int allocated;
+    int count;
+    QSpan *spans;
+
+    void appendSpan(int x, int length, int y, int coverage);
+    void appendSpans(const QSpan *s, int num);
+    void fixup();
+};
+
+inline void QClipData::appendSpan(int x, int length, int y, int coverage)
+{
+    if (count == allocated) {
+        allocated *= 2;
+        spans = (QSpan *)realloc(spans, allocated*sizeof(QSpan));
+    }
+    spans[count].x = x;
+    spans[count].len = length;
+    spans[count].y = y;
+    spans[count].coverage = coverage;
+    ++count;
+}
+
+inline void QClipData::appendSpans(const QSpan *s, int num)
+{
+    if (count + num >= allocated) {
+        while (allocated < count + num)
+            allocated *= 2;
+        spans = (QSpan *)realloc(spans, allocated*sizeof(QSpan));
+    }
+    memcpy(spans+count, s, num*sizeof(QSpan));
+    count += num;
+}
+
 /*******************************************************************************
  * QRasterBuffer
  */
@@ -218,15 +261,8 @@ public:
 #endif
     void prepare(int w, int h);
     void prepareBuffer(int w, int h);
-    void prepareClip(int w, int h);
-
+    
     void resetBuffer(int val=0);
-    void resetClip();
-
-    void resizeClipSpan(int y, int size);
-    void appendClipSpan(int x, int y, int len, int coverage);
-    void replaceClipSpans(int y, QSpan *spans, int spanCount);
-    void resetClipSpans(int y, int count);
 
     uchar *scanLine(int y) { Q_ASSERT(y>=0); Q_ASSERT(y<m_height); return m_buffer + y * bytes_per_line; }
 
@@ -236,16 +272,16 @@ public:
 #endif
 
     void flushToARGBImage(QImage *image) const;
-
-    QSpan *clipSpans(int y) const { Q_ASSERT(y >= 0 && y < m_height); return m_clipSpans[y]; }
-    int clipSpanCount(int y) const { Q_ASSERT(y >= 0 && y < m_height); return m_clipSpanCount[y]; }
-
+    
     int width() const { return m_width; }
     int height() const { return m_height; }
     int bytesPerLine() const { return bytes_per_line; }
 
     uchar *buffer() const { return m_buffer; }
 
+    QClipData *clip;
+
+    void resetClip() { delete clip; clip = 0; }
 private:
 #if defined(Q_WS_WIN)
     HDC m_hdc;
@@ -257,10 +293,6 @@ private:
     int bytes_per_line;
     uchar *m_buffer;
 
-    int m_clipSpanHeight;
-    int *m_clipSpanCount;
-    int *m_clipSpanCapacity;
-    QSpan **m_clipSpans;
 };
 
 #endif // QPAINTENGINE_RASTER_P_H
