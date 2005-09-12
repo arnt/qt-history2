@@ -212,8 +212,10 @@ QVariant QSqlQueryModel::data(const QModelIndex &item, int role) const
 QVariant QSqlQueryModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     Q_D(const QSqlQueryModel);
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        QVariant val = d->headers.value(section);
+    if (orientation == Qt::Horizontal) {
+        QVariant val = d->headers.value(section).value(role);
+        if (role == Qt::DisplayRole && !val.isValid())
+            val = d->headers.value(section).value(Qt::EditRole);
         if (val.isValid())
             return val;
         if (d->rec.count() > section)
@@ -330,11 +332,11 @@ void QSqlQueryModel::clear()
 }
 
 /*!
-    Sets the caption for the header with the given \a orientation to
+    Sets the caption for a horizontal header to
     the specified \a value. This is useful if the model is used to
     display data in a view (e.g., QTableView).
 
-    Returns true if \a role is Qt::DisplayRole and
+    Returns true if \a orientation is Qt::Horizontal and
     the \a section refers to a valid section; otherwise returns
     false.
 
@@ -347,13 +349,12 @@ bool QSqlQueryModel::setHeaderData(int section, Qt::Orientation orientation,
                                    const QVariant &value, int role)
 {
     Q_D(QSqlQueryModel);
-    if ((role != Qt::EditRole && role != Qt::DisplayRole)
-        || orientation != Qt::Horizontal || section < 0)
+    if (orientation != Qt::Horizontal || section < 0)
         return false;
 
     if (d->headers.size() <= section)
         d->headers.resize(qMax(section + 1, 16));
-    d->headers[section] = value;
+    d->headers[section][role] = value;
     return true;
 }
 

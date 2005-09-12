@@ -27,7 +27,7 @@
 
 #include "private/qabstractitemmodel_p.h"
 
-#include "qlist.h"
+#include "qhash.h"
 #include "qsqlerror.h"
 #include "qsqlquery.h"
 #include "qsqlrecord.h"
@@ -48,7 +48,7 @@ public:
     QModelIndex bottom;
     QSqlRecord rec;
     uint atEnd : 1;
-    QVector<QVariant> headers;
+    QVector<QHash<int, QVariant> > headers;
     QVarLengthArray<int, 56> colOffsets; // used to calculate indexInQuery of columns
 };
 
