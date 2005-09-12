@@ -243,6 +243,29 @@ const char *QMetaType::typeName(int type)
 }
 
 /*! \internal
+    Same as QMetaType::type(), but doesn't lock.
+*/
+static int qMetaTypeType_unlocked(const char *typeName)
+{
+    if (!typeName)
+        return 0;
+    int i = 0;
+    while (types[i].typeName && strcmp(typeName, types[i].typeName))
+        ++i;
+    if (!types[i].type) {
+        const QVector<QCustomTypeInfo> * const ct = customTypes();
+        if (!ct)
+            return 0;
+
+        for (int v = 0; v < ct->count(); ++v) {
+            if (strcmp(ct->at(v).typeName, typeName) == 0)
+                return v + QMetaType::User;
+        }
+    }
+    return types[i].type;
+}
+
+/*! \internal
 
     Registers a user type for marshalling, with \a typeName, a \a
     destructor, and a \a constructor. Returns the type's handle,
@@ -254,10 +277,11 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
     QVector<QCustomTypeInfo> *ct = customTypes();
     if (!ct || !typeName || !destructor || !constructor)
         return -1;
-    int idx = type(typeName);
 
     QWriteLocker locker(customTypesLock());
     static int currentIdx = User;
+    int idx = qMetaTypeType_unlocked(typeName);
+
     if (idx) {
         if (idx < User) {
             qWarning("cannot re-register basic type '%s'", typeName);
@@ -294,23 +318,8 @@ bool QMetaType::isRegistered(int type)
 */
 int QMetaType::type(const char *typeName)
 {
-    if (!typeName)
-        return 0;
-    int i = 0;
-    while (types[i].typeName && strcmp(typeName, types[i].typeName))
-        ++i;
-    if (!types[i].type) {
-        const QVector<QCustomTypeInfo> * const ct = customTypes();
-        if (!ct)
-            return 0;
-
-        QReadLocker locker(customTypesLock());
-        for (int v = 0; v < ct->count(); ++v) {
-            if (strcmp(ct->at(v).typeName, typeName) == 0)
-                return v + User;
-        }
-    }
-    return types[i].type;
+    QReadLocker locker(customTypesLock());
+    return qMetaTypeType_unlocked(typeName);
 }
 
 #ifndef QT_NO_DATASTREAM
