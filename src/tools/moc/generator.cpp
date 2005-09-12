@@ -558,7 +558,7 @@ void Generator::generateEnums(int index)
         const EnumDef &e = cdef->enumList.at(i);
         for (int j = 0; j < e.values.count(); ++j) {
             const QByteArray &val = e.values.at(j);
-            fprintf(out, "    %4d, %s::%s,\n",
+            fprintf(out, "    %4d, uint(%s::%s),\n",
                     strreg(val),
                     cdef->qualified.constData(),
                     val.constData());
