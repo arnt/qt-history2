@@ -36,7 +36,7 @@ public:
                       SO_TabBarBase, SO_RubberBand,
 
                       SO_Complex = 0xf0000, SO_Slider, SO_SpinBox, SO_ToolButton, SO_ComboBox,
-                      SO_Q3ListView, SO_TitleBar,
+                      SO_Q3ListView, SO_TitleBar, SO_GroupBox,
 
                       SO_CustomBase = 0xf00,
                       SO_ComplexCustomBase = 0xf000000
@@ -547,6 +547,33 @@ public:
 protected:
     QStyleOptionTitleBar(int version);
 };
+
+class Q_GUI_EXPORT QStyleOptionGroupBox : public QStyleOptionComplex
+{
+public:
+    enum { Type = SO_GroupBox };
+    enum { Version = 1 };
+    enum GroupBoxFeature {
+        None = 0x00,
+        Flat = 0x01
+    };
+    Q_DECLARE_FLAGS(GroupBoxFeatures, GroupBoxFeature)
+
+    GroupBoxFeatures features;
+    QString text;
+    Qt::Alignment textAlignment;
+    QColor textColor;
+    int lineWidth;
+    int midLineWidth;
+    int topMargin;
+
+    QStyleOptionGroupBox();
+    QStyleOptionGroupBox(const QStyleOptionGroupBox &other) : QStyleOptionComplex(Version, Type) { *this = other; }
+protected:
+    QStyleOptionGroupBox(int version);
+};
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionGroupBox::GroupBoxFeatures)
 
 template <typename T>
 T qstyleoption_cast(const QStyleOption *opt)

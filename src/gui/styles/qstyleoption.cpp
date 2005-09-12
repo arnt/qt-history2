@@ -390,6 +390,92 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
 */
 
 /*!
+    \class QStyleOptionGroupBox
+    \brief The QStyleOptionGroupBox class is used to describe
+    the parameters for drawing a group box.
+
+    The QStyleOptionGroupBox class is used for drawing the group box'
+    frame, title, and optional check box.
+*/
+
+/*!
+    \variable QStyleOptionGroupBox::lineWidth
+    \brief The line width for drawing the panel.
+*/
+
+/*!
+    \variable QStyleOptionGroupBox::midLineWidth
+    \brief The mid-line width for drawing the panel. This is usually used in
+    drawing sunken or raised group box frames.
+*/
+
+/*!
+    \enum QStyleOptionGroupBox::GroupBoxFeatures
+
+    This enum describles the different types of features a group box can have.
+
+    \value None Indicates a normal group box.
+    \value Flat Indicates a flat group box.
+*/
+
+/*!
+    \variable QStyleOptionGroupBox::features
+
+    The features for this group box.
+
+    \sa GroupBoxFeatures, QGroupBox::flat
+
+*/
+
+/*!
+    \variable QStyleOptionGroupBox::text
+
+    The text of the group box.
+
+    \sa QGroupBox::title
+*/
+
+/*!
+    \variable QStyleOptionGroupBox::textAlignment
+
+    The alignment of the group box title.
+
+    \sa QGroupBox::alignment
+*/
+
+/*!
+    \variable QStyleOptionGroupBox::textColor
+
+    The color of the group box title.
+*/
+
+/*!
+    \variable QStyleOptionGroupBox::topMargin
+
+    The top margin of the group box (i.e., the distance
+    from the top of the widget to the top of the frame).
+*/
+
+/*!
+    Constructs a QStyleOptionGroupBox. The members variables are
+    initialized to default values.
+*/
+QStyleOptionGroupBox::QStyleOptionGroupBox()
+    : QStyleOptionComplex(Version, Type), features(None), textAlignment(Qt::AlignLeft),
+      lineWidth(0), midLineWidth(0), topMargin(0)
+{
+}
+
+/*!
+    \internal
+*/
+QStyleOptionGroupBox::QStyleOptionGroupBox(int version)
+    : QStyleOptionComplex(version, Type), features(None), textAlignment(Qt::AlignLeft),
+      lineWidth(0), midLineWidth(0), topMargin(0)
+{
+}
+
+/*!
     \class QStyleOptionHeader
     \brief The QStyleOptionHeader class is used to describe the
     parameters for drawing a header.
@@ -2539,6 +2625,8 @@ QDebug operator<<(QDebug debug, const QStyleOption::OptionType &optionType)
         debug << "SO_TitleBar"; break;
     case QStyleOption::SO_CustomBase:
         debug << "SO_CustomBase"; break;
+    case QStyleOption::SO_GroupBox:
+        debug << "SO_GroupBox"; break;
     case QStyleOption::SO_ComplexCustomBase:
         debug << "SO_ComplexCustomBase"; break;
         break;

@@ -285,6 +285,7 @@ public:
         CC_TitleBar,
         CC_Q3ListView,
         CC_Dial,
+        CC_GroupBox,
 
         // do not add any values below/greater than this
         CC_CustomBase = 0xf0000000
@@ -337,6 +338,10 @@ public:
         SC_DialHandle =            0x00000002,
         SC_DialTickmarks =         0x00000004,
 
+        SC_GroupBoxCheckBox =      0x00000001,
+        SC_GroupBoxLabel =         0x00000002,
+        SC_GroupBoxFrame =         0x00000004,
+        
         SC_All =                   0xffffffff
     };
     Q_DECLARE_FLAGS(SubControls, SubControl)
@@ -444,7 +449,7 @@ public:
         PM_FocusFrameHMargin,
 
         PM_ToolTipLabelFrameWidth,
-
+        PM_CheckBoxLabelSpacing,
 
         // do not add any values below/greater than this
         PM_CustomBase = 0xf0000000
@@ -476,6 +481,7 @@ public:
         CT_TabWidget,
         CT_DialogButtons,
         CT_HeaderSection,
+        CT_GroupBox,
         // do not add any values below/greater than this
         CT_CustomBase = 0xf0000000
     };

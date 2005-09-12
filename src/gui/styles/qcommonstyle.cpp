@@ -423,16 +423,31 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         drawPrimitive(PE_Frame, opt, p, widget);
         break;
     case PE_FrameGroupBox:
-        if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
-            int lwidth = frame->lineWidth,
-               mlwidth = frame->midLineWidth;
-            if (opt->state & (State_Sunken | State_Raised))
+        if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
+            if (groupBox->features & QStyleOptionGroupBox::Flat) {
+                QRect fr = groupBox->rect;
+                QPoint p1(fr.x(), fr.y() + 1);
+                QPoint p2(fr.x() + fr.width(), p1.y());
+                qDrawShadeLine(p, p1, p2, groupBox->palette, true,
+                               groupBox->lineWidth, groupBox->midLineWidth);
+            } else {
+                qDrawShadeRect(p, groupBox->rect.x(), groupBox->rect.y(), groupBox->rect.width(),
+                               groupBox->rect.height(), groupBox->palette, true,
+                               groupBox->lineWidth, groupBox->midLineWidth);
+            }
+        } else if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
+            const QGroupBox *box = qobject_cast<const QGroupBox *>(widget);
+            if (box && box->isFlat()) {
+                QRect fr = frame->rect;
+                QPoint p1(fr.x(), fr.y() + 1);
+                QPoint p2(fr.x() + fr.width(), p1.y());
+                qDrawShadeLine(p, p1, p2, frame->palette, true,
+                               frame->lineWidth, groupBox->midLineWidth);
+            } else {
                 qDrawShadeRect(p, frame->rect.x(), frame->rect.y(), frame->rect.width(),
-                               frame->rect.height(), frame->palette, frame->state & State_Sunken,
-                               lwidth, mlwidth);
-            else
-                qDrawPlainRect(p, frame->rect.x(), frame->rect.y(), frame->rect.width(),
-                               frame->rect.height(), frame->palette.foreground().color(), lwidth);
+                               frame->rect.height(), frame->palette, true,
+                               frame->lineWidth, frame->midLineWidth);
+            }
         }
         break;
     case PE_FrameDockWidget:
@@ -2353,6 +2368,42 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             p->restore();
         }
         break;
+    case CC_GroupBox:
+        if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
+            // Draw frame
+            QStyleOptionGroupBox frame = *groupBox;
+            frame.rect.setTop(frame.rect.top() + groupBox->topMargin);
+            drawPrimitive(PE_FrameGroupBox, &frame, p, widget);
+
+            QRect textRect = subControlRect(CC_GroupBox, opt, SC_GroupBoxLabel, widget);
+            QRect checkBoxRect = subControlRect(CC_GroupBox, opt, SC_GroupBoxCheckBox, widget);
+
+            p->fillRect(QRect(QPoint(checkBoxRect.left() - 4, checkBoxRect.top()),
+                              QPoint(textRect.right(), textRect.bottom())),
+                        groupBox->palette.background());
+
+            // Draw title
+            if (!groupBox->text.isEmpty()) {
+                QColor textColor = groupBox->textColor;
+                if (textColor.isValid())
+                    p->setPen(textColor);
+                int alignment = int(groupBox->textAlignment);
+                if (!styleHint(QStyle::SH_UnderlineShortcut, opt, widget))
+                    alignment |= Qt::TextHideMnemonic;
+
+                drawItemText(p, textRect,  Qt::TextShowMnemonic | Qt::AlignHCenter | alignment,
+                             groupBox->palette, groupBox->state & State_Enabled, groupBox->text);
+            }
+
+            // Draw checkbox
+            if (groupBox->subControls & SC_GroupBoxCheckBox) {
+                QStyleOptionButton box;
+                box.QStyleOption::operator=(*groupBox);
+                box.rect = checkBoxRect;
+                drawPrimitive(PE_IndicatorCheckBox, &box, p, widget);
+            }
+        }
+        break;
 #endif // QT_NO_SLIDER
     default:
         qWarning("drawComplexControl control not handled %d", cc);
@@ -2443,6 +2494,20 @@ QStyle::SubControl QCommonStyle::hitTestComplexControl(ComplexControl cc, const 
                     break;
                 }
                 ctrl >>= 1;
+            }
+        }
+        break;
+    case CC_GroupBox:
+        if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
+            QRect r;
+            uint ctrl = SC_GroupBoxCheckBox;
+            while (ctrl <= SC_GroupBoxFrame) {
+                r = subControlRect(cc, groupBox, QStyle::SubControl(ctrl), widget);
+                if (r.isValid() && r.contains(pt)) {
+                    sc = QStyle::SubControl(ctrl);
+                    break;
+                }
+                ctrl <<= 1;
             }
         }
         break;
@@ -2731,6 +2796,37 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
                 break;
             }
             ret = visualRect(tb->direction, tb->rect, ret);
+        }
+        break;
+    case CC_GroupBox:
+        if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
+            if (sc == SC_GroupBoxFrame) {
+                ret = groupBox->rect;
+                break;
+            }
+
+            QFontMetrics fontMetrics = groupBox->fontMetrics;
+            int h = fontMetrics.height();
+            int tw = fontMetrics.size(Qt::TextShowMnemonic, groupBox->text + QLatin1Char(' ')).width();
+            int marg = (groupBox->features & QStyleOptionGroupBox::Flat) ? 0 : 8;
+            ret = groupBox->rect.adjusted(marg, 1, -marg, 0);
+
+            if (sc == SC_GroupBoxLabel) {
+                if (groupBox->subControls & QStyle::SC_GroupBoxCheckBox) {
+                    ret.setLeft(ret.left() + pixelMetric(PM_IndicatorWidth, opt, widget)
+                                + pixelMetric(PM_CheckBoxLabelSpacing, opt, widget));
+                }
+                ret.setWidth(tw);
+            }
+            ret.setHeight(h);
+
+            if (sc == SC_GroupBoxCheckBox) {
+                int indicatorHeight = pixelMetric(PM_IndicatorHeight, opt, widget);
+                ret.setWidth(pixelMetric(PM_IndicatorWidth, opt, widget));
+                ret.setHeight(indicatorHeight);
+                ret.moveTop((fontMetrics.height() - indicatorHeight) / 2);
+                ret.moveLeft(ret.left() + 3);
+            }
         }
         break;
     default:
@@ -3022,6 +3118,9 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
 
     case PM_ToolTipLabelFrameWidth:
         ret = 1;
+        break;
+    case PM_CheckBoxLabelSpacing:
+        ret = 6;
         break;
     default:
         ret = 0;

@@ -24,6 +24,7 @@ static const bool UsePixmapCache = true;
 #include <qabstractitemview.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
+#include <qgroupbox.h>
 #include <qimage.h>
 #include <qlineedit.h>
 #include <qmenu.h>
@@ -987,10 +988,25 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             painter->fillRect(QRect(option->rect.left(), option->rect.bottom() - lw - mlw + 1,option->rect.width(),lw+mlw),
                               frame->palette.background());
         }
-
-        // fall throoooough
-
+        // fall through
     case PE_FrameGroupBox:
+        if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(option)) {
+            if (groupBox->features & QStyleOptionGroupBox::Flat) {
+                painter->save();
+                painter->setPen(borderColor);
+                painter->drawLine(groupBox->rect.topLeft(), groupBox->rect.topRight());
+                painter->restore();
+            } else {
+                QStyleOptionFrame frame;
+                frame.QStyleOption::operator=(*groupBox);
+                frame.lineWidth = groupBox->lineWidth;
+                frame.midLineWidth = groupBox->midLineWidth;
+                frame.state &= ~State_Sunken;
+                drawPrimitive(PE_Frame, &frame, painter, widget);
+            }
+            break;
+        }
+        // fall through
     case PE_Frame:
 #ifdef QT3_SUPPORT
         if (widget && widget->inherits("Q3ToolBar")) {
@@ -4687,6 +4703,7 @@ void QPlastiqueStyle::polish(QWidget *widget)
         || qobject_cast<QComboBox *>(widget)
 #endif
         || qobject_cast<QCheckBox *>(widget)
+        || qobject_cast<QGroupBox *>(widget)
         || qobject_cast<QRadioButton *>(widget)
 #ifndef QT_NO_SPLITTER
         || qobject_cast<QSplitterHandle *>(widget)
@@ -4736,6 +4753,7 @@ void QPlastiqueStyle::unpolish(QWidget *widget)
         || qobject_cast<QComboBox *>(widget)
 #endif
         || qobject_cast<QCheckBox *>(widget)
+        || qobject_cast<QGroupBox *>(widget)
 #ifndef QT_NO_SPLITTER
         || qobject_cast<QSplitterHandle *>(widget)
 #endif

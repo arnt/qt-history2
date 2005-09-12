@@ -36,32 +36,35 @@ public:
     ~QGroupBox();
 
     QString title() const;
-    void setTitle(const QString &);
+    void setTitle(const QString &title);
 
     Qt::Alignment alignment() const;
-    void setAlignment(int);
+    void setAlignment(int alignment);
 
     QSize minimumSizeHint() const;
 
     bool isFlat() const;
-    void setFlat(bool b);
+    void setFlat(bool flat);
     bool isCheckable() const;
-    void setCheckable(bool b);
+    void setCheckable(bool checkable);
     bool isChecked() const;
 
 public slots:
-    void setChecked(bool b);
+    void setChecked(bool checked);
 
 signals:
     void toggled(bool);
 
 protected:
-    bool event(QEvent *);
-    void childEvent(QChildEvent *);
-    void resizeEvent(QResizeEvent *);
-    void paintEvent(QPaintEvent *);
-    void focusInEvent(QFocusEvent *);
-    void changeEvent(QEvent *);
+    bool event(QEvent *event);
+    void childEvent(QChildEvent *event);
+    void resizeEvent(QResizeEvent *event);
+    void paintEvent(QPaintEvent *event);
+    void focusInEvent(QFocusEvent *event);
+    void changeEvent(QEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);  
 
 #ifdef QT3_SUPPORT
 public:
