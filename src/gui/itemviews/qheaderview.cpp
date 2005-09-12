@@ -1296,17 +1296,19 @@ bool QHeaderView::event(QEvent *e)
     case QEvent::HoverEnter: {
         QHoverEvent *he = static_cast<QHoverEvent*>(e);
         d->hover = logicalIndexAt(he->pos());
-        updateSection(d->hover);
+        if (d->hover != -1)
+            updateSection(d->hover);
         break; }
     case QEvent::HoverLeave: {
-        updateSection(d->hover);
+        if (d->hover != -1)
+            updateSection(d->hover);
         d->hover = -1;
         break; }
     case QEvent::HoverMove: {
         QHoverEvent *he = static_cast<QHoverEvent*>(e);
         int oldHover = d->hover;
         d->hover = logicalIndexAt(he->pos());
-        if (d->hover != oldHover) {
+        if (d->hover != oldHover && d->hover != -1) {
             updateSection(oldHover);
             updateSection(d->hover);
         }
