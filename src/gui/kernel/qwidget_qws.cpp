@@ -786,6 +786,7 @@ void QWSBackingStore::create(QSize s)
     int datasize = 4 * s.width() * s.height() + extradatasize; //### hardcoded 32bpp
     shmid = shmget(IPC_PRIVATE, datasize, IPC_CREAT|0600);
     shmaddr = shmat(shmid,0,0);
+    shmctl(shmid, IPC_RMID, 0);
     QImage img(static_cast<uchar*>(shmaddr)+extradatasize, s.width(), s.height(),
                QImage::Format_ARGB32_Premultiplied);
     *pix = QPixmap::fromImage(img);
