@@ -216,6 +216,8 @@ void QMetaType::registerStreamOperators(const char *typeName, SaveOperator saveO
 #endif
 
 /*!
+    \threadsafe
+
     Returns the type name associated with the given \a type, or 0 if no
     matching type was found. The returned pointer must not be deleted.
 
@@ -297,6 +299,8 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
 }
 
 /*!
+    \threadsafe
+
     Returns true if the custom datatype with ID \a type is registered;
     otherwise returns false.
 
@@ -311,6 +315,8 @@ bool QMetaType::isRegistered(int type)
 }
 
 /*!
+    \threadsafe
+
     Returns a handle to the type called \a typeName, or 0 if there is
     no such type.
 
@@ -550,7 +556,7 @@ void QMetaType::destroy(int type, void *data)
 /*!
     \fn int qRegisterMetaType(const char *typeName, T *dummy = 0)
     \relates QMetaType
-    \reentrant
+    \threadsafe
 
     Registers the type name \a typeName to the type \c{T}. Returns
     the internal ID used by QMetaType. Any class or struct that has a
@@ -587,6 +593,7 @@ void QMetaType::destroy(int type, void *data)
 
 /*! \fn int qMetaTypeId(T *dummy = 0)
     \relates QMetaType
+    \threadsafe
 
     Returns the meta type id of type \c T at compile time. If the
     type was not declared with Q_DECLARE_METATYPE(), compilation will
