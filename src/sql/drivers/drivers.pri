@@ -111,8 +111,14 @@ contains(sql-drivers, ibase) {
         }
 }
 
+contains(sql-drivers, sqlite2) {
+        HEADERS += drivers/sqlite2/qsql_sqlite2.h
+        SOURCES += drivers/sqlite2/qsql_sqlite2.cpp
+        !contains(LIBS, .*sqlite.*):LIBS *= -lsqlite
+}
+
 contains(sql-drivers, sqlite) {
-        !contains( LIBS, .*sqlite.* ) {
+        !contains( LIBS, .*sqlite3.* ) {
                 INCLUDEPATH +=  ../3rdparty/sqlite
 
                 SOURCES +=      ../3rdparty/sqlite/alter.c \
