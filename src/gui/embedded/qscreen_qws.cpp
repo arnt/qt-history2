@@ -1139,6 +1139,7 @@ void QScreen::exposeRegion(QRegion r, int changing)
     if (r.isEmpty())
         return;
 
+    r &= QRect(0, 0, w, h);
     QRect bounds = r.boundingRect();
     QRegion blendRegion;
     QPixmap blendBuffer;
