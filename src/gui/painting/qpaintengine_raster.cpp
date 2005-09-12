@@ -1899,12 +1899,12 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, QSpanFillData 
             data->blend = drawHelper->blendLinearGradient;
             data->gradient.alphaColor = !brush.isOpaque();
             data->initGradient(g);
+            data->initMatrix(brushMatrix());
 
             data->gradient.linear.origin.x = g->start().x();
             data->gradient.linear.origin.y = g->start().y();
             data->gradient.linear.end.x = g->finalStop().x();
             data->gradient.linear.end.y = g->finalStop().y();
-            data->initLinearGradient(brushMatrix());
             break;
         }
 
@@ -1932,6 +1932,7 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, QSpanFillData 
             data->blend = drawHelper->blendConicalGradient;
             data->gradient.alphaColor = !brush.isOpaque();
             data->initGradient(g);
+            data->gradient.spread = QGradient::RepeatSpread;
             data->initMatrix(brushMatrix());
 
             QPointF center = g->center();
@@ -2562,89 +2563,6 @@ void QSpanFillData::initGradient(const QGradient *g)
 
     gradient.spread = g->spread();
 }
-
-/**
- * Initialzes the xincr and yincr delta values that is used to interpolate the Linear Gradient
- *
- * The deltas are found by projecting the gradientline down to a horizontal (xincr) or vertical (yincr)
- * line that covers the whole gradient (from 0 to 1.0).
- * Given that the gradient line is d, the transformed normal vector is n, we use this formula to
- * find the length of the side in the triangle is supposed to interpolate over the gradient:
- * _     _                      _             _
- * d + a*n = [l,0],       where d = [dx, dy], n = [ndx, ndy], l is the length of the line.
- * since we have a zero in our equation, *a* can be found and is used to find *l*.
- *
- * rearranging, we get the length of line like this:
- *
- * l = dx - dy*ndx/ndy;  =>  xincr = 1.0/l
- *
- * We calculate yincr similarly:
- * l = dy - dx*ndy/ndx;  =>  yincr = 1.0/l
- *
- *
- * We then find the length of that line, and divides the length of the gradient (1.0) by the length
- * of the line (in pixels)
- *
- *
- */
-void QSpanFillData::initLinearGradient(const QMatrix &brushMatrix)
-{
-#ifdef QT_DEBUG_DRAW
-    qDebug("LinearGradientData::init(), x1=%f, y1=%f, x2=%f, y2=%f, spread=%d",
-           x1, y1, x2, y2, spread);
-    for (int i=0; i<stopCount; ++i) {
-        qDebug(" - %d, pos=%f, color=%x", i, stopPoints[i], stopColors[i]);
-    }
-#endif
-
-    QPointF origin(gradient.linear.origin.x, gradient.linear.origin.y);
-    QPointF end(gradient.linear.end.x, gradient.linear.end.y);
-    origin = brushMatrix.map(origin);
-    end = brushMatrix.map(end);
-
-    // Calculate the normalvector and transform it.
-    QLineF n = QLineF(origin, end).normalVector();
-
-    gradient.linear.origin.x = origin.x();
-    gradient.linear.origin.y = origin.y();
-    gradient.linear.end.x = end.x();
-    gradient.linear.end.y = end.y();
-
-    qreal x1 = origin.x();
-    qreal y1 = origin.y();
-    qreal x2 = end.x();
-    qreal y2 = end.y();
-
-    qreal dx = x2 - x1;
-    qreal dy = y2 - y1;
-
-    // qDebug() << "(" << x1 << "," << y1 << ")";
-    // qDebug() << "(" << x2 << "," << y2 << ")";
-
-    qreal ndx = n.dx();
-    qreal ndy = n.dy();
-
-    // qDebug() << "dx: " << dx << "dy: " << dy << "nx: " << nx << "nx: " << nx;;
-    // Find the length of the projection
-
-    if (qAbs(ndy) > GRADIENT_EPSILON) {
-        qreal l = dx - dy*ndx/ndy;
-        gradient.linear.xincr = 1.0/l;
-    } else {
-        gradient.linear.xincr = 0;
-    }
-
-    if (qAbs(ndx) > GRADIENT_EPSILON) {
-        qreal l = dy - dx*ndy/ndx;
-        gradient.linear.yincr = 1.0/l;
-    } else {
-        gradient.linear.yincr = 0;
-    }
-
-    // qDebug() << "inc: " << xincr << "," << yincr;
-
-}
-
 
 #ifdef Q_WS_WIN
 static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC hdc,

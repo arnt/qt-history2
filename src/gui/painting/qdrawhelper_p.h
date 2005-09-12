@@ -107,9 +107,6 @@ struct LinearGradientData
         qreal x;
         qreal y;
     } end;
-
-    qreal xincr;
-    qreal yincr;
 };
 
 struct RadialGradientData
@@ -165,7 +162,6 @@ struct QSpanFillData
     void initMatrix(const QMatrix &matrix);
     void initTexture(const QImage *image);
     void initGradient(const QGradient *g);
-    void initLinearGradient(const QMatrix &brushMatrix);
 };
 
 
