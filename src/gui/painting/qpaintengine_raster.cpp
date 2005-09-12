@@ -1843,7 +1843,7 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
                     ++n;
                 }
                 if (n == spanCount) {
-                    fg->blend(n, spans, fg->data);
+                    fg->blend(n, spans, fg);
                     n = 0;
                 }
             }
