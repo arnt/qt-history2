@@ -3502,7 +3502,7 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, QRect *br
     d->updateState(d->state);
 
     QRectF bounds;
-    qt_format_text(font(), r, flags, str, &bounds, 0, 0, 0, this);
+    qt_format_text(font(), r, flags, str, br ? &bounds : 0, 0, 0, 0, this);
     if (br)
         *br = bounds.toRect();
 }
