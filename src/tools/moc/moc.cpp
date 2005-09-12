@@ -268,7 +268,14 @@ bool Moc::parseClassHead(ClassDef *def)
             else
                 test(PUBLIC);
             test(VIRTUAL);
-            def->superclassList += qMakePair(parseType(), access);
+            const QByteArray type = parseType();
+            // ignore the 'class Foo : BAR(Baz)' case
+            if (test(LPAREN)) {
+                next(IDENTIFIER);
+                next(RPAREN);
+            } else {
+                def->superclassList += qMakePair(type, access);
+            }
         } while (test(COMMA));
     }
     next(LBRACE);
