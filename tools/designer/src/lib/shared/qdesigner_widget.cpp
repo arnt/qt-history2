@@ -56,6 +56,8 @@ static void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow,
         }
         p.end();
         grid.setMask(mask);
+        QImage image = grid.toImage(); // ### workaround
+        grid = QPixmap::fromImage(image);
         QPixmapCache::insert(grid_name, grid);
     }
 
