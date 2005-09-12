@@ -70,6 +70,9 @@ public:
     inline bool reverse() const
         { return q_func()->isRightToLeft() && orientation == Qt::Horizontal; }
 
+    inline int logicalIndex(int visualIndex) const
+        { return logicalIndices.isEmpty() ? visualIndex : logicalIndices.at(visualIndex); }
+
     enum State { NoState, ResizeSection, MoveSection } state;
 
     int offset;
@@ -80,14 +83,15 @@ public:
 
     struct HeaderSection {
         int position;
-        int logical;
         uint hidden : 1;
         QHeaderView::ResizeMode mode;
         inline bool operator>(int position) const
             { return (*this).position > position; }
     };
+
     mutable QVector<HeaderSection> sections; // HeaderSection = sections.at(visualIndex)
     mutable QVector<int> visualIndices; // visualIndex = visualIndices.at(logicalIndex)
+    mutable QVector<int> logicalIndices; // logicalIndex = row or column in the model
     mutable QBitArray sectionSelection;
     mutable QMap<int, int> hiddenSectionSize; // from logical index to section size
 
