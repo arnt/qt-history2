@@ -1817,10 +1817,10 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
             }
         }
 #endif
-        if (n) {
-            fg->blend(n, spans, fg);
-            n = 0;
-        }
+    }
+    if (n) {
+        fg->blend(n, spans, fg);
+        n = 0;
     }
 }
 
