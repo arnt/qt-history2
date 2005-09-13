@@ -52,7 +52,7 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
     // ### hack
     for (int index=0; index<count(); ++index) {
         QMetaProperty p = meta->property(index);
-        setVisible(index, p.isDesignable(m_object));
+        // setVisible(index, p.isDesignable(m_object));
 
         if (p.type() == QVariant::KeySequence)
             createFakeProperty(QString::fromUtf8(p.name()));
@@ -380,7 +380,7 @@ bool QDesignerPropertySheet::isVisible(int index) const
         return true;
 
     QMetaProperty p = meta->property(index);
-    return p.isWritable() && m_info.value(index).visible;
+    return p.isWritable() && p.isDesignable() && m_info.value(index).visible;
 }
 
 void QDesignerPropertySheet::setVisible(int index, bool visible)
