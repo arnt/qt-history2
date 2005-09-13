@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qdesigner_integration_p.h"
+#include "qdesigner_command_p.h"
 
 // sdk
 #include <QtDesigner/QtDesigner>
@@ -87,7 +88,9 @@ void QDesignerIntegration::updateProperty(const QString &name, const QVariant &v
 
             cursor->setProperty(name, value);
         } else if (propertyIndex != -1) {
-            sheet->setProperty(propertyIndex, value);
+            SetPropertyCommand *cmd = new SetPropertyCommand(formWindow);
+            cmd->init(object, name, value);
+            formWindow->commandHistory()->push(cmd);
         }
 
         if (name == QLatin1String("objectName") && core()->objectInspector()) {
