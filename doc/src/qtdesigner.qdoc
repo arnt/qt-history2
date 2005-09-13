@@ -28,7 +28,7 @@
     associated extension classes:
 
     The QDesignerContainerExtension class allows you to add pages to a
-    multipage container plugin in \QD. The QDesignerTaskMenuExtension
+    multi-page container plugin in \QD. The QDesignerTaskMenuExtension
     class allows you to add custom menu entries to \QD's task
     menu. The QDesignerMemberSheetExtension class allows you to
     manipulate a widget's member functions which is displayed in \QD's
@@ -504,12 +504,12 @@
 /*!
     \class QDesignerContainerExtension
     \brief The QDesignerContainerExtension class allows you to add pages to
-    a multipage container plugin in Qt Designer.
+    a multi-page container plugin in Qt Designer.
     \inmodule QtDesigner
 
     QDesignerContainerExtension provide an interface for creating
     custom container extensions. A container extension consists of a
-    collection of functions that \QD needs to manage a multipage
+    collection of functions that \QD needs to manage a multi-page
     container plugin, and a list of the container's pages.
 
     \warning This is \e not an extension for container plugins in
@@ -548,7 +548,7 @@
     pointer.
 
     You must reimplement several functions to enable \QD to manage
-    your multipaged container widget: \QD uses count() to keep track
+    your multi-page container widget: \QD uses count() to keep track
     of the number pages in your container, widget() to return the page
     at a given index in the list of the container's pages, and
     currentIndex() to return the list index of the selected page. \QD
@@ -619,11 +619,11 @@
         }
     \endcode
 
-    For a complete example using an extension class, see the \l
-    {designer/taskmenuextension}{Task Menu Extension example}. The
-    example shows how to create a custom widget plugin for Qt
-    Designer, and how to to use the QDesignerTaskMenuExtension class
-    to add custom items to \QD's task menu.
+    For a complete example using the QDesignerContainerExtension
+    class, see the \l {designer/containerextension}{Container
+    Extension example}. The example shows how to create a custom
+    multi-page plugin for Qt Designer using the
+    QDesignerContainerExtension class.
 
     \sa QExtensionFactory, QExtensionManager, {Qt Designer}
 */
