@@ -907,17 +907,23 @@ void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
                 int len = x2 - x1;
 
                 if (len > 0) {
-                    QT_FT_Span span;
+                    const int nspans = 256;
+                    QT_FT_Span spans[nspans];
 
                     Q_ASSERT(d->brushData.blend);
-                    span.x = x1;
-                    span.len = x2 - x1;
-                    span.coverage = 255;
-
-                    // draw the fill
-                    for (int y = y1; y < y2; ++y) {
-                        span.y = y;
-                        d->brushData.blend(1, &span, &d->brushData);
+                    int y = y1;
+                    while (y < y2) {
+                        int n = qMin(nspans, y2 - y);
+                        int i = 0;
+                        while (i < n) {
+                            spans[i].x = x1;
+                            spans[i].len = x2 - x1;
+                            spans[i].y = y + i;
+                            spans[i].coverage = 255;
+                            ++i;
+                        }
+                        d->brushData.blend(n, spans, &d->brushData);
+                        y += n;
                     }
                 }
             }
