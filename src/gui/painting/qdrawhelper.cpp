@@ -2223,10 +2223,12 @@ void qInitDrawhelperAsm()
         return;
     features = detectCPUFeatures();
 
+#ifdef QT_NO_DEBUG
     if (features & SSE) {
         functionForMode = qt_functionForMode_SSE;
         functionForModeSolid = qt_functionForModeSolid_SSE;
     }
+#endif
 }
 
 #else
