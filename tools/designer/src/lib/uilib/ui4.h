@@ -21,7 +21,7 @@ class QDomDocument;
 class QDomElement;
 
 #include <QtCore/qglobal.h>
-#if defined(QT_DESIGNER) && defined(Q_OS_WIN)
+#if defined(QT_DESIGNER) && defined(Q_OS_WIN) && !defined(QT_DESIGNER_STATIC)
 #    ifdef QT_UILIB_LIBRARY
 #        define QT_UI4_EXPORT __declspec(dllexport)
 #    else

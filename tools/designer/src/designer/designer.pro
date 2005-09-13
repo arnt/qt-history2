@@ -21,6 +21,10 @@ LIBS += -L../../lib \
 
 RESOURCES += designer.qrc
 
+contains(CONFIG, static) {
+    DEFINES += QT_DESIGNER_STATIC
+}
+
 TARGET = designer
 
 HEADERS += \

@@ -27,8 +27,13 @@
 
 #include <QtCore/qglobal.h>
 
+#ifdef QT_DESIGNER_STATIC
+#define QT_SHARED_EXTERN
+#define QT_SHARED_IMPORT
+#else
 #define QT_SHARED_EXTERN Q_DECL_EXPORT
 #define QT_SHARED_IMPORT Q_DECL_IMPORT
+#endif
 
 #ifndef QT_NO_SHARED_EXPORT
 #  ifdef QT_SHARED_LIBRARY
