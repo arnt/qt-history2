@@ -85,11 +85,13 @@ CGContextRef qt_mac_cg_context(const QPaintDevice *pdev)
         const QPixmap *pm = static_cast<const QPixmap*>(pdev);
         CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
         CGImageRef img = (CGImageRef)pm->macCGHandle();
-        uint flags = CGImageGetAlphaInfo(img);
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+        uint flags = CGImageGetAlphaInfo(img);
         CGBitmapInfo (*CGImageGetBitmapInfo_ptr)(CGImageRef) = CGImageGetBitmapInfo;
         if(CGImageGetBitmapInfo_ptr)
             flags |= (*CGImageGetBitmapInfo_ptr)(img);
+#else
+        CGImageAlphaInfo flags = CGImageGetAlphaInfo(img);
 #endif
         CGContextRef ret = CGBitmapContextCreate(pm->data->pixels, pm->data->w, pm->data->h,
                                                  8, pm->data->nbytes / pm->data->h, colorspace,

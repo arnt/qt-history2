@@ -612,12 +612,14 @@ void QPixmap::init(int w, int h, Type type)
     CGDataProviderRef provider = CGDataProviderCreateWithData(base_pixels,
                                                               data->pixels, data->nbytes,
                                                               qt_mac_cgimage_data_free);
-    uint cgflags = kCGImageAlphaPremultipliedFirst;
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+    uint cgflags = kCGImageAlphaPremultipliedFirst;
 #ifdef kCGBitmapByteOrder32Host //only needed because CGImage.h added symbols in the minor version
     if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4)
         cgflags |= kCGBitmapByteOrder32Host;
 #endif
+#else
+    CGImageAlphaInfo cgflags = kCGImageAlphaPremultipliedFirst;
 #endif
     data->cg_data = CGImageCreate(w, h, 8, 32, data->nbytes / h, colorspace,
                                   cgflags, provider, 0, 0, kCGRenderingIntentDefault);
