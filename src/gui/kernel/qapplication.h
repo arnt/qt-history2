@@ -28,7 +28,7 @@
 #endif
 #ifdef Q_WS_QWS
 # include "QtGui/qrgb.h"
-#include "qtransportauth_qws.h"
+# include "QtGui/qtransportauth_qws.h"
 #endif
 
 QT_MODULE(Gui)
