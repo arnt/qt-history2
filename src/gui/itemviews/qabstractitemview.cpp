@@ -2175,45 +2175,24 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::multiSelectionComm
 
     if (event) {
         switch (event->type()) {
-        case QEvent::KeyPress: // NoUpdate on Key movement and Ctrl
-            switch (static_cast<const QKeyEvent*>(event)->key()) {
-            case Qt::Key_Down:
-            case Qt::Key_Up:
-            case Qt::Key_Left:
-            case Qt::Key_Right:
-            case Qt::Key_Home:
-            case Qt::Key_End:
-            case Qt::Key_PageUp:
-            case Qt::Key_PageDown:
-            case Qt::Key_Tab:
-            case Qt::Key_Backtab:
-                if (static_cast<const QKeyEvent*>(event)->modifiers() & Qt::ControlModifier)
-                    return QItemSelectionModel::NoUpdate;
-                break;
-            case Qt::Key_Space:
-                if (selectionModel->isSelected(index))
-                    return QItemSelectionModel::Deselect|selectionBehaviorFlags();
-                return QItemSelectionModel::Select|selectionBehaviorFlags();
-            default:
-                return QItemSelectionModel::NoUpdate;
-            } // switch
-            return QItemSelectionModel::NoUpdate;
+        case QEvent::KeyPress:
+            if (static_cast<const QKeyEvent*>(event)->key() == Qt::Key_Space)
+                return QItemSelectionModel::Toggle|selectionBehaviorFlags();
+            break;
         case QEvent::MouseButtonPress:
-            if (static_cast<const QMouseEvent*>(event)->button() != Qt::LeftButton)
-                break; // do nothing on anything other than left button
-            if (selectionModel->isSelected(index))
-                return QItemSelectionModel::Deselect|selectionBehaviorFlags();
-            return QItemSelectionModel::Select|selectionBehaviorFlags();
+            if (static_cast<const QMouseEvent*>(event)->button() == Qt::LeftButton)
+                return QItemSelectionModel::Toggle|selectionBehaviorFlags();
+            break;
         case QEvent::MouseMove:
-            if (static_cast<const QMouseEvent*>(event)->button() != Qt::LeftButton)
-                break; // do nothing on anything anything other than left button
-            return QItemSelectionModel::ToggleCurrent|selectionBehaviorFlags();
+            if (static_cast<const QMouseEvent*>(event)->buttons() & Qt::LeftButton)
+                return QItemSelectionModel::ToggleCurrent|selectionBehaviorFlags();
         default:
             break;
-        } // switch
+        }
+        return QItemSelectionModel::NoUpdate;
     }
 
-    return QItemSelectionModel::ClearAndSelect;
+    return QItemSelectionModel::Toggle|selectionBehaviorFlags();
 }
 
 QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionCommand(
