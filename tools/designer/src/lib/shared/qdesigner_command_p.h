@@ -85,7 +85,7 @@ public:
     QDesignerFormWindowInterface *formWindow() const;
 
 protected:
-    void checkObjectName(QWidget *widget);
+    void checkObjectName(QObject *object);
     void updateBuddies(const QString &old_name, const QString &new_name);
     void checkSelection(QWidget *widget);
     void checkParent(QWidget *widget, QWidget *parentWidget);
@@ -101,7 +101,9 @@ class QT_SHARED_EXPORT SetPropertyCommand: public QDesignerFormWindowCommand
 public:
     SetPropertyCommand(QDesignerFormWindowInterface *formWindow);
 
-    void init(QWidget *widget, const QString &propertyName, const QVariant &newValue);
+    void init(QObject *object, const QString &propertyName, const QVariant &newValue);
+
+    QObject *object() const;
 
     QWidget *widget() const;
     QWidget *parentWidget() const;
@@ -130,7 +132,7 @@ protected:
 private:
     QString m_propertyName;
     int m_index;
-    QPointer<QWidget> m_widget;
+    QPointer<QObject> m_object;
     QPointer<QWidget> m_parentWidget;
     QDesignerPropertySheetExtension *m_propertySheet;
     QVariant m_oldValue;
