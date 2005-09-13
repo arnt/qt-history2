@@ -20,6 +20,12 @@
 
 extern "C" {
     Q_CORE_EXPORT int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
+    Q_CORE_EXPORT int q_atomic_test_and_set_acquire_int(volatile int *ptr,
+                                                        int expected,
+                                                        int newval);
+    Q_CORE_EXPORT int q_atomic_test_and_set_release_int(volatile int *ptr,
+                                                        int expected,
+                                                        int newval);
     Q_CORE_EXPORT int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
     Q_CORE_EXPORT int q_atomic_increment(volatile int *ptr);
     Q_CORE_EXPORT int q_atomic_decrement(volatile int *ptr);
@@ -46,6 +52,16 @@ inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval
     }
     q_atomic_unlock(ptr, val);
     return 0;
+}
+
+inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval)
+{
+    return q_atomic_test_and_set_int(ptr, expected, newval);
+}
+
+inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval)
+{
+    return q_atomic_test_and_set_int(ptr, expected, newval);
 }
 
 inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)

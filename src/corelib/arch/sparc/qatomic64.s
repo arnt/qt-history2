@@ -12,6 +12,30 @@ q_atomic_test_and_set_int:
 	.size q_atomic_test_and_set_int,.-q_atomic_test_and_set_int
 
 	.align 4
+	.type q_atomic_test_and_set_acquire_int,#function
+	.global q_atomic_test_and_set_acquire_int
+q_atomic_test_and_set_acquire_int:
+	cas [%o0],%o1,%o2
+	cmp %o1,%o2
+	clr %o0
+	membar #LoadLoad | #LoadStore
+	retl
+	move %icc,1,%o0
+	.size q_atomic_test_and_set_acquire_int,.-q_atomic_test_and_set_acquire_int
+
+	.align 4
+	.type q_atomic_test_and_set_release_int,#function
+	.global q_atomic_test_and_set_release_int
+q_atomic_test_and_set_release_int:
+        membar #LoadStore | #StoreStore
+	cas [%o0],%o1,%o2
+	cmp %o1,%o2
+	clr %o0
+	retl
+	move %icc,1,%o0
+	.size q_atomic_test_and_set_release_int,.-q_atomic_test_and_set_release_int
+
+	.align 4
 	.type q_atomic_test_and_set_ptr,#function
 	.global q_atomic_test_and_set_ptr
 q_atomic_test_and_set_ptr:

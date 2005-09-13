@@ -22,6 +22,8 @@
 extern "C" {
     int _InterlockedExchange(volatile int *, int);
     int _InterlockedCompareExchange(volatile int *, int, int);
+    int _InterlockedCompareExchange_acq(volatile int *, int, int);
+    int _InterlockedCompareExchange_rel(volatile int *, int, int);
     int _InterlockedIncrement(volatile int *addend);
     int _InterlockedDecrement(volatile int *addend);
     void * _InterlockedCompareExchangePointer(void * volatile *, void *, void *);
@@ -30,6 +32,12 @@ extern "C" {
 
 inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
 { return static_cast<int>(_InterlockedCompareExchange(ptr, newval, expected)) == expected; }
+
+inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval)
+{ return static_cast<int>(_InterlockedCompareExchange_acq(ptr, newval, expected)) == expected; }
+
+inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval)
+{ return static_cast<int>(_InterlockedCompareExchange_rel(ptr, newval, expected)) == expected; }
 
 inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
 {
