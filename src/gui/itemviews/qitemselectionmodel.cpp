@@ -171,7 +171,8 @@
 */
 bool QItemSelectionRange::intersects(const QItemSelectionRange &other) const
 {
-    return (parent() == other.parent()
+    return (isValid() && other.isValid()
+            && parent() == other.parent()
             && ((top() <= other.top() && bottom() >= other.top())
                 || (top() >= other.top() && top() <= other.bottom()))
             && ((left() <= other.left() && right() >= other.left())
