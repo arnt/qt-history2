@@ -122,10 +122,12 @@ contains(sql-drivers, sqlite) {
                 INCLUDEPATH +=  ../3rdparty/sqlite
 
                 SOURCES +=      ../3rdparty/sqlite/alter.c \
+                                ../3rdparty/sqlite/analyze.c \
                                 ../3rdparty/sqlite/attach.c \
                                 ../3rdparty/sqlite/auth.c \
                                 ../3rdparty/sqlite/btree.c \
                                 ../3rdparty/sqlite/build.c \
+                                ../3rdparty/sqlite/callback.c \
                                 ../3rdparty/sqlite/date.c \
                                 ../3rdparty/sqlite/delete.c \
                                 ../3rdparty/sqlite/expr.c \
@@ -138,6 +140,7 @@ contains(sql-drivers, sqlite) {
                                 ../3rdparty/sqlite/pager.c \
                                 ../3rdparty/sqlite/parse.c \
                                 ../3rdparty/sqlite/pragma.c \
+                                ../3rdparty/sqlite/prepare.c \
                                 ../3rdparty/sqlite/printf.c \
                                 ../3rdparty/sqlite/random.c \
                                 ../3rdparty/sqlite/select.c \
@@ -151,6 +154,7 @@ contains(sql-drivers, sqlite) {
                                 ../3rdparty/sqlite/vdbeapi.c \
                                 ../3rdparty/sqlite/vdbeaux.c \
                                 ../3rdparty/sqlite/vdbe.c \
+                                ../3rdparty/sqlite/vdbefifo.c \
                                 ../3rdparty/sqlite/vdbemem.c \
                                 ../3rdparty/sqlite/where.c
                 unix:SOURCES += ../3rdparty/sqlite/os_unix.c
