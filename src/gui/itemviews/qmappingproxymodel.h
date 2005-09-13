@@ -14,21 +14,18 @@
 #ifndef QMAPPINGPROXYMODEL_H
 #define QMAPPINGPROXYMODEL_H
 
-#include <QtCore/qabstractitemmodel.h>
-#include <QtCore/qmap.h>
+#include <QtGui/qabstractproxymodel.h>
 
 class QMappingProxyModelPrivate;
 
-class Q_GUI_EXPORT QMappingProxyModel : public QAbstractItemModel
+class Q_GUI_EXPORT QMappingProxyModel : public QAbstractProxyModel
 {
     Q_OBJECT
-
 public:
     QMappingProxyModel(QObject *parent = 0);
     ~QMappingProxyModel();
 
-    virtual void setModel(QAbstractItemModel *model);
-    QAbstractItemModel *model() const;
+    void setSourceModel(QAbstractItemModel *sourceModel);
 
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &child) const;
@@ -79,8 +76,12 @@ protected slots:
 
 protected:
     QMappingProxyModel(QMappingProxyModelPrivate &, QObject *parent);
-    virtual QModelIndex proxyIndex(const QModelIndex &source_index) const;
-    mutable QMap<QModelIndex, QModelIndex> proxy_to_source; // mapping
+
+    QModelIndex proxyIndex(const QModelIndex &source_index) const;
+    QModelIndex sourceIndex(const QModelIndex &proxy_index) const;
+
+    void insertMapping(const QModelIndex &proxy_index, const QModelIndex &source_index);
+    void removeMapping(const QModelIndex &proxy_index);
 
 private:
     Q_DECLARE_PRIVATE(QMappingProxyModel)

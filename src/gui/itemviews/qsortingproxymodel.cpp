@@ -72,38 +72,38 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
     while (!source_parent_stack.isEmpty()) {
 
         QModelIndex source_parent = source_parent_stack.pop();
-        for (int row = 0; row < model()->rowCount(source_parent); ++row) {
-            QModelIndex source_index = model()->index(row, column, source_parent);
-            if (model()->hasChildren(source_index))
+        for (int row = 0; row < sourceModel()->rowCount(source_parent); ++row) {
+            QModelIndex source_index = sourceModel()->index(row, column, source_parent);
+            if (sourceModel()->hasChildren(source_index))
                 source_parent_stack.push(source_index);
             source_children.append(source_index);
         }
 
         qSort(source_children.begin(), source_children.end(), *compare);
 
-        QModelIndex proxy_parent = proxy_to_source.key(source_parent); // ### slow
+        QModelIndex proxy_parent = d->proxy_to_source.key(source_parent); // ### slow
         void *parent_node = 0;
         if (proxy_parent.isValid())
-            parent_node = proxy_to_source.find(proxy_parent); // get the QMap node, used as uid in the proxy index
+            parent_node = d->proxy_to_source.find(proxy_parent); // get the QMap node, used as uid in the proxy index
 
         // for each proxy_row, go through the source_column (same as proxy columns) and update the mapping
-        int source_column_count = model()->columnCount(source_parent);
+        int source_column_count = sourceModel()->columnCount(source_parent);
         int proxy_row_count = source_children.count();
         for (int proxy_row = 0; proxy_row < proxy_row_count; ++proxy_row) {
             int source_row = source_children.at(proxy_row).row();
             for (int source_column = 0; source_column < source_column_count; ++source_column) {
-                QModelIndex source_index = model()->index(source_row, source_column,
-                                                          source_parent);
+                QModelIndex source_index = sourceModel()->index(source_row, source_column,
+                                                                source_parent);
                 Q_ASSERT(source_index.isValid());
-                QModelIndex old_proxy_index = proxy_to_source.key(source_index);
+                QModelIndex old_proxy_index = d->proxy_to_source.key(source_index);
                 QModelIndex new_proxy_index = createIndex(proxy_row, source_column, parent_node);
                 if (old_proxy_index.isValid()) {
                     changePersistentIndex(old_proxy_index, new_proxy_index);
-                    proxy_to_source.remove(old_proxy_index);
+                    d->proxy_to_source.remove(old_proxy_index);
                 }
                 Q_ASSERT(new_proxy_index.isValid());
                 Q_ASSERT(source_index.isValid());
-                proxy_to_source.insert(new_proxy_index, source_index);
+                d->proxy_to_source.insert(new_proxy_index, source_index);
             }
         }
         

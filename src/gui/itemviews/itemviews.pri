@@ -22,11 +22,14 @@ HEADERS += \
 	itemviews/qwidgetitemdata_p.h \
 	itemviews/qproxymodel.h \
 	itemviews/qproxymodel_p.h \
+	itemviews/qabstractproxymodel.h \
+	itemviews/qabstractproxymodel_p.h \
 	itemviews/qmappingproxymodel.h \
 	itemviews/qmappingproxymodel_p.h \
 	itemviews/qsortingproxymodel.h \
 	itemviews/qsortingproxymodel_p.h \
         itemviews/qfilteringproxymodel.h \
+        itemviews/qfilteringproxymodel_p.h \
 	itemviews/qitemeditorfactory.h \
 	itemviews/qstandarditemmodel.h \
 	itemviews/qstandarditemmodel_p.h \
@@ -47,6 +50,7 @@ SOURCES += \
 	itemviews/qtablewidget.cpp \
 	itemviews/qtreewidget.cpp \
 	itemviews/qproxymodel.cpp \
+	itemviews/qabstractproxymodel.cpp \
 	itemviews/qmappingproxymodel.cpp \
 	itemviews/qsortingproxymodel.cpp \
         itemviews/qfilteringproxymodel.cpp \

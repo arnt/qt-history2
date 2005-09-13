@@ -20,6 +20,7 @@
 
 /*!
     \class QProxyModel
+    \obsolete
     \brief The QProxyModel class provides support for filtering and sorting data
     that is passed between another model and a view.
 

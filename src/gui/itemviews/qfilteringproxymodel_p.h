@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMAPPINGPROXYMODEL_P_H
-#define QMAPPINGPROXYMODEL_P_H
+#ifndef QFILTERINGPROXYMODEL_P_H
+#define QFILTERINGPROXYMODEL_P_H
 
 //
 //  W A R N I N G
@@ -26,15 +26,16 @@
 //
 //
 
-#include <private/qabstractproxymodel_p.h>
-#include <qmap.h>
+#include <qnamespace.h>
+#include <private/qmappingproxymodel_p.h>
 
-class QMappingProxyModelPrivate : public QAbstractProxyModelPrivate
+class QFilteringProxyModelPrivate : private QMappingProxyModelPrivate
 {
-    Q_DECLARE_PUBLIC(QMappingProxyModel)
+    Q_DECLARE_PUBLIC(QFilteringProxyModel)
+
 public:
-    QMappingProxyModelPrivate() : QAbstractProxyModelPrivate() {}
-    mutable QMap<QModelIndex, QModelIndex> proxy_to_source; // mapping
+    QFilteringProxyModelPrivate() : QMappingProxyModelPrivate() {}
+    mutable QMap<QModelIndex, int> filtered_row_count; // maps the parent to the  number of  rows filtered out
 };
 
-#endif // QMAPPINGPROXYMODEL_P_H
+#endif // QFILTERINGPROXYMODEL_P_H
