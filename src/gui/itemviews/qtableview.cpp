@@ -23,7 +23,6 @@
 #include <qevent.h>
 #include <qscrollbar.h>
 #include <private/qtableview_p.h>
-#include <private/qheaderview_p.h>
 
 void QTableViewPrivate::init()
 {
@@ -70,12 +69,9 @@ void QTableViewPrivate::updateVerticalScrollbar()
     int max = count * verticalStepsPerItem;
 
     // iterate all hidden sections compensate *max* for that.
-    QMap<int, int>::const_iterator it = verticalHeader->d_func()->hiddenSectionSize.begin();
-    while(it != verticalHeader->d_func()->hiddenSectionSize.end()) {
-        if (it.key() >= count) break;
-        max-=verticalStepsPerItem;
-        ++it;
-    }
+    for (int s = 0; s < verticalHeader->count(); ++s)
+        if (verticalHeader->isSectionHidden(s))
+            max -= verticalStepsPerItem;
 
     // set page step size
     int visibleCount = verticalHeader->count() - count - 1;
@@ -125,12 +121,9 @@ void QTableViewPrivate::updateHorizontalScrollbar()
     int max = count * horizontalStepsPerItem;
 
     // iterate all hidden sections compensate *max* for that.
-    QMap<int, int>::const_iterator it = horizontalHeader->d_func()->hiddenSectionSize.begin();
-    while(it != horizontalHeader->d_func()->hiddenSectionSize.end()) {
-        if (it.key() >= count) break;
-        max-=horizontalStepsPerItem;
-        ++it;
-    }
+    for (int s = 0; s < horizontalHeader->count(); ++s)
+        if (horizontalHeader->isSectionHidden(s))
+            max -= horizontalStepsPerItem;
 
     // set page step size
     int visibleCount = horizontalHeader->count() - count - 1;
@@ -396,15 +389,7 @@ void QTableView::scrollContentsBy(int dx, int dy)
     if (dx) { // horizontal
         int value = horizontalScrollBar()->value();
         int section = d->horizontalHeader->logicalIndex(value / horizontalStepsPerItem());
-
-        // iterate all hidden sections to the left of \a section and compensate \a section for that.
-        QMap<int, int>::const_iterator it = d->horizontalHeader->d_func()->hiddenSectionSize.begin();
-        while(it != d->horizontalHeader->d_func()->hiddenSectionSize.end()) {
-            if (it.key() >= section) break;
-            ++section;
-            ++it;
-        }
-        while (section < d->horizontalHeader->count() - 1 && d->horizontalHeader->isSectionHidden(section))
+        while (d->horizontalHeader->isSectionHidden(section)) // hidden sections to the left
             ++section;
         int steps = horizontalStepsPerItem();
         int left = (value % steps) * d->horizontalHeader->sectionSize(section);
@@ -419,15 +404,7 @@ void QTableView::scrollContentsBy(int dx, int dy)
     if (dy) { // vertical
         int value = verticalScrollBar()->value();
         int section = d->verticalHeader->logicalIndex(value / verticalStepsPerItem());
-        
-        // iterate all hidden sections to the left of \a section and compensate \a section for that.
-        QMap<int, int>::const_iterator it = d->verticalHeader->d_func()->hiddenSectionSize.begin();
-        while(it != d->horizontalHeader->d_func()->hiddenSectionSize.end()) {
-            if (it.key() >= section) break;
-            ++section;
-            ++it;
-        }        
-        while (section < d->verticalHeader->count() -1 && d->verticalHeader->isSectionHidden(section))
+        while (d->verticalHeader->isSectionHidden(section)) // hidden sections above
             ++section;
         int steps = verticalStepsPerItem();
         int above = (value % steps) * d->verticalHeader->sectionSize(section);
