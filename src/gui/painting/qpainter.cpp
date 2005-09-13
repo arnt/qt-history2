@@ -1123,7 +1123,8 @@ void QPainter::setBrushOrigin(const QPointF &p)
 /*!
   Sets the composition mode to \a mode.
 
-  \warning Not all paintdevices support non default composition modes.
+  \warning You can only set the composition mode for QPainter objects
+  that operates on a QImage.
 
   \sa QPainter::CompositionMode QPaintEngine::PaintEngineFeature
 */
