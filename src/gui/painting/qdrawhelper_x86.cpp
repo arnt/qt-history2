@@ -541,6 +541,7 @@ void qt_blend_color_argb_sse(int count, const QSpan *spans, void *userData)
                     target[i] = store(add(c, byte_mul(load(target[i]), ia)));
                 }
             }
+            ++spans;
         }
         _mm_empty();
         return;
