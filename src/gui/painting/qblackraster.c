@@ -2300,10 +2300,10 @@ Render_Single_Pass( RAS_ARGS Bool  flipped )
                 return ras.error;
             }
 
-            ras.band_stack[ras.band_top + 1].y_min = k;
-            ras.band_stack[ras.band_top + 1].y_max = j;
+            ras.band_stack[ras.band_top].y_min = k;
 
-            ras.band_stack[ras.band_top].y_max = (Short)( k - 1 );
+            ras.band_stack[ras.band_top+1].y_min = i;
+            ras.band_stack[ras.band_top+1].y_max = (Short)( k - 1 );
 
             ras.band_top++;
         }
