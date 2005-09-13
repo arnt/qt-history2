@@ -450,6 +450,7 @@ static void qt_set_windows_resources()
         }
     }
 
+    const QColor bg = pal.background().color();
     const QColor fg = pal.foreground().color(), btn = pal.button().color();
     QColor disabled((fg.red()+btn.red())/2,(fg.green()+btn.green())/2,
                      (fg.blue()+btn.blue())/2);
@@ -460,6 +461,7 @@ static void qt_set_windows_resources()
                   QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHT))));
     pal.setColor(QPalette::Disabled, QPalette::HighlightedText,
                   QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))));
+    pal.setColor(QPalette::Disabled, QPalette::Base, bg);
 
     QApplicationPrivate::setSystemPalette(pal);
 
