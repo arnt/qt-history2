@@ -1,0 +1,46 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+/*!
+    \page deployment.html
+
+    \title Deployment
+
+    The procedure of deploying Qt applications is different for the
+    various platforms:
+
+    \list
+        \o \l{Deployment on Qt/X11}{Qt/X11}
+        \o \l{Deployment on Qt/Windows}{Qt/Windows}
+        \o \l{Deployment on Qt/Mac}{Qt/Mac}
+    \endlist
+
+    \sa Installation
+*/
+
+/*!
+    \page deployment-x11.html
+
+    \title Deployment on Qt/X11
+*/
+
+/*!
+    \page deployment-windows.html
+
+    \title Deployment on Qt/Windows
+*/
+
+/*!
+    \page deployment-mac.html
+
+    \title Deployment on Qt/Mac
+*/
