@@ -117,7 +117,7 @@ private:
 QTableModel::QTableModel(int rows, int columns, QTableWidget *parent)
     : QAbstractTableModel(parent),
       prototype(0),
-      table(rows * columns), vertical(rows), horizontal(columns)
+      table(rows * columns, 0), vertical(rows, 0), horizontal(columns, 0)
 {}
 
 QTableModel::~QTableModel()
