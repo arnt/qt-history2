@@ -60,7 +60,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     \ingroup appearance
 
     The style factory creates a QStyle object for a given key with
-    QStyleFactory::create(key).
+    QStyleFactory::create().
 
     The styles are either built-in or dynamically loaded from a style
     plugin (see \l QStylePlugin).

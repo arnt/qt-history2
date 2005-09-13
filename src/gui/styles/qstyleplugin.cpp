@@ -48,6 +48,13 @@
     Creates and returns a QStyle object for the style key \a key. The
     style key is usually the class name of the required style.
 
+    In an implementation of the create() function, the string
+    comparison must be case insensitive. For example:
+
+    \code
+        key.toLower() == "stylename"
+    \endcode
+
     \sa keys()
 */
 
