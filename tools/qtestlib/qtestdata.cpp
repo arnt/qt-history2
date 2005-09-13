@@ -1,35 +1,35 @@
 #include <QtCore/qmetaobject.h>
 
-#include "QtTest/qttestassert.h"
-#include "QtTest/qttestdata.h"
-#include "QtTest/qttesttable.h"
+#include "QTest/qtestassert.h"
+#include "QTest/qtestdata.h"
+#include "QTest/qtesttable.h"
 
 #include <string.h>
 #include <stdlib.h>
 
-class QtTestDataPrivate
+class QTestDataPrivate
 {
 public:
-    QtTestDataPrivate(): tag(0), parent(0), data(0), dataCount(0) {}
+    QTestDataPrivate(): tag(0), parent(0), data(0), dataCount(0) {}
 
     char *tag;
-    QtTestTable *parent;
+    QTestTable *parent;
     void **data;
     int dataCount;
 };
 
-QtTestData::QtTestData(const char *tag, QtTestTable *parent)
+QTestData::QTestData(const char *tag, QTestTable *parent)
 {
     QTEST_ASSERT(tag);
     QTEST_ASSERT(parent);
-    d = new QtTestDataPrivate;
+    d = new QTestDataPrivate;
     d->tag = strdup(tag);
     d->parent = parent;
     d->data = new void *[parent->elementCount()];
     memset(d->data, 0, parent->elementCount() * sizeof(void*));
 }
 
-QtTestData::~QtTestData()
+QTestData::~QTestData()
 {
     for (int i = 0; i < d->dataCount; ++i) {
         if (d->data[i])
@@ -40,7 +40,7 @@ QtTestData::~QtTestData()
     delete d;
 }
 
-void QtTestData::append(int type, const void *data)
+void QTestData::append(int type, const void *data)
 {
     QTEST_ASSERT(d->dataCount < d->parent->elementCount());
     if (d->parent->elementTypeId(d->dataCount) != type) {
@@ -53,24 +53,24 @@ void QtTestData::append(int type, const void *data)
     ++d->dataCount;
 }
 
-const char *QtTestData::expectedDataType() const
+const char *QTestData::expectedDataType() const
 {
     QTEST_ASSERT(d->dataCount < d->parent->elementCount());
     return d->parent->elementType(d->dataCount);
 }
 
-void *QtTestData::data(int index) const
+void *QTestData::data(int index) const
 {
     QTEST_ASSERT(index < d->parent->elementCount());
     return d->data[index];
 }
 
-QtTestTable *QtTestData::parent() const
+QTestTable *QTestData::parent() const
 {
     return d->parent;
 }
 
-const char *QtTestData::dataTag() const
+const char *QTestData::dataTag() const
 {
     return d->tag;
 }

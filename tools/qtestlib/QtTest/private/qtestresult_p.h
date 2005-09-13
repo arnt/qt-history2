@@ -1,12 +1,12 @@
 #ifndef QTESTRESULT_H
 #define QTESTRESULT_H
 
-#include "QtTest/qttest_global.h"
+#include "QTest/qtest_global.h"
 
-class QtTestResultPrivate;
-class QtTestData;
+class QTestResultPrivate;
+class QTestData;
 
-class QtTestResult
+class QTestResult
 {
 public:
     enum TestLocation { NoWhere = 0, DataFunc = 1, InitFunc = 2, Func = 3, CleanupFunc = 4 };
@@ -14,8 +14,8 @@ public:
     static const char *currentTestObjectName();
     static bool currentTestFailed();
     static bool allDataPassed();
-    static QtTestData *currentTestData();
-    static QtTestData *currentGlobalTestData();
+    static QTestData *currentTestData();
+    static QTestData *currentGlobalTestData();
     static const char *currentTestFunction();
     static TestLocation currentTestLocation();
     static const char *currentDataTag();
@@ -33,15 +33,15 @@ public:
     static bool compare(bool success, const char *msg, char *val1, char *val2,
                         const char *file, int line);
 
-    static void setCurrentGlobalTestData(QtTestData *data);
-    static void setCurrentTestData(QtTestData *data);
+    static void setCurrentGlobalTestData(QTestData *data);
+    static void setCurrentTestData(QTestData *data);
     static void setCurrentTestFunction(const char *func);
     static void setCurrentTestLocation(TestLocation loc);
     static void setCurrentTestObject(const char *name);
-    static void addSkip(const char *message, QtTest::SkipMode mode,
+    static void addSkip(const char *message, QTest::SkipMode mode,
                         const char *file, int line);
     static bool expectFail(const char *dataIndex, const char *comment,
-                           QtTest::TestFailMode mode, const char *file, int line);
+                           QTest::TestFailMode mode, const char *file, int line);
     static bool verify(bool statement, const char *statementStr, const char *extraInfo,
                        const char *file, int line);
 };

@@ -4,13 +4,13 @@
 #include <QtGui/qicon.h>
 #include <QtGui/qpixmap.h>
 
-#include "QtTest/qttestassert.h"
-#include "QtTest/qttest.h"
-#include "QtTest/qttestevent.h"
-#include "QtTest/qttestmouse.h"
-#include "QtTest/qttestkeyboard.h"
+#include "QTest/qtestassert.h"
+#include "QTest/qtest.h"
+#include "QTest/qtestevent.h"
+#include "QTest/qtestmouse.h"
+#include "QTest/qtestkeyboard.h"
 
-namespace QtTest
+namespace QTest
 {
 
 template<>

@@ -6,10 +6,10 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qpointer.h>
 
-class QtTestEventLoop : public QObject
+class QTestEventLoop : public QObject
 {
 public:
-    inline QtTestEventLoop(QObject *parent = 0)
+    inline QTestEventLoop(QObject *parent = 0)
         : QObject(parent), inLoop(false), _timeout(false), timerId(-1), loop(0) {}
     inline void enterLoop(int secs);
     inline void exitLoop();
@@ -20,12 +20,12 @@ public:
     inline bool timeout() const
     { return _timeout; }
 
-    inline static QtTestEventLoop &instance()
+    inline static QTestEventLoop &instance()
     {
-        static QPointer<QtTestEventLoop> testLoop;
+        static QPointer<QTestEventLoop> testLoop;
         if (testLoop.isNull())
-            testLoop = new QtTestEventLoop(QCoreApplication::instance());
-        return *static_cast<QtTestEventLoop *>(testLoop);
+            testLoop = new QTestEventLoop(QCoreApplication::instance());
+        return *static_cast<QTestEventLoop *>(testLoop);
     }
 
 protected:
@@ -39,7 +39,7 @@ private:
     QEventLoop *loop;
 };
 
-inline void QtTestEventLoop::enterLoop(int secs)
+inline void QTestEventLoop::enterLoop(int secs)
 {
     Q_ASSERT(!loop);
 
@@ -55,7 +55,7 @@ inline void QtTestEventLoop::enterLoop(int secs)
     loop = 0;
 }
 
-inline void QtTestEventLoop::exitLoop()
+inline void QTestEventLoop::exitLoop()
 {
     Q_ASSERT(loop);
 
@@ -66,7 +66,7 @@ inline void QtTestEventLoop::exitLoop()
     inLoop = false;
 }
 
-inline void QtTestEventLoop::timerEvent(QTimerEvent *e)
+inline void QTestEventLoop::timerEvent(QTimerEvent *e)
 {
     if (e->timerId() != timerId)
         return;

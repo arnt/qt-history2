@@ -1,9 +1,9 @@
 #ifndef QTESTKEYBOARD_H
 #define QTESTKEYBOARD_H
 
-#include "QtTest/qttestassert.h"
-#include "QtTest/qttest_global.h"
-#include "QtTest/qttestsystem.h"
+#include "QTest/qtestassert.h"
+#include "QTest/qtest_global.h"
+#include "QTest/qtestsystem.h"
 
 #include <QtCore/qpointer.h>
 #include <QtGui/qapplication.h>
@@ -16,7 +16,7 @@
 #define QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 #endif
 
-namespace QtTest
+namespace QTest
 {
     int Q_TESTLIB_EXPORT defaultKeyDelay();
 
@@ -71,7 +71,7 @@ namespace QtTest
         if (delay == -1 || delay < defaultKeyDelay())
             delay = defaultKeyDelay();
         if(delay > 0)
-            QtTest::wait(delay);
+            QTest::wait(delay);
 
         QKeyEvent a(press ? QEvent::KeyPress : QEvent::KeyRelease, code, modifier, text, repeat);
         // this is should be safe because of the paranoia methods above.

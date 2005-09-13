@@ -2,10 +2,10 @@
 #include <string.h>
 #include <QtCore/qglobal.h>
 
-#include "QtTest/private/qxmltestlogger_p.h"
-#include "QtTest/private/qtestresult_p.h"
+#include "QTest/private/qxmltestlogger_p.h"
+#include "QTest/private/qtestresult_p.h"
 
-namespace QtTest {
+namespace QTest {
 
     static const char* xmlMessageType2String(QAbstractTestLogger::MessageTypes type)
     {
@@ -64,16 +64,16 @@ void QXmlTestLogger::startLogging()
     char buf[1024];
 
     if (xmlmode == QXmlTestLogger::Complete) {
-        QtTest::qt_snprintf(buf, sizeof(buf),
+        QTest::qt_snprintf(buf, sizeof(buf),
                 "<?xml version=\"1.0\" encoding=\"ISO8859-1\"?>\n"
-                "<TestCase name=\"%s\">\n", QtTestResult::currentTestObjectName());
+                "<TestCase name=\"%s\">\n", QTestResult::currentTestObjectName());
         outputString(buf);
     }
 
-    QtTest::qt_snprintf(buf, sizeof(buf),
+    QTest::qt_snprintf(buf, sizeof(buf),
             "<Environment>\n"
             "    <QtVersion>%s</QtVersion>\n"
-            "    <QtTestVersion>"QTTEST_VERSION_STR"</QtTestVersion>\n"
+            "    <QTestVersion>"QTEST_VERSION_STR"</QTestVersion>\n"
             "</Environment>\n", qVersion());
     outputString(buf);
 }
@@ -90,7 +90,7 @@ void QXmlTestLogger::stopLogging()
 void QXmlTestLogger::enterTestFunction(const char *function)
 {
     char buf[1024];
-    QtTest::qt_snprintf(buf, sizeof(buf), "<TestFunction name=\"%s\">", function);
+    QTest::qt_snprintf(buf, sizeof(buf), "<TestFunction name=\"%s\">", function);
     outputString(buf);
 }
 
@@ -99,7 +99,7 @@ void QXmlTestLogger::leaveTestFunction()
     outputString("</TestFunction>\n");
 }
 
-namespace QtTest
+namespace QTest
 {
 
 inline static bool isEmpty(const char *str)
@@ -157,14 +157,14 @@ void QXmlTestLogger::addIncident(IncidentTypes type, const char *description,
                                  const char *file, int line)
 {
     char buf[1536];
-    const char *tag = QtTestResult::currentDataTag();
-    const char *gtag = QtTestResult::currentGlobalDataTag();
+    const char *tag = QTestResult::currentDataTag();
+    const char *gtag = QTestResult::currentGlobalDataTag();
     const char *filler = (tag && gtag) ? ":" : "";
-    const bool notag = QtTest::isEmpty(tag) && QtTest::isEmpty(gtag);
+    const bool notag = QTest::isEmpty(tag) && QTest::isEmpty(gtag);
 
-    QtTest::qt_snprintf(buf, sizeof(buf),
-            QtTest::incidentFormatString(QtTest::isEmpty(description), notag),
-            QtTest::xmlIncidentType2String(type),
+    QTest::qt_snprintf(buf, sizeof(buf),
+            QTest::incidentFormatString(QTest::isEmpty(description), notag),
+            QTest::xmlIncidentType2String(type),
             file ? file : "", line,
             gtag ? gtag : "",
             filler,
@@ -179,17 +179,17 @@ void QXmlTestLogger::addMessage(MessageTypes type, const char *message,
 {
     char buf[1536];
     char msgbuf[1024];
-    const char *tag = QtTestResult::currentDataTag();
-    const char *gtag = QtTestResult::currentGlobalDataTag();
+    const char *tag = QTestResult::currentDataTag();
+    const char *gtag = QTestResult::currentGlobalDataTag();
     const char *filler = (tag && gtag) ? ":" : "";
-    const bool notag = QtTest::isEmpty(tag) && QtTest::isEmpty(gtag);
+    const bool notag = QTest::isEmpty(tag) && QTest::isEmpty(gtag);
 
-    QtTest::qt_snprintf(msgbuf, sizeof(msgbuf), "%s",
+    QTest::qt_snprintf(msgbuf, sizeof(msgbuf), "%s",
                         message ? message : "");
 
-    QtTest::qt_snprintf(buf, sizeof(buf),
-            QtTest::messageFormatString(QtTest::isEmpty(message), notag),
-            QtTest::xmlMessageType2String(type),
+    QTest::qt_snprintf(buf, sizeof(buf),
+            QTest::messageFormatString(QTest::isEmpty(message), notag),
+            QTest::xmlMessageType2String(type),
             file ? file : "", line,
             gtag ? gtag : "",
             filler,

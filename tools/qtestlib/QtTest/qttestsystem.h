@@ -1,11 +1,11 @@
-#ifndef QTTESTSYSTEM_H
-#define QTTESTSYSTEM_H
+#ifndef QTESTSYSTEM_H
+#define QTESTSYSTEM_H
 
-#include <QtTest/qttestcase.h>
+#include <QTest/qtestcase.h>
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qdatetime.h>
 
-namespace QtTest
+namespace QTest
 {
     inline static void wait(int ms)
     {
@@ -15,7 +15,7 @@ namespace QtTest
         timer.start();
         do {
             QCoreApplication::processEvents(QEventLoop::AllEvents, ms);
-            QtTest::sleep(10);
+            QTest::sleep(10);
         } while (timer.elapsed() < ms);
     }
 }

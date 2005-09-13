@@ -1,9 +1,9 @@
 #ifndef QTESTLOG_H
 #define QTESTLOG_H
 
-#include "QtTest/qttest_global.h"
+#include "QTest/qtest_global.h"
 
-class QtTestLog
+class QTestLog
 {
 public:
     enum LogMode { Plain = 0, XML, LightXML };
@@ -15,7 +15,7 @@ public:
     static void addFail(const char *msg, const char *file, int line);
     static void addXFail(const char *msg, const char *file, int line);
     static void addXPass(const char *msg, const char *file, int line);
-    static void addSkip(const char *msg, QtTest::SkipMode mode,
+    static void addSkip(const char *msg, QTest::SkipMode mode,
                         const char *file, int line);
     static void addIgnoreMessage(QtMsgType type, const char *msg);
     static int unhandledIgnoreMessages();
@@ -37,8 +37,8 @@ public:
     static const char *outputFileName();
 
 private:
-    QtTestLog();
-    ~QtTestLog();
+    QTestLog();
+    ~QTestLog();
 };
 
 #endif

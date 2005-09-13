@@ -1,17 +1,17 @@
-#include "QtTest/qttestcase.h"
-#include "QtTest/qttestassert.h"
+#include "QTest/qtestcase.h"
+#include "QTest/qtestassert.h"
 
 #include <QtCore/qobject.h>
 #include <QtCore/qmetaobject.h>
 
-#include "QtTest/private/qtestlog_p.h"
-#include "QtTest/qttesttable.h"
-#include "QtTest/qttestdata.h"
-#include "QtTest/private/qtestresult_p.h"
-#include "QtTest/private/qsignaldumper_p.h"
+#include "QTest/private/qtestlog_p.h"
+#include "QTest/qtesttable.h"
+#include "QTest/qtestdata.h"
+#include "QTest/private/qtestresult_p.h"
+#include "QTest/private/qsignaldumper_p.h"
 
 #ifndef QTEST_LIGHT
-#include "QtTest/private/qtestextended_p.h"
+#include "QTest/private/qtestextended_p.h"
 #endif
 
 #include <stdarg.h>
@@ -25,7 +25,7 @@
 #include <time.h>
 #endif
 
-namespace QtTest
+namespace QTest
 {
     static bool skipCurrentTest = false;
     static QObject *currentTestObject = 0;
@@ -122,8 +122,8 @@ static bool isValidSlot(const QMetaMethod &sl)
 
 static void qPrintTestSlots()
 {
-    for (int i = 0; i < QtTest::currentTestObject->metaObject()->methodCount(); ++i) {
-        QMetaMethod sl = QtTest::currentTestObject->metaObject()->method(i);
+    for (int i = 0; i < QTest::currentTestObject->metaObject()->methodCount(); ++i) {
+        QMetaMethod sl = QTest::currentTestObject->metaObject()->method(i);
         if (isValidSlot(sl))
             printf("%s\n", sl.signature());
     }
@@ -135,7 +135,7 @@ static void qParseArgs(int argc, char *argv[])
         if (strcmp(argv[i], "-help") == 0) {
             const char *eHelp = "";
 #ifndef QTEST_LIGHT
-            eHelp = QtTest::helpText();
+            eHelp = QTest::helpText();
 #endif
             printf(" Usage: %s [options] [testfunctions[:testdata]]...\n"
                    "    By default, all testfunction will be run.\n\n"
@@ -158,13 +158,13 @@ static void qParseArgs(int argc, char *argv[])
             qPrintTestSlots();
             exit(0);
         } else if (strcmp(argv[i], "-xml") == 0) {
-            QtTestLog::setLogMode(QtTestLog::XML);
+            QTestLog::setLogMode(QTestLog::XML);
         } else if (strcmp(argv[i], "-lightxml") == 0) {
-            QtTestLog::setLogMode(QtTestLog::LightXML);
+            QTestLog::setLogMode(QTestLog::LightXML);
         } else if (strcmp(argv[i], "-v1") == 0) {
-            QtTestLog::setVerboseLevel(1);
+            QTestLog::setVerboseLevel(1);
         } else if (strcmp(argv[i], "-v2") == 0) {
-            QtTestLog::setVerboseLevel(2);
+            QTestLog::setVerboseLevel(2);
         } else if (strcmp(argv[i], "-vs") == 0) {
             QSignalDumper::startDump();
         } else if (strcmp(argv[i], "-o") == 0) {
@@ -172,36 +172,36 @@ static void qParseArgs(int argc, char *argv[])
                 printf("-o needs an extra parameter specifying the filename\n");
                 exit(1);
             } else {
-                QtTestLog::redirectOutput(argv[++i]);
+                QTestLog::redirectOutput(argv[++i]);
             }
         } else if (strcmp(argv[i], "-eventdelay") == 0) {
             if (i + 1 >= argc) {
                 printf("-eventdelay needs an extra parameter to indicate the delay(ms)\n");
                 exit(1);
             } else {
-                QtTest::eventDelay = atoi(argv[++i]);
+                QTest::eventDelay = atoi(argv[++i]);
             }
         } else if (strcmp(argv[i], "-keydelay") == 0) {
             if (i + 1 >= argc) {
                 printf("-keydelay needs an extra parameter to indicate the delay(ms)\n");
                 exit(1);
             } else {
-                QtTest::keyDelay = atoi(argv[++i]);
+                QTest::keyDelay = atoi(argv[++i]);
             }
         } else if (strcmp(argv[i], "-mousedelay") == 0) {
             if (i + 1 >= argc) {
                 printf("-mousedelay needs an extra parameter to indicate the delay(ms)\n");
                 exit(1);
             } else {
-                QtTest::mouseDelay = atoi(argv[++i]);
+                QTest::mouseDelay = atoi(argv[++i]);
             }
         } else if (strcmp(argv[i], "-keyevent-verbose") == 0) {
-            QtTest::keyVerbose = 1;
+            QTest::keyVerbose = 1;
         } else if (strcmp(argv[i], "-qws") == 0) {
             // do nothing
         } else if (argv[i][0] == '-') {
 #ifndef QTEST_LIGHT
-            if (!QtTest::parseArg_hook(i, argc, argv)) {
+            if (!QTest::parseArg_hook(i, argc, argv)) {
                 printf("Unknown option: '%s', try -help\n", argv[i]);
                 exit(1);
             }
@@ -222,18 +222,18 @@ static void qParseArgs(int argc, char *argv[])
                 *(argv[i]+colon) = '\0';
                 data = qstrdup(argv[i]+colon+1);
             }
-            QtTest::qt_snprintf(buf, 512, "%s()", argv[i]);
-            int idx = QtTest::currentTestObject->metaObject()->indexOfMethod(buf);
-            if (idx < 0 || !isValidSlot(QtTest::currentTestObject->metaObject()->method(idx))) {
+            QTest::qt_snprintf(buf, 512, "%s()", argv[i]);
+            int idx = QTest::currentTestObject->metaObject()->indexOfMethod(buf);
+            if (idx < 0 || !isValidSlot(QTest::currentTestObject->metaObject()->method(idx))) {
                 printf("Unknown testfunction: '%s'\n", buf);
                 printf("Available testfunctions:\n");
                 qPrintTestSlots();
                 exit(1);
             }
-            ++QtTest::lastTestFuncIdx;
-            QtTest::testFuncs[QtTest::lastTestFuncIdx].function = idx;
-            QtTest::testFuncs[QtTest::lastTestFuncIdx].data = data;
-            QTEST_ASSERT(QtTest::lastTestFuncIdx < 512);
+            ++QTest::lastTestFuncIdx;
+            QTest::testFuncs[QTest::lastTestFuncIdx].function = idx;
+            QTest::testFuncs[QTest::lastTestFuncIdx].data = data;
+            QTEST_ASSERT(QTest::lastTestFuncIdx < 512);
         }
     }
 }
@@ -244,51 +244,51 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
     QTEST_ASSERT(slotName);
 
     char cur[512];
-    QtTestTable table;
+    QTestTable table;
 
     char *sl = qstrdup(slotName);
     sl[strlen(sl) - 2] = '\0';
-    QtTestResult::setCurrentTestFunction(sl);
+    QTestResult::setCurrentTestFunction(sl);
 
-    const QtTestTable *gTable = QtTestTable::globalTestTable();
+    const QTestTable *gTable = QTestTable::globalTestTable();
     const int globalDataCount = gTable->dataCount();
     int curGlobalDataIndex = 0;
     do {
         if (!gTable->isEmpty())
-            QtTestResult::setCurrentGlobalTestData(gTable->testData(curGlobalDataIndex));
+            QTestResult::setCurrentGlobalTestData(gTable->testData(curGlobalDataIndex));
 
-        QtTestResult::setCurrentTestLocation(QtTestResult::DataFunc);
-        QtTest::qt_snprintf(cur, 512, "%s_data", sl);
-        QMetaObject::invokeMethod(QtTest::currentTestObject, cur, Qt::DirectConnection,
-                QGenericArgument("QtTestTable&", &table));
+        QTestResult::setCurrentTestLocation(QTestResult::DataFunc);
+        QTest::qt_snprintf(cur, 512, "%s_data", sl);
+        QMetaObject::invokeMethod(QTest::currentTestObject, cur, Qt::DirectConnection,
+                QGenericArgument("QTestTable&", &table));
 
         bool foundFunction = false;
-        if (!QtTest::skipCurrentTest) {
+        if (!QTest::skipCurrentTest) {
             int curDataIndex = 0;
             const int dataCount = table.dataCount();
             do {
                 if (!data || !qstrcmp(data, table.testData(curDataIndex)->dataTag())) {
                     foundFunction = true;
                     if (!table.isEmpty())
-                        QtTestResult::setCurrentTestData(table.testData(curDataIndex));
-                    QtTestResult::setCurrentTestLocation(QtTestResult::InitFunc);
-                    QMetaObject::invokeMethod(QtTest::currentTestObject, "init");
-                    if (QtTest::skipCurrentTest)
+                        QTestResult::setCurrentTestData(table.testData(curDataIndex));
+                    QTestResult::setCurrentTestLocation(QTestResult::InitFunc);
+                    QMetaObject::invokeMethod(QTest::currentTestObject, "init");
+                    if (QTest::skipCurrentTest)
                         break;
 
-                    QtTestResult::setCurrentTestLocation(QtTestResult::Func);
-                    if (!QMetaObject::invokeMethod(QtTest::currentTestObject, sl,
+                    QTestResult::setCurrentTestLocation(QTestResult::Func);
+                    if (!QMetaObject::invokeMethod(QTest::currentTestObject, sl,
                                                   Qt::DirectConnection)) {
-                        QtTestResult::addFailure("Unable to execute slot", __FILE__, __LINE__);
+                        QTestResult::addFailure("Unable to execute slot", __FILE__, __LINE__);
                         break;
                     }
 
-                    QtTestResult::setCurrentTestLocation(QtTestResult::CleanupFunc);
-                    QMetaObject::invokeMethod(QtTest::currentTestObject, "cleanup");
-                    QtTestResult::setCurrentTestLocation(QtTestResult::NoWhere);
-                    QtTestResult::setCurrentTestData(0);
+                    QTestResult::setCurrentTestLocation(QTestResult::CleanupFunc);
+                    QMetaObject::invokeMethod(QTest::currentTestObject, "cleanup");
+                    QTestResult::setCurrentTestLocation(QTestResult::NoWhere);
+                    QTestResult::setCurrentTestData(0);
 
-                    if (QtTest::skipCurrentTest)
+                    if (QTest::skipCurrentTest)
                         // check whether SkipAll was requested
                         break;
                     if (data)
@@ -297,7 +297,7 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
                 ++curDataIndex;
             } while (curDataIndex < dataCount);
         }
-        QtTest::skipCurrentTest = false;
+        QTest::skipCurrentTest = false;
 
         if (data && !foundFunction) {
             printf("Unknown testdata for function %s: '%s'\n", slotName, data);
@@ -307,20 +307,20 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
             return false;
         }
 
-        QtTestResult::setCurrentGlobalTestData(0);
+        QTestResult::setCurrentGlobalTestData(0);
         ++curGlobalDataIndex;
     } while (curGlobalDataIndex < globalDataCount);
 
-    QtTestResult::finishedCurrentTestFunction();
+    QTestResult::finishedCurrentTestFunction();
     delete[] sl;
 
     return true;
 }
 
-void *fetchData(QtTestData *data, const char *tagName, const char *typeName)
+void *fetchData(QTestData *data, const char *tagName, const char *typeName)
 {
     QTEST_ASSERT(typeName);
-    QTEST_ASSERT_X(data, "QtTest::fetchData()", "Test data requested, but no testdata available .");
+    QTEST_ASSERT_X(data, "QTest::fetchData()", "Test data requested, but no testdata available .");
     QTEST_ASSERT(data->parent());
 
     int idx = data->parent()->indexOf(tagName);
@@ -335,7 +335,7 @@ void *fetchData(QtTestData *data, const char *tagName, const char *typeName)
 
 } // namespace
 
-int QtTest::exec(QObject *testObject, int argc, char **argv)
+int QTest::exec(QObject *testObject, int argc, char **argv)
 {
 #ifndef QT_NO_EXCEPTION
     try {
@@ -358,20 +358,20 @@ int QtTest::exec(QObject *testObject, int argc, char **argv)
     const QMetaObject *mo = testObject->metaObject();
     QTEST_ASSERT(mo);
 
-    QtTestResult::setCurrentTestObject(mo->className());
+    QTestResult::setCurrentTestObject(mo->className());
     qParseArgs(argc, argv);
 
-    QtTestLog::startLogging();
+    QTestLog::startLogging();
 
-    QtTestResult::setCurrentTestFunction("initTestCase");
-    QtTestResult::setCurrentTestLocation(QtTestResult::DataFunc);
-    QtTestTable *gTable = QtTestTable::globalTestTable();
+    QTestResult::setCurrentTestFunction("initTestCase");
+    QTestResult::setCurrentTestLocation(QTestResult::DataFunc);
+    QTestTable *gTable = QTestTable::globalTestTable();
     QMetaObject::invokeMethod(testObject, "initTestCase_data", Qt::DirectConnection,
-                              QGenericArgument("QtTestTable&", gTable));
+                              QGenericArgument("QTestTable&", gTable));
 
-    QtTestResult::setCurrentTestLocation(QtTestResult::Func);
+    QTestResult::setCurrentTestLocation(QTestResult::Func);
     QMetaObject::invokeMethod(testObject, "initTestCase");
-    QtTestResult::finishedCurrentTestFunction();
+    QTestResult::finishedCurrentTestFunction();
 
     if (lastTestFuncIdx >= 0) {
         for (int i = 0; i <= lastTestFuncIdx; ++i) {
@@ -387,78 +387,78 @@ int QtTest::exec(QObject *testObject, int argc, char **argv)
         }
     }
 
-    QtTestResult::setCurrentTestFunction("cleanupTestCase");
+    QTestResult::setCurrentTestFunction("cleanupTestCase");
     QMetaObject::invokeMethod(testObject, "cleanupTestCase");
-    QtTestResult::finishedCurrentTestFunction();
-    QtTestResult::setCurrentTestFunction(0);
+    QTestResult::finishedCurrentTestFunction();
+    QTestResult::setCurrentTestFunction(0);
     delete gTable; gTable = 0;
 
 #ifndef QT_NO_EXCEPTION
     } catch (...) {
-        QtTestResult::addFailure("Caught unhandled exception", __FILE__, __LINE__);
-        QtTestLog::stopLogging();
+        QTestResult::addFailure("Caught unhandled exception", __FILE__, __LINE__);
+        QTestLog::stopLogging();
         return -1;
     }
 #endif
 
-    QtTestLog::stopLogging();
+    QTestLog::stopLogging();
     currentTestObject = 0;
 #ifdef QTEST_NOEXITCODE
     return 0;
 #else
-    return QtTestResult::failCount();
+    return QTestResult::failCount();
 #endif
 }
 
-void QtTest::fail(const char *statementStr, const char *file, int line)
+void QTest::fail(const char *statementStr, const char *file, int line)
 {
-    QtTestResult::addFailure(statementStr, file, line);
+    QTestResult::addFailure(statementStr, file, line);
 }
 
-bool QtTest::verify(bool statement, const char *statementStr, const char *description,
+bool QTest::verify(bool statement, const char *statementStr, const char *description,
                    const char *file, int line)
 {
-    return QtTestResult::verify(statement, statementStr, description, file, line);
+    return QTestResult::verify(statement, statementStr, description, file, line);
 }
 
-void QtTest::skip(const char *message, QtTest::SkipMode mode,
+void QTest::skip(const char *message, QTest::SkipMode mode,
                  const char *file, int line)
 {
-    QtTestResult::addSkip(message, mode, file, line);
-    if (mode == QtTest::SkipAll)
+    QTestResult::addSkip(message, mode, file, line);
+    if (mode == QTest::SkipAll)
         skipCurrentTest = true;
 }
 
-bool QtTest::expectFail(const char *dataIndex, const char *comment,
-                       QtTest::TestFailMode mode, const char *file, int line)
+bool QTest::expectFail(const char *dataIndex, const char *comment,
+                       QTest::TestFailMode mode, const char *file, int line)
 {
-    return QtTestResult::expectFail(dataIndex, comment, mode, file, line);
+    return QTestResult::expectFail(dataIndex, comment, mode, file, line);
 }
 
-void QtTest::warn(const char *message)
+void QTest::warn(const char *message)
 {
-    QtTestLog::warn(message);
+    QTestLog::warn(message);
 }
 
-void QtTest::ignoreMessage(QtMsgType type, const char *message)
+void QTest::ignoreMessage(QtMsgType type, const char *message)
 {
-    QtTestResult::ignoreMessage(type, message);
+    QTestResult::ignoreMessage(type, message);
 }
 
-void *QtTest::data(const char *tagName, const char *typeName)
+void *QTest::data(const char *tagName, const char *typeName)
 {
-    return fetchData(QtTestResult::currentTestData(), tagName, typeName);
+    return fetchData(QTestResult::currentTestData(), tagName, typeName);
 }
 
-void *QtTest::globalData(const char *tagName, const char *typeName)
+void *QTest::globalData(const char *tagName, const char *typeName)
 {
-    return fetchData(QtTestResult::currentGlobalTestData(), tagName, typeName);
+    return fetchData(QTestResult::currentGlobalTestData(), tagName, typeName);
 }
 
-void *QtTest::elementData(const char *tagName, int metaTypeId)
+void *QTest::elementData(const char *tagName, int metaTypeId)
 {
     QTEST_ASSERT(tagName);
-    QtTestData *data = QtTestResult::currentTestData();
+    QTestData *data = QTestResult::currentTestData();
     QTEST_ASSERT(data);
     QTEST_ASSERT(data->parent());
 
@@ -469,22 +469,22 @@ void *QtTest::elementData(const char *tagName, int metaTypeId)
     return data->data(data->parent()->indexOf(tagName));
 }
 
-const char *QtTest::currentTestFunction()
+const char *QTest::currentTestFunction()
 {
-    return QtTestResult::currentTestFunction();
+    return QTestResult::currentTestFunction();
 }
 
-const char *QtTest::currentDataTag()
+const char *QTest::currentDataTag()
 {
-    return QtTestResult::currentDataTag();
+    return QTestResult::currentDataTag();
 }
 
-bool QtTest::currentTestFailed()
+bool QTest::currentTestFailed()
 {
-    return QtTestResult::currentTestFailed();
+    return QTestResult::currentTestFailed();
 }
 
-void QtTest::sleep(int ms)
+void QTest::sleep(int ms)
 {
 #ifdef Q_OS_WIN32
     Sleep(uint(ms));
@@ -496,12 +496,12 @@ void QtTest::sleep(int ms)
 #endif
 }
 
-QObject *QtTest::testObject()
+QObject *QTest::testObject()
 {
     return currentTestObject;
 }
 
-namespace QtTest
+namespace QTest
 {
 
 #define COMPARE_IMPL2(klass, format)\
@@ -519,7 +519,7 @@ bool compare(klass const &t1, klass const &t2, const char *file, int line)\
     } else {\
         qt_snprintf(msg, 1024, "COMPARE('"#format"', type "#klass")'", t1);\
     } \
-    return QtTestResult::compare(isOk, msg, file, line);\
+    return QTestResult::compare(isOk, msg, file, line);\
 }
 
 COMPARE_IMPL2(short, %hd)
@@ -535,13 +535,13 @@ COMPARE_IMPL2(char, %c)
 
 bool compare_helper(bool success, const char *msg, const char *file, int line)
 {
-    return QtTestResult::compare(success, msg, file, line);
+    return QTestResult::compare(success, msg, file, line);
 }
 
 bool compare_helper(bool success, const char *msg, char *val1, char *val2,
              const char *file, int line)
 {
-    return QtTestResult::compare(success, msg, val1, val2, file, line);
+    return QTestResult::compare(success, msg, val1, val2, file, line);
 }
 
 bool compare_string_helper(const char *t1, const char *t2, const char *file, int line)
@@ -550,7 +550,7 @@ bool compare_string_helper(const char *t1, const char *t2, const char *file, int
     msg[0] = '\0';
     bool isOk = true;
     if (t1 == t2)
-        return QtTestResult::compare(true, msg, file, line);
+        return QTestResult::compare(true, msg, file, line);
     if (!t1 || !t2 || strcmp(t1, t2)) {
         qt_snprintf(msg, 1024, "Compared values of type char * are not the same.\n"
                 "   Actual  : '%s'\n"
@@ -561,7 +561,7 @@ bool compare_string_helper(const char *t1, const char *t2, const char *file, int
     } else {
         qt_snprintf(msg, 1024, "COMPARE('%s', type char *)", t1);
     }
-    return QtTestResult::compare(isOk, msg, file, line);
+    return QTestResult::compare(isOk, msg, file, line);
 }
 
 bool compare_ptr_helper(const void *t1, const void *t2, const char *file, int line)
@@ -577,7 +577,7 @@ bool compare_ptr_helper(const void *t1, const void *t2, const char *file, int li
     } else {
         qt_snprintf(msg, 1024, "COMPARE('%p', type pointer)'", t1);
     }
-    return QtTestResult::compare(isOk, msg, file, line);
+    return QTestResult::compare(isOk, msg, file, line);
 }
 
 template<>
@@ -594,7 +594,7 @@ bool compare(float const &t1, float const &t2, const char *file, int line)
     } else {
         qt_snprintf(msg, 1024, "COMPARE('%f', type float)", t1);
     }
-    return QtTestResult::compare(isOk, msg, file, line);
+    return QTestResult::compare(isOk, msg, file, line);
 }
 
 template<>
@@ -611,7 +611,7 @@ bool compare(double const &t1, double const &t2, const char *file, int line)
     } else {
         qt_snprintf(msg, 1024, "COMPARE('%lf', double)", t1);
     }
-    return QtTestResult::compare(isOk, msg, file, line);
+    return QTestResult::compare(isOk, msg, file, line);
 }
 
-} // namespace QtTest
+} // namespace QTest

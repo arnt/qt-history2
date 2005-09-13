@@ -1,22 +1,22 @@
-#include "QtTest/private/qtestresult_p.h"
+#include "QTest/private/qtestresult_p.h"
 #include <QtCore/qglobal.h>
 
-#include "QtTest/private/qtestlog_p.h"
-#include "QtTest/qttestdata.h"
-#include "QtTest/qttestassert.h"
+#include "QTest/private/qtestlog_p.h"
+#include "QTest/qtestdata.h"
+#include "QTest/qtestassert.h"
 
 #include <stdio.h>
 #include <string.h>
 
-namespace QtTest
+namespace QTest
 {
-    static QtTestData *currentTestData = 0;
-    static QtTestData *currentGlobalTestData = 0;
+    static QTestData *currentTestData = 0;
+    static QTestData *currentGlobalTestData = 0;
     static const char *currentTestFunc = 0;
     static const char *currentTestObjectName = 0;
     static bool failed = false;
     static bool dataFailed = false;
-    static QtTestResult::TestLocation location = QtTestResult::NoWhere;
+    static QTestResult::TestLocation location = QTestResult::NoWhere;
 
     static int fails = 0;
     static int passes = 0;
@@ -26,88 +26,88 @@ namespace QtTest
     static int expectFailMode = 0;
 };
 
-bool QtTestResult::allDataPassed()
+bool QTestResult::allDataPassed()
 {
-    return !QtTest::failed;
+    return !QTest::failed;
 }
 
-bool QtTestResult::currentTestFailed()
+bool QTestResult::currentTestFailed()
 {
-    return QtTest::dataFailed;
+    return QTest::dataFailed;
 }
 
-QtTestData *QtTestResult::currentGlobalTestData()
+QTestData *QTestResult::currentGlobalTestData()
 {
-    return QtTest::currentGlobalTestData;
+    return QTest::currentGlobalTestData;
 }
 
-QtTestData *QtTestResult::currentTestData()
+QTestData *QTestResult::currentTestData()
 {
-    return QtTest::currentTestData;
+    return QTest::currentTestData;
 }
 
-void QtTestResult::setCurrentGlobalTestData(QtTestData *data)
+void QTestResult::setCurrentGlobalTestData(QTestData *data)
 {
-    QtTest::currentGlobalTestData = data;
+    QTest::currentGlobalTestData = data;
 }
 
-void QtTestResult::setCurrentTestData(QtTestData *data)
+void QTestResult::setCurrentTestData(QTestData *data)
 {
-    QtTest::currentTestData = data;
-    QtTest::dataFailed = false;
+    QTest::currentTestData = data;
+    QTest::dataFailed = false;
 }
 
-void QtTestResult::setCurrentTestFunction(const char *func)
+void QTestResult::setCurrentTestFunction(const char *func)
 {
-    QtTest::currentTestFunc = func;
-    QtTest::failed = false;
+    QTest::currentTestFunc = func;
+    QTest::failed = false;
     if (!func)
-        QtTest::location = NoWhere;
+        QTest::location = NoWhere;
     if (func)
-        QtTestLog::enterTestFunction(func);
+        QTestLog::enterTestFunction(func);
 }
 
 static void clearExpectFail()
 {
-    QtTest::expectFailMode = 0;
-    QtTest::expectFailComment = 0;
+    QTest::expectFailMode = 0;
+    QTest::expectFailComment = 0;
 }
 
-void QtTestResult::finishedCurrentTestFunction()
+void QTestResult::finishedCurrentTestFunction()
 {
-    if (!QtTest::failed && QtTestLog::unhandledIgnoreMessages()) {
-        QtTestLog::printUnhandledIgnoreMessages();
+    if (!QTest::failed && QTestLog::unhandledIgnoreMessages()) {
+        QTestLog::printUnhandledIgnoreMessages();
         addFailure("Not all expected messages were received", 0, 0);
     }
 
-    if (!QtTest::failed) {
-        QtTestLog::addPass("");
-        ++QtTest::passes;
+    if (!QTest::failed) {
+        QTestLog::addPass("");
+        ++QTest::passes;
     }
-    QtTest::currentTestFunc = 0;
-    QtTest::failed = false;
-    QtTest::dataFailed = false;
-    QtTest::location = NoWhere;
+    QTest::currentTestFunc = 0;
+    QTest::failed = false;
+    QTest::dataFailed = false;
+    QTest::location = NoWhere;
 
-    QtTestLog::leaveTestFunction();
+    QTestLog::leaveTestFunction();
 
     clearExpectFail();
 }
 
-const char *QtTestResult::currentTestFunction()
+const char *QTestResult::currentTestFunction()
 {
-    return QtTest::currentTestFunc;
+    return QTest::currentTestFunc;
 }
 
-const char *QtTestResult::currentDataTag()
+const char *QTestResult::currentDataTag()
 {
-    return QtTest::currentTestData ? QtTest::currentTestData->dataTag()
+    return QTest::currentTestData ? QTest::currentTestData->dataTag()
                                    : static_cast<const char *>(0);
 }
 
-const char *QtTestResult::currentGlobalDataTag()
+const char *QTestResult::currentGlobalDataTag()
 {
-    return QtTest::currentGlobalTestData ? QtTest::currentGlobalTestData->dataTag()
+    return QTest::currentGlobalTestData ? QTest::currentGlobalTestData->dataTag()
                                          : static_cast<const char *>(0);
 }
 
@@ -115,15 +115,15 @@ static bool isExpectFailData(const char *dataIndex)
 {
     if (!dataIndex || dataIndex[0] == '\0')
         return true;
-    if (!QtTest::currentTestData)
+    if (!QTest::currentTestData)
         return false;
-    if (strcmp(dataIndex, QtTest::currentTestData->dataTag()) == 0)
+    if (strcmp(dataIndex, QTest::currentTestData->dataTag()) == 0)
         return true;
     return false;
 }
 
-bool QtTestResult::expectFail(const char *dataIndex, const char *comment,
-                             QtTest::TestFailMode mode, const char *file, int line)
+bool QTestResult::expectFail(const char *dataIndex, const char *comment,
+                             QTest::TestFailMode mode, const char *file, int line)
 {
     QTEST_ASSERT(comment);
     QTEST_ASSERT(mode > 0);
@@ -131,134 +131,134 @@ bool QtTestResult::expectFail(const char *dataIndex, const char *comment,
     if (!isExpectFailData(dataIndex))
         return true; // we don't care
 
-    if (QtTest::expectFailMode) {
+    if (QTest::expectFailMode) {
         clearExpectFail();
         addFailure("Already expecting a fail", file, line);
         return false;
     }
 
-    QtTest::expectFailMode = mode;
-    QtTest::expectFailComment = comment;
+    QTest::expectFailMode = mode;
+    QTest::expectFailComment = comment;
     return true;
 }
 
 static bool checkStatement(bool statement, const char *msg, const char *file, int line)
 {
     if (statement) {
-        if (QtTest::expectFailMode) {
-            QtTestLog::addXPass(msg, file, line);
+        if (QTest::expectFailMode) {
+            QTestLog::addXPass(msg, file, line);
             clearExpectFail();
-            QtTest::failed = true;
-            ++QtTest::fails;
-            return QtTest::expectFailMode == QtTest::Continue;
+            QTest::failed = true;
+            ++QTest::fails;
+            return QTest::expectFailMode == QTest::Continue;
         }
         return true;
     }
 
-    if (QtTest::expectFailMode) {
-        QtTestLog::addXFail(QtTest::expectFailComment, file, line);
+    if (QTest::expectFailMode) {
+        QTestLog::addXFail(QTest::expectFailComment, file, line);
         clearExpectFail();
-        return QtTest::expectFailMode == QtTest::Continue;
+        return QTest::expectFailMode == QTest::Continue;
     }
 
-    QtTestResult::addFailure(msg, file, line);
+    QTestResult::addFailure(msg, file, line);
     return false;
 }
 
-bool QtTestResult::verify(bool statement, const char *statementStr,
+bool QTestResult::verify(bool statement, const char *statementStr,
                          const char *description, const char *file, int line)
 {
     char msg[1024];
 
-    if (QtTestLog::verboseLevel() >= 2) {
-        QtTest::qt_snprintf(msg, 1024, "VERIFY(%s)", statementStr);
-        QtTestLog::info(msg, file, line);
+    if (QTestLog::verboseLevel() >= 2) {
+        QTest::qt_snprintf(msg, 1024, "VERIFY(%s)", statementStr);
+        QTestLog::info(msg, file, line);
     }
 
-    QtTest::qt_snprintf(msg, 1024, "'%s' returned FALSE. (%s)", statementStr, description);
+    QTest::qt_snprintf(msg, 1024, "'%s' returned FALSE. (%s)", statementStr, description);
 
     return checkStatement(statement, msg, file, line);
 }
 
-bool QtTestResult::compare(bool success, const char *msg, const char *file, int line)
+bool QTestResult::compare(bool success, const char *msg, const char *file, int line)
 {
-    if (QtTestLog::verboseLevel() >= 2) {
-        QtTestLog::info(msg, file, line);
+    if (QTestLog::verboseLevel() >= 2) {
+        QTestLog::info(msg, file, line);
     }
 
     return checkStatement(success, msg, file, line);
 }
 
-bool QtTestResult::compare(bool success, const char *msg, char *val1, char *val2,
+bool QTestResult::compare(bool success, const char *msg, char *val1, char *val2,
                           const char *file, int line)
 {
     if (!val1 && !val2)
         return compare(success, msg, file, line);
 
     char buf[1024];
-    QtTest::qt_snprintf(buf, 1024, "%s\n   Actual: %s\n   Expected: %s", msg,
+    QTest::qt_snprintf(buf, 1024, "%s\n   Actual: %s\n   Expected: %s", msg,
                        val1 ? val1 : "<null>", val2 ? val2 : "<null>");
     delete [] val1;
     delete [] val2;
     return compare(success, buf, file, line);
 }
 
-void QtTestResult::addFailure(const char *message, const char *file, int line)
+void QTestResult::addFailure(const char *message, const char *file, int line)
 {
     clearExpectFail();
 
-    QtTestLog::addFail(message, file, line);
-    QtTest::failed = true;
-    QtTest::dataFailed = true;
-    ++QtTest::fails;
+    QTestLog::addFail(message, file, line);
+    QTest::failed = true;
+    QTest::dataFailed = true;
+    ++QTest::fails;
 }
 
-void QtTestResult::addSkip(const char *message, QtTest::SkipMode mode,
+void QTestResult::addSkip(const char *message, QTest::SkipMode mode,
                           const char *file, int line)
 {
     clearExpectFail();
 
-    QtTestLog::addSkip(message, mode, file, line);
-    ++QtTest::skips;
+    QTestLog::addSkip(message, mode, file, line);
+    ++QTest::skips;
 }
 
-QtTestResult::TestLocation QtTestResult::currentTestLocation()
+QTestResult::TestLocation QTestResult::currentTestLocation()
 {
-    return QtTest::location;
+    return QTest::location;
 }
 
-void QtTestResult::setCurrentTestLocation(TestLocation loc)
+void QTestResult::setCurrentTestLocation(TestLocation loc)
 {
-    QtTest::location = loc;
+    QTest::location = loc;
 }
 
-void QtTestResult::setCurrentTestObject(const char *name)
+void QTestResult::setCurrentTestObject(const char *name)
 {
-    QtTest::currentTestObjectName = name;
+    QTest::currentTestObjectName = name;
 }
 
-const char *QtTestResult::currentTestObjectName()
+const char *QTestResult::currentTestObjectName()
 {
-    return QtTest::currentTestObjectName ? QtTest::currentTestObjectName : "";
+    return QTest::currentTestObjectName ? QTest::currentTestObjectName : "";
 }
 
-int QtTestResult::passCount()
+int QTestResult::passCount()
 {
-    return QtTest::passes;
+    return QTest::passes;
 }
 
-int QtTestResult::failCount()
+int QTestResult::failCount()
 {
-    return QtTest::fails;
+    return QTest::fails;
 }
 
-int QtTestResult::skipCount()
+int QTestResult::skipCount()
 {
-    return QtTest::skips;
+    return QTest::skips;
 }
 
-void QtTestResult::ignoreMessage(QtMsgType type, const char *msg)
+void QTestResult::ignoreMessage(QtMsgType type, const char *msg)
 {
-    QtTestLog::addIgnoreMessage(type, msg);
+    QTestLog::addIgnoreMessage(type, msg);
 }
 

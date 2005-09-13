@@ -1,9 +1,9 @@
 #ifndef QTESTMOUSE_H
 #define QTESTMOUSE_H
 
-#include "QtTest/qttest_global.h"
-#include "QtTest/qttestassert.h"
-#include "QtTest/qttestsystem.h"
+#include "QTest/qtest_global.h"
+#include "QTest/qtestassert.h"
+#include "QTest/qtestsystem.h"
 
 #include <QtCore/qpoint.h>
 #include <QtCore/qstring.h>
@@ -11,7 +11,7 @@
 #include <QtGui/qevent.h>
 #include <QtGui/qwidget.h>
 
-namespace QtTest
+namespace QTest
 {
     int Q_TESTLIB_EXPORT defaultMouseDelay();
 
@@ -25,7 +25,7 @@ namespace QtTest
         if (delay == -1 || delay < defaultMouseDelay())
             delay = defaultMouseDelay();
         if(delay > 0)
-            QtTest::wait(delay);
+            QTest::wait(delay);
 
         if (pos.isNull())
             pos = widget->rect().center();
@@ -61,7 +61,7 @@ namespace QtTest
                 QTEST_ASSERT(false);
         }
         if (!QApplication::sendEvent(widget, &me))
-            QtTest::fail("Mouse event is not accepted by receiving widget",
+            QTest::fail("Mouse event is not accepted by receiving widget",
                         __FILE__, __LINE__);
 
     }

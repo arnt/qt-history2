@@ -1,35 +1,35 @@
-#include "QtTest/private/qabstracttestlogger_p.h"
-#include "QtTest/private/qtestlog_p.h"
-#include "QtTest/qttestassert.h"
+#include "QTest/private/qabstracttestlogger_p.h"
+#include "QTest/private/qtestlog_p.h"
+#include "QTest/qtestassert.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-namespace QtTest
+namespace QTest
 {
     static FILE *stream = 0;
 }
 
 void QAbstractTestLogger::outputString(const char *msg)
 {
-    QTEST_ASSERT(QtTest::stream);
+    QTEST_ASSERT(QTest::stream);
 
-    ::fputs(msg, QtTest::stream);
-    ::fflush(QtTest::stream);
+    ::fputs(msg, QTest::stream);
+    ::fflush(QTest::stream);
 }
 
 void QAbstractTestLogger::startLogging()
 {
-    QTEST_ASSERT(!QtTest::stream);
+    QTEST_ASSERT(!QTest::stream);
 
-    const char *out = QtTestLog::outputFileName();
+    const char *out = QTestLog::outputFileName();
     if (!out) {
-        QtTest::stream = stdout;
+        QTest::stream = stdout;
         return;
     }
 
-    QtTest::stream = ::fopen(out, "wt");
-    if (!QtTest::stream) {
+    QTest::stream = ::fopen(out, "wt");
+    if (!QTest::stream) {
         printf("Unable to open file for logging: %s", out);
         ::exit(1);
     }
@@ -37,9 +37,9 @@ void QAbstractTestLogger::startLogging()
 
 void QAbstractTestLogger::stopLogging()
 {
-    QTEST_ASSERT(QtTest::stream);
-    if (QtTest::stream != stdout)
-        fclose(QtTest::stream);
-    QtTest::stream = 0;
+    QTEST_ASSERT(QTest::stream);
+    if (QTest::stream != stdout)
+        fclose(QTest::stream);
+    QTest::stream = 0;
 }
 

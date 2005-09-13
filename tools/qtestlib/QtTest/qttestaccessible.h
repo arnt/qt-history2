@@ -6,7 +6,7 @@
 #define QTEST_ACCESSIBILITY
 
 #define VERIFY_EVENT(object, child, event) \
-    VERIFY(QtTestAccessibility::verifyEvent(object, child, (int)event))
+    VERIFY(QTestAccessibility::verifyEvent(object, child, (int)event))
 
 #include <QtCore/qlist.h>
 #include <QtGui/qaccessible.h>
@@ -14,12 +14,12 @@
 
 class QObject;
 
-struct QtTestAccessibilityEvent
+struct QTestAccessibilityEvent
 {
-    QtTestAccessibilityEvent(QObject* o = 0, int c = 0, int e = 0)
+    QTestAccessibilityEvent(QObject* o = 0, int c = 0, int e = 0)
         : object(o), child(c), event(e) {}
 
-    bool operator==(const QtTestAccessibilityEvent &o) const
+    bool operator==(const QTestAccessibilityEvent &o) const
     {
         return o.object == object && o.child == child && o.event == event;
     }
@@ -29,15 +29,15 @@ struct QtTestAccessibilityEvent
     int event;
 };
 
-typedef QList<QtTestAccessibilityEvent> EventList;
+typedef QList<QTestAccessibilityEvent> EventList;
 
-class QtTestAccessibility
+class QTestAccessibility
 {
 public:
     static void initialize()
     {
         if (!instance()) {
-            instance() = new QtTestAccessibility;
+            instance() = new QTestAccessibility;
             qAddPostRoutine(cleanup);
         }
     }
@@ -48,7 +48,7 @@ public:
     }
     static void clearEvents() { eventList().clear(); }
     static EventList events() { return eventList(); }
-    static bool verifyEvent(const QtTestAccessibilityEvent& ev)
+    static bool verifyEvent(const QTestAccessibilityEvent& ev)
     {
         if (eventList().isEmpty())
             return FALSE;
@@ -57,17 +57,17 @@ public:
 
     static bool verifyEvent(QObject *o, int c, int e)
     {
-        return verifyEvent(QtTestAccessibilityEvent(o, c, e));
+        return verifyEvent(QTestAccessibilityEvent(o, c, e));
     }
 
 private:
-    QtTestAccessibility()
+    QTestAccessibility()
     {
         QAccessible::installUpdateHandler(updateHandler);
         QAccessible::installRootObjectHandler(rootObjectHandler);
     }
 
-    ~QtTestAccessibility()
+    ~QTestAccessibility()
     {
         QAccessible::installUpdateHandler(0);
         QAccessible::installRootObjectHandler(0);
@@ -88,7 +88,7 @@ private:
     static void updateHandler(QObject *o, int c, QAccessible::Event e)
     {
         //    qDebug("updateHandler called: %p %d %d", o, c, (int)e);
-        eventList().append(QtTestAccessibilityEvent(o, c, (int)e));
+        eventList().append(QTestAccessibilityEvent(o, c, (int)e));
     }
 
     static EventList &eventList()
@@ -97,9 +97,9 @@ private:
         return list;
     }
 
-    static QtTestAccessibility *&instance()
+    static QTestAccessibility *&instance()
     {
-        static QtTestAccessibility *ta = 0;
+        static QTestAccessibility *ta = 0;
         return ta;
     }
 };

@@ -1,60 +1,60 @@
 #ifndef QTESTEVENT_H
 #define QTESTEVENT_H
 
-#include "QtTest/qttest_global.h"
-#include "QtTest/qttestkeyboard.h"
-#include "QtTest/qttestmouse.h"
-#include "QtTest/qttestsystem.h"
+#include "QTest/qtest_global.h"
+#include "QTest/qtestkeyboard.h"
+#include "QTest/qtestmouse.h"
+#include "QTest/qtestsystem.h"
 
 #include <QtCore/qlist.h>
 
 #include <stdlib.h>
 
-class QtTestEvent
+class QTestEvent
 {
 public:
     virtual void simulate(QWidget *w) = 0;
-    virtual QtTestEvent *clone() const = 0;
+    virtual QTestEvent *clone() const = 0;
 
-    virtual ~QtTestEvent() {}
+    virtual ~QTestEvent() {}
 };
 
-class QtTestKeyEvent: public QtTestEvent
+class QTestKeyEvent: public QTestEvent
 {
 public:
-    inline QtTestKeyEvent(QtTest::KeyAction action, Qt::Key key, Qt::KeyboardModifiers modifiers, int delay)
+    inline QTestKeyEvent(QTest::KeyAction action, Qt::Key key, Qt::KeyboardModifiers modifiers, int delay)
         : _action(action), _delay(delay), _modifiers(modifiers), _ascii(0), _key(key) {}
-    inline QtTestKeyEvent(QtTest::KeyAction action, char ascii, Qt::KeyboardModifiers modifiers, int delay)
+    inline QTestKeyEvent(QTest::KeyAction action, char ascii, Qt::KeyboardModifiers modifiers, int delay)
         : _action(action), _delay(delay), _modifiers(modifiers),
           _ascii(ascii), _key(Qt::Key_unknown) {}
-    inline QtTestEvent *clone() const { return new QtTestKeyEvent(*this); }
+    inline QTestEvent *clone() const { return new QTestKeyEvent(*this); }
 
     inline void simulate(QWidget *w)
     {
         if (_ascii == 0)
-            QtTest::keyEvent(_action, w, _key, _modifiers, _delay);
+            QTest::keyEvent(_action, w, _key, _modifiers, _delay);
         else
-            QtTest::keyEvent(_action, w, _ascii, _modifiers, _delay);
+            QTest::keyEvent(_action, w, _ascii, _modifiers, _delay);
     }
 
 protected:
-    QtTest::KeyAction _action;
+    QTest::KeyAction _action;
     int _delay;
     Qt::KeyboardModifiers _modifiers;
     char _ascii;
     Qt::Key _key;
 };
 
-class QtTestKeyClicksEvent: public QtTestEvent
+class QTestKeyClicksEvent: public QTestEvent
 {
 public:
-    inline QtTestKeyClicksEvent(const QString &keys, Qt::KeyboardModifiers modifiers, int delay)
+    inline QTestKeyClicksEvent(const QString &keys, Qt::KeyboardModifiers modifiers, int delay)
         : _keys(keys), _modifiers(modifiers), _delay(delay) {}
-    inline QtTestEvent *clone() const { return new QtTestKeyClicksEvent(*this); }
+    inline QTestEvent *clone() const { return new QTestKeyClicksEvent(*this); }
 
     inline void simulate(QWidget *w)
     {
-        QtTest::keyClicks(w, _keys, _modifiers, _delay);
+        QTest::keyClicks(w, _keys, _modifiers, _delay);
     }
 
 private:
@@ -63,90 +63,90 @@ private:
     int _delay;
 };
 
-class QtTestMouseEvent: public QtTestEvent
+class QTestMouseEvent: public QTestEvent
 {
 public:
-    inline QtTestMouseEvent(QtTest::MouseAction action, Qt::MouseButton button,
+    inline QTestMouseEvent(QTest::MouseAction action, Qt::MouseButton button,
             Qt::KeyboardModifiers modifiers, QPoint position, int delay)
         : _action(action), _button(button), _modifiers(modifiers), _pos(position), _delay(delay) {}
-    inline QtTestEvent *clone() const { return new QtTestMouseEvent(*this); }
+    inline QTestEvent *clone() const { return new QTestMouseEvent(*this); }
 
     inline void simulate(QWidget *w)
     {
-        QtTest::mouseEvent(_action, w, _button, _modifiers, _pos, _delay);
+        QTest::mouseEvent(_action, w, _button, _modifiers, _pos, _delay);
     }
 
 private:
-    QtTest::MouseAction _action;
+    QTest::MouseAction _action;
     Qt::MouseButton _button;
     Qt::KeyboardModifiers _modifiers;
     QPoint _pos;
     int _delay;
 };
 
-class QtTestDelayEvent: public QtTestEvent
+class QTestDelayEvent: public QTestEvent
 {
 public:
-    inline QtTestDelayEvent(int msecs): _delay(msecs) {}
-    inline QtTestEvent *clone() const { return new QtTestDelayEvent(*this); }
+    inline QTestDelayEvent(int msecs): _delay(msecs) {}
+    inline QTestEvent *clone() const { return new QTestDelayEvent(*this); }
 
-    inline void simulate(QWidget * /*w*/) { QtTest::wait(_delay); }
+    inline void simulate(QWidget * /*w*/) { QTest::wait(_delay); }
 
 private:
     int _delay;
 };
 
-typedef QList<QtTestEvent *> QTEventList;
+typedef QList<QTestEvent *> QTEventList;
 
-class QtTestEventList: public QTEventList
+class QTestEventList: public QTEventList
 {
 public:
-    inline QtTestEventList() {}
-    inline QtTestEventList(const QtTestEventList &other): QTEventList()
+    inline QTestEventList() {}
+    inline QTestEventList(const QTestEventList &other): QTEventList()
     { for (int i = 0; i < other.count(); ++i) append(other.at(i)->clone()); }
-    inline ~QtTestEventList()
+    inline ~QTestEventList()
     { clear(); }
     inline void clear()
-    { qDeleteAll(*this); QList<QtTestEvent *>::clear(); }
+    { qDeleteAll(*this); QList<QTestEvent *>::clear(); }
 
     inline void addKeyClick(Qt::Key qtKey, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
-    { addKeyEvent(QtTest::Click, qtKey, modifiers, msecs); }
+    { addKeyEvent(QTest::Click, qtKey, modifiers, msecs); }
     inline void addKeyPress(Qt::Key qtKey, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
-    { addKeyEvent(QtTest::Press, qtKey, modifiers, msecs); }
+    { addKeyEvent(QTest::Press, qtKey, modifiers, msecs); }
     inline void addKeyRelease(Qt::Key qtKey, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
-    { addKeyEvent(QtTest::Release, qtKey, modifiers, msecs); }
-    inline void addKeyEvent(QtTest::KeyAction action, Qt::Key qtKey,
+    { addKeyEvent(QTest::Release, qtKey, modifiers, msecs); }
+    inline void addKeyEvent(QTest::KeyAction action, Qt::Key qtKey,
                             Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
-    { append(new QtTestKeyEvent(action, qtKey, modifiers, msecs)); }
+    { append(new QTestKeyEvent(action, qtKey, modifiers, msecs)); }
 
     inline void addKeyClick(char ascii, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
-    { addKeyEvent(QtTest::Click, ascii, modifiers, msecs); }
+    { addKeyEvent(QTest::Click, ascii, modifiers, msecs); }
     inline void addKeyPress(char ascii, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
-    { addKeyEvent(QtTest::Press, ascii, modifiers, msecs); }
+    { addKeyEvent(QTest::Press, ascii, modifiers, msecs); }
     inline void addKeyRelease(char ascii, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
-    { addKeyEvent(QtTest::Release, ascii, modifiers, msecs); }
+    { addKeyEvent(QTest::Release, ascii, modifiers, msecs); }
     inline void addKeyClicks(const QString &keys, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
-    { append(new QtTestKeyClicksEvent(keys, modifiers, msecs)); }
-    inline void addKeyEvent(QtTest::KeyAction action, char ascii, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
-    { append(new QtTestKeyEvent(action, ascii, modifiers, msecs)); }
+    { append(new QTestKeyClicksEvent(keys, modifiers, msecs)); }
+    inline void addKeyEvent(QTest::KeyAction action, char ascii, Qt::KeyboardModifiers modifiers = Qt::NoModifier, int msecs = -1)
+    { append(new QTestKeyEvent(action, ascii, modifiers, msecs)); }
 
     inline void addMousePress(Qt::MouseButton button, Qt::KeyboardModifiers stateKey = 0,
                               QPoint pos = QPoint(), int delay=-1)
-    { append(new QtTestMouseEvent(QtTest::MousePress, button, stateKey, pos, delay)); }
+    { append(new QTestMouseEvent(QTest::MousePress, button, stateKey, pos, delay)); }
     inline void addMouseRelease(Qt::MouseButton button, Qt::KeyboardModifiers stateKey = 0,
                                 QPoint pos = QPoint(), int delay=-1)
-    { append(new QtTestMouseEvent(QtTest::MouseRelease, button, stateKey, pos, delay)); }
+    { append(new QTestMouseEvent(QTest::MouseRelease, button, stateKey, pos, delay)); }
     inline void addMouseClick(Qt::MouseButton button, Qt::KeyboardModifiers stateKey = 0,
                               QPoint pos = QPoint(), int delay=-1)
-    { append(new QtTestMouseEvent(QtTest::MouseClick, button, stateKey, pos, delay)); }
+    { append(new QTestMouseEvent(QTest::MouseClick, button, stateKey, pos, delay)); }
     inline void addMouseDClick(Qt::MouseButton button, Qt::KeyboardModifiers stateKey = 0,
                             QPoint pos = QPoint(), int delay=-1)
-    { append(new QtTestMouseEvent(QtTest::MousePress, button, stateKey, pos, delay)); }
+    { append(new QTestMouseEvent(QTest::MousePress, button, stateKey, pos, delay)); }
     inline void addMouseMove(QPoint pos = QPoint(), int delay=-1)
-    { append(new QtTestMouseEvent(QtTest::MouseMove, Qt::NoButton, 0, pos, delay)); }
+    { append(new QTestMouseEvent(QTest::MouseMove, Qt::NoButton, 0, pos, delay)); }
 
     inline void addDelay(int msecs)
-    { append(new QtTestDelayEvent(msecs)); }
+    { append(new QTestDelayEvent(msecs)); }
 
     inline void simulate(QWidget *w)
     {
@@ -155,7 +155,7 @@ public:
     }
 };
 
-Q_DECLARE_METATYPE(QtTestEventList)
+Q_DECLARE_METATYPE(QTestEventList)
 
 #endif
 

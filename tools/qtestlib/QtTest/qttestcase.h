@@ -4,74 +4,74 @@
 #include <QtCore/qnamespace.h>
 #include <QtCore/qmetatype.h>
 
-#include "QtTest/qttest_global.h"
+#include "QTest/qtest_global.h"
 
 #define VERIFY(statement) \
 do {\
-    if (!QtTest::verify((statement), #statement, "", __FILE__, __LINE__))\
+    if (!QTest::verify((statement), #statement, "", __FILE__, __LINE__))\
         return;\
 } while (0)
 
 #define FAIL(message) \
 do {\
-    QtTest::fail(message, __FILE__, __LINE__);\
+    QTest::fail(message, __FILE__, __LINE__);\
     return;\
 } while (0)
 
 #define VERIFY2(statement, description) \
 do {\
     if (statement) {\
-        if (!QtTest::verify(true, #statement, (description), __FILE__, __LINE__))\
+        if (!QTest::verify(true, #statement, (description), __FILE__, __LINE__))\
             return;\
     } else {\
-        if (!QtTest::verify(false, #statement, (description), __FILE__, __LINE__))\
+        if (!QTest::verify(false, #statement, (description), __FILE__, __LINE__))\
             return;\
     }\
 } while (0)
 
 #define COMPARE(actual, expected) \
 do {\
-    if (!QtTest::compare(actual, expected, __FILE__, __LINE__))\
+    if (!QTest::compare(actual, expected, __FILE__, __LINE__))\
         return;\
 } while (0)
 
 #define SKIP(statement, mode) \
 do {\
-    QtTest::skip(statement, QtTest::mode, __FILE__, __LINE__);\
+    QTest::skip(statement, QTest::mode, __FILE__, __LINE__);\
     return;\
 } while (0)
 
 #define EXPECT_FAIL(dataIndex, comment, mode)\
 do {\
-    if (!QtTest::expectFail(dataIndex, comment, QtTest::mode, __FILE__, __LINE__))\
+    if (!QTest::expectFail(dataIndex, comment, QTest::mode, __FILE__, __LINE__))\
         return;\
 } while (0)
 
 #define FETCH(type, name)\
-    type name = *static_cast<type *>(QtTest::data(#name, #type))
+    type name = *static_cast<type *>(QTest::data(#name, #type))
 
 #define FETCH_GLOBAL(type, name)\
-    type name = *static_cast<type *>(QtTest::globalData(#name, #type))
+    type name = *static_cast<type *>(QTest::globalData(#name, #type))
 
 #define DEPENDS_ON(funcName)
 
 #define TEST(actual, testElement)\
 do {\
-    if (!QtTest::test(actual, testElement, __FILE__, __LINE__))\
+    if (!QTest::test(actual, testElement, __FILE__, __LINE__))\
         return;\
 } while (0)
 
 #define WARN(msg)\
-    QtTest::warn(msg)
+    QTest::warn(msg)
 
 class QObject;
-class QtTestData;
+class QTestData;
 
 #define COMPARE_DECL(klass)\
     template<> \
     bool Q_TESTLIB_EXPORT compare(klass const &t1, klass const &t2, const char *file, int line);
 
-namespace QtTest
+namespace QTest
 {
     template <typename T>
     inline char *toString(const T &)
@@ -181,7 +181,7 @@ namespace QtTest
     template <class T>
     inline bool test(const T& actual, const char *elementName, const char *file, int line)
     {
-        return compare(actual, *static_cast<const T *>(QtTest::elementData(elementName,
+        return compare(actual, *static_cast<const T *>(QTest::elementData(elementName,
                        QMetaTypeId<T>::qt_metatype_id())), file, line);
     }
 }

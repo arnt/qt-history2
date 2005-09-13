@@ -1,9 +1,9 @@
-#ifndef QTTEST_GLOBAL_H
-#define QTTEST_GLOBAL_H
+#ifndef QTEST_GLOBAL_H
+#define QTEST_GLOBAL_H
 
 #include <QtCore/qglobal.h>
 
-#ifdef QTTEST_EMBED
+#ifdef QTEST_EMBED
 # define Q_TESTLIB_EXPORT
 #else
 # ifdef QTESTLIB_MAKEDLL
@@ -17,10 +17,10 @@
 # define QTEST_NO_PARTIAL_SPECIALIZATIONS
 #endif
 
-#define QTTEST_VERSION     0x020000
-#define QTTEST_VERSION_STR "2.0.0"
+#define QTEST_VERSION     0x020000
+#define QTEST_VERSION_STR "2.0.0"
 
-namespace QtTest
+namespace QTest
 {
     enum SkipMode { SkipSingle = 1, SkipAll = 2 };
     enum TestFailMode { Abort = 1, Continue = 2 };

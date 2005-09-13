@@ -1,5 +1,5 @@
-#include "QtTest/qttestcase.h"
-#include "QtTest/qttestassert.h"
+#include "QTest/qtestcase.h"
+#include "QTest/qtestassert.h"
 
 /*
     Convert an ascii char key value to a Qt Key value.
@@ -9,7 +9,7 @@
     ascii keys _are_ converted already. So feel free to add all the keys you need.
 */
 
-Qt::Key QtTest::asciiToKey(char ascii)
+Qt::Key QTest::asciiToKey(char ascii)
 {
     switch ((unsigned char)ascii) {
     case 0x08: return Qt::Key_Backspace;
@@ -192,7 +192,7 @@ Qt::Key QtTest::asciiToKey(char ascii)
     Qt keys _are_ converted already. So feel free to add all the keys you need.
 */
 
-char QtTest::keyToAscii(Qt::Key key)
+char QTest::keyToAscii(Qt::Key key)
 {
     switch (key) {
     case Qt::Key_Backspace: return 0x8; //BS

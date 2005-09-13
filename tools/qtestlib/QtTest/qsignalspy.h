@@ -4,7 +4,7 @@
  **
  ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
  **
- ** This file is part of the QtTest library.
+ ** This file is part of the QTest library.
  ** EDITIONS: NONE
  **
  ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE

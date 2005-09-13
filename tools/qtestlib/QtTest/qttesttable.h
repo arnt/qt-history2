@@ -1,19 +1,19 @@
 #ifndef QTESTTABLE_H
 #define QTESTTABLE_H
 
-#include "QtTest/qttest_global.h"
+#include "QTest/qtest_global.h"
 
-class QtTestData;
-class QtTestTablePrivate;
+class QTestData;
+class QTestTablePrivate;
 
-class Q_TESTLIB_EXPORT QtTestTable
+class Q_TESTLIB_EXPORT QTestTable
 {
 public:
-    QtTestTable();
-    ~QtTestTable();
+    QTestTable();
+    ~QTestTable();
 
     void defineElement(const char *elementType, const char *elementName);
-    QtTestData *newData(const char *tag);
+    QTestData *newData(const char *tag);
 
     int elementCount() const;
     int dataCount() const;
@@ -23,14 +23,14 @@ public:
     const char *elementType(int index) const;
     int indexOf(const char *elementName) const;
     bool isEmpty() const;
-    QtTestData *testData(int index) const;
+    QTestData *testData(int index) const;
 
-    static QtTestTable *globalTestTable();
+    static QTestTable *globalTestTable();
 
 private:
-    Q_DISABLE_COPY(QtTestTable)
+    Q_DISABLE_COPY(QTestTable)
 
-    QtTestTablePrivate *d;
+    QTestTablePrivate *d;
 };
 
 #endif

@@ -1,10 +1,10 @@
-#ifndef QTTEST_H
-#define QTTEST_H
+#ifndef QTEST_H
+#define QTEST_H
 
-#include "QtTest/qttest_global.h"
-#include "QtTest/qttestcase.h"
-#include "QtTest/qttesttable.h"
-#include "QtTest/qttestdata.h"
+#include "QTest/qtest_global.h"
+#include "QTest/qtestcase.h"
+#include "QTest/qtesttable.h"
+#include "QTest/qtestdata.h"
 
 #include <QtCore/qbytearray.h>
 #include <QtCore/qstring.h>
@@ -14,7 +14,7 @@
 
 Q_DECLARE_METATYPE(QStringList)
 
-namespace QtTest
+namespace QTest
 {
 inline bool compare_strs(QString const &t1, QString const &t2, const char *file, int line)
 {
@@ -126,40 +126,40 @@ inline bool compare(QFlags<T> const &t1, int const &t2, const char *file, int li
 
 }
 
-#define QTTEST_APPLESS_MAIN(TestObject) \
+#define QTEST_APPLESS_MAIN(TestObject) \
 int main(int argc, char *argv[]) \
 { \
     TestObject tc; \
-    return QtTest::exec(&tc, argc, argv); \
+    return QTest::exec(&tc, argc, argv); \
 }
 
-#define QTTEST_NOOP_MAIN \
+#define QTEST_NOOP_MAIN \
 int main(int argc, char *argv[]) \
 { \
     QObject tc; \
-    return QtTest::exec(&tc, argc, argv); \
+    return QTest::exec(&tc, argc, argv); \
 }
 
 #ifdef QT_GUI_LIB
 
-#include "QtTest/qttest_gui.h"
+#include "QTest/qtest_gui.h"
 
-#define QTTEST_MAIN(TestObject) \
+#define QTEST_MAIN(TestObject) \
 int main(int argc, char *argv[]) \
 { \
     QApplication app(argc, argv); \
     TestObject tc; \
-    return QtTest::exec(&tc, argc, argv); \
+    return QTest::exec(&tc, argc, argv); \
 }
 
 #else
 
-#define QTTEST_MAIN(TestObject) \
+#define QTEST_MAIN(TestObject) \
 int main(int argc, char *argv[]) \
 { \
     QCoreApplication app(argc, argv); \
     TestObject tc; \
-    return QtTest::exec(&tc, argc, argv); \
+    return QTest::exec(&tc, argc, argv); \
 }
 
 #endif //QT_GUI_LIB

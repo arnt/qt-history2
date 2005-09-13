@@ -1,4 +1,4 @@
-#include "QtTest/private/qsignaldumper_p.h"
+#include "QTest/private/qsignaldumper_p.h"
 
 #include <QtCore/qlist.h>
 #include <QtCore/qmetaobject.h>
@@ -6,13 +6,13 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qvariant.h>
 
-#include "QtTest/private/qtestlog_p.h"
-namespace QtTest
+#include "QTest/private/qtestlog_p.h"
+namespace QTest
 {
 
 inline static void qPrintMessage(const QByteArray &ba)
 {
-    QtTestLog::info(ba.constData(), 0, 0);
+    QTestLog::info(ba.constData(), 0, 0);
 }
 
 Q_GLOBAL_STATIC(QList<QByteArray>, ignoreClasses)
@@ -34,19 +34,19 @@ static void qSignalDumperCallback(QObject *caller, int method_index, void **argv
     QMetaMethod member = mo->method(method_index);
     Q_ASSERT(member.signature());
 
-    if (QtTest::ignoreClasses()->contains(mo->className())) {
-        ++QtTest::ignoreLevel;
+    if (QTest::ignoreClasses()->contains(mo->className())) {
+        ++QTest::ignoreLevel;
         return;
     }
 
     QByteArray str;
-    str.fill(' ', QtTest::iLevel++ * QtTest::IndentSpacesCount);
+    str.fill(' ', QTest::iLevel++ * QTest::IndentSpacesCount);
     str += "Signal: ";
     str += mo->className();
     str += "(";
     str += caller->objectName().toLocal8Bit();
     str += ") ";
-    str += QtTest::memberName(member);
+    str += QTest::memberName(member);
     str += " (";
 
     QList<QByteArray> args = member.parameterTypes();
@@ -76,11 +76,11 @@ static void qSignalDumperCallbackSlot(QObject *caller, int method_index, void **
     if (!member.signature())
         return;
 
-    if (QtTest::ignoreLevel || QtTest::ignoreClasses()->contains(mo->className()))
+    if (QTest::ignoreLevel || QTest::ignoreClasses()->contains(mo->className()))
         return;
 
     QByteArray str;
-    str.fill(' ', QtTest::iLevel * QtTest::IndentSpacesCount);
+    str.fill(' ', QTest::iLevel * QTest::IndentSpacesCount);
     str += "Slot: ";
     str += mo->className();
     str += "(";
@@ -93,13 +93,13 @@ static void qSignalDumperCallbackSlot(QObject *caller, int method_index, void **
 static void qSignalDumperCallbackEndSignal(QObject *caller, int /*method_index*/)
 {
     Q_ASSERT(caller); Q_ASSERT(caller->metaObject());
-    if (QtTest::ignoreClasses()->contains(caller->metaObject()->className())) {
-        --QtTest::ignoreLevel;
-        Q_ASSERT(QtTest::ignoreLevel >= 0);
+    if (QTest::ignoreClasses()->contains(caller->metaObject()->className())) {
+        --QTest::ignoreLevel;
+        Q_ASSERT(QTest::ignoreLevel >= 0);
         return;
     }
-    --QtTest::iLevel;
-    Q_ASSERT(QtTest::iLevel >= 0);
+    --QTest::iLevel;
+    Q_ASSERT(QTest::iLevel >= 0);
 }
 
 }
@@ -119,8 +119,8 @@ extern void Q_CORE_EXPORT qt_register_signal_spy_callbacks(const QSignalSpyCallb
 
 void QSignalDumper::startDump()
 {
-    static QSignalSpyCallbackSet set = { QtTest::qSignalDumperCallback,
-        QtTest::qSignalDumperCallbackSlot, QtTest::qSignalDumperCallbackEndSignal, 0 };
+    static QSignalSpyCallbackSet set = { QTest::qSignalDumperCallback,
+        QTest::qSignalDumperCallbackSlot, QTest::qSignalDumperCallbackEndSignal, 0 };
     qt_register_signal_spy_callbacks(set);
 }
 
@@ -132,11 +132,11 @@ void QSignalDumper::endDump()
 
 void QSignalDumper::ignoreClass(const QByteArray &klass)
 {
-    QtTest::ignoreClasses()->append(klass);
+    QTest::ignoreClasses()->append(klass);
 }
 
 void QSignalDumper::clearIgnoredClasses()
 {
-    QtTest::ignoreClasses()->clear();
+    QTest::ignoreClasses()->clear();
 }
 
