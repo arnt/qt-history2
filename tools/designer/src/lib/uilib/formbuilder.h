@@ -20,7 +20,8 @@
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 
-#if !defined(Q_CC_GNU)
+#if 0
+// pragma for syncqt, don't remove.
 #pragma qt_class(QFormBuilder)
 #endif
 

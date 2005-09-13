@@ -55,6 +55,7 @@ General Fixes
 
 - QMetaType
         Class is now fully reentrant.
+        Metatypes can be registered or queried from multiple threads.
 
 
 Platform-Specific Issues
