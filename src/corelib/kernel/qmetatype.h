@@ -133,7 +133,7 @@ struct QMetaTypeId< TYPE > \
     enum { Defined = 1 }; \
     static int qt_metatype_id() \
     { \
-        QBasicAtomic id = Q_ATOMIC_INIT(0); \
+        static QBasicAtomic id = Q_ATOMIC_INIT(0); \
         if (!id) \
            id = qRegisterMetaType< TYPE >(#TYPE); \
        return id; \
