@@ -37,6 +37,63 @@
     \page deployment-windows.html
 
     \title Deployment on Qt/Windows
+
+    Some words about linking and libraries on Windows: 
+    
+    - static libs (.lib) vs. dynamically loaded libraries (.dll)
+
+    - dynamically loaded DLLs come with a static import library to link against
+
+    KERNEL32.DLL, USER32.DLL etc. - System runtime
+    KERNEL32.LIB, USER32.LIB etc. - Platform SDK
+
+    QTCORE4.DLL, QTGUI4.DLL - Qt runtime
+    QTCORE4.LIB, QTGUI4.LIB - Qt SDK
+
+    - Qt not a system library, so it has to be redistributed
+   
+    - Required to redistribute the runtime of those Qt modules used in application
+
+    - compiler specific C runtime needs to be redistributed as well
+
+    - some compiler specific libs required depending on configuration (C++ runtime if STL)
+
+    - depends tool lists dependencies of an executable
+
+
+    \section2 Shared Libraries
+
+    - more flexible, small executables
+
+    - might be larger total package (one exe + DLLs), and more files to deploy
+
+    - The binary installer of Qt includes precompiled shared libraries
+
+    - debug vs. release - only release libraries are redistributable
+
+    [Screen shot of depends for assistant]
+
+
+    \section2 Static Linking
+
+    - fewer files to deploy
+
+    - bigger executables, no plugins, no flexibility
+
+    - Qt runtime compiled into the executable
+
+    - Compiler specific libs (C runtime, C++ runtime) still need to be shipped
+
+    [Screen shot of depends for assistant]
+
+
+    \section1 Other considerations
+
+    - plugins
+
+    - Assistant
+    
+    - ActiveQt
 */
 
 /*!
