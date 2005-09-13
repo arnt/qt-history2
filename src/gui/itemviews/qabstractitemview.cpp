@@ -1024,7 +1024,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
         QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
         if (index.isValid() && command != QItemSelectionModel::NoUpdate)
             selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
-        
+
         // Do the normalize ourselves, since QRect::normalized() is flawed
         if (topLeft.y() > bottomRight.y()) qSwap(topLeft.ry(), bottomRight.ry());
         if (topLeft.x() > bottomRight.x()) qSwap(topLeft.rx(), bottomRight.rx());
@@ -1048,7 +1048,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
 
     setState(NoState);
 
-    if (selectionModel() && index == selectionModel()->currentIndex())
+    if (selectionModel())
         selectionModel()->select(index, selectionCommand(index, event));
 
     if (index == d_func()->pressedIndex && index.isValid()) {
@@ -2243,15 +2243,19 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionC
             if (!index.isValid() || button != Qt::LeftButton)
                 return QItemSelectionModel::NoUpdate;
             break; }
-        case QEvent::MouseButtonRelease: // ClearAndSelect on MouseButtonRelease if MouseButtonPress on selected item
+        case QEvent::MouseButtonRelease: {
+            // ClearAndSelect on MouseButtonRelease if MouseButtonPress on selected item
             modifiers = static_cast<const QMouseEvent*>(event)->modifiers();
+            Qt::MouseButton button = static_cast<const QMouseEvent*>(event)->button();
             if (index.isValid()
                 && index == pressedIndex
                 && !(pressedModifiers & Qt::ShiftModifier)
                 && !(pressedModifiers & Qt::ControlModifier)
-                && selectionModel->isSelected(index))
+                && selectionModel->isSelected(index)
+                && !(button & Qt::RightButton))
                 return QItemSelectionModel::ClearAndSelect|selectionBehaviorFlags();
             return QItemSelectionModel::NoUpdate;
+        }
         case QEvent::KeyPress: // NoUpdate on Key movement and Ctrl
             modifiers = static_cast<const QKeyEvent*>(event)->modifiers();
             switch (static_cast<const QKeyEvent*>(event)->key()) {
@@ -2370,7 +2374,7 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
     Q_Q(QAbstractItemView);
     if (!q->itemDelegate())
         return 0;
-    
+
     QWidget *w = editors.value(index);
     if (!w) {
         w = q->itemDelegate()->createEditor(viewport, options, index);
