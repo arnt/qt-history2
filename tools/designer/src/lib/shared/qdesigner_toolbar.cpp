@@ -84,10 +84,16 @@ bool QDesignerToolBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
         return true;
     }
 
+    if (QDesignerFormWindowInterface *fw = formWindow()) {
+        if (QDesignerPropertyEditorInterface *pe = fw->core()->propertyEditor()) {
+            pe->setObject(this);
+        }
+    }
+
     QPoint pos = mapFromGlobal(event->globalPos());
     int index = findAction(pos);
     if (index == actions().count() - 1)
-        return false;
+        return true;
 
     QAction *action = actions().at(index);
     removeAction(action);
@@ -111,19 +117,11 @@ bool QDesignerToolBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
 
 bool QDesignerToolBar::handleMouseReleaseEvent(QWidget *, QMouseEvent *event)
 {
-    QPoint pos = mapFromGlobal(event->globalPos());
-    int index = findAction(pos);
-    if (index == actions().count() - 1)
-        return false;
     return true;
 }
 
 bool QDesignerToolBar::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
 {
-    QPoint pos = mapFromGlobal(event->globalPos());
-    int index = findAction(pos);
-    if (index == actions().count() - 1)
-        return false;
     return true;
 }
 
