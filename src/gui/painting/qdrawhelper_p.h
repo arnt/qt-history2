@@ -178,7 +178,7 @@ struct QSpanData
 };
 
 #define QT_MEMFILL_UINT(dest, length, color)\
-{                                           \
+do {                                        \
     /* Duff's device */                     \
     uint *d = (dest);                       \
     uint c = (color);                       \
@@ -195,7 +195,7 @@ struct QSpanData
     case 1:      *d++ = c;                  \
     } while (--n > 0);                      \
     }                                       \
-}
+} while (0)
 
 inline int qt_div_255(int x) { return (x + (x>>8) + 0x80) >> 8; }
 

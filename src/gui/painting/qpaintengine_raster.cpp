@@ -2884,8 +2884,8 @@ static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, void 
     dx = x2 - x1;
     dy = y2 - y1;
 
-    // specialcase horizontal lines
     if (dy == 0) {
+        // specialcase horizontal lines
         if (y1 >= 0 && y1 < devRect.height()) {
             int start = qMax(0, qMin(x1, x2));
             int stop = qMax(x1, x2) + 1;
@@ -2897,22 +2897,34 @@ static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, void 
                 span.x = ushort(start);
                 span.len = ushort(len);
                 span.y = y1;
+                span.coverage = 255;
                 span_func(1, &span, data);
             }
         }
         return;
     } else if (dx == 0) {
+        const int nspans = 256;
+        QT_FT_Span spans[nspans];
+        
         if (x1 >= 0 && x1 < devRect.width()) {
             int start = qMax(0, qMin(y1, y2));
             int stop = qMax(y1, y2) + 1;
             int stop_clipped = qMin(devRect.height(), stop);
             if (style == LineDrawNormal && stop == stop_clipped)
                 --stop;
-            span.x = ushort(x1);
-            span.len = 1;
-            for (int i=start; i<stop_clipped; ++i) {
-                span.y = i;
-                span_func(1, &span, data);
+            int y = start;
+            while (y < stop) {
+                int n = qMin(nspans, stop - y);
+                int i = 0;
+                while (i < n) {
+                    spans[i].x = x1;
+                    spans[i].len = 1;
+                    spans[i].y = y + i;
+                    spans[i].coverage = 255;
+                    ++i;
+                }
+                span_func(n, spans, data);
+                y += n;
             }
         }
         return;

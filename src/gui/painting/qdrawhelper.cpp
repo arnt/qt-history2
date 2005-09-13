@@ -54,7 +54,7 @@ static uint qt_gradient_pixel(const GradientData *data, double pos)
 static void QT_FASTCALL comp_func_solid_Clear(uint *dest, int length, uint, uint const_alpha)
 {
     if (const_alpha == 255) {
-        QT_MEMFILL_UINT(dest, length, 0)
+        QT_MEMFILL_UINT(dest, length, 0);
     } else {
         int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i)
@@ -71,7 +71,7 @@ Da'  = Sa.Da + Sa.(1 - Da)
 static void QT_FASTCALL comp_func_solid_Source(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255) {
-        QT_MEMFILL_UINT(dest, length, color)
+        QT_MEMFILL_UINT(dest, length, color);
     } else {
         int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i)
@@ -90,7 +90,7 @@ static void QT_FASTCALL comp_func_solid_SourceOver(uint *dest, int length, uint 
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
     if (qAlpha(color) == 255)
-        QT_MEMFILL_UINT(dest, length, color)
+        QT_MEMFILL_UINT(dest, length, color);
     else
         for (int i = 0; i < length; ++i)
             dest[i] = color + BYTE_MUL(dest[i], 255 - qAlpha(color));
@@ -250,7 +250,7 @@ static const CompositionFunctionSolid *functionForModeSolid = functionForModeSol
 static void QT_FASTCALL comp_func_Clear(uint *dest, const uint *, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
-        QT_MEMFILL_UINT(dest, length, 0)
+        QT_MEMFILL_UINT(dest, length, 0);
     } else {
         int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i)
@@ -446,13 +446,28 @@ static const CompositionFunction *functionForMode = functionForMode_C;
 static void blend_color_argb(int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
+    if (data->rasterBuffer->compositionMode == QPainter::CompositionMode_Source
+        || (data->rasterBuffer->compositionMode == QPainter::CompositionMode_SourceOver && qAlpha(data->solid.color))) {
+        // inline for performance        
+        while (count--) {
+            uint *target = ((uint *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
+            if (spans->coverage == 255) {
+                QT_MEMFILL_UINT(target, spans->len, data->solid.color);
+            } else {
+                int ialpha = 255 - spans->coverage;
+                for (int i = 0; i < spans->len; ++i)
+                    target[i] = INTERPOLATE_PIXEL_255(data->solid.color, spans->coverage, target[i], ialpha);
+            }
+            ++spans;
+        }
+        return;
+    }
     CompositionFunctionSolid func = functionForModeSolid[data->rasterBuffer->compositionMode];
     if (!func)
         return;
 
     while (count--) {
-        void *t = data->rasterBuffer->scanLine(spans->y);
-        uint *target = ((uint *)t) + spans->x;
+        uint *target = ((uint *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
         func(target, spans->len, data->solid.color, spans->coverage);
         ++spans;
     }
@@ -860,7 +875,7 @@ static void blend_linear_gradient_argb(int count, const QSpan *spans, void *user
     qreal dx = data->gradient.linear.end.x - data->gradient.linear.origin.x;
     qreal dy = data->gradient.linear.end.y - data->gradient.linear.origin.y;
     qreal l = dx*dx + dy*dy;
-    qreal off;
+    qreal off = 0;
     if (l != 0) {
         dx /= l;
         dy /= l;
@@ -1252,7 +1267,7 @@ static void blend_linear_gradient_mono(int count, const QSpan *spans, void *user
     qreal dx = data->gradient.linear.end.x - data->gradient.linear.origin.x;
     qreal dy = data->gradient.linear.end.y - data->gradient.linear.origin.y;
     qreal l = dx*dx + dy*dy;
-    qreal off;
+    qreal off = 0;
     if (l != 0) {
         dx /= l;
         dy /= l;
@@ -1623,7 +1638,7 @@ static void blend_linear_gradient_mono_lsb(int count, const QSpan *spans, void *
     qreal dx = data->gradient.linear.end.x - data->gradient.linear.origin.x;
     qreal dy = data->gradient.linear.end.y - data->gradient.linear.origin.y;
     qreal l = dx*dx + dy*dy;
-    qreal off;
+    qreal off = 0;
     if (l != 0) {
         dx /= l;
         dy /= l;
@@ -2215,6 +2230,7 @@ static uint detectCPUFeatures() {
 #endif
 }
 
+extern void qt_blend_color_argb_sse(int count, const QSpan *spans, void *userData);
 
 void qInitDrawhelperAsm()
 {
@@ -2227,6 +2243,7 @@ void qInitDrawhelperAsm()
     if (features & SSE) {
         functionForMode = qt_functionForMode_SSE;
         functionForModeSolid = qt_functionForModeSolid_SSE;
+        qDrawHelper[DrawHelper::Layout_ARGB].blendColor = qt_blend_color_argb_sse;
     }
 #endif
 }

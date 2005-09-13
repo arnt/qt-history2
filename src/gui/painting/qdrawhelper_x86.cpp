@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include <private/qdrawhelper_p.h>
+#include <private/qpaintengine_raster_p.h>
 #include <mmintrin.h>
 #include <xmmintrin.h>
 
@@ -117,7 +118,7 @@ Da'  = Sa.Da + Sa.(1 - Da)
 static void QT_FASTCALL comp_func_solid_Source(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255) {
-        QT_MEMFILL_UINT(dest, length, color)
+        QT_MEMFILL_UINT(dest, length, color);
     } else {
         __m64 a = loadAlpha(const_alpha);
         __m64 ia = negate(a);
@@ -140,7 +141,7 @@ static void QT_FASTCALL comp_func_solid_SourceOver(uint *dest, int length, uint 
     if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
     if (qAlpha(color) == 255) {
-        QT_MEMFILL_UINT(dest, length, color)
+        QT_MEMFILL_UINT(dest, length, color);
     } else {
         __m64 c = load(color);
         __m64 ia = negate(spread_alpha(c));
@@ -309,7 +310,7 @@ const CompositionFunctionSolid qt_functionForModeSolid_SSE[] = {
 static void QT_FASTCALL comp_func_Clear(uint *dest, const uint *, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
-        QT_MEMFILL_UINT(dest, length, 0)
+        QT_MEMFILL_UINT(dest, length, 0);
     } else {
         __m64 ialpha = negate(spread_alpha(load(const_alpha)));
         for (int i = 0; i < length; ++i)
@@ -521,3 +522,35 @@ const CompositionFunction qt_functionForMode_SSE[] = {
 };
 
 
+void qt_blend_color_argb_sse(int count, const QSpan *spans, void *userData)
+{
+    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
+    if (data->rasterBuffer->compositionMode == QPainter::CompositionMode_Source
+        || (data->rasterBuffer->compositionMode == QPainter::CompositionMode_SourceOver && qAlpha(data->solid.color))) {
+        // inline for performance        
+        while (count--) {
+            uint *target = ((uint *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
+            if (spans->coverage == 255) {
+                QT_MEMFILL_UINT(target, spans->len, data->solid.color);
+            } else {
+                __m64 a = loadAlpha(spans->coverage);
+                __m64 ia = negate(a);
+                __m64 c = byte_mul(load(data->solid.color), a);
+                for (int i = 0; i < spans->len; ++i) {
+                    target[i] = store(add(c, byte_mul(load(target[i]), ia)));
+                }
+            }
+        }
+        _mm_empty();
+        return;
+    }
+    CompositionFunctionSolid func = qt_functionForModeSolid_SSE[data->rasterBuffer->compositionMode];
+    if (!func)
+        return;
+
+    while (count--) {
+        uint *target = ((uint *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
+        func(target, spans->len, data->solid.color, spans->coverage);
+        ++spans;
+    }
+}
