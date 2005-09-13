@@ -305,10 +305,16 @@ void QWidgetBackingStore::paintWidget(const QRegion &rgn, QWidget *widget, const
         if (qt_flushPaint()) {
             QApplication::flush();
 
+            bool paintUnclipped = widget->testAttribute(Qt::WA_PaintUnclipped);
+            widget->setAttribute(Qt::WA_PaintUnclipped);
+
             QPainter p(widget);
             p.setClipRegion(toBePainted);
+
             p.fillRect(widget->rect(), Qt::yellow);
             p.end();
+            widget->setAttribute(Qt::WA_PaintUnclipped, paintUnclipped);
+
 
             QPaintEngine *pe = widget->paintEngine();
             QRasterPaintEngine *rpe = 0;
@@ -344,8 +350,11 @@ void QWidgetBackingStore::paintWidget(const QRegion &rgn, QWidget *widget, const
         if(hasBackground(widget) || (flags & AsRoot)) {
             QPainter p(widget);
 
-            QBrush bg_brush = widget->palette().brush(widget->backgroundRole());
-            p.fillRect(widget->rect(), bg_brush);
+            QBrush bg = widget->palette().brush(widget->backgroundRole());
+            if (bg.style() == Qt::TexturePattern)
+                p.drawTiledPixmap(widget->rect(), bg.texture());
+            else
+                p.fillRect(widget->rect(), bg);
         }
 
 #if 0
