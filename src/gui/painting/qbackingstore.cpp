@@ -177,7 +177,7 @@ void QWidgetBackingStore::dirtyRegion(const QRegion &rgn, QWidget *widget)
 
 void QWidgetBackingStore::paintBuffer(const QRegion &rgn, QWidget *widget, const QPoint &offset, uint flags)
 {
-    if(!isBuffered())
+    if(!isBuffered() || widget->testAttribute(Qt::WA_NoSystemBackground))
         return;
 
     //update the in paint event flag
