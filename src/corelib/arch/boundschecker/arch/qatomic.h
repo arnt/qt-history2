@@ -53,6 +53,16 @@ inline int q_atomic_test_and_set_int(volatile int *pointer, int expected, int ne
     return 0;
 }
 
+inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval)
+{
+    return q_atomic_test_and_set_int(ptr, expected, newval);
+}
+
+inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval)
+{
+    return q_atomic_test_and_set_int(ptr, expected, newval);
+}
+
 inline int q_atomic_test_and_set_ptr(volatile void *pointer, void *expected, void *newval)
 {
     q_atomic_lock();

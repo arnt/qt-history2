@@ -37,7 +37,47 @@ inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval
     return ret;
 }
 
-inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
+inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval)
+{
+    register int ret;
+    asm volatile("1:\n"
+                 "ldl_l %0,%1\n"   /* ret=*ptr;                               */
+                 "cmpeq %0,%2,%0\n"/* if (ret==expected) ret=0; else ret=1;   */
+                 "beq   %0,3f\n"   /* if (ret==0) goto 3;                     */
+                 "mov   %3,%0\n"   /* ret=newval;                             */
+                 "stl_c %0,%1\n"   /* if ((*ptr=ret)!=ret) ret=0; else ret=1; */
+                 "beq   %0,2f\n"   /* if (ret==0) goto 2;                     */
+                 "br    3f\n"      /* goto 3;                                 */
+                 "2: br 1b\n"      /* goto 1;                                 */
+                 "3:\n"
+                 "mb\n"
+                 : "=&r" (ret), "+m" (*ptr)
+                 : "r" (expected), "r" (newval)
+                 : "memory");
+    return ret;
+}
+
+inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval)
+{
+    register int ret;
+    asm volatile("mb\n"
+                 "1:\n"
+                 "ldl_l %0,%1\n"   /* ret=*ptr;                               */
+                 "cmpeq %0,%2,%0\n"/* if (ret==expected) ret=0; else ret=1;   */
+                 "beq   %0,3f\n"   /* if (ret==0) goto 3;                     */
+                 "mov   %3,%0\n"   /* ret=newval;                             */
+                 "stl_c %0,%1\n"   /* if ((*ptr=ret)!=ret) ret=0; else ret=1; */
+                 "beq   %0,2f\n"   /* if (ret==0) goto 2;                     */
+                 "br    3f\n"      /* goto 3;                                 */
+                 "2: br 1b\n"      /* goto 1;                                 */
+                 "3:\n"
+                 : "=&r" (ret), "+m" (*ptr)
+                 : "r" (expected), "r" (newval)
+                 : "memory");
+    return ret;
+}
+
+inline int q_atomic_test_and_set_release_ptr(volatile void *ptr, void *expected, void *newval)
 {
     register void *ret;
     asm volatile("1:\n"

@@ -94,6 +94,45 @@ inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval
         else return 1;
 }
 
+inline int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval)
+{
+        int retval;
+
+        __asm__ __volatile__(
+                "  lr   %0,%3\n"
+                "  cs   %0,%4,0(%2)\n"
+                "  ipm  %0\n"
+                "  srl  %0,28\n"
+                "0:\n"
+                "  bcr 15,0\n"
+                : "=&d" (retval), "=m" (*ptr)
+                : "a" (ptr), "d" (expected) , "d" (newval),
+		  "m" (*ptr) : "cc", "memory" );
+
+        if(retval) return 0;
+        else return 1;
+}
+
+inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval)
+{
+        int retval;
+
+        __asm__ __volatile__(
+                "  bcr 15,0\n"
+                "  lr   %0,%3\n"
+                "  cs   %0,%4,0(%2)\n"
+                "  ipm  %0\n"
+                "  srl  %0,28\n"
+                "0:"
+                : "=&d" (retval), "=m" (*ptr)
+                : "a" (ptr), "d" (expected) , "d" (newval),
+		  "m" (*ptr) : "cc", "memory" );
+
+        if(retval) return 0;
+        else return 1;
+}
+
+
 inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void* newval)
 {
         int retval;

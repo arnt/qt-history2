@@ -27,10 +27,13 @@ QT_MODULE(Core)
 #ifndef Q_SPECIALIZED_QATOMIC
 
 /*
-    We assume that the following 6 functions have been declared by the
+    We assume that the following 8 functions have been declared by the
     platform specific qatomic.h:
 
     int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
+    int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval);
+    int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval);
+    
     int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
     int q_atomic_increment(volatile int *ptr);
     int q_atomic_decrement(volatile int *ptr);
@@ -79,6 +82,12 @@ struct QBasicAtomic {
 
     inline bool testAndSet(int expected, int newval)
     { return q_atomic_test_and_set_int(&atomic, expected, newval) != 0; }
+
+    inline bool testAndSetAcquire(int expected, int newval)
+    { return q_atomic_test_and_set_acquire_int(&atomic, expected, newval) != 0; }
+
+    inline bool testAndSetRelease(int expected, int newval)
+    { return q_atomic_test_and_set_release_int(&atomic, expected, newval) != 0; }
 
     inline int exchange(int newval)
     { return q_atomic_set_int(&atomic, newval); }
