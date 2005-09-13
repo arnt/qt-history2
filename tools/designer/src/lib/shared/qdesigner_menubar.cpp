@@ -166,14 +166,9 @@ void QDesignerMenuBar::adjustIndicator(const QPoint &pos)
 
     QRect g = actionGeometry(action);
 
-    QMenu *menu = action->menu();
-    if (menu && menu != m_activeMenu) {
-        if (m_activeMenu)
-            m_activeMenu->hide();
-
-        m_activeMenu = menu;
-        m_activeMenu->move(mapToGlobal(g.bottomLeft()));
-        m_activeMenu->show();
+    if (QMenu *menu = action->menu()) {
+        setActiveAction(action);
+        action->menu()->setActiveAction(0);
     }
 
     g.moveTop(0);
