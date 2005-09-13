@@ -29,6 +29,7 @@ my %modules = ( # path to module name map
 	    "QtNetwork" => "$basedir/src/network",
 	    "Qt3Support" => "$basedir/src/qt3support",
 	    "ActiveQt" => "$basedir/src/activeqt/container;$basedir/src/activeqt/control",
+            "QtTest" => "$basedir/tools/qtestlib",
 	    "QtAssistant" => "$basedir/tools/assistant/lib",
 	    "QtDesigner" => "$basedir/tools/designer/src/lib;",
 	    "QtForm" => "$basedir/tools/designer/src/form;",
