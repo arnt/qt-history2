@@ -1818,6 +1818,8 @@ bool QWidget::isEnabledTo(QWidget* ancestor) const
     the QAction list (as returned by actions()) is to create a context
     QMenu.
 
+    A QWidget should only have one of each action.
+
     \sa removeAction() QMenu
 */
 void QWidget::addAction(QAction *action)
@@ -1840,6 +1842,8 @@ void QWidget::addActions(QList<QAction*> actions)
     Inserts the action \a action to this widget's list of actions,
     before the action \a before. It appends the action if \a before is 0 or
     \a before is not a valid action for this widget.
+
+    A QWidget should only have one of each action.
 
     \sa addAction()
 */
@@ -1872,6 +1876,8 @@ void QWidget::insertAction(QAction *before, QAction *action)
     Inserts the actions \a actions to this widget's list of actions,
     before the action \a before. It appends the action if \a before is 0 or
     \a before is not a valid action for this widget.
+
+    A QWidget should only have one of each action.
 
     \sa removeAction() QMenu insertAction()
 */
@@ -2009,7 +2015,7 @@ bool QWidget::acceptDrops() const
 void QWidget::setAcceptDrops(bool on)
 {
     setAttribute(Qt::WA_AcceptDrops, on);
-    
+
 }
 
 /*!
@@ -6559,7 +6565,7 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
                 setAttribute(Qt::WA_DropSiteRegistered, false);
             QEvent e(QEvent::AcceptDropsChange);
             QApplication::sendEvent(this, &e);
-            break; 
+            break;
         }
     case Qt::WA_DropSiteRegistered:  {
             d->registerDropSite(on);
@@ -6568,7 +6574,7 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
                 if (w && !w->isWindow() && !w->testAttribute(Qt::WA_AcceptDrops) && w->testAttribute(Qt::WA_DropSiteRegistered) != on)
                     w->setAttribute(Qt::WA_DropSiteRegistered, on);
             }
-            break; 
+            break;
         }
 #endif
 
