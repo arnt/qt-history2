@@ -54,16 +54,12 @@ bool WidgetEditorTool::handleEvent(QWidget *widget, QWidget *managedWidget, QEve
 {
     switch (event->type()) {
 
-#if 0 // ### check me
     case QEvent::Resize:
     case QEvent::Move: {
-        if (LayoutInfo::isWidgetLaidout(core(), managedWidget)) {
-            m_formWindow->updateSelection(widget);
-            if (event->type() != QEvent::Resize)
-                m_formWindow->updateChildSelections(widget);
-        }
+        m_formWindow->updateSelection(widget);
+        if (event->type() != QEvent::Resize)
+            m_formWindow->updateChildSelections(widget);
     } break;
-#endif
 
     case QEvent::FocusOut:
     case QEvent::FocusIn:
