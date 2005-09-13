@@ -1525,7 +1525,7 @@ void QAbstractItemView::updateGeometries()
 */
 void QAbstractItemView::verticalScrollbarValueChanged(int value)
 {
-    if (verticalScrollBar()->maximum() == value)
+    if (verticalScrollBar()->maximum() == value && model())
         model()->fetchMore(rootIndex());
 }
 
@@ -1534,7 +1534,7 @@ void QAbstractItemView::verticalScrollbarValueChanged(int value)
 */
 void QAbstractItemView::horizontalScrollbarValueChanged(int value)
 {
-    if (horizontalScrollBar()->maximum() == value)
+    if (horizontalScrollBar()->maximum() == value && model())
         model()->fetchMore(rootIndex());
 }
 
