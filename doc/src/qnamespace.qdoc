@@ -714,10 +714,10 @@
     receive paint events only for the newly visible part of itself.
     This is set/cleared by the widget's author.
 
-    \value WA_PaintOnScreen Indicates that the widget wants to
-    draw directly onto the screen (implies no double buffering). This
-    is not supported on all platforms. This is set/cleared by the
-    widget's author.
+    \value WA_PaintOnScreen Indicates that the widget wants to draw
+    directly onto the screen (implies no double buffering). This is
+    not supported on Windows and Mac OS X. The flag is set or cleared
+    by the widget's author.
 
     \value WA_PaintUnclipped Makes all painters operating on this
     widget unclipped. Children of this widget or other widgets in
@@ -794,7 +794,7 @@
         will be modal with respect to the other windows in the group,
         but modeless with respect to windows in other groups.
 
-    \value WA_KeyboardFocusChange Set on a toplevel window when 
+    \value WA_KeyboardFocusChange Set on a toplevel window when
         the users changes focus with the keyboard (tab, backtab, or shortcut).
 
     \value WA_InputMethodEnabled
@@ -1215,7 +1215,7 @@
                                     normal word wrapped text in paragraphs.
     \value WhiteSpacePre            A preformatted text mode in which
                                     whitespace is reproduced exactly.
-    \value WhiteSpaceNoWrap         
+    \value WhiteSpaceNoWrap
 
     \omitvalue WhiteSpaceModeUndefined
 */
@@ -1223,11 +1223,11 @@
 /*!
     \enum Qt::ButtonState_enum
     \compat
-    \value ShiftButton  
+    \value ShiftButton
     \value ControlButton
-    \value AltButton    
-    \value MetaButton   
-    \value Keypad       
+    \value AltButton
+    \value MetaButton
+    \value Keypad
     \value KeyButtonMask
 
     Use Qt::KeyboardModifier instead.
@@ -1504,7 +1504,7 @@
     \value WindowMinMaxButtonsHint  Adds a minimize and a maximize
            button. On some platforms this implies Qt::WindowSystemMenuHint for it to work.
 
-    \value WindowContextHelpButtonHint  Adds a context help button to dialogs. 
+    \value WindowContextHelpButtonHint  Adds a context help button to dialogs.
 	On some platforms this implies Qt::WindowSystemMenuHint for it to work.
 
     \value WindowShadeButtonHint
