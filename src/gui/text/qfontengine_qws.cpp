@@ -203,11 +203,11 @@ void QFontEngineFT::draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &
         lw = qMax(1, lw);
         if(si.width && si.flags != 0) {
             if(si.flags & QTextItem::Underline)
-                paintEngine->qwsFillRect(x, qRound(y + underlinePosition()), qRound(si.width), lw,  pState->pen().brush());
+                paintEngine->qwsFillRect(x, qRound(y + underlinePosition()), qRound(si.width), lw);
             if(si.flags & QTextItem::Overline)
-                paintEngine->qwsFillRect(x, qRound(y - (ascent() + 1)), qRound(si.width), lw,  pState->pen().brush());
+                paintEngine->qwsFillRect(x, qRound(y - (ascent() + 1)), qRound(si.width), lw);
             if(si.flags & QTextItem::StrikeOut)
-                paintEngine->qwsFillRect(x, qRound(y - (ascent() / 3)), qRound(si.width), lw,  pState->pen().brush());
+                paintEngine->qwsFillRect(x, qRound(y - (ascent() / 3)), qRound(si.width), lw);
         }
     }
 
@@ -886,11 +886,11 @@ void QFontEngineQPF::draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt 
         int lw = qRound(lineThickness());
         lw = qMax(1, lw);
         if(si.flags & QTextItem::Underline)
-            paintEngine->qwsFillRect(x, qRound(y + underlinePosition()), qRound(si.width), lw,  pState->pen().brush());
+            paintEngine->qwsFillRect(x, qRound(y + underlinePosition()), qRound(si.width), lw);
         if(si.flags & QTextItem::Overline)
-            paintEngine->qwsFillRect(x, qRound(y - (ascent() + 1)), qRound(si.width), lw,  pState->pen().brush());
+            paintEngine->qwsFillRect(x, qRound(y - (ascent() + 1)), qRound(si.width), lw);
         if(si.flags & QTextItem::StrikeOut)
-            paintEngine->qwsFillRect(x, qRound(y - (ascent() / 3)), qRound(si.width), lw,  pState->pen().brush());
+            paintEngine->qwsFillRect(x, qRound(y - (ascent() / 3)), qRound(si.width), lw);
     }
 
     QGlyphLayout *glyphs = si.glyphs;

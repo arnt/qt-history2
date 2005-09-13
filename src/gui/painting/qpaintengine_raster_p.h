@@ -59,7 +59,7 @@ public:
 
     void drawPath(const QPainterPath &path);
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
-    void fillPath(const QPainterPath &path, QSpanFillData *fillData);
+    void fillPath(const QPainterPath &path, QSpanData *fillData);
 
     void drawEllipse(const QRectF &rect);
 
@@ -106,7 +106,7 @@ public:
 #ifdef Q_WS_QWS
     //QWS hack
     void alphaPenBlt(const void* src, int bpl, bool mono, int rx,int ry,int w,int h);
-    void qwsFillRect(int x, int y, int w, int h, const QBrush &brush);
+    void qwsFillRect(int x, int y, int w, int h);
 #endif
 
     Type type() const { return Raster; }
@@ -128,13 +128,9 @@ class QRasterPaintEnginePrivate : public QPaintEnginePrivate
     Q_DECLARE_PUBLIC(QRasterPaintEngine)
 public:
 
-    void fillForBrush(const QBrush &brush, QSpanFillData *data);
-    void addClip(QSpanFillData *data);
-    void clippedFillForBrush(const QBrush &brush, QSpanFillData *data);
     void updateClip_helper(const QPainterPath &path, Qt::ClipOperation);
 
-    void drawBitmap(const QPointF &pos, const QPixmap &image, QSpanFillData *fill);
-    QImage colorizeBitmap(const QImage &image, const QColor &color);
+    void drawBitmap(const QPointF &pos, const QPixmap &image, QSpanData *fill);
 
     QMatrix brushMatrix() const {
         QMatrix m(matrix);
@@ -149,10 +145,8 @@ public:
 
     QPointF brushOffset;
     QBrush brush;
-    QBrush bgBrush;
     QPen pen;
     QMatrix matrix;
-    QPainter::CompositionMode compositionMode;
 
     QPaintDevice *device;
     QFTOutlineMapper *outlineMapper;
@@ -164,25 +158,20 @@ public:
     QPainterPath baseClip;
     QRect deviceRect;
 
-    QSpanFillData spanFillData;
-
-    DrawHelper *drawHelper;
+    QSpanData penData;
+    QSpanData brushData;
 
     QStroker basicStroker;
     QDashStroker *dashStroker;
     QStrokerOps *stroker;
 
-    QImage tempImage;
-
     int deviceDepth;
 
     uint txop;
-
+    
     uint has_pen : 1;
     uint has_brush : 1;
     uint fast_pen : 1;
-    uint opaqueBackground : 1;
-    uint clipEnabled : 1;
     uint antialiased : 1;
     uint bilinear : 1;
     uint flushOnEnd : 1;
@@ -282,6 +271,14 @@ public:
     uchar *buffer() const { return m_buffer; }
 
     QClipData *clip;
+    bool clipEnabled;
+    bool opaqueBackground;
+
+    QPainter::CompositionMode compositionMode;
+    DrawHelper *drawHelper;
+    QImage tempImage;
+    QBrush bgBrush;
+    QImage colorizeBitmap(const QImage &image, const QColor &color);
 
     void resetClip() { delete clip; clip = 0; }
 private:

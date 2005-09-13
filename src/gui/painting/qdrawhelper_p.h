@@ -36,7 +36,7 @@ struct GradientData;
 struct LinearGradientData;
 struct RadialGradientData;
 struct ConicalGradientData;
-struct QSpanFillData;
+struct QSpanData;
 class QGradient;
 
 typedef QT_FT_SpanFunc ProcessSpans;
@@ -147,21 +147,34 @@ struct GradientData
     uint alphaColor : 1;
 };
 
-struct QSpanFillData
+struct QSpanData
 {
     QRasterBuffer *rasterBuffer;
-    QPainter::CompositionMode compositionMode;
     ProcessSpans blend;
     ProcessSpans unclipped_blend;
     qreal m11, m12, m21, m22, dx, dy;   // inverse xform matrix
+    enum Type {
+        None, 
+        Solid,
+        Texture,
+        TiledTexture, 
+        LinearGradient,
+        RadialGradient,
+        ConicalGradient
+    } type : 8;
+    int txop : 8;
+    bool bilinear;
     union {
         SolidData solid;
         TextureData texture;
         GradientData gradient;
     };
-    void initMatrix(const QMatrix &matrix);
+    void init(QRasterBuffer *rb);
+    void setup(const QBrush &brush);
+    void setupMatrix(const QMatrix &matrix, int txop, int bilinear);
     void initTexture(const QImage *image);
     void initGradient(const QGradient *g);
+    void adjustSpanMethods();
 };
 
 #define QT_MEMFILL_UINT(dest, length, color)\
