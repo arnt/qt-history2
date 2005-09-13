@@ -2368,6 +2368,9 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
                                           const QStyleOptionViewItem &options)
 {
     Q_Q(QAbstractItemView);
+    if (!q->itemDelegate())
+        return 0;
+    
     QWidget *w = editors.value(index);
     if (!w) {
         w = q->itemDelegate()->createEditor(viewport, options, index);
