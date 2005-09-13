@@ -57,7 +57,8 @@
     \o qFatal() is used for writing fatal error messages shortly before exiting.
     \endlist
 
-    The \c qDebug() function can also be used as an output stream; for example:
+    If you include the <QtDebug> header file, the \c qDebug() function
+    can also be used as an output stream. For example:
 
     \code
         qDebug() << "Widget" << widget << "at position" << widget->pos();
@@ -97,8 +98,8 @@
        expression, writes the warning "ASSERT: '\e{cond}' in file xyz.cpp, line
        234" and exits if \c cond is false.
     \o Q_ASSERT_X(cond, where, what), where \c cond is a
-       boolean expression, \c where a location, and \c what a message, 
-       writes the warning: "ASSERT failure in \c{where}: '\c{what}', file xyz.cpp, line 234" 
+       boolean expression, \c where a location, and \c what a message,
+       writes the warning: "ASSERT failure in \c{where}: '\c{what}', file xyz.cpp, line 234"
        and exits if \c cond is false.
     \o Q_CHECK_PTR(ptr), where \c ptr is a pointer.
        Writes the warning "In file xyz.cpp, line 234: Out of memory" and
