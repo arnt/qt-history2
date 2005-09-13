@@ -1,10 +1,10 @@
-#include "QTest/qtestassert.h"
+#include "QtTest/qtestassert.h"
 
-#include "QTest/private/qtestlog_p.h"
-#include "QTest/private/qtestresult_p.h"
-#include "QTest/private/qabstracttestlogger_p.h"
-#include "QTest/private/qplaintestlogger_p.h"
-#include "QTest/private/qxmltestlogger_p.h"
+#include "QtTest/private/qtestlog_p.h"
+#include "QtTest/private/qtestresult_p.h"
+#include "QtTest/private/qabstracttestlogger_p.h"
+#include "QtTest/private/qplaintestlogger_p.h"
+#include "QtTest/private/qxmltestlogger_p.h"
 
 #include "qatomic.h"
 

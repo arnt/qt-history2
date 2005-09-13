@@ -1,10 +1,10 @@
 #ifndef QTESTEVENT_H
 #define QTESTEVENT_H
 
-#include "QTest/qtest_global.h"
-#include "QTest/qtestkeyboard.h"
-#include "QTest/qtestmouse.h"
-#include "QTest/qtestsystem.h"
+#include "QtTest/qtest_global.h"
+#include "QtTest/qtestkeyboard.h"
+#include "QtTest/qtestmouse.h"
+#include "QtTest/qtestsystem.h"
 
 #include <QtCore/qlist.h>
 

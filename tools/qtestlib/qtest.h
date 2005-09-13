@@ -1,10 +1,10 @@
 #ifndef QTEST_H
 #define QTEST_H
 
-#include "QTest/qtest_global.h"
-#include "QTest/qtestcase.h"
-#include "QTest/qtesttable.h"
-#include "QTest/qtestdata.h"
+#include "QtTest/qtest_global.h"
+#include "QtTest/qtestcase.h"
+#include "QtTest/qtesttable.h"
+#include "QtTest/qtestdata.h"
 
 #include <QtCore/qbytearray.h>
 #include <QtCore/qstring.h>
@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) \
 
 #ifdef QT_GUI_LIB
 
-#include "QTest/qtest_gui.h"
+#include "QtTest/qtest_gui.h"
 
 #define QTEST_MAIN(TestObject) \
 int main(int argc, char *argv[]) \

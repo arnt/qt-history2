@@ -4,11 +4,11 @@
 #include <QtGui/qicon.h>
 #include <QtGui/qpixmap.h>
 
-#include "QTest/qtestassert.h"
-#include "QTest/qtest.h"
-#include "QTest/qtestevent.h"
-#include "QTest/qtestmouse.h"
-#include "QTest/qtestkeyboard.h"
+#include "QtTest/qtestassert.h"
+#include "QtTest/qtest.h"
+#include "QtTest/qtestevent.h"
+#include "QtTest/qtestmouse.h"
+#include "QtTest/qtestkeyboard.h"
 
 namespace QTest
 {

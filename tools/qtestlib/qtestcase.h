@@ -4,7 +4,7 @@
 #include <QtCore/qnamespace.h>
 #include <QtCore/qmetatype.h>
 
-#include "QTest/qtest_global.h"
+#include "QtTest/qtest_global.h"
 
 #define VERIFY(statement) \
 do {\

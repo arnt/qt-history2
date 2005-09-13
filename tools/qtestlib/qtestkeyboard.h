@@ -1,9 +1,9 @@
 #ifndef QTESTKEYBOARD_H
 #define QTESTKEYBOARD_H
 
-#include "QTest/qtestassert.h"
-#include "QTest/qtest_global.h"
-#include "QTest/qtestsystem.h"
+#include "QtTest/qtestassert.h"
+#include "QtTest/qtest_global.h"
+#include "QtTest/qtestsystem.h"
 
 #include <QtCore/qpointer.h>
 #include <QtGui/qapplication.h>

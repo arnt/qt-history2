@@ -1,7 +1,7 @@
 #ifndef QPLAINTESTLOGGER_H
 #define QPLAINTESTLOGGER_H
 
-#include "QTest/private/qabstracttestlogger_p.h"
+#include "QtTest/private/qabstracttestlogger_p.h"
 
 class QPlainTestLogger : public QAbstractTestLogger
 {

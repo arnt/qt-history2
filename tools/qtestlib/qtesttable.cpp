@@ -1,11 +1,11 @@
-#include "QTest/qtesttable.h"
-#include "QTest/qtestdata.h"
+#include "QtTest/qtesttable.h"
+#include "QtTest/qtestdata.h"
 
 #include <QtCore/qmetaobject.h>
 
 #include <string.h>
 
-#include "QTest/qtestassert.h"
+#include "QtTest/qtestassert.h"
 
 class QTestTablePrivate
 {

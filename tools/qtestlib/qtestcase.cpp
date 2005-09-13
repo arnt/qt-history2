@@ -1,17 +1,17 @@
-#include "QTest/qtestcase.h"
-#include "QTest/qtestassert.h"
+#include "QtTest/qtestcase.h"
+#include "QtTest/qtestassert.h"
 
 #include <QtCore/qobject.h>
 #include <QtCore/qmetaobject.h>
 
-#include "QTest/private/qtestlog_p.h"
-#include "QTest/qtesttable.h"
-#include "QTest/qtestdata.h"
-#include "QTest/private/qtestresult_p.h"
-#include "QTest/private/qsignaldumper_p.h"
+#include "QtTest/private/qtestlog_p.h"
+#include "QtTest/qtesttable.h"
+#include "QtTest/qtestdata.h"
+#include "QtTest/private/qtestresult_p.h"
+#include "QtTest/private/qsignaldumper_p.h"
 
 #ifndef QTEST_LIGHT
-#include "QTest/private/qtestextended_p.h"
+#include "QtTest/private/qtestextended_p.h"
 #endif
 
 #include <stdarg.h>

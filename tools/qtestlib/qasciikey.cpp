@@ -1,5 +1,5 @@
-#include "QTest/qtestcase.h"
-#include "QTest/qtestassert.h"
+#include "QtTest/qtestcase.h"
+#include "QtTest/qtestassert.h"
 
 /*
     Convert an ascii char key value to a Qt Key value.

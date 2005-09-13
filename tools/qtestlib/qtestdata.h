@@ -4,7 +4,7 @@
 #include <QtCore/qmetatype.h>
 #include <QtCore/qstring.h>
 
-#include "QTest/qtest_global.h"
+#include "QtTest/qtest_global.h"
 
 class QTestTable;
 class QTestDataPrivate;

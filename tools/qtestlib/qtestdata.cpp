@@ -1,8 +1,8 @@
 #include <QtCore/qmetaobject.h>
 
-#include "QTest/qtestassert.h"
-#include "QTest/qtestdata.h"
-#include "QTest/qtesttable.h"
+#include "QtTest/qtestassert.h"
+#include "QtTest/qtestdata.h"
+#include "QtTest/qtesttable.h"
 
 #include <string.h>
 #include <stdlib.h>

@@ -1,6 +1,6 @@
-#include "QTest/private/qabstracttestlogger_p.h"
-#include "QTest/private/qtestlog_p.h"
-#include "QTest/qtestassert.h"
+#include "QtTest/private/qabstracttestlogger_p.h"
+#include "QtTest/private/qtestlog_p.h"
+#include "QtTest/qtestassert.h"
 
 #include <stdio.h>
 #include <stdlib.h>

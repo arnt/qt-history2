@@ -2,8 +2,8 @@
 #include <string.h>
 #include <QtCore/qglobal.h>
 
-#include "QTest/private/qxmltestlogger_p.h"
-#include "QTest/private/qtestresult_p.h"
+#include "QtTest/private/qxmltestlogger_p.h"
+#include "QtTest/private/qtestresult_p.h"
 
 namespace QTest {
 

@@ -1,7 +1,7 @@
 #ifndef QTESTLOG_H
 #define QTESTLOG_H
 
-#include "QTest/qtest_global.h"
+#include "QtTest/qtest_global.h"
 
 class QTestLog
 {

@@ -1,9 +1,9 @@
 #ifndef QTESTMOUSE_H
 #define QTESTMOUSE_H
 
-#include "QTest/qtest_global.h"
-#include "QTest/qtestassert.h"
-#include "QTest/qtestsystem.h"
+#include "QtTest/qtest_global.h"
+#include "QtTest/qtestassert.h"
+#include "QtTest/qtestsystem.h"
 
 #include <QtCore/qpoint.h>
 #include <QtCore/qstring.h>

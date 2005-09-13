@@ -1,7 +1,7 @@
 #ifndef QTESTTABLE_H
 #define QTESTTABLE_H
 
-#include "QTest/qtest_global.h"
+#include "QtTest/qtest_global.h"
 
 class QTestData;
 class QTestTablePrivate;

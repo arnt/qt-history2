@@ -1,7 +1,7 @@
 #ifndef QTESTSYSTEM_H
 #define QTESTSYSTEM_H
 
-#include <QTest/qtestcase.h>
+#include <QtTest/qtestcase.h>
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qdatetime.h>
 

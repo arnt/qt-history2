@@ -1,7 +1,7 @@
 #ifndef QTESTRESULT_H
 #define QTESTRESULT_H
 
-#include "QTest/qtest_global.h"
+#include "QtTest/qtest_global.h"
 
 class QTestResultPrivate;
 class QTestData;
