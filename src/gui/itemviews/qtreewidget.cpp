@@ -1720,6 +1720,8 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     // model signals
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(emitItemChanged(QModelIndex)));
+            
+    header()->setClickable(false);
 }
 
 /*!
@@ -1987,17 +1989,13 @@ void QTreeWidget::sortItems(int column, Qt::SortOrder order)
   clicks on a header section; otherwise sorting by clicking on the
   header section is disabled.
 */
-
 void QTreeWidget::setSortingEnabled(bool enable)
 {
     Q_D(QTreeWidget);
     d->sortingEnabled = enable;
-    if (!enable && header()->isSortIndicatorShown()) {
-        header()->setSortIndicatorShown(false);
-        header()->setClickable(false);
-    } else {
-        header()->setSortIndicatorShown(true);
-        header()->setClickable(true);
+    if ( header()->isSortIndicatorShown() != enable ) {
+        header()->setSortIndicatorShown(enable);
+        header()->setClickable(enable);
     }
 }
 
