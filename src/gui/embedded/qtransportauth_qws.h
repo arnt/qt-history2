@@ -18,8 +18,6 @@
 #include <QtCore/qhash.h>
 #include <QtCore/qstring.h>
 
-#include <qdebug.h>
-
 QT_MODULE(Gui)
 
 // Uncomment to generate debug output
