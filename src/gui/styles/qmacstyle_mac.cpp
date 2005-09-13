@@ -1641,8 +1641,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
             q->drawPrimitive(header->state & QStyle::State_UpArrow ? QStyle::PE_IndicatorArrowUp : QStyle::PE_IndicatorArrowDown, header, p, w);
         }
         break;
-    case QStyle::PE_FrameGroupBox:
-        if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
+    case QStyle::PE_FrameGroupBox: {
             HIThemeGroupBoxDrawInfo gdi;
             gdi.version = qt_mac_hitheme_version;
             gdi.state = tds;
@@ -1650,7 +1649,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                 gdi.kind = kHIThemeGroupBoxKindSecondary;
             else
                 gdi.kind = kHIThemeGroupBoxKindPrimary;
-            HIRect hirect = qt_hirectForQRect(frame->rect, p);
+            HIRect hirect = qt_hirectForQRect(opt->rect, p);
             HIThemeDrawGroupBox(&hirect, &gdi, cg, kHIThemeOrientationNormal);
         }
         break;
@@ -3351,15 +3350,14 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
             }
         }
         break;
-    case QStyle::PE_FrameGroupBox:
-        if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
+    case QStyle::PE_FrameGroupBox: {
             qt_mac_set_port(p);
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES
             if (w && qobject_cast<QGroupBox *>(w->parentWidget()))
-                DrawThemeSecondaryGroup(qt_glb_mac_rect(frame->rect, p), kThemeStateActive);
+                DrawThemeSecondaryGroup(qt_glb_mac_rect(opt->rect, p), kThemeStateActive);
             else
 #endif
-                DrawThemePrimaryGroup(qt_glb_mac_rect(frame->rect, p), kThemeStateActive);
+                DrawThemePrimaryGroup(qt_glb_mac_rect(opt->rect, p), kThemeStateActive);
         }
         break;
     case QStyle::PE_IndicatorArrowUp:
@@ -4913,6 +4911,10 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
     case QStyle::PM_MenuDesktopFrameWidth:
         ret = 15;
         break;
+
+    case PM_CheckBoxLabelSpacing:
+        ret = 3;
+        break;
     case PM_MenuScrollerHeight:
 #if 0
         SInt16 ash, asw;
@@ -5467,6 +5469,18 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
     case PE_PanelTipLabel:
         p->fillRect(opt->rect, QColor(255, 255, 199));
         break;
+    case PE_FrameGroupBox:
+        if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
+            if (groupBox->features & QStyleOptionGroupBox::Flat) {
+                QWindowsStyle::drawPrimitive(pe, groupBox, p, w);
+            } else {
+                if (d->useHITheme)
+                    d->HIThemeDrawPrimitive(pe, opt, p, w);
+                else
+                    d->AppManDrawPrimitive(pe, opt, p, w);
+            }
+        }
+        break;
     default:
         if (d->useHITheme)
             d->HIThemeDrawPrimitive(pe, opt, p, w);
@@ -5782,6 +5796,39 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
             d->HIThemeDrawComplexControl(cc, opt, p, w);
         else
             d->AppManDrawComplexControl(cc, opt, p, w);
+        break;
+    case CC_GroupBox:
+        if (const QStyleOptionGroupBox *groupBox
+                = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
+            QStyleOptionGroupBox frame = *groupBox;
+            // Calculate the top margin. Since we have a different font depending on the type
+            // We need to calculate it no our own.
+            bool checkable = groupBox->subControls & QStyle::SC_GroupBoxCheckBox;
+            QFont oldFont = p->font();
+            int topMargin = groupBox->topMargin + 2;
+
+            QRect textRect = subControlRect(QStyle::CC_GroupBox, opt, QStyle::SC_GroupBoxLabel, w);
+            QRect checkBoxRect = subControlRect(QStyle::CC_GroupBox, opt, QStyle::SC_GroupBoxCheckBox, w);
+
+            if (!checkable)
+                p->setFont(qt_app_fonts_hash()->value("QHeaderView", p->font()));
+            frame.rect.setTop(frame.rect.top() + topMargin);
+            drawPrimitive(QStyle::PE_FrameGroupBox, &frame, p, w);
+            if (!groupBox->text.isEmpty()) {
+                Qt::Alignment alignment = groupBox->textAlignment;
+                drawItemText(p, textRect,  Qt::TextShowMnemonic | Qt::AlignHCenter | alignment,
+                                groupBox->palette, groupBox->state & QStyle::State_Enabled, groupBox->text);
+            }
+            // Draw checkbox
+            if (checkable) {
+                QStyleOptionButton box;
+                box.QStyleOption::operator=(*groupBox);
+                box.rect = checkBoxRect;
+                drawPrimitive(PE_IndicatorCheckBox, &box, p, w);
+            }
+            p->setFont(oldFont);
+        }
+        break;
     case CC_ToolButton:
         if (w && qobject_cast<QToolBar *>(w->parentWidget())) {
             if (const QStyleOptionToolButton *tb = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
@@ -5853,6 +5900,49 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
             ret = d->HIThemeSubControlRect(cc, opt, sc, w);
         else
             ret = d->AppManSubControlRect(cc, opt, sc, w);
+        break;
+    case CC_GroupBox:
+        if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
+            switch (sc) {
+            case SC_GroupBoxFrame:
+                ret = groupBox->rect;
+                break;
+            case SC_GroupBoxLabel:
+            case SC_GroupBoxCheckBox: {
+                // Cheat and use the smaller font if we need to
+                QFontMetrics fm = groupBox->fontMetrics;
+                bool checkable = groupBox->subControls & SC_GroupBoxCheckBox;
+                if (!checkable)
+                    fm = QFontMetrics(qt_app_fonts_hash()->value("QHeaderView", QFont()));
+
+                int h = fm.height();
+                int tw = fm.size(Qt::TextShowMnemonic, groupBox->text).width();
+                int margin = (groupBox->features & QStyleOptionGroupBox::Flat) ? 0 : 12;
+                ret = groupBox->rect.adjusted(margin, 0, -margin, 0);
+                ret.setHeight(h);
+
+                if (sc == SC_GroupBoxLabel) {
+                    if (checkable) {
+                        ret.setLeft(ret.left() + pixelMetric(PM_IndicatorWidth, opt, w) + 1);
+                    } else {
+                        ret.moveTop(5);
+                        ret.setLeft(ret.left() + 3);
+                    }
+                    ret.setWidth(tw);
+                }
+
+                if (sc == SC_GroupBoxCheckBox) {
+                    int indicatorHeight = pixelMetric(PM_IndicatorHeight, opt, w);
+                    ret.setWidth(pixelMetric(PM_IndicatorWidth, opt, w));
+                    ret.setHeight(indicatorHeight);
+                }
+                break;
+            }
+            default:
+                break;
+            }
+        }
+        break;
     case CC_SpinBox:
         if (const QStyleOptionSpinBox *spin = qstyleoption_cast<const QStyleOptionSpinBox *>(opt)) {
             const int spinner_w = 14,
