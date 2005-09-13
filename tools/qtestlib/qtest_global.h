@@ -29,5 +29,17 @@ namespace QTest
     int Q_TESTLIB_EXPORT defaultEventDelay();
 }
 
+#ifndef QTEST_NO_COMPAT
+typedef class QTestTable QtTestTable;
+typedef class QTestEventList QtTestEventList;
+typedef class QTestEventLoop QtTestEventLoop;
+typedef class QTestData QtTestData;
+
+namespace QtTest
+{
+    using namespace QTest;
+}
+#endif
+
 #endif
 

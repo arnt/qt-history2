@@ -259,8 +259,10 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
 
         QTestResult::setCurrentTestLocation(QTestResult::DataFunc);
         QTest::qt_snprintf(cur, 512, "%s_data", sl);
-        QMetaObject::invokeMethod(QTest::currentTestObject, cur, Qt::DirectConnection,
-                QGenericArgument("QTestTable&", &table));
+        if (!QMetaObject::invokeMethod(QTest::currentTestObject, cur, Qt::DirectConnection,
+                QGenericArgument("QTestTable&", &table)))
+            QMetaObject::invokeMethod(QTest::currentTestObject, cur, Qt::DirectConnection,
+                    QGenericArgument("QtTestTable&", &table));
 
         bool foundFunction = false;
         if (!QTest::skipCurrentTest) {
@@ -366,8 +368,10 @@ int QTest::exec(QObject *testObject, int argc, char **argv)
     QTestResult::setCurrentTestFunction("initTestCase");
     QTestResult::setCurrentTestLocation(QTestResult::DataFunc);
     QTestTable *gTable = QTestTable::globalTestTable();
-    QMetaObject::invokeMethod(testObject, "initTestCase_data", Qt::DirectConnection,
-                              QGenericArgument("QTestTable&", gTable));
+    if (!QMetaObject::invokeMethod(testObject, "initTestCase_data", Qt::DirectConnection,
+                              QGenericArgument("QTestTable&", gTable)))
+        QMetaObject::invokeMethod(testObject, "initTestCase_data", Qt::DirectConnection,
+                                  QGenericArgument("QtTestTable&", gTable));
 
     QTestResult::setCurrentTestLocation(QTestResult::Func);
     QMetaObject::invokeMethod(testObject, "initTestCase");
