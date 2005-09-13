@@ -526,7 +526,8 @@ void qt_blend_color_argb_sse(int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
     if (data->rasterBuffer->compositionMode == QPainter::CompositionMode_Source
-        || (data->rasterBuffer->compositionMode == QPainter::CompositionMode_SourceOver && qAlpha(data->solid.color))) {
+        || (data->rasterBuffer->compositionMode == QPainter::CompositionMode_SourceOver
+            && qAlpha(data->solid.color) == 255)) {
         // inline for performance        
         while (count--) {
             uint *target = ((uint *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
