@@ -532,8 +532,8 @@ QSize QLineEdit::sizeHint() const
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::State_None;
-    return (style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w + m, h + m).
-                                     expandedTo(QApplication::globalStrut()), this));
+    return (style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w + (2 * m), h + (2 * m)).
+                                      expandedTo(QApplication::globalStrut()), this));
 }
 
 
@@ -551,7 +551,7 @@ QSize QLineEdit::minimumSizeHint() const
     int h = fm.height() + qMax(2*innerMargin, fm.leading());
     int w = fm.maxWidth();
     int m = d->frame ? style()->pixelMetric(QStyle::PM_DefaultFrameWidth) : 0;
-    return QSize(w + m, h + m);
+    return QSize(w + (2 * m), h + (2 * m));
 }
 
 
