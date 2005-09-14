@@ -500,7 +500,8 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 {
     Q_D(QWidget);
 #ifdef QT_USE_BACKINGSTORE
-    d->invalidateBuffer(rect());
+    if (QWidget *p = parentWidget())
+        p->d_func()->invalidateBuffer(geometry());
 #endif
     d->deactivateWidgetCleanup();
     if (testAttribute(Qt::WA_WState_Created)) {
@@ -557,6 +558,12 @@ void QWidgetPrivate::reparentChildren()
 void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
 {
     Q_Q(QWidget);
+
+#ifdef QT_USE_BACKINGSTORE
+    if (q->isVisible() && q->parentWidget() && parent != q->parentWidget())
+        q->parentWidget()->d_func()->invalidateBuffer(q->geometry());
+#endif
+
     WId old_winid = data.winid;
     // hide and reparent our own window away. Otherwise we might get
     // destroyed when emitting the child remove event below. See QWorkspace.
@@ -576,9 +583,6 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     bool enable = q->isEnabled();                // remember status
     Qt::FocusPolicy fp = q->focusPolicy();
     QSize s = q->size();
-#ifdef QT_USE_BACKINGSTORE
-    invalidateBuffer(q->rect());
-#endif
     bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
 
     data.window_flags = f;

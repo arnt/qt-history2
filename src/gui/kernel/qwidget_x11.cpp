@@ -698,7 +698,8 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 {
     Q_D(QWidget);
 #ifdef QT_USE_BACKINGSTORE
-    d->invalidateBuffer(rect());
+    if (QWidget *p = parentWidget())
+        p->d_func()->invalidateBuffer(geometry());
 #endif
     d->deactivateWidgetCleanup();
     if (testAttribute(Qt::WA_WState_Created)) {
@@ -759,8 +760,12 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
 {
     Q_Q(QWidget);
-    extern void qPRCreate(const QWidget *, Window);
+#ifdef QT_USE_BACKINGSTORE
+    if (q->isVisible() && q->parentWidget() && parent != q->parentWidget())
+        q->parentWidget()->d_func()->invalidateBuffer(q->geometry());
+#endif
 
+    extern void qPRCreate(const QWidget *, Window);
     QCursor oldcurs;
     bool setcurs = q->testAttribute(Qt::WA_SetCursor);
     if (setcurs) {
@@ -795,10 +800,6 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     bool     enable = q->isEnabled();                // remember status
     Qt::FocusPolicy fp = q->focusPolicy();
     QSize    s            = q->size();
-#ifdef QT_USE_BACKINGSTORE
-    if (q->isVisible() && oldparent)
-        invalidateBuffer(q->rect());
-#endif
     bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
 
     data.window_flags = f;
