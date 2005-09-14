@@ -2,7 +2,6 @@
 #define MULTIPAGEWIDGETEXTENSIONFACTORY_H
 
 #include <QtDesigner/QDesignerContainerExtension>
-#include <QtDesigner/QDesignerTaskMenuExtension>
 #include <QtDesigner/QExtensionFactory>
 
 class QExtensionManager;

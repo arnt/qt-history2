@@ -4,7 +4,6 @@
 
 #include "multipagewidgetextensionfactory.h"
 #include "multipagewidgetcontainerextension.h"
-#include "multipagewidgettaskmenuextension.h"
 #include "multipagewidget.h"
 
 MultiPageWidgetExtensionFactory::MultiPageWidgetExtensionFactory(QExtensionManager *parent)
