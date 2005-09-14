@@ -71,13 +71,11 @@ static void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow,
 
 void QDesignerDialog::paintEvent(QPaintEvent *e)
 {
-    if (!m_formWindow->hasFeature(QDesignerFormWindowInterface::GridFeature)
-            || m_formWindow->currentTool() != 0) {
-        QWidget::paintEvent(e);
-        return;
+    if (m_formWindow->currentTool() == 0 && m_formWindow->hasFeature(QDesignerFormWindowInterface::GridFeature)) {
+        paintGrid(this, m_formWindow, e);
+    } else {
+        QDialog::paintEvent(e);
     }
-
-    paintGrid(this, m_formWindow, e);
 }
 
 void QDesignerLabel::updateBuddy()
@@ -101,13 +99,11 @@ QDesignerWidget::~QDesignerWidget()
 
 void QDesignerWidget::paintEvent(QPaintEvent *e)
 {
-    if (m_formWindow->hasFeature(QDesignerFormWindowInterface::GridFeature)
-        && m_formWindow->currentTool() == 0) {
-        paintGrid(this, m_formWindow, e, need_frame);
+    if (m_formWindow->currentTool() == 0 && m_formWindow->hasFeature(QDesignerFormWindowInterface::GridFeature)) {
+        paintGrid(this, m_formWindow, e);
     } else {
         QWidget::paintEvent(e);
     }
-
 }
 
 void QDesignerWidget::dragEnterEvent(QDragEnterEvent *)
