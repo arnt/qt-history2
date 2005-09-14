@@ -48,6 +48,7 @@ protected:
     void checkStateSet();
     void nextCheckState();
     void paintEvent(QPaintEvent *);
+    void mouseMoveEvent(QMouseEvent *);
 
 #ifdef QT3_SUPPORT
 public:

@@ -25,9 +25,10 @@ class QCheckBoxPrivate : public QAbstractButtonPrivate
 {
     Q_DECLARE_PUBLIC(QCheckBox)
 public:
-    QCheckBoxPrivate():tristate(false), noChange(false){}
+    QCheckBoxPrivate():tristate(false), noChange(false), hovering(true){}
     uint tristate : 1;
     uint noChange : 1;
+    uint hovering : 1;
     void init();
     QStyleOptionButton getStyleOption() const;
 };
@@ -106,6 +107,7 @@ void QCheckBoxPrivate::init()
 {
     Q_Q(QCheckBox);
     q->setCheckable(true);
+    q->setMouseTracking(true);
 }
 
 QStyleOptionButton QCheckBoxPrivate::getStyleOption() const
@@ -119,6 +121,12 @@ QStyleOptionButton QCheckBoxPrivate::getStyleOption() const
         opt.state |= QStyle::State_NoChange;
     else
         opt.state |= checked ? QStyle::State_On : QStyle::State_Off;
+    if (q->underMouse()) {
+        if (hovering) 
+            opt.state |= QStyle::State_MouseOver;
+        else
+            opt.state &= ~QStyle::State_MouseOver;
+    }
     opt.text = text;
     opt.icon = icon;
     opt.iconSize = q->iconSize();
@@ -224,6 +232,21 @@ void QCheckBox::paintEvent(QPaintEvent *)
     QStylePainter p(this);
     QStyleOptionButton opt = d->getStyleOption();
     p.drawControl(QStyle::CE_CheckBox, opt);
+}
+
+void QCheckBox::mouseMoveEvent(QMouseEvent *e)
+{
+    Q_D(QCheckBox);
+    bool hit = false;
+    if (underMouse())
+        hit = hitButton(e->pos());
+
+    if (hit != d->hovering) {
+        update(rect());
+        d->hovering = hit;
+    }
+
+    QAbstractButton::mouseMoveEvent(e);
 }
 
 

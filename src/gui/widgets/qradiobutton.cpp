@@ -19,6 +19,17 @@
 #include "qstyle.h"
 #include "qstyleoption.h"
 
+#include "private/qabstractbutton_p.h"
+
+class QRadioButtonPrivate : public QAbstractButtonPrivate
+{
+    Q_DECLARE_PUBLIC(QRadioButton)
+public:
+    QRadioButtonPrivate():hovering(true){}
+    uint hovering : 1;
+};
+
+
 /*!
     \class QRadioButton
     \brief The QRadioButton widget provides a radio button with a text label.
@@ -65,6 +76,7 @@ static void qRadioButtonInit(QRadioButton *button)
 {
     button->setCheckable(true);
     button->setAutoExclusive(true);
+    button->setMouseTracking(true);
 }
 
 
@@ -76,7 +88,7 @@ static void qRadioButtonInit(QRadioButton *button)
 */
 
 QRadioButton::QRadioButton(QWidget *parent)
-        : QAbstractButton(parent)
+        : QAbstractButton(*new QRadioButtonPrivate, parent)
 {
     qRadioButtonInit(this);
 }
@@ -88,13 +100,13 @@ QRadioButton::QRadioButton(QWidget *parent)
 */
 
 QRadioButton::QRadioButton(const QString &text, QWidget *parent)
-        : QAbstractButton(parent)
+        : QAbstractButton(*new QRadioButtonPrivate, parent)
 {
     qRadioButtonInit(this);
     setText(text);
 }
 
-static QStyleOptionButton getStyleOption(const QRadioButton *btn)
+static QStyleOptionButton getStyleOption(const QRadioButton *btn, bool hitButton = false)
 {
     QStyleOptionButton opt;
     opt.init(btn);
@@ -104,6 +116,12 @@ static QStyleOptionButton getStyleOption(const QRadioButton *btn)
     if (btn->isDown())
         opt.state |= QStyle::State_Sunken;
     opt.state |= (btn->isChecked() ? QStyle::State_On : QStyle::State_Off);
+    if (btn->underMouse()) {
+        if (hitButton)
+            opt.state |= QStyle::State_MouseOver;
+        else
+            opt.state &= ~QStyle::State_MouseOver;
+    }
     return opt;
 }
 
@@ -131,12 +149,28 @@ bool QRadioButton::hitButton(const QPoint &pos) const
     return style()->subElementRect(QStyle::SE_RadioButtonClickRect, &opt, this).contains(pos);
 }
 
+void QRadioButton::mouseMoveEvent(QMouseEvent *e)
+{
+    Q_D(QRadioButton);
+    bool hit = false;
+    if (underMouse())
+        hit = hitButton(e->pos());
+
+    if (hit != d->hovering) {
+        update(rect());
+        d->hovering = hit;
+    }
+
+    QAbstractButton::mouseMoveEvent(e);
+}
+
 /*!\reimp
  */
 void QRadioButton::paintEvent(QPaintEvent *)
 {
+    Q_D(QRadioButton);
     QStylePainter p(this);
-    QStyleOptionButton opt = getStyleOption(this);
+    QStyleOptionButton opt = getStyleOption(this, d->hovering);
     p.drawControl(QStyle::CE_RadioButton, opt);
 }
 
