@@ -250,7 +250,7 @@ public:
     virtual void refreshBackground();
 
     // these work directly on the screen
-    virtual void blit(const QPixmap &pm, const QPoint &topLeft, const QRegion &region);
+    virtual void blit(const QImage &img, const QPoint &topLeft, const QRegion &region);
     virtual void solidFill(const QColor &color, const QRegion &region);
     void blit(QWSWindow *bs, const QRegion &clip);
 protected:
@@ -301,7 +301,7 @@ protected:
     static ClearCacheFunc clearCacheFunc;
     
 private:
-    void compose(int level, const QRegion &exposed, QRegion &blend, QPixmap &blendbuffer, int changing_level);
+    void compose(int level, const QRegion &exposed, QRegion &blend, QImage &blendbuffer, int changing_level);
     void paintBackground(const QRegion &);
 };
 

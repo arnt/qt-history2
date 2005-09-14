@@ -19,7 +19,10 @@
 #include "private/qwidget_qws_p.h"
 #include "qcolor.h"
 #include "qpixmap.h"
-#include "qpainter.h"
+#include <private/qdrawhelper_p.h>
+#include <private/qpaintengine_raster_p.h>
+#include <private/qpainter_p.h>
+#include <qdebug.h>
 
 static const bool simple_8bpp_alloc = true; //### 8bpp support not done
 
@@ -1142,7 +1145,7 @@ void QScreen::exposeRegion(QRegion r, int changing)
     r &= QRect(0, 0, w, h);
     QRect bounds = r.boundingRect();
     QRegion blendRegion;
-    QPixmap blendBuffer;
+    QImage blendBuffer;
 
     SCREEN_PAINT_START(r.boundingRect());
 
@@ -1157,7 +1160,7 @@ void QScreen::exposeRegion(QRegion r, int changing)
 }
 
 struct blit_data {
-    const QPixmap *pm;
+    const QImage *img;
     uchar *data;
     int lineStep;
     int sx;
@@ -1172,10 +1175,10 @@ typedef void (*blitFunc)(const blit_data *);
 
 static void blit_32_to_32(const blit_data *data)
 {
-    const int sbpl = data->pm->qwsBytesPerLine() / 4;
+    const int sbpl = data->img->bytesPerLine() / 4;
     const int dbpl = data->lineStep / 4;
 
-    const uint *src = (const uint *)data->pm->qwsBits();
+    const uint *src = (const uint *)data->img->bits();
     src += data->sy * sbpl + data->sx;
     uint *dest = (uint *)data->data;
     dest += data->dy * dbpl + data->dx;
@@ -1192,10 +1195,10 @@ static void blit_32_to_32(const blit_data *data)
 
 static void blit_32_to_16(const blit_data *data)
 {
-    const int sbpl = data->pm->qwsBytesPerLine() / 4;
+    const int sbpl = data->img->bytesPerLine() / 4;
     const int dbpl = data->lineStep / 2;
 
-    const uint *src = (const uint *)data->pm->qwsBits();
+    const uint *src = (const uint *)data->img->bits();
     src += data->sy * sbpl + data->sx;
     ushort *dest = (ushort *)data->data;
     dest += data->dy * dbpl + data->dx;
@@ -1210,13 +1213,13 @@ static void blit_32_to_16(const blit_data *data)
     }
 }
 
-void QScreen::blit(const QPixmap &pm, const QPoint &topLeft, const QRegion &region)
+void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &region)
 {
     QVector<QRect> rects = region.rects();
     QRect bound(0, 0, w, h);
-    bound &= QRect(topLeft, pm.size());
+    bound &= QRect(topLeft, img.size());
     blit_data data;
-    data.pm = &pm;
+    data.img = &img;
     data.data = this->data;
     data.lineStep = lstep;
     blitFunc func = 0;
@@ -1249,11 +1252,13 @@ void QScreen::blit(const QPixmap &pm, const QPoint &topLeft, const QRegion &regi
 void QScreen::blit(QWSWindow *win, const QRegion &clip)
 {
     QWSBackingStore *bs = win->backingStore();
-    bs->lock();
     QPixmap *pm = bs->pixmap();
+    if (!pm)
+        return;
+    bs->lock();
+    QImage img = pm->toImage();
     QRegion rgn = clip & win->requestedRegion();
-    if (pm) 
-        blit(*pm, win->requestedRegion().boundingRect().topLeft(), rgn);
+    blit(img, win->requestedRegion().boundingRect().topLeft(), rgn);
     bs->unlock();
 }
 
@@ -1337,7 +1342,7 @@ void QScreen::solidFill(const QColor &color, const QRegion &region)
 }
 
 
-void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QPixmap &blendbuffer, int changing_level)
+void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage &blendbuffer, int changing_level)
 {
 
     QRect exposed_bounds = exposed.boundingRect();
@@ -1367,7 +1372,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QPixmap
     } else {
         QSize blendSize = blend.boundingRect().size();
         if (!blendSize.isNull())
-            blendbuffer = QPixmap(blendSize);
+            blendbuffer = QImage(blendSize, QImage::Format_ARGB32_Premultiplied);
     }
     if (!win) {
         paintBackground(exposed-blend);
@@ -1378,45 +1383,62 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QPixmap
     if (win)
         blendRegion &= win->requestedRegion();
     if (!blendRegion.isEmpty()) {
-        QPainter p(&blendbuffer);
-        QRegion clipRgn = blendRegion;
-        QPoint blendOffset = blend.boundingRect().topLeft();
-        clipRgn.translate(-blendOffset);
-        p.setClipRegion(clipRgn); //or should we translate the painter instead???
-        if (!win) { //background
-            if (qwsServer->backgroundBrush().style() != Qt::NoBrush) {
-                p.setBrushOrigin(-blendOffset);
-                p.fillRect(clipRgn.boundingRect(), qwsServer->backgroundBrush());
-            }
+        QPoint off = blend.boundingRect().topLeft();
+
+        QRasterBuffer rb;
+        rb.prepare(&blendbuffer);
+        QSpanData spanData;
+        spanData.init(&rb);
+        int opacity = 255;
+        QImage img;
+        if (!win) {
+            spanData.setup(qwsServer->backgroundBrush());
+            spanData.dx = off.x();
+            spanData.dy = off.y();
         } else {
-            uint opacity = win->opacity();
-            const QPixmap *buf = win->backingStore()->pixmap();
-            QPoint topLeft = win->requestedRegion().boundingRect().topLeft();
-            Q_ASSERT (buf && !buf->isNull());
-            if (opacity == 255) {
-                win->backingStore()->lock();
-                p.drawPixmap(topLeft-blendOffset,*buf);
-                win->backingStore()->unlock();
-            } else {
-                QPixmap yuck(blendRegion.boundingRect().size());
-                yuck.fill(QColor(0,0,0,opacity));
+            opacity = win->opacity();
+            QPixmap *pm = win->backingStore()->pixmap();
+            if (!pm)
+                return;
+            img = pm->toImage();
+            QPoint winoff = off - win->requestedRegion().boundingRect().topLeft();
+            spanData.type = QSpanData::Texture;
+            spanData.initTexture(&img);
+            spanData.dx = winoff.x();
+            spanData.dy = winoff.y();
+        }
+        if (!spanData.blend)
+            return;
 
-                QPainter pp;
-                pp.begin(&yuck);
-                pp.setCompositionMode(QPainter::CompositionMode_SourceIn);
-                win->backingStore()->lock();
-                pp.drawPixmap(topLeft-blendRegion.boundingRect().topLeft(), *buf);
-                win->backingStore()->unlock();
-                pp.end();
-
-                p.drawPixmap(blendRegion.boundingRect().topLeft()-blendOffset, yuck);
-
+        if (win)
+            win->backingStore()->lock();
+        const QVector<QRect> rects = blendRegion.rects();
+        const int nspans = 256;
+        QT_FT_Span spans[nspans];
+        for (int i = 0; i < rects.size(); ++i) {
+            int y = rects.at(i).y() - off.y();
+            int ye = y + rects.at(i).height();
+            int x = rects.at(i).x() - off.x();
+            int len = rects.at(i).width();
+            while (y < ye) {
+                int n = qMin(nspans, ye - y);
+                int i = 0;
+                while (i < n) {
+                    spans[i].x = x;
+                    spans[i].len = len;
+                    spans[i].y = y + i;
+                    spans[i].coverage = opacity;
+                    ++i;
+                }
+                spanData.blend(n, spans, &spanData);
+                y += n;
             }
         }
+
+        if (win)
+            win->backingStore()->unlock();
     }
 }
-
-
 
 void QScreen::paintBackground(const QRegion &rr)
 {
@@ -1430,14 +1452,41 @@ void QScreen::paintBackground(const QRegion &rr)
     if (bs == Qt::SolidPattern) {
         solidFill(bg.color(), r);
     } else {
-        // ### Not really fast...
         QRect br = r.boundingRect();
-        QPixmap pm(br.size());
-        
-        QPainter p(&pm);
-        p.setBrushOrigin(-br.topLeft());
-        p.fillRect(pm.rect(), bg);
-        blit(pm, br.topLeft(), r);
+        QImage img(br.size(), QImage::Format_ARGB32_Premultiplied);
+        QPoint off = br.topLeft();
+        QRasterBuffer rb;
+        rb.prepare(&img);
+        QSpanData spanData;
+        spanData.init(&rb);
+        spanData.setup(bg);
+        spanData.dx = off.x();
+        spanData.dy = off.y();
+        Q_ASSERT(spanData.blend);
+
+        const QVector<QRect> rects = r.rects();
+        const int nspans = 256;
+        QT_FT_Span spans[nspans];
+        for (int i = 0; i < rects.size(); ++i) {
+            int y = rects.at(i).y() - off.y();
+            int ye = y + rects.at(i).height();
+            int x = rects.at(i).x() - off.x();
+            int len = rects.at(i).width();
+            while (y < ye) {
+                int n = qMin(nspans, ye - y);
+                int i = 0;
+                while (i < n) {
+                    spans[i].x = x;
+                    spans[i].len = len;
+                    spans[i].y = y + i;
+                    spans[i].coverage = 255;
+                    ++i;
+                }
+                spanData.blend(n, spans, &spanData);
+                y += n;
+            }
+        }
+        blit(img, br.topLeft(), r);
     }
 }
 
