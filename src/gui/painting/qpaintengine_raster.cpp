@@ -2914,9 +2914,7 @@ static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, void 
         if (x1 >= 0 && x1 < devRect.width()) {
             int start = qMax(0, qMin(y1, y2));
             int stop = qMax(y1, y2) + 1;
-            int stop_clipped = qMin(devRect.height(), stop);
-            if (style == LineDrawNormal && stop == stop_clipped)
-                --stop;
+            stop = qMin(devRect.height(), stop);
             int y = start;
             while (y < stop) {
                 int n = qMin(nspans, stop - y);
