@@ -1,4 +1,4 @@
-#include "QtTest/qtesttable.h"
+#include "QtTest/private/qtesttable_p.h"
 #include "QtTest/qtestdata.h"
 
 #include <QtCore/qmetaobject.h>

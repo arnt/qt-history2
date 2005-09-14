@@ -23,8 +23,7 @@ DLLDESTDIR      = $$[QT_INSTALL_BINS]
 VERSION         = 2.0.0
 
 # Input
-HEADERS = QTest/qtest_global.h QTest/qtestcase.h QTest/qtesttable.h \
-          QTest/qtestdata.h
+HEADERS = qtest_global.h qtestcase.h qtestdata.h
 SOURCES = qtestcase.cpp qtestlog.cpp qtesttable.cpp qtestdata.cpp qtestresult.cpp qasciikey.cpp qplaintestlogger.cpp qxmltestlogger.cpp qsignaldumper.cpp qabstracttestlogger.cpp
 
 DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII QTESTLIB_MAKEDLL QT_NO_DATASTREAM QTEST_LIGHT QTEST_NOEXITCODE

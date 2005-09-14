@@ -5,7 +5,7 @@
 #include <QtCore/qmetaobject.h>
 
 #include "QtTest/private/qtestlog_p.h"
-#include "QtTest/qtesttable.h"
+#include "QtTest/private/qtesttable_p.h"
 #include "QtTest/qtestdata.h"
 #include "QtTest/private/qtestresult_p.h"
 #include "QtTest/private/qsignaldumper_p.h"

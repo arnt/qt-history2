@@ -2,7 +2,7 @@
 
 #include "QtTest/qtestassert.h"
 #include "QtTest/qtestdata.h"
-#include "QtTest/qtesttable.h"
+#include "QtTest/private/qtesttable_p.h"
 
 #include <string.h>
 #include <stdlib.h>

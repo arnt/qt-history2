@@ -6,7 +6,7 @@
 class QTestData;
 class QTestTablePrivate;
 
-class Q_TESTLIB_EXPORT QTestTable
+class QTestTable
 {
 public:
     enum Type { GlobalTable, LocalTable };
