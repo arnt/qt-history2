@@ -990,6 +990,11 @@ bool QHeaderView::sectionsHidden() const
 void QHeaderView::headerDataChanged(Qt::Orientation orientation, int logicalFirst, int logicalLast)
 {
     Q_D(QHeaderView);
+    Q_ASSERT(logicalFirst >= 0);
+    Q_ASSERT(logicalLast >= 0);
+    Q_ASSERT(logicalLast < count());
+    Q_ASSERT(logicalFirst < count());
+
     if (d->orientation != orientation)
         return;
     if (orientation == Qt::Horizontal) {
