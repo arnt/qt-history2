@@ -13,6 +13,7 @@
 
 #include "actioneditor_p.h"
 #include "actionrepository_p.h"
+#include "iconloader_p.h"
 
 #include <QtDesigner/QtDesigner>
 
@@ -80,13 +81,16 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     l->setSpacing(0);
 
     QToolBar *toolbar = new QToolBar(this);
+    toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon); // ### style
     toolbar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     l->addWidget(toolbar);
 
     m_actionNew = toolbar->addAction(tr("New..."));
+    m_actionNew->setIcon(createIconSet("filenew.png"));
     connect(m_actionNew, SIGNAL(triggered()), this, SLOT(slotNotImplemented()));
 
     m_actionDelete = toolbar->addAction(tr("Delete"));
+    m_actionDelete->setIcon(createIconSet("editdelete.png"));
     toolbar->addWidget(new ActionFilterWidget(this, toolbar));
     connect(m_actionDelete, SIGNAL(triggered()), this, SLOT(slotNotImplemented()));
 
