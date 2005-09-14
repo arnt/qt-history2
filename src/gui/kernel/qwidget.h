@@ -78,7 +78,8 @@ public:
     uint in_set_window_state : 1;
     mutable uint fstrut_dirty : 1;
     uint context_menu_policy : 3;
-    uint unused : 16;
+    uint window_modality : 2;
+    uint unused : 14;
     QRect crect;
     mutable QPalette pal;
     QFont fnt;
@@ -104,6 +105,7 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_DECLARE_PRIVATE(QWidget)
 
     Q_PROPERTY(bool modal READ isModal)
+    Q_PROPERTY(Qt::WindowModality windowModality READ windowModality WRITE setWindowModality)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
     Q_PROPERTY(QRect geometry READ geometry WRITE setGeometry)
     Q_PROPERTY(QRect frameGeometry READ frameGeometry)
@@ -182,6 +184,8 @@ public:
     bool isWindow() const;
 
     bool isModal() const;
+    Qt::WindowModality windowModality() const;
+    void setWindowModality(Qt::WindowModality windowModality);
 
     bool isEnabled() const;
     bool isEnabledTo(QWidget*) const;
@@ -755,7 +759,7 @@ inline bool QWidget::isEnabled() const
 { return !testAttribute(Qt::WA_Disabled); }
 
 inline bool QWidget::isModal() const
-{ return testAttribute(Qt::WA_ShowModal); }
+{ return data->window_modality != Qt::NonModal; }
 
 inline bool QWidget::isEnabledToTLW() const
 { return isEnabled(); }

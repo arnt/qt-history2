@@ -357,6 +357,8 @@ public:
     QPaintEngine *extraPaintEngine;
 
     mutable const QMetaObject *polished;
+
+    void setModal_sys();
 };
 
 inline QWExtra *QWidgetPrivate::extraData() const

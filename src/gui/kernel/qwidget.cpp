@@ -754,6 +754,7 @@ void QWidgetPrivate::init(QWidget *desktopWidget, Qt::WFlags f)
     data.window_state = 0;
     data.focus_policy = 0;
     data.context_menu_policy = Qt::DefaultContextMenu;
+    data.window_modality = Qt::NonModal;
 
     data.sizehint_forced = 0;
     data.is_closing = 0;
@@ -874,7 +875,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     if (flags & Qt::WDestructiveClose)
 	setAttribute(Qt::WA_DeleteOnClose);
     if (flags & Qt::WShowModal)
-	setAttribute(Qt::WA_ShowModal);
+        setWindowModality(Qt::ApplicationModal);
     if (flags & Qt::WMouseNoMask)
 	setAttribute(Qt::WA_MouseNoMask);
     if (flags & Qt::WGroupLeader)
@@ -882,14 +883,18 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     if (flags & Qt::WNoMousePropagation)
 	setAttribute(Qt::WA_NoMousePropagation);
 #endif
-    if(type == Qt::Dialog && !testAttribute(Qt::WA_ShowModal)
-       && parentWidget() && parentWidget()->testAttribute(Qt::WA_ShowModal))
-        setAttribute(Qt::WA_ShowModal);
+    if (type == Qt::Dialog && data->window_modality == Qt::NonModal
+        && parentWidget() && parentWidget()->windowModality() != Qt::NonModal) {
+        // dialogs automatically inherit modality from their parents
+        // (if the windowModality property has not already been set)
+        setWindowModality(parentWidget()->windowModality());
+    }
 
     if ( type != Qt::Widget && type != Qt::Window && type != Qt::Dialog)
         setAttribute(Qt::WA_QuitOnClose, false);
 
     d->create_sys(window, initializeWindow, destroyOldWindow);
+    d->setModal_sys();
 
     if (!isWindow() && parentWidget() && parentWidget()->testAttribute(Qt::WA_DropSiteRegistered))
         setAttribute(Qt::WA_DropSiteRegistered, true);
@@ -1561,8 +1566,33 @@ QStyle* QWidget::setStyle(const QString &style)
     This property only makes sense for windows. A modal widget
     prevents widgets in all other windows from getting any input.
 
-    \sa isWindow(), QDialog
+    \sa isWindow(), QWidget::modalityType, QDialog
 */
+
+/*!
+    \property QWidget::windowModality
+    \brief which windows are blocked by the modal widget
+
+    This property only makes sense for windows. A modal widget
+    prevents widgets in other windows from getting input. The value of
+    this property controls which windows are blocked.
+
+    By default, this property is Qt::NonModal.
+
+    \sa isWindow(), QWidget::modal, QDialog
+*/
+
+Qt::WindowModality QWidget::windowModality() const
+{
+    return static_cast<Qt::WindowModality>(data->window_modality);
+}
+
+void QWidget::setWindowModality(Qt::WindowModality windowModality)
+{
+    data->window_modality = windowModality;
+    // setModal_sys() will be called by setAttribute()
+     setAttribute(Qt::WA_ShowModal, (data->window_modality != Qt::NonModal));
+}
 
 /*!
     \fn bool QWidget::underMouse() const
@@ -3783,7 +3813,7 @@ bool QWidget::isActiveWindow() const
 #endif
     if(style()->styleHint(QStyle::SH_Widget_ShareActivation, 0, this)) {
         if(((tlw->windowType() == Qt::Dialog) || (tlw->windowType() == Qt::Tool)) &&
-           !tlw->testAttribute(Qt::WA_ShowModal) &&
+           !tlw->isModal() &&
            (!tlw->parentWidget() || tlw->parentWidget()->isActiveWindow()))
            return true;
         QWidget *w = qApp->activeWindow();
@@ -3791,7 +3821,7 @@ bool QWidget::isActiveWindow() const
             w->parentWidget()->window() == tlw)
             return true;
         while(w && ((tlw->windowType() == Qt::Dialog) || (tlw->windowType() == Qt::Tool)) &&
-              !w->testAttribute(Qt::WA_ShowModal) && w->parentWidget()) {
+              !w->isModal() && w->parentWidget()) {
             w = w->parentWidget()->window();
             if(w == tlw)
                 return true;
@@ -4289,7 +4319,7 @@ void QWidgetPrivate::show_helper()
     QShowEvent showEvent;
     QApplication::sendEvent(q, &showEvent);
 
-    if (q->testAttribute(Qt::WA_ShowModal))
+    if (q->isModal())
         // QApplicationPrivate::enterModal *before* show, otherwise the initial
         // stacking might be wrong
         QApplicationPrivate::enterModal(q);
@@ -4327,7 +4357,7 @@ void QWidgetPrivate::hide_helper()
     // Move test modal here.  Otherwise, a modal dialog could get
     // destroyed and we lose all access to its parent because we haven't
     // left modality.  (Eg. modal Progress Dialog)
-    if (q->testAttribute(Qt::WA_ShowModal))
+    if (q->isModal())
         QApplicationPrivate::leaveModal(q);
 
 #if defined(Q_WS_WIN)
@@ -5201,8 +5231,14 @@ bool QWidget::event(QEvent *e)
             QList<QObject*> childList = d->children;
             for (int i = 0; i < childList.size(); ++i) {
                 QObject *o = childList.at(i);
-                if (o != qApp->activeModalWidget())
+                if (o != qApp->activeModalWidget()) {
+                    if (qobject_cast<QWidget *>(o) && static_cast<QWidget *>(o)->isWindow()) {
+                        // do not forward the event to child windows,
+                        // QApplication does this for us
+                        continue;
+                    }
                     QApplication::sendEvent(o, e);
+                }
             }
         }
         break;
@@ -6591,14 +6627,18 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
 #endif
         break;
     case Qt::WA_ShowModal:
-#ifdef Q_WS_MAC
-        // We need a different window type if we are to be run modal. SetWindowClass will
-        //  disappear, so Apple recommends changing the window group instead.
-        if (testAttribute(Qt::WA_WState_Created) && !d->topData()->group) {
-            WindowGroupRef wgr = GetWindowGroupOfClass(kMovableModalWindowClass);
-            SetWindowGroup(qt_mac_window_for(this), wgr);
+        if (!on) {
+            // reset modality type to Modeless when clearing WA_ShowModal
+            data->window_modality = Qt::NonModal;
+        } else if (data->window_modality == Qt::NonModal) {
+            // if the modality type hasn't been set prior to setting
+            // WA_ShowModal, default to ApplicationModal
+            data->window_modality = Qt::ApplicationModal;
         }
-#endif
+        if (testAttribute(Qt::WA_WState_Created)) {
+            // don't call setModal_sys() before create_sys()
+            d->setModal_sys();
+        }
         break;
     case Qt::WA_MouseTracking: {
         QEvent e(QEvent::MouseTrackingChange);

@@ -2161,3 +2161,33 @@ QPaintEngine *QWidget::paintEngine() const
     return pe;
 }
 
+void QWidgetPrivate::setModal_sys()
+{
+    Q_Q(QWidget);
+    // We need a different window type if we are to be run modal. SetWindowClass will
+    //  disappear, so Apple recommends changing the window group instead.
+    WindowPtr window = qt_mac_window_for(q);
+    const bool asSheet = qt_mac_is_macsheet(q);
+    SetWindowModality(window, kWindowModalityNone, 0);
+    if (q->testAttribute(Qt::WA_ShowModal)) {
+        if (q->testAttribute(Qt::WA_WState_Created) && asSheet && !topData()->group) {
+            WindowGroupRef wgr = GetWindowGroupOfClass(kMovableModalWindowClass);
+            SetWindowGroup(window, wgr);
+        }
+
+        switch (data.window_modality) {
+        case Qt::WindowModal:
+            {
+                if (!asSheet) {
+                    if (QWidget *p = q->parentWidget())
+                        SetWindowModality(window, kWindowModalityWindowModal,
+                                          qt_mac_window_for(p->window()));
+                }
+                break;
+            }
+        default:
+            // we handle ApplicationModal our selves
+            break;
+        }
+    }
+}

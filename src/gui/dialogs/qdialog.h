@@ -28,7 +28,6 @@ class Q_GUI_EXPORT QDialog : public QWidget
     friend class QPushButton;
 
     Q_PROPERTY(bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled)
-    Q_PROPERTY(bool modal READ isModal WRITE setModal)
 
 public:
     explicit QDialog(QWidget *parent = 0, Qt::WFlags f = 0);
@@ -56,12 +55,16 @@ public:
     void setSizeGripEnabled(bool);
     bool isSizeGripEnabled() const;
 
-    void setModal(bool modal);
 #ifdef Q_OS_TEMP
     bool event(QEvent *);
 #endif
 
     void setResult(int r);
+
+signals:
+    void finished(int result);
+    void accepted();
+    void rejected();
 
 public slots:
     int exec();
@@ -84,7 +87,12 @@ protected:
 
 private:
     Q_DISABLE_COPY(QDialog)
-};
 
+#ifdef QT_COMPAT
+    Q_PROPERTY(bool modal READ isModal WRITE setModal)
+public:
+    QT_COMPAT void setModal(bool modal);
+#endif
+};
 
 #endif // QDIALOG_H

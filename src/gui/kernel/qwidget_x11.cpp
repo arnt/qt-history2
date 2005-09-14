@@ -91,6 +91,8 @@ enum {
 
     MWM_HINTS_INPUT_MODE = (1L << 2),
 
+    MWM_INPUT_MODELESS                  = 0L,
+    MWM_INPUT_PRIMARY_APPLICATION_MODAL = 1L,
     MWM_INPUT_FULL_APPLICATION_MODAL    = 3L
 };
 
@@ -124,6 +126,15 @@ static QtMWMHints GetMWMHints(Display *display, Window window)
     return mwmhints;
 }
 
+static void SetMWMHints(Display *display, Window window, const QtMWMHints &mwmhints)
+{
+    if (mwmhints.flags != 0l) {
+        XChangeProperty(display, window, ATOM(_MOTIF_WM_HINTS), ATOM(_MOTIF_WM_HINTS), 32,
+                        PropModeReplace, (unsigned char *) &mwmhints, 5);
+    } else {
+        XDeleteProperty(display, window, ATOM(_MOTIF_WM_HINTS));
+    }
+}
 
 /*****************************************************************************
   QWidget member functions
@@ -589,12 +600,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         XSetWMProtocols(dpy, id, protocols, n);
 
         // set mwm hints
-        if (mwmhints.flags != 0l) {
-            XChangeProperty(dpy, id, ATOM(_MOTIF_WM_HINTS), ATOM(_MOTIF_WM_HINTS), 32,
-                            PropModeReplace, (unsigned char *) &mwmhints, 5);
-        } else {
-            XDeleteProperty(dpy, id, ATOM(_MOTIF_WM_HINTS));
-        }
+        SetMWMHints(dpy, id, mwmhints);
 
         // set _NET_WM_WINDOW_TYPE
         if (curr_wintype > 0)
@@ -710,8 +716,10 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             releaseKeyboard();
         if (isWindow())
             X11->deferred_map.removeAll(this);
-        if (testAttribute(Qt::WA_ShowModal))                // just be sure we leave modal
+        if (isModal()) {
+            // just be sure we leave modal
             QApplicationPrivate::leaveModal(this);
+        }
         else if ((windowType() == Qt::Popup))
             qApp->d_func()->closePopup(this);
 
@@ -1737,12 +1745,43 @@ void QWidgetPrivate::show_sys()
         if (got_hints)
             XFree((char *)h);
 
+        // udpate WM_TRANSIENT_FOR
+        bool dialog = (q->windowType() == Qt::Dialog
+                       || q->windowType() == Qt::Sheet
+                       || (q->windowFlags() & Qt::MSWindowsFixedSizeDialogHint));
+        bool tool = (q->windowType() == Qt::Tool || q->windowType() == Qt::SplashScreen
+                     || q->windowType() == Qt::ToolTip || q->windowType() == Qt::Drawer);
+        if (dialog || tool) {
+            QWidget *p = q->parentWidget();
+            if (p)
+                p = p->window();
+            if (p && (data.window_modality == Qt::NonModal
+                      || data.window_modality == Qt::WindowModal)) {
+                // transient for window
+                XSetTransientForHint(X11->display, q->winId(), p->winId());
+            } else {
+                // transient for group
+                XSetTransientForHint(X11->display, q->winId(), X11->wm_client_leader);
+            }
+        }
+
         // update _MOTIF_WM_HINTS
         QtMWMHints mwmhints = GetMWMHints(X11->display, q->winId());
 
-        if (q->testAttribute(Qt::WA_ShowModal)) {
-            mwmhints.input_mode = MWM_INPUT_FULL_APPLICATION_MODAL;
+        if (data.window_modality != Qt::NonModal) {
+            switch (data.window_modality) {
+            case Qt::WindowModal:
+                mwmhints.input_mode = MWM_INPUT_PRIMARY_APPLICATION_MODAL;
+                break;
+            case Qt::ApplicationModal:
+            default:
+                mwmhints.input_mode = MWM_INPUT_FULL_APPLICATION_MODAL;
+                break;
+            }
             mwmhints.flags |= MWM_HINTS_INPUT_MODE;
+        } else {
+            mwmhints.input_mode = MWM_INPUT_MODELESS;
+            mwmhints.flags &= ~MWM_HINTS_INPUT_MODE;
         }
 
         if (q->minimumSize() == q->maximumSize()) {
@@ -1771,13 +1810,7 @@ void QWidgetPrivate::show_sys()
             }
         }
 
-        if (mwmhints.flags != 0l) {
-            XChangeProperty(X11->display, q->winId(), ATOM(_MOTIF_WM_HINTS),
-                            ATOM(_MOTIF_WM_HINTS), 32, PropModeReplace,
-                            (unsigned char *) &mwmhints, 5);
-        } else {
-            XDeleteProperty(X11->display, q->winId(), ATOM(_MOTIF_WM_HINTS));
-        }
+        SetMWMHints(X11->display, q->winId(), mwmhints);
 
         // set _NET_WM_STATE
         Atom net_winstates[6] = { 0, 0, 0, 0, 0, 0 };
@@ -1795,7 +1828,7 @@ void QWidgetPrivate::show_sys()
             net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MAXIMIZED_HORZ);
             net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MAXIMIZED_VERT);
         }
-        if (q->testAttribute(Qt::WA_ShowModal)) {
+        if (data.window_modality != Qt::NonModal) {
             net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MODAL);
         }
 
@@ -1834,9 +1867,9 @@ void QWidgetPrivate::show_sys()
             QRect normalRect = top->normalGeometry;
 
             q->setGeometry(maxRect.x() + top->fleft,
-                        maxRect.y() + top->ftop,
-                        maxRect.width() - top->fleft - top->fright,
-                        maxRect.height() - top->ftop - top->fbottom);
+                           maxRect.y() + top->ftop,
+                           maxRect.width() - top->fleft - top->fright,
+                           maxRect.height() - top->ftop - top->fbottom);
 
             // restore the original normalGeometry
             top->normalGeometry = normalRect;
@@ -2799,3 +2832,7 @@ Picture QX11Data::getSolidFill(int screen, const QColor &c)
     return X11->solid_fills[i].picture;
 }
 #endif
+
+void QWidgetPrivate::setModal_sys()
+{
+}

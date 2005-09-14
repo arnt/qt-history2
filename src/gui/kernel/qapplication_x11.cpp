@@ -2368,22 +2368,16 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
                 widget->translateCloseEvent(event);
             }
             else if (a == ATOM(WM_TAKE_FOCUS)) {
-                QWidget * amw = activeModalWidget();
                 if ((ulong) event->xclient.data.l[1] > X11->time)
                     X11->time = event->xclient.data.l[1];
-                if (amw && amw != widget) {
-                    QWidget* groupLeader = widget;
-                    while (groupLeader && !groupLeader->testAttribute(Qt::WA_GroupLeader)
-                           && groupLeader != amw)
-                        groupLeader = groupLeader->parentWidget();
-                    if (!groupLeader) {
-                        QWidget *p = amw->parentWidget();
-                        while (p && p != widget)
-                            p = p->parentWidget();
-                        if (!p || !X11->net_supported_list)
-                            amw->raise(); // help broken window managers
-                        amw->activateWindow();
-                    }
+                QWidget *amw = activeModalWidget();
+                if (amw && !QApplicationPrivate::tryModalHelper(widget, 0)) {
+                    QWidget *p = amw->parentWidget();
+                    while (p && p != widget)
+                        p = p->parentWidget();
+                    if (!p || !X11->net_supported_list)
+                        amw->raise(); // help broken window managers
+                    amw->activateWindow();
                 }
 #ifndef QT_NO_WHATSTHIS
             } else if (a == ATOM(_NET_WM_CONTEXT_HELP)) {

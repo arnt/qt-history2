@@ -2006,25 +2006,60 @@ Q_GUI_EXPORT bool qt_tryModalHelper(QWidget *widget, QWidget **rettop)
     return QApplicationPrivate::tryModalHelper(widget, rettop);
 }
 
-/*!\internal
+/*! \internal
+    Returns true if \a widget is blocked by a modal window.
  */
 bool QApplicationPrivate::isBlockedByModal(QWidget *widget)
 {
+    Q_ASSERT(widget->isWindow());
     if (!modalState())
         return false;
-    if (qApp->activePopupWidget())
+    if (qApp->activePopupWidget() == widget)
         return false;
-    if ((widget->windowType() == Qt::Tool))        // allow tool windows
+    if ((widget->windowType() == Qt::Tool)) {
+        // allow tool windows
         return false;
+    }
 
-    QWidget *modal=0, *top=qt_modal_stack->first();
-
-    widget = widget->window();
-    if (widget->testAttribute(Qt::WA_ShowModal))        // widget is modal
-        modal = widget;
-    if (!top || modal == top)                                // don't block event
-        return false;
-    return true;
+    bool blocked = false;
+    for (int i = 0; !blocked && i < qt_modal_stack->size(); ++i) {
+        QWidget *modalWidget = qt_modal_stack->at(i);
+        // check if the active modal widget is a parent of our widget
+        QWidget *w = widget->parentWidget();
+        while (w) {
+            if (w == modalWidget)
+                return false;
+            w = w->parentWidget();
+        }
+        switch (modalWidget->windowModality()) {
+        case Qt::ApplicationModal:
+            if (modalWidget != widget)
+                blocked = true;
+            break;
+        case Qt::WindowModal:
+            w = widget;
+            do {
+                QWidget *top = modalWidget;
+                do {
+                    if (top == w && modalWidget != widget) {
+                        blocked = true;
+                        break;
+                    }
+                    top = top->parentWidget();
+                    if (top)
+                        top = top->window();
+                } while (!blocked && top);
+                w = w->parentWidget();
+                if (w)
+                    w = w->window();
+            } while (!blocked && w);
+            break;
+        default:
+            Q_ASSERT_X(false, "QApplication", "internal error, a modal widget cannot be modeless");
+            break;
+        }
+    }
+    return blocked;
 }
 
 /*!\internal
@@ -2080,52 +2115,23 @@ void QApplicationPrivate::leaveModal(QWidget *widget)
   Called from qapplication_\e{platform}.cpp, returns true
   if the widget should accept the event.
  */
-bool QApplicationPrivate::tryModalHelper(QWidget *widget, QWidget **rettop) {
-    QWidget *modal=0, *top=QApplication::activeModalWidget();
-    if (rettop) *rettop = top;
+bool QApplicationPrivate::tryModalHelper(QWidget *widget, QWidget **rettop)
+{
+    QWidget *top = QApplication::activeModalWidget();
+    if (rettop)
+        *rettop = top;
 
-    if (qApp->activePopupWidget())
+    widget = widget->window();
+    if (qApp->activePopupWidget() == widget)
         return true;
 
 #ifdef Q_WS_MAC
     top = QApplicationPrivate::tryModalHelper_sys(top);
-    if (rettop) *rettop = top;
+    if (rettop)
+        *rettop = top;
 #endif
 
-    QWidget* groupLeader = widget;
-    widget = widget->window();
-
-    if (widget->testAttribute(Qt::WA_ShowModal))        // widget is modal
-        modal = widget;
-    if (!top || modal == top)                        // don't block event
-        return true;
-
-    QWidget * p = widget->parentWidget(); // Check if the active modal widget is a parent of our widget
-    while (p) {
-        if (p == top)
-            return true;
-        p = p->parentWidget();
-    }
-
-    while (groupLeader && !groupLeader->testAttribute(Qt::WA_GroupLeader))
-        groupLeader = groupLeader->parentWidget();
-
-    if (groupLeader) {
-        // Does groupLeader have a child in qt_modal_stack?
-        bool unrelated = true;
-        for (int i = 0; unrelated && i < qt_modal_stack->size(); ++i) {
-            modal = qt_modal_stack->at(i);
-            QWidget* p = modal->parentWidget();
-            while (p && p != groupLeader && !p->testAttribute(Qt::WA_GroupLeader)) {
-                p = p->parentWidget();
-            }
-            if (p == groupLeader) unrelated = false;
-        }
-
-        if (unrelated)
-            return true;                // don't block event
-    }
-    return false;
+    return !isBlockedByModal(widget);
 }
 
 

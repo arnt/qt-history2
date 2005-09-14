@@ -1456,3 +1456,7 @@ QPaintEngine *QWidget::paintEngine() const
 //     }
 //    return qt_widget_paintengine;
 }
+
+void QWidgetPrivate::setModal_sys()
+{
+}

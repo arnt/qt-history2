@@ -1406,8 +1406,8 @@ bool QApplicationPrivate::do_mouse_down(const QPoint &pt, bool *mouse_down_unhan
             set_active = !(GetCurrentKeyModifiers() & cmdKey);
         if(set_active) {
             widget->raise();
-            if(!widget->isActiveWindow() && widget->isWindow() && !(widget->windowType() == Qt::Desktop)
-               && !(widget->windowType() == Qt::Popup) && !qt_mac_is_macsheet(widget)
+            if(widget->isWindow() && widget->windowType() != Qt::Desktop
+               && widget->windowType() != Qt::Popup && !qt_mac_is_macsheet(widget)
                && (widget->isModal() || !::qobject_cast<QDockWidget *>(widget))) {
                 widget->activateWindow();
                 if(windowPart == inContent) {
@@ -1604,25 +1604,9 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
         break;
     }
 
-    if(top->isWindow() && (block_event || paint_event))
+    if((!QApplication::activeWindow() || QApplicationPrivate::isBlockedByModal(QApplication::activeWindow())) &&
+       top->isWindow() && (block_event || paint_event))
         top->raise();
-#if 0 //This is really different than Qt behaves, but it is correct for Aqua, what do I do? -Sam
-    if(block_event && qt_mac_is_macsheet(top)) {
-        for(QWidget *w = top->parentWidget(); w; w = w->parentWidget()) {
-            w = w->window();
-            if(w == widget || w->isModal()) {
-#ifdef DEBUG_MODAL_EVENTS
-                qDebug("%s:%d -- modal (false)", __FILE__, __LINE__);
-#endif
-                return false;
-            }
-        }
-#ifdef DEBUG_MODAL_EVENTS
-        qDebug("%s:%d -- special mac-sheet (true)", __FILE__, __LINE__);
-#endif
-        return true;
-    }
-#endif
 
 #ifdef DEBUG_MODAL_EVENTS
     qDebug("%s:%d -- final decision! (%s)", __FILE__, __LINE__, block_event ? "false" : "true");
@@ -1761,11 +1745,12 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                               sizeof(widget), 0, &widget);
             if(widget) {
                 WindowPtr window = qt_mac_window_for(widget);
-                bool just_show = false;
-                if(!qt_mac_is_macsheet(widget)
-                   || ShowSheetWindow(window, qt_mac_window_for(widget->parentWidget())) != noErr) {
-                    qWarning("Qt: QWidget: Unable to show as sheet %s::%s", widget->metaObject()->className(),
-                             widget->objectName().toLocal8Bit().constData());
+                bool just_show = !qt_mac_is_macsheet(widget);
+                if(!just_show) {
+                    OSStatus err = ShowSheetWindow(window, qt_mac_window_for(widget->parentWidget()));
+                    if(err != noErr)
+                        qWarning("Qt: QWidget: Unable to show as sheet %s::%s [%ld]", widget->metaObject()->className(),
+                                 widget->objectName().toLocal8Bit().constData(), err);
                     just_show = true;
                 }
                 if(just_show) //at least the window will be visible, but the sheet flag doesn't work sadly (probalby too many sheets)

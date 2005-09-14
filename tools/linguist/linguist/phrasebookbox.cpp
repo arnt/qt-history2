@@ -36,7 +36,7 @@ PhraseBookBox::PhraseBookBox(const QString& filename,
     : QDialog(parent), blockListSignals(false), fn(filename), pb(phraseBook)
 {
     setupUi(this);
-    setModal(false);
+    setWindowModality(Qt::NonModal);
     source->setBuddy(sourceLed);
     target->setBuddy(targetLed);
     definition->setBuddy(definitionLed);

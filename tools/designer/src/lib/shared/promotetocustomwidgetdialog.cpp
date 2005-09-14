@@ -26,7 +26,7 @@ PromoteToCustomWidgetDialog::PromoteToCustomWidgetDialog(QDesignerWidgetDataBase
                                                         QWidget *parent)
     : QDialog(parent)
 {
-    setModal(true);
+    setWindowModality(Qt::ApplicationModal);
 
     ui = new Ui::PromoteToCustomWidgetDialog;
     ui->setupUi(this);
