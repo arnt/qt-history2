@@ -18,6 +18,7 @@
 #include "qstylepainter.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
+#include "qevent.h"
 
 #include "private/qabstractbutton_p.h"
 
