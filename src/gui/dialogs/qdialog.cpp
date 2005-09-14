@@ -71,14 +71,14 @@
     Alternatively you can call the done() slot with \c Accepted or
     \c Rejected.
 
-    An alternative is to call setModal(true), then show(). Unlike
-    exec(), show() returns control to the caller immediately. Calling
-    setModal(true) is especially useful for progress dialogs, where
-    the user must have the ability to interact with the dialog, e.g.
-    to cancel a long running operation. If you use show() and
-    setModal(true) together you must call
-    QApplication::processEvents() periodically during processing to
-    enable the user to interact with the dialog. (See
+    An alternative is to call setModal(true) or setWindowModality(),
+    then show(). Unlike exec(), show() returns control to the caller
+    immediately. Calling setModal(true) is especially useful for
+    progress dialogs, where the user must have the ability to interact
+    with the dialog, e.g.  to cancel a long running operation. If you
+    use show() and setModal(true) together to perform a long operation,
+    you must call QApplication::processEvents() periodically during
+    processing to enable the user to interact with the dialog. (See
     QProgressDialog.)
 
     \section1 Modeless Dialogs
@@ -884,25 +884,24 @@ QSize QDialog::minimumSizeHint() const
     return QWidget::minimumSizeHint();
 }
 
-#if defined(QT_COMPAT)
 /*!
     \property QDialog::modal
     \brief whether show() should pop up the dialog as modal or modeless
 
-    By default, this property is false and show() pops up the dialog as
-    modeless.
+    By default, this property is false and show() pops up the dialog
+    as modeless. Setting his property to true is equivalent to setting
+    QWidget::windowModality to Qt::ApplicationModal.
 
     exec() ignores the value of this property and always pops up the
     dialog as modal.
 
-    \sa show(), exec()
+    \sa QWidget::windowModality, show(), exec()
 */
 
 void QDialog::setModal(bool modal)
 {
     setWindowModality(modal ? Qt::ApplicationModal : Qt::NonModal);
 }
-#endif
 
 
 bool QDialog::isSizeGripEnabled() const

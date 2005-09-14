@@ -785,7 +785,8 @@
     \value WA_MouseTracking Indicates that the widget has mouse tracking
     enabled. See QWidget::mouseTracking.
 
-    \value WA_GroupLeader  Makes this window a group leader. A group
+    \value WA_GroupLeader  \e{This attribute has been deprecated.} Use QWidget::windowModality instead.
+        Makes this window a group leader. A group
         leader should \e not have a parent (i.e. it should be a
         top-level window). Any decendant windows (direct or indirect)
         of a group leader are in its group; other windows are not. If
@@ -804,7 +805,7 @@
     \value WA_NoMousePropagation
     \value WA_RightToLeft
     \value WA_SetLayoutDirection
-    \value WA_ShowModal
+    \value WA_ShowModal \e{This attribute has been deprecated.} Use QWidget::windowModality instead.
 
     \omitvalue WA_WState_CompressKeys
     \omitvalue WA_WState_ConfigPending
@@ -1430,12 +1431,11 @@
                    This is the default type for QDialog. If you want
                    to use it as a modal dialog, it should be launched
                    from another window, or have a parent and used
-                   with the Qt::WA_ShowModal attribute. If you make
+                   with the QWidget::windowModality property. If you make
                    it modal, the dialog will prevent other top-level
                    windows in the application from getting any input.
                    We refer to a top-level window that has a parent
-                   as a \e secondary window. (See also
-                   Qt::WA_GroupLeader.)
+                   as a \e secondary window.
 
     \value Sheet   Indicates that the widget is a Macintosh sheet.
 
@@ -1523,8 +1523,8 @@
     \value WMouseNoMask         Use Qt::WA_MouseNoMask instead.
     \value WDestructiveClose    Use Qt::WA_DeleteOnClose instead.
     \value WStaticContents      Use Qt::WA_StaticContents instead.
-    \value WGroupLeader         Use Qt::WA_GroupLeader instead.
-    \value WShowModal           Use Qt::WA_ShowModal instead.
+    \value WGroupLeader         No longer needed.
+    \value WShowModal           Use QWidget::windowModality instead.
     \value WNoMousePropagation  Use Qt::WA_NoMousePropagation instead.
     \value WType_TopLevel       Use Qt::Window instead.
     \value WType_Dialog         Use Qt::Dialog instead.
@@ -1558,7 +1558,7 @@
     \value WNoAutoErase         No longer needed.
     \value WRepaintNoErase      No longer needed.
     \value WNorthWestGravity    Use Qt::WA_StaticContents instead.
-    \value WType_Modal          Use Qt::Dialog and Qt::WA_ShowModal instead.
+    \value WType_Modal          Use Qt::Dialog and QWidget::windowModality instead.
     \value WStyle_Dialog        Use Qt::Dialog instead.
     \value WStyle_NoBorderEx    Use Qt::FramelessWindowHint instead.
     \value WResizeNoErase       No longer needed.
@@ -1932,4 +1932,21 @@
     "\l{http://doc.trolltech.com/qq/qq09-mac-deployment.html}{Deploying Applications on Ma...}").
 
     \sa QAbstractItemView::textElideMode, QAbstractItemDelegate::elidedText()
+*/
+
+/*!
+    \enum Qt::WindowModality
+
+    \keyword modal
+
+    This enum specifies the behavior of a modal window. A modal window
+    is one that blocks input to other windows. Note that windows that
+    are children of a modal window are not blocked.
+
+    The values are:
+    \value NonModal         The window is not modal and does not block input to other windows.
+    \value WindowModal      The window is modal to a single window heirarchy and blocks input to its parent window, all grand parent windows, and all siblings of its parent and grand parent windows.
+    \value ApplicationModal The window is modal to the application and blocks input to all windows.
+
+    \sa QWidget::windowModality, QDialog
 */

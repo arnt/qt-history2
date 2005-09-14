@@ -1575,7 +1575,9 @@ QStyle* QWidget::setStyle(const QString &style)
 
     This property only makes sense for windows. A modal widget
     prevents widgets in other windows from getting input. The value of
-    this property controls which windows are blocked.
+    this property controls which windows are blocked when the widget
+    is visible. Changing this property while the window is visible has
+    no effect; you must hide() the wiget first, then show() it again.
 
     By default, this property is Qt::NonModal.
 
