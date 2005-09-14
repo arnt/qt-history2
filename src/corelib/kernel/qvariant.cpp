@@ -1243,10 +1243,10 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \value KeySequence  a QKeySequence
     \value LineF  a QLineF
     \value Line  a QLine
-    \value List  a QVariantList (QList<QVariant>)
-    \value LongLong a long long
-    \value ULongLong an unsigned long long
-    \value Map  a QVariantMap (QMap<QString, QVariant>)
+    \value List  a QVariantList
+    \value LongLong a \l qlonglong
+    \value ULongLong a \l qulonglong
+    \value Map  a QVariantMap
     \value Palette  a QPalette
     \value Pen  a QPen
     \value Pixmap  a QPixmap
@@ -1262,7 +1262,7 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \value String  a QString
     \value StringList  a QStringList
     \value Time  a QTime
-    \value UInt  an unsigned int
+    \value UInt  a \l uint
     \value TextLength  a QTextLength
     \value TextFormat  a QTextFormat
     \value Char  a QChar
@@ -1293,7 +1293,7 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
 
     Note that you have to pass the address of the variable you want stored.
 
-    Usually, you never have to use this constructor, use qVariantFromValue() 
+    Usually, you never have to use this constructor, use qVariantFromValue()
     instead to construct variants from the pointer types represented by
     \c QMetaType::VoidStar, \c QMetaType::QObjectStar and
     \c QMetaType::QWidgetStar.
@@ -2780,7 +2780,7 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     \sa setValue(), value()
 */
 
-/*! 
+/*!
     \fn QVariant qVariantFromValue(const T &value)
     \relates QVariant
 
@@ -2850,5 +2850,19 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     member template functions.
 
     \sa QVariant::canConvert()
+*/
+
+/*!
+    \typedef QVariantList
+    \relates QVariant
+
+    Synonym for QList<QVariant>.
+*/
+
+/*!
+    \typedef QVariantMap
+    \relates QVariant
+
+    Synonym for QMap<QString, QVariant>.
 */
 
