@@ -132,7 +132,7 @@ enum LineDrawMode {
     LineDrawIncludeLastPixel
 };
 
-static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, void *data,
+static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, QSpanData *data,
                                 LineDrawMode style, const QRect &devRect);
 // static void drawLine_midpoint_f(const QLineF &line, qt_span_func span_func, void *data,
 //                                 LineDrawMode style, const QRect &devRect);
@@ -880,7 +880,37 @@ void QRasterPaintEngine::fillPath(const QPainterPath &path, QSpanData *fillData)
     qt_scanconvert(d->outlineMapper->convertPath(path), fillData->blend, fillData, d);
 }
 
-
+static void fillRect(const QRect &r, QSpanData *data)
+{
+    QRect rect = r.normalized();
+    int x1 = qMax(rect.x(), 0);
+    int x2 = qMin(rect.width() + rect.x(), data->rasterBuffer->width());
+    int y1 = qMax(rect.y(), 0);
+    int y2 = qMin(rect.height() + rect.y(), data->rasterBuffer->height());
+    
+    int len = x2 - x1;
+    
+    if (len > 0) {
+        const int nspans = 256;
+        QT_FT_Span spans[nspans];
+        
+        Q_ASSERT(data->blend);
+        int y = y1;
+        while (y < y2) {
+            int n = qMin(nspans, y2 - y);
+            int i = 0;
+            while (i < n) {
+                spans[i].x = x1;
+                spans[i].len = x2 - x1;
+                spans[i].y = y + i;
+                spans[i].coverage = 255;
+                ++i;
+            }
+            data->blend(n, spans, data);
+            y += n;
+        }
+    }
+}
 
 void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
 {
@@ -897,35 +927,9 @@ void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
         while (rects < lastRect) {
 
             if (d->has_brush) {
-                QRect rect = rects->normalized();
-                rect.translate(offset_x, offset_y);
-                int x1 = qMax(rect.x(), 0);
-                int x2 = qMin(rect.width() + rect.x(), d->rasterBuffer->width());
-                int y1 = qMax(rect.y(), 0);
-                int y2 = qMin(rect.height() + rect.y(), d->rasterBuffer->height());;
-
-                int len = x2 - x1;
-
-                if (len > 0) {
-                    const int nspans = 256;
-                    QT_FT_Span spans[nspans];
-
-                    Q_ASSERT(d->brushData.blend);
-                    int y = y1;
-                    while (y < y2) {
-                        int n = qMin(nspans, y2 - y);
-                        int i = 0;
-                        while (i < n) {
-                            spans[i].x = x1;
-                            spans[i].len = x2 - x1;
-                            spans[i].y = y + i;
-                            spans[i].coverage = 255;
-                            ++i;
-                        }
-                        d->brushData.blend(n, spans, &d->brushData);
-                        y += n;
-                    }
-                }
+                QRect r = *rects;
+                r.translate(offset_x, offset_y);
+                fillRect(r, &d->brushData);
             }
 
             if (d->has_pen) {
@@ -1141,21 +1145,22 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
             copy.scale(r.width() / sr.width(), r.height() / sr.height());
         copy.translate(-sr.x(), -sr.y());
         textureData.setupMatrix(copy, QPainterPrivate::TxRotShear, d->bilinear);
+
+        bool wasAntialiased = d->antialiased;
+        d->antialiased = d->bilinear;
+        QPainterPath path;
+        path.addRect(r);
+        fillPath(path, &textureData);
+        d->antialiased = wasAntialiased;
     } else {
         textureData.blend = d->rasterBuffer->drawHelper->blend;
         textureData.dx = -(r.x() + d->matrix.dx()) + sr.x();
         textureData.dy = -(r.y() + d->matrix.dy()) + sr.y();
+
+        QRectF rr = r;
+        rr.translate(d->matrix.dx(), d->matrix.dy());
+        fillRect(rr.toRect(), &textureData);
     }
-
-    QPainterPath path;
-    path.addRect(r);
-
-    bool wasAntialiased = d->antialiased;
-    d->antialiased = d->bilinear;
-
-    fillPath(path, &textureData);
-
-    d->antialiased = wasAntialiased;
 }
 
 void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &sr)
@@ -1164,9 +1169,6 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
     qDebug() << " - QRasterPaintEngine::drawTiledPixmap(), r=" << r << "pixmap=" << pixmap.size();
 #endif
     Q_D(QRasterPaintEngine);
-
-    QPainterPath path;
-    path.addRect(r);
 
     QImage image;
     if (pixmap.depth() == 1)
@@ -1184,13 +1186,20 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
         copy.translate(r.x(), r.y());
         copy.translate(-sr.x(), -sr.y());
         textureData.setupMatrix(copy, QPainterPrivate::TxRotShear, d->bilinear);
+
+        QPainterPath path;
+        path.addRect(r);
+        fillPath(path, &textureData);
     } else {
         textureData.blend = d->rasterBuffer->drawHelper->blendTiled;
         textureData.dx = -(r.x() + d->matrix.dx()) + sr.x();
         textureData.dy = -(r.y() + d->matrix.dy()) + sr.y();
+
+        QRectF rr = r;
+        rr.translate(d->matrix.dx(), d->matrix.dy());
+        fillRect(rr.toRect(), &textureData);
     }
 
-    fillPath(path, &textureData);
 }
 
 
@@ -2869,7 +2878,7 @@ static void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hd
     \a line is already in device coords at this point.
 */
 
-static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, void *data,
+static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, QSpanData *data,
                                 LineDrawMode style, const QRect &devRect)
 {
 #ifdef QT_DEBUG_DRAW
@@ -2908,27 +2917,11 @@ static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, void 
         }
         return;
     } else if (dx == 0) {
-        const int nspans = 256;
-        QT_FT_Span spans[nspans];
-        
         if (x1 >= 0 && x1 < devRect.width()) {
             int start = qMax(0, qMin(y1, y2));
             int stop = qMax(y1, y2) + 1;
             stop = qMin(devRect.height(), stop);
-            int y = start;
-            while (y < stop) {
-                int n = qMin(nspans, stop - y);
-                int i = 0;
-                while (i < n) {
-                    spans[i].x = x1;
-                    spans[i].len = 1;
-                    spans[i].y = y + i;
-                    spans[i].coverage = 255;
-                    ++i;
-                }
-                span_func(n, spans, data);
-                y += n;
-            }
+            fillRect(QRect(x1, start, 1, stop - start), data);
         }
         return;
     }
