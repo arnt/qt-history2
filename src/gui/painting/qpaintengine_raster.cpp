@@ -2153,13 +2153,12 @@ void QClipData::fixup()
 
 
 static const QSpan *qt_intersect_spans(const QClipData *clip, int *currentClip, 
-                                       const QSpan *spans, int spanCount,
+                                       const QSpan *spans, const QSpan *end,
                                        QSpan **outSpans, int available)
 {
     QSpan *out = *outSpans;
     
     const QSpan *clipSpans = clip->spans + *currentClip;
-    const QSpan *end = spans + spanCount;
     const QSpan *clipEnd = clip->spans + clip->count;
     
     while (available && spans < end ) {
@@ -2230,7 +2229,7 @@ static void qt_span_fill_clipped(int spanCount, const QSpan *spans, void *userDa
     const QSpan *end = spans + spanCount;
     while (spans < end) {
         QSpan *clipped = cspans;
-        spans = qt_intersect_spans(rb->clip, &currentClip, spans, spanCount, &clipped, NSPANS);
+        spans = qt_intersect_spans(rb->clip, &currentClip, spans, end, &clipped, NSPANS);
 //         qDebug() << "processed " << processed << "clipped" << clipped-cspans
 //                  << "span:" << cspans->x << cspans->y << cspans->len << spans->coverage;
 
@@ -2256,7 +2255,7 @@ static void qt_span_clip(int count, const QSpan *spans, void *userData)
             const QSpan *end = spans + count;
             while (spans < end) {
                 QSpan *newspans = newClip->spans + newClip->count;
-                spans = qt_intersect_spans(clipData->oldClip, &currentClip, spans, count,
+                spans = qt_intersect_spans(clipData->oldClip, &currentClip, spans, end,
                                            &newspans, newClip->allocated - newClip->count);
                 newClip->count = newspans - newClip->spans;
                 if (spans < end) {
