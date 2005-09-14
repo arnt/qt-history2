@@ -319,17 +319,18 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
     return true;
 }
 
-void *fetchData(QTestData *data, const char *tagName, const char *typeName)
+void *fetchData(QTestData *data, const char *tagName, int typeId)
 {
-    QTEST_ASSERT(typeName);
+    QTEST_ASSERT(typeId);
     QTEST_ASSERT_X(data, "QTest::fetchData()", "Test data requested, but no testdata available .");
     QTEST_ASSERT(data->parent());
 
     int idx = data->parent()->indexOf(tagName);
 
-    if (qstrcmp(typeName, data->parent()->elementType(idx)) != 0) {
-        qFatal("Requested type '%s' does not match available type '%s'.", typeName,
-               data->parent()->elementType(idx));
+    if (typeId != data->parent()->elementTypeId(idx)) {
+        qFatal("Requested type '%s' does not match available type '%s'.",
+               QMetaType::typeName(typeId),
+               QMetaType::typeName(data->parent()->elementTypeId(idx)));
     }
 
     return data->data(idx);
@@ -449,14 +450,14 @@ void QTest::ignoreMessage(QtMsgType type, const char *message)
     QTestResult::ignoreMessage(type, message);
 }
 
-void *QTest::data(const char *tagName, const char *typeName)
+void *QTest::data(const char *tagName, int typeId)
 {
-    return fetchData(QTestResult::currentTestData(), tagName, typeName);
+    return fetchData(QTestResult::currentTestData(), tagName, typeId);
 }
 
-void *QTest::globalData(const char *tagName, const char *typeName)
+void *QTest::globalData(const char *tagName, int typeId)
 {
-    return fetchData(QTestResult::currentGlobalTestData(), tagName, typeName);
+    return fetchData(QTestResult::currentGlobalTestData(), tagName, typeId);
 }
 
 void *QTest::elementData(const char *tagName, int metaTypeId)
@@ -471,6 +472,22 @@ void *QTest::elementData(const char *tagName, int metaTypeId)
     QTEST_ASSERT(data->parent()->elementTypeId(idx) == metaTypeId);
 
     return data->data(data->parent()->indexOf(tagName));
+}
+
+void QTest::addColumnInternal(int id, const char *name)
+{
+    QTestTable *tbl = QTestTable::currentTestTable();
+    QTEST_ASSERT_X(tbl, "QTest::addColumn()", "Cannot add testdata outside of a _data slot.");
+
+    tbl->addColumn(id, name);
+}
+
+QTestData &QTest::newRow(const char *dataTag)
+{
+    QTestTable *tbl = QTestTable::currentTestTable();
+    QTEST_ASSERT_X(tbl, "QTest::addColumn()", "Cannot add testdata outside of a _data slot.");
+
+    return *tbl->newData(dataTag);
 }
 
 const char *QTest::currentTestFunction()

@@ -14,7 +14,7 @@ public:
     {
         ElementList(): elementName(0), elementType(0), next(0) {}
         const char *elementName;
-        const char *elementType;
+        int elementType;
         ElementList *next;
     };
 
@@ -25,14 +25,13 @@ public:
         DataList *next;
     };
 
-    QTestTablePrivate(): list(0), dataList(0), type(QTestTable::LocalTable) {}
+    QTestTablePrivate(): list(0), dataList(0) {}
     ~QTestTablePrivate();
 
     ElementList *list;
     DataList *dataList;
-    QTestTable::Type type;
 
-    void append(const char *elemType, const char *elemName);
+    void append(int elemType, const char *elemName);
     void append(QTestData *data);
     ElementList *elementAt(int index);
     QTestData *dataAt(int index);
@@ -81,7 +80,7 @@ QTestTablePrivate::~QTestTablePrivate()
     }
 }
 
-void QTestTablePrivate::append(const char *elemType, const char *elemName)
+void QTestTablePrivate::append(int elemType, const char *elemName)
 {
     ElementList *item = new ElementList;
     item->elementName = elemName;
@@ -110,12 +109,12 @@ void QTestTablePrivate::append(QTestData *data)
     last->next = item;
 }
 
-void QTestTable::defineElement(const char *elementType, const char *elementName)
+void QTestTable::addColumn(int type, const char *name)
 {
-    QTEST_ASSERT(elementType);
-    QTEST_ASSERT(elementName);
+    QTEST_ASSERT(type);
+    QTEST_ASSERT(name);
 
-    d->append(elementType, elementName);
+    d->append(type, name);
 }
 
 int QTestTable::elementCount() const
@@ -153,18 +152,14 @@ QTestData *QTestTable::newData(const char *tag)
     return dt;
 }
 
-QTestTable::QTestTable(Type t)
+QTestTable::QTestTable()
 {
     d = new QTestTablePrivate;
-    d->type = t;
-    if (t == LocalTable)
-        QTestTablePrivate::currentTestTable = this;
 }
 
 QTestTable::~QTestTable()
 {
-    if (d->type == LocalTable)
-        QTestTablePrivate::currentTestTable = 0;
+    QTestTablePrivate::currentTestTable = 0;
     delete d;
 }
 
@@ -173,7 +168,7 @@ int QTestTable::elementTypeId(int index) const
     QTestTablePrivate::ElementList *item = d->elementAt(index);
     if (!item)
         return -1;
-    return QMetaType::type(item->elementType);
+    return item->elementType;
 }
 
 const char *QTestTable::dataTag(int index) const
@@ -182,14 +177,6 @@ const char *QTestTable::dataTag(int index) const
     if (!item)
         return 0;
     return item->elementName;
-}
-
-const char *QTestTable::elementType(int index) const
-{
-    QTestTablePrivate::ElementList *item = d->elementAt(index);
-    if (!item)
-        return 0;
-    return item->elementType;
 }
 
 QTestData *QTestTable::testData(int index) const
@@ -214,7 +201,7 @@ int QTestTable::indexOf(const char *elementName) const
 
 QTestTable *QTestTable::globalTestTable()
 {
-    static QTestTable *gTable = new QTestTable(GlobalTable);
+    static QTestTable *gTable = new QTestTable();
     return gTable;
 }
 

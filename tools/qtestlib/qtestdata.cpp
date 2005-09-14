@@ -45,18 +45,13 @@ void QTestData::append(int type, const void *data)
     QTEST_ASSERT(d->dataCount < d->parent->elementCount());
     if (d->parent->elementTypeId(d->dataCount) != type) {
         qDebug("expected data of type '%s', got '%s' for element %d of data with tag '%s'",
-                d->parent->elementType(d->dataCount), QMetaType::typeName(type),
+                QMetaType::typeName(d->parent->elementTypeId(d->dataCount)),
+                QMetaType::typeName(type),
                 d->dataCount, d->tag);
         QTEST_ASSERT(false);
     }
     d->data[d->dataCount] = QMetaType::construct(type, data);
     ++d->dataCount;
-}
-
-const char *QTestData::expectedDataType() const
-{
-    QTEST_ASSERT(d->dataCount < d->parent->elementCount());
-    return d->parent->elementType(d->dataCount);
 }
 
 void *QTestData::data(int index) const

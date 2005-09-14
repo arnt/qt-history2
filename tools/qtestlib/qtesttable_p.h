@@ -9,11 +9,10 @@ class QTestTablePrivate;
 class QTestTable
 {
 public:
-    enum Type { GlobalTable, LocalTable };
-    QTestTable(Type t = LocalTable);
+    QTestTable();
     ~QTestTable();
 
-    void defineElement(const char *elementType, const char *elementName);
+    void addColumn(int elementType, const char *elementName);
     QTestData *newData(const char *tag);
 
     int elementCount() const;
@@ -21,7 +20,6 @@ public:
 
     int elementTypeId(int index) const;
     const char *dataTag(int index) const;
-    const char *elementType(int index) const;
     int indexOf(const char *elementName) const;
     bool isEmpty() const;
     QTestData *testData(int index) const;

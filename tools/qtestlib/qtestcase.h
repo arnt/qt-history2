@@ -48,10 +48,10 @@ do {\
 } while (0)
 
 #define FETCH(type, name)\
-    type name = *static_cast<type *>(QTest::data(#name, #type))
+    type name = *static_cast<type *>(QTest::data(#name, qMetaTypeId<type >()))
 
 #define FETCH_GLOBAL(type, name)\
-    type name = *static_cast<type *>(QTest::globalData(#name, #type))
+    type name = *static_cast<type *>(QTest::globalData(#name, qMetaTypeId<type >))
 
 #define DEPENDS_ON(funcName)
 
@@ -90,8 +90,8 @@ namespace QTest
     Q_TESTLIB_EXPORT void warn(const char *message);
     Q_TESTLIB_EXPORT void ignoreMessage(QtMsgType type, const char *message);
 
-    Q_TESTLIB_EXPORT void *data(const char *tagName, const char *typeName);
-    Q_TESTLIB_EXPORT void *globalData(const char *tagName, const char *typeName);
+    Q_TESTLIB_EXPORT void *data(const char *tagName, int typeId);
+    Q_TESTLIB_EXPORT void *globalData(const char *tagName, int typeId);
     Q_TESTLIB_EXPORT void *elementData(const char *elementName, int metaTypeId);
     Q_TESTLIB_EXPORT QObject *testObject();
 
@@ -111,6 +111,14 @@ namespace QTest
     Q_TESTLIB_EXPORT bool compare_helper(bool success, const char *msg, char *val1, char *val2,
                                          const char *file, int line);
     Q_TESTLIB_EXPORT void sleep(int ms);
+    Q_TESTLIB_EXPORT void addColumnInternal(int id, const char *name);
+
+    template <typename T>
+    inline void addColumn(const char *name, T * = 0)
+    {
+        addColumnInternal(qMetaTypeId<T>(), name);
+    }
+    Q_TESTLIB_EXPORT QTestData &newRow(const char *dataTag);
 
     template <typename T>
     inline bool compare(T const &t1, T const &t2, const char *file, int line)

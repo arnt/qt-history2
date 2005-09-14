@@ -19,8 +19,6 @@ public:
     const char *dataTag() const;
     QTestTable *parent() const;
 
-    const char *expectedDataType() const;
-
 private:
     friend class QTestTable;
     QTestData(const char *tag = 0, QTestTable *parent = 0);
