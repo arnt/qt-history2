@@ -703,11 +703,14 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
     color. These are specified with the setFont() and setTextColor() functions,
     and read with font() and textColor().
 
-    Items can be made checkable by setting the appropriate flag value with the
-    setFlags() function. The current state of the item's flags can be read
-    with flags().
+    By default, items are enabled, editable, selectable, checkable, and can be
+    used both as the source of a drag and drop operation and as a drop target.
+    Each item's flags can be changed by calling setFlags() with the appropriate
+    value (see \l{Qt::ItemFlags}). Checkable items can be checked and unchecked
+    with the setChecked() function. The corresponding checked() function
+    indicates whether the item is currently checked.
 
-    \sa QTableWidget
+    \sa QTableWidget, {Model/View Programming}, QListWidgetItem, QTreeWidgetItem
 */
 
 /*!

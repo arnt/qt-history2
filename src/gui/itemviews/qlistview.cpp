@@ -377,8 +377,7 @@ QListView::LayoutMode QListView::layoutMode() const
     \brief the space between items in the layout
 
     This property is the size of the empty space between items in the
-    layout. This property is ignored if the items are laid out in a
-    grid.
+    layout.
 
     Setting this property when the view is visible will cause the
     items to be laid out again.

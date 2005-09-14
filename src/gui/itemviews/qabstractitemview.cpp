@@ -546,8 +546,7 @@ QAbstractItemDelegate *QAbstractItemView::itemDelegate() const
 
 /*!
   \property QAbstractItemView::selectionMode
-  \brief which selection mode the view operates in.
-
+  \brief which selection mode the view operates in
 
   This property controls whether the user can select one or many items
   and, in many-item selections, whether the selection must be a
@@ -567,7 +566,7 @@ QAbstractItemView::SelectionMode QAbstractItemView::selectionMode() const
 
 /*!
   \property QAbstractItemView::selectionBehavior
-  \brief which selection behavior the view uses.
+  \brief which selection behavior the view uses
 
   This property holds whether selections are done
   in terms of single items, rows or columns.

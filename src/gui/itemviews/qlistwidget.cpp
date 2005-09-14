@@ -357,15 +357,17 @@ Qt::DropActions QListModel::supportedDropActions() const
     Tooltips, status tips and "What's This?" help can be added to list items
     with setToolTip(), setStatusTip(), and setWhatsThis().
 
-    Items can be made checkable by calling setFlags() with the appropriate
-    value (see \l{Qt::ItemFlags}). Checkable items can be
-    checked and unchecked with the setChecked() function. The corresponding
-    checked() function indicates whether the item is currently checked.
+    By default, items are enabled, selectable, checkable, and can be the source
+    of a drag and drop operation.
+    Each item's flags can be changed by calling setFlags() with the appropriate
+    value (see \l{Qt::ItemFlags}). Checkable items can be checked and unchecked
+    with the setChecked() function. The corresponding checked() function
+    indicates whether the item is currently checked.
 
     The isItemHidden() function can be used to determine whether the
     item is hidden.  Items can be hidden with setItemHidden().
 
-    \sa QListWidget {Model/View Programming}
+    \sa QListWidget, {Model/View Programming}, QTreeWidgetItem, QTableWidgetItem
 */
 
 /*!
@@ -445,7 +447,7 @@ QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view, int typ
 }
 
 /*!
-    \fn QListWidgetItem::QListWidgetItem(const QString &text, const QIcon &icon, QListWidget *parent, int type)
+    \fn QListWidgetItem::QListWidgetItem(const QIcon &icon, const QString &text, QListWidget *parent, int type)
 
     Constructs an empty list widget item of the specified \a type with the
     given \a icon, \a text and \a parent.

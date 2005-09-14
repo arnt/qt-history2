@@ -662,7 +662,14 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
   Children of an item can be removed with takeChild() and inserted at a
   given index in the list of children with the insertChild() function.
 
-  \sa QTreeWidget
+  By default, items are enabled, selectable, checkable, and can be the source
+  of a drag and drop operation.
+  Each item's flags can be changed by calling setFlags() with the appropriate
+  value (see \l{Qt::ItemFlags}). Checkable items can be checked and unchecked
+  with the setChecked() function. The corresponding checked() function
+  indicates whether the item is currently checked.
+
+  \sa QTreeWidget, {Model/View Programming}, QListWidgetItem, QTableWidgetItem
 */
 
 /*!
