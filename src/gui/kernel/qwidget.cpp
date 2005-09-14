@@ -865,7 +865,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     Qt::WindowType type = windowType();
     Qt::WindowFlags &flags = data->window_flags;
 
-    if (type == Qt::Widget && !parentWidget()) {
+    if ((type == Qt::Widget || type == Qt::SubWindow) && !parentWidget()) {
         type = Qt::Window;
         flags |= Qt::Window;
     }
