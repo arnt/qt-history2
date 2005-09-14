@@ -16,7 +16,6 @@
 
 #include "QtTest/qtest_global.h"
 #include "QtTest/qtestcase.h"
-#include "QtTest/qtesttable.h"
 #include "QtTest/qtestdata.h"
 
 #include <QtCore/qbytearray.h>
