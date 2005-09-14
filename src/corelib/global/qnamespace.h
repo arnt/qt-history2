@@ -1161,7 +1161,8 @@ public:
         PopupFocusReason,
         ShortcutFocusReason,
         MenuBarFocusReason,
-        OtherFocusReason
+        OtherFocusReason,
+        NoFocusReason
     };
 
     enum ContextMenuPolicy {

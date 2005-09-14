@@ -1598,22 +1598,25 @@ void QApplicationPrivate::setFocusWidget(QWidget *focus, Qt::FocusReason reason)
         QWidget *prev = focus_widget;
         focus_widget = focus;
 
-        //send events
-        if (prev) {
+        if (reason != Qt::NoFocusReason) {
+
+            //send events
+            if (prev) {
 #ifdef QT_KEYPAD_NAVIGATION
-            if (QApplication::keypadNavigationEnabled()) {
-                if (prev->hasEditFocus())
-                    prev->setEditFocus(false);
-            }
+                if (QApplication::keypadNavigationEnabled()) {
+                    if (prev->hasEditFocus())
+                        prev->setEditFocus(false);
+                }
 #endif
-            QFocusEvent out(QEvent::FocusOut, reason);
-            QApplication::sendEvent(prev, &out);
-            QApplication::sendEvent(prev->style(), &out);
-        }
-        if(focus && QApplicationPrivate::focus_widget == focus) {
-            QFocusEvent in(QEvent::FocusIn, reason);
-            QApplication::sendEvent(focus, &in);
-            QApplication::sendEvent(focus->style(), &in);
+                QFocusEvent out(QEvent::FocusOut, reason);
+                QApplication::sendEvent(prev, &out);
+                QApplication::sendEvent(prev->style(), &out);
+            }
+            if(focus && QApplicationPrivate::focus_widget == focus) {
+                QFocusEvent in(QEvent::FocusIn, reason);
+                QApplication::sendEvent(focus, &in);
+                QApplication::sendEvent(focus->style(), &in);
+            }
         }
     }
 }

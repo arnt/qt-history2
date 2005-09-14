@@ -253,9 +253,14 @@ void QMenuBarPrivate::setCurrentAction(QAction *action, bool popup, bool activat
 
     doChildEffects = (popup && !activeMenu);
     Q_Q(QMenuBar);
+    QWidget *fw = 0;
     if(activeMenu) {
         QMenu *menu = activeMenu;
         activeMenu = NULL;
+        if (popup) {
+            fw = q->window()->focusWidget();
+            q->setFocus(Qt::NoFocusReason);
+        }
         menu->hide();
     }
     if(currentAction)
@@ -269,6 +274,8 @@ void QMenuBarPrivate::setCurrentAction(QAction *action, bool popup, bool activat
             popupAction(action, activateFirst);
         q->update(actionRect(action));
     }
+    if (fw)
+        fw->setFocus(Qt::NoFocusReason);
 }
 
 void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, QRect> &actionRects, QList<QAction*> &actionList) const
