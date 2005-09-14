@@ -325,7 +325,7 @@ public:
             Q_ASSERT(index != -1);
             const QMetaMethod signal = meta->method(index);
             Q_ASSERT(signal.methodType() == QMetaMethod::Signal);
-            Q_ASSERT(signame == signal.signature());            
+            Q_ASSERT(signame == signal.signature());
             // verify parameter count
             int pcount = axmeta->numParameter(signame);
             int argcount = pDispParams->cArgs;
@@ -811,7 +811,7 @@ QByteArray QAxEventSink::findProperty(DISPID dispID)
 */
 
 /*!
-    \enum QAxBase::PropertyBag
+    \typedef QAxBase::PropertyBag
 
     A QMap<QString,QVariant> that can store properties as name:value pairs.
 */
@@ -856,7 +856,7 @@ void QAxBase::internalRelease()
 }
 
 /*!
-    \internal 
+    \internal
 
     Used by subclasses generated with dumpcpp to implement cast-operators.
 */
@@ -1099,7 +1099,7 @@ void QAxBase::clear()
     the object does not implement IOleObject, or does not support
     any verbs, then this function returns an empty stringlist.
 
-    Note that the OLE default verbs (OLEIVERB_SHOW etc) are not 
+    Note that the OLE default verbs (OLEIVERB_SHOW etc) are not
     included in the list.
 
 QStringList QAxBase::verbs() const
@@ -1140,9 +1140,9 @@ QStringList QAxBase::verbs() const
     The default implementation interprets the string returned by
     control(), and calls initializeRemote(), initializeLicensed()
     or initializeActive() if the string matches the respective
-    patterns. If control() is the name of an existing file, 
-    initializeFromFile() is called. If no pattern is matched, or 
-    if remote or licensed initialization fails, CoCreateInstance 
+    patterns. If control() is the name of an existing file,
+    initializeFromFile() is called. If no pattern is matched, or
+    if remote or licensed initialization fails, CoCreateInstance
     is used directly to create the object.
 
     See the \l control property documentation for details about
@@ -3107,7 +3107,7 @@ void QAxBase::connectNotify()
 
     MetaObjectGenerator generator(this, d);
     bool haveEnumInfo = false;
-    
+
     ULONG c = 1;
     IConnectionPoint *cpoint = 0;
     epoints->Reset();
