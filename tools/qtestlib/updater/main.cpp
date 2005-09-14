@@ -1,3 +1,16 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include <QtCore/QtCore>
 
 #include <stdio.h>
@@ -82,6 +95,7 @@ int main(int argc, char *argv[])
             line.replace(QLatin1String("QTTEST_NOOP_MAIN"), QLatin1String("QTEST_NOOP_MAIN"));
             line.replace(QLatin1String("QtTestEventLoop"), QLatin1String("QTestEventLoop"));
             line.replace(QLatin1String("QtTestEventList"), QLatin1String("QTestEventList"));
+            line.replace(QLatin1String("QtTestAccessibility"), QLatin1String("QTestAccessibility"));
 
             if (line != origLine) {
                 if (printDiff) {
