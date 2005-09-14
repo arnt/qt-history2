@@ -328,13 +328,13 @@ public:
         WA_WState_Reparented = 63,
         WA_WState_ConfigPending = 64,
         WA_WState_Polished = 66,
-        WA_WState_DND = 67, // ## depricated
+        WA_WState_DND = 67, // ## deprecated
         WA_WState_OwnSizePolicy = 68,
         WA_WState_ExplicitShowHide = 69,
 
-        WA_ShowModal = 70, // ## for now, need mode (application modal, modal to parent, ...)
+        WA_ShowModal = 70, // ## deprecated
         WA_MouseNoMask = 71,
-        WA_GroupLeader = 72, // ## for now, might go away.
+        WA_GroupLeader = 72, // ## deprecated
         WA_NoMousePropagation = 73, // ## for now, might go away.
         WA_Hover = 74,
         WA_InputMethodTransparent = 75, // Don't reset IM when user clicks on this (for virtual keyboards on embedded)
@@ -1263,6 +1263,13 @@ public:
     typedef void * HANDLE;
 #endif
     typedef WindowFlags WFlags;
+
+    enum WindowModality {
+        NonModal,
+        WindowModal,
+        ApplicationModal
+    };
+
 }
 #ifdef Q_MOC_RUN
  ;
