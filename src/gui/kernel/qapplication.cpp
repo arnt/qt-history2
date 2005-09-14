@@ -2024,6 +2024,7 @@ bool QApplicationPrivate::isBlockedByModal(QWidget *widget)
     bool blocked = false;
     for (int i = 0; !blocked && i < qt_modal_stack->size(); ++i) {
         QWidget *modalWidget = qt_modal_stack->at(i);
+
         // check if the active modal widget is a parent of our widget
         QWidget *w = widget->parentWidget();
         while (w) {
@@ -2031,7 +2032,25 @@ bool QApplicationPrivate::isBlockedByModal(QWidget *widget)
                 return false;
             w = w->parentWidget();
         }
-        switch (modalWidget->windowModality()) {
+
+        Qt::WindowModality windowModality = modalWidget->windowModality();
+        if (windowModality == Qt::NonModal) {
+            // determine the modality type if it hasn't been set on the
+            // modalWidget, this normally happens when waiting for a
+            // native dialog. use WindowModal if we are the child of a
+            // group leader; otherwise use ApplicationModal.
+            w = modalWidget;
+            while (w && !w->testAttribute(Qt::WA_GroupLeader)) {
+                w = w->parentWidget();
+                if (w)
+                    w = w->window();
+            }
+            windowModality = (w && w->testAttribute(Qt::WA_GroupLeader))
+                             ? Qt::WindowModal
+                             : Qt::ApplicationModal;
+        }
+
+        switch (windowModality) {
         case Qt::ApplicationModal:
             if (modalWidget != widget)
                 blocked = true;
