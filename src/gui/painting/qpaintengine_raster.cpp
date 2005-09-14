@@ -2137,55 +2137,59 @@ QClipData::~QClipData()
 
 void QClipData::fixup()
 {
-//      qDebug("QClipData::fixup:");
+//       qDebug("QClipData::fixup:");
     int y = -1;
     for (int i = 0; i < count; ++i) {
-//          qDebug() << "    " << spans[i].x << spans[i].y << spans[i].len << spans[i].coverage;
+//           qDebug() << "    " << spans[i].x << spans[i].y << spans[i].len << spans[i].coverage;
         if (spans[i].y != y) {
             y = spans[i].y;
             clipLines[y].spans = spans+i;
             clipLines[y].count = 0;
-//             qDebug() << "        new line: y=" << y;
+//              qDebug() << "        new line: y=" << y;
         }
         ++clipLines[y].count;
     }
 }
 
 
-static int qt_intersect_spans(const QClipData *clip,
-                              const QSpan *spans, int spanCount,
-                              QSpan **outSpans, int available)
+static const QSpan *qt_intersect_spans(const QClipData *clip, int *currentClip, 
+                                       const QSpan *spans, int spanCount,
+                                       QSpan **outSpans, int available)
 {
     QSpan *out = *outSpans;
     
-    const QSpan *clipSpans;
-    int clipSpanCount;
-    int clipSpanIndex = 0;
-
-    int spanIndex = 0;
-    int y = -1;
-    while (available && spanIndex < spanCount) {
-        if (spans[spanIndex].y != y) {
-            y = spans[spanIndex].y;
-            clipSpans = clip->clipLines[y].spans;
-            clipSpanCount = clip->clipLines[y].count;
-            clipSpanIndex = 0;
+    const QSpan *clipSpans = clip->spans + *currentClip;
+    const QSpan *end = spans + spanCount;
+    const QSpan *clipEnd = clip->spans + clip->count;
+    
+    while (available && spans < end ) {
+        if (clipSpans >= clipEnd) {
+            spans = end;
+            break;
         }
-        if (clipSpanIndex >= clipSpanCount) {
-            ++spanIndex;
+        if (clipSpans->y > spans->y) {
+            ++spans;
             continue;
         }
+        if (spans->y != clipSpans->y) {
+            if (clip->clipLines[spans->y].spans)
+                clipSpans = clip->clipLines[spans->y].spans;
+            else
+                ++clipSpans;
+            continue;
+        }
+        Q_ASSERT(spans->y == clipSpans->y);
         
-        int sx1 = spans[spanIndex].x;
-        int sx2 = sx1 + spans[spanIndex].len;
-        int cx1 = clipSpans[clipSpanIndex].x;
-        int cx2 = cx1 + clipSpans[clipSpanIndex].len;
+        int sx1 = spans->x;
+        int sx2 = sx1 + spans->len;
+        int cx1 = clipSpans->x;
+        int cx2 = cx1 + clipSpans->len;
 
         if (cx1 < sx1 && cx2 < sx1) {
-            ++clipSpanIndex;
+            ++clipSpans;
             continue;
         } else if (sx1 < cx1 && sx2 < cx1) {
-            ++spanIndex;
+            ++spans;
             continue;
         }
         int x = qMax(sx1, cx1);
@@ -2193,20 +2197,21 @@ static int qt_intersect_spans(const QClipData *clip,
         if (len) {
             out->x = qMax(sx1, cx1);
             out->len = qMin(sx2, cx2) - out->x;
-            out->y = y;
-            out->coverage = qt_div_255(spans[spanIndex].coverage * clipSpans[clipSpanIndex].coverage);
+            out->y = spans->y;
+            out->coverage = qt_div_255(spans->coverage * clipSpans->coverage);
             ++out;
             --available;
         }
         if (sx2 < cx2) {
-            ++spanIndex;
+            ++spans;
         } else {
-            ++clipSpanIndex;
+            ++clipSpans;
         }
     }
 
     *outSpans = out;
-    return spanIndex;
+    *currentClip = clipSpans - clip->spans;
+    return spans;
 }
 
 static void qt_span_fill_clipped(int spanCount, const QSpan *spans, void *userData)
@@ -2221,39 +2226,40 @@ static void qt_span_fill_clipped(int spanCount, const QSpan *spans, void *userDa
 
     const int NSPANS = 256;
     QSpan cspans[NSPANS];
-    while (spanCount) {
+    int currentClip = 0;
+    const QSpan *end = spans + spanCount;
+    while (spans < end) {
         QSpan *clipped = cspans;
-        int processed = qt_intersect_spans(rb->clip, spans, spanCount, &clipped, NSPANS);
+        spans = qt_intersect_spans(rb->clip, &currentClip, spans, spanCount, &clipped, NSPANS);
 //         qDebug() << "processed " << processed << "clipped" << clipped-cspans
 //                  << "span:" << cspans->x << cspans->y << cspans->len << spans->coverage;
 
         if (clipped - cspans)
             fillData->unclipped_blend(clipped - cspans, cspans, fillData);
-        spanCount -= processed;
-        spans += processed;
     }
 }
 
 static void qt_span_clip(int count, const QSpan *spans, void *userData)
 {
     ClipData *clipData = reinterpret_cast<ClipData *>(userData);
-//     qDebug() << " qt_span_clip: " << count;
-//     for (int i = 0; i < count; ++i) {
-//          qDebug() << "    " << spans[i].x << spans[i].y << spans[i].len << spans[i].coverage;
-//     }        
+//     qDebug() << " qt_span_clip: " << count << clipData->operation;
+//      for (int i = 0; i < count; ++i) {
+//           qDebug() << "    " << spans[i].x << spans[i].y << spans[i].len << spans[i].coverage;
+//      }        
 
     switch (clipData->operation) {
 
     case Qt::IntersectClip:
         {
             QClipData *newClip = clipData->newClip;
-            while (count) {
+            int currentClip = 0;
+            const QSpan *end = spans + count;
+            while (spans < end) {
                 QSpan *newspans = newClip->spans + newClip->count;
-                int processed = qt_intersect_spans(clipData->oldClip, spans, count,
-                                                   &newspans, newClip->allocated - newClip->count);
-                newClip->count += newspans - (newClip->spans + newClip->count);
-                count -= processed;
-                if (count) {
+                spans = qt_intersect_spans(clipData->oldClip, &currentClip, spans, count,
+                                           &newspans, newClip->allocated - newClip->count);
+                newClip->count = newspans - newClip->spans;
+                if (spans < end) {
                     newClip->allocated *= 2;
                     newClip->spans = (QSpan *)realloc(newClip->spans, newClip->allocated*sizeof(QSpan));
                 }
