@@ -638,6 +638,9 @@ void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
         resizeSection(logicalIndex, 0);
         d->hiddenSectionSize.insert(logicalIndex, size);
         d->sections[visual].hidden = true;
+        // A bit of a hack because resizeSection has to called before hiding FIXME
+        if (isVisible() && (d->stretchSections || d->stretchLastSection))
+            resizeSections(); // changes because of the new/old hiddne 
     } else if (d->sections.at(visual).hidden) {
         int size = d->hiddenSectionSize.value(logicalIndex, d->defaultSectionSize);
         d->hiddenSectionSize.remove(logicalIndex);
@@ -914,7 +917,7 @@ Qt::SortOrder QHeaderView::sortIndicatorOrder() const
 
 /*!
     \property QHeaderView::stretchLastSection
-    \brief whether the last section in the header takes up all the available space
+    \brief whether the last visible section in the header takes up all the available space
 
 */
 bool QHeaderView::stretchLastSection() const
@@ -1042,8 +1045,17 @@ void QHeaderView::resizeSections()
                       ? d->viewport->width() : d->viewport->height();
     QList<int> section_sizes;
     int count = qMax(d->sections.count() - 1, 0);
-    int last = (d->stretchLastSection ? count - 1 : -1);
     const QVector<QHeaderViewPrivate::HeaderSection> sections = d->sections;
+    int last = -1;
+    if (d->stretchLastSection) {
+        for (int i = count-1; i >=0; --i) {
+            if (!sections.at(i).hidden) {
+                last = i;
+                break;
+            }
+        }
+    }
+    
     if (sections.isEmpty())
         return;
     for (int i = 0; i < count; ++i) {
