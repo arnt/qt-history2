@@ -3,8 +3,8 @@
     \title Task Menu Extension Example
 
     The Task Menu Extension example shows how to create a custom
-    widget plugin for \l {Qt Designer Manual}{\QD}, and how to to use the
-    QDesignerTaskMenuExtension class to provide task menu options
+    widget plugin for \l {Qt Designer Manual}{\QD}, and how to to use
+    the QDesignerTaskMenuExtension class to provide task menu entries
     associated with a custom widget plugin.
 
     \image taskmenuextension-example-faded.png
@@ -90,15 +90,15 @@
     When Qt is configured to build in both debug and release modes,
     \QD will be built in release mode.  When this occurs, it is
     necessary to ensure that plugins are also built in release
-    mode. For that reason you might have to add \c release value to
-    your \c CONFIG variable. Because if plugins are built in a mode
+    mode. For that reason you might have to add a \c release value to
+    your \c CONFIG variable. Because, if plugins are built in a mode
     that is incompatible with \QD, they won't be loaded and
     installed. For more information about plugins, see the \l {How to
     Create Qt Plugins} document.
 
     The \c DESTDIR variable's value makes qmake install the plugin
-    alongside the other \QD widget plugins in \c
-    $(QTDIR)/plugins/designer which is useful for testing purposes.
+    alongside the other \QD widget plugins which is useful for testing
+    purposes.
 
     \skipto HEADERS
     \printuntil tictactoetaskmenu.cpp
@@ -107,12 +107,12 @@
     usual way, and in addition we provide an implementation of the
     plugin interface so that \QD can use the custom widget. In this
     particular example we also provide implementations of the task
-    menu interface and extension factory as well as a dialog
+    menu extension and the extension factory as well as a dialog
     implementation.
 
     \section1 TicTacToePlugin Class Definition
 
-    The \c TicTacToePlugin class expose \c the TicTacToe class to
+    The \c TicTacToePlugin class exposes \c the TicTacToe class to
     \QD. Its definition is equivalent to the \l
     {designer/customwidgetplugin}{Custom Widget Plugin} example's
     plugin class which is explained in detail. The only part of the
@@ -156,8 +156,7 @@
 
     The \c initialize() function takes a QDesignerFormEditorInterface
     object as argument.  The QDesignerFormEditorInterface class
-    provides an interface that we can use to access Qt Designer's
-    components.
+    provides access to Qt Designer's components.
 
     In \QD you can create two kinds of plugins: custom widget plugins
     and tool plugins. QDesignerFormEditorInterface provides access to
@@ -193,8 +192,8 @@
     using the QExtensionManager we retrieved from the
     QDesignerFormEditorInterface parameter. The first argument is the
     newly created factory and the second argument is an extension
-    identifier which is a string. The \c Q_TYPEID macro simply convert
-    the string into a QLatin1String.
+    identifier which is a string. The \c Q_TYPEID() macro simply
+    convert the string into a QLatin1String.
 
     The \c TicTacToeTaskMenuFactory class is a subclass of
     QExtensionFactory. When the user request a task menu by clicking
@@ -214,7 +213,7 @@
 
     \printline Q_EXPORT_PLUGIN
 
-    Finally, we use the Q_EXPORT_PLUGIN macro to export the
+    Finally, we use the Q_EXPORT_PLUGIN() macro to export the
     TicTacToePlugin class for use with Qt's plugin handling classes:
     This macro ensures that \QD can access and construct the custom
     widget. Without this macro, there is no way for \QD to use the
@@ -251,9 +250,9 @@
 
     \QD's behavior is the same whether the requested extension is
     associated with a container, a member sheet, a property sheet or a
-    task menu: It runs through all its registered extension factories
-    calling \c createExtension() for each until one responds by
-    creating the requested extension.
+    task menu: Its extension manager runs through all its registered
+    extension factories calling \c createExtension() for each until
+    one responds by creating the requested extension.
 
     So the first thing we do in \c
     TicTacToeTaskMenuFactory::createExtension() is to check if the
@@ -263,8 +262,8 @@
     object, otherwise we don't do anything.
 
     If the requested extension isn't a task menu extension we simply
-    return a null pointer, allowing \QD to continue its search through
-    the registered factories.
+    return a null pointer, allowing \QD's extension manager to
+    continue its search through the registered factories.
 
     \section1 TicTacToeTaskMenu Class Definition
 
@@ -362,7 +361,7 @@
     The \c resetState() slot is called whenever the user press the
     \gui Reset button. The only thing we do is to call the \c
     clearBoard() function for the editor widget, i.e. the \c TicTacToe
-    widget we created in the constructor.
+    widget we created in the dialog's constructor.
 
     \skipto saveState
     \printuntil {
@@ -373,11 +372,12 @@
     of state visible to \QD we need to set the latter widget's state
     property using the QDesignerFormWindowInterface class.
 
-    With QDesignerFormWindowInterface we can control the form windows
-    provided by \QD's form editing component. We can retrieve a
-    reference to the form editor itself, or select widgets, set file
-    name or set contents etc. We can also identify a particular
-    widget's form window using the
+    QDesignerFormWindowInterface provides access to the current form
+    windows in \QD's workspace. We can use the interface to select
+    widgets, set file name or set contents etc. for a form window. We
+    can also retrieve a reference to the current
+    QDesignerFormEditorInterface object, and we can identify a
+    particular widget's form window using the
     QDesignerFormWindowInterface::findFormWindow() function:
 
     \skipto QDesignerFormWindowInterface
