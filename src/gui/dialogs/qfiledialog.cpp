@@ -189,7 +189,7 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
   \code
     QStringList fileNames;
     if (fileDialog->exec())
-        fileNames = fileNames->selectedFiles();
+        fileNames = fileDialog->selectedFiles();
   \endcode
 
   In the above example, a modal file dialog is created and shown. If
