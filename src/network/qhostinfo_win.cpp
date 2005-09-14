@@ -53,7 +53,9 @@ struct qt_sockaddr_in6 {
 
 //###
 #define QT_SOCKLEN_T int
+#ifndef NI_MAXHOST // already defined to 1025 in ws2tcpip.h?
 #define NI_MAXHOST 1024
+#endif
 
 typedef int (__stdcall *getnameinfoProto)(const sockaddr *, QT_SOCKLEN_T, const char *, DWORD, const char *, DWORD, int);
 typedef int (__stdcall *getaddrinfoProto)(const char *, const char *, const qt_addrinfo *, qt_addrinfo **);
