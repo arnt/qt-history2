@@ -29,10 +29,9 @@ QDesignerActionProvider::QDesignerActionProvider(QWidget *widget, QObject *paren
 {
     Q_ASSERT(m_widget != 0);
 
-    QPalette p;
-    p.setColor(QPalette::Background, Qt::red);
-
     m_indicator = new InvisibleWidget(m_widget);
+    QPalette p;
+    p.setColor(m_indicator->backgroundRole(), Qt::red);
     m_indicator->setPalette(p);
     m_indicator->hide();
 }
@@ -74,13 +73,14 @@ void QDesignerActionProvider::adjustIndicator(const QPoint &pos)
     QAction *action = actionAt(pos);
     QRect g = actionGeometry(action);
 
-    //g.moveTopLeft(g.topRight());
+    // ### g.moveTopLeft(g.topRight());
     g.setWidth(2);
 
-    // m_indicator->setGeometry(10, 10, 30, 30);
+    // ### m_indicator->setGeometry(10, 10, 30, 30);
+
     m_indicator->setGeometry(g);
-    m_indicator->raise();
     m_indicator->show();
+    m_indicator->raise();
 }
 
 // ---- QDesignerActionProviderFactory ----
