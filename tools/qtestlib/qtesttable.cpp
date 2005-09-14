@@ -155,6 +155,7 @@ QTestData *QTestTable::newData(const char *tag)
 QTestTable::QTestTable()
 {
     d = new QTestTablePrivate;
+    QTestTablePrivate::currentTestTable = this;
 }
 
 QTestTable::~QTestTable()

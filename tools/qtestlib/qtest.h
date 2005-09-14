@@ -133,16 +133,12 @@ int main(int argc, char *argv[]) \
     return QTest::exec(&tc, argc, argv); \
 }
 
-#define QTTEST_APPLESS_MAIN(TestObject) QTEST_APPLESS_MAIN(TestObject)
-
 #define QTEST_NOOP_MAIN \
 int main(int argc, char *argv[]) \
 { \
     QObject tc; \
     return QTest::exec(&tc, argc, argv); \
 }
-
-#define QTTEST_NOOP_MAIN QTEST_NOOP_MAIN
 
 #ifdef QT_GUI_LIB
 
@@ -156,8 +152,6 @@ int main(int argc, char *argv[]) \
     return QTest::exec(&tc, argc, argv); \
 }
 
-#define QTTEST_MAIN(TestObject) QTEST_MAIN(TestObject)
-
 #else
 
 #define QTEST_MAIN(TestObject) \
@@ -167,8 +161,6 @@ int main(int argc, char *argv[]) \
     TestObject tc; \
     return QTest::exec(&tc, argc, argv); \
 }
-
-#define QTTEST_MAIN(TestObject) QTEST_MAIN(TestObject)
 
 #endif //QT_GUI_LIB
 
