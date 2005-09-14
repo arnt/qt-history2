@@ -29,6 +29,8 @@
   Top Level Window backing store
  *****************************************************************************/
 
+extern bool qt_sendSpontaneousEvent(QObject*, QEvent*); // qapplication_xxx.cpp
+
 bool QWidgetBackingStore::paintOnScreen(QWidget *w)
 {
     if (w && (w->testAttribute(Qt::WA_PaintOnScreen) || w->testAttribute(Qt::WA_NoSystemBackground)))
