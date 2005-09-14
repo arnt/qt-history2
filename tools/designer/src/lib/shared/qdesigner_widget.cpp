@@ -31,6 +31,9 @@
 
 #include <QtCore/qdebug.h>
 
+namespace
+{
+
 static void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow, QPaintEvent *e, bool needFrame = false)
 {
     QPainter p(widget);
@@ -68,6 +71,8 @@ static void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow,
         p.drawRect(widget->rect());
     }
 }
+
+} // anonymous namespace
 
 void QDesignerDialog::paintEvent(QPaintEvent *e)
 {
