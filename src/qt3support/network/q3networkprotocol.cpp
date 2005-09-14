@@ -21,6 +21,7 @@
 #include "qmap.h"
 #include "q3ptrqueue.h"
 #include "q3valuelist.h"
+#include "qurlinfo.h"
 
 //#define Q3NETWORKPROTOCOL_DEBUG
 #define NETWORK_OP_DELAY 1000

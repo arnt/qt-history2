@@ -15,7 +15,6 @@
 #define Q3NETWORKPROTOCOL_H
 
 #ifndef QT_H
-#include "QtNetwork/qurlinfo.h"
 #include "QtCore/qstring.h"
 #include "Qt3Support/q3dict.h"
 #include "QtCore/qobject.h"
@@ -31,6 +30,7 @@ class Q3NetworkOperation;
 class QTimer;
 class Q3UrlOperator;
 class Q3NetworkProtocolPrivate;
+class QUrlInfo;
 template <class T> class Q3ValueList;
 
 class Q_COMPAT_EXPORT Q3NetworkProtocolFactoryBase

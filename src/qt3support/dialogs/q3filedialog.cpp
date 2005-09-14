@@ -56,6 +56,7 @@
 #include "q3widgetstack.h"
 #include "q3urloperator.h"
 #include "q3vbox.h"
+#include "qurlinfo.h"
 
 #ifdef Q_WS_WIN
 #ifdef QT_THREAD_SUPPORT

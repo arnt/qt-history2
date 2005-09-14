@@ -26,12 +26,12 @@ class Q3ListViewItem;
 class Q3ListBoxItem;
 class Q3FileDialogPrivate;
 class Q3FileDialogQFileListView;
+class QUrlInfo;
 
 #include "QtCore/qdir.h"
 #include "QtGui/qdialog.h"
 #include "Qt3Support/q3urloperator.h"
 #include "Qt3Support/q3valuelist.h"
-#include "QtNetwork/qurlinfo.h"
 
 QT_MODULE(Qt3SupportLight)
 
