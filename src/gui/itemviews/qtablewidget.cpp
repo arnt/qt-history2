@@ -425,17 +425,29 @@ Qt::ItemFlags QTableModel::flags(const QModelIndex &index) const
 
 void QTableModel::sort(int column, Qt::SortOrder order)
 {
-    QVector< QPair<QTableWidgetItem*,int> > sorting(rowCount());
-    for (int i = 0; i < sorting.count(); ++i) {
-        sorting[i].first = item(i, column);
-        sorting[i].second = i;
+    QVector< QPair<QTableWidgetItem*,int> > sorting;
+    sorting.reserve(rowCount());
+    
+    // Collect all null cells (not sortable) we bump into here, and make sure that we store them in the same order as we found them.
+    QVector< QPair<QTableWidgetItem*,int> > nonsorting;
+    nonsorting.reserve(rowCount());
+
+    for (int row = 0; row < rowCount(); row++) {
+        QTableWidgetItem *itm = item(row, column);
+        if (itm) {
+            sorting.append(QPair<QTableWidgetItem*,int>(itm, row));
+        }else{
+            nonsorting.append(QPair<QTableWidgetItem*,int>(0, row));
+        }
     }
 
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
     qSort(sorting.begin(), sorting.end(), compare);
 
     QVector<QTableWidgetItem*> sorted_table(table.count());
-    for (int j = 0; j < rowCount(); ++j) {
+    int j;
+    int sortCount = sorting.count();
+    for (j = 0; j < sortCount; ++j) {
         int r = sorting.at(j).second;
         for (int c = 0; c < columnCount(); ++c) {
             QTableWidgetItem *itm = item(r, c);
@@ -445,6 +457,14 @@ void QTableModel::sort(int column, Qt::SortOrder order)
             changePersistentIndex(from, to);
         }
     }
+    for (; j < rowCount(); ++j) {
+        int r = nonsorting.at(j - sortCount).second;
+        for (int c = 0; c < columnCount(); ++c) {
+            QTableWidgetItem *itm = item(r, c);
+            sorted_table[tableIndex(j, c)] = itm;
+        }
+    }
+
     table = sorted_table;
 
     emit layoutChanged();
