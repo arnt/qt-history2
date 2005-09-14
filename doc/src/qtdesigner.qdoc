@@ -1021,7 +1021,8 @@
     Designer to use it.
 
     \warning If your custom widget plugin has any QVariant properties,
-    be aware that only the following QVariant::Types are supported:
+    be aware that only the following \l {QVariant::Type}{types} are
+    supported:
 
     \list
     \o QVariant::ByteArray
