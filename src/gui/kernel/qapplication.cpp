@@ -2011,7 +2011,7 @@ Q_GUI_EXPORT bool qt_tryModalHelper(QWidget *widget, QWidget **rettop)
  */
 bool QApplicationPrivate::isBlockedByModal(QWidget *widget)
 {
-    Q_ASSERT(widget->isWindow());
+    widget = widget->window();
     if (!modalState())
         return false;
     if (qApp->activePopupWidget() == widget)
