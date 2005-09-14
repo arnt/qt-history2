@@ -952,7 +952,6 @@ QWorkspacePrivate::init()
 #endif // QT_NO_SHORTCUT
 
     q->setBackgroundRole(QPalette::Dark);
-    q->setAttribute(Qt::WA_NoBackground, true);
     q->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
     hbar = vbar = 0;
@@ -1015,6 +1014,7 @@ void QWorkspace::setBackground(const QBrush &background)
 {
     Q_D(QWorkspace);
     d->background = background;
+    setAttribute(Qt::WA_NoBackground, background.style() == Qt::NoBrush);
     update();
 }
 
@@ -1427,13 +1427,12 @@ void QWorkspace::hideEvent(QHideEvent *)
 void QWorkspace::paintEvent(QPaintEvent *)
 {
     Q_D(QWorkspace);
-    QPainter p(this);
 
-    QBrush bg = d->background;
-    if (bg.style() == Qt::NoBrush)
-        bg = palette().dark();
+    if (d->background.style() != Qt::NoBrush) {
+        QPainter p(this);
+        p.fillRect(0, 0, width(), height(), d->background);
+    }
 
-    p.fillRect(0, 0, width(), height(), bg);
 }
 
 void QWorkspacePrivate::minimizeWindow(QWidget* w)
