@@ -161,6 +161,8 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 
 extern "C" {
     int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
+    int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval);
+    int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, int newval);
     int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
     int q_atomic_increment(volatile int *);
     int q_atomic_decrement(volatile int *);

@@ -29,6 +29,60 @@ LT..q_atomic_test_and_set_int:
 	.align 2
 
 	.align 2
+	.globl q_atomic_test_and_set_acquire_int
+	.globl .q_atomic_test_and_set_acquire_int
+	.csect q_atomic_test_and_set_acquire_int[DS],3
+q_atomic_test_and_set_acquire_int:
+	.long .q_atomic_test_and_set_acquire_int,TOC[tc0],0
+	.csect .text[PR]
+.q_atomic_test_and_set_acquire_int:
+	lwarx  6,0,3
+	cmpw   6,4
+	bne-   $+20
+	stwcx. 5,0,3
+	bne-   $-16
+	addi   3,0,1
+	b      $+8
+	addi   3,0,0
+	eieio
+	blr
+LT..q_atomic_test_and_set_acquire_int:
+	.long 0
+	.byte 0,9,32,64,0,0,3,0
+	.long 0
+	.long LT..q_atomic_test_and_set_acquire_int-.q_atomic_test_and_set_acquire_int
+	.short 25
+	.byte "q_atomic_test_and_set_acquire_int"
+	.align 2
+
+	.align 2
+	.globl q_atomic_test_and_set_release_int
+	.globl .q_atomic_test_and_set_release_int
+	.csect q_atomic_test_and_set_release_int[DS],3
+q_atomic_test_and_set_release_int:
+	.long .q_atomic_test_and_set_release_int,TOC[tc0],0
+	.csect .text[PR]
+.q_atomic_test_and_set_release_int:
+	eieio
+	lwarx  6,0,3
+	cmpw   6,4
+	bne-   $+20
+	stwcx. 5,0,3
+	bne-   $-16
+	addi   3,0,1
+	blr
+	addi   3,0,0
+	blr
+LT..q_atomic_test_and_set_release_int:
+	.long 0
+	.byte 0,9,32,64,0,0,3,0
+	.long 0
+	.long LT..q_atomic_test_and_set_release_int-.q_atomic_test_and_set_release_int
+	.short 25
+	.byte "q_atomic_test_and_set_release_int"
+	.align 2
+
+	.align 2
 	.globl q_atomic_test_and_set_ptr
 	.globl .q_atomic_test_and_set_ptr
 	.csect q_atomic_test_and_set_ptr[DS],3
