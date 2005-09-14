@@ -656,10 +656,14 @@
     getter functions QWidget::isEnabled().  This is set/cleared by the
     Qt kernel.
 
-    \value WA_ContentsPropagated Allows the contents painted in a
-    QWidget::paintEvent() to be used as the background for children
-    that inherit their background. This is set/cleared by the widget
-    author or by the style.
+    \value WA_ContentsPropagated This flag is superfluous and
+    obsolete, it only has a meaning for widgets that set
+    WA_PaintOnScreen on window systems that support it. It allows the
+    contents painted in a QWidget::paintEvent() to be used as the
+    background for children that inherit their background. This is
+    set/cleared by the widget author or by the style. We strongly
+    recommend not to use the flag, but rely on Qt's builtin
+    composition capabilities.
 
     \value WA_ForceDisabled Indicates that the widget is
     explicitly disabled, i.e. it will remain disabled even when all
@@ -715,17 +719,22 @@
     This is set/cleared by the widget's author.
 
     \value WA_PaintOnScreen Indicates that the widget wants to draw
-    directly onto the screen (implies no double buffering). This is
-    not supported on Windows and Mac OS X. The flag is set or cleared
-    by the widget's author.
+    directly onto the screen. Widgets with this attribute set do not
+    participate in composition management, i.e. they cannot be
+    semi-transparent or shine through semi-transparent overlapping
+    widgets. This is not supported on Mac OS X. The flag is set or
+    cleared by the widget's author. This flag is required for
+    rendering outside of Qt's paint system, e.g. should you want to
+    use native X11 painting primitives.
 
     \value WA_PaintUnclipped Makes all painters operating on this
     widget unclipped. Children of this widget or other widgets in
-    front of it do not clip the area the painter can paint on.
+    front of it do not clip the area the painter can paint on. This is
+    not supported on Mac OS X.
 
     \value WA_PaintOutsidePaintEvent Makes it possible to use QPainter
     to paint on the widget outside \l{QWidget::paintEvent()}{paintEvent()}.
-    This is currently not supported on Mac OS X. We recommend that you
+    This is not supported on Mac OS X. We recommend that you
     use this attribute only when porting Qt 3 code to Qt 4.
 
     \value WA_Hover Forces Qt to generate paint events when the mouse
@@ -1331,6 +1340,7 @@
     \value ShortcutFocusReason     The user typed a label's buddy shortcut
     \value MenuBarFocusReason      The menu bar took focus.
     \value OtherFocusReason        Another reason, usually application-specific.
+    \omitvalue NoFocusReason        No good reason, really.
 
     \sa {Keyboard Focus}
 */

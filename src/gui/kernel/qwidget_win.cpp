@@ -869,18 +869,15 @@ void QWidget::activateWindow()
 }
 
 #ifdef QT_USE_BACKINGSTORE
-void QWidgetBackingStore::updateWidget_sys(const QRegion &rgn, QWidget *widget)
+void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
 {
     if (!rgn.isEmpty())
-        InvalidateRgn(widget->winId(), rgn.handle(), FALSE);
+        InvalidateRgn(winId(), rgn.handle(), FALSE);
 }
 
-void QWidgetBackingStore::paintWidget_sys(const QRegion& rgn, QWidget *widget)
+void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)
 {
-    ValidateRgn(widget->winId(),rgn.handle());
-
-    QPaintEvent e(rgn);
-    qt_sendSpontaneousEvent(widget, &e);
+    ValidateRgn(winId(),rgn.handle());
 }
 #else
 void QWidget::update()

@@ -5043,10 +5043,14 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
 
     if (wasResize && !testAttribute(Qt::WA_StaticContents)) {
         removePendingPaintEvents();
-#ifndef QT_USE_BACKINGSTORE
+#if !defined( QT_USE_BACKINGSTORE )
         testAttribute(Qt::WA_WState_InPaintEvent)?update():repaint();
+#else
+        extern void qt_syncBackingStore_x11ConfigEvent(QWidget *widget);
+        qt_syncBackingStore_x11ConfigEvent(this);
 #endif
     }
+
 
     return true;
 }

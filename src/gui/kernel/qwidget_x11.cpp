@@ -676,6 +676,12 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     if (!topLevel && !parentWidget->data->wrect.topLeft().isNull())
         setWSGeometry();
 
+#if 0
+    static bool onScreen = false;
+    q->setAttribute(Qt::WA_PaintOnScreen, onScreen);
+    onScreen = !onScreen;
+#endif
+
 #if !defined(QT_NO_IM)
     ic = 0;
 #endif
@@ -1320,16 +1326,18 @@ void QWidget::activateWindow()
 
 
 #ifdef QT_USE_BACKINGSTORE
-void QWidgetBackingStore::updateWidget_sys(const QRegion &rgn, QWidget *widget)
+void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
 {
-    if (!rgn.isEmpty())
-        QApplication::postEvent(widget, new QEvent(QEvent::UpdateRequest));
+    Q_Q(QWidget);
+    if (!rgn.isEmpty()) {
+        dirtyOnScreen += rgn;
+        QApplication::postEvent(q, new QEvent(QEvent::UpdateRequest));
+    }
 }
 
-void QWidgetBackingStore::paintWidget_sys(const QRegion& rgn, QWidget *widget)
+void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)
 {
-    QPaintEvent e(rgn);
-    qt_sendSpontaneousEvent(widget, &e);
+    dirtyOnScreen -= rgn;
 }
 #else
 void QWidget::update()

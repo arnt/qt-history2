@@ -1388,15 +1388,18 @@ QRegion QWidgetPrivate::visibleRegion() const
 bool QWidgetPrivate::isOpaque() const
 {
     Q_Q(const QWidget);
-    if (!q->testAttribute(Qt::WA_NoBackground) && !q->testAttribute(Qt::WA_NoSystemBackground)) {
-        const QPalette &pal = q->palette();
-        QPalette::ColorRole bg = q->backgroundRole();
-        QBrush bgBrush = pal.brush(bg);
-        return (bgBrush.style() != Qt::NoBrush && bgBrush.isOpaque() &&
-                ((q->isWindow() || q->windowType() == Qt::SubWindow)
-                 || (bg_role != QPalette::NoRole || (pal.resolve() & (1<<bg)))));
-    }
-    return false;
+    if (q->testAttribute(Qt::WA_PaintOnScreen))
+        return false;
+    if (q->testAttribute(Qt::WA_NoBackground)
+        || q->testAttribute(Qt::WA_NoSystemBackground))
+        return true;
+
+    const QPalette &pal = q->palette();
+    QPalette::ColorRole bg = q->backgroundRole();
+    QBrush bgBrush = pal.brush(bg);
+    return (bgBrush.style() != Qt::NoBrush && bgBrush.isOpaque() &&
+            ((q->isWindow() || q->windowType() == Qt::SubWindow)
+             || (bg_role != QPalette::NoRole || (pal.resolve() & (1<<bg)))));
 }
 
 /*!
@@ -5208,8 +5211,8 @@ bool QWidget::event(QEvent *e)
 #if defined(Q_WS_X11)
 #ifdef QT_USE_BACKINGSTORE
     case QEvent::UpdateRequest: {
-        extern void qt_syncBackingStore(QRegion rgn, QWidget *widget);
-        qt_syncBackingStore(rect(), this); //##maybe should pass a proper region
+        extern void qt_syncBackingStore(QWidget *widget);
+        qt_syncBackingStore(this);
         break; }
 #else
     case QEvent::UpdateRequest:

@@ -43,26 +43,29 @@ class QWidgetBackingStore
 
     bool isOpaque(const QWidget *widget);
     bool hasBackground(const QWidget *widget);
-    enum PaintFlags { AsRoot = 0x01, Recursive = 0x02, Flush = 0x04 };
-    void paintWidget(const QRegion &rgn, QWidget *widget, const QPoint &offset, uint flags);
-    void paintBuffer(const QRegion &rgn, QWidget *widget, const QPoint &offset, uint flags);
+    enum PaintFlags { AsRoot = 0x01, Recursive = 0x02 };
+    void cleanBuffer(const QRegion &rgn, QWidget *widget, const QPoint &offset, uint flags);
+    void cleanScreen(const QRegion &rgn, QWidget *widget, const QPoint &offset, uint flags);
 
     void paintWidget_sys(const QRegion &rgn, QWidget *widget);
     void updateWidget_sys(const QRegion &rgn, QWidget *widget);
     friend void qt_syncBackingStore(QRegion, QWidget *);
-    friend void qt_syncBackingStores();
+#ifdef Q_WS_X11
+    friend void qt_syncBackingStore(QWidget *);
+#endif
     friend class QWidgetPrivate;
     friend class QWidget;
 public:
     QWidgetBackingStore(QWidget *t);
     ~QWidgetBackingStore();
-    bool isBuffered() const;
     void scrollRegion(const QRegion &rgn, int dx, int dy, QWidget *widget=0);
     void dirtyRegion(const QRegion &rgn, QWidget *widget=0);
     void cleanRegion(const QRegion &rgn, QWidget *widget=0);
 #ifndef Q_WS_WIN
     QPixmap backingPixmap() const { return buffer; }
 #endif
+
+    static bool paintOnScreen(QWidget *);
 };
 
 #endif // QBACKINGSTORE_P_H

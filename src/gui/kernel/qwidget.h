@@ -579,7 +579,7 @@ private:
 
     bool testAttribute_helper(Qt::WidgetAttribute) const;
 
-    friend void qt_syncBackingStores();
+    friend void qt_syncBackingStore(QWidget *);
     friend void qt_syncBackingStore(QRegion, QWidget *);
     friend class QBackingStoreDevice;
     friend class QWidgetBackingStore;
