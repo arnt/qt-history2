@@ -80,7 +80,7 @@ do {\
 class QObject;
 class QTestData;
 
-#define COMPARE_DECL(klass)\
+#define QTEST_COMPARE_DECL(klass)\
     template<> \
     bool Q_TESTLIB_EXPORT compare(klass const &t1, klass const &t2, const char *file, int line);
 
@@ -143,19 +143,19 @@ namespace QTest
     }
 
 #ifndef qdoc
-    COMPARE_DECL(short)
-    COMPARE_DECL(ushort)
-    COMPARE_DECL(int)
-    COMPARE_DECL(uint)
-    COMPARE_DECL(long)
-    COMPARE_DECL(ulong)
-    COMPARE_DECL(qint64)
-    COMPARE_DECL(quint64)
+    QTEST_COMPARE_DECL(short)
+    QTEST_COMPARE_DECL(ushort)
+    QTEST_COMPARE_DECL(int)
+    QTEST_COMPARE_DECL(uint)
+    QTEST_COMPARE_DECL(long)
+    QTEST_COMPARE_DECL(ulong)
+    QTEST_COMPARE_DECL(qint64)
+    QTEST_COMPARE_DECL(quint64)
 
-    COMPARE_DECL(float)
-    COMPARE_DECL(double)
-    COMPARE_DECL(char)
-    COMPARE_DECL(bool)
+    QTEST_COMPARE_DECL(float)
+    QTEST_COMPARE_DECL(double)
+    QTEST_COMPARE_DECL(char)
+    QTEST_COMPARE_DECL(bool)
 #endif
 
 #ifndef QTEST_NO_PARTIAL_SPECIALIZATIONS
@@ -207,7 +207,7 @@ namespace QTest
     }
 }
 
-#undef COMPARE_DECL
+#undef QTEST_COMPARE_DECL
 
 #endif
 
