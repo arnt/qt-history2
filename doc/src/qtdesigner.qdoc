@@ -1020,6 +1020,27 @@
     custom widget. Without this macro, there is no way for Qt
     Designer to use it.
 
+    \warning If your custom widget plugin has any QVariant properties,
+    be aware that only the following QVariant::Types are supported:
+
+    \list
+    \o QVariant::ByteArray
+    \o QVariant::Bool
+    \o QVariant::Color
+    \o QVariant::Cursor
+    \o QVariant::Date
+    \o QVariant::DateTime
+    \o QVariant::Double
+    \o QVariant::Int
+    \o QVariant::Point
+    \o QVariant::Rect
+    \o QVariant::Size
+    \o QVariant::SizePolicy
+    \o QVariant::String
+    \o QVariant::Time
+    \o QVariant::UInt
+    \endlist
+
     For a complete example using the QDesignerCustomWidgetInterface
     class, see the \l {designer/customwidgetplugin}{Custom Widget
     Example}. The example shows how to create a custom widget plugin
