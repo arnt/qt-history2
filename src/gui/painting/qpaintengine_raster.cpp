@@ -523,10 +523,9 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
                          && !isBitmap);
 
         d->rasterBuffer->prepare(image);
-#ifdef Q_WS_QWS
-        isBitmap = image->depth() == 1; //### temporary until we have QScreenPaintDevice
-#endif
-        if (format == QImage::Format_MonoLSB && isBitmap) {
+        if (format == QImage::Format_MonoLSB) {
+            d->mono_surface = true;
+        } else if (format == QImage::Format_Mono) {
             d->mono_surface = true;
         } else if (format == QImage::Format_RGB32) {
             ;
