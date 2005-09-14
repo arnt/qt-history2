@@ -871,13 +871,15 @@ void QWidget::activateWindow()
 #ifdef QT_USE_BACKINGSTORE
 void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
 {
+    Q_Q(QWidget);
     if (!rgn.isEmpty())
-        InvalidateRgn(winId(), rgn.handle(), FALSE);
+        InvalidateRgn(q->winId(), rgn.handle(), FALSE);
 }
 
 void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)
 {
-    ValidateRgn(winId(),rgn.handle());
+    Q_Q(QWidget);
+    ValidateRgn(q->winId(),rgn.handle());
 }
 #else
 void QWidget::update()
