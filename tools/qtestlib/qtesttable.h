@@ -9,7 +9,8 @@ class QTestTablePrivate;
 class Q_TESTLIB_EXPORT QTestTable
 {
 public:
-    QTestTable();
+    enum Type { GlobalTable, LocalTable };
+    QTestTable(Type t = LocalTable);
     ~QTestTable();
 
     void defineElement(const char *elementType, const char *elementName);
@@ -26,6 +27,7 @@ public:
     QTestData *testData(int index) const;
 
     static QTestTable *globalTestTable();
+    static QTestTable *currentTestTable();
 
 private:
     Q_DISABLE_COPY(QTestTable)

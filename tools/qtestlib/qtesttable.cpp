@@ -25,17 +25,22 @@ public:
         DataList *next;
     };
 
-    QTestTablePrivate(): list(0), dataList(0) {}
+    QTestTablePrivate(): list(0), dataList(0), type(QTestTable::LocalTable) {}
     ~QTestTablePrivate();
 
     ElementList *list;
     DataList *dataList;
+    QTestTable::Type type;
 
     void append(const char *elemType, const char *elemName);
     void append(QTestData *data);
     ElementList *elementAt(int index);
     QTestData *dataAt(int index);
+
+    static QTestTable *currentTestTable;
 };
+
+QTestTable *QTestTablePrivate::currentTestTable = 0;
 
 QTestTablePrivate::ElementList *QTestTablePrivate::elementAt(int index)
 {
@@ -148,13 +153,18 @@ QTestData *QTestTable::newData(const char *tag)
     return dt;
 }
 
-QTestTable::QTestTable()
+QTestTable::QTestTable(Type t)
 {
     d = new QTestTablePrivate;
+    d->type = t;
+    if (t == LocalTable)
+        QTestTablePrivate::currentTestTable = this;
 }
 
 QTestTable::~QTestTable()
 {
+    if (d->type == LocalTable)
+        QTestTablePrivate::currentTestTable = 0;
     delete d;
 }
 
@@ -204,7 +214,12 @@ int QTestTable::indexOf(const char *elementName) const
 
 QTestTable *QTestTable::globalTestTable()
 {
-    static QTestTable *gTable = new QTestTable;
+    static QTestTable *gTable = new QTestTable(GlobalTable);
     return gTable;
+}
+
+QTestTable *QTestTable::currentTestTable()
+{
+    return QTestTablePrivate::currentTestTable;
 }
 
