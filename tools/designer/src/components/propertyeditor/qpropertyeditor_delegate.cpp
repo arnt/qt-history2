@@ -150,8 +150,11 @@ void QPropertyEditorDelegate::paint(QPainter *painter, const QStyleOptionViewIte
         painter->fillRect(option.rect, bg);
     }
 
+    QPen savedPen = painter->pen();
 
     QItemDelegate::paint(painter, option, index);
+
+    painter->setPen(savedPen);
 
     if (index.column() == 1 || !property->isSeparator()) {
         painter->drawLine(option.rect.right(), option.rect.y(),
