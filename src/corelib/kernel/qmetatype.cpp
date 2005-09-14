@@ -133,9 +133,9 @@
         }
     \endcode
 
-    The \sa Q_DECLARE_METATYPE() macro can be used to register a type
-    at compile time. This is required to use the type as custom type
-    in QVariant.
+    The Q_DECLARE_METATYPE() macro can be used to register a type at
+    compile time. This is required to use the type as custom type in
+    QVariant.
 
     \sa Q_DECLARE_METATYPE(), QVariant::setValue(), QVariant::value(), QVariant::fromValue()
 */

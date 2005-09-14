@@ -1390,7 +1390,7 @@ QString QTextStream::readLine(qint64 maxlen)
 }
 
 /*!
-    Reads at most \a maxSize characters from the stream, and returns the data
+    Reads at most \a maxlen characters from the stream, and returns the data
     read as a QString.
 
     \sa readAll(), readLine(), QIODevice::read()

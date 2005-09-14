@@ -922,7 +922,7 @@ static QString getPath(QSettings::Format format, QSettings::Scope scope)
         systemPath = QLibraryInfo::location(QLibraryInfo::SettingsPath);
         systemPath += QLatin1Char('/');
     }
-    
+
     QMutexLocker locker(globalMutex());
     if (pathHash->isEmpty()) {
         /*
@@ -2939,7 +2939,7 @@ void QSettings::setUserIniPath(const QString &dir)
     \since 4.1
 
     Sets the path used for storing settings for the given \a format
-    and \a scope. The \a format can be a custom format.
+    and \a scope, to \a path. The \a format can be a custom format.
 
     The table below summarizes the default values:
 

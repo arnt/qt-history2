@@ -51,7 +51,7 @@
         public:
             QAbstractSocketEngine *create(const QString &fileName) const;
         };
-        
+
         QAbstractSocketEngine *ZipEngineHandler::create(const QString &fileName) const
         {
             // ZipEngineHandler returns a ZipEngine for all .zip files
@@ -63,10 +63,10 @@
             QApplication app(argc, argv);
 
             ZipEngineHandler engine;
-            
+
             MainWindow window;
             window.show();
-            
+
             return app.exec();
         }
     \endcode
@@ -90,7 +90,7 @@
  */
 QList<QAbstractFileEngineHandler *> *fileEngineHandlers = 0;
 Q_GLOBAL_STATIC(QMutex, fileEngineHandlerMutex)
-    
+
 /*!
     Constructs a file handler and registers it with Qt. Once created this
     handler's create() function will be called (along with all the other
@@ -132,7 +132,7 @@ QAbstractFileEngine *QAbstractFileEngine::create(const QString &fileName)
     QMutexLocker locker(fileEngineHandlerMutex());
     if (!fileEngineHandlers)
         fileEngineHandlers = new QList<QAbstractFileEngineHandler *>;
-    
+
     // check for registered handlers that can load the file
     for (int i = 0; i < fileEngineHandlers->size(); i++) {
         if (QAbstractFileEngine *ret = fileEngineHandlers->at(i)->create(fileName))
@@ -295,6 +295,8 @@ QAbstractFileEngine::~QAbstractFileEngine()
 }
 
 /*!
+    \fn bool QAbstractFileEngine::open(QIODevice::OpenMode mode)
+
     Opens the file in the specified \a mode. Returns true if the file
     was successfully opened; otherwise returns false.
 
@@ -342,6 +344,8 @@ qint64 QAbstractFileEngine::pos() const
 }
 
 /*!
+    \fn bool QAbstractFileEngine::seek(qint64 offset)
+
     Sets the file position to the given \a offset. Returns true if
     the position was successfully set; otherwise returns false.
 
@@ -415,7 +419,7 @@ bool QAbstractFileEngine::link(const QString &newName)
 }
 
 /*!
-    Requests that the directory \a dirName be created. If 
+    Requests that the directory \a dirName be created. If
     \a createParentDirectories is true, then any sub-directories in \a dirName
     that don't exist must be created. If \a createParentDirectories is false then
     any sub-directories in \a dirName must already exist for the function to
@@ -436,7 +440,7 @@ bool QAbstractFileEngine::mkdir(const QString &dirName, bool createParentDirecto
 /*!
     Requests that the directory \a dirName is deleted from the file
     system. When \a recurseParentDirectories is true, then any empty
-    parent-directories in \a dirName must also be deleted. If 
+    parent-directories in \a dirName must also be deleted. If
     \a recurseParentDirectories is false, only the \a dirName leaf-node
     should be deleted. In most file systems a directory cannot be deleted
     using this function if it is non-empty. If the operation succeeds
@@ -735,7 +739,7 @@ bool QAbstractFileEngine::supportsExtension(Extension extension) const
   operation. If QFile::UnspecifiedError is returned, QFile will
   use its own idea of the error status.
 
-  \sa QFile::FileError, errorString
+  \sa QFile::FileError, errorString()
  */
 QFile::FileError QAbstractFileEngine::error() const
 {

@@ -1480,7 +1480,7 @@ QUrl::QUrl(const QString &url) : d(new QUrlPrivate)
 /*!
     \overload
 
-    Parses the URL using the parser mode \a parsingMode.
+    Parses the \a url using the parser mode \a parsingMode.
 
     \sa setUrl()
 */
@@ -1630,7 +1630,8 @@ inline static bool isHex(char c)
 }
 
 /*!
-
+    Constructs a URL by parsing the contents of \a encodedUrl using
+    the given \a parsingMode.
 */
 void QUrl::setEncodedUrl(const QByteArray &encodedUrl, ParsingMode parsingMode)
 {

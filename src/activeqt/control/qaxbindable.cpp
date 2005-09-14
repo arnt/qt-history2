@@ -107,7 +107,7 @@ bool QAxBindable::requestPropertyChange(const char *property)
 {
     if (!activex)
         return true;
-    
+
     return activex->emitRequestPropertyChange(property);
 }
 
@@ -124,7 +124,7 @@ void QAxBindable::propertyChanged(const char *property)
 {
     if (!activex)
         return;
-    
+
     activex->emitPropertyChanged(property);
 }
 
@@ -139,7 +139,7 @@ IUnknown *QAxBindable::clientSite() const
 {
     if (!activex)
         return 0;
-    
+
     return activex->clientSite();
 }
 
@@ -179,14 +179,15 @@ void QAxBindable::reportError(int code, const QString &src, const QString &desc,
     to initialize the COM object from the data \a source in \a format.
     You have to open \a source for reading before you can read from it.
 
-    Return true to indicate success. If the function returns false, 
-    then ActiveQt will process the data by setting the properties 
+    Returns true to indicate success. If the function returns false,
+    then ActiveQt will process the data by setting the properties
     through the meta object system.
-    
-    If you reimplement this function you also have to implement writeData.
-    The default implementation does nothing and returns false.
 
-    \sa writeData
+    If you reimplement this function you also have to implement
+    writeData().  The default implementation does nothing and returns
+    false.
+
+    \sa writeData()
 */
 bool QAxBindable::readData(QIODevice *source, const QString &format)
 {
@@ -200,14 +201,15 @@ bool QAxBindable::readData(QIODevice *source, const QString &format)
     to store the COM object into \a sink.
     You have to open \a sink for writing before you can write to it.
 
-    Return true to indicate success. If the function returns false, 
+    Returns true to indicate success. If the function returns false,
     then ActiveQt will serialize the object by storing the property
     values.
 
-    If you reimplement this function you also have to implement readData.
-    The default implementation does nothing and returns false.
+    If you reimplement this function you also have to implement
+    readData(). The default implementation does nothing and returns
+    false.
 
-    \sa writeData
+    \sa readData()
 */
 bool QAxBindable::writeData(QIODevice *sink)
 {

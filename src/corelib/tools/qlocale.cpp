@@ -431,7 +431,7 @@ QByteArray QLocalePrivate::systemLocaleName()
     if ( !lang.isEmpty() ) {
         long id = 0;
         bool ok = false;
-        id = qstrtoll(lang.data(), 0, 0, &ok);        
+        id = qstrtoll(lang.data(), 0, 0, &ok);
         if ( !ok || id == 0 || id < INT_MIN || id > INT_MAX )
             return lang;
         else
@@ -1783,7 +1783,7 @@ QString QLocale::toString(const QTime &time, FormatType format) const
      If \a format is ShortFormat the format will be a short version.
      Otherwise it uses a longer version.
 
-     \sa QDate::toString, QDate::fromString
+     \sa QDate::toString(), QDate::fromString()
 */
 
 QString QLocale::dateFormat(FormatType format) const
@@ -1798,7 +1798,7 @@ QString QLocale::dateFormat(FormatType format) const
      If \a format is ShortFormat the format will be a short version.
      Otherwise it uses a longer version.
 
-     \sa QTime::toString, QTime::fromString
+     \sa QTime::toString(), QTime::fromString()
 */
 
 QString QLocale::timeFormat(FormatType format) const
