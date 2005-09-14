@@ -351,6 +351,9 @@ void QTreeView::setRowHidden(int row, const QModelIndex &parent, bool hide)
 {
     Q_D(QTreeView);
     QModelIndex index = model()->index(row, 0, parent);
+    if (!index.isValid())
+        return;
+
     QPersistentModelIndex persistent(index);
     if (hide) {
         if (!d->hiddenIndexes.contains(persistent)) d->hiddenIndexes.append(persistent);
@@ -877,6 +880,8 @@ QModelIndex QTreeView::indexAt(const QPoint &p) const
 QModelIndex QTreeView::indexAbove(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
+    if (!index.isValid())
+        return QModelIndex();
     d->executePostedLayout();
     int above = d->above(d->viewIndex(index));
     return d->modelIndex(above);
@@ -942,7 +947,7 @@ int QTreeView::verticalOffset() const
     int item = verticalScrollBar()->value() / verticalStepsPerItem();
     if (model() && model()->rowCount(rootIndex()) > 0 && model()->columnCount(rootIndex()) > 0)
         return item * d->itemHeight;
-    return item * 30;
+    return item * 30; // FIXME remove this hard coded number
 }
 
 /*!
@@ -1592,6 +1597,9 @@ int QTreeViewPrivate::item(int coordinate) const
 int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
 {
     Q_Q(const QTreeView);
+    if (!index.isValid())
+        return -1;
+
     // NOTE: this function is slow if the item is outside the visible area
     // search in visible items first, then below
     int t = itemAt(q->verticalScrollBar()->value());
