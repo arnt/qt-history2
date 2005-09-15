@@ -4,8 +4,7 @@ MOC_DIR         = tmp
 CONFIG          += qt warn_on console depend_includepath
 CONFIG          -= debug_and_release_target
 
-!exists($$[QT_INSTALL_LIBS]/*QtTest*) {
-#    warning("Could not find qtestlib, linking it statically into every test")
+!exists($$[QT_INSTALL_LIBS]/*QtTest*.so):!exists($$[QT_INSTALL_LIBS]/*QtTest*.a):!exists($$[QT_INSTALL_LIBS]/*QtTest*.lib):!exists($$[QT_INSTALL_LIBS]/*QtTest*.dylib):!exists($$[QT_INSTALL_LIBS]/*QtTest*.sl) {
     CONFIG += embed_testlib
 }
 
