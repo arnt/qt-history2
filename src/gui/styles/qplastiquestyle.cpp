@@ -11,19 +11,20 @@
 **
 ****************************************************************************/
 
-static const bool UsePixmapCache = true;
-
 #include "qplastiquestyle.h"
 
 #if !defined(QT_NO_STYLE_PLASTIQUE) || defined(QT_PLUGIN)
 
-#include <qdebug.h>
+static const bool UsePixmapCache = true;
+static const bool AnimateBusyProgressBar = true;
+static const int ProgressBarFps = 25;
 
 #include <qapplication.h>
 #include <qbitmap.h>
 #include <qabstractitemview.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
+#include <qdebug.h>
 #include <qgroupbox.h>
 #include <qimage.h>
 #include <qlineedit.h>
@@ -744,6 +745,10 @@ public:
     QPlastiqueStylePrivate(QPlastiqueStyle *qq);
     virtual ~QPlastiqueStylePrivate();
 
+    QList<QProgressBar *> bars;
+    int progressBarAnimateTimer;
+    int animateStep;
+    
     QPlastiqueStyle *q;
 };
 
@@ -751,8 +756,8 @@ public:
   \internal
  */
 QPlastiqueStylePrivate::QPlastiqueStylePrivate(QPlastiqueStyle *qq)
+    : progressBarAnimateTimer(0), animateStep(0), q(qq)
 {
-    q = qq;
 }
 
 /*!
@@ -2209,6 +2214,10 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         break;
     case CE_ProgressBarLabel:
         if (const QStyleOptionProgressBar *bar = qstyleoption_cast<const QStyleOptionProgressBar *>(option)) {
+            // The busy indicator doesn't draw a label
+            if (bar->minimum == 0 && bar->maximum == 0)
+                return;
+
             painter->save();
 
             QRect rect = bar->rect;
@@ -2283,6 +2292,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             QRect rect = bar->rect;
             bool vertical = false;
             bool inverted = false;
+            bool busy = (bar->minimum == 0 && bar->maximum == 0);
 
             // Get extra style options if version 2
             if (const QStyleOptionProgressBarV2 *bar2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(option)) {
@@ -2303,7 +2313,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             int maxWidth = rect.width() - 4;
             int minWidth = 4;
             int progress = qMax(bar->progress, bar->minimum); // workaround for bug in QProgressBar
-            int width = qMax(int((((progress - bar->minimum)) / double(bar->maximum - bar->minimum)) * maxWidth), minWidth);
+            int width = busy ? maxWidth : qMax(int((((progress - bar->minimum)) / double(bar->maximum - bar->minimum)) * maxWidth), minWidth);
             bool reverse = (!vertical && (bar->direction == Qt::RightToLeft)) || vertical;
             if (inverted)
                 reverse = !reverse;
@@ -2371,6 +2381,17 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             else
                 lineStart = progressBar.right() + 10 - (progressBar.width() % 10);
 
+            // animated busy progress bar
+            if (busy && AnimateBusyProgressBar) {
+                if (reverse) {
+                    rectStart += 19 - d->animateStep % 20;
+                    lineStart += 19 - d->animateStep % 20;
+                } else {
+                    rectStart -= 19 - d->animateStep % 20;
+                    lineStart -= 19 - d->animateStep % 20;
+                }
+            }
+            
             int rectFlip = (progressBar.width() % 20) < 10;
             int lineFlip;
             if (!reverse)
@@ -2384,7 +2405,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             if (lineFlip)
                 lineColor = lineColor.light(105);
 
-            while (reverse ? (rectStart > progressBar.left() + 2) : (rectStart < progressBar.right() - 2)) {
+            while (reverse ? (rectStart > progressBar.left()) : (rectStart < progressBar.right())) {
                 int rectWidth = 10;
                 int lineWidth = 10;
 
@@ -2404,14 +2425,16 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     int adjustedRectStart = qMax(rectStart, progressBar.left() + 1);
                     QRect section(adjustedRectStart, progressBar.top() + 2,
                                   (rectWidth - (adjustedRectStart - rectStart)), progressBar.height() - 4);
-                    section.adjust(0, -1, 0, 0);
-                    if (section.width() == 1) {
-                        painter->setPen(rectColor);
-                        painter->drawLine(section.left(), section.top(), section.left(), section.bottom());
-                    } else {
-                        painter->fillRect(section, rectColor);
-                        painter->setPen(rectColor.dark(102));
-                        painter->drawLine(section.right(), section.top(), section.right(), section.bottom());
+                    if (section.isValid()) {
+                        section.adjust(0, -1, 0, 0);
+                        if (section.width() == 1) {
+                            painter->setPen(rectColor);
+                            painter->drawLine(section.left(), section.top(), section.left(), section.bottom());
+                        } else {
+                            painter->fillRect(section, rectColor);
+                            painter->setPen(rectColor.dark(102));
+                            painter->drawLine(section.right(), section.top(), section.right(), section.bottom());
+                        }
                     }
                 } else {
                     int adjustedRectStart = qMin(rectStart, progressBar.right() - 1);
@@ -2419,29 +2442,37 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     QRect section(adjustedRectStart - rectWidth, progressBar.top() + 2,
                                   rectWidth, progressBar.height() - 4);
                     section.adjust(1, -1, 1, 0);
-                    if (section.width() == 1) {
-                        painter->setPen(rectColor);
-                        painter->drawLine(section.right(), section.top(), section.right(), section.bottom());
-                    } else {
-                        painter->fillRect(section, rectColor);
-                        painter->setPen(rectColor.dark(102));
-                        painter->drawLine(section.right(), section.top(), section.right(), section.bottom());
+                    if (section.isValid()) {
+                        if (section.width() == 1) {
+                            painter->setPen(rectColor);
+                            painter->drawLine(section.right(), section.top(), section.right(), section.bottom());
+                        } else {
+                            painter->fillRect(section, rectColor);
+                            painter->setPen(rectColor.dark(102));
+                            painter->drawLine(section.right(), section.top(), section.right(), section.bottom());
+                        }
                     }
                 }
 
                 painter->setPen(lineColor);
                 if (!reverse) {
                     int adjustedLineStart = qMax(lineStart, progressBar.left() + 1);
-                    painter->drawLine(adjustedLineStart, progressBar.top() + 1,
-                                      adjustedLineStart + (lineWidth - (adjustedLineStart - lineStart)), progressBar.top() + 1);
-                    painter->drawLine(adjustedLineStart, progressBar.bottom() - 1,
-                                      adjustedLineStart + (lineWidth - (adjustedLineStart - lineStart)), progressBar.bottom() - 1);
+                    int adjustedLineStop = adjustedLineStart + (lineWidth - (adjustedLineStart - lineStart));
+                    if (adjustedLineStop >= adjustedLineStart) {
+                        painter->drawLine(adjustedLineStart, progressBar.top() + 1,
+                                          adjustedLineStop, progressBar.top() + 1);
+                        painter->drawLine(adjustedLineStart, progressBar.bottom() - 1,
+                                          adjustedLineStop, progressBar.bottom() - 1);
+                    }
                 } else {
                     int adjustedLineStart = qMin(lineStart, progressBar.right() - 1);
-                    painter->drawLine(adjustedLineStart, progressBar.top() + 1,
-                                      adjustedLineStart - (lineWidth - (lineStart - adjustedLineStart)), progressBar.top() + 1);
-                    painter->drawLine(adjustedLineStart, progressBar.bottom() - 1,
-                                      adjustedLineStart - (lineWidth - (lineStart - adjustedLineStart)), progressBar.bottom() - 1);
+                    int adjustedLineStop = adjustedLineStart - (lineWidth - (lineStart - adjustedLineStart));
+                    if (adjustedLineStop <= adjustedLineStart) {
+                        painter->drawLine(adjustedLineStart, progressBar.top() + 1,
+                                          adjustedLineStop, progressBar.top() + 1);
+                        painter->drawLine(adjustedLineStart, progressBar.bottom() - 1,
+                                          adjustedLineStop, progressBar.bottom() - 1);
+                    }
                 }
 
                 rectStart += reverse ? -10 : 10;
@@ -4741,6 +4772,9 @@ void QPlastiqueStyle::polish(QWidget *widget)
         ) {
         widget->setBackgroundRole(QPalette::Background);
     }
+
+    if (AnimateBusyProgressBar && qobject_cast<QProgressBar *>(widget))
+        widget->installEventFilter(this);
 }
 
 /*!
@@ -4791,6 +4825,9 @@ void QPlastiqueStyle::unpolish(QWidget *widget)
         ) {
         widget->setBackgroundRole(QPalette::Button);
     }
+
+    if (AnimateBusyProgressBar && qobject_cast<QProgressBar *>(widget))
+        widget->removeEventFilter(this);
 }
 
 /*!
@@ -4816,6 +4853,45 @@ void QPlastiqueStyle::polish(QPalette &pal)
 void QPlastiqueStyle::unpolish(QApplication *app)
 {
     QWindowsStyle::unpolish(app);
+}
+
+bool QPlastiqueStyle::eventFilter(QObject *watched, QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::Show:
+        if (QProgressBar *bar = qobject_cast<QProgressBar *>(watched)) {
+            d->bars << bar;
+            if (d->bars.size() == 1) {
+                Q_ASSERT(ProgressBarFps > 0);
+                d->progressBarAnimateTimer = startTimer(1000 / ProgressBarFps);
+            }
+        }
+        break;
+    case QEvent::Hide:
+        if (QProgressBar *bar = qobject_cast<QProgressBar *>(watched)) {
+            d->bars.removeAll(bar);
+            if (d->bars.isEmpty()) {
+                killTimer(d->progressBarAnimateTimer);
+                d->progressBarAnimateTimer = 0;
+            }
+        }
+    default:
+        break;
+    }
+
+    return QWindowsStyle::eventFilter(watched, event);
+}
+
+void QPlastiqueStyle::timerEvent(QTimerEvent *event)
+{
+    if (event->timerId() == d->progressBarAnimateTimer) {
+        ++d->animateStep;
+        foreach (QProgressBar *bar, d->bars) {
+            if (bar->minimum() == 0 && bar->maximum() == 0)
+                bar->update();
+        }
+    }
+    event->ignore();
 }
 
 #endif // QT_NO_STYLE_PLASTIQUE
