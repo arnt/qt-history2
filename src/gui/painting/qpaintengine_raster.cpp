@@ -1142,7 +1142,8 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
         textureData.setupMatrix(copy, QPainterPrivate::TxRotShear, d->bilinear);
 
         bool wasAntialiased = d->antialiased;
-        d->antialiased = d->bilinear;
+        if (!d->antialiased)
+            d->antialiased = d->bilinear;
         QPainterPath path;
         path.addRect(r);
         fillPath(path, &textureData);
@@ -1182,9 +1183,13 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
         copy.translate(-sr.x(), -sr.y());
         textureData.setupMatrix(copy, QPainterPrivate::TxRotShear, d->bilinear);
 
+        bool wasAntialiased = d->antialiased;
+        if (!d->antialiased)
+            d->antialiased = d->bilinear;
         QPainterPath path;
         path.addRect(r);
         fillPath(path, &textureData);
+        d->antialiased = wasAntialiased;
     } else {
         textureData.blend = d->rasterBuffer->drawHelper->blendTiled;
         textureData.dx = -(r.x() + d->matrix.dx()) + sr.x();

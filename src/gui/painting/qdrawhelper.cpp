@@ -577,8 +577,8 @@ static void blend_transformed_bilinear_argb(int count, const QSpan *spans, void 
 
         uint *target = ((uint *)t) + spans->x;
         uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale) - half_point;
-        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale) - half_point;
+        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale);
+        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale);
 
         int length = spans->len;
         while (length) {
@@ -645,8 +645,8 @@ static void blend_transformed_bilinear_tiled_argb(int count, const QSpan *spans,
 
         uint *target = ((uint *)t) + spans->x;
         uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale) - half_point;
-        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale) - half_point;
+        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale);
+        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale);
 
         int length = spans->len;
         while (length) {
@@ -722,8 +722,8 @@ static void blend_transformed_argb(int count, const QSpan *spans, void *userData
 
         uint *target = ((uint *)t) + spans->x;
         uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale) - half_point;
-        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale) - half_point;
+        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale);
+        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale);
 
         int length = spans->len;
         while (length) {
@@ -771,8 +771,8 @@ static void blend_transformed_tiled_argb(int count, const QSpan *spans, void *us
 
         uint *target = ((uint *)t) + spans->x;
         uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale) - half_point;
-        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale) - half_point;
+        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale);
+        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale);
 
         int length = spans->len;
         while (length) {
@@ -1084,8 +1084,8 @@ static void blend_transformed_mono(int count, const QSpan *spans, void *userData
     while (count--) {
         uchar *target = ((uchar *)data->rasterBuffer->scanLine(spans->y));
         uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale) - half_point;
-        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale) - half_point;
+        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale);
+        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale);
 
         for (int i = 0; i < spans->len; ++i) {
             int px = x >> 16;
@@ -1128,8 +1128,8 @@ static void blend_transformed_tiled_mono(int count, const QSpan *spans, void *us
     while (count--) {
         uchar *target = ((uchar *)data->rasterBuffer->scanLine(spans->y));
         uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale) - half_point;
-        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale) - half_point;
+        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale);
+        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale);
 
         for (int i = 0; i < spans->len; ++i) {
             int px = x >> 16;
@@ -1409,8 +1409,8 @@ static void blend_transformed_mono_lsb(int count, const QSpan *spans, void *user
     while (count--) {
         uchar *target = (uchar *)data->rasterBuffer->scanLine(spans->y);
         uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale) - half_point;
-        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale) - half_point;
+        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale);
+        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale);
 
         for (int i = 0; i < spans->len; ++i) {
             int px = x >> 16;
@@ -1453,8 +1453,8 @@ static void blend_transformed_tiled_mono_lsb(int count, const QSpan *spans, void
     while (count--) {
         uchar *target = ((uchar *)data->rasterBuffer->scanLine(spans->y));
         uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale) - half_point;
-        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale) - half_point;
+        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale);
+        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale);
 
         for (int i = 0; i < spans->len; ++i) {
             int px = x >> 16;
