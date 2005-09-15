@@ -22,6 +22,7 @@
 #include "QtTest/qtestevent.h"
 #include "QtTest/qtestmouse.h"
 #include "QtTest/qtestkeyboard.h"
+#include "QtTest/qtesteventloop.h"
 
 #if 0
 // inform syncqt

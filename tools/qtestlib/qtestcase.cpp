@@ -127,6 +127,8 @@ static bool isValidSlot(const QMetaMethod &sl)
         return false;
     if (sig[len - 2] != '(' || sig[len - 1] != ')')
         return false;
+    if (len > 7 && strcmp(sig + (len - 7), "_data()") == 0)
+        return false;
     if (strcmp(sig, "initTestCase()") == 0 || strcmp(sig, "cleanupTestCase()") == 0
         || strcmp(sig, "cleanup()") == 0 || strcmp(sig, "init()") == 0)
         return false;
