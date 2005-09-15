@@ -5,7 +5,8 @@ no-png {
     SUBDIRS		= assistant/lib \
 			assistant \
 			linguist \
-			porting
+			porting \
+                        qtestlib
     !contains(QT_EDITION, Console):SUBDIRS += designer
     unix:SUBDIRS        += qtconfig
     win32:SUBDIRS       += activeqt

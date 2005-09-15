@@ -1,18 +1,53 @@
-TESTDIR = $$(QTESTDIR)
+OBJECTS_DIR     = tmp
+MOC_DIR         = tmp
 
-isEmpty(TESTDIR) {
-    QTEST_P4 = $$system(p4 where //depot/qtest/research/qtestlib)
-    count(QTEST_P4, 3): TESTDIR = $$member(QTEST_P4, 2)
-    warning("QTESTDIR environment variable not set, using qtestlib in $$TESTDIR")
+CONFIG          += qt warn_on console depend_includepath
+CONFIG          -= debug_and_release_target
 
-    # set the include path at qmake time rather than hardcode $QTESTDIR into the generated makefile
-    INCLUDEPATH += $${TESTDIR}
+!exists($$[QT_INSTALL_LIBS]/*QtTest*) {
+#    warning("Could not find qtestlib, linking it statically into every test")
+    CONFIG += embed_testlib
+}
+
+#make sure the test is build according to your Qt configuration
+contains(QT_CONFIG, embedded):CONFIG += embedded
+
+embed_testlib {
+    QTESTDIR = $$(QTDIR)/tools/qtestlib
+    SOURCES += $${QTESTDIR}/qasciikey.cpp \
+               $${QTESTDIR}/qabstracttestlogger.cpp \
+               $${QTESTDIR}/qsignaldumper.cpp \
+               $${QTESTDIR}/qtestdata.cpp \
+               $${QTESTDIR}/qtestresult.cpp \
+               $${QTESTDIR}/qxmltestlogger.cpp \
+               $${QTESTDIR}/qplaintestlogger.cpp \
+               $${QTESTDIR}/qtestcase.cpp \
+               $${QTESTDIR}/qtestlog.cpp \
+               $${QTESTDIR}/qtesttable.cpp
+    DEFINES += QTEST_EMBED QTEST_LIGHT
 } else {
-    TESTDIR=$${TESTDIR}/qtestlib
+    CONFIG(debug, debug|release) {
+        LIBS += -lQtTest_debug
+    } else {
+        LIBS += -lQtTest
+    }
 }
 
-isEmpty(TESTDIR) {
-    error("Please set the QTESTDIR environment variable")
-}
+embedded:QMAKE_CXXFLAGS+=-fno-rtti
 
-include($${TESTDIR}/../include/qtest.pri)
+########################################################################
+# Use install rule to run test application.
+# This lets you do 'make install' on a test to both build and run it,
+# and lets you easily build and run all tests from the parent directory.
+# ----------------------------------------------------------------------
+
+runme.files                =
+runme.path                 = .
+!isEmpty(DESTDIR): runme.commands = cd ./$(DESTDIR) &&
+macx:      runme.commands += ./$(QMAKE_TARGET).app/Contents/MacOS/$(QMAKE_TARGET)
+else:unix: runme.commands += ./$(QMAKE_TARGET)
+else:      runme.commands += $(QMAKE_TARGET)
+embedded:  runme.commands += -qws
+INSTALLS += runme
+
+########################################################################

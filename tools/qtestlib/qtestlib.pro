@@ -6,10 +6,10 @@ contains(QT_CONFIG, debug):contains(QT_CONFIG, release):CONFIG += debug_and_rele
 contains(QT_CONFIG, embedded):CONFIG += embedded
 
 CONFIG(debug, debug|release) {
-    TARGET = QTest_debug
+    TARGET = QtTest_debug
     OBJECTS_DIR = tmp/debug
 } else {
-    TARGET = QTest
+    TARGET = QtTest
     OBJECTS_DIR = tmp/release
 }
 
