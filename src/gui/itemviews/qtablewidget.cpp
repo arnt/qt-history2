@@ -425,34 +425,45 @@ Qt::ItemFlags QTableModel::flags(const QModelIndex &index) const
 
 void QTableModel::sort(int column, Qt::SortOrder order)
 {
-    QVector< QPair<QTableWidgetItem*, int> > sorting;
+    QVector< QPair<QTableWidgetItem*,int> > sorting;
     sorting.reserve(rowCount());
     
-    for (int row = 0; row < rowCount(); ++row) {
+    // Collect all null cells (not sortable) we bump into here, and make sure that we store them in the same order as we found them.
+    QVector< QPair<QTableWidgetItem*,int> > nonsorting;
+    nonsorting.reserve(rowCount());
+
+    for (int row = 0; row < rowCount(); row++) {
         QTableWidgetItem *itm = item(row, column);
-        if (itm)
-            sorting.append(QPair<QTableWidgetItem*, int>(itm, row));
+        if (itm) {
+            sorting.append(QPair<QTableWidgetItem*,int>(itm, row));
+        }else{
+            nonsorting.append(QPair<QTableWidgetItem*,int>(0, row));
+        }
     }
 
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
     qSort(sorting.begin(), sorting.end(), compare);
 
     QVector<QTableWidgetItem*> sorted_table(table.count());
-    
-    for (int i = 0; i < sorting.count(); ++i) {
-        int row = sorting.at(i).second;
-        for (int col = 0; col < columnCount(); ++col) {
-            QTableWidgetItem *itm = item(row, col);
-            sorted_table[tableIndex(i, col)] = itm;
-            QModelIndex from = createIndex(row, col, itm);
-            QModelIndex to = createIndex(i, col, itm);
+    int j;
+    int sortCount = sorting.count();
+    for (j = 0; j < sortCount; ++j) {
+        int r = sorting.at(j).second;
+        for (int c = 0; c < columnCount(); ++c) {
+            QTableWidgetItem *itm = item(r, c);
+            sorted_table[tableIndex(j, c)] = itm;
+            QModelIndex from = createIndex(r, c, itm);
+            QModelIndex to = createIndex(j, c, itm);
             changePersistentIndex(from, to);
         }
     }
-    
-    for (int row = sorting.count(); row < rowCount(); ++row)
-        for (int col = 0; col < columnCount(); ++col)
-            sorted_table[tableIndex(row, col)] = 0;
+    for (; j < rowCount(); ++j) {
+        int r = nonsorting.at(j - sortCount).second;
+        for (int c = 0; c < columnCount(); ++c) {
+            QTableWidgetItem *itm = item(r, c);
+            sorted_table[tableIndex(j, c)] = itm;
+        }
+    }
 
     table = sorted_table;
 
