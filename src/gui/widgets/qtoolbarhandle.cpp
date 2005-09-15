@@ -95,7 +95,7 @@ void QToolBarHandle::mousePressEvent(QMouseEvent *event)
     bool found = false;
     int index = 0;
     while (!found && (item = layout->itemAt(index++)) != 0)
-        found = item->widget() == this;
+        found = item->widget() == toolBar;
     if (!found)
         return;
 
