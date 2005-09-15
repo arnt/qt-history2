@@ -1633,7 +1633,8 @@ bool QWidget::isMinimized() const
 void QWidget::showMinimized()
 {
     bool isMin = isMinimized();
-    if (isMin && isVisible()) return;
+    if (isMin && isVisible())
+        return;
 
     ensurePolished();
 #ifdef QT3_SUPPORT
@@ -1731,7 +1732,7 @@ bool QWidget::isFullScreen() const
 /*!
     Shows the widget in full-screen mode.
 
-    Calling this function only affects windows.
+    Calling this function only affects \l{isWindow()}{windows}.
 
     To return from full-screen mode, call showNormal().
 
@@ -1770,7 +1771,8 @@ void QWidget::showFullScreen()
 #endif
 
     if (!isFull)
-	setWindowState(windowState() | Qt::WindowFullScreen);
+	setWindowState((windowState() & ~(Qt::WindowMinimized | Qt::WindowMaximized))
+                       | Qt::WindowFullScreen);
     show();
     activateWindow();
 }
@@ -1787,7 +1789,7 @@ void QWidget::showFullScreen()
 */
 void QWidget::showMaximized()
 {
-    if (isMaximized() && isVisible() && !isMinimized())
+    if (isMaximized() && isVisible())
 	return;
 
     ensurePolished();
@@ -1796,7 +1798,8 @@ void QWidget::showMaximized()
         QApplication::sendPostedEvents(parent(), QEvent::ChildInserted);
 #endif
 
-    setWindowState((windowState() & ~Qt::WindowMinimized) | Qt::WindowMaximized);
+    setWindowState((windowState() & ~(Qt::WindowMinimized | Qt::WindowFullScreen))
+                   | Qt::WindowMaximized);
     show();
 }
 
@@ -1815,7 +1818,9 @@ void QWidget::showNormal()
         QApplication::sendPostedEvents(parent(), QEvent::ChildInserted);
 #endif
 
-    setWindowState(Qt::WindowNoState);
+    setWindowState(windowState() & ~(Qt::WindowMinimized
+                                     | Qt::WindowMaximized
+                                     | Qt::WindowFullScreen));
     show();
 }
 
