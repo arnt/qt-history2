@@ -404,7 +404,7 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
             error("Template function as signal or slot");
         else
             error();
-}
+    }
     if (test(LPAREN)) {
         def->name = def->type;
         def->type = "int";
@@ -768,6 +768,9 @@ void Moc::parseSlots(ClassDef *def, FunctionDef::Access access)
             return;
         case SEMIC:
             continue;
+        case FRIEND:
+            until(SEMIC);
+            continue;
         default:
             prev();
         }
@@ -797,6 +800,9 @@ void Moc::parseSignals(ClassDef *def)
             prev();
             return;
         case SEMIC:
+            continue;
+        case FRIEND:
+            until(SEMIC);
             continue;
         default:
             prev();
