@@ -471,8 +471,18 @@ QSize QFrame::sizeHint() const
 /*!\reimp
 */
 
-void QFrame::paintEvent(QPaintEvent *)
+void QFrame::paintEvent(QPaintEvent *event)
 {
+    Q_D(QFrame);
+    const QRect er = event->rect();
+    const QRect tr = this->rect();
+    const int fw = d->frameWidth;
+    if (er.left() >= tr.left() + fw
+        && er.top() >= tr.top() + fw
+        && er.right() <= tr.right() - fw
+        && er.bottom() <= tr.bottom() - fw)
+        return;
+
     QPainter paint(this);
     drawFrame(&paint);
 }
