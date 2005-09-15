@@ -3074,9 +3074,7 @@ void QTextEdit::append(const QString &text)
 void QTextEdit::ensureCursorVisible()
 {
     Q_D(QTextEdit);
-    QRect crect =  cursorRect();
-    // transform to content coordinates
-    crect.translate(d->hbar->value(), d->vbar->value());
+    QRect crect = d->rectForPosition(d->cursor.position());
 
     const int visibleWidth = d->viewport->width();
     const int visibleHeight = d->viewport->height();
