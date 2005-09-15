@@ -23,6 +23,11 @@
 #include "QtTest/qtestmouse.h"
 #include "QtTest/qtestkeyboard.h"
 
+#if 0
+// inform syncqt
+#pragma qt_no_master_include
+#endif
+
 namespace QTest
 {
 

@@ -14,6 +14,11 @@
 #ifndef QTESTEVENT_H
 #define QTESTEVENT_H
 
+#if 0
+// inform syncqt
+#pragma qt_no_master_include
+#endif
+
 #include "QtTest/qtest_global.h"
 #include "QtTest/qtestkeyboard.h"
 #include "QtTest/qtestmouse.h"
