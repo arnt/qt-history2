@@ -610,7 +610,7 @@ QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVar
                                        option.state & QStyle::State_Open
                                        ? QIcon::On : QIcon::Off);
     case QVariant::Color: {
-        static QPixmap pixmap(20, 20);
+        static QPixmap pixmap(option.decorationSize);
         pixmap.fill(qvariant_cast<QColor>(variant));
         return pixmap; }
     default:
