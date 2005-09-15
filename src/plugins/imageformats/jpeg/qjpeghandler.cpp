@@ -180,13 +180,13 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
     struct my_jpeg_source_mgr *iod_src = new my_jpeg_source_mgr(device);
     struct my_error_mgr jerr;
     memset(&jerr, 0, sizeof(jerr));
+    jerr.error_exit = my_error_exit;
 
     jpeg_create_decompress(&cinfo);
 
     cinfo.src = iod_src;
 
     cinfo.err = jpeg_std_error(&jerr);
-    jerr.error_exit = my_error_exit;
 
     if (!setjmp(jerr.setjmp_buffer)) {
 #if defined(Q_OS_UNIXWARE)
