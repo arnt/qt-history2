@@ -75,6 +75,12 @@
     URL to a user in unencoded form. The encoded form however, as
     returned by toEncoded(), is for internal use, passing to web
     servers, mail clients and so on.
+
+    QUrl conforms to the URI specification from
+    \l{http://www.ietf.org/rfc/rfc3986.txt}{RFC3986} (Uniform Resource
+    Identifier: Generic Syntax), and includes scheme extensions from
+    \l{http://www.ietf.org/rfc/rfc1738.txt}{RFC1738} (Uniform Resource
+    Locators).
 */
 
 /*!
