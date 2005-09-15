@@ -752,19 +752,19 @@ static void CALLBACK qgl_tess_error(GLenum errorCode)
     qWarning("QOpenGLPaintEngine: tessellation error: %s", gluErrorString(errorCode));
 }
 
-static GLUtesselator *qgl_tess = 0;
-static void qgl_cleanup_tesselator()
+struct QGLUTesselatorCleanupHandler
 {
-    gluDeleteTess(qgl_tess);
-}
+    inline QGLUTesselatorCleanupHandler() { qgl_tess = gluNewTess(); }
+    inline ~QGLUTesselatorCleanupHandler() { gluDeleteTess(qgl_tess); }
+    GLUtesselator *qgl_tess;
+};
+
+Q_GLOBAL_STATIC(QGLUTesselatorCleanupHandler, tessHandler)
 
 static void qgl_draw_poly(const QPointF *points, int pointCount, bool winding = false)
 {
 #ifndef QT_GL_NO_CONCAVE_POLYGONS
-    if (!qgl_tess) {
-	qgl_tess = gluNewTess();
-	qAddPostRoutine(qgl_cleanup_tesselator);
-    }
+    GLUtesselator *qgl_tess = tessHandler()->qgl_tess;
     gluTessProperty(qgl_tess, GLU_TESS_WINDING_RULE,
                     winding ? GLU_TESS_WINDING_NONZERO : GLU_TESS_WINDING_ODD);
     QVarLengthArray<GLdouble> v(pointCount*3);
