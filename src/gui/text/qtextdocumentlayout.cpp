@@ -715,7 +715,7 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
                 int cspan = cell.columnSpan();
                 if (rspan != 1) {
                     int cr = cell.row();
-                    if (cr != r && cr > firstRow)
+                    if (cr != r && (cr > firstRow || !firstRow))
                         continue;
                 }
                 if (cspan != 1) {
