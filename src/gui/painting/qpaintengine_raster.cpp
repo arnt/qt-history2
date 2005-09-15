@@ -460,12 +460,8 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->antialiased = false;
     d->bilinear = false;
     d->mono_surface = false;
-    d->has_pen = true;
-    d->has_brush = false;
     d->fast_pen = true;
     d->int_xform = true;
-
-    d->stroker = &d->basicStroker;
 
     d->rasterBuffer->init();
 
@@ -563,6 +559,8 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
 
     d->penData.init(d->rasterBuffer);
     d->penData.setup(d->pen.brush());
+    d->stroker = &d->basicStroker;
+
     d->brushData.init(d->rasterBuffer);
     d->brushData.setup(d->brush);
     
@@ -746,8 +744,6 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyPen) {
         update_fast_pen = true;
         d->pen = state.pen();
-        Qt::PenStyle pen_style = d->pen.style();
-        d->has_pen = pen_style != Qt::NoPen;
         d->basicStroker.setJoinStyle(d->pen.joinStyle());
         d->basicStroker.setCapStyle(d->pen.capStyle());
         qreal penWidth = d->pen.widthF();
@@ -756,9 +752,10 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         else
             d->basicStroker.setStrokeWidth(penWidth);
 
+        Qt::PenStyle pen_style = d->pen.style();
         if(pen_style == Qt::SolidLine) {
             d->stroker = &d->basicStroker;
-        } else if (d->has_pen) {
+        } else if (pen_style != Qt::NoPen) {
             if (!d->dashStroker)
                 d->dashStroker = new QDashStroker(&d->basicStroker);
             d->dashStroker->setDashPattern(QDashStroker::patternForStyle(pen_style));
@@ -766,13 +763,12 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         } else {
             d->stroker = 0;
         }
-        d->penData.setup(d->pen.brush());
+        d->penData.setup(pen_style == Qt::NoPen ? QBrush() : d->pen.brush());
     }
 
     if (flags & DirtyBrush) { 
         QBrush brush = state.brush();
         d->brush = brush;
-        d->has_brush = brush.style() != Qt::NoBrush;
         d->brushData.setup(d->brush);
     }
     
@@ -925,15 +921,15 @@ void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
 
         while (rects < lastRect) {
 
-            if (d->has_brush) {
+            if (d->brushData.blend) {
                 QRect r = *rects;
                 r.translate(offset_x, offset_y);
                 fillRect(r, &d->brushData);
             }
 
-            if (d->has_pen) {
-                bool had_brush = d->has_brush;
-                d->has_brush = false;
+            if (d->penData.blend) {
+                ProcessSpans brush_blend = d->brushData.blend;
+                d->brushData.blend = 0;
                 int left = rects->x();
                 int right = rects->x() + rects->width();
                 int top = rects->y();
@@ -943,7 +939,7 @@ void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
                                  QPoint(right, bottom),
                                  QPoint(left, bottom) };
                 QRasterPaintEngine::drawPolygon(pts, 4, WindingMode);
-                d->has_brush = had_brush;
+                d->brushData.blend = brush_blend;
             }
 
             ++rects;
@@ -980,12 +976,12 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
 
     Q_D(QRasterPaintEngine);
 
-    if (d->has_brush) {
+    if (d->brushData.blend) {
         d->outlineMapper->setMatrix(d->matrix, d->txop);
         fillPath(path, &d->brushData);
     }
 
-    if (d->has_pen) {
+    if (d->penData.blend) {
         Q_ASSERT(d->stroker);
         qreal width = d->pen.widthF();
         d->outlineMapper->beginOutline(Qt::WindingFill);
@@ -1016,7 +1012,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
     Q_ASSERT(pointCount >= 2);
 
     // Do the fill
-    if (d->has_brush && mode != PolylineMode) {
+    if (d->brushData.blend && mode != PolylineMode) {
 
         // Compose polygon fill..,
         d->outlineMapper->beginOutline(mode == WindingMode ? Qt::WindingFill : Qt::OddEvenFill);
@@ -1033,7 +1029,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
     }
 
     // Do the outline...
-    if (d->has_pen) {
+    if (d->penData.blend) {
 
         bool needs_closing = mode != PolylineMode && points[0] != points[pointCount-1];
 
@@ -1703,7 +1699,7 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
 void QRasterPaintEngine::drawEllipse(const QRectF &rect)
 {
     Q_D(QRasterPaintEngine);
-    if (d->has_brush) {
+    if (d->brushData.blend) {
         QPointF controlPoints[12];
         int point_count = 0;
         QPointF start = qt_curves_for_arc(rect, 0, 360, controlPoints, &point_count);
@@ -1720,7 +1716,7 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
         qt_scanconvert(&d->outlineMapper->m_outline, d->brushData.blend, &d->brushData, d);
     }
 
-    if (d->has_pen) {
+    if (d->penData.blend) {
         qreal width = d->pen.widthF();
         d->outlineMapper->beginOutline(Qt::WindingFill);
         if (width == 0) {

@@ -169,8 +169,6 @@ public:
 
     uint txop;
     
-    uint has_pen : 1;
-    uint has_brush : 1;
     uint fast_pen : 1;
     uint antialiased : 1;
     uint bilinear : 1;
