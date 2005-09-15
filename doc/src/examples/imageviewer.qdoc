@@ -130,12 +130,14 @@
         imageLabel->resize(imageLabel->pixmap()->size());
     \endcode
 
+    In the \c print() slot, we first make sure that an image has been
+    loaded into the application:
+
     \printline print
     \printto QPrintDialog
 
-    In the \c print() slot, we first make sure that an image has been
-    loaded into the application. If the application is built in debug
-    mode, the \c Q_ASSERT() macro will expand to
+    If the application is built in debug mode, the \c Q_ASSERT() macro
+    will expand to
 
     \code
         if (!imageLabel->pixmap())
