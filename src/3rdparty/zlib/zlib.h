@@ -32,6 +32,7 @@
 #define ZLIB_H
 
 #include "zconf.h"
+#include "qconfig.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,14 +41,18 @@ extern "C" {
 #define ZLIB_VERSION "1.2.3"
 #define ZLIB_VERNUM 0x1230
 
-#ifdef QT_MAKEDLL
-#define Q_ZEXPORT __declspec(dllexport)
+#if defined(QT_VISIBILITY_AVAILABLE)
+# define Q_ZEXPORT __attribute__((visibility("default")))
 #else
-#if defined(QT_DLL) && !defined(QT_PLUGIN)
-#define Q_ZEXPORT __declspec(dllimport)
-#else
-#define Q_ZEXPORT ZEXPORT
-#endif
+# ifdef QT_MAKEDLL
+# define Q_ZEXPORT __declspec(dllexport)
+# else
+# if defined(QT_DLL) && !defined(QT_PLUGIN)
+# define Q_ZEXPORT __declspec(dllimport)
+# else
+# define Q_ZEXPORT ZEXPORT
+# endif
+# endif
 #endif
 #ifdef Q_OS_TEMP
 #include <qfunctions_wce.h>
