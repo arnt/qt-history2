@@ -1381,19 +1381,20 @@ void Q3IconViewItem::setSelected(bool s)
 
     If \a s is false, the item is unselected.
 
-    If \a s is true and Q3IconView::selectionMode() is \l Single, the
-    item is selected and the item previously selected is unselected.
+    If \a s is true and Q3IconView::selectionMode() is
+    Q3IconView::Single, the item is selected and the item previously
+    selected is unselected.
 
-    If \a s is true and Q3IconView::selectionMode() is \l Extended, the
-    item is selected. If \a cb is true, the selection state of the
-    other items is left unchanged. If \a cb is false (the default) all
-    other items are unselected.
+    If \a s is true and Q3IconView::selectionMode() is
+    Q3IconView::Extended, the item is selected. If \a cb is true, the
+    selection state of the other items is left unchanged. If \a cb is
+    false (the default) all other items are unselected.
 
-    If \a s is true and Q3IconView::selectionMode() is \l Multi, the
-    item is selected.
+    If \a s is true and Q3IconView::selectionMode() is
+    Q3IconView::Multi, the item is selected.
 
-    Note that \a cb is used only if Q3IconView::selectionMode() is \l
-    Extended; cb defaults to false.
+    Note that \a cb is used only if Q3IconView::selectionMode() is
+    Q3IconView::Extended; cb defaults to false.
 
     All items whose selection status changes repaint themselves.
 */
@@ -2408,10 +2409,10 @@ void Q3IconViewItem::checkRect()
 
     \value NoSelection  Items cannot be selected.
 
-    To summarize: \l Single is a real single-selection icon view; \l
-    Multi a real multi-selection icon view; \l Extended is an icon
+    To summarize: \c Single is a real single-selection icon view; \c
+    Multi a real multi-selection icon view; \c Extended is an icon
     view in which users can select multiple items but usually want to
-    select either just one or a range of contiguous items; and \l
+    select either just one or a range of contiguous items; and \c
     NoSelection mode is for an icon view where the user can look but
     not touch.
 */
@@ -6260,11 +6261,11 @@ bool Q3IconView::isRenaming() const
     \value EndsWith The target string ends with the search string.
     \value Contains The target string contains the search string.
 
-    If you OR these flags together (excluding \l CaseSensitive), the
-    search criteria be applied in the following order: \l ExactMatch,
-    \l BeginsWith, \l EndsWith, \l Contains.
+    If you OR these flags together (excluding \c CaseSensitive), the
+    search criteria be applied in the following order: \c ExactMatch,
+    \c BeginsWith, \c EndsWith, \c Contains.
 
-    Matching is case-insensitive unless \l CaseSensitive is set. \l
+    Matching is case-insensitive unless \c CaseSensitive is set. \c
     CaseSensitive can be OR-ed with any combination of the other
     flags.
 

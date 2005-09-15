@@ -705,10 +705,10 @@ int Q3ListBoxPixmap::rtti() const
 
     \value NoSelection  Items cannot be selected.
 
-    In other words, \l Single is a real single-selection list box, \l
-    Multi is a real multi-selection list box, \l Extended is a list
+    In other words, \c Single is a real single-selection list box, \c
+    Multi is a real multi-selection list box, \c Extended is a list
     box in which users can select multiple items but usually want to
-    select either just one or a range of contiguous items, and \l
+    select either just one or a range of contiguous items, and \c
     NoSelection is for a list box where the user can look but not
     touch.
 */
@@ -731,7 +731,7 @@ int Q3ListBoxPixmap::rtti() const
     column mode. (Or as many columns as required by the row mode.)
 
     Example: When you call setRowMode(FitToHeight), columnMode()
-    automatically becomes \l Variable to accommodate the row mode
+    automatically becomes \c Variable to accommodate the row mode
     you've set.
 */
 
