@@ -26,7 +26,7 @@ class QStringList;
 class Q_CORE_EXPORT QRegExp
 {
 public:
-    enum PatternSyntax { RegExp, Wildcard };
+    enum PatternSyntax { RegExp, Wildcard, FixedString };
     enum CaretMode { CaretAtZero, CaretAtOffset, CaretWontMatch };
 
     QRegExp();
