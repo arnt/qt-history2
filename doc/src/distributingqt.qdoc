@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-/*
+/*!
 \page distributingqt.html
 
 \title Deploying Qt Applications
