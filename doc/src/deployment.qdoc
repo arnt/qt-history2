@@ -13,7 +13,7 @@
 /*!
     \page deployment.html
 
-    \title Deployment
+    \title Deploying Qt Applications
 
     The procedure of deploying Qt applications is different for the
     various platforms:
@@ -24,22 +24,106 @@
         \o \l{Deployment on Qt/Mac}{Qt/Mac}
     \endlist
 
-    \sa Installation
+    This document lists the platform-specific files needed to
+    distribute Qt applications.
+
+    \tableofcontents
+
+    \section1 Static Qt Applications
+
+    To distribute static Qt applications, you need the following file
+    for all platforms:
+
+    \list
+        \o your application's executable
+    \endlist
+
+    \section1 Dynamic Qt Applications
+
+    To distribute dynamic Qt applications, you will need the following
+    files for all platforms:
+
+    \list
+        \o application executable
+        \o the Qt library
+    \endlist
+
+    The Qt library must either be in the same directory as the
+    application executable or in a directory which is included in the
+    system library path.
+
+    The library is provided by the following platform specific files:
+
+    \table
+        \header \o Platform \o File
+        \row \o Windows \o \c qt[version].dll
+        \row \o Unix/Linux \o \c libqt[version].so
+        \row \o Mac \o \c libqt[version].dylib
+    \endtable
+
+    \e version includes the three version numbers.
+
+    \section2 Distributing Plugins
+
+    You must include any plugin files required by the application.
+
+    Plugins must be put into a subdirectory under a directory known to
+    Qt as a plugin directory. The subdirectory must have the name of
+    the plugin category (e.g. \c styles, \c sqldrivers, \c designer,
+    etc.).
+
+    Qt searches in the following directories for plugin categories:
+
+    \list
+        \o Application specific plugin paths
+        \o Build-directory of Qt
+        \o The application directory
+    \endlist
+
+    Application specific plugin paths can be added using
+    QCoreApplication::addLibraryPath(). The build-directory of Qt is
+    hardcoded in the Qt library and can be changed as a part of the
+    installation process.
+
+    \section1 Dynamic Dialogs
+
+    For dynamic dialogs if you use QWidgetFactory, you need the
+    following files for all platforms:
+
+    \list
+        \o The same files as used for dynamic Qt applications
+        \o The QUI Library
+    \endlist
+
+    The QUI library is provided by the following platform specific files:
+
+    \table
+        \header \o Platform \o File
+        \row \o Windows  \o\c qui.lib
+        \row \o Unix/Linux  \o\c libqui.so
+        \row \o Mac \o \c libqui.dylib
+    \endtable
+
+    The QUI library must either be in the same directory as the
+    application executable or in a directory which is included in the
+    system library path.
+
+    \sa Installation {Window System Specific Notes}
 */
 
-/*!
+/*
     \page deployment-x11.html
 
     \title Deployment on Qt/X11
 */
 
-/*!
+/*
     \page deployment-windows.html
 
     \title Deployment on Qt/Windows
 
-    Some words about linking and libraries on Windows: 
-    
+    Some words about linking and libraries on Windows:
+
     - static libs (.lib) vs. dynamically loaded libraries (.dll)
 
     - dynamically loaded DLLs come with a static import library to link against
@@ -51,7 +135,7 @@
     QTCORE4.LIB, QTGUI4.LIB - Qt SDK
 
     - Qt not a system library, so it has to be redistributed
-   
+
     - Required to redistribute the runtime of those Qt modules used in application
 
     - compiler specific C runtime needs to be redistributed as well
@@ -61,7 +145,7 @@
     - depends tool lists dependencies of an executable
 
 
-    \section2 Shared Libraries
+    \section1 Shared Libraries
 
     - more flexible, small executables
 
@@ -74,7 +158,7 @@
     [Screen shot of depends for assistant]
 
 
-    \section2 Static Linking
+    \section1 Static Linking
 
     - fewer files to deploy
 
@@ -92,11 +176,11 @@
     - plugins
 
     - Assistant
-    
+
     - ActiveQt
 */
 
-/*!
+/*
     \page deployment-mac.html
 
     \title Deployment on Qt/Mac

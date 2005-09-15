@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-/*!
+/*
 \page distributingqt.html
 
 \title Deploying Qt Applications
@@ -51,7 +51,7 @@ files for all platforms:
 
 \list
 \i application executable
-\i the Qt library 
+\i the Qt library
 \endlist
 
 The Qt library must either be in the same directory as the application
@@ -75,7 +75,7 @@ You must include any plugin files required by the application.
 
 Plugins must be put into a subdirectory under a directory known to
 Qt as a plugin directory. The subdirectory must have the name of the
-plugin category (e.g. \c styles, \c sqldrivers, \c designer, etc.). 
+plugin category (e.g. \c styles, \c sqldrivers, \c designer, etc.).
 
 Qt searches in the following directories for plugin categories:
 
@@ -85,12 +85,12 @@ Qt searches in the following directories for plugin categories:
 \i The application directory
 \endlist
 
-Application specific plugin paths can be added using 
+Application specific plugin paths can be added using
 QCoreApplication::addLibraryPath(). The build-directory of Qt is hardcoded
 in the Qt library and can be changed as a part of the installation
 process.
 
-\section1 Dynamic Dialogs 
+\section1 Dynamic Dialogs
 
 For dynamic dialogs if you use QWidgetFactory, you need the following
 files for all platforms:
