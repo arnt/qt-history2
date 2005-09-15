@@ -149,6 +149,47 @@ QBitArray::QBitArray(int size, bool value)
 */
 
 /*!
+    If \a on is true, this function returns the number of
+    1-bits stored in the bit array; otherwise the number
+    of 0-bits is returned.
+*/
+int QBitArray::count(bool on) const
+{
+    int numBits = 0;
+    int len = size();
+#if 0
+    for (int i = 0; i < len; ++i)
+        numBits += testBit(i);
+#else
+    // See http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
+    const quint8 *bits = reinterpret_cast<const quint8 *>(d.data()) + 1;
+    while (len >= 32) {
+        quint32 v = quint32(bits[0]) | (quint32(bits[1]) << 8) | (quint32(bits[2]) << 16) | (quint32(bits[3]) << 24);
+        quint32 c = ((v & 0xfff) * Q_UINT64_C(0x1001001001001) & Q_UINT64_C(0x84210842108421)) % 0x1f;
+        c += (((v & 0xfff000) >> 12) * Q_UINT64_C(0x1001001001001) & Q_UINT64_C(0x84210842108421)) % 0x1f;
+        c += ((v >> 24) * Q_UINT64_C(0x1001001001001) & Q_UINT64_C(0x84210842108421)) % 0x1f;
+        len -= 32;
+        bits += 4;
+        numBits += int(c);
+    }
+    while (len >= 24) {
+        quint32 v = quint32(bits[0]) | (quint32(bits[1]) << 8) | (quint32(bits[2]) << 16);
+        quint32 c =  ((v & 0xfff) * 0x1001001001001ULL & 0x84210842108421ULL) % 0x1f;
+        c += (((v & 0xfff000) >> 12) * 0x1001001001001ULL & 0x84210842108421ULL) % 0x1f;    
+        len -= 24;
+        bits += 3;
+        numBits += int(c);
+    }
+    while (len) {
+        if (bits[len / 8] & (1 << ((len - 1) & 7)))
+            ++numBits;
+        --len;
+    }
+#endif
+    return on ? numBits : size() - numBits;
+}
+
+/*!
     Resizes the bit array to \a size bits.
 
     If \a size is greater than the current size, the bit array is

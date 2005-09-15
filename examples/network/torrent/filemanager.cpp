@@ -38,14 +38,6 @@ extern "C" {
 #include "3rdparty/sha1.h"
 }
 
-static inline int bitCount(const QBitArray &bits)
-{
-    int count = 0;
-    for (int i = 0; i < bits.size(); ++i)
-        count += bits.testBit(i);
-    return count;
-}
-
 FileManager::FileManager(QObject *parent)
     : QThread(parent)
 {
@@ -398,7 +390,7 @@ void FileManager::verifyFileContents()
 {
     // Verify all pieces the first time
     if (newPendingVerificationRequests.isEmpty()) {
-        if (bitCount(verifiedPieces) == 0) {
+        if (verifiedPieces.count(true) == 0) {
             verifiedPieces.resize(sha1s.size());
 
             int oldPercent = 0;
