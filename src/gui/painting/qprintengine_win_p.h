@@ -156,6 +156,7 @@ public:
     HGLOBAL globalDevMode;
     void *devMode;
     void *pInfo;
+    HGLOBAL hMem;
 
     HDC hdc;
 

@@ -801,14 +801,16 @@ void QWin32PrintEnginePrivate::initialize()
     DWORD infoSize, numBytes;
     QT_WA( {
         GetPrinterW(hPrinter, 2, NULL, 0, &infoSize);
-        pInfo = malloc(infoSize);
+        hMem = GlobalAlloc(GHND, infoSize);
+        pInfo = GlobalLock(hMem);
         if (!GetPrinterW(hPrinter, 2, (LPBYTE)pInfo, infoSize, &numBytes)) {
             qErrnoWarning("QWin32PrintEngine::initialize: GetPrinter failed");
             return;
         }
     }, {
         GetPrinterA(hPrinter, 2, NULL, 0, &infoSize);
-        pInfo = malloc(infoSize);
+        hMem = GlobalAlloc(GHND, infoSize);
+        pInfo = GlobalLock(hMem);
         if (!GetPrinterA(hPrinter, 2, (LPBYTE)pInfo, infoSize, &numBytes)) {
             qErrnoWarning("QWin32PrintEngine::initialize: GetPrinter failed");
             return;
@@ -883,7 +885,8 @@ void QWin32PrintEnginePrivate::release()
         GlobalUnlock(globalDevMode);
     } else {            // Devmode comes from initialize...
         // devMode is a part of the same memory block as pInfo so one free is enough...
-        free(pInfo);
+        GlobalUnlock(hMem);
+        GlobalFree(hMem);
         ClosePrinter(hPrinter);
     }
     DeleteDC(hdc);
@@ -891,6 +894,7 @@ void QWin32PrintEnginePrivate::release()
     hdc = 0;
     hPrinter = 0;
     pInfo = 0;
+    hMem = 0;
     devMode = 0;
 }
 
