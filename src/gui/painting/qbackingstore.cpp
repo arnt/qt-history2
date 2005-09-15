@@ -429,11 +429,17 @@ void QWidget::repaint(const QRegion& rgn)
         engine->setSystemClip(rgn);
 
         //paint the background
-        d->composeBackground(rgn.boundingRect());
+        QPaintEvent e(rgn);
+        if (!testAttribute(Qt::WA_NoBackground)
+            && !testAttribute(Qt::WA_NoSystemBackground)) {
+            d->composeBackground(rgn.boundingRect());
+#ifdef QT3_SUPPORT
+            e.setErased(true);
+#endif
+        }
 
         //actually send the paint event
         setAttribute(Qt::WA_PendingUpdate, false);
-        QPaintEvent e(rgn);
         QApplication::sendSpontaneousEvent(this, &e);
 
 #ifdef Q_WS_WIN
