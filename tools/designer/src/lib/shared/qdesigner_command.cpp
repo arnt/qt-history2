@@ -199,6 +199,10 @@ void SetPropertyCommand::redo()
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
         if (propertyEditor->object() == widget())
             propertyEditor->setPropertyValue(propertyName(), m_newValue, true);
+        else
+            propertyEditor->setObject(propertyEditor->object()); // this is needed when f.ex. undo
+                                                                 // changes parent's palette, but
+                                                                 // the child is the active widget.
     }
 }
 
@@ -221,6 +225,10 @@ void SetPropertyCommand::undo()
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
         if (propertyEditor->object() == widget())
             propertyEditor->setPropertyValue(propertyName(), m_oldValue, m_changed);
+        else
+            propertyEditor->setObject(propertyEditor->object()); // this is needed when f.ex. undo
+                                                                 // changes parent's palette, but
+                                                                 // the child is the active widget.
     }
 }
 
