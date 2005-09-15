@@ -76,16 +76,14 @@ private:
 class QHttpResponseHeaderPrivate;
 class Q_NETWORK_EXPORT QHttpResponseHeader : public QHttpHeader
 {
-private:
-    QHttpResponseHeader(int code, const QString &text = QString(), int majorVer = 1, int minorVer = 1);
-    QHttpResponseHeader(const QString &str);
-
-    void setStatusLine(int code, const QString &text = QString(), int majorVer = 1, int minorVer = 1);
-
 public:
     QHttpResponseHeader();
     QHttpResponseHeader(const QHttpResponseHeader &header);
+    QHttpResponseHeader(const QString &str);
+    QHttpResponseHeader(int code, const QString &text = QString(), int majorVer = 1, int minorVer = 1);
     QHttpResponseHeader &operator=(const QHttpResponseHeader &header);
+
+    void setStatusLine(int code, const QString &text = QString(), int majorVer = 1, int minorVer = 1);
 
     int statusCode() const;
     QString reasonPhrase() const;
