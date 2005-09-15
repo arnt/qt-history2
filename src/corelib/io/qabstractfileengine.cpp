@@ -89,7 +89,7 @@
     acquired to ensure thread safety.
  */
 QList<QAbstractFileEngineHandler *> *fileEngineHandlers = 0;
-Q_GLOBAL_STATIC(QMutex, fileEngineHandlerMutex)
+Q_GLOBAL_STATIC_WITH_ARGS(QMutex, fileEngineHandlerMutex, (QMutex::Recursive))
 
 /*!
     Constructs a file handler and registers it with Qt. Once created this
