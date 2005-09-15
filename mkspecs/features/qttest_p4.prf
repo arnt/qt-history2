@@ -4,11 +4,22 @@ MOC_DIR         = tmp
 CONFIG          += qt warn_on console depend_includepath
 CONFIG          -= debug_and_release_target
 
-!exists($$[QT_INSTALL_LIBS]/*QtTest*.so):!exists($$[QT_INSTALL_LIBS]/*QtTest*.a):!exists($$[QT_INSTALL_LIBS]/*QtTest*.lib):!exists($$[QT_INSTALL_LIBS]/*QtTest*.dylib):!exists($$[QT_INSTALL_LIBS]/*QtTest*.sl) {
-    CONFIG += embed_testlib
+# find qtestlib's prl file and extract the librarie's name
+CONFIG(debug, debug|release) {
+    win32:QTESTLIB_PRL = $$[QT_INSTALL_LIBS]/QtTest_debug.prl
+    else:QTESTLIB_PRL = $$[QT_INSTALL_LIBS]/libQtTest_debug.prl
+} else {
+    win32:QTESTLIB_PRL = $$[QT_INSTALL_LIBS]/QtTest.prl
+    else:QTESTLIB_PRL = $$[QT_INSTALL_LIBS]/libQtTest.prl
+}
+QTEST_LIB = $$fromfile($$QTESTLIB_PRL, QMAKE_PRL_TARGET)
+isEmpty(QTEST_LIB) {
+    warning("Cannot find qtestlib's prl file!")
+} else {
+    !exists($$[QT_INSTALL_LIBS]/$$QTEST_LIB):CONFIG += embed_testlib
 }
 
-#make sure the test is build according to your Qt configuration
+# make sure the test is build according to your Qt configuration
 contains(QT_CONFIG, embedded):CONFIG += embedded
 
 embed_testlib {
