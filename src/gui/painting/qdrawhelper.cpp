@@ -1252,7 +1252,7 @@ static void blend_conical_gradient_mono(int count, const QSpan *spans, void *use
         for (int x = spans->x; x<spans->x + spans->len; x++) {
             double angle = atan2(ry, rx);
             angle += data->gradient.conical.angle;
-            uint p = qt_gradient_pixel(&data->gradient, 1. - angle / 360.0);
+            uint p = qt_gradient_pixel(&data->gradient, 1. - angle / (2*Q_PI));
             if (qGray(p) < int(qt_bayer_matrix[spans->y & 15][x & 15]))
                 target[x >> 3] |= 0x80 >> (x & 7);
             else
@@ -1545,16 +1545,16 @@ static void blend_radial_gradient_mono_lsb(int count, const QSpan *spans, void *
         qreal rx = data->m21 * spans->y + data->dx + cx * spans->x - data->gradient.radial.focal.x;
         qreal ry = data->m22 * spans->y + data->dy + cy * spans->x - data->gradient.radial.focal.y;
 
-        for (int x = spans->x; x<spans->x + spans->len; x++) {
+        for (int x = spans->x; x < spans->x + spans->len; x++) {
             double b  = 2*(rx*dx + ry*dy);
             double det = determinant(a, b , -(rx*rx + ry*ry));
             double s = realRoots(a, b, sqrt(det));
 
             uint p = qt_gradient_pixel(&data->gradient, s);
             if (qGray(p) < int(qt_bayer_matrix[spans->y & 15][x & 15]))
-                target[x >> 3] |= 1 >> (x & 7);
+                target[x >> 3] |= 1 << (x & 7);
             else
-                target[x >> 3] &= ~(1 >> (x & 7));
+                target[x >> 3] &= ~(1 << (x & 7));
             rx += cx;
             ry += cy;
         }
@@ -1579,7 +1579,7 @@ static void blend_conical_gradient_mono_lsb(int count, const QSpan *spans, void 
         for (int x = spans->x; x<spans->x + spans->len; x++) {
             double angle = atan2(ry, rx);
             angle += data->gradient.conical.angle;
-            uint p = qt_gradient_pixel(&data->gradient, 1. - angle / 360.0);
+            uint p = qt_gradient_pixel(&data->gradient, 1. - angle / (2*Q_PI));
             if (qGray(p) < int(qt_bayer_matrix[spans->y & 15][x & 15]))
                 target[x >> 3] |= 1 << (x & 7);
             else
