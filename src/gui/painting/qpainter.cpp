@@ -4642,6 +4642,11 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         for (int i = 0; i < textLayout.lineCount(); i++) {
             QTextLine line = textLayout.lineAt(i);
 
+            if (tf & Qt::AlignRight)
+                xoff = r.width() - line.naturalTextWidth();
+            else if (tf & Qt::AlignHCenter)
+                xoff = (r.width() - line.naturalTextWidth())/2;
+
             line.draw(painter, QPointF(r.x() + xoff + line.x(), r.y() + yoff));
         }
 
