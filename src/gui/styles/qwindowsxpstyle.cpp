@@ -1472,7 +1472,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         {
             name = "TAB";
             partId = TABP_PANE;
-
+#if 0            
             if (tab->shape == QTabBar::RoundedNorth)
                 break;
 
@@ -1496,6 +1496,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             default:
                 break;
             }
+#endif
         }
         break;
 
