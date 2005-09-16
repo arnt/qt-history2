@@ -2077,7 +2077,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const InternalSet
 
     The INI file format is a Windows file format that Qt supports on
     all platforms. In the absence of an INI standard, we try to
-    follow what Microsoft does, with the following two exceptions:
+    follow what Microsoft does, with the following exceptions:
 
     \list
     \o  If you store types that QVariant can't convert to QString
@@ -2103,6 +2103,15 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const InternalSet
 
         QSettings always treats backslash as a special character and
         provides no API for reading or writing such entries.
+
+    \o  The INI file format has severe restrictions on the syntax of
+        a key. Qt works around this by using \c % as an escape
+        character. In addition, if you save a top-level setting (a
+        key with no slashes in it, e.g., "someKey"), it will appear
+        in the INI file's "General" section. To avoid overwriting
+        other keys, if you save something using the a key such as
+        "General/someKey", the key will be located in the "%General"
+        section, \e not in the "General" section.
     \endlist
 
     \sa registerFormat(), setPath()
