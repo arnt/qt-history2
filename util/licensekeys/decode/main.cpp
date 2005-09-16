@@ -1,4 +1,5 @@
 #include "../shared/keyinfo.h"
+#include <stdio.h>
 
 int main(int argc, char **argv)
 {
