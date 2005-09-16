@@ -2484,7 +2484,7 @@
         \endcode
         \o
         \code
-        delete list.take(index);
+        delete list.takeAt(index);
         \endcode
     \row
         \o
