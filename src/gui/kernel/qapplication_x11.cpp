@@ -67,6 +67,10 @@
 
 #include "qwidget_p.h"
 
+#ifdef QT_USE_BACKINGSTORE
+#include <private/qbackingstore_p.h>
+#endif
+
 //#define X_NOT_BROKEN
 #ifdef X_NOT_BROKEN
 // Some X libraries are built with setlocale #defined to _Xsetlocale,
@@ -364,7 +368,6 @@ public:
     bool translateXinputEvent(const XEvent*, const TabletDeviceData *tablet);
 #endif
     bool translatePropertyEvent(const XEvent *);
-    void removePendingPaintEvents();
 };
 
 
@@ -4869,18 +4872,6 @@ bool qt_sendSpontaneousEvent(QObject *receiver, QEvent *event)
     return QCoreApplication::sendSpontaneousEvent(receiver, event);
 }
 
-void QETWidget::removePendingPaintEvents()
-{
-    XEvent xevent;
-    PaintEventInfo info;
-    info.window = winId();
-    while (XCheckIfEvent(X11->display,&xevent,isPaintOrScrollDoneEvent,
-                         (XPointer)&info) &&
-           !qt_x11EventFilter(&xevent)  &&
-           !x11Event(&xevent)) // send event through filter
-        ;
-}
-
 void QETWidget::translatePaintEvent(const XEvent *event)
 {
     Q_D(QWidget);
@@ -4990,7 +4981,7 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
             // ConfigureNotify compression for faster opaque resizing
             XEvent otherEvent;
             while (XCheckTypedWindowEvent(X11->display, winId(), ConfigureNotify,
-                                            &otherEvent)) {
+                                          &otherEvent)) {
                 if (qt_x11EventFilter(&otherEvent))
                     continue;
 
@@ -5041,18 +5032,26 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
     } else {
         XEvent xevent;
         while (XCheckTypedWindowEvent(X11->display,winId(), ConfigureNotify,&xevent) &&
-                !qt_x11EventFilter(&xevent)  &&
-                !x11Event(&xevent)) // send event through filter
+               !qt_x11EventFilter(&xevent)  &&
+               !x11Event(&xevent)) // send event through filter
             ;
     }
 
     if (wasResize && !testAttribute(Qt::WA_StaticContents)) {
-        removePendingPaintEvents();
 #if !defined( QT_USE_BACKINGSTORE )
         testAttribute(Qt::WA_WState_InPaintEvent)?update():repaint();
 #else
-        extern void qt_syncBackingStore_x11ConfigEvent(QWidget *widget);
-        qt_syncBackingStore_x11ConfigEvent(this);
+        if(QWidgetBackingStore::paintOnScreen(this)) {
+            XEvent xevent;
+            PaintEventInfo info;
+            info.window = winId();
+            while (XCheckIfEvent(X11->display,&xevent,isPaintOrScrollDoneEvent,
+                                 (XPointer)&info) &&
+                   !qt_x11EventFilter(&xevent)  &&
+                   !x11Event(&xevent)) // send event through filter
+                ;
+            repaint();
+        }
 #endif
     }
 

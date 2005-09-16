@@ -106,14 +106,6 @@ void qt_syncBackingStore(QWidget *widget)
     else
         widget->repaint(dirty);
 }
-
-//special case hack for config events where sychronisity means that some
-//repaints happen inbetween resizes
-void qt_syncBackingStore_x11ConfigEvent(QWidget *widget)
-{
-    if(QWidgetBackingStore::paintOnScreen(widget))
-        widget->repaint();
-}
 #endif
 
 QWidgetBackingStore::QWidgetBackingStore(QWidget *t) : tlw(t)
