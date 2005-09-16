@@ -410,6 +410,11 @@ int QTest::exec(QObject *testObject, int argc, char **argv)
 #ifndef QT_NO_EXCEPTION
     } catch (...) {
         QTestResult::addFailure("Caught unhandled exception", __FILE__, __LINE__);
+        if (QTestResult::currentTestFunction()) {
+            QTestResult::finishedCurrentTestFunction();
+            QTestResult::setCurrentTestFunction(0);
+        }
+
         QTestLog::stopLogging();
         return -1;
     }
