@@ -611,7 +611,7 @@ void MainWindow::about()
     mainLayout->addLayout(topLayout);
     mainLayout->addLayout(bottomLayout);
 
-    QDialog about;
+    QDialog about(this);
     about.setModal(true);
     about.setWindowTitle("About Torrent Client");
     about.setLayout(mainLayout);
