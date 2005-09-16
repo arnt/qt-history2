@@ -14,11 +14,6 @@
 #ifndef QTESTEVENTLOOP_H
 #define QTESTEVENTLOOP_H
 
-#if 0
-// inform syncqt
-#pragma qt_no_master_include
-#endif
-
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qeventloop.h>
 #include <QtCore/qobject.h>
