@@ -425,8 +425,8 @@ Qt::ItemFlags QTableModel::flags(const QModelIndex &index) const
 
 void QTableModel::sort(int column, Qt::SortOrder order)
 {
-    QVector< QPair<QTableWidgetItem*,int> > sortable;
-    QVector< QPair<QTableWidgetItem*,int> > unsortable;
+    QVector<QPair<QTableWidgetItem*, int> > sortable;
+    QVector<int> unsortable;
 
     sortable.reserve(rowCount());
     unsortable.reserve(rowCount());
@@ -436,7 +436,7 @@ void QTableModel::sort(int column, Qt::SortOrder order)
         if (itm)
             sortable.append(QPair<QTableWidgetItem*,int>(itm, row));
         else
-            unsortable.append(QPair<QTableWidgetItem*,int>(0, row));
+            unsortable.append(row);
     }
 
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
@@ -444,8 +444,9 @@ void QTableModel::sort(int column, Qt::SortOrder order)
 
     QVector<QTableWidgetItem*> sorted_table(table.count());
     for (int i = 0; i < rowCount(); ++i) {
-        int r = (i < sortable.count() ? sortable.at(i).second
-                 : unsortable.at(i - sortable.count()).second);
+        int r = (i < sortable.count()
+                 ? sortable.at(i).second
+                 : unsortable.at(i - sortable.count()));
         for (int c = 0; c < columnCount(); ++c) {
             QTableWidgetItem *itm = item(r, c);
             sorted_table[tableIndex(i, c)] = itm;
