@@ -141,6 +141,7 @@ class QMoviePrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QMovie)
 public:
     QMoviePrivate(QMovie *qq);
+    int nextFrameDelay() const;
 
     // private slots
     void loadNextFrame();
@@ -159,10 +160,9 @@ public:
 /*! \internal
  */
 QMoviePrivate::QMoviePrivate(QMovie *qq)
+    : reader(0), movieState(QMovie::NotRunning)
 {
     q_ptr = qq;
-    reader = 0;
-    movieState = QMovie::NotRunning;
     nextImageTimer.setSingleShot(true);
 }
 
@@ -188,7 +188,7 @@ void QMoviePrivate::loadNextFrame()
 
             emit q->updated(frameRect);
 
-            nextImageTimer.start(reader->nextImageDelay());
+            nextImageTimer.start(nextFrameDelay());
         } else {
             emit q->error(reader->error());
             if (movieState != QMovie::NotRunning) {
@@ -203,6 +203,13 @@ void QMoviePrivate::loadNextFrame()
     movieState = QMovie::NotRunning;
     emit q->stateChanged(movieState);
     emit q->finished();
+}
+
+/*! \internal
+ */
+int QMoviePrivate::nextFrameDelay() const
+{
+    return (int)((float)reader->nextImageDelay()*(float)100.0f/(float)speed);
 }
 
 /*!
@@ -332,10 +339,10 @@ QByteArray QMovie::format() const
 }
 
 /*!
-    For image formats that support it, this function sets the background color
-    to \a color.
-
-    \sa backgroundColor()
+    \property QMovie::backgroundColor
+    \brief the movie's background color
+   
+    This property is only valid for those image formats that support it.
 */
 void QMovie::setBackgroundColor(const QColor &color)
 {
@@ -343,12 +350,6 @@ void QMovie::setBackgroundColor(const QColor &color)
     d->backgroundColor = color;
 }
 
-/*!
-    Returns the background color of the movie. If no background color has been
-    assigned, an invalid QColor is returned.
-
-    \sa setBackgroundColor()
-*/
 QColor QMovie::backgroundColor() const
 {
     Q_D(const QMovie);
@@ -470,7 +471,7 @@ bool QMovie::isValid() const
     Returns the number of frames in the movie.
 
     Certain animation formats do not support this feature, in which
-    case -1 is returned.
+    case 0 is returned.
 */
 int QMovie::frameCount() const
 {
@@ -485,7 +486,7 @@ int QMovie::frameCount() const
 int QMovie::nextFrameDelay() const
 {
     Q_D(const QMovie);
-    return d->reader->nextImageDelay();
+    return d->nextFrameDelay();
 }
 
 /*!
@@ -547,20 +548,22 @@ void QMovie::setPaused(bool paused)
 	    return;
 	emit stateChanged(Running);
 	d->movieState = Running;
-	d->nextImageTimer.start(d->reader->nextImageDelay());
+	d->nextImageTimer.start(d->nextFrameDelay());
     }
 }
 
 /*!
-    Sets the speed of the movie to \a percentSpeed, in percentage of the
-    original speed. Example:
+    \property QMovie::speed
+    \brief the movie's speed
+
+    The speed is measured in percentage of the original movie speed.
+    The default speed is 100%.
+    Example:
 
     \code
         QMovie movie("racecar.gif");
         movie.setSpeed(200); // 2x speed
     \endcode
-
-    \sa speed()
 */
 void QMovie::setSpeed(int percentSpeed)
 {
@@ -568,13 +571,6 @@ void QMovie::setSpeed(int percentSpeed)
     d->speed = percentSpeed;
 }
 
-/*!
-    Returns the current speed of the movie, in percentage of the original
-    movie speed. By default, 100 is returned (i.e., 100% of the original
-    speed).
-
-    \sa setSpeed()
-*/
 int QMovie::speed() const
 {
     Q_D(const QMovie);

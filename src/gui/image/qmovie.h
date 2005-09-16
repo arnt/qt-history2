@@ -39,6 +39,9 @@ class Q_GUI_EXPORT QMovie : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QMovie)
+    Q_ENUMS(MovieState)
+    Q_PROPERTY(int speed READ speed WRITE setSpeed)
+    Q_PROPERTY(QColor backgroundColor READ backgroundColor WRITE setBackgroundColor)
 public:
     enum MovieState {
         NotRunning,
