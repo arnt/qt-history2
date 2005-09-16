@@ -731,6 +731,8 @@ QGifHandler::~QGifHandler()
 
 bool QGifHandler::canRead() const
 {
+    if (device() && device()->atEnd() && buffer.isEmpty())
+        return false;
     if (nextDelay)
         return true;
     return canRead(device());
