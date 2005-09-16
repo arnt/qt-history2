@@ -929,6 +929,7 @@ void QListView::paintEvent(QPaintEvent *e)
     const QPoint offset = d->scrollDelayOffset;
     const QModelIndex current = currentIndex();
     const QModelIndex hover = d->hover;
+    const QAbstractItemModel *itemModel = model();
     const QAbstractItemDelegate *delegate = itemDelegate();
     const QItemSelectionModel *selections = selectionModel();
     const bool focus = (hasFocus() || d->viewport->hasFocus()) && current.isValid();
@@ -938,19 +939,20 @@ void QListView::paintEvent(QPaintEvent *e)
     const QBrush baseBrush = option.palette.brush(cg, QPalette::Base);
     const QBrush alternateBrush = option.palette.brush(cg, QPalette::AlternateBase);
     const QStyle::State state = option.state;
+    const QAbstractItemView::State viewState = this->state();
 
-    QVector<QModelIndex>::iterator it = toBeRendered.begin();
-    for (; it != toBeRendered.end(); ++it) {
+    QVector<QModelIndex>::const_iterator end = toBeRendered.constEnd();
+    for (QVector<QModelIndex>::const_iterator it = toBeRendered.constBegin(); it != end; ++it) {
         Q_ASSERT((*it).isValid());
         option.rect = visualRect(*it).translated(offset);
         option.state = state;
         if (selections && selections->isSelected(*it))
             option.state |= QStyle::State_Selected;
-        if ((model()->flags(*it) & Qt::ItemIsEnabled) == 0)
+        if ((itemModel->flags(*it) & Qt::ItemIsEnabled) == 0)
             option.state &= ~QStyle::State_Enabled;
         if (focus && current == *it) {
             option.state |= QStyle::State_HasFocus;
-            if (this->state() == EditingState)
+            if (viewState == EditingState)
                 option.state |= QStyle::State_Editing;
         }
         if (*it == hover)
