@@ -4,19 +4,21 @@ cat > "$2/Developer/Examples/Qt/.qmake.cache" << EOF
 #nothing anymore...
 EOF
 
-for pro in `find "$2/Developer/Examples/Qt" -name '*.pro'`; do
-    cd `dirname $pro`
-    base=`basename $pro`
-    #echo "/usr/bin/qmake -spec macx-g++ "$base" [$pro]"
-    #/usr/bin/qmake -spec macx-g++ "$base"
-    echo "/usr/bin/qmake -spec macx-xcode "$base" [$pro]" >&2
-    /usr/bin/qmake -spec macx-xcode "$base"
-    for file in `find .`; do
-         chgrp admin "$file"
-         if [ -d "$file" ] || [ -x "$file" ]; then
-	     chmod 775 "$file"
-         elif [ -x "$file" ]; then
-             chmod 664 "$file"
-         fi
-    done
+for file in `find "$2/Developer/Examples/Qt"`; do
+    case $file in
+    *.pro)
+        cd `dirname $file`
+        base=`basename $file`
+        #echo "/usr/bin/qmake -spec macx-g++ "$base" [$file]"
+        #/usr/bin/qmake -spec macx-g++ "$base"
+        echo "/usr/bin/qmake -spec macx-xcode "$base" [$file]" >&2
+        /usr/bin/qmake -spec macx-xcode "$base"
+    ;;
+    esac
+     chgrp admin "$file"
+     if [ -d "$file" ] || [ -x "$file" ]; then
+         chmod 775 "$file"
+     elif [ -x "$file" ]; then
+         chmod 664 "$file"
+     fi
 done
