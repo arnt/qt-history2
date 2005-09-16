@@ -64,6 +64,7 @@ public:
     void chokePeer();
     void unchokePeer();
     void sendInterested();
+    void sendKeepAlive();
     void sendNotInterested();
     void sendPieceNotification(int piece);
     void sendPieceList(const QBitArray &bitField);
@@ -151,6 +152,7 @@ private:
     int timeoutTimer;
     int pendingRequestTimer;
     bool invalidateTimeout;
+    int keepAliveTimer;
 
     // Checksum, peer ID and set of available pieces
     QByteArray infoHash;

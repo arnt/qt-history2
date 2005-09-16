@@ -132,6 +132,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Top toolbar
     QToolBar *topBar = new QToolBar(tr("Tools"));
     addToolBar(Qt::TopToolBarArea, topBar);
+    topBar->setMovable(false);
     topBar->addAction(newTorrentAction);
     topBar->addAction(removeTorrentAction);
     topBar->addAction(pauseTorrentAction);
@@ -296,8 +297,7 @@ void MainWindow::torrentStopped()
 
     // If the quit dialog is shown, update its progress.
     if (quitDialog) {
-        quitDialog->setValue(++jobsStopped);
-        if (jobsStopped == jobsToStop)
+        if (++jobsStopped == jobsToStop)
             quitDialog->close();
     }
 }
@@ -325,7 +325,7 @@ bool MainWindow::addTorrent(const QString &fileName, const QString &destinationF
 {
     // Check if the torrent is already being downloaded.
     foreach (Job job, jobs) {
-        if (job.torrentFileName == fileName) {
+        if (job.torrentFileName == fileName && job.destinationDirectory == destinationFolder) {
             QMessageBox::warning(this, tr("Already downloading"),
                                  tr("The torrent file you have selected is "
                                     "already being downloaded."));
@@ -369,6 +369,8 @@ bool MainWindow::addTorrent(const QString &fileName, const QString &destinationF
         baseFileName.remove(baseFileName.size() - 8);
 
     item->setText(0, baseFileName);
+    item->setToolTip(0, tr("Torrent: %1<br>Destination: %2")
+                     .arg(baseFileName).arg(destinationFolder));
     item->setText(1, tr("0/0"));
     item->setText(2, "0");
     item->setText(3, "0.0 KB/s");
@@ -419,8 +421,14 @@ void MainWindow::updateState(TorrentClient::State)
     TorrentClient *client = qobject_cast<TorrentClient *>(sender());
     int row = rowOfClient(client);
     QTreeWidgetItem *item = torrentView->topLevelItem(row);
-    if (item)
+    if (item) {
+        item->setToolTip(0, tr("Torrent: %1<br>Destination: %2<br>State: %3")
+                         .arg(jobs.at(row).torrentFileName)
+                         .arg(jobs.at(row).destinationDirectory)
+                         .arg(client->stateString()));
+
         item->setText(5, client->stateString());
+    }
     setActionsEnabled();
 }
 

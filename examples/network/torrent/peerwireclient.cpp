@@ -29,9 +29,10 @@
 
 #include <QTimerEvent>
 
-static const int PendingRequestTimeout = 30 * 1000;
-static const int ClientTimeout = 40 * 1000;
+static const int PendingRequestTimeout = 60 * 1000;
+static const int ClientTimeout = 120 * 1000;
 static const int ConnectTimeout = 60 * 1000;
+static const int KeepAliveInterval = 30 * 1000;
 static const int RateControlTimerDelay = 2000;
 static const int MinimalHeaderSize = 48;
 static const int FullHeaderSize = 68;
@@ -63,7 +64,7 @@ PeerWireClient::PeerWireClient(const QByteArray &peerId, QObject *parent)
     : QTcpSocket(parent), pendingBlockSizes(0), numRequestedBlocks(0),
       pwState(ChokingPeer | ChokedByPeer), receivedHandShake(false), gotPeerId(false),
       sentHandShake(false), nextPacketLength(-1), pendingRequestTimer(0), invalidateTimeout(false),
-      torrentPeer(0)
+      keepAliveTimer(0), torrentPeer(0)
 {
     memset(uploadSpeedData, 0, sizeof(uploadSpeedData));
     memset(downloadSpeedData, 0, sizeof(downloadSpeedData));
@@ -129,6 +130,14 @@ void PeerWireClient::unchokePeer()
 
     if (pendingRequestTimer)
         killTimer(pendingRequestTimer);
+}
+
+// Sends a "keep-alive" message to prevent the peer from closing
+// the connection when there's no activity
+void PeerWireClient::sendKeepAlive()
+{
+    const char message[] = {0, 0, 0, 0};
+    write(message, sizeof(message));
 }
 
 // Sends an "interested" message, informing the peer that it has got
@@ -265,8 +274,9 @@ void PeerWireClient::sendBlock(int piece, int offset, const QByteArray &data)
     pendingBlocks << blockInfo;
     pendingBlockSizes += block.size();
 
-    if (pendingBlockSizes > 16 * 16384) {
+    if (pendingBlockSizes > 32 * 16384) {
         chokePeer();
+        unchokePeer();
         return;
     }
     emit readyToTransfer();
@@ -343,7 +353,8 @@ qint64 PeerWireClient::uploadSpeed() const
 
 bool PeerWireClient::canTransferMore() const
 {
-    return QTcpSocket::bytesAvailable() > 0 || !outgoingBuffer.isEmpty() || !pendingBlocks.isEmpty();
+    return !incomingBuffer.isEmpty() || QTcpSocket::bytesAvailable() > 0
+        || !outgoingBuffer.isEmpty() || !pendingBlocks.isEmpty();
 }
 
 void PeerWireClient::timerEvent(QTimerEvent *event)
@@ -366,6 +377,8 @@ void PeerWireClient::timerEvent(QTimerEvent *event)
         }
     } else if (event->timerId() == pendingRequestTimer) {
         abort();
+    } else if (event->timerId() == keepAliveTimer) {
+        sendKeepAlive();
     }
     QTcpSocket::timerEvent(event);
 }
@@ -437,6 +450,10 @@ void PeerWireClient::processIncomingData()
             return;
         }
     }
+
+    // Initialize keep-alive timer
+    if (!keepAliveTimer)
+        keepAliveTimer = startTimer(KeepAliveInterval);
 
     do {
         // Find the packet length

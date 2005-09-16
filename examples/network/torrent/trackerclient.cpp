@@ -134,6 +134,7 @@ void TrackerClient::fetchPeerList()
         }
     }
 
+    bool seeding = (torrentDownloader->state() == TorrentClient::Seeding);
     QByteArray query;
     query += url.path().toLatin1();
     query += "?";
@@ -142,16 +143,16 @@ void TrackerClient::fetchPeerList()
     query += "&port=" + QByteArray::number(TorrentServer::instance()->serverPort());
     query += "&uploaded=" + QByteArray::number(uploadedBytes);
     query += "&downloaded=" + QByteArray::number(downloadedBytes);
-    query += "&left="+ QByteArray::number(qMax<int>(0, length - downloadedBytes));
+    query += "&left="+ QByteArray::number(seeding ? 0 : qMax<int>(0, length - downloadedBytes));
     query += "&compact=1";
-    if (firstTrackerRequest) {
+    if (seeding) {
+        query += "&event=completed";
+    } else if (firstTrackerRequest) {
         firstTrackerRequest = false;
         query += "&event=started";
     } else if (lastTrackerRequest) {
         query += "&event=stopped";
-    } else if (torrentDownloader->state() == TorrentClient::Seeding) {
-        query += "&event=completed";
-   }
+    }
     if (!trackerId.isEmpty())
         query += "&trackerid=" + trackerId;
 

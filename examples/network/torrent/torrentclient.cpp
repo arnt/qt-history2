@@ -498,13 +498,15 @@ void TorrentClient::setPaused(bool paused)
         foreach (PeerWireClient *client, d->connections)
             client->abort();
         d->connections.clear();
+        TorrentServer::instance()->removeClient(this);
     } else {
         // Restore the max number of connections, and start the peer
         // connector. We should also quickly start receiving incoming
         // connections.
         d->setState(d->completedPieces.count(true) == d->fileManager.pieceCount()
                     ? Seeding : Searching);
-        d->callPeerConnector();
+        connectToPeers();
+        TorrentServer::instance()->addClient(this);
     }
 }
 
@@ -582,11 +584,6 @@ void TorrentClient::fullVerificationDone()
             ++it;
     }
 
-    // Start the tracker client
-    d->trackerClient.setUploadCount(d->uploadedBytes);
-    d->trackerClient.setDownloadCount(d->downloadedBytes);
-    d->trackerClient.start(d->metaInfo);
-
     d->uploadScheduleTimer = startTimer(UploadScheduleInterval);
 
     // Start the server
@@ -602,9 +599,13 @@ void TorrentClient::fullVerificationDone()
             return;
         }
     }
-    server->addClient(this);
 
     d->setState(d->completedPieces.count(true) == d->pieceCount ? Seeding : Searching);
+
+    // Start the tracker client
+    d->trackerClient.setUploadCount(d->uploadedBytes);
+    d->trackerClient.setDownloadCount(d->downloadedBytes);
+    d->trackerClient.start(d->metaInfo);
 }
 
 void TorrentClient::pieceVerified(int pieceIndex, bool ok)
@@ -700,7 +701,8 @@ void TorrentClient::connectToPeers()
     QList<TorrentPeer *> weighedPeers = weighedFreePeers();
 
     // Start as many connections as we can
-    while (!weighedPeers.isEmpty() && ConnectionManager::instance()->canAddConnection() && (rand() % 10)) {
+    while (!weighedPeers.isEmpty() && ConnectionManager::instance()->canAddConnection()
+           && (rand() % (ConnectionManager::instance()->maxConnections() / 2))) {
         PeerWireClient *client = new PeerWireClient(ConnectionManager::instance()->clientId(), this);
         RateController::instance()->addSocket(client);
         ConnectionManager::instance()->addConnection(client);
@@ -814,6 +816,9 @@ void TorrentClient::setupIncomingConnection(PeerWireClient *client)
         else if (completed >= d->pieceCount - 5)
             d->setState(Endgame);
     }
+
+    if (d->connections.isEmpty())
+        scheduleUploads();
 }
 
 void TorrentClient::setupOutgoingConnection()
@@ -1432,6 +1437,9 @@ void TorrentClient::addToPeerList(const QList<TorrentPeer> &peerList)
 {
     // Add peers we don't already know of to our list of peers.
     foreach (TorrentPeer peer, peerList) {
+        if (peer.address == TorrentServer::instance()->serverAddress()
+            && peer.port == TorrentServer::instance()->serverPort())
+            continue;
         bool known = false;
         foreach (TorrentPeer *knownPeer, d->peers) {
             if (knownPeer->port == peer.port
@@ -1456,7 +1464,8 @@ void TorrentClient::addToPeerList(const QList<TorrentPeer> &peerList)
 
     // If we've got more peers than we can connect to, we remove some
     // of the peers that have no (or low) activity.
-    if (d->peers.size() > 100) {
+    int maxPeers = ConnectionManager::instance()->maxConnections() * 3;
+    if (d->peers.size() > maxPeers) {
         // Find what peers are currently connected & active
         QSet<TorrentPeer *> activePeers;
         foreach (TorrentPeer *peer, d->peers) {
@@ -1469,7 +1478,7 @@ void TorrentClient::addToPeerList(const QList<TorrentPeer> &peerList)
         // Remove inactive peers from the peer list until we're below
         // the max connections count.
         QList<int> toRemove;
-        for (int i = 0; i < d->peers.size() && (d->peers.size() - toRemove.size()) > 100; ++i) {
+        for (int i = 0; i < d->peers.size() && (d->peers.size() - toRemove.size()) > maxPeers; ++i) {
             if (!activePeers.contains(d->peers.at(i)))
                 toRemove << i;
         }
@@ -1479,12 +1488,12 @@ void TorrentClient::addToPeerList(const QList<TorrentPeer> &peerList)
             d->peers.removeAt(toRemoveIterator.previous());
 
         // If we still have too many peers, remove the oldest ones.
-        while (d->peers.size() > 100)
+        while (d->peers.size() > maxPeers)
             d->peers.takeFirst();
     }
 
     if (d->state != Paused && d->state != Stopping && d->state != Idle) {
-        if (d->state == Searching)
+        if (d->state == Searching || d->state == WarmingUp)
             connectToPeers();
         else
             d->callPeerConnector();

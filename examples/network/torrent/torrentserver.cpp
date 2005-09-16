@@ -62,6 +62,10 @@ void TorrentServer::incomingConnection(int socketDescriptor)
                     this, SLOT(removeClient()));
             RateController::instance()->addSocket(client);
             ConnectionManager::instance()->addConnection(client);
+            if (clients.size() == 1) {
+                client->disconnect(client, 0, this, 0);
+                clients.first()->setupIncomingConnection(client);
+            }
             return;
         }
     }
