@@ -1857,12 +1857,12 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 
             // Defined in the "EN0056-NxtGenImpGuideX"
             // on Wacom's Developer Website (www.wacomeng.com)
-            switch (proxRec.vendorPointerType & 0x0006) {
-            case 0x0002:
-                if ((proxRec.vendorPointerType & 0x0F06) != 0x902)
-                    currTabletDevice = QTabletEvent::Stylus;
-                else
-                    currTabletDevice = QTabletEvent::Airbrush;
+            switch (proxRec.vendorPointerType & 0x0F06) {
+            case 0x0802:
+                currTabletDevice = QTabletEvent::Stylus;
+                break;
+            case 0x0902:
+                currTabletDevice = QTabletEvent::Airbrush;
                 break;
             case 0x0004:
                 currTabletDevice = QTabletEvent::FourDMouse;
@@ -1870,6 +1870,11 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             case 0x0006:
                 currTabletDevice = QTabletEvent::Puck;
                 break;
+            case 0x0804:
+                currTabletDevice = QTabletEvent::RotationStylus;
+                break;
+            default:
+                currTabletDevice = QTabletEvent::NoDevice;
             }
         }
         break;

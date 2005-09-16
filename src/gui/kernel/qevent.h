@@ -131,7 +131,7 @@ class Q_GUI_EXPORT QTabletEvent : public QInputEvent
 {
 public:
     enum TabletDevice { NoDevice, Puck, Stylus, Airbrush, FourDMouse,
-                        XFreeEraser /*internal*/ };
+                        XFreeEraser /*internal*/, RotationStylus };
     enum PointerType { UnknownPointer, Pen, Cursor, Eraser };
     QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, const QPointF &hiResGlobalPos,
                  int device, int pointerType, qreal pressure, int xTilt, int yTilt,

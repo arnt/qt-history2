@@ -1559,6 +1559,7 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
     \value Stylus  A Stylus.
     \value Airbrush An airbrush
     \value FourDMouse A 4D Mouse.
+    \volue RotationStylus A speciol stylus that also knows about rotation (6D stylus) \since 4.1
     \omitvalue XFreeEraser
 */
 

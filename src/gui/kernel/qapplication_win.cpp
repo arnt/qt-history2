@@ -3164,6 +3164,9 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
         case 0x0006:
             dev = QTabletEvent::Puck;
             break;
+        case 0x0804:
+            dev = QTabletEvent::RotationStylus;
+            break;
         default:
             dev = QTabletEvent::NoDevice;
         }

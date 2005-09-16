@@ -3642,6 +3642,9 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
                 case 0x000600:
                     deviceType = QTabletEvent::Puck;
                     break;
+                case 0x080400:
+                    deviceType = QTabletEvent::RotationStylus;
+                    break;
                 }
             } else {
                 pointerType = QTabletEvent::UnknownPointer;
@@ -3653,9 +3656,11 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
             xTilt = short(vs->valuators[WAC_XTILT_I]);
             yTilt = short(vs->valuators[WAC_YTILT_I]);
             pressure = vs->valuators[WAC_PRESSURE_I];
-            if (deviceType == QTabletEvent::FourDMouse) {
+            if (deviceType == QTabletEvent::FourDMouse
+                    || deviceType == QTabletEvent::RotationStylus) {
                 rotation = vs->valuators[WAC_ROTATION_I] / 64.0;
-                z = vs->valuators[WAC_ZCOORD_I];
+                if (deviceType == QTabletEvent::FourDMouse)
+                    z = vs->valuators[WAC_ZCOORD_I];
             } else if (deviceType == QTabletEvent::Airbrush) {
                 tangentialPressure = vs->valuators[WAC_TAN_PRESSURE_I]
                                         / qreal(tablet->maxTanPressure - tablet->minTanPressure);
