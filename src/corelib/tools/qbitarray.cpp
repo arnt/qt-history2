@@ -180,7 +180,7 @@ int QBitArray::count(bool on) const
         bits += 3;
         numBits += int(c);
     }
-    while (len) {
+    while (len >= 0) {
         if (bits[len / 8] & (1 << ((len - 1) & 7)))
             ++numBits;
         --len;
