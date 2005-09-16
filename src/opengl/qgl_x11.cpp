@@ -55,9 +55,9 @@ struct CMapEntry {
     CMapEntry();
     ~CMapEntry();
 
-    Colormap                cmap;
-    bool                alloc;
-    XStandardColormap        scmap;
+    Colormap cmap;
+    bool alloc;
+    XStandardColormap scmap;
 };
 
 CMapEntry::CMapEntry()
@@ -72,26 +72,44 @@ CMapEntry::~CMapEntry()
     if (alloc)
         XFreeColormap(X11->display, cmap);
 }
-
-
 typedef QHash<int, CMapEntry *> CMapEntryHash;
-Q_GLOBAL_STATIC(CMapEntryHash, cmap_hash)
-
+typedef QHash<int, QMap<int, QRgb> > GLCMapHash;
 static bool mesa_gl = false;
 static bool first_time = true;
 
-typedef QHash<int, QMap<int, QRgb> > GLCMapHash;
-Q_GLOBAL_STATIC(GLCMapHash, qglcmap_hash)
+static void cleanup_cmaps();
+
+struct QGLCMapCleanupHandler {
+    QGLCMapCleanupHandler() {
+        cmap_hash = new CMapEntryHash;
+        qglcmap_hash = new GLCMapHash;
+        cleaned_up = false;
+        qAddPostRoutine(cleanup_cmaps);
+    }
+    ~QGLCMapCleanupHandler() {
+        qRemovePostRoutine(cleanup_cmaps);
+        cleanup_cmaps();
+        delete cmap_hash;
+        delete qglcmap_hash;
+    }
+    CMapEntryHash *cmap_hash;
+    GLCMapHash *qglcmap_hash;
+    bool cleaned_up;
+};
+Q_GLOBAL_STATIC(QGLCMapCleanupHandler, cmap_handler);
 
 static void cleanup_cmaps()
 {
-    CMapEntryHash *hash = cmap_hash();
-    QHash<int, CMapEntry *>::ConstIterator it = hash->constBegin();
-    while (it != hash->constEnd()) {
-        delete it.value();
-        ++it;
+    if (!cmap_handler()->cleaned_up) {
+        CMapEntryHash *hash = cmap_handler()->cmap_hash;
+        QHash<int, CMapEntry *>::ConstIterator it = hash->constBegin();
+        while (it != hash->constEnd()) {
+            delete it.value();
+            ++it;
+        }
+        hash->clear();
+        cmap_handler()->cleaned_up = true;
     }
-    hash->clear();
 }
 
 static Colormap choose_cmap(Display *dpy, XVisualInfo *vi)
@@ -100,11 +118,10 @@ static Colormap choose_cmap(Display *dpy, XVisualInfo *vi)
         const char *v = glXQueryServerString(dpy, vi->screen, GLX_VERSION);
         if (v)
             mesa_gl = (strstr(v, "Mesa") != 0);
-        qAddPostRoutine(cleanup_cmaps);
         first_time = false;
     }
 
-    CMapEntryHash *hash = cmap_hash();
+    CMapEntryHash *hash = cmap_handler()->cmap_hash;
     CMapEntryHash::ConstIterator it = hash->find((long) vi->visualid + (vi->screen * 256));
     if (it != hash->constEnd())
         return it.value()->cmap; // found colormap for visual
@@ -175,14 +192,13 @@ static Colormap choose_cmap(Display *dpy, XVisualInfo *vi)
 
 struct TransColor
 {
-    VisualID        vis;
-    int                screen;
-    long        color;
+    VisualID vis;
+    int screen;
+    long color;
 };
 
 static QVector<TransColor> trans_colors;
 static int trans_colors_init = false;
-
 
 static void find_trans_colors()
 {
@@ -658,7 +674,7 @@ uint QGLContext::colorIndex(const QColor& c) const
             return colmap.pixel(c);                // We're using QColor's cmap
 
         XVisualInfo *info = (XVisualInfo *) d->vi;
-        CMapEntryHash *hash = cmap_hash();
+        CMapEntryHash *hash = cmap_handler()->cmap_hash;
         CMapEntryHash::ConstIterator it = hash->find((long) info->visualid + (info->screen * 256));
         CMapEntry *x = 0;
         if (it != hash->constEnd())
@@ -673,7 +689,7 @@ uint QGLContext::colorIndex(const QColor& c) const
                      + (bf * x->scmap.blue_mult);
             return p;
         } else {
-            QMap<int, QRgb> &cmap = (*qglcmap_hash())[(long)info->visualid];
+            QMap<int, QRgb> &cmap = (*cmap_handler()->qglcmap_hash)[(long)info->visualid];
 
             // already in the map?
             QRgb target = c.rgb();
