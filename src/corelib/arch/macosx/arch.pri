@@ -9,8 +9,10 @@ DEPENDPATH += $$ARCH_CPP;$$ARCH_H
 
 HEADERS += $$ARCH_H/qatomic.h
 
-!*-g++* {
-   ppc:SOURCES += $$ARCH_CPP/qatomic32_ppc.s
-   x86:SOURCES += $$ARCH_CPP/qatomic_x86.s
+*-g++* {
+   SOURCES += $$ARCH_CPP/qatomic.S
+} else {
+   contains($$list($$system(uname -m)), x86):SOURCES += $$ARCH_CPP/../i386/qatomic.s
+   else:SOURCES += $$ARCH_CPP/qatomic32_ppc.s
 }
 
