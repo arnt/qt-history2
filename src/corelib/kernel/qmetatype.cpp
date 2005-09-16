@@ -593,6 +593,7 @@ void QMetaType::destroy(int type, void *data)
 
 /*! \fn int qMetaTypeId(T *dummy = 0)
     \relates QMetaType
+    \since 4.1
     \threadsafe
 
     Returns the meta type id of type \c T at compile time. If the
