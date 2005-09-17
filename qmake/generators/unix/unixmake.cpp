@@ -560,7 +560,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
             uninst.append("-$(DEL_FILE) \"" + dst_prl + "\"");
         }
         if(project->isActiveConfig("create_libtool") && !project->isActiveConfig("compile_libtool")) {
-            const QString src_lt = pkgConfigFileName(),
+            const QString src_lt = libtoolFileName(),
                           dst_lt = filePrefixRoot(root, targetdir + src_lt.section('/', -1));
             if(!ret.isEmpty())
                 ret += "\n\t";
@@ -570,7 +570,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
             uninst.append("-$(DEL_FILE) \"" + dst_lt + "\"");
         }
         if(project->isActiveConfig("create_pc")) {
-            const QString src_pc = libtoolFileName(),
+            const QString src_pc = pkgConfigFileName(),
                           dst_pc = filePrefixRoot(root, targetdir + src_pc.section('/', -1));
             if(!ret.isEmpty())
                 ret += "\n\t";
