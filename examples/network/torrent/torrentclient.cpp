@@ -1228,12 +1228,10 @@ void TorrentClient::schedulePieceForClient(PeerWireClient *client)
             incompletePiecesAvailableToClient.clearBit(i);
 
         // Only continue if more pieces can be scheduled. If no pieces
-        // are available and no blocks are in progress, disconnect.
-        if (incompletePiecesAvailableToClient.count(true) == 0) {
-            if (client->incomingBlockCount() == 0)
-                client->abort();
+        // are available and no blocks are in progress, just leave
+        // the connection idle; it might become interesting later.
+        if (incompletePiecesAvailableToClient.count(true) == 0)
             return;
-        }
 
         // Check if any of the partially completed pieces can be
         // recovered.
