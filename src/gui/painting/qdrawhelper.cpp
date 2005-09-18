@@ -21,7 +21,7 @@ static const int fixed_scale = 1 << 16;
 static const int half_point = 1 << 15;
 static const int buffer_size = 2048;
 
-static uint qt_gradient_pixel(const GradientData *data, double pos)
+static uint qt_gradient_pixel(const GradientData *data, qreal pos)
 {
     int ipos = qRound(pos * GRADIENT_STOPTABLE_SIZE - 1);
 
@@ -267,8 +267,7 @@ Da'  = Sa.Da + Sa.(1 - Da)
 static void QT_FASTCALL comp_func_Source(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = src[i];
+        QT_MEMCPY_UINT(dest, src, length);
     } else {
         int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i)
@@ -449,7 +448,7 @@ static void blend_color_argb(int count, const QSpan *spans, void *userData)
     if (data->rasterBuffer->compositionMode == QPainter::CompositionMode_Source
         || (data->rasterBuffer->compositionMode == QPainter::CompositionMode_SourceOver
             && qAlpha(data->solid.color) == 255)) {
-        // inline for performance        
+        // inline for performance
         while (count--) {
             uint *target = ((uint *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
             if (spans->coverage == 255) {
@@ -853,13 +852,13 @@ static void blend_linear_gradient_argb(int count, const QSpan *spans, void *user
     }
 }
 
-static inline double determinant(double a, double b, double c)
+static inline qreal determinant(qreal a, qreal b, qreal c)
 {
     return (b * b) - (4 * a * c);
 }
 
 // function to evaluate real roots
-static inline double realRoots(double a, double b, double detSqrt)
+static inline qreal realRoots(qreal a, qreal b, qreal detSqrt)
 {
     return (-b + detSqrt)/(2 * a);
 }
@@ -875,10 +874,10 @@ static void blend_radial_gradient_argb(int count, const QSpan *spans, void *user
         return;
     uint buffer[buffer_size];
 
-    double dx = data->gradient.radial.center.x - data->gradient.radial.focal.x;
-    double dy = data->gradient.radial.center.y - data->gradient.radial.focal.y;
-    double r  = data->gradient.radial.radius;
-    double a = r*r - dx*dx - dy*dy;
+    qreal dx = data->gradient.radial.center.x - data->gradient.radial.focal.x;
+    qreal dy = data->gradient.radial.center.y - data->gradient.radial.focal.y;
+    qreal r  = data->gradient.radial.radius;
+    qreal a = r*r - dx*dx - dy*dy;
     qreal cx = data->m11;
     qreal cy = data->m12;
 
@@ -891,9 +890,9 @@ static void blend_radial_gradient_argb(int count, const QSpan *spans, void *user
         while (length) {
             int l = qMin(length, buffer_size);
             for (int i = 0; i < l; ++i) {
-                double b  = 2*(rx*dx + ry*dy);
-                double det = determinant(a, b , -(rx*rx + ry*ry));
-                double s = realRoots(a, b, sqrt(det));
+                qreal b  = 2*(rx*dx + ry*dy);
+                qreal det = determinant(a, b , -(rx*rx + ry*ry));
+                qreal s = realRoots(a, b, sqrt(det));
 
                 buffer[i] = qt_gradient_pixel(&data->gradient,  s);
                 rx += cx;
@@ -929,7 +928,7 @@ static void blend_conical_gradient_argb(int count, const QSpan *spans, void *use
         while (length) {
             int l = qMin(length, buffer_size);
             for (int i = 0; i < l; ++i) {
-                double angle = atan2(ry, rx) + data->gradient.conical.angle;
+                qreal angle = atan2(ry, rx) + data->gradient.conical.angle;
                 buffer[i] = qt_gradient_pixel(&data->gradient, 1. - angle / (2*Q_PI));
                 rx += cx;
                 ry += cy;
@@ -1206,10 +1205,10 @@ static void blend_radial_gradient_mono(int count, const QSpan *spans, void *user
     Q_ASSERT(spans->coverage == 0xff);
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
 
-    double dx = data->gradient.radial.center.x - data->gradient.radial.focal.x;
-    double dy = data->gradient.radial.center.y - data->gradient.radial.focal.y;
-    double r  = data->gradient.radial.radius;
-    double a = r*r - dx*dx - dy*dy;
+    qreal dx = data->gradient.radial.center.x - data->gradient.radial.focal.x;
+    qreal dy = data->gradient.radial.center.y - data->gradient.radial.focal.y;
+    qreal r  = data->gradient.radial.radius;
+    qreal a = r*r - dx*dx - dy*dy;
     qreal cx = data->m11;
     qreal cy = data->m12;
 
@@ -1219,9 +1218,9 @@ static void blend_radial_gradient_mono(int count, const QSpan *spans, void *user
         qreal ry = data->m22 * spans->y + data->dy + cy * spans->x - data->gradient.radial.focal.y;
 
         for (int x = spans->x; x<spans->x + spans->len; x++) {
-            double b  = 2*(rx*dx + ry*dy);
-            double det = determinant(a, b , -(rx*rx + ry*ry));
-            double s = realRoots(a, b, sqrt(det));
+            qreal b  = 2*(rx*dx + ry*dy);
+            qreal det = determinant(a, b , -(rx*rx + ry*ry));
+            qreal s = realRoots(a, b, sqrt(det));
 
             uint p = qt_gradient_pixel(&data->gradient, s);
             if (qGray(p) < int(qt_bayer_matrix[spans->y & 15][x & 15]))
@@ -1250,7 +1249,7 @@ static void blend_conical_gradient_mono(int count, const QSpan *spans, void *use
         qreal ry = data->m22 * spans->y + data->dy + cy * spans->x - data->gradient.radial.center.y;
 
         for (int x = spans->x; x<spans->x + spans->len; x++) {
-            double angle = atan2(ry, rx);
+            qreal angle = atan2(ry, rx);
             angle += data->gradient.conical.angle;
             uint p = qt_gradient_pixel(&data->gradient, 1. - angle / (2*Q_PI));
             if (qGray(p) < int(qt_bayer_matrix[spans->y & 15][x & 15]))
@@ -1420,14 +1419,14 @@ static void blend_transformed_mono_lsb(int count, const QSpan *spans, void *user
                        || (py < 0) || (py >= image_height);
             if (!out) {
                 int y_offset = py * image_width;
-                
+
                 int dx = spans->x + i;
                 uint p = image_bits[y_offset + px];
                 if (qGray(p) < int(qt_bayer_matrix[spans->y & 15][dx & 15]))
                     target[dx >> 3] |= 1 << (dx & 7);
                 else
                     target[dx >> 3] &= ~(1 << (dx & 7));
-            }                
+            }
             x += fdx;
             y += fdy;
         }
@@ -1533,10 +1532,10 @@ static void blend_radial_gradient_mono_lsb(int count, const QSpan *spans, void *
 
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
 
-    double dx = data->gradient.radial.center.x - data->gradient.radial.focal.x;
-    double dy = data->gradient.radial.center.y - data->gradient.radial.focal.y;
-    double r  = data->gradient.radial.radius;
-    double a = r*r - dx*dx - dy*dy;
+    qreal dx = data->gradient.radial.center.x - data->gradient.radial.focal.x;
+    qreal dy = data->gradient.radial.center.y - data->gradient.radial.focal.y;
+    qreal r  = data->gradient.radial.radius;
+    qreal a = r*r - dx*dx - dy*dy;
     qreal cx = data->m11;
     qreal cy = data->m12;
 
@@ -1546,9 +1545,9 @@ static void blend_radial_gradient_mono_lsb(int count, const QSpan *spans, void *
         qreal ry = data->m22 * spans->y + data->dy + cy * spans->x - data->gradient.radial.focal.y;
 
         for (int x = spans->x; x < spans->x + spans->len; x++) {
-            double b  = 2*(rx*dx + ry*dy);
-            double det = determinant(a, b , -(rx*rx + ry*ry));
-            double s = realRoots(a, b, sqrt(det));
+            qreal b  = 2*(rx*dx + ry*dy);
+            qreal det = determinant(a, b , -(rx*rx + ry*ry));
+            qreal s = realRoots(a, b, sqrt(det));
 
             uint p = qt_gradient_pixel(&data->gradient, s);
             if (qGray(p) < int(qt_bayer_matrix[spans->y & 15][x & 15]))
@@ -1577,7 +1576,7 @@ static void blend_conical_gradient_mono_lsb(int count, const QSpan *spans, void 
         qreal ry = data->m22 * spans->y + data->dy + cy * spans->x - data->gradient.radial.center.y;
 
         for (int x = spans->x; x<spans->x + spans->len; x++) {
-            double angle = atan2(ry, rx);
+            qreal angle = atan2(ry, rx);
             angle += data->gradient.conical.angle;
             uint p = qt_gradient_pixel(&data->gradient, 1. - angle / (2*Q_PI));
             if (qGray(p) < int(qt_bayer_matrix[spans->y & 15][x & 15]))

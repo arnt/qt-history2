@@ -154,10 +154,10 @@ struct QSpanData
     ProcessSpans unclipped_blend;
     qreal m11, m12, m21, m22, dx, dy;   // inverse xform matrix
     enum Type {
-        None, 
+        None,
         Solid,
         Texture,
-        TiledTexture, 
+        TiledTexture,
         LinearGradient,
         RadialGradient,
         ConicalGradient
@@ -183,7 +183,7 @@ do {                                        \
     uint *d = (dest);                       \
     uint c = (color);                       \
     register int n = ((length) + 7) / 8;    \
-    switch ((length) % 8)                   \
+    switch ((length) & 0x07)                \
     {                                       \
     case 0: do { *d++ = c;                  \
     case 7:      *d++ = c;                  \
@@ -195,6 +195,46 @@ do {                                        \
     case 1:      *d++ = c;                  \
     } while (--n > 0);                      \
     }                                       \
+} while (0)
+
+#define QT_MEMCPY_UINT(dest, src, length)   \
+do {                                        \
+    /* Duff's device */                     \
+    uint *d = (dest);                       \
+    const uint *s = (src);                  \
+    register int n = ((length) + 7) / 8;    \
+    switch ((length) & 0x07)                \
+    {                                       \
+    case 0: do { *d++ = *s++;               \
+    case 7:      *d++ = *s++;               \
+    case 6:      *d++ = *s++;               \
+    case 5:      *d++ = *s++;               \
+    case 4:      *d++ = *s++;               \
+    case 3:      *d++ = *s++;               \
+    case 2:      *d++ = *s++;               \
+    case 1:      *d++ = *s++;               \
+    } while (--n > 0);                      \
+    }                                       \
+} while (0)
+
+#define QT_MEMCPY_REV_UINT(dest, src, length) \
+do {                                          \
+    /* Duff's device */                       \
+    uint *d = (uint*)(dest) + length;         \
+    const uint *s = (uint*)(src) + length;    \
+    register int n = ((length) + 7) / 8;      \
+    switch ((length) & 0x07)                  \
+    {                                         \
+    case 0: do { *--d = *--s;                 \
+    case 7:      *--d = *--s;                 \
+    case 6:      *--d = *--s;                 \
+    case 5:      *--d = *--s;                 \
+    case 4:      *--d = *--s;                 \
+    case 3:      *--d = *--s;                 \
+    case 2:      *--d = *--s;                 \
+    case 1:      *--d = *--s;                 \
+    } while (--n > 0);                        \
+    }                                         \
 } while (0)
 
 inline int qt_div_255(int x) { return (x + (x>>8) + 0x80) >> 8; }
