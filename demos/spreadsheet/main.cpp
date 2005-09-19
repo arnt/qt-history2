@@ -228,7 +228,6 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     for (int c = 0; c < cols; ++c) {
         QString character(QChar('A' + c));
         table->setHorizontalHeaderItem(c, new QTableWidgetItem(character));
-        table->horizontalHeaderItem(c)->setTextAlignment(Qt::AlignCenter);
     }
     table->setItemPrototype(table->item(rows - 1, cols - 1));
 

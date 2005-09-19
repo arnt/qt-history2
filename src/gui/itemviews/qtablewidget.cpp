@@ -485,9 +485,7 @@ QVariant QTableModel::headerData(int section, Qt::Orientation orientation, int r
     if (itm)
         return itm->data(role);
     if (role == Qt::DisplayRole)
-        return QVariant(section);
-    if (role == Qt::TextAlignmentRole)
-        return Qt::AlignVCenter;
+        return section + 1;
     return QVariant();
 }
 

@@ -314,9 +314,12 @@ QVariant QTreeModel::headerData(int section, Qt::Orientation orientation, int ro
 {
     if (!header)
         return section;
-
-    if (orientation == Qt::Horizontal)
-        return header->data(section, role);
+    if (orientation == Qt::Horizontal) {
+        if (header)
+            return header->data(section, role);
+        if (role == Qt::DisplayRole)
+            return section + 1;
+    }
     return QVariant();
 }
 
