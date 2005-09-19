@@ -14,7 +14,7 @@
 #ifndef QWIDGET_QWS_P_H
 #define QWIDGET_QWS_P_H
 
-#include <qbytearray.h>
+class QPixmap;
 
 class QWSBackingStore
 {
@@ -29,7 +29,7 @@ public:
     void lock(bool write=false);
     void unlock();
 
-    QPixmap *pixmap();
+    QPixmap *pixmap() const;
 
     void blt(const QRect &src, const QPoint &dest);
 

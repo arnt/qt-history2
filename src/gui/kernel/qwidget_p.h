@@ -72,19 +72,16 @@ struct QTLWExtra {
     short incw, inch; // size increments
     ulong fleft, fright, ftop, fbottom; // frame strut
     uint opacity : 8;
-#if defined(Q_WS_WIN)
-    ulong savedFlags; // Save window flags while showing fullscreen
 #ifdef QT_USE_BACKINGSTORE
     QWidgetBackingStore *backingStore;
 #endif
+#if defined(Q_WS_WIN)
+    ulong savedFlags; // Save window flags while showing fullscreen
 #else
     Qt::WFlags savedFlags; // Save widget flags while showing fullscreen
 #endif
     short basew, baseh; // base sizes
 #if defined(Q_WS_X11)
-#ifdef QT_USE_BACKINGSTORE
-    QWidgetBackingStore *backingStore;
-#endif
     WId parentWinId; // parent window Id (valid after reparenting)
     uint embedded : 1; // window is embedded in another Qt application
     uint spont_unmapped: 1; // window was spontaneously unmapped
@@ -103,12 +100,9 @@ struct QTLWExtra {
 #if defined(Q_WS_QWS) && !defined (QT_NO_QWS_MANAGER)
 //    QRegion decor_allocated_region; // decoration allocated region
     QWSManager *qwsManager;
+    QRect frameGeometry;
 #endif
 #if defined Q_WS_QWS
-    QWSBackingStore *backingStore;
-    QPoint backingStoreOffset;
-
-    QRegion dirtyRegion;
     bool inPaintTransaction;
 #endif
 #if defined(Q_WS_WIN)

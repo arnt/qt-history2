@@ -2063,7 +2063,7 @@ void QWidgetPrivate::updateFrameStrut() const
         top->fleft = content_r.left - window_r.left;
         top->ftop = content_r.top - window_r.top;
         top->fright = window_r.right - content_r.right;
-        top->fbottom = window_r.bottom - window_r.bottom;
+        top->fbottom = window_r.bottom - content_r.bottom;
     }
 }
 

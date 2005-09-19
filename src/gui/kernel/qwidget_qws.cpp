@@ -28,7 +28,7 @@
 #include "qscreen_qws.h"
 #include "qwsmanager_qws.h"
 #include <private/qwsmanager_p.h>
-//#include "qwsregionmanager_qws.h"
+#include <private/qbackingstore_p.h>
 #include "qpaintengine.h"
 
 #include "qdebug.h"
@@ -102,7 +102,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
         flags |= Qt::WindowStaysOnTopHint;
 
     WId           id;
-    QWSDisplay* dpy = q->qwsDisplay();
+    QWSDisplay* dpy = QWidget::qwsDisplay();
 
     if (!window)                                // always initialize
         initializeWindow = true;
@@ -172,7 +172,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
             //XXX XDefineCursor(dpy, winid, oc ? oc->handle() : cursor().handle());
         }
         q->setAttribute(Qt::WA_SetCursor);
-        q->qwsDisplay()->nameRegion(q->winId(), q->objectName(), q->windowTitle());
+        QWidget::qwsDisplay()->nameRegion(q->winId(), q->objectName(), q->windowTitle());
     }
 
     if (topLevel) {
@@ -219,6 +219,10 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
 void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 {
     Q_D(QWidget);
+
+    if (QWidget *p = parentWidget())
+        p->d_func()->invalidateBuffer(geometry());
+
     d->deactivateWidgetCleanup();
     if (testAttribute(Qt::WA_WState_Created)) {
         setAttribute(Qt::WA_WState_Created, false);
@@ -255,6 +259,8 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
 {
     Q_Q(QWidget);
+     if (q->isVisible() && q->parentWidget() && parent != q->parentWidget())
+        q->parentWidget()->d_func()->invalidateBuffer(q->geometry());
 #ifndef QT_NO_CURSOR
     QCursor oldcurs;
     bool setcurs=q->testAttribute(Qt::WA_SetCursor);
@@ -309,7 +315,7 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
     setEnabled_helper(enable); //preserving WA_ForceDisabled
     q->setFocusPolicy(fp);
     if ((int)old_winid > 0)
-        q->qwsDisplay()->destroyRegion(old_winid);
+        QWidget::qwsDisplay()->destroyRegion(old_winid);
 #ifndef QT_NO_CURSOR
     if (setcurs) {
         q->setCursor(oldcurs);
@@ -408,7 +414,7 @@ void QWidget::unsetCursor()
 void QWidgetPrivate::setWindowTitle_sys(const QString &caption)
 {
     Q_Q(QWidget);
-    q->qwsDisplay()->setWindowCaption(q, caption);
+    QWidget::qwsDisplay()->setWindowCaption(q, caption);
 }
 
 void QWidgetPrivate::setWindowIcon_sys()
@@ -504,15 +510,19 @@ void QWidget::activateWindow()
     }
 }
 
-
+#if 0
 void QWidget::update()
 {
     if (isVisible() && updatesEnabled()) {
         QTLWExtra *topextra = window()->d_func()->extra->topextra;
+
+        topextra->backingStore->dirtyRegion(visibleRegion(), this);
+#if 0
         QPoint globalpos = mapToGlobal(QPoint(0,0));
         QRegion globalrgn = visibleRegion();
         globalrgn.translate(globalpos);
         topextra->dirtyRegion |= globalrgn;
+#endif
         QApplication::postEvent(this, new QWSUpdateEvent(QRegion()));
     }
 }
@@ -521,10 +531,13 @@ void QWidget::update(const QRegion &rgn)
 {
     if (isVisible() && updatesEnabled()){
         QTLWExtra *topextra = window()->d_func()->extra->topextra;
+        topextra->backingStore->dirtyRegion(rgn & visibleRegion(), this);
+#if 0
         QPoint globalpos = mapToGlobal(QPoint(0,0));
         QRegion globalrgn = rgn &visibleRegion();
         globalrgn.translate(globalpos);
         topextra->dirtyRegion |= globalrgn;
+#endif
         QApplication::postEvent(this, new QWSUpdateEvent(QRegion()));
     }
 }
@@ -539,14 +552,30 @@ void QWidget::update(const QRect &r)
             h = data->crect.height() - y;
         if (w != 0 && h != 0){
         QTLWExtra *topextra = window()->d_func()->extra->topextra;
+
+        topextra->backingStore->dirtyRegion(visibleRegion().intersect(QRect(x,y,w,h)), this);
+#if 0
         QPoint globalpos = mapToGlobal(QPoint(0,0));
         QRegion globalrgn = visibleRegion().intersect(QRect(x, y, w, h));
         globalrgn.translate(globalpos);
         topextra->dirtyRegion |= globalrgn;
         QApplication::postEvent(this, new QWSUpdateEvent(QRegion()));
+ #endif
         }
     }
 }
+#endif
+
+void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
+{
+    Q_Q(QWidget);
+    QApplication::postEvent(q->window(), new QWSUpdateEvent(QRegion()));
+}
+
+void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)
+{
+}
+
 
 
 /*
@@ -559,10 +588,10 @@ void QWidgetPrivate::bltToScreen(const QRegion &globalrgn)
     QWidget *win = q->window();
     QBrush bgBrush = win->palette().brush(win->backgroundRole());
     bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
-    q->qwsDisplay()->repaintRegion(win->data->winid, opaque, globalrgn);
+    QWidget::qwsDisplay()->repaintRegion(win->data->winid, opaque, globalrgn);
 }
 
-
+#ifdef QWS_OLD_REPAINT_STUFF
 /*
   rgn is in parent's coordinates (same as geometry())
  */
@@ -600,7 +629,6 @@ void QWidgetPrivate::paintHierarchy(const QRegion &rgn)
 }
 
 
-
 /*
   rgn is in my coordinates (same as rect())
 */
@@ -610,6 +638,7 @@ void QWidget::repaint(const QRegion& rgn)
     if (!isVisible() || !updatesEnabled() || !testAttribute(Qt::WA_Mapped))
         return;
     QTLWExtra *topextra = window()->d_func()->extra->topextra;
+
     if (!rgn.isEmpty()) {
     QPoint globalPos = mapToGlobal(QPoint(0,0));
     QRegion globalrgn = rgn;
@@ -702,7 +731,7 @@ void QWidgetPrivate::doPaint(const QRegion &rgn)
     if(!q->testAttribute(Qt::WA_PaintOutsidePaintEvent) && q->paintingActive())
         qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
 }
-
+#endif // QWS_OLD_REPAINT_STUFF
 //#define QT_SHAREDMEM_DEBUG
 
 QWSBackingStore::QWSBackingStore()
@@ -720,7 +749,7 @@ QSize QWSBackingStore::size() const
     return pix ? pix->size() : QSize(0,0);
 }
 
-QPixmap *QWSBackingStore::pixmap()
+QPixmap *QWSBackingStore::pixmap() const
 {
     return pix;
 }
@@ -806,6 +835,8 @@ void QWSBackingStore::attach(int id, QSize s)
 #ifdef QT_SHAREDMEM_DEBUG
         qDebug() << "QWSBackingStore::attach no id, size" << s;
 #endif
+        pix = new QPixmap(s);
+        pix->fill(QColor(255,255,0,128));
         return;
     }
     shmaddr = shmat(shmid,0,0);
@@ -841,9 +872,11 @@ void QWSBackingStore::unlock()
     QWSDisplay::ungrab();
 }
 
+
 void QWidgetPrivate::requestWindowRegion(const QRegion &r)
 {
-    Q_Q(QWidget);
+//     invalidateBuffer(r);
+#if 0
     QRegion deviceregion = qt_screen->mapToDevice(r, QSize(qt_screen->width(), qt_screen->height()));
     Q_ASSERT(extra && extra->topextra);
     QRect br = r.boundingRect();
@@ -867,7 +900,9 @@ void QWidgetPrivate::requestWindowRegion(const QRegion &r)
     bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque(); //### duplicated in bltToScreen
 
 
-    q->qwsDisplay()->requestRegion(data.winid, bs->memoryId(), opaque, deviceregion);
+    QWidget::qwsDisplay()->requestRegion(data.winid, bs->memoryId(), opaque, deviceregion);
+
+#endif
 }
 
 void QWidgetPrivate::show_sys()
@@ -882,17 +917,17 @@ void QWidgetPrivate::show_sys()
             r += extra->topextra->qwsManager->region();
         }
 #endif
-        requestWindowRegion(r);
+        invalidateBuffer(r);
         if (q->windowType() != Qt::Popup
             && q->windowType() != Qt::Tool
             && q->windowType() != Qt::ToolTip ) {
-            q->qwsDisplay()->requestFocus(data.winid,true);
+            QWidget::qwsDisplay()->requestFocus(data.winid,true);
         }
-        q->qwsDisplay()->setAltitude(data.winid,
+        QWidget::qwsDisplay()->setAltitude(data.winid,
                                      (q->windowFlags() & Qt::WindowStaysOnTopHint) ? 1 : 0, true);
 
     } else if (!q->window()->data->in_show) {
-        q->update(); //#####@@@@@@
+         invalidateBuffer(q->rect());
     }
 }
 
@@ -904,12 +939,16 @@ void QWidgetPrivate::hide_sys()
 
     if (q->isWindow()) {
         q->releaseMouse();
-        requestWindowRegion(QRegion());
-        q->qwsDisplay()->requestFocus(data.winid,false);
+//        requestWindowRegion(QRegion());
+
+        extra->topextra->backingStore->releaseBuffer();
+
+
+        QWidget::qwsDisplay()->requestFocus(data.winid,false);
     } else {
         QWidget *p = q->parentWidget();
         if (p &&p->isVisible()) {
-            p->update(q->geometry()); //@@@ ???
+            invalidateBuffer(q->rect());
         }
     }
 }
@@ -980,11 +1019,9 @@ void QWidgetPrivate::raise_sys()
     Q_Q(QWidget);
     //@@@ transaction
     if (q->isWindow()) {
+        QWidget::qwsDisplay()->setAltitude(q->winId(), 0);
 #ifdef QT_NO_WINDOWGROUPHINT
-        qwsDisplay()->setAltitude(q->winId(), 0);
 #else
-        q->qwsDisplay()->setAltitude(q->winId(), 0);
-
         QObjectList childObjects =  q->children();
         if (!childObjects.isEmpty()) {
             QWidgetList toraise;
@@ -1013,7 +1050,7 @@ void QWidgetPrivate::lower_sys()
 {
     Q_Q(QWidget);
     if (q->isWindow()) {
-        q->qwsDisplay()->setAltitude(data.winid, -1);
+        QWidget::qwsDisplay()->setAltitude(data.winid, -1);
     } else if (QWidget *p = q->parentWidget()) {
         p->update(q->geometry());
     }
@@ -1077,7 +1114,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             //### ConfigPending not implemented, do we need it?
             //setAttribute(Qt::WA_WState_ConfigPending);
             if (isMove && !isResize) {
-                q->qwsDisplay()->moveRegion(data.winid, x - oldp.x(), y - oldp.y());
+                QWidget::qwsDisplay()->moveRegion(data.winid, x - oldp.x(), y - oldp.y());
                 toplevelMove = true; //server moves window, but we must send moveEvent, which might trigger painting
             } else {
                 myregion = localRequestedRegion();
@@ -1106,27 +1143,16 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             QResizeEvent e(r.size(), olds);
             QApplication::sendEvent(q, &e);
         }
-
         if (!toplevelMove) {
             if (q->isWindow()) {
-                requestWindowRegion(myregion); //paints to BS ### should it ???
-                topextra->dirtyRegion |= myregion;
+                invalidateBuffer(q->rect()); //###
             } else {
-                QWidget *p = q->parentWidget();
-                QRegion dirty(QRect(p->mapToGlobal(data.crect.topLeft()), data.crect.size()));
-                dirty |= QRect(p->mapToGlobal(oldp), olds);
-                topextra->dirtyRegion |= dirty;
+                if(isMove)
+                    q->parentWidget()->d_func()->scrollBuffer(QRect(oldPos, olds),
+                                                          x - oldPos.x(), y - oldPos.y());
+                else
+                    q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, olds));
             }
-        }
-
-        if (!inTransaction && !topextra->dirtyRegion.isEmpty()) {
-            if (!q->isWindow()) {
-                topextra->backingStore->lock(true);
-                q->window()->d_func()->paintHierarchy(topextra->dirtyRegion);
-                topextra->backingStore->unlock();
-            }
-            bltToScreen(topextra->dirtyRegion);
-            topextra->dirtyRegion = QRegion();
         }
     } else { // not visible
         if (isMove && q->pos() != oldPos)
@@ -1219,7 +1245,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 
     QWidget *tlw = window();
     QTLWExtra *topextra = tlw->d_func()->extra->topextra;
-
+#ifdef QWS_OLD_REPAINT_STUFF
     QPoint globalOffset = mapToGlobal(QPoint(0,0));
     QRegion globalUpdate(sr.translated(globalOffset));
 
@@ -1263,6 +1289,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     }
 
     globalUpdate |= topextra->dirtyRegion;
+#endif //QWS_OLD_REPAINT_STUFF
 
     if (!valid_rect && children().size() > 0) {        // scroll children
 //        d->setChildrenAllocatedDirty();
@@ -1282,6 +1309,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         }
     }
 
+#ifdef QWS_OLD_REPAINT_STUFF
 //copied from repaint:
     if (isVisible()) {
         bs->lock(true);
@@ -1291,6 +1319,8 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 
         topextra->dirtyRegion = QRegion();
     }
+#endif
+    update(); //###################
 }
 
 int QWidget::metric(PaintDeviceMetric m) const
@@ -1327,6 +1357,7 @@ void QWidgetPrivate::deleteSysExtra()
 
 void QWidgetPrivate::createTLSysExtra()
 {
+    extra->topextra->backingStore = new QWidgetBackingStore(q_func());
 }
 
 void QWidgetPrivate::deleteTLSysExtra()
@@ -1393,15 +1424,28 @@ void QWidget::clearMask()
 
 void QWidgetPrivate::updateFrameStrut() const
 {
+#if 0
     Q_Q(const QWidget);
-    QWidget *that = const_cast<QWidget *>(q);
 
     if(!q->isVisible() || (q->windowType() == Qt::Desktop)) {
-        that->data->fstrut_dirty = q->isVisible();
+        data.fstrut_dirty = q->isVisible();
         return;
     }
-
-    //FIXME: need to fill in frame strut info
+#ifndef QT_NO_QWS_MANAGER
+    QRegion r = localRequestedRegion();
+    r.translate(data.crect.topLeft());
+    if (extra && extra->topextra && extra->topextra->qwsManager) {
+        r += extra->topextra->qwsManager->region();
+    }
+    QRect contents = geometry();
+    QRect frame = r.boundingRect();
+    top->fleft = contents.left() - frame.left();
+    top->ftop = contents.top() - frame.top();
+    top->fright = frame.right() - contents.right();
+    top->fbottom = frame.bottom() - contents.bottom();
+#endif
+    data.fstrut_dirty = false;
+#endif
 }
 
 #ifndef QT_NO_CURSOR
@@ -1414,7 +1458,7 @@ void QWidgetPrivate::updateCursor(const QRegion &r) const
         QSize s(qt_screen->width(), qt_screen->height());
         QPoint pos = qt_screen->mapToDevice(QPoint(*qt_last_x, *qt_last_y), s);
         if (r.contains(pos))
-            q->qwsDisplay()->selectCursor(const_cast<QWidget*>(q), q->cursor().handle());
+            QWidget::qwsDisplay()->selectCursor(const_cast<QWidget*>(q), q->cursor().handle());
     }
 }
 #endif

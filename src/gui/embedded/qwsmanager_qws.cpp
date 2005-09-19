@@ -30,7 +30,7 @@
 
 #include <private/qwidget_p.h>
 #include <private/qwidget_qws_p.h>
-
+#include <private/qbackingstore_p.h>
 #include "qdecorationfactory_qws.h"
 
 #include "qlayout.h"
@@ -353,8 +353,8 @@ bool QWSManagerPrivate::doPaint(int decorationRegion, QDecoration::DecorationSta
 
     QTLWExtra *topextra = managed->d_func()->extra->topextra;
     QPixmap *buf = 0;
-    if (topextra->backingStore)
-        buf = topextra->backingStore->pixmap();
+     if (topextra->backingStore)
+         buf = topextra->backingStore->backingPixmap();
     if (!buf || buf->isNull()) {
 //        qDebug("QWSManager::doPaint empty buf");
         managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
@@ -362,15 +362,15 @@ bool QWSManagerPrivate::doPaint(int decorationRegion, QDecoration::DecorationSta
     }
     QPainter painter;
     painter.begin(buf);
-    QRegion clipRgn = dec.region(managed, managed->rect().translated(-topextra->backingStoreOffset ));
+    QRegion clipRgn = dec.region(managed, managed->rect().translated(topextra->backingStore->topLevelOffset() ));
 #if 0
     qDebug() << "QWSManagerPrivate::doPaint"
              << "rect" << managed->rect()
-             << "backingStoreOffset" << topextra->backingStoreOffset
+             << "backingStoreOffset" << topextra->backingStore->topLevelOffset()
              << "clipRgn" << clipRgn;
 #endif
     painter.setClipRegion(clipRgn);
-    painter.translate(-topextra->backingStoreOffset);
+    painter.translate(topextra->backingStore->topLevelOffset());
 
     result = dec.paint(&painter, managed, decorationRegion, state);
     painter.end();
@@ -385,10 +385,10 @@ bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationStat
     //### lock backing store
     bool result = d->doPaint(decorationRegion, state);
     //### unlock
-    QTLWExtra *topextra = d->managed->d_func()->extra->topextra;
+//    QTLWExtra *topextra = d->managed->d_func()->extra->topextra;
     QDecoration &dec = QApplication::qwsDecoration();
     //### copies too much, but we don't know here what has actually been changed
-    if (result) 
+    if (result)
         d->managed->d_func()->bltToScreen(dec.region(d->managed, d->managed->geometry()));
     return result;
 }

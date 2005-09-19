@@ -2297,7 +2297,7 @@ void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
     changingw->requested_region = r;
 
     int idx = windows.indexOf(changingw);
-    exposeRegion(oldRegion + changingw->requested_region, idx);
+    exposeRegion(oldRegion - changingw->requested_region, idx);
 }
 
 

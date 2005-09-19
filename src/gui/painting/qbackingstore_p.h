@@ -15,7 +15,9 @@
 #define QBACKINGSTORE_P_H
 
 #include <private/qpaintengine_raster_p.h>
-
+#ifdef Q_WS_QWS
+#include <private/qwidget_qws_p.h>
+#endif
 #ifdef Q_WS_WIN
 class QBackingStoreDevice : public QPaintDevice
 {
@@ -35,11 +37,15 @@ class QWidgetBackingStore
     QWidget *tlw;
     QRegion dirty;
 
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN)
     QBackingStoreDevice buffer;
+#elif defined(Q_WS_QWS)
+    QWSBackingStore buffer;
 #else
     QPixmap buffer;
 #endif
+    QPoint tlwOffset;
+    bool dirtyBufferSize;
 
     bool isOpaque(const QWidget *widget);
     bool hasBackground(const QWidget *widget);
@@ -50,7 +56,7 @@ class QWidgetBackingStore
     void paintWidget_sys(const QRegion &rgn, QWidget *widget);
     void updateWidget_sys(const QRegion &rgn, QWidget *widget);
     friend void qt_syncBackingStore(QRegion, QWidget *);
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
     friend void qt_syncBackingStore(QWidget *);
 #endif
     friend class QWidgetPrivate;
@@ -61,10 +67,14 @@ public:
     void scrollRegion(const QRegion &rgn, int dx, int dy, QWidget *widget=0);
     void dirtyRegion(const QRegion &rgn, QWidget *widget=0);
     void cleanRegion(const QRegion &rgn, QWidget *widget=0);
-#ifndef Q_WS_WIN
+#if defined(Q_WS_X11)
     QPixmap backingPixmap() const { return buffer; }
+#elif defined(Q_WS_QWS)
+    QPixmap *backingPixmap() const { return buffer.pixmap(); }
+    void releaseBuffer();
 #endif
 
+    inline QPoint topLevelOffset() const { return tlwOffset; }
     static bool paintOnScreen(QWidget *);
 };
 

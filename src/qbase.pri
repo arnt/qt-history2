@@ -35,7 +35,7 @@ CONFIG          -= fix_output_dirs
 !macx-xcode:CONFIG += debug_and_release
 
 #enable backingstore by default for now
-win32|x11 {
+win32|x11|embedded {
      CONFIG += backingstore
      DEFINES += QT_USE_BACKINGSTORE
 }

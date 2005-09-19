@@ -3155,7 +3155,7 @@ void QETWidget::repaintDecoration(QRegion r, bool post)
     // However, it does listen to paint events.
 
     Q_D(QWidget);
-    if (isWindow() && d->topData()->qwsManager) {
+    if (isWindow() && d->topData()->qwsManager && isVisible()) {
         r &= d->topData()->qwsManager->region();
         if (!r.isEmpty()) {
             r.translate(-data->crect.x(),-data->crect.y());

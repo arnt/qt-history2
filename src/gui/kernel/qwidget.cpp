@@ -5231,7 +5231,9 @@ bool QWidget::event(QEvent *e)
 #endif
 #if defined(Q_WS_QWS)
     case QEvent::QWSUpdate:
-        repaint(static_cast<QWSUpdateEvent*>(e)->region());
+        //repaint(static_cast<QWSUpdateEvent*>(e)->region());
+        extern void qt_syncBackingStore(QWidget *widget);
+        qt_syncBackingStore(this);
         break;
 #endif
 

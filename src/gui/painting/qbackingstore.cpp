@@ -25,6 +25,12 @@
 # include "private/qt_x11_p.h"
 #endif
 
+#ifdef Q_WS_QWS
+#include <qwsdisplay_qws.h>
+#include <qapplication.h>
+#include <qwsmanager_qws.h>
+#endif
+
 /*****************************************************************************
   Top Level Window backing store
  *****************************************************************************/
@@ -42,6 +48,67 @@ bool QWidgetBackingStore::paintOnScreen(QWidget *w)
     return (checked_env == 1);
 }
 
+#ifdef Q_WS_QWS
+static int yWinId = 0;
+
+static void createYellowThing()
+{
+    if (yWinId == 0) {
+        yWinId = QWidget::qwsDisplay()->takeId();
+        QWidget::qwsDisplay()->nameRegion(yWinId, "Debug flush paint", "Silly yellow thing");
+        QWidget::qwsDisplay()->setAltitude(yWinId, 1, true);
+    }
+}
+
+static bool qt_flushUpdate(const QRegion &globalRgnHack)
+{
+    static int checked_env = -1;
+    if(checked_env == -1) {
+        checked_env = qgetenv("QT_FLUSH_UPDATE").toInt();
+        if (checked_env != 0)
+            createYellowThing();
+    }
+
+    if (checked_env == 0)
+        return false;
+
+
+    QRegion globalRgn = globalRgnHack.boundingRect().adjusted(-10,-10,10,10);
+
+
+    QWidget::qwsDisplay()->requestRegion(yWinId, -1, false, globalRgn);
+    QWidget::qwsDisplay()->setAltitude(yWinId, 1, true);
+    QWidget::qwsDisplay()->repaintRegion(yWinId, false, globalRgn);
+
+    ::usleep(10000*checked_env);
+    QWidget::qwsDisplay()->requestRegion(yWinId, -1, false, QRegion());
+    ::usleep(10000*checked_env);
+    return true;
+}
+
+static bool qt_flushPaint(QWidget *widget, const QRegion &toBePainted)
+{
+    static int checked_env = -1;
+    if(checked_env == -1) {
+        checked_env = qgetenv("QT_FLUSH_PAINT").toInt();
+        if (checked_env != 0)
+            createYellowThing();
+    }
+
+    if (checked_env == 0)
+        return false;
+
+    QRegion globalRgn = toBePainted;
+    globalRgn.translate(widget->mapToGlobal(QPoint()));
+
+    QWidget::qwsDisplay()->requestRegion(yWinId, -1, false, globalRgn);
+    QWidget::qwsDisplay()->repaintRegion(yWinId, false, globalRgn);
+
+    ::usleep(20000*checked_env);
+    QWidget::qwsDisplay()->requestRegion(yWinId, -1, false, QRegion());
+    return true;
+}
+#else
 static bool qt_flushPaint(QWidget *widget, const QRegion &toBePainted)
 {
     static signed char checked_env = -1;
@@ -55,11 +122,11 @@ static bool qt_flushPaint(QWidget *widget, const QRegion &toBePainted)
    bool paintUnclipped = widget->testAttribute(Qt::WA_PaintUnclipped);
     if (!QWidgetBackingStore::paintOnScreen(widget))
         widget->setAttribute(Qt::WA_PaintUnclipped);
-
+#ifndef Q_WS_QWS
     //setup the engine
     QPaintEngine *pe = widget->paintEngine();
     pe->setSystemClip(toBePainted);
-
+#endif
     {
         QPainter p(widget);
         p.setClipRegion(toBePainted);
@@ -69,6 +136,7 @@ static bool qt_flushPaint(QWidget *widget, const QRegion &toBePainted)
 
     //restore
     widget->setAttribute(Qt::WA_PaintUnclipped, paintUnclipped);
+#ifndef Q_WS_QWS
     pe->setSystemClip(QRegion());
 
     //flush
@@ -77,14 +145,15 @@ static bool qt_flushPaint(QWidget *widget, const QRegion &toBePainted)
         rpe->flush(widget, QPoint());
     }
     QApplication::syncX();
-
+#endif
 #if defined(Q_OS_UNIX)
-    ::usleep(80000);
+    ::usleep(20000);
 #elif defined(Q_OS_WIN)
     ::Sleep(25);
 #endif
     return true;
 }
+#endif
 
 void qt_syncBackingStore(QRegion rgn, QWidget *widget)
 {
@@ -96,7 +165,7 @@ void qt_syncBackingStore(QRegion rgn, QWidget *widget)
     }
 }
 
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11)
 void qt_syncBackingStore(QWidget *widget)
 {
     const QRegion dirty =  widget->d_func()->dirtyOnScreen;
@@ -106,12 +175,30 @@ void qt_syncBackingStore(QWidget *widget)
     else
         widget->repaint(dirty);
 }
+#elif defined(Q_WS_QWS)
+void qt_syncBackingStore(QWidget *widget)
+{
+    QWidget *tlw = widget->window();
+    QTLWExtra *topData = tlw->d_func()->topData();
+
+//    QRegion toClean = tlw->rect();
+    QRegion toClean = topData->backingStore->dirty;
+
+#if 0
+    qDebug() << "qt_syncBackingStore" << tlw << tlw->rect();
+    qDebug() << "dirty ==" << topData->backingStore->dirty;
+#endif
+    if (!toClean.isEmpty())
+        topData->backingStore->cleanRegion(toClean, tlw);
+}
+
 #endif
 
 QWidgetBackingStore::QWidgetBackingStore(QWidget *t) : tlw(t)
 #ifdef Q_WS_WIN
                                                      , buffer(t)
 #endif
+                                                     , dirtyBufferSize(false)
 {
 
 }
@@ -190,6 +277,17 @@ void QWidgetBackingStore::cleanScreen(const QRegion &rgn, QWidget *widget, const
 {
     if (rgn.isEmpty())
         return;
+#ifdef Q_WS_QWS
+    Q_UNUSED(offset);
+    QWidget *win = widget->window();
+    QBrush bgBrush = win->palette().brush(win->backgroundRole());
+    bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
+    QRegion globalrgn = rgn;
+    globalrgn.translate(win->geometry().topLeft());
+    win->qwsDisplay()->repaintRegion(win->data->winid, opaque, globalrgn);
+
+    qt_flushUpdate(globalrgn);
+#else
     if (!QWidgetBackingStore::paintOnScreen(widget)){
         widget->d_func()->cleanWidget_sys(rgn);
 #if defined(Q_WS_WIN)
@@ -234,6 +332,7 @@ void QWidgetBackingStore::cleanScreen(const QRegion &rgn, QWidget *widget, const
             }
         }
     }
+#endif
 }
 
 void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget)
@@ -244,32 +343,74 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget)
     if(!QWidgetBackingStore::paintOnScreen(widget)) {
         QRegion toClean;
 
-        if (buffer.size() != tlw->size()) {
+#ifdef Q_WS_QWS
+        //QWExtra *extra = tlw->d_func()->extra;
+        QRect tlwFrame = tlw->frameGeometry();
+        QSize tlwSize = tlwFrame.size();
+#else
+        QSize tlwSize = tlw->size();
+#endif
+        if (buffer.size() != tlwSize || dirtyBufferSize) {
 #if defined(Q_WS_X11)
             extern int qt_x11_preferred_pixmap_depth;
             int old_qt_x11_preferred_pixmap_depth = qt_x11_preferred_pixmap_depth;
             qt_x11_preferred_pixmap_depth = widget->x11Info().depth();
-            buffer = QPixmap(tlw->size());
+            buffer = QPixmap(tlwSize);
             qt_x11_preferred_pixmap_depth = old_qt_x11_preferred_pixmap_depth;
 #elif defined(Q_WS_WIN)
             if (buffer.paintEngine())
                 ((QRasterPaintEngine *)buffer.paintEngine())->releaseBuffer();
+#elif defined(Q_WS_QWS)
+            QRegion tlwRegion = tlwFrame;
+            tlwOffset = tlw->geometry().topLeft() - tlwFrame.topLeft();
+            if (!tlw->d_func()->extra->mask.isEmpty()) {
+                tlwRegion = tlw->d_func()->extra->mask;
+                tlwRegion.translate(tlw->geometry().topLeft());
+                tlwRegion &= tlwFrame;
+                tlwSize = tlwRegion.boundingRect().size();
+                tlwOffset = tlw->geometry().topLeft() - tlwRegion.boundingRect().topLeft();
+            }
+            buffer.create(tlwSize);
+            QBrush bgBrush = tlw->palette().brush(tlw->backgroundRole());
+            bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
+            QWidget::qwsDisplay()->requestRegion(tlw->data->winid, buffer.memoryId(), opaque, tlwRegion);
+            QTLWExtra *topextra = tlw->d_func()->extra->topextra;
+            if (topextra->qwsManager)
+                QApplication::postEvent(topextra->qwsManager, new QPaintEvent(tlwFrame));
 #endif
             toClean = QRegion(0, 0, tlw->width(), tlw->height());
+            dirtyBufferSize = false;
         } else {
             toClean = dirty;
         }
 
+#ifdef Q_WS_QWS
+        QRegion toFlush = toClean; //??? correct as long as we don't have fast scroll
+#endif
         if(!toClean.isEmpty()) {
-            cleanBuffer(toClean, tlw, QPoint(0, 0), Recursive|AsRoot);
+#ifdef Q_WS_QWS
+            buffer.lock();
+#endif
+            cleanBuffer(toClean, tlw, tlwOffset, Recursive|AsRoot);
+#ifdef Q_WS_QWS
+            buffer.unlock();
+#endif
             dirty -= toClean;
         }
-
+#ifndef Q_WS_QWS
         QRegion toFlush = rgn;
-        toFlush.translate(widget->mapTo(tlw, QPoint(0, 0)));
-        cleanScreen(toFlush, tlw, QPoint(0, 0), Recursive);
+#endif
+        toFlush.translate(widget->mapTo(tlw, QPoint()));
+        cleanScreen(toFlush, tlw, tlwOffset, Recursive);
     }
 }
+
+void QWidgetBackingStore::releaseBuffer()
+{
+    buffer.detach();
+    QWidget::qwsDisplay()->requestRegion(tlw->data->winid, 0, true, QRegion(0));
+}
+
 
 bool QWidgetBackingStore::isOpaque(const QWidget *widget)
 {
@@ -301,13 +442,21 @@ void QWidgetBackingStore::cleanBuffer(const QRegion &rgn, QWidget *widget, const
             qWarning("QWidget::repaint: recursive repaint detected.");
         widget->setAttribute(Qt::WA_WState_InPaintEvent);
 
-        bool flushed = qt_flushPaint(widget, toBePainted);
-
         //clip away the new area
+#ifdef Q_WS_QWS
+        QPainter::setRedirected(widget, buffer.pixmap(), -offset); //###
+        bool flushed = qt_flushPaint(widget, toBePainted);
+#else
+        bool flushed = qt_flushPaint(widget, toBePainted);
         QPainter::setRedirected(widget, &buffer, -offset);
+#endif
         QRegion wrgn = toBePainted;
         wrgn.translate(offset);
+#ifdef Q_WS_QWS
+        buffer.pixmap()->paintEngine()->setSystemClip(wrgn); //###
+#else
         buffer.paintEngine()->setSystemClip(wrgn);
+#endif
 #ifdef Q_WS_WIN
         QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
         HDC engine_dc = engine->getDC();
@@ -319,6 +468,10 @@ void QWidgetBackingStore::cleanBuffer(const QRegion &rgn, QWidget *widget, const
         if((flags & AsRoot) || hasBackground(widget)) {
             QPainter p(widget);
             const QBrush bg = widget->palette().brush(widget->backgroundRole());
+#ifdef Q_WS_QWS
+            if (flags & AsRoot)
+                p.setCompositionMode(QPainter::CompositionMode_Source); //copy alpha straight in
+#endif
             if (bg.style() == Qt::TexturePattern)
                 p.drawTiledPixmap(widget->rect(), bg.texture());
             else
@@ -338,7 +491,11 @@ void QWidgetBackingStore::cleanBuffer(const QRegion &rgn, QWidget *widget, const
         qt_sendSpontaneousEvent(widget, &e);
 
         //restore
+#ifdef Q_WS_QWS
+        buffer.pixmap()->paintEngine()->setSystemClip(QRegion()); //###
+#else
         buffer.paintEngine()->setSystemClip(QRegion());
+#endif
         QPainter::restoreRedirected(widget);
 
         widget->setAttribute(Qt::WA_WState_InPaintEvent, false);
@@ -348,7 +505,11 @@ void QWidgetBackingStore::cleanBuffer(const QRegion &rgn, QWidget *widget, const
         if (flushed)
             cleanScreen(toBePainted, widget, offset, 0);
     } else if(widget == tlw) {
+#ifdef Q_WS_QWS
+            QPainter p(buffer.pixmap());
+#else
             QPainter p(&buffer);
+#endif
             p.setClipRegion(toBePainted);
             const QBrush bg = widget->palette().brush(widget->backgroundRole());
             if (bg.style() == Qt::TexturePattern)

@@ -106,7 +106,7 @@ unix:x11 {
 
 unix:SOURCES += painting/qregion_unix.cpp
 
-win32|x11 {
+win32|x11|embedded {
         backingstore:SOURCES += painting/qbackingstore.cpp
 }
 
