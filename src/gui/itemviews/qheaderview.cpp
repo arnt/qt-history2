@@ -993,17 +993,17 @@ bool QHeaderView::sectionsHidden() const
 void QHeaderView::headerDataChanged(Qt::Orientation orientation, int logicalFirst, int logicalLast)
 {
     Q_D(QHeaderView);
+    if (d->orientation != orientation)
+        return;
     // Before initilization the size isn't set
     if (count() == 0)
         return;
-    
+      
     Q_ASSERT(logicalFirst >= 0);
     Q_ASSERT(logicalLast >= 0);
     Q_ASSERT(logicalFirst < count());
     Q_ASSERT(logicalLast < count());
 
-    if (d->orientation != orientation)
-        return;
     if (orientation == Qt::Horizontal) {
         int left = sectionViewportPosition(logicalFirst);
         int right = sectionViewportPosition(logicalLast) + sectionSize(logicalLast);
@@ -1130,9 +1130,9 @@ void QHeaderView::sectionsInserted(const QModelIndex &parent, int logicalFirst, 
     if (parent != rootIndex() || !d->model)
         return; // we only handle changes in the top level
     if (d->orientation == Qt::Horizontal)
-        initializeSections(logicalFirst, d->model->columnCount(rootIndex()) - 1);
+        initializeSections(logicalFirst, qMax(d->model->columnCount(rootIndex())-1, 0));
     else
-        initializeSections(logicalFirst, d->model->rowCount(rootIndex()) - 1);
+        initializeSections(logicalFirst, qMax(d->model->rowCount(rootIndex())-1, 0));
 }
 
 /*!
@@ -1203,11 +1203,11 @@ void QHeaderView::initializeSections()
     if (d->orientation == Qt::Horizontal) {
         int c = model()->columnCount(rootIndex());
         if (c != count())
-            initializeSections(0, c - 1);
+            initializeSections(0, qMax(c - 1, 0));
     } else {
         int r = model()->rowCount(rootIndex());
         if (r != count())
-            initializeSections(0, r - 1);
+            initializeSections(0, qMax(r - 1, 0));
     }
 }
 
@@ -1218,6 +1218,10 @@ void QHeaderView::initializeSections()
 void QHeaderView::initializeSections(int start, int end)
 {
     Q_D(QHeaderView);
+   
+    Q_ASSERT(start >= 0);
+    Q_ASSERT(end >= 0);
+    
     int oldCount = count();
     end += 1; // one past the last item, so we get the end position of the last section
     d->sections.resize(end + 1);
