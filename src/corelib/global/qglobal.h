@@ -16,10 +16,6 @@
 
 #include <stddef.h>
 
-#if defined(__cplusplus)
-#include <new>
-#endif
-
 #define QT_VERSION_STR   "4.1.0"
 /*
    QT_VERSION is (major << 16) + (minor << 8) + patch.

@@ -23,6 +23,8 @@
 #include <list>
 #endif
 
+#include <new>
+
 QT_MODULE(Core)
 
 template <typename T> class QVector;
