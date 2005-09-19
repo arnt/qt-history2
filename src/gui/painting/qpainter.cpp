@@ -1063,10 +1063,10 @@ void QPainter::setBrushOrigin(const QPointF &p)
   The most common type is SourceOver (often referred to as just alpha
   blending) where the source pixel is blended on top of the
   destination pixel in such a way that the alpha component of the
-  source defines the translucensy of the pixel.
+  source defines the translucency of the pixel.
 
   Porter Duff operator will only work when the paint device is a
-  QImage in Format::ARGB32_Premultiplied or Format::ARGB32, where
+  QImage in Format_ARGB32_Premultiplied or Format_ARGB32, where
   the premultiplied version is the preferred format.
 
   When a composition mode is set it applies to all painting
