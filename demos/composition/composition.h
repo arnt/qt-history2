@@ -1,10 +1,10 @@
 #ifndef COMPOSITION_H
 #define COMPOSITION_H
 
+#include "arthurwidgets.h"
+
 #include <qpainter.h>
 #include <qevent.h>
-
-#include "arthurwidgets.h"
 
 class QPushButton;
 class QRadioButton;
