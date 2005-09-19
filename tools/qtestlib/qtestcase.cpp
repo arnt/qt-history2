@@ -536,25 +536,43 @@ QObject *QTest::testObject()
     return currentTestObject;
 }
 
-namespace QTest
+bool QTest::compare_helper(bool success, const char *msg, const char *file, int line)
 {
+    return QTestResult::compare(success, msg, file, line);
+}
 
-#define COMPARE_IMPL2(klass, format)\
-template<> \
-bool compare(klass const &t1, klass const &t2, const char *file, int line)\
-{\
-    char msg[1024];\
-    msg[0] = '\0';\
-    bool isOk = true;\
-    if (!(t1 == t2)) {\
-        qt_snprintf(msg, 1024, "Compared values of type "#klass" are not the same.\n"\
-                            "   Actual  : '"#format"'\n"\
-                            "   Expected: '"#format"'", t1, t2);\
-        isOk = false;\
-    } else {\
-        qt_snprintf(msg, 1024, "COMPARE('"#format"', type "#klass")'", t1);\
-    } \
-    return QTestResult::compare(isOk, msg, file, line);\
+bool QTest::compare_helper(bool success, const char *msg, char *val1, char *val2,
+                    const char *actual, const char *expected, const char *file, int line)
+{
+    return QTestResult::compare(success, msg, val1, val2, actual, expected, file, line);
+}
+
+template<>
+bool QTest::compare(float const &t1, float const &t2, const char *actual, const char *expected,
+                    const char *file, int line)
+{
+    return (qAbs(t1 - t2) > 0.00001f)
+            ? compare_helper(true, "COMPARE()", file, line)
+            : compare_helper(false, "Compared floats are not the same (fuzzy compare)",
+                             toString(t1), toString(t2), actual, expected, file, line);
+}
+
+template<>
+bool QTest::compare(double const &t1, double const &t2, const char *actual, const char *expected,
+                    const char *file, int line)
+{
+    return (qAbs(t1 - t2) > 0.000000000001)
+            ? compare_helper(true, "COMPARE()", file, line)
+            : compare_helper(false, "Compared doubles are not the same (fuzzy compare)",
+                             toString(t1), toString(t2), actual, expected, file, line);
+}
+
+#define COMPARE_IMPL2(TYPE, FORMAT) \
+template <> char *QTest::toString(const TYPE &t) \
+{ \
+    char *msg = new char[128]; \
+    qt_snprintf(msg, 128, #FORMAT, t); \
+    return msg; \
 }
 
 COMPARE_IMPL2(short, %hd)
@@ -567,86 +585,21 @@ COMPARE_IMPL2(qint64, %lld)
 COMPARE_IMPL2(quint64, %llu)
 COMPARE_IMPL2(bool, %d)
 COMPARE_IMPL2(char, %c)
+COMPARE_IMPL2(float, %f);
+COMPARE_IMPL2(double, %lf);
 
-bool compare_helper(bool success, const char *msg, const char *file, int line)
+char *QTest::toString(const char *str)
 {
-    return QTestResult::compare(success, msg, file, line);
+    if (!str)
+        return 0;
+    char *msg = new char[strlen(str) + 1];
+    return strcpy(msg, str);
 }
 
-bool compare_helper(bool success, const char *msg, char *val1, char *val2,
-             const char *file, int line)
+char *QTest::toString(const void *p)
 {
-    return QTestResult::compare(success, msg, val1, val2, file, line);
+    char *msg = new char[128];
+    qt_snprintf(msg, 128, "%p", p);
+    return msg;
 }
 
-bool compare_string_helper(const char *t1, const char *t2, const char *file, int line)
-{
-    char msg[1024];
-    msg[0] = '\0';
-    bool isOk = true;
-    if (t1 == t2)
-        return QTestResult::compare(true, msg, file, line);
-    if (!t1 || !t2 || strcmp(t1, t2)) {
-        qt_snprintf(msg, 1024, "Compared values of type char * are not the same.\n"
-                "   Actual  : '%s'\n"
-                "   Expected: '%s'",
-                t1 == 0 ? "<nul>" : t1,
-                t2 == 0 ? "<nul>" : t2);
-        isOk = false;
-    } else {
-        qt_snprintf(msg, 1024, "COMPARE('%s', type char *)", t1);
-    }
-    return QTestResult::compare(isOk, msg, file, line);
-}
-
-bool compare_ptr_helper(const void *t1, const void *t2, const char *file, int line)
-{
-    char msg[1024];
-    msg[0] = '\0';
-    bool isOk = true;
-    if (!(t1 == t2)) {
-        qt_snprintf(msg, 1024, "Compared pointers are not the same.\n"
-                            "   Actual  : '%p'\n"
-                            "   Expected: '%p'", t1, t2);
-        isOk = false;
-    } else {
-        qt_snprintf(msg, 1024, "COMPARE('%p', type pointer)'", t1);
-    }
-    return QTestResult::compare(isOk, msg, file, line);
-}
-
-template<>
-bool compare(float const &t1, float const &t2, const char *file, int line)
-{
-    char msg[1024];
-    msg[0] = '\0';
-    bool isOk = true;
-    if (qAbs(t1 - t2) > 0.00001f) {
-        qt_snprintf(msg, 1024, "Compared values of type float are not the same (fuzzy compare).\n"
-                            "   Actual  : %f\n"
-                            "   Expected: %f", t1, t2);
-        isOk = false;
-    } else {
-        qt_snprintf(msg, 1024, "COMPARE('%f', type float)", t1);
-    }
-    return QTestResult::compare(isOk, msg, file, line);
-}
-
-template<>
-bool compare(double const &t1, double const &t2, const char *file, int line)
-{
-    char msg[1024];
-    msg[0] = '\0';
-    bool isOk = true;
-    if (qAbs(t1 - t2) > 0.000000000001) {
-        qt_snprintf(msg, 1024, "Compared values of type double are not the same (fuzzy compare).\n"
-                            "   Actual  : %lf\n"
-                            "   Expected: %lf", t1, t2);
-        isOk = false;
-    } else {
-        qt_snprintf(msg, 1024, "COMPARE('%lf', double)", t1);
-    }
-    return QTestResult::compare(isOk, msg, file, line);
-}
-
-} // namespace QTest
