@@ -156,9 +156,28 @@ QMap<QString, QString> proFileTagMap( const QString& text )
                         after = tagMap[invocation];
                     else if (invocation.toLower() == "pwd")
                         after = QDir::currentPath();
+                    else // Probably an environment variable
+                        after = qgetenv(invocation.toLocal8Bit().constData());
                     (*it).replace( i, len, after );
                     i += after.length();
                 }
+            }
+        }
+
+        /*
+            Expand environment variables within the 'value' part of a 'key = value'
+            pair.
+        */
+        QRegExp envvar("\\$\\(([a-zA-Z0-9_]+)\\)");
+        for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
+            int i = 0;
+            while ( (i = envvar.indexIn((*it), i)) != -1 ) {
+                int len = envvar.matchedLength();
+                QString invocation = envvar.cap(1);
+                QString after;
+                after = qgetenv(invocation.toLocal8Bit().constData());
+                (*it).replace( i, len, after );
+                i += after.length();
             }
         }
 
