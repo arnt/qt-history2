@@ -341,7 +341,7 @@ Sentinel::Sentinel(QWidget *widget)
     : QToolButton(widget)
 {
     setObjectName(QString::fromUtf8("__qt__passive_new"));
-    setText(tr("=>"));
+    setText(tr("=>")); // ### replace with something else
     setToolButtonStyle(Qt::ToolButtonTextOnly);
 }
 

@@ -14,6 +14,7 @@
 #include "qdesigner_menubar_p.h"
 #include "qdesigner_toolbar_p.h"
 #include "actionrepository_p.h"
+#include "actionprovider_p.h"
 
 #include <QtDesigner/QtDesigner>
 
@@ -21,7 +22,6 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
-#include <QtGui/QRubberBand>
 #include <QtGui/QMenu>
 #include <QtGui/qevent.h>
 
@@ -35,8 +35,6 @@ QDesignerMenuBar::QDesignerMenuBar(QWidget *parent)
     m_sentinel = 0;
 
     setContextMenuPolicy(Qt::DefaultContextMenu);
-    m_indicator = new QRubberBand(QRubberBand::Line, this);
-    m_indicator->hide();
 
     setAcceptDrops(true); // ### fake
 
@@ -162,20 +160,16 @@ int QDesignerMenuBar::findAction(const QPoint &pos) const
 
 void QDesignerMenuBar::adjustIndicator(const QPoint &pos)
 {
-    QAction *action = actions().at(findAction(pos));
+    if (QAction *action = actions().at(findAction(pos))) {
+        if (action->menu()) {
+            setActiveAction(action);
+            action->menu()->setActiveAction(0);
+        }
 
-    QRect g = actionGeometry(action);
-
-    if (QMenu *menu = action->menu()) {
-        setActiveAction(action);
-        action->menu()->setActiveAction(0);
+        if (QDesignerActionProviderExtension *a = actionProvider()) {
+            a->adjustIndicator(pos);
+        }
     }
-
-    g.moveTop(0);
-    g.setHeight(height());
-    g.setWidth(2);
-
-    m_indicator->setGeometry(g);
 }
 
 void QDesignerMenuBar::dragEnterEvent(QDragEnterEvent *event)
@@ -187,7 +181,6 @@ void QDesignerMenuBar::dragEnterEvent(QDragEnterEvent *event)
         if (action && !actions().contains(action)) {
             event->acceptProposedAction();
             adjustIndicator(event->pos());
-            m_indicator->show();
         }
     }
 }
@@ -207,7 +200,7 @@ void QDesignerMenuBar::dragMoveEvent(QDragMoveEvent *event)
 
 void QDesignerMenuBar::dragLeaveEvent(QDragLeaveEvent *)
 {
-    m_indicator->hide();
+    adjustIndicator(QPoint(-1, -1));
 }
 
 void QDesignerMenuBar::dropEvent(QDropEvent *event)
@@ -223,7 +216,7 @@ void QDesignerMenuBar::dropEvent(QDropEvent *event)
         }
     }
 
-    m_indicator->hide();
+    adjustIndicator(QPoint(-1, -1));
 }
 
 void QDesignerMenuBar::actionEvent(QActionEvent *event)
@@ -254,4 +247,14 @@ bool QDesignerMenuBar::blockSentinelChecker(bool b)
     bool old = m_blockSentinelChecker;
     m_blockSentinelChecker = b;
     return old;
+}
+
+QDesignerActionProviderExtension *QDesignerMenuBar::actionProvider()
+{
+    if (QDesignerFormWindowInterface *fw = formWindow()) {
+        QDesignerFormEditorInterface *core = fw->core();
+        return qt_extension<QDesignerActionProviderExtension*>(core->extensionManager(), this);
+    }
+
+    return 0;
 }
