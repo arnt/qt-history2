@@ -582,32 +582,13 @@ bool QJpegHandler::canRead(QIODevice *device)
         return false;
     }
 
-    qint64 oldPos = device->pos();
-
-    char head[2];
-    qint64 readBytes = device->read(head, sizeof(head));
-    if (readBytes != sizeof(head)) {
-        if (device->isSequential()) {
-            while (readBytes > 0)
-                device->ungetChar(head[readBytes-- - 1]);
-        } else {
-            device->seek(oldPos);
-        }
-        return false;
-    }
-
-    if (device->isSequential()) {
-        while (readBytes > 0)
-            device->ungetChar(head[readBytes-- - 1]);
-    } else {
-        device->seek(oldPos);
-    }
-
-    return qstrncmp(head, "\377\330", 2) == 0;
+    return device->peek(2) == "\xFF\xD8";
 }
 
 bool QJpegHandler::read(QImage *image)
 {
+    if (!canRead())
+        return false;
     return read_jpeg_image(device(), image, parameters);
 }
 
