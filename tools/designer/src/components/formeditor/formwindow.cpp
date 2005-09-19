@@ -51,6 +51,26 @@ public:
     friend class FormWindow;
 };
 
+class BlockSelection
+{
+public:
+    BlockSelection(FormWindow *fw)
+        : m_formWindow(fw)
+    {
+        if (m_formWindow)
+            m_blocked = m_formWindow->blockSelectionChanged(true);
+    }
+
+    ~BlockSelection()
+    {
+        if (m_formWindow)
+            m_formWindow->blockSelectionChanged(m_blocked);
+    }
+
+private:
+    QPointer<FormWindow> m_formWindow;
+    bool m_blocked;
+};
 
 FormWindow::FormWindow(FormEditor *core, QWidget *parent, Qt::WindowFlags flags)
     : QDesignerFormWindowInterface(parent, flags),
@@ -304,7 +324,10 @@ QWidget *FormWindow::findTargetContainer(QWidget *widget) const
 
 bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouseEvent *e)
 {
-    core()->formWindowManager()->setActiveFormWindow(this);
+    BlockSelection blocker(this);
+
+    if (core()->formWindowManager()->activeFormWindow() != this)
+        core()->formWindowManager()->setActiveFormWindow(this);
 
     e->accept();
 
@@ -322,7 +345,7 @@ bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouse
     startPos = mapFromGlobal(e->globalPos());
 
     if (isMainContainer(managedWidget) == true) { // press was on the formwindow
-        clearSelection(true);
+        clearSelection(false);
 
         drawRubber = true;
         currRect = QRect();
@@ -337,8 +360,6 @@ bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouse
         selectWidget(managedWidget, !selected);
         return true;
     }
-
-    bool blocked = blockSelectionChanged(true);
 
     QWidget *current = managedWidget;
 
@@ -361,8 +382,6 @@ bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouse
         selectWidget(current);
         raiseChildSelections(current);
     }
-
-    blockSelectionChanged(blocked);
 
     return true;
 }
@@ -1328,6 +1347,9 @@ bool FormWindow::handleContextMenu(QWidget *, QWidget *managedWidget, QContextMe
 
 void FormWindow::setContents(QIODevice *dev)
 {
+    bool saved = updatesEnabled();
+
+    setUpdatesEnabled(false);
     clearSelection();
 
     if (mainContainer()) {
@@ -1349,6 +1371,8 @@ void FormWindow::setContents(QIODevice *dev)
     }
 
     setMainContainer(w);
+
+    setUpdatesEnabled(saved);
 }
 
 void FormWindow::setContents(const QString &contents)
