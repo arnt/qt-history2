@@ -1,11 +1,9 @@
-#include <config.h>
 
-/* awful hack
- This variable is set to 1 after a call to calloc() if this malloc
- implementation is active. This is used in konqueror when calling
- mallinfo(), which doesn't seem to be that much standardized :(.
-*/
-int kde_malloc_is_used = 0;
+/* ---- config.h */
+#define KDE_MALLOC
+#define KDE_MALLOC_FULL
+#define KDE_MALLOC_ARM
+/* ---- */
 
 #ifdef KDE_MALLOC
 
@@ -1562,7 +1560,55 @@ static pthread_mutex_t mALLOC_MUTEx = PTHREAD_MUTEX_INITIALIZER;
 #ifdef KDE_MALLOC_X86
 #include "x86.h"
 #elif KDE_MALLOC_ARM
-#include "arm.h"
+
+#include <sched.h>
+#include <time.h>
+
+static __inline__ int q_atomic_swp(volatile unsigned int *ptr,
+                                    unsigned int newval)
+{
+    register int ret;
+    asm volatile("swp %0,%1,[%2]"
+                 : "=r"(ret)
+                 : "r"(newval), "r"(ptr)
+                 : "cc", "memory");
+    return ret;
+}
+
+typedef struct {
+  volatile unsigned int lock;
+  int pad0_;
+} mutex_t;
+
+#define MUTEX_INITIALIZER          { 0, 0 }
+
+static __inline__ int lock(mutex_t *m) {
+  int cnt = 0;
+  struct timespec tm;
+
+  for(;;) {
+      if (q_atomic_swp(&m->lock, 1) == 0)
+          return 0;
+#ifdef _POSIX_PRIORITY_SCHEDULING
+    if(cnt < 50) {
+      sched_yield();
+      cnt++;
+    } else
+#endif
+        {
+      tm.tv_sec = 0;
+      tm.tv_nsec = 2000001;
+      nanosleep(&tm, NULL);
+      cnt = 0;
+    }
+  }
+}
+
+static __inline__ int unlock(mutex_t *m) {
+    m->lock = 0;
+    return 0;
+}
+
 #else
 #error Unknown spinlock implementation
 #endif
