@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include <private/qcore_mac_p.h>
+#include <new>
 #include "qvarlengtharray.h"
 
 QString QCFString::toQString(CFStringRef str)
