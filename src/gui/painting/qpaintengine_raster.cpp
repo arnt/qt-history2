@@ -563,9 +563,9 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
 
     d->brushData.init(d->rasterBuffer);
     d->brushData.setup(d->brush);
-    
+
     updateClipPath(QPainterPath(), Qt::NoClip);
-    
+
     setActive(true);
     return true;
 }
@@ -766,18 +766,18 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         d->penData.setup(pen_style == Qt::NoPen ? QBrush() : d->pen.brush());
     }
 
-    if (flags & DirtyBrush) { 
+    if (flags & DirtyBrush) {
         QBrush brush = state.brush();
         d->brush = brush;
         d->brushData.setup(d->brush);
     }
-    
+
     if (flags & DirtyBrushOrigin) {
         QPointF offset = state.brushOrigin();
         d->brushOffset = offset;
         d->brushData.setupMatrix(d->brushMatrix(), d->txop, d->bilinear);
     }
-    
+
     if (flags & DirtyBackgroundMode) {
         d->rasterBuffer->opaqueBackground = (state.backgroundMode() == Qt::OpaqueMode);
     }
@@ -799,8 +799,11 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
             update_fast_pen = true;
             d->antialiased = bool(state.renderHints() & QPainter::Antialiasing);
             d->bilinear = bool(state.renderHints() & QPainter::SmoothPixmapTransform);
+            // propegate state to data's
+            d->brushData.bilinear = d->penData.bilinear = d->bilinear;
             d->penData.adjustSpanMethods();
             d->brushData.adjustSpanMethods();
+
         }
 
         if (flags & DirtyCompositionMode) {
@@ -882,13 +885,13 @@ static void fillRect(const QRect &r, QSpanData *data)
     int x2 = qMin(rect.width() + rect.x(), data->rasterBuffer->width());
     int y1 = qMax(rect.y(), 0);
     int y2 = qMin(rect.height() + rect.y(), data->rasterBuffer->height());
-    
+
     int len = x2 - x1;
-    
+
     if (len > 0) {
         const int nspans = 256;
         QT_FT_Span spans[nspans];
-        
+
         Q_ASSERT(data->blend);
         int y = y1;
         while (y < y2) {
@@ -1278,7 +1281,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
 //     qDebug() << "alphaPenBlt: num spans=" << current
 //              << "span:" << spans->x << spans->y << spans->len << spans->coverage;
         // Call span func for current set of spans.
-    if (current != 0) 
+    if (current != 0)
         d->penData.blend(current, spans, &d->penData);
 }
 
@@ -1567,7 +1570,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         }
     }
 
-    if (current != 0) 
+    if (current != 0)
         d->penData.blend(current, spans, &d->penData);
 
     return;
@@ -1842,7 +1845,7 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
 static void qt_merge_clip(const QClipData *c1, const QClipData *c2, QClipData *result)
 {
     Q_ASSERT(c1->clipSpanHeight == c2->clipSpanHeight && c1->clipSpanHeight == result->clipSpanHeight);
-    
+
     // ### buffer overflow possible
     const int BUFFER_SIZE = 4096;
     int buffer[BUFFER_SIZE];
@@ -1875,14 +1878,14 @@ static void qt_merge_clip(const QClipData *c1, const QClipData *c2, QClipData *r
             bsize = max;
         }
         memset(buffer, 0, BUFFER_SIZE * sizeof(int));
-            
+
         // Fill with old spans.
         for (int i = 0; i < c1_count; ++i) {
             const QSpan *cs = c1_spans + i;
             for (int j=cs->x; j<cs->x + cs->len; ++j)
                 buffer[j] = cs->coverage;
         }
-            
+
         // Fill with new spans
         for (int i = 0; i < c2_count; ++i) {
             const QSpan *cs = c2_spans + i;
@@ -1902,7 +1905,7 @@ static void qt_merge_clip(const QClipData *c1, const QClipData *c2, QClipData *r
 
             int sx = x;
             int coverage = buffer[x];
-            
+
             // Find length of span
             while (x < max && buffer[x] == coverage)
                 ++x;
@@ -1950,7 +1953,7 @@ void QRasterPaintEnginePrivate::updateClip_helper(const QPainterPath &path, Qt::
             delete newClip;
             newClip = result;
         }
-    
+
         delete rasterBuffer->clip;
         rasterBuffer->clip = newClip;
     }
@@ -1983,7 +1986,7 @@ QImage QRasterBuffer::colorizeBitmap(const QImage &image, const QColor &color)
 QRasterBuffer::~QRasterBuffer()
 {
     delete clip;
-    
+
 #if defined (Q_WS_WIN)
     if (m_bitmap || m_hdc) {
         Q_ASSERT(m_hdc);
@@ -1999,7 +2002,7 @@ void QRasterBuffer::init()
     clip = 0;
     clipEnabled = false;
     opaqueBackground = false;
-    
+
     compositionMode = QPainter::CompositionMode_SourceOver;
     delete clip;
     clip = 0;
@@ -2161,15 +2164,15 @@ void QClipData::fixup()
 }
 
 
-static const QSpan *qt_intersect_spans(const QClipData *clip, int *currentClip, 
+static const QSpan *qt_intersect_spans(const QClipData *clip, int *currentClip,
                                        const QSpan *spans, const QSpan *end,
                                        QSpan **outSpans, int available)
 {
     QSpan *out = *outSpans;
-    
+
     const QSpan *clipSpans = clip->spans + *currentClip;
     const QSpan *clipEnd = clip->spans + clip->count;
-    
+
     while (available && spans < end ) {
         if (clipSpans >= clipEnd) {
             spans = end;
@@ -2187,7 +2190,7 @@ static const QSpan *qt_intersect_spans(const QClipData *clip, int *currentClip,
             continue;
         }
         Q_ASSERT(spans->y == clipSpans->y);
-        
+
         int sx1 = spans->x;
         int sx2 = sx1 + spans->len;
         int cx1 = clipSpans->x;
@@ -2253,7 +2256,7 @@ static void qt_span_clip(int count, const QSpan *spans, void *userData)
 //     qDebug() << " qt_span_clip: " << count << clipData->operation;
 //      for (int i = 0; i < count; ++i) {
 //           qDebug() << "    " << spans[i].x << spans[i].y << spans[i].len << spans[i].coverage;
-//      }        
+//      }
 
     switch (clipData->operation) {
 
@@ -2289,7 +2292,7 @@ static void qt_scanconvert(QT_FT_Outline *outline, ProcessSpans callback, void *
 {
     if (!callback)
         return;
-    
+
     void *data = userData;
 
     QT_FT_BBox clip_box = { 0, 0, d->deviceRect.width(), d->deviceRect.height() };
@@ -2474,6 +2477,7 @@ void QSpanData::setup(const QBrush &brush)
                 rasterBuffer->tempImage = qt_map_to_32bit(texture);
             }
             initTexture(&rasterBuffer->tempImage);
+
         }
         break;
 
