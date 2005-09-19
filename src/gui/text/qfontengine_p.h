@@ -342,7 +342,7 @@ public:
     FECaps capabilites() const { return FullTransformations; }
 
     enum { WIDTH=0x01, DRAW=0x02, EXISTS=0x04, ADVANCES=0x08 };
-    int doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, qreal =-1, qreal y=-1,
+    int doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, QFixed x =-1, QFixed y=-1,
                    QPaintEngine *p=0, void **data=0) const;
 };
 

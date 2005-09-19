@@ -31,8 +31,8 @@
 //#define DEBUG_ADVANCES
 
 
-#ifndef FixedToFloat
-#define FixedToFloat(a) ((float)(a) / fixed1)
+#ifndef FixedToQFixed
+#define FixedToQFixed(a) QFixed::fromFixed((a) >> 10)
 #endif
 
 
@@ -41,7 +41,7 @@ QFontEngine::~QFontEngine()
 {
 }
 
-qreal QFontEngine::lineThickness() const
+QFixed QFontEngine::lineThickness() const
 {
   // ad hoc algorithm
   int score = fontDef.pixelSize * fontDef.weight;
@@ -55,7 +55,7 @@ qreal QFontEngine::lineThickness() const
   return lth;
 }
 
-qreal QFontEngine::underlinePosition() const
+QFixed QFontEngine::underlinePosition() const
 {
   return ((lineThickness() * 2) + 3) / 6;
 }
@@ -112,12 +112,12 @@ QFontEngineMac::recalcAdvances(int numGlyphs, QGlyphLayout *glyphs,
     QChar str[numGlyphs];
     for(int i = 0; i < numGlyphs; ++i)
         str[i] = (short)glyphs[i].glyph;
-    float *advances = 0;
+    QFixed *advances = 0;
     doTextTask(str, 0, numGlyphs, numGlyphs, ADVANCES, 0, 0, 0, (void**)&advances);
     if(advances) { //try using "correct" advances
         for(int i = 0; i < numGlyphs; ++i) {
-            glyphs[i].advance.rx() = advances[i];
-            glyphs[i].advance.ry() = 0;
+            glyphs[i].advance.x = advances[i];
+            glyphs[i].advance.y = 0;
         }
     } else { //fall back to something (widths)
         for (int i = 0; i < numGlyphs; ++i) {
@@ -130,15 +130,15 @@ QFontEngineMac::recalcAdvances(int numGlyphs, QGlyphLayout *glyphs,
                 int c = widthCache[glyphs[i].glyph];
                 if(c == -777)
                     c = 0;
-                glyphs[i].advance.rx() = c;
-                glyphs[i].advance.ry() = 0;
+                glyphs[i].advance.x = c;
+                glyphs[i].advance.y = 0;
             } else {
                 QChar qc[2];
                 qc[0] = glyphs[i].glyph;
                 if(surrogate)
                     qc[1] = glyphs[i+1].glyph;
-                glyphs[i].advance.rx() = doTextTask(qc, 0, surrogate ? 2 : 1, 1, WIDTH);
-                glyphs[i].advance.ry() = 0;
+                glyphs[i].advance.x = doTextTask(qc, 0, surrogate ? 2 : 1, 1, WIDTH);
+                glyphs[i].advance.y = 0;
             }
             if (surrogate)
                 ++i;
@@ -158,18 +158,18 @@ QFontEngineMac::draw(QPaintEngine *p, qreal req_x, qreal req_y, const QTextItemI
     if(p->type() == QPaintEngine::MacPrinter)
         p = static_cast<QMacPrintEngine*>(p)->paintEngine();
     QPaintEngineState *pState = p->state;
-    qreal x = req_x, y = req_y;
+    QFixed x = QFixed::fromReal(req_x), y = QFixed::fromReal(req_y);
 
 #if 1
     if(p->type() == QPaintEngine::QuickDraw && !pState->matrix().isIdentity()) {
-        float aw = si.width, ah = si.ascent + si.descent + 1;
+        QFixed aw = si.width, ah = si.ascent + si.descent + 1;
         if(aw == 0 || ah == 0)
             return;
         QBitmap bm(qRound(aw), qRound(ah));        // create bitmap
         {
             QPainter paint(&bm);  // draw text in bitmap
             paint.setPen(Qt::color1);
-            paint.drawTextItem(QPointF(0, si.ascent), si);
+            paint.drawTextItem(QPointF(0, si.ascent.toReal()), si);
             paint.end();
         }
 
@@ -184,7 +184,7 @@ QFontEngineMac::draw(QPaintEngine *p, qreal req_x, qreal req_y, const QTextItemI
             paint.end();
             pm.setMask(bm);
         }
-        pState->painter()->drawPixmap(QPointF(x, y - si.ascent), pm);
+        pState->painter()->drawPixmap(QPointF(x.toReal(), (y - si.ascent).toReal()), pm);
         return;
     }
 #endif
@@ -197,8 +197,8 @@ QFontEngineMac::draw(QPaintEngine *p, qreal req_x, qreal req_y, const QTextItemI
 
     if(pState->backgroundMode() == Qt::OpaqueMode) {
         glyph_metrics_t br = boundingBox(si.glyphs, si.num_glyphs);
-        pState->painter()->fillRect(QRectF(x + br.x, y + br.y, br.width, br.height),
-                                    pState->backgroundBrush().color());
+        pState->painter()->fillRect(QRectF((x + br.x).toReal(), (y + br.y).toReal(), br.width.toReal(),
+                                    br.height.toReal()), pState->backgroundBrush().color());
     }
 
     bool textAA = pState->renderHints() & QPainter::TextAntialiasing;
@@ -210,7 +210,7 @@ QFontEngineMac::draw(QPaintEngine *p, qreal req_x, qreal req_y, const QTextItemI
         for(int i = si.num_glyphs-1; i >= 0; --i) {
             const QChar glyph((ushort)si.glyphs[i].glyph);
             doTextTask(&glyph, 0, 1, 1, DRAW, x, y, p);
-            x += si.glyphs[i].advance.x();
+            x += si.glyphs[i].advance.x;
         }
     } else {
         QVarLengthArray<ushort> g(si.num_glyphs);
@@ -218,18 +218,20 @@ QFontEngineMac::draw(QPaintEngine *p, qreal req_x, qreal req_y, const QTextItemI
             g[i] = si.glyphs[i].glyph;
         doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, DRAW, x, y, p);
     }
-    if(si.width && si.flags != 0) {
+    if(si.width != 0 && si.flags != 0) {
         QPen oldPen = pState->pen();
         QBrush oldBrush = pState->brush();
         pState->painter()->setBrush(pState->pen().color());
         pState->painter()->setPen(Qt::NoPen);
-        const float lw = lineThickness();
+        const qreal lw = lineThickness().toReal();
         if(si.flags & QTextItem::Underline)
-            pState->painter()->drawRect(QRectF(req_x, req_y + underlinePosition(), si.width, lw));
+            pState->painter()->drawRect(QRectF(req_x, req_y + underlinePosition().toReal(),
+                                               si.width.toReal(), lw));
         if(si.flags & QTextItem::Overline)
-            pState->painter()->drawRect(QRectF(req_x, req_y - (ascent() + 1), si.width, lw));
+            pState->painter()->drawRect(QRectF(req_x, req_y - (ascent() + 1).toReal(),
+                                        si.width.toReal(), lw));
         if(si.flags & QTextItem::StrikeOut)
-            pState->painter()->drawRect(QRectF(req_x, req_y - (ascent() / 3), si.width, lw));
+            pState->painter()->drawRect(QRectF(req_x, req_y - (ascent() / 3).toReal(), si.width.toReal(), lw));
         pState->painter()->setBrush(oldBrush);
         pState->painter()->setPen(oldPen);
     }
@@ -240,10 +242,10 @@ QFontEngineMac::draw(QPaintEngine *p, qreal req_x, qreal req_y, const QTextItemI
 glyph_metrics_t
 QFontEngineMac::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
 {
-    float w = 0;
+    QFixed w;
     const QGlyphLayout *end = glyphs + numGlyphs;
     while(end > glyphs)
-        w += (--end)->advance.x();
+        w += (--end)->advance.x;
     return glyph_metrics_t(0, -(ascent()), w, ascent()+descent(), w, 0);
 }
 
@@ -265,7 +267,7 @@ void
 QFontEngineMac::calculateCost()
 {
     // don't know how to get the number of glyphs from the font so default to 1024
-    cache_cost = uint((ascent() + descent() + 1) * maxCharWidth() * 1024);
+    cache_cost = uint((ascent().toInt() + descent().toInt() + 1) * maxCharWidth() * 1024);
 }
 
 //Create a cacheable ATSUStyle
@@ -370,14 +372,14 @@ static inline int qt_mac_get_measurement(ATSUStyle style, ATSUAttributeTag tag, 
     return FixRound(ret);
 }
 
-qreal QFontEngineMac::ascent() const
+QFixed QFontEngineMac::ascent() const
 {
     QATSUStyle *st = getFontStyle();
     if(st->ascent != -1)
         return st->ascent;
     return st->ascent = qt_mac_get_measurement(st->style, kATSUAscentTag, this);
 }
-qreal QFontEngineMac::descent() const
+QFixed QFontEngineMac::descent() const
 {
     QATSUStyle *st = getFontStyle();
     if(st->descent != -1)
@@ -385,7 +387,7 @@ qreal QFontEngineMac::descent() const
     return st->descent = qt_mac_get_measurement(st->style, kATSUDescentTag, this);
 }
 
-qreal QFontEngineMac::leading() const
+QFixed QFontEngineMac::leading() const
 {
     QATSUStyle *st = getFontStyle();
     if(st->leading != -1)
@@ -406,7 +408,7 @@ qreal QFontEngineMac::maxCharWidth() const
     return st->maxWidth;
 }
 
-static float *advances_buffer = 0;
+static QFixed *advances_buffer = 0;
 static int advances_buffer_len = 0;
 static void cleanupAdvancesBuffer() {
     if(advances_buffer) {
@@ -416,9 +418,9 @@ static void cleanupAdvancesBuffer() {
     advances_buffer_len = 0;
 }
 
-#define DoubleToFixed(x) int(x * (1 << 16))
+#define QFixedToFixed(x) ((x).value() << 10)
 int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar task,
-                               qreal x, qreal y, QPaintEngine *p, void **data) const
+                               QFixed x, QFixed y, QPaintEngine *p, void **data) const
 {
     QATSUStyle *st = getFontStyle();
     QPaintEngineState *pState = 0;
@@ -648,9 +650,9 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
                 advances_buffer_len = use_len;
                 if(!advances_buffer) {
                     qAddPostRoutine(cleanupAdvancesBuffer);
-                    advances_buffer = (float*)malloc(sizeof(float)*use_len);
+                    advances_buffer = (QFixed*)malloc(sizeof(QFixed)*use_len);
                 } else {
-                    advances_buffer = (float*)realloc(advances_buffer, sizeof(float)*use_len);
+                    advances_buffer = (QFixed*)realloc(advances_buffer, sizeof(QFixed)*use_len);
                 }
             }
 
@@ -673,9 +675,9 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
             else
                 ATSUGetUnjustifiedBounds(mTextLayout, use_len-1, 1, &left, &right, &bottom, &top);
 #ifdef DEBUG_ADVANCES
-            qDebug("Last %d) %f-%f == %f", use_len-1, FixedToFloat(right), FixedToFloat(left), FixedToFloat(right-left));
+            qDebug("Last %d) %f-%f == %f", use_len-1, FixedToQFixed(right), FixedToQFixed(left), FixedToQFixed(right-left));
 #endif
-            advances_buffer[use_len-1] = FixedToFloat(right-left);
+            advances_buffer[use_len-1] = FixedToQFixed(right-left);
 
             //finally make sure surrogates are in Qt order..
             for(int i = 0; i < use_len-1; ++i) {
@@ -721,8 +723,8 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         if (qAbs(x) > SHRT_MAX || qAbs(y) > SHRT_MAX) { //bound to 16bit
             const float tx = newMatrix.tx, ty = newMatrix.ty;
             newMatrix = CGAffineTransformTranslate(newMatrix, -tx, ty);
-            x += tx;
-            y -= ty;
+            x += QFixed::fromReal(tx);
+            y -= QFixed::fromReal(ty);
             transform = true;
         }
         if(transform) {
@@ -730,13 +732,13 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
             CGContextConcatCTM(ctx, newMatrix);
             CGContextSetTextMatrix(ctx, newMatrix);
             ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd,
-                         DoubleToFixed(x), DoubleToFixed(y));
+                         QFixedToFixed(x), QFixedToFixed(y));
             CGContextConcatCTM(ctx, CGAffineTransformInvert(CGContextGetCTM(ctx)));
             CGContextConcatCTM(ctx, oldMatrix);
             CGContextSetTextMatrix(ctx, oldMatrix);
         } else {
             ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd,
-                         DoubleToFixed(x), DoubleToFixed(y));
+                         QFixedToFixed(x), QFixedToFixed(y));
         }
     }
     if(ctx_port)
