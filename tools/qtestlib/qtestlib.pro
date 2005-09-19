@@ -20,7 +20,7 @@ INCLUDEPATH += .
 MOC_DIR         = tmp
 DESTDIR         = $$[QT_INSTALL_LIBS]
 DLLDESTDIR      = $$[QT_INSTALL_BINS]
-VERSION         = 2.0.0
+VERSION         = 4.1.0
 
 # Input
 HEADERS = qtest_global.h qtestcase.h qtestdata.h

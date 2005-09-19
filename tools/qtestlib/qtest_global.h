@@ -30,8 +30,8 @@
 # define QTEST_NO_PARTIAL_SPECIALIZATIONS
 #endif
 
-#define QTEST_VERSION     0x020000
-#define QTEST_VERSION_STR "2.0.0"
+#define QTEST_VERSION     0x040100
+#define QTEST_VERSION_STR "4.1.0"
 
 namespace QTest
 {
