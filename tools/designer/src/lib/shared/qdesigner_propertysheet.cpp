@@ -24,7 +24,9 @@
 #include <QtGui/QImage>
 #include <QtGui/QPixmap>
 
-#include <QtCore/qdebug.h>
+
+namespace
+{
 
 static const QMetaObject *introducedBy(const QMetaObject *meta, int index)
 {
@@ -36,6 +38,8 @@ static const QMetaObject *introducedBy(const QMetaObject *meta, int index)
 
     return 0;
 }
+
+} // anonymous namespace
 
 QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
     : QObject(parent),
@@ -365,6 +369,9 @@ bool QDesignerPropertySheet::isFakeLayoutProperty(int index) const
     return false;
 }
 
+#include <QToolBar>
+#include <qdebug.h>
+
 bool QDesignerPropertySheet::isVisible(int index) const
 {
     if (isAdditionalProperty(index)) {
@@ -380,7 +387,7 @@ bool QDesignerPropertySheet::isVisible(int index) const
         return true;
 
     QMetaProperty p = meta->property(index);
-    return p.isWritable() && p.isDesignable() && m_info.value(index).visible;
+    return p.isWritable() && p.isDesignable(m_object) && m_info.value(index).visible;
 }
 
 void QDesignerPropertySheet::setVisible(int index, bool visible)

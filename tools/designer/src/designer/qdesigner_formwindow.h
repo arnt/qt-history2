@@ -35,13 +35,15 @@ public:
 
     virtual QRect geometryHint() const;
 
-private slots:
+public slots:
     void updateWindowTitle(const QString &fileName);
+
+private slots:
     void updateChanged();
 
 protected:
     virtual void changeEvent(QEvent *e);
-    void closeEvent(QCloseEvent *ev);
+    virtual void closeEvent(QCloseEvent *ev);
 
 private:
     QDesignerFormWindowInterface *m_editor;
