@@ -3314,6 +3314,8 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                                     modifiers, (hor) ? Qt::Horizontal: Qt::Vertical);
             }
             return true;
+        case 8: button = Qt::XButton1; break;
+        case 9: button = Qt::XButton2; break;
         }
         if (event->type == ButtonPress) {        // mouse button pressed
             buttons |= button;
