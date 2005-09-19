@@ -1481,8 +1481,9 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         return;
     }
 
-    int x_buffering = ti.ascent;
-    QRectF logRect(p.x(), p.y() - ti.ascent, ti.width + x_buffering, ti.ascent + ti.descent);
+    QFixed x_buffering = ti.ascent;
+    QRectF logRect(p.x(), p.y() - ti.ascent.toReal(), (ti.width + x_buffering).toReal(), 
+		    (ti.ascent + ti.descent).toReal());
     QRect devRect = d->matrix.mapRect(logRect).toRect();
 
     if(devRect.width() == 0 || devRect.height() == 0)
@@ -1501,7 +1502,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         Rectangle(hdc, 0, 0, devRect.width() + 1, devRect.height() + 1);
 
         // Fill buffer with stuff
-        qt_draw_text_item(QPoint(0, ti.ascent), ti, hdc, d);
+        qt_draw_text_item(QPoint(0, ti.ascent.toInt()), ti, hdc, d);
 
         BitBlt(d->fontRasterBuffer->hdc(), 0, 0, devRect.width(), devRect.height(),
                hdc, 0, 0, SRCCOPY);
@@ -1513,7 +1514,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         d->fontRasterBuffer->resetBuffer(255);
 
         // Fill buffer with stuff
-        qt_draw_text_item(QPoint(0, ti.ascent), ti, d->fontRasterBuffer->hdc(), d);
+        qt_draw_text_item(QPoint(0, ti.ascent.toInt()), ti, d->fontRasterBuffer->hdc(), d);
     }
 
     // Boundaries
@@ -2699,32 +2700,32 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
             for(int i = 0; i < ti.num_glyphs; i++) {
                 QString str(QChar(glyphs->glyph));
                 QByteArray cstr = str.toLocal8Bit();
-                TextOutA(hdc, qRound(x + glyphs->offset.x()), qRound(y + glyphs->offset.y()),
+		TextOutA(hdc, qRound(x + glyphs->offset.x.toReal()), qRound(y + glyphs->offset.y.toReal()),
                          cstr.data(), cstr.length());
-                x += qRound(glyphs->advance.x());
+		x += glyphs->advance.x.toReal();
                 glyphs++;
             }
         } else {
             bool haveOffsets = false;
-            qreal w = 0;
+            QFixed w = 0;
             for(int i = 0; i < ti.num_glyphs; i++) {
-                if (glyphs[i].offset.x() != 0 || glyphs[i].offset.y() != 0 || glyphs[i].space_18d6 != 0) {
+                if (glyphs[i].offset.x != 0 || glyphs[i].offset.y != 0 || glyphs[i].space_18d6 != 0) {
                     haveOffsets = true;
                     break;
                 }
-                w += glyphs[i].advance.x();
+                w += glyphs[i].advance.x;
             }
 
             if (haveOffsets || transform || has_kerning) {
                 for(int i = 0; i < ti.num_glyphs; i++) {
                     wchar_t chr = glyphs->glyph;
-                    qreal xp = x + glyphs->offset.x();
-                    qreal yp = y + glyphs->offset.y();
+		    qreal xp = x + glyphs->offset.x.toReal();
+		    qreal yp = y + glyphs->offset.y.toReal();
                     if (transform)
                         d->matrix.map(xp, yp, &xp, &yp);
                     ExtTextOutW(hdc, qRound(xp), qRound(yp), options, 0, &chr, 1, 0);
-                    x += glyphs->advance.x() + QFixed::fromFixed(glyphs->space_18d6);
-                    y += glyphs->advance.y();
+		    x += (glyphs->advance.x + QFixed::fromFixed(glyphs->space_18d6)).toReal();
+		    y += glyphs->advance.y.toReal();
                     glyphs++;
                 }
             } else {
@@ -2734,25 +2735,25 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
                     g[i] = glyphs[i].glyph;
                 // fast path
                 ExtTextOutW(hdc,
-                            qRound(x + glyphs->offset.x()),
-                            qRound(y + glyphs->offset.y()),
+		            qRound(x + glyphs->offset.x.toReal()),
+		            qRound(y + glyphs->offset.y.toReal()),
                             options, 0, g.data(), ti.num_glyphs, 0);
-                x += w;
+		x += w.toReal();
             }
         }
     } else {
         int i = ti.num_glyphs;
         while(i--) {
-            x += glyphs[i].advance.x() + QFixed::fromFixed(glyphs[i].space_18d6);
-            y += glyphs[i].advance.y();
+	    x += (glyphs[i].advance.x + QFixed::fromFixed(glyphs[i].space_18d6)).toReal();
+	    y += glyphs[i].advance.y.toReal();
         }
         i = 0;
         while(i < ti.num_glyphs) {
-            x -= glyphs[i].advance.x();
-            y -= glyphs[i].advance.y();
+	    x -= glyphs[i].advance.x.toReal();
+	    y -= glyphs[i].advance.y.toReal();
 
-            int xp = qRound(x+glyphs[i].offset.x());
-            int yp = qRound(y+glyphs[i].offset.y());
+	    int xp = qRound(x+glyphs[i].offset.x.toReal());
+            int yp = qRound(y+glyphs[i].offset.y.toReal());
             ExtTextOutW(hdc, xp, yp, options, 0, reinterpret_cast<wchar_t *>(&glyphs[i].glyph), 1, 0);
 
             if (glyphs[i].nKashidas) {
@@ -2761,15 +2762,15 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
                 int nglyphs = 7;
                 ti.fontEngine->stringToCMap(&ch, 1, g, &nglyphs, 0);
                 for (uint k = 0; k < glyphs[i].nKashidas; ++k) {
-                    x -= g[0].advance.x();
-                    y -= g[0].advance.y();
+		    x -= g[0].advance.x.toReal();
+		    y -= g[0].advance.y.toReal();
 
-                    int xp = qRound(x+g[0].offset.x());
-                    int yp = qRound(y+g[0].offset.y());
+		    int xp = qRound(x+g[0].offset.x.toReal());
+		    int yp = qRound(y+g[0].offset.y.toReal());
                     ExtTextOutW(hdc, xp, yp, options, 0, reinterpret_cast<wchar_t *>(&g[0].glyph), 1, 0);
                 }
             } else {
-                x -= QFixed::fromFixed(glyphs[i].space_18d6);
+		x -= QFixed::fromFixed(glyphs[i].space_18d6).toReal();
             }
             ++i;
         }
@@ -2779,10 +2780,9 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
         DeleteObject(SelectObject(hdc, fe->hfont));
 
     if (ti.flags & (QTextItem::Overline)) {
-        int lw = qRound(fe->lineThickness());
-        int yp = qRound(y - fe->ascent() - 1);
+	int lw = qRound(fe->lineThickness());
+	int yp = qRound(y - fe->ascent().toReal() - 1);
         Rectangle(hdc, xo, yp, qRound(x), yp + lw);
-
     }
 
     if (d->txop > QPainterPrivate::TxTranslate) {
@@ -2825,12 +2825,14 @@ static void draw_text_item_multi(const QPointF &p, const QTextItemInt &ti, HDC h
         ti2.f = ti.f;
         draw_text_item_win(QPointF(x, y), ti2, hdc, d);
 
+	QFixed x_add;
         // reset the high byte for all glyphs and advance to the next sub-string
         const int hi = which << 24;
         for (i = start; i < end; ++i) {
             glyphs[i].glyph = hi | glyphs[i].glyph;
-            x += glyphs[i].advance.x();
+            x_add += glyphs[i].advance.x;
         }
+	x += x_add.toReal();
 
         // change engine
         start = end;

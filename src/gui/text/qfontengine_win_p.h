@@ -27,14 +27,14 @@ public:
     void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);
     virtual void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
 
-    HGDIOBJ selectDesignFont(float *) const;
+    HGDIOBJ selectDesignFont(QFixed *) const;
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    qreal ascent() const;
-    qreal descent() const;
-    qreal leading() const;
+    QFixed ascent() const;
+    QFixed descent() const;
+    QFixed leading() const;
     qreal maxCharWidth() const;
     qreal minLeftBearing() const;
     qreal minRightBearing() const;
@@ -47,7 +47,7 @@ public:
 
     enum { widthCacheSize = 0x800, cmapCacheSize = 0x500 };
     mutable unsigned char widthCache[widthCacheSize];
-    mutable float *designAdvances;
+    mutable QFixed *designAdvances;
     mutable int designAdvancesSize;
 };
 

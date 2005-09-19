@@ -151,10 +151,10 @@ public:
     qreal rbearing;
     struct KernPair {
         uint left_right;
-        float adjust;
+        QFixed adjust;
     };
     QVector<KernPair> kerning_pairs;
-    float designToDevice;
+    QFixed designToDevice;
     int unitsPerEm;
 #elif defined(Q_WS_MAC)
     uint kerning : 1;

@@ -43,7 +43,7 @@ typedef void *SCRIPT_CACHE;
 typedef HRESULT (WINAPI *fScriptFreeCache)(SCRIPT_CACHE *);
 extern fScriptFreeCache ScriptFreeCache;
 
-static QVector<QFontEngineWin::KernPair> getKerning(HDC hdc, float factor);
+static QVector<QFontEngineWin::KernPair> getKerning(HDC hdc, QFixed factor);
 static unsigned char *getCMap(HDC hdc, bool &);
 static quint32 getGlyphIndex(unsigned char *table, unsigned int unicode);
 
@@ -73,11 +73,11 @@ QFontEngine::~QFontEngine()
 }
 
 // ##### get these from windows
-qreal QFontEngine::lineThickness() const
+QFixed QFontEngine::lineThickness() const
 {
     // ad hoc algorithm
     int score = fontDef.weight * fontDef.pixelSize;
-    float lw = score / 700.0;
+    QFixed lw = QFixed(score) / 700;
 
     // looks better with thicker line for small pointsizes
     if (lw < 2 && score >= 1050) lw = 2;
@@ -87,9 +87,9 @@ qreal QFontEngine::lineThickness() const
 }
 
 // ##### get these from windows
-qreal QFontEngine::underlinePosition() const
+QFixed QFontEngine::underlinePosition() const
 {
-    return (lineThickness() * 2 + 3) / 6.0;
+    return (lineThickness() * 2 + 3) / 6;
 }
 
 void QFontEngine::getCMap()
@@ -109,18 +109,18 @@ void QFontEngine::getCMap()
     }
     symbol = symb;
     script_cache = 0;
-    designToDevice = 1.;
+    designToDevice = 1;
     unitsPerEm = tm.w.tmHeight;
     if(cmap) {
         QT_WA( {
             OUTLINETEXTMETRICW metric;
             GetOutlineTextMetricsW(hdc, sizeof(OUTLINETEXTMETRICW), &metric);
-            designToDevice = (float)metric.otmTextMetrics.tmHeight/(float)metric.otmEMSquare;
+            designToDevice = QFixed((int)metric.otmEMSquare)/metric.otmTextMetrics.tmHeight;
             unitsPerEm = metric.otmEMSquare;
         }, {
             OUTLINETEXTMETRICA metric;
             GetOutlineTextMetricsA(hdc, sizeof(OUTLINETEXTMETRICA), &metric);
-            designToDevice = (float)metric.otmTextMetrics.tmHeight/(float)metric.otmEMSquare;
+            designToDevice = QFixed((int)metric.otmEMSquare)/metric.otmTextMetrics.tmHeight;
             unitsPerEm = metric.otmEMSquare;
         } )
         kerning_pairs = getKerning(hdc, designToDevice);
@@ -247,7 +247,7 @@ QFontEngine::FECaps QFontEngineWin::capabilites() const
        );
 }
 
-HGDIOBJ QFontEngineWin::selectDesignFont(float *overhang) const
+HGDIOBJ QFontEngineWin::selectDesignFont(QFixed *overhang) const
 {
     LOGFONT f = logfont;
     f.lfHeight = unitsPerEm;
@@ -259,7 +259,7 @@ HGDIOBJ QFontEngineWin::selectDesignFont(float *overhang) const
         BOOL res = GetTextMetricsA(shared_dc, &tm);
         if (!res)
             qErrnoWarning("QFontEngineWin: GetTextMetrics failed");
-        *overhang = tm.tmOverhang * designToDevice;
+        *overhang = QFixed((int)tm.tmOverhang) / designToDevice;
     } else {
         *overhang = 0;
     }
@@ -278,7 +278,7 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     HDC hdc = shared_dc;
     if (flags & QTextEngine::DesignMetrics) {
         HGDIOBJ oldFont = 0;
-        float overhang = 0;
+        QFixed overhang = 0;
 
         int glyph_pos = 0;
         for(register int i = 0; i < len; i++) {
@@ -287,7 +287,7 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
             unsigned int glyph = glyphs[glyph_pos].glyph;
             if(int(glyph) >= designAdvancesSize) {
                 int newSize = (glyph + 256) >> 8 << 8;
-                designAdvances = (float *)realloc(designAdvances, newSize*sizeof(float));
+                designAdvances = (QFixed *)realloc(designAdvances, newSize*sizeof(QFixed));
                 for(int i = designAdvancesSize; i < newSize; ++i)
                     designAdvances[i] = -1000000;
                 designAdvancesSize = newSize;
@@ -297,10 +297,10 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
                     oldFont = selectDesignFont(&overhang);
                 SIZE size = {0, 0};
                 GetTextExtentPoint32W(hdc, (wchar_t *)(str+i), surrogate ? 2 : 1, &size);
-                designAdvances[glyph] = size.cx*designToDevice;
+                designAdvances[glyph] = QFixed((int)size.cx)/designToDevice;
             }
-            glyphs[glyph_pos].advance.setX(designAdvances[glyph]);
-            glyphs[glyph_pos].advance.setY(0);
+            glyphs[glyph_pos].advance.x = designAdvances[glyph];
+            glyphs[glyph_pos].advance.y = 0;
             if (surrogate)
                 ++i;
             ++glyph_pos;
@@ -315,14 +315,14 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
             bool surrogate = (str[i].unicode() >= 0xd800 && str[i].unicode() < 0xdc00 && i < len-1
                               && str[i+1].unicode() >= 0xdc00 && str[i+1].unicode() < 0xe000);
             unsigned int glyph = glyphs[i].glyph;
-            glyphs[glyph_pos].advance.setX((glyph < widthCacheSize) ? widthCache[glyph] : 0);
-            glyphs[glyph_pos].advance.setY(0);
+            glyphs[glyph_pos].advance.x = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
+            glyphs[glyph_pos].advance.y = 0;
             // font-width cache failed
-            if (!glyphs[glyph_pos].advance.x()) {
+            if (glyphs[glyph_pos].advance.x == 0) {
                 SIZE size = {0, 0};
                 GetTextExtentPoint32W(hdc, (wchar_t *)str + i, surrogate ? 2 : 1, &size);
                 size.cx -= overhang;
-                glyphs[glyph_pos].advance.setX(size.cx);
+                glyphs[glyph_pos].advance.x = size.cx;
                 // if glyph's within cache range, store it for later
                 if (glyph < widthCacheSize && size.cx > 0 && size.cx < 0x100)
                     widthCache[glyph] = size.cx;
@@ -341,10 +341,10 @@ glyph_metrics_t QFontEngineWin::boundingBox(const QGlyphLayout *glyphs, int numG
     if (numGlyphs == 0)
         return glyph_metrics_t();
 
-    int w = 0;
+    QFixed w = 0;
     const QGlyphLayout *end = glyphs + numGlyphs;
     while(end > glyphs)
-        w += qRound((--end)->advance.x());
+        w += (--end)->advance.x;
 
     return glyph_metrics_t(0, -tm.w.tmAscent, w, tm.w.tmHeight, w, 0);
 }
@@ -377,13 +377,13 @@ glyph_metrics_t QFontEngineWin::boundingBox(glyph_t glyph)
         });
         if (res != GDI_ERROR)
             return glyph_metrics_t(gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y,
-                                  gm.gmBlackBoxX, gm.gmBlackBoxY, gm.gmCellIncX, gm.gmCellIncY);
+                                  (int)gm.gmBlackBoxX, (int)gm.gmBlackBoxY, gm.gmCellIncX, gm.gmCellIncY);
     }
 #endif
     return glyph_metrics_t();
 }
 
-static inline float kerning(int left, int right, const QFontEngineWin::KernPair *pairs, int numPairs)
+static inline QFixed kerning(int left, int right, const QFontEngineWin::KernPair *pairs, int numPairs)
 {
     int left_right = (left << 16) + right;
 
@@ -391,7 +391,7 @@ static inline float kerning(int left, int right, const QFontEngineWin::KernPair 
     while (left <= right) {
         int middle = left + ( ( right - left ) >> 1 );
 
-        if(pairs[middle].left_right == left_right)
+	if(pairs[middle].left_right == left_right) 
             return pairs[middle].adjust;
 
         if (int(pairs[middle].left_right) < left_right)
@@ -399,7 +399,7 @@ static inline float kerning(int left, int right, const QFontEngineWin::KernPair 
         else
             right = middle - 1;
     }
-    return 0.;
+    return 0;
 }
 
 void QFontEngineWin::doKerning(int num_glyphs, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
@@ -412,25 +412,25 @@ void QFontEngineWin::doKerning(int num_glyphs, QGlyphLayout *glyphs, QTextEngine
 
     if(flags & QTextEngine::DesignMetrics) {
         for(int i = 0; i < num_glyphs - 1; ++i)
-            glyphs[i].advance.rx() += kerning(glyphs[i].glyph, glyphs[i+1].glyph , pairs, numPairs);
+            glyphs[i].advance.x += kerning(glyphs[i].glyph, glyphs[i+1].glyph , pairs, numPairs);
     } else {
         for(int i = 0; i < num_glyphs - 1; ++i)
-            glyphs[i].advance.rx() += qRound(kerning(glyphs[i].glyph, glyphs[i+1].glyph , pairs, numPairs));
+            glyphs[i].advance.x += qRound(kerning(glyphs[i].glyph, glyphs[i+1].glyph , pairs, numPairs));
     }
 }
 
 
-qreal QFontEngineWin::ascent() const
+QFixed QFontEngineWin::ascent() const
 {
     return tm.w.tmAscent;
 }
 
-qreal QFontEngineWin::descent() const
+QFixed QFontEngineWin::descent() const
 {
     return tm.w.tmDescent;
 }
 
-qreal QFontEngineWin::leading() const
+QFixed QFontEngineWin::leading() const
 {
     return tm.w.tmExternalLeading;
 }
@@ -638,7 +638,7 @@ void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
 
     if (flags & QTextItem::RightToLeft) {
         for (int gl = 0; gl < numGlyphs; gl++)
-            oset += glyphs[gl].advance;
+	    oset += glyphs[gl].advance.toPointF();
     }
     for (int i=0; i<numGlyphs; ++i) {
         memset(&gMetric, 0, sizeof(GLYPHMETRICS));
@@ -676,7 +676,7 @@ void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
         TTPOLYGONHEADER *ttph = 0;
 
         if (flags & QTextItem::RightToLeft)
-            oset -= glyphs[i].advance;
+	    oset -= glyphs[i].advance.toPointF();
         while (headerOffset < bufferSize) {
             ttph = (TTPOLYGONHEADER*)((char *)dataBuffer + headerOffset);
 
@@ -732,7 +732,7 @@ void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
         }
         delete [] (char*)dataBuffer;
         if (!(flags & QTextItem::RightToLeft))
-            oset += glyphs[i].advance;
+	    oset += glyphs[i].advance.toPointF();
     }
 
     if (useFallback) {
@@ -973,7 +973,7 @@ bool operator<(const QFontEngineWin::KernPair &p1, const QFontEngineWin::KernPai
     return p1.left_right < p2.left_right;
 }
 
-static QVector<QFontEngineWin::KernPair> getKerning(HDC hdc, float factor)
+static QVector<QFontEngineWin::KernPair> getKerning(HDC hdc, QFixed factor)
 {
     const DWORD KERN = MAKE_TAG('k', 'e', 'r', 'n');
 
@@ -1030,7 +1030,7 @@ static QVector<QFontEngineWin::KernPair> getKerning(HDC hdc, float factor)
                 for(int i = 0; i < nPairs; ++i) {
                     QFontEngineWin::KernPair p;
                     p.left_right = (((uint)getUShort(data.data()+off)) << 16) + getUShort(data.data()+off+2);
-                    p.adjust = ((short)getUShort(data.data()+off+4)) * factor;
+                    p.adjust = QFixed((int)(short)getUShort(data.data()+off+4)) / factor;
                     pairs.append(p);
                     off += 6;
                 }

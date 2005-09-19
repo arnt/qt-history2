@@ -581,10 +581,10 @@ void QTextEngine::shapeText(int item) const
             QGlyphLayout *g = this->glyphs(&si);
             for(int i = 0; i < si.num_glyphs; ++i) {
                 g[i].glyph = glyphs[i];
-                g[i].advance.rx() = advances[i];
-                g[i].advance.ry() = 0;
-                g[i].offset.rx() = offsets[i].du;
-                g[i].offset.ry() = offsets[i].dv;
+                g[i].advance.x = advances[i];
+                g[i].advance.y = 0;
+                g[i].offset.x = offsets[i].du;
+                g[i].offset.y = offsets[i].dv;
                 g[i].attributes = glyphAttributes[i];
             }
             unsigned short *lc = this->logClusters(&si);
@@ -633,7 +633,7 @@ end:
     si.width = 0;
     QGlyphLayout *end = g + si.num_glyphs;
     while (g < end)
-        si.width += (g++)->advance.x();
+        si.width += (g++)->advance.x;
 
 
     si.ascent = fontEngine->ascent();
