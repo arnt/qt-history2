@@ -638,32 +638,13 @@ bool QPngHandler::canRead(QIODevice *device)
         return false;
     }
 
-    qint64 oldPos = device->pos();
-
-    char head[4];
-    qint64 readBytes = device->read(head, sizeof(head));
-    if (readBytes != sizeof(head)) {
-        if (device->isSequential()) {
-            while (readBytes > 0)
-                device->ungetChar(head[readBytes-- - 1]);
-        } else {
-            device->seek(oldPos);
-        }
-        return false;
-    }
-
-    if (device->isSequential()) {
-        while (readBytes > 0)
-            device->ungetChar(head[readBytes-- - 1]);
-    } else {
-        device->seek(oldPos);
-    }
-
-    return qstrncmp(head + 1, "PNG", 3) == 0;
+    return device->peek(8) == "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A";
 }
 
 bool QPngHandler::read(QImage *image)
 {
+    if (!canRead())
+        return false;
     return read_png_image(device(), image, gamma);
 }
 
