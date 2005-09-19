@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/res">
+   <file>composition.cpp</file>
+   <file>composition.html</file>
+   <file>butterfly.png</file>
+</qresource>
+</RCC>
