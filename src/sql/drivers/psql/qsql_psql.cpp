@@ -288,8 +288,8 @@ QVariant QPSQLResult::data(int i)
             return QVariant(QDateTime::fromString(dtval, Qt::ISODate));
     }
     case QVariant::ByteArray: {
-        size_t len;    
-        unsigned char* data = PQunescapeBytea((unsigned char*)val, &len);        
+        size_t len;
+        unsigned char *data = PQunescapeBytea((unsigned char*)val, &len);
         QByteArray ba((const char*)data, len);
         free(data);
         return QVariant(ba);
@@ -751,7 +751,7 @@ QSqlRecord QPSQLDriver::record(const QString& tablename) const
                    "pg_namespace where pg_namespace.nspname = '%1')").arg(schema.toLower()));
         break;
     }
-    
+
     QSqlQuery query(createResult());
     query.exec(stmt.arg(tbl.toLower()));
     if (d->pro >= QPSQLDriver::Version71) {
@@ -851,9 +851,11 @@ QString QPSQLDriver::formatValue(const QSqlField &field,
             break;
         case QVariant::ByteArray: {
             QByteArray ba(field.value().toByteArray());
-            size_t len;            
-            unsigned char* data= PQescapeBytea((unsigned char*)ba.data(), ba.size(), &len);
-            r = QLatin1String("'") + QLatin1String((const char*)data) + QLatin1String("'");
+            size_t len;
+            unsigned char *data= PQescapeBytea((unsigned char*)ba.constData(), ba.size(), &len);
+            r += QLatin1Char('\'');
+            r += QLatin1String((const char*)data);
+            r += QLatin1Char('\'');
             free(data);
             break;
         }
