@@ -62,7 +62,7 @@ QStyleOptionGroupBox QGroupBoxPrivate::getStyleOption() const
     option.midLineWidth = 0;
     option.textAlignment = Qt::Alignment(align);
     option.activeSubControls |= pressedControl;
-    option.subControls = QStyle::SC_None;
+    option.subControls = QStyle::SC_GroupBoxFrame;
 
     if (hover)
         option.state |= QStyle::State_MouseOver;
@@ -84,7 +84,7 @@ QStyleOptionGroupBox QGroupBoxPrivate::getStyleOption() const
 
     if (!title.isEmpty())
         option.subControls |= QStyle::SC_GroupBoxLabel;
-    
+
     return option;
 }
 

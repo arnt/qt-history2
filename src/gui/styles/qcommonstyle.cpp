@@ -2359,32 +2359,37 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
     case CC_GroupBox:
         if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
             // Draw frame
-            QStyleOptionFrameV2 frame;
-            frame.QStyleOption::operator=(*groupBox);
-            frame.features = groupBox->features;
-            frame.lineWidth = groupBox->lineWidth;
-            frame.midLineWidth = groupBox->midLineWidth;
-            frame.rect = subControlRect(CC_GroupBox, opt, SC_GroupBoxFrame, widget);
-            drawPrimitive(PE_FrameGroupBox, &frame, p, widget);
-
             QRect textRect = subControlRect(CC_GroupBox, opt, SC_GroupBoxLabel, widget);
             QRect checkBoxRect = subControlRect(CC_GroupBox, opt, SC_GroupBoxCheckBox, widget);
-
-            p->fillRect(QRect(QPoint(checkBoxRect.left() - 4, checkBoxRect.top()),
-                              QPoint(textRect.right(), textRect.bottom())),
-                        groupBox->palette.background());
+            if (groupBox->subControls & QStyle::SC_GroupBoxFrame) {
+                QStyleOptionFrameV2 frame;
+                frame.QStyleOption::operator=(*groupBox);
+                frame.features = groupBox->features;
+                frame.lineWidth = groupBox->lineWidth;
+                frame.midLineWidth = groupBox->midLineWidth;
+                frame.rect = subControlRect(CC_GroupBox, opt, SC_GroupBoxFrame, widget);
+                p->save();
+                QRegion region(groupBox->rect);
+                region -= QRect(QPoint(checkBoxRect.left() - 4, checkBoxRect.top()),
+                                  QPoint(textRect.right(), textRect.bottom()));
+                p->setClipRegion(region);
+                drawPrimitive(PE_FrameGroupBox, &frame, p, widget);
+                p->restore();
+            }
 
             // Draw title
-            if (!groupBox->text.isEmpty()) {
-                QColor textColor = groupBox->textColor;
-                if (textColor.isValid())
-                    p->setPen(textColor);
-                int alignment = int(groupBox->textAlignment);
-                if (!styleHint(QStyle::SH_UnderlineShortcut, opt, widget))
-                    alignment |= Qt::TextHideMnemonic;
+            if ((groupBox->subControls & QStyle::SC_GroupBoxLabel) && !groupBox->text.isEmpty()) {
+                if (!groupBox->text.isEmpty()) {
+                    QColor textColor = groupBox->textColor;
+                    if (textColor.isValid())
+                        p->setPen(textColor);
+                    int alignment = int(groupBox->textAlignment);
+                    if (!styleHint(QStyle::SH_UnderlineShortcut, opt, widget))
+                        alignment |= Qt::TextHideMnemonic;
 
-                drawItemText(p, textRect,  Qt::TextShowMnemonic | Qt::AlignHCenter | alignment,
-                             groupBox->palette, groupBox->state & State_Enabled, groupBox->text);
+                    drawItemText(p, textRect,  Qt::TextShowMnemonic | Qt::AlignHCenter | alignment,
+                                 groupBox->palette, groupBox->state & State_Enabled, groupBox->text);
+                }
             }
 
             // Draw checkbox

@@ -5470,8 +5470,9 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
         p->fillRect(opt->rect, QColor(255, 255, 199));
         break;
     case PE_FrameGroupBox:
-        if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
-            if (groupBox->features & QStyleOptionGroupBox::Flat) {
+        if (const QStyleOptionFrame *groupBox = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
+            const QStyleOptionFrameV2 *frame2 = qstyleoption_cast<const QStyleOptionFrameV2 *>(opt);
+            if (frame2 && frame2->features & QStyleOptionFrameV2::Flat) {
                 QWindowsStyle::drawPrimitive(pe, groupBox, p, w);
             } else {
                 if (d->useHITheme)
@@ -5800,32 +5801,12 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
     case CC_GroupBox:
         if (const QStyleOptionGroupBox *groupBox
                 = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
-            QStyleOptionGroupBox frame = *groupBox;
-            // Calculate the top margin. Since we have a different font depending on the type
-            // We need to calculate it no our own.
             bool checkable = groupBox->subControls & QStyle::SC_GroupBoxCheckBox;
+
             QFont oldFont = p->font();
-            int topMargin = groupBox->topMargin + 2;
-
-            QRect textRect = subControlRect(QStyle::CC_GroupBox, opt, QStyle::SC_GroupBoxLabel, w);
-            QRect checkBoxRect = subControlRect(QStyle::CC_GroupBox, opt, QStyle::SC_GroupBoxCheckBox, w);
-
             if (!checkable)
                 p->setFont(qt_app_fonts_hash()->value("QHeaderView", p->font()));
-            frame.rect.setTop(frame.rect.top() + topMargin);
-            drawPrimitive(QStyle::PE_FrameGroupBox, &frame, p, w);
-            if (!groupBox->text.isEmpty()) {
-                Qt::Alignment alignment = groupBox->textAlignment;
-                drawItemText(p, textRect,  Qt::TextShowMnemonic | Qt::AlignHCenter | alignment,
-                                groupBox->palette, groupBox->state & QStyle::State_Enabled, groupBox->text);
-            }
-            // Draw checkbox
-            if (checkable) {
-                QStyleOptionButton box;
-                box.QStyleOption::operator=(*groupBox);
-                box.rect = checkBoxRect;
-                drawPrimitive(PE_IndicatorCheckBox, &box, p, w);
-            }
+            QWindowsStyle::drawComplexControl(cc, groupBox, p, w);
             p->setFont(oldFont);
         }
         break;
@@ -5904,9 +5885,6 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
     case CC_GroupBox:
         if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
             switch (sc) {
-            case SC_GroupBoxFrame:
-                ret = groupBox->rect;
-                break;
             case SC_GroupBoxLabel:
             case SC_GroupBoxCheckBox: {
                 // Cheat and use the smaller font if we need to
@@ -5917,7 +5895,7 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
 
                 int h = fm.height();
                 int tw = fm.size(Qt::TextShowMnemonic, groupBox->text).width();
-                int margin = (groupBox->features & QStyleOptionGroupBox::Flat) ? 0 : 12;
+                int margin = (groupBox->features & QStyleOptionFrameV2::Flat) ? 0 : 12;
                 ret = groupBox->rect.adjusted(margin, 0, -margin, 0);
                 ret.setHeight(h);
 
@@ -5938,7 +5916,15 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                 }
                 break;
             }
+            case SC_GroupBoxFrame:
+            case SC_GroupBoxContents:
+                ret = QWindowsStyle::subControlRect(cc, groupBox, sc, w);
+                ret.adjust(0, 2, 0, 0);
+                if (sc == SC_GroupBoxContents)
+                    ret.adjust(4, 4, -4, -4);
+                break;
             default:
+                ret = QWindowsStyle::subControlRect(cc, groupBox, sc, w);
                 break;
             }
         }
@@ -6066,6 +6052,8 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     case CT_ComboBox:
         sz.rwidth() += 37;
         break;
+    case CT_GroupBox:
+        sz += QSize(8, 8);
     default:
         sz = QWindowsStyle::sizeFromContents(ct, opt, csz, widget);
     }
