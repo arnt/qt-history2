@@ -405,11 +405,13 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget)
     }
 }
 
+#ifdef Q_WS_QWS
 void QWidgetBackingStore::releaseBuffer()
 {
     buffer.detach();
     QWidget::qwsDisplay()->requestRegion(tlw->data->winid, 0, true, QRegion(0));
 }
+#endif
 
 
 bool QWidgetBackingStore::isOpaque(const QWidget *widget)
