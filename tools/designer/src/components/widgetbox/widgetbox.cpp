@@ -231,6 +231,8 @@ QWidget *WidgetBoxItemDelegate::createEditor(QWidget *parent,
 WidgetBoxTreeView::WidgetBoxTreeView(QDesignerFormEditorInterface *core, QWidget *parent)
     : QTreeWidget(parent)
 {
+    setFocusPolicy(Qt::NoFocus);
+
     setItemDelegate(new WidgetBoxItemDelegate(this, this));
     setRootIsDecorated(false);
     setColumnCount(1);
