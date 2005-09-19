@@ -15,6 +15,7 @@
 #define QMUTEX_H
 
 #include "QtCore/qglobal.h"
+#include <new>
 
 QT_MODULE(Core)
 
