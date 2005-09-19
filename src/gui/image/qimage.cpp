@@ -968,7 +968,7 @@ QImage QImage::copy(const QRect& r) const
     if (pixels_to_copy > d->width - x)
         pixels_to_copy = d->width - x;
     int lines_to_copy = h - dy;
-    if (lines_to_copy > d->height - h)
+    if (lines_to_copy > d->height - y)
         lines_to_copy = d->height - y;
 
     bool byteAligned = true;
