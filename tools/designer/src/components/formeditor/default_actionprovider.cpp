@@ -68,19 +68,25 @@ QAction *QDesignerActionProvider::actionAt(const QPoint &pos) const
 
 void QDesignerActionProvider::adjustIndicator(const QPoint &pos)
 {
-    // ### TODO HIDE
+    if (pos == QPoint(-1, -1)) {
+        m_indicator->hide();
+        return;
+    }
 
-    QAction *action = actionAt(pos);
-    QRect g = actionGeometry(action);
+    if (QAction *action = actionAt(pos)) {
+        QRect g = actionGeometry(action);
 
-    // ### g.moveTopLeft(g.topRight());
-    g.setWidth(2);
+        // ### g.moveTopLeft(g.topRight());
+        g.setWidth(2);
 
-    // ### m_indicator->setGeometry(10, 10, 30, 30);
+        // ### m_indicator->setGeometry(10, 10, 30, 30);
 
-    m_indicator->setGeometry(g);
-    m_indicator->show();
-    m_indicator->raise();
+        m_indicator->setGeometry(g);
+        m_indicator->show();
+        m_indicator->raise();
+    } else {
+        m_indicator->hide();
+    }
 }
 
 // ---- QDesignerActionProviderFactory ----

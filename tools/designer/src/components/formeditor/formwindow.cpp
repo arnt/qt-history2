@@ -322,27 +322,26 @@ QWidget *FormWindow::findTargetContainer(QWidget *widget) const
     return mainContainer();
 }
 
-bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouseEvent *e)
+bool FormWindow::handleMousePressEvent(QWidget *widget, QWidget *managedWidget, QMouseEvent *e)
 {
+    startPos = QPoint();
+    e->accept();
+
     BlockSelection blocker(this);
 
     if (core()->formWindowManager()->activeFormWindow() != this)
         core()->formWindowManager()->setActiveFormWindow(this);
 
-    e->accept();
-
-    startPos = QPoint();
-
     if (e->buttons() != Qt::LeftButton)
         return true;
+
+    startPos = mapFromGlobal(e->globalPos());
 
     bool inLayout = LayoutInfo::isWidgetLaidout(m_core, managedWidget);
 
     // if the dragged widget is not in a layout, raise it
     if (inLayout == false)
         managedWidget->raise();
-
-    startPos = mapFromGlobal(e->globalPos());
 
     if (isMainContainer(managedWidget) == true) { // press was on the formwindow
         clearSelection(false);
@@ -386,7 +385,7 @@ bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouse
     return true;
 }
 
-bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
+bool FormWindow::handleMouseMoveEvent(QWidget *widget, QWidget *, QMouseEvent *e)
 {
     e->accept();
 

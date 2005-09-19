@@ -31,9 +31,9 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
 
-class QRubberBand;
 class QTimer;
 class QDesignerFormWindowInterface;
+class QDesignerActionProviderExtension;
 
 class QT_SHARED_EXPORT SentinelAction: public QAction
 {
@@ -61,6 +61,7 @@ public:
     bool eventFilter(QObject *object, QEvent *event);
 
     QDesignerFormWindowInterface *formWindow() const;
+    QDesignerActionProviderExtension *actionProvider();
 
 private slots:
     void slotRemoveSelectedAction(QAction *action);
@@ -87,7 +88,6 @@ protected:
     bool blockSentinelChecker(bool b);
 
 private:
-    QRubberBand *m_indicator;
     QTimer *m_sentinelChecker;
     QAction *m_sentinel;
     bool m_blockSentinelChecker;

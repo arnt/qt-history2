@@ -13,6 +13,7 @@
 
 #include "qdesigner_toolbar_p.h"
 #include "actionrepository_p.h"
+#include "actionprovider_p.h"
 
 #include <QtDesigner/QtDesigner>
 
@@ -20,7 +21,6 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
-#include <QtGui/QRubberBand>
 #include <QtGui/QToolButton>
 #include <QtGui/QMenu>
 #include <QtGui/qevent.h>
@@ -35,8 +35,6 @@ QDesignerToolBar::QDesignerToolBar(QWidget *parent)
     m_sentinel = 0;
 
     setContextMenuPolicy(Qt::DefaultContextMenu);
-    m_indicator = new QRubberBand(QRubberBand::Line, this);
-    m_indicator->hide();
 
     setAcceptDrops(true); // ### fake
 
@@ -115,12 +113,12 @@ bool QDesignerToolBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
     return true;
 }
 
-bool QDesignerToolBar::handleMouseReleaseEvent(QWidget *, QMouseEvent *event)
+bool QDesignerToolBar::handleMouseReleaseEvent(QWidget *, QMouseEvent *)
 {
     return true;
 }
 
-bool QDesignerToolBar::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
+bool QDesignerToolBar::handleMouseMoveEvent(QWidget *, QMouseEvent *)
 {
     return true;
 }
@@ -196,6 +194,16 @@ int QDesignerToolBar::findAction(const QPoint &pos) const
     return index;
 }
 
+QDesignerActionProviderExtension *QDesignerToolBar::actionProvider()
+{
+    if (QDesignerFormWindowInterface *fw = formWindow()) {
+        QDesignerFormEditorInterface *core = fw->core();
+        return qt_extension<QDesignerActionProviderExtension*>(core->extensionManager(), this);
+    }
+
+    return 0;
+}
+
 void QDesignerToolBar::adjustIndicator(const QPoint &pos)
 {
     QRect g = actionGeometry(actions().at(findAction(pos)));
@@ -210,7 +218,9 @@ void QDesignerToolBar::adjustIndicator(const QPoint &pos)
         g.setHeight(2);
     }
 
-    m_indicator->setGeometry(g);
+    if (QDesignerActionProviderExtension *a = actionProvider()) {
+        a->adjustIndicator(pos);
+    }
 }
 
 void QDesignerToolBar::dragEnterEvent(QDragEnterEvent *event)
@@ -222,7 +232,6 @@ void QDesignerToolBar::dragEnterEvent(QDragEnterEvent *event)
         if (action && !actions().contains(action)) {
             event->acceptProposedAction();
             adjustIndicator(event->pos());
-            m_indicator->show();
         }
     }
 }
@@ -242,7 +251,9 @@ void QDesignerToolBar::dragMoveEvent(QDragMoveEvent *event)
 
 void QDesignerToolBar::dragLeaveEvent(QDragLeaveEvent *)
 {
-    m_indicator->hide();
+    if (QDesignerActionProviderExtension *a = actionProvider()) {
+        a->adjustIndicator(QPoint(-1,-1));
+    }
 }
 
 void QDesignerToolBar::dropEvent(QDropEvent *event)
@@ -258,7 +269,9 @@ void QDesignerToolBar::dropEvent(QDropEvent *event)
         }
     }
 
-    m_indicator->hide();
+    if (QDesignerActionProviderExtension *a = actionProvider()) {
+        a->adjustIndicator(QPoint(-1,-1));
+    }
 }
 
 void QDesignerToolBar::actionEvent(QActionEvent *event)
