@@ -2874,10 +2874,21 @@ fi
 if [ "$CFG_ENDIAN" = "auto" ]; then
     if [ "$PLATFORM_MAC" = "yes" ]; then
 	true #leave as auto 
-    elif $unixtests/endian.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
-        CFG_ENDIAN="Q_LITTLE_ENDIAN"
     else
-        CFG_ENDIAN="Q_BIG_ENDIAN"
+        $unixtests/endian.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath
+	F="$?"
+        if [ "$F" -eq 0 ]; then
+            CFG_ENDIAN="Q_LITTLE_ENDIAN"
+        elif [ "$F" -eq 1 ]; then
+            CFG_ENDIAN="Q_BIG_ENDIAN"
+        else
+            echo
+	    echo "The system byte order could not be detected!"
+	    echo "Turn on verbose messaging (-v) to see the final report."
+	    echo "You can use the -little-endian or -big-endian switch to"
+	    echo "$0 to continue."
+            exit 101
+        fi
     fi
 fi
 

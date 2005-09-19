@@ -13,18 +13,25 @@ test -d $OUTDIR/config.tests/unix/endian || mkdir -p $OUTDIR/config.tests/unix/e
 $OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" $SRCDIR/config.tests/unix/endian/endiantest.pro -o $OUTDIR/config.tests/unix/endian/Makefile >/dev/null 2>&1
 cd $OUTDIR/config.tests/unix/endian
 
-if [ "$VERBOSE" = "yes" ]; then
-  (make && ./endiantest)
-else
-  (make && ./endiantest) >/dev/null 2>&1
+ENDIAN="UNKNOWN"
+[ "$VERBOSE" = "yes" ] && make || make >/dev/null 2>&1
+
+if strings ./endiantest | grep LeastSignificantByteFirst >/dev/null 2>&1; then
+    [ "$VERBOSE" = "yes" ] && echo "    Found 'LeastSignificantByteFirst' in binary"
+    ENDIAN="LITTLE"
+elif strings ./endiantest | grep MostSignificantByteFirst >/dev/null 2>&1; then
+    [ "$VERBOSE" = "yes" ] && echo "    Found 'MostSignificantByteFirst' in binary"
+    ENDIAN="BIG"
 fi
-ENDIAN=$?
 
 # done
-if [ "$ENDIAN" -eq 0 ]; then
+if [ "$ENDIAN" = "LITTLE" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "Using little endian."
+    exit 0
+elif [ "$ENDIAN" = "BIG" ]; then
     [ "$VERBOSE" = "yes" ] && echo "Using big endian."
     exit 1
 else
-    [ "$VERBOSE" = "yes" ] && echo "Using little endian."
-    exit 0
+    [ "$VERBOSE" = "yes" ] && echo "Uknown byte order!"
+    exit 2
 fi
