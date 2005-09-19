@@ -174,7 +174,7 @@ signals:
     void headerDataChanged(Qt::Orientation orientation, int first, int last);
     void layoutChanged();
 
-#ifndef Q_MOC_RUN
+#if !defined(Q_MOC_RUN) && !defined(qdoc)
 private: // can only be emitted by QAbstractItemModel
 #endif
     void rowsAboutToBeInserted(const QModelIndex &parent, int first, int last);
