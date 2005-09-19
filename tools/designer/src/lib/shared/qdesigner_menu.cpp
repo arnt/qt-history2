@@ -14,6 +14,7 @@
 #include "qdesigner_menu_p.h"
 #include "qdesigner_toolbar_p.h"
 #include "actionrepository_p.h"
+#include "actionprovider_p.h"
 
 #include <QtDesigner/QtDesigner>
 
@@ -35,9 +36,6 @@ QDesignerMenu::QDesignerMenu(QWidget *parent)
     m_sentinel = 0;
 
     setContextMenuPolicy(Qt::DefaultContextMenu);
-    m_indicator = new QRubberBand(QRubberBand::Line, this);
-    m_indicator->hide();
-
     setAcceptDrops(true); // ### fake
 
     m_sentinel = new SentinelAction(this);       // ### use a special widget as indicator
@@ -193,12 +191,9 @@ int QDesignerMenu::findAction(const QPoint &pos) const
 
 void QDesignerMenu::adjustIndicator(const QPoint &pos)
 {
-    QRect g = actionGeometry(actions().at(findAction(pos)));
-    g.moveLeft(0);
-    g.setWidth(width());
-    g.setHeight(2);
-
-    m_indicator->setGeometry(g);
+    if (QDesignerActionProviderExtension *a = actionProvider()) {
+        a->adjustIndicator(pos);
+    }
 }
 
 void QDesignerMenu::dragEnterEvent(QDragEnterEvent *event)
@@ -210,7 +205,6 @@ void QDesignerMenu::dragEnterEvent(QDragEnterEvent *event)
         if (action && !actions().contains(action)) {
             event->acceptProposedAction();
             adjustIndicator(event->pos());
-            m_indicator->show();
         }
     }
 }
@@ -230,7 +224,7 @@ void QDesignerMenu::dragMoveEvent(QDragMoveEvent *event)
 
 void QDesignerMenu::dragLeaveEvent(QDragLeaveEvent *)
 {
-    m_indicator->hide();
+    adjustIndicator(QPoint(-1, -1));
 }
 
 void QDesignerMenu::dropEvent(QDropEvent *event)
@@ -247,7 +241,7 @@ void QDesignerMenu::dropEvent(QDropEvent *event)
         }
     }
 
-    m_indicator->hide();
+    adjustIndicator(QPoint(-1, -1));
 }
 
 void QDesignerMenu::actionEvent(QActionEvent *event)
@@ -278,4 +272,14 @@ bool QDesignerMenu::blockSentinelChecker(bool b)
     bool old = m_blockSentinelChecker;
     m_blockSentinelChecker = b;
     return old;
+}
+
+QDesignerActionProviderExtension *QDesignerMenu::actionProvider()
+{
+    if (QDesignerFormWindowInterface *fw = formWindow()) {
+        QDesignerFormEditorInterface *core = fw->core();
+        return qt_extension<QDesignerActionProviderExtension*>(core->extensionManager(), this);
+    }
+
+    return 0;
 }
