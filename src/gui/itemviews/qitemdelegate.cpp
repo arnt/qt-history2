@@ -396,6 +396,7 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
         str = elidedText(option.fontMetrics, textRect.width(), option.textElideMode, text);
     qt_format_text(option.font, textRect, option.displayAlignment, str, 0, 0, 0, 0, painter);
     painter->setFont(font);
+    painter->setPen(pen);
 }
 
 /*!
