@@ -306,6 +306,15 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, bool activateFir
     if (currentAction)
         q->update(actionRect(currentAction));
 
+    if (activeMenu) {
+        QMenu *menu = activeMenu;
+        activeMenu = 0;
+        // kill any running effect
+        qFadeEffect(0);
+        qScrollEffect(0);
+        menu->hide();
+    }
+
     sloppyAction = 0;
     if (!sloppyRegion.isEmpty())
         sloppyRegion = QRegion();
