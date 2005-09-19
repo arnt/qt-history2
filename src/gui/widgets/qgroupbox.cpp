@@ -32,8 +32,6 @@ class QGroupBoxPrivate : public QWidgetPrivate
     Q_DECLARE_PUBLIC(QGroupBox)
 public:
 
-    QGroupBoxPrivate():
-        topMargin(0){}
     void skip();
     void init();
     void calculateFrame();
@@ -51,8 +49,6 @@ public:
     bool hover;
     QStyle::SubControl pressedControl;
 
-    int topMargin;
-
     QStyleOptionGroupBox getStyleOption() const;
 };
 
@@ -65,8 +61,6 @@ QStyleOptionGroupBox QGroupBoxPrivate::getStyleOption() const
     option.lineWidth = 1;
     option.midLineWidth = 0;
     option.textAlignment = Qt::Alignment(align);
-    option.topMargin = topMargin;
-    
     option.activeSubControls |= pressedControl;
     option.subControls = QStyle::SC_None;
 
@@ -76,7 +70,7 @@ QStyleOptionGroupBox QGroupBoxPrivate::getStyleOption() const
         option.state &= ~QStyle::State_MouseOver;
 
     if (flat)
-        option.features |= QStyleOptionGroupBox::Flat;
+        option.features |= QStyleOptionFrameV2::Flat;
 
     if (checkable) {
         option.subControls |= QStyle::SC_GroupBoxCheckBox;
@@ -279,17 +273,14 @@ bool QGroupBox::event(QEvent *e)
     QStyleOptionGroupBox box = d->getStyleOption();
     switch (e->type()) {
     case QEvent::HoverEnter:
-        d->hover = style()->hitTestComplexControl(QStyle::CC_GroupBox, &box,
-                                                  static_cast<QHoverEvent *>(e)->pos(),
-                                                  this) != QStyle::SC_GroupBoxFrame;
+    case QEvent::HoverMove: {
+        QStyle::SubControl control = style()->hitTestComplexControl(QStyle::CC_GroupBox, &box,
+                                                                    static_cast<QHoverEvent *>(e)->pos(),
+                                                                    this);
+        d->hover = (control == QStyle::SC_GroupBoxLabel || control == QStyle::SC_GroupBoxCheckBox);
         update();
         break;
-    case QEvent::HoverMove:
-        d->hover = style()->hitTestComplexControl(QStyle::CC_GroupBox, &box,
-                                                  static_cast<QHoverEvent *>(e)->pos(),
-                                                  this) != QStyle::SC_GroupBoxFrame;
-        update();
-        break;
+    }
     case QEvent::HoverLeave:
         d->hover = false;
         update();
@@ -365,20 +356,11 @@ void QGroupBoxPrivate::fixFocus()
 void QGroupBoxPrivate::calculateFrame()
 {
     Q_Q(QGroupBox);
-    int va = q->style()->styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, 0, q);
-
-    topMargin = 0;
-    int topHeight = 0;
-    if (title.size()) {
-        topHeight = q->fontMetrics().height();
-        if (va & Qt::AlignVCenter)
-            topMargin = topHeight/2;
-        else if (va & Qt::AlignTop)
-            topMargin = topHeight;
-    }
-    
-    int marg = flat ? 0 : 2; // ###NEEDS TO BE A STYLE ATTRIBUTE
-    q->setContentsMargins(marg, topHeight + marg, marg, marg);
+    QStyleOptionGroupBox box = getStyleOption();
+    QRect contentsRect = q->style()->subControlRect(QStyle::CC_GroupBox, &box, QStyle::SC_GroupBoxContents, q);
+    QRect frameRect = q->style()->subControlRect(QStyle::CC_GroupBox, &box, QStyle::SC_GroupBoxFrame, q);
+    q->setContentsMargins(contentsRect.left() - frameRect.left(), contentsRect.top() - frameRect.top(),
+                          frameRect.right() - contentsRect.right(), frameRect.bottom() - contentsRect.bottom());
 }
 
 

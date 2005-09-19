@@ -423,26 +423,14 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         drawPrimitive(PE_Frame, opt, p, widget);
         break;
     case PE_FrameGroupBox:
-        if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
-            if (groupBox->features & QStyleOptionGroupBox::Flat) {
-                QRect fr = groupBox->rect;
-                QPoint p1(fr.x(), fr.y() + 1);
-                QPoint p2(fr.x() + fr.width(), p1.y());
-                qDrawShadeLine(p, p1, p2, groupBox->palette, true,
-                               groupBox->lineWidth, groupBox->midLineWidth);
-            } else {
-                qDrawShadeRect(p, groupBox->rect.x(), groupBox->rect.y(), groupBox->rect.width(),
-                               groupBox->rect.height(), groupBox->palette, true,
-                               groupBox->lineWidth, groupBox->midLineWidth);
-            }
-        } else if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
-            const QGroupBox *box = qobject_cast<const QGroupBox *>(widget);
-            if (box && box->isFlat()) {
+        if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
+            const QStyleOptionFrameV2 *frame2 = qstyleoption_cast<const QStyleOptionFrameV2 *>(opt);
+            if (frame2 && (frame2->features & QStyleOptionFrameV2::Flat)) {
                 QRect fr = frame->rect;
                 QPoint p1(fr.x(), fr.y() + 1);
                 QPoint p2(fr.x() + fr.width(), p1.y());
                 qDrawShadeLine(p, p1, p2, frame->palette, true,
-                               frame->lineWidth, groupBox->midLineWidth);
+                               frame->lineWidth, frame->midLineWidth);
             } else {
                 qDrawShadeRect(p, frame->rect.x(), frame->rect.y(), frame->rect.width(),
                                frame->rect.height(), frame->palette, true,
@@ -2371,8 +2359,12 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
     case CC_GroupBox:
         if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
             // Draw frame
-            QStyleOptionGroupBox frame = *groupBox;
-            frame.rect.setTop(frame.rect.top() + groupBox->topMargin);
+            QStyleOptionFrameV2 frame;
+            frame.QStyleOption::operator=(*groupBox);
+            frame.features = groupBox->features;
+            frame.lineWidth = groupBox->lineWidth;
+            frame.midLineWidth = groupBox->midLineWidth;
+            frame.rect = subControlRect(CC_GroupBox, opt, SC_GroupBoxFrame, widget);
             drawPrimitive(PE_FrameGroupBox, &frame, p, widget);
 
             QRect textRect = subControlRect(CC_GroupBox, opt, SC_GroupBoxLabel, widget);
@@ -2800,15 +2792,37 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
         break;
     case CC_GroupBox:
         if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
+            int topMargin = 0;
+            int topHeight = 0;
+            int verticalAlignment = styleHint(SH_GroupBox_TextLabelVerticalAlignment, groupBox, widget);
+            if (groupBox->text.size()) {
+                topHeight = groupBox->fontMetrics.height();
+                if (verticalAlignment & Qt::AlignVCenter)
+                    topMargin = topHeight / 2;
+                else if (verticalAlignment & Qt::AlignTop)
+                    topMargin = topHeight;
+            }
+
+            QRect frameRect = groupBox->rect;
+            frameRect.setTop(topMargin);
+
             if (sc == SC_GroupBoxFrame) {
-                ret = groupBox->rect;
+                ret = frameRect;
+                break;
+            }
+
+            if (sc == SC_GroupBoxContents) {
+                int margin = 0;
+                if ((groupBox->features & QStyleOptionFrameV2::Flat) == 0)
+                    margin = pixelMetric(PM_DefaultFrameWidth, groupBox, widget);
+                ret = frameRect.adjusted(margin, margin + topHeight, -margin, -margin);
                 break;
             }
 
             QFontMetrics fontMetrics = groupBox->fontMetrics;
             int h = fontMetrics.height();
             int tw = fontMetrics.size(Qt::TextShowMnemonic, groupBox->text + QLatin1Char(' ')).width();
-            int marg = (groupBox->features & QStyleOptionGroupBox::Flat) ? 0 : 8;
+            int marg = (groupBox->features & QStyleOptionFrameV2::Flat) ? 0 : 8;
             ret = groupBox->rect.adjusted(marg, 1, -marg, 0);
 
             if (sc == SC_GroupBoxLabel) {
@@ -3526,4 +3540,3 @@ QPixmap QCommonStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &p
     }
     return pixmap;
 }
-

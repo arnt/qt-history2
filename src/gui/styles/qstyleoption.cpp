@@ -109,8 +109,9 @@
     \value SO_MenuItem \l QStyleOptionMenuItem
     \value SO_Complex \l QStyleOptionComplex
     \value SO_Slider \l QStyleOptionSlider
-    \value SO_Frame \l QStyleOptionFrame
-    \value SO_ProgressBar \l QStyleOptionProgressBar
+    \value SO_Frame \l QStyleOptionFrame \l QStyleOptionFrameV2
+    \value SO_GroupBox \l QStyleOptionGroupBox
+    \value SO_ProgressBar \l QStyleOptionProgressBar \l QStyleOptionProgressBarV2
     \value SO_Q3ListView \l QStyleOptionQ3ListView
     \value SO_Q3ListViewItem \l QStyleOptionQ3ListViewItem
     \value SO_Header \l QStyleOptionHeader
@@ -390,6 +391,100 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
 */
 
 /*!
+    \class QStyleOptionFrameV2
+    \brief The QStyleOptionFrameV2 class is used to describe the
+    parameters necessary for drawing a frame in Qt 4.1 or above.
+
+    An instance of this class has \l type SO_Frame and \l version 2.
+
+    If you create your own QStyle subclass, you should handle both
+    QStyleOptionFrame and QStyleOptionFrameV2. One way
+    to achieve this is to use the QStyleOptionFrameV2 copy
+    constructor.
+
+    If the parameter's version is 1, \l features is set to
+    \l None. If the parameter's version is 2, the
+    constructor will copy the extra member.
+
+    Example:
+    \code
+        if (const QStyleOptionFrame *frameOpt =
+               qstyleoption_cast<const QStyleOptionFrame *>(option)) {
+            QStyleOptionFrameV2 frameOptV2(*frameOpt);
+
+            // draw the frame using frameOptV2
+        }
+    \endcode
+
+    \sa QStyleOptionFrame
+    \since 4.1
+*/
+
+/*!
+    Constructs a QStyleOptionFrameV2.
+*/
+QStyleOptionFrameV2::QStyleOptionFrameV2()
+    : QStyleOptionFrame(Version), features(None)
+{
+}
+
+/*!
+    \fn QStyleOptionFrameV2::QStyleOptionFrameV2(const QStyleOptionFrameV2 &other)
+
+    Constructs a copy of \a other.
+*/
+
+/*!
+    \internal
+*/
+QStyleOptionFrameV2::QStyleOptionFrameV2(int version)
+    : QStyleOptionFrame(version), features(None)
+{
+}
+
+/*!
+    Constructs a copy of \a other.
+
+    If \a{other}'s version is 1, the \l features member is set to \l None. If
+    \a{other}'s version is 2, \l features is copied.
+    
+    \sa version
+*/
+QStyleOptionFrameV2::QStyleOptionFrameV2(const QStyleOptionFrame &other)
+{
+    const QStyleOptionFrameV2 *f2 = qstyleoption_cast<const QStyleOptionFrameV2 *>(&other);
+    if (f2) {
+        *this = *f2;
+    } else {
+        QStyleOptionFrame::operator=(other);
+        version = Version;
+    }
+}
+
+/*!
+    Constructs a copy of \a other.
+*/
+QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &other)
+{
+    QStyleOptionFrame::operator=(other);
+
+    const QStyleOptionFrameV2 *f2 = qstyleoption_cast<const QStyleOptionFrameV2 *>(&other);
+    if (f2)
+        features = QStyleOptionFrameV2::None;
+    return *this;
+}
+
+/*!
+    \enum QStyleOptionFrameV2::FrameFeature
+
+    This enum describles the different types of features a frame can have.
+
+    \value None Indicates a normal frame.
+    \value Flat Indicates a flat frame.
+*/
+
+
+/*!
     \class QStyleOptionGroupBox
     \brief The QStyleOptionGroupBox class is used to describe
     the parameters for drawing a group box.
@@ -407,24 +502,6 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
     \variable QStyleOptionGroupBox::midLineWidth
     \brief The mid-line width for drawing the panel. This is usually used in
     drawing sunken or raised group box frames.
-*/
-
-/*!
-    \enum QStyleOptionGroupBox::GroupBoxFeatures
-
-    This enum describles the different types of features a group box can have.
-
-    \value None Indicates a normal group box.
-    \value Flat Indicates a flat group box.
-*/
-
-/*!
-    \variable QStyleOptionGroupBox::features
-
-    The features for this group box.
-
-    \sa GroupBoxFeatures, QGroupBox::flat
-
 */
 
 /*!
@@ -450,28 +527,27 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
 */
 
 /*!
-    \variable QStyleOptionGroupBox::topMargin
-
-    The top margin of the group box (i.e., the distance
-    from the top of the widget to the top of the frame).
-*/
-
-/*!
     Constructs a QStyleOptionGroupBox. The members variables are
     initialized to default values.
 */
 QStyleOptionGroupBox::QStyleOptionGroupBox()
-    : QStyleOptionComplex(Version, Type), features(None), textAlignment(Qt::AlignLeft),
-      lineWidth(0), midLineWidth(0), topMargin(0)
+    : QStyleOptionComplex(Version, Type), features(QStyleOptionFrameV2::None),
+      textAlignment(Qt::AlignLeft), lineWidth(0), midLineWidth(0)
 {
 }
+
+/*!
+    \fn QStyleOptionGroupBox::QStyleOptionGroupBox(const QStyleOptionGroupBox &other)
+
+    Constructs a copy of \a other.
+*/
 
 /*!
     \internal
 */
 QStyleOptionGroupBox::QStyleOptionGroupBox(int version)
-    : QStyleOptionComplex(version, Type), features(None), textAlignment(Qt::AlignLeft),
-      lineWidth(0), midLineWidth(0), topMargin(0)
+    : QStyleOptionComplex(version, Type), features(QStyleOptionFrameV2::None),
+      textAlignment(Qt::AlignLeft), lineWidth(0), midLineWidth(0)
 {
 }
 
@@ -961,6 +1037,7 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
     \endcode
 
     \sa QStyleOptionProgressBar
+    \since 4.1
 */
 
 /*!

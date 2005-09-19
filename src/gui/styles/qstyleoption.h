@@ -93,6 +93,28 @@ protected:
     QStyleOptionFrame(int version);
 };
 
+class Q_GUI_EXPORT QStyleOptionFrameV2 : public QStyleOptionFrame
+{
+public:
+    enum { Version = 2 };
+    enum FrameFeature {
+        None = 0x00,
+        Flat = 0x01
+    };
+    Q_DECLARE_FLAGS(FrameFeatures, FrameFeature)
+    FrameFeatures features;
+
+    QStyleOptionFrameV2();
+    QStyleOptionFrameV2(const QStyleOptionFrameV2 &other) : QStyleOptionFrame(Version) { *this = other; }
+    QStyleOptionFrameV2(const QStyleOptionFrame &other);
+    QStyleOptionFrameV2 &operator=(const QStyleOptionFrame &other);
+
+protected:
+    QStyleOptionFrameV2(int version);
+};
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionFrameV2::FrameFeatures)
+
 #ifndef QT_NO_TABWIDGET
 class Q_GUI_EXPORT QStyleOptionTabWidgetFrame : public QStyleOption
 {
@@ -553,27 +575,19 @@ class Q_GUI_EXPORT QStyleOptionGroupBox : public QStyleOptionComplex
 public:
     enum { Type = SO_GroupBox };
     enum { Version = 1 };
-    enum GroupBoxFeature {
-        None = 0x00,
-        Flat = 0x01
-    };
-    Q_DECLARE_FLAGS(GroupBoxFeatures, GroupBoxFeature)
 
-    GroupBoxFeatures features;
+    QStyleOptionFrameV2::FrameFeatures features;
     QString text;
     Qt::Alignment textAlignment;
     QColor textColor;
     int lineWidth;
     int midLineWidth;
-    int topMargin;
 
     QStyleOptionGroupBox();
     QStyleOptionGroupBox(const QStyleOptionGroupBox &other) : QStyleOptionComplex(Version, Type) { *this = other; }
 protected:
     QStyleOptionGroupBox(int version);
 };
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionGroupBox::GroupBoxFeatures)
 
 template <typename T>
 T qstyleoption_cast(const QStyleOption *opt)

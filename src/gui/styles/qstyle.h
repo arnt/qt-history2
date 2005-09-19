@@ -340,7 +340,8 @@ public:
 
         SC_GroupBoxCheckBox =      0x00000001,
         SC_GroupBoxLabel =         0x00000002,
-        SC_GroupBoxFrame =         0x00000004,
+        SC_GroupBoxContents =      0x00000004,
+        SC_GroupBoxFrame =         0x00000008,
         
         SC_All =                   0xffffffff
     };

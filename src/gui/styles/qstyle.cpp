@@ -881,6 +881,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CC_ToolButton        A tool button, like QToolButton
     \value CC_TitleBar          A Title bar, like what is used in Q3Workspace
     \value CC_Q3ListView        Used for drawing the Q3ListView class
+    \value CC_GroupBox          A group box, like QGroupBox
     \value CC_Dial              A dial, like QDial
 
     \value CC_CustomBase  Base value for custom ControlElements.
@@ -944,6 +945,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SC_DialGroove The groove for the dial
     \value SC_DialTickmarks The tickmarks for the dial
 
+    \value SC_GroupBoxFrame The frame of a group box
+    \value SC_GroupBoxLabel The title of a group box
+    \value SC_GroupBoxCheckBox The optional check box of a group box
+    \value SC_GroupBoxContents The group box contents
 
     \value SC_All  Special value that matches all SubControls
     \omitvalue SC_Q3ListViewBranch
@@ -1178,6 +1183,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_ListViewIconSize
 
     \value PM_ToolTipLabelFrameWidth
+    \value PM_CheckBoxLabelSpacing The spacing between a check box and its label
 
     \value PM_CustomBase  Base value for custom ControlElements
     Custom values must be greater than this value
@@ -1240,6 +1246,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CT_TabBarTab A tab on a tab bar, like QTabBar
     \value CT_TabWidget A tab widget, like QTabWidget
     \value CT_ToolButton A tool button, like QToolButton
+    \value CT_GroupBox A group box, like QGroupBox
 
     \value CT_CustomBase  Base value for custom ControlElements.
     Custom values must be greater than this value.

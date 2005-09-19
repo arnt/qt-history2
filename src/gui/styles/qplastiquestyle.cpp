@@ -995,19 +995,16 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         }
         // fall through
     case PE_FrameGroupBox:
-        if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(option)) {
-            if (groupBox->features & QStyleOptionGroupBox::Flat) {
-                painter->save();
+        if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
+            QStyleOptionFrameV2 frameV2(*frame);
+            if (frameV2.features & QStyleOptionFrameV2::Flat) {
+                QPen oldPen = painter->pen();
                 painter->setPen(borderColor);
-                painter->drawLine(groupBox->rect.topLeft(), groupBox->rect.topRight());
-                painter->restore();
+                painter->drawLine(frameV2.rect.topLeft(), frameV2.rect.topRight());
+                painter->setPen(oldPen);
             } else {
-                QStyleOptionFrame frame;
-                frame.QStyleOption::operator=(*groupBox);
-                frame.lineWidth = groupBox->lineWidth;
-                frame.midLineWidth = groupBox->midLineWidth;
-                frame.state &= ~State_Sunken;
-                drawPrimitive(PE_Frame, &frame, painter, widget);
+                frameV2.state &= ~State_Sunken;
+                drawPrimitive(PE_Frame, &frameV2, painter, widget);
             }
             break;
         }
@@ -4855,6 +4852,9 @@ void QPlastiqueStyle::unpolish(QApplication *app)
     QWindowsStyle::unpolish(app);
 }
 
+/*!
+    \reimp
+*/
 bool QPlastiqueStyle::eventFilter(QObject *watched, QEvent *event)
 {
     switch (event->type()) {
@@ -4882,6 +4882,9 @@ bool QPlastiqueStyle::eventFilter(QObject *watched, QEvent *event)
     return QWindowsStyle::eventFilter(watched, event);
 }
 
+/*!
+    \reimp
+*/
 void QPlastiqueStyle::timerEvent(QTimerEvent *event)
 {
     if (event->timerId() == d->progressBarAnimateTimer) {
