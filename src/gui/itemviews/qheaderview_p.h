@@ -113,6 +113,7 @@ public:
     int stretchSections;
     int sectionIndicatorOffset;
     int defaultSectionSize;
+    Qt::Alignment defaultAlignment;
     QLabel *sectionIndicator;
     QStyleOptionHeader getStyleOption() const;
     QHeaderView::ResizeMode globalResizeMode;

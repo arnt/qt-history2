@@ -26,6 +26,7 @@
 #include <qvector.h>
 #include <qvarlengtharray.h>
 #include <qabstractitemdelegate.h>
+#include <qvariant.h>
 #include <private/qheaderview_p.h>
 
 /*!
@@ -162,6 +163,8 @@ QHeaderView::QHeaderView(Qt::Orientation orientation, QWidget *parent)
     Q_D(QHeaderView);
     d->orientation = orientation;
     d->defaultSectionSize = (orientation == Qt::Horizontal ? 100 : 30);
+    d->defaultAlignment = (orientation == Qt::Horizontal
+                           ? Qt::AlignCenter : Qt::AlignLeft|Qt::AlignVCenter);
     initialize();
 }
 
@@ -175,6 +178,8 @@ QHeaderView::QHeaderView(QHeaderViewPrivate &dd,
     Q_D(QHeaderView);
     d->orientation = orientation;
     d->defaultSectionSize = (orientation == Qt::Horizontal ? 100 : 30);
+    d->defaultAlignment = (orientation == Qt::Horizontal
+                           ? Qt::AlignCenter : Qt::AlignLeft|Qt::AlignVCenter);
     initialize();
 }
 
@@ -953,6 +958,22 @@ void QHeaderView::setDefaultSectionSize(int size)
     d->defaultSectionSize = size;
 }
 
+Qt::Alignment QHeaderView::defaultAlignment() const
+{
+    Q_D(const QHeaderView);
+    return d->defaultAlignment;
+}
+
+/*!
+    \property QHeaderView::defaultAlignment
+    \brief the default alignment of the text in each header section
+*/
+void QHeaderView::setDefaultAlignment(Qt::Alignment alignment)
+{
+    Q_D(QHeaderView);
+    d->defaultAlignment = alignment;
+}
+
 /*!
     \internal
 */
@@ -1657,12 +1678,14 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
                             ? QStyleOptionHeader::SortDown : QStyleOptionHeader::SortUp;
 
     // setup the style options structure
-    int textAlignment = d->model->headerData(logicalIndex, orientation(),
-                                             Qt::TextAlignmentRole).toInt();
+    QVariant textAlignment = d->model->headerData(logicalIndex, orientation(),
+                                                  Qt::TextAlignmentRole);
     opt.rect = rect;
     opt.section = logicalIndex;
     opt.state |= state;
-    opt.textAlignment = Qt::Alignment(textAlignment);
+    opt.textAlignment = Qt::Alignment(textAlignment.isValid()
+                                      ? static_cast<Qt::Alignment>(textAlignment.toInt())
+                                      : d->defaultAlignment);
     opt.iconAlignment = Qt::AlignVCenter;
     opt.text = d->model->headerData(logicalIndex, orientation(),
                                     Qt::DisplayRole).toString();
