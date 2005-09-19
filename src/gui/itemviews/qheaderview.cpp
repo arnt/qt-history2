@@ -1179,11 +1179,8 @@ void QHeaderView::sectionsAboutToBeRemoved(const QModelIndex &parent,
         }
     }
     // if we only have the last section (the "end" position) left, the header is empty
-    if (d->sections.count() == 1) {
-        d->sections.clear();
-        d->logicalIndices.clear();
-        d->visualIndices.clear();
-    }   
+    if (d->sections.count() == 1) 
+        d->clear();
     emit sectionCountChanged(oldCount, this->count());
     d->viewport->update();
 }
@@ -1202,11 +1199,21 @@ void QHeaderView::initializeSections()
         return;
     if (d->orientation == Qt::Horizontal) {
         int c = model()->columnCount(rootIndex());
-        if (c != count())
+        if (c == 0) {
+            int oldCount = count();
+            d->clear();
+            emit sectionCountChanged(oldCount, 0);
+        }
+        else if (c != count() && c != 0)
             initializeSections(0, qMax(c - 1, 0));
     } else {
         int r = model()->rowCount(rootIndex());
-        if (r != count())
+        if (r == 0) {
+            int oldCount = count();
+            d->clear();
+            emit sectionCountChanged(oldCount, 0);
+        }
+        else if (r != count())
             initializeSections(0, qMax(r - 1, 0));
     }
 }

@@ -87,6 +87,14 @@ public:
         QHeaderView::ResizeMode mode;
     };
 
+
+    void clear() {
+        sections.clear();
+        visualIndices.clear();
+        logicalIndices.clear();
+        sectionSelection.clear();
+        hiddenSectionSize.clear();
+    }
     mutable QVector<HeaderSection> sections; // HeaderSection = sections.at(visualIndex)
     mutable QVector<int> visualIndices; // visualIndex = visualIndices.at(logicalIndex)
     mutable QVector<int> logicalIndices; // logicalIndex = row or column in the model
