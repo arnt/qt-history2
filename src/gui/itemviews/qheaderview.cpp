@@ -353,12 +353,14 @@ int QHeaderView::visualIndexAt(int position) const
 {
     Q_D(const QHeaderView);
     d->executePostedLayout();
-    if (count() < 1 || position < 0 || position > length())
+    if (count() < 1)
         return -1;
 
     if (d->reverse())
         position = d->viewport->width() - position;
     position += d->offset;
+    if (position < 0 || position > length())
+        return -1;
 
     int start = 0;
     int end = count() - 1;
