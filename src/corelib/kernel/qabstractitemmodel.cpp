@@ -12,13 +12,14 @@
 ****************************************************************************/
 
 #include "qabstractitemmodel.h"
+#include <private/qabstractitemmodel_p.h>
 #include <qdatastream.h>
 #include <qstringlist.h>
 #include <qsize.h>
 #include <qmimedata.h>
 #include <qdebug.h>
 #include <qvector.h>
-#include <private/qabstractitemmodel_p.h>
+#include <qstack.h>
 #include <qbitarray.h>
 
 #include <limits.h>
@@ -431,15 +432,22 @@ void QAbstractItemModelPrivate::rowsAboutToBeRemoved(const QModelIndex &parent,
 {
     persistent.changed.clear();
     persistent.invalidated.clear();
-    for (int position = 0; position < persistent.indexes.count(); ++position) {
-        QModelIndex index = persistent.indexes.at(position)->index;
-        if (index.isValid() && index.parent() == parent) {
-            if (index.row() > last) { // below the removed rows
-                persistent.changed.append(position);
-            } else if (index.row() >= first) { // about to be removed
-                if (q_func()->hasChildren(index)) // the children are invalidated too                    
-                    rowsAboutToBeRemoved(index, 0, q_func()->rowCount(index) - 1);
-                persistent.invalidated.append(position);
+
+    QStack<Change> changes;
+    changes.push(Change(parent, first, last));
+
+    while (!changes.isEmpty()) {
+        Change change = changes.pop();
+        for (int position = 0; position < persistent.indexes.count(); ++position) {
+            QModelIndex index = persistent.indexes.at(position)->index;
+            if (index.isValid() && index.parent() == change.parent) {
+                if (index.row() > change.last) { // below the removed rows
+                    persistent.changed.append(position);
+                } else if (index.row() >= change.first) { // about to be removed
+                    if (q_func()->hasChildren(index)) // the children are invalidated too
+                        changes.push(Change(index, 0, q_func()->rowCount(index) - 1));
+                    persistent.invalidated.append(position);
+                }
             }
         }
     }
@@ -491,15 +499,22 @@ void QAbstractItemModelPrivate::columnsAboutToBeRemoved(const QModelIndex &paren
 {
     persistent.changed.clear();
     persistent.invalidated.clear();
-    for (int position = 0; position < persistent.indexes.count(); ++position) {
-        QModelIndex index = persistent.indexes.at(position)->index;
-        if (index.isValid() && index.parent() == parent) {
-            if (index.column() > last) { // after the removed columns
-                persistent.changed.append(position);
-            } else if (index.column() >= first) { // about to be removed
-                if (q_func()->hasChildren(index)) // children are invalidated too
-                    columnsAboutToBeRemoved(index, 0, q_func()->columnCount(index) - 1);
-                persistent.invalidated.append(position);
+
+    QStack<Change> changes;
+    changes.push(Change(parent, first, last));
+
+    while (!changes.isEmpty()) {
+        Change change = changes.pop();
+        for (int position = 0; position < persistent.indexes.count(); ++position) {
+            QModelIndex index = persistent.indexes.at(position)->index;
+            if (index.isValid() && index.parent() == change.parent) {
+                if (index.column() > change.last) { // after the removed columns
+                    persistent.changed.append(position);
+                } else if (index.column() >= change.first) { // about to be removed
+                    if (q_func()->hasChildren(index)) // children are invalidated too
+                        changes.push(Change(index, 0, q_func()->columnCount(index) - 1));
+                    persistent.invalidated.append(position);
+                }
             }
         }
     }

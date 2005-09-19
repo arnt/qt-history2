@@ -58,6 +58,8 @@ public:
     void reset();
 
     struct Change {
+        Change() : first(-1), last(-1) {}
+        Change(const QModelIndex &p, int f, int l) : parent(p), first(f), last(l) {}
         QModelIndex parent;
         int first, last;
     } change;
