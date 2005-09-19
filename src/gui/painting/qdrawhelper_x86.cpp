@@ -16,395 +16,325 @@
 #include <mmintrin.h>
 #include <xmmintrin.h>
 
-const quint64 mmx_0x0080 = 0x0080008000800080ULL;
-const quint64 mmx_0x00ff = 0x00ff00ff00ff00ffULL;
 
+typedef __m64 m64;
 
-static inline __m64 spread_alpha(__m64 x)
+#define C_FF const m64 mmx_0x00ff = (__m64)0x00ff00ff00ff00ffULL
+#define C_80 const m64 mmx_0x0080 = (__m64)0x0080008000800080ULL
+#define C_00 const m64 mmx_0x0000 = _mm_setzero_si64()
+
+static inline m64 alpha(m64 x)
 {
     return _mm_shuffle_pi16 (x, _MM_SHUFFLE(3, 3, 3, 3));
 }
 
-static inline __m64 negate(__m64 x)
+static inline m64 _negate(m64 x, m64 mmx_0x00ff)
 {
-    return _mm_xor_si64(x, (__m64)mmx_0x00ff);
+    return _mm_xor_si64(x, mmx_0x00ff);
 }
+#define negate(x) _negate(x, mmx_0x00ff)
 
-static inline __m64 add(__m64 a, __m64 b)
+static inline m64 add(m64 a, m64 b)
 {
     return  _mm_adds_pu16 (a, b);
 }
 
-static inline __m64 byte_mul(__m64 a, __m64 b)
+static inline m64 _byte_mul(m64 a, m64 b, m64 mmx_0x0080)
 {
-    __m64 res = _mm_mullo_pi16(a, b);
-    res = add(res, (__m64)mmx_0x0080);
-    res = add(res, _mm_srli_pi16 (res, 8));
+    m64 res = _mm_mullo_pi16(a, b);
+    res = _mm_adds_pu16(res, mmx_0x0080);
+    res = _mm_adds_pu16(res, _mm_srli_pi16 (res, 8));
+    return _mm_srli_pi16(res, 8);
+}
+#define byte_mul(a, b) _byte_mul(a, b, mmx_0x0080)
+
+static inline m64 interpolate_pixel_256(m64 x, m64 a, m64 y, m64 b) {
+    m64 res = _mm_adds_pu16(_mm_mullo_pi16(x, a), _mm_mullo_pi16(y, b));
     return _mm_srli_pi16(res, 8);
 }
 
-
-static inline __m64 interpolate_pixel_256(__m64 x, __m64 a, __m64 y, __m64 b) {
-    __m64 res = add(_mm_mullo_pi16(x, a), _mm_mullo_pi16(y, b));
+static inline m64 _interpolate_pixel_255(m64 x, m64 a, m64 y, m64 b, m64 mmx_0x0080) {
+    m64 res = _mm_adds_pu16(_mm_mullo_pi16(x, a), _mm_mullo_pi16(y, b));
+    res = _mm_adds_pu16(res, mmx_0x0080);
+    res = _mm_adds_pu16(res, _mm_srli_pi16 (res, 8));
     return _mm_srli_pi16(res, 8);
 }
+#define interpolate_pixel_255(x, a, y, b) _interpolate_pixel_255(x, a, y, b, mmx_0x0080)
 
-static inline __m64 interpolate_pixel_255(__m64 x, __m64 a, __m64 y, __m64 b) {
-    __m64 res = add(_mm_mullo_pi16(x, a), _mm_mullo_pi16(y, b));
-    res = add(res, (__m64)mmx_0x0080);
-    res = add(res, _mm_srli_pi16 (res, 8));
-    return _mm_srli_pi16(res, 8);
+static inline m64 _premul(m64 x, m64 mmx_0x0080) {
+    m64 a = alpha(x);
+    return _byte_mul(x, a, mmx_0x0080);
 }
+#define premul(x) _premul(x, mmx_0x0080)
 
-static inline __m64 premul(__m64 x) {
-    __m64 a = spread_alpha(x);
-    return byte_mul(x, a);
-}
-
-static inline __m64 load(uint x)
+static inline m64 _load(uint x, m64 mmx_0x0000)
 {
-    return _mm_unpacklo_pi8(_mm_cvtsi32_si64(x), _mm_setzero_si64());
+    return _mm_unpacklo_pi8(_mm_cvtsi32_si64(x), mmx_0x0000);
 }
+#define load(x) _load(x, mmx_0x0000)
 
-static inline __m64 loadAlpha(uint x)
+static inline m64 _load_alpha(uint x, m64 mmx_0x0000)
 {
-    __m64 t = _mm_unpacklo_pi8(_mm_cvtsi32_si64(x), _mm_setzero_si64());
+    m64 t = _mm_unpacklo_pi8(_mm_cvtsi32_si64(x), mmx_0x0000);
     return _mm_shuffle_pi16 (t, _MM_SHUFFLE(0, 0, 0, 0));
 }
+#define load_alpha(x) _load_alpha(x, mmx_0x0000)
 
-static inline uint store(__m64 x)
+static inline uint _store(m64 x, m64 mmx_0x0000)
 {
-    return _mm_cvtsi64_si32(_mm_packs_pu16(x, _mm_setzero_si64()));
+    return _mm_cvtsi64_si32(_mm_packs_pu16(x, mmx_0x0000));
+}
+#define store(x) _store(x, mmx_0x0000)
+
+static inline void end_mmx()
+{
+    _mm_empty();
 }
 
+/* The constant alpha factor describes an alpha factor that gets applied
+   to the result of the composition operation combining it with the destination.
 
-// solid composition methods
+   The intent is that if const_alpha == 0. we get back dest, and if const_alpha == 1.
+   we get the unmodified operation
 
+   result = src op dest
+   dest = result * const_alpha + dest * (1. - const_alpha)
+
+   This means that in the comments below, the first line is the const_alpha==255 case, the
+   second line the general one.
+
+   In the lines below:
+   s == src, sa == alpha(src), sia = 1 - alpha(src)
+   d == dest, da == alpha(dest), dia = 1 - alpha(dest)
+   ca = const_alpha, cia = 1 - const_alpha
+
+   The methods exist in two variants. One where we have a constant source, the other
+   where the source is an array of pixels.
+*/
+
+/*
+  result = 0
+  d = d * cia
+*/
 static void QT_FASTCALL comp_func_solid_Clear(uint *dest, int length, const uint, uint const_alpha)
 {
     if (!length)
         return;
 
     if (const_alpha == 255) {
-        if (((long)dest) & 0x7) {
-            *dest = 0;
-            ++dest;
-            --length;
-        }
-        int l = length/2;
-        __m64 zero = _mm_setzero_si64();
-        while (l) {
-            _mm_stream_pi((__m64 *)dest, zero);
-            --l;
-            dest += 2;
-        }
-        if (length & 1)
-            *dest = 0;
+        QT_MEMFILL_UINT(dest, length, 0);
     } else {
-        __m64 ia = negate(loadAlpha(const_alpha));
+        C_FF; C_80; C_00;
+        m64 ia = negate(load_alpha(const_alpha));
         for (int i = 0; i < length; ++i) {
             dest[i] = store(byte_mul(load(dest[i]), ia));
         }
     }
-    _mm_empty();
+    end_mmx();
 }
-
-/*
-Dca' = Sca.Da + Sca.(1 - Da)
-     = Sca
-Da'  = Sa.Da + Sa.(1 - Da)
-     = Sa
-*/
-static void QT_FASTCALL comp_func_solid_Source(uint *dest, int length, uint color, uint const_alpha)
-{
-    if (const_alpha == 255) {
-        QT_MEMFILL_UINT(dest, length, color);
-    } else {
-        __m64 a = loadAlpha(const_alpha);
-        __m64 ia = negate(a);
-        __m64 c = byte_mul(load(color), a);
-        for (int i = 0; i < length; ++i) {
-            dest[i] = store(add(c, byte_mul(load(dest[i]), ia)));
-        }
-        _mm_empty();
-    }
-}
-
-/*
-Dca' = Sca.Da + Sca.(1 - Da) + Dca.(1 - Sa)
-     = Sca + Dca.(1 - Sa)
-Da'  = Sa.Da + Sa.(1 - Da) + Da.(1 - Sa)
-     = Sa + Da - Sa.Da
-*/
-static void QT_FASTCALL comp_func_solid_SourceOver(uint *dest, int length, uint color, uint const_alpha)
-{
-    if (const_alpha != 255)
-        color = BYTE_MUL(color, const_alpha);
-    if (qAlpha(color) == 255) {
-        QT_MEMFILL_UINT(dest, length, color);
-    } else {
-        __m64 c = load(color);
-        __m64 ia = negate(spread_alpha(c));
-        for (int i = 0; i < length; ++i) {
-            dest[i] = store(add(c, byte_mul(load(dest[i]), ia)));
-        }
-        _mm_empty();
-    }
-}
-
-static void QT_FASTCALL comp_func_solid_DestinationOver(uint *dest, int length, uint color, uint const_alpha)
-{
-    __m64 c = load(color);
-    if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i) {
-            __m64 d = load(dest[i]);
-            __m64 ia = negate(spread_alpha(d));
-            dest[i] = store(add(d, byte_mul(c, ia)));
-        }
-    } else {
-        int ialpha = 255 - const_alpha;
-        for (int i = 0; i < length; ++i) {
-            uint tmp = dest[i] + BYTE_MUL(color, 255 - qAlpha(dest[i]));
-            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
-        }
-    }
-    _mm_empty();
-}
-
-/*
-  Dca' = Sca.Da
-  Da'  = Sa.Da
-*/
-static void QT_FASTCALL comp_func_solid_SourceIn(uint *dest, int length, uint color, uint const_alpha)
-{
-    if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = BYTE_MUL(color, qAlpha(dest[i]));
-    } else {
-        int ialpha = 255 - const_alpha;
-        for (int i = 0; i < length; ++i) {
-            uint tmp = BYTE_MUL(color, qAlpha(dest[i]));
-            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
-        }
-    }
-}
-
-static void QT_FASTCALL comp_func_solid_DestinationIn(uint *dest, int length, uint color, uint const_alpha)
-{
-    if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = BYTE_MUL(dest[i], qAlpha(color));
-    } else {
-        int ialpha = 255 - const_alpha;
-        for (int i = 0; i < length; ++i) {
-            uint tmp = BYTE_MUL(dest[i], qAlpha(color));
-            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
-        }
-    }
-}
-
-/*
- Dca' = Sca.(1 - Da)
- Da'  = Sa.(1 - Da)
-*/
-static void QT_FASTCALL comp_func_solid_SourceOut(uint *dest, int length, uint color, uint const_alpha)
-{
-    if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = BYTE_MUL(color, 255 - qAlpha(dest[i]));
-    } else {
-        int ialpha = 255 - const_alpha;
-        for (int i = 0; i < length; ++i) {
-            uint tmp = BYTE_MUL(color, 255 - qAlpha(dest[i]));
-            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
-        }
-    }
-}
-
-static void QT_FASTCALL comp_func_solid_DestinationOut(uint *dest, int length, uint color, uint const_alpha)
-{
-    if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = BYTE_MUL(dest[i], 255 - qAlpha(color));
-    } else {
-        int ialpha = 255 - const_alpha;
-        for (int i = 0; i < length; ++i) {
-            uint tmp = BYTE_MUL(dest[i], 255 - qAlpha(color));
-            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
-        }
-    }
-}
-
-/*
-  Dca' = Sca.Da + Dca.(1 - Sa)
-  Dca' = Da.(Sca + Dc.(1 - Sa))
-  Da'  = Sa.Da + Da.(1 - Sa)
-       = Da
-*/
-static void QT_FASTCALL comp_func_solid_SourceAtop(uint *dest, int length, uint color, uint const_alpha)
-{
-    if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = INTERPOLATE_PIXEL_255(color, qAlpha(dest[i]), dest[i], 255 - qAlpha(color));
-    } else {
-        int ialpha = 255 - const_alpha;
-        for (int i = 0; i < length; ++i) {
-            uint tmp = INTERPOLATE_PIXEL_255(color, qAlpha(dest[i]), dest[i], 255 - qAlpha(color));
-            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
-        }
-    }
-}
-
-static void QT_FASTCALL comp_func_solid_DestinationAtop(uint *dest, int length, uint color, uint const_alpha)
-{
-    if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = INTERPOLATE_PIXEL_255(dest[i], qAlpha(color), color, 255 - qAlpha(dest[i]));
-    } else {
-        int ialpha = 255 - const_alpha;
-        for (int i = 0; i < length; ++i) {
-            uint tmp = INTERPOLATE_PIXEL_255(dest[i], qAlpha(color), color, 255 - qAlpha(dest[i]));
-            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
-        }
-    }
-}
-
-/*
-  Dca' = Sca.(1 - Da) + Dca.(1 - Sa)
-  Da'  = Sa.(1 - Da) + Da.(1 - Sa)
-       = Sa + Da - 2.Sa.Da
-*/
-static void QT_FASTCALL comp_func_solid_XOR(uint *dest, int length, uint color, uint const_alpha)
-{
-    if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = INTERPOLATE_PIXEL_255(color, 255 - qAlpha(dest[i]), dest[i], 255 - qAlpha(color));
-    } else {
-        int ialpha = 255 - const_alpha;
-        for (int i = 0; i < length; ++i) {
-            uint tmp = INTERPOLATE_PIXEL_255(color, 255 - qAlpha(dest[i]), dest[i], 255 - qAlpha(color));
-            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
-        }
-    }
-}
-
-
-const CompositionFunctionSolid qt_functionForModeSolid_SSE[] = {
-        comp_func_solid_SourceOver,
-        comp_func_solid_DestinationOver,
-        comp_func_solid_Clear,
-        comp_func_solid_Source,
-        0,
-        comp_func_solid_SourceIn,
-        comp_func_solid_DestinationIn,
-        comp_func_solid_SourceOut,
-        comp_func_solid_DestinationOut,
-        comp_func_solid_SourceAtop,
-        comp_func_solid_DestinationAtop,
-        comp_func_solid_XOR
-};
-
-
-// regular composition methods
 
 static void QT_FASTCALL comp_func_Clear(uint *dest, const uint *, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
         QT_MEMFILL_UINT(dest, length, 0);
     } else {
-        __m64 ialpha = negate(spread_alpha(load(const_alpha)));
+        C_FF; C_80; C_00;
+        m64 ia = negate(alpha(load(const_alpha)));
         for (int i = 0; i < length; ++i)
-            dest[i] = store(byte_mul(load(dest[i]), ialpha));
+            dest[i] = store(byte_mul(load(dest[i]), ia));
     }
-    _mm_empty();
+    end_mmx();
 }
 
 /*
-Dca' = Sca.Da + Sca.(1 - Da)
-     = Sca
-Da'  = Sa.Da + Sa.(1 - Da)
-     = Sa
+  result = s
+  dest = s * ca + d * cia
 */
+static void QT_FASTCALL comp_func_solid_Source(uint *dest, int length, uint src, uint const_alpha)
+{
+    if (const_alpha == 255) {
+        QT_MEMFILL_UINT(dest, length, src);
+    } else {
+        C_FF; C_80; C_00;
+        const m64 a = load_alpha(const_alpha);
+        const m64 ia = negate(a);
+        const m64 s = byte_mul(load(src), a);
+        for (int i = 0; i < length; ++i) {
+            dest[i] = store(add(s, byte_mul(load(dest[i]), ia)));
+        }
+        end_mmx();
+    }
+}
+
 static void QT_FASTCALL comp_func_Source(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i)
             dest[i] = src[i];
     } else {
-        __m64 a = loadAlpha(const_alpha);
-        __m64 ia = negate(a);
+        C_FF; C_80; C_00;
+        const m64 a = load_alpha(const_alpha);
+        const m64 ia = negate(a);
         for (int i = 0; i < length; ++i)
             dest[i] = store(interpolate_pixel_255(load(src[i]), a, load(dest[i]), ia));
     }
-    _mm_empty();
+    end_mmx();
 }
 
-
 /*
-Dca' = Sca.Da + Sca.(1 - Da) + Dca.(1 - Sa)
-     = Sca + Dca.(1 - Sa)
-Da'  = Sa.Da + Sa.(1 - Da) + Da.(1 - Sa)
-     = Sa + Da - Sa.Da
+  result = s + d * sia
+  dest = (s + d * sia) * ca + d * cia
+       = s * ca + d * (sia * ca + cia)
+       = s * ca + d * (1 - sa*ca)
 */
+static void QT_FASTCALL comp_func_solid_SourceOver(uint *dest, int length, uint src, uint const_alpha)
+{
+    if ((const_alpha & qAlpha(src)) == 255) {
+        // we can do even better here
+        QT_MEMFILL_UINT(dest, length, src);
+    } else {
+        C_FF; C_80; C_00;
+        m64 s = load(src);
+        if (const_alpha != 255) {
+            m64 ca = load_alpha(const_alpha);
+            s = byte_mul(s, ca);
+        }
+        m64 a = negate(alpha(s));
+        for (int i = 0; i < length; ++i)
+            dest[i] = store(add(s, byte_mul(load(dest[i]), a)));
+        end_mmx();
+    }
+}
+
 static void QT_FASTCALL comp_func_SourceOver(uint *dest, const uint *src, int length, uint const_alpha)
 {
+    C_FF;
+    C_80;
+    C_00;
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i) {
-            __m64 s = load(src[i]);
-            __m64 ia = negate(spread_alpha(s));
+            m64 s = load(src[i]);
+            m64 ia = negate(alpha(s));
             dest[i] = store(add(s, byte_mul(load(dest[i]), ia)));
         }
     } else {
-        __m64 ca = loadAlpha(const_alpha);
+        m64 ca = load_alpha(const_alpha);
         for (int i = 0; i < length; ++i) {
-            __m64 s = byte_mul(load(src[i]), ca);
-            __m64 ia = negate(spread_alpha(s));
+            m64 s = byte_mul(load(src[i]), ca);
+            m64 ia = negate(alpha(s));
             dest[i] = store(add(s, byte_mul(load(dest[i]), ia)));
         }
     }
-    _mm_empty();
+    end_mmx();
+}
+
+/*
+  result = d + s * dia
+  dest = (d + s * dia) * ca + d * cia
+       = d + s * dia * ca
+*/
+static void QT_FASTCALL comp_func_solid_DestinationOver(uint *dest, int length, uint src, uint const_alpha)
+{
+    C_FF; C_80; C_00;
+    m64 s = load(src);
+    if (const_alpha != 255)
+        s = byte_mul(s, load_alpha(const_alpha));
+
+    for (int i = 0; i < length; ++i) {
+        m64 d = load(dest[i]);
+        m64 dia = negate(alpha(d));
+        dest[i] = store(add(d, byte_mul(s, dia)));
+    }
+    end_mmx();
 }
 
 static void QT_FASTCALL comp_func_DestinationOver(uint *dest, const uint *src, int length, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     if (const_alpha == 255) {
         for (int i = 0; i < length; ++i) {
-            __m64 s = load(dest[i]);
-            __m64 ia = negate(spread_alpha(s));
-            dest[i] = store(add(s, byte_mul(load(src[i]), ia)));
+            m64 d = load(dest[i]);
+            m64 ia = negate(alpha(d));
+            dest[i] = store(add(d, byte_mul(load(src[i]), ia)));
         }
     } else {
-        __m64 ca = loadAlpha(const_alpha);
-        __m64 ica = negate(ca);
+        m64 ca = load_alpha(const_alpha);
         for (int i = 0; i < length; ++i) {
-            __m64 d = load(dest[i]);
-            __m64 ia = negate(spread_alpha(d));
-            __m64 t = add(d, byte_mul(load(src[i]), ia));
-            dest[i] = store(interpolate_pixel_255(t, ca, d, ica));
+            m64 d = load(dest[i]);
+            m64 dia = negate(alpha(d));
+            dia = byte_mul(dia, ca);
+            dest[i] = store(add(d, byte_mul(load(src[i]), dia)));
         }
     }
-    _mm_empty();
+    end_mmx();
 }
 
 /*
-  Dca' = Sca.Da
-  Da'  = Sa.Da
+  result = s * da
+  dest = s * da * ca + d * cia
 */
-static void QT_FASTCALL comp_func_SourceIn(uint *dest, const uint *src, int length, uint const_alpha)
+static void QT_FASTCALL comp_func_solid_SourceIn(uint *dest, int length, uint src, uint const_alpha)
 {
+    C_80; C_00;
     if (const_alpha == 255) {
+        m64 s = load(src);
         for (int i = 0; i < length; ++i) {
-            __m64 a = spread_alpha(load(dest[i]));
-            dest[i] = store(byte_mul(load(src[i]), a));
+            m64 da = alpha(load(dest[i]));
+            dest[i] = store(byte_mul(s, da));
         }
-        _mm_empty();
     } else {
-        int ialpha = 255 - const_alpha;
+        C_FF;
+        m64 s = load(src);
+        m64 ca = load_alpha(const_alpha);
+        s = byte_mul(s, ca);
+        m64 cia = negate(ca);
         for (int i = 0; i < length; ++i) {
-            uint tmp = BYTE_MUL(src[i], qAlpha(dest[i]));
-            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+            m64 d = load(dest[i]);
+            dest[i] = store(interpolate_pixel_255(s, alpha(d), d, cia));
         }
     }
+    end_mmx();
+}
+
+static void QT_FASTCALL comp_func_SourceIn(uint *dest, const uint *src, int length, uint const_alpha)
+{
+    C_FF; C_80; C_00;
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i) {
+            m64 a = alpha(load(dest[i]));
+            dest[i] = store(byte_mul(load(src[i]), a));
+        }
+    } else {
+        m64 ca = load_alpha(const_alpha);
+        m64 cia = negate(ca);
+        for (int i = 0; i < length; ++i) {
+            m64 d = load(dest[i]);
+            m64 da = byte_mul(alpha(d), ca);
+            dest[i] = store(interpolate_pixel_255(load(src[i]), da, d, cia));
+        }
+    }
+    end_mmx();
+}
+
+/*
+  result = d * sa
+  dest = d * sa * ca + d * cia
+       = d * (sa * ca + cia)
+*/
+static void QT_FASTCALL comp_func_solid_DestinationIn(uint *dest, int length, uint src, uint const_alpha)
+{
+    C_80; C_00;
+    m64 a = alpha(load(src));
+    if (const_alpha != 255) {
+        C_FF;
+        m64 ca = load_alpha(const_alpha);
+        m64 cia = negate(ca);
+        a = byte_mul(a, ca);
+        a = add(a, cia);
+    }
+    for (int i = 0; i < length; ++i)
+        dest[i] = store(byte_mul(load(dest[i]), a));
+    end_mmx();
 }
 
 static void QT_FASTCALL comp_func_DestinationIn(uint *dest, const uint *src, int length, uint const_alpha)
@@ -422,9 +352,30 @@ static void QT_FASTCALL comp_func_DestinationIn(uint *dest, const uint *src, int
 }
 
 /*
- Dca' = Sca.(1 - Da)
- Da'  = Sa.(1 - Da)
+  result = s * dia
+  dest = s * dia * ca + d * cia
 */
+static void QT_FASTCALL comp_func_solid_SourceOut(uint *dest, int length, uint src, uint const_alpha)
+{
+    C_FF; C_80; C_00;
+    m64 s = load(src);
+    if (const_alpha == 255) {
+        for (int i = 0; i < length; ++i) {
+            m64 dia = negate(alpha(load(dest[i])));
+            dest[i] = store(byte_mul(s, dia));
+        }
+    } else {
+        m64 ca = load_alpha(const_alpha);
+        m64 cia = negate(ca);
+        s = byte_mul(s, ca);
+        for (int i = 0; i < length; ++i) {
+            m64 d = load(dest[i]);
+            dest[i] = store(interpolate_pixel_255(s, negate(alpha(d)), d, cia));
+        }
+    }
+    end_mmx();
+}
+
 static void QT_FASTCALL comp_func_SourceOut(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
@@ -437,6 +388,25 @@ static void QT_FASTCALL comp_func_SourceOut(uint *dest, const uint *src, int len
             dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
         }
     }
+}
+
+/*
+  result = d * sia
+  dest = d * sia * ca + d * cia
+       = d * (sia * ca + cia)
+*/
+static void QT_FASTCALL comp_func_solid_DestinationOut(uint *dest, int length, uint src, uint const_alpha)
+{
+    C_FF; C_80; C_00;
+    m64 a = negate(alpha(load(src)));
+    if (const_alpha != 255) {
+        m64 ca = load_alpha(const_alpha);
+        a = byte_mul(a, ca);
+        a = add(a, negate(ca));
+    }
+    for (int i = 0; i < length; ++i)
+        dest[i] = store(byte_mul(load(dest[i]), a));
+    end_mmx();
 }
 
 static void QT_FASTCALL comp_func_DestinationOut(uint *dest, const uint *src, int length, uint const_alpha)
@@ -454,11 +424,26 @@ static void QT_FASTCALL comp_func_DestinationOut(uint *dest, const uint *src, in
 }
 
 /*
-  Dca' = Sca.Da + Dca.(1 - Sa)
-  Dca' = Da.(Sca + Dc.(1 - Sa))
-  Da'  = Sa.Da + Da.(1 - Sa)
-       = Da
+  result = s*da + d*sia
+  dest = s*da*ca + d*sia*ca + d *cia
+       = s*ca * da + d * (sia*ca + cia)
+       = s*ca * da + d * (1 - sa*ca)
 */
+static void QT_FASTCALL comp_func_solid_SourceAtop(uint *dest, int length, uint src, uint const_alpha)
+{
+    C_FF; C_80; C_00;
+    m64 s = load(src);
+    if (const_alpha != 255) {
+        m64 ca = load_alpha(const_alpha);
+        s = byte_mul(s, ca);
+    }
+    m64 a = negate(alpha(s));
+    for (int i = 0; i < length; ++i) {
+        m64 d = load(dest[i]);
+        dest[i] = store(interpolate_pixel_255(s, alpha(d), d, a));
+    }
+}
+
 static void QT_FASTCALL comp_func_SourceAtop(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
@@ -470,6 +455,28 @@ static void QT_FASTCALL comp_func_SourceAtop(uint *dest, const uint *src, int le
             uint tmp = INTERPOLATE_PIXEL_255(src[i], qAlpha(dest[i]), dest[i], 255 - qAlpha(src[i]));
             dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
         }
+    }
+}
+
+/*
+  result = d*sa + s*dia
+  dest = d*sa*ca + s*dia*ca + d *cia
+       = s*ca * dia + d * (sa*ca + cia)
+*/
+static void QT_FASTCALL comp_func_solid_DestinationAtop(uint *dest, int length, uint src, uint const_alpha)
+{
+    C_FF; C_80; C_00;
+    m64 s = load(src);
+    m64 a = alpha(s);
+    if (const_alpha != 255) {
+        m64 ca = load_alpha(const_alpha);
+        s = byte_mul(s, ca);
+        a = alpha(s);
+        a = add(a, negate(ca));
+    }
+    for (int i = 0; i < length; ++i) {
+        m64 d = load(dest[i]);
+        dest[i] = store(interpolate_pixel_255(s, negate(alpha(d)), d, a));
     }
 }
 
@@ -488,10 +495,26 @@ static void QT_FASTCALL comp_func_DestinationAtop(uint *dest, const uint *src, i
 }
 
 /*
-  Dca' = Sca.(1 - Da) + Dca.(1 - Sa)
-  Da'  = Sa.(1 - Da) + Da.(1 - Sa)
-       = Sa + Da - 2.Sa.Da
+  result = d*sia + s*dia
+  dest = d*sia*ca + s*dia*ca + d *cia
+       = s*ca * dia + d * (sia*ca + cia)
+       = s*ca * dia + d * (1 - sa*ca)
 */
+static void QT_FASTCALL comp_func_solid_XOR(uint *dest, int length, uint src, uint const_alpha)
+{
+    C_FF; C_80; C_00;
+    m64 s = load(src);
+    if (const_alpha != 255) {
+        m64 ca = load_alpha(const_alpha);
+        s = byte_mul(s, ca);
+    }
+    m64 a = negate(alpha(s));
+    for (int i = 0; i < length; ++i) {
+        m64 d = load(dest[i]);
+        dest[i] = store(interpolate_pixel_255(s, negate(alpha(d)), d, a));
+    }
+}
+
 static void QT_FASTCALL comp_func_XOR(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
@@ -505,6 +528,21 @@ static void QT_FASTCALL comp_func_XOR(uint *dest, const uint *src, int length, u
         }
     }
 }
+
+const CompositionFunctionSolid qt_functionForModeSolid_SSE[] = {
+        comp_func_solid_SourceOver,
+        comp_func_solid_DestinationOver,
+        comp_func_solid_Clear,
+        comp_func_solid_Source,
+        0,
+        comp_func_solid_SourceIn,
+        comp_func_solid_DestinationIn,
+        comp_func_solid_SourceOut,
+        comp_func_solid_DestinationOut,
+        comp_func_solid_SourceAtop,
+        comp_func_solid_DestinationAtop,
+        comp_func_solid_XOR
+};
 
 const CompositionFunction qt_functionForMode_SSE[] = {
         comp_func_SourceOver,
@@ -528,22 +566,25 @@ void qt_blend_color_argb_sse(int count, const QSpan *spans, void *userData)
     if (data->rasterBuffer->compositionMode == QPainter::CompositionMode_Source
         || (data->rasterBuffer->compositionMode == QPainter::CompositionMode_SourceOver
             && qAlpha(data->solid.color) == 255)) {
-        // inline for performance        
+        // inline for performance
+        C_FF;
+        C_80;
+        C_00;
         while (count--) {
             uint *target = ((uint *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
             if (spans->coverage == 255) {
                 QT_MEMFILL_UINT(target, spans->len, data->solid.color);
             } else {
-                __m64 a = loadAlpha(spans->coverage);
-                __m64 ia = negate(a);
-                __m64 c = byte_mul(load(data->solid.color), a);
+                m64 a = load_alpha(spans->coverage);
+                m64 ia = negate(a);
+                m64 c = byte_mul(load(data->solid.color), a);
                 for (int i = 0; i < spans->len; ++i) {
                     target[i] = store(add(c, byte_mul(load(target[i]), ia)));
                 }
             }
             ++spans;
         }
-        _mm_empty();
+        end_mmx();
         return;
     }
     CompositionFunctionSolid func = qt_functionForModeSolid_SSE[data->rasterBuffer->compositionMode];
