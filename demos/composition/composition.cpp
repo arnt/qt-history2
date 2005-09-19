@@ -142,7 +142,7 @@ CompositionRenderer::CompositionRenderer(QWidget *parent)
     : ArthurFrame(parent)
 {
     m_animation_enabled = true;
-    m_image = QImage("flower_2.png");
+    m_image = QImage(":res/flower_2.png");
     m_circle_alpha = 127;
     m_circle_hue = 255;
     m_current_object = NoObject;

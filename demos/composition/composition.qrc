@@ -2,6 +2,6 @@
 <qresource prefix="/res">
    <file>composition.cpp</file>
    <file>composition.html</file>
-   <file>butterfly.png</file>
+   <file>flower_2.png</file>
 </qresource>
 </RCC>

@@ -14,3 +14,8 @@ sources.path = $$[QT_INSTALL_DEMOS]/composition
 INSTALLS += target sources
 
 CONFIG += console
+
+win32-msvc.net {
+    QMAKE_CXXFLAGS += /Zm500
+    QMAKE_CFLAGS += /Zm500
+}
