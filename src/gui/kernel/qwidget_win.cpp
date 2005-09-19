@@ -1137,8 +1137,7 @@ void QWidgetPrivate::show_sys()
 
     UpdateWindow(q->winId());
 #ifdef QT_USE_BACKINGSTORE
-    if(!q->isWindow())
-        invalidateBuffer(q->rect());
+    invalidateBuffer(q->rect());
 #endif
 }
 

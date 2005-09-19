@@ -1893,11 +1893,11 @@ void QWidgetPrivate::show_sys()
             qt_x11_wait_for_window_manager(q);
             return;
         }
-    } else {
-#ifdef QT_USE_BACKINGSTORE
-        invalidateBuffer(q->rect());
-#endif
     }
+
+#ifdef QT_USE_BACKINGSTORE
+    invalidateBuffer(q->rect());
+#endif
 
 
     if (q->testAttribute(Qt::WA_OutsideWSRange))

@@ -926,7 +926,9 @@ void QWidgetPrivate::show_sys()
         QWidget::qwsDisplay()->setAltitude(data.winid,
                                      (q->windowFlags() & Qt::WindowStaysOnTopHint) ? 1 : 0, true);
 
-    } else if (!q->window()->data->in_show) {
+    }
+
+    if (!q->window()->data->in_show) {
          invalidateBuffer(q->rect());
     }
 }
