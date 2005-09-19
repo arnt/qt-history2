@@ -1531,7 +1531,7 @@ int QTreeViewPrivate::pageUp(int i) const
 int QTreeViewPrivate::pageDown(int i) const
 {
     int idx = item(coordinate(i) + viewport->height());
-    return idx == -1 ? viewItems.count() : idx;
+    return idx == -1 ? viewItems.count() - 1 : idx;
 }
 
 int QTreeViewPrivate::indentation(int i) const
