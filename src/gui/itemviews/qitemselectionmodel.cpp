@@ -189,7 +189,7 @@ bool QItemSelectionRange::intersects(const QItemSelectionRange &other) const
 
 QItemSelectionRange QItemSelectionRange::intersect(const QItemSelectionRange &other) const
 {
-    if (model()) {
+    if (model() == other.model() && parent() == other.parent()) {
         QModelIndex topLeft = model()->index(qMax(top(), other.top()),
                                              qMax(left(), other.left()),
                                              other.parent());
