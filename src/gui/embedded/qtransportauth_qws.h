@@ -203,7 +203,7 @@ public:
         const char *error() const
         {
             if  (( status & ErrMask ) <= FailMatch )
-                return ( errorStrings[(int)( status & ErrMask )] );
+                return ( errorStrings[int( status & ErrMask )] );
             else
                 return "Success";
         }
