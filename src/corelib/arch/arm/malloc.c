@@ -1559,7 +1559,7 @@ static pthread_mutex_t mALLOC_MUTEx = PTHREAD_MUTEX_INITIALIZER;
 
 #ifdef KDE_MALLOC_X86
 #include "x86.h"
-#elif KDE_MALLOC_ARM
+#elif defined(KDE_MALLOC_ARM)
 
 #include <sched.h>
 #include <time.h>
@@ -4293,9 +4293,6 @@ Void_t* cALLOc(n_elements, elem_size) size_t n_elements; size_t elem_size;
 
   Void_t* mem = mALLOc(n_elements * elem_size);
 
-  /* hack */
-  kde_malloc_is_used = 1;
-  
   if (mem != 0) {
     p = mem2chunk(mem);
 
