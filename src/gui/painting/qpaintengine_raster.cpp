@@ -1379,12 +1379,14 @@ void QRasterPaintEnginePrivate::drawMulti(const QPointF &p, const QTextItem &tex
         ti2.f = ti.f;
         q->drawTextItem(QPointF(x, y), ti2);
 
+        QFixed xadd;
         // reset the high byte for all glyphs and advance to the next sub-string
         const int hi = which << 24;
         for (i = start; i < end; ++i) {
             glyphs[i].glyph = hi | glyphs[i].glyph;
-            x += glyphs[i].advance.x();
+            xadd += glyphs[i].advance.x;
         }
+        x += xadd.toReal();
 
         // change engine
         start = end;
@@ -1418,7 +1420,7 @@ void QRasterPaintEnginePrivate::drawXLFD(const QPointF &p, const QTextItem &text
     if (!penData.blend)
         return;
 
-    QRectF logRect(p.x(), p.y() - ti.ascent, ti.width, ti.ascent + ti.descent);
+    QRectF logRect(p.x(), p.y() - ti.ascent.toReal(), ti.width.toReal(), (ti.ascent + ti.descent).toReal());
     QRect devRect = matrix.mapRect(logRect).toRect();
 
     if(devRect.width() == 0 || devRect.height() == 0)
@@ -1444,7 +1446,7 @@ void QRasterPaintEnginePrivate::drawXLFD(const QPointF &p, const QTextItem &text
         item.fontEngine = ti.fontEngine;
         item.f = 0;
 
-        painter.drawTextItem(QPointF(0, ti.ascent), item);
+        painter.drawTextItem(QPointF(0, ti.ascent.toReal()), item);
     }
 
     drawBitmap(devRect.topLeft(), bm, &penData);
@@ -2721,7 +2723,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
                     if (transform)
                         d->matrix.map(xp, yp, &xp, &yp);
                     ExtTextOutW(hdc, qRound(xp), qRound(yp), options, 0, &chr, 1, 0);
-                    x += glyphs->advance.x() + ((qreal)glyphs->space_18d6) / 64.;
+                    x += glyphs->advance.x() + QFixed::fromFixed(glyphs->space_18d6);
                     y += glyphs->advance.y();
                     glyphs++;
                 }
@@ -2741,7 +2743,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
     } else {
         int i = ti.num_glyphs;
         while(i--) {
-            x += glyphs[i].advance.x() + ((qreal)glyphs[i].space_18d6) / 64.;
+            x += glyphs[i].advance.x() + QFixed::fromFixed(glyphs[i].space_18d6);
             y += glyphs[i].advance.y();
         }
         i = 0;
@@ -2767,7 +2769,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
                     ExtTextOutW(hdc, xp, yp, options, 0, reinterpret_cast<wchar_t *>(&g[0].glyph), 1, 0);
                 }
             } else {
-                x -= ((qreal)glyphs[i].space_18d6) / 64;
+                x -= QFixed::fromFixed(glyphs[i].space_18d6);
             }
             ++i;
         }

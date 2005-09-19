@@ -107,12 +107,12 @@ public:
     virtual glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs) = 0;
     virtual glyph_metrics_t boundingBox(glyph_t glyph) = 0;
 
-    virtual qreal ascent() const = 0;
-    virtual qreal descent() const = 0;
-    virtual qreal leading() const = 0;
+    virtual QFixed ascent() const = 0;
+    virtual QFixed descent() const = 0;
+    virtual QFixed leading() const = 0;
 
-    virtual qreal lineThickness() const;
-    virtual qreal underlinePosition() const;
+    virtual QFixed lineThickness() const;
+    virtual QFixed underlinePosition() const;
 
     virtual qreal maxCharWidth() const = 0;
     virtual qreal minLeftBearing() const { return qreal(); }
@@ -193,14 +193,14 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    qreal ascent() const;
-    qreal descent() const;
-    qreal leading() const;
+    QFixed ascent() const;
+    QFixed descent() const;
+    QFixed leading() const;
     qreal maxCharWidth() const;
     qreal minLeftBearing() const;
     qreal minRightBearing() const;
-    qreal underlinePosition() const;
-    qreal lineThickness() const;
+    QFixed underlinePosition() const;
+    QFixed lineThickness() const;
 
     Type type() const;
 
@@ -235,14 +235,14 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    qreal ascent() const;
-    qreal descent() const;
-    qreal leading() const;
+    QFixed ascent() const;
+    QFixed descent() const;
+    QFixed leading() const;
     qreal maxCharWidth() const;
     qreal minLeftBearing() const;
     qreal minRightBearing() const;
-    qreal underlinePosition() const;
-    qreal lineThickness() const;
+    QFixed underlinePosition() const;
+    QFixed lineThickness() const;
 
     Type type() const;
 
@@ -274,9 +274,9 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    qreal ascent() const;
-    qreal descent() const;
-    qreal leading() const;
+    QFixed ascent() const;
+    QFixed descent() const;
+    QFixed leading() const;
     qreal maxCharWidth() const;
     qreal minLeftBearing() const { return 0; }
     qreal minRightBearing() const { return 0; }
@@ -326,9 +326,9 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    qreal ascent() const;
-    qreal descent() const;
-    qreal leading() const;
+    QFixed ascent() const;
+    QFixed descent() const;
+    QFixed leading() const;
     qreal maxCharWidth() const;
 
     const char *name() const { return "ATSUI"; }
@@ -367,9 +367,9 @@ public:
     void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
     void addOutlineToPath(qreal, qreal, const QGlyphLayout *, int, QPainterPath *, QTextItem::RenderFlags flags);
 
-    qreal ascent() const;
-    qreal descent() const;
-    qreal leading() const;
+    QFixed ascent() const;
+    QFixed descent() const;
+    QFixed leading() const;
     qreal maxCharWidth() const;
     qreal minLeftBearing() const;
     qreal minRightBearing() const;

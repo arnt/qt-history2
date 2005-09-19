@@ -435,26 +435,26 @@ bool QOpenType::appendTo(QShaperItem *item, bool doLogClusters)
 //                    positions[i].back, positions[i].new_advance);
             // ###### fix the case where we have y advances. How do we handle this in Uniscribe?????
             if (positions[i].new_advance) {
-                glyphs[i].advance.rx() = (item->flags & QTextEngine::RightToLeft
-                                          ? -positions[i].x_advance : positions[i].x_advance) / 64.;
-                glyphs[i].advance.ry() = -positions[i].y_advance / 64.;
+                glyphs[i].advance.x = QFixed::fromFixed(item->flags & QTextEngine::RightToLeft
+                                          ? -positions[i].x_advance : positions[i].x_advance);
+                glyphs[i].advance.y = QFixed::fromFixed(-positions[i].y_advance);
             } else {
-                glyphs[i].advance.rx() += (item->flags & QTextEngine::RightToLeft
-                                           ? -positions[i].x_advance : positions[i].x_advance) / 64.;
-                glyphs[i].advance.ry() -= positions[i].y_advance / 64.;
+                glyphs[i].advance.x += QFixed::fromFixed(item->flags & QTextEngine::RightToLeft
+                                           ? -positions[i].x_advance : positions[i].x_advance);
+                glyphs[i].advance.y -= QFixed::fromFixed(positions[i].y_advance);
             }
-            glyphs[i].offset.rx() = positions[i].x_pos / 64.;
-            glyphs[i].offset.ry() = -positions[i].y_pos / 64.;
+            glyphs[i].offset.x = QFixed::fromFixed(positions[i].x_pos);
+            glyphs[i].offset.y = QFixed::fromFixed(-positions[i].y_pos);
             int back = positions[i].back;
             if (item->flags & QTextEngine::RightToLeft) {
                 while (back--) {
-                    glyphs[i].offset.rx() -= glyphs[i-back].advance.x();
-                    glyphs[i].offset.ry() -= -glyphs[i-back].advance.y();
+                    glyphs[i].offset.x -= glyphs[i-back].advance.x;
+                    glyphs[i].offset.y -= -glyphs[i-back].advance.y;
                 }
             } else {
                 while (back) {
-                    glyphs[i].offset.rx() -= glyphs[i-back].advance.x();
-                    glyphs[i].offset.ry() -= -glyphs[i-back].advance.y();
+                    glyphs[i].offset.x -= glyphs[i-back].advance.x;
+                    glyphs[i].offset.y -= -glyphs[i-back].advance.y;
                     --back;
                 }
             }

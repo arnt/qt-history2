@@ -45,7 +45,7 @@ QFontEngine::~QFontEngine()
 {
 }
 
-qreal QFontEngine::lineThickness() const
+QFixed QFontEngine::lineThickness() const
 {
     // ad hoc algorithm
     int score = fontDef.weight * fontDef.pixelSize;
@@ -58,7 +58,7 @@ qreal QFontEngine::lineThickness() const
     return lw;
 }
 
-qreal QFontEngine::underlinePosition() const
+QFixed QFontEngine::underlinePosition() const
 {
     return ((lineThickness() * 2) + 3) / 6;
 }
@@ -211,8 +211,8 @@ bool QFontEngineXLFD::stringToCMap(const QChar *str, int len, QGlyphLayout *glyp
         xcs = &_fs->min_bounds;
         while (g != glyphs) {
             --g;
-            g->advance.rx() = xcs->width;
-            g->advance.ry() = 0;
+            g->advance.x = xcs->width;
+            g->advance.y = 0;
         }
     }
     else if (!_fs->max_byte1) {
@@ -221,15 +221,15 @@ bool QFontEngineXLFD::stringToCMap(const QChar *str, int len, QGlyphLayout *glyp
             unsigned int gl = (--g)->glyph;
             xcs = (gl >= _fs->min_char_or_byte2 && gl <= _fs->max_char_or_byte2) ?
                   base + gl : 0;
-            g->advance.rx() = (!xcs || (!xcs->width && !xcs->ascent && !xcs->descent)) ? _fs->ascent : xcs->width;
-            g->advance.ry() = 0;
+            g->advance.x = (!xcs || (!xcs->width && !xcs->ascent && !xcs->descent)) ? _fs->ascent : xcs->width;
+            g->advance.y = 0;
         }
     }
     else {
         while (g != glyphs) {
             xcs = charStruct(_fs, (--g)->glyph);
-            g->advance.rx() = xcs ? xcs->width : _fs->ascent;
-            g->advance.ry() = 0;
+            g->advance.x = xcs ? xcs->width : _fs->ascent;
+            g->advance.y = 0;
         }
     }
     return true;
@@ -240,20 +240,20 @@ glyph_metrics_t QFontEngineXLFD::boundingBox(const QGlyphLayout *glyphs, int num
     int i;
 
     glyph_metrics_t overall;
-    qreal ymax = 0.;
-    qreal xmax = 0.;
+    QFixed ymax;
+    QFixed xmax;
     for (i = 0; i < numGlyphs; i++) {
         XCharStruct *xcs = charStruct(_fs, glyphs[i].glyph);
         if (xcs) {
-            qreal x = overall.xoff + glyphs[i].offset.x() - xcs->lbearing;
-            qreal y = overall.yoff + glyphs[i].offset.y() - xcs->ascent;
+            QFixed x = overall.xoff + glyphs[i].offset.x - xcs->lbearing;
+            QFixed y = overall.yoff + glyphs[i].offset.y - xcs->ascent;
             overall.x = qMin(overall.x, x);
             overall.y = qMin(overall.y, y);
-            xmax = qMax(xmax, overall.xoff + glyphs[i].offset.x() + xcs->rbearing);
+            xmax = qMax(xmax, overall.xoff + glyphs[i].offset.x + xcs->rbearing);
             ymax = qMax(ymax, y + xcs->ascent + xcs->descent);
-            overall.xoff += glyphs[i].advance.x();
+            overall.xoff += glyphs[i].advance.x;
         } else {
-            qreal size = _fs->ascent;
+            QFixed size = _fs->ascent;
             overall.x = qMin(overall.x, overall.xoff);
             overall.y = qMin(overall.y, overall.yoff - size);
             ymax = qMax(ymax, overall.yoff);
@@ -275,28 +275,28 @@ glyph_metrics_t QFontEngineXLFD::boundingBox(glyph_t glyph)
         gm = glyph_metrics_t(xcs->lbearing, -xcs->ascent, xcs->rbearing- xcs->lbearing, xcs->ascent + xcs->descent,
                               xcs->width, 0);
     } else {
-        qreal size = ascent();
+        QFixed size = ascent();
         gm = glyph_metrics_t(0, size, size, size, size, 0);
     }
     return gm;
 }
 
 
-qreal QFontEngineXLFD::ascent() const
+QFixed QFontEngineXLFD::ascent() const
 {
     return _fs->ascent;
 }
 
-qreal QFontEngineXLFD::descent() const
+QFixed QFontEngineXLFD::descent() const
 {
     return (_fs->descent-1);
 }
 
-qreal QFontEngineXLFD::leading() const
+QFixed QFontEngineXLFD::leading() const
 {
-    qreal l = (qMin<int>(_fs->ascent, _fs->max_bounds.ascent)
-                 + qMin<int>(_fs->descent, _fs->max_bounds.descent)) * qreal(0.15);
-    return ceil(l);
+    QFixed l = QFixed(qMin<int>(_fs->ascent, _fs->max_bounds.ascent)
+                      + qMin<int>(_fs->descent, _fs->max_bounds.descent)) * QFixed::fromReal(0.15);
+    return l.ceil();
 }
 
 qreal QFontEngineXLFD::maxCharWidth() const
@@ -580,8 +580,8 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
     //underline metrics
     FT_Face face = freetype->face;
     if (FT_IS_SCALABLE(face)) {
-        line_thickness =  FT_MulFix(face->underline_thickness, face->size->metrics.y_scale)/64.;
-        underline_position = -FT_MulFix(face->underline_position, face->size->metrics.y_scale)/64.;
+        line_thickness =  QFixed::fromFixed(FT_MulFix(face->underline_thickness, face->size->metrics.y_scale));
+        underline_position = QFixed::fromFixed(-FT_MulFix(face->underline_position, face->size->metrics.y_scale));
         FcMatrix *fc_matrix;
         if (FcPatternGetMatrix (pattern, FC_MATRIX, 0, &fc_matrix) == FcResultMatch) {
             matrix.xx = qRound(0x10000 * fc_matrix->xx);
@@ -622,6 +622,7 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
         }
         glyphSet = XRenderCreateGlyphSet(X11->display,
                                          XRenderFindStandardFormat(X11->display, format));
+        xglyph_format = format;
     } else {
         glyphSet = 0;
     }
@@ -1071,8 +1072,8 @@ void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::S
                 g = loadGlyph(glyphs[i].glyph);
             }
             // for uncachable glyph, get advance from glyphslot
-            glyphs[i].advance.rx() = g ? g->linearAdvance/64. : face->glyph->linearHoriAdvance/65536.;
-            glyphs[i].advance.ry() = 0.;
+            glyphs[i].advance.x = QFixed::fromFixed(g ? g->linearAdvance : (face->glyph->linearHoriAdvance >> 10));
+            glyphs[i].advance.y = 0;
         }
     } else {
         for (int i = 0; i < len; i++) {
@@ -1083,8 +1084,8 @@ void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::S
                 g = loadGlyph(glyphs[i].glyph);
             }
             // for uncachable glyph, get advance from glyphslot
-            glyphs[i].advance.rx() = g ? g->advance : face->glyph->metrics.horiAdvance/64.;
-            glyphs[i].advance.ry() = 0.;
+            glyphs[i].advance.x = g ? QFixed(g->advance) : QFixed::fromFixed(face->glyph->metrics.horiAdvance);
+            glyphs[i].advance.y = 0;
         }
     }
     if (face)
@@ -1097,8 +1098,8 @@ glyph_metrics_t QFontEngineFT::boundingBox(const QGlyphLayout *glyphs, int numGl
     FT_Face face = 0;
 
     glyph_metrics_t overall;
-    qreal ymax = 0;
-    qreal xmax = 0;
+    QFixed ymax = 0;
+    QFixed xmax = 0;
     for (int i = 0; i < numGlyphs; i++) {
         Glyph *g = glyph_data.value(glyphs[i].glyph);
         if (!g) {
@@ -1107,8 +1108,8 @@ glyph_metrics_t QFontEngineFT::boundingBox(const QGlyphLayout *glyphs, int numGl
             g = loadGlyph(glyphs[i].glyph);
         }
         if (g) {
-            qreal x = overall.xoff + glyphs[i].offset.x() - g->x;
-            qreal y = overall.yoff + glyphs[i].offset.y() - g->y;
+            QFixed x = overall.xoff + glyphs[i].offset.x - g->x;
+            QFixed y = overall.yoff + glyphs[i].offset.y - g->y;
             overall.x = qMin(overall.x, x);
             overall.y = qMin(overall.y, y);
             xmax = qMax(xmax, x + g->width);
@@ -1120,8 +1121,8 @@ glyph_metrics_t QFontEngineFT::boundingBox(const QGlyphLayout *glyphs, int numGl
             int top    = CEIL(face->glyph->metrics.horiBearingY);
             int bottom = FLOOR(face->glyph->metrics.horiBearingY - face->glyph->metrics.height);
 
-            qreal x = overall.xoff + glyphs[i].offset.x() - (-TRUNC(left));
-            qreal y = overall.yoff + glyphs[i].offset.y() - TRUNC(top);
+            QFixed x = overall.xoff + glyphs[i].offset.x - (-TRUNC(left));
+            QFixed y = overall.yoff + glyphs[i].offset.y - TRUNC(top);
             overall.x = qMin(overall.x, x);
             overall.y = qMin(overall.y, y);
             xmax = qMax(xmax, x + TRUNC(right - left));
@@ -1205,8 +1206,8 @@ void QFontEngineFT::doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::Shap
     for (int i = 0; i < num_glyphs-1; ++i) {
         FT_Vector kerning;
         FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph, f, &kerning);
-        g[i].advance.rx() += kerning.x / 64.;
-        g[i].advance.ry() += kerning.y / 64.;
+        g[i].advance.x += QFixed::fromFixed(kerning.x);
+        g[i].advance.y += QFixed::fromFixed(kerning.y);
     }
     unlockFace();
 }
@@ -1239,15 +1240,15 @@ void QFontEngineFT::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyph
         QPointF point = QPointF(x, y);
         if (flags & QTextItem::RightToLeft) {
             for (int gl = 0; gl < numGlyphs; gl++)
-                point += glyphs[gl].advance;
+                point += glyphs[gl].advance.toPointF();
         }
         for (int gl = 0; gl < numGlyphs; gl++) {
             FT_UInt glyph = glyphs[gl].glyph;
             if (flags & QTextItem::RightToLeft)
-                point -= glyphs[gl].advance;
-            QPointF cp = point + glyphs[gl].offset;
+                point -= glyphs[gl].advance.toPointF();
+            QPointF cp = point + glyphs[gl].offset.toPointF();
             if (!(flags & QTextItem::RightToLeft))
-                point += glyphs[gl].advance;
+                point += glyphs[gl].advance.toPointF();
 
             FT_Load_Glyph(face, glyph, FT_LOAD_NO_HINTING|FT_LOAD_NO_BITMAP);
 
@@ -1305,17 +1306,17 @@ void QFontEngineFT::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyph
     }
 }
 
-qreal QFontEngineFT::ascent() const
+QFixed QFontEngineFT::ascent() const
 {
     return TRUNC(ROUND(metrics.ascender));
 }
 
-qreal QFontEngineFT::descent() const
+QFixed QFontEngineFT::descent() const
 {
     return -TRUNC(ROUND(metrics.descender)) + 1;
 }
 
-qreal QFontEngineFT::leading() const
+QFixed QFontEngineFT::leading() const
 {
     return (metrics.height - metrics.ascender + metrics.descender) >> 6;
 }
@@ -1353,7 +1354,7 @@ qreal QFontEngineFT::minLeftBearing() const
 {
     if (lbearing == SHRT_MIN)
         (void) minRightBearing(); // calculates both
-    return lbearing;
+    return lbearing.toReal();
 }
 
 qreal QFontEngineFT::minRightBearing() const
@@ -1372,15 +1373,15 @@ qreal QFontEngineFT::minRightBearing() const
             }
         }
     }
-    return rbearing;
+    return rbearing.toReal();
 }
 
-qreal QFontEngineFT::lineThickness() const
+QFixed QFontEngineFT::lineThickness() const
 {
     return line_thickness;
 }
 
-qreal QFontEngineFT::underlinePosition() const
+QFixed QFontEngineFT::underlinePosition() const
 {
     return underline_position;
 }

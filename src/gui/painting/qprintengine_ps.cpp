@@ -1177,14 +1177,14 @@ void QPSPrintEngineFont::drawText(QTextStream &stream, QPSPrintEnginePrivate *d,
     }
     stream << ">";
 
-    stream << ti.width << " " << x;
+    stream << ti.width.toReal() << " " << x;
 
     if (ti.flags & QTextItem::Underline)
-        stream << ' ' << y + d->currentFont->underlinePosition() + d->currentFont->lineThickness()
-               << " " << d->currentFont->lineThickness() << " Tl";
+        stream << ' ' << y + d->currentFont->underlinePosition().toReal() + d->currentFont->lineThickness().toReal()
+               << " " << d->currentFont->lineThickness().toReal() << " Tl";
     if (ti.flags & QTextItem::StrikeOut)
-        stream << ' ' << y + d->currentFont->ascent()/3.
-               << " " << d->currentFont->lineThickness() << " Tl";
+        stream << ' ' << y + d->currentFont->ascent().toReal()/3.
+               << " " << d->currentFont->lineThickness().toReal() << " Tl";
     stream << " AT\n";
 
 }
@@ -1711,13 +1711,13 @@ void QPSPrintEngineFontFT::download(QTextStream& s, bool global)
 
 void QPSPrintEngineFontFT::drawText(QTextStream &stream, QPSPrintEnginePrivate *d, const QPointF &p, const QTextItemInt &ti)
 {
-    qreal x = p.x();
-    qreal y = p.y();
-    stream << y << " Y";
+    QFixed x = QFixed::fromReal(p.x());
+    QFixed y = QFixed::fromReal(p.y());
+    stream << y.toReal() << " Y";
 
     QByteArray xyarray;
-    qreal xo = 0;
-    qreal yo = 0;
+    QFixed xo;
+    QFixed yo;
 
     QGlyphLayout *glyphs = ti.glyphs;
 
@@ -1727,7 +1727,7 @@ void QPSPrintEngineFontFT::drawText(QTextStream &stream, QPSPrintEnginePrivate *
     stream << "<";
     if (ti.flags & QTextItem::RightToLeft) {
         stream << toHex(mapUnicode(glyphs[len-1].glyph));
-        qreal last_advance = glyphs[len-1].advance.x();
+        QFixed last_advance = glyphs[len-1].advance.x;
         for (int i = len-2; i >=0; i--) {
             // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
             if (glyphs[i].nKashidas) {
@@ -1736,49 +1736,50 @@ void QPSPrintEngineFontFT::drawText(QTextStream &stream, QPSPrintEnginePrivate *
                 int nglyphs = 7;
                 ti.fontEngine->stringToCMap(&ch, 1, g, &nglyphs, 0);
                 for (uint k = 0; k < glyphs[i].nKashidas; ++k) {
-                    xyarray += QByteArray::number(xo + g[0].offset.x() + last_advance);
+                    xyarray += QByteArray::number((xo + g[0].offset.x + last_advance).toReal());
                     xyarray += " ";
-                    xyarray += QByteArray::number(yo + g[0].offset.y());
+                    xyarray += QByteArray::number((yo + g[0].offset.y).toReal());
                     xyarray += " ";
                     stream << toHex(mapUnicode(g[0].glyph));
-                    last_advance = g[0].advance.x();
-                    xo = -g[0].offset.x();
-                    yo = -g[0].offset.y();
+                    last_advance = g[0].advance.x;
+                    xo = -g[0].offset.x;
+                    yo = -g[0].offset.y;
                 }
             }
-            xyarray += QByteArray::number(xo + glyphs[i].offset.x() + last_advance);
+            xyarray += QByteArray::number((xo + glyphs[i].offset.x + last_advance).toReal());
             xyarray += " ";
-            xyarray += QByteArray::number(yo + glyphs[i].offset.y());
+            xyarray += QByteArray::number((yo + glyphs[i].offset.y).toReal());
             xyarray += " ";
             stream << toHex(mapUnicode(glyphs[i].glyph));
-            xo = -glyphs[i].offset.x();
-            yo = -glyphs[i].offset.y();
-            last_advance = glyphs[i].advance.x() + (glyphs[i].nKashidas ? 0. : qreal(glyphs[i].space_18d6)/qreal(64));
+            xo = -glyphs[i].offset.x;
+            yo = -glyphs[i].offset.y;
+            last_advance = glyphs[i].advance.x + QFixed::fromFixed(glyphs[i].nKashidas ? 0 : glyphs[i].space_18d6);
         }
     } else {
         stream << toHex(mapUnicode(glyphs[0].glyph));
         for (int i = 1; i < len; i++) {
             // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
             stream << toHex(mapUnicode(glyphs[i].glyph));
-            xyarray += QByteArray::number(xo + glyphs[i].offset.x() + glyphs[i-1].advance.x() + qreal(glyphs[i-1].space_18d6)/qreal(64));
+            xyarray += QByteArray::number((xo + glyphs[i].offset.x + glyphs[i-1].advance.x + QFixed::fromFixed(glyphs[i-1].space_18d6)).toReal());
             xyarray += " ";
-            xyarray += QByteArray::number(yo + glyphs[i].offset.y());
+            xyarray += QByteArray::number((yo + glyphs[i].offset.y).toReal());
             xyarray += " ";
-            xo = -glyphs[i].offset.x();
-            yo = -glyphs[i].offset.y();
+            xo = -glyphs[i].offset.x;
+            yo = -glyphs[i].offset.y;
         }
     }
     stream << ">";
 
     stream << "[" << xyarray << "0 0]"
-           << ti.width << " " << x;
+           << ti.width.toReal() << " " << x.toReal();
 
     if (ti.flags & QTextItem::Underline)
-        stream << ' ' << y + d->currentFont->underlinePosition() + d->currentFont->lineThickness()
-               << " " << d->currentFont->lineThickness() << " Tl";
+        stream << ' '
+               << y.toReal() + d->currentFont->underlinePosition().toReal() + d->currentFont->lineThickness().toReal()
+               << " " << d->currentFont->lineThickness().toReal() << " Tl";
     if (ti.flags & QTextItem::StrikeOut)
-        stream << ' ' << y + d->currentFont->ascent()/3.
-               << " " << d->currentFont->lineThickness() << " Tl";
+        stream << ' ' << y.toReal() + d->currentFont->ascent().toReal()/3.
+               << " " << d->currentFont->lineThickness().toReal() << " Tl";
     stream << " XYT\n";
 
 }
@@ -2010,8 +2011,8 @@ void QPSPrintEngineFontMulti::drawText(QTextStream &stream, QPSPrintEnginePrivat
     QGlyphLayout *glyphs = ti.glyphs;
     int which = glyphs[0].glyph >> 24;
 
-    qreal x = p.x();
-    qreal y = p.y();
+    QFixed x = QFixed::fromReal(p.x());
+    QFixed y = QFixed::fromReal(p.y());
 
     int start = 0;
     int end, i;
@@ -2032,13 +2033,13 @@ void QPSPrintEngineFontMulti::drawText(QTextStream &stream, QPSPrintEnginePrivat
         ti2.f = ti.f;
         d->setFont(ti2.fontEngine);
         if(d->currentPSFont) // better not crash in case somethig goes wrong.
-            d->currentPSFont->drawText(stream, d, QPointF(x, y), ti2);
+            d->currentPSFont->drawText(stream, d, QPointF(x.toReal(), y.toReal()), ti2);
 
         // reset the high byte for all glyphs and advance to the next sub-string
         const int hi = which << 24;
         for (i = start; i < end; ++i) {
             glyphs[i].glyph = hi | glyphs[i].glyph;
-            x += glyphs[i].advance.x();
+            x += glyphs[i].advance.x;
         }
 
         // change engine
@@ -2058,7 +2059,7 @@ void QPSPrintEngineFontMulti::drawText(QTextStream &stream, QPSPrintEnginePrivat
     ti2.f = ti.f;
     d->setFont(ti2.fontEngine);
     if(d->currentPSFont) // better not crash in case somethig goes wrong.
-        d->currentPSFont->drawText(stream, d, QPointF(x, y), ti2);
+        d->currentPSFont->drawText(stream, d, QPointF(x.toReal(), y.toReal()), ti2);
 
     // reset the high byte for all glyphs
     const int hi = which << 24;

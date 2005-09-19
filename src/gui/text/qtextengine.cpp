@@ -794,8 +794,8 @@ static void init(QTextEngine *e)
 
     e->layoutData = 0;
 
-    e->minWidth = 0.;
-    e->maxWidth = 0.;
+    e->minWidth = 0;
+    e->maxWidth = 0;
 
     e->underlinePositions = 0;
     e->specialData = 0;
@@ -956,11 +956,11 @@ int QTextEngine::findItem(int strPos) const
     return item;
 }
 
-qreal QTextEngine::width(int from, int len) const
+QFixed QTextEngine::width(int from, int len) const
 {
     itemize();
 
-    qreal w = 0;
+    QFixed w = 0;
 
 //     qDebug("QTextEngine::width(from = %d, len = %d), numItems=%d, strleng=%d", from,  len, items.size(), string.length());
     for (int i = 0; i < layoutData->items.size(); i++) {
@@ -1001,7 +1001,7 @@ qreal QTextEngine::width(int from, int len) const
 
 //                 qDebug("char: start=%d end=%d / glyph: start = %d, end = %d", charFrom, charEnd, glyphStart, glyphEnd);
                 for (int i = glyphStart; i < glyphEnd; i++)
-                    w += glyphs[i].advance.x();
+                    w += glyphs[i].advance.x;
             }
         }
     }
@@ -1088,7 +1088,7 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si) const
 
 struct JustificationPoint {
     int type;
-    qreal kashidaWidth;
+    QFixed kashidaWidth;
     QGlyphLayout *glyph;
     QFontEngine *fontEngine;
 };
@@ -1106,11 +1106,11 @@ static void set(JustificationPoint *point, int type, QGlyphLayout *glyph, QFontE
         QGlyphLayout glyphs[8];
         int nglyphs = 7;
         fe->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
-        if (glyphs[0].glyph && glyphs[0].advance.x() != 0) {
-            point->kashidaWidth = glyphs[0].advance.x();
+        if (glyphs[0].glyph && glyphs[0].advance.x != 0) {
+            point->kashidaWidth = glyphs[0].advance.x;
         } else {
             point->type = QGlyphLayout::NoJustification;
-            point->kashidaWidth = 0.;
+            point->kashidaWidth = 0;
         }
     }
 }
@@ -1155,7 +1155,7 @@ void QTextEngine::justify(const QScriptLine &line)
     QVarLengthArray<JustificationPoint> justificationPoints;
     int nPoints = 0;
 //     qDebug("justifying from %d len %d, firstItem=%d, nItems=%d", line.from, line_length, firstItem, nItems);
-    qreal minKashida = 0x100000;
+    QFixed minKashida = 0x100000;
 
     // we need to do all shaping before we go into the next loop, as we there
     // store pointers to the glyph data that could get reallocated by the shaping
@@ -1231,7 +1231,7 @@ void QTextEngine::justify(const QScriptLine &line)
         }
     }
 
-    qreal need = line.width - line.textWidth;
+    QFixed need = line.width - line.textWidth;
     if (need < 0) {
         // line overflows already!
         const_cast<QScriptLine &>(line).justified = true;
@@ -1249,7 +1249,7 @@ void QTextEngine::justify(const QScriptLine &line)
                     if (justificationPoints[i].type == type && justificationPoints[i].kashidaWidth <= need) {
                         justificationPoints[i].glyph->nKashidas++;
                         // ############
-                        justificationPoints[i].glyph->space_18d6 += qIntCast(justificationPoints[i].kashidaWidth*64);
+                        justificationPoints[i].glyph->space_18d6 += justificationPoints[i].kashidaWidth.value();
                         need -= justificationPoints[i].kashidaWidth;
 //                         qDebug("adding kashida type %d with width %x, neednow %x", type, justificationPoints[i].kashidaWidth, need.value());
                     }
@@ -1275,9 +1275,9 @@ void QTextEngine::justify(const QScriptLine &line)
 
         for (int i = 0; i < nPoints; ++i) {
             if (justificationPoints[i].type == type) {
-                qreal add = need/n;
+                QFixed add = need/n;
 //                  qDebug("adding %x to glyph %x", add.value(), justificationPoints[i].glyph->glyph);
-                justificationPoints[i].glyph->space_18d6 = qRound(add*64);
+                justificationPoints[i].glyph->space_18d6 = add.value();
                 need -= add;
                 --n;
             }
@@ -1491,10 +1491,10 @@ void QTextEngine::splitItem(int item, int pos) const
         for (int i = 0; i < newItem.num_glyphs; i++)
             logClusters(&newItem)[i] -= breakGlyph;
 
-        qreal w = 0;
+        QFixed w = 0;
         const QGlyphLayout *g = glyphs(&oldItem);
         for(int j = 0; j < breakGlyph; ++j)
-            w += (g++)->advance.x();
+            w += (g++)->advance.x;
 
         newItem.width = oldItem.width - w;
         oldItem.width = w;
@@ -1503,7 +1503,7 @@ void QTextEngine::splitItem(int item, int pos) const
 //     qDebug("split at position %d itempos=%d", pos, item);
 }
 
-qreal QTextEngine::nextTab(const QScriptItem *si, qreal x)
+QFixed QTextEngine::nextTab(const QScriptItem *si, QFixed x)
 {
     // #### should work for alignright and righttoleft
     if (!(option.alignment() & Qt::AlignLeft) ||
@@ -1513,14 +1513,14 @@ qreal QTextEngine::nextTab(const QScriptItem *si, qreal x)
     QList<qreal> tabArray = option.tabArray();
     if (!tabArray.isEmpty()) {
         for (int i = 0; i < tabArray.size(); ++i) {
-            if (tabArray.at(i) > x)
-                return tabArray.at(i);
+            if (tabArray.at(i) > x.toReal())
+                return QFixed::fromReal(tabArray.at(i));
         }
     }
-    qreal tab = option.tabStop();
+    QFixed tab = QFixed::fromReal(option.tabStop());
     if (tab <= 0)
         tab = 80; // default
-    return ((int)(x/tab) + 1)*tab;
+    return (x/tab).ceil()*tab;
 }
 
 void QTextEngine::resolveAdditionalFormats() const

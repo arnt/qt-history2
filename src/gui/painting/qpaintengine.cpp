@@ -25,19 +25,19 @@
 qreal QTextItem::descent() const
 {
     const QTextItemInt *ti = static_cast<const QTextItemInt *>(this);
-    return ti->descent;
+    return ti->descent.toReal();
 }
 
 qreal QTextItem::ascent() const
 {
     const QTextItemInt *ti = static_cast<const QTextItemInt *>(this);
-    return ti->ascent;
+    return ti->ascent.toReal();
 }
 
 qreal QTextItem::width() const
 {
     const QTextItemInt *ti = static_cast<const QTextItemInt *>(this);
-    return ti->width;
+    return ti->width.toReal();
 }
 
 QTextItem::RenderFlags QTextItem::renderFlags() const
@@ -561,53 +561,24 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
     ti.fontEngine->addOutlineToPath(p.x(), p.y(), ti.glyphs, ti.num_glyphs, &path, ti.flags);
     if (!path.isEmpty()) {
         const QFontEngine *fe = ti.fontEngine;
-        const qreal lw = fe->lineThickness();
+        const qreal lw = fe->lineThickness().toReal();
         if (ti.flags & QTextItem::Underline) {
-            qreal pos = fe->underlinePosition();
-            path.addRect(p.x(), p.y() + pos, ti.width, lw);
+            qreal pos = fe->underlinePosition().toReal();
+            path.addRect(p.x(), p.y() + pos, ti.width.toReal(), lw);
         }
         if (ti.flags & QTextItem::Overline) {
-            qreal pos = fe->ascent() + 1;
-            path.addRect(p.x(), p.y() - pos, ti.width, lw);
+            qreal pos = fe->ascent().toReal() + 1;
+            path.addRect(p.x(), p.y() - pos, ti.width.toReal(), lw);
         }
         if (ti.flags & QTextItem::StrikeOut) {
-            qreal pos = fe->ascent() / 3;
-            path.addRect(p.x(), p.y() - pos, ti.width, lw);
+            qreal pos = fe->ascent().toReal() / 3;
+            path.addRect(p.x(), p.y() - pos, ti.width.toReal(), lw);
         }
         painter()->save();
         painter()->setBrush(state->pen().brush());
         painter()->setPen(Qt::NoPen);
         painter()->drawPath(path);
         painter()->restore();
-    } else {
-        // Fallback: rasterize into a pixmap and draw the pixmap
-        QPixmap pm(qRound(ti.width), qRound(ti.ascent + ti.descent));
-        pm.fill(Qt::white);
-
-        QPainter painter;
-        painter.begin(&pm);
-        painter.setPen(Qt::black);
-        painter.drawTextItem(QPointF(0., ti.ascent), ti);
-        painter.end();
-
-        QImage img = pm.toImage();
-        if (img.depth() != 32)
-            img = img.convertToFormat(QImage::Format_ARGB32);
-        int i = 0;
-        QRgb pen_rgb = state->pen().color().rgb() & 0x00ffffff;
-        while (i < img.height()) {
-            uint *p = (uint *) img.scanLine(i);
-            uint *end = p + img.width();
-
-            while (p < end) {
-                *p = ((0xff - qGray(*p)) << 24) | pen_rgb;
-                ++p;
-            }
-            ++i;
-        }
-
-        pm = QPixmap::fromImage(img);
-        this->painter()->drawPixmap(qRound(p.x()), qRound(p.y() - ti.ascent), pm);
     }
 }
 

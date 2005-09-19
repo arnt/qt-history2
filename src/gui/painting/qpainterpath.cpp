@@ -720,21 +720,21 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
                                  ? QTextItem::RenderFlags(QTextItem::RightToLeft)
                                  : QTextItem::RenderFlags(0));
 
-            const qreal lw = fe->lineThickness();
+            const qreal lw = fe->lineThickness().toReal();
             if (f.d->underline) {
-                qreal pos = fe->underlinePosition();
-                addRect(x, y + pos, si.width, lw);
+                qreal pos = fe->underlinePosition().toReal();
+                addRect(x, y + pos, si.width.toReal(), lw);
             }
             if (f.d->overline) {
-                qreal pos = fe->ascent() + 1;
-                addRect(x, y - pos, si.width, lw);
+                qreal pos = fe->ascent().toReal() + 1;
+                addRect(x, y - pos, si.width.toReal(), lw);
             }
             if (f.d->strikeOut) {
-                qreal pos = fe->ascent() / 3;
-                addRect(x, y - pos, si.width, lw);
+                qreal pos = fe->ascent().toReal() / 3;
+                addRect(x, y - pos, si.width.toReal(), lw);
             }
         }
-        x += si.width;
+        x += si.width.toReal();
     }
 }
 

@@ -54,9 +54,9 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    qreal ascent() const;
-    qreal descent() const;
-    qreal leading() const;
+    QFixed ascent() const;
+    QFixed descent() const;
+    QFixed leading() const;
     qreal maxCharWidth() const;
     qreal minLeftBearing() const;
     qreal minRightBearing() const;
@@ -140,14 +140,14 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
-    qreal ascent() const;
-    qreal descent() const;
-    qreal leading() const;
+    QFixed ascent() const;
+    QFixed descent() const;
+    QFixed leading() const;
     qreal maxCharWidth() const;
     qreal minLeftBearing() const;
     qreal minRightBearing() const;
-    qreal lineThickness() const;
-    qreal underlinePosition() const;
+    QFixed lineThickness() const;
+    QFixed underlinePosition() const;
 
     inline Type type() const
     { return QFontEngine::Freetype; }
@@ -175,10 +175,10 @@ private:
     static QHash<QFreetypeFaceId, QFreetypeFace *> *freetypeFaces;
     QFreetypeFace *freetype;
 
-    mutable qreal lbearing;
-    mutable qreal rbearing;
-    qreal line_thickness;
-    qreal underline_position;
+    mutable QFixed lbearing;
+    mutable QFixed rbearing;
+    QFixed line_thickness;
+    QFixed underline_position;
     FcPattern *_pattern;
     int xsize;
     int ysize;
@@ -211,6 +211,7 @@ public:
     };
     Glyph *loadGlyph(uint glyph, GlyphFormat = Format_None) const;
 #ifndef QT_NO_XRENDER
+    int xglyph_format;
     GlyphSet glyphSet;
 #endif
 private:

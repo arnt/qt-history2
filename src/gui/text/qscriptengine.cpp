@@ -54,12 +54,12 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
         // we need to attach below the baseline, because of the hebrew iud.
         baseInfo.height = qMax(baseInfo.height, -baseInfo.y);
 
-    QRectF baseRect(baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height);
+    QRectF baseRect(baseInfo.x.toReal(), baseInfo.y.toReal(), baseInfo.width.toReal(), baseInfo.height.toReal());
 
 //     qDebug("---> positionCluster: cluster from %d to %d", gfrom, glast);
 //     qDebug("baseInfo: %f/%f (%f/%f) off=%f/%f", baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height, baseInfo.xoff, baseInfo.yoff);
 
-    qreal size = f->ascent()/10.;
+    qreal size = (f->ascent()/10).toReal();
     qreal offsetBase = (size - 4) / 4 + qMin<qreal>(size, 4) + 1;
 //     qDebug("offset = %f", offsetBase);
 
@@ -73,7 +73,7 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
         glyph_t mark = glyphs[gfrom+i].glyph;
         QPointF p;
         glyph_metrics_t markInfo = f->boundingBox(mark);
-        QRectF markRect(markInfo.x, markInfo.y, markInfo.width, markInfo.height);
+        QRectF markRect(markInfo.x.toReal(), markInfo.y.toReal(), markInfo.width.toReal(), markInfo.height.toReal());
 //          qDebug("markInfo: %f/%f (%f/%f) off=%f/%f", markInfo.x, markInfo.y, markInfo.width, markInfo.height, markInfo.xoff, markInfo.yoff);
 
         qreal offset = offsetBase;
@@ -173,12 +173,13 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
         attachmentRect |= markRect;
         lastCmb = cmb;
         if (rightToLeft) {
-            glyphs[gfrom+i].offset = p;
+            glyphs[gfrom+i].offset.x = QFixed::fromReal(p.x());
+            glyphs[gfrom+i].offset.y = QFixed::fromReal(p.y());
         } else {
-            glyphs[gfrom+i].offset.setX(p.x() - baseInfo.xoff);
-            glyphs[gfrom+i].offset.setX(p.y() - baseInfo.yoff);
+            glyphs[gfrom+i].offset.x = QFixed::fromReal(p.x()) - baseInfo.xoff;
+            glyphs[gfrom+i].offset.y = QFixed::fromReal(p.y()) - baseInfo.yoff;
         }
-        glyphs[gfrom+i].advance = QPointF();
+        glyphs[gfrom+i].advance = QFixedPoint();
     }
 }
 
@@ -295,7 +296,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
             glyphs[pos].attributes.clusterStart = false;
             glyphs[pos].attributes.combiningClass = cmb;
             logClusters[i] = cStart;
-            glyphs[pos].advance = QPointF();
+            glyphs[pos].advance = QFixedPoint();
         }
 
         if (lastCat == QChar::Separator_Space)
@@ -377,7 +378,7 @@ static bool unicode_shape(QShaperItem *item)
             if (uc < 0x2010
                 || (uc >= 0x2028 && uc <= 0x202f)
                 || uc >= 0x206a)
-                item->glyphs[i].advance = QPointF();
+                item->glyphs[i].advance = QFixedPoint();
         }
     }
 
@@ -528,7 +529,7 @@ static bool hebrew_shape(QShaperItem *item)
         return false;
     for (int i = 0; i < item->num_glyphs; ++i) {
         if (glyphs[i].attributes.mark) {
-            glyphs[i].advance.rx() = 0;
+            glyphs[i].advance.x = 0;
         }
     }
     qt_heuristicPosition(item);
@@ -1602,7 +1603,7 @@ static bool arabic_shape(QShaperItem *item)
 
     for (int i = 0; i < slen; ++i)
         if (item->glyphs[i].attributes.mark)
-            item->glyphs[i].advance = QPointF();
+            item->glyphs[i].advance = QFixedPoint();
     qt_heuristicPosition(item);
     return true;
 }

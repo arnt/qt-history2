@@ -480,7 +480,7 @@ int QFontMetrics::width(QChar ch) const
     QGlyphLayout glyphs[8];
     int nglyphs = 7;
     engine->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
-    return qRound(glyphs[0].advance.x());
+    return qRound(glyphs[0].advance.x);
 }
 
 /*!
@@ -521,7 +521,7 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
         QGlyphLayout glyphs[8];
         int nglyphs = 7;
         engine->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
-        width = qRound(glyphs[0].advance.x());
+        width = qRound(glyphs[0].advance.x);
     }
     return width;
 }
@@ -936,7 +936,7 @@ qreal QFontMetricsF::ascent() const
 {
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    return engine->ascent();
+    return engine->ascent().toReal();
 }
 
 
@@ -955,7 +955,7 @@ qreal QFontMetricsF::descent() const
 {
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    return engine->descent();
+    return engine->descent().toReal();
 }
 
 /*!
@@ -971,7 +971,7 @@ qreal QFontMetricsF::height() const
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
 
-    return engine->ascent() + engine->descent() + 1.0;
+    return (engine->ascent() + engine->descent() + 1).toReal();
 }
 
 /*!
@@ -985,7 +985,7 @@ qreal QFontMetricsF::leading() const
 {
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    return engine->leading();
+    return engine->leading().toReal();
 }
 
 /*!
@@ -999,7 +999,7 @@ qreal QFontMetricsF::lineSpacing() const
 {
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    return engine->leading() + engine->ascent() + engine->descent() + 1.0;
+    return (engine->leading() + engine->ascent() + engine->descent() + 1).toReal();
 }
 
 /*!
@@ -1085,7 +1085,7 @@ qreal QFontMetricsF::leftBearing(QChar ch) const
     engine->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
     // ### can nglyphs != 1 happen at all? Not currently I think
     glyph_metrics_t gi = engine->boundingBox(glyphs[0].glyph);
-    return gi.x;
+    return gi.x.toReal();
 }
 
 /*! \fn int QFontMetricsF::rightBearing(QChar ch) const
@@ -1113,7 +1113,7 @@ qreal QFontMetricsF::rightBearing(QChar ch) const
     engine->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
     // ### can nglyphs != 1 happen at all? Not currently I think
     glyph_metrics_t gi = engine->boundingBox(glyphs[0].glyph);
-    return gi.xoff - gi.x - gi.width;
+    return (gi.xoff - gi.x - gi.width).toReal();
 }
 
 /*!
@@ -1133,7 +1133,7 @@ qreal QFontMetricsF::width(const QString &str) const
     QTextEngine layout(str, d);
     layout.ignoreBidi = true;
     layout.itemize();
-    return layout.width(0, str.length());
+    return layout.width(0, str.length()).toReal();
 }
 
 /*! \fn int QFontMetricsF::width(QChar ch) const
@@ -1174,7 +1174,7 @@ qreal QFontMetricsF::width(QChar ch) const
     QGlyphLayout glyphs[8];
     int nglyphs = 7;
     engine->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
-    return glyphs[0].advance.x();
+    return glyphs[0].advance.x.toReal();
 }
 
 /*!
@@ -1206,7 +1206,7 @@ QRectF QFontMetricsF::boundingRect(const QString &str) const
     layout.ignoreBidi = true;
     layout.itemize();
     glyph_metrics_t gm = layout.boundingBox(0, len);
-    return QRectF(gm.x, gm.y, gm.width, gm.height);
+    return QRectF(gm.x.toReal(), gm.y.toReal(), gm.width.toReal(), gm.height.toReal());
 }
 
 /*!
@@ -1232,7 +1232,7 @@ QRectF QFontMetricsF::boundingRect(QChar ch) const
     int nglyphs = 9;
     engine->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
     glyph_metrics_t gm = engine->boundingBox(glyphs[0].glyph);
-    return QRectF(gm.x, gm.y, gm.width, gm.height);
+    return QRectF(gm.x.toReal(), gm.y.toReal(), gm.width.toReal(), gm.height.toReal());
 }
 
 /*!
@@ -1354,7 +1354,7 @@ qreal QFontMetricsF::underlinePos() const
 {
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    return engine->underlinePosition();
+    return engine->underlinePosition().toReal();
 }
 
 /*!
@@ -1389,7 +1389,7 @@ qreal QFontMetricsF::lineWidth() const
 {
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    return engine->lineThickness();
+    return engine->lineThickness().toReal();
 }
 
 /*!

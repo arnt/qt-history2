@@ -3476,7 +3476,7 @@ void QPainter::drawText(const QPointF &p, const QString &str)
     QTextLine line = layout.createLine();
     layout.endLayout();
     const QScriptLine &sl = engine->lines[0];
-    line.draw(this, QPointF(p.x(), p.y() - sl.ascent));
+    line.draw(this, QPointF(p.x(), p.y() - sl.ascent.toReal()));
 }
 
 /*!
