@@ -985,18 +985,6 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         }
         break ;
 #endif // QT_NO_TABBAR
-    case PE_FrameLineEdit:
-        if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
-            int lw = 1; int mlw = 1;
-
-            // For line edits, we need to fill the background in the corners before drawing
-            // the frame since we have rounded corners
-            painter->fillRect(QRect(option->rect.left(), option->rect.top(),option->rect.width(),lw+mlw),
-                              frame->palette.background());
-            painter->fillRect(QRect(option->rect.left(), option->rect.bottom() - lw - mlw + 1,option->rect.width(),lw+mlw),
-                              frame->palette.background());
-        }
-        // fall through
     case PE_FrameGroupBox:
         if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
             QStyleOptionFrameV2 frameV2(*frame);
@@ -1009,7 +997,17 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 frameV2.state &= ~State_Sunken;
                 drawPrimitive(PE_Frame, &frameV2, painter, widget);
             }
-            break;
+        }
+        break;
+    case PE_FrameLineEdit:
+        if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
+            int lw = 1; int mlw = 1;
+            // For line edits, we need to fill the background in the corners before drawing
+            // the frame since we have rounded corners
+            painter->fillRect(QRect(option->rect.left(), option->rect.top(),option->rect.width(),lw+mlw),
+                              frame->palette.background());
+            painter->fillRect(QRect(option->rect.left(), option->rect.bottom() - lw - mlw + 1,option->rect.width(),lw+mlw),
+                              frame->palette.background());
         }
         // fall through
     case PE_Frame:
@@ -1021,17 +1019,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
 #endif
         if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
             painter->save();
-
-            bool isTextEdit = false;
-#ifndef QT_NO_TEXTEDIT
-            isTextEdit = qobject_cast<const QTextEdit *>(widget);
-#endif
-#ifdef QT3_SUPPORT
-            if (widget->inherits("Q3TextEdit"))
-                isTextEdit = true;
-#endif
-            bool focus = (element == PE_FrameLineEdit || isTextEdit)
-                             && (frame->state & State_Enabled) && (frame->state & State_HasFocus);
+            bool focus = (frame->state & State_Enabled) && (frame->state & State_HasFocus);
             bool groupbox = element == PE_FrameGroupBox;
 
             int lw = 1;
@@ -1177,8 +1165,6 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     case PE_PanelToolBar: {
         // Draws the light line above and the dark line below menu bars and
         // tool bars.
-        if (widget && qobject_cast<QToolBar *>(widget->parentWidget()))
-            break;
         QPen oldPen = painter->pen();
         if (element == PE_PanelMenuBar || (option->state & State_Horizontal)) {
             painter->setPen(alphaCornerColor);
@@ -1258,13 +1244,8 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     }
     case PE_PanelButtonCommand:
         if (const QStyleOptionButton *button = qstyleoption_cast<const QStyleOptionButton *>(option)) {
-            const QPushButton *pushButton = qobject_cast<const QPushButton *>(widget);
-            bool hoverable = pushButton;
-#ifndef QT_NO_COMBOBOX
-            hoverable = hoverable || qobject_cast<const QComboBox *>(widget);
-#endif
             bool down = (button->state & State_Sunken) || (button->state & State_On);
-            bool hover = hoverable && (button->state & State_Enabled) && (button->state & State_MouseOver);
+            bool hover = (button->state & State_Enabled) && (button->state & State_MouseOver);
             bool isDefault = (button->features & QStyleOptionButton::DefaultButton);
             bool isEnabled = (button->state & State_Enabled);
             QRect rect = option->rect;
@@ -3622,9 +3603,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 #ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
         if (const QStyleOptionComboBox *comboBox = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
-
-            const QComboBox *box = qobject_cast<const QComboBox *>(widget);
-            bool sunken = (box && box->view()->isVisible());
+            bool sunken = (comboBox->state & (State_Sunken | State_On));
             bool isEnabled = (comboBox->state & State_Enabled);
             bool focus = isEnabled && (comboBox->state & State_HasFocus);
 
