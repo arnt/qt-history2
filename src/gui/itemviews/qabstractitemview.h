@@ -149,6 +149,8 @@ public slots:
     void edit(const QModelIndex &index);
     void clearSelection();
     void setCurrentIndex(const QModelIndex &index);
+    void scrollToTop();
+    void scrollToBottom();
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);

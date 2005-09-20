@@ -1836,6 +1836,22 @@ QWidget* QAbstractItemView::indexWidget(const QModelIndex &index) const
 }
 
 /*!
+  scrolls the view to the top
+*/
+void QAbstractItemView::scrollToTop()
+{
+    verticalScrollBar()->setValue(verticalScrollBar()->minimum());
+}
+
+/*!
+  scrolls the view to the bottom
+*/
+void QAbstractItemView::scrollToBottom()
+{
+    verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+}
+
+/*!
     This slot is called when items are changed in the model. The
     changed items are those from \a topLeft to \a bottomRight
     inclusive. If just one item is changed \a topLeft == \a
