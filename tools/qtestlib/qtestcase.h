@@ -81,7 +81,7 @@ class QObject;
 class QTestData;
 
 #define QTEST_COMPARE_DECL(KLASS)\
-    template<> Q_TESTLIB_EXPORT char *toString(const KLASS &);
+    template<> Q_TESTLIB_EXPORT char *toString<KLASS >(const KLASS &);
 
 namespace QTest
 {

@@ -568,7 +568,7 @@ bool QTest::compare<double>(double const &t1, double const &t2, const char *actu
 }
 
 #define COMPARE_IMPL2(TYPE, FORMAT) \
-template <> char *QTest::toString<TYPE>(const TYPE &t) \
+template <> char *QTest::toString<TYPE >(const TYPE &t) \
 { \
     char *msg = new char[128]; \
     qt_snprintf(msg, 128, #FORMAT, t); \
