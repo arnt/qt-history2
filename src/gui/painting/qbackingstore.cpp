@@ -171,10 +171,14 @@ void qt_syncBackingStore(QWidget *widget)
 {
     const QRegion dirty =  widget->d_func()->dirtyOnScreen;
     QWidget *tlw = widget->window();
-    if (!QWidgetBackingStore::paintOnScreen(widget))
-        tlw->d_func()->topData()->backingStore->cleanRegion(dirty, widget);
-    else
+    if (!QWidgetBackingStore::paintOnScreen(widget)) {
+        QWidgetBackingStore *bs = tlw->d_func()->topData()->backingStore;
+        QRegion tmp = bs->dirty;
+        tmp.translate(-widget->mapTo(tlw, QPoint(0, 0)));
+        bs->cleanRegion(dirty + tmp, widget);
+    } else {
         widget->repaint(dirty);
+    }
 }
 #elif defined(Q_WS_QWS)
 void qt_syncBackingStore(QWidget *widget)
@@ -456,13 +460,8 @@ void QWidgetBackingStore::cleanBuffer(const QRegion &rgn, QWidget *widget, const
         widget->setAttribute(Qt::WA_WState_InPaintEvent);
 
         //clip away the new area
-#ifdef Q_WS_QWS
-        QPainter::setRedirected(widget, buffer.pixmap(), -offset); //###
-        bool flushed = qt_flushPaint(widget, toBePainted);
-#else
         bool flushed = qt_flushPaint(widget, toBePainted);
         QPainter::setRedirected(widget, &buffer, -offset);
-#endif
         QRegion wrgn = toBePainted;
         wrgn.translate(offset);
 #ifdef Q_WS_QWS
