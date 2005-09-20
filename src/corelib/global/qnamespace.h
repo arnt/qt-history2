@@ -1300,7 +1300,7 @@ public:
         Image         = 0x03,
         Printer       = 0x04,
         Picture       = 0x05,
-        OpenGLBuffer  = 0x06
+        Pbuffer       = 0x06
     };
     enum RelayoutType {
         RelayoutNormal,

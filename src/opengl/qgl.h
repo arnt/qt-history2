@@ -224,7 +224,7 @@ protected:
 private:
     QGLContextPrivate* d_ptr;
 
-    friend class QGLBuffer;
+    friend class QGLPbuffer;
     friend class QGLWidget;
     friend class QGLWidgetPrivate;
 #ifdef Q_WS_MAC
@@ -332,7 +332,7 @@ private:
     friend class QMacGLWindowChangeEvent;
 #endif
     friend class QGLDrawable;
-    friend class QGLBuffer;
+    friend class QGLPbuffer;
     friend class QGLContext;
     friend class QGLOverlayWidget;
     friend class QOpenGLPaintEngine;

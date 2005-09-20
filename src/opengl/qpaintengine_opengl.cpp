@@ -65,15 +65,15 @@ public:
 
 private:
     QGLWidget *widget;
-    QGLBuffer *buffer;
+    QGLPbuffer *buffer;
 };
 
 void QGLDrawable::setDevice(QPaintDevice *pdev)
 {
     if (pdev->devType() == QInternal::Widget)
         widget = static_cast<QGLWidget *>(pdev);
-    else if (pdev->devType() == QInternal::OpenGLBuffer)
-        buffer = static_cast<QGLBuffer *>(pdev);
+    else if (pdev->devType() == QInternal::Pbuffer)
+        buffer = static_cast<QGLPbuffer *>(pdev);
 }
 
 inline void QGLDrawable::setAutoBufferSwap(bool enable)
