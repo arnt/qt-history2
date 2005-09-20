@@ -145,7 +145,7 @@ namespace QTest
     Q_TESTLIB_EXPORT bool compare<float>(float const &t1, float const &t2,
                     const char *actual, const char *expected, const char *file, int line);
 
-    template<>
+    template <>
     Q_TESTLIB_EXPORT bool compare<double>(double const &t1, double const &t2,
                     const char *actual, const char *expected, const char *file, int line);
 
