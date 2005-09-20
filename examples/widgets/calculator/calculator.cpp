@@ -160,7 +160,7 @@ void Calculator::unaryOperatorClicked()
     Button *clickedButton = qobject_cast<Button *>(sender());
     QString clickedOperator = clickedButton->text();
     double operand = display->text().toDouble();
-    double result;
+    double result = 0.0;
 
     if (clickedOperator == tr("Sqrt")) {
         if (operand < 0.0) {
