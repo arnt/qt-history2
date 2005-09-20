@@ -1135,6 +1135,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         painter->setPen(oldPen);
         break;
     }
+#ifdef QT3_SUPPORT
     case PE_Q3DockWindowSeparator: {
         QPen oldPen = painter->pen();
         painter->setPen(alphaCornerColor);
@@ -1162,6 +1163,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         painter->setPen(oldPen);
         break;
     }
+#endif // QT3_SUPPORT
     case PE_PanelMenuBar:
     case PE_PanelToolBar: {
         // Draws the light line above and the dark line below menu bars and
@@ -1190,6 +1192,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         if ((option->state & State_Enabled) || !(option->state & State_AutoRaise))
             qt_plastique_drawShadedPanel(painter, option, true, contentsPropagated);
         break;
+#ifndef QT_NO_TOOLBAR
     case PE_IndicatorToolBarHandle: {
         QPixmap cache;
         QString pixmapName = uniqueName("toolbarhandle", option, option->rect.size());
@@ -1243,6 +1246,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         painter->setPen(oldPen);
         break;
     }
+#endif // QT_NO_TOOLBAR
     case PE_PanelButtonCommand:
         if (const QStyleOptionButton *button = qstyleoption_cast<const QStyleOptionButton *>(option)) {
             bool down = (button->state & State_Sunken) || (button->state & State_On);
@@ -1628,6 +1632,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             painter->drawPixmap(rect.topLeft(), cache);
         }
         break;
+#ifndef QT_NO_DOCKWIDGET
     case PE_IndicatorDockWidgetResizeHandle:
         if ((option->state & State_Enabled) && (option->state & State_MouseOver))
             painter->fillRect(option->rect, option->palette.base());
@@ -1643,6 +1648,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             qt_plastique_draw_handle(painter, option, rect, Qt::Horizontal);
         }
         break;
+#endif // QT_NO_DOCKWIDGET
     case PE_IndicatorViewItemCheck: {
         QStyleOptionButton button;
         button.state = option->state & ~State_MouseOver;
@@ -2153,6 +2159,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         }
         break;
 #endif // QT_NO_TABBAR
+#ifndef QT_NO_PROGRESSBAR
     case CE_ProgressBarGroove:
         if (const QStyleOptionProgressBar *bar = qstyleoption_cast<const QStyleOptionProgressBar *>(option)) {
             QRect rect = bar->rect;
@@ -2461,6 +2468,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->restore();
         }
         break;
+#endif // QT_NO_PROGRESSBAR
     case CE_HeaderSection:
         // Draws the header in tables.
         if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(option)) {
@@ -2515,6 +2523,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
         }
         break;
+#ifndef QT_NO_MENU
     case CE_MenuItem:
         // Draws one item in a popup menu.
         if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
@@ -2686,6 +2695,8 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->restore();
         }
         break;
+#endif // QT_NO_MENU
+#ifndef QT_NO_MENUBAR
     case CE_MenuBarItem:
         // Draws a menu bar item; File, Edit, Help etc..
         if ((option->state & State_Selected) && (option->state & State_Enabled)) {
@@ -2748,6 +2759,8 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         }
         QCommonStyle::drawControl(element, option, painter, widget);
         break;
+#endif // QT_NO_MENUBAR
+#ifndef QT_NO_TOOLBOX
     case CE_ToolBoxTab:
         if (const QStyleOptionToolBox *toolBox = qstyleoption_cast<const QStyleOptionToolBox *>(option)) {
             painter->save();
@@ -2807,6 +2820,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->restore();
         }
         break;
+#endif // QT_NO_TOOLBOX
 #ifndef QT_NO_SPLITTER
     case CE_Splitter:
         if ((option->state & State_Enabled) && (option->state & State_MouseOver))
@@ -2824,6 +2838,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         }
         break;
 #endif // QT_NO_SPLITTER
+#ifndef QT_NO_DOCKWIDGET
     case CE_DockWidgetTitle:
         if (const QStyleOptionDockWidget *dockWidget = qstyleoption_cast<const QStyleOptionDockWidget *>(option)) {
             painter->save();
@@ -2880,6 +2895,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->restore();
         }
         break;
+#endif // QT_NO_DOCKWIDGET
     default:
         QWindowsStyle::drawControl(element, option, painter, widget);
         break;
@@ -4116,9 +4132,11 @@ QSize QPlastiqueStyle::sizeFromContents(ContentsType type, const QStyleOption *o
         newSize.rheight() += 3;
         break;
 #endif
+#ifndef QT_NO_COMBOBOX
     case CT_ComboBox:
         ++newSize.rheight();
         break;
+#endif
     default:
         break;
     }
@@ -4137,10 +4155,12 @@ QRect QPlastiqueStyle::subElementRect(SubElement element, const QStyleOption *op
         rect = visualRect(option->direction, option->rect,
                           QWindowsStyle::subElementRect(element, option, widget)).adjusted(0, 0, 1, 1);
         break;
+#ifndef QT_NO_PROGRESSBAR
     case SE_ProgressBarLabel:
     case SE_ProgressBarContents:
     case SE_ProgressBarGroove:
         return option->rect;
+#endif // QT_NO_PROGRESSBAR
     default:
         rect = visualRect(option->direction, option->rect,
                           QWindowsStyle::subElementRect(element, option, widget));
@@ -4480,9 +4500,11 @@ QStyle::SubControl QPlastiqueStyle::hitTestComplexControl(ComplexControl control
 {
     SubControl ret = SC_None;
     switch (control) {
+#ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
         ret = SC_ComboBoxArrow;
         break;
+#endif
 #ifndef QT_NO_SCROLLBAR
     case CC_ScrollBar:
         if (const QStyleOptionSlider *scrollBar = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
@@ -4841,6 +4863,7 @@ void QPlastiqueStyle::unpolish(QApplication *app)
 */
 bool QPlastiqueStyle::eventFilter(QObject *watched, QEvent *event)
 {
+#ifndef QT_NO_PROGRESSBAR
     switch (event->type()) {
     case QEvent::Show:
         if (QProgressBar *bar = qobject_cast<QProgressBar *>(watched)) {
@@ -4881,6 +4904,7 @@ bool QPlastiqueStyle::eventFilter(QObject *watched, QEvent *event)
     default:
         break;
     }
+#endif // QT_NO_PROGRESSBAR
 
     return QWindowsStyle::eventFilter(watched, event);
 }
@@ -4890,6 +4914,7 @@ bool QPlastiqueStyle::eventFilter(QObject *watched, QEvent *event)
 */
 void QPlastiqueStyle::timerEvent(QTimerEvent *event)
 {
+#ifndef QT_NO_PROGRESSBAR
     if (event->timerId() == d->progressBarAnimateTimer) {
         Q_ASSERT(ProgressBarFps > 0);
         d->animateStep = d->timer.elapsed() / (1000 / ProgressBarFps);
@@ -4898,6 +4923,7 @@ void QPlastiqueStyle::timerEvent(QTimerEvent *event)
                 bar->update();
         }
     }
+#endif // QT_NO_PROGRESSBAR
     event->ignore();
 }
 

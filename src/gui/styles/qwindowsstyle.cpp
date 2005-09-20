@@ -223,12 +223,14 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
     case PM_ButtonShiftVertical:
         ret = 1;
         break;
+#ifndef QT_NO_TABBAR
     case PM_TabBarTabShiftHorizontal:
         ret = 0;
         break;
     case PM_TabBarTabShiftVertical:
         ret = 2;
         break;
+#endif
     case PM_MaximumDragDistance:
         ret = 60;
         break;
@@ -269,6 +271,7 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
         break;
 #endif // QT_NO_SLIDER
 
+#ifndef QT_NO_MENU
     case PM_MenuBarHMargin:
         ret = 0;
         break;
@@ -280,6 +283,7 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
     case PM_MenuBarPanelWidth:
         ret = 0;
         break;
+#endif // QT_NO_MENU
 
 
 #if defined(Q_WS_WIN)
@@ -306,7 +310,7 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
                 ret = QCommonStyle::pixelMetric(pm, opt, widget);
         }
         break;
-#endif
+#endif // Q_WS_WIN
 
     case PM_SplitterWidth:
         ret = qMax(6, QApplication::globalStrut().width());
@@ -857,7 +861,7 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
             ret = int(cues);
             // Do nothing if we always paint underlines
             if (!ret && widget && d) {
-#ifndef QT_NO_MENUBAR                
+#ifndef QT_NO_MENUBAR
                 const QMenuBar *menuBar = ::qobject_cast<const QMenuBar*>(widget);
                 if (!menuBar && ::qobject_cast<const QMenu *>(widget)) {
                     QWidget *w = QApplication::activeWindow();
@@ -892,8 +896,9 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
 {
     // Used to restore across fallthrough cases. Currently only used in PE_IndicatorCheckBox
     bool doRestore = false;
-            
+
     switch (pe) {
+#ifndef QT_NO_TOOLBAR
     case PE_IndicatorToolBarSeparator:
         {
             QRect rect = opt->rect;
@@ -901,31 +906,32 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             if(opt->state & State_Horizontal){
                 const int offset = rect.width()/2;
                 p->setPen(QPen(opt->palette.dark().color()));
-                p->drawLine(rect.bottomLeft().x() + offset, 
-                            rect.bottomLeft().y() - margin, 
-                            rect.topLeft().x() + offset, 
+                p->drawLine(rect.bottomLeft().x() + offset,
+                            rect.bottomLeft().y() - margin,
+                            rect.topLeft().x() + offset,
                             rect.topLeft().y() + margin);
                 p->setPen(QPen(opt->palette.light().color()));
-                p->drawLine(rect.bottomLeft().x() + offset + 1, 
-                            rect.bottomLeft().y() - margin, 
-                            rect.topLeft().x() + offset + 1, 
+                p->drawLine(rect.bottomLeft().x() + offset + 1,
+                            rect.bottomLeft().y() - margin,
+                            rect.topLeft().x() + offset + 1,
                             rect.topLeft().y() + margin);
             }
             else{ //Draw vertical separator
                 const int offset = rect.height()/2;
                 p->setPen(QPen(opt->palette.dark().color()));
-                p->drawLine(rect.topLeft().x() + margin , 
-                            rect.topLeft().y() + offset, 
-                            rect.topRight().x() - margin, 
+                p->drawLine(rect.topLeft().x() + margin ,
+                            rect.topLeft().y() + offset,
+                            rect.topRight().x() - margin,
                             rect.topRight().y() + offset);
                 p->setPen(QPen(opt->palette.light().color()));
-                p->drawLine(rect.topLeft().x() + margin , 
-                            rect.topLeft().y() + offset + 1, 
-                            rect.topRight().x() - margin, 
+                p->drawLine(rect.topLeft().x() + margin ,
+                            rect.topLeft().y() + offset + 1,
+                            rect.topRight().x() - margin,
                             rect.topRight().y() + offset + 1);
             }
         }
         break;
+#endif // QT_NO_TOOLBAR
     case PE_FrameButtonTool:
     case PE_PanelButtonTool: {
         QBrush fill;
@@ -1215,6 +1221,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             p->restore();
             break;
         }
+#ifndef QT_NO_FRAME
     case PE_Frame:
     case PE_FrameMenu:
         if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
@@ -1230,6 +1237,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             }
         }
         break;
+#endif // QT_NO_FRAME
     case PE_IndicatorBranch: {
         // This is _way_ too similar to the common style.
         static const int decoration_size = 9;
@@ -1325,6 +1333,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                                 const QWidget *widget) const
 {
     switch (ce) {
+#ifndef QT_NO_MENU
     case CE_MenuItem:
         if (const QStyleOptionMenuItem *menuitem = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
             int x, y, w, h;
@@ -1454,6 +1463,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 
         }
         break;
+#endif // QT_NO_MENU
+#ifndef QT_NO_MENUBAR
     case CE_MenuBarItem:
         if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
             bool active = mbi->state & State_Selected;
@@ -1477,6 +1488,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             QCommonStyle::drawControl(ce, &newMbi, p, widget);
         }
         break;
+#endif // QT_NO_MENUBAR
 #ifndef QT_NO_TABBAR
     case CE_TabBarTabShape:
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
@@ -1693,6 +1705,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                         opt->state & (State_Sunken | State_On), 1,
                         &opt->palette.brush(QPalette::Button));
         break;
+#ifndef QT_NO_SPLITTER
     case CE_Splitter: {
         QPen oldPen = p->pen();
         p->setPen(opt->palette.light().color());
@@ -1714,6 +1727,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
         }
         p->setPen(oldPen);
         break; }
+#endif // QT_NO_SPLITTER
+#ifndef QT_NO_SCROLLBAR
     case CE_ScrollBarSubLine:
     case CE_ScrollBarAddLine: {
         if (use2000style && (opt->state & State_Sunken)) {
@@ -1769,14 +1784,15 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             p->setPen(Qt::NoPen);
             p->setBrush(br);
             p->setBackgroundMode(Qt::OpaqueMode);
-            p->drawRect(opt->rect);            
-        } else {            
+            p->drawRect(opt->rect);
+        } else {
             QStyleOptionButton buttonOpt;
             buttonOpt.QStyleOption::operator=(*opt);
             buttonOpt.state = State_Enabled | State_Raised;
             drawPrimitive(PE_PanelButtonBevel, &buttonOpt, p, widget);
         }
         break;
+#endif // QT_NO_SCROLLBAR
     case CE_HeaderSection: {
         QBrush fill;
         if (opt->state & State_On)
@@ -1857,7 +1873,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 QCommonStyle::drawComplexControl(cc, &tmpSlider, p, widget);
             }
 
-            if (slider->subControls & SC_SliderHandle) {                
+            if (slider->subControls & SC_SliderHandle) {
                 // 4444440
                 // 4333310
                 // 4322210
@@ -1873,12 +1889,12 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 const QColor c3 = slider->palette.midlight().color();
                 const QColor c4 = slider->palette.light().color();
                 QBrush handleBrush;
-                
+
                 if (slider->state & State_Enabled) {
                     handleBrush = slider->palette.color(QPalette::Button);
                 } else {
-                    handleBrush = QBrush(slider->palette.color(QPalette::Button), 
-                                         Qt::Dense4Pattern);                    
+                    handleBrush = QBrush(slider->palette.color(QPalette::Button),
+                                         Qt::Dense4Pattern);
                 }
 
 
@@ -1955,7 +1971,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 Qt::BGMode oldMode = p->backgroundMode();
                 p->setBackgroundMode(Qt::OpaqueMode);
                 p->drawRect(x1, y1, x2-x1+1, y2-y1+1);
-                p->drawPolygon(a);                
+                p->drawPolygon(a);
                 p->setBrush(oldBrush);
                 p->setBackgroundMode(oldMode);
 
@@ -2038,6 +2054,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
         }
         break;
 #endif // QT_NO_SLIDER
+#ifdef QT3_SUPPORT
     case CC_Q3ListView:
         if (const QStyleOptionQ3ListView *lv = qstyleoption_cast<const QStyleOptionQ3ListView *>(opt)) {
             int i;
@@ -2191,6 +2208,8 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
             }
         }
         break;
+#endif // QT3_SUPPORT
+#ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
         if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
             if (cmb->subControls & SC_ComboBoxArrow) {
@@ -2251,6 +2270,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
             }
         }
         break;
+#endif // QT_NO_COMBOBOX
     default:
         QCommonStyle::drawComplexControl(cc, opt, p, widget);
     }
@@ -2277,15 +2297,16 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             sz = QSize(w, h);
         }
         break;
+#ifndef QT_NO_MENU
     case CT_MenuItem:
         if (const QStyleOptionMenuItem *mi = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
             int w = sz.width();
             sz = QCommonStyle::sizeFromContents(ct, opt, csz, widget);
-            
+
             if (mi->menuItemType != QStyleOptionMenuItem::Separator && mi->icon.isNull()) {
                 sz.setHeight(sz.height() - 2);
                 w -= 6;
-            } 
+            }
 
             if (mi->menuItemType != QStyleOptionMenuItem::Separator && !mi->icon.isNull())
                  sz.setHeight(qMax(sz.height(),
@@ -2310,13 +2331,16 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             int checkcol = qMax(maxpmw, use2000style ? 20 : windowsCheckMarkWidth); // Windows always shows a check column
             w += checkcol;
             w += windowsRightBorder + 10;
-            sz.setWidth(w);            
+            sz.setWidth(w);
         }
         break;
+#endif // QT_NO_MENU
+#ifndef QT_NO_MENUBAR
     case CT_MenuBarItem:
         if (!sz.isEmpty())
             sz += QSize(windowsItemHMargin * 5 + 1, windowsItemVMargin * 2);
         break;
+#endif
     default:
         sz = QCommonStyle::sizeFromContents(ct, opt, csz, widget);
     }
