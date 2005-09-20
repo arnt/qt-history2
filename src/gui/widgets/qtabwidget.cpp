@@ -535,8 +535,7 @@ void QTabWidget::resizeEvent(QResizeEvent *e)
 void QTabWidget::setTabBar(QTabBar* tb)
 {
     Q_D(QTabWidget);
-    if (!tb)
-        return;
+    Q_ASSERT(tb);
 
     if (tb->parentWidget() != this) {
         tb->setParent(this);
