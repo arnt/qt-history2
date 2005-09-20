@@ -142,11 +142,11 @@ namespace QTest
     }
 
     template <>
-    Q_TESTLIB_EXPORT bool compare(float const &t1, float const &t2,
+    Q_TESTLIB_EXPORT bool compare<float>(float const &t1, float const &t2,
                     const char *actual, const char *expected, const char *file, int line);
 
     template<>
-    Q_TESTLIB_EXPORT bool compare(double const &t1, double const &t2,
+    Q_TESTLIB_EXPORT bool compare<double>(double const &t1, double const &t2,
                     const char *actual, const char *expected, const char *file, int line);
 
     inline bool compare_ptr_helper(const void *t1, const void *t2, const char *actual,
