@@ -837,7 +837,9 @@ QHeaderView::ResizeMode QHeaderView::resizeMode(int logicalIndex) const
 }
 
 /*!
-    \internal
+    \returns the number of sections that are set to resize mode stretch.  
+    In views this can be used to see if the headerview needs to resize the sections when the view geometry changes.    
+    \sa updateGeometry stretchLastSection resizeMode
 */
 
 int QHeaderView::stretchSectionCount() const
@@ -855,6 +857,10 @@ void QHeaderView::setSortIndicatorShown(bool show)
 {
     Q_D(QHeaderView);
     d->sortIndicatorShown = show;
+    
+    if (sortIndicatorSection() < 0 || sortIndicatorSection() > count())
+        return;
+    
     if (d->sections.size() > sortIndicatorSection()
         && d->sections.at(sortIndicatorSection()).mode == Custom) {
         resizeSections();
@@ -880,6 +886,9 @@ void QHeaderView::setSortIndicator(int logicalIndex, Qt::SortOrder order)
 {
     Q_D(QHeaderView);
         
+    Q_ASSERT(logicalIndex >= 0);
+    
+    // This is so that people can set the position of the sort indicator before the fill the model
     int old = d->sortIndicatorSection;
     d->sortIndicatorSection = logicalIndex;
     d->sortIndicatorOrder = order;
@@ -1728,7 +1737,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
 QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    if (!d->model)
+    if (!d->model || logicalIndex < 0)
         return QSize();
     QSize size(100, 30);
     QStyleOptionHeader opt = d->getStyleOption();
