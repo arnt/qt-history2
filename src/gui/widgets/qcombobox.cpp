@@ -642,6 +642,8 @@ QStyleOptionComboBox QComboBoxPrivate::getStyleOption() const
         opt.currentIcon = q->itemIcon(currentIndex.row());
     }
     opt.iconSize = q->iconSize();
+    if (container && container->isVisible())
+        opt.state |= QStyle::State_On;
 
     return opt;
 }
