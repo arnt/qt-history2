@@ -5,6 +5,7 @@ SUBDIRS     = \
 	gradients \
 	pathstroke \
 	affine \
+	composition \
         books \
         interview \
         mainwindow \
