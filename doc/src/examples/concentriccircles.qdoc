@@ -2,8 +2,222 @@
     \example painting/concentriccircles
     \title Concentric Circles Example
 
-    The Concentric Circles example shows the improved rendering quality that can be obtained
-    when using floating point precision and anti-aliasing when drawing custom widgets.
+    The Concentric Circles example shows the improved rendering
+    quality that can be obtained using floating point precision and
+    anti-aliasing when drawing custom widgets. The example also shows
+    how to do simple animation.
+
+    The application's main window displays several widgets which are
+    drawn using the various combinations of precision and
+    anti-aliasing.
 
     \image concentriccircles-example.png
+
+    Anti-aliasing is one of QPainter's render hints. The
+    QPainter::RenderHints are used to specify flags to QPainter that
+    may, or may not, be respected by any given
+    engine. QPainter::Antialiasing indicates that the engine should
+    anti-alias the edges of primitives if possible, i.e. put
+    additional pixels around the original ones to smooth the edges.
+
+    The difference between floating point precision and integer
+    precision is a matter of accuracy, and is visible in the
+    application's main window: Even though the logic that is
+    calculating the circles' geometry is the same, floating points
+    ensure that the white spaces between each circle are of the same
+    size, while integers make two and two circles appear as if they
+    belong together. The reason is that the integer based precision
+    rely on rounding off non-integer calculations.
+
+    The example consists of two classes:
+
+    \list
+    \o \c CircleWidget is a custom widget which renders several animated
+       concentric circles.
+    \o \c Window is the application's main window displaying four \c
+       {CircleWidget}s drawn using different combinations of precision
+       and aliasing.
+    \endlist
+
+    First we will review the CircleWidget class, then we will take a
+    look at the Window class.
+
+    \section1 CircleWidget Class Definition
+
+    The CircleWidget class inherits QWidget, and is a custom widget
+    which renders several animated concentric circles.
+
+    \quotefromfile painting/concentriccircles/circlewidget.h
+    \skipto class CircleWidget
+    \printuntil /^\};/
+
+    We declare the \c floatBased and \c antialiased variables to hold
+    whether an instance of the class should be rendered with integer
+    or float based precision, and whether the rendering should be
+    anti-aliased or not. We also declare functions setting each of
+    these variables.
+
+    In addition we reimplement the QWidget::paintEvent() function to
+    apply the various combinations of precision and anti-aliasing when
+    rendering, and to support the animation. We reimplement the
+    QWidget::minimumSizeHint() and QWidget::sizeHint() functions to
+    give the widget a reasonable size within our application.
+
+    We declare the private \c nextAnimationFrame() slot, and the
+    associated \c frameNo variable holding the number of "animation
+    frames" for the widget, to facilitate the animation.
+
+    \section1 CircleWidget Class Implementation
+
+    In the constructor we make the widget's rendering integer based
+    and aliased by default:
+
+    \quotefromfile painting/concentriccircles/circlewidget.cpp
+    \skipto CircleWidget
+    \printuntil /^\}/
+
+    We initialize the widget's \c frameNo variable, and set the
+    widget's background color using the QWidget::setBackgroundColor()
+    function which takes a \l {QPalette::ColorRole}{color role} as
+    argument; the QPalette::Base color role is typically white.
+
+    Then we set the widgets size policy using the
+    QWidget::setSizePolicy() function. QSizePolicy::Expanding means
+    that the widget's \l {QWidget::sizeHint()}{sizeHint()} is a
+    sensible size, but that the widget can be shrunk and still be
+    useful. The widget can also make use of extra space, so it should
+    get as much space as possible.
+
+    \skipto setFloatBased
+    \printuntil /^\}/
+
+    \skipto setAntialiased
+    \printuntil /^\}/
+
+    The public \c setFloatBased() and \c setAntialiased() functions
+    update the widget's rendering preferences, i.e. whether the widget
+    should be rendered with integer or float based precision, and
+    whether the rendering should be anti-aliased or not.
+
+    The functions also generate a paint event by calling the
+    QWidget::update() function, forcing a repaint of the widget with
+    the new rendering preferences.
+
+    \skipto minimumSizeHint
+    \printuntil /^\}/
+
+    \skipto sizeHint
+    \printuntil /^\}/
+
+    The default implementations of the QWidget::minimumSizeHint() and
+    QWidget::sizeHint() functions return invalid sizes if there is no
+    layout for the widget, otherwise they return the layout's minimum and
+    preferred size, respectively.
+
+    We reimplement the functions to give the widget minimum and
+    preferred sizes which are reasonable within our application.
+
+    \skipto nextAnimationFrame
+    \printuntil /^\}/
+
+    The nextAnimationFrame() slot simply increments the \c frameNo
+    variable's value, and calls the QWidget::update() function which
+    schedules a paint event for processing when Qt returns to the main
+    event loop.
+
+    \skipto paintEvent
+    \printuntil translate
+
+    A paint event is a request to repaint all or part of the
+    widget. The \c paintEvent() function is an event handler that can
+    be reimplemented to receive the widget's paint events. We
+    reimplement the event handler to apply the various combinations of
+    precision and anti-aliasing when rendering the widget, and to
+    support the animation.
+
+    First, we create a QPainter for the widget, and set its
+    antialiased flag to the widget's preferred aliasing. We also
+    translate the painters coordinate system, preparing to draw the
+    widget's cocentric circles. The translation ensures that the
+    center of the circles will be equivalent to the widget's center.
+
+    \skipto diameter
+    \printuntil alpha
+
+    When painting a circle, we use the number of "animation frames" to
+    determine the alpha channel of the circle's color. The alpha
+    channel specifies the color's transparency effect, 0 represents a
+    fully transparent color, while 255 represents a fully opaque
+    color.
+
+    \skipto alpha > 0
+    \printuntil /^\}/
+
+    If the calculated alpha channel is fully transparent, we don't
+    draw anything since that would be equivalent to drawing a white
+    circle on a white background. Instead we skip to the next circle
+    still creating a white space. If the calculated alpha channel is
+    fully opaque, we set the pen (the QColor passed to the QPen
+    constructor is converted into the required QBrush by default) and
+    draw the circle. If the widget's preferred precision is float
+    based, we specify the circle's bounding rectangle using QRectF and
+    double values, otherwise we use QRect and integers.
+
+    The animation is controlled by the public \c nextAnimationFrame()
+    slot: Whenever the \c nextAnimationFrame() slot is called the
+    number of frames is incremented and a paint event is
+    scheduled. Then, when the widget is repainted, the alpha-blending
+    of the circles' colors change and the circles appear as animated.
+
+    \section1 Window Class Definition
+
+    The Window class inherits QWidget, and is the application's main
+    window rendering four \c {CircleWidget}s using different
+    combinations of precision and aliasing.
+
+    \quotefromfile painting/concentriccircles/window.h
+    \skipto class Window
+    \printuntil /^\};/
+
+    We declare the various components of the main window, i.e the text
+    labels and a double array that will hold reference to the four \c
+    {CircleWidget}s. In addition we declare the private \c
+    createLabel() function to simplify the constructor.
+
+    \section1 Window Class Implementation
+
+    \quotefromfile painting/concentriccircles/window.cpp
+    \skipto Window
+    \printuntil addWidget(floatLabel
+
+    In the constructor, we first create the various labels and put
+    them in a QGridLayout.
+
+    \skipto timer
+    \printto start
+
+    Then we create a QTimer. The QTimer class is a high-level
+    programming interface for timers, and provides repetitive and
+    single-shot timers.
+
+    We create a timer to facilitate the animation of our concentric
+    circles; when we create the four CircleWidget instances (and add
+    them to the layout), we connect the QTimer::timeout() signal to
+    each of the widgets' \c nextAnimationFrame() slots.
+
+    \skipto start
+    \printuntil /^\}/
+
+    Before we set the layout and window title for our main window, we
+    make the timer start with a timeout interval of 100 milliseconds,
+    using the QTimer::start() function. That means that the
+    QTimer::timeout() signal will be emitted, forcing a repaint of the
+    four \c {CircleWidget}s, every 100 millisecond which is the reason
+    the circles appear as animated.
+
+    \skipto createLabel
+    \printuntil /^\}/
+
+    The private \c createLabel() function is implemented to simlify
+    the constructor.
 */
