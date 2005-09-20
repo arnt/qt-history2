@@ -37,6 +37,33 @@
     value) or set a color name (the color name can be any of the SVG 1.0 color
     names).
 
+    QColor also support alpha-blended outlining and filling. The
+    alpha channel of a color specifies the transparency effect, 0
+    represents a fully transparent color, while 255 represents a fully
+    opaque color. For example:
+
+    \code
+    // Specfiy semi-transparent red
+    painter.setBrush(QColor(255, 0, 0, 127));
+    painter.drawRect(0, 0, width()/2, height());
+
+    // Specify semi-transparend blue
+    painter.setBrush(QColor(0, 0, 255, 127));
+    painter.drawRect(0, 0, width(), height()/2);
+    \endcode
+
+    The code above produces the following output:
+
+    \img alphafill.png
+
+    Alpha-blended drawing is supported on Windows, Mac OS X, and on
+    X11 systems that have the X Render extension installed.
+
+    The alpha channel of a color can be retrieved and set using the
+    alpha() and setAlpha() functions, respectively, if its value is an
+    integer, and alphaF() and setAlphaF() if its value is qreal
+    (double).
+
     QColor's validity (isValid()) indicates whether it is legal at
     all. For example, a RGB color with RGB values out of range is
     illegal. For performance reasons, QColor mostly disregards illegal

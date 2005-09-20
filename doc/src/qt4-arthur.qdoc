@@ -145,8 +145,11 @@
 
     \section2 Alpha-Blended Drawing
 
-    With Qt 4 we support alpha-blended outlining and filling. The alpha
-    channel of a color is specified through QColor.
+    With Qt 4 we support alpha-blended outlining and filling. The
+    alpha channel of a color is defined through QColor. The alpha
+    channel specifies the transparency effect, 0 represents a fully
+    transparent color, while 255 represents a fully opaque color. For
+    example:
 
     \code
     // Specfiy semi-transparent red
