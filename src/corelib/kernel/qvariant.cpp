@@ -1795,7 +1795,7 @@ const char *QVariant::typeToName(Type typ)
 {
     if (typ == UserType)
         return "UserType";
-    if (typ < CoreTypeCount)
+    if (typ < int(CoreTypeCount))
         return core_type_map[typ];
     if (typ >= QVariant::Font - 1 && typ <= QVariant::TextFormat)
         return gui_type_map[int(typ) - QVariant::Font + 1];
