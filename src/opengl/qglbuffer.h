@@ -11,20 +11,20 @@
 **
 ****************************************************************************/
 
-#ifndef QGLPBUFFER_H
-#define QGLPBUFFER_H
+#ifndef QGLBUFFER_H
+#define QGLBUFFER_H
 #include <QtGui/qpaintdevice.h>
 #include <QtOpenGL/qgl.h>
 
-class QGLPbufferPrivate;
-class Q_OPENGL_EXPORT QGLPbuffer : public QPaintDevice
+class QGLBufferPrivate;
+class Q_OPENGL_EXPORT QGLBuffer : public QPaintDevice
 {
-    Q_DECLARE_PRIVATE(QGLPbuffer)
+    Q_DECLARE_PRIVATE(QGLBuffer)
 public:
-    QGLPbuffer(const QSize &size,
+    QGLBuffer(const QSize &size,
                const QGLFormat &format = QGLFormat::defaultFormat(),
                QGLWidget *shareWidget = 0);
-    virtual ~QGLPbuffer();
+    virtual ~QGLBuffer();
 
     bool isValid() const;
     bool makeCurrent();
@@ -51,10 +51,10 @@ public:
 
 protected:
     int metric(PaintDeviceMetric metric) const;
-    int devType() const { return QInternal::Pbuffer; }
+    int devType() const { return QInternal::OpenGLBuffer; }
 
 private:
-    QGLPbufferPrivate *d_ptr;
+    QGLBufferPrivate *d_ptr;
 };
 
-#endif // QGLPBUFFER_H
+#endif // QGLBUFFER_H

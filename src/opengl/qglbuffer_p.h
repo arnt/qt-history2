@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QGLPBUFFER_P_H
-#define QGLPBUFFER_P_H
+#ifndef QGLBUFFER_P_H
+#define QGLBUFFER_P_H
 
 #ifdef Q_WS_X11
 #include <GL/glx.h>
@@ -25,10 +25,10 @@ DECLARE_HANDLE(HPBUFFERARB);
 #include <AGL/agl.h>
 #endif
 
-class QGLPbufferPrivate {
-    Q_DECLARE_PUBLIC(QGLPbuffer)
+class QGLBufferPrivate {
+    Q_DECLARE_PUBLIC(QGLBuffer)
 public:
-    QGLPbufferPrivate() : invalid(true), qctx(0), pbuf(0), ctx(0)
+    QGLBufferPrivate() : invalid(true), qctx(0), pbuf(0), ctx(0)
     {
 #ifdef Q_WS_WIN
         dc = 0;
@@ -40,7 +40,7 @@ public:
     bool invalid;
     QSize size;
     QGLContext *qctx;
-    QGLPbuffer *q_ptr;
+    QGLBuffer *q_ptr;
 
 #ifdef Q_WS_X11
     GLXPbuffer pbuf;
@@ -57,4 +57,4 @@ public:
 #endif
 };
 
-#endif // QGLPBUFFER_P_H
+#endif // QGLBUFFER_P_H

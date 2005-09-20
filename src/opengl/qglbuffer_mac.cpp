@@ -20,10 +20,10 @@
 #include <qdebug.h>
 
 
-QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
-    : d_ptr(new QGLPbufferPrivate)
+QGLBuffer::QGLBuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
+    : d_ptr(new QGLBufferPrivate)
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     GLint attribs[40];
     int i = 0;
 
@@ -57,9 +57,9 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
     d->qctx = new QGLContext(f);
 }
 
-QGLPbuffer::~QGLPbuffer()
+QGLBuffer::~QGLBuffer()
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     aglSetCurrentContext(0);
     aglDestroyContext(d->ctx);
     aglDestroyPBuffer(d->pbuf);
@@ -67,9 +67,9 @@ QGLPbuffer::~QGLPbuffer()
     delete d_ptr;
 }
 
-bool QGLPbuffer::bind(GLuint texture_id)
+bool QGLBuffer::bind(GLuint texture_id)
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     if (d->invalid)
 	return false;
     glBindTexture(GL_TEXTURE_2D, texture_id);
@@ -78,31 +78,31 @@ bool QGLPbuffer::bind(GLuint texture_id)
     return true;
 }
 
-bool QGLPbuffer::release()
+bool QGLBuffer::release()
 {
     return false;
 }
 
-bool QGLPbuffer::makeCurrent()
+bool QGLBuffer::makeCurrent()
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     if (d->invalid)
         return false;
 
     return aglSetCurrentContext(d->ctx);
 }
 
-bool QGLPbuffer::doneCurrent()
+bool QGLBuffer::doneCurrent()
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     if (d->invalid)
         return false;
     return false;
 }
 
-GLuint QGLPbuffer::generateTexture(GLint)
+GLuint QGLBuffer::generateTexture(GLint)
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);

@@ -12,23 +12,23 @@
 ****************************************************************************/
 
 /*!
-    \class QGLPbuffer
-    \brief The QGLPbuffer class encapsulates an OpenGL pbuffer.
+    \class QGLBuffer
+    \brief The QGLBuffer class encapsulates an OpenGL offscreen buffer.
 
     \ingroup multimedia
 
-    QGLPbuffer provides functionality for creating and managing an
-    OpenGL pbuffer. An OpenGL pbuffer is an offscreen buffer that can
+    QGLBuffer provides functionality for creating and managing an
+    OpenGL offscreen buffer. An OpenGL offscreen buffer can
     be rendered into using full hardware acceleration. This is usually
     much faster than rendering into a system pixmap, since software
     rendering is often used in that case. Under Windows and on the Mac
-    it is also possible to bind the pbuffer directly as a texture
+    it is also possible to bind the buffer directly as a texture
     using the \c render_texture, thus eliminating the need for
     additional copy operations to generate dynamic textures.
 
     Note that when makeing use of the \c render_texture extension, the
-    well known power-of-2 rule applies to the size of the pbuffer. If
-    the size of the pbuffer is a non-power of 2 size, it can not be
+    well known power-of-2 rule applies to the size of the buffer. If
+    the size of the buffer is a non-power of 2 size, it can not be
     bound to a texture.
 */
 
@@ -37,57 +37,57 @@
 #include <private/qpaintengine_opengl_p.h>
 #include <qimage.h>
 
-/*! \fn bool QGLPbuffer::makeCurrent()
+/*! \fn bool QGLBuffer::makeCurrent()
 
-    Makes this pbuffer the current GL rendering context. Returns true
+    Makes this buffer the current GL rendering context. Returns true
     on success, false otherwise.
  */
 
-/*! \fn bool QGLPbuffer::doneCurrent()
+/*! \fn bool QGLBuffer::doneCurrent()
 
     Makes no context the current GL context. Returns true on success,
     false otherwise.
  */
 
-/*! \fn GLuint QGLPbuffer::generateTexture(GLint format)
+/*! \fn GLuint QGLBuffer::generateTexture(GLint format)
 
     This is a convenience function that generates and binds a 2D GL
-    texture that is the same size as the pbuffer, using \a format as
+    texture that is the same size as the buffer, using \a format as
     the internal texture format. The default internal format of the
     generated texture is \c GL_RGBA8. The generated texture id is
     returned.
 */
 
-/*! \fn bool QGLPbuffer::bind(GLuint texture_id)
+/*! \fn bool QGLBuffer::bind(GLuint texture_id)
 
     Binds the texture specified with \a texture_id to this
-    pbuffer. Returns true on success, false otherwise.
+    buffer. Returns true on success, false otherwise.
 
     This function uses the \c {render_texture} extension, which is
     currently not supported under X11. Under X11 you can achieve the
-    same by copying the pbuffer contents to a texture after drawing
-    into the pbuffer using copyToTexture().
+    same by copying the buffer contents to a texture after drawing
+    into the buffer using copyToTexture().
  */
 
-/*! \fn bool QGLPbuffer::release()
+/*! \fn bool QGLBuffer::release()
 
-    Releases the pbuffer from any previously bound texture. Returns
+    Releases the buffer from any previously bound texture. Returns
     true on success, false otherwise.
 
     This function uses the \c {render_texture} extension, which is
     currently not supported under X11.
 */
 
-/*! \fn void QGLPbuffer::copyToTexture(GLuint texture_id, GLint format)
+/*! \fn void QGLBuffer::copyToTexture(GLuint texture_id, GLint format)
 
-    This is a convenience function that copies the pbuffer contents
+    This is a convenience function that copies the buffer contents
     (using \c {glCopyTexImage2D()}) into the texture specified with \a
     texture_id, which has the internal format \a format. The default
     format is \c GL_RGBA8.
  */
-void QGLPbuffer::copyToTexture(GLuint texture_id, GLint format)
+void QGLBuffer::copyToTexture(GLuint texture_id, GLint format)
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     if (d->invalid)
         return;
     glBindTexture(GL_TEXTURE_2D, texture_id);
@@ -95,25 +95,25 @@ void QGLPbuffer::copyToTexture(GLuint texture_id, GLint format)
 }
 
 /*!
-    Returns the size of the pbuffer.
+    Returns the size of the buffer.
  */
-QSize QGLPbuffer::size() const
+QSize QGLBuffer::size() const
 {
-    Q_D(const QGLPbuffer);
+    Q_D(const QGLBuffer);
     return d->size;
 }
 
 
 /*!
-    Returns the contents of the pbuffer as a QImage.
+    Returns the contents of the buffer as a QImage.
  */
-QImage QGLPbuffer::toImage() const
+QImage QGLBuffer::toImage() const
 {
-    Q_D(const QGLPbuffer);
+    Q_D(const QGLBuffer);
     if (d->invalid)
         return QImage();
 
-    const_cast<QGLPbuffer *>(this)->makeCurrent();
+    const_cast<QGLBuffer *>(this)->makeCurrent();
     QImage img(d->size, QImage::Format_ARGB32);
     int w = d->size.width();
     int h = d->size.height();
@@ -141,29 +141,29 @@ QImage QGLPbuffer::toImage() const
     return img.mirrored();
 }
 
-Qt::HANDLE QGLPbuffer::handle() const
+Qt::HANDLE QGLBuffer::handle() const
 {
-    Q_D(const QGLPbuffer);
+    Q_D(const QGLBuffer);
     if (d->invalid)
         return 0;
     return 0;
 }
 
 /*!
-    Returns true if this pbuffer is valid.
+    Returns true if this buffer is valid.
 */
-bool QGLPbuffer::isValid() const
+bool QGLBuffer::isValid() const
 {
-    Q_D(const QGLPbuffer);
+    Q_D(const QGLBuffer);
     return !d->invalid;
 }
 
-Q_GLOBAL_STATIC(QOpenGLPaintEngine, qt_pbuffer_paintengine)
+Q_GLOBAL_STATIC(QOpenGLPaintEngine, qt_buffer_paintengine)
 /*! \reimp
 */
-QPaintEngine *QGLPbuffer::paintEngine() const
+QPaintEngine *QGLBuffer::paintEngine() const
 {
-    return qt_pbuffer_paintengine();
+    return qt_buffer_paintengine();
 }
 
 extern int qt_defaultDpi();
@@ -171,9 +171,9 @@ extern int qt_defaultDpi();
 /*!
     Returns the size for the specified \a metric on the device.
 */
-int QGLPbuffer::metric(PaintDeviceMetric metric) const
+int QGLBuffer::metric(PaintDeviceMetric metric) const
 {
-    Q_D(const QGLPbuffer);
+    Q_D(const QGLBuffer);
 
     float dpmx = qt_defaultDpi()*100./2.54;
     float dpmy = qt_defaultDpi()*100./2.54;
@@ -221,7 +221,7 @@ int QGLPbuffer::metric(PaintDeviceMetric metric) const
         break;
 
     default:
-        qWarning("QGLPbuffer::metric(), Unhandled metric type: %d\n", metric);
+        qWarning("QGLBuffer::metric(), Unhandled metric type: %d\n", metric);
         break;
     }
     return 0;
@@ -232,9 +232,9 @@ int QGLPbuffer::metric(PaintDeviceMetric metric) const
 
     \sa deleteTexture()
 */
-GLuint QGLPbuffer::bindTexture(const QImage &image, GLenum target, GLint format)
+GLuint QGLBuffer::bindTexture(const QImage &image, GLenum target, GLint format)
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     return d->qctx->bindTexture(image, target, format);
 }
 
@@ -245,9 +245,9 @@ GLuint QGLPbuffer::bindTexture(const QImage &image, GLenum target, GLint format)
 
     \sa deleteTexture()
 */
-GLuint QGLPbuffer::bindTexture(const QPixmap &pixmap, GLenum target, GLint format)
+GLuint QGLBuffer::bindTexture(const QPixmap &pixmap, GLenum target, GLint format)
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     return d->qctx->bindTexture(pixmap, target, format);
 }
 
@@ -257,17 +257,17 @@ GLuint QGLPbuffer::bindTexture(const QPixmap &pixmap, GLenum target, GLint forma
 
     \sa deleteTexture()
 */
-GLuint QGLPbuffer::bindTexture(const QString &fileName)
+GLuint QGLBuffer::bindTexture(const QString &fileName)
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     return d->qctx->bindTexture(fileName);
 }
 
 /*!
     The same as calling QGLContext::deleteTexture().
  */
-void QGLPbuffer::deleteTexture(GLuint texture_id)
+void QGLBuffer::deleteTexture(GLuint texture_id)
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     d->qctx->deleteTexture(texture_id);
 }

@@ -59,10 +59,10 @@ void glXSelectEvent(Display *, GLXDrawable, unsigned long) {}
 #endif
 
 
-QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
-    : d_ptr(new QGLPbufferPrivate)
+QGLBuffer::QGLBuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
+    : d_ptr(new QGLBufferPrivate)
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     QString extensions(glXGetClientString(QX11Info::display(), GLX_EXTENSIONS));
     QString version(glXGetClientString(QX11Info::display(), GLX_VERSION));
 
@@ -142,44 +142,44 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
     }
 }
 
-QGLPbuffer::~QGLPbuffer()
+QGLBuffer::~QGLBuffer()
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     glXDestroyContext(QX11Info::display(), d->ctx);
     glXDestroyPbuffer(QX11Info::display(), d->pbuf);
     delete d->qctx;
     delete d_ptr;
 }
 
-bool QGLPbuffer::makeCurrent()
+bool QGLBuffer::makeCurrent()
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     if (d->invalid)
         return false;
     return glXMakeContextCurrent(QX11Info::display(), d->pbuf, d->pbuf, d->ctx);
 }
 
-bool QGLPbuffer::doneCurrent()
+bool QGLBuffer::doneCurrent()
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     if (d->invalid)
         return false;
     return glXMakeContextCurrent(QX11Info::display(), 0, 0, 0);
 }
 
-bool QGLPbuffer::bind(GLuint)
+bool QGLBuffer::bind(GLuint)
 {
     return false;
 }
 
-bool QGLPbuffer::release()
+bool QGLBuffer::release()
 {
     return false;
 }
 
-GLuint QGLPbuffer::generateTexture(GLint format)
+GLuint QGLBuffer::generateTexture(GLint format)
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);

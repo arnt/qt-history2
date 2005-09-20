@@ -148,10 +148,10 @@ PFNWGLSETPBUFFERATTRIBARBPROC wglSetPbufferAttribARB = 0;
 
 bool qt_init_glpbuffer_extensions();
 
-QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
-    : d_ptr(new QGLPbufferPrivate)
+QGLBuffer::QGLBuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
+    : d_ptr(new QGLBufferPrivate)
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     if (!qt_init_glpbuffer_extensions())
         return;
 
@@ -214,9 +214,9 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
     d->qctx = new QGLContext(f);
 }
 
-QGLPbuffer::~QGLPbuffer()
+QGLBuffer::~QGLBuffer()
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     wglMakeCurrent(d->dc, 0);
     wglDeleteContext(d->ctx);
     if (!d->invalid) {
@@ -227,42 +227,42 @@ QGLPbuffer::~QGLPbuffer()
     delete d_ptr;
 }
 
-bool QGLPbuffer::bind(GLuint texture_id)
+bool QGLBuffer::bind(GLuint texture_id)
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     if (d->invalid)
 	return false;
     glBindTexture(GL_TEXTURE_2D, texture_id);
     return wglBindTexImageARB(d->pbuf, WGL_FRONT_LEFT_ARB);
 }
 
-bool QGLPbuffer::release()
+bool QGLBuffer::release()
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     if (d->invalid)
 	return false;
     return wglReleaseTexImageARB(d->pbuf, WGL_FRONT_LEFT_ARB);
 }
 
-bool QGLPbuffer::makeCurrent()
+bool QGLBuffer::makeCurrent()
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     if (d->invalid)
         return false;
     return wglMakeCurrent(d->dc, d->ctx);
 }
 
-bool QGLPbuffer::doneCurrent()
+bool QGLBuffer::doneCurrent()
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     if (d->invalid)
         return false;
     return wglMakeCurrent(d->dc, 0);
 }
 
-GLuint QGLPbuffer::generateTexture(GLint format)
+GLuint QGLBuffer::generateTexture(GLint format)
 {
-    Q_D(QGLPbuffer);
+    Q_D(QGLBuffer);
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
