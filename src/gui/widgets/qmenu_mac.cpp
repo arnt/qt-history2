@@ -47,7 +47,8 @@ enum {
 
     kHICommandAboutQt = 'AOQT'
 };
-struct {
+
+static struct {
     QPointer<QMenuBar> qmenubar;
     bool modal;
 } qt_mac_current_menubar = { 0, false };
@@ -250,26 +251,14 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
         if(QMenu *qmenu = ::qobject_cast<QMenu*>(widget)) {
             if(action_e == QAction::Trigger) {
                 emit qmenu->triggered(action->action);
-#ifdef QT3_SUPPORT
-                emit qmenu->activated(qmenu->findIdForAction(action->action));
-#endif
             } else if(action_e == QAction::Hover) {
                 emit qmenu->hovered(action->action);
-#ifdef QT3_SUPPORT
-                emit qmenu->highlighted(qmenu->findIdForAction(action->action));
-#endif
             }
         } else if(QMenuBar *qmenubar = ::qobject_cast<QMenuBar*>(widget)) {
             if(action_e == QAction::Trigger) {
                 emit qmenubar->triggered(action->action);
-#ifdef QT3_SUPPORT
-                emit qmenubar->activated(qmenu->findIdForAction(action->action));
-#endif
             } else if(action_e == QAction::Hover) {
                 emit qmenubar->hovered(action->action);
-#ifdef QT3_SUPPORT
-                emit qmenubar->highlighted(qmenu->findIdForAction(action->action));
-#endif
             }
             break; //nothing more..
         }
