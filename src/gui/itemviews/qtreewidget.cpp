@@ -1565,6 +1565,7 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
   tree model.
 
   \ingroup model-view
+  \mainclass
 
   The QTreeWidget class is a convenience class that provides a standard
   tree widget with a classic item-based interface similar to that used by

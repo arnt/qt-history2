@@ -80,10 +80,11 @@ public:
 
 /*!
     \enum QCheckBox::ToggleState
+    \compat
 
-    \value Off
-    \value NoChange
-    \value On
+    \value Off  Use Qt::Unchecked instead.
+    \value NoChange  Use Qt::PartiallyChecked instead.
+    \value On  Use Qt::Checked instead.
 */
 
 /*!
