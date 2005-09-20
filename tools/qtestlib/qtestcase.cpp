@@ -603,3 +603,11 @@ char *QTest::toString(const void *p)
     return msg;
 }
 
+bool QTest::compare_string_helper(const char *t1, const char *t2, const char *actual,
+                                  const char *expected, const char *file, int line)
+{
+    return (qstrcmp(t1, t2) == 0)
+            ? compare_helper(true, "COMPARE()", file, line)
+            : compare_helper(false, "Compared strings are not the same",
+                             toString(t1), toString(t2), actual, expected, file, line);
+}

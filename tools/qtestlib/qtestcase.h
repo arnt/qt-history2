@@ -158,14 +158,8 @@ namespace QTest
                              toString(t1), toString(t2), actual, expected, file, line);
     }
 
-    inline bool compare_string_helper(const char *t1, const char *t2, const char *actual,
-                                      const char *expected, const char *file, int line)
-    {
-        return (t1 == t2)
-            ? compare_helper(true, "COMPARE()", file, line)
-            : compare_helper(false, "Compared strings are not the same",
-                             toString(t1), toString(t2), actual, expected, file, line);
-    }
+    Q_TESTLIB_EXPORT bool compare_string_helper(const char *t1, const char *t2, const char *actual,
+                                      const char *expected, const char *file, int line);
 
 #ifndef qdoc
     QTEST_COMPARE_DECL(short)
