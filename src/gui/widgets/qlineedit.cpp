@@ -35,6 +35,8 @@
 #include "qvector.h"
 #include "qwhatsthis.h"
 #include "qdebug.h"
+#include "qtextedit.h"
+#include <private/qtextedit_p.h>
 #include <private/qinternal_p.h>
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
@@ -2201,6 +2203,7 @@ void QLineEdit::contextMenuEvent(QContextMenuEvent *event)
 
 QMenu *QLineEdit::createStandardContextMenu()
 {
+    extern bool qt_use_rtl_extensions;
     Q_D(QLineEdit);
     d->actions[QLineEditPrivate::UndoAct]->setEnabled(d->isUndoAvailable());
     d->actions[QLineEditPrivate::RedoAct]->setEnabled(d->isRedoAvailable());
@@ -2235,6 +2238,11 @@ QMenu *QLineEdit::createStandardContextMenu()
             popup->addAction(imActions.at(i));
     }
 #endif
+    if (qt_use_rtl_extensions && !d->readOnly) {
+        popup->addSeparator();
+        QUnicodeControlCharacterMenu *ctrlCharacterMenu = new QUnicodeControlCharacterMenu(this);
+        popup->addMenu(ctrlCharacterMenu);
+    }
     return popup;
 }
 #endif // QT_NO_MENU

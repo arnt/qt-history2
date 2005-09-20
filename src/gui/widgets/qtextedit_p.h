@@ -31,6 +31,7 @@
 #include <qtextcursor.h>
 #include <qtextformat.h>
 #include <qbasictimer.h>
+#include <qmenu.h>
 
 #ifndef QT_NO_TEXTEDIT
 
@@ -163,6 +164,16 @@ public:
 #endif
 
     bool overwriteMode;
+};
+
+class QUnicodeControlCharacterMenu : public QMenu
+{
+    Q_OBJECT
+public:
+    QUnicodeControlCharacterMenu(QWidget *parent);
+
+private slots:
+    void actionTriggered();
 };
 
 #endif // QT_NO_TEXTEDIT

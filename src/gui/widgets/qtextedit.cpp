@@ -29,6 +29,7 @@
 #include "private/qtextdocumentlayout_p.h"
 #include "qtextdocument.h"
 #include "qtextlist.h"
+#include "qlineedit.h"
 
 #include <qtextformat.h>
 #include <qdatetime.h>
@@ -2304,6 +2305,7 @@ void QTextEdit::wheelEvent(QWheelEvent *e)
 
 QMenu *QTextEdit::createStandardContextMenu()
 {
+    extern bool qt_use_rtl_extensions;
     Q_D(QTextEdit);
 
     QMenu *menu = new QMenu(this);
@@ -2339,6 +2341,12 @@ QMenu *QTextEdit::createStandardContextMenu()
                         , this, SLOT(selectAll()));
 
     a->setEnabled(!d->doc->isEmpty());
+
+    if (qt_use_rtl_extensions && !d->readOnly) {
+        menu->addSeparator();
+        QUnicodeControlCharacterMenu *ctrlCharacterMenu = new QUnicodeControlCharacterMenu(this);
+        menu->addMenu(ctrlCharacterMenu);
+    }
 
     return menu;
 }
@@ -3266,5 +3274,46 @@ void QTextEdit::ensureCursorVisible()
     Use setTextColor() instead.
 */
 
+#define NUM_CONTROL_CHARACTERS 10
+const struct QUnicodeControlCharacter {
+    const char *text;
+    const uchar character;
+} qt_controlCharacters[NUM_CONTROL_CHARACTERS] = {
+    { QT_TRANSLATE_NOOP("QUnicodeControlCharacterMenu", "LRM Left-to-right mark"), 0x200e },
+    { QT_TRANSLATE_NOOP("QUnicodeControlCharacterMenu", "RLM Right-to-left mark"), 0x200f },
+    { QT_TRANSLATE_NOOP("QUnicodeControlCharacterMenu", "ZWJ Zero width joiner"), 0x200d },
+    { QT_TRANSLATE_NOOP("QUnicodeControlCharacterMenu", "ZWNJ Zero width non-joiner"), 0x200c },
+    { QT_TRANSLATE_NOOP("QUnicodeControlCharacterMenu", "ZWSP Zero width space"), 0x200b },
+    { QT_TRANSLATE_NOOP("QUnicodeControlCharacterMenu", "LRE Start of left-to-right embedding"), 0x202a },
+    { QT_TRANSLATE_NOOP("QUnicodeControlCharacterMenu", "RLE Start of right-to-left embedding"), 0x202b },
+    { QT_TRANSLATE_NOOP("QUnicodeControlCharacterMenu", "LRO Start of left-to-right override"), 0x202d },
+    { QT_TRANSLATE_NOOP("QUnicodeControlCharacterMenu", "RLO Start of right-to-left override"), 0x202e },
+    { QT_TRANSLATE_NOOP("QUnicodeControlCharacterMenu", "PDF Pop directional formatting"), 0x202c },
+};
+
+QUnicodeControlCharacterMenu::QUnicodeControlCharacterMenu(QWidget *parent)
+    : QMenu(parent)
+{
+    setTitle(tr("Insert Unicode control character"));
+    for (int i = 0; i < NUM_CONTROL_CHARACTERS; ++i) {
+        addAction(tr(qt_controlCharacters[i].text), this, SLOT(actionTriggered()));
+    }
+}
+
+void QUnicodeControlCharacterMenu::actionTriggered()
+{
+    QAction *a = qobject_cast<QAction *>(sender());
+    int idx = actions().indexOf(a);
+    if (idx < 0 || idx >= NUM_CONTROL_CHARACTERS)
+        return;
+    QString str(QChar(qt_controlCharacters[idx].character));
+
+    if (QTextEdit *edit = qobject_cast<QTextEdit *>(parent()))
+        edit->insertPlainText(str);
+    else if (QLineEdit *edit = qobject_cast<QLineEdit *>(parent()))
+        edit->insert(str);
+}
+
 #include "moc_qtextedit.cpp"
+#include "moc_qtextedit_p.cpp"
 #endif // QT_NO_TEXTEDIT
