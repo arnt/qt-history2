@@ -68,39 +68,6 @@
 #define qt_swap_int(x, y) { int tmp = (x); (x) = (y); (y) = tmp; }
 #define qt_swap_qreal(x, y) { qreal tmp = (x); (x) = (y); (y) = tmp; }
 
-static QT_FT_Raster qt_gray_raster;
-static QT_FT_Raster qt_black_raster;
-
-static void qt_initialize_ft()
-{
-//    printf("qt_initialize_ft()\n");
-    int error;
-
-    // The antialiasing raster.
-    error = qt_ft_grays_raster.raster_new(0, &qt_gray_raster);
-    if (error) {
-        qWarning("failed to initlize qt_ft_grays_raster");
-        return;
-    }
-
-    unsigned long poolSize = 128 * 128;
-
-#if defined(Q_WS_WIN64)
-    unsigned char *poolBase = (unsigned char *) _aligned_malloc(poolSize, __alignof(void*));
-#else
-    unsigned char *poolBase = (unsigned char *) malloc(poolSize);
-#endif
-
-    qt_ft_grays_raster.raster_reset(qt_gray_raster, poolBase, poolSize);
-
-    // Initialize the standard raster.
-    error = qt_ft_standard_raster.raster_new(0, &qt_black_raster);
-    if (error) {
-        qWarning("Failed to initialize standard raster: code=%d\n", error);
-        return;
-    }
-    qt_ft_standard_raster.raster_reset(qt_black_raster, poolBase, poolSize);
-}
 
 #ifdef Q_WS_WIN
 static void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC hdc,
@@ -122,9 +89,6 @@ struct ClipData
     QClipData *newClip;
     Qt::ClipOperation operation;
 };
-
-static void qt_scanconvert(QT_FT_Outline *outline, ProcessSpans callback, void *userData, QRasterPaintEnginePrivate *d);
-
 
 enum LineDrawMode {
     LineDrawClipped,
@@ -398,6 +362,8 @@ static void qt_debug_path(const QPainterPath &path)
 }
 #endif
 
+
+
 QRasterPaintEngine::QRasterPaintEngine()
     : QPaintEngine(*(new QRasterPaintEnginePrivate),
                    QPaintEngine::PaintEngineFeatures(AllFeatures)
@@ -416,14 +382,29 @@ void QRasterPaintEngine::init()
 {
     Q_D(QRasterPaintEngine);
 
+    d->rasterPoolSize = 255 * 255;
+    d->rasterPoolBase =
+#if defined(Q_WS_WIN64)
+        (unsigned char *) _aligned_malloc(d->rasterPoolSize, __alignof(void*));
+#else
+        (unsigned char *) malloc(d->rasterPoolSize);
+#endif
+
+    // The antialiasing raster.
+    d->grayRaster = new QT_FT_Raster;
+    qt_ft_grays_raster.raster_new(0, d->grayRaster);
+    qt_ft_grays_raster.raster_reset(*d->grayRaster, d->rasterPoolBase, d->rasterPoolSize);
+
+    // Initialize the standard raster.
+    d->blackRaster = new QT_FT_Raster;
+    qt_ft_standard_raster.raster_new(0, d->blackRaster);
+    qt_ft_standard_raster.raster_reset(*d->blackRaster, d->rasterPoolBase, d->rasterPoolSize);
+
     d->rasterBuffer = new QRasterBuffer();
 #ifdef Q_WS_WIN
     d->fontRasterBuffer = new QRasterBuffer();
 #endif
     d->outlineMapper = new QFTOutlineMapper;
-    if (!qt_gray_raster || !qt_black_raster) {
-        qt_initialize_ft();
-    };
 
     d->dashStroker = 0;
 
@@ -439,6 +420,19 @@ void QRasterPaintEngine::init()
 QRasterPaintEngine::~QRasterPaintEngine()
 {
     Q_D(QRasterPaintEngine);
+
+#if defined(Q_WS_WIN64)
+    _aligned_free(d->rasterPoolBase);
+#else
+    free(d->rasterPoolBase);
+#endif
+
+    qt_ft_grays_raster.raster_done(*d->grayRaster);
+    delete d->grayRaster;
+
+    qt_ft_standard_raster.raster_done(*d->blackRaster);
+    delete d->blackRaster;
+
 
     delete d->rasterBuffer;
     delete d->outlineMapper;
@@ -875,7 +869,7 @@ void QRasterPaintEngine::fillPath(const QPainterPath &path, QSpanData *fillData)
         return;
 
     Q_D(QRasterPaintEngine);
-    qt_scanconvert(d->outlineMapper->convertPath(path), fillData->blend, fillData, d);
+    d->rasterize(d->outlineMapper->convertPath(path), fillData->blend, fillData);
 }
 
 static void fillRect(const QRect &r, QSpanData *data)
@@ -997,7 +991,7 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
         }
         d->outlineMapper->endOutline();
 
-        qt_scanconvert(&d->outlineMapper->m_outline, d->penData.blend, &d->penData, d);
+        d->rasterize(&d->outlineMapper->m_outline, d->penData.blend, &d->penData);
         d->outlineMapper->setMatrix(d->matrix, d->txop);
     }
 
@@ -1028,7 +1022,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
         d->outlineMapper->endOutline();
 
         // scanconvert.
-        qt_scanconvert(&d->outlineMapper->m_outline, d->brushData.blend, &d->brushData, d);
+        d->rasterize(&d->outlineMapper->m_outline, d->brushData.blend, &d->brushData);
     }
 
     // Do the outline...
@@ -1083,7 +1077,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             }
             d->outlineMapper->endOutline();
 
-            qt_scanconvert(&d->outlineMapper->m_outline, d->penData.blend, &d->penData, d);
+            d->rasterize(&d->outlineMapper->m_outline, d->penData.blend, &d->penData);
 
             d->outlineMapper->setMatrix(d->matrix, d->txop);
         }
@@ -1482,7 +1476,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     }
 
     QFixed x_buffering = ti.ascent;
-    QRectF logRect(p.x(), p.y() - ti.ascent.toReal(), (ti.width + x_buffering).toReal(), 
+    QRectF logRect(p.x(), p.y() - ti.ascent.toReal(), (ti.width + x_buffering).toReal(),
 		    (ti.ascent + ti.descent).toReal());
     QRect devRect = d->matrix.mapRect(logRect).toRect();
 
@@ -1724,7 +1718,7 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
         }
         d->outlineMapper->endOutline();
 
-        qt_scanconvert(&d->outlineMapper->m_outline, d->brushData.blend, &d->brushData, d);
+        d->rasterize(&d->outlineMapper->m_outline, d->brushData.blend, &d->brushData);
     }
 
     if (d->penData.blend) {
@@ -1739,7 +1733,7 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
         }
         d->outlineMapper->endOutline();
 
-        qt_scanconvert(&d->outlineMapper->m_outline, d->penData.blend, &d->penData, d);
+        d->rasterize(&d->outlineMapper->m_outline, d->penData.blend, &d->penData);
 
         d->outlineMapper->setMatrix(d->matrix, d->txop);
     }
@@ -1921,6 +1915,46 @@ static void qt_merge_clip(const QClipData *c1, const QClipData *c2, QClipData *r
     result->fixup();
 }
 
+void QRasterPaintEnginePrivate::rasterize(QT_FT_Outline *outline,
+                                          ProcessSpans callback,
+                                          void *userData)
+{
+    if (!callback)
+        return;
+
+    void *data = userData;
+
+    QT_FT_BBox clip_box = { 0, 0, deviceRect.width(), deviceRect.height() };
+
+    QT_FT_Raster_Params rasterParams;
+    rasterParams.target = 0;
+    rasterParams.source = outline;
+    rasterParams.flags = QT_FT_RASTER_FLAG_CLIP;
+    rasterParams.gray_spans = 0;
+    rasterParams.black_spans = 0;
+    rasterParams.bit_test = 0;
+    rasterParams.bit_set = 0;
+    rasterParams.user = data;
+    rasterParams.clip_box = clip_box;
+
+    if (antialiased) {
+        rasterParams.flags |= (QT_FT_RASTER_FLAG_AA | QT_FT_RASTER_FLAG_DIRECT);
+        rasterParams.gray_spans = callback;
+        int error = qt_ft_grays_raster.raster_render(*grayRaster, &rasterParams);
+        if (error) {
+            printf("QRasterPaintEnginePrivate::rasterize(), gray raster failed: %d\n", error);
+        }
+    } else {
+        rasterParams.flags |= QT_FT_RASTER_FLAG_DIRECT;
+        rasterParams.black_spans = callback;
+        int error = qt_ft_standard_raster.raster_render(*blackRaster, &rasterParams);
+        if (error) {
+            qWarning("QRasterPaintEnginePrivate::rasterize(), black raster failed: %d", error);
+        }
+    }
+
+}
+
 
 void QRasterPaintEnginePrivate::updateClip_helper(const QPainterPath &path, Qt::ClipOperation op)
 {
@@ -1946,7 +1980,7 @@ void QRasterPaintEnginePrivate::updateClip_helper(const QPainterPath &path, Qt::
     if (!path.isEmpty()) {
         QClipData *newClip = new QClipData(rasterBuffer->height());
         ClipData clipData = { rasterBuffer->clip, newClip, op };
-        qt_scanconvert(outlineMapper->convertPath(path), qt_span_clip, &clipData, this);
+        rasterize(outlineMapper->convertPath(path), qt_span_clip, &clipData);
         newClip->fixup();
 
         if (op == Qt::UniteClip) {
@@ -2288,45 +2322,6 @@ static void qt_span_clip(int count, const QSpan *spans, void *userData)
     case Qt::NoClip:
         break;
     }
-}
-
-static void qt_scanconvert(QT_FT_Outline *outline, ProcessSpans callback, void *userData,
-                           QRasterPaintEnginePrivate *d)
-{
-    if (!callback)
-        return;
-
-    void *data = userData;
-
-    QT_FT_BBox clip_box = { 0, 0, d->deviceRect.width(), d->deviceRect.height() };
-
-    QT_FT_Raster_Params rasterParams;
-    rasterParams.target = 0;
-    rasterParams.source = outline;
-    rasterParams.flags = QT_FT_RASTER_FLAG_CLIP;
-    rasterParams.gray_spans = 0;
-    rasterParams.black_spans = 0;
-    rasterParams.bit_test = 0;
-    rasterParams.bit_set = 0;
-    rasterParams.user = data;
-    rasterParams.clip_box = clip_box;
-
-    if (d->antialiased) {
-        rasterParams.flags |= (QT_FT_RASTER_FLAG_AA | QT_FT_RASTER_FLAG_DIRECT);
-        rasterParams.gray_spans = callback;
-        int error = qt_ft_grays_raster.raster_render(qt_gray_raster, &rasterParams);
-        if (error) {
-            printf("qt_scanconvert(), gray raster failed...: %d\n", error);
-        }
-    } else {
-        rasterParams.flags |= QT_FT_RASTER_FLAG_DIRECT;
-        rasterParams.black_spans = callback;
-        int error = qt_ft_standard_raster.raster_render(qt_black_raster, &rasterParams);
-        if (error) {
-            qWarning("black raster failed to render, code=%d", error);
-        }
-    }
-
 }
 
 #ifndef QT_NO_DEBUG

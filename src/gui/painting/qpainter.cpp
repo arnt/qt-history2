@@ -28,6 +28,7 @@
 #include "qwidget.h"
 #include "qapplication.h"
 #include "qstyle.h"
+#include "qthread.h"
 
 #include <private/qfontengine_p.h>
 #include <private/qpaintengine_p.h>
@@ -3606,6 +3607,12 @@ void QPainter::drawText(const QRectF &r, const QString &text, const QTextOption 
     underlining and strikeout.
 */
 
+void qt_painter_tread_test()
+{
+    if (QThread::currentThread() != qApp->thread())
+        qWarning("QPainter: It is not safe to use text and fonts outside the gui thread");
+}
+
 void QPainter::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
 #ifdef QT_DEBUG_DRAW
@@ -3613,6 +3620,11 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &ti)
         printf("QPainter::drawTextItem(), pos=[%.f,%.f], str='%s'\n",
                p.x(), p.y(), qPrintable(ti.text()));
 #endif
+
+#ifndef QT_NO_DEBUG
+    qt_painter_tread_test();
+#endif
+
     if (!isActive())
         return;
     Q_D(QPainter);

@@ -118,6 +118,9 @@
 #include <private/qrasterdefs_p.h>
 #include <private/qgrayraster_p.h>
 
+#include <malloc.h>
+#include <stdio.h>
+
   /* This macro is used to indicate that a function parameter is unused. */
   /* Its purpose is simply to reduce compiler warnings.  Note also that  */
   /* simply defining it as `(void)x' doesn't avoid warnings with certain */
@@ -148,9 +151,6 @@
 
   /* as usual, for the speed hungry :-) */
 
-#ifndef QT_FT_STATIC_RASTER
-
-
 #define RAS_ARG   PRaster  raster
 #define RAS_ARG_  PRaster  raster,
 
@@ -159,19 +159,6 @@
 
 #define ras       (*raster)
 
-
-#else /* QT_FT_STATIC_RASTER */
-
-
-#define RAS_ARG   /* empty */
-#define RAS_ARG_  /* empty */
-#define RAS_VAR   /* empty */
-#define RAS_VAR_  /* empty */
-
-  static TRaster  ras;
-
-
-#endif /* QT_FT_STATIC_RASTER */
 
 
   /* must be at least 6 bits! */
@@ -1919,7 +1906,7 @@
     if ( ras.render_span && ras.num_gray_spans > 0 )
       ras.render_span( ras.num_gray_spans,
                        ras.gray_spans, ras.render_span_data );
-    
+
     if ( ras.band_shoot > 8 && ras.band_size > 16 )
       ras.band_size = ras.band_size / 2;
 
@@ -2035,13 +2022,13 @@
   gray_raster_new( void*       memory,
                    QT_FT_Raster*  araster )
   {
-    static TRaster  the_raster;
+    if (memory)
+        fprintf(stderr, "gray_raster_new(), memory ignored");
 
-    QT_FT_UNUSED( memory );
+    memory = malloc(sizeof(TRaster));
+    QT_FT_MEM_ZERO(memory, sizeof(TRaster));
 
-
-    *araster = (QT_FT_Raster)&the_raster;
-    QT_FT_MEM_ZERO( &the_raster, sizeof ( the_raster ) );
+    *araster = (QT_FT_Raster) memory;
 
 #ifdef GRAYS_USE_GAMMA
     grays_init_gamma( (PRaster)*araster );
@@ -2054,8 +2041,7 @@
   static void
   gray_raster_done( QT_FT_Raster  raster )
   {
-    /* nothing */
-    QT_FT_UNUSED( raster );
+    free(raster);
   }
 
   static void
@@ -2083,6 +2069,5 @@
     (QT_FT_Raster_Render_Func)  gray_raster_render,
     (QT_FT_Raster_Done_Func)    gray_raster_done
   };
-
 
 /* END */

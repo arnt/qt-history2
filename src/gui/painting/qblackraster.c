@@ -74,6 +74,7 @@ static QT_FT_Long QT_FT_MulDiv(QT_FT_Long  a, QT_FT_Long  b, QT_FT_Long  c)
 #include <string.h>
 #define QT_FT_MEM_ZERO(x, len) memset(x, 0, len);
 #include <stdio.h>
+#include <malloc.h>
 
 
 #define MAX(x, y) (x > y ? x : y)
@@ -450,16 +451,7 @@ struct  TRaster_Instance_
 };
 
 
-#ifdef QT_FT_CONFIG_OPTION_STATIC_RASTER
-
-static TRaster_Instance  cur_ras;
-#define ras  cur_ras
-
-#else
-
 #define ras  (*raster)
-
-#endif /* QT_FT_CONFIG_OPTION_STATIC_RASTER */
 
 
 /*************************************************************************/
@@ -2092,7 +2084,7 @@ Draw_Sweep( RAS_ARG )
                         spans[span_count].y = y;
                         spans[span_count].coverage = 255;
                         ++span_count;
-                        
+
                         if (span_count == MAX_SPANS) {
                             ras.black_spans(span_count, spans, ras.user_data);
                             span_count = 0;
@@ -2123,7 +2115,7 @@ Draw_Sweep( RAS_ARG )
 
     if (span_count > 0)
         ras.black_spans(span_count, spans, ras.user_data);
-    
+
     /* for gray-scaling, flushes the bitmap scanline cache */
     while ( y <= max_Y )
     {
@@ -2249,11 +2241,13 @@ static int
 qt_ft_black_new( void*      memory,
               QT_FT_Raster  *araster )
 {
-    static TRaster_Instance the_raster;
-    QT_FT_UNUSED( memory );
+    if (memory)
+        fprintf(stderr, "qt_ft_black_new(), memory ignored");
 
-    *araster = (QT_FT_Raster) &the_raster;
-    QT_FT_MEM_ZERO( &the_raster, sizeof ( the_raster ) );
+    memory = malloc(sizeof(TRaster_Instance));
+    QT_FT_MEM_ZERO(memory, sizeof(TRaster_Instance));
+
+    *araster = (QT_FT_Raster) memory;
 
     return 0;
 }
@@ -2262,9 +2256,7 @@ qt_ft_black_new( void*      memory,
 static void
 qt_ft_black_done( QT_FT_Raster  raster )
 {
-    QT_FT_UNUSED( raster );
-    /* nothing */
-/*     raster->init = 0; */
+    free(raster);
 }
 
 

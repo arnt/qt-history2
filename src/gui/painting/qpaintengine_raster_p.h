@@ -132,6 +132,8 @@ public:
 
     void drawBitmap(const QPointF &pos, const QPixmap &image, QSpanData *fill);
 
+    void rasterize(QT_FT_Outline *outline, ProcessSpans callback, void *userData);
+
     QMatrix brushMatrix() const {
         QMatrix m(matrix);
         m.translate(brushOffset.x(), brushOffset.y());
@@ -165,16 +167,25 @@ public:
     QDashStroker *dashStroker;
     QStrokerOps *stroker;
 
+
+    QT_FT_Raster *blackRaster;
+    QT_FT_Raster *grayRaster;
+    unsigned long rasterPoolSize;
+    unsigned char *rasterPoolBase;
+
+
     int deviceDepth;
 
     uint txop;
-    
+
     uint fast_pen : 1;
     uint antialiased : 1;
     uint bilinear : 1;
     uint flushOnEnd : 1;
     uint mono_surface : 1;
     uint int_xform : 1;
+
+
 };
 
 class QClipData {
@@ -252,7 +263,7 @@ public:
 #endif
     void prepare(int w, int h);
     void prepareBuffer(int w, int h);
-    
+
     void resetBuffer(int val=0);
 
     uchar *scanLine(int y) { Q_ASSERT(y>=0); Q_ASSERT(y<m_height); return m_buffer + y * bytes_per_line; }
@@ -263,7 +274,7 @@ public:
 #endif
 
     void flushToARGBImage(QImage *image) const;
-    
+
     int width() const { return m_width; }
     int height() const { return m_height; }
     int bytesPerLine() const { return bytes_per_line; }
