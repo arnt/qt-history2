@@ -306,31 +306,19 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, bool activateFir
     if (currentAction)
         q->update(actionRect(currentAction));
 
-    if (activeMenu) {
-        QMenu *menu = activeMenu;
-        activeMenu = 0;
-        // kill any running effect
-        qFadeEffect(0);
-        qScrollEffect(0);
-        menu->hide();
-    }
-
     sloppyAction = 0;
     if (!sloppyRegion.isEmpty())
         sloppyRegion = QRegion();
+    QMenu *hideActiveMenu = activeMenu;
     QAction *previousAction = currentAction;
     currentAction = action;
     if (action && !action->isSeparator()) {
         activateAction(action, QAction::Hover);
-        if (popup != -1)
+        if (popup != -1) {
+            hideActiveMenu = 0; //will be done "later"
             popupAction(currentAction, popup, activateFirst);
-        q->update(actionRect(action));
-
-        QMenuCaused cause = causedPopup;
-        while (QMenu *m = qobject_cast<QMenu*>(cause.widget)) {
-            m->d_func()->setCurrentAction(cause.action, -1, false);
-            cause = m->d_func()->causedPopup;
         }
+        q->update(actionRect(action));
     }  else if (previousAction) {
         QWidget *w = causedPopup.widget;
         while (QMenu *m = qobject_cast<QMenu*>(w))
@@ -340,6 +328,13 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, bool activateFir
             QStatusTipEvent tip(empty);
             QApplication::sendEvent(w, &tip);
         }
+    }
+    if (hideActiveMenu) {
+        activeMenu = 0;
+        // kill any running effect
+        qFadeEffect(0);
+        qScrollEffect(0);
+        hideActiveMenu->hide();
     }
 }
 
