@@ -324,7 +324,11 @@ static bool write_pbm_image(QIODevice *out, const QImage &sourceImage, const QBy
 
 bool QPpmHandler::canRead() const
 {
-    return canRead(device(), &subType);
+    if (canRead(device(), &subType)) {
+        setFormat(subType);
+        return true;
+    }
+    return false;
 }
 
 bool QPpmHandler::canRead(QIODevice *device, QByteArray *subType)
@@ -334,26 +338,9 @@ bool QPpmHandler::canRead(QIODevice *device, QByteArray *subType)
         return false;
     }
 
-    qint64 oldPos = device->pos();
-
     char head[2];
-    qint64 readBytes = device->read(head, sizeof(head));
-    if (readBytes != sizeof(head)) {
-        if (device->isSequential()) {
-            while (readBytes > 0)
-                device->ungetChar(head[readBytes-- - 1]);
-        } else {
-            device->seek(oldPos);
-        }
+    if (device->peek(head, sizeof(head)) != sizeof(head))
         return false;
-    }
-
-    if (device->isSequential()) {
-        while (readBytes > 0)
-            device->ungetChar(head[readBytes-- - 1]);
-    } else {
-        device->seek(oldPos);
-    }
 
     if (head[0] != 'P')
         return false;

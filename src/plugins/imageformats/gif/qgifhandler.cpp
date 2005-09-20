@@ -735,7 +735,11 @@ bool QGifHandler::canRead() const
         return false;
     if (nextDelay)
         return true;
-    return canRead(device());
+    if (canRead(device())) {
+        setFormat("gif");
+        return true;
+    }
+    return false;
 }
 
 bool QGifHandler::canRead(QIODevice *device)

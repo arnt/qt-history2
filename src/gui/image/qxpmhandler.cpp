@@ -1085,7 +1085,11 @@ static void write_xpm_image(const QImage &sourceImage, QIODevice *device, const 
 
 bool QXpmHandler::canRead() const
 {
-    return canRead(device());
+    if (canRead(device())) {
+        setFormat("xpm");
+        return true;
+    }
+    return false;
 }
 
 bool QXpmHandler::canRead(QIODevice *device)
@@ -1095,26 +1099,9 @@ bool QXpmHandler::canRead(QIODevice *device)
         return false;
     }
 
-    qint64 oldPos = device->pos();
-
     char head[6];
-    qint64 readBytes = device->read(head, sizeof(head));
-    if (readBytes != sizeof(head)) {
-        if (device->isSequential()) {
-            while (readBytes > 0)
-                device->ungetChar(head[readBytes-- - 1]);
-        } else {
-            device->seek(oldPos);
-        }
+    if (device->peek(head, sizeof(head)) != sizeof(head))
         return false;
-    }
-
-    if (device->isSequential()) {
-        while (readBytes > 0)
-            device->ungetChar(head[readBytes-- - 1]);
-    } else {
-        device->seek(oldPos);
-    }
 
     return qstrncmp(head, "/* XPM", 6) == 0;
 }

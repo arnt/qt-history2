@@ -207,7 +207,11 @@ static bool write_xbm_image(const QImage &sourceImage, QIODevice *device, const 
 
 bool QXbmHandler::canRead() const
 {
-    return canRead(device());
+    if (canRead(device())) {
+        setFormat("xbm");
+        return true;
+    }
+    return false;
 }
 
 bool QXbmHandler::canRead(QIODevice *device)

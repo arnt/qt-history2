@@ -628,7 +628,11 @@ QPngHandler::QPngHandler()
 
 bool QPngHandler::canRead() const
 {
-    return canRead(device());
+    if (canRead(device())) {
+        setFormat("png");
+        return true;
+    }
+    return false;
 }
 
 bool QPngHandler::canRead(QIODevice *device)

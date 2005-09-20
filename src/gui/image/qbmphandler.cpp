@@ -589,7 +589,11 @@ bool Q_GUI_EXPORT qt_read_dib(QDataStream &s, QImage &image)
 
 bool QBmpHandler::canRead() const
 {
-    return canRead(device());
+    if (canRead(device())) {
+        setFormat("bmp");
+        return true;
+    }
+    return false;
 }
 
 bool QBmpHandler::canRead(QIODevice *device)
@@ -599,26 +603,9 @@ bool QBmpHandler::canRead(QIODevice *device)
         return false;
     }
 
-    qint64 oldPos = device->pos();
-
     char head[2];
-    qint64 readBytes = device->read(head, sizeof(head));
-    if (readBytes != sizeof(head)) {
-        if (device->isSequential()) {
-            while (readBytes > 0)
-                device->ungetChar(head[readBytes-- - 1]);
-        } else {
-            device->seek(oldPos);
-        }
+    if (device->peek(head, sizeof(head)) != sizeof(head))
         return false;
-    }
-
-    if (device->isSequential()) {
-        while (readBytes > 0)
-            device->ungetChar(head[readBytes-- - 1]);
-    } else {
-        device->seek(oldPos);
-    }
 
     return (qstrncmp(head, "BM", 2) == 0);
 }

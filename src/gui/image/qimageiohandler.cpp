@@ -184,7 +184,7 @@ public:
     virtual ~QImageIOHandlerPrivate();
 
     QIODevice *device;
-    QByteArray format;
+    mutable QByteArray format;
 
     QImageIOHandler *q_ptr;
 };
@@ -261,6 +261,20 @@ QIODevice *QImageIOHandler::device() const
 void QImageIOHandler::setFormat(const QByteArray &format)
 {
     Q_D(QImageIOHandler);
+    d->format = format;
+}
+
+/*!
+    Sets the format of the QImageIOHandler to \a format. The format is
+    most useful for handlers that support multiple image formats.
+
+    This function is declared const so that it can be called from canRead().
+
+    \sa format()
+*/
+void QImageIOHandler::setFormat(const QByteArray &format) const
+{
+    Q_D(const QImageIOHandler);
     d->format = format;
 }
 

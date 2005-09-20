@@ -572,7 +572,11 @@ QJpegHandler::QJpegHandler()
 
 bool QJpegHandler::canRead() const
 {
-    return canRead(device());
+    if (canRead(device())) {
+        setFormat("jpeg");
+        return true;
+    }
+    return false;
 }
 
 bool QJpegHandler::canRead(QIODevice *device)

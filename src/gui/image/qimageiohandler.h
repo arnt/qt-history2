@@ -36,6 +36,7 @@ public:
     QIODevice *device() const;
 
     void setFormat(const QByteArray &format);
+    void setFormat(const QByteArray &format) const;
     QByteArray format() const;
 
     virtual QByteArray name() const;
