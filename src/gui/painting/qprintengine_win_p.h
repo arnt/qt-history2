@@ -107,6 +107,10 @@ public:
     */
     void initialize();
 
+    /* Initializes data in the print engine whenever the HDC has been renewed 
+    */
+    void initHDC();
+
     /* Releases all the handles the printer currently holds, HDC, DEVMODE,
        etc and resets the corresponding members to 0. */
     void release();

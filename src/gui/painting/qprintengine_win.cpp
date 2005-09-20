@@ -831,9 +831,25 @@ void QWin32PrintEnginePrivate::initialize()
     } );
 
     Q_ASSERT(hPrinter);
-    Q_ASSERT(hdc);
     Q_ASSERT(devMode);
     Q_ASSERT(pInfo);
+
+    initHDC();    
+
+#ifdef QT_DEBUG_DRAW
+    qDebug() << "QWin32PrintEngine::initialize()" << endl
+             << " - paperRect" << devPaperRect << endl
+             << " - pageRect" << devPageRect << endl
+             << " - stretch_x" << stretch_x << endl
+             << " - stretch_y" << stretch_y << endl
+             << " - origin_x" << origin_x << endl
+             << " - origin_y" << origin_y << endl;
+#endif
+}
+
+void QWin32PrintEnginePrivate::initHDC()
+{
+    Q_ASSERT(hdc);
 
     dpi_x = GetDeviceCaps(hdc, LOGPIXELSX);
     dpi_y = GetDeviceCaps(hdc, LOGPIXELSY);
@@ -865,16 +881,6 @@ void QWin32PrintEnginePrivate::initialize()
                         GetDeviceCaps(hdc, VERTRES));
 
     updateOrigin();
-
-#ifdef QT_DEBUG_DRAW
-    qDebug() << "QWin32PrintEngine::initialize()" << endl
-             << " - paperRect" << devPaperRect << endl
-             << " - pageRect" << devPageRect << endl
-             << " - stretch_x" << stretch_x << endl
-             << " - stretch_y" << stretch_y << endl
-             << " - origin_x" << origin_x << endl
-             << " - origin_y" << origin_y << endl;
-#endif
 }
 
 void QWin32PrintEnginePrivate::release()
@@ -1325,6 +1331,8 @@ void QWin32PrintEnginePrivate::readDevmode(HGLOBAL globalDevmode)
             hdc = CreateDCA(program.toLatin1(), name.toLatin1(), 0, dm);
         } );
     }
+
+    initHDC();
 }
 
 #endif // QT_NO_PRINTER
