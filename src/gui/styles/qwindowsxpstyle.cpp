@@ -2449,9 +2449,9 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 int bothOffset = (ticks & QSlider::TicksAbove && ticks & QSlider::TicksBelow) ? 1 : 0;
                 p->setPen(dd->sliderTickColor);
                 int v = slider->minimum;
-                while (v <= slider->maximum + 1) {
+                while (v <= slider->maximum) {
                     int tickLength = (v == slider->minimum || v >= slider->maximum) ? 4 : 3;
-                    pos = QStyle::sliderPositionFromValue(slider->minimum, slider->maximum + 1,
+                    pos = QStyle::sliderPositionFromValue(slider->minimum, slider->maximum,
                                                           v, available) + fudge;
                     if (slider->orientation == Qt::Horizontal) {
                         if (ticks & QSlider::TicksAbove)

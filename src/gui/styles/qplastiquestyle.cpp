@@ -3095,41 +3095,42 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     interval = 1;
 
                 int sliderLength = slider->maximum - slider->minimum + 1;
-                int nticks = sliderLength / interval + 1; // add one to get the end tickmark
+                int nticks = sliderLength / interval; // add one to get the end tickmark
                 if (sliderLength % interval > 0)
                     nticks++; // round up the number of tick marks
 
-                // draw ticks
-                if (horizontal) {
-                    int startPos = slider->rect.left() + 5;
-                    int endPos = slider->rect.right() - 5;
-                    for (int i = 0; i < nticks; ++i) {
+                int v = slider->minimum;
+                int len = pixelMetric(PM_SliderLength, slider, widget);
+                while (v <= slider->maximum) {
+                    int pos = sliderPositionFromValue(slider->minimum, slider->maximum,
+                                                      v, (horizontal 
+                                                          ? slider->rect.width()
+                                                          : slider->rect.height()) - len,
+                                                      slider->upsideDown) + len / 2;
+
+                    int extra = 2 - ((v == slider->minimum || v == slider->maximum) ? 1 : 0);
+
+                    if (horizontal) {
                         if (ticksAbove) {
-                            int linePos = startPos + ((endPos - startPos) * i) / (nticks - 1);
-                            painter->drawLine(linePos, slider->rect.top() + 2 - ((i == 0 || i == nticks-1) ? 1 : 0),
-                                              linePos, slider->rect.top() + 2 + tickSize - 2);
+                            painter->drawLine(pos, slider->rect.top() + extra,
+                                pos, slider->rect.top() + tickSize);
                         }
                         if (ticksBelow) {
-                            int linePos = startPos + ((endPos - startPos) * i) / (nticks - 1);
-                            painter->drawLine(linePos, slider->rect.bottom() - 2 + ((i == 0 || i == nticks-1) ? 1 : 0),
-                                              linePos, slider->rect.bottom() - 2 - tickSize + 2);
+                            painter->drawLine(pos, slider->rect.bottom() - extra,
+                                              pos, slider->rect.bottom() - tickSize);
                         }
-                    }
-                } else {
-                    int startPos = slider->rect.top() + 5;
-                    int endPos = slider->rect.bottom() - 5;
-                    for (int i = 0; i < nticks; ++i) {
+                    } else {
                         if (ticksAbove) {
-                            int linePos = startPos + ((endPos - startPos) * i) / (nticks - 1);
-                            painter->drawLine(slider->rect.left() + 2 - ((i == 0 || i == nticks - 1) ? 1 : 0), linePos,
-                                              slider->rect.left() + 2 + tickSize - 2, linePos);
+                            painter->drawLine(slider->rect.left() + extra, pos,
+                                              slider->rect.left() + tickSize, pos);
                         }
                         if (ticksBelow) {
-                            int linePos = startPos + ((endPos - startPos) * i) / (nticks - 1);
-                            painter->drawLine(slider->rect.right() - 2 + ((i == 0 || i == nticks - 1) ? 1 : 0), linePos,
-                                              slider->rect.right() - 2 - tickSize + 2, linePos);
+                            painter->drawLine(slider->rect.right() - extra, pos,
+                                              slider->rect.right() - tickSize, pos);
                         }
                     }
+
+                    v += interval;
                 }
                 painter->setPen(oldPen);
             }

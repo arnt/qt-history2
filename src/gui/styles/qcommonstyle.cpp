@@ -1871,8 +1871,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 int pos;
                 p->setPen(slider->palette.foreground().color());
                 int v = slider->minimum;
-                while (v <= slider->maximum + 1) {
-                    pos = QStyle::sliderPositionFromValue(slider->minimum, slider->maximum + 1,
+                while (v <= slider->maximum) {
+                    pos = QStyle::sliderPositionFromValue(slider->minimum, slider->maximum,
                                                           v, available) + fudge;
                     if (slider->orientation == Qt::Horizontal) {
                         if (ticks & QSlider::TicksAbove)
