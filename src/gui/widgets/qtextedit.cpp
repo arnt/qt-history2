@@ -1328,6 +1328,7 @@ void QTextEdit::selectAll()
 */
 bool QTextEdit::event(QEvent *e)
 {
+    Q_D(QTextEdit);
     if (e->type() == QEvent::ContextMenu
         && static_cast<QContextMenuEvent *>(e)->reason() == QContextMenuEvent::Keyboard) {
         Q_D(QTextEdit);
@@ -1338,6 +1339,64 @@ bool QTextEdit::event(QEvent *e)
         const bool result = QAbstractScrollArea::event(&ce);
         e->setAccepted(ce.isAccepted());
         return result;
+    } else if (e->type() == QEvent::ShortcutOverride && !d->readOnly) {
+        QKeyEvent* ke = static_cast<QKeyEvent *>(e);
+        if (ke->modifiers() == Qt::NoModifier
+            || ke->modifiers() == Qt::ShiftModifier
+            || ke->modifiers() == Qt::KeypadModifier) {
+            if (ke->key() < Qt::Key_Escape) {
+                ke->accept();
+            } else {
+                switch (ke->key()) {
+                    case Qt::Key_Return:
+                    case Qt::Key_Enter:
+                    case Qt::Key_Delete:
+                    case Qt::Key_Home:
+                    case Qt::Key_End:
+                    case Qt::Key_Backspace:
+                    case Qt::Key_Left:
+                    case Qt::Key_Right:
+                    ke->accept();
+                default:
+                    break;
+                }
+            }
+        } else if (ke->modifiers() & Qt::ControlModifier) {
+            switch (ke->key()) {
+// Those are too frequently used for application functionality
+/*              case Qt::Key_A:
+                case Qt::Key_B:
+                case Qt::Key_D:
+                case Qt::Key_E:
+                case Qt::Key_F:
+                case Qt::Key_H:
+                case Qt::Key_I:
+                case Qt::Key_K:
+                case Qt::Key_N:
+                case Qt::Key_P:
+                case Qt::Key_T:
+*/
+                case Qt::Key_C:
+                case Qt::Key_V:
+                case Qt::Key_X:
+                case Qt::Key_Y:
+                case Qt::Key_Z:
+                case Qt::Key_Left:
+                case Qt::Key_Right:
+                case Qt::Key_Up:
+                case Qt::Key_Down:
+                case Qt::Key_Home:
+                case Qt::Key_End:
+#if !defined(Q_WS_MAC)
+                case Qt::Key_Insert:
+                case Qt::Key_Delete:
+#endif
+                ke->accept();
+            default:
+                break;
+            }
+        }
+
     }
     return QAbstractScrollArea::event(e);
 }
@@ -2305,7 +2364,11 @@ void QTextEdit::wheelEvent(QWheelEvent *e)
 
 QMenu *QTextEdit::createStandardContextMenu()
 {
+#if defined(Q_WS_QWS)
+    const bool qt_use_rtl_extensions = true;
+#else
     extern bool qt_use_rtl_extensions;
+#endif
     Q_D(QTextEdit);
 
     QMenu *menu = new QMenu(this);

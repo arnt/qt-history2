@@ -286,7 +286,7 @@ static long qt_meta_mask = 0;
 static long qt_mode_switch_remove_mask = 0;
 
 // flags for extensions for special Languages, currently only for RTL languages
-static bool         qt_use_rtl_extensions = false;
+bool         qt_use_rtl_extensions = false;
 
 static Window        mouseActWindow             = 0;        // window where mouse is
 static Qt::MouseButton  mouseButtonPressed   = Qt::NoButton; // last mouse button pressed

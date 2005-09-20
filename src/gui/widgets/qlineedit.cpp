@@ -2203,7 +2203,11 @@ void QLineEdit::contextMenuEvent(QContextMenuEvent *event)
 
 QMenu *QLineEdit::createStandardContextMenu()
 {
+#if defined(Q_WS_QWS)
+    const bool qt_use_rtl_extensions = true;
+#else
     extern bool qt_use_rtl_extensions;
+#endif
     Q_D(QLineEdit);
     d->actions[QLineEditPrivate::UndoAct]->setEnabled(d->isUndoAvailable());
     d->actions[QLineEditPrivate::RedoAct]->setEnabled(d->isRedoAvailable());
