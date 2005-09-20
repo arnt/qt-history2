@@ -261,7 +261,6 @@ public:
 //    void updateRequestedRegion(const QPoint &gpos);
 //    QRegion requestedRegion() const;
     QRegion localRequestedRegion() const;
-    void requestWindowRegion(const QRegion &r);
 
     void doPaint(const QRegion &rgn);
 

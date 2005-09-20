@@ -510,62 +510,6 @@ void QWidget::activateWindow()
     }
 }
 
-#if 0
-void QWidget::update()
-{
-    if (isVisible() && updatesEnabled()) {
-        QTLWExtra *topextra = window()->d_func()->extra->topextra;
-
-        topextra->backingStore->dirtyRegion(visibleRegion(), this);
-#if 0
-        QPoint globalpos = mapToGlobal(QPoint(0,0));
-        QRegion globalrgn = visibleRegion();
-        globalrgn.translate(globalpos);
-        topextra->dirtyRegion |= globalrgn;
-#endif
-        QApplication::postEvent(this, new QWSUpdateEvent(QRegion()));
-    }
-}
-
-void QWidget::update(const QRegion &rgn)
-{
-    if (isVisible() && updatesEnabled()){
-        QTLWExtra *topextra = window()->d_func()->extra->topextra;
-        topextra->backingStore->dirtyRegion(rgn & visibleRegion(), this);
-#if 0
-        QPoint globalpos = mapToGlobal(QPoint(0,0));
-        QRegion globalrgn = rgn &visibleRegion();
-        globalrgn.translate(globalpos);
-        topextra->dirtyRegion |= globalrgn;
-#endif
-        QApplication::postEvent(this, new QWSUpdateEvent(QRegion()));
-    }
-}
-
-void QWidget::update(const QRect &r)
-{
-    int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-    if (w && h && isVisible() && updatesEnabled()) {
-        if (w < 0)
-            w = data->crect.width()  - x;
-        if (h < 0)
-            h = data->crect.height() - y;
-        if (w != 0 && h != 0){
-        QTLWExtra *topextra = window()->d_func()->extra->topextra;
-
-        topextra->backingStore->dirtyRegion(visibleRegion().intersect(QRect(x,y,w,h)), this);
-#if 0
-        QPoint globalpos = mapToGlobal(QPoint(0,0));
-        QRegion globalrgn = visibleRegion().intersect(QRect(x, y, w, h));
-        globalrgn.translate(globalpos);
-        topextra->dirtyRegion |= globalrgn;
-        QApplication::postEvent(this, new QWSUpdateEvent(QRegion()));
- #endif
-        }
-    }
-}
-#endif
-
 void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
 {
     Q_Q(QWidget);
@@ -591,147 +535,6 @@ void QWidgetPrivate::bltToScreen(const QRegion &globalrgn)
     QWidget::qwsDisplay()->repaintRegion(win->data->winid, opaque, globalrgn);
 }
 
-#ifdef QWS_OLD_REPAINT_STUFF
-/*
-  rgn is in parent's coordinates (same as geometry())
- */
-void QWidgetPrivate::paintHierarchy(const QRegion &rgn)
-{
-    Q_Q(QWidget);
-#if 0 //DEBUG
-    static bool painting = false;
-    bool outermost = !painting;
-    if (outermost)
-        qDebug(">>>>> paintHierarchy %p START", q);
-    painting = true;
-#endif
-
-    QRegion myrgn(rgn & q->geometry());
-    if (myrgn.isEmpty())
-        return;
-
-    myrgn.translate(-q->geometry().topLeft());
-    doPaint(myrgn);
-    for (int i = 0; i < children.size(); ++i) {
-        register QObject *obj=children.at(i);
-        if (obj->isWidgetType()) {
-            QWidget* w = static_cast<QWidget*>(obj);
-            if (w->isVisible() && !w->isWindow())
-                w->d_func()->paintHierarchy(myrgn);
-        }
-    }
-#if 0 //DEBUG
-    if (outermost) {
-        qDebug("<<<<<< paintHierarchy %p END", q);
-        painting = false;
-    }
-#endif
-}
-
-
-/*
-  rgn is in my coordinates (same as rect())
-*/
-
-void QWidget::repaint(const QRegion& rgn)
-{
-    if (!isVisible() || !updatesEnabled() || !testAttribute(Qt::WA_Mapped))
-        return;
-    QTLWExtra *topextra = window()->d_func()->extra->topextra;
-
-    if (!rgn.isEmpty()) {
-    QPoint globalPos = mapToGlobal(QPoint(0,0));
-    QRegion globalrgn = rgn;
-    globalrgn.translate(globalPos);
-    topextra->dirtyRegion |= globalrgn;
-    }
-
-    QRegion dirtyrgn = topextra->dirtyRegion;
-    if (topextra->inPaintTransaction || dirtyrgn.isEmpty())
-        return;
-
-    QWSBackingStore *bs = window()->d_func()->extra->topextra->backingStore;
-    bs->lock(true);
-    window()->d_func()->paintHierarchy(dirtyrgn); //optimizable...
-    bs->unlock();
-    window()->d_func()->bltToScreen(dirtyrgn);
-    topextra->dirtyRegion = QRegion();
-}
-
-/*
-  rgn is in my coordinates (same as rect())
-*/
-
-void QWidgetPrivate::doPaint(const QRegion &rgn)
-{
-
-//    qDebug("doPaint %p child of %p", q, q->parentWidget());
-    Q_Q(QWidget);
-
-    if (q->testAttribute(Qt::WA_WState_InPaintEvent))
-        qWarning("QWidget::repaint: recursive repaint detected.");
-
-    QWidget *tlw = q->window();
-    QTLWExtra *topextra = tlw->d_func()->extra->topextra;
-    if (!topextra || !topextra->backingStore) {
-        qWarning("QWidgetPrivate::doPaint no backingStore");
-        return;
-    }
-
-    q->setAttribute(Qt::WA_WState_InPaintEvent);
-
-    QPixmap *bs = topextra->backingStore->pixmap();
-    QPoint redirectionOffset = topextra->backingStoreOffset + q->mapFrom(tlw,QPoint(0,0));
-
-    QPainter::setRedirected(q, bs, redirectionOffset);
-
-    QRegion clipRegion(rgn);
-    clipRegion.translate(-redirectionOffset);
-    QPaintEngine *engine = bs->paintEngine();
-    if (engine)
-        engine->setSystemClip(clipRegion);
-
-    if (engine
-        && !q->testAttribute(Qt::WA_NoBackground) && !q->testAttribute(Qt::WA_NoSystemBackground)) {
-        const QPalette &pal = q->palette();
-        QPalette::ColorRole bg = q->backgroundRole();
-        QBrush bgBrush = pal.brush(bg);
-        //##### put in an isBackgroundSpecified() function ???
-        bool hasBackground = (q->isWindow() || q->windowType() == Qt::SubWindow)
-                             || (bg_role != QPalette::NoRole || (pal.resolve() & (1<<bg))) ;
-
-        if (hasBackground && bgBrush.style() != Qt::NoBrush) {
-            QPainter p(q); // We shall use it only once
-            if (q->isWindow())
-                p.setCompositionMode(QPainter::CompositionMode_Source); //copy alpha straight in
-            p.fillRect(q->rect(), bgBrush);
-        }
-    }
-    // Send paint event to self
-    QPaintEvent e(rgn);
-#ifdef QT3_SUPPORT
-    e.setErased(true);
-#endif
-    QApplication::sendSpontaneousEvent(q, &e);
-
-    // Clear the clipping again
-    if (engine)
-        engine->setSystemClip(QRegion());
-
-    QPainter::restoreRedirected(q);
-
-    // Clean out the temporary engine if used...
-    if (extraPaintEngine) {
-        delete extraPaintEngine;
-        extraPaintEngine = 0;
-    }
-
-    q->setAttribute(Qt::WA_WState_InPaintEvent, false);
-
-    if(!q->testAttribute(Qt::WA_PaintOutsidePaintEvent) && q->paintingActive())
-        qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
-}
-#endif // QWS_OLD_REPAINT_STUFF
 //#define QT_SHAREDMEM_DEBUG
 
 QWSBackingStore::QWSBackingStore()
@@ -870,39 +673,6 @@ void QWSBackingStore::lock(bool write)
 void QWSBackingStore::unlock()
 {
     QWSDisplay::ungrab();
-}
-
-
-void QWidgetPrivate::requestWindowRegion(const QRegion &r)
-{
-//     invalidateBuffer(r);
-#if 0
-    QRegion deviceregion = qt_screen->mapToDevice(r, QSize(qt_screen->width(), qt_screen->height()));
-    Q_ASSERT(extra && extra->topextra);
-    QRect br = r.boundingRect();
-    if (!extra->topextra->backingStore)
-        extra->topextra->backingStore = new QWSBackingStore;
-
-    QWSBackingStore *bs = extra->topextra->backingStore;
-
-    if (bs->size() != br.size()) {
-        bs->create(br.size());
-    }
-    extra->topextra->backingStoreOffset = br.topLeft() - q->geometry().topLeft();
-    paintHierarchy(r);
-#ifndef QT_NO_QWS_MANAGER
-    if (extra && extra->topextra && extra->topextra->qwsManager) {
-        extra->topextra->qwsManager->d_func()->doPaint();
-    }
-#endif
-
-    QBrush bgBrush = q->palette().brush(q->backgroundRole());
-    bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque(); //### duplicated in bltToScreen
-
-
-    QWidget::qwsDisplay()->requestRegion(data.winid, bs->memoryId(), opaque, deviceregion);
-
-#endif
 }
 
 void QWidgetPrivate::show_sys()
@@ -1407,7 +1177,7 @@ void QWidget::setMask(const QRegion& region)
                 rgn += d->extra->topextra->qwsManager->region();
             }
 #endif
-            d->requestWindowRegion(rgn);
+//####            d->requestWindowRegion(rgn);
         } else {
             update(); //@@@ ??? should do parent update of oldmask | newmask ....
         }
