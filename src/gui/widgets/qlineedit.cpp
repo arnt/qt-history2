@@ -2239,7 +2239,7 @@ QMenu *QLineEdit::createStandardContextMenu()
 #endif
     if (!d->readOnly) {
         popup->addSeparator();
-        QUnicodeControlCharacterMenu *ctrlCharacterMenu = new QUnicodeControlCharacterMenu(this);
+        QUnicodeControlCharacterMenu *ctrlCharacterMenu = new QUnicodeControlCharacterMenu(this, popup);
         popup->addMenu(ctrlCharacterMenu);
     }
     return popup;

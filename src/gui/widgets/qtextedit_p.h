@@ -170,10 +170,13 @@ class QUnicodeControlCharacterMenu : public QMenu
 {
     Q_OBJECT
 public:
-    QUnicodeControlCharacterMenu(QWidget *parent);
+    QUnicodeControlCharacterMenu(QWidget *editWidget, QWidget *parent);
 
 private slots:
     void actionTriggered();
+
+private:
+    QWidget *editWidget;
 };
 
 #endif // QT_NO_TEXTEDIT

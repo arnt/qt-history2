@@ -2402,7 +2402,7 @@ QMenu *QTextEdit::createStandardContextMenu()
 
     if (!d->readOnly) {
         menu->addSeparator();
-        QUnicodeControlCharacterMenu *ctrlCharacterMenu = new QUnicodeControlCharacterMenu(this);
+        QUnicodeControlCharacterMenu *ctrlCharacterMenu = new QUnicodeControlCharacterMenu(this, menu);
         menu->addMenu(ctrlCharacterMenu);
     }
 
@@ -3349,8 +3349,8 @@ const struct QUnicodeControlCharacter {
     { QT_TRANSLATE_NOOP("QUnicodeControlCharacterMenu", "PDF Pop directional formatting"), 0x202c },
 };
 
-QUnicodeControlCharacterMenu::QUnicodeControlCharacterMenu(QWidget *parent)
-    : QMenu(parent)
+QUnicodeControlCharacterMenu::QUnicodeControlCharacterMenu(QWidget *_editWidget, QWidget *parent)
+    : QMenu(parent), editWidget(_editWidget)
 {
     setTitle(tr("Insert Unicode control character"));
     for (int i = 0; i < NUM_CONTROL_CHARACTERS; ++i) {
@@ -3367,9 +3367,9 @@ void QUnicodeControlCharacterMenu::actionTriggered()
     QChar c(qt_controlCharacters[idx].character);
     QString str(c);
 
-    if (QTextEdit *edit = qobject_cast<QTextEdit *>(parent()))
+    if (QTextEdit *edit = qobject_cast<QTextEdit *>(editWidget))
         edit->insertPlainText(str);
-    else if (QLineEdit *edit = qobject_cast<QLineEdit *>(parent()))
+    else if (QLineEdit *edit = qobject_cast<QLineEdit *>(editWidget))
         edit->insert(str);
 }
 
