@@ -4973,7 +4973,7 @@ QWindowsIconProvider::QWindowsIconProvider(QObject *parent, const char *name)
     HICON si;
     int r;
     QString s;
-    UINT res;
+    UINT res = 0;
 
     // ---------- get default folder pixmap
     const wchar_t iconFolder[] = L"folder\\DefaultIcon"; // workaround for Borland
@@ -4993,21 +4993,23 @@ QWindowsIconProvider::QWindowsIconProvider(QObject *parent, const char *name)
 
         QStringList lst = QStringList::split(",", s);
 
+        if (lst.count() >= 2) { // don't just assume that lst has two entries
 #ifndef Q_OS_TEMP
-        QT_WA({
-            res = ptrExtractIconEx((TCHAR*)lst[0].simplifyWhiteSpace().ucs2(),
-                                  lst[1].simplifyWhiteSpace().toInt(),
-                                  0, &si, 1);
-        } , {
-            res = ExtractIconExA(lst[0].simplifyWhiteSpace().local8Bit(),
-                                  lst[1].simplifyWhiteSpace().toInt(),
-                                  0, &si, 1);
-        });
+            QT_WA({
+                res = ptrExtractIconEx((TCHAR*)lst[0].simplifyWhiteSpace().ucs2(),
+                                       lst[1].simplifyWhiteSpace().toInt(),
+                                       0, &si, 1);
+            } , {
+                res = ExtractIconExA(lst[0].simplifyWhiteSpace().local8Bit(),
+                                     lst[1].simplifyWhiteSpace().toInt(),
+                                     0, &si, 1);
+            });
 #else
             res = (UINT)ExtractIconEx((TCHAR*)lst[0].simplifyWhiteSpace().ucs2(),
                                         lst[1].simplifyWhiteSpace().toInt(),
                                         0, &si, 1);
 #endif
+        }
 
         if (res) {
             defaultFolder.resize(pixw, pixh);
