@@ -24,12 +24,12 @@
         \o QDesignerContainerExtension provides an extension that allows
            you to add (and delete) pages to a multi-page container plugin
            in \QD.
-        \o QDesignerMemberSheetExtension provides an
-           extension to a widget's member sheet which is used when
-           editing signal and slots in \QD.
-        \o QDesignerPropertySheetExtension provides an extension to
-           a widget's property sheet which is displayed in \QD's
-           property editor.
+        \o QDesignerMemberSheetExtension provides an extension that allows
+           you to manipulate a widget's member functions displayed when
+           connecting signals and slots.
+        \o QDesignerPropertySheetExtension provides an extension that
+           allows you to manipulate a widget's properties displayed in
+           Qt Designer's property editor.
         \o QDesignerTaskMenuExtension provides an extension that allows
            you to add custom menu entries to \QD's task menu.
     \endlist

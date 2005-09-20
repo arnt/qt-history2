@@ -33,8 +33,9 @@
     menu. The QDesignerMemberSheetExtension class allows you to
     manipulate a widget's member functions which is displayed in \QD's
     signal and slot editor. And finally, the
-    QDesignerPropertyEditorInterface class allows you to query and
-    manipulate the current state of \QD's property editor.
+    QDesignerPropertySheetExtension class allows you to manipulate a
+    widget's properties which is displayed in Qt Designer's property
+    editor.
 
     \image qtdesignerextensions.png
 
@@ -171,7 +172,7 @@
     supported interfaces using nothing but a QObject pointer.
 
     In \QD the extensions are not created until they are
-    required. For that reason, when implementing a property sheet
+    required. For that reason, when implementing a member sheet
     extension, you must also create a QExtensionFactory, i.e a class
     that is able to make an instance of your extension, and register
     it using \QD's \l {QExtensionManager}{extension manager}.

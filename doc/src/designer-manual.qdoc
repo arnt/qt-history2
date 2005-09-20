@@ -49,8 +49,8 @@ that they will look and feel exactly as you intended.
 \list
 \i \l{Creating Custom Widgets for Qt Designer}
  \tableofcontents{1 Creating Custom Widgets for Qt Designer}
-\i \l{Adding New Components to Qt Designer}
- \tableofcontents{1 Adding New Components to Qt Designer}
+\i \l{Creating Custom Widget Extensions}
+ \tableofcontents{1 Creating Custom Widget Extensions}
 \endlist
 
 \section1 Figures and Hints
@@ -240,7 +240,7 @@ is created ready for use.
 \section1 Composing the Dialog
 
 The empty form is displayed as an empty dialog with a grid pattern overlayed
-on the widget area in a style similar to many drawing packages. 
+on the widget area in a style similar to many drawing packages.
 \QD provides two different editing modes: In form editing mode, widgets
 and other objects can be arranged, resized, and configured on the form;
 in connection editing mode, signals and slots connections can be made between
@@ -421,7 +421,7 @@ in our dialog to the \key OK button's
 \l{QAbstractButton::animateClick()}{animateClick()} slot.
 We change into connection editing mode by opening the \key{Edit} menu
 and selecting \key{Edit Signals/Slots}. The objects in the form will now
-become highlighted as the cursor passes over them. 
+become highlighted as the cursor passes over them.
 
 \target ConnectingWidgets
 \table
@@ -578,7 +578,7 @@ properties such as \c objectName (the object's internal name) and
 
 \target EditingProperties
 \table
-\row \i 
+\row \i
 \inlineimage designer-property-editor.png
 \i \bold{Editing properties}
 
@@ -596,7 +596,7 @@ being edited.
 
 \target TheObjectInspector
 \table
-\row \i 
+\row \i
 \inlineimage designer-object-inspector.png
 \i \bold{The Object Inspector}
 
@@ -1403,7 +1403,7 @@ without having to write code themselves.
     \page designer-creating-custom-widgets.html
     \previouspage Using a Component in Your Application
     \contentspage {Qt Designer Manual}{Contents}
-    \nextpage Adding New Components to Qt Designer
+    \nextpage Creating Custom Widget Extensions
 
     \title Creating Custom Widgets for Qt Designer
 
@@ -1513,4 +1513,211 @@ without having to write code themselves.
     Please see the \l{designer/customwidgetplugin}{Custom Widget Plugin} and
     \l{designer/worldtimeclockplugin}{World Time Clock Plugin} examples for more
     information about using custom widgets in \QD.
+*/
+
+/*!
+    \page creating-custom-widgets-extensions.html
+    \previouspage Creating Custom Widgets for Qt Designer
+    \contentspage {Qt Designer Manual}{Contents}
+
+    \title Creating Custom Widget Extensions
+
+    Once you have a custom widget plugin for \QD, you can provide it
+    with the expected behavior and functionality within \QD's
+    workspace, through custom widget extensions.
+
+    \tableofcontents
+
+    There are four available types of extensions in \QD. You can use
+    all the extensions following the same pattern, only replacing the
+    respective extension base class:
+
+    \table
+    \row
+        \o \inlineimage designer-manual-taskmenuextension.png
+        \o \bold {QDesignerTaskMenuExtension}
+
+           QDesignerTaskMenuExtension provides an extension that allows
+           you to add custom menu entries to \QD's task menu.
+
+           See also the \l {designer\taskmenuextension}{Task Menu
+           Extension} example.
+
+    \row
+        \o \inlineimage designer-manual-containerextension.png
+        \o \bold {QDesignerContainerExtension}
+
+           QDesignerContainerExtension provides an extension that allows
+           you to add (and delete) pages to a multi-page container plugin
+           in \QD.
+
+           See also the \l {designer\containerextension}{Container
+           Extension} example.
+
+    \row
+        \o \inlineimage designer-manual-membersheetextension.png
+        \o \bold {QDesignerMemberSheetExtension}
+
+           The QDesignerMemberSheetExtension class allows you to
+           manipulate a widget's member functions displayed when
+           connecting signals and slots.
+
+    \row
+        \o \inlineimage designer-manual-propertysheetextension.png
+        \o \bold {QDesignerPropertySheetExtension}
+
+           The QDesignerPropertySheetExtension class allows you to
+           manipulate a widget's properties displayed in Qt Designer's
+           property editor.
+
+    \endtable
+
+    \QD uses the QDesignerPropertySheetExtension and the
+    QDesignerMemberSheetExtension to feed its property and signal and
+    slot editors. Whenever a widget is selected in its workspace, \QD
+    will query for the widget's property sheet extension, and whenever
+    a connection between two widgets is requested, \QD will query for
+    the widgets' member sheet extensions.
+
+    \warning All widgets have default property and member sheets. But
+    if you implement custom property sheet or member sheet extensions,
+    these extensions will override the default sheets.
+
+    \section1 Creating an Extension
+
+    To create an extension you must inherit both QObject and the
+    appropiate base class, and reimplement its functions. For example,
+    creating a task menu extension requires the following class
+    definition:
+
+    \code
+    class MyTaskMenuExtension : public QObject,
+            public QDesignerTaskMenuExtension
+    {
+        Q_OBJECT
+        Q_INTERFACES(QDesignerTaskMenuExtension)
+
+    public:
+        MyTaskMenuExtension(MyCustomWidget *widget, QObject *parent);
+
+        QAction *preferredEditAction() const;
+        QList<QAction *> taskActions() const;
+
+    private slots:
+        void mySlot();
+
+    private:
+        MyCustomWidget *widget;
+        QAction *myAction;
+    };
+    \endcode
+
+    Since we are implementing an interface, we must ensure that it's
+    made known to the meta object system using the Q_INTERFACES()
+    macro. This enables \QD to use the qobject_cast() function
+    to query for supported interfaces using nothing but a QObject
+    pointer.
+
+
+    \section1 Exposing an Extension to Qt Designer
+
+    In Qt Designer the extensions are not created until they are
+    required. For that reason, when implementing extensions, you must
+    subclass QExtensionFactory, i.e create a class that is able to
+    make instances of your extensions. In addition you must make Qt
+    Designer's extension manager register your factory; the extension
+    manager controls the construction of extensions as they are
+    required.
+
+    When an extension is requested, \QD's extension manager will run
+    through all its registered factories calling
+    QExtensionFactory::createExtension() for each until the first one
+    that is able to create the requested extension for the selected
+    widget, is found. This factory will then make an instance of the
+    extension.
+
+    \image qtdesignerextensions.png
+
+    \section2 Creating an Extension Factory
+
+    The QExtensionFactory class provides a standard extension factory,
+    but can also be used as an interface for custom extension
+    factories. You can either create a new QExtensionFactory and
+    reimplement the QExtensionFactory::createExtension() function. For
+    example:
+
+    \code
+        QObject *ANewExtensionFactory::createExtension(QObject *object,
+                const QString &iid, QObject *parent) const
+        {
+            if (iid != Q_TYPEID(QDesignerMemberSheetExtension))
+                return 0;
+
+            if (MyCustomWidget *widget = qobject_cast<MyCustomWidget*>
+                   (object))
+                return new MyMemberSheetExtension(widget, parent);
+
+            return 0;
+        }
+    \endcode
+
+    Or you can use an existing factory, expanding the
+    QExtensionFactory::createExtension() function to make the factory
+    able to create your custom extension as well. For example:
+
+    \code
+        QObject *AGeneralExtensionFactory::createExtension(QObject *object,
+                const QString &iid, QObject *parent) const
+        {
+            MyCustomWidget *widget = qobject_cast<MyCustomWidget*>(object);
+
+            if (widget && (iid == Q_TYPEID(QDesignerTaskMenuExtension))) {
+                return new MyTaskMenuExtension(widget, parent);
+
+            } else if (widget && (iid == Q_TYPEID(QDesignerMemberSheetExtension))) {
+                return new MyMemberSheetExtension(widget, parent);
+
+            } else {
+                return 0;
+            }
+        }
+    \endcode
+
+    \section2 Accessing Qt Designer's Extension Manager
+
+    When implementing a custom widget plugin, you must subclass the
+    QDesignerCustomWidgetInterface to expose your plugin to Qt
+    Designer. The registration of an extension factory is typically
+    made in the QDesignerCustomWidgetInterface::initialize() function:
+
+    \code
+    void MyPlugin::initialize(QDesignerFormEditorInterface *formEditor)
+    {
+        if (initialized)
+            return;
+
+        QExtensionManager *manager = formEditor->extensionManager();
+        Q_ASSERT(manager != 0);
+
+        manager->registerExtensions(new MyExtensionFactory(manager),
+                                    Q_TYPEID(QDesignerTaskMenuExtension));
+
+        initialized = true;
+    }
+    \endcode
+
+    The QDesignerCustomWidgetInterface::initialize() function's
+    parameter provides a pointer to Qt Designer's current
+    QDesignerFormEditorInterface object (formEditor). You must use the
+    QDesignerFormEditorInterface::extensionManager() function to
+    retrieve an interface to Qt Designer's extension manager. Finally,
+    you use the QExtensionManager::registerExtensions() function to
+    register your custom extension factory.
+
+    \section1 Related Examples
+
+    Please see the \l {designer\taskmenuextension}{Task Menu
+    Extension} and \l {designer\containerextension}{Container Extension}
+    examples for more information about creating custom widget extensions
+    in \QD.
 */
