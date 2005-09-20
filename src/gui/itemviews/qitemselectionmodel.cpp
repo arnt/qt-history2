@@ -384,13 +384,17 @@ void QItemSelection::merge(const QItemSelection &other, QItemSelectionModel::Sel
     QItemSelection newSelection = other;
     // Collect intersections
     QItemSelection intersections;
-    for (int n = 0; n < newSelection.count(); ++n) {
-        if (newSelection.at(n).isValid()) { // nothing intersects an invalid selection range
-            for (int t = 0; t < count(); ++t) {
-                if (newSelection.at(n).intersects(at(t)))
-                    intersections.append(at(t).intersect(newSelection.at(n)));
-            }
+    QItemSelection::iterator it = newSelection.begin();
+    while (it != newSelection.end()) {
+        if (!(*it).isValid()) {
+            it = newSelection.erase(it);
+            continue;
         }
+        for (int t = 0; t < count(); ++t) {
+            if ((*it).intersects(at(t)))
+                intersections.append(at(t).intersect(*it));
+        }
+        ++it;
     }
 
     //  Split the old (and new) ranges using the intersections
