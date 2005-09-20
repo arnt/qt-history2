@@ -98,27 +98,6 @@ static inline void end_mmx()
     _mm_empty();
 }
 
-/* The constant alpha factor describes an alpha factor that gets applied
-   to the result of the composition operation combining it with the destination.
-
-   The intent is that if const_alpha == 0. we get back dest, and if const_alpha == 1.
-   we get the unmodified operation
-
-   result = src op dest
-   dest = result * const_alpha + dest * (1. - const_alpha)
-
-   This means that in the comments below, the first line is the const_alpha==255 case, the
-   second line the general one.
-
-   In the lines below:
-   s == src, sa == alpha(src), sia = 1 - alpha(src)
-   d == dest, da == alpha(dest), dia = 1 - alpha(dest)
-   ca = const_alpha, cia = 1 - const_alpha
-
-   The methods exist in two variants. One where we have a constant source, the other
-   where the source is an array of pixels.
-*/
-
 /*
   result = 0
   d = d * cia
@@ -197,7 +176,6 @@ static void QT_FASTCALL comp_func_Source(uint *dest, const uint *src, int length
 static void QT_FASTCALL comp_func_solid_SourceOver(uint *dest, int length, uint src, uint const_alpha)
 {
     if ((const_alpha & qAlpha(src)) == 255) {
-        // we can do even better here
         QT_MEMFILL_UINT(dest, length, src);
     } else {
         C_FF; C_80; C_00;
