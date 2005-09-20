@@ -3364,7 +3364,8 @@ void QUnicodeControlCharacterMenu::actionTriggered()
     int idx = actions().indexOf(a);
     if (idx < 0 || idx >= NUM_CONTROL_CHARACTERS)
         return;
-    QString str(QChar(qt_controlCharacters[idx].character));
+    QChar c(qt_controlCharacters[idx].character);
+    QString str(c);
 
     if (QTextEdit *edit = qobject_cast<QTextEdit *>(parent()))
         edit->insertPlainText(str);
