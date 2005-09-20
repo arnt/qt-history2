@@ -10,7 +10,7 @@
 **
 ****************************************************************************/
 
-/*
+/*!
     \page deployment.html
 
     \title Deploying Qt Applications
@@ -117,7 +117,7 @@
     \title Deployment on Qt/X11
 */
 
-/*
+/*!
     \page deployment-windows.html
 
     \title Deployment on Qt/Windows
@@ -178,6 +178,72 @@
     - Assistant
 
     - ActiveQt
+
+    \section1 Distributing "Plug & Paint"
+
+    The "plug & paint" example in Qt consists of multiple projects: The application itself in
+    \c{examples/tools/plugandpaint}, and application-specific plugins in 
+    \c{examples/tools/plugandpaintplugins}. 
+    
+    Plugin-based applications need to link against Qt as a shared library - if static linking 
+    would be used, then the application itself and each plugin would pull in their own instance 
+    of Qt.
+
+    There are two challengines in deploying this application: it links against Qt as a 
+    shared library, so the Qt runtime has to be correctly redistributed along with the application
+    executable. And, since the application functionality is provided by plugins, those have to 
+    be installed in the correct location on the target system so that the application can find them.
+
+    Looking at the release build of the "plugandpaint" executable with the "depends" tool lists the
+    following immediate dependencies to non-system libraries:
+
+    \table
+    \header
+    \i Qt
+    \i VC++ 6.0
+    \i VC++ 7.1 (2003)
+    \i MinGW
+    \row
+    \i \list
+        \o QTCORE4.DLL - The QtCore runtime
+        \o QTGUI4.DLL - The QtGui runtime
+    \endlist
+    \i \list
+        \o MSVCRT.DLL - The C runtime
+        \o MSVCP60.DLL - The C++ runtime (STL only)
+    \endlist
+    \i \list
+        \o MSVCR71.DLL - The C runtime
+        \o MSVCP71.DLL - The C++ runtime (STL only)
+    \endlist
+    \endtable
+
+    Looking at the plugin DLLs lists the exact same dependencies.
+
+    When searching for plugins the application searches for plugins in a "plugins" subdirectory 
+    inside the directory of the application executable:
+
+    \code
+    .\plugandpaint.exe
+    .\plugins\pnp_basictools.dll
+    .\plugins\pnp_extrafilters.dll
+    \endcode
+
+    An archive distributing all Qt and C runtime DLLs required to start the application executable
+    as well as all plugins would now have to include the following files
+
+    \code
+    .\plugandpaint.exe
+    .\qtcore4.dll
+    .\qtgui4.dll
+    .\msvcrt.dll OR .\msvcr71.dll
+    .\msvcp71.dll OR .\msvcp71.dll
+    .\plugins\pnp_basictools.dll
+    .\plugins\pnp_extrafilters.dll
+    \endcode
+
+    Extracting this archive on a machine without Qt and without any compiler installed to verify
+    that the application can now be successfully deployed.
 */
 
 /*
