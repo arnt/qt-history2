@@ -13,14 +13,16 @@
 
 #include "qregexp.h"
 
+#include "qalgorithms.h"
 #include "qbitarray.h"
 #include "qcache.h"
-#include "qmap.h"
+#include "qdatastream.h"
 #include "qlist.h"
-#include "qvector.h"
-#include "qstringlist.h"
-#include "qalgorithms.h"
+#include "qmap.h"
 #include "qmutex.h"
+#include "qstring.h"
+#include "qstringlist.h"
+#include "qvector.h"
 
 #include <limits.h>
 
@@ -3925,3 +3927,43 @@ QString QRegExp::escape(const QString &str)
         QRegExp rx("*.txt", Qt::CaseInsensitive, QRegExp::Wildcard);
     \endcode
 */
+
+#ifndef QT_NO_DATASTREAM
+/*!
+    \relates QRegExp
+
+    Writes the regular expression \a regExp to stream \a out.
+
+    \sa {Format of the QDataStream Operators}
+*/
+QDataStream &operator<<(QDataStream &out, const QRegExp &regExp)
+{
+    return out << regExp.pattern() << (quint8)regExp.caseSensitivity()
+               << (quint8)regExp.patternSyntax()
+               << (quint8)!!regExp.isMinimal();
+}
+
+/*!
+    \relates QRegExp
+
+    Reads a regular expression from stream \a in into \a regExp.
+
+    \sa {Format of the QDataStream Operators}
+*/
+QDataStream &operator>>(QDataStream &in, QRegExp &regExp)
+{
+    QString pattern;
+    quint8 caseSensitivity;
+    quint8 patternSyntax;
+    quint8 isMinimal;
+
+    in >> pattern >> caseSensitivity >> patternSyntax >> isMinimal;
+
+    QRegExp newRegExp(pattern, caseSensitivity ? Qt::CaseSensitive : Qt::CaseInsensitive,
+                      (QRegExp::PatternSyntax)patternSyntax);
+
+    newRegExp.setMinimal(isMinimal);
+    regExp = newRegExp;
+    return in;
+}
+#endif

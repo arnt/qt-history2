@@ -105,6 +105,9 @@ static void construct(QVariant::Private *x, const void *copy)
     case QVariant::Locale:
         v_construct<QLocale>(x, copy);
         break;
+    case QVariant::RegExp:
+        v_construct<QRegExp>(x, copy);
+        break;
     case QVariant::Int:
         x->data.i = copy ? *static_cast<const int *>(copy) : 0;
         break;
@@ -200,6 +203,9 @@ static void clear(QVariant::Private *d)
     case QVariant::Locale:
         v_clear<QLocale>(d);
         break;
+    case QVariant::RegExp:
+        v_clear<QRegExp>(d);
+        break;
     case QVariant::LongLong:
     case QVariant::ULongLong:
     case QVariant::Double:
@@ -258,6 +264,7 @@ static bool isNull(const QVariant::Private *d)
 #endif
     case QVariant::Url:
     case QVariant::Locale:
+    case QVariant::RegExp:
     case QVariant::StringList:
     case QVariant::Map:
     case QVariant::List:
@@ -331,6 +338,9 @@ static void load(QVariant::Private *d, QDataStream &s)
         break;
     case QVariant::Locale:
         s >> *v_cast<QLocale>(d);
+        break;
+    case QVariant::RegExp:
+        s >> *v_cast<QRegExp>(d);
         break;
     case QVariant::Int:
         s >> d->data.i;
@@ -429,6 +439,9 @@ static void save(const QVariant::Private *d, QDataStream &s)
     case QVariant::Locale:
         s << *v_cast<QLocale>(d);
         break;
+    case QVariant::RegExp:
+        s << *v_cast<QRegExp>(d);
+        break;
     case QVariant::Int:
         s << d->data.i;
         break;
@@ -525,6 +538,8 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
         return *v_cast<QUrl>(a) == *v_cast<QUrl>(b);
     case QVariant::Locale:
         return *v_cast<QLocale>(a) == *v_cast<QLocale>(b);
+    case QVariant::RegExp:
+        return *v_cast<QRegExp>(a) == *v_cast<QRegExp>(b);
     case QVariant::Int:
         return a->data.i == b->data.i;
     case QVariant::UInt:
@@ -1227,10 +1242,11 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
 
     \value Invalid  no type
     \value BitArray  a QBitArray
-    \value ByteArray  a QByteArray
     \value Bitmap  a QBitmap
     \value Bool  a bool
     \value Brush  a QBrush
+    \value ByteArray  a QByteArray
+    \value Char  a QChar
     \value Color  a QColor
     \value Cursor  a QCursor
     \value Date  a QDate
@@ -1241,34 +1257,34 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \value Image  a QImage
     \value Int  an int
     \value KeySequence  a QKeySequence
-    \value LineF  a QLineF
     \value Line  a QLine
+    \value LineF  a QLineF
     \value List  a QVariantList
+    \value Locale  a QLocale
     \value LongLong a \l qlonglong
-    \value ULongLong a \l qulonglong
     \value Map  a QVariantMap
     \value Palette  a QPalette
     \value Pen  a QPen
     \value Pixmap  a QPixmap
     \value Point  a QPoint
+    \value PointArray  a QPointArray
     \value PointF  a QPointF
     \value Polygon a QPolygon
     \value Rect  a QRect
     \value RectF  a QRectF
+    \value RegExp  a QRegExp
     \value Region  a QRegion
     \value Size  a QSize
     \value SizeF  a QSizeF
     \value SizePolicy  a QSizePolicy
     \value String  a QString
     \value StringList  a QStringList
+    \value TextFormat  a QTextFormat
+    \value TextLength  a QTextLength
     \value Time  a QTime
     \value UInt  a \l uint
-    \value TextLength  a QTextLength
-    \value TextFormat  a QTextFormat
-    \value Char  a QChar
-    \value Locale  a QLocale
+    \value ULongLong a \l qulonglong
     \value Url  a QUrl
-    \value PointArray  a QPointArray
 
     \value UserType Base value for user-defined types.
 
@@ -1553,6 +1569,12 @@ QVariant::QVariant(const char *val)
   Constructs a new variant with a locale value, \a l.
 */
 
+/*!
+  \fn QVariant::QVariant(const QRegExp &regExp)
+
+  Constructs a new variant with the regexp value \a regExp.
+*/
+
 QVariant::QVariant(Type type)
 { create(type, 0); }
 QVariant::QVariant(int typeOrUserType, const void *copy)
@@ -1605,6 +1627,7 @@ QVariant::QVariant(const QSizeF &s) { create(SizeF, &s); }
 #endif
 QVariant::QVariant(const QUrl &u) { create(Url, &u); }
 QVariant::QVariant(const QLocale &l) { create(Locale, &l); }
+QVariant::QVariant(const QRegExp &regExp) { create(RegExp, &regExp); }
 
 /*!
     Returns the storage type of the value stored in the variant.
@@ -1708,7 +1731,7 @@ void QVariant::clear()
 
    (Search for the word 'Attention' in generator.cpp)
 */
-enum { CoreTypeCount = QVariant::PointF + 1 };
+enum { CoreTypeCount = QVariant::RegExp + 1 };
 static const char* const core_type_map[CoreTypeCount] =
 {
     0,
@@ -1737,7 +1760,8 @@ static const char* const core_type_map[CoreTypeCount] =
     "QLine",
     "QLineF",
     "QPoint",
-    "QPointF"
+    "QPointF",
+    "QRegExp"
 };
 
 enum { GuiTypeCount = QVariant::TextFormat - QVariant::Font + 2 };
@@ -1771,7 +1795,7 @@ const char *QVariant::typeToName(Type typ)
 {
     if (typ == UserType)
         return "UserType";
-    if (typ <= QVariant::PointF)
+    if (typ < CoreTypeCount)
         return core_type_map[typ];
     if (typ >= QVariant::Font - 1 && typ <= QVariant::TextFormat)
         return gui_type_map[int(typ) - QVariant::Font + 1];
@@ -1989,6 +2013,7 @@ Q_VARIANT_TO(ByteArray)
 Q_VARIANT_TO(Char)
 Q_VARIANT_TO(Url)
 Q_VARIANT_TO(Locale)
+Q_VARIANT_TO(RegExp)
 #ifndef QT_NO_GEOM_VARIANT
 Q_VARIANT_TO(Size)
 Q_VARIANT_TO(SizeF)
@@ -2126,6 +2151,13 @@ QVariantMap QVariant::toMap() const
   Returns the variant as a QLocale if the variant has type()
   Locale; otherwise returns an invalid QLocale.
  */
+
+/*!
+  \fn QRegExp QVariant::toRegExp() const
+
+  Returns the variant as a QRegExp if the variant has type()
+  RegExp; otherwise returns an empty QRegExp.
+*/
 
 /*!
   \fn QRectF QVariant::toRectF() const

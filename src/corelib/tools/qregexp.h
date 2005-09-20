@@ -102,7 +102,13 @@ public:
 private:
     QRegExpPrivate *priv;
 };
+
 Q_DECLARE_TYPEINFO(QRegExp, Q_MOVABLE_TYPE);
+
+#ifndef QT_NO_DATASTREAM
+Q_CORE_EXPORT QDataStream &operator<<(QDataStream &out, const QRegExp &regExp);
+Q_CORE_EXPORT QDataStream &operator>>(QDataStream &in, QRegExp &regExp);
+#endif
 
 #endif
 
