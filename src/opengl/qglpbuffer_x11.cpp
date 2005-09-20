@@ -19,8 +19,8 @@
 #include <GL/glx.h>
 #include <qimage.h>
 
-#include "qglbuffer.h"
-#include "qglbuffer_p.h"
+#include "qglpbuffer.h"
+#include "qglpbuffer_p.h"
 
 #ifndef GLX_VERSION_1_1
 #define GLX_VERSION 0x2

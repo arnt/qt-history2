@@ -22,7 +22,8 @@
 #include "qpen.h"
 #include "qvarlengtharray.h"
 #include <private/qpainter_p.h>
-#include <qglbuffer.h>
+#include <qglpbuffer.h>
+
 
 #ifdef Q_OS_MAC
 # include <OpenGL/glu.h>
