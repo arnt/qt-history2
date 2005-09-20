@@ -23,6 +23,7 @@ QT_MODULE(Gui)
 class QAbstractPrintDialogPrivate;
 class QPrinter;
 
+// ### Qt 5.0: remove this class
 class Q_GUI_EXPORT QAbstractPrintDialog : public QDialog
 {
     Q_DECLARE_PRIVATE(QAbstractPrintDialog)

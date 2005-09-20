@@ -46,7 +46,7 @@
 
 /*!
     Constructs an abstract print dialog for \a printer with \a parent
-    as parent widget
+    as parent widget.
 */
 QAbstractPrintDialog::QAbstractPrintDialog(QPrinter *printer, QWidget *parent)
     : QDialog(*(new QAbstractPrintDialogPrivate), parent)
@@ -206,7 +206,7 @@ QPrinter *QAbstractPrintDialog::printer() const
 */
 
 /*!
-    \class QPrintDialog qprintdialog.h
+    \class QPrintDialog
 
     \brief The QPrintDialog class provides a dialog for specifying
     the printer's configuration.
@@ -240,10 +240,7 @@ QPrinter *QAbstractPrintDialog::printer() const
 
 /*!
     \fn int QPrintDialog::exec()
-
-    Launches the print dialog.
-
-    \sa QDialog::DialogCode, accept(), reject()
+    \reimp
 */
 
 #endif // QT_NO_PRINTDIALOG
