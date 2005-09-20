@@ -4641,12 +4641,13 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         xoff = r.width() - width;
     else if (tf & Qt::AlignHCenter)
         xoff = (r.width() - width)/2;
+    QRectF bounds = QRectF(r.x() + xoff, r.y() + yoff, width, height);
     if (brect)
-        *brect = QRectF(r.x() + xoff, r.y() + yoff, width, height);
+        *brect = bounds;
 
     if (!(tf & Qt::TextDontPrint)) {
         bool restore = false;
-        if (!dontclip) {
+        if (!dontclip && !r.contains(bounds)) {
             restore = true;
             painter->save();
             painter->setClipRect(r, Qt::IntersectClip);
