@@ -50,7 +50,7 @@ enum MethodFlags {
   Attention!  This table is copied from qcorevariant.cpp. If you
   change one, change both.
 */
-enum { CoreTypeCount = 27 };
+enum { CoreTypeCount = 28 };
 static const char* const core_type_map[CoreTypeCount] =
 {
     0,
@@ -79,7 +79,8 @@ static const char* const core_type_map[CoreTypeCount] =
     "QLine",
     "QLineF",
     "QPoint",
-    "QPointF"
+    "QPointF",
+    "QRegExp"
 };
 
 enum { GuiTypeCount = 79 - 63 + 1 };
