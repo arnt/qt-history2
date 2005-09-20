@@ -13,40 +13,50 @@
 
 #include <private/qdrawhelper_p.h>
 #include <private/qpaintengine_raster_p.h>
-#include <mmintrin.h>
-#include <xmmintrin.h>
-
+#ifdef Q_CC_GCC
+#  include <mmintrin.h>
+#  include <xmmintrin.h>
+// It seems that gcc (3.1 <= x < 3.4) segfaults when casting the ULL immediate values to __m64.
+// A workaround was proposed here: http://gcc.gnu.org/ml/gcc-prs/2002-07/msg00329.html
+#  if __GNUC__ == 3 && __GNUC_MINOR__ >= 1 && __GNUC_MINOR__ < 4
+#    define C_FF volatile unsigned long long mmx_0x00ff_ull = 0x00ff00ff00ff00ffULL; \
+		 const m64 mmx_0x00ff = (__m64)mmx_0x00ff_ull
+#    define C_80 volatile unsigned long long mmx_0x0080_ull = 0x0080008000800080ULL; \
+                 const m64 mmx_0x0080 = (__m64)mmx_0x0080_ull
+#  else
+#    define C_FF const m64 mmx_0x00ff = (__m64)0x00ff00ff00ff00ffULL
+#    define C_80 const m64 mmx_0x0080 = (__m64)0x0080008000800080ULL
+#  endif
+#  define C_00 const m64 mmx_0x0000 = _mm_setzero_si64()
+#elif defined (Q_OS_WIN)
+#  include <mmintrin.h>
+#  include <xmmintrin.h>
+#  define C_FF const m64 mmx_0x00ff = _mm_set1_pi16(0xff)
+#  define C_80 const m64 mmx_0x0080 = _mm_set1_pi16(0x80)
+#  define C_00 const m64 mmx_0x0000 = _mm_setzero_si64()
+#  pragma warning(disable: 4799) // No EMMS at end of function
+#endif
 
 typedef __m64 m64;
 
-// It seems that gcc (3.1 <= x < 3.4) segfaults when casting the ULL immediate values to __m64.
-// A workaround was proposed here: http://gcc.gnu.org/ml/gcc-prs/2002-07/msg00329.html
-#if __GNUC__ == 3 && __GNUC_MINOR__ >= 1 && __GNUC_MINOR__ < 4
-#define C_FF volatile unsigned long long mmx_0x00ff_ull = 0x00ff00ff00ff00ffULL; const m64 mmx_0x00ff = (__m64)mmx_0x00ff_ull
-#define C_80 volatile unsigned long long mmx_0x0080_ull = 0x0080008000800080ULL; const m64 mmx_0x0080 = (__m64)mmx_0x0080_ull
-#else
-#define C_FF const m64 mmx_0x00ff = (__m64)0x00ff00ff00ff00ffULL
-#define C_80 const m64 mmx_0x0080 = (__m64)0x0080008000800080ULL
-#endif
-#define C_00 const m64 mmx_0x0000 = _mm_setzero_si64()
 
 static inline m64 alpha(m64 x)
 {
     return _mm_shuffle_pi16 (x, _MM_SHUFFLE(3, 3, 3, 3));
 }
 
-static inline m64 _negate(m64 x, m64 mmx_0x00ff)
+static inline m64 _negate(const m64 &x, const m64 &mmx_0x00ff)
 {
     return _mm_xor_si64(x, mmx_0x00ff);
 }
 #define negate(x) _negate(x, mmx_0x00ff)
 
-static inline m64 add(m64 a, m64 b)
+static inline m64 add(const m64 &a, const m64 &b)
 {
     return  _mm_adds_pu16 (a, b);
 }
 
-static inline m64 _byte_mul(m64 a, m64 b, m64 mmx_0x0080)
+static inline m64 _byte_mul(const m64 &a, const m64 &b, const m64 &mmx_0x0080)
 {
     m64 res = _mm_mullo_pi16(a, b);
     res = _mm_adds_pu16(res, mmx_0x0080);
@@ -55,12 +65,12 @@ static inline m64 _byte_mul(m64 a, m64 b, m64 mmx_0x0080)
 }
 #define byte_mul(a, b) _byte_mul(a, b, mmx_0x0080)
 
-static inline m64 interpolate_pixel_256(m64 x, m64 a, m64 y, m64 b) {
+static inline m64 interpolate_pixel_256(const m64 &x, const m64 &a, const m64 &y, const m64 &b) {
     m64 res = _mm_adds_pu16(_mm_mullo_pi16(x, a), _mm_mullo_pi16(y, b));
     return _mm_srli_pi16(res, 8);
 }
 
-static inline m64 _interpolate_pixel_255(m64 x, m64 a, m64 y, m64 b, m64 mmx_0x0080) {
+static inline m64 _interpolate_pixel_255(const m64 &x, const m64 &a, const m64 &y, const m64 &b, const m64 &mmx_0x0080) {
     m64 res = _mm_adds_pu16(_mm_mullo_pi16(x, a), _mm_mullo_pi16(y, b));
     res = _mm_adds_pu16(res, mmx_0x0080);
     res = _mm_adds_pu16(res, _mm_srli_pi16 (res, 8));
@@ -68,26 +78,26 @@ static inline m64 _interpolate_pixel_255(m64 x, m64 a, m64 y, m64 b, m64 mmx_0x0
 }
 #define interpolate_pixel_255(x, a, y, b) _interpolate_pixel_255(x, a, y, b, mmx_0x0080)
 
-static inline m64 _premul(m64 x, m64 mmx_0x0080) {
+static inline m64 _premul(m64 x, const m64 &mmx_0x0080) {
     m64 a = alpha(x);
     return _byte_mul(x, a, mmx_0x0080);
 }
 #define premul(x) _premul(x, mmx_0x0080)
 
-static inline m64 _load(uint x, m64 mmx_0x0000)
+static inline m64 _load(uint x, const m64 &mmx_0x0000)
 {
     return _mm_unpacklo_pi8(_mm_cvtsi32_si64(x), mmx_0x0000);
 }
 #define load(x) _load(x, mmx_0x0000)
 
-static inline m64 _load_alpha(uint x, m64 mmx_0x0000)
+static inline m64 _load_alpha(uint x, const m64 &mmx_0x0000)
 {
     m64 t = _mm_unpacklo_pi8(_mm_cvtsi32_si64(x), mmx_0x0000);
     return _mm_shuffle_pi16 (t, _MM_SHUFFLE(0, 0, 0, 0));
 }
 #define load_alpha(x) _load_alpha(x, mmx_0x0000)
 
-static inline uint _store(m64 x, m64 mmx_0x0000)
+static inline uint _store(const m64 &x, const m64 &mmx_0x0000)
 {
     return _mm_cvtsi64_si32(_mm_packs_pu16(x, mmx_0x0000));
 }

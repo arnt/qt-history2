@@ -2029,7 +2029,7 @@ DrawHelper qDrawHelper[DrawHelper::Layout_Count] =
 
 
 
-#ifdef QT_HAVE_SSE
+#if defined(QT_HAVE_SSE)
 
 enum CPUFeatures {
     None = 0,
@@ -2040,11 +2040,12 @@ enum CPUFeatures {
 };
 
 static uint detectCPUFeatures() {
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(Q_OS_WIN64)
     return MMX|SSE|SSE2|CMOV;
 #else
-    uint result;
+    uint result = 0;
     /* see p. 118 of amd64 instruction set manual Vol3 */
+#if defined(Q_CC_GCC)
     asm ("push %%ebx\n"
          "pushf\n"
          "pop %%eax\n"
@@ -2054,20 +2055,46 @@ static uint detectCPUFeatures() {
          "popf\n"
          "pushf\n"
          "pop %%eax\n"
-         "mov $0x0, %%edx\n"
          "xor %%ebx, %%eax\n"
          "jz 1f\n"
 
          "mov $0x00000001, %%eax\n"
          "cpuid\n"
+         "mov %%edx, %0\n"
          "1:\n"
          "pop %%ebx\n"
-         "mov %%edx, %0\n"
         : "=r" (result)
         :
         : "%eax", "%ecx", "%edx"
         );
+#elif defined (Q_OS_WIN)
+    _asm {
+	push eax
+	push ebx
+	push ecx
+	push edx
+	pushf
+	pop eax
+	mov ebx, eax
+	xor eax, 00200000h
+	push eax
+	popf
+	pushf
+        pop eax
+	mov edx, 0
+	xor eax, ebx
+	jz skip
 
+	mov eax, 1
+	cpuid
+	mov result, edx
+    skip:
+        pop edx
+	pop ecx
+	pop ebx
+	pop eax
+    }
+#endif
     uint features = 0;
     // result now contains the standard feature bits
     if (result & (1 << 15))
