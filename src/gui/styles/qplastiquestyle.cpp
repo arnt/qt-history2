@@ -573,7 +573,7 @@ static void qt_plastique_draw_gradient(QPainter *painter, const QRect &rect, con
     painter->drawPixmap(rect, cache);
 }
 
-static void qt_plastique_drawFrame(QPainter *painter, const QStyleOption *option)
+static void qt_plastique_drawFrame(QPainter *painter, const QStyleOption *option, const QWidget *widget)
 {
     QRect rect = option->rect;
     QPen oldPen = painter->pen();
@@ -581,7 +581,13 @@ static void qt_plastique_drawFrame(QPainter *painter, const QStyleOption *option
     QColor borderColor = option->palette.background().color().dark(178);
     QColor gradientStartColor = option->palette.button().color().light(104);
     QColor gradientStopColor = option->palette.button().color().dark(105);
-    QColor alphaCornerColor = mergedColors(option->palette.background().color(), borderColor);
+    QColor alphaCornerColor;
+    if (widget) {
+        // ### backgroundrole/foregroundrole should be part of the style option
+        alphaCornerColor = mergedColors(option->palette.color(widget->backgroundRole()), borderColor);
+    } else {
+        alphaCornerColor = mergedColors(option->palette.background().color(), borderColor);
+    }
 
     // outline / border
     painter->setPen(borderColor);
@@ -623,7 +629,7 @@ static void qt_plastique_drawFrame(QPainter *painter, const QStyleOption *option
 }
 
 static void qt_plastique_drawShadedPanel(QPainter *painter, const QStyleOption *option, bool base,
-                                         bool contentsPropagated)
+                                         bool contentsPropagated, const QWidget *widget)
 {
     QRect rect = option->rect;
     QPen oldPen = painter->pen();
@@ -645,7 +651,7 @@ static void qt_plastique_drawShadedPanel(QPainter *painter, const QStyleOption *
         }
     }
 
-    qt_plastique_drawFrame(painter, option);
+    qt_plastique_drawFrame(painter, option, widget);
 
     painter->setPen(oldPen);
 }
@@ -719,10 +725,17 @@ static QString elliditide(const QString &text, const QFontMetrics &fontMetrics, 
 }
 
 static void qt_plastique_draw_handle(QPainter *painter, const QStyleOption *option,
-                                     const QRect &rect, Qt::Orientation orientation)
+                                     const QRect &rect, Qt::Orientation orientation,
+                                     const QWidget *widget)
 {
     QColor borderColor = option->palette.background().color().dark(178);
-    QColor alphaCornerColor = mergedColors(option->palette.background().color(), borderColor);
+    QColor alphaCornerColor;
+    if (widget) {
+        // ### backgroundrole/foregroundrole should be part of the style option
+        alphaCornerColor = mergedColors(option->palette.color(widget->backgroundRole()), borderColor);
+    } else {
+        alphaCornerColor = mergedColors(option->palette.background().color(), borderColor);
+    }
 
     QImage handle(qt_simple_toolbarhandle);
     handle.setColor(1, alphaCornerColor.rgba());
@@ -824,7 +837,13 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     QColor highlightedDarkInnerBorderColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 35);
     QColor highlightedLightInnerBorderColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 58);
 
-    QColor alphaCornerColor = mergedColors(option->palette.background().color(), borderColor);
+    QColor alphaCornerColor;
+    if (widget) {
+        // ### backgroundrole/foregroundrole should be part of the style option
+        alphaCornerColor = mergedColors(option->palette.color(widget->backgroundRole()), borderColor);
+    } else {
+        alphaCornerColor = mergedColors(option->palette.background().color(), borderColor);
+    }
     QColor alphaInnerColor = mergedColors(highlightedLightInnerBorderColor, gradientStartColor);
 
     QColor alphaInnerColorNoHover = mergedColors(borderColor, gradientStartColor);
@@ -1190,7 +1209,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     case PE_PanelButtonTool:
         // Draws a tool button (f.ex., in QToolBar and QTabBar)
         if ((option->state & State_Enabled) || !(option->state & State_AutoRaise))
-            qt_plastique_drawShadedPanel(painter, option, true, contentsPropagated);
+            qt_plastique_drawShadedPanel(painter, option, true, contentsPropagated, widget);
         break;
 #ifndef QT_NO_TOOLBAR
     case PE_IndicatorToolBarHandle: {
@@ -1640,12 +1659,12 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             int width = option->rect.width() / 3;
             QRect rect(option->rect.center().x() - width / 2,
                        option->rect.top() + (option->rect.height() / 2) - 1, width, 3);
-            qt_plastique_draw_handle(painter, option, rect, Qt::Vertical);
+            qt_plastique_draw_handle(painter, option, rect, Qt::Vertical, widget);
         } else {
             int height = option->rect.height() / 3;
             QRect rect(option->rect.left() + (option->rect.width() / 2 - 1),
                        option->rect.center().y() - height / 2, 3, height);
-            qt_plastique_draw_handle(painter, option, rect, Qt::Horizontal);
+            qt_plastique_draw_handle(painter, option, rect, Qt::Horizontal, widget);
         }
         break;
 #endif // QT_NO_DOCKWIDGET
@@ -1743,7 +1762,13 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                                   QPainter *painter, const QWidget *widget) const
 {
     QColor borderColor = option->palette.background().color().dark(178);
-    QColor alphaCornerColor = mergedColors(option->palette.background().color(), borderColor);
+    QColor alphaCornerColor;
+    if (widget) {
+        // ### backgroundrole/foregroundrole should be part of the style option
+        alphaCornerColor = mergedColors(option->palette.color(widget->backgroundRole()), borderColor);
+    } else {
+        alphaCornerColor = mergedColors(option->palette.background().color(), borderColor);
+    }
     QColor alphaTextColor = mergedColors(option->palette.background().color(), option->palette.text().color());
 
     QColor gradientStartColor = option->palette.button().color().light(104);
@@ -2590,7 +2615,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     QStyleOption opt = *option;
                     opt.state |= State_Sunken;
                     opt.rect = sunkenRect;
-                    qt_plastique_drawShadedPanel(painter, &opt, false, contentsPropagated);
+                    qt_plastique_drawShadedPanel(painter, &opt, false, contentsPropagated, widget);
                 }
             }
 
@@ -2829,12 +2854,12 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             int height = option->rect.height() / 3;
             QRect rect(option->rect.left() + (option->rect.width() / 2 - 1),
                        option->rect.center().y() - height / 2, 3, height);
-            qt_plastique_draw_handle(painter, option, rect, Qt::Horizontal);
+            qt_plastique_draw_handle(painter, option, rect, Qt::Horizontal, widget);
         } else {
             int width = option->rect.width() / 3;
             QRect rect(option->rect.center().x() - width / 2,
                        option->rect.top() + (option->rect.height() / 2) - 1, width, 3);
-            qt_plastique_draw_handle(painter, option, rect, Qt::Vertical);
+            qt_plastique_draw_handle(painter, option, rect, Qt::Vertical, widget);
         }
         break;
 #endif // QT_NO_SPLITTER
@@ -2909,7 +2934,13 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                                          QPainter *painter, const QWidget *widget) const
 {
     QColor borderColor = option->palette.background().color().dark(178);
-    QColor alphaCornerColor = mergedColors(option->palette.background().color(), borderColor);
+    QColor alphaCornerColor;
+    if (widget) {
+        // ### backgroundrole/foregroundrole should be part of the style option
+        alphaCornerColor = mergedColors(option->palette.color(widget->backgroundRole()), borderColor);
+    } else {
+        alphaCornerColor = mergedColors(option->palette.background().color(), borderColor);
+    }
     QColor gradientStartColor = option->palette.button().color().light(104);
     QColor gradientStopColor = option->palette.button().color().dark(105);
     QColor highlightedGradientStartColor = option->palette.button().color().light(101);
@@ -4750,17 +4781,11 @@ void QPlastiqueStyle::polish(QWidget *widget)
 #ifndef QT_NO_MENUBAR
         || qobject_cast<QMenuBar *>(widget)
 #endif
-#ifndef QT_NO_TOOLBOX
-        || qobject_cast<QToolBox *>(widget)
-#endif
 #ifdef QT3_SUPPORT
         || widget->inherits("Q3ToolBar")
 #endif
 #ifndef QT_NO_TOOLBAR
         || qobject_cast<QToolBar *>(widget)
-#endif
-#ifndef QT_NO_TOOLBUTTON
-        || qobject_cast<QToolButton *>(widget)
 #endif
         ) {
         widget->setBackgroundRole(QPalette::Background);
