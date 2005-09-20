@@ -551,7 +551,7 @@ template <>
 bool QTest::compare<float>(float const &t1, float const &t2, const char *actual, const char *expected,
                     const char *file, int line)
 {
-    return (qAbs(t1 - t2) > 0.00001f)
+    return (qAbs(t1 - t2) < 0.00001f)
             ? compare_helper(true, "COMPARE()", file, line)
             : compare_helper(false, "Compared floats are not the same (fuzzy compare)",
                              toString(t1), toString(t2), actual, expected, file, line);
@@ -561,7 +561,7 @@ template <>
 bool QTest::compare<double>(double const &t1, double const &t2, const char *actual, const char *expected,
                     const char *file, int line)
 {
-    return (qAbs(t1 - t2) > 0.000000000001)
+    return (qAbs(t1 - t2) < 0.000000000001)
             ? compare_helper(true, "COMPARE()", file, line)
             : compare_helper(false, "Compared doubles are not the same (fuzzy compare)",
                              toString(t1), toString(t2), actual, expected, file, line);
