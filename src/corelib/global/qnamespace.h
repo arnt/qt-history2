@@ -1295,12 +1295,12 @@ class Q_CORE_EXPORT QInternal {
 public:
     enum PaintDeviceFlags {
         UnknownDevice = 0x00,
-        Widget = 0x01,
-        Pixmap = 0x02,
-        Image = 0x03,
-        Printer = 0x04,
-        Picture = 0x05,
-        Pbuffer = 0x06
+        Widget        = 0x01,
+        Pixmap        = 0x02,
+        Image         = 0x03,
+        Printer       = 0x04,
+        Picture       = 0x05,
+        OpenGLBuffer  = 0x06
     };
     enum RelayoutType {
         RelayoutNormal,
