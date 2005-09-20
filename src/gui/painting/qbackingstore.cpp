@@ -461,7 +461,11 @@ void QWidgetBackingStore::cleanBuffer(const QRegion &rgn, QWidget *widget, const
 
         //clip away the new area
         bool flushed = qt_flushPaint(widget, toBePainted);
+#ifdef Q_WS_QWS
+        QPainter::setRedirected(widget, buffer.pixmap(), -offset);
+#else
         QPainter::setRedirected(widget, &buffer, -offset);
+#endif
         QRegion wrgn = toBePainted;
         wrgn.translate(offset);
 #ifdef Q_WS_QWS
