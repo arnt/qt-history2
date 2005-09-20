@@ -3489,7 +3489,7 @@ QImage QImage::mirrored(bool horizontal, bool vertical) const
         return QImage();
 
     if ((d->width <= 1 && d->height <= 1) || (!horizontal && !vertical))
-        return QImage();
+        return *this;
 
     int w = d->width;
     int h = d->height;
