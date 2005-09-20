@@ -15,8 +15,8 @@
 #define QVALIDATOR_H
 
 #include "QtCore/qobject.h"
-#include "QtCore/qstring.h" // char*->QString conversion
-#include "QtCore/qregexp.h" // QString->QRegExp conversion
+#include "QtCore/qstring.h"
+#include "QtCore/qregexp.h"
 
 QT_MODULE(Gui)
 
@@ -127,6 +127,7 @@ private:
 class Q_GUI_EXPORT QRegExpValidator : public QValidator
 {
     Q_OBJECT
+    Q_PROPERTY(QRegExp regExp READ regExp WRITE setRegExp)
 
 public:
     explicit QRegExpValidator(QObject *parent);
@@ -136,7 +137,7 @@ public:
     virtual QValidator::State validate(QString& input, int& pos) const;
 
     void setRegExp(const QRegExp& rx);
-    const QRegExp& regExp() const { return r; }
+    inline const QRegExp& regExp() const { return r; }
 
 #ifdef QT3_SUPPORT
 public:

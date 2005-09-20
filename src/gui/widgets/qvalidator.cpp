@@ -747,23 +747,14 @@ QValidator::State QRegExpValidator::validate(QString &input, int& pos) const
 }
 
 /*!
-    Sets the regular expression used for validation to \a rx.
-
-    \sa regExp()
+    \property QRegExpValidator::regExp
+    \brief the regular expression used for validation
 */
 
 void QRegExpValidator::setRegExp(const QRegExp& rx)
 {
     r = rx;
 }
-
-/*!
-    \fn const QRegExp& QRegExpValidator::regExp() const
-
-    Returns the regular expression used for validation.
-
-    \sa setRegExp()
-*/
 
 #endif
 
