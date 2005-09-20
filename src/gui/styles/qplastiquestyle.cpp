@@ -18,6 +18,7 @@
 static const bool UsePixmapCache = true;
 static const bool AnimateBusyProgressBar = true;
 static const bool AnimateProgressBar = false;
+// #define QPlastique_MaskButtons
 static const int ProgressBarFps = 25;
 
 #include <qapplication.h>
@@ -4742,6 +4743,11 @@ void QPlastiqueStyle::polish(QWidget *widget)
 
     if (AnimateBusyProgressBar && qobject_cast<QProgressBar *>(widget))
         widget->installEventFilter(this);
+
+#if defined QPlastique_MaskButtons
+    if (qobject_cast<QPushButton *>(widget) || qobject_cast<QToolButton *>(widget))
+        widget->installEventFilter(this);
+#endif
 }
 
 /*!
@@ -4795,6 +4801,11 @@ void QPlastiqueStyle::unpolish(QWidget *widget)
 
     if (AnimateBusyProgressBar && qobject_cast<QProgressBar *>(widget))
         widget->removeEventFilter(this);
+
+#if defined QPlastique_MaskButtons
+    if (qobject_cast<QPushButton *>(widget) || qobject_cast<QToolButton *>(widget))
+        widget->removeEventFilter(this);
+#endif
 }
 
 /*!
@@ -4846,6 +4857,24 @@ bool QPlastiqueStyle::eventFilter(QObject *watched, QEvent *event)
                 d->progressBarAnimateTimer = 0;
             }
         }
+#if defined QPlastique_MaskButtons
+    case QEvent::Resize:
+        if (qobject_cast<QPushButton *>(watched) || qobject_cast<QToolButton *>(watched)) {
+            QWidget *widget = qobject_cast<QWidget *>(watched);
+            QRect rect = widget->rect();
+            QRegion region(rect);
+            region -= QRect(rect.left(), rect.top(), 2, 1);
+            region -= QRect(rect.left(), rect.top() + 1, 1, 1);
+            region -= QRect(rect.left(), rect.bottom(), 2, 1);
+            region -= QRect(rect.left(), rect.bottom() - 1, 1, 1);
+            region -= QRect(rect.right() - 1, rect.top(), 2, 1);
+            region -= QRect(rect.right(), rect.top() + 1, 1, 1);
+            region -= QRect(rect.right() - 1, rect.bottom(), 2, 1);
+            region -= QRect(rect.right(), rect.bottom() - 1, 1, 1);
+            widget->setMask(region);
+        }
+        break;
+#endif
     default:
         break;
     }
