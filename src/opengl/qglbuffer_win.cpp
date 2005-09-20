@@ -11,12 +11,11 @@
 **
 ****************************************************************************/
 
-#include "qglpbuffer.h"
+#include <qglbuffer.h>
 #include <qgl.h>
 #include <private/qgl_p.h>
 
-#include "qglpbuffer.h"
-#include "qglpbuffer_p.h"
+#include <qglbuffer_p.h>
 
 #include <qimage.h>
 #include <qdebug.h>

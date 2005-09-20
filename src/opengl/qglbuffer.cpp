@@ -32,8 +32,8 @@
     bound to a texture.
 */
 
-#include <qglpbuffer.h>
-#include <private/qglpbuffer_p.h>
+#include <qglbuffer.h>
+#include <private/qglbuffer_p.h>
 #include <private/qpaintengine_opengl_p.h>
 #include <qimage.h>
 

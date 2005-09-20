@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#include "qglpbuffer.h"
-#include "qglpbuffer_p.h"
+#include "qglbuffer.h"
+#include "qglbuffer_p.h"
 #include <AGL/agl.h>
 
 #include <qimage.h>
