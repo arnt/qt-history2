@@ -1225,51 +1225,63 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
     QSpan spans[NSPANS];
     int current = 0;
 
-    for (int y=y0; y < h; ++y) {
-        const uchar * const scanline = static_cast<const uchar *>(src) + y*bpl;
-
-        if (mono) {
+    const uchar * scanline = static_cast<const uchar *>(src) + y0*bpl;
+    if (mono) {
+        for (int y=y0; y < h; ++y) {
             for (int x = x0; x < w; ) {
-
-                // Skip those with 0 coverage
-                while (x < w && !monoVal(scanline,x))
+                if (!monoVal(scanline, x)) {
                     ++x;
-                if (x >= w) break;
-
-                QT_FT_Span span = { x + rx, 0, y + ry, 255 };
-
-                // extend span until we find a different one.
-                while (x < w && monoVal(scanline,x))
-                    ++x;
-                span.len = x +rx - span.x;
+                    continue;
+                }
 
                 if (current == NSPANS) {
                     d->penData.blend(current, spans, &d->penData);
                     current = 0;
                 }
-                spans[current++] = span;
+                spans[current].x = x + rx;
+                spans[current].y = y + ry;
+                spans[current].coverage = 255;
+                int len = 1;
+                ++x;
+                // extend span until we find a different one.
+                while (x < w && monoVal(scanline, x)) {
+                    ++x;
+                    ++len;
+                }
+                spans[current].len = len;
+                ++current;
             }
-        } else {
+            scanline += bpl;
+        }
+    } else {
+        for (int y=y0; y < h; ++y) {
             for (int x = x0; x < w; ) {
                 // Skip those with 0 coverage
-                while (x < w && scanline[x] == 0)
+                if (scanline[x] == 0) {
                     ++x;
-                if (x >= w) break;
-
-                int prev = scanline[x];
-                QT_FT_Span span = { x + rx, 0, y + ry, scanline[x] };
-
-                // extend span until we find a different one.
-                while (x < w && scanline[x] == prev)
-                    ++x;
-                span.len = x +rx - span.x;
+                    continue;
+                }
 
                 if (current == NSPANS) {
                     d->penData.blend(current, spans, &d->penData);
                     current = 0;
                 }
-                spans[current++] = span;
+                int coverage = scanline[x];
+                spans[current].x = x + rx;
+                spans[current].y = y + ry;
+                spans[current].coverage = coverage;
+                int len = 1;
+                ++x;
+
+                // extend span until we find a different one.
+                while (x < w && scanline[x] == coverage) {
+                    ++x;
+                    ++len;
+                }
+                spans[current].len = len;
+                ++current;
             }
+            scanline += bpl;
         }
     }
 //     qDebug() << "alphaPenBlt: num spans=" << current
