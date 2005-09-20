@@ -2364,11 +2364,6 @@ void QTextEdit::wheelEvent(QWheelEvent *e)
 
 QMenu *QTextEdit::createStandardContextMenu()
 {
-#if defined(Q_WS_QWS)
-    const bool qt_use_rtl_extensions = true;
-#else
-    extern bool qt_use_rtl_extensions;
-#endif
     Q_D(QTextEdit);
 
     QMenu *menu = new QMenu(this);
@@ -2405,7 +2400,7 @@ QMenu *QTextEdit::createStandardContextMenu()
 
     a->setEnabled(!d->doc->isEmpty());
 
-    if (qt_use_rtl_extensions && !d->readOnly) {
+    if (!d->readOnly) {
         menu->addSeparator();
         QUnicodeControlCharacterMenu *ctrlCharacterMenu = new QUnicodeControlCharacterMenu(this);
         menu->addMenu(ctrlCharacterMenu);
@@ -3340,7 +3335,7 @@ void QTextEdit::ensureCursorVisible()
 #define NUM_CONTROL_CHARACTERS 10
 const struct QUnicodeControlCharacter {
     const char *text;
-    const uchar character;
+    const ushort character;
 } qt_controlCharacters[NUM_CONTROL_CHARACTERS] = {
     { QT_TRANSLATE_NOOP("QUnicodeControlCharacterMenu", "LRM Left-to-right mark"), 0x200e },
     { QT_TRANSLATE_NOOP("QUnicodeControlCharacterMenu", "RLM Right-to-left mark"), 0x200f },
