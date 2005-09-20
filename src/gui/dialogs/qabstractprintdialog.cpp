@@ -30,6 +30,8 @@
     \value AllPages All pages should be printed.
     \value Selection Only the selection should be printed.
     \value PageRange The specified page range should be printed.
+
+    \sa QPrinter::PrintRange
 */
 
 /*!

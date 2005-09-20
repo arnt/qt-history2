@@ -172,16 +172,21 @@
 
 /*!
     \enum QPrinter::PrintRange
-    This enum is here for compatibility
 
-    \value AllPages
-    \value Selection
-    \value PageRange
+    Used to specify the print range selection option.
+
+    \value AllPages All pages should be printed.
+    \value Selection Only the selection should be printed.
+    \value PageRange The specified page range should be printed.
+
+    \sa QAbstractPrintDialog::PrintRange
 */
 
 /*!
     \enum QPrinter::PrinterOption
-    This enum is here for compatibility
+    \compat
+
+    Use QAbstractPrintDialog::PrintDialogOption instead.
 
     \value PrintToFile
     \value PrintSelection
@@ -695,12 +700,10 @@ void QPrinter::setNumCopies(int numCopies)
 
 
 /*!
-  \internal
+    Returns true if collation is turned on when multiple copies is selected.
+    Returns false if it is turned off when multiple copies is selected.
 
-  Returns true if collation is turned on when multiple copies is selected.
-  Returns false if it is turned off when multiple copies is selected.
-
-  \sa collateCopiesEnabled() setCollateCopiesEnabled() setCollateCopies()
+    \sa setCollateCopies()
 */
 bool QPrinter::collateCopies() const
 {
@@ -710,14 +713,12 @@ bool QPrinter::collateCopies() const
 
 
 /*!
-  \internal
+    Sets the default value for collation checkbox when the print dialog appears.
+    If \a on is true, it will enable setCollateCopiesEnabled().
+    The default value is false. This value will be changed by what the
+    user presses in the print dialog.
 
-  Sets the default value for collation checkbox when the print dialog appears.
-  If \a on is true, it will enable setCollateCopiesEnabled().
-  The default value is false. This value will be changed by what the
-  user presses in the print dialog.
-
-  \sa collateCopiesEnabled() setCollateCopiesEnabled() collateCopies()
+    \sa collateCopies()
 */
 void QPrinter::setCollateCopies(bool collate)
 {
@@ -1034,44 +1035,6 @@ void QPrinter::setMinMax(int minPage, int maxPage)
 	to_pg = maxPage;
 }
 
-/*!
-  \fn bool QPrinter::collateCopiesEnabled() const
-
-  \internal
-
-  Returns true if the application should provide the user with the
-  option of choosing a collated printout; otherwise returns false.
-
-  Collation means that each page is printed in order, i.e. print the
-  first page, then the second page, then the third page and so on, and
-  then repeat this sequence for as many copies as have been requested.
-  If you don't collate you get several copies of the first page, then
-  several copies of the second page, then several copies of the third
-  page, and so on.
-
-  \sa setCollateCopiesEnabled() setCollateCopies() collateCopies()
-*/
-
-/*!
-  \fn void QPrinter::setCollateCopiesEnabled(bool enable)
-
-  \internal
-
-  If \a enable is true (the default) the user is given the choice of
-  whether to print out multiple copies collated in the print dialog.
-  If \a enable is false, then collateCopies() will be ignored.
-
-  Collation means that each page is printed in order, i.e. print the
-  first page, then the second page, then the third page and so on, and
-  then repeat this sequence for as many copies as have been requested.
-  If you don't collate you get several copies of the first page, then
-  several copies of the second page, then several copies of the third
-  page, and so on.
-
-  \sa collateCopiesEnabled() setCollateCopies() collateCopies()
-*/
-
-
 #endif
 
 /*!
@@ -1252,8 +1215,6 @@ bool QPrinter::printSetup(QWidget *parent)
 #endif // Q_WS_MAC
 
 /*!
-    \compat
-
     Use QPrintDialog instead.
 
     \oldcode
@@ -1278,18 +1239,10 @@ bool QPrinter::setup(QWidget *parent)
 /*!
     \fn int QPrinter::fromPage() const
 
-    \compat
-
-    Use QPrintDialog instead.
-
     Returns the from-page setting. The default value is 0.
 
     If fromPage() and toPage() both return 0 this signifies 'print the
     whole document'.
-
-    The programmer is responsible for reading this setting and
-    printing accordingly.
-
 
     \sa setFromTo(), toPage()
 */
@@ -1304,10 +1257,6 @@ int QPrinter::fromPage() const
 
 /*!
     \fn int QPrinter::toPage() const
-
-    \compat
-
-    Use QPrintDialog instead.
 
     Returns the to-page setting. The default value is 0.
 
@@ -1329,10 +1278,6 @@ int QPrinter::toPage() const
 }
 
 /*!
-    \compat
-
-    Use QPrintDialog instead.
-
     Sets the from-page and to-page settings to \a from and \a
     to respectively.
 
@@ -1344,9 +1289,7 @@ int QPrinter::toPage() const
     This function is useful mostly to set a default value that the
     user can override in the print dialog when you call setup().
 
-    Use QPrintDialog instead.
-
-    \sa fromPage(), toPage(), setMinMax(), setup()
+    \sa fromPage(), toPage()
 */
 
 void QPrinter::setFromTo(int from, int to)
@@ -1358,16 +1301,7 @@ void QPrinter::setFromTo(int from, int to)
 }
 
 /*!
-    \fn int QPrinter::minPage() const
-
-    \compat
-
-    Use QPrintDialog instead.
-
-    Returns the min-page setting, i.e. the lowest page number a user
-    is allowed to choose. The default value is 0.
-
-    \sa maxPage(), setMinMax() setFromTo()
+    Use QPrintDialog::minPage() instead.
 */
 int QPrinter::minPage() const
 {
@@ -1378,19 +1312,8 @@ int QPrinter::minPage() const
 }
 
 /*!
-    \fn int QPrinter::maxPage() const
-
-    \compat
-
-    Use QPrintDialog instead.
-
-    Returns the max-page setting. A user can't choose a higher page
-    number than maxPage() when they select a print range. The default
-    value is 0.
-
-    \sa minPage(), setMinMax() setFromTo()
+    Use QPrintDialog::maxPage() instead.
 */
-
 int QPrinter::maxPage() const
 {
     Q_D(const QPrinter);
@@ -1400,21 +1323,8 @@ int QPrinter::maxPage() const
 }
 
 /*!
-    \compat
-
-    Use QPrintDialog instead.
-
-    Sets the min-page and max-page settings to \a minPage and \a
-    maxPage respectively.
-
-    The min-page and max-page restrict the from-page and to-page
-    settings. When the printer setup dialog appears, the user cannot
-    select a from page or a to page that are outside the range
-    specified by min and max pages.
-
-    \sa minPage(), maxPage(), setFromTo(), setup()
+    Use QPrintDialog::setMinMax() instead.
 */
-
 void QPrinter::setMinMax( int minPage, int maxPage )
 {
     Q_D(QPrinter);
@@ -1424,27 +1334,9 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 }
 
 /*!
-  \fn bool QPrinter::collateCopiesEnabled() const
-
-  \compat
-
-  Use QPrintDialog instead
-
-  \internal
-
-  Returns true if the application should provide the user with the
-  option of choosing a collated printout; otherwise returns false.
-
-  Collation means that each page is printed in order, i.e. print the
-  first page, then the second page, then the third page and so on, and
-  then repeat this sequence for as many copies as have been requested.
-  If you don't collate you get several copies of the first page, then
-  several copies of the second page, then several copies of the third
-  page, and so on.
-
-  \sa setCollateCopiesEnabled() setCollateCopies() collateCopies()
+    Use QPrintDialog::isOptionEnabled(QPrintDialog::PrintCollateCopies)
+    instead.
 */
-
 bool QPrinter::collateCopiesEnabled() const
 {
     Q_D(const QPrinter);
@@ -1454,28 +1346,11 @@ bool QPrinter::collateCopiesEnabled() const
 }
 
 /*!
-    \fn void QPrinter::setCollateCopiesEnabled(bool enable)
-
-    \compat
-
-    Use QPrintDialog instead.
-
-    \internal
-
-    If \a enable is true (the default) the user is given the choice of
-    whether to print out multiple copies collated in the print dialog.
-    If \a enable is false, then collateCopies() will be ignored.
-
-    Collation means that each page is printed in order, i.e. print the
-    first page, then the second page, then the third page and so on, and
-    then repeat this sequence for as many copies as have been requested.
-    If you don't collate you get several copies of the first page, then
-    several copies of the second page, then several copies of the third
-    page, and so on.
-
-  \sa collateCopiesEnabled() setCollateCopies() collateCopies()
+    Use QPrintDialog::addEnabledOption(QPrintDialog::PrintCollateCopies)
+    or QPrintDialog::setEnabledOptions(QPrintDialog::enabledOptions()
+    & ~QPrintDialog::PrintCollateCopies) instead, depending on \a
+    enable.
 */
-
 void QPrinter::setCollateCopiesEnabled(bool enable)
 {
     Q_D(QPrinter);
@@ -1491,17 +1366,8 @@ void QPrinter::setCollateCopiesEnabled(bool enable)
 }
 
 /*!
-    \compat
-
-    Use QPrintDialog instead.
-
-    Sets the default selected page range to be used when the print setup
-    dialog is opened to \a range. If the PageRange specified by \a range is
-    currently disabled the function does nothing.
-
-    \sa printRange()
+    Sets the print range option in to be \a range.
 */
-
 void QPrinter::setPrintRange( PrintRange range )
 {
     Q_D(QPrinter);
@@ -1511,12 +1377,9 @@ void QPrinter::setPrintRange( PrintRange range )
 }
 
 /*!
-    \compat
-
-    Use QPrintDialog instead.
-
-    Returns the PageRange of the QPrinter. After the print setup dialog
-    has been opened, this function returns the value selected by the user.
+    Returns the page renge of the QPrinter. After the print setup
+    dialog has been opened, this function returns the value selected
+    by the user.
 
     \sa setPrintRange()
 */
@@ -1529,14 +1392,7 @@ QPrinter::PrintRange QPrinter::printRange() const
 }
 
 /*!
-    \compat
-
     Use QPrintDialog instead.
-
-    Enables the printer option with the identifier \a option if \a
-    enable is true, and disables option \a option if \a enable is false.
-
-    \sa isOptionEnabled()
 */
 void QPrinter::setOptionEnabled( PrinterOption option, bool enable )
 {
@@ -1552,15 +1408,8 @@ void QPrinter::setOptionEnabled( PrinterOption option, bool enable )
 }
 
 /*!
-    \compat
-
     Use QPrintDialog instead.
-
-  Returns true if the printer option with identifier \a option is enabled;
-  otherwise returns false.
-
-  \sa setOptionEnabled()
- */
+*/
 bool QPrinter::isOptionEnabled( PrinterOption option ) const
 {
     Q_D(const QPrinter);

@@ -35,7 +35,7 @@ public:
     enum PrinterMode { ScreenResolution, PrinterResolution, HighResolution };
 
     explicit QPrinter(PrinterMode mode = ScreenResolution);
-   ~QPrinter();
+    ~QPrinter();
 
     int devType() const;
 
@@ -70,8 +70,11 @@ public:
                         Active,
                         Aborted,
                         Error };
-#ifdef QT3_SUPPORT
+
+    // ### Qt 5.0: Merge with QAbstractPrintDialog::PrintRange
     enum PrintRange { AllPages, Selection, PageRange };
+
+#ifdef QT3_SUPPORT
     enum PrinterOption { PrintToFile, PrintSelection, PrintPageRange };
 #endif // QT3_SUPPORT
 
@@ -147,6 +150,13 @@ public:
     void releaseDC(HDC hdc) const;
 #endif
 
+    void setFromTo(int fromPage, int toPage);
+    int fromPage() const;
+    int toPage() const;
+
+    void setPrintRange(PrintRange range);
+    PrintRange printRange() const;
+
 #if defined (QT3_SUPPORT)
 #ifdef Q_WS_MAC
     QT3_SUPPORT bool pageSetup(QWidget *parent = 0);
@@ -155,19 +165,12 @@ public:
 
     QT3_SUPPORT bool setup(QWidget *parent = 0);
 
-    QT3_SUPPORT void setFromTo(int fromPage, int toPage);
-    QT3_SUPPORT int fromPage() const;
-    QT3_SUPPORT int toPage() const;
-
     QT3_SUPPORT void setMinMax(int minPage, int maxPage);
     QT3_SUPPORT int minPage() const;
     QT3_SUPPORT int maxPage() const;
 
     QT3_SUPPORT void setCollateCopiesEnabled(bool);
     QT3_SUPPORT bool collateCopiesEnabled() const;
-
-    QT3_SUPPORT void setPrintRange(PrintRange range);
-    QT3_SUPPORT PrintRange printRange() const;
 
     QT3_SUPPORT void setOptionEnabled(PrinterOption, bool enable);
     QT3_SUPPORT bool isOptionEnabled(PrinterOption) const;
