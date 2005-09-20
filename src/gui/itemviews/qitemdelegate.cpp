@@ -413,7 +413,7 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem
             QPixmap *pm = selected(pixmap, option.palette, enabled);
             painter->drawPixmap(rect.topLeft(), *pm);
         } else {
-            painter->drawPixmap(rect.topLeft(), pixmap);
+            painter->drawPixmap(rect.topLeft(), pixmap, QRect(QPoint(0, 0), option.decorationSize));
         }
     }
 }
