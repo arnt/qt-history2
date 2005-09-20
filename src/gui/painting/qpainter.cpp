@@ -962,6 +962,7 @@ bool QPainter::end()
     d->engine = 0;
 
     --d->device->painters;
+    d->device = 0;
     return ended;
 }
 
