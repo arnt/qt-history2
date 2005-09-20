@@ -2058,6 +2058,15 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             HIThemeTabDrawInfo tdi;
             tdi.version = 1;
             tdi.style = kThemeTabNonFront;
+            tdi.direction = getTabDirection(tabOpt->shape);
+            bool verticalTabs = tdi.direction == kThemeTabWest || tdi.direction == kThemeTabEast;
+            QRect tabRect = tabOpt->rect;
+
+            if ((!verticalTabs && tabRect.height() > 20 || verticalTabs && tabRect.width() > 20)) {
+                drawPantherTab(tabOpt, p, w);
+                break;
+            }
+
             bool selected = tabOpt->state & QStyle::State_Selected;
             if (selected) {
                 if (!(tabOpt->state & QStyle::State_Active))
@@ -2073,13 +2082,10 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             } else if (tabOpt->state & QStyle::State_Sunken) {
                 tdi.style = kThemeTabNonFrontPressed;
             }
-            tdi.direction = getTabDirection(tabOpt->shape);
-            bool verticalTabs = tdi.direction == kThemeTabWest || tdi.direction == kThemeTabEast;
             if (tabOpt->state & QStyle::State_HasFocus)
                 tdi.adornment = kHIThemeTabAdornmentFocus;
             else
                 tdi.adornment = kHIThemeTabAdornmentNone;
-            QRect tabRect = tabOpt->rect;
             tdi.kind = kHIThemeTabKindNormal;
             if (!verticalTabs)
                 tabRect.setY(tabRect.y() - 1);
@@ -5672,7 +5678,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
     case CE_TabBarTabLabel:
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
             if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-                QStyleOptionTab myTab = *tab;
+                QStyleOptionTabV2 myTab = *tab;
                 ThemeTabDirection ttd = getTabDirection(myTab.shape);
                 bool verticalTabs = ttd == kThemeTabWest || ttd == kThemeTabEast;
                 myTab.rect.setHeight(myTab.rect.height() - 2);

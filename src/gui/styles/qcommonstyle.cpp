@@ -1096,16 +1096,17 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         break;
     case CE_TabBarTabLabel:
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
-            QRect tr = tab->rect;
-            bool verticalTabs = tab->shape == QTabBar::RoundedEast
-                                || tab->shape == QTabBar::RoundedWest
-                                || tab->shape == QTabBar::TriangularEast
-                                || tab->shape == QTabBar::TriangularWest;
-            bool selected = tab->state & State_Selected;
+            QStyleOptionTabV2 tabV2(*tab);
+            QRect tr = tabV2.rect;
+            bool verticalTabs = tabV2.shape == QTabBar::RoundedEast
+                                || tabV2.shape == QTabBar::RoundedWest
+                                || tabV2.shape == QTabBar::TriangularEast
+                                || tabV2.shape == QTabBar::TriangularWest;
+            bool selected = tabV2.state & State_Selected;
             if (verticalTabs) {
                 p->save();
                 int newX, newY, newRot;
-                if (tab->shape == QTabBar::RoundedEast || tab->shape == QTabBar::TriangularEast) {
+                if (tabV2.shape == QTabBar::RoundedEast || tabV2.shape == QTabBar::TriangularEast) {
                     newX = tr.width();
                     newY = tr.y();
                     newRot = 90;
@@ -1130,28 +1131,35 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;
             if (!styleHint(SH_UnderlineShortcut, opt, widget))
                 alignment |= Qt::TextHideMnemonic;
-            if (!tab->icon.isNull()) {
-                int iconSize = pixelMetric(PM_SmallIconSize);
-                QPixmap tabIcon = tab->icon.pixmap(iconSize, (tab->state & State_Enabled) ? QIcon::Normal : QIcon::Disabled);
+            if (!tabV2.icon.isNull()) {
+                QSize iconSize = tabV2.iconSize;
+                if (!iconSize.isValid()) {
+                    int iconExtent = pixelMetric(PM_SmallIconSize);
+                    iconSize = QSize(iconExtent, iconExtent);
+                }
+                QPixmap tabIcon = tabV2.icon.pixmap(iconSize,
+                                                    (tabV2.state & State_Enabled) ? QIcon::Normal
+                                                                                  : QIcon::Disabled);
                 p->drawPixmap(tr.left() + 6, tr.center().y() - tabIcon.height() / 2, tabIcon);
-                tr.setLeft(tr.left() + iconSize + 4);
+                tr.setLeft(tr.left() + iconSize.width() + 4);
             }
-            drawItemText(p, tr, alignment, tab->palette, tab->state & State_Enabled, tab->text, QPalette::Foreground);
+            drawItemText(p, tr, alignment, tabV2.palette, tabV2.state & State_Enabled, tabV2.text,
+                         QPalette::Foreground);
 
             if (verticalTabs)
                 p->restore();
 
-            if (tab->state & State_HasFocus && !tab->text.isEmpty()) {
+            if (tabV2.state & State_HasFocus && !tabV2.text.isEmpty()) {
                 const int OFFSET = 1 + pixelMetric(PM_DefaultFrameWidth);
 
                 int x1, x2;
-                x1 = tab->rect.left();
-                x2 = tab->rect.right() - 1;
+                x1 = tabV2.rect.left();
+                x2 = tabV2.rect.right() - 1;
 
                 QStyleOptionFocusRect fropt;
                 fropt.QStyleOption::operator=(*tab);
-                fropt.rect.setRect(x1 + 1 + OFFSET, tab->rect.y() + OFFSET,
-                                   x2 - x1 - 2*OFFSET, tab->rect.height() - 2*OFFSET);
+                fropt.rect.setRect(x1 + 1 + OFFSET, tabV2.rect.y() + OFFSET,
+                                   x2 - x1 - 2*OFFSET, tabV2.rect.height() - 2*OFFSET);
                 drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
             }
         }
@@ -3117,20 +3125,19 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         ret = 6;
         break;
 
+    case PM_TabBarIconSize:
     case PM_ToolBarIconSize:
-        ret = pixelMetric(PM_SmallIconSize);
-        break;
-
     case PM_ListViewIconSize:
-        ret = pixelMetric(PM_SmallIconSize);
-        break;
-    case PM_IconViewIconSize:
-        ret = pixelMetric(PM_LargeIconSize);
+        ret = pixelMetric(PM_SmallIconSize, opt, widget);
         break;
 
     case PM_SmallIconSize:
         ret = 16;
         break;
+    case PM_IconViewIconSize:
+        ret = pixelMetric(PM_LargeIconSize, opt, widget);
+        break;
+
     case PM_LargeIconSize:
         ret = 32;
         break;

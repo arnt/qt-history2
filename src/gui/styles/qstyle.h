@@ -451,6 +451,7 @@ public:
 
         PM_ToolTipLabelFrameWidth,
         PM_CheckBoxLabelSpacing,
+        PM_TabBarIconSize,
 
         // do not add any values below/greater than this
         PM_CustomBase = 0xf0000000

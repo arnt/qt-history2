@@ -32,6 +32,7 @@ class Q_GUI_EXPORT QTabBar: public QWidget
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
     Q_PROPERTY(int count READ count)
     Q_PROPERTY(bool drawBase READ drawBase WRITE setDrawBase)
+    Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
 
 public:
     explicit QTabBar(QWidget* parent=0);
@@ -81,6 +82,9 @@ public:
 
     void setDrawBase(bool drawTheBase);
     bool drawBase() const;
+
+    QSize iconSize() const;
+    void setIconSize(const QSize &size);
 
 public slots:
     void setCurrentIndex(int index);

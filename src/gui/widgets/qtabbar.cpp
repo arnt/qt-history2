@@ -81,14 +81,15 @@ public:
     void layoutTabs();
 
     void makeVisible(int index);
-    QStyleOptionTab getStyleOption(int tab) const;
+    QStyleOptionTabV2 getStyleOption(int tab) const;
+    QSize iconSize;
 };
 
 
-QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
+QStyleOptionTabV2 QTabBarPrivate::getStyleOption(int tab) const
 {
     Q_Q(const QTabBar);
-    QStyleOptionTab opt;
+    QStyleOptionTabV2 opt;
     const QTabBarPrivate::Tab *ptab = &tabList.at(tab);
     opt.init(q);
     opt.state &= ~(QStyle::State_HasFocus | QStyle::State_MouseOver);
@@ -110,6 +111,7 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     opt.shape = shape;
     opt.text = ptab->text;
     opt.icon = ptab->icon;
+    opt.iconSize = q->iconSize();  // Will get the default value then.
 
     int totalTabs = tabList.size();
 
@@ -787,6 +789,30 @@ void QTabBar::setCurrentIndex(int index)
     }
 }
 
+/*!
+    \property QTabBar::iconSize
+    \brief The size for icons in the tab bar
+
+    Unless explicitly set, this uses the default value of the current style
+*/
+QSize QTabBar::iconSize() const
+{
+    Q_D(const QTabBar);
+    if (d->iconSize.isValid())
+        return d->iconSize;
+    int iconExtent = style()->pixelMetric(QStyle::PM_TabBarIconSize);
+    return QSize(iconExtent, iconExtent);
+
+}
+
+void QTabBar::setIconSize(const QSize &size)
+{
+    Q_D(QTabBar);
+    d->iconSize = size;
+    d->layoutDirty = true;
+    update();
+    updateGeometry();
+}
 
 /*!
     \property QTabBar::count
@@ -834,9 +860,8 @@ QSize QTabBar::tabSizeHint(int index) const
 {
     Q_D(const QTabBar);
     if (const QTabBarPrivate::Tab *tab = d->at(index)) {
-        QStyleOptionTab opt = d->getStyleOption(index);
-        int iconExtent = style()->pixelMetric(QStyle::PM_SmallIconSize, &opt, this);
-        QSize iconSize = tab->icon.isNull() ? QSize() : QSize(iconExtent, iconExtent);
+        QStyleOptionTabV2 opt = d->getStyleOption(index);
+        QSize iconSize = tab->icon.isNull() ? QSize() : opt.iconSize;
         int hframe  = style()->pixelMetric(QStyle::PM_TabBarTabHSpace, &opt, this);
         int vframe  = style()->pixelMetric(QStyle::PM_TabBarTabVSpace, &opt, this);
         const QFontMetrics fm = fontMetrics();
@@ -1001,7 +1026,7 @@ void QTabBar::paintEvent(QPaintEvent *)
     QStyleOptionTab cutTab;
     QStyleOptionTab selectedTab;
     for (int i = 0; i < d->tabList.count(); ++i) {
-        QStyleOptionTab tab = d->getStyleOption(i);
+        QStyleOptionTabV2 tab = d->getStyleOption(i);
         // If this tab is partially obscured, make a note of it so that we can pass the information
         // along when we draw the tear.
         if ((!verticalTabs && (!rtl && tab.rect.left() < 0) || (rtl && tab.rect.right() > width()))
@@ -1026,7 +1051,7 @@ void QTabBar::paintEvent(QPaintEvent *)
 
     // Draw the selected tab last to get it "on top"
     if (selected >= 0) {
-        QStyleOptionTab tab = d->getStyleOption(selected);
+        QStyleOptionTabV2 tab = d->getStyleOption(selected);
         p.drawControl(QStyle::CE_TabBarTab, tab);
     }
     if (d->drawBase)

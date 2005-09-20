@@ -1173,7 +1173,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_DefaultChildMargin
     \value PM_DefaultLayoutSpacing
 
-    \value PM_ToolBarIconSize Default tool bar icon size, defaults to PM_SmallIconSize
+    \value PM_ToolBarIconSize Default tool bar icon size
     \value PM_SmallIconSize Default small icon size
     \value PM_LargeIconSize Default large icon size
 
@@ -1184,6 +1184,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value PM_ToolTipLabelFrameWidth
     \value PM_CheckBoxLabelSpacing The spacing between a check box and its label
+    \value PM_TabBarIconSize The default icon size for a tab bar.
 
     \value PM_CustomBase  Base value for custom ControlElements
     Custom values must be greater than this value

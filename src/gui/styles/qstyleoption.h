@@ -238,6 +238,21 @@ protected:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionTab::CornerWidgets)
+
+class Q_GUI_EXPORT QStyleOptionTabV2 : public QStyleOptionTab
+{
+public:
+    enum { Version = 2 };
+    QSize iconSize;
+    QStyleOptionTabV2();
+    QStyleOptionTabV2(const QStyleOptionTabV2 &other) : QStyleOptionTab(Version) { *this = other; }
+    QStyleOptionTabV2(const QStyleOptionTab &other);
+    QStyleOptionTabV2 &operator=(const QStyleOptionTab &other);
+
+protected:
+    QStyleOptionTabV2(int version);
+};
+
 #endif
 
 class Q_GUI_EXPORT QStyleOptionProgressBar : public QStyleOption

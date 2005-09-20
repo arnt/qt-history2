@@ -447,7 +447,7 @@ QStyleOptionFrameV2::QStyleOptionFrameV2(int version)
 
     If \a{other}'s version is 1, the \l features member is set to \l None. If
     \a{other}'s version is 2, \l features is copied.
-    
+
     \sa version
 */
 QStyleOptionFrameV2::QStyleOptionFrameV2(const QStyleOptionFrame &other)
@@ -904,6 +904,94 @@ QStyleOptionTab::QStyleOptionTab(int version)
     \variable QStyleOptionTab::position
     \brief the position of the tab in the tab bar
 */
+
+/*!
+    \variable QStyleOptionTabV2::iconSize
+
+    The size for the icons. If this size is invalid and you need an iconSize, you can use
+    QStyle::pixelMetric() to find the default icon size for tab bars.
+
+    \sa QTabBar::iconSize() QStyle::pixelMetric()
+*/
+
+/*!
+    \class QStyleOptionTabV2
+    \brief The QStyleOptionTabV2 class is used to describe the
+    parameters necessary for drawing a tabs in Qt 4.1 or above.
+
+    An instance of this class has \l type SO_Tab and \l version 2.
+
+    If you create your own QStyle subclass, you should handle both
+    QStyleOptionTab and QStyleOptionTabV2. One way
+    to achieve this is to use the QStyleOptionTabV2 copy
+    constructor.
+
+    If the parameter's version is 1, the extra member (\l
+    iconSize) will be set to an invalid size.
+    If the parameter's version is 2, the
+    constructor will copy the iconSize.
+
+    Example:
+    \code
+        if (const QStyleOptionTab *tab =
+               qstyleoption_cast<const QStyleOptionTab *>(option)) {
+            QStyleOptionTabV2 tabV2(*tab);
+
+            // draw the tab using tabV2
+        }
+    \endcode
+
+    \sa QStyleOptionTab
+    \since 4.1
+*/
+
+/*!
+    Construct a QStyleOptionTabV2
+*/
+QStyleOptionTabV2::QStyleOptionTabV2()
+    : QStyleOptionTab(Version)
+{
+}
+
+/*!
+    \internal
+*/
+QStyleOptionTabV2::QStyleOptionTabV2(int version)
+    : QStyleOptionTab(version)
+{
+}
+
+/*!
+    \fn QStyleOptionTabV2::QStyleOptionTabV2(const QStyleOptionTabV2 &other)
+    Create a copy of \a other
+*/
+
+/*!
+    Create a copy of \a other
+*/
+QStyleOptionTabV2::QStyleOptionTabV2(const QStyleOptionTab &other)
+    : QStyleOptionTab(Version)
+{
+    if (const QStyleOptionTabV2 *tab = qstyleoption_cast<const QStyleOptionTabV2 *>(&other)) {
+        *this = *tab;
+    } else {
+        *((QStyleOptionTab *)this) = other;
+        version = Version;
+    }
+}
+
+/*!
+    Assign \a other to this QStyleOptionTabV2.
+*/
+QStyleOptionTabV2 &QStyleOptionTabV2::operator=(const QStyleOptionTab &other)
+{
+    QStyleOptionTab::operator=(other);
+
+    if (const QStyleOptionTabV2 *tab = qstyleoption_cast<const QStyleOptionTabV2 *>(&other))
+        iconSize = tab->iconSize;
+    return *this;
+}
+
 
 #endif // QT_NO_TABBAR
 
