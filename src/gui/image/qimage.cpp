@@ -98,11 +98,22 @@ struct QImageData {        // internal image data
 
 extern int qt_defaultDpi();
 
+QBasicAtomic qimage_serial_number = Q_ATOMIC_INIT(1);
+int qimage_next_serial_number()
+{
+    register int id;
+    for (;;) {
+        id = qimage_serial_number;
+        if (qimage_serial_number.testAndSet(id, id + 1))
+            break;
+    }
+    return id;
+}
+
+
 QImageData::QImageData()
 {
-    static int serial = 0;
-
-    ser_no = ++serial;
+    ser_no = qimage_next_serial_number();
     ref = 0;
 
     width = height = depth = 0;
