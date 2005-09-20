@@ -192,8 +192,16 @@ void qt_syncBackingStore(QWidget *widget)
     if (!toClean.isEmpty())
         topData->backingStore->cleanRegion(toClean, tlw);
 }
-
 #endif
+
+/*
+   A version of QRect::intersects() that does not normalize the rects.
+*/
+static inline bool qRectIntersects(const QRect &r1, const QRect &r2)
+{
+    return (qMax(r1.left(), r2.left()) <= qMin(r1.right(), r2.right()) &&
+             qMax(r1.top(), r2.top()) <= qMin(r1.bottom(), r2.bottom()));
+}
 
 QWidgetBackingStore::QWidgetBackingStore(QWidget *t) : tlw(t)
 #ifdef Q_WS_WIN
@@ -324,11 +332,13 @@ void QWidgetBackingStore::cleanScreen(const QRegion &rgn, QWidget *widget, const
         for(int i = 0; i < children.size(); ++i) {
             if(QWidget *child = qobject_cast<QWidget*>(children.at(i))) {
                 if(!child->isWindow()) {
-                    QRegion childRegion(rgn);
-                    childRegion.translate(-child->pos());
-                    childRegion &= child->d_func()->clipRect();
-                    if(!childRegion.isEmpty())
-                        cleanScreen(childRegion, child, offset+child->pos(), flags);
+                    if (qRectIntersects(rgn.boundingRect().translated(-child->pos()), child->rect())) {
+                        QRegion childRegion(rgn);
+                        childRegion.translate(-child->pos());
+                        childRegion &= child->d_func()->clipRect();
+                        if(!childRegion.isEmpty())
+                            cleanScreen(childRegion, child, offset+child->pos(), flags);
+                    }
                 }
             }
         }
@@ -527,15 +537,17 @@ void QWidgetBackingStore::cleanBuffer(const QRegion &rgn, QWidget *widget, const
         for(int i = 0; i < children.size(); ++i) {
             if(QWidget *child = qobject_cast<QWidget*>(children.at(i))) {
                 if(!child->isWindow() && child->isVisible() && child->updatesEnabled()) {
-                    QRegion childRegion(rgn);
-                    childRegion.translate(-child->pos());
-                    childRegion &= child->d_func()->clipRect();
-                    if(QWExtra *extra = child->d_func()->extraData()) {
-                        if(!extra->mask.isEmpty())
-                         childRegion &= extra->mask;
+                    if (qRectIntersects(rgn.boundingRect().translated(-child->pos()), child->rect())) {
+                        QRegion childRegion(rgn);
+                        childRegion.translate(-child->pos());
+                        childRegion &= child->d_func()->clipRect();
+                        if(QWExtra *extra = child->d_func()->extraData()) {
+                            if(!extra->mask.isEmpty())
+                                childRegion &= extra->mask;
+                        }
+                        if(!childRegion.isEmpty())
+                            cleanBuffer(childRegion, child, offset+child->pos(), flags & ~(AsRoot));
                     }
-                    if(!childRegion.isEmpty())
-                        cleanBuffer(childRegion, child, offset+child->pos(), flags & ~(AsRoot));
                 }
             }
         }
