@@ -13,7 +13,8 @@
 
 #include <private/qdrawhelper_p.h>
 #include <private/qpaintengine_raster_p.h>
-#ifdef Q_CC_GCC
+
+#ifdef Q_CC_GNU
 #  include <mmintrin.h>
 #  include <xmmintrin.h>
 // It seems that gcc (3.1 <= x < 3.4) segfaults when casting the ULL immediate values to __m64.
@@ -619,7 +620,7 @@ void qt_blend_color_argb_sse(int count, const QSpan *spans, void *userData)
                 m64 ca = load_alpha(spans->coverage);
                 m64 s = byte_mul(load(data->solid.color), ca);
                 m64 ica = negate(ca);
-                for (int i = 0; i < spans->len; ++i) 
+                for (int i = 0; i < spans->len; ++i)
                     target[i] = store(add(s, byte_mul(load(target[i]), ica)));
             }
             ++spans;
