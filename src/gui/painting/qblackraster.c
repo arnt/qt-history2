@@ -24,6 +24,7 @@
 /* #define Q_RASTER_DEBUG */
 
 #include <qglobal.h>
+#include <stdlib.h>
 
 typedef int QT_FT_Error;
 typedef int QT_FT_Int;
@@ -74,7 +75,6 @@ static QT_FT_Long QT_FT_MulDiv(QT_FT_Long  a, QT_FT_Long  b, QT_FT_Long  c)
 #include <string.h>
 #define QT_FT_MEM_ZERO(x, len) memset(x, 0, len);
 #include <stdio.h>
-#include <malloc.h>
 
 
 #define MAX(x, y) (x > y ? x : y)

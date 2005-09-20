@@ -118,7 +118,7 @@
 #include <private/qrasterdefs_p.h>
 #include <private/qgrayraster_p.h>
 
-#include <malloc.h>
+#include <stdlib.h>
 #include <stdio.h>
 
   /* This macro is used to indicate that a function parameter is unused. */
