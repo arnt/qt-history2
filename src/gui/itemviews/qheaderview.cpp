@@ -67,9 +67,10 @@
     mouse clicks. A header also emits sectionCountChanged() and
     sectionAutoResize().
 
-    You can identify a section using the section() and sectionAt()
+    You can identify a section using the logicalIndex() and logicalIndexAt()
     functions, or by its index position, using the visualIndex() and visualIndexAt()
-    functions. Note that the visual index can change if a section is moved.
+    functions. The visual index will change if a section is moved while the logical
+    index wont change.
 
     For a horizontal header the section is equivalent to a column in the
     model, and for a vertical header the section is equivalent to a row
@@ -498,10 +499,10 @@ void QHeaderView::moveSection(int from, int to)
     bool hidden = sections[from].hidden;
     QVarLengthArray<int> sizes(qAbs(to - from));
 
+    // Bump everything else
     if (to > from) {
         while (visual < to) {
-            sizes[sizes.size() - 1 - (visual - from)] = sections[visual + 1].position
-                                                      - sections[visual].position;
+            sizes[sizes.size() - 1 - (visual - from)] = sections[visual + 1].position - sections[visual].position;
             sections[visual].hidden = sections[visual + 1].hidden;
             visualIndices[logicalIndices[visual]] = visual;
             logicalIndices[visual] = logicalIndices[visual + 1];
@@ -521,7 +522,7 @@ void QHeaderView::moveSection(int from, int to)
     visualIndices[logical] = to;
     logicalIndices[to] = logical;
 
-    // move positions
+    // move "pixel" positions
     if (to > from) {
         for (visual = from; visual < to; ++visual)
             sections[visual + 1].position = sections[visual].position + sizes[visual - from];
