@@ -663,6 +663,7 @@ public:
 	// you are writing your own input method
 
 	// International & multi-key character composition
+        Key_AltGr               = 0x01001103,
 	Key_Multi_key           = 0x01001120,  // Multi-key character compose
 	Key_Codeinput           = 0x01001137,
 	Key_SingleCandidate     = 0x0100113c,
