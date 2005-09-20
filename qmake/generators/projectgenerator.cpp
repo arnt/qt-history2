@@ -349,8 +349,8 @@ ProjectGenerator::writeMakefile(QTextStream &t)
           << getWritableVar("RESOURCES")
           << getWritableVar("TRANSLATIONS");
     }
-    for(i = 0; i < Option::before_user_vars.size(); ++i)
-        t << Option::before_user_vars[i] << endl;
+    for(i = 0; i < Option::after_user_vars.size(); ++i)
+        t << Option::after_user_vars[i] << endl;
     return true;
 }
 
