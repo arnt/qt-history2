@@ -40,7 +40,6 @@
 #ifndef GL_MULTISAMPLE
 #define GL_MULTISAMPLE  0x809D
 #endif
-#endif
 
 // define QT_GL_NO_CONCAVE_POLYGONS to remove support for drawing
 // concave polygons (much faster)
