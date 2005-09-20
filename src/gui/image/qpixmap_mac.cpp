@@ -225,14 +225,15 @@ QImage QPixmap::toImage() const
     const uint sbpr = data->nbytes / h;
     if(format == QImage::Format_MonoLSB) {
         image.setNumColors(2);
-        image.setColor(0, Qt::color0);
-        image.setColor(1, Qt::color1);
+        image.setColor(0, QColor(Qt::color0).rgba());
+        image.setColor(1, QColor(Qt::color1).rgba());
         for (int y = 0; y < h; ++y) {
             uchar *scanLine = image.scanLine(y);
+            //memset(scanLine, 0, w/8);
             srow = sptr + (y * (sbpr/4));
             for (int x = 0; x < w; ++x) {
                 if (!(*(srow + x) & RGB_MASK))
-                    scanLine[x >> 3] = scanLine[x >> 3] | (1 << (x & 7));
+                    scanLine[x >> 3] |= (1 << (x & 7));
             }
         }
     } else {
