@@ -392,13 +392,8 @@ QAbstractItemModelPrivate::~QAbstractItemModelPrivate()
 
 void QAbstractItemModelPrivate::invalidate(int position)
 {
-    QModelIndex parent = persistent.indexes.at(position)->index;
-    for (int i = 0; i < persistent.indexes.count(); ++i) {
-        if (persistent.indexes.at(i)->index.parent() == parent) {
-            Q_ASSERT((persistent.indexes.at(i)));
-            invalidate(i); // recursive
-        }
-    }
+    // no need to make invalidate recursive, since the *AboutToBeRemoved functions
+    // will register indexes to be invalidated recursively
     persistent.indexes[position]->index = QModelIndex();
 }
 
