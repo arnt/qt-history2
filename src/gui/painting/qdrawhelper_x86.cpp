@@ -146,7 +146,7 @@ static void QT_FASTCALL comp_func_Clear(uint *dest, const uint *, int length, ui
         QT_MEMFILL_UINT(dest, length, 0);
     } else {
         C_FF; C_80; C_00;
-        m64 ia = negate(alpha(load(const_alpha)));
+        m64 ia = negate(load_alpha(const_alpha));
         for (int i = 0; i < length; ++i)
             dest[i] = store(byte_mul(load(dest[i]), ia));
     }
@@ -346,16 +346,24 @@ static void QT_FASTCALL comp_func_solid_DestinationIn(uint *dest, int length, ui
 
 static void QT_FASTCALL comp_func_DestinationIn(uint *dest, const uint *src, int length, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = BYTE_MUL(dest[i], qAlpha(src[i]));
-    } else {
-        int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i) {
-            uint tmp = BYTE_MUL(dest[i], qAlpha(src[i]));
-            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+            m64 a = alpha(load(src[i]));
+            dest[i] = store(byte_mul(load(dest[i]), a));
+        }
+    } else {
+        m64 ca = load_alpha(const_alpha);
+        m64 cia = negate(ca);
+        for (int i = 0; i < length; ++i) {
+            m64 d = load(dest[i]);
+            m64 a = alpha(load(src[i]));
+            a = byte_mul(a, ca);
+            a = add(a, cia);
+            dest[i] = store(byte_mul(d, a));
         }
     }
+    end_mmx();
 }
 
 /*
@@ -385,16 +393,22 @@ static void QT_FASTCALL comp_func_solid_SourceOut(uint *dest, int length, uint s
 
 static void QT_FASTCALL comp_func_SourceOut(uint *dest, const uint *src, int length, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = BYTE_MUL(src[i], 255 - qAlpha(dest[i]));
-    } else {
-        int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i) {
-            uint tmp = BYTE_MUL(src[i], 255 - qAlpha(dest[i]));
-            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+            m64 ia = negate(alpha(load(dest[i])));
+            dest[i] = store(byte_mul(load(src[i]), ia));
+        }
+    } else {
+        m64 ca = load_alpha(const_alpha);
+        m64 cia = negate(ca);
+        for (int i = 0; i < length; ++i) {
+            m64 d = load(dest[i]);
+            m64 dia = byte_mul(negate(alpha(d)), ca);
+            dest[i] = store(interpolate_pixel_255(load(src[i]), dia, d, cia));
         }
     }
+    end_mmx();
 }
 
 /*
@@ -418,16 +432,24 @@ static void QT_FASTCALL comp_func_solid_DestinationOut(uint *dest, int length, u
 
 static void QT_FASTCALL comp_func_DestinationOut(uint *dest, const uint *src, int length, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = BYTE_MUL(dest[i], 255 - qAlpha(src[i]));
-    } else {
-        int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i) {
-            uint tmp = BYTE_MUL(dest[i], 255 - qAlpha(src[i]));
-            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+            m64 a = negate(alpha(load(src[i])));
+            dest[i] = store(byte_mul(load(dest[i]), a));
+        }
+    } else {
+        m64 ca = load_alpha(const_alpha);
+        m64 cia = negate(ca);
+        for (int i = 0; i < length; ++i) {
+            m64 d = load(dest[i]);
+            m64 a = negate(alpha(load(src[i])));
+            a = byte_mul(a, ca);
+            a = add(a, cia);
+            dest[i] = store(byte_mul(d, a));
         }
     }
+    end_mmx();
 }
 
 /*
@@ -453,16 +475,23 @@ static void QT_FASTCALL comp_func_solid_SourceAtop(uint *dest, int length, uint 
 
 static void QT_FASTCALL comp_func_SourceAtop(uint *dest, const uint *src, int length, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = INTERPOLATE_PIXEL_255(src[i], qAlpha(dest[i]), dest[i], 255 - qAlpha(src[i]));
-    } else {
-        int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i) {
-            uint tmp = INTERPOLATE_PIXEL_255(src[i], qAlpha(dest[i]), dest[i], 255 - qAlpha(src[i]));
-            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+            m64 s = load(src[i]);
+            m64 d = load(dest[i]);
+            dest[i] = store(interpolate_pixel_255(s, alpha(d), d, negate(alpha(s))));
+        }
+    } else {
+        m64 ca = load_alpha(const_alpha);
+        for (int i = 0; i < length; ++i) {
+            m64 s = load(src[i]);
+            s = byte_mul(s, ca);
+            m64 d = load(dest[i]);
+            dest[i] = store(interpolate_pixel_255(s, alpha(d), d, negate(alpha(s))));
         }
     }
+    end_mmx();
 }
 
 /*
@@ -489,16 +518,25 @@ static void QT_FASTCALL comp_func_solid_DestinationAtop(uint *dest, int length, 
 
 static void QT_FASTCALL comp_func_DestinationAtop(uint *dest, const uint *src, int length, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = INTERPOLATE_PIXEL_255(dest[i], qAlpha(src[i]), src[i], 255 - qAlpha(dest[i]));
-    } else {
-        int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i) {
-            uint tmp = INTERPOLATE_PIXEL_255(dest[i], qAlpha(src[i]), src[i], 255 - qAlpha(dest[i]));
-            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+            m64 s = load(src[i]);
+            m64 d = load(dest[i]);
+            dest[i] = store(interpolate_pixel_255(d, alpha(s), s, negate(alpha(d))));
+        }
+    } else {
+        m64 ca = load_alpha(const_alpha);
+        for (int i = 0; i < length; ++i) {
+            m64 s = load(src[i]);
+            s = byte_mul(s, ca);
+            m64 d = load(dest[i]);
+            m64 a = alpha(s);
+            a = add(a, negate(ca));
+            dest[i] = store(interpolate_pixel_255(s, negate(alpha(d)), d, a));
         }
     }
+    end_mmx();
 }
 
 /*
@@ -524,16 +562,23 @@ static void QT_FASTCALL comp_func_solid_XOR(uint *dest, int length, uint src, ui
 
 static void QT_FASTCALL comp_func_XOR(uint *dest, const uint *src, int length, uint const_alpha)
 {
+    C_FF; C_80; C_00;
     if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = INTERPOLATE_PIXEL_255(src[i], 255 - qAlpha(dest[i]), dest[i], 255 - qAlpha(src[i]));
-    } else {
-        int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i) {
-            uint tmp = INTERPOLATE_PIXEL_255(src[i], 255 - qAlpha(dest[i]), dest[i], 255 - qAlpha(src[i]));
-            dest[i] = INTERPOLATE_PIXEL_255(tmp, const_alpha, dest[i], ialpha);
+            m64 s = load(src[i]);
+            m64 d = load(dest[i]);
+            dest[i] = store(interpolate_pixel_255(s, negate(alpha(d)), d, negate(alpha(s))));
+        }
+    } else {
+        m64 ca = load_alpha(const_alpha);
+        for (int i = 0; i < length; ++i) {
+            m64 s = load(src[i]);
+            s = byte_mul(s, ca);
+            m64 d = load(dest[i]);
+            dest[i] = store(interpolate_pixel_255(s, negate(alpha(d)), d, negate(alpha(s))));
         }
     }
+    end_mmx();
 }
 
 const CompositionFunctionSolid qt_functionForModeSolid_SSE[] = {
@@ -582,12 +627,12 @@ void qt_blend_color_argb_sse(int count, const QSpan *spans, void *userData)
             if (spans->coverage == 255) {
                 QT_MEMFILL_UINT(target, spans->len, data->solid.color);
             } else {
-                m64 a = load_alpha(spans->coverage);
-                m64 ia = negate(a);
-                m64 c = byte_mul(load(data->solid.color), a);
-                for (int i = 0; i < spans->len; ++i) {
-                    target[i] = store(add(c, byte_mul(load(target[i]), ia)));
-                }
+                // dest = s * ca + d * (1 - sa*ca) --> dest = s * ca + d * (1-ca)
+                m64 ca = load_alpha(spans->coverage);
+                m64 s = byte_mul(load(data->solid.color), ca);
+                m64 ica = negate(ca);
+                for (int i = 0; i < spans->len; ++i) 
+                    target[i] = store(add(s, byte_mul(load(target[i]), ica)));
             }
             ++spans;
         }
