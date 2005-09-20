@@ -1382,7 +1382,7 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
 
 #if !defined(QT_NO_XRENDER)
     bool antialias = render_hints & QPainter::Antialiasing;
-    if (X11->use_xrender && fill.style() != Qt::NoBrush &&
+    if (X11->use_xrender && fill.style() != Qt::NoBrush && !has_fill_pattern &&
         (has_fill_texture || antialias || fill.color().alpha() != 255 || alpha_pen))
     {
         if (picture) {
