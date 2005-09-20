@@ -13,7 +13,7 @@ CONFIG(debug, debug|release) {
     else:QTESTLIB_PRL = $$[QT_INSTALL_LIBS]/libQtTest.prl
 }
 QTEST_LIB = $$fromfile($$QTESTLIB_PRL, QMAKE_PRL_TARGET)
-win32: QTEST_LIB = $${QTEST_LIB}2.dll
+win32: QTEST_LIB = $${QTEST_LIB}4.dll
 isEmpty(QTEST_LIB) {
     warning("Cannot find qtestlib's prl file!")
 } else {
