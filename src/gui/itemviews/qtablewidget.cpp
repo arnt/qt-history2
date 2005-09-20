@@ -1622,8 +1622,17 @@ void QTableWidget::setSortingEnabled(bool enable)
 {
     Q_D(QTableWidget);
     d->sortingEnabled = enable;
-    if (!enable && horizontalHeader()->isSortIndicatorShown())
-        horizontalHeader()->setSortIndicatorShown(false);
+    if (enable) {
+        disconnect(horizontalHeader(), SIGNAL(sectionPressed(int)),
+                   this, SLOT(selectColumn(int)));
+        connect(horizontalHeader(), SIGNAL(sectionPressed(int)),
+                this, SLOT(sortByColumn(int)));
+    } else {
+        connect(horizontalHeader(), SIGNAL(sectionPressed(int)),
+                this, SLOT(selectColumn(int)));
+        disconnect(horizontalHeader(), SIGNAL(sectionPressed(int)),
+                   this, SLOT(sortByColumn(int)));
+    }
 }
 
 /*!
