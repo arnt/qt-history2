@@ -29,6 +29,7 @@
 #include <qwsdisplay_qws.h>
 #include <qapplication.h>
 #include <qwsmanager_qws.h>
+#include <unistd.h>
 #endif
 
 /*****************************************************************************
