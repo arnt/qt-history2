@@ -17,6 +17,7 @@
 #ifndef QT_NO_REGEXP
 
 #include "QtCore/qstring.h"
+#include <new>
 
 QT_MODULE(Core)
 
