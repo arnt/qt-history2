@@ -17,7 +17,7 @@ contains(QT_CONFIG, system-mng) {
 !contains(QT_CONFIG, system-mng) {
         DEFINES += MNG_BUILD_SO
         DEFINES += MNG_NO_INCLUDE_JNG
-	INCLUDEPATH += ../../../3rdparty/libmng
+	INCLUDEPATH += ../../../3rdparty/libmng ../../../3rdparty/zlib
 	SOURCES  += \
             ../../../3rdparty/libmng/libmng_callback_xs.c \
             ../../../3rdparty/libmng/libmng_chunk_io.c \
