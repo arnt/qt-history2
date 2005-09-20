@@ -113,7 +113,7 @@ static inline void end_mmx()
   result = 0
   d = d * cia
 */
-static void QT_FASTCALL comp_func_solid_Clear(uint *dest, int length, const uint, uint const_alpha)
+static void QT_FASTCALL comp_func_solid_Clear(uint *dest, int length, uint, uint const_alpha)
 {
     if (!length)
         return;
