@@ -109,7 +109,7 @@
 
     \list
     \o \l{painting/basicdrawing}{Basic Drawing}\raisedaster
-    \o \l{painting/concentriccircles}{Concentric Circles}
+    \o \l{painting/concentriccircles}{Concentric Circles}\raisedaster
     \o \l{painting/painterpaths}{Painter Paths}
     \o \l{painting/transformations}{Transformations}
     \endlist
