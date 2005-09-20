@@ -989,6 +989,23 @@ int QTableView::rowViewportPosition(int row) const
 }
 
 /*!
+    Returns the row in which the given y-coordinate, \a y, in contents
+    coordinates is located.
+*/
+int QTableView::rowAt(int y) const
+{
+    return d_func()->verticalHeader->logicalIndexAt(y);
+}
+
+/*!
+  Sets the height of the given \a row to be \a height.
+*/
+void QTableView::setRowHeight(int row, int height)
+{
+    d_func()->verticalHeader->resizeSection(row, height);
+}
+
+/*!
     Returns the height of the given \a row.
 
     \sa resizeRowToContents()
@@ -996,15 +1013,6 @@ int QTableView::rowViewportPosition(int row) const
 int QTableView::rowHeight(int row) const
 {
     return d_func()->verticalHeader->sectionSize(row);
-}
-
-/*!
-    Returns the row in which the given y-coordinate, \a y, in contents
-    coordinates is located.
-*/
-int QTableView::rowAt(int y) const
-{
-    return d_func()->verticalHeader->logicalIndexAt(y);
 }
 
 /*!
@@ -1017,6 +1025,23 @@ int QTableView::columnViewportPosition(int column) const
 }
 
 /*!
+    Returns the column in which the given x-coordinate, \a x, in contents
+    coordinates is located.
+*/
+int QTableView::columnAt(int x) const
+{
+    return d_func()->horizontalHeader->logicalIndexAt(x);
+}
+
+/*!
+  Sets the width of the given \a column to be \a width.
+*/
+void QTableView::setColumnWidth(int column, int width)
+{
+    d_func()->horizontalHeader->resizeSection(column, width);
+}
+
+/*!
     Returns the width of the given \a column.
 
     \sa resizeColumnToContents()
@@ -1024,15 +1049,6 @@ int QTableView::columnViewportPosition(int column) const
 int QTableView::columnWidth(int column) const
 {
     return d_func()->horizontalHeader->sectionSize(column);
-}
-
-/*!
-    Returns the column in which the given x-coordinate, \a x, in contents
-    coordinates is located.
-*/
-int QTableView::columnAt(int x) const
-{
-    return d_func()->horizontalHeader->logicalIndexAt(x);
 }
 
 /*!

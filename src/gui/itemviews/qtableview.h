@@ -43,12 +43,16 @@ public:
     void setVerticalHeader(QHeaderView *header);
 
     int rowViewportPosition(int row) const;
-    int rowHeight(int row) const;
     int rowAt(int y) const;
+    
+    void setRowHeight(int row, int height);
+    int rowHeight(int row) const;
 
     int columnViewportPosition(int column) const;
-    int columnWidth(int column) const;
     int columnAt(int x) const;
+
+    void setColumnWidth(int column, int width);
+    int columnWidth(int column) const;
 
     bool isRowHidden(int row) const;
     void setRowHidden(int row, bool hide);
