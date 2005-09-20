@@ -4045,6 +4045,7 @@ static const unsigned int KeyTbl[] = {                // keyboard mapping table
     // International input method support keys
 
     // International & multi-key character composition
+    XK_ISO_Level3_Shift,        Qt::Key_AltGr,
     XK_Multi_key,		Qt::Key_Multi_key,
     XK_Codeinput,		Qt::Key_Codeinput,
     XK_SingleCandidate,		Qt::Key_SingleCandidate,
