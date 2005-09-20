@@ -1075,17 +1075,12 @@ void QHeaderView::updateSection(int logicalIndex)
 void QHeaderView::resizeSections()
 {
     Q_D(QHeaderView);
-    ResizeMode mode;
-    int secSize = 0;
-    int stretchSecs = 0;
-    int stretchSize = orientation() == Qt::Horizontal
-                      ? d->viewport->width() : d->viewport->height();
     QList<int> section_sizes;
     int count = qMax(d->sections.count() - 1, 0);
     const QVector<QHeaderViewPrivate::HeaderSection> sections = d->sections;
     int last = -1;
     if (d->stretchLastSection) {
-        for (int i = count-1; i >=0; --i) {
+        for (int i = count-1; i >= 0; --i) {
             if (!sections.at(i).hidden) {
                 last = i;
                 break;
@@ -1095,6 +1090,11 @@ void QHeaderView::resizeSections()
     
     if (sections.isEmpty())
         return;
+    
+    int stretchSize = orientation() == Qt::Horizontal ? d->viewport->width() : d->viewport->height();
+    int stretchSecs = 0;
+    int secSize = 0;
+    ResizeMode mode;
     for (int i = 0; i < count; ++i) {
         if (sections.at(i).hidden)
             continue;
