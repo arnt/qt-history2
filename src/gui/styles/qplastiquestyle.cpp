@@ -3171,6 +3171,9 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 // Draw a copy of the groove in a darker color
                 QString groovePixmapName = uniqueName("scrollbar_groove_dark", option, rect.size());
                 if (!UsePixmapCache || !QPixmapCache::find(groovePixmapName, cache)) {
+                    cache = QPixmap(rect.size());
+                    if (contentsPropagated)
+                        cache.fill(Qt::transparent);
                     QPainter groovePainter(&cache);
                     QRect pixmapRect = QRect(0, 0, rect.width(), rect.height());
                     groovePainter.fillRect(pixmapRect, QBrush(scrollBar->palette.base().color().dark(125), Qt::Dense4Pattern));
