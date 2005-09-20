@@ -61,7 +61,7 @@ static void createYellowThing()
     }
 }
 
-static bool qt_flushUpdate(const QRegion &globalRgnHack)
+static bool qt_flushUpdate(const QRegion &globalRgn)
 {
     static int checked_env = -1;
     if(checked_env == -1) {
@@ -74,7 +74,7 @@ static bool qt_flushUpdate(const QRegion &globalRgnHack)
         return false;
 
 
-    QRegion globalRgn = globalRgnHack.boundingRect().adjusted(-10,-10,10,10);
+//    QRegion globalRgn = globalRgnHack.boundingRect().adjusted(-10,-10,10,10);
 
 
     QWidget::qwsDisplay()->requestRegion(yWinId, -1, false, globalRgn);
@@ -105,18 +105,18 @@ static bool qt_flushPaint(QWidget *widget, const QRegion &toBePainted)
     QWidget::qwsDisplay()->requestRegion(yWinId, -1, false, globalRgn);
     QWidget::qwsDisplay()->repaintRegion(yWinId, false, globalRgn);
 
-    ::usleep(20000*checked_env);
+    ::usleep(10000*checked_env);
     QWidget::qwsDisplay()->requestRegion(yWinId, -1, false, QRegion());
     return true;
 }
 #else
 static bool qt_flushPaint(QWidget *widget, const QRegion &toBePainted)
 {
-    static signed char checked_env = -1;
+    static int checked_env = -1;
     if(checked_env == -1)
-        checked_env = (qgetenv("QT_FLUSH_PAINT") == "1") ? 1 : 0;
+        checked_env = qgetenv("QT_FLUSH_PAINT").toInt();
 
-    if (checked_env != 1)
+    if (checked_env == 0)
         return false;
 
     //flags to fool painter
@@ -148,7 +148,7 @@ static bool qt_flushPaint(QWidget *widget, const QRegion &toBePainted)
     QApplication::syncX();
 #endif
 #if defined(Q_OS_UNIX)
-    ::usleep(20000);
+    ::usleep(10000*checked_env);
 #elif defined(Q_OS_WIN)
     ::Sleep(25);
 #endif
@@ -399,6 +399,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget)
         QRegion toFlush = toClean; //??? correct as long as we don't have fast scroll
 #endif
         if(!toClean.isEmpty()) {
+            dirty -= toClean;
 #ifdef Q_WS_QWS
             buffer.lock();
 #endif
@@ -406,12 +407,11 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget)
 #ifdef Q_WS_QWS
             buffer.unlock();
 #endif
-            dirty -= toClean;
         }
 #ifndef Q_WS_QWS
         QRegion toFlush = rgn;
-#endif
         toFlush.translate(widget->mapTo(tlw, QPoint()));
+#endif
         cleanScreen(toFlush, tlw, tlwOffset, Recursive);
     }
 }
