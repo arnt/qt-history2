@@ -116,7 +116,7 @@ QValidator::QValidator(QObject * parent)
 QValidator::QValidator(QObject * parent, const char *name)
     : QObject(parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 #endif
 
@@ -257,7 +257,7 @@ QIntValidator::QIntValidator(int minimum, int maximum,
 QIntValidator::QIntValidator(QObject * parent, const char *name)
     : QValidator(parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     b = INT_MIN;
     t = INT_MAX;
 }
@@ -274,7 +274,7 @@ QIntValidator::QIntValidator(int minimum, int maximum,
                               QObject * parent, const char* name)
     : QValidator(parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     b = minimum;
     t = maximum;
 }
@@ -434,7 +434,7 @@ QDoubleValidator::QDoubleValidator(double bottom, double top, int decimals,
 QDoubleValidator::QDoubleValidator(QObject * parent, const char *name)
     : QValidator(parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     b = -HUGE_VAL;
     t = HUGE_VAL;
     d = 1000;
@@ -453,7 +453,7 @@ QDoubleValidator::QDoubleValidator(double bottom, double top, int decimals,
                                     QObject * parent, const char* name)
     : QValidator(parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     b = bottom;
     t = top;
     d = decimals;
@@ -688,7 +688,7 @@ QRegExpValidator::QRegExpValidator(const QRegExp& rx, QObject *parent)
 QRegExpValidator::QRegExpValidator(QObject *parent, const char *name)
     : QValidator(parent), r(QString::fromLatin1(".*"))
 {
-        setObjectName(name);
+        setObjectName(QString::fromAscii(name));
 }
 
 /*!
@@ -705,7 +705,7 @@ QRegExpValidator::QRegExpValidator(const QRegExp& rx, QObject *parent,
                                     const char *name)
     : QValidator(parent), r(rx)
 {
-        setObjectName(name);
+        setObjectName(QString::fromAscii(name));
 }
 #endif
 

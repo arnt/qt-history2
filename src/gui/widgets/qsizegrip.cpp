@@ -114,7 +114,7 @@ QSizeGrip::QSizeGrip(QWidget * parent, const char* name)
     : QWidget(*new QSizeGripPrivate, parent, 0)
 {
     Q_D(QSizeGrip);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->init();
 }
 #endif

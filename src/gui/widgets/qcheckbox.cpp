@@ -289,7 +289,7 @@ QCheckBox::QCheckBox(QWidget *parent, const char* name)
     : QAbstractButton (*new QCheckBoxPrivate, parent)
 {
     Q_D(QCheckBox);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->init();
 }
 
@@ -301,7 +301,7 @@ QCheckBox::QCheckBox(const QString &text, QWidget *parent, const char* name)
     : QAbstractButton (*new QCheckBoxPrivate, parent)
 {
     Q_D(QCheckBox);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->init();
     setText(text);
 }

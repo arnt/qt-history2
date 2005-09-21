@@ -400,7 +400,7 @@ QBoxLayout::QBoxLayout(QLayout *parentLayout, Direction dir, int spacing,
 {
     Q_D(QBoxLayout);
     d->dir = dir;
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     setSpacing(spacing);
 }
 
@@ -417,7 +417,7 @@ QBoxLayout::QBoxLayout(Direction dir, int spacing, const char *name)
 {
     Q_D(QBoxLayout);
     d->dir = dir;
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     setSpacing(spacing);
 }
 #endif // QT3_SUPPORT
@@ -1039,7 +1039,7 @@ QHBoxLayout::QHBoxLayout(QWidget *parent, int margin,
 {
        setMargin(margin);
        setSpacing(spacing<0 ? margin : spacing);
-       setObjectName(name);
+       setObjectName(QString::fromAscii(name));
 }
 
 /*!
@@ -1055,7 +1055,7 @@ QHBoxLayout::QHBoxLayout(QLayout *parentLayout, int spacing,
     : QBoxLayout(LeftToRight)
 {
     setSpacing(spacing);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     if (parentLayout) {
         setParent(parentLayout);
         parentLayout->addItem(this);
@@ -1074,7 +1074,7 @@ QHBoxLayout::QHBoxLayout(int spacing, const char *name)
     : QBoxLayout(LeftToRight)
 {
     setSpacing(spacing);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 #endif
 
@@ -1157,7 +1157,7 @@ QVBoxLayout::QVBoxLayout(QWidget *parent, int margin, int spacing,
 {
     setMargin(margin);
     setSpacing(spacing<0 ? margin : spacing);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 
 /*!
@@ -1173,7 +1173,7 @@ QVBoxLayout::QVBoxLayout(QLayout *parentLayout, int spacing,
     : QBoxLayout(TopToBottom)
 {
     setSpacing(spacing);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     if (parentLayout) {
         setParent(parentLayout);
         parentLayout->addItem(this);
@@ -1192,7 +1192,7 @@ QVBoxLayout::QVBoxLayout(int spacing, const char *name)
     : QBoxLayout(TopToBottom)
 {
     setSpacing(spacing);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 
 

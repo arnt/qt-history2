@@ -183,7 +183,7 @@ void QRadioButton::paintEvent(QPaintEvent *)
 QRadioButton::QRadioButton(QWidget *parent, const char* name)
     :QAbstractButton(parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     qRadioButtonInit(this);
 }
 
@@ -194,7 +194,7 @@ QRadioButton::QRadioButton(QWidget *parent, const char* name)
 QRadioButton::QRadioButton(const QString &text, QWidget *parent, const char* name)
     :QAbstractButton(parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     qRadioButtonInit(this);
     setText(text);
 }

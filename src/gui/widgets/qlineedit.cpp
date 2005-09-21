@@ -254,7 +254,7 @@ QLineEdit::QLineEdit(QWidget* parent, const char* name)
     : QWidget(*new QLineEditPrivate, parent,0)
 {
     Q_D(QLineEdit);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->init(QString());
 }
 
@@ -274,7 +274,7 @@ QLineEdit::QLineEdit(const QString& contents, QWidget* parent, const char* name)
     : QWidget(*new QLineEditPrivate, parent, 0)
 {
     Q_D(QLineEdit);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->init(contents);
 }
 
@@ -295,7 +295,7 @@ QLineEdit::QLineEdit(const QString& contents, const QString &inputMask, QWidget*
     : QWidget(*new QLineEditPrivate, parent, 0)
 {
     Q_D(QLineEdit);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->parseInputMask(inputMask);
     if (d->maskData) {
         QString ms = d->maskString(0, contents);

@@ -823,7 +823,7 @@ QSplitter::QSplitter(QWidget *parent, const char *name)
     : QFrame(*new QSplitterPrivate, parent)
 {
     Q_D(QSplitter);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->orient = Qt::Horizontal;
     d->init();
 }
@@ -837,7 +837,7 @@ QSplitter::QSplitter(Qt::Orientation orientation, QWidget *parent, const char *n
     : QFrame(*new QSplitterPrivate, parent)
 {
     Q_D(QSplitter);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->orient = orientation;
     d->init();
 }

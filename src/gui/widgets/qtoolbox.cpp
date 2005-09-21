@@ -283,7 +283,7 @@ QToolBox::QToolBox(QWidget *parent, const char *name, Qt::WFlags f)
     :  QFrame(*new QToolBoxPrivate, parent, f)
 {
     Q_D(QToolBox);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->layout = new QVBoxLayout(this);
     d->layout->setMargin(0);
     setBackgroundRole(QPalette::Button);

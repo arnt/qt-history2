@@ -610,7 +610,7 @@ QWSServer::QWSServer(int flags, QObject *parent) :
 QWSServer::QWSServer(int flags, QObject *parent, const char *name) :
     QObject(parent), disablePainting(false)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     initServer(flags);
 }
 #endif

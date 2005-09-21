@@ -176,7 +176,7 @@ QSpinBox::QSpinBox(QWidget *parent)
 QSpinBox::QSpinBox(QWidget *parent, const char *name)
     : QAbstractSpinBox(*new QSpinBoxPrivate, parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 
 /*!
@@ -190,7 +190,7 @@ QSpinBox::QSpinBox(int min, int max, int step, QWidget *parent, const char *name
     d->minimum = QVariant(qMin<int>(min, max));
     d->maximum = QVariant(qMax<int>(min, max));
     d->singleStep = QVariant(step);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 
 #endif

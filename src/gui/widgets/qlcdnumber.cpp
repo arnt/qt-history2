@@ -311,7 +311,7 @@ static const char *getSegments(char ch)               // gets list of segments f
 QLCDNumber::QLCDNumber(QWidget *parent, const char *name)
         : QFrame(*new QLCDNumberPrivate, parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     Q_D(QLCDNumber);
     d->ndigits = 5;
     d->init();
@@ -333,7 +333,7 @@ QLCDNumber::QLCDNumber(QWidget *parent, const char *name)
 QLCDNumber::QLCDNumber(uint numDigits, QWidget *parent, const char *name)
         : QFrame(*new QLCDNumberPrivate, parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     Q_D(QLCDNumber);
     d->ndigits = numDigits;
     d->init();

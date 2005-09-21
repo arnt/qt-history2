@@ -955,7 +955,7 @@ QTextEdit::QTextEdit(QWidget *parent, const char *name)
 {
     Q_D(QTextEdit);
     d->init();
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 #endif
 

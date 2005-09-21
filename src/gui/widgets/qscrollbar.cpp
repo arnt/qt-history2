@@ -308,7 +308,7 @@ QScrollBar::QScrollBar(Qt::Orientation orientation, QWidget *parent)
 QScrollBar::QScrollBar(QWidget *parent, const char *name)
     : QAbstractSlider(*new QScrollBarPrivate, parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d_func()->orientation = Qt::Vertical;
     d_func()->init();
 }
@@ -320,7 +320,7 @@ QScrollBar::QScrollBar(QWidget *parent, const char *name)
 QScrollBar::QScrollBar(Qt::Orientation orientation, QWidget *parent, const char *name)
     : QAbstractSlider(*new QScrollBarPrivate, parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d_func()->orientation = orientation;
     d_func()->init();
 }
@@ -335,7 +335,7 @@ QScrollBar::QScrollBar(int minimum, int maximum, int lineStep, int pageStep,
     : QAbstractSlider(*new QScrollBarPrivate, parent)
 {
     Q_D(QScrollBar);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->minimum = minimum;
     d->maximum = maximum;
     d->singleStep = lineStep;

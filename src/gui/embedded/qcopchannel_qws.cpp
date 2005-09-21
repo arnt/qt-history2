@@ -82,7 +82,7 @@ QCopChannel::QCopChannel(const QString& channel, QObject *parent) :
 QCopChannel::QCopChannel(const QString& channel, QObject *parent, const char *name) :
     QObject(parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     init(channel);
 }
 #endif

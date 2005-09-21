@@ -200,7 +200,7 @@ QDialog::QDialog(QWidget *parent, const char *name, bool modal, Qt::WFlags f)
               | QFlag((f & Qt::WindowType_Mask) == 0 ? Qt::Dialog : 0)
         )
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 #endif
 

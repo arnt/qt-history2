@@ -354,10 +354,10 @@ QKeySequence QKeySequence::mnemonic(const QString &text)
 
     int p = 0;
     while (p >= 0) {
-        p = text.indexOf('&', p) + 1;
+        p = text.indexOf(QLatin1Char('&'), p) + 1;
         if (p <= 0 || p >= (int)text.length())
             break;
-        if (text.at(p) != '&') {
+        if (text.at(p) != QLatin1Char('&')) {
             QChar c = text.at(p);
             if (c.isPrint()) {
                 c = c.toUpper();
@@ -390,14 +390,14 @@ int QKeySequence::assign(const QString &ks)
         // We MUST use something to seperate each sequence, and space
         // does not cut it, since some of the key names have space
         // in them.. (Let's hope no one translate with a comma in it:)
-        p = keyseq.indexOf(',');
+        p = keyseq.indexOf(QLatin1Char(','));
         if (-1 != p) {
-            if (',' == keyseq[p+1]) // e.g. 'Ctrl+,, Shift+,,'
+            if (QLatin1Char(',') == keyseq.at(p+1)) // e.g. 'Ctrl+,, Shift+,,'
                 p++;
-            if (' ' == keyseq[p+1]) { // Space after comma
+            if (QLatin1Char(' ') == keyseq.at(p+1)) { // Space after comma
                 diff = 1;
                 p++;
-            } else if ( '\0' == keyseq[p+1] ) { // Last comma 'Ctrl+,'
+            } else if (QLatin1Char('\0') == keyseq.at(p+1)) { // Last comma 'Ctrl+,'
                 p = -1;
             } else {
                 diff = 0;
@@ -452,18 +452,18 @@ int QKeySequencePrivate::decodeString(const QString &str, QKeySequence::Sequence
 #ifdef QMAC_SHIFT
             *gmodifs << ModifKeyName(Qt::SHIFT, QMAC_SHIFT);
 #endif
-            *gmodifs << ModifKeyName(Qt::CTRL, "ctrl+")
-                     << ModifKeyName(Qt::SHIFT, "shift+")
-                     << ModifKeyName(Qt::ALT, "alt+")
-                     << ModifKeyName(Qt::META, "meta+");
+            *gmodifs << ModifKeyName(Qt::CTRL, QLatin1String("ctrl+"))
+                     << ModifKeyName(Qt::SHIFT, QLatin1String("shift+"))
+                     << ModifKeyName(Qt::ALT, QLatin1String("alt+"))
+                     << ModifKeyName(Qt::META, QLatin1String("meta+"));
         }
     } else {
         gmodifs = globalPortableModifs();
         if (gmodifs->isEmpty()) {
-            *gmodifs << ModifKeyName(Qt::CTRL, "ctrl+")
-                     << ModifKeyName(Qt::SHIFT, "shift+")
-                     << ModifKeyName(Qt::ALT, "alt+")
-                     << ModifKeyName(Qt::META, "meta+");
+            *gmodifs << ModifKeyName(Qt::CTRL, QLatin1String("ctrl+"))
+                     << ModifKeyName(Qt::SHIFT, QLatin1String("shift+"))
+                     << ModifKeyName(Qt::ALT, QLatin1String("alt+"))
+                     << ModifKeyName(Qt::META, QLatin1String("meta+"));
         }
     }
     if (!gmodifs) return ret;
@@ -487,14 +487,14 @@ int QKeySequencePrivate::decodeString(const QString &str, QKeySequence::Sequence
         }
     }
 
-    int p = accel.lastIndexOf('+', str.length() - 2); // -2 so that Ctrl++ works
+    int p = accel.lastIndexOf(QLatin1Char('+'), str.length() - 2); // -2 so that Ctrl++ works
     if(p > 0)
         accel = accel.mid(p + 1);
 
     int fnum = 0;
     if (accel.length() == 1) {
         ret |= accel[0].toUpper().unicode();
-    } else if (accel[0] == 'f' && (fnum = accel.mid(1).toInt())) {
+    } else if (accel[0] == QLatin1Char('f') && (fnum = accel.mid(1).toInt())) {
         ret |= Qt::Key_F1 + fnum - 1;
     } else {
         // For NativeText, check the traslation table first,

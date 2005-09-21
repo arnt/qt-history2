@@ -201,7 +201,7 @@ QLabel::QLabel(QWidget *parent, const char *name, Qt::WFlags f)
 {
     Q_D(QLabel);
     if (name)
-        setObjectName(name);
+        setObjectName(QString::fromAscii(name));
     d->init();
 }
 
@@ -221,7 +221,7 @@ QLabel::QLabel(const QString &text, QWidget *parent, const char *name,
 {
     Q_D(QLabel);
     if (name)
-        setObjectName(name);
+        setObjectName(QString::fromAscii(name));
     d->init();
     setText(text);
 }
@@ -248,7 +248,7 @@ QLabel::QLabel(QWidget *buddy, const QString &text,
 {
     Q_D(QLabel);
     if (name)
-        setObjectName(name);
+        setObjectName(QString::fromAscii(name));
     d->init();
     setBuddy(buddy);
     setText(text);

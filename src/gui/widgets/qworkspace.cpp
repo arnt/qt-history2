@@ -875,7 +875,7 @@ QWorkspace::QWorkspace(QWidget *parent, const char *name)
     : QWidget(*new QWorkspacePrivate, parent, 0)
 {
     Q_D(QWorkspace);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->init();
 }
 #endif // QT3_SUPPORT

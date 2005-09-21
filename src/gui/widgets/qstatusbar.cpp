@@ -121,7 +121,7 @@ QStatusBar::QStatusBar(QWidget * parent, const char *name)
     : QWidget(*new QStatusBarPrivate, parent, 0)
 {
     Q_D(QStatusBar);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->box = 0;
     d->timer = 0;
 

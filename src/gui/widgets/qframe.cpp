@@ -190,7 +190,7 @@ QFrame::QFrame(QFramePrivate &dd, QWidget* parent, Qt::WFlags f)
 QFrame::QFrame(QWidget *parent, const char *name, Qt::WFlags f)
     : QWidget(*new QFramePrivate, parent, f)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 #endif
 

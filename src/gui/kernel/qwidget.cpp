@@ -702,7 +702,7 @@ QWidget::QWidget(QWidget *parent, const char *name, Qt::WFlags f)
     : QObject(*new QWidgetPrivate, ((parent && (parent->windowType() == Qt::Desktop)) ? 0 : parent)), QPaintDevice()
 {
     d_func()->init((parent && parent->windowType() == Qt::Desktop ? parent : 0), f);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 #endif
 
@@ -6759,7 +6759,7 @@ void QWidget::setWindowModified(bool mod)
     Q_D(QWidget);
     setAttribute(Qt::WA_WindowModified, mod);
 
-    if (!windowTitle().contains("[*]") && mod)
+    if (!windowTitle().contains(QLatin1String("[*]")) && mod)
         qWarning("QWidget::setWindowModified: The window title does not contain a '[*]' placeholder!");
     d->setWindowTitle_helper(windowTitle());
     d->setWindowIconText_helper(windowIconText());

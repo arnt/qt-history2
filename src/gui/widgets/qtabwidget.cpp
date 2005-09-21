@@ -248,7 +248,7 @@ QTabWidget::QTabWidget(QWidget *parent, const char *name, Qt::WFlags f)
     : QWidget(*new QTabWidgetPrivate, parent, f)
 {
     Q_D(QTabWidget);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->init();
 }
 #endif

@@ -154,7 +154,7 @@ QSound::QSound(const QString& filename, QObject* parent)
 QSound::QSound(const QString& filename, QObject* parent, const char* name)
     : QObject(*new QSoundPrivate(filename), parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     server().init(this);
 }
 #endif

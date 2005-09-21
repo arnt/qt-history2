@@ -570,7 +570,7 @@ QMenuBar::QMenuBar(QWidget *parent, const char *name) : QWidget(*new QMenuBarPri
 {
     Q_D(QMenuBar);
     d->init();
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 #endif
 

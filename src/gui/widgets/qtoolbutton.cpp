@@ -145,7 +145,7 @@ QToolButton::QToolButton(QWidget * parent, const char *name)
     : QAbstractButton(*new QToolButtonPrivate, parent)
 {
     Q_D(QToolButton);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->init();
 }
 
@@ -166,7 +166,7 @@ QToolButton::QToolButton(const QIcon& icon, const QString &textLabel,
     : QAbstractButton(*new QToolButtonPrivate, parent)
 {
     Q_D(QToolButton);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->init();
     setIcon(icon);
     setText(textLabel);
@@ -193,7 +193,7 @@ QToolButton::QToolButton(Qt::ArrowType type, QWidget *parent, const char *name)
     : QAbstractButton(*new QToolButtonPrivate, parent)
 {
     Q_D(QToolButton);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->init();
     setAutoRepeat(true);
     d->arrowType = type;

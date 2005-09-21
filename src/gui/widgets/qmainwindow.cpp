@@ -269,7 +269,7 @@ QMainWindow::QMainWindow(QWidget *parent, Qt::WFlags flags)
 QMainWindow::QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags)
     : QWidget(*(new QMainWindowPrivate()), parent, flags | Qt::WType_TopLevel)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d_func()->init();
 }
 #endif

@@ -1181,7 +1181,7 @@ QAbstractButton::QAbstractButton(QWidget *parent, const char *name, Qt::WFlags f
     : QWidget(*new QAbstractButtonPrivate, parent, f)
 {
     Q_D(QAbstractButton);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->init();
 }
 

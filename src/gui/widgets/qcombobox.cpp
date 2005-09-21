@@ -444,7 +444,7 @@ QComboBox::QComboBox(QWidget *parent, const char *name) :
 {
     Q_D(QComboBox);
     d->init();
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 
 /*!
@@ -457,7 +457,7 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
     Q_D(QComboBox);
     d->init();
     setEditable(rw);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 
 #endif //QT3_SUPPORT

@@ -199,7 +199,7 @@ QDial::QDial(QWidget *parent, const char *name)
     : QAbstractSlider(*new QDialPrivate, parent)
 {
     Q_D(QDial);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->init();
 }
 
@@ -212,7 +212,7 @@ QDial::QDial(int minValue, int maxValue, int pageStep, int value,
     : QAbstractSlider(*new QDialPrivate, parent)
 {
     Q_D(QDial);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->minimum = minValue;
     d->maximum = maxValue;
     d->pageStep = pageStep;

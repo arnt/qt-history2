@@ -527,7 +527,7 @@ QTextBrowser::QTextBrowser(QWidget *parent)
 QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
     : QTextEdit(*new QTextBrowserPrivate, parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     Q_D(QTextBrowser);
     d->init();
 }

@@ -540,7 +540,7 @@ QPushButton::QPushButton(QWidget *parent, const char *name)
     : QAbstractButton(*new QPushButtonPrivate, parent)
 {
     Q_D(QPushButton);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->init();
 }
 
@@ -552,7 +552,7 @@ QPushButton::QPushButton(const QString &text, QWidget *parent, const char *name)
     : QAbstractButton(*new QPushButtonPrivate, parent)
 {
     Q_D(QPushButton);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->init();
     setText(text);
 }
@@ -565,7 +565,7 @@ QPushButton::QPushButton(const QIcon& icon, const QString &text, QWidget *parent
     : QAbstractButton(*new QPushButtonPrivate, parent)
 {
     Q_D(QPushButton);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->init();
     setText(text);
     setIcon(icon);

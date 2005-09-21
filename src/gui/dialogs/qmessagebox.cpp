@@ -697,7 +697,7 @@ QMessageBox::QMessageBox(const QString& caption,
               f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
 {
     Q_D(QMessageBox);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     setModal(modal);
     d->init(button0, button1, button2);
 #ifdef Q_WS_MAC
@@ -717,7 +717,7 @@ QMessageBox::QMessageBox(QWidget *parent, const char *name)
               Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
 {
     Q_D(QMessageBox);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     setModal(true);
     d->init(Ok, 0, 0);
 }

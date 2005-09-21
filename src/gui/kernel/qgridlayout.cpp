@@ -849,7 +849,7 @@ QGridLayout::QGridLayout(QWidget *parent, int nRows, int nCols, int margin,
     d->expand(nRows, nCols);
     setMargin(margin);
     setSpacing(space<0 ? margin : space);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 
 /*!
@@ -870,7 +870,7 @@ QGridLayout::QGridLayout(QLayout *parentLayout, int nRows, int nCols,
     Q_D(QGridLayout);
     d->expand(nRows, nCols);
     setSpacing(spacing);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 
 /*!
@@ -891,7 +891,7 @@ QGridLayout::QGridLayout(int nRows, int nCols,
     Q_D(QGridLayout);
     d->expand(nRows, nCols);
     setSpacing(spacing);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
 }
 #endif
 

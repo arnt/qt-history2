@@ -669,7 +669,7 @@ QWSSoundServerSocket::QWSSoundServerSocket(QObject *parent, const char *name) :
     QWSServerSocket(QString(SOUND_PIPE).arg(qws_display_id), parent)
 {
     if (name)
-        setObjectName(name);
+        setObjectName(QString::fromAscii(name));
     connect(this, SIGNAL(newConnection()), this, SLOT(newConnection()));
 }
 #endif
@@ -722,7 +722,7 @@ public:
     {
 	timerId = 0;
         if (name)
-            setObjectName(name);
+            setObjectName(QString::fromAscii(name));
 #ifndef QT_NO_QWS_SOUNDSERVER
         server = new QWSSoundServerSocket(this);
 

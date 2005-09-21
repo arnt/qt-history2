@@ -275,7 +275,7 @@ QSlider::QSlider(Qt::Orientation orientation, QWidget *parent)
 QSlider::QSlider(QWidget *parent, const char *name)
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d_func()->orientation = Qt::Vertical;
     d_func()->init();
 }
@@ -287,7 +287,7 @@ QSlider::QSlider(QWidget *parent, const char *name)
 QSlider::QSlider(Qt::Orientation orientation, QWidget *parent, const char *name)
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d_func()->orientation = orientation;
     d_func()->init();
 }
@@ -301,7 +301,7 @@ QSlider::QSlider(int minValue, int maxValue, int pageStep, int value, Qt::Orient
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
     Q_D(QSlider);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->minimum = minValue;
     d->maximum = maxValue;
     d->pageStep = pageStep;

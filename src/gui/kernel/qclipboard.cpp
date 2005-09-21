@@ -197,11 +197,11 @@ QString QClipboard::text(QString &subtype, Mode mode) const
         return QString();
     if (subtype.isEmpty()) {
         QStringList formats = data->formats();
-        if (formats.contains("text/plain"))
-            subtype = "plain";
+        if (formats.contains(QLatin1String("text/plain")))
+            subtype = QLatin1String("plain");
         else {
             for (int i = 0; i < formats.size(); ++i)
-                if (formats.at(i).startsWith("text/")) {
+                if (formats.at(i).startsWith(QLatin1String("text/"))) {
                     subtype = formats.at(i).mid(5);
                     break;
                 }
@@ -209,9 +209,9 @@ QString QClipboard::text(QString &subtype, Mode mode) const
     }
     if (subtype.isEmpty())
         return QString();
-    if (subtype == "plain")
+    if (subtype == QLatin1String("plain"))
         return data->text();
-    return QString::fromUtf8(data->data("text/" + subtype));
+    return QString::fromUtf8(data->data(QLatin1String("text/") + subtype));
 }
 
 /*!

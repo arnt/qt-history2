@@ -591,7 +591,7 @@ QGroupBox::QGroupBox(QWidget *parent, const char *name)
     : QWidget(*new QGroupBoxPrivate, parent, 0)
 {
     Q_D(QGroupBox);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->init();
 }
 
@@ -603,7 +603,7 @@ QGroupBox::QGroupBox(const QString &title, QWidget *parent, const char *name)
     : QWidget(*new QGroupBoxPrivate, parent, 0)
 {
     Q_D(QGroupBox);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->init();
     setTitle(title);
 }
