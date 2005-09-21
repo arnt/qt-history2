@@ -382,7 +382,7 @@ QBoxLayout::QBoxLayout(QWidget *parent, Direction dir,
     Q_D(QBoxLayout);
     d->dir = dir;
     setMargin(margin);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     setSpacing(spacing<0 ? margin : spacing);
 }
 

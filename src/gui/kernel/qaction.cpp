@@ -318,7 +318,7 @@ QAction::QAction(QObject* parent, const char* name)
  : QObject(*(new QActionPrivate), parent)
 {
     Q_D(QAction);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->group = qobject_cast<QActionGroup *>(parent);
     if (d->group)
         d->group->addAction(this);
@@ -333,7 +333,7 @@ QAction::QAction(const QString &text, const QKeySequence &shortcut, QObject* par
  : QObject(*(new QActionPrivate), parent)
 {
     Q_D(QAction);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->text = text;
     setShortcut(shortcut);
     d->group = qobject_cast<QActionGroup *>(parent);
@@ -350,7 +350,7 @@ QAction::QAction(const QIcon &icon, const QString &text, const QKeySequence &sho
     : QObject(*(new QActionPrivate), parent)
 {
     Q_D(QAction);
-    setObjectName(name);
+    setObjectName(QString::fromAscii(name));
     d->text = text;
     setShortcut(shortcut);
     d->icon = icon;
@@ -520,7 +520,7 @@ QString QAction::text() const
     QString s = d->text;
     if(s.isEmpty()) {
         s = d->iconText;
-        s.replace('&', "&&");
+        s.replace(QLatin1Char('&'), QLatin1String("&&"));
     }
     return s;
 }

@@ -211,7 +211,7 @@ QWidget *
 QDialogButtons::createButton(Button b)
 {
     QPushButton *ret = new QPushButton(this);
-    ret->setObjectName("qdialog_button");
+    ret->setObjectName(QLatin1String("qdialog_button"));
     QObject::connect(ret, SIGNAL(clicked()), this, SLOT(handleClicked()));
     if(d->text.contains(b)) {
         ret->setText(d->text[b]);

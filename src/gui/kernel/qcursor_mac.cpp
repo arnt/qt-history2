@@ -39,7 +39,7 @@ public:
     QMacCursorWidget(const QBitmap *b, const QBitmap *m) :
         QWidget(0, Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint)
         {
-            setObjectName("fake_cursor");
+            setObjectName(QLatin1String("fake_cursor"));
             setAttribute(Qt::WA_TransparentForMouseEvents);
             setAcceptDrops(true);
             hide();

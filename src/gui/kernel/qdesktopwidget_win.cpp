@@ -272,7 +272,7 @@ void QDesktopWidgetPrivate::cleanup()
 QDesktopWidget::QDesktopWidget()
     : QWidget(*new QDesktopWidgetPrivate, 0, Qt::WType_Desktop)
 {
-    setObjectName("desktop");
+    setObjectName(QLatin1String("desktop"));
     QDesktopWidgetPrivate::init(this);
 }
 

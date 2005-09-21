@@ -82,7 +82,7 @@ class QAbstractScrollAreaHelper : public QWidget
 {
     Q_OBJECT
 public:
-    QAbstractScrollAreaHelper(QWidget *parent):QWidget(parent){ setObjectName("qt_scrollarea_helper"); }
+    QAbstractScrollAreaHelper(QWidget *parent):QWidget(parent){ setObjectName(QLatin1String("qt_scrollarea_helper")); }
     bool event(QEvent *e);
     friend class QAbstractScrollArea;
 };

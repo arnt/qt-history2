@@ -2219,7 +2219,7 @@ QMenu *QLineEdit::createStandardContextMenu()
     d->actions[QLineEditPrivate::SelectAllAct]->setEnabled(!d->text.isEmpty() && !d->allSelected());
 
     QMenu *popup = new QMenu(this);
-    popup->setObjectName("qt_edit_menu");
+    popup->setObjectName(QLatin1String("qt_edit_menu"));
     popup->addAction(d->actions[QLineEditPrivate::UndoAct]);
     popup->addAction(d->actions[QLineEditPrivate::RedoAct]);
     popup->addSeparator();

@@ -20,7 +20,7 @@
 QToolBarExtension::QToolBarExtension(QWidget *parent)
     : QToolButton(parent)
 {
-    setObjectName("qt_toolbar_ext_button");
+    setObjectName(QLatin1String("qt_toolbar_ext_button"));
     setAutoRaise(true);
 #ifndef QT_NO_MENU
     setPopupMode(QToolButton::InstantPopup);

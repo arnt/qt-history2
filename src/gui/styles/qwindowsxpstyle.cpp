@@ -498,7 +498,7 @@ HWND QWindowsXPStylePrivate::winId(const QWidget *widget)
 
     if (!limboWidget) {
         limboWidget = new QWidget(0);
-        limboWidget->setObjectName("xp_limbo_widget");
+        limboWidget->setObjectName(QLatin1String("xp_limbo_widget"));
     }
 
     return limboWidget->winId();

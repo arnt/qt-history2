@@ -525,7 +525,7 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
 
     }
     label = new QLabel(q);
-    label->setObjectName("qt_msgbox_label");
+    label->setObjectName(QLatin1String("qt_msgbox_label"));
 
     label->setAlignment(Qt::AlignTop|Qt::AlignLeft);
 
@@ -535,7 +535,7 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
     }
     icon = QMessageBox::NoIcon;
     iconLabel = new QLabel(q);
-    iconLabel->setObjectName("qt_msgbox_icon_label");
+    iconLabel->setObjectName(QLatin1String("qt_msgbox_icon_label"));
 
     iconLabel->setPixmap(QPixmap());
     numButtons = 0;

@@ -1325,7 +1325,7 @@ void QAbstractSpinBoxPrivate::init()
     q->setAttribute(Qt::WA_InputMethodEnabled);
 
     q->setLineEdit(new QLineEdit(q));
-    edit->setObjectName("qt_spinbox_lineedit");
+    edit->setObjectName(QLatin1String("qt_spinbox_lineedit"));
     if (type != QVariant::Invalid) {
         validator = new QSpinBoxValidator(q, this);
         edit->setValidator(validator);
@@ -1657,7 +1657,7 @@ void QAbstractSpinBoxPrivate::clearCache() const
 QSpinBoxValidator::QSpinBoxValidator(QAbstractSpinBox *qp, QAbstractSpinBoxPrivate *dp)
     : QValidator(qp), qptr(qp), dptr(dp)
 {
-    setObjectName("qt_spinboxvalidator");
+    setObjectName(QLatin1String("qt_spinboxvalidator"));
 }
 
 /*!

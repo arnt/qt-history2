@@ -897,8 +897,8 @@ QWorkspacePrivate::init()
     becomeActive = 0;
     popup = new QMenu(q);
     toolPopup = new QMenu(q);
-    popup->setObjectName("qt_internal_mdi_popup");
-    toolPopup->setObjectName("qt_internal_mdi_tool_popup");
+    popup->setObjectName(QLatin1String("qt_internal_mdi_popup"));
+    toolPopup->setObjectName(QLatin1String("qt_internal_mdi_tool_popup"));
 
     actions[QWorkspacePrivate::RestoreAct] = new QAction(QIcon(q->style()->standardPixmap(QStyle::SP_TitleBarNormalButton)),
                                                          q->tr("&Restore"), q);
@@ -1061,7 +1061,7 @@ QWidget * QWorkspace::addWindow(QWidget *w, Qt::WFlags flags)
         w->adjustSize();
 
     QWorkspaceChild* child = new QWorkspaceChild(w, this, flags);
-    child->setObjectName("qt_workspacechild");
+    child->setObjectName(QLatin1String("qt_workspacechild"));
     child->installEventFilter(this);
 
     connect(child, SIGNAL(popupOperationMenu(QPoint)),
@@ -1757,14 +1757,14 @@ void QWorkspacePrivate::showMaximizeControls()
         if (!maxcontrols) {
             maxmenubar = b;
             maxcontrols = new QFrame(q->window());
-            maxcontrols->setObjectName("qt_maxcontrols");
+            maxcontrols->setObjectName(QLatin1String("qt_maxcontrols"));
             QHBoxLayout* l = new QHBoxLayout(maxcontrols);
             l->setMargin(maxcontrols->frameWidth());
             l->setSpacing(0);
             if (maxWindow->windowWidget() &&
                 (maxWindow->windowWidget()->windowFlags() & Qt::WindowMinimizeButtonHint)) {
                 QToolButton* iconB = new QToolButton(maxcontrols);
-                iconB->setObjectName("iconify");
+                iconB->setObjectName(QLatin1String("iconify"));
 #ifndef QT_NO_TOOLTIP
                 iconB->setToolTip(q->tr("Minimize"));
 #endif
@@ -1778,7 +1778,7 @@ void QWorkspacePrivate::showMaximizeControls()
             }
 
             QToolButton* restoreB = new QToolButton(maxcontrols);
-            restoreB->setObjectName("restore");
+            restoreB->setObjectName(QLatin1String("restore"));
 #ifndef QT_NO_TOOLTIP
             restoreB->setToolTip(q->tr("Restore Down"));
 #endif
@@ -1792,7 +1792,7 @@ void QWorkspacePrivate::showMaximizeControls()
 
             l->addSpacing(2);
             QToolButton* closeB = new QToolButton(maxcontrols);
-            closeB->setObjectName("close");
+            closeB->setObjectName(QLatin1String("close"));
 #ifndef QT_NO_TOOLTIP
             closeB->setToolTip(q->tr("Close"));
 #endif
@@ -1818,7 +1818,7 @@ void QWorkspacePrivate::showMaximizeControls()
         if (active) {
             if (!maxtools) {
                 maxtools = new QLabel(q->window());
-                maxtools->setObjectName("qt_maxtools");
+                maxtools->setObjectName(QLatin1String("qt_maxtools"));
                 maxtools->installEventFilter(q);
             }
             if (active->windowWidget() && !active->windowWidget()->windowIcon().isNull()) {
@@ -2804,7 +2804,7 @@ QWidget* QWorkspaceChild::iconWidget() const
         vbox->setMargin(0);
         QWorkspaceTitleBar *tb = new QWorkspaceTitleBar(windowWidget(), frame);
         vbox->addWidget(tb);
-        tb->setObjectName("_workspacechild_icon_");
+        tb->setObjectName(QLatin1String("_workspacechild_icon_"));
         QStyleOptionTitleBar opt = tb->getStyleOption();
         int th = style()->pixelMetric(QStyle::PM_TitleBarHeight, &opt, tb);
         int iconSize = style()->pixelMetric(QStyle::PM_MDIMinimizedWidth, 0, this);
@@ -2995,14 +2995,14 @@ void QWorkspace::setScrollBarsEnabled(bool enable)
     d->xoffset = d->yoffset = 0;
     if (enable) {
         d->vbar = new QScrollBar(Qt::Vertical, this);
-        d->vbar->setObjectName("vertical scrollbar");
+        d->vbar->setObjectName(QLatin1String("vertical scrollbar"));
         connect(d->vbar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarChanged()));
         d->hbar = new QScrollBar(Qt::Horizontal, this);
-        d->hbar->setObjectName("horizontal scrollbar");
+        d->hbar->setObjectName(QLatin1String("horizontal scrollbar"));
         connect(d->hbar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarChanged()));
         d->corner = new QWidget(this);
         d->corner->setBackgroundRole(QPalette::Background);
-        d->corner->setObjectName("qt_corner");
+        d->corner->setObjectName(QLatin1String("qt_corner"));
         d->updateWorkspace();
     } else {
         delete d->vbar;

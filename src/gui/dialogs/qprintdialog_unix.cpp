@@ -867,24 +867,24 @@ QGroupBox *QPrintDialogPrivate::setupPrinterSettings()
 {
     Q_Q(QPrintDialog);
     QGroupBox *g = new QGroupBox(q->tr("Printer settings"), q);
-    g->setObjectName("qt_printdialog_printer_settings");
+    g->setObjectName(QLatin1String("qt_printdialog_printer_settings"));
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
     colorMode = new QButtonGroup(q);
-    colorMode->setObjectName("qt_printdialog_buttongroup");
+    colorMode->setObjectName(QLatin1String("qt_printdialog_buttongroup"));
 
     QObject::connect(colorMode, SIGNAL(buttonClicked(QAbstractButton*)),
                      q, SLOT(colorModeSelected(QAbstractButton*)));
 
     printColor = new QRadioButton(q->tr("Print in color if available"), g);
-    printColor->setObjectName("qt_printdialog_color");
+    printColor->setObjectName(QLatin1String("qt_printdialog_color"));
 
     colorMode->addButton(printColor);
     printColor->setChecked(true);
     tll->addWidget(printColor);
 
     printGray = new QRadioButton(q->tr("Print in grayscale"), g);
-    printGray->setObjectName("qt_printdialog_grayscale");
+    printGray->setObjectName(QLatin1String("qt_printdialog_grayscale"));
 
     colorMode->addButton(printGray);
     tll->addWidget(printGray);
@@ -896,17 +896,17 @@ QGroupBox *QPrintDialogPrivate::setupDestination()
 {
     Q_Q(QPrintDialog);
     QGroupBox *g = new QGroupBox(q->tr("Print destination"), q);
-    g->setObjectName("qt_printdialog_print_destination");
+    g->setObjectName(QLatin1String("qt_printdialog_print_destination"));
 
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
     printerOrFile = new QButtonGroup(q);
-    printerOrFile->setObjectName("qt_printdialog_printer_or_file");
+    printerOrFile->setObjectName(QLatin1String("qt_printdialog_printer_or_file"));
 
 
     // printer radio button, list
     QRadioButton *rb = new QRadioButton(q->tr("Print to printer:"), g);
-    rb->setObjectName("qt_printdialog_print_to_server");
+    rb->setObjectName(QLatin1String("qt_printdialog_print_to_server"));
 
     tll->addWidget(rb);
     printerOrFile->addButton(rb);

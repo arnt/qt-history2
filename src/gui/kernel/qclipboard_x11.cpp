@@ -91,9 +91,9 @@ void setupOwner()
     if (owner)
         return;
     owner = new QWidget(0);
-    owner->setObjectName("internal clipboard owner");
+    owner->setObjectName(QLatin1String("internal clipboard owner"));
     requestor = new QWidget(0);
-    requestor->setObjectName("internal clipboard requestor");
+    requestor->setObjectName(QLatin1String("internal clipboard requestor"));
     qAddPostRoutine(cleanup);
 }
 
@@ -635,7 +635,7 @@ QByteArray QX11Data::clipboardReadIncrementalProperty(Window win, Atom property,
     // could consider next request to be still part of this timed out request
     delete requestor;
     requestor = new QWidget(0);
-    requestor->setObjectName("internal clipboard requestor");
+    requestor->setObjectName(QLatin1String("internal clipboard requestor"));
 
     return QByteArray();
 }

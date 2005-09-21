@@ -110,7 +110,7 @@ static void qt_tablet_init()
         return;
     firstTime = false;
     qt_tablet_widget = new QWidget(0);
-    qt_tablet_widget->setObjectName("Qt internal tablet widget");
+    qt_tablet_widget->setObjectName(QLatin1String("Qt internal tablet widget"));
     LOGCONTEXT lcMine;
     qAddPostRoutine(qt_tablet_cleanup);
     struct tagAXIS tpOri[3];

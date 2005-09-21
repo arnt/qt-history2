@@ -50,7 +50,7 @@ public:
 QMenuBarExtension::QMenuBarExtension(QWidget *parent)
     : QToolButton(parent)
 {
-    setObjectName("qt_menubar_ext_button");
+    setObjectName(QLatin1String("qt_menubar_ext_button"));
     setAutoRaise(true);
 #ifndef QT_NO_MENU
     setPopupMode(QToolButton::InstantPopup);

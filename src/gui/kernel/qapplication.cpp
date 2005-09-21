@@ -439,16 +439,15 @@ void QApplicationPrivate::process_cmdline()
         if (arg == "-qdevel" || arg == "-qdebug") {
             // obsolete argument
         } else if (arg.indexOf("-style=", 0) != -1) {
-            s = arg.right(arg.length() - 7).toLower();
+            s = QString::fromLocal8Bit(arg.right(arg.length() - 7).toLower());
         } else if (arg == "-style" && i < argc-1) {
-            s = argv[++i];
-            s = s.toLower();
+            s = QString::fromLocal8Bit(argv[++i]).toLower();
 #ifndef QT_NO_SESSIONMANAGER
         } else if (arg == "-session" && i < argc-1) {
             ++i;
             if (argv[i] && *argv[i]) {
                 session_id = QString::fromLatin1(argv[i]);
-                int p = session_id.indexOf('_');
+                int p = session_id.indexOf(QLatin1Char('_'));
                 if (p >= 0) {
                     session_key = session_id.mid(p +1);
                     session_id = session_id.left(p);
@@ -1008,37 +1007,37 @@ QStyle *QApplication::style()
             QApplicationPrivate::styleOverride = 0;
         } else {
 #  if defined(Q_WS_WIN) && defined(Q_OS_TEMP)
-            style = "PocketPC";
+            style = QLatin1String("PocketPC");
 #elif defined(Q_WS_WIN)
             if ((QSysInfo::WindowsVersion >= QSysInfo::WV_XP
                 && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based))
-                style = "WindowsXP";
+                style = QLatin1String("WindowsXP");
             else
-                style = "Windows";                // default styles for Windows
+                style = QLatin1String("Windows");                // default styles for Windows
 #elif defined(Q_WS_X11) && defined(Q_OS_SOLARIS)
-            style = "CDE";                        // default style for X11 on Solaris
+            style = QLatin1String("CDE");                        // default style for X11 on Solaris
 #elif defined(Q_WS_X11) && defined(Q_OS_IRIX)
-            style = "SGI";                        // default style for X11 on IRIX
+            style = QLatin1String("SGI");                        // default style for X11 on IRIX
 #elif defined(Q_WS_X11)
-                style = "Motif";                // default style for X11
+                style = QLatin1String("Motif");                // default style for X11
 #elif defined(Q_WS_MAC)
-                style = "Macintosh";                // default style for all Mac's
+                style = QLatin1String("Macintosh");                // default style for all Mac's
 #elif defined(Q_WS_QWS)
-            style = "Plastique";                // default style for small devices
+            style = QLatin1String("Plastique");                // default style for small devices
 #endif
         }
         if (!(QApplicationPrivate::app_style = QStyleFactory::create(style)) // platform default style not available, try alternatives
-            && !(QApplicationPrivate::app_style = QStyleFactory::create("Windows"))
-            && !(QApplicationPrivate::app_style = QStyleFactory::create("Plastique"))
-            && !(QApplicationPrivate::app_style = QStyleFactory::create("Platinum"))
-            && !(QApplicationPrivate::app_style = QStyleFactory::create("MotifPlus"))
-            && !(QApplicationPrivate::app_style = QStyleFactory::create("Motif"))
-            && !(QApplicationPrivate::app_style = QStyleFactory::create("CDE"))
-            && !(QApplicationPrivate::app_style = QStyleFactory::create("Mac"))
-            && !(QApplicationPrivate::app_style = QStyleFactory::create("SGI"))
-            && !(QApplicationPrivate::app_style = QStyleFactory::create("Compact"))
+            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("Windows")))
+            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("Plastique")))
+            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("Platinum")))
+            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("MotifPlus")))
+            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("Motif")))
+            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("CDE")))
+            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("Mac")))
+            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("SGI")))
+            && !(QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("Compact")))
             && (QStyleFactory::keys().isEmpty() || !(QApplicationPrivate::app_style = QStyleFactory::create(QStyleFactory::keys().first()))))
-            qFatal("No %s style available!", style.toLatin1().constData());
+            qFatal("No %s style available!", qPrintable(style));
     }
 
     if (!QApplicationPrivate::sys_pal)
@@ -1435,7 +1434,7 @@ QFont QApplication::font(const QWidget *w)
         }
     }
     if (!QApplicationPrivate::app_font)
-        QApplicationPrivate::app_font = new QFont("Helvetica");
+        QApplicationPrivate::app_font = new QFont(QLatin1String("Helvetica"));
     return *QApplicationPrivate::app_font;
 }
 
@@ -1735,7 +1734,7 @@ static bool qt_detectRTLLanguage()
         QApplication::tr("QT_LAYOUT_DIRECTION",
                          "Translate this string to the string 'LTR' in left-to-right"
                          " languages or to 'RTL' in right-to-left languages (such as Hebrew"
-                         " and Arabic) to get proper widget layout.") == "RTL";
+                         " and Arabic) to get proper widget layout.") == QLatin1String("RTL");
 }
 #endif
 
@@ -3396,7 +3395,7 @@ QSessionManager::QSessionManager(QApplication * app, QString &id, QString &key)
     : QObject(*new QSessionManagerPrivate, app)
 {
     Q_D(QSessionManager);
-    setObjectName("qt_sessionmanager");
+    setObjectName(QLatin1String("qt_sessionmanager"));
     qt_session_manager_self = this;
 #if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
     wchar_t guidstr[40];
