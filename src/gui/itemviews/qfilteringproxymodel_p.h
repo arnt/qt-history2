@@ -24,10 +24,9 @@
 //
 // We mean it.
 //
-//
 
-#include <qnamespace.h>
-#include <private/qmappingproxymodel_p.h>
+#include "QtCore/qnamespace.h"
+#include "private/qmappingproxymodel_p.h"
 
 class QFilteringProxyModelPrivate : private QMappingProxyModelPrivate
 {

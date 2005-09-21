@@ -14,8 +14,8 @@
 #ifndef QSQLTABLEMODEL_H
 #define QSQLTABLEMODEL_H
 
-#include "QtSql/qsqldatabase.h"
-#include "QtSql/qsqlquerymodel.h"
+#include <QtSql/qsqldatabase.h>
+#include <QtSql/qsqlquerymodel.h>
 
 QT_MODULE(Sql)
 

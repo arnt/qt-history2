@@ -139,4 +139,5 @@ private:
 };
 
 #endif // QT_NO_LISTVIEW
+
 #endif // QLISTVIEW_H

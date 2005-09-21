@@ -18,7 +18,7 @@
 #ifndef QAXOBJECT_H
 #define QAXOBJECT_H
 
-#include "ActiveQt/qaxbase.h"
+#include <ActiveQt/qaxbase.h>
 
 class QAxObject : public QObject, public QAxBase
 {
@@ -63,4 +63,4 @@ template <> inline QAxObject *qobject_cast<QAxObject*>(QObject *o)
     return (QAxObject*)(result);
 }
 
-#endif //QAXOBJECT_H
+#endif // QAXOBJECT_H

@@ -13,8 +13,9 @@
 
 #ifndef QGLPBUFFER_H
 #define QGLPBUFFER_H
-#include <QtGui/qpaintdevice.h>
+
 #include <QtOpenGL/qgl.h>
+#include <QtGui/qpaintdevice.h>
 
 class QGLPbufferPrivate;
 class Q_OPENGL_EXPORT QGLPbuffer : public QPaintDevice

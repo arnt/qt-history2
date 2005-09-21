@@ -25,12 +25,12 @@
 // We mean it.
 //
 
-#include <qatomic.h>
-#include <qbuffer.h>
-#include <qobjectdefs.h>
-#include <qpicture.h>
-#include <qrect.h>
-#include <private/qobject_p.h>
+#include "QtCore/qatomic.h"
+#include "QtCore/qbuffer.h"
+#include "QtCore/qobjectdefs.h"
+#include "QtGui/qpicture.h"
+#include "QtCore/qrect.h"
+#include "private/qobject_p.h"
 
 class QPaintEngine;
 

@@ -14,11 +14,11 @@
 #ifndef QXML_H
 #define QXML_H
 
-#include "QtCore/qtextstream.h"
-#include "QtCore/qfile.h"
-#include "QtCore/qstring.h"
-#include "QtCore/qstringlist.h"
-#include "QtCore/qlist.h"
+#include <QtCore/qtextstream.h>
+#include <QtCore/qfile.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qstringlist.h>
+#include <QtCore/qlist.h>
 
 QT_MODULE(Xml)
 
@@ -382,6 +382,5 @@ private:
 
 inline int QXmlAttributes::count() const
 { return length(); }
-
 
 #endif // QXML_H

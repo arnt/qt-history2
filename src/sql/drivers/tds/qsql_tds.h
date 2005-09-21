@@ -20,7 +20,7 @@
 
 #ifdef Q_OS_WIN32
 #define DBNTWIN32 // indicates 32bit windows dblib
-#include "QtCore/qt_windows.h"
+#include <QtCore/qt_windows.h>
 #include <sqlfront.h>
 #include <sqldb.h>
 #define CS_PUBLIC

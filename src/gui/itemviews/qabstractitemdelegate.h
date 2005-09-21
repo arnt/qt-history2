@@ -83,4 +83,5 @@ protected:
 };
 
 #endif // QT_NO_ITEMVIEWS
+
 #endif // QABSTRACTITEMDELEGATE_H

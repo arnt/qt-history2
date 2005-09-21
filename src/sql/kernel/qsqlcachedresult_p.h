@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include <qsqlresult.h>
+#include "QtSql/qsqlresult.h"
 
 class QVariant;
 template <typename T> class QVector;

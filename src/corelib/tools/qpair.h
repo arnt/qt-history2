@@ -14,7 +14,7 @@
 #ifndef QPAIR_H
 #define QPAIR_H
 
-#include "QtCore/qdatastream.h"
+#include <QtCore/qdatastream.h>
 
 QT_MODULE(Core)
 

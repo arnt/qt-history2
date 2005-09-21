@@ -41,23 +41,21 @@
 
 #if !defined(Q_NO_IM)
 
-#include "qglobal.h"
-#include <qinputcontext.h>
-#include <qfont.h>
-#include <qhash.h>
+#include "QtCore/qglobal.h"
+#include "QtGui/qinputcontext.h"
+#include "QtGui/qfont.h"
+#include "QtCore/qhash.h"
+#ifdef Q_WS_X11
+#include "QtCore/qlist.h"
+#include "QtCore/qbitarray.h"
+#include "QtGui/qwindowdefs.h"
+#include "private/qt_x11_p.h"
+#endif
 
 class QKeyEvent;
 class QWidget;
 class QFont;
 class QString;
-
-
-#ifdef Q_WS_X11
-#include "qlist.h"
-#include "qbitarray.h"
-#include "qwindowdefs.h"
-#include <private/qt_x11_p.h>
-#endif
 
 class QXIMInputContext : public QInputContext
 {
@@ -106,6 +104,6 @@ private:
     ICData *createICData(QWidget *w);
 };
 
-#endif //Q_NO_IM
+#endif // Q_NO_IM
 
 #endif // QXIMINPUTCONTEXT_P_H

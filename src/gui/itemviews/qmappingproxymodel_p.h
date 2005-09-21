@@ -26,8 +26,8 @@
 //
 //
 
-#include <private/qabstractproxymodel_p.h>
-#include <qmap.h>
+#include "QtCore/qmap.h"
+#include "private/qabstractproxymodel_p.h"
 
 class QMappingProxyModelPrivate : public QAbstractProxyModelPrivate
 {

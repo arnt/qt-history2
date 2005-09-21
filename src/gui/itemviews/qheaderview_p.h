@@ -25,12 +25,12 @@
 // We mean it.
 //
 
-#include <private/qabstractitemview_p.h>
+#include "private/qabstractitemview_p.h"
 
 #ifndef QT_NO_ITEMVIEWS
-#include <qbitarray.h>
-#include <qapplication.h>
-#include <qlabel.h>
+#include "QtCore/qbitarray.h"
+#include "QtGui/qapplication.h"
+#include "QtGui/qlabel.h"
 
 class QHeaderViewPrivate: public QAbstractItemViewPrivate
 {
@@ -87,7 +87,6 @@ public:
         QHeaderView::ResizeMode mode;
     };
 
-
     void clear() {
         sections.clear();
         visualIndices.clear();
@@ -120,4 +119,5 @@ public:
 };
 
 #endif // QT_NO_ITEMVIEWS
+
 #endif // QHEADERVIEW_P_H

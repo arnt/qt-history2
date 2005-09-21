@@ -23,7 +23,6 @@
 
 QT_MODULE(Gui)
 
-
 class QAction;
 class QDebug;
 class QTab;
@@ -650,5 +649,4 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QStyle::SubControls)
 Q_GUI_EXPORT QDebug operator<<(QDebug debug, QStyle::State state);
 #endif
     
-
 #endif // QSTYLE_H

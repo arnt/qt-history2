@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include <private/qabstractitemmodel_p.h>
+#include "private/qabstractitemmodel_p.h"
 
 #ifndef QT_NO_STANDARDITEMMODEL
 
@@ -86,4 +86,5 @@ public:
 };
 
 #endif // QT_NO_STANDARDITEMMODEL
+
 #endif // QSTANDARDITEMMODEL_P_H

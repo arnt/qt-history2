@@ -15,7 +15,7 @@
 #ifndef QCDESTYLE_H
 #define QCDESTYLE_H
 
-#include "QtGui/qmotifstyle.h"
+#include <QtGui/qmotifstyle.h>
 
 QT_MODULE(Gui)
 

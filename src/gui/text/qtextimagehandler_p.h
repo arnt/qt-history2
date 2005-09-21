@@ -25,10 +25,9 @@
 // We mean it.
 //
 
-#include <qobject.h>
-#include <qabstracttextdocumentlayout.h>
-
-#include "qtextdocument_p.h"
+#include "QtCore/qobject.h"
+#include "QtGui/qabstracttextdocumentlayout.h"
+#include "private/qtextdocument_p.h"
 
 class QTextImageFormat;
 

@@ -25,8 +25,8 @@
 // We mean it.
 //
 
-#include <private/qabstractitemview_p.h>
-#include <qrubberband.h>
+#include "private/qabstractitemview_p.h"
+#include "QtGui/qrubberband.h"
 
 #ifndef QT_NO_LISTVIEW
 
@@ -387,4 +387,5 @@ public:
 };
 
 #endif // QT_NO_LISTVIEW
-#endif //QLISTVIEW_P_H
+
+#endif // QLISTVIEW_P_H

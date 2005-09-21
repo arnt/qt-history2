@@ -25,14 +25,13 @@
 // We mean it.
 //
 
-#include <qvector.h>
-#include <qcolor.h>
-#include <qfont.h>
-#include <private/qtextformat_p.h>
-#include <private/qtextdocument_p.h>
-
-#include "qtextdocument.h"
-#include "qtextcursor.h"
+#include "QtCore/qvector.h"
+#include "QtGui/qcolor.h"
+#include "QtGui/qfont.h"
+#include "QtGui/qtextdocument.h"
+#include "QtGui/qtextcursor.h"
+#include "private/qtextformat_p.h"
+#include "private/qtextdocument_p.h"
 
 enum QTextHTMLElements {
     Html_qt,

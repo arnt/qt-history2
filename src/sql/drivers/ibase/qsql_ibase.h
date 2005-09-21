@@ -14,9 +14,9 @@
 #ifndef QSQL_IBASE_H
 #define QSQL_IBASE_H
 
-#include "QtSql/qsqlresult.h"
-#include "QtSql/qsqldriver.h"
-#include "QtSql/private/qsqlcachedresult_p.h"
+#include <QtSql/qsqlresult.h>
+#include <QtSql/qsqldriver.h>
+#include <QtSql/private/qsqlcachedresult_p.h>
 
 class QIBaseDriverPrivate;
 class QIBaseResultPrivate;
@@ -83,4 +83,3 @@ private:
 };
 
 #endif // QSQL_IBASE_H
-

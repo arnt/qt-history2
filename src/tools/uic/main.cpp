@@ -14,7 +14,6 @@
 #include "uic.h"
 #include "option.h"
 #include "driver.h"
-
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qtextcodec.h>
@@ -124,4 +123,3 @@ int main(int argc, char *argv[])
 
     return !rtn;
 }
-

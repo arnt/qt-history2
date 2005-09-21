@@ -11,16 +11,9 @@
 **
 ****************************************************************************/
 
-#include <qstring.h>
-#include <qstringlist.h>
-#include <qfile.h>
-#include <qfileinfo.h>
-#include <qlocale.h>
-#include <qtextstream.h>
-#include <qbytearray.h>
-#include <qhash.h>
-#include <qdir.h>
 #include "rcc.h"
+#include <qfile.h>
+#include <qdir.h>
 
 // Some static globals
 static bool writeBinary = false;
@@ -168,6 +161,3 @@ int main(int argc, char *argv[])
         return showHelp(argv[0], errorMsg);
     return int(!processResourceFile(files, outFilename, list));
 }
-
-
-

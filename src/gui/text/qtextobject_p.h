@@ -25,8 +25,8 @@
 // We mean it.
 //
 
-#include "qtextobject.h"
-#include <private/qobject_p.h>
+#include "QtGui/qtextobject.h"
+#include "private/qobject_p.h"
 
 class QTextDocumentPrivate;
 

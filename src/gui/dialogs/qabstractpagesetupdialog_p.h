@@ -14,8 +14,6 @@
 #ifndef QABSTRACTPAGESETUPDIALOG_P_H
 #define QABSTRACTPAGESETUPDIALOG_P_H
 
-#ifndef QT_NO_PRINTDIALOG
-
 //
 //  W A R N I N G
 //  -------------
@@ -28,7 +26,9 @@
 //
 //
 
-#include "qdialog_p.h"
+#ifndef QT_NO_PRINTDIALOG
+
+#include "private/qdialog_p.h"
 
 class QPrinter;
 
@@ -41,4 +41,5 @@ public:
 };
 
 #endif // QT_NO_PRINTDIALOG
+
 #endif // QABSTRACTPAGESETUPDIALOG_P_H

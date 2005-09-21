@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include <qtextstream.h>
-
 #include "writeicondeclaration.h"
 #include "driver.h"
 #include "ui4.h"
 #include "uic.h"
+
+#include <qtextstream.h>
 
 WriteIconDeclaration::WriteIconDeclaration(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option())
@@ -42,4 +42,3 @@ void WriteIconDeclaration::acceptImage(DomImage *image)
     driver->insertPixmap(name);
     output << option.indent << option.indent << name << "_ID,\n";
 }
-

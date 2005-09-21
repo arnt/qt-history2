@@ -14,9 +14,9 @@
 #ifndef QHTTP_H
 #define QHTTP_H
 
-#include "QtCore/qobject.h"
-#include "QtCore/qstringlist.h"
-#include "QtCore/qmap.h"
+#include <QtCore/qobject.h>
+#include <QtCore/qstringlist.h>
+#include <QtCore/qmap.h>
 
 QT_MODULE(Network)
 
@@ -233,6 +233,6 @@ private:
     friend class QHttpPGHRequest;
 };
 
-#endif
+#endif // QT_NO_HTTP
 
 #endif // QHTTP_H

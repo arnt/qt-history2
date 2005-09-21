@@ -14,8 +14,8 @@
 #ifndef QMOTIFSTYLE_H
 #define QMOTIFSTYLE_H
 
-#include "QtGui/qcommonstyle.h"
-#include "QtCore/qpointer.h"
+#include <QtGui/qcommonstyle.h>
+#include <QtCore/qpointer.h>
 
 QT_MODULE(Gui)
 

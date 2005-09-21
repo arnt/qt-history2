@@ -765,5 +765,3 @@ QByteArray Preprocessor::preprocessed(const QByteArray &filename, FILE *file)
 
     return output;
 }
-
-

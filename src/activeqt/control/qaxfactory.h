@@ -20,7 +20,6 @@
 #include <QtCore/qmetaobject.h>
 #include <QtCore/qstringlist.h>
 
-
 class QWidget;
 class QSettings;
 struct IUnknown;

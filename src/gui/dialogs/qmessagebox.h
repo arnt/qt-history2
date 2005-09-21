@@ -14,7 +14,7 @@
 #ifndef QMESSAGEBOX_H
 #define QMESSAGEBOX_H
 
-#include "QtGui/qdialog.h"
+#include <QtGui/qdialog.h>
 
 QT_MODULE(Gui)
 
@@ -168,7 +168,6 @@ QApplication(argc,argv);} QString s = QApplication::tr("Executable '%1' requires
  "%2, found Qt %3.").arg(qAppName()).arg(QString::fromLatin1(\
 str)).arg(qVersion()); QMessageBox::critical(0, QApplication::tr(\
 "Incompatible Qt Library Error"), s, QMessageBox::Abort,0); qFatal(s.toLatin1().data()); }}
-
 
 #endif // QT_NO_MESSAGEBOX
 

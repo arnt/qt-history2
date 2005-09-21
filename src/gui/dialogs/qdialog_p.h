@@ -25,8 +25,8 @@
 // We mean it.
 //
 
-#include <private/qwidget_p.h>
-#include <qdialog.h>
+#include "private/qwidget_p.h"
+#include "QtGui/qdialog.h"
 
 class QEventLoop;
 class QPushButton;

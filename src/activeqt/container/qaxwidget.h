@@ -14,7 +14,7 @@
 #ifndef QAXWIDGET_H
 #define QAXWIDGET_H
 
-#include "ActiveQt/qaxbase.h"
+#include <ActiveQt/qaxbase.h>
 #include <QtGui/qwidget.h>
 
 class QAxHostWindow;

@@ -14,7 +14,7 @@
 #ifndef QERRORMESSAGE_H
 #define QERRORMESSAGE_H
 
-#include "QtGui/qdialog.h"
+#include <QtGui/qdialog.h>
 
 QT_MODULE(Gui)
 

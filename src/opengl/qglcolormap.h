@@ -14,8 +14,8 @@
 #ifndef QGLCOLORMAP_H
 #define QGLCOLORMAP_H
 
-#include "QtGui/qcolor.h"
-#include "QtCore/qvector.h"
+#include <QtGui/qcolor.h>
+#include <QtCore/qvector.h>
 
 QT_MODULE(OpenGL)
 

@@ -14,6 +14,17 @@
 #ifndef QGLBUFFER_P_H
 #define QGLBUFFER_P_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of the QLibrary class.  This header file may change from
+// version to version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #ifdef Q_WS_X11
 #include <GL/glx.h>
 #ifndef GLX_VERSION_1_3

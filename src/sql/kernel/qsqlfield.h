@@ -14,8 +14,8 @@
 #ifndef QSQLFIELD_H
 #define QSQLFIELD_H
 
-#include "QtCore/qvariant.h"
-#include "QtCore/qstring.h"
+#include <QtCore/qvariant.h>
+#include <QtCore/qstring.h>
 
 QT_MODULE(Sql)
 

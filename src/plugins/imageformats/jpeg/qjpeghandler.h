@@ -14,7 +14,7 @@
 #ifndef QJPEGHANDLER_H
 #define QJPEGHANDLER_H
 
-#include "qimageiohandler.h"
+#include <QtGui/qimageiohandler.h>
 
 class QJpegHandler : public QImageIOHandler
 {

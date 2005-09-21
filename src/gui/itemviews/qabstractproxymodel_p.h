@@ -26,8 +26,8 @@
 //
 //
 
-#include <private/qabstractitemmodel_p.h>
-#include <qabstractitemmodel.h>
+#include "private/qabstractitemmodel_p.h"
+#include "QtCore/qabstractitemmodel.h"
 
 class QEmptySourceModel : public QAbstractItemModel
 {

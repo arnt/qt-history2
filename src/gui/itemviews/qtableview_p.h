@@ -25,9 +25,10 @@
 // We mean it.
 //
 
-#include <private/qabstractitemview_p.h>
+#include "private/qabstractitemview_p.h"
 
 #ifndef QT_NO_TABLEVIEW
+
 class QTableViewPrivate : public QAbstractItemViewPrivate
 {
     Q_DECLARE_PUBLIC(QTableView)
@@ -48,5 +49,7 @@ public:
     QHeaderView *horizontalHeader;
     QHeaderView *verticalHeader;
 };
+
 #endif // QT_NO_TABLEVIEW
+
 #endif // QTABLEVIEW_P_H

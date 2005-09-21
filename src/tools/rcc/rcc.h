@@ -14,6 +14,12 @@
 #ifndef RCC_H
 #define RCC_H
 
+#include <qstringlist.h>
+#include <qfileinfo.h>
+#include <qlocale.h>
+#include <qhash.h>
+#include <qstring.h>
+
 #define TAG_RCC "RCC"
 #define TAG_RESOURCE "qresource"
 #define TAG_FILE "file"

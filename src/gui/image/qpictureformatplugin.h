@@ -14,8 +14,8 @@
 #ifndef QPICTUREFORMATPLUGIN_H
 #define QPICTUREFORMATPLUGIN_H
 
-#include "QtCore/qplugin.h"
-#include "QtCore/qfactoryinterface.h"
+#include <QtCore/qplugin.h>
+#include <QtCore/qfactoryinterface.h>
 
 QT_MODULE(Gui)
 
@@ -54,4 +54,5 @@ public:
 };
 
 #endif // QT_NO_LIBRARY || QT_NO_PICTURE
+
 #endif // QPICTUREFORMATPLUGIN_H

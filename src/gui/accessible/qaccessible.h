@@ -14,17 +14,16 @@
 #ifndef QACCESSIBLE_H
 #define QACCESSIBLE_H
 
-#include "QtCore/qglobal.h"
-
-#ifndef QT_NO_ACCESSIBILITY
-
-#include "QtGui/qevent.h"
-#include "QtCore/qobject.h"
-#include "QtCore/qrect.h"
-#include "QtCore/qvector.h"
-#include "QtCore/qvariant.h"
+#include <QtCore/qglobal.h>
+#include <QtGui/qevent.h>
+#include <QtCore/qobject.h>
+#include <QtCore/qrect.h>
+#include <QtCore/qvector.h>
+#include <QtCore/qvariant.h>
 
 QT_MODULE(Gui)
+
+#ifndef QT_NO_ACCESSIBILITY
 
 class QAccessibleInterface;
 

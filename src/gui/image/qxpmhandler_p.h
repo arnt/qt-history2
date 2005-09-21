@@ -14,7 +14,18 @@
 #ifndef QXPMHANDLER_P_H
 #define QXPMHANDLER_P_H
 
-#include "qimageiohandler.h"
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of the QLibrary class.  This header file may change from
+// version to version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include "QtGui/qimageiohandler.h"
 
 #ifndef QT_NO_IMAGEFORMAT_XPM
 
@@ -38,4 +49,5 @@ private:
 };
 
 #endif // QT_NO_IMAGEFORMAT_XPM
+
 #endif // QXPMHANDLER_P_H

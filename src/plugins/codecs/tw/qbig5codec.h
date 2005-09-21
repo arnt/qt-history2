@@ -18,10 +18,11 @@
 #ifndef QBIG5CODEC_H
 #define QBIG5CODEC_H
 
-#include "qtextcodec.h"
-#include <qlist.h>
+#include <QtCore/qtextcodec.h>
+#include <QtCore/qlist.h>
 
 #ifndef QT_NO_TEXTCODECPLUGIN
+
 class QBig5Codec : public QTextCodec {
 public:
     static QByteArray _name();
@@ -84,7 +85,8 @@ public:
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 };
-
 #endif // Q_WS_X11
+
 #endif // QT_NO_TEXTCODECPLUGIN
+
 #endif // QBIG5CODEC_H

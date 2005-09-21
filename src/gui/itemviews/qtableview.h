@@ -120,4 +120,5 @@ private:
 };
 
 #endif // QT_NO_TABLEVIEW
+
 #endif // QTABLEVIEW_H

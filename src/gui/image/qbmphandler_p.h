@@ -14,7 +14,7 @@
 #ifndef QBMPHANDLER_P_H
 #define QBMPHANDLER_P_H
 
-#include "qimageiohandler.h"
+#include "QtGui/qimageiohandler.h"
 
 #ifndef QT_NO_IMAGEFORMAT_BMP
 class Q_GUI_EXPORT QBmpHandler : public QImageIOHandler

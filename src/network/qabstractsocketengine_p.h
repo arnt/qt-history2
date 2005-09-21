@@ -14,9 +14,9 @@
 #ifndef QABSTRACTSOCKETENGINE_P_H
 #define QABSTRACTSOCKETENGINE_P_H
 
-#include <qhostaddress.h>
-#include <qabstractsocket.h>
-#include <private/qobject_p.h>
+#include "QtNetwork/qhostaddress.h"
+#include "QtNetwork/qabstractsocket.h"
+#include "private/qobject_p.h"
 
 class QAbstractSocketEnginePrivate;
 

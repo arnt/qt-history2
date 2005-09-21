@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef QTREEWIDGETITEMITERATOR_H
 #define QTREEWIDGETITEMITERATOR_H
 

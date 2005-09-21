@@ -68,4 +68,5 @@ private:
 };
 
 #endif // QT_NO_ITEMVIEWS
+
 #endif // QITEMEDITORFACTORY_H

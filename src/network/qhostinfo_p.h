@@ -14,13 +14,24 @@
 #ifndef QHOSTINFO_P_H
 #define QHOSTINFO_P_H
 
-#include <qcoreapplication.h>
-#include <private/qcoreapplication_p.h>
-#include "qhostinfo.h"
-#include <qmutex.h>
-#include <qwaitcondition.h>
-#include <qobject.h>
-#include <qpointer.h>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of the QLibrary class.  This header file may change from
+// version to version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include "QtCore/qcoreapplication.h"
+#include "private/qcoreapplication_p.h"
+#include "QtNetwork/qhostinfo.h"
+#include "QtCore/qmutex.h"
+#include "QtCore/qwaitcondition.h"
+#include "QtCore/qobject.h"
+#include "QtCore/qpointer.h"
 
 #if !defined QT_NO_THREAD
 #include <qthread.h>

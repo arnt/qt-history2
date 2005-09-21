@@ -14,9 +14,10 @@
 #ifndef QACCESSIBLEWIDGETS_H
 #define QACCESSIBLEWIDGETS_H
 
-#include <qaccessiblewidget.h>
+#include <QtGui/qaccessiblewidget.h>
 
 #ifndef QT_NO_ACCESSIBILITY
+
 class QListBox;
 
 class QAccessibleScrollView : public QAccessibleWidget
@@ -53,4 +54,5 @@ protected:
 };
 
 #endif // QT_NO_ACCESSIBILITY
+
 #endif // QACESSIBLEWIDGETS_H

@@ -14,7 +14,7 @@
 #ifndef QWINDOWSXPSTYLE_H
 #define QWINDOWSXPSTYLE_H
 
-#include "QtGui/qwindowsstyle.h"
+#include <QtGui/qwindowsstyle.h>
 
 QT_MODULE(Gui)
 

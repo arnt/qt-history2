@@ -14,7 +14,7 @@
 #ifndef COMPLEXWIDGETS_H
 #define COMPLEXWIDGETS_H
 
-#include <qaccessiblewidget.h>
+#include <QtGui/qaccessiblewidget.h>
 
 #ifndef QT_NO_ACCESSIBILITY
 
@@ -98,4 +98,5 @@ protected:
 #endif // QT_NO_COMBOBOX
 
 #endif // QT_NO_ACCESSIBILITY
+
 #endif // COMPLEXWIDGETS_H

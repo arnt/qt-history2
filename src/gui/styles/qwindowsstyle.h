@@ -14,7 +14,7 @@
 #ifndef QWINDOWSSTYLE_H
 #define QWINDOWSSTYLE_H
 
-#include "QtGui/qcommonstyle.h"
+#include <QtGui/qcommonstyle.h>
 
 QT_MODULE(Gui)
 

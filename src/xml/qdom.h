@@ -14,7 +14,7 @@
 #ifndef QDOM_H
 #define QDOM_H
 
-#include "QtCore/qstring.h"
+#include <QtCore/qstring.h>
 
 QT_MODULE(Xml)
 

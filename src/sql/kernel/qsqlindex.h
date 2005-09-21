@@ -14,9 +14,9 @@
 #ifndef QSQLINDEX_H
 #define QSQLINDEX_H
 
-#include "QtCore/qstring.h"
-#include "QtSql/qsqlrecord.h"
-#include "QtCore/qlist.h"
+#include <QtSql/qsqlrecord.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qlist.h>
 
 QT_MODULE(Sql)
 

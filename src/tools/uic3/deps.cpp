@@ -13,8 +13,8 @@
 
 #include "ui3reader.h"
 
-#include <QtXml/QDomElement>
-#include <QtCore/QFile>
+#include <QDomElement>
+#include <QFile>
 
 void Ui3Reader::computeDeps(const QDomElement &e,
         QStringList &globalIncludes,
@@ -98,4 +98,3 @@ void Ui3Reader::computeDeps(const QDomElement &e,
         }
     }
 }
-

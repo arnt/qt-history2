@@ -14,8 +14,8 @@
 #ifndef QPICTURE_H
 #define QPICTURE_H
 
-#include "QtGui/qpaintdevice.h"
-#include "QtCore/qstringlist.h"
+#include <QtGui/qpaintdevice.h>
+#include <QtCore/qstringlist.h>
 
 QT_MODULE(Gui)
 

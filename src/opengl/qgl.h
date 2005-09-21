@@ -14,9 +14,9 @@
 #ifndef QGL_H
 #define QGL_H
 
-#include "QtGui/qwidget.h"
-#include "QtOpenGL/qglcolormap.h"
-#include "QtCore/qmap.h"
+#include <QtGui/qwidget.h>
+#include <QtOpenGL/qglcolormap.h>
+#include <QtCore/qmap.h>
 
 QT_MODULE(OpenGL)
 
@@ -392,4 +392,5 @@ inline bool QGLFormat::sampleBuffers() const
 {
     return testOption(QGL::SampleBuffers);
 }
+
 #endif // QGL_H

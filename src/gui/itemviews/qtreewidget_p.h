@@ -24,9 +24,8 @@
 // We mean it.
 //
 
-
-#include <QtCore/qabstractitemmodel.h>
-#include <QtCore/qpair.h>
+#include "QtCore/qabstractitemmodel.h"
+#include "QtCore/qpair.h"
 
 class QTreeWidgetItem;
 class QTreeWidgetItemIterator;

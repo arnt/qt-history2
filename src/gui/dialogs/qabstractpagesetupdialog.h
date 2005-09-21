@@ -14,7 +14,7 @@
 #ifndef QABSTRACTPAGESETUPDIALOG_H
 #define QABSTRACTPAGESETUPDIALOG_H
 
-#include "QtGui/qdialog.h"
+#include <QtGui/qdialog.h>
 
 QT_MODULE(Gui)
 
@@ -39,4 +39,5 @@ public:
 };
 
 #endif // QT_NO_PRINTDIALOG
+
 #endif // QABSTRACTPAGESETUPDIALOG_H

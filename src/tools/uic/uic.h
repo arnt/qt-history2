@@ -16,7 +16,6 @@
 
 #include "databaseinfo.h"
 #include "customwidgetsinfo.h"
-
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qhash.h>

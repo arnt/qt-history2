@@ -13,40 +13,40 @@
 
 #include "widgetinfo.h"
 
-#include <QtCore/QMetaEnum>
-#include <QtGui/QTextBrowser>
-#include <QtGui/QToolBar>
-#include <QtGui/QPushButton>
-#include <QtGui/QLineEdit>
-#include <QtGui/QComboBox>
-#include <QtGui/QDial>
-#include <QtGui/QSlider>
-#include <QtGui/QLCDNumber>
-#include <QtGui/QProgressBar>
-#include <QtGui/QLabel>
-#include <QtGui/QToolBox>
-#include <QtGui/QMainWindow>
-#include <QtGui/QToolButton>
-#include <QtGui/QCheckBox>
-#include <QtGui/QRadioButton>
-#include <QtGui/QSpinBox>
-#include <QtGui/QActionGroup>
-#include <QtGui/QSplitter>
-#include <QtGui/QTabWidget>
-#include <Qt3Support/Q3DateEdit>
-#include <Qt3Support/Q3TimeEdit>
-#include <Qt3Support/Q3DateTimeEdit>
-#include <Qt3Support/Q3ListBox>
-#include <Qt3Support/Q3ListView>
-#include <Qt3Support/Q3TextEdit>
-#include <Qt3Support/Q3WidgetStack>
-#include <Qt3Support/Q3Wizard>
-#include <Qt3Support/Q3TextView>
-#include <Qt3Support/Q3MainWindow>
-#include <Qt3Support/Q3GroupBox>
-#include <Qt3Support/Q3ButtonGroup>
-#include <Qt3Support/Q3IconView>
-#include <Qt3Support/Q3ProgressBar>
+#include <QMetaEnum>
+#include <QTextBrowser>
+#include <QToolBar>
+#include <QPushButton>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QDial>
+#include <QSlider>
+#include <QLCDNumber>
+#include <QProgressBar>
+#include <QLabel>
+#include <QToolBox>
+#include <QMainWindow>
+#include <QToolButton>
+#include <QCheckBox>
+#include <QRadioButton>
+#include <QSpinBox>
+#include <QActionGroup>
+#include <QSplitter>
+#include <QTabWidget>
+#include <Q3DateEdit>
+#include <Q3TimeEdit>
+#include <Q3DateTimeEdit>
+#include <Q3ListBox>
+#include <Q3ListView>
+#include <Q3TextEdit>
+#include <Q3WidgetStack>
+#include <Q3Wizard>
+#include <Q3TextView>
+#include <Q3MainWindow>
+#include <Q3GroupBox>
+#include <Q3ButtonGroup>
+#include <Q3IconView>
+#include <Q3ProgressBar>
 
 WidgetInfo::WidgetInfo()
 {
@@ -243,4 +243,3 @@ QString WidgetInfo::resolveEnumerator(const QMetaEnum &metaEnum, const QString &
 
     return QString();
 }
-

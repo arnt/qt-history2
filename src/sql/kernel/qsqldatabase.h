@@ -14,10 +14,10 @@
 #ifndef QSQLDATABASE_H
 #define QSQLDATABASE_H
 
-#include "QtCore/qstring.h"
-#include "QtSql/qsql.h"
+#include <QtCore/qstring.h>
+#include <QtSql/qsql.h>
 #ifdef QT3_SUPPORT
-#include "QtSql/qsqlrecord.h"
+#include <QtSql/qsqlrecord.h>
 #endif
 
 QT_MODULE(Sql)
@@ -120,4 +120,3 @@ Q_SQL_EXPORT QDebug operator<<(QDebug, const QSqlDatabase &);
 #endif
 
 #endif // QSQLDATABASE_H
-

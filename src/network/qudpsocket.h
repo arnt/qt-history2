@@ -14,8 +14,8 @@
 #ifndef QUDPSOCKET_H
 #define QUDPSOCKET_H
 
-#include "QtNetwork/qabstractsocket.h"
-#include "QtNetwork/qhostaddress.h"
+#include <QtNetwork/qabstractsocket.h>
+#include <QtNetwork/qhostaddress.h>
 
 QT_MODULE(Network)
 
@@ -46,4 +46,5 @@ private:
 };
 
 #endif // QT_NO_UDPSOCKET
+
 #endif // QUDPSOCKET_H

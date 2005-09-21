@@ -25,8 +25,8 @@
 // We mean it.
 //
 
-#include "qtextobject_p.h"
-#include "qtextdocument_p.h"
+#include "private/qtextobject_p.h"
+#include "private/qtextdocument_p.h"
 
 class QTextTablePrivate : public QTextFramePrivate
 {

@@ -25,19 +25,19 @@
 // We mean it.
 //
 
-#include "qglobal.h"
-#include <qstring.h>
-#include <qvector.h>
-#include <qlist.h>
-#include <private/qobject_p.h>
-#include "qfragmentmap_p.h"
-#include "qtextlayout.h"
-#include "qtextformat_p.h"
-#include "qtextdocument.h"
-#include "qtextobject.h"
-#include <qmap.h>
-#include <qvariant.h>
-#include <qurl.h>
+#include "QtCore/qglobal.h"
+#include "QtCore/qstring.h"
+#include "QtCore/qvector.h"
+#include "QtCore/qlist.h"
+#include "private/qobject_p.h"
+#include "private/qfragmentmap_p.h"
+#include "QtGui/qtextlayout.h"
+#include "private/qtextformat_p.h"
+#include "QtGui/qtextdocument.h"
+#include "QtGui/qtextobject.h"
+#include "QtCore/qmap.h"
+#include "QtCore/qvariant.h"
+#include "QtCore/qurl.h"
 
 // #define QT_QMAP_DEBUG
 

@@ -26,7 +26,7 @@
 //
 //
 
-#include "qpaintengine.h"
+#include "QtGui/qpaintengine.h"
 
 #ifndef QT_NO_PICTURE
 
@@ -79,4 +79,5 @@ private:
 };
 
 #endif // QT_NO_PICTURE
+
 #endif // QPAINTENGINE_PIC_P_H

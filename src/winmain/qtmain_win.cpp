@@ -12,11 +12,9 @@
 ****************************************************************************/
 
 #include "qt_windows.h"
-
 #include "qbytearray.h"
 #include "qstring.h"
 #include "qvector.h"
-
 
 /*
   This file contains the code in the qtmain library for Windows.
@@ -97,4 +95,3 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR /*cmdPara
     int result = main(argc, argv.data());
     return result;
 }
-

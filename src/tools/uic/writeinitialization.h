@@ -15,7 +15,6 @@
 #define WRITEINITIALIZATION_H
 
 #include "treewalker.h"
-
 #include <qpair.h>
 #include <qhash.h>
 #include <qstack.h>

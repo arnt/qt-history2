@@ -60,4 +60,5 @@ private:
 };
 
 #endif // QT_NO_STANDARDITEMMODEL
+
 #endif //QSTANDARDITEMMODEL_H

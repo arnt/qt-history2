@@ -14,13 +14,13 @@
 #ifndef QSTYLEOPTION_H
 #define QSTYLEOPTION_H
 
-#include "QtGui/qabstractspinbox.h"
-#include "QtGui/qicon.h"
-#include "QtGui/qslider.h"
-#include "QtGui/qstyle.h"
-#include "QtGui/qtabbar.h"
-#include "QtGui/qtabwidget.h"
-#include "QtGui/qrubberband.h"
+#include <QtGui/qabstractspinbox.h>
+#include <QtGui/qicon.h>
+#include <QtGui/qslider.h>
+#include <QtGui/qstyle.h>
+#include <QtGui/qtabbar.h>
+#include <QtGui/qtabwidget.h>
+#include <QtGui/qrubberband.h>
 
 QT_MODULE(Gui)
 

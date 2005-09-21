@@ -14,10 +14,10 @@
 #ifndef QITEMSELECTIONMODEL_H
 #define QITEMSELECTIONMODEL_H
 
-#include <QtCore/qset.h>
-#include <QtCore/qvector.h>
-#include <QtCore/qlist.h>
-#include <QtCore/qabstractitemmodel.h>
+#include "QtCore/qset.h"
+#include "QtCore/qvector.h"
+#include "QtCore/qlist.h"
+#include "QtCore/qabstractitemmodel.h"
 
 QT_MODULE(Gui)
 
@@ -167,4 +167,5 @@ Q_GUI_EXPORT QDebug operator<<(QDebug, const QItemSelectionRange &);
 #endif
 
 #endif // QT_NO_ITEMVIEWS
+
 #endif // QITEMSELECTIONMODEL_H

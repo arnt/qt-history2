@@ -96,4 +96,5 @@ private:
 };
 
 #endif // QT_NO_PROXYMODEL
+
 #endif // QPROXYMODEL_H

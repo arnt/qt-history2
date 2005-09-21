@@ -11,19 +11,13 @@
 **
 ****************************************************************************/
 
-#include <qstring.h>
-#include <qstringlist.h>
+#include "rcc.h"
 #include <qfile.h>
-#include <qfileinfo.h>
-#include <qlocale.h>
 #include <qdatetime.h>
-#include <qtextstream.h>
 #include <qbytearray.h>
-#include <qhash.h>
 #include <qdir.h>
 #include <qstack.h>
 #include <qdom.h>
-#include "rcc.h"
 
 static bool qt_rcc_write_number(FILE *out, quint32 number, int width, RCCResourceLibrary::Format format)
 {

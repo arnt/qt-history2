@@ -14,7 +14,7 @@
 #ifndef Q3SIMPLEWIDGETS_H
 #define Q3SIMPLEWIDGETS_H
 
-#include <qaccessiblewidget.h>
+#include <QtGui/qaccessiblewidget.h>
 
 class Q3AccessibleDisplay : public QAccessibleWidget
 {

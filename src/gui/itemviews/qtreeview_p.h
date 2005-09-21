@@ -25,7 +25,8 @@
 // We mean it.
 //
 
-#include <private/qabstractitemview_p.h>
+#include "private/qabstractitemview_p.h"
+
 #ifndef QT_NO_TREEVIEW
 
 struct QTreeViewItem
@@ -117,4 +118,5 @@ public:
 };
 
 #endif // QT_NO_TREEVIEW
+
 #endif // QTREEVIEW_P_H

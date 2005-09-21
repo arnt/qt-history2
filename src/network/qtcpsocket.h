@@ -14,7 +14,7 @@
 #ifndef QTCPSOCKET_H
 #define QTCPSOCKET_H
 
-#include "QtNetwork/qabstractsocket.h"
+#include <QtNetwork/qabstractsocket.h>
 
 QT_MODULE(Network)
 

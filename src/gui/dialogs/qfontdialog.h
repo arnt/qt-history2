@@ -14,14 +14,14 @@
 #ifndef QFONTDIALOG_H
 #define QFONTDIALOG_H
 
-#include "QtGui/qwindowdefs.h"
+#include <QtGui/qwindowdefs.h>
 
 QT_MODULE(Gui)
 
 #ifndef QT_NO_FONTDIALOG
 
-#include "QtGui/qdialog.h"
-#include "QtGui/qfont.h"
+#include <QtGui/qdialog.h>
+#include <QtGui/qfont.h>
 
 class QFontDialogPrivate;
 
@@ -67,6 +67,6 @@ private:
     Q_DISABLE_COPY(QFontDialog)
 };
 
-#endif
+#endif // QT_NO_FONTDIALOG
 
 #endif // QFONTDIALOG_H

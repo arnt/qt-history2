@@ -47,4 +47,5 @@ private:
 };
 
 #endif // QT_NO_STRINGLISTMODEL
+
 #endif // QSTRINGLISTMODEL_H

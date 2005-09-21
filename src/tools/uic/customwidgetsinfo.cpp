@@ -60,4 +60,3 @@ QString CustomWidgetsInfo::realClassName(const QString &className) const
 
     return className;
 }
-

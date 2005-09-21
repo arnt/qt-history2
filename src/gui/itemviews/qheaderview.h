@@ -185,4 +185,5 @@ inline void QHeaderView::showSection(int alogicalIndex)
 { setSectionHidden(alogicalIndex, false); }
 
 #endif // QT_NO_ITEMVIEWS
+
 #endif // QHEADERVIEW_H

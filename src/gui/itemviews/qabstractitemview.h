@@ -261,4 +261,5 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemView::EditTriggers)
 
 #endif // QT_NO_ITEMVIEWS
+
 #endif // QABSTRACTITEMVIEW_H

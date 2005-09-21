@@ -33,10 +33,10 @@
 
 */
 
-#ifndef TSLIB_MOUSE_DRIVER_PLUGIN_H
-#define TSLIB_MOUSE_DRIVER_PLUGIN_H
+#ifndef TSLIBMOUSEDRIVERPLUGIN_H
+#define TSLIBMOUSEDRIVERPLUGIN_H
 
-#include <QWSMouseHandlerFactoryInterface>
+#include <QtGui/QWSMouseHandlerFactoryInterface>
 
 class TSLibMouseDriverPlugin : public QMouseDriverPlugin {
     Q_OBJECT
@@ -49,5 +49,4 @@ public:
     QStringList keys()const;
 };
 
-
-#endif
+#endif // TSLIBMOUSEDRIVERPLUGIN_H

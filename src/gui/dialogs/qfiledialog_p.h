@@ -25,13 +25,13 @@
 // We mean it.
 //
 
-#include <private/qdialog_p.h>
-#include <qitemselectionmodel.h>
-#include <qabstractitemview.h>
-#include <qlistview.h>
-#include <qtreeview.h>
-#include <qtoolbutton.h>
-#include <qevent.h>
+#include "private/qdialog_p.h"
+#include "QtGui/qitemselectionmodel.h"
+#include "QtGui/qabstractitemview.h"
+#include "QtGui/qlistview.h"
+#include "QtGui/qtreeview.h"
+#include "QtGui/qtoolbutton.h"
+#include "QtGui/qevent.h"
 
 class QDirModel;
 class QComboBox;

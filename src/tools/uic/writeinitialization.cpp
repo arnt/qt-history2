@@ -1390,4 +1390,3 @@ void WriteInitialization::acceptImage(DomImage *image)
 
     m_registeredImages.insert(image->attributeName(), image);
 }
-

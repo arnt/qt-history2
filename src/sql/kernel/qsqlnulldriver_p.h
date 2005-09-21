@@ -25,10 +25,10 @@
 // We mean it.
 //
 
-#include "qvariant.h"
-#include "qsqldriver.h"
-#include "qsqlerror.h"
-#include "qsqlresult.h"
+#include "QtCore/qvariant.h"
+#include "QtSql/qsqldriver.h"
+#include "QtSql/qsqlerror.h"
+#include "QtSql/qsqlresult.h"
 
 class QSqlNullResult : public QSqlResult
 {

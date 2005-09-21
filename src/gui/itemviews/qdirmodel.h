@@ -127,4 +127,5 @@ private:
 };
 
 #endif // QT_NO_DIRMODEL
+
 #endif // QDIRMODEL_H

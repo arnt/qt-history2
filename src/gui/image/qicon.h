@@ -14,9 +14,9 @@
 #ifndef QICON_H
 #define QICON_H
 
-#include "QtCore/qglobal.h"
-#include "QtCore/qsize.h"
-#include "QtGui/qpixmap.h"
+#include <QtCore/qglobal.h>
+#include <QtCore/qsize.h>
+#include <QtGui/qpixmap.h>
 
 QT_MODULE(Gui)
 

@@ -25,17 +25,17 @@
 // We mean it.
 //
 
-class QRubberBand;
+#include "private/qabstractscrollarea_p.h"
+#include "QtGui/qapplication.h"
+#include "QtCore/qdatetime.h"
+#include "QtGui/qevent.h"
+#include "QtGui/qmime.h"
+#include "QtCore/qmap.h"
+#include "QtCore/qtimer.h"
+#include "QtGui/qregion.h"
+#include "QtCore/qdebug.h"
 
-#include <private/qabstractscrollarea_p.h>
-#include <qapplication.h>
-#include <qdatetime.h>
-#include <qevent.h>
-#include <qmime.h>
-#include <qmap.h>
-#include <qtimer.h>
-#include <qregion.h>
-#include <qdebug.h>
+class QRubberBand;
 
 #ifndef QT_NO_ITEMVIEWS
 
@@ -220,4 +220,5 @@ inline int qBinarySearch(const QVector<T> &vec, const T &item, int start, int en
 }
 
 #endif // QT_NO_ITEMVIEWS
+
 #endif // QABSTRACTITEMVIEW_P_H

@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include <qglobal.h>
+#include "QtCore/qglobal.h"
 
 static const unsigned char qt_be_inf_bytes[] = { 0x7f, 0xf0, 0, 0, 0, 0, 0, 0 };
 static const unsigned char qt_le_inf_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf0, 0x7f };

@@ -43,11 +43,12 @@
 #ifndef QSJISCODEC_H
 #define QSJISCODEC_H
 
-#include "qtextcodec.h"
 #include "qjpunicode.h"
-#include <qlist.h>
+#include <QtCore/qtextcodec.h>
+#include <QtCore/qlist.h>
 
 #ifndef QT_NO_TEXTCODECPLUGIN
+
 class QSjisCodec : public QTextCodec {
 public:
     static QByteArray _name();
@@ -69,4 +70,5 @@ protected:
 };
 
 #endif // QT_NO_TEXTCODECPLUGIN
+
 #endif // QSJISCODEC_H

@@ -279,4 +279,5 @@ inline QTableWidgetItem *QTableWidget::itemAt(int ax, int ay) const
 { return itemAt(QPoint(ax, ay)); }
 
 #endif // QT_NO_TABLEWIDGET
+
 #endif // QTABLEWIDGET_H

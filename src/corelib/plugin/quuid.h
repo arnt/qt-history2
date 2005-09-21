@@ -14,7 +14,7 @@
 #ifndef QUUID_H
 #define QUUID_H
 
-#include "QtCore/qstring.h"
+#include <QtCore/qstring.h>
 
 QT_MODULE(Core)
 

@@ -16,10 +16,10 @@
 
 #ifdef QT_GUI_LIB
 
-#include "QtGui/qitemdelegate.h"
-#include "QtGui/qlistview.h"
-#include "QtGui/qcombobox.h"
-#include "QtSql/qsqlrelationaltablemodel.h"
+#include <QtGui/qitemdelegate.h>
+#include <QtGui/qlistview.h>
+#include <QtGui/qcombobox.h>
+#include <QtSql/qsqlrelationaltablemodel.h>
 
 QT_MODULE(Sql)
 

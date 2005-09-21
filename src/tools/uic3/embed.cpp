@@ -17,9 +17,9 @@
 #include <qstringlist.h>
 #include <qdatetime.h>
 #include <qfileinfo.h>
+#include <qvector.h>
 #include <stdio.h>
 #include <ctype.h>
-#include <qvector.h>
 
 // on embedded, we do not compress image data. Rationale: by mapping
 // the ready-only data directly into memory we are both faster and

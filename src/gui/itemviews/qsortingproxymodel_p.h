@@ -26,9 +26,9 @@
 //
 //
 
-#include <qnamespace.h>
-#include <private/qmappingproxymodel_p.h>
-#include <qdatetime.h>
+#include "QtCore/qnamespace.h"
+#include "QtCore/qdatetime.h"
+#include "private/qmappingproxymodel_p.h"
 
 class QSortingProxyModelPrivate : private QMappingProxyModelPrivate
 {

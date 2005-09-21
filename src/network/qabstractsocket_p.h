@@ -14,13 +14,24 @@
 #ifndef QABSTRACTSOCKET_P_H
 #define QABSTRACTSOCKET_P_H
 
-#include "qabstractsocket.h"
-#include <private/qinternal_p.h>
-#include <private/qiodevice_p.h>
-#include <qbytearray.h>
-#include <qlist.h>
-#include <private/qnativesocketengine_p.h>
-#include <qtimer.h>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of the QLibrary class.  This header file may change from
+// version to version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include "QtNetwork/qabstractsocket.h"
+#include "QtCore/qbytearray.h"
+#include "QtCore/qlist.h"
+#include "QtCore/qtimer.h"
+#include "private/qinternal_p.h"
+#include "private/qiodevice_p.h"
+#include "private/qnativesocketengine_p.h"
 
 class QHostInfo;
 

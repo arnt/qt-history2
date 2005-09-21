@@ -29,7 +29,7 @@
 #define QINPUTCONTEXTFACTORY_H
 
 #ifndef QT_H
-#include "QtCore/qstringlist.h"
+#include <QtCore/qstringlist.h>
 #endif // QT_H
 
 QT_MODULE(Gui)
@@ -48,6 +48,7 @@ public:
     static QString displayName( const QString &key );
     static QString description( const QString &key );
 };
+
 #endif //QT_NO_IM
 
 #endif //QINPUTCONTEXTFACTORY_H

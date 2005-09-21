@@ -29,9 +29,9 @@
 #define QINPUTCONTEXTPLUGIN_H
 
 #ifndef QT_H
-#include "QtCore/qplugin.h"
-#include "QtCore/qfactoryinterface.h"
-#include "QtCore/qstringlist.h"
+#include <QtCore/qplugin.h>
+#include <QtCore/qfactoryinterface.h>
+#include <QtCore/qstringlist.h>
 #endif // QT_H
 
 QT_MODULE(Gui)

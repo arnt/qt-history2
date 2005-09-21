@@ -31,8 +31,8 @@
 #ifndef QT_NO_IM
 
 #include "qmultiinputcontext.h"
-#include <qinputcontextplugin.h>
-#include <qstringlist.h>
+#include <QtGui/qinputcontextplugin.h>
+#include <QtCore/qstringlist.h>
 
 class QMultiInputContextPlugin : public QInputContextPlugin
 {
@@ -48,5 +48,6 @@ public:
     QString description( const QString &key );
 };
 
-#endif
+#endif // QT_NO_IM
+
 #endif // QMULTIINPUTCONTEXTPLUGIN_H

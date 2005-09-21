@@ -18,10 +18,10 @@
 #error "Must include windows.h first!"
 #endif
 
-#include <qcolor.h>
-#include <qfont.h>
-#include <qdatetime.h>
-#include <qvariant.h>
+#include <QtGui/qcolor.h>
+#include <QtGui/qfont.h>
+#include <QtCore/qdatetime.h>
+#include <QtCore/qvariant.h>
 
 extern GUID IID_IAxServerBase;
 struct IAxServerBase : public IUnknown

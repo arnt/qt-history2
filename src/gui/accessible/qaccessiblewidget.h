@@ -14,7 +14,7 @@
 #ifndef QACCESSIBLEWIDGET_H
 #define QACCESSIBLEWIDGET_H
 
-#include "QtGui/qaccessibleobject.h"
+#include <QtGui/qaccessibleobject.h>
 
 QT_MODULE(Gui)
 
@@ -57,6 +57,6 @@ private:
     QAccessibleWidgetPrivate *d;
 };
 
-#endif //QT_NO_ACCESSIBILITY
+#endif // QT_NO_ACCESSIBILITY
 
-#endif //QACCESSIBLEWIDGET_H
+#endif // QACCESSIBLEWIDGET_H

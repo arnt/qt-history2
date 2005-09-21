@@ -282,6 +282,6 @@ private:
 inline QTreeWidgetItem *QTreeWidget::itemAt(int ax, int ay) const
 { return itemAt(QPoint(ax, ay)); }
 
-
 #endif // QT_NO_TREEWIDGET
+
 #endif // QTREEWIDGET_H

@@ -43,9 +43,9 @@
 #ifndef QEUCJPCODEC_H
 #define QEUCJPCODEC_H
 
-#include "qtextcodec.h"
 #include "qjpunicode.h"
-#include <qlist.h>
+#include <QtCore/qtextcodec.h>
+#include <QtCore/qlist.h>
 
 #ifndef QT_NO_TEXTCODECPLUGIN
 
@@ -70,4 +70,5 @@ protected:
 };
 
 #endif // QT_NO_TEXTCODECPLUGIN
+
 #endif // QEUCJPCODEC_H

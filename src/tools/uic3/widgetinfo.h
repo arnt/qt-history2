@@ -14,7 +14,7 @@
 #ifndef WIDGETINFO_H
 #define WIDGETINFO_H
 
-#include <QtCore/QObject>
+#include <QObject>
 
 class QString;
 struct QMetaObject;

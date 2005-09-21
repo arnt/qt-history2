@@ -25,8 +25,8 @@
 // We mean it.
 //
 
+#include "QtCore/qmap.h"
 #include "private/qsqlquerymodel_p.h"
-#include "qmap.h"
 
 class QSqlTableModelPrivate: public QSqlQueryModelPrivate
 {
@@ -79,4 +79,3 @@ public:
 };
 
 #endif // QSQLTABLEMODEL_P_H
-

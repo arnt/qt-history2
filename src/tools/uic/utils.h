@@ -15,7 +15,6 @@
 #define UTILS_H
 
 #include "ui4.h"
-
 #include <qstring.h>
 #include <qlist.h>
 #include <qhash.h>

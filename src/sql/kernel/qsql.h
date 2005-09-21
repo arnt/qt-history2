@@ -14,7 +14,7 @@
 #ifndef QSQL_H
 #define QSQL_H
 
-#include "QtCore/qglobal.h"
+#include <QtCore/qglobal.h>
 
 QT_MODULE(Sql)
 

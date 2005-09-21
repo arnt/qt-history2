@@ -33,10 +33,10 @@
 
 */
 
-#ifndef TSLIB_MOUSE_HANDLER_H
-#define TSLIB_MOUSE_HANDLER_H
+#ifndef TSLIBMOUSEHANDLER_H
+#define TSLIBMOUSEHANDLER_H
 
-#include <QWSCalibratedMouseHandler>
+#include <QtGui/QWSCalibratedMouseHandler>
 
 #ifdef QT_QWS_TSLIB
 
@@ -70,4 +70,5 @@ private slots:
 };
 
 #endif // QT_QWS_TSLIB
-#endif // TSLIB_MOUSE_HANDLER_H
+
+#endif // TSLIBMOUSEHANDLER_H

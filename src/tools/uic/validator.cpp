@@ -63,4 +63,3 @@ void Validator::acceptAction(DomAction *node)
 
     TreeWalker::acceptAction(node);
 }
-

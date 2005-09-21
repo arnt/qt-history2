@@ -14,7 +14,7 @@
 #ifndef QSQLRESULT_H
 #define QSQLRESULT_H
 
-#include "QtSql/qsql.h"
+#include <QtSql/qsql.h>
 
 QT_MODULE(Sql)
 
@@ -22,8 +22,6 @@ class QString;
 class QSqlRecord;
 template <typename T> class QVector;
 class QVariant;
-
-
 class QSqlDriver;
 class QSqlError;
 class QSqlResultPrivate;

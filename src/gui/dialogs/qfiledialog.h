@@ -234,4 +234,3 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QFileDialog::Options)
 #endif // QT_NO_FILEDIALOG
 
 #endif // QFILEDIALOG_H
-

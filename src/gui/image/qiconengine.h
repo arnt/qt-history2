@@ -14,8 +14,8 @@
 #ifndef QICONENGINE_H
 #define QICONENGINE_H
 
-#include "QtCore/qglobal.h"
-#include "QtGui/qicon.h"
+#include <QtCore/qglobal.h>
+#include <QtGui/qicon.h>
 
 QT_MODULE(Gui)
 

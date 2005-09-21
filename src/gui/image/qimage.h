@@ -14,10 +14,10 @@
 #ifndef QIMAGE_H
 #define QIMAGE_H
 
-#include "QtGui/qrgb.h"
-#include "QtGui/qpaintdevice.h"
-#include "QtCore/qrect.h"
-#include "QtCore/qbytearray.h"
+#include <QtGui/qrgb.h>
+#include <QtGui/qpaintdevice.h>
+#include <QtCore/qrect.h>
+#include <QtCore/qbytearray.h>
 
 QT_MODULE(Gui)
 

@@ -14,9 +14,9 @@
 #ifndef QFTP_H
 #define QFTP_H
 
-#include "QtCore/qstring.h" // char*->QString conversion
-#include "QtNetwork/qurlinfo.h"
-#include "QtCore/qobject.h"
+#include <QtCore/qstring.h>
+#include <QtNetwork/qurlinfo.h>
+#include <QtCore/qobject.h>
 
 QT_MODULE(Network)
 

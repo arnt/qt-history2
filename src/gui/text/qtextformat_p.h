@@ -25,9 +25,9 @@
 // We mean it.
 //
 
-#include "qtextformat.h"
-#include <qvector.h>
-#include <qset.h>
+#include "QtGui/qtextformat.h"
+#include "QtCore/qvector.h"
+#include "QtCore/qset.h"
 
 class QTextFormatCollection
 {

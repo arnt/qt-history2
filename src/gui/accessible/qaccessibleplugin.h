@@ -14,8 +14,8 @@
 #ifndef QACCESSIBLEPLUGIN_H
 #define QACCESSIBLEPLUGIN_H
 
-#include "QtGui/qaccessible.h"
-#include "QtCore/qfactoryinterface.h"
+#include <QtGui/qaccessible.h>
+#include <QtCore/qfactoryinterface.h>
 
 QT_MODULE(Gui)
 

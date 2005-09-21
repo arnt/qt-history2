@@ -14,8 +14,8 @@
 #ifndef QSTYLEPLUGIN_H
 #define QSTYLEPLUGIN_H
 
-#include "QtCore/qplugin.h"
-#include "QtCore/qfactoryinterface.h"
+#include <QtCore/qplugin.h>
+#include <QtCore/qfactoryinterface.h>
 
 QT_MODULE(Gui)
 

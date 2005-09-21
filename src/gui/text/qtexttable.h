@@ -16,7 +16,7 @@
 
 #include <QtCore/qglobal.h>
 #include <QtCore/qobject.h>
-#include "QtGui/qtextobject.h"
+#include <QtGui/qtextobject.h>
 
 QT_MODULE(Gui)
 

@@ -14,7 +14,7 @@
 #ifndef QCOMMONSTYLE_H
 #define QCOMMONSTYLE_H
 
-#include "QtGui/qstyle.h"
+#include <QtGui/qstyle.h>
 
 QT_MODULE(Gui)
 
@@ -54,6 +54,5 @@ public:
 private:
     Q_DISABLE_COPY(QCommonStyle)
 };
-
 
 #endif // QCOMMONSTYLE_H

@@ -14,7 +14,7 @@
 #ifndef QDIALOG_H
 #define QDIALOG_H
 
-#include "QtGui/qwidget.h"
+#include <QtGui/qwidget.h>
 
 QT_MODULE(Gui)
 

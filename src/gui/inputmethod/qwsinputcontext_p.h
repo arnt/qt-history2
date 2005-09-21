@@ -14,7 +14,18 @@
 #ifndef QWSINPUTCONTEXT_P_H
 #define QWSINPUTCONTEXT_P_H
 
-#include "qinputcontext.h"
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of the QLibrary class.  This header file may change from
+// version to version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include "QtGui/qinputcontext.h"
 
 #ifndef QT_NO_QWS_INPUTMETHODS
 
@@ -49,4 +60,5 @@ public:
 };
 
 #endif // QT_NO_QWS_INPUTMETHODS
+
 #endif // QWSINPUTCONTEXT_P_H
