@@ -1766,7 +1766,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             if (opt->state & State_Sunken) {
                 br = QBrush(opt->palette.shadow().color(), Qt::Dense4Pattern);
                 p->setBackground(opt->palette.dark().color());
-                p->setBrush(QBrush(opt->palette.shadow().color(), Qt::Dense4Pattern));
+                p->setBrush(br);
             } else {
                 QPixmap pm = opt->palette.brush(QPalette::Light).texture();
                 br = !pm.isNull() ? QBrush(pm) : QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
