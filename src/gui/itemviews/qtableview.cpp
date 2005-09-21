@@ -967,7 +967,7 @@ int QTableView::sizeHintForColumn(int column) const
 
     int top = qMax(0, rowAt(0));
     int bottom = rowAt(d->viewport->height());
-    if (bottom == -1) // the table don't have enought rows to fill the viewport
+    if (!isVisible() || bottom == -1) // the table don't have enought rows to fill the viewport
         bottom = model()->rowCount(rootIndex()) - 1;
 
     QStyleOptionViewItem option = viewOptions();
