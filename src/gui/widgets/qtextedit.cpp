@@ -1883,7 +1883,52 @@ QRect QTextEditPrivate::selectionRect() const
 {
     QRect r = rectForPosition(cursor.position());
 
-    if (cursor.hasSelection()) {
+    if (cursor.hasComplexSelection() && cursor.currentTable()) {
+        QTextTable *table = cursor.currentTable();
+
+        r = doc->documentLayout()->frameBoundingRect(table).toRect();
+        /*
+        int firstRow, numRows, firstColumn, numColumns;
+        cursor.selectedTableCells(&firstRow, &numRows, &firstColumn, &numColumns);
+
+        const QTextTableCell firstCell = table->cellAt(firstRow, firstColumn);
+        const QTextTableCell lastCell = table->cellAt(firstRow + numRows - 1, firstColumn + numColumns - 1);
+
+        const QAbstractTextDocumentLayout * const layout = doc->documentLayout();
+
+        QRectF tableSelRect = layout->blockBoundingRect(firstCell.firstCursorPosition().block());
+
+        for (int col = firstColumn; col < firstColumn + numColumns; ++col) {
+            const QTextTableCell cell = table->cellAt(firstRow, col);
+            const qreal y = layout->blockBoundingRect(cell.firstCursorPosition().block()).top();
+
+            tableSelRect.setTop(qMin(tableSelRect.top(), y));
+        }
+
+        for (int row = firstRow; row < firstRow + numRows; ++row) {
+            const QTextTableCell cell = table->cellAt(row, firstColumn);
+            const qreal x = layout->blockBoundingRect(cell.firstCursorPosition().block()).left();
+
+            tableSelRect.setLeft(qMin(tableSelRect.left(), x));
+        }
+
+        for (int col = firstColumn; col < firstColumn + numColumns; ++col) {
+            const QTextTableCell cell = table->cellAt(firstRow + numRows - 1, col);
+            const qreal y = layout->blockBoundingRect(cell.lastCursorPosition().block()).bottom();
+
+            tableSelRect.setBottom(qMax(tableSelRect.bottom(), y));
+        }
+
+        for (int row = firstRow; row < firstRow + numRows; ++row) {
+            const QTextTableCell cell = table->cellAt(row, firstColumn + numColumns - 1);
+            const qreal x = layout->blockBoundingRect(cell.lastCursorPosition().block()).right();
+
+            tableSelRect.setRight(qMax(tableSelRect.right(), x));
+        }
+
+        r = tableSelRect.toRect();
+        */
+    } else if (cursor.hasSelection()) {
         const int position = cursor.position();
         const int anchor = cursor.anchor();
         const QTextBlock posBlock = doc->findBlock(position);
