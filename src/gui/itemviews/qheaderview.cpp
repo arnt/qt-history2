@@ -165,7 +165,7 @@ QHeaderView::QHeaderView(Qt::Orientation orientation, QWidget *parent)
     d->orientation = orientation;
     d->defaultSectionSize = (orientation == Qt::Horizontal ? 100 : 30);
     d->defaultAlignment = (orientation == Qt::Horizontal
-                           ? Qt::AlignCenter : Qt::AlignLeft|Qt::AlignVCenter);
+                           ? Qt::Alignment(Qt::AlignCenter) : Qt::AlignLeft|Qt::AlignVCenter);
     initialize();
 }
 
@@ -180,7 +180,7 @@ QHeaderView::QHeaderView(QHeaderViewPrivate &dd,
     d->orientation = orientation;
     d->defaultSectionSize = (orientation == Qt::Horizontal ? 100 : 30);
     d->defaultAlignment = (orientation == Qt::Horizontal
-                           ? Qt::AlignCenter : Qt::AlignLeft|Qt::AlignVCenter);
+                           ? Qt::Alignment(Qt::AlignCenter) : Qt::AlignLeft|Qt::AlignVCenter);
     initialize();
 }
 
