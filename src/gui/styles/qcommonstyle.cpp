@@ -3339,6 +3339,9 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
     int ret = 0;
 
     switch (sh) {
+    case SH_ScrollBar_ContextMenu:
+        ret = true;
+        break;
     case SH_DialogButtons_DefaultButton:
         ret = QDialogButtons::Accept;
         break;

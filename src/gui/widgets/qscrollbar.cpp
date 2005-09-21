@@ -370,6 +370,11 @@ void QScrollBarPrivate::init()
 /*! \reimp */
 void QScrollBar::contextMenuEvent(QContextMenuEvent *event)
 {
+    if (!style()->styleHint(QStyle::SH_ScrollBar_ContextMenu)) {
+        QAbstractSlider::contextMenuEvent(event);
+        return ;
+    }
+
     bool horiz = HORIZONTAL;
     QMenu menu;
         QAction *actScrollHere = 

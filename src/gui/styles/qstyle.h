@@ -555,6 +555,7 @@ public:
         SH_ItemView_EllipsisLocation,
         SH_ItemView_ShowDecorationSelected,
         SH_ItemView_ActivateItemOnSingleClick,
+        SH_ScrollBar_ContextMenu,
         // Add new style hint values here
 
 #ifdef QT3_SUPPORT
