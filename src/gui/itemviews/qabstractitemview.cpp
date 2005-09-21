@@ -32,7 +32,8 @@
 #include <private/qabstractitemview_p.h>
 
 QAbstractItemViewPrivate::QAbstractItemViewPrivate()
-    :   model(0),
+    :   bPaintDropIndicator(false),
+        model(0),
         delegate(0),
         selectionModel(0),
         selectionMode(QAbstractItemView::ExtendedSelection),
@@ -48,8 +49,7 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         autoScrollCount(0),
         layoutPosted(false),
         alternatingColors(false),
-        textElideMode(Qt::ElideRight),
-        bPaintDropIndicator(false)
+        textElideMode(Qt::ElideRight)
 {
 }
 
