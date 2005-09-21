@@ -118,7 +118,7 @@ public:
 #endif
     void setAlternatingRowColors(bool enable);
     bool alternatingRowColors() const;
-    
+
     void setIconSize(const QSize &size);
     QSize iconSize() const;
 
@@ -173,7 +173,7 @@ signals:
     void pressed(const QModelIndex &index);
     void clicked(const QModelIndex &index);
     void doubleClicked(const QModelIndex &index);
-    
+
     void activated(const QModelIndex &index);
     void entered(const QModelIndex &index);
     void viewportEntered();
@@ -209,7 +209,7 @@ protected:
 #ifndef QT_NO_DRAGANDDROP
     virtual void startDrag(Qt::DropActions supportedActions);
 #endif
-    
+
     virtual QStyleOptionViewItem viewOptions() const;
 
     enum State {
@@ -230,7 +230,7 @@ protected:
     void setDirtyRegion(const QRegion &region);
     void scrollDirtyRegion(int dx, int dy);
     QPoint dirtyRegionOffset() const;
-    
+
     void startAutoScroll();
     void stopAutoScroll();
     void doAutoScroll();
@@ -240,7 +240,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseDoubleClickEvent(QMouseEvent *event);
-#ifndef QT_NO_DRAGANDDROP  
+#ifndef QT_NO_DRAGANDDROP
     void dragEnterEvent(QDragEnterEvent *event);
     void dragMoveEvent(QDragMoveEvent *event);
     void dragLeaveEvent(QDragLeaveEvent *event);
@@ -251,6 +251,8 @@ protected:
     void keyPressEvent(QKeyEvent *event);
     void resizeEvent(QResizeEvent *event);
     void timerEvent(QTimerEvent *event);
+
+    bool focusNextPrevChild(bool next);
 
 private:
     Q_DECLARE_PRIVATE(QAbstractItemView)

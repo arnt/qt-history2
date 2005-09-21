@@ -906,16 +906,6 @@ bool QAbstractItemView::viewportEvent(QEvent *event)
     case QEvent::WindowDeactivate:
         d->viewport->update();
         break;
-    case QEvent::KeyPress: {
-        if (!d->tabKeyNavigation)
-            break;
-        // This is to avoid loosing focus on Tab and Backtab
-        QKeyEvent *ke = static_cast<QKeyEvent*>(event);
-        if (ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab) {
-            keyPressEvent(ke);
-            return ke->isAccepted();
-        }
-        break;}
     default:
         break;
     }
@@ -1420,6 +1410,16 @@ void QAbstractItemView::timerEvent(QTimerEvent *event)
     else if (event->timerId() == d->updateTimer.timerId())
         d->updateDirtyRegion();
 }
+
+bool QAbstractItemView::focusNextPrevChild(bool next)
+{
+     Q_D(QAbstractItemView);
+     if (d->tabKeyNavigation && currentIndex().isValid())
+        return false;
+     else
+         return QAbstractScrollArea::focusNextPrevChild(next);
+}
+
 
 /*!
   This convenience function returns a list of all selected and
