@@ -442,10 +442,11 @@ static int miCoalesce(register QRegionPrivate &dest, int prevStart, int curStart
     int curNumRects;    /* Number of rectangles in current band */
     int prevNumRects;   /* Number of rectangles in previous band */
     int bandY1;         /* Y1 coordinate for current band */
+    QRect *rData = dest.rects.data();
 
-    pRegEnd = dest.rects.data() + dest.numRects;
+    pRegEnd = rData + dest.numRects;
 
-    pPrevBox = dest.rects.data() + prevStart;
+    pPrevBox = rData + prevStart;
     prevNumRects = curStart - prevStart;
 
     /*
@@ -453,7 +454,7 @@ static int miCoalesce(register QRegionPrivate &dest, int prevStart, int curStart
      * this because multiple bands could have been added in miRegionOp
      * at the end when one region has been exhausted.
      */
-    pCurBox = dest.rects.data() + curStart;
+    pCurBox = rData + curStart;
     bandY1 = pCurBox->top();
     for (curNumRects = 0; pCurBox != pRegEnd && pCurBox->top() == bandY1; ++curNumRects) {
         ++pCurBox;
@@ -469,8 +470,8 @@ static int miCoalesce(register QRegionPrivate &dest, int prevStart, int curStart
         --pRegEnd;
         while ((pRegEnd - 1)->top() == pRegEnd->top())
             --pRegEnd;
-        curStart = pRegEnd - dest.rects.data();
-        pRegEnd = dest.rects.data() + dest.numRects;
+        curStart = pRegEnd - rData;
+        pRegEnd = rData + dest.numRects;
     }
 
     if (curNumRects == prevNumRects && curNumRects != 0) {
