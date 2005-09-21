@@ -2212,15 +2212,15 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 #ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
         if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
+            QBrush editBrush = (cmb->state & State_Enabled) ? cmb->palette.brush(QPalette::Base)
+                                : cmb->palette.brush(QPalette::Background);
+            if ((cmb->subControls & SC_ComboBoxFrame) && cmb->frame)
+                qDrawWinPanel(p, opt->rect, opt->palette, true, &editBrush);                
+            else
+                p->fillRect(opt->rect, editBrush);            
+
             if (cmb->subControls & SC_ComboBoxArrow) {
                 State flags = State_None;
-
-                QBrush editBrush = (cmb->state & State_Enabled) ? cmb->palette.brush(QPalette::Base)
-                                   : cmb->palette.brush(QPalette::Background);
-                if (cmb->frame)
-                    qDrawWinPanel(p, opt->rect, opt->palette, true, &editBrush);
-                else
-                    p->fillRect(opt->rect, editBrush);
 
                 QRect ar = subControlRect(CC_ComboBox, cmb, SC_ComboBoxArrow, widget);
                 if (cmb->activeSubControls == SC_ComboBoxArrow) {
@@ -2244,6 +2244,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 arrowOpt.state = flags;
                 drawPrimitive(PE_IndicatorArrowDown, &arrowOpt, p, widget);
             }
+
             if (cmb->subControls & SC_ComboBoxEditField) {
                 QRect re = subControlRect(CC_ComboBox, cmb, SC_ComboBoxEditField, widget);
                 if (cmb->state & State_HasFocus && !cmb->editable)
