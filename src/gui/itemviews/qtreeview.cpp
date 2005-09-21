@@ -665,6 +665,8 @@ void QTreeView::paintEvent(QPaintEvent *e)
                 painter.fillRect(left, baseBrush);
         }
     }
+    // Paint the dropIndicator
+    d_func()->paintDropIndicator(&painter);
 }
 
 /*!

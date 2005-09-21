@@ -84,6 +84,21 @@ public:
                 return true;
         return false;
     }
+
+    void paintDropIndicator(QPainter *p)
+    {
+        if (bPaintDropIndicator) {
+            p->save();
+            p->setClipping(true);
+            p->setClipRegion(dropIndicatorRegion);
+            p->fillRect(dropIndicatorRect, Qt::Dense4Pattern);
+            p->restore();
+        }    
+    }
+    
+    QRect dropIndicatorRect;
+    QRegion dropIndicatorRegion;
+    bool bPaintDropIndicator;
 #endif
     
     enum Position { Above, Below, On };
@@ -177,8 +192,6 @@ public:
 
     QSize iconSize;
     Qt::TextElideMode textElideMode;
-
-    QRubberBand *dropIndicator;
 
     QRegion updateRegion; // used for the internal update system
     QBasicTimer updateTimer;

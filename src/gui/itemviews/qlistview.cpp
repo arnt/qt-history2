@@ -972,6 +972,9 @@ void QListView::paintEvent(QPaintEvent *e)
         painter.translate(delta.x(), delta.y());
         d->drawItems(&painter, d->draggedItems);
     }
+    
+    // Paint the dropIndicator
+    d_func()->paintDropIndicator(&painter);
 
 #ifndef QT_NO_RUBBERBAND
     if (d->elasticBand.isValid()) {

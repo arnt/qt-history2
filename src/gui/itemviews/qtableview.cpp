@@ -566,6 +566,9 @@ void QTableView::paintEvent(QPaintEvent *e)
                 painter.fillRect(l, option.palette.brush(QPalette::Base));
         }
     }
+    
+    // Paint the dropIndicator
+    d_func()->paintDropIndicator(&painter);
 }
 
 /*!

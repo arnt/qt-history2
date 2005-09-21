@@ -29,9 +29,6 @@
 #include <qtooltip.h>
 #include <qitemdelegate.h>
 #include <qdatetime.h>
-#include <qrubberband.h>
-#include <qdebug.h>
-
 #include <private/qabstractitemview_p.h>
 
 QAbstractItemViewPrivate::QAbstractItemViewPrivate()
@@ -52,7 +49,7 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         layoutPosted(false),
         alternatingColors(false),
         textElideMode(Qt::ElideRight),
-        dropIndicator(0)
+        bPaintDropIndicator(false)
 {
 }
 
@@ -81,8 +78,6 @@ void QAbstractItemViewPrivate::init()
 
     q->setHorizontalStepsPerItem(64);
     q->setVerticalStepsPerItem(64);
-
-    dropIndicator = new QRubberBand(QRubberBand::Line, q);
 
     doDelayedItemsLayout();
 }
@@ -1094,6 +1089,7 @@ void QAbstractItemView::dragEnterEvent(QDragEnterEvent *event)
         event->ignore();
 }
 
+const int dropIndicatorThickness = 3;
 /*!
     This function is called continuously with the given \a event during a drag and
     drop operation over the widget. It can cause the view to scroll if, for example,
@@ -1112,8 +1108,6 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
         return;
 
     QModelIndex index = indexAt(event->pos());
-    index = model()->sibling(index.row(), 0, index);
-
     if (d->canDecode(event)) {
         if (index.isValid()) {
             // update the drag indicator geometry
@@ -1122,27 +1116,29 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
             switch (d->position(event->pos(), rect, 2)) {
             case QAbstractItemViewPrivate::Above: {
                 updateDropIndicator = true;
-                d->dropIndicator->setGeometry(rect);
+                d->dropIndicatorRect = rect;
+                d->dropIndicatorRegion = QRegion(rect.left(), rect.top(), rect.width(), dropIndicatorThickness);
                 break; }
             case QAbstractItemViewPrivate::Below: {
                 updateDropIndicator = true;
-                d->dropIndicator->setGeometry(rect);
+                d->dropIndicatorRect = rect;
+                d->dropIndicatorRegion = QRegion(rect.left(), rect.bottom() - dropIndicatorThickness + 1, rect.width(), dropIndicatorThickness);
                 break; }
             case QAbstractItemViewPrivate::On: {
                 if (model()->flags(index) & Qt::ItemIsDropEnabled) {
                     updateDropIndicator = true;
-                    d->dropIndicator->setGeometry(rect);
-                    QRegion top(0, 0, rect.width(), 3);
-                    QRegion left(0, 0, 3, rect.height());
-                    QRegion bottom(0, rect.height() - 3, rect.width(), 3);
-                    QRegion right(rect.width() - 3, 0, 3, rect.height());
-                    d->dropIndicator->setMask(top + left + bottom + right);
+                    d->dropIndicatorRect = rect;
+                    QRegion top(rect.left(), rect.top(), rect.width(), dropIndicatorThickness);
+                    QRegion left(rect.left(), rect.top(), dropIndicatorThickness, rect.height());
+                    QRegion bottom(rect.left(), rect.bottom() - dropIndicatorThickness + 1, rect.width(), dropIndicatorThickness);
+                    QRegion right(rect.right() - dropIndicatorThickness + 1, rect.top(), dropIndicatorThickness, rect.height());
+                    d->dropIndicatorRegion = top + left + bottom + right;
                 }
                 break; }
             }
-            if (updateDropIndicator && !d->dropIndicator->isVisible() && d->showDropIndicator) {
-                d->dropIndicator->show();
-                d->dropIndicator->raise();
+            if (updateDropIndicator && d->showDropIndicator) {
+                d->bPaintDropIndicator = true;
+                update();
             }
             event->accept(); // allow dropping on dropenabled items
         } else {
@@ -1163,7 +1159,8 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
 void QAbstractItemView::dragLeaveEvent(QDragLeaveEvent *)
 {
     stopAutoScroll();
-    d_func()->dropIndicator->hide();
+    d_func()->bPaintDropIndicator = false;
+    update();
 }
 
 /*!
@@ -1209,7 +1206,8 @@ void QAbstractItemView::dropEvent(QDropEvent *event)
             event->acceptProposedAction();
     }
     stopAutoScroll();
-    d->dropIndicator->hide();
+    d_func()->bPaintDropIndicator = false;
+    update();
 }
 
 #endif // QT_NO_DRAGANDDROP
@@ -2150,8 +2148,10 @@ void QAbstractItemView::doAutoScroll()
     bool horizontalUnchanged = (horizontalValue == horizontalScrollBar()->value());
     if (verticalUnchanged && horizontalUnchanged)
         stopAutoScroll();
-    else
-        d->dropIndicator->hide();
+    else {
+        d->bPaintDropIndicator = false;
+        update();
+    }
 }
 
 /*!
