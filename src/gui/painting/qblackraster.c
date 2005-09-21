@@ -357,33 +357,6 @@ typedef struct  TBand_
     ( ( sizeof ( TProfile ) + ( sizeof ( TProfile ) % sizeof ( Alignment ) ) ) / sizeof ( Long ) )
 
 
-#ifdef TT_STATIC_RASTER
-
-
-#define RAS_ARGS       /* void */
-#define RAS_ARG        /* void */
-
-#define RAS_VARS       /* void */
-#define RAS_VAR        /* void */
-
-#define QT_FT_UNUSED_RASTER  do ; while ( 0 )
-
-
-#else /* TT_STATIC_RASTER */
-
-
-#define RAS_ARGS       TRaster_Instance*  raster,
-#define RAS_ARG        TRaster_Instance*  raster
-
-#define RAS_VARS       raster,
-#define RAS_VAR        raster
-
-#define QT_FT_UNUSED_RASTER  QT_FT_UNUSED( raster )
-
-
-#endif /* TT_STATIC_RASTER */
-
-
 typedef struct TRaster_Instance_  TRaster_Instance;
 
 
@@ -478,7 +451,7 @@ struct  TRaster_Instance_
 /*   profile.                                                            */
 /*                                                                       */
 static Bool
-New_Profile( RAS_ARGS TStates  aState )
+New_Profile( TRaster_Instance*  raster, TStates  aState )
 {
     if ( !ras.fProfile )
     {
@@ -538,7 +511,7 @@ New_Profile( RAS_ARGS TStates  aState )
 /*    SUCCESS on success.  FAILURE in case of overflow or incoherency.   */
 /*                                                                       */
 static Bool
-End_Profile( RAS_ARG )
+End_Profile( TRaster_Instance*  raster )
 {
     Long      h;
     PProfile  oldProfile;
@@ -595,7 +568,7 @@ End_Profile( RAS_ARG )
 /*    SUCCESS on success.  FAILURE in case of overflow.                  */
 /*                                                                       */
 static Bool
-Insert_Y_Turn( RAS_ARGS Int  y )
+Insert_Y_Turn( TRaster_Instance*  raster, Int  y )
 {
     PLong  y_turns;
     Int    y2, n;
@@ -646,7 +619,7 @@ Insert_Y_Turn( RAS_ARGS Int  y )
 /*    SUCCESS on success.  FAILURE in case of overflow.                  */
 /*                                                                       */
 static Bool
-Finalize_Profile_Table( RAS_ARG )
+Finalize_Profile_Table( TRaster_Instance*  raster )
 {
     Int       bottom, top;
     UShort    n;
@@ -680,8 +653,8 @@ Finalize_Profile_Table( RAS_ARG )
                 top    = (Int)( p->start + p->height - 1 );
             }
 
-            if ( Insert_Y_Turn( RAS_VARS bottom )   ||
-                 Insert_Y_Turn( RAS_VARS top + 1 )  )
+            if ( Insert_Y_Turn( raster, bottom )   ||
+                 Insert_Y_Turn( raster, top + 1 )  )
                 return FAILURE;
 
             p = p->link;
@@ -801,7 +774,7 @@ Split_Cubic( TPoint*  base )
 /*    SUCCESS on success, FAILURE on render pool overflow.               */
 /*                                                                       */
 static Bool
-Line_Up( RAS_ARGS Long  x1,
+Line_Up( TRaster_Instance*  raster, Long  x1,
          Long  y1,
          Long  x2,
          Long  y2,
@@ -939,7 +912,7 @@ Line_Up( RAS_ARGS Long  x1,
 /*    SUCCESS on success, FAILURE on render pool overflow.               */
 /*                                                                       */
 static Bool
-Line_Down( RAS_ARGS Long  x1,
+Line_Down( TRaster_Instance*  raster, Long  x1,
            Long  y1,
            Long  x2,
            Long  y2,
@@ -951,7 +924,7 @@ Line_Down( RAS_ARGS Long  x1,
 
     fresh  = ras.fresh;
 
-    result = Line_Up( RAS_VARS x1, -y1, x2, -y2, -maxy, -miny );
+    result = Line_Up( raster, x1, -y1, x2, -y2, -maxy, -miny );
 
     if ( fresh && !ras.fresh )
         ras.cProfile->start = -ras.cProfile->start;
@@ -986,7 +959,7 @@ typedef void  (*TSplitter)( TPoint*  base );
 /*    SUCCESS on success, FAILURE on render pool overflow.               */
 /*                                                                       */
 static Bool
-Bezier_Up( RAS_ARGS Int        degree,
+Bezier_Up( TRaster_Instance*  raster, Int        degree,
            TSplitter  splitter,
            Long       miny,
            Long       maxy )
@@ -1113,7 +1086,7 @@ Fin:
 /*    SUCCESS on success, FAILURE on render pool overflow.               */
 /*                                                                       */
 static Bool
-Bezier_Down( RAS_ARGS Int        degree,
+Bezier_Down( TRaster_Instance*  raster, Int        degree,
              TSplitter  splitter,
              Long       miny,
              Long       maxy )
@@ -1130,7 +1103,7 @@ Bezier_Down( RAS_ARGS Int        degree,
 
     fresh = ras.fresh;
 
-    result = Bezier_Up( RAS_VARS degree, splitter, -maxy, -miny );
+    result = Bezier_Up( raster, degree, splitter, -maxy, -miny );
 
     if ( fresh && !ras.fresh )
         ras.cProfile->start = -ras.cProfile->start;
@@ -1160,7 +1133,7 @@ Bezier_Down( RAS_ARGS Int        degree,
 /*   profile.                                                            */
 /*                                                                       */
 static Bool
-Line_To( RAS_ARGS Long  x,
+Line_To( TRaster_Instance*  raster, Long  x,
          Long  y )
 {
     /* First, detect a change of direction */
@@ -1171,13 +1144,13 @@ Line_To( RAS_ARGS Long  x,
     case Unknown_State:
         if ( y > ras.lastY )
         {
-            if ( New_Profile( RAS_VARS Ascending_State ) )
+            if ( New_Profile( raster, Ascending_State ) )
                 return FAILURE;
         }
         else
         {
             if ( y < ras.lastY )
-                if ( New_Profile( RAS_VARS Descending_State ) )
+                if ( New_Profile( raster, Descending_State ) )
                     return FAILURE;
         }
         break;
@@ -1185,8 +1158,8 @@ Line_To( RAS_ARGS Long  x,
     case Ascending_State:
         if ( y < ras.lastY )
         {
-            if ( End_Profile( RAS_VAR )                   ||
-                 New_Profile( RAS_VARS Descending_State ) )
+            if ( End_Profile( raster )                   ||
+                 New_Profile( raster, Descending_State ) )
                 return FAILURE;
         }
         break;
@@ -1194,8 +1167,8 @@ Line_To( RAS_ARGS Long  x,
     case Descending_State:
         if ( y > ras.lastY )
         {
-            if ( End_Profile( RAS_VAR )                  ||
-                 New_Profile( RAS_VARS Ascending_State ) )
+            if ( End_Profile( raster )                  ||
+                 New_Profile( raster, Ascending_State ) )
                 return FAILURE;
         }
         break;
@@ -1209,13 +1182,13 @@ Line_To( RAS_ARGS Long  x,
     switch ( ras.state )
     {
     case Ascending_State:
-        if ( Line_Up( RAS_VARS ras.lastX, ras.lastY,
+        if ( Line_Up( raster, ras.lastX, ras.lastY,
                       x, y, ras.minY, ras.maxY ) )
             return FAILURE;
         break;
 
     case Descending_State:
-        if ( Line_Down( RAS_VARS ras.lastX, ras.lastY,
+        if ( Line_Down( raster, ras.lastX, ras.lastY,
                         x, y, ras.minY, ras.maxY ) )
             return FAILURE;
         break;
@@ -1255,7 +1228,7 @@ Line_To( RAS_ARGS Long  x,
 /*   profile.                                                            */
 /*                                                                       */
 static Bool
-Conic_To( RAS_ARGS Long  cx,
+Conic_To( TRaster_Instance*  raster, Long  cx,
           Long  cy,
           Long  x,
           Long  y )
@@ -1311,22 +1284,22 @@ Conic_To( RAS_ARGS Long  cx,
             {
                 /* finalize current profile if any */
                 if ( ras.state != Unknown_State   &&
-                     End_Profile( RAS_VAR ) )
+                     End_Profile( raster ) )
                     goto Fail;
 
                 /* create a new profile */
-                if ( New_Profile( RAS_VARS state_bez ) )
+                if ( New_Profile( raster, state_bez ) )
                     goto Fail;
             }
 
             /* now call the appropriate routine */
             if ( state_bez == Ascending_State )
             {
-                if ( Bezier_Up( RAS_VARS 2, Split_Conic, ras.minY, ras.maxY ) )
+                if ( Bezier_Up( raster, 2, Split_Conic, ras.minY, ras.maxY ) )
                     goto Fail;
             }
             else
-                if ( Bezier_Down( RAS_VARS 2, Split_Conic, ras.minY, ras.maxY ) )
+                if ( Bezier_Down( raster, 2, Split_Conic, ras.minY, ras.maxY ) )
                     goto Fail;
         }
 
@@ -1370,7 +1343,7 @@ Fail:
 /*   profile.                                                            */
 /*                                                                       */
 static Bool
-Cubic_To( RAS_ARGS Long  cx1,
+Cubic_To( TRaster_Instance*  raster, Long  cx1,
           Long  cy1,
           Long  cx2,
           Long  cy2,
@@ -1441,21 +1414,21 @@ Cubic_To( RAS_ARGS Long  cx1,
             if ( ras.state != state_bez )
             {
                 if ( ras.state != Unknown_State   &&
-                     End_Profile( RAS_VAR ) )
+                     End_Profile( raster ) )
                     goto Fail;
 
-                if ( New_Profile( RAS_VARS state_bez ) )
+                if ( New_Profile( raster, state_bez ) )
                     goto Fail;
             }
 
             /* compute intersections */
             if ( state_bez == Ascending_State )
             {
-                if ( Bezier_Up( RAS_VARS 3, Split_Cubic, ras.minY, ras.maxY ) )
+                if ( Bezier_Up( raster, 3, Split_Cubic, ras.minY, ras.maxY ) )
                     goto Fail;
             }
             else
-                if ( Bezier_Down( RAS_VARS 3, Split_Cubic, ras.minY, ras.maxY ) )
+                if ( Bezier_Down( raster, 3, Split_Cubic, ras.minY, ras.maxY ) )
                     goto Fail;
         }
 
@@ -1504,7 +1477,7 @@ Fail:
 /*    SUCCESS on success, FAILURE on error.                              */
 /*                                                                       */
 static Bool
-Decompose_Curve( RAS_ARGS UShort  first,
+Decompose_Curve( TRaster_Instance*  raster, UShort  first,
                  UShort  last,
                  int     flipped )
 {
@@ -1590,7 +1563,7 @@ Decompose_Curve( RAS_ARGS UShort  first,
             if ( flipped )
                 SWAP_( x, y );
 
-            if ( Line_To( RAS_VARS x, y ) )
+            if ( Line_To( raster, x, y ) )
                 goto Fail;
             continue;
         }
@@ -1621,7 +1594,7 @@ Decompose_Curve( RAS_ARGS UShort  first,
 
                 if ( tag == QT_FT_CURVE_TAG_ON )
                 {
-                    if ( Conic_To( RAS_VARS v_control.x, v_control.y, x, y ) )
+                    if ( Conic_To( raster, v_control.x, v_control.y, x, y ) )
                         goto Fail;
                     continue;
                 }
@@ -1632,7 +1605,7 @@ Decompose_Curve( RAS_ARGS UShort  first,
                 v_middle.x = ( v_control.x + x ) / 2;
                 v_middle.y = ( v_control.y + y ) / 2;
 
-                if ( Conic_To( RAS_VARS v_control.x, v_control.y,
+                if ( Conic_To( raster, v_control.x, v_control.y,
                                v_middle.x,  v_middle.y ) )
                     goto Fail;
 
@@ -1642,7 +1615,7 @@ Decompose_Curve( RAS_ARGS UShort  first,
                 goto Do_Conic;
             }
 
-            if ( Conic_To( RAS_VARS v_control.x, v_control.y,
+            if ( Conic_To( raster, v_control.x, v_control.y,
                            v_start.x,   v_start.y ) )
                 goto Fail;
 
@@ -1676,12 +1649,12 @@ Decompose_Curve( RAS_ARGS UShort  first,
 
             if ( point <= limit )
             {
-                if ( Cubic_To( RAS_VARS x1, y1, x2, y2, x3, y3 ) )
+                if ( Cubic_To( raster, x1, y1, x2, y2, x3, y3 ) )
                     goto Fail;
                 continue;
             }
 
-            if ( Cubic_To( RAS_VARS x1, y1, x2, y2, v_start.x, v_start.y ) )
+            if ( Cubic_To( raster, x1, y1, x2, y2, v_start.x, v_start.y ) )
                 goto Fail;
             goto Close;
         }
@@ -1689,7 +1662,7 @@ Decompose_Curve( RAS_ARGS UShort  first,
     }
 
     /* close the contour with a line segment */
-    if ( Line_To( RAS_VARS v_start.x, v_start.y ) )
+    if ( Line_To( raster, v_start.x, v_start.y ) )
         goto Fail;
 
 Close:
@@ -1720,7 +1693,7 @@ Fail:
 /*    rendering.                                                         */
 /*                                                                       */
 static Bool
-Convert_Glyph( RAS_ARGS int  flipped )
+Convert_Glyph( TRaster_Instance*  raster, int  flipped )
 {
     int       i;
     unsigned  start;
@@ -1746,7 +1719,7 @@ Convert_Glyph( RAS_ARGS int  flipped )
         ras.state    = Unknown_State;
         ras.gProfile = NULL;
 
-        if ( Decompose_Curve( RAS_VARS (unsigned short)start,
+        if ( Decompose_Curve( raster, (unsigned short)start,
                               ras.outline.contours[i],
                               flipped ) )
             return FAILURE;
@@ -1757,12 +1730,12 @@ Convert_Glyph( RAS_ARGS int  flipped )
         /* to be drawn.                                                   */
 
         lastProfile = ras.cProfile;
-        if ( End_Profile( RAS_VAR ) )
+        if ( End_Profile( raster ) )
             return FAILURE;
 
     }
 
-    if ( Finalize_Profile_Table( RAS_VAR ) )
+    if ( Finalize_Profile_Table( raster ) )
         return FAILURE;
 
     return (Bool)( ras.top < ras.maxBuff ? SUCCESS : FAILURE );
@@ -1919,7 +1892,7 @@ Sort( PProfileList  list )
 /*************************************************************************/
 
 static Bool
-Draw_Sweep( RAS_ARG )
+Draw_Sweep( TRaster_Instance*  raster )
 {
     Short         y, y_change, y_height;
 
@@ -2116,12 +2089,6 @@ Draw_Sweep( RAS_ARG )
     if (span_count > 0)
         ras.black_spans(span_count, spans, ras.user_data);
 
-    /* for gray-scaling, flushes the bitmap scanline cache */
-    while ( y <= max_Y )
-    {
-        y++;
-    }
-
     return SUCCESS;
 }
 
@@ -2141,7 +2108,7 @@ Draw_Sweep( RAS_ARG )
 /*    Renderer error code.                                               */
 /*                                                                       */
 static int
-Render_Single_Pass( RAS_ARGS Bool  flipped )
+Render_Single_Pass( TRaster_Instance*  raster, Bool  flipped )
 {
     Short  i, j, k;
 
@@ -2155,7 +2122,7 @@ Render_Single_Pass( RAS_ARGS Bool  flipped )
 
         ras.error = Raster_Err_None;
 
-        if ( Convert_Glyph( RAS_VARS flipped ) )
+        if ( Convert_Glyph( raster, flipped ) )
         {
             if ( ras.error != Raster_Err_Overflow )
                 return FAILURE;
@@ -2165,7 +2132,7 @@ Render_Single_Pass( RAS_ARGS Bool  flipped )
             /* sub-banding */
 
 #ifdef DEBUG_RASTER
-            ClearBand( RAS_VARS TRUNC( ras.minY ), TRUNC( ras.maxY ) );
+            ClearBand( raster, TRUNC( ras.minY ), TRUNC( ras.maxY ) );
 #endif
 
             i = ras.band_stack[ras.band_top].y_min;
@@ -2191,7 +2158,7 @@ Render_Single_Pass( RAS_ARGS Bool  flipped )
         else
         {
             if ( ras.fProfile )
-                if ( Draw_Sweep( RAS_VAR ) )
+                if ( Draw_Sweep( raster ) )
                     return ras.error;
             ras.band_top--;
         }
@@ -2213,7 +2180,7 @@ Render_Single_Pass( RAS_ARGS Bool  flipped )
 /*    FreeType error code.  0 means success.                             */
 /*                                                                       */
 QT_FT_LOCAL_DEF( QT_FT_Error )
-    Render_Glyph( RAS_ARG )
+    Render_Glyph( TRaster_Instance*  raster )
 {
     QT_FT_Error  error;
 
@@ -2223,7 +2190,7 @@ QT_FT_LOCAL_DEF( QT_FT_Error )
     ras.band_stack[0].y_min = (short) (ras.clip_box.yMin);
     ras.band_stack[0].y_max = (short) (ras.clip_box.yMax - ras.clip_box.yMin - 1);
 
-    if ( ( error = Render_Single_Pass( RAS_VARS 0 ) ) != 0 )
+    if ( ( error = Render_Single_Pass( raster, 0 ) ) != 0 )
         return error;
 
     QT_FT_TRACE6("End Render_Glyph:\n\n");
