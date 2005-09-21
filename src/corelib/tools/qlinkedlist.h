@@ -17,6 +17,11 @@
 #include "QtCore/qiterator.h"
 #include "QtCore/qatomic.h"
 
+#ifndef QT_NO_STL
+#include <iterator>
+#include <list>
+#endif
+
 QT_MODULE(Core)
 
 struct Q_CORE_EXPORT QLinkedListData
@@ -172,6 +177,13 @@ public:
     typedef const value_type *const_pointer;
     typedef value_type &reference;
     typedef const value_type &const_reference;
+
+#ifndef QT_NO_STL
+    static inline QLinkedList<T> fromStdList(const std::list<T> &list)
+    { QLinkedList<T> tmp; qCopy(list.begin(), list.end(), std::back_inserter(tmp)); return tmp; }
+    inline std::list<T> toStdList() const
+    { std::list<T> tmp; qCopy(constBegin(), constEnd(), std::back_inserter(tmp)); return tmp; }
+#endif
 
 #ifdef QT3_SUPPORT
     // compatibility
