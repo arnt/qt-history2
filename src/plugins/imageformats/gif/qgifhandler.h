@@ -19,10 +19,9 @@
 #ifndef QGIFHANDLER_H
 #define QGIFHANDLER_H
 
-#include "qimageiohandler.h"
-
-#include <qbytearray.h>
-#include <qimage.h>
+#include <QtGui/qimageiohandler.h>
+#include <QtGui/qimage.h>
+#include <QtCore/qbytearray.h>
 
 class QGIFFormat;
 class QGifHandler : public QImageIOHandler
