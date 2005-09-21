@@ -913,6 +913,14 @@ QPaintEngine *QPrinter::paintEngine() const
 #endif
 }
 
+/*!
+    Returns the print engine used by the printer.
+*/
+QPrintEngine *QPrinter::printEngine() const
+{
+    Q_D(const QPrinter);
+    return d->printEngine;
+}
 
 #if defined (Q_WS_WIN)
 /*!
@@ -1487,6 +1495,10 @@ bool QPrinter::isOptionEnabled( PrinterOption option ) const
 
     \value PPK_WindowsPageSize An integer specifying a DM_PAPER entry
     on Windows.
+
+    \value PPK_SupressSystemPrintStatus Suppress the built-in dialog for showing
+    printing progress. As of 4.1 this only has effect on Mac OS X where, by default,
+    a status dialog is shown.
 
     \value PPK_CustomBase Basis for extension.
 */

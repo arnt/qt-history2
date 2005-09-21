@@ -91,6 +91,7 @@ public:
     bool fullPage;
     GWorldPtr qdHandle;
     QPaintEngine *paintEngine;
+    bool suppressStatus;
     QMacPrintEnginePrivate() : mode(QPrinter::ScreenResolution), state(QPrinter::Idle),
                                orient(QPrinter::Portrait), format(0), settings(0), session(0),
                                qdHandle(0), paintEngine(0) {}

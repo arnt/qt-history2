@@ -27,6 +27,7 @@ QT_MODULE(Gui)
 
 class QPrinterPrivate;
 class QPaintEngine;
+class QPrintEngine;
 
 class Q_GUI_EXPORT QPrinter : public QPaintDevice
 {
@@ -144,6 +145,8 @@ public:
     PrinterState printerState() const;
 
     QPaintEngine *paintEngine() const;
+
+    QPrintEngine *printEngine() const;
 
 #ifdef Q_WS_WIN
     HDC getDC() const;

@@ -46,8 +46,10 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
             return false;
         }
     }
+    OSStatus status = d->suppressStatus ? PMSessionBeginDocumentNoDialog(d->session, d->settings, d->format)
+                                        : PMSessionBeginDocument(d->session, d->settings, d->format);
 
-    if (PMSessionBeginDocument(d->session, d->settings, d->format) != noErr) {
+    if (status != noErr) {
         d->state = QPrinter::Error;
         return false;
     }
@@ -65,8 +67,13 @@ bool QMacPrintEngine::end()
         static_cast<QCoreGraphicsPaintEngine*>(d->paintEngine)->d_func()->hd = 0;
     d->paintEngine->end();
     if (d->state != QPrinter::Idle) {
-        PMSessionEndPage(d->session);
-        PMSessionEndDocument(d->session);
+        if (d->suppressStatus) {
+            PMSessionEndPageNoDialog(d->session);
+            PMSessionEndDocumentNoDialog(d->session);
+        } else {
+            PMSessionEndPage(d->session);
+            PMSessionEndDocument(d->session);
+        }
         PMRelease(d->session);
     }
     d->state  = QPrinter::Idle;
@@ -211,7 +218,8 @@ bool QMacPrintEngine::newPage()
 {
     Q_D(QMacPrintEngine);
     Q_ASSERT(d->state == QPrinter::Active);
-    OSStatus err = PMSessionEndPage(d->session);
+    OSStatus err = d->suppressStatus ? PMSessionEndPageNoDialog(d->session)
+                                     : PMSessionEndPage(d->session);
     if (err != noErr)  {
         qWarning("QMacPrintEngine::newPage: Cannot end current page. %ld", err);
         d->state = QPrinter::Error;
@@ -334,6 +342,7 @@ void QMacPrintEnginePrivate::initialize()
 #else
     paintEngine = new QCoreGraphicsPaintEngine();
 #endif
+    suppressStatus = false;
 
     q->gccaps = paintEngine->gccaps;
 
@@ -369,7 +378,7 @@ void QMacPrintEnginePrivate::initialize()
         CFStringRef strings[1] = { kPMGraphicsContextCoreGraphics };
         QCFType<CFArrayRef> contextArray = CFArrayCreate(kCFAllocatorDefault,
                                                          reinterpret_cast<const void **>(strings),
-                                                     1, &kCFTypeArrayCallBacks);
+                                                         1, &kCFTypeArrayCallBacks);
         OSStatus err = PMSessionSetDocumentFormatGeneration(session, kPMDocumentFormatPDF,
                                                             contextArray, 0);
         if(err != noErr) {
@@ -392,7 +401,10 @@ bool QMacPrintEnginePrivate::newPage_helper()
         abort();
         return false;
     }
-    if(PMSessionBeginPage(session, format, 0) != noErr) {
+
+    OSStatus status = suppressStatus ? PMSessionBeginPageNoDialog(session, format, 0)
+                                     : PMSessionBeginPage(session, format, 0);
+    if(status != noErr) {
         state = QPrinter::Error;
         return false;
     }
@@ -543,6 +555,9 @@ void QMacPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &va
         if (status == noErr)
             qWarning("QMacPrintEngine::setPrinterName: Error setting printer %ld", status);
         break; }
+    case PPK_SuppressSystemPrintStatus:
+        d->suppressStatus = value.toBool();
+        break;
     default:
         break;
     }
