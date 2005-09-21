@@ -60,9 +60,9 @@ public:
     QFixed &operator=(int i) { val = (i<<6); return *this; }
     QFixed &operator=(long i) { val = (i<<6); return *this; }
 
-    static QFixed fromReal(qreal r) { QFixed f; f.val = (int)(r*64.); return f; }
+    static QFixed fromReal(qreal r) { QFixed f; f.val = (int)(r*qreal(64)); return f; }
     static QFixed fromFixed(int fixed) { QFixed f; f.val = fixed; return f; }
-    
+
     inline int value() const { return val; }
     inline void setValue(int value) { val = value; }
 
@@ -73,7 +73,7 @@ public:
     inline QFixed round() const { QFixed f; f.val = ((val)+32) & -64; return f; }
     inline QFixed floor() const { QFixed f; f.val = (val) & -64; return f; }
     inline QFixed ceil() const { QFixed f; f.val = (val+63) & -64; return f; }
- 
+
     inline QFixed operator+(int i) const { QFixed f; f.val = (val + (i<<6)); return f; }
     inline QFixed operator+(uint i) const { QFixed f; f.val = (val + (i<<6)); return f; }
     inline QFixed operator+(const QFixed &other) const { QFixed f; f.val = (val + other.val); return f; }
@@ -87,7 +87,7 @@ public:
     inline QFixed &operator-=(uint i) { val -= (i<<6); return *this; }
     inline QFixed &operator-=(const QFixed &other) { val -= other.val; return *this; }
     inline QFixed operator-() const { QFixed f; f.val = -val; return f; }
- 
+
     inline bool operator==(const QFixed &other) const { return val == other.val; }
     inline bool operator!=(const QFixed &other) const { return val != other.val; }
     inline bool operator<(const QFixed &other) const { return val < other.val; }
@@ -108,7 +108,7 @@ public:
             if (b < 0) { b = -b; neg = !neg; }
 
             int res = (int)(((a << 6) + (b >> 1)) / b);
-            
+
             val = (neg ? -res : res);
         }
         return *this;
@@ -133,11 +133,11 @@ public:
     inline QFixed operator*(const QFixed &o) const { QFixed f = *this; return (f *= o); }
 
 private:
-    QFixed(qreal i) : val((int)(i*64.)) {}
-    QFixed &operator=(qreal i) { val = (int)(i*64.); return *this; }
-    inline QFixed operator+(qreal i) const { QFixed f; f.val = (val + (int)(i*64.)); return f; }
+    QFixed(qreal i) : val((int)(i*qreal(64))) {}
+    QFixed &operator=(qreal i) { val = (int)(i*qreal(64)); return *this; }
+    inline QFixed operator+(qreal i) const { QFixed f; f.val = (val + (int)(i*qreal(64))); return f; }
     inline QFixed &operator+=(qreal i) { val += (int)(i*64); return *this; }
-    inline QFixed operator-(qreal i) const { QFixed f; f.val = (val - (int)(i*64.)); return f; }
+    inline QFixed operator-(qreal i) const { QFixed f; f.val = (val - (int)(i*qreal(64))); return f; }
     inline QFixed &operator-=(qreal i) { val -= (int)(i*64); return *this; }
     inline QFixed &operator/=(qreal r) { val = (int)(val/r); return *this; }
     inline QFixed operator/(qreal d) const { QFixed f; f.val = (int)(val/d); return f; }
