@@ -510,7 +510,7 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
 
 
     QPixmap pixmap = originalPixmap;
-    bool stretched = sr.width() != pixmap.width() || sr.height() != pixmap.height();
+    bool stretched = r.width() != pixmap.width() || r.height() != pixmap.height();
 
     if (stretched) {
         pixmap = pixmap.copy(sr.toRect());
