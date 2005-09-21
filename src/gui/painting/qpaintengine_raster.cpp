@@ -96,7 +96,7 @@ enum LineDrawMode {
     LineDrawIncludeLastPixel
 };
 
-static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, QSpanData *data,
+static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans span_func, QSpanData *data,
                                 LineDrawMode style, const QRect &devRect);
 // static void drawLine_midpoint_f(const QLineF &line, qt_span_func span_func, void *data,
 //                                 LineDrawMode style, const QRect &devRect);
@@ -1043,8 +1043,8 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             for (int i=1; i<pointCount; ++i) {
                 QPointF lp1 = points[i-1] * d->matrix;
                 QPointF lp2 = points[i] * d->matrix;
-                drawLine_midpoint_i(QLine(qFloor(lp1.x()), qFloor(lp1.y()),
-                                          qFloor(lp2.x()), qFloor(lp2.y())),
+                drawLine_midpoint_i(qFloor(lp1.x()), qFloor(lp1.y()),
+                                    qFloor(lp2.x()), qFloor(lp2.y()),
                                     d->penData.blend, &d->penData,
                                     i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
                                     devRect);
@@ -1054,8 +1054,8 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             if (needs_closing) {
                 QPointF lp1 = points[pointCount-1] * d->matrix;
                 QPointF lp2 = points[0] * d->matrix;
-                drawLine_midpoint_i(QLine(qFloor(lp1.x()), qFloor(lp1.y()),
-                                          qFloor(lp2.x()), qFloor(lp2.y())),
+                drawLine_midpoint_i(qFloor(lp1.x()), qFloor(lp1.y()),
+                                    qFloor(lp2.x()), qFloor(lp2.y()),
                                     d->penData.blend, &d->penData, LineDrawIncludeLastPixel,
                                     devRect);
             }
@@ -1081,6 +1081,74 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 
             d->outlineMapper->setMatrix(d->matrix, d->txop);
         }
+    }
+
+}
+
+void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
+{
+    Q_D(QRasterPaintEngine);
+    if (1 || !(d->int_xform && d->fast_pen)) {
+        // this calls the float version
+        QPaintEngine::drawPolygon(points, pointCount, mode);
+        return;
+    }
+        
+#ifdef QT_DEBUG_DRAW
+    qDebug(" - QRasterPaintEngine::drawPolygon(), pointCount=%d", pointCount);
+    for (int i=0; i<pointCount; ++i)
+        qDebug() << "   - " << points[i];
+#endif
+    Q_ASSERT(pointCount >= 2);
+
+    // Do the fill
+    if (d->brushData.blend && mode != PolylineMode) {
+
+        // Compose polygon fill..,
+        d->outlineMapper->beginOutline(mode == WindingMode ? Qt::WindingFill : Qt::OddEvenFill);
+        d->outlineMapper->moveTo(*points);
+        const QPoint *p = points;
+        const QPoint *ep = points + pointCount - 1;
+        do {
+            d->outlineMapper->lineTo(*(++p));
+        } while (p < ep);
+        d->outlineMapper->endOutline();
+
+        // scanconvert.
+        d->rasterize(&d->outlineMapper->m_outline, d->brushData.blend, &d->brushData);
+    }
+
+    // Do the outline...
+    if (d->penData.blend) {
+
+        bool needs_closing = mode != PolylineMode && points[0] != points[pointCount-1];
+        
+        QRect devRect(0, 0, d->deviceRect.width(), d->deviceRect.height());
+
+        LineDrawMode mode_for_last = (d->pen.capStyle() != Qt::FlatCap
+                                      ? LineDrawIncludeLastPixel
+                                      : LineDrawNormal);
+
+        int dx = int(d->matrix.dx());
+        int dy = int(d->matrix.dy());
+            
+        // Draw the all the line segments.
+        for (int i=1; i<pointCount; ++i) {
+            drawLine_midpoint_i(points[i-1].x() + dx, points[i-1].y() + dy, 
+                                points[i].x() + dx, points[i].y() + dy, 
+                                d->penData.blend, &d->penData,
+                                i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
+                                devRect);
+        }
+
+        // Polygons are implicitly closed.
+        if (needs_closing) {
+            drawLine_midpoint_i(points[pointCount-1].x() + dx, points[pointCount-1].y() + dy, 
+                                points[0].x() + dx, points[0].y() + dy, 
+                                d->penData.blend, &d->penData, LineDrawIncludeLastPixel,
+                                devRect);
+        }
+
     }
 
 }
@@ -1674,18 +1742,24 @@ void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
                             ? LineDrawNormal
                             : LineDrawIncludeLastPixel;
 
+        int m11 = int(d->matrix.m11());
+        int m22 = int(d->matrix.m22());
+        int dx = int(d->matrix.dx());
+        int dy = int(d->matrix.dy());
         for (int i=0; i<lineCount; ++i) {
             if (d->int_xform) {
-                QLine l = lines[i];
-                l = QLine(l.x1() * int(d->matrix.m11()) + int(d->matrix.dx()),
-                          l.y1() * int(d->matrix.m22()) + int(d->matrix.dy()),
-                          l.x2() * int(d->matrix.m11()) + int(d->matrix.dx()),
-                          l.y2() * int(d->matrix.m22()) + int(d->matrix.dy()));
+                const QLine &l = lines[i];
+                int x1 = l.x1() * m11 + dx;
+                int y1 = l.y1() * m22 + dy;
+                int x2 = l.x2() * m11 + dx;
+                int y2 = l.y2() * m22 + dy;
 
-                drawLine_midpoint_i(l, d->penData.blend, &d->penData, mode, bounds);
+                drawLine_midpoint_i(x1, y1, x2, y2, d->penData.blend, &d->penData, mode, bounds);
             } else {
                 QLineF line = lines[i] * d->matrix;
-                drawLine_midpoint_i(line.toLine(), d->penData.blend, &d->penData, mode, bounds);
+                drawLine_midpoint_i(qRound(line.x1()), qRound(line.y1()),
+                                    qRound(line.x2()), qRound(line.y2()),
+                                    d->penData.blend, &d->penData, mode, bounds);
             }
         }
     } else {
@@ -1706,7 +1780,9 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
                             : LineDrawIncludeLastPixel;
         for (int i=0; i<lineCount; ++i) {
             QLineF line = lines[i] * d->matrix;
-            drawLine_midpoint_i(line.toLine(), d->penData.blend, &d->penData, mode, bounds);
+            drawLine_midpoint_i(qRound(line.x1()), qRound(line.y1()),
+                                qRound(line.x2()), qRound(line.y2()),
+                                d->penData.blend, &d->penData, mode, bounds);
         }
     } else {
         QPaintEngine::drawLines(lines, lineCount);
@@ -2893,7 +2969,7 @@ static void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hd
     \a line is already in device coords at this point.
 */
 
-static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, QSpanData *data,
+static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans span_func, QSpanData *data,
                                 LineDrawMode style, const QRect &devRect)
 {
 #ifdef QT_DEBUG_DRAW
@@ -2902,11 +2978,6 @@ static void drawLine_midpoint_i(const QLine &line, ProcessSpans span_func, QSpan
 
     int x, y;
     int dx, dy, d, incrE, incrNE;
-
-    int x1 = line.x1();
-    int x2 = line.x2();
-    int y1 = line.y1();
-    int y2 = line.y2();
 
     QT_FT_Span span = { 0, 1, 0, 255 };
 

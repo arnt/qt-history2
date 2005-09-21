@@ -2947,9 +2947,36 @@ void QPainter::drawPolyline(const QPointF *points, int pointCount)
  */
 void QPainter::drawPolyline(const QPoint *points, int pointCount)
 {
-    // ### don't realloc
-    QVector<QPointF> pts = qt_convert_points(points, pointCount, QPointF());
-    drawPolyline(pts.data(), pts.size());
+#ifdef QT_DEBUG_DRAW
+    if (qt_show_painter_debug_output)
+        printf("QPainter::drawPolyline(), count=%d\n", pointCount);
+#endif
+
+    if (!isActive() || pointCount <= 0)
+        return;
+
+    Q_D(QPainter);
+    d->updateState(d->state);
+
+    uint lineEmulation = d->state->emulationSpecifier
+                         & (QPaintEngine::PrimitiveTransform
+                            | QPaintEngine::AlphaBlend
+                            | QPaintEngine::Antialiasing
+                            | QPaintEngine::BrushStroke);
+
+    if (lineEmulation) {
+        // ###
+//         if (lineEmulation == QPaintEngine::PrimitiveTransform
+//             && d->state->txop == QPainterPrivate::TxTranslate) {
+//         } else {
+        QPainterPath polylinePath(points[0]);
+        for (int i=1; i<pointCount; ++i)
+            polylinePath.lineTo(points[i]);
+        d->draw_helper(polylinePath, QPainterPrivate::StrokeDraw);
+//         }
+    } else {
+        d->engine->drawPolygon(points, pointCount, QPaintEngine::PolylineMode);
+    }
 }
 
 
