@@ -119,8 +119,8 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     }
 
     if(image.depth()==1) {
-        image.setColor(0, Qt::color0);
-        image.setColor(1, Qt::color1);
+        image.setColor(0, QColor(Qt::color0).rgba());
+        image.setColor(1, QColor(Qt::color1).rgba());
     }
 
     int w = image.width();
@@ -221,10 +221,10 @@ QImage QPixmap::toImage() const
                   QImage::Format_RGB32);
 
     QImage image(w, h, format);
-    image.fill(0);
     quint32 *sptr = data->pixels, *srow;
     const uint sbpr = data->nbytes / h;
     if(format == QImage::Format_MonoLSB) {
+        image.fill(0);
         image.setNumColors(2);
         image.setColor(0, QColor(Qt::color0).rgba());
         image.setColor(1, QColor(Qt::color1).rgba());
