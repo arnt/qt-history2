@@ -104,6 +104,7 @@
 #include <qrect.h>
 #include <qset.h>
 #include <qsize.h>
+#include <qcolor.h>
 #include <qvariant.h>
 
 // factory loader
@@ -534,6 +535,53 @@ QRect QImageReader::scaledClipRect() const
 }
 
 /*!
+    Sets the background color to \a color.
+    Image formats that support this operation are expected to
+    initialize the background to \a color before reading an image.
+
+    \sa backgroundColor(), read()
+*/
+void QImageReader::setBackgroundColor(const QColor &color)
+{
+    if (!d->initHandler())
+        return;
+    if (d->handler->supportsOption(QImageIOHandler::BackgroundColor)) {
+        d->handler->setOption(QImageIOHandler::BackgroundColor, color);
+    }
+}
+
+/*!
+    Returns the background color that's used when reading an image.
+    If the image format does not support setting the background color
+    an invalid color is returned.
+
+    \sa setBackgroundColor(), read()
+*/
+QColor QImageReader::backgroundColor() const
+{
+    if (!d->initHandler())
+        return QColor();
+    if (d->handler->supportsOption(QImageIOHandler::BackgroundColor))
+        return d->handler->option(QImageIOHandler::BackgroundColor).value<QColor>();
+    return QColor();
+}
+
+/*!
+    Returns true if the image format supports animation;
+    otherwise, false is returned.
+
+    \sa QMovie::supportedFormats()
+*/
+bool QImageReader::supportsAnimation() const
+{
+    if (!d->initHandler())
+        return false;
+    if (d->handler->supportsOption(QImageIOHandler::Animation))
+        return d->handler->option(QImageIOHandler::Animation).toBool();
+    return false;
+}
+
+/*!
     Returns true if an image can be read for the device (i.e., the
     image format is supported, and the device seems to contain valid
     data); otherwise returns false.
@@ -541,6 +589,9 @@ QRect QImageReader::scaledClipRect() const
     canRead() is a lightweight function that only does a quick test to
     see if the image data is valid. read() may still return false
     after canRead() returns true, if the image data is corrupt.
+
+    For images that support animation, canRead() returns false when
+    all frames have been read.
 
     \sa read(), supportedImageFormats()
 */
@@ -559,9 +610,10 @@ bool QImageReader::canRead() const
     errorString() to get a human readable description of the error.
 
     For image formats that support animation, calling read()
-    repeatedly will return the next frame (or use QMovie).
+    repeatedly will return the next frame. When all frames have been
+    read, a null image will be returned.
 
-    \sa canRead(), supportedImageFormats()
+    \sa canRead(), supportedImageFormats(), supportsAnimation(), QMovie
 */
 QImage QImageReader::read()
 {
@@ -678,6 +730,8 @@ bool QImageReader::jumpToImage(int imageNumber)
     For image formats that support animation, this function returns
     the number of times the animation should loop. Otherwise, it
     returns -1.
+
+    \sa supportsAnimation()
 */
 int QImageReader::loopCount() const
 {
@@ -692,6 +746,8 @@ int QImageReader::loopCount() const
 
     Certain animation formats do not support this feature, in which
     case 0 is returned.
+
+    \sa supportsAnimation()
 */
 int QImageReader::imageCount() const
 {
@@ -704,6 +760,8 @@ int QImageReader::imageCount() const
     For image formats that support animation, this function returns
     the number of milliseconds to wait until displaying the next frame
     in the animation. Otherwise, 0 is returned.
+
+    \sa supportsAnimation()
 */
 int QImageReader::nextImageDelay() const
 {
@@ -716,6 +774,8 @@ int QImageReader::nextImageDelay() const
     For image formats that support animation, this function returns
     the sequence number of the current frame. Otherwise, -1 is
     returned.
+
+    \sa supportsAnimation()
 */
 int QImageReader::currentImageNumber() const
 {
@@ -727,6 +787,8 @@ int QImageReader::currentImageNumber() const
 /*!
     For image formats that support animation, this function returns
     the rect for the current frame. Otherwise, -1 is returned.
+
+    \sa supportsAnimation()
 */
 QRect QImageReader::currentImageRect() const
 {

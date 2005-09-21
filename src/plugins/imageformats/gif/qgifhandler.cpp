@@ -813,13 +813,19 @@ bool QGifHandler::write(const QImage &image)
 
 bool QGifHandler::supportsOption(ImageOption option) const
 {
-    return option == Size;
+    if (option == Size)
+        return true;
+    else if (option == Animation)
+        return true;
+    return false;
 }
 
 QVariant QGifHandler::option(ImageOption option) const
 {
     if (option == Size)
         return nextSize;
+    else if (option == Animation)
+        return true;
     return QVariant();
 }
 

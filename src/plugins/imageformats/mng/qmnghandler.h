@@ -24,6 +24,7 @@
 class QImage;
 class QByteArray;
 class QIODevice;
+class QVariant;
 class QMngHandlerPrivate;
 
 class QMngHandler : public QImageIOHandler
@@ -42,6 +43,9 @@ class QMngHandler : public QImageIOHandler
     virtual int loopCount() const;
     virtual int nextImageDelay() const;
     static bool canRead(QIODevice *device);
+    virtual QVariant option(ImageOption option) const;
+    virtual void setOption(ImageOption option, const QVariant & value);
+    virtual bool supportsOption(ImageOption option) const;
 
     private:
     Q_DECLARE_PRIVATE(QMngHandler)

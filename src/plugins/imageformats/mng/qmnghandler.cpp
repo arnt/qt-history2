@@ -20,6 +20,8 @@
 
 #include <QImage>
 #include <QSysInfo>
+#include <QVariant>
+#include <QColor>
 
 #define MNG_USE_SO
 #include <libmng.h>
@@ -50,6 +52,8 @@ class QMngHandlerPrivate
     bool jumpToImage(int imageNumber);
     bool jumpToNextImage();
     int nextImageDelay() const;
+    bool setBackgroundColor(const QColor &color);
+    QColor backgroundColor() const;
     QMngHandler *q_ptr;
 };
 
@@ -300,6 +304,24 @@ int QMngHandlerPrivate::nextImageDelay() const
     return nextDelay;
 }
 
+bool QMngHandlerPrivate::setBackgroundColor(const QColor &color)
+{
+    mng_uint16 iRed = (mng_uint16)(color.red() << 8);
+    mng_uint16 iBlue = (mng_uint16)(color.blue() << 8);
+    mng_uint16 iGreen = (mng_uint16)(color.green() << 8);
+    return (mng_set_bgcolor(hMNG, iRed, iBlue, iGreen) == MNG_NOERROR);
+}
+
+QColor QMngHandlerPrivate::backgroundColor() const
+{
+    mng_uint16 iRed;
+    mng_uint16 iBlue;
+    mng_uint16 iGreen;
+    if (mng_get_bgcolor(hMNG, &iRed, &iBlue, &iGreen) == MNG_NOERROR)
+        return QColor((iRed >> 8) & 0xFF, (iGreen >> 8) & 0xFF, (iBlue >> 8) & 0xFF);
+    return QColor();
+}
+
 QMngHandler::QMngHandler()
     : d_ptr(new QMngHandlerPrivate(this))
 {
@@ -396,4 +418,33 @@ int QMngHandler::nextImageDelay() const
 {
     Q_D(const QMngHandler);
     return d->nextImageDelay();
+}
+
+/*! \reimp */
+QVariant QMngHandler::option(ImageOption option) const
+{
+    Q_D(const QMngHandler);
+    if (option == QImageIOHandler::Animation)
+        return true;
+    else if (option == QImageIOHandler::BackgroundColor)
+        return d->backgroundColor();
+    return QVariant();
+}
+
+/*! \reimp */
+void QMngHandler::setOption(ImageOption option, const QVariant & value)
+{
+    Q_D(QMngHandler);
+    if (option == QImageIOHandler::BackgroundColor)
+        d->setBackgroundColor(value.value<QColor>());
+}
+
+/*! \reimp */
+bool QMngHandler::supportsOption(ImageOption option) const
+{
+    if (option == QImageIOHandler::Animation)
+        return true;
+    else if (option == QImageIOHandler::BackgroundColor)
+        return true;
+    return false;
 }

@@ -22,6 +22,7 @@ class QIODevice;
 class QImage;
 class QRect;
 class QSize;
+class QColor;
 
 class QImageReaderPrivate;
 class Q_GUI_EXPORT QImageReader
@@ -59,6 +60,11 @@ public:
 
     void setScaledClipRect(const QRect &rect);
     QRect scaledClipRect() const;
+
+    void setBackgroundColor(const QColor &color);
+    QColor backgroundColor() const;
+
+    bool supportsAnimation() const;
 
     bool canRead() const;
     QImage read();
