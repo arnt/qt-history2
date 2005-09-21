@@ -173,9 +173,7 @@ void qt_syncBackingStore(QWidget *widget)
     QWidget *tlw = widget->window();
     if (!QWidgetBackingStore::paintOnScreen(widget)) {
         QWidgetBackingStore *bs = tlw->d_func()->topData()->backingStore;
-        QRegion tmp = bs->dirty;
-        tmp.translate(-widget->mapTo(tlw, QPoint(0, 0)));
-        bs->cleanRegion(dirty + tmp, widget);
+        bs->cleanRegion(dirty, widget);
     } else {
         widget->repaint(dirty);
     }
@@ -286,7 +284,7 @@ void QWidgetBackingStore::dirtyRegion(const QRegion &rgn, QWidget *widget)
     }
 }
 
-void QWidgetBackingStore::cleanScreen(const QRegion &rgn, QWidget *widget, const QPoint &offset, uint flags)
+void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, const QPoint &offset, uint flags)
 {
     if (rgn.isEmpty())
         return;
@@ -341,7 +339,7 @@ void QWidgetBackingStore::cleanScreen(const QRegion &rgn, QWidget *widget, const
                         childRegion.translate(-child->pos());
                         childRegion &= child->d_func()->clipRect();
                         if(!childRegion.isEmpty())
-                            cleanScreen(childRegion, child, offset+child->pos(), flags);
+                            copyToScreen(childRegion, child, offset+child->pos(), flags);
                     }
                 }
             }
@@ -399,24 +397,24 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget)
             toClean = dirty;
         }
 
-#ifdef Q_WS_QWS
-        QRegion toFlush = toClean; //??? correct as long as we don't have fast scroll
-#endif
         if(!toClean.isEmpty()) {
             dirty -= toClean;
 #ifdef Q_WS_QWS
             buffer.lock();
 #endif
-            cleanBuffer(toClean, tlw, tlwOffset, Recursive|AsRoot);
+            //cleanBuffer(toClean, tlw, tlwOffset, Recursive|AsRoot);
+            paintToBuffer(toClean, tlw, tlwOffset);
 #ifdef Q_WS_QWS
             buffer.unlock();
 #endif
         }
-#ifndef Q_WS_QWS
+#ifdef Q_WS_QWS
+        QRegion toFlush = toClean; //??? correct as long as we don't have fast scroll
+#else
         QRegion toFlush = rgn;
         toFlush.translate(widget->mapTo(tlw, QPoint()));
 #endif
-        cleanScreen(toFlush, tlw, tlwOffset, Recursive);
+        copyToScreen(toFlush, tlw, tlwOffset, Recursive);
     }
 }
 
@@ -447,7 +445,13 @@ bool QWidgetBackingStore::hasBackground(const QWidget *widget)
     return false;
 }
 
-void QWidgetBackingStore::cleanBuffer(const QRegion &rgn, QWidget *widget, const QPoint &offset, uint flags)
+#ifdef Q_WS_QWS
+#define PAINTDEVICE buffer.pixmap()
+#else
+#define PAINTDEVICE (&buffer)
+#endif
+
+void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, const QPoint &offset, bool asRoot)
 {
     if (!widget->isVisible() || !widget->updatesEnabled() || rgn.isEmpty())
         return;
@@ -461,18 +465,10 @@ void QWidgetBackingStore::cleanBuffer(const QRegion &rgn, QWidget *widget, const
 
         //clip away the new area
         bool flushed = qt_flushPaint(widget, toBePainted);
-#ifdef Q_WS_QWS
-        QPainter::setRedirected(widget, buffer.pixmap(), -offset);
-#else
-        QPainter::setRedirected(widget, &buffer, -offset);
-#endif
+        QPainter::setRedirected(widget, PAINTDEVICE, -offset);
         QRegion wrgn = toBePainted;
         wrgn.translate(offset);
-#ifdef Q_WS_QWS
-        buffer.pixmap()->paintEngine()->setSystemClip(wrgn); //###
-#else
-        buffer.paintEngine()->setSystemClip(wrgn);
-#endif
+        PAINTDEVICE->paintEngine()->setSystemClip(wrgn);
 #ifdef Q_WS_WIN
         QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
         HDC engine_dc = engine->getDC();
@@ -481,17 +477,17 @@ void QWidgetBackingStore::cleanBuffer(const QRegion &rgn, QWidget *widget, const
 #endif
 
         //paint the background
-        if((flags & AsRoot) || hasBackground(widget)) {
+        if(asRoot || hasBackground(widget)) {
             QPainter p(widget);
             const QBrush bg = widget->palette().brush(widget->backgroundRole());
 #ifdef Q_WS_QWS
-            if (flags & AsRoot)
+            if (widget->isWindow())
                 p.setCompositionMode(QPainter::CompositionMode_Source); //copy alpha straight in
 #endif
             if (bg.style() == Qt::TexturePattern)
-                p.drawTiledPixmap(widget->rect(), bg.texture());
+                p.drawTiledPixmap(toBePainted.boundingRect(), bg.texture());
             else
-                p.fillRect(widget->rect(), bg);
+                p.fillRect(toBePainted.boundingRect(), bg);
         }
 
 #if 0
@@ -507,11 +503,7 @@ void QWidgetBackingStore::cleanBuffer(const QRegion &rgn, QWidget *widget, const
         qt_sendSpontaneousEvent(widget, &e);
 
         //restore
-#ifdef Q_WS_QWS
-        buffer.pixmap()->paintEngine()->setSystemClip(QRegion()); //###
-#else
-        buffer.paintEngine()->setSystemClip(QRegion());
-#endif
+        PAINTDEVICE->paintEngine()->setSystemClip(QRegion());
         QPainter::restoreRedirected(widget);
 
         widget->setAttribute(Qt::WA_WState_InPaintEvent, false);
@@ -519,13 +511,9 @@ void QWidgetBackingStore::cleanBuffer(const QRegion &rgn, QWidget *widget, const
             qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
 
         if (flushed)
-            cleanScreen(toBePainted, widget, offset, 0);
+            copyToScreen(toBePainted, widget, offset, 0);
     } else if(widget == tlw) {
-#ifdef Q_WS_QWS
-            QPainter p(buffer.pixmap());
-#else
-            QPainter p(&buffer);
-#endif
+            QPainter p(PAINTDEVICE);
             p.setClipRegion(toBePainted);
             const QBrush bg = widget->palette().brush(widget->backgroundRole());
             if (bg.style() == Qt::TexturePattern)
@@ -534,8 +522,8 @@ void QWidgetBackingStore::cleanBuffer(const QRegion &rgn, QWidget *widget, const
                 p.fillRect(widget->rect(), bg);
     }
 
-    //be recursive
-    if(flags & Recursive) {
+    //always be recursive
+    {
         const QObjectList children = widget->children();
         for(int i = 0; i < children.size(); ++i) {
             if(QWidget *child = qobject_cast<QWidget*>(children.at(i))) {
@@ -549,7 +537,7 @@ void QWidgetBackingStore::cleanBuffer(const QRegion &rgn, QWidget *widget, const
                                 childRegion &= extra->mask;
                         }
                         if(!childRegion.isEmpty())
-                            cleanBuffer(childRegion, child, offset+child->pos(), flags & ~(AsRoot));
+                            paintToBuffer(childRegion, child, offset+child->pos(), false);
                     }
                 }
             }
@@ -647,10 +635,15 @@ void QWidget::update(const QRegion& rgn)
 {
     if(!isVisible() || !updatesEnabled() || rgn.isEmpty())
         return;
-    setAttribute(Qt::WA_PendingUpdate);
 
-    QWidget *tlw = window();
-    QTLWExtra* x = tlw->d_func()->topData();
-    x->backingStore->dirtyRegion(rgn, this);
+    if (testAttribute(Qt::WA_WState_InPaintEvent)) {
+        QApplication::postEvent(this, new QUpdateLaterEvent(rgn));
+    } else {
+        setAttribute(Qt::WA_PendingUpdate);
+
+        QWidget *tlw = window();
+        QTLWExtra* x = tlw->d_func()->topData();
+        x->backingStore->dirtyRegion(rgn, this);
+    }
 }
 

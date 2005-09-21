@@ -513,7 +513,7 @@ void QWidget::activateWindow()
 void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
 {
     Q_Q(QWidget);
-    QApplication::postEvent(q->window(), new QWSUpdateEvent(QRegion()));
+    QApplication::postEvent(q->window(), new QEvent(QEvent::UpdateRequest));
 }
 
 void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)

@@ -941,9 +941,6 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
           || event->type() == QEvent::LayoutRequest
           || event->type() == QEvent::Resize
           || event->type() == QEvent::Move
-#ifdef Q_WS_QWS
-          || event->type() == QEvent::QWSUpdate
-#endif
           || event->type() == QEvent::LanguageChange
 	  || event->type() == QEvent::InputMethod)) {
         for (int i = 0; i < postedEvents->size(); ++i) {
@@ -961,12 +958,6 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
                 ((QResizeEvent *)(cur.event))->s = ((QResizeEvent *)event)->s;
             } else if (cur.event->type() == QEvent::Move) {
                 ((QMoveEvent *)(cur.event))->p = ((QMoveEvent *)event)->p;
-#ifdef Q_WS_QWS
-            } else if (cur.event->type() == QEvent::QWSUpdate) {
-                QPaintEvent * p = static_cast<QPaintEvent*>(cur.event);
-                p->m_region = p->m_region.unite(((QPaintEvent *)event)->m_region);
-                p->m_rect = p->m_rect.unite(((QPaintEvent *)event)->m_rect);
-#endif
             } else if (cur.event->type() == QEvent::LanguageChange) {
                 ;
 	    } else if ( cur.event->type() == QEvent::InputMethod ) {

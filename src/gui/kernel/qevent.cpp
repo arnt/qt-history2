@@ -879,19 +879,14 @@ QPaintEvent::~QPaintEvent()
 */
 
 
-#ifdef Q_WS_QWS
-QWSUpdateEvent::QWSUpdateEvent(const QRegion& paintRegion)
-    : QPaintEvent(paintRegion)
-{ t = QWSUpdate; }
-
-QWSUpdateEvent::QWSUpdateEvent(const QRect &paintRect)
-    : QPaintEvent(paintRect)
-{ t = QWSUpdate; }
-
-QWSUpdateEvent::~QWSUpdateEvent()
+QUpdateLaterEvent::QUpdateLaterEvent(const QRegion& paintRegion)
+    : QEvent(UpdateLater), m_region(paintRegion)
 {
 }
-#endif
+
+QUpdateLaterEvent::~QUpdateLaterEvent()
+{
+}
 
 
 /*!

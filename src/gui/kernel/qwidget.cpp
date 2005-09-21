@@ -5213,8 +5213,8 @@ bool QWidget::event(QEvent *e)
         update();
         break;
 
-#if defined(Q_WS_X11)
-#ifdef QT_USE_BACKINGSTORE
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+#if defined(QT_USE_BACKINGSTORE) || defined(Q_WS_QWS)
     case QEvent::UpdateRequest: {
         extern void qt_syncBackingStore(QWidget *widget);
         qt_syncBackingStore(this);
@@ -5229,13 +5229,10 @@ bool QWidget::event(QEvent *e)
         break;
 #endif
 #endif
-#if defined(Q_WS_QWS)
-    case QEvent::QWSUpdate:
-        //repaint(static_cast<QWSUpdateEvent*>(e)->region());
-        extern void qt_syncBackingStore(QWidget *widget);
-        qt_syncBackingStore(this);
+
+    case QEvent::UpdateLater:
+        update(static_cast<QUpdateLaterEvent*>(e)->region());
         break;
-#endif
 
     case QEvent::WindowBlocked:
     case QEvent::WindowUnblocked:

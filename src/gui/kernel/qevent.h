@@ -257,17 +257,17 @@ protected:
     bool m_erased;
 };
 
-
-#ifdef Q_WS_QWS
-class QWSUpdateEvent : public QPaintEvent
+class QUpdateLaterEvent : public QEvent
 {
 public:
-    QWSUpdateEvent(const QRegion& paintRegion);
-    QWSUpdateEvent(const QRect &paintRect);
-    ~QWSUpdateEvent();
-};
-#endif
+    QUpdateLaterEvent(const QRegion& paintRegion);
+    ~QUpdateLaterEvent();
 
+    inline const QRegion &region() const { return m_region; }
+
+protected:
+    QRegion m_region;
+};
 
 class Q_GUI_EXPORT QMoveEvent : public QEvent
 {
