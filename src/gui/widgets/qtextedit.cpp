@@ -3387,7 +3387,7 @@ void QTextEdit::ensureCursorVisible()
 #define NUM_CONTROL_CHARACTERS 10
 const struct QUnicodeControlCharacter {
     const char *text;
-    const ushort character;
+    ushort character;
 } qt_controlCharacters[NUM_CONTROL_CHARACTERS] = {
     { QT_TRANSLATE_NOOP("QUnicodeControlCharacterMenu", "LRM Left-to-right mark"), 0x200e },
     { QT_TRANSLATE_NOOP("QUnicodeControlCharacterMenu", "RLM Right-to-left mark"), 0x200f },
