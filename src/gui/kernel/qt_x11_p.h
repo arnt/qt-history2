@@ -434,6 +434,7 @@ struct QX11Data
 
         _NET_WM_NAME,
         _NET_WM_ICON_NAME,
+        _NET_WM_ICON,
 
         _NET_WM_PID,
 
@@ -462,7 +463,7 @@ struct QX11Data
 
         _NET_STARTUP_INFO,
         _NET_STARTUP_INFO_BEGIN,
-        
+
         // Property formats
         COMPOUND_TEXT,
         TEXT,

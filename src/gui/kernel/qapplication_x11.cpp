@@ -176,6 +176,7 @@ static const char * x11_atomnames = {
 
     "_NET_WM_NAME\0"
     "_NET_WM_ICON_NAME\0"
+    "_NET_WM_ICON\0"
 
     "_NET_WM_PID\0"
 

@@ -1061,6 +1061,27 @@ void QWidgetPrivate::setWindowIcon_sys()
     if (!icon.isNull()) {
         QSize size = icon.actualSize(QSize(64, 64));
         QPixmap pixmap = icon.pixmap(size);
+
+        // set the _NET_WM_ICON property
+        QImage image = pixmap.toImage().convertToFormat(QImage::Format_ARGB32);
+        QVector<long> icon_data(2 + image.width()*image.height());
+
+        icon_data[0] = image.width();
+        icon_data[1] = image.height();
+
+        if (sizeof(long) == sizeof(quint32)) {
+            memcpy(icon_data.data() + 2, image.scanLine(0), image.numBytes());
+        } else {
+            for (int y = 0; y < image.height(); ++y) {
+                uint *scanLine = reinterpret_cast<uint *>(image.scanLine(y));
+                for (int x = 0; x < image.width(); ++x)
+                    icon_data[2 + y*image.width() + x] = scanLine[x];
+            }
+        }
+
+        XChangeProperty(X11->display, q->winId(), ATOM(_NET_WM_ICON), XA_CARDINAL, 32,
+                        PropModeReplace, (unsigned char *) icon_data.data(),
+                        icon_data.size()*sizeof(long));
         /*
           if the app is not using the default visual, convert the icon
           to 1bpp as stated in the ICCCM section 4.1.2.4; otherwise,
