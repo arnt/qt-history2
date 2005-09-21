@@ -27,6 +27,7 @@
 
 #include <qabstracttextdocumentlayout.h>
 #include <QtGui/qtextoption.h>
+#include <QtGui/qtextobject.h>
 
 class QTextListFormat;
 
