@@ -174,7 +174,7 @@ void QItemDelegate::paint(QPainter *painter,
     // display
     QString text = model->data(index, Qt::DisplayRole).toString();
     QRect textRect;
-    if (!text.contains('\n')) {
+    if (!text.contains(QLatin1Char('\n'))) {
         QFontMetrics fontMetrics(opt.font);
         textRect = QRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
     } else {
@@ -231,7 +231,7 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
     QString text = model->data(index, Qt::DisplayRole).toString();
     QRect textRect;
-    if (!text.contains('\n')) {
+    if (!text.contains(QLatin1Char('\n'))) {
         QFontMetrics fontMetrics(fnt);
         textRect = QRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
     } else {
@@ -392,7 +392,7 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
     painter->setFont(option.font);
     QRect textRect = rect.adjusted(textMargin, 0, -textMargin, 0); // remove width padding
     QString str = text;
-    if (painter->fontMetrics().width(text) > textRect.width() && !text.contains('\n'))
+    if (painter->fontMetrics().width(text) > textRect.width() && !text.contains(QLatin1Char('\n')))
         str = elidedText(option.fontMetrics, textRect.width(), option.textElideMode, text);
     qt_format_text(option.font, textRect, option.displayAlignment, str, 0, 0, 0, 0, painter);
     painter->setFont(font);
