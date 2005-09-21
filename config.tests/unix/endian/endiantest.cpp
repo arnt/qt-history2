@@ -11,5 +11,5 @@ int main(int, char **)
     char *lsb_littleendian_string = (char *) lsb_littleendian;
     (void) msb_bigendian_string;
     (void) lsb_littleendian_string;
-    return 0;
+    return msb_bigendian[1] == lsb_littleendian[1];
 }
