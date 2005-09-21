@@ -1540,7 +1540,7 @@ without having to write code themselves.
            QDesignerTaskMenuExtension provides an extension that allows
            you to add custom menu entries to \QD's task menu.
 
-           See also the \l {designer\taskmenuextension}{Task Menu
+           See also the \l {designer/taskmenuextension}{Task Menu
            Extension} example.
 
     \row
@@ -1551,7 +1551,7 @@ without having to write code themselves.
            you to add (and delete) pages to a multi-page container plugin
            in \QD.
 
-           See also the \l {designer\containerextension}{Container
+           See also the \l {designer/containerextension}{Container
            Extension} example.
 
     \row
@@ -1567,7 +1567,7 @@ without having to write code themselves.
         \o \bold {QDesignerPropertySheetExtension}
 
            The QDesignerPropertySheetExtension class allows you to
-           manipulate a widget's properties displayed in Qt Designer's
+           manipulate a widget's properties displayed in \QD's
            property editor.
 
     \endtable
@@ -1621,7 +1621,7 @@ without having to write code themselves.
 
     \section1 Exposing an Extension to Qt Designer
 
-    In Qt Designer the extensions are not created until they are
+    In \QD the extensions are not created until they are
     required. For that reason, when implementing extensions, you must
     subclass QExtensionFactory, i.e create a class that is able to
     make instances of your extensions. In addition you must make Qt
@@ -1707,17 +1707,17 @@ without having to write code themselves.
     \endcode
 
     The QDesignerCustomWidgetInterface::initialize() function's
-    parameter provides a pointer to Qt Designer's current
+    parameter provides a pointer to \QD's current
     QDesignerFormEditorInterface object (formEditor). You must use the
     QDesignerFormEditorInterface::extensionManager() function to
-    retrieve an interface to Qt Designer's extension manager. Finally,
+    retrieve an interface to \QD's extension manager. Finally,
     you use the QExtensionManager::registerExtensions() function to
     register your custom extension factory.
 
     \section1 Related Examples
 
-    Please see the \l {designer\taskmenuextension}{Task Menu
-    Extension} and \l {designer\containerextension}{Container Extension}
+    Please see the \l {designer/taskmenuextension}{Task Menu
+    Extension} and \l {designer/containerextension}{Container Extension}
     examples for more information about creating custom widget extensions
     in \QD.
 */
