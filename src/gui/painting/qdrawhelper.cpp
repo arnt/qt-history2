@@ -2045,7 +2045,7 @@ static uint detectCPUFeatures() {
 #else
     uint result = 0;
     /* see p. 118 of amd64 instruction set manual Vol3 */
-#if defined(Q_CC_GCC)
+#if defined(Q_CC_GNU)
     asm ("push %%ebx\n"
          "pushf\n"
          "pop %%eax\n"
