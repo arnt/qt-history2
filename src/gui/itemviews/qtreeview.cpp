@@ -765,6 +765,18 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         extraFlags |= QStyle::State_Enabled;
     if (window()->isActiveWindow())
         extraFlags |= QStyle::State_Active;
+    
+    QPoint oldBO = painter->brushOrigin();
+
+    int v = verticalScrollBar()->value();
+    int i = d->itemAt(v);
+    if (i >= 0) {
+      int delta = d->topItemDelta(v, d->height(i));
+      int offset = verticalOffset();
+
+      painter->setBrushOrigin(QPoint(0, -1 * offset - delta));
+    }
+
     if (level >= outer) {
         // start with the innermost branch
         primitive.moveLeft(reverse ? primitive.left() : primitive.left() - indent);
@@ -792,6 +804,7 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         current = ancestor;
         ancestor = current.parent();
     }
+    painter->setBrushOrigin(oldBO);
 }
 
 /*!
