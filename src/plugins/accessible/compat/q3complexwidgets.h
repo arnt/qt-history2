@@ -14,7 +14,7 @@
 #ifndef Q3COMPLEXWIDGETS_H
 #define Q3COMPLEXWIDGETS_H
 
-#include <qaccessiblewidget.h>
+#include <QtGui/qaccessiblewidget.h>
 
 class Q3Header;
 class Q3TitleBar;
