@@ -1532,7 +1532,7 @@ without having to write code themselves.
     all the extensions following the same pattern, only replacing the
     respective extension base class:
 
-    \table
+    \table 100%
     \row
         \o \inlineimage designer-manual-taskmenuextension.png
         \o \bold {QDesignerTaskMenuExtension}
