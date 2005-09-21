@@ -38,6 +38,7 @@
 class QFTOutlineMapper;
 class QRasterPaintEnginePrivate;
 class QRasterBuffer;
+class QClipData;
 
 /*******************************************************************************
  * QRasterPaintEngine
@@ -133,7 +134,7 @@ public:
 
     void drawBitmap(const QPointF &pos, const QPixmap &image, QSpanData *fill);
 
-    void rasterize(QT_FT_Outline *outline, ProcessSpans callback, void *userData);
+    void rasterize(QT_FT_Outline *outline, ProcessSpans callback, void *userData, QRasterBuffer *rasterBuffer);
 
     QMatrix brushMatrix() const {
         QMatrix m(matrix);
@@ -202,6 +203,7 @@ public:
     int allocated;
     int count;
     QSpan *spans;
+    int xmin, xmax, ymin, ymax;
 
     void appendSpan(int x, int length, int y, int coverage);
     void appendSpans(const QSpan *s, int num);

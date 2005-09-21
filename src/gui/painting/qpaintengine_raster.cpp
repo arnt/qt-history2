@@ -52,7 +52,7 @@
 #if defined(Q_WS_WIN64)
 #  include <malloc.h>
 #endif
-
+#include <limits.h>
 
 
 /*
@@ -869,7 +869,7 @@ void QRasterPaintEngine::fillPath(const QPainterPath &path, QSpanData *fillData)
         return;
 
     Q_D(QRasterPaintEngine);
-    d->rasterize(d->outlineMapper->convertPath(path), fillData->blend, fillData);
+    d->rasterize(d->outlineMapper->convertPath(path), fillData->blend, fillData, d->rasterBuffer);
 }
 
 static void fillRect(const QRect &r, QSpanData *data)
@@ -879,6 +879,13 @@ static void fillRect(const QRect &r, QSpanData *data)
     int x2 = qMin(rect.width() + rect.x(), data->rasterBuffer->width());
     int y1 = qMax(rect.y(), 0);
     int y2 = qMin(rect.height() + rect.y(), data->rasterBuffer->height());
+    QClipData *clip = data->rasterBuffer->clip;
+    if (clip) {
+        x1 = qMax(x1, clip->xmin);
+        x2 = qMin(x2, clip->xmax);
+        y1 = qMax(y1, clip->ymin);
+        y2 = qMin(y2, clip->ymax);
+    }
 
     int len = x2 - x1;
 
@@ -991,7 +998,7 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
         }
         d->outlineMapper->endOutline();
 
-        d->rasterize(&d->outlineMapper->m_outline, d->penData.blend, &d->penData);
+        d->rasterize(&d->outlineMapper->m_outline, d->penData.blend, &d->penData, d->rasterBuffer);
         d->outlineMapper->setMatrix(d->matrix, d->txop);
     }
 
@@ -1022,7 +1029,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
         d->outlineMapper->endOutline();
 
         // scanconvert.
-        d->rasterize(&d->outlineMapper->m_outline, d->brushData.blend, &d->brushData);
+        d->rasterize(&d->outlineMapper->m_outline, d->brushData.blend, &d->brushData, d->rasterBuffer);
     }
 
     // Do the outline...
@@ -1077,7 +1084,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             }
             d->outlineMapper->endOutline();
 
-            d->rasterize(&d->outlineMapper->m_outline, d->penData.blend, &d->penData);
+            d->rasterize(&d->outlineMapper->m_outline, d->penData.blend, &d->penData, d->rasterBuffer);
 
             d->outlineMapper->setMatrix(d->matrix, d->txop);
         }
@@ -1115,7 +1122,7 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
         d->outlineMapper->endOutline();
 
         // scanconvert.
-        d->rasterize(&d->outlineMapper->m_outline, d->brushData.blend, &d->brushData);
+        d->rasterize(&d->outlineMapper->m_outline, d->brushData.blend, &d->brushData, d->rasterBuffer);
     }
 
     // Do the outline...
@@ -1806,7 +1813,7 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
         }
         d->outlineMapper->endOutline();
 
-        d->rasterize(&d->outlineMapper->m_outline, d->brushData.blend, &d->brushData);
+        d->rasterize(&d->outlineMapper->m_outline, d->brushData.blend, &d->brushData, d->rasterBuffer);
     }
 
     if (d->penData.blend) {
@@ -1821,7 +1828,7 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
         }
         d->outlineMapper->endOutline();
 
-        d->rasterize(&d->outlineMapper->m_outline, d->penData.blend, &d->penData);
+        d->rasterize(&d->outlineMapper->m_outline, d->penData.blend, &d->penData, d->rasterBuffer);
 
         d->outlineMapper->setMatrix(d->matrix, d->txop);
     }
@@ -1885,37 +1892,48 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
                     continue;
                 }
                 if (pixel & (0x1 << (src_x & 7))) {
-                    QT_FT_Span span = { xmin + x, 1, y, 255 };
+                    spans[n].x = xmin + x;
+                    spans[n].y = y;
+                    spans[n].coverage = 255;
+                    int len = 1;
                     while (src_x < w-1 && src[(src_x+1) >> 3] & (0x1 << ((src_x+1) & 7))) {
                         ++src_x;
-                        ++span.len;
+                        ++len;
                     }
-                    x += span.len;
-                    spans[n] = span;
+                    spans[n].len = len;
+                    x += len;
                     ++n;
-                }
-                if (n == spanCount) {
-                    fg->blend(n, spans, fg);
-                    n = 0;
+                    if (n == spanCount) {
+                        fg->blend(n, spans, fg);
+                        n = 0;
+                    }
                 }
             }
 #if defined (BITMAPS_ARE_MSB)
         } else {
             for (int x = 0; x < xmax - xmin; ++x) {
-                bool set = src[x >> 3] & (0x80 >> (x & 7));
-                if (set) {
-                    QT_FT_Span span = { xmin + x, 1, y, 255 };
-                    while (x < w-1 && src[(x+1) >> 3] & (0x80 >> ((x+1) & 7))) {
-                        ++x;
-                        ++span.len;
-                    }
-
-                    spans[n] = span;
-                    ++n;
+                int src_x = x + x_offset;
+                uchar pixel = src[src_x >> 3];
+                if (!pixel) {
+                    x += 7;
+                    continue;
                 }
-                if (n == spanCount) {
-                    fg->blend(n, spans, fg);
-                    n = 0;
+                if (pixel & (0x80 >> (x & 7))) {
+                    spans[n].x = xmin + x;
+                    spans[n].y = y;
+                    spans[n].coverage = 255;
+                    int len = 1;
+                    while (src_x < w-1 && src[(src_x+1) >> 3] & (0x80 >> ((src_x+1) & 7))) {
+                        ++src_x;
+                        ++len;
+                    }
+                    spans[n].len = len;
+                    x += len;
+                    ++n;
+                    if (n == spanCount) {
+                        fg->blend(n, spans, fg);
+                        n = 0;
+                    }
                 }
             }
         }
@@ -2000,12 +2018,11 @@ static void qt_merge_clip(const QClipData *c1, const QClipData *c2, QClipData *r
     }
     if (b != buffer)
         free(b);
-    result->fixup();
 }
 
 void QRasterPaintEnginePrivate::rasterize(QT_FT_Outline *outline,
                                           ProcessSpans callback,
-                                          void *userData)
+                                          void *userData, QRasterBuffer *rasterBuffer)
 {
     if (!callback)
         return;
@@ -2013,6 +2030,18 @@ void QRasterPaintEnginePrivate::rasterize(QT_FT_Outline *outline,
     void *data = userData;
 
     QT_FT_BBox clip_box = { 0, 0, deviceRect.width(), deviceRect.height() };
+    if (rasterBuffer && rasterBuffer->clipEnabled && rasterBuffer->clip) {
+        QSpanData *d = (QSpanData *)userData;
+        Q_ASSERT(d->rasterBuffer == rasterBuffer);
+        clip_box.xMin = qMax((int)clip_box.xMin, rasterBuffer->clip->xmin);
+        clip_box.xMax = qMin((int)clip_box.xMax, rasterBuffer->clip->xmax);
+        if (antialiased)
+            // ### Fixme: The black raster gives drawing errors when you try to
+            // move ymin to something greater 0.
+            clip_box.yMin = qMax((int)clip_box.yMin, rasterBuffer->clip->ymin);
+        clip_box.yMax = qMin((int)clip_box.yMax, rasterBuffer->clip->ymax);
+        Q_ASSERT(callback == qt_span_fill_clipped);
+    }
 
     QT_FT_Raster_Params rasterParams;
     rasterParams.target = 0;
@@ -2068,13 +2097,14 @@ void QRasterPaintEnginePrivate::updateClip_helper(const QPainterPath &path, Qt::
     if (!path.isEmpty()) {
         QClipData *newClip = new QClipData(rasterBuffer->height());
         ClipData clipData = { rasterBuffer->clip, newClip, op };
-        rasterize(outlineMapper->convertPath(path), qt_span_clip, &clipData);
+        rasterize(outlineMapper->convertPath(path), qt_span_clip, &clipData, 0);
         newClip->fixup();
 
         if (op == Qt::UniteClip) {
             // merge clips
             QClipData *result = new QClipData(rasterBuffer->height());
             qt_merge_clip(rasterBuffer->clip, newClip, result);
+            result->fixup();
             delete newClip;
             newClip = result;
         }
@@ -2274,8 +2304,12 @@ QClipData::~QClipData()
 
 void QClipData::fixup()
 {
-//       qDebug("QClipData::fixup:");
+//      qDebug("QClipData::fixup: count=%d",count);
     int y = -1;
+    ymin = spans[0].y;
+    ymax = spans[count-1].y + 1;
+    xmin = INT_MAX;
+    xmax = 0;
     for (int i = 0; i < count; ++i) {
 //           qDebug() << "    " << spans[i].x << spans[i].y << spans[i].len << spans[i].coverage;
         if (spans[i].y != y) {
@@ -2285,7 +2319,11 @@ void QClipData::fixup()
 //              qDebug() << "        new line: y=" << y;
         }
         ++clipLines[y].count;
+        xmin = qMin(xmin, (int)spans[i].x);
+        xmax = qMax(xmax, (int)spans[i].x + spans[i].len);
     }
+    ++xmax;
+//     qDebug("xmin=%d,xmax=%d,ymin=%d,ymax=%d", xmin, xmax, ymin, ymax);
 }
 
 
@@ -2352,7 +2390,7 @@ static const QSpan *qt_intersect_spans(const QClipData *clip, int *currentClip,
 
 static void qt_span_fill_clipped(int spanCount, const QSpan *spans, void *userData)
 {
-//     qDebug() << "qt_span_fill_clipped";
+//     qDebug() << "qt_span_fill_clipped" << spanCount;
     QSpanData *fillData = reinterpret_cast<QSpanData *>(userData);
 
     Q_ASSERT(fillData->blend && fillData->unclipped_blend);
