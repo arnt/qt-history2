@@ -69,7 +69,12 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixSc
         if (strncmp("int", t+9, 3) == 0) {
             t += 9+3;
             result += "uint";
-        } else if (strncmp("long", t+9, 4) == 0) {
+        } else if (strncmp("long", t+9, 4) == 0
+                   // preserve '[unsigned] long long'
+                   && (strlen(t + 9 + 4) < 5
+                       || strcmp(t + 9 + 4, " long") != 0
+                      )
+                  ) {
             t += 9+4;
             result += "ulong";
         }
@@ -319,6 +324,13 @@ QByteArray Moc::parseType()
         case SHORT:
         case INT:
         case LONG:
+            // preserve '[unsigned] long long'
+            if (test(LONG)) {
+                s += lexem();
+                s += ' ';
+                prev();
+                continue;
+            }
         case FLOAT:
         case DOUBLE:
         case VOID:
