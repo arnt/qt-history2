@@ -490,10 +490,10 @@ bool QLibraryPrivate::isPlugin()
 
     QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
     reg = settings.value(regkey).toStringList();
-    if (reg.count() == 4 &&lastModified == reg[3]) {
-        qt_version = reg[0].toUInt(0, 16);
-        debug = (bool)reg[1].toInt();
-        key = reg[2].toLatin1();
+    if (reg.count() == 4 && lastModified == reg.at(3)) {
+        qt_version = reg.at(0).toUInt(0, 16);
+        debug = bool(reg.at(1).toInt());
+        key = reg.at(2).toLatin1();
         success = qt_version != 0;
     } else {
 #if defined(Q_OS_UNIX)
