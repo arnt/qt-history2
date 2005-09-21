@@ -35,7 +35,7 @@
 #    include <fenv.h>
 #endif
 
-#if !defined(QWS) && defined(Q_OS_MAC)
+#if defined(Q_OS_MAC)
 #   include <private/qcore_mac_p.h>
 #endif
 
@@ -418,7 +418,7 @@ QByteArray QLocalePrivate::systemLocaleName()
     static QByteArray lang;
     lang = qgetenv("LANG");
 
-#if !defined(QWS) && defined(Q_OS_MAC)
+#if defined(Q_OS_MAC)
     if (!lang.isEmpty())
         return lang;
 

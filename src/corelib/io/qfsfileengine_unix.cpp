@@ -11,22 +11,21 @@
 **
 ****************************************************************************/
 
-#include <qplatformdefs.h>
+#include "qplatformdefs.h"
+#include "qabstractfileengine.h"
+#include "private/qfsfileengine_p.h"
 #ifndef QT_NO_REGEXP
-# include <qregexp.h>
+# include "qregexp.h"
 #endif
-
-#include <qabstractfileengine.h>
-#include <private/qfsfileengine_p.h>
-#include <qfile.h>
-#include <qdir.h>
-#include <qdebug.h>
-#include <qdatetime.h>
+#include "qfile.h"
+#include "qdir.h"
+#include "qdatetime.h"
+#include "qdebug.h"
 
 #include <stdlib.h>
 #include <limits.h>
 #include <errno.h>
-#if !defined(QWS) && defined(Q_OS_MAC)
+#if defined(Q_OS_MAC)
 # include <private/qcore_mac_p.h>
 #endif
 
@@ -313,7 +312,7 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::Fil
             ret |= ExeOtherPerm;
     }
     if(type & TypesMask) {
-#if !defined(QWS) && defined(Q_OS_MAC)
+#if defined(Q_OS_MAC)
         bool foundAlias = false;
         {
             FSRef fref;
@@ -429,7 +428,7 @@ QString QFSFileEngine::fileName(FileName file) const
                 return ret;
             }
         }
-#if !defined(QWS) && defined(Q_OS_MAC)
+#if defined(Q_OS_MAC)
         {
             FSRef fref;
             if(FSPathMakeRef((const UInt8 *)QFile::encodeName(d->file).data(), &fref, NULL) == noErr) {

@@ -13,12 +13,9 @@
 
 #include "qfontdatabase.h"
 #include "qdebug.h"
-
-
-#include <qalgorithms.h>
-#include <qapplication.h>
-
-#include <private/qunicodetables_p.h>
+#include "qalgorithms.h"
+#include "qapplication.h"
+#include "private/qunicodetables_p.h"
 #include "qfontengine_p.h"
 #include "qopentype_p.h"
 
@@ -320,7 +317,7 @@ struct QtFontFamily
 #ifdef Q_WS_WIN
         writingSystemCheck(false),
 #endif
-#if defined(Q_OS_MAC) && !defined(QWS)
+#if defined(Q_OS_MAC)
         fixedPitchComputed(false),
 #endif
         name(n), count(0), foundries(0) {
@@ -342,7 +339,7 @@ struct QtFontFamily
 #ifdef Q_WS_WIN
     bool writingSystemCheck : 1;
 #endif
-#if defined(Q_OS_MAC) && !defined(QWS)
+#if defined(Q_OS_MAC)
     bool fixedPitchComputed : 1;
 #endif
     QString name;
@@ -362,7 +359,7 @@ struct QtFontFamily
     QtFontFoundry *foundry(const QString &f, bool = false);
 };
 
-#if defined(Q_OS_MAC) && !defined(QWS)
+#if defined(Q_OS_MAC)
 inline static void qt_mac_get_fixed_pitch(QtFontFamily *f)
 {
     if(f && !f->fixedPitchComputed) {
@@ -743,7 +740,7 @@ unsigned int bestFoundry(int script, unsigned int score, int styleStrategy,
         }
 #else
         if (pitch != '*') {
-#if defined(Q_OS_MAC) && !defined(QWS)
+#if defined(Q_OS_MAC)
             qt_mac_get_fixed_pitch(const_cast<QtFontFamily*>(family));
 #endif
             if ((pitch == 'm' && !family->fixedPitch)
@@ -1335,7 +1332,7 @@ bool QFontDatabase::isFixedPitch(const QString &family,
     load(familyName);
 
     QtFontFamily *f = d->family(familyName);
-#if defined(Q_OS_MAC) && !defined(QWS)
+#if defined(Q_OS_MAC)
     qt_mac_get_fixed_pitch(f);
 #endif
     return (f && f->fixedPitch);
@@ -2072,4 +2069,3 @@ void QFontDatabase::parseFontName(const QString &name, QString &foundry, QString
 
 void QFontDatabase::createDatabase()
 { initializeDb(); }
-
