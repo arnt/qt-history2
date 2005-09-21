@@ -14,11 +14,11 @@
 #include "pbuilder_pbx.h"
 #include "option.h"
 #include "meta.h"
+#include "qtmd5.h"
 #include <qdir.h>
 #include <qregexp.h>
 #include <stdlib.h>
 #include <time.h>
-#include "qtmd5.h"
 #ifdef Q_OS_UNIX
 #  include <sys/types.h>
 #  include <sys/stat.h>

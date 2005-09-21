@@ -18,8 +18,8 @@
 #include <qbytearray.h>
 #include <qfile.h>
 #include <qdir.h>
-#include <time.h>
 #include <qdatetime.h>
+#include <time.h>
 
 QString mkdir_p_asstring(const QString &dir);
 

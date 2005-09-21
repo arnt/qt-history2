@@ -14,8 +14,8 @@
 #ifndef MAKEFILEDEPS_H
 #define MAKEFILEDEPS_H
 
-#include "qstringlist.h"
-#include "qfileinfo.h"
+#include <qstringlist.h>
+#include <qfileinfo.h>
 
 struct SourceFile;
 struct SourceDependChildren;

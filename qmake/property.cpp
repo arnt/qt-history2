@@ -15,9 +15,9 @@
 #include "option.h"
 #include <qdir.h>
 #include <qmap.h>
-#include <stdio.h>
 #include <qsettings.h>
 #include <qstringlist.h>
+#include <stdio.h>
 
 QStringList qmake_mkspec_paths(); //project.cpp
 

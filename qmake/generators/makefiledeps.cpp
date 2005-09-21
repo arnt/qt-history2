@@ -16,6 +16,8 @@
 #include <qdir.h>
 #include <qdatetime.h>
 #include <qfileinfo.h>
+#include <qbuffer.h>
+#include <qplatformdefs.h>
 #if defined(Q_OS_UNIX)
 # include <unistd.h>
 #else
@@ -27,11 +29,9 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <qbuffer.h>
 #if defined(_MSC_VER) && _MSC_VER >= 1400
 #include <share.h>
 #endif
-#include <qplatformdefs.h>
 
 #if 1
 #define qmake_endOfLine(c) (c == '\r' || c == '\n')

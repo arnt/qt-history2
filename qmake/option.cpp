@@ -14,10 +14,10 @@
 #include "option.h"
 #include <qdir.h>
 #include <qregexp.h>
-#include <stdlib.h>
-#include <stdarg.h>
 #include <qhash.h>
 #include <qsettings.h>
+#include <stdlib.h>
+#include <stdarg.h>
 
 //convenience
 QString Option::prf_ext;

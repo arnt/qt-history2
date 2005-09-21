@@ -16,12 +16,12 @@
 
 #include "project.h"
 #include "xmloutput.h"
-#include "qatomic.h"
-#include <qdebug.h>
+#include <qatomic.h>
 #include <qlist.h>
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qmap.h>
+#include <qdebug.h>
 
 /*
     This Object model is of course VERY simplyfied,
@@ -964,4 +964,4 @@ XmlOutput &operator<<(XmlOutput &, VCFilter &);
 XmlOutput &operator<<(XmlOutput &, const VCProjectSingleConfig &);
 XmlOutput &operator<<(XmlOutput &, VCProject &);
 
-#endif //MSVC_OBJECTMODEL_H
+#endif // MSVC_OBJECTMODEL_H

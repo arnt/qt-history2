@@ -14,10 +14,11 @@
 #ifndef METAMAKEFILE_H
 #define METAMAKEFILE_H
 
-class QMakeProject;
-class MakefileGenerator;
 #include <qlist.h>
 #include <qstring.h>
+
+class QMakeProject;
+class MakefileGenerator;
 
 class MetaMakefileGenerator
 {
