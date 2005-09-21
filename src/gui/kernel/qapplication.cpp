@@ -1024,7 +1024,7 @@ QStyle *QApplication::style()
 #elif defined(Q_WS_MAC)
                 style = "Macintosh";                // default style for all Mac's
 #elif defined(Q_WS_QWS)
-            style = "Compact";                // default style for small devices
+            style = "Plastique";                // default style for small devices
 #endif
         }
         if (!(QApplicationPrivate::app_style = QStyleFactory::create(style)) // platform default style not available, try alternatives
