@@ -620,14 +620,28 @@ QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVar
     return qvariant_cast<QPixmap>(variant);
 }
 
+// hacky but faster version of "QString::sprintf("%d-%d", i, enabled)"
+static QString qPixmapSerial(quint64 i, bool enabled)
+{
+    ushort arr[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '-', '0' + enabled, 0 };
+    ushort *ptr = &arr[16];
+
+    while (i > 0) {
+        // hey - it's our internal representation, so use the ascii character after '9'
+        // instead of 'a' for hex
+        *(--ptr) = '0' + i % 16;
+        i = i >> 4;
+    }
+
+    return QString(reinterpret_cast<const QChar *>(ptr), int(ptr - arr) / sizeof(ushort));
+}
+
 /*!
   \internal
 */
-
 QPixmap *QItemDelegate::selected(const QPixmap &pixmap, const QPalette &palette, bool enabled) const
 {
-    QString key;
-    key.sprintf("%d-%d", pixmap.serialNumber(), enabled);
+    QString key = qPixmapSerial(pixmap.serialNumber(), enabled);
     QPixmap *pm = QPixmapCache::find(key);
     if (!pm) {
         QImage img = pixmap.toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
