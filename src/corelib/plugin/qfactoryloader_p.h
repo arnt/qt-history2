@@ -25,9 +25,9 @@
 // We mean it.
 //
 
-#include <qobject.h>
-#include <qstringlist.h>
-#include "qlibrary_p.h"
+#include "QtCore/qobject.h"
+#include "QtCore/qstringlist.h"
+#include "private/qlibrary_p.h"
 
 #ifndef QT_NO_LIBRARY
 
@@ -51,4 +51,5 @@ public:
 };
 
 #endif // QT_NO_LIBRARY
+
 #endif // QFACTORYLOADER_P_H

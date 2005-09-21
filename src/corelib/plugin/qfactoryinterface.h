@@ -14,8 +14,8 @@
 #ifndef QFACTORYINTERFACE_H
 #define QFACTORYINTERFACE_H
 
-#include "QtCore/qobject.h"
-#include "QtCore/qstringlist.h"
+#include <QtCore/qobject.h>
+#include <QtCore/qstringlist.h>
 
 QT_MODULE(Core)
 

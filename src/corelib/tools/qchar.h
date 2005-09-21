@@ -14,7 +14,7 @@
 #ifndef QCHAR_H
 #define QCHAR_H
 
-#include "QtCore/qglobal.h"
+#include <QtCore/qglobal.h>
 
 QT_MODULE(Core)
 

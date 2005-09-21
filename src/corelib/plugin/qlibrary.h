@@ -14,7 +14,7 @@
 #ifndef QLIBRARY_H
 #define QLIBRARY_H
 
-#include "QtCore/qobject.h"
+#include <QtCore/qobject.h>
 
 QT_MODULE(Core)
 
@@ -53,4 +53,5 @@ private:
 };
 
 #endif //QT_NO_LIBRARY
+
 #endif //QLIBRARY_H

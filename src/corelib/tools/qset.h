@@ -14,7 +14,7 @@
 #ifndef QSET_H
 #define QSET_H
 
-#include "QtCore/qhash.h"
+#include <QtCore/qhash.h>
 
 QT_MODULE(Core)
 

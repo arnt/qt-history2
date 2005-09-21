@@ -14,13 +14,12 @@
 #ifndef QBYTEARRAY_H
 #define QBYTEARRAY_H
 
-#include "QtCore/qglobal.h"
-#include "QtCore/qatomic.h"
+#include <QtCore/qglobal.h>
+#include <QtCore/qatomic.h>
 
 #include <string.h>
 #include <stdarg.h>
 
-// POSIX defines truncate to truncate64
 #ifdef truncate
 #error qbytearray.h must be included before any header file that defines truncate
 #endif

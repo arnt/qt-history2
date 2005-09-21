@@ -14,7 +14,7 @@
 #ifndef QPLUGINLOADER_H
 #define QPLUGINLOADER_H
 
-#include "QtCore/qobject.h"
+#include <QtCore/qobject.h>
 
 #ifndef QT_NO_LIBRARY
 
@@ -47,4 +47,5 @@ private:
 };
 
 #endif // QT_NO_LIBRARY
+
 #endif //QPLUGINLOADER_H

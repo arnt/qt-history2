@@ -14,11 +14,10 @@
 #ifndef QSTRING_H
 #define QSTRING_H
 
-#include "QtCore/qchar.h"
-#include "QtCore/qbytearray.h"
-#include "QtCore/qatomic.h"
-#include "QtCore/qnamespace.h"
-
+#include <QtCore/qchar.h>
+#include <QtCore/qbytearray.h>
+#include <QtCore/qatomic.h>
+#include <QtCore/qnamespace.h>
 #ifdef QT_INCLUDE_COMPAT
 #include <Qt3Support/q3cstring.h>
 #endif
@@ -39,7 +38,6 @@ typedef std::basic_string<wchar_t> QStdWString;
 #endif // QT_NO_STL_WCHAR
 
 #endif // QT_NO_STL
-
 
 #include <stdarg.h>
 

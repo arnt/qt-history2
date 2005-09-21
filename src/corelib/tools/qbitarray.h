@@ -14,7 +14,7 @@
 #ifndef QBITARRAY_H
 #define QBITARRAY_H
 
-#include "QtCore/qbytearray.h"
+#include <QtCore/qbytearray.h>
 
 QT_MODULE(Core)
 

@@ -26,14 +26,12 @@
 //
 
 #ifdef Q_WS_WIN
-# include "qt_windows.h"
+# include "QtCore/qt_windows.h"
 #endif
-
-
-#include "qlibrary.h"
-#include "qpointer.h"
-#include "qstringlist.h"
-#include "qplugin.h"
+#include "QtCore/qlibrary.h"
+#include "QtCore/qpointer.h"
+#include "QtCore/qstringlist.h"
+#include "QtCore/qplugin.h"
 
 #ifndef QT_NO_LIBRARY
 
@@ -81,4 +79,5 @@ private:
 };
 
 #endif // QT_NO_LIBRARY
+
 #endif // QLIBRARY_P_H

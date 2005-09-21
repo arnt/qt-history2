@@ -16,8 +16,10 @@
 
 #ifndef QT_NO_REGEXP
 
-#include "QtCore/qstring.h"
+#include <QtCore/qstring.h>
+#ifdef QT3_SUPPORT
 #include <new>
+#endif
 
 QT_MODULE(Core)
 
@@ -110,6 +112,6 @@ Q_CORE_EXPORT QDataStream &operator<<(QDataStream &out, const QRegExp &regExp);
 Q_CORE_EXPORT QDataStream &operator>>(QDataStream &in, QRegExp &regExp);
 #endif
 
-#endif
+#endif // QT_NO_REGEXP
 
 #endif // QREGEXP_H

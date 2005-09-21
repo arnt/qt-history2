@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include "qstring.h"
+#include "QtCore/qstring.h"
 
 namespace QUnicodeTables {
 

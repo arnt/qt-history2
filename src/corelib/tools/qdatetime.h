@@ -14,8 +14,8 @@
 #ifndef QDATETIME_H
 #define QDATETIME_H
 
-#include "QtCore/qstring.h"
-#include "QtCore/qnamespace.h"
+#include <QtCore/qstring.h>
+#include <QtCore/qnamespace.h>
 
 QT_MODULE(Core)
 

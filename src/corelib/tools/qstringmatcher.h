@@ -14,7 +14,7 @@
 #ifndef QSTRINGMATCHER_H
 #define QSTRINGMATCHER_H
 
-#include "QtCore/qstring.h"
+#include <QtCore/qstring.h>
 
 QT_MODULE(Core)
 

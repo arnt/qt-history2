@@ -14,7 +14,7 @@
 #ifndef QQUEUE_H
 #define QQUEUE_H
 
-#include "QtCore/qlist.h"
+#include <QtCore/qlist.h>
 
 QT_MODULE(Core)
 

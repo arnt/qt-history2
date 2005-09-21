@@ -14,7 +14,7 @@
 #ifndef QSTACK_H
 #define QSTACK_H
 
-#include "QtCore/qvector.h"
+#include <QtCore/qvector.h>
 
 QT_MODULE(Core)
 

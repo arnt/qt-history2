@@ -15,11 +15,10 @@
 #define QDATETIME_P_H
 
 #include "qplatformdefs.h"
-
-#include "qatomic.h"
-#include "qdatetime.h"
-#include "qlist.h"
-#include "qvariant.h"
+#include "QtCore/qatomic.h"
+#include "QtCore/qdatetime.h"
+#include "QtCore/qlist.h"
+#include "QtCore/qvariant.h"
 
 class QDateTimePrivate
 {

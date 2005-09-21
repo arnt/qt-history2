@@ -14,7 +14,7 @@
 #ifndef QALGORITHMS_H
 #define QALGORITHMS_H
 
-#include "QtCore/qglobal.h"
+#include <QtCore/qglobal.h>
 
 QT_MODULE(Core)
 
@@ -352,6 +352,5 @@ inline void qStableSortHelper(BiIterator begin, BiIterator end, const T &dummy)
 }
 
 } //namespace QAlgorithmsPrivate
-
 
 #endif // QALGORITHMS_H

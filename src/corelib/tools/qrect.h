@@ -14,8 +14,8 @@
 #ifndef QRECT_H
 #define QRECT_H
 
-#include "QtCore/qsize.h"
-#include "QtCore/qpoint.h"
+#include <QtCore/qsize.h>
+#include <QtCore/qpoint.h>
 
 #ifdef topLeft
 #error "qrect.h must be included before any header file that defines topLeft"

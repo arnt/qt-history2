@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include "qmutex.h"
+#include "QtCore/qmutex.h"
 
 #ifndef QT_NO_THREAD
 

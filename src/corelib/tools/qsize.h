@@ -14,7 +14,7 @@
 #ifndef QSIZE_H
 #define QSIZE_H
 
-#include "QtCore/qnamespace.h"
+#include <QtCore/qnamespace.h>
 
 QT_MODULE(Core)
 

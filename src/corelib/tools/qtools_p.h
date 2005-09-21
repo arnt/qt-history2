@@ -14,8 +14,6 @@
 #ifndef QTOOLS_P_H
 #define QTOOLS_P_H
 
-#include <qglobal.h>
-
 //
 //  W A R N I N G
 //  -------------
@@ -26,6 +24,8 @@
 //
 // We mean it.
 //
+
+#include "QtCore/qglobal.h"
 
 // implemented in qbytearray.cpp
 int Q_CORE_EXPORT qAllocMore(int alloc, int extra);

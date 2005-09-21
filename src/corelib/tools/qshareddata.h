@@ -14,8 +14,8 @@
 #ifndef QSHAREDDATA_H
 #define QSHAREDDATA_H
 
-#include <QtCore/qatomic.h>
 #include <QtCore/qglobal.h>
+#include <QtCore/qatomic.h>
 
 QT_MODULE(Core)
 

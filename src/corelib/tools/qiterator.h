@@ -14,7 +14,7 @@
 #ifndef QITERATOR_H
 #define QITERATOR_H
 
-#include "QtCore/qglobal.h"
+#include <QtCore/qglobal.h>
 
 QT_MODULE(Core)
 

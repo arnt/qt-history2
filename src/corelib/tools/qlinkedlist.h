@@ -14,8 +14,8 @@
 #ifndef QLINKEDLIST_H
 #define QLINKEDLIST_H
 
-#include "QtCore/qiterator.h"
-#include "QtCore/qatomic.h"
+#include <QtCore/qiterator.h>
+#include <QtCore/qatomic.h>
 
 #ifndef QT_NO_STL
 #include <iterator>

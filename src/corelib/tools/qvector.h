@@ -14,15 +14,16 @@
 #ifndef QVECTOR_H
 #define QVECTOR_H
 
-#include "QtCore/qiterator.h"
-#include "QtCore/qatomic.h"
-#include "QtCore/qalgorithms.h"
-#include "QtCore/qlist.h"
+#include <QtCore/qiterator.h>
+#include <QtCore/qatomic.h>
+#include <QtCore/qalgorithms.h>
+#include <QtCore/qlist.h>
 
 #ifndef QT_NO_STL
 #include <iterator>
 #include <vector>
 #endif
+#include <stdlib.h>
 #include <string.h>
 
 QT_MODULE(Core)

@@ -118,4 +118,5 @@ private:
 };
 
 #endif // QT_NO_THREAD
+
 #endif // QTHREAD_H

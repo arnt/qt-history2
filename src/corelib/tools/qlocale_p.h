@@ -25,8 +25,8 @@
 // We mean it.
 //
 
-#include <QString>
-#include <QVarLengthArray>
+#include "QtCore/QString"
+#include "QtCore/QVarLengthArray"
 
 struct QLocalePrivate
 {

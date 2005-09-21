@@ -14,9 +14,9 @@
 #ifndef QLIST_H
 #define QLIST_H
 
-#include "QtCore/qiterator.h"
-#include "QtCore/qatomic.h"
-#include "QtCore/qalgorithms.h"
+#include <QtCore/qiterator.h>
+#include <QtCore/qatomic.h>
+#include <QtCore/qalgorithms.h>
 
 #ifndef QT_NO_STL
 #include <iterator>
