@@ -1281,6 +1281,7 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
         // << var("QMAKE_CXXFLAGS") << " "
       << varGlue("PRL_EXPORT_DEFINES","-D"," -D"," ")
       << project->variables()["PRL_EXPORT_CXXFLAGS"].join(" ")
+      << project->variables()["QMAKE_PKGCONFIG_CFLAGS"].join(" ")
         //      << varGlue("DEFINES","-D"," -D"," ")
       << " -I${includedir}";
 }

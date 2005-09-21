@@ -116,7 +116,8 @@ include(qt_install.pri)
 unix {
    CONFIG     += create_libtool create_pc explicitlib
    QMAKE_PKGCONFIG_LIBDIR = $$[QT_INSTALL_LIBS]
-   QMAKE_PKGCONFIG_INCDIR = $$[QT_INSTALL_HEADERS]
+   QMAKE_PKGCONFIG_INCDIR = $$[QT_INSTALL_HEADERS]/$$TARGET
+   QMAKE_PKGCONFIG_CFLAGS = -I$$[QT_INSTALL_HEADERS]
 }
 
 contains(QT_PRODUCT, OpenSource.*):DEFINES *= QT_OPENSOURCE
