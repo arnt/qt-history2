@@ -270,24 +270,23 @@ void QCursorData::update()
             curs.cp.my_cursor = true;
             curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
             QImage bmi, bmmi;
-            bmi = bm->toImage();
-            bmmi = bmm->toImage();
+            bmi = bm->toImage().convertToFormat(QImage::Format_Mono);
+            bmmi = bmm->toImage().convertToFormat(QImage::Format_Mono);
 
-            memset(curs.cp.hcurs->mask, 0, 32);
+            bmi.save("/tmp/foo1.png", "PNG");
+            bmmi.save("/tmp/foo2.png", "PNG");
+
             memset(curs.cp.hcurs->data, 0, 32);
-            for(int y = 0; y < 16; y++) {
-                for(int x = 0; x < 16; x++) {
-                    int bmi_val = 0, bmmi_val = 0;
-                    if(!bmmi.pixel(x, y)) {
-                        if(bmi.pixel(x, y))
-                            bmmi_val = 1;
-                        else
-                            bmi_val = bmmi_val = 1;
-                    }
-                    if(bmmi_val)
-                        *(((uchar*)curs.cp.hcurs->mask) + (y*2) + (x / 8)) |= (1 << (7 - (x % 8)));
-                    if(bmi_val)
-                        *(((uchar*)curs.cp.hcurs->data) + (y*2) + (x / 8)) |= (1 << (7 - (x % 8)));
+            memset(curs.cp.hcurs->mask, 0, 32);
+            uchar *cursdata = reinterpret_cast<uchar *>(curs.cp.hcurs->data);
+            uchar *cursmask = reinterpret_cast<uchar *>(curs.cp.hcurs->mask);
+
+            for(int y = 0; y < bmi.height(); ++y) {
+                uchar *dataScanLine = bmi.scanLine(y);
+                uchar *maskScanLine = bmmi.scanLine(y);
+                for (int x = 0; x < 2; ++x) {
+                    *cursdata++ = dataScanLine[x];
+                    *cursmask++ = maskScanLine[x];
                 }
             }
 #ifdef QMAC_USE_BIG_CURSOR_API

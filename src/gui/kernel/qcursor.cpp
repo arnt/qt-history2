@@ -251,7 +251,7 @@ QCursor::QCursor(const QPixmap &pixmap, int hotX, int hotY)
     \o B=1 and M=1 gives black.
     \o B=0 and M=1 gives white.
     \o B=0 and M=0 gives transparent.
-    \o B=1 and M=0 gives an undefined result.
+    \o B=1 and M=0 gives an XOR'd result.
     \endlist
 
     Use the global Qt color Qt::color0 to draw 0-pixels and Qt::color1 to
