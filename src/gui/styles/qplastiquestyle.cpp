@@ -638,7 +638,7 @@ static void qt_plastique_drawShadedPanel(QPainter *painter, const QStyleOption *
     QColor gradientStopColor = option->palette.button().color().dark(105);
 
     // gradient fill
-    if (option->state & QStyle::State_Enabled) {
+    if ((option->state & QStyle::State_Enabled) || !(option->state & QStyle::State_AutoRaise)) {
         if ((option->state & QStyle::State_Sunken) || (option->state & QStyle::State_On)) {
             qt_plastique_draw_gradient(painter, rect.adjusted(1, 1, -1, -1),
                                        option->palette.button().color().dark(114),
