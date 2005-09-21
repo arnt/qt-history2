@@ -989,11 +989,13 @@ QTextLayout *QTextBlock::layout() const
     if (!b->layout)
         b->layout = new QTextLayout(*this);
 
+    /*
     QMetaObject::invokeMethod(p->layout(),
                               "ensureBlockLayouted",
                               Qt::DirectConnection,
                               QGenericReturnArgument(),
                               Q_ARG(const QTextBlock, *this));
+                              */
 
     return b->layout;
 }
