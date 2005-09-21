@@ -81,6 +81,8 @@ public:
 
     void repaintContents(const QRectF &contentsRect);
     void repaintCursor();
+    inline void repaintSelection()
+    { viewport->update(selectionRect()); }
 
     inline QPoint mapToContents(const QPoint &point) const
     { return QPoint(point.x() + hbar->value(), point.y() + vbar->value()); }
@@ -113,6 +115,7 @@ public:
     void relayoutDocument();
 
     QRect rectForPosition(int position) const;
+    QRect selectionRect() const;
 
     QTextDocument *doc;
     bool cursorOn;
