@@ -1081,7 +1081,7 @@ void QWidgetPrivate::setWindowIcon_sys()
 
         XChangeProperty(X11->display, q->winId(), ATOM(_NET_WM_ICON), XA_CARDINAL, 32,
                         PropModeReplace, (unsigned char *) icon_data.data(),
-                        icon_data.size()*sizeof(long));
+                        icon_data.size());
         /*
           if the app is not using the default visual, convert the icon
           to 1bpp as stated in the ICCCM section 4.1.2.4; otherwise,
