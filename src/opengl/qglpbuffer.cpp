@@ -13,20 +13,20 @@
 
 /*!
     \class QGLPbuffer
-    \brief The QGLPbuffer class encapsulates an OpenGL offscreen buffer.
+    \brief The QGLPbuffer class encapsulates an OpenGL \c pbuffer.
 
     \ingroup multimedia
 
     QGLPbuffer provides functionality for creating and managing an
-    OpenGL offscreen buffer. An OpenGL offscreen buffer can
-    be rendered into using full hardware acceleration. This is usually
-    much faster than rendering into a system pixmap, since software
-    rendering is often used in that case. Under Windows and on the Mac
-    it is also possible to bind the buffer directly as a texture
-    using the \c render_texture, thus eliminating the need for
-    additional copy operations to generate dynamic textures.
+    OpenGL \c pbuffer. A \c pbuffer can be rendered into using full
+    hardware acceleration. This is usually much faster than rendering
+    into a system pixmap, where software rendering is often
+    used. Under Windows and on the Mac it is also possible to bind the
+    \c pbuffer directly as a texture using the \c render_texture
+    extension, thus eliminating the need for additional copy
+    operations to generate dynamic textures.
 
-    Note that when makeing use of the \c render_texture extension, the
+    Note that when making use of the \c render_texture extension, the
     well known power-of-2 rule applies to the size of the buffer. If
     the size of the buffer is a non-power of 2 size, it can not be
     bound to a texture.
@@ -39,7 +39,7 @@
 
 /*! \fn bool QGLPbuffer::makeCurrent()
 
-    Makes this buffer the current GL rendering context. Returns true
+    Makes this \c pbuffer the current GL rendering context. Returns true
     on success, false otherwise.
  */
 
