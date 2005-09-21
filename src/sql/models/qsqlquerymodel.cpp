@@ -110,6 +110,10 @@ QSqlQueryModelPrivate::~QSqlQueryModelPrivate()
     data before showing it to the user, and how to create a
     read-write model based on QSqlQueryModel.
 
+    If the database doesn't return the amount of selected rows in
+    a query, the model will fetch rows incrementally.
+    See fetchMore() for more information.
+
     \sa QSqlTableModel, QSqlRelationalTableModel, QSqlQuery,
         {Model/View Programming}
 */
@@ -139,7 +143,20 @@ QSqlQueryModel::~QSqlQueryModel()
 }
 
 /*!
-    \reimp
+    Fetches more rows from a database.
+    This only affects databases that don't report back the size of a query
+    (see QSqlDriver::hasFeature()).
+
+    To force fetching of the entire database, you can use the following:
+
+    \code
+    while (myModel->canFetchMore())
+        myModel->fetchMore();
+    \endcode
+
+    \a parent should always be an invalid QModelIndex.
+
+    \sa canFetchMore()
 */
 void QSqlQueryModel::fetchMore(const QModelIndex &parent)
 {
@@ -149,7 +166,14 @@ void QSqlQueryModel::fetchMore(const QModelIndex &parent)
     d->prefetch(d->bottom.row() + QSQL_PREFETCH);
 }
 
-/*! \reimp
+/*!
+    Returns true if it is possible to read more rows from the database.
+    This only affects databases that don't report back the size of a query
+    (see QSqlDriver::hasFeature()).
+
+    \a parent should always be an invalid QModelIndex.
+
+    \sa fetchMore()
  */
 bool QSqlQueryModel::canFetchMore(const QModelIndex &parent) const
 {
@@ -157,7 +181,16 @@ bool QSqlQueryModel::canFetchMore(const QModelIndex &parent) const
     return (!parent.isValid() && !d->atEnd);
 }
 
-/*! \reimp
+/*! \fn int QSqlQueryModel::rowCount(const QModelIndex &parent) const
+
+    If the database supports returning the size of a query
+    (see QSqlDriver::hasFeature()), the amount of rows of the current
+    query is returned. Otherwise, returns the amount of rows
+    currently cached on the client.
+
+    \a parent should always be an invalid QModelIndex.
+
+    \sa canFetchMore(), QSqlDriver::hasFeature()
  */
 int QSqlQueryModel::rowCount(const QModelIndex &) const
 {
@@ -332,8 +365,8 @@ void QSqlQueryModel::clear()
 }
 
 /*!
-    Sets the caption for a horizontal header to
-    the specified \a value. This is useful if the model is used to
+    Sets the caption for a horizontal header for the specified \a role to
+    \a value. This is useful if the model is used to
     display data in a view (e.g., QTableView).
 
     Returns true if \a orientation is Qt::Horizontal and
