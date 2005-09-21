@@ -26,8 +26,9 @@
 //
 
 #include "QtCore/qabstracteventdispatcher.h"
-#include "qabstracteventdispatcher_p.h"
-#include <qlist.h>
+#include "QtCore/qlist.h"
+#include "private/qabstracteventdispatcher_p.h"
+
 #include <sys/types.h>
 #include <sys/time.h>
 

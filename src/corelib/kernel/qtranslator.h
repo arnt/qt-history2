@@ -14,8 +14,8 @@
 #ifndef QTRANSLATOR_H
 #define QTRANSLATOR_H
 
-#include "QtCore/qobject.h"
-#include "QtCore/qbytearray.h"
+#include <QtCore/qobject.h>
+#include <QtCore/qbytearray.h>
 
 QT_MODULE(Core)
 

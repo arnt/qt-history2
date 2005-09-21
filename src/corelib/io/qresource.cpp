@@ -11,17 +11,16 @@
 **
 ****************************************************************************/
 
-#include <qset.h>
-#include <qhash.h>
-#include <qlocale.h>
-#include <qglobal.h>
-#include <qdatetime.h>
-#include <qbytearray.h>
-#include <qstringlist.h>
-#include <qvector.h>
-#include <private/qabstractfileengine_p.h>
-
 #include "qresource_p.h"
+#include "qset.h"
+#include "qhash.h"
+#include "qlocale.h"
+#include "qglobal.h"
+#include "qdatetime.h"
+#include "qbytearray.h"
+#include "qstringlist.h"
+#include "qvector.h"
+#include "private/qabstractfileengine_p.h"
 
 //resource glue
 class QResource
@@ -695,4 +694,3 @@ static int qt_force_resource_init() { resource_file_handler(); return 1; }
 Q_CORE_EXPORT void qInitResourceIO() { resource_file_handler(); }
 static int qt_forced_resource_init = qt_force_resource_init();
 Q_CONSTRUCTOR_FUNCTION(qt_force_resource_init)
-

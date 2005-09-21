@@ -14,8 +14,8 @@
 #ifndef QMETAOBJECT_H
 #define QMETAOBJECT_H
 
-#include "QtCore/qobjectdefs.h"
-#include "QtCore/qvariant.h"
+#include <QtCore/qobjectdefs.h>
+#include <QtCore/qvariant.h>
 
 QT_MODULE(Core)
 

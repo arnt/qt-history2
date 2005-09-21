@@ -16,14 +16,13 @@
 
 #ifndef QT_NO_QOBJECT
 
-#include "QtCore/qobjectdefs.h"
-#include "QtCore/qnamespace.h"
-#include "QtCore/qstring.h"
-#include "QtCore/qbytearray.h"
-#include "QtCore/qlist.h"
-
+#include <QtCore/qobjectdefs.h>
+#include <QtCore/qnamespace.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qbytearray.h>
+#include <QtCore/qlist.h>
 #ifdef QT_INCLUDE_COMPAT
-#include "QtCore/qcoreevent.h"
+#include <QtCore/qcoreevent.h>
 #endif
 
 QT_MODULE(Core)

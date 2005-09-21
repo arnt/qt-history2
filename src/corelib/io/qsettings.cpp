@@ -12,13 +12,12 @@
 ****************************************************************************/
 
 #include "qplatformdefs.h"
-
 #include "qsettings.h"
 
 #ifndef QT_NO_SETTINGS
 
-#include "qcache.h"
 #include "qsettings_p.h"
+#include "qcache.h"
 #include "qfile.h"
 #include "qdir.h"
 #include "qfileinfo.h"

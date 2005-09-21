@@ -28,7 +28,7 @@
 #if !defined (QT_QWS_NO_SHM)
 
 #include "qplatformdefs.h"
-#include "qstring.h"
+#include "QtCore/qstring.h"
 
 class Q_CORE_EXPORT QSharedMemory {
 public:

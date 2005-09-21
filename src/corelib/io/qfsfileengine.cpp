@@ -12,18 +12,15 @@
 ****************************************************************************/
 
 #include "qfsfileengine_p.h"
+#include "qdatetime.h"
 
 #include <errno.h>
 #include <stdio.h>
 
-#include <qdatetime.h>
-
-// Required to build with msvc.net 2002
-#ifndef S_ISREG
-#define S_ISREG(x)   (((x) & S_IFMT) == S_IFREG)
-#endif
-
 #ifdef Q_OS_WIN
+#  ifndef S_ISREG
+#    define S_ISREG(x)   (((x) & S_IFMT) == S_IFREG)
+#  endif
 #  ifndef S_ISCHR
 #    define S_ISCHR(x)   (((x) & S_IFMT) == S_IFCHR)
 #  endif

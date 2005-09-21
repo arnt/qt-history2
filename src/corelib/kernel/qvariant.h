@@ -14,12 +14,12 @@
 #ifndef QVARIANT_H
 #define QVARIANT_H
 
-#include "QtCore/qatomic.h"
-#include "QtCore/qbytearray.h"
-#include "QtCore/qlist.h"
-#include "QtCore/qmetatype.h"
-#include "QtCore/qmap.h"
-#include "QtCore/qstring.h"
+#include <QtCore/qatomic.h>
+#include <QtCore/qbytearray.h>
+#include <QtCore/qlist.h>
+#include <QtCore/qmetatype.h>
+#include <QtCore/qmap.h>
+#include <QtCore/qstring.h>
 
 QT_MODULE(Core)
 

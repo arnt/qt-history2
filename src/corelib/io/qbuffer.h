@@ -14,8 +14,8 @@
 #ifndef QBUFFER_H
 #define QBUFFER_H
 
-#include "QtCore/qiodevice.h"
-#include "QtCore/qbytearray.h"
+#include <QtCore/qiodevice.h>
+#include <QtCore/qbytearray.h>
 
 QT_MODULE(Core)
 

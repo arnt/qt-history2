@@ -12,12 +12,12 @@
 ****************************************************************************/
 
 //#define QPROCESS_DEBUG
-#include <qdebug.h>
+#include "qdebug.h"
 
 #ifndef QT_NO_PROCESS
 
 #if defined QPROCESS_DEBUG
-#include <qstring.h>
+#include "qstring.h"
 #include <ctype.h>
 
 /*

@@ -12,12 +12,11 @@
 ****************************************************************************/
 
 #include "qplatformdefs.h"
-
 #include "qtemporaryfile.h"
-#include <qabstractfileengine.h>
-#include <private/qfile_p.h>
-#include <private/qabstractfileengine_p.h>
-#include <private/qfsfileengine_p.h>
+#include "qabstractfileengine.h"
+#include "private/qfile_p.h"
+#include "private/qabstractfileengine_p.h"
+#include "private/qfsfileengine_p.h"
 
 #include <stdlib.h>
 #include <errno.h>

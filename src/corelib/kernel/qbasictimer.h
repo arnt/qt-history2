@@ -14,7 +14,7 @@
 #ifndef QBASICTIMER_H
 #define QBASICTIMER_H
 
-#include "QtCore/qglobal.h"
+#include <QtCore/qglobal.h>
 
 QT_MODULE(Core)
 

@@ -25,8 +25,8 @@
 // We mean it.
 //
 
-#include "qobject.h"
-#include "qt_windows.h"
+#include "QtCore/qobject.h"
+#include "QtCore/qt_windows.h"
 
 class Q_CORE_EXPORT QWinEventNotifier : public QObject
 {

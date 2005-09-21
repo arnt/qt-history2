@@ -14,15 +14,15 @@
 #ifndef QMETATYPE_H
 #define QMETATYPE_H
 
-#include "QtCore/qglobal.h"
-#include "QtCore/qatomic.h"
+#include <QtCore/qglobal.h>
+#include <QtCore/qatomic.h>
 
 #ifndef QT_NO_DATASTREAM
 class QDataStream;
 #endif
 
 #ifdef Bool
-#error qmetatype.h must be included before any header file that define Bool
+#error qmetatype.h must be included before any system header that defines Bool
 #endif
 
 QT_MODULE(Core)

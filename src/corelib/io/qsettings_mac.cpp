@@ -13,10 +13,10 @@
 
 #include "qsettings.h"
 #include "qsettings_p.h"
-#include <private/qcore_mac_p.h>
-#include <qdatetime.h>
-#include <qdir.h>
-#include <qvarlengtharray.h>
+#include "qdatetime.h"
+#include "qdir.h"
+#include "qvarlengtharray.h"
+#include "private/qcore_mac_p.h"
 
 static const CFStringRef hostNames[2] = { kCFPreferencesCurrentHost, kCFPreferencesAnyHost };
 static const int numHostNames = 2;

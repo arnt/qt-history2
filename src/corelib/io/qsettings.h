@@ -14,16 +14,16 @@
 #ifndef QSETTINGS_H
 #define QSETTINGS_H
 
-#include "QtCore/qobject.h"
-#include "QtCore/qvariant.h"
-#include "QtCore/qstring.h"
+#include <QtCore/qobject.h>
+#include <QtCore/qvariant.h>
+#include <QtCore/qstring.h>
 
 QT_MODULE(Core)
 
 #ifndef QT_NO_SETTINGS
 
 #ifdef QT3_SUPPORT
-#include "QtCore/qstringlist.h"
+#include <QtCore/qstringlist.h>
 #endif
 
 #include <ctype.h>
@@ -256,6 +256,6 @@ private:
     Q_DISABLE_COPY(QSettings)
 };
 
-
 #endif // QT_NO_SETTINGS
+
 #endif // QSETTINGS_H

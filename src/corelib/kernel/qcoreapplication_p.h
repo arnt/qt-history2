@@ -25,9 +25,9 @@
 // We mean it.
 //
 
-#include "qobject_p.h"
-#include "qcoreapplication.h"
-#include "qtranslator.h"
+#include "QtCore/qcoreapplication.h"
+#include "QtCore/qtranslator.h"
+#include "private/qobject_p.h"
 
 typedef QList<QTranslator*> QTranslatorList;
 

@@ -12,12 +12,11 @@
 ****************************************************************************/
 
 #include "qabstractfileengine.h"
-#include <private/qabstractfileengine_p.h>
-#include <qdatetime.h>
-#include <qmutex.h>
-
+#include "private/qabstractfileengine_p.h"
+#include "qdatetime.h"
+#include "qmutex.h"
 // built-in handlers
-#include <qfsfileengine.h>
+#include "qfsfileengine.h"
 
 /*!
     \class QAbstractFileEngineHandler
@@ -766,18 +765,3 @@ void QAbstractFileEngine::setError(QFile::FileError error, const QString &errorS
     d->fileError = error;
     d->errorString = errorString;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

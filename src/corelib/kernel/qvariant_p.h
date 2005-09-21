@@ -25,11 +25,10 @@
 // We mean it.
 //
 
-
 // takes a type, returns the internal void* pointer casted
 // to a pointer of the input type
 
-#ifdef Q_CC_SUN // Sun CC piks the wrong overload, so introduce awful hack
+#ifdef Q_CC_SUN // Sun CC picks the wrong overload, so introduce awful hack
 
 template <typename T>
 inline T *v_cast(const QVariant::Private *nd, T * = 0)

@@ -14,10 +14,6 @@
 #ifndef QFSFILEENGINE_P_H
 #define QFSFILEENGINE_P_H
 
-#include <qplatformdefs.h>
-#include "qfsfileengine.h"
-#include <private/qabstractfileengine_p.h>
-
 //
 //  W A R N I N G
 //  -------------
@@ -28,6 +24,10 @@
 //
 // We mean it.
 //
+
+#include "qplatformdefs.h"
+#include "QtCore/qfsfileengine.h"
+#include "private/qabstractfileengine_p.h"
 
 class QFSFileEnginePrivate : public QAbstractFileEnginePrivate
 {

@@ -14,7 +14,7 @@
 #ifndef QSIGNALMAPPER_H
 #define QSIGNALMAPPER_H
 
-#include "QtCore/qobject.h"
+#include <QtCore/qobject.h>
 
 QT_MODULE(Core)
 

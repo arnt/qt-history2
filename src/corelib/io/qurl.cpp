@@ -131,21 +131,19 @@
 */
 
 #include "qplatformdefs.h"
-
-#include <private/qunicodetables_p.h>
-#include <qatomic.h>
-#include <qbytearray.h>
-#include <qlist.h>
-#include <qregexp.h>
-#include <qstring.h>
-#include <qstringlist.h>
-#include <qstack.h>
-#include <qvarlengtharray.h>
-#include <qdebug.h>
 #include "qurl.h"
-
+#include "private/qunicodetables_p.h"
+#include "qatomic.h"
+#include "qbytearray.h"
+#include "qlist.h"
+#include "qregexp.h"
+#include "qstring.h"
+#include "qstringlist.h"
+#include "qstack.h"
+#include "qvarlengtharray.h"
+#include "qdebug.h"
 #if defined QT3_SUPPORT
-#include <qfileinfo.h>
+#include "qfileinfo.h"
 #endif
 
 //#define QURL_DEBUG

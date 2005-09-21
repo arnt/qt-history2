@@ -14,8 +14,8 @@
 #ifndef QABSTRACTEVENTDISPATCHER_H
 #define QABSTRACTEVENTDISPATCHER_H
 
-#include "QtCore/qobject.h"
-#include "QtCore/qeventloop.h"
+#include <QtCore/qobject.h>
+#include <QtCore/qeventloop.h>
 
 QT_MODULE(Core)
 

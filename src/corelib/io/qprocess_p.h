@@ -25,14 +25,13 @@
 // We mean it.
 //
 
-#include "qprocess.h"
-
-#include <private/qinternal_p.h>
-#include <private/qiodevice_p.h>
-#include <qstringlist.h>
+#include "QtCore/qprocess.h"
+#include "QtCore/qstringlist.h"
+#include "private/qinternal_p.h"
+#include "private/qiodevice_p.h"
 
 #ifdef Q_OS_WIN
-#include "qt_windows.h"
+#include "QtCore/qt_windows.h"
 typedef HANDLE Q_PIPE;
 #define INVALID_Q_PIPE INVALID_HANDLE_VALUE
 #else
@@ -143,4 +142,5 @@ public:
 };
 
 #endif // QT_NO_PROCESS
+
 #endif // QPROCESS_P_H

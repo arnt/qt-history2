@@ -11,14 +11,13 @@
 **
 ****************************************************************************/
 
-#include <qplatformdefs.h>
-
+#include "qplatformdefs.h"
 #include "qfileinfo.h"
-#include <qdatetime.h>
-#include <qabstractfileengine.h>
-#include <qglobal.h>
-#include <qatomic.h>
-#include <qhash.h>
+#include "qdatetime.h"
+#include "qabstractfileengine.h"
+#include "qglobal.h"
+#include "qatomic.h"
+#include "qhash.h"
 #include "qdir.h"
 
 class QFileInfoPrivate

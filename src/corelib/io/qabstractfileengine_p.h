@@ -25,8 +25,8 @@
 // We mean it.
 //
 
-#include "qabstractfileengine.h"
-#include "qfile.h"
+#include "QtCore/qabstractfileengine.h"
+#include "QtCore/qfile.h"
 
 class QAbstractFileEnginePrivate
 {

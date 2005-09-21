@@ -25,9 +25,7 @@
 // We mean it.
 //
 
-#include "qglobal.h"
-#include "qstring.h"
-#include "qtextcodec.h"
+#include "QtCore/qtextcodec.h"
 
 #ifndef QT_NO_CODECS
 

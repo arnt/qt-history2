@@ -14,13 +14,13 @@
 #ifndef QTEXTSTREAM_H
 #define QTEXTSTREAM_H
 
-#include "QtCore/qiodevice.h"
-#include "QtCore/qstring.h"
-#include "QtCore/qchar.h"
+#include <QtCore/qiodevice.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qchar.h>
 
 #ifndef QT_NO_TEXTCODEC
 #  ifdef QT3_SUPPORT
-#    include "QtCore/qtextcodec.h"
+#    include <QtCore/qtextcodec.h>
 #  endif
 #endif
 
@@ -49,7 +49,7 @@ public:
         AlignAccountingStyle
     };
 #ifdef Status
-#error This file has to be included before any system files that define Status
+#error qtextstream.h must be included before any system header that defines Status
 #endif
     enum Status {
         Ok,
@@ -329,6 +329,5 @@ private:
     Q_DISABLE_COPY(QTextOStream)
 };
 #endif
-
 
 #endif // QTEXTSTREAM_H

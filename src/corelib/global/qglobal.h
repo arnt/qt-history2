@@ -23,7 +23,7 @@
 #define QT_VERSION 0x040100
 
 #if !defined(QT_BUILD_MOC)
-#include "QtCore/qconfig.h"
+#include <QtCore/qconfig.h>
 #endif
 
 /*
@@ -787,7 +787,7 @@ class QDataStream;
 #  define QT_NO_COP
 #endif
 
-# include "QtCore/qfeatures.h"
+# include <QtCore/qfeatures.h>
 
 #ifndef Q_DECL_EXPORT
 #  ifdef Q_OS_WIN

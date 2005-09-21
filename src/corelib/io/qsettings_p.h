@@ -25,18 +25,18 @@
 // We mean it.
 //
 
-#include <qdatetime.h>
-#include <qmap.h>
-#include <qmutex.h>
-#include <qiodevice.h>
-#include <qstack.h>
-#include <qstringlist.h>
+#include "QtCore/qdatetime.h"
+#include "QtCore/qmap.h"
+#include "QtCore/qmutex.h"
+#include "QtCore/qiodevice.h"
+#include "QtCore/qstack.h"
+#include "QtCore/qstringlist.h"
 #ifndef QT_NO_QOBJECT
-#include <private/qobject_p.h>
+#include "private/qobject_p.h"
 #endif
 
 #ifdef Q_OS_WIN
-#include <qt_windows.h>
+#include "QtCore/qt_windows.h"
 #endif
 
 class QSettingsKey : public QString

@@ -69,10 +69,10 @@
 #define SPI_GETKEYBOARDCUES 0x100A
 #endif
 #ifndef IDC_HAND
-#define IDC_HAND            MAKEINTRESOURCE(32649)
+#define IDC_HAND MAKEINTRESOURCE(32649)
 #endif
 #ifndef WM_MOUSEWHEEL
-#define WM_MOUSEWHEEL        0x020A
+#define WM_MOUSEWHEEL 0x020A
 #endif
 
 #endif // QT_WINDOWS_H

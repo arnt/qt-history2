@@ -142,4 +142,5 @@ private:
 };
 
 #endif // QT_NO_PROCESS
+
 #endif // QPROCESS_H

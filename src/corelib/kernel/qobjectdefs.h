@@ -14,7 +14,7 @@
 #ifndef QOBJECTDEFS_H
 #define QOBJECTDEFS_H
 
-#include "QtCore/qnamespace.h"
+#include <QtCore/qnamespace.h>
 
 QT_MODULE(Core)
 

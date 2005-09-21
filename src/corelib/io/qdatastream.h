@@ -14,8 +14,8 @@
 #ifndef QDATASTREAM_H
 #define QDATASTREAM_H
 
-#include "QtCore/qiodevice.h"
-#include "QtCore/qglobal.h"
+#include <QtCore/qiodevice.h>
+#include <QtCore/qglobal.h>
 
 QT_MODULE(Core)
 
@@ -55,7 +55,7 @@ public:
     };
 
 #ifdef Status
-#error This file has to be included before any system files that define Status
+#error qdatastream.h must be included before any system header that defines Status
 #endif
     enum Status {
         Ok,

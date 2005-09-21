@@ -11,16 +11,15 @@
 **
 ****************************************************************************/
 
-#include <qplatformdefs.h>
-
+#include "qplatformdefs.h"
 #include "qfile.h"
 #include "qfsfileengine.h"
-#include <qtemporaryfile.h>
-#include <qlist.h>
-#include <qfileinfo.h>
-#include <private/qiodevice_p.h>
-#include <private/qfile_p.h>
-#include <private/qunicodetables_p.h>
+#include "qtemporaryfile.h"
+#include "qlist.h"
+#include "qfileinfo.h"
+#include "private/qiodevice_p.h"
+#include "private/qfile_p.h"
+#include "private/qunicodetables_p.h"
 #if defined(QT_BUILD_CORE_LIB)
 # include "qcoreapplication.h"
 #endif

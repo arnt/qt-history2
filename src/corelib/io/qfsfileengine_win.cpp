@@ -12,29 +12,29 @@
 ****************************************************************************/
 
 #define _POSIX_
-#include <qplatformdefs.h>
-#include <qabstractfileengine.h>
-#include <private/qfsfileengine_p.h>
+#include "qplatformdefs.h"
+#include "qabstractfileengine.h"
+#include "private/qfsfileengine_p.h"
 
-#include <qfile.h>
-#include <qdir.h>
-#include <qtemporaryfile.h>
+#include "qfile.h"
+#include "qdir.h"
+#include "qtemporaryfile.h"
 #ifndef QT_NO_REGEXP
-# include <qregexp.h>
+# include "qregexp.h"
 #endif
-#include <private/qmutexpool_p.h>
-#include <qvarlengtharray.h>
-#include <qdatetime.h>
+#include "private/qmutexpool_p.h"
+#include "qvarlengtharray.h"
+#include "qdatetime.h"
+#include "qt_windows.h"
 
 #include <sys/types.h>
-#include <windows.h>
 #include <direct.h>
 #include <objbase.h>
 #include <shlobj.h>
 #include <initguid.h>
+#include <accctrl.h>
 #include <ctype.h>
 #include <limits.h>
-#include <accctrl.h>
 #define SECURITY_WIN32
 #include <security.h>
 
@@ -1513,4 +1513,3 @@ QDateTime QFSFileEngine::fileTime(FileTime time) const
     }
     return ret;
 }
-

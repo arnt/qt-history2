@@ -26,7 +26,7 @@
 //
 //
 
-#include <private/qobject_p.h>
+#include "private/qobject_p.h"
 
 class Q_CORE_EXPORT QPersistentModelIndexData
 {

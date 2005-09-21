@@ -14,10 +14,10 @@
 #ifndef QTEXTCODECPLUGIN_H
 #define QTEXTCODECPLUGIN_H
 
-#include "QtCore/qplugin.h"
-#include "QtCore/qfactoryinterface.h"
-#include "QtCore/qlist.h"
-#include "QtCore/qbytearray.h"
+#include <QtCore/qplugin.h>
+#include <QtCore/qfactoryinterface.h>
+#include <QtCore/qlist.h>
+#include <QtCore/qbytearray.h>
 
 QT_MODULE(Core)
 

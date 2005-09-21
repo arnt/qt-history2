@@ -14,7 +14,7 @@
 #ifndef QSOCKETNOTIFIER_H
 #define QSOCKETNOTIFIER_H
 
-#include "QtCore/qobject.h"
+#include <QtCore/qobject.h>
 
 QT_MODULE(Core)
 

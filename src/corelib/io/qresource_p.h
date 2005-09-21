@@ -10,10 +10,22 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef QRESOURCE_P_H
 #define QRESOURCE_P_H
 
-#include <qabstractfileengine.h>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include "QtCore/qabstractfileengine.h"
 
 class QResourceFileEnginePrivate;
 class QResourceFileEngine : public QAbstractFileEngine

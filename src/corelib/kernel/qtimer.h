@@ -16,8 +16,8 @@
 
 #ifndef QT_NO_QOBJECT
 
-#include "QtCore/qbasictimer.h" // conceptual inheritance
-#include "QtCore/qobject.h"
+#include <QtCore/qbasictimer.h> // conceptual inheritance
+#include <QtCore/qobject.h>
 
 QT_MODULE(Core)
 
@@ -74,6 +74,6 @@ private:
 
 inline void QTimer::setSingleShot(bool asingleShot) { single = asingleShot; }
 
-#endif
+#endif // QT_NO_QOBJECT
 
 #endif // QTIMER_H

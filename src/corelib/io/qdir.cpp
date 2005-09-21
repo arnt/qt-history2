@@ -11,16 +11,16 @@
 **
 ****************************************************************************/
 
-#include <qplatformdefs.h>
-
+#include "qplatformdefs.h"
 #include "qdir.h"
-#include <qabstractfileengine.h>
-#include <qfsfileengine.h>
-#include <qdatetime.h>
-#include <qstring.h>
-#include <qregexp.h>
-#include <qvector.h>
-#include <qdebug.h>
+#include "qabstractfileengine.h"
+#include "qfsfileengine.h"
+#include "qdatetime.h"
+#include "qstring.h"
+#include "qregexp.h"
+#include "qvector.h"
+#include "qdebug.h"
+
 #include <stdlib.h>
 
 static QString driveSpec(const QString &path)

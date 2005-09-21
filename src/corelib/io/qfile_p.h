@@ -25,9 +25,9 @@
 // We mean it.
 //
 
-#include <private/qiodevice_p.h>
-#include <private/qinternal_p.h>
-#include <qabstractfileengine.h>
+#include "QtCore/qabstractfileengine.h"
+#include "private/qiodevice_p.h"
+#include "private/qinternal_p.h"
 
 class QFilePrivate : public QIODevicePrivate
 {

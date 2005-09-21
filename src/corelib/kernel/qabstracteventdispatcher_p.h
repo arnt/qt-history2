@@ -25,8 +25,8 @@
 // We mean it.
 //
 
-#include "qabstracteventdispatcher.h"
-#include "qobject_p.h"
+#include "QtCore/qabstracteventdispatcher.h"
+#include "private/qobject_p.h"
 
 class QAbstractEventDispatcherPrivate : public QObjectPrivate
 {

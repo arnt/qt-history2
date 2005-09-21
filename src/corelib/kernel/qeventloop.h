@@ -14,7 +14,7 @@
 #ifndef QEVENTLOOP_H
 #define QEVENTLOOP_H
 
-#include "QtCore/qobject.h"
+#include <QtCore/qobject.h>
 
 QT_MODULE(Core)
 

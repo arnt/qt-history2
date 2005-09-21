@@ -14,11 +14,11 @@
 #ifndef QDEBUG_H
 #define QDEBUG_H
 
-#include "QtCore/qalgorithms.h"
-#include "QtCore/qlist.h"
-#include "QtCore/qmap.h"
-#include "QtCore/qtextstream.h"
-#include "QtCore/qstring.h"
+#include <QtCore/qalgorithms.h>
+#include <QtCore/qlist.h>
+#include <QtCore/qmap.h>
+#include <QtCore/qtextstream.h>
+#include <QtCore/qstring.h>
 
 QT_MODULE(Core)
 

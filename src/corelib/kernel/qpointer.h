@@ -14,7 +14,7 @@
 #ifndef QPOINTER_H
 #define QPOINTER_H
 
-#include "QtCore/qobject.h"
+#include <QtCore/qobject.h>
 
 QT_MODULE(Core)
 

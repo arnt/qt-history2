@@ -14,8 +14,8 @@
 #ifndef QFILEINFO_H
 #define QFILEINFO_H
 
-#include "QtCore/qfile.h"
-#include "QtCore/qlist.h"
+#include <QtCore/qfile.h>
+#include <QtCore/qlist.h>
 
 QT_MODULE(Core)
 

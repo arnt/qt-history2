@@ -25,15 +25,13 @@
 // We mean it.
 //
 
-#include "qbytearray.h"
-
+#include "QtCore/qiodevice.h"
+#include "QtCore/qbytearray.h"
+#include "QtCore/qobjectdefs.h"
+#include "QtCore/qstring.h"
 #ifndef QT_NO_QOBJECT
 #include "private/qobject_p.h"
 #endif
-
-#include "qiodevice.h"
-#include "qobjectdefs.h"
-#include "qstring.h"
 
 class Q_CORE_EXPORT QIODevicePrivate
 #ifndef QT_NO_QOBJECT

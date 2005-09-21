@@ -25,12 +25,12 @@
 // We mean it.
 //
 
-#include "qobject.h"
-#include "qpointer.h"
-#include "qcoreevent.h"
-#include "qlist.h"
-#include "qvector.h"
-#include "qreadwritelock.h"
+#include "QtCore/qobject.h"
+#include "QtCore/qpointer.h"
+#include "QtCore/qcoreevent.h"
+#include "QtCore/qlist.h"
+#include "QtCore/qvector.h"
+#include "QtCore/qreadwritelock.h"
 
 class QThreadData;
 

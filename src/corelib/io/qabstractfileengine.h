@@ -14,7 +14,7 @@
 #ifndef QABSTRACTFILEENGINE_H
 #define QABSTRACTFILEENGINE_H
 
-#include "QtCore/qdir.h"
+#include <QtCore/qdir.h>
 
 #ifdef open
 #error qabstractfileengine.h must be included before any system header that defines open
