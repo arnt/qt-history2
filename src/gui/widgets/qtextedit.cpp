@@ -1892,7 +1892,7 @@ QRect QTextEditPrivate::selectionRect() const
             const QTextLine posLine = posBlock.layout()->lineForTextPosition(position - posBlock.position());
             const QTextLine anchorLine = anchorBlock.layout()->lineForTextPosition(position - anchorBlock.position());
             if (posLine.lineNumber() == anchorLine.lineNumber()) {
-                r = posLine.rect().translated(posLine.x(), posLine.y()).toRect();
+                r = posLine.rect().toRect();
             } else {
                 r = posBlock.layout()->boundingRect().toRect();
             }
