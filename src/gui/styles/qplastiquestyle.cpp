@@ -2442,7 +2442,8 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->setPen(QPen());
 
             QString progressBarName;
-            progressBarName.sprintf("progressBarContents-%dx%d", rect.width(), rect.height());
+            progressBarName.sprintf("progressBarContents-%dx%d-%d", rect.width(), rect.height(),
+                                    int(option->state & State_Enabled));
             QPixmap cache;
             if (!UsePixmapCache || !QPixmapCache::find(progressBarName, cache)) {
                 QSize size = rect.size();
@@ -2480,16 +2481,17 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     QPixmapCache::insert(progressBarName, cache);
             }
             painter->setClipRect(progressBar.adjusted(1, 0, -1, -1));
+
             if (!indeterminate) {
                 int step = (AnimateProgressBar || (indeterminate && AnimateBusyProgressBar)) ? (d->animateStep % 20) : 0;
                 if (reverse)
-                    painter->drawPixmap(progressBar.left() - 25 + step, 3, cache);
+                    painter->drawPixmap(progressBar.left() - 25 + step, progressBar.top() + 1, cache);
                 else
-                    painter->drawPixmap(-25 - step + width % 20, 3, cache);
+                    painter->drawPixmap(progressBar.left() - 25 - step + width % 20, progressBar.top() + 1, cache);
             } else {
-                painter->drawPixmap(progressBar.left(), 3, cache);
+                painter->drawPixmap(progressBar.left(), progressBar.top() + 1, cache);
             }
-
+            
             painter->restore();
         }
         break;
