@@ -92,7 +92,14 @@ fi
 # check the license
 #-------------------------------------------------------------------------------
 
-if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]; then
+if [ -f $relpath/LICENSE.Qtopia ]; then
+    # Qtopia Edition
+    [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
+    [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
+    Licensee="Qtopia"
+    Edition="Qtopia"
+    QT_EDITION="Qt_EDITION_DESKTOP"
+elif [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]; then
     # Open Source edition - may only be used under the terms of the QPL or GPL.
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
@@ -2535,7 +2542,39 @@ fi # Help
 # LICENSING, INTERACTIVE PART
 # -----------------------------------------------------------------------------
 
-if [ "$Edition" = "OpenSource" ]; then
+if [ "$Edition" = "Qtopia" ]; then
+    TheLicense=`head -n 1 $relpath/LICENSE.Qtopia`
+    while true; do
+        if [ "$OPT_CONFIRM_LICENSE" = "yes" ]; then
+            echo "You have already accepted the terms of the $TheLicense license."
+            acceptance=yes
+        else
+            echo "You are licensed to use this software under the terms of"
+            echo "the $TheLicense"
+            echo
+            echo "Type '?' to read the $TheLicense"
+            echo "Type 'yes' to accept this license offer."
+            echo "Type 'no' to decline this license offer."
+            echo
+            if echo '\c' | grep '\c' >/dev/null; then
+                echo -n "Do you accept the terms of the license? "
+            else
+                echo "Do you accept the terms of the license? \c"
+            fi
+            read acceptance
+        fi
+        echo
+        if [ "$acceptance" = "yes" ]; then
+            break
+        elif [ "$acceptance" = "no" ] ;then
+            echo "You are not licensed to use this software."
+            echo
+            exit 0
+        elif [ "$acceptance" = "?" ]; then
+            more $relpath/LICENSE.Qtopia
+        fi
+    done
+elif [ "$Edition" = "OpenSource" ]; then
     while true; do
         if [ "$PLATFORM_QWS" = "yes" ]; then
             echo "You are licensed to use this software under the terms of"
