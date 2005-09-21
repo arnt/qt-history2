@@ -1458,6 +1458,9 @@ if [ "$CFG_EMBEDDED" != "no" ]; then
             *86)
                 PLATFORM=qws/linux-x86-g++
                 ;;
+            *86_64)
+                PLATFORM=qws/linux-x86_64-g++
+                ;;
             *)
                 PLATFORM=qws/linux-generic-g++
                 ;;
@@ -1468,6 +1471,9 @@ if [ "$CFG_EMBEDDED" != "no" ]; then
                 case "$UNAME_MACHINE" in
                 *86)
                     CFG_EMBEDDED=x86
+                    ;;
+                *86_64)
+                    CFG_EMBEDDED=x86_64
                     ;;
                 *)
                     CFG_EMBEDDED=generic
