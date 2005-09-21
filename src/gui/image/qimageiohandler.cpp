@@ -110,6 +110,14 @@
     formats can be stored as BigEndian or LittleEndian. A handler that
     supports Endianness uses the value of this option to determine how
     the image should be stored.
+
+    \value Animation Image formats that support animation return
+    true for this value in supportsOption(); otherwise, false is returned.
+
+    \value BackgroundColor Certain image formats allow the
+    background color to be specified. A handler that supports
+    BackgroundColor initializes the background color to this option
+    (a QColor) when reading an image.
 */
 
 /*!

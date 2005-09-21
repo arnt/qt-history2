@@ -57,7 +57,9 @@ public:
         Name,
         SubType,
         IncrementalReading,
-        Endianness
+        Endianness,
+        Animation,
+        BackgroundColor
     };
     virtual QVariant option(ImageOption option) const;
     virtual void setOption(ImageOption option, const QVariant &value);
