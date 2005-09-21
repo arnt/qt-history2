@@ -221,6 +221,7 @@ QImage QPixmap::toImage() const
                   QImage::Format_RGB32);
 
     QImage image(w, h, format);
+    image.fill(0);
     quint32 *sptr = data->pixels, *srow;
     const uint sbpr = data->nbytes / h;
     if(format == QImage::Format_MonoLSB) {
@@ -229,7 +230,6 @@ QImage QPixmap::toImage() const
         image.setColor(1, QColor(Qt::color1).rgba());
         for (int y = 0; y < h; ++y) {
             uchar *scanLine = image.scanLine(y);
-            //memset(scanLine, 0, w/8);
             srow = sptr + (y * (sbpr/4));
             for (int x = 0; x < w; ++x) {
                 if (!(*(srow + x) & RGB_MASK))
