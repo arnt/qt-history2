@@ -44,7 +44,6 @@ public:
     void draw(QPainter *painter, const PaintContext &context);
     int hitTest(const QPointF &point, Qt::HitTestAccuracy accuracy) const;
 
-
     int pageCount() const;
     QSizeF documentSize() const;
 
@@ -66,12 +65,17 @@ public:
     virtual QRectF frameBoundingRect(QTextFrame *frame) const;
     virtual QRectF blockBoundingRect(const QTextBlock &block) const;
 
+    Q_INVOKABLE void ensureBlockLayouted(const QTextBlock block);
+
 protected:
     void documentChanged(int from, int oldLength, int length);
     void resizeInlineObject(QTextInlineObject item, int posInDocument, const QTextFormat &format);
     void positionInlineObject(QTextInlineObject item, int posInDocument, const QTextFormat &format);
     void drawInlineObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
                           int posInDocument, const QTextFormat &format);
+    virtual void timerEvent(QTimerEvent *e);
+private:
+    void doLayout(int from, int oldLength, int length);
 };
 
 #endif // QTEXTDOCUMENTLAYOUT_P_H

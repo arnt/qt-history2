@@ -18,6 +18,7 @@
 #include "qtextdocument_p.h"
 #include "qtextcursor.h"
 #include "qtextlist.h"
+#include "qabstracttextdocumentlayout.h"
 #include "qdebug.h"
 
 // ### DOC: We ought to explain the CONCEPT of objectIndexes if
@@ -987,6 +988,13 @@ QTextLayout *QTextBlock::layout() const
     const QTextBlockData *b = p->blockMap().fragment(n);
     if (!b->layout)
         b->layout = new QTextLayout(*this);
+
+    QMetaObject::invokeMethod(p->layout(),
+                              "ensureBlockLayouted",
+                              Qt::DirectConnection,
+                              QGenericReturnArgument(),
+                              Q_ARG(const QTextBlock, *this));
+
     return b->layout;
 }
 

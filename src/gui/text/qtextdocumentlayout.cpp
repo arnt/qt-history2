@@ -281,7 +281,10 @@ public:
     QTextDocumentLayoutPrivate()
         : blockTextFlags(0), wordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere),
           fixedColumnWidth(-1),
-          tabStopWidth(80) // same default as in qtextengine.cpp
+          tabStopWidth(80), // same default as in qtextengine.cpp
+          isCurrentlyLayouting(false),
+          layoutComplete(true),
+          currentIncrementalLayoutPosition(0)
     { }
 
     bool pagedLayout;
@@ -294,6 +297,10 @@ public:
 
     int fixedColumnWidth;
     qreal tabStopWidth;
+
+    bool isCurrentlyLayouting;
+    bool layoutComplete;
+    int currentIncrementalLayoutPosition;
 
     qreal indent(QTextBlock bl) const;
 
@@ -1954,24 +1961,14 @@ static void markFrames(QTextFrame *current, int from, int oldLength, int length)
 
 void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
 {
-    Q_D(QTextDocumentLayout);
     QSizeF pageSize = document()->pageSize();
     if (pageSize.isNull() || !pageSize.isValid())
         return;
 
-
-//     qDebug("documentChange: from=%d, oldLength=%d, length=%d", from, oldLength, length);
-
-    // mark all frames between f_start and f_end as dirty
-    markFrames(document()->rootFrame(), from, oldLength, length);
-
     const QSizeF oldSize = documentSize();
     const int oldPageCount = pageCount();
 
-    QTextFrame *root = document()->rootFrame();
-    if(data(root)->sizeDirty)
-        d->layoutFrame(root, from, from + length);
-    data(root)->layoutDirty = false;
+    doLayout(from, oldLength, length);
 
     const QSizeF newSize = documentSize();
     if (newSize != oldSize)
@@ -1981,6 +1978,24 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
         emit pageCountChanged(newPageCount);
 
     emit update();
+}
+
+void QTextDocumentLayout::doLayout(int from, int oldLength, int length)
+{
+    Q_D(QTextDocumentLayout);
+    d->isCurrentlyLayouting = true;
+
+//     qDebug("documentChange: from=%d, oldLength=%d, length=%d", from, oldLength, length);
+
+    // mark all frames between f_start and f_end as dirty
+    markFrames(document()->rootFrame(), from, oldLength, length);
+
+    QTextFrame *root = document()->rootFrame();
+    if(data(root)->sizeDirty)
+        d->layoutFrame(root, from, from + length);
+    data(root)->layoutDirty = false;
+
+    d->isCurrentlyLayouting = false;
 }
 
 int QTextDocumentLayout::hitTest(const QPointF &point, Qt::HitTestAccuracy accuracy) const
@@ -2185,3 +2200,19 @@ QRectF QTextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
     return rect;
 }
 
+void QTextDocumentLayout::ensureBlockLayouted(const QTextBlock block)
+{
+    Q_D(QTextDocumentLayout);
+    if (d->isCurrentlyLayouting || d->layoutComplete)
+        return;
+
+    // ### TODO
+    Q_UNUSED(block);
+}
+
+void QTextDocumentLayout::timerEvent(QTimerEvent *e)
+{
+    QAbstractTextDocumentLayout::timerEvent(e);
+}
+
+#include "moc_qtextdocumentlayout_p.cpp"
