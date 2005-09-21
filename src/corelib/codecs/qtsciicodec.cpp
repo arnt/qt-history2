@@ -15,11 +15,6 @@
 // and is included in Qt with the author's permission, and the grateful
 // thanks of the Trolltech team.
 
-/*! \class QTsciiCodec
-    \reentrant
-    \internal
-*/
-
 #include "qtsciicodec_p.h"
 #include "qlist.h"
 
@@ -29,6 +24,11 @@ static unsigned char qt_UnicodeToTSCII(ushort u1, ushort u2, ushort u3);
 static unsigned int qt_TSCIIToUnicode(unsigned int code, uint *s);
 
 #define IsTSCIIChar(c)        (((c) >= 0x80) && ((c) <= 0xfd))
+
+/*! \class QTsciiCodec
+    \reentrant
+    \internal
+*/
 
 /*!
     Destroys the text codec object.
@@ -465,5 +465,5 @@ static unsigned int qt_TSCIIToUnicode(uint code, uint *s)
     return len;
 }
 
-#endif
+#endif // QT_NO_CODECS
 

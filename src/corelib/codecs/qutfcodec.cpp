@@ -370,5 +370,4 @@ QList<QByteArray> QUtf16LECodec::aliases() const
     return list;
 }
 
-
 #endif //QT_NO_TEXTCODEC

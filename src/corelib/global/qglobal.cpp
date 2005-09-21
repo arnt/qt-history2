@@ -12,8 +12,7 @@
 ****************************************************************************/
 
 #include "qplatformdefs.h"
-
-#include <qstring.h>
+#include "qstring.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1455,7 +1454,7 @@ const int QSysInfo::ByteOrder = ((*((unsigned char *) &qt_one) == 0) ? BigEndian
 
 #if !defined(QWS) && defined(Q_OS_MAC)
 
-#include <private/qcore_mac_p.h>
+#include "private/qcore_mac_p.h"
 #include "qnamespace.h"
 
 // This function has descended from Apple Source Code (FSpLocationFromFullPath),

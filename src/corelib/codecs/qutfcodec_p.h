@@ -78,6 +78,6 @@ public:
     int mibEnum() const;
 };
 
-#endif
+#endif // QT_NO_TEXTCODEC
 
 #endif // QUTFCODEC_P_H

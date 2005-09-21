@@ -58,4 +58,5 @@ public:
 };
 
 #endif // QT_NO_TEXTCODEC
+
 #endif // QLATINCODEC_P_H

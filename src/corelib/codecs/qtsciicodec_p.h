@@ -69,6 +69,6 @@ public:
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 };
 
-#endif
+#endif // QT_NO_CODECS
 
 #endif // QTSCIICODEC_P_H

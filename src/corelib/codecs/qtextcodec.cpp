@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qplatformdefs.h"
-
 #include "qtextcodec.h"
 
 #ifndef QT_NO_TEXTCODEC
@@ -25,7 +24,6 @@
 # include "private/qfactoryloader_p.h"
 #endif
 #include "qstringlist.h"
-
 #include "qutfcodec_p.h"
 #include "qsimplecodec_p.h"
 #include "qlatincodec_p.h"
@@ -36,9 +34,9 @@
 #ifdef Q_WS_X11
 #include "qfontlaocodec_p.h"
 #endif
+#include "private/qlocale_p.h"
+#include "private/qmutexpool_p.h"
 
-#include <private/qlocale_p.h>
-#include <private/qmutexpool_p.h>
 #include <stdlib.h>
 #include <ctype.h>
 #ifndef Q_OS_TEMP

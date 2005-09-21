@@ -29,7 +29,6 @@
 #include "qstring.h"
 #include "qtextcodec.h"
 
-
 #ifndef QT_NO_CODECS
 
 class Q_CORE_EXPORT QFontLaoCodec : public QTextCodec

@@ -16,9 +16,8 @@
 
 #include "QtCore/qplugin.h"
 #include "QtCore/qfactoryinterface.h"
-
-#include <QtCore/qlist.h>
-#include <QtCore/qbytearray.h>
+#include "QtCore/qlist.h"
+#include "QtCore/qbytearray.h"
 
 QT_MODULE(Core)
 
@@ -56,4 +55,5 @@ private:
 };
 
 #endif // QT_NO_TEXTCODECPLUGIN
+
 #endif // QTEXTCODECPLUGIN_H
