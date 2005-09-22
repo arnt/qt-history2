@@ -14,8 +14,8 @@
 #ifndef Q3GDICT_H
 #define Q3GDICT_H
 
-#include "Qt3Support/q3ptrcollection.h"
-#include "QtCore/qstring.h"
+#include <Qt3Support/q3ptrcollection.h>
+#include <QtCore/qstring.h>
 
 QT_MODULE(Qt3SupportLight)
 

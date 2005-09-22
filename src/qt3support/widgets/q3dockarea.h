@@ -14,11 +14,11 @@
 #ifndef Q3DOCKAREA_H
 #define Q3DOCKAREA_H
 
-#include "QtGui/qwidget.h"
-#include "QtCore/qlist.h"
-#include "Qt3Support/q3dockwindow.h"
-#include "QtGui/qlayout.h"
-#include "QtCore/qpointer.h"
+#include <QtGui/qwidget.h>
+#include <QtCore/qlist.h>
+#include <Qt3Support/q3dockwindow.h>
+#include <QtGui/qlayout.h>
+#include <QtCore/qpointer.h>
 
 QT_MODULE(Qt3SupportLight)
 
@@ -159,6 +159,6 @@ Q_COMPAT_EXPORT QTextStream &operator<<(QTextStream &, const Q3DockArea &);
 Q_COMPAT_EXPORT QTextStream &operator>>(QTextStream &, Q3DockArea &);
 #endif
 
-#endif //QT_NO_MAINWINDOW
+#endif // QT_NO_MAINWINDOW
 
-#endif //Q3DOCKAREA_H
+#endif // Q3DOCKAREA_H

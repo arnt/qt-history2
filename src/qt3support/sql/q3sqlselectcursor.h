@@ -14,7 +14,7 @@
 #ifndef Q3SQLSELECTCURSOR_H
 #define Q3SQLSELECTCURSOR_H
 
-#include "Qt3Support/q3sqlcursor.h"
+#include <Qt3Support/q3sqlcursor.h>
 
 QT_MODULE(Qt3Support)
 

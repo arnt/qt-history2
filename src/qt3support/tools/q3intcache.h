@@ -14,7 +14,7 @@
 #ifndef Q3INTCACHE_H
 #define Q3INTCACHE_H
 
-#include "Qt3Support/q3gcache.h"
+#include <Qt3Support/q3gcache.h>
 
 QT_MODULE(Qt3SupportLight)
 

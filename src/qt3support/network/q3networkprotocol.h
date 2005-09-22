@@ -14,12 +14,10 @@
 #ifndef Q3NETWORKPROTOCOL_H
 #define Q3NETWORKPROTOCOL_H
 
-#ifndef QT_H
-#include "QtCore/qstring.h"
-#include "Qt3Support/q3dict.h"
-#include "QtCore/qobject.h"
-#include "Qt3Support/q3valuelist.h"
-#endif // QT_H
+#include <QtCore/qstring.h>
+#include <QtCore/qobject.h>
+#include <Qt3Support/q3dict.h>
+#include <Qt3Support/q3valuelist.h>
 
 QT_MODULE(Qt3SupportLight)
 

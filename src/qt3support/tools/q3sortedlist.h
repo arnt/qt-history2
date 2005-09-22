@@ -14,7 +14,7 @@
 #ifndef Q3SORTEDLIST_H
 #define Q3SORTEDLIST_H
 
-#include "Qt3Support/q3ptrlist.h"
+#include <Qt3Support/q3ptrlist.h>
 
 QT_MODULE(Qt3SupportLight)
 

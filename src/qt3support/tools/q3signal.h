@@ -14,10 +14,8 @@
 #ifndef Q3SIGNAL_H
 #define Q3SIGNAL_H
 
-#ifndef QT_H
-#include "QtCore/qvariant.h"
-#include "QtCore/qobject.h"
-#endif // QT_H
+#include <QtCore/qvariant.h>
+#include <QtCore/qobject.h>
 
 QT_MODULE(Qt3SupportLight)
 

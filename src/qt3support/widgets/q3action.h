@@ -14,10 +14,10 @@
 #ifndef Q3ACTION_H
 #define Q3ACTION_H
 
-#include "QtGui/qicon.h"
-#include "QtGui/qkeysequence.h"
-#include "QtCore/qobject.h"
-#include "QtCore/qstring.h"
+#include <QtGui/qicon.h>
+#include <QtGui/qkeysequence.h>
+#include <QtCore/qobject.h>
+#include <QtCore/qstring.h>
 
 QT_MODULE(Qt3SupportLight)
 
@@ -184,6 +184,6 @@ private:
     Q_DISABLE_COPY(Q3ActionGroup)
 };
 
-#endif
+#endif // QT_NO_ACTION
 
 #endif // Q3ACTION_H

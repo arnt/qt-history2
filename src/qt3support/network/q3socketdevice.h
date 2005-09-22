@@ -14,14 +14,13 @@
 #ifndef Q3SOCKETDEVICE_H
 #define Q3SOCKETDEVICE_H
 
-#ifndef QT_H
-#include "QtCore/qiodevice.h"
-#include "QtNetwork/qhostaddress.h" // int->QHostAddress conversion
-#endif // QT_H
+#include <QtCore/qiodevice.h>
+#include <QtNetwork/qhostaddress.h> // int->QHostAddress conversion
 
 QT_MODULE(Qt3Support)
 
 #ifndef QT_NO_NETWORK
+
 class Q3SocketDevicePrivate;
 
 class Q_COMPAT_EXPORT Q3SocketDevice: public QIODevice

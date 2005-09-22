@@ -14,7 +14,7 @@
 #ifndef Q3POINTARRAY_H
 #define Q3POINTARRAY_H
 
-#include "QtGui/qpolygon.h"
+#include <QtGui/qpolygon.h>
 
 QT_MODULE(Qt3SupportLight)
 

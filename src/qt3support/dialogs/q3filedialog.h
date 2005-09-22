@@ -14,6 +14,13 @@
 #ifndef Q3FILEDIALOG_H
 #define Q3FILEDIALOG_H
 
+#include <QtCore/qdir.h>
+#include <QtGui/qdialog.h>
+#include <Qt3Support/q3urloperator.h>
+#include <Qt3Support/q3valuelist.h>
+
+QT_MODULE(Qt3SupportLight)
+
 class QAbstractButton;
 class QPushButton;
 class QLabel;
@@ -27,13 +34,6 @@ class Q3ListBoxItem;
 class Q3FileDialogPrivate;
 class Q3FileDialogQFileListView;
 class QUrlInfo;
-
-#include "QtCore/qdir.h"
-#include "QtGui/qdialog.h"
-#include "Qt3Support/q3urloperator.h"
-#include "Qt3Support/q3valuelist.h"
-
-QT_MODULE(Qt3SupportLight)
 
 #ifndef QT_NO_FILEDIALOG
 
@@ -305,6 +305,6 @@ private:
 #endif
 };
 
-#endif
+#endif // QT_NO_FILEDIALOG
 
 #endif // Q3FILEDIALOG_H

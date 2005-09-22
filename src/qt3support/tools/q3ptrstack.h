@@ -14,7 +14,7 @@
 #ifndef Q3PTRSTACK_H
 #define Q3PTRSTACK_H
 
-#include "Qt3Support/q3glist.h"
+#include <Qt3Support/q3glist.h>
 
 QT_MODULE(Qt3SupportLight)
 

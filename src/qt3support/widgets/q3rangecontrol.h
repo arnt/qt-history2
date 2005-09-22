@@ -14,8 +14,8 @@
 #ifndef Q3RANGECONTROL_H
 #define Q3RANGECONTROL_H
 
-#include "QtCore/qglobal.h"
-#include "QtGui/qwidget.h"
+#include <QtCore/qglobal.h>
+#include <QtGui/qwidget.h>
 
 QT_MODULE(Qt3SupportLight)
 
@@ -153,6 +153,6 @@ private:
     Q_DISABLE_COPY(Q3SpinWidget)
 };
 
-#endif // QT_NO_SPINWIDGET
+#endif // QT_NO_RANGECONTROL
 
 #endif // Q3RANGECONTROL_H

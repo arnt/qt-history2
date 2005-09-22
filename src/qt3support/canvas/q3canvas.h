@@ -14,13 +14,13 @@
 #ifndef Q3CANVAS_H
 #define Q3CANVAS_H
 
-#include "Qt3Support/q3scrollview.h"
-#include "QtGui/qpixmap.h"
-#include "Qt3Support/q3ptrlist.h"
-#include "QtGui/qbrush.h"
-#include "QtGui/qpen.h"
-#include "Qt3Support/q3valuelist.h"
-#include "Qt3Support/q3pointarray.h"
+#include <Qt3Support/q3scrollview.h>
+#include <QtGui/qpixmap.h>
+#include <Qt3Support/q3ptrlist.h>
+#include <QtGui/qbrush.h>
+#include <QtGui/qpen.h>
+#include <Qt3Support/q3valuelist.h>
+#include <Qt3Support/q3pointarray.h>
 
 QT_MODULE(Qt3Support)
 

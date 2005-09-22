@@ -14,7 +14,7 @@
 #ifndef Q3SEMAPHORE_H
 #define Q3SEMAPHORE_H
 
-#include "QtCore/qglobal.h"
+#include <QtCore/qglobal.h>
 
 QT_MODULE(Qt3SupportLight)
 

@@ -25,8 +25,8 @@
 // We mean it.
 //
 
-#include <qbytearray.h>
-#include <qlist.h>
+#include "QtCore/qbytearray.h"
+#include "QtCore/qlist.h"
 
 class Q_COMPAT_EXPORT Q3Membuf
 {

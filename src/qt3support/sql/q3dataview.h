@@ -14,7 +14,7 @@
 #ifndef Q3DATAVIEW_H
 #define Q3DATAVIEW_H
 
-#include "QtGui/qwidget.h"
+#include <QtGui/qwidget.h>
 
 QT_MODULE(Qt3Support)
 
@@ -49,5 +49,6 @@ private:
     Q3DataViewPrivate* d;
 };
 
-#endif
+#endif // QT_NO_SQL_VIEW_WIDGETS
+
 #endif // Q3DATAVIEW_H

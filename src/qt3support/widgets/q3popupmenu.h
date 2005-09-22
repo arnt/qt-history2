@@ -14,7 +14,7 @@
 #ifndef Q3POPUPMENU_H
 #define Q3POPUPMENU_H
 
-#include "QtGui/qmenu.h"
+#include <QtGui/qmenu.h>
 
 QT_MODULE(Qt3SupportLight)
 

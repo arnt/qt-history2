@@ -14,8 +14,8 @@
 #ifndef Q3LISTBOX_H
 #define Q3LISTBOX_H
 
-#include "Qt3Support/q3scrollview.h"
-#include "QtGui/qpixmap.h"
+#include <Qt3Support/q3scrollview.h>
+#include <QtGui/qpixmap.h>
 
 QT_MODULE(Qt3SupportLight)
 
@@ -25,7 +25,6 @@ class Q3ListBoxPrivate;
 class Q3ListBoxItem;
 class QString;
 class QStringList;
-
 
 class Q_COMPAT_EXPORT Q3ListBox : public Q3ScrollView
 {

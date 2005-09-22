@@ -1,1 +1,1 @@
-#include "QtGui/qicon.h"
+#include <QtGui/qicon.h>

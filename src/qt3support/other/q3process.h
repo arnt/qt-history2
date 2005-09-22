@@ -14,11 +14,9 @@
 #ifndef Q3PROCESS_H
 #define Q3PROCESS_H
 
-#ifndef QT_H
-#include "QtCore/qobject.h"
-#include "QtCore/qstringlist.h"
-#include "QtCore/qdir.h"
-#endif // QT_H
+#include <QtCore/qobject.h>
+#include <QtCore/qstringlist.h>
+#include <QtCore/qdir.h>
 
 QT_MODULE(Qt3SupportLight)
 

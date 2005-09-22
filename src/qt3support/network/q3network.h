@@ -14,9 +14,7 @@
 #ifndef Q3NETWORK_H
 #define Q3NETWORK_H
 
-#ifndef QT_H
-#include "QtCore/qglobal.h"
-#endif // QT_H
+#include <QtCore/qglobal.h>
 
 QT_MODULE(Qt3Support)
 
@@ -24,6 +22,6 @@ QT_MODULE(Qt3Support)
 
 Q_COMPAT_EXPORT void q3InitNetworkProtocols();
 
-#endif
+#endif // QT_NO_NETWORK
 
 #endif // Q3NETWORK_H

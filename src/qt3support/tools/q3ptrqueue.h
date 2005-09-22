@@ -14,7 +14,7 @@
 #ifndef Q3PTRQUEUE_H
 #define Q3PTRQUEUE_H
 
-#include "Qt3Support/q3glist.h"
+#include <Qt3Support/q3glist.h>
 
 QT_MODULE(Qt3SupportLight)
 

@@ -14,7 +14,7 @@
 #ifndef Q3TOOLBAR_H
 #define Q3TOOLBAR_H
 
-#include "Qt3Support/q3dockwindow.h"
+#include <Qt3Support/q3dockwindow.h>
 
 QT_MODULE(Qt3SupportLight)
 

@@ -14,7 +14,7 @@
 #ifndef Q3PTRDICT_H
 #define Q3PTRDICT_H
 
-#include "Qt3Support/q3gdict.h"
+#include <Qt3Support/q3gdict.h>
 
 QT_MODULE(Qt3SupportLight)
 

@@ -14,9 +14,9 @@
 #ifndef Q3TEXTBROWSER_H
 #define Q3TEXTBROWSER_H
 
-#include "QtGui/qpixmap.h"
-#include "QtGui/qcolor.h"
-#include "Qt3Support/q3textedit.h"
+#include <QtGui/qpixmap.h>
+#include <QtGui/qcolor.h>
+#include <Qt3Support/q3textedit.h>
 
 QT_MODULE(Qt3SupportLight)
 

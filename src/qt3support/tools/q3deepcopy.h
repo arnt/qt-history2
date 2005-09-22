@@ -14,7 +14,7 @@
 #ifndef Q3DEEPCOPY_H
 #define Q3DEEPCOPY_H
 
-#include "QtCore/qglobal.h"
+#include <QtCore/qglobal.h>
 
 QT_MODULE(Qt3SupportLight)
 

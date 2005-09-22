@@ -14,14 +14,14 @@
 #ifndef Q3DATATABLE_H
 #define Q3DATATABLE_H
 
-#include "QtCore/qstring.h"
-#include "QtCore/qvariant.h"
-#include "Qt3Support/q3table.h"
-#include "QtSql/qsql.h"
-#include "Qt3Support/q3sqlcursor.h"
-#include "QtSql/qsqlindex.h"
-#include "Qt3Support/q3sqleditorfactory.h"
-#include "Qt3Support/qiconset.h"
+#include <QtCore/qstring.h>
+#include <QtCore/qvariant.h>
+#include <Qt3Support/q3table.h>
+#include <QtSql/qsql.h>
+#include <Qt3Support/q3sqlcursor.h>
+#include <QtSql/qsqlindex.h>
+#include <Qt3Support/q3sqleditorfactory.h>
+#include <Qt3Support/qiconset.h>
 
 QT_MODULE(Qt3Support)
 
@@ -210,5 +210,6 @@ private:
 #endif
 };
 
-#endif
+#endif // QT_NO_SQL_VIEW_WIDGETS
+
 #endif // Q3DATATABLE_H

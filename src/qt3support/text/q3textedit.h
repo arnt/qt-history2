@@ -14,10 +14,10 @@
 #ifndef Q3TEXTEDIT_H
 #define Q3TEXTEDIT_H
 
-#include "Qt3Support/q3scrollview.h"
-#include "Qt3Support/q3stylesheet.h"
-#include "Qt3Support/q3mimefactory.h"
-#include "QtCore/qmap.h"
+#include <Qt3Support/q3scrollview.h>
+#include <Qt3Support/q3stylesheet.h>
+#include <Qt3Support/q3mimefactory.h>
+#include <QtCore/qmap.h>
 
 QT_MODULE(Qt3SupportLight)
 

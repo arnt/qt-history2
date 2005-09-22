@@ -14,10 +14,8 @@
 #ifndef Q3OBJECTDICT_H
 #define Q3OBJECTDICT_H
 
-#ifndef QT_H
-#include "QtCore/qmetaobject.h"
-#include "Qt3Support/q3asciidict.h"
-#endif // QT_H
+#include <QtCore/qmetaobject.h>
+#include <Qt3Support/q3asciidict.h>
 
 QT_MODULE(Qt3SupportLight)
 

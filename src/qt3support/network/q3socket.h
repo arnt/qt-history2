@@ -14,10 +14,8 @@
 #ifndef Q3SOCKET_H
 #define Q3SOCKET_H
 
-#ifndef QT_H
-#include "QtCore/qiodevice.h"
-#include "QtNetwork/qhostaddress.h" // int->QHostAddress conversion
-#endif // QT_H
+#include <QtCore/qiodevice.h>
+#include <QtNetwork/qhostaddress.h> // int->QHostAddress conversion
 
 QT_MODULE(Qt3Support)
 

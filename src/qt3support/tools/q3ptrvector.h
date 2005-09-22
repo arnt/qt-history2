@@ -14,7 +14,7 @@
 #ifndef Q3PTRVECTOR_H
 #define Q3PTRVECTOR_H
 
-#include "Qt3Support/q3gvector.h"
+#include <Qt3Support/q3gvector.h>
 
 QT_MODULE(Qt3SupportLight)
 

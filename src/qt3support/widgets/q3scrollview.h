@@ -14,8 +14,8 @@
 #ifndef Q3SCROLLVIEW_H
 #define Q3SCROLLVIEW_H
 
-#include "Qt3Support/q3frame.h"
-#include "QtGui/qscrollbar.h"
+#include <Qt3Support/q3frame.h>
+#include <QtGui/qscrollbar.h>
 
 QT_MODULE(Qt3SupportLight)
 

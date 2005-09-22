@@ -14,7 +14,7 @@
 #ifndef Q3WIZARD_H
 #define Q3WIZARD_H
 
-#include "QtGui/qdialog.h"
+#include <QtGui/qdialog.h>
 
 QT_MODULE(Qt3SupportLight)
 

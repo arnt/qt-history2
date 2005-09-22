@@ -14,9 +14,9 @@
 #ifndef Q3DATETIMEEDIT_H
 #define Q3DATETIMEEDIT_H
 
-#include "QtGui/qwidget.h"
-#include "QtCore/qstring.h"
-#include "QtCore/qdatetime.h"
+#include <QtGui/qwidget.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qdatetime.h>
 
 QT_MODULE(Qt3SupportLight)
 
@@ -247,5 +247,6 @@ private:
     Q3DateTimeEditPrivate* d;
 };
 
-#endif
+#endif // QT_NO_DATETIMEEDIT
+
 #endif // Q3DATETIMEEDIT_H

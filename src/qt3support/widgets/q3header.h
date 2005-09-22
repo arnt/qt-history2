@@ -14,9 +14,9 @@
 #ifndef Q3HEADER_H
 #define Q3HEADER_H
 
-#include "QtGui/qicon.h"
-#include "QtGui/qwidget.h"
-#include "QtCore/qstring.h"
+#include <QtGui/qicon.h>
+#include <QtGui/qwidget.h>
+#include <QtCore/qstring.h>
 
 QT_MODULE(Qt3SupportLight)
 

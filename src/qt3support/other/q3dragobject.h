@@ -14,12 +14,12 @@
 #ifndef Q3DRAGOBJECT_H
 #define Q3DRAGOBJECT_H
 
-#include "QtCore/qobject.h"
-#include "QtGui/qcolor.h"
-#include "QtGui/qmime.h"
-#include "QtGui/qimage.h"
-#include "Qt3Support/q3strlist.h"
-#include "QtCore/qlist.h"
+#include <QtCore/qobject.h>
+#include <QtGui/qcolor.h>
+#include <QtGui/qmime.h>
+#include <QtGui/qimage.h>
+#include <Qt3Support/q3strlist.h>
+#include <QtCore/qlist.h>
 
 QT_MODULE(Qt3SupportLight)
 

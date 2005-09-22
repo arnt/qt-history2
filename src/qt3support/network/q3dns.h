@@ -14,13 +14,11 @@
 #ifndef Q3DNS_H
 #define Q3DNS_H
 
-#ifndef QT_H
-#include "QtCore/qobject.h"
-#include "QtNetwork/qhostaddress.h"
-#include "QtCore/qsocketnotifier.h"
-#include "QtCore/qstringlist.h"
-#include "Qt3Support/q3valuelist.h"
-#endif // QT_H
+#include <QtCore/qobject.h>
+#include <QtNetwork/qhostaddress.h>
+#include <QtCore/qsocketnotifier.h>
+#include <QtCore/qstringlist.h>
+#include <Qt3Support/q3valuelist.h>
 
 QT_MODULE(Qt3Support)
 

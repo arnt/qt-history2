@@ -14,7 +14,7 @@
 #ifndef Q3PAINTER_H
 #define Q3PAINTER_H
 
-#include "QtGui/qpainter.h"
+#include <QtGui/qpainter.h>
 
 QT_MODULE(Qt3SupportLight)
 

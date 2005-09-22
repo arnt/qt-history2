@@ -14,9 +14,9 @@
 #ifndef Q3BUTTONGROUP_H
 #define Q3BUTTONGROUP_H
 
-#include "QtGui/qbuttongroup.h"
-#include "Qt3Support/q3groupbox.h"
-#include "QtCore/qmap.h"
+#include <QtGui/qbuttongroup.h>
+#include <Qt3Support/q3groupbox.h>
+#include <QtCore/qmap.h>
 
 QT_MODULE(Qt3SupportLight)
 
@@ -106,6 +106,5 @@ public:
 private:
     Q_DISABLE_COPY(Q3HButtonGroup)
 };
-
 
 #endif // Q3BUTTONGROUP_H

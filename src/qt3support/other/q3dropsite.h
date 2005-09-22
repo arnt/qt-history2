@@ -14,18 +14,16 @@
 #ifndef Q3DROPSITE_H
 #define Q3DROPSITE_H
 
-#include "QtCore/qglobal.h"
+#include <QtCore/qglobal.h>
 
 QT_MODULE(Qt3SupportLight)
 
 class QWidget;
-
 
 class Q_COMPAT_EXPORT Q3DropSite {
 public:
     Q3DropSite(QWidget* parent);
     virtual ~Q3DropSite();
 };
-
 
 #endif  // QDROPSITE_H

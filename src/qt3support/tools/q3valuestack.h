@@ -14,7 +14,7 @@
 #ifndef Q3VALUESTACK_H
 #define Q3VALUESTACK_H
 
-#include "Qt3Support/q3valuelist.h"
+#include <Qt3Support/q3valuelist.h>
 
 QT_MODULE(Qt3SupportLight)
 

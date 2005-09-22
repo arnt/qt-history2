@@ -14,8 +14,8 @@
 #ifndef Q3MEMARRAY_H
 #define Q3MEMARRAY_H
 
-#include "Qt3Support/q3garray.h"
-#include "QtCore/qvector.h"
+#include <Qt3Support/q3garray.h>
+#include <QtCore/qvector.h>
 
 QT_MODULE(Qt3SupportLight)
 

@@ -14,7 +14,7 @@
 #ifndef Q3HBOX_H
 #define Q3HBOX_H
 
-#include "Qt3Support/q3frame.h"
+#include <Qt3Support/q3frame.h>
 
 QT_MODULE(Qt3SupportLight)
 
@@ -37,6 +37,5 @@ protected:
 private:
     Q_DISABLE_COPY(Q3HBox)
 };
-
 
 #endif // Q3HBOX_H

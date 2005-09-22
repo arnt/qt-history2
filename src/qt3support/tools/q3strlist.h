@@ -14,10 +14,10 @@
 #ifndef Q3STRLIST_H
 #define Q3STRLIST_H
 
-#include "QtCore/qstring.h"
-#include "Qt3Support/q3ptrlist.h"
-#include "QtCore/qdatastream.h"
-#include "QtCore/qlist.h"
+#include <QtCore/qstring.h>
+#include <Qt3Support/q3ptrlist.h>
+#include <QtCore/qdatastream.h>
+#include <QtCore/qlist.h>
 
 QT_MODULE(Qt3SupportLight)
 

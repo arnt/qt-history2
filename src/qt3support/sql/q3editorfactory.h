@@ -14,8 +14,8 @@
 #ifndef Q3EDITORFACTORY_H
 #define Q3EDITORFACTORY_H
 
-#include "QtCore/qobject.h"
-#include "QtCore/qvariant.h"
+#include <QtCore/qobject.h>
+#include <QtCore/qvariant.h>
 
 QT_MODULE(Qt3Support)
 
@@ -36,6 +36,6 @@ private:
     Q_DISABLE_COPY(Q3EditorFactory)
 };
 
-#endif // QT_NO_SQL
+#endif // QT_NO_SQL_EDIT_WIDGETS
 
 #endif // Q3EDITORFACTORY_H

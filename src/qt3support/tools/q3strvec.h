@@ -14,9 +14,9 @@
 #ifndef Q3STRVEC_H
 #define Q3STRVEC_H
 
-#include "QtCore/qstring.h"
-#include "Qt3Support/q3ptrvector.h"
-#include "QtCore/qdatastream.h"
+#include <QtCore/qstring.h>
+#include <Qt3Support/q3ptrvector.h>
+#include <QtCore/qdatastream.h>
 
 QT_MODULE(Qt3SupportLight)
 

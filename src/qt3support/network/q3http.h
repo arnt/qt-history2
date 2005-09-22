@@ -14,12 +14,10 @@
 #ifndef Q3HTTP_H
 #define Q3HTTP_H
 
-#ifndef QT_H
-#include "QtCore/qobject.h"
-#include "Qt3Support/q3networkprotocol.h"
-#include "QtCore/qmap.h"
-#include "QtCore/qstringlist.h"
-#endif // QT_H
+#include <QtCore/qobject.h>
+#include <Qt3Support/q3networkprotocol.h>
+#include <QtCore/qmap.h>
+#include <QtCore/qstringlist.h>
 
 QT_MODULE(Qt3Support)
 
@@ -239,6 +237,6 @@ private:
     friend class Q3HttpPGHRequest;
 };
 
-#endif
+#endif // QT_NO_NETWORKPROTOCOL_HTTP
 
 #endif // Q3HTTP_H

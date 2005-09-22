@@ -14,8 +14,8 @@
 #ifndef Q3SQLFORM_H
 #define Q3SQLFORM_H
 
-#include "QtCore/qobject.h"
-#include "QtCore/qmap.h"
+#include <QtCore/qobject.h>
+#include <QtCore/qmap.h>
 
 QT_MODULE(Qt3Support)
 
@@ -68,6 +68,6 @@ private:
     Q3SqlFormPrivate* d;
 };
 
-#endif // QT_NO_SQL
+#endif // QT_NO_SQL_FORM
 
 #endif // Q3SQLFORM_H

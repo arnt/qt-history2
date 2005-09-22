@@ -14,10 +14,10 @@
 #ifndef Q3VALUELIST_H
 #define Q3VALUELIST_H
 
-#include "QtCore/qalgorithms.h"
-#include "QtCore/qdatastream.h"
-#include "QtCore/qlinkedlist.h"
-#include "QtCore/qlist.h"
+#include <QtCore/qalgorithms.h>
+#include <QtCore/qdatastream.h>
+#include <QtCore/qlinkedlist.h>
+#include <QtCore/qlist.h>
 
 #ifndef QT_NO_STL
 #include <iterator>
@@ -197,6 +197,6 @@ Q_OUTOFLINE_TEMPLATE QDataStream& operator<<(QDataStream& s, const Q3ValueList<T
 {
     return operator<<(s, static_cast<const QLinkedList<T> &>(l));
 }
-#endif // QT_NO_DATASTREAM
+#endif
 
 #endif // Q3VALUELIST_H

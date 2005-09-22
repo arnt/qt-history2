@@ -14,7 +14,7 @@
 #ifndef Q3SQLEDITORFACTORY_H
 #define Q3SQLEDITORFACTORY_H
 
-#include "Qt3Support/q3editorfactory.h"
+#include <Qt3Support/q3editorfactory.h>
 
 QT_MODULE(Qt3Support)
 
@@ -37,6 +37,6 @@ private:
     Q_DISABLE_COPY(Q3SqlEditorFactory)
 };
 
-#endif // QT_NO_SQL
+#endif // QT_NO_SQL_EDIT_WIDGETS
 
 #endif // Q3SQLEDITORFACTORY_H

@@ -14,7 +14,7 @@
 #ifndef Q3PTRCOLLECTION_H
 #define Q3PTRCOLLECTION_H
 
-#include "QtCore/qglobal.h"
+#include <QtCore/qglobal.h>
 
 QT_MODULE(Qt3SupportLight)
 

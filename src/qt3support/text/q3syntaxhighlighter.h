@@ -14,9 +14,9 @@
 #ifndef Q3SYNTAXHIGHLIGHTER_H
 #define Q3SYNTAXHIGHLIGHTER_H
 
-#include "QtGui/qfont.h"
-#include "QtGui/qcolor.h"
-#include "QtCore/qstring.h"
+#include <QtGui/qfont.h>
+#include <QtGui/qcolor.h>
+#include <QtCore/qstring.h>
 
 QT_MODULE(Qt3SupportLight)
 
@@ -48,7 +48,6 @@ private:
     Q3TextParagraph *para;
     Q3TextEdit *edit;
     Q3SyntaxHighlighterPrivate *d;
-
 };
 
 #endif // Q3SYNTAXHIGHLIGHTER_H

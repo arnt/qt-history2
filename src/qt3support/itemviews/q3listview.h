@@ -14,12 +14,11 @@
 #ifndef Q3LISTVIEW_H
 #define Q3LISTVIEW_H
 
-#include "Qt3Support/q3scrollview.h"
+#include <Qt3Support/q3scrollview.h>
 
 QT_MODULE(Qt3SupportLight)
 
 #ifndef QT_NO_LISTVIEW
-
 
 class QPixmap;
 class QFont;

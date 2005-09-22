@@ -14,7 +14,7 @@
 #ifndef Q3FRAME_H
 #define Q3FRAME_H
 
-#include "QtGui/qframe.h"
+#include <QtGui/qframe.h>
 
 QT_MODULE(Qt3SupportLight)
 

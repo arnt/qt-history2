@@ -14,8 +14,8 @@
 #ifndef Q3SQLPROPERTYMAP_H
 #define Q3SQLPROPERTYMAP_H
 
-#include "QtCore/qvariant.h"
-#include "QtCore/qstring.h"
+#include <QtCore/qvariant.h>
+#include <QtCore/qstring.h>
 
 QT_MODULE(Qt3Support)
 
