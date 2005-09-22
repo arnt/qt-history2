@@ -159,12 +159,13 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                             //WRAPPER
                             t << "\t\t" << keyFor(pbxproj + "_WRAPPER") << " = {" << "\n"
                               << "\t\t\t" << "isa = PBXReferenceProxy;" << "\n";
-                            if(tmp_proj.first("TEMPLATE") == "app")
+                            if(tmp_proj.first("TEMPLATE") == "app") {
                                 t << "\t\t\t" << "fileType = wrapper.application;" << "\n"
                                   << "\t\t\t" << "path = " << tmp_proj.first("TARGET") << ".app;" << "\n";
-                            else
+                            } else {
                                 t << "\t\t\t" << "fileType = \"compiled.mach-o.dylib\";" << "\n"
                                   << "\t\t\t" << "path = " << tmp_proj.first("TARGET") << ".dylib;" << "\n";
+                            }
                             t << "\t\t\t" << "refType = 3;" << "\n"
                               << "\t\t\t" << "remoteRef = " << keyFor(pbxproj + "_WRAPPERREF") << ";" << "\n"
                               << "\t\t\t" << "sourceTree = BUILT_PRODUCTS_DIR;" << "\n"
@@ -971,11 +972,16 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             }
             //the phase
             QString phase_key = keyFor("QMAKE_PBX_BUNDLE_COPY." + bundle_data[i]);
+            QString path;
+            if(!project->isEmpty(bundle_data[i] + ".version")) {
+                //###
+            }
+            path += project->first(bundle_data[i] + ".path");
             project->variables()["QMAKE_PBX_PRESCRIPT_BUILDPHASES"].append(phase_key);
             t << "\t\t" << phase_key << " = {\n"
               << "\t\t\tname = \"Bundle Copy [" << bundle_data[i] << "]\";\n"
               << "\t\t\tbuildActionMask = 2147483647;\n"
-              << "\t\t\tdstPath = " << project->first(bundle_data[i] + ".path") << ";\n"
+              << "\t\t\tdstPath = \"" << path << "\";\n"
               << "\t\t\tdstSubfolderSpec = 1;\n"
               << "\t\t\tfiles = (\n"
               << valGlue(pbx_files, "\t\t\t\t", ",\n\t\t\t\t", "\n")
@@ -1072,8 +1078,13 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         int slsh = lib.lastIndexOf(Option::dir_sep);
         if(slsh != -1)
             lib = lib.right(lib.length() - slsh - 1);
-        t << "\t\t\t" << "explicitFileType = \"compiled.mach-o.dylib\";" << "\n"
-          << "\t\t\t" << "path = " << lib << ";" << "\n";
+        if(!project->isActiveConfig("staticlib") && project->isActiveConfig("lib_bundle")) {
+            lib += ".framework";
+            t << "\t\t\t" << "explicitFileType = wrapper.framework;" << "\n";
+        } else {
+            t << "\t\t\t" << "explicitFileType  = \"compiled.mach-o.dylib\";" << "\n";
+        }
+        t << "\t\t\t" << "path = " << lib << ";" << "\n";
     }
     t << "\t\t\t" << "refType = " << 3 << ";" << "\n"
       << "\t\t\t" << "sourceTree = BUILT_PRODUCTS_DIR" << ";" << "\n"
@@ -1130,7 +1141,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                 << "\t\t\t\t" << "PREFIX_HEADER = \"" <<  project->first("PRECOMPILED_HEADER") << "\";" << "\n";
         }
     }
-    if(project->first("TEMPLATE") == "app") {
+    if((project->first("TEMPLATE") == "app" && project->isActiveConfig("app_bundle")) ||
+       (project->first("TEMPLATE") == "lib" && !project->isActiveConfig("staticlib") &&
+        project->isActiveConfig("lib_bundle"))) {
         QString plist = fileFixify(project->first("QMAKE_INFO_PLIST"));
         if(plist.isEmpty())
             plist = specdir() + QDir::separator() + "Info.plist." + project->first("TEMPLATE");
@@ -1141,9 +1154,16 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                 QString plist_in_text = plist_in.readAll();
                 plist_in_text = plist_in_text.replace("@ICON@",
                   (project->isEmpty("ICON") ? QString("") : project->first("ICON").section(Option::dir_sep, -1)));
-                plist_in_text = plist_in_text.replace("@EXECUTABLE@", project->first("QMAKE_ORIG_TARGET"));
+                if(project->first("TEMPLATE") = "app") {
+                    plist_in_text = plist_in_text.replace("@EXECUTABLE@", project->first("QMAKE_ORIG_TARGET"));
+                } else {
+                    plist_in_text = plist_in_text.replace("@LIBRARY@", project->first("QMAKE_ORIG_TARGET"));
+                    plist_in_text = plist_in_text.replace("@SHORT_VERSION@" project->first("VER_MAJ") + "." +
+                                                          project->first("VER_MIN");
+                }
                 plist_in_text = plist_in_text.replace("@TYPEINFO@",
-                  (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ? QString::fromLatin1("????") : project->first("QMAKE_PKGINFO_TYPEINFO").left(4)));
+                  (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ? QString::fromLatin1("????") :
+                   project->first("QMAKE_PKGINFO_TYPEINFO").left(4)));
                 QFile plist_out_file("Info.plist");
                 if(plist_out_file.open(QIODevice::WriteOnly | QIODevice::Text)) {
                     QTextStream plist_out(&plist_out_file);
@@ -1175,6 +1195,10 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         if(project->isEmpty("COMPAT_VERSION"))
             t << "\t\t\t\t" << "DYLIB_COMPATIBILITY_VERSION = \"" << project->first("VER_MAJ") << "."
               << project->first("VER_MIN")  << "\";" << "\n";
+        if(project->first("TEMPLATE") == "lib" && !project->isActiveConfig("staticlib") &&
+           project->isActiveConfig("lib_bundle"))
+            t << "FRAMEWORK_VERSION = \"" << project->first("VER_MAJ") << "."
+              << project->first("VER_MIN")  << "\";" << "\n";
     }
     if(!project->isEmpty("COMPAT_VERSION"))
         t << "\t\t\t\t" << "DYLIB_COMPATIBILITY_VERSION = \"" << project->first("COMPAT_VERSION") << "\";" << "\n";
@@ -1202,7 +1226,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             t << "\t\t\t\t" << "LIBRARY_STYLE = DYNAMIC;" << "\n";
         }
         QString lib = project->first("QMAKE_ORIG_TARGET");
-        if (!project->isActiveConfig("lib_bundle") && !project->isActiveConfig("staticlib"))
+        if(!project->isActiveConfig("lib_bundle") && !project->isActiveConfig("staticlib"))
             lib.prepend("lib");
         t << "\t\t\t\t" << "PRODUCT_NAME = " << lib << ";" << "\n";
     }
@@ -1286,6 +1310,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         if(pbVersion >= 38) {
             if(project->isActiveConfig("staticlib"))
                 t << "\t\t\t" << "productType = \"com.apple.product-type.library.static\";" << "\n";
+            else if(project->isActiveConfig("lib_bundle"))
+                t << "\t\t\t" << "productType = \"com.apple.product-type.framework\";" << "\n";
             else
                 t << "\t\t\t" << "productType = \"com.apple.product-type.library.dynamic\";" << "\n";
         } else {
