@@ -271,7 +271,6 @@ int QMngHandlerPrivate::currentImageNumber() const
 int QMngHandlerPrivate::imageCount() const
 {
 //    return mng_get_totalframes(hMNG); not implemented, apparently
-    Q_Q(const QMngHandler);
     if (done)
         return frameCount;
     return 0; // Don't know
