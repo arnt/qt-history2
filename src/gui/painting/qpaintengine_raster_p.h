@@ -79,8 +79,6 @@ public:
     void drawPoints(const QPointF *points, int pointCount);
 
 #ifdef Q_NO_USING_KEYWORD
-    inline void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
-        { QPaintEngine::drawPolygon(points, pointCount, mode); }
     inline void drawPoints(const QPoint *points, int pointCount) { QPaintEngine::drawPoints(points, pointCount); }
     inline void drawEllipse(const QRect &rect) { QPaintEngine::drawEllipse(rect); }
 #else
