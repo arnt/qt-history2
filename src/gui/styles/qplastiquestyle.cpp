@@ -1196,8 +1196,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         break;
     }
 #endif // QT3_SUPPORT
-    case PE_PanelMenuBar:
-    case PE_PanelToolBar: {
+    case PE_PanelMenuBar: {
         // Draws the light line above and the dark line below menu bars and
         // tool bars.
         QPen oldPen = painter->pen();
@@ -2504,7 +2503,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             } else {
                 painter->drawPixmap(progressBar.left(), progressBar.top() + 1, cache);
             }
-            
+
             painter->restore();
         }
         break;
@@ -2927,6 +2926,102 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         }
         break;
 #endif // QT_NO_DOCKWIDGET
+    case CE_ToolBar:
+        if (const QStyleOptionToolBar *toolBar = qstyleoption_cast<const QStyleOptionToolBar *>(option)) {
+            // Draws the light line above and the dark line below menu bars and
+            // tool bars.
+            QPen oldPen = painter->pen();
+            if (toolBar->toolBarArea == Qt::TopToolBarArea) {
+                if (toolBar->positionOfLine == QStyleOptionToolBar::End
+                    || toolBar->positionOfLine == QStyleOptionToolBar::OnlyOne) {
+                    // The end and onlyone top toolbar lines draw a double
+                    // line at the bottom to blend with the central
+                    // widget.
+                    painter->setPen(option->palette.background().color().light(104));
+                    painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
+                    painter->setPen(alphaCornerColor);
+                    painter->drawLine(option->rect.left(), option->rect.bottom() - 1,
+                                      option->rect.right(), option->rect.bottom() - 1);
+                } else {
+                    // All others draw a single dark line at the bottom.
+                    painter->setPen(alphaCornerColor);
+                    painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
+                }
+                // All top toolbar lines draw a light line at the top.
+                painter->setPen(option->palette.background().color().light(104));
+                painter->drawLine(option->rect.topLeft(), option->rect.topRight());
+            } else if (toolBar->toolBarArea == Qt::BottomToolBarArea) {
+                if (toolBar->positionOfLine == QStyleOptionToolBar::End
+                    || toolBar->positionOfLine == QStyleOptionToolBar::Middle) {
+                    // The end and middle bottom toolbar lines draw a dark
+                    // line at the bottom.
+                    painter->setPen(alphaCornerColor);
+                    painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
+                }
+                if (toolBar->positionOfLine == QStyleOptionToolBar::Beginning
+                    || toolBar->positionOfLine == QStyleOptionToolBar::OnlyOne) {
+                    // The beginning and onlyone toolbar lines draw a
+                    // double line at the bottom to blend with the
+                    // statusbar.
+                    // ### The styleoption could contain whether the
+                    // mainwindow has a menubar and a statusbar, and
+                    // possibly dockwidgets.
+                    painter->setPen(alphaCornerColor);
+                    painter->drawLine(option->rect.left(), option->rect.bottom() - 1,
+                                      option->rect.right(), option->rect.bottom() - 1);
+                    painter->setPen(option->palette.background().color().light(104));
+                    painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
+                }
+                // All bottom toolbars draw a light line at the top.
+                painter->setPen(option->palette.background().color().light(104));
+                painter->drawLine(option->rect.topLeft(), option->rect.topRight());
+            }
+            if (toolBar->toolBarArea == Qt::LeftToolBarArea) {
+                if (toolBar->positionOfLine == QStyleOptionToolBar::Middle
+                    || toolBar->positionOfLine == QStyleOptionToolBar::End) {
+                    // The middle and left end toolbar lines draw a light
+                    // line to the left.
+                    painter->setPen(option->palette.background().color().light(104));
+                    painter->drawLine(option->rect.topLeft(), option->rect.bottomLeft());
+                }
+                if (toolBar->positionOfLine == QStyleOptionToolBar::End) {
+                    // All other left toolbar lines draw a dark line to the right
+                    painter->setPen(alphaCornerColor);
+                    painter->drawLine(option->rect.right() - 1, option->rect.top(),
+                                      option->rect.right() - 1, option->rect.bottom());
+                    painter->setPen(option->palette.background().color().light(104));
+                    painter->drawLine(option->rect.topRight(), option->rect.bottomRight());
+                } else {
+                    // All other left toolbar lines draw a dark line to the right
+                    painter->setPen(alphaCornerColor);
+                    painter->drawLine(option->rect.topRight(), option->rect.bottomRight());
+                }
+            } else if (toolBar->toolBarArea == Qt::RightToolBarArea) {
+                if (toolBar->positionOfLine == QStyleOptionToolBar::Middle
+                    || toolBar->positionOfLine == QStyleOptionToolBar::End) {
+                    // Right middle and end toolbar lines draw the dark right line
+                    painter->setPen(alphaCornerColor);
+                    painter->drawLine(option->rect.topRight(), option->rect.bottomRight());
+                }
+                if (toolBar->positionOfLine == QStyleOptionToolBar::End
+                    || toolBar->positionOfLine == QStyleOptionToolBar::OnlyOne) {
+                    // The right end and single toolbar draws the dark
+                    // line on its left edge
+                    painter->setPen(alphaCornerColor);
+                    painter->drawLine(option->rect.topLeft(), option->rect.bottomLeft());
+                    // And a light line next to it
+                    painter->setPen(option->palette.background().color().light(104));
+                    painter->drawLine(option->rect.left() + 1, option->rect.top(),
+                                      option->rect.left() + 1, option->rect.bottom());
+                } else {
+                    // Other right toolbars draw a light line on its left edge
+                    painter->setPen(option->palette.background().color().light(104));
+                    painter->drawLine(option->rect.topLeft(), option->rect.bottomLeft());
+                }
+            }
+            painter->setPen(oldPen);
+        }
+        break;
     default:
         QWindowsStyle::drawControl(element, option, painter, widget);
         break;
@@ -2941,7 +3036,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 {
     QColor borderColor = option->palette.background().color().dark(178);
     QColor alphaCornerColor;
-    if (widget) {
+   if (widget) {
         // ### backgroundrole/foregroundrole should be part of the style option
         alphaCornerColor = mergedColors(option->palette.color(widget->backgroundRole()), borderColor);
     } else {
@@ -3138,7 +3233,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 int len = pixelMetric(PM_SliderLength, slider, widget);
                 while (v <= slider->maximum) {
                     int pos = sliderPositionFromValue(slider->minimum, slider->maximum,
-                                                      v, (horizontal 
+                                                      v, (horizontal
                                                           ? slider->rect.width()
                                                           : slider->rect.height()) - len,
                                                       slider->upsideDown) + len / 2;
