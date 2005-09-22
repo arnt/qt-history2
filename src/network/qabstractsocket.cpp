@@ -616,6 +616,9 @@ bool QAbstractSocketPrivate::flush()
 void QAbstractSocketPrivate::startConnecting(const QHostInfo &hostInfo)
 {
     Q_Q(QAbstractSocket);
+    if (d->state == QAbstractSocket::ConnectingState)
+        return;
+
     addresses = hostInfo.addresses();
 
 #if defined(QABSTRACTSOCKET_DEBUG)
@@ -1225,16 +1228,18 @@ bool QAbstractSocket::waitForConnected(int msecs)
     QTime stopWatch;
     stopWatch.start();
 
-    if (state() == HostLookupState) {
+    if (d->state == HostLookupState) {
 #if defined (QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocket::waitForConnected(%i) doing host name lookup", msecs);
 #endif
         QHostInfo::abortHostLookup(d->hostLookupId);
         d->hostLookupId = -1;
         d->startConnecting(QHostInfo::fromName(d->hostName));
-        if (state() == UnconnectedState)
-            return false;
+    } else {
+        d->connectToNextAddress();
     }
+    if (state() == UnconnectedState)
+        return false;
 
     bool timedOut = true;
 #if defined (QABSTRACTSOCKET_DEBUG)
