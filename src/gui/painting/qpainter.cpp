@@ -3494,9 +3494,9 @@ void QPainter::drawText(const QPointF &p, const QString &str)
     Q_D(QPainter);
     d->updateState(d->state);
 
-    QTextLayout layout(str, d->state->font);
+    QStackTextEngine engine(str, d->state->font);
+    QTextLayout layout(&engine);
     layout.setCacheEnabled(true);
-    QTextEngine *engine = layout.d;
     QTextOption option(Qt::AlignLeft|Qt::AlignAbsolute);
     option.setTextDirection(d->state->layoutDirection);
     layout.setTextOption(option);
@@ -3504,7 +3504,7 @@ void QPainter::drawText(const QPointF &p, const QString &str)
     layout.beginLayout();
     QTextLine line = layout.createLine();
     layout.endLayout();
-    const QScriptLine &sl = engine->lines[0];
+    const QScriptLine &sl = engine.lines[0];
     line.draw(this, QPointF(p.x(), p.y() - sl.ascent.toReal()));
 }
 
@@ -4624,7 +4624,8 @@ void qt_format_text(const QFont &font, const QRectF &_r,
     qreal height = 0;
     qreal width = 0;
 
-    QTextLayout textLayout(text, fnt);
+    QStackTextEngine engine(text, fnt); 
+    QTextLayout textLayout(&engine);
     textLayout.setCacheEnabled(true);
     textLayout.engine()->underlinePositions = underlinePositions;
 

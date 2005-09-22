@@ -283,7 +283,7 @@ struct QGlyphLayout
     inline QGlyphLayout()
         : glyph(0), justificationType(0), nKashidas(0), space_18d6(0)
         {}
-
+    
     // highest value means highest priority for justification. Justification is done by first inserting kashidas
     // starting with the highest priority positions, then stretching spaces, afterwards extending inter char
     // spacing, and last spacing between arabic words.
@@ -390,6 +390,27 @@ class QTextFormatCollection;
 
 class Q_GUI_EXPORT QTextEngine {
 public:
+    struct LayoutData {
+        LayoutData(const QString &str, void **stack_memory, int mem_size);
+        LayoutData();
+        ~LayoutData();
+        mutable QScriptItemArray items;
+        int allocated;
+        int available_glyphs;
+        void **memory;
+        unsigned short *logClustersPtr;
+        QGlyphLayout *glyphPtr;
+        int num_glyphs;
+        mutable int used;
+        uint hasBidi : 1;
+        uint inLayout : 1;
+        uint memory_on_stack : 1;
+        bool haveCharAttributes;
+        QString string;
+        void reallocate(int totalGlyphs);
+    };
+
+    QTextEngine(LayoutData *data);
     QTextEngine();
     QTextEngine(const QString &str, const QFont &f);
     ~QTextEngine();
@@ -440,18 +461,14 @@ public:
     QFont font(const QScriptItem &si) const;
     inline QFont font() const { return fnt; }
 
-    unsigned short *logClustersPtr;
-    QGlyphLayout *glyphPtr;
-
     inline unsigned short *logClusters(const QScriptItem *si) const
-        { return logClustersPtr+si->position; }
+        { return layoutData->logClustersPtr+si->position; }
     inline QGlyphLayout *glyphs(const QScriptItem *si) const
-        { return glyphPtr + si->glyph_data_offset; }
+        { return layoutData->glyphPtr + si->glyph_data_offset; }
 
-    void reallocate(int totalGlyphs);
     inline void ensureSpace(int nGlyphs) const {
         if (layoutData->num_glyphs - layoutData->used < nGlyphs)
-            const_cast<QTextEngine *>(this)->reallocate((((layoutData->used + nGlyphs)*3/2 + 15) >> 4) << 4);
+            layoutData->reallocate((((layoutData->used + nGlyphs)*3/2 + 15) >> 4) << 4);
     }
 
     void freeMemory();
@@ -481,23 +498,13 @@ public:
     QPointF position;
     uint ignoreBidi : 1;
     uint cacheGlyphs : 1;
+    uint stackEngine : 1;
 
     int *underlinePositions;
 
-    struct LayoutData {
-        LayoutData();
-        ~LayoutData();
-        mutable QScriptItemArray items;
-        int allocated;
-        void **memory;
-        int num_glyphs;
-        mutable int used;
-        uint hasBidi : 1;
-        uint inLayout : 1;
-        bool haveCharAttributes;
-        QString string;
-    };
     mutable LayoutData *layoutData;
+
+    inline bool hasFormats() const { return (block.docHandle() || specialData); }
 
     struct SpecialData {
         int preeditPosition;
@@ -520,6 +527,17 @@ private:
     void resolveAdditionalFormats() const;
 };
 
+class QStackTextEngine : public QTextEngine {
+public:
+    enum { MemSize = 256*40/sizeof(void *) };
+    QStackTextEngine(const QString &string, const QFont &f);
+    LayoutData _layoutData;
+    void *_memory[MemSize];
+};
+
+
 Q_DECLARE_OPERATORS_FOR_FLAGS(QTextEngine::ShaperFlags)
 
+
+    
 #endif // QTEXTENGINE_P_H

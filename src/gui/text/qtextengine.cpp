@@ -799,8 +799,7 @@ static void init(QTextEngine *e)
 
     e->underlinePositions = 0;
     e->specialData = 0;
-    e->logClustersPtr = 0;
-    e->glyphPtr = 0;
+    e->stackEngine = false;
 }
 
 QTextEngine::QTextEngine()
@@ -817,42 +816,10 @@ QTextEngine::QTextEngine(const QString &str, const QFont &f)
 
 QTextEngine::~QTextEngine()
 {
-    delete layoutData;
+    if (!stackEngine)
+        delete layoutData;
     delete specialData;
 }
-
-void QTextEngine::reallocate(int totalGlyphs)
-{
-    int space_charAttributes = sizeof(QCharAttributes)*layoutData->string.length()/sizeof(void*) + 1;
-    int space_logClusters = sizeof(unsigned short)*layoutData->string.length()/sizeof(void*) + 1;
-    int space_glyphs = sizeof(QGlyphLayout)*totalGlyphs/sizeof(void*) + 2;
-
-    int newAllocated = space_charAttributes + space_glyphs + space_logClusters;
-    layoutData->memory = (void **)::realloc(layoutData->memory, newAllocated*sizeof(void *));
-
-    void **m = layoutData->memory;
-    m += space_charAttributes;
-    logClustersPtr = (unsigned short *) m;
-    m += space_logClusters;
-
-#if defined (Q_WS_WIN) || defined (__i386__)
-#if defined(Q_WS_WIN64)
-    m = (void **) (((__int64(m) + 3) >> 2) << 2);
-#else
-    m = (void **) (((long(m) + 3) >> 2) << 2);
-#endif
-#else
-    m = (void **) (((long(m) + 7) >> 3) << 3);
-#endif
-    glyphPtr = (QGlyphLayout *) m;
-
-    memset(((char *)layoutData->memory) + layoutData->allocated*sizeof(void *), 0,
-           (newAllocated - layoutData->allocated)*sizeof(void *));
-
-    layoutData->allocated = newAllocated;
-    layoutData->num_glyphs = totalGlyphs;
-}
-
 
 const QCharAttributes *QTextEngine::attributes()
 {
@@ -1062,6 +1029,8 @@ glyph_metrics_t QTextEngine::boundingBox(int from,  int len) const
 
 QFont QTextEngine::font(const QScriptItem &si) const
 {
+    if (!hasFormats())
+        return fnt;
     QTextCharFormat f = format(&si);
     QFont font = f.font();
 
@@ -1323,6 +1292,44 @@ QTextEngine::LayoutData::LayoutData()
     memory = 0;
     allocated = 0;
     num_glyphs = 0;
+    memory_on_stack = false;
+    used = 0;
+    hasBidi = false;
+    inLayout = false;
+    haveCharAttributes = false;
+    logClustersPtr = 0;
+    glyphPtr = 0;
+}
+
+QTextEngine::LayoutData::LayoutData(const QString &str, void **stack_memory, int mem_size)
+    : string(str)
+{
+    allocated = mem_size/sizeof(void*);
+    
+    int space_charAttributes = sizeof(QCharAttributes)*string.length()/sizeof(void*) + 1;
+    int space_logClusters = sizeof(unsigned short)*string.length()/sizeof(void*) + 1;
+    available_glyphs = ((int)allocated - space_charAttributes - space_logClusters)*(int)sizeof(void*)/(int)sizeof(QGlyphLayout) - 2;
+
+    if (available_glyphs < str.length()) {
+        // need to allocate on the heap
+        num_glyphs = 0;
+        allocated = 0;
+
+        memory_on_stack = false;
+        memory = 0;
+        logClustersPtr = 0;
+        glyphPtr = 0;
+    } else {
+        num_glyphs = str.length();
+        allocated = str.length();
+        
+        memory_on_stack = true;
+        memory = stack_memory;
+        logClustersPtr = (unsigned short *)(memory + space_charAttributes);
+        glyphPtr = (QGlyphLayout *)(memory + space_charAttributes + space_logClusters);
+        memset(memory, 0, space_charAttributes*sizeof(void *));
+        memset(glyphPtr, 0, num_glyphs*sizeof(QGlyphLayout));
+    }
     used = 0;
     hasBidi = false;
     inLayout = false;
@@ -1331,16 +1338,55 @@ QTextEngine::LayoutData::LayoutData()
 
 QTextEngine::LayoutData::~LayoutData()
 {
-    free(memory);
+    if (!memory_on_stack)
+        free(memory);
     memory = 0;
+}
+
+void QTextEngine::LayoutData::reallocate(int totalGlyphs)
+{
+    Q_ASSERT(totalGlyphs >= num_glyphs);
+    if (memory_on_stack && available_glyphs >= totalGlyphs) {
+        memset(glyphPtr + num_glyphs, 0, (totalGlyphs - num_glyphs)*sizeof(QGlyphLayout));
+        num_glyphs = totalGlyphs;
+        return;
+    }
+    
+    int space_charAttributes = sizeof(QCharAttributes)*string.length()/sizeof(void*) + 1;
+    int space_logClusters = sizeof(unsigned short)*string.length()/sizeof(void*) + 1;
+    int space_glyphs = sizeof(QGlyphLayout)*totalGlyphs/sizeof(void*) + 2;
+
+    int newAllocated = space_charAttributes + space_glyphs + space_logClusters;
+    void **old_mem = memory;
+    memory = (void **)::realloc(memory_on_stack ? 0 : old_mem, newAllocated*sizeof(void *));
+    if (memory_on_stack && memory)
+        memcpy(memory, old_mem, allocated);
+
+    void **m = memory;
+    m += space_charAttributes;
+    logClustersPtr = (unsigned short *) m;
+    m += space_logClusters;
+
+    glyphPtr = (QGlyphLayout *) m;
+
+    memset(((char *)memory) + allocated*sizeof(void *), 0,
+           (newAllocated - allocated)*sizeof(void *));
+
+    allocated = newAllocated;
+    num_glyphs = totalGlyphs;
 }
 
 void QTextEngine::freeMemory()
 {
-    delete layoutData;
-    layoutData = 0;
-    logClustersPtr = 0;
-    glyphPtr = 0;
+    if (!stackEngine) {
+        delete layoutData;
+        layoutData = 0;
+    } else {
+        layoutData->used = 0;
+        layoutData->hasBidi = false;
+        layoutData->inLayout = false;
+        layoutData->haveCharAttributes = false;
+    }
     for (int i = 0; i < lines.size(); ++i) {
         lines[i].justified = 0;
         lines[i].gridfitted = 0;
@@ -1540,3 +1586,11 @@ void QTextEngine::resolveAdditionalFormats() const
     specialData->resolvedFormatIndices = indices;
 }
 
+QStackTextEngine::QStackTextEngine(const QString &string, const QFont &f)
+    : _layoutData(string, _memory, MemSize)
+{
+    fnt = f;
+    text = string;
+    stackEngine = true;
+    layoutData = &_layoutData;
+}

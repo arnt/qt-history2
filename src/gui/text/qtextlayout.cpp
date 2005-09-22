@@ -322,7 +322,8 @@ QTextLayout::QTextLayout(const QTextBlock &block)
 */
 QTextLayout::~QTextLayout()
 {
-    delete d;
+    if (!d->stackEngine)
+        delete d;
 }
 
 /*!
@@ -1141,7 +1142,7 @@ void QTextLine::layout_helper(int maxGlyphs)
     int pos = line.from;
     int end = 0;
     QGlyphLayout *glyphs = 0;
-    unsigned short *logClusters = eng->logClustersPtr;
+    unsigned short *logClusters = eng->layoutData->logClustersPtr;
     while (newItem < eng->layoutData->items.size()) {
         if (newItem != item) {
             item = newItem;
@@ -1149,7 +1150,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             if (!current.num_glyphs) {
                 eng->shape(item);
                 attributes = eng->attributes();
-                logClusters = eng->logClustersPtr;
+                logClusters = eng->layoutData->logClustersPtr;
             }
             pos = qMax(line.from, current.position);
             end = current.position + eng->length(item);
@@ -1401,13 +1402,13 @@ static void drawMenuText(QPainter *p, QFixed x, QFixed y, const QScriptItem &si,
 static void setPenAndDrawBackground(QPainter *p, const QPen &defaultPen, const QTextCharFormat &chf, const QRectF &r)
 {
     QBrush c = chf.foreground();
-    if (c == Qt::NoBrush)
+    if (c.style() == Qt::NoBrush)
         p->setPen(defaultPen);
 
     QBrush bg = chf.background();
     if (bg.style() != Qt::NoBrush)
         p->fillRect(r, bg);
-    if (c != Qt::NoBrush)
+    if (c.style() != Qt::NoBrush)
         p->setPen(QPen(c, 0));
 }
 
@@ -1456,12 +1457,6 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
     QTextEngine::bidiReorder(nItems, levels.data(), visualOrder.data());
 
     QRectF outlineRect;
-    QPen outlinePen(Qt::NoPen);
-    if (selection) {
-        QVariant outline = selection->format.property(QTextFormat::OutlinePen);
-        if (outline.type() == QVariant::Pen)
-            outlinePen = qVariantValue<QPen>(outline);
-    }
 
     for (int i = 0; i < nItems; ++i) {
         int item = visualOrder[i]+firstItem;
@@ -1496,7 +1491,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                             c.setAlpha(128);
                             p->fillRect(itemRect, c);
                         }
-                        if (outlinePen.style() != Qt::NoPen)
+                        if (selection)
                             outlineRect = outlineRect.unite(itemRect);
                     }
                 }
@@ -1567,26 +1562,27 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
             }
 
             QRectF rect((x + soff).toReal(), (y - line.ascent).toReal(), swidth.toReal(), line.height().toReal());
-            if (outlinePen.style() != Qt::NoPen)
+            if (selection)
                 outlineRect = outlineRect.unite(rect);
             p->save();
             p->setClipRect(rect, Qt::IntersectClip);
         }
 
 
-        QTextCharFormat chf = eng->format(&si);
-        if (selection)
-            chf.merge(selection->format);
-
-        setPenAndDrawBackground(p, pen, chf, QRectF(x.toReal(), (y - line.ascent).toReal(),
-                                                    gf.width.toReal(), line.height().toReal()));
-
-        QTextCharFormat::VerticalAlignment valign = chf.verticalAlignment();
-        if (valign == QTextCharFormat::AlignSubScript)
-            itemBaseLine += (si.ascent + si.descent + 1) / 6;
-        else if (valign == QTextCharFormat::AlignSuperScript)
-            itemBaseLine -= (si.ascent + si.descent + 1) / 2;
-
+        if (eng->hasFormats()) {
+            QTextCharFormat chf = eng->format(&si);
+            if (selection)
+                chf.merge(selection->format);
+            
+            setPenAndDrawBackground(p, pen, chf, QRectF(x.toReal(), (y - line.ascent).toReal(),
+                                                        gf.width.toReal(), line.height().toReal()));
+            
+            QTextCharFormat::VerticalAlignment valign = chf.verticalAlignment();
+            if (valign == QTextCharFormat::AlignSubScript)
+                itemBaseLine += (si.ascent + si.descent + 1) / 6;
+            else if (valign == QTextCharFormat::AlignSuperScript)
+                itemBaseLine -= (si.ascent + si.descent + 1) / 2;
+        }
         QFont f = eng->font(si);
         gf.fontEngine = f.d->engineForScript(si.analysis.script);
         gf.f = &f;
@@ -1610,12 +1606,15 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
         x += gf.width;
     }
 
-    if (outlineRect.isValid()) {
-        p->setPen(outlinePen);
-        p->drawRect(outlineRect);
+    if (selection && outlineRect.isValid()) {
+        QVariant outline = selection->format.property(QTextFormat::OutlinePen);
+        if (outline.type() == QVariant::Pen) {
+            p->setPen(qVariantValue<QPen>(outline));
+            p->drawRect(outlineRect);
+        }
     }
-
-    p->setPen(pen);
+    if (eng->hasFormats())
+        p->setPen(pen);
 }
 
 /*!
