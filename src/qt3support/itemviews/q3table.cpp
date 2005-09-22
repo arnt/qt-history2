@@ -1262,9 +1262,11 @@ void Q3ComboTableItem::paint(QPainter *p, const QColorGroup &cg,
         flags |= QStyle::State_Enabled;
     // Since we still have the "fakeCombo" may as well use it in this case.
     QStyleOptionComboBox opt;
+    opt.initFrom(table());
     opt.rect = fakeCombo->rect();
     opt.palette = pal2;
-    opt.state = flags;
+    opt.state &= ~QStyle::State_HasFocus;
+    opt.state |= flags;
     opt.subControls = QStyle::SC_All;
     opt.activeSubControls = QStyle::SC_None;
     opt.editable = fakeCombo->editable();
@@ -1520,16 +1522,15 @@ void Q3CheckTableItem::paint(QPainter *p, const QColorGroup &cg,
                  selected ? pal.brush(QPalette::Highlight)
                           : pal.brush(QPalette::Base));
 
-    int w = cr.width();
-    int h = cr.height();
     QSize sz = QSize(table()->style()->pixelMetric(QStyle::PM_IndicatorWidth),
                       table()->style()->pixelMetric(QStyle::PM_IndicatorHeight));
     QPalette pal2(pal);
     pal2.setBrush(QPalette::Background, pal.brush(QPalette::Base));
     QStyleOptionButton opt;
+    opt.initFrom(table());
     opt.rect.setRect(0, (cr.height() - sz.height()) / 2, sz.width(), sz.height());
     opt.palette = pal2;
-    opt.state = QStyle::State_None;
+    opt.state &= ~QStyle::State_HasFocus;
     if(isEnabled())
         opt.state |= QStyle::State_Enabled;
     if (checked)
@@ -1539,13 +1540,13 @@ void Q3CheckTableItem::paint(QPainter *p, const QColorGroup &cg,
     if (isEnabled() && table()->isEnabled())
         opt.state |= QStyle::State_Enabled;
     table()->style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &opt, p, table());
-    int x = sz.width() + 6;
-    w = w - x;
     if (selected)
         p->setPen(pal.highlightedText().color());
     else
         p->setPen(pal.text().color());
-    p->drawText(x, 0, w, h, wordWrap() ? (alignment() | Qt::WordBreak) : alignment(), text());
+    opt.rect.setRect(0, 0, cr.width(), cr.height());
+    QRect textRect = table()->style()->subElementRect(QStyle::SE_CheckBoxContents, &opt, table());
+    p->drawText(textRect, wordWrap() ? (alignment() | Qt::WordBreak) : alignment(), text());
 }
 
 /*!
