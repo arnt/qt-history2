@@ -252,6 +252,8 @@ protected:
     void resizeEvent(QResizeEvent *event);
     void timerEvent(QTimerEvent *event);
 
+    bool focusNextPrevChild(bool next);
+
 private:
     Q_DECLARE_PRIVATE(QAbstractItemView)
     Q_DISABLE_COPY(QAbstractItemView)
