@@ -72,12 +72,17 @@ public:
                         Aborted,
                         Error };
 
+    enum OutputFormat { NativeFormat, PdfFormat };
+
     // ### Qt 5: Merge with QAbstractPrintDialog::PrintRange
     enum PrintRange { AllPages, Selection, PageRange };
 
 #ifdef QT3_SUPPORT
     enum PrinterOption { PrintToFile, PrintSelection, PrintPageRange };
 #endif // QT3_SUPPORT
+
+    void setOutputFormat(OutputFormat format);
+    OutputFormat outputFormat() const;
 
     void setPrinterName(const QString &);
     QString printerName() const;

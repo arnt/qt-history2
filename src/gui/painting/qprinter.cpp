@@ -28,6 +28,10 @@
 #include <private/qprintengine_ps_p.h>
 #endif
 
+#ifdef QT_PDF_SUPPORT
+#include "qprintengine_pdf_p.h"
+#endif
+
 #if defined(QT3_SUPPORT)
 #  include "qprintdialog.h"
 #endif // QT3_SUPPORT
@@ -331,6 +335,10 @@ QPrinter::QPrinter(PrinterMode mode)
         return;
     }
     Q_D(QPrinter);
+
+    d->printerMode = mode;
+    d->outputFormat = QPrinter::NativeFormat;
+
 #if defined (Q_WS_WIN)
     d->printEngine = new QWin32PrintEngine(mode);
 #elif defined (Q_WS_MAC)
@@ -354,6 +362,64 @@ QPrinter::~QPrinter()
     delete d->printEngine;
     delete d;
 }
+
+/*!
+    \enum QPrinter::OutputFormat
+
+    The OutputFormat enum is used to describe the format QPrinter should
+    use for printing.
+
+    \value NativeFormat QPrinter will print output in the method given
+    by the platform it is running on, e.g. This is how printing was
+    traditionally done in Qt. This mode is the default.
+
+    \value PdfFormat QPrinter will generate its output as a PDF file.
+*/
+
+/*!
+    Sets the output format for this printer to \a format.
+
+    Setting the output format will reset the state of the printer
+*/
+void QPrinter::setOutputFormat(OutputFormat format)
+{
+
+#ifdef QT_PDF_SUPPORT
+    Q_D(QPrinter);
+
+    if (d->outputFormat == format)
+        return;
+
+    delete d->printEngine;
+
+    if (format == NativeFormat) {
+#if defined (Q_WS_WIN)
+        d->printEngine = new QWin32PrintEngine(d->printerMode);
+#elif defined (Q_WS_MAC)
+        d->printEngine = new QMacPrintEngine(d->printerMode);
+#elif defined (Q_OS_UNIX)
+        d->printEngine = new QPSPrintEngine(d->printerMode);
+#endif
+    } else {
+        d->printEngine = new QPdfEngine;
+    }
+
+    d->outputFormat = format;
+#else
+    Q_UNUSED(format);
+#endif
+}
+
+/*!
+    Returns the output format for this printer
+*/
+QPrinter::OutputFormat QPrinter::outputFormat() const
+{
+    Q_D(const QPrinter);
+    return d->outputFormat;
+}
+
+
 
 /*! \reimp */
 int QPrinter::devType() const

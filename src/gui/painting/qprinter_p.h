@@ -25,13 +25,18 @@
 // We mean it.
 //
 
+
 #include <qglobal.h>
+
+#ifndef QT_NO_PRINTER
+
 #ifdef QT3_SUPPORT
 #include <qpointer.h>
 #include <qprintdialog.h>
 #endif
 
-#ifndef QT_NO_PRINTER
+#include <qprinter.h>
+
 
 class QPrintEngine;
 
@@ -46,6 +51,8 @@ public:
     {
     }
 
+    QPrinter::PrinterMode printerMode;
+    QPrinter::OutputFormat outputFormat;
     QPrintEngine *printEngine;
 
 #if defined(QT3_SUPPORT) && !(defined(QT_NO_PRINTDIALOG))

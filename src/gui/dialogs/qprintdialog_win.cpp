@@ -58,7 +58,7 @@ static PRINTDLGA *qt_win_make_PRINTDLGA(QWidget *parent, QPrintDialogPrivate *d,
     memset(pd, 0, sizeof(PRINTDLGA));
     pd->lStructSize = sizeof(PRINTDLGA);
 
-    pd->hDevMode = d->ep->devMode;       
+    pd->hDevMode = d->ep->devMode;
     pd->hDevNames  = tempDevNames;
 
     pd->Flags = PD_RETURNDC;
@@ -98,7 +98,7 @@ static PRINTDLGA *qt_win_make_PRINTDLGA(QWidget *parent, QPrintDialogPrivate *d,
 
 // If you change this function, make sure you also change the unicode equivalent
 static void qt_win_clean_up_PRINTDLGA(PRINTDLGA **pd)
-{    
+{
     delete *pd;
     *pd = 0;
 }
@@ -208,7 +208,11 @@ static void qt_win_read_back_PRINTDLGW(PRINTDLGW *pd, QPrintDialogPrivate *d)
 QPrintDialog::QPrintDialog(QPrinter *printer, QWidget *parent)
     : QAbstractPrintDialog( *(new QPrintDialogPrivate), printer, parent)
 {
-    d_func()->ep = static_cast<QWin32PrintEngine *>(printer->paintEngine())->d_func();
+    if (printer->outputFormat() == QPrinter::NativeFormat)
+        d_func()->ep = static_cast<QWin32PrintEngine *>(printer->paintEngine())->d_func();
+
+    else
+        qWarning("QPrintDialog, Only native format supported");
 }
 
 QPrintDialog::~QPrintDialog()
@@ -218,6 +222,10 @@ QPrintDialog::~QPrintDialog()
 
 int QPrintDialog::exec()
 {
+    if (printer()->outputFormat() == QPrinter::PdfFormat) {
+        return false;
+    }
+
     Q_D(QPrintDialog);
     if (!d->ep->devMode) {
         qWarning("QPrintDialog::exec(), printer not initialized");
