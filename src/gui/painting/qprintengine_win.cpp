@@ -549,6 +549,7 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
         clipMask = clipMask * QMatrix(d->stretch_x, 0, 0, d->stretch_y,
                                       tx - xform_offset_x, ty - xform_offset_y);
         if (!clipMask.isEmpty()) {
+            old_region = CreateRectRgn(0, 0, 1, 1);
             int get_clip = GetClipRgn(d->hdc, old_region);
             if (get_clip == -1) {
                 qErrnoWarning("QWin32PrintEngine::drawPixmap(), failed to get old clip");
@@ -589,6 +590,8 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
         ExtSelectClipRgn(d->hdc, old_region, RGN_COPY);
     }
 
+    if (old_region != 0)
+        DeleteObject(old_region);
 }
 
 
