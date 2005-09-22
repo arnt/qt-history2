@@ -601,8 +601,13 @@ void QTabBar::removeTab(int index)
         releaseShortcut(d->tabList.at(index).shortcutId);
 #endif
         d->tabList.removeAt(index);
-        if (index == d->currentIndex)
-            setCurrentIndex(d->validIndex(index-1)?index-1:0);
+        if (index == d->currentIndex) {
+            if (index == d->tabList.size()) {
+                setCurrentIndex(d->validIndex(index - 1) ? index - 1 : 0);
+            } else {
+                setCurrentIndex(d->validIndex(index) ? index : 0);
+            }
+        }
         d->refresh();
         tabRemoved(index);
     }
