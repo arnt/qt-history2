@@ -942,6 +942,8 @@ function replaceTags(packageDir, fileList, platform, license, platName, addition
     replace[options["version"]] = /\%VERSION\%/g;
     replace["#define QT_VERSION_STR   \"" + options["version"] + "\""] =
 	/#\s*define\s+QT_VERSION_STR\s+\"([^\"]+)\"*/g;
+    replace["#define QT_PACKAGEDATE_STR \"" + startDate.toString().left(10) + "\""] =
+	/#\s*define\s+QT_PACKAGEDATE_STR\s+\"([^\"]+)\"*/g;
     replace[platName] = /\%DISTNAME\%/g;
 
     if (platform + "-" + license in licenseHeaders)
