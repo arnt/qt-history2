@@ -1832,7 +1832,6 @@ void QWidgetPrivate::show_sys()
             mwmhints.flags |= MWM_HINTS_DECORATIONS;
             if (mwmhints.decorations == MWM_DECOR_ALL) {
                 mwmhints.decorations = (MWM_DECOR_BORDER
-                                        | MWM_DECOR_RESIZEH
                                         | MWM_DECOR_TITLE
                                         | MWM_DECOR_MENU
                                         | MWM_DECOR_MINIMIZE
