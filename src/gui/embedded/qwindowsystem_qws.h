@@ -138,7 +138,7 @@ public:
     QWSSoundServer(QObject* parent);
     ~QWSSoundServer();
     void playFile(const QString& filename);
-private slots:
+private Q_SLOTS:
     void feedDevice(int fd);
 private:
     QWSSoundServerData* d;
@@ -289,7 +289,7 @@ public:
                        Raise=0x0010, Lower=0x0020, Geometry=0x0040, Active = 0x0080,
                        Name=0x0100 };
 
-signals:
+Q_SIGNALS:
     void windowEvent(QWSWindow *w, QWSServer::WindowEvent e);
 
 #ifndef QT_NO_COP
@@ -387,7 +387,7 @@ private:
     void refreshBackground();
     void resetEngine();
 
-private slots:
+private Q_SLOTS:
 #ifndef QT_NO_QWS_MULTIPROCESS
     void clientClosed();
     void doClient();
@@ -561,10 +561,10 @@ public:
     int clientId() const { return cid; }
 
     QWSCursorMap cursors; // cursors defined by this client
-signals:
+Q_SIGNALS:
     void connectionClosed();
     void readyRead();
-private slots:
+private Q_SLOTS:
     void closeHandler();
     void errorHandler();
 private:

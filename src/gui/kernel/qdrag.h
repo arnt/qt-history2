@@ -50,7 +50,7 @@ public:
 
     void setDragCursor(const QPixmap &cursor, Qt::DropAction action);
 
-signals:
+Q_SIGNALS:
     void actionChanged(Qt::DropAction action);
     void targetChanged(QWidget *newTarget);
 

@@ -37,7 +37,7 @@ public:
     virtual void setRecord(QSqlRecord* record);
     QSqlRecord* record();
 
-public slots:
+public Q_SLOTS:
     virtual void refresh(QSqlRecord* buf);
     virtual void readFields();
     virtual void writeFields();

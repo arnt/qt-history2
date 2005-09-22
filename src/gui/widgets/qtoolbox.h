@@ -58,11 +58,11 @@ public:
     int indexOf(QWidget *widget) const;
     int count() const;
 
-public slots:
+public Q_SLOTS:
     void setCurrentIndex(int index);
     void setCurrentWidget(QWidget *widget);
 
-signals:
+Q_SIGNALS:
     void currentChanged(int index);
 
 protected:

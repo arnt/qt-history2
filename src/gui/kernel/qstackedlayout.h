@@ -54,11 +54,11 @@ public:
     QLayoutItem *takeAt(int);
     void setGeometry(const QRect &rect);
 
-signals:
+Q_SIGNALS:
     void widgetRemoved(int index);
     void currentChanged(int index);
 
-public slots:
+public Q_SLOTS:
     void setCurrentIndex(int index);
     void setCurrentWidget(QWidget *w);
 

@@ -104,7 +104,7 @@ public:
     QString errorString() const;
 
 #ifndef QT_NO_QOBJECT
-signals:
+Q_SIGNALS:
     void readyRead();
     void bytesWritten(qint64 bytes);
     void aboutToClose();

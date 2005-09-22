@@ -54,7 +54,7 @@ public:
 protected:
     virtual void incomingConnection(int handle);
 
-signals:
+Q_SIGNALS:
     void newConnection();
 
 private:

@@ -114,14 +114,14 @@ public:
     bool waitForBytesWritten(int msecs = 30000);
     bool waitForDisconnected(int msecs = 30000);
 
-signals:
+Q_SIGNALS:
     void hostFound();
     void connected();
     void disconnected();
     void stateChanged(QAbstractSocket::SocketState);
     void error(QAbstractSocket::SocketError);
 
-protected slots:
+protected Q_SLOTS:
     void connectToHostImplementation(const QString &hostName, quint16 port, OpenMode mode = ReadWrite);
     void disconnectFromHostImplementation();
 
@@ -170,7 +170,7 @@ public:
         return 0;
     }
     typedef SocketState State;
-signals:
+Q_SIGNALS:
     QT_MOC_COMPAT void connectionClosed(); // same as disconnected()
     QT_MOC_COMPAT void delayedCloseFinished(); // same as disconnected()
 

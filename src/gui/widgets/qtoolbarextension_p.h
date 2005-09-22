@@ -39,7 +39,7 @@ public:
 
     QSize sizeHint() const;
 
-public slots:
+public Q_SLOTS:
     void setOrientation(Qt::Orientation o);
 };
 

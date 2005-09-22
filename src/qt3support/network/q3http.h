@@ -185,10 +185,10 @@ public:
     Error error() const;
     QString errorString() const;
 
-public slots:
+public Q_SLOTS:
     void abort();
 
-signals:
+Q_SIGNALS:
     void stateChanged( int );
     void responseHeaderReceived( const Q3HttpResponseHeader& resp );
     void readyRead( const Q3HttpResponseHeader& resp );
@@ -205,7 +205,7 @@ protected:
 
     void timerEvent( QTimerEvent * );
 
-private slots:
+private Q_SLOTS:
     void clientReply( const Q3HttpResponseHeader &rep );
     void clientDone( bool );
     void clientStateChanged( int );

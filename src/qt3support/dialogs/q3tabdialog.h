@@ -83,7 +83,7 @@ protected:
     void setTabBar(QTabBar*);
     QTabBar* tabBar() const;
 
-signals:
+Q_SIGNALS:
     void aboutToShow();
 
     void applyButtonPressed();

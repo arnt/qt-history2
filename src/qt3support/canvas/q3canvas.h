@@ -262,10 +262,10 @@ public:
 
     virtual void setDoubleBuffering(bool y);
 
-signals:
+Q_SIGNALS:
     void resized();
 
-public slots:
+public Q_SLOTS:
     virtual void advance();
     virtual void update();
 
@@ -339,7 +339,7 @@ private:
     Q3CanvasViewData* d;
     friend void qt_unview(Q3Canvas* c);
 
-private slots:
+private Q_SLOTS:
     void updateContentsSize();
 
 private:

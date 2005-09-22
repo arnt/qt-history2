@@ -110,14 +110,14 @@ public:
     virtual void setDragAutoScroll( bool b );
     bool	 dragAutoScroll() const;
 
-signals:
+Q_SIGNALS:
     void	contentsMoving(int x, int y);
     void	horizontalSliderPressed();
     void	horizontalSliderReleased();
     void	verticalSliderPressed();
     void	verticalSliderReleased();
 
-public slots:
+public Q_SLOTS:
     virtual void resizeContents( int w, int h );
     void	scrollBy( int dx, int dy );
     virtual void setContentsPos( int x, int y );
@@ -194,7 +194,7 @@ private:
 
     Q3ScrollViewData* d;
 
-private slots:
+private Q_SLOTS:
     void hslide(int);
     void vslide(int);
     void hbarIsPressed();

@@ -58,7 +58,7 @@ public:
 
     virtual void clear();
 
-protected slots:
+protected Q_SLOTS:
     virtual void sourceDataChanged(const QModelIndex &source_top_left,
                                    const QModelIndex &source_bottom_right);
     virtual void sourceHeaderDataChanged(Qt::Orientation orientation, int start, int end);

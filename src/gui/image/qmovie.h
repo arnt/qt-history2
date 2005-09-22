@@ -83,7 +83,7 @@ public:
     void setSpeed(int percentSpeed);
     int speed() const;
 
-signals:
+Q_SIGNALS:
     void started();
     void resized(const QSize &size);
     void updated(const QRect &rect);
@@ -91,7 +91,7 @@ signals:
     void error(QImageReader::ImageReaderError error);
     void finished();
 
-public slots:
+public Q_SLOTS:
     void start();
     bool jumpToNextFrame();
     void setPaused(bool paused);

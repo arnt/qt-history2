@@ -69,7 +69,7 @@ public:
     void scrollTo(const QModelIndex &index, ScrollHint hint = EnsureVisible);
     QModelIndex indexAt(const QPoint &p) const;
 
-public slots:
+public Q_SLOTS:
     void selectRow(int row);
     void selectColumn(int column);
     void hideRow(int row);
@@ -81,7 +81,7 @@ public slots:
     void sortByColumn(int column);
     void setShowGrid(bool show);
 
-protected slots:
+protected Q_SLOTS:
     void rowMoved(int row, int oldIndex, int newIndex);
     void columnMoved(int column, int oldIndex, int newIndex);
     void rowResized(int row, int oldHeight, int newHeight);

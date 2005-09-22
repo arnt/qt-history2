@@ -50,7 +50,7 @@ public:
     }
 
     int lookupId;
-signals:
+Q_SIGNALS:
     void resultsReady(const QHostInfo &info);
 };
 
@@ -102,7 +102,7 @@ public:
         }
     }
 
-public slots:
+public Q_SLOTS:
     inline void cleanup()
     {
         {

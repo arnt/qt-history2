@@ -106,11 +106,11 @@ public:
     static bool startDetached(const QString &program, const QStringList &arguments);
     static bool startDetached(const QString &program);
 
-public slots:
+public Q_SLOTS:
     void terminate();
     void kill();
 
-signals:
+Q_SIGNALS:
     void started();
     void finished(int exitCode);
     void error(QProcess::ProcessError error);

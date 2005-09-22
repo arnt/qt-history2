@@ -45,7 +45,7 @@ public:
 
     void paintEvent(QPaintEvent *);
 
-public slots:
+public Q_SLOTS:
     void setOrientation(Qt::Orientation orientation);
 };
 

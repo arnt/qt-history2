@@ -90,11 +90,11 @@ public:
     QSize iconSize() const;
     Qt::ToolButtonStyle toolButtonStyle() const;
 
-public slots:
+public Q_SLOTS:
     void setIconSize(const QSize &iconSize);
     void setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle);
 
-signals:
+Q_SIGNALS:
     void actionTriggered(QAction *action);
     void movableChanged(bool movable);
     void allowedAreasChanged(Qt::ToolBarAreas allowedAreas);

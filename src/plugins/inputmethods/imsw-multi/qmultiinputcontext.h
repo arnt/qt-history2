@@ -70,7 +70,7 @@ public:
     QInputContext *slave() { return slaves.at(current); }
     const QInputContext *slave() const { return slaves.at(current); }
 
-protected slots:
+protected Q_SLOTS:
     void changeSlave(QAction *);
 private:
     QWidget *fw;

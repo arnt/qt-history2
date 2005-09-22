@@ -59,7 +59,7 @@ public:
     EventFilter setEventFilter(EventFilter filter);
     bool filterEvent(void *message);
 
-signals:
+Q_SIGNALS:
     void aboutToBlock();
     void awake();
 

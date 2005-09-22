@@ -44,7 +44,7 @@ public:
 
     static void singleShot(int msec, QObject *receiver, const char *member);
 
-public slots:
+public Q_SLOTS:
     void start(int msec);
 
     void start();
@@ -55,7 +55,7 @@ public slots:
     QT_MOC_COMPAT int start(int msec, bool sshot);
 #endif
 
-signals:
+Q_SIGNALS:
     void timeout();
 
 protected:

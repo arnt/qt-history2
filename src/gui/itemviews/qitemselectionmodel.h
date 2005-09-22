@@ -122,14 +122,14 @@ public:
 
     const QAbstractItemModel *model() const;
 
-public slots:
+public Q_SLOTS:
     void setCurrentIndex(const QModelIndex &index, QItemSelectionModel::SelectionFlags command);
     virtual void select(const QModelIndex &index, QItemSelectionModel::SelectionFlags command);
     virtual void select(const QItemSelection &selection, QItemSelectionModel::SelectionFlags command);
     virtual void clear();
     virtual void reset();
 
-signals:
+Q_SIGNALS:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
     void currentRowChanged(const QModelIndex &current, const QModelIndex &previous);

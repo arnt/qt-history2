@@ -56,10 +56,10 @@ public:
     void setBackground(const QBrush &background);
     QBrush background() const;
 
-signals:
+Q_SIGNALS:
     void windowActivated(QWidget* w);
 
-public slots:
+public Q_SLOTS:
     void setActiveWindow(QWidget *w);
     void cascade();
     void tile();

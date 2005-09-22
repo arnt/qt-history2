@@ -77,7 +77,7 @@ public:
     virtual void fixup(QString &input) const;
 
     virtual void stepBy(int steps);
-public slots:
+public Q_SLOTS:
     void stepUp();
     void stepDown();
     void selectAll();
@@ -105,7 +105,7 @@ protected:
     void setLineEdit(QLineEdit *e);
 
     virtual StepEnabled stepEnabled() const;
-signals:
+Q_SIGNALS:
     void editingFinished();
 protected:
     QAbstractSpinBox(QAbstractSpinBoxPrivate &dd, QWidget *parent = 0);

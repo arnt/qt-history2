@@ -111,11 +111,11 @@ public:
     bool sectionsMoved() const;
     bool sectionsHidden() const;
 
-public slots:
+public Q_SLOTS:
     void setOffset(int offset);
     void headerDataChanged(Qt::Orientation orientation, int logicalFirst, int logicalLast);
 
-signals:
+Q_SIGNALS:
     void sectionMoved(int logicalIndex, int oldVisualIndex, int newVisualIndex);
     void sectionResized(int logicalIndex, int oldSize, int newSize);
     void sectionPressed(int logicalIndex);
@@ -125,7 +125,7 @@ signals:
     void sectionHandleDoubleClicked(int logicalIndex);
     void sectionAutoResize(int logicalIndex, QHeaderView::ResizeMode mode);
 
-protected slots:
+protected Q_SLOTS:
     void updateSection(int logicalIndex);
     void resizeSections();
     void sectionsInserted(const QModelIndex &parent, int logicalFirst, int logicalLast);

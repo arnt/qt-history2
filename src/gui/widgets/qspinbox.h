@@ -77,10 +77,10 @@ protected:
     virtual void fixup(QString &str) const;
 
 
-public slots:
+public Q_SLOTS:
     void setValue(int val);
 
-signals:
+Q_SIGNALS:
     void valueChanged(int);
     void valueChanged(const QString &);
 
@@ -134,10 +134,10 @@ public:
     virtual QString textFromValue(double v) const;
     virtual void fixup(QString &str) const;
 
-public slots:
+public Q_SLOTS:
     void setValue(double val);
 
-signals:
+Q_SIGNALS:
     void valueChanged(double);
     void valueChanged(const QString &);
 

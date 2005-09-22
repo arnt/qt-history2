@@ -141,7 +141,7 @@ public:
     void setIndexWidget(const QModelIndex &index, QWidget *widget);
     QWidget *indexWidget(const QModelIndex &index) const;
 
-public slots:
+public Q_SLOTS:
     virtual void reset();
     virtual void setRootIndex(const QModelIndex &index);
     virtual void doItemsLayout();
@@ -152,7 +152,7 @@ public slots:
     void scrollToTop();
     void scrollToBottom();
 
-protected slots:
+protected Q_SLOTS:
     virtual void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     virtual void rowsInserted(const QModelIndex &parent, int start, int end);
     virtual void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
@@ -169,7 +169,7 @@ protected slots:
     virtual void commitData(QWidget *editor);
     virtual void editorDestroyed(QObject *editor);
 
-signals:
+Q_SIGNALS:
     void pressed(const QModelIndex &index);
     void clicked(const QModelIndex &index);
     void doubleClicked(const QModelIndex &index);

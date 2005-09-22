@@ -86,11 +86,11 @@ public:
 
     void triggerAction(SliderAction action);
 
-public slots:
+public Q_SLOTS:
     void setValue(int);
     void setOrientation(Qt::Orientation);
 
-signals:
+Q_SIGNALS:
     void valueChanged(int value);
 
     void sliderPressed();

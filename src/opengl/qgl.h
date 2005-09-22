@@ -301,7 +301,7 @@ public:
     GLuint bindTexture(const QString &fileName);
     void deleteTexture(GLuint tx_id);
 
-public slots:
+public Q_SLOTS:
     virtual void updateGL();
     virtual void updateOverlayGL();
 

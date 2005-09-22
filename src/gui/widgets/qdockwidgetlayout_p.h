@@ -110,10 +110,10 @@ public:
     void extend(QDockWidget *dockwidget, Qt::Orientation direction);
     void split(QDockWidget *existing, QDockWidget *with, Qt::DockWidgetArea area);
 
-signals:
+Q_SIGNALS:
     void emptied();
 
-private slots:
+private Q_SLOTS:
     void maybeDelete();
 };
 

@@ -56,12 +56,12 @@ public:
     QAbstractButton *selected() const;
     int selectedId() const;
 
-signals:
+Q_SIGNALS:
     void pressed(int id);
     void released(int id);
     void clicked(int id);
 
-protected slots:
+protected Q_SLOTS:
     void buttonPressed();
     void buttonReleased();
     void buttonClicked();

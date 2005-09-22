@@ -100,7 +100,7 @@ public:
     MenuRef macMenu(MenuRef merge=0);
 #endif
 
-signals:
+Q_SIGNALS:
     void aboutToShow();
     void triggered(QAction *action);
     void hovered(QAction *action);
@@ -122,7 +122,7 @@ protected:
     void timerEvent(QTimerEvent *);
     bool event(QEvent *);
 
-private slots:
+private Q_SLOTS:
     void internalSetSloppyAction();
     void internalDelayedPopup();
 
@@ -323,7 +323,7 @@ protected:
         return actionGeometry(reinterpret_cast<QAction *>(mi)).height();
     }
 
-signals:
+Q_SIGNALS:
     QT_MOC_COMPAT void aboutToHide();
     QT_MOC_COMPAT void activated(int itemId);
     QT_MOC_COMPAT void highlighted(int itemId);

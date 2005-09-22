@@ -100,12 +100,12 @@ public:
     virtual void stepBy(int steps);
 
     bool event(QEvent *e);
-signals:
+Q_SIGNALS:
     void dateTimeChanged(const QDateTime &date);
     void timeChanged(const QTime &date);
     void dateChanged(const QDate &date);
 
-public slots:
+public Q_SLOTS:
     void setDateTime(const QDateTime &dateTime);
     void setDate(const QDate &date);
     void setTime(const QTime &time);

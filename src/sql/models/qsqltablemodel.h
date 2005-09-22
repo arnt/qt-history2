@@ -74,14 +74,14 @@ public:
 
     virtual void revertRow(int row);
 
-public slots:
+public Q_SLOTS:
     bool submit();
     void revert();
 
     bool submitAll();
     void revertAll();
 
-signals:
+Q_SIGNALS:
     void primeInsert(int row, QSqlRecord &record);
 
     void beforeInsert(QSqlRecord &record);

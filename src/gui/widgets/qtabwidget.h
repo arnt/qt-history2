@@ -81,11 +81,11 @@ public:
     void setCornerWidget(QWidget * w, Qt::Corner corner = Qt::TopRightCorner);
     QWidget * cornerWidget(Qt::Corner corner = Qt::TopRightCorner) const;
 
-public slots:
+public Q_SLOTS:
     void setCurrentIndex(int index);
     void setCurrentWidget(QWidget *widget);
 
-signals:
+Q_SIGNALS:
     void currentChanged(int index);
 
 protected:
@@ -133,12 +133,12 @@ public:
     inline QT3_SUPPORT int margin() const { return 0; }
     inline QT3_SUPPORT void setMargin(int) {}
 
-public slots:
+public Q_SLOTS:
     inline QT_MOC_COMPAT void setCurrentPage(int index) { setCurrentIndex(index); }
     inline QT_MOC_COMPAT void showPage(QWidget *w) { setCurrentIndex(indexOf(w)); }
     inline QT_MOC_COMPAT void removePage(QWidget *w) { removeTab(indexOf(w)); }
 
-signals:
+Q_SIGNALS:
     QT_MOC_COMPAT void currentChanged(QWidget *);
 #endif // QT3_SUPPORT
 

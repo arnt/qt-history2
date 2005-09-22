@@ -77,7 +77,7 @@ public:
 
     void setStretchFactor(int index, int stretch);
 
-signals:
+Q_SIGNALS:
     void splitterMoved(int pos, int index);
 
 protected:

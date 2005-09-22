@@ -65,14 +65,14 @@ public:
     void setTextDirection(QProgressBar::Direction textDirection);
     QProgressBar::Direction textDirection();
 
-public slots:
+public Q_SLOTS:
     void reset();
     void setMinimum(int minimum);
     void setMaximum(int maximum);
     void setValue(int value);
     void setOrientation(Qt::Orientation);
 
-signals:
+Q_SIGNALS:
     void valueChanged(int value);
 
 protected:

@@ -68,7 +68,7 @@ public:
 
     QSize sizeHint() const;
 
-public slots:
+public Q_SLOTS:
     void display(const QString &str);
     void display(int num);
     void display(double num);
@@ -78,7 +78,7 @@ public slots:
     void setBinMode();
     void setSmallDecimalPoint(bool);
 
-signals:
+Q_SIGNALS:
     void overflow();
 
 protected:

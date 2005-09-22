@@ -88,7 +88,7 @@ public:
 
     virtual bool seek(int i, bool relative = false);
 
-signals:
+Q_SIGNALS:
     void firstRecordAvailable(bool available);
     void lastRecordAvailable(bool available);
     void nextRecordAvailable(bool available);
@@ -103,7 +103,7 @@ signals:
     void beforeDelete(QSqlRecord* buf);
     void cursorChanged(Q3SqlCursor::Mode mode);
 
-public slots:
+public Q_SLOTS:
     virtual void refresh();
 
     virtual void insert();

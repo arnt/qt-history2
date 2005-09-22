@@ -65,7 +65,7 @@ public:
 
     virtual void stop();
 
-signals:
+Q_SIGNALS:
     void newChildren( const Q3ValueList<QUrlInfo> &, Q3NetworkOperation *res );
     void finished( Q3NetworkOperation *res );
     void start( Q3NetworkOperation *res );
@@ -85,7 +85,7 @@ protected:
     void getNetworkProtocol();
     void deleteNetworkProtocol();
 
-private slots:
+private Q_SLOTS:
     const Q3NetworkOperation *startOperation( Q3NetworkOperation *op );
     void copyGotData( const QByteArray &data, Q3NetworkOperation *op );
     void continueCopy( Q3NetworkOperation *op );

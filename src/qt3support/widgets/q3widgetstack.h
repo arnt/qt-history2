@@ -45,11 +45,11 @@ public:
 
     void setFrameRect(const QRect &);
 
-signals:
+Q_SIGNALS:
     void aboutToShow(int);
     void aboutToShow(QWidget *);
 
-public slots:
+public Q_SLOTS:
     void raiseWidget(int);
     void raiseWidget(QWidget *);
 

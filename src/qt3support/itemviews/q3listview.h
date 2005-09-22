@@ -336,7 +336,7 @@ public:
 
     void hideColumn(int column);
 
-public slots:
+public Q_SLOTS:
     virtual void clear();
     virtual void invertSelection();
     virtual void selectAll(bool select);
@@ -344,7 +344,7 @@ public slots:
     void setContentsPos(int x, int y);
     void adjustColumn(int col);
 
-signals:
+Q_SIGNALS:
     void selectionChanged();
     void selectionChanged(Q3ListViewItem *);
     void currentChanged(Q3ListViewItem *);
@@ -406,11 +406,11 @@ protected:
     virtual void paintEmptyArea(QPainter *, const QRect &);
     void changeEvent(QEvent *);
 
-protected slots:
+protected Q_SLOTS:
     void updateContents();
     void doAutoScroll();
 
-private slots:
+private Q_SLOTS:
     void changeSortColumn(int);
     void handleIndexChange();
     void updateDirtyItems();

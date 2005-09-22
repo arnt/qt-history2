@@ -68,7 +68,7 @@ public:
     void setAutoClose(bool b);
     bool autoClose() const;
 
-public slots:
+public Q_SLOTS:
     void cancel();
     void reset();
     void setMaximum(int maximum);
@@ -78,7 +78,7 @@ public slots:
     void setCancelButtonText(const QString &);
     void setMinimumDuration(int ms);
 
-signals:
+Q_SIGNALS:
     void canceled();
 
 protected:
@@ -87,7 +87,7 @@ protected:
     void changeEvent(QEvent *);
     void showEvent(QShowEvent *e);
 
-protected slots:
+protected Q_SLOTS:
     void forceShow();
 
 private:

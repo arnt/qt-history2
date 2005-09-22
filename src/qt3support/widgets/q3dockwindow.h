@@ -119,12 +119,12 @@ public:
 
     QString windowTitle() const;
 
-signals:
+Q_SIGNALS:
     void orientationChanged(Qt::Orientation o);
     void placeChanged(Q3DockWindow::Place p);
     void visibilityChanged(bool);
 
-public slots:
+public Q_SLOTS:
     virtual void undock(QWidget *w);
     virtual void undock() { undock(0); }
     virtual void dock();
@@ -141,7 +141,7 @@ protected:
 
     bool event(QEvent *e);
 
-private slots:
+private Q_SLOTS:
     void toggleVisible() { setVisible(!isVisible()); }
 
 private:

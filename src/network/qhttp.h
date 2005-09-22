@@ -198,10 +198,10 @@ public:
     Error error() const;
     QString errorString() const;
 
-public slots:
+public Q_SLOTS:
     void abort();
 
-signals:
+Q_SIGNALS:
     void stateChanged(int);
     void responseHeaderReceived(const QHttpResponseHeader &resp);
     void readyRead(const QHttpResponseHeader &resp);

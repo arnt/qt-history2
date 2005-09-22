@@ -175,7 +175,7 @@ class QUnicodeControlCharacterMenu : public QMenu
 public:
     QUnicodeControlCharacterMenu(QWidget *editWidget, QWidget *parent);
 
-private slots:
+private Q_SLOTS:
     void actionTriggered();
 
 private:

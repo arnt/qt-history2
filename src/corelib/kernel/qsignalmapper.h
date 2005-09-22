@@ -40,13 +40,13 @@ public:
     QObject *mapping(QWidget *widget) const;
     QObject *mapping(QObject *object) const;
 
-signals:
+Q_SIGNALS:
     void mapped(int);
     void mapped(const QString &);
     void mapped(QWidget *);
     void mapped(QObject *);
 
-public slots:
+public Q_SLOTS:
     void map();
     void map(QObject *sender);
 

@@ -50,7 +50,7 @@ public:
     int id(QAbstractButton *button) const;
     int checkedId() const;
 
-signals:
+Q_SIGNALS:
     void buttonClicked(QAbstractButton *);
     void buttonClicked(int);
 

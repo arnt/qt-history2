@@ -75,7 +75,7 @@ public:
     int maxLines() const { return QWIDGETSIZE_MAX; }
     void setMaxLines(int) {}
 
-public slots:
+public Q_SLOTS:
     void deselect() { selectAll(false); }
 
 protected:

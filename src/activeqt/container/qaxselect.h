@@ -25,7 +25,7 @@ public:
 
     QString clsid() const { return ActiveX->text(); }
 
-private slots:
+private Q_SLOTS:
     void on_ActiveXList_clicked(const QModelIndex &index);
     void on_ActiveXList_doubleClicked(const QModelIndex &index);
 };

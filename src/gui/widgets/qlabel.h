@@ -72,7 +72,7 @@ public:
 #endif
     int heightForWidth(int) const;
 
-public slots:
+public Q_SLOTS:
     void setText(const QString &);
     void setPixmap(const QPixmap &);
 #ifndef QT_NO_PICTURE

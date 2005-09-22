@@ -94,7 +94,7 @@ public:
     QT3_SUPPORT_CONSTRUCTOR QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags = 0);
 #endif
 
-signals:
+Q_SIGNALS:
     void iconSizeChanged(const QSize &iconSize);
     void toolButtonStyleChanged(Qt::ToolButtonStyle toolButtonStyle);
 

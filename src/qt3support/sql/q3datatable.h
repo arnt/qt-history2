@@ -125,7 +125,7 @@ public:
     int          indexOf( uint i ) const;
     void selectRow(int row);
 
-signals:
+Q_SIGNALS:
     void         currentChanged( QSqlRecord* record );
     void         primeInsert( QSqlRecord* buf );
     void         primeUpdate( QSqlRecord* buf );
@@ -135,7 +135,7 @@ signals:
     void         beforeDelete( QSqlRecord* buf );
     void         cursorChanged( QSql::Op mode );
 
-public slots:
+public Q_SLOTS:
     virtual void find( const QString & str, bool caseSensitive,
 			     bool backwards );
     virtual void sortAscending( int col );
@@ -185,7 +185,7 @@ protected:
     void         setPixmap ( int row, int col, const QPixmap & pix );
     void         takeItem ( Q3TableItem * i );
 
-private slots:
+private Q_SLOTS:
     void         loadNextPage();
     void         setCurrentSelection( int row, int col );
     void         updateCurrentSelection();

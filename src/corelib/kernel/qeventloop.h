@@ -56,7 +56,7 @@ public:
 
     void wakeUp();
 
-public slots:
+public Q_SLOTS:
     void quit();
 };
 

@@ -186,14 +186,14 @@ public:
 
     void sort(bool ascending = true);
 
-public slots:
+public Q_SLOTS:
     void clear();
     virtual void ensureCurrentVisible();
     virtual void clearSelection();
     virtual void selectAll(bool select);
     virtual void invertSelection();
 
-signals:
+Q_SIGNALS:
     void highlighted(int index);
     void selected(int index);
     void highlighted(const QString &);
@@ -253,10 +253,10 @@ protected:
 
     int findItem(int yPos) const { return index(itemAt(QPoint(0,yPos))); }
 
-protected slots:
+protected Q_SLOTS:
     void clearInputString();
 
-private slots:
+private Q_SLOTS:
     void refreshSlot();
     void doAutoScroll();
     void adjustItems();

@@ -54,7 +54,7 @@ public:
     QPixmap standardPixmap(StandardPixmap standardIcon, const QStyleOption *option,
                            const QWidget *widget = 0) const;
 
-protected slots:
+protected Q_SLOTS:
     QIcon standardIconSlot(StandardPixmap standardIcon, const QStyleOption *option,
                            const QWidget *widget = 0) const;
 

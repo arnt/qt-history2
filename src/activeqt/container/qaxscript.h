@@ -92,7 +92,7 @@ public:
                                            const QVariant &v8 = QVariant());
     QVariant call(const QString &function, QList<QVariant> &arguments);
     
-signals:
+Q_SIGNALS:
     void entered();
     void finished();
     void finished(const QVariant &result);
@@ -145,10 +145,10 @@ public:
     static bool registerEngine(const QString &name, const QString &extension, const QString &code = QString());
     static QString scriptFileFilter();
     
-signals:
+Q_SIGNALS:
     void error(QAxScript *script, int code, const QString &description, int sourcePosition, const QString &sourceText);
     
-private slots:
+private Q_SLOTS:
     void objectDestroyed(QObject *o);
     void scriptError(int code, const QString &description, int sourcePosition, const QString &sourceText);
     

@@ -53,13 +53,13 @@ public:
     inline QT3_SUPPORT bool addTo(QWidget *w) { w->addActions(actions()); return true; }
 #endif
 
-public slots:
+public Q_SLOTS:
     void setEnabled(bool);
     inline void setDisabled(bool b) { setEnabled(!b); }
     void setVisible(bool);
     void setExclusive(bool);
 
-signals:
+Q_SIGNALS:
     void triggered(QAction *);
     QT_MOC_COMPAT void selected(QAction *);
     void hovered(QAction *);

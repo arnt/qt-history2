@@ -637,7 +637,7 @@ public:
     static QRect alignedRect(Qt::LayoutDirection direction, Qt::Alignment alignment,
                              const QSize &size, const QRect &rectangle);
 
-protected slots:
+protected Q_SLOTS:
     QIcon standardIconSlot(StandardPixmap standardIcon, const QStyleOption *opt = 0,
                            const QWidget *widget = 0) const;
 

@@ -120,7 +120,7 @@ public:
     bool isDockWindowAccepted(Q3DockWindow *dw);
     void setAcceptDockWindow(Q3DockWindow *dw, bool accept);
 
-public slots:
+public Q_SLOTS:
     void lineUp(bool keepNewLines);
 
 private:

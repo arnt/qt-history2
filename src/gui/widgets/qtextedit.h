@@ -169,7 +169,7 @@ public:
     int tabStopWidth() const;
     void setTabStopWidth(int width);
 
-public slots:
+public Q_SLOTS:
     void setFontPointSize(qreal s);
     void setFontFamily(const QString &fontFamily);
     void setFontWeight(int w);
@@ -201,7 +201,7 @@ public slots:
     void zoomIn(int range = 1);
     void zoomOut(int range = 1);
 
-signals:
+Q_SIGNALS:
     void textChanged();
     void undoAvailable(bool b);
     void redoAvailable(bool b);
@@ -251,7 +251,7 @@ protected:
     virtual void scrollContentsBy(int dx, int dy);
 
 #ifdef QT3_SUPPORT
-signals:
+Q_SIGNALS:
     QT_MOC_COMPAT void currentFontChanged(const QFont &f);
     QT_MOC_COMPAT void currentColorChanged(const QColor &c);
 
@@ -318,7 +318,7 @@ public:
     inline QT3_SUPPORT QColor color() const
     { return textColor(); }
 
-public slots:
+public Q_SLOTS:
     inline QT_MOC_COMPAT void setModified(bool m = true)
     { document()->setModified(m); }
     inline QT_MOC_COMPAT void undo() const

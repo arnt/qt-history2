@@ -50,7 +50,7 @@ public:
     QRegion region();
     QRegion &cachedRegion();
 
-protected slots:
+protected Q_SLOTS:
     void menuTriggered(QAction *action);
 
 protected:

@@ -191,7 +191,7 @@ public:
     bool isEnabledTo(QWidget*) const;
     bool isEnabledToTLW() const;
 
-public slots:
+public Q_SLOTS:
     void setEnabled(bool);
     void setDisabled(bool);
     void setWindowModified(bool);
@@ -320,7 +320,7 @@ public:
     inline bool isRightToLeft() const { return layoutDirection() == Qt::RightToLeft; }
     inline bool isLeftToRight() const { return layoutDirection() == Qt::LeftToRight; }
 
-public slots:
+public Q_SLOTS:
     inline void setFocus() { setFocus(Qt::OtherFocusReason); }
 
 public:
@@ -362,7 +362,7 @@ public:
     void repaintUnclipped(const QRegion &, bool erase = true);
 #endif
 
-public slots:
+public Q_SLOTS:
     void update();
     void repaint();
 
@@ -375,7 +375,7 @@ public:
     void repaint(const QRect &);
     void repaint(const QRegion &);
 
-public slots:
+public Q_SLOTS:
     // Widget management functions
 
     virtual void setVisible(bool visible);
@@ -502,7 +502,7 @@ public:
     void setEditFocus(bool on);
 #endif
 
-signals:
+Q_SIGNALS:
     void customContextMenuRequested(const QPoint &pos);
 
 protected:

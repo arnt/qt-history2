@@ -54,7 +54,7 @@ public:
     inline QWidget *parentWidget() const
     { return static_cast<QWidget *>(QObject::parent()); }
 
-signals:
+Q_SIGNALS:
     void activated();
     void activatedAmbiguously();
 

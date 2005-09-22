@@ -53,7 +53,7 @@ public:
 
     void setVisible(bool visible);
 
-public slots:
+public Q_SLOTS:
     void reset();
     virtual void setTotalSteps(int totalSteps);
     virtual void setProgress(int progress);

@@ -86,10 +86,10 @@ public:
     QSize iconSize() const;
     void setIconSize(const QSize &size);
 
-public slots:
+public Q_SLOTS:
     void setCurrentIndex(int index);
 
-signals:
+Q_SIGNALS:
     void currentChanged(int index);
 
 protected:
@@ -109,9 +109,9 @@ protected:
     void changeEvent(QEvent *);
 
 #ifdef QT3_SUPPORT
-public slots:
+public Q_SLOTS:
     QT_MOC_COMPAT void setCurrentTab(int index) { setCurrentIndex(index); }
-signals:
+Q_SIGNALS:
     QT_MOC_COMPAT void selected(int);
 #endif
 

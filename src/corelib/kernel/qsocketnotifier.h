@@ -35,10 +35,10 @@ public:
 
     inline bool isEnabled() const { return snenabled; }
 
-public slots:
+public Q_SLOTS:
     void setEnabled(bool);
 
-signals:
+Q_SIGNALS:
     void activated(int socket);
 
 protected:

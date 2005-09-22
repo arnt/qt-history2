@@ -34,7 +34,7 @@ public:
     virtual void addNumber(int sec, int num) = 0;
     virtual void removeLastNumber(int sec) = 0;
 
-public slots:
+public Q_SLOTS:
     virtual void stepUp() = 0;
     virtual void stepDown() = 0;
 
@@ -64,7 +64,7 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-public slots:
+public Q_SLOTS:
     virtual void setDate(const QDate& date);
 
 public:
@@ -85,7 +85,7 @@ public:
     // Make removeFirstNumber() virtual in Q3DateTimeEditBase in 4.0
     void removeFirstNumber(int sec);
 
-signals:
+Q_SIGNALS:
     void valueChanged(const QDate& date);
 
 protected:
@@ -106,7 +106,7 @@ protected:
     virtual void fix();
     virtual bool outOfRange(int y, int m, int d) const;
 
-protected slots:
+protected Q_SLOTS:
     void updateButtons();
 
 private:
@@ -147,7 +147,7 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-public slots:
+public Q_SLOTS:
     virtual void setTime(const QTime& time);
 
 public:
@@ -169,7 +169,7 @@ public:
     // Make removeFirstNumber() virtual in Q3DateTimeEditBase in 4.0
     void removeFirstNumber(int sec);
 
-signals:
+Q_SIGNALS:
     void valueChanged(const QTime& time);
 
 protected:
@@ -188,7 +188,7 @@ protected:
     virtual void setMinute(int m);
     virtual void setSecond(int s);
 
-protected slots:
+protected Q_SLOTS:
     void updateButtons();
 
 private:
@@ -216,7 +216,7 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-public slots:
+public Q_SLOTS:
     virtual void setDateTime(const QDateTime & dt);
 
 public:
@@ -228,14 +228,14 @@ public:
     virtual void setAutoAdvance(bool advance);
     bool autoAdvance() const;
 
-signals:
+Q_SIGNALS:
     void valueChanged(const QDateTime& datetime);
 
 protected:
     void init();
     void resizeEvent(QResizeEvent *);
 
-protected slots:
+protected Q_SLOTS:
     void newValue(const QDate& d);
     void newValue(const QTime& t);
 

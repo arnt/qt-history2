@@ -45,7 +45,7 @@ public:
     void	setValue(const QVariant &value);
     QVariant	value() const;
 #endif
-signals:
+Q_SIGNALS:
 #ifndef QT_NO_VARIANT
     void signal(const QVariant&);
 #endif

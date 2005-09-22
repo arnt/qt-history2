@@ -74,7 +74,7 @@ public:
     MenuRef macMenu();
 #endif
 
-signals:
+Q_SIGNALS:
     void triggered(QAction *action);
     void hovered(QAction *action);
 
@@ -243,7 +243,7 @@ public:
     QT3_SUPPORT void setAutoGeometry(bool);
     QT3_SUPPORT bool autoGeometry() const;
 
-signals:
+Q_SIGNALS:
     QT_MOC_COMPAT void activated(int itemId);
     QT_MOC_COMPAT void highlighted(int itemId);
 

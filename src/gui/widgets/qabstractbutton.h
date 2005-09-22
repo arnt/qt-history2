@@ -70,14 +70,14 @@ public:
     QButtonGroup *group() const;
 #endif
     
-public slots:
+public Q_SLOTS:
     void setIconSize(const QSize &size);
     void animateClick(int msec = 100);
     void click();
     void toggle();
     void setChecked(bool);
 
-signals:
+Q_SIGNALS:
     void pressed();
     void released();
     void clicked(bool checked = false);
@@ -113,7 +113,7 @@ public:
     inline QT3_SUPPORT void setAccel(const QKeySequence &key) { setShortcut(key); }
     inline QT3_SUPPORT QKeySequence accel() const { return shortcut(); }
 
-public slots:
+public Q_SLOTS:
     inline QT_MOC_COMPAT void setOn(bool b) { setChecked(b); }
 #endif
 

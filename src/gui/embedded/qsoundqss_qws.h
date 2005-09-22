@@ -40,10 +40,10 @@ public:
     void pauseFile( int id );
     void resumeFile( int id );
     
-signals:
+Q_SIGNALS:
     void soundCompleted( int );
     
-private slots:
+private Q_SLOTS:
     void translateSoundCompleted( int, int );
 
 private:
@@ -80,12 +80,12 @@ public:
     // to be used by server only, to protect phone conversation/rings.
     void playPriorityOnly(bool);
     
-signals:
+Q_SIGNALS:
     void soundCompleted(int);
     void deviceReady(int id);
     void deviceError(int id, QWSSoundClient::DeviceErrors);
 
-private slots:
+private Q_SLOTS:
     void tryReadCommand();
     void emitConnectionRefused();
     
@@ -98,7 +98,7 @@ class QWSSoundServerSocket : public QWSServerSocket {
 
 public:
     explicit QWSSoundServerSocket(QObject *parent=0);
-public slots:    
+public Q_SLOTS:    
     void newConnection();
 
 #ifdef QT3_SUPPORT
@@ -106,7 +106,7 @@ public:
     QT3_SUPPORT_CONSTRUCTOR QWSSoundServerSocket(QObject *parent, const char *name);
 #endif
 
-signals:
+Q_SIGNALS:
     void playFile(int, int, const QString&);
     void playFile(int, int, const QString&, int, int);
     void playRawFile(int, int, const QString&, int, int, int, int);

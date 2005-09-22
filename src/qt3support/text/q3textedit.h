@@ -280,7 +280,7 @@ public:
     AutoFormatting autoFormatting() const;
     Q3SyntaxHighlighter *syntaxHighlighter() const;
 
-public slots:
+public Q_SLOTS:
 #ifndef QT_NO_MIME
     virtual void setMimeSourceFactory(Q3MimeSourceFactory* factory);
 #endif
@@ -372,7 +372,7 @@ public slots:
     int maxLogLines() const;
 #endif
 
-signals:
+Q_SIGNALS:
     void textChanged();
     void selectionChanged();
     void copyAvailable(bool);
@@ -421,11 +421,11 @@ protected:
     virtual Q3PopupMenu *createPopupMenu();
     void drawCursor(bool visible);
 
-protected slots:
+protected Q_SLOTS:
     virtual void doChangeInterval();
     virtual void sliderReleased();
 
-private slots:
+private Q_SLOTS:
     void formatMore();
     void doResize();
     void autoScrollTimerDone();
@@ -515,7 +515,7 @@ private:
     void optimCheckLimit(const QString& str);
     bool optimHasBoldMetrics(int line);
 
-private slots:
+private Q_SLOTS:
     void optimDoAutoScroll();
 #endif // QT_TEXTEDIT_OPTIMIZATION
 

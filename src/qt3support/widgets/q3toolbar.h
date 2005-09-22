@@ -63,7 +63,7 @@ protected:
     void styleChange(QStyle &);
     void actionEvent(QActionEvent *);
 
-private slots:
+private Q_SLOTS:
     void createPopup();
 
 private:

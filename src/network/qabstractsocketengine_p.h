@@ -91,7 +91,7 @@ public:
     virtual bool isExceptionNotificationEnabled() const = 0;
     virtual void setExceptionNotificationEnabled(bool enable) = 0;
 
-signals:
+Q_SIGNALS:
     void readNotification();
     void writeNotification();
     void exceptionNotification();

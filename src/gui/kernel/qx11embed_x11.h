@@ -36,7 +36,7 @@ public:
     };
     Error error() const;
 
-signals:
+Q_SIGNALS:
     void embedded();
     void containerClosed();
     void error(QX11EmbedWidget::Error error);
@@ -74,7 +74,7 @@ public:
     };
     Error error() const;
 
-signals:
+Q_SIGNALS:
     void clientIsEmbedded();
     void clientClosed();
     void error(QX11EmbedContainer::Error);

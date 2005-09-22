@@ -49,7 +49,7 @@ public:
 protected:
     Q3SocketDevice *socketDevice();
 
-private slots:
+private Q_SLOTS:
     void incomingConnection( int socket );
 
 private:

@@ -169,7 +169,7 @@ public:
                                   Qt::MatchFlags(Qt::MatchStartsWith|Qt::MatchWrap)) const;
     virtual QSize span(const QModelIndex &index) const;
 
-signals:
+Q_SIGNALS:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void headerDataChanged(Qt::Orientation orientation, int first, int last);
     void layoutChanged();
@@ -191,7 +191,7 @@ private: // can only be emitted by QAbstractItemModel
 
     void modelReset();
 
-public slots:
+public Q_SLOTS:
     virtual bool submit();
     virtual void revert();
 

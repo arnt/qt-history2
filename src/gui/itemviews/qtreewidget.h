@@ -232,13 +232,13 @@ public:
     bool isItemExpanded(const QTreeWidgetItem *item) const;
     void setItemExpanded(const QTreeWidgetItem *item, bool expand);
 
-public slots:
+public Q_SLOTS:
     void scrollToItem(const QTreeWidgetItem *item, QAbstractItemView::ScrollHint hint = EnsureVisible);
     void expandItem(const QTreeWidgetItem *item);
     void collapseItem(const QTreeWidgetItem *item);
     void clear();
 
-signals:
+Q_SIGNALS:
     void itemPressed(QTreeWidgetItem *item, int column);
     void itemClicked(QTreeWidgetItem *item, int column);
     void itemDoubleClicked(QTreeWidgetItem *item, int column);

@@ -58,7 +58,7 @@ public:
     static QString keyToString(QKeySequence k );
     static QKeySequence stringToKey( const QString & );
 
-signals:
+Q_SIGNALS:
     void activated( int id );
     void activatedAmbiguously( int id );
 

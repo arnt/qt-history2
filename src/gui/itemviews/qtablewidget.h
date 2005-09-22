@@ -230,7 +230,7 @@ public:
     const QTableWidgetItem *itemPrototype() const;
     void setItemPrototype(const QTableWidgetItem *item);
 
-public slots:
+public Q_SLOTS:
     void scrollToItem(const QTableWidgetItem *item, QAbstractItemView::ScrollHint hint = EnsureVisible);
     void insertRow(int row);
     void insertColumn(int column);
@@ -238,7 +238,7 @@ public slots:
     void removeColumn(int column);
     void clear();
 
-signals:
+Q_SIGNALS:
     void itemPressed(QTableWidgetItem *item);
     void itemClicked(QTableWidgetItem *item);
     void itemDoubleClicked(QTableWidgetItem *item);

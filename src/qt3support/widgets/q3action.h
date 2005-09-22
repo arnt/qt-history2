@@ -92,7 +92,7 @@ protected:
     virtual void addedTo(QWidget *actionWidget, QWidget *container);
     virtual void addedTo(int index, Q3PopupMenu *menu);
 
-public slots:
+public Q_SLOTS:
     void activate();
     void toggle();
     virtual void setOn(bool);
@@ -100,11 +100,11 @@ public slots:
     void setDisabled(bool);
     virtual void setVisible(bool);
 
-signals:
+Q_SIGNALS:
     void activated();
     void toggled(bool);
 
-private slots:
+private Q_SLOTS:
     void internalActivation();
     void toolButtonToggled(bool);
     void objectDestroyed();
@@ -161,11 +161,11 @@ protected:
     virtual void addedTo(QWidget *actionWidget, QWidget *container);
     virtual void addedTo(int index, Q3PopupMenu *menu);
 
-signals:
+Q_SIGNALS:
     void selected(Q3Action*);
     void activated(Q3Action *);
 
-private slots:
+private Q_SLOTS:
     void childToggled(bool);
     void childActivated();
     void childDestroyed();

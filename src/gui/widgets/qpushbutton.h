@@ -50,7 +50,7 @@ public:
     void setFlat(bool);
     bool isFlat() const;
 
-public slots:
+public Q_SLOTS:
 #ifndef QT_NO_MENU
     void showMenu();
 #endif

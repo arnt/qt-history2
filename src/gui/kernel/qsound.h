@@ -40,7 +40,7 @@ public:
 
     bool isFinished() const;
 
-public slots:
+public Q_SLOTS:
     void play();
     void stop();
 

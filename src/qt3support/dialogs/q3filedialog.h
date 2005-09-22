@@ -162,7 +162,7 @@ public:
 
     void addFilter(const QString &filter);
 
-public slots:
+public Q_SLOTS:
     void done(int);
     void setDir(const QString&);
     void setUrl(const Q3UrlOperator &url);
@@ -180,14 +180,14 @@ protected:
     void addLeftWidget(QWidget *w);
     void addRightWidget(QWidget *w);
 
-signals:
+Q_SIGNALS:
     void fileHighlighted(const QString&);
     void fileSelected(const QString&);
     void filesSelected(const QStringList&);
     void dirEntered(const QString&);
     void filterSelected(const QString&);
 
-private slots:
+private Q_SLOTS:
     void detailViewSelectionChanged();
     void listBoxSelectionChanged();
     void changeMode(int);

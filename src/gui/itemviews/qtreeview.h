@@ -76,11 +76,11 @@ public:
     void doItemsLayout();
     void reset();
 
-signals:
+Q_SIGNALS:
     void expanded(const QModelIndex &index);
     void collapsed(const QModelIndex &index);
 
-public slots:
+public Q_SLOTS:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void hideColumn(int column);
     void showColumn(int column);
@@ -90,7 +90,7 @@ public slots:
     void sortByColumn(int column);
     void selectAll();
 
-protected slots:
+protected Q_SLOTS:
     void columnResized(int column, int oldSize, int newSize);
     void columnCountChanged(int oldCount, int newCount);
     void columnMoved();

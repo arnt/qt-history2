@@ -50,7 +50,7 @@ public:
     const QRect availableGeometry(const QPoint &point) const
     { return availableGeometry(screenNumber(point)); }
 
-signals:
+Q_SIGNALS:
     void resized(int);
     void workAreaResized(int);
 

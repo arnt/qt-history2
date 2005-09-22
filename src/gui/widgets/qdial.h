@@ -47,7 +47,7 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-public slots:
+public Q_SLOTS:
     void setNotchesVisible(bool visible);
     void setWrapping(bool on);
 
@@ -67,7 +67,7 @@ public:
                                 QWidget* parent = 0, const char* name = 0);
     QT3_SUPPORT_CONSTRUCTOR QDial(QWidget *parent, const char *name);
 
-signals:
+Q_SIGNALS:
     QT_MOC_COMPAT void dialPressed();
     QT_MOC_COMPAT void dialMoved(int value);
     QT_MOC_COMPAT void dialReleased();

@@ -224,10 +224,10 @@ public:
     bool connection( QTransportAuth::Data );
     void setConnection( bool, QTransportAuth::Data & );
 
-signals:
+Q_SIGNALS:
     void authViolation( QTransportAuth::Data );
     void policyCheck( QTransportAuth::Data );
-public slots:
+public Q_SLOTS:
     void closeTransport(  unsigned char properties, int descriptor );
 private:
     // users should never construct their own

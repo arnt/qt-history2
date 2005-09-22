@@ -367,13 +367,13 @@ public:
 
     QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
 
-public slots:
+public Q_SLOTS:
     virtual void arrangeItemsInGrid(const QSize &grid, bool update = true);
     virtual void arrangeItemsInGrid(bool update = true);
     virtual void setContentsPos(int x, int y);
     virtual void updateContents();
 
-signals:
+Q_SIGNALS:
     void selectionChanged();
     void selectionChanged(Q3IconViewItem *item);
     void currentChanged(Q3IconViewItem *item);
@@ -399,12 +399,12 @@ signals:
     void itemRenamed(Q3IconViewItem *item, const QString &);
     void itemRenamed(Q3IconViewItem *item);
 
-protected slots:
+protected Q_SLOTS:
     virtual void doAutoScroll();
     virtual void adjustItems();
     virtual void slotUpdate();
 
-private slots:
+private Q_SLOTS:
     void movedContents(int dx, int dy);
 
 protected:

@@ -214,10 +214,10 @@ public:
     static bool keypadNavigationEnabled();
 #endif
 
-signals:
+Q_SIGNALS:
     void lastWindowClosed();
 
-public slots:
+public Q_SLOTS:
     static void closeAllWindows();
     static void aboutQt();
 

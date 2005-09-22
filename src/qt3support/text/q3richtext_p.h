@@ -887,7 +887,7 @@ public:
 
     void invalidateOriginalText() { oTextValid = false; oText = ""; }
 
-signals:
+Q_SIGNALS:
     void minimumWidthChanged(int);
 
 private:

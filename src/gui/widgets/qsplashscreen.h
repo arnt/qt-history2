@@ -35,7 +35,7 @@ public:
     void finish(QWidget *w);
     void repaint();
 
-public slots:
+public Q_SLOTS:
     void showMessage(const QString &message, int alignment = Qt::AlignLeft,
                   const QColor &color = Qt::black);
     void clearMessage();
@@ -45,7 +45,7 @@ public slots:
     inline QT_MOC_COMPAT void clear() { clearMessage(); }
 #endif
 
-signals:
+Q_SIGNALS:
     void messageChanged(const QString &message);
 
 protected:

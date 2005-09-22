@@ -60,10 +60,10 @@ public:
     QSize sizeHint() const;
     QStyleOptionTitleBar getStyleOption() const;
 
-public slots:
+public Q_SLOTS:
     void setActive(bool);
 
-signals:
+Q_SIGNALS:
     void doActivate();
     void doNormal();
     void doClose();

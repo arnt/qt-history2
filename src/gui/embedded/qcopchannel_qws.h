@@ -45,7 +45,7 @@ public:
 
     virtual void receive(const QString& msg, const QByteArray &data);
 
-signals:
+Q_SIGNALS:
     void received(const QString& msg, const QByteArray &data);
 
 private:

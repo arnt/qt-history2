@@ -40,7 +40,7 @@ public:
     Qt::CheckState checkState() const;
     void setCheckState(Qt::CheckState state);
 
-signals:
+Q_SIGNALS:
     void stateChanged(int);
 
 protected:

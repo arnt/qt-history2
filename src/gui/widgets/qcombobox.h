@@ -169,12 +169,12 @@ public:
 
     bool event(QEvent *event);
 
-public slots:
+public Q_SLOTS:
     void clear();
     void clearEditText();
     void setEditText(const QString &text);
 
-signals:
+Q_SIGNALS:
     void editTextChanged(const QString &);
     void activated(int index);
     void activated(const QString &);
@@ -235,7 +235,7 @@ public:
     inline QT3_SUPPORT void clearValidator() { setValidator(0); }
     inline QT3_SUPPORT void clearEdit() { clearEditText(); }
 
-signals:
+Q_SIGNALS:
     QT_MOC_COMPAT void textChanged(const QString &);
 #endif
 

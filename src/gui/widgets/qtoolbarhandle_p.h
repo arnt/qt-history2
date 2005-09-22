@@ -53,7 +53,7 @@ public:
     void mouseMoveEvent(QMouseEvent *e);
     void paintEvent(QPaintEvent *e);
 
-public slots:
+public Q_SLOTS:
     void setOrientation(Qt::Orientation orientation);
 };
 

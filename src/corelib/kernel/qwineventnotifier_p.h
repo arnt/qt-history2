@@ -42,10 +42,10 @@ public:
 
     bool isEnabled() const;
 
-public slots:
+public Q_SLOTS:
     void setEnabled(bool enable);
 
-signals:
+Q_SIGNALS:
     void activated(HANDLE hEvent);
 
 protected:

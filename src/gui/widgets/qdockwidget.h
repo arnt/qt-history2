@@ -71,7 +71,7 @@ public:
     QAction *toggleViewAction() const;
 #endif
 
-signals:
+Q_SIGNALS:
     void featuresChanged(QDockWidget::DockWidgetFeatures features);
     void topLevelChanged(bool topLevel);
     void allowedAreasChanged(Qt::DockWidgetAreas allowedAreas);

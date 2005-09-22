@@ -49,10 +49,10 @@ public:
     void setCheckable(bool checkable);
     bool isChecked() const;
 
-public slots:
+public Q_SLOTS:
     void setChecked(bool checked);
 
-signals:
+Q_SIGNALS:
     void toggled(bool);
 
 protected:

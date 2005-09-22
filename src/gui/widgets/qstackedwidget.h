@@ -43,11 +43,11 @@ public:
     QWidget *widget(int) const;
     int count() const;
 
-public slots:
+public Q_SLOTS:
     void setCurrentIndex(int index);
     void setCurrentWidget(QWidget *w);
 
-signals:
+Q_SIGNALS:
     void currentChanged(int);
     void widgetRemoved(int index);
 

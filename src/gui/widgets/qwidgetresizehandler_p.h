@@ -60,7 +60,7 @@ public:
     void doResize();
     void doMove();
 
-signals:
+Q_SIGNALS:
     void activate();
 
 protected:

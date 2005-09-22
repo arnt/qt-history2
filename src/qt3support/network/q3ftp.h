@@ -100,10 +100,10 @@ public:
     Error error() const;
     QString errorString() const;
 
-public slots:
+public Q_SLOTS:
     void abort();
 
-signals:
+Q_SIGNALS:
     void stateChanged( int );
     void listInfo( const QUrlInfo& );
     void readyRead();
@@ -138,21 +138,21 @@ private:
 
     bool checkConnection( Q3NetworkOperation *op );
 
-private slots:
+private Q_SLOTS:
     void startNextCommand();
     void piFinished( const QString& );
     void piError( int, const QString& );
     void piConnectState( int );
     void piFtpReply( int, const QString& );
 
-private slots:
+private Q_SLOTS:
     void npListInfo( const QUrlInfo & );
     void npDone( bool );
     void npStateChanged( int );
     void npDataTransferProgress( int, int );
     void npReadyRead();
 
-protected slots:
+protected Q_SLOTS:
     // ### Qt 4.0: delete these
     void hostFound();
     void connected();

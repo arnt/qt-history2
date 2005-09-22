@@ -37,7 +37,7 @@ public:
 
     QString source() const;
 
-public slots:
+public Q_SLOTS:
     virtual void setSource(const QString& name);
     virtual void backward();
     virtual void forward();
@@ -46,7 +46,7 @@ public slots:
     void setText(const QString &txt) { setText(txt, QString()); }
     virtual void setText(const QString &txt, const QString &context);
 
-signals:
+Q_SIGNALS:
     void backwardAvailable(bool);
     void forwardAvailable(bool);
     void sourceChanged(const QString&);

@@ -58,7 +58,7 @@ public:
 
     void exit(int retcode = 0);
 
-public slots:
+public Q_SLOTS:
     void start(QThread::Priority = InheritPriority);
     void terminate();
     void quit();
@@ -67,7 +67,7 @@ public:
     // default argument causes thread to block indefinately
     bool wait(unsigned long time = ULONG_MAX);
 
-signals:
+Q_SIGNALS:
     void started();
     void finished();
     void terminated();

@@ -71,7 +71,7 @@ public:
     void registerHandler(int objectType, QObject *component);
     QTextObjectInterface *handlerForObject(int objectType) const;
 
-signals:
+Q_SIGNALS:
     void update(const QRectF & = QRectF(0., 0., 1000000000., 1000000000.));
     void documentSizeChanged(const QSizeF &newSize);
     void pageCountChanged(int newPages);

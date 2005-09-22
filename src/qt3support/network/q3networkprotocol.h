@@ -126,7 +126,7 @@ public:
     virtual void clearOperationQueue();
     virtual void stop();
 
-signals:
+Q_SIGNALS:
     void data( const QByteArray &, Q3NetworkOperation *res );
     void connectionStateChanged( int state, const QString &data );
     void finished( Q3NetworkOperation *res );
@@ -152,7 +152,7 @@ protected:
 private:
     Q3NetworkProtocolPrivate *d;
 
-private slots:
+private Q_SLOTS:
     void processNextOperation( Q3NetworkOperation *old );
     void startOps();
     void emitNewChildren( const QUrlInfo &i, Q3NetworkOperation *op );
@@ -197,7 +197,7 @@ public:
 
     void free();
 
-private slots:
+private Q_SLOTS:
     void deleteMe();
 
 private:

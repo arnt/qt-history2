@@ -108,7 +108,7 @@ protected:
         style()->drawControl(QStyle::CE_MenuScroller, &menuOpt, &p);
     }
 
-signals:
+Q_SIGNALS:
     void doScroll(int action);
 
 private:
@@ -127,7 +127,7 @@ public:
     int spacing() const;
     QTimer blockMouseReleaseTimer;
 
-public slots:
+public Q_SLOTS:
     void scrollItemView(int action);
     void updateScrollers();
     void setCurrentIndex(const QModelIndex &index);
@@ -139,7 +139,7 @@ protected:
     void hideEvent(QHideEvent *e);
     QStyleOptionComboBox comboStyleOption() const;
 
-signals:
+Q_SIGNALS:
     void itemSelected(const QModelIndex &);
     void resetButton();
 

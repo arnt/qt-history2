@@ -84,7 +84,7 @@ public:
 
     inline bool  isSequential() const { return !isOpen(); }
 
-signals:
+Q_SIGNALS:
     void	 hostFound();
     void	 connected();
     void	 connectionClosed();
@@ -93,7 +93,7 @@ signals:
     void	 bytesWritten( int nbytes );
     void	 error( int );
 
-protected slots:
+protected Q_SLOTS:
     virtual void sn_read( bool force=false );
     virtual void sn_write();
 
@@ -101,7 +101,7 @@ protected:
     qint64 readData(char *data, qint64 maxlen);
     qint64 writeData(const char *data, qint64 len);
 
-private slots:
+private Q_SLOTS:
     void	tryConnecting();
     void	emitErrorConnectionRefused();
 

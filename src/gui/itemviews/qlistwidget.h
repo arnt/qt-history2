@@ -193,11 +193,11 @@ public:
     bool isItemHidden(const QListWidgetItem *item) const;
     void setItemHidden(const QListWidgetItem *item, bool hide);
 
-public slots:
+public Q_SLOTS:
     void scrollToItem(const QListWidgetItem *item, QAbstractItemView::ScrollHint hint = EnsureVisible);
     void clear();
 
-signals:
+Q_SIGNALS:
     void itemPressed(QListWidgetItem *item);
     void itemClicked(QListWidgetItem *item);
     void itemDoubleClicked(QListWidgetItem *item);

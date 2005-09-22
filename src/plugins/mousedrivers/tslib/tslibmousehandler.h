@@ -65,7 +65,7 @@ private:
     QSocketNotifier *m_notify;
     struct tsdev *m_ts;
 
-private slots:
+private Q_SLOTS:
     void readMouseData();
 };
 

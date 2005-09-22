@@ -47,7 +47,7 @@ public:
 
     virtual void setRecord(QSqlRecord* buf);
 
-public slots:
+public Q_SLOTS:
     virtual void readField(QWidget * widget);
     virtual void writeField(QWidget * widget);
     virtual void readFields();

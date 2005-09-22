@@ -96,10 +96,10 @@ protected:
     void connectNotify( const char *signal );
 #endif
 
-signals:
+Q_SIGNALS:
     void resultsReady();
 
-private slots:
+private Q_SLOTS:
     void startQuery();
 
 private:
@@ -129,7 +129,7 @@ protected:
     Q3DnsSocket( QObject *, const char * );
     virtual ~Q3DnsSocket();
 
-private slots:
+private Q_SLOTS:
     virtual void cleanCache();
     virtual void retransmit();
     virtual void answer();

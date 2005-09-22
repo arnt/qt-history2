@@ -32,7 +32,7 @@ public:
 
     static QErrorMessage * qtHandler();
 
-public slots:
+public Q_SLOTS:
     void showMessage(const QString &message);
 #ifdef QT3_SUPPORT
     inline QT_MOC_COMPAT void message(const QString &text) { showMessage(text); }

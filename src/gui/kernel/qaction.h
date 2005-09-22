@@ -138,7 +138,7 @@ public:
 protected:
     bool event(QEvent *);
 
-public slots:
+public Q_SLOTS:
 #ifdef QT3_SUPPORT
     inline QT_MOC_COMPAT void setOn(bool b) { setChecked(b); }
 #endif
@@ -150,7 +150,7 @@ public slots:
     inline void setDisabled(bool b) { setEnabled(!b); }
     void setVisible(bool);
 
-signals:
+Q_SIGNALS:
     void changed();
     void triggered(bool checked = false);
     void hovered();

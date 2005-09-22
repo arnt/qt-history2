@@ -35,7 +35,7 @@ private:
     // ### move into d pointer
     QObjectList cleanupObjects;
 
-private slots:
+private Q_SLOTS:
     void objectDestroyed(QObject *);
 };
 

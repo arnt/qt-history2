@@ -60,11 +60,11 @@ public:
     void setImage(const QImage &, Mode mode  = Clipboard);
     void setPixmap(const QPixmap &, Mode mode  = Clipboard);
 
-signals:
+Q_SIGNALS:
     void selectionChanged();
     void dataChanged();
 
-private slots:
+private Q_SLOTS:
     void ownerDestroyed();
 
 protected:

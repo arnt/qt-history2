@@ -122,10 +122,10 @@ public:
     EventFilter setEventFilter(EventFilter filter);
     bool filterEvent(void *message, long *result);
 
-public slots:
+public Q_SLOTS:
     static void quit();
 
-signals:
+Q_SIGNALS:
     void aboutToQuit();
     void unixSignal(int);
 

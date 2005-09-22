@@ -121,11 +121,11 @@ public:
 
     void arrange();
 
-signals:
+Q_SIGNALS:
     void stepUpPressed();
     void stepDownPressed();
 
-public slots:
+public Q_SLOTS:
     void stepUp();
     void stepDown();
 
@@ -140,7 +140,7 @@ protected:
     void changeEvent(QEvent *);
     void paintEvent(QPaintEvent *);
 
-private slots:
+private Q_SLOTS:
     void timerDone();
     void timerDoneEx();
 

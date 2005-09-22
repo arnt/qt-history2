@@ -63,12 +63,12 @@ public:
 
     void setResult(int r);
 
-signals:
+Q_SIGNALS:
     void finished(int result);
     void accepted();
     void rejected();
 
-public slots:
+public Q_SLOTS:
     int exec();
     virtual void done(int);
     virtual void accept();

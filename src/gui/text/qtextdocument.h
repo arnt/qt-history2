@@ -164,7 +164,7 @@ public:
     void setUseDesignMetrics(bool b);
     bool useDesignMetrics() const;
 
-signals:
+Q_SIGNALS:
     void contentsChange(int from, int charsRemoves, int charsAdded);
     void contentsChanged();
     void undoAvailable(bool);
@@ -172,7 +172,7 @@ signals:
     void modificationChanged(bool m);
     void cursorPositionChanged(const QTextCursor &cursor);
 
-public slots:
+public Q_SLOTS:
     void undo();
     void redo();
     void appendUndoItem(QAbstractUndoItem *);

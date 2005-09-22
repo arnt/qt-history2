@@ -44,14 +44,14 @@ public:
 
     virtual QVariant loadResource(int type, const QUrl &name);
 
-public slots:
+public Q_SLOTS:
     virtual void setSource(const QUrl &name);
     virtual void backward();
     virtual void forward();
     virtual void home();
     virtual void reload();
 
-signals:
+Q_SIGNALS:
     void backwardAvailable(bool);
     void forwardAvailable(bool);
     void sourceChanged(const QUrl &);
