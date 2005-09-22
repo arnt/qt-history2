@@ -137,6 +137,10 @@ struct QNullBrushData: public QBrushData
 void QBrush::init(const QColor &color, Qt::BrushStyle style)
 {
     switch(style) {
+    case Qt::NoBrush:
+        d = QNullBrushData::instance();
+        d->ref.ref();
+        return;
     case Qt::TexturePattern:
         d = new QTexturedBrushData;
         static_cast<QTexturedBrushData *>(d)->pixmap = QPixmap();
