@@ -787,7 +787,8 @@ QStyleOptionButton::QStyleOptionButton(int version)
 */
 
 QStyleOptionToolBar::QStyleOptionToolBar()
-: QStyleOption(Version, SO_ToolBar), lineWidth(0), midLineWidth(0), positionOfLine(OnlyOne),positionWithinLine(OnlyOne), toolBarArea(Qt::TopToolBarArea), features(None)
+    : QStyleOption(Version, SO_ToolBar), positionOfLine(OnlyOne), positionWithinLine(OnlyOne),
+      toolBarArea(Qt::TopToolBarArea), features(None), lineWidth(0), midLineWidth(0)
 {
 }
 
@@ -795,7 +796,8 @@ QStyleOptionToolBar::QStyleOptionToolBar()
     \internal
 */
 QStyleOptionToolBar::QStyleOptionToolBar(int version)
-: QStyleOption(version, SO_ToolBar), lineWidth(0), midLineWidth(0), positionOfLine(OnlyOne),positionWithinLine(OnlyOne), toolBarArea(Qt::TopToolBarArea), features(None)
+: QStyleOption(version, SO_ToolBar), positionOfLine(OnlyOne), positionWithinLine(OnlyOne),
+  toolBarArea(Qt::TopToolBarArea), features(None), lineWidth(0), midLineWidth(0)
 {
 }
 
@@ -2826,6 +2828,9 @@ QDebug operator<<(QDebug debug, const QStyleOption::OptionType &optionType)
         debug << "SO_GroupBox"; break;
     case QStyleOption::SO_ComplexCustomBase:
         debug << "SO_ComplexCustomBase"; break;
+        break;
+    case QStyleOption::SO_ToolBar:
+        debug << "SO_ToolBar"; break;
         break;
     }
     return debug;

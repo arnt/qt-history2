@@ -1336,14 +1336,13 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 {
     switch (ce) {
 #ifndef QT_NO_MENU
-    case CE_MenuBarEmptyArea: 
-        if (QMainWindow *mainWindow = qobject_cast<QMainWindow *>(widget->parentWidget())) {
-            p->setPen(QPen(opt->palette.dark().color()));
-            p->drawLine(opt->rect.bottomLeft().x(), opt->rect.bottomLeft().y(), opt->rect.bottomRight().x(),                         opt->rect.bottomRight().y());
-        }
+    case CE_MenuBarEmptyArea: {
+        QPen oldPen = p->pen();
+        p->setPen(QPen(opt->palette.dark().color()));
+        p->drawLine(opt->rect.bottomLeft().x(), opt->rect.bottomLeft().y(),
+                    opt->rect.bottomRight().x(), opt->rect.bottomRight().y());
         break;
-    
- 
+    }
     case CE_MenuItem:
         if (const QStyleOptionMenuItem *menuitem = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
             int x, y, w, h;
@@ -1829,6 +1828,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     case QStyleOptionToolBar::Beginning:
                     case QStyleOptionToolBar::OnlyOne:
                         paintBottomBorder=false;
+                default:
+                    break;
                 }
             case Qt::TopToolBarArea : 
                 switch(toolbar->positionWithinLine){
@@ -1841,6 +1842,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     case QStyleOptionToolBar::OnlyOne:
                         paintRightBorder = false;
                         paintLeftBorder = false;
+                default:
+                    break;
                 }
                 if( QApplication::reverseLayout()){ //reverse layout changes the order of Beginning/end
                     bool tmp = paintLeftBorder;
@@ -1854,6 +1857,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     case QStyleOptionToolBar::OnlyOne:
                         paintRightBorder = false;
                     break;
+                default:
+                    break;
                 }
                 break;
             case Qt::LeftToolBarArea :
@@ -1861,6 +1866,8 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     case QStyleOptionToolBar::Beginning:
                     case QStyleOptionToolBar::OnlyOne:
                         paintLeftBorder = false;
+                    break;
+                default:
                     break;
                 }
                 break;
