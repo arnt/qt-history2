@@ -365,8 +365,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
     bool retVal = false;
     do {
         QThreadData *data = QThreadData::get(thread());
-        // 0x10 == QEventLoop::DeferredDeletion. To be fixed for 4.1.
-        QCoreApplication::sendPostedEvents(0, (flags & 0x10) ? -1 : 0);
+        QCoreApplication::sendPostedEvents(0, (flags & QEventLoop::DeferredDeletion) ? -1 : 0);
     
         DWORD waitRet = 0;
         HANDLE pHandles[MAXIMUM_WAIT_OBJECTS - 1];

@@ -138,7 +138,7 @@ int QEventLoop::exec(ProcessEventsFlags flags)
     data->eventLoops.push(this);
 
     while (!d->exit)
-        processEvents(flags | WaitForMoreEvents | ProcessEventsFlag(0x10)); // 0x10 == QEventLoop::DeferredDeletion
+        processEvents(flags | WaitForMoreEvents | ProcessEventsFlag(QEventLoop::DeferredDeletion));
 
 
     QEventLoop *eventLoop = data->eventLoops.pop();

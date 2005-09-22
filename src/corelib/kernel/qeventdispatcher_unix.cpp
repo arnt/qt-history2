@@ -723,8 +723,7 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
 
     // we are awake, broadcast it
     emit awake();
-    // 0x10 == QEventLoop::DeferredDeletion. To be fixed for 4.1.
-    QCoreApplication::sendPostedEvents(0, (flags & 0x10) ? -1 : 0);
+    QCoreApplication::sendPostedEvents(0, (flags & QEventLoop::DeferredDeletion) ? -1 : 0);
 
     int nevents = 0;
     QThreadData *data = QThreadData::get(thread());
@@ -739,7 +738,7 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
         // return the maximum time we can wait for an event.
         timeval *tm = 0;
         timeval wait_tm = { 0l, 0l };
-        if (!(flags & 0x08)) {                        // 0x08 == ExcludeTimers for X11 only
+        if (!(flags & QEventLoop::X11ExcludeTimers)) {
             if (d->timerWait(wait_tm))
                 tm = &wait_tm;
 
@@ -756,8 +755,7 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
         nevents = d->doSelect(flags, tm);
 
         // activate timers
-        if (! (flags & 0x08)) {
-            // 0x08 == ExcludeTimers for X11 only
+        if (! (flags & QEventLoop::X11ExcludeTimers)) {
             nevents += activateTimers();
         }
     } else {

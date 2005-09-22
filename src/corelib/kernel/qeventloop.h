@@ -33,17 +33,13 @@ public:
         AllEvents = 0x00,
         ExcludeUserInputEvents = 0x01,
         ExcludeSocketNotifiers = 0x02,
-        WaitForMoreEvents = 0x04
-
+        WaitForMoreEvents = 0x04,
 #ifdef QT3_SUPPORT
-        ,
         ExcludeUserInput = ExcludeUserInputEvents,
-        WaitForMore = WaitForMoreEvents
+        WaitForMore = WaitForMoreEvents,
 #endif
-#if 0 // Add for 4.1
-	, X11ExcludeTimers = 0x08
-	, DeferredDeletion = 0x10
-#endif
+	X11ExcludeTimers = 0x08,
+	DeferredDeletion = 0x10
     };
     Q_DECLARE_FLAGS(ProcessEventsFlags, ProcessEventsFlag)
 
