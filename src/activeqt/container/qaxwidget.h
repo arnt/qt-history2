@@ -35,7 +35,8 @@ public:
     ~QAxWidget();
     
     void clear();
-    
+    bool doVerb(const QString &verb);
+
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 

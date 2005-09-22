@@ -35,6 +35,8 @@ public:
     QAxObject(IUnknown *iface, QObject *parent = 0);
     ~QAxObject();
     
+    bool doVerb(const QString &verb);
+
 protected:
     void connectNotify(const char *signal);
 

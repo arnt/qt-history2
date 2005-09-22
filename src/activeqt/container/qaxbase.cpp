@@ -1094,16 +1094,19 @@ void QAxBase::clear()
     d->metaobj = 0;
 }
 
-/*
+/*!
     Returns the list of verbs that the COM object can execute. If
     the object does not implement IOleObject, or does not support
     any verbs, then this function returns an empty stringlist.
 
     Note that the OLE default verbs (OLEIVERB_SHOW etc) are not
     included in the list.
-
+*/
 QStringList QAxBase::verbs() const
 {
+    if (!d->ptr)
+        return QStringList();
+
     if (d->verbs.isEmpty()) {
         IOleObject *ole = 0;
         d->ptr->QueryInterface(IID_IOleObject, (void**)&ole);
@@ -1129,7 +1132,15 @@ QStringList QAxBase::verbs() const
 
     return d->verbs.keys();
 }
+
+/*!
+    \internal
 */
+
+long QAxBase::indexOfVerb(const QString &verb) const
+{
+    return d->verbs.value(verb);
+}
 
 /*!
     This virtual function is called by setControl() and creates the

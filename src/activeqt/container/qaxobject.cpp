@@ -15,6 +15,9 @@
 
 #include <quuid.h>
 #include <qmetaobject.h>
+#include <qstringlist.h>
+
+#include <windows.h>
 
 /*!
     \class QAxObject
@@ -144,4 +147,27 @@ int QAxObject::qt_metacall(QMetaObject::Call call, int id, void **v)
 void QAxObject::connectNotify(const char *)
 {
     QAxBase::connectNotify();
+}
+
+/*!
+    Requests the COM object to perform the action \a verb. The possible verbs are returned by verbs().
+
+    The function returns true if the object could perform the action, otherwise returns false.
+*/
+bool QAxObject::doVerb(const QString &verb)
+{
+    if (!verbs().contains(verb))
+        return false;
+    IOleObject *ole = 0;
+    queryInterface(IID_IOleObject, (void**)&ole);
+    if (!ole)
+        return false;
+
+    LONG index = indexOfVerb(verb);
+
+    HRESULT hres = ole->DoVerb(index, 0, 0, 0, 0, 0);
+
+    ole->Release();
+
+    return hres == S_OK;
 }

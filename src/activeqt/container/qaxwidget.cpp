@@ -190,6 +190,17 @@ public:
         return m_spInPlaceActiveObject;
     }
 
+    inline HRESULT doVerb(LONG index)
+    {
+        if (!m_spOleObject)
+            return E_NOTIMPL;
+        if (!host)
+            return OLE_E_NOT_INPLACEACTIVE;
+
+        RECT rcPos = { host->x(), host->y(), host->x()+host->width(), host->y()+host->height() };
+        return m_spOleObject->DoVerb(index, 0, this, 0, host->winId(), &rcPos);
+    }
+
     // IUnknown
     unsigned long WINAPI AddRef();
     unsigned long WINAPI Release();
@@ -1437,7 +1448,8 @@ void QAxClientSite::windowActivationChange()
 QAxHostWidget::QAxHostWidget(QWidget *parent, QAxClientSite *ax)
 : QWidget(parent), setFocusTimer(0), hasFocus(false), axhost(ax)
 {
-    setAttribute(Qt::WA_NoSystemBackground);
+//    setAttribute(Qt::WA_NoBackground);
+//    setAttribute(Qt::WA_NoSystemBackground);
     setObjectName("QAxHostWidget");
 }
 
@@ -1800,6 +1812,21 @@ void QAxWidget::clear()
 }
 
 /*!
+    Requests the ActiveX control to perform the action \a verb. The possible verbs are returned by verbs().
+
+    The function returns true if the object could perform the action, otherwise returns false.
+*/
+bool QAxWidget::doVerb(const QString &verb)
+{
+    if (!verbs().contains(verb))
+        return false;
+
+    HRESULT hres = container->doVerb(indexOfVerb(verb));
+
+    return hres == S_OK;
+}
+
+ /*!
     \fn QObject *QAxWidget::qObject() const
     \internal
 */

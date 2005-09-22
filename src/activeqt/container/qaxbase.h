@@ -63,7 +63,7 @@ public:
                                            const QVariant &v7 = QVariant(),
                                            const QVariant &v8 = QVariant());
     QAxObject* querySubObject(const char *name, QList<QVariant> &vars);
-    
+
     virtual const QMetaObject *metaObject() const;
     virtual int qt_metacall(QMetaObject::Call, int, void **);
 
@@ -79,6 +79,8 @@ public:
     virtual void setPropertyWritable(const char*, bool);
     
     bool isNull() const;
+
+    QStringList verbs() const;
     
     QVariant asVariant() const;
     
@@ -88,7 +90,7 @@ signals:
     void propertyChanged(const QString&);
     void exception(int,const QString&,const QString&,const QString&);
 #endif
-    
+
 public:
     virtual void clear();
     bool setControl(const QString&);
@@ -96,7 +98,7 @@ public:
     void disableMetaObject();
     void disableClassInfo();
     void disableEventSink();
-    
+
 protected:
     virtual bool initialize(IUnknown** ptr);
     bool initializeRemote(IUnknown** ptr);
@@ -107,7 +109,8 @@ protected:
     void internalRelease();
     void initializeFrom(QAxBase *that);
     void connectNotify();
-    
+    long indexOfVerb(const QString &verb) const;
+
 private:
     friend class QAxEventSink;
     friend void *qax_createObjectWrapper(int, IUnknown*);
