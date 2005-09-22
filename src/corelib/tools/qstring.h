@@ -500,6 +500,9 @@ class Q_CORE_EXPORT QLatin1String
 {
 public:
     inline explicit QLatin1String(const char *s) : chars(s) {}
+    inline QLatin1String &operator=(const QLatin1String &other)
+    { chars = other.chars; return *this; }
+
     inline const char *latin1() const { return chars; }
 
     inline bool operator==(const QString &s) const
