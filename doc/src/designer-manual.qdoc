@@ -1591,6 +1591,13 @@ without having to write code themselves.
     definition:
 
     \code
+    #ifndef MYTASKMENUEXTENSION_H
+    #define MYTASKMENUEXTENSION_H
+
+    #include <QtDesigner/QDesignerTaskMenuExtension>
+
+    class QAction;
+
     class MyTaskMenuExtension : public QObject,
             public QDesignerTaskMenuExtension
     {
@@ -1610,6 +1617,8 @@ without having to write code themselves.
         MyCustomWidget *widget;
         QAction *myAction;
     };
+
+    #endif
     \endcode
 
     Since we are implementing an interface, we must ensure that it's
@@ -1642,20 +1651,50 @@ without having to write code themselves.
 
     The QExtensionFactory class provides a standard extension factory,
     but can also be used as an interface for custom extension
-    factories. You can either create a new QExtensionFactory and
-    reimplement the QExtensionFactory::createExtension() function. For
-    example:
+    factories. For example, creating a custom container extension
+    factory, requires the following class definition:
+
+    \code
+        #ifndef MYCONTAINEREXTENSIONFACTORY_H
+        #define MYCONTAINEREXTENSIONFACTORY_H
+
+        #include <QtDesigner/QDesignerContainerExtension>
+        #include <QtDesigner/QExtensionFactory>
+
+        class QExtensionManager;
+
+        class MyContainerExtensionFactory: public QExtensionFactory
+        {
+            Q_OBJECT
+
+        public:
+            MyContainerExtensionFactory(QExtensionManager *parent = 0);
+
+        protected:
+            QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
+        };
+
+        #endif
+    \endcode
+
+    The purpose is to reimplement the
+    QExtensionFactory::createExtension() function, making it able to
+    create your extension, for example a MultiPageWidget container
+    extension.
+
+    You can either create a new QExtensionFactory and
+    reimplement the QExtensionFactory::createExtension() function:
 
     \code
         QObject *ANewExtensionFactory::createExtension(QObject *object,
                 const QString &iid, QObject *parent) const
         {
-            if (iid != Q_TYPEID(QDesignerMemberSheetExtension))
+            if (iid != Q_TYPEID(QDesignerContainerExtension))
                 return 0;
 
             if (MyCustomWidget *widget = qobject_cast<MyCustomWidget*>
                    (object))
-                return new MyMemberSheetExtension(widget, parent);
+                return new MyContainerExtension(widget, parent);
 
             return 0;
         }
@@ -1674,8 +1713,8 @@ without having to write code themselves.
             if (widget && (iid == Q_TYPEID(QDesignerTaskMenuExtension))) {
                 return new MyTaskMenuExtension(widget, parent);
 
-            } else if (widget && (iid == Q_TYPEID(QDesignerMemberSheetExtension))) {
-                return new MyMemberSheetExtension(widget, parent);
+            } else if (widget && (iid == Q_TYPEID(QDesignerContainerExtension))) {
+                return new MyContainerExtension(widget, parent);
 
             } else {
                 return 0;
@@ -1687,8 +1726,10 @@ without having to write code themselves.
 
     When implementing a custom widget plugin, you must subclass the
     QDesignerCustomWidgetInterface to expose your plugin to Qt
-    Designer. The registration of an extension factory is typically
-    made in the QDesignerCustomWidgetInterface::initialize() function:
+    Designer. This is covered in more details in the \l {Creating
+    Custom Widgets for Qt Designer} section. But in addition, the
+    registration of an extension factory is typically made in the
+    QDesignerCustomWidgetInterface::initialize() function:
 
     \code
     void MyPlugin::initialize(QDesignerFormEditorInterface *formEditor)
@@ -1707,12 +1748,12 @@ without having to write code themselves.
     \endcode
 
     The QDesignerCustomWidgetInterface::initialize() function's
-    parameter provides a pointer to \QD's current
+    parameter is a pointer to \QD's current
     QDesignerFormEditorInterface object (formEditor). You must use the
     QDesignerFormEditorInterface::extensionManager() function to
-    retrieve an interface to \QD's extension manager. Finally,
-    you use the QExtensionManager::registerExtensions() function to
-    register your custom extension factory.
+    retrieve an interface to \QD's extension manager. Then you use the
+    QExtensionManager::registerExtensions() function to register your
+    custom extension factory.
 
     \section1 Related Examples
 
