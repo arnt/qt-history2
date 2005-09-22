@@ -821,6 +821,11 @@ int QGifHandler::nextImageDelay() const
     return nextDelay;
 }
 
+int QGifHandler::imageCount() const
+{
+    return 0; // Don't know
+}
+
 int QGifHandler::loopCount() const
 {
     return loopCnt-1; // In GIF, loop count is iteration count, so subtract one

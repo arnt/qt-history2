@@ -42,6 +42,7 @@ public:
     void setOption(ImageOption option, const QVariant &value);
     bool supportsOption(ImageOption option) const;
 
+    int imageCount() const;
     int loopCount() const;
     int nextImageDelay() const;
     int currentImageNumber() const;

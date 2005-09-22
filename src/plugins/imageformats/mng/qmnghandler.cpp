@@ -272,9 +272,9 @@ int QMngHandlerPrivate::imageCount() const
 {
 //    return mng_get_totalframes(hMNG); not implemented, apparently
     Q_Q(const QMngHandler);
-    if (frameCount > 0)
+    if (done)
         return frameCount;
-    return q->canRead() ? 1 : 0;
+    return 0; // Don't know
 }
 
 bool QMngHandlerPrivate::jumpToImage(int imageNumber)
