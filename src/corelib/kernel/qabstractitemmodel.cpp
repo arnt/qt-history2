@@ -550,7 +550,9 @@ void QAbstractItemModelPrivate::reset()
     selection models to locate an item in the model.
 
     New QModelIndex objects are created by the model using the
-    QAbstractItemModel::createIndex() function.
+    QAbstractItemModel::createIndex() function. An \e invalid model index
+    can be constructed with the QModelIndex constructor. Invalid indexes are
+    often used as parent indexes when referring to top-level items in a model.
 
     Model indexes refer to items in models, and contain all the information
     required to specify their locations in those models. Each index is located
