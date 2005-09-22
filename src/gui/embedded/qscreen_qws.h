@@ -14,12 +14,12 @@
 #ifndef QSCREEN_QWS_H
 #define QSCREEN_QWS_H
 
-#include "QtCore/qnamespace.h"
-#include "QtCore/qpoint.h"
-#include "QtGui/qrgb.h"
-#include "QtCore/qrect.h"
-#include "QtGui/qimage.h"
-#include "QtGui/qregion.h"
+#include <QtCore/qnamespace.h>
+#include <QtCore/qpoint.h>
+#include <QtGui/qrgb.h>
+#include <QtCore/qrect.h>
+#include <QtGui/qimage.h>
+#include <QtGui/qregion.h>
 
 QT_MODULE(Gui)
 

@@ -33,9 +33,9 @@
 
 #ifndef QT_NO_QWS_SNAP
 
-#include "QtGui/qscreen_qws.h"
-#include "snap/graphics.h"
-#include "snap/ref2d.h"
+#include <QtGui/qscreen_qws.h>
+#include <snap/graphics.h>
+#include <snap/ref2d.h>
 
 QT_MODULE(Gui)
 

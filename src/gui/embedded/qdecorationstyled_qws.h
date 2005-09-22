@@ -14,7 +14,7 @@
 #ifndef QDECORATIONSTYLED_QWS_H
 #define QDECORATIONSTYLED_QWS_H
 
-#include "QtGui/qdecorationdefault_qws.h"
+#include <QtGui/qdecorationdefault_qws.h>
 
 QT_MODULE(Gui)
 

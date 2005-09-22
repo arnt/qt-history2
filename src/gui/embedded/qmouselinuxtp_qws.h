@@ -14,7 +14,7 @@
 #ifndef QMOUSELINUXTP_QWS_H
 #define QMOUSELINUXTP_QWS_H
 
-#include "QtGui/qmouse_qws.h"
+#include <QtGui/qmouse_qws.h>
 
 QT_MODULE(Gui)
 
@@ -35,6 +35,6 @@ protected:
     QWSLinuxTPMouseHandlerPrivate *d;
 };
 
-#endif
+#endif // QT_NO_QWS_MOUSE_LINUXTP
 
 #endif // QMOUSELINUXTP_QWS_H

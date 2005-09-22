@@ -14,7 +14,7 @@
 #ifndef QMOUSEYOPY_QWS_H
 #define QMOUSEYOPY_QWS_H
 
-#include "QtGui/qmouse_qws.h"
+#include <QtGui/qmouse_qws.h>
 
 QT_MODULE(Gui)
 
@@ -36,6 +36,6 @@ protected:
     QWSYopyMouseHandlerPrivate *d;
 };
 
-#endif
+#endif // QT_NO_QWS_MOUSE_YOPY
 
 #endif // QMOUSEYOPY_QWS_H

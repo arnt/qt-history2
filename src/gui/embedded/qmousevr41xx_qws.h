@@ -14,7 +14,7 @@
 #ifndef QMOUSEVR41XX_QWS_H
 #define QMOUSEVR41XX_QWS_H
 
-#include "QtGui/qmouse_qws.h"
+#include <QtGui/qmouse_qws.h>
 
 QT_MODULE(Gui)
 
@@ -33,6 +33,6 @@ protected:
     QWSVr41xxMouseHandlerPrivate *d;
 };
 
-#endif
+#endif // QT_NO_QWS_MOUSE_VR41XX
 
 #endif // QMOUSEVR41XX_QWS_H

@@ -14,7 +14,7 @@
 #ifndef QKBDSL5000_QWS_H
 #define QKBDSL5000_QWS_H
 
-#include "QtGui/qkbdtty_qws.h"
+#include <QtGui/qkbdtty_qws.h>
 
 QT_MODULE(Gui)
 

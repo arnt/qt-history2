@@ -14,7 +14,7 @@
 #ifndef QWSCURSOR_QWS_H
 #define QWSCURSOR_QWS_H
 
-#include "QtGui/qimage.h"
+#include <QtGui/qimage.h>
 
 QT_MODULE(Gui)
 

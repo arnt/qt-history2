@@ -14,7 +14,7 @@
 #ifndef QKBDUSB_QWS_H
 #define QKBDUSB_QWS_H
 
-#include "QtGui/qkbdpc101_qws.h"
+#include <QtGui/qkbdpc101_qws.h>
 
 QT_MODULE(Gui)
 

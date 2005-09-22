@@ -14,7 +14,7 @@
 #ifndef QKBDVR41XX_QWS_H
 #define QKBDVR41XX_QWS_H
 
-#include "QtGui/qkbd_qws.h"
+#include <QtGui/qkbd_qws.h>
 
 QT_MODULE(Gui)
 

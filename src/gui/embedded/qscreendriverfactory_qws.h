@@ -14,7 +14,7 @@
 #ifndef QSCREENDRIVERFACTORY_QWS_H
 #define QSCREENDRIVERFACTORY_QWS_H
 
-#include "QtCore/qstringlist.h"
+#include <QtCore/qstringlist.h>
 
 QT_MODULE(Gui)
 
@@ -28,4 +28,4 @@ public:
     static QScreen *create(const QString&, int);
 };
 
-#endif //QSCREENDRIVERFACTORY_QWS_H
+#endif // QSCREENDRIVERFACTORY_QWS_H

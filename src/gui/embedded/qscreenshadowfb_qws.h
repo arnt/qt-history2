@@ -16,9 +16,9 @@
 
 #ifndef QT_NO_QWS_SHADOWFB
 
-#include "QtGui/qgfxraster_qws.h"
-#include "QtGui/qgfxlinuxfb_qws.h"
-#include "QtCore/qobject.h"
+#include <QtGui/qgfxraster_qws.h>
+#include <QtGui/qgfxlinuxfb_qws.h>
+#include <QtCore/qobject.h>
 
 QT_MODULE(Gui)
 
@@ -115,6 +115,6 @@ private:
 
 };
 
-#endif
+#endif // QT_NO_QWS_SHADOWFB
 
 #endif // QSCREENSHADOWFB_QWS_H

@@ -14,13 +14,13 @@
 #ifndef QWSMANAGER_P_H
 #define QWSMANAGER_P_H
 
-#include <qregion.h>
-#include <qdecoration_qws.h>
+#include "QtGui/qregion.h"
+#include "QtGui/qdecoration_qws.h"
+
+#ifndef QT_NO_QWS_MANAGER
 
 class QWidget;
 class QMenu;
-
-#ifndef QT_NO_QWS_MANAGER
 
 class QWSManagerPrivate : public QObjectPrivate
 {
@@ -65,5 +65,6 @@ public:
     { return cached_region.regionType; }
 };
 
-#endif
+#endif // QT_NO_QWS_MANAGER
+
 #endif // QWSMANAGER_P_H

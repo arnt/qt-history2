@@ -14,7 +14,7 @@
 #ifndef QMOUSEBUS_QWS_H
 #define QMOUSEBUS_QWS_H
 
-#include "QtGui/qmouse_qws.h"
+#include <QtGui/qmouse_qws.h>
 
 QT_MODULE(Gui)
 
@@ -35,6 +35,6 @@ protected:
     QWSBusMouseHandlerPrivate *d;
 };
 
-#endif
+#endif // QT_NO_QWS_MOUSE_BUS
 
 #endif // QMOUSEBUS_QWS_H

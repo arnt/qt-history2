@@ -14,7 +14,7 @@
 #ifndef QWSPROPERTY_QWS_H
 #define QWSPROPERTY_QWS_H
 
-#include "QtGui/qwscommand_qws.h"
+#include <QtGui/qwscommand_qws.h>
 
 QT_MODULE(Gui)
 

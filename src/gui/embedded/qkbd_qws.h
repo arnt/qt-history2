@@ -14,7 +14,7 @@
 #ifndef QKBD_QWS_H
 #define QKBD_QWS_H
 
-#include "QtGui/qapplication.h"
+#include <QtGui/qapplication.h>
 
 QT_MODULE(Gui)
 

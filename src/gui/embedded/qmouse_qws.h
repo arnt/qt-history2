@@ -14,8 +14,8 @@
 #ifndef QMOUSE_QWS_H
 #define QMOUSE_QWS_H
 
-#include "QtCore/qobject.h"
-#include "QtGui/qpolygon.h"
+#include <QtCore/qobject.h>
+#include <QtGui/qpolygon.h>
 
 QT_MODULE(Gui)
 

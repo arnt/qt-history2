@@ -14,7 +14,7 @@
 #ifndef QMOUSEDRIVERFACTORY_QWS_H
 #define QMOUSEDRIVERFACTORY_QWS_H
 
-#include "QtCore/qstringlist.h"
+#include <QtCore/qstringlist.h>
 
 QT_MODULE(Gui)
 

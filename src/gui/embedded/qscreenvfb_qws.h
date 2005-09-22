@@ -14,13 +14,12 @@
 #ifndef QSCREENVFB_QWS_H
 #define QSCREENVFB_QWS_H
 
-#include "QtGui/qscreen_qws.h"
-
-#ifndef QT_NO_QWS_QVFB
-
-#include "QtGui/qvfbhdr.h"
+#include <QtGui/qscreen_qws.h>
+#include <QtGui/qvfbhdr.h>
 
 QT_MODULE(Gui)
+
+#ifndef QT_NO_QWS_QVFB
 
 class QVFbMouseHandler;
 class QVFbKeyboardHandler;

@@ -14,9 +14,9 @@
 #ifndef QDECORATION_QWS_H
 #define QDECORATION_QWS_H
 
-#include "QtGui/qregion.h"
-#include "QtGui/qwidget.h"
-#include "QtGui/qaction.h"
+#include <QtGui/qregion.h>
+#include <QtGui/qwidget.h>
+#include <QtGui/qaction.h>
 
 QT_MODULE(Gui)
 

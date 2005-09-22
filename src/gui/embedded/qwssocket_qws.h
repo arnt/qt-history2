@@ -14,8 +14,8 @@
 #ifndef QWSSOCKET_QWS_H
 #define QWSSOCKET_QWS_H
 
-#include "QtNetwork/qtcpsocket.h"
-#include "QtNetwork/qtcpserver.h"
+#include <QtNetwork/qtcpsocket.h>
+#include <QtNetwork/qtcpserver.h>
 
 QT_MODULE(Gui)
 

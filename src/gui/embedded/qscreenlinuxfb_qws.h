@@ -14,7 +14,7 @@
 #ifndef QSCREENLINUXFB_QWS_H
 #define QSCREENLINUXFB_QWS_H
 
-#include "QtGui/qscreen_qws.h"
+#include <QtGui/qscreen_qws.h>
 
 QT_MODULE(Gui)
 
@@ -88,6 +88,6 @@ private:
     int startupd;
 };
 
-#endif
+#endif // QT_NO_QWS_LINUXFB
 
 #endif // QSCREENLINUXFB_QWS_H

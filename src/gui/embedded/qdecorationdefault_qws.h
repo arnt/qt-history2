@@ -14,7 +14,7 @@
 #ifndef QDECORATIONDEFAULT_QWS_H
 #define QDECORATIONDEFAULT_QWS_H
 
-#include "QtGui/qwsmanager_qws.h"
+#include <QtGui/qwsmanager_qws.h>
 
 QT_MODULE(Gui)
 
@@ -59,6 +59,7 @@ private:
     static QPixmap *staticNormalizePixmap;
 
 };
+
 #endif // QT_NO_QWS_DECORATION_DEFAULT
 #endif // QT_NO_QWS_MANAGER
 

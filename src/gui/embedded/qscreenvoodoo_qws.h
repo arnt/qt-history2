@@ -14,7 +14,7 @@
 #ifndef QSCREENVOODOO_QWS_H
 #define QSCREENVOODOO_QWS_H
 
-#include "QtGui/qscreenlinuxfb_qws.h"
+#include <QtGui/qscreenlinuxfb_qws.h>
 
 QT_MODULE(Gui)
 

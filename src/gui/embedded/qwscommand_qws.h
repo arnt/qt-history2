@@ -14,17 +14,15 @@
 #ifndef QWSCOMMAND_QWS_H
 #define QWSCOMMAND_QWS_H
 
-#include "QtCore/qbytearray.h"
-#include "QtGui/qwsutils_qws.h"
-
-#include "QtGui/qfont.h"
-#include "QtCore/qdatastream.h"
-
-#include "QtCore/qvariant.h"
-
-#define QTE_PIPE "QtEmbedded-%1"
+#include <QtCore/qbytearray.h>
+#include <QtGui/qwsutils_qws.h>
+#include <QtGui/qfont.h>
+#include <QtCore/qdatastream.h>
+#include <QtCore/qvariant.h>
 
 QT_MODULE(Gui)
+
+#define QTE_PIPE "QtEmbedded-%1"
 
 class QRect;
 

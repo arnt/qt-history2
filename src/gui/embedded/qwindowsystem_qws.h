@@ -14,16 +14,14 @@
 #ifndef QWINDOWSYSTEM_QWS_H
 #define QWINDOWSYSTEM_QWS_H
 
-#include "QtCore/qbytearray.h"
-#include "QtCore/qmap.h"
-#include "QtCore/qdatetime.h"
-#include "QtCore/qlist.h"
-
-#include "QtGui/qwsproperty_qws.h"
-#include "QtGui/qwsevent_qws.h"
-#include "QtGui/qregion.h"
-
-#include "QtGui/qkbd_qws.h"
+#include <QtGui/qwsproperty_qws.h>
+#include <QtGui/qwsevent_qws.h>
+#include <QtGui/qkbd_qws.h>
+#include <QtGui/qregion.h>
+#include <QtCore/qbytearray.h>
+#include <QtCore/qmap.h>
+#include <QtCore/qdatetime.h>
+#include <QtCore/qlist.h>
 
 QT_MODULE(Gui)
 
@@ -41,7 +39,6 @@ class QVariant;
 class QInputMethodEvent;
 class QWSInputMethod;
 class QWSBackingStore;
-
 
 #ifdef QT3_SUPPORT
 class QImage;

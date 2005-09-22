@@ -14,7 +14,7 @@
 #ifndef QSCREENMATROX_QWS_H
 #define QSCREENMATROX_QWS_H
 
-#include "QtGui/qscreenlinuxfb_qws.h"
+#include <QtGui/qscreenlinuxfb_qws.h>
 
 QT_MODULE(Gui)
 
@@ -42,4 +42,5 @@ private:
 };
 
 #endif // QT_NO_QWS_MATROX
+
 #endif // QSCREENMATROX_QWS_H

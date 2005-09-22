@@ -14,10 +14,11 @@
 #ifndef QSCREENVNC_QWS_H
 #define QSCREENVNC_QWS_H
 
-#define VNCSCREEN_BASE QLinuxFbScreen
-#include "QtGui/qscreenlinuxfb_qws.h"
+#include <QtGui/qscreenlinuxfb_qws.h>
 
 QT_MODULE(Gui)
+
+#define VNCSCREEN_BASE QLinuxFbScreen
 
 #ifndef QT_NO_QWS_VNC
 

@@ -14,14 +14,14 @@
 #ifndef QSCREENREPEATER_QWS_H
 #define QSCREENREPEATER_QWS_H
 
-#include "QtGui/qscreen_qws.h"
+#include <QtGui/qscreen_qws.h>
 
 QT_MODULE(Gui)
 
 #ifndef QT_NO_QWS_REPEATER
 
-#include "QtGui/qgfx_qws.h"
-#include "QtCore/qlist.h"
+#include <QtGui/qgfx_qws.h>
+#include <QtCore/qlist.h>
 
 class QScreenRec;
 

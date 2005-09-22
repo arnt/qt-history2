@@ -14,7 +14,7 @@
 #ifndef QKBDTTY_QWS_H
 #define QKBDTTY_QWS_H
 
-#include "QtGui/qkbdpc101_qws.h"
+#include <QtGui/qkbdpc101_qws.h>
 
 QT_MODULE(Gui)
 
@@ -38,7 +38,7 @@ private:
     QWSTtyKbPrivate *d;
 };
 
-#endif
+#endif // QT_NO_QWS_KBD_TTY
 
 #endif // QT_NO_QWS_KEYBOARD
 

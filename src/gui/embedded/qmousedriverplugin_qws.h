@@ -14,8 +14,8 @@
 #ifndef QMOUSEDRIVERPLUGIN_QWS_H
 #define QMOUSEDRIVERPLUGIN_QWS_H
 
-#include "QtCore/qplugin.h"
-#include "QtCore/qfactoryinterface.h"
+#include <QtCore/qplugin.h>
+#include <QtCore/qfactoryinterface.h>
 
 QT_MODULE(Gui)
 

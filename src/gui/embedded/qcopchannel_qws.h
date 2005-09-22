@@ -14,7 +14,7 @@
 #ifndef QCOPCHANNEL_QWS_H
 #define QCOPCHANNEL_QWS_H
 
-#include "QtCore/qobject.h"
+#include <QtCore/qobject.h>
 
 QT_MODULE(Gui)
 
@@ -63,6 +63,6 @@ private:
     friend class QApplication;
 };
 
-#endif
+#endif // QT_NO_COP
 
 #endif // QCOPCHANNEL_QWS_H

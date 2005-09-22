@@ -14,15 +14,15 @@
 #ifndef QSOUNDQSS_QWS_H
 #define QSOUNDQSS_QWS_H
 
-#include "QtNetwork/qtcpserver.h"
-#include "QtNetwork/qtcpsocket.h"
-#include "QtGui/qwssocket_qws.h"
+#include <QtNetwork/qtcpserver.h>
+#include <QtNetwork/qtcpsocket.h>
+#include <QtGui/qwssocket_qws.h>
+
+QT_MODULE(Gui)
 
 #if defined(QT_NO_NETWORK) || defined(QT_NO_DNS)
 #define QT_NO_QWS_SOUNDSERVER
 #endif
-
-QT_MODULE(Gui)
 
 #ifndef QT_NO_SOUND
 
@@ -127,6 +127,7 @@ Q_SIGNALS:
 #endif
 
 #endif // Q_OS_MAC
+
 #endif // QT_NO_SOUND
 
 #endif // QSOUNDQSS_QWS_H

@@ -14,10 +14,10 @@
 #ifndef QWSMANAGER_QWS_H
 #define QWSMANAGER_QWS_H
 
-#include "QtGui/qpixmap.h"
-#include "QtCore/qobject.h"
-#include "QtGui/qdecoration_qws.h"
-#include "QtGui/qevent.h"
+#include <QtGui/qpixmap.h>
+#include <QtCore/qobject.h>
+#include <QtGui/qdecoration_qws.h>
+#include <QtGui/qevent.h>
 
 QT_MODULE(Gui)
 
@@ -73,7 +73,7 @@ private:
     friend class QApplicationPrivate;
 };
 
-#include "QtGui/qdecorationdefault_qws.h"
+#include <QtGui/qdecorationdefault_qws.h>
 
 #endif // QT_NO_QWS_MANAGER
 

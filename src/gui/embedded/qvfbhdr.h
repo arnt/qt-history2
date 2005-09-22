@@ -14,8 +14,8 @@
 #ifndef QVFBHDR_H
 #define QVFBHDR_H
 
-#include "QtGui/qcolor.h"
-#include "QtCore/qrect.h"
+#include <QtGui/qcolor.h>
+#include <QtCore/qrect.h>
 
 QT_MODULE(Gui)
 

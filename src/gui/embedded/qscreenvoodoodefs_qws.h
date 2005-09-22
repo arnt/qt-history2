@@ -14,7 +14,7 @@
 #ifndef QSCREENVOODOODEFS_QWS_H
 #define QSCREENVOODOODEFS_QWS_H
 
-#include "QtCore/qglobal.h"
+#include <QtCore/qglobal.h>
 
 QT_MODULE(Gui)
 

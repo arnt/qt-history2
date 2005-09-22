@@ -14,11 +14,9 @@
 #ifndef QDIRECTPAINTER_QWS_H
 #define QDIRECTPAINTER_QWS_H
 
-#include "QtGui/qpainter.h"
+#include <QtGui/qpainter.h>
 
 QT_MODULE(Gui)
-
-#ifdef Q_WS_QWS
 
 #define QT_NO_DIRECTPAINTER
 
@@ -53,7 +51,6 @@ private:
     QDirectPainterPrivate *d;
 };
 
-#endif
 #endif
 
 #endif // QDIRECTPAINTER_QWS_H

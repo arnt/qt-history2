@@ -14,9 +14,9 @@
 #ifndef QSCREENTRANSFORMED_QWS_H
 #define QSCREENTRANSFORMED_QWS_H
 
-#include "QtGui/qscreenvfb_qws.h"
-#include "QtGui/qscreenlinuxfb_qws.h"
-#include "QtGui/qmatrix.h"
+#include <QtGui/qscreenvfb_qws.h>
+#include <QtGui/qscreenlinuxfb_qws.h>
+#include <QtGui/qmatrix.h>
 
 QT_MODULE(Gui)
 
@@ -79,4 +79,5 @@ private:
 };
 
 #endif // QT_NO_QWS_TRANSFORMED
+
 #endif // QSCREENTRANSFORMED_QWS_H

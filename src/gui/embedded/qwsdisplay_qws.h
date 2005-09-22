@@ -14,23 +14,20 @@
 #ifndef QWSDISPLAY_QWS_H
 #define QWSDISPLAY_QWS_H
 
-#include "QtCore/qobject.h"
-#include "QtCore/qbytearray.h"
-#include "QtGui/qregion.h"
-#include "QtGui/private/qlock_p.h"
-#include "QtGui/qwindowdefs.h"
-
-#include "QtCore/qlist.h"
+#include <QtCore/qobject.h>
+#include <QtCore/qbytearray.h>
+#include <QtGui/qregion.h>
+#include <QtGui/qwindowdefs.h>
+#include <QtGui/private/qlock_p.h>
+#include <QtCore/qlist.h>
 
 QT_MODULE(Gui)
 
-// Class forward definitions
-//class QWSRegionManager;
 class QWSEvent;
 class QWSMouseEvent;
 class QWSQCopMessageEvent;
-
 class QVariant;
+
 class QWSWindowInfo
 {
 

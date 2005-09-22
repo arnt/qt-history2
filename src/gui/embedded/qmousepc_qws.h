@@ -14,7 +14,7 @@
 #ifndef QMOUSEPC_QWS_H
 #define QMOUSEPC_QWS_H
 
-#include "QtGui/qmouse_qws.h"
+#include <QtGui/qmouse_qws.h>
 
 QT_MODULE(Gui)
 
@@ -35,6 +35,6 @@ protected:
     QWSPcMouseHandlerPrivate *d;
 };
 
-#endif
+#endif // QT_NO_QWS_MOUSE_PC
 
 #endif // QMOUSEPC_QWS_H
