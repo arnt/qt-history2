@@ -1020,14 +1020,19 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         }
         break;
     case PE_FrameLineEdit:
-        if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
-            int lw = 1; int mlw = 1;
-            // For line edits, we need to fill the background in the corners before drawing
-            // the frame since we have rounded corners
-            painter->fillRect(QRect(option->rect.left(), option->rect.top(),option->rect.width(),lw+mlw),
-                              frame->palette.background());
-            painter->fillRect(QRect(option->rect.left(), option->rect.bottom() - lw - mlw + 1,option->rect.width(),lw+mlw),
-                              frame->palette.background());
+        if (widget && widget->parent()) {
+            // Line edits use QPalette::Base as background role, so if we can
+            // get the parent's background role, we'll plot that into the four
+            // corner pixels.
+            QColor backgroundColor = option->palette.color(widget->parentWidget()->backgroundRole());
+            QPen oldPen = painter->pen();
+            painter->setPen(backgroundColor);
+            painter->drawPoint(option->rect.topLeft());
+            painter->drawPoint(option->rect.topRight());
+            painter->drawPoint(option->rect.bottomLeft());
+            painter->drawPoint(option->rect.bottomRight());
+            painter->setPen(oldPen);
+            alphaCornerColor = mergedColors(backgroundColor, borderColor);
         }
         // fall through
     case PE_Frame:
@@ -1057,7 +1062,15 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                                     lw, frame->rect.height() - lw*2 - mlw*2),color); // left line
 
             // Line ends
-            QColor alphaLineEnds = mergedColors(frame->palette.background().color(), color);
+            QColor alphaLineEnds;
+            if (element == PE_FrameLineEdit && widget && widget->parent()) {
+                // Line edits use QPalette::Base as background role, so we use
+                // the parent's background role to calculate the alpha line
+                // end pixels.
+                alphaLineEnds = mergedColors(frame->palette.color(widget->parentWidget()->backgroundRole()), color);
+            } else {
+                alphaLineEnds = mergedColors(frame->palette.background().color(), color);
+            }
             painter->fillRect(QRect(frame->rect.left() + lw, frame->rect.top(), mlw, lw),
                               alphaLineEnds);
             painter->fillRect(QRect(frame->rect.right() - lw - mlw + 1, frame->rect.top(), mlw, lw),
@@ -3489,10 +3502,9 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 
                 QRect rect = pixmapRect;
 
-                cachePainter.fillRect(rect, option->palette.base());
-
                 // Draw a line edit
                 QStyleOptionFrame lineEdit;
+                lineEdit.QStyleOption::operator=(*spinBox);
                 lineEdit.rect = pixmapRect;
                 lineEdit.state = spinBox->state;
                 lineEdit.state |= State_Sunken;
@@ -3725,6 +3737,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 
                 } else {
                     QStyleOptionButton buttonOption;
+                    buttonOption.QStyleOption::operator=(*comboBox);
                     buttonOption.rect = rect;
                     buttonOption.state = comboBox->state & (State_Enabled | State_MouseOver);
                     if (sunken) {
