@@ -292,6 +292,10 @@ int QToolBarPrivate::indexOf(QAction *action) const
     top of the window), or it can be movable (isMovable()) between
     toolbar areas; see allowedAreas() and isAreaAllowed().
 
+    Unlike dock windows, toolbars cannot be floated (detached) from the
+    main window. If you need to provide panels that can be floated, use
+    QDockWidget instead.
+
     When a toolbar is resized in such a way that it is too small to
     show all the items it contains, an extension button will appear as
     the last item in the toolbar. Pressing the extension button will
@@ -302,7 +306,7 @@ int QToolBarPrivate::indexOf(QAction *action) const
     as usual, but it will be disabled to indicate that some items in
     the toolbar are currently not visible.
 
-    \sa QToolButton
+    \sa QToolButton, QDockWidget, QMainWindow
 */
 
 /*!
