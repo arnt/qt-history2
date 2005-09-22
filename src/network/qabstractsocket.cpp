@@ -616,7 +616,7 @@ bool QAbstractSocketPrivate::flush()
 void QAbstractSocketPrivate::startConnecting(const QHostInfo &hostInfo)
 {
     Q_Q(QAbstractSocket);
-    if (d->state == QAbstractSocket::ConnectingState)
+    if (state == QAbstractSocket::ConnectingState)
         return;
 
     addresses = hostInfo.addresses();
