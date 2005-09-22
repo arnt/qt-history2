@@ -37,7 +37,7 @@ public:
     ~QGIFFormat();
 
     int decode(QImage *image, const uchar* buffer, int length,
-               bool *newFrame, int *nextFrameDelay, int *loopCount, QSize *nextSize);
+               bool *newFrame, bool *partialNewFrame, int *nextFrameDelay, int *loopCount, QSize *nextSize);
 
 private:
     void fillRect(QImage *image, int x, int y, int w, int h, QRgb col);
@@ -189,7 +189,7 @@ void QGIFFormat::disposePrevious(QImage *image)
     Returns the number of bytes consumed.
 */
 int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
-                       bool *newFrame, int *nextFrameDelay, int *loopCount, QSize *nextSize)
+                       bool *newFrame, bool *partialNewFrame, int *nextFrameDelay, int *loopCount, QSize *nextSize)
 {
     // We are required to state that
     //    "The Graphics Interchange Format(c) is the Copyright property of
@@ -269,7 +269,6 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
               case ';':
                   // ### Changed: QRect(0, 0, swidth, sheight)
                 state=Done;
-                *newFrame = true;
                 break;
               default:
                 digress=true;
@@ -507,6 +506,7 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
                     }
                 }
             }
+            *partialNewFrame = true;
             if (count==expectcount) {
                 count=0;
                 state=ImageDataBlockSize;
@@ -555,7 +555,7 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
             if (count<3) hold[count]=ch;
             count++;
             if (count==expectcount) {
-                *loopCount = hold[0]+hold[1]*256;
+                *loopCount = hold[1]+hold[2]*256;
                 state=SkipBlockSize; // Ignore further blocks
             }
             break;
@@ -721,7 +721,7 @@ QGifHandler::QGifHandler()
     gifFormat = new QGIFFormat;
     nextDelay = 0;
     loopCnt = 0;
-    frameNumber = 0;
+    frameNumber = -1;
 }
 
 QGifHandler::~QGifHandler()
@@ -749,29 +749,11 @@ bool QGifHandler::canRead(QIODevice *device)
         return false;
     }
 
-    qint64 oldPos = device->pos();
-
     char head[6];
-    qint64 readBytes = device->read(head, sizeof(head));
-    if (readBytes != sizeof(head)) {
-        if (device->isSequential()) {
-            while (readBytes > 0)
-                device->ungetChar(head[readBytes-- - 1]);
-        } else {
-            device->seek(oldPos);
-        }
-        return false;
-    }
-
-    if (device->isSequential()) {
-        while (readBytes > 0)
-            device->ungetChar(head[readBytes-- - 1]);
-    } else {
-        device->seek(oldPos);
-    }
-
-    return qstrncmp(head, "GIF87a", 6) == 0
-        || qstrncmp(head, "GIF89a", 6) == 0;
+    if (device->peek(head, sizeof(head)) == sizeof(head))
+        return qstrncmp(head, "GIF87a", 6) == 0
+            || qstrncmp(head, "GIF89a", 6) == 0;
+    return false;
 }
 
 bool QGifHandler::read(QImage *image)
@@ -789,11 +771,10 @@ bool QGifHandler::read(QImage *image)
         }
 
         int decoded = gifFormat->decode(&lastImage, (const uchar *)buffer.constData(), buffer.size(),
-                                        &newFrame, &nextDelay, &loopCnt, &nextSize);
+                                        &newFrame, &partialNewFrame, &nextDelay, &loopCnt, &nextSize);
         if (decoded == -1)
             break;
         buffer.remove(0, decoded);
-        partialNewFrame = true;
     }
 
     if (newFrame || (partialNewFrame && device()->atEnd())) {
@@ -842,7 +823,7 @@ int QGifHandler::nextImageDelay() const
 
 int QGifHandler::loopCount() const
 {
-    return loopCnt;
+    return loopCnt-1; // In GIF, loop count is iteration count, so subtract one
 }
 
 int QGifHandler::currentImageNumber() const
