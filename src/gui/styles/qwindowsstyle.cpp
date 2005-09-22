@@ -19,7 +19,7 @@
 #include "qbitmap.h"
 #include "qdrawutil.h" // for now
 #include "qevent.h"
-#include "qmenu.h" 
+#include "qmenu.h"
 #include "qmenubar.h"
 #include "qpaintengine.h"
 #include "qpainter.h"
@@ -275,10 +275,10 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
 #ifndef QT_NO_MENU
     case PM_MenuBarHMargin:
         ret = 0;
-        break; 
+        break;
 
     case PM_MenuBarVMargin:
-        ret = 2; 
+        ret = 2;
         break;
 
     case PM_MenuBarPanelWidth:
@@ -287,7 +287,7 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
 #endif // QT_NO_MENU
 
 
-#if defined(Q_WS_WIN) 
+#if defined(Q_WS_WIN)
     case PM_TitleBarHeight:
         {
 #if defined(Q_OS_TEMP)
@@ -838,7 +838,7 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
     case SH_ScrollBar_StopMouseOverSlider:
     case SH_MainWindow_SpaceBelowMenuBar:
         ret = 1;
-    
+
         break;
     case SH_ItemView_ChangeHighlightOnFocus:
 #if defined(Q_WS_WIN)
@@ -1820,7 +1820,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             bool paintLeftBorder = true;
             bool paintRightBorder = true;
             bool paintBottomBorder = true;
-          
+
             switch (toolbar->toolBarArea){
             case Qt::BottomToolBarArea :
                 switch(toolbar->positionOfLine){
@@ -1830,7 +1830,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 default:
                     break;
                 }
-            case Qt::TopToolBarArea : 
+            case Qt::TopToolBarArea :
                 switch(toolbar->positionWithinLine){
                 case QStyleOptionToolBar::Beginning:
                     paintLeftBorder = false;
@@ -1858,8 +1858,6 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     break;
                 default:
                     break;
-                default:
-                    break;
                 }
                 break;
             case Qt::LeftToolBarArea :
@@ -1867,8 +1865,6 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 case QStyleOptionToolBar::Beginning:
                 case QStyleOptionToolBar::OnlyOne:
                     paintLeftBorder = false;
-                    break;
-                default:
                     break;
                 default:
                     break;
@@ -1882,33 +1878,33 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 
             //draw top border
             p->setPen(QPen(opt->palette.light().color()));
-            p->drawLine(rect.topLeft().x(), 
-                        rect.topLeft().y(), 
-                        rect.topRight().x(), 
+            p->drawLine(rect.topLeft().x(),
+                        rect.topLeft().y(),
+                        rect.topRight().x(),
                         rect.topRight().y());
 
-            if (paintLeftBorder){   
+            if (paintLeftBorder){
                 p->setPen(QPen(opt->palette.light().color()));
-                p->drawLine(rect.topLeft().x(), 
-                            rect.topLeft().y(), 
-                            rect.bottomLeft().x(), 
+                p->drawLine(rect.topLeft().x(),
+                            rect.topLeft().y(),
+                            rect.bottomLeft().x(),
                             rect.bottomLeft().y());
             }
 
-            if (paintRightBorder){ 
+            if (paintRightBorder){
                 p->setPen(QPen(opt->palette.dark().color()));
                 p->drawLine(rect.topRight().x(),
-                            rect.topRight().y(), 
-                            rect.bottomRight().x(), 
+                            rect.topRight().y(),
+                            rect.bottomRight().x(),
                             rect.bottomRight().y());
             }
 
-            if (paintBottomBorder){ 
+            if (paintBottomBorder){
                 p->setPen(QPen(opt->palette.dark().color()));
                 p->drawLine(rect.bottomLeft().x(),
-                            rect.bottomLeft().y(), 
-                            rect.bottomRight().x(), 
-                            rect.bottomRight().y()); 
+                            rect.bottomLeft().y(),
+                            rect.bottomRight().x(),
+                            rect.bottomRight().y());
             }
         }
         break;
@@ -2321,9 +2317,9 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
             QBrush editBrush = (cmb->state & State_Enabled) ? cmb->palette.brush(QPalette::Base)
                                 : cmb->palette.brush(QPalette::Background);
             if ((cmb->subControls & SC_ComboBoxFrame) && cmb->frame)
-                qDrawWinPanel(p, opt->rect, opt->palette, true, &editBrush);                
+                qDrawWinPanel(p, opt->rect, opt->palette, true, &editBrush);
             else
-                p->fillRect(opt->rect, editBrush);            
+                p->fillRect(opt->rect, editBrush);
 
             if (cmb->subControls & SC_ComboBoxArrow) {
                 State flags = State_None;

@@ -775,7 +775,7 @@ QStyleOptionButton::QStyleOptionButton(int version)
 
 
 #ifndef QT_NO_TOOLBAR
-/*!    
+/*!
     \class QStyleOptionToolBar
     \brief The QStyleOptionToolBar class is used to describe the
     parameters for drawing a tool bar.
@@ -785,7 +785,7 @@ QStyleOptionButton::QStyleOptionButton(int version)
     Constructs a QStyleOptionToolBar. The members variables are
     initialized to default values.
 */
-    
+
 QStyleOptionToolBar::QStyleOptionToolBar()
     : QStyleOption(Version, SO_ToolBar), positionOfLine(OnlyOne), positionWithinLine(OnlyOne),
       toolBarArea(Qt::TopToolBarArea), features(None), lineWidth(0), midLineWidth(0)
@@ -1188,7 +1188,7 @@ QStyleOptionProgressBarV2::QStyleOptionProgressBarV2(int version)
     orientation, \l invertedAppearance, and \l textDirection) are set to
     default values. If \a{other}'s version is 2, the extra members are
     copied.
-    
+
     \sa version
 */
 QStyleOptionProgressBarV2::QStyleOptionProgressBarV2(const QStyleOptionProgressBar &other)
@@ -2829,9 +2829,6 @@ QDebug operator<<(QDebug debug, const QStyleOption::OptionType &optionType)
         debug << "SO_ToolBar"; break;
     case QStyleOption::SO_ComplexCustomBase:
         debug << "SO_ComplexCustomBase"; break;
-        break;
-    case QStyleOption::SO_ToolBar:
-        debug << "SO_ToolBar"; break;
         break;
     }
     return debug;
