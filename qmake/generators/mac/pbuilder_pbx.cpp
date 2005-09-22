@@ -1154,12 +1154,12 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                 QString plist_in_text = plist_in.readAll();
                 plist_in_text = plist_in_text.replace("@ICON@",
                   (project->isEmpty("ICON") ? QString("") : project->first("ICON").section(Option::dir_sep, -1)));
-                if(project->first("TEMPLATE") = "app") {
+                if(project->first("TEMPLATE") == "app") {
                     plist_in_text = plist_in_text.replace("@EXECUTABLE@", project->first("QMAKE_ORIG_TARGET"));
                 } else {
                     plist_in_text = plist_in_text.replace("@LIBRARY@", project->first("QMAKE_ORIG_TARGET"));
-                    plist_in_text = plist_in_text.replace("@SHORT_VERSION@" project->first("VER_MAJ") + "." +
-                                                          project->first("VER_MIN");
+                    plist_in_text = plist_in_text.replace("@SHORT_VERSION@", project->first("VER_MAJ") + "." +
+                                                          project->first("VER_MIN"));
                 }
                 plist_in_text = plist_in_text.replace("@TYPEINFO@",
                   (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ? QString::fromLatin1("????") :
