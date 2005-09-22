@@ -31,7 +31,7 @@ class QMngHandlerPrivate
     QImage image;
     int elapsed;
     int nextDelay;
-    int loopCount;
+    int iterCount;
     int frameIndex;
     int frameCount;
     mng_uint32 iStyle;
@@ -159,12 +159,12 @@ static mng_bool myprocessterm(mng_handle hMNG,
 {
     QMngHandlerPrivate *pMydata = reinterpret_cast<QMngHandlerPrivate *>(mng_get_userdata(hMNG));
     if (iTermaction == 3)
-        pMydata->loopCount = iItermax;
+        pMydata->iterCount = iItermax;
     return MNG_TRUE;
 }
 
 QMngHandlerPrivate::QMngHandlerPrivate(QMngHandler *q_ptr)
-    : start(true), done(false), elapsed(0), nextDelay(0), loopCount(0), frameIndex(0), frameCount(0), q_ptr(q_ptr)
+    : start(true), done(false), elapsed(0), nextDelay(0), iterCount(1), frameIndex(0), frameCount(0), q_ptr(q_ptr)
 {
     iStyle = (QSysInfo::ByteOrder == QSysInfo::LittleEndian) ? MNG_CANVAS_BGRA8 : MNG_CANVAS_ARGB8;
     // Initialize libmng
@@ -405,7 +405,9 @@ bool QMngHandler::jumpToNextImage()
 int QMngHandler::loopCount() const
 {
     Q_D(const QMngHandler);
-    return d->loopCount;
+    if (d->iterCount == 0x7FFFFFFF)
+        return -1; // infinite loop
+    return d->iterCount-1;
 }
 
 /*! \reimp */
