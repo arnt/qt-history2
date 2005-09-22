@@ -2760,13 +2760,13 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                 bdi.state = tds;
                 bdi.value = kThemeButtonOff;
                 bdi.adornment = kThemeAdornmentNone;
-                bdi.value = bkind;
+                bdi.kind = bkind;
                 if (tb->state & QStyle::State_HasFocus
                         && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
-                    bdi.adornment |= kThemeAdornmentFocus;
+                    bdi.adornment = kThemeAdornmentFocus;
                 if (tb->state & (QStyle::State_On | QStyle::State_Sunken)
                                  || (tb->activeSubControls & QStyle::SC_ToolButtonMenu))
-                    bdi.value |= kThemeStatePressed;
+                    bdi.state = kThemeStatePressed;
                 HIRect hirect = qt_hirectForQRect(menuarea, p, false);
                 HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
                 QRect r(menuarea.x() + ((menuarea.width() / 2) - 4), menuarea.height() - 8, 8, 8);
