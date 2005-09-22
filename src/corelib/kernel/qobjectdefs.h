@@ -30,8 +30,12 @@ class QByteArray;
 // They are used, strictly speaking, only by the moc.
 
 #ifndef QT_MOC_CPP
-# define slots
-# define signals protected
+# if defined(QT_NO_KEYWORDS)
+#  define QT_NO_EMIT
+# else
+#   define slots
+#   define signals protected
+# endif
 # define Q_SLOTS
 # define Q_SIGNALS protected
 # define Q_PRIVATE_SLOT(d, signature)
