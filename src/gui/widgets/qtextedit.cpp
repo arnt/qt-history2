@@ -1935,7 +1935,7 @@ QRect QTextEditPrivate::selectionRect() const
         const QTextBlock anchorBlock = doc->findBlock(anchor);
         if (posBlock == anchorBlock && posBlock.layout()->lineCount()) {
             const QTextLine posLine = posBlock.layout()->lineForTextPosition(position - posBlock.position());
-            const QTextLine anchorLine = anchorBlock.layout()->lineForTextPosition(position - anchorBlock.position());
+            const QTextLine anchorLine = anchorBlock.layout()->lineForTextPosition(anchor - anchorBlock.position());
             if (posLine.lineNumber() == anchorLine.lineNumber()) {
                 r = posLine.rect().toRect();
             } else {
@@ -2014,6 +2014,7 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
 #ifndef QT_NO_DRAGANDDROP
     d->mightStartDrag = false;
 #endif
+    d->repaintSelection();
 
     if (d->trippleClickTimer.isActive()
         && ((e->globalPos() - d->trippleClickPoint).manhattanLength() < QApplication::startDragDistance())) {
@@ -2067,7 +2068,7 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
 
     emit cursorPositionChanged();
     d->updateCurrentCharFormatAndSelection();
-    d->viewport->update();
+    d->repaintSelection();
 }
 
 /*! \reimp
@@ -2092,6 +2093,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
         return;
     }
 #endif
+    d->repaintSelection();
     const QPoint mousePos = d->mapToContents(e->pos());
     const qreal mouseX = qreal(mousePos.x());
 
@@ -2116,7 +2118,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
 
     emit cursorPositionChanged();
     d->updateCurrentCharFormatAndSelection();
-    d->viewport->update();
+    d->repaintSelection();
 }
 
 /*! \reimp
@@ -2126,6 +2128,8 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *e)
     Q_D(QTextEdit);
 
     d->autoScrollTimer.stop();
+    d->repaintSelection();
+
 #ifndef QT_NO_DRAGANDDROP
     if (d->mightStartDrag) {
         d->mousePressed = false;
@@ -2148,7 +2152,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *e)
 #endif
     }
 
-    d->viewport->update();
+    d->repaintSelection();
 #ifndef QT_NO_DRAGANDDROP
     if (d->dragStartTimer.isActive())
         d->dragStartTimer.stop();
@@ -2167,6 +2171,7 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
 #ifndef QT_NO_DRAGANDDROP
     d->mightStartDrag = false;
 #endif
+    d->repaintSelection();
     d->setCursorPosition(e->pos());
     QTextLine line = currentTextLine(d->cursor);
     if (line.isValid() && line.textLength()) {
@@ -2175,7 +2180,7 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
 #ifndef QT_NO_CLIPBOARD
         d->setClipboardSelection();
 #endif
-        d->viewport->update();
+        d->repaintSelection();
     }
 
     d->selectedWordOnDoubleClick = d->cursor;
