@@ -38,39 +38,24 @@ static int DIRECT_CONNECTION_ONLY = 0;
 Q_GLOBAL_STATIC(QReadWriteLock, qt_object_read_write_lock)
 QReadWriteLock *QObjectPrivate::readWriteLock() { return qt_object_read_write_lock(); }
 
-static int *queuedConnectionTypes(const char *signal)
+static int *queuedConnectionTypes(const QList<QByteArray> &typeNames)
 {
-    int *types = 0;
-    const char *s = signal;
-    while (*s++ != '(') {}
-    int nargs = 0;
-    const char *e = s;
-    while (*e != ')') {
-        ++e;
-        if (*e == ')' || *e == ',')
-            ++nargs;
-    }
+    int *types = static_cast<int *>(qMalloc((typeNames.count() + 1) * sizeof(int)));
+    for (int i = 0; i < typeNames.count(); ++i) {
+        const QByteArray typeName = typeNames.at(i);
+        if (typeName.endsWith('*'))
+            types[i] = QMetaType::VoidStar;
+        else
+            types[i] = QMetaType::type(typeName);
 
-    types = (int *) qMalloc((nargs+1)*sizeof(int));
-    types[nargs] = 0;
-    for (int n = 0; n < nargs; ++n) {
-        e = s;
-        while (*s != ',' && *s != ')')
-            ++s;
-        QByteArray type(e, s-e);
-        ++s;
-
-        if (type.endsWith('*')) {
-            types[n] = QMetaType::VoidStar;
-        } else {
-            types[n] = QMetaType::type(type);
-        }
-        if (!types[n]) {
-            qWarning("QObject::connect: Cannot queue arguments of type '%s'", type.data());
+        if (!types[i]) {
+            qWarning("QObject::connect: Cannot queue arguments of type '%s'", typeName.constData());
             qFree(types);
             return 0;
         }
     }
+    types[typeNames.count()] = 0;
+
     return types;
 }
 
@@ -2203,20 +2188,14 @@ bool QObject::connect(const QObject *sender, const char *signal,
 #endif
 
     int *types = 0;
-    if (type == Qt::QueuedConnection && !(types = ::queuedConnectionTypes(signal)))
+    if (type == Qt::QueuedConnection
+            && !(types = ::queuedConnectionTypes(smeta->method(signal_index).parameterTypes())))
         return false;
 
 #ifndef QT_NO_DEBUG
     {
-        QMetaMethod smethod = smeta->method(signal_index), rmethod;
-        switch (membcode) {
-        case QSLOT_CODE:
-            rmethod = rmeta->method(method_index);
-            break;
-        case QSIGNAL_CODE:
-            rmethod = rmeta->method(method_index);
-            break;
-        }
+        QMetaMethod smethod = smeta->method(signal_index);
+        QMetaMethod rmethod = rmeta->method(method_index);
         if (warnCompat) {
             if(smethod.attributes() & QMetaMethod::Compatibility) {
                 if (!(rmethod.attributes() & QMetaMethod::Compatibility))
@@ -2225,14 +2204,6 @@ bool QObject::connect(const QObject *sender, const char *signal,
                 qWarning("Object::connect: Connecting from %s::%s to COMPAT slot (%s::%s).",
                          smeta->className(), signal, rmeta->className(), method);
             }
-        }
-        switch(rmethod.access()) {
-        case QMetaMethod::Private:
-            break;
-        case QMetaMethod::Protected:
-            break;
-        default:
-            break;
         }
     }
 #endif
@@ -2594,7 +2565,7 @@ static void queued_activate(QObject *sender, const QConnection &c, void **argv)
     if (!c.types && c.types != &DIRECT_CONNECTION_ONLY) {
         QMetaMethod m = sender->metaObject()->method(c.signal);
         QConnection &x = const_cast<QConnection &>(c);
-        x.types = ::queuedConnectionTypes(m.signature());
+        x.types = ::queuedConnectionTypes(m.parameterTypes());
         if (!x.types) // cannot queue arguments
             x.types = &DIRECT_CONNECTION_ONLY;
     }
