@@ -17,7 +17,10 @@
 #include <QtOpenGL/qgl.h>
 #include <QtGui/qpaintdevice.h>
 
+QT_MODULE(OpenGL)
+
 class QGLPbufferPrivate;
+
 class Q_OPENGL_EXPORT QGLPbuffer : public QPaintDevice
 {
     Q_DECLARE_PRIVATE(QGLPbuffer)

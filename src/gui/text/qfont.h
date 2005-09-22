@@ -19,7 +19,6 @@
 
 QT_MODULE(Gui)
 
-
 class QFontPrivate;                                     /* don't touch */
 class QStringList;
 class QVariant;
