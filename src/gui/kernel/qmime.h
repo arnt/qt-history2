@@ -14,7 +14,7 @@
 #ifndef QMIME_H
 #define QMIME_H
 
-#include "QtCore/qmimedata.h"
+#include <QtCore/qmimedata.h>
 
 QT_MODULE(Gui)
 
@@ -34,7 +34,7 @@ typedef struct tagFORMATETC FORMATETC;
 typedef struct tagSTGMEDIUM STGMEDIUM;
 struct IDataObject;
 
-#include "QtCore/qvariant.h"
+#include <QtCore/qvariant.h>
 
 /*
   Encapsulation of conversion between MIME and Windows CLIPFORMAT.

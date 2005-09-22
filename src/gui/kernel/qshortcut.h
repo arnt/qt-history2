@@ -14,9 +14,8 @@
 #ifndef QSHORTCUT_H
 #define QSHORTCUT_H
 
-#include "QtCore/qobject.h"
-#include "QtGui/qwidget.h"
-#include "QtGui/qkeysequence.h"
+#include <QtGui/qwidget.h>
+#include <QtGui/qkeysequence.h>
 
 QT_MODULE(Gui)
 
@@ -64,4 +63,5 @@ protected:
 };
 
 #endif // QT_NO_SHORTCUT
+
 #endif // QSHORTCUT_H

@@ -14,21 +14,21 @@
 #ifndef QAPPLICATION_H
 #define QAPPLICATION_H
 
-#include "QtCore/qcoreapplication.h"
-#include "QtGui/qwindowdefs.h"
-#include "QtCore/qpoint.h"
-#include "QtCore/qsize.h"
-#include "QtGui/qcursor.h"
+#include <QtCore/qcoreapplication.h>
+#include <QtGui/qwindowdefs.h>
+#include <QtCore/qpoint.h>
+#include <QtCore/qsize.h>
+#include <QtGui/qcursor.h>
 #ifdef QT_INCLUDE_COMPAT
-# include "QtGui/qdesktopwidget.h"
+# include <QtGui/qdesktopwidget.h>
 #endif
 #ifdef QT3_SUPPORT
-# include "QtGui/qwidget.h"
-# include "QtGui/qpalette.h"
+# include <QtGui/qwidget.h>
+# include <QtGui/qpalette.h>
 #endif
 #ifdef Q_WS_QWS
-# include "QtGui/qrgb.h"
-# include "QtGui/qtransportauth_qws.h"
+# include <QtGui/qrgb.h>
+# include <QtGui/qtransportauth_qws.h>
 #endif
 
 QT_MODULE(Gui)

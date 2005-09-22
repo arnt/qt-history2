@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include <private/qobject_p.h>
+#include "private/qobject_p.h"
 
 class Q_GUI_EXPORT QLayoutPrivate : public QObjectPrivate
 {

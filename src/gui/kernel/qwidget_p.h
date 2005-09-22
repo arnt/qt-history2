@@ -25,23 +25,22 @@
 // We mean it.
 //
 
-#include <private/qobject_p.h>
-
-#include <qrect.h>
-#include <qregion.h>
-#include <qsizepolicy.h>
-#include <qwidget.h>
+#include "QtGui/qwidget.h"
+#include "private/qobject_p.h"
+#include "QtCore/qrect.h"
+#include "QtGui/qregion.h"
+#include "QtGui/qsizepolicy.h"
 
 #ifdef Q_WS_WIN
-#include <qt_windows.h>
+#include "QtCore/qt_windows.h"
 #endif // Q_WS_WIN
 
 #ifdef Q_WS_X11
-#include <qx11info_x11.h>
+#include "QtGui/qx11info_x11.h"
 #endif
 
 #if defined(Q_WS_QWS)
-#include <qinputcontext.h>
+#include "QtGui/qinputcontext.h"
 #endif
 
 // Extra QWidget data

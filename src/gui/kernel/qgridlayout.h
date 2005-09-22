@@ -14,9 +14,9 @@
 #ifndef QGRIDLAYOUT_H
 #define QGRIDLAYOUT_H
 
-#include "QtGui/qlayout.h"
+#include <QtGui/qlayout.h>
 #ifdef QT_INCLUDE_COMPAT
-#include "QtGui/qwidget.h"
+#include <QtGui/qwidget.h>
 #endif
 
 #include <limits.h>

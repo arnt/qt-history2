@@ -14,7 +14,7 @@
 #ifndef QTOOLTIP_H
 #define QTOOLTIP_H
 
-#include "QtGui/qwidget.h"
+#include <QtGui/qwidget.h>
 
 QT_MODULE(Gui)
 
@@ -36,4 +36,5 @@ public:
 };
 
 #endif // QT_NO_TOOLTIP
+
 #endif // QTOOLTIP_H

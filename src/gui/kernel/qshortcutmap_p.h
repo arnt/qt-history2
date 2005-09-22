@@ -25,8 +25,8 @@
 // We mean it.
 //
 
-#include "qkeysequence.h"
-#include <qvector.h>
+#include "QtGui/qkeysequence.h"
+#include "QtCore/qvector.h"
 
 #ifndef QT_NO_SHORTCUT
 
@@ -77,4 +77,5 @@ private:
 };
 
 #endif // QT_NO_SHORTCUT
+
 #endif // QSHORTCUTMAP_P_H

@@ -25,13 +25,13 @@
 // We mean it.
 //
 
-#include <qatomic.h>
-#include <qglobal.h>
-#include <qnamespace.h>
-#include <qpixmap.h>
+#include "QtCore/qatomic.h"
+#include "QtCore/qglobal.h"
+#include "QtCore/qnamespace.h"
+#include "QtGui/qpixmap.h"
 
 # if defined (Q_WS_MAC)
-#  include <private/qt_mac_p.h>
+#  include "private/qt_mac_p.h"
 #  if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
 #    define QMAC_USE_BIG_CURSOR_API
 #  endif
@@ -40,9 +40,9 @@
 #  endif
    class QMacAnimateCursor;
 # elif defined(Q_WS_X11)
-#  include <private/qt_x11_p.h>
+#  include "private/qt_x11_p.h"
 # elif defined(Q_WS_WIN)
-#  include <qt_windows.h>
+#  include "QtCore/qt_windows.h"
 #endif
 
 class QBitmap;

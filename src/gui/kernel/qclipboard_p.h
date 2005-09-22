@@ -25,9 +25,9 @@
 // We mean it.
 //
 
-#include <private/qobject_p.h>
-#include "qmime.h"
-#include "qclipboard.h"
+#include "private/qobject_p.h"
+#include "QtGui/qmime.h"
+#include "QtGui/qclipboard.h"
 
 class QClipboardPrivate;
 

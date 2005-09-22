@@ -14,8 +14,7 @@
 #ifndef QSIZEPOLICY_H
 #define QSIZEPOLICY_H
 
-#include "QtCore/qobject.h"
-#include "QtCore/qobjectdefs.h"
+#include <QtCore/qobject.h>
 
 QT_MODULE(Gui)
 

@@ -14,8 +14,8 @@
 #ifndef QWINDOWDEFS_H
 #define QWINDOWDEFS_H
 
-#include "QtCore/qobjectdefs.h"
-#include "QtCore/qnamespace.h"
+#include <QtCore/qobjectdefs.h>
+#include <QtCore/qnamespace.h>
 
 QT_MODULE(Gui)
 
@@ -97,9 +97,8 @@ typedef struct AEDesc AppleEvent;
 #endif // Q_WS_MAC
 
 #if defined(Q_WS_WIN)
-#include "QtGui/qwindowdefs_win.h"
+#include <QtGui/qwindowdefs_win.h>
 #endif // Q_WS_WIN
-
 
 #if defined(Q_OS_TEMP)
 #include "qwinfunctions_wce.h"

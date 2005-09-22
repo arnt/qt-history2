@@ -464,6 +464,7 @@ UINT    GlobalFlags(HGLOBAL hMem);
 #ifdef __cplusplus
 }        // Extern C.
 #endif
+
 #endif // Q_OS_TEMP
 
 #endif // QFUNCTIONS_WCE_H

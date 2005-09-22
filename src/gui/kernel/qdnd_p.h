@@ -25,13 +25,13 @@
 // We mean it.
 //
 
-#include "qobject.h"
+#include "QtCore/qobject.h"
+#include "QtCore/qmap.h"
+#include "QtGui/qmime.h"
+#include "QtGui/qdrag.h"
+#include "QtGui/qpixmap.h"
+#include "QtCore/qpoint.h"
 #include "private/qobject_p.h"
-#include "qmap.h"
-#include "qmime.h"
-#include "qdrag.h"
-#include "qpixmap.h"
-#include "qpoint.h"
 #ifdef Q_WS_MAC
 # include "private/qt_mac_p.h"
 #endif
@@ -201,4 +201,5 @@ private:
 #endif
 
 #endif // QT_NO_DRAGANDDROP
+
 #endif // QDND_P_H

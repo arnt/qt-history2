@@ -14,10 +14,11 @@
 #ifndef QSESSIONMANAGER_H
 #define QSESSIONMANAGER_H
 
-#include "QtCore/qobject.h"
-#include "QtGui/qwindowdefs.h"
-#include "QtCore/qstring.h"
-#include "QtCore/qstringlist.h"
+#include <QtCore/qobject.h>
+#include <QtGui/qwindowdefs.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qstringlist.h>
+
 #ifndef QT_NO_SESSIONMANAGER
 
 QT_MODULE(Gui)

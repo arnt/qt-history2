@@ -14,9 +14,8 @@
 #ifndef QCURSOR_H
 #define QCURSOR_H
 
-#include "QtCore/qpoint.h"
-#include "QtCore/qatomic.h"
-#include "QtGui/qwindowdefs.h"
+#include <QtCore/qpoint.h>
+#include <QtGui/qwindowdefs.h>
 
 QT_MODULE(Gui)
 

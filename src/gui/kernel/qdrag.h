@@ -14,7 +14,7 @@
 #ifndef QDRAG_H
 #define QDRAG_H
 
-#include "QtCore/qobject.h"
+#include <QtCore/qobject.h>
 
 QT_MODULE(Gui)
 
@@ -63,4 +63,5 @@ private:
 };
 
 #endif // QT_NO_DRAGANDDROP
+
 #endif // QDRAG_H

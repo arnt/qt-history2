@@ -14,12 +14,12 @@
 #ifndef QLAYOUT_H
 #define QLAYOUT_H
 
-#include "QtCore/qobject.h"
-#include "QtGui/qlayoutitem.h"
-#include "QtGui/qsizepolicy.h"
-#include "QtCore/qrect.h"
+#include <QtCore/qobject.h>
+#include <QtGui/qlayoutitem.h>
+#include <QtGui/qsizepolicy.h>
+#include <QtCore/qrect.h>
 
-#include "limits.h"
+#include <limits.h>
 
 QT_MODULE(Gui)
 
@@ -192,10 +192,10 @@ inline QLayoutItem *QLayoutIterator::takeCurrent() { return layout->takeAt(index
 inline void QLayoutIterator::deleteCurrent() { delete  layout->takeAt(index); }
 #endif
 
-#endif // QLAYOUT_H
-
 //### support old includes
 #if 1 //def QT3_SUPPORT
-#include "QtGui/qboxlayout.h"
-#include "QtGui/qgridlayout.h"
+#include <QtGui/qboxlayout.h>
+#include <QtGui/qgridlayout.h>
 #endif
+
+#endif // QLAYOUT_H

@@ -14,21 +14,21 @@
 #ifndef QWIDGET_H
 #define QWIDGET_H
 
-#include "QtGui/qwindowdefs.h"
-#include "QtCore/qobject.h"
-#include "QtGui/qpaintdevice.h"
-#include "QtGui/qpalette.h"
-#include "QtGui/qfont.h"
-#include "QtGui/qfontmetrics.h"
-#include "QtGui/qfontinfo.h"
-#include "QtGui/qsizepolicy.h"
-#include "QtGui/qregion.h"
-#include "QtGui/qbrush.h"
-#include "QtGui/qcursor.h"
-#include "QtGui/qkeysequence.h"
+#include <QtGui/qwindowdefs.h>
+#include <QtCore/qobject.h>
+#include <QtGui/qpaintdevice.h>
+#include <QtGui/qpalette.h>
+#include <QtGui/qfont.h>
+#include <QtGui/qfontmetrics.h>
+#include <QtGui/qfontinfo.h>
+#include <QtGui/qsizepolicy.h>
+#include <QtGui/qregion.h>
+#include <QtGui/qbrush.h>
+#include <QtGui/qcursor.h>
+#include <QtGui/qkeysequence.h>
 
 #ifdef QT_INCLUDE_COMPAT
-#include "QtGui/qevent.h"
+#include <QtGui/qevent.h>
 #endif
 
 QT_MODULE(Gui)

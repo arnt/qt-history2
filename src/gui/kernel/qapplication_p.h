@@ -26,15 +26,14 @@
 // We mean it.
 //
 
-#include "qfont.h"
-#include "qcursor.h"
-#include "qmutex.h"
-#include "qtranslator.h"
-#include "qshortcutmap_p.h"
-
-#include <private/qcoreapplication_p.h>
-#include "qapplication.h"
-#include "qbasictimer.h"
+#include "QtGui/qapplication.h"
+#include "QtGui/qfont.h"
+#include "QtGui/qcursor.h"
+#include "QtCore/qmutex.h"
+#include "QtCore/qtranslator.h"
+#include "QtCore/qbasictimer.h"
+#include "private/qcoreapplication_p.h"
+#include "private/qshortcutmap_p.h"
 
 class QWidget;
 class QObject;

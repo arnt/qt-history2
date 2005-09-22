@@ -14,8 +14,8 @@
 #ifndef QWHATSTHIS_H
 #define QWHATSTHIS_H
 
-#include "QtCore/qobject.h"
-#include "QtGui/qcursor.h"
+#include <QtCore/qobject.h>
+#include <QtGui/qcursor.h>
 
 QT_MODULE(Gui)
 

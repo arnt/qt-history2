@@ -25,8 +25,8 @@
 // We mean it.
 //
 
-#include "qwindowdefs.h"
-#include "qlist.h"
+#include "QtGui/qwindowdefs.h"
+#include "QtCore/qlist.h"
 
 // the following is necessary to work around breakage in many versions
 // of XFree86's Xlib.h still in use

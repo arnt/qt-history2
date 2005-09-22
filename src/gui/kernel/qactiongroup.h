@@ -14,7 +14,7 @@
 #ifndef QACTIONGROUP_H
 #define QACTIONGROUP_H
 
-#include "QtGui/qaction.h"
+#include <QtGui/qaction.h>
 
 QT_MODULE(Gui)
 
@@ -72,4 +72,5 @@ private:
 };
 
 #endif // QT_NO_ACTION
+
 #endif // QACTIONGROUP_H

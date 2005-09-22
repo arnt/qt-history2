@@ -14,11 +14,11 @@
 #ifndef QACTION_H
 #define QACTION_H
 
-#include "QtGui/qicon.h"
-#include "QtGui/qkeysequence.h"
-#include "QtCore/qstring.h"
-#include "QtGui/qwidget.h"
-#include "QtCore/qvariant.h"
+#include <QtGui/qicon.h>
+#include <QtGui/qkeysequence.h>
+#include <QtCore/qstring.h>
+#include <QtGui/qwidget.h>
+#include <QtCore/qvariant.h>
 
 QT_MODULE(Gui)
 
@@ -172,7 +172,8 @@ private:
     friend class QShortcutMap;
 };
 
-#include "QtGui/qactiongroup.h" // ### remove after tech-preview 1
+#include <QtGui/qactiongroup.h> // ### remove after tech-preview 1
 
 #endif // QT_NO_ACTION
+
 #endif // QACTION_H

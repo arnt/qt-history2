@@ -25,8 +25,8 @@
 // We mean it.
 //
 
-#include <private/qcore_mac_p.h>
-#include "qglobal.h"
+#include "QtCore/qglobal.h"
+#include "private/qcore_mac_p.h"
 
 #if !defined(QMAC_NO_COREGRAPHICS)
 #  if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_3)
@@ -34,8 +34,8 @@
 #  endif
 #endif
 
-#include "qpainter.h"
-#include "qwidget.h"
+#include "QtGui/qpainter.h"
+#include "QtGui/qwidget.h"
 #include "private/qwidget_p.h"
 
 /* Event masks */

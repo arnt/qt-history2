@@ -14,16 +14,16 @@
 #ifndef QEVENT_H
 #define QEVENT_H
 
-#include "QtGui/qwindowdefs.h"
-#include "QtCore/qobject.h"
-#include "QtGui/qregion.h"
-#include "QtCore/qnamespace.h"
-#include "QtCore/qstring.h"
-#include "QtGui/qkeysequence.h"
-#include "QtCore/qcoreevent.h"
-#include "QtGui/qmime.h"
-#include "QtGui/qdrag.h"
-#include "QtCore/qvariant.h"
+#include <QtGui/qwindowdefs.h>
+#include <QtCore/qobject.h>
+#include <QtGui/qregion.h>
+#include <QtCore/qnamespace.h>
+#include <QtCore/qstring.h>
+#include <QtGui/qkeysequence.h>
+#include <QtCore/qcoreevent.h>
+#include <QtGui/qmime.h>
+#include <QtGui/qdrag.h>
+#include <QtCore/qvariant.h>
 
 QT_MODULE(Gui)
 

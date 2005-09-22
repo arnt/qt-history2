@@ -14,7 +14,7 @@
 #ifndef QCLIPBOARD_H
 #define QCLIPBOARD_H
 
-#include "QtCore/qobject.h"
+#include <QtCore/qobject.h>
 
 QT_MODULE(Gui)
 

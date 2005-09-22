@@ -14,12 +14,11 @@
 #ifndef QPALETTE_H
 #define QPALETTE_H
 
-#include "QtGui/qwindowdefs.h"
-#include "QtGui/qcolor.h"
-#include "QtGui/qbrush.h" // QColor->QBrush conversion
+#include <QtGui/qwindowdefs.h>
+#include <QtGui/qcolor.h>
+#include <QtGui/qbrush.h>
 
 QT_MODULE(Gui)
-
 
 #ifdef QT3_SUPPORT
 class QColorGroup;
@@ -202,6 +201,5 @@ inline QColorGroup QPalette::normal() const { return createColorGroup(Active); }
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &ds, const QPalette &p);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &ds, QPalette &p);
 #endif // QT_NO_DATASTREAM
-
 
 #endif // QPALETTE_H

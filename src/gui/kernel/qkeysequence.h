@@ -14,8 +14,8 @@
 #ifndef QKEYSEQUENCE_H
 #define QKEYSEQUENCE_H
 
-#include "QtCore/qnamespace.h"
-#include "QtCore/qstring.h"
+#include <QtCore/qnamespace.h>
+#include <QtCore/qstring.h>
 
 QT_MODULE(Gui)
 
