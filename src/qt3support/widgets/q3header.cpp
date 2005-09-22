@@ -1457,7 +1457,7 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
         p->save();
         p->setClipRect(fr); // hack to keep styles working
         opt.rect.setRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4);
-        style()->drawControl(QStyle::CE_Header, &opt, p, this);
+        style()->drawControl(QStyle::CE_HeaderSection, &opt, p, this);
         if (orient == Qt::Horizontal) {
             p->setPen(palette().color(QPalette::Mid));
             p->drawLine(fr.x(), fr.y() + fr.height() - 1,
