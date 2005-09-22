@@ -14,8 +14,8 @@
 #ifndef QPAINTDEVICE_H
 #define QPAINTDEVICE_H
 
-#include "QtGui/qwindowdefs.h"
-#include "QtCore/qrect.h"
+#include <QtGui/qwindowdefs.h>
+#include <QtCore/qrect.h>
 
 QT_MODULE(Gui)
 

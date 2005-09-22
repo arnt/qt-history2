@@ -14,9 +14,9 @@
 #ifndef QCOLOR_H
 #define QCOLOR_H
 
-#include "QtCore/qstringlist.h"
-#include "QtCore/qnamespace.h"
-#include "QtGui/qrgb.h"
+#include <QtGui/qrgb.h>
+#include <QtCore/qnamespace.h>
+#include <QtCore/qstringlist.h>
 
 QT_MODULE(Gui)
 

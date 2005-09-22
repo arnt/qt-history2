@@ -14,21 +14,21 @@
 #ifndef QPAINTER_H
 #define QPAINTER_H
 
-#include "QtCore/qnamespace.h"
-#include "QtCore/qrect.h"
-#include "QtCore/qpoint.h"
-#include "QtGui/qpixmap.h"
-#include "QtGui/qimage.h"
-#include "QtGui/qtextoption.h"
-#include "QtGui/qdrawutil.h"
+#include <QtCore/qnamespace.h>
+#include <QtCore/qrect.h>
+#include <QtCore/qpoint.h>
+#include <QtGui/qpixmap.h>
+#include <QtGui/qimage.h>
+#include <QtGui/qtextoption.h>
+#include <QtGui/qdrawutil.h>
 
 #ifndef QT_INCLUDE_COMPAT
-#include "QtGui/qpolygon.h"
-#include "QtGui/qpen.h"
-#include "QtGui/qbrush.h"
-#include "QtGui/qmatrix.h"
-#include "QtGui/qfontinfo.h"
-#include "QtGui/qfontmetrics.h"
+#include <QtGui/qpolygon.h>
+#include <QtGui/qpen.h>
+#include <QtGui/qbrush.h>
+#include <QtGui/qmatrix.h>
+#include <QtGui/qfontinfo.h>
+#include <QtGui/qfontmetrics.h>
 #endif
 
 QT_MODULE(Gui)

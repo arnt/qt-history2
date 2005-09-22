@@ -14,9 +14,9 @@
 #ifndef QREGION_H
 #define QREGION_H
 
-#include "QtCore/qatomic.h"
-#include "QtCore/qrect.h"
-#include "QtGui/qwindowdefs.h"
+#include <QtCore/qatomic.h>
+#include <QtCore/qrect.h>
+#include <QtGui/qwindowdefs.h>
 
 QT_MODULE(Gui)
 
@@ -146,6 +146,5 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QRegion &);
 #ifndef QT_NO_DEBUG_STREAM
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QRegion &);
 #endif
-
 
 #endif // QREGION_H

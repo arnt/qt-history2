@@ -14,10 +14,10 @@
 #ifndef QBRUSH_H
 #define QBRUSH_H
 
-#include "QtCore/qpair.h"
-#include "QtCore/qpoint.h"
-#include "QtCore/qvector.h"
-#include "QtGui/qcolor.h"
+#include <QtCore/qpair.h>
+#include <QtCore/qpoint.h>
+#include <QtCore/qvector.h>
+#include <QtGui/qcolor.h>
 
 QT_MODULE(Gui)
 

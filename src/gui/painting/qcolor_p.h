@@ -25,9 +25,9 @@
 // We mean it.
 //
 
-#include <qglobal.h>
-#include <qrgb.h>
-#include <qstringlist.h>
+#include "QtCore/qglobal.h"
+#include "QtGui/qrgb.h"
+#include "QtCore/qstringlist.h"
 
 uint qt_get_rgb_val(const char *name);
 bool qt_get_named_rgb(const char *, QRgb*);

@@ -14,8 +14,8 @@
 #ifndef QPRINTER_H
 #define QPRINTER_H
 
-#include "QtGui/qpaintdevice.h"
-#include "QtCore/qstring.h"
+#include <QtGui/qpaintdevice.h>
+#include <QtCore/qstring.h>
 
 QT_MODULE(Gui)
 
@@ -165,7 +165,7 @@ public:
     void setPrintRange(PrintRange range);
     PrintRange printRange() const;
 
-#if defined (QT3_SUPPORT)
+#ifdef QT3_SUPPORT
 #ifdef Q_WS_MAC
     QT3_SUPPORT bool pageSetup(QWidget *parent = 0);
     QT3_SUPPORT bool printSetup(QWidget *parent = 0);
@@ -224,8 +224,7 @@ inline void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) 
     if (right)
         *right = paper.right() - page.right();
 }
-
-#endif // QT3_SUPPORT
+#endif
 
 #endif // QT_NO_PRINTER
 

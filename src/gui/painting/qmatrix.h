@@ -14,12 +14,12 @@
 #ifndef QMATRIX_H
 #define QMATRIX_H
 
-#include "QtCore/qline.h"
-#include "QtCore/qpoint.h"
-#include "QtGui/qpolygon.h"
-#include "QtCore/qrect.h"
-#include "QtGui/qregion.h"
-#include "QtGui/qwindowdefs.h"
+#include <QtGui/qpolygon.h>
+#include <QtGui/qregion.h>
+#include <QtGui/qwindowdefs.h>
+#include <QtCore/qline.h>
+#include <QtCore/qpoint.h>
+#include <QtCore/qrect.h>
 
 QT_MODULE(Gui)
 
@@ -126,9 +126,8 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QMatrix &);
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QMatrix &);
 #endif
 
-
 #ifdef QT3_SUPPORT
-#include "QtGui/qwmatrix.h"
+#include <QtGui/qwmatrix.h>
 #endif
 
 #endif // QMATRIX_H

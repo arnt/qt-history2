@@ -1,4 +1,4 @@
-/***************************************************************************
+/****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -6,15 +6,28 @@
 **
 ** $LICENSE$
 **
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
 ****************************************************************************/
 
 #ifndef QSTROKER_P_H
 #define QSTROKER_P_H
 
-#include <qpainterpath.h>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
-#include <private/qdatabuffer_p.h>
-#include <private/qnumeric_p.h>
+#include "QtGui/qpainterpath.h"
+#include "private/qdatabuffer_p.h"
+#include "private/qnumeric_p.h"
 
 // #define QFIXED_IS_26_6
 

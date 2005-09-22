@@ -26,10 +26,10 @@
 // We mean it.
 //
 
-#include "qpaintengine.h"
-#include "qprintengine.h"
-
 #ifndef QT_NO_PRINTER
+
+#include "QtGui/qpaintengine.h"
+#include "QtGui/qprintengine.h"
 
 class QPrinter;
 class QPSPrintEnginePrivate;

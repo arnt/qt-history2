@@ -26,17 +26,15 @@
 //
 
 
-#include <qglobal.h>
+#include "QtCore/qglobal.h"
 
 #ifndef QT_NO_PRINTER
 
+#include "QtGui/qprinter.h"
 #ifdef QT3_SUPPORT
-#include <qpointer.h>
-#include <qprintdialog.h>
+#include "QtCore/qpointer.h"
+#include "QtGui/qprintdialog.h"
 #endif
-
-#include <qprinter.h>
-
 
 class QPrintEngine;
 

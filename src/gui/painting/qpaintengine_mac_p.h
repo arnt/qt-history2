@@ -25,12 +25,12 @@
 // We mean it.
 //
 
-#include "qpaintengine.h"
+#include "QtGui/qpaintengine.h"
 #ifdef Q_WS_MAC //just for now (to get the coregraphics switch) ###
-#  include <private/qt_mac_p.h>
+#  include "private/qt_mac_p.h"
 #endif
-#include <private/qpaintengine_p.h>
-#include <private/qpolygonclipper_p.h>
+#include "private/qpaintengine_p.h"
+#include "private/qpolygonclipper_p.h"
 
 /*****************************************************************************
   QuickDraw Private data

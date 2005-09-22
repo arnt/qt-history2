@@ -14,11 +14,11 @@
 #ifndef QPAINTERPATH_H
 #define QPAINTERPATH_H
 
-#include "QtCore/qglobal.h"
-#include "QtCore/qrect.h"
-#include "QtCore/qline.h"
-#include "QtCore/qvector.h"
-#include "QtGui/qmatrix.h"
+#include <QtGui/qmatrix.h>
+#include <QtCore/qglobal.h>
+#include <QtCore/qrect.h>
+#include <QtCore/qline.h>
+#include <QtCore/qvector.h>
 
 QT_MODULE(Gui)
 

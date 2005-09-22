@@ -25,9 +25,9 @@
 // We mean it.
 //
 
-#include <qlist.h>
-#include <qregion.h>
-#include <qpainterpath.h>
+#include "QtGui/qpainterpath.h"
+#include "QtGui/qregion.h"
+#include "QtCore/qlist.h"
 
 class QPolygonF;
 

@@ -27,10 +27,10 @@
 
 #ifndef QT_NO_PRINTER
 
-#include "qprinter.h"
-#include "qprintengine.h"
-#include <private/qpaintengine_mac_p.h>
-#include <private/qpainter_p.h>
+#include "QtGui/qprinter.h"
+#include "QtGui/qprintengine.h"
+#include "private/qpaintengine_mac_p.h"
+#include "private/qpainter_p.h"
 
 class QPrinterPrivate;
 class QMacPrintEnginePrivate;

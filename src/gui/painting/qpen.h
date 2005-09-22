@@ -14,7 +14,7 @@
 #ifndef QPEN_H
 #define QPEN_H
 
-#include "QtGui/qcolor.h"
+#include <QtGui/qcolor.h>
 
 QT_MODULE(Gui)
 

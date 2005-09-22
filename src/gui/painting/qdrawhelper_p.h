@@ -14,14 +14,25 @@
 #ifndef QDRAWHELPER_P_H
 #define QDRAWHELPER_P_H
 
-#include <qglobal.h>
-#include <qcolor.h>
-#include <qpainter.h>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include "QtCore/qglobal.h"
+#include "QtGui/qcolor.h"
+#include "QtGui/qpainter.h"
 #ifndef QT_FT_BEGIN_HEADER
 #define QT_FT_BEGIN_HEADER
 #define QT_FT_END_HEADER
 #endif
-#include <private/qrasterdefs_p.h>
+#include "private/qrasterdefs_p.h"
 
 /*******************************************************************************
  * QSpan

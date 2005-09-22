@@ -25,13 +25,13 @@
 // We mean it.
 //
 
-#include "qpaintengine.h"
-#include "qregion.h"
-#include "qpen.h"
-#include "qpoint.h"
-#include <private/qpaintengine_p.h>
-#include <private/qpainter_p.h>
-#include <private/qpolygonclipper_p.h>
+#include "QtGui/qpaintengine.h"
+#include "QtGui/qregion.h"
+#include "QtGui/qpen.h"
+#include "QtCore/qpoint.h"
+#include "private/qpaintengine_p.h"
+#include "private/qpainter_p.h"
+#include "private/qpolygonclipper_p.h"
 
 class QX11PaintEnginePrivate;
 class QFontEngineFT;

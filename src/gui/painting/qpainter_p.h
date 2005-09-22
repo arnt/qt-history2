@@ -25,15 +25,15 @@
 // We mean it.
 //
 
-#include "qbrush.h"
-#include "qfont.h"
-#include "qpen.h"
-#include "qregion.h"
-#include "qvector.h"
-#include "qmatrix.h"
-#include "qpainter.h"
-#include "qpainterpath.h"
-#include "qpaintengine.h"
+#include "QtGui/qbrush.h"
+#include "QtGui/qfont.h"
+#include "QtGui/qpen.h"
+#include "QtGui/qregion.h"
+#include "QtGui/qmatrix.h"
+#include "QtGui/qpainter.h"
+#include "QtGui/qpainterpath.h"
+#include "QtGui/qpaintengine.h"
+#include "QtCore/qvector.h"
 
 class QPaintEngine;
 

@@ -14,10 +14,22 @@
 #ifndef QBACKINGSTORE_P_H
 #define QBACKINGSTORE_P_H
 
-#include <private/qpaintengine_raster_p.h>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include "private/qpaintengine_raster_p.h"
 #ifdef Q_WS_QWS
-#include <private/qwidget_qws_p.h>
+#include "private/qwidget_qws_p.h"
 #endif
+
 #ifdef Q_WS_WIN
 class QBackingStoreDevice : public QPaintDevice
 {
