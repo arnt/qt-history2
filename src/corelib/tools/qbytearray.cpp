@@ -3052,7 +3052,7 @@ qulonglong QByteArray::toULongLong(bool *ok, int base) const
 
 int QByteArray::toInt(bool *ok, int base) const
 {
-    long v = toLongLong(ok, base);
+    qlonglong v = toLongLong(ok, base);
     if (v < INT_MIN || v > INT_MAX) {
         if (ok)
             *ok = false;
@@ -3080,13 +3080,74 @@ int QByteArray::toInt(bool *ok, int base) const
 
 uint QByteArray::toUInt(bool *ok, int base) const
 {
-    ulong v = toULongLong(ok, base);
+    qulonglong v = toULongLong(ok, base);
     if (v > UINT_MAX) {
         if (ok)
             *ok = false;
         v = 0;
     }
     return uint(v);
+}
+
+/*!
+    Returns the byte array converted to a \c long int using base \a
+    base, which is 10 by default and must be between 2 and 36, or 0.
+
+    If \a base is 0, the base is determined automatically using the
+    following rules: If the byte array begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
+    Returns 0 if the conversion fails.
+
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    false; otherwise *\a{ok} is set to true.
+
+    \code
+        QByteArray str("FF");
+        bool ok;
+        long hex = str.toLong(&ok, 16);   // hex == 255, ok == true
+        long dec = str.toLong(&ok, 10);   // dec == 0, ok == false
+    \endcode
+
+    \sa number()
+*/
+long QByteArray::toLong(bool *ok, int base) const
+{
+    qlonglong v = toLongLong(ok, base);
+    if (v < LONG_MIN || v > LONG_MAX) {
+        if (ok)
+            *ok = false;
+        v = 0;
+    }
+    return long(v);
+}
+
+/*!
+    Returns the byte array converted to an \c {unsigned long int} using base \a
+    base, which is 10 by default and must be between 2 and 36, or 0.
+
+    If \a base is 0, the base is determined automatically using the
+    following rules: If the byte array begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
+    Returns 0 if the conversion fails.
+
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    false; otherwise *\a{ok} is set to true.
+
+    \sa number()
+*/
+ulong QByteArray::toULong(bool *ok, int base) const
+{
+    qulonglong v = toULongLong(ok, base);
+    if (v > LONG_MAX) {
+        if (ok)
+            *ok = false;
+        v = 0;
+    }
+    return ulong(v);
 }
 
 /*!
@@ -3108,7 +3169,7 @@ uint QByteArray::toUInt(bool *ok, int base) const
 
 short QByteArray::toShort(bool *ok, int base) const
 {
-    long v = toLongLong(ok, base);
+    qlonglong v = toLongLong(ok, base);
     if (v < SHRT_MIN || v > SHRT_MAX) {
         if (ok)
             *ok = false;
@@ -3136,7 +3197,7 @@ short QByteArray::toShort(bool *ok, int base) const
 
 ushort QByteArray::toUShort(bool *ok, int base) const
 {
-    ulong v = toULongLong(ok, base);
+    qulonglong v = toULongLong(ok, base);
     if (v > USHRT_MAX) {
         if (ok)
             *ok = false;
