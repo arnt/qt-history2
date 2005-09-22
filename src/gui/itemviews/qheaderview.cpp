@@ -325,7 +325,7 @@ QSize QHeaderView::sizeHint() const
 
     if (d->model == 0 || count() < 1)
         return QSize(0, 0);
-    // FIXME: we should check all sections (slow)
+    // ###: we should check all sections (slow)
     QSize firstHint = sectionSizeFromContents(logicalIndex(0));
     QSize lastHint = sectionSizeFromContents(logicalIndex(count() - 1));
     int width = qMax(firstHint.width(), lastHint.width());
@@ -471,7 +471,7 @@ int QHeaderView::sectionViewportPosition(int logicalIndex) const
 void QHeaderView::moveSection(int from, int to)
 {
     Q_D(QHeaderView);
-
+    
     d->executePostedLayout();
     Q_ASSERT(from >= 0 && from < d->sections.count() - 1);
     Q_ASSERT(to >= 0 && to < d->sections.count() - 1);
@@ -1216,7 +1216,7 @@ void QHeaderView::sectionsAboutToBeRemoved(const QModelIndex &parent,
         }
     }
     // if we only have the last section (the "end" position) left, the header is empty
-    if (d->sections.count() == 1) 
+    if (d->sections.count() == 1)
         d->clear();
     emit sectionCountChanged(oldCount, this->count());
     d->viewport->update();
@@ -1250,7 +1250,7 @@ void QHeaderView::initializeSections()
             d->clear();
             emit sectionCountChanged(oldCount, 0);
         }
-        else if (r != count())
+        else if (r != count() && r != 0)
             initializeSections(0, qMax(r - 1, 0));
     }
 }
@@ -1269,7 +1269,15 @@ void QHeaderView::initializeSections(int start, int end)
     int oldCount = count();
     end += 1; // one past the last item, so we get the end position of the last section
     d->sections.resize(end + 1);
-
+    if (!d->logicalIndices.isEmpty()){
+        d->logicalIndices.resize(end + 1);
+        d->visualIndices.resize(end + 1);
+        for (int i = start; i < end; ++i){
+            d->logicalIndices[i] = i;
+            d->visualIndices[i] = i;
+        }
+    }
+    
     int pos = (start > 0 ? d->sections.at(start).position : 0);
     QHeaderViewPrivate::HeaderSection *sections = d->sections.data() + start;
     int num = end - start + 1;
