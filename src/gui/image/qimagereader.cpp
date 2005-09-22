@@ -731,7 +731,7 @@ bool QImageReader::jumpToImage(int imageNumber)
     the number of times the animation should loop. Otherwise, it
     returns -1.
 
-    \sa supportsAnimation()
+    \sa supportsAnimation(), QImageIOHandler::loopCount()
 */
 int QImageReader::loopCount() const
 {
@@ -742,12 +742,12 @@ int QImageReader::loopCount() const
 
 /*!
     For image formats that support animation, this function returns
-    the number of images in the animation. Otherwise, 0 is returned.
+    the total number of images in the animation.
 
     Certain animation formats do not support this feature, in which
     case 0 is returned.
 
-    \sa supportsAnimation()
+    \sa supportsAnimation(), QImageIOHandler::imageCount()
 */
 int QImageReader::imageCount() const
 {
@@ -761,7 +761,7 @@ int QImageReader::imageCount() const
     the number of milliseconds to wait until displaying the next frame
     in the animation. Otherwise, 0 is returned.
 
-    \sa supportsAnimation()
+    \sa supportsAnimation(), QImageIOHandler::nextImageDelay()
 */
 int QImageReader::nextImageDelay() const
 {
@@ -775,7 +775,7 @@ int QImageReader::nextImageDelay() const
     the sequence number of the current frame. Otherwise, -1 is
     returned.
 
-    \sa supportsAnimation()
+    \sa supportsAnimation(), QImageIOHandler::currentImageNumber()
 */
 int QImageReader::currentImageNumber() const
 {
@@ -786,9 +786,9 @@ int QImageReader::currentImageNumber() const
 
 /*!
     For image formats that support animation, this function returns
-    the rect for the current frame. Otherwise, -1 is returned.
+    the rect for the current frame. Otherwise, a null rect is returned.
 
-    \sa supportsAnimation()
+    \sa supportsAnimation(), QImageIOHandler::currentImageRect()
 */
 QRect QImageReader::currentImageRect() const
 {
