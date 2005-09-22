@@ -1481,8 +1481,12 @@ ProjectBuilderMakefileGenerator::openOutput(QFile &file, const QString &build) c
         if(fi.isDir())
             output += QDir::separator();
         if(!output.endsWith(projectSuffix())) {
-            if(file.fileName().isEmpty() || fi.isDir())
-                output += project->first("QMAKE_ORIG_TARGET");
+            if(file.fileName().isEmpty() || fi.isDir()) {
+                if(project->first("TEMPLATE") == "subdirs" || project->isEmpty("QMAKE_ORIG_TARGET"))
+                    output += fileInfo(project->projectFile()).baseName();
+                else
+                    output += project->first("QMAKE_ORIG_TARGET");
+            }
             output += projectSuffix() + QDir::separator();
         } else if(output[(int)output.length() - 1] != QDir::separator()) {
             output += QDir::separator();
