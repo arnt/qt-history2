@@ -56,6 +56,8 @@ public:
 
     void translate(int dx, int dy);
     inline void translate(const QPoint &p) { translate(p.x(), p.y()); }
+    QRegion translated(int dx, int dy) const;
+    inline QRegion translated(const QPoint &p) const { return translated(p.x(), p.y()); }
 
     QRegion unite(const QRegion &r) const;
     QRegion intersect(const QRegion &r) const;

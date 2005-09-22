@@ -84,6 +84,10 @@
 
     \overload
 
+    Translates the region that is translated \a{p}\e{.x()} along the x axis
+    and \a dy along the \a{p}\e{.y()} axis, relative to the current
+    position. Positive values move the region to the right and down.
+
     Translates to the given \a point.
 */
 
@@ -424,3 +428,34 @@ QRegion::operator QVariant() const
 
     Use isEmpty() instead.
 */
+
+
+/*!
+    \fn QRegion QRegion::translated(const QPoint &p) const
+
+    \overload
+
+    Returns a copy of the regtion that is translated \a{p}\e{.x()}
+    along the x axis and \a{p}\e{.y()} along the y axis, relative to
+    the current position.  Positive values move the rectangle to the
+    right and down.
+
+    \sa translate()
+*/
+
+/*!
+    Returns a copy of the region that is translated \a dx along the
+    x axis and \a dy along the y axis, relative to the current
+    position. Positive values move the region to the right and
+    down.
+
+    \sa translate()
+*/
+
+QRegion
+QRegion::translated(int dx, int dy) const
+{
+    QRegion ret(*this);
+    ret.translate(dx, dy);
+    return ret;
+}
