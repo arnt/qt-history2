@@ -104,6 +104,10 @@ public:
     OCIEnv *env;
     OCIError *err;
     OCISvcCtx *svc;
+#ifdef QOCI_UNICODE_API
+    OCIServer *srvhp;
+    OCISession *authp;
+#endif
     OCIStmt *sql;
     bool transaction;
     int serverVersion;
@@ -122,8 +126,11 @@ public:
     { return q->bindValueType(i) & QSql::Binary; }
 };
 
-QOCIPrivate::QOCIPrivate(): q(0), env(0), err(0),
-        svc(0), sql(0), transaction(false), serverVersion(-1), prefetchRows(-1),
+QOCIPrivate::QOCIPrivate(): q(0), env(0), err(0), svc(0),
+#ifdef QOCI_UNICODE_API
+        srvhp(0), authp(0),
+#endif
+        sql(0), transaction(false), serverVersion(-1), prefetchRows(-1),
         prefetchMem(QOCI_PREFETCH_MEM)
 {
 }
@@ -792,7 +799,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                 setCharset(dfn);
            break;
         default:
-            // this should make enough space even with character encoding                
+            // this should make enough space even with character encoding
             dataSize = (dataSize + 1) * sizeof(utext) ;
             //qDebug("OCIDefineByPosDef: %d", dataSize);
             r = OCIDefineByPos(d->sql,
@@ -1358,11 +1365,11 @@ QOCIDriver::QOCIDriver(QObject* parent)
                         OCI_HTYPE_ERROR,
                         (size_t) 0,
                         (dvoid **) 0);
-    if (r != 0)
+    if (r != 0) {
         qOraWarning("QOCIDriver: unable to alloc error handle:", d);
-    if (r != 0)
         setLastError(qMakeError(tr("QOCIDriver", "Unable to initialize"),
                      QSqlError::ConnectionError, d));
+    }
 }
 
 QOCIDriver::QOCIDriver(OCIEnv* env, OCISvcCtx* ctx, QObject* parent)
@@ -1461,15 +1468,48 @@ bool QOCIDriver::open(const QString & db,
     qParseOpts(opts, d);
 
 #ifdef QOCI_UNICODE_API
-    r = OCILogon(d->env,
-                d->err,
-                &d->svc,
-                reinterpret_cast<const OraText *>(user.utf16()),
-                user.length() * sizeof(QChar),
-                reinterpret_cast<const OraText *>(password.utf16()),
-                password.length() * sizeof(QChar),
-                reinterpret_cast<const OraText *>(db.utf16()),
-                db.length() * sizeof(QChar));
+    r = OCIHandleAlloc(d->env, (dvoid **)&d->srvhp, OCI_HTYPE_SERVER, 0, 0);
+    if (r == OCI_SUCCESS)
+        r = OCIServerAttach(d->srvhp, d->err, reinterpret_cast<const OraText *>(db.utf16()),
+                            db.length() * sizeof(QChar), OCI_DEFAULT);
+    qOraWarning("QOCIDriver::serverAttach: ", d);
+    if (r == OCI_SUCCESS || r == OCI_SUCCESS_WITH_INFO)
+        r = OCIHandleAlloc(d->env, (dvoid **)&d->svc, OCI_HTYPE_SVCCTX, 0, 0);
+    qOraWarning("QOCIDriver::handleAlloc for svc: ", d);
+    if (r == OCI_SUCCESS)
+        r = OCIAttrSet(d->svc, OCI_HTYPE_SVCCTX, d->srvhp, 0, OCI_ATTR_SERVER, d->err);
+    qOraWarning("QOCIDriver::attrset for svc: ", d);
+    if (r == OCI_SUCCESS)
+        r = OCIHandleAlloc(d->env, (dvoid **)&d->authp, OCI_HTYPE_SESSION, 0, 0);
+    if (r == OCI_SUCCESS)
+        r = OCIAttrSet(d->authp, OCI_HTYPE_SESSION, (dvoid *)user.utf16(),
+                       user.length() * sizeof(QChar), OCI_ATTR_USERNAME, d->err);
+    if (r == OCI_SUCCESS)
+        r = OCIAttrSet(d->authp, OCI_HTYPE_SESSION, (dvoid *)password.utf16(),
+                       password.length() * sizeof(QChar), OCI_ATTR_PASSWORD, d->err);
+    if (r == OCI_SUCCESS) {
+        if (user.isEmpty() && password.isEmpty())
+            r = OCISessionBegin(d->svc, d->err, d->authp, OCI_CRED_EXT, OCI_DEFAULT);
+        else
+            r = OCISessionBegin(d->svc, d->err, d->authp, OCI_CRED_RDBMS, OCI_DEFAULT);
+    }
+    qOraWarning("QOCIDriver::sessionBegin: ", d);
+    if (r == OCI_SUCCESS || r == OCI_SUCCESS_WITH_INFO)
+        r = OCIAttrSet(d->svc, OCI_HTYPE_SVCCTX, d->authp, 0, OCI_ATTR_SESSION, d->err);
+    qOraWarning("QOCIDriver::AttrSet: ", d);
+    qDebug() << r;
+
+    if (r != OCI_SUCCESS) {
+        setLastError(qMakeError(tr("Unable to logon"), QSqlError::ConnectionError, d));
+        setOpenError(true);
+        if (d->authp)
+            OCIHandleFree(d->authp, OCI_HTYPE_SESSION);
+        d->authp = 0;
+        if (d->srvhp)
+            OCIHandleFree(d->srvhp, OCI_HTYPE_SERVER);
+        d->srvhp = 0;
+        return false;
+    }
 #else
     QByteArray tmpUser = user.toAscii();
     QByteArray tmpPassword = password.toAscii();
@@ -1483,7 +1523,7 @@ bool QOCIDriver::open(const QString & db,
                  tmpPassword.length(),
                  (OraText *)tmpDb.data(),
                  tmpDb.length());
-#endif
+
     if (r != 0) {
         setLastError(qMakeError(tr("Unable to logon"), QSqlError::ConnectionError, d));
         setOpenError(true);
@@ -1491,6 +1531,7 @@ bool QOCIDriver::open(const QString & db,
         d->svc = 0;
         return false;
     }
+#endif
 
     // get server version
     char vertxt[512];
@@ -1524,7 +1565,19 @@ bool QOCIDriver::open(const QString & db,
 
 void QOCIDriver::close()
 {
+    if (!isOpen())
+        return;
+
+#ifdef QOCI_UNICODE_API
+    OCISessionEnd(d->svc, d->err, d->authp, OCI_DEFAULT);
+    OCIHandleFree(d->authp, OCI_HTYPE_SESSION);
+    d->authp = 0;
+    OCIHandleFree(d->srvhp, OCI_HTYPE_SERVER);
+    d->srvhp = 0;
+    OCIHandleFree(d->svc, OCI_HTYPE_SVCCTX);
+#else
     OCILogoff(d->svc, d->err); // will deallocate svc
+#endif
     d->svc = 0;
     setOpen(false);
     setOpenError(false);
