@@ -14,8 +14,8 @@
 #ifndef TRANSLATOR_H
 #define TRANSLATOR_H
 
-#include "QtCore/qobject.h"
-#include "QtCore/qbytearray.h"
+#include <qobject.h>
+#include <qbytearray.h>
 #include <qtranslator.h>
 
 class TranslatorPrivate;

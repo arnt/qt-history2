@@ -14,7 +14,7 @@
 #ifndef ARM_QATOMIC_H
 #define ARM_QATOMIC_H
 
-#include "QtCore/qglobal.h"
+#include <QtCore/qglobal.h>
 
 extern Q_CORE_EXPORT char q_atomic_lock;
 

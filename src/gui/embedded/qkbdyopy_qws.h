@@ -14,7 +14,7 @@
 #ifndef QKBDYOPY_QWS_H
 #define QKBDYOPY_QWS_H
 
-#include "QtGui/qkbd_qws.h"
+#include <QtGui/qkbd_qws.h>
 
 QT_MODULE(Gui)
 

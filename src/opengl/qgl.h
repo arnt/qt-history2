@@ -29,7 +29,7 @@ Q_OPENGL_EXPORT inline QT3_SUPPORT const char *qGLVersion() {
 #endif
 
 #if defined(Q_WS_WIN)
-# include "QtCore/qt_windows.h"
+# include <QtCore/qt_windows.h>
 #endif
 
 #if defined(Q_WS_MAC)
