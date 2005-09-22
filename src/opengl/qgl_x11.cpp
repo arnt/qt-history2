@@ -35,6 +35,8 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
+#include "qglsymbols_x11_p.h"
+
 extern Drawable qt_x11Handle(const QPaintDevice *pd);
 extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
 
@@ -262,12 +264,15 @@ static void find_trans_colors()
 
 bool QGLFormat::hasOpenGL()
 {
+    if (!qt_resolve_gl_symbols())
+        return false;
     return glXQueryExtension(X11->display, 0, 0) != 0;
 }
 
 
 bool QGLFormat::hasOpenGLOverlays()
 {
+    qt_resolve_gl_symbols();
     if (!trans_colors_init)
         find_trans_colors();
     return trans_colors.size() > 0;
@@ -934,6 +939,7 @@ void QGLOverlayWidget::paintGL()
 void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget *shareWidget)
 {
     Q_Q(QGLWidget);
+    qt_resolve_gl_symbols();
     QGLExtensions::init();
     glcx = 0;
     olw = 0;

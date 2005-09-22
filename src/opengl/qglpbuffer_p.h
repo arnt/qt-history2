@@ -24,12 +24,11 @@
 //
 // We mean it.
 //
+#include <qglpbuffer.h>
 
 #ifdef Q_WS_X11
+#include <private/qt_x11_p.h>
 #include <GL/glx.h>
-#ifndef GLX_VERSION_1_3
-typedef XID GLXPbuffer;
-#endif
 #elif defined(Q_WS_WIN)
 DECLARE_HANDLE(HPBUFFERARB);
 #elif defined(Q_WS_MACX)

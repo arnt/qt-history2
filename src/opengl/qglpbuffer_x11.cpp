@@ -21,53 +21,25 @@
 
 #include "qglpbuffer.h"
 #include "qglpbuffer_p.h"
-
-#ifndef GLX_VERSION_1_1
-#define GLX_VERSION 0x2
-#define GLX_EXTENSIONS 0x3
-const char *glXGetClientString(Display *, int) { return 0; }
-#endif
+#include "qglsymbols_x11_p.h"
 
 #ifndef GLX_VERSION_1_3
-#define GLX_RENDER_TYPE         0x00000001
 #define GLX_RGBA_BIT            0x00000002
 #define GLX_PBUFFER_BIT         0x00000004
 #define GLX_DRAWABLE_TYPE       0x8010
+#define GLX_RENDER_TYPE         0x8011
 #define GLX_RGBA_TYPE           0x8014
 #define GLX_PBUFFER_HEIGHT      0x8040
 #define GLX_PBUFFER_WIDTH       0x8041
-typedef XID GLXWindow;
-typedef void* GLXFBConfig;
-
-GLXFBConfig *glXChooseFBConfig(Display *, int, const int *, int *) { return 0; }
-GLXContext glXCreateNewContext(Display *, GLXFBConfig, int, GLXContext, Bool) { return 0; }
-GLXPbuffer glXCreatePbuffer(Display *, GLXFBConfig, const int *) { return 0; }
-GLXPixmap glXCreatePixmap(Display *, GLXFBConfig, Pixmap, const int *) { return 0; }
-GLXWindow glXCreateWindow(Display *, GLXFBConfig, Window, const int *) { return 0; }
-void glXDestroyPbuffer(Display *, GLXPbuffer) {}
-void glXDestroyPixmap(Display *, GLXPixmap) {}
-void glXDestroyWindow(Display *, GLXWindow) {}
-GLXDrawable glXGetCurrentReadDrawable(void) { return 0; }
-int glXGetFBConfigAttrib(Display *, GLXFBConfig, int, int *) { return 0; }
-GLXFBConfig *glXGetFBConfigs(Display *, int, int *) { return 0; }
-void glXGetSelectedEvent(Display *, GLXDrawable, unsigned long *) {}
-XVisualInfo *glXGetVisualFromFBConfig(Display *, GLXFBConfig) { return 0; }
-Bool glXMakeContextCurrent(Display *, GLXDrawable, GLXDrawable, GLXContext) { return false; }
-int glXQueryContext(Display *, GLXContext, int, int *) { return 0; }
-void glXQueryDrawable(Display *, GLXDrawable, int, unsigned int *) {}
-void glXSelectEvent(Display *, GLXDrawable, unsigned long) {}
 #endif
-
 
 QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
     : d_ptr(new QGLPbufferPrivate)
 {
     Q_D(QGLPbuffer);
-    QString extensions(glXGetClientString(QX11Info::display(), GLX_EXTENSIONS));
-    QString version(glXGetClientString(QX11Info::display(), GLX_VERSION));
 
-    if (version.toFloat() < 1.3f || !extensions.contains("GLX_SGIX_pbuffer")) {
-        qWarning() << "GLX_SGIX_pbuffer extension not found - pbuffers not supported on this system.";
+    if (qt_resolve_gl_symbols() < QGL_GLX_1_3) {
+        qWarning("QGLPbuffer: pbuffers are not supported on this system.");
         return;
     }
 
