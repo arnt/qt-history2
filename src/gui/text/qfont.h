@@ -14,8 +14,8 @@
 #ifndef QFONT_H
 #define QFONT_H
 
-#include "QtGui/qwindowdefs.h"
-#include "QtCore/qstring.h"
+#include <QtGui/qwindowdefs.h>
+#include <QtCore/qstring.h>
 
 QT_MODULE(Gui)
 

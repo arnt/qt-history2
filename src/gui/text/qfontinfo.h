@@ -14,7 +14,7 @@
 #ifndef QFONTINFO_H
 #define QFONTINFO_H
 
-#include "QtGui/qfont.h"
+#include <QtGui/qfont.h>
 
 QT_MODULE(Gui)
 

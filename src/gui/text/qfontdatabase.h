@@ -14,12 +14,12 @@
 #ifndef QFONTDATABASE_H
 #define QFONTDATABASE_H
 
-#include "QtGui/qwindowdefs.h"
-#include "QtCore/qstring.h"
-#include "QtGui/qfont.h"
+#include <QtGui/qwindowdefs.h>
+#include <QtCore/qstring.h>
+#include <QtGui/qfont.h>
 #ifdef QT3_SUPPORT
-#include "QtCore/qstringlist.h"
-#include "QtCore/qlist.h"
+#include <QtCore/qstringlist.h>
+#include <QtCore/qlist.h>
 #endif
 
 QT_MODULE(Gui)
@@ -110,6 +110,5 @@ private:
 
     QFontDatabasePrivate *d;
 };
-
 
 #endif // QFONTDATABASE_H

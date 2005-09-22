@@ -14,7 +14,7 @@
 #ifndef QBITMAP_H
 #define QBITMAP_H
 
-#include "QtGui/qpixmap.h"
+#include <QtGui/qpixmap.h>
 
 QT_MODULE(Gui)
 
