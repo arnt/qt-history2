@@ -211,6 +211,8 @@ public:
     bool smooth;
     QGlyph **rendered_glyphs;
     QOpenType *_openType;
+    enum { cmapCacheSize = 0x200 };
+    mutable glyph_t cmapCache[cmapCacheSize];
 
     friend class QFontDatabase;
     static FT_Library ft_library;

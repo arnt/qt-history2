@@ -46,7 +46,6 @@
 
 
 
-
 #ifndef QT_NO_FREETYPE
 
 FT_Library QFontEngineFT::ft_library = 0;
@@ -70,7 +69,6 @@ public:
     uint reserved:15;
     uchar* data;
 };
-
 
 static void render(FT_Face face, glyph_t index, QGlyph *result, bool smooth)
 {
@@ -97,6 +95,11 @@ static void render(FT_Face face, glyph_t index, QGlyph *result, bool smooth)
     result->pitch = bm.pitch;
     result->width = bm.width;
     result->height = bm.rows;
+    if (result->pitch == 0 || result->height == 0 || result->width == 0) {
+        result->pitch = 0;
+        result->data = 0;
+        return;
+    }
 
     int size = bm.pitch*bm.rows;
     result->data = new uchar[size];
@@ -129,6 +132,7 @@ QFontEngineFT::QFontEngineFT(const QFontDef& d, FT_Face ft_face)
     rendered_glyphs = new QGlyph *[face->num_glyphs];
     memset(rendered_glyphs, 0, face->num_glyphs*sizeof(QGlyph *));
     cache_cost = face->num_glyphs*6*8; // ##########
+    memset(cmapCache, 0, sizeof(cmapCache));
 }
 
 QFontEngineFT::~QFontEngineFT()
@@ -169,13 +173,23 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
     if (flags & QTextEngine::RightToLeft) {
         for ( int i = 0; i < len; ++i ) {
             unsigned int uc = QUnicodeTables::mirroredChar(getChar(str, i, len));
-            glyphs[glyph_pos].glyph = FT_Get_Char_Index(face, uc);
+            glyphs[glyph_pos].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
+            if (!glyphs[glyph_pos].glyph) {
+                glyphs[glyph_pos].glyph = FT_Get_Char_Index(face, uc);
+                if (uc < cmapCacheSize)
+                    cmapCache[uc] = glyphs[glyph_pos].glyph;
+            }
             ++glyph_pos;
         }
     } else {
         for ( int i = 0; i < len; ++i ) {
             unsigned int uc = getChar(str, i, len);
-            glyphs[glyph_pos].glyph = FT_Get_Char_Index(face, uc);
+            glyphs[glyph_pos].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
+            if (!glyphs[glyph_pos].glyph) {
+                glyphs[glyph_pos].glyph = FT_Get_Char_Index(face, uc);
+                if (uc < cmapCacheSize)
+                    cmapCache[uc] = glyphs[glyph_pos].glyph;
+            }
             ++glyph_pos;
         }
     }
@@ -216,24 +230,32 @@ void QFontEngineFT::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemInt
 
     QGlyphLayout *glyphs = si.glyphs;
 
-    if (si.flags & QTextItem::RightToLeft)
-        glyphs += si.num_glyphs - 1;
-    for(int i = 0; i < si.num_glyphs; i++) {
-        const QGlyphLayout *g = glyphs + (si.flags & QTextItem::RightToLeft ? -i : i);
-        const QGlyph *glyph = rendered_glyphs[g->glyph];
-        if (!glyph) {
-            FT_UInt gi = glyphs[i].glyph;
-            glyph = rendered_glyphs[gi] = new QGlyph;
-            render(face, gi, rendered_glyphs[gi], smooth);
-        }
-        int myw = glyph->width;
-        int myx = qRound(x + g->offset.x + glyph->bearingx);
-        int myy = qRound(y + g->offset.y - glyph->bearingy);
+    if (si.flags & QTextItem::RightToLeft) {
+        for(int i = si.num_glyphs - 1; i >= 0; --i) {
+            const QGlyphLayout *g = glyphs + i;
+            const QGlyph *glyph = rendered_glyphs[g->glyph];
+            Q_ASSERT(glyph);
 
-        if(glyph->width != 0 && glyph->height != 0 && glyph->pitch != 0) {
-            paintEngine->alphaPenBlt(glyph->data, glyph->pitch, glyph->mono, myx,myy,myw,glyph->height);
+            if(glyph->data)
+                paintEngine->alphaPenBlt(glyph->data, glyph->pitch, glyph->mono,
+                                         qRound(x + g->offset.x) + glyph->bearingx,
+                                         qRound(y + g->offset.y) - glyph->bearingy,
+                                         glyph->width,glyph->height);
+            x += g->advance.x;
         }
-        x += qRound(g->advance.x);
+    } else {
+        for(int i = 0; i < si.num_glyphs; i++) {
+            const QGlyphLayout *g = glyphs + i;
+            const QGlyph *glyph = rendered_glyphs[g->glyph];
+            Q_ASSERT(glyph);
+
+            if(glyph->data)
+                paintEngine->alphaPenBlt(glyph->data, glyph->pitch, glyph->mono,
+                                         qRound(x + g->offset.x) + glyph->bearingx,
+                                         qRound(y + g->offset.y) - glyph->bearingy,
+                                         glyph->width,glyph->height);
+            x += g->advance.x;
+        }
     }
 }
 
@@ -888,7 +910,7 @@ void QFontEngineQPF::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemIn
 
     QFixed x = QFixed::fromReal(_x);
     QFixed y = QFixed::fromReal(_y);
-    
+
     if(si.width != 0 && si.flags != 0) {
         int lw = qRound(lineThickness());
         lw = qMax(1, lw);
