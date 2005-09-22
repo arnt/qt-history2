@@ -931,7 +931,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
     QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
     if ((command & QItemSelectionModel::Current) == 0)
         d->pressedPosition = pos + offset;
-    else if (index.isValid())
+    if (index.isValid())
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
     QRect rect(d->pressedPosition - offset, pos);
     setSelection(rect.normalized(), command);
@@ -2210,11 +2210,11 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionC
             break;
         case QEvent::MouseButtonPress: {
             modifiers = static_cast<const QMouseEvent*>(event)->modifiers();
-            // only change the Current item when pressing without modifiers on a selected item
+            // NoUpdate when pressing without modifiers on a selected item
             if (!(modifiers & Qt::ShiftModifier)
                 && !(modifiers & Qt::ControlModifier)
                 && selectionModel->isSelected(index))
-                return QItemSelectionModel::Current;
+                return QItemSelectionModel::NoUpdate;
             // Clear on MouseButtonPress on non-valid item with no modifiers and not Qt::RightButton
             Qt::MouseButton button = static_cast<const QMouseEvent*>(event)->button();
             if (!index.isValid() && !(button & Qt::RightButton)
