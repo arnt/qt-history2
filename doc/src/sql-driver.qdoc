@@ -160,6 +160,16 @@
     connecting to the Oracle server, the plugin will auto-detect the
     database version and enable features accordingly.
 
+    \section3 User authentication
+
+    For Oracle versions >= 9, the Qt OCI plugin supports authentication using
+    external credentials (OCI_CRED_EXT). Usually, this means that the database
+    server will use the user authentication provided by the operating system
+    instead of its own authentication mechanism.
+
+    Leave the username and password empty when opening a connection with
+    QSqlDatabase to use the external credentials authentication.
+
     \section3 Unicode Support
 
     If the Oracle server supports Unicode, the OCI plugin will use UTF-8
