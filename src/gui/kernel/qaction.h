@@ -14,11 +14,11 @@
 #ifndef QACTION_H
 #define QACTION_H
 
-#include <QtGui/qicon.h>
 #include <QtGui/qkeysequence.h>
 #include <QtCore/qstring.h>
 #include <QtGui/qwidget.h>
 #include <QtCore/qvariant.h>
+#include <QtGui/qactiongroup.h>
 
 QT_MODULE(Gui)
 
@@ -171,8 +171,6 @@ private:
     friend class QMenuBar;
     friend class QShortcutMap;
 };
-
-#include <QtGui/qactiongroup.h> // ### Qt 5: remove
 
 #endif // QT_NO_ACTION
 
