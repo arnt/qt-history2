@@ -136,6 +136,18 @@ static void SetMWMHints(Display *display, Window window, const QtMWMHints &mwmhi
     }
 }
 
+// Returns true if we should set WM_TRANSIENT_FOR on \a w
+static inline bool isTransient(const QWidget *w)
+{
+    return ((w->windowType() == Qt::Dialog)
+            || (w->windowType() == Qt::Sheet)
+            || (w->windowFlags() & Qt::MSWindowsFixedSizeDialogHint)
+            || (w->windowType() == Qt::Tool)
+            || (w->windowType() == Qt::SplashScreen)
+            || (w->windowType() == Qt::ToolTip)
+            || (w->windowType() == Qt::Drawer));
+}
+
 /*****************************************************************************
   QWidget member functions
  *****************************************************************************/
@@ -462,8 +474,35 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
     if (topLevel) {
         ulong wsa_mask = 0;
+        bool custom_decorations = customize;
+        if (!customize) {
+            if (dialog) {
+                custom_decorations = true;
+                flags |= Qt::WindowTitleHint
+                         | Qt::WindowSystemMenuHint
+                         | Qt::WindowContextHelpButtonHint;
+            } else if (type == Qt::SplashScreen) {
+                if (qt_net_supports(ATOM(_NET_WM_WINDOW_TYPE_SPLASH))) {
+                    flags &= ~Qt::X11BypassWindowManagerHint;
+                    net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_SPLASH);
+                } else {
+                    custom_decorations = true;
+                    flags |= Qt::X11BypassWindowManagerHint | Qt::FramelessWindowHint;
+                }
+            } else if (type == Qt::Tool) {
+                custom_decorations = true;
+                flags |= Qt::WindowTitleHint
+                         | Qt::WindowSystemMenuHint;
+            } else {
+                custom_decorations = true;
+                flags |= Qt::WindowTitleHint
+                         | Qt::WindowSystemMenuHint
+                         | Qt::WindowMinimizeButtonHint
+                         | Qt::WindowMaximizeButtonHint;
+            }
+        }
 
-        if (customize) {
+        if (custom_decorations) {
             mwmhints.decorations = 0L;
             mwmhints.flags |= MWM_HINTS_DECORATIONS;
 
@@ -491,20 +530,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                 if (flags & Qt::WindowMaximizeButtonHint)
                     mwmhints.decorations |= MWM_DECOR_MAXIMIZE;
             }
-        } else if (desktop || popup) {
-        } else if (dialog) {
-            flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowContextHelpButtonHint;
-        } else if (type == Qt::SplashScreen) {
-            if (qt_net_supports(ATOM(_NET_WM_WINDOW_TYPE_SPLASH))) {
-                flags &= ~Qt::X11BypassWindowManagerHint;
-                net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_SPLASH);
-            } else {
-                flags |= Qt::X11BypassWindowManagerHint | Qt::FramelessWindowHint;
-            }
-        } else if (type == Qt::Tool || type == Qt::Drawer) {
-            flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint;
-        } else {
-            flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint;
         }
 
         if (tool) {
@@ -551,20 +576,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         if (!X11->wm_client_leader)
             create_wm_client_leader();
 
-        // real parent
-        QWidget *p = parentWidget;
-        if (p)
-            p = p->window();
-
-        if (dialog || tool) {
-            if (p) {
-                // transient for window
-                XSetTransientForHint(dpy, id, p->winId());
-            } else {
-                // transient for group
-                XSetTransientForHint(dpy, id, X11->wm_client_leader);
-            }
-        }
+        // note: WM_TRANSIENT_FOR is set in QWidgetPrivate::show_sys()
 
         XSizeHints size_hints;
         size_hints.flags = USSize | PSize | PWinGravity;
@@ -833,14 +845,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
 #endif
                 XReparentWindow(X11->display, w->winId(), q->winId(),
                                 w->geometry().x(), w->geometry().y());
-            } else if ((w->windowType() == Qt::Popup)
-                       || (w->windowFlags() & Qt::MSWindowsFixedSizeDialogHint)
-                       || (w->windowType() == Qt::Dialog)
-                       || (w->windowType() == Qt::SplashScreen)
-                       || (w->windowType() == Qt::ToolTip)
-                       || (w->windowType() == Qt::Tool)
-                       || (w->windowType() == Qt::Drawer)
-                       || (w->windowType() == Qt::Sheet)) {
+            } else if (isTransient(w)) {
                 /*
                   when reparenting toplevel windows with toplevel-transient children,
                   we need to make sure that the window manager gets the updated
@@ -848,9 +853,11 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
                   don't handle changing WM_TRANSIENT_FOR before the toplevel window is
                   visible, so we unmap and remap all toplevel-transient children *after*
                   the toplevel parent has been mapped.  thankfully, this is easy in Qt :)
+
+                  note that the WM_TRANSIENT_FOR hint is actually updated in
+                  QWidgetPrivate::show_sys()
                 */
                 XUnmapWindow(X11->display, w->winId());
-                XSetTransientForHint(X11->display, w->winId(), q->winId());
                 QApplication::postEvent(w, new QEvent(QEvent::ShowWindowRequest));
             }
         }
@@ -1776,12 +1783,7 @@ void QWidgetPrivate::show_sys()
             XFree((char *)h);
 
         // udpate WM_TRANSIENT_FOR
-        bool dialog = (q->windowType() == Qt::Dialog
-                       || q->windowType() == Qt::Sheet
-                       || (q->windowFlags() & Qt::MSWindowsFixedSizeDialogHint));
-        bool tool = (q->windowType() == Qt::Tool || q->windowType() == Qt::SplashScreen
-                     || q->windowType() == Qt::ToolTip || q->windowType() == Qt::Drawer);
-        if (dialog || tool) {
+        if (isTransient(q)) {
             QWidget *p = q->parentWidget();
             if (p)
                 p = p->window();
