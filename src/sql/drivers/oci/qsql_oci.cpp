@@ -1472,13 +1472,10 @@ bool QOCIDriver::open(const QString & db,
     if (r == OCI_SUCCESS)
         r = OCIServerAttach(d->srvhp, d->err, reinterpret_cast<const OraText *>(db.utf16()),
                             db.length() * sizeof(QChar), OCI_DEFAULT);
-    qOraWarning("QOCIDriver::serverAttach: ", d);
     if (r == OCI_SUCCESS || r == OCI_SUCCESS_WITH_INFO)
         r = OCIHandleAlloc(d->env, (dvoid **)&d->svc, OCI_HTYPE_SVCCTX, 0, 0);
-    qOraWarning("QOCIDriver::handleAlloc for svc: ", d);
     if (r == OCI_SUCCESS)
         r = OCIAttrSet(d->svc, OCI_HTYPE_SVCCTX, d->srvhp, 0, OCI_ATTR_SERVER, d->err);
-    qOraWarning("QOCIDriver::attrset for svc: ", d);
     if (r == OCI_SUCCESS)
         r = OCIHandleAlloc(d->env, (dvoid **)&d->authp, OCI_HTYPE_SESSION, 0, 0);
     if (r == OCI_SUCCESS)
@@ -1493,11 +1490,8 @@ bool QOCIDriver::open(const QString & db,
         else
             r = OCISessionBegin(d->svc, d->err, d->authp, OCI_CRED_RDBMS, OCI_DEFAULT);
     }
-    qOraWarning("QOCIDriver::sessionBegin: ", d);
     if (r == OCI_SUCCESS || r == OCI_SUCCESS_WITH_INFO)
         r = OCIAttrSet(d->svc, OCI_HTYPE_SVCCTX, d->authp, 0, OCI_ATTR_SESSION, d->err);
-    qOraWarning("QOCIDriver::AttrSet: ", d);
-    qDebug() << r;
 
     if (r != OCI_SUCCESS) {
         setLastError(qMakeError(tr("Unable to logon"), QSqlError::ConnectionError, d));
