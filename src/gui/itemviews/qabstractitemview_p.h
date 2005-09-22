@@ -35,8 +35,6 @@
 #include "QtGui/qregion.h"
 #include "QtCore/qdebug.h"
 
-class QRubberBand;
-
 #ifndef QT_NO_ITEMVIEWS
 
 class Q_GUI_EXPORT QAbstractItemViewPrivate : public QAbstractScrollAreaPrivate
@@ -85,20 +83,13 @@ public:
         return false;
     }
 
-    void paintDropIndicator(QPainter *p)
+    inline void paintDropIndicator(QPainter *painter)
     {
-        if (bPaintDropIndicator) {
-            p->save();
-            p->setClipping(true);
-            p->setClipRegion(dropIndicatorRegion);
-            p->fillRect(dropIndicatorRect, Qt::Dense4Pattern);
-            p->restore();
-        }    
+        if (showDropIndicator && state == QAbstractItemView::DraggingState)
+            if (dropIndicatorRect.height() == 0) // FIXME: should be painted by style
+                painter->drawLine(dropIndicatorRect.topLeft(), dropIndicatorRect.topRight());
+            painter->drawRect(dropIndicatorRect);
     }
-    
-    QRect dropIndicatorRect;
-    QRegion dropIndicatorRegion;
-    bool bPaintDropIndicator;
 #endif
     
     enum Position { Above, Below, On };
@@ -176,8 +167,14 @@ public:
     int verticalStepsPerItem;
 
     bool tabKeyNavigation;
+
+#ifndef QT_NO_DRAGANDDROP
     bool showDropIndicator;
+    QRect dropIndicatorRect;
+//    QRegion dropIndicatorRegion;
     bool dragEnabled;
+#endif
+
     QString keyboardInput;
     QTime keyboardInputTime;
 
