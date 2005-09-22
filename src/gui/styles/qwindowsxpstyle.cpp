@@ -34,6 +34,7 @@
 #include <qstackedwidget.h>
 #include <qpushbutton.h>
 #include <qtoolbar.h>
+#include <qdockwidget.h>
 
 #include <qt_windows.h>
 // Uncomment define below to build debug assisting code, and output
@@ -320,6 +321,8 @@ public:
     QRgb groupBoxTextColorDisabled;
     QRgb sliderTickColor;
     static QMap<QString,HTHEME> *handleMap;
+
+    QIcon dockFloat, dockClose;
 
 private:
 #ifdef DEBUG_XP_STYLE
