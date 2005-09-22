@@ -2524,13 +2524,13 @@ void Q3Dns::doResInit()
 	while ( !stream.atEnd() ) {
             line = stream.readLine();
 	    QStringList list = QStringList::split( " ", line );
-	    if( list.isEmpty() )
+	    if( line.startsWith( "#" ) || list.size() < 2 )
 	       continue;
 	    const QString type = list[0].lower();
 
 	    if ( type == "nameserver" ) {
 		QHostAddress *address = new QHostAddress();
-		if ( address->setAddress( QString(line[1]) ) ) {
+		if ( address->setAddress( QString(list[1]) ) ) {
 		    // only add ipv6 addresses from resolv.conf if
 		    // this host supports ipv6.
 		    if ( address->isIPv4Address() || ipv6support )
