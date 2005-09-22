@@ -25,6 +25,10 @@
 #include <qwidget.h>
 #include <qdebug.h>
 
+#ifdef Q_OS_MAC
+#include <qmacstyle_mac.h>
+#endif
+
 /*!
     \class QAbstractScrollArea qabstractscrollarea.h
 
