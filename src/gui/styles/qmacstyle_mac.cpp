@@ -320,7 +320,7 @@ static inline HIRect qt_hirectForQRect(const QRect &convertRect, QPainter *p = 0
     int offset = 0;
     if (useOffset)
         offset = 1;
-    if (p) {
+    if (0 && p) {
         QPoint pt = domap(p, convertRect.topLeft());
         x = pt.x();
         y = pt.y();
@@ -1531,8 +1531,8 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
     case QStyle::PE_Q3CheckListIndicator:
     case QStyle::PE_IndicatorRadioButton:
     case QStyle::PE_IndicatorCheckBox: {
-    bool drawColorless = (!(opt->state & QStyle::State_Active))
-                                    && opt->palette.currentColorGroup() == QPalette::Active;
+        bool drawColorless = (!(opt->state & QStyle::State_Active))
+                                        && opt->palette.currentColorGroup() == QPalette::Active;
         HIThemeButtonDrawInfo bdi;
         bdi.version = qt_mac_hitheme_version;
         bdi.state = tds;
