@@ -22,6 +22,8 @@
  */
 #define QT_VERSION 0x040100
 
+#define QT_PACKAGEDATE_STR "YYYY-MM-DD"
+
 #if !defined(QT_BUILD_MOC)
 #include <QtCore/qconfig.h>
 #endif
