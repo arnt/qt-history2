@@ -22,6 +22,31 @@ static inline const UC_Properties *qGetProp(uint ucs4)
     return uc_properties + index;
 }
 
+#define GET_PROP_INDEX_UCS2(ucs2)                                       \
+    (uc_property_trie[uc_property_trie[ucs2>>5] + (ucs2 & 0x1f)])
+#define GET_PROP_UCS2(ucs2) (uc_properties + GET_PROP_INDEX_UCS2(ucs2))
+
+static inline const UC_Properties *qGetProp(ushort ucs2)
+{
+    int index = GET_PROP_INDEX_UCS2(ucs2);
+    return uc_properties + index;
+}
+
+Q_CORE_EXPORT QChar::Category QUnicodeTables::category(ushort ucs2)
+{
+    return (QChar::Category) qGetProp(ucs2)->category;
+}
+
+Q_CORE_EXPORT unsigned char QUnicodeTables::combiningClass(ushort ucs2)
+{
+    return (unsigned char) qGetProp(ucs2)->combiningClass;
+}
+
+Q_CORE_EXPORT QChar::Direction QUnicodeTables::direction(ushort ucs2)
+{
+    return (QChar::Direction) qGetProp(ucs2)->direction;
+}
+
 Q_CORE_EXPORT QChar::Category QUnicodeTables::category(uint ucs4)
 {
     return (QChar::Category) qGetProp(ucs4)->category;
@@ -341,11 +366,20 @@ QString QUnicodeTables::normalize(const QString &str, QString::NormalizationForm
 
 }
 
-int QUnicodeTables::script(const QChar &ch)
+int QUnicodeTables::script(unsigned int uc)
 {
-    const uint uc = ch.unicode();
     if (uc > 0xffff)
         return Common;
+    int script = uc_scripts[uc >> 7];
+    if (script < ScriptSentinel)
+        return script;
+    script = (((script - ScriptSentinel) * UnicodeBlockSize) + UnicodeBlockCount);
+    script = uc_scripts[script + (uc & 0x7f)];
+    return script;
+}
+
+int QUnicodeTables::script(unsigned short uc)
+{
     int script = uc_scripts[uc >> 7];
     if (script < ScriptSentinel)
         return script;

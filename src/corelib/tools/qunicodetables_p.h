@@ -56,10 +56,20 @@ namespace QUnicodeTables {
         return (utf16 >= 0xdc00 && utf16 < 0xe000);
     }
 
+    Q_CORE_EXPORT QChar::Category  QT_FASTCALL category(ushort ucs2);
+    Q_CORE_EXPORT unsigned char  QT_FASTCALL combiningClass(ushort ucs2);
+    Q_CORE_EXPORT QChar::Direction QT_FASTCALL direction(ushort ucs2);
 
     Q_CORE_EXPORT QChar::Category  QT_FASTCALL category(uint ucs4);
     Q_CORE_EXPORT unsigned char  QT_FASTCALL combiningClass(uint ucs4);
     Q_CORE_EXPORT QChar::Direction QT_FASTCALL direction(uint ucs4);
+
+    Q_CORE_EXPORT int QT_FASTCALL script(uint ucs4);
+    Q_CORE_EXPORT int QT_FASTCALL script(ushort ucs2);
+    Q_CORE_EXPORT inline int QT_FASTCALL script(const QChar &ch) {
+        return script(ch.unicode());
+    }
+
     Q_CORE_EXPORT QChar::UnicodeVersion QT_FASTCALL unicodeVersion(uint ucs4);
     Q_CORE_EXPORT QChar::Joining QT_FASTCALL joining(uint ucs4);
     Q_CORE_EXPORT bool QT_FASTCALL mirrored(uint ucs4);
@@ -77,7 +87,6 @@ namespace QUnicodeTables {
 
 #include "qunicodedata_p.h"
 
-    Q_CORE_EXPORT int script(const QChar &ch);
 };
 
 
