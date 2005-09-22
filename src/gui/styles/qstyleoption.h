@@ -33,11 +33,11 @@ public:
                       SO_Default, SO_FocusRect, SO_Button, SO_Tab, SO_MenuItem,
                       SO_Frame, SO_ProgressBar, SO_ToolBox, SO_Header, SO_Q3DockWindow,
                       SO_DockWidget, SO_Q3ListViewItem, SO_ViewItem, SO_TabWidgetFrame,
-                      SO_TabBarBase, SO_RubberBand,
+                      SO_TabBarBase, SO_RubberBand, SO_ToolBar,
 
                       SO_Complex = 0xf0000, SO_Slider, SO_SpinBox, SO_ToolButton, SO_ComboBox,
                       SO_Q3ListView, SO_TitleBar, SO_GroupBox,
-
+                    
                       SO_CustomBase = 0xf00,
                       SO_ComplexCustomBase = 0xf000000
                     };
@@ -254,6 +254,36 @@ protected:
 };
 
 #endif
+
+
+#ifndef QT_NO_TOOLBAR
+
+class Q_GUI_EXPORT QStyleOptionToolBar : public QStyleOption
+{
+public:
+    enum { Type = SO_ToolBar };
+    enum { Version = 1 };
+    enum ToolBarPosition { Beginning, Middle, End, OnlyOne };
+    enum ToolBarFeature { None = 0x0, Movable = 0x1 };
+    Q_DECLARE_FLAGS(ToolBarFeatures, ToolBarFeature)
+    ToolBarPosition positionOfLine; // The toolbar line position
+    ToolBarPosition positionWithinLine; // The position within a toolbar
+    Qt::ToolBarArea toolBarArea; // The toolbar docking area
+    ToolBarFeatures features;
+    int lineWidth;
+    int midLineWidth;
+    QStyleOptionToolBar();
+    QStyleOptionToolBar(const QStyleOptionToolBar &other) : QStyleOption(Version, Type) { *this = other; }
+
+protected:
+    QStyleOptionToolBar(int version);
+};
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionToolBar::ToolBarFeatures)
+
+#endif
+
+
 
 class Q_GUI_EXPORT QStyleOptionProgressBar : public QStyleOption
 {

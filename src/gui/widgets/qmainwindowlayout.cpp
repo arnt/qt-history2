@@ -1170,6 +1170,8 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
                                 QLayoutItem *tmp = info.item;
                                 info.item = prev.item;
                                 prev.item = tmp;
+                                info.item->widget()->update();
+                                prev.item->widget()->update();
                             }
 			}
 		    }
@@ -1236,6 +1238,8 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
                                     QLayoutItem *tmp = info.item;
                                     info.item = t.item;
                                     t.item = tmp;
+                                    info.item->widget()->update();
+                                     prev.item->widget()->update();
                                 }
 			    }
 			}
@@ -2338,6 +2342,18 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
         }
     } else {
         TBDEBUG() << "changed area";
+
+        //We have to update all toolbars in affected areas, since
+        //QStyleOptionToolbar can handle toolbars differently depending on their positions
+        int currentPos = positionForArea(toolBarArea(toolbar));
+        
+        for (int i = 0; i < tb_layout_info.size(); ++i) {
+            const ToolBarLineInfo &lineInfo = tb_layout_info.at(i);
+            if (lineInfo.pos == currentPos || lineInfo.pos == where) {    
+                for (int j = 0; j < lineInfo.list.size(); ++j)
+                    lineInfo.list.at(j).item->widget()->update();
+            }
+        }
         addToolBar(static_cast<Qt::ToolBarArea>(areaForPosition(where)), toolbar, false);
         dropToolBar(toolbar, mouse, QPoint());
         return;

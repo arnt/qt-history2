@@ -184,13 +184,21 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         break;
 #ifndef QT_NO_TOOLBAR
     case PE_PanelMenuBar:
-    case PE_PanelToolBar:
         if (widget && qobject_cast<QToolBar *>(widget->parentWidget()))
             break;
-        if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt))
+        if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt)){
             qDrawShadePanel(p, frame->rect, frame->palette, false, frame->lineWidth,
                             &frame->palette.brush(QPalette::Button));
+
+        }
+        else if (const QStyleOptionToolBar *frame = qstyleoption_cast<const QStyleOptionToolBar *>(opt)){
+            qDrawShadePanel(p, frame->rect, frame->palette, false, frame->lineWidth,
+                            &frame->palette.brush(QPalette::Button));
+        }
+
         break;
+   case PE_PanelToolBar:
+       break;
 #endif // QT_NO_TOOLBAR
 #ifndef QT_NO_PROGRESSBAR
     case PE_IndicatorProgressChunk:
@@ -1192,8 +1200,17 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             drawItemText(p, tr, alignment, tabV2.palette, tabV2.state & State_Enabled, tabV2.text,
                          QPalette::Foreground);
 
-            if (verticalTabs)
+            if (verticalTabs){
+                QPixmap pixmap(tr.size());
+                pixmap.fill(Qt::transparent);
+                p->setCompositionMode(QPainter::CompositionMode_Source);
+                QPainter pixPainter(&pixmap);
+                drawItemText(&pixPainter, tr, alignment, tab->palette, tab->state & State_Enabled, tab->text, QPalette::Foreground);
+                drawItemPixmap(p,tr,alignment,pixmap);
                 p->restore();
+            }
+            else drawItemText(p, tr, alignment, tab->palette, tab->state & State_Enabled, tab->text, QPalette::Foreground);
+
 
             if (tabV2.state & State_HasFocus && !tabV2.text.isEmpty()) {
                 const int OFFSET = 1 + pixelMetric(PM_DefaultFrameWidth);
@@ -1348,6 +1365,21 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         }
         break;
 #endif // QT_NO_COMBOBOX
+    case CE_ToolBar:
+        if (const QStyleOptionToolBar *toolBar = qstyleoption_cast<const QStyleOptionToolBar *>(opt)) {
+            // Compatibility with styles that use PE_PanelToolBar
+            QStyleOptionFrame frame;
+            frame.QStyleOption::operator=(*toolBar);
+            frame.lineWidth = toolBar->lineWidth;
+            frame.midLineWidth = toolBar->midLineWidth;
+            drawPrimitive(PE_PanelToolBar, opt, p, widget);
+
+            if (widget && qobject_cast<QToolBar *>(widget->parentWidget()))
+                break;
+            qDrawShadePanel(p, toolBar->rect, toolBar->palette, false, toolBar->lineWidth,
+                            &toolBar->palette.brush(QPalette::Button));
+        }
+        break;
     default:
         break;
     }

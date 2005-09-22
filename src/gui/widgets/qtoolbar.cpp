@@ -36,6 +36,102 @@
 #include "qtoolbarhandle_p.h"
 #include "qtoolbarseparator_p.h"
 
+#include  "qdebug.h"
+static int positionForArea(Qt::ToolBarArea area)
+{
+    switch (area) {
+    case Qt::LeftToolBarArea: return 0;
+    case Qt::RightToolBarArea: return 1;
+    case Qt::TopToolBarArea: return 2;
+    case Qt::BottomToolBarArea: return 3;
+    default: return -1;
+    }
+}
+
+static QStyleOptionToolBar getStyleOption(QToolBar *toolBar)
+{
+    QStyleOptionToolBar option;
+    option.init(toolBar);
+    if (toolBar->orientation() == Qt::Horizontal)
+        option.state |= QStyle::State_Horizontal;
+    option.lineWidth = toolBar->style()->pixelMetric(QStyle::PM_ToolBarFrameWidth);
+    option.features = toolBar->isMovable() ? QStyleOptionToolBar::Movable : QStyleOptionToolBar::None;
+
+    // Add more styleoptions if the toolbar has been added to a mainwindow.
+    QMainWindow *mainWindow = qobject_cast<QMainWindow *>(toolBar->parent());
+    
+    if (!mainWindow)
+        return option;
+
+    QMainWindowLayout *layout = qobject_cast<QMainWindowLayout *>(mainWindow->layout());
+    Q_ASSERT_X(layout != 0, "QToolBarPrivate::getStyleOption()",
+               "QMainWindow->layout() != QMainWindowLayout");
+
+    // Determine the toolbar area.
+    int layoutIndex = layout->indexOf(toolBar);
+    if (layoutIndex != -1)
+        option.toolBarArea = layout->toolBarArea(toolBar);
+
+    // Find the toolbar line, and position within the line.
+    int toolBarTotalLineCount = 0;
+    int toolBarLineCount = 0;
+
+
+	foreach	(QMainWindowLayout::ToolBarLineInfo	lineInfo, layout->tb_layout_info) {
+		
+        if (lineInfo.pos !=	positionForArea(option.toolBarArea))continue;
+        int	toolBarIndex = -1;
+        for	(int i = 0;	i <	lineInfo.list.size(); ++i) {
+            QMainWindowLayout::ToolBarLayoutInfo layoutInfo	= lineInfo.list.at(i);
+
+            if (layoutInfo.item->widget() == toolBar) {
+                // This	is our toolbar,	so we now have the line	and	position.
+                toolBarLineCount = toolBarTotalLineCount;
+                toolBarIndex = i;
+                
+                // Determine the position within this tool bar line
+                if (toolBarIndex ==	0) {
+                    if (lineInfo.list.size() ==	1)
+                        option.positionWithinLine = QStyleOptionToolBar::OnlyOne;
+                    else
+                        option.positionWithinLine = QStyleOptionToolBar::Beginning;
+                } else if (toolBarIndex	< lineInfo.list.size() - 1)	{
+                    option.positionWithinLine = QStyleOptionToolBar::Middle;
+                } else if (toolBarIndex	== lineInfo.list.size()	- 1) {
+                    option.positionWithinLine = QStyleOptionToolBar::End;
+                }
+                break;
+            }
+        }
+		++toolBarTotalLineCount;
+	}
+
+	Q_ASSERT_X(toolBarLineCount	>= 0, "QToolBarPrivate::getStyleOption()",
+			   "toolbar	not	found in layout");
+
+ 
+
+    if (option.toolBarArea== Qt::BottomToolBarArea || option.toolBarArea==Qt::RightToolBarArea){
+        toolBarLineCount = toolBarTotalLineCount-toolBarLineCount-1;    
+    }
+
+	// Determine the line position of this toolbar
+	if (toolBarLineCount ==	0) {
+		if (toolBarTotalLineCount == 1)
+            option.positionOfLine = QStyleOptionToolBar::OnlyOne;
+		else
+			option.positionOfLine = QStyleOptionToolBar::Beginning;
+	} else if (toolBarLineCount	< toolBarTotalLineCount	- 1) {
+		option.positionOfLine = QStyleOptionToolBar::Middle;
+	} else if (toolBarLineCount	== toolBarTotalLineCount - 1) {
+		option.positionOfLine = QStyleOptionToolBar::End;
+	}
+
+    return option;
+}
+
+
+/*
 static QStyleOptionFrame getStyleOption(QToolBar *tb)
 {
     QStyleOptionFrame opt;
@@ -45,6 +141,7 @@ static QStyleOptionFrame getStyleOption(QToolBar *tb)
     opt.lineWidth = tb->style()->pixelMetric(QStyle::PM_ToolBarFrameWidth);
     return opt;
 }
+*/
 
 /*
     QToolBarPrivate
@@ -58,7 +155,7 @@ void QToolBarPrivate::init()
     q->setBackgroundRole(QPalette::Button);
 
 
-    QStyleOptionFrame opt = getStyleOption(q);
+    QStyleOptionToolBar opt = getStyleOption(q);
 
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, q);
     QStyle *style = q->style();
@@ -718,7 +815,7 @@ void QToolBar::changeEvent(QEvent *event)
         break;
     case QEvent::StyleChange:
         {
-            QStyleOptionFrame opt = getStyleOption(this);
+            QStyleOptionToolBar opt = getStyleOption(this);
             d->layout->setMargin(style()->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, this)
                                  + style()->pixelMetric(QStyle::PM_ToolBarItemMargin, &opt, this));
             d->layout->setSpacing(style()->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, this));
@@ -755,8 +852,8 @@ void QToolBar::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     QPainter p(this);
-    QStyleOptionFrame opt = getStyleOption(this);
-    style()->drawPrimitive(QStyle::PE_PanelToolBar, &opt, &p, this);
+    QStyleOptionToolBar opt = getStyleOption(this);
+    style()->drawControl(QStyle::CE_ToolBar, &opt, &p, this);
 }
 
 /*! \reimp */

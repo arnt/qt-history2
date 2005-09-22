@@ -773,6 +773,38 @@ QStyleOptionButton::QStyleOptionButton(int version)
     \brief The size of the icon for the button
 */
 
+
+#ifndef QT_NO_TOOLBAR
+/*!    
+    \class QStyleOptionToolBar
+    \brief The QStyleOptionToolBar class is used to describe the
+    parameters for drawing a tool bar.
+*/
+
+/*!
+    Constructs a QStyleOptionToolBar. The members variables are
+    initialized to default values.
+*/
+
+QStyleOptionToolBar::QStyleOptionToolBar()
+: QStyleOption(Version, SO_ToolBar), lineWidth(0), midLineWidth(0), positionOfLine(OnlyOne),positionWithinLine(OnlyOne), toolBarArea(Qt::TopToolBarArea), features(None)
+{
+}
+
+/*!
+    \internal
+*/
+QStyleOptionToolBar::QStyleOptionToolBar(int version)
+: QStyleOption(version, SO_ToolBar), lineWidth(0), midLineWidth(0), positionOfLine(OnlyOne),positionWithinLine(OnlyOne), toolBarArea(Qt::TopToolBarArea), features(None)
+{
+}
+
+
+
+
+
+#endif
+
 #ifndef QT_NO_TABBAR
 /*!
     \class QStyleOptionTab

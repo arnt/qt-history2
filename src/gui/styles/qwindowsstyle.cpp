@@ -28,6 +28,7 @@
 #include "qtabbar.h"
 #include "qwidget.h"
 #include "qdebug.h"
+#include "qmainwindow.h"
 
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
@@ -274,10 +275,10 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
 #ifndef QT_NO_MENU
     case PM_MenuBarHMargin:
         ret = 0;
-        break;
+        break; 
 
     case PM_MenuBarVMargin:
-        ret = 1;
+        ret = 2; 
         break;
 
     case PM_MenuBarPanelWidth:
@@ -286,7 +287,7 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
 #endif // QT_NO_MENU
 
 
-#if defined(Q_WS_WIN)
+#if defined(Q_WS_WIN) 
     case PM_TitleBarHeight:
         {
 #if defined(Q_OS_TEMP)
@@ -828,7 +829,6 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
     case SH_EtchDisabledText:
     case SH_Slider_SnapToValue:
     case SH_PrintDialog_RightAlignButtons:
-    case SH_MainWindow_SpaceBelowMenuBar:
     case SH_FontDialog_SelectAssociatedText:
     case SH_Menu_AllowActiveAndDisabled:
     case SH_MenuBar_AltKeyNavigation:
@@ -836,7 +836,9 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
     case SH_Menu_MouseTracking:
     case SH_ComboBox_ListMouseTracking:
     case SH_ScrollBar_StopMouseOverSlider:
+    case SH_MainWindow_SpaceBelowMenuBar:
         ret = 1;
+    
         break;
     case SH_ItemView_ChangeHighlightOnFocus:
 #if defined(Q_WS_WIN)
@@ -899,7 +901,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
 
     switch (pe) {
 #ifndef QT_NO_TOOLBAR
-    case PE_IndicatorToolBarSeparator:
+  case PE_IndicatorToolBarSeparator:
         {
             QRect rect = opt->rect;
             const int margin = 2;
@@ -1334,6 +1336,14 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 {
     switch (ce) {
 #ifndef QT_NO_MENU
+    case CE_MenuBarEmptyArea: 
+        if (QMainWindow *mainWindow = qobject_cast<QMainWindow *>(widget->parentWidget())) {
+            p->setPen(QPen(opt->palette.dark().color()));
+            p->drawLine(opt->rect.bottomLeft().x(), opt->rect.bottomLeft().y(), opt->rect.bottomRight().x(),                         opt->rect.bottomRight().y());
+        }
+        break;
+    
+ 
     case CE_MenuItem:
         if (const QStyleOptionMenuItem *menuitem = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
             int x, y, w, h;
@@ -1806,6 +1816,91 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             p->fillRect(opt->rect, fill);
         }
         break; }
+ case CE_ToolBar:
+      if (const QStyleOptionToolBar *toolbar = qstyleoption_cast<const QStyleOptionToolBar *>(opt) ) 
+      {
+          bool paintLeftBorder = true;
+          bool paintRightBorder = true;
+          bool paintBottomBorder = true;
+          
+          switch (toolbar->toolBarArea){
+            case Qt::BottomToolBarArea :
+                switch(toolbar->positionOfLine){
+                    case QStyleOptionToolBar::Beginning:
+                    case QStyleOptionToolBar::OnlyOne:
+                        paintBottomBorder=false;
+                }
+            case Qt::TopToolBarArea : 
+                switch(toolbar->positionWithinLine){
+                    case QStyleOptionToolBar::Beginning:
+                        paintLeftBorder = false;
+                        break;
+                    case QStyleOptionToolBar::End:
+                        paintRightBorder = false;
+                        break;
+                    case QStyleOptionToolBar::OnlyOne:
+                        paintRightBorder = false;
+                        paintLeftBorder = false;
+                }
+                if( QApplication::reverseLayout()){ //reverse layout changes the order of Beginning/end
+                    bool tmp = paintLeftBorder;
+                    paintRightBorder=paintLeftBorder;
+                    paintLeftBorder=tmp;
+                }
+                break;
+            case Qt::RightToolBarArea :
+                switch (toolbar->positionOfLine){
+                    case QStyleOptionToolBar::Beginning:
+                    case QStyleOptionToolBar::OnlyOne:
+                        paintRightBorder = false;
+                    break;
+                }
+                break;
+            case Qt::LeftToolBarArea :
+                switch (toolbar->positionOfLine){
+                    case QStyleOptionToolBar::Beginning:
+                    case QStyleOptionToolBar::OnlyOne:
+                        paintLeftBorder = false;
+                    break;
+                }
+                break;
+            default:
+                break;
+          }
+
+          QRect rect = opt->rect;
+          
+          //draw top border
+          p->setPen(QPen(opt->palette.light().color()));
+          p->drawLine(rect.topLeft().x(), 
+              rect.topLeft().y(), 
+              rect.topRight().x(), 
+              rect.topRight().y());
+
+          if (paintLeftBorder){   p->setPen(QPen(opt->palette.light().color()));
+              p->drawLine(rect.topLeft().x(), 
+                  rect.topLeft().y(), 
+                  rect.bottomLeft().x(), 
+                  rect.bottomLeft().y());
+          }
+
+          if (paintRightBorder){ 
+              p->setPen(QPen(opt->palette.dark().color()));
+              p->drawLine(rect.topRight().x(),
+                  rect.topRight().y(), 
+                  rect.bottomRight().x(), 
+                  rect.bottomRight().y());
+          }
+
+          if (paintBottomBorder){ 
+              p->setPen(QPen(opt->palette.dark().color()));
+              p->drawLine(rect.bottomLeft().x(),
+                  rect.bottomLeft().y(), 
+                  rect.bottomRight().x(), 
+                  rect.bottomRight().y()); 
+          }    
+      }
+      break;
     default:
         QCommonStyle::drawControl(ce, opt, p, widget);
     }
