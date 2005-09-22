@@ -3896,7 +3896,7 @@ void bitBlt(QImage *dst, int dx, int dy, const QImage *src, int sx, int sy, int 
 /*!
     Returns true if this image and image \a i have the same contents;
     otherwise returns false. The comparison can be slow, unless there
-    is some obvious difference, such as different widths, in which
+    is some obvious difference (e.g. different size or format), in which
     case the function will return quickly.
 
     \sa operator=()
