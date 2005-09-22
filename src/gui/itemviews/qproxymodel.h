@@ -71,6 +71,12 @@ public:
     bool submit();
     void revert();
 
+#ifdef Q_NO_USING_KEYWORD
+    inline QObject *parent() const { return QObject::parent(); }
+#else
+    using QObject::parent;
+#endif
+
 protected:
     QProxyModel(QProxyModelPrivate &, QObject *parent = 0);
 

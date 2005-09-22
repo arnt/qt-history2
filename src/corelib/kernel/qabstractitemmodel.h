@@ -169,6 +169,12 @@ public:
                                   Qt::MatchFlags(Qt::MatchStartsWith|Qt::MatchWrap)) const;
     virtual QSize span(const QModelIndex &index) const;
 
+#ifdef Q_NO_USING_KEYWORD
+    inline QObject *parent() const { return QObject::parent(); }
+#else
+    using QObject::parent;
+#endif
+
 Q_SIGNALS:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void headerDataChanged(Qt::Orientation orientation, int first, int last);

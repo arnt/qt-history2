@@ -58,6 +58,12 @@ public:
 
     virtual void clear();
 
+#ifdef Q_NO_USING_KEYWORD
+    inline QObject *parent() const { return QObject::parent(); }
+#else
+    using QObject::parent;
+#endif
+
 protected Q_SLOTS:
     virtual void sourceDataChanged(const QModelIndex &source_top_left,
                                    const QModelIndex &source_bottom_right);
