@@ -88,7 +88,7 @@ public:
         if (showDropIndicator && state == QAbstractItemView::DraggingState)
             if (dropIndicatorRect.height() == 0) // FIXME: should be painted by style
                 painter->drawLine(dropIndicatorRect.topLeft(), dropIndicatorRect.topRight());
-            painter->drawRect(dropIndicatorRect);
+            else painter->drawRect(dropIndicatorRect);
     }
 
     inline QAbstractItemView::DropIndicatorPosition position(const QPoint &pos,
