@@ -2031,8 +2031,7 @@ void QRasterPaintEnginePrivate::rasterize(QT_FT_Outline *outline,
 
     QT_FT_BBox clip_box = { 0, 0, deviceRect.width(), deviceRect.height() };
     if (rasterBuffer && rasterBuffer->clipEnabled && rasterBuffer->clip) {
-        QSpanData *d = (QSpanData *)userData;
-        Q_ASSERT(d->rasterBuffer == rasterBuffer);
+        Q_ASSERT(((QSpanData *)userData)->rasterBuffer == rasterBuffer);
         clip_box.xMin = qMax((int)clip_box.xMin, rasterBuffer->clip->xmin);
         clip_box.xMax = qMin((int)clip_box.xMax, rasterBuffer->clip->xmax);
         if (antialiased)
