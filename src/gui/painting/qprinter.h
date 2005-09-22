@@ -72,7 +72,7 @@ public:
                         Aborted,
                         Error };
 
-    // ### Qt 5.0: Merge with QAbstractPrintDialog::PrintRange
+    // ### Qt 5: Merge with QAbstractPrintDialog::PrintRange
     enum PrintRange { AllPages, Selection, PageRange };
 
 #ifdef QT3_SUPPORT

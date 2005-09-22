@@ -172,7 +172,7 @@ private:
     friend class QShortcutMap;
 };
 
-#include <QtGui/qactiongroup.h> // ### remove after tech-preview 1
+#include <QtGui/qactiongroup.h> // ### Qt 5: remove
 
 #endif // QT_NO_ACTION
 
