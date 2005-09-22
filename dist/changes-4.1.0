@@ -46,6 +46,9 @@ General Fixes
 - QFileDialog
 	Fix shortcut and focus for "Alpha channel" spinbox.
 
+- QLinkedList
+        Added conversion methods to convert from/to STL lists.
+
 - QMap/QHash
 	Fixed operator>>() to read back multiple values associated
 	to a same key correctly.
@@ -59,6 +62,7 @@ General Fixes
 
 - QSql
         SQLite was updated to version 3.2.5
+        Oracle plugin adds support for authentication using external credentials.
 
 Platform-Specific Issues
 ------------------------
