@@ -19,7 +19,7 @@
 #include "qbitmap.h"
 #include "qdrawutil.h" // for now
 #include "qevent.h"
-#include "qmenu.h"
+#include "qmenu.h" 
 #include "qmenubar.h"
 #include "qpaintengine.h"
 #include "qpainter.h"
@@ -1815,33 +1815,32 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             p->fillRect(opt->rect, fill);
         }
         break; }
- case CE_ToolBar:
-      if (const QStyleOptionToolBar *toolbar = qstyleoption_cast<const QStyleOptionToolBar *>(opt) ) 
-      {
-          bool paintLeftBorder = true;
-          bool paintRightBorder = true;
-          bool paintBottomBorder = true;
+    case CE_ToolBar:
+        if (const QStyleOptionToolBar *toolbar = qstyleoption_cast<const QStyleOptionToolBar *>(opt)) {
+            bool paintLeftBorder = true;
+            bool paintRightBorder = true;
+            bool paintBottomBorder = true;
           
-          switch (toolbar->toolBarArea){
+            switch (toolbar->toolBarArea){
             case Qt::BottomToolBarArea :
                 switch(toolbar->positionOfLine){
-                    case QStyleOptionToolBar::Beginning:
-                    case QStyleOptionToolBar::OnlyOne:
-                        paintBottomBorder=false;
+                case QStyleOptionToolBar::Beginning:
+                case QStyleOptionToolBar::OnlyOne:
+                    paintBottomBorder=false;
                 default:
                     break;
                 }
             case Qt::TopToolBarArea : 
                 switch(toolbar->positionWithinLine){
-                    case QStyleOptionToolBar::Beginning:
-                        paintLeftBorder = false;
-                        break;
-                    case QStyleOptionToolBar::End:
-                        paintRightBorder = false;
-                        break;
-                    case QStyleOptionToolBar::OnlyOne:
-                        paintRightBorder = false;
-                        paintLeftBorder = false;
+                case QStyleOptionToolBar::Beginning:
+                    paintLeftBorder = false;
+                    break;
+                case QStyleOptionToolBar::End:
+                    paintRightBorder = false;
+                    break;
+                case QStyleOptionToolBar::OnlyOne:
+                    paintRightBorder = false;
+                    paintLeftBorder = false;
                 default:
                     break;
                 }
@@ -1853,9 +1852,11 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 break;
             case Qt::RightToolBarArea :
                 switch (toolbar->positionOfLine){
-                    case QStyleOptionToolBar::Beginning:
-                    case QStyleOptionToolBar::OnlyOne:
-                        paintRightBorder = false;
+                case QStyleOptionToolBar::Beginning:
+                case QStyleOptionToolBar::OnlyOne:
+                    paintRightBorder = false;
+                    break;
+                default:
                     break;
                 default:
                     break;
@@ -1863,9 +1864,11 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 break;
             case Qt::LeftToolBarArea :
                 switch (toolbar->positionOfLine){
-                    case QStyleOptionToolBar::Beginning:
-                    case QStyleOptionToolBar::OnlyOne:
-                        paintLeftBorder = false;
+                case QStyleOptionToolBar::Beginning:
+                case QStyleOptionToolBar::OnlyOne:
+                    paintLeftBorder = false;
+                    break;
+                default:
                     break;
                 default:
                     break;
@@ -1873,41 +1876,42 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 break;
             default:
                 break;
-          }
+            }
 
-          QRect rect = opt->rect;
-          
-          //draw top border
-          p->setPen(QPen(opt->palette.light().color()));
-          p->drawLine(rect.topLeft().x(), 
-              rect.topLeft().y(), 
-              rect.topRight().x(), 
-              rect.topRight().y());
+            QRect rect = opt->rect;
 
-          if (paintLeftBorder){   p->setPen(QPen(opt->palette.light().color()));
-              p->drawLine(rect.topLeft().x(), 
-                  rect.topLeft().y(), 
-                  rect.bottomLeft().x(), 
-                  rect.bottomLeft().y());
-          }
+            //draw top border
+            p->setPen(QPen(opt->palette.light().color()));
+            p->drawLine(rect.topLeft().x(), 
+                        rect.topLeft().y(), 
+                        rect.topRight().x(), 
+                        rect.topRight().y());
 
-          if (paintRightBorder){ 
-              p->setPen(QPen(opt->palette.dark().color()));
-              p->drawLine(rect.topRight().x(),
-                  rect.topRight().y(), 
-                  rect.bottomRight().x(), 
-                  rect.bottomRight().y());
-          }
+            if (paintLeftBorder){   
+                p->setPen(QPen(opt->palette.light().color()));
+                p->drawLine(rect.topLeft().x(), 
+                            rect.topLeft().y(), 
+                            rect.bottomLeft().x(), 
+                            rect.bottomLeft().y());
+            }
 
-          if (paintBottomBorder){ 
-              p->setPen(QPen(opt->palette.dark().color()));
-              p->drawLine(rect.bottomLeft().x(),
-                  rect.bottomLeft().y(), 
-                  rect.bottomRight().x(), 
-                  rect.bottomRight().y()); 
-          }    
-      }
-      break;
+            if (paintRightBorder){ 
+                p->setPen(QPen(opt->palette.dark().color()));
+                p->drawLine(rect.topRight().x(),
+                            rect.topRight().y(), 
+                            rect.bottomRight().x(), 
+                            rect.bottomRight().y());
+            }
+
+            if (paintBottomBorder){ 
+                p->setPen(QPen(opt->palette.dark().color()));
+                p->drawLine(rect.bottomLeft().x(),
+                            rect.bottomLeft().y(), 
+                            rect.bottomRight().x(), 
+                            rect.bottomRight().y()); 
+            }
+        }
+        break;
     default:
         QCommonStyle::drawControl(ce, opt, p, widget);
     }
