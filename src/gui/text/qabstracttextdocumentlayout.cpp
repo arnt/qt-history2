@@ -329,6 +329,24 @@ QString QAbstractTextDocumentLayout::anchorAt(const QPointF& pos) const
     return fmt.anchorHref();
 }
 
+int QAbstractTextDocumentLayout::dynamicPageCount() const
+{
+    int count = 0;
+    QMetaObject::invokeMethod(const_cast<QAbstractTextDocumentLayout *>(this),
+                              "dynamicPageCountSlot", Qt::DirectConnection,
+                              Q_RETURN_ARG(int, count));
+    return count;
+}
+
+QSizeF QAbstractTextDocumentLayout::dynamicDocumentSize() const
+{
+    QSizeF size;
+    QMetaObject::invokeMethod(const_cast<QAbstractTextDocumentLayout *>(this),
+                              "dynamicDocumentSizeSlot", Qt::DirectConnection,
+                              Q_RETURN_ARG(QSizeF, size));
+    return size;
+}
+
 /*!
     Returns the bounding rectacle of \a frame.
     \fn QRectF QAbstractTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const

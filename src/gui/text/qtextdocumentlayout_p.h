@@ -66,8 +66,6 @@ public:
     virtual QRectF frameBoundingRect(QTextFrame *frame) const;
     virtual QRectF blockBoundingRect(const QTextBlock &block) const;
 
-    Q_INVOKABLE void ensureBlockLayouted(const QTextBlock block);
-
 protected:
     void documentChanged(int from, int oldLength, int length);
     void resizeInlineObject(QTextInlineObject item, int posInDocument, const QTextFormat &format);
@@ -76,7 +74,12 @@ protected:
                           int posInDocument, const QTextFormat &format);
     virtual void timerEvent(QTimerEvent *e);
 private:
+    void ensureFrameLayouted(QTextFrame *frame) const;
+    void ensureLayouted(int position) const;
     void doLayout(int from, int oldLength, int length);
+
+    Q_PRIVATE_SLOT(d_func(), int dynamicPageCountSlot())
+    Q_PRIVATE_SLOT(d_func(), QSizeF dynamicDocumentSizeSlot())
 };
 
 #endif // QTEXTDOCUMENTLAYOUT_P_H

@@ -60,6 +60,9 @@ public:
     virtual int pageCount() const = 0;
     virtual QSizeF documentSize() const = 0;
 
+    int dynamicPageCount() const;
+    QSizeF dynamicDocumentSize() const;
+
     virtual QRectF frameBoundingRect(QTextFrame *frame) const = 0;
     virtual QRectF blockBoundingRect(const QTextBlock &block) const = 0;
 
@@ -95,6 +98,8 @@ private:
     friend class QTextLayout;
     friend class QTextLine;
     Q_PRIVATE_SLOT(d_func(), void handlerDestroyed(QObject *obj))
+    Q_PRIVATE_SLOT(d_func(), int dynamicPageCountSlot())
+    Q_PRIVATE_SLOT(d_func(), QSizeF dynamicDocumentSizeSlot())
 };
 
 class QTextObjectInterface

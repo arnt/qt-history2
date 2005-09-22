@@ -552,7 +552,7 @@ void QTextEditPrivate::adjustScrollbars()
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
 
     const QSize viewportSize = viewport->size();
-    const QSize docSize = layout->documentSize().toSize();
+    const QSize docSize = layout->dynamicDocumentSize().toSize();
 
     hbar->setRange(0, docSize.width() - viewportSize.width());
     hbar->setPageStep(viewportSize.width());
@@ -1818,7 +1818,7 @@ void QTextEditPrivate::relayoutDocument()
     if (lineWrap == QTextEdit::FixedPixelWidth)
         width = lineWrapColumnOrWidth;
 
-    const QSize lastUsedSize = layout->documentSize().toSize();
+    const QSize lastUsedSize = layout->dynamicDocumentSize().toSize();
 
     // ignore calls to adjustScrollbars caused by an emission of the
     // usedSizeChanged() signal in the layout, as we're calling it
@@ -1829,7 +1829,7 @@ void QTextEditPrivate::relayoutDocument()
 
     ignoreAutomaticScrollbarAdjustement = false;
 
-    QSize usedSize = layout->documentSize().toSize();
+    QSize usedSize = layout->dynamicDocumentSize().toSize();
 
     // this is an obscure situation in the layout that can happen:
     // if a character at the end of a line is the tallest one and therefore

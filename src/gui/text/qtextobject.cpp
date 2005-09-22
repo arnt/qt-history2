@@ -988,15 +988,6 @@ QTextLayout *QTextBlock::layout() const
     const QTextBlockData *b = p->blockMap().fragment(n);
     if (!b->layout)
         b->layout = new QTextLayout(*this);
-
-    /*
-    QMetaObject::invokeMethod(p->layout(),
-                              "ensureBlockLayouted",
-                              Qt::DirectConnection,
-                              QGenericReturnArgument(),
-                              Q_ARG(const QTextBlock, *this));
-                              */
-
     return b->layout;
 }
 
