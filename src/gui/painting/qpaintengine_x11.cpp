@@ -1414,8 +1414,8 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
             if (clippedCount > 0) {
                 QVarLengthArray<XPoint> xpoints(clippedCount);
                 for (int i = 0; i < clippedCount; ++i) {
-                    xpoints[i].x = qRound(clippedPoints[i].x);
-                    xpoints[i].y = qRound(clippedPoints[i].y);
+                    xpoints[i].x = qFloor(clippedPoints[i].x);
+                    xpoints[i].y = qFloor(clippedPoints[i].y);
                 }
                 if (mode == QPaintEngine::WindingMode)
                     XSetFillRule(dpy, fill_gc, WindingRule);
