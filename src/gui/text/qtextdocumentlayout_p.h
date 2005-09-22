@@ -25,9 +25,9 @@
 // We mean it.
 //
 
-#include <qabstracttextdocumentlayout.h>
-#include <QtGui/qtextoption.h>
-#include <QtGui/qtextobject.h>
+#include "QtGui/qabstracttextdocumentlayout.h"
+#include "QtGui/qtextoption.h"
+#include "QtGui/qtextobject.h"
 
 class QTextListFormat;
 
