@@ -25,6 +25,7 @@
 #include <qvarlengtharray.h>
 #include <limits.h>
 #include <qstyle.h>
+#include <qbasictimer.h>
 
 // #define LAYOUT_DEBUG
 
