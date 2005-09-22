@@ -136,8 +136,61 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     QRect vr = q->rect();
     QStyleOption opt(0);
     opt.init(q);
+
+    int extra = 0;
+    if (q->style()->styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents, &opt, q))
+        extra = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth) * 2;
+
+// If the scrollbars are at the very right and bottom of the window we
+// move their positions to be alligned with the size grip.
+#ifdef Q_OS_MAC
+    // Use small scrollbars for tool windows.
+    if (q->window()->windowType() == Qt::Tool) {
+        QMacStyle::setWidgetSizePolicy(hbar, QMacStyle::SizeSmall);
+        QMacStyle::setWidgetSizePolicy(vbar, QMacStyle::SizeSmall);
+    } else {
+        QMacStyle::setWidgetSizePolicy(hbar, QMacStyle::SizeDefault);
+        QMacStyle::setWidgetSizePolicy(vbar, QMacStyle::SizeDefault);
+    }
+
+    // Get the size of the size-grip from the style.
+    const int magicPixelOffset = -2;
+    const int sizeGripSize = q->style()->pixelMetric(QStyle::PM_MacSizeGripSize, &opt, q) + magicPixelOffset;
+        
+    // Get coordiantes for the bottom-right corner of the scroll area and its window.
+    const QPoint scrollAreaBottomRight = q->mapTo(q->window(), vr.bottomRight());
+    const QPoint windowBottomRight = q->window()->rect().bottomRight();
+    const QPoint offset = windowBottomRight - scrollAreaBottomRight;
+    
+    QRect frameRect = vr;
+    if (needh)
+        frameRect.setBottom(frameRect.bottom() - hsbExt - extra);
+    if (needv)
+        frameRect.setRight(frameRect.right() - vsbExt - extra);
+
+    // Set horizontal scrollbar geometry.
+    if (needh) {
+        QRect hsbRect(0, frameRect.bottom() + 1 + extra, frameRect.width(), hsbExt);
+        QRect visualHsbRect = QStyle::visualRect(opt.direction, opt.rect, hsbRect);
+        if (offset.manhattanLength() < sizeGripSize)
+            if (opt.direction == Qt::RightToLeft)
+                visualHsbRect.setWidth(visualHsbRect.width() - sizeGripSize);
+            else
+                visualHsbRect.setWidth(vr.width() - sizeGripSize);
+        hbar->setGeometry(visualHsbRect);
+    }
+   
+    // Set vertical scrollbar geometry.
+    if (needv) {
+        QRect vsbRect(frameRect.right() + 1 + extra, 0, vsbExt, frameRect.height());
+        if (offset.manhattanLength() < sizeGripSize && opt.direction == Qt::LeftToRight)
+            vsbRect.setHeight(vr.height() - sizeGripSize);
+        vbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect, vsbRect));
+   }
+    q->setFrameRect(QStyle::visualRect(opt.direction, opt.rect, frameRect));
+    vr = q->contentsRect();
+#else
     if (q->style()->styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents, &opt, q)) {
-        int extra = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth) * 2;
         QRect fr = vr;
         if (needh) {
             fr.setBottom(fr.bottom() - hsbExt - extra);
@@ -162,6 +215,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
         }
         vr = QStyle::visualRect(opt.direction, opt.rect, vr);
     }
+#endif
     hbar->setVisible(needh);
     vbar->setVisible(needv);
     vr.adjust(left, top, -right, -bottom);
