@@ -1383,6 +1383,8 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
     for (int i = 0; (wrap && i < 2) || (!wrap && i < 1); ++i) {
         for (int r = from; (r < to) && (allHits || result.count() < hits); ++r) {
             QModelIndex idx = index(r, start.column(), p);
+            if (!idx.isValid())
+                 continue;
             QVariant v = data(idx, role);
             // QVariant based matching
             if (matchType == Qt::MatchExactly) {
