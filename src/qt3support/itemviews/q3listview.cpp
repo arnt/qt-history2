@@ -6580,6 +6580,8 @@ void Q3CheckListItem::paintCell(QPainter * p, const QColorGroup & cg,
         styleflags |= QStyle::State_Selected;
     if (isEnabled() && lv->isEnabled())
         styleflags |= QStyle::State_Enabled;
+    if (lv->window()->isActiveWindow())
+        styleflags |= QStyle::State_Active;
 
     if (myType == RadioButtonController) {
         int x = 0;
