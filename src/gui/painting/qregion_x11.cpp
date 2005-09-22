@@ -25,7 +25,7 @@ void QRegion::updateX11Region() const
 
     for(int i = 0; i < d->qt_rgn->numRects; ++i) {
         XRectangle r;
-        const QRect &rect = d->qt_rgn->rects[i];
+        const QRect &rect = d->qt_rgn->rects.at(i);
         r.x = qMax(SHRT_MIN, rect.x());
         r.y = qMax(SHRT_MIN, rect.y());
         r.width = qMin((int)USHRT_MAX, rect.width());
@@ -40,7 +40,7 @@ void *QRegion::clipRectangles(int &num) const
         XRectangle *r = static_cast<XRectangle*>(malloc(d->qt_rgn->numRects * sizeof(XRectangle)));
         d->xrectangles = r;
         for(int i = 0; i < d->qt_rgn->numRects; ++i) {
-            const QRect &rect = d->qt_rgn->rects[i];
+            const QRect &rect = d->qt_rgn->rects.at(i);
             r->x = qMax(SHRT_MIN, rect.x());
             r->y = qMax(SHRT_MIN, rect.y());
             r->width = qMin((int)USHRT_MAX, rect.width());
