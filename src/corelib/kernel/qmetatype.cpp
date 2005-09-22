@@ -124,8 +124,8 @@
     \c{MyClass}:
 
     \code
-        if (QMetaType::isRegistered("MyClass")) {
-            int id = QMetaType::type("MyClass");
+        int id = QMetaType::type("MyClass");
+        if (id != 0) {
             void *myClassPtr = QMetaType::construct(id);
             ...
             QMetaType::destroy(id, myClassPtr);
