@@ -25,12 +25,12 @@
 // We mean it.
 //
 
-#include "qmainwindow.h"
+#include "QtGui/qmainwindow.h"
 
 #ifndef QT_NO_MAINWINDOW
 
-#include <qlayout.h>
-#include <qvector.h>
+#include "QtGui/qlayout.h"
+#include "QtCore/qvector.h"
 
 class QToolBar;
 class QDockWidget;
@@ -161,4 +161,5 @@ public:
 };
 
 #endif // QT_NO_MAINWINDOW
+
 #endif // QMAINWINDOWLAYOUT_P_H

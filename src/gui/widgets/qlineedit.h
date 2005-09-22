@@ -14,16 +14,15 @@
 #ifndef QLINEEDIT_H
 #define QLINEEDIT_H
 
-class QValidator;
-class QMenu;
-
-#include "QtGui/qframe.h"
-#include "QtCore/qstring.h"
+#include <QtGui/qframe.h>
+#include <QtCore/qstring.h>
 
 QT_MODULE(Gui)
 
 #ifndef QT_NO_LINEEDIT
 
+class QValidator;
+class QMenu;
 class QLineEditPrivate;
 
 class Q_GUI_EXPORT QLineEdit : public QWidget

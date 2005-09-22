@@ -14,7 +14,7 @@
 #ifndef QWORKSPACE_H
 #define QWORKSPACE_H
 
-#include "QtGui/qwidget.h"
+#include <QtGui/qwidget.h>
 
 QT_MODULE(Gui)
 

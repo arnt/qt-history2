@@ -147,4 +147,5 @@ private:
 };
 
 #endif // QT_NO_SPINBOX
+
 #endif // QSPINBOX_H

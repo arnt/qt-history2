@@ -25,13 +25,13 @@
 // We mean it.
 //
 
-#include <private/qabstractscrollarea_p.h>
-#include <qtextdocumentfragment.h>
-#include <qscrollbar.h>
-#include <qtextcursor.h>
-#include <qtextformat.h>
-#include <qbasictimer.h>
-#include <qmenu.h>
+#include "private/qabstractscrollarea_p.h"
+#include "QtGui/qtextdocumentfragment.h"
+#include "QtGui/qscrollbar.h"
+#include "QtGui/qtextcursor.h"
+#include "QtGui/qtextformat.h"
+#include "QtGui/qmenu.h"
+#include "QtCore/qbasictimer.h"
 
 #ifndef QT_NO_TEXTEDIT
 
@@ -183,4 +183,5 @@ private:
 };
 
 #endif // QT_NO_TEXTEDIT
+
 #endif // QTEXTEDIT_P_H

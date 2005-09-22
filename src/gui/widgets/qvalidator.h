@@ -14,14 +14,13 @@
 #ifndef QVALIDATOR_H
 #define QVALIDATOR_H
 
-#include "QtCore/qobject.h"
-#include "QtCore/qstring.h"
-#include "QtCore/qregexp.h"
+#include <QtCore/qobject.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qregexp.h>
 
 QT_MODULE(Gui)
 
 #ifndef QT_NO_VALIDATOR
-
 
 class Q_GUI_EXPORT QValidator : public QObject
 {

@@ -25,22 +25,20 @@
 // We mean it.
 //
 
-#include <private/qwidget_p.h>
-
 #ifndef QT_NO_COMBOBOX
-#include <qabstractslider.h>
-#include <qapplication.h>
-#include <qbasictimer.h>
-#include <qcombobox.h>
-#include <qhash.h>
-#include <qitemdelegate.h>
-#include <qlineedit.h>
-#include <qlistview.h>
-#include <qpainter.h>
-#include <qpair.h>
-#include <qstyle.h>
-#include <qstyleoption.h>
-#include <qtimer.h>
+#include "QtGui/qabstractslider.h"
+#include "QtGui/qapplication.h"
+#include "QtGui/qcombobox.h"
+#include "qitemdelegate.h"
+#include "QtGui/qlineedit.h"
+#include "QtGui/qlistview.h"
+#include "QtGui/qpainter.h"
+#include "QtGui/qstyle.h"
+#include "QtGui/qstyleoption.h"
+#include "QtCore/qhash.h"
+#include "QtCore/qpair.h"
+#include "QtCore/qtimer.h"
+#include "private/qwidget_p.h"
 
 #include <limits.h>
 
@@ -229,4 +227,5 @@ public:
 };
 
 #endif // QT_NO_COMBOBOX
+
 #endif // QCOMBOBOX_P_H

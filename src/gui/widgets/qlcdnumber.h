@@ -14,13 +14,12 @@
 #ifndef QLCDNUMBER_H
 #define QLCDNUMBER_H
 
-#include "QtGui/qframe.h"
-#include "QtCore/qbitarray.h"
+#include <QtGui/qframe.h>
+#include <QtCore/qbitarray.h>
 
 QT_MODULE(Gui)
 
 #ifndef QT_NO_LCDNUMBER
-
 
 class QLCDNumberPrivate;
 class Q_GUI_EXPORT QLCDNumber : public QFrame // LCD number widget

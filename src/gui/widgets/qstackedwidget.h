@@ -58,4 +58,5 @@ private:
 };
 
 #endif // QT_NO_STACKEDWIDGET
+
 #endif // QSTACKEDWIDGET_H

@@ -15,8 +15,8 @@
 #define QCOMBOBOX_H
 
 #include <QtGui/qwidget.h>
-#include <QtCore/qabstractitemmodel.h>
 #include <QtGui/qabstractitemdelegate.h>
+#include <QtCore/qabstractitemmodel.h>
 #include <QtCore/qvariant.h>
 
 QT_MODULE(Gui)
@@ -264,4 +264,5 @@ inline void QComboBox::insertItem(int aindex, const QString &atext,
 { insertItem(aindex, QIcon(), atext, auserData); }
 
 #endif // QT_NO_COMBOBOX
+
 #endif // QCOMBOBOX_H

@@ -14,10 +14,9 @@
 #ifndef QCHECKBOX_H
 #define QCHECKBOX_H
 
-#include "QtGui/qabstractbutton.h"
+#include <QtGui/qabstractbutton.h>
 
 QT_MODULE(Gui)
-
 
 class QCheckBoxPrivate;
 
@@ -71,6 +70,5 @@ private:
     Q_DECLARE_PRIVATE(QCheckBox)
     Q_DISABLE_COPY(QCheckBox)
 };
-
 
 #endif // QCHECKBOX_H

@@ -352,4 +352,5 @@ private:
 };
 
 #endif // QT_NO_MENU
+
 #endif // QMENU_H

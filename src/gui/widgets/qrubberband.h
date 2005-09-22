@@ -44,7 +44,6 @@ public:
     inline void resize(const QSize &s)
     { resize(s.width(), s.height()); }
 
-
 protected:
 
     void paintEvent(QPaintEvent *);
@@ -62,4 +61,5 @@ inline void QRubberBand::move(int ax, int ay)
               width(), height()); }
 
 #endif // QT_NO_RUBBERBAND
+
 #endif // QRUBBERBAND_H

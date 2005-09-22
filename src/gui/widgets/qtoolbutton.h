@@ -14,7 +14,7 @@
 #ifndef QTOOLBUTTON_H
 #define QTOOLBUTTON_H
 
-#include "QtGui/qabstractbutton.h"
+#include <QtGui/qabstractbutton.h>
 
 QT_MODULE(Gui)
 

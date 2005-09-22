@@ -26,7 +26,7 @@
 //
 
 #ifndef QMAC_Q3MENUBAR_CPP_FILE
-#include "qstyleoption.h"
+#include "QtGui/qstyleoption.h"
 
 #ifndef QT_NO_MENUBAR
 class QMenuBarExtension;
@@ -131,4 +131,5 @@ public:
 #endif
 
 #endif // QT_NO_MENUBAR
+
 #endif // QMENUBAR_P_H

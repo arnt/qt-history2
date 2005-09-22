@@ -14,7 +14,7 @@
 #ifndef QSCROLLAREA_H
 #define QSCROLLAREA_H
 
-#include "QtGui/qabstractscrollarea.h"
+#include <QtGui/qabstractscrollarea.h>
 
 QT_MODULE(Gui)
 
@@ -52,4 +52,5 @@ private:
 };
 
 #endif // QT_NO_SCROLLAREA
+
 #endif // QSCROLLAREA_H

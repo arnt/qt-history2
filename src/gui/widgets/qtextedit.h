@@ -340,4 +340,5 @@ private:
 };
 
 #endif // QT_NO_TEXTEDIT
+
 #endif // QTEXTEDIT_H

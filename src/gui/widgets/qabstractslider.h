@@ -14,7 +14,7 @@
 #ifndef QABSTRACTSLIDER_H
 #define QABSTRACTSLIDER_H
 
-#include "QtGui/qwidget.h"
+#include <QtGui/qwidget.h>
 
 QT_MODULE(Gui)
 

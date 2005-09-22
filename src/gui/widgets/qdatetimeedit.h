@@ -147,6 +147,6 @@ public:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDateTimeEdit::Sections)
 
-
 #endif // QT_NO_DATETIMEEDIT
+
 #endif // QDATETIMEEDIT_H

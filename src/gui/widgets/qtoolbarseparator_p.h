@@ -11,6 +11,9 @@
 **
 ****************************************************************************/
 
+#ifndef QTOOLBARSEPARATOR_P_H
+#define QTOOLBARSEPARATOR_P_H
+
 //
 //  W A R N I N G
 //  -------------
@@ -22,10 +25,7 @@
 // We mean it.
 //
 
-#ifndef QTOOLBARSEPARATOR_P_H
-#define QTOOLBARSEPARATOR_P_H
-
-#include <qwidget.h>
+#include "QtGui/qwidget.h"
 
 #ifndef QT_NO_TOOLBAR
 
@@ -50,4 +50,5 @@ public Q_SLOTS:
 };
 
 #endif // QT_NO_TOOLBAR
+
 #endif // QTOOLBARSEPARATOR_P_H

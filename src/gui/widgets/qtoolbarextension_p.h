@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include <qtoolbutton.h>
+#include "QtGui/qtoolbutton.h"
 
 #ifndef QT_NO_TOOLBUTTON
 
@@ -44,4 +44,5 @@ public Q_SLOTS:
 };
 
 #endif // QT_NO_TOOLBUTTON
+
 #endif // QTOOLBAREXTENSION_P_H

@@ -133,4 +133,5 @@ inline QAction *QToolBar::actionAt(int ax, int ay) const
 { return actionAt(QPoint(ax, ay)); }
 
 #endif // QT_NO_TOOLBAR
+
 #endif // QTOOLBAR_H

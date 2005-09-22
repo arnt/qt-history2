@@ -108,4 +108,5 @@ private:
 };
 
 #endif // QT_NO_MAINWINDOW
+
 #endif // QMAINWINDOW_H

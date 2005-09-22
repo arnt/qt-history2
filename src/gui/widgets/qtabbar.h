@@ -14,7 +14,7 @@
 #ifndef QTABBAR_H
 #define QTABBAR_H
 
-#include "QtGui/qwidget.h"
+#include <QtGui/qwidget.h>
 
 QT_MODULE(Gui)
 
@@ -122,4 +122,5 @@ private:
 };
 
 #endif // QT_NO_TABBAR
+
 #endif // QTABBAR_H

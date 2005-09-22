@@ -14,8 +14,8 @@
 #ifndef QSPLASHSCREEN_H
 #define QSPLASHSCREEN_H
 
-#include "QtGui/qpixmap.h"
-#include "QtGui/qwidget.h"
+#include <QtGui/qpixmap.h>
+#include <QtGui/qwidget.h>
 
 QT_MODULE(Gui)
 
@@ -56,6 +56,7 @@ private:
     Q_DISABLE_COPY(QSplashScreen)
     Q_DECLARE_PRIVATE(QSplashScreen)
 };
+
 #endif // QT_NO_SPLASHSCREEN
 
 #endif // QSPLASHSCREEN_H

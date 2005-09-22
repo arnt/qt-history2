@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include "qwidget.h"
+#include "QtGui/qwidget.h"
 
 struct QDialogButtonsPrivate;
 
@@ -95,6 +95,5 @@ private:
     QDialogButtonsPrivate *d;
     void init(quint32, Qt::Orientation);
 };
-
 
 #endif //QDIALOGBUTTONS_P_H

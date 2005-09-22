@@ -25,11 +25,9 @@
 // We mean it.
 //
 
-#include <qaction.h>
-#include <qwidget.h>
-#include <qtoolbar.h>
-
-#include <private/qwidget_p.h>
+#include "QtGui/qtoolbar.h"
+#include "QtGui/qaction.h"
+#include "private/qwidget_p.h"
 
 #ifndef QT_NO_TOOLBAR
 
@@ -109,4 +107,5 @@ static inline int pick(Qt::Orientation o, const QSize &s)
 { return o == Qt::Horizontal ? s.width() : s.height(); }
 
 #endif // QT_NO_TOOLBAR
+
 #endif // QTOOLBAR_P_H

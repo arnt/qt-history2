@@ -15,7 +15,7 @@
 #ifndef QDIAL_H
 #define QDIAL_H
 
-#include "QtGui/qabstractslider.h"
+#include <QtGui/qabstractslider.h>
 
 QT_MODULE(Gui)
 

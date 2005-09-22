@@ -14,7 +14,7 @@
 #ifndef QRADIOBUTTON_H
 #define QRADIOBUTTON_H
 
-#include "QtGui/qabstractbutton.h"
+#include <QtGui/qabstractbutton.h>
 
 QT_MODULE(Gui)
 
@@ -45,6 +45,5 @@ private:
     Q_DECLARE_PRIVATE(QRadioButton)
     Q_DISABLE_COPY(QRadioButton)
 };
-
 
 #endif // QRADIOBUTTON_H

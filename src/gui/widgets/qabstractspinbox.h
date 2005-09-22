@@ -118,5 +118,7 @@ private:
     Q_DISABLE_COPY(QAbstractSpinBox)
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractSpinBox::StepEnabled)
+
 #endif // QT_NO_SPINBOX
+
 #endif // QABSTRACTSPINBOX_H

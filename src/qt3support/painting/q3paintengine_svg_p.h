@@ -14,8 +14,19 @@
 #ifndef Q3PAINTENGINE_SVG_P_H
 #define Q3PAINTENGINE_SVG_P_H
 
-#include "qdom.h"
-#include "qpaintengine.h"
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include "QtXml/qdom.h"
+#include "QtGui/qpaintengine.h"
 #include "private/qpicture_p.h" // for QPaintCommands
 
 class Q3SVGPaintEnginePrivate;

@@ -14,9 +14,9 @@
 #ifndef QABSTRACTBUTTON_H
 #define QABSTRACTBUTTON_H
 
-#include "QtGui/qicon.h"
-#include "QtGui/qkeysequence.h"
-#include "QtGui/qwidget.h"
+#include <QtGui/qicon.h>
+#include <QtGui/qkeysequence.h>
+#include <QtGui/qwidget.h>
 
 QT_MODULE(Gui)
 

@@ -25,15 +25,15 @@
 // We mean it.
 //
 
-#include "qabstractspinbox.h"
-#include <qlineedit.h>
-#include <qstyleoption.h>
-#include <qdatetime.h>
-#include <qvariant.h>
-#include <qvalidator.h>
-#include <private/qwidget_p.h>
-
 #ifndef QT_NO_SPINBOX
+
+#include "QtGui/qabstractspinbox.h"
+#include "QtGui/qlineedit.h"
+#include "QtGui/qstyleoption.h"
+#include "QtGui/qvalidator.h"
+#include "QtCore/qdatetime.h"
+#include "QtCore/qvariant.h"
+#include "private/qwidget_p.h"
 
 bool operator<(const QVariant &arg1, const QVariant &arg2);
 bool operator>(const QVariant &arg1, const QVariant &arg2);
@@ -140,4 +140,5 @@ private:
 };
 
 #endif // QT_NO_SPINBOX
+
 #endif // QABSTRACTSPINBOX_P_H

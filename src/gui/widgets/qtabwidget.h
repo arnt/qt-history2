@@ -14,8 +14,8 @@
 #ifndef QTABWIDGET_H
 #define QTABWIDGET_H
 
-#include "QtGui/qwidget.h"
-#include "QtGui/qicon.h"
+#include <QtGui/qwidget.h>
+#include <QtGui/qicon.h>
 
 QT_MODULE(Gui)
 

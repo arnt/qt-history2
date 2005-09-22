@@ -14,8 +14,8 @@
 #ifndef QSCROLLBAR_H
 #define QSCROLLBAR_H
 
-#include "QtGui/qwidget.h"
-#include "QtGui/qabstractslider.h"
+#include <QtGui/qwidget.h>
+#include <QtGui/qabstractslider.h>
 
 QT_MODULE(Gui)
 
@@ -58,4 +58,5 @@ private:
 };
 
 #endif // QT_NO_SCROLLBAR
+
 #endif // QSCROLLBAR_H

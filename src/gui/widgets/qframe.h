@@ -14,7 +14,7 @@
 #ifndef QFRAME_H
 #define QFRAME_H
 
-#include "QtGui/qwidget.h"
+#include <QtGui/qwidget.h>
 
 QT_MODULE(Gui)
 

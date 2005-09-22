@@ -25,8 +25,8 @@
 // We mean it.
 //
 
-#include <private/qwidget_p.h>
-#include "qbasictimer.h"
+#include "QtCore/qbasictimer.h"
+#include "private/qwidget_p.h"
 
 class QAbstractButtonPrivate : public QWidgetPrivate
 {

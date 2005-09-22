@@ -14,7 +14,7 @@
 #ifndef QGROUPBOX_H
 #define QGROUPBOX_H
 
-#include "QtGui/qframe.h"
+#include <QtGui/qframe.h>
 
 QT_MODULE(Gui)
 

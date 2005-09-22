@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include <qwidget.h>
+#include "QtGui/qwidget.h"
 
 #ifndef QT_NO_DOCKWIDGET
 
@@ -59,4 +59,5 @@ public:
 };
 
 #endif // QT_NO_MAINWINDOW
+
 #endif // QDOCKWIDGETSEPARATOR_P_H

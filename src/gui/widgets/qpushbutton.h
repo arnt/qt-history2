@@ -14,7 +14,7 @@
 #ifndef QPUSHBUTTON_H
 #define QPUSHBUTTON_H
 
-#include "QtGui/qabstractbutton.h"
+#include <QtGui/qabstractbutton.h>
 
 QT_MODULE(Gui)
 

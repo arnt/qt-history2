@@ -283,4 +283,5 @@ private:
 };
 
 #endif // QT_NO_MENUBAR
+
 #endif // QMENUBAR_H

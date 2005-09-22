@@ -14,12 +14,11 @@
 #ifndef QPROGRESSBAR_H
 #define QPROGRESSBAR_H
 
-#include "QtGui/qframe.h"
+#include <QtGui/qframe.h>
 
 QT_MODULE(Gui)
 
 #ifndef QT_NO_PROGRESSBAR
-
 
 class QProgressBarPrivate;
 

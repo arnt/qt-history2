@@ -93,4 +93,5 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDockWidget::DockWidgetFeatures)
 
 #endif // QT_NO_DOCKWIDGET
+
 #endif // QDOCKWIDGET_H

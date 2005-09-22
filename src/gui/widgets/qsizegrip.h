@@ -14,7 +14,7 @@
 #ifndef QSIZEGRIP_H
 #define QSIZEGRIP_H
 
-#include "QtGui/qwidget.h"
+#include <QtGui/qwidget.h>
 
 QT_MODULE(Gui)
 

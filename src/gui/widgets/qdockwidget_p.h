@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include <qstyleoption.h>
+#include "QtGui/qstyleoption.h"
 #include "private/qwidget_p.h"
 
 #ifndef QT_NO_DOCKWIDGET
@@ -94,4 +94,5 @@ public:
 };
 
 #endif // QT_NO_DOCKWIDGET
+
 #endif // QDOCKWIDGET_P_H
