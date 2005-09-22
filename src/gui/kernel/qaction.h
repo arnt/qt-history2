@@ -18,7 +18,7 @@
 #include <QtCore/qstring.h>
 #include <QtGui/qwidget.h>
 #include <QtCore/qvariant.h>
-#include <QtGui/qactiongroup.h>
+#include <QtGui/qicon.h>
 
 QT_MODULE(Gui)
 
@@ -171,6 +171,8 @@ private:
     friend class QMenuBar;
     friend class QShortcutMap;
 };
+
+#include <QtGui/qactiongroup.h>
 
 #endif // QT_NO_ACTION
 
