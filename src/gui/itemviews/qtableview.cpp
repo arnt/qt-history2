@@ -339,6 +339,8 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
     Q_ASSERT(header);
     delete d->horizontalHeader;
     d->horizontalHeader = header;
+    if (!d->horizontalHeader->model())
+        d->horizontalHeader->setModel(model());
 
     connect(d->horizontalHeader,SIGNAL(sectionResized(int,int,int)),
             this, SLOT(columnResized(int,int,int)), Qt::QueuedConnection);
@@ -364,6 +366,8 @@ void QTableView::setVerticalHeader(QHeaderView *header)
     Q_ASSERT(header);
     delete d->verticalHeader;
     d->verticalHeader = header;
+    if (!d->verticalHeader->model())
+        d->verticalHeader->setModel(model());
 
     connect(d->verticalHeader, SIGNAL(sectionResized(int,int,int)),
             this, SLOT(rowResized(int,int,int)), Qt::QueuedConnection);

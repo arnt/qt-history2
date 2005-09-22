@@ -186,6 +186,8 @@ void QTreeView::setHeader(QHeaderView *header)
     Q_D(QTreeView);
     delete d->header;
     d->header = header;
+    if (!d->header->model())
+        d->header->setModel(model());
 
     connect(d->header, SIGNAL(sectionResized(int,int,int)),
             this, SLOT(columnResized(int,int,int)),Qt::QueuedConnection);
