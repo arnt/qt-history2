@@ -1336,54 +1336,30 @@ QRegion QWidgetPrivate::clipRegion() const
     return r;
 }
 
-/*
-  Returns the widget's visible region (without opaque ancestors or children).
-*/
-QRegion QWidgetPrivate::visibleRegion() const
+void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRect &clipRect, const QPoint &offset) const
 {
-    Q_Q(const QWidget);
-    if (!q->isVisible())
-        return QRegion();
-    QRegion r(q->rect());
-    const QWidget * w = q;
-    const QWidget *ignoreUpTo = 0;
-    int ox = 0;
-    int oy = 0;
-    do {
-        int i = 0;
-        if (ignoreUpTo)
-            while(w->d_func()->children.at(i++) != static_cast<const QObject *>(ignoreUpTo))
-                ;
-        for ( ; i < w->d_func()->children.size(); ++i) {
-            if(QWidget *sibling = qobject_cast<QWidget *>(w->d_func()->children.at(i))) {
-                if(sibling->isVisible() && !sibling->isWindow() && sibling->d_func()->isOpaque()) {
-                    QRect siblingRect(ox+sibling->x(), oy+sibling->y(),
-                                      sibling->width(), sibling->height());
-                    if(siblingRect.intersects(q->rect())) {
-                        QRegion siblingRegion(siblingRect);
-                        if(QWExtra *extra = sibling->d_func()->extraData()) {
-                            if(!extra->mask.isEmpty()) {
-                                QRegion siblingMask(extra->mask);
-                                siblingMask.translate(ox+sibling->x(), oy+sibling->y());
-                                siblingRegion &= siblingMask;
-                            }
-                        }
-                        r -= siblingRegion;
-                    }
+    for (int i=0; i < children.size(); ++i) {
+        if(QWidget *child = qobject_cast<QWidget *>(children.at(i))) {
+            if(child->isVisible() && !child->isWindow()) {
+                QRect childRect = child->geometry().translated(offset) & clipRect;
+
+                if (childRect.isEmpty())
+                    continue;
+                bool hasMask = false; //########
+                QWidgetPrivate *cd = child->d_func();
+                if (!hasMask && cd->isOpaque()) {
+                    rgn -= childRect;
+                } else {
+                    cd->subtractOpaqueChildren(rgn, childRect, offset + child->geometry().topLeft());
                 }
             }
-        }
-        ignoreUpTo = w;
-        ox -= w->x();
-        oy -= w->y();
-        if (w->isWindow())
-            break;
-        w = w->parentWidget();
-        r &= QRegion(ox, oy, w->width(), w->height());
-    } while (w);
 
-    return r;
+        }
+    }
 }
+
+
+
 
 bool QWidgetPrivate::isOpaque() const
 {

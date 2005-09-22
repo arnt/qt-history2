@@ -188,7 +188,7 @@ public:
 
     QRect clipRect() const;
     QRegion clipRegion() const;
-    QRegion visibleRegion() const;
+    void subtractOpaqueChildren(QRegion &rgn, const QRect &clipRect, const QPoint &offset) const;
     bool isOpaque() const;
 
     enum CloseMode {

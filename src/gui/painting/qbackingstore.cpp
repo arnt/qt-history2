@@ -290,6 +290,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
         return;
 #ifdef Q_WS_QWS
     Q_UNUSED(offset);
+    Q_UNUSED(flags);
     QWidget *win = widget->window();
     QBrush bgBrush = win->palette().brush(win->backgroundRole());
     bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
@@ -456,63 +457,68 @@ void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, con
     if (!widget->isVisible() || !widget->updatesEnabled() || rgn.isEmpty())
         return;
 
-    QRegion toBePainted  = (rgn & widget->d_func()->visibleRegion());
-    if (!QWidgetBackingStore::paintOnScreen(widget) && !toBePainted.isEmpty()) {
-        //update the "in paint event" flag
-        if (widget->testAttribute(Qt::WA_WState_InPaintEvent))
-            qWarning("QWidget::repaint: recursive repaint detected.");
-        widget->setAttribute(Qt::WA_WState_InPaintEvent);
+    QRegion toBePainted  = rgn; //(rgn & widget->d_func()->visibleRegion());
+    widget->d_func()->subtractOpaqueChildren(toBePainted, widget->rect(), QPoint());
 
-        //clip away the new area
-        bool flushed = qt_flushPaint(widget, toBePainted);
-        QPainter::setRedirected(widget, PAINTDEVICE, -offset);
-        QRegion wrgn = toBePainted;
-        wrgn.translate(offset);
-        PAINTDEVICE->paintEngine()->setSystemClip(wrgn);
+    if (!toBePainted.isEmpty()) {
+        if (!QWidgetBackingStore::paintOnScreen(widget)) {
+            //update the "in paint event" flag
+            if (widget->testAttribute(Qt::WA_WState_InPaintEvent))
+                qWarning("QWidget::repaint: recursive repaint detected.");
+            widget->setAttribute(Qt::WA_WState_InPaintEvent);
+
+            //clip away the new area
+            bool flushed = qt_flushPaint(widget, toBePainted);
+            QPainter::setRedirected(widget, PAINTDEVICE, -offset);
+            QRegion wrgn = toBePainted;
+            wrgn.translate(offset);
+            PAINTDEVICE->paintEngine()->setSystemClip(wrgn);
 #ifdef Q_WS_WIN
-        QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
-        HDC engine_dc = engine->getDC();
-        SelectClipRgn(engine_dc, wrgn.handle());
-        engine->releaseDC(engine_dc);
+            QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
+            HDC engine_dc = engine->getDC();
+            SelectClipRgn(engine_dc, wrgn.handle());
+            engine->releaseDC(engine_dc);
 #endif
 
-        //paint the background
-        if(asRoot || hasBackground(widget)) {
-            QPainter p(widget);
-            const QBrush bg = widget->palette().brush(widget->backgroundRole());
+            //paint the background
+            if((asRoot && !widget->testAttribute(Qt::WA_NoBackground) && !widget->testAttribute(Qt::WA_NoBackground))
+               || hasBackground(widget)) {
+
+                QPainter p(widget);
+                const QBrush bg = widget->palette().brush(widget->backgroundRole());
 #ifdef Q_WS_QWS
-            if (widget->isWindow())
-                p.setCompositionMode(QPainter::CompositionMode_Source); //copy alpha straight in
+                if (widget->isWindow())
+                    p.setCompositionMode(QPainter::CompositionMode_Source); //copy alpha straight in
 #endif
-            if (bg.style() == Qt::TexturePattern)
-                p.drawTiledPixmap(toBePainted.boundingRect(), bg.texture());
-            else
-                p.fillRect(toBePainted.boundingRect(), bg);
-        }
+                if (bg.style() == Qt::TexturePattern)
+                    p.drawTiledPixmap(toBePainted.boundingRect(), bg.texture());
+                else
+                    p.fillRect(toBePainted.boundingRect(), bg);
+            }
 
 #if 0
-        qDebug() << "painting" << widget << "opaque ==" << hasBackground(widget);
-        qDebug() << "clipping to" << toBePainted << "location == " << offset
-                 << "geometry ==" << QRect(widget->mapTo(tlw, QPoint(0, 0)), widget->size());
-        fflush(stderr);
+            qDebug() << "painting" << widget << "opaque ==" << hasBackground(widget);
+            qDebug() << "clipping to" << toBePainted << "location == " << offset
+                     << "geometry ==" << QRect(widget->mapTo(tlw, QPoint(0, 0)), widget->size());
+            fflush(stderr);
 #endif
 
-        //actually send the paint event
-        widget->setAttribute(Qt::WA_PendingUpdate, false);
-        QPaintEvent e(toBePainted);
-        qt_sendSpontaneousEvent(widget, &e);
+            //actually send the paint event
+            widget->setAttribute(Qt::WA_PendingUpdate, false);
+            QPaintEvent e(toBePainted);
+            qt_sendSpontaneousEvent(widget, &e);
 
-        //restore
-        PAINTDEVICE->paintEngine()->setSystemClip(QRegion());
-        QPainter::restoreRedirected(widget);
+            //restore
+            PAINTDEVICE->paintEngine()->setSystemClip(QRegion());
+            QPainter::restoreRedirected(widget);
 
-        widget->setAttribute(Qt::WA_WState_InPaintEvent, false);
-        if(!widget->testAttribute(Qt::WA_PaintOutsidePaintEvent) && widget->paintingActive())
-            qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
+            widget->setAttribute(Qt::WA_WState_InPaintEvent, false);
+            if(!widget->testAttribute(Qt::WA_PaintOutsidePaintEvent) && widget->paintingActive())
+                qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
 
-        if (flushed)
-            copyToScreen(toBePainted, widget, offset, 0);
-    } else if(widget == tlw) {
+            if (flushed)
+                copyToScreen(toBePainted, widget, offset, 0);
+        } else if(widget == tlw) {
             QPainter p(PAINTDEVICE);
             p.setClipRegion(toBePainted);
             const QBrush bg = widget->palette().brush(widget->backgroundRole());
@@ -520,6 +526,7 @@ void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, con
                 p.drawTiledPixmap(widget->rect(), bg.texture());
             else
                 p.fillRect(widget->rect(), bg);
+        }
     }
 
     //always be recursive

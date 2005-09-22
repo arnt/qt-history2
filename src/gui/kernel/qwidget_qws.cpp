@@ -1017,7 +1017,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 
     QWidget *tlw = window();
     QTLWExtra *topextra = tlw->d_func()->extra->topextra;
-#ifdef QWS_OLD_REPAINT_STUFF
+#if 0//def QWS_OLD_REPAINT_STUFF
     QPoint globalOffset = mapToGlobal(QPoint(0,0));
     QRegion globalUpdate(sr.translated(globalOffset));
 
@@ -1081,7 +1081,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         }
     }
 
-#ifdef QWS_OLD_REPAINT_STUFF
+#if 0 //def QWS_OLD_REPAINT_STUFF
 //copied from repaint:
     if (isVisible()) {
         bs->lock(true);
