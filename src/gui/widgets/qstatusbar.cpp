@@ -136,7 +136,7 @@ QStatusBar::QStatusBar(QWidget * parent, const char *name)
 
 /*! \fn void QStatusBar::addWidget(QWidget * widget, int stretch, bool permanent)
 
-   Use addWidget(\a widget, \a stretch) or addWidgetPermantly(\a
+   Use addWidget(\a widget, \a stretch) or addPermanentWidget(\a
    widget, \a stretch) instead, depending on \a permanent.
  */
 
@@ -179,7 +179,7 @@ QStatusBar::~QStatusBar()
     isn't already a child of the QStatusBar.
 
     The widget is located just to the left of the first permanent
-    widget (see addWidgetPermantly()) and may be obscured by
+    widget (see addPermanentWidget()) and may be obscured by
     temporary messages.
 
     \a stretch is used to compute a suitable size for \a widget as the
