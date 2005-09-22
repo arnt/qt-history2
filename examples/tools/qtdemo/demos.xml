@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <categories>
   <category dirname="." docname="demos" name="Demonstrations">
+    <example filename="composition" name="Composition Modes" />
     <example filename="deform" name="Vector Deformation" />
     <example filename="gradients" name="Gradients" />
     <example filename="pathstroke" name="Path Stroking" />
