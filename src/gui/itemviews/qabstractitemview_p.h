@@ -90,15 +90,15 @@ public:
                 painter->drawLine(dropIndicatorRect.topLeft(), dropIndicatorRect.topRight());
             painter->drawRect(dropIndicatorRect);
     }
-#endif
-    
-    enum Position { Above, Below, On };
 
-    inline Position position(const QPoint &pos, const QRect &rect, int margin) const {
-        if (pos.y() - rect.top() < margin) return Above;
-        if (rect.bottom() - pos.y() < margin) return Below;
-        return On;
+    inline QAbstractItemView::DropIndicatorPosition position(const QPoint &pos,
+                                                             const QRect &rect,
+                                                             int margin) const {
+        if (pos.y() - rect.top() < margin) return QAbstractItemView::AboveItem;
+        if (rect.bottom() - pos.y() < margin) return QAbstractItemView::BelowItem;
+        return QAbstractItemView::OnItem;
     }
+#endif
 
     inline void releaseEditor(QWidget *editor) const {
         editor->removeEventFilter(delegate);
@@ -171,9 +171,9 @@ public:
 #ifndef QT_NO_DRAGANDDROP
     bool showDropIndicator;
     QRect dropIndicatorRect;
-//    QRegion dropIndicatorRegion;
     bool dragEnabled;
 #endif
+    QAbstractItemView::DropIndicatorPosition dropIndicatorPosition;
 
     QString keyboardInput;
     QTime keyboardInputTime;

@@ -254,6 +254,9 @@ protected:
 
     bool focusNextPrevChild(bool next);
 
+    enum DropIndicatorPosition { OnItem, AboveItem, BelowItem };
+    DropIndicatorPosition dropIndicatorPosition() const;
+
 private:
     Q_DECLARE_PRIVATE(QAbstractItemView)
     Q_DISABLE_COPY(QAbstractItemView)

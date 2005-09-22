@@ -42,6 +42,7 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         tabKeyNavigation(false),
         showDropIndicator(false),
         dragEnabled(false),
+        dropIndicatorPosition(QAbstractItemView::OnItem),
         autoScroll(true),
         autoScrollMargin(16),
         autoScrollInterval(50),
@@ -1101,26 +1102,26 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
     if (d->canDecode(event)) {
         if (index.isValid() && d->showDropIndicator) {
             QRect rect = visualRect(index);
-            switch (d->position(event->pos(), rect, 2)) {
-            case QAbstractItemViewPrivate::Above:
+            d->dropIndicatorPosition = d->position(event->pos(), rect, 2);
+            switch (d->dropIndicatorPosition) {
+            case AboveItem:
                 d->dropIndicatorRect = QRect(rect.left(), rect.top(), rect.width(), 0);
                 event->accept();
                 break;
-            case QAbstractItemViewPrivate::Below:
+            case BelowItem:
                 d->dropIndicatorRect = QRect(rect.left(), rect.bottom(), rect.width(), 0);
                 event->accept();
                 break;
-            case QAbstractItemViewPrivate::On:
+            case OnItem:
                 if (model()->flags(index) & Qt::ItemIsDropEnabled) {
                     d->dropIndicatorRect = rect;
                     event->accept();
                 }
                 break;
-            default:
-                d->dropIndicatorRect = QRect();
             }  
             update();
         } else {
+            d->dropIndicatorRect = QRect();
             event->accept(); // allow dropping in empty areas
         }
     } // can decode
@@ -1166,18 +1167,19 @@ void QAbstractItemView::dropEvent(QDropEvent *event)
         if (index.isValid() &&
             (model()->flags(index) & Qt::ItemIsDropEnabled
              || model()->flags(index.parent()) & Qt::ItemIsDropEnabled)) {
-            switch (d->position(event->pos(), visualRect(index), 2)) {
-            case QAbstractItemViewPrivate::Above:
+            d->dropIndicatorPosition = d->position(event->pos(), visualRect(index), 2);
+            switch (d->dropIndicatorPosition) {
+            case AboveItem:
                 row = index.row();
                 col = index.column();
                 index = index.parent();
                 break;
-            case QAbstractItemViewPrivate::Below:
+            case BelowItem:
                 row = index.row() + 1;
                 col = index.column();
                 index = index.parent();
                 break;
-            case QAbstractItemViewPrivate::On:
+            case OnItem:
                 break;
             }
         }
@@ -1404,11 +1406,19 @@ bool QAbstractItemView::focusNextPrevChild(bool next)
 {
      Q_D(QAbstractItemView);
      if (d->tabKeyNavigation && currentIndex().isValid())
-        return false;
+         return false;
      else
          return QAbstractScrollArea::focusNextPrevChild(next);
 }
 
+/*!
+  Returns the position of the drop indicator in relation to the closest item.
+*/
+QAbstractItemView::DropIndicatorPosition QAbstractItemView::dropIndicatorPosition() const
+{
+    Q_D(const QAbstractItemView);
+    return d->dropIndicatorPosition;
+}
 
 /*!
   This convenience function returns a list of all selected and
