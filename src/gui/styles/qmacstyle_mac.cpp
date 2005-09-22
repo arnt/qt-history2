@@ -5500,6 +5500,18 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             }
         }
         break;
+    case PE_IndicatorToolBarSeparator: {
+            QPainterPath path;
+            int xpoint = opt->rect.center().x();
+            path.moveTo(xpoint + 0.5, opt->rect.top());
+            path.lineTo(xpoint + 0.5, opt->rect.bottom());
+            QPainterPathStroker theStroker;
+            theStroker.setCapStyle(Qt::FlatCap);
+            theStroker.setDashPattern(QVector<qreal>() << 1 << 2);
+            path = theStroker.createStroke(path);
+            p->fillPath(path, QColor(0, 0, 0, 119));
+        }
+        break;
     default:
         if (d->useHITheme)
             d->HIThemeDrawPrimitive(pe, opt, p, w);
