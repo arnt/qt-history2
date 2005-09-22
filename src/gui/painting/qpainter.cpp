@@ -29,6 +29,7 @@
 #include "qapplication.h"
 #include "qstyle.h"
 #include "qthread.h"
+#include "qvarlengtharray.h"
 
 #include <private/qfontengine_p.h>
 #include <private/qpaintengine_p.h>
@@ -3492,20 +3493,56 @@ void QPainter::drawText(const QPointF &p, const QString &str)
         return;
 
     Q_D(QPainter);
-    d->updateState(d->state);
 
-    QStackTextEngine engine(str, d->state->font);
-    QTextLayout layout(&engine);
-    layout.setCacheEnabled(true);
-    QTextOption option(Qt::AlignLeft|Qt::AlignAbsolute);
-    option.setTextDirection(d->state->layoutDirection);
-    layout.setTextOption(option);
+    QStackTextEngine engine(str, d->state->font);    
+    engine.itemize();
 
-    layout.beginLayout();
-    QTextLine line = layout.createLine();
-    layout.endLayout();
-    const QScriptLine &sl = engine.lines[0];
-    line.draw(this, QPointF(p.x(), p.y() - sl.ascent.toReal()));
+    int nItems = engine.layoutData->items.size();
+    QVarLengthArray<int> visualOrder(nItems);
+    QVarLengthArray<uchar> levels(nItems);
+    for (int i = 0; i < nItems; ++i)
+        levels[i] = engine.layoutData->items[i].analysis.bidiLevel;
+    QTextEngine::bidiReorder(nItems, levels.data(), visualOrder.data());
+
+    QFixed x = QFixed::fromReal(p.x());
+    QFixed ox = x;
+
+    QTextItemInt gf;
+    gf.f = &d->state->font;
+    if (gf.f->d->underline)
+        gf.flags |= QTextItem::Underline;
+    if (gf.f->d->overline)
+        gf.flags |= QTextItem::Overline;
+    if (gf.f->d->strikeOut)
+        gf.flags |= QTextItem::StrikeOut;
+        
+    for (int i = 0; i < nItems; ++i) {
+        int item = visualOrder[i];
+        const QScriptItem &si = engine.layoutData->items.at(item);
+        engine.shape(item);
+        if (si.isObject || si.isTab) {
+            if (si.isTab)
+                x = engine.nextTab(&si, x - ox) + ox;
+            else
+                x += si.width;
+            continue;
+        }
+        gf.fontEngine = d->state->font.d->engineForScript(si.analysis.script);
+        Q_ASSERT(gf.fontEngine);
+        if (si.analysis.bidiLevel %2)
+            gf.flags |= QTextItem::RightToLeft;
+        gf.ascent = si.ascent;
+        gf.descent = si.descent;
+        gf.num_glyphs = si.num_glyphs;
+        gf.glyphs = engine.glyphs(&si);
+        gf.chars = engine.layoutData->string.unicode() + si.position;
+        gf.num_chars = engine.length(item);
+        gf.width = si.width;
+
+        drawTextItem(QPointF(x.toReal(), p.y()), gf);
+
+        x += si.width;
+    }
 }
 
 /*!
