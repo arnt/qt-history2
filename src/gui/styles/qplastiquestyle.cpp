@@ -31,6 +31,7 @@ static const int ProgressBarFps = 25;
 #include <qgroupbox.h>
 #include <qimage.h>
 #include <qlineedit.h>
+#include <qmainwindow.h>
 #include <qmenu.h>
 #include <qmenubar.h>
 #include <qpainter.h>
@@ -1196,28 +1197,29 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         break;
     }
 #endif // QT3_SUPPORT
-    case PE_PanelMenuBar: {
-        // Draws the light line above and the dark line below menu bars and
-        // tool bars.
-        QPen oldPen = painter->pen();
-        if (element == PE_PanelMenuBar || (option->state & State_Horizontal)) {
-            painter->setPen(alphaCornerColor);
-            painter->drawLine(option->rect.left(), option->rect.bottom(),
-                              option->rect.right(), option->rect.bottom());
-            painter->setPen(option->palette.background().color().light(104));
-            painter->drawLine(option->rect.left(), option->rect.top(),
-                              option->rect.right(), option->rect.top());
-        } else {
-            painter->setPen(option->palette.background().color().light(104));
-            painter->drawLine(option->rect.left(), option->rect.top(),
-                              option->rect.left(), option->rect.bottom());
-            painter->setPen(alphaCornerColor);
-            painter->drawLine(option->rect.right(), option->rect.top(),
-                              option->rect.right(), option->rect.bottom());
+    case PE_PanelMenuBar:
+        if (widget && qobject_cast<const QMainWindow *>(widget->parentWidget())) {
+            // Draws the light line above and the dark line below menu bars and
+            // tool bars.
+            QPen oldPen = painter->pen();
+            if (element == PE_PanelMenuBar || (option->state & State_Horizontal)) {
+                painter->setPen(alphaCornerColor);
+                painter->drawLine(option->rect.left(), option->rect.bottom(),
+                                  option->rect.right(), option->rect.bottom());
+                painter->setPen(option->palette.background().color().light(104));
+                painter->drawLine(option->rect.left(), option->rect.top(),
+                                  option->rect.right(), option->rect.top());
+            } else {
+                painter->setPen(option->palette.background().color().light(104));
+                painter->drawLine(option->rect.left(), option->rect.top(),
+                                  option->rect.left(), option->rect.bottom());
+                painter->setPen(alphaCornerColor);
+                painter->drawLine(option->rect.right(), option->rect.top(),
+                                  option->rect.right(), option->rect.bottom());
+            }
+            painter->setPen(oldPen);
         }
-        painter->setPen(oldPen);
         break;
-    }
     case PE_PanelButtonTool:
         // Draws a tool button (f.ex., in QToolBar and QTabBar)
         if ((option->state & State_Enabled) || !(option->state & State_AutoRaise))
@@ -2972,9 +2974,18 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     painter->setPen(option->palette.background().color().light(104));
                     painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
                 }
-                // All bottom toolbars draw a light line at the top.
-                painter->setPen(option->palette.background().color().light(104));
-                painter->drawLine(option->rect.topLeft(), option->rect.topRight());
+                if (toolBar->positionOfLine == QStyleOptionToolBar::End) {
+                    painter->setPen(alphaCornerColor);
+                    painter->drawLine(option->rect.topLeft(), option->rect.topRight());
+                    painter->setPen(option->palette.background().color().light(104));
+                    painter->drawLine(option->rect.left(), option->rect.top() + 1,
+                                      option->rect.right(), option->rect.top() + 1);
+
+                } else {
+                    // All other bottom toolbars draw a light line at the top.
+                    painter->setPen(option->palette.background().color().light(104));
+                    painter->drawLine(option->rect.topLeft(), option->rect.topRight());
+                }
             }
             if (toolBar->toolBarArea == Qt::LeftToolBarArea) {
                 if (toolBar->positionOfLine == QStyleOptionToolBar::Middle

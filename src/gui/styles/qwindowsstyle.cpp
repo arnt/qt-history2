@@ -1336,13 +1336,13 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 {
     switch (ce) {
 #ifndef QT_NO_MENU
-    case CE_MenuBarEmptyArea: {
-        QPen oldPen = p->pen();
-        p->setPen(QPen(opt->palette.dark().color()));
-        p->drawLine(opt->rect.bottomLeft().x(), opt->rect.bottomLeft().y(),
-                    opt->rect.bottomRight().x(), opt->rect.bottomRight().y());
+    case CE_MenuBarEmptyArea:
+        if (widget && qobject_cast<const QMainWindow *>(widget->parentWidget())) {
+            QPen oldPen = p->pen();
+            p->setPen(QPen(opt->palette.dark().color()));
+            p->drawLine(opt->rect.bottomLeft(), opt->rect.bottomRight());
+        }
         break;
-    }
     case CE_MenuItem:
         if (const QStyleOptionMenuItem *menuitem = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
             int x, y, w, h;
