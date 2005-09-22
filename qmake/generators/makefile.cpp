@@ -2923,6 +2923,7 @@ MakefileGenerator::findFileForDep(const QMakeLocalFileName &dep, const QMakeLoca
             }
         }
         { //is it from an EXTRA_COMPILER
+            const QString dep_basename = dep.real().section("/", -1);
             const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
             for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
                 QString tmp_out = project->variables()[(*it) + ".output"].first();
@@ -2933,7 +2934,7 @@ MakefileGenerator::findFileForDep(const QMakeLocalFileName &dep, const QMakeLoca
                     QStringList &inputs = project->variables()[(*it2)];
                     for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
                         QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString());
-                        if(out == dep.real() || out.endsWith("/" + dep.real())) {
+                        if(out == dep.real() || out.endsWith("/" + dep_basename)) {
                             ret = QMakeLocalFileName(fileFixify(out, qmake_getpwd(), Option::output_dir));
                             goto found_dep_from_heuristic;
                         }
