@@ -32,6 +32,8 @@ class QByteArray;
 #ifndef QT_MOC_CPP
 # define slots
 # define signals protected
+# define Q_SLOTS
+# define Q_SIGNALS protected
 # define Q_PRIVATE_SLOT(d, signature)
 #ifndef QT_NO_EMIT
 # define emit
@@ -86,6 +88,8 @@ private:
 #else // QT_MOC_CPP
 #define slots slots
 #define signals signals
+#define Q_SLOTS Q_SLOTS
+#define Q_SIGNALS Q_SIGNALS
 #define Q_CLASSINFO(name, value) Q_CLASSINFO(name, value)
 #define Q_PROPERTY(text) Q_PROPERTY(text)
 #define Q_OVERRIDE(text) Q_OVERRIDE(text)
