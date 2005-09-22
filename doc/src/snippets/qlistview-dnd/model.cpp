@@ -41,7 +41,7 @@ bool DragDropListModel::dropMimeData(const QMimeData *data,
     int beginRow;
 
     if (!parent.isValid())
-        beginRow = qMax(row, rowCount());
+        beginRow = row;
     else
         beginRow = parent.row();
 
