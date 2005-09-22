@@ -413,11 +413,10 @@ bool QX11Data::clipboardWaitForEvent(Window win, int type, XEvent *event, int ti
             if (started > now)                        // crossed midnight
                 started = now;
 
-            // 0x08 == ExcludeTimers for X11 only
             QEventLoop::ProcessEventsFlags flags(QEventLoop::ExcludeUserInputEvents
                                                  | QEventLoop::ExcludeSocketNotifiers
                                                  | QEventLoop::WaitForMoreEvents
-                                                 | 0x08);
+                                                 | QEventLoop::X11ExcludeTimers);
             QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance();
             eventDispatcher->processEvents(flags);
 
