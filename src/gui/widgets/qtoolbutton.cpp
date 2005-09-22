@@ -269,7 +269,7 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     if (popupMode == QToolButton::DelayedPopup)
         opt.features |= QStyleOptionToolButton::PopupDelay;
     opt.toolButtonStyle = toolButtonStyle;
-    if (icon.isNull()) {
+    if (icon.isNull() && arrowType == Qt::NoArrow) {
         if (!text.isEmpty())
             opt.toolButtonStyle = Qt::ToolButtonTextOnly;
         else if (opt.toolButtonStyle != Qt::ToolButtonTextOnly)

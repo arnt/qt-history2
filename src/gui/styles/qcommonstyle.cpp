@@ -602,6 +602,32 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     }
 }
 
+static void drawArrow(const QStyle *style, const QStyleOptionToolButton *toolbutton,
+                      const QRect &rect, QPainter *painter, const QWidget *widget = 0)
+{
+    QStyle::PrimitiveElement pe;
+    switch (toolbutton->arrowType) {
+    case Qt::LeftArrow:
+        pe = QStyle::PE_IndicatorArrowLeft;
+        break;
+    case Qt::RightArrow:
+        pe = QStyle::PE_IndicatorArrowRight;
+        break;
+    case Qt::UpArrow:
+        pe = QStyle::PE_IndicatorArrowUp;
+        break;
+    case Qt::DownArrow:
+        pe = QStyle::PE_IndicatorArrowDown;
+        break;
+    default:
+        return;
+    }
+    QStyleOption arrowOpt;
+    arrowOpt.rect = rect;
+    arrowOpt.palette = toolbutton->palette;
+    arrowOpt.state = toolbutton->state;
+    style->drawPrimitive(pe, &arrowOpt, painter, widget);
+}
 /*!
   \reimp
 */
@@ -947,42 +973,21 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 shiftX = pixelMetric(PM_ButtonShiftHorizontal, toolbutton, widget);
                 shiftY = pixelMetric(PM_ButtonShiftVertical, toolbutton, widget);
             }
-            if (toolbutton->features & QStyleOptionToolButton::Arrow) {
-                PrimitiveElement pe;
-                switch (toolbutton->arrowType) {
-                case Qt::LeftArrow:
-                    pe = PE_IndicatorArrowLeft;
-                    break;
-                case Qt::RightArrow:
-                    pe = PE_IndicatorArrowRight;
-                    break;
-                case Qt::UpArrow:
-                    pe = PE_IndicatorArrowUp;
-                    break;
-                case Qt::DownArrow:
-                    pe = PE_IndicatorArrowDown;
-                    break;
-                default:
-                    return;
-                }
+            // Arrow type always overrules and is always shown
+            bool hasArrow = toolbutton->features & QStyleOptionToolButton::Arrow;
+            if ((!hasArrow && toolbutton->icon.isNull()) && !toolbutton->text.isEmpty()
+                || toolbutton->toolButtonStyle == Qt::ToolButtonTextOnly) {
+                int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;
+                if (!styleHint(SH_UnderlineShortcut, opt, widget))
+                    alignment |= Qt::TextHideMnemonic;
                 rect.translate(shiftX, shiftY);
-                QStyleOption arrowOpt(0);
-                arrowOpt.rect = rect;
-                arrowOpt.palette = toolbutton->palette;
-                arrowOpt.state = toolbutton->state;
-                drawPrimitive(pe, &arrowOpt, p, widget);
+                drawItemText(p, rect, alignment, toolbutton->palette,
+                             opt->state & State_Enabled, toolbutton->text,
+                             QPalette::ButtonText);
             } else {
-                if (toolbutton->icon.isNull() && !toolbutton->text.isEmpty()
-                    || toolbutton->toolButtonStyle == Qt::ToolButtonTextOnly) {
-                    int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;
-                    if (!styleHint(SH_UnderlineShortcut, opt, widget))
-                        alignment |= Qt::TextHideMnemonic;
-                    rect.translate(shiftX, shiftY);
-                    drawItemText(p, rect, alignment, toolbutton->palette,
-                                 opt->state & State_Enabled, toolbutton->text,
-                                 QPalette::ButtonText);
-                } else {
-                    QPixmap pm;
+                QPixmap pm;
+                QSize pmSize = toolbutton->iconSize;
+                if (!toolbutton->icon.isNull()) {
                     QIcon::State state = toolbutton->state & State_On ? QIcon::On : QIcon::Off;
                     QIcon::Mode mode;
                     if (!(toolbutton->state & State_Enabled))
@@ -991,36 +996,50 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                         mode = QIcon::Active;
                     else
                         mode = QIcon::Normal;
-                    pm = toolbutton->icon.pixmap(toolbutton->rect.size().boundedTo(toolbutton->iconSize), mode, state);
+                    pm = toolbutton->icon.pixmap(toolbutton->rect.size().boundedTo(toolbutton->iconSize),
+                                                 mode, state);
+                    pmSize = pm.size();
+                }
 
-                    if (toolbutton->toolButtonStyle != Qt::ToolButtonIconOnly) {
-                        p->setFont(toolbutton->font);
-                        QRect pr = rect,
-                        tr = rect;
-                        int alignment = Qt::TextShowMnemonic;
-                        if (!styleHint(SH_UnderlineShortcut, opt, widget))
-                            alignment |= Qt::TextHideMnemonic;
+                if (toolbutton->toolButtonStyle != Qt::ToolButtonIconOnly) {
+                    p->setFont(toolbutton->font);
+                    QRect pr = rect,
+                    tr = rect;
+                    int alignment = Qt::TextShowMnemonic;
+                    if (!styleHint(SH_UnderlineShortcut, opt, widget))
+                        alignment |= Qt::TextHideMnemonic;
 
-                        if (toolbutton->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
-                            int fh = p->fontMetrics().height();
-                            pr.adjust(0, 3, 0, -fh - 3);
-                            tr.adjust(0, pr.bottom(), 0, -3);
-                            pr.translate(shiftX, shiftY);
+                    if (toolbutton->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
+                        int fh = p->fontMetrics().height();
+                        pr.adjust(0, 3, 0, -fh - 3);
+                        tr.adjust(0, pr.bottom(), 0, -3);
+                        pr.translate(shiftX, shiftY);
+                        if (!hasArrow) {
                             drawItemPixmap(p, pr, Qt::AlignCenter, pm);
-                            alignment |= Qt::AlignCenter;
                         } else {
-                            pr.setWidth(pm.width() + 8);
-                            tr.adjust(pr.right(), 0, 0, 0);
-                            pr.translate(shiftX, shiftY);
-                            drawItemPixmap(p, pr, Qt::AlignCenter, pm);
-                            alignment |= Qt::AlignLeft | Qt::AlignVCenter;
+                            drawArrow(this, toolbutton, pr, p, widget);
                         }
-                        tr.translate(shiftX, shiftY);
-                        drawItemText(p, tr, alignment, toolbutton->palette,
-                                     toolbutton->state & State_Enabled, toolbutton->text,
-                                     QPalette::ButtonText);
+                        alignment |= Qt::AlignCenter;
                     } else {
-                        rect.translate(shiftX, shiftY);
+                        pr.setWidth(pmSize.width() + 8);
+                        tr.adjust(pr.right(), 0, 0, 0);
+                        pr.translate(shiftX, shiftY);
+                        if (!hasArrow) {
+                            drawItemPixmap(p, pr, Qt::AlignCenter, pm);
+                        } else {
+                            drawArrow(this, toolbutton, pr, p, widget);
+                        }
+                        alignment |= Qt::AlignLeft | Qt::AlignVCenter;
+                    }
+                    tr.translate(shiftX, shiftY);
+                    drawItemText(p, tr, alignment, toolbutton->palette,
+                                 toolbutton->state & State_Enabled, toolbutton->text,
+                                 QPalette::ButtonText);
+                } else {
+                    rect.translate(shiftX, shiftY);
+                    if (hasArrow) {
+                        drawArrow(this, toolbutton, rect, p, widget);
+                    } else {
                         drawItemPixmap(p, rect, Qt::AlignCenter, pm);
                     }
                 }
