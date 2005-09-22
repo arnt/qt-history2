@@ -602,7 +602,7 @@ void QTabBar::removeTab(int index)
 #endif
         d->tabList.removeAt(index);
         if (index == d->currentIndex)
-            setCurrentIndex(d->validIndex(index+1)?index+1:0);
+            setCurrentIndex(d->validIndex(index-1)?index-1:0);
         d->refresh();
         tabRemoved(index);
     }
