@@ -989,79 +989,12 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     Q_D(QWidget);
     if (!updatesEnabled() && children().size() == 0)
         return;
-
-    bool valid_rect = r.isValid();
-    QRect sr = valid_rect ? r & rect() : rect();
-    int x1, y1, x2, y2, w=sr.width(), h=sr.height();
-    if (dx > 0) {
-        x1 = sr.x();
-        x2 = x1+dx;
-        w -= dx;
-    } else {
-        x2 = sr.x();
-        x1 = x2-dx;
-        w += dx;
-    }
-    if (dy > 0) {
-        y1 = sr.y();
-        y2 = y1+dy;
-        h -= dy;
-    } else {
-        y2 = sr.y();
-        y1 = y2-dy;
-        h += dy;
-    }
-
     if (dx == 0 && dy == 0)
         return;
 
-    QWidget *tlw = window();
-    QTLWExtra *topextra = tlw->d_func()->extra->topextra;
-#if 0//def QWS_OLD_REPAINT_STUFF
-    QPoint globalOffset = mapToGlobal(QPoint(0,0));
-    QRegion globalUpdate(sr.translated(globalOffset));
-
-    if (topextra->inPaintTransaction) {
-        topextra->dirtyRegion |= globalUpdate;
-        return;
-    }
-
-    QWSBackingStore *bs = topextra->backingStore;
-    QRect scrollRect;
+    bool valid_rect = r.isValid();
 
 
-    // noOverlappingSiblings -> should not happen in real world
-
-    bool hasOwnBackground = !d->isBackgroundInherited(); //###??? may not be 100% correct
-    bool dirtyScrollRect = topextra->dirtyRegion.contains(r.translated(globalOffset));
-
-    bool fastScroll = !dirtyScrollRect && h >0 && w >0  && isVisible() && hasOwnBackground;
-    if (fastScroll) {
-
-        QPoint bsOffset = tlw->mapFromGlobal(mapToGlobal(QPoint(0,0))) - topextra->backingStoreOffset;
-
-        QPoint p1(x1,y1);
-        QPoint p2(x2,y2);
-
-        QPoint bsp1 = p1 + bsOffset;
-        QPoint bsp2 = p2 + bsOffset;
-
-        QRect bsrect(bsp1, QSize(w,h));
-
-        bs->lock(true);
-        bs->blt(bsrect, bsp2);
-        bs->unlock();
-
-        scrollRect = QRect(mapToGlobal(p2), QSize(w,h));
-
-        //scrollRegion = scrollRect;
-
-        globalUpdate -= scrollRect;
-
-    }
-
-    globalUpdate |= topextra->dirtyRegion;
-#endif //QWS_OLD_REPAINT_STUFF
 
     if (!valid_rect && children().size() > 0) {        // scroll children
 //        d->setChildrenAllocatedDirty();
@@ -1081,18 +1014,13 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         }
     }
 
-#if 0 //def QWS_OLD_REPAINT_STUFF
-//copied from repaint:
-    if (isVisible()) {
-        bs->lock(true);
-        tlw->d_func()->paintHierarchy(globalUpdate); //optimizable...
-        bs->unlock();
-        tlw->d_func()->bltToScreen(globalUpdate+scrollRect);
-
-        topextra->dirtyRegion = QRegion();
-    }
-#endif
-    update(); //###################
+    static int doScroll = -1;
+    if (doScroll == -1)
+        doScroll = qgetenv("QT_FAKE_SCROLL").isEmpty();
+    if (doScroll)
+        d->scrollWidget(dx,dy, valid_rect ? r & rect() : rect() );
+    else
+        update(valid_rect ? r & rect() : rect());
 }
 
 int QWidget::metric(PaintDeviceMetric m) const

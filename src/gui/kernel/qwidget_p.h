@@ -264,7 +264,7 @@ public:
     void doPaint(const QRegion &rgn);
 
     void bltToScreen(const QRegion &globalrgn);
-    void paintHierarchy(const QRegion &rgn );
+    void scrollWidget(int dx, int dy, const QRect &r);
 #ifndef QT_NO_CURSOR
     void updateCursor(const QRegion &r) const;
 #endif

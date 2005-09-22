@@ -49,10 +49,9 @@ class QWidgetBackingStore
 
     bool isOpaque(const QWidget *widget);
     bool hasBackground(const QWidget *widget);
-    enum PaintFlags { AsRoot = 0x01, Recursive = 0x02 };
 
     void paintToBuffer(const QRegion &rgn, QWidget *widget, const QPoint &offset, bool asRoot = true);
-    void copyToScreen(const QRegion &rgn, QWidget *widget, const QPoint &offset, uint flags);
+    void copyToScreen(const QRegion &rgn, QWidget *widget, const QPoint &offset, bool recursive = true);
 
     friend void qt_syncBackingStore(QRegion, QWidget *);
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)

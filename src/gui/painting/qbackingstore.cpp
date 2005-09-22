@@ -270,6 +270,88 @@ void QWidgetBackingStore::scrollRegion(const QRegion &rgn, int dx, int dy, QWidg
     dirtyRegion(wrgn, widget);
 }
 
+#ifdef Q_WS_QWS
+void QWidgetPrivate::scrollWidget(int dx, int dy, const QRect &sr)
+{
+    Q_Q(QWidget);
+
+    int x1, y1, x2, y2, w=sr.width(), h=sr.height();
+    if (dx > 0) {
+        x1 = sr.x();
+        x2 = x1+dx;
+        w -= dx;
+    } else {
+        x2 = sr.x();
+        x1 = x2-dx;
+        w += dx;
+    }
+    if (dy > 0) {
+        y1 = sr.y();
+        y2 = y1+dy;
+        h -= dy;
+    } else {
+        y2 = sr.y();
+        y1 = y2-dy;
+        h += dy;
+    }
+
+
+
+    QWidget *tlw = q->window();
+    QTLWExtra *topextra = tlw->d_func()->extra->topextra;
+
+    if (topextra->inPaintTransaction) {
+        topextra->backingStore->dirtyRegion(sr, q);
+        return;
+    }
+
+    QPoint tlOffset = q->mapTo(tlw,QPoint(0,0));
+    QRegion tlUpdate(sr.translated(tlOffset));
+
+    QWidgetBackingStore *wbs = topextra->backingStore;
+
+
+    QWSBackingStore *bs = &wbs->buffer;
+    QRect scrollRect;
+
+    // noOverlappingSiblings -> should not happen in real world
+
+    bool hasOwnBackground = !isBackgroundInherited(); //###??? may not be 100% correct
+    bool dirtyScrollRect = wbs->dirty.contains(sr.translated(tlOffset));
+
+    bool fastScroll = !dirtyScrollRect && h >0 && w >0  && q->isVisible() && hasOwnBackground;
+    if (fastScroll) {
+        QPoint bsOffset = tlOffset + wbs->topLevelOffset();
+
+        QPoint p1(x1,y1);
+        QPoint p2(x2,y2);
+
+        QPoint bsp1 = p1 + bsOffset;
+        QPoint bsp2 = p2 + bsOffset;
+
+        QRect bsrect(bsp1, QSize(w,h));
+
+        bs->lock(true);
+        bs->blt(bsrect, bsp2);
+        bs->unlock();
+
+        scrollRect = QRect(p2 + tlOffset, QSize(w,h));
+        tlUpdate -= scrollRect;
+    }
+
+    wbs->dirty |= tlUpdate;
+
+    bs->lock(true);
+    wbs->paintToBuffer(wbs->dirty, tlw, wbs->topLevelOffset());
+    bs->unlock();
+    wbs->copyToScreen(wbs->dirty + scrollRect, tlw, wbs->topLevelOffset());
+
+    wbs->dirty = QRegion();
+}
+#endif
+
+
+
 void QWidgetBackingStore::dirtyRegion(const QRegion &rgn, QWidget *widget)
 {
     QRegion wrgn(rgn);
@@ -284,13 +366,13 @@ void QWidgetBackingStore::dirtyRegion(const QRegion &rgn, QWidget *widget)
     }
 }
 
-void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, const QPoint &offset, uint flags)
+void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, const QPoint &offset, bool recursive)
 {
     if (rgn.isEmpty())
         return;
 #ifdef Q_WS_QWS
     Q_UNUSED(offset);
-    Q_UNUSED(flags);
+    Q_UNUSED(recursive);
     QWidget *win = widget->window();
     QBrush bgBrush = win->palette().brush(win->backgroundRole());
     bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
@@ -330,7 +412,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
 #endif
     }
 
-    if(flags & Recursive) {
+    if(recursive) {
         const QObjectList children = widget->children();
         for(int i = 0; i < children.size(); ++i) {
             if(QWidget *child = qobject_cast<QWidget*>(children.at(i))) {
@@ -340,7 +422,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
                         childRegion.translate(-child->pos());
                         childRegion &= child->d_func()->clipRect();
                         if(!childRegion.isEmpty())
-                            copyToScreen(childRegion, child, offset+child->pos(), flags);
+                            copyToScreen(childRegion, child, offset+child->pos(), recursive);
                     }
                 }
             }
@@ -415,7 +497,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget)
         QRegion toFlush = rgn;
         toFlush.translate(widget->mapTo(tlw, QPoint()));
 #endif
-        copyToScreen(toFlush, tlw, tlwOffset, Recursive);
+        copyToScreen(toFlush, tlw, tlwOffset);
     }
 }
 
@@ -517,7 +599,7 @@ void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, con
                 qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
 
             if (flushed)
-                copyToScreen(toBePainted, widget, offset, 0);
+                copyToScreen(toBePainted, widget, offset, false);
         } else if(widget == tlw) {
             QPainter p(PAINTDEVICE);
             p.setClipRegion(toBePainted);

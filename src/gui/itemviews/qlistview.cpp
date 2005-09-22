@@ -915,7 +915,7 @@ void QListView::paintEvent(QPaintEvent *e)
     QStyleOptionViewItem option = viewOptions();
     QPainter painter(d->viewport);
     QRect area = e->rect();
-    painter.fillRect(area, option.palette.base());
+    //painter.fillRect(area, option.palette.base());
 
     QVector<QModelIndex> toBeRendered;
 //     QVector<QRect> rects = e->region().rects();
@@ -959,7 +959,7 @@ void QListView::paintEvent(QPaintEvent *e)
             option.state |= QStyle::State_MouseOver;
         else
             option.state &= ~QStyle::State_MouseOver;
-        
+
         if (alternate) {
             option.palette.setBrush(QPalette::Base, (*it).row() & 1 ? baseBrush : alternateBrush);
             painter.fillRect(option.rect, (*it).row() & 1 ? baseBrush : alternateBrush);
@@ -972,7 +972,7 @@ void QListView::paintEvent(QPaintEvent *e)
         painter.translate(delta.x(), delta.y());
         d->drawItems(&painter, d->draggedItems);
     }
-    
+
     // Paint the dropIndicator
     d_func()->paintDropIndicator(&painter);
 
@@ -1276,7 +1276,7 @@ void QListView::updateGeometries()
                 resizeContents(contentsSize().width(), viewport()->height());
         }
     }
-    
+
     QAbstractItemView::updateGeometries();
     //### this forces atomic relayout of children
     setVerticalScrollBarPolicy(verticalScrollBarPolicy());
@@ -1909,7 +1909,7 @@ QRect QListViewPrivate::mapToViewport(const QRect &rect) const
             result.setWidth(qMax(contentsSize.width(), viewport->width()));
         }
     }
-    
+
     int dx = -q->horizontalOffset();
     int dy = -q->verticalOffset();
     result.adjust(dx, dy, dx, dy);
