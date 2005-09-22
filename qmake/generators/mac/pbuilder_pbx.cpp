@@ -1116,8 +1116,6 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t\t" << "HEADER_SEARCH_PATHS = \"" << fixListForOutput("INCLUDEPATH") << " " << fixForOutput(specdir()) << "\";" << "\n"
       << "\t\t\t\t" << "LIBRARY_SEARCH_PATHS = \"" << var("QMAKE_PBX_LIBPATHS") << "\";" << "\n"
       << "\t\t\t\t" << "OPTIMIZATION_CFLAGS = \"\";" << "\n"
-      << "\t\t\t\t" << "GCC_GENERATE_DEBUGGING_SYMBOLS = " <<
-        (project->isActiveConfig("debug") ? "YES" : "NO") << ";" << "\n"
       << "\t\t\t\t" << "OTHER_CFLAGS = \"" <<
         fixListForOutput("QMAKE_CFLAGS") << fixForOutput(varGlue("PRL_EXPORT_DEFINES"," -D"," -D","")) <<
         fixForOutput(varGlue("DEFINES"," -D"," -D","")) << "\";" << "\n"
@@ -1130,8 +1128,6 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t\t" << "SECTORDER_FLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "WARNING_CFLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "PREBINDING = " << (project->isEmpty("QMAKE_DO_PREBINDING") ? "NO" : "YES") << ";" << "\n";
-    if(project->isActiveConfig("debug"))
-        t << "\t\t\t\t" << "GCC_OPTIMIZATION_LEVEL = 0" << ";" << "\n";
     if(!project->isEmpty("PRECOMPILED_HEADER")) {
         if(pbVersion >= 38) {
             t << "\t\t\t\t" << "GCC_PRECOMPILE_PREFIX_HEADER = \"YES\";" << "\n"
@@ -1328,8 +1324,10 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     {
         QMap<QString, QString> settings;
         settings.insert("COPY_PHASE_STRIP", (as_release ? "YES" : "NO"));
-        if(as_release)
-            settings.insert("GCC_GENERATE_DEBUGGING_SYMBOLS", "NO");
+        settings.insert("GCC_GENERATE_DEBUGGING_SYMBOLS", as_release ? "NO" : "YES");
+        if(!as_release)
+            settings.insert("GCC_OPTIMIZATION_LEVEL", "0");
+
         QString name;
         if(pbVersion >= 42)
             name = (as_release ? "Release" : "Debug");
