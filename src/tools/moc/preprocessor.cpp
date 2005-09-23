@@ -655,6 +655,27 @@ static void preprocess(const QByteArray &filename, const Symbols &symbols, Macro
             }
             continue;
         }
+        case PP_UNDEF: {
+            QByteArray macro = sym.lexem();
+            const char *data = macro.constData() + 7;
+            while (*data && is_whitespace(*data))
+                ++data;
+            if (!is_ident_start(*data))
+                continue;
+            const char *ident = data++;
+            while (*data && is_ident_char(*data))
+                ++data;
+            QByteArray name(ident, data - ident);
+            macros.remove(name);
+            if (Preprocessor::onlyPreprocess) {
+                Preprocessor::protocol += "#";
+                Preprocessor::protocol += QByteArray(depth * 2, ' ');
+                Preprocessor::protocol += "undef ";
+                Preprocessor::protocol += name;
+                Preprocessor::protocol += "\n";
+            }
+            continue;
+        }
         case PP_IDENTIFIER:
             // we _could_ easily substitute macros by the following
             // four lines, but we choose not to.
@@ -664,6 +685,14 @@ static void preprocess(const QByteArray &filename, const Symbols &symbols, Macro
                 continue;
             }
             */
+            break;
+        case PP_QT_SIGNALS:
+        case PP_QT_SLOTS:
+            if (macros.contains("QT_NO_KEYWORDS")) {
+                Symbol treatIdentSym;
+                treatIdentSym.lexem_data = "#moc_next_is_identifier ";
+                preprocessed += treatIdentSym;
+            }
             break;
         case PP_HASH:
             continue; // skip unknown preprocessor statement

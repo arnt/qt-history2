@@ -60,6 +60,8 @@ static const Keyword pp_keywords[] = {
     { "\t", "PP_WHITESPACE" },
     { "//", "PP_CPP_COMMENT" },
     { "/*", "PP_C_COMMENT" },
+    { "signals", "PP_QT_SIGNALS" },
+    { "slots", "PP_QT_SLOTS" },
     { 0, "PP_NOTOKEN"}
 };
 
@@ -208,6 +210,7 @@ static const Keyword keywords[] = {
     { "#", "HASH" },
     { "#moc_include_begin", "MOC_INCLUDE_BEGIN" },
     { "#moc_include_end", "MOC_INCLUDE_END" },
+    { "#moc_next_is_identifier", "MOC_NEXT_IS_IDENTIFIER" },
     { 0, "NOTOKEN"}
 };
 

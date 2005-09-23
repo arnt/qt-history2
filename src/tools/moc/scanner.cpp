@@ -126,6 +126,11 @@ Symbols Scanner::scan(const QByteArray &input)
             case NEWLINE:
                 ++lineNum;
                 continue;
+            case MOC_NEXT_IS_IDENTIFIER:
+                while (is_whitespace(*data))
+                    ++data;
+                lexem = data;
+                // fall through
             case CHARACTER:
                 while (is_ident_char(*data))
                     ++data;
