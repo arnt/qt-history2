@@ -82,6 +82,17 @@
     \a ClassName, in a header file. See the
     \l{tools/plugandpaint}{Plug & Paint} example for details.
 
+    If you want to use Q_DECLARE_INTERFACE with interface classes
+    declared in a namespace then you have to make sure the Q_DECLARE_INTERFACE
+    is not inside a namespace though. For example:
+    \code
+        namespace Foo
+        {
+            struct MyInterface { ... };
+        }
+        Q_DECLARE_INTERFACE(Foo::MyInterface, "org.examples.MyInterface")
+    \endcode
+
     \sa Q_INTERFACES(), Q_EXPORT_PLUGIN(), {How to Create Qt Plugins}
 */
 
