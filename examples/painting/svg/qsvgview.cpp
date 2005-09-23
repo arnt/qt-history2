@@ -12,13 +12,13 @@
 ****************************************************************************/
 #include "qsvgview.h"
 
-#include <qsvgrenderer.h>
+#include <QSvgRenderer>
 
-#include <qapplication.h>
-#include <qpainter.h>
-#include <qimage.h>
-#include <qevent.h>
-#include <qdebug.h>
+#include <QApplication>
+#include <QPainter>
+#include <QImage>
+#include <QWheelEvent>
+#include <QtDebug>
 
 QSvgRasterView::QSvgRasterView(const QString &file, QWidget *parent)
     : QWidget(parent)

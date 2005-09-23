@@ -3,8 +3,8 @@
 #include <QScrollArea>
 #include <QApplication>
 #include <QKeyEvent>
+#include <QtDebug>
 
-#include <qdebug.h>
 class SvgWindow : public QScrollArea
 {
 public:
