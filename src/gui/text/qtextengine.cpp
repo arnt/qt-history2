@@ -788,7 +788,7 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
             cls = ncls;
             continue;
         }
-        
+        {
         int tcls = ncls;
         if (tcls >= QUnicodeTables::LineBreak_SA)
             tcls = QUnicodeTables::LineBreak_ID;
@@ -807,6 +807,7 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
         charAttributes[i].charStop = true;
         charAttributes[i].category = category;
         cls = ncls;
+	}
         continue;
     nsm:
         charAttributes[i].softBreak = false;

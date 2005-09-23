@@ -17,7 +17,7 @@ const q_scriptEngine qt_scriptEngines[] = {
     // Hebrew
     { hebrew_shape, 0 },
     // Arabic
-    { arabic_shape, arabic_attributes },
+    { arabic_shape, 0 },
     // Syriac
     { basic_shape, 0 },
     // Thaana
