@@ -93,10 +93,10 @@ QList<QMacWindowChangeEvent*> *QMacWindowChangeEvent::change_events = 0;
  *****************************************************************************/
 static struct {
     bool use_qt_time_limit;
+    QWidget *last_widget;
     int last_modifiers, last_button;
     EventTime last_time;
-    bool active;
-} qt_mac_dblclick = { false, 0, 0, -2, 0 };
+} qt_mac_dblclick = { false, 0, 0, 0, -2 };
 static bool qt_mac_use_qt_scroller_lines = false;
 
 // tablet structure
@@ -1806,7 +1806,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     QApplication::sendEvent(widget, &qme);
                     if(qme.isAccepted()) { //once this happens the events before are pitched
                         qt_button_down = 0;
-                        qt_mac_dblclick.active = false;
+                        qt_mac_dblclick.last_widget = 0;
                     }
                 } else {
                     handled_event = false;
@@ -1936,27 +1936,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 
         switch(ekind) {
         case kEventMouseDown:
-        {
             etype = QEvent::MouseButtonPress;
-            if(qt_mac_dblclick.active) {
-                if(qt_mac_dblclick.use_qt_time_limit) {
-                    EventTime now = GetEventTime(event);
-                    if(qt_mac_dblclick.last_time != -2 &&
-                       now - qt_mac_dblclick.last_time <= ((double)QApplicationPrivate::mouse_double_click_time)/1000)
-                        etype = QEvent::MouseButtonDblClick;
-                } else {
-                    UInt32 count = 0;
-                    GetEventParameter(event, kEventParamClickCount, typeUInt32, 0,
-                                      sizeof(count), 0, &count);
-                    if(!(count % 2) && qt_mac_dblclick.last_modifiers == modifiers &&
-                       qt_mac_dblclick.last_button == button)
-                        etype = QEvent::MouseButtonDblClick;
-                }
-                if(etype == QEvent::MouseButtonDblClick)
-                    qt_mac_dblclick.active = false;
-            }
             break;
-        }
         case kEventMouseUp:
             etype = QEvent::MouseButtonRelease;
             break;
@@ -2105,6 +2086,24 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
                 break;
             }
+
+            if(qt_mac_dblclick.last_widget) {
+                if(qt_mac_dblclick.use_qt_time_limit) {
+                    EventTime now = GetEventTime(event);
+                    if(qt_mac_dblclick.last_time != -2 && qt_mac_dblclick.last_widget == widget &&
+                       now - qt_mac_dblclick.last_time <= ((double)QApplicationPrivate::mouse_double_click_time)/1000)
+                        etype = QEvent::MouseButtonDblClick;
+                } else {
+                    UInt32 count = 0;
+                    GetEventParameter(event, kEventParamClickCount, typeUInt32, 0,
+                                      sizeof(count), 0, &count);
+                    if(!(count % 2) && qt_mac_dblclick.last_modifiers == modifiers &&
+                       qt_mac_dblclick.last_widget == widget && qt_mac_dblclick.last_button == button)
+                        etype = QEvent::MouseButtonDblClick;
+                }
+                if(etype == QEvent::MouseButtonDblClick)
+                    qt_mac_dblclick.last_widget = 0;
+            }
        }
 
         switch(ekind) {
@@ -2141,7 +2140,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             QPoint p(where.h, where.v);
             QPoint plocal(widget->mapFromGlobal(p));
             if(etype == QEvent::MouseButtonPress) {
-                qt_mac_dblclick.active = true;
+                qt_mac_dblclick.last_widget = widget;
                 qt_mac_dblclick.last_modifiers = modifiers;
                 qt_mac_dblclick.last_button = button;
                 qt_mac_dblclick.last_time = GetEventTime(event);
