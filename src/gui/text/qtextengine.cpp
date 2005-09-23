@@ -789,24 +789,24 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
             continue;
         }
         {
-        int tcls = ncls;
-        if (tcls >= QUnicodeTables::LineBreak_SA)
-            tcls = QUnicodeTables::LineBreak_ID;
-        if (cls >= QUnicodeTables::LineBreak_SA)
-            cls = QUnicodeTables::LineBreak_ID;
+	    int tcls = ncls;
+	    if (tcls >= QUnicodeTables::LineBreak_SA)
+		tcls = QUnicodeTables::LineBreak_ID;
+	    if (cls >= QUnicodeTables::LineBreak_SA)
+		cls = QUnicodeTables::LineBreak_ID;
 
-        bool softBreak;
-	int brk = breakTable[cls][tcls];
-        if (brk == Ibk)
-            softBreak = (cls == QUnicodeTables::LineBreak_SP);
-        else
-            softBreak = (brk == Dbk);
+	    bool softBreak;
+	    int brk = breakTable[cls][tcls];
+	    if (brk == Ibk)
+		softBreak = (cls == QUnicodeTables::LineBreak_SP);
+	    else
+		softBreak = (brk == Dbk);
 //        qDebug("char = %c %04x, cls=%d, ncls=%d, brk=%d soft=%d", uc[i].cell(), uc[i].unicode(), cls, ncls, brk, charAttributes[i].softBreak);
-        charAttributes[i].softBreak = softBreak;
-        charAttributes[i].whiteSpace = false;
-        charAttributes[i].charStop = true;
-        charAttributes[i].category = category;
-        cls = ncls;
+	    charAttributes[i].softBreak = softBreak;
+	    charAttributes[i].whiteSpace = false;
+	    charAttributes[i].charStop = true;
+	    charAttributes[i].category = category;
+	    cls = ncls;
 	}
         continue;
     nsm:
