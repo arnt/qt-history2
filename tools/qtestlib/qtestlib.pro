@@ -22,6 +22,15 @@ DESTDIR         = $$[QT_INSTALL_LIBS]
 DLLDESTDIR      = $$[QT_INSTALL_BINS]
 VERSION         = 4.1.0
 
+unix {
+   CONFIG     += create_libtool create_pc explicitlib
+   QMAKE_PKGCONFIG_LIBDIR = $$[QT_INSTALL_LIBS]
+   QMAKE_PKGCONFIG_INCDIR = $$[QT_INSTALL_HEADERS]
+#   QMAKE_PKGCONFIG_DESCRIPTION = "Qt Unit Testing Library"
+   CONFIG(debug, debug|release):QMAKE_PKGCONFIG_NAME = QtTest_debug
+   else:QMAKE_PKGCONFIG_NAME = QtTest
+}
+
 # Input
 HEADERS = qtest_global.h qtestcase.h qtestdata.h
 SOURCES = qtestcase.cpp qtestlog.cpp qtesttable.cpp qtestdata.cpp qtestresult.cpp qasciikey.cpp qplaintestlogger.cpp qxmltestlogger.cpp qsignaldumper.cpp qabstracttestlogger.cpp
