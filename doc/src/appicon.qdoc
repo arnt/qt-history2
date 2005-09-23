@@ -86,7 +86,7 @@
     file is \c{myapp.pro}, add this line to \c{myapp.pro}:
 
     \code
-        RC_FILE = myapp.icns
+        ICON = myapp.icns
     \endcode
 
     This will ensure that \c qmake puts your icons in the proper
@@ -95,11 +95,13 @@
     If you do not use \c qmake, you must do the following manually:
     \list 1
     \i Create an \c Info.plist file for your application (using the
-    \c PropertyListEditor, found in \c Developer/Applications).
+       \c PropertyListEditor, found in \c Developer/Applications).
     \i Associate your \c .icns record with the \c CFBundleIconFile record in the
-    \c Info.plist file (again, using the \c PropertyListEditor).
-    \i Copy both the icns and your \c Info.plist into your application bundle
-    \c Resource directory.
+       \c Info.plist file (again, using the \c PropertyListEditor).
+    \i Copy the \c Info.plist file into your application bundle's \c Contents
+       directory.
+    \i Copy the \c .icns file into your application bundle's \c Contents/Resources
+       directory.
     \endlist
 
     \section1 Setting the Application Icon on Common Linux Desktops
