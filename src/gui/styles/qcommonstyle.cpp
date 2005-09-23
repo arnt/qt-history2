@@ -13,7 +13,6 @@
 
 #include "qcommonstyle.h"
 
-
 #include <qapplication.h>
 #include <qbitmap.h>
 #include <qcache.h>
@@ -33,8 +32,7 @@
 #include <private/qcommonstylepixmaps_p.h>
 #include <private/qdialogbuttons_p.h>
 #include <private/qmath_p.h>
-
-#include <QtCore/qdebug.h>
+#include <qdebug.h>
 
 #include <limits.h>
 

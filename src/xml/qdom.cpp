@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include <qplatformdefs.h>
-#include "qdom.h"
+#include <qdom.h>
 
 #ifndef QT_NO_DOM
 
@@ -27,8 +27,7 @@
 #include <qxml.h>
 #include <qvariant.h>
 #include <qmap.h>
-
-#include <QtCore/qdebug.h>
+#include <qdebug.h>
 
 /*
   ### old todo comments -- I don't know if they still apply...
@@ -7351,4 +7350,4 @@ bool QDomHandler::notationDecl(const QString & name, const QString & publicId, c
     return true;
 }
 
-#endif //QT_NO_DOM
+#endif // QT_NO_DOM

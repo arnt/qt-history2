@@ -12,9 +12,8 @@
 ****************************************************************************/
 
 #include "private/qpicture_p.h"
-#include "QtCore/qfile.h"
-#include "QtGui/qpainter.h"
-
+#include "file.h"
+#include "qpainter.h"
 #include "q3picture.h"
 #include "q3paintengine_svg_p.h"
 
