@@ -78,6 +78,7 @@ public:
 
     QPointer<Q3PopupMenu> rmbMenu, tbMenu, dwMenu;
     QMap<Q3DockWindow*, bool> appropriate;
+    mutable QMap<Q3PopupMenu*, Q3MainWindow::DockWindows> dockWindowModes;
 };
 
 #endif // Q3MAINWINDOW_P_H

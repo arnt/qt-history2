@@ -1513,9 +1513,9 @@ bool Q3MainWindow::event(QEvent * e)
         d->mc = 0;
         d->mwl->setCentralWidget(0);
     }
-    
+
     if (e->type() == QEvent::MenubarUpdated) {
-        QMenubarUpdatedEvent * const event = static_cast<QMenubarUpdatedEvent *>(e); 
+        QMenubarUpdatedEvent * const event = static_cast<QMenubarUpdatedEvent *>(e);
         if (event->menuBar() && event->menuBar()->parent() == this) {
             triggerLayout();
             update();
@@ -1960,14 +1960,41 @@ void Q3MainWindow::setDockMenuEnabled(bool b)
 
 Q3PopupMenu *Q3MainWindow::createDockWindowMenu(DockWindows dockWindows) const
 {
+    Q_D(const Q3MainWindow);
     QObjectList l = queryList("Q3DockWindow");
     if (l.isEmpty())
         return 0;
 
     Q3PopupMenu *menu = new Q3PopupMenu((Q3MainWindow*)this);
     menu->setObjectName("qt_customize_menu");
+    d->dockWindowModes.replace( menu, dockWindows );
     menu->setCheckable(true);
+    connect( menu, SIGNAL( aboutToShow() ), this, SLOT( menuAboutToShow() ) );
+    return menu;
+}
 
+/*!
+    This slot is called from the aboutToShow() signal of the default
+    dock menu of the mainwindow. The default implementation
+    initializes the menu with all dock windows and toolbars in this
+    slot.
+*/
+
+void Q3MainWindow::menuAboutToShow()
+{
+    Q_D(Q3MainWindow);
+    Q3PopupMenu *menu = (Q3PopupMenu*)sender();
+    menu->clear();
+
+    DockWindows dockWindows;
+    {
+        QMap<Q3PopupMenu*, DockWindows>::Iterator it = d->dockWindowModes.find( menu );
+        if ( it == d->dockWindowModes.end() )
+            return;
+        dockWindows = (*it);
+    }
+
+    QObjectList l = queryList("Q3DockWindow");
     bool empty = true;
     if (!l.isEmpty()) {
         if (dockWindows == AllDockWindows || dockWindows == NoToolBars) {
@@ -2015,8 +2042,8 @@ Q3PopupMenu *Q3MainWindow::createDockWindowMenu(DockWindows dockWindows) const
         menu->addAction(tr("Line up"), this, SLOT(doLineUp()));
     if (isCustomizable())
         menu->addAction(tr("Customize..."), this, SLOT(customize()));
-    return menu;
 }
+
 
 /*!
     Shows the dock menu at the position \a globalPos. The menu lists

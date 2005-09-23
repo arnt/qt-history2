@@ -145,6 +145,7 @@ Q_SIGNALS:
 protected Q_SLOTS:
     virtual void setUpLayout();
     virtual bool showDockMenu(const QPoint &globalPos);
+    void menuAboutToShow();
 
 protected:
     void paintEvent(QPaintEvent *);
