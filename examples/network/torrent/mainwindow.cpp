@@ -143,6 +143,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Bottom toolbar
     QToolBar *bottomBar = new QToolBar(tr("Rate control"));
     addToolBar(Qt::BottomToolBarArea, bottomBar);
+    bottomBar->setMovable(false);
     downloadLimitSlider = new QSlider(Qt::Horizontal);
     downloadLimitSlider->setRange(0, 1000);
     bottomBar->addWidget(new QLabel(tr("Max download:")));
