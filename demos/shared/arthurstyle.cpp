@@ -321,6 +321,10 @@ QRect ArthurStyle::subControlRect(ComplexControl control, const QStyleOptionComp
             default:
                 rect = QWindowsStyle::subControlRect(control, option, subControl, widget);
                 break;
+            case SC_GroupBoxContents:
+                rect = QWindowsStyle::subControlRect(control, option, subControl, widget);
+                rect.adjust(0, -8, 0, 0);
+                break;
             case SC_GroupBoxFrame:
                 rect = group->rect;
                 break;
