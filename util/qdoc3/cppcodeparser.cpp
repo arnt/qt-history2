@@ -1110,11 +1110,13 @@ bool CppCodeParser::matchDeclList( InnerNode *parent )
 	    metaness = FunctionNode::Plain;
 	    break;
 	case Tok_signals:
+        case Tok_Q_SIGNALS:
 	    readToken();
 	    access = Node::Public;
 	    metaness = FunctionNode::Signal;
 	    break;
 	case Tok_slots:
+	case Tok_Q_SLOTS:
 	    readToken();
 	    metaness = FunctionNode::Slot;
 	    break;
