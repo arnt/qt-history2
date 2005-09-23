@@ -1513,7 +1513,14 @@ bool Q3MainWindow::event(QEvent * e)
         d->mc = 0;
         d->mwl->setCentralWidget(0);
     }
-
+    
+    if (e->type() == QEvent::MenubarUpdated) {
+        QMenubarUpdatedEvent * const event = static_cast<QMenubarUpdatedEvent *>(e); 
+        if (event->menuBar() && event->menuBar()->parent() == this) {
+            triggerLayout();
+            update();
+        }
+    }
     return QWidget::event(e);
 }
 

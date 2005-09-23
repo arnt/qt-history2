@@ -172,6 +172,10 @@ void QMenuBarPrivate::updateGeometries()
         extension->hide();
     }
     q->updateGeometry();
+#ifdef QT3_SUPPORT
+    QMenubarUpdatedEvent menubarUpdated(q);
+    QApplication::sendEvent(q->parentWidget(), &menubarUpdated);
+#endif
 }
 
 QRect QMenuBarPrivate::actionRect(QAction *act) const
@@ -1151,8 +1155,23 @@ bool QMenuBar::event(QEvent *e)
     } break;
 #endif
     case QEvent::Show:
+#ifdef QT3_SUPPORT
+        // If itemsDirty == true, updateGeometries sends the MenubarUpdated event.
+        if (!d->itemsDirty) { 
+            QMenubarUpdatedEvent menubarUpdated(this);
+            QApplication::sendEvent(parentWidget(), &menubarUpdated);
+        }
+#endif
         d->updateGeometries();
-        break;
+    break;
+
+#ifdef QT3_SUPPORT
+    case QEvent::Hide: {
+        QMenubarUpdatedEvent menubarUpdated(this);
+        QApplication::sendEvent(parentWidget(), &menubarUpdated);
+    } break;
+#endif
+        
 #ifndef QT_NO_WHATSTHIS
     case QEvent::QueryWhatsThis:
         e->setAccepted(d->whatsThis.size());

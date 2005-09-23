@@ -628,6 +628,18 @@ private:
     Qt::WindowStates ostate;
 };
 
+#ifdef QT3_SUPPORT
+class QMenuBar;
+class Q_GUI_EXPORT QMenubarUpdatedEvent: public QEvent
+{
+public:
+    QMenubarUpdatedEvent(QMenuBar * const menBar);
+    inline QMenuBar *menuBar() { return m_menuBar; }
+private:
+    QMenuBar *m_menuBar;
+};
+#endif
+
 #ifndef QT_NO_DEBUG_STREAM
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QEvent *);
 #endif

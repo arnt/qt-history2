@@ -259,11 +259,12 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
     \fn Qt::MouseButton QMouseEvent::buttons() const
 
     Returns the button state when the event was generated. The button
-    state is a value composed of a bitwise OR combination of Qt::MouseButton
-    values. For mouse move events, this value corresponds to all buttons that
-    are pressed down. For mouse press and double click events this includes
-    the button that caused the event. For mouse release events this excludes
-    the button that caused the event.
+    state is a combination of Qt::LeftButton, Qt::RightButton,
+    Qt::MidButton using the OR operator. For mouse move events,
+    this is all buttons that are pressed down. For mouse press and
+    double click events this includes the button that caused the
+    event. For mouse release events this excludes the button that
+    caused the event.
 
     \sa button() Qt::MouseButton
 */
@@ -1553,7 +1554,7 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
     \value Stylus  A Stylus.
     \value Airbrush An airbrush
     \value FourDMouse A 4D Mouse.
-    \value RotationStylus A special stylus that also knows about rotation (a 6D stylus). \since 4.1
+    \volue RotationStylus A speciol stylus that also knows about rotation (6D stylus) \since 4.1
     \omitvalue XFreeEraser
 */
 
@@ -2919,3 +2920,24 @@ bool QWindowStateChangeEvent::isOverride() const
 QWindowStateChangeEvent::~QWindowStateChangeEvent()
 {
 }
+
+#ifdef QT3_SUPPORT
+
+/*!
+    \class QMenubarUpdatedEvent
+    \internal
+    Event sent by QMenuBar to tell Q3Workspace to update itself.
+*/
+
+/*! \internal
+
+*/
+QMenubarUpdatedEvent::QMenubarUpdatedEvent(QMenuBar * const menuBar)
+:QEvent(QEvent::MenubarUpdated), m_menuBar(menuBar) {}
+
+/*!
+    \fn QMenuBar *menuBar()
+    \internal
+*/
+
+#endif
