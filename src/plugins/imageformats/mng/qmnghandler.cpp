@@ -25,14 +25,15 @@ class QMngHandlerPrivate
 {
     Q_DECLARE_PUBLIC(QMngHandler)
     public:
-    bool start;
-    bool done;
+    bool haveReadNone;
+    bool haveReadAll;
     mng_handle hMNG;
     QImage image;
     int elapsed;
     int nextDelay;
     int iterCount;
     int frameIndex;
+    int nextIndex;
     int frameCount;
     mng_uint32 iStyle;
     mng_bool readData(mng_ptr pBuf, mng_uint32 iSize, mng_uint32p pRead);
@@ -89,7 +90,7 @@ static mng_bool myopenstream(mng_handle)
 static mng_bool myclosestream(mng_handle hMNG)
 {
     QMngHandlerPrivate *pMydata = reinterpret_cast<QMngHandlerPrivate *>(mng_get_userdata(hMNG));
-    pMydata->done = true;
+    pMydata->haveReadAll = true;
     pMydata->frameCount = pMydata->frameIndex+1;
     return MNG_TRUE;
 }
@@ -139,7 +140,7 @@ static mng_bool myrefresh(mng_handle /*hMNG*/,
 static mng_uint32 mygettickcount(mng_handle hMNG)
 {
     QMngHandlerPrivate *pMydata = reinterpret_cast<QMngHandlerPrivate *>(mng_get_userdata(hMNG));
-    return pMydata->elapsed;
+    return pMydata->elapsed++;
 }
 
 static mng_bool mysettimer(mng_handle hMNG,
@@ -164,7 +165,8 @@ static mng_bool myprocessterm(mng_handle hMNG,
 }
 
 QMngHandlerPrivate::QMngHandlerPrivate(QMngHandler *q_ptr)
-    : start(true), done(false), elapsed(0), nextDelay(0), iterCount(1), frameIndex(0), frameCount(0), q_ptr(q_ptr)
+    : haveReadNone(true), haveReadAll(false), elapsed(0), nextDelay(0), iterCount(1),
+      frameIndex(-1), nextIndex(0), frameCount(0), q_ptr(q_ptr)
 {
     iStyle = (QSysInfo::ByteOrder == QSysInfo::LittleEndian) ? MNG_CANVAS_BGRA8 : MNG_CANVAS_ARGB8;
     // Initialize libmng
@@ -217,21 +219,17 @@ mng_bool QMngHandlerPrivate::processHeader(mng_uint32 iWidth, mng_uint32 iHeight
 bool QMngHandlerPrivate::getNextImage(QImage *result)
 {
     mng_retcode ret;
-    if (!done) {
-        if (start) {
-            start = false;
-            frameIndex = -1; // It's incremented below, so we get 0
-            ret = mng_readdisplay(hMNG);
-        } else {
-            ret = mng_display_resume(hMNG);
-        }
-        if ((MNG_NOERROR == ret) || (MNG_NEEDTIMERWAIT == ret)) {
-            *result = image;
-            frameIndex++;
-            return true;
-        }
+    if (haveReadNone) {
+        haveReadNone = false;
+        ret = mng_readdisplay(hMNG);
+    } else {
+        ret = mng_display_resume(hMNG);
     }
-    *result = QImage(0, 0);
+    if ((MNG_NOERROR == ret) || (MNG_NEEDTIMERWAIT == ret)) {
+        *result = image;
+        frameIndex = nextIndex++;
+        return true;
+    }
     return false;
 }
 
@@ -271,19 +269,26 @@ int QMngHandlerPrivate::currentImageNumber() const
 int QMngHandlerPrivate::imageCount() const
 {
 //    return mng_get_totalframes(hMNG); not implemented, apparently
-    if (done)
+    if (haveReadAll)
         return frameCount;
     return 0; // Don't know
 }
 
 bool QMngHandlerPrivate::jumpToImage(int imageNumber)
 {
+    if (imageNumber == nextIndex)
+        return true;
+
+    if ((imageNumber == 0) && haveReadAll && (nextIndex == frameCount)) {
+        // Loop!
+        nextIndex = 0;
+        return true;
+    }
     if (mng_display_freeze(hMNG) == MNG_NOERROR) {
         if (mng_display_goframe(hMNG, imageNumber) == MNG_NOERROR) {
-            frameIndex = imageNumber;
+            nextIndex = imageNumber;
+            return true;
         }
-        mng_display_resume(hMNG);
-        return true;
     }
     return false;
 }
@@ -331,8 +336,8 @@ QMngHandler::~QMngHandler()
 bool QMngHandler::canRead() const
 {
     Q_D(const QMngHandler);
-    if (!d->start)
-	return !d->done;
+    if (!d->haveReadNone)
+	return (!d->haveReadAll || (d->haveReadAll && (d->nextIndex < d->frameCount)));
 
     if (canRead(device())) {
         setFormat("mng");
@@ -362,7 +367,7 @@ QByteArray QMngHandler::name() const
 bool QMngHandler::read(QImage *image)
 {
     Q_D(QMngHandler);
-    return d->getNextImage(image);
+    return canRead() ? d->getNextImage(image) : false;
 }
 
 /*! \reimp */
