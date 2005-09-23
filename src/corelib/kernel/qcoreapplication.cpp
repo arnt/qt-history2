@@ -825,8 +825,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 
     bool doDeferredDeletion = (event_type == QEvent::DeferredDelete);
     if (event_type == -1) {
-        // uglehack - this is to detect that we were called by the event
-        // dispatcher. if possible it should be fixed for 4.1.
+        // we were called by the event dispatcher.
         doDeferredDeletion = true;
         event_type = 0;
     }
