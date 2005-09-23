@@ -26,7 +26,7 @@ unix {
    CONFIG     += create_libtool create_pc explicitlib
    QMAKE_PKGCONFIG_LIBDIR = $$[QT_INSTALL_LIBS]
    QMAKE_PKGCONFIG_INCDIR = $$[QT_INSTALL_HEADERS]
-#   QMAKE_PKGCONFIG_DESCRIPTION = "Qt Unit Testing Library"
+   QMAKE_PKGCONFIG_DESCRIPTION = Qt Unit Testing Library
    CONFIG(debug, debug|release):QMAKE_PKGCONFIG_NAME = QtTest_debug
    else:QMAKE_PKGCONFIG_NAME = QtTest
 }

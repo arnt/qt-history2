@@ -1243,7 +1243,7 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
         name.replace(0, 1, name[0].toUpper());
     }
     t << "Name: " << name << endl;
-    QString desc = project->first("QMAKE_PKGCONFIG_DESCRIPTION");
+    QString desc = project->variables()["QMAKE_PKGCONFIG_DESCRIPTION"].join(" ");
     if(desc.isEmpty()) {
         if(name.isEmpty()) {
             desc = project->first("QMAKE_ORIG_TARGET").toLower();
