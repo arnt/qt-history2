@@ -1307,7 +1307,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     }
 
     QPoint mouse = QCursor::pos();
-    bool snapToMouse = (p == mouse);
+    const bool snapToMouse = true; //(p == mouse); ###
     if (snapToMouse) {
         if (qApp->layoutDirection() == Qt::RightToLeft)
             pos.setX(pos.x()-size.width());
