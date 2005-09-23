@@ -22,11 +22,6 @@
 #include "qcache.h"
 
 #include "qfile.h"
-#ifdef Q_WS_X11
-#define QGL_NO_GLX_VISIBILITY
-#include "qglsymbols_x11_p.h"
-#undef QGL_NO_GLX_VISIBILITY
-#endif
 
 Q_GLOBAL_STATIC(QGLFormat, qgl_default_format)
 
@@ -897,7 +892,6 @@ void QGLContextPrivate::init(QPaintDevice *dev, const QGLFormat &format)
     valid = false;
     q->setDevice(dev);
 #if defined(Q_WS_X11)
-    qt_resolve_gl_symbols();
     gpm = 0;
 #endif
 #if defined(Q_WS_WIN)

@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+#include <qlibrary.h>
 #include <qdebug.h>
 #include <private/qgl_p.h>
 #include <private/qt_x11_p.h>
@@ -21,7 +22,6 @@
 
 #include "qglpbuffer.h"
 #include "qglpbuffer_p.h"
-#include "qglsymbols_x11_p.h"
 
 #ifndef GLX_VERSION_1_3
 #define GLX_RGBA_BIT            0x00000002
@@ -33,12 +33,53 @@
 #define GLX_PBUFFER_WIDTH       0x8041
 #endif
 
+typedef GLXFBConfig* (*_glXChooseFBConfig) (Display *dpy, int screen, const int *attrib_list, int *nelements);
+typedef int (*_glXGetFBConfigAttrib) (Display *dpy, GLXFBConfig config, int attribute, int *value);
+typedef GLXPbuffer (*_glXCreatePbuffer) (Display *dpy, GLXFBConfig config, const int *attrib_list);
+typedef void (*_glXDestroyPbuffer) (Display *dpy, GLXPbuffer pbuf);
+typedef GLXContext (*_glXCreateNewContext) (Display *dpy, GLXFBConfig config, int render_type, GLXContext share_list, Bool direct);
+typedef Bool (*_glXMakeContextCurrent) (Display *dpy, GLXDrawable draw, GLXDrawable read, GLXContext ctx);
+
+_glXChooseFBConfig qt_glXChooseFBConfig;
+_glXCreateNewContext qt_glXCreateNewContext;
+_glXCreatePbuffer qt_glXCreatePbuffer;
+_glXDestroyPbuffer qt_glXDestroyPbuffer;
+_glXGetFBConfigAttrib qt_glXGetFBConfigAttrib;
+_glXMakeContextCurrent qt_glXMakeContextCurrent;
+
+#define glXChooseFBConfig qt_glXChooseFBConfig
+#define glXCreateNewContext qt_glXCreateNewContext
+#define glXCreatePbuffer qt_glXCreatePbuffer
+#define glXDestroyPbuffer qt_glXDestroyPbuffer
+#define glXGetFBConfigAttrib qt_glXGetFBConfigAttrib
+#define glXMakeContextCurrent qt_glXMakeContextCurrent
+
+static bool qt_resolve_glx_symbols()
+{
+    static int resolved = false;
+    if (resolved && qt_glXMakeContextCurrent)
+        return true;
+    else if (resolved)
+        return false;
+
+    QLibrary gl("GL");
+    qt_glXChooseFBConfig = (_glXChooseFBConfig) gl.resolve("glXChooseFBConfig");
+    qt_glXCreateNewContext = (_glXCreateNewContext) gl.resolve("glXCreateNewContext");
+    qt_glXCreatePbuffer = (_glXCreatePbuffer) gl.resolve("glXCreatePbuffer");
+    qt_glXDestroyPbuffer = (_glXDestroyPbuffer) gl.resolve("glXDestroyPbuffer");
+    qt_glXGetFBConfigAttrib = (_glXGetFBConfigAttrib) gl.resolve("glXGetFBConfigAttrib");
+    qt_glXMakeContextCurrent = (_glXMakeContextCurrent) gl.resolve("glXMakeContextCurrent");
+
+    resolved = qt_glXMakeContextCurrent ? true : false;
+    return resolved;
+}
+
 QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
     : d_ptr(new QGLPbufferPrivate)
 {
     Q_D(QGLPbuffer);
 
-    if (qt_resolve_gl_symbols() < QGL_GLX_1_3) {
+    if (!qt_resolve_glx_symbols()) {
         qWarning("QGLPbuffer: pbuffers are not supported on this system.");
         return;
     }

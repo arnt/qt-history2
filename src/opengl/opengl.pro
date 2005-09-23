@@ -9,7 +9,7 @@ solaris-cc*:QMAKE_CXXFLAGS_RELEASE -= -O2
 include(../qbase.pri)
 
 !win32:!embedded:!mac:CONFIG	   += x11
-!x11:contains(QT_CONFIG, opengl):CONFIG += opengl
+contains(QT_CONFIG, opengl):CONFIG += opengl
 
 
 HEADERS += qgl.h \
@@ -21,10 +21,8 @@ SOURCES	+= qgl.cpp \
 	   qpaintengine_opengl.cpp \
 	   qglpbuffer.cpp
 x11 {
-    HEADERS += qglsymbols_x11_p.h
     SOURCES += qgl_x11.cpp \
-	       qglpbuffer_x11.cpp \
-	       qglsymbols_x11.cpp
+	       qglpbuffer_x11.cpp
     contains(QT_CONFIG, fontconfig):INCLUDEPATH += $$FREETYPE2_INCDIR
 }
 
@@ -38,4 +36,4 @@ win32 {
 	       qglpbuffer_win.cpp
 }
 
-!x11:QMAKE_LIBS += $$QMAKE_LIBS_OPENGL
+QMAKE_LIBS += $$QMAKE_LIBS_OPENGL
