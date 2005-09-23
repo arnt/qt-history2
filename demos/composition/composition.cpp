@@ -115,6 +115,8 @@ CompositionWidget::CompositionWidget(QWidget *parent)
     circleColorSlider->setValue(270);
     circleAlphaSlider->setValue(200);
     rbSourceOut->animateClick();
+
+    setWindowTitle(tr("Composition Modes"));
 }
 
 
