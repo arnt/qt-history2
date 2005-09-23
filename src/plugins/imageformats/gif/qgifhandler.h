@@ -50,13 +50,13 @@ public:
 private:
     QGIFFormat *gifFormat;
     QString fileName;
-    QByteArray buffer;
-    QImage lastImage;
+    mutable QByteArray buffer;
+    mutable QImage lastImage;
 
-    int nextDelay;
-    int loopCnt;
+    mutable int nextDelay;
+    mutable int loopCnt;
     int frameNumber;
-    QSize nextSize;
+    mutable QSize nextSize;
 };
 
 #endif // QGIFHANDLER_H
