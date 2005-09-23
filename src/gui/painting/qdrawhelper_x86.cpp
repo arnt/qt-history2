@@ -16,6 +16,8 @@
 
 #ifdef QT_HAVE_SSE
 
+#if !defined(__APPLE__) || defined(__i386__)
+
 #ifdef Q_CC_GNU
 #  include <mmintrin.h>
 #  if !defined(__IWMMXT__)
@@ -652,3 +654,5 @@ void qt_blend_color_argb_sse(int count, const QSpan *spans, void *userData)
 }
 
 #endif //QT_HAVE_SSE
+
+#endif
