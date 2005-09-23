@@ -557,32 +557,43 @@ QPixmap *QWSBackingStore::pixmap() const
     return pix;
 }
 
-//doesn't work for less than 8 bpp
+// 32bpp only
 void QWSBackingStore::blt(const QRect &r, const QPoint &p)
 {
     int depth = pix->depth();
-    int lineskip = (pix->width() * depth)/8;
+    int lineskip = pix->width();
 
-    char *src;
-    char *dest;
+    uint *src;
+    uint *dest;
 
     if (r.top() < p.y()) {
-        //backwards
-        src = (char*)shmaddr + r.bottom()*lineskip + r.left()*depth/8;
-        dest = (char*)shmaddr + (p.y()+r.height()-1)*lineskip + p.x()*depth/8;
+        // backwards vertically
+        src = (uint*)shmaddr + r.bottom()*lineskip + r.left();
+        dest = (uint*)shmaddr + (p.y()+r.height()-1)*lineskip + p.x();
         lineskip = -lineskip;
     } else {
-        src = (char*)shmaddr + r.top()*lineskip + r.left()*depth/8;
-        dest = (char*)shmaddr + p.y()*lineskip + p.x()*depth/8;
+        src = (uint*)shmaddr + r.top()*lineskip + r.left();
+        dest = (uint*)shmaddr + p.y()*lineskip + p.x();
     }
 
-    int bytes = r.width() * depth / 8;
+    const int w = r.width();
     int h = r.height();
-    do {
-        memmove(dest, src, bytes);
-        dest += lineskip;
-        src += lineskip;
-    } while (--h);
+    const int bytes = w * sizeof(uint);
+    if (r.left() < p.x()) {
+        do {
+            // backwards horizontally
+            ::memmove(dest, src, bytes);
+            dest += lineskip;
+            src += lineskip;
+        } while (--h);
+    } else {
+        do {
+            // backwards horizontally
+            ::memcpy(dest, src, bytes);
+            dest += lineskip;
+            src += lineskip;
+        } while (--h);
+    }
 }
 
 void QWSBackingStore::detach()
