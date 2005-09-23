@@ -200,7 +200,7 @@ void QTextDocumentPrivate::clear()
     int len = fragments.length();
     fragments.clear();
     blocks.clear();
-    resources.clear();
+    cachedResources.clear();
     q->contentsChange(0, len, 0);
     if (lout)
         lout->documentChanged(0, len, 0);

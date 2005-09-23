@@ -279,6 +279,7 @@ private:
     QList<QTextCursorPrivate*> changedCursors;
     QMap<int, QTextObject *> objects;
     QMap<QUrl, QVariant> resources;
+    QMap<QUrl, QVariant> cachedResources;
 
     QTextDocumentConfig docConfig;
     bool useDesignMetrics;

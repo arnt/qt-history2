@@ -299,6 +299,7 @@ void QTextDocument::clear()
 {
     Q_D(QTextDocument);
     d->clear();
+    d->resources.clear();
 }
 
 /*!
@@ -526,8 +527,9 @@ QString QTextDocument::toPlainText() const
 */
 void QTextDocument::setPlainText(const QString &text)
 {
+    Q_D(QTextDocument);
     setUndoRedoEnabled(false);
-    clear();
+    d->clear();
     QTextCursor(this).insertText(text);
     setUndoRedoEnabled(true);
 }
@@ -544,8 +546,9 @@ void QTextDocument::setPlainText(const QString &text)
 */
 void QTextDocument::setHtml(const QString &html)
 {
+    Q_D(QTextDocument);
     setUndoRedoEnabled(false);
-    clear();
+    d->clear();
     QTextHtmlImporter(this, html).import();
     setUndoRedoEnabled(true);
 }
@@ -941,8 +944,11 @@ QVariant QTextDocument::resource(int type, const QUrl &name) const
 {
     Q_D(const QTextDocument);
     QVariant r = d->resources.value(name);
-    if (!r.isValid())
-        r = const_cast<QTextDocument *>(this)->loadResource(type, name);
+    if (!r.isValid()) {
+        r = d->cachedResources.value(name);
+        if (!r.isValid())
+            r = const_cast<QTextDocument *>(this)->loadResource(type, name);
+    }
     return r;
 }
 
@@ -975,6 +981,7 @@ void QTextDocument::addResource(int type, const QUrl &name, const QVariant &reso
 */
 QVariant QTextDocument::loadResource(int type, const QUrl &name)
 {
+    Q_D(QTextDocument);
     QVariant r;
     if (QTextDocument *doc = qobject_cast<QTextDocument *>(parent()))
         r = doc->loadResource(type, name);
@@ -983,7 +990,7 @@ QVariant QTextDocument::loadResource(int type, const QUrl &name)
         r = edit->loadResource(type, name);
 #endif
     if (!r.isNull())
-        addResource(type, name, r);
+        d->cachedResources.insert(name, r);
     return r;
 }
 
