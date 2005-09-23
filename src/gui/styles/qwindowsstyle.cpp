@@ -1844,7 +1844,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 default:
                     break;
                 }
-                if( QApplication::reverseLayout()){ //reverse layout changes the order of Beginning/end
+                if(QApplication::layoutDirection() == Qt::RightToLeft){ //reverse layout changes the order of Beginning/end
                     bool tmp = paintLeftBorder;
                     paintRightBorder=paintLeftBorder;
                     paintLeftBorder=tmp;
