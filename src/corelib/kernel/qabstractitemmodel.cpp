@@ -1049,6 +1049,7 @@ bool QAbstractItemModel::hasIndex(int row, int column, const QModelIndex &parent
 
 /*!
   Returns true if \a parent has any children; otherwise returns false.
+  Use rowCount() on the parent to find out the number of children.
 
   \sa parent() index()
 */
