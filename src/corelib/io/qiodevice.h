@@ -22,7 +22,7 @@
 #include <QtCore/qstring.h>
 
 #ifdef open
-#error qiodevice.h must be included before any system header that defines open
+#error qiodevice.h must be included before any header file that defines open
 #endif
 
 QT_MODULE(Core)

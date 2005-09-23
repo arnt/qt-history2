@@ -17,6 +17,10 @@
 #include <QtCore/qiodevice.h>
 #include <QtCore/qglobal.h>
 
+#ifdef Status
+#error qdatastream.h must be included before any header file that defines Status
+#endif
+
 QT_MODULE(Core)
 
 class QByteArray;
@@ -45,7 +49,7 @@ public:
         Qt_4_0 = 7,
         Qt_4_1 = Qt_4_0
 #if QT_VERSION >= 0x040200
-#error "Add Qt_4_2 = Qt_4_1"
+#error Add Qt_4_2 = Qt_4_1
 #endif
     };
 
@@ -54,9 +58,6 @@ public:
         LittleEndian = QSysInfo::LittleEndian
     };
 
-#ifdef Status
-#error qdatastream.h must be included before any system header that defines Status
-#endif
     enum Status {
         Ok,
         ReadPastEnd,

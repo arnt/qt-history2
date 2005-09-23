@@ -18,7 +18,7 @@
 #include <QtCore/qpoint.h>
 
 #ifdef topLeft
-#error "qrect.h must be included before any header file that defines topLeft"
+#error qrect.h must be included before any header file that defines topLeft
 #endif
 
 QT_MODULE(Core)

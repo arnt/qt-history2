@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
+#ifndef QAXBASE_H
+#define QAXBASE_H
+
 #ifndef UNICODE
 #define UNICODE
 #endif
-
-#ifndef QAXBASE_H
-#define QAXBASE_H
 
 #include <QtCore/qdatastream.h>
 #include <QtCore/qmap.h>

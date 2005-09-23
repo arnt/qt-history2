@@ -17,7 +17,7 @@
 #include <QtCore/qdir.h>
 
 #ifdef open
-#error qabstractfileengine.h must be included before any system header that defines open
+#error qabstractfileengine.h must be included before any header file that defines open
 #endif
 
 QT_MODULE(Core)
@@ -25,9 +25,9 @@ QT_MODULE(Core)
 class QFileExtension;
 class QFileExtensionResult;
 class QVariant;
-
 class QAbstractFileEngineIterator;
 class QAbstractFileEnginePrivate;
+
 class Q_CORE_EXPORT QAbstractFileEngine
 {
 public:

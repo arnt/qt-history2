@@ -15,7 +15,7 @@
 #define QAXTYPES_H
 
 #if !defined(_WINDOWS_) && !defined(_WINDOWS_H)
-#error "Must include windows.h first!"
+#error Must include windows.h first!
 #endif
 
 #include <QtGui/qcolor.h>

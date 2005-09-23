@@ -16,7 +16,10 @@
 
 #include <QtCore/qabstractfileengine.h>
 
+QT_MODULE(Core)
+
 class QFSFileEnginePrivate;
+
 class Q_CORE_EXPORT QFSFileEngine : public QAbstractFileEngine
 {
     Q_DECLARE_PRIVATE(QFSFileEngine)

@@ -16,17 +16,17 @@
 
 #include <QtCore/qiodevice.h>
 #include <QtCore/qstring.h>
-
 #include <stdio.h>
 
 #ifdef open
-#error qfile.h must be included before any system header that defines open
+#error qfile.h must be included before any header file that defines open
 #endif
 
 QT_MODULE(Core)
 
 class QAbstractFileEngine;
 class QFilePrivate;
+
 class Q_CORE_EXPORT QFile : public QIODevice
 {
 #ifndef QT_NO_QOBJECT

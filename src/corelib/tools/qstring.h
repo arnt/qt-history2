@@ -41,7 +41,6 @@ typedef std::basic_string<wchar_t> QStdWString;
 
 #include <stdarg.h>
 
-// POSIX defines truncate to truncate64
 #ifdef truncate
 #error qstring.h must be included before any header file that defines truncate
 #endif

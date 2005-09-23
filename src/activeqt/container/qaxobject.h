@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
+#ifndef QAXOBJECT_H
+#define QAXOBJECT_H
+
 #ifndef UNICODE
 #define UNICODE
 #endif
-
-#ifndef QAXOBJECT_H
-#define QAXOBJECT_H
 
 #include <ActiveQt/qaxbase.h>
 

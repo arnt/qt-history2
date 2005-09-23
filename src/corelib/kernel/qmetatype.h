@@ -17,15 +17,15 @@
 #include <QtCore/qglobal.h>
 #include <QtCore/qatomic.h>
 
-#ifndef QT_NO_DATASTREAM
-class QDataStream;
-#endif
-
 #ifdef Bool
-#error qmetatype.h must be included before any system header that defines Bool
+#error qmetatype.h must be included before any header file that defines Bool
 #endif
 
 QT_MODULE(Core)
+
+#ifndef QT_NO_DATASTREAM
+class QDataStream;
+#endif
 
 class Q_CORE_EXPORT QMetaType {
 public:

@@ -18,12 +18,13 @@
 #include <QtCore/qfile.h>
 
 #ifdef open
-#error qtemporaryfile.h must be included before any system header that defines open
+#error qtemporaryfile.h must be included before any header file that defines open
 #endif
 
 QT_MODULE(Core)
 
 class QTemporaryFilePrivate;
+
 class Q_CORE_EXPORT QTemporaryFile : public QFile
 {
 #ifndef QT_NO_QOBJECT

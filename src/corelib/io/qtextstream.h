@@ -26,6 +26,10 @@
 
 #include <stdio.h>
 
+#ifdef Status
+#error qtextstream.h must be included before any header file that defines Status
+#endif
+
 QT_MODULE(Core)
 
 class QTextCodec;
@@ -48,9 +52,6 @@ public:
         AlignCenter,
         AlignAccountingStyle
     };
-#ifdef Status
-#error qtextstream.h must be included before any system header that defines Status
-#endif
     enum Status {
         Ok,
         ReadPastEnd,
