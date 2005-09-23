@@ -3890,7 +3890,6 @@ void Q3TextString::checkBidi() const
         ch->softBreak = ca->softBreak;
         ch->whiteSpace = ca->whiteSpace;
         ch->charStop = ca->charStop;
-        ch->wordStop = ca->wordStop;
         ch->bidiLevel = bidiLevel;
         ch->rightToLeft = (bidiLevel%2);
         --ch;

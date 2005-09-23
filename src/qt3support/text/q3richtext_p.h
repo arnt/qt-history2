@@ -90,7 +90,6 @@ public:
     uchar softBreak      :1;     // Potential linebreak point
     uchar whiteSpace     :1;     // A unicode whitespace character, except NBSP, ZWNBSP
     uchar charStop       :1;     // Valid cursor position (for left/right arrow)
-    uchar wordStop       :1;     // Valid cursor position (for ctrl + left/right arrow)
     uchar nobreak        :1;
 
     uchar lineStart : 1;
