@@ -43,6 +43,9 @@ Qt Assistant
 General Fixes
 -------------
 
+- QByteArray
+        Added toLong() and toULong().
+
 - QFileDialog
 	Fix shortcut and focus for "Alpha channel" spinbox.
 
