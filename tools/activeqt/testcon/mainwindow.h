@@ -31,6 +31,7 @@ protected slots:
     void on_actionControlPixmap_triggered();
     void on_actionControlProperties_triggered();
     void on_actionControlMethods_triggered();
+    void on_VerbMenu_aboutToShow();
 
     void on_actionScriptingLoad_triggered();
     void on_actionScriptingRun_triggered();
@@ -50,6 +51,8 @@ private slots:
     void logSignal(const QString &signal, int argc, void *argv);
     void logException(int code, const QString&source, const QString&desc, const QString&help);
     void logMacro(int code, const QString &description, int sourcePosition, const QString &sourceText);
+
+    void on_VerbMenu_triggered(QAction *action);
 };
 
 

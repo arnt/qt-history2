@@ -18,7 +18,7 @@ ChangeProperties::ChangeProperties(QWidget *parent)
 {
     setupUi(this);
 
-    listProperties->setColumnCount(2);
+    listProperties->setColumnCount(3);
     listProperties->headerItem()->setText(0, "Name");
     listProperties->headerItem()->setText(1, "Type");
     listProperties->headerItem()->setText(2, "Value");

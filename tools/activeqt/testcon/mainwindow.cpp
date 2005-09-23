@@ -185,6 +185,33 @@ void MainWindow::on_actionControlMethods_triggered()
     dlgInvoke->show();
 }
 
+void MainWindow::on_VerbMenu_aboutToShow()
+{
+    VerbMenu->clear();
+
+    QAxWidget *container = qobject_cast<QAxWidget*>(workspace->activeWindow());
+    if (!container)
+        return;
+
+    QStringList verbs = container->verbs();
+    for (int i = 0; i < verbs.count(); ++i) {
+        VerbMenu->addAction(verbs.at(i));
+    }
+
+    if (!verbs.count()) { // no verbs?
+        VerbMenu->addAction(tr("-- Object does not support any verbs --"))->setEnabled(false);
+    }
+}
+
+void MainWindow::on_VerbMenu_triggered(QAction *action)
+{
+    QAxWidget *container = qobject_cast<QAxWidget*>(workspace->activeWindow());
+    if (!container)
+        return;
+
+    container->doVerb(action->text());
+}
+
 void MainWindow::on_actionControlDocumentation_triggered()
 {
     QAxWidget *container = qobject_cast<QAxWidget*>(workspace->activeWindow());
@@ -196,6 +223,7 @@ void MainWindow::on_actionControlDocumentation_triggered()
 	return;
 
     DocuWindow *docwindow = new DocuWindow(docu, workspace, container);
+    workspace->addWindow(docwindow);
     docwindow->show();
 }
 
@@ -213,6 +241,7 @@ void MainWindow::on_actionControlPixmap_triggered()
     label->setPixmap(pm);
     label->setWindowTitle(container->windowTitle() + " - Pixmap");
 
+    workspace->addWindow(label);
     label->show();
 }
 
@@ -295,6 +324,7 @@ void MainWindow::updateGUI()
     actionControlInfo->setEnabled(hasControl);
     actionControlDocumentation->setEnabled(hasControl);
     actionControlPixmap->setEnabled(hasControl);
+    VerbMenu->setEnabled(hasControl);
     if (dlgInvoke)
 	dlgInvoke->setControl(hasControl ? container : 0);
     if (dlgProperties)

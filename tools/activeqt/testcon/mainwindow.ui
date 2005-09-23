@@ -97,9 +97,9 @@
                       <verstretch>0</verstretch>
                     </sizepolicy>
                   </property>
-                  <widget class="QWidget" name="tab" >
+                  <widget class="QWidget" name="logSignalsTab" >
                     <property name="objectName" >
-                      <string notr="true" >tab</string>
+                      <string notr="true" >logSignalsTab</string>
                     </property>
                     <attribute name="title" >
                       <string>Signal log</string>
@@ -134,9 +134,9 @@
                       </item>
                     </layout>
                   </widget>
-                  <widget class="QWidget" name="tab" >
+                  <widget class="QWidget" name="logPropertiesTab" >
                     <property name="objectName" >
-                      <string notr="true" >tab</string>
+                      <string notr="true" >logPropertiesTab</string>
                     </property>
                     <attribute name="title" >
                       <string>Property log</string>
@@ -205,9 +205,9 @@
                       </item>
                     </layout>
                   </widget>
-                  <widget class="QWidget" name="tab" >
+                  <widget class="QWidget" name="logDebugTab" >
                     <property name="objectName" >
-                      <string notr="true" >tab</string>
+                      <string notr="true" >logDebugTab</string>
                     </property>
                     <attribute name="title" >
                       <string>Debug log</string>
@@ -265,9 +265,9 @@
       <property name="objectName" >
         <string notr="true" >menubar</string>
       </property>
-      <widget class="QMenu" name="PopupMenu" >
+      <widget class="QMenu" name="FileMenu" >
         <property name="objectName" >
-          <string notr="true" >PopupMenu</string>
+          <string notr="true" >FileMenu</string>
         </property>
         <property name="title" >
           <string>&amp;File</string>
@@ -278,9 +278,9 @@
         <addaction name="separator" />
         <addaction name="actionFileExit" />
       </widget>
-      <widget class="QMenu" name="PopupMenu_3" >
+      <widget class="QMenu" name="ContainerMenu" >
         <property name="objectName" >
-          <string notr="true" >PopupMenu_3</string>
+          <string notr="true" >ContainerMenu</string>
         </property>
         <property name="title" >
           <string>Con&amp;tainer</string>
@@ -290,23 +290,35 @@
         <addaction name="separator" />
         <addaction name="actionContainerProperties" />
       </widget>
-      <widget class="QMenu" name="PopupMenu_2" >
+      <widget class="QMenu" name="ControlMenu" >
         <property name="objectName" >
-          <string notr="true" >PopupMenu_2</string>
+          <string notr="true" >ControlMenu</string>
         </property>
         <property name="title" >
           <string>&amp;Control</string>
         </property>
+        <widget class="QMenu" name="VerbMenu" >
+          <property name="objectName" >
+            <string notr="true" >VerbMenu</string>
+          </property>
+          <property name="title" >
+            <string>&amp;Verbs...</string>
+          </property>
+          <property name="enabled" >
+            <bool>false</bool>
+          </property>
+        </widget>
         <addaction name="actionControlMethods" />
         <addaction name="actionControlProperties" />
+        <addaction name="VerbMenu" />
         <addaction name="separator" />
         <addaction name="actionControlInfo" />
         <addaction name="actionControlDocumentation" />
         <addaction name="actionControlPixmap" />
       </widget>
-      <widget class="QMenu" name="PopupMenuEditor" >
+      <widget class="QMenu" name="ScriptMenu" >
         <property name="objectName" >
-          <string notr="true" >PopupMenuEditor</string>
+          <string notr="true" >ScriptMenu</string>
         </property>
         <property name="title" >
           <string>&amp;Scripting</string>
@@ -314,16 +326,16 @@
         <addaction name="actionScriptingLoad" />
         <addaction name="actionScriptingRun" />
       </widget>
-      <widget class="QMenu" name="PopupMenu_4" >
+      <widget class="QMenu" name="OptionsMenu" >
         <property name="objectName" >
-          <string notr="true" >PopupMenu_4</string>
+          <string notr="true" >OptionsMenu</string>
         </property>
         <property name="title" >
           <string>&amp;Options</string>
         </property>
-        <widget class="QMenu" name="actionGroupLogging_2" >
+        <widget class="QMenu" name="LoggingMenu" >
           <property name="objectName" >
-            <string notr="true" >actionGroupLogging_2</string>
+            <string notr="true" >LoggingMenu</string>
           </property>
           <property name="title" >
             <string>Log...</string>
@@ -333,13 +345,13 @@
         </widget>
         <addaction name="actionFreezeEvents" />
         <addaction name="actionGroupLogging" />
-        <addaction name="actionGroupLogging_2" />
+        <addaction name="LoggingMenu" />
       </widget>
-      <addaction name="PopupMenu" />
-      <addaction name="PopupMenu_3" />
-      <addaction name="PopupMenu_2" />
-      <addaction name="PopupMenuEditor" />
-      <addaction name="PopupMenu_4" />
+      <addaction name="FileMenu" />
+      <addaction name="ContainerMenu" />
+      <addaction name="ControlMenu" />
+      <addaction name="ScriptMenu" />
+      <addaction name="OptionsMenu" />
     </widget>
     <action name="actionFileExit" >
       <property name="objectName" >
