@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 #include "qsvgrenderer.h"
-#include "qsvgrenderer_p.h"
 
 #include "qsvgtinydocument_p.h"
 
