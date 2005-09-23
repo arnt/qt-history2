@@ -3569,7 +3569,7 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, QRect *br
     d->updateState(d->state);
 
     QRectF bounds;
-    qt_format_text(font(), r, flags, str, br ? &bounds : 0, 0, 0, 0, this);
+    qt_format_text(d->state->font, r, flags, str, br ? &bounds : 0, 0, 0, 0, this);
     if (br)
         *br = bounds.toRect();
 }
@@ -3605,7 +3605,7 @@ void QPainter::drawText(const QRectF &r, int flags, const QString &str, QRectF *
     Q_D(QPainter);
     d->updateState(d->state);
 
-    qt_format_text(font(), r, flags, str, br, 0, 0, 0, this);
+    qt_format_text(d->state->font, r, flags, str, br, 0, 0, 0, this);
 }
 
 /*!
@@ -3639,7 +3639,7 @@ void QPainter::drawText(const QRectF &r, const QString &text, const QTextOption 
     if (o.flags() & QTextOption::IncludeTrailingSpaces)
         flags |= Qt::TextIncludeTrailingSpaces;
 
-    qt_format_text(font(), r, flags, text, 0, 0, 0, 0, this);
+    qt_format_text(d->state->font, r, flags, text, 0, 0, 0, 0, this);
 }
 
 /*!
@@ -3794,7 +3794,7 @@ QRectF QPainter::boundingRect(const QRectF &r, const QString &text, const QTextO
         flags |= Qt::TextIncludeTrailingSpaces;
 
     QRectF br;
-    qt_format_text(font(), r, flags, text, &br, 0, 0, 0, this);
+    qt_format_text(d->state->font, r, flags, text, &br, 0, 0, 0, this);
     return br;
 }
 
@@ -4570,7 +4570,7 @@ QPaintDevice *QPainter::redirected(const QPaintDevice *device, QPoint *offset)
 }
 
 
-void qt_format_text(const QFont &font, const QRectF &_r,
+void qt_format_text(const QFont &fnt, const QRectF &_r,
                     int tf, const QString& str, QRectF *brect,
                     int tabstops, int *, int tabarraylen,
                     QPainter *painter)
@@ -4584,9 +4584,10 @@ void qt_format_text(const QFont &font, const QRectF &_r,
     bool showmnemonic = (tf & Qt::TextShowMnemonic);
     bool hidemnmemonic = (tf & Qt::TextHideMnemonic);
 
-    tf = QStyle::visualAlignment(painter ? painter->layoutDirection() : QApplication::layoutDirection(), QFlag(tf));
+    Qt::LayoutDirection layout_direction = painter ? painter->layoutDirection() : QApplication::layoutDirection();
+    tf = QStyle::visualAlignment(layout_direction, QFlag(tf));
 
-    bool isRightToLeft = (painter ? painter->layoutDirection() : qApp->layoutDirection()) == Qt::RightToLeft;
+    bool isRightToLeft = layout_direction == Qt::RightToLeft;
     bool expandtabs = ((tf & Qt::TextExpandTabs) &&
                         (((tf & Qt::AlignLeft) && !isRightToLeft) ||
                           ((tf & Qt::AlignRight) && isRightToLeft)));
@@ -4599,7 +4600,6 @@ void qt_format_text(const QFont &font, const QRectF &_r,
     int underlinePositionStack[32];
     int *underlinePositions = underlinePositionStack;
 
-    QFont fnt(painter ? painter->d_ptr->state->font : font);
     QFontMetricsF fm(fnt);
 
     QString text = str;
@@ -4607,6 +4607,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
     // tabs by spaces
     QChar *chr = text.data();
     const QChar *end = chr + str.length();
+    bool has_tab = false;
     while (chr != end) {
         if (*chr == QLatin1Char('\r') || (singleline && *chr == QLatin1Char('\n'))) {
             *chr = ' ';
@@ -4614,20 +4615,24 @@ void qt_format_text(const QFont &font, const QRectF &_r,
             *chr = QChar::LineSeparator;
         } else if (*chr == QLatin1Char('&')) {
             ++maxUnderlines;
+        } else if (*chr == QLatin1Char('\t')) {
+            has_tab = true;
         }
         ++chr;
     }
-    if (!expandtabs) {
-        chr = text.data();
-        while (chr != end) {
-            if (*chr == QLatin1Char('\t'))
-                *chr = QLatin1Char(' ');
-            ++chr;
+    if (has_tab) {
+        if (!expandtabs) {
+            chr = text.data();
+            while (chr != end) {
+                if (*chr == QLatin1Char('\t'))
+                    *chr = QLatin1Char(' ');
+                ++chr;
+            }
+        } else if (!tabarraylen && !tabstops) {
+            tabstops = qRound(fm.width(QLatin1Char('x'))*8);
         }
-    } else if (!tabarraylen && !tabstops) {
-        tabstops = qRound(fm.width(QLatin1Char('x'))*8);
     }
-
+    
     if (hidemnmemonic || showmnemonic) {
         if (maxUnderlines > 32)
             underlinePositions = new int[maxUnderlines];
