@@ -208,24 +208,24 @@ do {                                        \
     }                                       \
 } while (0)
 
-#define QT_MEMCPY_UINT(dest, src, length)   \
-do {                                        \
-    /* Duff's device */                     \
-    uint *d = (dest);                       \
-    const uint *s = (src);                  \
-    register int n = ((length) + 7) / 8;    \
-    switch ((length) & 0x07)                \
-    {                                       \
-    case 0: do { *d++ = *s++;               \
-    case 7:      *d++ = *s++;               \
-    case 6:      *d++ = *s++;               \
-    case 5:      *d++ = *s++;               \
-    case 4:      *d++ = *s++;               \
-    case 3:      *d++ = *s++;               \
-    case 2:      *d++ = *s++;               \
-    case 1:      *d++ = *s++;               \
-    } while (--n > 0);                      \
-    }                                       \
+#define QT_MEMFILL_USHORT(dest, length, color) \
+do {                                           \
+    /* Duff's device */                        \
+    ushort *d = (dest);                        \
+    ushort c = (color);                        \
+    register int n = ((length) + 7) / 8;       \
+    switch ((length) & 0x07)                   \
+    {                                          \
+    case 0: do { *d++ = c;                     \
+    case 7:      *d++ = c;                     \
+    case 6:      *d++ = c;                     \
+    case 5:      *d++ = c;                     \
+    case 4:      *d++ = c;                     \
+    case 3:      *d++ = c;                     \
+    case 2:      *d++ = c;                     \
+    case 1:      *d++ = c;                     \
+    } while (--n > 0);                         \
+    }                                          \
 } while (0)
 
 #define QT_MEMCPY_REV_UINT(dest, src, length) \

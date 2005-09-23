@@ -116,7 +116,7 @@ static void QT_FASTCALL comp_func_solid_Source(uint *dest, int length, uint colo
 static void QT_FASTCALL comp_func_Source(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
-        QT_MEMCPY_UINT(dest, src, length);
+        ::memcpy(dest, src, length * sizeof(uint));
     } else {
         int ialpha = 255 - const_alpha;
         for (int i = 0; i < length; ++i)
@@ -164,7 +164,7 @@ static void QT_FASTCALL comp_func_SourceOver(uint *dest, const uint *src, int le
 */
 static void QT_FASTCALL comp_func_solid_DestinationOver(uint *dest, int length, uint color, uint const_alpha)
 {
-    if (const_alpha != 255) 
+    if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
     for (int i = 0; i < length; ++i) {
         uint d = dest[i];
@@ -256,6 +256,7 @@ static void QT_FASTCALL comp_func_DestinationIn(uint *dest, const uint *src, int
   result = s * dia
   dest = s * dia * ca + d * cia
 */
+
 static void QT_FASTCALL comp_func_solid_SourceOut(uint *dest, int length, uint color, uint const_alpha)
 {
     if (const_alpha == 255) {
@@ -392,10 +393,10 @@ static void QT_FASTCALL comp_func_DestinationAtop(uint *dest, const uint *src, i
 */
 static void QT_FASTCALL comp_func_solid_XOR(uint *dest, int length, uint color, uint const_alpha)
 {
-    if (const_alpha != 255) 
+    if (const_alpha != 255)
         color = BYTE_MUL(color, const_alpha);
     uint sia = qAlpha(~color);
-    
+
     for (int i = 0; i < length; ++i) {
         uint d = dest[i];
         dest[i] = INTERPOLATE_PIXEL_255(color, qAlpha(~d), d, sia);
@@ -455,7 +456,6 @@ static const CompositionFunction *functionForMode = functionForMode_C;
 
 
 // -------------------- blend methods ---------------------
-
 static void blend_color_argb(int count, const QSpan *spans, void *userData)
 {
     QSpanData *data = reinterpret_cast<QSpanData *>(userData);
@@ -2042,6 +2042,8 @@ enum CPUFeatures {
 static uint detectCPUFeatures() {
 #if defined(__x86_64__) || defined(Q_OS_WIN64)
     return MMX|SSE|SSE2|CMOV;
+#elif defined(__IWMMXT__)
+    return MMX|SSE;
 #else
     uint result = 0;
     /* see p. 118 of amd64 instruction set manual Vol3 */
@@ -2113,8 +2115,8 @@ extern void qt_blend_color_argb_sse(int count, const QSpan *spans, void *userDat
 
 void qInitDrawhelperAsm()
 {
-    static uint features = 0;
-    if (features)
+    static uint features = 0xffffffff;
+    if (features != 0xffffffff)
         return;
     features = detectCPUFeatures();
 
@@ -2132,3 +2134,4 @@ void qInitDrawhelperAsm()
 void qInitDrawhelperAsm() {}
 
 #endif // Q_HAVE_SSE
+

@@ -18,7 +18,9 @@
 
 #ifdef Q_CC_GNU
 #  include <mmintrin.h>
-#  include <xmmintrin.h>
+#  if !defined(__IWMMXT__)
+#    include <xmmintrin.h>
+#  endif
 // It seems that gcc (3.1 <= x < 3.4) segfaults when casting the ULL immediate values to __m64.
 // A workaround was proposed here: http://gcc.gnu.org/ml/gcc-prs/2002-07/msg00329.html
 #  if __GNUC__ == 3 && __GNUC_MINOR__ >= 1 && __GNUC_MINOR__ < 4
@@ -42,6 +44,11 @@
 
 typedef __m64 m64;
 
+#ifndef _MM_SHUFFLE
+#define _MM_SHUFFLE(fp3,fp2,fp1,fp0) \
+ (((fp3) << 6) | ((fp2) << 4) | ((fp1) << 2) | (fp0))
+
+#endif
 
 static inline m64 alpha(m64 x)
 {
@@ -106,10 +113,14 @@ static inline uint _store(const m64 &x, const m64 &mmx_0x0000)
 }
 #define store(x) _store(x, mmx_0x0000)
 
+#if defined(__IWMMXT__)
+static inline void end_mmx() {}
+#else
 static inline void end_mmx()
 {
     _mm_empty();
 }
+#endif
 
 /*
   result = 0
@@ -168,8 +179,7 @@ static void QT_FASTCALL comp_func_solid_Source(uint *dest, int length, uint src,
 static void QT_FASTCALL comp_func_Source(uint *dest, const uint *src, int length, uint const_alpha)
 {
     if (const_alpha == 255) {
-        for (int i = 0; i < length; ++i)
-            dest[i] = src[i];
+        ::memcpy(dest, src, length * sizeof(uint));
     } else {
         C_FF; C_80; C_00;
         const m64 a = load_alpha(const_alpha);
