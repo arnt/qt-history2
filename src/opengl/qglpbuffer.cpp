@@ -182,43 +182,33 @@ int QGLPbuffer::metric(PaintDeviceMetric metric) const
     switch (metric) {
     case PdmWidth:
         return w;
-        break;
 
     case PdmHeight:
         return h;
-        break;
 
     case PdmWidthMM:
         return qRound(w * 1000 / dpmx);
-        break;
 
     case PdmHeightMM:
         return qRound(h * 1000 / dpmy);
-        break;
 
     case PdmNumColors:
         return 0;
-        break;
 
     case PdmDepth:
         return 32;//d->depth;
-        break;
 
     case PdmDpiX:
         return (int)(dpmx * 0.0254);
-        break;
 
     case PdmDpiY:
         return (int)(dpmy * 0.0254);
-        break;
 
     case PdmPhysicalDpiX:
         return (int)(dpmx * 0.0254);
-        break;
 
     case PdmPhysicalDpiY:
         return (int)(dpmy * 0.0254);
-        break;
 
     default:
         qWarning("QGLPbuffer::metric(), Unhandled metric type: %d\n", metric);
