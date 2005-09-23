@@ -300,8 +300,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
 
         // skip if already at word start
         if (attributes[relativePos - 1].whiteSpace
-            && (attributes[relativePos].wordStop
-                || !attributes[relativePos].whiteSpace))
+            && !attributes[relativePos].whiteSpace)
             return false;
 
         // FALL THROUGH!
@@ -370,7 +369,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         if (relativePos >= len)
             return false;
         relativePos++;
-        while (relativePos < len && !attributes[relativePos].wordStop
+        while (relativePos < len
                && !attributes[relativePos].whiteSpace
                && !engine->atWordSeparator(relativePos))
             relativePos++;

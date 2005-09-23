@@ -326,14 +326,11 @@ struct QGlyphLayout
 };
 Q_DECLARE_TYPEINFO(QGlyphLayout, Q_PRIMITIVE_TYPE);
 
-// also this is compatible to uniscribe. Do not change.
 struct QCharAttributes {
     uchar softBreak      :1;     // Potential linebreak point _before_ this character
     uchar whiteSpace     :1;     // A unicode whitespace character, except NBSP, ZWNBSP
     uchar charStop       :1;     // Valid cursor position (for left/right arrow)
-    uchar wordStop       :1;     // Valid cursor position (for ctrl + left/right arrow)
-    uchar invalid        :1;
-    uchar reserved       :3;
+    uchar category       :5;
 };
 Q_DECLARE_TYPEINFO(QCharAttributes, Q_PRIMITIVE_TYPE);
 
@@ -379,9 +376,18 @@ struct QScriptLine
     mutable uint gridfitted : 1;
     QFixed height() const { return ascent + descent + 1; }
     void setDefaultHeight(QTextEngine *eng);
-    QScriptLine &operator+=(const QScriptLine &other);
+    void operator+=(const QScriptLine &other);
 };
 Q_DECLARE_TYPEINFO(QScriptLine, Q_PRIMITIVE_TYPE);
+
+
+inline void QScriptLine::operator+=(const QScriptLine &other)
+{
+    descent = qMax(descent, other.descent);
+    ascent = qMax(ascent, other.ascent);
+    textWidth += other.textWidth;
+    length += other.length;
+}
 
 typedef QVector<QScriptLine> QScriptLineArray;
 

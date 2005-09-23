@@ -219,19 +219,24 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
 #ifndef Q_WS_MAC
     int glyph_pos = 0;
     for (int i = 0; i < length; i++) {
-        bool surrogate = (uc[i].unicode() >= 0xd800 && uc[i].unicode() < 0xdc00 && i < length-1
-                          && uc[i+1].unicode() >= 0xdc00 && uc[i+1].unicode() < 0xe000);
-        logClusters[i] = glyph_pos;
-        if (surrogate) {
+        if (uc[i].unicode() >= 0xd800 && uc[i].unicode() < 0xdc00 && i < length-1
+            && uc[i+1].unicode() >= 0xdc00 && uc[i+1].unicode() < 0xe000) {
+            logClusters[i] = glyph_pos;
             logClusters[++i] = glyph_pos;
+        } else {
+            logClusters[i] = glyph_pos;
         }
         ++glyph_pos;
     }
     Q_ASSERT(glyph_pos == item->num_glyphs);
 #else
+    logClusters[0] = 0;
     for (int i = 0; i < length; ++i) {
-        bool surrogate = i > 0 && (uc[i - 1].unicode() >= 0xd800 && uc[i - 1].unicode() < 0xdc00                          && uc[i].unicode() >= 0xdc00 && uc[i].unicode() < 0xe000);
-        logClusters[i] = surrogate ? i - 1 : i;
+        if (uc[i - 1].unicode() >= 0xd800 && uc[i - 1].unicode() < 0xdc00
+            && uc[i].unicode() >= 0xdc00 && uc[i].unicode() < 0xe000)
+            logClusters[i] = i - 1;
+        else 
+            logClusters[i] = i;
 
     }
     Q_ASSERT(item->num_glyphs == length);
@@ -243,7 +248,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
     glyphs[0].attributes.clusterStart = true;
 
     int pos = 0;
-    QChar::Category lastCat = ::category(uc[0]);
+    int lastCat = ::category(uc[0]);
     for (int i = 1; i < length; ++i) {
         if (logClusters[i] == pos)
             // same glyph
@@ -253,18 +258,19 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
             glyphs[pos].attributes = glyphs[pos-1].attributes;
             ++pos;
         }
-        QChar::Category cat = ::category(uc[i]);
+        const QUnicodeTables::Properties *prop = QUnicodeTables::properties(uc[0].unicode());
+        int cat = prop->category;
         if (cat != QChar::Mark_NonSpacing) {
             glyphs[pos].attributes.mark = false;
             glyphs[pos].attributes.clusterStart = true;
             glyphs[pos].attributes.combiningClass = 0;
             cStart = logClusters[i];
         } else {
-            int cmb = combiningClass(uc[i]);
+            int cmb = prop->combiningClass;
 
             if (cmb == 0) {
                 // Fix 0 combining classes
-                if (uc[pos].row() == 0x0e) {
+                if (uc[pos].unicode() & 0xff00 == 0x0e00) {
                     // thai or lao
                     unsigned char col = uc[pos].cell();
                     if (col == 0x31 ||
@@ -330,63 +336,6 @@ static bool basic_shape(QShaperItem *item)
     qt_heuristicPosition(item);
     return true;
 }
-
-static void basic_attributes(int /*script*/, const QString &text, int from, int len, QCharAttributes *attributes)
-{
-    const QChar *uc = text.unicode() + from;
-    attributes += from;
-
-    QCharAttributes *a = attributes;
-
-    for (int i = 0; i < len; i++) {
-        QChar::Category cat = ::category(*uc);
-        a->whiteSpace = (cat == QChar::Separator_Space) && (uc->unicode() != 0xa0);
-        a->softBreak = false;
-        a->charStop = (cat != QChar::Mark_NonSpacing);
-        if (cat == QChar::Other_Surrogate) {
-            // char stop only on first pair
-            a->charStop = (uc->unicode() >= 0xd800 && uc->unicode() < 0xdc00 && i < len-1
-                           && uc[1].unicode() >= 0xdc00 && uc[1].unicode() < 0xe000);
-        }
-        a->wordStop = (*uc == QChar::LineSeparator);
-        a->invalid = false;
-        ++uc;
-        ++a;
-    }
-}
-
-#if defined(Q_WS_QWS)
-static bool unicode_shape(QShaperItem *item)
-{
-    QString s = item->string->mid(item->from, item->length);
-    QChar *c = (QChar *)s.unicode();
-    for (int i = 0; i < item->length; ++i) {
-        ushort uc = c[i].unicode();
-        if (uc >= 0x200e && uc < 0x2070) {
-            if (uc < 0x2010
-                || (uc >= 0x2028 && uc <= 0x202f)
-                || uc >= 0x206a)
-                c[i] = QChar(0x20);
-        }
-    }
-    if (!item->font->stringToCMap(s.unicode(), item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
-        return false;
-    const QChar *cc = item->string->unicode() + item->from;
-    for (int i = 0; i < item->length; ++i) {
-        ushort uc = cc[i].unicode();
-        if (uc >= 0x200e && uc < 0x2070) {
-            if (uc < 0x2010
-                || (uc >= 0x2028 && uc <= 0x202f)
-                || uc >= 0x206a)
-                item->glyphs[i].advance = QFixedPoint();
-        }
-    }
-
-    heuristicSetGlyphAttributes(item);
-    qt_heuristicPosition(item);
-    return true;
-}
-#endif
 
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
@@ -1561,23 +1510,6 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
 }
 
 #endif
-
-static void arabic_attributes(int /*script*/, const QString &text, int from, int len, QCharAttributes *attributes)
-{
-    const QChar *uc = text.unicode() + from;
-    attributes += from;
-    for (int i = 0; i < len; i++) {
-        QChar::Category cat = ::category(*uc);
-        attributes->whiteSpace = (cat == QChar::Separator_Space) && (uc->unicode() != 0xa0);
-        attributes->softBreak = false;
-        attributes->charStop = (cat != QChar::Mark_NonSpacing);
-        attributes->wordStop = false;
-        attributes->invalid = false;
-        ++uc;
-        ++attributes;
-    }
-}
-
 
 // #### stil missing: identify invalid character combinations
 static bool arabic_shape(QShaperItem *item)

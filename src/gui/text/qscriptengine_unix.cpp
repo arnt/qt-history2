@@ -1754,21 +1754,12 @@ static void indic_attributes(int script, const QString &text, int from, int len,
     while (i < len) {
         bool invalid;
         int boundary = indic_nextSyllableBoundary(script, text, from+i, end, &invalid) - from;
-
-        attributes[i].whiteSpace = ::isSpace(*uc) && (uc->unicode() != 0xa0);
-        attributes[i].softBreak = false;
-        attributes[i].charStop = true;
-        attributes[i].wordStop = false;
-        attributes[i].invalid = invalid;
+         attributes[i].charStop = true;
 
         if (boundary > len-1) boundary = len;
         i++;
         while (i < boundary) {
-            attributes[i].whiteSpace = ::isSpace(*uc) && (uc->unicode() != 0xa0);
-            attributes[i].softBreak = false;
             attributes[i].charStop = false;
-            attributes[i].wordStop = false;
-            attributes[i].invalid = invalid;
             ++uc;
             ++i;
         }
@@ -1833,24 +1824,9 @@ static void thaiWordBreaks(const QChar *string, const int len, QCharAttributes *
 
 static void thai_attributes( int script, const QString &text, int from, int len, QCharAttributes *attributes )
 {
-    const QChar *uc = text.unicode() + from;
-    attributes += from;
-
-    QCharAttributes *a = attributes;
-    for ( int i = 0; i < len; i++ ) {
-	QChar::Category cat = ::category( *uc );
-	a->whiteSpace = (cat == QChar::Separator_Space) && (uc->unicode() != 0xa0);
-	a->charStop = (cat != QChar::Mark_NonSpacing);
-        // if we don't know any better, every charstop is a possible line break.
-	a->softBreak = a->charStop;
-	a->wordStop = false;
-	a->invalid = false;
-	++uc;
-	++a;
-    }
-
-    if (script == QUnicodeTables::Thai)
-        thaiWordBreaks(text.unicode() + from, len, attributes);
+    Q_UNUSED(script);
+    Q_ASSERT(script == QUnicodeTables::Thai);
+    thaiWordBreaks(text.unicode() + from, len, attributes);
 }
 
 
@@ -2086,20 +2062,12 @@ static void tibetan_attributes(int script, const QString &text, int from, int le
         bool invalid;
         int boundary = tibetan_nextSyllableBoundary(text, from+i, end, &invalid) - from;
 
-        attributes[i].whiteSpace = ::isSpace(*uc);
-        attributes[i].softBreak = false;
         attributes[i].charStop = true;
-        attributes[i].wordStop = false;
-        attributes[i].invalid = invalid;
 
         if (boundary > len-1) boundary = len;
         i++;
         while (i < boundary) {
-            attributes[i].whiteSpace = ::isSpace(*uc);
-            attributes[i].softBreak = false;
             attributes[i].charStop = false;
-            attributes[i].wordStop = false;
-            attributes[i].invalid = invalid;
             ++uc;
             ++i;
         }
@@ -2720,20 +2688,12 @@ static void khmer_attributes( int script, const QString &text, int from, int len
 	bool invalid;
 	int boundary = khmer_nextSyllableBoundary( text, from+i, end, &invalid ) - from;
 
-	attributes[i].whiteSpace = ::isSpace(*uc);
-	attributes[i].softBreak = false;
 	attributes[i].charStop = true;
-	attributes[i].wordStop = false;
-	attributes[i].invalid = invalid;
 
 	if ( boundary > len-1 ) boundary = len;
 	i++;
 	while ( i < boundary ) {
-	    attributes[i].whiteSpace = ::isSpace(*uc);
-	    attributes[i].softBreak = false;
 	    attributes[i].charStop = false;
-	    attributes[i].wordStop = false;
-	    attributes[i].invalid = invalid;
 	    ++uc;
 	    ++i;
 	}
@@ -2991,20 +2951,12 @@ static void hangul_attributes(int script, const QString &text, int from, int len
     while (i < len) {
         int boundary = hangul_nextSyllableBoundary(text, from+i, end) - from;
 
-        attributes[i].whiteSpace = false;
-        attributes[i].softBreak = true;
         attributes[i].charStop = true;
-        attributes[i].wordStop = false;
-        attributes[i].invalid = false;
 
         if (boundary > len-1) boundary = len;
         i++;
         while (i < boundary) {
-            attributes[i].whiteSpace = false;
-            attributes[i].softBreak = true;
             attributes[i].charStop = false;
-            attributes[i].wordStop = false;
-            attributes[i].invalid = false;
             ++uc;
             ++i;
         }
@@ -3020,15 +2972,15 @@ static void hangul_attributes(int script, const QString &text, int from, int len
 
 const q_scriptEngine qt_scriptEngines[] = {
     // Common
-    { basic_shape, basic_attributes },
+    { basic_shape, 0},
     // Hebrew
-    { hebrew_shape, basic_attributes },
+    { hebrew_shape, 0 },
     // Arabic
-    { arabic_shape, arabic_attributes },
+    { arabic_shape, 0},
     // Syriac
-    { syriac_shape, arabic_attributes },
+    { syriac_shape, 0},
     // Thaana
-    { thaana_shape, basic_attributes },
+    { thaana_shape, 0 },
     // Devanagari
     { indic_shape, indic_attributes },
     // Bengali
@@ -3052,20 +3004,13 @@ const q_scriptEngine qt_scriptEngines[] = {
     // Thai
     { basic_shape, thai_attributes },
     // Lao
-    { basic_shape, thai_attributes },
+    { basic_shape, 0 },
     // Tibetan
     { tibetan_shape, tibetan_attributes },
     // Myanmar
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Hangul
     { hangul_shape, hangul_attributes },
     // Khmer
     { khmer_shape, khmer_attributes }
-
-#if 0
-    // ### What about this one?
-    // Unicode
-    { unicode_shape, basic_attributes }
-#endif
-
 };

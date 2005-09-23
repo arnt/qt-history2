@@ -743,35 +743,76 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
         return;
 
     const QChar *uc = str.unicode();
-    int cls = lineBreakClass(*uc);
+    const QUnicodeTables::Properties *prop = QUnicodeTables::properties(uc->unicode());
+    int cls = prop->line_break_class;
     if (cls >= QUnicodeTables::LineBreak_CM)
         cls = QUnicodeTables::LineBreak_ID;
 
     charAttributes[0].softBreak = false;
+    charAttributes[0].whiteSpace = (cls == QUnicodeTables::LineBreak_SP);
+    charAttributes[0].charStop = true;
+    charAttributes[0].category = prop->category;
 
     for (int i = 1; i < len; ++i) {
-        int ncls = lineBreakClass(uc[i]);
+        prop = QUnicodeTables::properties(uc[i].unicode());
+        int ncls = prop->line_break_class;
+        int category = prop->category;
+        if (category == QChar::Mark_NonSpacing)
+            goto nsm;
+        
+        if (category == QChar::Other_Surrogate) {
+            // char stop only on first pair
+            if (uc[i].unicode() >= 0xd800 && uc[i].unicode() < 0xdc00 && i < len-1
+                && uc[i+1].unicode() >= 0xdc00 && uc[i+1].unicode() < 0xe000)
+                goto nsm;
+            // ### correctly handle second surrogate
+        }
 
-        if (ncls == QUnicodeTables::LineBreak_SP || ncls == QUnicodeTables::LineBreak_CM) {
+        if (ncls == QUnicodeTables::LineBreak_SP) {
             charAttributes[i].softBreak = false;
+            charAttributes[i].whiteSpace = true;
+            charAttributes[i].charStop = true;
+            charAttributes[i].category = QChar::Separator_Space;
+            cls = ncls;
             continue;
         }
-	if (cls == QUnicodeTables::LineBreak_SA && ncls == QUnicodeTables::LineBreak_SA)
-            // two complex chars (thai or lao), thai_attributes has already set this correctly
+
+
+	if (cls == QUnicodeTables::LineBreak_SA && ncls == QUnicodeTables::LineBreak_SA) {
+            // two complex chars (thai or lao), thai_attributes might override, but here
+            // we do a best guess
+            charAttributes[i].softBreak = true;
+            charAttributes[i].whiteSpace = false;
+            charAttributes[i].charStop = true;
+            charAttributes[i].category = QChar::Separator_Space;
+            cls = ncls;
             continue;
+        }
+        
         int tcls = ncls;
         if (tcls >= QUnicodeTables::LineBreak_SA)
             tcls = QUnicodeTables::LineBreak_ID;
         if (cls >= QUnicodeTables::LineBreak_SA)
             cls = QUnicodeTables::LineBreak_ID;
 
-	int brk = charAttributes[i].charStop ? breakTable[cls][tcls] : (int)Pbk;
+        bool softBreak;
+	int brk = breakTable[cls][tcls];
         if (brk == Ibk)
-            charAttributes[i].softBreak = (lineBreakClass(uc[i-1]) == QUnicodeTables::LineBreak_SP);
+            softBreak = (cls == QUnicodeTables::LineBreak_SP);
         else
-            charAttributes[i].softBreak = (brk == Dbk);
+            softBreak = (brk == Dbk);
 //        qDebug("char = %c %04x, cls=%d, ncls=%d, brk=%d soft=%d", uc[i].cell(), uc[i].unicode(), cls, ncls, brk, charAttributes[i].softBreak);
+        charAttributes[i].softBreak = softBreak;
+        charAttributes[i].whiteSpace = false;
+        charAttributes[i].charStop = true;
+        charAttributes[i].category = category;
         cls = ncls;
+        continue;
+    nsm:
+        charAttributes[i].softBreak = false;
+        charAttributes[i].whiteSpace = false;
+        charAttributes[i].charStop = false;
+        charAttributes[i].category = QChar::Mark_NonSpacing;
     }
 }
 
@@ -828,24 +869,27 @@ const QCharAttributes *QTextEngine::attributes()
 
     itemize();
     ensureSpace(layoutData->string.length());
+    
+    calcLineBreaks(layoutData->string, (QCharAttributes *) layoutData->memory);
 
     for (int i = 0; i < layoutData->items.size(); i++) {
-        QScriptItem &si = layoutData->items[i];
-        int from = si.position;
-        int len = length(i);
+        const QScriptItem &si = layoutData->items[i];
         int script = si.analysis.script;
 #ifdef Q_WS_WIN
         if(hasUsp10) {
             script = QUnicodeTables::script(layoutData->string.at(si.position));
         }
 #endif
-        if(script == QUnicodeTables::Inherited)
+        if (script == QUnicodeTables::Inherited)
             script = QUnicodeTables::Common;
-        Q_ASSERT(script < QUnicodeTables::ScriptCount);
-        qt_scriptEngines[script].charAttributes(script, layoutData->string, from, len, (QCharAttributes *) layoutData->memory);
+        AttributeFunction attributes = qt_scriptEngines[script].charAttributes;
+        if (!attributes)
+            continue;
+        int from = si.position;
+        int len = length(i);
+        attributes(script, layoutData->string, from, len, (QCharAttributes *) layoutData->memory);
     }
-
-    calcLineBreaks(layoutData->string, (QCharAttributes *) layoutData->memory);
+    
     layoutData->haveCharAttributes = true;
     return (QCharAttributes *) layoutData->memory;
 }
@@ -1276,15 +1320,6 @@ void QScriptLine::setDefaultHeight(QTextEngine *eng)
 
     ascent = qMax(ascent, e->ascent());
     descent = qMax(descent, e->descent());
-}
-
-QScriptLine &QScriptLine::operator+=(const QScriptLine &other)
-{
-    descent = qMax(descent, other.descent);
-    ascent = qMax(ascent, other.ascent);
-    textWidth += other.textWidth;
-    length += other.length;
-    return *this;
 }
 
 QTextEngine::LayoutData::LayoutData()

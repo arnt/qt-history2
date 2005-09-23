@@ -13,52 +13,45 @@
 
 const q_scriptEngine qt_scriptEngines[] = {
     // Common
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Hebrew
-    { hebrew_shape, basic_attributes },
+    { hebrew_shape, 0 },
     // Arabic
     { arabic_shape, arabic_attributes },
     // Syriac
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Thaana
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Devanagari
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Bengali
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Gurmukhi
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Gujarati
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Oriya
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Tamil
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Telugu
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Kannada
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Malayalam
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Sinhala
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Thai
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Lao
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Tibetan
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Myanmar
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Hangul
-    { basic_shape, basic_attributes },
+    { basic_shape, 0 },
     // Khmer
-    { basic_shape, basic_attributes }
-
-#if 0
-    // ### What about this one?
-    // Unicode
-    { unicode_shape, basic_attributes }
-#endif
-
+    { basic_shape, 0 }
 };

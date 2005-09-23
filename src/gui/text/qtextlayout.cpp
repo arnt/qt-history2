@@ -583,7 +583,7 @@ int QTextLayout::nextCursorPosition(int oldPos, CursorMode mode) const
         while (oldPos < len && attributes[oldPos].whiteSpace)
             oldPos++;
 
-        while (oldPos < len && !attributes[oldPos].wordStop && !attributes[oldPos-1].whiteSpace
+        while (oldPos < len && !attributes[oldPos-1].whiteSpace
                && !d->atWordSeparator(oldPos))
             oldPos++;
     }
@@ -611,7 +611,7 @@ int QTextLayout::previousCursorPosition(int oldPos, CursorMode mode) const
         while (oldPos && attributes[oldPos].whiteSpace)
             oldPos--;
 
-        while (oldPos && !attributes[oldPos].wordStop && !attributes[oldPos-1].whiteSpace
+        while (oldPos && !attributes[oldPos-1].whiteSpace
                && !d->atWordSeparator(oldPos - 1))
             oldPos--;
     }
@@ -1088,20 +1088,20 @@ const Action state_table[3][3] = {
 #define LB_DEBUG if (0) qDebug
 #endif
 
-static bool check_full(QTextEngine *engine, QScriptLine &line, QScriptLine &tmpData, QScriptLine &spaceData,
-                       int glyphCount, int maxGlyphs, QFixed minw, int pos)
+static inline bool check_full(QScriptLine &line, QScriptLine &tmpData, QScriptLine &spaceData,
+                              int glyphCount, int maxGlyphs, QFixed minw)
 {
-    Q_UNUSED(pos);
-    LB_DEBUG("possible break at %d width %f, spacew=%f", pos, tmpData.textWidth.toReal(), spaceData.textWidth.toReal());
-    if (line.length && engine->option.wrapMode() != QTextOption::ManualWrap) {
-        if (line.textWidth + tmpData.textWidth + spaceData.textWidth > line.width || glyphCount > maxGlyphs)
-            return true;
-    }
+    LB_DEBUG("possible break width %f, spacew=%f", tmpData.textWidth.toReal(), spaceData.textWidth.toReal());
+    if (line.textWidth + tmpData.textWidth + spaceData.textWidth > line.width || glyphCount > maxGlyphs)
+        return true;
     minw = qMax(minw, tmpData.textWidth);
     line += tmpData;
-    line += spaceData;
-    tmpData = QScriptLine();
-    spaceData = QScriptLine();
+    line.textWidth += spaceData.textWidth;
+    line.length += spaceData.length;
+    tmpData.textWidth = 0;
+    tmpData.length = 0;
+    spaceData.textWidth = 0;
+    spaceData.length = 0;
     return false;
 }
 
@@ -1119,6 +1119,7 @@ void QTextLine::layout_helper(int maxGlyphs)
     Q_ASSERT(line.from < eng->layoutData->string.length());
 
     bool breakany = (eng->option.wrapMode() == QTextOption::WrapAnywhere);
+    bool manualWrap = (eng->option.wrapMode() == QTextOption::ManualWrap);
 
     // #### binary search!
     int item = -1;
@@ -1170,7 +1171,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             Q_ASSERT(false);
             break;
         case AddTemp:
-            if (check_full(eng, line, tmpData, spaceData, glyphCount, maxGlyphs, minw, pos))
+            if (check_full(line, tmpData, spaceData, glyphCount, maxGlyphs, minw))
                 goto found;
         }
         state = newState;
@@ -1178,9 +1179,6 @@ void QTextLine::layout_helper(int maxGlyphs)
         if (state == Characters) {
             tmpData.ascent = qMax(tmpData.ascent, current.ascent);
             tmpData.descent = qMax(tmpData.descent, current.descent);
-        } else {
-            spaceData.ascent = qMax(spaceData.ascent, current.ascent);
-            spaceData.descent = qMax(spaceData.descent, current.descent);
         }
 
         if (current.isTab && (alignment & Qt::AlignLeft)) {
@@ -1190,7 +1188,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             spaceData.length++;
             newItem = item + 1;
             ++glyphCount;
-            if (check_full(eng, line, tmpData, spaceData, glyphCount, maxGlyphs, minw, pos))
+            if (line.length && !manualWrap && check_full(line, tmpData, spaceData, glyphCount, maxGlyphs, minw))
                 goto found;
         } else if (current.isObject) {
             QTextFormat format = eng->formats()->format(eng->formatIndex(&eng->layoutData->items[item]));
@@ -1212,10 +1210,10 @@ void QTextLine::layout_helper(int maxGlyphs)
 
             newItem = item + 1;
             ++glyphCount;
-            if (check_full(eng, line, tmpData, spaceData, glyphCount, maxGlyphs, minw, pos))
+            if (line.length && !manualWrap && check_full(line, tmpData, spaceData, glyphCount, maxGlyphs, minw))
                 goto found;
         } else if (!attributes[pos].whiteSpace) {
-            bool need_check = false;
+            bool sb_or_ws = false;
             do {
                 int gp = logClusters[pos];
                 do {
@@ -1231,14 +1229,14 @@ void QTextLine::layout_helper(int maxGlyphs)
 
                 ++glyphCount;
                 if (attributes[pos].whiteSpace || attributes[pos].softBreak || (breakany && attributes[pos].charStop)) {
-                    need_check = true;
+                    sb_or_ws = true;
                     break;
                 }
             } while (pos < end);
             minw = qMax(tmpData.textWidth, minw);
 
-            bool sb_or_ws = (attributes[pos].softBreak || attributes[pos].whiteSpace);
-            if ((breakany || sb_or_ws) && check_full(eng, line, tmpData, spaceData, glyphCount, maxGlyphs, minw, pos))
+            if (line.length && !manualWrap && (sb_or_ws|breakany)
+                && check_full(line, tmpData, spaceData, glyphCount, maxGlyphs, minw))
                 goto found;
             if (sb_or_ws)
                 breakany = false;
@@ -1262,7 +1260,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             newItem = item + 1;
     }
     LB_DEBUG("reached end of line");
-    check_full(eng, line, tmpData, spaceData, glyphCount, maxGlyphs, minw, pos);
+    check_full(line, tmpData, spaceData, glyphCount, maxGlyphs, minw);
 found:
     if (line.length == 0) {
         LB_DEBUG("no break available in line, adding temp: length %d, width %f, space: length %d, width %f",
