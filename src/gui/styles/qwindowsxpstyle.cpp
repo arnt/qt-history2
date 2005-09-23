@@ -3037,11 +3037,12 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
         {
             if (menuitem->menuItemType == QStyleOptionMenuItem::Separator) {
                 sz = QSize(10, windowsSepHeight);
+                return sz;
             } else if (menuitem->icon.isNull()) {
                 sz = QWindowsStyle::sizeFromContents(ct, option, sz, widget);
                 sz.setHeight(sz.height() - 2);
+                return sz;
             }
-            return sz;
         }     
         // Otherwise, fall through
 
