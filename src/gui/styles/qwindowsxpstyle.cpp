@@ -1650,6 +1650,31 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             }
         }
         return;
+
+    case PE_IndicatorToolBarSeparator:
+        
+        name = "TOOLBAR";
+        partId = TP_SEPARATOR;
+        
+        if (option->state & State_Horizontal)
+            partId = TP_SEPARATOR;
+        else 
+            partId = TP_SEPARATORVERT;
+         
+        break;
+
+    case PE_IndicatorToolBarHandle:
+        
+        name = "REBAR";
+        partId = RP_GRIPPER;
+
+        if (option->state & State_Horizontal)
+            partId = RP_GRIPPER;
+        else {
+            partId = RP_GRIPPERVERT;
+        }
+        break;
+
     default:
         break;
     }
@@ -2855,7 +2880,17 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
 
     case PM_MDIMinimizedWidth:
         res = 160;
+        break; 
+
+#ifndef QT_NO_TOOLBAR
+    case PM_ToolBarHandleExtent:
+        res = 6;
         break;
+
+    case PM_ToolBarIconSize:
+        res = 24;
+        break; 
+#endif // QT_NO_TOOLBAR
 
     default:
         res = QWindowsStyle::pixelMetric(pm, option, widget);
@@ -3002,12 +3037,18 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
         {
             if (menuitem->menuItemType == QStyleOptionMenuItem::Separator) {
                 sz = QSize(10, windowsSepHeight);
-                break;
             } else if (menuitem->icon.isNull()) {
                 sz = QWindowsStyle::sizeFromContents(ct, option, sz, widget);
                 sz.setHeight(sz.height() - 2);
-                break;
             }
+            return sz;
+        }     
+        // Otherwise, fall through
+
+    case CT_ToolButton:
+        if (const QStyleOptionToolButton *toolbutton = qstyleoption_cast<const QStyleOptionToolButton *>(option))
+        {
+                return sz += QSize(6,9);
         }     
         // Otherwise, fall through
     default:

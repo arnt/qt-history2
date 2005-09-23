@@ -81,14 +81,17 @@ static QStyleOptionToolBar getStyleOption(QToolBar *toolBar)
 		
         if (lineInfo.pos !=	positionForArea(option.toolBarArea))continue;
         int	toolBarIndex = -1;
+        bool lineVisible = false;
         for	(int i = 0;	i <	lineInfo.list.size(); ++i) {
             QMainWindowLayout::ToolBarLayoutInfo layoutInfo	= lineInfo.list.at(i);
+            
+            if (layoutInfo.item->widget()->isVisible())
+                lineVisible = true;
 
             if (layoutInfo.item->widget() == toolBar) {
                 // This	is our toolbar,	so we now have the line	and	position.
                 toolBarLineCount = toolBarTotalLineCount;
                 toolBarIndex = i;
-                
                 // Determine the position within this tool bar line
                 if (toolBarIndex ==	0) {
                     if (lineInfo.list.size() ==	1)
@@ -103,7 +106,8 @@ static QStyleOptionToolBar getStyleOption(QToolBar *toolBar)
                 break;
             }
         }
-		++toolBarTotalLineCount;
+		if(lineVisible)
+            ++toolBarTotalLineCount;
 	}
 
 	Q_ASSERT_X(toolBarLineCount	>= 0, "QToolBarPrivate::getStyleOption()",
@@ -292,10 +296,6 @@ int QToolBarPrivate::indexOf(QAction *action) const
     top of the window), or it can be movable (isMovable()) between
     toolbar areas; see allowedAreas() and isAreaAllowed().
 
-    Unlike dock windows, toolbars cannot be floated (detached) from the
-    main window. If you need to provide panels that can be floated, use
-    QDockWidget instead.
-
     When a toolbar is resized in such a way that it is too small to
     show all the items it contains, an extension button will appear as
     the last item in the toolbar. Pressing the extension button will
@@ -306,7 +306,7 @@ int QToolBarPrivate::indexOf(QAction *action) const
     as usual, but it will be disabled to indicate that some items in
     the toolbar are currently not visible.
 
-    \sa QToolButton, QDockWidget, QMainWindow
+    \sa QToolButton
 */
 
 /*!
