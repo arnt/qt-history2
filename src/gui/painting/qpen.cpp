@@ -70,7 +70,7 @@
 
 class QPenPrivate {
 public:
-    void init(const QBrush &brush, qreal width, Qt::PenStyle, Qt::PenCapStyle, Qt::PenJoinStyle);
+    QPenPrivate(const QBrush &brush, qreal width, Qt::PenStyle, Qt::PenCapStyle, Qt::PenJoinStyle);
 
     QAtomic ref;
     qreal width;
@@ -80,26 +80,32 @@ public:
     Qt::PenJoinStyle joinStyle;
 };
 
-static const Qt::PenCapStyle qpen_default_cap = Qt::SquareCap;
-static const Qt::PenJoinStyle qpen_default_join = Qt::BevelJoin;
 
 /*!
   \internal
-  Initializes the pen.
 */
-
-
-void QPenPrivate::init(const QBrush &brush, qreal width, Qt::PenStyle penStyle,
-                       Qt::PenCapStyle capStyle, Qt::PenJoinStyle joinStyle)
+inline QPenPrivate::QPenPrivate(const QBrush &_brush, qreal _width, Qt::PenStyle penStyle,
+                                Qt::PenCapStyle _capStyle, Qt::PenJoinStyle _joinStyle)
+    : ref(1), width(_width), brush(_brush), style(penStyle), capStyle(_capStyle), joinStyle(_joinStyle)
 {
-    this->ref = 1;
-    this->style = penStyle;
-    this->width = width;
-    this->brush = brush;
-    this->style = penStyle;
-    this->capStyle = capStyle;
-    this->joinStyle = joinStyle;
 }
+
+static const Qt::PenCapStyle qpen_default_cap = Qt::SquareCap;
+static const Qt::PenJoinStyle qpen_default_join = Qt::BevelJoin;
+
+struct QDefaultPenData : public QPenPrivate
+{
+    inline QDefaultPenData()
+        : QPenPrivate(Qt::black, 0, Qt::SolidLine, qpen_default_cap, qpen_default_join) {}
+    Q_GLOBAL_STATIC(QDefaultPenData, instance)
+};
+struct QNullPenData: public QPenPrivate
+{
+    inline QNullPenData()
+        : QPenPrivate(Qt::black, 0, Qt::NoPen, qpen_default_cap, qpen_default_join) {}
+    Q_GLOBAL_STATIC(QNullPenData, instance)
+};
+
 
 /*!
     Constructs a default black solid line pen with 0 width.
@@ -107,8 +113,8 @@ void QPenPrivate::init(const QBrush &brush, qreal width, Qt::PenStyle penStyle,
 
 QPen::QPen()
 {
-    d = new QPenPrivate;
-    d->init(Qt::black, 0, Qt::SolidLine, qpen_default_cap, qpen_default_join);
+    d = QDefaultPenData::instance();
+    d->ref.ref();
 }
 
 /*!
@@ -119,8 +125,12 @@ QPen::QPen()
 
 QPen::QPen(Qt::PenStyle style)
 {
-    d = new QPenPrivate;
-    d->init(Qt::black, 0, style, qpen_default_cap, qpen_default_join);
+    if (style == Qt::NoPen) {
+        d = QNullPenData::instance();
+        d->ref.ref();
+    } else {
+        d = new QPenPrivate(Qt::black, 0, style, qpen_default_cap, qpen_default_join);
+    }
 }
 
 
@@ -132,8 +142,7 @@ QPen::QPen(Qt::PenStyle style)
 
 QPen::QPen(const QColor &color)
 {
-    d = new QPenPrivate;
-    d->init(color, 0, Qt::SolidLine, qpen_default_cap, qpen_default_join);
+    d = new QPenPrivate(color, 0, Qt::SolidLine, qpen_default_cap, qpen_default_join);
 }
 
 
@@ -147,8 +156,7 @@ QPen::QPen(const QColor &color)
 
 QPen::QPen(const QBrush &brush, qreal width, Qt::PenStyle s, Qt::PenCapStyle c, Qt::PenJoinStyle j)
 {
-    d = new QPenPrivate;
-    d->init(brush, width, s, c, j);
+    d = new QPenPrivate(brush, width, s, c, j);
 }
 
 /*!
@@ -187,13 +195,7 @@ void QPen::detach()
     if (d->ref == 1)
         return;
 
-    QPenPrivate *x = new QPenPrivate;
-    x->ref = 1;
-    x->style = d->style;
-    x->width = d->width;
-    x->brush = d->brush;
-    x->capStyle = d->capStyle;
-    x->joinStyle = d->joinStyle;
+    QPenPrivate *x = new QPenPrivate(d->brush, d->width, d->style, d->capStyle, d->joinStyle);
     x = qAtomicSetPtr(&d, x);
     if (!x->ref.deref())
         delete x;
@@ -291,6 +293,8 @@ void QPen::setWidth(int width)
 {
     if (width < 0)
         qWarning("QPen::setWidth(): Setting a pen width with a negative value is not defined.");
+    if ((qreal)width == d->width)
+        return;
     detach();
     d->width = width;
 }
