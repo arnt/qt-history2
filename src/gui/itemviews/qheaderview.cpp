@@ -48,8 +48,8 @@
 
     The model gets the data for each section from the model using
     the getHeaderData() function.  You can set the data by using
-    setHeaderData(). 
-    
+    setHeaderData().
+
     Each header has an orientation() and a number of sections, given by
     the count() function. Sections can be moved and resized using
     moveSection() and resizeSection(); they can be hidden and shown
@@ -471,7 +471,7 @@ int QHeaderView::sectionViewportPosition(int logicalIndex) const
 void QHeaderView::moveSection(int from, int to)
 {
     Q_D(QHeaderView);
-    
+
     d->executePostedLayout();
     Q_ASSERT(from >= 0 && from < d->sections.count() - 1);
     Q_ASSERT(to >= 0 && to < d->sections.count() - 1);
@@ -494,7 +494,6 @@ void QHeaderView::moveSection(int from, int to)
         }
     }
 
-    // move sections and indices
     QHeaderViewPrivate::HeaderSection *sections = d->sections.data();
     int *visualIndices = d->visualIndices.data();
     int *logicalIndices = d->logicalIndices.data();
@@ -503,12 +502,12 @@ void QHeaderView::moveSection(int from, int to)
     bool hidden = sections[from].hidden;
     QVarLengthArray<int> sizes(qAbs(to - from));
 
-    // Bump everything else
+    // move sections and indices
     if (to > from) {
         while (visual < to) {
             sizes[sizes.size() - 1 - (visual - from)] = sections[visual + 1].position - sections[visual].position;
             sections[visual].hidden = sections[visual + 1].hidden;
-            visualIndices[logicalIndices[visual]] = visual;
+            visualIndices[logicalIndices[visual + 1]] = visual;
             logicalIndices[visual] = logicalIndices[visual + 1];
             ++visual;
         }
@@ -517,7 +516,7 @@ void QHeaderView::moveSection(int from, int to)
             sizes[sizes.size() - (visual - to)] = sections[visual].position
                                                       - sections[visual - 1].position;
             sections[visual].hidden = sections[visual - 1].hidden;
-            visualIndices[logicalIndices[visual]] = visual;
+            visualIndices[logicalIndices[visual - 1]] = visual;
             logicalIndices[visual] = logicalIndices[visual - 1];
             --visual;
         }
@@ -652,7 +651,7 @@ void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
         d->sections[visual].hidden = true;
         // A bit of a hack because resizeSection has to called before hiding FIXME
         if (isVisible() && (d->stretchSections || d->stretchLastSection))
-            resizeSections(); // changes because of the new/old hiddne 
+            resizeSections(); // changes because of the new/old hiddne
     } else if (d->sections.at(visual).hidden) {
         int size = d->hiddenSectionSize.value(logicalIndex, d->defaultSectionSize);
         d->hiddenSectionSize.remove(logicalIndex);
@@ -697,7 +696,7 @@ int QHeaderView::visualIndex(int logicalIndex) const
     if (d->visualIndices.isEmpty()) { // nothing has been moved, so we have no mapping
         if (logicalIndex >= 0 && logicalIndex < d->sections.count() - 1)
             return logicalIndex;
-    } else if (logicalIndex >= 0 && logicalIndex < d->visualIndices.count() - 1) {        
+    } else if (logicalIndex >= 0 && logicalIndex < d->visualIndices.count() - 1) {
         int visual = d->visualIndices.at(logicalIndex);
         Q_ASSERT(visual < d->sections.count() - 1);
         return visual;
@@ -841,8 +840,8 @@ QHeaderView::ResizeMode QHeaderView::resizeMode(int logicalIndex) const
 }
 
 /*!
-    \returns the number of sections that are set to resize mode stretch.  
-    In views this can be used to see if the headerview needs to resize the sections when the view geometry changes.    
+    \returns the number of sections that are set to resize mode stretch.
+    In views this can be used to see if the headerview needs to resize the sections when the view geometry changes.
     \sa updateGeometry stretchLastSection resizeMode
 */
 
@@ -861,10 +860,10 @@ void QHeaderView::setSortIndicatorShown(bool show)
 {
     Q_D(QHeaderView);
     d->sortIndicatorShown = show;
-    
+
     if (sortIndicatorSection() < 0 || sortIndicatorSection() > count())
         return;
-    
+
     if (d->sections.size() > sortIndicatorSection()
         && d->sections.at(sortIndicatorSection()).mode == Custom) {
         resizeSections();
@@ -889,9 +888,9 @@ bool QHeaderView::isSortIndicatorShown() const
 void QHeaderView::setSortIndicator(int logicalIndex, Qt::SortOrder order)
 {
     Q_D(QHeaderView);
-        
+
     Q_ASSERT(logicalIndex >= 0);
-    
+
     // This is so that people can set the position of the sort indicator before the fill the model
     int old = d->sortIndicatorSection;
     d->sortIndicatorSection = logicalIndex;
@@ -1035,7 +1034,7 @@ void QHeaderView::headerDataChanged(Qt::Orientation orientation, int logicalFirs
     // Before initilization the size isn't set
     if (count() == 0)
         return;
-      
+
     Q_ASSERT(logicalFirst >= 0);
     Q_ASSERT(logicalLast >= 0);
     Q_ASSERT(logicalFirst < count());
@@ -1091,10 +1090,10 @@ void QHeaderView::resizeSections()
             }
         }
     }
-    
+
     if (sections.isEmpty())
         return;
-    
+
     int stretchSize = orientation() == Qt::Horizontal ? d->viewport->width() : d->viewport->height();
     int stretchSecs = 0;
     int secSize = 0;
@@ -1134,7 +1133,7 @@ void QHeaderView::resizeSections()
     int stretchSectionSize = qMax(hint, minimum);
     for (int i = 0; i < count; ++i) {
         int oldSize = d->sections.at(i + 1).position - d->sections.at(i).position;
-        d->sections[i].position = position;        
+        d->sections[i].position = position;
         if (d->sections[i].hidden)
             continue;
         mode = (i == last ? Stretch : sections.at(i).mode);
@@ -1262,10 +1261,10 @@ void QHeaderView::initializeSections()
 void QHeaderView::initializeSections(int start, int end)
 {
     Q_D(QHeaderView);
-   
+
     Q_ASSERT(start >= 0);
     Q_ASSERT(end >= 0);
-    
+
     int oldCount = count();
     end += 1; // one past the last item, so we get the end position of the last section
     d->sections.resize(end + 1);
@@ -1277,7 +1276,7 @@ void QHeaderView::initializeSections(int start, int end)
             d->visualIndices[i] = i;
         }
     }
-    
+
     int pos = (start > 0 ? d->sections.at(start).position : 0);
     QHeaderViewPrivate::HeaderSection *sections = d->sections.data() + start;
     int num = end - start + 1;
@@ -1512,7 +1511,7 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
         d->state = QHeaderViewPrivate::ResizeSection;
         d->section = handle;
     }
-    d->lastPos = pos;    
+    d->lastPos = pos;
 }
 
 /*!
