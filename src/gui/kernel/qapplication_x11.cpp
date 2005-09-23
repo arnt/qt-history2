@@ -694,7 +694,8 @@ bool QApplicationPrivate::x11_apply_settings()
     if (inputMethods.size() > 2 && inputMethods.contains(QLatin1String("imsw-multi"))) {
         X11->default_im = QLatin1String("imsw-multi");
     } else {
-        X11->default_im = settings.value("DefaultInputMethod", QLatin1String("xim")).toString();
+        X11->default_im = settings.value(QLatin1String("DefaultInputMethod"),
+                                         QLatin1String("xim")).toString();
     }
 
     settings.endGroup(); // Qt
@@ -774,7 +775,10 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
                                 offset, 8192, False, AnyPropertyType,
                                 &type, &format, &nitems, &after,
                                 &data);
-            res += (char*)data;
+            if (type == XA_STRING)
+                res += QString::fromLatin1((char*)data);
+            else
+                res += QString::fromLocal8Bit((char*)data);
             offset += 2048; // offset is in 32bit quantities... 8192/4 == 2048
             if (data)
                 XFree((char *)data);
@@ -782,39 +786,42 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
 
         QString key, value;
         int l = 0, r;
-        QString apn = appName;
-        QString apc = appClass;
+        QString apn = QString::fromLocal8Bit(appName);
+        QString apc = QString::fromLocal8Bit(appClass);
         int apnl = apn.length();
         int apcl = apc.length();
         int resl = res.length();
 
         while (l < resl) {
-            r = res.indexOf('\n', l);
+            r = res.indexOf(QLatin1Char('\n'), l);
             if (r < 0)
                 r = resl;
-            while (::isSpace(res[l]))
+            while (::isSpace(res.at(l)))
                 l++;
             bool mine = false;
-            if (res[l] == '*' &&
-                 (res[l+1] == 'f' || res[l+1] == 'b' || res[l+1] == 'g' ||
-                  res[l+1] == 'F' || res[l+1] == 'B' || res[l+1] == 'G' ||
-                  res[l+1] == 's' || res[l+1] == 'S')) {
+            QChar sc = res.at(l + 1);
+            if (res.at(l) == QLatin1Char('*') &&
+                 (sc == QLatin1Char('f') || sc == QLatin1Char('b') || sc == QLatin1Char('g') ||
+                  sc == QLatin1Char('F') || sc == QLatin1Char('B') || sc == QLatin1Char('G') ||
+                  sc == QLatin1Char('s') || sc == QLatin1Char('S'))) {
                 // OPTIMIZED, since we only want "*[fbgs].."
                 QString item = res.mid(l, r - l).simplified();
-                int i = item.indexOf(':');
+                int i = item.indexOf(QLatin1Char(':'));
                 key = item.left(i).trimmed().mid(1).toLower();
                 value = item.right(item.length() - i - 1).trimmed();
                 mine = true;
-            } else if (res[l] == appName[0] || (appClass && res[l] == appClass[0])) {
-                if (res.mid(l,apnl) == apn && (res[l+apnl] == '.' || res[l+apnl] == '*')) {
+            } else if (res.at(l) == apn.at(0) || (appClass && res.at(l) == apc.at(0))) {
+                if (res.mid(l,apnl) == apn && (res.at(l+apnl) == QLatin1Char('.')
+                            || res.at(l+apnl) == QLatin1Char('*'))) {
                     QString item = res.mid(l, r - l).simplified();
-                    int i = item.indexOf(':');
+                    int i = item.indexOf(QLatin1Char(':'));
                     key = item.left(i).trimmed().mid(apnl+1).toLower();
                     value = item.right(item.length() - i - 1).trimmed();
                     mine = true;
-                } else if (res.mid(l,apcl) == apc && (res[l+apcl] == '.' || res[l+apcl] == '*')) {
+                } else if (res.mid(l,apcl) == apc && (res.at(l+apcl) == QLatin1Char('.')
+                            || res.at(l+apcl) == QLatin1Char('*'))) {
                     QString item = res.mid(l, r - l).simplified();
-                    int i = item.indexOf(':');
+                    int i = item.indexOf(QLatin1Char(':'));
                     key = item.left(i).trimmed().mid(apcl+1).toLower();
                     value = item.right(item.length() - i - 1).trimmed();
                     mine = true;
@@ -822,15 +829,15 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
             }
 
             if (mine) {
-                if (!font && key == "systemfont")
-                    sysFont = value.left(value.lastIndexOf(':'));
-                if (!font && key == "font")
+                if (!font && key == QLatin1String("systemfont"))
+                    sysFont = value.left(value.lastIndexOf(QLatin1Char(':')));
+                if (!font && key == QLatin1String("font"))
                     resFont = value;
-                else if  (!fg &&  key == "foreground")
+                else if  (!fg && key == QLatin1String("foreground"))
                     resFG = value;
-                else if (!bg && key == "background")
+                else if (!bg && key == QLatin1String("background"))
                     resBG = value;
-                else if (key == "guieffects")
+                else if (key == QLatin1String("guieffects"))
                     resEF = value;
                 // NOTE: if you add more, change the [fbg] stuff above
             }
@@ -841,11 +848,11 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
     if (!sysFont.isEmpty())
         resFont = sysFont;
     if (resFont.isEmpty())
-        resFont = font;
+        resFont = QString::fromLocal8Bit(font);
     if (resFG.isEmpty())
-        resFG = fg;
+        resFG = QString::fromLocal8Bit(fg);
     if (resBG.isEmpty())
-        resBG = bg;
+        resBG = QString::fromLocal8Bit(bg);
     if (!qt_app_has_font && !resFont.isEmpty()) { // set application font
         QFont fnt;
         fnt.setRawName(resFont);
@@ -930,14 +937,20 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
     }
 
     if (!resEF.isEmpty()) {
-        QStringList effects = resEF.split(' ');
-        QApplication::setEffectEnabled(Qt::UI_General, effects.contains("general"));
-        QApplication::setEffectEnabled(Qt::UI_AnimateMenu, effects.contains("animatemenu"));
-        QApplication::setEffectEnabled(Qt::UI_FadeMenu, effects.contains("fademenu"));
-        QApplication::setEffectEnabled(Qt::UI_AnimateCombo, effects.contains("animatecombo"));
-        QApplication::setEffectEnabled(Qt::UI_AnimateTooltip, effects.contains("animatetooltip"));
-        QApplication::setEffectEnabled(Qt::UI_FadeTooltip, effects.contains("fadetooltip"));
-        QApplication::setEffectEnabled(Qt::UI_AnimateToolBox, effects.contains("animatetoolbox"));
+        QStringList effects = resEF.split(QLatin1Char(' '));
+        QApplication::setEffectEnabled(Qt::UI_General, effects.contains(QLatin1String("general")));
+        QApplication::setEffectEnabled(Qt::UI_AnimateMenu,
+                effects.contains(QLatin1String("animatemenu")));
+        QApplication::setEffectEnabled(Qt::UI_FadeMenu,
+                effects.contains(QLatin1String("fademenu")));
+        QApplication::setEffectEnabled(Qt::UI_AnimateCombo,
+                effects.contains(QLatin1String("animatecombo")));
+        QApplication::setEffectEnabled(Qt::UI_AnimateTooltip,
+                effects.contains(QLatin1String("animatetooltip")));
+        QApplication::setEffectEnabled(Qt::UI_FadeTooltip,
+                effects.contains(QLatin1String("fadetooltip")));
+        QApplication::setEffectEnabled(Qt::UI_AnimateToolBox,
+                effects.contains(QLatin1String("animatetoolbox")));
     }
 }
 
@@ -1222,7 +1235,7 @@ void qt_init(QApplicationPrivate *priv, int,
 
     X11->motifdnd_active = false;
 
-    X11->default_im = "imsw-multi";
+    X11->default_im = QLatin1String("imsw-multi");
     priv->inputContext = 0;
 
     // colormap control
@@ -1327,18 +1340,18 @@ void qt_init(QApplicationPrivate *priv, int,
                 X11->color_count = qMax(0,atoi(argv[i]));
         } else if (arg == "-visual") {  // xv and netscape use this name
             if (++i < argc && !X11->visual) {
-                QString s = QString(argv[i]).toLower();
-                if (s == "staticgray")
+                QString s = QString::fromLocal8Bit(argv[i]).toLower();
+                if (s == QLatin1String("staticgray"))
                     X11->visual_class = StaticGray;
-                else if (s == "grayscale")
+                else if (s == QLatin1String("grayscale"))
                     X11->visual_class = XGrayScale;
-                else if (s == "staticcolor")
+                else if (s == QLatin1String("staticcolor"))
                     X11->visual_class = StaticColor;
-                else if (s == "pseudocolor")
+                else if (s == QLatin1String("pseudocolor"))
                     X11->visual_class = PseudoColor;
-                else if (s == "truecolor")
+                else if (s == QLatin1String("truecolor"))
                     X11->visual_class = TrueColor;
-                else if (s == "directcolor")
+                else if (s == QLatin1String("directcolor"))
                     X11->visual_class = DirectColor;
                 else
                     X11->visual_id = static_cast<int>(strtol(argv[i], 0, 0));
@@ -1346,17 +1359,17 @@ void qt_init(QApplicationPrivate *priv, int,
 #ifndef QT_NO_XIM
         } else if (arg == "-inputstyle/") {
             if (++i < argc) {
-                QString s = QString(argv[i]).toLower();
-                if (s == "onthespot")
+                QString s = QString::fromLocal8Bit(argv[i]).toLower();
+                if (s == QLatin1String("onthespot"))
                     qt_xim_preferred_style = XIMPreeditCallbacks |
                                              XIMStatusNothing;
-                else if (s == "overthespot")
+                else if (s == QLatin1String("overthespot"))
                     qt_xim_preferred_style = XIMPreeditPosition |
                                              XIMStatusNothing;
-                else if (s == "offthespot")
+                else if (s == QLatin1String("offthespot"))
                     qt_xim_preferred_style = XIMPreeditArea |
                                              XIMStatusArea;
-                else if (s == "root")
+                else if (s == QLatin1String("root"))
                     qt_xim_preferred_style = XIMPreeditNothing |
                                              XIMStatusNothing;
             }
@@ -1391,9 +1404,9 @@ void qt_init(QApplicationPrivate *priv, int,
                 if (c == '/')
                     s.clear();
                 else
-                    s += c;
+                    s += QLatin1Char(c);
             }
-            if (s == "gdb") {
+            if (s == QLatin1String("gdb")) {
                 appNoGrab = true;
                 qDebug("Qt: gdb: -nograb added to command-line options.\n"
                        "\t Use the -dograb option to enforce grabbing.");
@@ -1611,7 +1624,7 @@ void qt_init(QApplicationPrivate *priv, int,
     }
 
     if(qt_is_gui_used) {
-        qApp->setObjectName(appName);
+        qApp->setObjectName(QString::fromLocal8Bit(appName));
 
         int screen;
         for (screen = 0; screen < X11->screenCount; ++screen) {
@@ -1641,7 +1654,8 @@ void qt_init(QApplicationPrivate *priv, int,
                               72. / (float) QX11Info::appDpiY()) + 0.5));
 
         if (!qt_app_has_font) {
-            QFont f(X11->has_fontconfig ? "Sans Serif" : "Helvetica", ptsz);
+            QFont f(X11->has_fontconfig ? QLatin1String("Sans Serif") : QLatin1String("Helvetica"),
+                    ptsz);
             QApplication::setFont(f);
         }
 
@@ -1677,8 +1691,7 @@ void qt_init(QApplicationPrivate *priv, int,
                 gotStylus = false;
                 gotEraser = false;
 
-                QString devName = devs->name;
-                devName = devName.toLower();
+                QString devName = QString::fromLocal8Bit(devs->name).toLower();
 #if defined(Q_OS_IRIX)
                 if (devName == QLatin1String(WACOM_NAME)) {
                     deviceType = QTabletEvent::Stylus;
@@ -1862,14 +1875,14 @@ void QApplicationPrivate::x11_initialize_style()
         if (data) XFree((char *)data);
         // kwin is there. check if KDE's styles are available,
         // otherwise use windows style
-        QApplicationPrivate::app_style = QStyleFactory::create("plastique");
+        QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("plastique"));
     }
     if (!QApplicationPrivate::app_style &&
          XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(KWM_RUNNING),
                              0, 1, False, AnyPropertyType, &type, &format, &length,
                              &after, &data) == Success && length) {
         if (data) XFree((char *)data);
-        QApplicationPrivate::app_style = QStyleFactory::create("plastique");
+        QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("plastique"));
     }
     if (!QApplicationPrivate::app_style &&
          XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(DTWM_IS_RUNNING),
@@ -1877,7 +1890,7 @@ void QApplicationPrivate::x11_initialize_style()
                              &after, &data) == Success && length) {
         // DTWM is running, meaning most likely CDE is running...
         if (data) XFree((char *) data);
-        QApplicationPrivate::app_style = QStyleFactory::create("cde");
+        QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("cde"));
     }
     // maybe another desktop?
     if (!QApplicationPrivate::app_style &&
@@ -1887,7 +1900,7 @@ void QApplicationPrivate::x11_initialize_style()
          length) {
         if (data) XFree((char *)data);
         // default to MotifPlus with hovering
-        QApplicationPrivate::app_style = QStyleFactory::create("plastique");
+        QApplicationPrivate::app_style = QStyleFactory::create(QLatin1String("plastique"));
     }
 }
 
@@ -4438,7 +4451,7 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
     else if (!mapper && converted.unicode() != 0x0)
         text = converted;
     else
-        text = chars;
+        text = QString::fromLatin1(chars);
 
     modifiers = translateModifiers(keystate);
 
@@ -4799,7 +4812,7 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
 
     if (text.length() == 1 && text.unicode()->unicode() == '\n') {
         code = Qt::Key_Return;
-        text = "\r";
+        text = QLatin1Char('\r');
     }
 
     // try the menukey first
@@ -5403,20 +5416,21 @@ static void sm_performSaveYourself(QSessionManagerPrivate* smd)
     // generate a new session key
     timeval tv;
     gettimeofday(&tv, 0);
-    smd->sessionKey  = QString::number(qulonglong(tv.tv_sec)) + "_" + QString::number(qulonglong(tv.tv_usec));
+    smd->sessionKey  = QString::number(qulonglong(tv.tv_sec)) + QLatin1Char('_') + QString::number(qulonglong(tv.tv_usec));
 
     // tell the session manager about our program in best POSIX style
-    sm_setProperty(SmProgram, QString(qApp->argv()[0]));
+    sm_setProperty(QString::fromLatin1(SmProgram), QString::fromLocal8Bit(qApp->argv()[0]));
     // tell the session manager about our user as well.
     struct passwd* entry = getpwuid(geteuid());
     if (entry)
-        sm_setProperty(SmUserID, QString::fromLatin1(entry->pw_name));
+        sm_setProperty(QString::fromLatin1(SmUserID), QString::fromLatin1(entry->pw_name));
 
     // generate a restart and discard command that makes sense
     QStringList restart;
-    restart  << qApp->argv()[0] << "-session" << smd->sessionId + "_" + smd->sessionKey;
+    restart  << QString::fromLocal8Bit(qApp->argv()[0]) << QLatin1String("-session")
+             << smd->sessionId + QLatin1Char('_') + smd->sessionKey;
     if (qstricmp(appName, QX11Info::appClass()) != 0)
-        restart << "-name" << qAppName();
+        restart << QLatin1String("-name") << qAppName();
     sm->setRestartCommand(restart);
     QStringList discard;
     sm->setDiscardCommand(discard);
@@ -5457,8 +5471,8 @@ static void sm_performSaveYourself(QSessionManagerPrivate* smd)
         }
 
         // set restart and discard command in session manager
-        sm_setProperty(SmRestartCommand, sm->restartCommand());
-        sm_setProperty(SmDiscardCommand, sm->discardCommand());
+        sm_setProperty(QString::fromLatin1(SmRestartCommand), sm->restartCommand());
+        sm_setProperty(QString::fromLatin1(SmDiscardCommand), sm->discardCommand());
 
         // set the restart hint
         SmPropValue prop;
@@ -5562,9 +5576,9 @@ QSessionManager::QSessionManager(QApplication * app, QString &id, QString& key)
     id = QString::fromLatin1(myId);
     ::free(myId); // it was allocated by C
 
-    QString error = cerror;
+    QString error = QString::fromLocal8Bit(cerror);
     if (!smcConnection) {
-        qWarning("Session management error: %s", error.toLatin1().data());
+        qWarning("Session management error: %s", qPrintable(error));
     }
     else {
         sm_receiver = new QSmSocketReceiver(IceConnectionNumber(SmcGetIceConnection(smcConnection)));
