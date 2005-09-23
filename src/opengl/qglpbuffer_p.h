@@ -27,7 +27,6 @@
 #include <qglpbuffer.h>
 
 #ifdef Q_WS_X11
-#include <private/qt_x11_p.h>
 #include <GL/glx.h>
 #elif defined(Q_WS_WIN)
 DECLARE_HANDLE(HPBUFFERARB);
