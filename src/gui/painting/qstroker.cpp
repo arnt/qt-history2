@@ -755,51 +755,53 @@ QPointF qt_curves_for_arc(const QRectF &rect, qreal startAngle, qreal sweepLengt
 
     qreal absSweepLength = (sweepLength < 0 ? -sweepLength : sweepLength);
     int iterations = qIntCast((absSweepLength + 89) / 90);
-    qreal clength = sweepLength / iterations;
-    qreal cosangle1, sinangle1, cosangle2, sinangle2;
 
     QPointF first_point;
 
-    if (iterations == 0)
+    if (iterations == 0) {
         first_point = rect.center() + QPointF(a * qCos(ANGLE(startAngle)),
                                               -b * qSin(ANGLE(startAngle)));
+    } else {
+        qreal clength = sweepLength / iterations;
+        qreal cosangle1, sinangle1, cosangle2, sinangle2;
 
-    for (int i=0; i<iterations; ++i) {
-        qreal cangle = startAngle + i * clength;
+        for (int i=0; i<iterations; ++i) {
+            qreal cangle = startAngle + i * clength;
 
-        cosangle1 = qCos(ANGLE(cangle));
-        sinangle1 = qSin(ANGLE(cangle));
-        cosangle2 = qCos(ANGLE(cangle + clength));
-        sinangle2 = qSin(ANGLE(cangle + clength));
+            cosangle1 = qCos(ANGLE(cangle));
+            sinangle1 = qSin(ANGLE(cangle));
+            cosangle2 = qCos(ANGLE(cangle + clength));
+            sinangle2 = qSin(ANGLE(cangle + clength));
 
-        // Find the start and end point of the curve.
-        QPointF startPoint = rect.center() + QPointF(a * cosangle1, -b * sinangle1);
-        QPointF endPoint = rect.center() + QPointF(a * cosangle2, -b * sinangle2);
+            // Find the start and end point of the curve.
+            QPointF startPoint = rect.center() + QPointF(a * cosangle1, -b * sinangle1);
+            QPointF endPoint = rect.center() + QPointF(a * cosangle2, -b * sinangle2);
 
-        // The derived at the start and end point.
-        qreal sdx = -a * sinangle1;
-        qreal sdy = -b * cosangle1;
-        qreal edx = -a * sinangle2;
-        qreal edy = -b * cosangle2;
+            // The derived at the start and end point.
+            qreal sdx = -a * sinangle1;
+            qreal sdy = -b * cosangle1;
+            qreal edx = -a * sinangle2;
+            qreal edy = -b * cosangle2;
 
-        // Creating the tangent lines. We need to reverse their direction if the
-        // sweep is negative (clockwise)
-        QLineF controlLine1(startPoint, startPoint + SIGN(sweepLength) * QPointF(sdx, sdy));
-        QLineF controlLine2(endPoint, endPoint - SIGN(sweepLength) * QPointF(edx, edy));
+            // Creating the tangent lines. We need to reverse their direction if the
+            // sweep is negative (clockwise)
+            QLineF controlLine1(startPoint, startPoint + SIGN(sweepLength) * QPointF(sdx, sdy));
+            QLineF controlLine2(endPoint, endPoint - SIGN(sweepLength) * QPointF(edx, edy));
 
-        // We need to scale down the control lines to match that of the current sweeplength.
-        // qAbs because we only want to scale, not change direction.
-        qreal kappa = QT_PATH_KAPPA * qAbs(clength) / 90.0;
-        // Adjust their length to fit the magic KAPPA length.
-        controlLine1.setLength(controlLine1.length() * kappa);
-        controlLine2.setLength(controlLine2.length() * kappa);
+            // We need to scale down the control lines to match that of the current sweeplength.
+            // qAbs because we only want to scale, not change direction.
+            qreal kappa = QT_PATH_KAPPA * qAbs(clength) / 90.0;
+            // Adjust their length to fit the magic KAPPA length.
+            controlLine1.setLength(controlLine1.length() * kappa);
+            controlLine2.setLength(controlLine2.length() * kappa);
 
-        curves[(*point_count)++] = controlLine1.p2();
-        curves[(*point_count)++] = controlLine2.p2();
-        curves[(*point_count)++] = endPoint;
+            curves[(*point_count)++] = controlLine1.p2();
+            curves[(*point_count)++] = controlLine2.p2();
+            curves[(*point_count)++] = endPoint;
 
-        if (i == 0)
-            first_point = startPoint;
+            if (i == 0)
+                first_point = startPoint;
+        }
     }
 
     return first_point;
