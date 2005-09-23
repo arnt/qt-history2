@@ -116,7 +116,7 @@ embedded {
 		painting/qpaintdevice_qws.cpp 
 }
 
-sse {
+sse|win32-g++ {
     sse_compiler.commands = $$QMAKE_CXX -c -msse $(CXXFLAGS) $(INCPATH) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
     sse_compiler.dependency_type = TYPE_C
     sse_compiler.output = $(OBJECTS_DIR)/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
@@ -130,7 +130,7 @@ sse {
 
     SSE_SOURCES += painting/qdrawhelper_x86.cpp
 }
-win32 {
+win32:!win32-g++ {
     SOURCES += painting/qdrawhelper_x86.cpp
     DEFINES += QT_HAVE_SSE
 }

@@ -115,12 +115,12 @@ void QFontEngine::getCMap()
         QT_WA( {
             OUTLINETEXTMETRICW metric;
             GetOutlineTextMetricsW(hdc, sizeof(OUTLINETEXTMETRICW), &metric);
-            designToDevice = QFixed((int)metric.otmEMSquare)/metric.otmTextMetrics.tmHeight;
+            designToDevice = QFixed((int)metric.otmEMSquare)/int(metric.otmTextMetrics.tmHeight);
             unitsPerEm = metric.otmEMSquare;
         }, {
             OUTLINETEXTMETRICA metric;
             GetOutlineTextMetricsA(hdc, sizeof(OUTLINETEXTMETRICA), &metric);
-            designToDevice = QFixed((int)metric.otmEMSquare)/metric.otmTextMetrics.tmHeight;
+            designToDevice = QFixed((int)metric.otmEMSquare)/int(metric.otmTextMetrics.tmHeight);
             unitsPerEm = metric.otmEMSquare;
         } )
         kerning_pairs = getKerning(hdc, designToDevice);
