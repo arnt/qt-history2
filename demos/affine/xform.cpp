@@ -687,32 +687,32 @@ XFormWidget::XFormWidget(QWidget *parent)
 
     view = new XFormView(this);
 
-    QGroupBox *mainGroup = new ArthurGroupBox(this);
+    QGroupBox *mainGroup = new QGroupBox(this);
     mainGroup->setFixedWidth(180);
     mainGroup->setTitle("Affine Transformations");
 
-    ArthurGroupBox *rotateGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *rotateGroup = new QGroupBox(mainGroup);
     rotateGroup->setAttribute(Qt::WA_ContentsPropagated);
     rotateGroup->setTitle("Rotate");
     QSlider *rotateSlider = new QSlider(Qt::Horizontal, rotateGroup);
     rotateSlider->setRange(0, 3600);
     rotateSlider->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
-    ArthurGroupBox *scaleGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *scaleGroup = new QGroupBox(mainGroup);
     scaleGroup->setAttribute(Qt::WA_ContentsPropagated);
     scaleGroup->setTitle("Scale");
     QSlider *scaleSlider = new QSlider(Qt::Horizontal, scaleGroup);
     scaleSlider->setRange(1, 4000);
     scaleSlider->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
-    ArthurGroupBox *shearGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *shearGroup = new QGroupBox(mainGroup);
     shearGroup->setAttribute(Qt::WA_ContentsPropagated);
     shearGroup->setTitle("Shear");
     QSlider *shearSlider = new QSlider(Qt::Horizontal, shearGroup);
     shearSlider->setRange(-990, 990);
     shearSlider->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
-    ArthurGroupBox *typeGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *typeGroup = new QGroupBox(mainGroup);
     typeGroup->setAttribute(Qt::WA_ContentsPropagated);
     typeGroup->setTitle("Type");
     QRadioButton *vectorType = new QRadioButton(typeGroup);

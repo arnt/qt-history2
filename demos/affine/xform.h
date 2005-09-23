@@ -3,8 +3,10 @@
 
 #include "arthurwidgets.h"
 #include <qbasictimer.h>
+#include <QPolygonF>
 
 class HoverPoints;
+class QLineEdit;
 
 class XFormView : public ArthurFrame
 {

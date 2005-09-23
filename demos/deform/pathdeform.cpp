@@ -2,9 +2,11 @@
 
 #include <qapplication.h>
 #include <qdebug.h>
+#include <qevent.h>
 #include <qlayout.h>
 #include <qlineedit.h>
-#include <qevent.h>
+#include <qpainter.h>
+#include <qslider.h>
 
 #include <math.h>
 
@@ -17,31 +19,31 @@ PathDeformWidget::PathDeformWidget(QWidget *parent)
     m_renderer = new PathDeformRenderer(this);
     m_renderer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    ArthurGroupBox *mainGroup = new ArthurGroupBox(this);
+    QGroupBox *mainGroup = new QGroupBox(this);
     mainGroup->setTitle("Vector Deformation");
 
-    ArthurGroupBox *radiusGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *radiusGroup = new QGroupBox(mainGroup);
     radiusGroup->setAttribute(Qt::WA_ContentsPropagated);
     radiusGroup->setTitle("Lens Radius");
     QSlider *radiusSlider = new QSlider(Qt::Horizontal, radiusGroup);
     radiusSlider->setRange(50, 150);
     radiusSlider->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
-    ArthurGroupBox *deformGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *deformGroup = new QGroupBox(mainGroup);
     deformGroup->setAttribute(Qt::WA_ContentsPropagated);
     deformGroup->setTitle("Deformation");
     QSlider *deformSlider = new QSlider(Qt::Horizontal, deformGroup);
     deformSlider->setRange(-100, 100);
     deformSlider->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
-    ArthurGroupBox *fontSizeGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *fontSizeGroup = new QGroupBox(mainGroup);
     fontSizeGroup->setAttribute(Qt::WA_ContentsPropagated);
     fontSizeGroup->setTitle("Font Size");
     QSlider *fontSizeSlider = new QSlider(Qt::Horizontal, fontSizeGroup);
     fontSizeSlider->setRange(16, 200);
     fontSizeSlider->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
-    ArthurGroupBox *textGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *textGroup = new QGroupBox(mainGroup);
     textGroup->setAttribute(Qt::WA_ContentsPropagated);
     textGroup->setTitle("Text");
     QLineEdit *textInput = new QLineEdit(textGroup);

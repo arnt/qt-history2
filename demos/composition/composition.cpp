@@ -4,17 +4,18 @@
 #include <qtimer.h>
 #include <qdatetime.h>
 #include <math.h>
+#include <qslider.h>
 
 CompositionWidget::CompositionWidget(QWidget *parent)
     : QWidget(parent)
 {
     CompositionRenderer *view = new CompositionRenderer(this);
 
-    ArthurGroupBox *mainGroup = new ArthurGroupBox(parent);
+    QGroupBox *mainGroup = new QGroupBox(parent);
     mainGroup->setAttribute(Qt::WA_ContentsPropagated);
     mainGroup->setTitle("Composition Modes");
 
-    ArthurGroupBox *modesGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *modesGroup = new QGroupBox(mainGroup);
     modesGroup->setAttribute(Qt::WA_ContentsPropagated);
     modesGroup->setTitle("Mode");
 
@@ -43,7 +44,7 @@ CompositionWidget::CompositionWidget(QWidget *parent)
     rbXor = new QRadioButton("Xor", modesGroup);
     connect(rbXor, SIGNAL(clicked()), view, SLOT(setXorMode()));
 
-    ArthurGroupBox *circleColorGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *circleColorGroup = new QGroupBox(mainGroup);
     circleColorGroup->setAttribute(Qt::WA_ContentsPropagated);
     circleColorGroup->setTitle("Circle color");
     QSlider *circleColorSlider = new QSlider(Qt::Horizontal, circleColorGroup);
@@ -51,7 +52,7 @@ CompositionWidget::CompositionWidget(QWidget *parent)
     circleColorSlider->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     connect(circleColorSlider, SIGNAL(valueChanged(int)), view, SLOT(setCircleColor(int)));
 
-    ArthurGroupBox *circleAlphaGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *circleAlphaGroup = new QGroupBox(mainGroup);
     circleAlphaGroup->setAttribute(Qt::WA_ContentsPropagated);
     circleAlphaGroup->setTitle("Circle alpha");
     QSlider *circleAlphaSlider = new QSlider(Qt::Horizontal, circleAlphaGroup);

@@ -19,12 +19,12 @@ PathStrokeWidget::PathStrokeWidget()
     // Widget construction and property setting
     m_renderer = new PathStrokeRenderer(this);
 
-    QGroupBox *mainGroup = new ArthurGroupBox(this);
+    QGroupBox *mainGroup = new QGroupBox(this);
 //     QWidget *mainGroup = new QWidget(this);
     mainGroup->setFixedWidth(180);
     mainGroup->setTitle("Path Stroking");
 
-    QGroupBox *capGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *capGroup = new QGroupBox(mainGroup);
     capGroup->setAttribute(Qt::WA_ContentsPropagated);
     QRadioButton *flatCap = new QRadioButton(capGroup);
     QRadioButton *squareCap = new QRadioButton(capGroup);
@@ -34,7 +34,7 @@ PathStrokeWidget::PathStrokeWidget()
     squareCap->setText("Square Cap");
     roundCap->setText("Round Cap");
 
-    QGroupBox *joinGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *joinGroup = new QGroupBox(mainGroup);
     joinGroup->setAttribute(Qt::WA_ContentsPropagated);
     QRadioButton *bevelJoin = new QRadioButton(joinGroup);
     QRadioButton *miterJoin = new QRadioButton(joinGroup);
@@ -44,7 +44,7 @@ PathStrokeWidget::PathStrokeWidget()
     miterJoin->setText("Miter Join");
     roundJoin->setText("Round Join");
 
-    QGroupBox *styleGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *styleGroup = new QGroupBox(mainGroup);
     styleGroup->setAttribute(Qt::WA_ContentsPropagated);
     QRadioButton *solidLine = new QRadioButton(styleGroup);
     QRadioButton *dashLine = new QRadioButton(styleGroup);
@@ -75,7 +75,7 @@ PathStrokeWidget::PathStrokeWidget()
     dashDotDotLine->setFixedHeight(fixedHeight);
 #endif
 
-    QGroupBox *pathModeGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *pathModeGroup = new QGroupBox(mainGroup);
     pathModeGroup->setAttribute(Qt::WA_ContentsPropagated);
     QRadioButton *curveMode = new QRadioButton(pathModeGroup);
     QRadioButton *lineMode = new QRadioButton(pathModeGroup);
@@ -83,7 +83,7 @@ PathStrokeWidget::PathStrokeWidget()
     curveMode->setText("Curves");
     lineMode->setText("Lines");
 
-    QGroupBox *penWidthGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *penWidthGroup = new QGroupBox(mainGroup);
     penWidthGroup->setAttribute(Qt::WA_ContentsPropagated);
     QSlider *penWidth = new QSlider(Qt::Horizontal, penWidthGroup);
     penWidth->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);

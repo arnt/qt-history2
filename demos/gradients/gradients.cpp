@@ -237,29 +237,29 @@ GradientWidget::GradientWidget(QWidget *parent)
 
     m_renderer = new GradientRenderer(this);
 
-    ArthurGroupBox *mainGroup = new ArthurGroupBox(this);
+    QGroupBox *mainGroup = new QGroupBox(this);
     mainGroup->setTitle("Gradients");
 
-    ArthurGroupBox *editorGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *editorGroup = new QGroupBox(mainGroup);
     editorGroup->setAttribute(Qt::WA_ContentsPropagated);
     editorGroup->setTitle("Color Editor");
     m_editor = new GradientEditor(editorGroup);
 
-    ArthurGroupBox *typeGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *typeGroup = new QGroupBox(mainGroup);
     typeGroup->setAttribute(Qt::WA_ContentsPropagated);
     typeGroup->setTitle("Gradient Type");
     m_linearButton = new QRadioButton("Linear Gradient", typeGroup);
     m_radialButton = new QRadioButton("Radial Gradient", typeGroup);
     m_conicalButton = new QRadioButton("Conical Gradient", typeGroup);
 
-    ArthurGroupBox *spreadGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *spreadGroup = new QGroupBox(mainGroup);
     spreadGroup->setAttribute(Qt::WA_ContentsPropagated);
     spreadGroup->setTitle("Spread Method");
     m_padSpreadButton = new QRadioButton("Pad Spread", spreadGroup);
     m_reflectSpreadButton = new QRadioButton("Reflect Spread", spreadGroup);
     m_repeatSpreadButton = new QRadioButton("Repeat Spread", spreadGroup);
 
-    ArthurGroupBox *defaultsGroup = new ArthurGroupBox(mainGroup);
+    QGroupBox *defaultsGroup = new QGroupBox(mainGroup);
     defaultsGroup->setAttribute(Qt::WA_ContentsPropagated);
     defaultsGroup->setTitle("Defaults");
     QPushButton *default1Button = new QPushButton("1", defaultsGroup);

@@ -16,10 +16,12 @@
 #include "arthurwidgets.h"
 #include <qdebug.h>
 #include <qlayout.h>
+#include <qpainter.h>
 #include <qpainterpath.h>
 #include <qpixmapcache.h>
 #include <qradiobutton.h>
 #include <qstring.h>
+#include <qstyleoption.h>
 
 QPixmap cached(const QString &img)
 {
@@ -134,11 +136,9 @@ void ArthurStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *op
         break;
 
     case PE_FrameGroupBox:
-        if (const ArthurGroupBoxStyleOption *group = qstyleoption_cast<const ArthurGroupBoxStyleOption *>(option)) {
-            QPixmap titleLeft = cached(":res/images/title_cap_left.png");
-            QPixmap titleRight = cached(":res/images/title_cap_right.png");
+        if (const QStyleOptionGroupBox *group
+                = qstyleoption_cast<const QStyleOptionGroupBox *>(option)) {
             QPixmap titleStretch = cached(":res/images/title_stretch.png");
-
             QPixmap topLeft = cached(":res/images/groupframe_topleft.png");
             QPixmap topRight = cached(":res/images/groupframe_topright.png");
             QPixmap bottomLeft = cached(":res/images/groupframe_bottom_left.png");
@@ -147,34 +147,7 @@ void ArthurStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *op
             QPixmap topStretch = cached(":res/images/groupframe_top_stretch.png");
             QPixmap rightStretch = cached(":res/images/groupframe_right_stretch.png");
             QPixmap bottomStretch = cached(":res/images/groupframe_bottom_stretch.png");
-
-            const QRect r = group->rect;
-            painter->save();
-
-            // first, get background from parent
-            QWidget *parent = widget->parentWidget();
-            if (parent && qobject_cast<QGroupBox *>(parent)) {
-                QLinearGradient lg(0, 0, 0, parent->height());
-                lg.setColorAt(0, QColor(224,224,224));
-                lg.setColorAt(1, QColor(255,255,255));
-                painter->setPen(Qt::NoPen);
-                painter->setBrush(lg);
-                painter->setBrushOrigin(-widget->mapToParent(QPoint(0,0)));
-                painter->drawRect(r);
-                painter->setBrushOrigin(0,0);
-            }
-
-            int radius = 14;
-            int radius2 = radius*2;
-            QPainterPath clipPath;
-            clipPath.moveTo(radius, 0);
-            clipPath.arcTo(r.right() - radius2, 0, radius2, radius2, 90, -90);
-            clipPath.arcTo(r.right() - radius2, r.bottom() - radius2, radius2, radius2, 0, -90);
-            clipPath.arcTo(r.left(), r.bottom() - radius2, radius2, radius2, 270, -90);
-            clipPath.arcTo(r.left(), r.top(), radius2, radius2, 180, -90);
-            painter->setClipPath(clipPath);
-
-            // edges and fill
+            const QRect &r = group->rect;
             QLinearGradient lg(0, 0, 0, r.height());
             lg.setColorAt(0, QColor(224,224,224));
             lg.setColorAt(1, QColor(255,255,255));
@@ -185,9 +158,11 @@ void ArthurStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *op
 
             int topFrameOffset = titleStretch.height()/2 - 2;
             painter->drawPixmap(r.topLeft() + QPoint(0, topFrameOffset), topLeft);
-            painter->drawPixmap(r.topRight() - QPoint(topRight.width()-1, 0)  + QPoint(0, topFrameOffset), topRight);
+            painter->drawPixmap(r.topRight() - QPoint(topRight.width()-1, 0)
+                                + QPoint(0, topFrameOffset), topRight);
             painter->drawPixmap(r.bottomLeft() - QPoint(0, bottomLeft.height()-1), bottomLeft);
-            painter->drawPixmap(r.bottomRight() - QPoint(bottomRight.width()-1, bottomRight.height()-1), bottomRight);
+            painter->drawPixmap(r.bottomRight() - QPoint(bottomRight.width()-1,
+                                bottomRight.height()-1), bottomRight);
 
             QRect left = r;
             left.setY(r.y() + topLeft.height() + topFrameOffset);
@@ -206,7 +181,8 @@ void ArthurStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *op
             right.setX(r.right() - rightStretch.width()+1);
             right.setY(r.y() + topRight.height() + topFrameOffset);
             right.setWidth(rightStretch.width());
-            right.setHeight(r.height() - topRight.height() - bottomRight.height() - topFrameOffset);
+            right.setHeight(r.height() - topRight.height()
+                            - bottomRight.height() - topFrameOffset);
             painter->drawTiledPixmap(right, rightStretch);
 
             QRect bottom = r;
@@ -215,32 +191,6 @@ void ArthurStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *op
             bottom.setWidth(r.width() - bottomLeft.width() - bottomRight.width());
             bottom.setHeight(bottomLeft.height());
             painter->drawTiledPixmap(bottom, bottomStretch);
-
-            // labels
-
-            int txt_width = group->fontMetrics.width(group->title) + 20;
-            painter->drawPixmap(r.center().x() - txt_width/2, 0, titleLeft);
-            QRect tileRect(r.center().x() - txt_width/2 + titleLeft.width(),
-                           0,
-                           txt_width - titleLeft.width() - titleRight.width(),
-                           titleStretch.height());
-            painter->drawTiledPixmap(tileRect, titleStretch);
-            painter->drawPixmap(tileRect.x() + tileRect.width(), 0, titleRight);
-
-            {
-                int opacity = 31;
-                painter->setPen(QColor(0, 0, 0, opacity));
-                painter->drawText(tileRect.translated(0, 1),
-                                  Qt::AlignVCenter | Qt::AlignHCenter, group->title);
-                painter->drawText(tileRect.translated(2, 1),
-                                  Qt::AlignVCenter | Qt::AlignHCenter, group->title);
-                painter->setPen(QColor(0, 0, 0, opacity * 2));
-                painter->drawText(tileRect.translated(1, 1),
-                                  Qt::AlignVCenter | Qt::AlignHCenter, group->title);
-            }
-            painter->setPen(Qt::white);
-            painter->drawText(tileRect, Qt::AlignVCenter | Qt::AlignHCenter, group->title);
-            painter->restore();
         }
         break;
 
@@ -283,6 +233,71 @@ void ArthurStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
             painter->restore();
         }
         break;
+    case CC_GroupBox:
+        if (const QStyleOptionGroupBox *group
+                = qstyleoption_cast<const QStyleOptionGroupBox *>(option)) {
+
+            const QRect r = group->rect;
+            painter->save();
+
+            // first, get background from parent
+            QWidget *parent = 0;
+            if (widget)
+                parent = widget->parentWidget();
+            if (qobject_cast<QGroupBox *>(parent)) {
+                QLinearGradient lg(0, 0, 0, parent->height());
+                lg.setColorAt(0, QColor(224,224,224));
+                lg.setColorAt(1, QColor(255,255,255));
+                painter->setPen(Qt::NoPen);
+                painter->setBrush(lg);
+                painter->setBrushOrigin(-widget->mapToParent(QPoint(0,0)));
+                painter->drawRect(r);
+                painter->setBrushOrigin(0,0);
+            }
+
+            int radius = 14;
+            int radius2 = radius*2;
+            QPainterPath clipPath;
+            clipPath.moveTo(radius, 0);
+            clipPath.arcTo(r.right() - radius2, 0, radius2, radius2, 90, -90);
+            clipPath.arcTo(r.right() - radius2, r.bottom() - radius2, radius2, radius2, 0, -90);
+            clipPath.arcTo(r.left(), r.bottom() - radius2, radius2, radius2, 270, -90);
+            clipPath.arcTo(r.left(), r.top(), radius2, radius2, 180, -90);
+            painter->setClipPath(clipPath);
+
+            // edges and fill
+            if (group->subControls & SC_GroupBoxFrame) {
+                drawPrimitive(PE_FrameGroupBox, group, painter, widget);
+            }
+
+            // labels
+            if (group->subControls & SC_GroupBoxLabel) {
+                QPixmap titleLeft = cached(":res/images/title_cap_left.png");
+                QPixmap titleRight = cached(":res/images/title_cap_right.png");
+                QPixmap titleStretch = cached(":res/images/title_stretch.png");
+                int txt_width = group->fontMetrics.width(group->text) + 20;
+                painter->drawPixmap(r.center().x() - txt_width/2, 0, titleLeft);
+                QRect tileRect = subControlRect(control, group, SC_GroupBoxLabel, widget);
+                painter->drawTiledPixmap(tileRect, titleStretch);
+                painter->drawPixmap(tileRect.x() + tileRect.width(), 0, titleRight);
+
+                {
+                    int opacity = 31;
+                    painter->setPen(QColor(0, 0, 0, opacity));
+                    painter->drawText(tileRect.translated(0, 1),
+                                      Qt::AlignVCenter | Qt::AlignHCenter, group->text);
+                    painter->drawText(tileRect.translated(2, 1),
+                                      Qt::AlignVCenter | Qt::AlignHCenter, group->text);
+                    painter->setPen(QColor(0, 0, 0, opacity * 2));
+                    painter->drawText(tileRect.translated(1, 1),
+                                      Qt::AlignVCenter | Qt::AlignHCenter, group->text);
+                }
+                painter->setPen(Qt::white);
+                painter->drawText(tileRect, Qt::AlignVCenter | Qt::AlignHCenter, group->text);
+                painter->restore();
+            }
+        }
+        break;
     default:
         QWindowsStyle::drawComplexControl(control, option, painter, widget);
         break;
@@ -293,8 +308,35 @@ void ArthurStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 QRect ArthurStyle::subControlRect(ComplexControl control, const QStyleOptionComplex *option,
                                   SubControl subControl, const QWidget *widget) const
 {
-    QRect rect = QWindowsStyle::subControlRect(control, option, subControl, widget);
-//     const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option);
+    QRect rect;
+
+    switch (control) {
+    default:
+        rect = QWindowsStyle::subControlRect(control, option, subControl, widget);
+        break;
+    case CC_GroupBox:
+        if (const QStyleOptionGroupBox *group
+                = qstyleoption_cast<const QStyleOptionGroupBox *>(option)) {
+            switch (subControl) {
+            default:
+                rect = QWindowsStyle::subControlRect(control, option, subControl, widget);
+                break;
+            case SC_GroupBoxFrame:
+                rect = group->rect;
+                break;
+            case SC_GroupBoxLabel:
+                QPixmap titleLeft = cached(":res/images/title_cap_left.png");
+                QPixmap titleRight = cached(":res/images/title_cap_right.png");
+                QPixmap titleStretch = cached(":res/images/title_stretch.png");
+                int txt_width = group->fontMetrics.width(group->text) + 20;
+                rect = QRect(group->rect.center().x() - txt_width/2 + titleLeft.width(), 0,
+                             txt_width - titleLeft.width() - titleRight.width(),
+                             titleStretch.height());
+                break;
+            }
+        }
+        break;
+    }
 
     if (control == CC_Slider && subControl == SC_SliderHandle) {
         rect.setWidth(13);
@@ -338,8 +380,8 @@ int ArthurStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QWid
 
 void ArthurStyle::polish(QWidget *widget)
 {
-    if (widget->layout() && qobject_cast<ArthurGroupBox *>(widget)) {
-        if (qFindChildren<ArthurGroupBox *>(widget).size() == 0)
+    if (widget->layout() && qobject_cast<QGroupBox *>(widget)) {
+        if (qFindChildren<QGroupBox *>(widget).size() == 0)
             widget->layout()->setSpacing(0);
         else
             widget->layout()->setMargin(10);

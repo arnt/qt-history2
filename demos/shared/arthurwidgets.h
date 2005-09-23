@@ -48,22 +48,4 @@ protected:
 
 };
 
-class ArthurGroupBox : public QGroupBox
-{
-public:
-    ArthurGroupBox(QWidget *parent) : QGroupBox(parent) {}
-
-protected:
-    void paintEvent(QPaintEvent *) {
-        QPainter painter(this);
-        QRect frameRect = rect();
-        ArthurGroupBoxStyleOption opt;
-        opt.init(this);
-        opt.rect = frameRect;
-        opt.title = title();
-
-        style()->drawPrimitive(QStyle::PE_FrameGroupBox, &opt, &painter, this);
-    }
-};
-
 #endif
