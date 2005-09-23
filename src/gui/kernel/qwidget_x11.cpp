@@ -2288,16 +2288,20 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     } else {
 #ifdef QT_USE_BACKINGSTORE
         if(q->isVisible()) {
-            if(isMove)
-                q->parentWidget()->d_func()->scrollBuffer(QRect(oldPos, oldSize),
-                                                          x - oldPos.x(), y - oldPos.y());
-            else
-                q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, oldSize));
+            QWidget *pw = q->parentWidget();
+            QRect sr = QRect(oldPos, oldSize).intersect(pw->rect());
+            if(isMove) {
+                pw->d_func()->scrollBuffer(sr, x - oldPos.x(), y - oldPos.y());
+            } else {
+                pw->d_func()->invalidateBuffer(sr);
+            }
         }
 #endif
         setWSGeometry();
 #ifdef QT_USE_BACKINGSTORE
-        invalidateBuffer(q->rect()); //after the resize
+
+        if (isResize)
+            invalidateBuffer(q->rect()); //after the resize
 #endif
     }
 

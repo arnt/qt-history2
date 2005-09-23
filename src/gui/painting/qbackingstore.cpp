@@ -213,10 +213,16 @@ QWidgetBackingStore::~QWidgetBackingStore()
 
 }
 
+//#define QT_FASTSCROLL
+
+/*
+  Only for opaque widgets
+  scroll \a rect, which needs to be within widget->rect(), by dx, dy
+*/
 void QWidgetBackingStore::scrollRegion(const QRect &rect, int dx, int dy, QWidget *widget)
 {
     QRegion wrgn(rect);
-#if 1
+#ifndef QT_FASTSCROLL
     QRegion area = widget->d_func()->clipRect();
     if(area.isEmpty())
         return;
@@ -230,14 +236,15 @@ void QWidgetBackingStore::scrollRegion(const QRect &rect, int dx, int dy, QWidge
     QRegion area = widget->d_func()->clipRegion();
     if(area.isEmpty())
         return;
-    wrgn &= area;
 
     QRect newrect = rect.translated(dx,dy);
 
-    if(isOpaque(widget))
+    if(1 || isOpaque(widget))
         wrgn ^= newrect;
     else
         wrgn += newrect;
+
+    wrgn &= area;
 
     if(QWExtra *extra = widget->d_func()->extraData()) {
         if(!extra->mask.isEmpty())
@@ -259,10 +266,9 @@ void QWidgetBackingStore::scrollRegion(const QRect &rect, int dx, int dy, QWidge
     XFreeGC(widget->d_func()->xinfo.display(), gc);
 #endif
 
-
-
-
-//    dirtyRegion(wrgn, widget);
+//    qDebug() << "QWidgetBackingStore::scrollRegion" << rect << newrect << wrgn;
+//    qDebug() << "isOpaque" << isOpaque(widget);
+    dirtyRegion(wrgn, widget);
 
 #endif
 }
@@ -635,6 +641,13 @@ void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, con
 }
 
 /* cross-platform QWidget code */
+
+
+/*
+  Only for opaque widgets
+  scroll \a rect, which needs to be within q->rect(), by dx, dy
+*/
+
 void QWidgetPrivate::scrollBuffer(const QRect &rect, int dx, int dy)
 {
     Q_Q(QWidget);
