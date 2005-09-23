@@ -5727,9 +5727,9 @@ void Q3FileDialog::urlFinished(Q3NetworkOperation *op)
             d->progressDia = 0;
         }
 
+        int ecode = op->errorCode();
         QMessageBox::critical(this, tr("Error"), op->protocolDetail());
 
-        int ecode = op->errorCode();
         if (ecode == Q3NetworkProtocol::ErrListChildren || ecode == Q3NetworkProtocol::ErrParse ||
              ecode == Q3NetworkProtocol::ErrUnknownProtocol || ecode == Q3NetworkProtocol::ErrLoginIncorrect ||
              ecode == Q3NetworkProtocol::ErrValid || ecode == Q3NetworkProtocol::ErrHostNotFound ||
