@@ -670,7 +670,7 @@ void TorrentClient::pieceVerified(int pieceIndex, bool ok)
     } else {
         if (completed == 1)
             d->setState(Downloading);
-        else if (completed == d->pieceCount - 5)
+        else if (d->pendingPieces.size() >= d->incompletePieces.count(true))
             d->setState(Endgame);
         d->callScheduler();
     }
@@ -813,7 +813,7 @@ void TorrentClient::setupIncomingConnection(PeerWireClient *client)
         int completed = d->completedPieces.count(true);
         if (completed == 0)
             d->setState(WarmingUp);
-        else if (completed >= d->pieceCount - 5)
+        else if (d->pendingPieces.size() >= d->incompletePieces.count(true))
             d->setState(Endgame);
     }
 
@@ -843,7 +843,7 @@ void TorrentClient::setupOutgoingConnection()
         int completed = d->completedPieces.count(true);
         if (completed == 0)
             d->setState(WarmingUp);
-        else if (completed >= d->pieceCount - 5)
+        else if (d->pendingPieces.size() >= d->incompletePieces.count(true))
             d->setState(Endgame);
     }
 }
@@ -1189,14 +1189,17 @@ void TorrentClient::schedulePieceForClient(PeerWireClient *client)
         lastPendingPiece = 0;
     TorrentPiece *piece = lastPendingPiece;
 
-    // In warmup state, all clients request blocks from the same piece.
-    if (d->state == WarmingUp) {
+    // In warmup state, all clients request blocks from the same pieces.
+    if (d->state == WarmingUp && d->pendingPieces.size() >= 4) {
         piece = d->payloads.value(client);
-        if (!piece && !d->pendingPieces.isEmpty()) {
-            piece = d->pendingPieces.begin().value();
-            ++piece->inProgress;
+        if (!piece) {
+            QList<TorrentPiece *> values = d->pendingPieces.values();
+            piece = values.value(rand() % values.size());
+            piece->inProgress = true;
             d->payloads.insert(client, piece);
         }
+        if (piece->completedBlocks.count(false) == client->incomingBlockCount())
+            return;
     }
 
     // If no pieces are currently in progress, schedule a new one.
@@ -1234,24 +1237,28 @@ void TorrentClient::schedulePieceForClient(PeerWireClient *client)
             return;
 
         // Check if any of the partially completed pieces can be
-        // recovered.
+        // recovered, and if so, pick a random one of them.
+        QList<TorrentPiece *> partialPieces;
         QMap<int, TorrentPiece *>::ConstIterator it = d->pendingPieces.constBegin();
         while (it != d->pendingPieces.constEnd()) {
             TorrentPiece *tmp = it.value();
             if (incompletePiecesAvailableToClient.testBit(it.key())) {
                 if (!tmp->inProgress || d->state == WarmingUp || d->state == Endgame) {
-                    piece = tmp;
+                    partialPieces << tmp;
                     break;
                 }
             }
             ++it;
         }
+        if (!partialPieces.isEmpty())
+            piece = partialPieces.value(rand() % partialPieces.size());
 
         if (!piece) {
-            // Either pick one of the least available pieces, or just
-            // pick a random one.
+            // Pick a random piece 3 out of 4 times; otherwise, pick either
+            // one of the most common or the least common pieces available,
+            // depending on the state we're in.
             int pieceIndex = 0;
-            if ((d->state != Endgame) && (rand() & 4) == 0) {
+            if (d->state == WarmingUp || (rand() & 4) == 0) {
                 int *occurrances = new int[d->pieceCount];
                 memset(occurrances, 0, d->pieceCount * sizeof(int));
                 
@@ -1265,20 +1272,32 @@ void TorrentClient::schedulePieceForClient(PeerWireClient *client)
                     }
                 }
 
-                // Find the rarest pieces.
-                int numOccurrances = 99999;
+                // Find the rarest or most common pieces.
+                int numOccurrances = d->state == WarmingUp ? 0 : 99999;
                 QList<int> piecesReadyForDownload;
                 for (int i = 0; i < d->pieceCount; ++i) {
-                    if (occurrances[i] <= numOccurrances
-                        && incompletePiecesAvailableToClient.testBit(i)) {
-                        if (occurrances[i] < numOccurrances)
-                            piecesReadyForDownload.clear();
-                        piecesReadyForDownload.append(i);
-                        numOccurrances = occurrances[i];
+                    if (d->state == WarmingUp) {
+                        // Add common pieces
+                        if (occurrances[i] >= numOccurrances
+                            && incompletePiecesAvailableToClient.testBit(i)) {
+                            if (occurrances[i] > numOccurrances)
+                                piecesReadyForDownload.clear();
+                            piecesReadyForDownload.append(i);
+                            numOccurrances = occurrances[i];
+                        }
+                    } else {
+                        // Add rare pieces
+                        if (occurrances[i] <= numOccurrances
+                            && incompletePiecesAvailableToClient.testBit(i)) {
+                            if (occurrances[i] < numOccurrances)
+                                piecesReadyForDownload.clear();
+                            piecesReadyForDownload.append(i);
+                            numOccurrances = occurrances[i];
+                        }
                     }
                 }
 
-                // Select one of the rare pieces by random.
+                // Select one piece randomly
                 pieceIndex = piecesReadyForDownload.at(rand() % piecesReadyForDownload.size());
                 delete [] occurrances;
             } else {
@@ -1306,7 +1325,7 @@ void TorrentClient::schedulePieceForClient(PeerWireClient *client)
             d->pendingPieces.insert(pieceIndex, piece);
         }
 
-        ++piece->inProgress;
+        piece->inProgress = true;
         d->payloads.insert(client, piece);
     }
 
