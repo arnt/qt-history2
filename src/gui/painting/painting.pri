@@ -130,7 +130,7 @@ sse|win32-g++ {
 
     SSE_SOURCES += painting/qdrawhelper_x86.cpp
 }
-win32:!win32-g++ {
+win32:!win32-g++:!win32-msvc {
     SOURCES += painting/qdrawhelper_x86.cpp
     DEFINES += QT_HAVE_SSE
 }
