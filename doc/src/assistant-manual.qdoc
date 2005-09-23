@@ -488,12 +488,10 @@
     \menu{Help} menu, e.g. About Application. The url is specified relative
     to the location of the profile. The property name is \c abouturl
 
-    \i \QA Documentation - This property describes the location of
-    the \QA documentation. This is required since \QA provides
-    self help, such as the full text search help and the \QA
-    Manual option in the \menu{Help} menu. The location is a directory
-    relative to the location of the profile. The property name is \c
-    assistantdocs.
+    \i \QA Documentation - This property describes the location of the \QA
+    documentation, which is used when the user requests help from the
+    \gui{Search} tab. The location is a directory relative to the location
+    of the profile. The property name is \c assistantdocs.
 
     \endlist
 
