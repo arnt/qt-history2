@@ -213,6 +213,11 @@
 #  if defined(__INTEL_COMPILER)
 #    define Q_CC_INTEL
 #  endif
+// x64 does not support mmx intrinsics on windows
+#  if (defined(Q_OS_WIN64) && defined(_M_X64))
+#    undef QT_HAVE_SSE
+#  endif
+
 
 #elif defined(__BORLANDC__) || defined(__TURBOC__)
 #  define Q_CC_BOR

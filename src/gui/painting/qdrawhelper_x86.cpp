@@ -14,6 +14,8 @@
 #include <private/qdrawhelper_p.h>
 #include <private/qpaintengine_raster_p.h>
 
+#ifdef QT_HAVE_SSE
+
 #ifdef Q_CC_GNU
 #  include <mmintrin.h>
 #  include <xmmintrin.h>
@@ -638,3 +640,5 @@ void qt_blend_color_argb_sse(int count, const QSpan *spans, void *userData)
         ++spans;
     }
 }
+
+#endif //QT_HAVE_SSE
