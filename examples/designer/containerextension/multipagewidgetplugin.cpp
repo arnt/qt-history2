@@ -3,11 +3,11 @@
 #include <QtDesigner/QDesignerFormEditorInterface>
 
 #include <QIcon>
+#include <QtPlugin>
 
 #include "multipagewidget.h"
 #include "multipagewidgetplugin.h"
 #include "multipagewidgetextensionfactory.h"
-#include "qplugin.h"
 
 MultiPageWidgetPlugin::MultiPageWidgetPlugin(QObject *parent)
     :QObject(parent)

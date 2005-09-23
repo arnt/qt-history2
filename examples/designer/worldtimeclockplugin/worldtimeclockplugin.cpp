@@ -14,7 +14,7 @@
 #include "worldtimeclock.h"
 #include "worldtimeclockplugin.h"
 
-#include <qplugin.h>
+#include <QtPlugin>
 
 WorldTimeClockPlugin::WorldTimeClockPlugin(QObject *parent)
     : QObject(parent)
