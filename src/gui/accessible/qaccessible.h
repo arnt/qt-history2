@@ -29,10 +29,6 @@ class QAccessibleInterface;
 
 class Q_GUI_EXPORT QAccessible
 {
-private:
-#ifdef Q_WS_MAC
-    static OSStatus globalEventProcessor(EventHandlerCallRef, EventRef, void *);
-#endif
 public:
     enum Event {
         SoundPlayed          = 0x0001,
