@@ -78,6 +78,13 @@
     currently not supported under X11.
 */
 
+/*! \fn bool QGLPbuffer::hasPbuffers()
+
+    Returns true if pbuffers are supported on this system, otherwise
+    false.
+ */
+
+
 /*! \fn void QGLPbuffer::copyToTexture(GLuint texture_id, GLint format)
 
     This is a convenience function that copies the buffer contents
@@ -261,3 +268,4 @@ void QGLPbuffer::deleteTexture(GLuint texture_id)
     Q_D(QGLPbuffer);
     d->qctx->deleteTexture(texture_id);
 }
+

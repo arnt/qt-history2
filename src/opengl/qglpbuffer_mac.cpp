@@ -112,3 +112,8 @@ GLuint QGLPbuffer::generateTexture(GLint)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     return texture;
 }
+
+bool QGLPbuffer::hasPbuffers()
+{
+    return true;
+}

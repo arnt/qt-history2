@@ -53,6 +53,7 @@ public:
     QPaintEngine *paintEngine() const;
     QGLFormat format() const { return QGLFormat::defaultFormat(); }
 
+    static bool hasPbuffers();
 protected:
     int metric(PaintDeviceMetric metric) const;
     int devType() const { return QInternal::Pbuffer; }

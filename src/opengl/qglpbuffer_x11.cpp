@@ -54,7 +54,7 @@ _glXMakeContextCurrent qt_glXMakeContextCurrent;
 #define glXGetFBConfigAttrib qt_glXGetFBConfigAttrib
 #define glXMakeContextCurrent qt_glXMakeContextCurrent
 
-static bool qt_resolve_glx_symbols()
+static bool qt_resolve_pbuffer_extensions()
 {
     static int resolved = false;
     if (resolved && qt_glXMakeContextCurrent)
@@ -79,7 +79,7 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
 {
     Q_D(QGLPbuffer);
 
-    if (!qt_resolve_glx_symbols()) {
+    if (!qt_resolve_pbuffer_extensions()) {
         qWarning("QGLPbuffer: pbuffers are not supported on this system.");
         return;
     }
@@ -200,4 +200,10 @@ GLuint QGLPbuffer::generateTexture(GLint format)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     return texture;
+}
+
+
+bool QGLPbuffer::hasPbuffers()
+{
+    return qt_resolve_pbuffer_extensions();
 }

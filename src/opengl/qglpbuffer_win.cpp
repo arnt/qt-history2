@@ -146,13 +146,13 @@ PFNWGLSETPBUFFERATTRIBARBPROC wglSetPbufferAttribARB = 0;
 #define WGL_AUX9_ARB                       0x2090
 #endif
 
-bool qt_init_glpbuffer_extensions();
+bool qt_resolve_pbuffer_extensions();
 
 QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
     : d_ptr(new QGLPbufferPrivate)
 {
     Q_D(QGLPbuffer);
-    if (!qt_init_glpbuffer_extensions())
+    if (!qt_resolve_pbuffer_extensions())
         return;
 
     d->dc = GetDC(d->dmy.winId());
@@ -272,10 +272,18 @@ GLuint QGLPbuffer::generateTexture(GLint format)
     return texture;
 }
 
-bool qt_init_glpbuffer_extensions()
+bool QGLPbuffer::hasPbuffers()
 {
-    if (wglBindTexImageARB)
+    return qt_resolve_pbuffer_extensions();
+}
+
+bool qt_resolve_pbuffer_extensions()
+{
+    static bool resolved = false;
+    if (resolved && wglBindTexImageARB)
 	return true;
+    else if (resolved)
+        return false;
 
     wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)
 				wglGetProcAddress("wglGetExtensionsStringARB");
@@ -287,18 +295,16 @@ bool qt_init_glpbuffer_extensions()
 
     if (!extensions.contains("WGL_ARB_pbuffer")
 	|| !extensions.contains("WGL_ARB_render_texture")
-	|| !extensions.contains("WGL_ARB_pixel_format"))
+	|| !extensions.contains("WGL_ARB_pixel_format")) {
+        resolved = true;
 	return false;
+    }
 
     wglCreatePbufferARB = (PFNWGLCREATEPBUFFERARBPROC) wglGetProcAddress("wglCreatePbufferARB");
     wglGetPbufferDCARB = (PFNWGLGETPBUFFERDCARBPROC) wglGetProcAddress("wglGetPbufferDCARB");
     wglReleasePbufferDCARB = (PFNWGLRELEASEPBUFFERDCARBPROC) wglGetProcAddress("wglReleasePbufferDCARB");
     wglDestroyPbufferARB = (PFNWGLDESTROYPBUFFERARBPROC) wglGetProcAddress("wglDestroyPbufferARB");
     wglQueryPbufferARB = (PFNWGLQUERYPBUFFERARBPROC) wglGetProcAddress("wglQueryPbufferARB");
-
-    if (!wglCreatePbufferARB || !wglGetPbufferDCARB || !wglReleasePbufferDCARB
-	|| !wglDestroyPbufferARB || !wglQueryPbufferARB)
-	return false;
 
     wglGetPixelFormatAttribivARB = (PFNWGLGETPIXELFORMATATTRIBIVARBPROC)
 				   wglGetProcAddress("wglGetPixelFormatAttribivARB");
@@ -307,15 +313,13 @@ bool qt_init_glpbuffer_extensions()
     wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)
 			      wglGetProcAddress("wglChoosePixelFormatARB");
 
-    if(!wglGetExtensionsStringARB || !wglCreatePbufferARB || !wglGetPbufferDCARB)
-	return false;
 
     wglBindTexImageARB = (PFNWGLBINDTEXIMAGEARBPROC) wglGetProcAddress("wglBindTexImageARB");
     wglReleaseTexImageARB = (PFNWGLRELEASETEXIMAGEARBPROC) wglGetProcAddress("wglReleaseTexImageARB");
     wglSetPbufferAttribARB = (PFNWGLSETPBUFFERATTRIBARBPROC) wglGetProcAddress("wglSetPbufferAttribARB");
 
-    if (!wglBindTexImageARB || !wglReleaseTexImageARB || !wglSetPbufferAttribARB)
-	return false;
-
-    return true;
+    resolved = true;
+    if (!wglBindTexImageARB)
+        return false;
+    return resolved;
 }
