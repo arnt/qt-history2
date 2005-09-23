@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "qsvghandler_p.h"
 
 #include "qsvgtinydocument_p.h"
@@ -17,15 +18,15 @@
 #include "qsvggraphics_p.h"
 #include "qsvgnode_p.h"
 
-#include "QtGui/qapplication.h"
-#include "QtGui/qwidget.h"
-#include "QtGui/qpen.h"
-#include "QtGui/qpainterpath.h"
-#include "QtGui/qbrush.h"
-#include "QtGui/qtextformat.h"
-#include "QtCore/qdebug.h"
+#include "qapplication.h"
+#include "qwidget.h"
+#include "qpen.h"
+#include "qpainterpath.h"
+#include "qbrush.h"
+#include "qtextformat.h"
+#include "qdebug.h"
 
-#include <cmath>
+#include <math.h>
 
 static QString xmlSimplify(const QString &str)
 {
@@ -581,10 +582,10 @@ static void parseTransform(QSvgNode *node,
                     matrix.scale(points[0], points[0]);
             } else if (temp == QLatin1String("skewX")) {
                 const qreal deg2rad = qreal(0.017453292519943295769);
-                matrix.shear(std::tan(points[0]*deg2rad), 0);
+                matrix.shear(tan(points[0]*deg2rad), 0);
             } else if (temp == QLatin1String("skewY")) {
                 const qreal deg2rad = qreal(0.017453292519943295769);
-                matrix.shear(0, std::tan(points[0]*deg2rad));
+                matrix.shear(0, tan(points[0]*deg2rad));
             }
         } else if ((*itr) == ' '  ||
                    (*itr) == '\t' ||

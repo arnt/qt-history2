@@ -10,9 +10,10 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "qsvgnode_p.h"
 
-#include "QtCore/qdebug.h"
+#include "qdebug.h"
 
 QSvgNode::QSvgNode(QSvgNode *parent)
     : m_parent(parent)

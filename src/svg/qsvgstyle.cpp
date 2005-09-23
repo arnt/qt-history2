@@ -10,11 +10,11 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "qsvgstyle_p.h"
 
-#include "QtGui/qpainter.h"
-
-#include "QtCore/qdebug.h"
+#include "qpainter.h"
+#include "qdebug.h"
 
 
 QSvgStyleProperty::~QSvgStyleProperty()
@@ -282,5 +282,3 @@ void QSvgStyle::revert(QPainter *p)
         transform->revert(p);
     }
 }
-
-

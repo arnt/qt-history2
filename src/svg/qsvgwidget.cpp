@@ -14,8 +14,7 @@
 #include "qsvgwidget.h"
 
 #include "qsvgrenderer.h"
-
-#include "QtGui/qpainter.h"
+#include "qpainter.h"
 #include "private/qwidget_p.h"
 
 class QSvgWidgetPrivate : public QWidgetPrivate

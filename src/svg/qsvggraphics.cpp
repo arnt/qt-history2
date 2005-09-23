@@ -10,13 +10,14 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "qsvggraphics_p.h"
 
-#include "QtGui/qpainter.h"
-#include "QtGui/qtextdocument.h"
-#include "QtGui/qabstracttextdocumentlayout.h"
-#include "QtGui/qtextcursor.h"
-#include "QtCore/qdebug.h"
+#include "qpainter.h"
+#include "qtextdocument.h"
+#include "qabstracttextdocumentlayout.h"
+#include "qtextcursor.h"
+#include "qdebug.h"
 
 #include <math.h>
 #include <limits.h>
@@ -334,16 +335,3 @@ QSvgNode::Type QSvgVideo::type() const
 {
     return VIDEO;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

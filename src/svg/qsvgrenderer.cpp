@@ -10,12 +10,13 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "qsvgrenderer.h"
 
 #include "qsvgtinydocument_p.h"
 
-#include "QtCore/qbytearray.h"
-#include "QtCore/qdebug.h"
+#include "qbytearray.h"
+#include "qdebug.h"
 #include "private/qobject_p.h"
 
 

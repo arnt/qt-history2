@@ -10,16 +10,15 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "qsvgtinydocument_p.h"
 
 #include "qsvghandler_p.h"
-
-#include "QtGui/qpainter.h"
-#include "QtXml/qxml.h"
-#include "QtCore/qfile.h"
-#include "QtCore/qbytearray.h"
-
-#include "QtCore/qdebug.h"
+#include "qpainter.h"
+#include "qxml.h"
+#include "qfile.h"
+#include "qbytearray.h"
+#include "qdebug.h"
 
 QSvgTinyDocument::QSvgTinyDocument()
     : QSvgStructureNode(0)
@@ -105,4 +104,3 @@ void QSvgTinyDocument::setViewBox(const QRect &rect)
 {
     m_viewBox = rect;
 }
-

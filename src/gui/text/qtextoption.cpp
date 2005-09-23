@@ -13,7 +13,7 @@
 
 #include "qtextoption.h"
 #include "qapplication.h"
-#include <QtCore/qlist.h>
+#include "qlist.h"
 
 struct QTextOptionPrivate
 {
