@@ -1953,6 +1953,18 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             key_consumed = true;
             break;
         }
+
+        QAction *action = d->currentAction;
+        for(QWidget *caused = this; caused;) {
+            if (QMenu *m = qobject_cast<QMenu*>(caused)) {
+                caused = m->d_func()->causedPopup.widget;
+                if (m->d_func()->eventLoop && (!action || action->isEnabled())) // synchronous operation
+                    m->d_func()->syncAction = action;
+            } else {
+                break;
+            }
+        }
+
         if (d->currentAction->menu())
             d->popupAction(d->currentAction, 0, true);
         else
