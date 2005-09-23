@@ -1255,6 +1255,7 @@ void QComboBox::setCurrentIndex(int index)
         d->updateLineEditGeometry();
     }
     update();
+    emit activated(index);
 }
 
 /*!
