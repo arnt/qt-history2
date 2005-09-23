@@ -79,10 +79,12 @@ static QStyleOptionToolBar getStyleOption(QToolBar *toolBar)
 
 	foreach	(QMainWindowLayout::ToolBarLineInfo	lineInfo, layout->tb_layout_info) {
 		
-        if (lineInfo.pos !=	positionForArea(option.toolBarArea))continue;
+        if (lineInfo.pos !=	positionForArea(option.toolBarArea))
+            continue;
         int	toolBarIndex = -1;
         bool lineVisible = false;
-        for	(int i = 0;	i <	lineInfo.list.size(); ++i) {
+
+        for	(int i = 0;	i <	lineInfo.list.size(); ++i){
             QMainWindowLayout::ToolBarLayoutInfo layoutInfo	= lineInfo.list.at(i);
             
             if (layoutInfo.item->widget()->isVisible())
@@ -91,16 +93,26 @@ static QStyleOptionToolBar getStyleOption(QToolBar *toolBar)
             if (layoutInfo.item->widget() == toolBar) {
                 // This	is our toolbar,	so we now have the line	and	position.
                 toolBarLineCount = toolBarTotalLineCount;
-                toolBarIndex = i;
-                // Determine the position within this tool bar line
+                
+                // We have to determine how many visible toolbars there are in this line
+                int visibleLines = 0;
+                for	(int j = 0;	j <	lineInfo.list.size(); ++j){
+                    QMainWindowLayout::ToolBarLayoutInfo info = lineInfo.list.at(j);
+                    if (info.item->widget() == toolBar)
+                        toolBarIndex = visibleLines;
+                    if (info.item->widget()->isVisible())
+                        visibleLines++;
+                }
+                
+                // Determine the position within this toolbar line
                 if (toolBarIndex ==	0) {
-                    if (lineInfo.list.size() ==	1)
+                    if (visibleLines ==	1)
                         option.positionWithinLine = QStyleOptionToolBar::OnlyOne;
                     else
                         option.positionWithinLine = QStyleOptionToolBar::Beginning;
-                } else if (toolBarIndex	< lineInfo.list.size() - 1)	{
+                } else if (toolBarIndex	< visibleLines - 1)	{
                     option.positionWithinLine = QStyleOptionToolBar::Middle;
-                } else if (toolBarIndex	== lineInfo.list.size()	- 1) {
+                } else if (toolBarIndex	== visibleLines	- 1) {
                     option.positionWithinLine = QStyleOptionToolBar::End;
                 }
                 break;
