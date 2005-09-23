@@ -1799,6 +1799,12 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
         tl->endLayout();
     } else {
         layoutStruct->y += tlBoundingRect.height();
+        const int cnt = tl->lineCount();
+        for (int i = 0; i < cnt; ++i) {
+            QTextLine line = tl->lineAt(i);
+            layoutStruct->widthUsed
+                = qMax(layoutStruct->widthUsed, line.x() + tl->lineAt(i).naturalTextWidth());
+        }
     }
 
     // ### doesn't take floats into account. would need to do it per line. but how to retrieve then? (Simon)
