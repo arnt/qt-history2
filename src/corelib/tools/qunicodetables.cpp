@@ -16,19 +16,27 @@
 
 #define CURRENT_VERSION QChar::Unicode_4_0
 
-static inline const UC_Properties *qGetProp(uint ucs4)
+static inline const QUnicodeTables::Properties *qGetProp(uint ucs4)
 {
     int index = GET_PROP_INDEX(ucs4);
     return uc_properties + index;
 }
 
-#define GET_PROP_INDEX_UCS2(ucs2)                                       \
-    (uc_property_trie[uc_property_trie[ucs2>>5] + (ucs2 & 0x1f)])
-#define GET_PROP_UCS2(ucs2) (uc_properties + GET_PROP_INDEX_UCS2(ucs2))
-
-static inline const UC_Properties *qGetProp(ushort ucs2)
+static inline const QUnicodeTables::Properties *qGetProp(ushort ucs2)
 {
     int index = GET_PROP_INDEX_UCS2(ucs2);
+    return uc_properties + index;
+}
+
+Q_CORE_EXPORT const QUnicodeTables::Properties *QUnicodeTables::properties(ushort ucs2)
+{
+    int index = GET_PROP_INDEX_UCS2(ucs2);
+    return uc_properties + index;
+}
+
+Q_CORE_EXPORT const QUnicodeTables::Properties *QUnicodeTables::properties(uint ucs4)
+{
+    int index = GET_PROP_INDEX(ucs4);
     return uc_properties + index;
 }
 
@@ -47,6 +55,11 @@ Q_CORE_EXPORT QChar::Direction QUnicodeTables::direction(ushort ucs2)
     return (QChar::Direction) qGetProp(ucs2)->direction;
 }
 
+Q_CORE_EXPORT QUnicodeTables::LineBreakClass QUnicodeTables::lineBreakClass(ushort ucs2)
+{
+    return (QUnicodeTables::LineBreakClass) qGetProp(ucs2)->line_break_class;
+}
+
 Q_CORE_EXPORT QChar::Category QUnicodeTables::category(uint ucs4)
 {
     return (QChar::Category) qGetProp(ucs4)->category;
@@ -60,6 +73,11 @@ Q_CORE_EXPORT unsigned char QUnicodeTables::combiningClass(uint ucs4)
 Q_CORE_EXPORT QChar::Direction QUnicodeTables::direction(uint ucs4)
 {
     return (QChar::Direction) qGetProp(ucs4)->direction;
+}
+
+Q_CORE_EXPORT QUnicodeTables::LineBreakClass QUnicodeTables::lineBreakClass(uint ucs4)
+{
+    return (QUnicodeTables::LineBreakClass) qGetProp(ucs4)->line_break_class;
 }
 
 Q_CORE_EXPORT QChar::Joining QUnicodeTables::joining(uint ucs4)
@@ -88,14 +106,9 @@ Q_CORE_EXPORT int QUnicodeTables::mirroredChar(uint ucs4)
     return ucs4 + qGetProp(ucs4)->mirrorDiff;
 }
 
-Q_CORE_EXPORT QUnicodeTables::LineBreakClass QUnicodeTables::lineBreakClass(uint ucs4)
-{
-    return (QUnicodeTables::LineBreakClass) qGetProp(ucs4)->line_break_class;
-}
-
 Q_CORE_EXPORT int QUnicodeTables::upper(uint ucs4)
 {
-    const UC_Properties *p = qGetProp(ucs4);
+    const QUnicodeTables::Properties *p = qGetProp(ucs4);
     if (p->category == QChar::Letter_Lowercase)
         return ucs4 + p->caseDiff;
     return ucs4;
@@ -103,7 +116,7 @@ Q_CORE_EXPORT int QUnicodeTables::upper(uint ucs4)
 
 Q_CORE_EXPORT int QUnicodeTables::lower(uint ucs4)
 {
-    const UC_Properties *p = qGetProp(ucs4);
+    const QUnicodeTables::Properties *p = qGetProp(ucs4);
     if (p->category == QChar::Letter_Uppercase || p->category == QChar::Letter_Titlecase)
         return ucs4 + p->caseDiff;
     return ucs4;

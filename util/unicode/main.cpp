@@ -1182,22 +1182,12 @@ static QByteArray createPropertyInfo()
            "        : (uc_property_trie[uc_property_trie[((ucs4 - 0x" + QByteArray::number(BMP_END, 16) +
            ")>>" + QByteArray::number(SMP_SHIFT) + ") + 0x" + QByteArray::number(BMP_END/BMP_BLOCKSIZE, 16) + "]"
            " + (ucs4 & 0x" + QByteArray::number(SMP_BLOCKSIZE-1, 16) + ")]))\n\n"
+           "#define GET_PROP_INDEX_UCS2(ucs2) \\\n"
+           "(uc_property_trie[uc_property_trie[ucs2>>" + QByteArray::number(BMP_SHIFT) +
+           "] + (ucs2 & 0x" + QByteArray::number(BMP_BLOCKSIZE-1, 16)+ ")])\n\n"
 
-           "struct UC_Properties {\n"
-           "    uint category : 5;\n"
-           "    uint line_break_class : 5;"
-           "    uint direction : 5;\n"
-           "    uint titleCaseDiffersFromUpper : 1;\n"
-           "    uint combiningClass :8;\n"
-           "    uint unicode_version : 4;\n"
-           "    uint digit_value : 4;\n"
-           "    \n"
-           "    signed short mirrorDiff : 14 /* 13 needed */;\n"
-           "    uint joining : 2;\n"
-           "    signed short caseDiff /* 14 needed */;\n"
-           "};\n\n"
 
-           "static const UC_Properties uc_properties [] = {\n";
+           "static const QUnicodeTables::Properties uc_properties [] = {\n";
 
     for (int i = 0; i < uniqueProperties.size(); ++i) {
         PropertyFlags p = uniqueProperties.at(i);
@@ -1225,7 +1215,8 @@ static QByteArray createPropertyInfo()
     }
     out += "};\n\n"
 
-           "#define GET_PROP(ucs4) (uc_properties + GET_PROP_INDEX(ucs4))\n\n";
+           "#define GET_PROP(ucs4) (uc_properties + GET_PROP_INDEX(ucs4))\n"
+           "#define GET_PROP_UCS2(ucs2) (uc_properties + GET_PROP_INDEX_ucs2(ucs2))\n\n";
 
 
     return out;

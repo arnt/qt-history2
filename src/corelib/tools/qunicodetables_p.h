@@ -28,6 +28,21 @@
 #include "QtCore/qstring.h"
 
 namespace QUnicodeTables {
+    struct Properties {
+        uint category : 5;
+        uint line_break_class : 5;
+        uint direction : 5;
+        uint titleCaseDiffersFromUpper : 1;
+        uint combiningClass :8;
+        uint unicode_version : 4;
+        uint digit_value : 4;
+        
+        signed short mirrorDiff : 14 /* 13 needed */;
+        uint joining : 2;
+        signed short caseDiff /* 14 needed */;
+    };
+    Q_CORE_EXPORT const Properties * QT_FASTCALL properties(ushort ucs2);
+    Q_CORE_EXPORT const Properties * QT_FASTCALL properties(uint ucs4);
 
     // see http://www.unicode.org/reports/tr14/tr14-13.html
     // we don't use the XX and AI properties and map them to AL instead.
@@ -59,10 +74,12 @@ namespace QUnicodeTables {
     Q_CORE_EXPORT QChar::Category  QT_FASTCALL category(ushort ucs2);
     Q_CORE_EXPORT unsigned char  QT_FASTCALL combiningClass(ushort ucs2);
     Q_CORE_EXPORT QChar::Direction QT_FASTCALL direction(ushort ucs2);
+    Q_CORE_EXPORT LineBreakClass QT_FASTCALL lineBreakClass(ushort ucs2);
 
     Q_CORE_EXPORT QChar::Category  QT_FASTCALL category(uint ucs4);
     Q_CORE_EXPORT unsigned char  QT_FASTCALL combiningClass(uint ucs4);
     Q_CORE_EXPORT QChar::Direction QT_FASTCALL direction(uint ucs4);
+    Q_CORE_EXPORT LineBreakClass QT_FASTCALL lineBreakClass(uint ucs4);
 
     Q_CORE_EXPORT int QT_FASTCALL script(uint ucs4);
     Q_CORE_EXPORT int QT_FASTCALL script(ushort ucs2);
@@ -74,7 +91,6 @@ namespace QUnicodeTables {
     Q_CORE_EXPORT QChar::Joining QT_FASTCALL joining(uint ucs4);
     Q_CORE_EXPORT bool QT_FASTCALL mirrored(uint ucs4);
     Q_CORE_EXPORT int QT_FASTCALL mirroredChar(uint ucs4);
-    Q_CORE_EXPORT LineBreakClass QT_FASTCALL lineBreakClass(uint ucs4);
     Q_CORE_EXPORT int QT_FASTCALL upper(uint ucs4);
     Q_CORE_EXPORT int QT_FASTCALL lower(uint ucs4);
     Q_CORE_EXPORT int QT_FASTCALL digitValue(uint ucs4);

@@ -2939,20 +2939,10 @@ static const unsigned short uc_property_trie[] = {
         ? (uc_property_trie[uc_property_trie[ucs4>>5] + (ucs4 & 0x1f)]) \
         : (uc_property_trie[uc_property_trie[((ucs4 - 0x11000)>>8) + 0x880] + (ucs4 & 0xff)]))
 
-struct UC_Properties {
-    uint category : 5;
-    uint line_break_class : 5;    uint direction : 5;
-    uint titleCaseDiffersFromUpper : 1;
-    uint combiningClass :8;
-    uint unicode_version : 4;
-    uint digit_value : 4;
-    
-    signed short mirrorDiff : 14 /* 13 needed */;
-    uint joining : 2;
-    signed short caseDiff /* 14 needed */;
-};
+#define GET_PROP_INDEX_UCS2(ucs2) \
+(uc_property_trie[uc_property_trie[ucs2>>5] + (ucs2 & 0x1f)])
 
-static const UC_Properties uc_properties [] = {
+static const QUnicodeTables::Properties uc_properties [] = {
     { 10, 19, 18, 0, 0, 1, 15, 0, 0, 0},
     { 10, 15, 8, 0, 0, 1, 15, 0, 0, 0},
     { 10, 23, 7, 0, 0, 1, 15, 0, 0, 0},
@@ -3531,6 +3521,7 @@ static const UC_Properties uc_properties [] = {
 };
 
 #define GET_PROP(ucs4) (uc_properties + GET_PROP_INDEX(ucs4))
+#define GET_PROP_UCS2(ucs2) (uc_properties + GET_PROP_INDEX_ucs2(ucs2))
 
 static const unsigned short uc_decomposition_trie[] = {
     // 0 - 0x3400
