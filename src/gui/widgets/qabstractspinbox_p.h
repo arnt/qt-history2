@@ -87,8 +87,7 @@ public:
     virtual QVariant bound(const QVariant &val, const QVariant &old = QVariant(), int steps = 0) const;
     QLineEdit *lineEdit();
     void updateSpinBox();
-    void update();
-    void updateEdit() const;
+    virtual void updateEdit();
 
     virtual QStyleOptionSpinBox getStyleOption() const;
 
@@ -111,7 +110,6 @@ public:
     QVariant::Type type;
     int spinClickTimerId, spinClickTimerInterval, spinClickThresholdTimerId, spinClickThresholdTimerInterval;
     uint buttonState;
-    mutable uint dirty : 1;
     mutable QString cachedText;
     mutable QVariant cachedValue;
     mutable QValidator::State cachedState;

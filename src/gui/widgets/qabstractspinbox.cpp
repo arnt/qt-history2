@@ -220,7 +220,7 @@ void QAbstractSpinBox::setSpecialValueText(const QString &s)
 
     d->specialValueText = s;
     d->clearCache();
-    d->update();
+    d->updateEdit();
 }
 
 /*!
@@ -284,7 +284,7 @@ void QAbstractSpinBox::setReadOnly(bool enable)
     Q_D(QAbstractSpinBox);
     d->readOnly = enable;
     d->edit->setReadOnly(enable);
-    update();
+    d->updateSpinBox();
 }
 
 /*!
@@ -327,8 +327,6 @@ void QAbstractSpinBox::setFrame(bool enable)
 Qt::Alignment QAbstractSpinBox::alignment() const
 {
     Q_D(const QAbstractSpinBox);
-    if (d->dirty)
-        d->updateEdit();
 
     return (Qt::Alignment)d->edit->alignment();
 }
@@ -336,8 +334,6 @@ Qt::Alignment QAbstractSpinBox::alignment() const
 void QAbstractSpinBox::setAlignment(Qt::Alignment flag)
 {
     Q_D(QAbstractSpinBox);
-    if (d->dirty)
-        d->updateEdit();
 
     d->edit->setAlignment(flag);
 }
@@ -350,8 +346,6 @@ void QAbstractSpinBox::selectAll()
 {
     Q_D(QAbstractSpinBox);
 
-    if (d->dirty)
-        d->updateEdit();
 
     if (!d->specialValue()) {
         const int tmp = d->edit->displayText().size() - d->suffix.size();
@@ -369,8 +363,6 @@ void QAbstractSpinBox::clear()
 {
     Q_D(QAbstractSpinBox);
 
-    if (d->dirty)
-        d->updateEdit();
 
     d->edit->setText(d->prefix + d->suffix);
     d->edit->setCursorPosition(d->prefix.size());
@@ -499,8 +491,6 @@ void QAbstractSpinBox::stepBy(int steps)
 QLineEdit *QAbstractSpinBox::lineEdit() const
 {
     Q_D(const QAbstractSpinBox);
-    if (d->dirty)
-        d->updateEdit();
 
     return d->edit;
 }
@@ -553,8 +543,8 @@ void QAbstractSpinBox::setLineEdit(QLineEdit *lineEdit)
 
     if (isVisible())
         d->edit->show();
-
-    update();
+    if (isVisible())
+        d->updateEdit();
 }
 
 
@@ -578,7 +568,7 @@ bool QAbstractSpinBox::event(QEvent *event)
     Q_D(QAbstractSpinBox);
     switch (event->type()) {
     case QEvent::ApplicationLayoutDirectionChange:
-        update();
+        d->updateEdit();
         break;
     case QEvent::HoverEnter:
     case QEvent::HoverLeave:
@@ -604,11 +594,8 @@ void QAbstractSpinBox::showEvent(QShowEvent *)
 {
     Q_D(QAbstractSpinBox);
 
-    if (d->dirty) {
         d->reset();
         d->updateEdit();
-    }
-    d->updateSpinBox();
 }
 
 /*!
@@ -650,12 +637,14 @@ void QAbstractSpinBox::changeEvent(QEvent *e)
 void QAbstractSpinBox::resizeEvent(QResizeEvent *e)
 {
     Q_D(QAbstractSpinBox);
+    QWidget::resizeEvent(e);
 
     QStyleOptionSpinBox opt = d->getStyleOption();
     opt.subControls = QStyle::SC_SpinBoxEditField;
     d->edit->setGeometry(style()->subControlRect(QStyle::CC_SpinBox, &opt,
                                                  QStyle::SC_SpinBoxEditField, this));
-    QWidget::resizeEvent(e);
+    update();
+//    d->updateSpinBox();
 }
 
 /*!
@@ -1128,7 +1117,7 @@ void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *e)
 QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
     : edit(0), type(QVariant::Invalid), spinClickTimerId(-1),
       spinClickTimerInterval(100), spinClickThresholdTimerId(-1), spinClickThresholdTimerInterval(thresholdTime),
-      buttonState(None), dirty(true), cachedText("\x01"), cachedState(QValidator::Invalid),
+      buttonState(None), cachedText("\x01"), cachedState(QValidator::Invalid),
       pendingEmit(false), readOnly(false), wrapping(false),
       ignoreCursorPositionChanged(false), frame(true),
       hoverControl(QStyle::SC_None), buttonSymbols(QAbstractSpinBox::UpDownArrows), validator(0)
@@ -1245,12 +1234,7 @@ void QAbstractSpinBoxPrivate::editorTextChanged(const QString &t)
     QValidator::State state = q->validate(tmp, pos);
     if (state == QValidator::Acceptable) {
         const QVariant v = valueFromText(tmp);
-        if (tmp != t) {
-            const bool wasBlocked = edit->blockSignals(true);
-            edit->setText(prefix + tmp + suffix);
-            edit->blockSignals(wasBlocked);
-        }
-        setValue(v, EmitIfChanged, false);
+        setValue(v, EmitIfChanged, v != value);
         pendingEmit = false;
     } else {
         pendingEmit = true;
@@ -1475,7 +1459,7 @@ void QAbstractSpinBoxPrivate::setValue(const QVariant &val, EmitPolicy ep,
     value = bound(val);
     pendingEmit = false;
     if (doUpdate)
-        update();
+        updateEdit();
     if (ep == AlwaysEmit || (ep == EmitIfChanged && old != value)) {
         emitSignals(ep, old);
     }
@@ -1487,48 +1471,26 @@ void QAbstractSpinBoxPrivate::setValue(const QVariant &val, EmitPolicy ep,
     Updates the line edit to reflect the current value of the spin box.
 */
 
-void QAbstractSpinBoxPrivate::updateEdit() const
+void QAbstractSpinBoxPrivate::updateEdit()
 {
-    QLineEdit *e = const_cast<QLineEdit*>(edit);
-    const bool empty = e->text().isEmpty();
-    int cursor = e->cursorPosition();
-    int selsize = e->selectedText().size();
+    const bool empty = edit->text().isEmpty();
+    int cursor = edit->cursorPosition();
+    int selsize = edit->selectedText().size();
     const QString newText = specialValue() ? specialValueText : prefix + textFromValue(value) + suffix;
-    const bool sb = e->blockSignals(true);
-    e->setText(newText);
+    const bool sb = edit->blockSignals(true);
+    edit->setText(newText);
 
     if (!specialValue()) {
         cursor = qBound(prefix.size(), cursor, edit->displayText().size() - suffix.size());
 
         if (selsize > 0) {
-            e->setSelection(cursor, selsize);
+            edit->setSelection(cursor, selsize);
         } else {
-            e->setCursorPosition(empty ? prefix.size() : cursor);
+            edit->setCursorPosition(empty ? prefix.size() : cursor);
         }
     }
-    e->blockSignals(sb);
-
-    const_cast<QAbstractSpinBoxPrivate *>(this)->dirty = false;
-}
-
-/*!
-    \internal
-
-    Calls updateEdit() and updateSpinBox() if the widget is visible. Else sets the dirty flag.
-*/
-
-void QAbstractSpinBoxPrivate::update()
-{
-    Q_Q(QAbstractSpinBox);
-
-    if (type != QVariant::Invalid) {
-        if (!q->isVisible()) {
-            dirty = true;
-        } else {
-            updateEdit();
-            updateSpinBox();
-        }
-    }
+    edit->blockSignals(sb);
+    updateSpinBox();
 }
 
 /*!
@@ -1558,7 +1520,7 @@ QVariant QAbstractSpinBoxPrivate::getZeroVariant() const
     QVariant ret;
     switch (type) {
     case QVariant::Int: ret = QVariant((int)0); break;
-    case QVariant::Double: ret = QVariant((double)0); break;
+    case QVariant::Double: ret = QVariant((double)0.0); break;
     case QVariant::Time: ret = QVariant(QTime()); break;
     case QVariant::Date: ret = QVariant(DATE_INITIAL); break;
     case QVariant::DateTime: ret = QVariant(QDateTime(DATE_INITIAL, QTime())); break;

@@ -247,7 +247,7 @@ void QSpinBox::setPrefix(const QString &p)
     Q_D(QSpinBox);
 
     d->prefix = p;
-    d->update();
+    d->updateEdit();
 }
 
 /*!
@@ -283,7 +283,7 @@ void QSpinBox::setSuffix(const QString &s)
     Q_D(QSpinBox);
 
     d->suffix = s;
-    d->update();
+    d->updateEdit();
 }
 
 /*!
@@ -298,9 +298,6 @@ void QSpinBox::setSuffix(const QString &s)
 QString QSpinBox::cleanText() const
 {
     Q_D(const QSpinBox);
-
-    if (d->dirty)
-        d->updateEdit();
 
     return d->stripped(d->edit->displayText());
 }
@@ -328,7 +325,7 @@ void QSpinBox::setSingleStep(int val)
     Q_D(QSpinBox);
     if (val >= 0) {
         d->singleStep = QVariant(val);
-        d->update();
+        d->updateEdit();
     }
 }
 
@@ -635,7 +632,7 @@ void QDoubleSpinBox::setPrefix(const QString &p)
     Q_D(QDoubleSpinBox);
 
     d->prefix = p;
-    d->update();
+    d->updateEdit();
 }
 
 /*!
@@ -671,7 +668,7 @@ void QDoubleSpinBox::setSuffix(const QString &s)
     Q_D(QDoubleSpinBox);
 
     d->suffix = s;
-    d->update();
+    d->updateEdit();
 }
 
 /*!
@@ -686,9 +683,6 @@ void QDoubleSpinBox::setSuffix(const QString &s)
 QString QDoubleSpinBox::cleanText() const
 {
     Q_D(const QDoubleSpinBox);
-
-    if (d->dirty)
-        d->updateEdit();
 
     return d->stripped(d->edit->displayText());
 }
@@ -715,7 +709,7 @@ void QDoubleSpinBox::setSingleStep(double val)
 
     if (val >= 0) {
         d->singleStep = val;
-        d->update();
+        d->updateEdit();
     }
 }
 
@@ -833,7 +827,6 @@ void QDoubleSpinBox::setDecimals(int decimals)
 
     setRange(minimum(), maximum()); // make sure values are rounded
     setValue(value());
-    d->update();
 }
 
 /*!
