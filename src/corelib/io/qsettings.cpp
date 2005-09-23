@@ -2069,6 +2069,22 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const InternalSet
                          configuration files in INI format.
     \value IniFormat  Store the settings in INI files.
     \value InvalidFormat Special value returned by registerFormat().
+    \omitvalue CustomFormat1
+    \omitvalue CustomFormat2
+    \omitvalue CustomFormat3
+    \omitvalue CustomFormat4
+    \omitvalue CustomFormat5
+    \omitvalue CustomFormat6
+    \omitvalue CustomFormat7
+    \omitvalue CustomFormat8
+    \omitvalue CustomFormat9
+    \omitvalue CustomFormat10
+    \omitvalue CustomFormat11
+    \omitvalue CustomFormat12
+    \omitvalue CustomFormat13
+    \omitvalue CustomFormat14
+    \omitvalue CustomFormat15
+    \omitvalue CustomFormat16
 
     On Unix, NativeFormat and IniFormat mean the same thing, except
     that the file extension is different (\c .conf for NativeFormat,
@@ -2105,12 +2121,12 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const InternalSet
 
     \o  The INI file format has severe restrictions on the syntax of
         a key. Qt works around this by using \c % as an escape
-        character. In addition, if you save a top-level setting (a
-        key with no slashes in it, e.g., "someKey"), it will appear
-        in the INI file's "General" section. To avoid overwriting
-        other keys, if you save something using the a key such as
-        "General/someKey", the key will be located in the "%General"
-        section, \e not in the "General" section.
+        character in keys. In addition, if you save a top-level
+        setting (a key with no slashes in it, e.g., "someKey"), it
+        will appear in the INI file's "General" section. To avoid
+        overwriting other keys, if you save something using the a key
+        such as "General/someKey", the key will be located in the
+        "%General" section, \e not in the "General" section.
     \endlist
 
     \sa registerFormat(), setPath()
