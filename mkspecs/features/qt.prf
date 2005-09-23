@@ -50,6 +50,7 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
    else:isEqual(QTLIB, core):qlib = QtCore
    else:isEqual(QTLIB, canvas):qlib = QtCanvas
    else:isEqual(QTLIB, qt3support):qlib = Qt3Support
+   else:isEqual(QTLIB, svg):qlib = QtSvg
    else:message("Unknown QT: $$QTLIB"):qlib =
    !isEmpty(qlib) {
       target_qt:isEqual(TARGET, qlib) {

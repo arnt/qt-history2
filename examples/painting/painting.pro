@@ -2,7 +2,8 @@ TEMPLATE      = subdirs
 SUBDIRS       = basicdrawing \
                 concentriccircles \
                 painterpaths \
-                transformations
+                transformations \
+                svg
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/painting

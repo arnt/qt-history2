@@ -846,6 +846,11 @@ class QDataStream;
 #    else
 #      define Q_NETWORK_EXPORT Q_DECL_IMPORT
 #    endif
+#    if defined(QT_BUILD_SVG_LIB)
+#      define Q_SVG_EXPORT Q_DECL_EXPORT
+#    else
+#      define Q_SVG_EXPORT Q_DECL_IMPORT
+#    endif
 #    if defined(QT_BUILD_OPENGL_LIB)
 #      define Q_OPENGL_EXPORT Q_DECL_EXPORT
 #    else
@@ -872,6 +877,7 @@ class QDataStream;
 #    define Q_GUI_EXPORT Q_DECL_IMPORT
 #    define Q_SQL_EXPORT Q_DECL_IMPORT
 #    define Q_NETWORK_EXPORT Q_DECL_IMPORT
+#    define Q_SVG_EXPORT Q_DECL_IMPORT
 #    define Q_CANVAS_EXPORT Q_DECL_IMPORT
 #    define Q_OPENGL_EXPORT Q_DECL_IMPORT
 #    define Q_XML_EXPORT Q_DECL_IMPORT
@@ -894,6 +900,7 @@ class QDataStream;
 #    define Q_GUI_EXPORT Q_DECL_EXPORT
 #    define Q_SQL_EXPORT Q_DECL_EXPORT
 #    define Q_NETWORK_EXPORT Q_DECL_EXPORT
+#    define Q_SVG_EXPORT Q_DECL_EXPORT
 #    define Q_OPENGL_EXPORT Q_DECL_EXPORT
 #    define Q_XML_EXPORT Q_DECL_EXPORT
 #    define Q_COMPAT_EXPORT Q_DECL_EXPORT
@@ -902,6 +909,7 @@ class QDataStream;
 #    define Q_GUI_EXPORT
 #    define Q_SQL_EXPORT
 #    define Q_NETWORK_EXPORT
+#    define Q_SVG_EXPORT
 #    define Q_OPENGL_EXPORT
 #    define Q_XML_EXPORT
 #    define Q_COMPAT_EXPORT
@@ -1629,14 +1637,15 @@ QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathSysconf();
 */
 
 // Qt modules
-#define QT_MODULE_CORE                  0x01
-#define QT_MODULE_GUI                   0x02
-#define QT_MODULE_NETWORK               0x04
-#define QT_MODULE_OPENGL                0x08
-#define QT_MODULE_SQL                   0x10
-#define QT_MODULE_XML                   0x20
-#define QT_MODULE_QT3SUPPORTLIGHT       0x40
-#define QT_MODULE_QT3SUPPORT            0x80
+#define QT_MODULE_CORE                  0x001
+#define QT_MODULE_GUI                   0x002
+#define QT_MODULE_NETWORK               0x004
+#define QT_MODULE_OPENGL                0x008
+#define QT_MODULE_SQL                   0x010
+#define QT_MODULE_XML                   0x020
+#define QT_MODULE_QT3SUPPORTLIGHT       0x040
+#define QT_MODULE_QT3SUPPORT            0x080
+#define QT_MODULE_SVG                   0x100
 
 // Qt editions
 #define QT_EDITION_CONSOLE      (QT_MODULE_CORE \
@@ -1653,7 +1662,8 @@ QT3_SUPPORT Q_CORE_EXPORT const char *qInstallPathSysconf();
                                  | QT_MODULE_SQL \
                                  | QT_MODULE_XML \
                                  | QT_MODULE_QT3SUPPORTLIGHT \
-                                 | QT_MODULE_QT3SUPPORT)
+                                 | QT_MODULE_QT3SUPPORT \
+                                 | QT_MODULE_SVG)
 #define QT_EDITION_UNIVERSAL    QT_EDITION_DESKTOP
 #define QT_EDITION_ACADEMIC     QT_EDITION_DESKTOP
 #define QT_EDITION_EDUCATIONAL  QT_EDITION_DESKTOP
@@ -1695,6 +1705,9 @@ QT_LICENSED_MODULE(Qt3SupportLight)
 #endif
 #if (QT_EDITION & QT_MODULE_QT3SUPPORT)
 QT_LICENSED_MODULE(Qt3Support)
+#endif
+#if (QT_EDITION & QT_MODULE_SVG)
+QT_LICENSED_MODULE(Svg)
 #endif
 
 #define QT_MODULE(x) \
