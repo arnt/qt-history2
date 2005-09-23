@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "private/qpicture_p.h"
-#include "file.h"
+#include "qfile.h"
 #include "qpainter.h"
 #include "q3picture.h"
 #include "q3paintengine_svg_p.h"
