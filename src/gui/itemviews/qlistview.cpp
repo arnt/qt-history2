@@ -915,7 +915,6 @@ void QListView::paintEvent(QPaintEvent *e)
     QStyleOptionViewItem option = viewOptions();
     QPainter painter(d->viewport);
     QRect area = e->rect();
-    //painter.fillRect(area, option.palette.base());
 
     QVector<QModelIndex> toBeRendered;
 //     QVector<QRect> rects = e->region().rects();
