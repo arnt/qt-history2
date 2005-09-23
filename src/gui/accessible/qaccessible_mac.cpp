@@ -893,13 +893,16 @@ OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, Interfa
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
         const QAccessible::Role qtRole = interface->role();
         const CFStringRef macRole = macRoleForQtRole(qtRole);
-        const CFStringRef roleDescription = HICopyAccessibilityRoleDescription(macRole, 0);
-        SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef,
+        if (HICopyAccessibilityRoleDescription) {
+            const CFStringRef roleDescription = HICopyAccessibilityRoleDescription(macRole, 0);
+            SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef,
                           sizeof(roleDescription), &roleDescription);
-#else
-        // Just use Qt::Description on 10.3
-        handleStringAttribute(event, QAccessible::Description, interface);
+        } else
 #endif
+        {
+            // Just use Qt::Description on 10.3
+            handleStringAttribute(event, QAccessible::Description, interface);
+        }
     } else if (CFStringCompare(var, kAXTitleAttribute, 0) == kCFCompareEqualTo) {
         const QAccessible::Role role = interface->role();
         const QAccessible::Text text = (QAccessible::Text)textForRoleAndAttribute(role, var);
