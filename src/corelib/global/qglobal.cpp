@@ -1452,7 +1452,7 @@ static const unsigned int qt_one = 1;
 const int QSysInfo::ByteOrder = ((*((unsigned char *) &qt_one) == 0) ? BigEndian : LittleEndian);
 #endif
 
-#if defined(Q_OS_MAC)
+#if !defined(QWS) && defined(Q_OS_MAC)
 
 #include "private/qcore_mac_p.h"
 #include "qnamespace.h"

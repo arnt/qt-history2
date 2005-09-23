@@ -20,6 +20,13 @@
 #include "qnamespace.h"
 #include "qdatetime.h"
 #include "qstringlist.h"
+#if defined(Q_WS_WIN)
+#   include "qt_windows.h"
+#endif
+#if !defined(QWS) && defined(Q_OS_MAC)
+#   include "private/qcore_mac_p.h"
+#endif
+#include "private/qnumeric_p.h"
 
 #include <ctype.h>
 #include <float.h>
@@ -27,19 +34,9 @@
 #include <math.h>
 #include <stdlib.h>
 
-#if defined(Q_WS_WIN)
-#   include "qt_windows.h"
-#endif
-
 #if defined(Q_OS_LINUX) && !defined(__UCLIBC__)
 #    include <fenv.h>
 #endif
-
-#if defined(Q_OS_MAC)
-#   include <private/qcore_mac_p.h>
-#endif
-
-#include <private/qnumeric_p.h>
 
 #if !defined(QT_QLOCALE_NEEDS_VOLATILE)
 #  if defined(Q_CC_GNU)
@@ -418,7 +415,7 @@ QByteArray QLocalePrivate::systemLocaleName()
     static QByteArray lang;
     lang = qgetenv("LANG");
 
-#if defined(Q_OS_MAC)
+#if !defined(QWS) && defined(Q_OS_MAC)
     if (!lang.isEmpty())
         return lang;
 

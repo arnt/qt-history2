@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <errno.h>
-#if defined(Q_OS_MAC)
+#if !defined(QWS) && defined(Q_OS_MAC)
 # include <private/qcore_mac_p.h>
 #endif
 
@@ -312,7 +312,7 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::Fil
             ret |= ExeOtherPerm;
     }
     if(type & TypesMask) {
-#if defined(Q_OS_MAC)
+#if !defined(QWS) && defined(Q_OS_MAC)
         bool foundAlias = false;
         {
             FSRef fref;
@@ -428,7 +428,7 @@ QString QFSFileEngine::fileName(FileName file) const
                 return ret;
             }
         }
-#if defined(Q_OS_MAC)
+#if !defined(QWS) && defined(Q_OS_MAC)
         {
             FSRef fref;
             if(FSPathMakeRef((const UInt8 *)QFile::encodeName(d->file).data(), &fref, NULL) == noErr) {

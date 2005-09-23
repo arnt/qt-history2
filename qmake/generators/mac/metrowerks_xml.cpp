@@ -18,7 +18,7 @@
 #include <qregexp.h>
 #include <stdlib.h>
 #include <time.h>
-#if defined(Q_OS_MAC)
+#if !defined(QWS) && defined(Q_OS_MAC)
 #include <Carbon/Carbon.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -26,7 +26,6 @@
 
 MetrowerksMakefileGenerator::MetrowerksMakefileGenerator() : MakefileGenerator(), init_flag(false)
 {
-
 }
 
 bool
@@ -554,7 +553,7 @@ MetrowerksMakefileGenerator::findTemplate(const QString &file)
 bool
 MetrowerksMakefileGenerator::createFork(const QString &f)
 {
-#if defined(Q_OS_MAC)
+#if !defined(QWS) && defined(Q_OS_MAC)
     FSRef fref;
     FSSpec fileSpec;
     if(exists(f)) {
@@ -597,7 +596,7 @@ MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v, bool)
     static QString st_volume;
     if(st_volume.isEmpty()) {
         st_volume = var("QMAKE_VOLUMENAME");
-#if defined(Q_OS_MAC)
+#if !defined(QWS) && defined(Q_OS_MAC)
         if(st_volume.isEmpty()) {
             uchar foo[512];
             HVolumeParam pb;
