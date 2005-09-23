@@ -2420,17 +2420,20 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         XFreeGC(dpy, gc);
     }
 
-    if (!valid_rect && !d->children.isEmpty()) {        // scroll children
+    if (!valid_rect) {        // scroll children
 #ifdef QT_USE_BACKINGSTORE
-        d->scrollBuffer(sr, dx, dy);
+        if (!just_update)
+            d->scrollBuffer(sr, dx, dy);
 #endif
-        QPoint pd(dx, dy);
-        for (int i = 0; i < d->children.size(); ++i) { // move all children
-            register QObject *object = d->children.at(i);
-            if (object->isWidgetType()) {
-                QWidget *w = static_cast<QWidget *>(object);
-                if (!w->isWindow())
-                    w->move(w->pos() + pd);
+        if ( !d->children.isEmpty() ) {
+            QPoint pd(dx, dy);
+            for (int i = 0; i < d->children.size(); ++i) { // move all children
+                register QObject *object = d->children.at(i);
+                if (object->isWidgetType()) {
+                    QWidget *w = static_cast<QWidget *>(object);
+                    if (!w->isWindow())
+                        w->move(w->pos() + pd);
+                }
             }
         }
     } else {

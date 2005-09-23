@@ -50,66 +50,76 @@ bool QWidgetBackingStore::paintOnScreen(QWidget *w)
 }
 
 #ifdef Q_WS_QWS
-static int yWinId = 0;
-
-static void createYellowThing()
+static void qt_showYellowThing(QWidget *widget, const QRegion &rgn, int msec)
 {
+    static int yWinId = 0;
+
     if (yWinId == 0) {
         yWinId = QWidget::qwsDisplay()->takeId();
         QWidget::qwsDisplay()->nameRegion(yWinId, "Debug flush paint", "Silly yellow thing");
         QWidget::qwsDisplay()->setAltitude(yWinId, 1, true);
     }
-}
-
-static bool qt_flushUpdate(const QRegion &globalRgn)
-{
-    static int checked_env = -1;
-    if(checked_env == -1) {
-        checked_env = qgetenv("QT_FLUSH_UPDATE").toInt();
-        if (checked_env != 0)
-            createYellowThing();
-    }
-
-    if (checked_env == 0)
-        return false;
 
 
-//    QRegion globalRgn = globalRgnHack.boundingRect().adjusted(-10,-10,10,10);
-
+    QRegion globalRgn = rgn;
+    if (widget)
+        globalRgn.translate(widget->mapToGlobal(QPoint()));
 
     QWidget::qwsDisplay()->requestRegion(yWinId, -1, false, globalRgn);
     QWidget::qwsDisplay()->setAltitude(yWinId, 1, true);
     QWidget::qwsDisplay()->repaintRegion(yWinId, false, globalRgn);
 
-    ::usleep(10000*checked_env);
+    ::usleep(500*msec);
     QWidget::qwsDisplay()->requestRegion(yWinId, -1, false, QRegion());
-    ::usleep(10000*checked_env);
-    return true;
+    ::usleep(500*msec);
 }
 
-static bool qt_flushPaint(QWidget *widget, const QRegion &toBePainted)
+#else
+static void qt_showYellowThing(QWidget *widget, const QRegion &toBePainted, int msec)
 {
-    static int checked_env = -1;
-    if(checked_env == -1) {
-        checked_env = qgetenv("QT_FLUSH_PAINT").toInt();
-        if (checked_env != 0)
-            createYellowThing();
+    //flags to fool painter
+   bool paintUnclipped = widget->testAttribute(Qt::WA_PaintUnclipped);
+    if (!QWidgetBackingStore::paintOnScreen(widget))
+        widget->setAttribute(Qt::WA_PaintUnclipped);
+
+    bool setFlag = widget && !widget->testAttribute(Qt::WA_WState_InPaintEvent);
+    if(setFlag)
+        widget->setAttribute(Qt::WA_WState_InPaintEvent);
+
+
+    //setup the engine
+    QPaintEngine *pe = widget->paintEngine();
+    pe->setSystemClip(toBePainted);
+    {
+        QPainter p(widget);
+        p.setClipRegion(toBePainted);
+        p.fillRect(widget->rect(), Qt::yellow);
+        p.end();
     }
 
-    if (checked_env == 0)
-        return false;
+    if(setFlag)
+        widget->setAttribute(Qt::WA_WState_InPaintEvent, false);
 
-    QRegion globalRgn = toBePainted;
-    globalRgn.translate(widget->mapToGlobal(QPoint()));
+    //restore
+    widget->setAttribute(Qt::WA_PaintUnclipped, paintUnclipped);
+    pe->setSystemClip(QRegion());
 
-    QWidget::qwsDisplay()->requestRegion(yWinId, -1, false, globalRgn);
-    QWidget::qwsDisplay()->repaintRegion(yWinId, false, globalRgn);
+    //flush
+    if (pe->type() == QPaintEngine::Raster) {
+        QRasterPaintEngine *rpe = static_cast<QRasterPaintEngine *>(pe);
+        rpe->flush(widget, QPoint());
+    }
+    QApplication::syncX();
 
-    ::usleep(10000*checked_env);
-    QWidget::qwsDisplay()->requestRegion(yWinId, -1, false, QRegion());
-    return true;
+#if defined(Q_OS_UNIX)
+    ::usleep(1000*msec);
+#elif defined(Q_OS_WIN)
+    ::Sleep(msec);
+#endif
+
 }
-#else
+#endif
+
 static bool qt_flushPaint(QWidget *widget, const QRegion &toBePainted)
 {
     static int checked_env = -1;
@@ -119,42 +129,26 @@ static bool qt_flushPaint(QWidget *widget, const QRegion &toBePainted)
     if (checked_env == 0)
         return false;
 
-    //flags to fool painter
-   bool paintUnclipped = widget->testAttribute(Qt::WA_PaintUnclipped);
-    if (!QWidgetBackingStore::paintOnScreen(widget))
-        widget->setAttribute(Qt::WA_PaintUnclipped);
-#ifndef Q_WS_QWS
-    //setup the engine
-    QPaintEngine *pe = widget->paintEngine();
-    pe->setSystemClip(toBePainted);
-#endif
-    {
-        QPainter p(widget);
-        p.setClipRegion(toBePainted);
-        p.fillRect(widget->rect(), Qt::yellow);
-        p.end();
-    }
+    qt_showYellowThing(widget, toBePainted, checked_env*10);
 
-    //restore
-    widget->setAttribute(Qt::WA_PaintUnclipped, paintUnclipped);
-#ifndef Q_WS_QWS
-    pe->setSystemClip(QRegion());
-
-    //flush
-    if (pe->type() == QPaintEngine::Raster) {
-        QRasterPaintEngine *rpe = static_cast<QRasterPaintEngine *>(pe);
-        rpe->flush(widget, QPoint());
-    }
-    QApplication::syncX();
-#endif
-#if defined(Q_OS_UNIX)
-    ::usleep(10000*checked_env);
-#elif defined(Q_OS_WIN)
-    ::Sleep(25);
-#endif
     return true;
 }
-#endif
+
+static bool qt_flushUpdate(QWidget *widget, const QRegion &rgn)
+{
+    static int checked_env = -1;
+    if(checked_env == -1) {
+        checked_env = qgetenv("QT_FLUSH_UPDATE").toInt();
+    }
+
+    if (checked_env == 0)
+        return false;
+
+    qt_showYellowThing(widget, rgn, checked_env*10);
+
+    return true;
+}
+
 
 void qt_syncBackingStore(QRegion rgn, QWidget *widget)
 {
@@ -219,31 +213,31 @@ QWidgetBackingStore::~QWidgetBackingStore()
 
 }
 
-void QWidgetBackingStore::scrollRegion(const QRegion &rgn, int dx, int dy, QWidget *widget)
+void QWidgetBackingStore::scrollRegion(const QRect &rect, int dx, int dy, QWidget *widget)
 {
-    QRegion wrgn(rgn);
+    QRegion wrgn(rect);
 #if 1
     QRegion area = widget->d_func()->clipRect();
     if(area.isEmpty())
         return;
     wrgn &= area;
 
-    QRegion newrgn(rgn);
-    newrgn.translate(dx, dy);
-    wrgn += newrgn;
+    QRect newrect = rect.translated(dx,dy);
+    wrgn += newrect;
+
+    dirtyRegion(wrgn, widget);
 #else
     QRegion area = widget->d_func()->clipRegion();
     if(area.isEmpty())
         return;
     wrgn &= area;
 
-    QRegion newrgn(rgn);
-    newrgn.translate(dx, dy);
+    QRect newrect = rect.translated(dx,dy);
 
     if(isOpaque(widget))
-        wrgn ^= newrgn;
+        wrgn ^= newrect;
     else
-        wrgn += newrgn;
+        wrgn += newrect;
 
     if(QWExtra *extra = widget->d_func()->extraData()) {
         if(!extra->mask.isEmpty())
@@ -264,10 +258,13 @@ void QWidgetBackingStore::scrollRegion(const QRegion &rgn, int dx, int dy, QWidg
               pos.x()+dx, pos.y()+dy);
     XFreeGC(widget->d_func()->xinfo.display(), gc);
 #endif
-}
-#endif
 
-    dirtyRegion(wrgn, widget);
+
+
+
+//    dirtyRegion(wrgn, widget);
+
+#endif
 }
 
 #ifdef Q_WS_QWS
@@ -380,10 +377,13 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
     globalrgn.translate(win->geometry().topLeft());
     win->qwsDisplay()->repaintRegion(win->data->winid, opaque, globalrgn);
 
-    qt_flushUpdate(globalrgn);
+    qt_flushUpdate(0, globalrgn);
 #else
-    if (!QWidgetBackingStore::paintOnScreen(widget)){
+    if (!QWidgetBackingStore::paintOnScreen(widget)) {
         widget->d_func()->cleanWidget_sys(rgn);
+
+        qt_flushUpdate(widget, rgn);
+
 #if defined(Q_WS_WIN)
         QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
         HDC engine_dc = engine->getDC();
@@ -635,12 +635,12 @@ void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, con
 }
 
 /* cross-platform QWidget code */
-void QWidgetPrivate::scrollBuffer(const QRegion &rgn, int dx, int dy)
+void QWidgetPrivate::scrollBuffer(const QRect &rect, int dx, int dy)
 {
     Q_Q(QWidget);
     QWidget *tlw = q->window();
     QTLWExtra* x = tlw->d_func()->topData();
-    x->backingStore->scrollRegion(rgn, dx, dy, q);
+    x->backingStore->scrollRegion(rect, dx, dy, q);
 }
 
 void QWidgetPrivate::invalidateBuffer(const QRegion &rgn)
