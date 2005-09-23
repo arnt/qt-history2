@@ -37,7 +37,7 @@
 #include <limits.h>
 
 static const int windowsItemFrame        =  2; // menu item frame width
-static const int windowsSepHeight        =  2; // separator item height
+static const int windowsSepHeight        =  7; // separator item height
 static const int windowsItemHMargin      =  3; // menu item hor text margin
 static const int windowsItemVMargin      =  2; // menu item ver text margin
 static const int windowsArrowHMargin	 =  6; // arrow horizontal margin
@@ -1356,16 +1356,18 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             // windows always has a check column, regardless whether we have an icon or not
             int checkcol = qMax(menuitem->maxIconWidth, use2000style ? 20 : windowsCheckMarkWidth);
 
-            if (menuitem->menuItemType == QStyleOptionMenuItem::Separator) {
-                p->setPen(menuitem->palette.dark().color());
-                p->drawLine(x, y, x + w, y);
-                p->setPen(menuitem->palette.light().color());
-                p->drawLine(x, y + 1, x + w, y + 1);
-                return;
-            }
 
             QBrush fill = menuitem->palette.brush(act ? QPalette::Highlight : QPalette::Button);
             p->fillRect(menuitem->rect, fill);
+
+            if (menuitem->menuItemType == QStyleOptionMenuItem::Separator){
+                int yoff = y + h / 2;
+                p->setPen(menuitem->palette.dark().color());
+                p->drawLine(x, yoff, x + w, yoff);
+                p->setPen(menuitem->palette.light().color());
+                p->drawLine(x, yoff + 1, x + w, yoff + 1);
+                return;
+            }
 
             QRect vCheckRect = visualRect(opt->direction, menuitem->rect, QRect(menuitem->rect.x(), menuitem->rect.y(), checkcol, menuitem->rect.height()));
             if (checked) {
@@ -1817,8 +1819,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
         break; }
     case CE_ToolBar:
         if (const QStyleOptionToolBar *toolbar = qstyleoption_cast<const QStyleOptionToolBar *>(opt)) {
+            QRect rect = opt->rect;
+            
             bool paintLeftBorder = true;
-            bool paintRightBorder = true;
+            bool paintRightBorder = true; 
             bool paintBottomBorder = true;
 
             switch (toolbar->toolBarArea){
@@ -1826,7 +1830,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 switch(toolbar->positionOfLine){
                 case QStyleOptionToolBar::Beginning:
                 case QStyleOptionToolBar::OnlyOne:
-                    paintBottomBorder=false;
+                    paintBottomBorder = false;
                 default:
                     break;
                 }
@@ -1874,7 +1878,6 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 break;
             }
 
-            QRect rect = opt->rect;
 
             //draw top border
             p->setPen(QPen(opt->palette.light().color()));
@@ -2406,11 +2409,14 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             int w = sz.width();
             sz = QCommonStyle::sizeFromContents(ct, opt, csz, widget);
 
-            if (mi->menuItemType != QStyleOptionMenuItem::Separator && mi->icon.isNull()) {
+            if (mi->menuItemType == QStyleOptionMenuItem::Separator) {
+                sz = QSize(10, windowsSepHeight);
+            }
+            else if (mi->icon.isNull()) {
                 sz.setHeight(sz.height() - 2);
                 w -= 6;
             }
-
+            
             if (mi->menuItemType != QStyleOptionMenuItem::Separator && !mi->icon.isNull())
                  sz.setHeight(qMax(sz.height(),
                               mi->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal).height()
