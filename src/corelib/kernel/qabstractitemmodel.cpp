@@ -2062,3 +2062,102 @@ bool QAbstractListModel::hasChildren(const QModelIndex &parent) const
 
     Synonym for QList<QModelIndex>.
 */
+
+/*
+ * If the datastream contains data from several different tables, this function may have unexpectable results, 
+ * possibly loss of some mimedata.
+ */
+bool QAbstractItemModelPrivate::decodeDataAndReplace(QAbstractItemModel* model, int row, int column, const QModelIndex &parent,
+                                    QDataStream &stream)
+{
+    int top = INT_MAX;
+    int left = INT_MAX;
+    int bottom = 0;
+    int right = 0;
+    QVector<QMap<int, QVariant> > data;
+    QVector<int> rows;
+    QVector<int> columns;
+    // get data, positions and dimensions of the dragged data (the positions are from the source table)
+    while (!stream.atEnd()) {
+        int r, c;
+        QMap<int, QVariant> d;
+
+        stream >> r;
+        stream >> c;
+        stream >> d;
+
+        rows.append(r);
+        columns.append(c);
+        data.append(d);
+
+        top = qMin(r, top);
+        left = qMin(c, left);
+        bottom = qMax(r, bottom);
+        right = qMax(c, right);
+    }
+
+    int nCols = model->columnCount(parent);
+    int nRows = model->rowCount(parent);
+
+    row = qMax(0, row);
+    column = qMax(0, column);
+
+    // set the data in the table
+    for (int j = 0; j < data.size(); ++j) {
+        int relativeRow = rows.at(j) - top;
+        int relativeColumn = columns.at(j) - left;
+        int destinationRow = relativeRow + row;
+        int destinationColumn = relativeColumn + column;
+
+        // Skip overwriting if the table does not have enough space for the rightmost/bottommost data.
+        if (destinationRow < nRows && destinationColumn < nCols) {
+            QModelIndex idx = model->index(destinationRow, destinationColumn, parent);
+            model->setItemData(idx, data.at(j));
+        }
+    }
+
+    return true;
+}
+
+/*!
+  \reimp
+*/
+bool QAbstractTableModel::dropMimeData( const QMimeData *data, Qt::DropAction action,
+                                        int row, int column, const QModelIndex &parent)
+{
+    if (!data || action != Qt::CopyAction)
+        return false;
+    // check if the format is supported
+    QString format = mimeTypes().at(0);
+    if (!data->hasFormat(format))
+        return false;
+
+    if (row > rowCount(parent))
+        row = rowCount(parent);
+    // decode and insert
+    QByteArray encoded = data->data(format);
+    QDataStream stream(&encoded, QIODevice::ReadOnly);
+    
+    return QAbstractItemModelPrivate::decodeDataAndReplace(this, row, column, parent, stream);
+}
+/*!
+  \reimp
+*/
+bool QAbstractListModel::dropMimeData( const QMimeData *data, Qt::DropAction action,
+                                        int row, int column, const QModelIndex &parent)
+{
+    if (!data || action != Qt::CopyAction)
+        return false;
+    // check if the format is supported
+    QString format = mimeTypes().at(0);
+    if (!data->hasFormat(format))
+        return false;
+
+    if (row > rowCount(parent))
+        row = rowCount(parent);
+    // decode and insert
+    QByteArray encoded = data->data(format);
+    QDataStream stream(&encoded, QIODevice::ReadOnly);
+    
+    return QAbstractItemModelPrivate::decodeDataAndReplace(this, row, column, parent, stream);
+}
