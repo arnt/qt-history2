@@ -1710,11 +1710,11 @@ void QListViewPrivate::intersectingStaticSet(const QRect &area) const
         return;
     const int segLast = segmentPositions.count() - 1;
     int seg = qBinarySearch<int>(segmentPositions, segStartPosition, 0, segLast);
-    for (; seg <= segLast && segmentPositions.at(seg) < segEndPosition; ++seg) {
+    for (; seg <= segLast && segmentPositions.at(seg) <= segEndPosition; ++seg) {
         int first = segmentStartRows.at(seg);
         int last = (seg < segLast ? segmentStartRows.at(seg + 1) : batchStartRow) - 1;
         int row = qBinarySearch<int>(flowPositions, flowStartPosition, first, last);
-        for (; row <= last && flowPositions.at(row) < flowEndPosition; ++row) {
+        for (; row <= last && flowPositions.at(row) <= flowEndPosition; ++row) {
             if (hiddenRows.contains(row))
                 continue;
             QModelIndex index = model->index(row, column, root);
