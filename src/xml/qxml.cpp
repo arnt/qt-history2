@@ -6243,7 +6243,7 @@ bool QXmlSimpleReaderPrivate::parseChoiceSeq()
 {
     const signed char Init             = 0;
     const signed char Ws1              = 1; // eat whitespace
-    const signed char CS               = 2; // choice or set
+    const signed char CoS              = 2; // choice or set
     const signed char Ws2              = 3; // eat whitespace
     const signed char More             = 4; // more cp to read
     const signed char Name             = 5; // read name
@@ -6262,7 +6262,7 @@ bool QXmlSimpleReaderPrivate::parseChoiceSeq()
     static const signed char table[6][9] = {
      /*  InpWs   InpOp  InpCp  InpQm  InpAst  InpPlus  InpPipe  InpComm  InpUnknown */
         { -1,     Ws1,   -1,    -1,    -1,     -1,      -1,      -1,      Name  }, // Init
-        { -1,     CS,    -1,    -1,    -1,     -1,      -1,      -1,      CS    }, // Ws1
+        { -1,     CoS,   -1,    -1,    -1,     -1,      -1,      -1,      CoS   }, // Ws1
         { Ws2,    -1,    Done,  Ws2,   Ws2,    Ws2,     More,    More,    -1    }, // CS
         { -1,     -1,    Done,  -1,    -1,     -1,      More,    More,    -1    }, // Ws2
         { -1,     Ws1,   -1,    -1,    -1,     -1,      -1,      -1,      Name  }, // More (same as Init)
@@ -6335,7 +6335,7 @@ bool QXmlSimpleReaderPrivate::parseChoiceSeq()
                     return false;
                 }
                 break;
-            case CS:
+            case CoS:
                 if (!parseChoiceSeq()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseChoiceSeq, state);
                     return false;
