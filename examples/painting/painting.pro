@@ -2,8 +2,9 @@ TEMPLATE      = subdirs
 SUBDIRS       = basicdrawing \
                 concentriccircles \
                 painterpaths \
-                transformations \
-                svg
+                transformations
+
+contains(QT_CONFIG, opengl): SUBDIRS += svg
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/painting
