@@ -96,7 +96,8 @@ public:
                                                              int margin) const {
         if (pos.y() - rect.top() < margin) return QAbstractItemView::AboveItem;
         if (rect.bottom() - pos.y() < margin) return QAbstractItemView::BelowItem;
-        return QAbstractItemView::OnItem;
+        if (rect.contains(pos, true)) return QAbstractItemView::OnItem;
+        return QAbstractItemView::OnViewport;
     }
 #endif
 
@@ -212,6 +213,9 @@ inline int qBinarySearch(const QVector<T> &vec, const T &item, int start, int en
         else
             start = i;
         i = (start + end + 1) >> 1;
+    }
+    if (i > end) {
+        Q_ASSERT(0);
     }
     return i;
 }

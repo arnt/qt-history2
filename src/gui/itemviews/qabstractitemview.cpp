@@ -1122,6 +1122,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
             update();
         } else {
             d->dropIndicatorRect = QRect();
+            d->dropIndicatorPosition = QAbstractItemView::OnViewport;
             event->accept(); // allow dropping in empty areas
         }
     } // can decode
@@ -1180,8 +1181,11 @@ void QAbstractItemView::dropEvent(QDropEvent *event)
                 index = index.parent();
                 break;
             case OnItem:
+            case OnViewport:
                 break;
             }
+        }else{
+            d->dropIndicatorPosition = QAbstractItemView::OnViewport;
         }
         if (model()->dropMimeData(event->mimeData(), event->proposedAction(), row, col, index))
             event->acceptProposedAction();

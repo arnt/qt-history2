@@ -254,7 +254,7 @@ protected:
 
     bool focusNextPrevChild(bool next);
 
-    enum DropIndicatorPosition { OnItem, AboveItem, BelowItem };
+    enum DropIndicatorPosition { OnItem, AboveItem, BelowItem, OnViewport };
     DropIndicatorPosition dropIndicatorPosition() const;
 
 private:
