@@ -8,7 +8,7 @@
 class SvgWindow : public QScrollArea
 {
 public:
-    SvgWindow(const char *file, const char *type)
+    SvgWindow(const QString &file, const QString &type)
     {
         QWidget *view = 0;
 
@@ -31,18 +31,41 @@ public:
     }
 };
 
+static void usage(const char *prog)
+{
+    qWarning()<<"Usage:"<<prog<<" <renderer> file";
+    qWarning()<<"Please specify a SVG file to load.";
+    qWarning()<<"Available rendereres: '-gl', '-native' and '-image'";
+}
+
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
 
     if (argc < 2) {
-        qWarning()<<argv[0]<<" file <renderer>";
-        qWarning()<<"Please specify a SVG file to load.\n"
-                  <<"Available rendereres '-gl', '-native' and '-image'";
+        usage(argv[0]);
         return 1;
     }
 
-    SvgWindow *area = new SvgWindow(argv[1], argv[2]);
+    QString file, type;
+    if (argc == 3) {
+        QString dummy = argv[1];
+        if (dummy.startsWith('-')) {
+            type = argv[1];
+            file = argv[2];
+        } else {
+            file = argv[1];
+            type = argv[2];
+        }
+    } else {
+        file = argv[1];
+        if (file.startsWith('-')) {
+            usage(argv[0]);
+            return 1;
+        }
+    }
+
+    SvgWindow *area = new SvgWindow(file, type);
     area->show();
     return app.exec();
 }
