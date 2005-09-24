@@ -27,11 +27,15 @@ class Q_SVG_EXPORT QSvgWidget : public QWidget
     Q_OBJECT
 public:
     QSvgWidget(QWidget *parent=0);
+    QSvgWidget(const QString &file, QWidget *parent=0);
     ~QSvgWidget();
 
     QSvgRenderer *renderer() const;
 
     QSize sizeHint() const;
+public slots:
+    void load(const QString &file);
+    void load(const QByteArray &contents);
 protected:
     void paintEvent(QPaintEvent *event);
 private:

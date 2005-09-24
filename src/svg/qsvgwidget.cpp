@@ -14,6 +14,7 @@
 #include "qsvgwidget.h"
 
 #include "qsvgrenderer.h"
+
 #include "qpainter.h"
 #include "private/qwidget_p.h"
 
@@ -22,23 +23,34 @@ class QSvgWidgetPrivate : public QWidgetPrivate
     Q_DECLARE_PUBLIC(QSvgWidget)
 public:
     QSvgWidgetPrivate()
-        : renderer(0)
-    {}
+        : QWidgetPrivate()
+    {
+        Q_Q(QSvgWidget);
+        renderer = new QSvgRenderer(q);
+    }
+    QSvgWidgetPrivate(const QString &file)
+        : QWidgetPrivate()
+    {
+        Q_Q(QSvgWidget);
+        renderer = new QSvgRenderer(file, q);
+    }
     QSvgRenderer *renderer;
 };
 
 QSvgWidget::QSvgWidget(QWidget *parent)
     : QWidget(*new QSvgWidgetPrivate, parent, 0)
 {
-
 }
 
+QSvgWidget::QSvgWidget(const QString &file, QWidget *parent)
+    : QWidget(*new QSvgWidgetPrivate(file), parent, 0)
+{
+}
 
 QSvgWidget::~QSvgWidget()
 {
 
 }
-
 
 QSvgRenderer * QSvgWidget::renderer() const
 {
@@ -62,4 +74,16 @@ void QSvgWidget::paintEvent(QPaintEvent *)
     Q_D(QSvgWidget);
     QPainter p(this);
     d->renderer->render(&p);
+}
+
+void QSvgWidget::load(const QString &file)
+{
+    Q_D(const QSvgWidget);
+    d->renderer->load(file);
+}
+
+void QSvgWidget::load(const QByteArray &contents)
+{
+    Q_D(const QSvgWidget);
+    d->renderer->load(contents);
 }
