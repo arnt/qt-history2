@@ -6,7 +6,7 @@
     \previouspage The Scribe Classes
     \nextpage The New Qt Designer
 
-    Qt 4 introduces a new set of main window classes that supercede the
+    Qt 4 introduces a new set of main window classes that supersede the
     Qt 3 main window classes, providing a more efficient implementation
     while remaining easy to use.
 

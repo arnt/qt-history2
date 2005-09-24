@@ -1128,7 +1128,7 @@ QPrinter::PrinterState QPrinter::printerState() const
     Sets *\a top, *\a left, *\a bottom, *\a right to be the top,
     left, bottom, and right margins.
 
-    This function has been superceded by paperRect() and pageRect().
+    This function has been superseded by paperRect() and pageRect().
     Use paperRect().top() - pageRect().top() for the top margin,
     paperRect().left() - pageRect().left() for the left margin,
     paperRect().bottom() - pageRect().bottom() for the bottom margin,
@@ -1151,7 +1151,7 @@ QPrinter::PrinterState QPrinter::printerState() const
 
     Returns a QSize containing the left margin and the top margin.
 
-    This function has been superceded by paperRect() and pageRect().
+    This function has been superseded by paperRect() and pageRect().
     Use paperRect().left() - pageRect().left() for the left margin,
     and paperRect().top() - pageRect().top() for the top margin.
 

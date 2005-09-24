@@ -6,7 +6,7 @@
     \previouspage What's New in Qt 4
     \nextpage The Interview Framework
 
-    Qt 4 introduces a new set of containers that supercede both the old
+    Qt 4 introduces a new set of containers that supersede both the old
     QCollection pointer-based containers and the newer QTL value-based
     containers.
 

@@ -234,7 +234,7 @@ QString QGb18030Codec::convertToUnicode(const char* chars, int len, ConverterSta
   used extension of GB 2312-80. Microsoft Windows uses it under the
   name code page 936.
 
-  The GBK encoding has been superceded by the GB18030 encoding and
+  The GBK encoding has been superseded by the GB18030 encoding and
   GB18030 is backward compatible to GBK.  For this reason the QGbkCodec class
   is implemented in terms of the GB18030 codec and uses its 1-byte and
   2-byte portion for conversion from and to Unicode.
@@ -382,7 +382,7 @@ QByteArray QGbkCodec::convertFromUnicode(const QChar *uc, int len, ConverterStat
   \brief The QGb2312Codec class provides conversion to and from the Chinese
   GB2312 encoding.
 
-  The GB2312 encoding has been superceded by the GB18030 encoding and
+  The GB2312 encoding has been superseded by the GB18030 encoding and
   GB18030 is backward compatible to GB2312.  For this reason the QGb2312Codec
   class is implemented in terms of the GB18030 codec and uses its
   0xA1A1-0xFEFE subset for conversion from and to Unicode.
