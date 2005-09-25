@@ -33,7 +33,7 @@ public:
     QSvgRenderer *renderer() const;
 
     QSize sizeHint() const;
-public slots:
+public Q_SLOTS:
     void load(const QString &file);
     void load(const QByteArray &contents);
 protected:
