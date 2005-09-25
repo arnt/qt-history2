@@ -26,97 +26,6 @@
 #include <private/qlistview_p.h>
 #include <qdebug.h>
 
-template <class T>
-void QBinTree<T>::create(int n)
-{
-    // simple heuristics to find the best tree depth
-    int c;
-    for (c = 0; n; ++c)
-        n = n / 10;
-    depth = c << 1;
-    nodeVector.resize((1 << depth) - 1); // resize to number of nodes
-    leafVector.resize(1 << depth); // resize to number of leaves
-}
-
-template <class T>
-void QBinTree<T>::destroy()
-{
-    leafVector.clear();
-    nodeVector.clear();
-    itemVector.clear();
-}
-
-template <class T>
-void QBinTree<T>::insert(QVector<int> &leaf, const QRect &, uint, QBinTreeData data)
-{
-    leaf.append(data.i);
-}
-
-template <class T>
-void QBinTree<T>::remove(QVector<int> &leaf, const QRect &, uint, QBinTreeData data)
-{
-    int i = leaf.indexOf(data.i);
-    if (i != -1)
-        leaf.remove(i);
-}
-
-template <class T>
-void QBinTree<T>::climbTree(const QRect &area, callback *function, QBinTreeData data, int index)
-{
-    int tvs = nodeCount(); // the number of non-leaf-nodes
-    if (index >= tvs) { // the index points to a leaf
-        if (tvs > 0)
-            function(leaf(index - tvs), area, visited, data);
-        return;
-    }
-
-    typename Node::Type t = (typename Node::Type) node(index).type;
-
-    int pos = node(index).pos;
-    int idx = firstChildIndex(index);
-    if (t == Node::VerticalPlane) {
-        if (area.left() < pos)
-            climbTree(area, function, data, idx); // back
-        if (area.right() >= pos)
-            climbTree(area, function, data, idx + 1); // front
-    } else {
-        if (area.top() < pos)
-            climbTree(area, function, data, idx); // back
-        if (area.bottom() >= pos)
-            climbTree(area, function, data, idx + 1); // front
-    }
-}
-
-template <class T>
-void QBinTree<T>::init(const QRect &area, int depth, NodeType type, int index)
-{
-    typename Node::Type t = Node::None; // t should never have this value
-    if (type == Node::Both) // if both planes are specified, use 2d bsp
-        t = (depth & 1) ? Node::HorizontalPlane : Node::VerticalPlane;
-    else
-        t = type;
-    QPoint center = area.center();
-    nodeVector[index].pos = (t == Node::VerticalPlane ? center.x() : center.y());
-    nodeVector[index].type = t;
-
-    QRect front = area;
-    QRect back = area;
-
-    if (t == Node::VerticalPlane) {
-        front.setLeft(center.x());
-        back.setRight(center.x() - 1); // front includes the center
-    } else { // t == Node::HorizontalPlane
-        front.setTop(center.y());
-        back.setBottom(center.y() - 1);
-    }
-
-    int idx = firstChildIndex(index);
-    if (--depth) {
-        init(back, depth, type, idx);
-        init(front, depth, type, idx + 1);
-    }
-}
-
 /*!
     \class QListView qlistview.h
 
@@ -1421,19 +1330,19 @@ QPoint QListViewPrivate::initDynamicLayout(const QRect &bounds, int spacing, int
     return QPoint(x, y);
 }
 
-void QListViewPrivate::initBinaryTree(const QSize &contents)
+void QListViewPrivate::initBspTree(const QSize &contents)
 {
     // remove all items from the tree
     int leafCount = tree.leafCount();
     for (int l = 0; l < leafCount; ++l)
         tree.clearLeaf(l);
     // we have to get the bounding rect of the items before we can initialize the tree
-    QBinTree<QListViewItem>::Node::Type type = QBinTree<QListViewItem>::Node::Both; // 2D
+    QBspTree<QListViewItem>::Node::Type type = QBspTree<QListViewItem>::Node::Both; // 2D
     // simple heuristics to get better bsp
     if (contents.height() / contents.width() >= 3)
-        type = QBinTree<QListViewItem>::Node::HorizontalPlane;
+        type = QBspTree<QListViewItem>::Node::HorizontalPlane;
     else if (contents.width() / contents.height() >= 3)
-        type = QBinTree<QListViewItem>::Node::VerticalPlane;
+        type = QBspTree<QListViewItem>::Node::VerticalPlane;
     // build tree for the bounding rect (not just the contents rect)
     tree.init(QRect(0, 0, contents.width(), contents.height()), type);
 }
@@ -1670,12 +1579,12 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
     // resize tree
     int insertFrom = first;
     if (done || first == 0) {
-        initBinaryTree(rect.size());
+        initBspTree(rect.size());
         insertFrom = 0;
     }
     // insert items in tree
     for (int row = insertFrom; row <= last; ++row)
-        tree.climbTree(tree.item(row).rect(), &QBinTree<QListViewItem>::insert, row);
+        tree.climbTree(tree.item(row).rect(), &QBspTree<QListViewItem>::insert, row);
     // if the new items are visble, update the viewport
     QRect changedRect(topLeft, rect.bottomRight());
     if (clipRect().intersects(changedRect))
@@ -1730,7 +1639,7 @@ void QListViewPrivate::intersectingDynamicSet(const QRect &area) const
 {
     intersectVector.clear();
     QListViewPrivate *that = const_cast<QListViewPrivate*>(this);
-    QBinTree<QListViewItem>::Data data(static_cast<void*>(that));
+    QBspTree<QListViewItem>::Data data(static_cast<void*>(that));
     that->tree.climbTree(area, &QListViewPrivate::addLeaf, data);
 }
 
@@ -1839,7 +1748,7 @@ int QListViewPrivate::itemIndex(const QListViewItem &item) const
 }
 
 void QListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
-                               uint visited, QBinTree<QListViewItem>::Data data)
+                               uint visited, QBspTree<QListViewItem>::Data data)
 {
     QListViewItem *vi;
     QListViewPrivate *_this = static_cast<QListViewPrivate *>(data.ptr);

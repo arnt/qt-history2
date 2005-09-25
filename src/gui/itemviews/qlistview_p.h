@@ -26,208 +26,14 @@
 //
 
 #include "private/qabstractitemview_p.h"
-#include "QtGui/qrubberband.h"
+#include "qrubberband.h"
+#include "qbsptree_p.h"
 
 #ifndef QT_NO_LISTVIEW
 
-template <class T>
-class QBinTree
-{
-public:
-    struct Node
-    {
-        enum Type { None = 0, VerticalPlane = 1, HorizontalPlane = 2, Both = 3 };
-        inline Node() : pos(0), type(None) {}
-        uint pos : 30;
-        uint type : 2;
-    };
-    typedef typename Node::Type NodeType;
-
-    struct Data
-    {
-        Data(void *p) : ptr(p) {}
-        Data(int n) : i(n) {}
-        union {
-            void *ptr;
-            int i;
-        };
-    };
-    typedef typename QBinTree::Data QBinTreeData;
-    typedef void callback(QVector<int> &leaf, const QRect &area, uint visited, QBinTreeData data);
-
-    inline QBinTree() : depth(6), visited(0) {}
-
-    void create(int n);
-    void destroy();
-    static void insert(QVector<int> &leaf, const QRect &area, uint visited, QBinTreeData data);
-    static void remove(QVector<int> &leaf, const QRect &area, uint visited, QBinTreeData data);
-
-    inline void climbTree(const QRect &rect, callback *function, QBinTreeData data);
-
-    inline void init(const QRect &area, NodeType type);
-    inline void reserve(int size);
-
-    inline int itemCount() const;
-    inline const T &const_item(int idx) const;
-    inline T &item(int idx);
-    inline T *itemPtr(int idx);
-
-    inline void setItemPosition(int x, int y, int idx);
-
-    inline void appendItem(T &item);
-
-    inline void insertItem(T &item, const QRect &rect, int idx);
-    inline void removeItem(const QRect &rect, int idx);
-    inline void moveItem(const QPoint &dest, const QRect &rect, int idx);
-
-    inline int leafCount() const;
-    inline const QVector<int> &const_leaf(int idx) const;
-    inline QVector<int> &leaf(int idx);
-    inline void clearLeaf(int idx);
-
-    inline int nodeCount() const;
-    inline const Node &node(int idx) const;
-    inline int parentIndex(int idx) const;
-    inline int firstChildIndex(int idx) const;
-
-private:
-    void climbTree(const QRect &rect, callback *function, QBinTreeData data, int index);
-    void init(const QRect &area, int depth, NodeType type, int index);
-
-    uint depth : 8;
-    mutable uint visited : 16;
-    QVector<T> itemVector;
-    QVector<Node> nodeVector;
-    mutable QVector< QVector<int> > leafVector; // the leaves are just indices into the itemVector
-};
-
-template <class T>
-void QBinTree<T>::climbTree(const QRect &rect, callback *function, QBinTreeData data)
-{
-    ++visited;
-    climbTree(rect, function, data, 0);
-}
-
-template <class T>
-void QBinTree<T>::init(const QRect &area, NodeType type)
-{
-    init(area, depth, type, 0);
-}
-
-template <class T>
-void QBinTree<T>::reserve(int size)
-{
-    itemVector.reserve(size);
-}
-
-template <class T>
-int QBinTree<T>::itemCount() const
-{
-    return itemVector.count();
-}
-
-template <class T>
-const T &QBinTree<T>::const_item(int idx) const
-{
-    return itemVector[idx];
-}
-
-template <class T>
-T &QBinTree<T>::item(int idx)
-{
-    return itemVector[idx];
-}
-
-template <class T>
-T *QBinTree<T>::itemPtr(int idx)
-{
-    return &itemVector[idx];
-}
-
-template <class T>
-void QBinTree<T>::setItemPosition(int x, int y, int idx)
-{
-    item(idx).x = x;
-    item(idx).y = y;
-}
-
-template <class T>
-void QBinTree<T>::appendItem(T &item)
-{
-    itemVector.append(item);
-}
-
-template <class T>
-void QBinTree<T>::insertItem(T &item, const QRect &rect, int idx)
-{
-    itemVector.insert(idx + 1, 1, item); // insert after idx
-    climbTree(rect, &insert, Data(idx), 0);
-}
-
-template <class T>
-void QBinTree<T>::removeItem(const QRect &rect, int idx)
-{
-    climbTree(rect, &remove, Data(idx), 0);
-    itemVector.remove(idx, 1);
-}
-
-template <class T>
-void QBinTree<T>::moveItem(const QPoint &dest, const QRect &rect, int idx)
-{
-    climbTree(rect, &remove, Data(idx), 0);
-    itemVector[idx].x = dest.x();
-    itemVector[idx].y = dest.y();
-    climbTree(QRect(dest, rect.size()), &insert, Data(idx), 0);
-}
-
-template <class T>
-int QBinTree<T>::leafCount() const
-{
-    return leafVector.count();
-}
-
-template <class T>
-const QVector<int> &QBinTree<T>::const_leaf(int idx) const
-{
-    return leafVector.at(idx);
-}
-
-template <class T>
-QVector<int> &QBinTree<T>::leaf(int idx)
-{
-    return leafVector[idx];
-}
-
-template <class T>
-void QBinTree<T>::clearLeaf(int idx) { leafVector[idx].clear(); }
-
-template <class T>
-int QBinTree<T>::nodeCount() const
-{
-    return nodeVector.count();
-}
-
-template <class T>
-const typename QBinTree<T>::Node &QBinTree<T>::node(int idx) const
-{
-    return nodeVector[idx];
-}
-
-template <class T>
-int QBinTree<T>::parentIndex(int idx) const
-{
-    return (idx & 1) ? ((idx - 1) / 2) : ((idx - 2) / 2);
-}
-
-template <class T>
-int QBinTree<T>::firstChildIndex(int idx) const
-{
-    return ((idx * 2) + 1);
-}
-
 class QListViewItem
 {
-    friend class QBinTree<QListViewItem>;
+    friend class QBspTree<QListViewItem>;
     friend class QListViewPrivate;
 public:
     inline QListViewItem()
@@ -269,7 +75,7 @@ public:
 
     QPoint initStaticLayout(const QRect &bounds, int spacing, int first);
     QPoint initDynamicLayout(const QRect &bounds, int spacing, int first);
-    void initBinaryTree(const QSize &contents);
+    void initBspTree(const QSize &contents);
 
     bool doItemsLayout(int num);
     void doItemsLayout(const QRect &bounds, const QModelIndex &first, const QModelIndex &last);
@@ -306,7 +112,7 @@ public:
 
     int itemIndex(const QListViewItem &item) const;
     static void addLeaf(QVector<int> &leaf, const QRect &area,
-                        uint visited, QBinTree<QListViewItem>::Data data);
+                        uint visited, QBspTree<QListViewItem>::Data data);
 
     void insertItem(int index, QListViewItem &item);
     void removeItem(int index);
@@ -363,7 +169,7 @@ public:
     mutable QVector<QModelIndex> intersectVector;
 
     // used when items are movable
-    QBinTree<QListViewItem> tree;
+    QBspTree<QListViewItem> tree;
 
     // used when items are static
     QVector<int> flowPositions;

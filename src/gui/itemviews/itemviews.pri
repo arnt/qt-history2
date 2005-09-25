@@ -6,6 +6,7 @@ HEADERS += \
 	itemviews/qheaderview.h \
 	itemviews/qlistview.h \
 	itemviews/qlistview_p.h \
+	itemviews/qbsptree_p.h \
 	itemviews/qtableview.h \
 	itemviews/qtableview_p.h \
 	itemviews/qtreeview.h \
