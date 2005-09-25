@@ -136,8 +136,20 @@ void ArthurStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *op
         break;
 
     case PE_FrameGroupBox:
-        if (const QStyleOptionGroupBox *group
-                = qstyleoption_cast<const QStyleOptionGroupBox *>(option)) {
+        if (const QStyleOptionFrameV2 *group
+                = qstyleoption_cast<const QStyleOptionFrameV2 *>(option)) {
+            const QRect &r = group->rect;
+
+            painter->save();
+            int radius = 14;
+            int radius2 = radius*2;
+            QPainterPath clipPath;
+            clipPath.moveTo(radius, 0);
+            clipPath.arcTo(r.right() - radius2, 0, radius2, radius2, 90, -90);
+            clipPath.arcTo(r.right() - radius2, r.bottom() - radius2, radius2, radius2, 0, -90);
+            clipPath.arcTo(r.left(), r.bottom() - radius2, radius2, radius2, 270, -90);
+            clipPath.arcTo(r.left(), r.top(), radius2, radius2, 180, -90);
+            painter->setClipPath(clipPath);
             QPixmap titleStretch = cached(":res/images/title_stretch.png");
             QPixmap topLeft = cached(":res/images/groupframe_topleft.png");
             QPixmap topRight = cached(":res/images/groupframe_topright.png");
@@ -147,7 +159,6 @@ void ArthurStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *op
             QPixmap topStretch = cached(":res/images/groupframe_top_stretch.png");
             QPixmap rightStretch = cached(":res/images/groupframe_right_stretch.png");
             QPixmap bottomStretch = cached(":res/images/groupframe_bottom_stretch.png");
-            const QRect &r = group->rect;
             QLinearGradient lg(0, 0, 0, r.height());
             lg.setColorAt(0, QColor(224,224,224));
             lg.setColorAt(1, QColor(255,255,255));
@@ -191,6 +202,7 @@ void ArthurStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *op
             bottom.setWidth(r.width() - bottomLeft.width() - bottomRight.width());
             bottom.setHeight(bottomLeft.height());
             painter->drawTiledPixmap(bottom, bottomStretch);
+            painter->restore();
         }
         break;
 
@@ -234,67 +246,33 @@ void ArthurStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
         }
         break;
     case CC_GroupBox:
-        if (const QStyleOptionGroupBox *group
+        if (const QStyleOptionGroupBox *groupBox
                 = qstyleoption_cast<const QStyleOptionGroupBox *>(option)) {
+            QStyleOptionGroupBox groupBoxCopy(*groupBox);
+            groupBoxCopy.subControls &= ~SC_GroupBoxLabel;
+            QWindowsStyle::drawComplexControl(control, &groupBoxCopy, painter, widget);
 
-            const QRect r = group->rect;
-            painter->save();
-
-            // first, get background from parent
-            QWidget *parent = 0;
-            if (widget)
-                parent = widget->parentWidget();
-            if (qobject_cast<QGroupBox *>(parent)) {
-                QLinearGradient lg(0, 0, 0, parent->height());
-                lg.setColorAt(0, QColor(224,224,224));
-                lg.setColorAt(1, QColor(255,255,255));
-                painter->setPen(Qt::NoPen);
-                painter->setBrush(lg);
-                painter->setBrushOrigin(-widget->mapToParent(QPoint(0,0)));
-                painter->drawRect(r);
-                painter->setBrushOrigin(0,0);
-            }
-
-            int radius = 14;
-            int radius2 = radius*2;
-            QPainterPath clipPath;
-            clipPath.moveTo(radius, 0);
-            clipPath.arcTo(r.right() - radius2, 0, radius2, radius2, 90, -90);
-            clipPath.arcTo(r.right() - radius2, r.bottom() - radius2, radius2, radius2, 0, -90);
-            clipPath.arcTo(r.left(), r.bottom() - radius2, radius2, radius2, 270, -90);
-            clipPath.arcTo(r.left(), r.top(), radius2, radius2, 180, -90);
-            painter->setClipPath(clipPath);
-
-            // edges and fill
-            if (group->subControls & SC_GroupBoxFrame) {
-                drawPrimitive(PE_FrameGroupBox, group, painter, widget);
-            }
-
-            // labels
-            if (group->subControls & SC_GroupBoxLabel) {
+            if (groupBox->subControls & SC_GroupBoxLabel) {
+                const QRect &r = groupBox->rect;
                 QPixmap titleLeft = cached(":res/images/title_cap_left.png");
                 QPixmap titleRight = cached(":res/images/title_cap_right.png");
                 QPixmap titleStretch = cached(":res/images/title_stretch.png");
-                int txt_width = group->fontMetrics.width(group->text) + 20;
+                int txt_width = groupBox->fontMetrics.width(groupBox->text) + 20;
                 painter->drawPixmap(r.center().x() - txt_width/2, 0, titleLeft);
-                QRect tileRect = subControlRect(control, group, SC_GroupBoxLabel, widget);
+                QRect tileRect = subControlRect(control, groupBox, SC_GroupBoxLabel, widget);
                 painter->drawTiledPixmap(tileRect, titleStretch);
                 painter->drawPixmap(tileRect.x() + tileRect.width(), 0, titleRight);
-
-                {
-                    int opacity = 31;
-                    painter->setPen(QColor(0, 0, 0, opacity));
-                    painter->drawText(tileRect.translated(0, 1),
-                                      Qt::AlignVCenter | Qt::AlignHCenter, group->text);
-                    painter->drawText(tileRect.translated(2, 1),
-                                      Qt::AlignVCenter | Qt::AlignHCenter, group->text);
-                    painter->setPen(QColor(0, 0, 0, opacity * 2));
-                    painter->drawText(tileRect.translated(1, 1),
-                                      Qt::AlignVCenter | Qt::AlignHCenter, group->text);
-                }
+                int opacity = 31;
+                painter->setPen(QColor(0, 0, 0, opacity));
+                painter->drawText(tileRect.translated(0, 1),
+                                  Qt::AlignVCenter | Qt::AlignHCenter, groupBox->text);
+                painter->drawText(tileRect.translated(2, 1),
+                                  Qt::AlignVCenter | Qt::AlignHCenter, groupBox->text);
+                painter->setPen(QColor(0, 0, 0, opacity * 2));
+                painter->drawText(tileRect.translated(1, 1),
+                                  Qt::AlignVCenter | Qt::AlignHCenter, groupBox->text);
                 painter->setPen(Qt::white);
-                painter->drawText(tileRect, Qt::AlignVCenter | Qt::AlignHCenter, group->text);
-                painter->restore();
+                painter->drawText(tileRect, Qt::AlignVCenter | Qt::AlignHCenter, groupBox->text);
             }
         }
         break;
