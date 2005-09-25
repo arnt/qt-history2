@@ -223,7 +223,7 @@
     used extension of GB 2312-80.  Microsoft Windows uses it under the
     name codepage 936.
 
-    GBK has been superceded by the new Chinese national standard
+    GBK has been superseded by the new Chinese national standard
     GB 18030-2000, which added a 4-byte encoding while remaining
     compatible with GB2312 and GBK.  The new GB 18030-2000 may be described
     as a special encoding of Unicode 3.x and ISO-10646-1.
