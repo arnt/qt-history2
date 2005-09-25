@@ -85,7 +85,7 @@ public:
     QVariant asVariant() const;
     
 #ifdef qdoc
-signals:
+Q_SIGNALS:
     void signal(const QString&,int,void*);
     void propertyChanged(const QString&);
     void exception(int,const QString&,const QString&,const QString&);
