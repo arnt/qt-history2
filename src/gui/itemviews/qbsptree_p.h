@@ -59,39 +59,37 @@ public:
 
     QBspTree() : depth(6), visited(0) {}
 
+    // tree functions
     void create(int n);
     void destroy();
 
-    inline void climbTree(const QRect &rect, callback *function, QBspTreeData data);
+    void climbTree(const QRect &rect, callback *function, QBspTreeData data);
+    void climbTree(const QRect &rect, callback *function, QBspTreeData data, int index);
 
-    inline void init(const QRect &area, NodeType type);
+    void init(const QRect &area, NodeType type);
+    void init(const QRect &area, int depth, NodeType type, int index);
+
     inline void reserve(int size);
 
+    // item functions
     inline int itemCount() const;
-    inline const T &const_item(int idx) const;
+    inline const T &item(int idx) const;
     inline T &item(int idx);
     inline T *itemPtr(int idx);
 
-    inline void setItemPosition(int x, int y, int idx);
-
     inline void appendItem(T &item);
-
     inline void insertItem(T &item, const QRect &rect, int idx);
     inline void removeItem(const QRect &rect, int idx);
-    inline void moveItem(const QPoint &dest, const QRect &rect, int idx);
 
+    // leaf functions
     inline int leafCount() const;
-    inline const QVector<int> &const_leaf(int idx) const;
     inline QVector<int> &leaf(int idx);
-    inline void clearLeaf(int idx);
 
+    // node functions
     inline int nodeCount() const;
     inline const Node &node(int idx) const;
     inline int parentIndex(int idx) const;
     inline int firstChildIndex(int idx) const;
-
-    void climbTree(const QRect &rect, callback *function, QBspTreeData data, int index);
-    void init(const QRect &area, int depth, NodeType type, int index);
 
 private:
     uint depth : 8;
@@ -136,6 +134,13 @@ void QBspTree<T>::remove(QVector<int> &leaf, const QRect &, uint, QBspTreeData d
 }
 
 template <class T>
+void QBspTree<T>::climbTree(const QRect &rect, callback *function, QBspTreeData data)
+{
+    ++visited;
+    climbTree(rect, function, data, 0);
+}
+
+template <class T>
 void QBspTree<T>::climbTree(const QRect &area, callback *function, QBspTreeData data, int index)
 {
     int tvs = nodeCount(); // the number of non-leaf-nodes
@@ -160,6 +165,12 @@ void QBspTree<T>::climbTree(const QRect &area, callback *function, QBspTreeData 
         if (area.bottom() >= pos)
             climbTree(area, function, data, idx + 1); // front
     }
+}
+
+template <class T>
+void QBspTree<T>::init(const QRect &area, NodeType type)
+{
+    init(area, depth, type, 0);
 }
 
 template <class T>
@@ -193,19 +204,6 @@ void QBspTree<T>::init(const QRect &area, int depth, NodeType type, int index)
 }
 
 template <class T>
-void QBspTree<T>::climbTree(const QRect &rect, callback *function, QBspTreeData data)
-{
-    ++visited;
-    climbTree(rect, function, data, 0);
-}
-
-template <class T>
-void QBspTree<T>::init(const QRect &area, NodeType type)
-{
-    init(area, depth, type, 0);
-}
-
-template <class T>
 void QBspTree<T>::reserve(int size)
 {
     items.reserve(size);
@@ -218,7 +216,7 @@ int QBspTree<T>::itemCount() const
 }
 
 template <class T>
-const T &QBspTree<T>::const_item(int idx) const
+const T &QBspTree<T>::item(int idx) const
 {
     return items.at(idx);
 }
@@ -233,13 +231,6 @@ template <class T>
 T *QBspTree<T>::itemPtr(int idx)
 {
     return &items[idx];
-}
-
-template <class T>
-void QBspTree<T>::setItemPosition(int x, int y, int idx)
-{
-    item(idx).x = x;
-    item(idx).y = y;
 }
 
 template <class T>
@@ -263,36 +254,15 @@ void QBspTree<T>::removeItem(const QRect &rect, int idx)
 }
 
 template <class T>
-void QBspTree<T>::moveItem(const QPoint &dest, const QRect &rect, int idx)
-{
-    climbTree(rect, &remove, Data(idx), 0);
-    items[idx].x = dest.x();
-    items[idx].y = dest.y();
-    climbTree(QRect(dest, rect.size()), &insert, Data(idx), 0);
-}
-
-template <class T>
 int QBspTree<T>::leafCount() const
 {
     return leaves.count();
 }
 
 template <class T>
-const QVector<int> &QBspTree<T>::const_leaf(int idx) const
-{
-    return leaves.at(idx);
-}
-
-template <class T>
 QVector<int> &QBspTree<T>::leaf(int idx)
 {
     return leaves[idx];
-}
-
-template <class T>
-void QBspTree<T>::clearLeaf(int idx)
-{
-    leaves[idx].clear();
 }
 
 template <class T>

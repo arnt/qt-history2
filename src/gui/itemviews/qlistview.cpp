@@ -761,6 +761,7 @@ void QListView::internalDrop(QDropEvent *event)
     }
     stopAutoScroll();
     d->draggedItems.clear();
+    event->accept(); // we have handled the event
 }
 
 /*!
@@ -1335,7 +1336,7 @@ void QListViewPrivate::initBspTree(const QSize &contents)
     // remove all items from the tree
     int leafCount = tree.leafCount();
     for (int l = 0; l < leafCount; ++l)
-        tree.clearLeaf(l);
+        tree.leaf(l).clear();
     // we have to get the bounding rect of the items before we can initialize the tree
     QBspTree<QListViewItem>::Node::Type type = QBspTree<QListViewItem>::Node::Both; // 2D
     // simple heuristics to get better bsp
@@ -1691,7 +1692,7 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
 
     if (movement != QListView::Static)
         if (index.row() < tree.itemCount())
-            return tree.const_item(index.row());
+            return tree.item(index.row());
         else
             return QListViewItem();
 
@@ -1720,7 +1721,7 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
 int QListViewPrivate::itemIndex(const QListViewItem &item) const
 {
     int i = item.indexHint;
-    if (movement == QListView::Static || i >= tree.itemCount() || tree.const_item(i) == item)
+    if (movement == QListView::Static || i >= tree.itemCount() || tree.item(i) == item)
         return i;
 
     int j = i;
@@ -1730,15 +1731,15 @@ int QListViewPrivate::itemIndex(const QListViewItem &item) const
 
     while (a || b) {
         if (a) {
-            if (tree.const_item(i) == item) {
-                tree.const_item(i).indexHint = i;
+            if (tree.item(i) == item) {
+                tree.item(i).indexHint = i;
                 return i;
             }
             a = ++i < c;
         }
         if (b) {
-            if (tree.const_item(j) == item) {
-                tree.const_item(j).indexHint = j;
+            if (tree.item(j) == item) {
+                tree.item(j).indexHint = j;
                 return j;
             }
             b = --j > -1;
@@ -1780,10 +1781,17 @@ void QListViewPrivate::removeItem(int index)
 void QListViewPrivate::moveItem(int index, const QPoint &dest)
 {
     Q_Q(QListView);
+    
     // does not impact on the bintree itself or the contents rect
     QListViewItem *item = tree.itemPtr(index);
     QRect rect = item->rect();
-    tree.moveItem(dest, rect, index);
+    
+    // move the item without removing it from the tree
+    QBspTree<QListViewItem>::Data data(index);
+    tree.climbTree(rect, &QBspTree<QListViewItem>::remove, data, 0);
+    item->x = dest.x();
+    item->y = dest.y();
+    tree.climbTree(QRect(dest, rect.size()), &QBspTree<QListViewItem>::insert, data, 0);
 
     // resize the contents area
     int w = rect.x() + rect.width();
