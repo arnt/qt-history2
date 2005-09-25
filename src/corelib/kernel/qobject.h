@@ -17,7 +17,6 @@
 #ifndef QT_NO_QOBJECT
 
 #include <QtCore/qobjectdefs.h>
-#include <QtCore/qnamespace.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qbytearray.h>
 #include <QtCore/qlist.h>

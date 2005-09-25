@@ -10,8 +10,20 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef QSVGSTRUCTURE_H
-#define QSVGSTRUCTURE_H
+
+#ifndef QSVGSTRUCTURE_P_H
+#define QSVGSTRUCTURE_P_H
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
 #include "qsvgnode_p.h"
 
@@ -52,4 +64,4 @@ public:
     Type type() const;
 };
 
-#endif
+#endif // QSVGSTRUCTURE_P_H

@@ -10,8 +10,20 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef QSVGNODE_H
-#define QSVGNODE_H
+
+#ifndef QSVGNODE_P_H
+#define QSVGNODE_P_H
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
 #include "qsvgstyle_p.h"
 
@@ -70,5 +82,4 @@ inline QSvgNode *QSvgNode::parent() const
     return m_parent;
 }
 
-
-#endif
+#endif // QSVGNODE_P_H

@@ -43,5 +43,4 @@ private:
     Q_DECLARE_PRIVATE(QSvgWidget)
 };
 
-#endif
-
+#endif // QSVGWIDGET_H

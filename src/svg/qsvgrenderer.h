@@ -10,13 +10,13 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef QSVGRENDERER_H
 #define QSVGRENDERER_H
 
-#include "QtCore/qobject.h"
-#include "QtCore/qsize.h"
-#include "QtCore/qrect.h"
-#include "QtCore/qglobal.h"
+#include <QtCore/qobject.h>
+#include <QtCore/qsize.h>
+#include <QtCore/qrect.h>
 
 QT_MODULE(Svg)
 
@@ -51,16 +51,16 @@ public:
     void setCurrentFrame(int);
     int animationDuration() const;//in seconds
 
-public slots:
+public Q_SLOTS:
     bool load(const QString &filename);
     bool load(const QByteArray &contents);
     void render(QPainter *p);
 
-signals:
+Q_SIGNALS:
     void repaintNeeded();
 
 private:
     Q_DECLARE_PRIVATE(QSvgRenderer)
 };
 
-#endif
+#endif // QSVGRENDERER_H

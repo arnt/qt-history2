@@ -10,8 +10,20 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef QSVGSTYLE_H
-#define QSVGSTYLE_H
+
+#ifndef QSVGSTYLE_P_H
+#define QSVGSTYLE_P_H
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
 #include "QtGui/qpen.h"
 #include "QtGui/qbrush.h"
@@ -291,4 +303,4 @@ public:
 
 // audio-level     v  	x  	'inherit' | <Number.datatype>
 
-#endif
+#endif // QSVGSTYLE_P_H
