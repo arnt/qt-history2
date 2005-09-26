@@ -1350,7 +1350,9 @@ void QComboBox::insertItems(int index, const QStringList &list)
     if (list.isEmpty())
         return;
 
-    if (index < 0 || index > count())
+    if (index < 0)
+        index = 0;
+    else if (index < 0 || index > count())
         index = count();
 
     int insertCount = qMin(d->maxCount - index, list.count());
