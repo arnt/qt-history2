@@ -664,9 +664,9 @@ void QPainter::initFrom(const QWidget *widget)
         qWarning("QPainter::initFrom: Painter is not active, aborted");
         return;
     }
-    QPalette pal = widget->palette();
+    const QPalette &pal = widget->palette();
     Q_D(QPainter);
-    d->state->pen = pal.color(widget->foregroundRole());
+    d->state->pen = QPen(pal.brush(widget->foregroundRole()), 0);
     d->state->bgBrush = pal.brush(widget->backgroundRole());
     d->state->font = widget->font();
     const QWidget *w = widget;
@@ -878,14 +878,18 @@ bool QPainter::begin(QPaintDevice *pd)
     // required for QPixmap::grabWidget()
     if (originalDevice->devType() == QInternal::Widget) {
         QWidget *widget = static_cast<QWidget *>(originalDevice);
+        const QPalette &pal = widget->palette();
         d->state->deviceFont = widget->font();
-        d->state->pen = widget->palette().color(widget->foregroundRole());
-        d->state->bgBrush = widget->palette().brush(widget->backgroundRole());
+        d->state->pen = QPen(pal.brush(widget->foregroundRole()), 0);
+        d->state->bgBrush = pal.brush(widget->backgroundRole());
+        d->state->layoutDirection = widget->layoutDirection();
         const QWidget *w = static_cast<const QWidget *>(originalDevice);;
         while (w->d_func()->isBackgroundInherited()) {
             d->state->bgOrigin -= w->pos();
             w = w->parentWidget();
         }
+    } else {
+        d->state->layoutDirection = QApplication::layoutDirection();
     }
 
     // make sure we have a font compatible with the paintdevice
@@ -3495,6 +3499,7 @@ void QPainter::drawText(const QPointF &p, const QString &str)
     Q_D(QPainter);
 
     QStackTextEngine engine(str, d->state->font);    
+    engine.option.setTextDirection(d->state->layoutDirection);
     engine.itemize();
 
     int nItems = engine.layoutData->items.size();
@@ -4584,7 +4589,7 @@ void qt_format_text(const QFont &fnt, const QRectF &_r,
     bool showmnemonic = (tf & Qt::TextShowMnemonic);
     bool hidemnmemonic = (tf & Qt::TextHideMnemonic);
 
-    Qt::LayoutDirection layout_direction = painter ? painter->layoutDirection() : QApplication::layoutDirection();
+    Qt::LayoutDirection layout_direction = painter ? painter->layoutDirection() : Qt::LeftToRight;
     tf = QStyle::visualAlignment(layout_direction, QFlag(tf));
 
     bool isRightToLeft = layout_direction == Qt::RightToLeft;
@@ -4666,7 +4671,8 @@ void qt_format_text(const QFont &fnt, const QRectF &_r,
     qreal height = 0;
     qreal width = 0;
 
-    QStackTextEngine engine(text, fnt); 
+    QStackTextEngine engine(text, fnt);
+    engine.option.setTextDirection(layout_direction);
     QTextLayout textLayout(&engine);
     textLayout.setCacheEnabled(true);
     textLayout.engine()->underlinePositions = underlinePositions;
