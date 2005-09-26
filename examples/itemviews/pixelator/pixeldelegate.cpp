@@ -27,14 +27,14 @@ void PixelDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     painter->setRenderHint(QPainter::Antialiasing);
     painter->setPen(Qt::NoPen);
 
-    if (option.showDecorationSelected && option.state & QStyle::State_Selected)
+    if (option.state & QStyle::State_Selected)
         painter->setBrush(option.palette.highlight());
     else
         painter->setBrush(QBrush(Qt::white));
 
     painter->drawRect(option.rect);
 
-    if (option.showDecorationSelected && option.state & QStyle::State_Selected)
+    if (option.state & QStyle::State_Selected)
         painter->setBrush(option.palette.highlightedText());
     else
         painter->setBrush(QBrush(Qt::black));
@@ -43,11 +43,9 @@ void PixelDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     int brightness = index.model()->data(index, Qt::DisplayRole).toInt();
     double radius = (size/2.0) - (brightness/255.0 * size/2.0);
 
-    painter->save();
-    painter->translate(option.rect.x() + option.rect.width()/2 - radius,
-                       option.rect.y() + option.rect.height()/2 - radius);
-    painter->drawEllipse(QRectF(0.0, 0.0, 2*radius, 2*radius));
-    painter->restore();
+    painter->drawEllipse(QRectF(option.rect.x() + option.rect.width()/2 - radius,
+                                option.rect.y() + option.rect.height()/2 - radius,
+                                2*radius, 2*radius));
 }
 
 QSize PixelDelegate::sizeHint(const QStyleOptionViewItem & /* option */,

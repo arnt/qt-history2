@@ -104,14 +104,7 @@ bool MainWindow::openImage(const QString &fileName)
         setWindowTitle(tr("%1 - %2").arg(fileName).arg(tr("Pixelator")));
 
         printAction->setEnabled(true);
-
-        int rows = model->rowCount(QModelIndex());
-        int columns = model->columnCount(QModelIndex());
-        for (int row = 0; row < rows; ++row)
-            view->resizeRowToContents(row);
-        for (int column = 0; column < columns; ++column)
-            view->resizeColumnToContents(column);
-
+        updateView();
         return true;
     }
     return false;
@@ -203,5 +196,4 @@ void MainWindow::updateView()
         view->resizeRowToContents(row);
     for (int column = 0; column < model->columnCount(QModelIndex()); ++column)
         view->resizeColumnToContents(column);
-    view->update();
 }

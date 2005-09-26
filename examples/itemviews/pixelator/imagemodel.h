@@ -20,6 +20,7 @@
 class ImageModel : public QAbstractTableModel
 {
     Q_OBJECT
+
 public:
     ImageModel(const QImage &image, QObject *parent = 0);
 

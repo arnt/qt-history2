@@ -35,7 +35,7 @@ QVariant ImageModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
-    else if (role == Qt::ToolTipRole)
+    else if (role != Qt::DisplayRole)
         return QVariant();
 
     return qGray(modelImage.pixel(index.column(), index.row()));
