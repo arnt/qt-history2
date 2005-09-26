@@ -772,7 +772,7 @@ QList<int> QTextCodec::availableMibs()
     QStringList keys = l->keys();
     for (int i = 0; i < keys.size(); ++i) {
         if (keys.at(i).startsWith("MIB: ")) {
-            int mib = keys.at(i).right(5).toInt();
+            int mib = keys.at(i).mid(5).toInt();
             if (!codecs.contains(mib))
                 codecs += mib;
         }
