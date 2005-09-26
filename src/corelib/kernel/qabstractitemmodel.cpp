@@ -2067,9 +2067,10 @@ bool QAbstractListModel::hasChildren(const QModelIndex &parent) const
  * If the datastream contains data from several different tables, this function may have unexpectable results, 
  * possibly loss of some mimedata.
  */
-bool QAbstractItemModelPrivate::decodeDataAndReplace(QAbstractItemModel* model, int row, int column, const QModelIndex &parent,
+bool QAbstractItemModelPrivate::decodeDataAndReplace(int row, int column, const QModelIndex &parent,
                                     QDataStream &stream)
 {
+    Q_Q(QAbstractItemModel);
     int top = INT_MAX;
     int left = INT_MAX;
     int bottom = 0;
@@ -2096,8 +2097,8 @@ bool QAbstractItemModelPrivate::decodeDataAndReplace(QAbstractItemModel* model, 
         right = qMax(c, right);
     }
 
-    int nCols = model->columnCount(parent);
-    int nRows = model->rowCount(parent);
+    int nCols = q->columnCount(parent);
+    int nRows = q->rowCount(parent);
 
     row = qMax(0, row);
     column = qMax(0, column);
@@ -2111,8 +2112,8 @@ bool QAbstractItemModelPrivate::decodeDataAndReplace(QAbstractItemModel* model, 
 
         // Skip overwriting if the table does not have enough space for the rightmost/bottommost data.
         if (destinationRow < nRows && destinationColumn < nCols) {
-            QModelIndex idx = model->index(destinationRow, destinationColumn, parent);
-            model->setItemData(idx, data.at(j));
+            QModelIndex idx = q->index(destinationRow, destinationColumn, parent);
+            q->setItemData(idx, data.at(j));
         }
     }
 
@@ -2137,8 +2138,7 @@ bool QAbstractTableModel::dropMimeData( const QMimeData *data, Qt::DropAction ac
     // decode and insert
     QByteArray encoded = data->data(format);
     QDataStream stream(&encoded, QIODevice::ReadOnly);
-    
-    return QAbstractItemModelPrivate::decodeDataAndReplace(this, row, column, parent, stream);
+    return static_cast<QAbstractItemModelPrivate *>(d_ptr)->decodeDataAndReplace(row, column, parent, stream);
 }
 /*!
   \reimp
@@ -2159,5 +2159,5 @@ bool QAbstractListModel::dropMimeData( const QMimeData *data, Qt::DropAction act
     QByteArray encoded = data->data(format);
     QDataStream stream(&encoded, QIODevice::ReadOnly);
     
-    return QAbstractItemModelPrivate::decodeDataAndReplace(this, row, column, parent, stream);
+    return static_cast<QAbstractItemModelPrivate *>(d_ptr)->decodeDataAndReplace(row, column, parent, stream);
 }

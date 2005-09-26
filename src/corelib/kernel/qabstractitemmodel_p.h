@@ -56,7 +56,7 @@ public:
     void columnsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
     void columnsRemoved(const QModelIndex &parent, int first, int last);
     void reset();
-    static bool decodeDataAndReplace(QAbstractItemModel *model, int row, int column, const QModelIndex &parent, QDataStream &stream);
+    bool decodeDataAndReplace(int row, int column, const QModelIndex &parent, QDataStream &stream);
 
     struct Change {
         Change() : first(-1), last(-1) {}
