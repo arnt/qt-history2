@@ -97,6 +97,9 @@ public:
     {
     }
 
+    ~QWin32PrintEnginePrivate();
+
+
     /* Reads the default printer name and its driver (printerProgram) into
        the engines private data. */
     void queryDefault();

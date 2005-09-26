@@ -777,6 +777,12 @@ void QWin32PrintEnginePrivate::queryDefault()
     port = info.at(2);
 }
 
+QWin32PrintEnginePrivate::~QWin32PrintEnginePrivate()
+{
+    if (hdc)
+        release();
+}
+
 void QWin32PrintEnginePrivate::initialize()
 {
     if (hdc)
