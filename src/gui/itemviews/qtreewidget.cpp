@@ -1234,7 +1234,7 @@ QVariant QTreeWidgetItem::data(int column, int role) const
 
 bool QTreeWidgetItem::operator<(const QTreeWidgetItem &other) const
 {
-    int column = view->header()->sortIndicatorSection();
+    int column = view->sortColumn();
     return text(column) < other.text(column);
 }
 
@@ -1988,6 +1988,14 @@ QRect QTreeWidget::visualItemRect(const QTreeWidgetItem *item) const
 }
 
 /*!
+  Returns the column used to sort the contents of the widget.
+*/
+int QTreeWidget::sortColumn() const
+{
+    return header()->sortIndicatorSection();
+}
+
+/*!
   Sorts the items in the widget in the specified \a order by the values in
   the given \a column.
 */
@@ -2008,7 +2016,7 @@ void QTreeWidget::setSortingEnabled(bool enable)
 {
     Q_D(QTreeWidget);
     d->sortingEnabled = enable;
-    if ( header()->isSortIndicatorShown() != enable ) {
+    if (header()->isSortIndicatorShown() != enable) {
         header()->setSortIndicatorShown(enable);
         header()->setClickable(enable);
     }

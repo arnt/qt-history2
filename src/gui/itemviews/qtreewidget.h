@@ -214,6 +214,7 @@ public:
     inline QTreeWidgetItem *itemAt(int x, int y) const;
     QRect visualItemRect(const QTreeWidgetItem *item) const;
 
+    int sortColumn() const;
     void sortItems(int column, Qt::SortOrder order);
     void setSortingEnabled(bool enable);
     bool isSortingEnabled() const;
