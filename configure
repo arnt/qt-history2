@@ -498,7 +498,7 @@ while [ "$#" -gt 0 ]; do
         VAL=no
         ;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xrandr|-xrender|-fontconfig|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal-binary)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xrandr|-xrender|-fontconfig|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         VAL=yes
         ;;
@@ -735,7 +735,7 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_OPT=yes
         fi
 	;;
-    universal-binary)
+    universal)
         if [ "$PLATFORM_MAC" = "yes" ]; then
             CFG_UNIVERSAL_BINARY="$VAL"
         else
@@ -2317,9 +2317,9 @@ Qt/Mac only:
                          link tools against those frameworks.
     -no-framework ...... Do not build Qt as a series of frameworks.
 
-    -universal-binary .. Build Qt as a universal binary to work on intel
+    -universal ......... Build Qt as a universal binary to work on intel
                          as well as PPC platforms.
- *  -no-universal-binary Build Qt and its tools to work only on this host platform.
+ *  -no-universal ...... Build Qt and its tools to work only on this host platform.
 
     -sdk <sdk>.......... Build Qt using Apple provided SDK <sdk>.
 
