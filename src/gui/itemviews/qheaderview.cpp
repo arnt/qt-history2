@@ -1709,7 +1709,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
     opt.section = logicalIndex;
     opt.state |= state;
     opt.textAlignment = Qt::Alignment(textAlignment.isValid()
-                                      ? static_cast<Qt::Alignment>(textAlignment.toInt())
+                                      ? Qt::Alignment(textAlignment.toInt())
                                       : d->defaultAlignment);
     opt.iconAlignment = Qt::AlignVCenter;
     opt.text = d->model->headerData(logicalIndex, orientation(),
