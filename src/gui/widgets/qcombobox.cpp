@@ -304,6 +304,15 @@ bool QComboBoxPrivateContainer::eventFilter(QObject *o, QEvent *e)
             break;
         }
     break;
+    case QEvent::MouseMove: {
+        if (isVisible()) {
+            QMouseEvent *m = static_cast<QMouseEvent *>(e);
+            QPoint vector = m->pos() - initialClickPosition;
+            if (vector.manhattanLength() > 9 && blockMouseReleaseTimer.isActive())
+                blockMouseReleaseTimer.stop();
+        }
+        break;
+    }
     case QEvent::MouseButtonRelease: {
         QMouseEvent *m = static_cast<QMouseEvent *>(e);
         if (isVisible() && view->rect().contains(m->pos()) && view->currentIndex().isValid()
@@ -1754,6 +1763,7 @@ void QComboBox::mousePressEvent(QMouseEvent *e)
         if (sc == QStyle::SC_ComboBoxArrow)
             d->updateArrow(QStyle::State_Sunken);
         d->viewContainer()->blockMouseReleaseTimer.start(QApplication::doubleClickInterval());
+        d->viewContainer()->initialClickPosition = e->pos();
         showPopup();
     }
 }

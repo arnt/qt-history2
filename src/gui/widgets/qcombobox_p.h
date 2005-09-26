@@ -125,6 +125,7 @@ public:
     void setItemView(QAbstractItemView *itemView);
     int spacing() const;
     QTimer blockMouseReleaseTimer;
+    QPoint initialClickPosition;
 
 public Q_SLOTS:
     void scrollItemView(int action);
