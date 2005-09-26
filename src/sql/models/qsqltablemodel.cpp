@@ -49,19 +49,24 @@ bool QSqlTableModelPrivate::setRecord(int row, const QSqlRecord &record)
     if (strategy == QSqlTableModel::OnFieldChange)
         strategy = QSqlTableModel::OnRowChange;
     for (int i = 0; i < record.count(); ++i) {
-        int idx = rec.indexOf(record.fieldName(i));
+        int idx = nameToIndex(record.fieldName(i));
         if (idx == -1)
             continue;
         QModelIndex cIndex = q->createIndex(row, idx);
-        QVariant value = record.value(i);
+        QVariant value = record.value(i);                
         if (q->data(cIndex) != value)
-            isOk &= q->setData(cIndex, value, Qt::EditRole);
+            isOk &= q->setData(cIndex, value, Qt::EditRole);                                                             
     }
     if (isOk && oldStrategy == QSqlTableModel::OnFieldChange)
         q->submitAll();
     strategy = oldStrategy;
-
+    
     return isOk;
+}
+
+int QSqlTableModelPrivate::nameToIndex(const QString &name) const
+{
+    return rec.indexOf(name);  
 }
 
 void QSqlTableModelPrivate::clear()
@@ -470,8 +475,8 @@ bool QSqlTableModel::setData(const QModelIndex &index, const QVariant &value, in
         if (isOk)
             select();
         break; }
-    case OnRowChange:
-        if (index.row() == d->insertIndex) {
+    case OnRowChange:       
+        if (index.row() == d->insertIndex) {          
             d->editBuffer.setValue(index.column(), value);
             return true;
         }
@@ -623,9 +628,11 @@ bool QSqlTableModel::submitAll()
     case OnFieldChange:
         return true;
     case OnRowChange:
-        if (d->editBuffer.isEmpty())
+        if (d->editBuffer.isEmpty()){
+            qDebug("emptyBuffer");   
             return true;
-        if (d->insertIndex != -1) {
+        }
+        if (d->insertIndex != -1) { 
             if (!insertRowIntoTable(d->editBuffer))
                 return false;
         } else {

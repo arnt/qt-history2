@@ -100,9 +100,11 @@ public:
         : QSqlTableModelPrivate()
     {}
 
+    int nameToIndex(const QString &name) const;
     mutable QVector<Relation> relations;
     QSqlRecord baseRec; // the record without relations
     void clearChanges();
+    void clearEditBuffer();
 };
 
 static void qAppendWhereClause(QString &query, const QString &clause1, const QString &clause2)
@@ -124,6 +126,16 @@ void QSqlRelationalTableModelPrivate::clearChanges()
         delete rel.model;
         rel.displayValues.clear();
     }
+}
+
+int QSqlRelationalTableModelPrivate::nameToIndex(const QString &name) const
+{
+    return baseRec.indexOf(name);  
+}
+
+void QSqlRelationalTableModelPrivate::clearEditBuffer()
+{
+    editBuffer = baseRec;
 }
 
 /*!

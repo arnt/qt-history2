@@ -40,7 +40,7 @@ public:
     {}
     void clear();
     QSqlRecord primaryValues(int index);
-    void clearEditBuffer();
+    virtual void clearEditBuffer();
     QSqlRecord record(const QVector<QVariant> &values) const;
 
     bool exec(const QString &stmt, bool prepStatement,
@@ -48,6 +48,7 @@ public:
     void revertCachedRow(int row);
     void revertInsertedRow();
     bool setRecord(int row, const QSqlRecord &record);
+    virtual int nameToIndex(const QString &name) const;
     QSqlDatabase db;
     int editIndex;
     int insertIndex;
