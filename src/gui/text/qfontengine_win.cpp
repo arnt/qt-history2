@@ -391,7 +391,7 @@ static inline QFixed kerning(int left, int right, const QFontEngineWin::KernPair
     while (left <= right) {
         int middle = left + ( ( right - left ) >> 1 );
 
-	if(pairs[middle].left_right == left_right) 
+	if(pairs[middle].left_right == left_right)
             return pairs[middle].adjust;
 
         if (int(pairs[middle].left_right) < left_right)
@@ -603,12 +603,12 @@ QFontEngine::Type QFontEngineWin::type() const
     return QFontEngine::Win;
 }
 
-static inline float qt_fixed_to_float(const FIXED &p) {
-    return float(p.value) + float(p.fract) / 65536.0;
+static inline double qt_fixed_to_double(const FIXED &p) {
+    return ((p.value << 16) + p.fract) / 65536.0;
 }
 
 static inline QPointF qt_to_qpointf(const POINTFX &pt) {
-    return QPointF(qt_fixed_to_float(pt.x), -qt_fixed_to_float(pt.y));
+    return QPointF(qt_fixed_to_double(pt.x), -qt_fixed_to_double(pt.y));
 }
 
 #ifndef GGO_UNHINTED
@@ -629,10 +629,7 @@ void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
     SelectObject(hdc, hfont);
     Q_ASSERT(hdc);
     GLYPHMETRICS gMetric;
-    uint glyphFormat = GGO_NATIVE | GGO_GLYPH_INDEX;
-
-    if (flags & QTextEngine::DesignMetrics)
-        glyphFormat |= GGO_UNHINTED;
+    uint glyphFormat = GGO_NATIVE | GGO_GLYPH_INDEX | GGO_UNHINTED;
 
     bool useFallback = false;
 
