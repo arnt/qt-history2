@@ -13,7 +13,7 @@
     simple QDataStream based data transfer protocol to write a fortune to the
     connecting client (from the \l{network/fortuneclient}{Fortune Client}
     example), before closing the connection.
-    
+
     \quotefromfile network/fortuneserver/server.h
     \skipto class Server
     \printuntil };
@@ -71,7 +71,7 @@
     QTcpSocket::disconnected() to QObject::deleteLater(), we ensure that the
     socket will be deleted after disconnecting.
 
-    \printuntil ->close();
+    \printuntil /^\}/
 
     The encoded fortune is written using QTcpSocket::write(), and we finally
     call QTcpSocket::disconnectFromHost(), which will close the connection
