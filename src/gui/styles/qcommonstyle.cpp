@@ -1195,8 +1195,6 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 p->drawPixmap(tr.left() + 6, tr.center().y() - tabIcon.height() / 2, tabIcon);
                 tr.setLeft(tr.left() + iconSize.width() + 4);
             }
-            drawItemText(p, tr, alignment, tabV2.palette, tabV2.state & State_Enabled, tabV2.text,
-                         QPalette::Foreground);
 
             if (verticalTabs){
                 QPixmap pixmap(tr.size());
@@ -1206,9 +1204,9 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 drawItemText(&pixPainter, tr, alignment, tab->palette, tab->state & State_Enabled, tab->text, QPalette::Foreground);
                 drawItemPixmap(p,tr,alignment,pixmap);
                 p->restore();
+            } else {
+                drawItemText(p, tr, alignment, tab->palette, tab->state & State_Enabled, tab->text, QPalette::Foreground);
             }
-            else drawItemText(p, tr, alignment, tab->palette, tab->state & State_Enabled, tab->text, QPalette::Foreground);
-
 
             if (tabV2.state & State_HasFocus && !tabV2.text.isEmpty()) {
                 const int OFFSET = 1 + pixelMetric(PM_DefaultFrameWidth);
