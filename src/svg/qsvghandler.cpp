@@ -28,6 +28,10 @@
 
 #include <math.h>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 static QString xmlSimplify(const QString &str)
 {
     QString dummy = str;
@@ -1867,58 +1871,58 @@ void QSvgHandler::init()
 {
     Q_ASSERT(s_groupFactory.isEmpty());
 
-    s_utilFactory.insert("a", parseAnchorNode);
-    s_utilFactory.insert("animate", parseAnimateNode);
-    s_utilFactory.insert("animateColor", parseAnimateColorNode);
-    s_utilFactory.insert("animateMotion", parseAimateMotionNode);
-    s_utilFactory.insert("animateTransform", parseAnimateTransformNode);
-    s_utilFactory.insert("audio", parseAudioNode);
-    s_utilFactory.insert("desc", parseDescNode);
-    s_utilFactory.insert("discard", parseDiscardNode);
-    s_utilFactory.insert("foreignObject", parseForeignObjectNode);
-    s_utilFactory.insert("handler", parseHandlerNode);
-    s_utilFactory.insert("hkern", parseHkernNode);
-    s_utilFactory.insert("metadata", parseMetadataNode);
-    s_utilFactory.insert("mpath", parseMpathNode);
-    s_utilFactory.insert("prefetch", parsePrefetchNode);
-    s_utilFactory.insert("script", parseScriptNode);
-    s_utilFactory.insert("set", parseSetNode);
-    s_utilFactory.insert("style", parseStyleNode);
-    s_utilFactory.insert("switch", parseSwitchNode);
-    s_utilFactory.insert("tBreak", parseTbreakNode);
-    s_utilFactory.insert("title", parseTitleNode);
-    s_utilFactory.insert("tspan", parseTspanNode);
+    s_utilFactory.insert("a", (ParseMethod) parseAnchorNode);
+    s_utilFactory.insert("animate", (ParseMethod) parseAnimateNode);
+    s_utilFactory.insert("animateColor", (ParseMethod) parseAnimateColorNode);
+    s_utilFactory.insert("animateMotion", (ParseMethod) parseAimateMotionNode);
+    s_utilFactory.insert("animateTransform", (ParseMethod) parseAnimateTransformNode);
+    s_utilFactory.insert("audio", (ParseMethod) parseAudioNode);
+    s_utilFactory.insert("desc", (ParseMethod) parseDescNode);
+    s_utilFactory.insert("discard", (ParseMethod) parseDiscardNode);
+    s_utilFactory.insert("foreignObject", (ParseMethod) parseForeignObjectNode);
+    s_utilFactory.insert("handler", (ParseMethod) parseHandlerNode);
+    s_utilFactory.insert("hkern", (ParseMethod) parseHkernNode);
+    s_utilFactory.insert("metadata", (ParseMethod) parseMetadataNode);
+    s_utilFactory.insert("mpath", (ParseMethod) parseMpathNode);
+    s_utilFactory.insert("prefetch", (ParseMethod) parsePrefetchNode);
+    s_utilFactory.insert("script", (ParseMethod) parseScriptNode);
+    s_utilFactory.insert("set", (ParseMethod) parseSetNode);
+    s_utilFactory.insert("style", (ParseMethod) parseStyleNode);
+    s_utilFactory.insert("switch", (ParseMethod) parseSwitchNode);
+    s_utilFactory.insert("tBreak", (ParseMethod) parseTbreakNode);
+    s_utilFactory.insert("title", (ParseMethod) parseTitleNode);
+    s_utilFactory.insert("tspan", (ParseMethod) (ParseMethod) parseTspanNode);
 
-    s_groupFactory.insert("svg", createSvgNode);
-    s_groupFactory.insert("g", createGNode);
-    s_groupFactory.insert("defs", createDefsNode);
+    s_groupFactory.insert("svg", (FactoryMethod) createSvgNode);
+    s_groupFactory.insert("g", (FactoryMethod) createGNode);
+    s_groupFactory.insert("defs", (FactoryMethod) createDefsNode);
 
-    s_graphicsFactory.insert("animation", createAnimationNode);
-    s_graphicsFactory.insert("circle", createCircleNode);
-    s_graphicsFactory.insert("ellipse", createEllipseNode);
-    s_graphicsFactory.insert("image", createImageNode);
-    s_graphicsFactory.insert("line", createLineNode);
-    s_graphicsFactory.insert("path", createPathNode);
-    s_graphicsFactory.insert("polygon", createPolygonNode);
-    s_graphicsFactory.insert("polyline", createPolylineNode);
-    s_graphicsFactory.insert("rect", createRectNode);
-    s_graphicsFactory.insert("text", createTextNode);
-    s_graphicsFactory.insert("textArea", createTextAreaNode);
-    s_graphicsFactory.insert("use", createUseNode);
-    s_graphicsFactory.insert("video", createVideoNode);
+    s_graphicsFactory.insert("animation", (FactoryMethod) createAnimationNode);
+    s_graphicsFactory.insert("circle", (FactoryMethod) createCircleNode);
+    s_graphicsFactory.insert("ellipse", (FactoryMethod) createEllipseNode);
+    s_graphicsFactory.insert("image", (FactoryMethod) createImageNode);
+    s_graphicsFactory.insert("line", (FactoryMethod) createLineNode);
+    s_graphicsFactory.insert("path", (FactoryMethod) createPathNode);
+    s_graphicsFactory.insert("polygon", (FactoryMethod) createPolygonNode);
+    s_graphicsFactory.insert("polyline", (FactoryMethod) createPolylineNode);
+    s_graphicsFactory.insert("rect", (FactoryMethod) createRectNode);
+    s_graphicsFactory.insert("text", (FactoryMethod) createTextNode);
+    s_graphicsFactory.insert("textArea", (FactoryMethod) createTextAreaNode);
+    s_graphicsFactory.insert("use", (FactoryMethod) createUseNode);
+    s_graphicsFactory.insert("video", (FactoryMethod) createVideoNode);
 
-    s_styleFactory.insert("linearGradient", createLinearGradientNode);
-    s_styleFactory.insert("radialGradient", createRadialGradientNode);
-    s_styleFactory.insert("font", createFontNode);
-    s_styleFactory.insert("solidColor", createSolidColorNode);
+    s_styleFactory.insert("linearGradient", (StyleFactoryMethod) createLinearGradientNode);
+    s_styleFactory.insert("radialGradient", (StyleFactoryMethod) createRadialGradientNode);
+    s_styleFactory.insert("font", (StyleFactoryMethod) createFontNode);
+    s_styleFactory.insert("solidColor", (StyleFactoryMethod) createSolidColorNode);
 
-    s_styleUtilFactory.insert("font-face", parseFontFaceNode);
-    s_styleUtilFactory.insert("font-face-name", parseFontFaceNameNode);
-    s_styleUtilFactory.insert("font-face-src", parseFontFaceSrcNode);
-    s_styleUtilFactory.insert("font-face-uri", parseFontFaceUriNode);
-    s_styleUtilFactory.insert("glyph", parseGlyphNode);
-    s_styleUtilFactory.insert("missing-glyph", parseMissingGlyphNode);
-    s_styleUtilFactory.insert("stop", parseStopNode);
+    s_styleUtilFactory.insert("font-face", (StyleParseMethod) parseFontFaceNode);
+    s_styleUtilFactory.insert("font-face-name", (StyleParseMethod) parseFontFaceNameNode);
+    s_styleUtilFactory.insert("font-face-src", (StyleParseMethod) parseFontFaceSrcNode);
+    s_styleUtilFactory.insert("font-face-uri", (StyleParseMethod) parseFontFaceUriNode);
+    s_styleUtilFactory.insert("glyph", (StyleParseMethod) parseGlyphNode);
+    s_styleUtilFactory.insert("missing-glyph", (StyleParseMethod) parseMissingGlyphNode);
+    s_styleUtilFactory.insert("stop", (StyleParseMethod) parseStopNode);
 }
 
 QSvgTinyDocument * QSvgHandler::document() const
