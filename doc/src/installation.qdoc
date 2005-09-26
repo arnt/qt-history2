@@ -197,8 +197,8 @@ The installation procedure is different for the different Qt platforms:
 
 \o Environment variables
 
-   In order to use Qt, some environment variables needs to be
-   extended.
+   In order to use Qt, the \c PATH environment variable needs to be
+   extended:
 
 \code
     PATH               - to locate qmake, moc and other Qt tools
