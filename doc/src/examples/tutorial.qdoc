@@ -660,7 +660,7 @@
     \printline for
     \printline for
     \printline LCDRange
-    \printline }
+    \printuntil }
     \printline }
 
     We create nine \c LCDRange widgets, all of which are children of
@@ -993,7 +993,7 @@
 
     \skipto ::paintEvent
     \printuntil drawText
-    \printline }
+    \printuntil }
 
     This is our first attempt to write a paint event handler. The event
     argument contains a description of the paint event. QPaintEvent
