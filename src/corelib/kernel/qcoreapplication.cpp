@@ -1770,6 +1770,7 @@ int QCoreApplication::loopLevel()
 
 /*!
     \fn void QCoreApplication::unixSignal(int number)
+    \internal
 
     This signal is emitted whenever a Unix signal is received by the
     application. The Unix signal received is specified by its \a number.
