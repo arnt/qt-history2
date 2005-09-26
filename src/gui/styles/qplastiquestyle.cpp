@@ -3768,6 +3768,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             bool sunken = (comboBox->state & (State_Sunken | State_On));
             bool isEnabled = (comboBox->state & State_Enabled);
             bool focus = isEnabled && (comboBox->state & State_HasFocus);
+            bool hover = isEnabled && (comboBox->state & State_MouseOver) && !sunken;
 
             QPixmap cache;
             QString pixmapName = uniqueName("combobox", option, comboBox->rect.size());
@@ -3788,11 +3789,8 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 comboBoxCopy.rect = pixmapRect;
 
                 QRect rect = pixmapRect;
-                QRect downArrowRect = subControlRect(CC_ComboBox, &comboBoxCopy, SC_ComboBoxArrow, widget);
-                if (comboBox->direction == Qt::RightToLeft)
-                    downArrowRect.setRect(downArrowRect.left() + 1, downArrowRect.top(), 16, downArrowRect.height());
-                else
-                    downArrowRect.setRect(downArrowRect.right() - 16, downArrowRect.top(), 16, downArrowRect.height());
+                QRect downArrowRect = subControlRect(CC_ComboBox, &comboBoxCopy,
+                                                     SC_ComboBoxArrow, widget);
 
                 // Draw a push button
                 if (comboBox->editable) {
@@ -3803,21 +3801,162 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     lineEdit.state |= State_Sunken;
                     drawPrimitive(PE_FrameLineEdit, &lineEdit, &cachePainter, widget);
 
-                    // Add the button
-                    cachePainter.setPen(sunken ? gradientStopColor.dark(110) : gradientStartColor);
-                    cachePainter.drawLine(downArrowRect.left() + 1, downArrowRect.top() + 1,
-                                          downArrowRect.right() - 1, downArrowRect.top() + 1);
-                    cachePainter.setPen(sunken ? gradientStopColor.light(105)
-                                        : option->palette.button().color().light(91));
-                    cachePainter.drawLine(downArrowRect.left() + 1, downArrowRect.bottom() - 1,
-                                          downArrowRect.right() - 1, downArrowRect.bottom() - 1);
+                    // Top, bottom, left and right borderColor lines
+                    cachePainter.setPen(borderColor);
+                    if (comboBox->direction == Qt::RightToLeft) {
+                        cachePainter.drawLine(downArrowRect.right(), downArrowRect.top(),
+                                              downArrowRect.left() + 1, downArrowRect.top());
+                        cachePainter.drawLine(downArrowRect.right(), downArrowRect.bottom(),
+                                              downArrowRect.left() + 1, downArrowRect.bottom());
+                        cachePainter.drawLine(rect.left(), rect.top() + 2,
+                                              rect.left(), rect.bottom() - 2);
+                        cachePainter.drawPoint(rect.left() + 1, rect.top() + 1);
+                        cachePainter.drawPoint(rect.left() + 1, rect.bottom() - 1);
+                        cachePainter.drawLine(downArrowRect.right() - 1, downArrowRect.top(),
+                                              downArrowRect.right() - 1, downArrowRect.bottom());
+                        cachePainter.setPen(alphaCornerColor);
+                        cachePainter.drawPoint(rect.left() + 1, rect.top());
+                        cachePainter.drawPoint(rect.left(), rect.top() + 1);
+                        cachePainter.drawPoint(rect.left() + 1, rect.bottom());
+                        cachePainter.drawPoint(rect.left(), rect.bottom() - 1);
+                    } else {
+                        cachePainter.drawLine(downArrowRect.left(), downArrowRect.top(),
+                                              downArrowRect.right() - 1, downArrowRect.top());
+                        cachePainter.drawLine(downArrowRect.left(), downArrowRect.bottom(),
+                                              downArrowRect.right() - 1, downArrowRect.bottom());
+                        cachePainter.drawLine(rect.right(), rect.top() + 2,
+                                              rect.right(), rect.bottom() - 2);
+                        cachePainter.drawPoint(rect.right() - 1, rect.top() + 1);
+                        cachePainter.drawPoint(rect.right() - 1, rect.bottom() - 1);
+                        cachePainter.drawLine(downArrowRect.left() + 1, downArrowRect.top(),
+                                              downArrowRect.left() + 1, downArrowRect.bottom());
+                        cachePainter.setPen(alphaCornerColor);
+                        cachePainter.drawPoint(rect.right() - 1, rect.top());
+                        cachePainter.drawPoint(rect.right(), rect.top() + 1);
+                        cachePainter.drawPoint(rect.right() - 1, rect.bottom());
+                        cachePainter.drawPoint(rect.right(), rect.bottom() - 1);
+                    }
 
+                    // Bevel
+                    if (hover) {
+                        cachePainter.setPen(highlightedDarkInnerBorderColor);
+                        if (comboBox->direction == Qt::RightToLeft) {
+                            cachePainter.drawLine(downArrowRect.right() - 2, downArrowRect.top() + 1,
+                                                  downArrowRect.left() + 1, downArrowRect.top() + 1);
+                            cachePainter.drawLine(downArrowRect.left(), downArrowRect.top() + 2,
+                                                  downArrowRect.left(), downArrowRect.bottom() - 2);
+                        } else {
+                            cachePainter.drawLine(downArrowRect.left() + 2, downArrowRect.top() + 1,
+                                                  downArrowRect.right() - 1, downArrowRect.top() + 1);
+                            cachePainter.drawLine(downArrowRect.left() + 2, downArrowRect.top() + 2,
+                                                  downArrowRect.left() + 2, downArrowRect.bottom() - 2);
+                        }
+                        cachePainter.setPen(highlightedDarkInnerBorderColor.dark(105));
+                        if (comboBox->direction == Qt::RightToLeft) {
+                            cachePainter.drawLine(downArrowRect.right() - 2, downArrowRect.top() + 2,
+                                                  downArrowRect.right() - 2, downArrowRect.bottom() - 1);
+                            cachePainter.drawLine(downArrowRect.right() - 2, downArrowRect.bottom() - 1,
+                                                  downArrowRect.left() + 1, downArrowRect.bottom() - 1);
+                        } else {
+                            cachePainter.drawLine(downArrowRect.right(), downArrowRect.top() + 2,
+                                                  downArrowRect.right(), downArrowRect.bottom() - 2);
+                            cachePainter.drawLine(downArrowRect.left() + 2, downArrowRect.bottom() - 1,
+                                                  downArrowRect.right() - 1, downArrowRect.bottom() - 1);
+                        }
+
+                        cachePainter.setPen(highlightedLightInnerBorderColor);
+                        if (comboBox->direction == Qt::RightToLeft) {
+                            cachePainter.drawLine(downArrowRect.right() - 3, downArrowRect.top() + 2,
+                                                  downArrowRect.left() + 2, downArrowRect.top() + 2);
+                            cachePainter.drawLine(downArrowRect.left() + 1, downArrowRect.top() + 2,
+                                                  downArrowRect.left() + 1, downArrowRect.bottom() - 2);
+                        } else {
+                            cachePainter.drawLine(downArrowRect.left() + 3, downArrowRect.top() + 2,
+                                                  downArrowRect.right() - 2, downArrowRect.top() + 2);
+                            cachePainter.drawLine(downArrowRect.left() + 3, downArrowRect.top() + 3,
+                                                  downArrowRect.left() + 3, downArrowRect.bottom() - 2);
+                        }
+                        cachePainter.setPen(highlightedLightInnerBorderColor.dark(105));
+                        if (comboBox->direction == Qt::RightToLeft) {
+                            cachePainter.drawLine(downArrowRect.right() - 3, downArrowRect.top() + 3,
+                                                  downArrowRect.right() - 3, downArrowRect.bottom() - 2);
+                            cachePainter.drawLine(downArrowRect.right() - 3, downArrowRect.bottom() - 2,
+                                                  downArrowRect.left() + 2, downArrowRect.bottom() - 2);
+                        } else {
+                            cachePainter.drawLine(downArrowRect.left() + 3, downArrowRect.bottom() - 2,
+                                                  downArrowRect.right() - 1, downArrowRect.bottom() - 2);
+                            cachePainter.drawLine(downArrowRect.right() - 1, downArrowRect.top() + 2,
+                                                  downArrowRect.right() - 1, downArrowRect.bottom() - 3);
+                        }
+                    } else {
+                        if (sunken) {
+                            cachePainter.setPen(option->palette.button().color().light(89));
+                        } else {
+                            cachePainter.setPen(gradientStartColor.light(105));
+                        }
+                        if (comboBox->direction == Qt::RightToLeft) {
+                            cachePainter.drawLine(downArrowRect.right() - 2, downArrowRect.top() + 1,
+                                                  downArrowRect.left() + 1, downArrowRect.top() + 1);
+                            cachePainter.drawLine(downArrowRect.left(), downArrowRect.top() + 2,
+                                                  downArrowRect.left(), downArrowRect.bottom() - 2);
+                        } else {
+                            cachePainter.drawLine(downArrowRect.left() + 2, downArrowRect.top() + 1,
+                                                  downArrowRect.right() - 1, downArrowRect.top() + 1);
+                            cachePainter.drawLine(downArrowRect.left() + 2, downArrowRect.top() + 2,
+                                                  downArrowRect.left() + 2, downArrowRect.bottom() - 2);
+                        }
+                        
+                        if (sunken) {
+                            cachePainter.setPen(option->palette.button().color().light(96));
+                        } else {
+                            cachePainter.setPen(gradientStopColor.dark(105));
+                        }
+                        if (comboBox->direction == Qt::RightToLeft) {
+                            cachePainter.drawLine(downArrowRect.right() - 2, downArrowRect.bottom() - 1,
+                                                  downArrowRect.left() + 1, downArrowRect.bottom() - 1);
+                            cachePainter.drawLine(downArrowRect.right() - 2, downArrowRect.top() + 2,
+                                                  downArrowRect.right() - 2, downArrowRect.bottom() - 2);
+                        } else {
+                            cachePainter.drawLine(downArrowRect.right(), downArrowRect.top() + 2,
+                                                  downArrowRect.right(), downArrowRect.bottom() - 2);
+                            cachePainter.drawLine(downArrowRect.left() + 2, downArrowRect.bottom() - 1,
+                                                  downArrowRect.right() - 1, downArrowRect.bottom() - 1);
+                        }
+                    }
+
+                    // The line to the left of the button, shades against the base
+                    // color of the line edit.
+                    if (focus) {
+                        cachePainter.setPen(option->palette.highlight().color().light(101));
+                    } else {
+                        cachePainter.setPen(option->palette.button().color().light(101));
+                    }
+                    if (comboBox->direction == Qt::RightToLeft) {
+                        cachePainter.drawLine(downArrowRect.right(), downArrowRect.top() + 2,
+                                              downArrowRect.right(), downArrowRect.bottom() - 2);
+                    } else {
+                        cachePainter.drawLine(downArrowRect.left(), downArrowRect.top() + 2,
+                                              downArrowRect.left(), downArrowRect.bottom() - 2);
+                    }
+
+                    // The button fill
                     if (isEnabled) {
-                        QRect downArrowGradientRect = downArrowRect.adjusted(1, 2, -1, -2);
+                        QRect downArrowGradientRect;
+
+                        if (comboBox->direction == Qt::RightToLeft) {
+                            downArrowGradientRect = downArrowRect.adjusted(1, 2, -3, -2);
+                            if (hover)
+                                downArrowGradientRect = downArrowGradientRect.adjusted(1, 1, -1, -1);
+                        } else {
+                            downArrowGradientRect = downArrowRect.adjusted(3, 2, -1, -2);
+                            if (hover)
+                                downArrowGradientRect = downArrowGradientRect.adjusted(1, 1, -1, -1);
+                        }
+
                         if (sunken) {
                             cachePainter.fillRect(downArrowGradientRect, gradientStopColor);
                         } else {
-                            if (focus) {
+                            if (focus || hover) {
                                 qt_plastique_draw_gradient(&cachePainter, downArrowGradientRect,
                                                            highlightedGradientStartColor,
                                                            highlightedGradientStopColor,
@@ -3830,17 +3969,6 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                             }
                         }
                     }
-
-                    cachePainter.setPen(sunken ? gradientStopColor.light(105)
-                                        : option->palette.button().color().light(91));
-                    if (comboBox->direction == Qt::RightToLeft) {
-                        cachePainter.drawLine(downArrowRect.left(), downArrowRect.top() + 2,
-                                              downArrowRect.left(), downArrowRect.bottom() - 2);
-                    } else {
-                        cachePainter.drawLine(downArrowRect.right(), downArrowRect.top() + 2,
-                                              downArrowRect.right(), downArrowRect.bottom() - 2);
-                    }
-
                 } else {
                     QStyleOptionButton buttonOption;
                     buttonOption.QStyleOption::operator=(*comboBox);
@@ -3852,52 +3980,20 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     }
                     drawPrimitive(PE_PanelButtonCommand, &buttonOption, &cachePainter, widget);
                 }
-
-                // In editable mode, outline the button if we have input focus
-                if (focus && comboBox->editable) {
-                    cachePainter.setPen(option->palette.highlight().color().dark(130));
-                    if (comboBox->direction == Qt::RightToLeft) {
-                        cachePainter.drawLine(downArrowRect.right(), downArrowRect.top() + 1,
-                                              downArrowRect.right(), downArrowRect.bottom() - 1);
-                        cachePainter.drawLine(downArrowRect.left(), downArrowRect.top() + 2,
-                                              downArrowRect.left(), downArrowRect.bottom() - 2);
-                    } else {
-                        cachePainter.drawLine(downArrowRect.left(), downArrowRect.top() + 1,
-                                              downArrowRect.left(), downArrowRect.bottom() - 1);
-                        cachePainter.drawLine(downArrowRect.right(), downArrowRect.top() + 2,
-                                              downArrowRect.right(), downArrowRect.bottom() - 2);
-                    }
-                    cachePainter.drawLine(downArrowRect.left() + 1, downArrowRect.top() + 1,
-                                          downArrowRect.right() - 1, downArrowRect.top() + 1);
-                    cachePainter.setPen(highlightedDarkInnerBorderColor);
-                    if (comboBox->direction == Qt::RightToLeft) {
-                        cachePainter.drawLine(downArrowRect.right() + 1, downArrowRect.top() + 2,
-                                              downArrowRect.right() + 1, downArrowRect.bottom() - 2);
-                    } else {
-                        cachePainter.drawLine(downArrowRect.left() - 1, downArrowRect.top() + 2,
-                                              downArrowRect.left() - 1, downArrowRect.bottom() - 2);
-                    }
-                    cachePainter.setPen(option->palette.highlight().color().light(101));
-                    cachePainter.drawLine(downArrowRect.left() + 1, downArrowRect.bottom() - 1,
-                                          downArrowRect.right() - 1, downArrowRect.bottom() - 1);
-                } else {
-                    cachePainter.setPen(borderColor);
-                    if (comboBox->direction == Qt::RightToLeft) {
-                        cachePainter.drawLine(downArrowRect.right(), downArrowRect.top() + 1,
-                                              downArrowRect.right(), downArrowRect.bottom() - 1);
-                    } else {
-                        cachePainter.drawLine(downArrowRect.left(), downArrowRect.top() + 1,
-                                              downArrowRect.left(), downArrowRect.bottom() - 1);
-                    }
-                }
-
+                
                 // Draw the little arrow
                 QImage downArrow(qt_scrollbar_button_arrow_down);
                 downArrow.setColor(1, comboBox->palette.foreground().color().rgba());
                 if (sunken)
                     downArrowRect = downArrowRect.adjusted(1, 1, 1, 1);
-                cachePainter.drawImage(downArrowRect.center().x() - downArrow.width() / 2,
-                                       downArrowRect.center().y() - downArrow.height() / 2, downArrow);
+
+                if (comboBox->direction == Qt::RightToLeft) {
+                    cachePainter.drawImage(downArrowRect.center().x() - downArrow.width() / 2 - 1,
+                                           downArrowRect.center().y() - downArrow.height() / 2 + 1, downArrow);
+                } else {
+                    cachePainter.drawImage(downArrowRect.center().x() - downArrow.width() / 2 + 1,
+                                           downArrowRect.center().y() - downArrow.height() / 2 + 1, downArrow);
+                }
 
                 // Draw the focus rect
                 if ((focus && (option->state & State_KeyboardFocusChange)) && !comboBox->editable) {
@@ -4488,13 +4584,16 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
     case CC_ComboBox:
         switch (subControl) {
         case SC_ComboBoxArrow:
-            rect = option->rect;
+            rect = visualRect(option->direction, option->rect, rect);
+            rect.setRect(rect.right() - 15, rect.top() - 2,
+                         17, rect.height() + 4);
+            rect = visualRect(option->direction, option->rect, rect);
             break;
         case SC_ComboBoxEditField: {
             int frameWidth = pixelMetric(PM_DefaultFrameWidth);
             rect = visualRect(option->direction, option->rect, rect);
             rect.setRect(option->rect.left() + frameWidth, option->rect.top() + frameWidth,
-                         option->rect.width() - 16 - 2 * frameWidth + 1,
+                         option->rect.width() - 16 - 2 * frameWidth,
                          option->rect.height() - 2 * frameWidth);
             rect = visualRect(option->direction, option->rect, rect);
             break;
