@@ -129,6 +129,10 @@ bool Launcher::setup()
 
     maximumLabels = qMax(demoCategories + exampleCategories, maximumLabels);
 
+    // For example menus, remember that the menu has to include a Back button.
+    foreach (QString category, categories)
+        maximumLabels = qMax(examples[category].size() + 1, maximumLabels);
+
     QString mainDescription = categoryDescriptions["[main]"];
     if (!mainDescription.isEmpty())
         mainDescription += tr("\n");
@@ -244,6 +248,9 @@ int Launcher::readInfo(const QString &resource, const QDir &dir)
                 if (!exampleDirName.isEmpty() && !exampleDir.cd(exampleDirName))
                     continue;
 
+                if (element.attribute("executable", "true") != "true")
+                    continue;
+
                 if (exampleDir.cd(exampleFileName)) {
                     QString examplePath = findExecutable(exampleDir);
                     if (!examplePath.isNull())
@@ -284,7 +291,7 @@ QString Launcher::findExecutable(const QDir &dir) const
             }
         }
     }
-    return "";
+    return QString();
 }
 
 void Launcher::readCategoryDescription(const QDir &categoryDir,
@@ -629,7 +636,7 @@ void Launcher::showCategories()
 
     DisplayShape *qtShape = new ImageShape(qtLogo,
         QPointF(2*horizontalMargin-extra, -imageHeight), qtMaxSize, 0,
-        Qt::AlignLeft | Qt::AlignTop);
+        Qt::AlignLeft | Qt::AlignVCenter);
 
     qtShape->setMetaData("fade", 15);
     qtShape->setTarget(QPointF(qtShape->rect().x(), verticalMargin));
@@ -641,7 +648,7 @@ void Launcher::showCategories()
     DisplayShape *trolltechShape = new ImageShape(trolltechLogo,
         QPointF(width()-2*horizontalMargin-trolltechMaxSize.width()+extra,
                 -imageHeight),
-        trolltechMaxSize, 0, Qt::AlignRight | Qt::AlignTop);
+        trolltechMaxSize, 0, Qt::AlignRight | Qt::AlignVCenter);
 
     trolltechShape->setMetaData("fade", 15);
     trolltechShape->setTarget(QPointF(trolltechShape->rect().x(),

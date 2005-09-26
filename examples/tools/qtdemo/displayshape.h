@@ -42,6 +42,7 @@ public:
     virtual void setInteractive(bool enable);
     virtual void setMetaData(const QString &key, const QVariant &value);
     virtual void setPosition(const QPointF &point);
+    virtual void setSize(const QSizeF &size);
     virtual void setTarget(const QPointF &point);
 
 protected:
@@ -87,6 +88,7 @@ private:
     QFont font;
     QString text;
     QPen pen;
+    QPointF baselineStart;
     QRectF textRect;
     Qt::Alignment alignment;
 };

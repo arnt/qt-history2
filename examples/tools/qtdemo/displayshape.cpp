@@ -90,6 +90,11 @@ void DisplayShape::setPosition(const QPointF &position)
     pos = position;
 }
 
+void DisplayShape::setSize(const QSizeF &size)
+{
+    maxSize = size;
+}
+
 void DisplayShape::setTarget(const QPointF &position)
 {
     targetPos = position;
@@ -221,6 +226,7 @@ TitleShape::TitleShape(const QString &text, const QFont &f,
     font.setPointSizeF(font.pointSizeF() * scale);
     fm = QFontMetricsF(font);
     textRect = fm.boundingRect(QRectF(QPointF(0, 0), maxSize), alignment, text);
+    baselineStart = QPointF(textRect.left(), textRect.bottom() - fm.descent());
 }
 
 bool TitleShape::animate()
@@ -259,7 +265,7 @@ void TitleShape::paint(QPainter *painter) const
     painter->setRenderHint(QPainter::TextAntialiasing);
     painter->setPen(pen);
     painter->setFont(font);
-    painter->drawText(rect, Qt::AlignLeft | Qt::AlignTop, text);
+    painter->drawText(pos + baselineStart, text);
     painter->restore();
 }
 
@@ -283,7 +289,7 @@ ImageShape::ImageShape(const QImage &original, const QPointF &position,
                            Qt::KeepAspectRatio,
                            Qt::SmoothTransformation);
 
-    image = QImage(source.size(), source.format());
+    image = QImage(source.size(), QImage::Format_ARGB32_Premultiplied);
 
     offset = QPointF(0.0, 0.0);
 
@@ -353,6 +359,8 @@ DocumentShape::DocumentShape(const QString &text, const QFont &font,
     textDocument.setDefaultFont(font);
     textDocument.setPageSize(maxSize);
     QSizeF documentSize = textDocument.documentLayout()->documentSize();
+    setSize(QSizeF(maxSize.width(),
+                      qMin(maxSize.height(), documentSize.height())));
 
     source = QImage(int(ceil(documentSize.width())),
                     int(ceil(documentSize.height())),
