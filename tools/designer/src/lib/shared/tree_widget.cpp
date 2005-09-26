@@ -70,7 +70,7 @@ void TreeWidget::drawBranches(QPainter *painter, const QRect &rect, const QModel
     if (model()->hasChildren(index)) {
         static const int size = 9;
         option.state |= QStyle::State_Children;
-        option.rect.setRect(rect.width() - (indentation() + size) / 2,
+        option.rect.setRect(rect.left() + rect.width() - (indentation() + size) / 2,
                             rect.y() + (rect.height() - size) / 2, size, size);
 
         if (isExpanded(index))
