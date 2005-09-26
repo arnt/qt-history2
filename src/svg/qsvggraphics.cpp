@@ -184,7 +184,9 @@ void QSvgText::draw(QPainter *p)
         QTextLine line = tl.createLine();
         if (!line.isValid())
             break;
-        line.setLineWidth(INT_MAX);
+    }
+    for (int i = 0; i < tl.lineCount(); ++i) {
+        QTextLine line = tl.lineAt(i);
 
         line.setPosition(QPointF(0, y-line.ascent()));
         y += line.height();
