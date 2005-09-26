@@ -2030,6 +2030,8 @@ int QString::lastIndexOf(const QString &str, int from, Qt::CaseSensitivity cs) c
         from += l;
     const int sl = str.d->size;
     int delta = l-sl;
+    if (from == l && sl == 0)
+        return from;
     if (from < 0 || from >= l || delta < 0)
         return -1;
     if (from > delta)
