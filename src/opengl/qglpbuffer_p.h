@@ -60,7 +60,11 @@ public:
     HPBUFFERARB pbuf;
     HGLRC ctx;
 #elif defined(Q_WS_MACX)
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     AGLPbuffer pbuf;
+#else
+    void *pbuf;
+#endif
     AGLContext ctx;
     AGLContext share_ctx;
 #endif
