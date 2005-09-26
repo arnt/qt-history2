@@ -30,7 +30,8 @@ private:
 class QPdfObject
 {
 public:
-    QPdfObject() : type(NONE), appended(0), hassoftmask_p(false) {}
+    QPdfObject()
+        : type(NONE), appended(0), hassoftmask_p(false) {}
     virtual ~QPdfObject() {}
 
     enum TYPE{
@@ -98,7 +99,6 @@ public:
     int w() const {return w_;}
     int h() const {return h_;}
 
-    static void setInterpolation(bool val);
     void setMaskObj(int obj);
     void setSoftMaskObj(int obj);
     void setLenObj(int obj);
@@ -170,8 +170,10 @@ public:
     qreal alpha() const;
 
     QPdfBrush* setFixed(Qt::BrushStyle style, const QColor &rgba, const QMatrix& mat = QMatrix());
-    QPdfBrush* setGradient(const QColor &rgba, const QColor &gradrgba, qreal bx, qreal by, qreal ex, qreal ey,
-                          qreal bbox_xb, qreal bbox_xe, qreal bbox_yb, qreal bbox_ye, const QMatrix& mat = QMatrix());
+    QPdfBrush* setGradient(const QColor &rgba, const QColor &gradrgba,
+                           qreal bx, qreal by, qreal ex, qreal ey,
+                           qreal bbox_xb, qreal bbox_xe, qreal bbox_yb, qreal bbox_ye,
+                           const QMatrix& mat = QMatrix());
     QPdfBrush* setPixmap(const QPixmap& pm, const QMatrix& mat);
 
     bool noBrush() const {return nobrush_;}
@@ -194,21 +196,20 @@ public:
         explicit FixedPattern(const QString& n = QString(), int idx = -1, const QColor &col = QColor(),
                               const QMatrix& mat = QMatrix());
         QColor rgba;
-        bool isEmpty() const {return patternidx == 13;}
-        bool isSolid() const {return patternidx == 14;}
-        bool isTruePattern() const {return patternidx < 13;}
+        bool isEmpty() const {return patternidx == Qt::NoBrush;}
+        bool isSolid() const {return patternidx == Qt::SolidPattern;}
+        bool isTruePattern() const {return patternidx > 1;}
 
         QString getDefinition();
     private:
         int patternidx;
-        static const char* fixedPattern[];
     };
 
     class PixmapPattern : public Pattern
     {
     public:
-        explicit PixmapPattern(const QString& n = QString(), QPdfImage* im = 0
-                               , const QMatrix& mat = QMatrix());
+        explicit PixmapPattern(const QString& n = QString(), QPdfImage* im = 0,
+                               const QMatrix& mat = QMatrix());
         QPdfImage* image;
         QString getDefinition(int objno);
     };
@@ -216,8 +217,8 @@ public:
     class GradientPattern : public Pattern
     {
     public:
-        explicit GradientPattern(const QString& n = QString(), QPdfGradient* grad = 0
-                                 , const QMatrix& mat = QMatrix());
+        explicit GradientPattern(const QString& n = QString(), QPdfGradient* grad = 0,
+                                 const QMatrix& mat = QMatrix());
         QPdfGradient* shader;
         void setMainObj(int obj);
         int getMainObj() const {return mainobj_;}
@@ -240,8 +241,6 @@ private:
         PIXMAP,
     };
 
-    static QMap<Qt::BrushStyle,int> map_;
-    static void static_init_map();
     QVector<SUBTYPE> streamstate_;
     QVector<qreal> alpha_;
     bool nobrush_;
@@ -296,7 +295,7 @@ private:
 class QPdfPath : public QPdfObject
 {
 public:
-    enum PAINTTYPE{
+    enum PAINTTYPE {
         NONE					= 0L,
         CLOSE         = 1L<<0,
         STROKE        = 1L<<1,
@@ -418,10 +417,6 @@ public:
     QPdfPage* curPage;
     void newPage();
     void setDimensions(int w, int h){width_ = w; height_ = h;}
-    void setPageOrder(bool fpl);
-    void setLandscape(bool val){landscape_ = val;}
-    bool isLandscape() const {return landscape_;}
-
 
     QPdfMatrix* curMatrix;
     QPdfPen* curPen;
@@ -436,9 +431,11 @@ public:
     void writeHeader();
     void writeTail();
 
+    QPrinter::PageOrder pageOrder;
+    QPrinter::Orientation orientation;
+
 private:
     Q_DISABLE_COPY(QPdfEnginePrivate);
-
     void writeInfo();
     void writeCatalog();
     void writePageRoot();
@@ -460,7 +457,6 @@ private:
 
     int objnumber_, pagesobjnumber_, root_, info_, gsobjnumber_, pcsobjnumber_, csobjnumber_,csgobjnumber_;
     QVector<QVector<uint> > pageobjnumber_;
-    QPrinter::PageOrder pageOrder;
 };
 
 
@@ -471,7 +467,7 @@ public:
     virtual ~QPdfEngine();
 
     // reimplementations QPaintEngine
-    bool begin(QPaintDevice * pdev);
+    bool begin(QPaintDevice *pdev);
     bool end();
     void drawPoints(const QPointF *points, int pointCount);
     void drawLines(const QLineF *lines, int lineCount);
@@ -483,44 +479,31 @@ public:
     void drawTiledPixmap (const QRectF & rectangle, const QPixmap & pixmap, const QPointF & point);
 
     void updateState(const QPaintEngineState &state);
+    Type type() const;
+    // end reimplementations QPaintEngine
     void updateBackground (Qt::BGMode bgmode, const QBrush & brush);
     void updateBrush (const QBrush & brush, const QPointF & origin);
     void updateClipPath(const QPainterPath & path, Qt::ClipOperation op);
     void updateClipRegion (const QRegion & region, Qt::ClipOperation op);
-    void updateFont (const QFont & f);
     void updatePen (const QPen & pen);
     void updateMatrix (const QMatrix & matrix);
-    Type type() const;
-    // end reimplementations QPaintEngine
 
     // reimplementations QPrintEngine
-    void setOutputFileName(const QString &);
-    QString outputFileName() const;
-    void setDocName(const QString &);
-    QString docName() const;
-    void setCreator(const QString &);
-    QString creator() const;
-    void setOrientation(QPrinter::Orientation orientation);
-    QPrinter::Orientation orientation() const;
-    void setPageSize(QPrinter::PageSize ps);
-    QPrinter::PageSize pageSize() const;
-    void setPageOrder(QPrinter::PageOrder);
-    QPrinter::PageOrder pageOrder() const;
-
     void setProperty(PrintEnginePropertyKey key, const QVariant &value);
     QVariant property(PrintEnginePropertyKey key) const;
+    int metric(QPaintDevice::PaintDeviceMetric) const;
+    bool abort() {return false;}
+    bool newPage();
+    QPrinter::PrinterState printerState() const {return QPrinter::Idle;}
+    // end reimplementations QPrintEngine
+
 
     QRect paperRect() const;
-
-    bool abort() {return false;}
-    int metric(QPaintDevice::PaintDeviceMetric) const;
-    QPrinter::PrinterState printerState() const {return QPrinter::Idle;}
-
+    // ### unused, should have something for this in QPrintEngine
     void setAuthor(const QString &author);
     QString author() const;
 
     void setDevice(QIODevice* dev);
-    bool newPage();
 
 private:
     Q_DISABLE_COPY(QPdfEngine)
@@ -532,7 +515,8 @@ private:
     void drawPathPrivate (const QPainterPath & path);
 
     QPrinter::PageSize pagesize_;
-    bool clipping_, tofile_, transpbgbrush_;
+    bool clipping_, tofile_;
+    Qt::BGMode backgroundMode;
     QIODevice* device_;
 
     QBrush* lastBrush_, *bgBrush_;
