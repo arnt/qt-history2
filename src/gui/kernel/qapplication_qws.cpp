@@ -1899,9 +1899,9 @@ void qt_cleanup()
   Platform specific global and internal functions
  *****************************************************************************/
 
-QString qAppName() // get application name
+QString QCoreApplicationPrivate::appName() const // get application name
 {
-    return appName;
+    return ::appName;
 }
 
 /*****************************************************************************
