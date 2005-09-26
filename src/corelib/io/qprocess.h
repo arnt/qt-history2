@@ -106,6 +106,8 @@ public:
     static bool startDetached(const QString &program, const QStringList &arguments);
     static bool startDetached(const QString &program);
 
+    static QStringList systemEnvironment();
+
 public Q_SLOTS:
     void terminate();
     void kill();

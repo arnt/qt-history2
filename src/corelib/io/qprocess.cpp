@@ -907,9 +907,17 @@ QProcess::ProcessState QProcess::state() const
 
 /*!
     Sets the environment that QProcess will use when starting a
-    process to \a environment.
+    process to \a environment. \a environment is a list of key=value
+    pairs. Example:
 
-    \sa environment()
+    \code
+        QProcess process;
+        process.setEnvironment(QProcess::systemEnvironment()
+                               << "TMPDIR=C:\\MyApp\\temp");
+        process.start("myapp");
+    \endcode
+
+    \sa environment(), systemEnvironment()
 */
 void QProcess::setEnvironment(const QStringList &environment)
 {
@@ -919,11 +927,11 @@ void QProcess::setEnvironment(const QStringList &environment)
 
 /*!
     Returns the environment that QProcess will use when starting a
-    process, or an empty QStringList if no environment has been set.
-    If no environment has been set, the environment of the calling
-    process will be used.
+    process, or an empty QStringList if no environment has been set
+    using setEnvironment(). If no environment has been set, the
+    environment of the calling process will be used.
 
-    \sa setEnvironment()
+    \sa setEnvironment(), systemEnvironment()
 */
 QStringList QProcess::environment() const
 {
@@ -1412,6 +1420,30 @@ bool QProcess::startDetached(const QString &program)
     args.removeFirst();
 
     return QProcessPrivate::startDetached(prog, args);
+}
+
+extern char **environ;
+
+/*!
+    Returns the environment of the calling process as a list of
+    key=value pairs. Example:
+
+    \code
+        QStringList environment = QProcess::systemEnvironment();
+        // environment = {"PATH=/usr/bin:/usr/local/bin",
+                          "USER=greg", "HOME=/home/greg"}
+    \endcode
+
+    \sa environment(), setEnvironment()
+*/
+QStringList QProcess::systemEnvironment()
+{
+    QStringList tmp;
+    char *entry = 0;
+    int count = 0;
+    while ((entry = environ[count++]))
+        tmp << QString::fromLocal8Bit(entry);
+    return tmp;
 }
 
 #include "moc_qprocess.cpp"
