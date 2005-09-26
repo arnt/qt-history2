@@ -19,6 +19,8 @@
     \ingroup database
     \mainclass
     \omit ### \module sql \endomit
+
+    \sa {QtSql Module}
 */
 
 /*!
