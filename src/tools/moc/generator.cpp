@@ -625,6 +625,7 @@ void Generator::generateMetacall()
 
     if (cdef->propertyList.size()) {
         bool needGet = false;
+        bool needTempVarForGet = false;
         bool needSet = false;
         bool needReset = false;
         bool needDesignable = false;
@@ -634,6 +635,10 @@ void Generator::generateMetacall()
         for (int i = 0; i < cdef->propertyList.size(); ++i) {
             const PropertyDef &p = cdef->propertyList.at(i);
             needGet |= !p.read.isEmpty();
+            if (!p.read.isEmpty())
+                needTempVarForGet |= (p.gspec != PropertyDef::PointerSpec
+                                      && p.gspec != PropertyDef::ReferenceSpec);
+
             needSet |= !p.write.isEmpty();
             needReset |= !p.reset.isEmpty();
             needDesignable |= p.designable.endsWith(')');
@@ -656,7 +661,8 @@ void Generator::generateMetacall()
             fprintf(out, " else ");
         fprintf(out, "if (_c == QMetaObject::ReadProperty) {\n");
         if (needGet) {
-            fprintf(out, "        void *_v = _a[0];\n");
+            if (needTempVarForGet)
+                fprintf(out, "        void *_v = _a[0];\n");
             fprintf(out, "        switch (_id) {\n");
             for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
                 const PropertyDef &p = cdef->propertyList.at(propindex);
