@@ -1583,7 +1583,7 @@ QWidgetList QApplication::allWidgets()
   Returns the application widget that has the keyboard input focus, or
   0 if no widget in this application has the focus.
 
-  \sa QWidget::setFocus(), QWidget::hasFocus(), activeWindow()
+  \sa QWidget::setFocus(), QWidget::hasFocus(), activeWindow(), focusChanged()
 */
 
 QWidget *QApplication::focusWidget()
@@ -1620,6 +1620,7 @@ void QApplicationPrivate::setFocusWidget(QWidget *focus, Qt::FocusReason reason)
                 QApplication::sendEvent(focus->style(), &in);
             }
         }
+        emit qApp->focusChanged(prev, focus_widget);
     }
 }
 
@@ -1728,6 +1729,20 @@ void QApplication::aboutQt()
     false.
 
     \sa QWidget::close()
+*/
+
+/*!
+    \fn void QApplication::focusChanged(QWidget *old, QWidget *now)
+
+    This signal is emitted when the widget that has keyboard focus
+    changed from \a old to \a now, i.e. because the user presse the
+    tab-key, clicked into a widget or changed the active window. Note 
+    that both \a old and \a now can be the null-pointer.
+
+    The signal is emitted after both widget have been notified about
+    the change through QFocusEvent.
+
+    \sa QWidget::setFocus() QWidget::clearFocus() Qt::FocusReason
 */
 
 #ifndef QT_NO_TRANSLATION

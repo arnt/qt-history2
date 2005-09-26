@@ -216,6 +216,7 @@ public:
 
 Q_SIGNALS:
     void lastWindowClosed();
+    void focusChanged(QWidget *old, QWidget *now);
 
 public Q_SLOTS:
     static void closeAllWindows();
