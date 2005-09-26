@@ -243,8 +243,8 @@ bool QTcpServer::listen(const QHostAddress &address, quint16 port)
     d->socketEngine->setReadNotificationEnabled(true);
 
     d->state = QAbstractSocket::ListeningState;
-    d->address = address;
-    d->port = port;
+    d->address = d->socketEngine->localAddress();
+    d->port = d->socketEngine->localPort();
 
 #if defined (QTCPSERVER_DEBUG)
     qDebug("QTcpServer::listen(%i, \"%s\") == true (listening on port %i)", port,

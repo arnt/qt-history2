@@ -151,17 +151,21 @@ QUdpSocket::~QUdpSocket()
 */
 bool QUdpSocket::bind(const QHostAddress &address, quint16 port)
 {
+    Q_D(QUdpSocket);
     QT_ENSURE_INITIALIZED(false);
 
     bool result = d_func()->socketEngine->bind(address, port);
     if (!result) {
-        d_func()->socketError = d_func()->socketEngine->error();
+        d->socketError = d_func()->socketEngine->error();
         setErrorString(d_func()->socketEngine->errorString());
         emit error(d_func()->socketError);
         return false;
     }
 
-    d_func()->state = BoundState;
+    d->state = BoundState;
+    d->localAddress = d->socketEngine->localAddress();
+    d->localPort = d->socketEngine->localPort();
+
     emit stateChanged(d_func()->state);
     d_func()->socketEngine->setReadNotificationEnabled(true);
     return true;
