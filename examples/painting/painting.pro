@@ -4,7 +4,7 @@ SUBDIRS       = basicdrawing \
                 painterpaths \
                 transformations
 
-contains(QT_CONFIG, opengl): SUBDIRS += svg
+contains(QT_CONFIG, opengl): SUBDIRS += svgview
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/painting
