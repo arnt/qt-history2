@@ -1226,6 +1226,11 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
                 node->fontWeight = n/8;
         } else if (style.startsWith(QLatin1String("font-family:"))) {
             node->fontFamily = style.mid(12).trimmed();
+            if (node->fontFamily.startsWith(QLatin1Char('\''))
+                && node->fontFamily.endsWith(QLatin1Char('\''))) {
+                node->fontFamily.remove(0, 1);
+                node->fontFamily.chop(1);
+            }
         } else if (style.startsWith(QLatin1String("text-decoration:"))) {
             QString s = style.mid(16);
             node->fontUnderline = static_cast<bool>(s.contains("underline")) ? On : Off;
