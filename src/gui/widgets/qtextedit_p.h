@@ -51,7 +51,8 @@ public:
           lineWrap(QTextEdit::WidgetWidth), lineWrapColumnOrWidth(0),
           lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText),
           preferRichText(false),
-          overwriteMode(false)
+          overwriteMode(false),
+          acceptRichText(true)
     {}
 
     bool cursorMoveKeyEvent(QKeyEvent *e);
@@ -167,6 +168,7 @@ public:
 #endif
 
     bool overwriteMode;
+    bool acceptRichText;
 };
 
 class QUnicodeControlCharacterMenu : public QMenu

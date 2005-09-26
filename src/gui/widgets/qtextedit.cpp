@@ -2595,6 +2595,29 @@ void QTextEdit::setTabStopWidth(int width)
 }
 
 /*!
+    \property QTextEdit::acceptRichText
+    \brief whether the text edit accepts rich text insertions by the user
+    \since 4.1
+
+    When this propery is set to false text edit will accept only 
+    plain text input from the user. For example through clipboard or drag and drop.
+
+    This property's default is true.
+*/
+
+bool QTextEdit::acceptRichText() const
+{
+    Q_D(const QTextEdit);
+    return d->acceptRichText;
+}
+ 
+void QTextEdit::setAcceptRichText(bool accept)
+{
+    Q_D(QTextEdit);
+    d->acceptRichText = accept;
+}
+
+/*!
     This function returns a new MIME data object to represent the contents
     of the text edit's current selection. It is called when the selection needs
     to be encapsulated into a new QMimeData object; for example, when a drag
@@ -2625,10 +2648,14 @@ QMimeData *QTextEdit::createMimeDataFromSelection() const
  */
 bool QTextEdit::canInsertFromMimeData(const QMimeData *source) const
 {
-    return source->hasText()
-        || source->hasHtml()
-        || source->hasFormat("application/x-qrichtext")
-        || source->hasFormat("application/x-qt-richtext");
+    Q_D(const QTextEdit);
+    if (d->acceptRichText)
+        return source->hasText()
+            || source->hasHtml()
+            || source->hasFormat("application/x-qrichtext")
+            || source->hasFormat("application/x-qt-richtext");
+    else
+        return source->hasText();
 }
 
 /*!
@@ -2646,10 +2673,10 @@ void QTextEdit::insertFromMimeData(const QMimeData *source)
 
     bool hasData = false;
     QTextDocumentFragment fragment;
-    if (source->hasFormat("application/x-qrichtext")) {
+    if (source->hasFormat("application/x-qrichtext") && d->acceptRichText) {
         fragment = QTextDocumentFragment::fromHtml(source->data("application/x-qrichtext"));
         hasData = true;
-    } else if (source->hasHtml()) {
+    } else if (source->hasHtml() && d->acceptRichText) {
         fragment = QTextDocumentFragment::fromHtml(source->html());
         hasData = true;
     } else {
