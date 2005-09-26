@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QKeyEvent>
 #include <QtDebug>
+#include <QScrollBar>
 
 class SvgWindow : public QScrollArea
 {
@@ -34,7 +35,40 @@ public:
             showFullScreen();
         }
     }
+
+    void mousePressEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *);
+
+private:
+    QPoint mousePressPos;
+    QPoint scrollBarValuesOnMousePress;
 };
+
+void SvgWindow::mousePressEvent(QMouseEvent *e)
+{
+    mousePressPos = e->pos();
+    scrollBarValuesOnMousePress.rx() = horizontalScrollBar()->value();
+    scrollBarValuesOnMousePress.ry() = verticalScrollBar()->value();
+}
+
+void SvgWindow::mouseMoveEvent(QMouseEvent *e)
+{
+    if (mousePressPos.isNull()) {
+        e->ignore();
+        return;
+    }
+    e->accept();
+    horizontalScrollBar()->setValue(scrollBarValuesOnMousePress.x() - e->pos().x() + mousePressPos.x());
+    verticalScrollBar()->setValue(scrollBarValuesOnMousePress.y() - e->pos().y() + mousePressPos.y());
+    horizontalScrollBar()->update();
+    verticalScrollBar()->update();
+}
+
+void SvgWindow::mouseReleaseEvent(QMouseEvent *)
+{
+    mousePressPos = QPoint();
+}
 
 static void usage(const char *prog)
 {
