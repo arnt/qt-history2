@@ -1387,7 +1387,9 @@ void CppCodeParser::createExampleFileNodes(FakeNode *fake)
             if (fileName.endsWith("/main.cpp")) {
                 mainCpp = fileName;
                 i.remove();
-            }
+            } else if (fileName.contains("/qrc_") || fileName.contains("/moc_")
+                    || fileName.contains("/ui_"))
+                i.remove();
         }
         if (!mainCpp.isEmpty())
             exampleFiles.append(mainCpp);
