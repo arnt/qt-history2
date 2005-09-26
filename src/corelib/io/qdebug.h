@@ -15,6 +15,7 @@
 #define QDEBUG_H
 
 #include <QtCore/qalgorithms.h>
+#include <QtCore/qhash.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qtextstream.h>
