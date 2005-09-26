@@ -746,8 +746,8 @@ bool QItemDelegate::editorEvent(QEvent *event,
     Q_ASSERT(model);
 
     // make sure that we have the right event type and that the item is checkable
-    if ((event->type() != QEvent::MouseButtonPress && event->type() != QEvent::MouseButtonDblClick)
-        || ((model->flags(index) & Qt::ItemIsUserCheckable) == 0))
+    if ((event->type() != QEvent::MouseButtonRelease)
+        || !(model->flags(index) & Qt::ItemIsUserCheckable))
         return false;
 
     // check if the event happened in the right place
