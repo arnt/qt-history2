@@ -86,8 +86,8 @@ public:
 #endif // QT_NO_LIBRARY
 
 #ifndef QT_NO_TRANSLATION
-    static void installTranslator(QTranslator *);
-    static void removeTranslator(QTranslator *);
+    static void installTranslator(QTranslator * messageFile);
+    static void removeTranslator(QTranslator * messageFile);
 #endif
     enum Encoding { DefaultCodec, UnicodeUTF8 };
     static QString translate(const char * context,

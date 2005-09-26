@@ -453,6 +453,9 @@ QCoreApplication::~QCoreApplication()
   reimplementing this virtual function is just one of them. All five
   approaches are listed below:
   \list 1
+  \i Reimplementing paintEvent(), mousePressEvent() and so
+  on. This is the commonest, easiest and least powerful way.
+  
   \i Reimplementing this function. This is very powerful, providing
   complete control; but only one subclass can be active at a time.
 
@@ -469,9 +472,6 @@ QCoreApplication::~QCoreApplication()
 
   \i Installing an event filter on the object. Such an event filter
   gets all the events except Tab and Shift-Tab key presses.
-
-  \i Reimplementing paintEvent(), mousePressEvent() and so
-  on. This is the commonest, easiest and least powerful way.
   \endlist
 
   \sa QObject::event(), installEventFilter()
@@ -557,7 +557,7 @@ bool QCoreApplication::closingDown()
     You can call this function occasionally when your program is busy
     performing a long operation (e.g. copying a file).
 
-    \sa exec(), QTimer, QEventLoop::processEvents()
+    \sa exec(), QTimer, QEventLoop::processEvents(), flush(), sendPostedEvents()
 */
 void QCoreApplication::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
@@ -700,7 +700,7 @@ void QCoreApplication::exit(int returnCode)
 
     \threadsafe
 
-    \sa sendEvent(), notify()
+    \sa sendEvent(), notify(), sendPostedEvent()
 */
 
 void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
@@ -818,6 +818,8 @@ bool QCoreApplication::compressEvent(QEvent *event, QObject *receiver, QPostEven
 
   If \a receiver is null, the events of \a event_type are sent for all
   objects. If \a event_type is 0, all the events are sent for \a receiver.
+
+  \sa flush(), postEvent()
 */
 
 void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
@@ -1136,7 +1138,7 @@ void QCoreApplication::quit()
 
 #ifndef QT_NO_TRANSLATION
 /*!
-  Adds the message file \a mf to the list of message files to be used
+  Adds the message file \a messageFile to the list of message files to be used
   for translations.
 
   Multiple message files can be installed. Translations are searched
@@ -1147,18 +1149,18 @@ void QCoreApplication::quit()
   \sa removeTranslator() translate() QTranslator::load()
 */
 
-void QCoreApplication::installTranslator(QTranslator * mf)
+void QCoreApplication::installTranslator(QTranslator * messageFile)
 {
-    if (!mf)
+    if (!messageFile)
         return;
 
     if (!QCoreApplicationPrivate::checkInstance("installTranslator"))
         return;
     QCoreApplicationPrivate *d = self->d_func();
-    d->translators.prepend(mf);
+    d->translators.prepend(messageFile);
 
 #ifndef QT_NO_TRANSLATION_BUILDER
-    if (mf->isEmpty())
+    if (messageFile->isEmpty())
         return;
 #endif
 
@@ -1167,21 +1169,21 @@ void QCoreApplication::installTranslator(QTranslator * mf)
 }
 
 /*!
-  Removes the message file \a mf from the list of message files used by
+  Removes the message file \a messageFile from the list of message files used by
   this application. (It does not delete the message file from the file
   system.)
 
   \sa installTranslator() translate(), QObject::tr()
 */
 
-void QCoreApplication::removeTranslator(QTranslator * mf)
+void QCoreApplication::removeTranslator(QTranslator * messageFile)
 {
-    if (!mf)
+    if (!messageFile)
         return;
     if (!QCoreApplicationPrivate::checkInstance("removeTranslator"))
         return;
     QCoreApplicationPrivate *d = self->d_func();
-    if (d->translators.removeAll(mf) && !self->closingDown()) {
+    if (d->translators.removeAll(messageFile) && !self->closingDown()) {
         QEvent ev(QEvent::LanguageChange);
         QCoreApplication::sendEvent(self, &ev);
     }
@@ -1232,11 +1234,11 @@ QString QCoreApplication::translate(const char *context, const char *sourceText,
 
     if (self && !self->d_func()->translators.isEmpty()) {
         QList<QTranslator*>::ConstIterator it;
-        QTranslator *mf;
+        QTranslator *messageFile;
         QString result;
         for (it = self->d_func()->translators.constBegin(); it != self->d_func()->translators.constEnd(); ++it) {
-            mf = *it;
-            result = mf->translate(context, sourceText, comment);
+            messageFile = *it;
+            result = messageFile->translate(context, sourceText, comment);
             if (!result.isEmpty())
                 return result;
         }
@@ -1256,8 +1258,8 @@ QString QCoreApplication::translate(const char *context, const char *sourceText,
     Returns the directory that contains the application executable.
 
     For example, if you have installed Qt in the \c{C:\Trolltech\Qt}
-    directory, and you run the \c{launcher} example, this function will
-    return "C:/Trolltech/Qt/examples/tools/launcher".
+    directory, and you run the \c{regexp} example, this function will
+    return "C:/Trolltech/Qt/examples/tools/regexp".
 
     On Mac OS X this will point to the directory actually containing the
     executable, which may be inside of an application bundle (if the
@@ -1282,8 +1284,8 @@ QString QCoreApplication::applicationDirPath()
     Returns the file path of the application executable.
 
     For example, if you have installed Qt in the \c{/usr/local/qt}
-    directory, and you run the \c{launcher} example, this function will
-    return "/usr/local/qt/examples/tools/launcher".
+    directory, and you run the \c{regexp} example, this function will
+    return "/usr/local/qt/examples/tools/regexp/regexp".
 
     \warning On Unix, this function assumes that argv[0] contains the file
     name of the executable (which it normally does). It also assumes that
