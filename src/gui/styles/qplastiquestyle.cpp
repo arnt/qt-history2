@@ -3776,6 +3776,8 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 pixmapName += "-sunken";
             if (comboBox->editable)
                 pixmapName += "-editable";
+            if (isEnabled)
+                pixmapName += "-enabled";
 
             if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
                 cache = QPixmap(comboBox->rect.size());
@@ -3905,7 +3907,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                             cachePainter.drawLine(downArrowRect.left() + 2, downArrowRect.top() + 2,
                                                   downArrowRect.left() + 2, downArrowRect.bottom() - 2);
                         }
-                        
+
                         if (sunken) {
                             cachePainter.setPen(option->palette.button().color().light(96));
                         } else {
@@ -3939,20 +3941,19 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                                               downArrowRect.left(), downArrowRect.bottom() - 2);
                     }
 
+                    QRect downArrowGradientRect;
+                    if (comboBox->direction == Qt::RightToLeft) {
+                        downArrowGradientRect = downArrowRect.adjusted(1, 2, -3, -2);
+                        if (hover)
+                            downArrowGradientRect = downArrowGradientRect.adjusted(1, 1, -1, -1);
+                    } else {
+                        downArrowGradientRect = downArrowRect.adjusted(3, 2, -1, -2);
+                        if (hover)
+                            downArrowGradientRect = downArrowGradientRect.adjusted(1, 1, -1, -1);
+                    }
+
                     // The button fill
                     if (isEnabled) {
-                        QRect downArrowGradientRect;
-
-                        if (comboBox->direction == Qt::RightToLeft) {
-                            downArrowGradientRect = downArrowRect.adjusted(1, 2, -3, -2);
-                            if (hover)
-                                downArrowGradientRect = downArrowGradientRect.adjusted(1, 1, -1, -1);
-                        } else {
-                            downArrowGradientRect = downArrowRect.adjusted(3, 2, -1, -2);
-                            if (hover)
-                                downArrowGradientRect = downArrowGradientRect.adjusted(1, 1, -1, -1);
-                        }
-
                         if (sunken) {
                             cachePainter.fillRect(downArrowGradientRect, gradientStopColor);
                         } else {
@@ -3980,7 +3981,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     }
                     drawPrimitive(PE_PanelButtonCommand, &buttonOption, &cachePainter, widget);
                 }
-                
+
                 // Draw the little arrow
                 QImage downArrow(qt_scrollbar_button_arrow_down);
                 downArrow.setColor(1, comboBox->palette.foreground().color().rgba());
