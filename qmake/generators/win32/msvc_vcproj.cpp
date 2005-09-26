@@ -309,7 +309,7 @@ bool VcprojGenerator::writeMakefile(QTextStream &t)
         xmlOut << vcProject;
         return true;
     }
-    return false;
+    return project->isActiveConfig("build_pass");
 }
 
 bool VcprojGenerator::writeProjectMakefile()

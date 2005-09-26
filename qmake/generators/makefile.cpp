@@ -1022,7 +1022,15 @@ MakefileGenerator::write()
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE || //write makefile
        Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {
         QTextStream t(&Option::output);
-        writeMakefile(t);
+        if(!writeMakefile(t)) {
+#if 1
+            warn_msg(WarnLogic, "Unable to generate output for: %s [TEMPLATE %s]",
+                     Option::output.fileName().toLatin1().constData(),
+                     project->first("TEMPLATE").toLatin1().constData());
+            if(Option::output.exists())
+                Option::output.remove();
+#endif
+        }
     }
     return true;
 }

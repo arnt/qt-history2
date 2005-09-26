@@ -40,7 +40,7 @@ bool DspMakefileGenerator::writeMakefile(QTextStream &t)
         writeSubDirs(t);
         return true;
     }
-    return true;
+    return project->isActiveConfig("build_pass");
 }
 
 bool DspMakefileGenerator::hasBuiltinCompiler(const QString &filename) const
@@ -461,7 +461,7 @@ bool DspMakefileGenerator::writeProjectMakefile()
         for (int i = 0; i < mergedProjects.count(); ++i)
             t << "# Name \"" << configName(mergedProjects.at(i)) << "\"" << endl;
         t << endl;
-    
+
         QMap< QString, QSet<QString> > files;
 
         // merge source files
@@ -602,7 +602,7 @@ bool DspMakefileGenerator::writeFileGroup(QTextStream &t, const QStringList &lis
     FolderGroup root;
     root.name = group;
     root.filter = filter;
-    
+
     for (int i = 0; i < listNames.count(); ++i) {
         QStringList list = project->variables()[listNames.at(i)];
         for (int j = 0; j < list.count(); ++j) {
@@ -617,7 +617,7 @@ bool DspMakefileGenerator::writeFileGroup(QTextStream &t, const QStringList &lis
         return true;
 
     writeSubFileGroup(t, &root);
-    
+
     return true;
 }
 
