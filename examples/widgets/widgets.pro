@@ -9,6 +9,7 @@ SUBDIRS       = analogclock \
                 lineedits \
                 screenshot \
                 scribble \
+                shapedclock \
                 sliders \
                 spinboxes \
                 styles \
