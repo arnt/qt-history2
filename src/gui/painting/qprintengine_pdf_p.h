@@ -16,34 +16,10 @@ class QPointF;
 class QRegion;
 class QFile;
 
-struct RGBA
-{
-    RGBA()
-        : r(0), g(0), b(0), a(1)
-    {}
-    RGBA(double rr, double gg, double bb, double aa = 1.0)
-        : r(rr), g(gg), b(bb), a(aa)
-    {}
-    double r,g,b,a;
-
-    bool operator!=(RGBA const& rgba) const
-    {
-        return r!=rgba.r || g!=rgba.g || b!=rgba.b || a!=rgba.a;
-    }
-    bool operator==(RGBA const& rgba) const
-    {
-        return !operator!=(rgba);
-    }
-    bool isTransparent() const
-    {
-        return a<1;
-    }
-};
-
-class PdfStream
+class QPdfStream
 {
 public:
-    PdfStream();
+    QPdfStream();
     void setCompression(bool val);
     bool isCompressed() const;
     void setStream(QDataStream& val);
@@ -54,11 +30,11 @@ private:
     QDataStream* stream_;
 };
 
-class PdfObject
+class QPdfObject
 {
 public:
-    PdfObject() : type(NONE), appended(0), hassoftmask_p(false) {}
-    virtual ~PdfObject() {}
+    QPdfObject() : type(NONE), appended(0), hassoftmask_p(false) {}
+    virtual ~QPdfObject() {}
 
     enum TYPE{
         NONE,
@@ -114,11 +90,11 @@ private:
     static bool compression_;
 };
 
-class PdfMatrix : public PdfObject
+class QPdfMatrix : public QPdfObject
 {
 public:
-    PdfMatrix();
-    PdfMatrix* setMatrix(QMatrix const& m);
+    QPdfMatrix();
+    QPdfMatrix* setMatrix(QMatrix const& m);
     QMatrix currentMatrix() const;
     QMatrix lastMatrix() const;
     QString streamText();
@@ -129,13 +105,13 @@ private:
     QVector<QMatrix> matrices_;
 };
 
-class PdfImage : public PdfObject
+class QPdfImage : public QPdfObject
 {
 public:
-    PdfImage();
-    explicit PdfImage(const QImage& pm);
-    PdfImage(const QImage& pm, const QImage& mask);
-    ~PdfImage();
+    QPdfImage();
+    explicit QPdfImage(const QImage& pm);
+    QPdfImage(const QImage& pm, const QImage& mask);
+    ~QPdfImage();
 
     QString streamText();
     QString getDefinition();
@@ -143,8 +119,8 @@ public:
     {
         return rawdata_;
     }
-    PdfImage* stencil;
-    PdfImage* softmask;
+    QPdfImage* stencil;
+    QPdfImage* softmask;
     int rawLength() const
     {
         return rawlen_;
@@ -174,12 +150,12 @@ private:
     int convert(const QImage& img, const QImage& mask);
 };
 
-class PdfGradient : public PdfObject
+class QPdfGradient : public QPdfObject
 {
 public:
-    PdfGradient();
-    ~PdfGradient();
-    void setParameter(RGBA b, RGBA e, qreal x0, qreal y0, qreal x1, qreal y1);
+    QPdfGradient();
+    ~QPdfGradient();
+    void setParameter(const QColor &b, const QColor &e, qreal x0, qreal y0, qreal x1, qreal y1);
 
 
     void setObjects(int mainobj, int funcobj);
@@ -204,11 +180,11 @@ public:
     QString name;
 
 private:
-    PdfGradient* softmask;
+    QPdfGradient* softmask;
     bool issoftmask_;
     int mainobj_, funcobj_, smfmobj_, csrgbobj_, csgrayobj_;
     qreal x0_, y0_, x1_, y1_;
-    RGBA beg_, end_;
+    QColor beg_, end_;
     qreal x_, y_, w_, h_;
 
     QString getSingleMainDefinition();
@@ -216,18 +192,18 @@ private:
     QString softMaskName() const {return (softmask) ? name + "SM" : "";}
 };
 
-class PdfBrush : public PdfObject
+class QPdfBrush : public QPdfObject
 {
 public:
-    explicit PdfBrush(const QString& id = QString());
-    ~PdfBrush();
+    explicit QPdfBrush(const QString& id = QString());
+    ~QPdfBrush();
 
     qreal alpha() const;
 
-    PdfBrush* setFixed(Qt::BrushStyle style, RGBA rgba, const QMatrix& mat = QMatrix());
-    PdfBrush* setGradient(RGBA rgba, RGBA gradrgba, qreal bx, qreal by, qreal ex, qreal ey,
+    QPdfBrush* setFixed(Qt::BrushStyle style, const QColor &rgba, const QMatrix& mat = QMatrix());
+    QPdfBrush* setGradient(const QColor &rgba, const QColor &gradrgba, qreal bx, qreal by, qreal ex, qreal ey,
                           qreal bbox_xb, qreal bbox_xe, qreal bbox_yb, qreal bbox_ye, const QMatrix& mat = QMatrix());
-    PdfBrush* setPixmap(const QPixmap& pm, const QMatrix& mat);
+    QPdfBrush* setPixmap(const QPixmap& pm, const QMatrix& mat);
 
     bool noBrush() const {return nobrush_;}
     QString streamText();
@@ -246,9 +222,9 @@ public:
     class FixedPattern : public Pattern
     {
     public:
-        explicit FixedPattern(const QString& n = QString(), int idx = -1, RGBA col = RGBA()
-                              , const QMatrix& mat = QMatrix());
-        RGBA rgba;
+        explicit FixedPattern(const QString& n = QString(), int idx = -1, const QColor &col = QColor(),
+                              const QMatrix& mat = QMatrix());
+        QColor rgba;
         bool isEmpty() const {return patternidx == 13;}
         bool isSolid() const {return patternidx == 14;}
         bool isTruePattern() const {return patternidx < 13;}
@@ -262,18 +238,18 @@ public:
     class PixmapPattern : public Pattern
     {
     public:
-        explicit PixmapPattern(const QString& n = QString(), PdfImage* im = 0
+        explicit PixmapPattern(const QString& n = QString(), QPdfImage* im = 0
                                , const QMatrix& mat = QMatrix());
-        PdfImage* image;
+        QPdfImage* image;
         QString getDefinition(int objno);
     };
 
     class GradientPattern : public Pattern
     {
     public:
-        explicit GradientPattern(const QString& n = QString(), PdfGradient* grad = 0
+        explicit GradientPattern(const QString& n = QString(), QPdfGradient* grad = 0
                                  , const QMatrix& mat = QMatrix());
-        PdfGradient* shader;
+        QPdfGradient* shader;
         void setMainObj(int obj);
         int getMainObj() const {return mainobj_;}
         QString getDefinition();
@@ -303,18 +279,18 @@ private:
     QString id_;
 };
 
-class PdfPen : public PdfObject
+class QPdfPen : public QPdfObject
 {
 public:
-    PdfPen();
+    QPdfPen();
     QString streamText();
 
-    PdfPen* setLineWidth(double v);
-    PdfPen* setLineCap(unsigned v);
-    PdfPen* setLineJoin(unsigned v);
-    PdfPen* setMiterLimit(double v);
-    PdfPen* setDashArray(const QPen& pen, double phase);
-    PdfPen* setColor(RGBA rgba);
+    QPdfPen* setLineWidth(double v);
+    QPdfPen* setLineCap(unsigned v);
+    QPdfPen* setLineJoin(unsigned v);
+    QPdfPen* setMiterLimit(double v);
+    QPdfPen* setDashArray(const QPen& pen, double phase);
+    QPdfPen* setColor(const QColor &rgba);
     bool stroking() const;
     qreal alpha() const;
 
@@ -344,11 +320,11 @@ private:
     QVector<double> lw_, ml_;
     QVector<int>   lc_, lj_;
     QVector<QString> ri_;
-    QVector<RGBA> col_;
+    QVector<QColor> col_;
     QVector<bool> stroking_;
 };
 
-class PdfPath : public PdfObject
+class QPdfPath : public QPdfObject
 {
 public:
     enum PAINTTYPE{
@@ -418,7 +394,7 @@ public:
         }
     };
 
-    explicit PdfPath(const PdfPen* = 0, const PdfBrush* = 0, int brushflags = NONE,  bool closed = false);
+    explicit QPdfPath(const QPdfPen* = 0, const QPdfBrush* = 0, int brushflags = NONE,  bool closed = false);
 
     QVector<SubPath> subpaths;
     QString streamText();
@@ -443,25 +419,25 @@ private:
     QString streamCoreText() const;
 };
 
-class PdfPage : public PdfObject
+class QPdfPage : public QPdfObject
 {
 public:
-    PdfPage();
+    QPdfPage();
     void  destroy();
     QString streamText();
-    PdfObject* append(PdfObject* val, bool protect = false);
+    QPdfObject* append(QPdfObject* val, bool protect = false);
 
-    QVector<PdfImage*> images;
-    QVector<PdfPath*> paths;
+    QVector<QPdfImage*> images;
+    QVector<QPdfPath*> paths;
 
 private:
-    ~PdfPage(){}
-    QVector<PdfObject*> gobjects_;
+    ~QPdfPage(){}
+    QVector<QPdfObject*> gobjects_;
     int width_, height_;
     bool landscape_;
 
-    bool predType(int i, PdfObject::TYPE);
-    bool nextType(int i, PdfObject::TYPE);
+    bool predType(int i, QPdfObject::TYPE);
+    bool nextType(int i, QPdfObject::TYPE);
 };
 
 class QPdfEnginePrivate
@@ -475,7 +451,7 @@ public:
     QPdfEnginePrivate();
     ~QPdfEnginePrivate();
 
-    PdfPage* curPage;
+    QPdfPage* curPage;
     void newPage();
     void setOption(uint op)
     {
@@ -498,9 +474,9 @@ public:
     bool firstPageFirst() const {return firstpagefirst_;}
 
 
-    PdfMatrix* curMatrix;
-    PdfPen* curPen;
-    PdfBrush* curBrush;
+    QPdfMatrix* curMatrix;
+    QPdfPen* curPen;
+    QPdfBrush* curBrush;
     QString title, creator, author;
 
     void setDevice(QIODevice*);
@@ -512,9 +488,7 @@ public:
     void writeTail();
 
 private:
-    // Disabled
-    QPdfEnginePrivate(const QPdfEnginePrivate &);
-    QPdfEnginePrivate &operator=(const QPdfEnginePrivate &);
+    Q_DISABLE_COPY(QPdfEnginePrivate);
 
     void writeInfo();
     void writeCatalog();
@@ -605,7 +579,7 @@ public:
 private:
     Q_DISABLE_COPY(QPdfEngine)
 
-    void setBrush (PdfBrush& pbr, const QBrush & brush, const QPointF& origin);
+    void setBrush (QPdfBrush& pbr, const QBrush & brush, const QPointF& origin);
     void adaptMonochromePixmap(QPixmap& pm);
 
     void drawPathPrivate (const QPainterPath & path);

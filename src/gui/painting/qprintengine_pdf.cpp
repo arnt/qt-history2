@@ -15,21 +15,14 @@
 #endif
 
 
-bool PdfObject::transparency_ = true;
-bool PdfImage::interpolation_ = false;
+bool QPdfObject::transparency_ = true;
+bool QPdfImage::interpolation_ = false;
 
 #ifdef QT_NO_COMPRESS
-bool PdfObject::compression_ = false;
+bool QPdfObject::compression_ = false;
 #else
-bool PdfObject::compression_ = true; //TODO
+bool QPdfObject::compression_ = true; //TODO
 #endif
-
-// ############## get rid of me!
-RGBA color(const QColor& col)
-{
-    return RGBA(col.red() / 255.,col.green() / 255.,col.blue() / 255., col.alpha() / 255.);
-}
-
 
 #undef MM
 #define MM(n) int((n * 720 + 127) / 254)
@@ -170,7 +163,7 @@ void QPdfEngine::setTransparency(bool val)
         qWarning("QPdfEngine::setTransparency: Alpha mode cannot be changed set while painting");
         return;
     }
-    PdfObject::setTransparency(val);
+    QPdfObject::setTransparency(val);
 }
 
 void QPdfEngine::setAuthor(const QString &author)
@@ -391,13 +384,13 @@ void QPdfEngine::drawPathPrivate (const QPainterPath &p)
     if (p.isEmpty() && !clipping_)
         return;
 
-    PdfPath* path = new PdfPath(pdf_->curPen, pdf_->curBrush,
-                                (p.fillRule() == Qt::WindingFill) ? PdfPath::FILLNONZERO : PdfPath::FILLEVENODD);
+    QPdfPath* path = new QPdfPath(pdf_->curPen, pdf_->curBrush,
+                                (p.fillRule() == Qt::WindingFill) ? QPdfPath::FILLNONZERO : QPdfPath::FILLEVENODD);
 
     if (clipping_)
-        path->painttype |= PdfPath::CLIPPING;
+        path->painttype |= QPdfPath::CLIPPING;
 
-    PdfPath::SubPath sb;
+    QPdfPath::SubPath sb;
 
     QPointF subPathStart;
     QPainterPath::Element lastelm;
@@ -405,7 +398,7 @@ void QPdfEngine::drawPathPrivate (const QPainterPath &p)
     bool dangling = true;
     for (int i=0; i<p.elementCount(); ++i) {
         const QPainterPath::Element &elm  = p.elementAt(i);
-        PdfPath::Element el;
+        QPdfPath::Element el;
 
         dangling = false;
         switch (elm.type) {
@@ -418,7 +411,7 @@ void QPdfEngine::drawPathPrivate (const QPainterPath &p)
                 if (subPathStart == QPointF(lastelm.x,lastelm.y))
                     sb.close();
                 path->subpaths.append(sb);
-                sb = PdfPath::SubPath();
+                sb = QPdfPath::SubPath();
             }
             sb.start.x =	elm.x;
             sb.start.y =	elm.y;
@@ -470,7 +463,7 @@ void QPdfEngine::drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, c
     QMatrix mat = pdf_->curMatrix->lastMatrix();
 
     updateMatrix(QMatrix(rectangle.width() / sr.width(),0,0,rectangle.height() / sr.height(),rectangle.x(),rectangle.y()) * mat);
-    PdfImage* img = new PdfImage(im, mask);
+    QPdfImage* img = new QPdfImage(im, mask);
     img->name = QString("/Im%1").arg(pixmapnumber_++);
     pdf_->curPage->append(img);
     updateMatrix(mat);
@@ -616,7 +609,7 @@ void QPdfEngine::updatePen (const QPen & pen)
     tpen.setWidth((pen.width()) ? pen.width() : 0);
 
 
-    pdf_->curPage->append(pdf_->curPen->setColor(color(tpen.color())));
+    pdf_->curPage->append(pdf_->curPen->setColor(tpen.color()));
     pdf_->curPage->append(pdf_->curPen->setLineWidth(tpen.width()));
 
     switch(tpen.capStyle()) {
@@ -724,7 +717,7 @@ bool QPdfEngine::newPage()
     return false;
 }
 
-void QPdfEngine::setBrush (PdfBrush& pbr, const QBrush & brush, const QPointF & origin)
+void QPdfEngine::setBrush (QPdfBrush& pbr, const QBrush & brush, const QPointF & origin)
 {
     QRect w = painter()->window();
     QRect vp = paperRect();
@@ -750,7 +743,7 @@ void QPdfEngine::setBrush (PdfBrush& pbr, const QBrush & brush, const QPointF & 
             QColor c0 = lg->stops().first().second;
             QColor c1 = lg->stops().last().second;
 
-            pbr.setGradient(color(c0), color(c1),
+            pbr.setGradient(c0, c1,
                             start.x(),start.y(), stop.x(),stop.y(),
                             w.left(), w.top(), w.width(), w.height(),
                             tmp
@@ -768,7 +761,7 @@ void QPdfEngine::setBrush (PdfBrush& pbr, const QBrush & brush, const QPointF & 
                 break;
             }
         default:
-            pbr.setFixed(brush.style(), color(brush.color()), tmp);
+            pbr.setFixed(brush.style(), brush.color(), tmp);
             break;
 	}
 }
@@ -838,13 +831,13 @@ QPrinter::PageOrder QPdfEngine::pageOrder() const
 
 
 
-PdfStream::PdfStream()
+QPdfStream::QPdfStream()
 {
     stream_ = 0;
     compressed_ = false;
 }
 
-void PdfStream::setCompression(bool val)
+void QPdfStream::setCompression(bool val)
 {
 #ifdef QT_NO_COMPRESS
     return;
@@ -853,17 +846,17 @@ void PdfStream::setCompression(bool val)
 #endif
 }
 
-bool PdfStream::isCompressed() const
+bool QPdfStream::isCompressed() const
 {
     return compressed_;
 }
 
-void PdfStream::setStream(QDataStream& val)
+void QPdfStream::setStream(QDataStream& val)
 {
     stream_ = &val;
 }
 
-uint PdfStream::write(const char* src, uint len)
+uint QPdfStream::write(const char* src, uint len)
 {
     if (!stream_)
         return 0;
@@ -877,7 +870,7 @@ uint PdfStream::write(const char* src, uint len)
                 stream_->writeRawData((const char*)dest,destLen);
             }
         else {
-            qWarning("PdfStream::write(): compress error");
+            qWarning("QPdfStream::write(): compress error");
             destLen = 0;
         }
             delete [] dest;
@@ -891,13 +884,13 @@ uint PdfStream::write(const char* src, uint len)
     }
 }
 
-PdfMatrix::PdfMatrix()
-    : PdfObject()
+QPdfMatrix::QPdfMatrix()
+    : QPdfObject()
 {
-    type = PdfObject::MATRIX;
+    type = QPdfObject::MATRIX;
 }
 
-QString PdfMatrix::streamMatrix(QMatrix const m)
+QString QPdfMatrix::streamMatrix(QMatrix const m)
 {
     QString s;
     s += pdfqreal(m.m11());
@@ -916,7 +909,7 @@ QString PdfMatrix::streamMatrix(QMatrix const m)
     return s;
 }
 
-QString PdfMatrix::streamText()
+QString QPdfMatrix::streamText()
 {
     QString s;
 
@@ -930,55 +923,55 @@ QString PdfMatrix::streamText()
     return s;
 }
 
-PdfMatrix* PdfMatrix::setMatrix(QMatrix const& m)
+QPdfMatrix* QPdfMatrix::setMatrix(QMatrix const& m)
 {
     matrices_.append(m);
     return this;
 }
 
-QMatrix PdfMatrix::currentMatrix() const
+QMatrix QPdfMatrix::currentMatrix() const
 {
     if (matrices_.empty())
         return QMatrix();
     return matrices_.first();
 }
 
-QMatrix PdfMatrix::lastMatrix() const
+QMatrix QPdfMatrix::lastMatrix() const
 {
     if (matrices_.empty())
         return QMatrix();
     return matrices_.last();
 }
 
-void PdfImage::setInterpolation(bool val)
+void QPdfImage::setInterpolation(bool val)
 {
     interpolation_ = val;
 }
 
-PdfImage::PdfImage()
-    : PdfObject()
+QPdfImage::QPdfImage()
+    : QPdfObject()
 {
     init();
 }
 
-PdfImage::PdfImage(const QImage& im)
-    : PdfObject()
+QPdfImage::QPdfImage(const QImage& im)
+    : QPdfObject()
 {
     init();
     QImage dummy;
     rawlen_ = convert(im, dummy);
 }
 
-PdfImage::PdfImage(const QImage& im, const QImage& mask)
-    : PdfObject()
+QPdfImage::QPdfImage(const QImage& im, const QImage& mask)
+    : QPdfObject()
 {
     init();
     rawlen_ = convert(im, mask);
 }
 
-void PdfImage::init()
+void QPdfImage::init()
 {
-    type = PdfObject::IMAGE;
+    type = QPdfObject::IMAGE;
     stencil = softmask = 0;
     rawdata_ = 0;
     isgray_ = hashardmask_ = ismask_ = false;
@@ -986,29 +979,29 @@ void PdfImage::init()
     rawlen_ = -1;
 }
 
-PdfImage::~PdfImage()
+QPdfImage::~QPdfImage()
 {
     delete stencil;
     delete softmask;
     delete [] rawdata_;
 }
 
-void PdfImage::setMaskObj(int obj)
+void QPdfImage::setMaskObj(int obj)
 {
     maskobj_ = obj;
 }
 
-void PdfImage::setSoftMaskObj(int obj)
+void QPdfImage::setSoftMaskObj(int obj)
 {
     softmaskobj_ = obj;
 }
 
-void PdfImage::setLenObj(int obj)
+void QPdfImage::setLenObj(int obj)
 {
     lenobj_ = obj;
 }
 
-QString PdfImage::getDefinition()
+QString QPdfImage::getDefinition()
 {
     QString s;
     s += "<<\n";
@@ -1041,7 +1034,7 @@ QString PdfImage::getDefinition()
 
 
 // \return length of raw data in byte
-int PdfImage::convert(const QImage& img, const QImage& mask)
+int QPdfImage::convert(const QImage& img, const QImage& mask)
 {
     if (img.isNull())
         return -1;
@@ -1064,7 +1057,7 @@ int PdfImage::convert(const QImage& img, const QImage& mask)
 
     if (transparencySupported() && im.hasAlphaBuffer()) {
         delete softmask;
-        softmask = new PdfImage;
+        softmask = new QPdfImage;
         softmask->w_ = im.width();
         softmask->h_ = im.height();
         softmask->rawlen_ = w_ * h_;
@@ -1074,7 +1067,7 @@ int PdfImage::convert(const QImage& img, const QImage& mask)
     }
     else if (!mask.isNull()) {
         delete stencil;
-        stencil = new PdfImage(mask);
+        stencil = new QPdfImage(mask);
         stencil->ismask_ = true;
         hashardmask_ = true;
     }
@@ -1091,7 +1084,7 @@ int PdfImage::convert(const QImage& img, const QImage& mask)
         rowlen = 3 * im.width();
         break;
     default:
-        qWarning("PdfImage::convert(): unsupported pixmap depth");
+        qWarning("QPdfImage::convert(): unsupported pixmap depth");
         return -1;
     }
 
@@ -1147,7 +1140,7 @@ int PdfImage::convert(const QImage& img, const QImage& mask)
     return rowlen * im.height();
 }
 
-QString PdfImage::streamText()
+QString QPdfImage::streamText()
 {
     QString s;
     s += QString("q\n%1 0 0 %2 0 %3 cm\n").arg(w_).arg(-h_).arg(h_);
@@ -1157,20 +1150,20 @@ QString PdfImage::streamText()
 
 
 
-PdfGradient::PdfGradient()
-    : PdfObject(), softmask(0), issoftmask_(false), mainobj_(-1)
+QPdfGradient::QPdfGradient()
+    : QPdfObject(), softmask(0), issoftmask_(false), mainobj_(-1)
     , funcobj_(-1), smfmobj_(-1), csrgbobj_(-1), csgrayobj_(-1), x0_(0), y0_(0), x1_(0), y1_(0)
     , w_(0), h_(0)
 {
-    type = PdfObject::GRADIENT;
+    type = QPdfObject::GRADIENT;
 }
 
-PdfGradient::~PdfGradient()
+QPdfGradient::~QPdfGradient()
 {
     delete softmask;
 }
 
-void PdfGradient::setParameter(RGBA b, RGBA e, qreal x0, qreal y0, qreal x1, qreal y1)
+void QPdfGradient::setParameter(const QColor &b, const QColor &e, qreal x0, qreal y0, qreal x1, qreal y1)
 {
     beg_ = b;
     end_ = e;
@@ -1183,26 +1176,26 @@ void PdfGradient::setParameter(RGBA b, RGBA e, qreal x0, qreal y0, qreal x1, qre
         return;
 
     // maintain transparent parts
-    if (b.a < 1.0 || e.a < 1.0) {
+    if (b.alphaF() < 1.0 || e.alphaF() < 1.0) {
         hassoftmask_p = true;
-        softmask = new PdfGradient;
+        softmask = new QPdfGradient;
         softmask->x0_ = x0_;
         softmask->y0_ = y0_;
         softmask->x1_ = x1_;
         softmask->y1_ = y1_;
-        softmask->beg_.a = b.a;
-        softmask->end_.a = e.a;
+        softmask->beg_.setAlphaF(b.alphaF());
+        softmask->end_.setAlphaF(e.alphaF());
         softmask->issoftmask_ = true;
     }
 }
 
-void PdfGradient::setObjects(int mainobj, int funcobj)
+void QPdfGradient::setObjects(int mainobj, int funcobj)
 {
     mainobj_ = mainobj;
     funcobj_ = funcobj;
 }
 
-void PdfGradient::setSoftMaskObjects(int formobj, int mainobj, int funcobj)
+void QPdfGradient::setSoftMaskObjects(int formobj, int mainobj, int funcobj)
 {
     if (!transparencySupported())
         return;
@@ -1212,18 +1205,18 @@ void PdfGradient::setSoftMaskObjects(int formobj, int mainobj, int funcobj)
     softmask->funcobj_ = funcobj;
 }
 
-void PdfGradient::setColorSpaceObject(int obj)
+void QPdfGradient::setColorSpaceObject(int obj)
 {
     csrgbobj_ = obj;
 }
 
-void PdfGradient::setSoftMaskColorSpaceObject(int obj)
+void QPdfGradient::setSoftMaskColorSpaceObject(int obj)
 {
     if (softmask)
         softmask->csgrayobj_ = obj;
 }
 
-QString PdfGradient::getSingleMainDefinition()
+QString QPdfGradient::getSingleMainDefinition()
 {
     QString s;
 
@@ -1244,7 +1237,7 @@ QString PdfGradient::getSingleMainDefinition()
     return s;
 }
 
-QString PdfGradient::getSingleFuncDefinition()
+QString QPdfGradient::getSingleFuncDefinition()
 {
     QString s;
 
@@ -1255,22 +1248,22 @@ QString PdfGradient::getSingleFuncDefinition()
     s += "/N 1\n";
     if (issoftmask_) {
         s += QString("/C0 [%1]")
-            .arg(beg_.a,0,'f',6)
+            .arg(beg_.alphaF(),0,'f',6)
             +"\n";
         s += QString("/C1 [%1]")
-            .arg(end_.a,0,'f',6)
+            .arg(end_.alphaF(),0,'f',6)
             +"\n";
     }
     else {
         s += QString("/C0 [%1 %2 %3]")
-            .arg(beg_.r,0,'f',6)
-            .arg(beg_.g,0,'f',6)
-            .arg(beg_.b,0,'f',6)
+            .arg(beg_.redF(),0,'f',6)
+            .arg(beg_.greenF(),0,'f',6)
+            .arg(beg_.blueF(),0,'f',6)
             +"\n";
         s += QString("/C1 [%1 %2 %3]")
-            .arg(end_.r,0,'f',6)
-            .arg(end_.g,0,'f',6)
-            .arg(end_.b,0,'f',6)
+            .arg(end_.redF(),0,'f',6)
+            .arg(end_.greenF(),0,'f',6)
+            .arg(end_.blueF(),0,'f',6)
             +"\n";
     }
     s += ">>\n";
@@ -1278,17 +1271,17 @@ QString PdfGradient::getSingleFuncDefinition()
     return s;
 }
 
-QString PdfGradient::getMainDefinition()
+QString QPdfGradient::getMainDefinition()
 {
     return getSingleMainDefinition();
 }
 
-QString PdfGradient::getFuncDefinition()
+QString QPdfGradient::getFuncDefinition()
 {
     return getSingleFuncDefinition();
 }
 
-QString PdfGradient::getSoftMaskFormDefinition()
+QString QPdfGradient::getSoftMaskFormDefinition()
 {
     QString s;
 
@@ -1321,17 +1314,17 @@ QString PdfGradient::getSoftMaskFormDefinition()
     return s;
 }
 
-QString PdfGradient::getSoftMaskMainDefinition()
+QString QPdfGradient::getSoftMaskMainDefinition()
 {
     return (softmask) ? softmask->getSingleMainDefinition() : "";
 }
 
-QString PdfGradient::getSoftMaskFuncDefinition()
+QString QPdfGradient::getSoftMaskFuncDefinition()
 {
     return (softmask) ? softmask->getSingleFuncDefinition() : "";
 }
 
-void PdfGradient::setSoftMaskRange(qreal x, qreal y, qreal w, qreal h)
+void QPdfGradient::setSoftMaskRange(qreal x, qreal y, qreal w, qreal h)
 {
     x_ = x;
     y_ = y;
@@ -1339,7 +1332,7 @@ void PdfGradient::setSoftMaskRange(qreal x, qreal y, qreal w, qreal h)
     h_ = h;
 }
 
-const char* PdfBrush::FixedPattern::fixedPattern[] =
+const char* QPdfBrush::FixedPattern::fixedPattern[] =
     {
         "0 J\n"
         "6 w\n"
@@ -1491,9 +1484,9 @@ const char* PdfBrush::FixedPattern::fixedPattern[] =
         "S\n",
     };
 
-QMap<Qt::BrushStyle, int> PdfBrush::map_ = QMap<Qt::BrushStyle, int>();
+QMap<Qt::BrushStyle, int> QPdfBrush::map_ = QMap<Qt::BrushStyle, int>();
 
-void PdfBrush::static_init_map()
+void QPdfBrush::static_init_map()
 {
     map_[Qt::Dense1Pattern] = 0;
     map_[Qt::Dense2Pattern] = 1;
@@ -1515,29 +1508,29 @@ void PdfBrush::static_init_map()
     map_[Qt::TexturePattern] = 16;
 }
 
-PdfBrush::PdfBrush(const QString& id)
-    : PdfObject(), id_(id)
+QPdfBrush::QPdfBrush(const QString& id)
+    : QPdfObject(), id_(id)
 {
     static_init_map();
-    type = PdfObject::BRUSH;
+    type = QPdfObject::BRUSH;
     nobrush_ = true;
 }
 
-PdfBrush::FixedPattern::FixedPattern(const QString& n, int idx, RGBA col, const QMatrix& mat /* = QMatrix */)
+QPdfBrush::FixedPattern::FixedPattern(const QString& n, int idx, const QColor &col, const QMatrix& mat)
     : rgba(col), patternidx(idx)
 {
     name = n;
     matrix = mat;
 }
 
-PdfBrush::GradientPattern::GradientPattern(const QString& n, PdfGradient* grad, const QMatrix& mat /* = QMatrix */)
+QPdfBrush::GradientPattern::GradientPattern(const QString& n, QPdfGradient* grad, const QMatrix& mat /* = QMatrix */)
     : shader(grad), mainobj_(-1)
 {
     name = n;
     matrix = mat;
 }
 
-PdfBrush::PixmapPattern::PixmapPattern(const QString& n, PdfImage* im, const QMatrix& mat)
+QPdfBrush::PixmapPattern::PixmapPattern(const QString& n, QPdfImage* im, const QMatrix& mat)
     :	image(im)
 {
     name = n;
@@ -1545,7 +1538,7 @@ PdfBrush::PixmapPattern::PixmapPattern(const QString& n, PdfImage* im, const QMa
 }
 
 
-QString PdfBrush::Pattern::defBegin(int ptype, int w, int h)
+QString QPdfBrush::Pattern::defBegin(int ptype, int w, int h)
 {
     QString s;
     s += "<<\n";
@@ -1569,7 +1562,7 @@ QString PdfBrush::Pattern::defBegin(int ptype, int w, int h)
     return s;
 }
 
-QString PdfBrush::Pattern::getDefinition(const QString& res)
+QString QPdfBrush::Pattern::getDefinition(const QString& res)
 {
     QString s;
     s += ">>\n"; // close resource tree
@@ -1583,7 +1576,7 @@ QString PdfBrush::Pattern::getDefinition(const QString& res)
 }
 
 
-QString PdfBrush::FixedPattern::getDefinition()
+QString QPdfBrush::FixedPattern::getDefinition()
 {
     if (!isTruePattern())
         return "";
@@ -1596,7 +1589,7 @@ QString PdfBrush::FixedPattern::getDefinition()
 
 
 
-QString PdfBrush::PixmapPattern::getDefinition(int objno)
+QString QPdfBrush::PixmapPattern::getDefinition(int objno)
 {
     Q_ASSERT(image);
     QString s = defBegin(1, image->w(), image->h()) ;
@@ -1616,12 +1609,12 @@ QString PdfBrush::PixmapPattern::getDefinition(int objno)
     return s;
 }
 
-void PdfBrush::GradientPattern::setMainObj(int obj)
+void QPdfBrush::GradientPattern::setMainObj(int obj)
 {
     mainobj_ = obj;
 }
 
-QString PdfBrush::GradientPattern::getDefinition()
+QString QPdfBrush::GradientPattern::getDefinition()
 {
     Q_ASSERT(shader);
 
@@ -1644,7 +1637,7 @@ QString PdfBrush::GradientPattern::getDefinition()
     return s;
 }
 
-PdfBrush::~PdfBrush()
+QPdfBrush::~QPdfBrush()
 {
     int i;
     for (i=0; i!=pixmaps.size(); ++i)
@@ -1653,7 +1646,7 @@ PdfBrush::~PdfBrush()
         delete gradients[i].shader;
 }
 
-QString PdfBrush::streamText()
+QString QPdfBrush::streamText()
 {
     QString s;
 
@@ -1674,17 +1667,17 @@ QString PdfBrush::streamText()
             if (p.isSolid())
                 {
                     s += "/CSp cs\n"
-                        + pdfqreal(p.rgba.r) + QLatin1Char(' ')
-                        + pdfqreal(p.rgba.g) + QLatin1Char(' ')
-                        + pdfqreal(p.rgba.b)
+                        + pdfqreal(p.rgba.redF()) + QLatin1Char(' ')
+                        + pdfqreal(p.rgba.greenF()) + QLatin1Char(' ')
+                        + pdfqreal(p.rgba.blueF())
                         + " scn\n";
                 }
             else if (!p.isEmpty())
                 {
                     s += "/PCSp cs\n"
-                        + pdfqreal(p.rgba.r) + QLatin1Char(' ')
-                        + pdfqreal(p.rgba.g) + QLatin1Char(' ')
-                        + pdfqreal(p.rgba.b) + QLatin1Char(' ')
+                        + pdfqreal(p.rgba.redF()) + QLatin1Char(' ')
+                        + pdfqreal(p.rgba.greenF()) + QLatin1Char(' ')
+                        + pdfqreal(p.rgba.blueF()) + QLatin1Char(' ')
                         + p.name
                         + " scn\n";
                 }
@@ -1719,7 +1712,7 @@ QString PdfBrush::streamText()
     return s;
 }
 
-PdfBrush* PdfBrush::setFixed(Qt::BrushStyle style, RGBA rgba, const QMatrix& mat /* = QMatrix() */)
+QPdfBrush* QPdfBrush::setFixed(Qt::BrushStyle style, const QColor &rgba, const QMatrix& mat)
 {
     int idx = map_[style];
 
@@ -1732,19 +1725,20 @@ PdfBrush* PdfBrush::setFixed(Qt::BrushStyle style, RGBA rgba, const QMatrix& mat
     FixedPattern p(s, idx, rgba, mat);
 
     fixeds.append(p);
-    alpha_.append(p.isEmpty() ? -1.0 : rgba.a);
+    alpha_.append(p.isEmpty() ? -1.0 : rgba.alphaF());
     return this;
 }
 
-PdfBrush* PdfBrush::setGradient(RGBA rgba, RGBA gradrgba, qreal bx, qreal by, qreal ex, qreal ey,
-                                qreal bbox_xb, qreal bbox_xe, qreal bbox_yb, qreal bbox_ye, const QMatrix& mat /*= QMatrix()*/)
+QPdfBrush* QPdfBrush::setGradient(const QColor &rgba, const QColor &gradrgba,
+                                  qreal bx, qreal by, qreal ex, qreal ey,
+                                  qreal bbox_xb, qreal bbox_xe, qreal bbox_yb, qreal bbox_ye, const QMatrix& mat)
 {
     nobrush_ = false;
     streamstate_.append(GRADIENT);
     QString s("/PatLG");
     s += id_ + QString::number(gradients.size());
 
-    PdfGradient* grad = new PdfGradient;
+    QPdfGradient* grad = new QPdfGradient;
     grad->name = s;
     grad->setParameter(rgba, gradrgba, bx, by, ex, ey);
     grad->setSoftMaskRange(bbox_xb, bbox_xe, bbox_yb, bbox_ye);
@@ -1754,7 +1748,7 @@ PdfBrush* PdfBrush::setGradient(RGBA rgba, RGBA gradrgba, qreal bx, qreal by, qr
     return this;
 }
 
-PdfBrush* PdfBrush::setPixmap(const QPixmap& pm, const QMatrix& mat)
+QPdfBrush* QPdfBrush::setPixmap(const QPixmap& pm, const QMatrix& mat)
 {
     nobrush_ = false;
     streamstate_.append(PIXMAP);
@@ -1767,7 +1761,7 @@ PdfBrush* PdfBrush::setPixmap(const QPixmap& pm, const QMatrix& mat)
     if (!bmm.isNull())
         mask = bmm.toImage();
 
-    PdfImage* img = new PdfImage(im,mask);
+    QPdfImage* img = new QPdfImage(im,mask);
     img->name = "/PImg" + id_ + QString::number(pixmaps.size());
 
     pixmaps.append(PixmapPattern(s,img,mat));
@@ -1775,35 +1769,34 @@ PdfBrush* PdfBrush::setPixmap(const QPixmap& pm, const QMatrix& mat)
     return this;
 }
 
-qreal PdfBrush::alpha() const
+qreal QPdfBrush::alpha() const
 {
     if (alpha_.empty())
         return 1.0;
     return alpha_.last();
 }
 
-bool PdfBrush::isGradient() const
+bool QPdfBrush::isGradient() const
 {
     if (streamstate_.empty())
         return false;
     return (GRADIENT == streamstate_.last());
 }
 
-bool PdfBrush::firstIsGradient() const
+bool QPdfBrush::firstIsGradient() const
 {
     if (streamstate_.empty())
         return false;
     return (GRADIENT == streamstate_.first());
 }
 
-PdfPen::PdfPen()
-    : PdfObject()
+QPdfPen::QPdfPen()
+    : QPdfObject()
 {
-    type = PdfObject::PEN;
-    //	setColor(RGBA());
+    type = QPdfObject::PEN;
 }
 
-QString PdfPen::streamText()
+QString QPdfPen::streamText()
 {
     QString s;
 
@@ -1842,11 +1835,11 @@ QString PdfPen::streamText()
         {
             if (col_.empty())
                 break;
-            RGBA rgba = col_.first();
+            QColor rgba = col_.first();
             s += "/CSp CS\n"
-                + pdfqreal(rgba.r) + QLatin1Char(' ')
-                + pdfqreal(rgba.g) + QLatin1Char(' ')
-                + pdfqreal(rgba.b)
+                + pdfqreal(rgba.redF()) + QLatin1Char(' ')
+                + pdfqreal(rgba.greenF()) + QLatin1Char(' ')
+                + pdfqreal(rgba.blueF())
                 + " SCN\n";
             col_.pop_front();
         }
@@ -1875,51 +1868,51 @@ QString PdfPen::streamText()
     return s;
 }
 
-PdfPen* PdfPen::setLineWidth(double v)
+QPdfPen* QPdfPen::setLineWidth(double v)
 {
     streamstate_.append(LINEWIDTH);
     lw_.append((v<0) ? 0 : v);
     return this;
 }
 
-PdfPen* PdfPen::setLineCap(unsigned v)
+QPdfPen* QPdfPen::setLineCap(unsigned v)
 {
     streamstate_.append(LINECAP);
     lc_.append((v>2) ? 0 : v);
     return this;
 }
 
-PdfPen* PdfPen::setLineJoin(unsigned v)
+QPdfPen* QPdfPen::setLineJoin(unsigned v)
 {
     streamstate_.append(LINEJOIN);
     lj_.append((v>2) ? 0 : v);
     return this;
 }
 
-PdfPen* PdfPen::setMiterLimit(double v)
+QPdfPen* QPdfPen::setMiterLimit(double v)
 {
     streamstate_.append(MITERLIMIT);
     ml_.append(v);
     return this;
 }
 
-PdfPen* PdfPen::setColor(RGBA rgba)
+QPdfPen* QPdfPen::setColor(const QColor &rgba)
 {
     streamstate_.append(COLOR);
     col_.append(rgba);
     return this;
 }
 
-qreal PdfPen::alpha() const
+qreal QPdfPen::alpha() const
 {
     if (!stroking())
         return -1.0;
     if (col_.empty())
         return 1.0;
-    return col_.last().a;
+    return col_.last().alphaF();
 }
 
-PdfPen* PdfPen::setDashArray(const QPen& pen, double phase)
+QPdfPen* QPdfPen::setDashArray(const QPen& pen, double phase)
 {
     QVector<qreal> sequence;
 
@@ -1977,17 +1970,17 @@ PdfPen* PdfPen::setDashArray(const QPen& pen, double phase)
     return this;
 }
 
-bool PdfPen::stroking() const
+bool QPdfPen::stroking() const
 {
     if (stroking_.empty())
         return true;
     return stroking_.last();
 }
 
-PdfPath::PdfPath(const PdfPen* pen, const PdfBrush* brush, int brushflags,  bool closed)
-    : PdfObject(), ca_(1.0), CA_(1.0), alphaobj_(-1), gradientstrokealpha_(false)
+QPdfPath::QPdfPath(const QPdfPen* pen, const QPdfBrush* brush, int brushflags,  bool closed)
+    : QPdfObject(), ca_(1.0), CA_(1.0), alphaobj_(-1), gradientstrokealpha_(false)
 {
-    type = PdfObject::PATH;
+    type = QPdfObject::PATH;
 
     painttype = (closed) ? CLOSE : NONE;
 
@@ -2002,7 +1995,7 @@ PdfPath::PdfPath(const PdfPen* pen, const PdfBrush* brush, int brushflags,  bool
     gradientstrokealpha_ = (brush) ? brush->isGradient() : false;
 }
 
-QString PdfPath::paintOperator() const
+QString QPdfPath::paintOperator() const
 {
     QString s;
 
@@ -2044,7 +2037,7 @@ QString PdfPath::paintOperator() const
     return s;
 }
 
-QString PdfPath::streamCoreText() const
+QString QPdfPath::streamCoreText() const
 {
     QString s;
     for (int i=0; i != subpaths.size(); ++i)
@@ -2089,7 +2082,7 @@ QString PdfPath::streamCoreText() const
     return s;
 }
 
-QString PdfPath::streamText()
+QString QPdfPath::streamText()
 {
     QString s;
 
@@ -2124,7 +2117,7 @@ QString PdfPath::streamText()
     return s;
 }
 
-QString PdfPath::getAlphaDefinition() const
+QString QPdfPath::getAlphaDefinition() const
 {
     QString s;
     if (!hasTrueAlpha())
@@ -2141,14 +2134,14 @@ QString PdfPath::getAlphaDefinition() const
     return s;
 }
 
-PdfPage::PdfPage()
-    : PdfObject()
+QPdfPage::QPdfPage()
+    : QPdfObject()
 {
     width_ = 0;
     height_ = 0;
 }
 
-void PdfPage::destroy()
+void QPdfPage::destroy()
 {
     for (int i = 0; i != gobjects_.size(); ++i)
 	{
@@ -2159,7 +2152,7 @@ void PdfPage::destroy()
     delete this;
 }
 
-QString PdfPage::streamText()
+QString QPdfPage::streamText()
 {
     QString s("q\n");
     QString cm,cp;
@@ -2172,18 +2165,18 @@ QString PdfPage::streamText()
 	{
             switch(gobjects_[i]->type) {
             case MATRIX:
-                if (lm == ((PdfMatrix*)gobjects_[i])->currentMatrix())
+                if (lm == ((QPdfMatrix*)gobjects_[i])->currentMatrix())
                     {
                         gobjects_[i]->streamText();
                         break;
                     }
-                lm = ((PdfMatrix*)gobjects_[i])->currentMatrix();
+                lm = ((QPdfMatrix*)gobjects_[i])->currentMatrix();
                 cm = gobjects_[i]->streamText();
                 s += "Q q\n"; // retrieves original matrix, (PDF syntax has no means to handle matrices besides concatenating)
                 s += cp + cm; // ... but this destroys also the actual clipping path, so set them again (_before_ the transformation)
                 break;
             case PATH:
-                if (((PdfPath*)gobjects_[i])->painttype & PdfPath::CLIPPING)
+                if (((QPdfPath*)gobjects_[i])->painttype & QPdfPath::CLIPPING)
                     {
                         cp = gobjects_[i]->streamText();
                         s += "Q q\n";
@@ -2205,7 +2198,7 @@ QString PdfPage::streamText()
 
                     if (gobjects_[i]->type == BRUSH)
                         {
-                            PdfBrush* br = (PdfBrush*)gobjects_[i];
+                            QPdfBrush* br = (QPdfBrush*)gobjects_[i];
                             grad = br->firstIsGradient();
                             if (grad)
                                 gradcmd = gobjects_[i]->streamText();
@@ -2235,18 +2228,18 @@ QString PdfPage::streamText()
     return s;
 }
 
-bool PdfPage::predType(int i, PdfObject::TYPE t)
+bool QPdfPage::predType(int i, QPdfObject::TYPE t)
 {
     return ((i>0 && gobjects_[i-1]->type == t))
         ? true : false;
 }
-bool PdfPage::nextType(int i, PdfObject::TYPE t)
+bool QPdfPage::nextType(int i, QPdfObject::TYPE t)
 {
     return ((i+1<gobjects_.size() && gobjects_[i+1]->type == t))
         ? true : false;
 }
 
-PdfObject* PdfPage::append(PdfObject* val, bool protect)
+QPdfObject* QPdfPage::append(QPdfObject* val, bool protect)
 {
     if (!val)
         return 0;
@@ -2254,10 +2247,10 @@ PdfObject* PdfPage::append(PdfObject* val, bool protect)
         val->appended = -1;
 
     gobjects_.append(val);
-    if (val->type == PdfObject::IMAGE)
-        images.append((PdfImage*)val);
-    else if (val->type == PdfObject::PATH)
-        paths.append((PdfPath*)val);
+    if (val->type == QPdfObject::IMAGE)
+        images.append((QPdfImage*)val);
+    else if (val->type == QPdfObject::PATH)
+        paths.append((QPdfPath*)val);
 
     if (val->appended>=0)
         ++val->appended;
@@ -2279,11 +2272,11 @@ QPdfEnginePrivate::QPdfEnginePrivate()
     setOption(COMPRESSED); //TODO
 #endif
 
-    curPage = new PdfPage;
+    curPage = new QPdfPage;
 
-    curMatrix = new PdfMatrix;
-    curPen =		new PdfPen;
-    curBrush =	new PdfBrush;
+    curMatrix = new QPdfMatrix;
+    curPen =		new QPdfPen;
+    curBrush =	new QPdfBrush;
 
     stream_ = new QDataStream;
     firstpagefirst_ = true;
@@ -2306,7 +2299,7 @@ void QPdfEnginePrivate::setCompression(bool val)
     else
         unsetOption(COMPRESSED);
 
-    PdfObject::setCompression(val);
+    QPdfObject::setCompression(val);
 #endif
 }
 
@@ -2504,15 +2497,15 @@ void QPdfEnginePrivate::newPage()
     flushPage();
 
     curPage->destroy();
-    curPage = new PdfPage;
+    curPage = new QPdfPage;
 
-    delete curMatrix; curMatrix = new PdfMatrix;
-    delete curPen; curPen = new PdfPen;
-    delete curBrush; curBrush = new PdfBrush;
+    delete curMatrix; curMatrix = new QPdfMatrix;
+    delete curPen; curPen = new QPdfPen;
+    delete curBrush; curBrush = new QPdfBrush;
 
     curPage->append(curMatrix->setMatrix(QMatrix()),true);
-    curPage->append(curPen->setColor(RGBA()),true);
-    curPage->append(curBrush->setFixed(Qt::NoBrush, RGBA()),true);
+    curPage->append(curPen->setColor(QColor()),true);
+    curPage->append(curBrush->setFixed(Qt::NoBrush, QColor()),true);
 
     pageobjnumber_.append(QVector<uint>(4));
     pageobjnumber_.last()[0] = requestObjNumber();	// page stream object
@@ -2528,7 +2521,7 @@ void QPdfEnginePrivate::flushPage()
         return;
 
     QString s;
-    PdfStream cs;
+    QPdfStream cs;
     cs.setStream(*stream_);
     cs.setCompression(isCompressed());
 
@@ -2564,7 +2557,7 @@ void QPdfEnginePrivate::flushPage()
 
     for (i=0; i<curPage->paths.size();++i)
 	{
-            PdfPath* p = curPage->paths[i];
+            QPdfPath* p = curPage->paths[i];
 
             if (p->hasTrueAlpha())
 		{
@@ -2577,7 +2570,7 @@ void QPdfEnginePrivate::flushPage()
 
     for (i=0; i<curBrush->gradients.size();++i)
 	{
-            PdfGradient* sh = curBrush->gradients[i].shader;
+            QPdfGradient* sh = curBrush->gradients[i].shader;
             sh->setColorSpaceObject(csobjnumber_);
             sh->setSoftMaskColorSpaceObject(csgobjnumber_);
             if (sh->hasSoftMask())
@@ -2596,7 +2589,7 @@ void QPdfEnginePrivate::flushPage()
     QVector<uint> fno;
     for (i=0; i<curBrush->fixeds.size();++i)
 	{
-            PdfBrush::FixedPattern p = curBrush->fixeds[i];
+            QPdfBrush::FixedPattern p = curBrush->fixeds[i];
 
             if (!p.isTruePattern())
                 continue;
@@ -2659,7 +2652,7 @@ void QPdfEnginePrivate::flushPage()
 
     for (i=0; i<curPage->paths.size();++i)
 	{
-            PdfPath* p = curPage->paths[i];
+            QPdfPath* p = curPage->paths[i];
 
             if (p->hasTrueAlpha())
 		{
@@ -2673,7 +2666,7 @@ void QPdfEnginePrivate::flushPage()
     int k = 0;
     for (i=0; i<curBrush->fixeds.size(); ++i)
 	{
-            PdfBrush::FixedPattern p = curBrush->fixeds[i];
+            QPdfBrush::FixedPattern p = curBrush->fixeds[i];
 
             if (!p.isTruePattern())
                 continue;
@@ -2688,7 +2681,7 @@ void QPdfEnginePrivate::flushPage()
 
     for (i=0; i<curBrush->gradients.size();++i)
 	{
-            PdfBrush::GradientPattern p = curBrush->gradients[i];
+            QPdfBrush::GradientPattern p = curBrush->gradients[i];
             p.shader->setObjects(requestObjNumber(), requestObjNumber());
 
             addxentry(p.getMainObj());
@@ -2714,10 +2707,10 @@ void QPdfEnginePrivate::flushPage()
 
     // gather pattern images (add pixmap brushes to the remaining images)
 
-    QVector<PdfImage*> images = curPage->images;
+    QVector<QPdfImage*> images = curPage->images;
     for (i=0; i<curBrush->pixmaps.size();++i)
 	{
-            PdfBrush::PixmapPattern p = curBrush->pixmaps[i];
+            QPdfBrush::PixmapPattern p = curBrush->pixmaps[i];
             addxentry(pno[i]);
             iv.append(requestObjNumber());
             xprintf(p.getDefinition(iv.last()).toLocal8Bit().constData());
@@ -2729,7 +2722,7 @@ void QPdfEnginePrivate::flushPage()
     for (i=0; i<images.size();++i)
 	{
             addxentry(iv[i]);
-            PdfImage* im = images[i];
+            QPdfImage* im = images[i];
 
             if (im->hasHardMask())
                 im->setMaskObj(requestObjNumber());
@@ -2755,7 +2748,7 @@ void QPdfEnginePrivate::flushPage()
             if (im->hasHardMask())
 		{
                     addxentry(im->hardMaskObj());
-                    PdfImage* im2 = im->stencil;
+                    QPdfImage* im2 = im->stencil;
                     im2->setLenObj(requestObjNumber());
                     xprintf("%sstream\n", im2->getDefinition().toLocal8Bit().constData());
                     len = streampos_;
@@ -2774,7 +2767,7 @@ void QPdfEnginePrivate::flushPage()
             if (im->hasSoftMask())
 		{
                     addxentry(im->softMaskObj());
-                    PdfImage* im2 = im->softmask;
+                    QPdfImage* im2 = im->softmask;
                     im2->setLenObj(requestObjNumber());
                     xprintf("%sstream\n", im2->getDefinition().toLocal8Bit().constData());
                     len = streampos_;
@@ -2810,7 +2803,7 @@ void QPdfEnginePrivate::flushPage()
     QMatrix tmp(1.0, 0.0, // m11, m12
                  0.0, -1.0, // m21, m22
                  0.0, height_); // dx, dy
-    s += PdfMatrix::streamMatrix(tmp);
+    s += QPdfMatrix::streamMatrix(tmp);
     s += curPage->streamText();   // write stream content
     int len = streampos_;
     streampos_ += (int)cs.write(s.toLocal8Bit().constData(), s.size());
