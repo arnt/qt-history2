@@ -41,6 +41,7 @@ SOURCES += \
 	itemviews/qabstractitemview.cpp \
 	itemviews/qheaderview.cpp \
 	itemviews/qlistview.cpp \
+	itemviews/qbsptree.cpp \
 	itemviews/qtableview.cpp \
 	itemviews/qtreeview.cpp \
 	itemviews/qabstractitemdelegate.cpp \

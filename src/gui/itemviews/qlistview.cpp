@@ -556,10 +556,10 @@ void QListView::dataChanged(const QModelIndex &topLeft, const QModelIndex &botto
         && d->column >= topLeft.column()
         && d->column <= bottomRight.column()) {
         QStyleOptionViewItem option = viewOptions();
-        int bottom = qMin(d->tree.itemCount(), bottomRight.row() + 1);
+        int bottom = qMin(d->items.count(), bottomRight.row() + 1);
         for (int row = topLeft.row(); row < bottom; ++row) {
             QModelIndex idx = d->model->index(row, d->column, d->root);
-            d->tree.item(row).resize(d->itemSize(option, idx));
+            d->items[row].resize(d->itemSize(option, idx));
         }
     }
     QAbstractItemView::dataChanged(topLeft, bottomRight);
@@ -1272,9 +1272,11 @@ void QListViewPrivate::prepareItemsLayout()
     if (movement == QListView::Static) {
         flowPositions.resize(rowCount);
         tree.destroy();
+	items.clear();
     } else {
         flowPositions.clear();
         tree.destroy(); // clear out all items and leaves
+	items.clear();
         tree.create(qMax(rowCount - hiddenRows.count(), 0));
     }
     segmentPositions.clear();
@@ -1318,9 +1320,9 @@ QPoint QListViewPrivate::initDynamicLayout(const QRect &bounds, int spacing, int
     if (first == 0) {
         x = bounds.x() + spacing;
         y = bounds.y() + spacing;
-        tree.reserve(model->rowCount(root) - hiddenRows.count());
+        items.reserve(model->rowCount(root) - hiddenRows.count());
     } else {
-        const QListViewItem item = tree.item(first - 1);
+        const QListViewItem item = items.at(first - 1);
         x = item.x;
         y = item.y;
         if (flow == QListView::LeftToRight)
@@ -1338,12 +1340,12 @@ void QListViewPrivate::initBspTree(const QSize &contents)
     for (int l = 0; l < leafCount; ++l)
         tree.leaf(l).clear();
     // we have to get the bounding rect of the items before we can initialize the tree
-    QBspTree<QListViewItem>::Node::Type type = QBspTree<QListViewItem>::Node::Both; // 2D
+    QBspTree::Node::Type type = QBspTree::Node::Both; // 2D
     // simple heuristics to get better bsp
     if (contents.height() / contents.width() >= 3)
-        type = QBspTree<QListViewItem>::Node::HorizontalPlane;
+        type = QBspTree::Node::HorizontalPlane;
     else if (contents.width() / contents.height() >= 3)
-        type = QBspTree<QListViewItem>::Node::VerticalPlane;
+        type = QBspTree::Node::VerticalPlane;
     // build tree for the bounding rect (not just the contents rect)
     tree.init(QRect(0, 0, contents.width(), contents.height()), type);
 }
@@ -1363,7 +1365,7 @@ bool QListViewPrivate::doItemsLayout(int delta)
     if (movement == QListView::Static) {
         doStaticLayout(layoutBounds, first, last);
     } else {
-        if (last >= tree.itemCount())
+        if (last >= items.count())
             createItems(last + 1);
         doDynamicLayout(layoutBounds, first, last);
     }
@@ -1524,7 +1526,7 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
     QRect rect(QPoint(0, 0), topLeft);
     QListViewItem *item = 0;
     for (int row = first; row <= last; ++row) {
-        item = tree.itemPtr(row);
+        item = &items[row];
         if (hiddenRows.contains(row)) {
             item->invalidate();
         } else {
@@ -1585,7 +1587,7 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
     }
     // insert items in tree
     for (int row = insertFrom; row <= last; ++row)
-        tree.climbTree(tree.item(row).rect(), &QBspTree<QListViewItem>::insert, row);
+        tree.insertLeaf(items.at(row).rect(), row);
     // if the new items are visble, update the viewport
     QRect changedRect(topLeft, rect.bottomRight());
     if (clipRect().intersects(changedRect))
@@ -1640,21 +1642,21 @@ void QListViewPrivate::intersectingDynamicSet(const QRect &area) const
 {
     intersectVector.clear();
     QListViewPrivate *that = const_cast<QListViewPrivate*>(this);
-    QBspTree<QListViewItem>::Data data(static_cast<void*>(that));
+    QBspTree::Data data(static_cast<void*>(that));
     that->tree.climbTree(area, &QListViewPrivate::addLeaf, data);
 }
 
 void QListViewPrivate::createItems(int to)
 {
     Q_Q(QListView);
-    int count = tree.itemCount();
+    int count = items.count();
     QSize size;
     QStyleOptionViewItem option = q->viewOptions();
     QModelIndex root = q->rootIndex();
     for (int row = count; row < to; ++row) {
         size = itemSize(option, model->index(row, column, root));
         QListViewItem item(QRect(0, 0, size.width(), size.height()), row); // default pos
-        tree.appendItem(item);
+	items.append(item);
     }
 }
 
@@ -1691,8 +1693,8 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
         return QListViewItem();
 
     if (movement != QListView::Static)
-        if (index.row() < tree.itemCount())
-            return tree.item(index.row());
+        if (index.row() < items.count())
+            return items.at(index.row());
         else
             return QListViewItem();
 
@@ -1721,25 +1723,25 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
 int QListViewPrivate::itemIndex(const QListViewItem &item) const
 {
     int i = item.indexHint;
-    if (movement == QListView::Static || i >= tree.itemCount() || tree.item(i) == item)
+    if (movement == QListView::Static || i >= items.count() || items.at(i) == item)
         return i;
 
     int j = i;
-    int c = tree.itemCount();
+    int c = items.count();
     bool a = true;
     bool b = true;
 
     while (a || b) {
         if (a) {
-            if (tree.item(i) == item) {
-                tree.item(i).indexHint = i;
+            if (items.at(i) == item) {
+                items.at(i).indexHint = i;
                 return i;
             }
             a = ++i < c;
         }
         if (b) {
-            if (tree.item(j) == item) {
-                tree.item(j).indexHint = j;
+            if (items.at(j) == item) {
+                items.at(j).indexHint = j;
                 return j;
             }
             b = --j > -1;
@@ -1749,7 +1751,7 @@ int QListViewPrivate::itemIndex(const QListViewItem &item) const
 }
 
 void QListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
-                               uint visited, QBspTree<QListViewItem>::Data data)
+                               uint visited, QBspTree::Data data)
 {
     QListViewItem *vi;
     QListViewPrivate *_this = static_cast<QListViewPrivate *>(data.ptr);
@@ -1757,7 +1759,7 @@ void QListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
         int idx = leaf.at(i);
         if (idx < 0)
             continue;
-        vi = _this->tree.itemPtr(idx);
+        vi = &_this->items[idx];
         Q_ASSERT(vi);
         if (vi->rect().intersects(area) && vi->visited != visited) {
             QModelIndex index = _this->listViewItemToIndex(*vi);
@@ -1770,12 +1772,14 @@ void QListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
 
 void QListViewPrivate::insertItem(int index, QListViewItem &item)
 {
-    tree.insertItem(item, item.rect(), index);
+    items.insert(index + 1, 1, item); // insert after idx
+    tree.insertLeaf(item.rect(), index);
 }
 
 void QListViewPrivate::removeItem(int index)
 {
-    tree.removeItem(tree.item(index).rect(), index);
+    tree.removeLeaf(items.at(index).rect(), index);
+    items.remove(index, 1);
 }
 
 void QListViewPrivate::moveItem(int index, const QPoint &dest)
@@ -1783,15 +1787,14 @@ void QListViewPrivate::moveItem(int index, const QPoint &dest)
     Q_Q(QListView);
     
     // does not impact on the bintree itself or the contents rect
-    QListViewItem *item = tree.itemPtr(index);
+    QListViewItem *item = &items[index];
     QRect rect = item->rect();
     
     // move the item without removing it from the tree
-    QBspTree<QListViewItem>::Data data(index);
-    tree.climbTree(rect, &QBspTree<QListViewItem>::remove, data, 0);
+    tree.removeLeaf(rect, index);
     item->x = dest.x();
     item->y = dest.y();
-    tree.climbTree(QRect(dest, rect.size()), &QBspTree<QListViewItem>::insert, data, 0);
+    tree.insertLeaf(QRect(dest, rect.size()), index);
 
     // resize the contents area
     int w = rect.x() + rect.width();

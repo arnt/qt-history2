@@ -33,7 +33,7 @@
 
 class QListViewItem
 {
-    friend class QBspTree<QListViewItem>;
+    friend class QBspTree;;
     friend class QListViewPrivate;
 public:
     inline QListViewItem()
@@ -112,7 +112,7 @@ public:
 
     int itemIndex(const QListViewItem &item) const;
     static void addLeaf(QVector<int> &leaf, const QRect &area,
-                        uint visited, QBspTree<QListViewItem>::Data data);
+                        uint visited, QBspTree::Data data);
 
     void insertItem(int index, QListViewItem &item);
     void removeItem(int index);
@@ -169,7 +169,8 @@ public:
     mutable QVector<QModelIndex> intersectVector;
 
     // used when items are movable
-    QBspTree<QListViewItem> tree;
+    QBspTree tree;
+    QVector<QListViewItem> items;
 
     // used when items are static
     QVector<int> flowPositions;
