@@ -1628,26 +1628,31 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
             switch (twf->shape) {
             case QTabBar::RoundedNorth:
             case QTabBar::TriangularNorth:
+                // Constrain the size now, otherwise, center could get off the page
+                // This of course repeated for all the other directions
+                r.setWidth(qMin(r.width(), twf->rect.width()
+                                            - twf->leftCornerWidgetSize.width()
+                                            - twf->rightCornerWidgetSize.width()));
                 switch (styleHint(SH_TabBar_Alignment, twf, widget)) {
                 default:
                 case Qt::AlignLeft:
                     r.moveTopLeft(QPoint(twf->leftCornerWidgetSize.width(), 0));
                     break;
                 case Qt::AlignCenter:
-                    r.moveTopLeft(QPoint(twf->rect.center().x() - twf->tabBarSize.width() / 2, 0));
+                    r.moveTopLeft(QPoint(twf->rect.center().x() - r.width() / 2, 0));
                     break;
                 case Qt::AlignRight:
                     r.moveTopLeft(QPoint(twf->rect.width() - twf->tabBarSize.width()
                                          - twf->rightCornerWidgetSize.width(), 0));
                     break;
                 }
-                r.setWidth(qMin(r.width(), twf->rect.width()
-                                            - twf->leftCornerWidgetSize.width()
-                                            - twf->rightCornerWidgetSize.width()));
                 r = visualRect(twf->direction, twf->rect, r);
                 break;
             case QTabBar::RoundedSouth:
             case QTabBar::TriangularSouth:
+                r.setWidth(qMin(r.width(), twf->rect.width()
+                                            - twf->leftCornerWidgetSize.width()
+                                            - twf->rightCornerWidgetSize.width()));
                 switch (styleHint(SH_TabBar_Alignment, twf, widget)) {
                 default:
                 case Qt::AlignLeft:
@@ -1655,7 +1660,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                                          twf->rect.height() - twf->tabBarSize.height()));
                     break;
                 case Qt::AlignCenter:
-                    r.moveTopLeft(QPoint(twf->rect.center().x() - twf->tabBarSize.width() / 2,
+                    r.moveTopLeft(QPoint(twf->rect.center().x() - r.width() / 2,
                                          twf->rect.height() - twf->tabBarSize.height()));
                     break;
                 case Qt::AlignRight:
@@ -1664,13 +1669,13 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                                          twf->rect.height() - twf->tabBarSize.height()));
                     break;
                 }
-                r.setWidth(qMin(r.width(), twf->rect.width()
-                                            - twf->leftCornerWidgetSize.width()
-                                            - twf->rightCornerWidgetSize.width()));
                 r = visualRect(twf->direction, twf->rect, r);
                 break;
             case QTabBar::RoundedEast:
             case QTabBar::TriangularEast:
+                r.setHeight(qMin(r.height(), twf->rect.height()
+                                            - twf->leftCornerWidgetSize.height()
+                                            - twf->rightCornerWidgetSize.height()));
                 switch (styleHint(SH_TabBar_Alignment, twf, widget)) {
                 default:
                 case Qt::AlignLeft:
@@ -1679,7 +1684,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                     break;
                 case Qt::AlignCenter:
                     r.moveTopLeft(QPoint(twf->rect.width() - twf->tabBarSize.width(),
-                                         twf->rect.center().y() - twf->tabBarSize.height() / 2));
+                                         twf->rect.center().y() - r.height() / 2));
                     break;
                 case Qt::AlignRight:
                     r.moveTopLeft(QPoint(twf->rect.width() - twf->tabBarSize.width(),
@@ -1687,28 +1692,25 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                                          - twf->rightCornerWidgetSize.height()));
                     break;
                 }
-                r.setHeight(qMin(r.height(), twf->rect.height()
-                                            - twf->leftCornerWidgetSize.height()
-                                            - twf->rightCornerWidgetSize.height()));
                 break;
             case QTabBar::RoundedWest:
             case QTabBar::TriangularWest:
+                r.setHeight(qMin(r.height(), twf->rect.height())
+                                             - twf->leftCornerWidgetSize.height()
+                                             - twf->rightCornerWidgetSize.height());
                 switch (styleHint(SH_TabBar_Alignment, twf, widget)) {
                 default:
                 case Qt::AlignLeft:
                     r.moveTopLeft(QPoint(0, twf->leftCornerWidgetSize.height()));
                     break;
                 case Qt::AlignCenter:
-                    r.moveTopLeft(QPoint(0, twf->rect.center().y() - twf->tabBarSize.height() / 2));
+                    r.moveTopLeft(QPoint(0, twf->rect.center().y() - r.height() / 2));
                     break;
                 case Qt::AlignRight:
                     r.moveTopLeft(QPoint(0, twf->rect.height() - twf->tabBarSize.height()
                                          - twf->rightCornerWidgetSize.height()));
                     break;
                 }
-                r.setHeight(qMin(r.height(), twf->rect.height())
-                                             - twf->leftCornerWidgetSize.height()
-                                             - twf->rightCornerWidgetSize.height());
                 break;
             }
         }
