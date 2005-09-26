@@ -772,7 +772,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             }
             if (!btn->text.isEmpty()){
                 drawItemText(p, textRect, alignment | Qt::TextShowMnemonic,
-                             btn->palette, btn->state & State_Enabled, btn->text);
+                    btn->palette, btn->state & State_Enabled, btn->text, QPalette::Foreground);
             }
         }
         break;
@@ -2475,7 +2475,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                         alignment |= Qt::TextHideMnemonic;
 
                     drawItemText(p, textRect,  Qt::TextShowMnemonic | Qt::AlignHCenter | alignment,
-                                 groupBox->palette, groupBox->state & State_Enabled, groupBox->text);
+                        groupBox->palette, groupBox->state & State_Enabled, groupBox->text, QPalette::Foreground);
                 }
             }
 

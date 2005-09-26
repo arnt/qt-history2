@@ -870,7 +870,7 @@ void QLabel::paintEvent(QPaintEvent *)
                 pix = style->generatedIconPixmap(QIcon::Disabled, pix, &opt);
             style->drawItemPixmap(&paint, cr, align, pix);
         } else {
-            style->drawItemText(&paint, cr, align, palette(), isEnabled(), d->ltext);
+            style->drawItemText(&paint, cr, align, palette(), isEnabled(), d->ltext, foregroundRole());
         }
 
     }
