@@ -264,16 +264,18 @@ bool QFSFileEnginePrivate::doStat() const
         QFSFileEnginePrivate *that = const_cast<QFSFileEnginePrivate*>(this);
 	that->tried_stat = 1;
 	that->could_stat = 1;
-        if(fd != -1) {
+        if (fd != -1) {
             that->could_stat = !QT_FSTAT(fd, &st);
         } else {
             const QByteArray file = QFile::encodeName(this->file);
-            if(QT_LSTAT(file, &st) == 0)
+            if (QT_LSTAT(file, &st) == 0)
                 that->isSymLink = S_ISLNK(st.st_mode);
+            else
+                that->isSymLink = false;
             that->could_stat = !QT_STAT(file, &st);
         }
     }
-    return could_stat;
+    return could_stat || isSymLink;
 }
 
 QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::FileFlags type) const
