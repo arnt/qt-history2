@@ -1108,6 +1108,9 @@ OSStatus accessibilityEventHandler(EventHandlerCallRef next_ref, EventRef event,
         case kEventAccessibleSetNamedAttribute:
             status = setNamedAttribute(next_ref, event, interface);
         break;
+        case kEventAccessiblePerformNamedAction:
+            status = performNamedAction(next_ref, event, interface);
+        break;
         default:
             status = CallNextEventHandler(next_ref, event);
         break;
