@@ -905,8 +905,10 @@ QModelIndex QTreeView::indexAbove(const QModelIndex &index) const
     if (!index.isValid())
         return QModelIndex();
     d->executePostedLayout();
-    int above = d->above(d->viewIndex(index));
-    return d->modelIndex(above);
+    int i = d->viewIndex(index);
+    if (--i < 0)
+        return QModelIndex();
+    return d->viewItems.at(i).index;
 }
 
 /*!
@@ -916,8 +918,10 @@ QModelIndex QTreeView::indexBelow(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
     d->executePostedLayout();
-    int below = d->below(d->viewIndex(index));
-    return d->modelIndex(below);
+    int i = d->viewIndex(index);
+    if (++i >= d->viewItems.count())
+        return QModelIndex();
+    return d->viewItems.at(i).index;
 }
 
 /*!
