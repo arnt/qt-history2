@@ -106,7 +106,7 @@ public:
 
 
 protected:
-    static QString pdffloat(double val) {return QString::number(val, 'f', 6);}
+    static QString pdfqreal(double val) {return QString::number(val, 'f', 6);}
     bool hassoftmask_p;
 
 private:
@@ -179,7 +179,7 @@ class PdfGradient : public PdfObject
 public:
     PdfGradient();
     ~PdfGradient();
-    void setParameter(RGBA b, RGBA e, float x0, float y0, float x1, float y1);
+    void setParameter(RGBA b, RGBA e, qreal x0, qreal y0, qreal x1, qreal y1);
 
 
     void setObjects(int mainobj, int funcobj);
@@ -192,7 +192,7 @@ public:
     void setColorSpaceObject(int obj);
     void setSoftMaskColorSpaceObject(int obj);
     void setSoftMaskObjects(int formobj, int mainobj, int funcobj);
-    void setSoftMaskRange(float x, float y, float w, float h);
+    void setSoftMaskRange(qreal x, qreal y, qreal w, qreal h);
 
     int mainObject() const {return mainobj_;}
     int functionObject() const {return funcobj_;}
@@ -204,12 +204,12 @@ public:
     QString name;
 
 private:
+    PdfGradient* softmask;
     bool issoftmask_;
     int mainobj_, funcobj_, smfmobj_, csrgbobj_, csgrayobj_;
-    float x0_, y0_, x1_, y1_;
+    qreal x0_, y0_, x1_, y1_;
     RGBA beg_, end_;
-    PdfGradient* softmask;
-    int x_, y_, w_, h_;
+    qreal x_, y_, w_, h_;
 
     QString getSingleMainDefinition();
     QString getSingleFuncDefinition();
@@ -222,11 +222,11 @@ public:
     explicit PdfBrush(const QString& id = QString());
     ~PdfBrush();
 
-    float alpha() const;
+    qreal alpha() const;
 
     PdfBrush* setFixed(Qt::BrushStyle style, RGBA rgba, const QMatrix& mat = QMatrix());
-    PdfBrush* setGradient(RGBA rgba, RGBA gradrgba, float bx, float by, float ex, float ey,
-                          float bbox_xb, float bbox_xe, float bbox_yb, float bbox_ye, const QMatrix& mat = QMatrix());
+    PdfBrush* setGradient(RGBA rgba, RGBA gradrgba, qreal bx, qreal by, qreal ex, qreal ey,
+                          qreal bbox_xb, qreal bbox_xe, qreal bbox_yb, qreal bbox_ye, const QMatrix& mat = QMatrix());
     PdfBrush* setPixmap(const QPixmap& pm, const QMatrix& mat);
 
     bool noBrush() const {return nobrush_;}
@@ -286,7 +286,7 @@ public:
     QVector<PixmapPattern> pixmaps;
 
     bool isGradient() const;
-    bool frontIsGradient() const;
+    bool firstIsGradient() const;
 
 private:
     enum SUBTYPE{
@@ -298,7 +298,7 @@ private:
     static QMap<Qt::BrushStyle,int> map_;
     static void static_init_map();
     QVector<SUBTYPE> streamstate_;
-    QVector<float> alpha_;
+    QVector<qreal> alpha_;
     bool nobrush_;
     QString id_;
 };
@@ -316,17 +316,17 @@ public:
     PdfPen* setDashArray(const QPen& pen, double phase);
     PdfPen* setColor(RGBA rgba);
     bool stroking() const;
-    float alpha() const;
+    qreal alpha() const;
 
 private:
     struct DashArray
     {
         DashArray(){}
-        DashArray(const QVector<float>& v, float p)
+        DashArray(const QVector<qreal>& v, qreal p)
             :seq(v), phase(p) {}
 
-        QVector<float> seq;
-        float phase;
+        QVector<qreal> seq;
+        qreal phase;
     };
 
     enum SUBTYPE{
@@ -369,13 +369,13 @@ public:
         };
 
         Element() : type(NONE) {} // for QVector
-        void setLine(float x, float y)
+        void setLine(qreal x, qreal y)
         {
             line.x=x;
             line.y=y,
                 type = LINE;
         }
-        void setCurve(float x1, float y1,float x2, float y2,float xnew, float ynew)
+        void setCurve(qreal x1, qreal y1,qreal x2, qreal y2,qreal xnew, qreal ynew)
         {
             curve.x1=x1;
             curve.y1=y1;
@@ -390,25 +390,19 @@ public:
 
         union
         {
-            struct { float x, y; } line;
-            struct { float x1, y1, x2, y2, xnew, ynew; } curve;
+            struct { qreal x, y; } line;
+            struct { qreal x1, y1, x2, y2, xnew, ynew; } curve;
         };
     };
 
     struct SubPath
     {
-        enum SUBTYPE{
-            RECT,    // rectangles are complete subpaths for PDF
-            NORECT
-        };
-        SubPath() : type(NORECT), closed(false), initialized(false)
+        SubPath() : closed(false), initialized(false)
         {}
 
         QVector<Element> elements;
-        struct { float x, y, w, h; } rect;
-        struct { float x,y; } start;
-
-        SUBTYPE type;
+        struct { qreal x, y, w, h; } rect;
+        struct { qreal x,y; } start;
 
         bool closed;
         bool initialized;
@@ -421,15 +415,6 @@ public:
             if (elements.empty() || !initialized)
                 return false;
             return true;
-        }
-        void setRect(float x, float y, float w, float h)
-        {
-            elements.clear();
-            type = RECT;
-            rect.x = x;
-            rect.y = y;
-            rect.w = w;
-            rect.h = h;
         }
     };
 
@@ -447,7 +432,7 @@ public:
 
 private:
     QString paintOperator() const;
-    float ca_, CA_;
+    qreal ca_, CA_;
     QString alphaname_;
     int alphaobj_;
     bool gradientstrokealpha_;
@@ -455,7 +440,7 @@ private:
     bool hasTrueStrokeAlpha() const {return transparencySupported() && CA_ >= 0.0 && CA_ < 1.0 ;}
     bool hasTrueNonStrokeAlpha() const {return transparencySupported() && ca_ >= 0.0 && ca_ < 1.0 ;}
     bool hasGradientNonStrokeAlpha() const {return transparencySupported() && gradientstrokealpha_;}
-    QString streamCoreText();
+    QString streamCoreText() const;
 };
 
 class PdfPage : public PdfObject
@@ -565,11 +550,8 @@ public:
     // reimplementations QPaintEngine
     bool begin(QPaintDevice * pdev);
     bool end();
-    void drawPoint(const QPointF & pf);
     void drawPoints(const QPointF *points, int pointCount);
-    void drawLine(const QLineF & line);
     void drawLines(const QLineF *lines, int lineCount);
-    void drawRect(const QRectF &rf);
     void drawRects(const QRectF *rects, int rectCount);
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
     void drawEllipse (const QRectF & rectangle);
@@ -621,9 +603,7 @@ public:
     void setTransparency(bool val);
 
 private:
-    // Disabled
-    QPdfEngine(const QPdfEngine &);
-    QPdfEngine &operator=(const QPdfEngine &);
+    Q_DISABLE_COPY(QPdfEngine)
 
     void setBrush (PdfBrush& pbr, const QBrush & brush, const QPointF& origin);
     void adaptMonochromePixmap(QPixmap& pm);
