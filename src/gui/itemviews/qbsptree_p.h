@@ -58,11 +58,9 @@ public:
     void create(int n);
     void destroy();
 
-    void climbTree(const QRect &rect, callback *function, QBspTreeData data);
-    void climbTree(const QRect &rect, callback *function, QBspTreeData data, int index);
+    inline void init(const QRect &area, NodeType type) { init(area, depth, type, 0); }
 
-    void init(const QRect &area, NodeType type);
-    void init(const QRect &area, int depth, NodeType type, int index);
+    void climbTree(const QRect &rect, callback *function, QBspTreeData data);
 
     inline int leafCount() const { return leaves.count(); }
     inline QVector<int> &leaf(int i) { return leaves[i]; }
@@ -70,6 +68,9 @@ public:
     inline void removeLeaf(const QRect &r, int i) { climbTree(r, &remove, i, 0); }
 
 protected:
+    void init(const QRect &area, int depth, NodeType type, int index);
+    void climbTree(const QRect &rect, callback *function, QBspTreeData data, int index);
+
     inline int parentIndex(int i) const { return (i & 1) ? ((i - 1) / 2) : ((i - 2) / 2); }
     inline int firstChildIndex(int i) const { return ((i * 2) + 1); }
 

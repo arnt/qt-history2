@@ -36,18 +36,6 @@ void QBspTree::destroy()
     nodes.clear();
 }
 
-void QBspTree::insert(QVector<int> &leaf, const QRect &, uint, QBspTreeData data)
-{
-    leaf.append(data.i);
-}
-
-void QBspTree::remove(QVector<int> &leaf, const QRect &, uint, QBspTreeData data)
-{
-    int i = leaf.indexOf(data.i);
-    if (i != -1)
-        leaf.remove(i);
-}
-
 void QBspTree::climbTree(const QRect &rect, callback *function, QBspTreeData data)
 {
     ++visited;
@@ -80,11 +68,6 @@ void QBspTree::climbTree(const QRect &area, callback *function, QBspTreeData dat
     }
 }
 
-void QBspTree::init(const QRect &area, NodeType type)
-{
-    init(area, depth, type, 0);
-}
-
 void QBspTree::init(const QRect &area, int depth, NodeType type, int index)
 {
     Node::Type t = Node::None; // t should never have this value
@@ -114,3 +97,14 @@ void QBspTree::init(const QRect &area, int depth, NodeType type, int index)
     }
 }
 
+void QBspTree::insert(QVector<int> &leaf, const QRect &, uint, QBspTreeData data)
+{
+    leaf.append(data.i);
+}
+
+void QBspTree::remove(QVector<int> &leaf, const QRect &, uint, QBspTreeData data)
+{
+    int i = leaf.indexOf(data.i);
+    if (i != -1)
+        leaf.remove(i);
+}
