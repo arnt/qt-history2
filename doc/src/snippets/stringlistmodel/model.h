@@ -20,6 +20,7 @@
 class StringListModel : public QAbstractListModel
 {
     Q_OBJECT
+
 public:
     StringListModel(const QStringList &strings, QObject *parent = 0)
         : QAbstractListModel(parent), stringList(strings) {}
