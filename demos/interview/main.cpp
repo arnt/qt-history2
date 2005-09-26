@@ -48,6 +48,7 @@ int main(int argc, char *argv[])
     list->setAlternatingRowColors(false);
 
     page.setWindowIcon(QPixmap(":/images/interview.png"));
+    page.setWindowTitle("Interview");
     page.show();
 
     return app.exec();
