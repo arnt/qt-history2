@@ -98,6 +98,7 @@ void QSvgNativeView::wheelEvent(QWheelEvent *e)
     resize(width, height);
 }
 
+#ifndef QT_NO_OPENGL
 QSvgGLView::QSvgGLView(const QString &file, QWidget *parent)
     : QGLWidget(parent)
 {
@@ -132,3 +133,4 @@ void QSvgGLView::wheelEvent(QWheelEvent *e)
     }
     resize(width, height);
 }
+#endif

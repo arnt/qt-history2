@@ -53,7 +53,7 @@ private:
     QSvgRenderer *doc;
 };
 
-
+#ifndef QT_NO_OPENGL
 class QSvgGLView : public QGLWidget
 {
     Q_OBJECT
@@ -68,5 +68,6 @@ protected:
 private:
     QSvgRenderer *doc;
 };
+#endif
 
 #endif

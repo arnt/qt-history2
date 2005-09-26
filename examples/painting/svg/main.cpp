@@ -13,7 +13,12 @@ public:
         QWidget *view = 0;
 
         if (type == QLatin1String("-gl")) {
+#ifndef QT_NO_OPENGL
             view = new QSvgGLView(file, this);
+#else
+            qWarning()<<"OpenGL is not supported on this system.";
+            exit(1);
+#endif
         } else if (type == QLatin1String("-native")) {
             view = new QSvgNativeView(file, this);
         } else

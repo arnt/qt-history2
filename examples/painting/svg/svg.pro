@@ -1,7 +1,10 @@
 TARGET        = qsvgview
 HEADERS       = qsvgview.h
 SOURCES       = qsvgview.cpp main.cpp
-QT           += svg opengl
+QT           += svg 
+
+contains(QT_CONFIG, opengl): QT += opengl
+
 CONFIG += console
 
 # install
