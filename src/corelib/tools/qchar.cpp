@@ -734,9 +734,15 @@ QChar QChar::toUpper() const
 */
 
 /*!
-    Returns the ASCII character value of the QChar, or 0 if the
-    character is not representable as ASCII (i.e., if unicode() \>=
-    128). This is mainly useful for non-internationalized software.
+    Returns the character value of the QChar obtained using the current
+    codec used to read C strings, or 0 if the character is not representable
+    using this codec. The default codec handles Latin-1 encoded text,
+    but this can be changed to assist developers writing source code using
+    other encodings.
+
+    The main purpose of this function is to preserve ASCII characters used
+    in C strings. This is mainly useful for developers of non-internationalized
+    software.
 
     \sa toLatin1(), unicode(), QTextCodec::codecForCStrings()
 */
