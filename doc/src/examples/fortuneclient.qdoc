@@ -26,7 +26,7 @@
     QTcpSocket::connectToHost() returns immediately, and when the connection
     has been established, QTcpSocket emits
     \l{QTcpSocket::connected()}{connected()}.
-    
+
     \o \e{The synchronous (blocking) approach.} In non-GUI and multithreaded
     applications, you can call the \c waitFor...() functions (e.g.,
     QTcpSocket::waitForConnected()) to suspend the calling thread until the
@@ -101,8 +101,7 @@
     Let's go through the \l{QTcpSocket::error()}{error()} case first:
 
     \skipto void Client::displayError(
-    \printuntil }
-    \printline }
+    \printuntil /^\}/
 
     We pop up all errors in a dialog using
     QMessageBox::information(). QTcpSocket::RemoteHostClosedError is silently
@@ -122,7 +121,7 @@
     explicitly set the protocol version of the stream to QDataStream::Qt_4_0
     to ensure that we're using the same version as the fortune server, no
     matter which version of Qt the client and server use.
-    
+
     Now, TCP is based on sending a stream of data, so we cannot expect to get
     the entire fortune in one go. Especially on a slow network, the data can
     be received in several small fragments. QTcpSocket buffers up all incoming
