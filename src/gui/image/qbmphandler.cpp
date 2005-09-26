@@ -285,14 +285,14 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
         uchar *buf    = new uchar[buflen];
         if (comp == BMP_RLE4) {                // run length compression
             int x=0, y=0, c, i;
-            char b;
+            quint8 b;
             register uchar *p = data + (h-1)*bpl;
             const uchar *endp = p + w;
             while (y < h) {
-                if (!d->getChar(&b))
+                if (!d->getChar((char *)&b))
                     break;
                 if (b == 0) {                        // escape code
-                    if (!d->getChar(&b) || b == 1) {
+                    if (!d->getChar((char *)&b) || b == 1) {
                         y = h;                // exit loop
                     } else switch (b) {
                         case 0:                        // end of line
@@ -302,10 +302,10 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
                             break;
                         case 2:                        // delta (jump)
                         {
-                            char tmp;
-                            d->getChar(&tmp);
+                            quint8 tmp;
+                            d->getChar((char *)&tmp);
                             x += tmp;
-                            d->getChar(&tmp);
+                            d->getChar((char *)&tmp);
                             y += tmp;
                         }
 
@@ -324,13 +324,13 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
 
                             i = (c = b)/2;
                             while (i--) {
-                                d->getChar(&b);
+                                d->getChar((char *)&b);
                                 *p++ = b >> 4;
                                 *p++ = b & 0x0f;
                             }
                             if (c & 1) {
-                                char tmp;
-                                d->getChar(&tmp);
+                                unsigned char tmp;
+                                d->getChar((char *)&tmp);
                                 *p++ = tmp >> 4;
                             }
                             if ((((c & 3) + 1) & 2) == 2)
@@ -343,7 +343,7 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
                         b = endp-p;
 
                     i = (c = b)/2;
-                    d->getChar(&b);                // 2 pixels to be repeated
+                    d->getChar((char *)&b);                // 2 pixels to be repeated
                     while (i--) {
                         *p++ = b >> 4;
                         *p++ = b & 0x0f;
@@ -396,10 +396,10 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
                                 y = h-1;
 
                             {
-                                char tmp;
-                                d->getChar(&tmp);
+                                quint8 tmp;
+                                d->getChar((char *)&tmp);
                                 x += tmp;
-                                d->getChar(&tmp);
+                                d->getChar((char *)&tmp);
                                 y += tmp;
                             }
                             p = data + (h-y-1)*bpl + x;
