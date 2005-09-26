@@ -17,6 +17,10 @@
 #include <QtCore/qobject.h>
 
 #ifndef QT_NO_MOVIE
+
+#include <QtCore/qbytearray.h>
+#include <QtCore/qlist.h>
+#include <QtCore/qobject.h>
 #include <QtGui/qimagereader.h>
 
 #ifdef QT3_SUPPORT
@@ -39,20 +43,26 @@ class Q_GUI_EXPORT QMovie : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QMovie)
-    Q_ENUMS(MovieState)
+    Q_ENUMS(MovieState CacheMode)
     Q_PROPERTY(int speed READ speed WRITE setSpeed)
-    Q_PROPERTY(QColor backgroundColor READ backgroundColor WRITE setBackgroundColor)
+    Q_PROPERTY(CacheMode cacheMode READ cacheMode WRITE setCacheMode)
 public:
     enum MovieState {
         NotRunning,
         Paused,
         Running
     };
+    enum CacheMode {
+        CacheNone,
+        CacheAll
+    };
 
     QMovie(QObject *parent = 0);
     explicit QMovie(QIODevice *device, const QByteArray &format = QByteArray(), QObject *parent = 0);
     explicit QMovie(const QString &fileName, const QByteArray &format = QByteArray(), QObject *parent = 0);
     ~QMovie();
+
+    static QList<QByteArray> supportedFormats();
 
     void setDevice(QIODevice *device);
     QIODevice *device() const;
@@ -80,8 +90,13 @@ public:
     int nextFrameDelay() const;
     int currentFrameNumber() const;
 
-    void setSpeed(int percentSpeed);
     int speed() const;
+
+    QSize scaledSize();
+    void setScaledSize(const QSize &size);
+
+    CacheMode cacheMode();
+    void setCacheMode(CacheMode mode);
 
 Q_SIGNALS:
     void started();
@@ -90,12 +105,14 @@ Q_SIGNALS:
     void stateChanged(QMovie::MovieState state);
     void error(QImageReader::ImageReaderError error);
     void finished();
+    void frameChanged(int frameNumber);
 
 public Q_SLOTS:
     void start();
     bool jumpToNextFrame();
     void setPaused(bool paused);
     void stop();
+    void setSpeed(int percentSpeed);
 
 private:
     Q_DISABLE_COPY(QMovie)
