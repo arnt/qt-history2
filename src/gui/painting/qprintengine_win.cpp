@@ -203,7 +203,9 @@ bool QWin32PrintEngine::begin(QPaintDevice *)
     // ### set default colors and stuff...
 
     bool ok = d->state == QPrinter::Idle;
-    Q_ASSERT(d->hdc);
+
+    if (!d->hdc) 
+        return false;
 
     // Assign the FILE: to get the query...
     if (d->fileName.isEmpty())
@@ -1126,15 +1128,17 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
 
     case PPK_ColorMode:
         {
-            if (!d->devMode)
+            if (!d->devMode) {
                 value = QPrinter::Color;
-            int mode;
-            QT_WA( {
-                mode = d->devModeW()->dmColor;
-            }, {
-                mode = d->devModeA()->dmColor;
-            } );
-            value = mode == DMCOLOR_COLOR ? QPrinter::Color : QPrinter::GrayScale;
+            } else {
+                int mode;
+                QT_WA( {
+                    mode = d->devModeW()->dmColor;
+                }, {
+                    mode = d->devModeA()->dmColor;
+                } );
+                value = mode == DMCOLOR_COLOR ? QPrinter::Color : QPrinter::GrayScale;
+            }
         }
         break;
 
@@ -1152,11 +1156,13 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
 
     case PPK_Orientation:
         {
-            if (!d->devMode)
+            if (!d->devMode) {
                 value = QPrinter::Portrait;
-            int o;
-            QT_WA( { o = d->devModeW()->dmOrientation; }, { o = d->devModeA()->dmOrientation; } );
-            value = o == DMORIENT_LANDSCAPE ? QPrinter::Landscape : QPrinter::Portrait;
+            } else {
+                int o;
+                QT_WA( { o = d->devModeW()->dmOrientation; }, { o = d->devModeA()->dmOrientation; } );
+                value = o == DMORIENT_LANDSCAPE ? QPrinter::Landscape : QPrinter::Portrait;
+            }
         }
         break;
 
@@ -1171,13 +1177,15 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
         break;
 
     case PPK_PageSize:
-        if (!d->devMode)
+        if (!d->devMode) {
             value = QPrinter::A4;
-        QT_WA( {
-            value = mapDevmodePageSize(d->devModeW()->dmPaperSize);
-        }, {
-            value = mapDevmodePageSize(d->devModeA()->dmPaperSize);
-        } );
+        } else {
+            QT_WA( {
+                value = mapDevmodePageSize(d->devModeW()->dmPaperSize);
+            }, {
+                value = mapDevmodePageSize(d->devModeA()->dmPaperSize);
+            } );
+        }
         break;
 
     case PPK_PaperRect:
@@ -1187,13 +1195,15 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
         break;
 
     case PPK_PaperSource:
-        if (!d->devMode)
+        if (!d->devMode) {
             value = QPrinter::Auto;
-        QT_WA( {
-            value = mapDevmodePaperSource(d->devModeW()->dmDefaultSource);
-        }, {
-            value = mapDevmodePaperSource(d->devModeA()->dmDefaultSource);
-        } );
+        } else {
+            QT_WA( {
+                value = mapDevmodePaperSource(d->devModeW()->dmDefaultSource);
+            }, {
+                value = mapDevmodePaperSource(d->devModeA()->dmDefaultSource);
+            } );
+        }
         break;
 
     case PPK_PrinterName:
@@ -1209,13 +1219,15 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
         break;
 
     case PPK_WindowsPageSize:
-        if (!d->devMode)
+        if (!d->devMode) {
             value = -1;
-        QT_WA( {
-            value = d->devModeW()->dmPaperSize;
-        }, {
-            value = d->devModeA()->dmPaperSize;
-        } );
+        } else {
+            QT_WA( {
+                value = d->devModeW()->dmPaperSize;
+            }, {
+                value = d->devModeA()->dmPaperSize;
+            } );
+        }
         break;
 
     default:
