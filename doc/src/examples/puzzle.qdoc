@@ -1,9 +1,15 @@
 /*!
     \example draganddrop/puzzle
-    \title Puzzle Example
+    \title Drag and Drop Puzzle Example
 
-    The Puzzle example demonstrates a way of using the drag and drop system with
+    The Drag and Drop Puzzle example demonstrates a way of using the drag and drop system with
     item view widgets.
 
-    \image puzzle-example.png
+    \image draganddrop-puzzle.png
+
+    This example is an implementation of a simple jigsaw puzzle game using Qt's
+    drag and drop API.
+    The \l{Item View Puzzle Example}{Item View Puzzle} example shows
+    many of the same features, but takes an alternative approach that uses Qt's
+    model/view framework to manage drag and drop operations.
 */
