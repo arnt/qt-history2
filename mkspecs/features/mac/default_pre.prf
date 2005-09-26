@@ -1,0 +1,3 @@
+CONFIG = sdk $$CONFIG
+load(default_pre)
+

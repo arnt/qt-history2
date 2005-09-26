@@ -412,6 +412,7 @@ CFG_IPV6IFNAME=auto
 CFG_RPATH=yes
 CFG_FRAMEWORK=auto
 CFG_UNIVERSAL_BINARY=auto
+CFG_SDK=
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
@@ -512,7 +513,7 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_ARG=yes
         fi
         ;;
-    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-translationdir|-sysconfdir|-examplesdir|-demosdir|-depths|-make|-nomake|-platform|-xplatform|-buildkey)
+    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-translationdir|-sysconfdir|-examplesdir|-demosdir|-depths|-make|-nomake|-platform|-xplatform|-buildkey|-sdk)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         shift
         VAL=$1
@@ -727,6 +728,13 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_OPT=yes
         fi
         ;;
+    sdk) 
+        if [ "$PLATFORM_MAC" = "yes" ]; then
+            CFG_SDK="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+	;;
     universal-binary)
         if [ "$PLATFORM_MAC" = "yes" ]; then
             CFG_UNIVERSAL_BINARY="$VAL"
@@ -2313,6 +2321,8 @@ Qt/Mac only:
                          as well as PPC platforms.
  *  -no-universal-binary Build Qt and its tools to work only on this host platform.
 
+    -sdk <sdk>.......... Build Qt using Apple provided SDK <sdk>.
+
 EOF
 fi
 
@@ -3772,6 +3782,11 @@ QMAKE_INCDIR_QT  = \$\$QT_BUILD_TREE/include
 QMAKE_LIBDIR_QT  = \$\$QT_BUILD_TREE/lib
 
 EOF
+
+#dump in the SDK info
+if [ '!' -z "$CFG_SDK" ]; then
+   echo "QMAKE_MAC_SDK = $CFG_SDK" >>$CACHEFILE.tmp
+fi
 
 #dump the qmake spec
 if [ -d "$outpath/mkspecs/$XPLATFORM" ]; then
