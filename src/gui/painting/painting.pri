@@ -134,3 +134,10 @@ win32:!win32-g++:!win32-msvc {
     SOURCES += painting/qdrawhelper_x86.cpp
     DEFINES += QT_HAVE_SSE
 }
+
+CONFIG += pdf
+pdf {
+    DEFINES += QT_PDF_SUPPORT
+    SOURCES += painting/qprintengine_pdf.cpp
+    HEADERS += painting/qprintengine_pdf_p.h
+}
