@@ -15,14 +15,14 @@
 #endif
 
 
-bool QPdfObject::transparency_ = true;
 bool QPdfImage::interpolation_ = false;
 
 #ifdef QT_NO_COMPRESS
-bool QPdfObject::compression_ = false;
+static const bool do_compress = false;
 #else
-bool QPdfObject::compression_ = true; //TODO
+static const bool do_compress = true;
 #endif
+
 
 #undef MM
 #define MM(n) int((n * 720 + 127) / 254)
@@ -85,7 +85,7 @@ QPdfEngine::QPdfEngine()
     transpbgbrush_ = false;
     pixmapnumber_ = 0;
 
-    pdf_ = new QPdfEnginePrivate;
+    d = new QPdfEnginePrivate;
     lastBrush_ = new QBrush;
     lastPen_ = new QPen;
     lastMatrix_ = new QMatrix;
@@ -95,12 +95,11 @@ QPdfEngine::QPdfEngine()
 
     setOrientation(QPrinter::Portrait);
     setPageSize(QPrinter::A4);
-    setPageOrder(QPrinter::FirstPageFirst);
 }
 
 QPdfEngine::~QPdfEngine()
 {
-    delete pdf_;
+    delete d;
 
     delete lastBrush_;
     delete lastPen_;
@@ -115,11 +114,21 @@ QPdfEngine::~QPdfEngine()
 void QPdfEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
 {
     switch (key) {
-    case PPK_Creator: setCreator(value.toString()); break;
-    case PPK_DocumentName: setDocName(value.toString()); break;
-    case PPK_Orientation: setOrientation(QPrinter::Orientation(value.toInt())); break;
-    case PPK_OutputFileName: setOutputFileName(value.toString()); break;
-    case PPK_PageSize: setPageSize(QPrinter::PageSize(value.toInt())); break;
+    case PPK_Creator:
+        setCreator(value.toString());
+        break;
+    case PPK_DocumentName:
+        setDocName(value.toString());
+        break;
+    case PPK_Orientation:
+        setOrientation(QPrinter::Orientation(value.toInt()));
+        break;
+    case PPK_OutputFileName:
+        setOutputFileName(value.toString());
+        break;
+    case PPK_PageSize:
+        setPageSize(QPrinter::PageSize(value.toInt()));
+        break;
     default:
         break;
     }
@@ -128,86 +137,80 @@ void QPdfEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
 QVariant QPdfEngine::property(PrintEnginePropertyKey key) const
 {
     switch (key) {
-    case PPK_ColorMode: return QPrinter::Color;
-    case PPK_Creator: return creator();
-    case PPK_DocumentName: return docName();
-    case PPK_FullPage: return true;
-    case PPK_NumberOfCopies: return 1;
-    case PPK_Orientation: return orientation();
-    case PPK_OutputFileName: return outputFileName();
-    case PPK_PageRect: return paperRect();
-    case PPK_PageSize: return pageSize();
-    case PPK_PaperRect: return paperRect();
-    case PPK_PaperSource: return QPrinter::Auto;
-    case PPK_Resolution: return 600;
-    case PPK_SupportedResolutions: return QList<QVariant>() << 72;
+    case PPK_ColorMode:
+        return QPrinter::Color;
+    case PPK_Creator:
+        return creator();
+    case PPK_DocumentName:
+        return docName();
+    case PPK_FullPage:
+        return true;
+    case PPK_NumberOfCopies:
+        return 1;
+    case PPK_Orientation:
+        return orientation();
+    case PPK_OutputFileName:
+        return outputFileName();
+    case PPK_PageRect:
+        return paperRect();
+    case PPK_PageSize:
+        return pageSize();
+    case PPK_PaperRect:
+        return paperRect();
+    case PPK_PaperSource:
+        return QPrinter::Auto;
+    case PPK_Resolution:
+        return 600;
+    case PPK_SupportedResolutions:
+        return QList<QVariant>() << 72;
     default:
         break;
     }
     return QVariant();
 }
 
-
-void QPdfEngine::setCompression(bool val)
-{
-    if (isActive()) {
-        qWarning("QPdfEngine::setCompression: Compression mode cannot be set while painting");
-        return;
-    }
-    pdf_->setCompression(val);
-}
-
-void QPdfEngine::setTransparency(bool val)
-{
-    if (isActive()) {
-        qWarning("QPdfEngine::setTransparency: Alpha mode cannot be changed set while painting");
-        return;
-    }
-    QPdfObject::setTransparency(val);
-}
-
 void QPdfEngine::setAuthor(const QString &author)
 {
-    pdf_->author = author;
+    d->author = author;
 }
 
 QString QPdfEngine::author() const
 {
-    return pdf_->author;
+    return d->author;
 }
 void QPdfEngine::setDocName(const QString &title)
 {
-    pdf_->title = title;
+    d->title = title;
 }
 
 QString QPdfEngine::docName() const
 {
-    return pdf_->title;
+    return d->title;
 }
 
 void QPdfEngine::setCreator(const QString &creator)
 {
-    pdf_->creator = creator;
+    d->creator = creator;
 }
 
 QString QPdfEngine::creator() const
 {
-    return pdf_->creator;
+    return d->creator;
 }
 
 void QPdfEngine::setOrientation(QPrinter::Orientation orientation)
 {
     if (orientation == QPrinter::Portrait)
-        pdf_->setLandscape(false);
+        d->setLandscape(false);
     else if (orientation == QPrinter::Landscape)
-        pdf_->setLandscape(true);
+        d->setLandscape(true);
     else
-        pdf_->setLandscape(false);
+        d->setLandscape(false);
 }
 
 QPrinter::Orientation QPdfEngine::orientation() const
 {
-    if (!pdf_->isLandscape())
+    if (!d->isLandscape())
         return QPrinter::Portrait;
     else
         return QPrinter::Landscape;
@@ -218,7 +221,7 @@ void QPdfEngine::setPageSize(QPrinter::PageSize ps)
     pagesize_ = ps;
     QRect r = paperRect();
 
-    pdf_->setDimensions(r.width(),r.height());
+    d->setDimensions(r.width(),r.height());
 }
 
 QPrinter::PageSize QPdfEngine::pageSize() const
@@ -260,11 +263,11 @@ bool QPdfEngine::begin (QPaintDevice *)
         return false;
     }
 
-    pdf_->unsetDevice();
-    pdf_->setDevice(device_);
+    d->unsetDevice();
+    d->setDevice(device_);
     setActive(true);
-    pdf_->writeHeader();
-    pdf_->newPage();
+    d->writeHeader();
+    d->newPage();
     Q_ASSERT(painter());
     if (painter()) {
         QRect r = paperRect();
@@ -278,10 +281,10 @@ bool QPdfEngine::begin (QPaintDevice *)
 
 bool QPdfEngine::end ()
 {
-    pdf_->writeTail();
+    d->writeTail();
 
     device_->close();
-    pdf_->unsetDevice();
+    d->unsetDevice();
     setActive(false);
     return true;
 }
@@ -384,7 +387,7 @@ void QPdfEngine::drawPathPrivate (const QPainterPath &p)
     if (p.isEmpty() && !clipping_)
         return;
 
-    QPdfPath* path = new QPdfPath(pdf_->curPen, pdf_->curBrush,
+    QPdfPath* path = new QPdfPath(d->curPen, d->curBrush,
                                 (p.fillRule() == Qt::WindingFill) ? QPdfPath::FILLNONZERO : QPdfPath::FILLEVENODD);
 
     if (clipping_)
@@ -440,7 +443,7 @@ void QPdfEngine::drawPathPrivate (const QPainterPath &p)
         path->subpaths.append(sb);
     }
 
-    pdf_->curPage->append(path);
+    d->curPage->append(path);
 }
 
 void QPdfEngine::drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, const QRectF & sr)
@@ -460,12 +463,12 @@ void QPdfEngine::drawPixmap (const QRectF & rectangle, const QPixmap & pixmap, c
     im = im.copy(sr.toRect());
     //     mask = mask.copy(sr.toRect());
 
-    QMatrix mat = pdf_->curMatrix->lastMatrix();
+    QMatrix mat = d->curMatrix->lastMatrix();
 
     updateMatrix(QMatrix(rectangle.width() / sr.width(),0,0,rectangle.height() / sr.height(),rectangle.x(),rectangle.y()) * mat);
     QPdfImage* img = new QPdfImage(im, mask);
     img->name = QString("/Im%1").arg(pixmapnumber_++);
-    pdf_->curPage->append(img);
+    d->curPage->append(img);
     updateMatrix(mat);
 }
 
@@ -499,7 +502,7 @@ void QPdfEngine::updateClipRegion (const QRegion & region, Qt::ClipOperation op)
 {
     QPainterPath p;
     QRegion r = *lastClipRegion_;
-    QMatrix mat = pdf_->curMatrix->lastMatrix();
+    QMatrix mat = d->curMatrix->lastMatrix();
     switch(op) {
     case Qt::NoClip:
         r = QRegion(paperRect());
@@ -553,7 +556,7 @@ void QPdfEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
 /*
   void QPdfEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
   {
-  QMatrix mat = pdf_->curMatrix->lastMatrix();
+  QMatrix mat = d->curMatrix->lastMatrix();
   QPainterPath p = path;
   if (p.isEmpty()) // dummy path
   p.addRect(0,0,0,0);
@@ -590,8 +593,8 @@ void QPdfEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
 void QPdfEngine::updateBrush (const QBrush & brush, const QPointF & origin)
 {
     *lastBrushOrig_ = origin;
-    setBrush(*pdf_->curBrush,brush,*lastBrushOrig_);
-    pdf_->curPage->append(pdf_->curBrush);
+    setBrush(*d->curBrush,brush,*lastBrushOrig_);
+    d->curPage->append(d->curBrush);
     *lastBrush_ = brush;
 }
 
@@ -609,18 +612,18 @@ void QPdfEngine::updatePen (const QPen & pen)
     tpen.setWidth((pen.width()) ? pen.width() : 0);
 
 
-    pdf_->curPage->append(pdf_->curPen->setColor(tpen.color()));
-    pdf_->curPage->append(pdf_->curPen->setLineWidth(tpen.width()));
+    d->curPage->append(d->curPen->setColor(tpen.color()));
+    d->curPage->append(d->curPen->setLineWidth(tpen.width()));
 
     switch(tpen.capStyle()) {
     case Qt::FlatCap:
-        pdf_->curPage->append(pdf_->curPen->setLineCap(0));
+        d->curPage->append(d->curPen->setLineCap(0));
         break;
     case Qt::SquareCap:
-        pdf_->curPage->append(pdf_->curPen->setLineCap(2));
+        d->curPage->append(d->curPen->setLineCap(2));
         break;
     case Qt::RoundCap:
-        pdf_->curPage->append(pdf_->curPen->setLineCap(1));
+        d->curPage->append(d->curPen->setLineCap(1));
         break;
     default:
         break;
@@ -628,19 +631,19 @@ void QPdfEngine::updatePen (const QPen & pen)
 
     switch(tpen.joinStyle()) {
     case Qt::MiterJoin:
-        pdf_->curPage->append(pdf_->curPen->setLineJoin(0));
+        d->curPage->append(d->curPen->setLineJoin(0));
         break;
     case Qt::BevelJoin:
-        pdf_->curPage->append(pdf_->curPen->setLineJoin(2));
+        d->curPage->append(d->curPen->setLineJoin(2));
         break;
     case Qt::RoundJoin:
-        pdf_->curPage->append(pdf_->curPen->setLineJoin(1));
+        d->curPage->append(d->curPen->setLineJoin(1));
         break;
     default:
         break;
     }
 
-    pdf_->curPage->append(pdf_->curPen->setDashArray(tpen,0));
+    d->curPage->append(d->curPen->setDashArray(tpen,0));
 
     *lastPen_ = tpen;
 }
@@ -652,8 +655,8 @@ void QPdfEngine::updateFont (const QFont &)
 
 void QPdfEngine::updateMatrix(const QMatrix & matrix)
 {
-    pdf_->curMatrix->setMatrix(matrix);
-    pdf_->curPage->append(pdf_->curMatrix);
+    d->curMatrix->setMatrix(matrix);
+    d->curPage->append(d->curMatrix);
     *lastMatrix_ = matrix;
 
     if (lastBrush_)
@@ -708,7 +711,7 @@ QPaintEngine::Type QPdfEngine::type() const
 bool QPdfEngine::newPage()
 {
     if (isActive()) {
-        pdf_->newPage();
+        d->newPage();
         updateMatrix(*lastMatrix_);
         updateBrush(*lastBrush_, *lastBrushOrig_);
         updatePen(*lastPen_);
@@ -727,7 +730,7 @@ void QPdfEngine::setBrush (QPdfBrush& pbr, const QBrush & brush, const QPointF &
           0.0, -1.0, // m21, m22
           0.0, vp.height()); // dx, dy
 
-    tmp = pdf_->curMatrix->lastMatrix() * tmp;
+    tmp = d->curMatrix->lastMatrix() * tmp;
     tmp.translate(origin.x(),origin.y());
 
     switch(brush.style()) {
@@ -808,47 +811,9 @@ QString QPdfEngine::outputFileName() const
     return outFile_->fileName();
 }
 
-void QPdfEngine::setPageOrder(QPrinter::PageOrder val)
-{
-    switch(val) {
-    case QPrinter::FirstPageFirst:
-  	pdf_->setPageOrder(true);
-        break;
-    case QPrinter::LastPageFirst:
-  	pdf_->setPageOrder(false);
-        break;
-    default:
-  	pdf_->setPageOrder(true);
-    }
-}
-
-QPrinter::PageOrder QPdfEngine::pageOrder() const
-{
-    return (pdf_->firstPageFirst())
-        ? QPrinter::FirstPageFirst
-        : QPrinter::LastPageFirst;
-}
-
-
-
 QPdfStream::QPdfStream()
 {
     stream_ = 0;
-    compressed_ = false;
-}
-
-void QPdfStream::setCompression(bool val)
-{
-#ifdef QT_NO_COMPRESS
-    return;
-#else
-    compressed_ = val;
-#endif
-}
-
-bool QPdfStream::isCompressed() const
-{
-    return compressed_;
 }
 
 void QPdfStream::setStream(QDataStream& val)
@@ -862,21 +827,18 @@ uint QPdfStream::write(const char* src, uint len)
         return 0;
 
 #ifndef QT_NO_COMPRESS
-    if(compressed_) {
+    if(do_compress) {
         uLongf destLen = (uLongf)ceil(1.001 * len + 12); // zlib requirement
         Bytef* dest = new Bytef[destLen];
-        if (Z_OK == compress(dest, &destLen, (const Bytef*) src, (uLongf)len))
-            {
-                stream_->writeRawData((const char*)dest,destLen);
-            }
-        else {
+        if (Z_OK == ::compress(dest, &destLen, (const Bytef*) src, (uLongf)len)) {
+            stream_->writeRawData((const char*)dest,destLen);
+        } else {
             qWarning("QPdfStream::write(): compress error");
             destLen = 0;
         }
-            delete [] dest;
-            return (uint)destLen;
-        }
-    else
+        delete [] dest;
+        return (uint)destLen;
+    } else
 #endif
     {
         stream_->writeRawData(src,len);
@@ -1026,7 +988,7 @@ QString QPdfImage::getDefinition()
         s += QString("/Length %1 0 R\n").arg(lenobj_);
     if (interpolation_)
         s += "/Interpolate true\n";
-    if (compression())
+    if (do_compress)
         s += "/Filter /FlateDecode\n";
     s += ">>\n";
     return s;
@@ -1055,7 +1017,7 @@ int QPdfImage::convert(const QImage& img, const QImage& mask)
             d = 32;
         }
 
-    if (transparencySupported() && im.hasAlphaBuffer()) {
+    if (im.hasAlphaBuffer()) {
         delete softmask;
         softmask = new QPdfImage;
         softmask->w_ = im.width();
@@ -1172,9 +1134,6 @@ void QPdfGradient::setParameter(const QColor &b, const QColor &e, qreal x0, qrea
     x1_ = x1;
     y1_ = y1;
 
-    if (!transparencySupported())
-        return;
-
     // maintain transparent parts
     if (b.alphaF() < 1.0 || e.alphaF() < 1.0) {
         hassoftmask_p = true;
@@ -1197,9 +1156,6 @@ void QPdfGradient::setObjects(int mainobj, int funcobj)
 
 void QPdfGradient::setSoftMaskObjects(int formobj, int mainobj, int funcobj)
 {
-    if (!transparencySupported())
-        return;
-
     smfmobj_ = formobj;
     softmask->mainobj_ = mainobj;
     softmask->funcobj_ = funcobj;
@@ -2266,20 +2222,15 @@ QPdfEnginePrivate::QPdfEnginePrivate()
     options_ = 0;
     streampos_ = 0;
     landscape_ = false;
-#ifdef QT_NO_COMPRESS
-    unsetOption(COMPRESSED);
-#else
-    setOption(COMPRESSED); //TODO
-#endif
 
     curPage = new QPdfPage;
 
     curMatrix = new QPdfMatrix;
-    curPen =		new QPdfPen;
-    curBrush =	new QPdfBrush;
+    curPen = new QPdfPen;
+    curBrush = new QPdfBrush;
 
     stream_ = new QDataStream;
-    firstpagefirst_ = true;
+    pageOrder = QPrinter::FirstPageFirst;
 }
 
 QPdfEnginePrivate::~QPdfEnginePrivate()
@@ -2289,23 +2240,6 @@ QPdfEnginePrivate::~QPdfEnginePrivate()
     delete curPen;
     delete curBrush;
     delete stream_;
-}
-
-void QPdfEnginePrivate::setCompression(bool val)
-{
-#ifndef QT_NO_COMPRESS
-    if (val)
-        setOption(COMPRESSED);
-    else
-        unsetOption(COMPRESSED);
-
-    QPdfObject::setCompression(val);
-#endif
-}
-
-bool QPdfEnginePrivate::isCompressed() const
-{
-    return isOption(COMPRESSED);
 }
 
 // For strings up to 10000 bytes only !
@@ -2427,7 +2361,7 @@ void QPdfEnginePrivate::writePageRoot()
     xprintf("[\n");
     int size = pageobjnumber_.size();
     for (int i = 0; i != size; ++i)
-        xprintf("%d 0 R\n",pageobjnumber_[(firstpagefirst_) ? i : size-i-1][2]);
+        xprintf("%d 0 R\n",pageobjnumber_[pageOrder == QPrinter::FirstPageFirst ? i : size-i-1][2]);
     xprintf("]\n");
 
     //xprintf("/Group <</S /Transparency /I true /K false>>\n");
@@ -2523,7 +2457,6 @@ void QPdfEnginePrivate::flushPage()
     QString s;
     QPdfStream cs;
     cs.setStream(*stream_);
-    cs.setCompression(isCompressed());
 
     addxentry(pageobjnumber_.last()[2]);
     xprintf(
@@ -2793,7 +2726,7 @@ void QPdfEnginePrivate::flushPage()
             "<<\n"
             "/Length %d 0 R\n",
             pageobjnumber_.last()[1]); // object number for stream length object
-    if (isCompressed())
+    if (do_compress)
         xprintf("/Filter /FlateDecode\n");
 
     xprintf(">>\n");
@@ -2862,9 +2795,4 @@ int QPdfEnginePrivate::addxentry(int objnumber, bool printostr /* = true */)
         xprintf("%d 0 obj\n",objnumber);
 
     return objnumber;
-}
-
-void QPdfEnginePrivate::setPageOrder(bool fpf)
-{
-    firstpagefirst_ = fpf;
 }

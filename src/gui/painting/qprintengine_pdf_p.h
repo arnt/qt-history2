@@ -20,13 +20,10 @@ class QPdfStream
 {
 public:
     QPdfStream();
-    void setCompression(bool val);
-    bool isCompressed() const;
     void setStream(QDataStream& val);
     uint write(const char* val, uint len);
 
 private:
-    bool compressed_;
     QDataStream* stream_;
 };
 
@@ -52,42 +49,14 @@ public:
 
     virtual QString streamText() {return QString();}
 
-    //! Defines transparency handling for all PdfObjects. Default: true
-    static void setTransparency(bool val)
-    {
-        transparency_ = val;
-    }
-
-    static void setCompression(bool val)
-    {
-#ifndef QT_NO_COMPRESS
-        compression_ = val;
-#endif
-    }
-
-    static bool transparencySupported()
-    {
-        return transparency_;
-    }
-
     bool hasSoftMask()
     {
-        return transparencySupported() && hassoftmask_p;
+        return hassoftmask_p;
     }
-
-    static bool compression()
-    {
-        return compression_;
-    }
-
 
 protected:
     static QString pdfqreal(double val) {return QString::number(val, 'f', 6);}
     bool hassoftmask_p;
-
-private:
-    static bool transparency_;
-    static bool compression_;
 };
 
 class QPdfMatrix : public QPdfObject
@@ -413,9 +382,9 @@ private:
     int alphaobj_;
     bool gradientstrokealpha_;
 
-    bool hasTrueStrokeAlpha() const {return transparencySupported() && CA_ >= 0.0 && CA_ < 1.0 ;}
-    bool hasTrueNonStrokeAlpha() const {return transparencySupported() && ca_ >= 0.0 && ca_ < 1.0 ;}
-    bool hasGradientNonStrokeAlpha() const {return transparencySupported() && gradientstrokealpha_;}
+    bool hasTrueStrokeAlpha() const {return CA_ >= 0.0 && CA_ < 1.0 ;}
+    bool hasTrueNonStrokeAlpha() const {return ca_ >= 0.0 && ca_ < 1.0 ;}
+    bool hasGradientNonStrokeAlpha() const {return gradientstrokealpha_;}
     QString streamCoreText() const;
 };
 
@@ -443,35 +412,15 @@ private:
 class QPdfEnginePrivate
 {
 public:
-    enum OPTION{
-        NONE = ~1UL,
-        COMPRESSED = 1UL << 0
-    };
-
     QPdfEnginePrivate();
     ~QPdfEnginePrivate();
 
     QPdfPage* curPage;
     void newPage();
-    void setOption(uint op)
-    {
-        options_ |= op;
-    }
-    void unsetOption(uint op)
-    {
-        options_ &= ~op;
-    }
-    bool isOption(OPTION op) const
-    {
-        return (options_ & op) ? true : false;
-    }
     void setDimensions(int w, int h){width_ = w; height_ = h;}
-    void setCompression(bool val);
-    bool isCompressed() const;
     void setPageOrder(bool fpl);
     void setLandscape(bool val){landscape_ = val;}
     bool isLandscape() const {return landscape_;}
-    bool firstPageFirst() const {return firstpagefirst_;}
 
 
     QPdfMatrix* curMatrix;
@@ -511,7 +460,7 @@ private:
 
     int objnumber_, pagesobjnumber_, root_, info_, gsobjnumber_, pcsobjnumber_, csobjnumber_,csgobjnumber_;
     QVector<QVector<uint> > pageobjnumber_;
-    bool firstpagefirst_;
+    QPrinter::PageOrder pageOrder;
 };
 
 
@@ -573,11 +522,9 @@ public:
     void setDevice(QIODevice* dev);
     bool newPage();
 
-    void setCompression(bool val);
-    void setTransparency(bool val);
-
 private:
     Q_DISABLE_COPY(QPdfEngine)
+    QPdfEnginePrivate *d;
 
     void setBrush (QPdfBrush& pbr, const QBrush & brush, const QPointF& origin);
     void adaptMonochromePixmap(QPixmap& pm);
@@ -585,7 +532,6 @@ private:
     void drawPathPrivate (const QPainterPath & path);
 
     QPrinter::PageSize pagesize_;
-    QPdfEnginePrivate* pdf_;
     bool clipping_, tofile_, transpbgbrush_;
     QIODevice* device_;
 
