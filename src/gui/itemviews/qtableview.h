@@ -44,7 +44,7 @@ public:
 
     int rowViewportPosition(int row) const;
     int rowAt(int y) const;
-    
+
     void setRowHeight(int row, int height);
     int rowHeight(int row) const;
 
@@ -95,6 +95,8 @@ protected:
 
     QStyleOptionViewItem viewOptions() const;
     void paintEvent(QPaintEvent *e);
+
+    void timerEvent(QTimerEvent *event);
 
     int horizontalOffset() const;
     int verticalOffset() const;
