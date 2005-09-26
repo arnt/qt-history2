@@ -597,9 +597,16 @@ void QDateTimeEdit::setCurrentSection(Section section)
         return;
 
     d->updateCache(d->value, d->edit->displayText());
-    const int sectionIndex = d->absoluteIndex(s, 0);
-    if (sectionIndex >= 0 && sectionIndex < d->sectionNodes.size()) {
-        d->edit->setCursorPosition(d->sectionPos(sectionIndex));
+    const int size = d->sectionNodes.size();
+    int index = d->currentSectionIndex + 1;
+    for (int i=0; i<2; ++i) {
+        while (index < size) {
+            if (d->sectionType(index) == s) {
+                d->edit->setCursorPosition(d->sectionPos(index));
+                return;
+            }
+        }
+        index = 0;
     }
 }
 
