@@ -28,6 +28,7 @@
 #include "qplatformdefs.h"
 #include "QtCore/qatomic.h"
 #include "QtCore/qdatetime.h"
+#include "QtCore/qstringlist.h"
 #include "QtCore/qlist.h"
 #include "QtCore/qvariant.h"
 
@@ -51,7 +52,6 @@ public:
 };
 
 
-class QFormatSection;
 class QDateTimeParser
 {
 public:
@@ -61,83 +61,48 @@ public:
         SkipBackward
     };
     enum Section {
-        NoSection = 0x0000000,
+        NoSection = 0x0000,
 
-        Day1 = 0x0000001,
-        Day2 = 0x0000002,
-        Day3 = 0x0000004,
-        Day4 = 0x0000008,
-        DayMask = (Day1|Day2|Day3|Day4),
+        DaySection = 0x0001,
 
-        Month1 = 0x0000010,
-        Month2 = 0x0000020,
-        Month3 = 0x0000040,
-        Month4 = 0x0000080,
-        MonthMask = (Month1|Month2|Month3|Month4),
+        MonthSection = 0x0002,
 
-        Year2 = 0x0000100,
-        Year4 = 0x0000200,
-        YearMask = (Year2|Year4),
-        DateMask = (DayMask|MonthMask|YearMask),
+        YearSection = 0x0004,
+        DateMask = (DaySection|MonthSection|YearSection),
 
-        Hour1 = 0x0000400,
-        Hour2 = 0x0000800,
-        HourMask = (Hour1|Hour2),
-
-        Minute1 = 0x0001000,
-        Minute2 = 0x0002000,
-        MinuteMask = (Minute1|Minute2),
-
-        Second1 = 0x0004000,
-        Second2 = 0x0008000,
-        SecondMask = (Second1|Second2),
-
-        MSecond1 = 0x0010000,
-        MSecond3 = 0x0020000,
-        MSecondMask = (MSecond1|MSecond3),
-
-        APLower = 0x0040000,
-        APUpper = 0x0080000,
-        APMask = (APLower|APUpper),
-
-        TimeMask = (HourMask|MinuteMask|SecondMask|MSecondMask),
-
-        Quote = 0x0100000,
-        Separator = 0x0200000,
-        FirstSection = 0x0400000,
-        LastSection = 0x0800000
+        HourSection = 0x0010,
+        MinuteSection = 0x0020,
+        SecondSection = 0x0040,
+        MSecSection = 0x0080,
+        AmPmSection = 0x0100,
+        TimeMask = (HourSection|MinuteSection|SecondSection|MSecSection)
     };
+
+    struct SectionNode
+    {
+        QDateTimeParser::Section type;
+        int index;
+        int count;
+    };
+
 
     QDateTimeParser(const QString &f = QString(), QVariant::Type t = QVariant::DateTime);
     bool isSpecial(const QChar &c) const;
-    QFormatSection findNextFormat(const QString &str, const int start);
     void parseFormat(const QString &format, QVariant::Type t);
     bool fromString(const QString &string, QDate *dateIn, QTime *timeIn);
+    QString sectionFormat(int index) const;
+    QString sectionFormat(Section s, int count) const;
 
-    static bool withinBounds(QDateTimeParser::Section t, int num);
+    static bool withinBounds(const SectionNode &sec, int num);
     static int getNumber(int index, const QString &str, int mindigits, int maxdigits, bool *ok, int *digits);
 
-    static QFormatSection firstSection;
-    static QFormatSection lastSection;
-
     QVariant::Type formatType;
-    QList<QFormatSection> sect;
-    QString format;
+    QList<SectionNode> sectionNodes;
+    QStringList separators;
+    QString format, reversedFormat;
     uint display;
+    Qt::LayoutDirection layoutDirection;
 };
 
-class QFormatSection
-{
-public:
-    QFormatSection(int ind, const QString &sep);
-    QFormatSection(int ind = -1, QDateTimeParser::Section typ = QDateTimeParser::NoSection);
-    int length() const;
-    static int length(QDateTimeParser::Section t);
-    bool variableLength() const;
-
-    int index;
-    QString chars;
-    QDateTimeParser::Section type;
-};
 
 #endif // QDATETIME_P_H
