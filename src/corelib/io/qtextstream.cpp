@@ -388,6 +388,16 @@ QTextStreamPrivate::~QTextStreamPrivate()
         delete device;
 }
 
+#ifndef QT_NO_TEXTCODEC
+static void resetCodecConverterState(QTextCodec::ConverterState *state) {
+    state->flags = QTextCodec::DefaultConversion;
+    state->remainingChars = state->invalidChars =
+           state->state_data[0] = state->state_data[1] = state->state_data[2] = 0;
+    if (state->d) qFree(state->d);
+    state->d = 0;
+}
+#endif
+
 /*! \internal
 */
 void QTextStreamPrivate::reset()
@@ -412,8 +422,8 @@ void QTextStreamPrivate::reset()
 
 #ifndef QT_NO_TEXTCODEC
     codec = QTextCodec::codecForLocale();
-    readConverterState = QTextCodec::ConverterState();
-    writeConverterState = QTextCodec::ConverterState();
+    ::resetCodecConverterState(&readConverterState);
+    ::resetCodecConverterState(&writeConverterState);
     writeConverterState.flags |= QTextCodec::IgnoreHeader;
     autoDetectUnicode = true;
 #endif
@@ -2856,8 +2866,8 @@ int QTextStream::flagsInternal(int newFlags)
 void QTextStream::setEncoding(Encoding encoding)
 {
     Q_D(QTextStream);
-    d->readConverterState = QTextCodec::ConverterState();
-    d->writeConverterState = QTextCodec::ConverterState();
+    ::resetCodecConverterState(&d->readConverterState);
+    ::resetCodecConverterState(&d->writeConverterState);
 
     switch (encoding) {
     case Locale:
