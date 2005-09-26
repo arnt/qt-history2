@@ -434,7 +434,7 @@ QStyleOptionViewItem QTableView::viewOptions() const
 /*!
     Paints the table on receipt of the given paint event \a e.
 */
-void QTableView::paintEvent(QPaintEvent *e)
+void QTableView::paintEvent(QPaintEvent *event)
 {
     Q_D(QTableView);
 
@@ -460,11 +460,11 @@ void QTableView::paintEvent(QPaintEvent *e)
 
     // if there's nothing to do, clear the area and return
     if (d->horizontalHeader->count() == 0 || d->verticalHeader->count() == 0) {
-        painter.fillRect(e->rect(), option.palette.brush(QPalette::Base));
+        painter.fillRect(event->rect(), option.palette.brush(QPalette::Base));
         return;
     }
 
-    QVector<QRect> rects = e->region().rects();
+    QVector<QRect> rects = event->region().rects();
     for (int i = 0; i < rects.size(); ++i) {
 
         QRect area = rects.at(i);
@@ -898,7 +898,7 @@ void QTableView::columnCountChanged(int, int)
 void QTableView::updateGeometries()
 {
     Q_D(QTableView);
-
+    
     int width = !d->verticalHeader->isHidden() ? d->verticalHeader->sizeHint().width() : 0;
     int height = !d->horizontalHeader->isHidden() ? d->horizontalHeader->sizeHint().height() : 0;
     bool reverse = isRightToLeft();
@@ -1223,10 +1223,9 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
 void QTableView::rowResized(int row, int, int)
 {
     Q_D(QTableView);
-
-    int y = rowViewportPosition(row);
-    d->viewport->update(QRect(0, y, d->viewport->width(), d->viewport->height() - y));
-    updateGeometries();
+    d->rowsToUpdate.append(row);
+    if (d->rowResizeTimerID == 0)
+        d->rowResizeTimerID = startTimer(0);
 }
 
 /*!
@@ -1239,15 +1238,52 @@ void QTableView::rowResized(int row, int, int)
 void QTableView::columnResized(int column, int, int)
 {
     Q_D(QTableView);
+    d->columnsToUpdate.append(column);
+    if (d->columnResizeTimerID == 0)
+        d->columnResizeTimerID = startTimer(0);
+}
 
-    int x = columnViewportPosition(column);
-    QRect rect;
-    if (isRightToLeft())
-        rect.setRect(0, 0, x + columnWidth(column), d->viewport->height());
-    else
-        rect.setRect(x, 0, d->viewport->width() - x, d->viewport->height());
-    d->viewport->update(rect.normalized());
-    updateGeometries();
+/*!
+ \reimp
+ */
+void QTableView::timerEvent(QTimerEvent *event)
+{
+    Q_D(QTableView);
+    if (event->timerId() == d->columnResizeTimerID){
+        QRect rect;
+        int viewportHeight = d->viewport->height();
+        int viewportWidth = d->viewport->width();
+        for (int i = d->columnsToUpdate.size()-1; i >= 0; --i) {
+            int column = d->columnsToUpdate.at(i);
+            int x = columnViewportPosition(column);
+            if (isRightToLeft())
+                rect|=QRect(0, 0, x + columnWidth(column), viewportHeight);
+            else
+                rect|=QRect(x, 0, viewportWidth - x, viewportHeight);
+        }
+
+        updateGeometries();
+        d->viewport->update(rect.normalized());
+        d->columnsToUpdate.clear();
+        killTimer(d->columnResizeTimerID);
+        d->columnResizeTimerID = 0;
+    }
+    if (event->timerId() == d->rowResizeTimerID){
+        int viewportHeight = d->viewport->height();
+        int viewportWidth = d->viewport->width();
+        int top = viewportHeight;
+        for (int i = d->rowsToUpdate.size()-1; i >= 0; --i) {
+            int y = rowViewportPosition(d->rowsToUpdate.at(i));
+            top = qMin(top, y);
+        }
+        
+        updateGeometries();
+        d->viewport->update(QRect(0, top, viewportWidth, viewportHeight - top));
+        d->rowsToUpdate.clear();
+        killTimer(d->rowResizeTimerID);
+        d->rowResizeTimerID = 0;
+    }
+    QAbstractItemView::timerEvent(event);
 }
 
 /*!

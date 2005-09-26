@@ -623,8 +623,10 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
 bool QHeaderView::isSectionHidden(int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    if (logicalIndex < 0 || logicalIndex >= d->sections.count() - 1)
+    Q_ASSERT(logicalIndex >= 0);
+    if (logicalIndex >= d->sections.count() - 1)
         return false;
+    
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
     return d->sections.at(visual).hidden;
@@ -682,6 +684,8 @@ int QHeaderView::count() const
 int QHeaderView::visualIndex(int logicalIndex) const
 {
     Q_D(const QHeaderView);
+    Q_ASSERT(logicalIndex >= 0);
+    
     d->executePostedLayout();
 #if 0 // for debugging
     if (d->visualIndices.isEmpty()) { // nothing has been moved, so we have no mapping
@@ -694,9 +698,9 @@ int QHeaderView::visualIndex(int logicalIndex) const
     return visual;
 #else
     if (d->visualIndices.isEmpty()) { // nothing has been moved, so we have no mapping
-        if (logicalIndex >= 0 && logicalIndex < d->sections.count() - 1)
+        if (logicalIndex < d->sections.count() - 1)
             return logicalIndex;
-    } else if (logicalIndex >= 0 && logicalIndex < d->visualIndices.count() - 1) {
+    } else if (logicalIndex < d->visualIndices.count() - 1) {
         int visual = d->visualIndices.at(logicalIndex);
         Q_ASSERT(visual < d->sections.count() - 1);
         return visual;
@@ -896,7 +900,7 @@ void QHeaderView::setSortIndicator(int logicalIndex, Qt::SortOrder order)
     d->sortIndicatorSection = logicalIndex;
     d->sortIndicatorOrder = order;
 
-    if (logicalIndex < 0 || logicalIndex >= d->sections.count() - 1)
+    if (logicalIndex >= d->sections.count() - 1)
         return; // nothing to do
 
     if (old != logicalIndex && resizeMode(logicalIndex) == Custom) {
@@ -1750,7 +1754,8 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
 QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    if (!d->model || logicalIndex < 0)
+    Q_ASSERT(logicalIndex >= 0);
+    if (!d->model)
         return QSize();
     QSize size(100, 30);
     QStyleOptionHeader opt = d->getStyleOption();

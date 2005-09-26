@@ -36,6 +36,7 @@ public:
     QTableViewPrivate()
         : showGrid(true), gridStyle(Qt::SolidLine),
           rowSectionAnchor(0), columnSectionAnchor(0),
+          columnResizeTimerID(0), rowResizeTimerID(0),
           horizontalHeader(0), verticalHeader(0) {}
     void init();
     void updateVerticalScrollbar();
@@ -46,8 +47,13 @@ public:
     Qt::PenStyle gridStyle;
     int rowSectionAnchor;
     int columnSectionAnchor;
+    int columnResizeTimerID;
+    int rowResizeTimerID;
+    QList<int> columnsToUpdate;
+    QList<int> rowsToUpdate;
     QHeaderView *horizontalHeader;
     QHeaderView *verticalHeader;
+
 };
 
 #endif // QT_NO_TABLEVIEW
