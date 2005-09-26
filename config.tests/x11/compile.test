@@ -1,0 +1,52 @@
+#!/bin/sh
+
+SUCCESS=no
+QMKSPEC=$1
+XPLATFORM=`basename $1`
+VERBOSE=$2
+SRCDIR=$3
+OUTDIR=$4
+TEST=$5
+DESCRIPTION=$6
+shift 6
+LIBPATH=""
+INCLUDEPATH=""
+PARAMS=$@
+for PARAM in $PARAMS; do
+    PREFIX=`echo $PARAM | sed 's/^\(..\).*/\1/'`
+    case $PREFIX in
+    -L)
+	LIBPATH="$LIBPATH $PARAM"
+	;;
+    -I)
+        INC=`echo $PARAM | sed -e 's/^-I//'`
+        INCLUDEPATH="$INCLUDEPATH $INC"
+        ;;
+    *) ;;
+    esac
+done
+
+# debuggery
+[ "$VERBOSE" = "yes" ] && echo "$DESCRIPTION auto-detection... ($*)"
+
+test -d $OUTDIR/config.tests/x11/$TEST || mkdir -p $OUTDIR/config.tests/x11/$TEST
+cd $OUTDIR/config.tests/x11/$TEST
+ 
+$OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" "LIBS*=$LIBPATH" "INCLUDEPATH*=$INCLUDEPATH" $SRCDIR/config.tests/x11/$TEST/$TEST.pro -o $OUTDIR/config.tests/x11/$TEST/Makefile >/dev/null 2>&1
+
+if [ "$VERBOSE" = "yes" ]; then
+    make
+else
+    make >/dev/null 2>&1
+fi
+
+[ -x $TEST ] && SUCCESS=yes
+
+# done
+if [ "$SUCCESS" != "yes" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "$DESCRIPTION disabled."
+    exit 0
+else
+    [ "$VERBOSE" = "yes" ] && echo "$DESCRIPTION enabled."
+    exit 1
+fi

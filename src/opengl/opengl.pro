@@ -23,7 +23,9 @@ SOURCES	+= qgl.cpp \
 x11 {
     SOURCES += qgl_x11.cpp \
 	       qglpbuffer_x11.cpp
-    contains(QT_CONFIG, fontconfig):INCLUDEPATH += $$FREETYPE2_INCDIR
+ 	contains(QT_CONFIG, fontconfig) {
+ 		include($$QT_SOURCE_TREE/config.tests/x11/fontconfig/fontconfig.pri)
+ 	}
 }
 
 mac {
