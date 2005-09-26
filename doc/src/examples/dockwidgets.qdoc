@@ -52,22 +52,13 @@
     give the application a title, and \c newLetter() to create a new
     letter template.
 
-    \quotefromfile mainwindows/dockwidgets/mainwindow.cpp
-    \skipto ::closeEvent(
-    \printuntil /^}/
-
-    When the user closes the window we simply call \c accept() and the
-    application terminates. In many applications we would user the
-    opportunity to save any unsaved changes, but it isn't necessary for
-    this application.
-
     We won't quote the \c createActions(), \c createMenus(), \c
     createToolBars(), and \c createStatusBar() functions since they
     follow the same pattern as all the other Qt examples.
 
     \quotefromfile mainwindows/dockwidgets/mainwindow.cpp
     \skipto ::createDockWindows(
-    \printuntil /^}/
+    \printuntil /^\}/
 
     We create the customers dock window first, and in addition to a
     window title, we also pass it a \c this pointer so that it becomes a
@@ -101,7 +92,7 @@
 
     \quotefromfile mainwindows/dockwidgets/mainwindow.cpp
     \skipto ::newLetter(
-    \printuntil /^}/
+    \printuntil /^\}/
 
     In this function we clear the QTextEdit so that it is empty. Next we
     create a QTextCursor on the QTextEdit. We move the cursor to the
@@ -114,7 +105,7 @@
 
     \quotefromfile mainwindows/dockwidgets/mainwindow.cpp
     \skipto ::insertCustomer(
-    \printuntil /^}/
+    \printuntil /^\}/
 
     If the user clicks a customer we split the customer details into
     pieces. We then look for the \c NAME marker using the \c find()
@@ -129,7 +120,7 @@
     
     \quotefromfile mainwindows/dockwidgets/mainwindow.cpp
     \skipto ::addParagraph(
-    \printuntil /^}/
+    \printuntil /^\}/
 
     This function works in a similar way to \c insertCustomer(). First
     we look for the marker, in this case, \c {Yours sincerely,}, and then
@@ -139,7 +130,7 @@
     
     \quotefromfile mainwindows/dockwidgets/mainwindow.cpp
     \skipto ::print(
-    \printuntil /^}/
+    \printuntil /^\}/
 
     Qt's QTextDocument class makes printing documents easy. We simply
     take the QTextEdit's QTextDocument, set up the printer and print the
@@ -147,7 +138,7 @@
 
     \quotefromfile mainwindows/dockwidgets/mainwindow.cpp
     \skipto ::save(
-    \printuntil /^}/
+    \printuntil /^\}/
 
     QTextEdit can output its contents in HTML format, so we prompt the
     user for the name of an HTML file and if they provide one we simply
@@ -155,7 +146,7 @@
 
     \quotefromfile mainwindows/dockwidgets/mainwindow.cpp
     \skipto ::undo(
-    \printuntil /^}/
+    \printuntil /^\}/
 
     If the focus is in the QTextEdit, pressing \key Ctrl+Z undoes as
     expected. But for the user's convenience we provide an
