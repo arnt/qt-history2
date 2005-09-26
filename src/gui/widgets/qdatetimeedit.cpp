@@ -130,6 +130,8 @@ public:
     int multiplier(int s) const;
     QString sectionName(int s) const;
     QString stateName(int s) const;
+    QString displayName(QDateTimeEdit::Sections sec) const;
+
     QString sectionFormat(int index) const;
     QString sectionFormat(Section s, int count) const;
 
@@ -605,6 +607,7 @@ void QDateTimeEdit::setCurrentSection(Section section)
                 d->edit->setCursorPosition(d->sectionPos(index));
                 return;
             }
+            ++index;
         }
         index = 0;
     }
@@ -1697,6 +1700,8 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
         return true;
     layoutDirection = QApplication::layoutDirection();
 
+//    qDebug("parseFormat: %s", newFormat.toLatin1().constData());
+
     QList<SectionNode> newSectionNodes;
     QDateTimeEdit::Sections newDisplay = 0;
     QStringList newSeparators;
@@ -1712,28 +1717,30 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
                 status = zero;
             }
         } else if (i < newFormat.size() && status != quote) {
-            const bool last = (i + 1 == newFormat.size());
             const int repeat = qMin(4, countRepeat(newFormat, i));
             switch (newFormat.at(i).toLatin1()) {
             case 'h': {
                 const SectionNode sn = { HourSection, i - add, qMin(2, repeat) };
                 newSectionNodes << sn;
                 newSeparators << unquote(newFormat.mid(index, i - index));
-                index = ++i + (repeat == 1 ? 0 : 1);
+                i += sn.count - 1;
+                index = i + 1;
                 newDisplay |= QDateTimeEdit::HourSection;
                 break; }
             case 'm': {
                 const SectionNode sn = { MinuteSection, i - add, qMin(2, repeat) };
                 newSectionNodes << sn;
                 newSeparators << unquote(newFormat.mid(index, i - index));
-                index = ++i + (repeat == 1 ? 0 : 1);
+                i += sn.count - 1;
+                index = i + 1;
                 newDisplay |= QDateTimeEdit::MinuteSection;
                 break; }
             case 's': {
                 const SectionNode sn = { SecondSection, i - add, qMin(2, repeat) };
                 newSectionNodes << sn;
                 newSeparators << unquote(newFormat.mid(index, i - index));
-                index = ++i + (repeat == 1 ? 0 : 1);
+                i += qMin(2, repeat) - 1;
+                index = i + 1;
                 newDisplay |= QDateTimeEdit::SecondSection;
                 break; }
 
@@ -1741,29 +1748,31 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
                 const SectionNode sn = { MSecSection, i - add, (repeat < 3 ? 1 : 3) };
                 newSectionNodes << sn;
                 newSeparators << unquote(newFormat.mid(index, i - index));
-                index = (i += (repeat == 3 ? 2 : 0)) + 1;
+                i += sn.count - 1;
+                index = i + 1;
                 newDisplay |= QDateTimeEdit::MSecSection;
                 break; }
             case 'A':
-            case 'a':
-                if (!last) {
-                    const bool cap = newFormat.at(i) == QLatin1Char('A');
-                    if (newFormat.at(i+1) == (cap ? QLatin1Char('P') : QLatin1Char('p'))) {
-                        const SectionNode sn = { AmPmSection, i - add, (cap ? 1 : 0) };
-                        newSectionNodes << sn;
-                        newSeparators << unquote(newFormat.mid(index, i - index));
-                        index = ++i + 1;
-                        newDisplay |= QDateTimeEdit::AmPmSection;
-                    }
+            case 'a': {
+                const bool cap = newFormat.at(i) == QLatin1Char('A');
+                const SectionNode sn = { AmPmSection, i - add, (cap ? 1 : 0) };
+                newSectionNodes << sn;
+                newSeparators << unquote(newFormat.mid(index, i - index));
+                newDisplay |= QDateTimeEdit::AmPmSection;
+                if (i + 1 < newFormat.size()
+                    && newFormat.at(i+1) == (cap ? QLatin1Char('P') : QLatin1Char('p'))) {
+                    ++i;
                 }
-                break;
+                index = i + 1;
+                break; }
             case 'y':
                 if (repeat >= 2) {
                     const bool four = repeat >= 4;
                     const SectionNode sn = { YearSection, i - add, four ? 4 : 2 };
                     newSectionNodes << sn;
                     newSeparators << unquote(newFormat.mid(index, i - index));
-                    index = (i += (four ? 3 : 1)) + 1;
+                    i += sn.count - 1;
+                    index = i + 1;
                     newDisplay |= QDateTimeEdit::YearSection;
                 }
                 break;
@@ -1771,7 +1780,8 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
                 const SectionNode sn = { MonthSection, i - add, repeat };
                 newSectionNodes << sn;
                 newSeparators << unquote(newFormat.mid(index, i - index));
-                index = (i += (repeat - 1)) + 1;
+                i += sn.count - 1;
+                index = i + 1;
                 newDisplay |= QDateTimeEdit::MonthSection;
                 break; }
 
@@ -1779,7 +1789,8 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
                 const SectionNode sn = { DaySection, i - add, repeat };
                 newSectionNodes << sn;
                 newSeparators << unquote(newFormat.mid(index, i - index));
-                index = (i += (repeat - 1)) + 1;
+                i += sn.count - 1;
+                index = i + 1;
                 newDisplay |= QDateTimeEdit::DaySection;
                 break; }
 
@@ -1814,9 +1825,9 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
 //     }
 
     QDTEDEBUG << newFormat << displayFormat;
-//     qDebug("separators:\n'%s'", separators.join("\n").toLatin1().constData());
+//    qDebug("separators:\n'%s'", separators.join("\n").toLatin1().constData());
 
-//     qDebug("display is [%0x]", (uint)display);
+//    qDebug("display is [%0x] '%s'", (uint)display, qPrintable(displayName(display)));
 
     return true;
 }
@@ -2922,18 +2933,18 @@ QValidator::State QDateTimeEditPrivate::checkIntermediate(const QDateTime &dt,
 QString QDateTimeEditPrivate::sectionName(int s) const
 {
     switch (s) {
-    case QDateTimeEditPrivate::AmPmSection: return "AmPmSection";
-    case QDateTimeEditPrivate::DaySection: return "DaySection";
-    case QDateTimeEditPrivate::HourSection: return "HourSection";
-    case QDateTimeEditPrivate::MSecSection: return "MSecSection";
-    case QDateTimeEditPrivate::MinuteSection: return "MinuteSection";
-    case QDateTimeEditPrivate::MonthSection: return "MonthSection";
-    case QDateTimeEditPrivate::SecondSection: return "SecondSection";
-    case QDateTimeEditPrivate::YearSection: return "YearSection";
-    case QDateTimeEditPrivate::NoSection: return "NoSection";
-    case QDateTimeEditPrivate::FirstSection: return "FirstSection";
-    case QDateTimeEditPrivate::LastSection: return "LastSection";
-    default: return "Unknown section " + QString::number(s);
+    case QDateTimeEditPrivate::AmPmSection: return QLatin1String("AmPmSection");
+    case QDateTimeEditPrivate::DaySection: return QLatin1String("DaySection");
+    case QDateTimeEditPrivate::HourSection: return QLatin1String("HourSection");
+    case QDateTimeEditPrivate::MSecSection: return QLatin1String("MSecSection");
+    case QDateTimeEditPrivate::MinuteSection: return QLatin1String("MinuteSection");
+    case QDateTimeEditPrivate::MonthSection: return QLatin1String("MonthSection");
+    case QDateTimeEditPrivate::SecondSection: return QLatin1String("SecondSection");
+    case QDateTimeEditPrivate::YearSection: return QLatin1String("YearSection");
+    case QDateTimeEditPrivate::NoSection: return QLatin1String("NoSection");
+    case QDateTimeEditPrivate::FirstSection: return QLatin1String("FirstSection");
+    case QDateTimeEditPrivate::LastSection: return QLatin1String("LastSection");
+    default: return QLatin1String("Unknown section ") + QString::number(s);
     }
 }
 
@@ -2950,6 +2961,29 @@ QString QDateTimeEditPrivate::stateName(int s) const
     case QValidator::Acceptable: return "Acceptable";
     default: return "Unknown state " + QString::number(s);
     }
+}
+
+QString QDateTimeEditPrivate::displayName(QDateTimeEdit::Sections sec) const
+{
+    QString ret;
+    if (sec & QDateTimeEdit::AmPmSection)
+        ret += QLatin1String("AmPmSection, ");
+    if (sec & QDateTimeEdit::HourSection)
+        ret += QLatin1String("HourSection, ");
+    if (sec & QDateTimeEdit::MinuteSection)
+        ret += QLatin1String("MinuteSection, ");
+    if (sec & QDateTimeEdit::SecondSection)
+        ret += QLatin1String("SecondSection, ");
+    if (sec & QDateTimeEdit::MSecSection)
+        ret += QLatin1String("MSecSection, ");
+    if (sec & QDateTimeEdit::YearSection)
+        ret += QLatin1String("YearSection, ");
+    if (sec & QDateTimeEdit::MonthSection)
+        ret += QLatin1String("MonthSection, ");
+    if (sec & QDateTimeEdit::DaySection)
+        ret += QLatin1String("DaySection, ");
+    ret.chop(2);
+    return ret;
 }
 
 #include "moc_qdatetimeedit.cpp"
