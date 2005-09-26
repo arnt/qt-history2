@@ -6,6 +6,10 @@
 #include <QtDebug>
 #include <QScrollBar>
 
+#ifndef QT_NO_OPENGL
+#include <QtOpenGL>
+#endif
+
 class SvgWindow : public QScrollArea
 {
 public:
@@ -81,6 +85,11 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
 
+#ifndef QT_NO_OPENGL
+    QGLFormat f = QGLFormat::defaultFormat();
+    f.setSampleBuffers(true);
+    QGLFormat::setDefaultFormat(f);
+#endif
     if (argc < 2) {
         usage(argv[0]);
         return 1;
