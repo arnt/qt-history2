@@ -2713,8 +2713,13 @@ void QSpanData::initGradient(const QGradient *g)
         uint current_color = PREMUL(stops[current_stop].second.rgba());
         uint next_color = PREMUL(stops[current_stop+1].second.rgba());
 
-        int dist = (int)(256*(dpos - stops[current_stop].first)
-                         / (stops[current_stop+1].first - stops[current_stop].first));
+
+        int dist;
+        qreal diff = (stops[current_stop+1].first - stops[current_stop].first);
+        if (diff != 0.0)
+            dist = (int)(256*(dpos - stops[current_stop].first) / diff);
+        else
+            dist = 0;        
         int idist = 256 - dist;
 
         gradient.colorTable[pos] = INTERPOLATE_PIXEL_256(current_color, idist, next_color, dist);
