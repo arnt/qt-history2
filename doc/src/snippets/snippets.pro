@@ -32,9 +32,11 @@ SUBDIRS         = brush \
 #                  pointer \
                   polygon \
                   process \
+                  qlistwidget-dnd \
                   qlistwidget-using \
 #                  qmake \                  # not designed to be built
 #                  qsignalmapper \
+                  qtablewidget-dnd \
                   qtablewidget-resizing \
                   qtablewidget-using \
                   qtcast \
