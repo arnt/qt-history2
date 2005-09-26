@@ -42,6 +42,7 @@ public:
 
     bool notify_helper(QObject *, QEvent *);
 
+    virtual QString appName() const;
     virtual void createEventDispatcher();
     static void moveToMainThread(QObject *o);
     static void removePostedEvent(QEvent *);

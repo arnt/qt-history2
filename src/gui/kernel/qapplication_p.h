@@ -145,6 +145,7 @@ public:
     static void emitLastWindowClosed();
 
     void createEventDispatcher();
+    QString appName() const;
 
     static void dispatchEnterLeave(QWidget *enter, QWidget *leave);
     static QWidget *widgetAt_sys(int x, int y);

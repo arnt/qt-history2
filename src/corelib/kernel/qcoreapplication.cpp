@@ -44,6 +44,18 @@
 extern QString qAppFileName();
 #endif
 
+#if !defined(Q_OS_WIN)
+QString QCoreApplicationPrivate::appName() const
+{
+    static QString applName;
+    if (applName.isEmpty() && argv[0]) {
+        char *p = strrchr(argv[0], '/');
+        applName = QString::fromLocal8Bit(p ? p + 1 : argv[0]);
+    }
+    return applName;
+}
+#endif
+
 bool QCoreApplicationPrivate::checkInstance(const char *function)
 {
     bool b = (QCoreApplication::self != 0);
@@ -269,6 +281,13 @@ void QCoreApplicationPrivate::checkReceiverThread(QObject *receiver)
                .toLocal8Bit().data());
     Q_UNUSED(currentThread);
     Q_UNUSED(thr);
+}
+
+QString qAppName()
+{
+    if (!QCoreApplicationPrivate::checkInstance("qAppName"))
+        return QString();
+    return QCoreApplication::instance()->d_func()->appName();
 }
 
 /*!

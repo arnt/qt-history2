@@ -12,22 +12,12 @@
 ****************************************************************************/
 
 #include "qcoreapplication.h"
+#include "private/qcoreapplication_p.h"
 #include <private/qcore_mac_p.h>
 
 /*****************************************************************************
   QCoreApplication utility functions
  *****************************************************************************/
-QString qAppName()                                // get application name
-{
-    static QString appName;
-    QCoreApplication *app;
-    if (appName.isEmpty() && (app = QCoreApplication::instance())) {
-        char *p = strrchr(app->argv()[0], '/');
-        appName = p ? QString::fromUtf8(p + 1) : QString::fromUtf8(app->argv()[0]);
-    }
-    return appName;
-}
-
 QString qAppFileName()
 {
     static QString appFileName;

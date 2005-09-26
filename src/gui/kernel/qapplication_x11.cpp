@@ -2029,9 +2029,9 @@ bool qt_wstate_iconified(WId winid)
     return iconic;
 }
 
-QString qAppName()                                // get application name
+QString QApplicationPrivate::appName() const
 {
-    return QString::fromLatin1(appName);
+    return QString::fromLocal8Bit(::appName);
 }
 
 const char *QX11Info::appClass()                                // get application class

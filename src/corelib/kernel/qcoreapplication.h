@@ -153,6 +153,7 @@ private:
     friend class QWidget;
     friend class QWidgetPrivate;
     friend bool qt_sendSpontaneousEvent(QObject*, QEvent*);
+    friend QString qAppName();
 };
 
 inline bool QCoreApplication::sendEvent(QObject *receiver, QEvent *event)

@@ -810,20 +810,20 @@ void qt_init_app_proc_handler()
                         &app_proc_handler);
 }
 
-static QString qt_guiAppName()
+QString QApplicationPrivate::appName() const
 {
-    static QString appName;
-    if (appName.isEmpty()) {
+    static QString applName;
+    if (applName.isEmpty()) {
         ProcessSerialNumber psn;
         if (qt_is_gui_used && GetCurrentProcess(&psn) == noErr) {
             QCFString cfstr;
             CopyProcessName(&psn, &cfstr);
-            appName = cfstr;
+            applName = cfstr;
         } else {
-            appName = qAppName();
+            applName = QCoreApplicationPrivate::appName();
         }
     }
-    return appName;
+    return applName;
 }
 
 void qt_release_app_proc_handler()
@@ -897,7 +897,7 @@ void qt_init(QApplicationPrivate *priv, int)
 
     QMacMime::initialize();
 
-    qApp->setObjectName(qt_guiAppName());
+    qApp->setObjectName(priv->appName());
     if(qt_is_gui_used) {
         QColormap::initialize();
         QFont::initialize();

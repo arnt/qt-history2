@@ -62,11 +62,11 @@ Q_CORE_EXPORT QString qAppFileName()                // get application file name
     return appFileName;
 }
 
-Q_CORE_EXPORT QString qAppName()                        // get application name
+const QString QCoreApplicationPrivate::appName() const
 {
-    if (!appName[0])
+    if (!::appName[0])
         set_winapp_name();
-    return appName;
+    return ::appName;
 }
 
 Q_CORE_EXPORT void qWinMsgHandler(QtMsgType t, const char* str)
