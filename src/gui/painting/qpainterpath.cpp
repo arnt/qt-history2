@@ -283,10 +283,11 @@ QPainterPath::~QPainterPath()
 }
 
 /*!
-    Closes the current subpath. If the subpath does not contain any
-    elements, the function does nothing. A new subpath is automatically
-    begun when the current subpath is closed. The current point of the
-    new path is (0, 0).
+    Closes the current subpath by drawing a line to the beginning of
+    the subpath. If the subpath does not contain any elements, the
+    function does nothing. A new subpath is automatically begun when
+    the current subpath is closed. The current point of the new path
+    is (0, 0).
  */
 void QPainterPath::closeSubpath()
 {
