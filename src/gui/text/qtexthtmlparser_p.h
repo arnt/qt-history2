@@ -223,7 +223,6 @@ struct QTextHtmlParserNode {
 
     inline int uncollapsedMargin(int mar) const { return margin[mar]; }
 
-private:
     bool isNestedList(const QTextHtmlParser *parser) const;
 
     int margin[4];
