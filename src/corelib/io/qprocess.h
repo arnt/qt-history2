@@ -55,6 +55,10 @@ public:
         MergedChannels,
         ForwardedChannels
     };
+    enum ExitStatus {
+        NormalExit,
+        CrashExit
+    };
 
     explicit QProcess(QObject *parent = 0);
     virtual ~QProcess();
@@ -91,6 +95,7 @@ public:
     QByteArray readAllStandardError();
 
     int exitCode() const;
+    QProcess::ExitStatus exitStatus() const;
 
     // QIODevice
     qint64 bytesAvailable() const;
@@ -115,6 +120,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void started();
     void finished(int exitCode);
+    void finished(int exitCode, QProcess::ExitStatus exitStatus);
     void error(QProcess::ProcessError error);
     void stateChanged(QProcess::ProcessState state);
 

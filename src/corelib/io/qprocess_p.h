@@ -118,6 +118,7 @@ public:
     static bool startDetached(const QString &program, const QStringList &arguments);
 
     int exitCode;
+    QProcess::ExitStatus exitStatus;
     bool crashed;
 #ifdef Q_OS_UNIX
     int serial;

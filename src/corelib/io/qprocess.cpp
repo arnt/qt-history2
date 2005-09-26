@@ -90,12 +90,13 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     When the process exits, QProcess reenters the \l NotRunning state
     (the initial state), and emits finished().
 
-    The finished() signal provides the exit code of the process as an
-    argument, and you can also call exitCode() to obtain the exit code
-    of the last process that finished. If an error occurs at any point
-    in time, QProcess will emit the error() signal. You can also call
-    error() to find the type of error that occurred last, and state()
-    to find the current process state.
+    The finished() signal provides the exit code and exit status of
+    the process as arguments, and you can also call exitCode() to
+    obtain the exit code of the last process that finished, and
+    exitStatus() to obtain its exit status. If an error occurs at
+    any point in time, QProcess will emit the error() signal. You
+    can also call error() to find the type of error that occurred
+    last, and state() to find the current process state.
 
     Processes have two predefined output channels: The standard
     output channel (\c stdout) supplies regular console output, and
@@ -252,6 +253,18 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 */
 
 /*!
+    \enum QProcess::ExitStatus
+
+    This enum describes the different exit statuses of QProcess.
+
+    \value NormalExit The process exited normally.
+
+    \value CrashExit The process crashed.
+
+    \sa exitStatus()
+*/
+
+/*!
     \fn void QProcess::error(QProcess::ProcessError error)
 
     This signal is emitted when an error occurs with the process. The
@@ -274,11 +287,19 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 
 /*!
     \fn void QProcess::finished(int exitCode)
+    \obsolete
+    \overload
 
-    This signal is emitted when the process finishes. \a exitCode is
-    the exit code of the process. After the process has finished, the
-    buffers in QProcess are still intact. You can still read any data
-    that the process may have written before it finished.
+    Use finished(int exitCode, QProcess::ExitStatus status) instead.
+*/
+
+/*!
+    \fn void QProcess::finished(int exitCode, QProcess::ExitStatus exitStatus)
+
+    This signal is emitted when the process finishes. \a exitCode is the exit
+    code of the process, and \a exitStatus is the exit status.  After the
+    process has finished, the buffers in QProcess are still intact. You can
+    still read any data that the process may have written before it finished.
 */
 
 /*!
@@ -313,6 +334,7 @@ QProcessPrivate::QProcessPrivate()
     pid = 0;
     sequenceNumber = 0;
     exitCode = 0;
+    exitStatus = QProcess::NormalExit;
     standardReadSocketNotifier = 0;
     errorReadSocketNotifier = 0;
     writeSocketNotifier = 0;
@@ -569,6 +591,7 @@ bool QProcessPrivate::processDied()
     findExitCode();
 
     if (crashed) {
+        exitStatus = QProcess::CrashExit;
         processError = QProcess::Crashed;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, QLatin1String("Process crashed")));
         emit q->error(processError);
@@ -579,6 +602,7 @@ bool QProcessPrivate::processDied()
     processState = QProcess::NotRunning;
     emit q->stateChanged(processState);
     emit q->finished(exitCode);
+    emit q->finished(exitCode, exitStatus);
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::processDied() process is dead");
 #endif
@@ -1347,6 +1371,15 @@ int QProcess::exitCode() const
 {
     Q_D(const QProcess);
     return d->exitCode;
+}
+
+/*!
+    Returns the exit status of the last process that finished.
+*/
+QProcess::ExitStatus QProcess::exitStatus() const
+{
+    Q_D(const QProcess);
+    return d->exitStatus;
 }
 
 /*!
