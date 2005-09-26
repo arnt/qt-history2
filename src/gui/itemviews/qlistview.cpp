@@ -1061,11 +1061,36 @@ QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
 QRect QListView::rectForIndex(const QModelIndex &index) const
 {
     Q_D(const QListView);
-    if (!index.isValid() || index.parent() != rootIndex() || index.column() != d->column || isIndexHidden(index))
+    if (!index.isValid()
+        || index.parent() != rootIndex()
+        || index.column() != d->column
+        || isIndexHidden(index))
         return QRect();
     d->executePostedLayout();
     QListViewItem item = d->indexToListViewItem(index);
     return d->viewItemRect(item);
+}
+
+/*!
+  Sets the contents position of the item at \a index in the model to the given \a pos.
+  If  the listview movement mode is Static, this function will have no effect.
+*/
+void QListView::setPositionForIndex(const QPoint &position, const QModelIndex &index)
+{
+    Q_D(QListView);
+    if (d->movement == Static
+        || !index.isValid()
+        || index.parent() != rootIndex()
+        || index.column() != d->column
+        || index.row() >= d->items.count())
+        return;
+    d->executePostedLayout();
+    QListViewItem *item = &d->items[index.row()];
+    if (isVisible())
+        d->viewport->update(visualRect(index)); // update old position
+    item->move(position);
+    if (isVisible())
+        d->viewport->update(visualRect(index)); // update new position
 }
 
 /*!

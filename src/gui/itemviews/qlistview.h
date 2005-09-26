@@ -124,6 +124,7 @@ protected:
     int verticalOffset() const;
     QModelIndex moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers);
     QRect rectForIndex(const QModelIndex &index) const;
+    void setPositionForIndex(const QPoint &position, const QModelIndex &index);
 
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
     QRegion visualRegionForSelection(const QItemSelection &selection) const;

@@ -33,7 +33,6 @@
 
 class QListViewItem
 {
-    friend class QBspTree;;
     friend class QListViewPrivate;
 public:
     inline QListViewItem()
@@ -55,6 +54,8 @@ public:
         { x = -1; y = -1; w = 0; h = 0; }
     inline void resize(const QSize &size)
         { w = size.width(); h = size.height(); }
+    inline void move(const QPoint &position)
+        { x = position.x(); y = position.y(); }
 private:
     inline QRect rect() const
         { return QRect(x, y, w, h); }
