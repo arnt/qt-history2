@@ -1762,6 +1762,12 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 stateId = PBS_NORMAL;
         }
         break;
+    case CE_TabBarTab:
+        if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option))
+        {
+            stateId = tab->state & State_Enabled ? TIS_NORMAL : TIS_DISABLED;
+        }    
+    break;
 
     case CE_TabBarTabShape:
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option))
