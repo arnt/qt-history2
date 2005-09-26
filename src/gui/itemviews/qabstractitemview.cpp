@@ -1119,7 +1119,9 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
                     d->dropIndicatorRect = rect;
                     event->accept();
                 }
-                break;
+		break;
+	    case OnViewport:
+	        break;
             }  
             update();
         } else {
@@ -1183,10 +1185,11 @@ void QAbstractItemView::dropEvent(QDropEvent *event)
                 index = index.parent();
                 break;
             case OnItem:
+                break;
             case OnViewport:
                 break;
             }
-        }else{
+        } else {
             d->dropIndicatorPosition = QAbstractItemView::OnViewport;
         }
         if (model()->dropMimeData(event->mimeData(), event->proposedAction(), row, col, index))
