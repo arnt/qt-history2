@@ -43,7 +43,7 @@ namespace QTest
         if (delay == -1 || delay < defaultMouseDelay())
             delay = defaultMouseDelay();
         if(delay > 0)
-            QTest::wait(delay);
+            QTest::qWait(delay);
 
         if (pos.isNull())
             pos = widget->rect().center();
@@ -79,7 +79,7 @@ namespace QTest
                 QTEST_ASSERT(false);
         }
         if (!QApplication::sendEvent(widget, &me))
-            QTest::fail("Mouse event is not accepted by receiving widget",
+            QTest::qFail("Mouse event is not accepted by receiving widget",
                         __FILE__, __LINE__);
 
     }

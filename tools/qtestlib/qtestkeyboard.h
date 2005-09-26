@@ -89,7 +89,7 @@ namespace QTest
         if (delay == -1 || delay < defaultKeyDelay())
             delay = defaultKeyDelay();
         if(delay > 0)
-            QTest::wait(delay);
+            QTest::qWait(delay);
 
         QKeyEvent a(press ? QEvent::KeyPress : QEvent::KeyRelease, code, modifier, text, repeat);
         // this is should be safe because of the paranoia methods above.

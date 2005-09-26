@@ -48,6 +48,12 @@ int main(int argc, char *argv[])
     QRegExp nsRx(QLatin1String("namespace(\\s+)QtTest"));
     QRegExp callRx(QLatin1String("QtTest(\\s*)::"));
 
+    enum { MacroCount = 11 };
+    static const char *macroNames[MacroCount] = {
+        "VERIFY", "FAIL", "VERIFY2", "COMPARE", "SKIP", "VERIFY_EVENT",
+        "EXPECT_FAIL", "FETCH", "FETCH_GLOBAL", "TEST", "WARN"
+    };
+
     for (; i < argc; ++i) {
         QFile f(QString::fromLocal8Bit(argv[i]));
         if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -96,6 +102,19 @@ int main(int argc, char *argv[])
             line.replace(QLatin1String("QtTestEventLoop"), QLatin1String("QTestEventLoop"));
             line.replace(QLatin1String("QtTestEventList"), QLatin1String("QTestEventList"));
             line.replace(QLatin1String("QtTestAccessibility"), QLatin1String("QTestAccessibility"));
+            line.replace(QLatin1String("QTest::sleep"), QLatin1String("QTest::qSleep"));
+            line.replace(QLatin1String("QTest::wait"), QLatin1String("QTest::qWait"));
+
+            for (int m = 0; m < MacroCount; ++m) {
+                QRegExp macroRe(QString::fromLatin1("\\b%1(\\s*\\()").arg(
+                                 QLatin1String(macroNames[m])));
+                QString newMacroName = QLatin1Char('Q') + QString::fromLatin1(macroNames[m]);
+                int pos = 0;
+                while ((pos = macroRe.indexIn(line)) != -1) {
+                    line.replace(macroRe, newMacroName + macroRe.cap(1));
+                    pos += macroRe.matchedLength();
+                }
+            }
 
             if (line != origLine) {
                 if (printDiff) {

@@ -68,22 +68,22 @@ template<> inline char *toString(const QChar &c)
 #ifndef QTEST_NO_PARTIAL_SPECIALIZATIONS
 template<>
 #endif
-inline bool compare(QString const &t1, QLatin1String const &t2, const char *actual,
+inline bool qCompare(QString const &t1, QLatin1String const &t2, const char *actual,
                     const char *expected, const char *file, int line)
 {
-    return compare<QString>(t1, QString(t2), actual, expected, file, line);
+    return qCompare<QString>(t1, QString(t2), actual, expected, file, line);
 }
 #ifndef QTEST_NO_PARTIAL_SPECIALIZATIONS
 template<>
 #endif
-inline bool compare(QLatin1String const &t1, QString const &t2, const char *actual,
+inline bool qCompare(QLatin1String const &t1, QString const &t2, const char *actual,
                     const char *expected, const char *file, int line)
 {
-    return compare<QString>(QString(t1), t2, actual, expected, file, line);
+    return qCompare<QString>(QString(t1), t2, actual, expected, file, line);
 }
 
 template<>
-inline bool compare(QStringList const &t1, QStringList const &t2,
+inline bool qCompare(QStringList const &t1, QStringList const &t2,
                     const char *actual, const char *expected, const char *file, int line)
 {
     char msg[1024];
@@ -109,17 +109,17 @@ inline bool compare(QStringList const &t1, QStringList const &t2,
 }
 
 template <typename T>
-inline bool compare(QFlags<T> const &t1, T const &t2, const char *actual, const char *expected,
+inline bool qCompare(QFlags<T> const &t1, T const &t2, const char *actual, const char *expected,
                     const char *file, int line)
 {
-    return compare(int(t1), int(t2), actual, expected, file, line);
+    return qCompare(int(t1), int(t2), actual, expected, file, line);
 }
 
 template <typename T>
-inline bool compare(QFlags<T> const &t1, int const &t2, const char *actual, const char *expected,
+inline bool qCompare(QFlags<T> const &t1, int const &t2, const char *actual, const char *expected,
                     const char *file, int line)
 {
-    return compare(int(t1), t2, actual, expected, file, line);
+    return qCompare(int(t1), t2, actual, expected, file, line);
 }
 
 }
@@ -128,14 +128,14 @@ inline bool compare(QFlags<T> const &t1, int const &t2, const char *actual, cons
 int main(int argc, char *argv[]) \
 { \
     TestObject tc; \
-    return QTest::exec(&tc, argc, argv); \
+    return QTest::qExec(&tc, argc, argv); \
 }
 
 #define QTEST_NOOP_MAIN \
 int main(int argc, char *argv[]) \
 { \
     QObject tc; \
-    return QTest::exec(&tc, argc, argv); \
+    return QTest::qExec(&tc, argc, argv); \
 }
 
 #ifdef QT_GUI_LIB
@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) \
 { \
     QApplication app(argc, argv); \
     TestObject tc; \
-    return QTest::exec(&tc, argc, argv); \
+    return QTest::qExec(&tc, argc, argv); \
 }
 
 #else
@@ -157,7 +157,7 @@ int main(int argc, char *argv[]) \
 { \
     QCoreApplication app(argc, argv); \
     TestObject tc; \
-    return QTest::exec(&tc, argc, argv); \
+    return QTest::qExec(&tc, argc, argv); \
 }
 
 #endif //QT_GUI_LIB

@@ -19,63 +19,63 @@
 
 #include "QtTest/qtest_global.h"
 
-#define VERIFY(statement) \
+#define QVERIFY(statement) \
 do {\
-    if (!QTest::verify((statement), #statement, "", __FILE__, __LINE__))\
+    if (!QTest::qVerify((statement), #statement, "", __FILE__, __LINE__))\
         return;\
 } while (0)
 
-#define FAIL(message) \
+#define QFAIL(message) \
 do {\
-    QTest::fail(message, __FILE__, __LINE__);\
+    QTest::qFail(message, __FILE__, __LINE__);\
     return;\
 } while (0)
 
-#define VERIFY2(statement, description) \
+#define QVERIFY2(statement, description) \
 do {\
     if (statement) {\
-        if (!QTest::verify(true, #statement, (description), __FILE__, __LINE__))\
+        if (!QTest::qVerify(true, #statement, (description), __FILE__, __LINE__))\
             return;\
     } else {\
-        if (!QTest::verify(false, #statement, (description), __FILE__, __LINE__))\
+        if (!QTest::qVerify(false, #statement, (description), __FILE__, __LINE__))\
             return;\
     }\
 } while (0)
 
-#define COMPARE(actual, expected) \
+#define QCOMPARE(actual, expected) \
 do {\
-    if (!QTest::compare(actual, expected, #actual, #expected, __FILE__, __LINE__))\
+    if (!QTest::qCompare(actual, expected, #actual, #expected, __FILE__, __LINE__))\
         return;\
 } while (0)
 
-#define SKIP(statement, mode) \
+#define QSKIP(statement, mode) \
 do {\
-    QTest::skip(statement, QTest::mode, __FILE__, __LINE__);\
+    QTest::qSkip(statement, QTest::mode, __FILE__, __LINE__);\
     return;\
 } while (0)
 
-#define EXPECT_FAIL(dataIndex, comment, mode)\
+#define QEXPECT_FAIL(dataIndex, comment, mode)\
 do {\
-    if (!QTest::expectFail(dataIndex, comment, QTest::mode, __FILE__, __LINE__))\
+    if (!QTest::qExpectFail(dataIndex, comment, QTest::mode, __FILE__, __LINE__))\
         return;\
 } while (0)
 
-#define FETCH(type, name)\
-    type name = *static_cast<type *>(QTest::data(#name, qMetaTypeId<type >()))
+#define QFETCH(type, name)\
+    type name = *static_cast<type *>(QTest::qData(#name, qMetaTypeId<type >()))
 
-#define FETCH_GLOBAL(type, name)\
-    type name = *static_cast<type *>(QTest::globalData(#name, qMetaTypeId<type >()))
+#define QFETCH_GLOBAL(type, name)\
+    type name = *static_cast<type *>(QTest::qGlobalData(#name, qMetaTypeId<type >()))
 
 #define DEPENDS_ON(funcName)
 
-#define TEST(actual, testElement)\
+#define QTEST(actual, testElement)\
 do {\
-    if (!QTest::test(actual, testElement, #actual, #testElement, __FILE__, __LINE__))\
+    if (!QTest::qTest(actual, testElement, #actual, #testElement, __FILE__, __LINE__))\
         return;\
 } while (0)
 
-#define WARN(msg)\
-    QTest::warn(msg)
+#define QWARN(msg)\
+    QTest::qWarn(msg)
 
 class QObject;
 class QTestData;
@@ -94,20 +94,20 @@ namespace QTest
     Q_TESTLIB_EXPORT char *toString(const char *);
     Q_TESTLIB_EXPORT char *toString(const void *);
 
-    Q_TESTLIB_EXPORT int exec(QObject *testObject, int argc = 0, char **argv = 0);
+    Q_TESTLIB_EXPORT int qExec(QObject *testObject, int argc = 0, char **argv = 0);
 
-    Q_TESTLIB_EXPORT bool verify(bool statement, const char *statementStr, const char *description,
+    Q_TESTLIB_EXPORT bool qVerify(bool statement, const char *statementStr, const char *description,
                                  const char *file, int line);
-    Q_TESTLIB_EXPORT void fail(const char *statementStr, const char *file, int line);
-    Q_TESTLIB_EXPORT void skip(const char *message, SkipMode mode, const char *file, int line);
-    Q_TESTLIB_EXPORT bool expectFail(const char *dataIndex, const char *comment, TestFailMode mode,
+    Q_TESTLIB_EXPORT void qFail(const char *statementStr, const char *file, int line);
+    Q_TESTLIB_EXPORT void qSkip(const char *message, SkipMode mode, const char *file, int line);
+    Q_TESTLIB_EXPORT bool qExpectFail(const char *dataIndex, const char *comment, TestFailMode mode,
                            const char *file, int line);
-    Q_TESTLIB_EXPORT void warn(const char *message);
+    Q_TESTLIB_EXPORT void qWarn(const char *message);
     Q_TESTLIB_EXPORT void ignoreMessage(QtMsgType type, const char *message);
 
-    Q_TESTLIB_EXPORT void *data(const char *tagName, int typeId);
-    Q_TESTLIB_EXPORT void *globalData(const char *tagName, int typeId);
-    Q_TESTLIB_EXPORT void *elementData(const char *elementName, int metaTypeId);
+    Q_TESTLIB_EXPORT void *qData(const char *tagName, int typeId);
+    Q_TESTLIB_EXPORT void *qGlobalData(const char *tagName, int typeId);
+    Q_TESTLIB_EXPORT void *qElementData(const char *elementName, int metaTypeId);
     Q_TESTLIB_EXPORT QObject *testObject();
 
     Q_TESTLIB_EXPORT const char *currentTestFunction();
@@ -117,11 +117,12 @@ namespace QTest
     Q_TESTLIB_EXPORT Qt::Key asciiToKey(char ascii);
     Q_TESTLIB_EXPORT char keyToAscii(Qt::Key key);
 
-    Q_TESTLIB_EXPORT bool compare_helper(bool success, const char *msg, const char *file, int line);
+    Q_TESTLIB_EXPORT bool compare_helper(bool success, const char *msg, const char *file,
+                                          int line);
     Q_TESTLIB_EXPORT bool compare_helper(bool success, const char *msg, char *val1, char *val2,
                                          const char *expected, const char *actual,
                                          const char *file, int line);
-    Q_TESTLIB_EXPORT void sleep(int ms);
+    Q_TESTLIB_EXPORT void qSleep(int ms);
     Q_TESTLIB_EXPORT void addColumnInternal(int id, const char *name);
 
     template <typename T>
@@ -132,7 +133,7 @@ namespace QTest
     Q_TESTLIB_EXPORT QTestData &newRow(const char *dataTag);
 
     template <typename T>
-    inline bool compare(T const &t1, T const &t2, const char *actual, const char *expected,
+    inline bool qCompare(T const &t1, T const &t2, const char *actual, const char *expected,
                         const char *file, int line)
     {
         return (t1 == t2)
@@ -142,11 +143,11 @@ namespace QTest
     }
 
     template <>
-    Q_TESTLIB_EXPORT bool compare<float>(float const &t1, float const &t2,
+    Q_TESTLIB_EXPORT bool qCompare<float>(float const &t1, float const &t2,
                     const char *actual, const char *expected, const char *file, int line);
 
     template <>
-    Q_TESTLIB_EXPORT bool compare<double>(double const &t1, double const &t2,
+    Q_TESTLIB_EXPORT bool qCompare<double>(double const &t1, double const &t2,
                     const char *actual, const char *expected, const char *file, int line);
 
     inline bool compare_ptr_helper(const void *t1, const void *t2, const char *actual,
@@ -179,29 +180,29 @@ namespace QTest
 
 #ifndef QTEST_NO_PARTIAL_SPECIALIZATIONS
     template <typename T1, typename T2>
-    bool compare(T1 const &, T2 const &, const char *, const char *, const char *, int);
+    bool qCompare(T1 const &, T2 const &, const char *, const char *, const char *, int);
 
     template <typename T>
-    inline bool compare(const T *t1, const T *t2, const char *actual, const char *expected,
+    inline bool qCompare(const T *t1, const T *t2, const char *actual, const char *expected,
                         const char *file, int line)
     {
         return compare_ptr_helper(t1, t2, actual, expected, file, line);
     }
     template <typename T>
-    inline bool compare(T *t1, T *t2, const char *actual, const char *expected,
+    inline bool qCompare(T *t1, T *t2, const char *actual, const char *expected,
                         const char *file, int line)
     {
         return compare_ptr_helper(t1, t2, actual, expected, file, line);
     }
 
     template <typename T1, typename T2>
-    inline bool compare(const T1 *t1, const T2 *t2, const char *actual, const char *expected,
+    inline bool qCompare(const T1 *t1, const T2 *t2, const char *actual, const char *expected,
                         const char *file, int line)
     {
         return compare_ptr_helper(t1, static_cast<const T1 *>(t2), actual, expected, file, line);
     }
     template <typename T1, typename T2>
-    inline bool compare(T1 *t1, T2 *t2, const char *actual, const char *expected,
+    inline bool qCompare(T1 *t1, T2 *t2, const char *actual, const char *expected,
                         const char *file, int line)
     {
         return compare_ptr_helper(const_cast<const T1 *>(t1),
@@ -211,7 +212,7 @@ namespace QTest
 #ifndef QTEST_NO_PARTIAL_SPECIALIZATIONS
     template<>
 #endif
-    inline bool compare(const char *t1, const char *t2, const char *actual, const char *expected,
+    inline bool qCompare(const char *t1, const char *t2, const char *actual, const char *expected,
                         const char *file, int line)
     {
         return compare_string_helper(t1, t2, actual, expected, file, line);
@@ -219,17 +220,17 @@ namespace QTest
 #ifndef QTEST_NO_PARTIAL_SPECIALIZATIONS
     template<>
 #endif
-    inline bool compare(char *t1, char *t2, const char *actual, const char *expected,
+    inline bool qCompare(char *t1, char *t2, const char *actual, const char *expected,
                         const char *file, int line)
     {
         return compare_string_helper(t1, t2, actual, expected, file, line);
     }
 
     template <class T>
-    inline bool test(const T& actual, const char *elementName, const char *actualStr,
+    inline bool qTest(const T& actual, const char *elementName, const char *actualStr,
                      const char *expected, const char *file, int line)
     {
-        return compare(actual, *static_cast<const T *>(QTest::elementData(elementName,
+        return qCompare(actual, *static_cast<const T *>(QTest::qElementData(elementName,
                        QMetaTypeId<T>::qt_metatype_id())), actualStr, expected, file, line);
     }
 }

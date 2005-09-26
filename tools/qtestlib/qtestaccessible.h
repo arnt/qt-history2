@@ -23,8 +23,8 @@
 
 #define QTEST_ACCESSIBILITY
 
-#define VERIFY_EVENT(object, child, event) \
-    VERIFY(QTestAccessibility::verifyEvent(object, child, (int)event))
+#define QVERIFY_EVENT(object, child, event) \
+    QVERIFY(QTestAccessibility::verifyEvent(object, child, (int)event))
 
 #include <QtCore/qlist.h>
 #include <QtGui/qaccessible.h>

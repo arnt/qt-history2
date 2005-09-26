@@ -108,7 +108,7 @@ public:
     inline QTestDelayEvent(int msecs): _delay(msecs) {}
     inline QTestEvent *clone() const { return new QTestDelayEvent(*this); }
 
-    inline void simulate(QWidget * /*w*/) { QTest::wait(_delay); }
+    inline void simulate(QWidget * /*w*/) { QTest::qWait(_delay); }
 
 private:
     int _delay;

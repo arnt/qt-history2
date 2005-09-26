@@ -20,7 +20,7 @@
 
 namespace QTest
 {
-    inline static void wait(int ms)
+    inline static void qWait(int ms)
     {
         Q_ASSERT(QCoreApplication::instance());
 
@@ -28,7 +28,7 @@ namespace QTest
         timer.start();
         do {
             QCoreApplication::processEvents(QEventLoop::AllEvents, ms);
-            QTest::sleep(10);
+            QTest::qSleep(10);
         } while (timer.elapsed() < ms);
     }
 }

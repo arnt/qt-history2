@@ -32,19 +32,19 @@ namespace QTest
 {
 
 template<>
-inline bool compare(QIcon const &t1, QIcon const &t2, const char *actual, const char *expected,
+inline bool qCompare(QIcon const &t1, QIcon const &t2, const char *actual, const char *expected,
                     const char *file, int line)
 {
     QTEST_ASSERT(sizeof(QIcon) == sizeof(void *));
-    return compare<void *>(*reinterpret_cast<void * const *>(&t1),
+    return qCompare<void *>(*reinterpret_cast<void * const *>(&t1),
                    *reinterpret_cast<void * const *>(&t2), actual, expected, file, line);
 }
 
 template<>
-inline bool compare(QPixmap const &t1, QPixmap const &t2, const char *actual, const char *expected,
+inline bool qCompare(QPixmap const &t1, QPixmap const &t2, const char *actual, const char *expected,
                     const char *file, int line)
 {
-    return compare(t1.toImage(), t2.toImage(), actual, expected, file, line);
+    return qCompare(t1.toImage(), t2.toImage(), actual, expected, file, line);
 }
 
 }

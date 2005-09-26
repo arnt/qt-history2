@@ -160,7 +160,7 @@ static void qParseArgs(int argc, char *argv[])
                    " -lightxml  : Outputs results as stream of XML tags\n"
                    " -o filename: Writes all output into a file\n"
                    " -v1        : Print enter messages for each testfunction\n"
-                   " -v2        : Also print out each VERIFY/COMPARE/TEST\n"
+                   " -v2        : Also print out each QVERIFY/QCOMPARE/QTEST\n"
                    " -vs        : Print every signal emitted\n"
                    " -eventdelay ms    : Set default delay for mouse and keyboard simulation to ms milliseconds\n"
                    " -keydelay ms      : Set default delay for keyboard simulation to ms milliseconds\n"
@@ -350,7 +350,7 @@ void *fetchData(QTestData *data, const char *tagName, int typeId)
 
 } // namespace
 
-int QTest::exec(QObject *testObject, int argc, char **argv)
+int QTest::qExec(QObject *testObject, int argc, char **argv)
 {
 #ifndef QT_NO_EXCEPTION
     try {
@@ -429,18 +429,18 @@ int QTest::exec(QObject *testObject, int argc, char **argv)
 #endif
 }
 
-void QTest::fail(const char *statementStr, const char *file, int line)
+void QTest::qFail(const char *statementStr, const char *file, int line)
 {
     QTestResult::addFailure(statementStr, file, line);
 }
 
-bool QTest::verify(bool statement, const char *statementStr, const char *description,
+bool QTest::qVerify(bool statement, const char *statementStr, const char *description,
                    const char *file, int line)
 {
     return QTestResult::verify(statement, statementStr, description, file, line);
 }
 
-void QTest::skip(const char *message, QTest::SkipMode mode,
+void QTest::qSkip(const char *message, QTest::SkipMode mode,
                  const char *file, int line)
 {
     QTestResult::addSkip(message, mode, file, line);
@@ -448,13 +448,13 @@ void QTest::skip(const char *message, QTest::SkipMode mode,
         skipCurrentTest = true;
 }
 
-bool QTest::expectFail(const char *dataIndex, const char *comment,
+bool QTest::qExpectFail(const char *dataIndex, const char *comment,
                        QTest::TestFailMode mode, const char *file, int line)
 {
     return QTestResult::expectFail(dataIndex, comment, mode, file, line);
 }
 
-void QTest::warn(const char *message)
+void QTest::qWarn(const char *message)
 {
     QTestLog::warn(message);
 }
@@ -464,17 +464,17 @@ void QTest::ignoreMessage(QtMsgType type, const char *message)
     QTestResult::ignoreMessage(type, message);
 }
 
-void *QTest::data(const char *tagName, int typeId)
+void *QTest::qData(const char *tagName, int typeId)
 {
     return fetchData(QTestResult::currentTestData(), tagName, typeId);
 }
 
-void *QTest::globalData(const char *tagName, int typeId)
+void *QTest::qGlobalData(const char *tagName, int typeId)
 {
     return fetchData(QTestResult::currentGlobalTestData(), tagName, typeId);
 }
 
-void *QTest::elementData(const char *tagName, int metaTypeId)
+void *QTest::qElementData(const char *tagName, int metaTypeId)
 {
     QTEST_ASSERT(tagName);
     QTestData *data = QTestResult::currentTestData();
@@ -519,7 +519,7 @@ bool QTest::currentTestFailed()
     return QTestResult::currentTestFailed();
 }
 
-void QTest::sleep(int ms)
+void QTest::qSleep(int ms)
 {
 #ifdef Q_OS_WIN32
     Sleep(uint(ms));
@@ -548,7 +548,7 @@ bool QTest::compare_helper(bool success, const char *msg, char *val1, char *val2
 }
 
 template <>
-bool QTest::compare<float>(float const &t1, float const &t2, const char *actual, const char *expected,
+bool QTest::qCompare<float>(float const &t1, float const &t2, const char *actual, const char *expected,
                     const char *file, int line)
 {
     return (qAbs(t1 - t2) < 0.00001f)
@@ -558,7 +558,7 @@ bool QTest::compare<float>(float const &t1, float const &t2, const char *actual,
 }
 
 template <>
-bool QTest::compare<double>(double const &t1, double const &t2, const char *actual, const char *expected,
+bool QTest::qCompare<double>(double const &t1, double const &t2, const char *actual, const char *expected,
                     const char *file, int line)
 {
     return (qAbs(t1 - t2) < 0.000000000001)

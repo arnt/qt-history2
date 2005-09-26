@@ -184,7 +184,7 @@ bool QTestResult::verify(bool statement, const char *statementStr,
     char msg[1024];
 
     if (QTestLog::verboseLevel() >= 2) {
-        QTest::qt_snprintf(msg, 1024, "VERIFY(%s)", statementStr);
+        QTest::qt_snprintf(msg, 1024, "QVERIFY(%s)", statementStr);
         QTestLog::info(msg, file, line);
     }
 
