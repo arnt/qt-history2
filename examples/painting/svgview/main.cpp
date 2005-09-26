@@ -1,4 +1,4 @@
-#include "qsvgview.h"
+#include "svgview.h"
 
 #include <QScrollArea>
 #include <QApplication>
@@ -19,15 +19,15 @@ public:
 
         if (type == QLatin1String("-gl")) {
 #ifndef QT_NO_OPENGL
-            view = new QSvgGLView(file, this);
+            view = new SvgGLView(file, this);
 #else
             qWarning()<<"OpenGL is not supported on this system.";
             exit(1);
 #endif
         } else if (type == QLatin1String("-native")) {
-            view = new QSvgNativeView(file, this);
+            view = new SvgNativeView(file, this);
         } else
-            view = new QSvgRasterView(file, this);
+            view = new SvgRasterView(file, this);
         setWidget(view);
     }
 

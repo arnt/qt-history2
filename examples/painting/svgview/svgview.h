@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSVGVIEW_H
-#define QSVGVIEW_H
+#ifndef SVGVIEW_H
+#define SVGVIEW_H
 
 #include <QWidget>
 #include <QImage>
@@ -22,11 +22,11 @@ class QPaintEvent;
 class QSvgRenderer;
 class QWheelEvent;
 
-class QSvgRasterView : public QWidget
+class SvgRasterView : public QWidget
 {
     Q_OBJECT
 public:
-    QSvgRasterView(const QString &file, QWidget *parent=0);
+    SvgRasterView(const QString &file, QWidget *parent=0);
 
     virtual QSize sizeHint() const;
 protected:
@@ -38,11 +38,11 @@ private:
     QImage buffer;
 };
 
-class QSvgNativeView : public QWidget
+class SvgNativeView : public QWidget
 {
     Q_OBJECT
 public:
-    QSvgNativeView(const QString &file, QWidget *parent=0);
+    SvgNativeView(const QString &file, QWidget *parent=0);
 
     virtual QSize sizeHint() const;
 protected:
@@ -54,11 +54,11 @@ private:
 };
 
 #ifndef QT_NO_OPENGL
-class QSvgGLView : public QGLWidget
+class SvgGLView : public QGLWidget
 {
     Q_OBJECT
 public:
-    QSvgGLView(const QString &file, QWidget *parent=0);
+    SvgGLView(const QString &file, QWidget *parent=0);
 
     virtual QSize sizeHint() const;
 protected:

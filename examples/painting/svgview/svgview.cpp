@@ -10,7 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include "qsvgview.h"
+#include "svgview.h"
 
 #include <QSvgRenderer>
 
@@ -20,13 +20,13 @@
 #include <QWheelEvent>
 #include <QtDebug>
 
-QSvgRasterView::QSvgRasterView(const QString &file, QWidget *parent)
+SvgRasterView::SvgRasterView(const QString &file, QWidget *parent)
     : QWidget(parent)
 {
     doc = new QSvgRenderer(file, this);
 }
 
-void QSvgRasterView::paintEvent(QPaintEvent *)
+void SvgRasterView::paintEvent(QPaintEvent *)
 {
     if (buffer.size() != size()) {
         buffer = QImage(size(), QImage::Format_ARGB32_Premultiplied);
@@ -39,14 +39,14 @@ void QSvgRasterView::paintEvent(QPaintEvent *)
     pt.drawImage(0, 0, buffer);
 }
 
-QSize QSvgRasterView::sizeHint() const
+QSize SvgRasterView::sizeHint() const
 {
     if (doc)
         return doc->defaultSize();
     return QWidget::sizeHint();
 }
 
-void QSvgRasterView::wheelEvent(QWheelEvent *e)
+void SvgRasterView::wheelEvent(QWheelEvent *e)
 {
     const double diff = 0.1;
     QSize size = doc->defaultSize();
@@ -63,26 +63,26 @@ void QSvgRasterView::wheelEvent(QWheelEvent *e)
     resize(width, height);
 }
 
-QSvgNativeView::QSvgNativeView(const QString &file, QWidget *parent)
+SvgNativeView::SvgNativeView(const QString &file, QWidget *parent)
     : QWidget(parent)
 {
     doc = new QSvgRenderer(file, this);
 }
 
-void QSvgNativeView::paintEvent(QPaintEvent *)
+void SvgNativeView::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     doc->render(&p);
 }
 
-QSize QSvgNativeView::sizeHint() const
+QSize SvgNativeView::sizeHint() const
 {
     if (doc)
         return doc->defaultSize();
     return QWidget::sizeHint();
 }
 
-void QSvgNativeView::wheelEvent(QWheelEvent *e)
+void SvgNativeView::wheelEvent(QWheelEvent *e)
 {
     const double diff = 0.1;
     QSize size = doc->defaultSize();
@@ -99,26 +99,26 @@ void QSvgNativeView::wheelEvent(QWheelEvent *e)
 }
 
 #ifndef QT_NO_OPENGL
-QSvgGLView::QSvgGLView(const QString &file, QWidget *parent)
+SvgGLView::SvgGLView(const QString &file, QWidget *parent)
     : QGLWidget(parent)
 {
     doc = new QSvgRenderer(file, this);
 }
 
-void QSvgGLView::paintEvent(QPaintEvent *)
+void SvgGLView::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     doc->render(&p);
 }
 
-QSize QSvgGLView::sizeHint() const
+QSize SvgGLView::sizeHint() const
 {
     if (doc)
         return doc->defaultSize();
     return QGLWidget::sizeHint();
 }
 
-void QSvgGLView::wheelEvent(QWheelEvent *e)
+void SvgGLView::wheelEvent(QWheelEvent *e)
 {
     const double diff = 0.1;
     QSize size = doc->defaultSize();
