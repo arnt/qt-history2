@@ -40,45 +40,40 @@
 
     Deploying an application on Windows does not require any C++
     programming. All you need to do is to build Qt and your
-    application in release mode
-
-    <both static linking and shared libraries?>
-
-    , following the procedures described in this documentation. We
-    will demonstrate the procedures in terms of deploying the \l
-    {tools/plugandpaint}{Plug & Paint} application that is provided in
-    Qt's examples directory.
+    application in release mode, following the procedures described
+    in this documentation. We will demonstrate the procedures in terms
+    of deploying the \l {tools/plugandpaint}{Plug & Paint} application
+    that is provided in Qt's examples directory.
 
     There are two ways of deploying an application:
 
     \list
-        \o \l {Static Linking}
-        \o \l {Shared Libraries}
+        \o Static Linking
+        \o Shared Libraries
     \endlist
 
-    Static linking results in a stand-alone executable.  The
-    advantages are that you will have few files to deploy, and that
-    the application will load and execute fast because all the symbols
-    are in the executable. The disadvantages are that the executables
-    are large and with no flexibility, and that you cannot deploy
-    plugins using the static linking approach.
+    Static linking results in a stand-alone executable.  The advantage
+    is that you will only have a few files to deploy. The
+    disadvantages are that the executables are large and with no
+    flexibility (i.e a new version of the application, or of Qt, will
+    require that the deployment process is repeated), and that you
+    cannot deploy plugins using the static linking approach.
 
     To deploy plugins you must use a shared library. Shared libraries
     also provide smaller, more flexible executables. The disadvantage
-    with this approach is that the total packages are larger (one
-    executable plus on or more DLLs), i.e you will have more files to
-    deploy.
+    with this approach is that the total packages are larger: In the
+    number of files to deploy (one executable plus one or more \c
+    {DLL}s) as well as in byte size.
 
     Since Qt is not a system library, it has to be redistributed along
     with your application; the minimum is to redistribute the run-time
     of the modules used by the application. Using static linking,
-    however, the Qt run-time is compiled into the executable. Compiler
-    specific C run-time must be redistributed, as well as compiler
-    specific libraries (depending on configuration). You can check
-    which libraries your application is linking against by using the
-    \c depends tool. For more information see the \l {Application
-    Dependencies- the "depends" tool}{Application Dependencies}
-    section.
+    however, the Qt run-time is compiled into the
+    executable. Depending on configuration, compiler specific
+    libraries must be redistributed. You can check which libraries
+    your application is linking against by using the \c depends
+    tool. For more information see the \l {Application Dependencies-
+    the "depends" tool}{Application Dependencies} section.
 
     Contents:
 
@@ -86,38 +81,38 @@
 
     \section1 Static Linking
 
-    If you want to keep things simple by only having a single file to
-    deploy, i.e. a stand-alone executable, then you must build
-    everything statically.
+    If you want to keep things simple by only having a few files to
+    deploy, i.e. a stand-alone executable with the associated compiler
+    specific \c {DLL}s, then you must build everything statically.
 
     \section2 Building Qt
 
     Before we can build our application we must make sure that Qt is
-    built statically. To do this go to a command prompt and type the
+    built statically. To do this, go to a command prompt and type the
     following:
 
     \code
-        cd %QTDIR%
+        cd C:\path\to\Qt
         configure -static <any other options you need>
     \endcode
 
-    Remember to specify any other options you need, such as thread
-    support, as arguments to configure. Once configure has finished,
-    type the following:
+    Remember to specify any other options you need, such as data base
+    drivers, as arguments to \c configure. Once \c configure has
+    finished, type the following:
 
     \code
-        make sub-src
+        nmake sub-src
     \endcode
 
     This will build Qt statically in release mode. Note that we have
-    used \c make in all the examples, but if you use Microsoft Visual
-    C++, you must use \c nmake instead.
+    used \c nmake in all the examples, but if you use MinGW you must
+    use the \c mingw32-make instead.
 
     \section2 Building the Application
 
     Once Qt has finished building we can build the Plug & Paint
     application. First we must go into the directory that contains the
-    application we want to deploy:
+    application:
 
     \code
         cd examples\tools\plugandpaint
@@ -129,8 +124,8 @@
 
     \code
         qmake plugandpaint.pro
-        make clean
-        make
+        nmake clean
+        nmake
     \endcode
 
     Now, provided that everything compiled and linked without any
@@ -139,22 +134,21 @@
     be run stand-alone is to copy it to a machine that doesn't have Qt
     or any Qt applications installed, and run it on that machine.
 
-    Remember that if your application depend on a compiler specific C
-    run-time or compiler specific libraries, these must still be
-    redistributed along with your application. You can check which
-    libraries your application is linking against by using the \c
-    depends tool. For more information, see the  \l {Application
-    Dependencies- the "depends" tool}{Application Dependencies}
-    section.
+    Remember that if your application depends on compiler specific
+    libraries, these must still be redistributed along with your
+    application. You can check which libraries your application is
+    linking against by using the \c depends tool. For more
+    information, see the \l {Application Dependencies- the "depends"
+    tool}{Application Dependencies} section.
 
     The \l {tools/plugandpaint}{Plug & Paint} example consists of
     several components: The application itself (\l
-    {/tools/plugandpaint}{Plug & Paint}), and the application-specific
-    \l {/tools/plugandpaintplugins/basictools}{Basic Tools} and \l
-    {/tools/plugandpaintplugins/extrafilters}{Extra Filters} plugins.
-    Since we cannot deploy plugins using static linking, the
-    application we have prepared is incomplete. It will run, but the
-    functionality will be disabled due to the missing plugins; to
+    {tools/plugandpaint}{Plug & Paint}), and the application-specific
+    \l {tools/plugandpaintplugins/basictools}{Basic Tools} and \l
+    {tools/plugandpaintplugins/extrafilters}{Extra Filters} plugins.
+    Since we cannot deploy plugins using the static linking approach,
+    the application we have prepared is incomplete. It will run, but
+    the functionality will be disabled due to the missing plugins; to
     deploy plugins we must use a shared library.
 
     \section1 Shared Libraries
@@ -163,39 +157,36 @@
     shared library, is that if we used static linking, the application
     and each plugin would pull in their own instance of Qt. Another
     reason why you might want to use the shared library approach, is
-    if you want to use the same Qt DLL for a family of applications.
+    if you want to use the same Qt \c {DLL}s for a family of
+    applications. In fact, if you download the binary installation of
+    Qt, you get Qt as a shared library. In addition, shared libraries
+    provide flexibility. For example, if new versions of the deployed
+    application or of Qt is developed, you only need to ship the new
+    \c {DLL}s.
 
-    There are two challenges when deploying the \l
-    {tools/plugandpaint}{Plug & Paint} application: It will link
-    against Qt as a shared library, so the Qt runtime has to be
-    correctly redistributed along with the application
-    executable. And, since the application functionality is provided
-    by the plugins, those have to be installed in the correct location
-    on the target system so that the application can find them.
+    We have two challenges when deploying the \l
+    {tools/plugandpaint}{Plug & Paint} application using the shared
+    libraries approach: The Qt runtime has to be correctly
+    redistributed along with the application executable, and the
+    plugins have to be installed in the correct location on the target
+    system so that the application can find them.
 
     \section2 Building Qt and Plugins
 
     As with static linking, before we can build our application we
-    must make sure that Qt is built as a shared library. To do this go
-    to a command prompt and type the following:
+    must make sure that Qt is built as a shared library. To do this,
+    go to a command prompt and type the following:
 
     \code
-        cd %QTDIR%
+        cd C:\path\to\Qt
         configure -shared <any other options you need>
     \endcode
 
-    <???>
-    Remember to specify any other options you need, such as thread
-    support, as arguments to configure. Since the \l
-    {tools/plugandpaint}{Plug & Paint} application rely on the \l
-    {/tools/plugandpaintplugins/basictools}{Basic Tools} and \l
-    {/tools/plugandpaintplugins/extrafilters}{Extra Filters} plugins,
-    we must also specify them as options: \c { -plugin-imgfmt-jpeg}.
-
-    Once configure has finished, type the following:
+    Remember to specify any other options you need as arguments to \c
+    configure. Once \c configure has finished, type the following:
 
     \code
-        make sub-plugins
+        nmake sub-src
     \endcode
 
     This will build Qt as a shared library in release mode, as well as
@@ -205,39 +196,41 @@
 
     When Qt has finished building, we can build the \l
     {tools/plugandpaint}{Plug & Paint} application. First, we must go
-    into the directory that contains the application we want to
-    deploy:
+    into the directory that contains the application:
 
     \code
         cd ..\examples\tools\plugandpaint
     \endcode
 
-    Now run qmake to create a new makefile for the application, and do
-    a clean build to create the dynamically linked executable:
+    Now run \c qmake to create a new makefile for the application, and
+    do a clean build to create the dynamically linked executable:
 
     \code
         qmake plugandpaint.pro
-        make clean
-        make
+        nmake clean
+        nmake
     \endcode
 
     If everything compiled and linked without any errors, we will get
     a \c plugandpaint.exe file. To deploy it, we must make sure that
-    we copy the Qt DLL as well as the executable to a suitable
-    directory. We'll cover the plugins shortly, but first we'll check
-    that the application will work in a deployed environment: Either
-    copy the executable and the Qt DLL to a machine that doesn't have
-    Qt or any Qt applications installed, or if you want to test on the
-    build machine, unset the QTDIR environment variable and remove
-    %QTDIR%\\bin from the PATH environment variable.
+    we copy the relevant Qt \c {DLL}'s (corresponding to the Qt
+    modules used in the application) as well as the executable to the
+    same directory in the \c release subdirectory. We'll cover the
+    plugins shortly, but first we'll check that the application will
+    work in a deployed environment: Either copy the executable and the
+    Qt \c {DLL}s to a machine that doesn't have Qt or any Qt
+    applications installed, or if you want to test on the build
+    machine, ensure that the machine doesn't have Qt in its
+    environment.
 
-    <???>
-    We should now have the \c plugandpaint.exe executable and the Qt
-    DLL (e.g., qt331.dll, or if you have configured with threading
-    support, qt-mt331.dll), in a directory together. At a command
-    prompt, change to this directory and try running the program.
+    Remember that if your application depends on compiler specific
+    libraries, these must be redistributed along with your
+    application. You can check which libraries your application is
+    linking against by using the \c depends tool. For more
+    information, see the \l {Application Dependencies - the "depends"
+    Tool}{Application Dependencies} section.
 
-    If the application starts up without any problems, then we have
+    If the application starts without any problems, then we have
     successfully made a dynamically linked version of the \l
     {tools/plugandpaint}{Plug & Paint} application. But the
     application's functionality will still be missing since we have
@@ -247,67 +240,82 @@
 
     Plugins work differently to normal \c {DLL}s, so we can't just
     copy them into the same directory as our application's executable
-    as we did with the Qt \c DLL.  When searching for plugins the
-    application searches in a "plugins" subdirectory inside the
+    as we did with the Qt \c {DLL}s.  When looking for plugins, the
+    application searches in a \c plugins subdirectory inside the
     directory of the application executable.
 
     So to make the plugins available to our application, we have to
-    create a "plugins" subdirectory and copy over the relevant \c
-    DLLs:
+    create the \c plugins subdirectory and copy over the relevant \c
+    {DLL}s:
 
     \code
         plugins\pnp_basictools.dll
         plugins\pnp_extrafilters.dll
     \endcode
 
-    An archive distributing all the Qt and C run-time \c {DLL}s, as
-    well as all plugins, required to run the \l
-    {tools/plugandpaint}{Plug & Paint} application would have to
-    include the following files:
+    An archive distributing all the Qt and C run-time \c {DLL}s and
+    all the plugins required to run the \l {tools/plugandpaint}{Plug &
+    Paint} application, would have to include the following files:
 
-    \list
-        \o \c plugandpaint.exe
-        \o \c qtcore4.dll
-        \o \c qtgui4.dll
-        \o \c msvcrt.dll or \c .\msvcr71.dll <???>
-        \o \c msvcp71.dll or \c .\msvcp71.dll <???>
-        \o \c plugins\pnp_basictools.dll
-        \o \c plugins\pnp_extrafilters.dll
-    \endlist
+    \table 100%
+    \header
+        \o Component \o {2, 1} File Name
+    \row
+        \o The executable
+        \o {2, 1} \c plugandpaint.exe
+    \row
+        \o The Basic Tools plugin
+        \o {2, 1} \c plugins\pnp_basictools.dll
+    \row
+        \o The ExtraFilters plugin
+        \o {2, 1} \c plugins\pnp_extrafilters.dll
+    \row
+        \o The Qt Core module
+        \o {2, 1} \c qtcore4.dll
+    \row
+        \o The Qt GUI module
+        \o {2, 1} \c qtgui4.dll
+    \endtable
+
+    In addition, the archive must contain the following compiler
+    specific libraries depending on your version of Visual Studio:
+
+    \table 100%
+    \header
+        \o \o VC++ 6.0 \o VC++ 7.1 (2003)
+    \row
+        \o The C run-time
+        \o \c msvcrt.dll
+        \o \c msvcr71.dll
+    \row
+        \o The C++ run-time
+        \o \c msvcp60.dll
+        \o \c msvcp71.dll
+    \endtable
 
     To verify that the application now can be successfully deployed,
     you can extract this archive on a machine without Qt and without
-    any compiler installed and try to run it.
+    any compiler installed, and try to run it.
 
-    <???>
     One benefit of using plugins is that they can easily be made
     available to a whole family of applications. For example, if we
-    have several applications that need the \l
-    {/tools/plugandpaintplugins/extrafilters}{Extra Filters} and \l
-    {/tools/plugandpaintplugins/basictools}{Basic Tools} plugins, it
-    might be more convenient to use a common plugin directory for all
-    our plugins.
+    have several applications that need JPEG support, including our \l
+    {tools/plugandpaint}{Plug & Paint} application, we might decide to
+    put the JPEG plugin in the "C:\\QtPlugins\\imageformats"
+    directory.
 
-    <???>
-    Also, we might decide to put all our plugins in the "C:\\QtPlugins"
-    directory. If we use a custom directory, we must still use
-    subdirectories for the different types of plugin, so our image
-    format plugins would go in "C:\\QtPlugins\###". To make
-    our applications aware of this additional plugins directory, we
-    must add the following line, before the application needs to load
-    the plugins:
+    To make our application aware of this additional plugin
+    directory, we must add the following line, before the application
+    needs to load the plugins:
 
-    \code
-        qApp->addLibraryPath("C:\\QtPlugins");
-    \endcode
+    qApp->addLibraryPath("C:\\QtPlugins\\imageformats");
 
-
-    It's often most convenient to add the path in the application's
+    It's often most convenient to add the path in the application's \c
     main() function, right after the QApplication object is
     created. Once the path is added, the application will search it
-    for plugins, in addition to looking in subdirectories in the
-    application's own directory. Any number of additional paths can be
-    added.
+    for plugins, in addition to looking in the \c plugins subdirectory
+    in the application's own directory. Any number of additional paths
+    can be added.
 
     \section1 Application Dependencies - the "depends" Tool
 
@@ -319,19 +327,17 @@
         depends <application executable>
     \endcode
 
-    <???>
     This will provide a list of the libraries that your application
-    depends on and other information. If you look in the top-left
-    section, you can see the list of libraries. The ones that you will
-    want to check for start with "MSVC"; to be certain that you have
-    the right libraries available, make sure you copy those libraries
-    along with your application executable.
+    depends on and other information.
 
-    Looking at the release build of the "plugandpaint" executable with
-    the "depends" tool lists the following immediate dependencies to
-    non-system libraries:
+    \image depends-screenshot
 
-    \table
+    Looking at the release build of the \l {tools/plugandpaint}{Plug &
+    Paint} executable (\c plugandpaint.exe) with the \c depends tool,
+    lists the following immediate dependencies to non-system
+    libraries:
+
+    \table 100%
         \header
             \o Qt
             \o VC++ 6.0
@@ -344,139 +350,18 @@
            \endlist
         \o \list
                \o MSVCRT.DLL - The C runtime
-               \o MSVCP60.DLL - The C++ runtime (STL only)
+               \o MSVCP60.DLL - The C++ runtime (only when STL is installed)
            \endlist
         \o \list
                \o MSVCR71.DLL - The C runtime
-               \o MSVCP71.DLL - The C++ runtime (STL only)
+               \o MSVCP71.DLL - The C++ runtime (only when STL is installed)
            \endlist
-        \o
+        \o \list
+               \o MINGWM10.DLL - The MinGW run-time
+           \endlist
     \endtable
 
-    Looking at the plugin DLLs lists the exact same dependencies.
-
-
-
-
-
-    \omit
-
-    Some words about linking and libraries on Windows:
-
-    - static libs (.lib) vs. dynamically loaded libraries (.dll)
-    - dynamically loaded DLLs come with a static import library to link against
-
-    KERNEL32.DLL, USER32.DLL etc. - System runtime
-    KERNEL32.LIB, USER32.LIB etc. - Platform SDK
-
-    QTCORE4.DLL, QTGUI4.DLL - Qt runtime
-    QTCORE4.LIB, QTGUI4.LIB - Qt SDK
-
-
-    - Qt not a system library, so it has to be redistributed
-    - Required to redistribute the runtime of those Qt modules used in application
-    - compiler specific C runtime needs to be redistributed as well
-    - some compiler specific libs required depending on configuration (C++ runtime if STL)
-    - depends tool lists dependencies of an executable
-
-    \section1 Shared Libraries
-
-    - more flexible, small executables
-    - might be larger total package (one exe + DLLs), and more files to deploy
-    - The binary installer of Qt includes precompiled shared libraries
-    - debug vs. release - only release libraries are redistributable
-
-    [Screen shot of depends for assistant]
-
-    \section1 Static Linking
-
-    - fewer files to deploy
-    - bigger executables, no plugins, no flexibility
-    - Qt runtime compiled into the executable
-    - Compiler specific libs (C runtime, C++ runtime) still need to be shipped
-
-    [Screen shot of depends for assistant]
-
-    \section1 Other considerations
-
-    - plugins
-    - Assistant
-    - ActiveQt
-
-    \section1 Distributing "Plug & Paint"
-
-    The "plug & paint" example in Qt consists of multiple projects:
-    The application itself in \c{examples/tools/plugandpaint}, and
-    application-specific plugins in
-    \c{examples/tools/plugandpaintplugins}.
-
-    Plugin-based applications need to link against Qt as a shared
-    library - if static linking would be used, then the application
-    itself and each plugin would pull in their own instance of Qt.
-
-    There are two challengines in deploying this application: it links
-    against Qt as a shared library, so the Qt runtime has to be
-    correctly redistributed along with the application
-    executable. And, since the application functionality is provided
-    by plugins, those have to be installed in the correct location on
-    the target system so that the application can find them.
-
-    Looking at the release build of the "plugandpaint" executable with
-    the "depends" tool lists the following immediate dependencies to
-    non-system libraries:
-
-    \table
-    \header
-    \o Qt
-    \o VC++ 6.0
-    \o VC++ 7.1 (2003)
-    \o MinGW
-    \row
-    \o \list
-        \o QTCORE4.DLL - The QtCore runtime
-        \o QTGUI4.DLL - The QtGui runtime
-    \endlist
-    \o \list
-        \o MSVCRT.DLL - The C runtime
-        \o MSVCP60.DLL - The C++ runtime (STL only)
-    \endlist
-    \o \list
-        \o MSVCR71.DLL - The C runtime
-        \o MSVCP71.DLL - The C++ runtime (STL only)
-    \endlist
-    \endtable
-
-    Looking at the plugin DLLs lists the exact same dependencies.
-
-    When searching for plugins the application searches for plugins in
-    a "plugins" subdirectory inside the directory of the application
-    executable:
-
-    \code
-    .\plugandpaint.exe
-    .\plugins\pnp_basictools.dll
-    .\plugins\pnp_extrafilters.dll
-    \endcode
-
-    An archive distributing all Qt and C runtime DLLs required to
-    start the application executable as well as all plugins would now
-    have to include the following files
-
-    \code
-    .\plugandpaint.exe
-    .\qtcore4.dll
-    .\qtgui4.dll
-    .\msvcrt.dll OR .\msvcr71.dll
-    .\msvcp71.dll OR .\msvcp71.dll
-    .\plugins\pnp_basictools.dll
-    .\plugins\pnp_extrafilters.dll
-    \endcode
-
-    Extracting this archive on a machine without Qt and without any
-    compiler installed to verify that the application can now be
-    successfully deployed.
-
-    \endomit
+    Looking at the plugin \c {DLL}s lists the exact same dependencies.
 */
 
 /*
