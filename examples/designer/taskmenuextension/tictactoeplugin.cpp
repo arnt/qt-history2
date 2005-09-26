@@ -1,13 +1,13 @@
+#include "tictactoe.h"
+#include "tictactoeplugin.h"
+#include "tictactoetaskmenu.h"
+
 #include <QtDesigner/QExtensionFactory>
 #include <QtDesigner/QExtensionManager>
 #include <QtDesigner/QDesignerFormEditorInterface>
 
 #include <QIcon>
-
-#include "tictactoe.h"
-#include "tictactoeplugin.h"
-#include "tictactoetaskmenu.h"
-#include "qplugin.h"
+#include <QtPlugin>
 
 TicTacToePlugin::TicTacToePlugin(QObject *parent)
     :QObject(parent)
