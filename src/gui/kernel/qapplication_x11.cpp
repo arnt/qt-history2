@@ -2319,7 +2319,8 @@ void QApplication::syncX()
 
 
 /*!
-    Sounds the bell, using the default volume and sound.
+    Sounds the bell, using the default volume and sound. The function
+    is \e not available in Qtopia Core.
 */
 
 void QApplication::beep()

@@ -112,8 +112,8 @@ QApplicationPrivate::~QApplicationPrivate()
   library.
 
   The QApplication object is accessible through the instance()
-  function. (In earlier Qt versions the qApp global was used instead
-  of instance().)
+  function which return a pointer equivalent to the global qApp
+  pointer.
 
   QApplication's main areas of responsibility are:
   \list
@@ -300,16 +300,18 @@ QApplicationPrivate::~QApplicationPrivate()
 */
 
 /*!
-    \fn QWidget *QApplication::topLevelAt(const QPoint &p)
+    \fn QWidget *QApplication::topLevelAt(const QPoint &point)
 
-    Returns the top-level widget at the point \a p.
+    Returns the top-level widget at the given \a point; returns 0 if
+    there is no such widget.
 */
 /*!
     \fn QWidget *QApplication::topLevelAt(int x, int y)
 
     \overload
 
-    Returns the top-level widget at the point (\a{x}, \a{y}).
+    Returns the top-level widget at the point (\a{x}, \a{y}); returns
+    0 if there is no such widget.
 */
 
 
@@ -639,7 +641,9 @@ static int aargc = 1;
 static char *aargv[] = { (char*)"unknown", 0 };
 
 /*!
-  Create an application, given an already open display \a dpy. If \a
+  \fn QApplication::QApplication(Display* display, Qt::HANDLE visual, Qt::HANDLE colormap)
+
+  Create an application, given an already open display \a display. If \a
   visual and \a colormap are non-zero, the application will use those as
   the default Visual and Colormap contexts.
 
@@ -668,10 +672,13 @@ QApplication::QApplication(Display* dpy, Qt::HANDLE visual, Qt::HANDLE colormap)
 }
 
 /*!
-  Create an application, given an already open display \a dpy and using
-  \a argc command line arguments in \a argv. If \a
-  visual and \a colormap are non-zero, the application will use those as
-  the default Visual and Colormap contexts.
+  \fn QApplication::QApplication(Display *display, int &argc, char **argv,
+                           Qt::HANDLE visual, Qt::HANDLE colormap)
+
+  Create an application, given an already open \a display and using \a
+  argc command line arguments in \a argv. If \a visual and \a colormap
+  are non-zero, the application will use those as the default Visual
+  and Colormap contexts.
 
   \warning Qt only supports TrueColor visuals at depths higher than 8
   bits-per-pixel.
@@ -888,7 +895,9 @@ QApplication::~QApplication()
 
 
 /*!
-    Returns the widget at global screen position \a p, or 0 if there
+    \fn QWidget *QApplication::widgetAt(const QPoint &point)
+
+    Returns the widget at global screen position \a point, or 0 if there
     is no Qt widget there.
 
     This function can be slow.
@@ -1272,9 +1281,10 @@ QPalette QApplication::palette()
 }
 
 /*!
+    \fn QPalette QApplication::palette(const QWidget* widget)
     \overload
 
-    If a widget is passed in \a w, the default palette for the
+    If a \a widget is passed, the default palette for the
     widget's class is returned. This may or may not be the application
     palette. In most cases there isn't a special palette for certain
     types of widgets, but one notable exception is the popup menu
@@ -1405,8 +1415,10 @@ void QApplicationPrivate::setSystemPalette(const QPalette &pal)
 }
 
 /*!
-  Returns the default font for the widget \a w, or the default
-  application font if \a w is 0.
+  \fn QFont QApplication::font(const QWidget *widget)
+
+  Returns the default font for the \a widget, or the default
+  application font if \a widget is 0.
 
   \sa setFont(), fontMetrics(), QWidget::font()
 */
@@ -1805,7 +1817,9 @@ void QApplication::syncX()        {}                // do nothing
 */
 
 /*!
-    Sets the active window to the \a act widget in response to a system
+    \fn void QApplication::setActiveWindow(QWidget* active)
+
+    Sets the active window to the \a active widget in response to a system
     event. The function is called from the platform specific event
     handlers.
 
@@ -2247,7 +2261,7 @@ Qt::KeyboardModifiers QApplication::keyboardModifiers()
 
   It should be noted this may not reflect the actual buttons held on
   theinput device at the time of calling but rather the mouse buttons
-  as last reported in one of the above events. If no mouse buttons rae
+  as last reported in one of the above events. If no mouse buttons are
   being held Qt::NoButton is returned.
 
   \sa keyboardModifiers()
@@ -3695,6 +3709,19 @@ bool QApplication::keypadNavigationEnabled()
     return QApplicationPrivate::keypadNavigation;
 }
 #endif
+
+/*!
+    \macro QApplication *qApp
+    \relates QApplication
+
+    A global pointer referring to the unique application object. It is
+    equivalent to the pointer returned by the
+    QCoreApplication::instance() function.
+
+    Only one application object can be created.
+
+    \sa QCoreApplication::instance()
+*/
 
 // ************************************************************************
 // Input Method support

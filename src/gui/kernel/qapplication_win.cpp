@@ -1126,6 +1126,8 @@ void qt_draw_tiled_pixmap(HDC hdc, int x, int y, int w, int h,
 extern uint qGlobalPostedEventsCount();
 
 /*!
+    \internal
+
     If \a gotFocus is true, \a widget will become the active window.
     Otherwise the active window is reset to NULL.
 */
@@ -1615,7 +1617,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             // MSDN:In WM_SYSCOMMAND messages, the four low-order bits of the wParam parameter are
             // used internally by the system. To obtain the correct result when testing the value of
             // wParam, an application must combine the value 0xFFF0 with the wParam value by using
-            // the bitwise AND operator. 
+            // the bitwise AND operator.
             switch(0xfff0 & wParam) {
             case SC_CONTEXTHELP:
 #ifndef QT_NO_WHATSTHIS
@@ -1648,7 +1650,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     widget->showChildren(true);
                     QShowEvent e;
                     qt_sendSpontaneousEvent(widget, &e);
-                } 
+                }
                 if ((0xfff0 & wParam) == SC_MAXIMIZE)
                     widget->dataPtr()->window_state |= Qt::WindowMaximized;
                 else

@@ -2579,7 +2579,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
 /*!
     \fn bool QApplication::qwsEventFilter(QWSEvent *event)
 
-    \warning This virtual function is only implemented under Qtopia Core.
+    This virtual function is only implemented under Qtopia Core.
 
     If you create an application that inherits QApplication and
     reimplement this function, you get direct access to all QWS (Q
@@ -2628,9 +2628,11 @@ void QApplication::qwsSetCustomColors(QRgb *colorTable, int start, int numColors
 
 #ifndef QT_NO_QWS_MANAGER
 /*!
+    \warning
+
     Return the QWSDecoration used for decorating windows.
 
-    This method is non-portable. It is available \e only in Qtopia Core.
+    This method is non-portable. It is only available in Qtopia Core.
 
     \sa QDecoration
 */
@@ -2640,11 +2642,12 @@ QDecoration &QApplication::qwsDecoration()
 }
 
 /*!
-    Set the QWSDecoration derived class to use for decorating the
-    Qtopia Core windows to \a dec.
+    \fn void QApplication::qwsSetDecoration(QDecoration *decoration)
 
-    This method is non-portable. It is available \e only in
-    Qtopia Core.
+    Set the QWSDecoration derived class to use for decorating the
+    Qtopia Core windows to \a decoration.
+
+    This method is non-portable. It is only available in Qtopia Core.
 
     \sa QDecoration
 */
