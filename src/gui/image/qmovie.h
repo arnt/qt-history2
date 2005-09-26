@@ -14,9 +14,9 @@
 #ifndef QMOVIE_H
 #define QMOVIE_H
 
-#ifndef QT_NO_MOVIE
-
 #include <QtCore/qobject.h>
+
+#ifndef QT_NO_MOVIE
 #include <QtGui/qimagereader.h>
 
 #ifdef QT3_SUPPORT
@@ -118,5 +118,4 @@ public:
 };
 
 #endif // QT_NO_MOVIE
-
 #endif // QMOVIE_H

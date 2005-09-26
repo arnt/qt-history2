@@ -1653,6 +1653,8 @@ bool QHeaderView::viewportEvent(QEvent *e)
              return true;
         }
         break; }
+#endif // QT_NO_WHATSTHIS
+#ifndef QT_NO_STATUSTIP
     case QEvent::StatusTip: {
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         int logical = logicalIndexAt(he->pos());
@@ -1663,7 +1665,7 @@ bool QHeaderView::viewportEvent(QEvent *e)
                 setStatusTip(statustip);
         }
         return true; }
-#endif
+#endif // QT_NO_STATUSTIP
     default:
         break;
     }

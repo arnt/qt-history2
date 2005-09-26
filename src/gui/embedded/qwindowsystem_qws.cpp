@@ -696,8 +696,6 @@ void QWSServer::initServer(int flags)
 
 #if !defined(QT_NO_SOUND) && !defined(EXTERNAL_SOUND_SERVER) && !defined(Q_OS_DARWIN)
     soundserver = new QWSSoundServer(this);
-#else
-    soundserver = 0;
 #endif
 }
 
@@ -892,6 +890,7 @@ void QWSServer::deleteWindowsLater()
 */
 void QWSClient::doAuth( QWSSocket *csocket, QWSCommand *&command, int &command_type )
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     AuthMessage msg;
     qint64 rs = csocket->read( reinterpret_cast<char *>(msg.authData),
             sizeof(msg.authData) );
@@ -939,6 +938,11 @@ void QWSClient::doAuth( QWSSocket *csocket, QWSCommand *&command, int &command_t
         delete command;
         command = 0;
     }
+#else 
+    Q_UNUSED(csocket);
+    Q_UNUSED(command);
+    Q_UNUSED(command_type);
+#endif // QT_NO_QWS_MULTIPROCESS
 }
 
 

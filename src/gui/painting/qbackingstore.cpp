@@ -477,8 +477,10 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget)
             bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
             QWidget::qwsDisplay()->requestRegion(tlw->data->winid, buffer.memoryId(), opaque, tlwRegion);
             QTLWExtra *topextra = tlw->d_func()->extra->topextra;
+#ifndef QT_NO_QWS_MANAGER
             if (topextra->qwsManager)
                 QApplication::postEvent(topextra->qwsManager, new QPaintEvent(tlwFrame));
+#endif
 #endif
             toClean = QRegion(0, 0, tlw->width(), tlw->height());
             dirtyBufferSize = false;

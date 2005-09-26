@@ -64,13 +64,17 @@ public:
         { return data(column, Qt::StatusTipRole).toString(); }
     inline void setStatusTip(int column, const QString &statusTip);
 
+#ifndef QT_NO_TOOLTIP
     inline QString toolTip(int column) const
         { return data(column, Qt::ToolTipRole).toString(); }
     inline void setToolTip(int column, const QString &toolTip);
+#endif
 
+#ifndef QT_NO_WHATSTHIS
     inline QString whatsThis(int column) const
         { return data(column, Qt::WhatsThisRole).toString(); }
     inline void setWhatsThis(int column, const QString &whatsThis);
+#endif
 
     inline QFont font(int column) const
         { return qvariant_cast<QFont>(data(column, Qt::FontRole)); }

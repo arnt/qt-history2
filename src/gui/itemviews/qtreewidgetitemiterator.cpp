@@ -15,6 +15,8 @@
 #include "qtreewidget.h"
 #include "qtreewidget_p.h"
 
+#ifndef QT_NO_TREEWIDGET
+
 /*!
     Constructs an iterator for the same QTreeWidget as \a it. The
     current iterator item is set to point on the current item of \a it.
@@ -167,7 +169,7 @@ bool QTreeWidgetItemIterator::matchesFlags(const QTreeWidgetItem *item) const
         Qt::CheckState check = item->checkState(0); //###FIXME
         // Not sure why the FIXME is here,
         // but we (jasaethe && mariusbm) decided that Qt::PartiallyChecked should match as Checked.
-        if ((flags & Checked) && (check == Qt::Unchecked))  
+        if ((flags & Checked) && (check == Qt::Unchecked))
             return false;
         if ((flags & NotChecked) && (check != Qt::Unchecked))
             return false;
@@ -263,3 +265,4 @@ bool QTreeWidgetItemIterator::matchesFlags(const QTreeWidgetItem *item) const
     \value NotEditable
     \value UserFlag
 */
+#endif // QT_NO_TREEWIDGET

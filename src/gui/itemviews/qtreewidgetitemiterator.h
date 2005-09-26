@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+#ifndef QT_NO_TREEWIDGET
+
 class QTreeWidget;
 class QTreeWidgetItem;
 class QTreeModel;
@@ -112,4 +114,5 @@ inline QTreeWidgetItem *QTreeWidgetItemIterator::operator*() const
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QTreeWidgetItemIterator::IteratorFlags)
 
+#endif // QT_NO_TREEWIDGET
 #endif // QTREEWIDGETITEMITERATOR_H

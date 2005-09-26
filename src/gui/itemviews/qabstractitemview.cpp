@@ -893,6 +893,7 @@ bool QAbstractItemView::viewportEvent(QEvent *event)
         }
         break ; }
 #endif
+#ifndef QT_NO_STATUSTIP
     case QEvent::StatusTip: {
         QHelpEvent *he = static_cast<QHelpEvent*>(event);
         QModelIndex index = indexAt(he->pos());
@@ -902,6 +903,7 @@ bool QAbstractItemView::viewportEvent(QEvent *event)
                 setStatusTip(statustip);
         }
         return true; }
+#endif
     case QEvent::WindowActivate:
     case QEvent::WindowDeactivate:
         d->viewport->update();

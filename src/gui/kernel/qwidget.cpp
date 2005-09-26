@@ -5032,19 +5032,23 @@ bool QWidget::event(QEvent *e)
         break;
 
     case QEvent::Enter:
+#ifndef QT_NO_STATUSTIP
         if (d->statusTip.size()) {
             QStatusTipEvent tip(d->statusTip);
             QApplication::sendEvent(const_cast<QWidget *>(this), &tip);
         }
+#endif
         enterEvent(e);
         break;
 
     case QEvent::Leave:
+#ifndef QT_NO_STATUSTIP
         if (d->statusTip.size()) {
             QString empty;
             QStatusTipEvent tip(empty);
             QApplication::sendEvent(const_cast<QWidget *>(this), &tip);
         }
+#endif
         leaveEvent(e);
         break;
 
@@ -6765,6 +6769,8 @@ QString QWidget::toolTip() const
 }
 #endif // QT_NO_TOOLTIP
 
+
+#ifndef QT_NO_STATUSTIP
 /*!
   \property QWidget::statusTip
 
@@ -6783,7 +6789,9 @@ QString QWidget::statusTip() const
     Q_D(const QWidget);
     return d->statusTip;
 }
+#endif // QT_NO_STATUSTIP
 
+#ifndef QT_NO_WHATSTHIS
 /*!
   \property QWidget::whatsThis
 
@@ -6802,6 +6810,7 @@ QString QWidget::whatsThis() const
     Q_D(const QWidget);
     return d->whatsThis;
 }
+#endif // QT_NO_WHATSTHIS
 
 #ifndef QT_NO_ACCESSIBILITY
 /*!

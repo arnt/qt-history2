@@ -1817,12 +1817,13 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             p->fillRect(opt->rect, fill);
         }
         break; }
+#ifndef QT_NO_TOOLBAR
     case CE_ToolBar:
         if (const QStyleOptionToolBar *toolbar = qstyleoption_cast<const QStyleOptionToolBar *>(opt)) {
             QRect rect = opt->rect;
-            
+
             bool paintLeftBorder = true;
-            bool paintRightBorder = true; 
+            bool paintRightBorder = true;
             bool paintBottomBorder = true;
 
             switch (toolbar->toolBarArea){
@@ -1911,6 +1912,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             }
         }
         break;
+#endif // QT_NO_TOOLBAR
     default:
         QCommonStyle::drawControl(ce, opt, p, widget);
     }
@@ -2416,7 +2418,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
                 sz.setHeight(sz.height() - 2);
                 w -= 6;
             }
-            
+
             if (mi->menuItemType != QStyleOptionMenuItem::Separator && !mi->icon.isNull())
                  sz.setHeight(qMax(sz.height(),
                               mi->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal).height()

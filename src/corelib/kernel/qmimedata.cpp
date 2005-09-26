@@ -87,6 +87,7 @@ QVariant QMimeDataPrivate::retrieveTypedData(const QString &format, QVariant::Ty
     if (data.type() == QVariant::ByteArray) {
         // see if we can convert to the requested type
         switch(type) {
+#ifndef QT_NO_TEXTCODEC
         case QVariant::String: {
             const QByteArray ba = data.toByteArray();
             QTextCodec *codec = QTextCodec::codecForName("utf-8");
@@ -94,6 +95,7 @@ QVariant QMimeDataPrivate::retrieveTypedData(const QString &format, QVariant::Ty
                 codec = QTextCodec::codecForHtml(ba);
             return codec->toUnicode(ba);
         }
+#endif // QT_NO_TEXTCODEC
         case QVariant::Color: {
             QVariant newData = data;
             newData.convert(QVariant::Color);

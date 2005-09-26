@@ -146,6 +146,9 @@
 // Status bars
 //#define QT_NO_STATUSBAR
 
+// QStatusTip
+//#define QT_NO_STATUSTIP
+
 // Standard template library compatiblity
 //#define QT_NO_STL
 
@@ -353,6 +356,11 @@
 // The Model/View Framework
 #if !defined(QT_NO_ITEMVIEWS) && (defined(QT_NO_RUBBERBAND) || defined(QT_NO_SCROLLAREA))
 #define QT_NO_ITEMVIEWS
+#endif
+
+// QSyntaxHighlighter
+#if !defined(QT_NO_SYNTAXHIGHLIGHTER) && (defined(QT_NO_TEXTEDIT))
+#define QT_NO_SYNTAXHIGHLIGHTER
 #endif
 
 // Tab-bars

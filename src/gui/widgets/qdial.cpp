@@ -453,4 +453,4 @@ QSize QDial::sizeHint() const
 */
 
 
-#endif // QT_FEATURE_DIAL
+#endif // QT_NO_DIAL

@@ -1361,6 +1361,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         }
         break;
 #endif // QT_NO_COMBOBOX
+#ifndef QT_NO_TOOLBAR
     case CE_ToolBar:
         if (const QStyleOptionToolBar *toolBar = qstyleoption_cast<const QStyleOptionToolBar *>(opt)) {
             // Compatibility with styles that use PE_PanelToolBar
@@ -1376,6 +1377,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                             &toolBar->palette.brush(QPalette::Button));
         }
         break;
+#endif // QT_NO_TOOLBAR
     default:
         break;
     }

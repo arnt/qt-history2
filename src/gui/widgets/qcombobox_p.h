@@ -25,10 +25,11 @@
 // We mean it.
 //
 
+#include "QtGui/qcombobox.h"
+
 #ifndef QT_NO_COMBOBOX
 #include "QtGui/qabstractslider.h"
 #include "QtGui/qapplication.h"
-#include "QtGui/qcombobox.h"
 #include "qitemdelegate.h"
 #include "QtGui/qlineedit.h"
 #include "QtGui/qlistview.h"

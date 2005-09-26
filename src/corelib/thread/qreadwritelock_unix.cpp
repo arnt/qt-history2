@@ -16,6 +16,8 @@
 #include "qatomic.h"
 #include "qreadwritelock_p.h"
 
+#ifndef QT_NO_THREAD
+
 #include <errno.h>
 #include <string.h>
 #include <pthread.h>
@@ -447,3 +449,4 @@ void QReadWriteLock::unlock()
     Returns a pointer to the read-write lock that was passed
     to the constructor.
 */
+#endif // QT_NO_THREAD

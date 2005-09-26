@@ -41,7 +41,10 @@ private:
 
     QWaitConditionPrivate * d;
 };
+
 #else
+
+class QMutex;
 class Q_CORE_EXPORT QWaitCondition
 {
 public:

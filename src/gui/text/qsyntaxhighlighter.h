@@ -17,6 +17,8 @@
 #include <QtCore/qobject.h>
 #include <QtGui/qtextobject.h>
 
+#ifndef QT_NO_SYNTAXHIGHLIGHTER
+
 class QTextDocument;
 class QSyntaxHighlighterPrivate;
 class QTextCharFormat;
@@ -58,4 +60,5 @@ private:
     Q_PRIVATE_SLOT(d_func(), void reformatBlocks(int from, int charsRemoved, int charsAdded))
 };
 
+#endif // QT_NO_SYNTAXHIGHLIGHTER
 #endif // QSYNTAXHIGHLIGHTER_H

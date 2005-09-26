@@ -13,6 +13,7 @@
 
 #include "qsyntaxhighlighter.h"
 
+#ifndef QT_NO_SYNTAXHIGHLIGHTER
 #include <private/qobject_p.h>
 #include <qtextdocument.h>
 #include <qtextlayout.h>
@@ -387,3 +388,4 @@ QTextBlockUserData *QSyntaxHighlighter::currentBlockUserData() const
 
 #include "moc_qsyntaxhighlighter.cpp"
 
+#endif // QT_NO_SYNTAXHIGHLIGHTER

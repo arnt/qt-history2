@@ -324,6 +324,12 @@ Requires: SCROLLAREA
 Name: Rich text edit
 SeeAlso: ???
 
+Feature: SYNTAXHIGHLIGHTER
+Section: Widgets
+Requires: TEXTEDIT
+Name: QSyntaxHighlighter
+SeeAlso: ???
+
 Feature: RUBBERBAND
 Section: Widgets
 Requires:
@@ -334,6 +340,12 @@ Feature: TOOLTIP
 Section: Widgets
 Requires:
 Name: Tool tips
+SeeAlso: ???
+
+Feature: STATUSTIP
+Section: Widgets
+Requires:
+Name: QStatusTip
 SeeAlso: ???
 
 Feature: WHATSTHIS

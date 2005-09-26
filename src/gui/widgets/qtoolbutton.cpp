@@ -876,8 +876,12 @@ void QToolButton::setDefaultAction(QAction *action)
 #ifndef QT_NO_TOOLTIP
     setToolTip(action->toolTip());
 #endif
+#ifndef QT_NO_STATUSTIP
     setStatusTip(action->statusTip());
+#endif
+#ifndef QT_NO_WHATSTHIS
     setWhatsThis(action->whatsThis());
+#endif
 #ifndef QT_NO_MENU
     if (QMenu *menu = action->menu()) {
         // new 'default' popup mode defined introduced by tool bar. We

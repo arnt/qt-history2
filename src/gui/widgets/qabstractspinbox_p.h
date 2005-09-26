@@ -25,9 +25,10 @@
 // We mean it.
 //
 
+#include "QtGui/qabstractspinbox.h"
+
 #ifndef QT_NO_SPINBOX
 
-#include "QtGui/qabstractspinbox.h"
 #include "QtGui/qlineedit.h"
 #include "QtGui/qstyleoption.h"
 #include "QtGui/qvalidator.h"

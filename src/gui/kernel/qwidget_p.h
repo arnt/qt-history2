@@ -297,7 +297,15 @@ public:
     int leftmargin, topmargin, rightmargin, bottommargin;
     // ### TODO: reorganize private/extra/topextra to save memory
     QPointer<QWidget> compositeChildGrab;
-    QString toolTip, statusTip, whatsThis;
+#ifndef QT_NO_TOOLTIP
+    QString toolTip;
+#endif
+#ifndef QT_NO_STATUSTIP
+    QString statusTip;
+#endif
+#ifndef QT_NOWHATSTHIS
+    QString whatsThis;
+#endif
     QString accessibleName, accessibleDescription;
 
     QPalette::ColorRole fg_role : 8;

@@ -27,6 +27,8 @@
 #include "QtCore/qabstractitemmodel.h"
 #include "QtCore/qpair.h"
 
+#ifndef QT_NO_TREEWIDGET
+
 class QTreeWidgetItem;
 class QTreeWidgetItemIterator;
 
@@ -103,4 +105,5 @@ private:
     QList<QTreeWidgetItemIterator*> iterators;
 };
 
+#endif // QT_NO_TREEWIDGET
 #endif // QTREEWIDGET_P_H

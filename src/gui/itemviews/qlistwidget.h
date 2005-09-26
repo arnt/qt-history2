@@ -57,13 +57,17 @@ public:
         { return data(Qt::StatusTipRole).toString(); }
     inline void setStatusTip(const QString &statusTip);
 
+#ifndef QT_NO_TOOLTIP
     inline QString toolTip() const
         { return data(Qt::ToolTipRole).toString(); }
     inline void setToolTip(const QString &toolTip);
+#endif
 
+#ifndef QT_NO_WHATSTHIS
     inline QString whatsThis() const
         { return data(Qt::WhatsThisRole).toString(); }
     inline void setWhatsThis(const QString &whatsThis);
+#endif
 
     inline QFont font() const
         { return qvariant_cast<QFont>(data(Qt::FontRole)); }
@@ -127,11 +131,15 @@ inline void QListWidgetItem::setIcon(const QIcon &aicon)
 inline void QListWidgetItem::setStatusTip(const QString &astatusTip)
 { setData(Qt::StatusTipRole, astatusTip); }
 
+#ifndef QT_NO_TOOLTIP
 inline void QListWidgetItem::setToolTip(const QString &atoolTip)
 { setData(Qt::ToolTipRole, atoolTip); }
+#endif
 
+#ifndef QT_NO_WHATSTHIS
 inline void QListWidgetItem::setWhatsThis(const QString &awhatsThis)
 { setData(Qt::WhatsThisRole, awhatsThis); }
+#endif
 
 inline void QListWidgetItem::setFont(const QFont &afont)
 { setData(Qt::FontRole, afont); }

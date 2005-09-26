@@ -155,8 +155,12 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
 #ifndef QT_NO_TOOLTIP
     Q_PROPERTY(QString toolTip READ toolTip WRITE setToolTip)
 #endif
+#ifndef QT_NO_STATUSTIP
     Q_PROPERTY(QString statusTip READ statusTip WRITE setStatusTip)
+#endif
+#ifndef QT_NO_WHATSTHIS
     Q_PROPERTY(QString whatsThis READ whatsThis WRITE setWhatsThis)
+#endif
 #ifndef QT_NO_ACCESSIBILITY
     Q_PROPERTY(QString accessibleName READ accessibleName WRITE setAccessibleName)
     Q_PROPERTY(QString accessibleDescription READ accessibleDescription WRITE setAccessibleDescription)
@@ -300,12 +304,14 @@ public:
     void setToolTip(const QString &);
     QString toolTip() const;
 #endif
+#ifndef QT_NO_STATUSTIP
     void setStatusTip(const QString &);
     QString statusTip() const;
-
+#endif
+#ifndef QT_NO_WHATSTHIS
     void setWhatsThis(const QString &);
     QString whatsThis() const;
-
+#endif
 #ifndef QT_NO_ACCESSIBILITY
     QString accessibleName() const;
     void setAccessibleName(const QString &name);
@@ -708,7 +714,7 @@ public:
 private:
     void drawText_helper(int x, int y, const QString &);
     void erase_helper(int x, int y, int w, int h);
-#endif
+#endif // QT3_SUPPORT
 
 protected:
     virtual void styleChange(QStyle&); // compat
