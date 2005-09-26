@@ -106,6 +106,17 @@ inline QDebug operator<<(QDebug debug, const QMap<aKey, aT> &map)
     return debug.space();
 }
 
+template <class aKey, class aT>
+inline QDebug operator<<(QDebug debug, const QHash<aKey, aT> &hash)
+{
+    debug.nospace() << "QHash(";
+    for (typename QHash<aKey, aT>::const_iterator it = hash.constBegin();
+            it != hash.constEnd(); ++it)
+        debug << "(" << it.key() << ", " << it.value() << ")";
+    debug << ")";
+    return debug.space();
+}
+
 inline Q_CORE_EXPORT QDebug qDebug() { return QDebug(QtDebugMsg); }
 inline Q_CORE_EXPORT QDebug qWarning() { return QDebug(QtWarningMsg); }
 inline Q_CORE_EXPORT QDebug qCritical() { return QDebug(QtCriticalMsg); }
