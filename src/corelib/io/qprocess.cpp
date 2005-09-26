@@ -1422,7 +1422,12 @@ bool QProcess::startDetached(const QString &program)
     return QProcessPrivate::startDetached(prog, args);
 }
 
-extern char **environ;
+#ifdef Q_OS_MAC
+# include <crt_externs.h>
+# define environ (*_NSGetEnviron())
+#else
+ extern char **environ;
+#endif
 
 /*!
     Returns the environment of the calling process as a list of
