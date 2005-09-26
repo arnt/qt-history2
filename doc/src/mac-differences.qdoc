@@ -31,7 +31,7 @@
     GUI Applications must be run out of a bundle (something like widgets.app/)
     or using the open(1) command. Mac OS X needs this to dispatch events
     correctly, as well as gaining access to the menu bar.
-    
+
     If you are using older versions of GDB you must run with the full path to
     the executable.  Later versions allow you to pass the bundle name on the
     command line.
@@ -117,12 +117,12 @@
     do this:
 
     \code
-	CFURLRef pluginRef = CFBundleCopyBundleURL(CFBundleGetMainBundle());
-	CFStringRef macPath = CFURLCopyFileSystemPath(pluginRef, 
+        CFURLRef pluginRef = CFBundleCopyBundleURL(CFBundleGetMainBundle());
+        CFStringRef macPath = CFURLCopyFileSystemPath(pluginRef, 
                                                kCFURLPOSIXPathStyle);
-	const char *pathPtr = CFStringGetCStringPtr(macPath, 
+        const char *pathPtr = CFStringGetCStringPtr(macPath, 
                                                CFStringGetSystemEncoding());
-	qDebug("Path = %s", pathPtr);
+        qDebug("Path = %s", pathPtr);
         CFRelease(pluginRef);
         CFRelease(macPath);
     \endcode
@@ -195,6 +195,13 @@
     create a different default menu bar by creating a parentless QMenuBar; the
     first one created will be designated the default menu bar, and will be
     used whenever a default menu bar is needed.
+
+    \section2 Special Keys
+
+    To provide the expected behavior for Qt applications on Mac OS X, the Qt::Meta,
+    Qt::MetaModifier, and Qt::META enum values correspond to the Control keys on the
+    standard Macintosh keyboard, and the Qt::Control, Qt::ControlModifier, and
+    Qt::CTRL enum values correspond to the Command keys.
 
     \section1 Limitations
 

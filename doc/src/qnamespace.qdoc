@@ -108,6 +108,10 @@
 
     This enum describes the modifier keys.
 
+    \bold{Note:} On Mac OS X, the \c ControlModifier value corresponds to
+    the Command keys on the Macintosh keyboard, and the \c MetaModifier value
+    corresponds to the Control keys.
+
     \value NoModifier       No modifier key is pressed.
     \value ShiftModifier    A Shift key on the keyboard is pressed.
     \value ControlModifier  A Ctrl key on the keyboard is pressed.
@@ -125,6 +129,10 @@
 
     This enum provides shorter names for the keyboard modifier keys
     supported by Qt.
+
+    \bold{Note:} On Mac OS X, the \c CTRL value corresponds to
+    the Command keys on the Macintosh keyboard, and the \c META value
+    corresponds to the Control keys.
 
     \value SHIFT The Shift keys provided on all standard keyboards.
     \value META The Meta keys.
@@ -877,8 +885,8 @@
     \value Key_PageDown
     \omitvalue Key_Next
     \value Key_Shift
-    \value Key_Control
-    \value Key_Meta
+    \value Key_Control    On Mac OS X, this corresponds to the Command keys.
+    \value Key_Meta       On Mac OS X, this corresponds to the Control keys.
     \value Key_Alt
     \value Key_CapsLock
     \value Key_NumLock

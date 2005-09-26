@@ -62,6 +62,17 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
     obtain a human readable translated version of the sequence.
     Translations are done in the "QShortcut" context.
 
+    \bold{Note:} On Mac OS X, references to "Ctrl", Qt::CTRL, Qt::Control
+    and Qt::ControlModifier correspond to the Command keys on the Macintosh
+    keyboard, and references to "Meta", Qt::META, Qt::Meta and
+    Qt::MetaModifier correspond to the Control keys. Developers on Mac OS X
+    can use the same shortcut descriptions across all platforms, and their
+    applications will automatically work as expected on Mac OS X.
+
+    The toString() function produces human-readable strings for use
+    in menus. On Mac OS X, the appropriate symbols are used to describe
+    keyboard shortcuts using special keys on the Macintosh keyboard.
+
     \sa QShortcut
 */
 
