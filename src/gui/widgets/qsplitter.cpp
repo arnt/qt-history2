@@ -1301,6 +1301,8 @@ bool QSplitter::event(QEvent *e)
             break;
         d->firstShow = false;
         // fall through
+    case QEvent::HideToParent:
+    case QEvent::ShowToParent:
     case QEvent::LayoutRequest:
 #ifdef QT3_SUPPORT
     case QEvent::LayoutHint:
