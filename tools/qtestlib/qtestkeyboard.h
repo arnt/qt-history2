@@ -22,69 +22,23 @@
 #include "QtTest/qtestassert.h"
 #include "QtTest/qtest_global.h"
 #include "QtTest/qtestsystem.h"
+#include "QtTest/private/qtestspontaneevent_p.h"
 
 #include <QtCore/qpointer.h>
 #include <QtGui/qapplication.h>
 #include <QtGui/qevent.h>
 #include <QtGui/qwidget.h>
 
-#if defined Q_CC_HPACC
-// aCC 3.37 complains about the template syntax in this
-// file. It doesn't complain in Qt itself, though. (?)
-#define QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
-#endif
-
 namespace QTest
 {
     int Q_TESTLIB_EXPORT defaultKeyDelay();
 
-#ifndef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
-    template <int>
-    class QEventSizeOfChecker
-    {
-    private:
-        QEventSizeOfChecker() {}
-    };
-    template <>
-    class QEventSizeOfChecker<sizeof(QEvent)>
-    {
-    public:
-        QEventSizeOfChecker() {}
-    };
-#endif
-
     enum KeyAction { Press, Release, Click };
-
-    class QSpontaneKeyEvent
-    {
-    public:
-        void setSpontaneous() { spont = 1; };
-        bool spontaneous() { return spont; };
-        virtual void dummyFunc() {};
-        virtual ~QSpontaneKeyEvent() {}
-
-    protected:
-        void *d;
-        ushort t;
-
-    private:
-        ushort posted : 1;
-        ushort spont : 1;
-        ushort m_accept : 1;
-        ushort reserved : 13;
-    };
 
     static void simulateEvent(QWidget *widget, bool press, int code,
                               Qt::KeyboardModifiers modifier, QString text, bool repeat, int delay=-1)
     {
         QTEST_ASSERT(widget);
-#ifndef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
-        // this is a compile time assert in case the signature of QEvent changed.
-        QEventSizeOfChecker<sizeof(QSpontaneKeyEvent)> someone_changed_qevent_please_fix_testlib;
-        Q_UNUSED(someone_changed_qevent_please_fix_testlib);
-#endif
-        // and the same paranoia for runtime for compiler that don't understand partial templates
-        QTEST_ASSERT(sizeof(QEvent) == sizeof(QSpontaneKeyEvent));
 
         if (delay == -1 || delay < defaultKeyDelay())
             delay = defaultKeyDelay();
@@ -92,9 +46,9 @@ namespace QTest
             QTest::qWait(delay);
 
         QKeyEvent a(press ? QEvent::KeyPress : QEvent::KeyRelease, code, modifier, text, repeat);
-        // this is should be safe because of the paranoia methods above.
         reinterpret_cast<QSpontaneKeyEvent *>(&a)->setSpontaneous();
-        qApp->notify(widget, &a);
+        if (!qApp->notify(widget, &a))
+            QTest::qWarn("Keyboard event not accepted by receiving widget");
     }
 
     static void sendKeyEvent(KeyAction action, QWidget *widget, Qt::Key code,

@@ -22,6 +22,7 @@
 #include "QtTest/qtest_global.h"
 #include "QtTest/qtestassert.h"
 #include "QtTest/qtestsystem.h"
+#include "QtTest/private/qtestspontaneevent_p.h"
 
 #include <QtCore/qpoint.h>
 #include <QtCore/qstring.h>
@@ -78,9 +79,9 @@ namespace QTest
             default:
                 QTEST_ASSERT(false);
         }
-        if (!QApplication::sendEvent(widget, &me))
-            QTest::qFail("Mouse event is not accepted by receiving widget",
-                        __FILE__, __LINE__);
+        reinterpret_cast<QSpontaneKeyEvent *>(&me)->setSpontaneous();
+        if (!qApp->notify(widget, &me))
+            QTest::qWarn("Mouse event not accepted by receiving widget");
 
     }
 
