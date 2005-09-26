@@ -455,9 +455,7 @@ void QTextEditPrivate::setCursorPosition(const QPoint &pos)
 
 void QTextEditPrivate::setCursorPosition(int pos, QTextCursor::MoveMode mode)
 {
-    Q_Q(QTextEdit);
     cursor.setPosition(pos, mode);
-    q->ensureCursorVisible();
 
     if (mode != QTextCursor::KeepAnchor) {
         selectedWordOnDoubleClick = QTextCursor();
@@ -592,6 +590,23 @@ void QTextEditPrivate::ensureVisible(int documentPosition)
 
     const int y = qRound(layoutPos.y() + line.y());
     vbar->setValue(y);
+}
+
+// rect is in content coordinates
+void QTextEditPrivate::ensureVisible(const QRect &rect)
+{
+    const int visibleWidth = viewport->width();
+    const int visibleHeight = viewport->height();
+
+    if (rect.x() < hbar->value())
+        hbar->setValue(rect.x() - rect.width());
+    else if (rect.x() + rect.width() > hbar->value() + visibleWidth)
+        hbar->setValue(rect.x() + rect.width() - visibleWidth);
+
+    if (rect.y() < vbar->value())
+        vbar->setValue(rect.y() - rect.height());
+    else if (rect.y() + rect.height() > vbar->value() + visibleHeight)
+        vbar->setValue(rect.y() + rect.height() - visibleHeight);
 }
 
 void QTextEditPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
@@ -2066,8 +2081,11 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
         }
     }
 
-    emit cursorPositionChanged();
-    d->updateCurrentCharFormatAndSelection();
+    if (!d->readOnly) {
+        ensureCursorVisible();
+        emit cursorPositionChanged();
+        d->updateCurrentCharFormatAndSelection();
+    }
     d->repaintSelection();
 }
 
@@ -2116,8 +2134,14 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
     else
         d->setCursorPosition(newCursorPos, QTextCursor::KeepAnchor);
 
-    emit cursorPositionChanged();
-    d->updateCurrentCharFormatAndSelection();
+    if (d->readOnly) {
+        const QPoint pos = d->mapToContents(e->pos());
+        d->ensureVisible(QRect(pos, QSize(1, 1)));
+    } else {
+        ensureCursorVisible();
+        emit cursorPositionChanged();
+        d->updateCurrentCharFormatAndSelection();
+    }
     d->repaintSelection();
 }
 
@@ -3225,20 +3249,7 @@ void QTextEdit::ensureCursorVisible()
 {
     Q_D(QTextEdit);
     QRect crect = d->rectForPosition(d->cursor.position());
-
-    const int visibleWidth = d->viewport->width();
-    const int visibleHeight = d->viewport->height();
-
-    if (crect.x() < d->hbar->value())
-        d->hbar->setValue(crect.x() - crect.width());
-    else if (crect.x() + crect.width() > d->hbar->value() + visibleWidth)
-        d->hbar->setValue(crect.x() + crect.width() - visibleWidth);
-
-    if (crect.y() < d->vbar->value())
-        d->vbar->setValue(crect.y() - crect.height());
-    else if (crect.y() + crect.height() > d->vbar->value() + visibleHeight)
-        d->vbar->setValue(crect.y() + crect.height() - visibleHeight);
-
+    d->ensureVisible(crect);
     updateMicroFocus();
 }
 

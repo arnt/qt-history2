@@ -100,6 +100,7 @@ public:
     void setClipboardSelection();
 #endif
     void ensureVisible(int documentPosition);
+    void ensureVisible(const QRect &rect);
 
     void emitCursorPosChanged(const QTextCursor &someCursor);
 
