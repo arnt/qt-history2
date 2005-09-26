@@ -44,6 +44,7 @@ private slots:
     void fileSave();
     void fileSaveAs();
     void filePrint();
+    void filePrintPdf();
     void fileClose();
     void fileExit();
 

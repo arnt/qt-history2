@@ -115,6 +115,14 @@ void TextEdit::setupFileActions()
     tb->addAction(a);
     menu->addAction(a);
 
+    a = new QAction(QIcon(rsrcPath + "/fileprint.png"), tr("&Export PDF..."), this);
+    a->setShortcut(Qt::CTRL + Qt::Key_D);
+    connect(a, SIGNAL(triggered()), this, SLOT(filePrintPdf()));
+    tb->addAction(a);
+    menu->addAction(a);
+
+    menu->addSeparator();
+
     a = new QAction(tr("&Close"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_W);
     connect(a, SIGNAL(triggered()), this, SLOT(fileClose()));
@@ -344,12 +352,27 @@ void TextEdit::filePrint()
 #ifndef QT_NO_PRINTER
     QPrinter printer(QPrinter::HighResolution);
     printer.setFullPage(true);
-
     QPrintDialog *dlg = new QPrintDialog(&printer, this);
     if (dlg->exec() == QDialog::Accepted) {
         currentEditor->document()->print(&printer);
     }
     delete dlg;
+#endif
+}
+
+
+void TextEdit::filePrintPdf()
+{
+    if (!currentEditor)
+        return;
+#ifndef QT_NO_PRINTER
+    QString fileName = QFileDialog::getSaveFileName(this, "Export PDF", QString(), "*.pdf");
+    if (fileName.isEmpty())
+        return;
+    QPrinter printer(QPrinter::HighResolution);
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setOutputFileName(fileName);
+    currentEditor->document()->print(&printer);
 #endif
 }
 
