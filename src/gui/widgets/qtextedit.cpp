@@ -3190,7 +3190,7 @@ void QTextEdit::append(const QString &text)
             f = Qt::PlainText;
     }
 
-    const bool atBottom = d->contentsY() >= d->contentsHeight() - d->viewport->height();
+    const bool atBottom = d->vbar->value() >= d->vbar->maximum();
 
     QTextCursor cursor(d->doc);
     cursor.beginEditBlock();
@@ -3229,14 +3229,14 @@ void QTextEdit::ensureCursorVisible()
     const int visibleWidth = d->viewport->width();
     const int visibleHeight = d->viewport->height();
 
-    if (crect.x() < d->contentsX())
+    if (crect.x() < d->hbar->value())
         d->hbar->setValue(crect.x() - crect.width());
-    else if (crect.x() + crect.width() > d->contentsX() + visibleWidth)
+    else if (crect.x() + crect.width() > d->hbar->value() + visibleWidth)
         d->hbar->setValue(crect.x() + crect.width() - visibleWidth);
 
-    if (crect.y() < d->contentsY())
+    if (crect.y() < d->vbar->value())
         d->vbar->setValue(crect.y() - crect.height());
-    else if (crect.y() + crect.height() > d->contentsY() + visibleHeight)
+    else if (crect.y() + crect.height() > d->vbar->value() + visibleHeight)
         d->vbar->setValue(crect.y() + crect.height() - visibleHeight);
 
     updateMicroFocus();

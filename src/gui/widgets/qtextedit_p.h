@@ -90,11 +90,6 @@ public:
 
     void selectionChanged();
 
-    inline int contentsX() const { return hbar->value(); }
-    inline int contentsY() const { return vbar->value(); }
-    inline int contentsWidth() const { return hbar->maximum() + viewport->width(); }
-    inline int contentsHeight() const { return vbar->maximum() + viewport->height(); }
-
     void pageUp(QTextCursor::MoveMode moveMode);
     void pageDown(QTextCursor::MoveMode moveMode);
 
