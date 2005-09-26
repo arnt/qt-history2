@@ -1210,6 +1210,17 @@ void QComboBox::setModel(QAbstractItemModel *model)
 
     if (d->container)
         d->container->itemView()->setModel(model);
+
+    if (count()) {
+        setCurrentIndex(0);
+    } else {
+        d->currentIndex = QPersistentModelIndex();
+        if (d->lineEdit) {
+            d->lineEdit->setText(itemText(d->currentIndex.row()));
+            d->updateLineEditGeometry();
+        }
+        update();
+    }
 }
 
 /*!
