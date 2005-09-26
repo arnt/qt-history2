@@ -645,7 +645,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
                 option.state = state | (viewItems.at(i).expanded
                                         ? QStyle::State_Open : QStyle::State_None);
                 if (alternate)
-                    option.palette.setBrush(QPalette::Base, i & 1 ? baseBrush : alternateBrush);
+                    option.palette.setBrush(QPalette::Base, i & 1 ? alternateBrush : baseBrush );
                 d->current = i;
                 drawRow(&painter, option, viewItems.at(i).index);
             }
@@ -706,9 +706,14 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         position = columnViewportPosition(headerSection) + offset.x();
         width = header->sectionSize(headerSection);
         modelIndex = d->model->index(index.row(), headerSection, parent);
-        if (!modelIndex.isValid())
-            continue;
         opt.state = state;
+        if (!modelIndex.isValid()) {
+            // We must paint the background on all columns, even if they have no data.
+            // In order to show proper alternatingRowColors
+            opt.rect.setRect(position, y, width, height);
+            painter->fillRect(opt.rect, option.palette.brush(QPalette::Base));
+            continue;
+        }
         if (selectionModel()->isSelected(modelIndex))
             opt.state |= QStyle::State_Selected;
         if (focus && current == modelIndex)

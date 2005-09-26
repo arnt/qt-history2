@@ -497,6 +497,16 @@ void QTableView::paintEvent(QPaintEvent *e)
         top = qMin(top, bottom);
         bottom = qMax(tmp, bottom);
 
+        // Find the initial value for bPaintAlternateBase
+        bool bPaintAlternateBase = false;   // should only be inverted for *visible* rows
+        if (alternate) {
+            for (int v1 = 0; v1 < top; ++v1) {
+                int row = verticalHeader->logicalIndex(v1);
+                if (verticalHeader->isSectionHidden(row))
+                    continue;
+                bPaintAlternateBase = !bPaintAlternateBase;
+            }
+        }
         // do the actual painting
 
         for (int v = top; v <= bottom; ++v) {
@@ -530,7 +540,7 @@ void QTableView::paintEvent(QPaintEvent *e)
                     }
                     if (focus && index == current)
                         option.state |= QStyle::State_HasFocus;
-                    if (alternate && v & 1)
+                    if (alternate && bPaintAlternateBase)
                         painter.fillRect(colp, rowp, colw, rowh,
                                          option.palette.brush(cg, QPalette::AlternateBase));
                     else
@@ -551,6 +561,7 @@ void QTableView::paintEvent(QPaintEvent *e)
                 painter.drawLine(area.left(), rowp + rowh, area.right(), rowp + rowh);
                 painter.setPen(old);
             }
+            bPaintAlternateBase = !bPaintAlternateBase;            
         }
 
         int w = d->viewport->width();
