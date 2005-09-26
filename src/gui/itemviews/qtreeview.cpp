@@ -708,8 +708,6 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         modelIndex = d->model->index(index.row(), headerSection, parent);
         opt.state = state;
         if (!modelIndex.isValid()) {
-            // We must paint the background on all columns, even if they have no data.
-            // In order to show proper alternatingRowColors
             opt.rect.setRect(position, y, width, height);
             painter->fillRect(opt.rect, option.palette.brush(QPalette::Base));
             continue;
