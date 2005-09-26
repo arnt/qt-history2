@@ -2401,8 +2401,8 @@ QDomNode QDomNode::previousSibling() const
     <p>The text...</p>
     <h2>Next heading</h2>
     \endcode
-    and this QDomNode represents the &lt;p&gt; tag, nextSibling() will
-    return the node representing the &lt;h2&gt; tag.
+    and this QDomNode represents the <p> tag, nextSibling() will
+    return the node representing the <h2> tag.
 
     \sa previousSibling()
 */
