@@ -2,6 +2,7 @@ TARGET        = qsvgview
 HEADERS       = qsvgview.h
 SOURCES       = qsvgview.cpp main.cpp
 QT           += svg opengl
+CONFIG += console
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/painting/svg
