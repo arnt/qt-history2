@@ -58,7 +58,7 @@ class Q_CORE_EXPORT QString
 public:
     inline QString();
     QString(const QChar *unicode, int size);
-    explicit QString(QChar c);
+    QString(QChar c);
     QString(int size, QChar c);
     inline QString(const QLatin1String &latin1);
     inline QString(const QString &);
