@@ -80,10 +80,10 @@
 
     \list
         \o \c designer: Since custom widgets plugins rely on components
-           supplied with \QD, this value makes our plugin link against
+           supplied with \QD, this value ensures that our plugin link against
            \QD's library (\c libQtDesigner.so).
 
-        \o \c plugin: We need to ensure that \c qmake considers the
+        \o \c plugin: We also need to ensure that \c qmake considers the
            custom widget a \e plugin library.
     \endlist
 
@@ -91,8 +91,8 @@
     \QD will be built in release mode.  When this occurs, it is
     necessary to ensure that plugins are also built in release
     mode. For that reason you might have to add a \c release value to
-    your \c CONFIG variable. Because, if plugins are built in a mode
-    that is incompatible with \QD, they won't be loaded and
+    your \c CONFIG variable. Otherwise, if a plugin is built in a mode
+    that is incompatible with \QD, it won't be loaded and
     installed. For more information about plugins, see the \l {How to
     Create Qt Plugins} document.
 
