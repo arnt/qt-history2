@@ -270,7 +270,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
 
             if (cmb == 0) {
                 // Fix 0 combining classes
-                if (uc[pos].unicode() & 0xff00 == 0x0e00) {
+                if ((uc[pos].unicode() & 0xff00) == 0x0e00) {
                     // thai or lao
                     unsigned char col = uc[pos].cell();
                     if (col == 0x31 ||
