@@ -3035,11 +3035,19 @@ if [ "$CFG_IPV6" = "auto" ]; then
 fi
 
 # find if the platform provides getaddrinfo (ipv6 dns lookups)
-if [ "$CFG_GETADDRINFO" = "auto" ]; then
-    if $unixtests/getaddrinfo.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
-        CFG_GETADDRINFO=no
-    else
+if [ "$CFG_GETADDRINFO" != "no" ]; then
+    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/getaddrinfo "getaddrinfo" $L_FLAGS $I_FLAGS; then
         CFG_GETADDRINFO=yes
+    else
+	if [ "$CFG_GETADDRINFO" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+            echo "getaddrinfo support cannot be enabled due to functionality tests!"
+            echo " Turn on verbose messaging (-v) to $0 to see the final report."
+            echo " If you believe this message is in error you may use the continue"
+            echo " switch (-continue) to $0 to continue."
+            exit 101
+	else	
+	    CFG_GETADDRINFO=no
+	fi
     fi
 fi
 
