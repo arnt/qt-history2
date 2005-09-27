@@ -1117,6 +1117,10 @@ void qt_draw_tiled_pixmap(HDC hdc, int x, int y, int w, int h,
         delete tile;
 }
 
+QString QApplicationPrivate::appName() const
+{
+    return qAppName();
+}
 
 
 /*****************************************************************************
