@@ -1119,7 +1119,7 @@ void qt_draw_tiled_pixmap(HDC hdc, int x, int y, int w, int h,
 
 QString QApplicationPrivate::appName() const
 {
-    return qAppName();
+    return QCoreApplicationPrivate::appName();
 }
 
 
