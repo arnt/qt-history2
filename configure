@@ -2702,8 +2702,6 @@ if [ "$CFG_ACCESSIBILITY" = "auto" ]; then
     CFG_ACCESSIBILITY=yes
 fi
 
-exit
-
 # auto-detect SQL-modules support
 MYSQL_REQ="-lmysqlclient mysql.h"
 OCI_REQ="-lclntsh oci.h"
