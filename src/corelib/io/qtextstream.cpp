@@ -187,6 +187,18 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
     \sa setNumberFlags()
 */
 
+/*! \enum QTextStream::Status
+
+    This enum describes the current status of the text stream.
+
+    \value Ok               The text stream is operating normally.
+    \value ReadPastEnd      The text stream has read past the end of the
+                            data in the underlying device.
+    \value ReadCorruptData  The text stream has read corrupt data.
+
+    \sa status()
+*/
+
 #include "qtextstream.h"
 #include "qbuffer.h"
 #include "qfile.h"
@@ -1295,7 +1307,7 @@ int QTextStream::realNumberPrecision() const
 /*!
     Returns the status of the text stream.
 
-    \sa Status setStatus() resetStatus()
+    \sa QTextStream::Status, setStatus(), resetStatus()
 */
 
 QTextStream::Status QTextStream::status() const
@@ -1307,7 +1319,7 @@ QTextStream::Status QTextStream::status() const
 /*!
     Resets the status of the text stream.
 
-    \sa Status status() setStatus()
+    \sa QTextStream::Status, status(), setStatus()
 */
 void QTextStream::resetStatus()
 {
