@@ -2819,6 +2819,22 @@
     more flexible as long as the environment variable is set correctly
     when the Makefile is processed.
 
+    The special \c $$[...] operator can be used to access various
+    configuration options that were set when Qt was built:
+
+    \quotefromfile snippets/qmake/qtconfiguration.pro
+    \skipto message
+    \printuntil Demonstrations:
+
+    The variables accessible with this operator are typically used to
+    enable third party plugins and components to be integrated with Qt.
+    For example, a \QD plugin can be installed alongside \QD's built-in
+    plugins if the following declaration is made in its project file:
+
+    \code
+        DESTDIR = $$[QT_INSTALL_PLUGINS]/designer
+    \endcode
+
     \target VariableProcessingFunctions
     \section1 Variable Processing Functions
 
