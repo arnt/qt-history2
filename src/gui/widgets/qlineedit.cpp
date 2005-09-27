@@ -2215,7 +2215,7 @@ QMenu *QLineEdit::createStandardContextMenu()
     d->actions[QLineEditPrivate::CopyAct]->setEnabled(false);
     d->actions[QLineEditPrivate::PasteAct]->setEnabled(false);
 #endif
-    d->actions[QLineEditPrivate::ClearAct]->setEnabled(!d->readOnly && !d->text.isEmpty());
+    d->actions[QLineEditPrivate::ClearAct]->setEnabled(!d->readOnly && !d->text.isEmpty() && d->hasSelectedText());
     d->actions[QLineEditPrivate::SelectAllAct]->setEnabled(!d->text.isEmpty() && !d->allSelected());
 
     QMenu *popup = new QMenu(this);
@@ -2263,6 +2263,19 @@ void QLineEditPrivate::clipboardChanged()
 {
 }
 
+void QLineEditPrivate::deleteSelected()
+{
+    Q_Q(QLineEdit);
+    if (!hasSelectedText())
+        return;
+
+    int priorState = undoState;
+    q->resetInputContext();    
+    removeSelectedText();
+    separate();
+    finishChange(priorState);            
+}
+
 void QLineEditPrivate::init(const QString& txt)
 {
     Q_Q(QLineEdit);
@@ -2294,8 +2307,8 @@ void QLineEditPrivate::init(const QString& txt)
     QObject::connect(actions[CopyAct], SIGNAL(triggered()), q, SLOT(copy()));
     actions[PasteAct] = new QAction(q->tr("&Paste") + ACCEL_KEY(V), q);
     QObject::connect(actions[PasteAct], SIGNAL(triggered()), q, SLOT(paste()));
-    actions[ClearAct] = new QAction(q->tr("Clear"), q);
-    QObject::connect(actions[ClearAct], SIGNAL(triggered()), q, SLOT(clear()));
+    actions[ClearAct] = new QAction(q->tr("Delete"), q);
+    QObject::connect(actions[ClearAct], SIGNAL(triggered()), q, SLOT(deleteSelected()));
     //popup->insertSeparator();
     actions[SelectAllAct] = new QAction(q->tr("Select All")
 #ifndef Q_WS_X11

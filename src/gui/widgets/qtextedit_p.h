@@ -110,6 +110,8 @@ public:
     void extendLinewiseSelection(int suggestedNewPosition);
 
     void relayoutDocument();
+    
+    void deleteSelected();
 
     QRect rectForPosition(int position) const;
     QRect selectionRect() const;

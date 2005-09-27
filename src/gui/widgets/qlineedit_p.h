@@ -172,6 +172,7 @@ public:
 #endif
 
     void clipboardChanged();
+    void deleteSelected();
     bool userInput;
 
 #ifdef QT_KEYPAD_NAVIGATION

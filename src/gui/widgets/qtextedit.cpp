@@ -710,6 +710,13 @@ void QTextEditPrivate::extendLinewiseSelection(int suggestedNewPosition)
     }
 }
 
+void QTextEditPrivate::deleteSelected()
+{
+    if (readOnly || !cursor.hasSelection())
+	return;
+    cursor.removeSelectedText();
+}
+
 /*!
     \class QTextEdit
     \brief The QTextEdit class provides a widget that is used to edit and display
@@ -2512,13 +2519,17 @@ QMenu *QTextEdit::createStandardContextMenu()
     a = menu->addAction(tr("&Copy") + ACCEL_KEY(C), this, SLOT(copy()));
     a->setEnabled(d->cursor.hasSelection());
 
-#if !defined(QT_NO_CLIPBOARD)
+
     if (!d->readOnly) {
+#if !defined(QT_NO_CLIPBOARD)
         a = menu->addAction(tr("&Paste") + ACCEL_KEY(V), this, SLOT(paste()));
         const QMimeData *md = QApplication::clipboard()->mimeData();
         a->setEnabled(md && canInsertFromMimeData(md));
-    }
 #endif
+        a = menu->addAction(tr("Delete"), this, SLOT(deleteSelected()));
+        a->setEnabled(d->cursor.hasSelection());        
+    }
+
 
     menu->addSeparator();
     a = menu->addAction(tr("Select All")

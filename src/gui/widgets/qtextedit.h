@@ -344,6 +344,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void updateCurrentCharFormatAndSelection())
     Q_PRIVATE_SLOT(d_func(), void adjustScrollbars())
     Q_PRIVATE_SLOT(d_func(), void emitCursorPosChanged(const QTextCursor &))
+    Q_PRIVATE_SLOT(d_func(), void deleteSelected())
 };
 
 #endif // QT_NO_TEXTEDIT
