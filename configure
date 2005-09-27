@@ -2752,7 +2752,9 @@ done
 
 # auto-detect NIS support
 if [ "$CFG_NIS" != "no" ]; then
-    if $unixtests/nis.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
+    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/nis "NIS" $L_FLAGS $I_FLAGS; then
+        CFG_NIS=yes
+    else
         if [ "$CFG_NIS" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
             echo "NIS support cannot be enabled due to functionality tests!"
             echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2762,8 +2764,6 @@ if [ "$CFG_NIS" != "no" ]; then
         else
             CFG_NIS=no
         fi
-    else
-        CFG_NIS=yes
     fi
 fi
 
