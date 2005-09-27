@@ -939,8 +939,10 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         QBrush fill;
         bool stippled;
         bool panel = (pe == PE_PanelButtonTool);
-        if (!(opt->state & (State_Sunken | State_MouseOver)) && (opt->state & State_On)
-                && use2000style) {
+        if ((!(opt->state & State_Sunken ))
+            && (!(opt->state & State_Enabled) 
+                || ((opt->state & State_Enabled ) && !(opt->state & State_MouseOver)))
+            && (opt->state & State_On) && use2000style) {
             fill = QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
             stippled = true;
         } else {
@@ -950,12 +952,14 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
 
         if (opt->state & (State_Raised | State_Sunken | State_On)) {
             if (opt->state & State_AutoRaise) {
-                if (panel)
-                    qDrawShadePanel(p, opt->rect, opt->palette,
-                            opt->state & (State_Sunken | State_On), 1, &fill);
-                else
-                    qDrawShadeRect(p, opt->rect, opt->palette,
-                                   opt->state & (State_Sunken | State_On), 1);
+                if(opt->state & (State_Enabled | State_Sunken | State_On)){
+                    if (panel)
+                        qDrawShadePanel(p, opt->rect, opt->palette,
+                                        opt->state & (State_Sunken | State_On), 1, &fill);
+                    else
+                        qDrawShadeRect(p, opt->rect, opt->palette,
+                                       opt->state & (State_Sunken | State_On), 1);
+                }
                 if (stippled) {
                     p->setPen(opt->palette.button().color());
                     p->drawRect(opt->rect.adjusted(1,1,-2,-2));
