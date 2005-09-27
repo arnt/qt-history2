@@ -6447,7 +6447,7 @@ void QWidget::repaint(const QRect &r)
     paintEvent() call.
 
     Qt normally erases the widget's area before the paintEvent() call.
-    If the Qt::WRepaintNoErase widget flag is set, the widget is
+    If the Qt::WA_NoBackground widget attribute is set, the widget is
     responsible for painting all its pixels itself.
 
     \sa repaint() paintEvent(), setUpdatesEnabled()
