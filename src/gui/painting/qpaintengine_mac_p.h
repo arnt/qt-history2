@@ -197,6 +197,7 @@ public:
         hd = 0;
         shading = 0;
         complexXForm = false;
+        cosmeticPen = true;
     }
 
     //state info (shared with QD)
@@ -206,6 +207,7 @@ public:
     CGContextRef hd;
     CGShadingRef shading;
     bool complexXForm;
+    bool cosmeticPen;
 
     //internal functions
     enum { CGStroke=0x01, CGEOFill=0x02, CGFill=0x04 };
