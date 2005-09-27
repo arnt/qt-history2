@@ -15,7 +15,7 @@ class QPen;
 class QPointF;
 class QRegion;
 class QFile;
-class QTextStream;
+class QPdfByteStream;
 
 class QPdfStream
 {
@@ -49,7 +49,7 @@ public:
     TYPE type;
     int appended;
 
-    virtual void streamText(QTextStream &) {}
+    virtual void streamText(QPdfByteStream &) {}
 
     bool hasSoftMask()
     {
@@ -67,9 +67,9 @@ public:
     QPdfMatrix* setMatrix(QMatrix const& m);
     QMatrix currentMatrix() const;
     QMatrix lastMatrix() const;
-    void streamText(QTextStream &stream);
+    void streamText(QPdfByteStream &stream);
 
-    static QString streamMatrix(QMatrix const m);
+    static void streamMatrix(const QMatrix &m, QPdfByteStream &stream);
 
 private:
     QVector<QMatrix> matrices_;
@@ -83,8 +83,8 @@ public:
     QPdfImage(const QImage& pm, const QImage& mask);
     ~QPdfImage();
 
-    void streamText(QTextStream &stream);
-    QString getDefinition();
+    void streamText(QPdfByteStream &stream);
+    QByteArray getDefinition();
     const char* data() const
     {
         return rawdata_;
@@ -106,7 +106,7 @@ public:
     int hardMaskObj() const {return maskobj_;}
     int softMaskObj() const {return softmaskobj_;}
     bool hasHardMask() const {return hashardmask_;}
-    QString name;
+    QByteArray name;
 
 private:
     void init();
@@ -128,11 +128,11 @@ public:
 
 
     void setObjects(int mainobj, int funcobj);
-    QString getMainDefinition();
-    QString getFuncDefinition();
-    QString getSoftMaskFormDefinition();
-    QString getSoftMaskMainDefinition();
-    QString getSoftMaskFuncDefinition();
+    QByteArray getMainDefinition();
+    QByteArray getFuncDefinition();
+    QByteArray getSoftMaskFormDefinition();
+    QByteArray getSoftMaskMainDefinition();
+    QByteArray getSoftMaskFuncDefinition();
 
     void setColorSpaceObject(int obj);
     void setSoftMaskColorSpaceObject(int obj);
@@ -144,9 +144,9 @@ public:
     int softMaskFormObject() const {return smfmobj_;}
     int softMaskMainObject() const {return (softmask) ? softmask->mainObject() : -1;}
     int softMaskFunctionObject() const {return (softmask) ? softmask->functionObject() : -1;}
-    QString softMaskGraphicStateName() const {return (softmask) ? name + "ExtGS" : "";}
+    QByteArray softMaskGraphicStateName() const {return (softmask) ? name + "ExtGS" : QByteArray();}
 
-    QString name;
+    QByteArray name;
 
 private:
     QPdfGradient* softmask;
@@ -156,15 +156,15 @@ private:
     QColor beg_, end_;
     qreal x_, y_, w_, h_;
 
-    QString getSingleMainDefinition();
-    QString getSingleFuncDefinition();
-    QString softMaskName() const {return (softmask) ? name + "SM" : "";}
+    QByteArray getSingleMainDefinition();
+    QByteArray getSingleFuncDefinition();
+    QByteArray softMaskName() const {return (softmask) ? name + "SM" : QByteArray();}
 };
 
 class QPdfBrush : public QPdfObject
 {
 public:
-    explicit QPdfBrush(const QString& id = QString());
+    explicit QPdfBrush(const QByteArray& id = QByteArray());
     ~QPdfBrush();
 
     qreal alpha() const;
@@ -177,30 +177,30 @@ public:
     QPdfBrush* setPixmap(const QPixmap& pm, const QMatrix& mat);
 
     bool noBrush() const {return nobrush_;}
-    void streamText(QTextStream &stream);
+    void streamText(QPdfByteStream &stream);
 
     class Pattern
     {
     public:
-        QString name;
+        QByteArray name;
 
     protected:
-        QString defBegin(int ptype, int w, int h);
-        QString getDefinition(const QString& res);
+        QByteArray defBegin(int ptype, int w, int h);
+        QByteArray getDefinition(const QByteArray &res);
         QMatrix matrix;
     };
 
     class FixedPattern : public Pattern
     {
     public:
-        explicit FixedPattern(const QString& n = QString(), int idx = -1, const QColor &col = QColor(),
+        explicit FixedPattern(const QByteArray& n = QByteArray(), int idx = -1, const QColor &col = QColor(),
                               const QMatrix& mat = QMatrix());
         QColor rgba;
         bool isEmpty() const {return patternidx == Qt::NoBrush;}
         bool isSolid() const {return patternidx == Qt::SolidPattern;}
         bool isTruePattern() const {return patternidx > 1;}
 
-        QString getDefinition();
+        QByteArray getDefinition();
     private:
         int patternidx;
     };
@@ -208,21 +208,21 @@ public:
     class PixmapPattern : public Pattern
     {
     public:
-        explicit PixmapPattern(const QString& n = QString(), QPdfImage* im = 0,
+        explicit PixmapPattern(const QByteArray& n = QByteArray(), QPdfImage* im = 0,
                                const QMatrix& mat = QMatrix());
         QPdfImage* image;
-        QString getDefinition(int objno);
+        QByteArray getDefinition(int objno);
     };
 
     class GradientPattern : public Pattern
     {
     public:
-        explicit GradientPattern(const QString& n = QString(), QPdfGradient* grad = 0,
+        explicit GradientPattern(const QByteArray& n = QByteArray(), QPdfGradient* grad = 0,
                                  const QMatrix& mat = QMatrix());
         QPdfGradient* shader;
         void setMainObj(int obj);
         int getMainObj() const {return mainobj_;}
-        QString getDefinition();
+        QByteArray getDefinition();
     private:
         int mainobj_;
     };
@@ -244,14 +244,14 @@ private:
     QVector<SUBTYPE> streamstate_;
     QVector<qreal> alpha_;
     bool nobrush_;
-    QString id_;
+    QByteArray id_;
 };
 
 class QPdfPen : public QPdfObject
 {
 public:
     QPdfPen();
-    void streamText(QTextStream &stream);
+    void streamText(QPdfByteStream &stream);
 
     QPdfPen* setLineWidth(double v);
     QPdfPen* setLineCap(unsigned v);
@@ -287,7 +287,7 @@ private:
     QVector<DashArray> da_;
     QVector<double> lw_, ml_;
     QVector<int>   lc_, lj_;
-    QVector<QString> ri_;
+    QVector<QByteArray> ri_;
     QVector<QColor> col_;
     QVector<bool> stroking_;
 };
@@ -365,26 +365,26 @@ public:
     explicit QPdfPath(const QPdfPen* = 0, const QPdfBrush* = 0, int brushflags = NONE,  bool closed = false);
 
     QVector<SubPath> subpaths;
-    void streamText(QTextStream &stream);
+    void streamText(QPdfByteStream &stream);
     int painttype;
     QMatrix currentMatrix;
     bool hasTrueAlpha() const {return hasTrueStrokeAlpha() || hasTrueNonStrokeAlpha();}
     int alphaObject() const {return alphaobj_;}
-    QString alphaName() const {return alphaname_;};
-    void setAlpha(const QString& prefix, int objno) {alphaname_ = prefix + QString::number(objno); alphaobj_ = objno;}
-    QString getAlphaDefinition() const;
+    QByteArray alphaName() const {return alphaname_;};
+    void setAlpha(const QByteArray& prefix, int objno) {alphaname_ = prefix + QByteArray::number(objno); alphaobj_ = objno;}
+    QByteArray getAlphaDefinition() const;
 
 private:
-    QString paintOperator() const;
+    QByteArray paintOperator() const;
     qreal ca_, CA_;
-    QString alphaname_;
+    QByteArray alphaname_;
     int alphaobj_;
     bool gradientstrokealpha_;
 
     bool hasTrueStrokeAlpha() const {return CA_ >= 0.0 && CA_ < 1.0 ;}
     bool hasTrueNonStrokeAlpha() const {return ca_ >= 0.0 && ca_ < 1.0 ;}
     bool hasGradientNonStrokeAlpha() const {return gradientstrokealpha_;}
-    QString streamCoreText() const;
+    void streamCoreText(QPdfByteStream &s) const;
 };
 
 class QPdfPage : public QPdfObject
@@ -392,7 +392,7 @@ class QPdfPage : public QPdfObject
 public:
     QPdfPage();
     void  destroy();
-    void streamText(QTextStream &stream);
+    void streamText(QPdfByteStream &stream);
     QPdfObject* append(QPdfObject* val, bool protect = false);
 
     QVector<QPdfImage*> images;
