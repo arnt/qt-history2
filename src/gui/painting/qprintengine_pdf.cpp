@@ -32,9 +32,9 @@ static const char *qreal_to_string(qreal val, char *buf) {
         *(buf++) = '-';
         val = -val;
     }
-    double value = trunc(val);
-    double frac = val - value;
-    int ival = (int) value;
+    int ival = (int) val;
+    double frac = val - (qreal)ival;    
+
     int ifrac = (int)(frac * 1000000);
     if (ifrac == 1000000) {
         ++ival;
