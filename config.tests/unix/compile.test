@@ -7,6 +7,7 @@ VERBOSE=$2
 SRCDIR=$3
 OUTDIR=$4
 TEST=$5
+EXE=`basename $5`
 DESCRIPTION=$6
 shift 6
 LIBPATH=""
@@ -29,10 +30,11 @@ done
 # debuggery
 [ "$VERBOSE" = "yes" ] && echo "$DESCRIPTION auto-detection... ($*)"
 
-test -d $OUTDIR/config.tests/x11/$TEST || mkdir -p $OUTDIR/config.tests/x11/$TEST
-cd $OUTDIR/config.tests/x11/$TEST
- 
-$OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" "LIBS*=$LIBPATH" "INCLUDEPATH*=$INCLUDEPATH" $SRCDIR/config.tests/x11/$TEST/$TEST.pro -o $OUTDIR/config.tests/x11/$TEST/Makefile >/dev/null 2>&1
+test -d $OUTDIR/$TEST || mkdir -p $OUTDIR/$TEST
+
+cd $OUTDIR/$TEST 
+
+$OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" "LIBS*=$LIBPATH" "INCLUDEPATH*=$INCLUDEPATH" $SRCDIR/$TEST/$EXE.pro -o $OUTDIR/$TEST/Makefile >/dev/null 2>&1
 
 if [ "$VERBOSE" = "yes" ]; then
     make
@@ -40,7 +42,7 @@ else
     make >/dev/null 2>&1
 fi
 
-[ -x $TEST ] && SUCCESS=yes
+[ -x $EXE ] && SUCCESS=yes
 
 # done
 if [ "$SUCCESS" != "yes" ]; then

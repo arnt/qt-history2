@@ -1281,67 +1281,6 @@ else
     CFG_BUILD_ALL=no
 fi
 
-# detect zlib
-ZLIB_REQ="-lz zlib.h"
-if [ "$CFG_ZLIB" = "auto" ]; then
-    if $unixtests/checkavail "zlib" $OPT_VERBOSE $ZLIB_REQ $L_FLAGS $I_FLAGS; then
-       CFG_ZLIB=system
-    else
-       CFG_ZLIB=yes
-    fi
-fi
-
-# detect how jpeg should be built
-if [ "$CFG_JPEG" = "auto" ]; then
-    if [ "$CFG_SHARED" = "yes" ]; then
-        CFG_JPEG=plugin
-    else
-        CFG_JPEG=yes
-    fi
-fi
-# detect jpeg
-LIBJPEG_REQ="-ljpeg jpeglib.h"
-if [ "$CFG_LIBJPEG" = "auto" ]; then
-    if $unixtests/checkavail "libjpeg" $OPT_VERBOSE $LIBJPEG_REQ $L_FLAGS $I_FLAGS; then
-       CFG_LIBJPEG=system
-    else
-       CFG_LIBJPEG=qt
-    fi
-fi
-
-# detect how mng should be built
-if [ "$CFG_MNG" = "auto" ]; then
-    if [ "$CFG_SHARED" = "yes" ]; then
-        CFG_MNG=plugin
-    else
-        CFG_MNG=yes
-    fi
-fi
-# detect mng
-LIBMNG_REQ="-lmng libmng.h"
-if [ "$CFG_LIBMNG" = "auto" ]; then
-    if $unixtests/checkavail "libmng" $OPT_VERBOSE $LIBMNG_REQ $L_FLAGS $I_FLAGS; then
-       CFG_LIBMNG=system
-    else
-       CFG_LIBMNG=qt
-    fi
-fi
-
-# detect png
-LIBPNG_REQ="-lpng png.h"
-if [ "$CFG_LIBPNG" = "auto" ]; then
-    if $unixtests/checkavail "libpng" $OPT_VERBOSE $LIBPNG_REQ $L_FLAGS $I_FLAGS; then
-       CFG_LIBPNG=system
-    else
-       CFG_LIBPNG=qt
-    fi
-fi
-
-# detect accessibility
-if [ "$CFG_ACCESSIBILITY" = "auto" ]; then
-    CFG_ACCESSIBILITY=yes
-fi
-
 # if the source tree is different from the build tree,
 # symlink or copy part of the sources
 if [ "$OPT_SHADOW" = "yes" ]; then
@@ -1870,86 +1809,6 @@ else
     CFG_HAVE_SSE=yes
 fi
 
-# auto-detect SQL-modules support
-MYSQL_REQ="-lmysqlclient mysql.h"
-OCI_REQ="-lclntsh oci.h"
-PSQL_REQ="-lpq libpq-fe.h"
-ODBC_REQ="-lodbc sql.h sqlext.h"
-TDS_REQ="-lsybdb sybfront.h sybdb.h"
-DB2_REQ="-ldb2 sqlcli.h sqlcli1.h"
-IBASE_REQ="-lgds ibase.h"
-SQLITE2_REQ="-lsqlite sqlite.h"
-for _SQLDR in $CFG_SQL_AVAILABLE; do
-        case $_SQLDR in
-        mysql)
-            $unixtests/checkavail "MySQL" $OPT_VERBOSE $MYSQL_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED mysql"
-        ;;
-        psql)
-            $unixtests/checkavail "PostgreSQL" $OPT_VERBOSE $PSQL_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED psql"
-            ;;
-        odbc)
-            $unixtests/checkavail "ODBC" $OPT_VERBOSE $ODBC_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED odbc"
-            ;;
-        oci)
-            $unixtests/checkavail "OCI" $OPT_VERBOSE $OCI_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED oci"
-            ;;
-        tds)
-            $unixtests/checkavail "TDS" $OPT_VERBOSE $TDS_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED tds"
-            ;;
-        db2)
-            $unixtests/checkavail "DB2" $OPT_VERBOSE $DB2_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED db2"
-            ;;
-        ibase)
-            $unixtests/checkavail "InterBase" $OPT_VERBOSE $IBASE_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED ibase"
-            ;;
-        sqlite2)
-            $unixtests/checkavail "SQLite" $OPT_VERBOSE $SQLITE2_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED sqlite2"
-            ;;
-        sqlite)
-            if [ -f $relpath/src/3rdparty/sqlite/sqlite3.h ]; then
-                CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED sqlite"
-            fi
-            ;;
-        *)
-            if [ "$OPT_VERBOSE" = "yes" ]; then
-                echo "unknown SQL driver: $_SQLDR"
-            fi
-            ;;
-        esac
-done
-
-# auto-detect NIS support
-if [ "$CFG_NIS" != "no" ]; then
-    if $unixtests/nis.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
-        if [ "$CFG_NIS" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
-            echo "NIS support cannot be enabled due to functionality tests!"
-            echo " Turn on verbose messaging (-v) to $0 to see the final report."
-            echo " If you believe this message is in error you may use the continue"
-            echo " switch (-continue) to $0 to continue."
-            exit 101
-        else
-            CFG_NIS=no
-        fi
-    else
-        CFG_NIS=yes
-    fi
-fi
-# auto-detect CUPS support
-if [ "$CFG_CUPS" != "no" ]; then
-    if $unixtests/cups.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
-        if [ "$CFG_CUPS" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
-            echo "Cups support cannot be enabled due to functionality tests!"
-            echo " Turn on verbose messaging (-v) to $0 to see the final report."
-            echo " If you believe this message is in error you may use the continue"
-            echo " switch (-continue) to $0 to continue."
-            exit 101
-        else
-            CFG_CUPS=no
-        fi
-    else
-        CFG_CUPS=yes
-    fi
-fi
 #auto-detect GNU make support
 if [ "$CFG_USE_GNUMAKE" = "auto" ] && $MAKE -v | grep "GNU Make" >/dev/null 2>&1; then
    CFG_USE_GNUMAKE=yes
@@ -2786,6 +2645,147 @@ fi # Build qmake
 # tests that need qmake
 #-------------------------------------------------------------------------------
 
+# detect zlib
+if [ "$CFG_ZLIB" = "auto" ]; then
+    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/zlib "zlib" $L_FLAGS $I_FLAGS; then
+       CFG_ZLIB=system
+    else
+       CFG_ZLIB=yes
+    fi
+fi
+
+# detect how jpeg should be built
+if [ "$CFG_JPEG" = "auto" ]; then
+    if [ "$CFG_SHARED" = "yes" ]; then
+        CFG_JPEG=plugin
+    else
+        CFG_JPEG=yes
+    fi
+fi
+# detect jpeg
+if [ "$CFG_LIBJPEG" = "auto" ]; then
+    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/libjpeg "libjpeg" $L_FLAGS $I_FLAGS; then
+       CFG_LIBJPEG=system
+    else
+       CFG_LIBJPEG=qt
+    fi
+fi
+
+# detect how mng should be built
+if [ "$CFG_MNG" = "auto" ]; then
+    if [ "$CFG_SHARED" = "yes" ]; then
+        CFG_MNG=plugin
+    else
+        CFG_MNG=yes
+    fi
+fi
+# detect mng
+if [ "$CFG_LIBMNG" = "auto" ]; then
+    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/libmng "libmng" $L_FLAGS $I_FLAGS; then
+       CFG_LIBMNG=system
+    else
+       CFG_LIBMNG=qt
+    fi
+fi
+
+# detect png
+if [ "$CFG_LIBPNG" = "auto" ]; then
+    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/libpng "libpng" $L_FLAGS $I_FLAGS; then
+       CFG_LIBPNG=system
+    else
+       CFG_LIBPNG=qt
+    fi
+fi
+
+# detect accessibility
+if [ "$CFG_ACCESSIBILITY" = "auto" ]; then
+    CFG_ACCESSIBILITY=yes
+fi
+
+exit
+
+# auto-detect SQL-modules support
+MYSQL_REQ="-lmysqlclient mysql.h"
+OCI_REQ="-lclntsh oci.h"
+PSQL_REQ="-lpq libpq-fe.h"
+ODBC_REQ="-lodbc sql.h sqlext.h"
+TDS_REQ="-lsybdb sybfront.h sybdb.h"
+DB2_REQ="-ldb2 sqlcli.h sqlcli1.h"
+IBASE_REQ="-lgds ibase.h"
+SQLITE2_REQ="-lsqlite sqlite.h"
+for _SQLDR in $CFG_SQL_AVAILABLE; do
+        case $_SQLDR in
+        mysql)
+            $unixtests/checkavail "MySQL" $OPT_VERBOSE $MYSQL_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED mysql"
+        ;;
+        psql)
+            $unixtests/checkavail "PostgreSQL" $OPT_VERBOSE $PSQL_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED psql"
+            ;;
+        odbc)
+            $unixtests/checkavail "ODBC" $OPT_VERBOSE $ODBC_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED odbc"
+            ;;
+        oci)
+            $unixtests/checkavail "OCI" $OPT_VERBOSE $OCI_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED oci"
+            ;;
+        tds)
+            $unixtests/checkavail "TDS" $OPT_VERBOSE $TDS_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED tds"
+            ;;
+        db2)
+            $unixtests/checkavail "DB2" $OPT_VERBOSE $DB2_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED db2"
+            ;;
+        ibase)
+            $unixtests/checkavail "InterBase" $OPT_VERBOSE $IBASE_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED ibase"
+            ;;
+        sqlite2)
+            $unixtests/checkavail "SQLite" $OPT_VERBOSE $SQLITE2_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED sqlite2"
+            ;;
+        sqlite)
+            if [ -f $relpath/src/3rdparty/sqlite/sqlite3.h ]; then
+                CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED sqlite"
+            fi
+            ;;
+        *)
+            if [ "$OPT_VERBOSE" = "yes" ]; then
+                echo "unknown SQL driver: $_SQLDR"
+            fi
+            ;;
+        esac
+done
+
+# auto-detect NIS support
+if [ "$CFG_NIS" != "no" ]; then
+    if $unixtests/nis.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
+        if [ "$CFG_NIS" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+            echo "NIS support cannot be enabled due to functionality tests!"
+            echo " Turn on verbose messaging (-v) to $0 to see the final report."
+            echo " If you believe this message is in error you may use the continue"
+            echo " switch (-continue) to $0 to continue."
+            exit 101
+        else
+            CFG_NIS=no
+        fi
+    else
+        CFG_NIS=yes
+    fi
+fi
+
+# auto-detect CUPS support
+if [ "$CFG_CUPS" != "no" ]; then
+    if $unixtests/cups.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
+        if [ "$CFG_CUPS" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+            echo "Cups support cannot be enabled due to functionality tests!"
+            echo " Turn on verbose messaging (-v) to $0 to see the final report."
+            echo " If you believe this message is in error you may use the continue"
+            echo " switch (-continue) to $0 to continue."
+            exit 101
+        else
+            CFG_CUPS=no
+        fi
+    else
+        CFG_CUPS=yes
+    fi
+fi
+
 # x11
 if [ "$PLATFORM_X11" = "yes" ]; then
     x11tests=$relpath/config.tests/x11
@@ -2796,7 +2796,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect OpenGL support
     if [ "$CFG_OPENGL" = "auto" ]; then
-        if $x11tests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath opengl "OpenGL" $L_FLAGS $I_FLAGS; then
+        if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/opengl "OpenGL" $L_FLAGS $I_FLAGS; then
             CFG_OPENGL=no
         else
             CFG_OPENGL=yes
@@ -2805,7 +2805,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Xcursor support
     if [ "$CFG_XCURSOR" != "no" ]; then
-	if $x11tests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath xcursor "Xcursor" $L_FLAGS $I_FLAGS; then
+	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xcursor "Xcursor" $L_FLAGS $I_FLAGS; then
 	    if [ "$CFG_XCURSOR" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 		echo "Xcursor support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2822,7 +2822,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Xrandr support (resize and rotate extension)
     if [ "$CFG_XRANDR" != "no" ]; then
-	if $x11tests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath xrandr "Xrandr" $L_FLAGS $I_FLAGS; then
+	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xrandr "Xrandr" $L_FLAGS $I_FLAGS; then
 	    if [ "$CFG_XRANDR" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 		echo "Xrandr support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2839,7 +2839,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Xrender support
     if [ "$CFG_XRENDER" != "no" ]; then
-	if $x11tests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath xrender "Xrender" $L_FLAGS $I_FLAGS; then
+	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xrender "Xrender" $L_FLAGS $I_FLAGS; then
 	    if [ "$CFG_XRENDER" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 		echo "Xrender support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2857,7 +2857,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     # auto-detect FontConfig support
     if [ "$CFG_FONTCONFIG" != "no" ]; then
 	mkdir -p $outpath/config.tests/x11
-	if $x11tests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath fontconfig "FontConfig" $L_FLAGS $I_FLAGS; then
+	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/fontconfig "FontConfig" $L_FLAGS $I_FLAGS; then
 	    if [ "$CFG_FONTCONFIG" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 		echo "FontConfig support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2875,7 +2875,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Session Management support
     if [ "$CFG_SM" = "auto" ]; then
-	if $x11tests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath sm "Session Management" $L_FLAGS $I_FLAGS; then
+	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/sm "Session Management" $L_FLAGS $I_FLAGS; then
 	    if [ "$CFG_SM" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 		echo "Session Management support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2892,7 +2892,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect SHAPE support
     if [ "$CFG_XSHAPE" != "no" ]; then
-	if $x11tests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath xshape "XShape" $L_FLAGS $I_FLAGS; then
+	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xshape "XShape" $L_FLAGS $I_FLAGS; then
 	    if [ "$CFG_XSHAPE" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 		echo "XShape support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2909,7 +2909,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Xinerama support
     if [ "$CFG_XINERAMA" != "no" ]; then
-	if $x11tests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath xinerama "Xinerama" $L_FLAGS $I_FLAGS; then
+	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xinerama "Xinerama" $L_FLAGS $I_FLAGS; then
 	    if [ "$CFG_XINERAMA" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 		echo "Xinerama support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2926,7 +2926,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect tablet support (currenlty only in IRIX)
     if [ "$CFG_TABLET" != "no" ]; then
-        if $x11tests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath xinput "Tablet (XInput)" $L_FLAGS $I_FLAGS; then
+        if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xinput "Tablet (XInput)" $L_FLAGS $I_FLAGS; then
             if [ "$CFG_TABLET" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
                 echo "Tablet support cannot be enabled due to functionality tests!"
                 echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2943,7 +2943,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect XKB support
     if [ "$CFG_XKB" != "no" ]; then
-        if $x11tests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath xkb "XKB" $L_FLAGS $I_FLAGS; then
+        if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xkb "XKB" $L_FLAGS $I_FLAGS; then
             if [ "$CFG_XKB" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
                 echo "XKB support cannot be enabled due to functionality tests!"
                 echo " Turn on verbose messaging (-v) to $0 to see the final report."
