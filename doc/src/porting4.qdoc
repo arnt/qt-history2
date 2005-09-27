@@ -1960,6 +1960,12 @@
     items, you can use qDeleteAll() to remove all the items in one
     go.
 
+    In Qt 3, it was possible to change the resizing behavior for layouts
+    in top-level widgets by adjusting the layout's \c resizeMode property.
+    In Qt 4, this property has been replaced by the QLayout::sizeConstraint
+    property which provides more control over how the layout behaves when
+    resized.
+
     See also the \l{#qlayoutiterator.section}{section on
     QLayoutIterator} and the \l{#qglayoutiterator.section}{section on
     QGLayoutIterator}.
