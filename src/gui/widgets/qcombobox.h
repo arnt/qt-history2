@@ -119,7 +119,7 @@ public:
     void setValidator(const QValidator *v);
     const QValidator *validator() const;
 #endif
-    
+
     QAbstractItemDelegate *itemDelegate() const;
     void setItemDelegate(QAbstractItemDelegate *delegate);
 
@@ -133,7 +133,6 @@ public:
     void setModelColumn(int visibleColumn);
 
     int currentIndex() const;
-    void setCurrentIndex(int index);
 
     QString currentText() const;
 
@@ -173,6 +172,7 @@ public Q_SLOTS:
     void clear();
     void clearEditText();
     void setEditText(const QString &text);
+    void setCurrentIndex(int index);
 
 Q_SIGNALS:
     void editTextChanged(const QString &);
