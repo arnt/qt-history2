@@ -97,18 +97,17 @@ void QTreeModel::clear()
 
 void QTreeModel::setColumnCount(int columns)
 {
-    if (!header) {
+    if (!header)
         header = new QTreeWidgetItem();
-    }
-    
+
     int c = header->columnCount();
     if (c == columns)
         return;
-    int _c = c;
-    c = columns;
+    int _c = qMax(c - 1, 0);
+    c = qMax(columns - 1, 0);
 
-    int first = qMax(_c - 1, 0);
-    int last = qMax(c - 1, 0);
+    int first = qMin(_c, c);
+    int last = qMax(_c, c);
 
     if (c < _c)
         beginRemoveColumns(QModelIndex(), first, last);

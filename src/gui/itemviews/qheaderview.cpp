@@ -1204,8 +1204,8 @@ void QHeaderView::sectionsAboutToBeRemoved(const QModelIndex &parent,
         for (int l = logicalLast; l >= logicalFirst; --l) {
             int visual = d->visualIndices.at(l);
             int size = d->sections.at(visual + 1).position - d->sections.at(visual).position;
-            for (int v = 0; v < d->sections.count(); ++v)
-                if (d->logicalIndex(v) > l) {
+            for (int v = 0; v < d->sections.count(); ++v) {
+                if (d->logicalIndex(v) > l)
                     --(d->logicalIndices[v]);
                 if (v > visual) {
                     d->sections[v].position -= size;
