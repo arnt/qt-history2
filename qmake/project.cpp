@@ -2491,7 +2491,7 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
                 }
                 if(term) {
                     if(unicode != term) {
-                        qmake_error_msg("Missing " + QChar(term) + " terminator [found " + QChar(unicode) + "]");
+                        qmake_error_msg("Missing " + QString(term) + " terminator [found " + QString(unicode) + "]");
                         return false;
                     }
                     unicode = 0;
