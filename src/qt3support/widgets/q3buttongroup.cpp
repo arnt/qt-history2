@@ -399,7 +399,7 @@ bool Q3ButtonGroup::event(QEvent * e)
 {
     if (e->type() == QEvent::ChildInserted) {
         QChildEvent * ce = (QChildEvent *) e;
-        if (QAbstractButton *button = qobject_cast<QRadioButton*>(ce->child())) {
+        if (QAbstractButton *button = qobject_cast<QAbstractButton*>(ce->child())) {
             button->setAutoExclusive(false);
             if (excl_grp || (radio_excl && qobject_cast<QRadioButton*>(button)))
                 insert(button);
