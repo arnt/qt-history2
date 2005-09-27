@@ -1910,13 +1910,23 @@ void QAbstractItemView::rowsInserted(const QModelIndex &, int, int)
 /*!
     This slot is called when rows are about to be removed. The deleted rows are
     those under the given \a parent from \a start to \a end inclusive.
-    The base class implementation does nothing.
 
     \sa rowsInserted()
 */
-void QAbstractItemView::rowsAboutToBeRemoved(const QModelIndex &, int, int)
+void QAbstractItemView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
 {
-    // do nothing
+    Q_D(QAbstractItemView);
+    // Remove all affected editors; this is more efficient than waiting for updateGeometries() to clean out editors for invalid indexes
+    QMap<QPersistentModelIndex, QWidget*>::iterator it = d->editors.begin();
+    while (it != d->editors.end()) {
+        QModelIndex index = it.key();
+        if (index.row() <= start && index.row() >= end && model()->parent(index) == parent) {
+            d->releaseEditor(it.value());
+            it = d->editors.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 /*!

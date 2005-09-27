@@ -1229,6 +1229,8 @@ void QTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
         d->viewItems.clear();
         d->doDelayedItemsLayout();
     }
+
+    QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
 }
 
 /*!
