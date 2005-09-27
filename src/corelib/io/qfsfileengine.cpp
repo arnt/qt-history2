@@ -454,14 +454,20 @@ qint64 QFSFileEngine::write(const char *data, qint64 len)
             flush();
             d->lastIOCommand = QFSFileEnginePrivate::IOWriteCommand;
         }
-        qint64 result = qint64(fwrite(data, 1, size_t(len), d->fh));
+        size_t result;
+        do {
+            result = fwrite(data, 1, size_t(len), d->fh);
+        } while (result == 0 && errno == EINTR);
         if (result > 0)
-            return result;
+            return qint64(result);
         setError(QFile::ReadError, qt_error_string(int(errno)));
-        return result;
+        return qint64(result);
     }
 
-    qint64 ret = QT_WRITE(d->fd, data, len);
+    qint64 ret;
+    do {
+        ret = QT_WRITE(d->fd, data, len);
+    } while (ret == -1 && errno == EINTR);
     if(ret != len)
         setError(errno == ENOSPC ? QFile::ResourceError : QFile::WriteError, qt_error_string(errno));
     return ret;
