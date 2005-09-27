@@ -239,12 +239,13 @@ QBitmap QPixmap::mask() const
     int w = data->image.width();
     int h = data->image.height();
     QImage mask = data->createBitmapImage(w, h);
+    int bpl = mask.bytesPerLine();
 
     // copy over the data
     for (int y=0; y<h; ++y) {
         QRgb *src = (QRgb *) data->image.scanLine(y);
         uchar *dest = mask.scanLine(y);
-        memset(dest, 0, w / 8);
+        memset(dest, 0, bpl);
         for (int x=0; x<w; ++x) {
             if (qAlpha(*src) > 0)
                 dest[x>>3] |= qt_pixmap_bit_mask[x&7];
