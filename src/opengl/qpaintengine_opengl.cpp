@@ -243,6 +243,12 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
     if (flags & DirtyFont) updateFont(state.font());
     if (flags & DirtyTransform) updateMatrix(state.matrix());
+    if (state.state() & DirtyClipEnabled) {
+        if (state.isClipEnabled())
+            updateClipRegion(painter()->clipRegion(), Qt::ReplaceClip);
+        else
+            updateClipRegion(QRegion(), Qt::NoClip);
+    }
     if (flags & DirtyClipPath) {
         updateClipRegion(QRegion(state.clipPath().toFillPolygon().toPolygon(),
                                  state.clipPath().fillRule()),

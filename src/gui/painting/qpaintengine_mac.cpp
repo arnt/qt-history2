@@ -186,6 +186,14 @@ void QQuickDrawPaintEngine::updateState(const QPaintEngineState &state)
         updateBackground(state.backgroundMode(), state.backgroundBrush());
     if(flags & DirtyFont)
         updateFont(state.font());
+
+    if (state.state() & DirtyClipEnabled) {
+        if (state.isClipEnabled())
+            updateClipRegion(painter()->clipRegion(), Qt::ReplaceClip);
+        else
+            updateClipRegion(QRegion(), Qt::NoClip);
+    }
+
     if(flags & DirtyClipRegion)
         updateClipRegion(state.clipRegion(), state.clipOperation());
 }
@@ -1125,6 +1133,12 @@ void QCoreGraphicsPaintEngine::updateState(const QPaintEngineState &state)
         updateBackground(state.backgroundMode(), state.backgroundBrush());
     if(flags & DirtyFont)
         updateFont(state.font());
+    if (state.state() & DirtyClipEnabled) {
+        if (state.isClipEnabled())
+            updateClipPath(painter()->clipPath(), Qt::ReplaceClip);
+        else
+            updateClipPath(QPainterPath(), Qt::NoClip);
+    }
     if(flags & DirtyClipPath)
         updateClipPath(state.clipPath(), state.clipOperation());
     if(flags & DirtyClipRegion)

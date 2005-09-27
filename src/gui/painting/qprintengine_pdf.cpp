@@ -462,10 +462,17 @@ void QPdfEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyFont)
         updateFont(state.font());
 #endif
-    if (flags & DirtyClipPath)
-        updateClipPath(state.clipPath(), state.clipOperation());
-    if (flags & DirtyClipRegion)
-        updateClipRegion(state.clipRegion(), state.clipOperation());
+    if (flags & DirtyFont) updateFont(state.font());
+
+    if (state.state() & DirtyClipEnabled) {
+        if (state.isClipEnabled())
+            updateClipPath(painter()->clipPath(), Qt::ReplaceClip);
+        else
+            updateClipPath(QPainterPath(), Qt::NoClip);
+    }
+
+    if (flags & DirtyClipPath) updateClipPath(state.clipPath(), state.clipOperation());
+    if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
     //     if (flags & DirtyHints) updateRenderHints(state.renderHints());
 }
 

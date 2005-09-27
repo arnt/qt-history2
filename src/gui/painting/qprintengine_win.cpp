@@ -442,6 +442,13 @@ void QWin32PrintEngine::updateState(const QPaintEngineState &state)
         d->brush_color = brush.color();
     }
 
+    if (state.state() & DirtyClipEnabled) {
+        if (state.isClipEnabled())
+            updateClipPath(painter()->clipPath(), Qt::ReplaceClip);
+        else
+            updateClipPath(QPainterPath(), Qt::NoClip);
+    }
+
     if (state.state() & DirtyClipPath) {
         updateClipPath(state.clipPath(), state.clipOperation());
     }
@@ -845,7 +852,7 @@ void QWin32PrintEnginePrivate::initialize()
     Q_ASSERT(devMode);
     Q_ASSERT(pInfo);
 
-    initHDC();    
+    initHDC();
 
 #ifdef QT_DEBUG_DRAW
     qDebug() << "QWin32PrintEngine::initialize()" << endl

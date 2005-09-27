@@ -997,6 +997,14 @@ void QX11PaintEngine::updateState(const QPaintEngineState &state)
     if (flags & (DirtyBackground | DirtyBackgroundMode))
         updateBackground(state.backgroundMode(), state.backgroundBrush());
     if (flags & DirtyFont) updateFont(state.font());
+
+    if (state.state() & DirtyClipEnabled) {
+        if (state.isClipEnabled())
+            updateClipPath(painter()->clipPath(), Qt::ReplaceClip);
+        else
+            updateClipPath(QPainterPath(), Qt::NoClip);
+    }
+
     if (flags & DirtyClipPath) {
         updateClipRegion(QRegion(state.clipPath().toFillPolygon().toPolygon(),
                                  state.clipPath().fillRule()),

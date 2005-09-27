@@ -780,6 +780,12 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         d->rasterBuffer->bgBrush = state.backgroundBrush();
     }
 
+    if (flags & DirtyClipEnabled) {
+        d->rasterBuffer->clipEnabled = state.isClipEnabled();
+        d->penData.adjustSpanMethods();
+        d->brushData.adjustSpanMethods();
+    }
+
     if (flags & DirtyClipPath) {
         updateClipPath(state.clipPath(), state.clipOperation());
     }
@@ -879,7 +885,7 @@ static void fillRect(const QRect &r, QSpanData *data)
     int x2 = qMin(rect.width() + rect.x(), data->rasterBuffer->width());
     int y1 = qMax(rect.y(), 0);
     int y2 = qMin(rect.height() + rect.y(), data->rasterBuffer->height());
-    QClipData *clip = data->rasterBuffer->clip;
+    QClipData *clip = data->rasterBuffer->clipEnabled ? data->rasterBuffer->clip : 0;
     if (clip) {
         x1 = qMax(x1, clip->xmin);
         x2 = qMin(x2, clip->xmax);
@@ -1100,7 +1106,7 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
         QPaintEngine::drawPolygon(points, pointCount, mode);
         return;
     }
-        
+
 #ifdef QT_DEBUG_DRAW
     qDebug(" - QRasterPaintEngine::drawPolygon(), pointCount=%d", pointCount);
     for (int i=0; i<pointCount; ++i)
@@ -1129,7 +1135,7 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
     if (d->penData.blend) {
 
         bool needs_closing = mode != PolylineMode && points[0] != points[pointCount-1];
-        
+
         QRect devRect(0, 0, d->deviceRect.width(), d->deviceRect.height());
 
         LineDrawMode mode_for_last = (d->pen.capStyle() != Qt::FlatCap
@@ -1138,11 +1144,11 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
 
         int dx = int(d->matrix.dx());
         int dy = int(d->matrix.dy());
-            
+
         // Draw the all the line segments.
         for (int i=1; i<pointCount; ++i) {
-            drawLine_midpoint_i(points[i-1].x() + dx, points[i-1].y() + dy, 
-                                points[i].x() + dx, points[i].y() + dy, 
+            drawLine_midpoint_i(points[i-1].x() + dx, points[i-1].y() + dy,
+                                points[i].x() + dx, points[i].y() + dy,
                                 d->penData.blend, &d->penData,
                                 i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
                                 devRect);
@@ -1150,8 +1156,8 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
 
         // Polygons are implicitly closed.
         if (needs_closing) {
-            drawLine_midpoint_i(points[pointCount-1].x() + dx, points[pointCount-1].y() + dy, 
-                                points[0].x() + dx, points[0].y() + dy, 
+            drawLine_midpoint_i(points[pointCount-1].x() + dx, points[pointCount-1].y() + dy,
+                                points[0].x() + dx, points[0].y() + dy,
                                 d->penData.blend, &d->penData, LineDrawIncludeLastPixel,
                                 devRect);
         }

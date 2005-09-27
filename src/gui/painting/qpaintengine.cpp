@@ -141,10 +141,46 @@ QFont QTextItem::font() const
     \enum QPaintEngine::DirtyFlag
     \typedef QPaintEngine::DirtyFlags
 
-    \internal
+    \value DirtyPen The pen is dirty and needs to be updated.
+
+    \value DirtyBrush The brush is dirty and needs to be updated.
+
+    \value DirtyBrushOrigin The brush origin is dirty and needs to
+    updated.
+
+    \value DirtyFont The font is dirty and needs to be updated.
+
+    \value DirtyBackground The background is dirty and needs to be
+    updated.
+
+    \value DirtyBackgroundMode The background mode is dirty and needs
+    to be updated.
+
+    \value DirtyTransform The transform is dirty and needs to be
+    updated.
+
+    \value DirtyClipRegion The clip region is dirty and needs to be
+    updated.
+
+    \value DirtyClipPath The clip path is dirty and needs to be
+    updated.
+
+    \value DirtyHints The render hints is dirty and needs to be
+    updated.
+
+    \value DirtyCompositionMode The composition mode is dirty and
+    needs to be updated.
+
+    \value DirtyClipEnabled Whether clipping is enabled or not is
+    dirty and needs to be updated.
+
+    \value AllDirty Convenience enum used internally.
 
     These types are used by QPainter to trigger lazy updates of the
-    various states in the QPaintEngine.
+    various states in the QPaintEngine using
+    QPaintEngine::updateState().
+
+    A paint engine must update every dirty state.
 */
 
 /*!

@@ -83,6 +83,7 @@ public:
 
     uint WxF:1;                 // World transformation
     uint VxF:1;                 // View transformation
+    uint clipEnabled:1;
 
     Qt::BGMode bgMode;
     QPainter *painter;

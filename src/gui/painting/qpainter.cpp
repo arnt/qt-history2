@@ -1211,14 +1211,12 @@ void QPainter::setClipping(bool enable)
     if (hasClipping() == enable)
         return;
 
-    if (enable) {
-        d->state->clipRegion = clipRegion();
-        d->state->clipOperation = Qt::ReplaceClip;
-    } else {
-        d->state->clipRegion = QRegion();
-        d->state->clipOperation = Qt::NoClip;
-    }
-    d->state->dirtyFlags |= QPaintEngine::DirtyClipRegion;
+    if (enable)
+        d->state->clipEnabled = true;
+    else
+        d->state->clipEnabled = false;
+
+    d->state->dirtyFlags |= QPaintEngine::DirtyClipEnabled;
     d->updateState(d->state);
 }
 
@@ -1399,7 +1397,8 @@ void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
     if (op == Qt::NoClip || op == Qt::ReplaceClip)
         d->state->clipInfo.clear();
     d->state->clipInfo << QPainterClipInfo(r, op, d->state->worldMatrix);
-    d->state->dirtyFlags |= QPaintEngine::DirtyClipRegion;
+    d->state->clipEnabled = true;
+    d->state->dirtyFlags |= QPaintEngine::DirtyClipRegion | QPaintEngine::DirtyClipEnabled;
     d->updateState(d->state);
 }
 
@@ -1705,7 +1704,8 @@ void QPainter::setClipPath(const QPainterPath &path, Qt::ClipOperation op)
     if (op == Qt::NoClip || op == Qt::ReplaceClip)
         d->state->clipInfo.clear();
     d->state->clipInfo << QPainterClipInfo(path, op, d->state->worldMatrix);
-    d->state->dirtyFlags |= QPaintEngine::DirtyClipPath;
+    d->state->clipEnabled = true;
+    d->state->dirtyFlags |= QPaintEngine::DirtyClipPath | QPaintEngine::DirtyClipEnabled;
     d->updateState(d->state);
 }
 
@@ -3498,7 +3498,7 @@ void QPainter::drawText(const QPointF &p, const QString &str)
 
     Q_D(QPainter);
 
-    QStackTextEngine engine(str, d->state->font);    
+    QStackTextEngine engine(str, d->state->font);
     engine.option.setTextDirection(d->state->layoutDirection);
     engine.itemize();
 
@@ -3520,7 +3520,7 @@ void QPainter::drawText(const QPointF &p, const QString &str)
         gf.flags |= QTextItem::Overline;
     if (gf.f->d->strikeOut)
         gf.flags |= QTextItem::StrikeOut;
-        
+
     for (int i = 0; i < nItems; ++i) {
         int item = visualOrder[i];
         const QScriptItem &si = engine.layoutData->items.at(item);
@@ -4637,7 +4637,7 @@ void qt_format_text(const QFont &fnt, const QRectF &_r,
             tabstops = qRound(fm.width(QLatin1Char('x'))*8);
         }
     }
-    
+
     if (hidemnmemonic || showmnemonic) {
         if (maxUnderlines > 32)
             underlinePositions = new int[maxUnderlines];
@@ -4783,6 +4783,7 @@ QPainterState::QPainterState(const QPainterState *s)
     clipRegion = QRegion(s->clipRegion);
     clipPath = s->clipPath;
     clipOperation = s->clipOperation;
+    clipEnabled = s->clipEnabled;
     bgMode = s->bgMode;
     VxF = s->VxF;
     WxF = s->WxF;
@@ -4821,6 +4822,7 @@ void QPainterState::init(QPainter *p) {
     bgMode = Qt::TransparentMode;
     WxF = false;
     VxF = false;
+    clipEnabled = true;
     wx = wy = ww = wh = 0;
     vx = vy = vw = vh = 0;
     painter = p;
@@ -5066,65 +5068,174 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
 */
 
 
+/*!
+    \class QPaintEngineState
+
+    This class contains information on the current state of a paint
+    engine and which properties that have changed since the last time
+    a paint engine was updated using QPaintEngine::updateState().
+
+    This class is read only by a QPaintEngine and is passed to the
+    virtual function QPaintEngine::updateState. When called the engine
+    is responsible for checking the state changes using state() and
+    updating all properties that are changed.
+*/
+
+
+/*!
+    \fn QPaintEngine::DirtyFlags QPaintEngineState::state() const
+
+    Returns the set of states that need to be updated during a call
+    to QPaintEngine::updateState().
+*/
+
+
+/*!
+    Returns the pen in the current paint engine state. This variable
+    should only be used when state() contains QPaintEngine::DirtyPen.
+*/
+
 QPen QPaintEngineState::pen() const
 {
     return static_cast<const QPainterState *>(this)->pen;
 }
+
+/*!
+    Returns the brush in the current paint engine state. This variable
+    should only be used when state() contains
+    QPaintEngine::DirtyBrush.
+*/
 
 QBrush QPaintEngineState::brush() const
 {
     return static_cast<const QPainterState *>(this)->brush;
 }
 
+/*!
+    Returns the brushOrigin in the current paint engine state. This
+    variable should only be used when state() contains
+    QPaintEngine::DirtyBrushOrigin.
+*/
+
 QPointF QPaintEngineState::brushOrigin() const
 {
     return static_cast<const QPainterState *>(this)->bgOrigin;
 }
+
+/*!
+    Returns the background brush in the current paint engine
+    state. This variable should only be used when state() contains
+    QPaintEngine::DirtyBackground.
+*/
 
 QBrush QPaintEngineState::backgroundBrush() const
 {
     return static_cast<const QPainterState *>(this)->bgBrush;
 }
 
+/*!
+    Returns the background mode in the current paint engine
+    state. This variable should only be used when state() contains
+    QPaintEngine::DirtyBackgroundMode.
+*/
+
 Qt::BGMode QPaintEngineState::backgroundMode() const
 {
     return static_cast<const QPainterState *>(this)->bgMode;
 }
+
+/*!
+    Returns the font in the current paint engine
+    state. This variable should only be used when state() contains
+    QPaintEngine::DirtyFont.
+*/
 
 QFont QPaintEngineState::font() const
 {
     return static_cast<const QPainterState *>(this)->font;
 }
 
+/*!
+    Returns the matrix in the current paint engine
+    state. This variable should only be used when state() contains
+    QPaintEngine::DirtyMatrix.
+*/
+
 QMatrix QPaintEngineState::matrix() const
 {
     return static_cast<const QPainterState *>(this)->matrix;
 }
+
+/*!
+    Returns the clip operation in the current paint engine
+    state. This variable should only be used when state() contains
+    QPaintEngine::DirtyClipRegion or QPaintEngine::DirtyClipPath.
+*/
 
 Qt::ClipOperation QPaintEngineState::clipOperation() const
 {
     return static_cast<const QPainterState *>(this)->clipOperation;
 }
 
+/*!
+    Returns the clip region in the current paint engine state. This
+    variable should be used together with clipOperation(), and only
+    when state() contains QPaintEngine::DirtyClipRegion.
+*/
+
 QRegion QPaintEngineState::clipRegion() const
 {
     return static_cast<const QPainterState *>(this)->clipRegion;
 }
+
+/*!
+    Returns the clip path in the current paint engine state. This
+    variable should be used together with clipOperation(), and only
+    when state() contains QPaintEngine::DirtyClipPath.
+*/
 
 QPainterPath QPaintEngineState::clipPath() const
 {
     return static_cast<const QPainterState *>(this)->clipPath;
 }
 
+/*!
+    Returns wether clipping is enabled or not in the current paint
+    engine state. This variable should only be used when state()
+    contains QPaintEngine::DirtyClipEnabled.
+*/
+
+bool QPaintEngineState::isClipEnabled() const
+{
+    return static_cast<const QPainterState *>(this)->clipEnabled;
+}
+
+/*!
+    Returns the render hints in the current paint engine state. This
+    variable should only be used when state() contains
+    QPaintEngine::DirtyHints.
+*/
+
 QPainter::RenderHints QPaintEngineState::renderHints() const
 {
     return static_cast<const QPainterState *>(this)->renderHints;
 }
 
+/*!
+    Returns the composition mode in the current paint engine state. This
+    variable should only be used when state() contains
+    QPaintEngine::DirtyCompositionMode.
+*/
+
 QPainter::CompositionMode QPaintEngineState::compositionMode() const
 {
     return static_cast<const QPainterState *>(this)->composition_mode;
 }
+
+
+/*!
+    Returns the painter that is currnetly updating the engine.
+*/
 
 QPainter *QPaintEngineState::painter() const
 {

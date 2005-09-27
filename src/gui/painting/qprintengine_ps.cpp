@@ -1519,12 +1519,12 @@ QPSPrintEngineFontFT::QPSPrintEngineFontFT(QFontEngine *f)
 void QPSPrintEngineFontFT::download(QTextStream& s, bool global)
 {
     emitPSFontNameList( s, psname, replacementList);
-    
+
     if ( !embedFonts ) {
         downloadMapping(s, global);
         return;
     }
-    
+
     //qDebug("downloading ttf font %s", psname.latin1());
     //qDebug("target type=%d", target_type);
     global_dict = global;
@@ -2846,7 +2846,7 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
         multi = true;
     }
 #if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
-    else { 
+    else {
 #ifdef Q_WS_X11
 #ifndef QT_NO_FONTCONFIG
         if (X11->use_xrender && fontType == QFontEngine::Freetype && FT_IS_SCALABLE(ft_face(fe))) {
@@ -3791,6 +3791,14 @@ void QPSPrintEngine::updateState(const QPaintEngineState &state)
 {
     QPaintEngine::DirtyFlags flags = state.state();
     if (flags & DirtyTransform) updateMatrix(state.matrix());
+
+    if (state.state() & DirtyClipEnabled) {
+        if (state.isClipEnabled())
+            updateClipPath(painter()->clipPath(), Qt::ReplaceClip);
+        else
+            updateClipPath(QPainterPath(), Qt::NoClip);
+    }
+
     if (flags & DirtyClipPath) {
         updateClipRegion(QRegion(state.clipPath().toFillPolygon().toPolygon(),
                                  state.clipPath().fillRule()),

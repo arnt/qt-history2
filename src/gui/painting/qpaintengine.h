@@ -88,6 +88,7 @@ public:
         DirtyClipPath           = 0x0100,
         DirtyHints              = 0x0200,
         DirtyCompositionMode    = 0x0400,
+        DirtyClipEnabled        = 0x0800,
 
         AllDirty                = 0xffff
     };
@@ -231,10 +232,13 @@ public:
     Qt::ClipOperation clipOperation() const;
     QRegion clipRegion() const;
     QPainterPath clipPath() const;
+    bool isClipEnabled() const;
 
     QPainter::RenderHints renderHints() const;
 
     QPainter::CompositionMode compositionMode() const;
+
+
 
     QPainter *painter() const;
 
