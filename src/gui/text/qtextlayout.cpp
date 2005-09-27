@@ -1568,7 +1568,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
         }
 
 
-        if (eng->hasFormats()) {
+        if (eng->hasFormats() || selection) {
             QTextCharFormat chf = eng->format(&si);
             if (selection)
                 chf.merge(selection->format);
