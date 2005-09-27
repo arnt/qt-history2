@@ -415,10 +415,13 @@ void QTextEditPrivate::setContent(Qt::TextFormat format, const QString &text, QT
             doc->setHtml(text);
         }
         cursor = QTextCursor(doc);
+    } else {
+        // preserve the char format across clear()
+        cursor.movePosition(QTextCursor::Start);
+        cursor.setCharFormat(charFormatForInsertion);
     }
 
     doc->setUndoRedoEnabled(!q->isReadOnly());
-    cursor.movePosition(QTextCursor::Start);
     updateCurrentCharFormatAndSelection();
     doc->setModified(false);
     anchorToScrollToWhenVisible.clear();
