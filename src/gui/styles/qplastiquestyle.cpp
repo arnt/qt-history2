@@ -4141,6 +4141,23 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                         buttonOption.state &= ~State_MouseOver;
                     }
                     drawPrimitive(PE_PanelButtonCommand, &buttonOption, &cachePainter, widget);
+
+                    cachePainter.setPen(borderColor);
+                    if (!sunken) {
+                        if (comboBox->direction == Qt::RightToLeft) {
+                            cachePainter.drawLine(downArrowRect.topRight(), downArrowRect.bottomRight());
+                        } else {
+                            cachePainter.drawLine(downArrowRect.topLeft(), downArrowRect.bottomLeft());
+                        }
+                    } else {
+                        if (comboBox->direction == Qt::RightToLeft) {
+                            cachePainter.drawLine(downArrowRect.right() + 1, downArrowRect.top(),
+                                                  downArrowRect.right() + 1, downArrowRect.bottom());
+                        } else {
+                            cachePainter.drawLine(downArrowRect.left() + 1, downArrowRect.top(),
+                                                  downArrowRect.left() + 1, downArrowRect.bottom());
+                        }
+                    }
                 }
 
                 // Draw the little arrow
