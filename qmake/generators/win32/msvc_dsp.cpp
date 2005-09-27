@@ -32,10 +32,10 @@ bool DspMakefileGenerator::writeMakefile(QTextStream &t)
         return true;
     }
 
-    if ((project->first("TEMPLATE") == "vcapp"
-       || project->first("TEMPLATE") == "vclib")
-       && !project->isActiveConfig("build_pass")) {
-        return writeDspParts(t);
+    if (project->first("TEMPLATE") == "vcapp" || project->first("TEMPLATE") == "vclib") {
+        if(!project->isActiveConfig("build_pass"))
+           return writeDspParts(t);
+        return true;
     } else if(project->first("TEMPLATE") == "subdirs") {
         writeSubDirs(t);
         return true;
