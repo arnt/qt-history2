@@ -1101,9 +1101,16 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             // Only show inner frame for raised and sunken states
             if ((frame->state & State_Raised) || (frame->state & State_Sunken)) {
                 if (frame->state & State_Raised) {
-                    color = focus ? option->palette.highlight().color().light(101) : option->palette.button().color().light(101);
+                    color = focus ? option->palette.highlight().color().light(101)
+                            : option->palette.button().color().light(101);
                 } else {
-                    color = focus ? option->palette.highlight().color().dark(130) : option->palette.button().color().dark(130);
+                    if (focus) {
+                        color = mergedColors(option->palette.color(widget ? widget->backgroundRole() : QPalette::Base),
+                                             option->palette.highlight().color().dark(130), 10);
+                    } else {
+                        color = mergedColors(option->palette.color(widget ? widget->backgroundRole() : QPalette::Base),
+                                             borderColor, 30);
+                    }
                 }
 
                 // Inner border, top and left (just the line ends drawn for group boxes)
@@ -1124,9 +1131,16 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                                   lineEndColor);
 
                 if (frame->state & State_Raised) {
-                    color = focus ? option->palette.highlight().color().dark(130) : option->palette.button().color().dark(130);
+                    color = focus ? option->palette.highlight().color().dark(130)
+                            : option->palette.button().color().dark(130);
                 } else {
-                    color = focus ? option->palette.highlight().color().light(101) : option->palette.button().color().light(101);
+                    if (focus) {
+                        color = mergedColors(option->palette.color(widget ? widget->backgroundRole() : QPalette::Base),
+                                             option->palette.highlight().color(), 10);
+                    } else {
+                        color = mergedColors(option->palette.color(widget ? widget->backgroundRole() : QPalette::Base),
+                                             borderColor, 80);
+                    }
                 }
 
                 // Inner border, bottom and right (just the line ends drawn for group boxes)
