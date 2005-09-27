@@ -32,6 +32,24 @@
 #  endif
 #endif
 
+/*! \class QFSFileEngine
+    \brief The QFSFileEngine class implements Qt's default file engine.
+
+    This class is part of the file engine framework in Qt. If you only want to
+    access files or directories, use QFile, QFileInfo or QDir instead.
+
+    QFSFileEngine is the default file engine for accessing regular files. It
+    is provided for convenience; by subclassing this class, you can alter its
+    behavior slightly, without having to write a complete QAbstractFileEngine
+    subclass. To install your custom file engine, you must also subclass
+    QAbstractFileEngineHandler and create an instance of your handler.
+
+    It can also be useful to create a QFSFileEngine object directly if you
+    need to use the local file system inside QAbstractFileEngine::create(), in
+    order to avoid recursion (as higher-level classes tend to call
+    QAbstractFileEngine::create()).
+*/
+
 //**************** QFSFileEnginePrivate
 QFSFileEnginePrivate::QFSFileEnginePrivate() : QAbstractFileEnginePrivate()
 {
@@ -44,23 +62,33 @@ QFSFileEnginePrivate::QFSFileEnginePrivate() : QAbstractFileEnginePrivate()
     init();
 }
 
-//**************** QFSFileEngine
+/*!
+    Constructs a QFSFileEngine for the file name \a file.
+*/
 QFSFileEngine::QFSFileEngine(const QString &file) : QAbstractFileEngine(*new QFSFileEnginePrivate)
 {
     Q_D(QFSFileEngine);
     d->file = QFSFileEnginePrivate::fixToQtSlashes(file);
 }
 
+/*!
+    Constructs a QFSFileEngine.
+*/
 QFSFileEngine::QFSFileEngine() : QAbstractFileEngine(*new QFSFileEnginePrivate)
 {
 }
 
+/*!
+    \internal
+*/
 QFSFileEngine::QFSFileEngine(QFSFileEnginePrivate &dd)
     : QAbstractFileEngine(dd)
 {
 }
 
-
+/*!
+    Destructs the QFSFileEngine.
+*/
 QFSFileEngine::~QFSFileEngine()
 {
     Q_D(QFSFileEngine);
@@ -73,8 +101,10 @@ QFSFileEngine::~QFSFileEngine()
     }
 }
 
-void
-QFSFileEngine::setFileName(const QString &file)
+/*!
+    \reimp
+*/
+void QFSFileEngine::setFileName(const QString &file)
 {
     Q_D(QFSFileEngine);
     d->file = QFSFileEnginePrivate::fixToQtSlashes(file);
@@ -105,8 +135,10 @@ static QByteArray openModeToFopenMode(QIODevice::OpenMode flags, const QString &
     return mode;
 }
 
-bool
-QFSFileEngine::open(QIODevice::OpenMode flags)
+/*!
+    \reimp
+*/
+bool QFSFileEngine::open(QIODevice::OpenMode flags)
 {
     Q_D(QFSFileEngine);
     if (d->file.isEmpty()) {
@@ -181,8 +213,11 @@ QFSFileEngine::open(QIODevice::OpenMode flags)
     return false;
 }
 
-bool
-QFSFileEngine::open(QIODevice::OpenMode flags, int fd)
+/*!
+    Opens the file descriptor \a fd to the file engine, using the open mode \a
+    flags.
+*/
+bool QFSFileEngine::open(QIODevice::OpenMode flags, int fd)
 {
     Q_D(QFSFileEngine);
     d->closeFileHandle = false;
@@ -223,9 +258,13 @@ QFSFileEngine::open(QIODevice::OpenMode flags, int fd)
     return false;
 }
 
-bool QFSFileEngine::open(QIODevice::OpenMode /* flags */, FILE *fh)
+/*!
+    Opens the file handle \a fh using the open mode \a flags.
+*/
+bool QFSFileEngine::open(QIODevice::OpenMode flags, FILE *fh)
 {
     Q_D(QFSFileEngine);
+    Q_UNUSED(flags);
     d->fh = fh;
     d->fd = QT_FILENO(fh);
     QT_STATBUF st;
@@ -236,8 +275,10 @@ bool QFSFileEngine::open(QIODevice::OpenMode /* flags */, FILE *fh)
     return true;
 }
 
-bool
-QFSFileEngine::close()
+/*!
+    \reimp
+*/
+bool QFSFileEngine::close()
 {
     Q_D(QFSFileEngine);
 
@@ -263,8 +304,10 @@ QFSFileEngine::close()
     return true;
 }
 
-bool
-QFSFileEngine::flush()
+/*!
+    \reimp
+*/
+bool QFSFileEngine::flush()
 {
     Q_D(QFSFileEngine);
     d->ungetchBuffer.clear();
@@ -284,8 +327,10 @@ QFSFileEngine::flush()
     return true;
 }
 
-qint64
-QFSFileEngine::read(char *data, qint64 len)
+/*!
+    \reimp
+*/
+qint64 QFSFileEngine::read(char *data, qint64 len)
 {
     Q_D(QFSFileEngine);
 
@@ -370,6 +415,9 @@ QFSFileEngine::read(char *data, qint64 len)
     return ret;
 }
 
+/*!
+    \reimp
+*/
 qint64 QFSFileEngine::readLine(char *data, qint64 maxlen)
 {
     Q_D(QFSFileEngine);
@@ -394,8 +442,10 @@ qint64 QFSFileEngine::readLine(char *data, qint64 maxlen)
     return qstrlen(data);
 }
 
-qint64
-QFSFileEngine::write(const char *data, qint64 len)
+/*!
+    \reimp
+*/
+qint64 QFSFileEngine::write(const char *data, qint64 len)
 {
     Q_D(QFSFileEngine);
 
@@ -417,8 +467,10 @@ QFSFileEngine::write(const char *data, qint64 len)
     return ret;
 }
 
-qint64
-QFSFileEngine::pos() const
+/*!
+    \reimp
+*/
+qint64 QFSFileEngine::pos() const
 {
     Q_D(const QFSFileEngine);
     if (d->fh)
@@ -426,13 +478,18 @@ QFSFileEngine::pos() const
     return QT_LSEEK(d->fd, 0, SEEK_CUR);
 }
 
-int
-QFSFileEngine::handle() const
+/*!
+    \reimp
+*/
+int QFSFileEngine::handle() const
 {
     Q_D(const QFSFileEngine);
     return d->fd;
 }
 
+/*!
+    \internal
+*/
 QAbstractFileEngine::Iterator *QFSFileEngine::beginEntryList(QDir::Filters filters, const QStringList &filterNames)
 {
     Q_UNUSED(filters);
@@ -440,13 +497,18 @@ QAbstractFileEngine::Iterator *QFSFileEngine::beginEntryList(QDir::Filters filte
     return 0;
 }
 
+/*!
+    \internal
+*/
 QAbstractFileEngine::Iterator *QFSFileEngine::endEntryList()
 {
     return 0;
 }
 
-bool
-QFSFileEngine::seek(qint64 pos)
+/*!
+    \reimp
+*/
+bool QFSFileEngine::seek(qint64 pos)
 {
     Q_D(QFSFileEngine);
     if (d->fh) {
@@ -466,13 +528,18 @@ QFSFileEngine::seek(qint64 pos)
     return true;
 }
 
-bool
-QFSFileEngine::isSequential() const
+/*!
+    \reimp
+*/
+bool QFSFileEngine::isSequential() const
 {
     Q_D(const QFSFileEngine);
     return d->sequential;
 }
 
+/*!
+    \reimp
+*/
 bool QFSFileEngine::extension(Extension extension, const ExtensionOption *option, ExtensionReturn *output)
 {
     Q_UNUSED(extension);
@@ -481,6 +548,9 @@ bool QFSFileEngine::extension(Extension extension, const ExtensionOption *option
     return false;
 }
 
+/*!
+    \reimp
+*/
 bool QFSFileEngine::supportsExtension(Extension extension) const
 {
     Q_UNUSED(extension);

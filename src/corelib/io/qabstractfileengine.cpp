@@ -83,6 +83,10 @@
     \sa QAbstractFileEngine, QAbstractFileEngine::create()
 */
 
+/*! \typedef QAbstractFileEngine::Iterator
+    \internal
+*/
+
 /*
     All application-wide handlers are stored in this list. The mutex must be
     acquired to ensure thread safety.
@@ -384,6 +388,10 @@ bool QAbstractFileEngine::remove()
     return false;
 }
 
+/*!
+    Copies the contents of this file to a file with the name \a newName.
+    Returns true on success; otherwise, false is returned.
+*/
 bool QAbstractFileEngine::copy(const QString &newName)
 {
     Q_UNUSED(newName);
@@ -634,6 +642,11 @@ void QAbstractFileEngine::setFileName(const QString &file)
     Q_UNUSED(file);
 }
 
+/*!
+    Returns the native file handle for this file engine. This handle must be
+    used with care; its value and type are platform specific, and using it
+    will most likely lead to non-portable code.
+*/
 int QAbstractFileEngine::handle() const
 {
     return -1;
@@ -682,6 +695,11 @@ qint64 QAbstractFileEngine::write(const char *data, qint64 len)
     return -1;
 }
 
+/*!
+    This function reads one line, terminated by a '\n' character, from the
+    file info \a data. At most \a maxlen characters will be read. The
+    end-of-line character is included.
+*/
 qint64 QAbstractFileEngine::readLine(char *data, qint64 maxlen)
 {
     qint64 readSoFar = 0;
@@ -759,6 +777,13 @@ QString QAbstractFileEngine::errorString() const
     return d->errorString;
 }
 
+/*!
+    Sets the error type to \a error, and the error string to \a errorString().
+    Call this function to set the error values returned by the higher-level
+    classes.
+
+    \sa QFile::error(), QIODevice::errorString(), QIODevice::setErrorString()
+*/
 void QAbstractFileEngine::setError(QFile::FileError error, const QString &errorString)
 {
     Q_D(QAbstractFileEngine);
