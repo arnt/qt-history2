@@ -960,11 +960,6 @@ void QApplication::setMainWidget(QWidget *mainWidget)
 }
 #endif
 
-QString QApplication::appName() const
-{
-    return QCoreApplication::appName();
-}
-
 #ifndef QT_NO_CURSOR
 
 /*****************************************************************************
