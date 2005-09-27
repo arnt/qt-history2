@@ -1202,6 +1202,42 @@ static QTextHtmlParserNode::WhiteSpaceMode stringToWhiteSpaceMode(const QString 
     return QTextHtmlParserNode::WhiteSpaceModeUndefined;
 }
 
+static void parseFontSize(QTextHtmlParserNode *node, const QString &value)
+{
+    node->fontPointSize = int(value.trimmed().toDouble());
+    node->hasFontPointSize = true;
+}
+
+static void parseFontStyle(QTextHtmlParserNode *node, const QString &value)
+{
+    if (value == QLatin1String("normal"))
+        node->fontItalic = Off;
+    else if (value == QLatin1String("italic") || value == QLatin1String("oblique"))
+        node->fontItalic = On;
+}
+
+static void parseFontWeight(QTextHtmlParserNode *node, const QString &value)
+{
+    bool ok = false;
+    int n = value.toInt(&ok);
+    if (ok)
+        node->fontWeight = n/8;
+}
+
+static void parseFontFamily(QTextHtmlParserNode *node, const QString &value)
+{
+    node->fontFamily = value.trimmed();
+    if ((node->fontFamily.startsWith(QLatin1Char('\''))
+         && node->fontFamily.endsWith(QLatin1Char('\'')))
+        ||
+        (node->fontFamily.startsWith(QLatin1Char('\"'))
+         && node->fontFamily.endsWith(QLatin1Char('\"')))
+       ) {
+        node->fontFamily.remove(0, 1);
+        node->fontFamily.chop(1);
+    }
+}
+
 // style parser taken from Qt 3
 static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
 {
@@ -1210,27 +1246,13 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
     for (int s = 0; s < count; s++) {
         QString style = a.section(';', s, s).trimmed();
         if (style.startsWith(QLatin1String("font-size:")) && style.endsWith(QLatin1String("pt"))) {
-            node->fontPointSize = int(style.mid(10, style.length() - 12).trimmed().toDouble());
-            node->hasFontPointSize = true;
+            parseFontSize(node, style.mid(10, style.length() - 12));
         } if (style.startsWith(QLatin1String("font-style:"))) {
-            QString s = style.mid(11).trimmed();
-            if (s == QLatin1String("normal"))
-                node->fontItalic = Off;
-            else if (s == QLatin1String("italic") || s == QLatin1String("oblique"))
-                node->fontItalic = On;
+            parseFontStyle(node, style.mid(11).trimmed());
         } else if (style.startsWith(QLatin1String("font-weight:"))) {
-            QString s = style.mid(12);
-            bool ok = true;
-            int n = s.toInt(&ok);
-            if (ok)
-                node->fontWeight = n/8;
+            parseFontWeight(node, style.mid(12));
         } else if (style.startsWith(QLatin1String("font-family:"))) {
-            node->fontFamily = style.mid(12).trimmed();
-            if (node->fontFamily.startsWith(QLatin1Char('\''))
-                && node->fontFamily.endsWith(QLatin1Char('\''))) {
-                node->fontFamily.remove(0, 1);
-                node->fontFamily.chop(1);
-            }
+            parseFontFamily(node, style.mid(12));
         } else if (style.startsWith(QLatin1String("text-decoration:"))) {
             QString s = style.mid(16);
             node->fontUnderline = static_cast<bool>(s.contains("underline")) ? On : Off;
@@ -1313,7 +1335,16 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
                 node->verticalAlignment = QTextCharFormat::AlignSuperScript;
             else
                 node->verticalAlignment = QTextCharFormat::AlignNormal;
-        }
+        } /* else if (style.startsWith(QLatin1String("font:"))) { // shorthand font property
+            // first reset to initial values
+            node->fontItalic = false;
+            node->fontWeight = QFont::Normal;
+            node->hasFontPointSize = false;
+            node->fontSizeAdjustment = 0;
+            node->fontFamily.clear();
+
+            style = style.mid(5).trimmed();
+        } */
     }
 }
 
