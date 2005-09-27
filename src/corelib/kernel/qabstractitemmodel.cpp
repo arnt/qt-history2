@@ -1529,11 +1529,8 @@ bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation,
 void QAbstractItemModel::encodeData(const QModelIndexList &indexes, QDataStream &stream) const
 {
     QModelIndexList::ConstIterator it = indexes.begin();
-    for (; it != indexes.end(); ++it) {
-        stream << (*it).row();
-        stream << (*it).column();
-        stream << itemData(*it);
-    }
+    for (; it != indexes.end(); ++it)
+        stream << (*it).row() << (*it).column() << itemData(*it);
 }
 
 /*!
@@ -1546,22 +1543,16 @@ bool QAbstractItemModel::decodeData(int row, int column, const QModelIndex &pare
     int left = INT_MAX;
     int bottom = 0;
     int right = 0;
+    QVector<int> rows, columns;
     QVector<QMap<int, QVariant> > data;
-    QVector<int> rows;
-    QVector<int> columns;
-    // get data, positions and dimensions of the dragged data (the positions are from the source table)
+
     while (!stream.atEnd()) {
         int r, c;
-        QMap<int, QVariant> d;
-
-        stream >> r;
-        stream >> c;
-        stream >> d;
-
+        QMap<int, QVariant> v;
+        stream >> r >> c >> v;
         rows.append(r);
         columns.append(c);
-        data.append(d);
-
+        data.append(v);
         top = qMin(r, top);
         left = qMin(c, left);
         bottom = qMax(r, bottom);
@@ -2064,109 +2055,97 @@ bool QAbstractListModel::hasChildren(const QModelIndex &parent) const
     Synonym for QList<QModelIndex>.
 */
 
-/*
- * If the datastream contains data from several different tables, this function may have unexpectable results,
- * possibly loss of some mimedata.
- */
-bool QAbstractItemModelPrivate::decodeDataAndReplace(int row, int column, const QModelIndex &parent,
-                                    QDataStream &stream)
+/*!
+  \reimp
+*/
+bool QAbstractTableModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
+                                       int row, int column, const QModelIndex &parent)
 {
-    Q_Q(QAbstractItemModel);
-    int top = INT_MAX;
-    int left = INT_MAX;
-    int bottom = 0;
-    int right = 0;
-    QVector<QMap<int, QVariant> > data;
-    QVector<int> rows;
-    QVector<int> columns;
-    // get data, positions and dimensions of the dragged data (the positions are from the source table)
-    while (!stream.atEnd()) {
-        int r, c;
-        QMap<int, QVariant> d;
+    if (!data || action != Qt::CopyAction)
+        return false;
 
-        stream >> r;
-        stream >> c;
-        stream >> d;
+    QString format = mimeTypes().at(0);
+    if (!data->hasFormat(format))
+        return false;
 
-        rows.append(r);
-        columns.append(c);
-        data.append(d);
+    QByteArray encoded = data->data(format);
+    QDataStream stream(&encoded, QIODevice::ReadOnly);
 
-        top = qMin(r, top);
-        left = qMin(c, left);
-        bottom = qMax(r, bottom);
-        right = qMax(c, right);
-    }
+    // if the drop is on an item, replace the data in the items
+    if (parent.isValid() && row == -1 && column == -1) {
+        int top = INT_MAX;
+        int left = INT_MAX;
+        QVector<int> rows, columns;
+        QVector<QMap<int, QVariant> > data;
 
-    int nCols = q->columnCount(parent);
-    int nRows = q->rowCount(parent);
-
-    row = qMax(0, row);
-    column = qMax(0, column);
-
-    // set the data in the table
-    for (int j = 0; j < data.size(); ++j) {
-        int relativeRow = rows.at(j) - top;
-        int relativeColumn = columns.at(j) - left;
-        int destinationRow = relativeRow + row;
-        int destinationColumn = relativeColumn + column;
-
-        // Skip overwriting if the table does not have enough space for the rightmost/bottommost data.
-        if (destinationRow < nRows && destinationColumn < nCols) {
-            QModelIndex idx = q->index(destinationRow, destinationColumn, parent);
-            q->setItemData(idx, data.at(j));
+        while (!stream.atEnd()) {
+            int r, c;
+            QMap<int, QVariant> v;
+            stream >> r >> c >> v;
+            rows.append(r);
+            columns.append(c);
+            data.append(v);
+            top = qMin(r, top);
+            left = qMin(c, left);
         }
+
+        for (int i = 0; i < data.size(); ++i) {
+            int r = (rows.at(i) - top) + parent.row();
+            int c = (columns.at(i) - left) + parent.column();
+            if (hasIndex(r, c))
+                setItemData(index(r, c), data.at(i));
+        }
+
+        return true;
     }
 
-    return true;
+    // otherwise insert new rows for the data
+    return decodeData(row, column, parent, stream);
 }
 
 /*!
   \reimp
 */
-bool QAbstractTableModel::dropMimeData( const QMimeData *data, Qt::DropAction action,
-                                        int row, int column, const QModelIndex &parent)
+bool QAbstractListModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
+                                      int row, int column, const QModelIndex &parent)
 {
     if (!data || action != Qt::CopyAction)
         return false;
-    // check if the format is supported
+
     QString format = mimeTypes().at(0);
     if (!data->hasFormat(format))
         return false;
 
-    if (row > rowCount(parent))
-        row = rowCount(parent);
-    // decode and insert
-    QByteArray encoded = data->data(format);
-    QDataStream stream(&encoded, QIODevice::ReadOnly);
-    if (parent.isValid() && row == -1 && column == -1) {
-        return static_cast<QAbstractItemModelPrivate *>(d_ptr)->decodeDataAndReplace(parent.row(), parent.column(), QModelIndex(), stream);
-    }else{
-        return decodeData(row, column, parent, stream);
-    }
-}
-/*!
-  \reimp
-*/
-bool QAbstractListModel::dropMimeData( const QMimeData *data, Qt::DropAction action,
-                                        int row, int column, const QModelIndex &parent)
-{
-    if (!data || action != Qt::CopyAction)
-        return false;
-    // check if the format is supported
-    QString format = mimeTypes().at(0);
-    if (!data->hasFormat(format))
-        return false;
-
-    if (row > rowCount(parent))
-        row = rowCount(parent);
-    // decode and insert
     QByteArray encoded = data->data(format);
     QDataStream stream(&encoded, QIODevice::ReadOnly);
 
+    // if the drop is on an item, replace the data in the items
     if (parent.isValid() && row == -1 && column == -1) {
-        return static_cast<QAbstractItemModelPrivate *>(d_ptr)->decodeDataAndReplace(parent.row(), parent.column(), QModelIndex(), stream);
-    }else{
-        return decodeData(row, column, parent, stream);
+        int top = INT_MAX;
+        int left = INT_MAX;
+        QVector<int> rows, columns;
+        QVector<QMap<int, QVariant> > data;
+
+        while (!stream.atEnd()) {
+            int r, c;
+            QMap<int, QVariant> v;
+            stream >> r >> c >> v;
+            rows.append(r);
+            columns.append(c);
+            data.append(v);
+            top = qMin(r, top);
+            left = qMin(c, left);
+        }
+
+        for (int i = 0; i < data.size(); ++i) {
+            int r = (rows.at(i) - top) + parent.row();
+            if (columns.at(i) == left && hasIndex(r, 0))
+                setItemData(index(r), data.at(i));
+        }
+
+        return true;
     }
+
+    // otherwise insert new rows for the data
+    return decodeData(row, column, parent, stream);
 }
