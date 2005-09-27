@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qcoreapplication.h"
+#include "qcoreapplication_p.h"
 #include "qt_windows.h"
 #include "qvector.h"
 #include "qmutex.h"
@@ -62,7 +63,7 @@ Q_CORE_EXPORT QString qAppFileName()                // get application file name
     return appFileName;
 }
 
-const QString QCoreApplicationPrivate::appName() const
+QString QCoreApplicationPrivate::appName() const
 {
     if (!::appName[0])
         set_winapp_name();
