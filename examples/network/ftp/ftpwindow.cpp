@@ -17,7 +17,7 @@
 #include "ftpwindow.h"
 
 FtpWindow::FtpWindow(QWidget *parent)
-    : QDialog(parent)
+    : QDialog(parent), ftp(0)
 {
     ftpServerLabel = new QLabel(tr("Ftp &server:"));
     ftpServerLineEdit = new QLineEdit("ftp.trolltech.com");
@@ -26,10 +26,11 @@ FtpWindow::FtpWindow(QWidget *parent)
     statusLabel = new QLabel(tr("Please enter the name of an FTP server."));
 
     fileList = new QListWidget;
+    fileList->setEnabled(false);
 
     connectButton = new QPushButton(tr("Connect"));
     connectButton->setDefault(true);
-
+    
     downloadButton = new QPushButton(tr("Download"));
     downloadButton->setEnabled(false);
 
@@ -39,26 +40,14 @@ FtpWindow::FtpWindow(QWidget *parent)
 
     quitButton = new QPushButton(tr("Quit"));
 
-    ftp = new QFtp(this);
-
     progressDialog = new QProgressDialog(this);
 
-    connect(ftpServerLineEdit, SIGNAL(textChanged(const QString &)),
-            this, SLOT(enableConnectButton()));
     connect(fileList, SIGNAL(itemDoubleClicked(QListWidgetItem *)),
-            this, SLOT(processItem(QListWidgetItem *)));
-    connect(fileList, SIGNAL(itemEntered(QListWidgetItem *)),
             this, SLOT(processItem(QListWidgetItem *)));
     connect(fileList, SIGNAL(itemSelectionChanged()),
             this, SLOT(enableDownloadButton()));
-    connect(ftp, SIGNAL(commandFinished(int, bool)),
-            this, SLOT(ftpCommandFinished(int, bool)));
-    connect(ftp, SIGNAL(listInfo(const QUrlInfo &)),
-            this, SLOT(addToList(const QUrlInfo &)));
-    connect(ftp, SIGNAL(dataTransferProgress(qint64, qint64)),
-            this, SLOT(updateDataTransferProgress(qint64, qint64)));
     connect(progressDialog, SIGNAL(canceled()), this, SLOT(cancelDownload()));
-    connect(connectButton, SIGNAL(clicked()), this, SLOT(connectToFtpServer()));
+    connect(connectButton, SIGNAL(clicked()), this, SLOT(connectOrDisconnect()));
     connect(cdToParentButton, SIGNAL(clicked()), this, SLOT(cdToParent()));
     connect(downloadButton, SIGNAL(clicked()), this, SLOT(downloadFile()));
     connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
@@ -67,11 +56,11 @@ FtpWindow::FtpWindow(QWidget *parent)
     topLayout->addWidget(ftpServerLabel);
     topLayout->addWidget(ftpServerLineEdit);
     topLayout->addWidget(cdToParentButton);
-
+    topLayout->addWidget(connectButton);
+    
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addStretch(1);
     buttonLayout->addWidget(downloadButton);
-    buttonLayout->addWidget(connectButton);
     buttonLayout->addWidget(quitButton);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -84,12 +73,33 @@ FtpWindow::FtpWindow(QWidget *parent)
     setWindowTitle(tr("FTP"));
 }
 
-void FtpWindow::connectToFtpServer()
+void FtpWindow::connectOrDisconnect()
 {
+    if (ftp) {
+        ftp->abort();
+        ftp->deleteLater();
+        fileList->setEnabled(false);
+        downloadButton->setEnabled(false);
+        connectButton->setText(tr("Connect"));
+        return;
+    }
+    
     QApplication::setOverrideCursor(Qt::WaitCursor);
+    
+    ftp = new QFtp(this);
+    connect(ftp, SIGNAL(commandFinished(int, bool)),
+            this, SLOT(ftpCommandFinished(int, bool)));
+    connect(ftp, SIGNAL(listInfo(const QUrlInfo &)),
+            this, SLOT(addToList(const QUrlInfo &)));
+    connect(ftp, SIGNAL(dataTransferProgress(qint64, qint64)),
+            this, SLOT(updateDataTransferProgress(qint64, qint64)));
+
     ftp->connectToHost(ftpServerLineEdit->text());
     ftp->login();
     ftp->list();
+
+    fileList->setEnabled(true);
+    connectButton->setText(tr("Disconnect"));
     statusLabel->setText(tr("Connecting to FTP server %1...")
                          .arg(ftpServerLineEdit->text()));
 }
@@ -143,7 +153,6 @@ void FtpWindow::ftpCommandFinished(int, bool error)
         statusLabel->setText(tr("Logged onto %1.")
                              .arg(ftpServerLineEdit->text()));
         fileList->setFocus();
-        connectButton->setEnabled(false);
         downloadButton->setDefault(true);
         return;
     }
@@ -221,11 +230,6 @@ void FtpWindow::updateDataTransferProgress(qint64 readBytes,
 {
     progressDialog->setMaximum(totalBytes);
     progressDialog->setValue(readBytes);
-}
-
-void FtpWindow::enableConnectButton()
-{
-    connectButton->setEnabled(!ftpServerLineEdit->text().isEmpty());
 }
 
 void FtpWindow::enableDownloadButton()
