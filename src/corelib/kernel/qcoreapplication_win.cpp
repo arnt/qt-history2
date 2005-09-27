@@ -97,6 +97,81 @@ Q_CORE_EXPORT void qWinMsgHandler(QtMsgType t, const char* str)
   qWinMain() - Initializes Windows. Called from WinMain() in qtmain_win.cpp
  *****************************************************************************/
 
+// template implementation of the parsing algorithm
+template<typename Char>
+static QVector<Char*> qWinCmdLine(Char *cmdParam, int length, int &argc)
+{
+    QVector<Char*> argv(8);
+    Char *p = cmdParam;
+    Char *p_end = p + length;
+
+    argc = 0;
+
+    while (*p && p < p_end) {                                // parse cmd line arguments
+        while (QChar(*p).isSpace())                        // skip white space
+            p++;
+        if (*p && p < p_end) {                                // arg starts
+            int quote;
+            Char *start, *r;
+            if (*p == Char('\"') || *p == Char('\'')) {        // " or ' quote
+                quote = *p;
+                start = ++p;
+            } else {
+                quote = 0;
+                start = p;
+            }
+            r = start;
+            while (*p && p < p_end) {
+                if (*p == '\\') {                // escape char?
+                    p++;
+                    if (*p == Char('\"') || *p == Char('\''))
+                        ;                        // yes
+                    else
+                        p--;                        // treat \ literally
+                } else if (quote) {
+                    if (*p == quote) {
+                        p++;
+                        if (QChar(*p).isSpace())
+                            break;
+                        quote = 0;
+                    }
+                } else {
+                    if (*p == Char('\"') || *p == Char('\'')) {        // " or ' quote
+                        quote = *p++;
+                        continue;
+                    } else if (QChar(*p).isSpace())
+                        break;
+                }
+                if (*p)
+                    *r++ = *p++;
+            }
+            if (*p && p < p_end)
+                p++;
+            *r = Char('\0');
+
+            if (argc >= (int)argv.size()-1)        // expand array
+                argv.resize(argv.size()*2);
+            argv[argc++] = start;
+        }
+    }
+    argv[argc] = 0;
+
+    return argv;
+}
+
+QStringList qWinCmdArgs(QString cmdLine) // not const-ref: this might be modified
+{
+    QStringList args;
+
+    int argc = 0;
+    QVector<ushort*> argv = qWinCmdLine<ushort>((ushort*)cmdLine.utf16(), cmdLine.length(), argc);
+    for (int a = 0; a < argc; ++a) {
+        args << QString::fromUtf16(argv[a]);
+    }
+
+    return args;
+}
+
 #if defined(Q_OS_TEMP)
 Q_CORE_EXPORT void __cdecl qWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
                int cmdShow, int &argc, QVector<char *> &argv)
@@ -122,59 +197,7 @@ void qWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 
     set_winapp_name();
 
-    char *p = cmdParam;
-    char *p_end = p + strlen(p);
-
-    argc = 0;
-
-    while (*p && p < p_end) {                                // parse cmd line arguments
-        while (isspace((uchar) *p))                        // skip white space
-            p++;
-        if (*p && p < p_end) {                                // arg starts
-            int quote;
-            char *start, *r;
-            if (*p == '\"' || *p == '\'') {        // " or ' quote
-                quote = *p;
-                start = ++p;
-            } else {
-                quote = 0;
-                start = p;
-            }
-            r = start;
-            while (*p && p < p_end) {
-                if (*p == '\\') {                // escape char?
-                    p++;
-                    if (*p == '\"' || *p == '\'')
-                        ;                        // yes
-                    else
-                        p--;                        // treat \ literally
-                } else if (quote) {
-                    if (*p == quote) {
-                        p++;
-                        if (isspace((uchar) *p))
-                            break;
-                        quote = 0;
-                    }
-                } else {
-                    if (*p == '\"' || *p == '\'') {        // " or ' quote
-                        quote = *p++;
-                        continue;
-                    } else if (isspace((uchar) *p))
-                        break;
-                }
-                if (*p)
-                    *r++ = *p++;
-            }
-            if (*p && p < p_end)
-                p++;
-            *r = '\0';
-
-            if (argc >= (int)argv.size()-1)        // expand array
-                argv.resize(argv.size()*2);
-            argv[argc++] = start;
-        }
-    }
-    argv[argc] = 0;
+    argv = qWinCmdLine<char>(cmdParam, strlen(cmdParam), argc);
     // Get Windows parameters
 
     appInst = instance;

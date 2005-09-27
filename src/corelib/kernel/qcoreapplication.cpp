@@ -1379,12 +1379,14 @@ QString QCoreApplication::applicationFilePath()
 }
 
 /*!
+    \obsolete
+
     Returns the number of command line arguments.
 
     The documentation for argv() describes how to process command line
     arguments.
 
-    \sa argv()
+    \sa argv() arguments()
 */
 int QCoreApplication::argc()
 {
@@ -1397,10 +1399,15 @@ int QCoreApplication::argc()
 
 
 /*!
+    \obsolete
+
     Returns the command-line argument array.
 
     argv()[0] is the program name, argv()[1] is the first
     argument, and argv()[argc() - 1] is the last argument.
+
+    The strings in the array are in a locale-dependent 8-bit encoding; use
+    QString::fromLocal8Bit() for each argument to create a QString.
 
     A QCoreApplication object is constructed by passing \e argc and
     \e argv from the \c main() function. Some of the arguments may be
@@ -1408,11 +1415,7 @@ int QCoreApplication::argc()
     For example, the X11 version of QApplication knows about \c
     -display, \c -font, and a few more options.
 
-    QCoreApplication::instance() points to the QCoreApplication
-    object, and through which you can access argc() and argv() in
-    functions other than main().
-
-    \sa argc()
+    \sa argc() arguments()
 */
 char **QCoreApplication::argv()
 {
@@ -1421,6 +1424,68 @@ char **QCoreApplication::argv()
         return 0;
     }
     return self->d_func()->argv;
+}
+
+/*!
+    Returns the list of command-line arguments.
+
+    arguments().at(0) is the program name, arguments().at(1) is the
+    first argument, and arguments().last() is the last argument.
+
+    Calling this function is slow - you should store the result in a variable
+    when parsing the command line.
+
+    \warning On Unix, this list is built from the argc and argv parameters passed
+    to the constructor in the main() function. The string-data in argv is
+    interpreted using QString::fromLocal8Bit(); hence it is not possible to
+    pass i.e. Japanese command line arguments on a system that runs in a latin1
+    locale. Most modern Unix systems do not have this limitation, as they are
+    Unicode based.
+
+    On NT-based Windows, this limitation does not apply either.
+*/
+
+QStringList QCoreApplication::arguments()
+{
+    QStringList list;
+
+    if (!self) {
+        qWarning("QApplication::arguments() failed: please instantiate the QApplication object first");
+        return list;
+    }
+#ifdef Q_OS_WIN
+    QString cmdline = QT_WA_INLINE(QString::fromUtf16(GetCommandLineW()), QString::fromLocal8Bit(GetCommandLineA()));
+    extern QStringList qWinCmdArgs(QString cmdLine);
+    list = qWinCmdArgs(cmdline);
+    if (self->d_func()->application_type) { // GUI app? Skip known - see qapplication.cpp
+        QStringList stripped;
+        for (int a = 0; a < list.count(); ++a) {
+            QString arg = list.at(a);
+            QByteArray l1arg = arg.toLatin1();
+            if (l1arg == "-qdevel" ||
+                l1arg == "-qdebug" ||
+                l1arg == "-reverse" ||
+                l1arg == "-widgetcount")
+                ;
+            else if (l1arg.startsWith("-style="))
+                ;
+            else if (l1arg == "-style" ||
+                l1arg == "-session")
+                ++a;
+            else
+                stripped += arg;
+        }
+        list = stripped;
+    }
+#else
+    const int ac = self->d_func()->argc;
+    char ** const av = self->d_func()->argv;
+    for (int a = 0; a < ac; ++a) {
+        list << QString::fromLocal8Bit(av[a]);
+    }
+#endif
+
+    return list;
 }
 
 /*!

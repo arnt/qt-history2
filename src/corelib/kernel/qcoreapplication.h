@@ -48,6 +48,7 @@ public:
 
     static int argc();
     static char **argv();
+    static QStringList arguments();
 
     static void setOrganizationDomain(const QString &orgDomain);
     static QString organizationDomain();
