@@ -847,14 +847,14 @@ Line_Up( TRaster_Instance*  raster, Long  x1,
 
     if ( Dx > 0 )
     {
-        Ix = ( precision * Dx ) / Dy;
-        Rx = ( precision * Dx ) % Dy;
+        Ix = (Long) ((precision * ((qint64)Dx)) / Dy);
+        Rx = (Long) ((precision * ((qint64)Dx)) % Dy);
         Dx = 1;
     }
     else
     {
-        Ix = -( ( precision * -Dx ) / Dy );
-        Rx =    ( precision * -Dx ) % Dy;
+        Ix = (Long) -(precision * ((qint64)-Dx) / Dy);
+        Rx = (Long)  (precision * ((qint64)-Dx) % Dy);
         Dx = -1;
     }
 
