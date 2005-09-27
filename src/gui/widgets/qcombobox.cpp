@@ -45,7 +45,8 @@ QComboBoxPrivate::QComboBoxPrivate()
       maxCount(INT_MAX),
       modelColumn(0),
       arrowState(QStyle::State_None),
-      hoverControl(QStyle::SC_None)
+      hoverControl(QStyle::SC_None),
+      autoCompletionCaseSensitivity(Qt::CaseInsensitive)
 {
 }
 
@@ -732,7 +733,10 @@ void QComboBoxPrivate::complete()
     }
     QString text = lineEdit->text();
     if (!text.isEmpty()) {
-        QModelIndexList list = model->match(currentIndex, Qt::EditRole, text);
+        Qt::MatchFlags flags(Qt::MatchWrap|Qt::MatchStartsWith);
+        if (autoCompletionCaseSensitivity == Qt::CaseSensitive)
+            flags |= Qt::MatchCaseSensitive;
+        QModelIndexList list = model->match(currentIndex, Qt::EditRole, text, 1, flags);
         if (!list.count())
             return;
         QString completed = model->data(list.first(), Qt::EditRole).toString();
@@ -858,6 +862,25 @@ void QComboBox::setAutoCompletion(bool enable)
 {
     Q_D(QComboBox);
     d->autoCompletion = enable;
+}
+
+/*!
+    \property QComboBod::autoCompletionCaseSensitivity
+    \brief the case-sensitive property used in auto-completion
+
+    \sa autoCompletion
+*/
+
+Qt::CaseSensitivity QComboBox::autoCompletionCaseSensitivity() const
+{
+    Q_D(const QComboBox);
+    return d->autoCompletionCaseSensitivity;
+}
+
+void QComboBox::setAutoCompletionCaseSensitivity(Qt::CaseSensitivity sensitivity)
+{
+    Q_D(QComboBox);
+    d->autoCompletionCaseSensitivity = sensitivity;
 }
 
 /*!
@@ -1267,6 +1290,7 @@ void QComboBox::setCurrentIndex(int index)
     if (!model())
         return;
     QModelIndex mi = model()->index(index, d->modelColumn, rootModelIndex());
+
     if (!mi.isValid() || mi == d->currentIndex)
         return;
     d->currentIndex = QPersistentModelIndex(mi);

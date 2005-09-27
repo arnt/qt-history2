@@ -226,6 +226,7 @@ public:
     QRect hoverRect;
     QPersistentModelIndex currentIndex;
     QPersistentModelIndex root;
+    Qt::CaseSensitivity autoCompletionCaseSensitivity;
 };
 
 #endif // QT_NO_COMBOBOX
