@@ -160,12 +160,12 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     // Get the size of the size-grip from the style.
     const int magicPixelOffset = -2;
     const int sizeGripSize = q->style()->pixelMetric(QStyle::PM_MacSizeGripSize, &opt, q) + magicPixelOffset;
-        
+
     // Get coordiantes for the bottom-right corner of the scroll area and its window.
     const QPoint scrollAreaBottomRight = q->mapTo(q->window(), vr.bottomRight());
     const QPoint windowBottomRight = q->window()->rect().bottomRight();
     const QPoint offset = windowBottomRight - scrollAreaBottomRight;
-    
+
     QRect frameRect = vr;
     if (needh)
         frameRect.setBottom(frameRect.bottom() - hsbExt - extra);
@@ -183,7 +183,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
                 visualHsbRect.setWidth(vr.width() - sizeGripSize);
         hbar->setGeometry(visualHsbRect);
     }
-   
+
     // Set vertical scrollbar geometry.
     if (needv) {
         QRect vsbRect(frameRect.right() + 1 + extra, 0, vsbExt, frameRect.height());
@@ -669,10 +669,12 @@ void QAbstractScrollAreaPrivate::hslide(int x)
     Q_Q(QAbstractScrollArea);
 
     if (q->horizontalScrollBar()->maximum() == x) {
-        if (hend)
+        if (hend) {
+            xoffset = x;
             return;
-        else
+        } else {
             hend = true;
+        }
     } else
         hend = false;
 
@@ -686,10 +688,12 @@ void QAbstractScrollAreaPrivate::vslide(int y)
     Q_Q(QAbstractScrollArea);
 
     if (q->verticalScrollBar()->maximum() == y) {
-        if (vend)
+        if (vend) {
+            yoffset = y;
             return;
-        else
+        } else {
             vend = true;
+        }
     } else
         vend = false;
 
