@@ -90,7 +90,7 @@ public:
     bool isSpecial(const QChar &c) const;
     void parseFormat(const QString &format, QVariant::Type t);
     bool fromString(const QString &string, QDate *dateIn, QTime *timeIn);
-    QString sectionFormat(int index) const;
+    QString sectionFormat(int index) const { return QString(); }
     QString sectionFormat(Section s, int count) const;
 
     static bool withinBounds(const SectionNode &sec, int num);
