@@ -67,11 +67,12 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
 {
     Q_Q(const QLineEdit);
     QStyleOptionFrame opt;
-    opt.rect = q->rect();
-    opt.palette = q->palette();
+    opt.init(q);
     opt.lineWidth = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     opt.midLineWidth = 0;
-    opt.state = QStyle::State_None | QStyle::State_Sunken;
+    opt.state |= QStyle::State_Sunken;
+    if (readOnly)
+        opt.state |= QStyle::State_ReadOnly;
 #ifdef QT_KEYPAD_NAVIGATION
     if (q->hasEditFocus())
         opt.state |= QStyle::State_HasEditFocus;
@@ -2001,7 +2002,6 @@ void QLineEdit::paintEvent(QPaintEvent *)
     p.setClipRect(r);
 
     QStyleOptionFrame panel = d->getStyleOption();
-    panel.state |= (isEnabled() ? QStyle::State_Enabled : QStyle::State_None);
     style()->drawPrimitive(QStyle::PE_PanelLineEdit, &panel, &p, this);
 
     QFontMetrics fm = fontMetrics();

@@ -563,6 +563,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value State_Top
     \value State_UpArrow
     \value State_KeyboardFocusChange
+    \value State_ReadOnly
     \omitvalue State_Default
 
     \sa drawPrimitive()
