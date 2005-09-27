@@ -282,11 +282,16 @@ int ResourceFile::indexOfFile(int pref_idx, const QString &file) const
 
 QString ResourceFile::relativePath(const QString &abs_path) const
 {
-    if (m_file_name.isEmpty() || QFileInfo(abs_path).isRelative())
+    if (m_file_name.isEmpty())
         return abs_path;
 
-    QFileInfo fileInfo(m_file_name);
-    return fileInfo.absoluteDir().relativeFilePath(abs_path);
+    QString conv_path = abs_path;
+    if (!QFileInfo(abs_path).isRelative()) {
+        QFileInfo fileInfo(m_file_name);
+        conv_path = fileInfo.absoluteDir().relativeFilePath(abs_path);
+    }
+    
+    return conv_path.replace(QDir::separator(), '/');
 }
 
 QString ResourceFile::absolutePath(const QString &rel_path) const
