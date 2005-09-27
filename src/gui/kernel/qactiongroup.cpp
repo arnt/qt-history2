@@ -154,6 +154,8 @@ QAction *QActionGroup::addAction(QAction* a)
         a->setVisible(d->visible);
         a->d_func()->forceInvisible = false;
     }
+    if(a->isChecked())
+        d->current = a;
     if(a->d_func()->group != this)
         a->d_func()->group = this;
     return a;
