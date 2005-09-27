@@ -2795,15 +2795,17 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     # auto-detect OpenGL support
     if [ "$CFG_OPENGL" = "auto" ]; then
         if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/opengl "OpenGL" $L_FLAGS $I_FLAGS; then
-            CFG_OPENGL=no
-        else
             CFG_OPENGL=yes
+        else
+            CFG_OPENGL=no
         fi
     fi
 
     # auto-detect Xcursor support
     if [ "$CFG_XCURSOR" != "no" ]; then
 	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xcursor "Xcursor" $L_FLAGS $I_FLAGS; then
+	    CFG_XCURSOR=yes
+	else
 	    if [ "$CFG_XCURSOR" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 		echo "Xcursor support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2813,14 +2815,14 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	    else
 		CFG_XCURSOR=no
 	    fi
-	else
-	    CFG_XCURSOR=yes
 	fi
     fi
 
     # auto-detect Xrandr support (resize and rotate extension)
     if [ "$CFG_XRANDR" != "no" ]; then
 	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xrandr "Xrandr" $L_FLAGS $I_FLAGS; then
+	    CFG_XRANDR=yes
+	else
 	    if [ "$CFG_XRANDR" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 		echo "Xrandr support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2830,14 +2832,14 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	    else
 		CFG_XRANDR=no
 	    fi
-	else
-	    CFG_XRANDR=yes
 	fi
     fi
 
     # auto-detect Xrender support
     if [ "$CFG_XRENDER" != "no" ]; then
 	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xrender "Xrender" $L_FLAGS $I_FLAGS; then
+	    CFG_XRENDER=yes
+	else
 	    if [ "$CFG_XRENDER" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 		echo "Xrender support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2847,8 +2849,6 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	    else
 		CFG_XRENDER=no
 	    fi
-	else
-	    CFG_XRENDER=yes
 	fi
     fi
 
@@ -2856,6 +2856,9 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     if [ "$CFG_FONTCONFIG" != "no" ]; then
 	mkdir -p $outpath/config.tests/x11
 	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/fontconfig "FontConfig" $L_FLAGS $I_FLAGS; then
+	    CFG_FONTCONFIG=yes
+	    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11=-lfreetype -lfontconfig \$\$QMAKE_LIBS_X11\""
+	else
 	    if [ "$CFG_FONTCONFIG" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 		echo "FontConfig support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2865,15 +2868,14 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	    else
 		CFG_FONTCONFIG=no
 	    fi
-	else
-	    CFG_FONTCONFIG=yes
-	    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11=-lfreetype -lfontconfig \$\$QMAKE_LIBS_X11\""
 	fi
     fi
 
     # auto-detect Session Management support
     if [ "$CFG_SM" = "auto" ]; then
 	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/sm "Session Management" $L_FLAGS $I_FLAGS; then
+	    CFG_SM=yes
+	else
 	    if [ "$CFG_SM" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 		echo "Session Management support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2883,14 +2885,14 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	    else
 		CFG_SM=no
 	    fi
-	else
-	    CFG_SM=yes
 	fi
     fi
 
     # auto-detect SHAPE support
     if [ "$CFG_XSHAPE" != "no" ]; then
 	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xshape "XShape" $L_FLAGS $I_FLAGS; then
+	    CFG_XSHAPE=yes
+	else
 	    if [ "$CFG_XSHAPE" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 		echo "XShape support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2900,14 +2902,14 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	    else
 		CFG_XSHAPE=no
 	    fi
-	else
-	    CFG_XSHAPE=yes
 	fi
     fi
 
     # auto-detect Xinerama support
     if [ "$CFG_XINERAMA" != "no" ]; then
 	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xinerama "Xinerama" $L_FLAGS $I_FLAGS; then
+	    CFG_XINERAMA=yes
+	else
 	    if [ "$CFG_XINERAMA" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 		echo "Xinerama support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2917,14 +2919,14 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	    else
 		CFG_XINERAMA=no
 	    fi
-	else
-	    CFG_XINERAMA=yes
 	fi
     fi
 
     # auto-detect tablet support (currenlty only in IRIX)
     if [ "$CFG_TABLET" != "no" ]; then
         if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xinput "Tablet (XInput)" $L_FLAGS $I_FLAGS; then
+            CFG_TABLET=yes
+        else
             if [ "$CFG_TABLET" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
                 echo "Tablet support cannot be enabled due to functionality tests!"
                 echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2934,14 +2936,14 @@ if [ "$PLATFORM_X11" = "yes" ]; then
             else
                 CFG_TABLET=no
             fi
-        else
-            CFG_TABLET=yes
         fi
     fi
 
     # auto-detect XKB support
     if [ "$CFG_XKB" != "no" ]; then
         if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xkb "XKB" $L_FLAGS $I_FLAGS; then
+            CFG_XKB=yes
+        else
             if [ "$CFG_XKB" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
                 echo "XKB support cannot be enabled due to functionality tests!"
                 echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2951,8 +2953,6 @@ if [ "$PLATFORM_X11" = "yes" ]; then
             else
                 CFG_XKB=no
             fi
-        else
-            CFG_XKB=yes
         fi
     fi
 fi # X11

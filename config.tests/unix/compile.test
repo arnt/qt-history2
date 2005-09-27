@@ -47,8 +47,8 @@ fi
 # done
 if [ "$SUCCESS" != "yes" ]; then
     [ "$VERBOSE" = "yes" ] && echo "$DESCRIPTION disabled."
-    exit 0
+    exit 1
 else
     [ "$VERBOSE" = "yes" ] && echo "$DESCRIPTION enabled."
-    exit 1
+    exit 0
 fi
