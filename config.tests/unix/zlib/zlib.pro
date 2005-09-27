@@ -1,3 +1,4 @@
 SOURCES = zlib.cpp
-CONFIG -= qt
+CONFIG -= qt dylib
+mac:CONFIG -= app_bundle
 LIBS += -lz
