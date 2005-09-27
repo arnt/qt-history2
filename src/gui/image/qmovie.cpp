@@ -206,7 +206,6 @@ public:
     int speedAdjustedDelay(int delay) const;
     bool isValid() const;
     bool jumpToFrame(int frameNumber);
-    bool jumpToTime(int time);
     int frameCount() const;
     bool jumpToNextFrame();
     FrameInfo infoForFrame(int frameNumber);
