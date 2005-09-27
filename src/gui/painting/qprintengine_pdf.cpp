@@ -7,6 +7,7 @@
 #include <qpainterpath.h>
 #include <qpaintdevice.h>
 #include <qfile.h>
+#include <qtextstream.h>
 
 #include "qprintengine_pdf_p.h"
 
@@ -23,6 +24,7 @@ static const bool do_compress = false;
 static const bool do_compress = true;
 #endif
 
+static inline QString pdfqreal(double val) { return QString::number(val, 'f', 6); }
 
 #undef MM
 #define MM(n) int((n * 720 + 127) / 254)
@@ -801,33 +803,30 @@ QString QPdfMatrix::streamMatrix(QMatrix const m)
 {
     QString s;
     s += pdfqreal(m.m11());
-    s += QLatin1Char(' ');
+    s += ' ';
     s += pdfqreal(m.m12());
-    s += QLatin1Char(' ');
+    s += ' ';
     s += pdfqreal(m.m21());
-    s += QLatin1Char(' ');
+    s += ' ';
     s += pdfqreal(m.m22());
-    s += QLatin1Char(' ');
+    s += ' ';
     s += pdfqreal(m.dx());
-    s += QLatin1Char(' ');
+    s += ' ';
     s += pdfqreal(m.dy());
-    s += QLatin1Char(' ');
+    s += ' ';
     s += "cm\n";
     return s;
 }
 
-QString QPdfMatrix::streamText()
+void QPdfMatrix::streamText(QTextStream &stream)
 {
-    QString s;
-
     if (matrices_.empty())
-        return s;
+        return;
 
     QMatrix m = matrices_.first();
     matrices_.pop_front();
 
-    s += streamMatrix(m);
-    return s;
+    stream << streamMatrix(m);
 }
 
 QPdfMatrix* QPdfMatrix::setMatrix(QMatrix const& m)
@@ -1038,12 +1037,11 @@ int QPdfImage::convert(const QImage& img, const QImage& mask)
     return rowlen * im.height();
 }
 
-QString QPdfImage::streamText()
+void QPdfImage::streamText(QTextStream &stream)
 {
-    QString s;
-    s += QString("q\n%1 0 0 %2 0 %3 cm\n").arg(w_).arg(-h_).arg(h_);
-    s += name + " Do\nQ\n";
-    return s;
+    stream << QString("q\n%1 0 0 %2 0 %3 cm\n").arg(w_).arg(-h_).arg(h_)
+           << name
+           <<" Do\nQ\n";
 }
 
 
@@ -1515,12 +1513,10 @@ QPdfBrush::~QPdfBrush()
         delete gradients[i].shader;
 }
 
-QString QPdfBrush::streamText()
+void QPdfBrush::streamText(QTextStream &s)
 {
-    QString s;
-
     if (streamstate_.empty())
-        return s;
+        return;
 
     SUBTYPE sstate = streamstate_.first();
     streamstate_.pop_front();
@@ -1534,20 +1530,20 @@ QString QPdfBrush::streamText()
         FixedPattern p = fixeds.first();
         if (p.isSolid())
         {
-            s += "/CSp cs\n"
-                 + pdfqreal(p.rgba.redF()) + QLatin1Char(' ')
-                 + pdfqreal(p.rgba.greenF()) + QLatin1Char(' ')
-                 + pdfqreal(p.rgba.blueF())
-                 + " scn\n";
+            s << "/CSp cs\n"
+              << pdfqreal(p.rgba.redF()) << ' '
+              << pdfqreal(p.rgba.greenF()) << ' '
+              << pdfqreal(p.rgba.blueF())
+              << " scn\n";
         }
         else if (!p.isEmpty())
         {
-            s += "/PCSp cs\n"
-                 + pdfqreal(p.rgba.redF()) + QLatin1Char(' ')
-                 + pdfqreal(p.rgba.greenF()) + QLatin1Char(' ')
-                 + pdfqreal(p.rgba.blueF()) + QLatin1Char(' ')
-                 + p.name
-                 + " scn\n";
+            s << "/PCSp cs\n"
+              << pdfqreal(p.rgba.redF()) << ' '
+              << pdfqreal(p.rgba.greenF()) << ' '
+              << pdfqreal(p.rgba.blueF()) << ' '
+              << p.name
+              << " scn\n";
         }
         fixeds.pop_front();
         break;
@@ -1557,10 +1553,10 @@ QString QPdfBrush::streamText()
             break;
         GradientPattern p = gradients.first();
         if (p.shader->hasSoftMask())
-            s += p.shader->softMaskGraphicStateName() + " gs\n";
-        s	+= "/PCSp cs\n"
-                   + p.name
-                   + " scn\n";
+            s << p.shader->softMaskGraphicStateName() << " gs\n";
+        s << "/PCSp cs\n"
+          << p.name
+          << " scn\n";
         gradients.pop_front();
         break;
     }
@@ -1568,14 +1564,13 @@ QString QPdfBrush::streamText()
         if (pixmaps.empty())
             break;
         PixmapPattern p = pixmaps.first();
-        s += "/PCSp cs\n"
-             + p.name
-             + " scn\n";
+        s << "/PCSp cs\n"
+          << p.name
+          << " scn\n";
         pixmaps.pop_front();
         break;
     }
     }
-    return s;
 }
 
 QPdfBrush* QPdfBrush::setFixed(Qt::BrushStyle style, const QColor &rgba, const QMatrix& mat)
@@ -1660,12 +1655,10 @@ QPdfPen::QPdfPen()
     type = QPdfObject::PEN;
 }
 
-QString QPdfPen::streamText()
+void QPdfPen::streamText(QTextStream &s)
 {
-    QString s;
-
     if (streamstate_.empty())
-        return s;
+        return;
 
     SUBTYPE sstate = streamstate_.first();
     streamstate_.pop_front();
@@ -1674,25 +1667,25 @@ QString QPdfPen::streamText()
     case LINEWIDTH:
         if (lw_.empty())
             break;
-        s += pdfqreal(lw_.first()) + " w\n";
+        s << pdfqreal(lw_.first()) << " w\n";
         lw_.pop_front();
         break;
     case LINECAP:
         if (lc_.empty())
             break;
-        s += QString::number(lc_.first()) + " J\n";
+        s << QString::number(lc_.first()) << " J\n";
         lc_.pop_front();
         break;
     case LINEJOIN:
         if (lj_.empty())
             break;
-        s += QString::number(lj_.first()) + " j\n";
+        s << QString::number(lj_.first()) << " j\n";
         lj_.pop_front();
         break;
     case MITERLIMIT:
         if (ml_.empty())
             break;
-        s += pdfqreal(ml_.first()) + " M\n";
+        s << pdfqreal(ml_.first()) << " M\n";
         ml_.pop_front();
         break;
     case COLOR:
@@ -1700,11 +1693,11 @@ QString QPdfPen::streamText()
             if (col_.empty())
                 break;
             QColor rgba = col_.first();
-            s += "/CSp CS\n"
-                + pdfqreal(rgba.redF()) + QLatin1Char(' ')
-                + pdfqreal(rgba.greenF()) + QLatin1Char(' ')
-                + pdfqreal(rgba.blueF())
-                + " SCN\n";
+            s << "/CSp CS\n"
+                << pdfqreal(rgba.redF()) << ' '
+                << pdfqreal(rgba.greenF()) << ' '
+                << pdfqreal(rgba.blueF())
+                << " SCN\n";
             col_.pop_front();
         }
         break;
@@ -1712,16 +1705,16 @@ QString QPdfPen::streamText()
         {
             if (da_.empty() || stroking_.empty())
                 break;
-            s += "[";
+            s << "[";
 
             for (int i=0; i!=da_.first().seq.size(); ++i) {
-                    s += pdfqreal(da_.first().seq[i]);
+                    s << pdfqreal(da_.first().seq[i]);
                     if (i<da_.first().seq.size()-1)
-                        s += QLatin1Char(' ');
+                        s << ' ';
 		}
-            s += "] ";
-            s += pdfqreal(da_.first().phase);
-            s += " d\n";
+            s << "] ";
+            s << pdfqreal(da_.first().phase);
+            s << " d\n";
             da_.pop_front();
             stroking_.pop_front();
             break;
@@ -1729,7 +1722,6 @@ QString QPdfPen::streamText()
     default:
         break;
     }
-    return s;
 }
 
 QPdfPen* QPdfPen::setLineWidth(double v)
@@ -1904,30 +1896,30 @@ QString QPdfPath::streamCoreText() const
         Q_ASSERT(spath.initialized);
 
         s += pdfqreal(spath.start.x);
-        s += QLatin1Char(' ');
+        s += ' ';
         s += pdfqreal(spath.start.y);
-        s += QLatin1String(" m\n");
+        s += " m\n";
         for (int j=0; j!= spath.elements.size(); ++j) {
             switch (spath.elements[j].type) {
             case Element::LINE:
                 s += pdfqreal(spath.elements[j].line.x);
-                s += QLatin1Char(' ');
+                s += ' ';
                 s += pdfqreal(spath.elements[j].line.y);
-                s += QLatin1String(" l\n");
+                s += " l\n";
                 break;
             case Element::CURVE:
                 s += pdfqreal(spath.elements[j].curve.x1);
-                s += QLatin1Char(' ');
+                s += ' ';
                 s +=  pdfqreal(spath.elements[j].curve.y1);
-                s += QLatin1Char(' ');
+                s += ' ';
                 s +=  pdfqreal(spath.elements[j].curve.x2);
-                s += QLatin1Char(' ');
+                s += ' ';
                 s +=  pdfqreal(spath.elements[j].curve.y2);
-                s += QLatin1Char(' ');
+                s += ' ';
                 s +=  pdfqreal(spath.elements[j].curve.xnew);
-                s += QLatin1Char(' ');
+                s += ' ';
                 s +=  pdfqreal(spath.elements[j].curve.ynew);
-                s += QLatin1String(" c\n");
+                s += " c\n";
                 break;
             default:
                 break;
@@ -1939,20 +1931,18 @@ QString QPdfPath::streamCoreText() const
     return s;
 }
 
-QString QPdfPath::streamText()
+void QPdfPath::streamText(QTextStream &s)
 {
-    QString s;
-
     QString paintop = paintOperator();
     Q_ASSERT(!paintop.isEmpty());
 
     if (!alphaname_.isEmpty())
-        s += alphaname_ + " gs\n";
+        s << alphaname_ << " gs\n";
     else
-        s += "/GSa gs\n";
+        s << "/GSa gs\n";
 
-    s += streamCoreText();
-    s += QLatin1Char(' ') + paintop + "\n";
+    s << streamCoreText();
+    s << ' ' << paintop << "\n";
 
     // 2nd run to get Qt's fill->stroke sequential behavior
     if (hasTrueStrokeAlpha()) {
@@ -1961,13 +1951,10 @@ QString QPdfPath::streamText()
                 paintop = "s";
             else
                 paintop = "S";
-            s += streamCoreText();
-            s += QLatin1Char(' ') + paintop + "\n";
+            s << streamCoreText();
+            s << ' ' << paintop << "\n";
         }
     }
-
-
-    return s;
 }
 
 QString QPdfPath::getAlphaDefinition() const
@@ -2004,9 +1991,9 @@ void QPdfPage::destroy()
     delete this;
 }
 
-QString QPdfPage::streamText()
+void QPdfPage::streamText(QTextStream &s)
 {
-    QString s("q\n");
+    s << "q\n";
     QString cm,cp;
 
     QMatrix lm;
@@ -2017,49 +2004,56 @@ QString QPdfPage::streamText()
         switch(gobjects_[i]->type) {
         case MATRIX:
             if (lm == ((QPdfMatrix*)gobjects_[i])->currentMatrix()) {
-                gobjects_[i]->streamText();
+                gobjects_[i]->streamText(s);
                 break;
             }
             lm = ((QPdfMatrix*)gobjects_[i])->currentMatrix();
-            cm = gobjects_[i]->streamText();
-            s += "Q q\n"; // retrieves original matrix, (PDF syntax has no means to handle matrices besides concatenating)
-            s += cp + cm; // ... but this destroys also the actual clipping path, so set them again (_before_ the transformation)
+            {
+                QTextStream stream(&cm);
+                gobjects_[i]->streamText(stream);
+            }
+            s << "Q q\n"; // retrieves original matrix, (PDF syntax has no means to handle matrices besides concatenating)
+            s << cp << cm; // ... but this destroys also the actual clipping path, so set them again (_before_ the transformation)
             break;
         case PATH:
             if (((QPdfPath*)gobjects_[i])->painttype & QPdfPath::CLIPPING) {
-                cp = gobjects_[i]->streamText();
-                s += "Q q\n";
-                s += cp + cm;
+                QTextStream stream(&cp);
+                gobjects_[i]->streamText(stream);
+                stream.flush();
+                s << "Q q\n";
+                s << cp << cm;
             } else {
-                s += gobjects_[i]->streamText();
+                gobjects_[i]->streamText(s);
             }
             break;
         case IMAGE:
-            s += gobjects_[i]->streamText();
+            gobjects_[i]->streamText(s);
             break;
         case BRUSH:
         case PEN: {
             if (!predType(i, BRUSH) && !predType(i,PEN))
-                s += "Q\n";
+                s << "Q\n";
 
             if (gobjects_[i]->type == BRUSH) {
                 QPdfBrush* br = (QPdfBrush*)gobjects_[i];
                 grad = br->firstIsGradient();
-                if (grad)
-                    gradcmd = gobjects_[i]->streamText();
+                if (grad) {
+                    QTextStream stream(&gradcmd);
+                    gobjects_[i]->streamText(stream);
+                }
                 else
-                    s += gobjects_[i]->streamText();
+                    gobjects_[i]->streamText(s);
             } else {
-                s += gobjects_[i]->streamText();
+                gobjects_[i]->streamText(s);
             }
 
             if (!nextType(i, BRUSH) && !nextType(i,PEN)) {
-                s += "q\n";
+                s << "q\n";
                 if (nextType(i, PATH) || nextType(i,IMAGE) || nextType(i, MATRIX))
                 {
-                    s += cp + cm;
+                    s << cp << cm;
                     if (grad)
-                        s += gradcmd;
+                        s << gradcmd;
                 }
             }
             break;
@@ -2068,8 +2062,7 @@ QString QPdfPage::streamText()
             break;
         }
     }
-    s += "Q\n";
-    return s;
+    s << "Q\n";
 }
 
 bool QPdfPage::predType(int i, QPdfObject::TYPE t)
@@ -2326,7 +2319,6 @@ void QPdfEnginePrivate::flushPage()
     if (pageobjnumber_.empty())
         return;
 
-    QString s;
     QPdfStream cs;
     cs.setStream(*stream_);
 
@@ -2565,13 +2557,16 @@ void QPdfEnginePrivate::flushPage()
 
     xprintf(">>\n");
     xprintf("stream\n");
-    s = "/GSa gs\n";
-    s +="/CSp cs /CSp CS\n";
+    QString s;
+    QTextStream stream(&s);
+    stream << "/GSa gs\n";
+    stream << "/CSp cs /CSp CS\n";
     QMatrix tmp(1.0, 0.0, // m11, m12
                 0.0, -1.0, // m21, m22
                 0.0, height_); // dx, dy
-    s += QPdfMatrix::streamMatrix(tmp);
-    s += curPage->streamText();   // write stream content
+    stream << QPdfMatrix::streamMatrix(tmp);
+    curPage->streamText(stream);
+    stream.flush();
     int len = streampos_;
     streampos_ += (int)cs.write(s.toLocal8Bit().constData(), s.size());
     len = streampos_-len;

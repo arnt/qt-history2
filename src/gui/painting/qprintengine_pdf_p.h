@@ -15,6 +15,7 @@ class QPen;
 class QPointF;
 class QRegion;
 class QFile;
+class QTextStream;
 
 class QPdfStream
 {
@@ -48,7 +49,7 @@ public:
     TYPE type;
     int appended;
 
-    virtual QString streamText() {return QString();}
+    virtual void streamText(QTextStream &) {}
 
     bool hasSoftMask()
     {
@@ -66,7 +67,7 @@ public:
     QPdfMatrix* setMatrix(QMatrix const& m);
     QMatrix currentMatrix() const;
     QMatrix lastMatrix() const;
-    QString streamText();
+    void streamText(QTextStream &stream);
 
     static QString streamMatrix(QMatrix const m);
 
@@ -82,7 +83,7 @@ public:
     QPdfImage(const QImage& pm, const QImage& mask);
     ~QPdfImage();
 
-    QString streamText();
+    void streamText(QTextStream &stream);
     QString getDefinition();
     const char* data() const
     {
@@ -176,7 +177,7 @@ public:
     QPdfBrush* setPixmap(const QPixmap& pm, const QMatrix& mat);
 
     bool noBrush() const {return nobrush_;}
-    QString streamText();
+    void streamText(QTextStream &stream);
 
     class Pattern
     {
@@ -250,7 +251,7 @@ class QPdfPen : public QPdfObject
 {
 public:
     QPdfPen();
-    QString streamText();
+    void streamText(QTextStream &stream);
 
     QPdfPen* setLineWidth(double v);
     QPdfPen* setLineCap(unsigned v);
@@ -364,7 +365,7 @@ public:
     explicit QPdfPath(const QPdfPen* = 0, const QPdfBrush* = 0, int brushflags = NONE,  bool closed = false);
 
     QVector<SubPath> subpaths;
-    QString streamText();
+    void streamText(QTextStream &stream);
     int painttype;
     QMatrix currentMatrix;
     bool hasTrueAlpha() const {return hasTrueStrokeAlpha() || hasTrueNonStrokeAlpha();}
@@ -391,7 +392,7 @@ class QPdfPage : public QPdfObject
 public:
     QPdfPage();
     void  destroy();
-    QString streamText();
+    void streamText(QTextStream &stream);
     QPdfObject* append(QPdfObject* val, bool protect = false);
 
     QVector<QPdfImage*> images;
