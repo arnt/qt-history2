@@ -440,6 +440,7 @@ void QSplitterPrivate::recalc(bool update)
                 q->setMinimumSize(mint,minl);
         }
         doResize();
+        q->updateGeometry();
     } else {
         firstShow = true;
     }
