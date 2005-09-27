@@ -1586,8 +1586,6 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
         d->releaseEditor(editor);
     }
 
-    setFocus();
-
     // The EndEditHint part
     QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::ClearAndSelect
                                                 |d->selectionBehaviorFlags();

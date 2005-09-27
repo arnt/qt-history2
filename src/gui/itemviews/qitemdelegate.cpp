@@ -50,7 +50,13 @@ public:
     inline const QItemEditorFactory *editorFactory() const
         { return f ? f : QItemEditorFactory::defaultFactory(); }
 
+    void editorDestroyed(QObject *editor) {
+        editors.removeAll(static_cast<QWidget *>(editor));
+    }
+
     QItemEditorFactory *f;
+    mutable QList<QWidget *> editors;
+    QPointer<QWidget> activeEditorWithPopup;
 };
 
 /*!
@@ -285,7 +291,11 @@ QWidget *QItemDelegate::createEditor(QWidget *parent,
     if (factory == 0)
         factory = QItemEditorFactory::defaultFactory();
     QWidget *w = factory->createEditor(t, parent);
-    if (w) w->installEventFilter(const_cast<QItemDelegate *>(this));
+    if (w) {
+        w->installEventFilter(const_cast<QItemDelegate *>(this));
+        d->editors.append(w);
+        connect(w, SIGNAL(destroyed(QObject *)), this, SLOT(editorDestroyed(QObject *)));
+    }
     return w;
 }
 
@@ -702,6 +712,7 @@ QRect QItemDelegate::check(const QStyleOptionViewItem &option,
 
 bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
 {
+    Q_D(QItemDelegate);
     QWidget *editor = ::qobject_cast<QWidget*>(object);
     if (!editor)
         return false;
@@ -710,24 +721,48 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
         case Qt::Key_Tab:
             emit commitData(editor);
             emit closeEditor(editor, QAbstractItemDelegate::EditNextItem);
-            return true;
+            break;
         case Qt::Key_Backtab:
             emit commitData(editor);
             emit closeEditor(editor, QAbstractItemDelegate::EditPreviousItem);
-            return true;
+            break;
         case Qt::Key_Enter:
         case Qt::Key_Return:
             emit commitData(editor);
             emit closeEditor(editor, QAbstractItemDelegate::SubmitModelCache);
-            return true;
+            break;
         case Qt::Key_Escape:
             // don't commit data
             emit closeEditor(editor, QAbstractItemDelegate::RevertModelCache);
-            return true;
-        default:
             break;
+        default:
+            return false;;
         }
-    } else if (event->type() == QEvent::FocusOut && !editor->isActiveWindow()) {
+        if (editor->parentWidget())
+            editor->parentWidget()->setFocus();
+        return true;
+    } else if (event->type() == QEvent::FocusOut) {
+        if (static_cast<QFocusEvent *>(event)->reason() == Qt::PopupFocusReason
+            && QApplication::activePopupWidget()) {
+            for (int i = 0; i < d->editors.count(); ++i) {
+                QWidget *possibleChild = QApplication::activePopupWidget();
+                while (possibleChild) {
+                    if (possibleChild == d->editors.at(i)) {
+                        // one of our editors pops up something, so keep
+                        // the editor alive despite the focusout event
+                        d->activeEditorWithPopup = possibleChild;
+                        return false;
+                    }
+                    possibleChild = possibleChild->parentWidget();
+                }
+            }
+        } else if (d->activeEditorWithPopup == editor) {
+            // if through event propagation we received a focusout for the
+            // popup of our editor, then we also want to keep the editor
+            // alive
+            d->activeEditorWithPopup = 0;
+            return false;
+        }
 #ifndef QT_NO_DRAGANDDROP
         // The window may loose focus during an drag operation.
         // i.e when dragging involves the task bar on Windows.
@@ -737,7 +772,7 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
         
         emit commitData(editor);
         emit closeEditor(editor, NoHint);
-        return true;
+        return false;
     }
     return false;
 }
@@ -773,5 +808,7 @@ bool QItemDelegate::editorEvent(QEvent *event,
 
     return false;
 }
+
+#include "moc_qitemdelegate.cpp"
 
 #endif // QT_NO_ITEMVIEWS
