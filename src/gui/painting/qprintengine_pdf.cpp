@@ -96,6 +96,8 @@ QPdfEngine::QPdfEngine()
     lastClipRegion_ = new QRegion;
 
     pagesize_ = QPrinter::A4;
+    QRect r = paperRect();
+    d->setDimensions(r.width(),r.height());
 }
 
 QPdfEngine::~QPdfEngine()
@@ -140,7 +142,6 @@ void QPdfEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
     case PPK_PageSize: {
         pagesize_ = QPrinter::PageSize(value.toInt());
         QRect r = paperRect();
-
         d->setDimensions(r.width(),r.height());
     }
         break;
@@ -2009,6 +2010,7 @@ void QPdfPage::streamText(QTextStream &s)
             }
             lm = ((QPdfMatrix*)gobjects_[i])->currentMatrix();
             {
+                cm = QString();
                 QTextStream stream(&cm);
                 gobjects_[i]->streamText(stream);
             }
@@ -2017,6 +2019,7 @@ void QPdfPage::streamText(QTextStream &s)
             break;
         case PATH:
             if (((QPdfPath*)gobjects_[i])->painttype & QPdfPath::CLIPPING) {
+                cp = QString();
                 QTextStream stream(&cp);
                 gobjects_[i]->streamText(stream);
                 stream.flush();
@@ -2038,6 +2041,7 @@ void QPdfPage::streamText(QTextStream &s)
                 QPdfBrush* br = (QPdfBrush*)gobjects_[i];
                 grad = br->firstIsGradient();
                 if (grad) {
+                    gradcmd = QString();
                     QTextStream stream(&gradcmd);
                     gobjects_[i]->streamText(stream);
                 }
@@ -2049,8 +2053,7 @@ void QPdfPage::streamText(QTextStream &s)
 
             if (!nextType(i, BRUSH) && !nextType(i,PEN)) {
                 s << "q\n";
-                if (nextType(i, PATH) || nextType(i,IMAGE) || nextType(i, MATRIX))
-                {
+                if (nextType(i, PATH) || nextType(i,IMAGE) || nextType(i, MATRIX)) {
                     s << cp << cm;
                     if (grad)
                         s << gradcmd;
