@@ -33,14 +33,14 @@ public:
     QTemporaryFileEngine(const QString &file) : QFSFileEngine(file) { }
     ~QTemporaryFileEngine();
 
-    bool open(int flags);
+    bool open(QIODevice::OpenMode flags);
 };
 
 QTemporaryFileEngine::~QTemporaryFileEngine()
 {
 }
 
-bool QTemporaryFileEngine::open(int)
+bool QTemporaryFileEngine::open(QIODevice::OpenMode)
 {
     Q_D(QFSFileEngine);
 
@@ -49,7 +49,7 @@ bool QTemporaryFileEngine::open(int)
         qfilename += QLatin1String(".XXXXXX");
     d->closeFileHandle = true;
     char *filename = qstrdup(qfilename.toLocal8Bit());
-    
+
 #ifdef HAS_MKSTEMP
     d->fd = mkstemp(filename);
 #else
