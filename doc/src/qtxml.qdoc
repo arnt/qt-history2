@@ -2,7 +2,7 @@
     \module QtXml
     \title QtXml Module
     \contentspage Qt's Modules
-    \previouspage QtSql
+    \previouspage QtSvg
     \nextpage QtDesigner
 
     \brief The QtXml module provides C++ implementations
@@ -141,8 +141,8 @@
          \o Used to obtain the actual parsing position of an event.
     \row \o \l QXmlNamespaceSupport
          \o Used to implement namespace support for a reader. Note that
-	    namespaces do not change the parsing behavior. They are only
-	    reported through the handler.
+            namespaces do not change the parsing behavior. They are only
+            reported through the handler.
     \endtable
 
     \section2 SAX2 Features

@@ -3,7 +3,7 @@
     \title QtSql Module
     \contentspage Qt's Modules
     \previouspage QtOpenGL
-    \nextpage QtXml
+    \nextpage QtSvg
 
     \brief The QtSql module helps you provide seamless database
     integration to your Qt applications.
@@ -389,7 +389,7 @@
     QSqlTableModel::OnFieldChange seems to deliver the promise that
     you never need to call submitAll() explicitly. There are two
     pitfalls, though:
-    
+
     \list
     \o Without any caching, performance may drop significantly.
     \o If you modify a primary key, the record might slip through

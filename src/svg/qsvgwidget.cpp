@@ -18,6 +18,15 @@
 #include "qpainter.h"
 #include "private/qwidget_p.h"
 
+
+/*!
+    \class QSvgWidget
+    \brief The QSvgWidget class provides a widget that is used to display the contents of
+    Scalable Vector Graphics (SVG) files.
+
+    \sa QSvgRenderer, {QtSvg Module}, QPicture
+*/
+
 class QSvgWidgetPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QSvgWidget)
@@ -37,21 +46,34 @@ public:
     QSvgRenderer *renderer;
 };
 
+/*!
+    Constructs a new SVG display widget with the given \a parent.
+*/
 QSvgWidget::QSvgWidget(QWidget *parent)
     : QWidget(*new QSvgWidgetPrivate, parent, 0)
 {
 }
 
+/*!
+    Constructs a new SVG display widget with the given \a parent and loads the contents
+    of the specified \a file.
+*/
 QSvgWidget::QSvgWidget(const QString &file, QWidget *parent)
     : QWidget(*new QSvgWidgetPrivate(file), parent, 0)
 {
 }
 
+/*!
+    Destroys the widget.
+*/
 QSvgWidget::~QSvgWidget()
 {
 
 }
 
+/*!
+    Returns the renderer used to display the contents of the widget.
+*/
 QSvgRenderer * QSvgWidget::renderer() const
 {
     Q_D(const QSvgWidget);
@@ -59,6 +81,9 @@ QSvgRenderer * QSvgWidget::renderer() const
 }
 
 
+/*!
+    \reimp
+*/
 QSize QSvgWidget::sizeHint() const
 {
     Q_D(const QSvgWidget);
@@ -69,6 +94,9 @@ QSize QSvgWidget::sizeHint() const
 }
 
 
+/*!
+    \reimp
+*/
 void QSvgWidget::paintEvent(QPaintEvent *)
 {
     Q_D(QSvgWidget);
@@ -76,12 +104,18 @@ void QSvgWidget::paintEvent(QPaintEvent *)
     d->renderer->render(&p);
 }
 
+/*!
+    Loads the contents of the SVG \a file and updates the widget.
+*/
 void QSvgWidget::load(const QString &file)
 {
     Q_D(const QSvgWidget);
     d->renderer->load(file);
 }
 
+/*!
+    Loads the specified SVG format \a contents and updates the widget.
+*/
 void QSvgWidget::load(const QByteArray &contents)
 {
     Q_D(const QSvgWidget);

@@ -1,0 +1,20 @@
+/*!
+  \module QtSvg
+  \title QtSvg Module
+  \contentspage Qt's Modules
+  \previouspage QtSql
+  \nextpage QtXml
+
+  \brief The QtSvg module provides classes for displaying the contents of SVG
+  files.
+
+  To include the definitions of the module's classes, use the
+  following directive:
+
+  \code
+      #include <QtSvg>
+  \endcode
+
+  The QtSvg module is part of the \l{Qt Desktop Edition} and the
+  \l{Qt Open Source Edition}.
+*/
