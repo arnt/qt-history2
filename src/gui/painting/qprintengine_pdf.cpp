@@ -22,7 +22,7 @@ bool QPdfImage::interpolation_ = false;
 #ifdef QT_NO_COMPRESS
 static const bool do_compress = false;
 #else
-static const bool do_compress = false;
+static const bool do_compress = true;
 #endif
 
 /* also adds a space at the end of the number */
