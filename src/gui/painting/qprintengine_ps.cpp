@@ -3794,9 +3794,9 @@ void QPSPrintEngine::updateState(const QPaintEngineState &state)
 
     if (state.state() & DirtyClipEnabled) {
         if (state.isClipEnabled())
-            updateClipPath(painter()->clipPath(), Qt::ReplaceClip);
+            updateClipRegion(painter()->clipRegion(), Qt::ReplaceClip);
         else
-            updateClipPath(QPainterPath(), Qt::NoClip);
+            updateClipRegion(QRegion(), Qt::NoClip);
     }
 
     if (flags & DirtyClipPath) {

@@ -56,7 +56,6 @@ public:
     }
 
 protected:
-    static QString pdfqreal(double val) {return QString::number(val, 'f', 6);}
     bool hassoftmask_p;
 };
 
