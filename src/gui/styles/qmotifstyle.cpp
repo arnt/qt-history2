@@ -317,7 +317,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             fill = QBrush(opt->palette.mid().color(), Qt::Dense4Pattern);
         else
             fill = opt->palette.brush(QPalette::Button);
-        qDrawShadePanel(p, opt->rect, opt->palette, bool(opt->state & (State_Sunken | State_On)),
+         if ((opt->state & State_Enabled) || !(opt->state & State_AutoRaise)) qDrawShadePanel(p, opt->rect, opt->palette, bool(opt->state & (State_Sunken | State_On)),
                         pixelMetric(PM_DefaultFrameWidth), &fill);
         break; }
 
