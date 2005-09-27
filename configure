@@ -1692,11 +1692,30 @@ else
             echo "    SGI ($ARCH)"
         fi
         ;;
-    SunOS:5*:sun4*)
-        if [ "$OPT_VERBOSE" = "yes" ]; then
-            echo "    Sun SPARC (sparc)"
-        fi
-        ARCH=sparc
+    SunOS:5*:*)
+        case "$UNAME_MACHINE" in
+	sun4u)
+            if [ "$OPT_VERBOSE" = "yes" ]; then
+                echo "    Sun SPARC (sparc)"
+            fi
+            ARCH=sparc
+            ;;
+        i86pc)
+	    case "$PLATFORM" in
+	    *-64)
+                if [ "$OPT_VERBOSE" = "yes" ]; then
+	            echo "    64-bit AMD 80x86 (x86_64)"
+                fi
+                ARCH=x86_64
+                ;;
+	    *)
+                if [ "$OPT_VERBOSE" = "yes" ]; then
+	            echo "    32-bit Intel 80x86 (i386)"
+                fi
+                ARCH=i386
+                ;;
+            esac
+        esac
         ;;
     Darwin:*:*)
         case "$UNAME_MACHINE" in
