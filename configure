@@ -3069,10 +3069,12 @@ if [ "$CFG_IPV6IFNAME" != "no" ]; then
 fi
 
 # find if the platform supports X/Open Large File compilation environment
-if [ "$CFG_LARGEFILE" = "auto" ]; then
-    if $unixtests/largefile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
+if [ "$CFG_LARGEFILE" != "no" ]; then
+    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/largefile "X/Open Large File" $L_FLAGS $I_FLAGS; then
+        CFG_LARGEFILE=yes
+    else
         if [ "$CFG_LARGEFILE" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
-            echo "Large file support cannot be enabled due to functionality tests!"
+            echo "X/Open Large File support cannot be enabled due to functionality tests!"
             echo " Turn on verbose messaging (-v) to $0 to see the final report."
             echo " If you believe this message is in error you may use the continue"
             echo " switch (-continue) to $0 to continue."
@@ -3080,11 +3082,8 @@ if [ "$CFG_LARGEFILE" = "auto" ]; then
         else
             CFG_LARGEFILE=no
         fi
-    else
-        CFG_LARGEFILE=yes
     fi
 fi
-
 
 #-------------------------------------------------------------------------------
 # ask for all that hasn't been auto-detected or specified in the arguments
