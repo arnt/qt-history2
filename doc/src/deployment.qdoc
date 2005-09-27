@@ -15,22 +15,219 @@
 
     \title Deploying Qt Applications
 
+    Deploying an Qt application does not require any C++
+    programming. All you need to do is to build Qt and your
+    application following the procedures described in this
+    documentation. We will demonstrate the procedures in terms of
+    deploying the Plug & Paint application that is provided in Qt's
+    examples directory.
+
+    There are two ways of deploying an application:
+
+    \list
+        \o Static Linking
+        \o Shared Libraries
+    \endlist
+
+    Static linking results in a stand-alone executable. The advantage
+    is that you will only have a few files to deploy. The
+    disadvantages are that the executables are large and with no
+    flexibility (i.e a new version of the application, or of Qt, will
+    require that the deployment process is repeated), and that you
+    cannot deploy plugins using the static linking approach.
+
+    To deploy plugins you must use a shared library. Shared libraries
+    also provide smaller, more flexible executables. The disadvantage
+    with this approach is that the total packages are larger: In the
+    number of files to deploy as well as in byte size.
+
+    Since Qt is not a system library, it has to be redistributed along
+    with your application; the minimum is to redistribute the run-time
+    of the modules used by the application. Using static linking,
+    however, the Qt run-time is compiled into the
+    executable. Depending on configuration, compiler specific
+    libraries must be redistributed as well.
+
     The procedure of deploying Qt applications is different for the
     various platforms:
 
     \list
-        \o \l{Deployment on Qt/X11}{Qt/X11}
+        \o \l{Deploying an Application on Qt/X11}{Qt/X11}
         \o \l{Deploying an Application on Qt/Windows}{Qt/Windows}
-        \o \l{Deployment on Qt/Mac}{Qt/Mac}
+        \o \l{Deploying an Application on Qt/Mac}{Qt/Mac}
     \endlist
+
 
     \sa Installation {Window System Specific Notes}
 */
 
-/*
+/*!
     \page deployment-x11.html
 
-    \title Deployment on Qt/X11
+    \title Deploying an Application on Qt/X11
+
+    Deployment on Unix is a huge topic, due to the proliferation of
+    Unix systems (commercial Unices, Linux distributions, etc.). This
+    documentation will describe how to determine which files you
+    should include in your distribution, and how to make sure that the
+    application will find them at run-time.
+
+    \tableofcontents
+
+    Before we start, be aware that programs compiled for one Unix
+    flavor will probably not run on a different Unix system. For
+    example, unless you use a cross-compiler, you cannot compile your
+    application on Irix and distribute it on AIX.
+
+    \section1 Static Linking
+
+    Static linking is often the safest and easiest way to distribute
+    an application on Unix since it relieves you from the task of
+    distributing the Qt library and ensuring that it's located in the
+    default search path for libraries on the target system. The main
+    disadvantages are that the executable is larger (because it
+    includes the Qt library), plugins won't work, and the user won't
+    be able to independently upgrade the Qt library used by the
+    application.
+
+    To use this approach, you must start by building a static version
+    of the Qt library:
+
+    \code
+        cd $QTDIR
+        ./configure -static <other parameters>
+        make sub-src
+    \endcode
+
+    If you want to have a static and a dynamic Qt library side by
+    side, you can do the following instead:
+
+    \code
+        cd $QTDIR/src
+        make staticlib
+    \endcode
+
+    When make is done, you will find a file called libqt.a or
+    libqt-mt.a in the $QTDIR/lib directory.
+
+    Because the linkers on most Unix systems prefer shared libraries
+    over static ones if both exist, you must add these lines to your
+    application's .pro file:
+
+    \code
+        mystaticconfig {
+            QMAKE_LIBS_QT =
+            QMAKE_LIBS_QT_THREAD =
+            LIBS += $(QTDIR)/lib/libqt.a
+        }
+    \endcode
+
+    Replace libqt.a with libqt-mt.a if you built Qt with thread
+    support enabled. Also note that you might need to append more
+    libraries to the LIBS line.
+
+    The next step is to regenerate the makefile and rebuild the
+    application:
+
+    \code
+        make clean
+        qmake "CONFIG+=mystaticconfig"
+        make
+    \endcode
+
+    To check that the application really links statically with Qt, run
+    the ldd tool (available on most Unices):
+
+    \code
+        ldd ./application
+    \endcode
+
+    Verify that libqt (or libqt-mt) is not mentioned in the output.
+
+    Applications that link against a static version of the Qt library
+    cannot use Qt plugins. This is because the plugins link against
+    the shared Qt library, and bad things will happen if you load two
+    versions of the same library (one static, one shared).
+
+    \section1 Shared Libraries
+
+    The alternative to static linking is to compile Qt as a shared
+    library. This is what you get if you don't pass the -static option
+    to the configure script.
+
+    The library binary is put in the "$QTDIR/lib" directory. On most
+    systems, the extension for shared libraries is .so. A notable
+    exception is HP-UX, which uses .sl.
+
+    The main issue with shared libraries is that you must ensure that
+    the dynamic linker will find the library. Unless told otherwise,
+    the dynamic linker doesn't search the directory where your
+    application resides. There are many ways to solve this:
+
+    \list
+    \o You can install the Qt library in one of the system
+       library paths (e.g. "/usr/lib" on most systems).
+
+    \o You can write a startup script for your application,
+       where you modify the dynamic linker configuration (e.g.
+       adding your application's directory to the LD_LIBRARY_PATH
+       environment variable).
+
+    \o You can pass a predetermined path to the -rpath command-line
+       option when linking the application. This will tell the dynamic
+       linker to look in this directory when starting up.
+    \endlist
+
+    \section1 Plugins
+
+    When you build the Qt library, the search path for plugins (as
+    well as a few other paths) is hard-coded into the library. For
+    example, if you compile the Qt library in "/usr/local/qt", the
+    first plugin search path will be hard-coded as
+    "/usr/local/qt/plugins".
+
+    To change this, you can add a custom search path when you start
+    your application using QApplication::addLibraryPath() or
+    QApplication::setLibraryPaths(). Alternatively, your installer
+    application can change the hard-coded paths in the library for
+    you. Take a look at the distributor example located in
+    "$QTDIR/examples/distributor" to see how to achieve this.
+
+    Starting with Qt/X11 3.3.0, you can place plugins under the
+    directory where your application resides and Qt will find
+    them. For example, if you want to distribute an SQL plugin with
+    the application, you can copy over the plugin files from
+    "$QTDIR/drivers/sqldrivers" to a directory called sqldrivers
+    inside the application's directory.
+
+    \section1 Other Libraries
+
+    Any shared library that you link against is a potential problem
+    when you want to distribute your application. In particular, the
+    standard C++ library can be a problem if you're compiling your
+    application with a compiler that is binary incompatible with the
+    system compiler. When possible, the safest solution is to link
+    against these libraries statically.
+
+    You will probably want to link dynamically with the regular X11
+    libraries, since some implementations will try to open other
+    shared libraries with dlopen(), and if this fails the X11 library
+    might cause your application to crash.
+
+    It's also worth mentioning that Qt will look for certain X11
+    extensions, such as Xinerama and Xcursor, and possibly pull them
+    in, including all the libraries that they link against. If you
+    can't guarantee the presence of a certain extension, the safest
+    approach is to disable it when configuring Qt (e.g. "./configure"
+    -no-xcursor).
+
+    "Xft/FontConfig" and FreeType are other examples of libraries that
+    aren't always available or that aren't always binary
+    compatible. As strange as it may sound, some software vendors have
+    had success by compiling their software on very old machines and
+    have been very careful not to upgrade any of the software running
+    on them.
+
 */
 
 /*!
@@ -364,8 +561,8 @@
     Looking at the plugin \c {DLL}s lists the exact same dependencies.
 */
 
-/*
+/*!
     \page deployment-mac.html
 
-    \title Deployment on Qt/Mac
+    \title Deploying an Application on Qt/Mac
 */
