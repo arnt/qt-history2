@@ -1083,13 +1083,23 @@ static QString styleString(int weight, QFont::Style style)
 }
 
 /*!
-    Returns a string that describes the style of the font \a f. For
+    Returns a string that describes the style of the \a font. For
     example, "Bold Italic", "Bold", "Italic" or "Normal". An empty
     string may be returned.
 */
-QString QFontDatabase::styleString(const QFont &f)
+QString QFontDatabase::styleString(const QFont &font)
 {
-    return ::styleString(f.weight(), f.style());
+    return ::styleString(font.weight(), font.style());
+}
+
+/*!
+    Returns a string that describes the style of the \a fontInfo. For
+    example, "Bold Italic", "Bold", "Italic" or "Normal". An empty
+    string may be returned.
+*/
+QString QFontDatabase::styleString(const QFontInfo &fontInfo)
+{
+    return ::styleString(fontInfo.weight(), fontInfo.style());
 }
 
 
