@@ -405,9 +405,9 @@ static QString quoteNewline(const QString &s)
 QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), id(-1), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
       fontItalic(Unspecified), fontUnderline(Unspecified), fontOverline(Unspecified), fontStrikeOut(Unspecified), fontFixedPitch(Unspecified),
-      cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false), hasFontSizeAdjustment(false),
+      cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false), hasFontPixelSize(false), hasFontSizeAdjustment(false),
       hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), isTableFrame(false), direction(3),
-      displayMode(QTextHtmlElement::DisplayInline), fontPointSize(-1), fontSizeAdjustment(0),
+      displayMode(QTextHtmlElement::DisplayInline), fontPointSize(-1), fontPixelSize(-1), fontSizeAdjustment(0),
       fontWeight(-1), alignment(0), verticalAlignment(QTextCharFormat::AlignNormal),
       listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0),
       tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0), cssBlockIndent(0),
@@ -440,8 +440,12 @@ QTextCharFormat QTextHtmlParserNode::charFormat() const
     }
     if (fontFamily.size())
         format.setFontFamily(fontFamily);
+
     if (hasFontPointSize)
         format.setFontPointSize(fontPointSize);
+    else if (hasFontPixelSize)
+        format.setProperty(QTextFormat::FontPixelSize, fontPixelSize);
+
     if (hasFontSizeAdjustment)
         format.setProperty(QTextFormat::FontSizeAdjustment, fontSizeAdjustment);
     if (fontWeight > 0)
@@ -1202,29 +1206,82 @@ static QTextHtmlParserNode::WhiteSpaceMode stringToWhiteSpaceMode(const QString 
     return QTextHtmlParserNode::WhiteSpaceModeUndefined;
 }
 
-static void parseFontSize(QTextHtmlParserNode *node, const QString &value)
+static bool parseFontSize(QTextHtmlParserNode *node, QString value)
 {
-    node->fontPointSize = int(value.trimmed().toDouble());
-    node->hasFontPointSize = true;
+    bool parsed = false;
+    value = value.trimmed();
+    if (value.endsWith(QLatin1String("pt"))) {
+        value = value.left(value.length() - 2);
+        qreal real = 0;
+        if (setFloatAttribute(&real, value)) {
+            node->hasFontPointSize = true;
+            node->fontPointSize = qRound(real);
+            parsed = true;
+        }
+    } else if (value.endsWith(QLatin1String("px"))) {
+        value = value.left(value.length() - 2);
+        if (setIntAttribute(&node->fontPixelSize, value)) {
+            node->hasFontPixelSize = true;
+            parsed = true;
+        }
+    } else if (value == QLatin1String("small")) {
+        node->hasFontSizeAdjustment = true;
+        node->fontSizeAdjustment = -1;
+        parsed = true;
+    } else if (value == QLatin1String("medium")) {
+        node->hasFontSizeAdjustment = true;
+        node->fontSizeAdjustment = 0;
+        parsed = true;
+    } else if (value == QLatin1String("large")) {
+        node->hasFontSizeAdjustment = true;
+        node->fontSizeAdjustment = 1;
+        parsed = true;
+    } else if (value == QLatin1String("x-large")) {
+        node->hasFontSizeAdjustment = true;
+        node->fontSizeAdjustment = 2;
+        parsed = true;
+    } else if (value == QLatin1String("xx-large")) {
+        node->hasFontSizeAdjustment = true;
+        node->fontSizeAdjustment = 3;
+        parsed = true;
+    }
+    return parsed;
 }
 
-static void parseFontStyle(QTextHtmlParserNode *node, const QString &value)
+static bool parseFontStyle(QTextHtmlParserNode *node, const QString &value)
 {
-    if (value == QLatin1String("normal"))
+    bool parsed = false;
+    if (value == QLatin1String("normal")) {
         node->fontItalic = Off;
-    else if (value == QLatin1String("italic") || value == QLatin1String("oblique"))
+        parsed = true;
+    } else if (value == QLatin1String("italic") || value == QLatin1String("oblique")) {
         node->fontItalic = On;
+        parsed = true;
+    }
+    return parsed;
 }
 
-static void parseFontWeight(QTextHtmlParserNode *node, const QString &value)
+static bool parseFontWeight(QTextHtmlParserNode *node, const QString &value)
 {
-    bool ok = false;
-    int n = value.toInt(&ok);
-    if (ok)
-        node->fontWeight = n/8;
+    bool parsed = false;
+    if (value == QLatin1String("normal")) {
+        node->fontWeight = QFont::Normal;
+        parsed = true;
+    } else if (value == QLatin1String("bold")) {
+        node->fontWeight = QFont::Bold;
+        parsed = true;
+    } else {
+        bool ok = false;
+        int n = value.toInt(&ok);
+        if (ok) {
+            node->fontWeight = n/8;
+            parsed = true;
+        }
+    }
+    return parsed;
 }
 
-static void parseFontFamily(QTextHtmlParserNode *node, const QString &value)
+static bool parseFontFamily(QTextHtmlParserNode *node, const QString &value)
 {
     node->fontFamily = value.trimmed();
     if ((node->fontFamily.startsWith(QLatin1Char('\''))
@@ -1236,6 +1293,7 @@ static void parseFontFamily(QTextHtmlParserNode *node, const QString &value)
         node->fontFamily.remove(0, 1);
         node->fontFamily.chop(1);
     }
+    return true;
 }
 
 // style parser taken from Qt 3
@@ -1245,8 +1303,8 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
     int count = a.count(';')+1;
     for (int s = 0; s < count; s++) {
         QString style = a.section(';', s, s).trimmed();
-        if (style.startsWith(QLatin1String("font-size:")) && style.endsWith(QLatin1String("pt"))) {
-            parseFontSize(node, style.mid(10, style.length() - 12));
+        if (style.startsWith(QLatin1String("font-size:"))) {
+            parseFontSize(node, style.mid(10));
         } if (style.startsWith(QLatin1String("font-style:"))) {
             parseFontStyle(node, style.mid(11).trimmed());
         } else if (style.startsWith(QLatin1String("font-weight:"))) {
@@ -1335,7 +1393,7 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
                 node->verticalAlignment = QTextCharFormat::AlignSuperScript;
             else
                 node->verticalAlignment = QTextCharFormat::AlignNormal;
-        } /* else if (style.startsWith(QLatin1String("font:"))) { // shorthand font property
+        } else if (style.startsWith(QLatin1String("font:"))) { // shorthand font property
             // first reset to initial values
             node->fontItalic = false;
             node->fontWeight = QFont::Normal;
@@ -1344,7 +1402,54 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
             node->fontFamily.clear();
 
             style = style.mid(5).trimmed();
-        } */
+
+            QStringList values;
+            for (int i = 0; i < style.count(); ++i) {
+                if (style.at(i) == QLatin1Char('\"')) {
+                    ++i;
+                    while (i < style.count() && style.at(i) != QLatin1Char('\"'))
+                        ++i;
+                } else if (style.at(i) == QLatin1Char('\'')) {
+                    ++i;
+                    while (i < style.count() && style.at(i) != QLatin1Char('\''))
+                        ++i;
+                } else if (style.at(i).isSpace()) {
+                    values << style.left(i);
+                    style.remove(0, i + 1);
+                    i = -1;
+                }
+            }
+
+            if (!style.isEmpty()) {
+                values << style;
+                style.clear();
+            }
+
+            if (values.isEmpty())
+                continue;
+
+            bool foundStyleOrWeight = false;
+            do {
+                const QString val = values.first();
+
+                foundStyleOrWeight = parseFontStyle(node, val);
+                if (!foundStyleOrWeight)
+                    foundStyleOrWeight = parseFontWeight(node, val);
+
+                if (foundStyleOrWeight)
+                    values.removeFirst();
+            } while (foundStyleOrWeight && !values.isEmpty());
+
+            if (values.isEmpty())
+                continue;
+
+            parseFontSize(node, values.takeFirst());
+
+            if (values.isEmpty())
+                continue;
+
+            parseFontFamily(node, values.takeFirst());
+        }
     }
 }
 
