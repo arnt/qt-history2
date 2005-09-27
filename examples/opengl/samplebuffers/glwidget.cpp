@@ -26,7 +26,7 @@ void GLWidget::initializeGL()
     glOrtho(-.5, .5, .5, -.5, -1000, 1000);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     makeObject();
 }
@@ -43,11 +43,10 @@ void GLWidget::paintGL()
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
-    glColor3f(1.0f, 0.0f, 0.0f);
     glEnable(GL_MULTISAMPLE);
     glTranslatef(-0.25f, -0.10f, 0.0f);
     glScalef(0.75f, 1.15f, 0.0f);
-    glRotatef(rot, 0, 0, 1);
+    glRotatef(rot, 0.0f, 0.f, 1.0f);
     glCallList(list);
     glPopMatrix();
 
@@ -55,12 +54,13 @@ void GLWidget::paintGL()
     glDisable(GL_MULTISAMPLE);
     glTranslatef(0.25f, -0.10f, 0.0f);
     glScalef(0.75f, 1.15f, 0.0f);
-    glRotatef(rot, 0, 0, 1);
-    rot += 0.2;
+    glRotatef(rot, 0.0f, 0.0f, 1.0f);
     glCallList(list);
     glPopMatrix();
 
-    glColor3f(0.0f, 0.0f, 0.0f);
+    rot += 0.2;
+
+    qglColor(Qt::black);
     renderText(-0.35, 0.4, 0.0, "Multisampling enabled");
     renderText(0.15, 0.4, 0.0, "Multisampling disabled");
 }
@@ -72,22 +72,21 @@ void GLWidget::timerEvent(QTimerEvent *)
 
 void GLWidget::makeObject()
 {
+    QColor trolltechGreen(QColor::fromCmykF(0.40, 0.0, 1.0, 0.0));
+    const double Pi = 3.14159265358979323846;
+    const int NumSectors = 15;
+    GLdouble x1 = +0.06;
+    GLdouble y1 = -0.14;
+    GLdouble x2 = +0.14;
+    GLdouble y2 = -0.06;
+    GLdouble x3 = +0.08;
+    GLdouble y3 = +0.00;
+    GLdouble x4 = +0.30;
+    GLdouble y4 = +0.22;
+
     list = glGenLists(1);
     glNewList(list, GL_COMPILE);
     {
-        QColor trolltechGreen(QColor::fromCmykF(0.40, 0.0, 1.0, 0.0));
-
-        const double Pi = 3.14159265358979323846;
-        const int NumSectors = 15;
-        GLdouble x1 = +0.06;
-        GLdouble y1 = -0.14;
-        GLdouble x2 = +0.14;
-        GLdouble y2 = -0.06;
-        GLdouble x3 = +0.08;
-        GLdouble y3 = +0.00;
-        GLdouble x4 = +0.30;
-        GLdouble y4 = +0.22;
-        qglColor(trolltechGreen);
         for (int i = 0; i < NumSectors; ++i) {
             double angle1 = (i * 2 * Pi) / NumSectors;
             GLdouble x5 = 0.30 * sin(angle1);
@@ -111,7 +110,7 @@ void GLWidget::makeObject()
         quad(GL_QUADS, x1, y1, x2, y2, y2, x2, y1, x1);
         quad(GL_QUADS, x3, y3, x4, y4, y4, x4, y3, x3);
 
-        glColor3f(0, 0, 0);
+        qglColor(Qt::black);
         quad(GL_LINE_LOOP, x1, y1, x2, y2, y2, x2, y1, x1);
         quad(GL_LINE_LOOP, x3, y3, x4, y4, y4, x4, y3, x3);
     }
