@@ -3018,8 +3018,10 @@ else
 fi
 
 # find if the platform supports IPv6
-if [ "$CFG_IPV6" = "auto" ]; then
-    if $unixtests/ipv6.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
+if [ "$CFG_IPV6" != "no" ]; then
+    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/ipv6 "IPv6" $L_FLAGS $I_FLAGS; then
+        CFG_IPV6=yes
+    else
         if [ "$CFG_IPV6" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
             echo "IPv6 support cannot be enabled due to functionality tests!"
             echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -3029,8 +3031,6 @@ if [ "$CFG_IPV6" = "auto" ]; then
         else
             CFG_IPV6=no
         fi
-    else
-        CFG_IPV6=yes
     fi
 fi
 
@@ -3052,11 +3052,19 @@ if [ "$CFG_GETADDRINFO" != "no" ]; then
 fi
 
 # find if the platform provides if_nametoindex (ipv6 interface name support)
-if [ "$CFG_IPV6IFNAME" = "auto" ]; then
-    if $unixtests/ipv6ifname.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
-        CFG_IPV6IFNAME=no
-    else
+if [ "$CFG_IPV6IFNAME" != "no" ]; then
+    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/ipv6ifname "IPv6 interface name" $L_FLAGS $I_FLAGS; then
         CFG_IPV6IFNAME=yes
+    else
+        if [ "$CFG_IPV6IFNAME" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+            echo "IPv6 interface name support cannot be enabled due to functionality tests!"
+            echo " Turn on verbose messaging (-v) to $0 to see the final report."
+            echo " If you believe this message is in error you may use the continue"
+            echo " switch (-continue) to $0 to continue."
+            exit 101
+        else
+	    CFG_IPV6IFNAME=no
+	fi
     fi
 fi
 
