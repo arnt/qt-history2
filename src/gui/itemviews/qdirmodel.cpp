@@ -554,6 +554,11 @@ bool QDirModel::hasChildren(const QModelIndex &parent) const
     if (!parent.isValid()) // the invalid index is the "My Computer" item
         return true; // the drives
     QDirModelPrivate::QDirNode *p = d->node(parent);
+    
+    // If parent is a symlink and we are not resolving symlinks then it does not have children.
+    if (!d->resolveSymlinks && p->info.isSymLink())
+        return false;
+    
     if (d->lazyChildCount) { // optimization that only checks for children if the node has been populated
         if (p->populated)
             return rowCount(parent) > 0; // rowCount will lazily populate if needed
