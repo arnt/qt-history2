@@ -1,5 +1,6 @@
 #include <math.h>
 #include <time.h>
+#include <limits.h>
 
 #include <qiodevice.h>
 #include <qpainter.h>
