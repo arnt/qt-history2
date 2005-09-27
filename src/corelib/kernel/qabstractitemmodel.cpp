@@ -2139,7 +2139,11 @@ bool QAbstractTableModel::dropMimeData( const QMimeData *data, Qt::DropAction ac
     // decode and insert
     QByteArray encoded = data->data(format);
     QDataStream stream(&encoded, QIODevice::ReadOnly);
-    return static_cast<QAbstractItemModelPrivate *>(d_ptr)->decodeDataAndReplace(row, column, parent, stream);
+    if (parent.isValid() && row == -1 && column == -1) {
+        return static_cast<QAbstractItemModelPrivate *>(d_ptr)->decodeDataAndReplace(parent.row(), parent.column(), QModelIndex(), stream);
+    }else{
+        return decodeData(row, column, parent, stream);
+    }
 }
 /*!
   \reimp
@@ -2160,5 +2164,9 @@ bool QAbstractListModel::dropMimeData( const QMimeData *data, Qt::DropAction act
     QByteArray encoded = data->data(format);
     QDataStream stream(&encoded, QIODevice::ReadOnly);
 
-    return static_cast<QAbstractItemModelPrivate *>(d_ptr)->decodeDataAndReplace(row, column, parent, stream);
+    if (parent.isValid() && row == -1 && column == -1) {
+        return static_cast<QAbstractItemModelPrivate *>(d_ptr)->decodeDataAndReplace(parent.row(), parent.column(), QModelIndex(), stream);
+    }else{
+        return decodeData(row, column, parent, stream);
+    }
 }

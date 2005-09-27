@@ -1939,7 +1939,7 @@ void QTableWidget::clear()
 */
 QStringList QTableWidget::mimeTypes() const
 {
-    return static_cast<QAbstractTableModel*>(model())->QAbstractTableModel::mimeTypes();
+    return d_func()->model()->QAbstractTableModel::mimeTypes();
 }
 
 /*!
@@ -1963,12 +1963,14 @@ QMimeData *QTableWidget::mimeData(const QList<QTableWidgetItem*>) const
 */
 bool QTableWidget::dropMimeData(int row, int column, const QMimeData *data, Qt::DropAction action)
 {
+    QModelIndex idx;
     if (dropIndicatorPosition() == QAbstractItemView::OnItem) {
-        // Overwrite
-        return static_cast<QAbstractTableModel*>(model())->QAbstractTableModel::dropMimeData(data, action , row, column, QModelIndex());
+        // QAbstractTableModel::dropMimeData will overwrite on the index if row == -1 and column == -1
+        idx = model()->index(row, column);
+        row = -1;
+        column = -1;
     }
-    // Insert the data
-    return model()->QAbstractItemModel::dropMimeData(data, action , row, column, QModelIndex());
+    return d_func()->model()->QAbstractTableModel::dropMimeData(data, action , row, column, idx);
 }
 
 /*!
@@ -1978,7 +1980,7 @@ bool QTableWidget::dropMimeData(int row, int column, const QMimeData *data, Qt::
 */
 Qt::DropActions QTableWidget::supportedDropActions() const
 {
-    return static_cast<QAbstractTableModel*>(model())->QAbstractTableModel::supportedDropActions();
+    return d_func()->model()->QAbstractTableModel::supportedDropActions();
 }
 
 /*!
