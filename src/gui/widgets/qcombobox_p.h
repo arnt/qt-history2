@@ -195,11 +195,14 @@ public:
     bool contains(const QString &text, int role);
     void emitActivated(const QModelIndex&);
     void emitHighlighted(const QModelIndex&);
+    void emitCurrentIndexChanged(int index);
     void modelDestroyed();
     void resetButton();
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void rowsAboutToBeInserted(const QModelIndex & parent, int start, int end);
     void rowsInserted(const QModelIndex & parent, int start, int end);
     void rowsAboutToBeRemoved(const QModelIndex & parent, int start, int end);
+    void rowsRemoved(const QModelIndex & parent, int start, int end);
     void updateArrow(QStyle::StateFlag state);
     bool updateHoverControl(const QPoint &pos);
     QStyle::SubControl newHoverControl(const QPoint &pos);
@@ -227,6 +230,7 @@ public:
     QPersistentModelIndex currentIndex;
     QPersistentModelIndex root;
     Qt::CaseSensitivity autoCompletionCaseSensitivity;
+    int indexBeforeChange;
 };
 
 #endif // QT_NO_COMBOBOX
