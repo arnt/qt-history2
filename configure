@@ -2979,7 +2979,9 @@ if [ "$CFG_ENDIAN" = "auto" ]; then
 fi
 
 if [ "$CFG_STL" = "auto" ]; then
-    if $unixtests/stl.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
+    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/stl "STL" $L_FLAGS $I_FLAGS; then
+        CFG_STL=yes
+    else
         if [ "$CFG_STL" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
             echo "STL support cannot be enabled due to functionality tests!"
             echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2989,8 +2991,6 @@ if [ "$CFG_STL" = "auto" ]; then
         else
             CFG_STL=no
         fi
-    else
-        CFG_STL=yes
     fi
 fi
 
