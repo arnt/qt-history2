@@ -1347,7 +1347,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
     case PE_PanelButtonTool:
         name = "TOOLBAR";
         partId = TP_BUTTON;
-        if (!flags & State_Enabled)
+        if (!(flags & State_Enabled))
             stateId = TS_DISABLED;
         else if (flags & State_Sunken)
             stateId = TS_PRESSED;
