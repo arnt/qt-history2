@@ -19,8 +19,8 @@
     programming. All you need to do is to build Qt and your
     application following the procedures described in this
     documentation. We will demonstrate the procedures in terms of
-    deploying the Plug & Paint application that is provided in Qt's
-    examples directory.
+    deploying the \l {tools/plugandpaint}{Plug & Paint} application
+    that is provided in Qt's examples directory.
 
     There are two ways of deploying an application:
 
@@ -34,16 +34,36 @@
     disadvantages are that the executables are large and with no
     flexibility (i.e a new version of the application, or of Qt, will
     require that the deployment process is repeated), and that you
-    cannot deploy plugins using the static linking approach.
+    cannot deploy plugins using the static linking approach, unless
+    you use static plugins. Static plugins are plugins that are
+    compiled into the application.
 
-    To deploy plugins you must use a shared library. Shared libraries
-    also provide smaller, more flexible executables. The disadvantage
-    with this approach is that the total packages are larger: In the
-    number of files to deploy as well as in byte size.
+    If you don't use static plugins, you must use a shared library to
+    deploy plugins (i.e. using dynamic plugins). Shared libraries also
+    provide smaller, more flexible executables. The disadvantage with
+    this approach is that the total packages are larger; In the number
+    of files to deploy as well as in byte size.
+
+    \table 100%
+    \header
+        \o {5,1} Qt's Libraries
+    \row
+        \o \l {QtCore}
+        \o \l {QtGui}
+        \o \l {QtNetwork}
+        \o \l {QtOpenGL}
+        \o \l {QtSql}
+    \row
+        \o \l {QtSvg}
+        \o \l {QtXml}
+        \o \l {QtDesigner}
+        \o \l {QtAssistant}
+        \o \l {Qt3Support}
+    \endtable
 
     Since Qt is not a system library, it has to be redistributed along
     with your application; the minimum is to redistribute the run-time
-    of the modules used by the application. Using static linking,
+    of the modules used by the application.  Using static linking,
     however, the Qt run-time is compiled into the
     executable. Depending on configuration, compiler specific
     libraries must be redistributed as well.
@@ -57,6 +77,11 @@
         \o \l{Deploying an Application on Qt/Mac}{Qt/Mac}
     \endlist
 
+    \omit
+    <qt.conf>
+    <binary patching>
+    <dynamic versus static plugins>
+    \endomit
 
     \sa Installation {Window System Specific Notes}
 */
@@ -83,81 +108,161 @@
 
     Static linking is often the safest and easiest way to distribute
     an application on Unix since it relieves you from the task of
-    distributing the Qt library and ensuring that it's located in the
-    default search path for libraries on the target system. The main
-    disadvantages are that the executable is larger (because it
-    includes the Qt library), plugins won't work, and the user won't
-    be able to independently upgrade the Qt library used by the
-    application.
+    distributing the Qt libraries and ensuring that they are located
+    in the default search path for libraries on the target system.
 
-    To use this approach, you must start by building a static version
+    \section2 Building Qt
+
+    To use this approach, you must start by installing a static version
     of the Qt library:
 
     \code
-        cd $QTDIR
-        ./configure -static <other parameters>
+        cd /path/to/Qt
+        ./configure -static -prefix /path/to/Qt <other parameters>
         make sub-src
     \endcode
 
-    If you want to have a static and a dynamic Qt library side by
-    side, you can do the following instead:
+    We specify the prefix so that we do not overwrite the existing Qt
+    installation. The example above only build the Qt libraries,
+    i.e. the examples and Qt Designer will not be built.  When \c make
+    is done, you will find the Qt libraries in the \c /path/to/Qt/lib
+    directory.
 
-    \code
-        cd $QTDIR/src
-        make staticlib
-    \endcode
+    When linking your application against static Qt libraries, note
+    that you might need to add more libraries to the \c LIBS line in
+    your project file. For more information, see the \l {Application
+    and Plugin Dependencies} section.
 
-    When make is done, you will find a file called libqt.a or
-    libqt-mt.a in the $QTDIR/lib directory.
-
-    Because the linkers on most Unix systems prefer shared libraries
-    over static ones if both exist, you must add these lines to your
-    application's .pro file:
-
-    \code
-        mystaticconfig {
-            QMAKE_LIBS_QT =
-            QMAKE_LIBS_QT_THREAD =
-            LIBS += $(QTDIR)/lib/libqt.a
-        }
-    \endcode
-
-    Replace libqt.a with libqt-mt.a if you built Qt with thread
-    support enabled. Also note that you might need to append more
-    libraries to the LIBS line.
+    \section2 Building the Application
 
     The next step is to regenerate the makefile and rebuild the
     application:
 
     \code
         make clean
-        qmake "CONFIG+=mystaticconfig"
+        PATH=/path/to/Qt/bin:$PATH
+        export PATH
+        qmake
         make
     \endcode
 
-    To check that the application really links statically with Qt, run
-    the ldd tool (available on most Unices):
+    Note that we must set the path to the static Qt that we just
+    built. To check that the application really links statically with
+    Qt, run the \c ldd tool (available on most Unices):
 
     \code
         ldd ./application
     \endcode
 
-    Verify that libqt (or libqt-mt) is not mentioned in the output.
+    Verify that the Qt libraries are not mentioned in the output.
 
-    Applications that link against a static version of the Qt library
-    cannot use Qt plugins. This is because the plugins link against
-    the shared Qt library, and bad things will happen if you load two
-    versions of the same library (one static, one shared).
+    Now, provided that everything compiled and linked without any
+    errors, we should have a \c plugandpaint file that is ready for
+    deployment. One easy way to check that the application really can
+    be run stand-alone is to copy it to a machine that doesn't have Qt
+    or any Qt applications installed, and run it on that machine.
+
+    The \l {tools/plugandpaint}{Plug & Paint} example consists of
+    several components: The application itself (\l
+    {tools/plugandpaint}{Plug & Paint}), and the application-specific
+    \l {tools/plugandpaintplugins/basictools}{Basic Tools} and \l
+    {tools/plugandpaintplugins/extrafilters}{Extra Filters}
+    plugins. Since we cannot deploy plugins using the static linking
+    approach alone, the application we have prepared is incomplete. It
+    will run, but the functionality will be disabled due to the
+    missing plugins. To deploy plugins we must either use a shared
+    library or static plugins.
+
+    \section2 Static Plugins
+
+    ###
 
     \section1 Shared Libraries
 
-    The alternative to static linking is to compile Qt as a shared
-    library. This is what you get if you don't pass the -static option
-    to the configure script.
+    The alternative to static linking using static plugins is to
+    compile Qt as a shared library using dynamic plugins.
 
-    The library binary is put in the "$QTDIR/lib" directory. On most
-    systems, the extension for shared libraries is .so. A notable
-    exception is HP-UX, which uses .sl.
+    Another reason why you might want to use the shared library
+    approach, is if you want to use the same Qt DLLs for a family of
+    applications. In fact, if you download the binary installation of
+    Qt, you get Qt as a shared library. In addition, shared libraries
+    provide flexibility. For example, using the shared library
+    approach, the user is able to independently upgrade the Qt library
+    used by the application.
+
+    We have two challenges when deploying the \l
+    {tools/plugandpaint}{Plug & Paint} application using the shared
+    libraries approach: The Qt runtime has to be correctly
+    redistributed along with the application executable, and the
+    plugins have to be installed in the correct location on the target
+    system so that the application can find them.
+
+    \section2 Building Qt
+
+    We assume that you already have installed Qt as a shared library
+    in the /path/to/Qt directory which is the default when installing
+    Qt. For more information on how to build Qt, see the \l
+    {Installation} document.
+
+    \section2 Building the Application and Plugins
+
+    After ensuring that Qt is built as a shared library, we can build
+    the \l {tools/plugandpaint}{Plug & Paint} application. First, we
+    must go into the directory that contains the application:
+
+    \code
+       cd /path/to/Qt/examples/tools/plugandpaint
+    \endcode
+
+    Now run qmake to create a new makefile for the application, and do
+    a clean build to create the dynamically linked executable:
+
+    \code
+        qmake plugandpaint.pro
+        make clean
+        make
+    \endcode
+
+    This builds the application, now we need to build the plugins:
+
+    \code
+        cd ../plugandpaintplugins
+        qmake plugandpaint.pro
+        make clean
+        make
+    \endcode
+
+    If everything compiled and linked without any errors, we will get
+    a \c plugandpaint executable and the \c libpnp_basictools.so and
+    \c libpnp_extrafilters.so plugin files.
+
+    Now, we must put the plugins into a location where the application
+    can find them.
+
+    \section2 Deploying the Plugins
+
+    When looking for plugins, the application searches in a plugins
+    subdirectory inside the directory of the application
+    executable. Either you have to manually copy the plugins into the
+    \c plugins directory, or you can set the \c DESTDIR in the
+    plugins' project files:
+
+    \code
+        DESTDIR = /path/to/Qt/plugandpaint/plugins
+    \endcode
+
+    Alternatively, you can add a custom search path when you start
+    your application using QApplication::addLibraryPath() or
+    QApplication::setLibraryPaths().
+
+    When you build the Qt library, the search path for plugins (as
+    well as a few other paths) is hard-coded into the library. By
+    default, the first plugin search path will be hard-coded as \c
+    /path/to/Qt/plugins. Alternatively, your \l {}{installer
+    application} can change the hard-coded paths in the library for
+    you.
+
+    \section2 Packaging
 
     The main issue with shared libraries is that you must ensure that
     the dynamic linker will find the library. Unless told otherwise,
@@ -166,41 +271,32 @@
 
     \list
     \o You can install the Qt library in one of the system
-       library paths (e.g. "/usr/lib" on most systems).
+       library paths (e.g. \c /usr/lib on most systems).
+
+    \o You can pass a predetermined path to the \c -rpath command-line
+       option when linking the application. This will tell the dynamic
+       linker to look in this directory when starting up.
 
     \o You can write a startup script for your application,
        where you modify the dynamic linker configuration (e.g.
-       adding your application's directory to the LD_LIBRARY_PATH
+       adding your application's directory to the \c LD_LIBRARY_PATH
        environment variable).
-
-    \o You can pass a predetermined path to the -rpath command-line
-       option when linking the application. This will tell the dynamic
-       linker to look in this directory when starting up.
     \endlist
 
-    \section1 Plugins
+    The disadvantage of the first approach is that the user \e must
+    have super user privileges. The disadvantage of the second
+    approach is that the user \e may not have privileges to install
+    into the predetemined path. In either case, the users don't have
+    the option of installing to their home directory. For that reason
+    we recommend using the third approach since it is the most
+    flexible.
 
-    When you build the Qt library, the search path for plugins (as
-    well as a few other paths) is hard-coded into the library. For
-    example, if you compile the Qt library in "/usr/local/qt", the
-    first plugin search path will be hard-coded as
-    "/usr/local/qt/plugins".
+    The library binary is put in the \c /path/to/Qt/lib directory. And
+    the Qt plugins are put in the \c /path/to/Qt/plugins directory. On
+    most systems, the extension for shared libraries is \c .so. A
+    notable exception is HP-UX, which uses \c .sl.
 
-    To change this, you can add a custom search path when you start
-    your application using QApplication::addLibraryPath() or
-    QApplication::setLibraryPaths(). Alternatively, your installer
-    application can change the hard-coded paths in the library for
-    you. Take a look at the distributor example located in
-    "$QTDIR/examples/distributor" to see how to achieve this.
-
-    Starting with Qt/X11 3.3.0, you can place plugins under the
-    directory where your application resides and Qt will find
-    them. For example, if you want to distribute an SQL plugin with
-    the application, you can copy over the plugin files from
-    "$QTDIR/drivers/sqldrivers" to a directory called sqldrivers
-    inside the application's directory.
-
-    \section1 Other Libraries
+    \section1 Application and Plugin Dependencies
 
     Any shared library that you link against is a potential problem
     when you want to distribute your application. In particular, the
@@ -227,7 +323,6 @@
     had success by compiling their software on very old machines and
     have been very careful not to upgrade any of the software running
     on them.
-
 */
 
 /*!
@@ -235,44 +330,9 @@
 
     \title Deploying an Application on Qt/Windows
 
-    Deploying an application on Windows does not require any C++
-    programming. All you need to do is to build Qt and your
-    application in release mode, following the procedures described
-    in this documentation. We will demonstrate the procedures in terms
-    of deploying the \l {tools/plugandpaint}{Plug & Paint} application
-    that is provided in Qt's examples directory.
-
-    There are two ways of deploying an application:
-
-    \list
-        \o Static Linking
-        \o Shared Libraries
-    \endlist
-
-    Static linking results in a stand-alone executable.  The advantage
-    is that you will only have a few files to deploy. The
-    disadvantages are that the executables are large and with no
-    flexibility (i.e a new version of the application, or of Qt, will
-    require that the deployment process is repeated), and that you
-    cannot deploy plugins using the static linking approach.
-
-    To deploy plugins you must use a shared library. Shared libraries
-    also provide smaller, more flexible executables. The disadvantage
-    with this approach is that the total packages are larger: In the
-    number of files to deploy (one executable plus one or more \c
-    {DLL}s) as well as in byte size.
-
-    Since Qt is not a system library, it has to be redistributed along
-    with your application; the minimum is to redistribute the run-time
-    of the modules used by the application. Using static linking,
-    however, the Qt run-time is compiled into the
-    executable. Depending on configuration, compiler specific
-    libraries must be redistributed. You can check which libraries
-    your application is linking against by using the \c depends
-    tool. For more information see the \l {Application Dependencies-
-    the "depends" tool}{Application Dependencies} section.
-
-    Contents:
+    This documentation will describe how to determine which files you
+    should include in your distribution, and how to make sure that the
+    application will find them at run-time.
 
     \tableofcontents
 
@@ -325,6 +385,15 @@
         nmake
     \endcode
 
+    This build the application, now we need to build the plugins:
+
+    \code
+        cd ..\plugandpaintplugins
+        qmake plugandpaint.pro
+        nmake clean
+        nmake
+    \endcode
+
     Now, provided that everything compiled and linked without any
     errors, we should have a \c plugandpaint.exe file that is ready for
     deployment. One easy way to check that the application really can
@@ -368,7 +437,7 @@
     plugins have to be installed in the correct location on the target
     system so that the application can find them.
 
-    \section2 Building Qt and Plugins
+    \section2 Building Qt
 
     As with static linking, before we can build our application we
     must make sure that Qt is built as a shared library. To do this,
@@ -386,10 +455,9 @@
         nmake sub-src
     \endcode
 
-    This will build Qt as a shared library in release mode, as well as
-    building the plugins.
+    This will build Qt as a shared library in release mode.
 
-    \section2 Building the Application
+    \section2 Building the Application and Plugins
 
     When Qt has finished building, we can build the \l
     {tools/plugandpaint}{Plug & Paint} application. First, we must go
@@ -403,6 +471,15 @@
     do a clean build to create the dynamically linked executable:
 
     \code
+        qmake plugandpaint.pro
+        nmake clean
+        nmake
+    \endcode
+
+    This build the application, now we need to build the plugins:
+
+    \code
+        cd ..\plugandpaintplugins
         qmake plugandpaint.pro
         nmake clean
         nmake
@@ -516,9 +593,11 @@
 
     \section1 Application Dependencies - the "depends" Tool
 
-    You can check which libraries your application is linking against
-    by using the \c depends tool. To use the \c depends tool, all you
-    need to do is to run it like this:
+    Depending on configuration, compiler specific libraries must be
+    redistributed along with your application. You can check which
+    libraries your application is linking against by using the \c
+    depends tool. To use the \c depends tool, all you need to do is to
+    run it like this:
 
     \code
         depends <application executable>
