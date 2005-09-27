@@ -610,11 +610,11 @@ void Generator::generateMetacall()
                 const ArgumentDef &a = f.arguments.at(j);
                 if (j)
                     fprintf(out, ",");
-                fprintf(out, "*reinterpret_cast<%s*>(_a[%d])",noRef(a.normalizedType).constData(), offset++);
+                fprintf(out, "*reinterpret_cast< %s*>(_a[%d])",noRef(a.normalizedType).constData(), offset++);
             }
             fprintf(out, ");");
             if (f.normalizedType.size())
-                fprintf(out, "\n            if (_a[0]) *reinterpret_cast<%s*>(_a[0]) = _r; } ",
+                fprintf(out, "\n            if (_a[0]) *reinterpret_cast< %s*>(_a[0]) = _r; } ",
                         noRef(f.normalizedType).constData());
             fprintf(out, " break;\n");
         }
@@ -678,7 +678,7 @@ void Generator::generateMetacall()
                     fprintf(out, "        case %d: *reinterpret_cast<int*>(_v) = QFlag(%s()); break;\n",
                             propindex, p.read.constData());
                 else
-                    fprintf(out, "        case %d: *reinterpret_cast<%s*>(_v) = %s(); break;\n",
+                    fprintf(out, "        case %d: *reinterpret_cast< %s*>(_v) = %s(); break;\n",
                             propindex, p.type.constData(), p.read.constData());
             }
             fprintf(out, "        }\n");
@@ -702,7 +702,7 @@ void Generator::generateMetacall()
                     fprintf(out, "        case %d: %s(QFlag(*reinterpret_cast<int*>(_v))); break;\n",
                             propindex, p.write.constData());
                 } else {
-                    fprintf(out, "        case %d: %s(*reinterpret_cast<%s*>(_v)); break;\n",
+                    fprintf(out, "        case %d: %s(*reinterpret_cast< %s*>(_v)); break;\n",
                             propindex, p.write.constData(), p.type.constData());
                 }
             }
