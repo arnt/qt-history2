@@ -800,7 +800,8 @@ qreal QTextLayout::maximumWidth() const
 */
 void QTextLayout::draw(QPainter *p, const QPointF &pos, const QVector<FormatRange> &selections, const QRectF &clip) const
 {
-    Q_ASSERT(lineCount() != 0);
+    if (d->lines.isEmpty())
+        return;
 
     if (!d->layoutData)
         d->itemize();
