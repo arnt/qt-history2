@@ -80,7 +80,7 @@ public:
 
     struct SectionNode
     {
-        QDateTimeParser::Section type;
+        Section type;
         int index;
         int count;
     };
