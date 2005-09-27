@@ -3513,11 +3513,10 @@ void QDateTimeParser::parseFormat(const QString &newFormat, QVariant::Type t)
     separators << (index < newFormat.size() ? unquote(newFormat.mid(index)) : QString());
 
 
-    reversedFormat.clear();
     if (false/*QApplication::isRightToLeft()*/) {
-        for (int i=sectionNodes.size() - 1; i>=0; --i) {
+       for (int i=sectionNodes.size() - 1; i>=0; --i) {
             reversedFormat += separators.at(i + 1);
-            reversedFormat += sectionFormat(i);
+            reversedFormat += sectionFormat(sectionNodes.at(i).type, sectionNodes.at(i).count);
         }
         reversedFormat += separators.at(0);
     }
