@@ -145,8 +145,12 @@ void QListModel::insert(int row, const QStringList &labels)
     else if (row > lst.count())
         row = lst.count();
     beginInsertRows(QModelIndex(), row, row + count - 1);
-    for (int i = 0; i < count; ++i)
-        lst.insert(row++, new QListWidgetItem(labels.at(i)));
+    for (int i = 0; i < count; ++i) {
+        QListWidgetItem *item = new QListWidgetItem(labels.at(i));
+        item->model = this;
+        item->view = ::qobject_cast<QListWidget*>(QObject::parent());
+        lst.insert(row++, item);
+    }
     endInsertRows();
 }
 
@@ -193,7 +197,6 @@ bool QListModel::setData(const QModelIndex &index, const QVariant &value, int ro
     if (!index.isValid() || index.row() >= lst.count())
         return false;
     lst.at(index.row())->setData(role, value);
-    emit dataChanged(index, index);
     return true;
 }
 
@@ -504,6 +507,8 @@ void QListWidgetItem::setData(int role, const QVariant &value)
     role = (role == Qt::EditRole ? Qt::DisplayRole : role);
     for (int i = 0; i < values.count(); ++i) {
         if (values.at(i).role == role) {
+            if (values.at(i).value == value)
+                return;
             values[i].value = value;
             found = true;
             break;
