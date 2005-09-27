@@ -1425,11 +1425,17 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         } else {
 #ifdef QT_USE_BACKINGSTORE
             if(q->isVisible() && !q->isHidden()) {
-                if(isMove)
-                    q->parentWidget()->d_func()->scrollBuffer(QRect(oldPos, oldSize),
-                                                              x - q->x(), y - q->y());
+                QWidget *pw = q->parentWidget();
+                QRect sr = QRect(oldPos, oldSize).intersect(pw->rect());
+                static int accelEnv = -1;
+                if (accelEnv == -1) {
+                    accelEnv = qgetenv("QT_FAST_MOVE").toInt() != 0;
+                }
+                bool accelerateMove = accelEnv; //&& ! isOpaque && !overlappingSiblings
+                if(isMove && accelerateMove)
+                    pw->d_func()->scrollBuffer(sr, x - q->x(), y - q->y());
                 else
-                    q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, oldSize));
+                    pw->d_func()->invalidateBuffer(sr);
             }
 #endif
             data.crect.setRect(x, y, w, h);
@@ -1472,6 +1478,28 @@ void QWidgetPrivate::setConstraints_sys()
 {
 }
 
+#ifdef QT_USE_BACKINGSTORE
+static inline QRect scrollingRect(const QRect &sr, int dx, int dy)
+{
+    int x1, y1, w = sr.width(), h = sr.height();
+    if (dx > 0) {
+        x1 = sr.x();
+        w -= dx;
+    } else {
+        x1 = sr.x() - dx;
+        w += dx;
+    }
+    if (dy > 0) {
+        y1 = sr.y();
+        h -= dy;
+    } else {
+        y1 = sr.y() - dy;
+        h += dy;
+    }
+    return QRect(x1,y1,w,h);
+}
+#endif
+
 void QWidget::scroll(int dx, int dy)
 {
     if (!updatesEnabled() && children().size() == 0)
@@ -1481,7 +1509,7 @@ void QWidget::scroll(int dx, int dy)
         flags |= SW_ERASE;
 
 #ifdef QT_USE_BACKINGSTORE
-    d_func()->scrollBuffer(rect(), dx, dy);
+    d_func()->scrollBuffer(scrollingRect(rect()), dx, dy);
 #endif
     ScrollWindowEx(winId(), dx, dy, 0, 0, 0, 0, flags);
     UpdateWindow(winId());
@@ -1502,7 +1530,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     wr.right = r.right()+1;
 
 #ifdef QT_USE_BACKINGSTORE
-    d_func()->scrollBuffer(r, dx, dy);
+    d_func()->scrollBuffer(scrollingRect(r), dx, dy);
 #endif
     ScrollWindowEx(winId(), dx, dy, &wr, &wr, 0, 0, flags);
     UpdateWindow(winId());

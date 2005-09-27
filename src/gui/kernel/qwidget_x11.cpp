@@ -2290,7 +2290,12 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         if(q->isVisible()) {
             QWidget *pw = q->parentWidget();
             QRect sr = QRect(oldPos, oldSize).intersect(pw->rect());
-            if(isMove) {
+            static int accelEnv = -1;
+            if (accelEnv == -1) {
+                accelEnv = qgetenv("QT_FAST_MOVE").toInt() != 0;
+            }
+            bool accelerateMove = accelEnv; //&& ! isOpaque && !overlappingSiblings
+            if(isMove && accelerateMove) {
                 pw->d_func()->scrollBuffer(sr, x - oldPos.x(), y - oldPos.y());
             } else {
                 pw->d_func()->invalidateBuffer(sr);
@@ -2424,10 +2429,18 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         XFreeGC(dpy, gc);
     }
 
+    static int accelEnv = -1;
+    if (accelEnv == -1) {
+        accelEnv = qgetenv("QT_FAST_SCROLL").toInt() != 0;
+    }
+
+    if (!accelEnv) {
+        update();
+    } else
     if (!valid_rect) {        // scroll children
 #ifdef QT_USE_BACKINGSTORE
         if (!just_update)
-            d->scrollBuffer(sr, dx, dy);
+            d->scrollBuffer(QRect(x1,y1,w,h), dx, dy);
 #endif
         if ( !d->children.isEmpty() ) {
             QPoint pd(dx, dy);

@@ -213,7 +213,7 @@ QWidgetBackingStore::~QWidgetBackingStore()
 
 }
 
-//#define QT_FASTSCROLL
+#define QT_FASTSCROLL
 
 /*
   Only for opaque widgets
@@ -221,17 +221,23 @@ QWidgetBackingStore::~QWidgetBackingStore()
 */
 void QWidgetBackingStore::scrollRegion(const QRect &rect, int dx, int dy, QWidget *widget)
 {
-    QRegion wrgn(rect);
+#ifdef Q_WS_X11
+    //### need cross-platform test
+    if (buffer.isNull())
+        return;
+#endif
+
+    QRegion dirtyRgn(rect);
 #ifndef QT_FASTSCROLL
     QRegion area = widget->d_func()->clipRect();
     if(area.isEmpty())
         return;
-    wrgn &= area;
+    dirtyRgn &= area;
 
     QRect newrect = rect.translated(dx,dy);
-    wrgn += newrect;
+    dirtyRgn += newrect;
 
-    dirtyRegion(wrgn, widget);
+    dirtyRegion(dirtyRgn, widget);
 #else
     QRegion area = widget->d_func()->clipRegion();
     if(area.isEmpty())
@@ -239,36 +245,39 @@ void QWidgetBackingStore::scrollRegion(const QRect &rect, int dx, int dy, QWidge
 
     QRect newrect = rect.translated(dx,dy);
 
-    if(1 || isOpaque(widget))
-        wrgn ^= newrect;
-    else
-        wrgn += newrect;
+    dirtyRgn += newrect;
 
-    wrgn &= area;
+    QRect wr = widget->rect();
+    QRect sr = rect.intersect(wr).intersect(wr.translated(-dx,-dy));
+    dirtyRgn -= sr.translated(dx,dy);
 
-    if(QWExtra *extra = widget->d_func()->extraData()) {
-        if(!extra->mask.isEmpty())
-            wrgn &= extra->mask;
-    }
-    QPoint pos(widget->mapTo(tlw, QPoint(0, 0)));
+    QPoint pos(widget->mapTo(tlw, sr.topLeft()));
     //wrgn.translate(pos);
 #if defined(Q_WS_WIN)
     QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
     HDC engine_dc = engine->getDC();
-    BitBlt(engine_dc, pos.x()+dx, pos.y()+dy, widget->width(), widget->height(),
+    BitBlt(engine_dc, pos.x()+dx, pos.y()+dy, sr.width(), sr.height(),
            engine_dc, pos.x(), pos.y(), SRCCOPY);
     engine->releaseDC(engine_dc);
 #elif defined(Q_WS_X11)
     GC gc = XCreateGC(widget->d_func()->xinfo.display(), buffer.handle(), 0, 0);
     XCopyArea(X11->display, buffer.handle(), buffer.handle(), gc,
-              pos.x(), pos.y(), widget->width(), widget->height(),
+              pos.x(), pos.y(), sr.width(), sr.height(),
               pos.x()+dx, pos.y()+dy);
     XFreeGC(widget->d_func()->xinfo.display(), gc);
 #endif
 
 //    qDebug() << "QWidgetBackingStore::scrollRegion" << rect << newrect << wrgn;
 //    qDebug() << "isOpaque" << isOpaque(widget);
-    dirtyRegion(wrgn, widget);
+
+    dirtyRgn &= area;
+
+    if(QWExtra *extra = widget->d_func()->extraData()) {
+        if(!extra->mask.isEmpty())
+            dirtyRgn &= extra->mask;
+    }
+
+    dirtyRegion(dirtyRgn, widget);
 
 #endif
 }
