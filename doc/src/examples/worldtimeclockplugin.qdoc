@@ -2,176 +2,158 @@
     \example designer/worldtimeclockplugin
     \title World Time Clock Plugin Example
 
-    The World Time Clock Plugin example shows how to create a custom widget plugin
-    for \QD that uses signals and slots.
+    The World Time Clock Plugin example shows how to create a custom
+    widget plugin for \QD that uses signals and slots.
 
     \image worldtimeclockplugin-example.png
 
-    In this example, the custom widget used is based on the
-    \l{widgets/analogclock}{Analog Clock example}, and does not provide any custom
-    signals or slots.
+    In this example, we simply extend the \l
+    {designer/customwidgetplugin}{Custom Widget Plugin} example and
+    its custom widget (based on the \l{widgets/analogclock}{Analog
+    Clock} example), by introducing the concept of signals and slots.
 
-    \section1 Preparation
+    The World Time Clock Plugin example consists of two classes:
 
-    To provide a custom widget that can be used with \QD, we need to supply a
-    self-contained implementation and provide a plugin interface. In this
-    example, we reuse the \l{widgets/analogclock}{Analog Clock example} for
-    convenience.
+    \list
+    \o \c WorldTimeClock is a custom clock widget with hour and
+       minute hands that is automatically updated every few seconds.
+    \o \c WorldTimeClockPlugin exposes the \c WorldTimeClock class to \QD.
+    \endlist
 
-    Since custom widgets plugins rely on components supplied with \QD, the
-    project file that we use needs to contain information about \QD's
-    library components:
+    First we will take a look at the \c WorldTimeClock class which
+    extends the \l {designer/customwidgetplugin}{Custom Widget Plugin}
+    example's \c AnalogClock class by providing a signal and a
+    slot. Then we will take a quick look at the \c
+    WorldTimeClockPlugin class, but this class is in most parts
+    identical to the \l {designer/customwidgetplugin}{Custom Widget
+    Plugin} example's implementation.
 
-    \quotefromfile designer/customwidgetplugin/customwidgetplugin.pro
-    \skipto CONFIG
-    \printuntil DESTDIR
+    Finally we take a look at the plugin's project file. The project
+    file for custom widget plugins needs some additional information
+    to ensure that they will work within \QD. This is also covered in
+    the \l {designer/customwidgetplugin}{Custom Widget Plugin} example,
+    but due to its importance (custom widget plugins rely on
+    components supplied with \QD which must be specified in the
+    project file that we use) we will repeat it here.
 
-    The header and source files for the widget are declared in the usual way,
-    and we provide an implementation of the plugin interface so that \QD can
-    use the custom widget.
+    \section1 WorldTimeClock Class
 
-    \skipto HEADERS
-    \printuntil customwidgetplugin.cpp
+    The \c WorldTimeClock class inherits QWidget, and is a custom
+    clock widget with hour and minute hands that is automatically
+    updated every few seconds. What makes this example different from
+    the \l {designer/customwidgetplugin}{Custom Widget Plugin}
+    example, is the introduction of the signal and slot in the custom
+    widget class:
 
-    The custom widget is created as a library.
-
-    \section1 AnalogClock Class Definition and Implementation
-
-    The \c AnalogClock class is defined and implemented in exactly the same
-    way as described in the \l{widgets/analogclock}{Analog Clock example}.
-    Since the class is self-contained, and does not require any external
-    configuration, it can be used without modification as a custom widget in
-    \QD.
-
-    \section1 AnalogClockPlugin Class Definition
-
-    The \c AnalogClock class is exposed to \QD through the \c
-    AnalogClockPlugin class. This class inherits from both QObject
-    and the QDesignerCustomWidgetInterface class, and implements an
-    interface defined by QDesignerCustomWidgetInterface:
-
-    \quotefromfile designer/customwidgetplugin/customwidgetplugin.h
-    \skipto class AnalogClockPlugin
+    \quotefromfile designer/worldtimeclockplugin/worldtimeclock.h
+    \skipto class WorldTimeClock
     \printuntil /^\};/
 
-    The functions provide information about the widget that \QD can use in
-    the \l{Getting Started with Qt Designer#WidgetBox}{widget box}.
-    The \c initialized private member variable is used to record whether
-    the plugin has been initialized by \QD.
+    We declare the \c setTimeZone() slot with an associated \c
+    timeZoneOffset variable, and we declare an \c updated() signal
+    which takes the current time as argument and is emitted whenever
+    the widget is repainted.
 
-    Note that the only part of the class definition that is specific to
-    this particular custom widget is the class name.
+    \image worldtimeclock-connection.png
 
-    \section1 AnalogClockPlugin Implementation
+    In \QD's workspace we can then, for example, connect the \c
+    WorldTimeClock widget's \c updated() signal to a QTimeEdit's \l
+    {QDateTimeEdit::setTime()}{setTime()} slot using \QD's mode
+    for editing signal and slots.
 
-    The class constructor simply calls the QObject base class constructor
-    and sets the \c initialized variable to \c false.
+    \image worldtimeclock-signalandslot.png
 
-    \quotefromfile designer/customwidgetplugin/customwidgetplugin.cpp
-    \skipto AnalogClockPlugin::AnalogClockPlugin
-    \printuntil /^\}/
+    We can also connect a QSpinBox's \l
+    {QSpinBox::valueChanged()}{valueChanged()} signal to the \c
+    WorldTimeClock's \c setTimeZone() slot.
 
-    \QD will initialize the plugin when it is required by calling the
-    \c initialize() function:
+    \section1 WorldTimeClockPlugin Class
 
-    \skipto AnalogClockPlugin::initialize(
-    \printuntil /^\}/
+    The \c WorldTimeClockPlugin class exposes the \c WorldTimeClock
+    class to \QD. Its definition is equivalent to the \l
+    {designer/customwidgetplugin}{Custom Widget Plugin} example's
+    plugin class which is explained in detail. The only part of the
+    class definition that is specific to this particular custom widget
+    is the class name:
 
-    In this example, the \c initialized private variable is tested, and only
-    set to \c true if the plugin is not already initialized. Although, this
-    plugin does not require any special code to be executed when it is
-    initialized, we could include such code after the test for initialization.
+    \quotefromfile designer/worldtimeclockplugin/worldtimeclockplugin.h
+    \skipto class WorldTimeClockPlugin
+    \printuntil /^\};/
 
-    The \c isInitialized() function lets \QD know whether the plugin is
-    ready for use:
+    The plugin class provides \QD with basic information about our
+    plugin, such as its class name and its include file. Furthermore
+    it knows how to create instances of the \c WorldTimeClockPlugin
+    widget.  \c WorldTimeClockPlugin also defines the \l
+    {QDesignerCustomWidgetInterface::initialize()}{initialize()}
+    function which is called after the plugin is loaded into \QD. The
+    function's QDesignerFormWindowInterface parameter provides the
+    plugin with a gateway to all of \QD's API's.
 
-    \skipto AnalogClockPlugin::isInitialized(
-    \printuntil /^\}/
+    The \c WorldTimeClockPlugin class inherits from both QObject and
+    QDesignerCustomWidgetInterface. It is important to remember, when
+    using multiple inheritance, to ensure that all the interfaces
+    (i.e. the classes that doesn't inherit Q_OBJECT) are made known to
+    the meta object system using the Q_INTERFACES() macro. This
+    enables \QD to use \l qobject_cast() to query for supported
+    interfaces using nothing but a QObject pointer.
 
-    Instances of the custom widget are supplied by the \c createWidget()
-    function. The implementation for the analog clock is straightforward:
+    The implementation of the \c WorldTimeClockPlugin is also
+    equivalent to the plugin interface implementation in the \l
+    {designer/customwidgetplugin}{Custom Widget Plugin} example (only
+    the class name and the implementation of
+    QDesignerCustomWidgetInterface::domXml() differ). The main thing
+    to remember is to use the Q_EXPORT_PLUGIN() macro to export the \c
+    WorldTimeClockPlugin class for use with \QD:
 
-    \skipto AnalogClockPlugin::createWidget(
-    \printuntil /^\}/
-
-    In this case, the custom widget only requires a \c parent to be specified.
-    If other arguments need to be supplied to the widget, they can be
-    introduced here.
-
-    The following functions provide information for \QD to use to represent
-    the widget in the widget box.
-    The \c name() function returns the name of class that provides the
-    custom widget:
-
-    \skipto AnalogClockPlugin::name(
-    \printuntil /^\}/
-
-    The \c group() function is used to describe the type of widget that the
-    custom widget belongs to:
-
-    \skipto AnalogClockPlugin::group(
-    \printuntil /^\}/
-
-    Note that all widget plugins will be placed in the "Custom Widgets"
-    section of \QD's widget box. The icon used to represent the widget in
-    the widget box is returned by the \c icon() function:
-
-    \skipto AnalogClockPlugin::icon(
-    \printuntil /^\}/
-
-    In this case, we return a null icon to indicate that we have no icon
-    that can be used to represent the widget.
-
-    A tool tip and "What's This?" help can be supplied for the custom widget's
-    entry in the widget box. The \c toolTip() function should return a short
-    message describing the widget:
-
-    \skipto AnalogClockPlugin::toolTip(
-    \printuntil /^\}/
-
-    The \c whatsThis() function can return a longer description:
-
-    \skipto AnalogClockPlugin::whatsThis(
-    \printuntil /^\}/
-
-    The \c isContainer() and \c isForm() functions provide important
-    information about the way that the widget is to be handled by \QD.
-
-    \skipto AnalogClockPlugin::isContainer(
-    \printuntil /^\}/
-
-    Most widgets in Qt can contain child widgets, but it only makes sense
-    to use dedicated container widgets for this purpose in \QD. By returning
-    \c false, we indicate that the custom widget cannot hold other widgets;
-    if we returned true, \QD would allow other widgets to be placed inside
-    the analog clock and a layout to be defined.
-
-    The \c domXml() function provides a way to include default settings for
-    the widget in the standard XML format used by \QD. In this case, we only
-    specify the widget's geometry:
-
-    \skipto AnalogClockPlugin::domXml(
-    \printuntil /^\}/
-
-    To make the analog clock widget usable by applications, we implement
-    the \c includeFile() function to return the name of the header file
-    containing the custom widget class definition:
-
-    \skipto AnalogClockPlugin::includeFile(
-    \printuntil /^\}/
-
-    We can provide a sample code template for the custom widget with
-    the \c codeTemplate() function:
-
-    \skipto AnalogClockPlugin::codeTemplate(
-    \printuntil /^\}/
-
-    The code template is optionally used to specify how the widget is used
-    in application code.
-
-    Finally, we use the Q_EXPORT_PLUGIN() macro to export the \c
-    AnalogClockPlugin class for use with \QD:
-
+    \quotefromfile designer/worldtimeclockplugin/worldtimeclockplugin.cpp
     \skipto Q_EXPORT_PLUGIN
     \printuntil Q_EXPORT_PLUGIN
+
+    Without this macro, there is no way for Qt Designer to use the
+    widget.
+
+    \section1 The Project File: worldtimeclockplugin.pro
+
+    The project file for custom widget plugins needs some additional
+    information to ensure that they will work as expected within \QD:
+
+    \quotefromfile designer/worldtimeclockplugin/worldtimeclockplugin.pro
+    \printline CONFIG
+    \printline TEMPLATE
+    \printline DESTDIR
+
+    The \c TEMPLATE variable's value make \c qmake create the custom
+    widget as a library.
+
+    The \c CONFIG variable contains two values, \c designer and \c
+    plugin:
+
+    \list
+        \o \c designer: Since custom widgets plugins rely on components
+           supplied with \QD, this value ensures that our plugin link against
+           \QD's library (\c libQtDesigner.so).
+
+        \o \c plugin: We also need to ensure that \c qmake considers the
+           custom widget a \e plugin library.
+    \endlist
+
+    When Qt is configured to build in both debug and release modes,
+    \QD will be built in release mode.  When this occurs, it is
+    necessary to ensure that plugins are also built in release
+    mode. For that reason you might have to add a \c release value to
+    your \c CONFIG variable. Otherwise, if a plugin is built in a mode
+    that is incompatible with \QD, it won't be loaded and
+    installed. For more information about plugins, see the \l {How to
+    Create Qt Plugins} document.
+
+    The \c DESTDIR variable's value makes qmake install the plugin
+    alongside the other \QD widget plugins which is useful for testing
+    purposes.
+
+    \skipto HEADERS
+    \printuntil worldtimeclockplugin.cpp
+
+    The header and source files for the widget are declared in the
+    usual way, and in addition we provide an implementation of the
+    plugin interface so that \QD can use the custom widget.
 */
