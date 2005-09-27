@@ -21,10 +21,15 @@
 #include "qfile.h"
 #include "qdir.h"
 #include "qfileinfo.h"
-#include "qrect.h"
 #include "qmutex.h"
 #include "qlibraryinfo.h"
 #include "qtemporaryfile.h"
+
+#ifndef QT_NO_GEOM_VARIANT
+#include "qsize.h"
+#include "qpoint.h"
+#include "qrect.h"
+#endif // !QT_NO_GEOM_VARIANT
 
 #ifndef QT_NO_QOBJECT
 #include "qcoreapplication.h"
@@ -336,6 +341,7 @@ QString QSettingsPrivate::variantToString(const QVariant &v)
             result = escapedLeadingAt(result);
             break;
         }
+#ifndef QT_NO_GEOM_VARIANT
         case QVariant::Rect: {
             QRect r = qvariant_cast<QRect>(v);
             result += QLatin1String("@Rect(");
@@ -367,6 +373,7 @@ QString QSettingsPrivate::variantToString(const QVariant &v)
             result += QLatin1Char(')');
             break;
         }
+#endif // !QT_NO_GEOM_VARIANT
 
         default: {
 #ifndef QT_NO_DATASTREAM
