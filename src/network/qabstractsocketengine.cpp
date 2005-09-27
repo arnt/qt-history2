@@ -25,15 +25,18 @@ Q_GLOBAL_STATIC(QSocketEngineHandlerList, socketHandlers);
 
 QSocketEngineHandler::QSocketEngineHandler()
 {   
+    if (!socketHandlers())
+        return;
     QMutexLocker locker(&socketHandlers()->mutex);
     socketHandlers()->prepend(this);
 }
 
 QSocketEngineHandler::~QSocketEngineHandler()
 {
+    if (!socketHandlers())
+        return;
     QMutexLocker locker(&socketHandlers()->mutex);
-    if (socketHandlers())
-        socketHandlers()->removeAll(this);
+    socketHandlers()->removeAll(this);
 }
 
 QAbstractSocketEnginePrivate::QAbstractSocketEnginePrivate()
