@@ -13,7 +13,7 @@
 
 #include "qabstractsocketengine_p.h"
 #include "qnativesocketengine_p.h"
-#include <qmutex.h>
+#include "qmutex.h"
 
 class QSocketEngineHandlerList : public QList<QSocketEngineHandler*>
 {
@@ -32,7 +32,8 @@ QSocketEngineHandler::QSocketEngineHandler()
 QSocketEngineHandler::~QSocketEngineHandler()
 {
     QMutexLocker locker(&socketHandlers()->mutex);
-    socketHandlers()->removeAll(this);
+    if (socketHandlers())
+        socketHandlers()->removeAll(this);
 }
 
 QAbstractSocketEnginePrivate::QAbstractSocketEnginePrivate()
