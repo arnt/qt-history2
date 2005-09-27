@@ -2769,7 +2769,9 @@ fi
 
 # auto-detect CUPS support
 if [ "$CFG_CUPS" != "no" ]; then
-    if $unixtests/cups.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
+    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/cups "Cups" $L_FLAGS $I_FLAGS; then
+        CFG_CUPS=yes
+    else
         if [ "$CFG_CUPS" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
             echo "Cups support cannot be enabled due to functionality tests!"
             echo " Turn on verbose messaging (-v) to $0 to see the final report."
@@ -2779,8 +2781,6 @@ if [ "$CFG_CUPS" != "no" ]; then
         else
             CFG_CUPS=no
         fi
-    else
-        CFG_CUPS=yes
     fi
 fi
 
