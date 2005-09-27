@@ -1,6 +1,12 @@
-TARGET        = svgview
-HEADERS       = svgview.h
-SOURCES       = svgview.cpp main.cpp
+TARGET        = svgviewer
+HEADERS       = mainwindow.h \
+                svgview.h \
+                svgwindow.h
+RESOURCES     = svgviewer.qrc
+SOURCES       = main.cpp \
+                mainwindow.cpp \
+                svgview.cpp \
+                svgwindow.cpp
 QT           += svg
 
 contains(QT_CONFIG, opengl): QT += opengl
