@@ -430,7 +430,7 @@ void QApplicationPrivate::process_cmdline()
     int i, j;
 
     j = 1;
-    for (i=1; i<argc; i++) {
+    for (i=1; i<argc; i++) { // if you add anything here, modify QCoreApplication::arguments()
         if (argv[i] && *argv[i] != '-') {
             argv[j++] = argv[i];
             continue;
