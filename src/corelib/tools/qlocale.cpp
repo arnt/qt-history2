@@ -419,9 +419,19 @@ QByteArray QLocalePrivate::systemLocaleName()
     if (!lang.isEmpty())
         return lang;
 
-    char mac_ret[255];
-    if(!LocaleRefGetPartString(NULL, kLocaleLanguageMask | kLocaleRegionMask, 255, mac_ret))
-        lang = mac_ret;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
+        QCFType<CFLocaleRef> l = CFLocaleCopyCurrent();
+        CFStringRef locale = CFLocaleGetIdentifier(l);
+        lang = QCFString::toQString(locale).toLatin1();
+    } else
+#endif
+    {
+        char mac_ret[255];
+        if(!LocaleRefGetPartString(NULL, kLocaleLanguageMask | kLocaleRegionMask, 255, mac_ret)) {
+            lang = mac_ret;
+        }
+    }
 #endif
 
 #if defined(Q_WS_WIN)
@@ -1785,6 +1795,24 @@ QString QLocale::toString(const QTime &time, FormatType format) const
 
 QString QLocale::dateFormat(FormatType format) const
 {
+#ifdef Q_OS_MAC
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+    if(d == system().d) {
+        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
+            QCFType<CFLocaleRef> l = CFLocaleCopyCurrent();
+            CFDateFormatterStyle f = kCFDateFormatterLongStyle;
+            if(format == ShortFormat)
+                f = kCFDateFormatterShortStyle;
+            QCFType<CFDateFormatterRef> formatter = CFDateFormatterCreate(kCFAllocatorDefault,
+                                                                          l, f, kCFDateFormatterNoStyle);
+            CFStringRef cfstr = CFDateFormatterGetFormat(formatter);
+            QString ret(QCFString::toQString(cfstr));
+            if(!ret.isEmpty())
+                return ret;
+        }
+    }
+#endif
+#endif
     const quint32 idx = (format == ShortFormat ? d->m_short_date_format_idx : d->m_long_date_format_idx);
     return QString::fromUtf8(date_format_data + idx);
 }
@@ -1800,6 +1828,24 @@ QString QLocale::dateFormat(FormatType format) const
 
 QString QLocale::timeFormat(FormatType format) const
 {
+#ifdef Q_OS_MAC
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+    if(d == system().d) {
+        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
+            QCFType<CFLocaleRef> l = CFLocaleCopyCurrent();
+            CFDateFormatterStyle f = kCFDateFormatterLongStyle;
+            if(format == ShortFormat)
+                f = kCFDateFormatterShortStyle;
+            QCFType<CFDateFormatterRef> formatter = CFDateFormatterCreate(kCFAllocatorDefault,
+                                                                          l, kCFDateFormatterNoStyle, f);
+            CFStringRef cfstr = CFDateFormatterGetFormat(formatter);
+            QString ret(QCFString::toQString(cfstr));
+            if(!ret.isEmpty())
+                return ret;
+        }
+    }
+#endif
+#endif
     const quint32 idx = (format == ShortFormat ? d->m_short_time_format_idx : d->m_long_time_format_idx);
     return QString::fromUtf8(time_format_data + idx);
 }
