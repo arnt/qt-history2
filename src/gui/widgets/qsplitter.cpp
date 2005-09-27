@@ -1252,7 +1252,7 @@ void QSplitter::childEvent(QChildEvent *c)
             if (s->widget == w) {
                 d->list.removeAt(i);
                 delete s;
-                d->doResize();
+                d->recalc(isVisible());
                 return;
             }
         }
