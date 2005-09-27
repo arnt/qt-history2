@@ -2754,7 +2754,7 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
             $unixtests/checkavail "InterBase" $OPT_VERBOSE $IBASE_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED ibase"
             ;;
         sqlite2)
-            $unixtests/checkavail "SQLite" $OPT_VERBOSE $SQLITE2_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED sqlite2"
+            $unixtests/checkavail "SQLite2" $OPT_VERBOSE $SQLITE2_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED sqlite2"
             ;;
         sqlite)
             if [ -f $relpath/src/3rdparty/sqlite/sqlite3.h ]; then
