@@ -3654,9 +3654,9 @@ bool QDateTimeParser::fromString(const QString &string, QDate *dateIn, QTime *ti
 
         case AmPmSection: {
             const bool upper = s.count == 1;
-            const QChar a = s.type == upper ? QLatin1Char('A') : QLatin1Char('a');
-            const QChar p = s.type == upper ? QLatin1Char('P') : QLatin1Char('p');
-            const QChar m = s.type == upper ? QLatin1Char('M') : QLatin1Char('m');
+            const QChar a = (upper ? QLatin1Char('A') : QLatin1Char('a'));
+            const QChar p = (upper ? QLatin1Char('P') : QLatin1Char('p'));
+            const QChar m = (upper ? QLatin1Char('M') : QLatin1Char('m'));
 
             if ((string.at(index) != a && string.at(index) != p)
                 || string.size() < index + 2
