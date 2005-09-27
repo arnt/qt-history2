@@ -786,7 +786,7 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
     menu in a menu bar or a standalone context menu. Pull-down menus
     are shown by the menu bar when the user clicks on the respective
     item or presses the specified shortcut key. Use
-    QMenuBar::addAction() to insert a menu into a menu bar. Context
+    QMenuBar::addMenu() to insert a menu into a menu bar. Context
     menus are usually invoked by some special keyboard key or by
     right-clicking. They can be executed either asynchronously with
     popup() or synchronously with exec(). Menus can also be invoked in
