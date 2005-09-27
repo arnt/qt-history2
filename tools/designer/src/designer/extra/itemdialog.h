@@ -15,6 +15,8 @@
 #define ITEMDIALOG_H
 
 #include <QtGui/QDialog>
+
+template <typename T> class QList;
 class Item;
 
 class ItemDialog : public QDialog
@@ -23,6 +25,11 @@ class ItemDialog : public QDialog
 public:
     ItemDialog(QWidget *parent, const Item *item);
 
+protected:
+    void closeEvent(QCloseEvent *);
+
+private:
+    static QList<ItemDialog *> openDialogs;
 };
 
 #endif

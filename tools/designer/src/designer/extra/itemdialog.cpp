@@ -15,9 +15,12 @@
 #include <QtGui/QLabel>
 #include <QtGui/QPixmap>
 #include <QtGui/QPushButton>
+#include <QtCore/QList>
 
 #include "itemdialog.h"
 #include "item.h"
+
+QList<ItemDialog *> ItemDialog::openDialogs;
 
 ItemDialog::ItemDialog(QWidget *parent, const Item *item)
     : QDialog(parent)
@@ -50,4 +53,19 @@ ItemDialog::ItemDialog(QWidget *parent, const Item *item)
     layout->addWidget(lblName, 0, 2, 1, 1);
     layout->addWidget(lblDesc, 1, 2, 1, 1);
     layout->addWidget(btn, 2, 3, 1, 1);
+    openDialogs.append(this);
+}
+
+void ItemDialog::closeEvent(QCloseEvent *event)
+{
+    QDialog::closeEvent(event);
+    openDialogs.removeAll(this);
+    if (openDialogs.isEmpty()) {
+        parentWidget()->activateWindow();
+    } else {
+        ItemDialog *itemDialog = openDialogs.last();
+        itemDialog->show();
+        itemDialog->raise();
+        itemDialog->activateWindow();
+    }
 }

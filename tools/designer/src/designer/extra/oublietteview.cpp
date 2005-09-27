@@ -15,7 +15,6 @@
 #include "oubliette.h"
 #include "oublietteview.h"
 
-
 OublietteView::OublietteView()
 {
     m_oubliette = new Oubliette;
@@ -35,10 +34,6 @@ OublietteView::~OublietteView()
 
 void OublietteView::scrollToCharacter(const QPoint &pt)
 {
-    if (qAbs(pt.x() - horizontalScrollBar()->value()) >= 10 * 32)
-        horizontalScrollBar()->setValue(pt.x() - width() / 2);
-
-    if (qAbs(pt.y() - (verticalScrollBar()->value())) >= 6 * 32)
-        verticalScrollBar()->setValue(pt.y() - height() / 2);
-
+    horizontalScrollBar()->setValue(pt.x() - width() / 2);
+    verticalScrollBar()->setValue(pt.y() - height() / 2);
 }
