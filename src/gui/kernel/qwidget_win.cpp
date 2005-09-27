@@ -1509,7 +1509,7 @@ void QWidget::scroll(int dx, int dy)
         flags |= SW_ERASE;
 
 #ifdef QT_USE_BACKINGSTORE
-    d_func()->scrollBuffer(scrollingRect(rect()), dx, dy);
+    d_func()->scrollBuffer(scrollingRect(rect(), dx, dy), dx, dy);
 #endif
     ScrollWindowEx(winId(), dx, dy, 0, 0, 0, 0, flags);
     UpdateWindow(winId());
@@ -1530,7 +1530,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     wr.right = r.right()+1;
 
 #ifdef QT_USE_BACKINGSTORE
-    d_func()->scrollBuffer(scrollingRect(r), dx, dy);
+    d_func()->scrollBuffer(scrollingRect(r, dx, dy), dx, dy);
 #endif
     ScrollWindowEx(winId(), dx, dy, &wr, &wr, 0, 0, flags);
     UpdateWindow(winId());
