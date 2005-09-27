@@ -57,7 +57,7 @@ static QString xmlSimplify(const QString &str)
 }
 
 
-static QList<qreal> parsePoint(QString::const_iterator &itr)
+static QList<qreal> parseNumbersList(QString::const_iterator &itr)
 {
     QList<qreal> points;
     QString temp;
@@ -130,7 +130,7 @@ static bool resolveColor(const QString &colorStr, QColor &color)
     } else if (colorStr.startsWith("rgb(")) {
         QString::const_iterator itr = colorStr.begin();
         ++itr; ++itr; ++itr; ++itr;
-        QList<qreal> compo = parsePoint(itr);
+        QList<qreal> compo = parseNumbersList(itr);
         //qDebug()<<"compo = "<<compo;
         color = QColor(int(compo[0]),
                        int(compo[1]),
@@ -373,6 +373,37 @@ static void parsePen(QSvgNode *node,
                     pen.setCapStyle(Qt::SquareCap);
             }
 
+            // ### we need custom pen styles for this to work
+            // 100% correctly
+            if (!dashArray.isEmpty()) {
+                QString::const_iterator itr = dashArray.begin();
+                QList<qreal> dashes = parseNumbersList(itr);
+                qreal pen_width = pen.widthF();
+                int scale =  qRound(pen_width < 1 ? 1 : pen_width);
+                //int space = (pen_width < 1 ? 1 : (2 * scale));
+                int dot = 1 * scale;
+                int dash = 4 * scale;
+                if (dashes.size() == 6) {
+                    if (dashes.at(0) != dashes.at(2))
+                        pen.setStyle(Qt::DashDotDotLine);
+                    else {
+                        qreal dotDif = qAbs(dashes.at(0) - dot);
+                        qreal dashDif = qAbs(dashes.at(0) - dash);
+                        if (dotDif < dashDif)
+                            pen.setStyle(Qt::DashLine);
+                        else
+                            pen.setStyle(Qt::DotLine);
+                    }
+                } else if (dashes.size() >= 2) {
+                    qreal dotDif = qAbs(dashes.at(0) - dot);
+                    qreal dashDif = qAbs(dashes.at(0) - dash);
+                    if (dotDif < dashDif)
+                        pen.setStyle(Qt::DashLine);
+                    else
+                        pen.setStyle(Qt::DotLine);
+                }
+            }
+
             node->appendStyleProperty(new QSvgStrokeStyle(pen), myId);
         } else {
             node->appendStyleProperty(new QSvgStrokeStyle(QPen(Qt::NoPen)), myId);
@@ -512,7 +543,7 @@ static void parseTransform(QSvgNode *node,
             while ((*itr).isSpace())
                 ++itr;
             ++itr;// '('
-            QList<qreal> points = parsePoint(itr);
+            QList<qreal> points = parseNumbersList(itr);
             ++itr; // ')'
 
             Q_ASSERT(points.count() == 6);
@@ -530,7 +561,7 @@ static void parseTransform(QSvgNode *node,
             while ((*itr).isSpace())
                 ++itr;
             ++itr;// '('
-            QList<qreal> points = parsePoint(itr);
+            QList<qreal> points = parseNumbersList(itr);
             ++itr; // ')'
 
             Q_ASSERT(points.count() == 2 ||
@@ -551,7 +582,7 @@ static void parseTransform(QSvgNode *node,
                 ++itr;
 
             ++itr;// '('
-            QList<qreal> points = parsePoint(itr);
+            QList<qreal> points = parseNumbersList(itr);
             ++itr;// ')'
             Q_ASSERT(points.count() == 3 ||
                      points.count() == 1);
@@ -574,7 +605,7 @@ static void parseTransform(QSvgNode *node,
                 ++itr;
 
             ++itr;// '('
-            QList<qreal> points = parsePoint(itr);
+            QList<qreal> points = parseNumbersList(itr);
             ++itr;// ')'
             Q_ASSERT(points.count() == 2 ||
                      points.count() == 1);
@@ -742,7 +773,7 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
             ++itr;
         pathElem = *itr;
         ++itr;
-        QList<qreal> arg = parsePoint(itr);
+        QList<qreal> arg = parseNumbersList(itr);
         while (!arg.isEmpty()) {
             double offsetX = x;        // correction offsets
             double offsetY = y;        // for relative commands
