@@ -30,17 +30,21 @@ struct EnumDef
 
 struct ArgumentDef
 {
-    ArgumentDef():isDefault(false){}
+    ArgumentDef() : isDefault(false), isVolatile(false) {}
     QByteArray type, rightType, normalizedType, name;
     bool isDefault;
+    bool isVolatile;
 };
 
 struct FunctionDef
 {
-    FunctionDef(): access(Private), isConst(false), isVirtual(false), inlineCode(false), wasCloned(false), isCompat(false), isInvokable(false), isScriptable(false), isSlot(false), isSignal(false) {}
+    FunctionDef(): returnTypeIsVolatile(false), access(Private), isConst(false), isVirtual(false),
+                   inlineCode(false), wasCloned(false), isCompat(false), isInvokable(false), 
+                   isScriptable(false), isSlot(false), isSignal(false) {}
     QByteArray type, normalizedType;
     QByteArray tag;
     QByteArray name;
+    bool returnTypeIsVolatile;
 
     QList<ArgumentDef> arguments;
 
@@ -170,7 +174,7 @@ public:
         return index > def->begin && index < def->end - 1;
     }
 
-    QByteArray parseType();
+    QByteArray parseType(bool *hasVolatile = 0);
 
     bool parseEnum(EnumDef *def);
 

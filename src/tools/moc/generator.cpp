@@ -610,11 +610,11 @@ void Generator::generateMetacall()
                 const ArgumentDef &a = f.arguments.at(j);
                 if (j)
                     fprintf(out, ",");
-                fprintf(out, "*(%s*)_a[%d]",noRef(a.normalizedType).constData(), offset++);
+                fprintf(out, "*reinterpret_cast<%s*>(_a[%d])",noRef(a.normalizedType).constData(), offset++);
             }
             fprintf(out, ");");
             if (f.normalizedType.size())
-                fprintf(out, "\n            if (_a[0]) *(%s*)_a[0] = _r; } ",
+                fprintf(out, "\n            if (_a[0]) *reinterpret_cast<%s*>(_a[0]) = _r; } ",
                         noRef(f.normalizedType).constData());
             fprintf(out, " break;\n");
         }
@@ -669,16 +669,16 @@ void Generator::generateMetacall()
                 if (p.read.isEmpty())
                     continue;
                 if (p.gspec == PropertyDef::PointerSpec)
-                    fprintf(out, "        case %d: _a[0] = (void*)%s(); break;\n",
+                    fprintf(out, "        case %d: _a[0] = const_cast<void*>(static_cast<const void*>(%s())); break;\n",
                             propindex, p.read.constData());
                 else if (p.gspec == PropertyDef::ReferenceSpec)
-                    fprintf(out, "        case %d: _a[0] = (void*)&%s(); break;\n",
+                    fprintf(out, "        case %d: _a[0] = const_cast<void*>(static_cast<const void*>(&%s())); break;\n",
                             propindex, p.read.constData());
                 else if (cdef->enumDeclarations.value(p.type, false))
-                    fprintf(out, "        case %d: *(int*)_v = QFlag(%s()); break;\n",
+                    fprintf(out, "        case %d: *reinterpret_cast<int*>(_v) = QFlag(%s()); break;\n",
                             propindex, p.read.constData());
                 else
-                    fprintf(out, "        case %d: *(%s*)_v = %s(); break;\n",
+                    fprintf(out, "        case %d: *reinterpret_cast<%s*>(_v) = %s(); break;\n",
                             propindex, p.type.constData(), p.read.constData());
             }
             fprintf(out, "        }\n");
@@ -699,10 +699,10 @@ void Generator::generateMetacall()
                 if (p.write.isEmpty())
                     continue;
                 if (cdef->enumDeclarations.value(p.type, false)) {
-                    fprintf(out, "        case %d: %s(QFlag(*(int*)_v)); break;\n",
+                    fprintf(out, "        case %d: %s(QFlag(*reinterpret_cast<int*>(_v))); break;\n",
                             propindex, p.write.constData());
                 } else {
-                    fprintf(out, "        case %d: %s(*(%s*)_v); break;\n",
+                    fprintf(out, "        case %d: %s(*reinterpret_cast<%s*>(_v)); break;\n",
                             propindex, p.write.constData(), p.type.constData());
                 }
             }
@@ -733,7 +733,7 @@ void Generator::generateMetacall()
         fprintf(out, " else ");
         fprintf(out, "if (_c == QMetaObject::QueryPropertyDesignable) {\n");
         if (needDesignable) {
-            fprintf(out, "        bool *_b = (bool*)_a[0];\n");
+            fprintf(out, "        bool *_b = reinterpret_cast<bool*>(_a[0]);\n");
             fprintf(out, "        switch (_id) {\n");
             for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
                 const PropertyDef &p = cdef->propertyList.at(propindex);
@@ -751,7 +751,7 @@ void Generator::generateMetacall()
         fprintf(out, " else ");
         fprintf(out, "if (_c == QMetaObject::QueryPropertyScriptable) {\n");
         if (needScriptable) {
-            fprintf(out, "        bool *_b = (bool*)_a[0];\n");
+            fprintf(out, "        bool *_b = reinterpret_cast<bool*>(_a[0]);\n");
             fprintf(out, "        switch (_id) {\n");
             for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
                 const PropertyDef &p = cdef->propertyList.at(propindex);
@@ -769,7 +769,7 @@ void Generator::generateMetacall()
         fprintf(out, " else ");
         fprintf(out, "if (_c == QMetaObject::QueryPropertyStored) {\n");
         if (needStored) {
-            fprintf(out, "        bool *_b = (bool*)_a[0];\n");
+            fprintf(out, "        bool *_b = reinterpret_cast<bool*>(_a[0]);\n");
             fprintf(out, "        switch (_id) {\n");
             for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
                 const PropertyDef &p = cdef->propertyList.at(propindex);
@@ -787,7 +787,7 @@ void Generator::generateMetacall()
         fprintf(out, " else ");
         fprintf(out, "if (_c == QMetaObject::QueryPropertyEditable) {\n");
         if (needEditable) {
-            fprintf(out, "        bool *_b = (bool*)_a[0];\n");
+            fprintf(out, "        bool *_b = reinterpret_cast<bool*>(_a[0]);\n");
             fprintf(out, "        switch (_id) {\n");
             for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
                 const PropertyDef &p = cdef->propertyList.at(propindex);
@@ -838,11 +838,21 @@ void Generator::generateSignal(FunctionDef *def,int index)
     if (def->type.size() && def->normalizedType.size())
         fprintf(out, "    %s _t0;\n", noRef(def->normalizedType).constData());
 
-    fprintf(out, "    void *_a[] = { %s",
-             def->normalizedType.isEmpty() ? "0" : "(void*)&_t0");
+    fprintf(out, "    void *_a[] = { ");
+    if (def->normalizedType.isEmpty()) {
+        fprintf(out, "0");
+    } else {
+        if (def->returnTypeIsVolatile)
+             fprintf(out, "const_cast<void*>(static_cast<const volatile void*>(&_t0))");
+        else
+             fprintf(out, "const_cast<void*>(static_cast<const void*>(&_t0))");
+    }
     int i;
     for (i = 1; i < offset; ++i)
-        fprintf(out, ", (void*)&_t%d", i);
+        if (def->arguments.at(i - 1).isVolatile)
+            fprintf(out, ", const_cast<void*>(static_cast<const volatile void*>(&_t%d))", i);
+        else
+            fprintf(out, ", const_cast<void*>(static_cast<const void*>(&_t%d))", i);
     fprintf(out, " };\n");
     int n = 0;
     for (i = 0; i < def->arguments.count(); ++i)

@@ -290,9 +290,11 @@ bool Moc::parseClassHead(ClassDef *def)
     return true;
 }
 
-QByteArray Moc::parseType()
+QByteArray Moc::parseType(bool *hasVolatile)
 {
     QByteArray s;
+    if (hasVolatile)
+        *hasVolatile = false;
     bool hasSignedOrUnsigned = false;
     for (;;) {
         switch (next()) {
@@ -304,6 +306,8 @@ QByteArray Moc::parseType()
             case VOLATILE:
                 s += lexem();
                 s += ' ';
+                if (hasVolatile && lookup(0) == VOLATILE)
+                    *hasVolatile = true;
                 continue;
             default:
                 prev();
@@ -384,7 +388,7 @@ void Moc::parseFunctionArguments(FunctionDef *def)
     Q_UNUSED(def);
     while (hasNext()) {
         ArgumentDef  arg;
-        arg.type = parseType();
+        arg.type = parseType(&arg.isVolatile);
         if (arg.type == "void")
             break;
         if (test(IDENTIFIER))
@@ -410,7 +414,7 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
     while (test(INLINE) || test(STATIC))
         ;
     bool templateFunction = (lookup() == TEMPLATE);
-    def->type = parseType();
+    def->type = parseType(&def->returnTypeIsVolatile);
     if (def->type.isEmpty()) {
         if (templateFunction)
             error("Template function as signal or slot");
@@ -420,8 +424,10 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
     if (test(LPAREN)) {
         def->name = def->type;
         def->type = "int";
+        def->returnTypeIsVolatile = false;
     } else {
-        def->name = parseType();
+        bool hasVolatile = false;
+        def->name = parseType(&hasVolatile);
         while (!def->name.isEmpty() && lookup() != LPAREN) {
             if (def->type == "QT_MOC_COMPAT" || def->type == "QT3_SUPPORT")
                 def->isCompat = true;
@@ -439,6 +445,7 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
                 def->tag += def->type;
             }
             def->type = def->name;
+            def->returnTypeIsVolatile = hasVolatile;
             def->name = parseType();
         }
         next(LPAREN, "Not a signal or slot declaration");
@@ -477,14 +484,16 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
 // like parseFunction, but never aborts with an error
 bool Moc::parseMaybeFunction(FunctionDef *def)
 {
-    def->type = parseType();
+    def->type = parseType(&def->returnTypeIsVolatile);
     if (def->type.isEmpty())
         return false;
     if (test(LPAREN)) {
         def->name = def->type;
         def->type = "int";
+        def->returnTypeIsVolatile = false;
     } else {
-        def->name = parseType();
+        bool hasVolatile = false;
+        def->name = parseType(&hasVolatile);
         while (!def->name.isEmpty() && lookup() != LPAREN) {
             if (def->type == "QT_MOC_COMPAT" || def->type == "QT3_SUPPORT")
                 def->isCompat = true;
@@ -502,6 +511,7 @@ bool Moc::parseMaybeFunction(FunctionDef *def)
                 def->tag += def->type;
             }
             def->type = def->name;
+            def->returnTypeIsVolatile = hasVolatile;
             def->name = parseType();
         }
         if (!test(LPAREN))
