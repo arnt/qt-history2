@@ -1374,7 +1374,7 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
 {
     QModelIndexList result;
     uint matchType = flags & 0x0F;
-    bool caseSesitive = flags & Qt::MatchCaseSensitive;
+    bool caseSensitive = flags & Qt::MatchCaseSensitive;
     bool recurse = flags & Qt::MatchRecursive;
     bool wrap = flags & Qt::MatchWrap;
     bool allHits = (hits == -1);
@@ -1382,6 +1382,7 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
     QModelIndex p = parent(start);
     int from = start.row();
     int to = rowCount(p);
+
     // iterates twice if wrapping
     for (int i = 0; (wrap && i < 2) || (!wrap && i < 1); ++i) {
         for (int r = from; (r < to) && (allHits || result.count() < hits); ++r) {
@@ -1396,11 +1397,11 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
             } else { // QString based matching
                 if (text.isEmpty()) { // lazy conversion
                     text = value.toString();
-                    if (!caseSesitive)
+                    if (!caseSensitive)
                         text = text.toLower();
                 }
                 QString t = v.toString();
-                if (!caseSesitive)
+                if (!caseSensitive)
                     t = t.toLower();
                 switch (matchType) {
                 case Qt::MatchRegExp:
@@ -2064,7 +2065,7 @@ bool QAbstractListModel::hasChildren(const QModelIndex &parent) const
 */
 
 /*
- * If the datastream contains data from several different tables, this function may have unexpectable results, 
+ * If the datastream contains data from several different tables, this function may have unexpectable results,
  * possibly loss of some mimedata.
  */
 bool QAbstractItemModelPrivate::decodeDataAndReplace(int row, int column, const QModelIndex &parent,
@@ -2158,6 +2159,6 @@ bool QAbstractListModel::dropMimeData( const QMimeData *data, Qt::DropAction act
     // decode and insert
     QByteArray encoded = data->data(format);
     QDataStream stream(&encoded, QIODevice::ReadOnly);
-    
+
     return static_cast<QAbstractItemModelPrivate *>(d_ptr)->decodeDataAndReplace(row, column, parent, stream);
 }
