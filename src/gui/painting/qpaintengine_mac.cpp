@@ -187,15 +187,14 @@ void QQuickDrawPaintEngine::updateState(const QPaintEngineState &state)
     if(flags & DirtyFont)
         updateFont(state.font());
 
-    if (state.state() & DirtyClipEnabled) {
+    if(flags & DirtyClipEnabled) {
         if (state.isClipEnabled())
             updateClipRegion(painter()->clipRegion(), Qt::ReplaceClip);
         else
             updateClipRegion(QRegion(), Qt::NoClip);
-    }
-
-    if(flags & DirtyClipRegion)
+    } else if(flags & DirtyClipRegion) {
         updateClipRegion(state.clipRegion(), state.clipOperation());
+    }
 }
 
 void
