@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "glwidget.h"
+#include <math.h>
 
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
