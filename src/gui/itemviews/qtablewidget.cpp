@@ -706,8 +706,8 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
     \c QTableItem class in Qt 3. It provides an item for use with
     the QTableWidget class.
 
-    Items are usually constructed with a table widget as their parent then
-    inserted at a particular position specified by row and column numbers:
+    Top-level items are constructed without a parent then inserted at the
+    position specified by a pair of row and column numbers:
 
     \quotefile snippets/qtablewidget-using/mainwindow.cpp
     \skipto QTableWidgetItem *newItem
