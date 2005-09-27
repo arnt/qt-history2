@@ -1593,7 +1593,7 @@ static bool parseStopNode(QSvgStyleProperty *parent,
     }
     bool colorOK = constructColor(colorStr, opacityStr, color);
     QGradient *grad = style->qgradient();
-    qDebug()<<"set color at"<<offset<<color;
+//    qDebug()<<"set color at"<<offset<<color;
     grad->setColorAt(offset, color);
     if (!colorOK)
         style->addResolve(offset);
