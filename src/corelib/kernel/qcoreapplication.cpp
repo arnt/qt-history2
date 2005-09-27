@@ -912,7 +912,9 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         const QPostEvent &pe = data->postEventList.at(i);
         ++i;
 
-        if (!pe.event || (receiver && receiver != pe.receiver) || (event_type && event_type != pe.event->type())) {
+        if (!pe.event)
+            continue;
+        if ((receiver && receiver != pe.receiver) || (event_type && event_type != pe.event->type())) {
             data->canWait = false;
             continue;
         }
