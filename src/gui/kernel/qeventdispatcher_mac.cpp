@@ -266,11 +266,12 @@ static void qt_mac_select_read_callbk(CFReadStreamRef stream, CFStreamEventType 
         ctx.info = me;
         CFReadStreamSetClient(stream, kCFStreamEventHasBytesAvailable, qt_mac_select_read_callbk, &ctx);
     }
-    int in_sock;
-    QCFType<CFDataRef> data = static_cast<CFDataRef>(CFReadStreamCopyProperty(stream,
-                                                            kCFStreamPropertySocketNativeHandle));
-    CFDataGetBytes(data, CFRangeMake(0, sizeof(in_sock)), (UInt8 *)&in_sock);
-    qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Read, (QEventDispatcherMac*)me);
+    if(QCFType<CFDataRef> data = static_cast<CFDataRef>(CFReadStreamCopyProperty(stream,
+                                                                                 kCFStreamPropertySocketNativeHandle))) {
+        int in_sock;
+        CFDataGetBytes(data, CFRangeMake(0, sizeof(in_sock)), (UInt8 *)&in_sock);
+        qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Read, (QEventDispatcherMac*)me);
+    }
 }
 static void qt_mac_select_write_callbk(CFWriteStreamRef stream, CFStreamEventType type, void *me)
 {
@@ -280,11 +281,12 @@ static void qt_mac_select_write_callbk(CFWriteStreamRef stream, CFStreamEventTyp
         ctx.info = me;
         CFWriteStreamSetClient(stream, kCFStreamEventCanAcceptBytes, qt_mac_select_write_callbk, &ctx);
     }
-    int in_sock;
-    QCFType<CFDataRef> data = static_cast<CFDataRef>(CFWriteStreamCopyProperty(stream,
-                                                            kCFStreamPropertySocketNativeHandle));
-    CFDataGetBytes(data, CFRangeMake(0, sizeof(in_sock)), (UInt8 *)&in_sock);
-    qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Write, (QEventDispatcherMac*)me);
+    if(QCFType<CFDataRef> data = static_cast<CFDataRef>(CFWriteStreamCopyProperty(stream,
+                                                                                  kCFStreamPropertySocketNativeHandle))) {
+        int in_sock;
+        CFDataGetBytes(data, CFRangeMake(0, sizeof(in_sock)), (UInt8 *)&in_sock);
+        qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Write, (QEventDispatcherMac*)me);
+    }
 }
 
 void QEventDispatcherMac::registerSocketNotifier(QSocketNotifier *notifier)
@@ -382,7 +384,7 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
         QThreadData *threadData = QThreadData::get(thread());
         if (threadData->postEventList.size() > 0)
             retVal = true;
-        
+
         QApplication::sendPostedEvents(0, (flags & QEventLoop::DeferredDeletion) ? -1 : 0);
         if (d->activateTimers() > 0) //send null timers
             retVal = true;
@@ -418,7 +420,7 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
                 retVal = true;
             ReleaseEvent(event);
         } while(!d->interrupt && GetNumEventsInQueue(GetMainEventQueue()));
-        
+
         QApplication::sendPostedEvents(0, (flags & QEventLoop::DeferredDeletion) ? -1 : 0);
 
         bool canWait = (!retVal
