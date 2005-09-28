@@ -108,6 +108,8 @@ void QActionGroupPrivate::actionHovered()
     a parent. Actions can be visually separated from each other
     using addSeparator(). Action groups are added to widgets with the
     QWidget::addActions() function.
+
+    \sa QAction
 */
 
 /*!
