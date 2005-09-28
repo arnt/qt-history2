@@ -928,16 +928,16 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
     if (!selectionModel() || (d->state == EditingState && d->editors.contains(index)))
         return;
 
-    QPoint offset(horizontalOffset(), verticalOffset());
     d->pressedIndex = index;
     d->pressedModifiers = event->modifiers();
     QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
-    if ((command & QItemSelectionModel::Current) == 0)
-        d->pressedPosition = pos + offset;
     if (index.isValid())
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+    QPoint offset(horizontalOffset(), verticalOffset());
+    if ((command & QItemSelectionModel::Current) == 0)
+        d->pressedPosition = pos + offset;
+
     QRect rect(d->pressedPosition - offset, pos);
-//    qDebug() << rect;
     setSelection(rect.normalized(), command);
 
     // signal handlers may change the model

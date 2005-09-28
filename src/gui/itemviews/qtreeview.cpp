@@ -1638,7 +1638,9 @@ int QTreeViewPrivate::item(int coordinate) const
     if (itemHeight <= 0)
         return -1;
     // item is above the viewport - give estimated coordinate
-    int i = viewItemIndex + ((coordinate - y) / itemHeight);
+    int coordAndDelta = coordinate - y;
+    int indexFromTop = ((coordAndDelta << 8) / itemHeight) >> 8; // avoid rounding problem
+    int i = viewItemIndex + indexFromTop;
     return i < 0 || i >= viewItems.count() ? -1 : i;
 }
 
