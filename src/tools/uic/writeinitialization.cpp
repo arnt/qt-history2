@@ -171,8 +171,7 @@ void WriteInitialization::acceptWidget(DomWidget *node)
 
     if (uic->isButton(className)) {
         QHash<QString, DomProperty*> attributes = propertyMap(node->elementAttribute());
-        if (attributes.contains(QLatin1String("buttonGroup"))) {
-            DomProperty *prop = attributes.value(QLatin1String("buttonGroup"));
+        if (DomProperty *prop = attributes.value(QLatin1String("buttonGroup"))) {
             QString groupName = toString(prop->elementString());
             if (!m_buttonGroups.contains(groupName)) {
                 m_buttonGroups.insert(groupName, driver->findOrInsertName(groupName));
@@ -203,16 +202,19 @@ void WriteInitialization::acceptWidget(DomWidget *node)
     QHash<QString, DomProperty*> attributes = propertyMap(node->elementAttribute());
 
     QString title = QLatin1String("Page");
-    if (attributes.contains(QLatin1String("title")))
-        title = toString(attributes.value(QLatin1String("title"))->elementString());
+    if (DomProperty *ptitle = attributes.value(QLatin1String("title"))) {
+        title = toString(ptitle->elementString());
+    }
 
     QString label = QLatin1String("Page");
-    if (attributes.contains(QLatin1String("label")))
-        label = toString(attributes.value(QLatin1String("label"))->elementString());
+    if (DomProperty *plabel = attributes.value(QLatin1String("label"))) {
+        label = toString(plabel->elementString());
+    }
 
     int id = -1;
-    if (attributes.contains(QLatin1String("id")))
-        id = attributes.value(QLatin1String("id"))->elementNumber();
+    if (DomProperty *pid = attributes.value(QLatin1String("id"))) {
+        id = pid->elementNumber();
+    }
 
     if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QMainWindow"))
             || uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3MainWindow"))) {
@@ -221,7 +223,14 @@ void WriteInitialization::acceptWidget(DomWidget *node)
             if (!uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3MainWindow")))
                 output << option.indent << parentWidget << "->setMenuBar(" << varName <<");\n";
         } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QToolBar"))) {
-            output << option.indent << parentWidget << "->addToolBar(" << varName << ");\n";
+            QString area;
+            if (DomProperty *pstyle = attributes.value(QLatin1String("toolBarArea"))) {
+                area += QLatin1String("static_cast<Qt::ToolBarArea>(");
+                area += QString::number(pstyle->elementNumber());
+                area += "), ";
+            }
+
+            output << option.indent << parentWidget << "->addToolBar(" << area << varName << ");\n";
         } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QStatusBar"))) {
             output << option.indent << parentWidget << "->setStatusBar(" << varName << ");\n";
         } else if (className == QLatin1String("QWidget")) {
