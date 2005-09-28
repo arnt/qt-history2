@@ -806,10 +806,9 @@ void QWindowsXPStylePrivate::drawBackground(XPThemeData &themeData)
     painter->save();
 
     bool useFallback = painter->paintEngine()->getDC() == 0 
-		       || themeData.mirrorHorizontally
-		       || themeData.rotate 
-		       || themeData.mirrorVertically 
-		       || pDrawThemeBackgroundEx == 0;
+                       || themeData.rotate 
+		       || themeData.mirrorVertically
+		       || (themeData.mirrorHorizontally && pDrawThemeBackgroundEx == 0);
     if (!useFallback)
         drawBackgroundDirectly(themeData);
     else
@@ -827,7 +826,7 @@ void QWindowsXPStylePrivate::drawBackgroundDirectly(XPThemeData &themeData)
 {
     QPainter *painter = themeData.painter;
     HDC dc = painter->paintEngine()->getDC();
-    
+
     QPoint redirectionDelta(int(painter->deviceMatrix().dx() - painter->matrix().dx()),
                             int(painter->deviceMatrix().dy() - painter->matrix().dy()));
     QRect area = themeData.rect.translated(redirectionDelta);
@@ -851,7 +850,8 @@ void QWindowsXPStylePrivate::drawBackgroundDirectly(XPThemeData &themeData)
     drawOptions.rcClip = themeData.toRECT(area);
     drawOptions.dwFlags = DTBG_CLIPRECT
                           | (themeData.noBorder ? DTBG_OMITBORDER : 0)
-                          | (themeData.noContent ? DTBG_OMITCONTENT : 0);
+                          | (themeData.noContent ? DTBG_OMITCONTENT : 0)
+                          | (themeData.mirrorHorizontally ? DTBG_MIRRORDC : 0);
     if (pDrawThemeBackgroundEx != 0) {
 	pDrawThemeBackgroundEx(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawOptions.rcClip), &drawOptions);
     } else {
@@ -1153,9 +1153,25 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
             }
             imgCopy = imgRotated;
 #else
-            QMatrix mat;
-            mat.rotate(themeData.rotate);
-            imgCopy = imgCopy.transformed(mat);
+            QMatrix rotMatrix;
+            switch(themeData.rotate) {
+                case 90:
+                    rotMatrix = QMatrix(0,1,-1,0, 0, 0);
+                    break;
+                case 180:
+                    rotMatrix = QMatrix(-1, 0, 0, -1, 0, 0);
+                    break;
+                case 270:
+                    rotMatrix = QMatrix(0, -1, 1, 0, 0, 0);
+                    break;
+                default:
+                    rotMatrix.rotate(themeData.rotate);
+                    break;
+            }
+            //qDebug() << "----\nFormat before rotate:" << imgCopy.format();
+            uint format = imgCopy.format();
+            imgCopy = imgCopy.transformed(rotMatrix);
+            //qDebug() << "Format after rotate:" << imgCopy.format();
 #endif
         }
         if (themeData.mirrorHorizontally || themeData.mirrorVertically) {
@@ -1355,6 +1371,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
     bool vMirrored = false;
     bool noBorder = false;
     bool noContent = false;
+    int  rotate = 0;
 
     switch (pe) {
     case PE_PanelButtonBevel:
@@ -1496,10 +1513,9 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         {
             name = "TAB";
             partId = TABP_PANE;
-#if 0            
-            if (tab->shape == QTabBar::RoundedNorth)
-                break;
-
+#if 0
+            // This should work, but currently there's an error in the ::drawBackgroundDirectly()
+            // code, when using the HDC directly..
             QStyleOptionTabWidgetFrame frameOpt = *tab;
             frameOpt.rect = widget->rect();
             QRect contentsRect = subElementRect(SE_TabWidgetTabContents, &frameOpt, widget);
@@ -1514,8 +1530,17 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             p->setClipRect(contentsRect);
             partId = TABP_BODY;
             switch (tab->shape) {
+            case QTabBar::RoundedNorth:
+                break;
             case QTabBar::RoundedSouth:
                 vMirrored = true;
+                break;
+            case QTabBar::RoundedEast:
+                rotate = 90;
+                break;
+            case QTabBar::RoundedWest:
+                rotate = 90;
+                hMirrored = true;
                 break;
             default:
                 break;
@@ -1716,6 +1741,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
     theme.mirrorVertically = vMirrored;
     theme.noBorder = noBorder;
     theme.noContent = noContent;
+    theme.rotate = rotate;
     dd->drawBackground(theme);
 }
 
