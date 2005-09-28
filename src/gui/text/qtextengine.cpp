@@ -1602,7 +1602,7 @@ QFixed QTextEngine::nextTab(const QScriptItem *si, QFixed x)
     QFixed tab = QFixed::fromReal(option.tabStop());
     if (tab <= 0)
         tab = 80; // default
-    return (x/tab).ceil()*tab;
+    return ((x / tab).truncate() + 1) * tab;
 }
 
 void QTextEngine::resolveAdditionalFormats() const
