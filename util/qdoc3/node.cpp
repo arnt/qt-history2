@@ -349,7 +349,8 @@ void InnerNode::removeChild( Node *child )
     Find the module (QtCore, QtGui, etc.) to which the class belongs.
     We do this by obtaining the full path to the header file's location
     and examine everything between "src/" and the filename.
-    This is dirty because we are using hardcoded separators.
+    This is semi-dirty because we are assuming a particular directory
+    structure.
 */
 QString Node::moduleName() const
 {
@@ -379,6 +380,8 @@ QString Node::moduleName() const
         return "QtOpenGL";
     else if (moduleDir == "qt3support")
         return "Qt3Support";
+    else if (moduleDir == "svg")
+        return "QtSvg";
     else if (moduleDir == "sql")
         return "QtSql";
     else if (moduleDir == "xml")
