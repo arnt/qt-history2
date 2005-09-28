@@ -1042,6 +1042,10 @@ bool QLineEdit::hasAcceptableInput() const
     \row \i \c D \i ASCII digit required. 1-9.
     \row \i \c d \i ASCII digit permitted but not required (1-9).
     \row \i \c # \i ASCII digit or plus/minus sign permitted but not required.
+    \row \i \c H \i Hexadecimal character required. A-F, a-f, 0-9.
+    \row \i \c h \i Hexadecimal character permitted but not required.
+    \row \i \c B \i Binary character required. 0-1.
+    \row \i \c b \i Binary character permitted but not required.
     \row \i \c > \i All following alphabetic characters are uppercased.
     \row \i \c < \i All following alphabetic characters are lowercased.
     \row \i \c ! \i Switch off case conversion.
@@ -1059,6 +1063,7 @@ bool QLineEdit::hasAcceptableInput() const
     \table
     \header \i Mask \i Notes
     \row \i \c 000.000.000.000;_ \i IP address; blanks are \c{_}.
+    \row \i \c HH:HH:HH:HH:HH:HH;_ \i MAC address
     \row \i \c 0000-00-00 \i ISO Date; blanks are \c space
     \row \i \c >AAAAA-AAAAA-AAAAA-AAAAA-AAAAA;# \i License number;
     blanks are \c - and all (alphabetic) characters are converted to
@@ -2270,10 +2275,10 @@ void QLineEditPrivate::deleteSelected()
         return;
 
     int priorState = undoState;
-    q->resetInputContext();    
+    q->resetInputContext();
     removeSelectedText();
     separate();
-    finishChange(priorState);            
+    finishChange(priorState);
 }
 
 void QLineEditPrivate::init(const QString& txt)
@@ -2661,6 +2666,10 @@ void QLineEditPrivate::parseInputMask(const QString &maskFields)
             case 'D':
             case 'd':
             case '#':
+            case 'H':
+            case 'h':
+            case 'B':
+            case 'b':
                 s = false;
                 break;
             case '\\':
@@ -2728,6 +2737,22 @@ bool QLineEditPrivate::isValidInput(QChar key, QChar mask) const
         break;
     case '#':
         if (key.isNumber() || key == '+' || key == '-' || key == blank)
+            return true;
+        break;
+    case 'B':
+        if (key == '0' || key == '1')
+            return true;
+        break;
+    case 'b':
+        if (key == '0' || key == '1' || key == blank)
+            return true;
+        break;
+    case 'H':
+        if (key.isNumber() || (key >= 'a' && key <= 'f') || (key >= 'A' && key <= 'F'))
+            return true;
+        break;
+    case 'h':
+        if (key.isNumber() || (key >= 'a' && key <= 'f') || (key >= 'A' && key <= 'F') || key == blank)
             return true;
         break;
     default:
