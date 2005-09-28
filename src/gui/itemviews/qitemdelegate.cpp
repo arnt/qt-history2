@@ -62,25 +62,37 @@ public:
     \ingroup model-view
     \mainclass
 
-    A QItemDelegate can be used to provide an editor for an item view class
-    that is subclassed from QAbstractItemView. Using a delegate for this
-    purpose allows the editing mechanism to be customized and developed
-    independently from the model and view.
+    QItemDelegate can be used to provide custom display features and editor
+    widgets for item views based on QAbstractItemView subclasses. Using a
+    delegate for this purpose allows the display and editing mechanisms to be
+    customized and developed independently from the model and view.
 
     The QItemDelegate class is one of the \l{Model/View Classes}
     and is part of Qt's \l{Model/View Programming}{model/view framework}.
 
-    Delegates can be used to manipulate data in two complementary ways:
+    When displaying items from a custom model in a standard view, it is
+    often sufficient to simply ensure that the model returns appropriate
+    data for each of the \l{Qt::ItemDataRole}{roles} that determine the
+    appearance of items in views. The default delegate used by Qt's
+    standard views uses this role information to display items in most
+    of the common forms expected by users. However, it is sometimes
+    necessary to have even more control over the appearance of items than
+    the default delegate can provide.
+
+    This class provides default implementations of the functions for
+    painting item data in a view, and editing data obtained from a model.
+    Default implementations of the paint() and sizeHint() virtual functions,
+    defined in QAbstractItemDelegate, are provided to ensure that the
+    delegate implements the correct basic behavior expected by views. You
+    can reimplement these functions in subclasses to customize the
+    appearance of items.
+
+    Delegates can be used to manipulate item data in two complementary ways:
     by processing events in the normal manner, or by implementing a
     custom editor widget. The item delegate takes the approach of providing
     a widget for editing purposes that can be supplied to
     QAbstractItemView::setDelegate() or the equivalent function in
     subclasses of QAbstractItemView.
-
-    This class demonstrates how to implement the functions for painting
-    the delegate, and editing data from the model. The paint() and
-    sizeHint() virtual functions defined in QAbstractItemDelegate are
-    implemented to ensure that the delegate is presented correctly.
 
     Only the standard editing functions for widget-based delegates are
     reimplemented here: editor() returns the widget used to change data

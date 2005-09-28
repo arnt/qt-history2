@@ -349,6 +349,9 @@ const QAbstractItemModel *QPersistentModelIndex::model() const
 
     Returns true if this persistent model index is valid; otherwise returns
     false.
+    A valid index belongs to a model, and has non-negative row and column numbers.
+
+    \sa model(), row(), column()
 */
 
 bool QPersistentModelIndex::isValid() const
@@ -644,8 +647,10 @@ void QAbstractItemModelPrivate::reset()
 /*!
     \fn bool QModelIndex::isValid() const
 
-    Returns true if this model index is valid; otherwise returns
-    false.
+    Returns true if this model index is valid; otherwise returns false.
+    A valid index belongs to a model, and has non-negative row and column numbers.
+
+    \sa model(), row(), column()
 */
 
 /*!
@@ -766,10 +771,9 @@ void QAbstractItemModelPrivate::reset()
     \section1 Subclassing
 
     When subclassing QAbstractItemModel, at the very least you must
-    implement index(), parent(), rowCount(), columnCount(), hasChildren(),
-    and data().  To enable editing in your model, you must
-    also implement setData(), and reimplement flags() to ensure that
-    \c ItemIsEditable is returned.
+    implement index(), parent(), rowCount(), columnCount(), and data().
+    To enable editing in your model, you must also implement setData(),
+    and reimplement flags() to ensure that \c ItemIsEditable is returned.
 
     You can also reimplement headerData() and setHeaderData() to control
     the way the headers for your model are presented.
@@ -782,6 +786,17 @@ void QAbstractItemModelPrivate::reset()
     data and access information about the item's parents and children.
     See the \l{Simple Tree Model} example for more information about unique
     identifiers.
+
+    It is not necessary to support every role defined in Qt::ItemDataRole.
+    Depending on the type of data contained within a model, it may only be
+    useful to implement the data() function to return valid information for
+    some of the more common roles. Most models provide at least a textual
+    representation of item data for the Qt::DisplayRole, and well-behaved
+    models should also provide valid information for the Qt::ToolTipRole
+    and Qt::WhatsThisRole. Supporting these roles enables models to be used
+    with standard Qt views. However, for some models that handle
+    highly-specialized data, it may be appropriate to provide data only for
+    user-defined roles.
 
     Models that provide interfaces to resizable data structures can
     provide implementations of insertRows(), removeRows(), insertColumns(),
@@ -812,8 +827,8 @@ void QAbstractItemModelPrivate::reset()
     \bold{If you want selections to be handled properly, you must ensure that
     you call these functions.}
 
-    \sa \link model-view-programming.html Model/View Programming\endlink QModelIndex QAbstractItemView
-
+    \sa \link model-view-programming.html Model/View Programming\endlink, QModelIndex,
+        QAbstractItemView, {Using Drag and Drop with Item Views}
 */
 
 /*!
