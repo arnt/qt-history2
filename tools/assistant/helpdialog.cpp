@@ -118,31 +118,29 @@ private:
 
 QModelIndex IndexListModel::filter(const QString &s)
 {
-    QMapIterator<QString, QString> it(contents);
     QStringList lst;
-    QString lastKey;
 
     int goodMatch = -1;
     int perfectMatch = -1;
     if (s.isEmpty())
         perfectMatch = 0;
 
-    while (it.hasNext()) {
-        it.next();
-
-        if (it.key() == lastKey)
+    const QRegExp regExp(s);
+    const QList<QString> keys = contents.keys();
+    for (int i = 0; i < keys.size(); ++i){
+        if (i > 0 && keys.at(i-1) == keys.at(i))
             continue;
 
-        lastKey = it.key();
-
-        if (lastKey.contains(s, Qt::CaseInsensitive))
-            lst.append(lastKey);
-
-        if (perfectMatch == -1 && lastKey.startsWith(s, Qt::CaseInsensitive)) {
-            if (goodMatch == -1)
-                goodMatch = lst.count() - 1;
-            if (s.length() == lastKey.length())
-                perfectMatch = lst.count() - 1;
+        const QString key = keys.at(i);
+        if (key.contains(regExp) || key.contains(s)) {
+            lst.append(key);
+            
+            if (perfectMatch == -1 && key.startsWith(s, Qt::CaseInsensitive)) {
+                if (goodMatch == -1)
+                    goodMatch = lst.count() - 1;
+                if (s.length() == key.length())
+                    perfectMatch = lst.count() - 1;
+            }
         }
     }
     setStringList(lst);
@@ -619,9 +617,27 @@ void HelpDialog::showIndexTopic()
     ui.listIndex->scrollTo(ui.listIndex->currentIndex(), QAbstractItemView::PositionAtTop);
 }
 
-void HelpDialog::searchInIndex(const QString &s)
+void HelpDialog::searchInIndex(const QString &searchString)
 {
-    ui.listIndex->setCurrentIndex(indexModel->filter(s));
+    QRegExp atoz("[A-Z]");
+    int matches = searchString.count(atoz);
+    if (matches > 0 && !searchString.contains(".*"))
+    {
+        int start = 0;
+        QString newSearch;
+        for (; matches > 0; --matches) {
+            int match = searchString.indexOf(atoz, start+1);
+            if (match <= start)
+                continue;
+            newSearch += searchString.mid(start, match-start);
+            newSearch += ".*";
+            start = match;
+        }
+        newSearch += searchString.mid(start);
+        ui.listIndex->setCurrentIndex(indexModel->filter(newSearch));
+    }
+    else
+        ui.listIndex->setCurrentIndex(indexModel->filter(searchString));
 }
 
 QString HelpDialog::titleOfLink(const QString &link)
