@@ -34,6 +34,8 @@ that they will look and feel exactly as you intended.
  \tableofcontents{1 Qt Designer's Tab Order Mode}
 \i \l{Editing Resources with Qt Designer}
  \tableofcontents{1 Editing Resources with Qt Designer}
+\i \l{Customizing Forms}
+ \tableofcontents{1 Form Settings}
 \i \l{Using Custom Widgets with Qt Designer}
  \tableofcontents{1 Using Custom Widgets with Qt Designer}
 \endlist
@@ -1051,7 +1053,7 @@ again.
 \page designer-resources.html
 \contentspage {Qt Designer Manual}{Contents}
 \previouspage Qt Designer's Tab Order Mode
-\nextpage Using Custom Widgets with Qt Designer
+\nextpage Customizing Forms
 
 \title Editing Resources with Qt Designer
 
@@ -1071,9 +1073,39 @@ opening the \key Edit menu and selecting \key{Edit Resources}.
 */
 
 /*!
-    \page designer-using-custom-widgets.html
+    \page designer-customizing-forms.html
     \contentspage {Qt Designer Manual}{Contents}
     \previouspage Editing Resources with Qt Designer
+    \nextpage Using Custom Widgets with Qt Designer
+
+    \title Customizing Forms
+
+
+    \section1 Form Settings
+
+    \image designer-formsettings.png
+
+    In the form settings dialog you can set several of the currently
+    selected form window's properties.
+
+    You can specify the author or creator of the form. You can fill in
+    the default margin and spacing for the form's default layout, or
+    fill in the margin and spacing for the form's current layout.
+
+    You can also specify the form's include hints, i.e. a list of the
+    header files that will be included in the form window's associated
+    \c .ui file. Header files may be local, i.e. relative to the
+    project's directory, "mywidget.h", or global, i.e. part of Qt or
+    the compilers standard libraries: <QtGui/QWidget>.
+
+    Finally, you can specify the function used to load pixmaps into
+    the form window.
+*/
+
+/*!
+    \page designer-using-custom-widgets.html
+    \contentspage {Qt Designer Manual}{Contents}
+    \previouspage Customizing Forms
     \nextpage Using a Component in Your Application
 
     \title Using Custom Widgets with Qt Designer
