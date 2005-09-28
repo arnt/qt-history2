@@ -3529,7 +3529,9 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
     case SH_TitleBar_ModifyNotification:
         ret = true;
         break;
-
+    case SH_ScrollBar_RollBetweenButtons:
+        ret = false;
+        break;
     default:
         ret = 0;
         break;

@@ -559,6 +559,7 @@ public:
         SH_ItemView_ShowDecorationSelected,
         SH_ItemView_ActivateItemOnSingleClick,
         SH_ScrollBar_ContextMenu,
+        SH_ScrollBar_RollBetweenButtons,
         // Add new style hint values here
 
 #ifdef QT3_SUPPORT

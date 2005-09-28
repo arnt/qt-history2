@@ -1314,6 +1314,12 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
         scollbar stops scrolling when the pointer leaves the
         SubControl.
 
+    \value SH_ScrollBar_RollBetweenButtons A boolean value.
+    If true, when clicking a scrollbar button (SC_ScrollBarAddLine or
+    SC_ScrollBarSubLine) and dragging over to the opposite button (rolling)
+    will press the new button and release the old one. When it is false, the
+    original button is released and nothing happens (like a pushbutton).
+
     \value SH_TabBar_Alignment  The alignment for tabs in a
         QTabWidget. Possible values are Qt::AlignLeft,
         Qt::AlignCenter and Qt::AlignRight.

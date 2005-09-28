@@ -5271,6 +5271,9 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_TitleBar_ModifyNotification:
         ret = false;
         break;
+    case SH_ScrollBar_RollBetweenButtons:
+        ret = true;
+        break;
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, hret);
         break;

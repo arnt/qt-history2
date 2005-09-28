@@ -173,7 +173,7 @@ public:
 
     int clickOffset, snapBackPosition;
 
-    void activateControl(uint control);
+    void activateControl(uint control, int threshold = 500);
     int pixelPosToRangeValue(int pos) const;
     QStyleOptionSlider getStyleOption() const;
     void init();
@@ -211,7 +211,7 @@ QStyle::SubControl QScrollBarPrivate::newHoverControl(const QPoint &pos)
     return hoverControl;
 }
 
-void QScrollBarPrivate::activateControl(uint control)
+void QScrollBarPrivate::activateControl(uint control, int threshold)
 {
     QAbstractSlider::SliderAction action = QAbstractSlider::SliderNoAction;
     switch (control) {
@@ -239,7 +239,7 @@ void QScrollBarPrivate::activateControl(uint control)
 
     if (action) {
         q_func()->triggerAction(action);
-        q_func()->setRepeatAction(action);
+        q_func()->setRepeatAction(action, threshold);
     }
 }
 
@@ -584,9 +584,25 @@ void QScrollBar::mouseMoveEvent(QMouseEvent *e)
         }
         setSliderPosition(newPosition);
     } else if (!style()->styleHint(QStyle::SH_ScrollBar_ScrollWhenPointerLeavesControl, &opt, this)) {
+
+        if (style()->styleHint(QStyle::SH_ScrollBar_RollBetweenButtons, &opt, this)
+                && d->pressedControl & (QStyle::SC_ScrollBarAddLine | QStyle::SC_ScrollBarSubLine)) {
+            QStyle::SubControl newSc = style()->hitTestComplexControl(QStyle::CC_ScrollBar, &opt, e->pos(), this);
+            if (newSc == d->pressedControl && !d->pointerOutsidePressedControl)
+                return; // nothing to do
+            if (newSc & (QStyle::SC_ScrollBarAddLine | QStyle::SC_ScrollBarSubLine)) {
+                d->pointerOutsidePressedControl = false;
+                QRect scRect = style()->subControlRect(QStyle::CC_ScrollBar, &opt, newSc, this);
+                scRect |= style()->subControlRect(QStyle::CC_ScrollBar, &opt, d->pressedControl, this);
+                d->pressedControl = newSc;
+                d->activateControl(d->pressedControl, 0);
+                update(scRect);
+                return;
+            }
+        }
+
         // stop scrolling when the mouse pointer leaves a control
         // similar to push buttons
-        opt.subControls = d->pressedControl;
         QRect pr = style()->subControlRect(QStyle::CC_ScrollBar, &opt, d->pressedControl, this);
         if (pr.contains(e->pos()) == d->pointerOutsidePressedControl) {
             if ((d->pointerOutsidePressedControl = !d->pointerOutsidePressedControl)) {
