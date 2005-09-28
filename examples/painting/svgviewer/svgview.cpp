@@ -101,7 +101,7 @@ void SvgNativeView::wheelEvent(QWheelEvent *e)
 
 #ifndef QT_NO_OPENGL
 SvgGLView::SvgGLView(const QString &file, QWidget *parent)
-    : QGLWidget(parent)
+    : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
 {
     doc = new QSvgRenderer(file, this);
 }

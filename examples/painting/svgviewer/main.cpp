@@ -17,19 +17,9 @@
 
 #include "mainwindow.h"
 
-#ifndef QT_NO_OPENGL
-#include <QtOpenGL>
-#endif
-
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
-
-#ifndef QT_NO_OPENGL
-    QGLFormat f = QGLFormat::defaultFormat();
-    f.setSampleBuffers(true);
-    QGLFormat::setDefaultFormat(f);
-#endif
 
     MainWindow window;
     if (argc == 2)
