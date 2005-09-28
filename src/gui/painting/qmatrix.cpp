@@ -807,9 +807,19 @@ const qreal deg2rad = qreal(0.017453292519943295769);        // pi/180
 
 QMatrix &QMatrix::rotate(qreal a)
 {
-    qreal b = deg2rad*a;                        // convert to radians
-    qreal sina = sin(b);                // fast and convenient
-    qreal cosa = cos(b);
+    qreal sina = 0;
+    qreal cosa = 0;
+    if (a == 90. || a == -270.)
+        sina = 1.;
+    else if (a == 270. || a == -90.)
+        sina = -1.;
+    else if (a == 180.)
+        cosa = -1.;
+    else{
+        qreal b = deg2rad*a;                        // convert to radians
+        sina = sin(b);                // fast and convenient
+        cosa = cos(b);
+    }
     qreal tm11 = cosa*_m11 + sina*_m21;
     qreal tm12 = cosa*_m12 + sina*_m22;
     qreal tm21 = -sina*_m11 + cosa*_m21;
