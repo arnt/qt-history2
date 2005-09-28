@@ -109,7 +109,7 @@ QSize QSvgRenderer::defaultSize() const
 
 /*!
     \property QSvgRenderer::viewBox
-    \brief the rectangle containing the visible area of the document
+    \brief the rectangle specifying the visible area of the document in logical coordinates
 */
 QRect QSvgRenderer::viewBox() const
 {
