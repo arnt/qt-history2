@@ -18,11 +18,12 @@
 
 QT_MODULE(Gui)
 
+class QColor;
 class QIODevice;
 class QImage;
 class QRect;
 class QSize;
-class QColor;
+class QStringList;
 
 class QImageReaderPrivate;
 class Q_GUI_EXPORT QImageReader
@@ -51,6 +52,9 @@ public:
     QString fileName() const;
 
     QSize size() const;
+
+    QStringList textKeys() const;
+    QString text(const QString &key) const;
 
     void setClipRect(const QRect &rect);
     QRect clipRect() const;

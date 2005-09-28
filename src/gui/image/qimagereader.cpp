@@ -227,6 +227,8 @@ public:
     QRect clipRect;
     QSize scaledSize;
     QRect scaledClipRect;
+    QMap<QString, QString> text;
+    void getText();
 
     // error
     QImageReader::ImageReaderError imageReaderError;
@@ -301,6 +303,24 @@ bool QImageReaderPrivate::initHandler()
 #endif
     
     return true;
+}
+
+/*!
+    \internal
+*/
+void QImageReaderPrivate::getText()
+{
+    if (!text.isEmpty() || (!handler && !initHandler()) || !handler->supportsOption(QImageIOHandler::Description))
+        return;
+    foreach (QString pair, handler->option(QImageIOHandler::Description).toString().split("\n\n")) {
+        int index = pair.indexOf(":");
+        if (index >= 0 && pair.indexOf(" ") < index) {
+            text.insert("Description", pair.simplified());
+        } else {
+            QString key = pair.left(index);
+            text.insert(key, pair.mid(index + 2).simplified());
+        }
+    }
 }
 
 /*!
@@ -396,6 +416,7 @@ void QImageReader::setDevice(QIODevice *device)
     d->deleteDevice = false;
     delete d->handler;
     d->handler = 0;
+    d->text.clear();
 }
 
 /*!
@@ -461,6 +482,36 @@ QSize QImageReader::size() const
     }
 
     return image.size();
+}
+
+/*!
+    Returns the text keys for this image. You can use
+    these keys with text() to list the image text for
+    a certain key.
+
+    Support for this option is implemented through
+    QImageIOHandler::Description.
+
+    \sa text(), QImageWriter::setText(), QImage::textKeys()
+*/
+QStringList QImageReader::textKeys() const
+{
+    d->getText();
+    return d->text.keys();
+}
+
+/*!
+    Returns the image text associated with \a key.
+
+    Support for this option is implemented through
+    QImageIOHandler::Description.
+
+    \sa textKeys(), setText(), QImageWriter::text()
+*/
+QString QImageReader::text(const QString &key) const
+{
+    d->getText();
+    return d->text.value(key);    
 }
 
 /*!
@@ -617,7 +668,7 @@ bool QImageReader::canRead() const
 */
 QImage QImageReader::read()
 {
-    if (!d->initHandler())
+    if (!d->handler && !d->initHandler())
         return QImage();
 
     // set the handler specific options.

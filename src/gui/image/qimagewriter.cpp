@@ -161,6 +161,7 @@ public:
     int quality;
     float gamma;
     QString description;
+    QString text;
 
     // error
     QImageWriter::ImageWriterError imageWriterError;
@@ -380,6 +381,10 @@ float QImageWriter::gamma() const
 }
 
 /*!
+    \obsolete
+
+    Use setText() instead.
+    
     This is an image format specific function that sets the
     description of the image to \a description. For image formats that
     do not support setting the description, this value is ignored.
@@ -394,13 +399,48 @@ void QImageWriter::setDescription(const QString &description)
 }
 
 /*!
-    Returns the description of the image.
+    \obsolete
 
+    Use QImageReader::text() instead.
+    
+    Returns the description of the image.
+    
     \sa setDescription()
 */
 QString QImageWriter::description() const
 {
     return d->description;
+}
+
+/*!
+    Sets the image text associated with the key \a key to
+    \a text. This is useful for storing copyright information
+    or other information about the image. Example:
+
+    \code
+        QImage image("some/image.jpeg");
+        QImageWriter writer("images/outimage.png", "png");
+        writer.setText("Author", "John Smith");
+        writer.write(image);
+    \endcode
+
+    If you want to store a single block of data
+    (e.g., a comment), you can pass an empty key, or use
+    a generic key like "Description".
+
+    The key and text will be embedded into the
+    image data after calling write().
+
+    Support for this option is implemented through
+    QImageIOHandler::Description.
+
+    \sa QImage::setText(), QImageReader::text()
+*/
+void QImageWriter::setText(const QString &key, const QString &text)
+{
+    if (!d->description.isEmpty())
+        d->description += QLatin1String("\n\n");
+    d->description += key.simplified() + QLatin1String(": ") + text.simplified();
 }
 
 /*!
@@ -440,7 +480,7 @@ bool QImageWriter::write(const QImage &image)
         d->handler->setOption(QImageIOHandler::Quality, d->quality);
     if (d->handler->supportsOption(QImageIOHandler::Gamma))
         d->handler->setOption(QImageIOHandler::Gamma, d->gamma);
-    if (d->handler->supportsOption(QImageIOHandler::Description))
+    if (!d->description.isEmpty() && d->handler->supportsOption(QImageIOHandler::Description))
         d->handler->setOption(QImageIOHandler::Description, d->description);
 
     return d->handler->write(image);

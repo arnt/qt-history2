@@ -27,10 +27,12 @@
 
 #include "QtGui/qimageiohandler.h"
 
+class QPngHandlerPrivate;
 class Q_GUI_EXPORT QPngHandler : public QImageIOHandler
 {
 public:
     QPngHandler();
+    ~QPngHandler();
 
     bool canRead() const;
     bool read(QImage *image);
@@ -45,8 +47,7 @@ public:
     static bool canRead(QIODevice *device);
 
 private:
-    float gamma;
-    int quality;
+    QPngHandlerPrivate *d;
 };
 
 #endif // QPNGHANDLER_P_H

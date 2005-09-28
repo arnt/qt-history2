@@ -14,10 +14,11 @@
 #ifndef QIMAGE_H
 #define QIMAGE_H
 
-#include <QtGui/qrgb.h>
 #include <QtGui/qpaintdevice.h>
-#include <QtCore/qrect.h>
+#include <QtGui/qrgb.h>
 #include <QtCore/qbytearray.h>
+#include <QtCore/qrect.h>
+#include <QtCore/qstring.h>
 
 QT_MODULE(Gui)
 
@@ -187,10 +188,14 @@ public:
     QPoint offset() const;
     void setOffset(const QPoint&);
 #ifndef QT_NO_IMAGE_TEXT
+    QStringList textKeys() const;
+    QString text(const QString &key = QString()) const;
+    void setText(const QString &key, const QString &value);
+
+    // The following functions are obsolete as of 4.1
+    QString text(const char* key, const char* lang=0) const;
     QList<QImageTextKeyLang> textList() const;
     QStringList textLanguages() const;
-    QStringList textKeys() const;
-    QString text(const char* key, const char* lang=0) const;
     QString text(const QImageTextKeyLang&) const;
     void setText(const char* key, const char* lang, const QString&);
 #endif

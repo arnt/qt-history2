@@ -90,6 +90,8 @@ struct QImageData {        // internal image data
         }
         return r;
     }
+
+    QMap<QString, QString> text;
 #endif
     bool doImageIO(const QImage *image, QImageWriter* io, int quality) const;
 
@@ -4028,6 +4030,63 @@ void QImage::setOffset(const QPoint& p)
 #ifndef QT_NO_IMAGE_TEXT
 
 /*!
+    Returns the text keys for this image. You can use
+    these keys with text() to list the image text for
+    a certain key.
+
+    \sa text(), setText(), QImageReader::textKeys()
+*/
+QStringList QImage::textKeys() const
+{
+    return d ? d->text.keys() : QStringList();
+}
+
+/*!
+    Returns the image text associated with \a key. If
+    \a key is an empty string, the whole image text is
+    returned, with each key-text pair separated by a newline.
+
+    You can also set the image text by calling setText().
+
+    \sa textKeys(), setText()
+*/
+QString QImage::text(const QString &key) const
+{
+    if (!d)
+        return QString();
+
+    if (!key.isEmpty())
+        return d->text.value(key);
+
+    QString tmp;
+    foreach (QString key, d->text.keys()) {
+        if (!tmp.isEmpty())
+            tmp += QLatin1String("\n\n");
+        tmp += key + ": " + d->text.value(key).simplified();
+    }
+    return tmp;
+}
+
+/*!
+    Sets the image text \a value with the key \a key. If you
+    just want to store a single text block (i.e., a "comment"
+    or just a description), you can either pass an empty key,
+    or use a generic key like "Description".
+
+    The image text is embedded into the image data when you
+    call save() or QImageWriter::write().
+
+    \sa text(), QImageWriter::setText()
+*/
+void QImage::setText(const QString &key, const QString &value)
+{
+    if (d)
+        d->text.insert(key, value);        
+}
+
+/*!
+    \obsolete
+
     Returns the string recorded for the keyword \a key in language \a
     lang, or in a default language if \a lang is 0.
 */
@@ -4038,6 +4097,7 @@ QString QImage::text(const char* key, const char* lang) const
 
 /*!
     \overload
+    \obsolete
 
     Returns the string recorded for the keyword and language \a kl.
 */
@@ -4070,28 +4130,8 @@ QStringList QImage::textLanguages() const
 }
 
 /*!
-    Returns the keywords for which some texts are recorded.
+    \obsolete
 
-    Note that if you want to iterate over the list, you should iterate
-    over a copy, e.g.
-
-    \code
-        QStringList list = myImage.textKeys();
-        QStringList::Iterator it = list.begin();
-        while(it != list.end()) {
-            myProcessing(*it);
-            ++it;
-        }
-    \endcode
-
-    \sa textList() text() setText() textLanguages()
-*/
-QStringList QImage::textKeys() const
-{
-    return d ? d->keys() : QStringList();
-}
-
-/*!
     Returns a list of QImageTextKeyLang objects that enumerate all the
     texts key/language pairs set by setText() for this image.
 */
@@ -4101,6 +4141,8 @@ QList<QImageTextKeyLang> QImage::textList() const
 }
 
 /*!
+    \obsolete
+
     Records string \a s for the keyword \a key. The \a key should be
     a portable keyword recognizable by other software - some suggested
     values can be found in
