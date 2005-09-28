@@ -772,7 +772,7 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         extraFlags |= QStyle::State_Enabled;
     if (window()->isActiveWindow())
         extraFlags |= QStyle::State_Active;
-    
+
     QPoint oldBO = painter->brushOrigin();
 
     int v = verticalScrollBar()->value();
@@ -1613,8 +1613,9 @@ int QTreeViewPrivate::item(int coordinate) const
                 return viewItemIndex;
             ++viewItemIndex;
         }
-        // item is below viewport - give estimated coordinate
     }
+    if (itemHeight <= 0)
+        return -1;
     // item is above the viewport - give estimated coordinate
     int i = viewItemIndex + ((coordinate - y) / itemHeight);
     return i < 0 || i >= viewItems.count() ? -1 : i;
@@ -1711,6 +1712,10 @@ void QTreeViewPrivate::updateVerticalScrollbar()
     int verticalScrollBarValue = q->verticalScrollBar()->value();
     int itemsInViewport = 0;
     if (uniformRowHeights) {
+        if (itemHeight <= 0) {
+            q->verticalScrollBar()->setRange(0, 0);
+            return;
+        }
         itemsInViewport = viewHeight / itemHeight;
     } else {
         int topItemInViewport = itemAt(verticalScrollBarValue);
