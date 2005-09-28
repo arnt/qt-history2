@@ -255,9 +255,11 @@ const QString::Null QString::null = QString::Null();
     \endcode
 
     You can also pass string literals to functions that take QStrings
-    and the QString(const char *) constructor will be invoked.
-    Similarly, you can pass a QString to a function that takes a
-    \c{const char *} and \l{operator const char *()} will be invoked.
+    and the QString(const char *) constructor will be
+    invoked. Similarily, you can pass a QString to a function that
+    takes a \c{const char *} using the \qPrintable() macro which
+    returns the given QString as a \c{const char *}. This is
+    equivalent to calling <QString>.toAscii().constData().
 
     QString provides the following basic functions for modifying the
     character data: append(), prepend(), insert(), replace(), and
