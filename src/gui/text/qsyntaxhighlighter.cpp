@@ -22,6 +22,7 @@
 #include <qtextcursor.h>
 #include <qdebug.h>
 #include <qtextedit.h>
+#include <qtimer.h>
 
 class QSyntaxHighlighterPrivate : public QObjectPrivate
 {
@@ -31,6 +32,8 @@ public:
 
     QPointer<QTextDocument> doc;
 
+    void reformatDocument();
+
     void reformatBlocks(int from, int charsRemoved, int charsAdded);
     void reformatBlock(QTextBlock block);
 
@@ -38,6 +41,18 @@ public:
     QVector<QTextCharFormat> formatChanges;
     QTextBlock currentBlock;
 };
+
+void QSyntaxHighlighterPrivate::reformatDocument()
+{
+    if (!doc)
+        return;
+
+    QTextCursor cursor(doc);
+    cursor.beginEditBlock();
+    cursor.movePosition(QTextCursor::End);
+    reformatBlocks(0, 0, cursor.position());
+    cursor.endEditBlock();
+}
 
 void QSyntaxHighlighterPrivate::applyFormatChanges()
 {
@@ -212,6 +227,7 @@ void QSyntaxHighlighter::setDocument(QTextDocument *doc)
     if (d->doc) {
         connect(d->doc, SIGNAL(contentsChange(int, int, int)),
                 this, SLOT(reformatBlocks(int, int, int)));
+        QTimer::singleShot(0, this, SLOT(reformatDocument()));
     }
 }
 
