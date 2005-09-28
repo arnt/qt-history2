@@ -6545,7 +6545,7 @@ void QWidget::setIcon(const QPixmap &i)
 /*!
     Return's the widget's icon.
 
-    Use windowIconText() instead().
+    Use windowIcon() instead().
 */
 const QPixmap *QWidget::icon() const
 {
