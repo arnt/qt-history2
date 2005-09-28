@@ -75,6 +75,7 @@ protected:
     virtual void dragLeaveEvent(QDragLeaveEvent *event);
     virtual void dropEvent(QDropEvent *event);
 
+    void startDrag(const QPoint &pos);
     bool handleEvent(QWidget *widget, QEvent *event);
     bool handleMousePressEvent(QWidget *widget, QMouseEvent *event);
     bool handleMouseReleaseEvent(QWidget *widget, QMouseEvent *event);
@@ -91,6 +92,7 @@ private:
     QTimer *m_sentinelChecker;
     QAction *m_sentinel;
     bool m_blockSentinelChecker;
+    QPoint m_startPosition;
 };
 
 #endif // QDESIGNER_TOOLBAR_H

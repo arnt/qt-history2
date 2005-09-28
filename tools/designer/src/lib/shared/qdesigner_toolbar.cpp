@@ -75,28 +75,17 @@ bool QDesignerToolBar::handleEvent(QWidget *widget, QEvent *event)
     return true;
 }
 
-bool QDesignerToolBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
+void QDesignerToolBar::startDrag(const QPoint &pos)
 {
-    if (event->button() != Qt::LeftButton) {
-        event->accept();
-        return true;
-    }
-
-    if (QDesignerFormWindowInterface *fw = formWindow()) {
-        if (QDesignerPropertyEditorInterface *pe = fw->core()->propertyEditor()) {
-            pe->setObject(this);
-        }
-    }
-
-    QPoint pos = mapFromGlobal(event->globalPos());
     int index = findAction(pos);
     if (index == actions().count() - 1)
-        return true;
+        return;
 
     QAction *action = actions().at(index);
     removeAction(action);
+    adjustSize();
 
-    adjustIndicator(event->pos());
+    adjustIndicator(pos);
 
     QDrag *drag = new QDrag(this);
     drag->setPixmap(action->icon().pixmap(QSize(22, 22)));
@@ -109,17 +98,38 @@ bool QDesignerToolBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
         QAction *previous = actions().at(index);
         insertAction(previous, action);
     }
+}
+
+bool QDesignerToolBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
+{
+    event->accept();
+
+    if (event->button() != Qt::LeftButton)
+        return true;
+
+    if (QDesignerFormWindowInterface *fw = formWindow()) {
+        if (QDesignerPropertyEditorInterface *pe = fw->core()->propertyEditor()) {
+            pe->setObject(this);
+        }
+    }
+
+    QPoint pos = mapFromGlobal(event->globalPos());
+    startDrag(pos);
 
     return true;
 }
 
-bool QDesignerToolBar::handleMouseReleaseEvent(QWidget *, QMouseEvent *)
+bool QDesignerToolBar::handleMouseReleaseEvent(QWidget *, QMouseEvent *event)
 {
+    event->accept();
+
     return true;
 }
 
-bool QDesignerToolBar::handleMouseMoveEvent(QWidget *, QMouseEvent *)
+bool QDesignerToolBar::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
 {
+    event->accept();
+
     return true;
 }
 
