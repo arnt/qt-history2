@@ -1153,9 +1153,9 @@ void AlignmentProperty::setValue(const QVariant &value)
 {
     QVariant v = value;
     if (qVariantCanConvert<FlagType>(value))
-        QVariant v = qvariant_cast<FlagType>(value).value;
+        v = qvariant_cast<FlagType>(value).value;
     else if (qVariantCanConvert<EnumType>(value))
-        QVariant v = qvariant_cast<EnumType>(value).value;
+        v = qvariant_cast<EnumType>(value).value;
     propertyAt(0)->setValue(v.toUInt() & Qt::AlignHorizontal_Mask);
     propertyAt(1)->setValue(v.toUInt() & Qt::AlignVertical_Mask);
 }
