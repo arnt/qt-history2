@@ -1009,6 +1009,14 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 	QSize tb_sz;
 	tb_rect[line] = r;
 
+        bool lineHidden = true;
+        for (int i = 0; i < lineInfo.list.size(); ++i)
+            lineHidden &= lineInfo.list.at(i).item->isEmpty();
+
+        if (lineHidden)
+            continue;
+ 
+    
 	switch (lineInfo.pos) {
 	case TOP:
 	    tb_sz = rest_sz[line];
