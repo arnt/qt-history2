@@ -1083,23 +1083,32 @@ opening the \key Edit menu and selecting \key{Edit Resources}.
 
     \section1 Form Settings
 
-    \image designer-formsettings.png
+    \image designer-form-settings.png
 
-    In the form settings dialog you can set several of the currently
-    selected form window's properties.
+    Qt Designer stores forms in .ui files. The form settings dialog
+    allows you to specify several of the form's characteristics which
+    will be stored in the \c .ui file and used when \c uic generates
+    the form's code.
 
-    You can specify the author or creator of the form. You can fill in
-    the default margin and spacing for the form's default layout, or
-    fill in the margin and spacing for the form's current layout.
+    You can specify the author or creator of the form, and you can
+    specify the margin and spacing properties for the form's default
+    layout.
 
-    You can also specify the form's include hints, i.e. a list of the
-    header files that will be included in the form window's associated
-    \c .ui file. Header files may be local, i.e. relative to the
-    project's directory, "mywidget.h", or global, i.e. part of Qt or
-    the compilers standard libraries: <QtGui/QWidget>.
+    A default layout property will be replaced by the corresponding
+    layout function when \c uic generates code for the form, that is,
+    if a function is specified. This is useful when different
+    environments requires different layouts for the same form. The
+    form settings dialog lets you specify functions for both the
+    margin and the spacing.
 
-    Finally, you can specify the function used to load pixmaps into
-    the form window.
+    You can also specify the form's include hints, i.e. provide a list
+    of the header files which should be included in the form window's
+    associated \c .ui file. Header files may be local, i.e. relative
+    to the project's directory, "mywidget.h", or global, i.e. part of
+    Qt or the compilers standard libraries: <QtGui/QWidget>.
+
+    Finally, you can specify the function (Pixmap Function) used to
+    load pixmaps into the form window.
 */
 
 /*!
