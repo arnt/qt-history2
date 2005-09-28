@@ -1016,7 +1016,6 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
         if (lineHidden)
             continue;
  
-    
 	switch (lineInfo.pos) {
 	case TOP:
 	    tb_sz = rest_sz[line];
