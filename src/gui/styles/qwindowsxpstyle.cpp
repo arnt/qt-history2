@@ -2893,9 +2893,6 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
         res = 6;
         break;
 
-    case PM_ToolBarIconSize:
-        res = 24;
-        break; 
 #endif // QT_NO_TOOLBAR
 
     default:

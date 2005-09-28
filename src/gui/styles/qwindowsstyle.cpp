@@ -284,6 +284,23 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
     case PM_MenuBarPanelWidth:
         ret = 0;
         break;
+
+    case PM_SmallIconSize:
+        ret = 16;
+        break;
+
+    case PM_LargeIconSize:
+        ret = 32;
+        break;
+
+    case PM_IconViewIconSize:
+        ret = pixelMetric(PM_LargeIconSize, opt, widget);
+        break;
+
+    case PM_ToolBarIconSize:
+        ret = 24;
+        break; 
+
 #endif // QT_NO_MENU
 
 
