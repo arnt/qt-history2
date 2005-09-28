@@ -1683,6 +1683,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
         option.setWrapMode(wordWrapMode);
     option.setTabStop(tabStopWidth);
     option.setUseDesignMetrics(q->document()->useDesignMetrics());
+    option.setFlags(QTextOption::IncludeTrailingSpaces);
     tl->setTextOption(option);
 
     const bool haveWordOrAnyWrapMode = (option.wrapMode() == QTextOption::WrapAtWordBoundaryOrAnywhere);
@@ -1929,9 +1930,6 @@ qreal QTextDocumentLayoutPrivate::findY(qreal yFrom, const LayoutStruct *layoutS
 QTextDocumentLayout::QTextDocumentLayout(QTextDocument *doc)
     : QAbstractTextDocumentLayout(*new QTextDocumentLayoutPrivate, doc)
 {
-    Q_D(QTextDocumentLayout);
-    d->blockTextFlags = Qt::TextIncludeTrailingSpaces|Qt::TextWordWrap;
-
     registerHandler(QTextFormat::ImageObject, new QTextImageHandler(this));
 }
 
