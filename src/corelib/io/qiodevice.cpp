@@ -211,8 +211,10 @@ QIODevicePrivate::~QIODevicePrivate()
                      written to the end of the file.
     \value Truncate  If possible, the device is truncated before it is opened.
                      All earlier contents of the device are lost.
-    \value Text When reading lines using readLine(), end-of-line
-                     terminators are translated to the local encoding.
+    \value Text      When reading, the end-of-line terminators are
+                     translated to '\n'. When writing, the end-of-line
+                     terminators are translated to the local encoding, for
+                     example '\r\n' for Win32.
     \value Unbuffered Any buffer in the device is bypassed.
 
     Certain flags, such as QIODevice::Unbuffered and
@@ -692,8 +694,8 @@ QByteArray QIODevice::readAll()
     maximum of \a maxSize - 1 bytes, stores the characters in \a data, and
     returns the number of bytes read. If an error occurred, -1 is returned.
 
-    A '\0' byte is always appended to \a data, so \a maxSize must be larger
-    than 1.
+    A terminating '\0' byte is always appended to \a data, so \a
+    maxSize must be larger than 1.
 
     Data is read until either of the following conditions are met:
 
@@ -1010,14 +1012,14 @@ qint64 QIODevice::peek(char *data, qint64 maxSize)
     as a QByteArray.
 
     Example:
- 
+
     \code
         bool isExeFile(QFile *file)
         {
             return file->peek(2) == "MZ";
         }
     \endcode
-    
+
     This function has no way of reporting errors; returning an empty
     QByteArray() can mean either that no data was currently available
     for peeking, or that an error occurred.
