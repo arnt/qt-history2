@@ -1293,7 +1293,8 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
                 }
                 pos.setY(newY);
 
-                if (!style()->styleHint(QStyle::SH_Menu_FillScreenWithScroll, 0, this)) {
+                if ((d->scroll->scrollFlags != QMenuPrivate::QMenuScroller::ScrollNone)
+                        && !style()->styleHint(QStyle::SH_Menu_FillScreenWithScroll, 0, this)) {
                     int below_height = above_height + d->scroll->scrollOffset;
                     for(int i2 = i; i2 < (int)d->actionList.count(); i2++)
                         below_height += d->actionRects.value(d->actionList.at(i2)).height();
