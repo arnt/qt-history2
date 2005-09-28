@@ -80,6 +80,19 @@ that they will look and feel exactly as you intended.
 \i \l{Qt Designer's Buddy Editing Mode#MakingBuddies}{Making Buddies}
 \endlist
 
+\section1 Legal Notices
+
+Some source code in Qt Designer is licensed under specific highly
+permissive licenses from the original authors. Trolltech gratefully
+acknowledges these contributions to \QD and all uses of \QD should
+also acknowledge these contributions and quote the following license
+statements in an appendix to the documentation.
+
+\list
+\i \l{Implementation of the Recursive Shadow Casting Algorithm in Qt Designer }
+\i \l{Contributions to the Following Qt Designer Files: treewalker.h, treedump.cpp, treedump.h, treewalker.cpp}
+\endlist
+
 */
 
 /*!
@@ -1802,4 +1815,48 @@ without having to write code themselves.
     Extension} and \l {designer/containerextension}{Container Extension}
     examples for more information about creating custom widget extensions
     in \QD.
+*/
+
+/*!
+    \page designer-recursive-shadow-casting.html
+    \title Implementation of the Recursive Shadow Casting Algorithm in Qt Designer
+    \contentspage {Qt Designer Manual}{Contents}
+
+    \legalese
+    Copyright (C) 2005 Trolltech AS. All rights reserved. \BR
+    Copyright (C) 2005 Bjoern Bergstroem
+
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, modify, market, reproduce,
+    grant sublicenses and distribute subject to the following conditions:
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software. These
+    files are provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+    WARRANTY OF DESIGN, MERCHANTIBILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE.
+    \endlegalese
+*/
+
+/*!
+    \page designer-treewalker.html
+    \title Contributions to the Following Qt Designer Files: treewalker.h, treedump.cpp, treedump.h, treewalker.cpp
+    \contentspage {Qt Designer Manual}{Contents}
+
+    \legalese
+    Copyright (C) 2005 Trolltech AS. All rights reserved. \BR
+    Copyright (C) 2005 Roberto Raggi
+
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, modify, market, reproduce,
+    grant sublicenses and distribute subject to the following
+    conditions:  The above copyright notice and this permission notice
+    shall be included in all copies or substantial portions of the
+    Software.  These files are provided AS IS with NO WARRANTY OF ANY
+    KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTIBILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE.
+    \endlegalese
 */
