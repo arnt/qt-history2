@@ -1618,7 +1618,7 @@ without having to write code themselves.
     \section1 Creating an Extension
 
     To create an extension you must inherit both QObject and the
-    appropiate base class, and reimplement its functions. For example,
+    appropriate base class, and reimplement its functions. For example,
     creating a task menu extension requires the following class
     definition:
 
@@ -1664,18 +1664,17 @@ without having to write code themselves.
 
     In \QD the extensions are not created until they are
     required. For that reason, when implementing extensions, you must
-    subclass QExtensionFactory, i.e create a class that is able to
-    make instances of your extensions. In addition you must make Qt
-    Designer's extension manager register your factory; the extension
+    subclass QExtensionFactory to create a class that is able to
+    make instances of your extensions. In addition you must register
+    your factory with \QD's extension manager; the extension
     manager controls the construction of extensions as they are
     required.
 
     When an extension is requested, \QD's extension manager will run
     through all its registered factories calling
-    QExtensionFactory::createExtension() for each until the first one
+    QExtensionFactory::createExtension() for each until it finds one
     that is able to create the requested extension for the selected
-    widget, is found. This factory will then make an instance of the
-    extension.
+    widget. This factory will then make an instance of the extension.
 
     \image qtdesignerextensions.png
 
@@ -1684,7 +1683,7 @@ without having to write code themselves.
     The QExtensionFactory class provides a standard extension factory,
     but can also be used as an interface for custom extension
     factories. For example, creating a custom container extension
-    factory, requires the following class definition:
+    factory requires the following class definition:
 
     \code
         #ifndef MYCONTAINEREXTENSIONFACTORY_H
@@ -1711,7 +1710,8 @@ without having to write code themselves.
 
     The purpose is to reimplement the
     QExtensionFactory::createExtension() function, making it able to
-    create your extension, for example a MultiPageWidget container
+    create your extension, such as a
+    \l{designer/containerextension}{MultiPageWidget} container
     extension.
 
     You can either create a new QExtensionFactory and
@@ -1733,8 +1733,8 @@ without having to write code themselves.
     \endcode
 
     Or you can use an existing factory, expanding the
-    QExtensionFactory::createExtension() function to make the factory
-    able to create your custom extension as well. For example:
+    QExtensionFactory::createExtension() function to enable the factory
+    to create your custom extension as well. For example:
 
     \code
         QObject *AGeneralExtensionFactory::createExtension(QObject *object,
@@ -1758,9 +1758,9 @@ without having to write code themselves.
 
     When implementing a custom widget plugin, you must subclass the
     QDesignerCustomWidgetInterface to expose your plugin to Qt
-    Designer. This is covered in more details in the \l {Creating
-    Custom Widgets for Qt Designer} section. But in addition, the
-    registration of an extension factory is typically made in the
+    Designer. This is covered in more detail in the \l {Creating
+    Custom Widgets for Qt Designer} section. The registration of an
+    extension factory is typically made in the
     QDesignerCustomWidgetInterface::initialize() function:
 
     \code
@@ -1779,9 +1779,9 @@ without having to write code themselves.
     }
     \endcode
 
-    The QDesignerCustomWidgetInterface::initialize() function's
-    parameter is a pointer to \QD's current
-    QDesignerFormEditorInterface object (formEditor). You must use the
+    The \c formEditor parameter to the
+    QDesignerCustomWidgetInterface::initialize() function is a pointer to
+    \QD's current QDesignerFormEditorInterface object. You must use the
     QDesignerFormEditorInterface::extensionManager() function to
     retrieve an interface to \QD's extension manager. Then you use the
     QExtensionManager::registerExtensions() function to register your
