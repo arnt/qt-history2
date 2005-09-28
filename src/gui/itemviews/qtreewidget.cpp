@@ -111,8 +111,8 @@ void QTreeModel::setColumnCount(int columns)
     } else {
         beginInsertColumns(QModelIndex(), count, columns - 1);
         header->values.resize(columns);
-        for (int i = count; i < columns; ++i)
-            header->setText(i, QString::number(i)); // FIXME: shouldn't save anything
+        for (int i = count; i < columns; ++i) // insert data without emitting the dataChanged signal
+            header->values[i].append(QWidgetItemData(Qt::DisplayRole, QString::number(i)));
         endInsertColumns();
     }
 }

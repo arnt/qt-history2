@@ -1062,13 +1062,14 @@ QRegion QTreeView::visualRegionForSelection(const QItemSelection &selection) con
         QItemSelectionRange range = selection.at(i);
         if (!range.isValid())
             continue;
+        QModelIndex parent = range.parent();
         QModelIndex leftIndex = range.topLeft();
-        while (isIndexHidden(leftIndex))
-            leftIndex = leftIndex.sibling(leftIndex.row(), leftIndex.column() + 1);
+        while (leftIndex.isValid() && isIndexHidden(leftIndex))
+            leftIndex = model()->index(leftIndex.row(), leftIndex.column() + 1, parent);
         int top = visualRect(leftIndex).top();
         QModelIndex rightIndex = range.bottomRight();
-        while (isIndexHidden(rightIndex))
-            rightIndex = rightIndex.sibling(rightIndex.row(), rightIndex.column() - 1);
+        while (rightIndex.isValid() && isIndexHidden(rightIndex))
+            rightIndex = model()->index(rightIndex.row(), rightIndex.column() - 1, parent);
         int bottom = visualRect(rightIndex).bottom();
         if (top > bottom)
             qSwap<int>(top, bottom);
