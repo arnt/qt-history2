@@ -56,7 +56,6 @@ static QString xmlSimplify(const QString &str)
     return temp;
 }
 
-
 static QList<qreal> parseNumbersList(QString::const_iterator &itr)
 {
     QList<qreal> points;
@@ -85,6 +84,42 @@ static QList<qreal> parseNumbersList(QString::const_iterator &itr)
         }
         while ((*itr).isDigit())
             temp += *itr++;
+        while ((*itr).isSpace())
+            ++itr;
+        if ((*itr) == ',')
+            ++itr;
+        points.append(temp.toDouble());
+        //eat the rest of space
+        while ((*itr).isSpace())
+            ++itr;
+    }
+
+    return points;
+}
+
+static QList<qreal> parsePercentageList(QString::const_iterator &itr)
+{
+    QList<qreal> points;
+    QString temp;
+    while ((*itr).isSpace())
+        ++itr;
+    while ((*itr).isNumber() ||
+           (*itr) == '-' || (*itr) == '+') {
+        temp = QString();
+
+        if ((*itr) == '-')
+            temp += *itr++;
+        else if ((*itr) == '+')
+            temp += *itr++;
+        while ((*itr).isDigit())
+            temp += *itr++;
+        if ((*itr) == '.')
+            temp += *itr++;
+        while ((*itr).isDigit())
+            temp += *itr++;
+        if (( *itr) == '%') {
+            itr++;
+        }
         while ((*itr).isSpace())
             ++itr;
         if ((*itr) == ',')
@@ -149,8 +184,18 @@ static bool resolveColor(const QString &colorStr, QColor &color)
     } else if (colorStr.startsWith("rgb(")) {
         QString::const_iterator itr = colorStr.begin();
         ++itr; ++itr; ++itr; ++itr;
+        QString::const_iterator itr_back = itr;
         QList<qreal> compo = parseNumbersList(itr);
-        //qDebug()<<"compo = "<<compo;
+        //1 means that it failed after reaching non-parsable
+        //character which is going to be "%"
+        if (compo.size() == 1) {
+            itr = itr_back;
+            compo = parsePercentageList(itr);
+            compo[0] *= 2.55;
+            compo[1] *= 2.55;
+            compo[2] *= 2.55;
+        }
+
         color = QColor(int(compo[0]),
                        int(compo[1]),
                        int(compo[2]));
@@ -703,6 +748,7 @@ static void path_arc_segment(QPainterPath &path,
                  a00 * x2 + a01 * y2, a10 * x2 + a11 * y2,
                  a00 * x3 + a01 * y3, a10 * x3 + a11 * y3);
 }
+
 // the code underneath is from XSVG
 static void path_arc(QPainterPath &path,
                      double		rx,
@@ -775,12 +821,6 @@ static void path_arc(QPainterPath &path,
     else if (th_arc > 0 && !sweep_flag)
         th_arc -= 2 * M_PI;
 
-    /* XXX: I still need to evaluate the math performed in this
-       function. The critical behavior desired is that the arc must be
-       approximated within an arbitrary error tolerance, (which the
-       user should be able to specify as well). I don't yet know the
-       bounds of the error from the following computation of
-       n_segs. Plus the "+ 0.001" looks just plain fishy. -cworth */
     n_segs = int(ceil (fabs (th_arc / (M_PI * 0.5 + 0.001))));
 
     for (i = 0; i < n_segs; i++) {
@@ -1468,18 +1508,18 @@ static QSvgNode *createPolygonNode(QSvgNode *parent,
 {
     Q_UNUSED(parent); Q_UNUSED(attributes);
     QString pointsStr  = attributes.value("points");
-    QStringList points = pointsStr.split(" ", QString::SkipEmptyParts);
-    QStringList::const_iterator itr = points.begin();
-    QPolygonF poly(points.count());
+
+    //same QPolygon parsing is in createPolylineNode
+    QString::const_iterator sitr = pointsStr.begin();
+    QList<qreal> points = parseNumbersList(sitr);
+    QPolygonF poly(points.count()/2);
     int i = 0;
+    QList<qreal>::const_iterator itr = points.begin();
     while (itr != points.end()) {
-        QString point = *itr;
-        QStringList coords = point.split(",", QString::SkipEmptyParts);
-        QString x = coords.at(0).trimmed();
-        QString y = coords.at(1).trimmed();
-        poly[i] = QPointF(x.toDouble(), y.toDouble());
+        qreal one = *itr; ++itr;
+        qreal two = *itr; ++itr;
+        poly[i] = QPointF(one, two);
         ++i;
-        ++itr;
     }
     QSvgNode *polygon = new QSvgPolygon(parent, poly);
     return polygon;
@@ -1489,19 +1529,20 @@ static QSvgNode *createPolylineNode(QSvgNode *parent,
                                     const QXmlAttributes &attributes)
 {
     QString pointsStr  = attributes.value("points");
-    QStringList points = pointsStr.split(" ", QString::SkipEmptyParts);
-    QStringList::const_iterator itr = points.begin();
-    QPolygonF poly(points.count());
+
+    //same QPolygon parsing is in createPolygonNode
+    QString::const_iterator sitr = pointsStr.begin();
+    QList<qreal> points = parseNumbersList(sitr);
+    QPolygonF poly(points.count()/2);
     int i = 0;
+    QList<qreal>::const_iterator itr = points.begin();
     while (itr != points.end()) {
-        QString point = *itr;
-        QStringList coords = point.split(",", QString::SkipEmptyParts);
-        QString x = coords.at(0).trimmed();
-        QString y = coords.at(1).trimmed();
-        poly[i] = QPointF(x.toDouble(), y.toDouble());
+        qreal one = *itr; ++itr;
+        qreal two = *itr; ++itr;
+        poly[i] = QPointF(one, two);
         ++i;
-        ++itr;
     }
+
     QSvgNode *line = new QSvgPolyline(parent, poly);
     return line;
 }
@@ -1789,10 +1830,11 @@ QSvgHandler::QSvgHandler()
 }
 
 bool QSvgHandler::startElement(const QString &namespaceURI,
-                                  const QString &localName,
-                                  const QString &,
-                                  const QXmlAttributes &attributes)
+                               const QString &localName,
+                               const QString &,
+                               const QXmlAttributes &attributes)
 {
+    Q_UNUSED(namespaceURI);
     QSvgNode *node = 0;
     //qDebug()<<"localName = "<<localName;
     if (s_groupFactory.contains(localName)) {
@@ -1859,12 +1901,13 @@ bool QSvgHandler::startElement(const QString &namespaceURI,
             qWarning()<<"Couldn't parse node: "<<localName;
         }
     } else if (s_styleUtilFactory.contains(localName)) {
-        Q_ASSERT(m_style);
-        if (!s_styleUtilFactory[localName](m_style, attributes)) {
-            qWarning()<<"Problem parsing "<<localName;
+        if (m_style) {
+            if (!s_styleUtilFactory[localName](m_style, attributes)) {
+                qWarning()<<"Problem parsing "<<localName;
+            }
         }
     } else {
-        qWarning()<<"Skipping unknown element!"<<namespaceURI<<"::"<<localName;
+        //qWarning()<<"Skipping unknown element!"<<namespaceURI<<"::"<<localName;
         m_skipNodes.push(Unknown);
         return true;
     }
