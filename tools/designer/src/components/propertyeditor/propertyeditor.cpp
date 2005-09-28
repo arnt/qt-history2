@@ -534,7 +534,8 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 p = new StringProperty(qvariant_cast<QKeySequence>(value), pname);
                 break;
             case QVariant::Palette:
-                p = new PaletteProperty(qvariant_cast<QPalette>(value), pname);
+                p = new PaletteProperty(qvariant_cast<QPalette>(value),
+                                qobject_cast<QWidget *>(object), pname);
                 break;
             default:
                 // ### qWarning() << "property" << pname << "with type" << value.type() << "not supported yet!";

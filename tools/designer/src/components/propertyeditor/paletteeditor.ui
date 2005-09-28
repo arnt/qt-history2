@@ -1,6 +1,6 @@
 <ui version="4.0" >
  <author></author>
-  <comment>*********************************************************************
+ <comment>*********************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -19,8 +19,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>484</width>
-    <height>268</height>
+    <width>337</width>
+    <height>433</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -34,14 +34,155 @@
   <property name="windowTitle" >
    <string>Edit Palette</string>
   </property>
-  <layout class="QGridLayout" >
+  <layout class="QVBoxLayout" >
    <property name="margin" >
     <number>8</number>
    </property>
    <property name="spacing" >
     <number>6</number>
    </property>
-   <item row="2" column="0" colspan="2" >
+   <item>
+    <widget class="QGroupBox" name="advancedBox" >
+     <property name="minimumSize" >
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize" >
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="title" >
+      <string>Tune Palette</string>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="margin" >
+       <number>8</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item row="0" column="0" >
+       <widget class="QLabel" name="label" >
+        <property name="text" >
+         <string>Quick</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <widget class="qdesigner_internal::StyledButton" name="buildButton" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>0</hsizetype>
+          <vsizetype>0</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="focusPolicy" >
+         <enum>Qt::StrongFocus</enum>
+        </property>
+        <property name="toolTip" >
+         <string>Choose a color</string>
+        </property>
+        <property name="whatsThis" >
+         <string>Choose the effect-color for the generated palette.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2" >
+       <widget class="QRadioButton" name="computeRadio" >
+        <property name="text" >
+         <string>Compute Details</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3" >
+       <widget class="QRadioButton" name="detailsRadio" >
+        <property name="text" >
+         <string>Show Details</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="4" >
+       <widget class="QTreeView" name="paletteView" >
+        <property name="minimumSize" >
+         <size>
+          <width>0</width>
+          <height>200</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="GroupBox126" >
+     <property name="sizePolicy" >
+      <sizepolicy>
+       <hsizetype>5</hsizetype>
+       <vsizetype>7</vsizetype>
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title" >
+      <string>Preview</string>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="margin" >
+       <number>8</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item row="0" column="2" >
+       <widget class="QRadioButton" name="disabledRadio" >
+        <property name="text" >
+         <string>Disabled</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <widget class="QRadioButton" name="inactiveRadio" >
+        <property name="text" >
+         <string>Inactive</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" >
+       <widget class="QRadioButton" name="activeRadio" >
+        <property name="text" >
+         <string>Active</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="3" >
+       <widget class="qdesigner_internal::PreviewFrame" name="previewFrame" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>7</hsizetype>
+          <vsizetype>7</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" >
      <property name="margin" >
       <number>0</number>
@@ -106,285 +247,10 @@
      </item>
     </layout>
    </item>
-   <item rowspan="2" row="0" column="1" >
-    <widget class="QGroupBox" name="advancedBox" >
-     <property name="minimumSize" >
-      <size>
-       <width>180</width>
-       <height>16</height>
-      </size>
-     </property>
-     <property name="maximumSize" >
-      <size>
-       <width>180</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="title" >
-      <string>Palette Details</string>
-     </property>
-     <layout class="QVBoxLayout" >
-      <property name="margin" >
-       <number>8</number>
-      </property>
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <item>
-       <widget class="QListView" name="roleListView" >
-        <property name="minimumSize" >
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="0" >
-    <widget class="QGroupBox" name="GroupBox126" >
-     <property name="sizePolicy" >
-      <sizepolicy>
-       <hsizetype>5</hsizetype>
-       <vsizetype>7</vsizetype>
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="title" >
-      <string>Preview</string>
-     </property>
-     <layout class="QVBoxLayout" >
-      <property name="margin" >
-       <number>11</number>
-      </property>
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <item>
-       <layout class="QHBoxLayout" >
-        <property name="margin" >
-         <number>0</number>
-        </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <widget class="QLabel" name="TextLabel1" >
-          <property name="text" >
-           <string>Select &amp;Palette:</string>
-          </property>
-          <property name="buddy" >
-           <cstring>paletteCombo</cstring>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="paletteCombo" >
-          <item>
-           <property name="text" >
-            <string>Active Palette</string>
-           </property>
-          </item>
-          <item>
-           <property name="text" >
-            <string>Inactive Palette</string>
-           </property>
-          </item>
-          <item>
-           <property name="text" >
-            <string>Disabled Palette</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="qdesigner_internal::PreviewFrame" name="previewFrame" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>7</hsizetype>
-          <vsizetype>7</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="0" column="0" >
-    <widget class="QGroupBox" name="groupAutoPalette" >
-     <property name="sizePolicy" >
-      <sizepolicy>
-       <hsizetype>5</hsizetype>
-       <vsizetype>4</vsizetype>
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="title" >
-      <string>Build Palette</string>
-     </property>
-     <layout class="QHBoxLayout" >
-      <property name="margin" >
-       <number>11</number>
-      </property>
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <item>
-       <widget class="QLabel" name="labelMainColor" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>5</hsizetype>
-          <vsizetype>5</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize" >
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="lineWidth" >
-         <number>1</number>
-        </property>
-        <property name="midLineWidth" >
-         <number>0</number>
-        </property>
-        <property name="text" >
-         <string>&amp;3-D Effects:</string>
-        </property>
-        <property name="margin" >
-         <number>0</number>
-        </property>
-        <property name="buddy" >
-         <cstring>buttonMainColor</cstring>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="qdesigner_internal::StyledButton" name="buttonMainColor" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>0</hsizetype>
-          <vsizetype>0</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="focusPolicy" >
-         <enum>Qt::StrongFocus</enum>
-        </property>
-        <property name="toolTip" >
-         <string>Choose a color</string>
-        </property>
-        <property name="whatsThis" >
-         <string>Choose the effect-color for the generated palette.</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="labelMainColor2" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>5</hsizetype>
-          <vsizetype>5</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize" >
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="lineWidth" >
-         <number>1</number>
-        </property>
-        <property name="midLineWidth" >
-         <number>0</number>
-        </property>
-        <property name="text" >
-         <string>Back&amp;ground:</string>
-        </property>
-        <property name="margin" >
-         <number>0</number>
-        </property>
-        <property name="buddy" >
-         <cstring>buttonMainColor2</cstring>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="qdesigner_internal::StyledButton" name="buttonMainColor2" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>0</hsizetype>
-          <vsizetype>0</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="focusPolicy" >
-         <enum>Qt::StrongFocus</enum>
-        </property>
-        <property name="toolTip" >
-         <string>Choose a color</string>
-        </property>
-        <property name="whatsThis" >
-         <string>Choose the background color for the generated palette.</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer>
-        <property name="orientation" >
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType" >
-         <enum>QSizePolicy::Expanding</enum>
-        </property>
-        <property name="sizeHint" >
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnAdvanced" >
-        <property name="text" >
-         <string>&amp;Tune Palette...</string>
-        </property>
-        <property name="checkable" >
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
   </layout>
  </widget>
  <pixmapfunction></pixmapfunction>
  <customwidgets>
-  <customwidget>
-   <class>qdesigner_internal::PreviewFrame</class>
-   <extends></extends>
-   <header>previewframe.h</header>
-   <container>0</container>
-   <pixmap></pixmap>
-  </customwidget>
   <customwidget>
    <class>qdesigner_internal::StyledButton</class>
    <extends></extends>
@@ -392,13 +258,16 @@
    <container>0</container>
    <pixmap></pixmap>
   </customwidget>
+  <customwidget>
+   <class>qdesigner_internal::PreviewFrame</class>
+   <extends></extends>
+   <header>previewframe.h</header>
+   <container>0</container>
+   <pixmap></pixmap>
+  </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>buttonMainColor</tabstop>
-  <tabstop>buttonMainColor2</tabstop>
-  <tabstop>btnAdvanced</tabstop>
-  <tabstop>paletteCombo</tabstop>
-  <tabstop>roleListView</tabstop>
+  <tabstop>buildButton</tabstop>
   <tabstop>buttonHelp</tabstop>
   <tabstop>buttonOk</tabstop>
   <tabstop>buttonCancel</tabstop>

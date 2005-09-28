@@ -74,6 +74,7 @@ QWidget *AbstractPropertyGroup::createEditor(QWidget *parent, const QObject *tar
 
     QLabel *label = new QLabel(parent);
     label->setIndent(2); // ### hardcode it should have the same value of textMargin in QItemDelegate
+    label->setBackgroundRole(QPalette::Base);
     return label;
 }
 
@@ -1203,9 +1204,11 @@ void DoubleProperty::updateValue(QWidget *editor)
 }
 
 // -------------------------------------------------------------------------
-PaletteProperty::PaletteProperty(const QPalette &value, const QString &name)
+PaletteProperty::PaletteProperty(const QPalette &value, QWidget *selectedWidget,
+                const QString &name)
     : AbstractProperty<QPalette>(value, name)
 {
+    m_selectedWidget = selectedWidget;
 }
 
 void PaletteProperty::setValue(const QVariant &value)
@@ -1220,7 +1223,7 @@ QString PaletteProperty::toString() const
 
 QWidget *PaletteProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
-    PaletteEditorButton *btn = new PaletteEditorButton(m_value, parent);
+    PaletteEditorButton *btn = new PaletteEditorButton(m_value, m_selectedWidget, parent);
     QObject::connect(btn, SIGNAL(changed()), target, receiver);
     return btn;
 }
@@ -1237,7 +1240,7 @@ void PaletteProperty::updateValue(QWidget *editor)
     if (PaletteEditorButton *btn = qobject_cast<PaletteEditorButton*>(editor)) {
         QPalette newValue = btn->palette();
 
-        if (newValue != m_value) {
+        if (newValue.resolve() != m_value.resolve() || newValue != m_value) {
             m_value = newValue;
             setChanged(true);
         }

@@ -31,7 +31,8 @@ PreviewFrame::PreviewFrame(QWidget *parent)
     vbox->addWidget(w);
 
     previewWidget = new PreviewWidget(w);
-    QWidget *frame = w->addWindow(previewWidget, Qt::Window);
+    QWidget *frame = w->addWindow(previewWidget,
+                Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint);
     frame->move(10,10);
     frame->show();
 }
