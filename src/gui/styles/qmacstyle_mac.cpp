@@ -5845,8 +5845,9 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
         }
         break;
     case CC_ToolButton:
-        if (w && qobject_cast<QToolBar *>(w->parentWidget())) {
-            if (const QStyleOptionToolButton *tb = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
+        if (const QStyleOptionToolButton *tb
+                = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
+            if (w && qobject_cast<QToolBar *>(w->parentWidget())) {
                 if (tb->subControls & QStyle::SC_ToolButtonMenu) {
                     QStyleOption arrowOpt(0);
                     arrowOpt.rect = subControlRect(cc, tb, QStyle::SC_ToolButtonMenu, w);
@@ -5868,14 +5869,19 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                     p->drawLine(tb->rect.topRight(), tb->rect.bottomRight());
                     p->setPen(oldPen);
                 }
+                drawControl(CE_ToolButtonLabel, opt, p, w);
+            } else {
+                if (d->useHITheme)
+                    d->HIThemeDrawComplexControl(cc, opt, p, w);
+                else
+                    d->AppManDrawComplexControl(cc, opt, p, w);
+                QRect buttonRect = subControlRect(CC_ToolButton, tb, SC_ToolButton, w);
+                int fw = pixelMetric(PM_DefaultFrameWidth, opt, w);
+                QStyleOptionToolButton label = *tb;
+                label.rect = buttonRect.adjusted(fw, fw, -fw, -fw);
+                drawControl(CE_ToolButtonLabel, &label, p, w);
             }
-        } else {
-            if (d->useHITheme)
-                d->HIThemeDrawComplexControl(cc, opt, p, w);
-            else
-                d->AppManDrawComplexControl(cc, opt, p, w);
         }
-        drawControl(CE_ToolButtonLabel, opt, p, w);
         break;
     }
 }
