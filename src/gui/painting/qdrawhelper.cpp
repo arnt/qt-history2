@@ -590,8 +590,10 @@ static void blend_transformed_bilinear_argb(int count, const QSpan *spans, void 
 
         uint *target = ((uint *)t) + spans->x;
         uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale);
-        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale);
+        int x = int((data->m21 * (spans->y + 0.5)
+                     + data->m11 * (spans->x + 0.5) + data->dx) * fixed_scale) - half_point;
+        int y = int((data->m22 * (spans->y + 0.5)
+                     + data->m12 * (spans->x + 0.5) + data->dy) * fixed_scale) - half_point;
 
         int length = spans->len;
         while (length) {
@@ -658,8 +660,10 @@ static void blend_transformed_bilinear_tiled_argb(int count, const QSpan *spans,
 
         uint *target = ((uint *)t) + spans->x;
         uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale);
-        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale);
+        int x = int((data->m21 * (spans->y + 0.5)
+                     + data->m11 * (spans->x + 0.5) + data->dx) * fixed_scale) - half_point;
+        int y = int((data->m22 * (spans->y + 0.5)
+                     + data->m12 * (spans->x + 0.5) + data->dy) * fixed_scale) - half_point;
 
         int length = spans->len;
         while (length) {
@@ -735,8 +739,11 @@ static void blend_transformed_argb(int count, const QSpan *spans, void *userData
 
         uint *target = ((uint *)t) + spans->x;
         uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale);
-        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale);
+
+        int x = int((data->m21 * (spans->y + 0.5)
+                     + data->m11 * (spans->x + 0.5) + data->dx) * fixed_scale);
+        int y = int((data->m22 * (spans->y + 0.5)
+                     + data->m12 * (spans->x + 0.5) + data->dy) * fixed_scale);
 
         int length = spans->len;
         while (length) {
@@ -784,8 +791,10 @@ static void blend_transformed_tiled_argb(int count, const QSpan *spans, void *us
 
         uint *target = ((uint *)t) + spans->x;
         uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale);
-        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale);
+        int x = int((data->m21 * (spans->y + 0.5)
+                     + data->m11 * (spans->x + 0.5) + data->dx) * fixed_scale);
+        int y = int((data->m22 * (spans->y + 0.5)
+                     + data->m12 * (spans->x + 0.5) + data->dy) * fixed_scale);
 
         int length = spans->len;
         while (length) {
@@ -897,8 +906,10 @@ static void blend_radial_gradient_argb(int count, const QSpan *spans, void *user
 
     while (count--) {
         uint *target = ((uint *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
-        qreal rx = data->m21 * spans->y + data->dx + cx * spans->x - data->gradient.radial.focal.x;
-        qreal ry = data->m22 * spans->y + data->dy + cy * spans->x - data->gradient.radial.focal.y;
+        qreal rx = data->m21 * (spans->y + 0.5)
+                   + data->dx + cx * (spans->x + 0.5) - data->gradient.radial.focal.x;
+        qreal ry = data->m22 * (spans->y + 0.5)
+                   + data->dy + cy * (spans->x + 0.5) - data->gradient.radial.focal.y;
 
         int length = spans->len;
         while (length) {
@@ -935,8 +946,10 @@ static void blend_conical_gradient_argb(int count, const QSpan *spans, void *use
     qreal cy = data->m12;
     while (count--) {
         uint *target = ((uint *)data->rasterBuffer->scanLine(spans->y)) + spans->x;
-        qreal rx = data->m21 * spans->y + data->dx + cx * spans->x - data->gradient.radial.center.x;
-        qreal ry = data->m22 * spans->y + data->dy + cy * spans->x - data->gradient.radial.center.y;
+        qreal rx = data->m21 * (spans->y + 0.5)
+                   + data->dx + cx * (spans->x + 0.5) - data->gradient.radial.center.x;
+        qreal ry = data->m22 * (spans->y + 0.5)
+                   + data->dy + cy * (spans->x + 0.5) - data->gradient.radial.center.y;
 
         int length = spans->len;
         while (length) {
@@ -1097,8 +1110,10 @@ static void blend_transformed_mono(int count, const QSpan *spans, void *userData
     while (count--) {
         uchar *target = ((uchar *)data->rasterBuffer->scanLine(spans->y));
         uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale);
-        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale);
+        int x = int((data->m21 * (spans->y + 0.5)
+                     + data->m11 * (spans->x + 0.5) + data->dx) * fixed_scale);
+        int y = int((data->m22 * (spans->y + 0.5)
+                     + data->m12 * (spans->x + 0.5) + data->dy) * fixed_scale);
 
         for (int i = 0; i < spans->len; ++i) {
             int px = x >> 16;
@@ -1141,8 +1156,10 @@ static void blend_transformed_tiled_mono(int count, const QSpan *spans, void *us
     while (count--) {
         uchar *target = ((uchar *)data->rasterBuffer->scanLine(spans->y));
         uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale);
-        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale);
+        int x = int((data->m21 * (spans->y + 0.5)
+                     + data->m11 * (spans->x + 0.5) + data->dx) * fixed_scale);
+        int y = int((data->m22 * (spans->y + 0.5)
+                     + data->m12 * (spans->x + 0.5) + data->dy) * fixed_scale);
 
         for (int i = 0; i < spans->len; ++i) {
             int px = x >> 16;
@@ -1194,8 +1211,10 @@ static void blend_linear_gradient_mono(int count, const QSpan *spans, void *user
         if (l == 0) {
             t = inc = 0;
         } else {
-            qreal rx = data->m21 * spans->y + data->m11 * spans->x + data->dx;
-            qreal ry = data->m22 * spans->y + data->m12 * spans->x + data->dy;
+            qreal rx = data->m21 * (spans->y + 0.5)
+                       + data->m11 * (spans->x + 0.5) + data->dx;
+            qreal ry = data->m22 * (spans->y + 0.5)
+                       + data->m12 * (spans->x + 0.5) + data->dy;
             t = dx*rx + dy*ry + off;
             inc = dx * data->m11 + dy * data->m12;
         }
@@ -1228,8 +1247,10 @@ static void blend_radial_gradient_mono(int count, const QSpan *spans, void *user
 
     while (count--) {
         uchar *target = ((uchar *)data->rasterBuffer->scanLine(spans->y));
-        qreal rx = data->m21 * spans->y + data->dx + cx * spans->x - data->gradient.radial.focal.x;
-        qreal ry = data->m22 * spans->y + data->dy + cy * spans->x - data->gradient.radial.focal.y;
+        qreal rx = data->m21 * (spans->y + 0.5)
+                   + data->dx + cx * (spans->x + 0.5) - data->gradient.radial.focal.x;
+        qreal ry = data->m22 * (spans->y + 0.5)
+                   + data->dy + cy * (spans->x + 0.5) - data->gradient.radial.focal.y;
 
         for (int x = spans->x; x<spans->x + spans->len; x++) {
             qreal b  = 2*(rx*dx + ry*dy);
@@ -1259,8 +1280,10 @@ static void blend_conical_gradient_mono(int count, const QSpan *spans, void *use
     qreal cy = data->m12;
     while (count--) {
         uchar *target = ((uchar *)data->rasterBuffer->scanLine(spans->y));
-        qreal rx = data->m21 * spans->y + data->dx + cx * spans->x - data->gradient.radial.center.x;
-        qreal ry = data->m22 * spans->y + data->dy + cy * spans->x - data->gradient.radial.center.y;
+        qreal rx = data->m21 * (spans->y + 0.5)
+                   + data->dx + cx * (spans->x + 0.5) - data->gradient.radial.center.x;
+        qreal ry = data->m22 * (spans->y + 0.5)
+                   + data->dy + cy * (spans->x + 0.5) - data->gradient.radial.center.y;
 
         for (int x = spans->x; x<spans->x + spans->len; x++) {
             qreal angle = atan2(ry, rx);
@@ -1422,8 +1445,10 @@ static void blend_transformed_mono_lsb(int count, const QSpan *spans, void *user
     while (count--) {
         uchar *target = (uchar *)data->rasterBuffer->scanLine(spans->y);
         uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale);
-        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale);
+        int x = int((data->m21 * (spans->y + 0.5)
+                     + data->m11 * (spans->x + 0.5) + data->dx) * fixed_scale);
+        int y = int((data->m22 * (spans->y + 0.5)
+                     + data->m12 * (spans->x + 0.5) + data->dy) * fixed_scale);
 
         for (int i = 0; i < spans->len; ++i) {
             int px = x >> 16;
@@ -1466,8 +1491,10 @@ static void blend_transformed_tiled_mono_lsb(int count, const QSpan *spans, void
     while (count--) {
         uchar *target = ((uchar *)data->rasterBuffer->scanLine(spans->y));
         uint *image_bits = (uint *)data->texture.imageData;
-        int x = int((data->m21 * spans->y + data->m11 * spans->x + data->dx) * fixed_scale);
-        int y = int((data->m22 * spans->y + data->m12 * spans->x + data->dy) * fixed_scale);
+        int x = int((data->m21 * (spans->y + 0.5)
+                     + data->m11 * (spans->x + 0.5) + data->dx) * fixed_scale);
+        int y = int((data->m22 * (spans->y + 0.5)
+                     + data->m12 * (spans->x + 0.5) + data->dy) * fixed_scale);
 
         for (int i = 0; i < spans->len; ++i) {
             int px = x >> 16;
@@ -1519,8 +1546,10 @@ static void blend_linear_gradient_mono_lsb(int count, const QSpan *spans, void *
         if (l == 0) {
             t = inc = 0;
         } else {
-            qreal rx = data->m21 * spans->y + data->m11 * spans->x + data->dx;
-            qreal ry = data->m22 * spans->y + data->m12 * spans->x + data->dy;
+            qreal rx = data->m21 * (spans->y + 0.5)
+                       + data->m11 * (spans->x + 0.5) + data->dx;
+            qreal ry = data->m22 * (spans->y + 0.5)
+                       + data->m12 * (spans->x + 0.5) + data->dy;
             t = dx*rx + dy*ry + off;
             inc = dx * data->m11 + dy * data->m12;
         }
@@ -1555,8 +1584,10 @@ static void blend_radial_gradient_mono_lsb(int count, const QSpan *spans, void *
 
     while (count--) {
         uchar *target = ((uchar *)data->rasterBuffer->scanLine(spans->y));
-        qreal rx = data->m21 * spans->y + data->dx + cx * spans->x - data->gradient.radial.focal.x;
-        qreal ry = data->m22 * spans->y + data->dy + cy * spans->x - data->gradient.radial.focal.y;
+        qreal rx = data->m21 * (spans->y + 0.5)
+                   + data->dx + cx * (spans->x + 0.5) - data->gradient.radial.focal.x;
+        qreal ry = data->m22 * (spans->y + 0.5)
+                   + data->dy + cy * (spans->x + 0.5) - data->gradient.radial.focal.y;
 
         for (int x = spans->x; x < spans->x + spans->len; x++) {
             qreal b  = 2*(rx*dx + ry*dy);
@@ -1586,8 +1617,10 @@ static void blend_conical_gradient_mono_lsb(int count, const QSpan *spans, void 
     qreal cy = data->m12;
     while (count--) {
         uchar *target = ((uchar *)data->rasterBuffer->scanLine(spans->y));
-        qreal rx = data->m21 * spans->y + data->dx + cx * spans->x - data->gradient.radial.center.x;
-        qreal ry = data->m22 * spans->y + data->dy + cy * spans->x - data->gradient.radial.center.y;
+        qreal rx = data->m21 * (spans->y + 0.5)
+                   + data->dx + cx * (spans->x + 0.5) - data->gradient.radial.center.x;
+        qreal ry = data->m22 * (spans->y + 0.5)
+                   + data->dy + cy * (spans->x + 0.5) - data->gradient.radial.center.y;
 
         for (int x = spans->x; x<spans->x + spans->len; x++) {
             qreal angle = atan2(ry, rx);
