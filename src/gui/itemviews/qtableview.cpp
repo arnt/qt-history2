@@ -1164,7 +1164,8 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
     Q_D(QTableView);
 
     // check if we really need to do anything
-    if (index.parent() != rootIndex() || isIndexHidden(index))
+    if (!index.isValid() || !model() || (model()->parent(index) != rootIndex())
+        || isIndexHidden(index))
         return;
 
     QRect area = d->viewport->rect();
@@ -1546,6 +1547,7 @@ void QTableView::horizontalScrollbarAction(int action)
 */
 bool QTableView::isIndexHidden(const QModelIndex &index) const
 {
+    Q_ASSERT(index.isValid());
     return isRowHidden(index.row()) || isColumnHidden(index.column());
 }
 
