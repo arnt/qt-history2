@@ -372,6 +372,8 @@ public:
     QFixed ascent() const;
     QFixed descent() const;
     QFixed leading() const;
+    QFixed lineThickness() const;
+    QFixed underlinePosition() const;
     qreal maxCharWidth() const;
     qreal minLeftBearing() const;
     qreal minRightBearing() const;

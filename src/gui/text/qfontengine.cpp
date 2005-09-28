@@ -485,6 +485,16 @@ QFixed QFontEngineMulti::leading() const
     return engine(0)->leading();
 }
 
+QFixed QFontEngineMulti::lineThickness() const
+{
+    return engine(0)->lineThickness();
+}
+
+QFixed QFontEngineMulti::underlinePosition() const
+{
+    return engine(0)->underlinePosition();
+}
+
 qreal QFontEngineMulti::maxCharWidth() const
 {
     return engine(0)->maxCharWidth();
