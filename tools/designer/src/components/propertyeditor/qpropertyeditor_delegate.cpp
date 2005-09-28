@@ -95,6 +95,10 @@ QPropertyEditorDelegate::~QPropertyEditorDelegate()
 
 bool QPropertyEditorDelegate::eventFilter(QObject *object, QEvent *event)
 {
+    QWidget *editor = qobject_cast<QWidget*>(object);
+    if (editor && qobject_cast<EditorWithReset*>(editor->parent()))
+        editor = editor->parentWidget();
+
     switch (event->type()) {
         case QEvent::KeyPress:
         case QEvent::KeyRelease: {
@@ -113,14 +117,14 @@ bool QPropertyEditorDelegate::eventFilter(QObject *object, QEvent *event)
                 return true;
             }
         } break;
+        case QEvent::FocusOut:
+            emit commitData(editor);
+            return false;
         default:
             break;
     }
 
-    QObject *editor = object;
-    if (qobject_cast<EditorWithReset*>(editor->parent()) != 0)
-        editor = editor->parent();
-    return QItemDelegate::eventFilter(editor, event);
+    return QItemDelegate::eventFilter(editor ? editor : object, event);
 }
 
 void QPropertyEditorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt, const QModelIndex &index) const
