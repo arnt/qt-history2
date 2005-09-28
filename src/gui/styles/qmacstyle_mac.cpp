@@ -2242,6 +2242,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             // Otherwise just draw it normally.
             if (scaleHeader) {
                 QPixmap headerPix(ir.width(), headerHeight);
+                headerPix.fill(QColor(0, 0, 0, 0));
                 QPainter pixPainter(&headerPix);
                 QMacCGContext pixCG(&pixPainter);
                 HIRect pixRect = CGRectMake(0, 0, ir.width(), headerHeight);
@@ -3909,6 +3910,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             }
             if (scaleHeader) {
                 QPixmap headerPix(ir.width(), headerHeight);
+                headerPix.fill(QColor(0, 0, 0, 0));
                 QPainter pixPainter(&headerPix);
                 Rect pixRect = *qt_glb_mac_rect(QRect(0, 0, ir.width(), headerHeight),
                                                 &pixPainter, false);
