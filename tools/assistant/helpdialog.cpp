@@ -132,7 +132,7 @@ QModelIndex IndexListModel::filter(const QString &s)
             continue;
 
         const QString key = keys.at(i);
-        if (key.contains(regExp) || key.contains(s)) {
+        if (key.contains(regExp) || key.contains(s, Qt::CaseInsensitive)) {
             lst.append(key);
             
             if (perfectMatch == -1 && key.startsWith(s, Qt::CaseInsensitive)) {
