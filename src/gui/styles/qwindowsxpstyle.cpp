@@ -190,7 +190,7 @@ static PtrIsThemeBackgroundPartiallyTransparent pIsThemeBackgroundPartiallyTrans
 
 // General const values
 static const int windowsItemFrame        =  2; // menu item frame width
-static const int windowsSepHeight        =  7; // separator item height
+static const int windowsSepHeight        =  9; // separator item height
 static const int windowsItemHMargin      =  3; // menu item hor text margin
 static const int windowsItemVMargin      =  0; // menu item ver text margin
 static const int windowsArrowHMargin     =  6; // arrow horizontal margin
@@ -1929,10 +1929,12 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 
             // draw separator -------------------------------------------------
             if (menuitem->menuItemType == QStyleOptionMenuItem::Separator) {
+                int yoff = y-1 + h / 2;
                 p->setPen(menuitem->palette.dark().color());
-                p->drawLine(x, y + h/2, x+w, y + h/2);
+                p->drawLine(x, yoff, x+w, yoff);
+                ++yoff;
                 p->setPen(menuitem->palette.light().color());
-                p->drawLine(x, y+1 + h/2, x+w, y+1 + h/2);
+                p->drawLine(x, yoff, x+w, yoff);
                 return;
             }
 
@@ -3031,7 +3033,7 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
     case CT_MenuItem:
         if (const QStyleOptionMenuItem *menuitem = qstyleoption_cast<const QStyleOptionMenuItem *>(option))
         {
-            if (menuitem->icon.isNull()) {
+            if (menuitem->icon.isNull() && menuitem->menuItemType != QStyleOptionMenuItem::Separator) {
                 sz = QWindowsStyle::sizeFromContents(ct, option, sz, widget);
                 sz.setHeight(sz.height() - 2);
                 return sz;
