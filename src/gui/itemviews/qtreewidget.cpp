@@ -97,31 +97,24 @@ void QTreeModel::clear()
 
 void QTreeModel::setColumnCount(int columns)
 {
+    Q_ASSERT(columns >= 0);
     if (!header)
         header = new QTreeWidgetItem();
-
-    int c = header->columnCount();
-    if (c == columns)
+    int count = header->columnCount();
+    if (count == columns)
         return;
-    int _c = qMax(c - 1, 0);
-    c = qMax(columns - 1, 0);
-
-    int first = qMin(_c, c);
-    int last = qMax(_c, c);
-
-    if (c < _c)
-        beginRemoveColumns(QModelIndex(), first, last);
-    else
-        beginInsertColumns(QModelIndex(), first, last);
-
-    header->values.resize(c);
-    for (int i = _c; i < c; ++i)
-        header->setText(i, QString::number(i)); // FIXME: shouldn't save anything
-
-    if (c < _c)
+ 
+    if (columns < count) {
+        beginRemoveColumns(QModelIndex(), columns, count - 1);
+        header->values.resize(columns);
         endRemoveColumns();
-    else
+    } else {
+        beginInsertColumns(QModelIndex(), count, columns - 1);
+        header->values.resize(columns);
+        for (int i = count; i < columns; ++i)
+            header->setText(i, QString::number(i)); // FIXME: shouldn't save anything
         endInsertColumns();
+    }
 }
 
 /*!
@@ -244,7 +237,6 @@ int QTreeModel::columnCount(const QModelIndex &index) const
     Q_UNUSED(index);
     if (!header)
         return 0;
-
     return header->columnCount();
 }
 
