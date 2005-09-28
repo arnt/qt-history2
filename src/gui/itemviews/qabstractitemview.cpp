@@ -1009,14 +1009,16 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
     if (d->selectionAllowed(index) && selectionModel()) {
         setState(DragSelectingState);
         QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
-        if (index.isValid())
-            selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
 
         // Do the normalize ourselves, since QRect::normalized() is flawed
         if (topLeft.y() > bottomRight.y()) qSwap(topLeft.ry(), bottomRight.ry());
         if (topLeft.x() > bottomRight.x()) qSwap(topLeft.rx(), bottomRight.rx());
         QRect selectionRect = QRect(topLeft, bottomRight);
         setSelection(selectionRect, command);
+
+        // set at the end because it might scroll the view
+        if (index.isValid())
+            selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
     }
 }
 
@@ -1125,7 +1127,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
 		break;
 	    case OnViewport:
 	        break;
-            }  
+            }
             update();
         } else {
             d->dropIndicatorRect = QRect();
@@ -2168,7 +2170,7 @@ void QAbstractItemView::doAutoScroll()
     // if nothing changed, stop scrolling
     bool verticalUnchanged = (verticalValue == verticalScrollBar()->value());
     bool horizontalUnchanged = (horizontalValue == horizontalScrollBar()->value());
-    if (verticalUnchanged && horizontalUnchanged) 
+    if (verticalUnchanged && horizontalUnchanged)
         stopAutoScroll();
     else
         update();
