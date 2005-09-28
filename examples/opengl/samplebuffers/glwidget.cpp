@@ -22,6 +22,7 @@ GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
 {
     startTimer(40);
+    setWindowTitle(tr("Sample Buffers"));
 }
 
 void GLWidget::initializeGL()
