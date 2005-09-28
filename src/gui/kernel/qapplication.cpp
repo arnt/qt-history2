@@ -2994,23 +2994,33 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         break;
 
 #ifndef QT_NO_DRAGANDDROP
-    case QEvent::DragEnter:
-    case QEvent::DragMove:
-    case QEvent::Drop:
-    case QEvent::DragLeave: {
+    case QEvent::DragEnter: {
             QWidget* w = static_cast<QWidget *>(receiver);
             while (w) {
                 if (w->isEnabled() && w->acceptDrops()) {
                     res = d->notify_helper(w, e);
-                    if (res && e->isAccepted())
+                    if (res && e->isAccepted()) {
+                        QDragManager::self()->setCurrentTarget(w);
                         break;
+                    }
                 }
                 if (w->isWindow())
                     break;
                 w = w->parentWidget();
             }
-            break;
         }
+        break;
+    case QEvent::DragMove:
+    case QEvent::Drop: 
+    case QEvent::DragLeave: {
+            QWidget * w = QDragManager::self()->currentTarget();
+            if (!w)
+                break;
+            res = d->notify_helper(w, e);
+            if (e->type() != QEvent::DragMove)
+                QDragManager::self()->setCurrentTarget(0, e->type() == QEvent::Drop);
+        }
+        break;
 #endif
 
     default:

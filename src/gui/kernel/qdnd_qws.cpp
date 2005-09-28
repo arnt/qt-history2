@@ -209,8 +209,6 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
                         updateCursor();
                         restoreCursor = true;
                     }
-                    if (oldtarget != object->target())
-                        manager->emitTargetChanged(object->target());
                 } else if (cw) {
                     QDragMoveEvent dme(cw->mapFromGlobal(me->globalPos()), possible_actions, dropData,
                                        me->buttons(), me->modifiers());

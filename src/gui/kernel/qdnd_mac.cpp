@@ -404,7 +404,6 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
                           QApplication::mouseButtons(), QApplication::keyboardModifiers());
         QApplication::sendEvent(q, &de);
     } else if(kind == kEventControlDragEnter) {
-        QDragManager::self()->emitTargetChanged(q);
         QDragEnterEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
                            QApplication::mouseButtons(), QApplication::keyboardModifiers());
         QApplication::sendEvent(q, &de);

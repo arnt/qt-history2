@@ -578,9 +578,6 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     manager->dropData->currentDataObject = pDataObj;
     manager->dropData->currentDataObject->AddRef();
 
-    if (manager->dragPrivate()) manager->dragPrivate()->target = widget;
-    manager->emitTargetChanged(widget);
-
     lastPoint = widget->mapFromGlobal(QPoint(pt.x,pt.y));
     lastKeyState = grfKeyState;
 
@@ -657,10 +654,7 @@ QOleDropTarget::DragLeave()
     QApplication::sendEvent(widget, &e);
 
     QDragManager *manager = QDragManager::self();
-    if (manager->dragPrivate()) manager->dragPrivate()->target = 0;
-    manager->emitTargetChanged(widget);
-
-
+    
     manager->dropData->currentDataObject->Release();
     manager->dropData->currentDataObject = 0;
 

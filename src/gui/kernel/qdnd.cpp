@@ -266,6 +266,7 @@ QDragManager::QDragManager()
     willDrop = false;
     eventLoop = 0;
     dropData = new QDropData();
+    currentDropTarget = 0;
 }
 
 
@@ -352,6 +353,24 @@ Qt::DropAction QDragManager::defaultAction(Qt::DropActions possibleActions,
 #endif
 
     return defaultAction;
+}
+
+void QDragManager::setCurrentTarget(QWidget *target, bool dropped)
+{
+    if (currentDropTarget == target)
+        return;
+
+    currentDropTarget = target;
+    if (!dropped && object) {
+        object->d_func()->target = target;
+        emit object->targetChanged(target);
+    }
+
+}
+    
+QWidget *QDragManager::currentTarget()
+{
+    return currentDropTarget;
 }
 
 #endif

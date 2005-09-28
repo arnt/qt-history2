@@ -370,8 +370,6 @@ static bool checkEmbedded(QWidget* w, const XEvent* xe)
         XSendEvent(X11->display, extra->xDndProxy, False, NoEventMask, (XEvent*)xe);
         if (qt_xdnd_current_widget != w) {
             qt_xdnd_current_widget = w;
-            QDragManager *manager = QDragManager::self();
-            manager->emitTargetChanged(qt_xdnd_current_widget);
         }
         return true;
     }

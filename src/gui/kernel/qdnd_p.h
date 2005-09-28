@@ -147,7 +147,9 @@ public:
     QDropData *dropData;
 
     void emitActionChanged(Qt::DropAction newAction) { if (object) emit object->actionChanged(newAction); }
-    void emitTargetChanged(QWidget *newTarget) { if (object) emit object->targetChanged(newTarget); }
+
+    void setCurrentTarget(QWidget *target, bool dropped = false);
+    QWidget *currentTarget();
 
 #ifdef Q_WS_MAC
     static OSErr qt_mac_send_handler(FlavorType, void *, DragItemRef, DragRef); //qdnd_mac.cpp
@@ -156,6 +158,8 @@ public:
 private:
     QPixmap *pm_cursor;
     int n_cursor;
+
+    QWidget *currentDropTarget;
 
     static QDragManager *instance;
     Q_DISABLE_COPY(QDragManager)
