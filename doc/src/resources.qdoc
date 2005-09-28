@@ -80,8 +80,9 @@
     :/myresources/cut-img.png.
 
     Some resources, such as translation files and icons, many need to
-    change based on the user's locale. This is possible using the \c
-    lang attribute. For example:
+    change based on the user's locale. This is done by adding a \c lang
+    attribute to the \c qresource tag, specifying a suitable locale
+    string. For example:
 
     \code
         <qresource>
@@ -95,6 +96,9 @@
     If the user's locale is French (i.e., QLocale::system().name() returns
     "fr_FR"), \c :/cut.jpg becomes a reference to the \c cut_fr.jpg
     image. For other locales, \c cut.jpg is used.
+
+    See the QLocale documentation for a description of the format to use
+    for locale strings.
 
     \section1 Using Resources in the Application
 
