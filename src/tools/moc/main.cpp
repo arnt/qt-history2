@@ -204,7 +204,10 @@ int main(int argc, char **argv)
 
     if (autoInclude) {
         int ppos = filename.lastIndexOf('.');
-        moc.noInclude = (ppos >= 0 && tolower(filename[ppos + 1]) != 'h');
+        moc.noInclude = (ppos >= 0 
+                         && tolower(filename[ppos + 1]) != 'h'
+                         && tolower(filename[ppos + 1]) != QDir::separator().toLatin1()
+                        );
     }
     if (moc.includeFiles.isEmpty()) {
         if (moc.includePath.isEmpty()) {
