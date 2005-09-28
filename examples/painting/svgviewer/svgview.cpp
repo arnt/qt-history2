@@ -72,6 +72,7 @@ SvgNativeView::SvgNativeView(const QString &file, QWidget *parent)
 void SvgNativeView::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
+    p.setViewport(0, 0, width(), height());
     doc->render(&p);
 }
 
