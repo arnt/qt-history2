@@ -2287,14 +2287,14 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             XResizeWindow(dpy, data.winid, w, h);
     } else {
 #ifdef QT_USE_BACKINGSTORE
+        static int accelEnv = -1;
+        if (accelEnv == -1) {
+            accelEnv = qgetenv("QT_FAST_MOVE").toInt() != 0;
+        }
+        bool accelerateMove = accelEnv; //&&  isOpaque && !overlappingSiblings
         if(q->isVisible()) {
             QWidget *pw = q->parentWidget();
             QRect sr = QRect(oldPos, oldSize).intersect(pw->rect());
-            static int accelEnv = -1;
-            if (accelEnv == -1) {
-                accelEnv = qgetenv("QT_FAST_MOVE").toInt() != 0;
-            }
-            bool accelerateMove = accelEnv; //&& ! isOpaque && !overlappingSiblings
             if(isMove && accelerateMove) {
                 pw->d_func()->scrollBuffer(sr, x - oldPos.x(), y - oldPos.y());
             } else {
@@ -2305,7 +2305,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         setWSGeometry();
 #ifdef QT_USE_BACKINGSTORE
 
-        if (isResize)
+        if (isResize || !accelerateMove)
             invalidateBuffer(q->rect()); //after the resize
 #endif
     }
@@ -2427,6 +2427,17 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         XSetGraphicsExposures(dpy, gc, True);
         XCopyArea(dpy, winId(), winId(), gc, x1, y1, w, h, x2, y2);
         XFreeGC(dpy, gc);
+
+//        qDebug() << "scrolling" << dx << dy << "XCopyArea" << x1 << y1 << w << h << x2 << y2 << "rect" << rect() << "sr" << sr;
+    }
+
+    static int flushEnv = -1;
+    if (flushEnv == -1) {
+        flushEnv = qgetenv("QT_FLUSH_SCROLL").toInt();
+    }
+    if (flushEnv) {
+         QApplication::syncX();
+          ::usleep(10000*flushEnv);
     }
 
     static int accelEnv = -1;
