@@ -622,7 +622,7 @@ void QAbstractItemView::reset()
 }
 
 /*!
-    Sets the root item to the item at \a index.
+    Sets the root item to the item at \a index.qa
 
     \sa rootIndex()
 */
@@ -937,6 +937,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
     if (index.isValid())
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
     QRect rect(d->pressedPosition - offset, pos);
+//    qDebug() << rect;
     setSelection(rect.normalized(), command);
 
     // signal handlers may change the model
@@ -1008,7 +1009,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
     if (d->selectionAllowed(index) && selectionModel()) {
         setState(DragSelectingState);
         QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
-        if (index.isValid() && command != QItemSelectionModel::NoUpdate)
+        if (index.isValid())
             selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
 
         // Do the normalize ourselves, since QRect::normalized() is flawed

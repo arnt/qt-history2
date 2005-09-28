@@ -103,7 +103,7 @@ public:
 
     inline void releaseEditor(QWidget *editor) const {
         editor->removeEventFilter(delegate);
-        editor->deleteLater();
+        QTimer::singleShot(0, editor, SLOT(deleteLater())); // delete even later
     }
 
     inline void executePostedLayout() const {

@@ -50,13 +50,7 @@ public:
     inline const QItemEditorFactory *editorFactory() const
         { return f ? f : QItemEditorFactory::defaultFactory(); }
 
-    void editorDestroyed(QObject *editor) {
-        editors.removeAll(static_cast<QWidget *>(editor));
-    }
-
     QItemEditorFactory *f;
-    mutable QList<QWidget *> editors;
-    QPointer<QWidget> activeEditorWithPopup;
 };
 
 /*!
@@ -290,8 +284,7 @@ QWidget *QItemDelegate::createEditor(QWidget *parent,
     QWidget *w = factory->createEditor(t, parent);
     if (w) {
         w->installEventFilter(const_cast<QItemDelegate *>(this));
-        d->editors.append(w);
-        connect(w, SIGNAL(destroyed(QObject *)), this, SLOT(editorDestroyed(QObject *)));
+        w->setObjectName(QLatin1String("item_delegate_editor"));
     }
     return w;
 }
@@ -709,7 +702,6 @@ QRect QItemDelegate::check(const QStyleOptionViewItem &option,
 
 bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
 {
-    Q_D(QItemDelegate);
     QWidget *editor = ::qobject_cast<QWidget*>(object);
     if (!editor)
         return false;
@@ -733,20 +725,29 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
             emit closeEditor(editor, QAbstractItemDelegate::RevertModelCache);
             break;
         default:
-            return false;;
+            return false;
         }
         if (editor->parentWidget())
             editor->parentWidget()->setFocus();
         return true;
-    } else if (event->type() == QEvent::FocusOut && !editor->isActiveWindow()) {
+    } else if (event->type() == QEvent::FocusOut) {
+        if (!editor->isActiveWindow() || (QApplication::focusWidget() != editor)) {
+            QWidget *w = QApplication::focusWidget();
+            while (w) { // dont worry about focus changes internally in the editor
+                if (w == editor)
+                    return false;
+                w = w->parentWidget();
+            }
 #ifndef QT_NO_DRAGANDDROP
-        // The window may loose focus during an drag operation.
-        // i.e when dragging involves the task bar on Windows.
-        if (QDragManager::self() && QDragManager::self()->object != 0)
-            return false;
+            // The window may loose focus during an drag operation.
+            // i.e when dragging involves the task bar on Windows.
+            if (QDragManager::self() && QDragManager::self()->object != 0)
+                return false;
 #endif
-        emit commitData(editor);
-        emit closeEditor(editor, NoHint);
+            qDebug() << "closing the editor" << editor->objectName();
+            emit commitData(editor);
+            emit closeEditor(editor, NoHint);
+        }
     }
     return false;
 }
@@ -782,7 +783,5 @@ bool QItemDelegate::editorEvent(QEvent *event,
 
     return false;
 }
-
-#include "moc_qitemdelegate.cpp"
 
 #endif // QT_NO_ITEMVIEWS
