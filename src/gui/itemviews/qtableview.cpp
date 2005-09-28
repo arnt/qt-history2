@@ -652,7 +652,7 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
     if (!current.isValid()) {
         int row = 0;
         int column = 0;
-        while (isColumnHidden(column) && column < right)
+        while (column < right && isColumnHidden(column))
             ++column;
         while (isRowHidden(row) && row < bottom)
             ++row;
@@ -660,7 +660,9 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
     }
 
     int visualRow = verticalHeader()->visualIndex(current.row());
+    Q_ASSERT(visualRow != -1);
     int visualColumn = horizontalHeader()->visualIndex(current.column());
+    Q_ASSERT(visualColumn != -1);
 
     if (isRightToLeft()) {
         if (cursorAction == MoveLeft)
@@ -707,7 +709,7 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
         }
     case MoveLeft:
         --visualColumn;
-        while (visualColumn < right && isColumnHidden(horizontalHeader()->logicalIndex(visualColumn)))
+        while (visualColumn > 0 && isColumnHidden(horizontalHeader()->logicalIndex(visualColumn)))
             --visualColumn;
         break;
     case MoveNext:
