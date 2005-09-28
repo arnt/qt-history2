@@ -197,7 +197,7 @@ void SetPropertyCommand::redo()
     }
 
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
-        if (propertyEditor->object() == widget())
+        if (propertyEditor->object() == object())
             propertyEditor->setPropertyValue(propertyName(), m_newValue, true);
         else
             propertyEditor->setObject(propertyEditor->object()); // this is needed when f.ex. undo
