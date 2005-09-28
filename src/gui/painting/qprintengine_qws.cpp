@@ -316,7 +316,7 @@ QPrinter::PrinterState QWSPrintEngine::printerState() const
 int QWSPrintEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
 {
     int val;
-    QRect r = paperRect();
+    QRect r = d_func()->fullPage ? paperRect() : pageRect();
     switch (metricType) {
     case QPaintDevice::PdmWidth:
         val = r.width();

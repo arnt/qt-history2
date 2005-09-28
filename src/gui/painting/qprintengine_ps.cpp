@@ -4186,7 +4186,7 @@ int  QPSPrintEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
 {
     Q_D(const QPSPrintEngine);
     int val;
-    QRect r = d->paperRect();
+    QRect r = d->fullPage ? d->paperRect() : d->pageRect();
     switch (metricType) {
     case QPaintDevice::PdmWidth:
         val = r.width();

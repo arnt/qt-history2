@@ -432,7 +432,8 @@ public:
 
     QPrinter::PageOrder pageOrder;
     QPrinter::Orientation orientation;
-
+    bool fullPage;
+    
 private:
     Q_DISABLE_COPY(QPdfEnginePrivate);
     void writeInfo();
@@ -498,6 +499,7 @@ public:
 
 
     QRect paperRect() const;
+    QRect pageRect() const;
     // ### unused, should have something for this in QPrintEngine
     void setAuthor(const QString &author);
     QString author() const;

@@ -25,6 +25,8 @@ static const bool do_compress = false;
 static const bool do_compress = true;
 #endif
 
+static const int resolution = 72;
+
 /* also adds a space at the end of the number */
 static const char *qreal_to_string(qreal val, char *buf) {
     const char *ret = buf;
@@ -223,6 +225,9 @@ void QPdfEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
         d->setDimensions(r.width(),r.height());
     }
         break;
+    case PPK_FullPage: 
+        d->fullPage = value.toBool();
+        break;
     default:
         break;
     }
@@ -238,7 +243,7 @@ QVariant QPdfEngine::property(PrintEnginePropertyKey key) const
     case PPK_DocumentName:
         return d->title;
     case PPK_FullPage:
-        return true;
+        return d->fullPage;
     case PPK_NumberOfCopies:
         return 1;
     case PPK_Orientation:
@@ -246,7 +251,7 @@ QVariant QPdfEngine::property(PrintEnginePropertyKey key) const
     case PPK_OutputFileName:
         return outFile_->fileName();
     case PPK_PageRect:
-        return paperRect();
+        return pageRect();
     case PPK_PageSize:
         return pagesize_;
     case PPK_PaperRect:
@@ -256,7 +261,7 @@ QVariant QPdfEngine::property(PrintEnginePropertyKey key) const
     case PPK_Resolution:
         return 600;
     case PPK_SupportedResolutions:
-        return QList<QVariant>() << 72;
+        return QList<QVariant>() << resolution;
     default:
         break;
     }
@@ -282,6 +287,15 @@ QRect QPdfEngine::paperRect() const
         return QRect(0, 0, w, h);
     else
         return QRect(0, 0, h, w);
+}
+
+QRect QPdfEngine::pageRect() const
+{
+    QRect r = paperRect();
+    if (d->fullPage)
+        return r;
+    // would be nice to get better margins than this.
+    return QRect(resolution/3, resolution/3, r.width()-2*resolution/3, r.height()-2*resolution/3);
 }
 
 void QPdfEngine::setDevice(QIODevice* dev)
@@ -312,13 +326,6 @@ bool QPdfEngine::begin (QPaintDevice *)
     setActive(true);
     d->writeHeader();
     d->newPage();
-    Q_ASSERT(painter());
-    if (painter()) {
-        QRect r = paperRect();
-        painter()->setViewport(r.x(),r.y(),r.width(),r.height());
-        painter()->setWindow(r.x(),r.y(),r.width(),r.height());
-        painter()->resetMatrix();
-    }
 
     return true;
 }
@@ -723,7 +730,7 @@ void QPdfEngine::updateMatrix(const QMatrix & matrix)
 int QPdfEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
 {
     int val;
-    QRect r = paperRect();
+    QRect r = d->fullPage ? paperRect() : pageRect();
     switch (metricType) {
     case QPaintDevice::PdmWidth:
         val = r.width();
@@ -2171,6 +2178,7 @@ QPdfEnginePrivate::QPdfEnginePrivate()
     stream_ = new QDataStream;
     pageOrder = QPrinter::FirstPageFirst;
     orientation = QPrinter::Portrait;
+    fullPage = false;
 }
 
 QPdfEnginePrivate::~QPdfEnginePrivate()
@@ -2624,6 +2632,8 @@ void QPdfEnginePrivate::flushPage()
     QMatrix tmp(1.0, 0.0, // m11, m12
                 0.0, -1.0, // m21, m22
                 0.0, height_); // dx, dy
+    if (!fullPage)
+        tmp.translate(resolution/3, resolution/3);
     QPdfMatrix::streamMatrix(tmp, stream);
     curPage->streamText(stream);
     int len = streampos_;
