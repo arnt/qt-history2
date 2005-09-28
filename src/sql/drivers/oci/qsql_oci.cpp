@@ -452,7 +452,7 @@ QVariant::Type qDecodeOCIType(int ocitype)
     case SQLT_NUM:
     case SQLT_VNU:
     case SQLT_UIN:
-        type = QVariant::Double;
+        type = QVariant::String;
         break;
     case SQLT_VBI:
     case SQLT_BIN:
@@ -574,13 +574,12 @@ OraFieldInfo qMakeOraField(const QOCIPrivate* p, OCIParam* param)
         qOraWarning("qMakeOraField:", p);
 
     type = qDecodeOCIType(colType);
-    if (type == QVariant::Double && colPrecision > 22) {
-        type = QVariant::String;
-    } else if (type == QVariant::Int) {
+      
+    if (type == QVariant::Int) {
         if (colLength == 22 && colPrecision == 0 && colScale == 0)
-            type = QVariant::Double;
+            type = QVariant::String;
         if (colScale > 0)
-            type = QVariant::Double;
+            type = QVariant::String;
     }
     if (colType == SQLT_BLOB)
         colLength = 0;
@@ -719,14 +718,15 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
             dataSize = 50;  // magic number
 #endif //SQLT_INTERVAL_DS
 #endif //SQLT_INTERVAL_YM
-        else if (ofi.oraType == SQLT_NUM || ofi.oraType == SQLT_VNU){
-            if (ofi.oraPrecision > 0 || ofi.oraScale > 0)
-                dataSize = ((ofi.oraPrecision > ofi.oraScale ? ofi.oraPrecision : ofi.oraScale) + 1) * sizeof(utext);
+        else if (ofi.oraType == SQLT_NUM || ofi.oraType == SQLT_VNU){                       
+            if (ofi.oraPrecision > 0)
+                dataSize = (ofi.oraPrecision + 1) * sizeof(utext);
             else 
                 dataSize = (38 + 1) * sizeof(utext);
         }
         else
             dataSize = ofi.oraLength;
+            
         fieldInf[idx].typ = ofi.type;
         fieldInf[idx].oraType = ofi.oraType;
 
@@ -745,7 +745,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
         case QVariant::ByteArray:
             // RAW and LONG RAW fields can't be bound to LOB locators
             if (ofi.oraType == SQLT_BIN) {
-            //                    qDebug("binding SQLT_BIN");
+//                                qDebug("binding SQLT_BIN");
                 r = OCIDefineByPos(d->sql,
                                    &dfn,
                                    d->err,
@@ -756,7 +756,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                                    (dvoid *) &(fieldInf[idx].ind),
                                    0, 0, OCI_DYNAMIC_FETCH);
             } else if (ofi.oraType == SQLT_LBI) {
-                //                    qDebug("binding SQLT_LBI");
+//                                    qDebug("binding SQLT_LBI");
                 r = OCIDefineByPos(d->sql,
                                     &dfn,
                                     d->err,
@@ -771,7 +771,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                                    (sb4)-1, SQLT_CLOB, (dvoid *) &(fieldInf[idx].ind), 0,
                                    0, OCI_DEFAULT);
             } else {
-                // qDebug("binding SQLT_BLOB");
+//                 qDebug("binding SQLT_BLOB");
                 r = OCIDefineByPos(d->sql,
                                     &dfn,
                                     d->err,
@@ -785,7 +785,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
             break;
         case QVariant::String:
             dataSize += dataSize + sizeof(QChar);
-            //qDebug("OCIDefineByPosStr: %d", dataSize);
+//            qDebug("OCIDefineByPosStr: %d", dataSize);
             r = OCIDefineByPos(d->sql,
                                &dfn,
                                d->err,
@@ -801,7 +801,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
         default:
             // this should make enough space even with character encoding
             dataSize = (dataSize + 1) * sizeof(utext) ;
-            //qDebug("OCIDefineByPosDef: %d", dataSize);
+//            qDebug("OCIDefineByPosDef: %d", dataSize);
             r = OCIDefineByPos(d->sql,
                                 &dfn,
                                 d->err,
@@ -1017,7 +1017,7 @@ void QOCIResultPrivate::getOraFields(QSqlRecord &rinf)
         OraFieldInfo ofi = qMakeOraField(d, param);
         QSqlField f(ofi.name, ofi.type);
         f.setRequired(ofi.oraIsNull == 0);
-        f.setLength(ofi.oraPrecision == 0 ? int(ofi.oraFieldLength) : int(ofi.oraPrecision));
+        f.setLength(ofi.oraPrecision == 0 ? 38 : int(ofi.oraPrecision));
         f.setPrecision(ofi.oraScale);
         f.setSqlType(int(ofi.oraType));
         rinf.append(f);
