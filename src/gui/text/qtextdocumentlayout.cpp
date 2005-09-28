@@ -716,6 +716,11 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
             }
         }
 
+        for (int c = 0; c < columns; ++c) {
+            QTextTableCell cell = table->cellAt(firstRow, c);
+            firstRow = qMin(firstRow, cell.row());
+        }
+
         for (int r = firstRow; r < lastRow; ++r) {
             for (int c = 0; c < columns; ++c) {
                 QTextTableCell cell = table->cellAt(r, c);
@@ -723,7 +728,7 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
                 int cspan = cell.columnSpan();
                 if (rspan != 1) {
                     int cr = cell.row();
-                    if (cr != r && (cr > firstRow || !firstRow))
+                    if (cr != r)
                         continue;
                 }
                 if (cspan != 1) {
