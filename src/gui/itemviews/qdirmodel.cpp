@@ -1110,12 +1110,8 @@ QString QDirModel::filePath(const QModelIndex &index) const
     Q_D(const QDirModel);
     if (index.isValid()) {
         QFileInfo fi = fileInfo(index);
-        if (d->resolveSymlinks && fi.isSymLink()) {
-            QString link = fi.readLink();
-            if (link.at(link.size() - 1) == QDir::separator())
-                link.chop(1);
-            return QDir::cleanPath(link);
-        }
+        if (d->resolveSymlinks && fi.isSymLink())
+            return QDir(fi.filePath()).canonicalPath();
         return QDir::cleanPath(fi.absoluteFilePath());
     }
     return QString(); // root path
