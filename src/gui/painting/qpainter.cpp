@@ -506,7 +506,7 @@ void QPainterPrivate::updateState(QPainterState *newState)
 
     QPainter can clip any drawing operation to a rectangle, a region,
     or a vector path. The current clip is available using the
-    functions clipRegion() and clipPath(). Wether paths or regions are
+    functions clipRegion() and clipPath(). Whether paths or regions are
     preferred (faster) depends on the underlying paintEngine(). For
     example, the QImage paint engine prefers paths while the X11 paint
     engine prefers regions. Setting a clip is done in the painters
