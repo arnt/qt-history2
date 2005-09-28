@@ -95,6 +95,7 @@ protected Q_SLOTS:
     void columnCountChanged(int oldCount, int newCount);
     void columnMoved();
     void reexpand();
+    void rowsRemoved(const QModelIndex &parent, int first, int last);
 
 protected:
     QTreeView(QTreeViewPrivate &dd, QWidget *parent = 0);

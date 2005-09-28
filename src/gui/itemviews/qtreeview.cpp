@@ -126,15 +126,20 @@ QTreeView::~QTreeView()
 void QTreeView::setModel(QAbstractItemModel *model)
 {
     Q_D(QTreeView);
-    if (d->selectionModel && d->model) // support row editing
+    if (d->selectionModel && d->model){ // support row editing
         disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
                    d->model, SLOT(submit()));
-
+        disconnect(d->model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
+                   this, SLOT(rowsRemoved(const QModelIndex &, int, int)));
+    }
     d->viewItems.clear();
     d->expandedIndexes.clear();
     d->hiddenIndexes.clear();
     d->header->setModel(model);
     QAbstractItemView::setModel(model);
+    if (d->model)
+        connect(d->model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
+            this, SLOT(rowsRemoved(const QModelIndex &, int, int)));
 }
 
 /*!
@@ -1216,15 +1221,11 @@ void QTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
     // collapse all children
     for (int i = start; i <= end; ++i)
         collapse(model()->index(i, 0, parent));
-
+    
     // collapse parent
     int p = d->viewIndex(parent);
     if (p > 0) {
         d->collapse(p);
-        // reexpamd parent using a delayed function call
-        d->reexpand = p; // p is safe because all the changes happens after this one
-        int slot = metaObject()->indexOfSlot("reexpand()");
-        QApplication::postEvent(this, new QMetaCallEvent(slot));
     } else {
         d->reexpand = -1;
         d->viewItems.clear();
@@ -1232,6 +1233,25 @@ void QTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
     }
 
     QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
+}
+
+void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
+{
+    Q_UNUSED(start);
+    Q_UNUSED(end);
+    Q_D(QTreeView);
+    
+    // collapse parent
+    int p = d->viewIndex(parent);
+    if (p > 0) {
+        d->expand(p, false);
+        viewport()->update();
+    } else {
+        //expand(parent);
+        d->reexpand = -1;
+        d->viewItems.clear();
+        d->doDelayedItemsLayout();
+    }
 }
 
 /*!
@@ -1459,7 +1479,7 @@ void QTreeViewPrivate::initialize()
 void QTreeViewPrivate::expand(int i, bool emitSignal)
 {
     Q_Q(QTreeView);
-
+    
     if (!model || i == -1 || viewItems.at(i).expanded)
         return;
 
@@ -1472,7 +1492,7 @@ void QTreeViewPrivate::expand(int i, bool emitSignal)
     // make sure we expand children that were previously expanded
     if (model->hasChildren(index))
         reexpandChildren(index, emitSignal);
-
+    
     if (emitSignal)
         emit q->expanded(index);
 }
@@ -1629,14 +1649,14 @@ int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
         return -1;
 
     // NOTE: this function is slow if the item is outside the visible area
-    // search in visible items first, then below
+    // search in visible items first and below
     int t = itemAt(q->verticalScrollBar()->value());
     t = t > 100 ? t - 100 : 0; // start 100 items above the visible area
     for (int i = t; i < viewItems.count(); ++i)
         if (viewItems.at(i).index.row() == index.row() &&
             viewItems.at(i).index.internalId() == index.internalId()) // ignore column
             return i;
-    // search above
+    // search from top to first visible
     for (int j = 0; j < t; ++j)
         if (viewItems.at(j).index.row() == index.row() &&
             viewItems.at(j).index.internalId() == index.internalId()) // ignore column
@@ -1688,11 +1708,19 @@ void QTreeViewPrivate::relayout(const QModelIndex &parent)
 
 void QTreeViewPrivate::reexpandChildren(const QModelIndex &parent, bool)
 {
+    if (!model)
+        return;
+    
     // FIXME: this is slow: optimize
     QVector<QPersistentModelIndex> o = expandedIndexes;
     for (int j = 0; j < o.count(); ++j) {
         QModelIndex index = o.at(j);
-        if (index.parent() == parent) {
+        if (!index.isValid()){
+            int k = expandedIndexes.indexOf(index);
+            if (k >= 0)
+                expandedIndexes.remove(k);
+        }
+        else if (model->parent(index) == parent) {
             int v = viewIndex(index);
             if (v < 0)
                 continue;
