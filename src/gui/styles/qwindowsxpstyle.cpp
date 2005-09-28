@@ -1611,6 +1611,17 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             stateId = GBS_DISABLED;
         else
             stateId = GBS_NORMAL;
+        if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
+            const QStyleOptionFrameV2 *frame2 = qstyleoption_cast<const QStyleOptionFrameV2 *>(option);
+            if (frame2->features & QStyleOptionFrameV2::Flat) {
+                // Windows XP does not have a theme part for a flat GroupBox, paint it with the windows style
+                QRect fr = frame->rect;
+                QPoint p1(fr.x(), fr.y() + 1);
+                QPoint p2(fr.x() + fr.width(), p1.y() + 1);
+                rect = QRect(p1, p2);
+                name = "";
+            }
+        }
         break;
 
     case PE_IndicatorProgressChunk:
