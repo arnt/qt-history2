@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <qstring.h>
+#include <QString>
 
 #using <mscorlib.dll>
 #include <vcclr.h>

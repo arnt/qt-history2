@@ -14,7 +14,7 @@
 #ifndef WORKER_H
 #define WORKER_H
 
-#include <qobject.h>
+#include <QObject>
 
 // native Qt/C++ class
 class Worker : public QObject
