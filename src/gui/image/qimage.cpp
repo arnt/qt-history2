@@ -3199,11 +3199,6 @@ QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
     if (x3 > xmax) xmax = x3;
     if (x4 > xmax) xmax = x4;
 
-    if (xmax-xmin > 1.0)
-        xmin -= xmin/(xmax-xmin);
-    if (ymax-ymin > 1.0)
-        ymin -= ymin/(ymax-ymin);
-
     mat.setMatrix(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), -xmin, -ymin);
     return mat;
 }
@@ -3245,9 +3240,9 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
     } else {                                        // rotation or shearing
         QPolygonF a(QRectF(0, 0, ws, hs));
         a = mat.map(a);
-        QRectF r = a.boundingRect().normalized();
-        wd = int(r.width() + 0.9999);
-        hd = int(r.height() + 0.9999);
+        QRectF r = a.boundingRect();
+        wd = int(qAbs(r.width()) + 0.9999);
+        hd = int(qAbs(r.height()) + 0.9999);
         complex_xform = true;
     }
 
