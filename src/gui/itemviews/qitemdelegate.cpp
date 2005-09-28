@@ -242,18 +242,15 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     value = model->data(index, Qt::FontRole);
     QString text = model->data(index, Qt::DisplayRole).toString();
     QRect textRect;
-    if (!text.isEmpty())
-    {
-        QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
-        if (!text.contains(QLatin1Char('\n'))) {
-            QFontMetrics fontMetrics(fnt);
-            textRect = QRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
-        } else {
-            QRectF result;
-            qt_format_text(fnt, option.rect, Qt::TextDontPrint|Qt::TextDontClip,
-                       text, &result, 0, 0, 0, 0);
-            textRect = result.toRect();
-        }
+    QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
+    if (!text.contains(QLatin1Char('\n'))) {
+        QFontMetrics fontMetrics(fnt);
+        textRect = QRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
+    } else {
+        QRectF result;
+        qt_format_text(fnt, option.rect, Qt::TextDontPrint|Qt::TextDontClip,
+                   text, &result, 0, 0, 0, 0);
+        textRect = result.toRect();
     }
 
     // decoration
