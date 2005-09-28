@@ -399,7 +399,6 @@ public:
     QVector<QPdfPath*> paths;
 
 private:
-    ~QPdfPage(){}
     QVector<QPdfObject*> gobjects_;
     int width_, height_;
     bool landscape_;
