@@ -2969,18 +2969,20 @@ static QString getFmtString(const QString& f, const QTime* dt = 0, const QDate* 
     int removed = 0;
 
     if (dt) {
-        if (f.startsWith(QLatin1String("hh"))) {
-            if ((am_pm) && (dt->hour() > 12))
+        if (f.startsWith(QLatin1String("hh")) || f.startsWith(QLatin1String("HH"))) {
+            const bool hour12 = f.at(0) == QLatin1Char('h') && am_pm;
+            if (hour12 && dt->hour() > 12)
                 buf = QString::number(dt->hour() - 12).rightJustified(2, QLatin1Char('0'), true);
-            else if ((am_pm) && (dt->hour() == 0))
+            else if (hour12 && dt->hour() == 0)
                 buf = QLatin1String("12");
             else
                 buf = QString::number(dt->hour()).rightJustified(2, QLatin1Char('0'), true);
             removed = 2;
-        } else if (f.at(0) == QLatin1Char('h')) {
-            if ((am_pm) && (dt->hour() > 12))
+        } else if (f.at(0) == QLatin1Char('h') || f.at(0) == QLatin1Char('H')) {
+            const bool hour12 = f.at(0) == QLatin1Char('h') && am_pm;
+            if (hour12 && dt->hour() > 12)
                 buf = QString::number(dt->hour() - 12);
-            else if ((am_pm) && (dt->hour() == 0))
+            else if (hour12 && dt->hour() == 0)
                 buf = QLatin1String("12");
             else
                 buf = QString::number(dt->hour());
@@ -3049,13 +3051,15 @@ static QString getFmtString(const QString& f, const QTime* dt = 0, const QDate* 
             removed = 2;
         }
     }
-    if (removed == 0 || removed >= f.size())
+    if (removed == 0 || removed >= f.size()) {
         return buf;
+    }
+
     return buf + getFmtString(f.mid(removed), dt, dd, am_pm);
 }
 
 // checks if there is an unqoted 'AP' or 'ap' in the string
-static bool hasUnqutedAP(const QString &f)
+static bool hasUnquotedAP(const QString &f)
 {
     const char quote = '\'';
     bool inquote = false;
@@ -3067,7 +3071,6 @@ static bool hasUnqutedAP(const QString &f)
             return true;
         }
     }
-
     return false;
 }
 
@@ -3082,7 +3085,7 @@ static QString fmtDateTime(const QString& f, const QTime* dt, const QDate* dd)
     if (dd && !dd->isValid())
         return QString();
 
-    const bool ap = hasUnqutedAP(f);
+    const bool ap = hasUnquotedAP(f);
 
     QString buf;
     QString frm;
@@ -3109,6 +3112,7 @@ static QString fmtDateTime(const QString& f, const QTime* dt, const QDate* dd)
             buf += getFmtString(frm, dt, dd, ap);
             frm.clear();
             if ((f.at(i) == QLatin1Char('h')) || (f.at(i) == QLatin1Char('m'))
+                || (f.at(i) == QLatin1Char('H'))
                 || (f.at(i) == QLatin1Char('s')) || (f.at(i) == QLatin1Char('z'))) {
                 status = f.at(i);
                 frm += f.at(i);
@@ -3288,7 +3292,8 @@ QString QDateTimeParser::sectionFormat(QDateTimeParser::Section s, int count) co
     case MSecSection: fillChar = QLatin1Char('z'); break;
     case SecondSection: fillChar = QLatin1Char('s'); break;
     case MinuteSection: fillChar = QLatin1Char('m'); break;
-    case HourSection: fillChar = QLatin1Char('h'); break;
+    case Hour12Section: fillChar = QLatin1Char('h'); break;
+    case Hour24Section: fillChar = QLatin1Char('H'); break;
     case DaySection: fillChar = QLatin1Char('d'); break;
     case MonthSection: fillChar = QLatin1Char('M'); break;
     case YearSection: fillChar = QLatin1Char('y'); break;
@@ -3318,8 +3323,10 @@ bool QDateTimeParser::withinBounds(const QDateTimeParser::SectionNode &sec, int 
         } else {
             min = 1; max = 31;
         }
-    } else if (sec.type == QDateTimeParser::HourSection) {
+    } else if (sec.type == QDateTimeParser::Hour24Section) {
         min = 0; max = 23;
+    } else if (sec.type == QDateTimeParser::Hour12Section) {
+        min = 0; max = 11;
     } else if (sec.type == QDateTimeParser::MinuteSection) {
         min = 0; max = 59;
     } else if (sec.type == QDateTimeParser::SecondSection) {
@@ -3361,7 +3368,7 @@ bool QDateTimeParser::isSpecial(const QChar &c) const
     switch (c.cell()) {
     case 'd': case 'M': case 'y':
         return (formatType == QVariant::Date || formatType == QVariant::DateTime);
-    case 'h': case 'm': case 's': case 'z': case 'a': case 'p': case 'A': case 'P':
+    case 'H': case 'h': case 'm': case 's': case 'z': case 'a': case 'p': case 'A': case 'P':
         return (formatType == QVariant::Time || formatType == QVariant::DateTime);
     case '\'': return true;
     default: return false;
@@ -3404,9 +3411,11 @@ static int countRepeat(const QString &str, int index)
 
 void QDateTimeParser::parseFormat(const QString &newFormat, QVariant::Type t)
 {
+
     display = 0;
     formatType = t;
     format = newFormat;
+    reversedFormat.clear();
     separators.clear();
     sectionNodes.clear();
 
@@ -3420,6 +3429,8 @@ void QDateTimeParser::parseFormat(const QString &newFormat, QVariant::Type t)
     int i, index = 0;
     int add = 0;
     QChar status = zero;
+    const bool ap = hasUnquotedAP(newFormat);
+
     for (i = 0; i<newFormat.size(); ++i) {
         if (newFormat.at(i) == quote) {
             ++add;
@@ -3430,14 +3441,17 @@ void QDateTimeParser::parseFormat(const QString &newFormat, QVariant::Type t)
             }
         } else if (i < newFormat.size() && status != quote && isSpecial(newFormat.at(i))) {
             const int repeat = qMin(4, countRepeat(newFormat, i));
-            switch (newFormat.at(i).toLatin1()) {
+            const char sect = newFormat.at(i).toLatin1();
+            switch (sect) {
+            case 'H':
             case 'h': {
-                const SectionNode sn = { HourSection, i - add, qMin(2, repeat) };
+                const Section hour = (ap && sect == 'h') ? Hour12Section : Hour24Section;
+                const SectionNode sn = { hour, i - add, qMin(2, repeat) };
                 sectionNodes << sn;
                 separators << unquote(newFormat.mid(index, i - index));
                 i += sn.count - 1;
                 index = i + 1;
-                display |= HourSection;
+                display |= hour;
                 break; }
             case 'm': {
                 const SectionNode sn = { MinuteSection, i - add, qMin(2, repeat) };
@@ -3512,7 +3526,6 @@ void QDateTimeParser::parseFormat(const QString &newFormat, QVariant::Type t)
     }
     separators << (index < newFormat.size() ? unquote(newFormat.mid(index)) : QString());
 
-
     if (false/*QApplication::isRightToLeft()*/) {
        for (int i=sectionNodes.size() - 1; i>=0; --i) {
             reversedFormat += separators.at(i + 1);
@@ -3522,7 +3535,7 @@ void QDateTimeParser::parseFormat(const QString &newFormat, QVariant::Type t)
     }
 
 //     for (int i=0; i<sectionNodes.size(); ++i) {
-//         qDebug() << sectionNodes.at(i).type << sectionNodes.at(i).count;
+//         qDebug() << i << sectionNodes.at(i).type << sectionNodes.at(i).count;
 //     }
 
 //     qDebug("separators:\n'%s'", separators.join("\n").toLatin1().constData());
@@ -3627,7 +3640,8 @@ bool QDateTimeParser::fromString(const QString &string, QDate *dateIn, QTime *ti
             }
             break;
 
-        case HourSection:
+        case Hour12Section:
+        case Hour24Section:
             num = &hour;
             min = s.count;
             max = 2;
@@ -3710,8 +3724,9 @@ bool QDateTimeParser::fromString(const QString &string, QDate *dateIn, QTime *ti
     }
     if (!sectionNodes.isEmpty() || unquote(format) != string) {
         const QString lastsep = index < string.size() ? string.mid(index) : QString();
-        if (separators.last() != lastsep)
+        if (separators.last() != lastsep) {
             return false;
+        }
     }
 
     if (month == -1)
@@ -3744,18 +3759,14 @@ bool QDateTimeParser::fromString(const QString &string, QDate *dateIn, QTime *ti
         sec = 0;
     if (msec == -1)
         msec = 0;
-    if (ampm == 0){
+    if (ampm == 0) {
         if (hour == 12) {
             hour = 0;
         } else if (hour > 12) {
             return false;
         }
-    } else if (ampm == 1) {
-        if (hour < 12) {
-            hour += 12;
-        } else if (hour > 12) {
-            return false;
-        }
+    } else if (ampm == 1 && hour < 12) {
+        hour += 12;
     }
 
     if (timeIn) {

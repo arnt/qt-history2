@@ -70,12 +70,13 @@ public:
         YearSection = 0x0004,
         DateMask = (DaySection|MonthSection|YearSection),
 
-        HourSection = 0x0010,
-        MinuteSection = 0x0020,
-        SecondSection = 0x0040,
-        MSecSection = 0x0080,
-        AmPmSection = 0x0100,
-        TimeMask = (HourSection|MinuteSection|SecondSection|MSecSection)
+        Hour12Section = 0x0010,
+        Hour24Section = 0x0020,
+        MinuteSection = 0x0040,
+        SecondSection = 0x0080,
+        MSecSection   = 0x0100,
+        AmPmSection   = 0x0200,
+        TimeMask = (Hour24Section||Hour12Section|MinuteSection|SecondSection|MSecSection)
     };
 
     struct SectionNode
