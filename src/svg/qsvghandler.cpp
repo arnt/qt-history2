@@ -98,6 +98,25 @@ static QList<qreal> parseNumbersList(QString::const_iterator &itr)
     return points;
 }
 
+static QString idFromUrl(const QString &url)
+{
+    QString::const_iterator itr = url.begin();
+    while ((*itr).isSpace())
+        ++itr;
+    if ((*itr) == '(')
+        ++itr;
+    while ((*itr).isSpace())
+        ++itr;
+    if ((*itr) == '#')
+        ++itr;
+    QString id;
+    while ((*itr).isLetterOrNumber()) {
+        id += *itr;
+        ++itr;
+    }
+    return id;
+}
+
 /**
  * returns true when successfuly set the color. false signifies
  * that the color should be inherited
@@ -277,20 +296,7 @@ static void parseBrush(QSvgNode *node,
     if (!value.isEmpty()) {
         if (value.startsWith("url")) {
             value = value.remove(0, 3);
-            QString::iterator itr = value.begin();
-            while ((*itr).isSpace())
-                ++itr;
-            if ((*itr) == '(')
-                ++itr;
-            while ((*itr).isSpace())
-                ++itr;
-            if ((*itr) == '#')
-                ++itr;
-            QString id;
-            while ((*itr).isLetterOrNumber()) {
-                id += *itr;
-                ++itr;
-            }
+            QString id = idFromUrl(value);
 
             QSvgStructureNode *group = 0;
             QSvgNode *dummy = node;
@@ -348,9 +354,36 @@ static void parsePen(QSvgNode *node,
                 pen = inherited->qpen();
 
             if (!value.isEmpty()) {
-                QColor color;
-                if (constructColor(value, opacity, color))
-                    pen.setColor(color);
+                if (value.startsWith("url")) {
+                    value = value.remove(0, 3);
+                    QString id = idFromUrl(value);
+                    QSvgStructureNode *group = 0;
+                    QSvgNode *dummy = node;
+                    while (dummy && (dummy->type() != QSvgNode::DOC &&
+                                     dummy->type() != QSvgNode::G   &&
+                                     dummy->type() != QSvgNode::DEFS)) {
+                        dummy = dummy->parent();
+                    }
+                    if (dummy)
+                        group = static_cast<QSvgStructureNode*>(dummy);
+                    if (group) {
+                        QSvgStyleProperty *style =
+                            group->scopeStyle(id);
+                        if (style->type() == QSvgStyleProperty::GRADIENT) {
+                            QBrush b(*((QSvgGradientStyle*)style)->qgradient());
+                            pen.setBrush(b);
+                        } else if (style->type() == QSvgStyleProperty::GRADIENT) {
+                            pen.setColor(
+                                ((QSvgSolidColorStyle*)style)->qcolor());
+                        }
+                    } else {
+                        qDebug()<<"QSvgHandler::parsePen no parent group?";
+                    }
+                } else {
+                    QColor color;
+                    if (constructColor(value, opacity, color))
+                        pen.setColor(color);
+                }
             }
             if (!width.isEmpty())
                 pen.setWidthF(width.toDouble());
@@ -1384,6 +1417,7 @@ static QSvgStyleProperty *createLinearGradientNode(QSvgNode *node,
     QLinearGradient *grad = new QLinearGradient(nx1, ny1, nx2, ny2);
     if (!link.isEmpty()) {
         QSvgStyleProperty *prop = node->styleProperty(link);
+        //qDebug()<<"inherited "<<prop<<" ("<<link<<")";
         if (prop && prop->type() == QSvgStyleProperty::GRADIENT) {
             QSvgGradientStyle *inherited =
                 static_cast<QSvgGradientStyle*>(prop);
