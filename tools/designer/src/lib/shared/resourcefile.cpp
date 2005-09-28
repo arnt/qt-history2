@@ -144,7 +144,8 @@ bool ResourceFile::save()
         foreach (QString file, file_list) {
             QDomElement felt = doc.createElement(QLatin1String("file"));
             relt.appendChild(felt);
-            QDomText text = doc.createTextNode(relativePath(file));
+            QString conv_file = relativePath(file).replace(QDir::separator(), QLatin1Char('/'));
+            QDomText text = doc.createTextNode(conv_file);
             felt.appendChild(text);
         }
     }
@@ -282,16 +283,11 @@ int ResourceFile::indexOfFile(int pref_idx, const QString &file) const
 
 QString ResourceFile::relativePath(const QString &abs_path) const
 {
-    if (m_file_name.isEmpty())
-        return abs_path;
-
-    QString conv_path = abs_path;
-    if (!QFileInfo(abs_path).isRelative()) {
-        QFileInfo fileInfo(m_file_name);
-        conv_path = fileInfo.absoluteDir().relativeFilePath(abs_path);
-    }
-    
-    return conv_path.replace(QDir::separator(), '/');
+    if (m_file_name.isEmpty() || QFileInfo(abs_path).isRelative())
+         return abs_path;
+         
+    QFileInfo fileInfo(m_file_name);
+    return fileInfo.absoluteDir().relativeFilePath(abs_path);
 }
 
 QString ResourceFile::absolutePath(const QString &rel_path) const
@@ -482,8 +478,10 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             }
             break;
         case Qt::ToolTipRole:
-            if (d != -1)
-                result = m_resource_file.relativePath(m_resource_file.file(d, index.row()));
+            if (d != -1) {
+                QString conv_file = m_resource_file.relativePath(m_resource_file.file(d, index.row()));
+                result = conv_file.replace(QDir::separator(), QLatin1Char('/'));
+            }
             break;
 
         default:

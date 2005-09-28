@@ -1165,7 +1165,8 @@ DomResources *QDesignerResource::saveResources()
     QList<DomResource*> dom_include;
     foreach (QString res, res_list) {
         DomResource *dom_res = new DomResource;
-        dom_res->setAttributeLocation(m_formWindow->absoluteDir().relativeFilePath(res));
+        QString conv_path = m_formWindow->absoluteDir().relativeFilePath(res);
+        dom_res->setAttributeLocation(conv_path.replace(QDir::separator(), QLatin1Char('/')));
         dom_include.append(dom_res);
     }
 
