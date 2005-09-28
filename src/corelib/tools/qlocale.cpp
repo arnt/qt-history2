@@ -2490,6 +2490,8 @@ bool QLocalePrivate::numberToCLocale(const QString &num,
     const QChar *uc = num.unicode();
     int l = num.length();
     int idx = 0;
+    const ushort zeroUnicode = zero().unicode();
+    const ushort tenUnicode = zeroUnicode + 10;
 
     // Skip whitespace
     while (idx < l && uc[idx].isSpace())
@@ -2498,11 +2500,11 @@ bool QLocalePrivate::numberToCLocale(const QString &num,
         return false;
 
     while (idx < l) {
+        char out;
         const QChar &in = uc[idx];
-        char out = 0;
 
-        if (in.unicode() >= zero().unicode() && in.unicode() < zero().unicode() + 10)
-            out = digitToCLocale(zero(), in);
+        if (in.unicode() >= zeroUnicode && in.unicode() < tenUnicode)
+            out = '0' + in.unicode() - zeroUnicode;
         else if (in == plus())
             out = '+';
         else if (in == minus())
