@@ -11,10 +11,9 @@
 **
 ****************************************************************************/
 
-#include <QtGui>
-
 #include "addressview.h"
 #include "msoutl.h"
+#include <QtGui>
 
 class AddressBookModel : public QAbstractListModel
 {

@@ -11,10 +11,9 @@
 **
 ****************************************************************************/
 
-
 #include "objects.h"
-#include <qlayout.h>
-#include <qpainter.h>
+#include <QLayout>
+#include <QPainter>
 
 /* Implementation of QParentWidget */
 QParentWidget::QParentWidget(QWidget *parent)

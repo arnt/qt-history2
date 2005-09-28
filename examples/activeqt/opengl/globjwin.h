@@ -21,8 +21,7 @@
 #ifndef GLOBJWIN_H
 #define GLOBJWIN_H
 
-#include <qwidget.h>
-
+#include <QWidget.h>
 
 class GLObjectWindow : public QWidget
 {
@@ -31,6 +30,5 @@ public:
     GLObjectWindow(QWidget* parent = 0);
 
 };
-
 
 #endif // GLOBJWIN_H

@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#ifndef AX1_H
-#define AX1_H
+#ifndef AX2_H
+#define AX2_H
 
-#include <qwidget.h>
-#include <qpainter.h>
+#include <QWidget>
+#include <QPainter>
 
 class QAxWidget2 : public QWidget
 {
@@ -60,4 +60,4 @@ private:
     int line_width;
 };
 
-#endif
+#endif // AX2_H

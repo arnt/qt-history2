@@ -11,10 +11,9 @@
 **
 ****************************************************************************/
 
-#include <qapplication.h>
-#include <qaxfactory.h>
-
 #include "menus.h"
+#include <QApplication>
+#include <QAxFactory>
 
 QAXFACTORY_DEFAULT(QMenus,
 		    "{4dc3f340-a6f7-44e4-a79b-3e9217695fbd}",

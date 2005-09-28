@@ -22,10 +22,9 @@
 
 #include "globjwin.h"
 #include "glbox.h"
-#include <qapplication.h>
-#include <qgl.h>
-
-#include <qaxfactory.h>
+#include <QApplication>
+#include <QtOpenGL>
+#include <QAxFactory>
 
 QAXFACTORY_DEFAULT( GLBox,
 		    "{5fd9c22e-ed45-43fa-ba13-1530bb6b03e0}",
@@ -57,4 +56,3 @@ int main( int argc, char **argv )
     }
     return a.exec();
 }
-

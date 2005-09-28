@@ -14,7 +14,7 @@
 #ifndef MENUS_H
 #define MENUS_H
 
-#include <qmainwindow.h>
+#include <QMainWindow>
 
 class QTextEdit;
 

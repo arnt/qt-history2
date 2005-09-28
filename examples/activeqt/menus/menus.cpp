@@ -11,14 +11,13 @@
 **
 ****************************************************************************/
 
-#include <qaction.h>
-#include <qaxfactory.h>
-#include <qmenubar.h>
-#include <qmessagebox.h>
-#include <qtextedit.h>
-#include <qpixmap.h>
-
 #include "menus.h"
+#include <QAction>
+#include <QAxFactory>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QTextEdit>
+#include <QPixmap>
 
 #include "fileopen.xpm"
 #include "filesave.xpm"

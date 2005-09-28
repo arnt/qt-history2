@@ -14,7 +14,7 @@
 #ifndef ADDRESSVIEW_H
 #define ADDRESSVIEW_H
 
-#include <qwidget.h>
+#include <QWidget>
 
 class AddressBookModel;
 class QLineEdit;
@@ -44,4 +44,4 @@ protected:
     QLineEdit *iFirstName, *iLastName, *iAddress, *iEMail;
 };
 
-#endif
+#endif // ADDRESSVIEW_H

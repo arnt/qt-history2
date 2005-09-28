@@ -11,13 +11,12 @@
 **
 ****************************************************************************/
 
-#include <qaxfactory.h>
-
-#include <qcheckbox.h>
-#include <qradiobutton.h>
-#include <qpushbutton.h>
-#include <qtoolbutton.h>
-#include <qpixmap.h>
+#include <QAxFactory>
+#include <QCheckBox>
+#include <QRadioButton>
+#include <QPushButton>
+#include <QToolButton>
+#include <QPixmap>
 
 /* XPM */
 static const char *fileopen[] = {

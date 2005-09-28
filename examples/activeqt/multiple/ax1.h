@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#ifndef AX2_H
-#define AX2_H
+#ifndef AX1_H
+#define AX1_H
 
-#include <qwidget.h>
-#include <qpainter.h>
+#include <QWidget>
+#include <QPainter>
 
 class QAxWidget1 : public QWidget
 {
@@ -54,4 +54,4 @@ private:
     QColor fill_color;
 };
 
-#endif
+#endif // AX1_H

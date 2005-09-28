@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 
-#include <qapplication.h>
-#include <qaxfactory.h>
-#include <qtabwidget.h>
-#include <qtimer.h>
+#include <QApplication>
+#include <QAxFactory>
+#include <QTabWidget>
+#include <QTimer>
 
 class Application;
 class DocumentList;

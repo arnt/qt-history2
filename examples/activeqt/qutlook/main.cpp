@@ -11,9 +11,8 @@
 **
 ****************************************************************************/
 
-#include <qapplication.h>
-
 #include "addressview.h"
+#include <QApplication>
 
 int main(int argc, char ** argv)
 {

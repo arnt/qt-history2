@@ -20,8 +20,8 @@
 #ifndef GLBOX_H
 #define GLBOX_H
 
-#include <qgl.h>
-#include <qaxbindable.h>
+#include <QtOpenGL>
+#include <QAxBindable>
 
 class GLBox : public QGLWidget,
 	      public QAxBindable
@@ -55,6 +55,5 @@ private:
     GLfloat xRot, yRot, zRot, scale;
 
 };
-
 
 #endif // GLBOX_H

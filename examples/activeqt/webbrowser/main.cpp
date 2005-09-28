@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include <qapplication.h>
-#include <qmessagebox.h>
-#include <qprogressbar.h>
-#include <qstatusbar.h>
+#include <QApplication>
+#include <QMessageBox>
+#include <QProgressBar>
+#include <QStatusBar>
+#include <QMainWindow>
 
-#include <qmainwindow.h>
 #include "ui_mainwindow.h"
 
 class MainWindow : public QMainWindow, public Ui::MainWindow
@@ -77,7 +77,6 @@ void MainWindow::on_WebBrowser_ProgressChange(int a, int b)
     pb->setValue(a);
 }
 
-
 void MainWindow::on_WebBrowser_CommandStateChange(int cmd, bool on)
 {
     switch (cmd) {
@@ -104,7 +103,6 @@ void MainWindow::on_actionGo_triggered()
 {
     WebBrowser->dynamicCall("Navigate(const QString&)", addressEdit->text());
 }
-
 
 void MainWindow::on_actionNewWindow_triggered()
 {

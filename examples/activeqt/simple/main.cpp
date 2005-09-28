@@ -11,15 +11,14 @@
 **
 ****************************************************************************/
 
-#include <qapplication.h>
-#include <qlayout.h>
-#include <qslider.h>
-#include <qlcdnumber.h>
-#include <qlineedit.h>
-#include <qmessagebox.h>
-
-#include <qaxbindable.h>
-#include <qaxfactory.h>
+#include <QAxBindable>
+#include <QAxFactory>
+#include <QApplication>
+#include <QLayout>
+#include <QSlider>
+#include <QLCDNumber>
+#include <QLineEdit>
+#include <QMessageBox>
 
 class QSimpleAX : public QWidget, public QAxBindable
 {

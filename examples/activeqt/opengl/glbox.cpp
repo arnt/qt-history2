@@ -21,9 +21,8 @@
 ****************************************************************************/
 
 #include "glbox.h"
-
-#include <qaxaggregated.h>
-#include <quuid.h>
+#include <QAxAggregated>
+#include <QUuid>
 #include <objsafe.h>
 
 #if defined(Q_CC_MSVC)
@@ -213,4 +212,3 @@ QAxAggregated *GLBox::createAggregate()
 {
     return new ObjectSafetyImpl();
 }
-

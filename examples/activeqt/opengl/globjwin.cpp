@@ -11,15 +11,15 @@
 **
 ****************************************************************************/
 
-#include <qpushbutton.h>
-#include <qslider.h>
-#include <qlayout.h>
-#include <qframe.h>
-#include <qmenubar.h>
-#include <qmenu.h>
-#include <qapplication.h>
 #include "globjwin.h"
 #include "glbox.h"
+#include <QPushButton>
+#include <QSlider>
+#include <QLayout>
+#include <QFrame>
+#include <QMenuBar>
+#include <QMenu>
+#include <QApplication>
 
 
 GLObjectWindow::GLObjectWindow(QWidget* parent)
