@@ -2195,7 +2195,7 @@ void QLineEditPrivate::drag()
 */
 void QLineEdit::contextMenuEvent(QContextMenuEvent *event)
 {
-    QMenu *menu = createStandardContextMenu();
+    QPointer<QMenu> menu = createStandardContextMenu();
     menu->exec(event->globalPos());
     delete menu;
 }
