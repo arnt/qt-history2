@@ -16,6 +16,13 @@
 #include <qdebug.h>
 
 /*!
+  \class QFilteringProxyModel
+  \brief The QFilteringProxyModel class provides support for filtering data
+  that is passed between another model and a view.
+
+*/
+
+/*!
     Constructs a filterting proxy model with the given \a parent.
 */
 QFilteringProxyModel::QFilteringProxyModel(QObject *parent)
