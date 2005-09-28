@@ -474,8 +474,6 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
             }
             if (qt_xdnd_current_widget != target_widget) {
                 qt_xdnd_current_widget = target_widget;
-                QDragManager *manager = QDragManager::self();
-                manager->emitTargetChanged(qt_xdnd_current_widget);
             }
             if (target_widget) {
                 qt_xdnd_current_position = p;
