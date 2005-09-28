@@ -2105,7 +2105,7 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
                     this,
                     "Choose a directory",
                     "/home",
-                    QFileDialog::DontResolveSymlinks);
+                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
   \endcode
 
   This function creates a modal file dialog with the given \a parent

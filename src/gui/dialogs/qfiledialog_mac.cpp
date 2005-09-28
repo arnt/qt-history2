@@ -283,7 +283,8 @@ QStringList qt_mac_get_open_file_names(const QFileDialogArgs &args, QString *pwd
     }
 
     NavDialogRef dlg;
-    if (args.mode == QFileDialog::DirectoryOnly) {
+    if (args.mode == QFileDialog::DirectoryOnly ||
+        args.mode == QFileDialog::Directory) {
         if (NavCreateChooseFolderDialog(&options, make_navProcUPP(), 0, 0, &dlg)) {
             qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
             return retstrl;
