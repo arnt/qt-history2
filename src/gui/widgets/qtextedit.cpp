@@ -1992,6 +1992,7 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
     p->setClipRect(r);
 
     QAbstractTextDocumentLayout::PaintContext ctx;
+    ctx.palette = q->palette();
     if (cursorOn && q->isEnabled())
         ctx.cursorPosition = cursor.position();
     if (!dndFeedbackCursor.isNull())
