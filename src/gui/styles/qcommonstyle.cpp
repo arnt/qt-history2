@@ -1173,11 +1173,15 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 m.rotate(newRot);
                 p->setMatrix(m, true);
             }
-            if (selected) {
+            tr.adjust(0, 0, pixelMetric(QStyle::PM_TabBarTabShiftHorizontal, tab, widget),
+                            pixelMetric(QStyle::PM_TabBarTabShiftVertical, tab, widget));
+
+            if (selected)
+            {
                 tr.setBottom(tr.bottom() - pixelMetric(QStyle::PM_TabBarTabShiftVertical, tab,
-                                                       widget));
+                                                    widget));
                 tr.setRight(tr.right() - pixelMetric(QStyle::PM_TabBarTabShiftHorizontal, tab,
-                                                     widget));
+                                                    widget));
             }
 
             int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;

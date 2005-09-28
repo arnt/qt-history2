@@ -807,7 +807,9 @@ void QWindowsXPStylePrivate::drawBackground(XPThemeData &themeData)
 
     bool useFallback = painter->paintEngine()->getDC() == 0 
 		       || themeData.mirrorHorizontally
-		       || (themeData.mirrorVertically && pDrawThemeBackgroundEx == 0);
+		       || themeData.rotate 
+		       || themeData.mirrorVertically 
+		       || pDrawThemeBackgroundEx == 0;
     if (!useFallback)
         drawBackgroundDirectly(themeData);
     else
@@ -903,6 +905,11 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
 {
     QPainter *painter = themeData.painter;
     QRect rect = themeData.rect;
+
+    if ((themeData.rotate + 90) % 180 == 0) { // Catch 90,270,etc.. degree flips.
+        rect = QRect(0, 0, rect.height(), rect.width());
+    }
+    rect.moveTo(0,0);
     int partId = themeData.partId;
     int stateId = themeData.stateId;
     int w = rect.width();
@@ -1117,7 +1124,7 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
     if (addBorderContentClipping)
 	painter->setClipRegion(extraClip, Qt::IntersectClip);
 
-    if (!themeData.mirrorHorizontally && !themeData.mirrorVertically) {
+    if (!themeData.mirrorHorizontally && !themeData.mirrorVertically && !themeData.rotate) {
         if (!haveCachedPixmap)
             painter->drawImage(themeData.rect, img, rect);
         else
@@ -1133,8 +1140,29 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
             imgCopy = img.copy(rect);
         else
             imgCopy = cachedPixmap.toImage();
+
+        if (themeData.rotate) {
+#if 1
+            // We must rotate it manually, since QImage::transform does something wrong
+            QImage imgRotated(imgCopy.height(), imgCopy.width(), imgCopy.format());
+            for (int yi = 0; yi < imgCopy.height(); yi++) {
+                for (int xi = 0; xi < imgCopy.width(); xi++) {
+                    QRgb px = imgCopy.pixel(xi,yi);
+                    imgRotated.setPixel(imgCopy.height() -1 - yi, xi, qRgba(qRed(px), qGreen(px), qBlue(px), 255));
+                }
+            }
+            imgCopy = imgRotated;
+#else
+            QMatrix mat;
+            mat.rotate(themeData.rotate);
+            imgCopy = imgCopy.transformed(mat);
+#endif
+        }
+        if (themeData.mirrorHorizontally || themeData.mirrorVertically) {
+            imgCopy = imgCopy.mirrored(themeData.mirrorHorizontally, themeData.mirrorVertically);
+        }        
         painter->drawImage(themeData.rect,
-                           imgCopy.mirrored(themeData.mirrorHorizontally, themeData.mirrorVertically));
+                           imgCopy);
     }
 
     if (useRegion || addBorderContentClipping) {
@@ -1811,93 +1839,58 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             } else {
                 partId = TABP_TABITEM;
             }
-
             switch (tab->shape) {
-            default:
-                QCommonStyle::drawControl(element, option, p, widget);
-                break;
             case QTabBar::RoundedNorth:
                 if (selected)
                     rect.adjust(firstTab ? 0 : -tabOverlap, 0, lastTab ? 0 : tabOverlap, borderThickness);
                 else
-                    rect.adjust(0, tabOverlap, 0, -borderThickness);
+                    rect.adjust(0, tabOverlap, 0, 0);
                 break;
             case QTabBar::RoundedSouth:
                 vMirrored = true;
                 if (selected)
                     rect.adjust(firstTab ? 0 : -tabOverlap , -borderThickness, lastTab ? 0 : tabOverlap, 0);
                 else
-                    rect.adjust(0, borderThickness, 0, -tabOverlap);
+                    rect.adjust(0, 0, 0, -tabOverlap);
+                break;
+            case QTabBar::RoundedEast:
+                rotate = 90;
+                if (selected) {
+                    rect.adjust(-borderThickness, firstTab ? 0 : -tabOverlap, 0, lastTab ? 0 : tabOverlap);
+                }else{
+                    rect.adjust(0, 0, -tabOverlap, 0);
+                }
+                break;
+            case QTabBar::RoundedWest:
+                hMirrored = true;
+                rotate = 90;
+                if (selected) {
+                    rect.adjust(0, firstTab ? 0 : -tabOverlap, borderThickness, lastTab ? 0 : tabOverlap);
+                }else{
+                    rect.adjust(tabOverlap, 0, 0, 0);
+                }
+                break;
+            default:
+                name = "";  // Do our own painting for triangular
                 break;
             }
 
-
-
-            //switch (tab->shape) {
-            //case QTabBar::RoundedNorth:
-            //case QTabBar::TriangularNorth:
-            //    if ((flags & State_Selected) || (flags & State_HasFocus)) {
-            //        rect.adjust(0, 0, 0, 1);
-            //    } else {
-            //        rect.adjust(0, 1, 0, 0);
-            //        if (tab->selectedPosition != QStyleOptionTab::NextIsSelected)
-            //            rect.adjust(1, 0, 0, 0);
-            //        if (tab->selectedPosition != QStyleOptionTab::PreviousIsSelected)
-            //            rect.adjust(0, 0, -1, 0);
-            //    }
-            //    break;
-            //case QTabBar::RoundedSouth:
-            //case QTabBar::TriangularSouth:
-            //    rotate = 180;
-            //    if ((flags & State_Selected) || (flags & State_HasFocus)) {
-            //        rect.adjust(0, -1, 0, 0);
-            //    } else {
-            //        rect.adjust(0, 0, 0, -1);
-            //        if (tab->selectedPosition != QStyleOptionTab::NextIsSelected)
-            //            rect.adjust(1, 0, 0, 0);
-            //        if (tab->selectedPosition != QStyleOptionTab::PreviousIsSelected)
-            //            rect.adjust(0, 0, -1, 0);
-            //    }
-            //    break;
-            //case QTabBar::RoundedEast:
-            //case QTabBar::TriangularEast:
-            //    rotate = 90;
-            //    break;
-            //case QTabBar::RoundedWest:
-            //case QTabBar::TriangularWest:
-            //    rotate = 270;
-            //    if ((flags & State_Selected) || (flags & State_HasFocus)) {
-            //        rect.adjust(0, 0, 1, 0);
-            //    } else {
-            //        rect.adjust(1, 0, -5, 0);
-            //        if (tab->selectedPosition != QStyleOptionTab::NextIsSelected)
-            //            rect.adjust(0, 1, 0, 0);
-            //        if (tab->selectedPosition != QStyleOptionTab::PreviousIsSelected)
-            //            rect.adjust(0, 0, 0, -1);
-            //    }
-            //    break;
-            //}
-
-            //if (!(flags & State_Selected)) {
-            //    switch (tab->shape) {
-            //    case QTabBar::RoundedNorth:
-            //    case QTabBar::TriangularNorth:
-            //        rect.adjust(0,0, 0,-1);
-            //        break;
-            //    case QTabBar::RoundedSouth:
-            //    case QTabBar::TriangularSouth:
-            //        rect.adjust(0,1, 0,0);
-            //        break;
-            //    case QTabBar::RoundedEast:
-            //    case QTabBar::TriangularEast:
-            //        rect.adjust(1,0, 0,0);
-            //        break;
-            //    case QTabBar::RoundedWest:
-            //    case QTabBar::TriangularWest:
-            //        rect.adjust(0,0, -1,0);
-            //        break;
-            //    }
-            //}
+            if (!selected) {
+                switch (tab->shape) {
+                case QTabBar::RoundedNorth:
+                    rect.adjust(0,0, 0,-1);
+                    break;
+                case QTabBar::RoundedSouth:
+                    rect.adjust(0,1, 0,0);
+                    break;
+                case QTabBar::RoundedEast:
+                    rect.adjust( 1,0, 0,0);
+                    break;
+                case QTabBar::RoundedWest:
+                    rect.adjust(0,0, -1,0);
+                    break;
+                }
+            }
         }
         break;
 
