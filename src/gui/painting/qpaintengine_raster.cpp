@@ -560,6 +560,8 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
 
     updateClipPath(QPainterPath(), Qt::NoClip);
 
+    setDirty(DirtyBrushOrigin);
+
     setActive(true);
     return true;
 }
@@ -767,8 +769,7 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
     }
 
     if (flags & DirtyBrushOrigin) {
-        QPointF offset = state.brushOrigin();
-        d->brushOffset = offset;
+        d->brushOffset = state.brushOrigin();
         d->brushData.setupMatrix(d->brushMatrix(), d->txop, d->bilinear);
     }
 
@@ -2725,7 +2726,7 @@ void QSpanData::initGradient(const QGradient *g)
         if (diff != 0.0)
             dist = (int)(256*(dpos - stops[current_stop].first) / diff);
         else
-            dist = 0;        
+            dist = 0;
         int idist = 256 - dist;
 
         gradient.colorTable[pos] = INTERPOLATE_PIXEL_256(current_color, idist, next_color, dist);
