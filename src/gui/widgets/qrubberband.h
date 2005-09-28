@@ -34,6 +34,7 @@ public:
     Shape shape() const;
 
     void setGeometry(const QRect &r);
+    QRect geometry() const;
 
     inline void setGeometry(int x, int y, int w, int h);
     inline void move(int x, int y);

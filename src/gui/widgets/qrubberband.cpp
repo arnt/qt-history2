@@ -218,8 +218,6 @@ void QRubberBand::changeEvent(QEvent *e)
 */
 
 /*!
-    \fn void QRubberBand::setGeometry(const QRect &rect)
-
     Changes the rubberband's geometry to the geometry of the rectangle
     \a rect. \a rect is relative of (and bounded by) by the parent
     geometry.
@@ -268,5 +266,19 @@ void QRubberBand::setGeometry(const QRect &geom)
 #endif
     update();
 }
+
+/*!
+    Returns the current geometry of the rubber band relative its parent.
+
+    \sa setGeometry()
+*/
+QRect QRubberBand::geometry() const
+{
+    QRect ret = QWidget::geometry();
+    if(QWidget *p = parentWidget())
+        return QRect(p->mapFromGlobal(ret.topLeft()), ret.size());
+    return ret;
+}
+
 
 #endif // QT_NO_RUBBERBAND
