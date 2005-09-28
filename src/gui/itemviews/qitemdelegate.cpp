@@ -744,7 +744,6 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
             if (QDragManager::self() && QDragManager::self()->object != 0)
                 return false;
 #endif
-            qDebug() << "closing the editor" << editor->objectName();
             emit commitData(editor);
             emit closeEditor(editor, NoHint);
         }
