@@ -43,6 +43,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
 #include <QtGui/QApplication>
+#include <QtGui/QMainWindow>
 
 #include <QtCore/QBuffer>
 #include <QtCore/QDir>
@@ -499,6 +500,8 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
         w = saveWidget(stackedWidget, ui_parentWidget);
     else if (QDesignerToolBox *toolBox = qobject_cast<QDesignerToolBox*>(widget))
         w = saveWidget(toolBox, ui_parentWidget);
+    else if (QDesignerToolBar *toolBar = qobject_cast<QDesignerToolBar*>(widget))
+        w = saveWidget(toolBar, ui_parentWidget);
     else if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), widget))
         w = saveWidget(widget, container, ui_parentWidget);
     else if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget))
@@ -706,6 +709,20 @@ DomWidget *QDesignerResource::saveWidget(QDesignerStackedWidget *widget, DomWidg
     }
 
     ui_widget->setElementWidget(ui_widget_list);
+
+    return ui_widget;
+}
+
+DomWidget *QDesignerResource::saveWidget(QDesignerToolBar *toolBar, DomWidget *ui_parentWidget)
+{
+    DomWidget *ui_widget = QAbstractFormBuilder::createDom(toolBar, ui_parentWidget, false);
+    if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(toolBar->parentWidget())) {
+        Qt::ToolBarArea area = mainWindow->toolBarArea(toolBar);
+        DomProperty *attr = new DomProperty();
+        attr->setAttributeName(QLatin1String("toolBarArea"));
+        attr->setElementNumber(int(area));
+        ui_widget->setElementAttribute(ui_widget->elementAttribute() << attr);
+    }
 
     return ui_widget;
 }
@@ -923,7 +940,7 @@ bool QDesignerResource::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *
 
     if (QAbstractFormBuilder::addItem(ui_widget, widget, parentWidget)) {
         return true;
-    } else if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget)) { // ### it should be first case!?
+    } else if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget)) {
         container->addWidget(widget);
         return true;
     }

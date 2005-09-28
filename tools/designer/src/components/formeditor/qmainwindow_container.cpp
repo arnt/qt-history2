@@ -55,7 +55,7 @@ void QMainWindowContainer::setCurrentIndex(int index)
 void QMainWindowContainer::addWidget(QWidget *widget)
 {
     if (QToolBar *toolBar = qobject_cast<QToolBar*>(widget)) {
-        m_mainWindow->addToolBar(toolBar);
+        // the toolbar is already added.
         m_widgets.append(widget);
     } else if (QMenuBar *menuBar = qobject_cast<QMenuBar*>(widget)) {
         m_widgets.append(widget);

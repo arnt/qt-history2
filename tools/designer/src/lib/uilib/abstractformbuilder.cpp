@@ -479,12 +479,26 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
     QHash<QString, DomProperty*> attributes = propertyMap(ui_widget->elementAttribute());
 
     QString title = QLatin1String("Page");
-    if (attributes.contains(QLatin1String("title")))
-        title = toString(attributes.value(QLatin1String("title"))->elementString());
+    if (DomProperty *ptitle = attributes.value(QLatin1String("title"))) {
+        title = toString(ptitle->elementString());
+    }
 
     QString label = QLatin1String(QLatin1String("Page"));
-    if (attributes.contains(QLatin1String("label")))
-        label = toString(attributes.value(QLatin1String("label"))->elementString());
+    if (DomProperty *plabel = attributes.value(QLatin1String("label"))) {
+        label = toString(plabel->elementString());
+    }
+
+    // apply the toolbar's attributes
+    if (QToolBar *toolBar = qobject_cast<QToolBar*>(widget)) {
+        if (QMainWindow *mw = qobject_cast<QMainWindow*>(parentWidget)) {
+            if (DomProperty *attr = attributes.value(QLatin1String("toolBarArea"))) {
+                Qt::ToolBarArea area = static_cast<Qt::ToolBarArea>(attr->elementNumber());
+                mw->addToolBar(area, toolBar);
+            } else {
+                mw->addToolBar(toolBar);
+            }
+        }
+    }
 
     if (QTabWidget *tabWidget = qobject_cast<QTabWidget*>(parentWidget)) {
         widget->setParent(0);
@@ -506,9 +520,7 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
     if (QStackedWidget *stackedWidget = qobject_cast<QStackedWidget*>(parentWidget)) {
         stackedWidget->addWidget(widget);
         return true;
-    }
-
-    if (QToolBox *toolBox = qobject_cast<QToolBox*>(parentWidget)) {
+    } else if (QToolBox *toolBox = qobject_cast<QToolBox*>(parentWidget)) {
         toolBox->addItem(widget, label);
         return true;
     }
