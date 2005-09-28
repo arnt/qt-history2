@@ -100,6 +100,7 @@ bool QDesignerMenu::handleMousePressEvent(QWidget *, QMouseEvent *event)
     if (drag->start() == Qt::IgnoreAction) {
         QAction *previous = actions().at(index);
         insertAction(previous, action);
+        adjustSize();
     }
 
     return true;
