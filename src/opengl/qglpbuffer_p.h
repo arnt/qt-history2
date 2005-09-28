@@ -24,7 +24,7 @@
 //
 // We mean it.
 //
-#include <qglpbuffer.h>
+#include "QtOpenGL/qglpbuffer.h"
 
 #ifdef Q_WS_X11
 #include <GL/glx.h>

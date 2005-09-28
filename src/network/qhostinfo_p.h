@@ -34,7 +34,7 @@
 #include "QtCore/qpointer.h"
 
 #if !defined QT_NO_THREAD
-#include <qthread.h>
+#include "QtCore/qthread.h"
 #    define QHostInfoAgentBase QThread
 #else
 #    define QHostInfoAgentBase QObject
