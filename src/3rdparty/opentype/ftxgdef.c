@@ -1070,19 +1070,19 @@
 
     if ( gdef->GlyphClassDef.loaded )
     {
-    error = Get_Class( &gdef->GlyphClassDef, glyphID, &klass, &index );
-    if ( error && error != TTO_Err_Not_Covered )
-      return error;
+        error = Get_Class( &gdef->GlyphClassDef, glyphID, &klass, &index );
+        if ( error && error != TTO_Err_Not_Covered )
+            return error;
+        /* we don't accept glyphs covered in `GlyphClassDef' */
+        if ( !error )
+            return TTO_Err_Not_Covered;
     }
     else
     {
         klass = 0;
         index = 0;
     }
-    /* we don't accept glyphs covered in `GlyphClassDef' */
 
-    if ( !error )
-      return TTO_Err_Not_Covered;
 
     switch ( property )
     {
