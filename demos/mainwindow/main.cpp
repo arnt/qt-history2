@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include <qapplication.h>
-#include <qpainterpath.h>
-#include <qpainter.h>
-
 #include "mainwindow.h"
+
+#include <QApplication>
+#include <QPainterPath>
+#include <QPainter>
 
 void render_qt_text(QPainter *painter, int w, int h, const QColor &color) {
     QPainterPath path;

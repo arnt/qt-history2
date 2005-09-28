@@ -1,14 +1,13 @@
-#include <qpainter.h>
-#include <qpainterpath.h>
-#include <qpixmapcache.h>
-#include <qevent.h>
-#include <qtextdocument.h>
-#include <qabstracttextdocumentlayout.h>
-#include <qfile.h>
-#include <qtextbrowser.h>
-#include <qboxlayout.h>
-
 #include "arthurwidgets.h"
+#include <QPainter>
+#include <QPainterPath>
+#include <QPixmapCache>
+#include <QtEvents>
+#include <QTextDocument>
+#include <QAbstractTextDocumentLayout>
+#include <QFile>
+#include <QTextBrowser>
+#include <QBoxLayout>
 
 extern QPixmap cached(const QString &img);
 

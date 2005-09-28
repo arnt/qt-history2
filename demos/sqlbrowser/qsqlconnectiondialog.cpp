@@ -14,7 +14,7 @@
 #include "qsqlconnectiondialog.h"
 #include "ui_qsqlconnectiondialog.h"
 
-#include <qsqldatabase.h>
+#include <QSqlDatabase>
 
 QSqlConnectionDialog::QSqlConnectionDialog(QWidget *parent)
     : QDialog(parent)
@@ -85,4 +85,3 @@ void QSqlConnectionDialog::on_okButton_clicked()
         accept();
     }
 }
-

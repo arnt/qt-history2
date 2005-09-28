@@ -14,8 +14,8 @@
 #ifndef QSQLCONNECTIONDIALOG_H
 #define QSQLCONNECTIONDIALOG_H
 
-#include <qdialog.h>
-#include <qmessagebox.h>
+#include <QDialog>
+#include <QMessageBox>
 
 #include "ui_qsqlconnectiondialog.h"
 

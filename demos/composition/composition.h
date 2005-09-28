@@ -3,8 +3,8 @@
 
 #include "arthurwidgets.h"
 
-#include <qpainter.h>
-#include <qevent.h>
+#include <QPainter>
+#include <QEvent>
 
 class QPushButton;
 class QRadioButton;

@@ -1,12 +1,13 @@
 #include "pathdeform.h"
 
-#include <qapplication.h>
-#include <qdebug.h>
-#include <qevent.h>
-#include <qlayout.h>
-#include <qlineedit.h>
-#include <qpainter.h>
-#include <qslider.h>
+#include <QApplication>
+#include <QtDebug>
+#include <QMouseEvent>
+#include <QTimerEvent>
+#include <QLayout>
+#include <QLineEdit>
+#include <QPainter>
+#include <QSlider>
 
 #include <math.h>
 

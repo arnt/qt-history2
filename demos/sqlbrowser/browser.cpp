@@ -107,4 +107,3 @@ void Browser::showTable(const QString &t)
         emit statusMessage(model->lastError().text());
     table->setModel(model);
 }
-

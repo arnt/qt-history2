@@ -14,7 +14,7 @@
 #ifndef COLORSWATCH_H
 #define COLORSWATCH_H
 
-#include <qdockwidget.h>
+#include <QDockWidget>
 
 class QAction;
 class QActionGroup;

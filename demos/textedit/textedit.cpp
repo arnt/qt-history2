@@ -13,31 +13,31 @@
 
 #include "textedit.h"
 
-#include <qaction.h>
-#include <qapplication.h>
-#include <qclipboard.h>
-#include <qcolordialog.h>
-#include <qcombobox.h>
-#include <qdebug.h>
-#include <qfile.h>
-#include <qfiledialog.h>
-#include <qfileinfo.h>
-#include <qfontdatabase.h>
-#include <qlineedit.h>
-#include <qlist.h>
-#include <qmenu.h>
-#include <qmenubar.h>
-#include <qpainter.h>
-#include <qprintdialog.h>
-#include <qprinter.h>
-#include <qtabwidget.h>
-#include <qtextcodec.h>
-#include <qtextedit.h>
-#include <qtextdocumentfragment.h>
-#include <qtextformat.h>
-#include <qtoolbar.h>
-#include <qtextcursor.h>
-#include <qtextlist.h>
+#include <QAction>
+#include <QApplication>
+#include <QClipboard>
+#include <QColorDialog>
+#include <QComboBox>
+#include <QFile>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QFontDatabase>
+#include <QLineEdit>
+#include <QList>
+#include <QMenu>
+#include <QMenuBar>
+#include <QPainter>
+#include <QPrintDialog>
+#include <QPrinter>
+#include <QTabWidget>
+#include <QTextCodec>
+#include <QTextEdit>
+#include <QTextDocumentFragment>
+#include <QTextFormat>
+#include <QToolBar>
+#include <QTextCursor>
+#include <QTextList>
+#include <QtDebug>
 
 #include <limits.h>
 

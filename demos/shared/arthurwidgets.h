@@ -1,10 +1,10 @@
 #ifndef ARTHURWIDGETS_H
 #define ARTHURWIDGETS_H
 
-#include <qbitmap.h>
-#include <qpushbutton.h>
-#include <qgroupbox.h>
 #include "arthurstyle.h"
+#include <QBitmap>
+#include <QPushButton>
+#include <QGroupBox>
 
 class QTextDocument;
 class QTextEdit;

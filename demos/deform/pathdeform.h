@@ -3,10 +3,9 @@
 
 #include "arthurwidgets.h"
 
-#include <qevent.h>
-#include <qpainterpath.h>
-#include <qbasictimer.h>
-#include <qdatetime.h>
+#include <QPainterPath>
+#include <QBasicTimer>
+#include <QDateTime>
 
 class PathDeformRenderer : public ArthurFrame
 {

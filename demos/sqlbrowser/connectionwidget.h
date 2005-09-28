@@ -14,7 +14,7 @@
 #ifndef CONNECTIONWIDGET_H
 #define CONNECTIONWIDGET_H
 
-#include <qwidget.h>
+#include <QWidget>
 
 class QTreeWidget;
 class QTreeWidgetItem;

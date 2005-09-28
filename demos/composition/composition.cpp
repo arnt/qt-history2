@@ -1,10 +1,11 @@
 #include "composition.h"
-#include <qboxlayout.h>
-#include <qradiobutton.h>
-#include <qtimer.h>
-#include <qdatetime.h>
+#include <QBoxLayout>
+#include <QRadioButton>
+#include <QTimer>
+#include <QDateTime>
+#include <QSlider>
+#include <QMouseEvent>
 #include <math.h>
-#include <qslider.h>
 
 CompositionWidget::CompositionWidget(QWidget *parent)
     : QWidget(parent)

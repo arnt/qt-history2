@@ -13,11 +13,11 @@
 
 #include "toolbar.h"
 
-#include <qmainwindow.h>
-#include <qmenu.h>
-#include <qpainter.h>
-#include <qpainterpath.h>
-#include <qspinbox.h>
+#include <QMainWindow>
+#include <QMenu>
+#include <QPainter>
+#include <QPainterPath>
+#include <QSpinBox>
 
 #include <stdlib.h>
 

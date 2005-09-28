@@ -14,7 +14,7 @@
 #ifndef TOOLBAR_H
 #define TOOLBAR_H
 
-#include <qtoolbar.h>
+#include <QToolBar>
 
 class QAction;
 class QActionGroup;

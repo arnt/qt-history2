@@ -14,7 +14,7 @@
 #ifndef BROWSER_H
 #define BROWSER_H
 
-#include <qwidget.h>
+#include <QWidget>
 #include "ui_browserwidget.h"
 
 class ConnectionWidget;

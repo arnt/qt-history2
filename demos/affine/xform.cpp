@@ -1,10 +1,9 @@
 #include "xform.h"
 #include "hoverpoints.h"
-#include "arthurwidgets.h"
 
-#include <qlayout.h>
-#include <qpainter.h>
-#include <qpainterpath.h>
+#include <QLayout>
+#include <QPainter>
+#include <QPainterPath>
 
 const int alpha = 155;
 

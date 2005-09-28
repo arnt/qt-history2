@@ -14,8 +14,8 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include <qabstractitemmodel.h>
-#include <qvector.h>
+#include <QAbstractItemModel>
+#include <QVector>
 
 class Model : public QAbstractItemModel
 {

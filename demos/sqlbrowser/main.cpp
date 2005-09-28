@@ -10,14 +10,13 @@
  **
  ****************************************************************************/
 
-#include <qapplication.h>
-#include <qmainwindow.h>
-#include <qmenu.h>
-#include <qmenubar.h>
-#include <qstatusbar.h>
-
 #include "browser.h"
 
+#include <QApplication>
+#include <QMainWindow>
+#include <QMenu>
+#include <QMenuBar>
+#include <QStatusBar>
 
 int main(int argc, char *argv[])
 {
@@ -40,4 +39,3 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
-

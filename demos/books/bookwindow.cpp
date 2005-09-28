@@ -1,8 +1,8 @@
-#include <QtSql>
-
-#include "bookdelegate.h"
 #include "bookwindow.h"
+#include "bookdelegate.h"
 #include "initdb.h"
+
+#include <QtSql>
 
 BookWindow::BookWindow()
 {
@@ -127,4 +127,3 @@ void BookWindow::dataChanged(const QModelIndex &index)
     if (index.row() == ui.bookTable->currentIndex().row())
         currentBookChanged(index);
 }
-

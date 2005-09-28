@@ -82,4 +82,3 @@ QSqlError initDb()
 }
 
 #endif
-

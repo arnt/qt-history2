@@ -1,6 +1,6 @@
-#include <QtGui>
-
 #include "bookwindow.h"
+
+#include <QtGui>
 
 int main(int argc, char * argv[])
 {
@@ -13,4 +13,3 @@ int main(int argc, char * argv[])
 
     return app.exec();
 }
-

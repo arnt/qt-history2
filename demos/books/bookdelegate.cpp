@@ -1,6 +1,6 @@
-#include <QtGui>
-
 #include "bookdelegate.h"
+
+#include <QtGui>
 
 BookDelegate::BookDelegate(QObject *parent)
     : QSqlRelationalDelegate(parent), star(QPixmap(":images/star.png"))

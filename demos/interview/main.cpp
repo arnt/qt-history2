@@ -11,13 +11,14 @@
 **
 ****************************************************************************/
 
-#include <qapplication.h>
-#include <qtableview.h>
-#include <qtreeview.h>
-#include <qlistview.h>
-#include <qsplitter.h>
-#include <qheaderview.h>
 #include "model.h"
+
+#include <QApplication>
+#include <QTableView>
+#include <QTreeView>
+#include <QListView>
+#include <QSplitter>
+#include <QHeaderView>
 
 int main(int argc, char *argv[])
 {

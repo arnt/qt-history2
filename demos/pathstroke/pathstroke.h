@@ -1,7 +1,8 @@
 #ifndef PATHSTROKE_H
+#define PATHSTROKE_H
 
-#include <QtGui>
 #include "arthurwidgets.h"
+#include <QtGui>
 
 class PathStrokeRenderer : public ArthurFrame
 {

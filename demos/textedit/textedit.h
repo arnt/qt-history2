@@ -14,9 +14,9 @@
 #ifndef TEXTEDIT_H
 #define TEXTEDIT_H
 
-#include <qmainwindow.h>
-#include <qmap.h>
-#include <qpointer.h>
+#include <QMainWindow>
+#include <QMap>
+#include <QPointer>
 
 class QAction;
 class QComboBox;

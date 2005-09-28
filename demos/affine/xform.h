@@ -2,7 +2,8 @@
 #define XFORM_H
 
 #include "arthurwidgets.h"
-#include <qbasictimer.h>
+
+#include <QBasicTimer>
 #include <QPolygonF>
 
 class HoverPoints;

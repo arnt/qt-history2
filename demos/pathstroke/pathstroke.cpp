@@ -1,6 +1,5 @@
-
-#include "arthurstyle.h"
 #include "pathstroke.h"
+#include "arthurstyle.h"
 #include "arthurwidgets.h"
 
 extern void draw_round_rect(QPainter *p, const QRect &bounds, int radius);
@@ -387,5 +386,3 @@ void PathStrokeRenderer::setAnimation(bool animation)
 //         m_frameCount = 0;
     }
 }
-
-

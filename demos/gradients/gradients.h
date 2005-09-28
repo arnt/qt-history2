@@ -1,9 +1,9 @@
 #ifndef GRADIENTS_H
 #define GRADIENTS_H
 
-#include <QtGui>
-
 #include "arthurwidgets.h"
+
+#include <QtGui>
 
 class HoverPoints;
 
@@ -123,7 +123,6 @@ private:
     QRadioButton *m_padSpreadButton;
     QRadioButton *m_reflectSpreadButton;
     QRadioButton *m_repeatSpreadButton;
-
 
 };
 

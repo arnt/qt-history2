@@ -12,16 +12,15 @@
 ****************************************************************************/
 
 #include "mainwindow.h"
-
 #include "colorswatch.h"
 #include "toolbar.h"
 
-#include <qaction.h>
-#include <qlayout.h>
-#include <qmenu.h>
-#include <qmenubar.h>
-#include <qstatusbar.h>
-#include <qtextedit.h>
+#include <QAction>
+#include <QLayout>
+#include <QMenu>
+#include <QMenuBar>
+#include <QStatusBar>
+#include <QTextEdit>
 
 static const char * const message =
     "<p><b>Qt Main Window Demo</b></p>"

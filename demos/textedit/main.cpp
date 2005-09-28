@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#include <qapplication.h>
 #include "textedit.h"
+#include <QApplication>
 
 int main( int argc, char ** argv )
 {
