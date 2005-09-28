@@ -357,7 +357,7 @@ QString Node::moduleName() const
         return mod;
 
     QString path = location().filePath();
-    int start = path.lastIndexOf("src" + QDir::separator());
+    int start = path.lastIndexOf(QString("src") + QDir::separator());
     if (start == -1)
         return "";
 
