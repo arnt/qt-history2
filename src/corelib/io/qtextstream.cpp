@@ -1981,6 +1981,14 @@ bool QTextStreamPrivate::putNumber(qulonglong number, bool negative)
     tmp += QString::number(number, integerBase ? integerBase : 10);
     if (numberFlags & QTextStream::UppercaseBase)
         tmp = tmp.toUpper(); // ### in-place instead
+    if ((numberFlags & QTextStream::ForcePoint) && integerBase != 2 && integerBase != 16) {
+        if (realNumberNotation == QTextStream::FixedNotation)
+            tmp += QLatin1String(".000000");
+        else if (realNumberNotation == QTextStream::ScientificNotation)
+            tmp += QLatin1String(".000000e+00");
+        else
+            tmp += QLatin1String(".00000");
+    }
 
     return putString(tmp);
 }
@@ -1990,7 +1998,6 @@ bool QTextStreamPrivate::putNumber(qulonglong number, bool negative)
 */
 QTextStream &QTextStream::operator<<(QBool b)
 {
-    qDebug("qbool");
     return *this << bool(b);
 }
 
@@ -2168,6 +2175,8 @@ QTextStream &QTextStream::operator<<(double f)
 
     // "%.<prec>l<f_char>"
     *fs++ = '%';
+    if (d->numberFlags & QTextStream::ForcePoint)
+        *fs++ = '#';
     *fs++ = '.';
     int prec = d->realNumberPrecision;
     if (prec > 99)
