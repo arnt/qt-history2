@@ -1572,6 +1572,7 @@ void QMenu::paintEvent(QPaintEvent *e)
     if (d->scroll) {
         const int scrollerHeight = style()->pixelMetric(QStyle::PM_MenuScrollerHeight, 0, this);
         menuOpt.menuItemType = QStyleOptionMenuItem::Scroller;
+        menuOpt.state |= QStyle::State_Enabled;
         if (d->scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollUp) {
             menuOpt.rect.setRect(fw, fw, width() - (fw * 2), scrollerHeight);
             emptyArea -= QRegion(menuOpt.rect);
@@ -1582,7 +1583,7 @@ void QMenu::paintEvent(QPaintEvent *e)
             menuOpt.rect.setRect(fw, height() - scrollerHeight - fw, width() - (fw * 2),
                                      scrollerHeight);
             emptyArea -= QRegion(menuOpt.rect);
-            menuOpt.state = QStyle::State_DownArrow;
+            menuOpt.state |= QStyle::State_DownArrow;
             p.setClipRect(menuOpt.rect);
             style()->drawControl(QStyle::CE_MenuScroller, &menuOpt, &p, this);
         }
