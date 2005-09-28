@@ -35,8 +35,8 @@ struct Macro
 enum {
     CMD_A, CMD_ABSTRACT, CMD_BADCODE, CMD_BASENAME, CMD_BOLD, CMD_BRIEF, CMD_C, CMD_CAPTION,
     CMD_CHAPTER, CMD_CODE, CMD_DOTS, CMD_ELSE, CMD_ENDABSTRACT, CMD_ENDCHAPTER, CMD_ENDCODE,
-    CMD_ENDFOOTNOTE, CMD_ENDIF, CMD_ENDLINK, CMD_ENDLIST, CMD_ENDOMIT, CMD_ENDPART,
-    CMD_ENDQUOTATION, CMD_ENDRAW, CMD_ENDSECTION1, CMD_ENDSECTION2, CMD_ENDSECTION3,
+    CMD_ENDFOOTNOTE, CMD_ENDIF, CMD_ENDLEGALESE, CMD_ENDLINK, CMD_ENDLIST, CMD_ENDOMIT,
+    CMD_ENDPART, CMD_ENDQUOTATION, CMD_ENDRAW, CMD_ENDSECTION1, CMD_ENDSECTION2, CMD_ENDSECTION3,
     CMD_ENDSECTION4, CMD_ENDSIDEBAR, CMD_ENDTABLE, CMD_EXPIRE, CMD_FOOTNOTE, CMD_GENERATELIST,
     CMD_GRANULARITY, CMD_HEADER, CMD_I, CMD_IF, CMD_IMAGE, CMD_INCLUDE, CMD_INLINEIMAGE, CMD_INDEX,
     CMD_KEYWORD, CMD_L, CMD_LEGALESE, CMD_LINK, CMD_LIST, CMD_META, CMD_NEWCODE, CMD_O,
@@ -69,6 +69,7 @@ static struct {
     { "endcode", CMD_ENDCODE, 0 },
     { "endfootnote", CMD_ENDFOOTNOTE, 0 },
     { "endif", CMD_ENDIF, 0 },
+    { "endlegalese", CMD_ENDLEGALESE, 0 },
     { "endlink", CMD_ENDLINK, 0 },
     { "endlist", CMD_ENDLIST, 0 },
     { "endomit", CMD_ENDOMIT, 0 },
@@ -347,7 +348,6 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
     QString x;
     QStack<bool> preprocessorSkipping;
     int numPreprocessorSkipping = 0;
-    bool inLegalese = false;
 
     while ( pos < len ) {
 	QChar ch = in[pos];
@@ -485,6 +485,12 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		        } else {
 			    location().warning(tr("Unexpected '\\%1'").arg(commandName(CMD_ENDIF)));
                         }
+		        break;
+		    case CMD_ENDLEGALESE:
+		        if ( closeCommand(command) ) {
+			    leavePara();
+			    append( Atom::LegaleseRight );
+		        }
 		        break;
                     case CMD_ENDLINK:
                         if (closeCommand(command)) {
@@ -641,10 +647,8 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		        break;
 		    case CMD_LEGALESE:
 		        leavePara();
-		        if (!inLegalese) {
+		        if (openCommand(command))
 			    append(Atom::LegaleseLeft);
-			    inLegalese = true;
-		        }
                         docPrivate->hasLegalese = true;
 		        break;
                     case CMD_LINK:
@@ -1069,8 +1073,11 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
     }
     leaveValueList();
 
-    if (inLegalese)
+    // for compatibility
+    if (openedCommands.top() == CMD_LEGALESE) {
 	append(Atom::LegaleseRight);
+        openedCommands.pop();
+    }
 
     if (openedCommands.top() != CMD_OMIT) {
 	location().warning(tr("Missing '\\%1'").arg(endCommandName(openedCommands.top())));
@@ -1910,6 +1917,8 @@ int DocParser::endCommandFor( int command )
 	return CMD_ENDCODE;
     case CMD_FOOTNOTE:
 	return CMD_ENDFOOTNOTE;
+    case CMD_LEGALESE:
+        return CMD_ENDLEGALESE;
     case CMD_LINK:
         return CMD_ENDLINK;
     case CMD_LIST:
