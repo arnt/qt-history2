@@ -1384,12 +1384,12 @@ void QImage::fill(uint pixel)
 /*!
     Inverts all pixel values in the image.
 
-    If the depth is 32: if \a mode is InvertRgba (the default), the alpha bits are
-    also inverted, otherwise they are left unchanged.
-
-    If the depth is not 32, the argument \a mode has no meaning. The
-    default mode is InvertRgb, which leaves the alpha channel
+    The default \a mode is InvertRgb, which leaves the alpha channel
     unchanged.
+
+    If the depth is 32 and the \a mode is InvertRgba, the alpha bits
+    are also inverted, otherwise they are left unchanged. If the depth
+    is \e not 32, the argument \a mode has no meaning.
 
     Note that inverting an 8-bit image means to replace all pixels
     using color index \e i with a pixel using color index 255 minus \e
