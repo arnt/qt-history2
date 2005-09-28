@@ -216,18 +216,6 @@ QDesignerActionProviderExtension *QDesignerToolBar::actionProvider()
 
 void QDesignerToolBar::adjustIndicator(const QPoint &pos)
 {
-    QRect g = actionGeometry(actions().at(findAction(pos)));
-
-    if (orientation() == Qt::Horizontal) {
-        g.moveTop(0);
-        g.setHeight(height());
-        g.setWidth(2);
-    } else {
-        g.moveLeft(0);
-        g.setWidth(width());
-        g.setHeight(2);
-    }
-
     if (QDesignerActionProviderExtension *a = actionProvider()) {
         a->adjustIndicator(pos);
     }
