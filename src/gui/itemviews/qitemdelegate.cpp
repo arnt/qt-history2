@@ -738,38 +738,15 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
         if (editor->parentWidget())
             editor->parentWidget()->setFocus();
         return true;
-    } else if (event->type() == QEvent::FocusOut) {
-        if (static_cast<QFocusEvent *>(event)->reason() == Qt::PopupFocusReason
-            && QApplication::activePopupWidget()) {
-            for (int i = 0; i < d->editors.count(); ++i) {
-                QWidget *possibleChild = QApplication::activePopupWidget();
-                while (possibleChild) {
-                    if (possibleChild == d->editors.at(i)) {
-                        // one of our editors pops up something, so keep
-                        // the editor alive despite the focusout event
-                        d->activeEditorWithPopup = possibleChild;
-                        return false;
-                    }
-                    possibleChild = possibleChild->parentWidget();
-                }
-            }
-        } else if (d->activeEditorWithPopup == editor) {
-            // if through event propagation we received a focusout for the
-            // popup of our editor, then we also want to keep the editor
-            // alive
-            d->activeEditorWithPopup = 0;
-            return false;
-        }
+    } else if (event->type() == QEvent::FocusOut && !editor->isActiveWindow()) {
 #ifndef QT_NO_DRAGANDDROP
         // The window may loose focus during an drag operation.
         // i.e when dragging involves the task bar on Windows.
         if (QDragManager::self() && QDragManager::self()->object != 0)
             return false;
 #endif
-        
         emit commitData(editor);
         emit closeEditor(editor, NoHint);
-        return false;
     }
     return false;
 }
