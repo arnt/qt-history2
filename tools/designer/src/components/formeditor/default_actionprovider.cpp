@@ -76,10 +76,11 @@ void QDesignerActionProvider::adjustIndicator(const QPoint &pos)
     if (QAction *action = actionAt(pos)) {
         QRect g = actionGeometry(action);
 
-        // ### g.moveTopLeft(g.topRight());
-        g.setWidth(2);
-
-        // ### m_indicator->setGeometry(10, 10, 30, 30);
+        if (orientation() == Qt::Horizontal) {
+            g.setWidth(2);
+        } else {
+            g.setHeight(2);
+        }
 
         m_indicator->setGeometry(g);
         m_indicator->show();
@@ -88,6 +89,18 @@ void QDesignerActionProvider::adjustIndicator(const QPoint &pos)
         m_indicator->hide();
     }
 }
+
+Qt::Orientation QDesignerActionProvider::orientation() const
+{
+    if (QToolBar *toolBar = qobject_cast<QToolBar*>(m_widget)) {
+        return toolBar->orientation();
+    } else if (QMenuBar *menuBar = qobject_cast<QMenuBar*>(m_widget)) {
+        return Qt::Horizontal;
+    }
+
+    return Qt::Vertical;
+}
+
 
 // ---- QDesignerActionProviderFactory ----
 QDesignerActionProviderFactory::QDesignerActionProviderFactory(QExtensionManager *parent)

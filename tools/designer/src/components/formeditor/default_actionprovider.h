@@ -42,6 +42,8 @@ public:
 
     virtual void adjustIndicator(const QPoint &pos);
 
+    Qt::Orientation orientation() const;
+
 private:
     QWidget *m_widget;
     QWidget *m_indicator;
