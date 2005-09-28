@@ -200,7 +200,7 @@
     \o \l{designer/customwidgetplugin}{Custom Widget Plugin}\raisedaster
     \o \l{designer/taskmenuextension}{Task Menu Extension}\raisedaster
     \o \l{designer/containerextension}{Container Extension}\raisedaster
-    \o \l{designer/worldtimeclockplugin}{World Time Clock Plugin}
+    \o \l{designer/worldtimeclockplugin}{World Time Clock Plugin}\raisedaster
     \endlist
 
     \section1 Qt Linguist Examples
