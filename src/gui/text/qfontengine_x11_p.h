@@ -111,6 +111,8 @@ struct QFreetypeFace {
     int xsize; // 26.6
     int ysize; // 26.6
     FT_Matrix matrix;
+    FT_CharMap unicode_map;
+    FT_CharMap symbol_map;
 
     enum { cmapCacheSize = 0x200 };
     glyph_t cmapCache[cmapCacheSize];

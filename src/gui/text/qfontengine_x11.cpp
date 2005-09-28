@@ -560,6 +560,8 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
         freetype->matrix.yy = 0x10000;
         freetype->matrix.xy = 0;
         freetype->matrix.yx = 0;
+        freetype->unicode_map = 0;
+        freetype->symbol_map = 0;
 
         FcCharSet *cs;
         FcPatternGetCharSet (pattern, FC_CHARSET, 0, &cs);
@@ -567,6 +569,44 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
 
         memset(freetype->cmapCache, 0, sizeof(freetype->cmapCache));
         FT_New_Face(library, face_id.filename, face_id.index, &freetype->face);
+
+        for (int i = 0; i < freetype->face->num_charmaps; ++i) {
+            FT_CharMap cm = freetype->face->charmaps[i];
+            switch(cm->encoding) {
+            case ft_encoding_unicode:
+                freetype->unicode_map = cm;
+                break;
+            case ft_encoding_apple_roman:
+            case ft_encoding_latin_1:
+                if (!freetype->unicode_map || freetype->unicode_map->encoding != ft_encoding_unicode)
+                    freetype->unicode_map = cm;
+                break;
+            case ft_encoding_adobe_custom:
+            case ft_encoding_symbol:
+                if (!freetype->symbol_map)
+                    freetype->symbol_map = cm;
+                break;
+            default:
+                break;
+            }
+        }
+# if 0
+        FcChar8 *name;
+        FcPatternGetString(pattern, FC_FAMILY, 0, &name);
+        qDebug("%s: using maps: default: %x unicode: %x, symbol: %x", name,
+               freetype->face->charmap ? freetype->face->charmap->encoding : 0, 
+               freetype->unicode_map ? freetype->unicode_map->encoding : 0, 
+               freetype->symbol_map ? freetype->symbol_map->encoding : 0);
+
+        for (int i = 0; i < 256; i += 8) 
+            qDebug("    %x: %d %d %d %d %d %d %d %d", i,
+                   FcCharSetHasChar(freetype->charset, i), FcCharSetHasChar(freetype->charset, i), 
+                   FcCharSetHasChar(freetype->charset, i), FcCharSetHasChar(freetype->charset, i), 
+                   FcCharSetHasChar(freetype->charset, i), FcCharSetHasChar(freetype->charset, i), 
+                   FcCharSetHasChar(freetype->charset, i), FcCharSetHasChar(freetype->charset, i));
+#endif
+        
+        FT_Set_Charmap(freetype->face, freetype->unicode_map);
         freetypeFaces->insert(face_id, freetype);
     }
     freetype->ref.ref();
@@ -980,16 +1020,6 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
     return g;
 }
 
-#if 0
-static inline glyph_t getAdobeCharIndex(FT_Face _face, int cmap, uint ucs4)
-{
-    // ############## save and restore charmap
-    FT_Set_Charmap(_face, _face->charmaps[cmap]);
-    glyph_t g = FT_Get_Char_Index(_face, ucs4);
-    return g;
-}
-#endif
-
 inline unsigned int getChar(const QChar *str, int &i, const int len)
 {
     unsigned int uc = str[i].unicode();
@@ -1013,26 +1043,34 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
 
     bool mirrored = flags & QTextEngine::RightToLeft;
     int glyph_pos = 0;
-#if 0
-    if (_cmap != -1) {
-        FT_Face _face = lockFace();
-       for ( int i = 0; i < len; ++i ) {
-           unsigned int uc = getChar(str, i, len);
-           glyphs[glyph_pos].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
-           if ( !glyphs[glyph_pos].glyph ) {
-               glyph_t glyph = FT_Get_Char_Index(_face, uc);
-               if (!glyph)
-                   glyph = getAdobeCharIndex(_face, _cmap, uc);
-              glyphs[glyph_pos].glyph = glyph;
-               if ( uc < cmapCacheSize )
-                    ((QFontEngineFT *)this)->cmapCache[uc] = glyph;
-           }
-           ++glyph_pos;
-       }
-        unlockFace();
-    } else
-#endif
-    {
+    if (freetype->symbol_map) {
+        FT_Face face = freetype->face;
+        for ( int i = 0; i < len; ++i ) {
+            unsigned int uc = getChar(str, i, len);
+            if (mirrored)
+                uc = QUnicodeTables::mirroredChar(uc);
+            glyphs[glyph_pos].glyph = uc < QFreetypeFace::cmapCacheSize ? freetype->cmapCache[uc] : 0;
+            if ( !glyphs[glyph_pos].glyph ) {
+                glyph_t glyph;
+                if (FcCharSetHasChar(freetype->charset, uc)) {
+                redo0:
+                    glyph = FT_Get_Char_Index(face, uc);
+                    if (!glyph && (uc == 0xa0 || uc == 0x9)) {
+                        uc = 0x20;
+                        goto redo0;
+                    }
+                } else {
+                    FT_Set_Charmap(face, freetype->symbol_map);
+                    glyph = FT_Get_Char_Index(face, uc);
+                    FT_Set_Charmap(face, freetype->unicode_map);
+                }
+                glyphs[glyph_pos].glyph = glyph;
+                if (uc < QFreetypeFace::cmapCacheSize)
+                    freetype->cmapCache[uc] = glyph;
+            }
+            ++glyph_pos;
+        }
+    } else {
         FT_Face face = freetype->face;
         for (int i = 0; i < len; ++i) {
             unsigned int uc = getChar(str, i, len);
