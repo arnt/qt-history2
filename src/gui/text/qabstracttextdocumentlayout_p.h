@@ -25,8 +25,8 @@
 // We mean it.
 //
 
-#include <private/qobject_p.h>
-#include <qhash.h>
+#include "private/qobject_p.h"
+#include "QtCore/qhash.h"
 
 struct QTextObjectHandler
 {

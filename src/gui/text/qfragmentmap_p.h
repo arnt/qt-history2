@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include <qglobal.h>
+#include "QtCore/qglobal.h"
 #include <stdlib.h>
 
 template <class T> class QFragmentMap;

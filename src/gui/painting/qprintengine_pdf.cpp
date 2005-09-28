@@ -1,6 +1,17 @@
-#include <math.h>
-#include <time.h>
-#include <limits.h>
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#include "qprintengine_pdf_p.h"
 
 #include <qiodevice.h>
 #include <qpainter.h>
@@ -9,12 +20,12 @@
 #include <qpaintdevice.h>
 #include <qfile.h>
 
-#include "qprintengine_pdf_p.h"
-
+#include <time.h>
+#include <limits.h>
+#include <math.h>
 #ifndef QT_NO_COMPRESS
 #include <zlib.h>
 #endif
-#include <math.h>
 
 // might be helpful for smooth transforms of images
 bool QPdfImage::interpolation_ = false;

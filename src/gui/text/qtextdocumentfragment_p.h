@@ -25,17 +25,16 @@
 // We mean it.
 //
 
-#include "qtextdocument.h"
-#include "qtexthtmlparser_p.h"
-#include "qtextdocument_p.h"
-#include "qtexttable.h"
-#include "qatomic.h"
-
-#include <qlist.h>
-#include <qmap.h>
-#include <qpointer.h>
-#include <qvarlengtharray.h>
-#include <qdatastream.h>
+#include "QtGui/qtextdocument.h"
+#include "private/qtexthtmlparser_p.h"
+#include "private/qtextdocument_p.h"
+#include "QtGui/qtexttable.h"
+#include "QtCore/qatomic.h"
+#include "QtCore/qlist.h"
+#include "QtCore/qmap.h"
+#include "QtCore/qpointer.h"
+#include "QtCore/qvarlengtharray.h"
+#include "QtCore/qdatastream.h"
 
 class QTextDocumentFragmentPrivate;
 

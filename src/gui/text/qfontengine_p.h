@@ -25,13 +25,13 @@
 // We mean it.
 //
 
-#include "qatomic.h"
-#include "qglobal.h"
-#include "qtextengine_p.h"
-#include "qfont_p.h"
+#include "QtCore/qglobal.h"
+#include "QtCore/qatomic.h"
+#include "private/qtextengine_p.h"
+#include "private/qfont_p.h"
 
 #ifdef Q_WS_WIN
-#include "qt_windows.h"
+#include "QtCore/qt_windows.h"
 #endif
 
 struct glyph_metrics_t;
@@ -299,9 +299,9 @@ private:
 };
 
 #if defined(Q_WS_MAC)
-#include <private/qt_mac_p.h>
-#include <qmap.h>
-#include <qcache.h>
+#include "private/qt_mac_p.h"
+#include "QtCore/qmap.h"
+#include "QtCore/qcache.h"
 
 struct QATSUStyle;
 class QFontEngineMac : public QFontEngine
@@ -396,9 +396,9 @@ protected:
 
 
 #if defined(Q_WS_X11)
-#  include "qfontengine_x11_p.h"
+#  include "private/qfontengine_x11_p.h"
 #elif defined(Q_WS_WIN)
-#  include "qfontengine_win_p.h"
+#  include "private/qfontengine_win_p.h"
 #endif
 
 class QTestFontEngine : public QFontEngineBox
