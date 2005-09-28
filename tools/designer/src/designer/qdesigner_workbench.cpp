@@ -174,10 +174,6 @@ void QDesignerWorkbench::initialize()
 
     m_toolMenu->addSeparator();
 
-    QAction *bigAction = m_actionManager->useBigIconsAction();
-    connect(bigAction, SIGNAL(triggered(bool)), this, SLOT(setUseBigIcons(bool)));
-    m_toolMenu->addAction(bigAction);
-
     m_windowMenu = m_globalMenuBar->addMenu(tr("&Window"));
     foreach (QAction *action, m_actionManager->windowActions()->actions()) {
         m_windowMenu->addAction(action);
@@ -400,7 +396,6 @@ void QDesignerWorkbench::switchToDockedMode()
     m_editToolBar->show();
     m_toolToolBar->show();
     m_formToolBar->show();
-    changeToolBarIconSize(QDesignerSettings().useBigIcons());
 
     qDesigner->setMainWindow(mw);
     (void) mw->statusBar();
@@ -494,7 +489,6 @@ void QDesignerWorkbench::switchToTopLevelMode()
         widgetBoxWrapper->addToolBar(m_formToolBar);
 
         widgetBoxWrapper->insertToolBarBreak(m_formToolBar);
-        changeToolBarIconSize(QDesignerSettings().useBigIcons());
     }
 
     QDesignerSettings settings;
@@ -765,23 +759,6 @@ void QDesignerWorkbench::updateWindowMenu(QDesignerFormWindowInterface *fw)
         return;
     if (QDesignerFormWindow *dfw = qobject_cast<QDesignerFormWindow *>(fw->parentWidget()))
         dfw->action()->setChecked(true);
-}
-
-void QDesignerWorkbench::setUseBigIcons(bool superSizeMe)
-{
-    QDesignerSettings settings;
-    if (settings.useBigIcons() == superSizeMe)
-        return;
-    settings.setUseBigIcons(superSizeMe);
-    changeToolBarIconSize(superSizeMe);
-}
-
-void QDesignerWorkbench::changeToolBarIconSize(bool big)
-{
-    QSize sz = big ? QSize(32, 32) : QSize(16, 16);
-    m_toolToolBar->setIconSize(sz);
-    m_formToolBar->setIconSize(sz);
-    m_editToolBar->setIconSize(sz);
 }
 
 void QDesignerWorkbench::formWindowActionTriggered(QAction *a)

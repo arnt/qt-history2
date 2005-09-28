@@ -51,8 +51,6 @@ public:
     QActionGroup *uiMode() const;
     QActionGroup *styleActions() const;
 
-    QAction *useBigIconsAction() const;
-
 //
 // file actions
 //
@@ -208,8 +206,6 @@ private:
     QAction *m_aboutDesignerAction;
     QAction *m_sdiAction;
     QAction *m_dockedMdiAction;
-
-    QAction *m_useBigIcons;
 };
 
 #endif // QDESIGNER_ACTIONS_H

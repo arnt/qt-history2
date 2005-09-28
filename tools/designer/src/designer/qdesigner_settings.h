@@ -40,9 +40,6 @@ public:
     void setUIMode(int mode);
     int uiMode() const;
 
-    void setUseBigIcons(bool useBig);
-    bool useBigIcons() const;
-
     QByteArray mainWindowState() const;
     void setMainWindowState(const QByteArray &mainWindowState);
 

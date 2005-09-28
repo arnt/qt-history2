@@ -95,7 +95,6 @@ public slots:
     void removeToolWindow(QDesignerToolWindow *toolWindow);
     void removeFormWindow(QDesignerFormWindow *formWindow);
     void setUIMode(UIMode mode);
-    void setUseBigIcons(bool superSizeMe);
 
 // ### private slots:
     void switchToNeutralMode();
@@ -119,8 +118,6 @@ private:
 
     QDesignerFormWindowManagerInterface *formWindowManager() const;
     void changeBringToFrontVisiblity(bool visible);
-    void changeToolBarIconSize(bool big);
-
 
 private:
     QDesignerFormEditorInterface *m_core;

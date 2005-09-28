@@ -285,13 +285,6 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     }
 
 //
-// tools actions
-//
-    m_useBigIcons = new QAction(tr("Use &Big Toolbar Icons"), this);
-    m_useBigIcons->setCheckable(true);
-    m_useBigIcons->setChecked(settings.useBigIcons());
-
-//
 // window actions
 //
     m_minimizeAction = new QAction(tr("&Minimize"), this);
@@ -899,9 +892,6 @@ QActionGroup *QDesignerActions::uiMode() const
     return m_uiMode;
 }
 
-
-QAction *QDesignerActions::useBigIconsAction() const
-{ return m_useBigIcons; }
 
 QAction *QDesignerActions::editWidgets() const
 {

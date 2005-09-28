@@ -151,18 +151,6 @@ int QDesignerSettings::uiMode() const
     return value(QLatin1String("UI/currentMode"), QDesignerWorkbench::TopLevelMode).toInt();
 }
 
-void QDesignerSettings::setUseBigIcons(bool useBig)
-{
-    setValue(QLatin1String("UI/useBigIcons"), useBig);
-}
-
-bool QDesignerSettings::useBigIcons() const
-{
-    int toolSize = qDesigner->style()->pixelMetric(QStyle::PM_ToolBarIconSize);
-    int largeSize = qDesigner->style()->pixelMetric(QStyle::PM_LargeIconSize);
-    return value(QLatin1String("UI/useBigIcons"), toolSize == largeSize).toBool();
-}
-
 QByteArray QDesignerSettings::mainWindowState() const
 {
     return value(QLatin1String("MainWindowState")).toByteArray();
