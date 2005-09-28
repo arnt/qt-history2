@@ -359,8 +359,7 @@ void Launcher::launchExample(const QString &example)
         return;
 
     QProcess *process = new QProcess(this);
-    connect(process, SIGNAL(finished(int)),
-            this, SLOT(enableLaunching()));
+    connect(process, SIGNAL(finished(int)), this, SLOT(enableLaunching()));
 
 #ifdef Q_OS_WIN
     //make sure it finds the dlls on windows
@@ -383,7 +382,7 @@ void Launcher::enableLaunching()
 {
     QProcess *process = static_cast<QProcess*>(sender());
     QString example = runningProcesses.take(process);
-    delete process;
+    process->deleteLater();
     runningExamples.removeAll(example);
 
     if (example == currentExample) {
