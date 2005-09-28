@@ -144,7 +144,7 @@ QSvgStyleProperty * QSvgNode::styleProperty(const QString &id) const
     return 0;
 }
 
-QRect QSvgNode::bounds() const
+QRectF QSvgNode::bounds() const
 {
-    return QRect(0, 0, 0, 0);
+    return QRectF(0, 0, 0, 0);
 }

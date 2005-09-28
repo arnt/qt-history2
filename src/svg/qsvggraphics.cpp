@@ -34,6 +34,18 @@ QSvgCircle::QSvgCircle(QSvgNode *parent, const QRectF &rect)
 }
 
 
+QRectF QSvgCircle::bounds() const
+{
+    return m_bounds;
+}
+
+void QSvgCircle::draw(QPainter *p)
+{
+    applyStyle(p);
+    p->drawEllipse(m_bounds);
+    revertStyle(p);
+}
+
 QSvgArc::QSvgArc(QSvgNode *parent, const QPainterPath &path)
     : QSvgNode(parent), cubic(path)
 {
@@ -46,21 +58,14 @@ void QSvgArc::draw(QPainter *p)
     revertStyle(p);
 }
 
-QSvgNode::Type QSvgArc::type() const
-{
-    return ARC;
-}
-
-void QSvgCircle::draw(QPainter *p)
-{
-    applyStyle(p);
-    p->drawEllipse(m_bounds);
-    revertStyle(p);
-}
-
 QSvgEllipse::QSvgEllipse(QSvgNode *parent, const QRectF &rect)
     : QSvgNode(parent), m_bounds(rect)
 {
+}
+
+QRectF QSvgEllipse::bounds() const
+{
+    return m_bounds;
 }
 
 void QSvgEllipse::draw(QPainter *p)
@@ -94,6 +99,7 @@ QSvgLine::QSvgLine(QSvgNode *parent, const QLineF &line)
 {
 }
 
+
 void QSvgLine::draw(QPainter *p)
 {
     applyStyle(p);
@@ -117,6 +123,11 @@ QSvgPolygon::QSvgPolygon(QSvgNode *parent, const QPolygonF &poly)
     : QSvgNode(parent), m_poly(poly)
 {
 
+}
+
+QRectF QSvgPolygon::bounds() const
+{
+    return m_poly.boundingRect();
 }
 
 void QSvgPolygon::draw(QPainter *p)
@@ -146,6 +157,11 @@ QSvgRect::QSvgRect(QSvgNode *node, const QRectF &rect, int rx, int ry)
 {
 }
 
+QRectF QSvgRect::bounds() const
+{
+    return m_rect;
+}
+
 void QSvgRect::draw(QPainter *p)
 {
     applyStyle(p);
@@ -165,6 +181,8 @@ QSvgText::QSvgText(QSvgNode *parent, const QPointF &coord)
 QSvgText::~QSvgText()
 {
 }
+
+//QRectF QSvgText::bounds() const {}
 
 void QSvgText::draw(QPainter *p)
 {
@@ -276,6 +294,11 @@ void QSvgVideo::draw(QPainter *p)
 QSvgNode::Type QSvgAnimation::type() const
 {
     return ANIMATION;
+}
+
+QSvgNode::Type QSvgArc::type() const
+{
+    return ARC;
 }
 
 QSvgNode::Type QSvgCircle::type() const

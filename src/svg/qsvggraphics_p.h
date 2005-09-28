@@ -58,6 +58,7 @@ public:
     QSvgCircle(QSvgNode *parent, const QRectF &rect);
     virtual void draw(QPainter *p);
     virtual Type type() const;
+    virtual QRectF bounds() const;
 private:
     QRectF m_bounds;
 };
@@ -68,6 +69,7 @@ public:
     QSvgEllipse(QSvgNode *parent, const QRectF &rect);
     virtual void draw(QPainter *p);
     virtual Type type() const;
+    virtual QRectF bounds() const;
 private:
     QRectF m_bounds;
 };
@@ -90,6 +92,7 @@ public:
     QSvgLine(QSvgNode *parent, const QLineF &line);
     virtual void draw(QPainter *p);
     virtual Type type() const;
+    //virtual QRectF bounds() const;
 private:
     QLineF m_bounds;
 };
@@ -110,6 +113,7 @@ public:
     QSvgPolygon(QSvgNode *parent, const QPolygonF &poly);
     virtual void draw(QPainter *p);
     virtual Type type() const;
+    virtual QRectF bounds() const;
 private:
     QPolygonF m_poly;
 };
@@ -130,6 +134,7 @@ public:
     QSvgRect(QSvgNode *paren, const QRectF &rect, int rx=0, int ry=0);
     virtual Type type() const;
     virtual void draw(QPainter *p);
+    virtual QRectF bounds() const;
 private:
     QRectF m_rect;
     int m_rx, m_ry;
@@ -147,6 +152,7 @@ public:
     void popFormat();
     void setTextAlignment(const Qt::Alignment &alignment);
     const QTextCharFormat &topFormat() const;
+    //virtual QRectF bounds() const;
 private:
     QPointF m_coord;
 

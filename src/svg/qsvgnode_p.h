@@ -70,7 +70,7 @@ public:
     QSvgStyleProperty *styleProperty(const QString &id) const;
 
     virtual Type type() const =0;
-    virtual QRect bounds() const;
+    virtual QRectF bounds() const;
 protected:
     QSvgNode   *m_parent;
     QSvgStyle   m_style;

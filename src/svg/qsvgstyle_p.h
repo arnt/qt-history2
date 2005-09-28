@@ -50,7 +50,7 @@ public:
     };
 public:
     virtual ~QSvgStyleProperty();
-    virtual void apply(QPainter *p, const QRect &, QSvgNode *node)  =0;
+    virtual void apply(QPainter *p, const QRectF &, QSvgNode *node)  =0;
     virtual void revert(QPainter *p) =0;
     virtual Type type() const=0;
 };
@@ -59,7 +59,7 @@ class QSvgQualityStyle : public QSvgStyleProperty
 {
 public:
     QSvgQualityStyle(int color);
-    virtual void apply(QPainter *p, const QRect &, QSvgNode *node);
+    virtual void apply(QPainter *p, const QRectF &, QSvgNode *node);
     virtual void revert(QPainter *p);
     virtual Type type() const;
 private:
@@ -89,7 +89,7 @@ class QSvgFillStyle : public QSvgStyleProperty
 {
 public:
     QSvgFillStyle(const QBrush &brush);
-    virtual void apply(QPainter *p, const QRect &, QSvgNode *node);
+    virtual void apply(QPainter *p, const QRectF &, QSvgNode *node);
     virtual void revert(QPainter *p);
     virtual Type type() const;
 
@@ -111,7 +111,7 @@ class QSvgViewportFillStyle : public QSvgStyleProperty
 {
 public:
     QSvgViewportFillStyle(const QBrush &brush);
-    virtual void apply(QPainter *p, const QRect &, QSvgNode *node);
+    virtual void apply(QPainter *p, const QRectF &, QSvgNode *node);
     virtual void revert(QPainter *p);
     virtual Type type() const;
 
@@ -131,7 +131,7 @@ class QSvgFontStyle : public QSvgStyleProperty
 {
 public:
     QSvgFontStyle(const QFont &font);
-    virtual void apply(QPainter *p, const QRect &, QSvgNode *node);
+    virtual void apply(QPainter *p, const QRectF &, QSvgNode *node);
     virtual void revert(QPainter *p);
     virtual Type type() const;
 
@@ -156,7 +156,7 @@ class QSvgStrokeStyle : public QSvgStyleProperty
 {
 public:
     QSvgStrokeStyle(const QPen &pen);
-    virtual void apply(QPainter *p, const QRect &, QSvgNode *node);
+    virtual void apply(QPainter *p, const QRectF &, QSvgNode *node);
     virtual void revert(QPainter *p);
     virtual Type type() const;
 
@@ -183,7 +183,7 @@ class QSvgSolidColorStyle : public QSvgStyleProperty
 {
 public:
     QSvgSolidColorStyle(const QColor &color);
-    virtual void apply(QPainter *p, const QRect &, QSvgNode *node);
+    virtual void apply(QPainter *p, const QRectF &, QSvgNode *node);
     virtual void revert(QPainter *p);
     virtual Type type() const;
 
@@ -203,8 +203,8 @@ private:
 class QSvgGradientStyle : public QSvgStyleProperty
 {
 public:
-    QSvgGradientStyle(QGradient *grad);
-    virtual void apply(QPainter *p, const QRect &, QSvgNode *node);
+    QSvgGradientStyle(QGradient *grad, bool resolveBounds=false);
+    virtual void apply(QPainter *p, const QRectF &, QSvgNode *node);
     virtual void revert(QPainter *p);
     virtual Type type() const;
 
@@ -219,13 +219,14 @@ private:
     QList<qreal>  m_resolvePoints;
 
     QBrush m_oldFill;
+    bool   m_resolveBounds;
 };
 
 class QSvgTransformStyle : public QSvgStyleProperty
 {
 public:
     QSvgTransformStyle(const QMatrix &trans);
-    virtual void apply(QPainter *p, const QRect &, QSvgNode *node);
+    virtual void apply(QPainter *p, const QRectF &, QSvgNode *node);
     virtual void revert(QPainter *p);
     virtual Type type() const;
 
@@ -253,7 +254,7 @@ public:
           gradient(0),
           transform(0)
     {}
-    void apply(QPainter *p, const QRect &rect, QSvgNode *node);
+    void apply(QPainter *p, const QRectF &rect, QSvgNode *node);
     void revert(QPainter *p);
     QSvgQualityStyle       *quality;
     QSvgFillStyle          *fill;

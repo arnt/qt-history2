@@ -1368,6 +1368,7 @@ static QSvgStyleProperty *createLinearGradientNode(QSvgNode *node,
     qreal ny1 = y1.toDouble();
     qreal nx2 = x2.toDouble();
     qreal ny2 = y2.toDouble();
+    bool  needsResolving = (nx2==0 && ny2==0);
 
     QSvgNode *itr = node;
     while (itr && itr->type() != QSvgNode::DOC) {
@@ -1390,7 +1391,7 @@ static QSvgStyleProperty *createLinearGradientNode(QSvgNode *node,
         }
     }
 
-    QSvgStyleProperty *prop = new QSvgGradientStyle(grad);
+    QSvgStyleProperty *prop = new QSvgGradientStyle(grad, needsResolving);
     return prop;
 }
 

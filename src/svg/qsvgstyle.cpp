@@ -14,6 +14,8 @@
 #include "qsvgstyle_p.h"
 
 #include "qpainter.h"
+#include "qpair.h"
+#include "qcolor.h"
 #include "qdebug.h"
 
 
@@ -26,7 +28,7 @@ QSvgQualityStyle::QSvgQualityStyle(int color)
 {
 
 }
-void QSvgQualityStyle::apply(QPainter *, const QRect &, QSvgNode *)
+void QSvgQualityStyle::apply(QPainter *, const QRectF &, QSvgNode *)
 {
 
 }
@@ -40,7 +42,7 @@ QSvgFillStyle::QSvgFillStyle(const QBrush &brush)
 {
 }
 
-void QSvgFillStyle::apply(QPainter *p, const QRect &, QSvgNode *)
+void QSvgFillStyle::apply(QPainter *p, const QRectF &, QSvgNode *)
 {
     m_oldFill = p->brush();
     p->setBrush(m_fill);
@@ -56,7 +58,7 @@ QSvgViewportFillStyle::QSvgViewportFillStyle(const QBrush &brush)
 {
 }
 
-void QSvgViewportFillStyle::apply(QPainter *p, const QRect &, QSvgNode *)
+void QSvgViewportFillStyle::apply(QPainter *p, const QRectF &, QSvgNode *)
 {
     m_oldFill = p->brush();
     p->setBrush(m_viewportFill);
@@ -72,7 +74,7 @@ QSvgFontStyle::QSvgFontStyle(const QFont &font)
 {
 }
 
-void QSvgFontStyle::apply(QPainter *p, const QRect &, QSvgNode *)
+void QSvgFontStyle::apply(QPainter *p, const QRectF &, QSvgNode *)
 {
     m_oldFont = p->font();
     p->setFont(m_font);
@@ -88,7 +90,7 @@ QSvgStrokeStyle::QSvgStrokeStyle(const QPen &pen)
 {
 }
 
-void QSvgStrokeStyle::apply(QPainter *p, const QRect &, QSvgNode *)
+void QSvgStrokeStyle::apply(QPainter *p, const QRectF &, QSvgNode *)
 {
     m_oldStroke = p->pen();
     p->setPen(m_stroke);
@@ -104,7 +106,7 @@ QSvgSolidColorStyle::QSvgSolidColorStyle(const QColor &color)
 {
 }
 
-void QSvgSolidColorStyle::apply(QPainter *p, const QRect &, QSvgNode *)
+void QSvgSolidColorStyle::apply(QPainter *p, const QRectF &, QSvgNode *)
 {
     m_oldFill = p->brush();
     m_oldStroke = p->pen();
@@ -122,12 +124,12 @@ void QSvgSolidColorStyle::revert(QPainter *p)
     p->setPen(m_oldStroke);
 }
 
-QSvgGradientStyle::QSvgGradientStyle(QGradient *grad)
-    : m_gradient(grad)
+QSvgGradientStyle::QSvgGradientStyle(QGradient *grad, bool resolveBounds)
+    : m_gradient(grad), m_resolveBounds(resolveBounds)
 {
 }
 
-void QSvgGradientStyle::apply(QPainter *p, const QRect &, QSvgNode *)
+void QSvgGradientStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *)
 {
     m_oldFill = p->brush();
 
@@ -143,8 +145,23 @@ void QSvgGradientStyle::apply(QPainter *p, const QRect &, QSvgNode *)
         }
     }
 
-    QBrush b(*m_gradient);
-    p->setBrush(b);
+    //we need to resolve boundries on linear gradients
+    if (m_resolveBounds &&
+        m_gradient->type() == QGradient::LinearGradient) {
+        qDebug()<< (((QLinearGradient*)m_gradient)->start())
+                << (((QLinearGradient*)m_gradient)->finalStop())
+                << rect;
+        QLinearGradient gradient(rect.x(), rect.y(),
+                                 rect.width(), rect.height());
+        gradient.setStops(m_gradient->stops());
+        qDebug()<<m_gradient->stops().count()
+                << (m_gradient->stops()[0].second) << (m_gradient->stops()[1].second);
+        QBrush b(gradient);
+        p->setBrush(b);
+    } else {
+        QBrush b(*m_gradient);
+        p->setBrush(b);
+    }
 }
 
 void QSvgGradientStyle::revert(QPainter *p)
@@ -162,7 +179,7 @@ QSvgTransformStyle::QSvgTransformStyle(const QMatrix &trans)
 {
 }
 
-void QSvgTransformStyle::apply(QPainter *p, const QRect &, QSvgNode *)
+void QSvgTransformStyle::apply(QPainter *p, const QRectF &, QSvgNode *)
 {
     m_oldWorldMatrix = p->matrix();
     p->setMatrix(m_transform, true);
@@ -213,7 +230,7 @@ QSvgStyleProperty::Type QSvgTransformStyle::type() const
     return TRANSFORM;
 }
 
-void QSvgStyle::apply(QPainter *p, const QRect &rect, QSvgNode *node)
+void QSvgStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *node)
 {
     if (quality) {
         quality->apply(p, rect, node);
