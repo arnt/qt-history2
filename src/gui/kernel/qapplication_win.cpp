@@ -1901,6 +1901,19 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             }
             result = false;
             break;
+        case WM_GETTEXT: {
+                int ret = 0;
+                QAccessibleInterface *acc = QAccessible::queryAccessibleInterface(widget);
+                if (acc) {
+                    QString text = acc->text(QAccessible::Value, 0);
+                    ret = qMin<int>(wParam - 1, text.size());
+                    text.resize(ret);
+                    memcpy((void *)lParam, text.utf16(), (text.size() + 1) * 2); 
+                    delete acc;
+                }
+                RETURN(ret);
+            }
+            break;
 #endif
         case WT_PACKET:
             if (ptrWTPacketsGet) {
