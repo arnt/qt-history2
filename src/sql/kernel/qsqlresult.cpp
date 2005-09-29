@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qvariant.h"
-#include "qmap.h"
+#include "qhash.h"
 #include "qregexp.h"
 #include "qsqlerror.h"
 #include "qsqlfield.h"
@@ -79,9 +79,9 @@ public:
     QSqlResult::BindingSyntax binds;
 
     QString executedQuery;
-    QMap<int, QSql::ParamType> types;
+    QHash<int, QSql::ParamType> types;
     QVector<QVariant> values;
-    typedef QMap<QString, int> IndexMap;
+    typedef QHash<QString, int> IndexMap;
     IndexMap indexes;
 
     typedef QVector<Holder> HolderVector;
@@ -770,7 +770,7 @@ bool QSqlResult::hasOutValues() const
 {
     if (d->types.isEmpty())
         return false;
-    QMap<int, QSql::ParamType>::ConstIterator it;
+    QHash<int, QSql::ParamType>::ConstIterator it;
     for (it = d->types.constBegin(); it != d->types.constEnd(); ++it) {
         if (it.value() != QSql::In)
             return true;
