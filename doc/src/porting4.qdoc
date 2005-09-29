@@ -3301,6 +3301,14 @@
         string. See \l{Distinction Between Null and Empty Strings}
         for details.
 
+    \o  QString::latin1() and QString::ascii() have been replaced
+        with QString::toLatin1() and QString::toAscii(), which return
+        a QByteArray instead of a (non-reentrant) \c{const char *}.
+        For consistency, QString::utf8() and QString::local8Bit(),
+        which already returned a QByteArray (actually a \c QCString),
+        have been renamed QString::toUtf8() and
+        QString::toLocal8Bit().
+
     \o  QString::at() returned a non-const reference, whereas the
         new QString::at() returns a const value. Code like
 
