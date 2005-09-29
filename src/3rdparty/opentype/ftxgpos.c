@@ -21,20 +21,14 @@
        sharing as much as possible with extensive use of macros.  This
        is something for a volunteer :-)                                  */
 
-#define TTAG_GPOS  FT_MAKE_TAG( 'G', 'P', 'O', 'S' )
-
-#include <freetype/tttags.h>
-
-#include <freetype/internal/ftstream.h>
-#include <freetype/internal/ftmemory.h>
-#include <freetype/internal/tttypes.h>
-
-#include "fterrcompat.h"
-
 #include "ftxopen.h"
-#include "ftxgsub.h"
 #include "ftxopenf.h"
 
+#include "ftglue.h"
+
+#include FT_TRUETYPE_TAGS_H
+
+#define TTAG_GPOS  FT_MAKE_TAG( 'G', 'P', 'O', 'S' )
 
   struct  GPOS_Instance_
   {
@@ -44,8 +38,6 @@
     FT_UShort        load_flags;  /* how the glyph should be loaded */
     FT_Bool          r2l;
 
-    FT_UShort        first;       /* the first glyph in a chain of
-                                     cursive connections           */
     FT_UShort        last;        /* the last valid glyph -- used
                                      with cursive positioning     */
     FT_Pos           anchor_x;    /* the coordinates of the anchor point */
@@ -56,121 +48,35 @@
 
 
   static FT_Error  GPos_Do_Glyph_Lookup( GPOS_Instance*    gpi,
-                                    FT_UShort         lookup_index,
-                                    TTO_GSUB_String*  in,
-                                    TTO_GPOS_Data*    out,
-                                    FT_UShort         context_length,
-                                    int               nesting_level );
+                                         FT_UShort         lookup_index,
+                                         OTL_Buffer        buffer,
+                                         FT_UShort         context_length,
+                                         int               nesting_level );
 
 
-  /* the client application must replace this with something more
+// #define IN_GLYPH( pos )        (buffer->in_string[(pos)].gindex)
+// #define IN_ITEM( pos )         (&buffer->in_string[(pos)])
+// #define IN_CURGLYPH()          (buffer->in_string[buffer->in_pos].gindex)
+// #define IN_CURITEM()           (&buffer->in_string[buffer->in_pos])
+// #define IN_PROPERTIES( pos )   (buffer->in_string[(pos)].properties)
+// #define IN_LIGID( pos )        (buffer->in_string[(pos)].ligID)
+// #define IN_COMPONENT( pos )    (buffer->in_string[(pos)].component)
+
+/* the client application must replace this with something more
      meaningful if multiple master fonts are to be supported.     */
-static FT_Error  default_mmfunc( FT_Face      face,
-				 FT_UShort    metric_id,
-				 FT_Pos*      metric_value,
-				 void*        data )
-{
-    (void)face;
-    (void)metric_id;
-    (void)metric_value;
-    (void)data;
+
+  static FT_Error  default_mmfunc( FT_Face      face,
+                                   FT_UShort    metric_id,
+                                   FT_Pos*      metric_value,
+                                   void*        data )
+  {
+      FT_UNUSED(face);
+      FT_UNUSED(metric_id);
+      FT_UNUSED(metric_value);
+      FT_UNUSED(data);
     return TTO_Err_No_MM_Interpreter;
-}
-
-
-#if 0
-#define GPOS_ID  Build_Extension_ID( 'G', 'P', 'O', 'S' )
-
-  /**********************
-   * Extension Functions
-   **********************/
-
-  static FT_Error  GPOS_Create( void*      ext,
-                                FT_Stream stream )
-  {
-    FT_Error  error;
-    FT_Memory memory = stream->memory;
-
-    TTO_GPOSHeader*  gpos = (TTO_GPOSHeader*)ext;
-    FT_Long          table;
-
-
-    /* by convention */
-
-    if ( !gpos )
-      return TT_Err_Ok;
-
-    /* a null offset indicates that there is no GPOS table */
-
-    gpos->offset = 0;
-
-    /* we store the start offset and the size of the subtable */
-
-    table = face->lookup_table ( face, TTAG_GPOS );
-    if ( table < 0 )
-      return TT_Err_Ok;             /* The table is optional */
-
-    if ( FILE_Seek( face->dirTables[table].Offset ) ||
-         ACCESS_Frame( 4L ) )
-      return error;
-
-    gpos->offset  = FILE_Pos() - 4L;    /* undo ACCESS_Frame() */
-    gpos->Version = GET_ULong();
-
-    FORGET_Frame();
-
-    /* a default mmfunc() handler which just returns an error */
-
-    gpos->mmfunc = default_mmfunc;
-
-    /* the default glyph function is TT_Load_Glyph() */
-
-    gpos->gfunc = FT_Load_Glyph;
-
-    gpos->loaded = FALSE;
-
-    return TT_Err_Ok;
   }
 
-
-  static FT_Error  GPOS_Destroy( void*  ext,
-                                 PFace  face )
-  {
-    TTO_GPOSHeader*  gpos = (TTO_GPOSHeader*)ext;
-
-
-    /* by convention */
-
-    if ( !gpos )
-      return TT_Err_Ok;
-
-    if ( gpos->loaded )
-    {
-      Free_LookupList( &gpos->LookupList, GPOS );
-      Free_FeatureList( &gpos->FeatureList );
-      Free_ScriptList( &gpos->ScriptList );
-    }
-
-    return TT_Err_Ok;
-  }
-
-
-  EXPORT_FUNC
-  FT_Error  TT_Init_GPOS_Extension( TT_Engine  engine )
-  {
-    PEngine_Instance  _engine = HANDLE_Engine( engine );
-
-
-    if ( !_engine )
-      return TT_Err_Invalid_Engine;
-
-    return  TT_Register_Extension( _engine,
-                                   GPOS_ID,
-                                   sizeof ( TTO_GPOSHeader ),
-                                   GPOS_Create,
-                                   GPOS_Destroy );
-  }
-#endif
 
   EXPORT_FUNC
   FT_Error  TT_Load_GPOS_Table( FT_Face          face,
@@ -179,10 +85,9 @@ static FT_Error  default_mmfunc( FT_Face      face,
   {
     FT_ULong         cur_offset, new_offset, base_offset;
 
-    /*    FT_UShort        i, num_lookups; */
+    FT_UShort        i, num_lookups;
     TTO_GPOSHeader*  gpos;
-    /*    TTO_Lookup*      lo; */
-    TT_Face          tt_face = (TT_Face)face;
+    TTO_Lookup*      lo;
 
     FT_Stream  stream = face->stream;
     FT_Error   error;
@@ -195,7 +100,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     if ( !stream )
       return TT_Err_Invalid_Face_Handle;
 
-    if (( error = tt_face->goto_table( tt_face, TTAG_GPOS, stream, 0 ) ))
+    if (( error = ftglue_face_goto_table( face, TTAG_GPOS, stream ) ))
       return error;
 
     base_offset = FILE_Pos();
@@ -262,7 +167,6 @@ static FT_Error  default_mmfunc( FT_Face      face,
        `MarkAttachClassDef_offset' is not zero (nevertheless, a build of
        a constructed mark attach table is not supported currently).       */
 
-#if 0
     if ( gdef &&
          gdef->MarkAttachClassDef_offset && !gdef->MarkAttachClassDef.loaded )
     {
@@ -274,19 +178,6 @@ static FT_Error  default_mmfunc( FT_Face      face,
         if ( lo[i].LookupFlag & IGNORE_SPECIAL_MARKS )
         {
           if ( FILE_Seek( gdef->MarkAttachClassDef_offset ) ||
-               ACCESS_Frame( 2L ) )
-            goto Fail1;
-
-          new_offset = GET_UShort();
-
-          FORGET_Frame();
-
-          if ( !new_offset )
-            return TTO_Err_Invalid_GDEF_SubTable;
-
-          new_offset += base_offset;
-
-          if ( FILE_Seek( new_offset ) ||
                ( error = Load_ClassDefinition( &gdef->MarkAttachClassDef,
                                                256, stream ) ) != TT_Err_Ok )
             goto Fail1;
@@ -295,15 +186,13 @@ static FT_Error  default_mmfunc( FT_Face      face,
         }
       }
     }
-#endif
+
     *retptr = gpos;
 
     return TT_Err_Ok;
 
-#if 0
   Fail1:
     Free_LookupList( &gpos->LookupList, GPOS, memory );
-#endif
 
   Fail2:
     Free_FeatureList( &gpos->FeatureList, memory );
@@ -321,7 +210,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   FT_Error  TT_Done_GPOS_Table( TTO_GPOSHeader* gpos )
   {
     FT_Memory memory = gpos->memory;
-
+    
     Free_LookupList( &gpos->LookupList, GPOS, memory );
     Free_FeatureList( &gpos->FeatureList, memory );
     Free_ScriptList( &gpos->ScriptList, memory );
@@ -349,7 +238,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   {
     FT_Error  error;
     FT_Memory memory = stream->memory;
-
+    
     FT_ULong cur_offset, new_offset;
 
 
@@ -605,7 +494,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   static FT_Error  Get_ValueRecord( GPOS_Instance*    gpi,
                                     TTO_ValueRecord*  vr,
                                     FT_UShort         format,
-                                    TTO_GPOS_Data*    gd )
+                                    OTL_Position      gd )
   {
     FT_Pos           value;
     FT_Short         pixel_value;
@@ -772,7 +661,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
       {
         an->af.af3.XDeviceTable.StartSize  = 0;
         an->af.af3.XDeviceTable.EndSize    = 0;
-        an->af.af3.XDeviceTable.DeltaValue = 0;
+        an->af.af3.XDeviceTable.DeltaValue = NULL;
       }
 
       if ( ACCESS_Frame( 2L ) )
@@ -797,7 +686,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
       {
         an->af.af3.YDeviceTable.StartSize  = 0;
         an->af.af3.YDeviceTable.EndSize    = 0;
-        an->af.af3.YDeviceTable.DeltaValue = 0;
+        an->af.af3.YDeviceTable.DeltaValue = NULL;
       }
       break;
 
@@ -882,10 +771,10 @@ static FT_Error  default_mmfunc( FT_Face      face,
           return error;
 
 	if ( gpi->face->glyph->format != ft_glyph_format_outline )
-          return TTO_Err_Invalid_GPOS_SubTable;
+          return TTO_Err_Invalid_GPOS_SubTable;	  
 
 	ap = an->af.af2.AnchorPoint;
-
+	
 	outline = gpi->face->glyph->outline;
 
         /* if outline.n_points is set to zero by gfunc(), we use the
@@ -961,7 +850,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
       return error;
 
     count = ma->MarkCount = GET_UShort();
-
+    
     FORGET_Frame();
 
     ma->MarkRecord = NULL;
@@ -1144,8 +1033,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
   static FT_Error  Lookup_SinglePos( GPOS_Instance*    gpi,
                                      TTO_SinglePos*    sp,
-                                     TTO_GSUB_String*  in,
-                                     TTO_GPOS_Data*    out,
+				     OTL_Buffer        buffer,
                                      FT_UShort         flags,
                                      FT_UShort         context_length )
   {
@@ -1157,10 +1045,10 @@ static FT_Error  default_mmfunc( FT_Face      face,
     if ( context_length != 0xFFFF && context_length < 1 )
       return TTO_Err_Not_Covered;
 
-    if ( CHECK_Property( gpos->gdef, in->string[in->pos], flags, &property ) )
+    if ( CHECK_Property( gpos->gdef, IN_CURITEM(), flags, &property ) )
       return error;
 
-    error = Coverage_Index( &sp->Coverage, in->string[in->pos], &index );
+    error = Coverage_Index( &sp->Coverage, IN_CURGLYPH(), &index );
     if ( error )
       return error;
 
@@ -1168,7 +1056,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     {
     case 1:
       error = Get_ValueRecord( gpi, &sp->spf.spf1.Value,
-                               sp->ValueFormat, &out[in->pos] );
+                               sp->ValueFormat, POSITION( buffer->in_pos ) );
       if ( error )
         return error;
       break;
@@ -1177,7 +1065,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
       if ( index >= sp->spf.spf2.ValueCount )
         return TTO_Err_Invalid_GPOS_SubTable;
       error = Get_ValueRecord( gpi, &sp->spf.spf2.Value[index],
-                               sp->ValueFormat, &out[in->pos] );
+                               sp->ValueFormat, POSITION( buffer->in_pos ) );
       if ( error )
         return error;
       break;
@@ -1186,7 +1074,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
       return TTO_Err_Invalid_GPOS_SubTable;
     }
 
-    (in->pos)++;
+    (buffer->in_pos)++;
 
     return TT_Err_Ok;
   }
@@ -1216,7 +1104,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
       return error;
 
     count = ps->PairValueCount = GET_UShort();
-
+    
     FORGET_Frame();
 
     ps->PairValueRecord = NULL;
@@ -1458,7 +1346,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
           if ( error )
 	  {
 	    if ( format1 )
-	      Free_ValueRecord( &c2r[n].Value1, format1, memory );
+	      Free_ValueRecord( &c2r[n].Value1, format1, memory );	      
             goto Fail0;
 	  }
         }
@@ -1627,8 +1515,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
   static FT_Error  Lookup_PairPos1( GPOS_Instance*       gpi,
                                     TTO_PairPosFormat1*  ppf1,
-                                    TTO_GSUB_String*     in,
-                                    TTO_GPOS_Data*       out,
+				    OTL_Buffer           buffer,
                                     FT_UShort            first_pos,
                                     FT_UShort            index,
                                     FT_UShort            format1,
@@ -1647,7 +1534,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     if ( !pvr )
       return TTO_Err_Invalid_GPOS_SubTable;
 
-    glyph2 = in->string[in->pos];
+    glyph2 = IN_CURGLYPH();
 
     for ( numpvr = ppf1->PairSet[index].PairValueCount;
           numpvr;
@@ -1656,11 +1543,11 @@ static FT_Error  default_mmfunc( FT_Face      face,
       if ( glyph2 == pvr->SecondGlyph )
       {
         error = Get_ValueRecord( gpi, &pvr->Value1, format1,
-                                 &out[first_pos] );
+                                 POSITION( first_pos ) );
         if ( error )
           return error;
         return Get_ValueRecord( gpi, &pvr->Value2, format2,
-                                &out[in->pos] );
+                                POSITION( buffer->in_pos ) );
       }
     }
 
@@ -1670,8 +1557,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
   static FT_Error  Lookup_PairPos2( GPOS_Instance*       gpi,
                                     TTO_PairPosFormat2*  ppf2,
-                                    TTO_GSUB_String*     in,
-                                    TTO_GPOS_Data*       out,
+				    OTL_Buffer           buffer,
                                     FT_UShort            first_pos,
                                     FT_UShort            format1,
                                     FT_UShort            format2 )
@@ -1683,11 +1569,11 @@ static FT_Error  default_mmfunc( FT_Face      face,
     TTO_Class2Record*  c2r;
 
 
-    error = Get_Class( &ppf2->ClassDef1, in->string[first_pos],
+    error = Get_Class( &ppf2->ClassDef1, IN_GLYPH( first_pos ),
                        &cl1, NULL );
     if ( error && error != TTO_Err_Not_Covered )
       return error;
-    error = Get_Class( &ppf2->ClassDef2, in->string[in->pos],
+    error = Get_Class( &ppf2->ClassDef2, IN_CURGLYPH(),
                        &cl2, NULL );
     if ( error && error != TTO_Err_Not_Covered )
       return error;
@@ -1697,17 +1583,16 @@ static FT_Error  default_mmfunc( FT_Face      face,
       return TTO_Err_Invalid_GPOS_SubTable;
     c2r = &c1r->Class2Record[cl2];
 
-    error = Get_ValueRecord( gpi, &c2r->Value1, format1, &out[first_pos] );
+    error = Get_ValueRecord( gpi, &c2r->Value1, format1, POSITION( first_pos ) );
     if ( error )
       return error;
-    return Get_ValueRecord( gpi, &c2r->Value2, format2, &out[in->pos] );
+    return Get_ValueRecord( gpi, &c2r->Value2, format2, POSITION( buffer->in_pos ) );
   }
 
 
   static FT_Error  Lookup_PairPos( GPOS_Instance*    gpi,
                                    TTO_PairPos*      pp,
-                                   TTO_GSUB_String*  in,
-                                   TTO_GPOS_Data*    out,
+				   OTL_Buffer        buffer,
                                    FT_UShort         flags,
                                    FT_UShort         context_length )
   {
@@ -1716,50 +1601,56 @@ static FT_Error  default_mmfunc( FT_Face      face,
     TTO_GPOSHeader*  gpos = gpi->gpos;
 
 
-    if ( in->pos >= in->length - 1 )
+    if ( buffer->in_pos >= buffer->in_length - 1 )
       return TTO_Err_Not_Covered;           /* Not enough glyphs in stream */
 
     if ( context_length != 0xFFFF && context_length < 2 )
       return TTO_Err_Not_Covered;
 
-    error = Coverage_Index( &pp->Coverage, in->string[in->pos], &index );
-    if ( error )
+    if ( CHECK_Property( gpos->gdef, IN_CURITEM(), flags, &property ) )
       return error;
 
-    if ( CHECK_Property( gpos->gdef, in->string[in->pos], flags, &property ) )
+    error = Coverage_Index( &pp->Coverage, IN_CURGLYPH(), &index );
+    if ( error )
       return error;
 
     /* second glyph */
 
-    first_pos = in->pos;
-    (in->pos)++;
+    first_pos = buffer->in_pos;
+    (buffer->in_pos)++;
 
-    while ( CHECK_Property( gpos->gdef, in->string[in->pos],
+    while ( CHECK_Property( gpos->gdef, IN_CURITEM(),
                             flags, &property ) )
     {
       if ( error && error != TTO_Err_Not_Covered )
         return error;
 
-      if ( in->pos < in->length )
-        (in->pos)++;
-      else
-        break;
+      if ( buffer->in_pos == buffer->in_length )
+        return TTO_Err_Not_Covered;
+      (buffer->in_pos)++;
     }
 
-    if ( pp->PosFormat == 1 )
-      error = Lookup_PairPos1( gpi, &pp->ppf.ppf1, in, out,
+    switch ( pp->PosFormat )
+    {
+    case 1:
+      error = Lookup_PairPos1( gpi, &pp->ppf.ppf1, buffer,
                                first_pos, index,
                                pp->ValueFormat1, pp->ValueFormat2 );
-    else if ( pp->PosFormat == 2 )
-      error = Lookup_PairPos2( gpi, &pp->ppf.ppf2, in, out, first_pos,
+      break;
+
+    case 2:
+      error = Lookup_PairPos2( gpi, &pp->ppf.ppf2, buffer, first_pos,
                                pp->ValueFormat1, pp->ValueFormat2 );
-    else
+      break;
+
+    default:
       return TTO_Err_Invalid_GPOS_SubTable_Format;
+    }
 
     /* adjusting the `next' glyph */
 
     if ( pp->ValueFormat2 )
-      (in->pos)++;
+      (buffer->in_pos)++;
 
     return error;
   }
@@ -1814,7 +1705,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     for ( n = 0; n < count; n++ )
     {
       FT_ULong entry_offset;
-
+      
       if ( ACCESS_Frame( 2L ) )
         return error;
 
@@ -1907,8 +1798,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
   static FT_Error  Lookup_CursivePos( GPOS_Instance*    gpi,
                                       TTO_CursivePos*   cp,
-                                      TTO_GSUB_String*  in,
-                                      TTO_GPOS_Data*    out,
+				      OTL_Buffer        buffer,
                                       FT_UShort         flags,
                                       FT_UShort         context_length )
   {
@@ -1927,20 +1817,10 @@ static FT_Error  default_mmfunc( FT_Face      face,
       return TTO_Err_Not_Covered;
     }
 
-    error = Coverage_Index( &cp->Coverage, in->string[in->pos], &index );
-    if ( error )
-    {
-      gpi->last = 0xFFFF;
-      return error;
-    }
-
-    if ( index >= cp->EntryExitCount )
-      return TTO_Err_Invalid_GPOS_SubTable;
-
     /* Glyphs not having the right GDEF properties will be ignored, i.e.,
        gpi->last won't be reset (contrary to user defined properties). */
 
-    if ( CHECK_Property( gpos->gdef, in->string[in->pos], flags, &property ) )
+    if ( CHECK_Property( gpos->gdef, IN_CURITEM(), flags, &property ) )
       return error;
 
     /* We don't handle mark glyphs here.  According to Andrei, this isn't
@@ -1952,6 +1832,15 @@ static FT_Error  default_mmfunc( FT_Face      face,
       return TTO_Err_Not_Covered;
     }
 
+    error = Coverage_Index( &cp->Coverage, IN_CURGLYPH(), &index );
+    if ( error )
+    {
+      gpi->last = 0xFFFF;
+      return error;
+    }
+
+    if ( index >= cp->EntryExitCount )
+      return TTO_Err_Invalid_GPOS_SubTable;
 
     eer = &cp->EntryExitRecord[index];
 
@@ -2078,7 +1967,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     /* Get_Anchor() returns TTO_Err_Not_Covered if there is no anchor
        table.                                                         */
 
-    error = Get_Anchor( gpi, &eer->EntryAnchor, in->string[in->pos],
+    error = Get_Anchor( gpi, &eer->EntryAnchor, IN_CURGLYPH(),
                         &entry_x, &entry_y );
     if ( error == TTO_Err_Not_Covered )
       goto end;
@@ -2087,34 +1976,41 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
     if ( gpi->r2l )
     {
-      out[in->pos].x_advance   = entry_x - gpi->anchor_x;
-      out[in->pos].new_advance = TRUE;
+      POSITION( buffer->in_pos )->x_advance   = entry_x - gpi->anchor_x;
+      POSITION( buffer->in_pos )->new_advance = TRUE;
     }
     else
     {
-      out[gpi->last].x_advance   = gpi->anchor_x - entry_x;
-      out[gpi->last].new_advance = TRUE;
+      POSITION( gpi->last )->x_advance   = gpi->anchor_x - entry_x;
+      POSITION( gpi->last )->new_advance = TRUE;
     }
 
-    out[in->pos].y_pos = gpi->anchor_y - entry_y + out[gpi->last].y_pos;
+    if ( flags & RIGHT_TO_LEFT )
+    {
+      POSITION( gpi->last )->cursive_chain = gpi->last - buffer->in_pos;
+      POSITION( gpi->last )->y_pos = entry_y - gpi->anchor_y;
+    }
+    else
+    {
+      POSITION( buffer->in_pos )->cursive_chain = buffer->in_pos - gpi->last;
+      POSITION( buffer->in_pos )->y_pos = gpi->anchor_y - entry_y;
+    }
 
   end:
-    error = Get_Anchor( gpi, &eer->ExitAnchor, in->string[in->pos],
+    error = Get_Anchor( gpi, &eer->ExitAnchor, IN_CURGLYPH(),
                         &exit_x, &exit_y );
     if ( error == TTO_Err_Not_Covered )
       gpi->last = 0xFFFF;
     else
     {
-      if ( gpi->first == 0xFFFF )
-        gpi->first  = in->pos;
-      gpi->last     = in->pos;
+      gpi->last     = buffer->in_pos;
       gpi->anchor_x = exit_x;
       gpi->anchor_y = exit_y;
     }
     if ( error )
       return error;
 
-    (in->pos)++;
+    (buffer->in_pos)++;
 
     return TT_Err_Ok;
   }
@@ -2144,7 +2040,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
       return error;
 
     count = ba->BaseCount = GET_UShort();
-
+    
     FORGET_Frame();
 
     ba->BaseRecord = NULL;
@@ -2192,7 +2088,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     for ( k = 0; k < m; k++ )
     {
       ban = br[k].BaseAnchor;
-
+      
       for ( n = 0; n < num_classes; n++ )
         Free_Anchor( &ban[n], memory );
 
@@ -2327,12 +2223,11 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
   static FT_Error  Lookup_MarkBasePos( GPOS_Instance*    gpi,
                                        TTO_MarkBasePos*  mbp,
-                                       TTO_GSUB_String*  in,
-                                       TTO_GPOS_Data*    out,
+				       OTL_Buffer        buffer,
                                        FT_UShort         flags,
                                        FT_UShort         context_length )
   {
-    FT_UShort        i, j, mark_index, base_index, property, klass;
+    FT_UShort        i, j, mark_index, base_index, property, class;
     FT_Pos           x_mark_value, y_mark_value, x_base_value, y_base_value;
     FT_Error         error;
     TTO_GPOSHeader*  gpos = gpi->gpos;
@@ -2343,7 +2238,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     TTO_Anchor*      mark_anchor;
     TTO_Anchor*      base_anchor;
 
-    TTO_GPOS_Data*   o;
+    OTL_Position     o;
 
 
     if ( context_length != 0xFFFF && context_length < 1 )
@@ -2352,23 +2247,23 @@ static FT_Error  default_mmfunc( FT_Face      face,
     if ( flags & IGNORE_BASE_GLYPHS )
       return TTO_Err_Not_Covered;
 
-    error = Coverage_Index( &mbp->MarkCoverage, in->string[in->pos],
-                            &mark_index );
-    if ( error )
+    if ( CHECK_Property( gpos->gdef, IN_CURITEM(),
+                         flags, &property ) )
       return error;
 
-    if ( CHECK_Property( gpos->gdef, in->string[in->pos],
-                         flags, &property ) )
+    error = Coverage_Index( &mbp->MarkCoverage, IN_CURGLYPH(),
+                            &mark_index );
+    if ( error )
       return error;
 
     /* now we search backwards for a non-mark glyph */
 
     i = 1;
-    j = in->pos - 1;
+    j = buffer->in_pos - 1;
 
-    while ( i <= in->pos )
+    while ( i <= buffer->in_pos )
     {
-      error = TT_GDEF_Get_Glyph_Property( gpos->gdef, in->string[j],
+      error = TT_GDEF_Get_Glyph_Property( gpos->gdef, IN_GLYPH( j ),
                                           &property );
       if ( error )
         return error;
@@ -2386,10 +2281,10 @@ static FT_Error  default_mmfunc( FT_Face      face,
       return TTO_Err_Not_Covered;
 #endif
 
-    if ( i > in->pos )
+    if ( i > buffer->in_pos )
       return TTO_Err_Not_Covered;
 
-    error = Coverage_Index( &mbp->BaseCoverage, in->string[j],
+    error = Coverage_Index( &mbp->BaseCoverage, IN_GLYPH( j ),
                             &base_index );
     if ( error )
       return error;
@@ -2399,10 +2294,10 @@ static FT_Error  default_mmfunc( FT_Face      face,
     if ( mark_index >= ma->MarkCount )
       return TTO_Err_Invalid_GPOS_SubTable;
 
-    klass       = ma->MarkRecord[mark_index].Class;
+    class       = ma->MarkRecord[mark_index].Class;
     mark_anchor = &ma->MarkRecord[mark_index].MarkAnchor;
 
-    if ( klass >= mbp->ClassCount )
+    if ( class >= mbp->ClassCount )
       return TTO_Err_Invalid_GPOS_SubTable;
 
     ba = &mbp->BaseArray;
@@ -2411,20 +2306,21 @@ static FT_Error  default_mmfunc( FT_Face      face,
       return TTO_Err_Invalid_GPOS_SubTable;
 
     br          = &ba->BaseRecord[base_index];
-    base_anchor = &br->BaseAnchor[klass];
+    base_anchor = &br->BaseAnchor[class];
 
-    error = Get_Anchor( gpi, mark_anchor, in->string[in->pos],
+    error = Get_Anchor( gpi, mark_anchor, IN_CURGLYPH(),
                         &x_mark_value, &y_mark_value );
     if ( error )
       return error;
-    error = Get_Anchor( gpi, base_anchor, in->string[j],
+
+    error = Get_Anchor( gpi, base_anchor, IN_GLYPH( j ),
                         &x_base_value, &y_base_value );
     if ( error )
       return error;
 
     /* anchor points are not cumulative */
 
-    o = &out[in->pos];
+    o = POSITION( buffer->in_pos );
 
     o->x_pos     = x_base_value - x_mark_value;
     o->y_pos     = y_base_value - y_mark_value;
@@ -2432,7 +2328,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     o->y_advance = 0;
     o->back      = i;
 
-    (in->pos)++;
+    (buffer->in_pos)++;
 
     return TT_Err_Ok;
   }
@@ -2462,7 +2358,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
       return error;
 
     count = lat->ComponentCount = GET_UShort();
-
+    
     FORGET_Frame();
 
     lat->ComponentRecord = NULL;
@@ -2517,7 +2413,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     for ( k = 0; k < m; k++ )
     {
       lan = cr[k].LigatureAnchor;
-
+      
       for ( n = 0; n < num_classes; n++ )
         Free_Anchor( &lan[n], memory );
 
@@ -2734,12 +2630,11 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
   static FT_Error  Lookup_MarkLigPos( GPOS_Instance*    gpi,
                                       TTO_MarkLigPos*   mlp,
-                                      TTO_GSUB_String*  in,
-                                      TTO_GPOS_Data*    out,
+				      OTL_Buffer        buffer,
                                       FT_UShort         flags,
                                       FT_UShort         context_length )
   {
-    FT_UShort        i, j, mark_index, lig_index, property, klass;
+    FT_UShort        i, j, mark_index, lig_index, property, class;
     FT_UShort        mark_glyph;
     FT_Pos           x_mark_value, y_mark_value, x_lig_value, y_lig_value;
     FT_Error         error;
@@ -2753,7 +2648,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     TTO_Anchor*           mark_anchor;
     TTO_Anchor*           lig_anchor;
 
-    TTO_GPOS_Data*  o;
+    OTL_Position    o;
 
 
     if ( context_length != 0xFFFF && context_length < 1 )
@@ -2762,23 +2657,23 @@ static FT_Error  default_mmfunc( FT_Face      face,
     if ( flags & IGNORE_LIGATURES )
       return TTO_Err_Not_Covered;
 
-    mark_glyph = in->string[in->pos];
+    mark_glyph = IN_CURGLYPH();
+
+    if ( CHECK_Property( gpos->gdef, IN_CURITEM(), flags, &property ) )
+      return error;
 
     error = Coverage_Index( &mlp->MarkCoverage, mark_glyph, &mark_index );
     if ( error )
       return error;
 
-    if ( CHECK_Property( gpos->gdef, mark_glyph, flags, &property ) )
-      return error;
-
     /* now we search backwards for a non-mark glyph */
 
     i = 1;
-    j = in->pos - 1;
+    j = buffer->in_pos - 1;
 
-    while ( i <= in->pos )
+    while ( i <= buffer->in_pos )
     {
-      error = TT_GDEF_Get_Glyph_Property( gpos->gdef, in->string[j],
+      error = TT_GDEF_Get_Glyph_Property( gpos->gdef, IN_GLYPH( j ),
                                           &property );
       if ( error )
         return error;
@@ -2797,10 +2692,10 @@ static FT_Error  default_mmfunc( FT_Face      face,
       return TTO_Err_Not_Covered;
 #endif
 
-    if ( i > in->pos )
+    if ( i > buffer->in_pos )
       return TTO_Err_Not_Covered;
 
-    error = Coverage_Index( &mlp->LigatureCoverage, in->string[j],
+    error = Coverage_Index( &mlp->LigatureCoverage, IN_GLYPH( j ),
                             &lig_index );
     if ( error )
       return error;
@@ -2810,10 +2705,10 @@ static FT_Error  default_mmfunc( FT_Face      face,
     if ( mark_index >= ma->MarkCount )
       return TTO_Err_Invalid_GPOS_SubTable;
 
-    klass       = ma->MarkRecord[mark_index].Class;
+    class       = ma->MarkRecord[mark_index].Class;
     mark_anchor = &ma->MarkRecord[mark_index].MarkAnchor;
 
-    if ( klass >= mlp->ClassCount )
+    if ( class >= mlp->ClassCount )
       return TTO_Err_Invalid_GPOS_SubTable;
 
     la = &mlp->LigatureArray;
@@ -2823,32 +2718,35 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
     lat = &la->LigatureAttach[lig_index];
 
-    /* Use the component id if defined. If not we simply attach the
-       mark glyph to the last component of the ligature */
+    /* We must now check whether the ligature ID of the current mark glyph
+       is identical to the ligature ID of the found ligature.  If yes, we
+       can directly use the component index.  If not, we attach the mark
+       glyph to the last component of the ligature.                        */
 
-    comp_index = in->glyph_properties[in->pos].component;
-
-    /* ###### why the hell doesn't this compile?
-     if (comp_index == MAX_COMPONENT_INDEX)
- 	comp_index = lat->ComponentCount - 1; */
-    if ( comp_index >= lat->ComponentCount )
+    if ( IN_LIGID( j ) == IN_LIGID( buffer->in_pos) )
+    {
+      comp_index = IN_COMPONENT( buffer->in_pos );
+      if ( comp_index >= lat->ComponentCount )
         return TTO_Err_Not_Covered;
+    }
+    else
+      comp_index = lat->ComponentCount - 1;
 
     cr         = &lat->ComponentRecord[comp_index];
-    lig_anchor = &cr->LigatureAnchor[klass];
+    lig_anchor = &cr->LigatureAnchor[class];
 
-    error = Get_Anchor( gpi, mark_anchor, in->string[in->pos],
+    error = Get_Anchor( gpi, mark_anchor, IN_CURGLYPH(),
                         &x_mark_value, &y_mark_value );
     if ( error )
       return error;
-    error = Get_Anchor( gpi, lig_anchor, in->string[j],
+    error = Get_Anchor( gpi, lig_anchor, IN_GLYPH( j ),
                         &x_lig_value, &y_lig_value );
     if ( error )
       return error;
 
     /* anchor points are not cumulative */
 
-    o = &out[in->pos];
+    o = POSITION( buffer->in_pos );
 
     o->x_pos     = x_lig_value - x_mark_value;
     o->y_pos     = y_lig_value - y_mark_value;
@@ -2856,7 +2754,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     o->y_advance = 0;
     o->back      = i;
 
-    (in->pos)++;
+    (buffer->in_pos)++;
 
     return TT_Err_Ok;
   }
@@ -2886,7 +2784,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
       return error;
 
     count = m2a->Mark2Count = GET_UShort();
-
+    
     FORGET_Frame();
 
     m2a->Mark2Record = NULL;
@@ -2934,7 +2832,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     for ( k = 0; k < m; k++ )
     {
       m2an = m2r[k].Mark2Anchor;
-
+      
       for ( n = 0; n < num_classes; n++ )
         Free_Anchor( &m2an[n], memory );
 
@@ -3071,12 +2969,11 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
   static FT_Error  Lookup_MarkMarkPos( GPOS_Instance*    gpi,
                                        TTO_MarkMarkPos*  mmp,
-                                       TTO_GSUB_String*  in,
-                                       TTO_GPOS_Data*    out,
+				       OTL_Buffer        buffer,
                                        FT_UShort         flags,
                                        FT_UShort         context_length )
   {
-    FT_UShort        j, mark1_index, mark2_index, property, klass;
+    FT_UShort        j, mark1_index, mark2_index, property, class;
     FT_Pos           x_mark1_value, y_mark1_value,
                      x_mark2_value, y_mark2_value;
     FT_Error         error;
@@ -3088,7 +2985,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     TTO_Anchor*       mark1_anchor;
     TTO_Anchor*       mark2_anchor;
 
-    TTO_GPOS_Data*  o;
+    OTL_Position    o;
 
 
     if ( context_length != 0xFFFF && context_length < 1 )
@@ -3097,24 +2994,23 @@ static FT_Error  default_mmfunc( FT_Face      face,
     if ( flags & IGNORE_MARKS )
       return TTO_Err_Not_Covered;
 
-    error = Coverage_Index( &mmp->Mark1Coverage, in->string[in->pos],
+    if ( CHECK_Property( gpos->gdef, IN_CURITEM(),
+                         flags, &property ) )
+      return error;
+
+    error = Coverage_Index( &mmp->Mark1Coverage, IN_CURGLYPH(),
                             &mark1_index );
     if ( error )
       return error;
 
-    if ( CHECK_Property( gpos->gdef, in->string[in->pos],
-                         flags, &property ) )
-      return error;
-
-
     /* now we check the preceding glyph whether it is a suitable
        mark glyph                                                */
 
-    if ( in->pos == 0 )
+    if ( buffer->in_pos == 0 )
       return TTO_Err_Not_Covered;
 
-    j = in->pos - 1;
-    error = TT_GDEF_Get_Glyph_Property( gpos->gdef, in->string[j],
+    j = buffer->in_pos - 1;
+    error = TT_GDEF_Get_Glyph_Property( gpos->gdef, IN_GLYPH( j ),
                                         &property );
     if ( error )
       return error;
@@ -3130,7 +3026,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
         return TTO_Err_Not_Covered;
     }
 
-    error = Coverage_Index( &mmp->Mark2Coverage, in->string[j],
+    error = Coverage_Index( &mmp->Mark2Coverage, IN_GLYPH( j ),
                             &mark2_index );
     if ( error )
       return error;
@@ -3140,10 +3036,10 @@ static FT_Error  default_mmfunc( FT_Face      face,
     if ( mark1_index >= ma1->MarkCount )
       return TTO_Err_Invalid_GPOS_SubTable;
 
-    klass        = ma1->MarkRecord[mark1_index].Class;
+    class        = ma1->MarkRecord[mark1_index].Class;
     mark1_anchor = &ma1->MarkRecord[mark1_index].MarkAnchor;
 
-    if ( klass >= mmp->ClassCount )
+    if ( class >= mmp->ClassCount )
       return TTO_Err_Invalid_GPOS_SubTable;
 
     ma2 = &mmp->Mark2Array;
@@ -3152,20 +3048,20 @@ static FT_Error  default_mmfunc( FT_Face      face,
       return TTO_Err_Invalid_GPOS_SubTable;
 
     m2r          = &ma2->Mark2Record[mark2_index];
-    mark2_anchor = &m2r->Mark2Anchor[klass];
+    mark2_anchor = &m2r->Mark2Anchor[class];
 
-    error = Get_Anchor( gpi, mark1_anchor, in->string[in->pos],
+    error = Get_Anchor( gpi, mark1_anchor, IN_CURGLYPH(),
                         &x_mark1_value, &y_mark1_value );
     if ( error )
       return error;
-    error = Get_Anchor( gpi, mark2_anchor, in->string[j],
+    error = Get_Anchor( gpi, mark2_anchor, IN_GLYPH( j ),
                         &x_mark2_value, &y_mark2_value );
     if ( error )
       return error;
 
     /* anchor points are not cumulative */
 
-    o = &out[in->pos];
+    o = POSITION( buffer->in_pos );
 
     o->x_pos     = x_mark2_value - x_mark1_value;
     o->y_pos     = y_mark2_value - y_mark1_value;
@@ -3173,7 +3069,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     o->y_advance = 0;
     o->back      = 1;
 
-    (in->pos)++;
+    (buffer->in_pos)++;
 
     return TT_Err_Ok;
   }
@@ -3187,8 +3083,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
                                   FT_UShort             GlyphCount,
                                   FT_UShort             PosCount,
                                   TTO_PosLookupRecord*  pos,
-                                  TTO_GSUB_String*      in,
-                                  TTO_GPOS_Data*        out,
+				  OTL_Buffer            buffer,
                                   int                   nesting_level )
   {
     FT_Error  error;
@@ -3201,24 +3096,24 @@ static FT_Error  default_mmfunc( FT_Face      face,
     {
       if ( PosCount && i == pos->SequenceIndex )
       {
-        old_pos = in->pos;
+        old_pos = buffer->in_pos;
 
         /* Do a positioning */
 
-        error = GPos_Do_Glyph_Lookup( gpi, pos->LookupListIndex, in, out,
-                                 GlyphCount, nesting_level );
+        error = GPos_Do_Glyph_Lookup( gpi, pos->LookupListIndex, buffer,
+                                      GlyphCount, nesting_level );
 
         if ( error )
           return error;
 
         pos++;
         PosCount--;
-        i += in->pos - old_pos;
+        i += buffer->in_pos - old_pos;
       }
       else
       {
         i++;
-        (in->pos)++;
+        (buffer->in_pos)++;
       }
     }
 
@@ -3457,7 +3352,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   }
 
 
-  static void  GPos_Free_Context1( TTO_ContextPosFormat1*  cpf1,
+  static void  Gpos_Free_Context1( TTO_ContextPosFormat1*  cpf1,
 			      FT_Memory               memory )
   {
     FT_UShort        n, count;
@@ -3527,10 +3422,8 @@ static FT_Error  default_mmfunc( FT_Face      face,
       /* We check whether the specific class is used at all.  If not,
          class 0 is used instead.                                     */
 
-      /*
-	if ( !d[c[n]] )
-	    c[n] = 0;
-      */
+      if ( !d[c[n]] )
+        c[n] = 0;
     }
 
     FORGET_Frame();
@@ -3754,7 +3647,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   }
 
 
-  static void  GPos_Free_Context2( TTO_ContextPosFormat2*  cpf2,
+  static void  Gpos_Free_Context2( TTO_ContextPosFormat2*  cpf2,
 			      FT_Memory               memory )
   {
     FT_UShort         n, count;
@@ -3862,7 +3755,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   }
 
 
-  static void  GPos_Free_Context3( TTO_ContextPosFormat3*  cpf3,
+  static void  Gpos_Free_Context3( TTO_ContextPosFormat3*  cpf3,
 			      FT_Memory               memory )
   {
     FT_UShort      n, count;
@@ -3925,15 +3818,15 @@ static FT_Error  default_mmfunc( FT_Face      face,
     switch ( cp->PosFormat )
     {
     case 1:
-      GPos_Free_Context1( &cp->cpf.cpf1, memory );
+      Gpos_Free_Context1( &cp->cpf.cpf1, memory );
       break;
 
     case 2:
-      GPos_Free_Context2( &cp->cpf.cpf2, memory );
+      Gpos_Free_Context2( &cp->cpf.cpf2, memory );
       break;
 
     case 3:
-      GPos_Free_Context3( &cp->cpf.cpf3, memory );
+      Gpos_Free_Context3( &cp->cpf.cpf3, memory );
       break;
     }
   }
@@ -3941,28 +3834,27 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
   static FT_Error  Lookup_ContextPos1( GPOS_Instance*          gpi,
                                        TTO_ContextPosFormat1*  cpf1,
-                                       TTO_GSUB_String*        in,
-                                       TTO_GPOS_Data*          out,
+				       OTL_Buffer              buffer,
                                        FT_UShort               flags,
                                        FT_UShort               context_length,
                                        int                     nesting_level )
   {
     FT_UShort        index, property;
-    FT_UShort        i, j, k, numpr;
+    FT_Int           i, j, k, numpr;
     FT_Error         error;
-    FT_UShort*       s_in;
     TTO_GPOSHeader*  gpos = gpi->gpos;
 
     TTO_PosRule*     pr;
     TTO_GDEFHeader*  gdef;
 
-    error = Coverage_Index( &cpf1->Coverage, in->string[in->pos], &index );
-    if ( error )
-      return error;
 
     gdef = gpos->gdef;
 
-    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
+    if ( CHECK_Property( gdef, IN_CURITEM(), flags, &property ) )
+      return error;
+
+    error = Coverage_Index( &cpf1->Coverage, IN_CURGLYPH(), &index );
+    if ( error )
       return error;
 
     pr    = cpf1->PosRuleSet[index].PosRule;
@@ -3971,35 +3863,34 @@ static FT_Error  default_mmfunc( FT_Face      face,
     for ( k = 0; k < numpr; k++ )
     {
       if ( context_length != 0xFFFF && context_length < pr[k].GlyphCount )
-        continue;
+        goto next_posrule;
 
-      if ( in->pos + pr[k].GlyphCount > in->length )
-        continue;                           /* context is too long */
+      if ( buffer->in_pos + pr[k].GlyphCount > buffer->in_length )
+        goto next_posrule;                       /* context is too long */
 
-      s_in = &in->string[in->pos];
-
-      for ( i = 1, j = 1; i < pr[k].GlyphCount; i++, j++ )
+      for ( i = 1, j = buffer->in_pos + 1; i < pr[k].GlyphCount; i++, j++ )
       {
-        while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
+        while ( CHECK_Property( gdef, IN_ITEM( j ), flags, &property ) )
         {
           if ( error && error != TTO_Err_Not_Covered )
             return error;
 
-          if ( in->pos + j < in->length )
-            j++;
-          else
-            break;
+          if ( j + pr[k].GlyphCount - i == (FT_Int)buffer->in_length )
+            goto next_posrule;
+          j++;
         }
 
-        if ( s_in[j] != pr[k].Input[i - 1] )
-          break;
+        if ( IN_GLYPH( j ) != pr[k].Input[i - 1] )
+          goto next_posrule;
       }
 
-      if ( i == pr[k].GlyphCount )
-        return Do_ContextPos( gpi, pr[k].GlyphCount,
-                              pr[k].PosCount, pr[k].PosLookupRecord,
-                              in, out,
-                              nesting_level );
+      return Do_ContextPos( gpi, pr[k].GlyphCount,
+                            pr[k].PosCount, pr[k].PosLookupRecord,
+                            buffer,
+                            nesting_level );
+      
+      next_posrule:
+        ;
     }
 
     return TTO_Err_Not_Covered;
@@ -4008,8 +3899,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
   static FT_Error  Lookup_ContextPos2( GPOS_Instance*          gpi,
                                        TTO_ContextPosFormat2*  cpf2,
-                                       TTO_GSUB_String*        in,
-                                       TTO_GPOS_Data*          out,
+				       OTL_Buffer              buffer,
                                        FT_UShort               flags,
                                        FT_UShort               context_length,
                                        int                     nesting_level )
@@ -4020,7 +3910,6 @@ static FT_Error  default_mmfunc( FT_Face      face,
     FT_UShort          i, j, k, known_classes;
 
     FT_UShort*         classes;
-    FT_UShort*         s_in;
     FT_UShort*         cl;
     TTO_GPOSHeader*    gpos = gpi->gpos;
 
@@ -4028,23 +3917,24 @@ static FT_Error  default_mmfunc( FT_Face      face,
     TTO_PosClassRule*  pr;
     TTO_GDEFHeader*    gdef;
 
+
+    gdef = gpos->gdef;
+
+    if ( CHECK_Property( gdef, IN_CURITEM(), flags, &property ) )
+      return error;
+
     /* Note: The coverage table in format 2 doesn't give an index into
              anything.  It just lets us know whether or not we need to
              do any lookup at all.                                     */
 
-    error = Coverage_Index( &cpf2->Coverage, in->string[in->pos], &index );
+    error = Coverage_Index( &cpf2->Coverage, IN_CURGLYPH(), &index );
     if ( error )
-      return error;
-
-    gdef = gpos->gdef;
-
-    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
       return error;
 
     if ( ALLOC_ARRAY( classes, cpf2->MaxContextLength, FT_UShort ) )
       return error;
 
-    error = Get_Class( &cpf2->ClassDef, in->string[in->pos],
+    error = Get_Class( &cpf2->ClassDef, IN_CURGLYPH(),
                        &classes[0], NULL );
     if ( error && error != TTO_Err_Not_Covered )
       goto End;
@@ -4062,51 +3952,49 @@ static FT_Error  default_mmfunc( FT_Face      face,
       pr = &pcs->PosClassRule[k];
 
       if ( context_length != 0xFFFF && context_length < pr->GlyphCount )
-        continue;
+        goto next_posclassrule;
 
-      if ( in->pos + pr->GlyphCount > in->length )
-        continue;                           /* context is too long */
+      if ( buffer->in_pos + pr->GlyphCount > buffer->in_length )
+        goto next_posclassrule;                /* context is too long */
 
-      s_in = &in->string[in->pos];
       cl   = pr->Class;
 
       /* Start at 1 because [0] is implied */
 
-      for ( i = 1, j = 1; i < pr->GlyphCount; i++, j++ )
+      for ( i = 1, j = buffer->in_pos + 1; i < pr->GlyphCount; i++, j++ )
       {
-        while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
+        while ( CHECK_Property( gdef, IN_ITEM( j ), flags, &property ) )
         {
           if ( error && error != TTO_Err_Not_Covered )
             goto End;
 
-          if ( in->pos + j < in->length )
-            j++;
-          else
-            break;
+          if ( j + pr->GlyphCount - i == (FT_Int)buffer->in_length )
+            goto next_posclassrule;
+          j++;
         }
 
         if ( i > known_classes )
         {
           /* Keeps us from having to do this for each rule */
 
-          error = Get_Class( &cpf2->ClassDef, s_in[j], &classes[i], NULL );
+          error = Get_Class( &cpf2->ClassDef, IN_GLYPH( j ), &classes[i], NULL );
           if ( error && error != TTO_Err_Not_Covered )
             goto End;
           known_classes = i;
         }
 
         if ( cl[i - 1] != classes[i] )
-          break;
+          goto next_posclassrule;
       }
 
-      if ( i == pr->GlyphCount )
-      {
-        error = Do_ContextPos( gpi, pr->GlyphCount,
-                               pr->PosCount, pr->PosLookupRecord,
-                               in, out,
-                               nesting_level );
-        goto End;
-      }
+      error = Do_ContextPos( gpi, pr->GlyphCount,
+                             pr->PosCount, pr->PosLookupRecord,
+                             buffer,
+                             nesting_level );
+      goto End;
+
+    next_posclassrule:
+      ;
     }
 
     error = TTO_Err_Not_Covered;
@@ -4119,15 +4007,13 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
   static FT_Error  Lookup_ContextPos3( GPOS_Instance*          gpi,
                                        TTO_ContextPosFormat3*  cpf3,
-                                       TTO_GSUB_String*        in,
-                                       TTO_GPOS_Data*          out,
+				       OTL_Buffer              buffer,
                                        FT_UShort               flags,
                                        FT_UShort               context_length,
                                        int                     nesting_level )
   {
     FT_Error         error;
     FT_UShort        index, i, j, property;
-    FT_UShort*       s_in;
     TTO_GPOSHeader*  gpos = gpi->gpos;
 
     TTO_Coverage*    c;
@@ -4136,47 +4022,44 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
     gdef = gpos->gdef;
 
+    if ( CHECK_Property( gdef, IN_CURITEM(), flags, &property ) )
+      return error;
+
     if ( context_length != 0xFFFF && context_length < cpf3->GlyphCount )
       return TTO_Err_Not_Covered;
 
-    if ( in->pos + cpf3->GlyphCount > in->length )
+    if ( buffer->in_pos + cpf3->GlyphCount > buffer->in_length )
       return TTO_Err_Not_Covered;         /* context is too long */
 
-    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
-      return error;
-
-    s_in = &in->string[in->pos];
     c    = cpf3->Coverage;
 
     for ( i = 1, j = 1; i < cpf3->GlyphCount; i++, j++ )
     {
-      while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
+      while ( CHECK_Property( gdef, IN_ITEM( j ), flags, &property ) )
       {
         if ( error && error != TTO_Err_Not_Covered )
           return error;
 
-        if ( in->pos + j < in->length )
-          j++;
-        else
+        if ( j + cpf3->GlyphCount - i == (FT_Int)buffer->in_length )
           return TTO_Err_Not_Covered;
+        j++;
       }
 
-      error = Coverage_Index( &c[i], s_in[j], &index );
+      error = Coverage_Index( &c[i], IN_GLYPH( j ), &index );
       if ( error )
         return error;
     }
 
     return Do_ContextPos( gpi, cpf3->GlyphCount,
                           cpf3->PosCount, cpf3->PosLookupRecord,
-                          in, out,
+                          buffer,
                           nesting_level );
   }
 
 
   static FT_Error  Lookup_ContextPos( GPOS_Instance*    gpi,
                                       TTO_ContextPos*   cp,
-                                      TTO_GSUB_String*  in,
-                                      TTO_GPOS_Data*    out,
+				      OTL_Buffer        buffer,
                                       FT_UShort         flags,
                                       FT_UShort         context_length,
                                       int               nesting_level )
@@ -4184,15 +4067,15 @@ static FT_Error  default_mmfunc( FT_Face      face,
     switch ( cp->PosFormat )
     {
     case 1:
-      return Lookup_ContextPos1( gpi, &cp->cpf.cpf1, in, out,
+      return Lookup_ContextPos1( gpi, &cp->cpf.cpf1, buffer,
                                  flags, context_length, nesting_level );
 
     case 2:
-      return Lookup_ContextPos2( gpi, &cp->cpf.cpf2, in, out,
+      return Lookup_ContextPos2( gpi, &cp->cpf.cpf2, buffer,
                                  flags, context_length, nesting_level );
 
     case 3:
-      return Lookup_ContextPos3( gpi, &cp->cpf.cpf3, in, out,
+      return Lookup_ContextPos3( gpi, &cp->cpf.cpf3, buffer,
                                  flags, context_length, nesting_level );
 
     default:
@@ -4337,7 +4220,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   }
 
 
-  static void  Free_ChainPosRule( TTO_ChainPosRule*  cpr,
+  static void  Gpos_Free_ChainPosRule( TTO_ChainPosRule*  cpr,
 				  FT_Memory          memory )
   {
     FREE( cpr->PosLookupRecord );
@@ -4397,14 +4280,14 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
   Fail:
     for ( m = 0; m < n; m++ )
-      Free_ChainPosRule( &cpr[m], memory );
+      Gpos_Free_ChainPosRule( &cpr[m], memory );
 
     FREE( cpr );
     return error;
   }
 
 
-  static void  Free_ChainPosRuleSet( TTO_ChainPosRuleSet*  cprs,
+  static void  Gpos_Free_ChainPosRuleSet( TTO_ChainPosRuleSet*  cprs,
 				     FT_Memory             memory )
   {
     FT_UShort          n, count;
@@ -4418,7 +4301,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
       cpr   = cprs->ChainPosRule;
 
       for ( n = 0; n < count; n++ )
-        Free_ChainPosRule( &cpr[n], memory );
+        Gpos_Free_ChainPosRule( &cpr[n], memory );
 
       FREE( cpr );
     }
@@ -4488,7 +4371,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
   Fail1:
     for ( m = 0; m < n; m++ )
-      Free_ChainPosRuleSet( &cprs[m], memory );
+      Gpos_Free_ChainPosRuleSet( &cprs[m], memory );
 
     FREE( cprs );
 
@@ -4498,7 +4381,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   }
 
 
-  static void  GPos_Free_ChainContext1( TTO_ChainContextPosFormat1*  ccpf1,
+  static void  Gpos_Free_ChainContext1( TTO_ChainContextPosFormat1*  ccpf1,
 				   FT_Memory                    memory )
   {
     FT_UShort             n, count;
@@ -4512,7 +4395,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
       cprs  = ccpf1->ChainPosRuleSet;
 
       for ( n = 0; n < count; n++ )
-        Free_ChainPosRuleSet( &cprs[n], memory );
+        Gpos_Free_ChainPosRuleSet( &cprs[n], memory );
 
       FREE( cprs );
     }
@@ -4569,10 +4452,9 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
       /* We check whether the specific class is used at all.  If not,
          class 0 is used instead.                                     */
-      /*
-	if ( !d[b[n]] )
-	    b[n] = 0;
-      */
+
+      if ( !d[b[n]] )
+        b[n] = 0;
     }
 
     FORGET_Frame();
@@ -4604,10 +4486,8 @@ static FT_Error  default_mmfunc( FT_Face      face,
     {
       i[n] = GET_UShort();
 
-      /*
-	if ( !d[i[n]] )
-	    i[n] = 0;
-      */
+      if ( !d[i[n]] )
+        i[n] = 0;
     }
 
     FORGET_Frame();
@@ -4639,10 +4519,8 @@ static FT_Error  default_mmfunc( FT_Face      face,
     {
       l[n] = GET_UShort();
 
-      /*
-	if ( !d[l[n]] )
-	    l[n] = 0;
-      */
+      if ( !d[l[n]] )
+        l[n] = 0;
     }
 
     FORGET_Frame();
@@ -4691,7 +4569,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   }
 
 
-  static void  Free_ChainPosClassRule( TTO_ChainPosClassRule*  cpcr,
+  static void  Gpos_Free_ChainPosClassRule( TTO_ChainPosClassRule*  cpcr,
 				       FT_Memory               memory )
   {
     FREE( cpcr->PosLookupRecord );
@@ -4755,14 +4633,14 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
   Fail:
     for ( m = 0; m < n; m++ )
-      Free_ChainPosClassRule( &cpcr[m], memory );
+      Gpos_Free_ChainPosClassRule( &cpcr[m], memory );
 
     FREE( cpcr );
     return error;
   }
 
 
-  static void  Free_ChainPosClassSet( TTO_ChainPosClassSet*  cpcs,
+  static void  Gpos_Free_ChainPosClassSet( TTO_ChainPosClassSet*  cpcs,
 				      FT_Memory              memory )
   {
     FT_UShort               n, count;
@@ -4776,14 +4654,14 @@ static FT_Error  default_mmfunc( FT_Face      face,
       cpcr  = cpcs->ChainPosClassRule;
 
       for ( n = 0; n < count; n++ )
-        Free_ChainPosClassRule( &cpcr[n], memory );
+        Gpos_Free_ChainPosClassRule( &cpcr[n], memory );
 
       FREE( cpcr );
     }
   }
 
 
-  static FT_Error Load_EmptyOrClassDefinition( TTO_ClassDefinition*  cd,
+  static FT_Error Gpos_Load_EmptyOrClassDefinition( TTO_ClassDefinition*  cd,
                                                FT_UShort             limit,
 					       FT_ULong              class_offset,
 					       FT_ULong              base_offset,
@@ -4846,21 +4724,22 @@ static FT_Error  default_mmfunc( FT_Face      face,
     lookahead_offset = GET_UShort();
 
     /* `ChainPosClassSetCount' is the upper limit for input class values,
-       thus we read it now to make an additional safety check.            */
+       thus we read it now to make an additional safety check. No limit
+       is known or needed for the other two class definitions          */
 
     count = ccpf2->ChainPosClassSetCount = GET_UShort();
 
     FORGET_Frame();
 
-    if ( ( error = Load_EmptyOrClassDefinition( &ccpf2->BacktrackClassDef, count,
+    if ( ( error = Gpos_Load_EmptyOrClassDefinition( &ccpf2->BacktrackClassDef, 65535,
 						backtrack_offset, base_offset,
 						stream ) ) != TT_Err_Ok )
       goto Fail5;
-    if ( ( error = Load_EmptyOrClassDefinition( &ccpf2->InputClassDef, count,
+    if ( ( error = Gpos_Load_EmptyOrClassDefinition( &ccpf2->InputClassDef, count,
 						input_offset, base_offset,
 						stream ) ) != TT_Err_Ok )
       goto Fail4;
-    if ( ( error = Load_EmptyOrClassDefinition( &ccpf2->LookaheadClassDef, count,
+    if ( ( error = Gpos_Load_EmptyOrClassDefinition( &ccpf2->LookaheadClassDef, 65535,
 						lookahead_offset, base_offset,
 						stream ) ) != TT_Err_Ok )
       goto Fail3;
@@ -4906,7 +4785,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
   Fail1:
     for ( m = 0; m < n; m++ )
-      Free_ChainPosClassSet( &cpcs[m], memory );
+      Gpos_Free_ChainPosClassSet( &cpcs[m], memory );
 
     FREE( cpcs );
 
@@ -4925,7 +4804,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   }
 
 
-  static void  GPos_Free_ChainContext2( TTO_ChainContextPosFormat2*  ccpf2,
+  static void  Gpos_Free_ChainContext2( TTO_ChainContextPosFormat2*  ccpf2,
 				   FT_Memory                    memory )
   {
     FT_UShort              n, count;
@@ -4939,7 +4818,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
       cpcs  = ccpf2->ChainPosClassSet;
 
       for ( n = 0; n < count; n++ )
-        Free_ChainPosClassSet( &cpcs[n], memory );
+        Gpos_Free_ChainPosClassSet( &cpcs[n], memory );
 
       FREE( cpcs );
     }
@@ -5123,7 +5002,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   }
 
 
-  static void  GPos_Free_ChainContext3( TTO_ChainContextPosFormat3*  ccpf3,
+  static void  Gpos_Free_ChainContext3( TTO_ChainContextPosFormat3*  ccpf3,
 				   FT_Memory                    memory )
   {
     FT_UShort      n, count;
@@ -5208,15 +5087,15 @@ static FT_Error  default_mmfunc( FT_Face      face,
     switch ( ccp->PosFormat )
     {
     case 1:
-      GPos_Free_ChainContext1( &ccp->ccpf.ccpf1, memory );
+      Gpos_Free_ChainContext1( &ccp->ccpf.ccpf1, memory );
       break;
 
     case 2:
-      GPos_Free_ChainContext2( &ccp->ccpf.ccpf2, memory );
+      Gpos_Free_ChainContext2( &ccp->ccpf.ccpf2, memory );
       break;
 
     case 3:
-      GPos_Free_ChainContext3( &ccp->ccpf.ccpf3, memory );
+      Gpos_Free_ChainContext3( &ccp->ccpf.ccpf3, memory );
       break;
     }
   }
@@ -5225,17 +5104,15 @@ static FT_Error  default_mmfunc( FT_Face      face,
   static FT_Error  Lookup_ChainContextPos1(
                      GPOS_Instance*               gpi,
                      TTO_ChainContextPosFormat1*  ccpf1,
-                     TTO_GSUB_String*             in,
-                     TTO_GPOS_Data*               out,
+		     OTL_Buffer                   buffer,
                      FT_UShort                    flags,
                      FT_UShort                    context_length,
                      int                          nesting_level )
   {
     FT_UShort          index, property;
-    FT_UShort          i, j, k, num_cpr, curr_pos;
+    FT_UShort          i, j, k, num_cpr;
     FT_UShort          bgc, igc, lgc;
     FT_Error           error;
-    FT_UShort*         s_in;
     TTO_GPOSHeader*    gpos = gpi->gpos;
 
     TTO_ChainPosRule*  cpr;
@@ -5243,13 +5120,13 @@ static FT_Error  default_mmfunc( FT_Face      face,
     TTO_GDEFHeader*    gdef;
 
 
-    error = Coverage_Index( &ccpf1->Coverage, in->string[in->pos], &index );
-    if ( error )
-      return error;
-
     gdef = gpos->gdef;
 
-    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
+    if ( CHECK_Property( gdef, IN_CURITEM(), flags, &property ) )
+      return error;
+
+    error = Coverage_Index( &ccpf1->Coverage, IN_CURGLYPH(), &index );
+    if ( error )
       return error;
 
     cpr     = ccpf1->ChainPosRuleSet[index].ChainPosRule;
@@ -5263,32 +5140,28 @@ static FT_Error  default_mmfunc( FT_Face      face,
       lgc      = curr_cpr.LookaheadGlyphCount;
 
       if ( context_length != 0xFFFF && context_length < igc )
-        continue;
+        goto next_chainposrule;
 
       /* check whether context is too long; it is a first guess only */
 
-      if ( bgc > in->pos || in->pos + igc + lgc > in->length )
-        continue;
+      if ( bgc > buffer->in_pos || buffer->in_pos + igc + lgc > buffer->in_length )
+        goto next_chainposrule;
 
       if ( bgc )
       {
         /* Since we don't know in advance the number of glyphs to inspect,
            we search backwards for matches in the backtrack glyph array    */
 
-        curr_pos = 0;
-        s_in     = &in->string[curr_pos];
-
-        for ( i = 0, j = in->pos - 1; i < bgc; i++, j-- )
+        for ( i = 0, j = buffer->in_pos - 1; i < bgc; i++, j-- )
         {
-          while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
+          while ( CHECK_Property( gdef, IN_ITEM( j ), flags, &property ) )
           {
             if ( error && error != TTO_Err_Not_Covered )
               return error;
 
-            if ( j > curr_pos )
-              j--;
-            else
-              break;
+            if ( j + 1 == bgc - i )
+              goto next_chainposrule;
+            j--;
           }
 
           /* In OpenType 1.3, it is undefined whether the offsets of
@@ -5301,68 +5174,56 @@ static FT_Error  default_mmfunc( FT_Face      face,
                Backtrack offsets -  3  2  1  0
                Lookahead offsets -                    0  1  2  3           */
 
-          if ( s_in[j] != curr_cpr.Backtrack[i] )
-            break;
+          if ( IN_GLYPH( j ) != curr_cpr.Backtrack[i] )
+            goto next_chainposrule;
         }
-
-        if ( i != bgc )
-          continue;
       }
-
-      curr_pos = in->pos;
-      s_in     = &in->string[curr_pos];
 
       /* Start at 1 because [0] is implied */
 
-      for ( i = 1, j = 1; i < igc; i++, j++ )
+      for ( i = 1, j = buffer->in_pos + 1; i < igc; i++, j++ )
       {
-        while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
+        while ( CHECK_Property( gdef, IN_ITEM( j ), flags, &property ) )
         {
           if ( error && error != TTO_Err_Not_Covered )
             return error;
 
-          if ( curr_pos + j < (int)in->length )
-            j++;
-          else
-            break;
+          if ( j + igc - i + lgc == (FT_Int)buffer->in_length )
+            goto next_chainposrule;
+          j++;
         }
 
-        if ( s_in[j] != curr_cpr.Input[i - 1] )
-          break;
+        if ( IN_GLYPH( j ) != curr_cpr.Input[i - 1] )
+          goto next_chainposrule;
       }
-
-      if ( i != igc )
-        continue;
 
       /* we are starting to check for lookahead glyphs right after the
          last context glyph                                            */
 
-      curr_pos += j;
-      s_in     = &in->string[curr_pos];
-
-      for ( i = 0, j = 0; i < lgc; i++, j++ )
+      for ( i = 0; i < lgc; i++, j++ )
       {
-        while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
+        while ( CHECK_Property( gdef, IN_ITEM( j ), flags, &property ) )
         {
           if ( error && error != TTO_Err_Not_Covered )
             return error;
 
-          if ( curr_pos + j < (int)in->length )
-            j++;
-          else
-            break;
+          if ( j + lgc - i == (FT_Int)buffer->in_length )
+            goto next_chainposrule;
+          j++;
         }
 
-        if ( s_in[j] != curr_cpr.Lookahead[i] )
-          break;
+        if ( IN_GLYPH( j ) != curr_cpr.Lookahead[i] )
+          goto next_chainposrule;
       }
 
-      if ( i == lgc )
-        return Do_ContextPos( gpi, igc,
-                              curr_cpr.PosCount,
-                              curr_cpr.PosLookupRecord,
-                              in, out,
-                              nesting_level );
+      return Do_ContextPos( gpi, igc,
+                            curr_cpr.PosCount,
+                            curr_cpr.PosLookupRecord,
+                            buffer,
+                            nesting_level );
+
+    next_chainposrule:
+      ;
     }
 
     return TTO_Err_Not_Covered;
@@ -5372,8 +5233,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   static FT_Error  Lookup_ChainContextPos2(
                      GPOS_Instance*               gpi,
                      TTO_ChainContextPosFormat2*  ccpf2,
-                     TTO_GSUB_String*             in,
-                     TTO_GPOS_Data*               out,
+		     OTL_Buffer                   buffer,
                      FT_UShort                    flags,
                      FT_UShort                    context_length,
                      int                          nesting_level )
@@ -5381,7 +5241,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     FT_UShort              index, property;
     FT_Memory              memory = gpi->face->memory;
     FT_Error               error;
-    FT_UShort              i, j, k, curr_pos;
+    FT_UShort              i, j, k;
     FT_UShort              bgc, igc, lgc;
     FT_UShort              known_backtrack_classes,
                            known_input_classes,
@@ -5390,8 +5250,6 @@ static FT_Error  default_mmfunc( FT_Face      face,
     FT_UShort*             backtrack_classes;
     FT_UShort*             input_classes;
     FT_UShort*             lookahead_classes;
-
-    FT_UShort*             s_in;
 
     FT_UShort*             bc;
     FT_UShort*             ic;
@@ -5405,15 +5263,15 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
     gdef = gpos->gdef;
 
+    if ( CHECK_Property( gdef, IN_CURITEM(), flags, &property ) )
+      return error;
+
     /* Note: The coverage table in format 2 doesn't give an index into
              anything.  It just lets us know whether or not we need to
              do any lookup at all.                                     */
 
-    error = Coverage_Index( &ccpf2->Coverage, in->string[in->pos], &index );
+    error = Coverage_Index( &ccpf2->Coverage, IN_CURGLYPH(), &index );
     if ( error )
-      return error;
-
-    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
       return error;
 
     if ( ALLOC_ARRAY( backtrack_classes, ccpf2->MaxBacktrackLength, FT_UShort ) )
@@ -5428,7 +5286,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
       goto End2;
     known_lookahead_classes = 0;
 
-    error = Get_Class( &ccpf2->InputClassDef, in->string[in->pos],
+    error = Get_Class( &ccpf2->InputClassDef, IN_CURGLYPH(),
                        &input_classes[0], NULL );
     if ( error && error != TTO_Err_Not_Covered )
       goto End1;
@@ -5448,12 +5306,12 @@ static FT_Error  default_mmfunc( FT_Face      face,
       lgc  = cpcr.LookaheadGlyphCount;
 
       if ( context_length != 0xFFFF && context_length < igc )
-        continue;
+        goto next_chainposclassrule;
 
       /* check whether context is too long; it is a first guess only */
 
-      if ( bgc > in->pos || in->pos + igc + lgc > in->length )
-        continue;
+      if ( bgc > buffer->in_pos || buffer->in_pos + igc + lgc > buffer->in_length )
+        goto next_chainposclassrule;
 
       if ( bgc )
       {
@@ -5461,28 +5319,25 @@ static FT_Error  default_mmfunc( FT_Face      face,
            we search backwards for matches in the backtrack glyph array.
            Note that `known_backtrack_classes' starts at index 0.         */
 
-        curr_pos = 0;
-        s_in     = &in->string[curr_pos];
         bc       = cpcr.Backtrack;
 
-        for ( i = 0, j = in->pos - 1; i < bgc; i++, j-- )
+        for ( i = 0, j = buffer->in_pos - 1; i < bgc; i++, j-- )
         {
-          while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
+          while ( CHECK_Property( gdef, IN_ITEM( j ), flags, &property ) )
           {
             if ( error && error != TTO_Err_Not_Covered )
               goto End1;
 
-            if ( j > curr_pos )
-              j--;
-            else
-              break;
+            if ( j + 1 == bgc - i )
+              goto next_chainposclassrule;
+            j++;
           }
 
           if ( i >= known_backtrack_classes )
           {
             /* Keeps us from having to do this for each rule */
 
-            error = Get_Class( &ccpf2->BacktrackClassDef, s_in[j],
+            error = Get_Class( &ccpf2->BacktrackClassDef, IN_GLYPH( j ),
                                &backtrack_classes[i], NULL );
             if ( error && error != TTO_Err_Not_Covered )
               goto End1;
@@ -5490,35 +5345,29 @@ static FT_Error  default_mmfunc( FT_Face      face,
           }
 
           if ( bc[i] != backtrack_classes[i] )
-            break;
+            goto next_chainposclassrule;
         }
-
-        if ( i != bgc )
-          continue;
       }
 
-      curr_pos = in->pos;
-      s_in     = &in->string[curr_pos];
       ic       = cpcr.Input;
 
       /* Start at 1 because [0] is implied */
 
-      for ( i = 1, j = 1; i < igc; i++, j++ )
+      for ( i = 1, j = buffer->in_pos + 1; i < igc; i++, j++ )
       {
-        while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
+        while ( CHECK_Property( gdef, IN_ITEM( j ), flags, &property ) )
         {
           if ( error && error != TTO_Err_Not_Covered )
             goto End1;
 
-          if ( curr_pos + j < (int)in->length )
-            j++;
-          else
-            break;
+          if ( j + igc - i + lgc == (FT_Int)buffer->in_length )
+            goto next_chainposclassrule;
+          j++;
         }
 
         if ( i >= known_input_classes )
         {
-          error = Get_Class( &ccpf2->InputClassDef, s_in[j],
+          error = Get_Class( &ccpf2->InputClassDef, IN_GLYPH( j ),
                              &input_classes[i], NULL );
           if ( error && error != TTO_Err_Not_Covered )
             goto End1;
@@ -5526,35 +5375,29 @@ static FT_Error  default_mmfunc( FT_Face      face,
         }
 
         if ( ic[i - 1] != input_classes[i] )
-          break;
+          goto next_chainposclassrule;
       }
-
-      if ( i != igc )
-        continue;
 
       /* we are starting to check for lookahead glyphs right after the
          last context glyph                                            */
 
-      curr_pos += j;
-      s_in     = &in->string[curr_pos];
       lc       = cpcr.Lookahead;
 
-      for ( i = 0, j = 0; i < lgc; i++, j++ )
+      for ( i = 0; i < lgc; i++, j++ )
       {
-        while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
+        while ( CHECK_Property( gdef, IN_ITEM( j ), flags, &property ) )
         {
           if ( error && error != TTO_Err_Not_Covered )
             goto End1;
 
-          if ( curr_pos + j < (int)in->length )
-            j++;
-          else
-            break;
+          if ( j + lgc - i == (FT_Int)buffer->in_length )
+            goto next_chainposclassrule;
+          j++;
         }
 
         if ( i >= known_lookahead_classes )
         {
-          error = Get_Class( &ccpf2->LookaheadClassDef, s_in[j],
+          error = Get_Class( &ccpf2->LookaheadClassDef, IN_GLYPH( j ),
                              &lookahead_classes[i], NULL );
           if ( error && error != TTO_Err_Not_Covered )
             goto End1;
@@ -5562,18 +5405,18 @@ static FT_Error  default_mmfunc( FT_Face      face,
         }
 
         if ( lc[i] != lookahead_classes[i] )
-          break;
+          goto next_chainposclassrule;
       }
 
-      if ( i == lgc )
-      {
-        error = Do_ContextPos( gpi, igc,
-                               cpcr.PosCount,
-                               cpcr.PosLookupRecord,
-                               in, out,
-                               nesting_level );
-        goto End1;
-      }
+      error = Do_ContextPos( gpi, igc,
+                             cpcr.PosCount,
+                             cpcr.PosLookupRecord,
+                             buffer,
+                             nesting_level );
+      goto End1;
+
+    next_chainposclassrule:
+      ;
     }
 
     error = TTO_Err_Not_Covered;
@@ -5593,16 +5436,14 @@ static FT_Error  default_mmfunc( FT_Face      face,
   static FT_Error  Lookup_ChainContextPos3(
                      GPOS_Instance*               gpi,
                      TTO_ChainContextPosFormat3*  ccpf3,
-                     TTO_GSUB_String*             in,
-                     TTO_GPOS_Data*               out,
+		     OTL_Buffer                   buffer,
                      FT_UShort                    flags,
                      FT_UShort                    context_length,
                      int                          nesting_level )
   {
-    FT_UShort        index, i, j, curr_pos, property;
+    FT_UShort        index, i, j, property;
     FT_UShort        bgc, igc, lgc;
     FT_Error         error;
-    FT_UShort*       s_in;
     TTO_GPOSHeader*  gpos = gpi->gpos;
 
     TTO_Coverage*    bc;
@@ -5610,6 +5451,11 @@ static FT_Error  default_mmfunc( FT_Face      face,
     TTO_Coverage*    lc;
     TTO_GDEFHeader*  gdef;
 
+
+    gdef = gpos->gdef;
+
+    if ( CHECK_Property( gdef, IN_CURITEM(), flags, &property ) )
+      return error;
 
     bgc = ccpf3->BacktrackGlyphCount;
     igc = ccpf3->InputGlyphCount;
@@ -5620,61 +5466,50 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
     /* check whether context is too long; it is a first guess only */
 
-    if ( bgc > in->pos || in->pos + igc + lgc > in->length )
+    if ( bgc > buffer->in_pos || buffer->in_pos + igc + lgc > buffer->in_length )
       return TTO_Err_Not_Covered;
-
-    gdef = gpos->gdef;
-
-    if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
-      return error;
 
     if ( bgc )
     {
       /* Since we don't know in advance the number of glyphs to inspect,
          we search backwards for matches in the backtrack glyph array    */
 
-      curr_pos = 0;
-      s_in     = &in->string[curr_pos];
       bc       = ccpf3->BacktrackCoverage;
 
-      for ( i = 0, j = in->pos - 1; i < bgc; i++, j-- )
+      for ( i = 0, j = buffer->in_pos - 1; i < bgc; i++, j-- )
       {
-        while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
+        while ( CHECK_Property( gdef, IN_ITEM( j ), flags, &property ) )
         {
           if ( error && error != TTO_Err_Not_Covered )
             return error;
 
-          if ( j > curr_pos )
-            j--;
-          else
+          if ( j + 1 == bgc - i )
             return TTO_Err_Not_Covered;
+          j--;
         }
 
-        error = Coverage_Index( &bc[i], s_in[j], &index );
+        error = Coverage_Index( &bc[i], IN_GLYPH( j ), &index );
         if ( error )
           return error;
       }
     }
 
-    curr_pos = in->pos;
-    s_in     = &in->string[curr_pos];
     ic       = ccpf3->InputCoverage;
 
-    for ( i = 0, j = 0; i < igc; i++, j++ )
+    for ( i = 0, j = buffer->in_pos; i < igc; i++, j++ )
     {
-      /* We already called CHECK_Property for s_in[0] */
-      while ( j > 0 && CHECK_Property( gdef, s_in[j], flags, &property ) )
+      /* We already called CHECK_Property for IN_GLYPH ( buffer->in_pos ) */
+      while ( j > buffer->in_pos && CHECK_Property( gdef, IN_ITEM( j ), flags, &property ) )
       {
         if ( error && error != TTO_Err_Not_Covered )
           return error;
 
-        if ( curr_pos + j < (int)in->length )
-          j++;
-        else
+        if ( j + igc - i + lgc == (FT_Int)buffer->in_length )
           return TTO_Err_Not_Covered;
+        j++;
       }
 
-      error = Coverage_Index( &ic[i], s_in[j], &index );
+      error = Coverage_Index( &ic[i], IN_GLYPH( j ), &index );
       if ( error )
         return error;
     }
@@ -5682,24 +5517,21 @@ static FT_Error  default_mmfunc( FT_Face      face,
     /* we are starting to check for lookahead glyphs right after the
        last context glyph                                            */
 
-    curr_pos += j;
-    s_in     = &in->string[curr_pos];
     lc       = ccpf3->LookaheadCoverage;
 
-    for ( i = 0, j = 0; i < lgc; i++, j++ )
+    for ( i = 0; i < lgc; i++, j++ )
     {
-      while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
+      while ( CHECK_Property( gdef, IN_ITEM( j ), flags, &property ) )
       {
         if ( error && error != TTO_Err_Not_Covered )
           return error;
 
-        if ( curr_pos + j < (int)in->length )
-          j++;
-        else
+        if ( j + lgc - i == (FT_Int)buffer->in_length )
           return TTO_Err_Not_Covered;
+        j++;
       }
 
-      error = Coverage_Index( &lc[i], s_in[j], &index );
+      error = Coverage_Index( &lc[i], IN_GLYPH( j ), &index );
       if ( error )
         return error;
     }
@@ -5707,7 +5539,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     return Do_ContextPos( gpi, igc,
                           ccpf3->PosCount,
                           ccpf3->PosLookupRecord,
-                          in, out,
+                          buffer,
                           nesting_level );
   }
 
@@ -5715,8 +5547,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
   static FT_Error  Lookup_ChainContextPos(
                      GPOS_Instance*        gpi,
                      TTO_ChainContextPos*  ccp,
-                     TTO_GSUB_String*      in,
-                     TTO_GPOS_Data*        out,
+		     OTL_Buffer            buffer,
                      FT_UShort             flags,
                      FT_UShort             context_length,
                      int                   nesting_level )
@@ -5724,17 +5555,17 @@ static FT_Error  default_mmfunc( FT_Face      face,
     switch ( ccp->PosFormat )
     {
     case 1:
-      return Lookup_ChainContextPos1( gpi, &ccp->ccpf.ccpf1, in, out,
+      return Lookup_ChainContextPos1( gpi, &ccp->ccpf.ccpf1, buffer,
                                       flags, context_length,
                                       nesting_level );
 
     case 2:
-      return Lookup_ChainContextPos2( gpi, &ccp->ccpf.ccpf2, in, out,
+      return Lookup_ChainContextPos2( gpi, &ccp->ccpf.ccpf2, buffer,
                                       flags, context_length,
                                       nesting_level );
 
     case 3:
-      return Lookup_ChainContextPos3( gpi, &ccp->ccpf.ccpf3, in, out,
+      return Lookup_ChainContextPos3( gpi, &ccp->ccpf.ccpf3, buffer,
                                       flags, context_length,
                                       nesting_level );
 
@@ -6039,14 +5870,13 @@ static FT_Error  default_mmfunc( FT_Face      face,
      has been done, or TTO_Err_Not_Covered if not.                        */
 
   static FT_Error  GPos_Do_Glyph_Lookup( GPOS_Instance*    gpi,
-                                    FT_UShort         lookup_index,
-                                    TTO_GSUB_String*  in,
-                                    TTO_GPOS_Data*    out,
-                                    FT_UShort         context_length,
-                                    int               nesting_level )
+                                         FT_UShort         lookup_index,
+                                         OTL_Buffer        buffer,
+                                         FT_UShort         context_length,
+                                         int               nesting_level )
   {
-    FT_Error         error = TT_Err_Ok;
-    FT_UShort        i, flags;
+    FT_Error         error = TTO_Err_Not_Covered;
+    FT_UShort        i, flags, lookup_count;
     TTO_GPOSHeader*  gpos = gpi->gpos;
     TTO_Lookup*      lo;
 
@@ -6055,6 +5885,10 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
     if ( nesting_level > TTO_MAX_NESTING_LEVEL )
       return TTO_Err_Too_Many_Nested_Contexts;
+
+    lookup_count = gpos->LookupList.LookupCount;
+    if (lookup_index >= lookup_count)
+      return error;
 
     lo    = &gpos->LookupList.Lookup[lookup_index];
     flags = lo->LookupFlag;
@@ -6066,49 +5900,49 @@ static FT_Error  default_mmfunc( FT_Face      face,
       case GPOS_LOOKUP_SINGLE:
         error = Lookup_SinglePos( gpi,
                                   &lo->SubTable[i].st.gpos.single,
-                                  in, out,
+                                  buffer,
                                   flags, context_length );
         break;
 
       case GPOS_LOOKUP_PAIR:
         error = Lookup_PairPos( gpi,
                                 &lo->SubTable[i].st.gpos.pair,
-                                in, out,
+                                buffer,
                                 flags, context_length );
         break;
 
       case GPOS_LOOKUP_CURSIVE:
         error = Lookup_CursivePos( gpi,
                                    &lo->SubTable[i].st.gpos.cursive,
-                                   in, out,
+                                   buffer,
                                    flags, context_length );
         break;
 
       case GPOS_LOOKUP_MARKBASE:
         error = Lookup_MarkBasePos( gpi,
                                     &lo->SubTable[i].st.gpos.markbase,
-                                    in, out,
+                                    buffer,
                                     flags, context_length );
         break;
 
       case GPOS_LOOKUP_MARKLIG:
         error = Lookup_MarkLigPos( gpi,
                                    &lo->SubTable[i].st.gpos.marklig,
-                                   in, out,
+                                   buffer,
                                    flags, context_length );
         break;
 
       case GPOS_LOOKUP_MARKMARK:
         error = Lookup_MarkMarkPos( gpi,
                                     &lo->SubTable[i].st.gpos.markmark,
-                                    in, out,
+                                    buffer,
                                     flags, context_length );
         break;
 
       case GPOS_LOOKUP_CONTEXT:
         error = Lookup_ContextPos( gpi,
                                    &lo->SubTable[i].st.gpos.context,
-                                   in, out,
+                                   buffer,
                                    flags, context_length,
                                    nesting_level );
         break;
@@ -6116,7 +5950,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
       case GPOS_LOOKUP_CHAIN:
         error = Lookup_ChainContextPos( gpi,
                                         &lo->SubTable[i].st.gpos.chain,
-                                        in, out,
+                                        buffer,
                                         flags, context_length,
                                         nesting_level );
         break;
@@ -6136,26 +5970,24 @@ static FT_Error  default_mmfunc( FT_Face      face,
   /* apply one lookup to the input string object */
 
   static FT_Error  GPos_Do_String_Lookup( GPOS_Instance*    gpi,
-                                     FT_UShort         lookup_index,
-/*					  unsigned char *where_to_apply, */
-                                     TTO_GSUB_String*  in,
-                                     TTO_GPOS_Data*    out )
+                                          FT_UShort         lookup_index,
+                                          OTL_Buffer        buffer )
   {
-    FT_Error         error = TTO_Err_Not_Covered;
+    FT_Error         error, retError = TTO_Err_Not_Covered;
+    TTO_GPOSHeader*  gpos = gpi->gpos;
+
+    FT_UInt*  properties = gpos->LookupList.Properties;
 
     int       nesting_level = 0;
-    FT_UShort i;
-    FT_Pos    offset;
 
 
-    gpi->first = 0xFFFF;
     gpi->last  = 0xFFFF;     /* no last valid glyph for cursive pos. */
 
-    in->pos = 0;
+    buffer->in_pos = 0;
 
-    while ( in->pos < in->length )
+    while ( buffer->in_pos < buffer->in_length )
     {
-	if (1) /* where_to_apply[in->pos]) */
+      if ( ~IN_PROPERTIES( buffer->in_pos ) & properties[lookup_index] )
       {
         /* 0xFFFF indicates that we don't have a context length yet. */
 
@@ -6166,7 +5998,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
            It is up to the font designer to provide meaningful lookups and
            lookup order.                                                   */
 
-        error = GPos_Do_Glyph_Lookup( gpi, lookup_index, in, out,
+        error = GPos_Do_Glyph_Lookup( gpi, lookup_index, buffer,
                                  0xFFFF, nesting_level );
         if ( error && error != TTO_Err_Not_Covered )
           return error;
@@ -6180,30 +6012,98 @@ static FT_Error  default_mmfunc( FT_Face      face,
         error = TTO_Err_Not_Covered;
       }
 
-      /* test whether we have to adjust the offsets for cursive connections */
-
-      if ( gpi->first != 0xFFFF && gpi->last == 0xFFFF &&
-           gpi->gpos->LookupList.Lookup[lookup_index].LookupFlag & RIGHT_TO_LEFT )
-      {
-        offset = out[in->pos].y_pos;
-
-        /* no horizontal offsets (for vertical writing direction)
-           supported yet                                          */
-
-        for ( i = gpi->first; i <= in->pos; i++ )
-          out[i].y_pos -= offset;
-
-        gpi->first = 0xFFFF;
-      }
-
       if ( error == TTO_Err_Not_Covered )
-        (in->pos)++;
+        (buffer->in_pos)++;
+      else
+	retError = error;
     }
 
-    return error;
+    return retError;
   }
 
 
+  static FT_Error  Position_CursiveChain ( OTL_Buffer     buffer )
+  {
+    FT_ULong   i, j;
+    OTL_Position positions = buffer->positions;
+
+    /* First handle all left-to-right connections */
+    for (j = 0; j < buffer->in_length; j--)
+    {
+      if (positions[j].cursive_chain > 0)
+	positions[j].y_pos += positions[j - positions[j].cursive_chain].y_pos;
+    }
+    
+    /* Then handle all right-to-left connections */
+    for (i = buffer->in_length; i > 0; i--)
+    {
+      j = i - 1;
+
+      if (positions[j].cursive_chain < 0)
+	positions[j].y_pos += positions[j - positions[j].cursive_chain].y_pos;
+    }
+    
+    return TT_Err_Ok;
+  }
+
+  EXPORT_FUNC
+  FT_Error  TT_GPOS_Add_Feature( TTO_GPOSHeader*  gpos,
+                                 FT_UShort        feature_index,
+                                 FT_UInt          property )
+  {
+    FT_UShort    i;
+
+    TTO_Feature  feature;
+    FT_UInt*     properties;
+    FT_UShort*   index;
+    FT_UShort    lookup_count;
+
+    /* Each feature can only be added once */
+    
+    if ( !gpos ||
+         feature_index >= gpos->FeatureList.FeatureCount ||
+	 gpos->FeatureList.ApplyCount == gpos->FeatureList.FeatureCount )
+      return TT_Err_Invalid_Argument;
+
+    gpos->FeatureList.ApplyOrder[gpos->FeatureList.ApplyCount++] = feature_index;
+
+    properties = gpos->LookupList.Properties;
+
+    feature = gpos->FeatureList.FeatureRecord[feature_index].Feature;
+    index   = feature.LookupListIndex;
+    lookup_count = gpos->LookupList.LookupCount;
+
+    for ( i = 0; i < feature.LookupListCount; i++ )
+    {
+      FT_UShort lookup_index = index[i];
+      if (lookup_index < lookup_count)
+	properties[lookup_index] |= property;
+    }
+
+    return TT_Err_Ok;
+  }
+
+
+  EXPORT_FUNC
+  FT_Error  TT_GPOS_Clear_Features( TTO_GPOSHeader*  gpos )
+  {
+    FT_UShort i;
+
+    FT_UInt*  properties;
+
+
+    if ( !gpos )
+      return TT_Err_Invalid_Argument;
+
+    gpos->FeatureList.ApplyCount = 0;
+
+    properties = gpos->LookupList.Properties;
+
+    for ( i = 0; i < gpos->LookupList.LookupCount; i++ )
+      properties[i] = 0;
+
+    return TT_Err_Ok;
+  }
 
 
   EXPORT_FUNC
@@ -6233,29 +6133,24 @@ static FT_Error  default_mmfunc( FT_Face      face,
     return TT_Err_Ok;
   }
 
-
   /* If `dvi' is TRUE, glyph contour points for anchor points and device
      tables are ignored -- you will get device independent values.         */
 
   EXPORT_FUNC
-  FT_Error  TT_GPOS_Apply_Feature(FT_Face            face,
+  FT_Error  TT_GPOS_Apply_String( FT_Face            face,
                                   TTO_GPOSHeader*    gpos,
-				  FT_UShort          feature_index,
                                   FT_UShort          load_flags,
-                                  TTO_GSUB_String*   in,
-                                  TTO_GPOS_Data**    out,
+				  OTL_Buffer         buffer,
                                   FT_Bool            dvi,
                                   FT_Bool            r2l )
   {
-    FT_Error       error = TTO_Err_Not_Covered;
+    FT_Error       error, retError = TTO_Err_Not_Covered;
     GPOS_Instance  gpi;
-    TTO_Feature  feature;
-    FT_UShort *index;
-
-    FT_UShort j;
+    FT_UShort      i, j, feature_index, lookup_count;
+    TTO_Feature    feature;
 
     if ( !face || !gpos ||
-         !in || in->length == 0 || in->pos >= in->length )
+         !buffer || buffer->in_length == 0 || buffer->in_pos >= buffer->in_length )
       return TT_Err_Invalid_Argument;
 
     gpi.face       = face;
@@ -6263,23 +6158,39 @@ static FT_Error  default_mmfunc( FT_Face      face,
     gpi.load_flags = load_flags;
     gpi.r2l        = r2l;
     gpi.dvi        = dvi;
+    
+    lookup_count = gpos->LookupList.LookupCount;
 
-    feature = gpos->FeatureList.FeatureRecord[feature_index].Feature;
-    index   = feature.LookupListIndex;
+    for ( i = 0; i < gpos->FeatureList.ApplyCount; i++ )
+    { 
+      /* index of i'th feature */
+      feature_index = gpos->FeatureList.ApplyOrder[i];
+      feature = gpos->FeatureList.FeatureRecord[feature_index].Feature;
 
-    /*
-      ###### need to order lookups in the order they appear in the
-      ###### lookup list, not the order they appear in the
-      ###### featurelist.
-    */
+      for ( j = 0; j < feature.LookupListCount; j++ )
+      {
+	FT_UShort lookup_index = feature.LookupListIndex[j];
 
-    for ( j = 0; j < feature.LookupListCount; j++ ) {
-        error = GPos_Do_String_Lookup( &gpi, index[j], in, *out );
-        if ( error && error != TTO_Err_Not_Covered )
-          return error;
+	/* Skip nonexistant lookups */
+        if (lookup_index >= lookup_count)
+	 continue;
+
+	error = GPos_Do_String_Lookup( &gpi, lookup_index, buffer );
+	if ( error )
+	{
+	  if ( error != TTO_Err_Not_Covered )
+	    return error;
+	}
+	else
+	  retError = error;
+      }
     }
+    
+    error = Position_CursiveChain ( buffer );
+    if ( error )
+      return error;
 
-    return error;
+    return retError;
   }
 
 /* END */

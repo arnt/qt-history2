@@ -44,7 +44,7 @@ extern "C" {
   FT_Error  Load_Device( TTO_Device*  d,
                          FT_Stream    input );
 
-  void  Free_ScriptList( TTO_ScriptList*  sl,
+  void  Free_ScriptList( TTO_ScriptList*  sl, 
                          FT_Memory        memory );
   void  Free_FeatureList( TTO_FeatureList*  fl,
 			  FT_Memory         memory );
@@ -131,7 +131,7 @@ extern "C" {
                             FT_UShort*     index );
   FT_Error  Get_Class( TTO_ClassDefinition*  cd,
                        FT_UShort             glyphID,
-                       FT_UShort*            klass,
+                       FT_UShort*            class,
                        FT_UShort*            index );
   FT_Error  Get_Device( TTO_Device*  d,
                         FT_UShort    size,
@@ -145,7 +145,7 @@ extern "C" {
                                 FT_UShort        property );
 
   FT_Error  Check_Property( TTO_GDEFHeader*  gdef,
-                            FT_UShort        index,
+                            OTL_GlyphItem    item,
                             FT_UShort        flags,
                             FT_UShort*       property );
 

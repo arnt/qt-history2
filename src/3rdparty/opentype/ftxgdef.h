@@ -30,6 +30,14 @@ extern "C" {
 #define TTO_Err_Invalid_GDEF_SubTable         0x1031
 
 
+/* GDEF glyph classes */
+
+#define UNCLASSIFIED_GLYPH  0
+#define SIMPLE_GLYPH        1
+#define LIGATURE_GLYPH      2
+#define MARK_GLYPH          3
+#define COMPONENT_GLYPH     4
+
 /* GDEF glyph properties, corresponding to class values 1-4.  Note that
    TTO_COMPONENT has no corresponding flag in the LookupFlag field.     */
 
@@ -183,6 +191,10 @@ extern "C" {
   /*  EXPORT_DEF
       FT_Error  TT_Init_GDEF_Extension( TT_Engine  engine ); */
 
+  EXPORT_FUNC
+  FT_Error  TT_New_GDEF_Table( FT_Face          face,
+			       TTO_GDEFHeader** retptr );
+	
   EXPORT_DEF
   FT_Error  TT_Load_GDEF_Table( FT_Face          face,
                                 TTO_GDEFHeader** gdef );

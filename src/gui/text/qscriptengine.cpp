@@ -344,6 +344,16 @@ static bool basic_shape(QShaperItem *item)
 //
 // --------------------------------------------------------------------------------------------------------------------------------------------
 
+// Uniscribe also defines dlig for Hebrew, but we leave this out for now, as it's mostly
+// ligatures one does not want in modern Hebrew (as lam-alef ligatures).
+enum {
+    CcmpProperty = 0x1
+};
+static const QOpenType::Features hebrew_features[] = {
+    { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
+    {0, 0}
+};
+
 /* Hebrew shaping. In the non opentype case we try to use the
    presentation forms specified for Hebrew. Especially for the
    ligatures with Dagesh this gives much better results than we could
@@ -357,19 +367,14 @@ static bool hebrew_shape(QShaperItem *item)
     QOpenType *openType = item->font->openType();
 
     if (openType && openType->supportsScript(item->script)) {
-        int nglyphs = item->num_glyphs;
+        openType->selectScript(item->script, hebrew_features);
+        
         if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
             return false;
+
         heuristicSetGlyphAttributes(item);
-        openType->init(item);
-
-        openType->applyGSUBFeature(FT_MAKE_TAG('c', 'c', 'm', 'p'));
-        // Uniscribe also defines dlig for Hebrew, but we leave this out for now, as it's mostly
-        // ligatures one does not want in modern Hebrew (as lam-alef ligatures).
-
-        openType->applyGPOSFeatures();
-        item->num_glyphs = nglyphs;
-        return openType->appendTo(item);
+        openType->shape(item);
+        return openType->positionAndAdd(item);
     }
 #endif
 
@@ -1401,12 +1406,57 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
 
 #if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
 
+enum {
+    InitProperty = 0x2,
+    IsolProperty = 0x4, 
+    FinaProperty = 0x8,
+    MediProperty = 0x10,
+    RligProperty = 0x20, 
+    CaltProperty = 0x40, 
+    LigaProperty = 0x80, 
+    DligProperty = 0x100,
+    CswhProperty = 0x200,
+    MsetProperty = 0x400
+};
+
+static const QOpenType::Features arabic_features[] = {
+    { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
+    { FT_MAKE_TAG('i', 's', 'o', 'l'), IsolProperty },
+    { FT_MAKE_TAG('f', 'i', 'n', 'a'), FinaProperty },
+    { FT_MAKE_TAG('m', 'e', 'd', 'i'), MediProperty },
+    { FT_MAKE_TAG('i', 'n', 'i', 't'), InitProperty }, 
+    { FT_MAKE_TAG('r', 'l', 'i', 'g'), RligProperty }, 
+    { FT_MAKE_TAG('c', 'a', 'l', 't'), CaltProperty }, 
+    { FT_MAKE_TAG('l', 'i', 'g', 'a'), LigaProperty }, 
+    { FT_MAKE_TAG('d', 'l', 'i', 'g'), DligProperty }, 
+    { FT_MAKE_TAG('c', 's', 'w', 'h'), CswhProperty },
+    // mset is used in old Win95 fonts that don't have a 'mark' positioning table.
+    { FT_MAKE_TAG('m', 's', 'e', 't'), MsetProperty }, 
+    {0, 0}
+};
+
+static const QOpenType::Features syriac_features[] = {
+    { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
+    { FT_MAKE_TAG('i', 's', 'o', 'l'), IsolProperty },
+    { FT_MAKE_TAG('f', 'i', 'n', 'a'), FinaProperty },
+    { FT_MAKE_TAG('f', 'i', 'n', '2'), FinaProperty },
+    { FT_MAKE_TAG('f', 'i', 'n', '3'), FinaProperty },
+    { FT_MAKE_TAG('m', 'e', 'd', 'i'), MediProperty },
+    { FT_MAKE_TAG('m', 'e', 'd', '2'), MediProperty },
+    { FT_MAKE_TAG('i', 'n', 'i', 't'), InitProperty }, 
+    { FT_MAKE_TAG('r', 'l', 'i', 'g'), RligProperty }, 
+    { FT_MAKE_TAG('c', 'a', 'l', 't'), CaltProperty }, 
+    { FT_MAKE_TAG('l', 'i', 'g', 'a'), LigaProperty }, 
+    { FT_MAKE_TAG('d', 'l', 'i', 'g'), DligProperty }, 
+    {0, 0}
+};
+
 static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
 {
+    openType->selectScript(item->script, item->script == QUnicodeTables::Arabic ? arabic_features : syriac_features);
     int nglyphs = item->num_glyphs;
     if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
-
     heuristicSetGlyphAttributes(item);
 
     QGlyphLayout *glyphs = item->glyphs;
@@ -1427,7 +1477,7 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
     }
     getArabicProperties((const unsigned short *)(uc+f), l, props.data());
 
-    QVarLengthArray<bool> apply(item->num_glyphs);
+    QVarLengthArray<uint> apply(item->num_glyphs);
 
 
     // Hack to remove ZWJ and ZWNJ from rendered output.
@@ -1443,70 +1493,22 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
     }
     item->num_glyphs = j;
 
-    openType->init(item);
+    for (int i = 0; i < item->num_glyphs; i++) {
+        apply[i] = 0;
 
-    // call features in the order defined by http://www.microsoft.com/typography/otfntdev/arabicot/shaping.htm
-    openType->applyGSUBFeature(FT_MAKE_TAG('c', 'c', 'm', 'p'));
-
-    if (item->script == QUnicodeTables::Arabic) {
-        const struct {
-            int tag;
-            int shape;
-        } features[] = {
-            { FT_MAKE_TAG('i', 's', 'o', 'l'), XIsolated },
-            { FT_MAKE_TAG('f', 'i', 'n', 'a'), XFinal },
-            { FT_MAKE_TAG('m', 'e', 'd', 'i'), XMedial },
-            { FT_MAKE_TAG('i', 'n', 'i', 't'), XInitial }
-        };
-        for (int j = 0; j < 4; ++j) {
-            for (int i = 0; i < item->num_glyphs; i++)
-                apply[i] = (properties[i].shape == features[j].shape);
-            openType->applyGSUBFeature(features[j].tag, apply.data());
-        }
-    } else {
-        const struct {
-            int tag;
-            int shape;
-        } features[] = {
-            { FT_MAKE_TAG('i', 's', 'o', 'l'), XIsolated },
-            { FT_MAKE_TAG('f', 'i', 'n', 'a'), XFinal },
-            { FT_MAKE_TAG('f', 'i', 'n', '2'), XFinal },
-            { FT_MAKE_TAG('f', 'i', 'n', '3'), XFinal },
-            { FT_MAKE_TAG('m', 'e', 'd', 'i'), XMedial },
-            { FT_MAKE_TAG('m', 'e', 'd', '2'), XMedial },
-            { FT_MAKE_TAG('i', 'n', 'i', 't'), XInitial }
-        };
-        for (int j = 0; j < 7; ++j) {
-            for (int i = 0; i < item->num_glyphs; i++)
-                apply[i] = (properties[i].shape == features[j].shape);
-            openType->applyGSUBFeature(features[j].tag, apply.data());
-        }
-    }
-    const int commonFeatures[] = {
-        // these features get applied to all glyphs and both scripts
-        FT_MAKE_TAG('r', 'l', 'i', 'g'),
-        FT_MAKE_TAG('c', 'a', 'l', 't'),
-        FT_MAKE_TAG('l', 'i', 'g', 'a'),
-        FT_MAKE_TAG('d', 'l', 'i', 'g')
-    };
-    for (int j = 0; j < 4; ++j)
-        openType->applyGSUBFeature(commonFeatures[j]);
-
-    if (item->script == QUnicodeTables::Arabic) {
-        const int features[] = {
-            FT_MAKE_TAG('c', 's', 'w', 'h'),
-            // mset is used in old Win95 fonts that don't have a 'mark' positioning table.
-            FT_MAKE_TAG('m', 's', 'e', 't')
-        };
-        for (int j = 0; j < 2; ++j)
-            openType->applyGSUBFeature(features[j]);
+        if (properties[i].shape == XIsolated)
+            apply[i] |= MediProperty|FinaProperty|InitProperty;
+        else if (properties[i].shape == XMedial)
+            apply[i] |= IsolProperty|FinaProperty|InitProperty;
+        else if (properties[i].shape == XFinal)
+            apply[i] |= IsolProperty|MediProperty|InitProperty;
+        else if (properties[i].shape == XInitial)
+            apply[i] |= IsolProperty|MediProperty|FinaProperty;
     }
 
-    openType->applyGPOSFeatures();
-
-    // reset num_glyphs to what is available.
+    openType->shape(item, apply.data());
     item->num_glyphs = nglyphs;
-    return openType->appendTo(item);
+    return openType->positionAndAdd(item);
 }
 
 #endif

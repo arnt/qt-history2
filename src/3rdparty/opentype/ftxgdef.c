@@ -15,16 +15,12 @@
  *
  ******************************************************************/
 
-#include <freetype/tttags.h>
-
-#include <freetype/internal/ftstream.h>
-#include <freetype/internal/ftmemory.h>
-#include <freetype/internal/tttypes.h>
-
-#include "fterrcompat.h"
-
 #include "ftxopen.h"
 #include "ftxopenf.h"
+
+#include "ftglue.h"
+
+#include FT_TRUETYPE_TAGS_H
 
 #define TTAG_GDEF  FT_MAKE_TAG( 'G', 'D', 'E', 'F' )
 
@@ -41,13 +37,6 @@
   static void  Free_NewGlyphClasses( TTO_GDEFHeader*  gdef,
 				     FT_Memory        memory );
 
-/* GDEF glyph classes */
-
-#define UNCLASSIFIED_GLYPH  0
-#define SIMPLE_GLYPH        1
-#define LIGATURE_GLYPH      2
-#define MARK_GLYPH          3
-#define COMPONENT_GLYPH     4
 
 
   /**********************
@@ -140,13 +129,43 @@
 #endif
 
   EXPORT_FUNC
+  FT_Error  TT_New_GDEF_Table( FT_Face          face,
+			       TTO_GDEFHeader** retptr )
+  {
+    FT_Error         error;
+    FT_Memory        memory = face->memory;
+
+    TTO_GDEFHeader*  gdef;
+
+    if ( !retptr )
+      return TT_Err_Invalid_Argument;
+
+    if ( ALLOC( gdef, sizeof( *gdef ) ) )
+      return error;
+
+    gdef->memory = face->memory;
+
+    gdef->GlyphClassDef.loaded = FALSE;
+    gdef->AttachList.loaded = FALSE;
+    gdef->LigCaretList.loaded = FALSE;
+    gdef->MarkAttachClassDef_offset = 0;
+    gdef->MarkAttachClassDef.loaded = FALSE;
+
+    gdef->LastGlyph = 0;
+    gdef->NewGlyphClasses = NULL;
+
+    *retptr = gdef;
+
+    return TT_Err_Ok;
+  }
+
+  EXPORT_FUNC
   FT_Error  TT_Load_GDEF_Table( FT_Face          face,
                                 TTO_GDEFHeader** retptr )
   {
     FT_Error         error;
     FT_Memory        memory = face->memory;
     FT_Stream        stream = face->stream;
-    TT_Face          tt_face = (TT_Face)face;
     FT_ULong         cur_offset, new_offset, base_offset;
 
     TTO_GDEFHeader*  gdef;
@@ -155,13 +174,11 @@
     if ( !retptr )
       return TT_Err_Invalid_Argument;
 
-    if (( error = tt_face->goto_table( tt_face, TTAG_GDEF, stream, 0 ) ))
+    if (( error = ftglue_face_goto_table( face, TTAG_GDEF, stream ) ))
       return error;
 
-    if ( ALLOC( gdef, sizeof( *gdef ) ) )
+    if (( error = TT_New_GDEF_Table ( face, &gdef ) ))
       return error;
-
-    gdef->memory = face->memory;
 
     base_offset = FILE_Pos();
 
@@ -190,8 +207,6 @@
         goto Fail0;
       (void)FILE_Seek( cur_offset );
     }
-    else
-      gdef->GlyphClassDef.loaded = FALSE;
 
     if ( ACCESS_Frame( 2L ) )
       goto Fail1;
@@ -211,8 +226,6 @@
         goto Fail1;
       (void)FILE_Seek( cur_offset );
     }
-    else
-      gdef->AttachList.loaded = FALSE;
 
     if ( ACCESS_Frame( 2L ) )
       goto Fail2;
@@ -232,8 +245,6 @@
         goto Fail2;
       (void)FILE_Seek( cur_offset );
     }
-    else
-      gdef->LigCaretList.loaded = FALSE;
 
     /* OpenType 1.2 has introduced the `MarkAttachClassDef' field.  We
        first have to scan the LookupFlag values to find out whether we
@@ -251,18 +262,13 @@
     else
       gdef->MarkAttachClassDef_offset = 0;
 
-    gdef->MarkAttachClassDef.loaded = FALSE;
-
-    gdef->LastGlyph       = 0;
-    gdef->NewGlyphClasses = NULL;
-
     *retptr = gdef;
 
     return TT_Err_Ok;
 
   Fail3:
     Free_LigCaretList( &gdef->LigCaretList, memory );
-
+    
   Fail2:
     Free_AttachList( &gdef->AttachList, memory );
 
@@ -276,16 +282,18 @@
   }
 
   EXPORT_FUNC
-  FT_Error  TT_Done_GDEF_Table ( TTO_GDEFHeader* gdef )
+  FT_Error  TT_Done_GDEF_Table ( TTO_GDEFHeader* gdef ) 
   {
     FT_Memory memory = gdef->memory;
-
+    
     Free_LigCaretList( &gdef->LigCaretList, memory );
     Free_AttachList( &gdef->AttachList, memory );
     Free_ClassDefinition( &gdef->GlyphClassDef, memory );
     Free_ClassDefinition( &gdef->MarkAttachClassDef, memory );
-
+    
     Free_NewGlyphClasses( gdef, memory );
+
+    FREE( gdef );
 
     return TT_Err_Ok;
   }
@@ -733,9 +741,9 @@
 				   FT_UShort        glyphID,
 				   FT_UShort        index )
   {
-    FT_UShort              glyph_index, array_index;
+    FT_UShort              glyph_index, array_index, count;
     FT_UShort              byte, bits;
-
+    
     TTO_ClassRangeRecord*  gcrr;
     FT_UShort**            ngc;
 
@@ -743,12 +751,13 @@
     if ( glyphID >= gdef->LastGlyph )
       return 0;
 
+    count = gdef->GlyphClassDef.cd.cd2.ClassRangeCount;
     gcrr = gdef->GlyphClassDef.cd.cd2.ClassRangeRecord;
     ngc  = gdef->NewGlyphClasses;
 
-    if ( glyphID < gcrr[index].Start )
+    if ( index < count && glyphID < gcrr[index].Start )
     {
-      array_index = 0;
+      array_index = index;
       if ( index == 0 )
         glyph_index = glyphID;
       else
@@ -760,7 +769,7 @@
       glyph_index = glyphID - gcrr[index].End - 1;
     }
 
-    byte = ngc[array_index][glyph_index / 4 + 1];
+    byte = ngc[array_index][glyph_index / 4];
     bits = byte >> ( 16 - ( glyph_index % 4 + 1 ) * 4 );
 
     return bits & 0x000F;
@@ -772,14 +781,7 @@
                                         FT_UShort        glyphID,
                                         FT_UShort*       property )
   {
-    const FT_UShort class2glyphProp[5] = {
-	0, /* UNCLASSIFIED_GLYPH */
-	TTO_BASE_GLYPH, /* SIMPLE_GLYPH        1 */
-	TTO_LIGATURE, /* LIGATURE_GLYPH      2 */
-	TTO_MARK, /* MARK_GLYPH          3 */
-	TTO_COMPONENT /* COMPONENT_GLYPH     4 */
-    };
-    FT_UShort klass, index;
+    FT_UShort class, index;
 
     FT_Error  error;
 
@@ -791,35 +793,48 @@
 
     if ( gdef->MarkAttachClassDef.loaded )
     {
-      error = Get_Class( &gdef->MarkAttachClassDef, glyphID, &klass, &index );
+      error = Get_Class( &gdef->MarkAttachClassDef, glyphID, &class, &index );
       if ( error && error != TTO_Err_Not_Covered )
         return error;
       if ( !error )
       {
-        *property = klass << 8;
+        *property = class << 8;
         return TT_Err_Ok;
       }
     }
 
-    if ( gdef->GlyphClassDef.loaded )
-    {
-    error = Get_Class( &gdef->GlyphClassDef, glyphID, &klass, &index );
+    error = Get_Class( &gdef->GlyphClassDef, glyphID, &class, &index );
     if ( error && error != TTO_Err_Not_Covered )
       return error;
-    }
-    else
-    {
-        klass = 0;
-        index = 0;
-    }
 
     /* if we have a constructed class table, check whether additional
        values have been assigned                                      */
 
     if ( error == TTO_Err_Not_Covered && gdef->NewGlyphClasses )
-      klass = Get_New_Class( gdef, glyphID, index );
+      class = Get_New_Class( gdef, glyphID, index );
 
-    *property = class2glyphProp[klass];
+    switch ( class )
+    {
+    case UNCLASSIFIED_GLYPH:
+      *property = 0;
+      break;
+
+    case SIMPLE_GLYPH:
+      *property = TTO_BASE_GLYPH;
+      break;
+
+    case LIGATURE_GLYPH:
+      *property = TTO_LIGATURE;
+      break;
+
+    case MARK_GLYPH:
+      *property = TTO_MARK;
+      break;
+
+    case COMPONENT_GLYPH:
+      *property = TTO_COMPONENT;
+      break;
+    }
 
     return TT_Err_Ok;
   }
@@ -828,7 +843,7 @@
   static FT_Error  Make_ClassRange( TTO_ClassDefinition*  cd,
                                     FT_UShort             start,
                                     FT_UShort             end,
-                                    FT_UShort             klass,
+                                    FT_UShort             class,
 				    FT_Memory             memory )
   {
     FT_Error               error;
@@ -853,9 +868,9 @@
 
     crr[index].Start = start;
     crr[index].End   = end;
-    crr[index].Class = klass;
+    crr[index].Class = class;
 
-    cd->Defined[klass] = TRUE;
+    cd->Defined[class] = TRUE;
 
     return TT_Err_Ok;
   }
@@ -980,7 +995,7 @@
 
     if ( ALLOC_ARRAY( gdef->NewGlyphClasses,
                       gcd->cd.cd2.ClassRangeCount + 1, FT_UShort* ) )
-      goto Fail2;
+      goto Fail3;
 
     count = gcd->cd.cd2.ClassRangeCount;
     gcrr  = gcd->cd.cd2.ClassRangeRecord;
@@ -989,33 +1004,45 @@
     /* We allocate arrays for all glyphs not covered by the class range
        records.  Each element holds four class values.                  */
 
-    if ( gcrr[0].Start )
+    if ( count > 0 )
     {
-      if ( ALLOC_ARRAY( ngc[0], gcrr[0].Start / 4 + 1, FT_UShort ) )
-        goto Fail1;
-    }
+	if ( gcrr[0].Start )
+	{
+	  if ( ALLOC_ARRAY( ngc[0], ( gcrr[0].Start + 3 ) / 4, FT_UShort ) )
+	    goto Fail2;
+	}
 
-    for ( n = 1; n < count; n++ )
+	for ( n = 1; n < count; n++ )
+	{
+	  if ( gcrr[n].Start - gcrr[n - 1].End > 1 )
+	    if ( ALLOC_ARRAY( ngc[n],
+			      ( gcrr[n].Start - gcrr[n - 1].End + 2 ) / 4,
+			      FT_UShort ) )
+	      goto Fail1;
+	}
+
+	if ( gcrr[count - 1].End != num_glyphs - 1 )
+	{
+	  if ( ALLOC_ARRAY( ngc[count],
+			    ( num_glyphs - gcrr[count - 1].End + 2 ) / 4,
+			    FT_UShort ) )
+	      goto Fail1;
+	}
+    }
+    else if ( num_glyphs > 0 )
     {
-      if ( gcrr[n].Start - gcrr[n - 1].End > 1 )
-        if ( ALLOC_ARRAY( ngc[n],
-                          ( gcrr[n].Start - gcrr[n - 1].End - 1 ) / 4 + 1,
-                          FT_UShort ) )
-          goto Fail1;
+	if ( ALLOC_ARRAY( ngc[count],
+			  ( num_glyphs + 3 ) / 4,
+			  FT_UShort ) )
+	    goto Fail2;
     }
-
-    if ( gcrr[count - 1].End != num_glyphs - 1 )
-    {
-      if ( ALLOC_ARRAY( ngc[count],
-                        ( num_glyphs - gcrr[count - 1].End - 1 ) / 4 + 1,
-                        FT_UShort ) )
-        goto Fail1;
-    }
-
+	
     gdef->LastGlyph = num_glyphs - 1;
 
     gdef->MarkAttachClassDef_offset = 0L;
     gdef->MarkAttachClassDef.loaded = FALSE;
+
+    gcd->loaded = TRUE;
 
     return TT_Err_Ok;
 
@@ -1060,29 +1087,22 @@
                                 FT_UShort        property )
   {
     FT_Error               error;
-    FT_UShort              klass, new_class, index;
+    FT_UShort              class, new_class, index;
     FT_UShort              byte, bits, mask;
-    FT_UShort              array_index, glyph_index;
+    FT_UShort              array_index, glyph_index, count;
 
     TTO_ClassRangeRecord*  gcrr;
     FT_UShort**            ngc;
 
 
-    if ( gdef->GlyphClassDef.loaded )
-    {
-        error = Get_Class( &gdef->GlyphClassDef, glyphID, &klass, &index );
-        if ( error && error != TTO_Err_Not_Covered )
-            return error;
-        /* we don't accept glyphs covered in `GlyphClassDef' */
-        if ( !error )
-            return TTO_Err_Not_Covered;
-    }
-    else
-    {
-        klass = 0;
-        index = 0;
-    }
+    error = Get_Class( &gdef->GlyphClassDef, glyphID, &class, &index );
+    if ( error && error != TTO_Err_Not_Covered )
+      return error;
 
+    /* we don't accept glyphs covered in `GlyphClassDef' */
+
+    if ( !error )
+      return TTO_Err_Not_Covered;
 
     switch ( property )
     {
@@ -1110,12 +1130,13 @@
       return TT_Err_Invalid_Argument;
     }
 
+    count = gdef->GlyphClassDef.cd.cd2.ClassRangeCount;
     gcrr = gdef->GlyphClassDef.cd.cd2.ClassRangeRecord;
     ngc  = gdef->NewGlyphClasses;
 
-    if ( glyphID < gcrr[index].Start )
+    if ( index < count && glyphID < gcrr[index].Start )
     {
-      array_index = 0;
+      array_index = index;
       if ( index == 0 )
         glyph_index = glyphID;
       else
@@ -1127,41 +1148,45 @@
       glyph_index = glyphID - gcrr[index].End - 1;
     }
 
-    byte  = ngc[array_index][glyph_index / 4 + 1];
+    byte  = ngc[array_index][glyph_index / 4];
     bits  = byte >> ( 16 - ( glyph_index % 4 + 1 ) * 4 );
-    klass = bits & 0x000F;
+    class = bits & 0x000F;
 
     /* we don't overwrite existing entries */
 
-    if ( !klass )
+    if ( !class )
     {
       bits = new_class << ( 16 - ( glyph_index % 4 + 1 ) * 4 );
       mask = ~( 0x000F << ( 16 - ( glyph_index % 4 + 1 ) * 4 ) );
 
-      ngc[array_index][glyph_index / 4 + 1] &= mask;
-      ngc[array_index][glyph_index / 4 + 1] |= bits;
+      ngc[array_index][glyph_index / 4] &= mask;
+      ngc[array_index][glyph_index / 4] |= bits;
     }
 
     return TT_Err_Ok;
   }
 
 
-  inline FT_Error  Check_Property( TTO_GDEFHeader*  gdef,
-                            FT_UShort        index,
+  FT_Error  Check_Property( TTO_GDEFHeader*  gdef,
+			    OTL_GlyphItem    gitem,
                             FT_UShort        flags,
                             FT_UShort*       property )
   {
     FT_Error  error;
-
 
     if ( gdef )
     {
       FT_UShort basic_glyph_class;
       FT_UShort desired_attachment_class;
 
-      error = TT_GDEF_Get_Glyph_Property( gdef, index, property );
-      if ( error )
-        return error;
+      if ( gitem->gproperties == OTL_GLYPH_PROPERTIES_UNKNOWN )
+      {
+	error = TT_GDEF_Get_Glyph_Property( gdef, gitem->gindex, &gitem->gproperties );
+	if ( error )
+	  return error;
+      }
+
+      *property = gitem->gproperties;
 
       /* If the glyph was found in the MarkAttachmentClass table,
        * then that class value is the high byte of the result,
@@ -1178,19 +1203,18 @@
        */
       if ( flags & basic_glyph_class )
 	return TTO_Err_Not_Covered;
-
+      
       /* The high byte of LookupFlags has the meaning
        * "ignore marks of attachment type different than
        * the attachment type specified."
        */
       desired_attachment_class = flags & IGNORE_SPECIAL_MARKS;
-      if ( desired_attachment_class && (*property & IGNORE_SPECIAL_MARKS) )
+      if ( desired_attachment_class )
       {
-	if ( *property != desired_attachment_class )
+	if ( basic_glyph_class == TTO_MARK &&
+	     *property != desired_attachment_class )
 	  return TTO_Err_Not_Covered;
       }
-    } else {
-	*property = 0;
     }
 
     return TT_Err_Ok;

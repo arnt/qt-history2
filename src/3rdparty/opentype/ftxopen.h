@@ -29,12 +29,8 @@
 extern "C" {
 #endif
 
-#ifndef EXPORT_DEF
-#define EXPORT_DEF
-#endif
-#ifndef EXPORT_FUNC
+#define EXPORT_DEF 
 #define EXPORT_FUNC
-#endif
 
 #define TTO_MAX_NESTING_LEVEL  100
 
@@ -43,6 +39,7 @@ extern "C" {
 #define TTO_Err_Not_Covered               0x1002
 #define TTO_Err_Too_Many_Nested_Contexts  0x1003
 #define TTO_Err_No_MM_Interpreter         0x1004
+#define TTO_Err_Empty_Script              0x1005
 
 
   /* Script list related structures */
@@ -120,6 +117,8 @@ extern "C" {
   {
     FT_UShort           FeatureCount;   /* number of FeatureRecords */
     TTO_FeatureRecord*  FeatureRecord;  /* array of FeatureRecords  */
+    FT_UShort*		ApplyOrder;	/* order to apply features */
+    FT_UShort		ApplyCount;	/* number of elements in ApplyOrder */
   };
 
   typedef struct TTO_FeatureList_  TTO_FeatureList;
@@ -153,6 +152,7 @@ extern "C" {
   {
     FT_UShort    LookupCount;           /* number of Lookups       */
     TTO_Lookup*  Lookup;                /* array of Lookup records */
+    FT_UInt*     Properties;            /* array of flags          */
   };
 
   typedef struct TTO_LookupList_  TTO_LookupList;
@@ -282,6 +282,7 @@ extern "C" {
   typedef struct TTO_Device_  TTO_Device;
 
 
+#include "otlbuffer.h"
 #include "ftxgdef.h"
 #include "ftxgsub.h"
 #include "ftxgpos.h"

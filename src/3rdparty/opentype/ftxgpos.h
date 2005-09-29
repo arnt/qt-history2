@@ -32,14 +32,14 @@ extern "C" {
 
 /* Lookup types for glyph positioning */
 
-#define GPOS_LOOKUP_SINGLE    1
-#define GPOS_LOOKUP_PAIR      2
-#define GPOS_LOOKUP_CURSIVE   3
-#define GPOS_LOOKUP_MARKBASE  4
-#define GPOS_LOOKUP_MARKLIG   5
-#define GPOS_LOOKUP_MARKMARK  6
-#define GPOS_LOOKUP_CONTEXT   7
-#define GPOS_LOOKUP_CHAIN     8
+#define GPOS_LOOKUP_SINGLE     1
+#define GPOS_LOOKUP_PAIR       2
+#define GPOS_LOOKUP_CURSIVE    3
+#define GPOS_LOOKUP_MARKBASE   4
+#define GPOS_LOOKUP_MARKLIG    5
+#define GPOS_LOOKUP_MARKMARK   6
+#define GPOS_LOOKUP_CONTEXT    7
+#define GPOS_LOOKUP_CHAIN      8
 #define GPOS_LOOKUP_EXTENSION  9
 
 
@@ -76,12 +76,12 @@ extern "C" {
 				      FT_UShort    metric_id,
                                       FT_Pos*      metric_value,
                                       void*        data );
-
+                                          
 
   struct  TTO_GPOSHeader_
   {
     FT_Memory          memory;
-
+    
     FT_Fixed           Version;
 
     TTO_ScriptList     ScriptList;
@@ -758,26 +758,6 @@ extern "C" {
   typedef union TTO_GPOS_SubTable_  TTO_GPOS_SubTable;
 
 
-  /* This `string object' is much simpler compared to TTO_GSUB_String.
-     A call to TTO_GPOS_Apply_String() will allocate it.               */
-
-  struct TTO_GPOS_Data_
-  {
-    FT_Pos     x_pos;
-    FT_Pos     y_pos;
-    FT_Pos     x_advance;
-    FT_Pos     y_advance;
-    FT_UShort  back;            /* number of glyphs to go back
-                                   for drawing current glyph   */
-    FT_Bool    new_advance;     /* if set, the advance width values are
-                                   absolute, i.e., they won't be
-                                   added to the original glyph's value
-                                   but rather replace them.            */
-  };
-
-  typedef struct TTO_GPOS_Data_  TTO_GPOS_Data;
-
-
   /* finally, the GPOS API */
 
   /*  EXPORT_DEF
@@ -822,6 +802,13 @@ extern "C" {
                                     FT_ULong**       feature_tag_list );
 
   EXPORT_DEF
+  FT_Error  TT_GPOS_Add_Feature( TTO_GPOSHeader*  gpos,
+                                 FT_UShort        feature_index,
+                                 FT_UInt          property );
+  EXPORT_DEF
+  FT_Error  TT_GPOS_Clear_Features( TTO_GPOSHeader*  gpos );
+
+  EXPORT_DEF
   FT_Error  TT_GPOS_Register_Glyph_Function( TTO_GPOSHeader*    gpos,
                                              TTO_GlyphFunction  gfunc );
 
@@ -834,14 +821,12 @@ extern "C" {
      tables are ignored -- you will get device independent values.         */
 
   EXPORT_DEF
-  FT_Error  TT_GPOS_Apply_Feature( FT_Face           face,
-				   TTO_GPOSHeader*   gpos,
-				   FT_UShort         feature_index,
-				   FT_UShort         load_flags,
-				   TTO_GSUB_String*  in,
-				   TTO_GPOS_Data**   out,
-				   FT_Bool           dvi,
-				   FT_Bool           r2l );
+  FT_Error  TT_GPOS_Apply_String( FT_Face           face,
+                                  TTO_GPOSHeader*   gpos,
+                                  FT_UShort         load_flags,
+				  OTL_Buffer        buffer,
+                                  FT_Bool           dvi,
+                                  FT_Bool           r2l );
 
 #ifdef __cplusplus
 }

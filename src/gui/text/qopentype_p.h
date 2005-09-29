@@ -32,22 +32,7 @@
 #include FT_FREETYPE_H
 #include "ftxopen.h"
 
-enum IndicFeatures {
-    CcmpFeature,
-    InitFeature,
-    NuktaFeature,
-    AkhantFeature,
-    RephFeature,
-    BelowFormFeature,
-    HalfFormFeature,
-    PostFormFeature,
-    VattuFeature,
-    PreSubstFeature,
-    AboveSubstFeature,
-    BelowSubstFeature,
-    PostSubstFeature,
-    HalantFeature
-};
+enum { PositioningProperties = 0x80000000 };
 
 class QShaperItem;
 
@@ -57,37 +42,38 @@ public:
     QOpenType(QFontEngine *fe, FT_Face face);
     ~QOpenType();
 
-    bool supportsScript(unsigned int script);
+    struct Features {
+        uint tag;
+        uint property;
+    };
 
-    void applyGSUBFeature(unsigned int feature, bool *where = 0);
-    void applyGPOSFeatures();
+    bool supportsScript(unsigned int script) {
+        Q_ASSERT(script < QUnicodeTables::ScriptCount);
+        return supported_scripts[script];
+    }
+    void selectScript(unsigned int script, const Features *features = 0);
+    
+    void shape(QShaperItem *item, const unsigned int *properties = 0);
+    bool QOpenType::positionAndAdd(QShaperItem *item, bool doLogClusters = true);
+
+    OTL_GlyphItem glyphs() const { return otl_buffer->in_string; }
+    int len() const { return otl_buffer->in_length; }
+    void setProperty(int index, uint property) { otl_buffer->in_string[index].properties = property; }
 
 
-    void init(QShaperItem *item);
-    bool appendTo(QShaperItem *item, bool doLogClusters = true);
-
-    const int *mapping(int &len);
-    inline void setLength(int len) { str->length = len; }
-    unsigned short *glyphs() { return str->string; }
-private:
-    bool loadTables(FT_ULong script);
-
+private: 
+    bool checkScript(unsigned int script);
     QFontEngine *fontEngine;
     FT_Face face;
     TTO_GDEF gdef;
     TTO_GSUB gsub;
     TTO_GPOS gpos;
-    FT_UShort script_index;
+    bool supported_scripts[QUnicodeTables::ScriptCount];
     FT_ULong current_script;
-    bool hasGDef : 1;
-    bool hasGSub : 1;
-    bool hasGPos : 1;
     bool positioned : 1;
-    TTO_GSUB_String *str;
-    TTO_GSUB_String *tmp;
-    TTO_GPOS_Data *positions;
+    OTL_Buffer otl_buffer;
     QGlyphLayout::Attributes *tmpAttributes;
-    unsigned short *tmpLogClusters;
+    unsigned int *tmpLogClusters;
     int length;
     int orig_nglyphs;
     int loadFlags;

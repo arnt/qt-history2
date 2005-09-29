@@ -20,7 +20,7 @@
 // Open type support
 //  --------------------------------------------------------------------------------------------------------------------
 
-// #define OT_DEBUG
+//#define OT_DEBUG
 
 #ifdef OT_DEBUG
 static inline char *tag_to_string(FT_ULong tag)
@@ -38,61 +38,96 @@ static inline char *tag_to_string(FT_ULong tag)
 #define DefaultLangSys 0xffff
 #define DefaultScript FT_MAKE_TAG('D', 'F', 'L', 'T')
 
+enum {
+    RequiresGsub = 1,
+    RequiresGpos = 2
+};
 
-static const unsigned int supported_scripts [] = {
+struct OTScripts {
+    unsigned int tag;
+    int flags;
+};
+static const OTScripts ot_scripts [] = {
     // Common
-    FT_MAKE_TAG('D', 'F', 'L', 'T'),
+    { FT_MAKE_TAG('D', 'F', 'L', 'T'), 0 },
     // Hebrew
-    FT_MAKE_TAG('h', 'e', 'b', 'r'),
+    { FT_MAKE_TAG('h', 'e', 'b', 'r'), 1 },
     // Arabic
-    FT_MAKE_TAG('a', 'r', 'a', 'b'),
+    { FT_MAKE_TAG('a', 'r', 'a', 'b'), 1 },
     // Syriac
-    FT_MAKE_TAG('s', 'y', 'r', 'c'),
+    { FT_MAKE_TAG('s', 'y', 'r', 'c'), 2 },
     // Thaana
-    FT_MAKE_TAG('t', 'h', 'a', 'a'),
+    { FT_MAKE_TAG('t', 'h', 'a', 'a'), 1 },
     // Devanagari
-    FT_MAKE_TAG('d', 'e', 'v', 'a'),
+    { FT_MAKE_TAG('d', 'e', 'v', 'a'), 1 },
     // Bengali
-    FT_MAKE_TAG('b', 'e', 'n', 'g'),
+    { FT_MAKE_TAG('b', 'e', 'n', 'g'), 1 },
     // Gurmukhi
-    FT_MAKE_TAG('g', 'u', 'r', 'u'),
+    { FT_MAKE_TAG('g', 'u', 'r', 'u'), 1 },
     // Gujarati
-    FT_MAKE_TAG('g', 'u', 'j', 'r'),
+    { FT_MAKE_TAG('g', 'u', 'j', 'r'), 1 },
     // Oriya
-    FT_MAKE_TAG('o', 'r', 'y', 'a'),
+    { FT_MAKE_TAG('o', 'r', 'y', 'a'), 1 },
     // Tamil
-    FT_MAKE_TAG('t', 'a', 'm', 'l'),
+    { FT_MAKE_TAG('t', 'a', 'm', 'l'), 1 },
     // Telugu
-    FT_MAKE_TAG('t', 'e', 'l', 'u'),
+    { FT_MAKE_TAG('t', 'e', 'l', 'u'), 1 },
     // Kannada
-    FT_MAKE_TAG('k', 'n', 'd', 'a'),
+    { FT_MAKE_TAG('k', 'n', 'd', 'a'), 1 },
     // Malayalam
-    FT_MAKE_TAG('m', 'l', 'y', 'm'),
+    { FT_MAKE_TAG('m', 'l', 'y', 'm'), 1 },
     // Sinhala
     // ### could not find any OT specs on this
-    FT_MAKE_TAG('s', 'i', 'n', 'h'),
+    { FT_MAKE_TAG('s', 'i', 'n', 'h'), 1 },
     // Thai
-    FT_MAKE_TAG('t', 'h', 'a', 'i'),
+    { FT_MAKE_TAG('t', 'h', 'a', 'i'), 1 },
     // Lao
-    FT_MAKE_TAG('l', 'a', 'o', ' '),
+    { FT_MAKE_TAG('l', 'a', 'o', ' '), 1 },
     // Tibetan
-    FT_MAKE_TAG('t', 'i', 'b', 't'),
+    { FT_MAKE_TAG('t', 'i', 'b', 't'), 1 },
     // Myanmar
-    FT_MAKE_TAG('m', 'y', 'm', 'r'),
+    { FT_MAKE_TAG('m', 'y', 'm', 'r'), 1 },
     // Hangul
-    FT_MAKE_TAG('h', 'a', 'n', 'g'),
+    { FT_MAKE_TAG('h', 'a', 'n', 'g'), 1 },
     // Khmer
-    FT_MAKE_TAG('k', 'h', 'm', 'r'),
+    { FT_MAKE_TAG('k', 'h', 'm', 'r'), 1 },
 };
 
 QOpenType::QOpenType(QFontEngine *fe, FT_Face _face)
     : fontEngine(fe), face(_face), gdef(0), gsub(0), gpos(0), current_script(0)
 {
-    hasGDef = hasGSub = hasGPos = true;
-    str = tmp = 0;
-    positions = 0;
+    otl_buffer_new(face->memory, &otl_buffer);
     tmpAttributes = 0;
     tmpLogClusters = 0;
+
+    FT_Error error;
+    if ((error = TT_Load_GDEF_Table(face, &gdef))) {
+#ifdef OT_DEBUG
+        qDebug("error loading gdef table: %d", error);
+#endif
+        gdef = 0;
+    }
+
+    if ((error = TT_Load_GSUB_Table(face, &gsub, gdef))) {
+        gsub = 0;
+#ifdef OT_DEBUG
+        if (error != FT_Err_Table_Missing) {
+            qDebug("error loading gsub table: %d", error);
+        } else {
+            qDebug("face doesn't have a gsub table");
+        }
+#endif
+    }
+
+    if ((error = TT_Load_GPOS_Table(face, &gpos, gdef))) {
+        gpos = 0;
+#ifdef OT_DEBUG
+        qDebug("error loading gpos table: %d", error);
+#endif
+    }
+    
+    for (uint i = 0; i < QUnicodeTables::ScriptCount; ++i)
+        supported_scripts[i] = checkScript(i);
 }
 
 QOpenType::~QOpenType()
@@ -103,311 +138,223 @@ QOpenType::~QOpenType()
         TT_Done_GSUB_Table(gsub);
     if (gdef)
         TT_Done_GDEF_Table(gdef);
-    if (str)
-        TT_GSUB_String_Done(str);
-    if (tmp)
-        TT_GSUB_String_Done(tmp);
-    if (positions)
-        free(positions);
+    if (otl_buffer)
+        otl_buffer_free(otl_buffer);
     if (tmpAttributes)
         free(tmpAttributes);
     if (tmpLogClusters)
         free(tmpLogClusters);
 }
 
-bool QOpenType::supportsScript(unsigned int script)
+bool QOpenType::checkScript(unsigned int script)
 {
     assert(script < QUnicodeTables::ScriptCount);
 
-    if (current_script == supported_scripts[script])
-        return true;
+    uint tag = ot_scripts[script].tag;
+    int requirements = ot_scripts[script].flags;
 
+    if (requirements & RequiresGsub) {
+        if (!gsub)
+            return false;
+        
+        FT_UShort script_index;
+        FT_Error error = TT_GSUB_Select_Script(gsub, tag, &script_index);
+        if (error) {
 #ifdef OT_DEBUG
-    qDebug("trying to load tables for script %d (%s))", script, tag_to_string(supported_scripts[script]));
+            qDebug("could not select script %d in GSub table: %d", (int)script, error);
 #endif
-
-    FT_Error error;
-    if (!gdef) {
-        if ((error = TT_Load_GDEF_Table(face, &gdef))) {
-//            qDebug("error loading gdef table: %d", error);
-            hasGDef = false;
+            return false;
         }
     }
+    
+    if (requirements & RequiresGpos) {
+        if (!gpos)
+            return false;
+        
+        FT_UShort script_index;
+        FT_Error error = TT_GPOS_Select_Script(gpos, script, &script_index);
+        if (error) {
+#ifdef OT_DEBUG
+            qDebug("could not select script in gpos table: %d", error);
+#endif
+            return false;
+        }
 
-    if (!gsub) {
-        if ((error = TT_Load_GSUB_Table(face, &gsub, gdef))) {
-            if (error != FT_Err_Table_Missing) {
-//                  qDebug("error loading gsub table: %d", error);
-                return false;
-            } else {
-//                  qDebug("face doesn't have a gsub table");
-                hasGSub = false;
+    }
+    return true;
+}
+
+
+void QOpenType::selectScript(unsigned int script, const Features *features)
+{
+    if (current_script == script)
+        return;
+    
+    assert(script < QUnicodeTables::ScriptCount);
+    // find script in our list of supported scripts.
+    uint tag = ot_scripts[script].tag;
+
+    if (gsub && features) {
+#ifdef OT_DEBUG
+        {
+            TTO_FeatureList featurelist = gsub->FeatureList;
+            int numfeatures = featurelist.FeatureCount;
+            qDebug("gsub table has %d features", numfeatures);
+            for(int i = 0; i < numfeatures; i++) {
+                TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
+                qDebug("   feature '%s'", tag_to_string(r->FeatureTag));
+            }
+        }
+#endif
+        TT_GSUB_Clear_Features(gsub);
+        FT_UShort script_index;
+        FT_Error error = TT_GSUB_Select_Script(gsub, tag, &script_index);
+        if (!error) {
+#ifdef OT_DEBUG
+            qDebug("script %s has script index %d", tag_to_string(script), script_index);
+#endif
+            while (features->tag) {
+                FT_UShort feature_index;
+                error = TT_GSUB_Select_Feature(gsub, features->tag, script_index, 0xffff, &feature_index);
+                if (!error) {
+#ifdef OT_DEBUG
+                    qDebug("  adding feature %s", tag_to_string(features->tag));
+#endif
+                    TT_GSUB_Add_Feature(gsub, feature_index, features->property);
+                }
+                ++features;
+            }
+        }
+    }
+    
+    if (gpos) {
+        TT_GPOS_Clear_Features(gpos);
+        FT_UShort script_index;
+        FT_Error error = TT_GPOS_Select_Script(gpos, tag, &script_index);
+        if (!error) {
+#ifdef OT_DEBUG
+            {
+                TTO_FeatureList featurelist = gpos->FeatureList;
+                int numfeatures = featurelist.FeatureCount;
+                qDebug("gpos table has %d features", numfeatures);
+                for(int i = 0; i < numfeatures; i++) {
+                    TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
+                    FT_UShort feature_index;
+                    TT_GPOS_Select_Feature(gpos, r->FeatureTag, script_index, 0xffff, &feature_index);
+                    qDebug("   feature '%s'", tag_to_string(r->FeatureTag));
+                }
+            }
+#endif
+            FT_ULong *feature_tag_list;
+            error = TT_GPOS_Query_Features(gpos, script_index, 0xffff, &feature_tag_list);
+            if (!error) {
+                while (*feature_tag_list) {
+                    FT_UShort feature_index;
+                    error = TT_GPOS_Select_Feature(gpos, *feature_tag_list, script_index, 0xffff, &feature_index);
+                    if (!error)
+                        TT_GPOS_Add_Feature(gpos, feature_index, PositioningProperties);
+                    ++feature_tag_list;
+                }
             }
         }
     }
 
-    if (!gpos) {
-        if ((error = TT_Load_GPOS_Table(face, &gpos, gdef))) {
-//                  qDebug("error loading gpos table: %d", error);
-            hasGPos = false;
-        }
-    }
-
-    if (loadTables(script)) {
-        return true;
-    }
-    return false;
-}
-
-bool QOpenType::loadTables(FT_ULong script)
-{
-    assert(script < QUnicodeTables::ScriptCount);
-    // find script in our list of supported scripts.
-    unsigned int stag = supported_scripts[script];
-
-    FT_Error error = TT_GSUB_Select_Script(gsub, stag, &script_index);
-    if (error) {
-#ifdef OT_DEBUG
-        qDebug("could not select script %d: %d", (int)script, error);
-#endif
-        if (stag == DefaultScript) {
-            // try to load default language system
-            error = TT_GSUB_Select_Script(gsub, DefaultScript, &script_index);
-            if (error)
-                return false;
-        } else {
-            return false;
-        }
-    }
-    script = stag;
-
-#ifdef OT_DEBUG
-    qDebug("script %s has script index %d", tag_to_string(script), script_index);
-#endif
-
-#ifdef OT_DEBUG
-    {
-        TTO_FeatureList featurelist = gsub->FeatureList;
-        int numfeatures = featurelist.FeatureCount;
-        qDebug("gsub table has %d features", numfeatures);
-        for(int i = 0; i < numfeatures; i++) {
-            TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
-            qDebug("   feature '%s'", tag_to_string(r->FeatureTag));
-        }
-    }
-#endif
-    if (hasGPos) {
-        FT_UShort script_index;
-        error = TT_GPOS_Select_Script(gpos, script, &script_index);
-        if (error) {
-//             qDebug("could not select script in gpos table: %d", error);
-            return true;
-        }
-
-        TTO_FeatureList featurelist = gpos->FeatureList;
-
-        int numfeatures = featurelist.FeatureCount;
-
-#ifdef OT_DEBUG
-        qDebug("gpos table has %d features", numfeatures);
-#endif
-
-        for(int i = 0; i < numfeatures; i++) {
-            TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
-            FT_UShort feature_index;
-            TT_GPOS_Select_Feature(gpos, r->FeatureTag, script_index, 0xffff, &feature_index);
-
-#ifdef OT_DEBUG
-            qDebug("   feature '%s'", tag_to_string(r->FeatureTag));
-#endif
-        }
-
-
-    }
-
     current_script = script;
-
-    return true;
 }
 
 #ifdef OT_DEBUG
-static void dump_string(TTO_GSUB_String *string)
+static void dump_string(OTL_Buffer buffer)
 {
-    for (int i = 0; i < string->length; ++i) {
-        qDebug("    %x: component=%d", string->string[i], string->glyph_properties[i].component);
+    for (uint i = 0; i < buffer->in_length; ++i) {
+        qDebug("    %x: cluster=%d", buffer->in_string[i].gindex, buffer->in_string[i].cluster);
     }
 }
 #endif
-
-void QOpenType::init(QShaperItem *item)
-{
-    length = item->num_glyphs;
-
-    if (!str)
-        TT_GSUB_String_New(&str);
-    if (str->allocated < (uint)length)
-        TT_GSUB_String_Allocate(str, length);
-    if (!tmp)
-        TT_GSUB_String_New(&tmp);
-    if (tmp->allocated < (uint)length)
-        TT_GSUB_String_Allocate(tmp, length);
-    tmp->length = 0;
-
-
-    tmpAttributes = (QGlyphLayout::Attributes *) realloc(tmpAttributes, length*sizeof(QGlyphLayout::Attributes));
-    for (int i = 0; i < length; ++i) {
-        str->string[i] = item->glyphs[i].glyph;
-        str->glyph_properties[i].component = 0;
-        tmpAttributes[i] = item->glyphs[i].attributes;
-    }
-
-    for (int i = 0; i < length; ++i)
-        str->character_index[i] = i;
-
-    str->length = length;
-    orig_nglyphs = length;
-#ifdef OT_DEBUG
-    qDebug("-----------------------------------------");
-    qDebug("log clusters before shaping:");
-    for (int j = 0; j < length; j++)
-        qDebug("    log[%d] = %d", j, item->log_clusters[j]);
-    qDebug("original glyphs:");
-    for (int i = 0; i < length; ++i)
-        qDebug("   glyph=%4x char_index=%d mark: %d cmb: %d", str->string[i], str->character_index[i],
-               item->glyphs[i].attributes.mark, item->glyphs[i].attributes.combiningClass);
-    dump_string(str);
-#endif
-
-    tmpLogClusters = (unsigned short *) realloc(tmpLogClusters, length*sizeof(unsigned short));
-    memcpy(tmpLogClusters, item->log_clusters, length*sizeof(unsigned short));
-
-    loadFlags = item->flags & QTextEngine::DesignMetrics ? FT_LOAD_NO_HINTING : FT_LOAD_DEFAULT;
-}
-
-void QOpenType::applyGSUBFeature(unsigned int featureTag, bool *where)
-{
-    FT_UShort feature_index;
-    FT_Error err = TT_GSUB_Select_Feature(gsub, featureTag, script_index, 0xffff, &feature_index);
-    if (err) {
-#ifdef OT_DEBUG
-//         qDebug("feature %s not covered by table or language system", tag_to_string(featureTag));
-#endif
-        return;
-    }
-
-#ifdef OT_DEBUG
-    qDebug("applying GSUB feature %s with index %d", tag_to_string(featureTag), feature_index);
-    if (where)
-        for (int i = 0; i < orig_nglyphs; ++i)
-            qDebug("   apply_char=%s", where[i] ? "true" : "false");
-#endif
-
-    unsigned char w[256];
-    unsigned char *where_to_apply = w;
-    if (str->length > 255)
-        where_to_apply = (unsigned char *)malloc(str->length*sizeof(unsigned char));
-
-    memset(where_to_apply, 1, str->length);
-    if (where) {
-        for (uint i = 0; i < str->length; ++i) {
-            where_to_apply[i] = where[str->character_index[i]];
-        }
-#ifdef OT_DEBUG
-        for (int i = 0; i < (int)str->length; ++i)
-            qDebug("   apply=%s", where_to_apply[i] ? "true" : "false");
-#endif
-    }
-
-    TT_GSUB_Apply_Feature(gsub, feature_index, where_to_apply, &str, &tmp);
-
-    if (w != where_to_apply)
-        free(where_to_apply);
-
-#ifdef OT_DEBUG
-    qDebug("after applying:");
-    dump_string(str);
-#endif
-    positioned = false;
-}
-
 
 extern void qt_heuristicPosition(QShaperItem *item);
 
-void QOpenType::applyGPOSFeatures()
+void QOpenType::shape(QShaperItem *item, const unsigned int *properties)
 {
-#ifdef OT_DEBUG
-    qDebug("applying GPOS features");
-#endif
-    // currently just apply all features
+    length = item->num_glyphs;
 
-    if (hasGPos) {
-        positions = (TTO_GPOS_Data *) realloc(positions, str->length*sizeof(TTO_GPOS_Data));
-        memset(positions, 0, str->length*sizeof(TTO_GPOS_Data));
+    otl_buffer_clear(otl_buffer);
 
-        TTO_FeatureList featurelist = gpos->FeatureList;
-        int numfeatures = featurelist.FeatureCount;
-
-        for(int i = 0; i < numfeatures; i++) {
-            TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
-            FT_UShort feature_index;
-            FT_Error error = TT_GPOS_Select_Feature(gpos, r->FeatureTag, script_index, 0xffff, &feature_index);
-            if (error != FT_Err_Ok)
-                continue;
-
-#ifdef OT_DEBUG
-            qDebug("applying POS feature %s with index %d", tag_to_string(r->FeatureTag), feature_index);
-#endif
-            str->pos = 0;
-#ifdef Q_WS_X11
-            Q_ASSERT(fontEngine->type() == QFontEngine::Freetype);
-            face = static_cast<QFontEngineFT *>(fontEngine)->lockFace();
-            TT_GPOS_Apply_Feature(face, gpos, feature_index, loadFlags,
-                                   str, &positions, false, false);
-            static_cast<QFontEngineFT *>(fontEngine)->unlockFace();
-#else
-            TT_GPOS_Apply_Feature(face, gpos, feature_index, loadFlags,
-                                   str, &positions, false, false);
-#endif
-        }
+    tmpAttributes = (QGlyphLayout::Attributes *) realloc(tmpAttributes, length*sizeof(QGlyphLayout::Attributes));
+    tmpLogClusters = (unsigned int *) realloc(tmpLogClusters, length*sizeof(unsigned int));
+    for (int i = 0; i < length; ++i) {
+        otl_buffer_add_glyph(otl_buffer, item->glyphs[i].glyph, properties ? properties[i] : 0, i);
+        tmpAttributes[i] = item->glyphs[i].attributes;
+        tmpLogClusters[i] = item->log_clusters[i];
     }
-    positioned = true;
-}
 
-const int *QOpenType::mapping(int &len)
-{
-    len = str->length;
-    return str->character_index;
-}
-
-bool QOpenType::appendTo(QShaperItem *item, bool doLogClusters)
-{
 #ifdef OT_DEBUG
-    qDebug("QOpenType::finalize:");
+    qDebug("-----------------------------------------");
+//     qDebug("log clusters before shaping:");
+//     for (int j = 0; j < length; j++)
+//         qDebug("    log[%d] = %d", j, item->log_clusters[j]);
+    qDebug("original glyphs: %p", item->glyphs);
+    for (int i = 0; i < length; ++i)
+        qDebug("   glyph=%4x", otl_buffer->in_string[i].gindex);
+//     dump_string(otl_buffer);
 #endif
+
+    loadFlags = item->flags & QTextEngine::DesignMetrics ? FT_LOAD_NO_HINTING : FT_LOAD_DEFAULT;
+
+    if (gsub)
+        TT_GSUB_Apply_String(gsub, otl_buffer);
+
+#ifdef OT_DEBUG
+//     qDebug("log clusters before shaping:");
+//     for (int j = 0; j < length; j++)
+//         qDebug("    log[%d] = %d", j, item->log_clusters[j]);
+    qDebug("shaped glyphs:");
+    for (int i = 0; i < length; ++i)
+        qDebug("   glyph=%4x", otl_buffer->in_string[i].gindex);
+    qDebug("-----------------------------------------");
+//     dump_string(otl_buffer);
+#endif
+}
+
+bool QOpenType::positionAndAdd(QShaperItem *item, bool doLogClusters)
+{
+    if (gpos) {
+#ifdef Q_WS_X11
+        Q_ASSERT(fontEngine->type() == QFontEngine::Freetype);
+        face = static_cast<QFontEngineFT *>(fontEngine)->lockFace();
+#endif
+        memset(otl_buffer->positions, 0, otl_buffer->in_length*sizeof(OTL_PositionRec));
+        // #### check that passing "false,false" is correct
+        TT_GPOS_Apply_String(face, gpos, loadFlags, otl_buffer, false, false);
+#ifdef Q_WS_X11
+        static_cast<QFontEngineFT *>(fontEngine)->unlockFace();
+#endif
+    }
+    
     // make sure we have enough space to write everything back
-    if (item->num_glyphs < (int)str->length) {
-        item->num_glyphs = str->length;
+    if (item->num_glyphs < (int)otl_buffer->in_length) {
+        item->num_glyphs = otl_buffer->in_length;
         return false;
     }
 
     QGlyphLayout *glyphs = item->glyphs;
 
-    for (unsigned int i = 0; i < str->length; ++i) {
-        glyphs[i].glyph = str->string[i];
-        glyphs[i].attributes = tmpAttributes[str->character_index[i]];
-        if (i && str->character_index[i] == str->character_index[i-1])
+    for (unsigned int i = 0; i < otl_buffer->in_length; ++i) {
+        glyphs[i].glyph = otl_buffer->in_string[i].gindex;
+        glyphs[i].attributes = tmpAttributes[otl_buffer->in_string[i].cluster];
+        if (i && otl_buffer->in_string[i].cluster == otl_buffer->in_string[i-1].cluster)
             glyphs[i].attributes.clusterStart = false;
     }
+    item->num_glyphs = otl_buffer->in_length;
 
     if (doLogClusters) {
         // we can't do this for indic, as we pass the stuf in syllables and it's easier to do it in the shaper.
         unsigned short *logClusters = item->log_clusters;
         int clusterStart = 0;
         int oldCi = 0;
-        for (int i = 0; i < (int)str->length; i++) {
-            int ci = str->character_index[i];
-            //         qDebug("   ci[%d] = %d mark=%d, cmb=%d, cs=%d tmplc=%d",
-            //                i, ci, glyphAttributes[i].mark, glyphAttributes[i].combiningClass, glyphAttributes[i].clusterStart,  tmpLogClusters[ci]);
+        for (unsigned int i = 0; i < otl_buffer->in_length; ++i) {
+            int ci = otl_buffer->in_string[i].cluster;
+            //         qDebug("   ci[%d] = %d mark=%d, cmb=%d, cs=%d",
+            //                i, ci, glyphAttributes[i].mark, glyphAttributes[i].combiningClass, glyphAttributes[i].clusterStart);
             if (!glyphs[i].attributes.mark && glyphs[i].attributes.clusterStart && ci != oldCi) {
                 for (int j = oldCi; j < ci; j++)
                     logClusters[j] = clusterStart;
@@ -421,15 +368,16 @@ bool QOpenType::appendTo(QShaperItem *item, bool doLogClusters)
 
     // calulate the advances for the shaped glyphs
 //     qDebug("unpositioned: ");
-    item->font->recalcAdvances(str->length, glyphs, QFlag(item->flags));
-    item->num_glyphs = str->length;
+    item->font->recalcAdvances(item->num_glyphs, glyphs, QFlag(item->flags));
 
     // positioning code:
-    if (hasGPos && positioned) {
+    if (gpos) {
+        OTL_Position positions = otl_buffer->positions;
+
 //         qDebug("positioned glyphs:");
-        for (int i = 0; i < (int)str->length; i++) {
+        for (unsigned int i = 0; i < otl_buffer->in_length; i++) {
 //             qDebug("    %d:\t orig advance: (%d/%d)\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,
-//                    glyphs[i].advance.x, glyphs[i].advance.y,
+//                    glyphs[i].advance.x.toInt(), glyphs[i].advance.y.toInt(),
 //                    (int)(positions[i].x_advance >> 6), (int)(positions[i].y_advance >> 6),
 //                    (int)(positions[i].x_pos >> 6), (int)(positions[i].y_pos >> 6),
 //                    positions[i].back, positions[i].new_advance);
@@ -459,7 +407,7 @@ bool QOpenType::appendTo(QShaperItem *item, bool doLogClusters)
                 }
             }
 //             qDebug("   ->\tadv=%d\tpos=(%d/%d)",
-//                    glyphs[i].advance, glyphs[i].offset.x, glyphs[i].offset.y);
+//                    glyphs[i].advance.x.toInt(), glyphs[i].offset.x.toInt(), glyphs[i].offset.y.toInt());
         }
     } else {
         qt_heuristicPosition(item);
@@ -472,14 +420,15 @@ bool QOpenType::appendTo(QShaperItem *item, bool doLogClusters)
             qDebug("    log[%d] = %d", j, item->log_clusters[j]);
     }
     qDebug("final glyphs:");
-    for (int i = 0; i < (int)str->length; ++i)
+    for (int i = 0; i < (int)otl_buffer->in_length; ++i)
         qDebug("   glyph=%4x char_index=%d mark: %d cmp: %d, clusterStart: %d advance=%d/%d offset=%d/%d",
-               glyphs[i].glyph, str->character_index[i], glyphs[i].attributes.mark,
+               glyphs[i].glyph, otl_buffer->in_string[i].cluster, glyphs[i].attributes.mark,
                glyphs[i].attributes.combiningClass, glyphs[i].attributes.clusterStart,
-               glyphs[i].advance.x(), glyphs[i].advance.y(),
-               glyphs[i].offset.x(), glyphs[i].offset.y());
+               glyphs[i].advance.x.toInt(), glyphs[i].advance.y.toInt(),
+               glyphs[i].offset.x.toInt(), glyphs[i].offset.y.toInt());
     qDebug("-----------------------------------------");
 #endif
     return true;
 }
+
 #endif // QT_NO_FREETYPE

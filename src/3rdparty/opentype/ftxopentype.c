@@ -6,7 +6,9 @@
 #define inline
 #endif
 
+#include "ftglue.c"
 #include "ftxopen.c"
 #include "ftxgdef.c"
 #include "ftxgpos.c"
 #include "ftxgsub.c"
+#include "otlbuffer.c"

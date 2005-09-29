@@ -15,14 +15,10 @@
  *
  ******************************************************************/
 
-#include <freetype/internal/ftstream.h>
-#include <freetype/internal/ftmemory.h>
-#include <freetype/internal/tttypes.h>
-
-#include "fterrcompat.h"
-
 #include "ftxopen.h"
 #include "ftxopenf.h"
+
+#include "ftglue.h"
 
 
   /***************************
@@ -130,7 +126,7 @@
 
     if ( s->LangSysCount == 0 && s->DefaultLangSys.FeatureCount == 0 )
     {
-      error = TTO_Err_Invalid_SubTable;
+      error = TTO_Err_Empty_Script;
       goto Fail2;
     }
 
@@ -205,7 +201,7 @@
     FT_Error   error;
     FT_Memory  memory = stream->memory;
 
-    FT_UShort          n, m, count;
+    FT_UShort          n, script_count;
     FT_ULong           cur_offset, new_offset, base_offset;
 
     TTO_ScriptRecord*  sr;
@@ -216,42 +212,53 @@
     if ( ACCESS_Frame( 2L ) )
       return error;
 
-    count = sl->ScriptCount = GET_UShort();
+    script_count = GET_UShort();
 
     FORGET_Frame();
 
     sl->ScriptRecord = NULL;
 
-    if ( ALLOC_ARRAY( sl->ScriptRecord, count, TTO_ScriptRecord ) )
+    if ( ALLOC_ARRAY( sl->ScriptRecord, script_count, TTO_ScriptRecord ) )
       return error;
 
     sr = sl->ScriptRecord;
 
-    n = 0;
-    for ( m = 0; m < count; m++ )
+    sl->ScriptCount= 0;
+    for ( n = 0; n < script_count; n++ )
     {
       if ( ACCESS_Frame( 6L ) )
         goto Fail;
 
-      sr[n].ScriptTag = GET_ULong();
+      sr[sl->ScriptCount].ScriptTag = GET_ULong();
       new_offset = GET_UShort() + base_offset;
 
       FORGET_Frame();
 
       cur_offset = FILE_Pos();
-      if ( (FILE_Seek( new_offset )) ||
-           ( error = Load_Script( &sr[n].Script, stream ) ) != TT_Err_Ok )
-	  --sl->ScriptCount;
-      else
-	  n++;
+
+      if ( FILE_Seek( new_offset ) )
+	goto Fail;
+
+      error = Load_Script( &sr[sl->ScriptCount].Script, stream );
+      if ( error == TT_Err_Ok )
+	sl->ScriptCount += 1;
+      else if ( error != TTO_Err_Empty_Script )
+	goto Fail;
+
       (void)FILE_Seek( cur_offset );
     }
 
+    if ( sl->ScriptCount == 0 )
+    {
+      error = TTO_Err_Invalid_SubTable;
+      goto Fail;
+    }
+    
     return TT_Err_Ok;
 
   Fail:
-    for ( m = 0; m < n; m++ )
-      Free_Script( &sr[m].Script, memory );
+    for ( n = 0; n < sl->ScriptCount; n++ )
+      Free_Script( &sr[n].Script, memory );
 
     FREE( sl->ScriptRecord );
     return error;
@@ -362,13 +369,17 @@
 
     if ( ALLOC_ARRAY( fl->FeatureRecord, count, TTO_FeatureRecord ) )
       return error;
+    if ( ALLOC_ARRAY( fl->ApplyOrder, count, FT_UShort ) )
+      goto Fail2;
+    
+    fl->ApplyCount = 0;
 
     fr = fl->FeatureRecord;
 
     for ( n = 0; n < count; n++ )
     {
       if ( ACCESS_Frame( 6L ) )
-        goto Fail;
+        goto Fail1;
 
       fr[n].FeatureTag = GET_ULong();
       new_offset = GET_UShort() + base_offset;
@@ -378,17 +389,21 @@
       cur_offset = FILE_Pos();
       if ( FILE_Seek( new_offset ) ||
            ( error = Load_Feature( &fr[n].Feature, stream ) ) != TT_Err_Ok )
-        goto Fail;
+        goto Fail1;
       (void)FILE_Seek( cur_offset );
     }
 
     return TT_Err_Ok;
 
-  Fail:
+  Fail1:
     for ( m = 0; m < n; m++ )
       Free_Feature( &fr[m].Feature, memory );
 
+    FREE( fl->ApplyOrder );
+
+  Fail2:
     FREE( fl->FeatureRecord );
+
     return error;
   }
 
@@ -411,6 +426,8 @@
 
       FREE( fr );
     }
+    
+    FREE( fl->ApplyOrder );
   }
 
 
@@ -689,13 +706,15 @@
 
     if ( ALLOC_ARRAY( ll->Lookup, count, TTO_Lookup ) )
       return error;
+    if ( ALLOC_ARRAY( ll->Properties, count, FT_UInt ) )
+      goto Fail2;
 
     l = ll->Lookup;
 
     for ( n = 0; n < count; n++ )
     {
       if ( ACCESS_Frame( 2L ) )
-        goto Fail;
+        goto Fail1;
 
       new_offset = GET_UShort() + base_offset;
 
@@ -704,17 +723,19 @@
       cur_offset = FILE_Pos();
       if ( FILE_Seek( new_offset ) ||
            ( error = Load_Lookup( &l[n], stream, type ) ) != TT_Err_Ok )
-        goto Fail;
+        goto Fail1;
       (void)FILE_Seek( cur_offset );
     }
 
     return TT_Err_Ok;
 
-  Fail:
+  Fail1:
+    FREE( ll->Properties );
 
     for ( m = 0; m < n; m++ )
       Free_Lookup( &l[m], type, memory );
 
+  Fail2:
     FREE( ll->Lookup );
     return error;
   }
@@ -728,6 +749,8 @@
 
     TTO_Lookup*  l;
 
+
+    FREE( ll->Properties );
 
     if ( ll->Lookup )
     {
@@ -904,76 +927,101 @@
   }
 
 
-  static inline FT_Error  Coverage_Index1( TTO_CoverageFormat1*  cf1,
+  static FT_Error  Coverage_Index1( TTO_CoverageFormat1*  cf1,
                                     FT_UShort             glyphID,
                                     FT_UShort*            index )
   {
-    FT_UShort *min, *max, *middle;
+    FT_UShort min, max, new_min, new_max, middle;
+
+    FT_UShort*  array = cf1->GlyphArray;
+
 
     /* binary search */
 
-    min = cf1->GlyphArray;
-    max = min + cf1->GlyphCount - 1;
+    if ( cf1->GlyphCount == 0 )
+      return TTO_Err_Not_Covered;
+
+    new_min = 0;
+    new_max = cf1->GlyphCount - 1;
 
     do
     {
+      min = new_min;
+      max = new_max;
+
       /* we use (min + max) / 2 = max - (max - min) / 2  to avoid
          overflow and rounding errors                             */
 
       middle = max - ( ( max - min ) >> 1 );
 
-      if ( glyphID == *middle )
+      if ( glyphID == array[middle] )
       {
-        *index = middle - cf1->GlyphArray;
+        *index = middle;
         return TT_Err_Ok;
       }
-      else if ( glyphID < *middle )
+      else if ( glyphID < array[middle] )
       {
-        max = middle - 1;
+        if ( middle == min )
+          break;
+        new_max = middle - 1;
       }
       else
       {
-        min = middle + 1;
+        if ( middle == max )
+          break;
+        new_min = middle + 1;
       }
-    } while ( min <= max );
+    } while ( min < max );
 
     return TTO_Err_Not_Covered;
   }
 
 
-  static inline FT_Error  Coverage_Index2( TTO_CoverageFormat2*  cf2,
+  static FT_Error  Coverage_Index2( TTO_CoverageFormat2*  cf2,
                                     FT_UShort             glyphID,
                                     FT_UShort*            index )
   {
-    TTO_RangeRecord* min, *max, *middle;
+    FT_UShort         min, max, new_min, new_max, middle;
+
+    TTO_RangeRecord*  rr = cf2->RangeRecord;
+
 
     /* binary search */
 
-    min = cf2->RangeRecord;
-    max = min + cf2->RangeCount - 1;
+    if ( cf2->RangeCount == 0 )
+      return TTO_Err_Not_Covered;
+
+    new_min = 0;
+    new_max = cf2->RangeCount - 1;
 
     do
     {
+      min = new_min;
+      max = new_max;
 
       /* we use (min + max) / 2 = max - (max - min) / 2  to avoid
          overflow and rounding errors                             */
 
       middle = max - ( ( max - min ) >> 1 );
 
-      if ( glyphID >= middle->Start && glyphID <= middle->End )
+      if ( glyphID >= rr[middle].Start && glyphID <= rr[middle].End )
       {
-        *index = middle->StartCoverageIndex + glyphID - middle->Start;
+        *index = rr[middle].StartCoverageIndex + glyphID - rr[middle].Start;
         return TT_Err_Ok;
       }
-      else if ( glyphID < middle->Start )
+      else if ( glyphID < rr[middle].Start )
       {
-        max = middle - 1;
+        if ( middle == min )
+          break;
+        new_max = middle - 1;
       }
       else
       {
-        min = middle + 1;
+        if ( middle == max )
+          break;
+        new_min = middle + 1;
       }
-    } while ( min <= max );
+    } while ( min < max );
 
     return TTO_Err_Not_Covered;
   }
@@ -983,11 +1031,19 @@
                             FT_UShort      glyphID,
                             FT_UShort*     index )
   {
-    if ( c->CoverageFormat == 1 )
+    switch ( c->CoverageFormat )
+    {
+    case 1:
       return Coverage_Index1( &c->cf.cf1, glyphID, index );
-    else if ( c->CoverageFormat == 2 )
+
+    case 2:
       return Coverage_Index2( &c->cf.cf2, glyphID, index );
-    return TTO_Err_Invalid_SubTable_Format;
+
+    default:
+      return TTO_Err_Invalid_SubTable_Format;
+    }
+
+    return TT_Err_Ok;               /* never reached */
   }
 
 
@@ -1233,47 +1289,64 @@
   }
 
 
-  static inline FT_Error  Get_Class1( TTO_ClassDefFormat1*  cdf1,
+  static FT_Error  Get_Class1( TTO_ClassDefFormat1*  cdf1,
                                FT_UShort             glyphID,
-                               FT_UShort*            klass,
+                               FT_UShort*            class,
                                FT_UShort*            index )
   {
-    if (index)
+    FT_UShort*  cva = cdf1->ClassValueArray;
+
+
+    if ( index )
       *index = 0;
 
     if ( glyphID >= cdf1->StartGlyph &&
          glyphID <= cdf1->StartGlyph + cdf1->GlyphCount )
     {
-      *klass = cdf1->ClassValueArray[glyphID - cdf1->StartGlyph];
+      *class = cva[glyphID - cdf1->StartGlyph];
       return TT_Err_Ok;
     }
-    *klass = 0;
-    return TTO_Err_Not_Covered;
+    else
+    {
+      *class = 0;
+      return TTO_Err_Not_Covered;
+    }
   }
 
 
   /* we need the index value of the last searched class range record
      in case of failure for constructed GDEF tables                  */
 
-  static inline FT_Error  Get_Class2( TTO_ClassDefFormat2*  cdf2,
+  static FT_Error  Get_Class2( TTO_ClassDefFormat2*  cdf2,
                                FT_UShort             glyphID,
-                               FT_UShort*            klass,
+                               FT_UShort*            class,
                                FT_UShort*            index )
   {
-    FT_Error               error = TTO_Err_Not_Covered;
-    int              min, max, middle;
+    FT_Error               error = TT_Err_Ok;
+    FT_UShort              min, max, new_min, new_max, middle;
 
     TTO_ClassRangeRecord*  crr = cdf2->ClassRangeRecord;
 
-    *klass = 0;
 
     /* binary search */
 
-    min = 0;
-    max = cdf2->ClassRangeCount - 1;
+    if ( cdf2->ClassRangeCount == 0 )
+      {
+	*class = 0;
+	if ( index )
+	  *index = 0;
+	
+	return TTO_Err_Not_Covered;
+      }
+
+    new_min = 0;
+    new_max = cdf2->ClassRangeCount - 1;
 
     do
     {
+      min = new_min;
+      max = new_max;
+
       /* we use (min + max) / 2 = max - (max - min) / 2  to avoid
          overflow and rounding errors                             */
 
@@ -1281,20 +1354,32 @@
 
       if ( glyphID >= crr[middle].Start && glyphID <= crr[middle].End )
       {
-        *klass = crr[middle].Class;
-        return TT_Err_Ok;
+        *class = crr[middle].Class;
+        error  = TT_Err_Ok;
+        break;
       }
       else if ( glyphID < crr[middle].Start )
       {
-        max = middle - 1;
+        if ( middle == min )
+        {
+          *class = 0;
+          error  = TTO_Err_Not_Covered;
+          break;
+        }
+        new_max = middle - 1;
       }
       else
       {
-        min = middle + 1;
+        if ( middle == max )
+        {
+          *class = 0;
+          error  = TTO_Err_Not_Covered;
+          break;
+        }
+        new_min = middle + 1;
       }
-    } while ( min <= max );
+    } while ( min < max );
 
-    *klass = 0;
     if ( index )
       *index = middle;
 
@@ -1304,14 +1389,22 @@
 
   FT_Error  Get_Class( TTO_ClassDefinition*  cd,
                        FT_UShort             glyphID,
-                       FT_UShort*            klass,
+                       FT_UShort*            class,
                        FT_UShort*            index )
   {
-    if ( cd->ClassFormat == 1 )
-      return Get_Class1( &cd->cd.cd1, glyphID, klass, index );
-    else if ( cd->ClassFormat == 2 )
-      return Get_Class2( &cd->cd.cd2, glyphID, klass, index );
-    return TTO_Err_Invalid_SubTable_Format;
+    switch ( cd->ClassFormat )
+    {
+    case 1:
+      return Get_Class1( &cd->cd.cd1, glyphID, class, index );
+
+    case 2:
+      return Get_Class2( &cd->cd.cd2, glyphID, class, index );
+
+    default:
+      return TTO_Err_Invalid_SubTable_Format;
+    }
+
+    return TT_Err_Ok;               /* never reached */
   }
 
 
