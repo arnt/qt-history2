@@ -46,7 +46,7 @@ static const char *qreal_to_string(qreal val, char *buf) {
         val = -val;
     }
     int ival = (int) val;
-    double frac = val - (qreal)ival;    
+    double frac = val - (qreal)ival;
 
     int ifrac = (int)(frac * 1000000);
     if (ifrac == 1000000) {
@@ -63,7 +63,7 @@ static const char *qreal_to_string(qreal val, char *buf) {
     if (i == 0) {
         *(buf++) = '0';
     } else {
-        while (i) 
+        while (i)
             *(buf++) = output[--i];
     }
 
@@ -96,7 +96,7 @@ static const char *int_to_string(int val, char *buf) {
     if (i == 0) {
         *(buf++) = '0';
     } else {
-        while (i) 
+        while (i)
             *(buf++) = output[--i];
     }
     *(buf++) = ' ';
@@ -236,7 +236,7 @@ void QPdfEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
         d->setDimensions(r.width(),r.height());
     }
         break;
-    case PPK_FullPage: 
+    case PPK_FullPage:
         d->fullPage = value.toBool();
         break;
     default:
@@ -1040,7 +1040,9 @@ int QPdfImage::convert(const QImage& img, const QImage& mask)
     ismask_ = (d==1); // is monochrome - deal with it as mask
 
     if (d == 8) {
-        im = im.convertDepth(32);
+        im = im.convertToFormat(im.hasAlphaBuffer()
+                                ? QImage::Format_ARGB32
+                                : QImage::Format_RGB32);
         d = 32;
     }
 
@@ -1795,7 +1797,7 @@ void QPdfPen::streamText(QPdfByteStream &s)
                 break;
             s << "[";
 
-            for (int i=0; i!=da_.first().seq.size(); ++i) 
+            for (int i=0; i!=da_.first().seq.size(); ++i)
                 s << da_.first().seq[i];
             s << "] "
               << da_.first().phase
