@@ -70,8 +70,8 @@
 
 
 #ifdef Q_WS_WIN
-static void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC hdc,
-                       QRasterPaintEnginePrivate *d);
+void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC hdc,
+                       uint txop, const QMatrix &matrix);
 #endif
 
 // #define QT_DEBUG_DRAW
@@ -1590,7 +1590,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         Rectangle(hdc, 0, 0, devRect.width() + 1, devRect.height() + 1);
 
         // Fill buffer with stuff
-        qt_draw_text_item(QPoint(0, ti.ascent.toInt()), ti, hdc, d);
+        qt_draw_text_item(QPoint(0, ti.ascent.toInt()), ti, hdc, d->txop, d->matrix);
 
         BitBlt(d->fontRasterBuffer->hdc(), 0, 0, devRect.width(), devRect.height(),
                hdc, 0, 0, SRCCOPY);
@@ -1602,7 +1602,8 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         d->fontRasterBuffer->resetBuffer(255);
 
         // Fill buffer with stuff
-        qt_draw_text_item(QPoint(0, ti.ascent.toInt()), ti, d->fontRasterBuffer->hdc(), d);
+        qt_draw_text_item(QPoint(0, ti.ascent.toInt()), ti, d->fontRasterBuffer->hdc(), d->txop,
+            d->matrix);
     }
 
     // Boundaries
@@ -2750,16 +2751,16 @@ void QSpanData::initGradient(const QGradient *g)
 
 #ifdef Q_WS_WIN
 static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
-                               QRasterPaintEnginePrivate *d)
+                               uint txop, const QMatrix &matrix)
 {
     QPointF p = pos;
 
-    if (d->txop > QPainterPrivate::TxTranslate) {
+    if (txop > QPainterPrivate::TxTranslate) {
         XFORM m;
-        m.eM11 = d->matrix.m11();
-        m.eM12 = d->matrix.m12();
-        m.eM21 = d->matrix.m21();
-        m.eM22 = d->matrix.m22();
+        m.eM11 = matrix.m11();
+        m.eM12 = matrix.m12();
+        m.eM21 = matrix.m21();
+        m.eM22 = matrix.m22();
         // Don't include the translation since it is done when we write the HDC
         // Back to the screen.
         m.eDx  = 0;
@@ -2784,7 +2785,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
     qreal x = p.x();
     qreal y = p.y();
 
-    if (d->txop >= QPainterPrivate::TxScale
+    if (txop >= QPainterPrivate::TxScale
         && !(QSysInfo::WindowsVersion & QSysInfo::WV_NT_based)) {
         // Draw rotated and sheared text on Windows 98
 
@@ -2792,10 +2793,10 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
         // Shearing transformations are done by QPainter.
 
         // rotation + scale + translation
-        scale = sqrt(d->matrix.m11()*d->matrix.m22()
-                      - d->matrix.m12()*d->matrix.m21());
-        angle = qRound(1800*acos(d->matrix.m11()/scale)/Q_PI);
-        if (d->matrix.m12() < 0)
+        scale = sqrt(matrix.m11()*matrix.m22()
+                      - matrix.m12()*matrix.m21());
+        angle = qRound(1800*acos(matrix.m11()/scale)/Q_PI);
+        if (matrix.m12() < 0)
             angle = 3600 - angle;
 
         transform = true;
@@ -2854,7 +2855,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
 		    qreal xp = x + glyphs->offset.x.toReal();
 		    qreal yp = y + glyphs->offset.y.toReal();
                     if (transform)
-                        d->matrix.map(xp, yp, &xp, &yp);
+                        matrix.map(xp, yp, &xp, &yp);
                     ExtTextOutW(hdc, qRound(xp), qRound(yp), options, 0, &chr, 1, 0);
 		    x += (glyphs->advance.x + QFixed::fromFixed(glyphs->space_18d6)).toReal();
 		    y += glyphs->advance.y.toReal();
@@ -2917,7 +2918,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
         Rectangle(hdc, xo, yp, qRound(x), yp + lw);
     }
 
-    if (d->txop > QPainterPrivate::TxTranslate) {
+    if (txop > QPainterPrivate::TxTranslate) {
         XFORM m;
         m.eM11 = m.eM22 = 1;
         m.eDx = m.eDy = m.eM12 = m.eM21 = 0;
@@ -2929,7 +2930,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
 }
 
 static void draw_text_item_multi(const QPointF &p, const QTextItemInt &ti, HDC hdc,
-                       QRasterPaintEnginePrivate *d)
+                                 uint txop, const QMatrix &matrix)
 {
     QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
     QGlyphLayout *glyphs = ti.glyphs;
@@ -2955,7 +2956,7 @@ static void draw_text_item_multi(const QPointF &p, const QTextItemInt &ti, HDC h
         ti2.num_glyphs = end - start;
         ti2.fontEngine = multi->engine(which);
         ti2.f = ti.f;
-        draw_text_item_win(QPointF(x, y), ti2, hdc, d);
+        draw_text_item_win(QPointF(x, y), ti2, hdc, txop, matrix);
 
 	QFixed x_add;
         // reset the high byte for all glyphs and advance to the next sub-string
@@ -2981,7 +2982,7 @@ static void draw_text_item_multi(const QPointF &p, const QTextItemInt &ti, HDC h
     ti2.num_glyphs = end - start;
     ti2.fontEngine = multi->engine(which);
     ti2.f = ti.f;
-    draw_text_item_win(QPointF(x, y), ti2, hdc, d);
+    draw_text_item_win(QPointF(x, y), ti2, hdc, txop, matrix);
 
     // reset the high byte for all glyphs
     const int hi = which << 24;
@@ -2989,19 +2990,19 @@ static void draw_text_item_multi(const QPointF &p, const QTextItemInt &ti, HDC h
         glyphs[i].glyph = hi | glyphs[i].glyph;
 }
 
-static void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
-                       QRasterPaintEnginePrivate *d)
+void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
+                       uint txop, const QMatrix &matrix)
 {
     if (!ti.num_glyphs)
         return;
 
     switch(ti.fontEngine->type()) {
     case QFontEngine::Multi:
-        draw_text_item_multi(pos, ti, hdc, d);
+        draw_text_item_multi(pos, ti, hdc, txop, matrix);
         break;
     case QFontEngine::Win:
     default:
-        draw_text_item_win(pos, ti, hdc, d);
+        draw_text_item_win(pos, ti, hdc, txop, matrix);
         break;
     }
 }

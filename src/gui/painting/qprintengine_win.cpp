@@ -352,6 +352,22 @@ bool QWin32PrintEngine::abort()
     return false;
 }
 
+extern void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
+                              uint txop, const QMatrix &matrix);
+void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
+{
+    Q_D(const QWin32PrintEngine);
+
+    // Avoid using p as topLeft of logRect to avoid scaling the position. We only need 
+    // translation and we need to scale the ascent of the font.
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
+    QRectF logRect(0.0, 0.0 - ti.ascent.toReal(), ti.width.toReal(),
+		    ti.ascent.toReal());
+    QRectF devRect = d->matrix.mapRect(logRect);    
+        
+    qt_draw_text_item(devRect.topLeft() + p + QPointF(0.0, devRect.height()), ti, d->hdc, 
+        d->txop, d->matrix);
+}
 
 int QWin32PrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
 {
@@ -496,7 +512,16 @@ void QWin32PrintEngine::updateMatrix(const QMatrix &m)
     d->painterMatrix = m;
     d->matrix = d->painterMatrix * stretch;
 
-    d->complex_xform = m.m11() != 1 || m.m22() != 1 || m.m12() != 0 || m.m21() != 0;
+    if (d->matrix.m12() != 0 || d->matrix.m21() != 0)
+        d->txop = QPainterPrivate::TxRotShear;
+    else if (d->matrix.m11() != 1 || d->matrix.m22() != 1)
+        d->txop = QPainterPrivate::TxScale;
+    else if (d->matrix.dx() != 0 || d->matrix.dy() != 0)
+        d->txop = QPainterPrivate::TxTranslate;
+    else
+        d->txop = QPainterPrivate::TxNone;    
+
+    d->complex_xform = (d->txop > QPainterPrivate::TxTranslate);
 }
 
 void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
@@ -801,6 +826,8 @@ void QWin32PrintEnginePrivate::initialize()
 
     if (name.isEmpty())
         return;
+
+    txop = QPainterPrivate::TxNone;   
 
     bool ok;
     QT_WA( {

@@ -53,6 +53,7 @@ public:
 
     void drawPath(const QPainterPath &path);
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
+    void drawTextItem(const QPointF &p, const QTextItem &textItem);
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
     void drawTiledPixmap(const QRectF &r, const QPixmap &pm, const QPointF &p);
@@ -199,6 +200,8 @@ public:
     uint complex_xform : 1;
     uint has_pen : 1;
     uint has_brush : 1;
+
+    uint txop;
 
     QColor brush_color;
     QPen pen;
