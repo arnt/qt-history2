@@ -14,9 +14,7 @@
 #include <private/qdrawhelper_p.h>
 #include <private/qpaintengine_raster_p.h>
 
-#ifdef QT_HAVE_SSE
-
-#if !defined(__APPLE__) || defined(__i386__)
+#if defined(QT_HAVE_SSE) && (!defined(__APPLE__) || defined(__i386__))
 
 #ifdef Q_CC_GNU
 #  include <mmintrin.h>
@@ -654,5 +652,3 @@ void qt_blend_color_argb_sse(int count, const QSpan *spans, void *userData)
 }
 
 #endif //QT_HAVE_SSE
-
-#endif
