@@ -765,8 +765,8 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
     const int item = d->current;
     int level = d->viewItems.at(item).level;
     QRect primitive(reverse ? rect.left() : rect.right(), rect.top(), indent, rect.height());
-    
-    
+
+
     QModelIndex parent = index.parent();
     QModelIndex current = parent;
     QModelIndex ancestor = current.parent();
@@ -974,10 +974,10 @@ int QTreeView::verticalOffset() const
 {
     Q_D(const QTreeView);
     // gives an estimate
-    float items = verticalScrollBar()->value() / (float)verticalStepsPerItem();
+    int items = ((verticalScrollBar()->value() << 8) / verticalStepsPerItem()) >> 8;
     if (model() && model()->rowCount(rootIndex()) > 0 && model()->columnCount(rootIndex()) > 0)
-        return (int)(items * d->itemHeight);
-    return (int)(items * 30); // FIXME remove this hard coded number
+        return (items * d->itemHeight);
+    return (items * 30); // FIXME remove this hard coded number
 }
 
 /*!
@@ -1844,7 +1844,7 @@ int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
     int viewItemIndex = item(pos.y());
     int itemIndentation = indentation(viewItemIndex);
     QModelIndex index = modelIndex(viewItemIndex);
-    
+
     if (!index.isValid() || column != 0
         || cx < (itemIndentation - indent) || cx > itemIndentation)
         return -1; // pos is outside the /ecoration rect
