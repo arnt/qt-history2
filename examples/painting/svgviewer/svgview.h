@@ -30,8 +30,8 @@ public:
 
     virtual QSize sizeHint() const;
 protected:
-    virtual void paintEvent(QPaintEvent *e);
-    virtual void wheelEvent(QWheelEvent *e);
+    virtual void paintEvent(QPaintEvent *event);
+    virtual void wheelEvent(QWheelEvent *event);
 
 private:
     QSvgRenderer *doc;
@@ -46,8 +46,8 @@ public:
 
     virtual QSize sizeHint() const;
 protected:
-    virtual void paintEvent(QPaintEvent *e);
-    virtual void wheelEvent(QWheelEvent *e);
+    virtual void paintEvent(QPaintEvent *event);
+    virtual void wheelEvent(QWheelEvent *event);
 
 private:
     QSvgRenderer *doc;
@@ -62,8 +62,8 @@ public:
 
     virtual QSize sizeHint() const;
 protected:
-    virtual void paintEvent(QPaintEvent *e);
-    virtual void wheelEvent(QWheelEvent *e);
+    virtual void paintEvent(QPaintEvent *event);
+    virtual void wheelEvent(QWheelEvent *event);
 
 private:
     QSvgRenderer *doc;

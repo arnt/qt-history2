@@ -27,9 +27,9 @@ public:
     enum RendererType { Native, OpenGL, Image };
 
     SvgWindow();
-    void mousePressEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
     void openFile(const QString &file);
     void setRenderer(RendererType type = Native);
 
