@@ -57,6 +57,7 @@ private:
 
 class Q_EXPORT_SQLDRIVER_OCI QOCIDriver : public QSqlDriver
 {
+    friend class QOCIResultPrivate;
 public:
     explicit QOCIDriver(QObject* parent = 0);
     QOCIDriver(OCIEnv* env, OCISvcCtx* ctx, QObject* parent = 0);
