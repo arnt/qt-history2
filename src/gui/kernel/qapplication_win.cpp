@@ -441,6 +441,9 @@ static void qt_set_windows_resources()
     pal.setColor(QPalette::Link, Qt::blue);
     pal.setColor(QPalette::LinkVisited, Qt::magenta);
 
+    pal.setColor(QPalette::Inactive, QPalette::Button, pal.button());
+    pal.setColor(QPalette::Inactive, QPalette::Background, pal.background());
+
     if (QSysInfo::WindowsVersion != QSysInfo::WV_NT && QSysInfo::WindowsVersion != QSysInfo::WV_95) {
         if (pal.midlight() == pal.button())
             pal.setColor(QPalette::Midlight, pal.button().color().light(110));
