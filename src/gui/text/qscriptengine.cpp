@@ -349,11 +349,12 @@ static bool basic_shape(QShaperItem *item)
 enum {
     CcmpProperty = 0x1
 };
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
 static const QOpenType::Features hebrew_features[] = {
     { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
     {0, 0}
 };
-
+#endif
 /* Hebrew shaping. In the non opentype case we try to use the
    presentation forms specified for Hebrew. Especially for the
    ligatures with Dagesh this gives much better results than we could
