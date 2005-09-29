@@ -1628,9 +1628,12 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
         if (opt->state & QStyle::State_Sunken)
             bi.state |= kThemeStatePressed;
         bi.kind = kThemeDisclosureButton;
-        bi.value = opt->state & QStyle::State_Open ? kThemeDisclosureDown : kThemeDisclosureRight;
+        if (opt->state & QStyle::State_Open)
+            bi.value = kThemeDisclosureDown;
+        else
+            bi.value = opt->direction == Qt::LeftToRight ? kThemeDisclosureRight : kThemeDisclosureLeft;
         bi.adornment = kThemeAdornmentNone;
-        HIRect hirect = qt_hirectForQRect(opt->rect); // ### passing the painter causes bad stuff in Q3ListView...
+        HIRect hirect = qt_hirectForQRect(opt->rect);
         HIThemeDrawButton(&hirect, &bi, cg, kHIThemeOrientationNormal, 0);
         break; }
     case QStyle::PE_IndicatorHeaderArrow:
@@ -2325,6 +2328,25 @@ QRect QMacStylePrivate::HIThemeSubElementRect(QStyle::SubElement sr, const QStyl
     case QStyle::SE_ProgressBarContents:
         r = opt->rect;
         break;
+    case QStyle::SE_TreeViewDisclosureItem: {
+        HIRect inRect = CGRectMake(opt->rect.x(), opt->rect.y(),
+                                   opt->rect.width(), opt->rect.height());
+        HIThemeButtonDrawInfo bdi;
+        bdi.version = qt_mac_hitheme_version;
+        bdi.state = kThemeStateActive;
+        bdi.kind = kThemeDisclosureButton;
+        bdi.value = kThemeDisclosureRight;
+        bdi.adornment = kThemeAdornmentNone;
+        HIRect contentRect;
+        HIThemeGetButtonContentBounds(&inRect, &bdi, &contentRect);
+        QCFType<HIShapeRef> shape;
+        HIRect outRect;
+        HIThemeGetButtonShape(&inRect, &bdi, &shape);
+        HIShapeGetBounds(shape, &outRect);
+        r = QRect(int(outRect.origin.x), int(outRect.origin.y),
+                  int(contentRect.origin.x - outRect.origin.x), int(outRect.size.height));
+        break;
+    }
     default:
         r = q->QWindowsStyle::subElementRect(sr, opt, widget);
         break;
@@ -3302,8 +3324,10 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
             currentInfo.state = kThemeStateActive;
         if (opt->state & QStyle::State_Sunken)
             currentInfo.state |= kThemeStatePressed;
-        currentInfo.value = opt->state & QStyle::State_Open ? kThemeDisclosureDown
-                                                            : kThemeDisclosureRight;
+        if (opt->state & QStyle::State_Open)
+            currentInfo.value = kThemeDisclosureDown;
+        else
+            currentInfo.value = opt->direction == Qt::LeftToRight ? kThemeDisclosureRight : kThemeDisclosureLeft;
         currentInfo.adornment = kThemeAdornmentNone;
         qt_mac_set_port(p);
         DrawThemeButton(qt_glb_mac_rect(opt->rect, p), kThemeDisclosureButton, &currentInfo,
@@ -3977,6 +4001,21 @@ QRect QMacStylePrivate::AppManSubElementRect(QStyle::SubElement sr, const QStyle
     case QStyle::SE_ProgressBarGroove:
     case QStyle::SE_ProgressBarLabel:
         break;
+    case QStyle::SE_TreeViewDisclosureItem: {
+        Rect inRect;
+        SetRect(&inRect, opt->rect.left(), opt->rect.top(), opt->rect.right(), opt->rect.bottom());
+        ThemeButtonDrawInfo bdi = { kThemeStateActive, kThemeDisclosureRight, kThemeAdornmentNone };
+        Rect contentRect;
+        GetThemeButtonContentBounds(&inRect, kThemeDisclosureButton, &bdi, &contentRect);
+        RgnHandle shape = qt_mac_get_rgn();
+        GetThemeButtonRegion(&inRect, kThemeDisclosureButton, &bdi, shape);
+        Rect outRect;
+        GetRegionBounds(shape, &outRect);
+        r = QRect(outRect.left, outRect.top,
+                  contentRect.left - outRect.left, outRect.bottom - outRect.top);
+        qt_mac_dispose_rgn(shape);
+        break;
+    }
     default:
         r = q->QWindowsStyle::subElementRect(sr, opt, widget);
         break;
