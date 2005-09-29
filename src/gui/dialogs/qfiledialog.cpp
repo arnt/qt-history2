@@ -391,6 +391,15 @@ void QFileDialog::selectFile(const QString &filename)
         text.remove(current);
     } else { // faster than asking for model()->index(currentPath + filename)
         QStringList entries = directory().entryList(d->model->filter(), d->model->sorting());
+
+        // The model does not contain ".." and ".", remove those from entries so the indexes match.
+        int i = entries.indexOf(QLatin1String("."));
+        if (i != -1)
+            entries.removeAt(i);
+        i = entries.indexOf(QLatin1String(".."));
+        if (i != -1)
+            entries.removeAt(i);
+
         int r = entries.indexOf(filename);
         if (r >= 0)
             index = d->model->index(r, 0, d->rootIndex());
