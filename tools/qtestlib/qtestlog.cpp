@@ -98,6 +98,7 @@ namespace QTest {
             return;
 
         if (type != QtFatalMsg) {
+#if 0
             if (counter <= 0)
                 return;
 
@@ -106,6 +107,7 @@ namespace QTest {
                         "Maximum amount of warnings exceeded.");
                 return;
             }
+#endif
         }
 
         switch (type) {
