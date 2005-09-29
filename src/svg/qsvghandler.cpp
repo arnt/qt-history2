@@ -429,6 +429,9 @@ static void parsePen(QSvgNode *node,
                     if (constructColor(value, opacity, color))
                         pen.setColor(color);
                 }
+                //since we could inherit stroke="none"
+                //we need to reset the style of our stroke to something
+                pen.setStyle(Qt::SolidLine);
             }
             if (!width.isEmpty())
                 pen.setWidthF(width.toDouble());
