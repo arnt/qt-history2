@@ -1757,11 +1757,13 @@ QSize QAbstractItemView::sizeHintForIndex(const QModelIndex &index) const
 */
 int QAbstractItemView::sizeHintForRow(int row) const
 {
-    if(!model())
+    Q_ASSERT(row >= 0);
+    if(!model() || row >= model()->rowCount())
         return -1;
 
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
+    Q_ASSERT(delegate);
     int height = 0;
     int colCount = model()->columnCount(rootIndex());
     QModelIndex index;
@@ -1777,11 +1779,13 @@ int QAbstractItemView::sizeHintForRow(int row) const
 */
 int QAbstractItemView::sizeHintForColumn(int column) const
 {
-    if(!model())
+    Q_ASSERT(column >= 0);
+    if(!model() || column >= model()->columnCount())
         return -1;
 
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
+    Q_ASSERT(delegate);
     int width = 0;
     int rows = model()->rowCount(rootIndex());
     QModelIndex index;
@@ -1954,6 +1958,8 @@ void QAbstractItemView::selectionChanged(const QItemSelection &selected,
 */
 void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
+    Q_ASSERT(model());
+    
     Q_D(QAbstractItemView);
     if (previous.isValid()) {
         QModelIndex buddy = model()->buddy(previous);
