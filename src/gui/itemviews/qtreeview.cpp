@@ -974,10 +974,12 @@ int QTreeView::verticalOffset() const
 {
     Q_D(const QTreeView);
     // gives an estimate
-    int items = ((verticalScrollBar()->value() << 8) / verticalStepsPerItem()) >> 8;
-    if (model() && model()->rowCount(rootIndex()) > 0 && model()->columnCount(rootIndex()) > 0)
-        return (items * d->itemHeight);
-    return (items * 30); // FIXME remove this hard coded number
+    if (model() && model()->rowCount(rootIndex()) > 0) {
+        float items = float(verticalScrollBar()->value()) / float(verticalStepsPerItem());
+        return int(items * d->itemHeight);
+    }
+    // no items, no offset
+    return 0;
 }
 
 /*!
