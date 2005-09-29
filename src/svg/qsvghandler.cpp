@@ -32,6 +32,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+static const QPen defaultPen(Qt::black, 1, Qt::SolidLine,
+                             Qt::FlatCap, Qt::MiterJoin);
+
 static QString xmlSimplify(const QString &str)
 {
     QString dummy = str;
@@ -396,7 +399,7 @@ static void parsePen(QSvgNode *node,
             QSvgStrokeStyle *inherited =
                 static_cast<QSvgStrokeStyle*>(node->parent()->styleProperty(
                                                   QSvgStyleProperty::STROKE));
-            QPen pen;
+            QPen pen(defaultPen);
             if (inherited)
                 pen = inherited->qpen();
 
@@ -489,7 +492,9 @@ static void parsePen(QSvgNode *node,
 
             node->appendStyleProperty(new QSvgStrokeStyle(pen), myId);
         } else {
-            node->appendStyleProperty(new QSvgStrokeStyle(QPen(Qt::NoPen)), myId);
+            QPen pen(defaultPen);
+            pen.setStyle(Qt::NoPen);
+            node->appendStyleProperty(new QSvgStrokeStyle(pen), myId);
         }
     }
 }
