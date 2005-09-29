@@ -172,6 +172,50 @@ static ShiftResult good_offset(const QBezier *b1, const QBezier *b2, qreal offse
     return Ok;
 }
 
+static inline QLineF qline_shifted(const QPointF &p1, const QPointF &p2, qreal offset)
+{
+    QLineF l(p1, p2);
+    QLineF ln = l.normalVector().unitVector();
+    l.translate(ln.dx() * offset, ln.dy() * offset);
+    return l;
+}
+
+static bool qbezier_is_line(QPointF *points, int pointCount)
+{
+    Q_ASSERT(pointCount > 2);
+
+    qreal dx13 = points[2].x() - points[0].x();
+    qreal dy13 = points[2].y() - points[0].y();
+
+    qreal dx12 = points[1].x() - points[0].x();
+    qreal dy12 = points[1].y() - points[0].y();
+
+    if (pointCount == 3) {
+        if (dx13 * dx12 != 0)
+            return qFuzzyCompare(dy12 / dx12, dy13 / dx13);
+        else
+            return qFuzzyCompare(dx12 / dy12, dx13 / dy13);
+
+    } else if (pointCount == 4) {
+        qreal dx14 = points[3].x() - points[0].x();
+        qreal dy14 = points[3].y() - points[0].y();
+
+        if (dx14*dx13*dx12 != 0) {
+            qreal b14 = dy14 / dx14;
+            qreal b13 = dy13 / dx13;
+            qreal b12 = dy12 / dx12;
+            return qFuzzyCompare(b14, b13) && qFuzzyCompare(b14, b12);
+
+        } else {
+            qreal a14 = dx14 / dy14;
+            qreal a13 = dx13 / dy13;
+            qreal a12 = dx12 / dy12;
+            return qFuzzyCompare(a14, a13) && qFuzzyCompare(a14, a12);
+        }
+    }
+
+    return false;
+}
 
 static ShiftResult shift(const QBezier *orig, QBezier *shifted, qreal offset, qreal threshold)
 {
@@ -203,6 +247,14 @@ static ShiftResult shift(const QBezier *orig, QBezier *shifted, qreal offset, qr
     if (np == 1)
         return Discard;
 
+    // We need to specialcase lines of 3 or 4 points due to numerical
+    // instability in intersections below
+    if (np > 2 && qbezier_is_line(points, np)) {
+        QLineF l = qline_shifted(points[0], points[np-1], offset);
+        *shifted = QBezier::fromPoints(l.p1(), l.pointAt(0.33), l.pointAt(0.66), l.p2());
+        return Ok;
+    }
+
     QRectF b = orig->bounds();
     if (np == 4 && b.width() < .1*offset && b.height() < .1*offset) {
         qreal l = (orig->x1 - orig->x2)*(orig->x1 - orig->x2) +
@@ -217,16 +269,11 @@ static ShiftResult shift(const QBezier *orig, QBezier *shifted, qreal offset, qr
             return Circle;
     }
 
-    QLineF l(points[0], points[1]);
-    QLineF ln = l.normalVector().unitVector();
-    l.translate(ln.dx() * offset, ln.dy() * offset);
+    QLineF l = qline_shifted(points[0], points[1], offset);
     points[0] = l.p1();
 
     if (np > 2) {
-        QLineF l2(points[1], points[2]);
-        QLineF l2n = l2.normalVector().unitVector();
-        l2.translate(l2n.dx() * offset, l2n.dy() * offset);
-
+        QLineF l2 = qline_shifted(points[1], points[2], offset);
         QPointF intersection;
         QLineF::IntersectType type = l.intersect(l2, &intersection);
         if (type == QLineF::NoIntersection) {
@@ -238,10 +285,7 @@ static ShiftResult shift(const QBezier *orig, QBezier *shifted, qreal offset, qr
         l = l2;
     }
     if (np > 3) {
-        QLineF l2(points[2], points[3]);
-        QLineF l2n = l2.normalVector().unitVector();
-        l2.translate(l2n.dx() * offset, l2n.dy() * offset);
-
+        QLineF l2 = qline_shifted(points[2], points[3], offset);
         QPointF intersection;
         QLineF::IntersectType type = l.intersect(l2, &intersection);
         if (type == QLineF::NoIntersection) {
