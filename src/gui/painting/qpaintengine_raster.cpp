@@ -2989,6 +2989,17 @@ static void draw_text_item_multi(const QPointF &p, const QTextItemInt &ti, HDC h
                                  uint txop, const QMatrix &matrix)
 {
     QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
+
+    if (!ti.num_glyphs) {
+        if (ti.flags) {
+            QTextItemInt ti2 = ti;
+            ti2.fontEngine = multi->engine(0);
+            ti2.f = ti.f;
+            draw_text_item_win(p, ti2, hdc, txop, matrix);
+        }
+        return;
+    }
+
     QGlyphLayout *glyphs = ti.glyphs;
     int which = glyphs[0].glyph >> 24;
 

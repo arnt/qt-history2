@@ -589,13 +589,12 @@ void QPaintEngine::drawPath(const QPainterPath &)
 void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
-    if (!ti.num_glyphs)
-        return;
 
     QPainterPath path;
     path.setFillRule(Qt::WindingFill);
-    ti.fontEngine->addOutlineToPath(p.x(), p.y(), ti.glyphs, ti.num_glyphs, &path, ti.flags);
-    if (!path.isEmpty()) {
+    if (ti.num_glyphs)
+        ti.fontEngine->addOutlineToPath(p.x(), p.y(), ti.glyphs, ti.num_glyphs, &path, ti.flags);
+    if (ti.flags) {
         const QFontEngine *fe = ti.fontEngine;
         const qreal lw = fe->lineThickness().toReal();
         if (ti.flags & QTextItem::Underline) {
@@ -610,6 +609,8 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
             qreal pos = fe->ascent().toReal() / 3;
             path.addRect(p.x(), p.y() - pos, ti.width.toReal(), lw);
         }
+    }
+    if (!path.isEmpty()) {
         painter()->save();
         painter()->setBrush(state->pen().brush());
         painter()->setPen(Qt::NoPen);

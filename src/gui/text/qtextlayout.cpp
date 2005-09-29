@@ -1486,6 +1486,30 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                         if (selection)
                             outlineRect = outlineRect.unite(itemRect);
                     }
+                } else { // si.isTab
+                    QTextItemInt gf;
+                    QFont f = eng->font(si);
+                    if (f.d->underline)
+                        gf.flags |= QTextItem::Underline;
+                    if (f.d->overline)
+                        gf.flags |= QTextItem::Overline;
+                    if (f.d->strikeOut)
+                        gf.flags |= QTextItem::StrikeOut;
+
+                    if (gf.flags) {
+                        if (si.analysis.bidiLevel %2)
+                            gf.flags |= QTextItem::RightToLeft;
+                        gf.ascent = si.ascent;
+                        gf.descent = si.descent;
+                        gf.num_glyphs = 0;
+                        gf.chars = 0;
+                        gf.num_chars = 0;
+                        gf.width = width;
+                        gf.fontEngine = f.d->engineForScript(si.analysis.script);
+                        gf.f = &f;
+
+                        p->drawTextItem(QPointF(x.toReal(), y.toReal()), gf);
+                    }
                 }
                 p->restore();
             }

@@ -1850,8 +1850,6 @@ static void drawLines(QPaintEngine *p, const QTextItemInt &ti, int baseline, int
 void QX11PaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
-    if (!ti.num_glyphs)
-        return;
 
     switch(ti.fontEngine->type()) {
     case QFontEngine::Multi:
@@ -1876,6 +1874,17 @@ void QX11PaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 void QX11PaintEngine::drawMulti(const QPointF &p, const QTextItemInt &ti)
 {
     QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
+
+    if (!ti.num_glyphs) {
+        if (ti.flags) {
+            QTextItemInt ti2 = ti;
+            ti2.fontEngine = multi->engine(0);
+            ti2.f = ti.f;
+            drawTextItem(p, ti2);
+        }
+        return;
+    }
+
     QGlyphLayout *glyphs = ti.glyphs;
     int which = glyphs[0].glyph >> 24;
 
@@ -1935,6 +1944,9 @@ void QX11PaintEngine::drawMulti(const QPointF &p, const QTextItemInt &ti)
 
 void QX11PaintEngine::drawBox(const QPointF &p, const QTextItemInt &ti)
 {
+    if (!ti.num_glyphs)
+        goto draw_lines;
+
     int size = qRound(ti.fontEngine->ascent());
     int x = qRound(p.x());
     int y = qRound(p.y());
@@ -1970,8 +1982,9 @@ void QX11PaintEngine::drawBox(const QPointF &p, const QTextItemInt &ti)
         }
     }
 
+draw_lines:
     if (ti.flags)
-        ::drawLines(this, ti, qRound(p.y()), qRound(p.x()), ti.num_glyphs*size);
+        ::drawLines(this, ti, qRound(p.y()), qRound(p.x()), qRound(ti.width));
 }
 
 
@@ -2008,6 +2021,9 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &si)
 
     if (si.flags)
         ::drawLines(this, si, qRound(p.y()), qRound(p.x()), qRound(si.width));
+
+    if (!si.num_glyphs)
+        return;
 
     QVarLengthArray<XChar2b> chars(si.num_glyphs);
 
@@ -2169,6 +2185,9 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
 
     if (si.flags)
         ::drawLines(this, si, p.toPoint().y(), p.toPoint().x(), qRound(si.width));
+
+    if (!si.num_glyphs)
+        return;
 
 #ifndef QT_NO_XRENDER
     if (X11->use_xrender) {
