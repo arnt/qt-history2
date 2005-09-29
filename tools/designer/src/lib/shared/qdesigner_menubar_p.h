@@ -52,6 +52,7 @@ private slots:
     void slotCheckSentinel();
 
 protected:
+    void startDrag(const QPoint &pos);
     virtual void actionEvent(QActionEvent *event);
     virtual void dragEnterEvent(QDragEnterEvent *event);
     virtual void dragMoveEvent(QDragMoveEvent *event);
@@ -74,6 +75,7 @@ private:
     QAction *m_sentinel;
     bool m_blockSentinelChecker;
     QPointer<QMenu> m_activeMenu;
+    QPoint m_startPosition;
 };
 
 #endif // QDESIGNER_MENUBAR_H

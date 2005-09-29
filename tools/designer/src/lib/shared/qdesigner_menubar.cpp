@@ -72,19 +72,83 @@ bool QDesignerMenuBar::handleEvent(QWidget *widget, QEvent *event)
     return true;
 }
 
-bool QDesignerMenuBar::handleMousePressEvent(QWidget *, QMouseEvent *)
+void QDesignerMenuBar::startDrag(const QPoint &pos)
 {
+    int index = findAction(pos);
+    if (index >= actions().count() - 1)
+        return;
+
+    QAction *action = actions().at(index);
+    removeAction(action);
+    adjustSize();
+
+    adjustIndicator(pos);
+
+    QDrag *drag = new QDrag(this);
+    drag->setPixmap(action->icon().pixmap(QSize(22, 22)));
+
+    ActionRepositoryMimeData *data = new ActionRepositoryMimeData();
+    data->items.append(action);
+    drag->setMimeData(data);
+
+    if (drag->start() == Qt::IgnoreAction) {
+        QAction *previous = actions().at(index);
+        insertAction(previous, action);
+        adjustSize();
+    }
+}
+
+bool QDesignerMenuBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
+{
+    m_startPosition = QPoint();
+    event->accept();
+
+    if (event->button() != Qt::LeftButton)
+        return true;
+
+    m_startPosition = mapFromGlobal(event->globalPos());
+
+    int index = findAction(m_startPosition);
+    if (index >= actions().count() - 1)
+        return false;
+
+    if (QAction *action = actions().at(index)) {
+        setActiveAction(action);
+
+        if (QMenu *menu = action->menu()) {
+            menu->setActiveAction(0);
+        }
+    }
+
+
+    return true;
+}
+
+bool QDesignerMenuBar::handleMouseReleaseEvent(QWidget *, QMouseEvent *event)
+{
+    event->accept();
+
+    m_startPosition = QPoint();
+
     return false;
 }
 
-bool QDesignerMenuBar::handleMouseReleaseEvent(QWidget *, QMouseEvent *)
+bool QDesignerMenuBar::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
 {
-    return false;
-}
+    event->accept();
 
-bool QDesignerMenuBar::handleMouseMoveEvent(QWidget *, QMouseEvent *)
-{
-    return false;
+    if (m_startPosition.isNull())
+        return false;
+
+    QPoint pos = mapFromGlobal(event->globalPos());
+
+    if ((pos - m_startPosition).manhattanLength() < qApp->startDragDistance())
+        return false;
+
+    startDrag(pos);
+    m_startPosition = QPoint();
+
+    return true;
 }
 
 bool QDesignerMenuBar::handleContextMenuEvent(QWidget *, QContextMenuEvent *event)
