@@ -1683,7 +1683,6 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
         option.setWrapMode(wordWrapMode);
     option.setTabStop(tabStopWidth);
     option.setUseDesignMetrics(q->document()->useDesignMetrics());
-    option.setFlags(QTextOption::IncludeTrailingSpaces);
     tl->setTextOption(option);
 
     const bool haveWordOrAnyWrapMode = (option.wrapMode() == QTextOption::WrapAtWordBoundaryOrAnywhere);
