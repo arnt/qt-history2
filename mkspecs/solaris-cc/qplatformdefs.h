@@ -80,7 +80,7 @@ static inline int qt_socket_connect(int s, struct sockaddr *addr, QT_SOCKLEN_T a
 #define QT_FGETPOS              ::fgetpos64
 #define QT_FSETPOS              ::fsetpos64
 #define QT_FPOS_T               fpos64_t
-#define QT_OFF_T                off_t
+#define QT_OFF_T                off64_t
 #else
 #define QT_FOPEN                ::fopen
 #define QT_FSEEK                ::fseek
