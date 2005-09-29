@@ -928,6 +928,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
     if (!selectionModel() || (d->state == EditingState && d->editors.contains(index)))
         return;
 
+    bool alreadySelected = selectionModel()->isSelected(index);
     d->pressedIndex = index;
     d->pressedModifiers = event->modifiers();
     QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
@@ -945,7 +946,8 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
         QPersistentModelIndex persistent = index;
         emit pressed(index);
         index = persistent;
-        edit(index, SelectedClicked, event);
+        if (alreadySelected)
+            edit(index, SelectedClicked, event);
     }
 }
 
