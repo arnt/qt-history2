@@ -12,9 +12,11 @@
 ****************************************************************************/
 
 #include "qmainwindow_container.h"
+#include "qdesigner_toolbar_p.h"
 
 #include <QtCore/qdebug.h>
 
+#include <QtGui/QLayout>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenuBar>
 #include <QtGui/QToolBar>
@@ -52,11 +54,22 @@ void QMainWindowContainer::setCurrentIndex(int index)
     Q_UNUSED(index);
 }
 
+static Qt::ToolBarArea toolBarArea(QToolBar *me)
+{
+    if (QMainWindow *mw = qobject_cast<QMainWindow*>(me->parentWidget())) {
+        if (mw->layout() && mw->layout()->indexOf(me) != -1) {
+            return mw->toolBarArea(me);
+        }
+    }
+
+    return Qt::TopToolBarArea;
+}
+
 void QMainWindowContainer::addWidget(QWidget *widget)
 {
     if (QToolBar *toolBar = qobject_cast<QToolBar*>(widget)) {
-        // the toolbar is already added.
         m_widgets.append(widget);
+        m_mainWindow->addToolBar(toolBarArea(toolBar), toolBar);
     } else if (QMenuBar *menuBar = qobject_cast<QMenuBar*>(widget)) {
         m_widgets.append(widget);
         m_mainWindow->setMenuBar(menuBar);
