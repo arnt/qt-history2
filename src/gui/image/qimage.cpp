@@ -41,6 +41,9 @@
 #pragma message disable narrowptr
 #endif
 
+typedef void (*_qt_image_cleanup_hook)(int);
+_qt_image_cleanup_hook qt_image_cleanup_hook = 0;
+
 struct QImageData {        // internal image data
     QImageData();
     ~QImageData();
@@ -844,8 +847,11 @@ QImage::QImage(uchar* data, int w, int h, int depth, int bpl, const QRgb* colort
 
 QImage::~QImage()
 {
-    if (d && !d->ref.deref())
+    if (d && !d->ref.deref()) {
+        if (qt_image_cleanup_hook)
+            qt_image_cleanup_hook(d->ser_no);
         delete d;
+    }
 }
 
 /*!
@@ -4087,7 +4093,7 @@ QString QImage::text(const QString &key) const
 void QImage::setText(const QString &key, const QString &value)
 {
     if (d)
-        d->text.insert(key, value);        
+        d->text.insert(key, value);
 }
 
 /*!

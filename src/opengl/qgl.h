@@ -226,6 +226,7 @@ private:
 
     friend class QGLPbuffer;
     friend class QGLWidget;
+    friend class QGLDrawable;
     friend class QGLWidgetPrivate;
 #ifdef Q_WS_MAC
     void updatePaintDevice();

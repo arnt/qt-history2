@@ -59,7 +59,9 @@ protected:
     int devType() const { return QInternal::Pbuffer; }
 
 private:
+    Q_DISABLE_COPY(QGLPbuffer)
     QGLPbufferPrivate *d_ptr;
+    friend class QGLDrawable;
 };
 
 #endif // QGLPBUFFER_H

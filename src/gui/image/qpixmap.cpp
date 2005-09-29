@@ -38,6 +38,9 @@
 #include <private/qt_x11_p.h>
 #endif
 
+typedef void (*_qt_pixmap_cleanup_hook)(int);
+_qt_pixmap_cleanup_hook qt_pixmap_cleanup_hook = 0;
+
 /*!
     \enum QPixmap::ColorMode
 
@@ -1013,6 +1016,8 @@ bool QPixmap::isDetached() const
 void QPixmap::deref()
 {
     if(data && data->deref()) { // Destroy image if last ref
+        if (qt_pixmap_cleanup_hook)
+            qt_pixmap_cleanup_hook(data->ser_no);
         delete data;
         data = 0;
     }

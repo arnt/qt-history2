@@ -23,6 +23,7 @@
 #include "qvarlengtharray.h"
 #include <private/qpainter_p.h>
 #include <qglpbuffer.h>
+#include <private/qglpbuffer_p.h>
 
 
 #ifdef Q_OS_MAC
@@ -119,18 +120,18 @@ inline QGLFormat QGLDrawable::format() const
 inline GLuint QGLDrawable::bindTexture(const QImage &image, GLenum target, GLint format)
 {
     if (widget)
-        return widget->bindTexture(image, target, format);
+        return widget->d_func()->glcx->d_func()->bindTexture(image, target, format, true);
     else if (buffer)
-        return buffer->bindTexture(image, target, format);
+        return buffer->d_func()->qctx->d_func()->bindTexture(image, target, format, true);
     return 0;
 }
 
 inline GLuint QGLDrawable::bindTexture(const QPixmap &pixmap, GLenum target, GLint format)
 {
     if (widget)
-        return widget->bindTexture(pixmap, target, format);
+        return widget->d_func()->glcx->d_func()->bindTexture(pixmap, target, format, true);
     else if (buffer)
-        return buffer->bindTexture(pixmap, target, format);
+        return buffer->d_func()->qctx->d_func()->bindTexture(pixmap, target, format, true);
     return 0;
 }
 
