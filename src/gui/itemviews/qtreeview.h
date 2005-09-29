@@ -111,7 +111,7 @@ protected:
     QRegion visualRegionForSelection(const QItemSelection &selection) const;
     QModelIndexList selectedIndexes() const;
 
-    void paintEvent(QPaintEvent *e);
+    void paintEvent(QPaintEvent *event);
     virtual void drawRow(QPainter *painter,
                          const QStyleOptionViewItem &options,
                          const QModelIndex &index) const;
@@ -119,8 +119,9 @@ protected:
                               const QRect &rect,
                               const QModelIndex &index) const;
 
-    void mousePressEvent(QMouseEvent *e);
-    void mouseDoubleClickEvent(QMouseEvent *e);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
 
     void updateGeometries();
 

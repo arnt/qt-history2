@@ -595,7 +595,7 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
 /*!
   \reimp
 */
-void QTreeView::paintEvent(QPaintEvent *e)
+void QTreeView::paintEvent(QPaintEvent *event)
 {
     Q_D(QTreeView);
     QStyleOptionViewItem option = viewOptions();
@@ -610,11 +610,11 @@ void QTreeView::paintEvent(QPaintEvent *e)
 
     QPainter painter(d->viewport);
     if (c == 0 || d->header->count() == 0) {
-        painter.fillRect(e->rect(), baseBrush);
+        painter.fillRect(event->rect(), baseBrush);
         return;
     }
 
-    QVector<QRect> rects = e->region().rects();
+    QVector<QRect> rects = event->region().rects();
     for (int ii = 0; ii < rects.size(); ++ii) {
 
         QRect area = rects.at(ii);
@@ -823,14 +823,14 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
 /*!
   \reimp
 */
-void QTreeView::mousePressEvent(QMouseEvent *e)
+void QTreeView::mousePressEvent(QMouseEvent *event)
 {
     Q_D(QTreeView);
-    if (!d->viewport->rect().contains(e->pos()))
+    if (!d->viewport->rect().contains(event->pos()))
         return;
-    int i = d->itemDecorationAt(e->pos());
+    int i = d->itemDecorationAt(event->pos());
     if (i == -1) {
-        QAbstractItemView::mousePressEvent(e);
+        QAbstractItemView::mousePressEvent(event);
     } else if (model()->hasChildren(d->viewItems.at(i).index)) {
         if (d->viewItems.at(i).expanded) {
             setState(ExpandingState);
@@ -844,28 +844,35 @@ void QTreeView::mousePressEvent(QMouseEvent *e)
     }
 }
 
+void QTreeView::mouseReleaseEvent(QMouseEvent *event)
+{
+    Q_D(QTreeView);
+    if (d->itemDecorationAt(event->pos()) == -1)
+        QAbstractItemView::mousePressEvent(event);
+}
+
 /*!
   \reimp
 */
-void QTreeView::mouseDoubleClickEvent(QMouseEvent *e)
+void QTreeView::mouseDoubleClickEvent(QMouseEvent *event)
 {
     Q_D(QTreeView);
-    if (!d->viewport->rect().contains(e->pos()))
+    if (!d->viewport->rect().contains(event->pos()))
         return;
 
-    int i = d->itemDecorationAt(e->pos());
+    int i = d->itemDecorationAt(event->pos());
     if (i == -1) {
-        i = d->item(e->y());
+        i = d->item(event->y());
         if (i == -1)
             return; // user clicked outside the items
 
         // signal handlers may change the model
         QModelIndex index = d->viewItems.at(i).index;
-        int column = d->header->logicalIndexAt(e->x());
+        int column = d->header->logicalIndexAt(event->x());
         QPersistentModelIndex persistent = index.sibling(index.row(), column);
         emit doubleClicked(persistent);
 
-        if (edit(persistent, DoubleClicked, e) || state() != NoState)
+        if (edit(persistent, DoubleClicked, event) || state() != NoState)
             return; // the double click triggered editing
 
         if (!style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
