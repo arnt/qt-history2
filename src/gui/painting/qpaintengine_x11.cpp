@@ -1944,45 +1944,42 @@ void QX11PaintEngine::drawMulti(const QPointF &p, const QTextItemInt &ti)
 
 void QX11PaintEngine::drawBox(const QPointF &p, const QTextItemInt &ti)
 {
-    if (!ti.num_glyphs)
-        goto draw_lines;
+    if (ti.num_glyphs) {
+        int size = qRound(ti.fontEngine->ascent());
+        int x = qRound(p.x());
+        int y = qRound(p.y());
+        int s = size - 3;
 
-    int size = qRound(ti.fontEngine->ascent());
-    int x = qRound(p.x());
-    int y = qRound(p.y());
-    int s = size - 3;
-
-    Q_D(QX11PaintEngine);
-    if (d->txop > QPainterPrivate::TxTranslate) {
-        for (int k = 0; k < ti.num_glyphs; k++) {
-            qt_draw_transformed_rect(this, x, y, s, s, false);
-            x += size;
-        }
-    } else {
-        if (d->txop == QPainterPrivate::TxTranslate) {
-            x += qRound(d->matrix.dx());
-            y += qRound(d->matrix.dy());
-        }
-        XRectangle rects[64];
-
-        int gl = 0;
-        while (gl < ti.num_glyphs) {
-            int toDraw = qMin(64, ti.num_glyphs-gl);
-            int adv = toDraw * size;
-            if (x + adv < SHRT_MAX && x > SHRT_MIN) {
-                for (int k = 0; k < toDraw; k++) {
-                    rects[k].x = x + (k * size);
-                    rects[k].y = y - size + 2;
-                    rects[k].width = rects[k].height = s;
-                }
-                XDrawRectangles(d->dpy, d->hd, d->gc, rects, toDraw);
+        Q_D(QX11PaintEngine);
+        if (d->txop > QPainterPrivate::TxTranslate) {
+            for (int k = 0; k < ti.num_glyphs; k++) {
+                qt_draw_transformed_rect(this, x, y, s, s, false);
+                x += size;
             }
-            gl += toDraw;
-            x += adv;
+        } else {
+            if (d->txop == QPainterPrivate::TxTranslate) {
+                x += qRound(d->matrix.dx());
+                y += qRound(d->matrix.dy());
+            }
+            XRectangle rects[64];
+
+            int gl = 0;
+            while (gl < ti.num_glyphs) {
+                int toDraw = qMin(64, ti.num_glyphs-gl);
+                int adv = toDraw * size;
+                if (x + adv < SHRT_MAX && x > SHRT_MIN) {
+                    for (int k = 0; k < toDraw; k++) {
+                        rects[k].x = x + (k * size);
+                        rects[k].y = y - size + 2;
+                        rects[k].width = rects[k].height = s;
+                    }
+                    XDrawRectangles(d->dpy, d->hd, d->gc, rects, toDraw);
+                }
+                gl += toDraw;
+                x += adv;
+            }
         }
     }
-
-draw_lines:
     if (ti.flags)
         ::drawLines(this, ti, qRound(p.y()), qRound(p.x()), qRound(ti.width));
 }
