@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
         int lineNumber = 0;
         int changedLines = 0;
         while (!f.atEnd()) {
-            QString origLine = QString::fromLocal8Bit(f.readLine());
+            QString origLine = QString::fromLatin1(f.readLine());
             QString line = origLine;
             ++lineNumber;
 
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
         if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
             qFatal("Unable to open file '%s' for writing: %s", argv[i], qPrintable(f.errorString()));
         foreach (QString s, contents)
-            f.write(s.toLocal8Bit());
+            f.write(s.toLatin1());
         f.close();
     }
 
