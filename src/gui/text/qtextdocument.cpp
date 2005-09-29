@@ -854,13 +854,38 @@ void QTextDocument::setModified(bool m)
     docHandle()->setModified(m);
 }
 
+#ifndef QT_NO_PRINTER
+static void printPage(int index, QPainter *painter, QTextDocument *doc, QRectF *body)
+{         
+    painter->save();
+    painter->translate(body->left(), body->top() - (index - 1) * body->height());
+    QRectF view(0, (index - 1) * body->height(), body->width(), body->height());
+
+    QAbstractTextDocumentLayout *layout = doc->documentLayout();    
+    QAbstractTextDocumentLayout::PaintContext ctx;
+    
+    painter->setClipRect(view);
+    ctx.clip = view;
+
+    layout->draw(painter, ctx);
+
+    painter->setClipping(false);
+    painter->setFont(QFont(doc->defaultFont()));
+    QString pageString = QString::number(index);
+
+    painter->drawText(qRound(view.right() - painter->fontMetrics().width(pageString)),
+               qRound(view.bottom() + painter->fontMetrics().ascent() + 5 * painter->device()->logicalDpiY() / 72), pageString);    
+               
+    painter->restore();                
+}
+
 /*!
     Prints the document to the given \a printer. The QPrinter must be
     set up before being used with this function.
 
     This is only a convenience method to print the whole document to the printer.
 */
-#ifndef QT_NO_PRINTER
+
 void QTextDocument::print(QPrinter *printer) const
 {
     QPainter p(printer);
@@ -868,45 +893,69 @@ void QTextDocument::print(QPrinter *printer) const
     // Check that there is a valid device to print to.
     if (!p.isActive())
         return;
-
+    
+    QTextDocument *doc = clone();
+    QAbstractTextDocumentLayout *layout = doc->documentLayout(); // make sure that there is a layout
+    layout->setPaintDevice(p.device());
     const int dpiy = p.device()->logicalDpiY();
     const int margin = (int) ((2/2.54)*dpiy); // 2 cm margins
     QRectF body(margin, margin, p.device()->width() - 2*margin, p.device()->height() - 2*margin);
-
-    QTextDocument *doc = clone();
-    QAbstractTextDocumentLayout *layout = doc->documentLayout();
+           
     QFont font(doc->defaultFont());
     font.setPointSize(10); // we define 10pt to be a nice base size for printing
     doc->setDefaultFont(font);
-    layout->setPaintDevice(printer);
-    doc->setPageSize(body.size());
+    doc->setPageSize(body.size());    
 
-    QRectF view(0, 0, body.width(), body.height());
-    p.translate(body.left(), body.top());
-
-    int page = 1;
-    do {
-        QAbstractTextDocumentLayout::PaintContext ctx;
-        p.setClipRect(view);
-        ctx.clip = view;
-        layout->draw(&p, ctx);
-
-        p.setClipping(false);
-        p.setFont(font);
-        QString pageString = QString::number(page);
-        p.drawText(qRound(view.right() - p.fontMetrics().width(pageString)),
-                   qRound(view.bottom() + p.fontMetrics().ascent() + 5*dpiy/72), pageString);
-
-        view.translate(0, body.height());
-        p.translate(0 , -body.height());
-
-        if (view.top() >= layout->documentSize().height())
-            break;
-
-        printer->newPage();
-        page++;
-    } while (true);
-    Q_ASSERT(page == doc->pageCount());
+    int docCopies;
+    int pageCopies;
+    if (printer->collateCopies() == true){
+        docCopies = 1;
+        pageCopies = printer->numCopies();
+    } else {
+        docCopies = printer->numCopies();
+        pageCopies = 1;
+    }
+                   
+    int fromPage = printer->fromPage();
+    int toPage = printer->toPage();
+    bool ascending = true;
+    
+    if ( fromPage == 0 && toPage == 0 ) {
+        fromPage = 1;
+        toPage = doc->pageCount();
+    }
+    
+    if (printer->pageOrder() == QPrinter::LastPageFirst) {
+        int tmp = fromPage;
+        fromPage = toPage;
+        toPage = tmp;
+        ascending = false;
+    }
+                       
+    for (int i = 0; i < docCopies; ++i) {
+    
+        int page = fromPage;
+        while (true) {        
+            for (int j = 0; j < pageCopies; ++j) {                        
+                printPage(page, &p, doc, &body);                                                                
+                if (j < pageCopies - 1)                
+                    printer->newPage();   
+            }        
+        
+            if (page == toPage)
+                break;
+        
+            if (ascending)
+                ++page;
+            else
+                --page;
+            
+            printer->newPage();                           
+        }
+       
+        if ( i < docCopies - 1)
+            printer->newPage();
+    }
 
     delete doc;
 }
@@ -1657,3 +1706,4 @@ QTextDocumentPrivate *QTextDocument::docHandle() const
     Q_D(const QTextDocument);
     return const_cast<QTextDocumentPrivate *>(d);
 }
+

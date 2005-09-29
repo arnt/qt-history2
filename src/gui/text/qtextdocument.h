@@ -35,6 +35,7 @@ class QTextBlock;
 class QTextCodec;
 class QUrl;
 class QVariant;
+class QRectF;
 
 template<typename T> class QVector;
 
