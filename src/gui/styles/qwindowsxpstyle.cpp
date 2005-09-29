@@ -1142,37 +1142,9 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
             imgCopy = cachedPixmap.toImage();
 
         if (themeData.rotate) {
-#if 1
-            // We must rotate it manually, since QImage::transform does something wrong
-            QImage imgRotated(imgCopy.height(), imgCopy.width(), imgCopy.format());
-            for (int yi = 0; yi < imgCopy.height(); yi++) {
-                for (int xi = 0; xi < imgCopy.width(); xi++) {
-                    QRgb px = imgCopy.pixel(xi,yi);
-                    imgRotated.setPixel(imgCopy.height() -1 - yi, xi, qRgba(qRed(px), qGreen(px), qBlue(px), 255));
-                }
-            }
-            imgCopy = imgRotated;
-#else
             QMatrix rotMatrix;
-            switch(themeData.rotate) {
-                case 90:
-                    rotMatrix = QMatrix(0,1,-1,0, 0, 0);
-                    break;
-                case 180:
-                    rotMatrix = QMatrix(-1, 0, 0, -1, 0, 0);
-                    break;
-                case 270:
-                    rotMatrix = QMatrix(0, -1, 1, 0, 0, 0);
-                    break;
-                default:
-                    rotMatrix.rotate(themeData.rotate);
-                    break;
-            }
-            //qDebug() << "----\nFormat before rotate:" << imgCopy.format();
-            uint format = imgCopy.format();
+            rotMatrix.rotate(themeData.rotate);
             imgCopy = imgCopy.transformed(rotMatrix);
-            //qDebug() << "Format after rotate:" << imgCopy.format();
-#endif
         }
         if (themeData.mirrorHorizontally || themeData.mirrorVertically) {
             imgCopy = imgCopy.mirrored(themeData.mirrorHorizontally, themeData.mirrorVertically);
