@@ -204,7 +204,7 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
                         QDragEnterEvent dee(cw->mapFromGlobal(me->globalPos()), possible_actions, dropData,
                                             me->buttons(), me->modifiers());
                         QApplication::sendEvent(object->target(), &dee);
-                        willDrop = dee.isAccepted();
+                        willDrop = dee.isAccepted() && dee.dropAction() != Qt::IgnoreAction;
                         global_accepted_action = willDrop ? dee.dropAction() : Qt::IgnoreAction;
                         updateCursor();
                         restoreCursor = true;

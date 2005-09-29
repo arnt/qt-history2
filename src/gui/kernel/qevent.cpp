@@ -2025,7 +2025,7 @@ QWidget* QDropEvent::source() const
 
 void QDropEvent::setDropAction(Qt::DropAction action)
 {
-    if (!(action & act))
+    if (!(action & act) && action != Qt::IgnoreAction)
         action = Qt::CopyAction;
     drop_action = action;
 }

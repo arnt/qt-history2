@@ -588,7 +588,7 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
 
 
     answerRect = e.answerRect();
-    if (e.isAccepted())
+    if (e.isAccepted() && e.dropAction() != Qt::IgnoreAction)
         choosenEffect = translateToWinDragEffects(e.dropAction());
     else
         choosenEffect = DROPEFFECT_NONE;

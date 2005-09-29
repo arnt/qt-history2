@@ -407,7 +407,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
         QDragEnterEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
                            QApplication::mouseButtons(), QApplication::keyboardModifiers());
         QApplication::sendEvent(q, &de);
-        if(!de.isAccepted())
+        if(!de.isAccepted() || de.dropAction() == Qt::IgnoreAction)
             ret = false;
     } else if(kind == kEventControlDragLeave) {
         QDragLeaveEvent de;

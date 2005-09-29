@@ -3000,7 +3000,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 if (w->isEnabled() && w->acceptDrops()) {
                     res = d->notify_helper(w, e);
                     if (res && e->isAccepted()) {
-                        QDragManager::self()->setCurrentTarget(w);
+                        if (static_cast<QDragEnterEvent *>(e)->dropAction() != Qt::IgnoreAction)
+                            QDragManager::self()->setCurrentTarget(w);
                         break;
                     }
                 }

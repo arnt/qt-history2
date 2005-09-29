@@ -482,7 +482,7 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
                 last_target_accepted_action = Qt::IgnoreAction;
                 QDragEnterEvent de(p, possible_actions, dropData, QApplication::mouseButtons(), QApplication::keyboardModifiers());
                 QApplication::sendEvent(target_widget, &de);
-                if (de.isAccepted())
+                if (de.isAccepted() && de.dropAction() != Qt::IgnoreAction)
                     last_target_accepted_action = de.dropAction();
             }
         }
