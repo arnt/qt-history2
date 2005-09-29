@@ -72,23 +72,17 @@ bool QDesignerMenu::handleEvent(QWidget *widget, QEvent *event)
     return true;
 }
 
-bool QDesignerMenu::handleMousePressEvent(QWidget *, QMouseEvent *event)
+void QDesignerMenu::startDrag(const QPoint &pos)
 {
-    if (event->button() != Qt::LeftButton) {
-        event->accept();
-        return true;
-    }
-
-    QPoint pos = mapFromGlobal(event->globalPos());
     int index = findAction(pos);
     if (index >= actions().count() - 1)
-        return false;
+        return;
 
     QAction *action = actions().at(index);
     removeAction(action);
-
     adjustSize();
-    adjustIndicator(event->pos());
+
+    adjustIndicator(pos);
 
     QDrag *drag = new QDrag(this);
     drag->setPixmap(action->icon().pixmap(QSize(22, 22)));
@@ -102,17 +96,45 @@ bool QDesignerMenu::handleMousePressEvent(QWidget *, QMouseEvent *event)
         insertAction(previous, action);
         adjustSize();
     }
+}
+
+bool QDesignerMenu::handleMousePressEvent(QWidget *, QMouseEvent *event)
+{
+    m_startPosition = QPoint();
+    event->accept();
+
+    if (event->button() != Qt::LeftButton)
+        return true;
+
+    m_startPosition = mapFromGlobal(event->globalPos());
 
     return true;
 }
 
-bool QDesignerMenu::handleMouseReleaseEvent(QWidget *, QMouseEvent *)
+bool QDesignerMenu::handleMouseReleaseEvent(QWidget *, QMouseEvent *event)
 {
-    return true;
+    event->accept();
+
+    m_startPosition = QPoint();
+
+    return false;
 }
 
-bool QDesignerMenu::handleMouseMoveEvent(QWidget *, QMouseEvent *)
+bool QDesignerMenu::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
 {
+    event->accept();
+
+    if (m_startPosition.isNull())
+        return false;
+
+    QPoint pos = mapFromGlobal(event->globalPos());
+
+    if ((pos - m_startPosition).manhattanLength() < qApp->startDragDistance())
+        return false;
+
+    startDrag(pos);
+    m_startPosition = QPoint();
+
     return true;
 }
 
