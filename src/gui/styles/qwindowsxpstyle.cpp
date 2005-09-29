@@ -1793,7 +1793,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 stateId = PBS_PRESSED;
             else if (flags & State_MouseOver)
                 stateId = PBS_HOT;
-            else if (btn->features & QStyleOptionButton::AutoDefaultButton)
+            else if (btn->features & QStyleOptionButton::DefaultButton)
                 stateId = PBS_DEFAULTED;
             else
                 stateId = PBS_NORMAL;
