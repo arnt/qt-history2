@@ -4038,7 +4038,7 @@ void QImage::setOffset(const QPoint& p)
 */
 QStringList QImage::textKeys() const
 {
-    return d ? d->text.keys() : QStringList();
+    return d ? QStringList(d->text.keys()) : QStringList();
 }
 
 /*!
