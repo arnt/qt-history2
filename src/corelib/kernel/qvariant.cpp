@@ -1337,7 +1337,6 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
 void QVariant::create(int type, const void *copy)
 {
     d.type = type;
-    d.is_null = true;
     handler->construct(&d, copy);
 }
 
@@ -1580,17 +1579,17 @@ QVariant::QVariant(Type type)
 QVariant::QVariant(int typeOrUserType, const void *copy)
 { create(typeOrUserType, copy); d.is_null = false; }
 QVariant::QVariant(int val)
-{ create(Int, &val); }
+{ d.is_null = false; d.type = Int; d.data.i = val; }
 QVariant::QVariant(uint val)
-{ create(UInt, &val); }
+{ d.is_null = false; d.type = UInt; d.data.u = val; }
 QVariant::QVariant(qlonglong val)
-{ create(LongLong, &val); }
+{ d.is_null = false; d.type = LongLong; d.data.ll = val; }
 QVariant::QVariant(qulonglong val)
-{ create(ULongLong, &val); }
+{ d.is_null = false; d.type = ULongLong; d.data.ull = val; }
 QVariant::QVariant(bool val)
-{ create(Bool, &val); }
+{ d.is_null = false; d.type = Bool; d.data.b = val; }
 QVariant::QVariant(double val)
-{ create(Double, &val); }
+{ d.is_null = false; d.type = Double; d.data.d = val; }
 
 QVariant::QVariant(const QByteArray &val)
 { create(ByteArray, &val); }
