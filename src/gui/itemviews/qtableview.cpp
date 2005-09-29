@@ -68,11 +68,6 @@ void QTableViewPrivate::updateVerticalScrollbar()
         y -= verticalHeader->sectionSize(--count);
     int max = count * verticalStepsPerItem;
 
-    // iterate all hidden sections compensate *max* for that.
-    for (int s = 0; s < verticalHeader->count(); ++s)
-        if (verticalHeader->isSectionHidden(s))
-            max -= verticalStepsPerItem;
-
     // set page step size
     int visibleCount = verticalHeader->count() - count - 1;
     q->verticalScrollBar()->setPageStep(visibleCount * verticalStepsPerItem);
@@ -119,11 +114,6 @@ void QTableViewPrivate::updateHorizontalScrollbar()
     while (x > 0 && count > 0)
         x -= horizontalHeader->sectionSize(--count);
     int max = count * horizontalStepsPerItem;
-
-    // iterate all hidden sections compensate *max* for that.
-    for (int s = 0; s < horizontalHeader->count(); ++s)
-        if (horizontalHeader->isSectionHidden(s))
-            max -= horizontalStepsPerItem;
 
     // set page step size
     int visibleCount = horizontalHeader->count() - count - 1;
