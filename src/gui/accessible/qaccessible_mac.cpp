@@ -657,7 +657,7 @@ int textForRoleAndAttribute(QAccessible::Role role, CFStringRef attribute)
         return QAccessible::Value;
     else if (CFStringCompare(attribute, kAXHelpAttribute, 0) == kCFCompareEqualTo)
         return QAccessible::Help;
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     else if (CFStringCompare(attribute, kAXDescriptionAttribute, 0) == kCFCompareEqualTo)
         return QAccessible::Description;
 #endif
@@ -728,7 +728,7 @@ OSStatus getAllAttributeNames(EventRef event, InterfaceItem *interface, EventHan
         qt_mac_append_cf_uniq(attrs, kAXTitleAttribute);
     if (supportsAttribute(kAXValueAttribute, interface))
         qt_mac_append_cf_uniq(attrs, kAXValueAttribute);
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     if (supportsAttribute(kAXDescriptionAttribute, interface))
         qt_mac_append_cf_uniq(attrs, kAXDescriptionAttribute);
     if (supportsAttribute(kAXLinkedUIElementsAttribute, interface))
@@ -915,7 +915,7 @@ OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, Interfa
         const QAccessible::Role role = interface->role();
         const QAccessible::Text text = (QAccessible::Text)textForRoleAndAttribute(role, var);
         handleStringAttribute(event, text, interface);
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     } else if (CFStringCompare(var, kAXDescriptionAttribute, 0) == kCFCompareEqualTo) {
         const QAccessible::Role role = interface->role();
         const QAccessible::Text text = (QAccessible::Text)textForRoleAndAttribute(role, var);
