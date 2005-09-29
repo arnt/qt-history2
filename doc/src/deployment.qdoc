@@ -357,7 +357,7 @@
     QApplication::setLibraryPaths().
 
     \code
-        QApplication::addLibraryPath("/some/other/path");
+        qApp->addLibraryPath("/some/other/path");
     \endcode
 
     When you build the Qt library, the search path for plugins (as
@@ -411,10 +411,9 @@
 
     This documentation will describe how to determine which files you
     should include in your distribution, and how to make sure that the
-    application will find them at run-time.
-
-    We will demonstrate the procedures in terms of deploying the Plug
-    & Paint application that is provided in Qt's examples directory.
+    application will find them at run-time. We will demonstrate the
+    procedures in terms of deploying the Plug & Paint application that
+    is provided in Qt's examples directory.
 
     \tableofcontents
 
@@ -424,7 +423,7 @@
     deploy, i.e. a stand-alone executable with the associated compiler
     specific \c {DLL}s, then you must build everything statically.
 
-    \section2 Building Qt
+    \section2 Building Qt Statically
 
     Before we can build our application we must make sure that Qt is
     built statically. To do this, go to a command prompt and type the
@@ -447,7 +446,7 @@
     used \c nmake in all the examples, but if you use MinGW you must
     use the \c mingw32-make instead.
 
-    \section2 Building the Application
+    \section2 Linking the Application to the Static Version of Qt
 
     Once Qt has finished building we can build the Plug & Paint
     application. First we must go into the directory that contains the
@@ -512,14 +511,14 @@
     plugins have to be installed in the correct location on the target
     system so that the application can find them.
 
-    \section2 Building Qt
+    \section2 Building Qt as a Shared Library
 
     We assume that you already have installed Qt as a shared library
     in the \c C:\path\to\Qt directory which is the default when installing
     Qt. For more information on how to build Qt, see the \l
     {Installation} document.
 
-    \section2 Building the Application and Plugins
+    \section2 Linking the Application to Qt as a Shared Library
 
     After ensuring that Qt is built as a shared library, we can build
     the \l {tools/plugandpaint}{Plug & Paint} application. First, we
@@ -548,16 +547,15 @@
     \endcode
 
     If everything compiled and linked without any errors, we will get
-    a \c plugandpaint.exe file. To deploy it, we must make sure that
-    we copy the relevant Qt \c {DLL}'s (corresponding to the Qt
-    modules used in the application) as well as the executable to the
-    same directory in the \c release subdirectory. We'll cover the
-    plugins shortly, but first we'll check that the application will
-    work in a deployed environment: Either copy the executable and the
-    Qt \c {DLL}s to a machine that doesn't have Qt or any Qt
-    applications installed, or if you want to test on the build
-    machine, ensure that the machine doesn't have Qt in its
-    environment.
+    a \c plugandpaint.exe executable and the \c pnp_basictools.dll and
+    \c pnp_extrafilters.dll plugin files.
+
+    \section2 Creating the Application Package
+
+    To deploy the application, we must make sure that we copy the
+    relevant Qt \c DLL (corresponding to the Qt modules used in
+    the application) as well as the executable to the same directory
+    in the \c release subdirectory.
 
     Remember that if your application depends on compiler specific
     libraries, these must be redistributed along with your
@@ -566,13 +564,18 @@
     information, see the \l {Application Dependencies - the "depends"
     Tool}{Application Dependencies} section.
 
+    We'll cover the plugins shortly, but first we'll check that the
+    application will work in a deployed environment: Either copy the
+    executable and the Qt \c {DLL}s to a machine that doesn't have Qt
+    or any Qt applications installed, or if you want to test on the
+    build machine, ensure that the machine doesn't have Qt in its
+    environment.
+
     If the application starts without any problems, then we have
     successfully made a dynamically linked version of the \l
     {tools/plugandpaint}{Plug & Paint} application. But the
     application's functionality will still be missing since we have
     not yet deployed the associated plugins.
-
-    \section2 Deploying the Plugins
 
     Plugins work differently to normal \c {DLL}s, so we can't just
     copy them into the same directory as our application's executable
@@ -632,6 +635,22 @@
     To verify that the application now can be successfully deployed,
     you can extract this archive on a machine without Qt and without
     any compiler installed, and try to run it.
+
+    An alternative to putting the plugins in the plugins subdirectory
+    is to add a custom search path when you start your application
+    using QApplication::addLibraryPath() or
+    QApplication::setLibraryPaths().
+
+    \code
+        qApp->addLibraryPath("C:\some\other\path");
+    \endcode
+
+    When you build the Qt library, the search path for plugins (as
+    well as a few other paths) is hard-coded into the library. By
+    default, the first plugin search path will be hard-coded as \c
+    C:\path\to\Qt\plugins. Alternatively, you may use a third party
+    installation utility or the target system's package manager to
+    change the hard-coded paths in the Qt libraries.
 
     One benefit of using plugins is that they can easily be made
     available to a whole family of applications. For example, if we
