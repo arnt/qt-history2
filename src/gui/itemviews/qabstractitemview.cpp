@@ -1623,7 +1623,7 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
 */
 void QAbstractItemView::commitData(QWidget *editor)
 {
-    if (!model())
+    if (!model() || !editor)
         return;
     QModelIndex index = d_func()->editors.key(editor);
     itemDelegate()->setModelData(editor, model(), index);

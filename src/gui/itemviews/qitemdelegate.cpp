@@ -329,6 +329,7 @@ void QItemDelegate::setModelData(QWidget *editor,
 #ifndef QT_NO_PROPERTIES
     Q_D(const QItemDelegate);
     Q_ASSERT(model);
+    Q_ASSERT(editor);
     QVariant::Type t = model->data(index, Qt::EditRole).type();
     QByteArray n = d->editorFactory()->valuePropertyName(t);
     if (!n.isEmpty())

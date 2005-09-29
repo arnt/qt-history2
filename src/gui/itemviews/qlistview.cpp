@@ -855,10 +855,12 @@ void QListView::paintEvent(QPaintEvent *e)
     if (alternate) {
         int ypos = e->rect().translated(0, verticalOffset()).top();
         int v = 0;
-        for (int i = 0 ; ;++i) {
-            if (isRowHidden(i)) continue;
-            v+=sizeHintForRow(i);
-            if (v > ypos) break;
+        for (int i = 0;;++i) {
+            if (isRowHidden(i))
+                continue;
+            v += sizeHintForRow(i);
+            if (v > ypos || v == -1)
+                break;
             bPaintAlternateBase = !bPaintAlternateBase;
         }
     }
@@ -1641,6 +1643,9 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
 
 void QListViewPrivate::intersectingStaticSet(const QRect &area) const
 {
+    if (!model)
+        return;
+
     intersectVector.clear();
     int segStartPosition;
     int segEndPosition;
