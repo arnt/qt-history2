@@ -1040,13 +1040,13 @@ int QPdfImage::convert(const QImage& img, const QImage& mask)
     ismask_ = (d==1); // is monochrome - deal with it as mask
 
     if (d == 8) {
-        im = im.convertToFormat(im.hasAlphaBuffer()
+        im = im.convertToFormat(im.hasAlphaChannel()
                                 ? QImage::Format_ARGB32
                                 : QImage::Format_RGB32);
         d = 32;
     }
 
-    if (im.hasAlphaBuffer()) {
+    if (im.hasAlphaChannel()) {
         delete softmask;
         softmask = new QPdfImage;
         softmask->w_ = im.width();
