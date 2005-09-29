@@ -139,7 +139,7 @@
     When linking your application against static Qt libraries, note
     that you might need to add more libraries to the \c LIBS line in
     your project file. For more information, see the \l {Application
-    and Plugin Dependencies} section.
+    Dependencies} section.
 
     \section2 Linking the Application to the Static Version of Qt
 
@@ -182,8 +182,8 @@
 
     Remember that if your application depends on compiler specific
     libraries, these must still be redistributed along with your
-    application. For more information, see the \l {Application and
-    Plugin Dependencies} section.
+    application. For more information, see the \l {Application
+    Dependencies} section.
 
     The \l {tools/plugandpaint}{Plug & Paint} example consists of
     several components: The core application (\l
@@ -191,7 +191,7 @@
     {tools/plugandpaintplugins/basictools}{Basic Tools} and \l
     {tools/plugandpaintplugins/extrafilters}{Extra Filters}
     plugins. Since we cannot deploy plugins using the static linking
-    approach alone, the executable we have prepared so far is
+    approach, the executable we have prepared so far is
     incomplete. The application will run, but the functionality will
     be disabled due to the missing plugins. To deploy plugin-based
     applications we should use the shared library approach.
@@ -219,7 +219,7 @@
     must go into the directory that contains the application:
 
     \code
-       cd /path/to/Qt/examples/tools/plugandpaint
+        cd /path/to/Qt/examples/tools/plugandpaint
     \endcode
 
     Now run qmake to create a new makefile for the application, and do
@@ -279,13 +279,13 @@
        environment variable).
     \endlist
 
-    The disadvantage of the first approach is that the user \e must
-    have super user privileges. The disadvantage of the second
-    approach is that the user \e may not have privileges to install
-    into the \e {predetemined path}. In either case, the users don't
-    have the option of installing to their home directory. We
-    recommend using the third approach since it is the most
-    flexible. For example \c plugandpaint.sh:
+    The disadvantage of the first approach is that the user must have
+    super user privileges. The disadvantage of the second approach is
+    that the user may not have privileges to install into the
+    predetemined path. In either case, the users don't have the option
+    of installing to their home directory. We recommend using the
+    third approach since it is the most flexible. For example a \c
+    plugandpaint.sh script will look like this:
 
     \code
         #!/bin/sh
@@ -296,8 +296,10 @@
         $PWD/$dirname/$appname $*
     \endcode
 
-    You will run this script instead of the executable. Note that you
-    can rename the script to reuse it with other applications.
+    By running this script instead of the executable, you are sure
+    that the Qt libraries will be found by the dynamic linker. Note
+    that you can rename the script to reuse it with other
+    applications.
 
     When looking for plugins, the application searches in a plugins
     subdirectory inside the directory of the application
@@ -341,12 +343,12 @@
 
     Remember that if your application depends on compiler specific
     libraries, these must still be redistributed along with your
-    application. For more information, see the Application and Plugin
-    Dependencies section.
+    application. For more information, see the \l {Application
+    Dependencies} section.
 
     To verify that the application now can be successfully deployed,
     you can extract this archive on a machine without Qt and without
-    any compiler installed, and try to run it, i.e. the \c
+    any compiler installed, and try to run it, i.e. run the \c
     plugandpaint.sh script.
 
     An alternative to putting the plugins in the \c plugins
