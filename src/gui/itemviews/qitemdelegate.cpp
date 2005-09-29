@@ -645,17 +645,17 @@ QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVar
 // hacky but faster version of "QString::sprintf("%d-%d", i, enabled)"
 static QString qPixmapSerial(quint64 i, bool enabled)
 {
-    ushort arr[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '-', '0' + enabled, 0 };
+    ushort arr[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '-', '0' + enabled };
     ushort *ptr = &arr[16];
 
     while (i > 0) {
         // hey - it's our internal representation, so use the ascii character after '9'
         // instead of 'a' for hex
         *(--ptr) = '0' + i % 16;
-        i = i >> 4;
+        i >>= 4;
     }
 
-    return QString(reinterpret_cast<const QChar *>(ptr), int(ptr - arr) / sizeof(ushort));
+    return QString::fromUtf16(ptr, int(&arr[sizeof(arr) / sizeof(ushort)] - ptr));
 }
 
 /*!
