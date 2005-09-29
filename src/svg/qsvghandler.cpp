@@ -1638,14 +1638,25 @@ static QSvgNode *createRectNode(QSvgNode *parent,
     QRectF bounds(x.toDouble(), y.toDouble(),
                   nwidth, nheight);
 
+    //9.2 The 'rect'  element clearly specifies it
+    // but the case might in fact be handled because
+    // we draw rounded rectangles differently
+    if (nrx > bounds.width()/2)
+        nrx = bounds.width()/2;
+    if (nry > bounds.height()/2)
+        nry = bounds.height()/2;
+
     if (nrx && !nry)
         nry = nrx;
     else if (nry && !nrx)
         nrx = nry;
-    if (nrx > bounds.width()/2)
-        nrx = bounds.width()/2;
-    else if (nry > bounds.height()/2)
-        nry = bounds.height()/2;
+
+    //we draw rounded rect from 0...99
+    //svg from 0...bounds.width()/2 so we're adjusting the
+    //coordinates
+    nrx *= (100/(bounds.width()/2));
+    nry *= (100/(bounds.height()/2));
+
     QSvgNode *rect = new QSvgRect(parent, bounds,
                                   int(nrx),
                                   int(nry));
