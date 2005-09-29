@@ -402,7 +402,7 @@ bool QMoviePrivate::next()
     currentFrameNumber = nextFrameNumber++;
     QSize scaledSize = reader->scaledSize();
     if (scaledSize.isValid() && (scaledSize != info.pixmap.size()))
-        currentPixmap = info.pixmap.toImage().scaled(scaledSize);
+        currentPixmap = QPixmap::fromImage( info.pixmap.toImage().scaled(scaledSize) );
     else
         currentPixmap = info.pixmap;
     nextDelay = speedAdjustedDelay(info.delay);
