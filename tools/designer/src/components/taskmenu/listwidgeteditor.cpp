@@ -149,7 +149,7 @@ void ListWidgetEditor::on_previewButton_clicked()
         return;
     QListWidgetItem *item = ui.listWidget->item(currentRow);
 
-    FindIconDialog dialog(m_form, 0);
+    FindIconDialog dialog(m_form, this);
     QString file_path;
     QString qrc_path;
 
