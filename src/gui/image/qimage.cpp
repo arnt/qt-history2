@@ -3239,6 +3239,12 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
         wd = int(qAbs(mat.m11()) * ws + 0.9999);
         hd = qAbs(hd);
         wd = qAbs(wd);
+    } else if (d->format == Format_RGB32 && mat.m11() == 0. && mat.m22() == 0. && 
+              ((mat.m12() == 1. && mat.m21() == -1.) ||     // 90 degrees
+               (mat.m12() == -1. && mat.m21() == 1.))) {    // -90 degrees
+        // Dont perform a complex_xform for trivial rotations
+        wd = hs;
+        hd = ws;
     } else {                                        // rotation or shearing
         QPolygonF a(QRectF(0, 0, ws, hs));
         a = mat.map(a);
