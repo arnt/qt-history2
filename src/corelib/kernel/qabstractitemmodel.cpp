@@ -134,8 +134,6 @@ QPersistentModelIndex::~QPersistentModelIndex()
 }
 
 /*!
-  \fn bool QPersistentModelIndex::operator==(const QPersistentModelIndex &other) const
-
   Returns true if this persistent model index is equal to the \a other
   persistent model index, otherwist returns false.
 */
@@ -148,10 +146,10 @@ bool QPersistentModelIndex::operator==(const QPersistentModelIndex &other) const
 }
 
 /*!
-  \fn bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
+    \since 4.1
 
-  Returns true if this persistent model index is smaller than the \a other
-  persistent model index; otherwise returns false.
+    Returns true if this persistent model index is smaller than the \a other
+    persistent model index; otherwise returns false.
 */
 
 bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
@@ -1782,6 +1780,8 @@ void QAbstractItemModel::endRemoveColumns()
     to just call this function rather than emit dataChanged() to inform
     other components when the underlying data source, or its structure,
     has changed.
+
+    \sa modelReset()
 */
 void QAbstractItemModel::reset()
 {
@@ -2164,3 +2164,20 @@ bool QAbstractListModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
     // otherwise insert new rows for the data
     return decodeData(row, column, parent, stream);
 }
+
+/*!
+    \fn QAbstractItemModel::modelReset()
+    \since 4.1
+
+    This signal is emitted when reset() is called.
+
+    \sa reset()
+*/
+
+/*!
+    \fn bool QModelIndex::operator<(const QModelIndex &other) const
+    \since 4.1
+
+    Returns true if this model index is smaller than the \a other
+    model index; otherwise returns false.
+*/

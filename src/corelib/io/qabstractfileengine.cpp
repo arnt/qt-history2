@@ -26,6 +26,7 @@
     custom file engines with your application.
 
     \ingroup io
+    \since 4.1
 
     QAbstractFileEngineHandler is a factory for creating QAbstractFileEngine
     objects (file engines), which are used internally by QFile, QFileInfo and
@@ -154,7 +155,7 @@ QAbstractFileEngine *QAbstractFileEngine::create(const QString &fileName)
     the filesystem.
 
     \ingroup io
-    \mainclass
+    \since 4.1
 
     The QDir, QFile, and QFileInfo classes all make use of a
     QAbstractFileEngine internally. If you create your own QAbstractFileEngine

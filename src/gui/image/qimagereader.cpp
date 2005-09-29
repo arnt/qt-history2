@@ -485,6 +485,8 @@ QSize QImageReader::size() const
 }
 
 /*!
+    \since 4.1
+
     Returns the text keys for this image. You can use
     these keys with text() to list the image text for
     a certain key.
@@ -501,6 +503,8 @@ QStringList QImageReader::textKeys() const
 }
 
 /*!
+    \since 4.1
+
     Returns the image text associated with \a key.
 
     Support for this option is implemented through
@@ -586,6 +590,8 @@ QRect QImageReader::scaledClipRect() const
 }
 
 /*!
+    \since 4.1
+
     Sets the background color to \a color.
     Image formats that support this operation are expected to
     initialize the background to \a color before reading an image.
@@ -602,6 +608,8 @@ void QImageReader::setBackgroundColor(const QColor &color)
 }
 
 /*!
+    \since 4.1
+
     Returns the background color that's used when reading an image.
     If the image format does not support setting the background color
     an invalid color is returned.
@@ -618,6 +626,8 @@ QColor QImageReader::backgroundColor() const
 }
 
 /*!
+    \since 4.1
+
     Returns true if the image format supports animation;
     otherwise, false is returned.
 

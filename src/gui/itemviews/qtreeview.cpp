@@ -1246,6 +1246,9 @@ void QTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
     QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
 }
 
+/*!
+    \since 4.1
+*/
 void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
 {
     Q_UNUSED(start);

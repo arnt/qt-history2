@@ -940,6 +940,8 @@ void QAbstractSocket::connectToHost(const QString &hostName, quint16 port,
 }
 
 /*!
+    \since 4.1
+
     Contains the implementation of connectToHost().
 */
 void QAbstractSocket::connectToHostImplementation(const QString &hostName, quint16 port,
@@ -1629,6 +1631,8 @@ qint64 QAbstractSocket::writeData(const char *data, qint64 size)
 }
 
 /*!
+    \since 4.1
+
     Sets the port on the local side of a connection to \a port.
 
     \sa localAddress(), setLocalAddress(), setPeerPort()
@@ -1640,6 +1644,8 @@ void QAbstractSocket::setLocalPort(quint16 port)
 }
 
 /*!
+    \since 4.1
+
     Sets the address on the local side of a connection to
     \a address.
 
@@ -1652,6 +1658,8 @@ void QAbstractSocket::setLocalAddress(const QHostAddress &address)
 }
 
 /*!
+    \since 4.1
+
     Sets the port of the remote side of the connection to
     \a port.
 
@@ -1664,6 +1672,8 @@ void QAbstractSocket::setPeerPort(quint16 port)
 }
 
 /*!
+    \since 4.1
+
     Sets the address of the remote side of the connection
     to \a address.
 
@@ -1676,6 +1686,8 @@ void QAbstractSocket::setPeerAddress(const QHostAddress &address)
 }
 
 /*!
+    \since 4.1
+
     Sets the host name of the remote peer to \a name.
 
     \sa peerName()
@@ -1718,6 +1730,8 @@ void QAbstractSocket::disconnectFromHost()
 }
 
 /*!
+    \since 4.1
+
     Contains the implementation of disconnectFromHost().
 */
 void QAbstractSocket::disconnectFromHostImplementation()

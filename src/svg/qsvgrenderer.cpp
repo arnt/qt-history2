@@ -23,6 +23,7 @@
 /*!
     \class QSvgRenderer
     \brief The QSvgRenderer class is used to draw the contents of SVG files onto paint devices.
+    \since 4.1
 
     \sa QSvgWidget, {QtSvg Module}, QPicture
 */

@@ -795,9 +795,11 @@ bool QKeySequence::isDetached() const
 }
 
 /*!
-    Return a string representation of the key sequence based on \a format
+    \since 4.1
 
-    \sa fromString() operator QString()
+    Return a string representation of the key sequence based on \a format.
+
+    \sa fromString()
 */
 QString QKeySequence::toString(SequenceFormat format) const
 {
@@ -814,7 +816,9 @@ QString QKeySequence::toString(SequenceFormat format) const
 }
 
 /*!
-    Return a QKeySequence from the string \a str based on \a format
+    \since 4.1
+
+    Return a QKeySequence from the string \a str based on \a format.
 
     \sa toString()
 */

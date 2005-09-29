@@ -697,7 +697,9 @@ QAction *QMenuBar::activeAction() const
 }
 
 /*!
-  Sets the currently highlighted action to \a act.
+    \since 4.1
+
+    Sets the currently highlighted action to \a act.
 */
 void QMenuBar::setActiveAction(QAction *act)
 {

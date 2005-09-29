@@ -3135,6 +3135,9 @@ QPalette QWindowsXPStyle::standardPalette() const
     return QWindowsStyle::standardPalette();
 }
 
+/*!
+    \reimp
+*/
 QPixmap QWindowsXPStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *option,
                                         const QWidget *widget) const
 {
@@ -3159,6 +3162,9 @@ QPixmap QWindowsXPStyle::standardPixmap(StandardPixmap standardPixmap, const QSt
     return QWindowsStyle::standardPixmap(standardPixmap, option, widget);
 }
 
+/*!
+    \internal
+*/
 QIcon QWindowsXPStyle::standardIconSlot(StandardPixmap standardIcon,
                                         const QStyleOption *option,
                                         const QWidget *widget) const

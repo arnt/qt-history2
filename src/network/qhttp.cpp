@@ -926,6 +926,8 @@ QHttpResponseHeader::QHttpResponseHeader(const QString &str)
 }
 
 /*!
+    \since 4.1
+
     Sets the status code to \a code, the reason phrase to \a text and
     the protocol-version to \a majorVer and \a minorVer.
 

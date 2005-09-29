@@ -362,7 +362,8 @@ void QProxyModel::revert()
 }
 
 /*!
-  Change the model pointer in the given \a source_index to point to the proxy model.
+    \internal
+    Change the model pointer in the given \a source_index to point to the proxy model.
  */
 QModelIndex QProxyModel::setProxyModel(const QModelIndex &source_index) const
 {
@@ -372,6 +373,7 @@ QModelIndex QProxyModel::setProxyModel(const QModelIndex &source_index) const
 }
 
 /*!
+    \internal
     Change the model pointer in the given \a proxy_index to point to the source model.
  */
 QModelIndex QProxyModel::setSourceModel(const QModelIndex &proxy_index) const
@@ -383,8 +385,9 @@ QModelIndex QProxyModel::setSourceModel(const QModelIndex &proxy_index) const
 }
 
 /*!
+  \internal
   Connect to all the signals emitted by given \a model.
- */
+*/
 void QProxyModel::connectToModel(const QAbstractItemModel *model) const
 {
     connect(model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
@@ -412,6 +415,7 @@ void QProxyModel::connectToModel(const QAbstractItemModel *model) const
 }
 
 /*!
+  \internal
   Disconnect from all the signals emitted by the given \a model.
  */
 void QProxyModel::disconnectFromModel(const QAbstractItemModel *model) const

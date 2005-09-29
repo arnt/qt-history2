@@ -3090,6 +3090,8 @@ uint QByteArray::toUInt(bool *ok, int base) const
 }
 
 /*!
+    \since 4.1
+
     Returns the byte array converted to a \c long int using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
 
@@ -3124,6 +3126,8 @@ long QByteArray::toLong(bool *ok, int base) const
 }
 
 /*!
+    \since 4.1
+
     Returns the byte array converted to an \c {unsigned long int} using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
 

@@ -1248,6 +1248,8 @@ bool QDomImplementation::isNull()
 */
 
 /*!
+    \since 4.1
+
     Returns the invalid data policy, which specifies what should be done when
     a factory function in QDomDocument is passed invalid data.
 
@@ -1260,6 +1262,8 @@ QDomImplementation::InvalidDataPolicy QDomImplementation::invalidDataPolicy()
 }
 
 /*!
+    \since 4.1
+
     Sets the invalid data policy, which specifies what should be done when
     a factory function in QDomDocument is passed invalid data.
 

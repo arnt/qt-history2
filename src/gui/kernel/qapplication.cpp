@@ -1732,6 +1732,7 @@ void QApplication::aboutQt()
 */
 
 /*!
+    \since 4.1
     \fn void QApplication::focusChanged(QWidget *old, QWidget *now)
 
     This signal is emitted when the widget that has keyboard focus

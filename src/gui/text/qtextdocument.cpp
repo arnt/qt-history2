@@ -369,6 +369,11 @@ void QTextDocument::markContentsDirty(int from, int length)
         d->endEditBlock();
 }
 
+/*!
+    \property QTextDocument::useDesignMetrics
+    \since 4.1
+*/
+
 void QTextDocument::setUseDesignMetrics(bool b)
 {
     Q_D(QTextDocument);

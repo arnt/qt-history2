@@ -1551,6 +1551,7 @@ QStyle* QWidget::setStyle(const QString &style)
 /*!
     \property QWidget::windowModality
     \brief which windows are blocked by the modal widget
+    \since 4.1
 
     This property only makes sense for windows. A modal widget
     prevents widgets in other windows from getting input. The value of
@@ -3688,8 +3689,8 @@ void QWidget::clearFocus()
     for Tab and Shift+Tab, and returns true if it can find a new
     widget, or false if it can't.
 
-    If \a next is true, this function searches "forwards", if \a next
-    is false, it searches "backwards".
+    If \a next is true, this function searches forward, if \a next
+    is false, it searches backward.
 
     Sometimes, you will want to reimplement this function. For
     example, a web browser might reimplement it to move its "current

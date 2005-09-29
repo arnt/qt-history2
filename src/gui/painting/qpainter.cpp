@@ -3678,6 +3678,10 @@ void qt_painter_tread_test()
         qWarning("QPainter: It is not safe to use text and fonts outside the gui thread");
 }
 
+/*!
+    \internal
+    \since 4.1
+*/
 void QPainter::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
 #ifdef QT_DEBUG_DRAW
@@ -5065,6 +5069,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
 
 /*!
     \class QPaintEngineState
+    \since 4.1
 
     This class contains information on the current state of a paint
     engine and which properties that have changed since the last time

@@ -1376,6 +1376,8 @@ int QProcess::exitCode() const
 }
 
 /*!
+    \since 4.1
+
     Returns the exit status of the last process that finished.
 
     On Windows, if the process was terminated with TerminateProcess()
@@ -1469,6 +1471,8 @@ bool QProcess::startDetached(const QString &program)
 #endif
 
 /*!
+    \since 4.1
+
     Returns the environment of the calling process as a list of
     key=value pairs. Example:
 

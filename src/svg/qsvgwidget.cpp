@@ -23,6 +23,7 @@
     \class QSvgWidget
     \brief The QSvgWidget class provides a widget that is used to display the contents of
     Scalable Vector Graphics (SVG) files.
+    \since 4.1
 
     \sa QSvgRenderer, {QtSvg Module}, QPicture
 */

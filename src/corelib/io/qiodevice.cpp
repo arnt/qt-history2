@@ -969,6 +969,8 @@ void QIODevice::ungetChar(char c)
 }
 
 /*!
+    \since 4.1
+
     Reads at most \a maxSize bytes from the device into \a data, without side
     effects (i.e., if you call read() after peek(), you will get the same
     data).  Returns the number of bytes read. If an error occurs, such as
@@ -1006,6 +1008,7 @@ qint64 QIODevice::peek(char *data, qint64 maxSize)
 }
 
 /*!
+    \since 4.1
     \overload
 
     Peeks at most \a maxSize bytes from the device, returning the data peeked

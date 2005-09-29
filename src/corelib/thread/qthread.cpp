@@ -429,6 +429,7 @@ void QThread::cleanup()
 */
 
 /*! \fn void QThread::setPriority(Priority priority)
+    \since 4.1
 
     This function sets the \a priority for a running thread. If the
     thread is not running, this function does nothing and returns
@@ -442,6 +443,8 @@ void QThread::cleanup()
 */
 
 /*!
+    \since 4.1
+
     Returns the priority for a running thread.  If the thread is not
     running, this function returns \c InheritPriority.
 

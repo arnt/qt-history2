@@ -1008,7 +1008,9 @@ int QTableView::rowAt(int y) const
 }
 
 /*!
-  Sets the height of the given \a row to be \a height.
+    \since 4.1
+
+    Sets the height of the given \a row to be \a height.
 */
 void QTableView::setRowHeight(int row, int height)
 {
@@ -1044,7 +1046,9 @@ int QTableView::columnAt(int x) const
 }
 
 /*!
-  Sets the width of the given \a column to be \a width.
+    \since 4.1
+
+    Sets the width of the given \a column to be \a width.
 */
 void QTableView::setColumnWidth(int column, int width)
 {

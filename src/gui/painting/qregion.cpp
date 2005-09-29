@@ -432,8 +432,8 @@ QRegion::operator QVariant() const
 
 /*!
     \fn QRegion QRegion::translated(const QPoint &p) const
-
     \overload
+    \since 4.1
 
     Returns a copy of the regtion that is translated \a{p}\e{.x()}
     along the x axis and \a{p}\e{.y()} along the y axis, relative to
@@ -444,6 +444,8 @@ QRegion::operator QVariant() const
 */
 
 /*!
+    \since 4.1
+
     Returns a copy of the region that is translated \a dx along the
     x axis and \a dy along the y axis, relative to the current
     position. Positive values move the region to the right and

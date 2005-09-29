@@ -2601,6 +2601,11 @@ QString QTextEdit::anchorAt(const QPoint& pos) const
     return d->doc->documentLayout()->anchorAt(d->mapToContents(pos));
 }
 
+/*!
+   \property QTextEdit::overwriteMode
+   \since 4.1
+*/
+
 bool QTextEdit::overwriteMode() const
 {
     Q_D(const QTextEdit);
@@ -2616,6 +2621,7 @@ void QTextEdit::setOverwriteMode(bool overwrite)
 /*!
     \property QTextEdit::tabStopWidth
     \brief the tab stop width in pixels
+    \since 4.1
 */
 
 int QTextEdit::tabStopWidth() const

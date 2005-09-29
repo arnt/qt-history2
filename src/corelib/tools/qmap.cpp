@@ -720,6 +720,7 @@ void QMapData::dump()
 */
 
 /*! \fn QMap::iterator QMap::constFind(const Key &key) const
+    \since 4.1
 
     Returns an const iterator pointing to the item with key \a key in the
     map.

@@ -147,6 +147,7 @@ void QSyntaxHighlighterPrivate::reformatBlock(QTextBlock block)
     \class QSyntaxHighlighter qsyntaxhighlighter.h
     \brief The QSyntaxHighlighter class is a base class for
     implementing QTextEdit syntax highlighters.
+    \since 4.1
 
     \ingroup text
 

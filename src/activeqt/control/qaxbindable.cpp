@@ -175,6 +175,8 @@ void QAxBindable::reportError(int code, const QString &src, const QString &desc,
 }
 
 /*!
+    \since 4.1
+
     If the COM object supports a MIME type then this function is called
     to initialize the COM object from the data \a source in \a format.
     You have to open \a source for reading before you can read from it.
@@ -197,6 +199,8 @@ bool QAxBindable::readData(QIODevice *source, const QString &format)
 }
 
 /*!
+    \since 4.1
+
     If the COM object supports a MIME type then this function is called
     to store the COM object into \a sink.
     You have to open \a sink for writing before you can write to it.

@@ -903,6 +903,7 @@ void QHashData::destroyAndFree()
 */
 
 /*! \fn QHash::iterator QHash::constFind(const Key &key) const
+    \since 4.1
 
     Returns an iterator pointing to the item with key \a key in the
     hash.

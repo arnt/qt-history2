@@ -2153,6 +2153,7 @@ QVariantMap QVariant::toMap() const
 
 /*!
   \fn QRegExp QVariant::toRegExp() const
+  \since 4.1
 
   Returns the variant as a QRegExp if the variant has type()
   RegExp; otherwise returns an empty QRegExp.

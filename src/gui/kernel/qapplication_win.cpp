@@ -1134,9 +1134,10 @@ extern uint qGlobalPostedEventsCount();
 
 /*!
     \internal
+    \since 4.1
 
     If \a gotFocus is true, \a widget will become the active window.
-    Otherwise the active window is reset to NULL.
+    Otherwise the active window is reset to 0.
 */
 void QApplication::winFocus(QWidget *widget, bool gotFocus)
 {

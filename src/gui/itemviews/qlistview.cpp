@@ -1074,8 +1074,10 @@ QRect QListView::rectForIndex(const QModelIndex &index) const
 }
 
 /*!
-  Sets the contents position of the item at \a index in the model to the given \a pos.
-  If  the listview movement mode is Static, this function will have no effect.
+    \since 4.1
+
+    Sets the contents position of the item at \a index in the model to the given \a pos.
+    If the listview movement mode is Static, this function will have no effect.
 */
 void QListView::setPositionForIndex(const QPoint &position, const QModelIndex &index)
 {
@@ -1265,6 +1267,7 @@ int QListView::modelColumn() const
 /*!
     \property QListView::uniformItemSizes
     \brief whether all items in the listview have the same size
+    \since 4.1
 
     This property should only be set to true if it is guarantied that all items
     in the view has the same size. This enables the view to do some

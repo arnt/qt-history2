@@ -6165,6 +6165,13 @@ QString QString::fromRawData(const QChar *unicode, int size)
     \sa latin1()
 */
 
+/*!
+    \since 4.1
+    \fn QLatin1String &QLatin1String::operator=(const QLatin1String &other)
+
+    Constructs a copy of \a other.
+*/
+
 /*! \fn const char *QLatin1String::latin1() const
 
     Returns the Latin-1 string stored in this object.

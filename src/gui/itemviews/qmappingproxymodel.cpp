@@ -17,6 +17,7 @@
 #include <private/qmappingproxymodel_p.h>
 
 /*!
+  \since 4.1
   \class QMappingProxyModel
   \brief The QMappingProxyModel class provides support for mapping data
   that is passed between another model and a view.

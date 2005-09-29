@@ -732,12 +732,14 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 
 /*!
   \fn QSize QTableWidgetItem::sizeHint() const
+  \since 4.1
 
   Returns the size hint set for the table item.
 */
 
 /*!
   \fn void QTableWidgetItem::setSizeHint(const QSize &size)
+  \since 4.1
 
   Sets the size hint for the table item to be \a size.
   If no size hint is set, the item delegate will compute the
@@ -1692,6 +1694,8 @@ void QTableWidget::closePersistentEditor(QTableWidgetItem *item)
 }
 
 /*!
+  \since 4.1
+
   Returns the widget displayed in the cell in the given \a row and \a column.
 
   \sa setItemWidget()
@@ -1703,6 +1707,8 @@ QWidget *QTableWidget::cellWidget(int row, int column) const
 }
 
 /*!
+  \since 4.1
+
   Sets the \a widget to be displayed in the cell in the given \a row and \a column.
 
   \sa itemWidget()

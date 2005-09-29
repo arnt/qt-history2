@@ -18,6 +18,7 @@
 #include <private/qsortingproxymodel_p.h>
 
 /*!
+  \since 4.1
   \class QSortingProxyModel
   \brief The QSortingProxyModel class provides support for sorting data
   that is passed between another model and a view.

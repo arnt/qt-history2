@@ -544,6 +544,8 @@ QString QHostAddress::toString() const
 }
 
 /*!
+    \since 4.1
+
     Returns the scope ID of an IPv6 address. For IPv4 addresses, or if the
     address does not contain a scope ID, an empty QString is returned.
 
@@ -589,6 +591,8 @@ QString QHostAddress::scopeId() const
 }
 
 /*!
+    \since 4.1
+
     Sets the IPv6 scope ID of the address. If the address protocol is not
     IPv6, this function does nothing.
 */

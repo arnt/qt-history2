@@ -1812,7 +1812,10 @@ void QAxWidget::clear()
 }
 
 /*!
-    Requests the ActiveX control to perform the action \a verb. The possible verbs are returned by verbs().
+    \since 4.1
+
+    Requests the ActiveX control to perform the action \a verb. The
+    possible verbs are returned by verbs().
 
     The function returns true if the object could perform the action, otherwise returns false.
 */

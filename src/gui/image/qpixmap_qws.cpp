@@ -81,12 +81,19 @@ int QPixmap::numCols() const
     return data->image.numColors();
 }
 
-
+/*!
+    \internal
+    \since 4.1
+*/
 const uchar *QPixmap::qwsBits() const
 {
     return data->image.bits();
 }
 
+/*!
+    \internal
+    \since 4.1
+*/
 int QPixmap::qwsBytesPerLine() const
 {
     return data->image.bytesPerLine();

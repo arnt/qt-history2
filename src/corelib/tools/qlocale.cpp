@@ -1785,12 +1785,14 @@ QString QLocale::toString(const QTime &time, FormatType format) const
 }
 
 /*!
-     Returns the date format used for the current locale.
+    \since 4.1
 
-     If \a format is ShortFormat the format will be a short version.
-     Otherwise it uses a longer version.
+    Returns the date format used for the current locale.
 
-     \sa QDate::toString(), QDate::fromString()
+    If \a format is ShortFormat the format will be a short version.
+    Otherwise it uses a longer version.
+
+    \sa QDate::toString(), QDate::fromString()
 */
 
 QString QLocale::dateFormat(FormatType format) const
@@ -1818,12 +1820,14 @@ QString QLocale::dateFormat(FormatType format) const
 }
 
 /*!
-     Returns the time format used for the current locale.
+    \since 4.1
 
-     If \a format is ShortFormat the format will be a short version.
-     Otherwise it uses a longer version.
+    Returns the time format used for the current locale.
 
-     \sa QTime::toString(), QTime::fromString()
+    If \a format is ShortFormat the format will be a short version.
+    Otherwise it uses a longer version.
+
+    \sa QTime::toString(), QTime::fromString()
 */
 
 QString QLocale::timeFormat(FormatType format) const

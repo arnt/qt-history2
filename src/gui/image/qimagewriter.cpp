@@ -413,6 +413,8 @@ QString QImageWriter::description() const
 }
 
 /*!
+    \since 4.1
+
     Sets the image text associated with the key \a key to
     \a text. This is useful for storing copyright information
     or other information about the image. Example:

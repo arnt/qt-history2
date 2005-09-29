@@ -13,6 +13,7 @@
 
 /*! \class QJpUnicodeConv
     \reentrant
+    \internal
 */
 
 #include "qjpunicode.h"

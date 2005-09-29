@@ -160,6 +160,7 @@ QStyleOption::~QStyleOption()
 
 /*!
     \fn void QStyleOption::initFrom(const QWidget *widget)
+    \since 4.1
 
     Initializes the \l state, \l direction, \l rect, \l palette, and
     \l fontMetrics member variables based on \a widget.
@@ -394,6 +395,7 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
     \class QStyleOptionFrameV2
     \brief The QStyleOptionFrameV2 class is used to describe the
     parameters necessary for drawing a frame in Qt 4.1 or above.
+    \since 4.1
 
     An instance of this class has \l type SO_Frame and \l version 2.
 
@@ -488,6 +490,7 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
     \class QStyleOptionGroupBox
     \brief The QStyleOptionGroupBox class is used to describe
     the parameters for drawing a group box.
+    \since 4.1
 
     The QStyleOptionGroupBox class is used for drawing the group box'
     frame, title, and optional check box.
@@ -779,6 +782,7 @@ QStyleOptionButton::QStyleOptionButton(int version)
     \class QStyleOptionToolBar
     \brief The QStyleOptionToolBar class is used to describe the
     parameters for drawing a tool bar.
+    \since 4.1
 */
 
 /*!
@@ -951,6 +955,7 @@ QStyleOptionTab::QStyleOptionTab(int version)
     \class QStyleOptionTabV2
     \brief The QStyleOptionTabV2 class is used to describe the
     parameters necessary for drawing a tabs in Qt 4.1 or above.
+    \since 4.1
 
     An instance of this class has \l type SO_Tab and \l version 2.
 
@@ -979,7 +984,7 @@ QStyleOptionTab::QStyleOptionTab(int version)
 */
 
 /*!
-    Construct a QStyleOptionTabV2
+    Construct a QStyleOptionTabV2.
 */
 QStyleOptionTabV2::QStyleOptionTabV2()
     : QStyleOptionTab(Version)
@@ -1134,6 +1139,7 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
     \class QStyleOptionProgressBarV2
     \brief The QStyleOptionProgressBarV2 class is used to describe the
     parameters necessary for drawing a progress bar in Qt 4.1 or above.
+    \since 4.1
 
     An instance of this class has \l type SO_ProgressBar and \l version 2.
 

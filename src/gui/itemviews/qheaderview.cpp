@@ -854,8 +854,11 @@ QHeaderView::ResizeMode QHeaderView::resizeMode(int logicalIndex) const
 }
 
 /*!
-    \returns the number of sections that are set to resize mode stretch.
+    \since 4.1
+
+    Returns the number of sections that are set to resize mode stretch.
     In views this can be used to see if the headerview needs to resize the sections when the view geometry changes.
+
     \sa updateGeometry stretchLastSection resizeMode
 */
 
@@ -994,6 +997,7 @@ Qt::Alignment QHeaderView::defaultAlignment() const
 }
 
 /*!
+    \since 4.1
     \property QHeaderView::defaultAlignment
     \brief the default alignment of the text in each header section
 */
@@ -1025,10 +1029,12 @@ bool QHeaderView::sectionsMoved() const
 }
 
 /*!
-  Returns true if sections in the header has been hidden;
-  otherwise returns false;
+    \since 4.1
 
-  \sa setSectionHidden()
+    Returns true if sections in the header has been hidden;
+    otherwise returns false;
+
+    \sa setSectionHidden()
 */
 bool QHeaderView::sectionsHidden() const
 {

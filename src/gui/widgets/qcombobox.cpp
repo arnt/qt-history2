@@ -435,20 +435,22 @@ QStyleOptionComboBox QComboBoxPrivateContainer::comboStyleOption() const
 */
 
 /*!
-  \fn void QComboBox::currentIndexChanged(int index)
+    \fn void QComboBox::currentIndexChanged(int index)
+    \since 4.1
 
-  This signal is sent whenever the currentIndex in the combobox
-  changes either through user interaction or programmatically. The
-  item's \a index is given or -1 if the combobox becomes empty or the
-  currentIndex was reset.
+    This signal is sent whenever the currentIndex in the combobox
+    changes either through user interaction or programmatically. The
+    item's \a index is given or -1 if the combobox becomes empty or the
+    currentIndex was reset.
 */
 
 /*!
-  \fn void QComboBox::currentIndexChanged(const QString &text)
+    \fn void QComboBox::currentIndexChanged(const QString &text)
+    \since 4.1
 
-  This signal is sent whenever the currentIndex in the combobox
-  changes either through user interaction or programmatically.  The
-  item's \a text is given.
+    This signal is sent whenever the currentIndex in the combobox
+    changes either through user interaction or programmatically.  The
+    item's \a text is given.
 */
 
 /*!
@@ -903,6 +905,7 @@ int QComboBox::maxCount() const
 /*!
     \property QComboBox::autoCompletion
     \brief whether the combobox provides auto-completion for editable items
+    \since 4.1
 
     \sa editable
 */

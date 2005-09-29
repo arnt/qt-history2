@@ -1213,6 +1213,9 @@ static void blit_32_to_16(const blit_data *data)
     }
 }
 
+/*!
+    \internal
+*/
 void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &region)
 {
     QVector<QRect> rects = region.rects();
@@ -1249,6 +1252,9 @@ void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &regi
     }
 }
 
+/*!
+    \internal
+*/
 void QScreen::blit(QWSWindow *win, const QRegion &clip)
 {
     QWSBackingStore *bs = win->backingStore();

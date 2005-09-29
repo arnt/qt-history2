@@ -712,12 +712,14 @@ QDataStream &operator>>(QDataStream &in, QListWidgetItem &item)
 
 /*!
   \fn QSize QListWidgetItem::sizeHint() const
+  \since 4.1
 
-  Returns the size hint set for the list item (see \l{QSize}).
+  Returns the size hint set for the list item.
 */
 
 /*!
   \fn void QListWidgetItem::setSizeHint(const QSize &size)
+  \since 4.1
 
   Sets the size hint for the list item to be \a size.
   If no size hint is set, the item delegate will compute the
@@ -1282,9 +1284,9 @@ void QListWidget::closePersistentEditor(QListWidgetItem *item)
 }
 
 /*!
-  Returns the widget displayed in the given \a item.
+    \since 4.1
 
-  \sa setItemWidget()
+    Returns the widget displayed in the given \a item.
 */
 QWidget *QListWidget::itemWidget(QListWidgetItem *item) const
 {
@@ -1295,9 +1297,9 @@ QWidget *QListWidget::itemWidget(QListWidgetItem *item) const
 }
 
 /*!
-  Sets the \a widget to be displayed in the give \a item.
+    \since 4.1
 
-  \sa itemWidget()
+    Sets the \a widget to be displayed in the give \a item.
 */
 void QListWidget::setItemWidget(QListWidgetItem *item, QWidget *widget)
 {

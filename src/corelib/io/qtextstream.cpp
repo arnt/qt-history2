@@ -1317,6 +1317,8 @@ QTextStream::Status QTextStream::status() const
 }
 
 /*!
+    \since 4.1
+
     Resets the status of the text stream.
 
     \sa QTextStream::Status, status(), setStatus()
@@ -1328,6 +1330,8 @@ void QTextStream::resetStatus()
 }
 
 /*!
+    \since 4.1
+
     Sets the status of the text stream to the \a status given.
 
     \sa Status status() resetStatus()
@@ -1410,6 +1414,8 @@ QString QTextStream::readLine(qint64 maxlen)
 }
 
 /*!
+    \since 4.1
+
     Reads at most \a maxlen characters from the stream, and returns the data
     read as a QString.
 
@@ -1987,6 +1993,7 @@ bool QTextStreamPrivate::putNumber(qulonglong number, bool negative)
 
 /*!
     \internal
+    \overload
 */
 QTextStream &QTextStream::operator<<(QBool b)
 {

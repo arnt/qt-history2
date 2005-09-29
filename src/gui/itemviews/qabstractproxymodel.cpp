@@ -15,9 +15,10 @@
 #include <private/qabstractproxymodel_p.h>
 
 /*!
-  \class QAbstractProxyModel
-  \brief The QAbstractProxyModel class provides a base class for proxy item models
-  that can do sorting, filtering or other data processing tasks.
+    \since 4.1
+    \class QAbstractProxyModel
+    \brief The QAbstractProxyModel class provides a base class for proxy item models
+    that can do sorting, filtering or other data processing tasks.
 */
 
 

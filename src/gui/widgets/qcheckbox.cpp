@@ -236,6 +236,9 @@ void QCheckBox::paintEvent(QPaintEvent *)
     p.drawControl(QStyle::CE_CheckBox, opt);
 }
 
+/*!
+    \reimp
+*/
 void QCheckBox::mouseMoveEvent(QMouseEvent *e)
 {
     Q_D(QCheckBox);

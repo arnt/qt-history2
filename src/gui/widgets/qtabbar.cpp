@@ -797,8 +797,9 @@ void QTabBar::setCurrentIndex(int index)
 /*!
     \property QTabBar::iconSize
     \brief The size for icons in the tab bar
+    \since 4.1
 
-    Unless explicitly set, this uses the default value of the current style
+    The default value is style-dependent.
 */
 QSize QTabBar::iconSize() const
 {

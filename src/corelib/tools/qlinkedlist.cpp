@@ -1149,3 +1149,41 @@ QLinkedListData QLinkedListData::shared_null = {
     \endcode
 */
 
+/*!
+    \since 4.1
+    \fn QLinkedList<T> QLinkedList<T>::fromStdList(const std::list<T> &list)
+
+    Returns a QLinkedList object with the data contained in \a list.
+    The order of the elements in the QLinkedList is the same as in \a
+    list.
+
+    Example:
+
+    \code
+        std::list<double> stdlist;
+        list.push_back(1.2);
+        list.push_back(0.5);
+        list.push_back(3.14);
+
+        QLinkedList<double> list = QLinkedList<double>::fromStdList(stdlist);
+    \endcode
+
+    \sa toStdList()
+*/
+
+/*!
+    \since 4.1
+    \fn std::list<T> QLinkedList<T>::toStdList() const
+
+    Returns a std::list object with the data contained in this
+    QLinkedList. Example:
+
+    \code
+        QLinkedList<double> list;
+        list << 1.2 << 0.5 << 3.14;
+
+        std::list<double> stdlist = list.toStdList();
+    \endcode
+
+    \sa fromStdList()
+*/

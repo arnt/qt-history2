@@ -150,6 +150,9 @@ bool QRadioButton::hitButton(const QPoint &pos) const
     return style()->subElementRect(QStyle::SE_RadioButtonClickRect, &opt, this).contains(pos);
 }
 
+/*!
+    \reimp
+*/
 void QRadioButton::mouseMoveEvent(QMouseEvent *e)
 {
     Q_D(QRadioButton);

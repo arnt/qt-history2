@@ -766,6 +766,8 @@ void QTextTable::removeColumns(int pos, int num)
 }
 
 /*!
+    \since 4.1
+
     Merges the cell at the specified \a row and \a column with the adjacent cells
     into one cell. The new cell will span \a numRows rows and \a numCols columns.
     If \a numRows or \a numCols is less than the current number of rows or columns
@@ -833,6 +835,7 @@ void QTextTable::mergeCells(int row, int column, int numRows, int numCols)
 
 /*!
     \overload
+    \since 4.1
 
     Merges the cells selected by the provided \a cursor.
 */
@@ -847,6 +850,8 @@ void QTextTable::mergeCells(const QTextCursor &cursor)
 }
 
 /*!
+    \since 4.1
+
     Splits the specfied cell at \a row and \a column into an array of multiple
     cells with dimensions specified by \a numRows and \a numCols.
 */

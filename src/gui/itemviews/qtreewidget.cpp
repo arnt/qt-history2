@@ -861,6 +861,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
 
 /*!
   \fn QSize QTreeWidgetItem::sizeHint(int column) const
+  \since 4.1
 
   Returns the size hint set for the tree item in the given
   \a column (see \l{QSize}).
@@ -868,6 +869,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
 
 /*!
   \fn void QTreeWidgetItem::setSizeHint(int column, const QSize &size)
+  \since 4.1
 
   Sets the size hint for the tree item in the given \a column to be \a size.
   If no size hint is set, the item delegate will compute the size hint based
@@ -1340,6 +1342,8 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 }
 
 /*!
+  \since 4.1
+
   Appends the given list of \a children to the item.
 
   \sa insertChildren() takeChildren()
@@ -1350,6 +1354,8 @@ void QTreeWidgetItem::addChildren(const QList<QTreeWidgetItem*> &children)
 }
 
 /*!
+  \since 4.1
+
   Inserts the given list of \a children into the list of the item children at \a index .
 */
 void QTreeWidgetItem::insertChildren(int index, const QList<QTreeWidgetItem*> &children)
@@ -1378,6 +1384,8 @@ void QTreeWidgetItem::insertChildren(int index, const QList<QTreeWidgetItem*> &c
 }
 
 /*!
+  \since 4.1
+
   Removes the list of children and returns it, otherwise return an empty list.
 */
 QList<QTreeWidgetItem*> QTreeWidgetItem::takeChildren()
@@ -1794,11 +1802,12 @@ void QTreeWidget::insertTopLevelItem(int index, QTreeWidgetItem *item)
 }
 
 /*!
-  Appends the \a item as a top-level item in the widget.
+    \since 4.1
 
-  \sa insertTopLevelItem()
+    Appends the \a item as a top-level item in the widget.
+
+    \sa insertTopLevelItem()
 */
-
 void QTreeWidget::addTopLevelItem(QTreeWidgetItem *item)
 {
     insertTopLevelItem(topLevelItemCount(), item);
@@ -1841,6 +1850,8 @@ int QTreeWidget::indexOfTopLevelItem(QTreeWidgetItem *item)
 }
 
 /*!
+  \since 4.1
+
   Inserts the list of \a items at \a index in the top level in the view.
 
   \sa addTopLevelItems()
@@ -1975,6 +1986,8 @@ QRect QTreeWidget::visualItemRect(const QTreeWidgetItem *item) const
 }
 
 /*!
+  \since 4.1
+
   Returns the column used to sort the contents of the widget.
 */
 int QTreeWidget::sortColumn() const
@@ -2059,6 +2072,8 @@ void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item, int column)
 }
 
 /*!
+  \since 4.1
+
   Returns the widget displayed in the cell specified by \a item and the given \a column.
 
   \sa setItemWidget()
@@ -2072,6 +2087,8 @@ QWidget *QTreeWidget::itemWidget(QTreeWidgetItem *item, int column) const
 }
 
 /*!
+  \since 4.1
+
   Sets the \a widget to be displayed in the cell specified by \a item and the given \a column.
 
   \sa itemWidget()

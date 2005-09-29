@@ -378,6 +378,8 @@ QPrinter::~QPrinter()
 */
 
 /*!
+    \since 4.1
+
     Sets the output format for this printer to \a format.
 
     Setting the output format will reset the state of the printer
@@ -412,6 +414,8 @@ void QPrinter::setOutputFormat(OutputFormat format)
 }
 
 /*!
+    \since 4.1
+
     Returns the output format for this printer
 */
 QPrinter::OutputFormat QPrinter::outputFormat() const
@@ -767,6 +771,8 @@ void QPrinter::setNumCopies(int numCopies)
 
 
 /*!
+    \since 4.1
+
     Returns true if collation is turned on when multiple copies is selected.
     Returns false if it is turned off when multiple copies is selected.
 
@@ -780,6 +786,8 @@ bool QPrinter::collateCopies() const
 
 
 /*!
+    \since 4.1
+
     Sets the default value for collation checkbox when the print dialog appears.
     If \a on is true, it will enable setCollateCopiesEnabled().
     The default value is false. This value will be changed by what the
@@ -900,6 +908,8 @@ QPrinter::PaperSource QPrinter::paperSource() const
 
 
 /*!
+  \since 4.1
+
   Enabled or disables font embedding
 
   Currently this option is only supported on X11.
@@ -913,6 +923,8 @@ void QPrinter::setFontEmbeddingEnabled(bool enable)
 }
 
 /*!
+  \since 4.1
+
   Returns true is font embedding is enabled.
 
   Currently this option is only supported on X11.
@@ -981,6 +993,8 @@ QPaintEngine *QPrinter::paintEngine() const
 }
 
 /*!
+    \since 4.1
+
     Returns the print engine used by the printer.
 */
 QPrintEngine *QPrinter::printEngine() const
@@ -1312,6 +1326,7 @@ bool QPrinter::setup(QWidget *parent)
 }
 
 /*!
+    \since 4.1
     \fn int QPrinter::fromPage() const
 
     Returns the from-page setting. The default value is 0.
@@ -1331,7 +1346,7 @@ int QPrinter::fromPage() const
 }
 
 /*!
-    \fn int QPrinter::toPage() const
+    \since 4.1
 
     Returns the to-page setting. The default value is 0.
 
@@ -1353,6 +1368,8 @@ int QPrinter::toPage() const
 }
 
 /*!
+    \since 4.1
+
     Sets the from-page and to-page settings to \a from and \a
     to respectively.
 
@@ -1441,6 +1458,8 @@ void QPrinter::setCollateCopiesEnabled(bool enable)
 }
 
 /*!
+    \since 4.1
+
     Sets the print range option in to be \a range.
 */
 void QPrinter::setPrintRange( PrintRange range )
@@ -1452,6 +1471,8 @@ void QPrinter::setPrintRange( PrintRange range )
 }
 
 /*!
+    \since 4.1
+
     Returns the page renge of the QPrinter. After the print setup
     dialog has been opened, this function returns the value selected
     by the user.

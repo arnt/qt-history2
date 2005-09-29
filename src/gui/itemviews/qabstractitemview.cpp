@@ -1421,6 +1421,16 @@ void QAbstractItemView::timerEvent(QTimerEvent *event)
         d->updateDirtyRegion();
 }
 
+/*!
+    \since 4.1
+
+    Finds a new item to give the keyboard focus to, as appropriate
+    for Tab and Shift+Tab, and returns true if it can find a new
+    widget, or false if it can't.
+
+    If \a next is true, this function searches forward, if \a next
+    is false, it searches backward.
+*/
 bool QAbstractItemView::focusNextPrevChild(bool next)
 {
      Q_D(QAbstractItemView);
@@ -1431,7 +1441,9 @@ bool QAbstractItemView::focusNextPrevChild(bool next)
 }
 
 /*!
-  Returns the position of the drop indicator in relation to the closest item.
+    \since 4.1
+
+    Returns the position of the drop indicator in relation to the closest item.
 */
 QAbstractItemView::DropIndicatorPosition QAbstractItemView::dropIndicatorPosition() const
 {
@@ -1831,6 +1843,8 @@ void QAbstractItemView::closePersistentEditor(const QModelIndex &index)
 }
 
 /*!
+    \since 4.1
+
     Sets the given \a widget on the item at the given \a index.
 */
 void QAbstractItemView::setIndexWidget(const QModelIndex &index, QWidget *widget)
@@ -1846,7 +1860,9 @@ void QAbstractItemView::setIndexWidget(const QModelIndex &index, QWidget *widget
 }
 
 /*!
-  returns the widget for the item at the given \a index.
+    \since 4.1
+
+    Returns the widget for the item at the given \a index.
 */
 QWidget* QAbstractItemView::indexWidget(const QModelIndex &index) const
 {
@@ -1854,7 +1870,9 @@ QWidget* QAbstractItemView::indexWidget(const QModelIndex &index) const
 }
 
 /*!
-  scrolls the view to the top
+    \since 4.1
+
+    Scrolls the view to the top.
 */
 void QAbstractItemView::scrollToTop()
 {
@@ -1862,7 +1880,9 @@ void QAbstractItemView::scrollToTop()
 }
 
 /*!
-  scrolls the view to the bottom
+    \since 4.1
+
+    Scrolls the view to the bottom.
 */
 void QAbstractItemView::scrollToBottom()
 {
@@ -2089,11 +2109,13 @@ void QAbstractItemView::executeDelayedItemsLayout()
 }
 
 /*!
-  Marks the given \a region as dirty and schedules it to be updated.
-  You only need to call this function if you are implementing
-  your own view subclass.
+    \since 4.1
 
-  \sa scrollDirtyRegion(), dirtyRegionOffset()
+    Marks the given \a region as dirty and schedules it to be updated.
+    You only need to call this function if you are implementing
+    your own view subclass.
+
+    \sa scrollDirtyRegion(), dirtyRegionOffset()
 */
 
 void QAbstractItemView::setDirtyRegion(const QRegion &region)

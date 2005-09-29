@@ -1381,12 +1381,7 @@ QString QCoreApplication::applicationFilePath()
 /*!
     \obsolete
 
-    Returns the number of command line arguments.
-
-    The documentation for argv() describes how to process command line
-    arguments.
-
-    \sa argv() arguments()
+    Use arguments().size() instead.
 */
 int QCoreApplication::argc()
 {
@@ -1401,21 +1396,7 @@ int QCoreApplication::argc()
 /*!
     \obsolete
 
-    Returns the command-line argument array.
-
-    argv()[0] is the program name, argv()[1] is the first
-    argument, and argv()[argc() - 1] is the last argument.
-
-    The strings in the array are in a locale-dependent 8-bit encoding; use
-    QString::fromLocal8Bit() for each argument to create a QString.
-
-    A QCoreApplication object is constructed by passing \e argc and
-    \e argv from the \c main() function. Some of the arguments may be
-    recognized as Qt options and removed from the argument vector.
-    For example, the X11 version of QApplication knows about \c
-    -display, \c -font, and a few more options.
-
-    \sa argc() arguments()
+    Use arguments() instead.
 */
 char **QCoreApplication::argv()
 {
@@ -1427,6 +1408,8 @@ char **QCoreApplication::argv()
 }
 
 /*!
+    \since 4.1
+
     Returns the list of command-line arguments.
 
     arguments().at(0) is the program name, arguments().at(1) is the

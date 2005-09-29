@@ -128,35 +128,39 @@
 */
 
 /*!
-\fn QAbstractButton *QButtonGroup::button(int id) const;
+    \fn QAbstractButton *QButtonGroup::button(int id) const;
+    \since 4.1
 
-Returns the button with the specified \a id, or 0 if no such button
-exists.
+    Returns the button with the specified \a id, or 0 if no such button
+    exists.
 */
 
 /*!
-\fn void QButtonGroup::setId(QAbstractButton *button, int id) const;
+    \fn void QButtonGroup::setId(QAbstractButton *button, int id) const;
+    \since 4.1
 
-Sets the \a id for the specified \a button.
+    Sets the \a id for the specified \a button.
 
-\sa id()
+    \sa id()
 */
 
 /*!
-\fn int QButtonGroup::id(QAbstractButton *button) const;
+    \fn int QButtonGroup::id(QAbstractButton *button) const;
+    \since 4.1
 
-Returns the id for the specified \a button, or -1 if no such button
-exists.
+    Returns the id for the specified \a button, or -1 if no such button
+    exists.
 
-\sa setId()
+    \sa setId()
 */
 
 /*!
-\fn int QButtonGroup::checkedId() const;
+    \fn int QButtonGroup::checkedId() const;
+    \since 4.1
 
-Returns the id of the checkedButton(), or -1 if no button is checked.
+    Returns the id of the checkedButton(), or -1 if no button is checked.
 
-\sa setId()
+    \sa setId()
 */
 
 

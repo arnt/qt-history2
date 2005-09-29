@@ -14,6 +14,7 @@
 /*!
     \class QGLPbuffer
     \brief The QGLPbuffer class encapsulates an OpenGL \c pbuffer.
+    \since 4.1
 
     \ingroup multimedia
 

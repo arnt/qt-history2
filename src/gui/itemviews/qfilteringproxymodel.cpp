@@ -16,10 +16,11 @@
 #include <qdebug.h>
 
 /*!
-  \class QFilteringProxyModel
-  \brief The QFilteringProxyModel class provides support for filtering data
-  that is passed between another model and a view.
+    \class QFilteringProxyModel
+    \brief The QFilteringProxyModel class provides support for filtering data
+    that is passed between another model and a view.
 
+    \since 4.1
 */
 
 /*!

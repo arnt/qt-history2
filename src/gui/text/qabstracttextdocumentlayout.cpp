@@ -329,6 +329,9 @@ QString QAbstractTextDocumentLayout::anchorAt(const QPointF& pos) const
     return fmt.anchorHref();
 }
 
+/*!
+    \since 4.1
+*/
 int QAbstractTextDocumentLayout::dynamicPageCount() const
 {
     int count = 0;
@@ -338,6 +341,9 @@ int QAbstractTextDocumentLayout::dynamicPageCount() const
     return count;
 }
 
+/*!
+    \since 4.1
+*/
 QSizeF QAbstractTextDocumentLayout::dynamicDocumentSize() const
 {
     QSizeF size;

@@ -1095,6 +1095,8 @@ void QAxBase::clear()
 }
 
 /*!
+    \since 4.1
+
     Returns the list of verbs that the COM object can execute. If
     the object does not implement IOleObject, or does not support
     any verbs, then this function returns an empty stringlist.

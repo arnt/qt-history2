@@ -268,6 +268,8 @@ void QRubberBand::setGeometry(const QRect &geom)
 }
 
 /*!
+    \since 4.1
+
     Returns the current geometry of the rubber band relative its parent.
 
     \sa setGeometry()
