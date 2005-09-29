@@ -1409,12 +1409,29 @@ static QSvgNode *createImageNode(QSvgNode *parent,
     double nwidth = parseLength(width, type);
     nwidth = convertToPixels(nwidth, true, type);
 
-    double nheight = parseLength(width, type);
-    nheight = convertToPixels(nwidth, false, type);
-    QImage image(filename);
+    double nheight = parseLength(height, type);
+    nheight = convertToPixels(nheight, false, type);
 
-    if (image.isNull())
+
+    filename = filename.trimmed();
+    QImage image;
+    if (filename.startsWith("data")) {
+        int idx = filename.lastIndexOf("base64,");
+        if (idx != -1) {
+            idx += 7;
+            QString dataStr = filename.mid(idx);
+            QByteArray data = QByteArray::fromBase64(dataStr.toAscii());
+            image = QImage::fromData(data);
+        } else {
+            qDebug()<<"QSvgHandler::createImageNode: Unrecognized inline image format!";
+        }
+    } else
+        image = QImage(filename);
+
+    if (image.isNull()) {
+        qDebug()<<"couldn't create image from "<<filename;
         return 0;
+    }
 
     QSvgNode *img = new QSvgImage(parent,
                                   image,
