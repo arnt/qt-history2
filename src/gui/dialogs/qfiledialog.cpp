@@ -1160,6 +1160,15 @@ void QFileDialogPrivate::autoCompleteFileName(const QString &text)
     int key = fileNameEdit->lastKeyPressed();
     if (key == Qt::Key_Delete || key == Qt::Key_Backspace)
         return;
+    
+    // Save the path part of what the user has typed.
+    const QString typedPath = info.path();
+    
+    // If the user has typed a local path that goes beyond the current directory, for example
+    // ../foo or foo/bar, we treat that as an absolute path by prepending the path from lookInEdit.
+    if (!info.isAbsolute() && typedPath != QLatin1String("."))
+        info.setFile(toInternal(lookInEdit->text() + "/" + text));
+    
     // do autocompletion
     QModelIndex first;
     if (info.isAbsolute()) // if we have an absolute path, do completion in that directory
@@ -1174,10 +1183,10 @@ void QFileDialogPrivate::autoCompleteFileName(const QString &text)
         treeView->setCurrentIndex(result);
         QString completed = model->data(result).toString();
         if (info.isAbsolute()) { // if we are doing completion in another directory, add the path first
-            if (info.path() == "/")
+            if (typedPath == "/")
                 completed = "/" + completed;
             else
-                completed = info.path() + "/" + completed;
+                completed = typedPath + "/" + completed;
         }
         int start = completed.length();
         int length = text.length() - start; // negative length
