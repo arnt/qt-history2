@@ -48,7 +48,8 @@
     regions of a widget, by using a QHelpEvent of type
     QEvent::ToolTip. Intercept the help event in your widget's
     QWidget::event() function and call QToolTip::showText() with the
-    text you want to display.
+    text you want to display. The \l{widgets/tooltips}{Tooltips}
+    example illustrates this technique.
 
     \sa QWidget::toolTip, QAction::toolTip
 */
@@ -256,13 +257,11 @@ QPalette QToolTip::palette()
 
 /*!
     \fn void QToolTip::add(QWidget *widget, const QRect &rect, const QString &text)
-    Use QWidget::setToolTip() instead.
 
-    \oldcode
-    tip->add(widget, rect, text);
-    \newcode
-    widget->setToolTip(text);
-    \endcode
+    Intercept the QEvent::ToolTip events in your widget's
+    QWidget::event() function and call QToolTip::showText() with the
+    text you want to display. The \l{widgets/tooltips}{Tooltips}
+    example illustrates this technique.
 */
 
 /*!
@@ -273,11 +272,9 @@ QPalette QToolTip::palette()
     \oldcode
     tip->remove(widget);
     \newcode
-    widget->setToolTip(QString());
+    widget->setToolTip("");
     \endcode
 */
 
-
 #include "qtooltip.moc"
 #endif // QT_NO_TOOLTIP
-
