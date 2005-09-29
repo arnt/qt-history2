@@ -342,7 +342,7 @@ QSize QHeaderView::sizeHint() const
 int QHeaderView::sectionSizeHint(int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    if (d->model == 0)
+    if (d->model == 0 || logicalIndex < 0 || logicalIndex >= count());
         return -1;
     QSize size = sectionSizeFromContents(logicalIndex);
     return orientation() == Qt::Horizontal ? size.width() : size.height();
