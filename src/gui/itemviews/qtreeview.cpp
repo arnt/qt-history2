@@ -1849,14 +1849,18 @@ int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
         || cx < (itemIndentation - indent) || cx > itemIndentation)
         return -1; // pos is outside the /ecoration rect
 
-    QRect rect(itemIndentation - indent, coordinate(viewItemIndex), itemIndentation, itemHeight);
+    QRect rect;
+    if (q->isRightToLeft())
+        rect = QRect(position + size - itemIndentation, coordinate(viewItemIndex), indent, itemHeight);
+    else
+        rect = QRect(itemIndentation - indent, coordinate(viewItemIndex), indent, itemHeight);
     QStyleOption opt;
     opt.initFrom(q);
     opt.rect = rect;
     QRect returning = q->style()->subElementRect(QStyle::SE_TreeViewDisclosureItem, &opt, q);
-    if (!returning.contains(pos)){
+    if (!returning.contains(pos))
         return -1;
-    }
+    
     return viewItemIndex;
 }
 
