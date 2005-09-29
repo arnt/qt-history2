@@ -1089,11 +1089,12 @@ const Action state_table[3][3] = {
 #define LB_DEBUG if (0) qDebug
 #endif
 
-static inline bool check_full(QScriptLine &line, QScriptLine &tmpData, QScriptLine &spaceData,
-                              int glyphCount, int maxGlyphs, QFixed minw)
+static inline bool check_full_otherwise_extend(QScriptLine &line, QScriptLine &tmpData, QScriptLine &spaceData,
+                                               int glyphCount, int maxGlyphs, QFixed &minw, bool manualWrap)
 {
     LB_DEBUG("possible break width %f, spacew=%f", tmpData.textWidth.toReal(), spaceData.textWidth.toReal());
-    if (line.textWidth + tmpData.textWidth + spaceData.textWidth > line.width || glyphCount > maxGlyphs)
+    if (line.length && !manualWrap &&
+        (line.textWidth + tmpData.textWidth + spaceData.textWidth > line.width || glyphCount > maxGlyphs))
         return true;
     minw = qMax(minw, tmpData.textWidth);
     line += tmpData;
@@ -1172,7 +1173,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             Q_ASSERT(false);
             break;
         case AddTemp:
-            if (check_full(line, tmpData, spaceData, glyphCount, maxGlyphs, minw))
+            if (check_full_otherwise_extend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap))
                 goto found;
         }
         state = newState;
@@ -1189,7 +1190,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             spaceData.length++;
             newItem = item + 1;
             ++glyphCount;
-            if (line.length && !manualWrap && check_full(line, tmpData, spaceData, glyphCount, maxGlyphs, minw))
+            if (check_full_otherwise_extend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap))
                 goto found;
         } else if (current.isObject) {
             QTextFormat format = eng->formats()->format(eng->formatIndex(&eng->layoutData->items[item]));
@@ -1211,7 +1212,7 @@ void QTextLine::layout_helper(int maxGlyphs)
 
             newItem = item + 1;
             ++glyphCount;
-            if (line.length && !manualWrap && check_full(line, tmpData, spaceData, glyphCount, maxGlyphs, minw))
+            if (check_full_otherwise_extend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap))
                 goto found;
         } else if (!attributes[pos].whiteSpace) {
             bool sb_or_ws = false;
@@ -1236,8 +1237,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             } while (pos < end);
             minw = qMax(tmpData.textWidth, minw);
 
-            if (line.length && !manualWrap && (sb_or_ws|breakany)
-                && check_full(line, tmpData, spaceData, glyphCount, maxGlyphs, minw))
+            if (check_full_otherwise_extend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap || (!sb_or_ws && !breakany)))
                 goto found;
             if (sb_or_ws)
                 breakany = false;
@@ -1261,7 +1261,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             newItem = item + 1;
     }
     LB_DEBUG("reached end of line");
-    check_full(line, tmpData, spaceData, glyphCount, maxGlyphs, minw);
+    check_full_otherwise_extend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap);
 found:
     if (line.length == 0) {
         LB_DEBUG("no break available in line, adding temp: length %d, width %f, space: length %d, width %f",
