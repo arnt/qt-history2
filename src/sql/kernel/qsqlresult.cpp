@@ -93,6 +93,20 @@ QString QSqlResultPrivate::holderAt(int index) const
     return indexes.key(index);
 }
 
+// return a unique id for bound names
+static QString qFieldSerial(int i)
+{
+    ushort arr[] = { ':', 'f', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    ushort *ptr = &arr[1];
+
+    while (i > 0) {
+        *(++ptr) = 'a' + i % 16;
+        i >>= 4;
+    }
+
+    return QString::fromUtf16(arr, int(ptr - arr) + 1);
+}
+
 QString QSqlResultPrivate::positionalToNamedBinding()
 {
     QRegExp rx(QLatin1String("'[^']*'|\\?"));
@@ -100,7 +114,7 @@ QString QSqlResultPrivate::positionalToNamedBinding()
     int i = 0, cnt = -1;
     while ((i = rx.indexIn(q, i)) != -1) {
         if (rx.cap(0) == QLatin1String("?"))
-            q = q.replace(i, 1, QLatin1String(":f") + QString::number(++cnt));
+            q = q.replace(i, 1, qFieldSerial(++cnt));
         i += rx.matchedLength();
     }
     return q;
@@ -583,8 +597,7 @@ bool QSqlResult::exec()
 void QSqlResult::bindValue(int index, const QVariant& val, QSql::ParamType paramType)
 {
     d->binds = PositionalBinding;
-    QString nm(QLatin1String(":f") + QString::number(index));
-    d->indexes[nm] = index;
+    d->indexes[qFieldSerial(index)] = index;
     if (d->values.count() <= index)
         d->values.resize(index + 1);
     d->values[index] = val;
