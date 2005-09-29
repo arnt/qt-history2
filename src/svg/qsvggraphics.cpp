@@ -147,6 +147,12 @@ QSvgPolyline::QSvgPolyline(QSvgNode *parent, const QPolygonF &poly)
 void QSvgPolyline::draw(QPainter *p)
 {
     applyStyle(p);
+    if (p->brush().style() != Qt::NoBrush) {
+        QPen save = p->pen();
+        p->setPen(QPen(Qt::NoPen));
+        p->drawPolygon(m_poly);
+        p->setPen(save);
+    }
     p->drawPolyline(m_poly);
     revertStyle(p);
 }
