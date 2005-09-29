@@ -1811,6 +1811,9 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
         }
         break;
 #endif
+    case SE_TreeViewDisclosureItem:
+        r = opt->rect;
+        break;
     default:
         break;
     }

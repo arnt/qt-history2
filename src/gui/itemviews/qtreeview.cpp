@@ -765,7 +765,8 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
     const int item = d->current;
     int level = d->viewItems.at(item).level;
     QRect primitive(reverse ? rect.left() : rect.right(), rect.top(), indent, rect.height());
-
+    
+    
     QModelIndex parent = index.parent();
     QModelIndex current = parent;
     QModelIndex ancestor = current.parent();
@@ -1843,9 +1844,19 @@ int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
     int viewItemIndex = item(pos.y());
     int itemIndentation = indentation(viewItemIndex);
     QModelIndex index = modelIndex(viewItemIndex);
+    
     if (!index.isValid() || column != 0
         || cx < (itemIndentation - indent) || cx > itemIndentation)
-        return -1; // pos is outside the decoration rect
+        return -1; // pos is outside the /ecoration rect
+
+    QRect rect(itemIndentation - indent, coordinate(viewItemIndex), itemIndentation, itemHeight);
+    QStyleOption opt;
+    opt.initFrom(q);
+    opt.rect = rect;
+    QRect returning = q->style()->subElementRect(QStyle::SE_TreeViewDisclosureItem, &opt, q);
+    if (!returning.contains(pos)){
+        return -1;
+    }
     return viewItemIndex;
 }
 

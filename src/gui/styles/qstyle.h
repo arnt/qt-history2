@@ -270,6 +270,8 @@ public:
 
         SE_TabBarTearIndicator,
 
+        SE_TreeViewDisclosureItem,
+
         // do not add any values below/greater than this
         SE_CustomBase = 0xf0000000
     };

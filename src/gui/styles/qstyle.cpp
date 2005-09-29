@@ -829,6 +829,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SE_TabBarTearIndicator Area for the tear indicator on a tab bar with scroll arrows.
 
+    \value SE_TreeViewDisclosureItem Area for the actual disclosure item in a tree branch.
+
     \value SE_CustomBase  Base value for custom ControlElements
     Custom values must be greater than this value
 
