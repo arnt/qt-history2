@@ -31,6 +31,9 @@
 #include "qimagewriter.h"
 #include "qdebug.h"
 
+typedef void (*_qt_pixmap_cleanup_hook)(int);
+Q_GUI_EXPORT _qt_pixmap_cleanup_hook qt_pixmap_cleanup_hook = 0;
+
 QPixmap::QPixmap()
     : QPaintDevice()
 {

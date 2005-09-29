@@ -946,8 +946,8 @@ static QGLTextureCache *qt_tex_cache = 0;
 typedef void (*_qt_pixmap_cleanup_hook)(int);
 typedef void (*_qt_image_cleanup_hook)(int);
 
-extern _qt_pixmap_cleanup_hook qt_pixmap_cleanup_hook;
-extern _qt_image_cleanup_hook qt_image_cleanup_hook;
+extern Q_GUI_EXPORT _qt_pixmap_cleanup_hook qt_pixmap_cleanup_hook;
+extern Q_GUI_EXPORT _qt_image_cleanup_hook qt_image_cleanup_hook;
 
 // DDS format structure
 struct DDSFormat {
