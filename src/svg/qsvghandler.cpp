@@ -327,8 +327,10 @@ static void parseColor(QSvgNode *node,
     if (constructColor(colorStr, opacity, color)) {
         QSvgStyleProperty *prop = new QSvgFillStyle(QBrush(color));
         node->appendStyleProperty(prop, QString());
-        prop = new QSvgStrokeStyle(QPen(color));
-        node->appendStyleProperty(prop, QString());
+        // SVG 1.1 Conformance test painting-fill-02-t.svg
+        // makes it seem color only sets the fill not the stroke
+        //prop = new QSvgStrokeStyle(QPen(color));
+        //node->appendStyleProperty(prop, QString());
     }
 }
 
