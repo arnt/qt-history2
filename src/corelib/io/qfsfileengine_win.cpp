@@ -840,11 +840,11 @@ QString QFSFileEngine::currentPath(const QString &fileName)
 */
 QString QFSFileEngine::homePath()
 {
-    QString ret = QString::fromLocal8Bit(qgetenv("HOME").constData());
+    QString ret = QString::fromLocal8Bit(qgetenv("USERPROFILE").constData());
     if(ret.isEmpty() || !QFile::exists(ret)) {
-        ret = QString::fromLocal8Bit(qgetenv("USERPROFILE").constData());
+        ret = QString::fromLocal8Bit(qgetenv("HOMEDRIVE").constData()) + QString::fromLocal8Bit(qgetenv("HOMEPATH").constData());
         if(ret.isEmpty() || !QFile::exists(ret)) {
-            ret = QString::fromLocal8Bit(qgetenv("HOMEDRIVE").constData()) + QString::fromLocal8Bit(qgetenv("HOMEPATH").constData());
+            ret = QString::fromLocal8Bit(qgetenv("HOME").constData());
             if(ret.isEmpty() || !QFile::exists(ret))
                 ret = rootPath();
         }
