@@ -377,8 +377,10 @@ QPixmapData::~QPixmapData()
 
 void QPixmap::detach()
 {
-    if (data->count != 1)
+    if (data->count != 1) {
         *this = copy();
+        data->ser_no = ++qt_pixmap_serial;
+    }
     data->uninit = false;
 
     // reset the cache data
@@ -386,7 +388,6 @@ void QPixmap::detach()
         XFreePixmap(X11->display, data->hd2);
         data->hd2 = 0;
     }
-    data->ser_no = ++qt_pixmap_serial;
 }
 
 
