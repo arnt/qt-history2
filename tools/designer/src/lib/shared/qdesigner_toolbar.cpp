@@ -103,6 +103,7 @@ void QDesignerToolBar::startDrag(const QPoint &pos)
 bool QDesignerToolBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
 {
     event->accept();
+    m_startPosition = QPoint();
 
     if (event->button() != Qt::LeftButton)
         return true;
@@ -113,8 +114,7 @@ bool QDesignerToolBar::handleMousePressEvent(QWidget *, QMouseEvent *event)
         }
     }
 
-    QPoint pos = mapFromGlobal(event->globalPos());
-    startDrag(pos);
+    m_startPosition = mapFromGlobal(event->globalPos());
 
     return true;
 }
@@ -123,12 +123,25 @@ bool QDesignerToolBar::handleMouseReleaseEvent(QWidget *, QMouseEvent *event)
 {
     event->accept();
 
+    m_startPosition = QPoint();
+
     return true;
 }
 
 bool QDesignerToolBar::handleMouseMoveEvent(QWidget *, QMouseEvent *event)
 {
     event->accept();
+
+    if (m_startPosition.isNull())
+        return true;
+
+    QPoint pos = mapFromGlobal(event->globalPos());
+
+    if ((pos - m_startPosition).manhattanLength() < qApp->startDragDistance())
+        return true;
+
+    startDrag(pos);
+    m_startPosition = QPoint();
 
     return true;
 }
