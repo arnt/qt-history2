@@ -2404,8 +2404,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             if (cc == QStyle::CC_Slider && slider->subControls & QStyle::SC_SliderTickmarks) {
                 int numMarks;
                 if (slider->tickInterval)
-                        numMarks = ((slider->maximum - slider->minimum + 1)
-                                        / slider->tickInterval) + 1;
+                    numMarks = ((slider->maximum - slider->minimum + 1) / slider->tickInterval) + 1;
                 else
                     numMarks = ((slider->maximum - slider->minimum + 1) / slider->pageStep) + 1;
                 if (tdi.trackInfo.slider.thumbDir == kThemeThumbPlain) {
@@ -2769,7 +2768,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                     bdi.state = kThemeStatePressed;
                 HIRect hirect = qt_hirectForQRect(menuarea, p, false);
                 HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
-                QRect r(menuarea.x() + ((menuarea.width() / 2) - 4), menuarea.height() - 8, 8, 8);
+                QRect r(menuarea.x() + ((menuarea.width() / 2) - 3), menuarea.height() - 8, 8, 8);
                 HIThemePopupArrowDrawInfo padi;
                 padi.version = qt_mac_hitheme_version;
                 padi.state = tds;
@@ -4237,7 +4236,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                     info.value |= kThemeStatePressed;
                 qt_mac_set_port(p);
                 DrawThemeButton(qt_glb_mac_rect(menuarea, p, false), bkind, &info, 0, 0, 0, 0);
-                QRect r(menuarea.x() + ((menuarea.width() / 2) - 4), menuarea.height() - 8, 8, 8);
+                QRect r(menuarea.x() + ((menuarea.width() / 2) - 3), menuarea.height() - 8, 8, 8);
                 DrawThemePopupArrow(qt_glb_mac_rect(r, p), kThemeArrowDown, kThemeArrow7pt, tds,
                                     0, 0);
             }
@@ -5991,6 +5990,12 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                 ret = QWindowsStyle::subControlRect(cc, spin, sc, w);
                 break;
             }
+        }
+        break;
+    case CC_ToolButton:
+        ret = QWindowsStyle::subControlRect(cc, opt, sc, w);
+        if (sc == SC_ToolButtonMenu && w && !qobject_cast<QToolBar*>(w->parentWidget())) {
+            ret.adjust(-1, 0, 0, 0);
         }
         break;
     }
