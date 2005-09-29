@@ -600,6 +600,16 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
 }
 
 /*!
+    Resizes the sections according to the given \a mode, ignoring the set resizeMode.
+*/
+
+void QHeaderView::resizeSections(QHeaderView::ResizeMode mode)
+{
+    Q_D(QHeaderView);
+    d->resizeSections(mode, true);
+}
+
+/*!
   \fn void QHeaderView::hideSection(int logicalIndex)
     Hides the section specified by \a logicalIndex.
 
@@ -1082,77 +1092,7 @@ void QHeaderView::updateSection(int logicalIndex)
 void QHeaderView::resizeSections()
 {
     Q_D(QHeaderView);
-    QList<int> section_sizes;
-    int count = qMax(d->sections.count() - 1, 0);
-    const QVector<QHeaderViewPrivate::HeaderSection> sections = d->sections;
-    int last = -1;
-    if (d->stretchLastSection) {
-        for (int i = count-1; i >= 0; --i) {
-            if (!sections.at(i).hidden) {
-                last = i;
-                break;
-            }
-        }
-    }
-
-    if (sections.isEmpty())
-        return;
-
-    int stretchSize = orientation() == Qt::Horizontal ? d->viewport->width() : d->viewport->height();
-    int stretchSecs = 0;
-    int secSize = 0;
-    ResizeMode mode;
-    for (int i = 0; i < count; ++i) {
-        if (sections.at(i).hidden)
-            continue;
-        mode = (i == last ? Stretch : sections.at(i).mode);
-        if (mode == Stretch) {
-            ++stretchSecs;
-            continue;
-        }
-        if (mode == Interactive) {
-            secSize = sectionSize(logicalIndex(i));
-        } else { // mode == QHeaderView::Custom
-            // FIXME: this is a bit hacky; see if we can find a cleaner solution
-            QAbstractItemView *par = ::qobject_cast<QAbstractItemView*>(parent());
-            if (orientation() == Qt::Horizontal) {
-                if (par)
-                    secSize = par->sizeHintForColumn(i);
-                secSize = qMax(secSize, sectionSizeHint(logicalIndex(i)));
-            } else {
-                if (par)
-                    secSize = par->sizeHintForRow(i);
-                secSize = qMax(secSize, sectionSizeHint(logicalIndex(i)));
-            }
-        }
-        section_sizes.append(secSize);
-        stretchSize -= secSize;
-    }
-    int position = 0;
-    QSize strut = QApplication::globalStrut();
-    int minimum = orientation() == Qt::Horizontal
-                  ? qMax(strut.width(), fontMetrics().maxWidth())
-                  : qMax(strut.height(), fontMetrics().height());
-    int hint = stretchSecs > 0 ? stretchSize / stretchSecs : 0;
-    int stretchSectionSize = qMax(hint, minimum);
-    for (int i = 0; i < count; ++i) {
-        int oldSize = d->sections.at(i + 1).position - d->sections.at(i).position;
-        d->sections[i].position = position;
-        if (d->sections[i].hidden)
-            continue;
-        mode = (i == last ? Stretch : sections.at(i).mode);
-        if (mode == Stretch) {
-            position += stretchSectionSize;
-        } else {
-            position += section_sizes.front();
-            section_sizes.removeFirst();
-        }
-        int newSize = position - d->sections.at(i).position;
-        if (newSize != oldSize)
-            emit sectionResized(i, oldSize, newSize);
-    }
-    d->sections[count].position = position;
-    d->viewport->update();
+    d->resizeSections(Interactive, false); // no global resize mode
 }
 
 /*!
@@ -2095,6 +2035,90 @@ bool QHeaderViewPrivate::isSectionSelected(int section) const
     sectionSelection.setBit(i + 1, selected);
     sectionSelection.setBit(i, true);
     return selected;
+}
+
+void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool useGlobalMode)
+{
+    Q_Q(QHeaderView);
+
+    if (sections.isEmpty())
+        return;
+
+    QList<int> section_sizes;
+    int count = qMax(sections.count() - 1, 0);
+
+    int last = -1;
+    if (stretchLastSection && !useGlobalMode) {
+        for (int i = count - 1; i >= 0; --i) {
+            if (!sections.at(i).hidden) {
+                last = i;
+                break;
+            }
+        }
+    }
+
+    int stretchSize = (orientation == Qt::Horizontal ? viewport->width() : viewport->height());
+    int stretchSecs = 0;
+    int secSize = 0;
+    QHeaderView::ResizeMode mode;
+    for (int i = 0; i < count; ++i) {
+        if (sections.at(i).hidden)
+            continue;
+        if (useGlobalMode)
+            mode = globalMode;
+        else
+            mode = (i == last ? QHeaderView::Stretch : sections.at(i).mode);
+        if (mode == QHeaderView::Stretch) {
+            ++stretchSecs;
+            continue;
+        }
+        int logicalIndex = q->logicalIndex(i);
+        if (mode == QHeaderView::Interactive) {
+            secSize = q->sectionSize(logicalIndex);
+        } else { // mode == QHeaderView::Custom
+            // FIXME: this is a bit hacky; see if we can find a cleaner solution
+            QAbstractItemView *par = ::qobject_cast<QAbstractItemView*>(q->parent());
+            if (orientation == Qt::Horizontal) {
+                if (par)
+                    secSize = par->sizeHintForColumn(i);
+                secSize = qMax(secSize, q->sectionSizeHint(logicalIndex));
+            } else {
+                if (par)
+                    secSize = par->sizeHintForRow(i);
+                secSize = qMax(secSize, q->sectionSizeHint(logicalIndex));
+            }
+        }
+        section_sizes.append(secSize);
+        stretchSize -= secSize;
+    }
+    int position = 0;
+    QSize strut = QApplication::globalStrut();
+    int minimum = orientation == Qt::Horizontal
+                  ? qMax(strut.width(), q->fontMetrics().maxWidth())
+                  : qMax(strut.height(), q->fontMetrics().height());
+    int hint = stretchSecs > 0 ? stretchSize / stretchSecs : 0;
+    int stretchSectionSize = qMax(hint, minimum);
+    for (int i = 0; i < count; ++i) {
+        int oldSize = sections.at(i + 1).position - sections.at(i).position;
+        sections[i].position = position;
+        if (sections[i].hidden)
+            continue;
+        if (useGlobalMode)
+            mode = globalMode;
+        else
+            mode = (i == last ? QHeaderView::Stretch : sections.at(i).mode);
+        if (mode == QHeaderView::Stretch) {
+            position += stretchSectionSize;
+        } else {
+            position += section_sizes.front();
+            section_sizes.removeFirst();
+        }
+        int newSize = position - sections.at(i).position;
+        if (newSize != oldSize)
+            emit q->sectionResized(i, oldSize, newSize);
+    }
+    sections[count].position = position;
+    viewport->update();
 }
 
 #endif // QT_NO_ITEMVIEWS

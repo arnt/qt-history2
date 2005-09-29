@@ -60,6 +60,7 @@ public:
     int sectionHandleAt(int position);
     void setupSectionIndicator(int section, int position);
     void updateSectionIndicator(int section, int position);
+    void resizeSections(QHeaderView::ResizeMode globalMode, bool useGlobalMode = false);
 
     bool isSectionSelected(int section) const;
     inline void prepareSectionSelected()

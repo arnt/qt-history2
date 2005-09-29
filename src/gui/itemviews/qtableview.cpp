@@ -1418,29 +1418,45 @@ void QTableView::showColumn(int column)
 }
 
 /*!
-    Resizes the given \a row based on the size hints of the delegates
+    Resizes the given \a row based on the size hints of the delegate
     used to render each item in the row.
 */
 void QTableView::resizeRowToContents(int row)
 {
     Q_D(QTableView);
-
     int content = sizeHintForRow(row);
     int header = d->verticalHeader->isHidden() ? 0 : d->verticalHeader->sectionSizeHint(row);
     d->verticalHeader->resizeSection(row, qMax(content, header));
 }
 
 /*!
-    Resizes the given \a column based on the size hints of the delegates
+    Resizes all rows based on the size hints of the delegate
+    used to render each item in the rows.
+*/
+void QTableView::resizeRowsToContents()
+{
+    d_func()->verticalHeader->resizeSections(QHeaderView::Custom);
+}
+
+/*!
+    Resizes the given \a column based on the size hints of the delegate
     used to render each item in the column.
 */
 void QTableView::resizeColumnToContents(int column)
 {
     Q_D(QTableView);
-
     int content = sizeHintForColumn(column);
     int header = d->horizontalHeader->isHidden() ? 0 : d->horizontalHeader->sectionSizeHint(column);
     d->horizontalHeader->resizeSection(column, qMax(content, header));
+}
+
+/*!
+    Resizes all columns based on the size hints of the delegate
+    used to render each item in the columns.
+*/
+void QTableView::resizeColumnsToContents()
+{
+    d_func()->horizontalHeader->resizeSections(QHeaderView::Custom);
 }
 
 /*!

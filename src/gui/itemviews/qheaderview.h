@@ -66,6 +66,7 @@ public:
 
     void moveSection(int from, int to);
     void resizeSection(int logicalIndex, int size);
+    void resizeSections(QHeaderView::ResizeMode mode);
 
     bool isSectionHidden(int logicalIndex) const;
     void setSectionHidden(int logicalIndex, bool hide);

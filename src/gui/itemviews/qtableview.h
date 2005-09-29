@@ -77,7 +77,9 @@ public Q_SLOTS:
     void showRow(int row);
     void showColumn(int column);
     void resizeRowToContents(int row);
+    void resizeRowsToContents();
     void resizeColumnToContents(int column);
+    void resizeColumnsToContents();
     void sortByColumn(int column);
     void setShowGrid(bool show);
 
