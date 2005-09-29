@@ -883,11 +883,6 @@ bool QPainter::begin(QPaintDevice *pd)
         d->state->pen = QPen(pal.brush(widget->foregroundRole()), 0);
         d->state->bgBrush = pal.brush(widget->backgroundRole());
         d->state->layoutDirection = widget->layoutDirection();
-        const QWidget *w = static_cast<const QWidget *>(originalDevice);;
-        while (w->d_func()->isBackgroundInherited()) {
-            d->state->bgOrigin -= w->pos();
-            w = w->parentWidget();
-        }
     } else {
         d->state->layoutDirection = QApplication::layoutDirection();
     }
