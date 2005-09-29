@@ -39,7 +39,7 @@
 #endif
 
 typedef void (*_qt_pixmap_cleanup_hook)(int);
-_qt_pixmap_cleanup_hook qt_pixmap_cleanup_hook = 0;
+Q_GUI_EXPORT _qt_pixmap_cleanup_hook qt_pixmap_cleanup_hook = 0;
 
 /*!
     \enum QPixmap::ColorMode

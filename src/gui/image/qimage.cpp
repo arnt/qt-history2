@@ -42,7 +42,7 @@
 #endif
 
 typedef void (*_qt_image_cleanup_hook)(int);
-_qt_image_cleanup_hook qt_image_cleanup_hook = 0;
+Q_GUI_EXPORT _qt_image_cleanup_hook qt_image_cleanup_hook = 0;
 
 struct QImageData {        // internal image data
     QImageData();
@@ -3245,7 +3245,7 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
         wd = int(qAbs(mat.m11()) * ws + 0.9999);
         hd = qAbs(hd);
         wd = qAbs(wd);
-    } else if (d->format == Format_RGB32 && mat.m11() == 0. && mat.m22() == 0. && 
+    } else if (d->format == Format_RGB32 && mat.m11() == 0. && mat.m22() == 0. &&
               ((mat.m12() == 1. && mat.m21() == -1.) ||     // 90 degrees
                (mat.m12() == -1. && mat.m21() == 1.))) {    // -90 degrees
         // Dont perform a complex_xform for trivial rotations

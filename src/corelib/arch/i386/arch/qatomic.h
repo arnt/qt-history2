@@ -62,7 +62,7 @@ inline int q_atomic_increment(volatile int *ptr)
 inline int q_atomic_decrement(volatile int *ptr)
 {
     unsigned char ret;
-    asm volatile("lock\n" 
+    asm volatile("lock\n"
                  "decl %0\n"
                  "setne %1"
                  : "=m" (*ptr), "=qm" (ret)
