@@ -300,6 +300,8 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     code of the process, and \a exitStatus is the exit status.  After the
     process has finished, the buffers in QProcess are still intact. You can
     still read any data that the process may have written before it finished.
+
+    \sa exitStatus()
 */
 
 /*!
@@ -1375,6 +1377,10 @@ int QProcess::exitCode() const
 
 /*!
     Returns the exit status of the last process that finished.
+
+    On Windows, if the process was terminated with TerminateProcess()
+    from another application this function will still return NormalExit
+    unless the exit code is less than 0.
 */
 QProcess::ExitStatus QProcess::exitStatus() const
 {
