@@ -1501,11 +1501,17 @@ static bool parseMpathNode(QSvgNode *parent,
 static QSvgNode *createPathNode(QSvgNode *parent,
                                 const QXmlAttributes &attributes)
 {
-    QString data  = attributes.value("d");
+    QString data      = attributes.value("d");
+    QString fillRule  = attributes.value("fill-rule");
 
     QPainterPath qpath;
+    if (!fillRule.isEmpty()) {
+        if (fillRule == QLatin1String("nonzero")) {
+            qpath.setFillRule(Qt::WindingFill);
+        }
+    }
+
     //XXX do error handling
-    //sePathData(data, qpath);
     parsePathDataFast(data, qpath);
     QSvgNode *path = new QSvgPath(parent, qpath);
     return path;
