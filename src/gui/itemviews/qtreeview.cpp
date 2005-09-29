@@ -973,10 +973,10 @@ int QTreeView::verticalOffset() const
 {
     Q_D(const QTreeView);
     // gives an estimate
-    int item = verticalScrollBar()->value() / verticalStepsPerItem();
+    float items = verticalScrollBar()->value() / (float)verticalStepsPerItem();
     if (model() && model()->rowCount(rootIndex()) > 0 && model()->columnCount(rootIndex()) > 0)
-        return item * d->itemHeight;
-    return item * 30; // FIXME remove this hard coded number
+        return (int)(items * d->itemHeight);
+    return (int)(items * 30); // FIXME remove this hard coded number
 }
 
 /*!
@@ -1038,6 +1038,7 @@ void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
     Q_D(QTreeView);
     if (!selectionModel())
         return;
+
     QPoint tl(isRightToLeft() ? rect.right() : rect.left(), rect.top());
     QPoint br(isRightToLeft() ? rect.left() : rect.right(), rect.bottom());
     QModelIndex topLeft = indexAt(tl);
@@ -1221,7 +1222,7 @@ void QTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
     // collapse all children
     for (int i = start; i <= end; ++i)
         collapse(model()->index(i, 0, parent));
-    
+
     // collapse parent
     int p = d->viewIndex(parent);
     if (p > 0) {
@@ -1240,7 +1241,7 @@ void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
     Q_UNUSED(start);
     Q_UNUSED(end);
     Q_D(QTreeView);
-    
+
     // collapse parent
     int p = d->viewIndex(parent);
     if (p > 0) {
@@ -1479,7 +1480,7 @@ void QTreeViewPrivate::initialize()
 void QTreeViewPrivate::expand(int i, bool emitSignal)
 {
     Q_Q(QTreeView);
-    
+
     if (!model || i == -1 || viewItems.at(i).expanded)
         return;
 
@@ -1492,7 +1493,7 @@ void QTreeViewPrivate::expand(int i, bool emitSignal)
     // make sure we expand children that were previously expanded
     if (model->hasChildren(index))
         reexpandChildren(index, emitSignal);
-    
+
     if (emitSignal)
         emit q->expanded(index);
 }
@@ -1712,7 +1713,7 @@ void QTreeViewPrivate::reexpandChildren(const QModelIndex &parent, bool)
 {
     if (!model)
         return;
-    
+
     // FIXME: this is slow: optimize
     QVector<QPersistentModelIndex> o = expandedIndexes;
     for (int j = 0; j < o.count(); ++j) {
