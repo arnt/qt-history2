@@ -215,8 +215,6 @@ QModelIndex QTreeModel::parent(const QModelIndex &child) const
 int QTreeModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid()) {
-        if (parent.column() != 0)
-            return 0;
         QTreeWidgetItem *parentItem = item(parent);
         if (parentItem)
             return parentItem->childCount();
@@ -244,8 +242,6 @@ bool QTreeModel::hasChildren(const QModelIndex &parent) const
 {
     if (!parent.isValid())
         return tree.count() > 0;
-    if (parent.column() != 0)
-        return false;
     QTreeWidgetItem *itm = item(parent);
     if (!itm)
         return false;
