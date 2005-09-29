@@ -66,6 +66,7 @@ const char _DisableLanguageExtensions[]         = "DisableLanguageExtensions";
 const char _DisableSpecificWarnings[]           = "DisableSpecificWarnings";
 const char _EnableCOMDATFolding[]               = "EnableCOMDATFolding";
 const char _EnableErrorChecks[]                 = "EnableErrorChecks";
+const char _EnableEnhancedInstructionSet[]      = "EnableEnhancedInstructionSet";
 const char _EnableFiberSafeOptimizations[]      = "EnableFiberSafeOptimizations";
 const char _EnableFunctionLevelLinking[]        = "EnableFunctionLevelLinking";
 const char _EnableIntrinsicFunctions[]          = "EnableIntrinsicFunctions";
@@ -255,6 +256,7 @@ VCCLCompilerTool::VCCLCompilerTool()
         DefaultCharIsUnsigned(unset),
         Detect64BitPortabilityProblems(unset),
         DisableLanguageExtensions(unset),
+        m_EnableEnhancedInstructionSet(archNotSet),
         EnableFiberSafeOptimizations(unset),
         EnableFunctionLevelLinking(unset),
         EnableIntrinsicFunctions(unset),
@@ -314,6 +316,7 @@ XmlOutput &operator<<(XmlOutput &xml, const VCCLCompilerTool &tool)
             << attrT(_Detect64BitPortabilityProblems, tool.Detect64BitPortabilityProblems)
             << attrT(_DisableLanguageExtensions, tool.DisableLanguageExtensions)
             << attrX(_DisableSpecificWarnings, tool.DisableSpecificWarnings)
+            << attrE(_EnableEnhancedInstructionSet, tool.m_EnableEnhancedInstructionSet)
             << attrT(_EnableFiberSafeOptimizations, tool.EnableFiberSafeOptimizations)
             << attrT(_EnableFunctionLevelLinking, tool.EnableFunctionLevelLinking)
             << attrT(_EnableIntrinsicFunctions, tool.EnableIntrinsicFunctions)
@@ -482,6 +485,9 @@ bool VCCLCompilerTool::parseOption(const char* option)
         case '6':
         case 'B':
             OptimizeForProcessor = procOptimizePentiumProAndAbove;
+            break;
+        case '7':
+            OptimizeForProcessor = procOptimizePentium4AndAbove;
             break;
         case 'A':
             OptimizeForWindowsApplication = _True;
@@ -799,6 +805,16 @@ bool VCCLCompilerTool::parseOption(const char* option)
             break;
         default:
             found = false; break;
+        }
+        break;
+    case 'a':
+        if (second == 'r' && third == 'c' && fourth == 'h') {
+            if (option[5] == ':') {
+                const char *o = option;
+                if (o[6] == 'S' && o[7] == 'S' && o[8] == 'E') {
+                    m_EnableEnhancedInstructionSet = o[9] == '2' ? archSSE2 : archSSE;
+                }
+            }
         }
         break;
     case 'c':

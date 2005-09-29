@@ -111,6 +111,11 @@ enum eAppProtectionOption {
     eAppProtectMedium,
     eAppProtectHigh
 };
+enum EnableEnhancedInstructionSet {
+    archNotSet = 0,
+    archSSE = 1,
+    archSSE2 = 2
+};
 enum enumResourceLangID {
     rcUseDefault                 = 0,
     rcAfrikaans                  = 1078,
@@ -308,9 +313,10 @@ enum preprocessOption {
     preprocessNoLineNumbers
 };
 enum ProcessorOptimizeOption {
-    procOptimizeBlended,
-    procOptimizePentium,
-    procOptimizePentiumProAndAbove
+    procOptimizeBlended,                //GB
+    procOptimizePentium,                //G5
+    procOptimizePentiumProAndAbove,     //G6
+    procOptimizePentium4AndAbove        //G7
 };
 enum RemoteDebuggerType {
     DbgLocal,
@@ -419,6 +425,7 @@ public:
     triState                Detect64BitPortabilityProblems;
     triState                DisableLanguageExtensions;
     QStringList             DisableSpecificWarnings;
+    EnableEnhancedInstructionSet  m_EnableEnhancedInstructionSet;
     triState                EnableFiberSafeOptimizations;
     triState                EnableFunctionLevelLinking;
     triState                EnableIntrinsicFunctions;
