@@ -850,6 +850,8 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
         pathElem = *itr;
         ++itr;
         QList<qreal> arg = parseNumbersList(itr);
+        if (pathElem == 'z' || pathElem == 'Z')
+            arg.append(0);//dummy
         while (!arg.isEmpty()) {
             double offsetX = x;        // correction offsets
             double offsetY = y;        // for relative commands
@@ -873,6 +875,7 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
                 x = x0;
                 y = y0;
                 path.closeSubpath();
+                arg.pop_front();//pop dummy
             }
                 break;
             case 'l': {
