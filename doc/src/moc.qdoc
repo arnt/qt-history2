@@ -294,6 +294,31 @@
     It may sometimes be even better to replace the function pointer
     with inheritance and virtual functions.
 
+    \section2 Enums and Typedefs Must Be Fully Qualified for Signal and Slot Parameters
+
+    When checking the signatures of its arguments, QObject::connect()
+    compares the data types literally. Thus,
+    \l{Qt::Alignment}{Alignment} and \l{Qt::Alignment} are treated as
+    two distinct types. To work around this limitation, make sure to
+    fully qualify the data types when declaring signals and slots,
+    and when establishing connections. For example:
+
+    \code
+        class MyClass : public QObject
+        {
+            Q_OBJECT
+
+            enum Error {
+                ConnectionRefused,
+                RemoteHostClosed,
+                UnknownError
+            };
+
+        signals:
+            void stateChanged(MyClass::Error error);
+        };
+    \endcode
+
     \section2 Type Macros Cannot Be Used for Signal and Slot Parameters
 
     Since \c moc doesn't expand \c{#define}s, type macros that take
