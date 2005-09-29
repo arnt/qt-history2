@@ -25,7 +25,7 @@
 #include <qwidget.h>
 #include <qdebug.h>
 
-#ifdef Q_OS_MAC
+#ifdef Q_WS_MAC
 #include <qmacstyle_mac.h>
 #endif
 
@@ -147,7 +147,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
 
 // If the scrollbars are at the very right and bottom of the window we
 // move their positions to be alligned with the size grip.
-#ifdef Q_OS_MAC
+#ifdef Q_WS_MAC
     // Use small scrollbars for tool windows.
     if (q->window()->windowType() == Qt::Tool) {
         QMacStyle::setWidgetSizePolicy(hbar, QMacStyle::SizeSmall);
