@@ -59,7 +59,7 @@ static QStyleOptionToolBar getStyleOption(QToolBar *toolBar)
 
     // Add more styleoptions if the toolbar has been added to a mainwindow.
     QMainWindow *mainWindow = qobject_cast<QMainWindow *>(toolBar->parent());
-    
+
     if (!mainWindow)
         return option;
 
@@ -78,7 +78,7 @@ static QStyleOptionToolBar getStyleOption(QToolBar *toolBar)
 
 
 	foreach	(QMainWindowLayout::ToolBarLineInfo	lineInfo, layout->tb_layout_info) {
-		
+
         if (lineInfo.pos !=	positionForArea(option.toolBarArea))
             continue;
         int	toolBarIndex = -1;
@@ -86,14 +86,14 @@ static QStyleOptionToolBar getStyleOption(QToolBar *toolBar)
 
         for	(int i = 0;	i <	lineInfo.list.size(); ++i){
             QMainWindowLayout::ToolBarLayoutInfo layoutInfo	= lineInfo.list.at(i);
-            
+
             if (layoutInfo.item->widget()->isVisible())
                 lineVisible = true;
 
             if (layoutInfo.item->widget() == toolBar) {
                 // This	is our toolbar,	so we now have the line	and	position.
                 toolBarLineCount = toolBarTotalLineCount;
-                
+
                 // We have to determine how many visible toolbars there are in this line
                 int visibleLines = 0;
                 for	(int j = 0;	j <	lineInfo.list.size(); ++j){
@@ -103,7 +103,7 @@ static QStyleOptionToolBar getStyleOption(QToolBar *toolBar)
                     if (info.item->widget()->isVisible())
                         visibleLines++;
                 }
-                
+
                 // Determine the position within this toolbar line
                 if (toolBarIndex ==	0) {
                     if (visibleLines ==	1)
@@ -125,10 +125,10 @@ static QStyleOptionToolBar getStyleOption(QToolBar *toolBar)
 	Q_ASSERT_X(toolBarLineCount	>= 0, "QToolBarPrivate::getStyleOption()",
 			   "toolbar	not	found in layout");
 
- 
+
 
     if (option.toolBarArea== Qt::BottomToolBarArea || option.toolBarArea==Qt::RightToolBarArea){
-        toolBarLineCount = toolBarTotalLineCount-toolBarLineCount-1;    
+        toolBarLineCount = toolBarTotalLineCount-toolBarLineCount-1;
     }
 
 	// Determine the line position of this toolbar
@@ -808,6 +808,7 @@ void QToolBar::actionEvent(QActionEvent *event)
             layout()->removeWidget(item.widget);
             if (!widgetAction) {
                 // destroy the QToolButton/QToolBarSeparator
+                item.widget->hide();
                 item.widget->deleteLater();
             } else {
                 if (!isHidden())
