@@ -48,6 +48,8 @@ public:
     int minRightBearing() const;
     int maxWidth() const;
 
+    int xHeight() const;
+
     bool inFont(QChar) const;
 
     int leftBearing(QChar) const;
@@ -113,6 +115,8 @@ public:
     qreal minRightBearing() const;
     qreal maxWidth() const;
 
+    qreal xHeight() const;
+    
     bool inFont(QChar) const;
 
     qreal leftBearing(QChar) const;

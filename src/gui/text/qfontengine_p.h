@@ -110,6 +110,7 @@ public:
     virtual QFixed ascent() const = 0;
     virtual QFixed descent() const = 0;
     virtual QFixed leading() const = 0;
+    virtual QFixed xHeight() const;
 
     virtual QFixed lineThickness() const;
     virtual QFixed underlinePosition() const;
@@ -196,6 +197,8 @@ public:
     QFixed ascent() const;
     QFixed descent() const;
     QFixed leading() const;
+    QFixed xHeight() const;
+    
     qreal maxCharWidth() const;
     qreal minLeftBearing() const;
     qreal minRightBearing() const;
@@ -372,6 +375,8 @@ public:
     QFixed ascent() const;
     QFixed descent() const;
     QFixed leading() const;
+    QFixed xHeight() const;
+    
     QFixed lineThickness() const;
     QFixed underlinePosition() const;
     qreal maxCharWidth() const;

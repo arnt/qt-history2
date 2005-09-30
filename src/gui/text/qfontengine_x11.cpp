@@ -406,6 +406,7 @@ bool QFontEngineXLFD::canRender(const QChar *string, int len)
 // ------------------------------------------------------------------
 
 #include FT_OUTLINE_H
+#include FT_TRUETYPE_TABLES_H
 
 QFontEngineMultiFT::QFontEngineMultiFT(FcFontSet *fs, int s)
     : QFontEngineMulti(fs->nfont), fontSet(fs), screen(s)
@@ -1358,6 +1359,19 @@ QFixed QFontEngineFT::leading() const
 {
     return (metrics.height - metrics.ascender + metrics.descender) >> 6;
 }
+
+QFixed QFontEngineFT::xHeight() const
+{
+    FT_Face face = lockFace();
+    TT_PCLT *pct = (TT_PCLT *)FT_Get_Sfnt_Table(face, ft_sfnt_pclt);
+    if (pct && pct->xHeight) {
+        unlockFace();
+        return QFixed(pct->xHeight*face->size->metrics.y_ppem)/face->units_per_EM;
+    }
+    unlockFace();
+    return QFontEngine::xHeight();
+}
+
 
 qreal QFontEngineFT::maxCharWidth() const
 {

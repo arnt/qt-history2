@@ -348,6 +348,17 @@ int QFontMetrics::maxWidth() const
 }
 
 /*!
+    Returns the 'x' height of the font. This is often but not always
+    the same as the height of the character 'x'.
+*/
+int QFontMetrics::xHeight() const
+{
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
+    Q_ASSERT(engine != 0);
+    return qRound(engine->xHeight());
+}
+
+/*!
     Returns true if character \a ch is a valid character in the font;
     otherwise returns false.
 */
@@ -1044,6 +1055,17 @@ qreal QFontMetricsF::maxWidth() const
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
     return engine->maxCharWidth();
+}
+
+/*!
+    Returns the 'x' height of the font. This is often but not always
+    the same as the height of the character 'x'.
+*/
+qreal QFontMetricsF::xHeight() const
+{
+    QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
+    Q_ASSERT(engine != 0);
+    return engine->xHeight().toReal();
 }
 
 /*!

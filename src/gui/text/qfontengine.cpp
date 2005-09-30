@@ -20,6 +20,16 @@
 
 #include <math.h>
 
+QFixed QFontEngine::xHeight() const
+{
+    QGlyphLayout glyphs[8];
+    int nglyphs = 7;
+    QChar x((ushort)'x');
+    stringToCMap(&x, 1, glyphs, &nglyphs, 0);
+
+    glyph_metrics_t bb = const_cast<QFontEngine *>(this)->boundingBox(glyphs[0].glyph);
+    return bb.height;
+}
 
 void QFontEngine::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path,
                                    QTextItem::RenderFlags flags)
@@ -483,6 +493,11 @@ QFixed QFontEngineMulti::descent() const
 QFixed QFontEngineMulti::leading() const
 {
     return engine(0)->leading();
+}
+
+QFixed QFontEngineMulti::xHeight() const
+{
+    return engine(0)->xHeight();
 }
 
 QFixed QFontEngineMulti::lineThickness() const

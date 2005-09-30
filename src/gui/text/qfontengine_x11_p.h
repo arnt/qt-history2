@@ -145,6 +145,8 @@ public:
     QFixed ascent() const;
     QFixed descent() const;
     QFixed leading() const;
+    QFixed xHeight() const;
+
     qreal maxCharWidth() const;
     qreal minLeftBearing() const;
     qreal minRightBearing() const;

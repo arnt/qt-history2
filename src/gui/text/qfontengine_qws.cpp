@@ -48,6 +48,8 @@
 
 #ifndef QT_NO_FREETYPE
 
+#include FT_TRUETYPE_TABLES_H
+
 FT_Library QFontEngineFT::ft_library = 0;
 
 class QGlyph {
@@ -408,6 +410,18 @@ QFixed QFontEngineFT::leading() const
 qreal QFontEngineFT::maxCharWidth() const
 {
     return face->size->metrics.max_advance/64.;
+}
+
+QFixed QFontEngineFT::xHeight() const
+{
+    FT_Face face = lockFace();
+    TT_PCLT *pct = (TT_PCLT *)FT_Get_Sfnt_Table(face, ft_sfnt_pclt);
+    if (pct && pct->xHeight) {
+        unlockFace();
+        return QFixed(pct->xHeight*face->size->metrics.y_ppem)/face->units_per_EM;
+    }
+    unlockFace();
+    return QFontEngine::xHeight();
 }
 
 qreal QFontEngineFT::minLeftBearing() const
