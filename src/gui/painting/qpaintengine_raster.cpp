@@ -2959,7 +2959,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
                 ExtTextOutW(hdc,
 		            qRound(x + glyphs->offset.x.toReal()),
 		            qRound(y + glyphs->offset.y.toReal()), 
-                    options, 0, convertToText ? convertedGlyphs + i : g.data(), ti.num_glyphs, 0);
+                    options, 0, convertToText ? convertedGlyphs : g.data(), ti.num_glyphs, 0);
 		x += w.toReal();
             }
         }
