@@ -2723,12 +2723,6 @@ fi
 
 # auto-detect SQL-modules support
 MYSQL_REQ="-lmysqlclient mysql.h"
-OCI_REQ="-lclntsh oci.h"
-ODBC_REQ="-lodbc sql.h sqlext.h"
-TDS_REQ="-lsybdb sybfront.h sybdb.h"
-DB2_REQ="-ldb2 sqlcli.h sqlcli1.h"
-IBASE_REQ="-lgds ibase.h"
-SQLITE2_REQ="-lsqlite sqlite.h"
 for _SQLDR in $CFG_SQL_AVAILABLE; do
         case $_SQLDR in
         mysql)
@@ -2738,22 +2732,22 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
             $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/psql "PostgreSQL" $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED psql"
             ;;
         odbc)
-            $unixtests/checkavail "ODBC" $OPT_VERBOSE $ODBC_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED odbc"
+	    $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/odbc "ODBC" $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED odbc"
             ;;
         oci)
-            $unixtests/checkavail "OCI" $OPT_VERBOSE $OCI_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED oci"
+            $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/oci "OCI" $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED oci"
             ;;
         tds)
-            $unixtests/checkavail "TDS" $OPT_VERBOSE $TDS_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED tds"
+            $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/tds "TDS" $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED tds"
             ;;
         db2)
-            $unixtests/checkavail "DB2" $OPT_VERBOSE $DB2_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED db2"
+            $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/db2 "DB2" $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED db2"
             ;;
         ibase)
-            $unixtests/checkavail "InterBase" $OPT_VERBOSE $IBASE_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED ibase"
+            $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/ibase "InterBase" $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED ibase"
             ;;
         sqlite2)
-            $unixtests/checkavail "SQLite2" $OPT_VERBOSE $SQLITE2_REQ $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED sqlite2"
+            $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/sqlite2 "SQLite2" $L_FLAGS $I_FLAGS && CFG_SQL_AUTODETECTED="$CFG_SQL_AUTODETECTED sqlite2"
             ;;
         sqlite)
             if [ -f $relpath/src/3rdparty/sqlite/sqlite3.h ]; then
