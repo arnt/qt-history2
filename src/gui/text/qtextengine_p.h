@@ -524,6 +524,9 @@ public:
     bool atWordSeparator(int position) const;
     void indexAdditionalFormats();
 
+    QFixed alignLine(const QScriptLine &line);
+    void drawLine(int lineNum, QPainter *p, QPainterPath *path, const QPointF &pos, const QTextLayout::FormatRange *selection);
+
 private:
     void setBoundary(int strPos) const;
     void addRequiredBoundaries() const;

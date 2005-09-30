@@ -29,22 +29,6 @@
 
 #include "qfontengine_p.h"
 
-static QFixed alignLine(QTextEngine *eng, const QScriptLine &line)
-{
-    QFixed x = 0;
-    eng->justify(line);
-    if (!line.justified) {
-        int align = eng->option.alignment();
-        if (align & Qt::AlignJustify && eng->option.textDirection() == Qt::RightToLeft)
-            align = Qt::AlignRight;
-        if (align & Qt::AlignRight)
-            x = line.width - line.textWidth;
-        else if (align & Qt::AlignHCenter)
-            x = (line.width - line.textWidth)/2;
-    }
-    return x;
-}
-
 /*!
     \class QTextInlineObject
     \brief The QTextInlineObject class represents an inline object in
@@ -957,7 +941,7 @@ QRectF QTextLine::rect() const
 QRectF QTextLine::naturalTextRect() const
 {
     const QScriptLine& sl = eng->lines[i];
-    QFixed x = sl.x + alignLine(eng, sl);
+    QFixed x = sl.x + eng->alignLine(sl);
 
     QFixed width = sl.textWidth;
     if (sl.justified)
@@ -1324,93 +1308,6 @@ int QTextLine::textLength() const
     return eng->lines[i].length;
 }
 
-static void drawMenuText(QPainter *p, QFixed x, QFixed y, const QScriptItem &si, QTextItemInt &gf, QTextEngine *eng,
-                         int start, int glyph_start)
-{
-    int ge = glyph_start + gf.num_glyphs;
-    int gs = glyph_start;
-    int end = start + gf.num_chars;
-    unsigned short *logClusters = eng->logClusters(&si);
-    QGlyphLayout *glyphs = eng->glyphs(&si);
-    QFixed orig_width = gf.width;
-
-    int *ul = eng->underlinePositions;
-    if (ul)
-        while (*ul != -1 && *ul < start)
-            ++ul;
-    bool rtl = si.analysis.bidiLevel % 2;
-    if (rtl)
-        x += si.width;
-
-    do {
-        int gtmp = ge;
-        int stmp = end;
-        if (ul && *ul != -1 && *ul < end) {
-            stmp = *ul;
-            gtmp = logClusters[*ul-si.position];
-        }
-
-        gf.num_glyphs = gtmp - gs;
-        gf.glyphs = glyphs + gs;
-        gf.num_chars = stmp - start;
-        gf.chars = eng->layoutData->string.unicode() + start;
-        QFixed w = 0;
-        while (gs < gtmp) {
-            w += glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].space_18d6);
-            ++gs;
-        }
-        start = stmp;
-        gf.width = w;
-        if (rtl)
-            x -= w;
-        if (gf.num_chars)
-            p->drawTextItem(QPointF(x.toReal(), y.toReal()), gf);
-        if (!rtl)
-            x += w;
-        if (ul && *ul != -1 && *ul < end) {
-            // draw underline
-            gtmp = (*ul == end-1) ? ge : logClusters[*ul+1-si.position];
-            ++stmp;
-            gf.num_glyphs = gtmp - gs;
-            gf.glyphs = glyphs + gs;
-            gf.num_chars = stmp - start;
-            gf.chars = eng->layoutData->string.unicode() + start;
-            w = 0;
-            while (gs < gtmp) {
-                w += glyphs[gs].advance.x + QFixed::fromFixed(glyphs[gs].space_18d6);
-                ++gs;
-            }
-            ++start;
-            gf.width = w;
-            gf.flags |= QTextItem::Underline;
-            if (rtl)
-                x -= w;
-            p->drawTextItem(QPointF(x.toReal(), y.toReal()), gf);
-            if (!rtl)
-                x += w;
-            gf.flags &= ~QTextItem::Underline;
-            ++gf.chars;
-            ++ul;
-        }
-    } while (gs < ge);
-
-    gf.width = orig_width;
-}
-
-
-static void setPenAndDrawBackground(QPainter *p, const QPen &defaultPen, const QTextCharFormat &chf, const QRectF &r)
-{
-    QBrush c = chf.foreground();
-    if (c.style() == Qt::NoBrush)
-        p->setPen(defaultPen);
-
-    QBrush bg = chf.background();
-    if (bg.style() != Qt::NoBrush)
-        p->fillRect(r, bg);
-    if (c.style() != Qt::NoBrush)
-        p->setPen(QPen(c, 0));
-}
-
 /*!
     \fn void QTextLine::draw(QPainter *painter, const QPointF &position, const QTextLayout::FormatRange *selection) const
 
@@ -1419,218 +1316,7 @@ static void setPenAndDrawBackground(QPainter *p, const QPen &defaultPen, const Q
 */
 void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatRange *selection) const
 {
-    const QScriptLine &line = eng->lines[i];
-
-    if (!line.length)
-        return;
-
-    QPen pen = p->pen();
-
-    int lineEnd = line.from + line.length;
-
-    int firstItem = eng->findItem(line.from);
-    int lastItem = eng->findItem(lineEnd - 1);
-    int nItems = lastItem-firstItem+1;
-
-    QFixed x = QFixed::fromReal(pos.x());
-    QFixed y = QFixed::fromReal(pos.y());
-    QFixed pos_x = x;
-    QFixed pos_y = y;
-
-    x += line.x;
-    y += line.y + line.ascent;
-
-    x += alignLine(eng, line);
-
-    QVarLengthArray<int> visualOrder(nItems);
-    QVarLengthArray<uchar> levels(nItems);
-    for (int i = 0; i < nItems; ++i)
-        levels[i] = eng->layoutData->items[i+firstItem].analysis.bidiLevel;
-    QTextEngine::bidiReorder(nItems, levels.data(), visualOrder.data());
-
-    QRectF outlineRect;
-
-    for (int i = 0; i < nItems; ++i) {
-        int item = visualOrder[i]+firstItem;
-        QScriptItem &si = eng->layoutData->items[item];
-        int si_len = eng->length(item);
-        if (!si.num_glyphs)
-            eng->shape(item);
-
-        if (si.isObject || si.isTab) {
-            if (eng->block.docHandle() &&
-                (!selection || (si.position < selection->start + selection->length
-                                && si.position + si_len > selection->start))) {
-                p->save();
-                QTextCharFormat format = eng->format(&si);
-                if (selection)
-                    format.merge(selection->format);
-                QFixed width = si.width;
-                if (si.isTab) {
-                    width = eng->nextTab(&si, x - pos_x) - (x - pos_x);
-                }
-                setPenAndDrawBackground(p, pen, format, QRectF(x.toReal(), (y - line.ascent).toReal(), width.toReal(), line.height().toReal()));
-                if (si.isObject) {
-                    QRectF itemRect(x.toReal(), (y-si.ascent).toReal(), width.toReal(), si.height().toReal());
-                    eng->docLayout()->drawInlineObject(p, itemRect,
-                                                       QTextInlineObject(item, eng),
-                                                       si.position + eng->block.position(),
-                                                       format);
-                    if (selection) {
-                        QBrush bg = format.background();
-                        if (bg.style() != Qt::NoBrush) {
-                            QColor c = bg.color();
-                            c.setAlpha(128);
-                            p->fillRect(itemRect, c);
-                        }
-                        if (selection)
-                            outlineRect = outlineRect.unite(itemRect);
-                    }
-                } else { // si.isTab
-                    QTextItemInt gf;
-                    QFont f = eng->font(si);
-                    if (f.d->underline)
-                        gf.flags |= QTextItem::Underline;
-                    if (f.d->overline)
-                        gf.flags |= QTextItem::Overline;
-                    if (f.d->strikeOut)
-                        gf.flags |= QTextItem::StrikeOut;
-
-                    if (gf.flags) {
-                        if (si.analysis.bidiLevel %2)
-                            gf.flags |= QTextItem::RightToLeft;
-                        gf.ascent = si.ascent;
-                        gf.descent = si.descent;
-                        gf.num_glyphs = 0;
-                        gf.chars = 0;
-                        gf.num_chars = 0;
-                        gf.width = width;
-                        gf.fontEngine = f.d->engineForScript(si.analysis.script);
-                        gf.f = &f;
-
-                        p->drawTextItem(QPointF(x.toReal(), y.toReal()), gf);
-                    }
-                }
-                p->restore();
-            }
-
-            if (si.isTab)
-                x = eng->nextTab(&si, x - pos_x) + pos_x;
-            else
-                x += si.width;
-            continue;
-        }
-
-        unsigned short *logClusters = eng->logClusters(&si);
-        QGlyphLayout *glyphs = eng->glyphs(&si);
-
-        int start = qMax(line.from, si.position);
-        int gs = logClusters[start-si.position];
-        int end;
-        int ge;
-        if (lineEnd < si.position + eng->length(item)) {
-            end = lineEnd;
-            ge = logClusters[end-si.position];
-        } else {
-            end = si.position + si_len;
-            ge = si.num_glyphs;
-        }
-
-        QFixed itemBaseLine = y;
-
-        QTextItemInt gf;
-        if (si.analysis.bidiLevel %2)
-            gf.flags |= QTextItem::RightToLeft;
-        gf.ascent = si.ascent;
-        gf.descent = si.descent;
-        gf.num_glyphs = ge - gs;
-        gf.glyphs = glyphs + gs;
-        gf.chars = eng->layoutData->string.unicode() + start;
-        gf.num_chars = end - start;
-        gf.width = 0;
-        int g = gs;
-        while (g < ge) {
-            gf.width += glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6);
-            ++g;
-        }
-
-        if (selection) {
-            int from = qMax(start, selection->start) - si.position;
-            int to = qMin(end, selection->start + selection->length) - si.position;
-            if (from >= to) {
-                x += gf.width;
-                continue;
-            }
-            int start_glyph = logClusters[from];
-            int end_glyph = (to == eng->length(item)) ? si.num_glyphs : logClusters[to];
-            QFixed soff;
-            QFixed swidth;
-            if (si.analysis.bidiLevel %2) {
-                for (int g = ge - 1; g >= end_glyph; --g)
-                    soff += glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6);
-                for (int g = end_glyph - 1; g >= start_glyph; --g)
-                    swidth += glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6);
-            } else {
-                for (int g = gs; g < start_glyph; ++g)
-                    soff += glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6);
-                for (int g = start_glyph; g < end_glyph; ++g)
-                    swidth += glyphs[g].advance.x + QFixed::fromFixed(glyphs[g].space_18d6);
-            }
-
-            QRectF rect((x + soff).toReal(), (y - line.ascent).toReal(), swidth.toReal(), line.height().toReal());
-            if (selection)
-                outlineRect = outlineRect.unite(rect);
-            p->save();
-            p->setClipRect(rect, Qt::IntersectClip);
-        }
-
-
-        if (eng->hasFormats() || selection) {
-            QTextCharFormat chf = eng->format(&si);
-            if (selection)
-                chf.merge(selection->format);
-            
-            setPenAndDrawBackground(p, pen, chf, QRectF(x.toReal(), (y - line.ascent).toReal(),
-                                                        gf.width.toReal(), line.height().toReal()));
-            
-            QTextCharFormat::VerticalAlignment valign = chf.verticalAlignment();
-            if (valign == QTextCharFormat::AlignSubScript)
-                itemBaseLine += (si.ascent + si.descent + 1) / 6;
-            else if (valign == QTextCharFormat::AlignSuperScript)
-                itemBaseLine -= (si.ascent + si.descent + 1) / 2;
-        }
-        QFont f = eng->font(si);
-        gf.fontEngine = f.d->engineForScript(si.analysis.script);
-        gf.f = &f;
-        if (f.d->underline)
-            gf.flags |= QTextItem::Underline;
-        if (f.d->overline)
-            gf.flags |= QTextItem::Overline;
-        if (f.d->strikeOut)
-            gf.flags |= QTextItem::StrikeOut;
-        Q_ASSERT(gf.fontEngine);
-
-        if (eng->underlinePositions) {
-            // can't have selections in this case
-            drawMenuText(p, x, itemBaseLine, si, gf, eng, start, gs);
-        } else {
-            p->drawTextItem(QPointF(x.toReal(), itemBaseLine.toReal()), gf);
-        }
-        if (selection)
-            p->restore();
-
-        x += gf.width;
-    }
-
-    if (selection && outlineRect.isValid()) {
-        QVariant outline = selection->format.property(QTextFormat::OutlinePen);
-        if (outline.type() == QVariant::Pen) {
-            p->setPen(qVariantValue<QPen>(outline));
-            p->drawRect(outlineRect);
-        }
-    }
-    if (eng->hasFormats())
-        p->setPen(pen);
+    eng->drawLine(i, p, /*painterPath =*/0, pos, selection);
 }
 
 /*!
@@ -1658,7 +1344,7 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
     const QScriptLine &line = eng->lines[i];
 
     QFixed x = line.x;
-    x += alignLine(eng, line);
+    x += eng->alignLine(line);
 
     if (!i && !eng->layoutData->items.size()) {
         *cursorPos = 0;
@@ -1793,7 +1479,7 @@ int QTextLine::xToCursor(qreal _x, CursorPosition cpos) const
     int nItems = lastItem-firstItem+1;
 
     x -= line.x;
-    x -= alignLine(eng, line);
+    x -= eng->alignLine(line);
 //     qDebug("xToCursor: x=%f, cpos=%d", x, cpos);
 
     QVarLengthArray<int> visualOrder(nItems);
