@@ -5,7 +5,7 @@ contains(sql-drivers, all ) {
 contains(sql-drivers, psql) {
         HEADERS +=      drivers/psql/qsql_psql.h
         SOURCES +=      drivers/psql/qsql_psql.cpp
-        unix:!contains(LIBS, .*pq.*):LIBS *= -lpq
+        unix:LIBS *= -lpq
 
         win32 {
                 !contains( LIBS, .*pq.* ):LIBS *= libpq.lib
@@ -23,10 +23,21 @@ contains(sql-drivers, psql) {
 contains(sql-drivers, mysql) {
         HEADERS +=      drivers/mysql/qsql_mysql.h
         SOURCES +=      drivers/mysql/qsql_mysql.cpp
-        unix:!contains(LIBS, .*mysql.*):LIBS    *= -lmysqlclient
+
+        unix:use_mysqlclient_r {
+	    LIBS    *= -lmysqlclient_r
+	} else:unix {
+	    LIBS    *= -lmysqlclient
+	}
+	
 
         win32 {
+	    use_mysqlclient_r {
+		!contains( LIBS, .*mysql.* ):LIBS    *= libmysql_r.lib
+	    }
+	    else {
                 !contains( LIBS, .*mysql.* ):LIBS    *= libmysql.lib
+	    }
 
 #               win32-msvc: {
 #                       LIBS *= delayimp.lib
