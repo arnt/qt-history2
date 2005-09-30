@@ -32,6 +32,7 @@
 class DomConnections;
 class Connection;
 
+class SetPropertyCommand;
 class QLabel;
 class QTimer;
 class QAction;
@@ -273,6 +274,8 @@ private:
     void updateWidgets();
     void bfs(QWidget *widget);
 
+    void handleArrowKeyEvent(int key, bool modifier);
+
 private:
     Feature m_feature;
     FormEditor *m_core;
@@ -338,6 +341,9 @@ private:
     QString m_marginFunction, m_spacingFunction;
     QString m_exportMacro;
     QStringList m_includeHints;
+
+    QList<QPointer<SetPropertyCommand> > m_moveSelection;
+    int m_lastUndoIndex;
 
 private:
 //    friend class FormWindowManager;

@@ -936,17 +936,102 @@ bool FormWindow::handleKeyPressEvent(QWidget *, QWidget *, QKeyEvent *e)
         case Qt::Key_Backspace:
             deleteWidgets();
             break;
-
-        case Qt::Key_Left:
+        case Qt::Key_Tab:
+            cursor()->movePosition(QDesignerFormWindowCursorInterface::Next);
+            break;
+        case Qt::Key_Backtab:
             cursor()->movePosition(QDesignerFormWindowCursorInterface::Prev);
             break;
-
+        case Qt::Key_Left:
         case Qt::Key_Right:
-            cursor()->movePosition(QDesignerFormWindowCursorInterface::Next);
+        case Qt::Key_Up:
+        case Qt::Key_Down:
+            handleArrowKeyEvent(e->key(), e->modifiers() == Qt::ControlModifier);
             break;
     }
 
     return true;
+}
+
+void FormWindow::handleArrowKeyEvent(int key, bool modifier)
+{
+    bool startMacro = false;
+    QDesignerFormWindowCursorInterface *c = cursor();
+    if (!c->hasSelection())
+        return;
+
+    int x = grid().x();
+    int y = grid().y();
+    int selCount = c->selectedWidgetCount();
+
+    if (modifier) {
+        x = 1;
+        y = 1;
+    }
+
+    // check if selection is the same as last time
+    if (selCount != m_moveSelection.count() ||
+        m_lastUndoIndex != m_commandHistory->currentIndex()) {
+        m_moveSelection.clear();
+        startMacro = true;
+    } else {
+        for (int index=0; index<selCount; ++index) {
+            if (m_moveSelection[index]->object() != c->selectedWidget(index)) {
+                m_moveSelection.clear();
+                startMacro = true;
+                break;
+            }
+        }
+    }
+
+    if (startMacro)
+        beginCommand(tr("Key Move"));
+
+    for (int index=0; index<selCount; ++index) {
+        QRect geom = c->selectedWidget(index)->geometry();
+        switch(key) {
+            case Qt::Key_Left:
+                geom.adjust(-x, 0,-x, 0);
+                break;
+            case Qt::Key_Right:
+                geom.adjust( x, 0, x, 0);
+                break;
+            case Qt::Key_Up:
+                geom.adjust( 0,-y, 0,-y);
+                break;
+            case Qt::Key_Down:
+                geom.adjust( 0, y, 0, y);
+                break;
+        }
+
+        if (!modifier)
+            geom.moveTopLeft(gridPoint(geom.topLeft()));
+
+        SetPropertyCommand *cmd = 0;
+
+        if (m_moveSelection.count() > index)
+            cmd = m_moveSelection[index];
+
+        if (!cmd) {
+            cmd = new SetPropertyCommand(this);
+            cmd->init(c->selectedWidget(index), QLatin1String("geometry"), geom);
+            cmd->setDescription(tr("Key Move"));
+            m_commandHistory->push(cmd);
+            
+            if (m_moveSelection.count() > index)
+                m_moveSelection.replace(index, cmd);
+            else
+                m_moveSelection.append(cmd);
+        } else {
+            cmd->setNewValue(geom);
+            cmd->redo();
+        }
+    }
+
+    if (startMacro) {
+        endCommand();
+        m_lastUndoIndex = m_commandHistory->currentIndex();
+    }
 }
 
 bool FormWindow::handleKeyReleaseEvent(QWidget *, QWidget *, QKeyEvent *e)
