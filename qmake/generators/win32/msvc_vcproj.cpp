@@ -791,10 +791,16 @@ void VcprojGenerator::initConfiguration()
     VCConfiguration &conf = vcProject.Configuration;
 
     initCompilerTool();
+    
+    // Only on configuration per build
+    bool isDebug = project->isActiveConfig("debug");
+    
     if(projectTarget == StaticLib)
         initLibrarianTool();
-    else
+    else {
+        conf.linker.GenerateDebugInformation == isDebug ? _True : _False;    
         initLinkerTool();
+    }
     initResourceTool();
     initIDLTool();
 
@@ -812,9 +818,6 @@ void VcprojGenerator::initConfiguration()
         conf.ConfigurationType = typeApplication;
         break;
     }
-
-    // Only on configuration per build
-    bool isDebug = project->isActiveConfig("debug");
 
     conf.Name = project->values("BUILD_NAME").join(" ");
     if (conf.Name.isEmpty())
@@ -846,12 +849,8 @@ void VcprojGenerator::initConfiguration()
 
     // Set definite values in both configurations
     if (isDebug) {
-        // Special debug options
-        conf.linker.GenerateDebugInformation = _True;
         conf.compiler.PreprocessorDefinitions.removeAll("NDEBUG");
     } else {
-        // Special release options
-        conf.linker.GenerateDebugInformation = _False;
         conf.compiler.PreprocessorDefinitions += "NDEBUG";
     }
 
