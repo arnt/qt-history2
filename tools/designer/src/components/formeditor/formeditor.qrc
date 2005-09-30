@@ -38,6 +38,10 @@
     <file>images/mac/resourceeditortool.png</file>
     <file>images/mac/plus.png</file>
     <file>images/mac/minus.png</file>
+    <file>images/mac/back.png</file>
+    <file>images/mac/forward.png</file>
+    <file>images/mac/down.png</file>
+    <file>images/mac/up.png</file>
     <file>images/qtlogo.png</file>
     <file>images/resetproperty.png</file>
     <file>images/widgets/checkbox.png</file>
@@ -96,6 +100,10 @@
     <file>images/win/textbold.png</file>
     <file>images/win/textitalic.png</file>
     <file>images/win/textunder.png</file>
+    <file>images/win/back.png</file>
+    <file>images/win/forward.png</file>
+    <file>images/win/down.png</file>
+    <file>images/win/up.png</file>
     <file>images/mac/textbold.png</file>
     <file>images/mac/textitalic.png</file>
     <file>images/mac/textunder.png</file>

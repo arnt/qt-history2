@@ -1,6 +1,6 @@
 <ui version="4.0" >
  <author></author>
-  <comment>*********************************************************************
+ <comment>*********************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -13,14 +13,14 @@
 **
 *********************************************************************</comment>
  <exportmacro></exportmacro>
- <class>ListWidgetEditor</class>
- <widget class="QDialog" name="ListWidgetEditor" >
+ <class>TreeWidgetEditor</class>
+ <widget class="QDialog" name="TreeWidgetEditor" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>606</width>
-    <height>378</height>
+    <width>491</width>
+    <height>385</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -33,183 +33,318 @@
    <property name="spacing" >
     <number>6</number>
    </property>
-   <item row="0" column="1" >
-    <widget class="QGroupBox" name="groupBox" >
+   <item rowspan="2" row="0" column="0" >
+    <widget class="QGroupBox" name="itemsBox" >
      <property name="title" >
-      <string>&amp;Item Properties</string>
+      <string>Tree Items</string>
      </property>
      <layout class="QGridLayout" >
       <property name="margin" >
-       <number>9</number>
+       <number>8</number>
       </property>
       <property name="spacing" >
        <number>6</number>
       </property>
-      <item row="2" column="1" >
-       <widget class="QLabel" name="label_2_2" >
-        <property name="text" >
-         <string/>
+      <item row="0" column="1" >
+       <layout class="QVBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
         </property>
-       </widget>
-      </item>
-      <item row="3" column="0" >
-       <spacer>
-        <property name="orientation" >
-         <enum>Qt::Vertical</enum>
+        <property name="spacing" >
+         <number>6</number>
         </property>
-        <property name="sizeHint" >
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="2" column="2" >
-       <widget class="QToolButton" name="previewButton" >
-        <property name="text" >
-         <string/>
-        </property>
-       </widget>
+        <item>
+         <spacer>
+          <property name="orientation" >
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" >
+           <size>
+            <width>20</width>
+            <height>111</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QToolButton" name="moveItemUpButton" >
+          <property name="text" >
+           <string>U</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="moveItemDownButton" >
+          <property name="text" >
+           <string>D</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="moveItemRightButton" >
+          <property name="text" >
+           <string>R</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="moveItemLeftButton" >
+          <property name="text" >
+           <string>L</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item row="0" column="0" >
-       <widget class="QLabel" name="label_3" >
-        <property name="text" >
-         <string>Colu&amp;mn</string>
-        </property>
-        <property name="buddy" >
-         <cstring>columnsSpinBox</cstring>
+       <widget class="QTreeWidget" name="treeWidget" >
+        <property name="focusPolicy" >
+         <enum>Qt::TabFocus</enum>
         </property>
        </widget>
       </item>
-      <item row="1" column="0" >
+      <item row="1" column="0" colspan="2" >
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QToolButton" name="newItemButton" >
+          <property name="text" >
+           <string>&amp;New Item</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="newSubItemButton" >
+          <property name="text" >
+           <string>New &amp;Subitem</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="deleteItemButton" >
+          <property name="text" >
+           <string>&amp;Delete Item</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer>
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" >
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="1" >
+    <widget class="QGroupBox" name="columnsBox" >
+     <property name="title" >
+      <string>Columns</string>
+     </property>
+     <layout class="QVBoxLayout" >
+      <property name="margin" >
+       <number>8</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QListWidget" name="listWidget" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>5</hsizetype>
+          <vsizetype>7</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QToolButton" name="newColumnButton" >
+          <property name="text" >
+           <string>New</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="renameColumnButton" >
+          <property name="text" >
+           <string>Rename</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="deleteColumnButton" >
+          <property name="text" >
+           <string>Delete</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer>
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType" >
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" >
+           <size>
+            <width>20</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QToolButton" name="moveColumnUpButton" >
+          <property name="text" >
+           <string>U</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="pixmapColumnLabel" >
+          <property name="text" >
+           <string>Pixmap</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="previewPixmapColumnButton" >
+          <property name="text" >
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="deletePixmapColumnButton" >
+          <property name="text" >
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer>
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType" >
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" >
+           <size>
+            <width>20</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QToolButton" name="moveColumnDownButton" >
+          <property name="text" >
+           <string>D</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="1" >
+    <widget class="QGroupBox" name="currentItemBox" >
+     <property name="title" >
+      <string>Current &amp;Item Properties</string>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="margin" >
+       <number>8</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item row="0" column="0" >
        <widget class="QLabel" name="label" >
         <property name="text" >
-         <string>&amp;Text:</string>
+         <string>&amp;Text</string>
         </property>
         <property name="buddy" >
          <cstring>itemTextLineEdit</cstring>
         </property>
        </widget>
       </item>
-      <item row="2" column="3" >
-       <widget class="QToolButton" name="browseButton" >
+      <item row="1" column="0" >
+       <widget class="QLabel" name="label_2" >
+        <property name="text" >
+         <string>&amp;Pixmap</string>
+        </property>
+        <property name="buddy" >
+         <cstring>previewPixmapItemButton</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QLabel" name="label_2_2" >
+        <property name="text" >
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" >
+       <widget class="QToolButton" name="previewPixmapItemButton" >
         <property name="text" >
          <string>...</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0" >
-       <widget class="QLabel" name="label_2" >
+      <item row="1" column="3" >
+       <widget class="QToolButton" name="deletePixmapItemButton" >
         <property name="text" >
-         <string>&amp;Pixmap:</string>
-        </property>
-        <property name="buddy" >
-         <cstring>browseButton</cstring>
+         <string/>
         </property>
        </widget>
       </item>
       <item row="0" column="1" colspan="3" >
-       <widget class="QSpinBox" name="columnsSpinBox" />
-      </item>
-      <item row="1" column="1" colspan="3" >
        <widget class="QLineEdit" name="itemTextLineEdit" />
       </item>
      </layout>
     </widget>
    </item>
-   <item row="0" column="0" >
-    <layout class="QGridLayout" >
-     <property name="margin" >
-      <number>0</number>
-     </property>
-     <property name="spacing" >
-      <number>6</number>
-     </property>
-     <item row="7" column="1" >
-      <widget class="QPushButton" name="moveItemLeftButton" >
-       <property name="text" >
-        <string>Move Left</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1" >
-      <widget class="QPushButton" name="moveItemDownButton" >
-       <property name="text" >
-        <string>Move Down</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1" >
-      <widget class="QPushButton" name="delteItemButton" >
-       <property name="text" >
-        <string>&amp;Delete Item</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1" >
-      <widget class="QPushButton" name="newItemButton" >
-       <property name="text" >
-        <string>&amp;New Item</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1" >
-      <widget class="QPushButton" name="moveItemRighttButton" >
-       <property name="text" >
-        <string>Move Right</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1" >
-      <widget class="QPushButton" name="moveItemUpButton" >
-       <property name="text" >
-        <string>Move Up</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1" >
-      <spacer>
-       <property name="orientation" >
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" >
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="1" column="1" >
-      <widget class="QPushButton" name="newSubItemButton" >
-       <property name="text" >
-        <string>New &amp;Subitem</string>
-       </property>
-      </widget>
-     </item>
-     <item rowspan="8" row="0" column="0" >
-      <widget class="QTreeWidget" name="treeWidget" />
-     </item>
-    </layout>
-   </item>
-   <item row="1" column="0" colspan="2" >
-    <spacer>
-     <property name="orientation" >
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType" >
-      <enum>QSizePolicy::Minimum</enum>
-     </property>
-     <property name="sizeHint" >
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="3" column="0" colspan="2" >
+   <item row="2" column="0" colspan="2" >
     <layout class="QHBoxLayout" >
      <property name="margin" >
       <number>0</number>
@@ -218,31 +353,17 @@
       <number>6</number>
      </property>
      <item>
-      <widget class="QPushButton" name="helpButton" >
-       <property name="text" >
-        <string>&amp;Help</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <spacer>
        <property name="orientation" >
         <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeHint" >
         <size>
-         <width>40</width>
-         <height>20</height>
+         <width>431</width>
+         <height>30</height>
         </size>
        </property>
       </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="applyButton" >
-       <property name="text" >
-        <string>&amp;Apply</string>
-       </property>
-      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="okButton" >
@@ -263,19 +384,65 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0" colspan="2" >
-    <widget class="QFrame" name="horizontalLine" >
-     <property name="frameShape" >
-      <enum>QFrame::HLine</enum>
-     </property>
-     <property name="frameShadow" >
-      <enum>QFrame::Sunken</enum>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <pixmapfunction></pixmapfunction>
+ <tabstops>
+  <tabstop>treeWidget</tabstop>
+  <tabstop>moveItemUpButton</tabstop>
+  <tabstop>moveItemDownButton</tabstop>
+  <tabstop>moveItemRightButton</tabstop>
+  <tabstop>moveItemLeftButton</tabstop>
+  <tabstop>newItemButton</tabstop>
+  <tabstop>newSubItemButton</tabstop>
+  <tabstop>deleteItemButton</tabstop>
+  <tabstop>listWidget</tabstop>
+  <tabstop>newColumnButton</tabstop>
+  <tabstop>renameColumnButton</tabstop>
+  <tabstop>deleteColumnButton</tabstop>
+  <tabstop>moveColumnUpButton</tabstop>
+  <tabstop>previewPixmapColumnButton</tabstop>
+  <tabstop>deletePixmapColumnButton</tabstop>
+  <tabstop>moveColumnDownButton</tabstop>
+  <tabstop>itemTextLineEdit</tabstop>
+  <tabstop>previewPixmapItemButton</tabstop>
+  <tabstop>deletePixmapItemButton</tabstop>
+  <tabstop>okButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+ </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>okButton</sender>
+   <signal>clicked()</signal>
+   <receiver>TreeWidgetEditor</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>342</x>
+     <y>344</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>159</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancelButton</sender>
+   <signal>clicked()</signal>
+   <receiver>TreeWidgetEditor</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>437</x>
+     <y>336</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>178</x>
+     <y>331</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
