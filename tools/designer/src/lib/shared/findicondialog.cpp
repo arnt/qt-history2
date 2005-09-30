@@ -221,7 +221,7 @@ QString FindIconDialog::filePath() const
 
 void FindIconDialog::browseFileDir()
 {
-    QString dir = QFileDialog::getExistingDirectory();
+    QString dir = QFileDialog::getExistingDirectory(this);
     if (!dir.isEmpty())
         ui->m_file_dir_input->setText(dir);
 }
