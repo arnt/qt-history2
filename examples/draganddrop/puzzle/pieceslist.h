@@ -25,6 +25,7 @@ public:
     void addPiece(QPixmap pixmap, QPoint location);
 
 protected:
+    void dragEnterEvent(QDragEnterEvent *event);
     void dragMoveEvent(QDragMoveEvent *event);
     void dropEvent(QDropEvent *event);
     void startDrag(Qt::DropActions supportedActions);

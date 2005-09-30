@@ -33,6 +33,14 @@ void PuzzleWidget::clear()
     update();
 }
 
+void PuzzleWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasFormat("image/x-puzzle-piece"))
+        event->accept();
+    else
+        event->ignore();
+}
+
 void PuzzleWidget::dragLeaveEvent(QDragLeaveEvent *event)
 {
     QRect updateRect = highlightedRect;
