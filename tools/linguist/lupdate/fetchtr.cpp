@@ -798,10 +798,12 @@ bool UiHandler::startElement( const QString& /* namespaceURI */,
     } else if ( qName == QString("string") ) {
         flush();
         if (atts.value(QString("notr")).isEmpty() ||
-            atts.value(QString("notr")) != QString("true"))
+            atts.value(QString("notr")) != QString("true")) {
             trString = true;
-        else
+            comment = atts.value(QString("comment"));
+        } else {
             trString = false;
+        }
     }
     accum.truncate( 0 );
     return true;
