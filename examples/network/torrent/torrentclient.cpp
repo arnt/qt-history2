@@ -171,7 +171,7 @@ void TorrentClientPrivate::setState(TorrentClient::State state)
         stateString = QT_TRANSLATE_NOOP(TorrentClient, "Downloading");
         break;
     case TorrentClient::Endgame:
-        stateString = QT_TRANSLATE_NOOP(TorrentClient, "Endgame");
+        stateString = QT_TRANSLATE_NOOP(TorrentClient, "Finishing");
         break;
     case TorrentClient::Seeding:
         stateString = QT_TRANSLATE_NOOP(TorrentClient, "Seeding");
