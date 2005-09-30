@@ -17,6 +17,7 @@
 #include "qsvgstructure_p.h"
 #include "qsvggraphics_p.h"
 #include "qsvgnode_p.h"
+#include "qsvgfont_p.h"
 
 #include "qapplication.h"
 #include "qwidget.h"
@@ -31,6 +32,9 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+
+static bool parsePathDataFast(const QString &data, QPainterPath &path);
 
 static const QPen defaultPen(Qt::black, 1, Qt::SolidLine,
                              Qt::FlatCap, Qt::MiterJoin);
@@ -280,6 +284,24 @@ static qreal parseLength(const QString &str, LengthType &type)
     return len;
 }
 
+
+static bool createSvgGlyph(QSvgFont *font, const QXmlAttributes &attributes)
+{
+    QString uncStr = attributes.value("unicode");
+    QString havStr = attributes.value("horiz-adv-x");
+    QString pathStr = attributes.value("d");
+
+    QChar unicode = (uncStr.isEmpty())?0:uncStr.at(0);
+    qreal havx = (havStr.isEmpty())?-1:havStr.toDouble();
+    QPainterPath path;
+    parsePathDataFast(pathStr, path);
+
+    font->addGlyph(unicode, path, havx);
+
+    return true;
+}
+
+
 static qreal convertToPixels(qreal len, bool isX, LengthType type)
 {
     QWidgetList widgets = QApplication::topLevelWidgets();
@@ -319,7 +341,6 @@ static qreal convertToPixels(qreal len, bool isX, LengthType type)
     }
     return len;
 }
-
 
 static void parseColor(QSvgNode *node,
                        const QXmlAttributes &attributes)
@@ -607,7 +628,22 @@ static void parseFont(QSvgNode *node,
         font = inherited->qfont();
     if (parseQFont(attributes, font)) {
         QString myId = attributes.value("id");
-        node->appendStyleProperty(new QSvgFontStyle(font), myId);
+        QSvgTinyDocument *doc = node->document();
+        QSvgFontStyle *fontStyle = 0;
+        if (!font.family().isEmpty()) {
+            QSvgFont *svgFont = doc->svgFont(font.family());
+            if (svgFont) {
+                fontStyle = new QSvgFontStyle(svgFont, doc);
+                if (font.pixelSize() < 0)
+                    fontStyle->setPointSize(font.pointSizeF());
+                else
+                    fontStyle->setPointSize(font.pixelSize());
+            }
+        }
+        if (!fontStyle)
+            fontStyle = new QSvgFontStyle(font);
+
+        node->appendStyleProperty(fontStyle, myId);
     }
 }
 
@@ -1325,23 +1361,66 @@ static QSvgNode *createEllipseNode(QSvgNode *parent,
 }
 
 static QSvgStyleProperty *createFontNode(QSvgNode *parent,
-                                        const QXmlAttributes &attributes)
+                                         const QXmlAttributes &attributes)
 {
-    Q_UNUSED(parent); Q_UNUSED(attributes);
+    QString hax      = attributes.value("horiz-adv-x");
+
+    qreal horizAdvX = hax.toDouble();
+
+    while (parent && parent->type() != QSvgNode::DOC) {
+        parent = parent->parent();
+    }
+
+    if (parent) {
+        QSvgTinyDocument *doc = static_cast<QSvgTinyDocument*>(parent);
+        QSvgFont *font = new QSvgFont(horizAdvX);
+        font->setFamilyName("TestComic");
+        return new QSvgFontStyle(font, doc);
+    }
     return 0;
 }
 
 static bool parseFontFaceNode(QSvgStyleProperty *parent,
                               const QXmlAttributes &attributes)
 {
-    Q_UNUSED(parent); Q_UNUSED(attributes);
+    if (parent->type() != QSvgStyleProperty::FONT) {
+        return false;
+    }
+
+    QSvgFontStyle *style = static_cast<QSvgFontStyle*>(parent);
+    QSvgFont *font = style->svgFont();
+    QString name   = attributes.value("font-family");
+    QString unitsPerEmStr   = attributes.value("units-per-em");
+
+    qreal unitsPerEm = unitsPerEmStr.toDouble();
+    if (!unitsPerEm)
+        unitsPerEm = 1000;
+
+    font->setFamilyName(name);
+    font->setUnitsPerEm(unitsPerEm);
+
+    if (!name.isEmpty())
+        style->doc()->addSvgFont(font);
+
     return true;
 }
 
 static bool parseFontFaceNameNode(QSvgStyleProperty *parent,
                                   const QXmlAttributes &attributes)
 {
-    Q_UNUSED(parent); Q_UNUSED(attributes);
+    if (parent->type() != QSvgStyleProperty::FONT) {
+        return false;
+    }
+
+    QSvgFontStyle *style = static_cast<QSvgFontStyle*>(parent);
+    QSvgFont *font = style->svgFont();
+    QString name   = attributes.value("name");
+
+    font->setFamilyName(name);
+
+    if (!name.isEmpty())
+        style->doc()->addSvgFont(font);
+
     return true;
 }
 
@@ -1377,7 +1456,13 @@ static QSvgNode *createGNode(QSvgNode *parent,
 static bool parseGlyphNode(QSvgStyleProperty *parent,
                            const QXmlAttributes &attributes)
 {
-    Q_UNUSED(parent); Q_UNUSED(attributes);
+    if (parent->type() != QSvgStyleProperty::FONT) {
+        return false;
+    }
+
+    QSvgFontStyle *style = static_cast<QSvgFontStyle*>(parent);
+    QSvgFont *font = style->svgFont();
+    createSvgGlyph(font, attributes);
     return true;
 }
 
@@ -1509,7 +1594,13 @@ static bool parseMetadataNode(QSvgNode *parent,
 static bool parseMissingGlyphNode(QSvgStyleProperty *parent,
                                   const QXmlAttributes &attributes)
 {
-    Q_UNUSED(parent); Q_UNUSED(attributes);
+    if (parent->type() != QSvgStyleProperty::FONT) {
+        return false;
+    }
+
+    QSvgFontStyle *style = static_cast<QSvgFontStyle*>(parent);
+    QSvgFont *font = style->svgFont();
+    createSvgGlyph(font, attributes);
     return true;
 }
 

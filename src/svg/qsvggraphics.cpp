@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qsvggraphics_p.h"
+#include "qsvgfont_p.h"
 
 #include "qpainter.h"
 #include "qtextdocument.h"
@@ -193,6 +194,15 @@ QSvgText::~QSvgText()
 void QSvgText::draw(QPainter *p)
 {
     applyStyle(p);
+
+    QSvgFontStyle *fontStyle = static_cast<QSvgFontStyle*>(
+        styleProperty(QSvgStyleProperty::FONT));
+    if (fontStyle && fontStyle->svgFont()) {
+        fontStyle->svgFont()->draw(p, m_coord, m_text, fontStyle->pointSize());
+        revertStyle(p);
+        return;
+    }
+
     QTextLayout tl(m_text);
     QTextOption op = tl.textOption();
     op.setAlignment(m_textAlignment);

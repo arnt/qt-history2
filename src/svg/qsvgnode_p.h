@@ -31,6 +31,7 @@
 #include "QtCore/qhash.h"
 
 class QPainter;
+class QSvgTinyDocument;
 
 class QSvgNode
 {
@@ -68,6 +69,8 @@ public:
     void revertStyle(QPainter *p);
     QSvgStyleProperty *styleProperty(QSvgStyleProperty::Type type) const;
     QSvgStyleProperty *styleProperty(const QString &id) const;
+
+    QSvgTinyDocument *document() const;
 
     virtual Type type() const =0;
     virtual QRectF bounds() const;

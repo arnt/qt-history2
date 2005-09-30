@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qsvgnode_p.h"
+#include "qsvgtinydocument_p.h"
 
 #include "qdebug.h"
 
@@ -147,4 +148,16 @@ QSvgStyleProperty * QSvgNode::styleProperty(const QString &id) const
 QRectF QSvgNode::bounds() const
 {
     return QRectF(0, 0, 0, 0);
+}
+
+QSvgTinyDocument * QSvgNode::document() const
+{
+    QSvgTinyDocument *doc = 0;
+    QSvgNode *node = const_cast<QSvgNode*>(this);
+    while (node && node->type() != QSvgNode::DOC) {
+        node = node->parent();
+    }
+    doc = static_cast<QSvgTinyDocument*>(node);
+
+    return doc;
 }

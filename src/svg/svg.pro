@@ -14,6 +14,7 @@ HEADERS += \
 	qsvgnode_p.h            \
 	qsvgstructure_p.h       \
 	qsvgstyle_p.h           \
+        qsvgfont_p.h            \
 	qsvgtinydocument_p.h    \
 	qsvgrenderer.h          \
         qsvgwidget.h
@@ -25,6 +26,7 @@ SOURCES += \
 	qsvgnode.cpp            \
 	qsvgstructure.cpp       \  
 	qsvgstyle.cpp           \
+        qsvgfont.cpp            \
 	qsvgtinydocument.cpp    \
 	qsvgrenderer.cpp        \
         qsvgwidget.cpp

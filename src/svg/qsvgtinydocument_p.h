@@ -33,6 +33,7 @@
 
 class QPainter;
 class QByteArray;
+class QSvgFont;
 
 class Q_SVG_EXPORT QSvgTinyDocument : public QSvgStructureNode
 {
@@ -57,12 +58,17 @@ public:
     void setViewBox(const QRect &rect);
 
     void draw(QPainter *p);
+
+    void addSvgFont(QSvgFont *);
+    QSvgFont *svgFont(const QString &family) const;
 private:
     QSize m_size;
     bool  m_widthPercent;
     bool  m_heightPercent;
 
     QRect m_viewBox;
+
+    QHash<QString, QSvgFont*> m_fonts;
 };
 
 inline QSize QSvgTinyDocument::size() const

@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qsvgstyle_p.h"
+#include "qsvgfont_p.h"
 
 #include "qpainter.h"
 #include "qpair.h"
@@ -69,20 +70,40 @@ void QSvgViewportFillStyle::revert(QPainter *p)
     p->setBrush(m_oldFill);
 }
 
-QSvgFontStyle::QSvgFontStyle(const QFont &font)
-    : m_font(font)
+QSvgFontStyle::QSvgFontStyle(QSvgFont *font, QSvgTinyDocument *doc)
+    : m_font(font), m_pointSize(24), m_doc(doc)
 {
+}
+
+QSvgFontStyle::QSvgFontStyle(const QFont &font)
+    : m_font(0), m_pointSize(24), m_qfont(font)
+{
+}
+
+
+void QSvgFontStyle::setPointSize(qreal size)
+{
+    m_pointSize = size;
+}
+
+qreal QSvgFontStyle::pointSize() const
+{
+    return m_pointSize;
 }
 
 void QSvgFontStyle::apply(QPainter *p, const QRectF &, QSvgNode *)
 {
-    m_oldFont = p->font();
-    p->setFont(m_font);
+    if (!m_font) {
+        m_oldFont = p->font();
+        p->setFont(m_qfont);
+    }
 }
 
 void QSvgFontStyle::revert(QPainter *p)
 {
-    p->setFont(m_oldFont);
+    if (!m_font) {
+        p->setFont(m_oldFont);
+    }
 }
 
 QSvgStrokeStyle::QSvgStrokeStyle(const QPen &pen)
@@ -299,3 +320,4 @@ void QSvgStyle::revert(QPainter *p)
         transform->revert(p);
     }
 }
+

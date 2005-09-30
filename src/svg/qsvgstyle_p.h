@@ -33,6 +33,8 @@
 
 class QPainter;
 class QSvgNode;
+class QSvgFont;
+class QSvgTinyDocument;
 
 class QSvgStyleProperty
 {
@@ -130,25 +132,34 @@ private:
 class QSvgFontStyle : public QSvgStyleProperty
 {
 public:
+    QSvgFontStyle(QSvgFont *font, QSvgTinyDocument *doc);
     QSvgFontStyle(const QFont &font);
     virtual void apply(QPainter *p, const QRectF &, QSvgNode *node);
     virtual void revert(QPainter *p);
     virtual Type type() const;
 
-    const QFont & qfont() const
+    void setPointSize(qreal size);
+    qreal pointSize() const;
+
+    QSvgFont * svgFont() const
     {
         return m_font;
     }
-private:
-    // font-family     v 	v 	'inherit' | <FontFamilyValue.datatype>
-    // font-size       v 	v 	'inherit' | <FontSizeValue.datatype>
-    // font-style      v 	v 	'normal' | 'italic' | 'oblique' | 'inherit'
-    // font-weight     v 	v 	'normal' | 'bold' | 'bolder' | 'lighter' |
-    //                                  '100' | '200' | '300' | '400' | '500' |
-    //                                  '600' | '700' | '800' | '900' |
-    //                                  'inherit'
-    QFont m_font;
+    QSvgTinyDocument *doc() const
+    {
+        return m_doc;
+    }
 
+    const QFont & qfont() const
+    {
+        return m_qfont;
+    }
+private:
+    QSvgFont *m_font;
+    qreal     m_pointSize;
+    QSvgTinyDocument *m_doc;
+
+    QFont m_qfont;
     QFont m_oldFont;
 };
 

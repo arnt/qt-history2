@@ -12,8 +12,9 @@
 ****************************************************************************/
 
 #include "qsvgtinydocument_p.h"
-
 #include "qsvghandler_p.h"
+#include "qsvgfont_p.h"
+
 #include "qpainter.h"
 #include "qxml.h"
 #include "qfile.h"
@@ -103,4 +104,14 @@ void QSvgTinyDocument::setHeight(int len, bool percent)
 void QSvgTinyDocument::setViewBox(const QRect &rect)
 {
     m_viewBox = rect;
+}
+
+void QSvgTinyDocument::addSvgFont(QSvgFont *font)
+{
+    m_fonts.insert(font->familyName(), font);
+}
+
+QSvgFont * QSvgTinyDocument::svgFont(const QString &family) const
+{
+    return m_fonts[family];
 }
