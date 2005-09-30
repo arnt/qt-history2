@@ -31,8 +31,6 @@ int StringListModel::rowCount(const QModelIndex &parent) const
 /*!
     Returns an appropriate value for the requested data.
     If the view requests an invalid index, an invalid variant is returned.
-    If a header is requested then we just return the column or row number,
-    depending on the orientation of the header.
     Any valid index that corresponds to a string in the list causes that
     string to be returned.
 */
@@ -42,7 +40,7 @@ QVariant StringListModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    if (index.row() < 0 || index.row() >= stringList.size())
+    if (index.row() >= stringList.size())
         return QVariant();
 
     if (role == Qt::DisplayRole)
