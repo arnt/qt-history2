@@ -4162,7 +4162,7 @@ bool QDomAttrPrivate::specified() const
 /*
   Encode an attribute value upon saving.
 */
-static QString encodeAttr(const QString& str)
+static QString encodeAttr(const QString& str, bool encodeQuotes = true)
 {
     QString tmp(str);
     uint len = tmp.length();
@@ -4172,7 +4172,7 @@ static QString encodeAttr(const QString& str)
             tmp.replace(i, 1, "&lt;");
             len += 3;
             i += 4;
-        } else if (tmp[(int)i] == '"') {
+        } else if (encodeQuotes && (tmp[(int)i] == '"')) {
             tmp.replace(i, 1, "&quot;");
             len += 5;
             i += 6;
@@ -5135,7 +5135,8 @@ QDomTextPrivate* QDomTextPrivate::splitText(int offset)
 
 void QDomTextPrivate::save(QTextStream& s, int, int) const
 {
-    s << encodeAttr(value);
+    QDomTextPrivate *that = const_cast<QDomTextPrivate*>(this);
+    s << encodeAttr(value, !(that->parent() && that->parent()->isElement()));
 }
 
 /**************************************************************
