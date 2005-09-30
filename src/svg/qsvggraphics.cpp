@@ -244,12 +244,14 @@ void QSvgText::draw(QPainter *p)
 
 void QSvgText::insertText(const QString &text)
 {
-    QTextLayout::FormatRange range;
-    range.start = m_text.length();
-    range.length = text.length();
-    range.format = m_formats.top();
+    if (!m_formats.isEmpty()) {
+        QTextLayout::FormatRange range;
+        range.start = m_text.length();
+        range.length = text.length();
+        range.format = m_formats.top();
+        m_formatRanges.append(range);
+    }
 
-    m_formatRanges.append(range);
     m_text += text;
 }
 

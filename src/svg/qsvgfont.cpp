@@ -1,6 +1,7 @@
 #include "qsvgfont_p.h"
 
 #include "qpainter.h"
+#include "qdebug.h"
 
 QSvgGlyph::QSvgGlyph(QChar unicode, const QPainterPath &path, qreal horizAdvX)
     : m_unicode(unicode), m_path(path), m_horizAdvX(horizAdvX)
@@ -32,7 +33,7 @@ void QSvgFont::addGlyph(QChar unicode, const QPainterPath &path, qreal horizAdvX
 void QSvgFont::draw(QPainter *p, const QPointF &point, const QString &str, qreal pixelSize) const
 {
     p->save();
-    p->translate(-point);
+    p->translate(point);
     p->scale(pixelSize/m_unitsPerEm, -pixelSize/m_unitsPerEm);
     QString::const_iterator itr = str.begin();
     for ( ; itr != str.end(); ++itr) {
