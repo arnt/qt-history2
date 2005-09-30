@@ -2,7 +2,9 @@ TEMPLATE      = subdirs
 SUBDIRS       = chart \
                 dirview \
                 pixelator \
+                simpledommodel \
                 simpletreemodel \
+                sortingmodel \
                 spinboxdelegate
 
 # install
