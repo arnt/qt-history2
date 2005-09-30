@@ -346,7 +346,6 @@ HWND QEventDispatcherWin32Private::internalHwnd() const
 QEventDispatcherWin32::QEventDispatcherWin32(QObject *parent)
     : QAbstractEventDispatcher(*new QEventDispatcherWin32Private, parent)
 {
-    Q_D(QEventDispatcherWin32);
 }
 
 QEventDispatcherWin32::~QEventDispatcherWin32()
