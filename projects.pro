@@ -21,6 +21,32 @@ unix {
 			&& (cd config.tests/unix/largefile && $(MAKE) distclean) \
 			&& (cd config.tests/unix/ptrsize && $(MAKE) distclean) \
 			&& (cd config.tests/x11/notype && $(MAKE) distclean) \
+			&& (cd config.tests/unix/getaddrinfo && $(MAKE) distclean) \
+			&& (cd config.tests/unix/cups && $(MAKE) distclean) \
+			&& (cd config.tests/unix/psql && $(MAKE) distclean) \
+			&& (cd config.tests/unix/nis && $(MAKE) distclean) \
+			&& (cd config.tests/unix/nix && $(MAKE) distclean) \
+			&& (cd config.tests/unix/odbc && $(MAKE) distclean) \
+			&& (cd config.tests/unix/oci && $(MAKE) distclean) \
+			&& (cd config.tests/unix/tds && $(MAKE) distclean) \
+			&& (cd config.tests/unix/db2 && $(MAKE) distclean) \
+			&& (cd config.tests/unix/ibase && $(MAKE) distclean) \
+			&& (cd config.tests/unix/ipv6ifname && $(MAKE) distclean) \
+			&& (cd config.tests/unix/zlib && $(MAKE) distclean) \
+			&& (cd config.tests/unix/libmng && $(MAKE) distclean) \
+			&& (cd config.tests/unix/sqlite2 && $(MAKE) distclean) \
+			&& (cd config.tests/unix/libjpeg && $(MAKE) distclean) \
+			&& (cd config.tests/unix/libpng && $(MAKE) distclean) \
+			&& (cd config.tests/x11/xcursor && $(MAKE) distclean) \
+			&& (cd config.tests/x11/xrender && $(MAKE) distclean) \
+			&& (cd config.tests/x11/xrandr && $(MAKE) distclean) \
+			&& (cd config.tests/x11/xkb && $(MAKE) distclean) \
+			&& (cd config.tests/x11/xinput && $(MAKE) distclean) \
+			&& (cd config.tests/x11/fontconfig && $(MAKE) distclean) \
+			&& (cd config.tests/x11/xinerama && $(MAKE) distclean) \
+			&& (cd config.tests/x11/sm && $(MAKE) distclean) \
+			&& (cd config.tests/x11/xshape && $(MAKE) distclean) \
+			&& (cd config.tests/x11/opengl && $(MAKE) distclean) \
 			&& (cd qmake && $(MAKE) distclean)
   QMAKE_EXTRA_UNIX_TARGETS += confclean
   qmakeclean.commands += (cd qmake && $(MAKE) clean)
