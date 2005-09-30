@@ -3,7 +3,9 @@
   <category dirname="designer" name="Qt Designer">
     <example filename="calculatorbuilder" name="Calculator Builder" />
     <example filename="calculatorform" name="Calculator Form" />
+    <example filename="containerextension" name="Container Extension" />
     <example filename="customwidgetplugin" name="Custom Widget Plugin" />
+    <example filename="taskmenuextension" name="Task Menu Extension" />
     <example filename="worldtimeclockplugin" name="World Time Clock Plugin" />
   </category>
   <category dirname="dialogs" name="Dialogs">
@@ -25,8 +27,11 @@
     <example filename="chart" name="Chart" />
     <example filename="dirview" name="Directory View" />
     <example filename="pixelator" name="Pixelator" />
+    <example filename="puzzle" name="Puzzle" />
+    <example filename="simpledommodel" name="Simple DOM Model" />
     <example filename="simpletreemodel" name="Simple Tree Model" />
     <example filename="spinboxdelegate" name="Spin Box Delegate" />
+    <example filename="sortingmodel" name="Sorting Model" />
   </category>
   <category dirname="layouts" name="Layouts">
     <example filename="basiclayouts" name="Basic Layouts" />
@@ -61,6 +66,7 @@
   <category dirname="opengl" name="OpenGL">
     <example filename="grabber" name="Grabber" />
     <example filename="hellogl" name="Hello GL" />
+    <example filename="samplebuffers" name="Sample Buffers" />
     <example filename="textures" name="Textures" />
   </category>
   <category dirname="painting" name="Painting">
@@ -68,6 +74,7 @@
     <example filename="concentriccircles" name="Concentric Circles" />
     <example filename="painterpaths" name="Painter Paths" />
     <example filename="transformations" name="Transformations" />
+    <example filename="svgviewer" name="SVG Viewer" />
   </category>
   <category dirname="richtext" name="Rich Text">
     <example filename="calendar" name="Calendar" />
@@ -89,6 +96,7 @@
     <example filename="plugandpaint" name="Plug and Paint" />
     <example filename="codecs" name="Codecs" />
     <example filename="regexp" name="Regular Expressions" />
+    <example filename="qtdemo" name="Qt Demo" executable="false" />
   </category>
   <category dirname="widgets" name="Widgets">
     <example filename="analogclock" name="Analog Clock" />
@@ -101,6 +109,7 @@
     <example filename="lineedits" name="Line Edits" />
     <example filename="screenshot" name="Screenshot" />
     <example filename="scribble" name="Scribble" />
+    <example filename="shapedclock" name="Shaped Clock" />
     <example filename="sliders" name="Sliders" />
     <example filename="spinboxes" name="Spin Boxes" />
     <example filename="styles" name="Styles" />
