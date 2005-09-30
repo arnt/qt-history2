@@ -1443,8 +1443,7 @@ uint QDomNodeListPrivate::length() const
     document, the contents of the list will get updated.
 
     You can get a particular node from the list with item(). The
-    number of items in the list is returned by count() (and by
-    length()).
+    number of items in the list is returned by length().
 
     For further information about the Document Object Model see
     \l{http://www.w3.org/TR/REC-DOM-Level-1/}{Level 1} and
@@ -1530,7 +1529,7 @@ QDomNodeList::~QDomNodeList()
     node is returned (i.e. a node for which QDomNode::isNull() returns
     true).
 
-    \sa count()
+    \sa length()
 */
 QDomNode QDomNodeList::item(int index) const
 {
@@ -1542,8 +1541,6 @@ QDomNode QDomNodeList::item(int index) const
 
 /*!
     Returns the number of nodes in the list.
-
-    This function is the same as count().
 */
 uint QDomNodeList::length() const
 {
@@ -1553,13 +1550,29 @@ uint QDomNodeList::length() const
 }
 
 /*!
-    \fn uint QDomNodeList::count() const
+    \fn bool QDomNodeList::isEmpty() const
 
-    Returns the number of nodes in the list.
-
-    This function is the same as length().
+    Returns true if the list contains no items; otherwise returns false.
+    This function is provided for Qt API consistency.
 */
 
+/*!
+    \fn int QDomNodeList::count() const
+
+    This function is provided for Qt API consistency. It is equivalent to length().
+*/
+
+/*!
+    \fn int QDomNodeList::size() const
+
+    This function is provided for Qt API consistency. It is equivalent to length().
+*/
+
+/*!
+    \fn QDomNode QDomNodeList::at(int index) const
+
+    This function is provided for Qt API consistency. It is equivalent to item().
+*/
 
 /**************************************************************
  *
@@ -3451,11 +3464,22 @@ uint QDomNamedNodeMap::length() const
 }
 
 /*!
-    \fn uint QDomNamedNodeMap::count() const
+    \fn bool QDomNamedNodeMap::isEmpty() const
 
-    Returns the number of nodes in the map.
+    Returns true if the map is empty; otherwise returns false. This function is
+    provided for Qt API consistency.
+*/
 
-    This function is the same as length().
+/*!
+    \fn int QDomNamedNodeMap::count() const
+
+    This function is provided for Qt API consistency. It is equivalent to length().
+*/
+
+/*!
+    \fn int QDomNamedNodeMap::size() const
+
+    This function is provided for Qt API consistency. It is equivalent to length().
 */
 
 /*!

@@ -220,10 +220,13 @@ public:
 
     // DOM functions
     QDomNode item(int index) const;
+    inline QDomNode at(int index) const { return item(index); } // Qt API consistency
 
     // DOM read only attributes
     uint length() const;
     inline int count() const { return length(); } // Qt API consitancy
+    inline int size() const { return length(); } // Qt API consistency
+    inline bool isEmpty() const { return length() == 0; } // Qt API consistency
 
 private:
     QDomNodeListPrivate* impl;
@@ -334,7 +337,9 @@ public:
 
     // DOM read only attributes
     uint length() const;
-    uint count() const { return length(); } // Qt API consitancy
+    int count() const { return length(); } // Qt API consitancy
+    inline int size() const { return length(); } // Qt API consistency
+    inline bool isEmpty() const { return length() == 0; } // Qt API consistency
 
     // Qt extension
     bool contains(const QString& name) const;
