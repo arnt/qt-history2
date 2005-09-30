@@ -1165,6 +1165,49 @@ static const QOpenType::Features indic_features[] = {
 #define IDEBUG if(0) qDebug
 #endif
 
+#ifdef INDIC_DEBUG
+static QString propertiesToString(int properties)
+{
+    QString res;
+    properties = ~properties;
+    if (properties & CcmpProperty)
+        res += "Ccmp ";
+    if (properties & InitProperty)
+        res += "Init ";
+    if (properties & NuktaProperty)
+        res += "Nukta ";
+    if (properties & AkhantProperty)
+        res += "Akhant ";
+    if (properties & RephProperty)
+        res += "Reph ";
+    if (properties & PreFormProperty)
+        res += "PreForm ";
+    if (properties & BelowFormProperty)
+        res += "BelowForm ";
+    if (properties & AboveFormProperty)
+        res += "AboveForm ";
+    if (properties & HalfFormProperty)
+        res += "HalfForm ";
+    if (properties & PostFormProperty)
+        res += "PostForm ";
+    if (properties & VattuProperty)
+        res += "Vattu ";
+    if (properties & PreSubstProperty)
+        res += "PreSubst ";
+    if (properties & BelowSubstProperty)
+        res += "BelowSubst ";
+    if (properties & AboveSubstProperty)
+        res += "AboveSubst ";
+    if (properties & PostSubstProperty)
+        res += "PostSubst ";
+    if (properties & HalantProperty)
+        res += "Halant ";
+    if (properties & CligProperty)
+        res += "Clig ";
+    return res;
+}
+#endif
+
 static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool invalid)
 {
     Q_UNUSED(openType)
@@ -1304,12 +1347,19 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
             // If the base consonant is not the last one, Uniscribe
             // moves the halant from the base consonant to the last
             // one.
-            if (lastConsonant > base && uc[base+1] == halant
+            if (lastConsonant > base
                 && (script != QUnicodeTables::Telugu || lastConsonant == len - 1 || uc[lastConsonant+1] != halant)) {
-                IDEBUG("    moving halant from %d to %d!", base+1, lastConsonant);
-                for (i = base+1; i < lastConsonant; i++)
-                    uc[i] = uc[i+1];
-                uc[lastConsonant] = halant;
+                int halantPos = 0;
+                if (uc[base+1] == halant)
+                    halantPos = base + 1;
+                else if (uc[base+1] == nukta && uc[base+2] == halant)
+                    halantPos = base + 2;
+                if (halantPos > 0) {
+                    IDEBUG("    moving halant from %d to %d!", base+1, lastConsonant);
+                    for (i = halantPos; i < lastConsonant; i++)
+                        uc[i] = uc[i+1];
+                    uc[lastConsonant] = halant;
+                }
             }
 
             // Rule 3:
@@ -1589,6 +1639,13 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
                 properties[i] &= ~HalantProperty;
         }
 
+#ifdef INDIC_DEBUG
+        {
+            IDEBUG("OT properties:");
+            for (int i = 0; i < len; ++i)
+                qDebug("    i: %s", ::propertiesToString(properties[i]).toLatin1().data());
+        }
+#endif
         
         // initialize
         item->log_clusters = clusters.data();
