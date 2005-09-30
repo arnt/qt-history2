@@ -1,0 +1,16 @@
+/*!
+    \example itemviews/puzzle
+    \title Item View Puzzle Example
+
+    The Puzzle example shows how to enable drag and drop with a custom model
+    to allow items to be transferred between a view and another widget.
+
+    \image itemviews-puzzle.png
+
+    This example is an implementation of a simple jigsaw puzzle game using the
+    built-in support for drag and drop provided by Qt's model/view framework.
+    The \l{Drag and Drop Puzzle Example}{Drag and Drop Puzzle} example shows
+    many of the same features, but takes an alternative approach that uses Qt's
+    drag and drop API at the application level to handle drag and drop
+    operations.
+*/
