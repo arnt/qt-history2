@@ -10,19 +10,17 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
 #ifndef UI4_H
 #define UI4_H
 
-#include <qlist.h>
-#include <qstring.h>
-#include <qstringlist.h>
-
+#include <QtCore/QList>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
 class QDomDocument;
 class QDomElement;
 
-#include <qglobal.h>
-#if defined(QT_DESIGNER) && defined(Q_OS_WIN)
+#include <QtCore/qglobal.h>
+#if defined(QT_DESIGNER) && defined(Q_OS_WIN) && !defined(QT_DESIGNER_STATIC)
 #    ifdef QT_UILIB_LIBRARY
 #        define QT_UI4_EXPORT __declspec(dllexport)
 #    else
@@ -33,6 +31,13 @@ class QDomElement;
 #ifndef QT_UI4_EXPORT
 #    define QT_UI4_EXPORT
 #endif
+
+
+#ifdef QFORMINTERNAL_NAMESPACE
+namespace QFormInternal
+{
+#endif
+
 
 /*******************************************************************************
 ** Forward declarations
@@ -1645,6 +1650,11 @@ public:
     inline void setAttributeNotr(const QString& a) { m_attr_notr = a; m_has_attr_notr = true; }
     inline void clearAttributeNotr() { m_has_attr_notr = false; }
 
+    inline bool hasAttributeComment() { return m_has_attr_comment; }
+    inline QString attributeComment() { return m_attr_comment; }
+    inline void setAttributeComment(const QString& a) { m_attr_comment = a; m_has_attr_comment = true; }
+    inline void clearAttributeComment() { m_has_attr_comment = false; }
+
     // child element accessors
 private:
     QString m_text;
@@ -1653,6 +1663,9 @@ private:
     // attribute data
     QString m_attr_notr;
     bool m_has_attr_notr;
+
+    QString m_attr_comment;
+    bool m_has_attr_comment;
 
     // child element data
 
@@ -1926,5 +1939,10 @@ private:
     DomConnectionHint(const DomConnectionHint &other);
     void operator = (const DomConnectionHint&other);
 };
+
+
+#ifdef QFORMINTERNAL_NAMESPACE
+}
+#endif
 
 #endif // UI4_H

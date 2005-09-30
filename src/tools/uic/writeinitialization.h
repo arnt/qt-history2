@@ -75,8 +75,8 @@ private:
     static QString domColor2QString(DomColor *c);
 
     QString pixCall(DomProperty *prop) const;
-    QString trCall(const QString &str, const QString &className) const;
-    QString trCall(const DomString *str, const QString &className) const;
+    QString trCall(const QString &str, const QString &comment = QString()) const;
+    QString trCall(DomString *str) const;
 
     void writeProperties(const QString &varName, const QString &className,
                          const QList<DomProperty*> &lst);

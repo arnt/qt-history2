@@ -247,10 +247,10 @@ void WriteInitialization::acceptWidget(DomWidget *node)
     } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QDockWidget"))) {
         output << option.indent << parentWidget << "->setWidget(" << varName << ");\n";
     } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QToolBox"))) {
-        output << option.indent << parentWidget << "->addItem(" << varName << ", " << trCall(label, className) << ");\n";
+        output << option.indent << parentWidget << "->addItem(" << varName << ", " << trCall(label) << ");\n";
 
         refreshOut << option.indent << parentWidget << "->setItemText("
-                   << parentWidget << "->indexOf(" << varName << "), " << trCall(label, className) << ");\n";
+                   << parentWidget << "->indexOf(" << varName << "), " << trCall(label) << ");\n";
 
     } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QTabWidget"))) {
         QString icon;
@@ -258,21 +258,21 @@ void WriteInitialization::acceptWidget(DomWidget *node)
             icon += QLatin1String(", ") + pixCall(picon);
         }
 
-        output << option.indent << parentWidget << "->addTab(" << varName << icon << ", " << trCall(title, className) << ");\n";
+        output << option.indent << parentWidget << "->addTab(" << varName << icon << ", " << trCall(title) << ");\n";
 
         refreshOut << option.indent << parentWidget << "->setTabText("
-                   << parentWidget << "->indexOf(" << varName << "), " << trCall(title, className) << ");\n";
+                   << parentWidget << "->indexOf(" << varName << "), " << trCall(title) << ");\n";
 
         if (DomProperty *ptoolTip = attributes.value(QLatin1String("toolTip"))) {
             refreshOut << option.indent << parentWidget << "->setTabToolTip("
-                       << parentWidget << "->indexOf(" << varName << "), " << trCall(toString(ptoolTip->elementString()), className) << ");\n";
+                       << parentWidget << "->indexOf(" << varName << "), " << trCall(ptoolTip->elementString()) << ");\n";
         }
 
     } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3Wizard"))) {
-        output << option.indent << parentWidget << "->addPage(" << varName << ", " << trCall(title, className) << ");\n";
+        output << option.indent << parentWidget << "->addPage(" << varName << ", " << trCall(title) << ");\n";
 
         refreshOut << option.indent << parentWidget << "->setTitle("
-                   << varName << ", " << trCall(title, className) << ");\n";
+                   << varName << ", " << trCall(title) << ");\n";
 
     }
 
@@ -740,7 +740,7 @@ void WriteInitialization::writeProperties(const QString &varName,
                         + fixString(p->elementString()->text())
                         + QLatin1String(")");
             } else {
-                propertyValue = trCall(p->elementString(), className);
+                propertyValue = trCall(p->elementString());
             }
             break;
         }
@@ -927,7 +927,7 @@ void WriteInitialization::initializeQ3ListBox(DomWidget *w)
             if (text)
                 refreshOut << ", ";
         }
-        refreshOut << trCall(text->elementString(), className) << ");\n";
+        refreshOut << trCall(text->elementString()) << ");\n";
     }
 }
 
@@ -961,7 +961,7 @@ void WriteInitialization::initializeQ3IconView(DomWidget *w)
         }
 
         if (text) {
-            refreshOut << option.indent << itemName << "->setText(" << trCall(text->elementString(), className) << ");\n";
+            refreshOut << option.indent << itemName << "->setText(" << trCall(text->elementString()) << ");\n";
         }
     }
 }
@@ -982,7 +982,7 @@ void WriteInitialization::initializeQ3ListView(DomWidget *w)
         DomProperty *clickable = properties.value(QLatin1String("clickable"));
         DomProperty *resizable = properties.value(QLatin1String("resizable"));
 
-        QString txt = trCall(text->elementString(), className);
+        QString txt = trCall(text->elementString());
         output << option.indent << varName << "->addColumn(" << txt << ");\n";
         refreshOut << option.indent << varName << "->header()->setLabel(" << i << ", " << txt << ");\n";
 
@@ -1026,7 +1026,7 @@ void WriteInitialization::initializeQ3ListViewItems(const QString &className, co
             DomProperty *p = properties.at(i);
             if (p->attributeName() == QLatin1String("text"))
                 refreshOut << option.indent << itemName << "->setText(" << textCount++ << ", "
-                           << trCall(p->elementString(), className) << ");\n";
+                           << trCall(p->elementString()) << ");\n";
 
             if (p->attributeName() == QLatin1String("pixmap"))
                 refreshOut << option.indent << itemName << "->setPixmap(" << pixCount++ << ", "
@@ -1059,7 +1059,7 @@ void WriteInitialization::initializeTreeWidgetItems(const QString &className, co
             DomProperty *p = properties.at(i);
             if (p->attributeName() == QLatin1String("text"))
                 refreshOut << option.indent << itemName << "->setText(" << textCount++ << ", "
-                           << trCall(p->elementString(), className) << ");\n";
+                           << trCall(p->elementString()) << ");\n";
 
             if (p->attributeName() == QLatin1String("icon"))
                 refreshOut << option.indent << itemName << "->setIcon(" << pixCount++ << ", "
@@ -1094,7 +1094,7 @@ void WriteInitialization::initializeQ3Table(DomWidget *w)
         if (pixmap) {
             refreshOut << pixCall(pixmap) << ", ";
         }
-        refreshOut << trCall(text->elementString(), className) << ");\n";
+        refreshOut << trCall(text->elementString()) << ");\n";
     }
 
     // rows
@@ -1112,7 +1112,7 @@ void WriteInitialization::initializeQ3Table(DomWidget *w)
         if (pixmap) {
             refreshOut << pixCall(pixmap) << ", ";
         }
-        refreshOut << trCall(text->elementString(), className) << ");\n";
+        refreshOut << trCall(text->elementString()) << ");\n";
     }
 
 
@@ -1179,7 +1179,7 @@ void WriteInitialization::initializeComboBox(DomWidget *w)
                 refreshOut << ", ";
         }
 
-        refreshOut << trCall(text->elementString(), className) << ");\n";
+        refreshOut << trCall(text->elementString()) << ");\n";
     }
 }
 
@@ -1208,7 +1208,7 @@ void WriteInitialization::initializeListWidget(DomWidget *w)
             DomProperty *p = properties.at(i);
 
             if (p->attributeName() == QLatin1String("text"))
-                refreshOut << option.indent << itemName << "->setText(" << trCall(p->elementString(), className) << ");\n";
+                refreshOut << option.indent << itemName << "->setText(" << trCall(p->elementString()) << ");\n";
 
             if (p->attributeName() == QLatin1String("icon"))
                 refreshOut << option.indent << itemName << "->setIcon(" << pixCall(p) << ");\n";
@@ -1230,7 +1230,7 @@ void WriteInitialization::initializeTreeWidget(DomWidget *w)
         DomProperty *text = properties.value(QLatin1String("text"));
         DomProperty *icon = properties.value(QLatin1String("icon"));
 
-        QString txt = trCall(text->elementString(), className);
+        QString txt = trCall(text->elementString());
         refreshOut << option.indent << varName << "->headerItem()->setText(" << i << ", " << txt << ");\n";
 
         if (icon != 0 && icon->elementIconSet()) {
@@ -1252,14 +1252,31 @@ void WriteInitialization::initializeTableWidget(DomWidget *w)
     Q_UNUSED(w);
 }
 
-QString WriteInitialization::trCall(const QString &str, const QString &className) const
+QString WriteInitialization::trCall(const QString &str, const QString &commentHint) const
 {
-    if (option.translateFunction.size())
-        return option.translateFunction + QLatin1String("(") + fixString(str) + QLatin1String(")");
+    QString result;
+    QString comment = commentHint.isEmpty() ? QString::fromUtf8("0") : fixString(commentHint);
 
-    Q_UNUSED(className);
+    if (option.translateFunction.isEmpty()) {
+        result = QLatin1String("QApplication::translate(\"");
+        result += m_generatedClass;
+        result += QLatin1String("\"");
+        result += QLatin1String(", ");
+    } else {
+        result = option.translateFunction + QLatin1String("(");
+    }
 
-    return QLatin1String("QApplication::translate(\"") + m_generatedClass + QLatin1String("\", ") + fixString(str) + QLatin1String(", 0, QApplication::UnicodeUTF8)");
+    result += fixString(str);
+    result += QLatin1String(", ");
+    result += comment;
+
+    if (option.translateFunction.isEmpty()) {
+        result += QLatin1String(", ");
+        result += QLatin1String("QApplication::UnicodeUTF8");
+    }
+
+    result += QLatin1String(")");
+    return result;
 }
 
 void WriteInitialization::initializeSqlDataTable(DomWidget *w)
@@ -1353,9 +1370,9 @@ void WriteInitialization::initializeMenu(DomWidget *w, const QString &/*parentWi
     }
 }
 
-QString WriteInitialization::trCall(const DomString *str, const QString &className) const
+QString WriteInitialization::trCall(DomString *str) const
 {
-    return trCall(toString(str), className);
+    return trCall(toString(str), str->attributeComment());
 }
 
 void WriteInitialization::acceptConnection(DomConnection *connection)
