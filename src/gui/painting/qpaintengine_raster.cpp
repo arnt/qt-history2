@@ -30,6 +30,7 @@
 #include <private/qtextengine_p.h>
 #include <private/qpixmap_p.h>
 #include <private/qfontengine_p.h>
+#include <private/qpolygonclipper_p.h>
 
 #include "qpaintengine_raster_p.h"
 
@@ -101,6 +102,12 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
 // static void drawLine_midpoint_f(const QLineF &line, qt_span_func span_func, void *data,
 //                                 LineDrawMode style, const QRect &devRect);
 
+const int QT_RASTER_COORD_LIMIT = 50000;
+
+struct QRasterFloatPoint {
+    qreal x;
+    qreal y;
+};
 
 /********************************************************************************
  * class QFTOutlineMapper
@@ -151,6 +158,10 @@ public:
     }
 
     void endOutline();
+
+    void clipElements(const QPointF *points, const QPainterPath::ElementType *types, int count);
+
+    void convertElements(const QPointF *points, const QPainterPath::ElementType *types, int count);
 
     inline void moveTo(const QPointF &pt) {
 #ifdef QT_DEBUG_CONVERT
@@ -237,6 +248,10 @@ public:
     QDataBuffer<QT_FT_Vector> m_points;
     QDataBuffer<char> m_tags;
     QDataBuffer<short> m_contours;
+
+    QPolygonClipper<QRasterFloatPoint, QRasterFloatPoint, qreal> m_clipper;
+    QDataBuffer<QPointF> m_polygon_dev;
+
     QT_FT_Outline m_outline;
     uint m_txop;
 
@@ -282,14 +297,15 @@ void QFTOutlineMapper::endOutline()
         elements = m_elements_dev.data();
     }
 
-    const QPointF *e = elements;
-#if 0
     // Check for out of dev bounds...
     const QPointF *last_element = elements + element_count;
-    const int LIMIT = 50000;
+    const QPointF *e = elements;
     bool do_clip = false;
     while (e < last_element) {
-        if (e->x() < -LIMIT || e->x() > LIMIT || e->y() < -LIMIT || e->y() > LIMIT) {
+        if (e->x() < -QT_RASTER_COORD_LIMIT
+            || e->x() > QT_RASTER_COORD_LIMIT
+            || e->y() < -QT_RASTER_COORD_LIMIT
+            || e->y() > QT_RASTER_COORD_LIMIT) {
             do_clip = true;
             break;
         }
@@ -297,15 +313,20 @@ void QFTOutlineMapper::endOutline()
     }
 
     if (do_clip) {
-        printf("need to clip..\n");
+        clipElements(elements, m_element_types.data(), element_count);
+    } else {
+        convertElements(elements, m_element_types.data(), element_count);
     }
-#endif
+}
 
-
+void QFTOutlineMapper::convertElements(const QPointF *elements,
+                                       const QPainterPath::ElementType *types,
+                                       int element_count)
+{
     // Translate into FT coords
-    e = elements;
+    const QPointF *e = elements;
     for (int i=0; i<element_count; ++i) {
-        switch (m_element_types.at(i)) {
+        switch (*types) {
         case QPainterPath::MoveToElement:
             {
                 QT_FT_Vector pt_fixed = { qreal_to_fixed_26_6(e->x()),
@@ -342,10 +363,12 @@ void QFTOutlineMapper::endOutline()
                        << QT_FT_CURVE_TAG_CUBIC
                        << QT_FT_CURVE_TAG_ON;
 
+                types += 2;
                 i += 2;
             }
             break;
         }
+        ++types;
         ++e;
     }
 
@@ -375,6 +398,55 @@ void QFTOutlineMapper::endOutline()
                m_outline.points[i], m_outline.points[i]);
     }
 #endif
+}
+
+void QFTOutlineMapper::clipElements(const QPointF *elements,
+                                    const QPainterPath::ElementType *types,
+                                    int element_count)
+{
+    // We could save a bit of time by actually implementing them fully
+    // instead of going through convenience functionallity, but since
+    // this part of code hardly every used, it shouldn't matter.
+
+    QPainterPath path;
+    for (int i=0; i<element_count; ++i) {
+        switch (types[i]) {
+        case QPainterPath::MoveToElement:
+            path.moveTo(elements[i]);
+            break;
+
+        case QPainterPath::LineToElement:
+            path.lineTo(elements[i]);
+            break;
+
+        case QPainterPath::CurveToElement:
+            path.cubicTo(elements[i], elements[i+1], elements[i+2]);
+            i += 2;
+            break;
+        }
+    }
+
+    QPolygonF polygon = path.toFillPolygon();
+    QPointF *clipped_points;
+    int clipped_count;
+
+    m_clipper.clipPolygon((QRasterFloatPoint *) polygon.constData(), polygon.size(),
+                          ((QRasterFloatPoint **) &clipped_points), &clipped_count, true);
+
+#ifdef QT_DEBUG_CONVERT
+    printf(" - shape was clipped\n");
+    for (int i=0; i<clipped_count; ++i) {
+        printf("   - %.2f, -%.2f\n", clipped_points[i].x(), clipped_points[i].y());
+    }
+#endif
+
+    if (!clipped_count)
+        return;
+
+    QPainterPath::ElementType *point_types = new QPainterPath::ElementType[clipped_count];
+    point_types[0] = QPainterPath::MoveToElement;
+    for (int i=0; i<clipped_count; ++i) point_types[i] = QPainterPath::LineToElement;
+    convertElements(clipped_points, point_types, clipped_count);
 }
 
 
@@ -517,6 +589,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
 
     d->deviceRect = QRect(0, 0, device->width(), device->height());
 
+
     gccaps &= ~PorterDuff;
 
     // reset paintevent clip
@@ -597,7 +670,9 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
 
     d->matrix = QMatrix();
     d->txop = QPainterPrivate::TxNone;
+
     d->outlineMapper->setMatrix(d->matrix, d->txop);
+    d->outlineMapper->m_clipper.setBoundingRect(d->deviceRect.adjusted(-10, -10, 10, 10));
 
     if (device->depth() == 1) {
         d->pen = QPen(Qt::color1);
@@ -2140,7 +2215,7 @@ void QRasterPaintEnginePrivate::updateClip_helper(const QPainterPath &path, Qt::
 {
 #ifdef QT_DEBUG_DRAW
     QRectF bounds = path.boundingRect();
-    qDebug() << " --- updateClip_helper(), op=" << op <<6 ", bounds=" << bounds
+    qDebug() << " --- updateClip_helper(), op=" << op << ", bounds=" << bounds
              << rasterBuffer->clipEnabled << rasterBuffer->clip;
 #endif
     if (op == Qt::IntersectClip && !rasterBuffer->clipEnabled)
