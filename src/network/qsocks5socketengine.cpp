@@ -2,10 +2,10 @@
 #include "qtcpsocket.h"
 #include "qudpsocket.h"
 #include "qtcpserver.h"
-#include <qdebug>
-#include <qhash.h>
-#include <qqueue.h>
-#include <qdatetime.h>
+#include "qdebug.h"
+#include "qhash.h"
+#include "qqueue.h"
+#include "qdatetime.h"
 
 //#define QSOCKS5SOCKETLAYER_DEBUG
 
