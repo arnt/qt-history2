@@ -117,7 +117,8 @@ private:
         if(!data->fileEngine || !QDir::isRelativePath(path))
             initFileEngine(path);
         data->fileEngine->setFileName(path);
-        data->path = p;
+        // set the path to be the qt friendly version so then we can operate on it using just /
+        data->path = data->fileEngine->fileName(QAbstractFileEngine::DefaultName);
         data->clear();
     }
     inline void reset() {
