@@ -603,6 +603,7 @@ void QDateTimeEdit::setCurrentSection(Section section)
         while (index < size) {
             if (d->convertToPublic(d->sectionType(index)) == section) {
                 d->edit->setCursorPosition(d->sectionPos(index));
+                QDTEDEBUG << d->sectionPos(index);
                 return;
             }
             ++index;
@@ -724,6 +725,7 @@ void QDateTimeEdit::setDisplayFormat(const QString &format)
         }
         d->updateEdit();
         d->edit->setCursorPosition(0);
+        QDTEDEBUG << 0;
         d->editorCursorPositionChanged(-1, 0);
     }
 }
@@ -844,6 +846,8 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
         const int newSection = d->nextPrevSection(d->currentSectionIndex, forward);
         d->edit->deselect();
         d->edit->setCursorPosition(d->sectionPos(newSection));
+        QDTEDEBUG << d->sectionPos(newSection);
+
         if (select)
             d->setSelected(newSection, true);
         return; }
@@ -885,8 +889,11 @@ void QDateTimeEdit::wheelEvent(QWheelEvent *e)
     pnt.rx() -= d->edit->x();
     int index = d->edit->cursorPositionAt(pnt);
     int s = d->closestSection(index, d->edit->cursorPosition() > index); // should it be > pos?
-    if (s != d->currentSectionIndex)
+    if (s != d->currentSectionIndex) {
         d->edit->setCursorPosition(d->sectionPos(s));
+        QDTEDEBUG << d->sectionPos(s);
+
+    }
     switch (d->sectionType(s)) {
     case QDateTimeEditPrivate::NoSection:
     case QDateTimeEditPrivate::FirstSection:
@@ -1227,6 +1234,8 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
 
             if (allowChange) {
                 edit->setCursorPosition(c);
+                QDTEDEBUG << c;
+
             }
             s = closest;
         }
@@ -1241,6 +1250,8 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
                 setSelected(s, true);
             } else {
                 edit->setCursorPosition(pos);
+                QDTEDEBUG << pos;
+
             }
         }
         updateSpinBox();
@@ -1488,8 +1499,8 @@ int QDateTimeEditPrivate::absoluteMax(int s) const
 {
     const SectionNode sn = sectionNode(s);
     switch (sn.type) {
-    case Hour24Section: return 23;
-    case Hour12Section: return 11;
+    case Hour24Section:
+    case Hour12Section: return 23; // we want to be able to toggle the hour field and change ampm
     case MinuteSection:
     case SecondSection: return 59;
     case MSecSection: return 999;
@@ -1561,21 +1572,27 @@ QDateTimeEditPrivate::Section QDateTimeEditPrivate::sectionType(int sectionIndex
 
 void QDateTimeEditPrivate::updateEdit()
 {
-//    qDebug() << edit->cursorPosition() << sectionPos(currentSectionIndex) << sectionCursorOffset << edit->displayText();
     int selsize = edit->selectedText().size();
     const QString newText = specialValue() ? specialValueText : textFromValue(value);
+    if (newText == edit->displayText())
+        return;
     const bool sb = edit->blockSignals(true);
+    QDTEDEBUG << edit->cursorPosition() << sectionPos(currentSectionIndex) << sectionCursorOffset << edit->displayText() << newText;
+
     edit->setText(newText);
 
     if (!specialValue()) {
         int cursor = sectionPos(currentSectionIndex) + sectionCursorOffset;
-//        qDebug() << "cursor is " << cursor << currentSectionIndex << sectionCursorOffset;
+        QDTEDEBUG << "cursor is " << cursor << currentSectionIndex << sectionCursorOffset;
         cursor = qBound(0, cursor, edit->displayText().size());
-//        qDebug() << cursor;
+        QDTEDEBUG << cursor;
         if (selsize > 0) {
             edit->setSelection(cursor, selsize);
+            QDTEDEBUG << cursor << selsize;
         } else {
             edit->setCursorPosition(cursor);
+            QDTEDEBUG << cursor;
+
         }
     }
     edit->blockSignals(sb);
@@ -1600,7 +1617,7 @@ int QDateTimeEditPrivate::sectionPos(const SectionNode &sn) const
     default: break;
     }
     if (sn.pos == -1)
-        qDebug() << sectionName(sn.type) << sectionNodes.indexOf(sn);
+        QDTEDEBUG << sectionName(sn.type) << sectionNodes.indexOf(sn);
     Q_ASSERT(sn.pos != -1);
     return sn.pos;
 }
@@ -1848,7 +1865,7 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
     }
 
 //     for (int i=0; i<sectionNodes.size(); ++i) {
-//         qDebug() << sectionName(sectionNodes.at(i).type) << sectionNodes.at(i).count;
+//         QDTEDEBUG << sectionName(sectionNodes.at(i).type) << sectionNodes.at(i).count;
 //     }
 
     QDTEDEBUG << newFormat << displayFormat;
@@ -1968,6 +1985,8 @@ void QDateTimeEditPrivate::clearSection(int index)
     t.replace(pos, size, QString().fill(space, size));
     edit->setText(t);
     edit->setCursorPosition(cursorPos);
+    QDTEDEBUG << cursorPos;
+
     edit->blockSignals(blocked);
 }
 
@@ -2078,11 +2097,15 @@ int QDateTimeEditPrivate::parseSection(int sectionIndex, QString &text, int inde
     const SectionNode sn = sectionNode(sectionIndex);
     Q_ASSERT(sn.type != NoSection && sn.type != FirstSection && sn.type != LastSection);
 
+    int toChop = 0;
     QString sectiontext = text.mid(index, sectionMaxSize(sectionIndex));
     if (sectionIndex == currentSectionIndex && !cachedText.isEmpty()) {
+        QString tfv = textFromValue(value);
         const int diff = text.size() - textFromValue(value).size();
-        if (diff < 0) { // text has been removed
+        if (diff < 0 && false) { // text has been removed
+            QDTEDEBUG << "FOOOO" << sectiontext << tfv << index << sectionMaxSize(sectionIndex) << diff;
             if (sectionIndex + 1 < sectionNodes.size() || !separators.last().isEmpty()) {
+                toChop = qAbs(diff);
                 sectiontext.chop(qAbs(diff));
             }
         }
@@ -2090,7 +2113,8 @@ int QDateTimeEditPrivate::parseSection(int sectionIndex, QString &text, int inde
 
     QDTEDEBUG << "sectionValue for" << sectionName(sn.type)
               << "with text" << text << "and st" << sectiontext
-              << index << sectiontext;
+              << text.mid(index, sectionMaxSize(sectionIndex))
+              << index;
 
     int used = 0;
     if (false && sectiontext.trimmed().isEmpty()) {
@@ -2158,66 +2182,54 @@ int QDateTimeEditPrivate::parseSection(int sectionIndex, QString &text, int inde
                 used = 0;
                 state = QValidator::Intermediate;
             } else {
-            const int absMax = absoluteMax(sectionIndex);
-            QLocale loc;
-            bool ok = true;
-            int last = -1;
-            used = -1;
+		const int absMax = absoluteMax(sectionIndex);
+		QLocale loc;
+		bool ok = true;
+		int last = -1;
+		used = -1;
 
-            for (int digits=1; digits<=sectiontext.size(); ++digits) {
-                int tmp = (int)loc.toUInt(sectiontext.left(digits), &ok, 10);
-
-                if (!ok) {
-                    if (sn.count == 1) {
-                        used = digits - 1;
-                        ok = true;
-                    } else if (currentSectionIndex == sectionIndex) {
-                        used = digits - 1;
+		const int max = qMin(sectionMaxSize(sectionIndex), sectiontext.size());
+		for (int digits=1; digits<=max; ++digits) {
+                    if (sectiontext.at(digits - 1).isSpace()) // loc.toUInt will allow spaces at the end
+                        break;
+		    int tmp = (int)loc.toUInt(sectiontext.left(digits), &ok, 10);
+		    if (ok && tmp <= absMax) {
+                        QDTEDEBUG << sectiontext.left(digits) << tmp << digits;
+                        last = tmp;
+                        used = digits;
                     } else {
-                        used = -1;
-                        last = -1;
+                         break;
                     }
-                    break;
-                } else if (tmp > absMax) {
-                    used = -1;
-                    break;
-                }
-                last = tmp;
-                used = digits;
-            }
-
-            if (last == -1) {
-                if (sn.count == 1 && !sectiontext.at(0).isDigit()
-                    && separators.at(sectionIndex + 1).startsWith(sectiontext.at(0))) {
-                    state = QValidator::Intermediate;
-                } else {
-                    state = QValidator::Invalid;
-                    QDTEDEBUG << "invalid because" << sectiontext << "can't become a uint" << last << ok;
-                }
-            } else {
-                num += last;
-                if (num < absoluteMin(sectionIndex) || num > absMax || !ok) {
-                    state = (used != -1 && used < sectionMaxSize(sectionIndex) ? QValidator::Intermediate : QValidator::Invalid);
-                    if (state == QValidator::Invalid) {
-                        QDTEDEBUG << "invalid because" << sectiontext << "num is" << num
-                                  << "outside absoluteMin and absoluteMax" << absoluteMin(sectionIndex)
-                                  << absoluteMax(sectionIndex);
-                    }
-                } else {
-                    if (sn.count > 1 && used < sn.count) {
+		}
+		if (last == -1) {
+                    const QChar &first = sectiontext.at(0);
+		    if (separators.at(sectionIndex + 1).startsWith(first)) {
+                        used = 0;
+			state = QValidator::Intermediate;
+		    } else {
+			state = QValidator::Invalid;
+			QDTEDEBUG << "invalid because" << sectiontext << "can't become a uint" << last << ok;
+		    }
+		} else {
+		    num += last;
+                    const bool done = used == sectionMaxSize(sectionIndex);
+		    if (num < absoluteMin(sectionIndex)) {
+                        state = done ? QValidator::Invalid : QValidator::Intermediate;
+			if (done)
+                            QDTEDEBUG << "invalid because" << num << "is less than absoluteMin" << absoluteMin(sectionIndex);
+                    } else if (num > absMax) {
                         state = QValidator::Intermediate;
-                    } else {
+                    } else if (!done && isFixedNumericSection(sectionIndex)) {
+			state = QValidator::Intermediate;
+		    } else {
                         state = QValidator::Acceptable;
-                    }
-                }
-            }
+		    }
+		}
             }
             break; }
         default: qFatal("NoSection or Internal. This should never happen"); break;
         }
     }
-//     if (state == QValidator::Invalid)
-//         qDebug() << "sectionValue" << text << index << sectionIndex << sectionName(sn.type);
 
     if (usedptr)
         *usedptr = used;
@@ -2255,7 +2267,6 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input, int &/*posit
     }
 
     {
-        QString deb;
         int year, month, day, hour12, hour, minute, second, msec, ampm, dayofweek;
         const QDateTime &dt = value.toDateTime();
         year = dt.date().year();
@@ -2267,8 +2278,6 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input, int &/*posit
         second = dt.time().second();
         msec = dt.time().msec();
         dayofweek = dt.date().dayOfWeek();
-        deb += "Start : dayofweek is " + QString::number(dayofweek) + "\n";
-        int old = dayofweek;
         ampm = -1;
         QSet<int*> isSet;
         int num;
@@ -2279,12 +2288,6 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input, int &/*posit
 
         pos = 0;
         for (int index=0; state != QValidator::Invalid && index<sectionNodes.size(); ++index) {
-            if (dayofweek != old) {
-                deb += "dayofweek changed to " + QString::number(dayofweek) + QString::number(index - 1) + sectionName(sectionType(index - 1))
-                       +  "\n";
-                old = dayofweek;
-            }
-
             QString sep = input.mid(pos, separators.at(index).size());
 
             if (sep != separators.at(index)) {
@@ -2300,7 +2303,8 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input, int &/*posit
             int used;
 
             num = parseSection(index, input, pos, tmpstate, &used);
-            QDTEDEBUG << "sectionValue" << sectionName(sectionType(index)) << input << pos << used << stateName(tmpstate);
+            QDTEDEBUG << "sectionValue" << sectionName(sectionType(index)) << input
+                      << "pos" << pos << "used" << used << stateName(tmpstate);
             if (fixup && tmpstate == QValidator::Intermediate && isFixedNumericSection(index) && used < sn.count) {
                 input.insert(pos, QString().fill(QLatin1Char('0'), sn.count - used));
                 num = parseSection(index, input, pos, tmpstate, &used);
@@ -2366,7 +2370,7 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input, int &/*posit
                     } else if (day > date.daysInMonth()) {
                         day -= 7;
                     }
-//                    qDebug() << year << month << day << dayofweek << diff << old << QDate(year, month, day).dayOfWeek();
+//                    QDTEDEBUG << year << month << day << dayofweek << diff << old << QDate(year, month, day).dayOfWeek();
                     Q_ASSERT(QDate(year, month, day).dayOfWeek() == dayofweek); // ### remove those
                     Q_ASSERT(qAbs(QDate(year, month, day).daysTo(date)) <= 7);
                 }
@@ -2466,14 +2470,12 @@ int QDateTimeEditPrivate::findMonth(const QString &str1, int startMonth, int sec
                                   ? &QDate::shortMonthName
                                   : &QDate::longMonthName;
 
-//    qDebug() << "findMonth" << str1 << startMonth << sectionIndex;
-
     for (int month=startMonth; month<=12; ++month) {
         QString str2 = nameFunction(month).toLower();
 
         if (str1.startsWith(str2)) {
             if (used) {
-                QDTEDEBUG << __LINE__ << "used is set to" << str2.size();
+                QDTEDEBUG << "used is set to" << str2.size();
                 *used = str2.size();
             }
             if (usedMonth)
@@ -2502,7 +2504,7 @@ int QDateTimeEditPrivate::findMonth(const QString &str1, int startMonth, int sec
             }
             if (usedMonth)
                 *usedMonth = nameFunction(month);
-            QDTEDEBUG << __LINE__ << "used is set to" << limit << *usedMonth;
+            QDTEDEBUG << "used is set to" << limit << *usedMonth;
 
             return month;
         }
@@ -2512,7 +2514,7 @@ int QDateTimeEditPrivate::findMonth(const QString &str1, int startMonth, int sec
 
     }
     if (used) {
-        QDTEDEBUG << __LINE__ << "used is set to" << bestCount;
+        QDTEDEBUG << "used is set to" << bestCount;
         *used = bestCount;
     }
     return bestMatch;
