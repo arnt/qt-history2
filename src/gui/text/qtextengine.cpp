@@ -1917,21 +1917,6 @@ void QTextEngine::drawLine(int lineNum, QPainter *p, QPainterPath *path, const Q
             p->setClipRect(rect, Qt::IntersectClip);
         }
 
-
-        if (p && (hasFormats() || selection)) {
-            QTextCharFormat chf = format(&si);
-            if (selection)
-                chf.merge(selection->format);
-            
-            setPenAndDrawBackground(p, pen, chf, QRectF(x.toReal(), (y - line.ascent).toReal(),
-                                                        gf.width.toReal(), line.height().toReal()));
-            
-            QTextCharFormat::VerticalAlignment valign = chf.verticalAlignment();
-            if (valign == QTextCharFormat::AlignSubScript)
-                itemBaseLine += (si.ascent + si.descent + 1) / 6;
-            else if (valign == QTextCharFormat::AlignSuperScript)
-                itemBaseLine -= (si.ascent + si.descent + 1) / 2;
-        }
         QFont f = font(si);
         gf.fontEngine = f.d->engineForScript(si.analysis.script);
         gf.f = &f;
@@ -1943,14 +1928,43 @@ void QTextEngine::drawLine(int lineNum, QPainter *p, QPainterPath *path, const Q
             gf.flags |= QTextItem::StrikeOut;
         Q_ASSERT(gf.fontEngine);
 
+        QTextCharFormat chf;
+
+        if (p && (hasFormats() || selection)) {
+            chf = format(&si);
+            if (selection)
+                chf.merge(selection->format);
+
+            setPenAndDrawBackground(p, pen, chf, QRectF(x.toReal(), (y - line.ascent).toReal(),
+                                                        gf.width.toReal(), line.height().toReal()));
+
+            QTextCharFormat::VerticalAlignment valign = chf.verticalAlignment();
+            if (valign == QTextCharFormat::AlignSubScript)
+                itemBaseLine += (si.ascent + si.descent + 1) / 6;
+            else if (valign == QTextCharFormat::AlignSuperScript)
+                itemBaseLine -= (si.ascent + si.descent + 1) / 2;
+        }
         if (underlinePositions) {
             // can't have selections in this case
             drawMenuText(p, x, itemBaseLine, si, gf, this, start, gs);
         } else {
             QPointF pos(x.toReal(), itemBaseLine.toReal());
-            if (p)
-                p->drawTextItem(pos, gf);
-            else {
+            if (p) {
+                if (chf.hasProperty(QTextFormat::TextOutline)) {
+                    QPainterPath path;
+                    path.setFillRule(Qt::WindingFill);
+                    drawTextItemToPath(&path, pos, gf);
+
+                    p->save();
+                    p->setRenderHint(QPainter::Antialiasing);
+                    p->setBrush(p->pen().brush());
+                    p->setPen(chf.textOutline());
+                    p->drawPath(path);
+                    p->restore();
+                } else {
+                    p->drawTextItem(pos, gf);
+                }
+            } else {
                 drawTextItemToPath(path, pos, gf);
             }
         }

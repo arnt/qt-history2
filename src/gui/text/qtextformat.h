@@ -140,8 +140,8 @@ public:
         FontPixelSize = 0x2009,
 
         TextUnderlineColor = 0x2010,
-
         TextVerticalAlignment = 0x2021,
+        TextOutline = 0x2022,
 
         IsAnchor = 0x2030,
         AnchorHref = 0x2031,
@@ -333,6 +333,11 @@ public:
     { setProperty(TextVerticalAlignment, alignment); }
     inline VerticalAlignment verticalAlignment() const
     { return static_cast<VerticalAlignment>(intProperty(TextVerticalAlignment)); }
+
+    inline void setTextOutline(const QPen &pen)
+    { setProperty(TextOutline, pen); }
+    inline QPen textOutline() const
+    { return penProperty(TextOutline); }
 
     inline void setAnchor(bool anchor)
     { setProperty(IsAnchor, anchor); }
