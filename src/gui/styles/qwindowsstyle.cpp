@@ -1588,10 +1588,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 // Left
                 if (firstTab || selected || onlyOne || !previousSelected) {
                     p->setPen(light);
-                    p->drawLine(x1, y1 + 2, x1, y2 - (firstTab && selected && leftAligned ? 0 : borderThinkness));
+                    p->drawLine(x1, y1 + 2, x1, y2 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
                     p->drawPoint(x1 + 1, y1 + 1);
                     p->setPen(midlight);
-                    p->drawLine(x1 + 1, y1 + 2, x1 + 1, y2 - (firstTab && selected && leftAligned ? 0 : borderThinkness));
+                    p->drawLine(x1 + 1, y1 + 2, x1 + 1, y2 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
                 }
                 // Top
                 {
@@ -1605,10 +1605,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 // Right
                 if (lastTab || selected || onlyOne || !nextSelected) {
                     p->setPen(shadow);
-                    p->drawLine(x2, y1 + 2, x2, y2 - (lastTab && selected && rightAligned ? 0 : borderThinkness));
+                    p->drawLine(x2, y1 + 2, x2, y2 - ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness));
                     p->drawPoint(x2 - 1, y1 + 1);
                     p->setPen(dark);
-                    p->drawLine(x2 - 1, y1 + 2, x2 - 1, y2 - (lastTab && selected && rightAligned ? 0 : borderThinkness));
+                    p->drawLine(x2 - 1, y1 + 2, x2 - 1, y2 - ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness));
                 }
                 break; }
             case QTabBar::RoundedSouth: {
@@ -1626,10 +1626,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 // Left
                 if (firstTab || selected || onlyOne || !previousSelected) {
                     p->setPen(light);
-                    p->drawLine(x1, y2 - 2, x1, y1 + (firstTab && selected && leftAligned ? 0 : borderThinkness));
+                    p->drawLine(x1, y2 - 2, x1, y1 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
                     p->drawPoint(x1 + 1, y2 - 1);
                     p->setPen(midlight);
-                    p->drawLine(x1 + 1, y2 - 2, x1 + 1, y1 + (firstTab && selected && leftAligned ? 0 : borderThinkness));
+                    p->drawLine(x1 + 1, y2 - 2, x1 + 1, y1 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness));
                 }
                 // Bottom
                 {
@@ -1643,10 +1643,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 // Right
                 if (lastTab || selected || onlyOne || !nextSelected) {
                     p->setPen(shadow);
-                    p->drawLine(x2, y2 - 2, x2, y1 + (lastTab && selected && rightAligned ? 0 : borderThinkness));
+                    p->drawLine(x2, y2 - 2, x2, y1 + ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness));
                     p->drawPoint(x2 - 1, y2 - 1);
                     p->setPen(dark);
-                    p->drawLine(x2 - 1, y2 - 2, x2 - 1, y1 + (lastTab && selected && rightAligned ? 0 : borderThinkness));
+                    p->drawLine(x2 - 1, y2 - 2, x2 - 1, y1 + ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness));
                 }
                 break; }
             case QTabBar::RoundedWest: {
@@ -1664,10 +1664,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 // Top
                 if (firstTab || selected || onlyOne || !previousSelected) {
                     p->setPen(light);
-                    p->drawLine(x1 + 2, y1, x2 - (firstTab && selected && leftAligned ? 0 : borderThinkness), y1);
+                    p->drawLine(x1 + 2, y1, x2 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness), y1);
                     p->drawPoint(x1 + 1, y1 + 1);
                     p->setPen(midlight);
-                    p->drawLine(x1 + 2, y1 + 1, x2 - (firstTab && selected && leftAligned ? 0 : borderThinkness), y1 + 1);
+                    p->drawLine(x1 + 2, y1 + 1, x2 - ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness), y1 + 1);
                 }
                 // Left
                 {
@@ -1681,10 +1681,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 // Bottom
                 if (lastTab || selected || onlyOne || !nextSelected) {
                     p->setPen(shadow);
-                    p->drawLine(x1 + 3, y2, x2 - (lastTab && selected && rightAligned ? 0 : borderThinkness), y2);
+                    p->drawLine(x1 + 3, y2, x2 - ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness), y2);
                     p->drawPoint(x1 + 2, y2 - 1);
                     p->setPen(dark);
-                    p->drawLine(x1 + 3, y2 - 1, x2 - (lastTab && selected && rightAligned ? 0 : borderThinkness), y2 - 1);
+                    p->drawLine(x1 + 3, y2 - 1, x2 - ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness), y2 - 1);
                     p->drawPoint(x1 + 1, y2 - 1);
                     p->drawPoint(x1 + 2, y2);
                 }
@@ -1704,10 +1704,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 // Top
                 if (firstTab || selected || onlyOne || !previousSelected) {
                     p->setPen(light);
-                    p->drawLine(x2 - 2, y1, x1 + (firstTab && selected && leftAligned ? 0 : borderThinkness), y1);
+                    p->drawLine(x2 - 2, y1, x1 + ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness), y1);
                     p->drawPoint(x2 - 1, y1 + 1);
                     p->setPen(midlight);
-                    p->drawLine(x2 - 3, y1 + 1, x1 + (firstTab && selected && leftAligned ? 0 : borderThinkness), y1 + 1);
+                    p->drawLine(x2 - 3, y1 + 1, x1 + ((onlyOne || firstTab) && selected && leftAligned ? 0 : borderThinkness), y1 + 1);
                     p->drawPoint(x2 - 1, y1);
                 }
                 // Right
@@ -1722,10 +1722,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 // Bottom
                 if (lastTab || selected || onlyOne || !nextSelected) {
                     p->setPen(shadow);
-                    p->drawLine(x2 - 2, y2, x1 + (lastTab && selected && rightAligned ? 0 : borderThinkness), y2);
+                    p->drawLine(x2 - 2, y2, x1 + ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness), y2);
                     p->drawPoint(x2 - 1, y2 - 1);
                     p->setPen(dark);
-                    p->drawLine(x2 - 2, y2 - 1, x1 + (lastTab && selected && rightAligned ? 0 : borderThinkness), y2 - 1);
+                    p->drawLine(x2 - 2, y2 - 1, x1 + ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness), y2 - 1);
                 }
                 break; }
             }
