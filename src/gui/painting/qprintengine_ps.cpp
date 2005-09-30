@@ -772,7 +772,7 @@ public:
     ~QPSPrintEnginePrivate();
 
     void orientationSetup();
-    void emitHeader(bool finished);
+    void emitHeader();
     void setFont(QFontEngine *fe);
     void drawImage(qreal x, qreal y, qreal w, qreal h, const QImage &img, const QImage &mask);
     void flushPage(bool last = false);
@@ -3350,7 +3350,7 @@ void QPSPrintEnginePrivate::orientationSetup()
 }
 
 
-void QPSPrintEnginePrivate::emitHeader(bool finished)
+void QPSPrintEnginePrivate::emitHeader()
 {
     QString title = docName;
     QString creator = this->creator;
@@ -3370,8 +3370,8 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     uint mright = paperRect.right() - pageRect.right();
     int width = pageRect.width();
     int height = pageRect.height();
-    if (finished && pageCount == 1 && copies == 1 &&
-         ((fullPage && qt_gen_epsf) || (outputFileName.endsWith(".eps")))
+    if (pageCount == 1 && copies == 1 &&
+        ((fullPage && qt_gen_epsf) || (outputFileName.endsWith(".eps")))
        ) {
         if (!boundingBox.isValid())
             boundingBox.setRect(0, 0, width, height);
@@ -3414,22 +3414,18 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
         outStream << "Landscape";
     else
         outStream << "Portrait";
-    if (finished)
-        outStream << "\n%%Pages: " << pageCount << "\n"
-                  << wrapDSC("%%DocumentFonts: " + fontsUsed);
-    else
-        outStream << "%%Pages: (atend)"
-               << "\n%%DocumentFonts: (atend)";
-    outStream << "\n%%EndComments\n";
+    outStream << "\n%%Pages: (atend)"
+        "\n%%DocumentFonts: (atend)"
+        "\n%%EndComments\n"
 
-    outStream << "%%BeginProlog\n";
-    const char prologLicense[] = "% Prolog copyright 1994-2003 Trolltech. "
-                                 "You may copy this prolog in any way\n"
-                                 "% that is directly related to this "
-                                 "document. For other use of this prolog,\n"
-                                 "% see your licensing agreement for Qt.\n";
-    outStream << prologLicense << ps_header << "\n";
-
+        "%%BeginProlog\n"
+        "% Prolog copyright 1994-2003 Trolltech. "
+        "You may copy this prolog in any way\n"
+        "% that is directly related to this "
+        "document. For other use of this prolog,\n"
+        "% see your licensing agreement for Qt.\n"
+              << ps_header << "\n";
+    
     // we have to do this here, as scaling can affect this.
     QString lineStyles = "/LArr["                                       // Pen styles:
                          " [] []"                       //   solid line
@@ -3472,11 +3468,8 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     }
     fontStream.flush();
     if (fontBuffer->buffer().size()) {
-        if (pageCount == 1 || finished)
-            outStream << "% Fonts and encodings used\n";
-        else
-            outStream << "% Fonts and encodings used on pages 1-"
-                   << pageCount << "\n";
+        outStream << "% Fonts and encodings used on pages 1-"
+                  << pageCount << "\n";
         for (QHash<QString, QPSPrintEngineFont *>::Iterator it = fonts.begin(); it != fonts.end(); ++it)
             (*it)->download(outStream, true); // true means its global
         fontStream.flush();
@@ -3515,7 +3508,7 @@ void QPSPrintEnginePrivate::flushPage(bool last)
 #endif
         ) {
 //        qDebug("emiting header at page %d", pageCount);
-        emitHeader(last);
+        emitHeader();
     }
     outStream << "%%Page: "
               << pageCount << ' ' << pageCount << endl
@@ -3551,14 +3544,6 @@ QPSPrintEngine::QPSPrintEngine(QPrinter::PrinterMode m)
 }
 
 
-QPSPrintEngine::~QPSPrintEngine()
-{
-    if (d_func()->fd >= 0)
-        ::close(d_func()->fd);
-}
-
-
-
 static void ignoreSigPipe(bool b)
 {
     static struct sigaction *users_sigpipe_handler = 0;
@@ -3588,6 +3573,26 @@ static void ignoreSigPipe(bool b)
         delete users_sigpipe_handler;
         users_sigpipe_handler = 0;
     }
+}
+
+QPSPrintEngine::~QPSPrintEngine()
+{
+    Q_D(QPSPrintEngine);
+    ignoreSigPipe(true);
+    d->outStream << "%%Trailer\n";
+    d->outStream << "%%Pages: " << d->pageCount - 1 << "\n" <<
+        wrapDSC("%%DocumentFonts: " + d->fontsUsed);
+    d->outStream << "%%EOF\n";
+    ignoreSigPipe(false);
+
+    d->outStream.flush();
+    if (d->outDevice)
+        d->outDevice->close();
+    if (d->fd >= 0)
+        ::close(d->fd);
+    d->fd = -1;
+    delete d->outDevice;
+    d->outDevice = 0;
 }
 
 static const char * const psToStr[QPrinter::NPageSize+1] =
@@ -3620,6 +3625,10 @@ static void closeAllOpenFds()
 bool QPSPrintEngine::begin(QPaintDevice *pdev)
 {
     Q_D(QPSPrintEngine);
+
+    if (d->fd >= 0)
+        return true;
+    
     d->pdev = pdev;
     d->printer = static_cast<QPrinter*>(pdev);
     if (!d->outputFileName.isEmpty()) {
@@ -3759,27 +3768,13 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
 bool QPSPrintEngine::end()
 {
     Q_D(QPSPrintEngine);
-    bool pageCountAtEnd = (d->buffer != 0);
 
     // we're writing to lp/lpr through a pipe, we don't want to crash with SIGPIPE
     // if lp/lpr dies
     ignoreSigPipe(true);
     d->flushPage(true);
-    d->outStream << "%%Trailer\n";
-    if (pageCountAtEnd)
-        d->outStream << "%%Pages: " << d->pageCount - 1 << "\n" <<
-            wrapDSC("%%DocumentFonts: " + d->fontsUsed);
-    d->outStream << "%%EOF\n";
     ignoreSigPipe(false);
 
-    d->outStream.flush();
-    if (d->outDevice)
-        d->outDevice->close();
-    if (d->fd >= 0)
-        ::close(d->fd);
-    d->fd = -1;
-    delete d->outDevice;
-    d->outDevice = 0;
     setActive(false);
     d->printer = 0;
 
