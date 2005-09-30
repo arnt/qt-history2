@@ -1518,8 +1518,6 @@ QFontEngine *loadFcEngine(int script,
     if (!X11->has_fontconfig)
         return 0;
 
-    qDebug("    using FontConfig to load %s for script %d", family.toUtf8().data(), script);
-    
     FcPattern *pattern = FcPatternCreate();
     if (!pattern)
         return 0;
