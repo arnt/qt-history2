@@ -25,8 +25,8 @@ protected:
     void resizeEvent(QResizeEvent *event);
 
 private:
-    QLabel *abstractLabel;
     DropSiteWidget *dropSiteWidget;
+    QLabel *abstractLabel;
     QTableWidget *supportedFormats;
 
     QPushButton *clearButton;
