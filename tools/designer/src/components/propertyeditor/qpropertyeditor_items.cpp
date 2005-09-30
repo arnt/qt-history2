@@ -380,6 +380,20 @@ void SizeProperty::setValue(const QVariant &value)
 }
 
 // -------------------------------------------------------------------------
+// QIntPropertySpinBox also emits editingFinished when the spinbox is used
+class QIntPropertySpinBox: public QSpinBox
+{
+public:
+    QIntPropertySpinBox(QWidget *parent = 0)
+        : QSpinBox(parent) { }
+
+    void stepBy(int steps)
+    {
+        QSpinBox::stepBy(steps);
+        emit editingFinished();
+    }
+};
+
 IntProperty::IntProperty(int value, const QString &name)
     : AbstractProperty<int>(value, name), m_low(INT_MIN), m_hi(INT_MAX)
 {
@@ -413,14 +427,14 @@ QString IntProperty::toString() const
 
 QWidget *IntProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
-    QSpinBox *spinBox = new QSpinBox(parent);
+    QSpinBox *spinBox = new QIntPropertySpinBox(parent);
     spinBox->setFrame(0);
     spinBox->setSpecialValueText(m_specialValue);
     spinBox->setRange(m_low, m_hi);
     spinBox->setValue(m_value);
     spinBox->selectAll();
 
-    QObject::connect(spinBox, SIGNAL(valueChanged(int)), target, receiver);
+    QObject::connect(spinBox, SIGNAL(editingFinished()), target, receiver);
 
     return spinBox;
 }
