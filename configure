@@ -2802,7 +2802,8 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # work around broken X11 headers when using GCC 2.95 or later
     NOTYPE=no
-    $x11tests/notype.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath && NOTYPE=yes    [ $NOTYPE = "yes" ] && QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fpermissive\""
+    $x11tests/notype.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath && NOTYPE=yes
+    [ $NOTYPE = "yes" ] && QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fpermissive\""
 
     # auto-detect OpenGL support
     if [ "$CFG_OPENGL" = "auto" ]; then
