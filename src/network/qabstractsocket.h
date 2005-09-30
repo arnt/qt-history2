@@ -20,6 +20,7 @@
 QT_MODULE(Network)
 
 class QHostAddress;
+class QNetworkProxy;
 class QAbstractSocketPrivate;
 
 class Q_NETWORK_EXPORT QAbstractSocket : public QIODevice
@@ -113,6 +114,9 @@ public:
     bool waitForReadyRead(int msecs = 30000);
     bool waitForBytesWritten(int msecs = 30000);
     bool waitForDisconnected(int msecs = 30000);
+
+    void setProxy(const QNetworkProxy &networkProxy);
+    QNetworkProxy proxy() const;
 
 Q_SIGNALS:
     void hostFound();

@@ -32,6 +32,7 @@
 #include "private/qinternal_p.h"
 #include "private/qiodevice_p.h"
 #include "private/qnativesocketengine_p.h"
+#include "qnetworkproxy.h"
 
 class QHostInfo;
 
@@ -95,6 +96,8 @@ public:
     QAbstractSocket::SocketState state;
 
     QAbstractSocket::SocketError socketError;
+
+    QNetworkProxy *proxy;
 };
 
 #endif // QABSTRACTSOCKET_P_H

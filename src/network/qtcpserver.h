@@ -21,6 +21,7 @@
 QT_MODULE(Network)
 
 class QTcpServerPrivate;
+class QNetworkProxy;
 class QTcpSocket;
 
 class Q_NETWORK_EXPORT QTcpServer : public QObject
@@ -50,6 +51,9 @@ public:
 
     QAbstractSocket::SocketError serverError() const;
     QString errorString() const;
+
+    void setProxy(const QNetworkProxy &networkProxy);
+    QNetworkProxy proxy() const;
 
 protected:
     virtual void incomingConnection(int handle);

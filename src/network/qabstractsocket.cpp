@@ -326,7 +326,8 @@ QAbstractSocketPrivate::QAbstractSocketPrivate()
       connectTimeElapsed(0),
       hostLookupId(-1),
       state(QAbstractSocket::UnconnectedState),
-      socketError(QAbstractSocket::UnknownSocketError)
+      socketError(QAbstractSocket::UnknownSocketError),
+      proxy(0)
 {
 }
 
@@ -337,6 +338,7 @@ QAbstractSocketPrivate::QAbstractSocketPrivate()
 */
 QAbstractSocketPrivate::~QAbstractSocketPrivate()
 {
+    delete proxy;
 }
 
 /*! \internal
@@ -1895,6 +1897,22 @@ QAbstractSocket::SocketError QAbstractSocket::error() const
 void QAbstractSocket::setSocketError(SocketError socketError)
 {
     d_func()->socketError = socketError;
+}
+
+void QAbstractSocket::setProxy(const QNetworkProxy &networkProxy)
+{
+    Q_D(QAbstractSocket);
+    if (!d->proxy)
+        d->proxy = new QNetworkProxy();
+    *d->proxy = networkProxy;
+}
+
+QNetworkProxy QAbstractSocket::proxy() const
+{
+    Q_D(const QAbstractSocket);
+    if (d->proxy)
+        return *d->proxy;
+    return QNetworkProxy();
 }
 
 #ifdef QT3_SUPPORT

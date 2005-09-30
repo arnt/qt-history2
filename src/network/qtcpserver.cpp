@@ -72,6 +72,7 @@
 #include "qnativesocketengine_p.h"
 #include "qtcpserver.h"
 #include "qtcpsocket.h"
+#include "qnetworkproxy.h"
 
 
 #define Q_CHECK_SOCKETENGINE(returnValue) do { \
@@ -99,6 +100,8 @@ public:
 
     int maxConnections;
 
+    QNetworkProxy *proxy;
+
     // private slots
     void processIncomingConnection();
 };
@@ -106,17 +109,20 @@ public:
 /*! \internal
 */
 QTcpServerPrivate::QTcpServerPrivate()
+ : port(0)
+ , state(QAbstractSocket::UnconnectedState)
+ , socketEngine(0)
+ , serverSocketError(QAbstractSocket::UnknownSocketError)
+ , maxConnections(30)
+ , proxy(0)
 {
-    port = 0;
-    socketEngine = 0;
-    serverSocketError = QAbstractSocket::UnknownSocketError;
-    maxConnections = 30;
 }
 
 /*! \internal
 */
 QTcpServerPrivate::~QTcpServerPrivate()
 {
+     delete proxy;
 }
 
 /*! \internal
@@ -159,7 +165,6 @@ void QTcpServerPrivate::processIncomingConnection()
 QTcpServer::QTcpServer(QObject *parent)
     : QObject(*new QTcpServerPrivate, parent)
 {
-    d_func()->state = QAbstractSocket::UnconnectedState;
 }
 
 /*!
@@ -515,6 +520,21 @@ QString QTcpServer::errorString() const
     return d_func()->serverSocketErrorString;
 }
 
+void QTcpServer::setProxy(const QNetworkProxy &networkProxy)
+{
+    Q_D(QTcpServer);
+    if (!d->proxy)
+        d->proxy = new QNetworkProxy();
+    *d->proxy = networkProxy;
+}
+
+QNetworkProxy QTcpServer::proxy() const
+{
+    Q_D(const QTcpServer);
+    if (d->proxy)
+        return *d->proxy;
+    return QNetworkProxy();
+}
 
 #include "moc_qtcpserver.cpp"
 
