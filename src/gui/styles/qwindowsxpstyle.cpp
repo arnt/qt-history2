@@ -2670,7 +2670,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 if (sub & SC_TitleBarNormalButton && tb->titleBarFlags & Qt::WindowMinimizeButtonHint) {
                     theme.rect = subControlRect(CC_TitleBar, option, SC_TitleBarNormalButton, widget);
                     partId = WP_RESTOREBUTTON;
-                    if (!widget->isEnabled())
+                    if (widget && !widget->isEnabled())
                         stateId = RBS_DISABLED;
                     else if (option->activeSubControls == SC_TitleBarNormalButton && (option->state & State_Sunken))
                         stateId = RBS_PUSHED;
@@ -2687,7 +2687,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 if (sub & SC_TitleBarShadeButton && tb->titleBarFlags & Qt::WindowShadeButtonHint) {
                     theme.rect = subControlRect(CC_TitleBar, option, SC_TitleBarShadeButton, widget);
                     partId = WP_MINBUTTON;
-                    if (!widget->isEnabled())
+                    if (widget && !widget->isEnabled())
                         stateId = MINBS_DISABLED;
                     else if (option->activeSubControls == SC_TitleBarShadeButton && (option->state & State_Sunken))
                         stateId = MINBS_PUSHED;
@@ -2704,7 +2704,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 if (sub & SC_TitleBarUnshadeButton && tb->titleBarFlags & Qt::WindowShadeButtonHint) {
                     theme.rect = subControlRect(CC_TitleBar, option, SC_TitleBarUnshadeButton, widget);
                     partId = WP_RESTOREBUTTON;
-                    if (!widget->isEnabled())
+                    if (widget && !widget->isEnabled())
                         stateId = RBS_DISABLED;
                     else if (option->activeSubControls == SC_TitleBarUnshadeButton && (option->state & State_Sunken))
                         stateId = RBS_PUSHED;
@@ -2722,7 +2722,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     theme.rect = subControlRect(CC_TitleBar, option, SC_TitleBarCloseButton, widget);
                     //partId = titlebar->testWFlags(Qt::WA_WState_Tool) ? WP_SMALLCLOSEBUTTON : WP_CLOSEBUTTON;
                     partId = WP_CLOSEBUTTON;
-                    if (!widget->isEnabled())
+                    if (widget && !widget->isEnabled())
                         stateId = CBS_DISABLED;
                     else if (option->activeSubControls == SC_TitleBarCloseButton && (option->state & State_Sunken))
                         stateId = CBS_PUSHED;
@@ -3098,12 +3098,14 @@ int QWindowsXPStyle::styleHint(StyleHint hint, const QStyleOption *option, const
 
     case SH_LineEdit_PasswordCharacter:
         {
-            const QFontMetrics &fm = widget->fontMetrics();
-            if (fm.inFont(QChar(0x25CF)))
-                res = 0x25CF;
-            else if (fm.inFont(QChar(0x2022)))
-                res = 0x2022;
-            else
+            if (widget) {
+                const QFontMetrics &fm = widget->fontMetrics();
+                if (fm.inFont(QChar(0x25CF)))
+                    res = 0x25CF;
+                else if (fm.inFont(QChar(0x2022)))
+                    res = 0x2022;
+            }
+            if (!res)
                 res = '*';
         }
         break;
