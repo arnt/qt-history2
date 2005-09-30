@@ -30,6 +30,16 @@ MetaDataBaseItem::~MetaDataBaseItem()
 {
 }
 
+QString MetaDataBaseItem::propertyComment(const QString &name) const
+{
+    return m_comments.value(name);
+}
+
+void MetaDataBaseItem::setPropertyComment(const QString &name, const QString &comment)
+{
+    m_comments.insert(name, comment);
+}
+
 QString MetaDataBaseItem::name() const
 {
     Q_ASSERT(m_object);
@@ -84,13 +94,14 @@ QDesignerMetaDataBaseItemInterface *MetaDataBase::item(QObject *object) const
 
 void MetaDataBase::add(QObject *object)
 {
-    MetaDataBaseItem *i = m_items.value(object);
-    if (i != 0 && !i->enabled()) {
-        i->setEnabled(true);
+    MetaDataBaseItem *item = m_items.value(object);
+    if (item != 0) {
+        item->setEnabled(true);
         return;
     }
 
-    m_items.insert(object, new MetaDataBaseItem(object));
+    item = new MetaDataBaseItem(object);
+    m_items.insert(object, item);
     connect(object, SIGNAL(destroyed(QObject*)),
         this, SLOT(slotDestroyed(QObject*)));
 
@@ -133,3 +144,14 @@ void MetaDataBase::slotDestroyed(QObject *object)
         m_items.remove(object);
     }
 }
+
+void MetaDataBase::dump()
+{
+    QHashIterator<QObject *, MetaDataBaseItem*> it(m_items);
+    while (it.hasNext()) {
+        it.next();
+
+        qDebug() << it.value() << "item:" << it.key() << "comments:" << it.value()->comments();
+    }
+}
+

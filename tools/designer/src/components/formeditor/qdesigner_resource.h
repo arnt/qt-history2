@@ -87,6 +87,9 @@ protected:
     virtual DomActionGroup *createDom(QActionGroup *actionGroup);
     virtual DomActionRef *createActionRefDom(QAction *action);
 
+    virtual QAction *createAction(QObject *parent, const QString &name);
+    virtual QActionGroup *createActionGroup(QObject *parent, const QString &name);
+
     virtual QIcon nameToIcon(const QString &filePath, const QString &qrcPath);
     virtual QString iconToFilePath(const QIcon &pm) const;
     virtual QString iconToQrcPath(const QIcon &pm) const;

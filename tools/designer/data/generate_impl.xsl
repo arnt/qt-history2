@@ -466,9 +466,9 @@
                             </xsl:call-template>
                         </xsl:variable>
 
-                        <xsl:text>            QDomElement child = doc.createElement("</xsl:text>
+                        <xsl:text>            QDomElement child = doc.createElement(QLatin1String("</xsl:text>
                         <xsl:value-of select="@name"/>
-                        <xsl:text>");&endl;</xsl:text>
+                        <xsl:text>"));&endl;</xsl:text>
                         <xsl:text>            QDomText text = doc.createTextNode(</xsl:text>
                         <xsl:value-of select="$qstring-func"/>
                         <xsl:text>);&endl;</xsl:text>
@@ -613,7 +613,7 @@
         <xsl:text>::write(QDomDocument &amp;doc, const QString &amp;tagName)&endl;</xsl:text>
         <xsl:text>{&endl;</xsl:text>
 
-        <xsl:text>    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromLatin1("</xsl:text>
+        <xsl:text>    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("</xsl:text>
         <xsl:value-of select="$lower-name"/>
         <xsl:text>") : tagName.toLower());&endl;&endl;</xsl:text>
         <xsl:text>    QDomElement child;&endl;&endl;</xsl:text>
@@ -773,6 +773,11 @@
 </xsl:text>
         <xsl:text>#include "ui4.h"&endl;</xsl:text>
         <xsl:text>#include &lt;QtXml/QDomDocument&gt;&endl;</xsl:text>
+        <xsl:text>&endl;</xsl:text>
+
+        <xsl:text>#ifdef QFORMINTERNAL_NAMESPACE&endl;</xsl:text>
+        <xsl:text>using namespace QFormInternal;&endl;</xsl:text>
+        <xsl:text>#endif&endl;</xsl:text>
         <xsl:text>&endl;</xsl:text>
 
         <xsl:text>/*******************************************************************************&endl;</xsl:text>

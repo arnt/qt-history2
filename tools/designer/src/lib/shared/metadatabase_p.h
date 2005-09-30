@@ -47,9 +47,15 @@ public:
     virtual bool enabled() const;
     virtual void setEnabled(bool b);
 
+    QString propertyComment(const QString &name) const;
+    void setPropertyComment(const QString &name, const QString &comment);
+
+    QHash<QString, QString> comments() const { return m_comments; }
+
 private:
     QObject *m_object;
     QList<QWidget*> m_tabOrder;
+    QHash<QString, QString> m_comments;
     bool m_enabled;
 };
 
@@ -67,6 +73,8 @@ public:
     virtual void remove(QObject *object);
 
     virtual QList<QObject*> objects() const;
+
+    void dump();
 
 private slots:
     void slotDestroyed(QObject *object);

@@ -24,6 +24,7 @@
 #include <iconloader_p.h>
 #include <qdesigner_promotedwidget_p.h>
 #include <qdesigner_utils_p.h>
+#include <metadatabase_p.h>
 
 #include <QtGui/QtGui>
 
@@ -491,9 +492,15 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
             case QVariant::ByteArray:
                 p = new StringProperty(QString::fromUtf8(value.toByteArray()), pname);
                 break;
-            case QVariant::String:
-                p = new StringProperty(value.toString(), pname);
-                break;
+            case QVariant::String: {
+                if (pname != QLatin1String("objectName")
+                        && qobject_cast<MetaDataBase*>(core()->metaDataBase()) && core()->metaDataBase()->item(object)) {
+                    MetaDataBaseItem *item = static_cast<MetaDataBaseItem*>(core()->metaDataBase()->item(object));
+                    p = new StringProperty(value.toString(), pname, true, item->propertyComment(pname));
+                } else {
+                    p = new StringProperty(value.toString(), pname);
+                }
+            } break;
             case QVariant::Size:
                 p = new SizeProperty(value.toSize(), pname);
                 break;
@@ -637,6 +644,18 @@ void PropertyEditor::firePropertyChanged(IProperty *p)
 {
     if (isReadOnly())
         return;
+
+    if (object() && p->parent() && p->propertyName() == QLatin1String("comment")) {
+        QString parentProperty = p->parent()->propertyName();
+        MetaDataBase *db = qobject_cast<MetaDataBase*>(core()->metaDataBase());
+
+        if (db && db->item(object())) {
+            MetaDataBaseItem *item = static_cast<MetaDataBaseItem*>(db->item(object()));
+            item->setPropertyComment(parentProperty, p->value().toString());
+            emit propertyChanged(parentProperty, p->parent()->value());
+        }
+        return;
+    }
 
     emit propertyChanged(p->propertyName(), p->value());
 }

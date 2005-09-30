@@ -25,6 +25,7 @@
 #include <spacer_widget_p.h>
 #include <resourcefile_p.h>
 #include <pluginmanager_p.h>
+#include <metadatabase_p.h>
 
 #include <qdesigner_widget_p.h>
 #include <qlayout_widget_p.h>
@@ -336,6 +337,7 @@ QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *la
         QHash<QString, DomProperty*> properties = propertyMap(ui_layoutItem->elementSpacer()->elementProperty());
 
         Spacer *spacer = (Spacer*) m_core->widgetFactory()->createWidget(QLatin1String("Spacer"), parentWidget);
+        core()->metaDataBase()->add(spacer);
 
         spacer->setInteraciveMode(false);
         applyProperties(spacer, ui_layoutItem->elementSpacer()->elementProperty());
@@ -351,6 +353,7 @@ QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *la
     } else if (ui_layoutItem->kind() == DomLayoutItem::Layout && parentWidget) {
         DomLayout *ui_layout = ui_layoutItem->elementLayout();
         QLayoutWidget *layoutWidget = new QLayoutWidget(m_formWindow, parentWidget);
+        core()->metaDataBase()->add(layoutWidget);
         applyProperties(layoutWidget, ui_layout->elementProperty());
 
         if (m_formWindow) {
@@ -386,11 +389,27 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), o)) {
         for (int i=0; i<properties.size(); ++i) {
             DomProperty *p = properties.at(i);
-            QString propertyName = properties.at(i)->attributeName();
+            QString propertyName = p->attributeName();
 
             int index = sheet->indexOf(propertyName);
             if (index != -1) {
                 QVariant v = toVariant(o->metaObject(), p);
+
+                if (!core()->metaDataBase()->item(o)) {
+                    qWarning() << "** WARNING no ``meta database item'' for object:" << o;
+                }
+
+                if (p->kind() == DomProperty::String
+                        && qobject_cast<MetaDataBase*>(core()->metaDataBase())
+                        && core()->metaDataBase()->item(o))
+                {
+                    DomString *str = p->elementString();
+                    MetaDataBaseItem *item = static_cast<MetaDataBaseItem*>(core()->metaDataBase()->item(o));
+
+                    if (str->hasAttributeComment()) {
+                        item->setPropertyComment(propertyName, str->attributeComment());
+                    }
+                }
 
                 // ### move me
                 if (qobject_cast<QLayout*>(o) && propertyName == QLatin1String("margin")) {
@@ -1105,6 +1124,14 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
                 continue;
 
             if (DomProperty *p = createProperty(object, propertyName, value)) {
+                if (p->kind() == DomProperty::String && qobject_cast<MetaDataBase*>(core()->metaDataBase())) {
+                    MetaDataBaseItem *item = static_cast<MetaDataBaseItem*>(core()->metaDataBase()->item(object));
+
+                    if (item && !item->propertyComment(propertyName).isEmpty()) {
+                        p->elementString()->setAttributeComment(item->propertyComment(propertyName));
+                    }
+                }
+
                 properties.append(p);
             }
         }
@@ -1309,5 +1336,25 @@ DomActionRef *QDesignerResource::createActionRefDom(QAction *action)
 void QDesignerResource::addMenuAction(QAction *action)
 {
     core()->metaDataBase()->add(action);
+}
+
+QAction *QDesignerResource::createAction(QObject *parent, const QString &name)
+{
+    if (QAction *action = QAbstractFormBuilder::createAction(parent, name)) {
+        core()->metaDataBase()->add(action);
+        return action;
+    }
+
+    return 0;
+}
+
+QActionGroup *QDesignerResource::createActionGroup(QObject *parent, const QString &name)
+{
+    if (QActionGroup *actionGroup = QAbstractFormBuilder::createActionGroup(parent, name)) {
+        core()->metaDataBase()->add(actionGroup);
+        return actionGroup;
+    }
+
+    return 0;
 }
 

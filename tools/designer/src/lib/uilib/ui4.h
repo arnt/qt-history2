@@ -16,7 +16,6 @@
 #include <QtCore/QList>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
-
 class QDomDocument;
 class QDomElement;
 
@@ -32,6 +31,7 @@ class QDomElement;
 #ifndef QT_UI4_EXPORT
 #    define QT_UI4_EXPORT
 #endif
+
 
 #ifdef QFORMINTERNAL_NAMESPACE
 namespace QFormInternal
@@ -1650,6 +1650,11 @@ public:
     inline void setAttributeNotr(const QString& a) { m_attr_notr = a; m_has_attr_notr = true; }
     inline void clearAttributeNotr() { m_has_attr_notr = false; }
 
+    inline bool hasAttributeComment() { return m_has_attr_comment; }
+    inline QString attributeComment() { return m_attr_comment; }
+    inline void setAttributeComment(const QString& a) { m_attr_comment = a; m_has_attr_comment = true; }
+    inline void clearAttributeComment() { m_has_attr_comment = false; }
+
     // child element accessors
 private:
     QString m_text;
@@ -1658,6 +1663,9 @@ private:
     // attribute data
     QString m_attr_notr;
     bool m_has_attr_notr;
+
+    QString m_attr_comment;
+    bool m_has_attr_comment;
 
     // child element data
 
@@ -1932,10 +1940,9 @@ private:
     void operator = (const DomConnectionHint&other);
 };
 
+
 #ifdef QFORMINTERNAL_NAMESPACE
 }
 #endif
 
-
 #endif // UI4_H
-

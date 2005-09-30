@@ -9,24 +9,24 @@
 
     <xsl:include href="generate_shared.xsl"/>
 
-<!-- Forward declaration -->    
-    
+<!-- Forward declaration -->
+
     <xsl:template name="class-forward-declaration">
         <xsl:param name="node"/>
         <xsl:variable name="name" select="concat('Dom', $node/attribute::name)"/>
-        
+
         <xsl:text>class </xsl:text>
         <xsl:value-of select="$name"/>
         <xsl:text>;&endl;</xsl:text>
     </xsl:template>
-    
-<!-- Class declaration: child element accessors -->    
+
+<!-- Class declaration: child element accessors -->
 
     <xsl:template name="child-element-accessors">
         <xsl:param name="node"/>
         <xsl:variable name="array" select="$node/@maxOccurs = 'unbounded'"/>
         <xsl:variable name="make-kind-enum" select="name($node) = 'xs:choice'"/>
-        
+
         <xsl:if test="$make-kind-enum">
             <xsl:text>    enum Kind { Unknown = 0</xsl:text>
             <xsl:for-each select="$node/xs:element">
@@ -41,7 +41,7 @@
             <xsl:text> };&endl;</xsl:text>
             <xsl:text>    inline Kind kind() { return m_kind; }&endl;&endl;</xsl:text>
         </xsl:if>
-        
+
         <xsl:for-each select="$node/xs:element">
             <xsl:variable name="cap-name">
                 <xsl:call-template name="cap-first-char">
@@ -66,7 +66,7 @@
                     <xsl:with-param name="array" select="$array"/>
                 </xsl:call-template>
             </xsl:variable>
-            
+
             <xsl:text>    inline </xsl:text>
             <xsl:value-of select="$return-cpp-type"/>
             <xsl:text> element</xsl:text>
@@ -74,7 +74,7 @@
             <xsl:text>() { return m_</xsl:text>
             <xsl:value-of select="@name"/>
             <xsl:text>; }&endl;</xsl:text>
-    
+
             <xsl:text>    void setElement</xsl:text>
             <xsl:value-of select="$cap-name"/>
             <xsl:text>(</xsl:text>
@@ -82,13 +82,13 @@
             <xsl:text> a);&endl;&endl;</xsl:text>
         </xsl:for-each>
     </xsl:template>
-    
-<!-- Class declaration: child element data -->    
-    
+
+<!-- Class declaration: child element data -->
+
     <xsl:template name="child-element-data">
         <xsl:param name="node"/>
         <xsl:variable name="array" select="$node/@maxOccurs = 'unbounded'"/>
-            
+
         <xsl:for-each select="$node/xs:element">
             <xsl:variable name="cpp-type">
                 <xsl:call-template name="xs-type-to-cpp-return-type">
@@ -103,12 +103,12 @@
             <xsl:text>;&endl;</xsl:text>
         </xsl:for-each>
     </xsl:template>
-    
-<!-- Class declaration: attribute accessors -->    
+
+<!-- Class declaration: attribute accessors -->
 
     <xsl:template name="attribute-accessors">
         <xsl:param name="node"/>
-        
+
         <xsl:for-each select="$node/xs:attribute">
             <xsl:variable name="cap-name">
                 <xsl:call-template name="cap-first-char">
@@ -119,19 +119,19 @@
                 <xsl:call-template name="xs-type-to-cpp-return-type">
                     <xsl:with-param name="xs-type" select="@type"/>
                 </xsl:call-template>
-            </xsl:variable>            
+            </xsl:variable>
             <xsl:variable name="cpp-argument-type">
                 <xsl:call-template name="xs-type-to-cpp-argument-type">
                     <xsl:with-param name="xs-type" select="@type"/>
                 </xsl:call-template>
-            </xsl:variable>            
-            
+            </xsl:variable>
+
             <xsl:text>    inline bool hasAttribute</xsl:text>
             <xsl:value-of select="$cap-name"/>
             <xsl:text>() { return m_has_attr_</xsl:text>
             <xsl:value-of select="@name"/>
             <xsl:text>; }&endl;</xsl:text>
-            
+
             <xsl:text>    inline </xsl:text>
             <xsl:value-of select="$cpp-return-type"/>
             <xsl:text> attribute</xsl:text>
@@ -139,7 +139,7 @@
             <xsl:text>() { return m_attr_</xsl:text>
             <xsl:value-of select="@name"/>
             <xsl:text>; }&endl;</xsl:text>
-    
+
             <xsl:text>    inline void setAttribute</xsl:text>
             <xsl:value-of select="$cap-name"/>
             <xsl:text>(</xsl:text>
@@ -149,7 +149,7 @@
             <xsl:text> = a; m_has_attr_</xsl:text>
             <xsl:value-of select="@name"/>
             <xsl:text> = true; }&endl;</xsl:text>
-            
+
             <xsl:text>    inline void clearAttribute</xsl:text>
             <xsl:value-of select="$cap-name"/>
             <xsl:text>() { m_has_attr_</xsl:text>
@@ -158,8 +158,8 @@
         </xsl:for-each>
     </xsl:template>
 
-<!-- Class declaration -->    
-    
+<!-- Class declaration -->
+
     <xsl:template name="class-declaration">
         <xsl:param name="node"/>
         <xsl:variable name="name" select="concat('Dom', $node/@name)"/>
@@ -179,12 +179,12 @@
         <xsl:text>    QDomElement write(QDomDocument &amp;doc, const QString &amp;tagName = QString());&endl;</xsl:text>
         <xsl:text>    inline QString text() const { return m_text; }&endl;</xsl:text>
         <xsl:text>    inline void setText(const QString &amp;s) { m_text = s; }&endl;&endl;</xsl:text>
-    
+
         <xsl:text>    // attribute accessors&endl;</xsl:text>
         <xsl:call-template name="attribute-accessors">
             <xsl:with-param name="node" select="$node"/>
         </xsl:call-template>
-    
+
         <xsl:text>    // child element accessors&endl;</xsl:text>
         <xsl:for-each select="$node/xs:choice">
             <xsl:call-template name="child-element-accessors">
@@ -197,18 +197,18 @@
                 <xsl:with-param name="node" select="."/>
             </xsl:call-template>
         </xsl:for-each>
-    
+
         <xsl:text>private:&endl;</xsl:text>
         <xsl:text>    QString m_text;&endl;</xsl:text>
         <xsl:text>    void clear(bool clear_all = true);&endl;&endl;</xsl:text>
-    
+
         <xsl:text>    // attribute data&endl;</xsl:text>
         <xsl:for-each select="$node/xs:attribute">
             <xsl:variable name="cpp-type">
                 <xsl:call-template name="xs-type-to-cpp-type">
                     <xsl:with-param name="xs-type" select="@type"/>
                 </xsl:call-template>
-            </xsl:variable>            
+            </xsl:variable>
             <xsl:text>    </xsl:text>
             <xsl:value-of select="$cpp-type"/>
             <xsl:text> m_attr_</xsl:text>
@@ -218,7 +218,7 @@
             <xsl:value-of select="@name"/>
             <xsl:text>;&endl;&endl;</xsl:text>
         </xsl:for-each>
-    
+
         <xsl:text>    // child element data&endl;</xsl:text>
         <xsl:if test="boolean($node/xs:choice)">
             <xsl:text>    Kind m_kind;&endl;</xsl:text>
@@ -249,9 +249,9 @@
     </xsl:template>
 
 <!-- Root -->
-    
+
     <xsl:template match="xs:schema">
-        
+
 <xsl:text>/****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -265,19 +265,19 @@
 **
 ****************************************************************************/
 </xsl:text>
-        
+
         <xsl:text>#ifndef UI4_H&endl;</xsl:text>
         <xsl:text>#define UI4_H&endl;</xsl:text>
         <xsl:text>&endl;</xsl:text>
-        <xsl:text>#include &lt;QList&gt;&endl;</xsl:text>
-        <xsl:text>#include &lt;QString&gt;&endl;</xsl:text>
-        <xsl:text>#include &lt;QStringList&gt;&endl;</xsl:text>
+        <xsl:text>#include &lt;QtCore/QList&gt;&endl;</xsl:text>
+        <xsl:text>#include &lt;QtCore/QString&gt;&endl;</xsl:text>
+        <xsl:text>#include &lt;QtCore/QStringList&gt;&endl;</xsl:text>
         <xsl:text>class QDomDocument;&endl;</xsl:text>
         <xsl:text>class QDomElement;&endl;</xsl:text>
 
 <xsl:text>
-#include &lt;qglobal.h&gt;
-#if defined(QT_DESIGNER) &amp;&amp; defined(Q_OS_WIN)
+#include &lt;QtCore/qglobal.h&gt;
+#if defined(QT_DESIGNER) &amp;&amp; defined(Q_OS_WIN) &amp;&amp; !defined(QT_DESIGNER_STATIC)
 #    ifdef QT_UILIB_LIBRARY
 #        define QT_UI4_EXPORT __declspec(dllexport)
 #    else
@@ -288,29 +288,42 @@
 #ifndef QT_UI4_EXPORT
 #    define QT_UI4_EXPORT
 #endif
-</xsl:text>     
-                
+
+
+#ifdef QFORMINTERNAL_NAMESPACE
+namespace QFormInternal
+{
+#endif
+
+</xsl:text>
+
         <xsl:text>&endl;</xsl:text>
         <xsl:text>/*******************************************************************************&endl;</xsl:text>
         <xsl:text>** Forward declarations&endl;</xsl:text>
         <xsl:text>*/&endl;&endl;</xsl:text>
-        
+
         <xsl:for-each select="xs:complexType">
             <xsl:call-template name="class-forward-declaration">
                 <xsl:with-param name="node" select="."/>
             </xsl:call-template>
         </xsl:for-each>
-        
+
         <xsl:text>&endl;</xsl:text>
         <xsl:text>/*******************************************************************************&endl;</xsl:text>
         <xsl:text>** Declarations&endl;</xsl:text>
         <xsl:text>*/&endl;&endl;</xsl:text>
-        
+
         <xsl:for-each select="xs:complexType">
             <xsl:call-template name="class-declaration">
                 <xsl:with-param name="node" select="."/>
             </xsl:call-template>
         </xsl:for-each>
-        <xsl:text>#endif // UI4_H&endl;&endl;</xsl:text>
+        <xsl:text>
+#ifdef QFORMINTERNAL_NAMESPACE
+}
+#endif
+
+#endif // UI4_H
+</xsl:text>
     </xsl:template>
 </xsl:stylesheet>

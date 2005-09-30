@@ -243,9 +243,20 @@ QWidget *PropertyCollection::createExternalEditor(QWidget *parent)
 
 // -------------------------------------------------------------------------
 
-StringProperty::StringProperty(const QString &value, const QString &name)
-    : AbstractProperty<QString>(value, name)
+StringProperty::StringProperty(const QString &value, const QString &name, bool hasComment, const QString &comment)
+    : AbstractPropertyGroup(name),
+      m_value(value)
 {
+    if (hasComment) {
+        StringProperty *pcomment = new StringProperty(comment, QLatin1String("comment"));
+        pcomment->setParent(this);
+        m_properties << pcomment;
+    }
+}
+
+QVariant StringProperty::value() const
+{
+    return m_value;
 }
 
 void StringProperty::setValue(const QVariant &value)
@@ -256,6 +267,11 @@ void StringProperty::setValue(const QVariant &value)
 QString StringProperty::toString() const
 {
     return m_value;
+}
+
+bool StringProperty::hasEditor() const
+{
+    return true;
 }
 
 QWidget *StringProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const

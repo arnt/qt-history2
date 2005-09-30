@@ -3846,6 +3846,7 @@ void DomString::clear(bool clear_all)
     if (clear_all) {
     m_text = QString();
     m_has_attr_notr = false;
+    m_has_attr_comment = false;
     }
 
 }
@@ -3853,6 +3854,7 @@ void DomString::clear(bool clear_all)
 DomString::DomString()
 {
     m_has_attr_notr = false;
+    m_has_attr_comment = false;
 }
 
 DomString::~DomString()
@@ -3863,6 +3865,8 @@ void DomString::read(const QDomElement &node)
 {
     if (node.hasAttribute(QLatin1String("notr")))
         setAttributeNotr(node.attribute(QLatin1String("notr")));
+    if (node.hasAttribute(QLatin1String("comment")))
+        setAttributeComment(node.attribute(QLatin1String("comment")));
 
     for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
         if (!n.isElement())
@@ -3886,6 +3890,9 @@ QDomElement DomString::write(QDomDocument &doc, const QString &tagName)
 
     if (hasAttributeNotr())
         e.setAttribute(QLatin1String("notr"), attributeNotr());
+
+    if (hasAttributeComment())
+        e.setAttribute(QLatin1String("comment"), attributeComment());
 
     if (!m_text.isEmpty())
         e.appendChild(doc.createTextNode(m_text));

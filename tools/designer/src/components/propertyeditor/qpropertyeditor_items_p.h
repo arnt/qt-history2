@@ -275,17 +275,22 @@ public:
     void updateValue(QWidget *editor);
 };
 
-class QT_PROPERTYEDITOR_EXPORT StringProperty: public AbstractProperty<QString>
+class QT_PROPERTYEDITOR_EXPORT StringProperty: public AbstractPropertyGroup
 {
 public:
-    StringProperty(const QString &value, const QString &name);
+    StringProperty(const QString &value, const QString &name, bool hasComment = false, const QString &comment = QString());
 
+    QVariant value() const;
     void setValue(const QVariant &value);
     QString toString() const;
 
+    bool hasEditor() const;
     QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
+
+private:
+    QString m_value;
 };
 
 class QT_PROPERTYEDITOR_EXPORT SeparatorProperty: public StringProperty
