@@ -54,4 +54,19 @@ inline bool is_hex_char(char s)
        );
 }
 
+inline const char *skipQuote(const char *data)
+{
+    while (*data && (*data != '\"')) {
+        if (*data == '\\') {
+            ++data;
+            if (!*data) break;
+        }
+        ++data;
+    }
+    
+    if (*data)  //Skip last quote
+        ++data;
+    return data; 
+}
+
 #endif // UTILS_H
