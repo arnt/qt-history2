@@ -2586,6 +2586,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->save();
 
             if (menuItem->menuItemType == QStyleOptionMenuItem::Separator) {
+                painter->fillRect(menuItem->rect, option->palette.background().color().light(103));
                 painter->setPen(alphaCornerColor);
                 painter->drawLine(menuItem->rect.left() + 5, menuItem->rect.top(),
                                   menuItem->rect.right() - 5, menuItem->rect.top());
@@ -3673,6 +3674,9 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                                                        contentsPropagated);
                         }
                     }
+                } else {
+                    cachePainter.fillRect(upRect.adjusted(1, 1, -1, 0), option->palette.background());
+                    cachePainter.fillRect(downRect.adjusted(1, 0, -1, -1), option->palette.background());
                 }
 
                 // outline the up/down buttons
@@ -4130,6 +4134,8 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                                                            contentsPropagated);
                             }
                         }
+                    } else {
+                        cachePainter.fillRect(downArrowGradientRect, option->palette.background());
                     }
                 } else {
                     QStyleOptionButton buttonOption;
@@ -4556,6 +4562,11 @@ QSize QPlastiqueStyle::sizeFromContents(ContentsType type, const QStyleOption *o
         ++newSize.rheight();
         break;
 #endif
+    case CT_MenuItem:
+        if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
+            if (menuItem->menuItemType == QStyleOptionMenuItem::Separator)
+                newSize.setHeight(2);
+        }
     default:
         break;
     }
