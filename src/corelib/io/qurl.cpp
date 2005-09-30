@@ -2858,7 +2858,10 @@ static bool isBidirectionalL(const QChar &ch)
           || (uc >= 0x100000 && uc <= 0x10FFFD)*/;
 }
 
-static QString stringPrep(const QString &source)
+/*!
+    \internal
+*/
+QString qt_nameprep(const QString &source)
 {
     // Characters commonly mapped to nothing are simply removed
     // (Table B.1)
@@ -3227,18 +3230,21 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
         that->setUserInfo(QUrl::fromPercentEncoding(__userInfo));
         that->host = QUrl::fromPercentEncoding(__host);
 
-        // If the labels in the hostname are Punycode encoded, we decode
-        // them immediately.
-        QStringList labels = that->host.split(QLatin1Char('.'));
-        for (int i = 0; i < labels.size(); ++i) {
-            QString label = labels.at(i);
-            if (label.startsWith("xn--"))
-                labels[i] = stringPrep(QUrl::fromPunycode(label.toLatin1()));
-            else
-                labels[i] = stringPrep(label);
+        // Nameprep the host. If the labels in the hostname are Punycode
+        // encoded, we decode them immediately, then nameprep them.
+        QStringList labels = that->host.split(QLatin1Char('.'), QString::SkipEmptyParts);
+        if (!labels.isEmpty()) {
+            for (int i = 0; i < labels.size(); ++i) {
+                QString label = labels.at(i);
+                if (label.startsWith("xn--"))
+                    labels[i] = qt_nameprep(QUrl::fromPunycode(label.toLatin1()));
+                else
+                    labels[i] = qt_nameprep(label);
+            }
+            that->host = labels.join(QLatin1String("."));
+        } else {
+            that->host = qt_nameprep(that->host);
         }
-        that->host = labels.join(QLatin1String("."));
-
         that->port = __port;
         that->path = QUrl::fromPercentEncoding(__path);
         that->query = __query;
@@ -3315,7 +3321,7 @@ QByteArray QUrlPrivate::toEncoded(QUrl::FormattingOptions options) const
         QStringList labels = host.split(QRegExp(QString::fromUtf16(delimiters)));
         for (int i = 0; i < labels.count(); ++i) {
             if (i != 0) url += '.';
-            url += QUrl::toPunycode(stringPrep(labels.at(i)));
+            url += QUrl::toPunycode(qt_nameprep(labels.at(i)));
         }
 
         if (!(options & QUrl::RemovePort) && port != -1) {
@@ -3760,7 +3766,7 @@ void QUrl::setHost(const QString &host)
     detach();
     QURL_UNSETFLAG(d->stateFlags, QUrlPrivate::Validated | QUrlPrivate::Normalized);
 
-    d->host = host.trimmed();
+    d->host = qt_nameprep(host.trimmed());
 }
 
 /*!
