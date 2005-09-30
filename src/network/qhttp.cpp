@@ -447,7 +447,7 @@ class QHttpHeaderPrivate
 public:
     inline virtual ~QHttpHeaderPrivate() {}
 
-    QMap<QString,QString> values;
+    QList<QPair<QString, QString> > values;
     bool valid;
     QHttpHeader *q_ptr;
 };
@@ -659,7 +659,7 @@ void QHttpHeader::setValid(bool v)
 }
 
 /*!
-    Returns the value for the entry with the given \a key. If no entry
+    Returns the first value for the entry with the given \a key. If no entry
     has this \a key, an empty string is returned.
 
     \sa setValue() removeValue() hasKey() keys()
@@ -667,9 +667,32 @@ void QHttpHeader::setValid(bool v)
 QString QHttpHeader::value(const QString &key) const
 {
     Q_D(const QHttpHeader);
-    return d->values[key.toLower()];
+    QList<QPair<QString, QString> >::ConstIterator it = d->values.constBegin();
+    while (it != d->values.constEnd()) {
+        if ((*it).first == key)
+            return (*it).second;
+        ++it;
+    }
+    return QString();
 }
 
+/*!
+    Returns all the entries with the given \a key. If no entry
+    has this \a key, an empty string list is returned.
+*/
+QStringList QHttpHeader::allValues(const QString &key) const
+{
+    Q_D(const QHttpHeader);
+    QStringList valueList;
+    QList<QPair<QString, QString> >::ConstIterator it = d->values.constBegin();
+    while (it != d->values.constEnd()) {
+        if ((*it).first == key)
+            valueList.append((*it).second);
+        ++it;
+    }
+    return valueList;
+}
+    
 /*!
     Returns a list of the keys in the HTTP header.
 
@@ -678,7 +701,14 @@ QString QHttpHeader::value(const QString &key) const
 QStringList QHttpHeader::keys() const
 {
     Q_D(const QHttpHeader);
-    return d->values.keys();
+    QStringList keyList;
+    QList<QPair<QString, QString> >::ConstIterator it = d->values.constBegin();
+    while (it != d->values.constEnd()) {
+        if (keyList.contains((*it).first))
+            keyList.append((*it).first);
+        ++it;
+    }
+    return keyList;
 }
 
 /*!
@@ -690,7 +720,13 @@ QStringList QHttpHeader::keys() const
 bool QHttpHeader::hasKey(const QString &key) const
 {
     Q_D(const QHttpHeader);
-    return d->values.contains(key.toLower());
+    QList<QPair<QString, QString> >::ConstIterator it = d->values.constBegin();
+    while (it != d->values.constEnd()) {
+        if ((*it).first == key)
+            return true;
+        ++it;
+    }
+    return false;
 }
 
 /*!
@@ -698,17 +734,53 @@ bool QHttpHeader::hasKey(const QString &key) const
 
     If no entry with \a key exists, a new entry with the given \a key
     and \a value is created. If an entry with the \a key already
-    exists, its value is discarded and replaced with the given \a
-    value.
+    exists, the first value is discarded and replaced with the given 
+    \a value.
 
     \sa value() hasKey() removeValue()
 */
 void QHttpHeader::setValue(const QString &key, const QString &value)
 {
     Q_D(QHttpHeader);
-    d->values[key.toLower()] = value;
+    QList<QPair<QString, QString> >::Iterator it = d->values.begin();
+    while (it != d->values.end()) {
+        if ((*it).first == key) {
+            (*it).second = value;
+            return;
+        }
+        ++it;
+    }
+    // not found so add
+    addValue(key, value);
 }
 
+/*!
+    Sets the header entries to be the list of key value pairs in \a values.
+*/
+void QHttpHeader::setValues(const QList<QPair<QString, QString> > &values)
+{
+    Q_D(QHttpHeader);
+    d->values = values;
+}
+
+/*!
+    Adds a new entry with the \a key and \a value.
+*/
+void QHttpHeader::addValue(const QString &key, const QString &value)
+{
+    Q_D(QHttpHeader);
+    d->values.append(qMakePair(key, value));
+}
+
+/*!
+    Returns all the entries in the header.
+*/
+QList<QPair<QString, QString> > QHttpHeader::values() const
+{
+    Q_D(const QHttpHeader);
+    return d->values;
+}
+    
 /*!
     Removes the entry with the key \a key from the HTTP header.
 
@@ -717,9 +789,32 @@ void QHttpHeader::setValue(const QString &key, const QString &value)
 void QHttpHeader::removeValue(const QString &key)
 {
     Q_D(QHttpHeader);
-    d->values.remove(key.toLower());
+    QList<QPair<QString, QString> >::Iterator it = d->values.begin();
+    while (it != d->values.end()) {
+        if ((*it).first == key) {
+            d->values.erase(it);
+            return;
+        }
+        ++it;
+    }
 }
 
+/*!
+    Removes all the entries with the key \a key from the HTTP header.
+*/
+void QHttpHeader::removeAllValues(const QString &key)
+{
+    Q_D(QHttpHeader);
+    QList<QPair<QString, QString> >::Iterator it = d->values.begin();
+    while (it != d->values.end()) {
+        if ((*it).first == key) {
+            it = d->values.erase(it);
+            continue;
+        }
+        ++it;
+    }
+}
+    
 /*! \internal
     Parses the single HTTP header line \a line which has the format
     key, colon, space, value, and adds key/value to the headers. The
@@ -730,12 +825,11 @@ void QHttpHeader::removeValue(const QString &key)
 */
 bool QHttpHeader::parseLine(const QString &line, int)
 {
-    Q_D(QHttpHeader);
     int i = line.indexOf(':');
     if (i == -1)
         return false;
 
-    d->values.insert(line.left(i).trimmed().toLower(), line.mid(i + 1).trimmed());
+    addValue(line.left(i).trimmed().toLower(), line.mid(i + 1).trimmed());
 
     return true;
 }
@@ -755,10 +849,11 @@ QString QHttpHeader::toString() const
 
     QString ret = "";
 
-    QMap<QString,QString>::ConstIterator it = d->values.begin();
-    for(; it != d->values.end(); ++it)
-        ret += it.key() + ": " + (*it) + "\r\n";
-
+    QList<QPair<QString, QString> >::ConstIterator it = d->values.constBegin();
+    while (it != d->values.constEnd()) {
+        ret += (*it).first + ": " + (*it).second + "\r\n";
+        ++it;
+    }
     return ret;
 }
 
@@ -781,8 +876,7 @@ bool QHttpHeader::hasContentLength() const
 */
 uint QHttpHeader::contentLength() const
 {
-    Q_D(const QHttpHeader);
-    return d->values["content-length"].toUInt();
+    return value("content-length").toUInt();
 }
 
 /*!
@@ -793,8 +887,7 @@ uint QHttpHeader::contentLength() const
 */
 void QHttpHeader::setContentLength(int len)
 {
-    Q_D(QHttpHeader);
-    d->values["content-length"] = QString::number(len);
+    setValue("content-length", QString::number(len));
 }
 
 /*!
@@ -815,8 +908,7 @@ bool QHttpHeader::hasContentType() const
 */
 QString QHttpHeader::contentType() const
 {
-    Q_D(const QHttpHeader);
-    QString type = d->values["content-type"];
+    QString type = value("content-type");
     if (type.isEmpty())
         return QString();
 
@@ -835,8 +927,7 @@ QString QHttpHeader::contentType() const
 */
 void QHttpHeader::setContentType(const QString &type)
 {
-    Q_D(QHttpHeader);
-    d->values["content-type"] = type;
+    setValue("content-type", type);
 }
 
 class QHttpResponseHeaderPrivate : public QHttpHeaderPrivate
