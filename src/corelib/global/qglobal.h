@@ -916,6 +916,18 @@ class QDataStream;
 #  endif
 #endif
 
+/* No, this is not an evil backdoor. QT_BUILD_INTERNAL just exports more symbols
+   for Trolltech's internal unit tests. If you want slower loading times and more
+   symbols that can vanish from version to version, feel free to define QT_BUILD_INTERNAL.
+*/
+#if defined(QT_BUILD_INTERNAL) && defined(Q_OS_WIN) && defined(QT_MAKEDLL)
+#    define Q_INTERNAL_EXPORT Q_DECL_EXPORT
+#elif defined(QT_BUILD_INTERNAL) && !defined(Q_OS_WIN) && defined(QT_SHARED)
+#    define Q_INTERNAL_EXPORT Q_DECL_EXPORT
+#else
+#    define Q_INTERNAL_EXPORT
+#endif
+
 //
 // System information
 //
