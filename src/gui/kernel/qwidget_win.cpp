@@ -741,10 +741,10 @@ HICON qt_createIcon(QIcon icon, int xSize, int ySize, QPixmap **cache)
     return result;
 }
 
-void QWidgetPrivate::setWindowIcon_sys()
+void QWidgetPrivate::setWindowIcon_sys(bool forceReset)
 {
     Q_Q(QWidget);
-    if (extra->topextra->iconPixmap)
+    if (extra->topextra->iconPixmap && !forceReset)
         // already been set
         return;
 

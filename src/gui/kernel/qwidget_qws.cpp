@@ -417,7 +417,7 @@ void QWidgetPrivate::setWindowTitle_sys(const QString &caption)
     QWidget::qwsDisplay()->setWindowCaption(q, caption);
 }
 
-void QWidgetPrivate::setWindowIcon_sys()
+void QWidgetPrivate::setWindowIcon_sys(bool /*forceReset*/)
 {
 #if 0
      QTLWExtra* x = d->topData();

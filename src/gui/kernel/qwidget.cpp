@@ -6351,6 +6351,9 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
     }
 
     d->setParent_sys(parent, f);
+    // need to force the resting of the icon after changing parents
+    if (testAttribute(Qt::WA_SetWindowIcon))
+        d->setWindowIcon_sys(true);
     d->reparentFocusWidgets(oldtlw);
     setAttribute(Qt::WA_Resized, resized);
     d->resolveFont();

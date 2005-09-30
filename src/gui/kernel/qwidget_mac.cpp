@@ -1332,10 +1332,10 @@ void QWidgetPrivate::setWindowModified_sys(bool mod)
         SetWindowModified(qt_mac_window_for(q), mod);
 }
 
-void QWidgetPrivate::setWindowIcon_sys()
+void QWidgetPrivate::setWindowIcon_sys(bool forceReset)
 {
     Q_Q(QWidget);
-    if (extra->topextra->iconPixmap) // already set
+    if (extra->topextra->iconPixmap && !forceReset) // already set
         return;
 
     QIcon icon = q->windowIcon();

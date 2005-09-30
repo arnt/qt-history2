@@ -199,7 +199,7 @@ public:
     bool close_helper(CloseMode mode);
 
     bool compositeEvent(QEvent *e);
-    void setWindowIcon_sys();
+    void setWindowIcon_sys(bool forceReset = false);
 
     void focusInputContext();
     void unfocusInputContext();

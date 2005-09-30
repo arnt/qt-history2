@@ -1049,11 +1049,11 @@ void QWidgetPrivate::setWindowTitle_sys(const QString &caption)
                     PropModeReplace, (unsigned char *)net_wm_name.data(), net_wm_name.size());
 }
 
-void QWidgetPrivate::setWindowIcon_sys()
+void QWidgetPrivate::setWindowIcon_sys(bool forceReset)
 {
     Q_Q(QWidget);
     QTLWExtra *topData = extra->topextra;
-    if (topData->iconPixmap)
+    if (topData->iconPixmap && !forceReset)
         // already been set
         return;
 
