@@ -357,6 +357,10 @@ int QNativeSocketEnginePrivate::option(QNativeSocketEngine::SocketOption opt) co
         n = SO_REUSEADDR;
         break;
     }
+    case QNativeSocketEngine::BindExclusively:
+        n = SO_EXCLUSIVEADDRUSE;
+        break;
+    }
 
     int v = -1;
     QT_SOCKOPTLEN_T len = sizeof(v);
@@ -400,6 +404,10 @@ bool QNativeSocketEnginePrivate::setOption(QNativeSocketEngine::SocketOption opt
         }
     case QNativeSocketEngine::AddressReusable:
         n = SO_REUSEADDR;
+        break;
+    }
+    case QNativeSocketEngine::BindExclusively:
+        n = SO_EXCLUSIVEADDRUSE;
         break;
     }
 

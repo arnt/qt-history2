@@ -46,7 +46,8 @@ public:
         BroadcastSocketOption,
         ReceiveBufferSocketOption,
         SendBufferSocketOption,
-        AddressReusable
+        AddressReusable,
+        BindExclusively
     };
 
     virtual bool initialize(QAbstractSocket::SocketType type, QAbstractSocket::NetworkLayerProtocol protocol = QAbstractSocket::IPv4Protocol) = 0;

@@ -79,6 +79,45 @@
 
     \sa QTcpSocket
 */
+
+/*! \enum QUdpSocket::BindFlag
+    \since 4.1
+
+    This enum describes the different flags you can pass to modify the
+    behavior of QUdpSocket::bind().
+
+    \value ShareAddress Allow other services to bind to the same address
+    and port. This is useful when multiple processes share
+    the load of a single service by listening to the same address and port
+    (e.g., a web server with several pre-forked listeners can greatly
+    improve response time). However, because any service is allowed to
+    rebind, this option is subject to certain security considerations.
+    Note that by combining this option with ReuseAddressHint, you will
+    also allow your service to rebind an existing shared address. On
+    Unix, this is equivalent to the SO_REUSEADDR socket option. On Windows,
+    this option is ignored.
+
+    \value DontShareAddress Bind the address and port exclusively, so that
+    no other services are allowed to rebind. By passing this option to
+    QUdpSocket::bind(), you are guaranteed that on successs, your service
+    is the only one that listens to the address and port. No services are
+    allowed to rebind, even if they pass \l ReuseAddressHint. This option
+    provides more security than \l ShareAddress, but on certain operating
+    systems, it requires you to run the server with administrator privileges.
+    On Unix and Mac OS X, not sharing is the default behavior for binding
+    an address and port, so this option is ignored. On Windows, this
+    option uses the SO_EXCLUSIVEADDRUSE socket option.
+    
+    \value ReuseAddressHint Provides a hint to QUdpSocket that it should try
+    to rebind the service even if the address and port are already bound by
+    another socket. On Windows, this is equivalent to the SO_REUSEADDR
+    socket option. On Unix, this option is ignored.
+    
+    \value DefaultForPlatform The default option for the current platform.
+    On Unix and Mac OS X, this is equivalent to (DontShareAddress
+    + ReuseAddressHint), and on Windows, it's equivalent to ShareAddress.
+*/
+
 #include "qhostaddress.h"
 #include "qabstractsocket_p.h"
 #include "qudpsocket.h"
@@ -147,6 +186,8 @@ QUdpSocket::~QUdpSocket()
     On success, the functions returns true and the socket enters
     BoundState; otherwise it returns false.
 
+    The socket is bound using the DefaultForPlatform BindMode.
+
     \sa readDatagram()
 */
 bool QUdpSocket::bind(const QHostAddress &address, quint16 port)
@@ -171,6 +212,50 @@ bool QUdpSocket::bind(const QHostAddress &address, quint16 port)
     return true;
 }
 
+/*!
+    \since 4.1
+    \overload
+
+    Binds to \a address on port \a port, using the BindMode \a mode.
+*/
+bool QUdpSocket::bind(const QHostAddress &address, quint16 port, BindMode mode)
+{
+    Q_D(QUdpSocket);
+    QT_ENSURE_INITIALIZED(false);
+
+#ifdef Q_OS_UNIX
+    if ((mode & ShareAddress) || (mode & ReuseAddressHint))
+        d->socketEngine->setOption(QAbstractSocketEngine::AddressReusable, 1);
+    else
+        d->socketEngine->setOption(QAbstractSocketEngine::AddressReusable, 0);
+#endif
+#ifdef Q_OS_WIN
+    if (mode & ReuseAddressHint)
+        d->socketEngine->setOption(QAbstractSocketEngine::AddressReusable, 1);
+    else
+        d->socketEngine->setOption(QAbstractSocketEngine::AddressReusable, 0);
+    if (mode & DontShareAddress)
+        d->socketEngine->setOption(QAbstractSocketEngine::BindExclusively, 1);
+    else
+        d->socketEngine->setOption(QAbstractSocketEngine::BindExclusively, 0);
+#endif
+    bool result = d_func()->socketEngine->bind(address, port);
+    if (!result) {
+        d->socketError = d_func()->socketEngine->error();
+        setErrorString(d_func()->socketEngine->errorString());
+        emit error(d_func()->socketError);
+        return false;
+    }
+
+    d->state = BoundState;
+    d->localAddress = d->socketEngine->localAddress();
+    d->localPort = d->socketEngine->localPort();
+
+    emit stateChanged(d_func()->state);
+    d_func()->socketEngine->setReadNotificationEnabled(true);
+    return true;
+}
+
 /*! \overload
 
     Binds to QHostAddress:Any on port \a port.
@@ -178,6 +263,17 @@ bool QUdpSocket::bind(const QHostAddress &address, quint16 port)
 bool QUdpSocket::bind(quint16 port)
 {
     return bind(QHostAddress::Any, port);
+}
+
+/*!
+    \since 4.1
+    \overload
+
+    Binds to QHostAddress:Any on port \a port, using the BindMode \a mode.
+*/
+bool QUdpSocket::bind(quint16 port, BindMode mode)
+{
+    return bind(QHostAddress::Any, port, mode);
 }
 
 /*!
