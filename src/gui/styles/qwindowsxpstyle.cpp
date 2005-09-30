@@ -3165,9 +3165,9 @@ QPixmap QWindowsXPStyle::standardPixmap(StandardPixmap standardPixmap, const QSt
 /*!
     \internal
 */
-QIcon QWindowsXPStyle::standardIconSlot(StandardPixmap standardIcon,
-                                        const QStyleOption *option,
-                                        const QWidget *widget) const
+QIcon QWindowsXPStyle::standardIconImplementation(StandardPixmap standardIcon,
+                                                  const QStyleOption *option,
+                                                  const QWidget *widget) const
 {
     switch(standardIcon) {
     case SP_TitleBarMaxButton:
@@ -3245,7 +3245,7 @@ QIcon QWindowsXPStyle::standardIconSlot(StandardPixmap standardIcon,
         break;
     }
 
-    return QWindowsStyle::standardIconSlot(standardIcon, option, widget);
+    return QWindowsStyle::standardIconImplementation(standardIcon, option, widget);
 }
 
 

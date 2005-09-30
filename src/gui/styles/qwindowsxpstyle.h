@@ -55,7 +55,7 @@ public:
                            const QWidget *widget = 0) const;
 
 protected Q_SLOTS:
-    QIcon standardIconSlot(StandardPixmap standardIcon, const QStyleOption *option,
+    QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option,
                            const QWidget *widget = 0) const;
 
 private:

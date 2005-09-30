@@ -1838,10 +1838,10 @@ QPalette QStyle::standardPalette() const
 
     \warning Because of binary compatibility constraints, this function is not virtual.
     If you want to provide your own icons in a QStyle subclass, add a slot called
-    standardIconSlot() to you subclass. The standardIcon() function will dynamically
-    detect the slot and call it.
+    standardIconImplementation() to you subclass. The standardIcon() function will
+    dynamically detect the slot and call it.
 
-    \sa standardIconSlot(), standardPixmap()
+    \sa standardIconImplementation(), standardPixmap()
 */
 QIcon QStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *option,
                            const QWidget *widget) const
@@ -1849,7 +1849,7 @@ QIcon QStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *opti
     QIcon result;
     // ### 4.1: invokeMethod should accept const functions, to avoid this dirty cast
     QMetaObject::invokeMethod(const_cast<QStyle*>(this),
-                              "standardIconSlot", Qt::DirectConnection,
+                              "standardIconImplementation", Qt::DirectConnection,
                               Q_RETURN_ARG(QIcon, result),
                               Q_ARG(StandardPixmap, standardIcon),
                               Q_ARG(const QStyleOption*, option),
@@ -1871,14 +1871,14 @@ QIcon QStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *opti
 
     \warning Because of binary compatibility constraints, the standardIcon()
     function, introduced in Qt 4.1, isn't virtual. If you want to provide
-    your own icons in a QStyle subclass, add a slot called standardIconSlot() to
+    your own icons in a QStyle subclass, add a slot called standardIconImplementation() to
     your subclass. The standardIcon() function will dynamically detect the slot and
     call it.
 
     \sa standardIcon()
 */
-QIcon QStyle::standardIconSlot(StandardPixmap standardIcon, const QStyleOption *option,
-                               const QWidget *widget) const
+QIcon QStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option,
+                                         const QWidget *widget) const
 {
     return QIcon(standardPixmap(standardIcon, option, widget));
 }

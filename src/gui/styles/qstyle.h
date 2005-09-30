@@ -642,8 +642,8 @@ public:
                              const QSize &size, const QRect &rectangle);
 
 protected Q_SLOTS:
-    QIcon standardIconSlot(StandardPixmap standardIcon, const QStyleOption *opt = 0,
-                           const QWidget *widget = 0) const;
+    QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt = 0,
+                                     const QWidget *widget = 0) const;
 
 private:
     Q_DISABLE_COPY(QStyle)
