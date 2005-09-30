@@ -710,9 +710,6 @@ void QX11Data::xdndHandleDrop(QWidget *, const XEvent * xe, bool passive)
         X11->userTime = l[2];
     }
 
-    if (manager->object)
-        manager->dragPrivate()->target = qt_xdnd_current_widget;
-
     if (!passive) {
         QMimeData *dropData = (manager->object) ? manager->dragPrivate()->data : manager->dropData;
         QDropEvent de(qt_xdnd_current_position, possible_actions, dropData,
