@@ -960,13 +960,20 @@ void FormWindow::handleArrowKeyEvent(int key, bool modifier)
     if (!c->hasSelection())
         return;
 
+    int selCount = c->selectedWidgetCount();
     int x = grid().x();
     int y = grid().y();
-    int selCount = c->selectedWidgetCount();
 
     if (modifier) {
         x = 1;
         y = 1;
+    }
+
+    // check if a layed out widget is selected
+    for (int index=0; index<c->selectedWidgetCount(); ++index) {
+        QWidget *w = c->selectedWidget(index);
+        if (LayoutInfo::isWidgetLaidout(m_core, w))
+            return;
     }
 
     // check if selection is the same as last time

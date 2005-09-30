@@ -236,6 +236,7 @@ public:
 
 private:
     QPointer<QWidget> m_widget;
+    QRect m_geometry;
 };
 
 class QT_SHARED_EXPORT DeleteWidgetCommand: public QDesignerFormWindowCommand

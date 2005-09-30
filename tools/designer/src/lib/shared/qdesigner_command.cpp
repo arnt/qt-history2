@@ -1317,13 +1317,19 @@ void AdjustWidgetSizeCommand::init(QWidget *widget)
 {
     m_widget = widget;
     setDescription(tr("Adjust Size of '%1'").arg(widget->objectName()));
+    m_geometry = m_widget->geometry();
 }
 
 void AdjustWidgetSizeCommand::redo()
 {
     if (formWindow()->mainContainer() == m_widget && formWindow()->parentWidget()) {
-        formWindow()->parentWidget()->resize(m_widget->sizeHint());
+        m_geometry = formWindow()->parentWidget()->geometry();
+        QSize newsize = m_widget->sizeHint();
+        if (!newsize.isValid())
+            newsize = m_widget->minimumSize();
+        formWindow()->parentWidget()->resize(newsize);
     } else {
+        m_geometry = m_widget->geometry();
         m_widget->adjustSize();
     }
 
@@ -1335,6 +1341,16 @@ void AdjustWidgetSizeCommand::redo()
 
 void AdjustWidgetSizeCommand::undo()
 {
+    if (formWindow()->mainContainer() == m_widget && formWindow()->parentWidget()) {
+        formWindow()->parentWidget()->resize(m_geometry.width(), m_geometry.height());
+    } else {
+        m_widget->setGeometry(m_geometry);
+    }
+
+    if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
+        if (propertyEditor->object() == m_widget)
+            propertyEditor->setPropertyValue(QLatin1String("geometry"), m_widget->geometry(), true);
+    }
 }
 
 // ---- ChangeLayoutItemGeometry ----
