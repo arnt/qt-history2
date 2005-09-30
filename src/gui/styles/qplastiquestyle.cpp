@@ -5187,6 +5187,9 @@ void QPlastiqueStyle::polish(QWidget *widget)
 #ifndef QT_NO_TOOLBAR
         || qobject_cast<QToolBar *>(widget)
 #endif
+#ifndef QT_NO_TOOLBUTTON
+        || (widget && qobject_cast<QToolBar *>(widget->parent()))
+#endif
         ) {
         widget->setBackgroundRole(QPalette::Background);
     }
@@ -5246,7 +5249,7 @@ void QPlastiqueStyle::unpolish(QWidget *widget)
         || qobject_cast<QToolBar *>(widget)
 #endif
 #ifndef QT_NO_TOOLBUTTON
-        || qobject_cast<QToolButton *>(widget)
+        || (widget && qobject_cast<QToolBar *>(widget->parent()))
 #endif
         ) {
         widget->setBackgroundRole(QPalette::Button);
