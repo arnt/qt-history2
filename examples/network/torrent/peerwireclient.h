@@ -22,6 +22,24 @@ class TorrentPeer;
 #include <QList>
 #include <QTcpSocket>
 
+struct TorrentBlock
+{
+    inline TorrentBlock(int p, int o, int l)
+        : pieceIndex(p), offset(o), length(l)
+    {
+    }
+    inline bool operator==(const TorrentBlock &other) const
+    {
+        return pieceIndex == other.pieceIndex
+                && offset == other.offset
+                && length == other.length;
+    }
+    
+    int pieceIndex;
+    int offset;
+    int length;
+};
+
 class PeerWireClient : public QTcpSocket
 {
     Q_OBJECT
@@ -43,7 +61,7 @@ public:
     // State
     inline PeerWireState peerWireState() const { return pwState; }
     QBitArray availablePieces() const;
-    int incomingBlockCount() const;
+    QList<TorrentBlock> incomingBlocks() const;
 
     // Protocol
     void chokePeer();
@@ -107,7 +125,7 @@ private:
     };
     QList<BlockInfo> pendingBlocks;
     int pendingBlockSizes;
-    int numRequestedBlocks;
+    QList<TorrentBlock> incoming;
 
     enum PacketType {
         ChokePacket = 0,

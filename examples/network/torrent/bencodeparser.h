@@ -37,7 +37,7 @@ public:
 
 private:
     bool getByteString(QByteArray *byteString);
-    bool getInteger(int *integer);
+    bool getInteger(qint64 *integer);
     bool getList(QList<QVariant> *list);
     bool getDictionary(QMap<QByteArray, QVariant> *dictionary);
 

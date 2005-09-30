@@ -24,7 +24,7 @@
 
 struct MetaInfoSingleFile
 {
-    quint32 length;
+    qint64 length;
     QByteArray md5sum;
     QString name;
     int pieceLength;
@@ -33,7 +33,7 @@ struct MetaInfoSingleFile
 
 struct MetaInfoMultiFile
 {
-    quint32 length;
+    qint64 length;
     QByteArray md5sum;
     QString path;
 };

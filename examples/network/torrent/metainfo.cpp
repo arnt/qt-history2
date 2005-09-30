@@ -74,7 +74,7 @@ bool MetaInfo::parse(const QByteArray &data)
             }
 
             MetaInfoMultiFile multiFile;
-            multiFile.length = file.value("length").toInt();
+            multiFile.length = file.value("length").toLongLong();
             multiFile.path = QString::fromUtf8(path);
             multiFile.md5sum = file.value("md5sum").toByteArray();
             metaInfoMultiFiles << multiFile;
@@ -87,7 +87,7 @@ bool MetaInfo::parse(const QByteArray &data)
             metaInfoSha1Sums << pieces.mid(i, 20);
     } else if (info.contains("length")) {
         metaInfoFileForm = SingleFileForm;
-        metaInfoSingleFile.length = info.value("length").toInt();
+        metaInfoSingleFile.length = info.value("length").toLongLong();
         metaInfoSingleFile.md5sum = info.value("md5sum").toByteArray();
         metaInfoSingleFile.name = QString::fromUtf8(info.value("name").toByteArray());
         metaInfoSingleFile.pieceLength = info.value("piece length").toInt();

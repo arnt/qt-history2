@@ -47,7 +47,7 @@ static inline void toNetworkData(quint32 num, char *data)
 
 // Constructs an unconnected PeerWire client and starts the connect timer.
 PeerWireClient::PeerWireClient(const QByteArray &peerId, QObject *parent)
-    : QTcpSocket(parent), pendingBlockSizes(0), numRequestedBlocks(0),
+    : QTcpSocket(parent), pendingBlockSizes(0),
       pwState(ChokingPeer | ChokedByPeer), receivedHandShake(false), gotPeerId(false),
       sentHandShake(false), nextPacketLength(-1), pendingRequestTimer(0), invalidateTimeout(false),
       keepAliveTimer(0), torrentPeer(0)
@@ -88,9 +88,9 @@ QBitArray PeerWireClient::availablePieces() const
     return peerPieces;
 }
 
-int PeerWireClient::incomingBlockCount() const
+QList<TorrentBlock> PeerWireClient::incomingBlocks() const
 {
-    return numRequestedBlocks;
+    return incoming;
 }
 
 // Sends a "choke" message, asking the peer to stop requesting blocks.
@@ -209,7 +209,7 @@ void PeerWireClient::requestBlock(int piece, int offset, int length)
     toNetworkData(length, &numbers[8]);
     write(numbers, sizeof(numbers));
 
-    ++numRequestedBlocks;
+    incoming << TorrentBlock(piece, offset, length);
 
     // After requesting a block, we expect the block to be sent by the
     // other peer within a certain number of seconds. Otherwise, we
@@ -232,8 +232,7 @@ void PeerWireClient::cancelRequest(int piece, int offset, int length)
     toNetworkData(length, &numbers[8]);
     write(numbers, sizeof(numbers));
 
-    if (numRequestedBlocks)
-        --numRequestedBlocks;
+    incoming.removeAll(TorrentBlock(piece, offset, length));
 }
 
 // Sends a block to the peer.
@@ -479,7 +478,7 @@ void PeerWireClient::processIncomingData()
         case ChokePacket:
             // We have been choked.
             pwState |= ChokedByPeer;
-            numRequestedBlocks = 0;
+            incoming.clear();
             if (pendingRequestTimer)
                 killTimer(pendingRequestTimer);
             emit choked();
@@ -525,13 +524,13 @@ void PeerWireClient::processIncomingData()
             break;
         }
         case PiecePacket: {
-            if (numRequestedBlocks)
-                --numRequestedBlocks;
+            int index = int(fromNetworkData(&packet.data()[1]));
+            int begin = int(fromNetworkData(&packet.data()[5]));
+           
+            incoming.removeAll(TorrentBlock(index, begin, packet.size() - 9));
 
             // The peer sends a block.
-            quint32 index = fromNetworkData(&packet.data()[1]);
-            quint32 begin = fromNetworkData(&packet.data()[5]);
-            emit blockReceived(int(index), int(begin), packet.mid(9));
+            emit blockReceived(index, begin, packet.mid(9));
 
             // Kill the pending block timer.
             if (pendingRequestTimer) {

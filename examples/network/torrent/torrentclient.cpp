@@ -31,6 +31,7 @@ static const int ServerMinPort = 6881;
 static const int ServerMaxPort = /* 6889 */ 7000;
 static const int BlockSize = 16384;
 static const int MaxBlocksInProgress = 5;
+static const int MaxBlocksInMultiMode = 2;
 static const int MaxConnectionPerPeer = 1;
 static const int RateControlWindowLength = 10;
 static const int RateControlTimerDelay = 1000;
@@ -654,7 +655,7 @@ void TorrentClient::pieceVerified(int pieceIndex, bool ok)
     } else {
         if (completed == 1)
             d->setState(Downloading);
-        else if (d->pendingPieces.size() >= d->incompletePieces.count(true))
+        else if (d->incompletePieces.count(true) < 5 && d->pendingPieces.size() > d->incompletePieces.count(true))
             d->setState(Endgame);
         d->callScheduler();
     }
@@ -797,7 +798,7 @@ void TorrentClient::setupIncomingConnection(PeerWireClient *client)
         int completed = d->completedPieces.count(true);
         if (completed == 0)
             d->setState(WarmingUp);
-        else if (d->pendingPieces.size() >= d->incompletePieces.count(true))
+        else if (d->incompletePieces.count(true) < 5 && d->pendingPieces.size() > d->incompletePieces.count(true))
             d->setState(Endgame);
     }
 
@@ -827,7 +828,7 @@ void TorrentClient::setupOutgoingConnection()
         int completed = d->completedPieces.count(true);
         if (completed == 0)
             d->setState(WarmingUp);
-        else if (d->pendingPieces.size() >= d->incompletePieces.count(true))
+        else if (d->incompletePieces.count(true) < 5 && d->pendingPieces.size() > d->incompletePieces.count(true))
             d->setState(Endgame);
     }
 }
@@ -912,6 +913,7 @@ void TorrentClient::peerPiecesAvailable(const QBitArray &pieces)
     if (pieces.count(true) == d->pieceCount) {
         if (peer)
             peer->seed = true;
+        emit peerInfoUpdated();
         if (d->state == Seeding) {
             client->abort();
             return;
@@ -1004,8 +1006,11 @@ void TorrentClient::blockReceived(int pieceIndex, int begin, const QByteArray &d
     if (d->state == WarmingUp || d->state == Endgame) {
         QMultiMap<PeerWireClient *, TorrentPiece *>::Iterator it = d->payloads.begin();
         while (it != d->payloads.end()) {
-            if (it.key() != client && it.value()->index == pieceIndex)
-                it.key()->cancelRequest(pieceIndex, begin, data.size());
+            PeerWireClient *otherClient = it.key();
+            if (otherClient != client && it.value()->index == pieceIndex) {
+                if (otherClient->incomingBlocks().contains(TorrentBlock(pieceIndex, begin, data.size())))
+                    it.key()->cancelRequest(pieceIndex, begin, data.size());
+            }
             ++it;
         }
     }
@@ -1164,12 +1169,13 @@ void TorrentClient::schedulePieceForClient(PeerWireClient *client)
     }
 
     // Skip clients that already have too many blocks in progress.
-    if (client->incomingBlockCount() >= MaxBlocksInProgress)
+    if (client->incomingBlocks().size() >= ((d->state == Endgame || d->state == WarmingUp)
+                                            ? MaxBlocksInMultiMode : MaxBlocksInProgress))
         return;
 
     // If all pieces are in progress, but we haven't filled up our
     // block requesting quota, then we need to schedule another piece.
-    if (!somePiecesAreNotInProgress || client->incomingBlockCount() > 0)
+    if (!somePiecesAreNotInProgress || client->incomingBlocks().size() > 0)
         lastPendingPiece = 0;
     TorrentPiece *piece = lastPendingPiece;
 
@@ -1182,7 +1188,7 @@ void TorrentClient::schedulePieceForClient(PeerWireClient *client)
             piece->inProgress = true;
             d->payloads.insert(client, piece);
         }
-        if (piece->completedBlocks.count(false) == client->incomingBlockCount())
+        if (piece->completedBlocks.count(false) == client->incomingBlocks().size())
             return;
     }
 
@@ -1322,36 +1328,38 @@ void TorrentClient::requestMore(PeerWireClient *client)
     // Make a list of all pieces this client is currently waiting for,
     // and count the number of blocks in progress.
     QMultiMap<PeerWireClient *, TorrentPiece *>::Iterator it = d->payloads.find(client);
-    int numBlocksInProgress = client->incomingBlockCount();
+    int numBlocksInProgress = client->incomingBlocks().size();
     QList<TorrentPiece *> piecesInProgress;
     while (it != d->payloads.end() && it.key() == client) {
         TorrentPiece *piece = it.value();
-        if (piece->inProgress)
+        if (piece->inProgress || (d->state == WarmingUp || d->state == Endgame))
             piecesInProgress << piece;
         ++it;
     }
 
     // If no pieces are in progress, call the scheduler.
-    if (piecesInProgress.isEmpty()) {
+    if (piecesInProgress.isEmpty() && d->incompletePieces.count(true)) {
         d->callScheduler();
         return;
     }
 
     // If too many pieces are in progress, there's nothing to do.
-    if (numBlocksInProgress == MaxBlocksInProgress)
+    int maxInProgress = ((d->state == Endgame || d->state == WarmingUp)
+                         ? MaxBlocksInMultiMode : MaxBlocksInProgress);
+    if (numBlocksInProgress == maxInProgress)
         return;
-
+    
     // Starting with the first piece that we're waiting for, request
     // blocks until the quota is filled up.
     foreach (TorrentPiece *piece, piecesInProgress) {
-        numBlocksInProgress += requestBlocks(client, piece, MaxBlocksInProgress - numBlocksInProgress);
-        if (numBlocksInProgress == MaxBlocksInProgress)
+        numBlocksInProgress += requestBlocks(client, piece, maxInProgress - numBlocksInProgress);
+        if (numBlocksInProgress == maxInProgress)
             break;
     }
 
     // If we still didn't fill up the quota, we need to schedule more
     // pieces.
-    if (numBlocksInProgress < MaxBlocksInProgress && d->state != WarmingUp)
+    if (numBlocksInProgress < maxInProgress && d->state != WarmingUp)
         d->callScheduler();
 }
 

@@ -78,14 +78,14 @@ bool BencodeParser::getByteString(QByteArray *byteString)
     return true;
 }
 
-bool BencodeParser::getInteger(int *integer)
+bool BencodeParser::getInteger(qint64 *integer)
 {
     const int contentSize = content.size();
     if (content.at(index) != 'i')
 	return false;
 
     ++index;
-    int num = -1;
+    qint64 num = -1;
     bool negative = false;
 
     do {
@@ -132,7 +132,7 @@ bool BencodeParser::getList(QList<QVariant> *list)
 	    break;
 	}
 
-	int number;
+	qint64 number;
 	QByteArray byteString;
 	QList<QVariant> tmpList;
 	QMap<QByteArray, QVariant> dictionary;
@@ -178,7 +178,7 @@ bool BencodeParser::getDictionary(QMap<QByteArray, QVariant> *dictionary)
 	if (key == "info")
 	  infoStart = index;
 
-	int number;
+	qint64 number;
 	QByteArray byteString;
 	QList<QVariant> tmpList;
 	QMap<QByteArray, QVariant> dictionary;

@@ -104,7 +104,7 @@ private:
     QList<ReadRequest> readRequests;
     QList<int> pendingVerificationRequests;
     QList<int> newPendingVerificationRequests;
-    QList<int> fileSizes;
+    QList<qint64> fileSizes;
 
     mutable QMutex mutex;
     mutable QWaitCondition cond;
