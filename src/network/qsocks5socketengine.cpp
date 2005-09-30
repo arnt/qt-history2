@@ -88,6 +88,12 @@ static QString s5StateToString(QSocks5SocketEnginePrivate::Socks5State s)
     case QSocks5SocketEnginePrivate::RequestSuccess : return "RequestSuccess";
     case QSocks5SocketEnginePrivate::RequestError : return "RequestError";
     case QSocks5SocketEnginePrivate::Connected : return "Connected";
+    case QSocks5SocketEnginePrivate::ConnectError : return "BindSuccess";
+    case QSocks5SocketEnginePrivate::BindSuccess : return "unInitialized";
+    case QSocks5SocketEnginePrivate::BindError : return "BindError";
+    case QSocks5SocketEnginePrivate::ControlSocketError : return "ControlSocketError";
+    case QSocks5SocketEnginePrivate::SocksError : return "SocksError";
+    default : break;
     }
     return "unknown state";
 }
@@ -881,6 +887,9 @@ void QSocks5SocketEngine::controlSocketReadNotification()
                 d->emitReadNotification();
             }
         }
+        default:
+            QSOCKS5_DEBUG << "why a controlSocketReadNotification ????";
+            break;
     };
 }
 
