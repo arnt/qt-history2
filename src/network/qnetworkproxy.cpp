@@ -102,7 +102,7 @@ void QNetworkProxy::setUserName(const QString &userName)
 
     globalNetworkProxy()->init();
 
-    d->userName;
+    d->userName = userName;
 }
 
 QString QNetworkProxy::userName() const
