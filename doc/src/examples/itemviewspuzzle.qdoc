@@ -1,6 +1,6 @@
 /*!
     \example itemviews/puzzle
-    \title Item View Puzzle Example
+    \title Item Views Puzzle Example
 
     The Puzzle example shows how to enable drag and drop with a custom model
     to allow items to be transferred between a view and another widget.
