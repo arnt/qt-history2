@@ -105,9 +105,9 @@ public:
     QStringList links(int index) const { return contents.values(stringList().at(index)); }
     void addLink(const QString &description, const QString &link) { contents.insert(description, link); }
 
-    void publish() { filter(QString()); }
+    void publish() { filter(QString(), QString()); }
 
-    QModelIndex filter(const QString &s);
+    QModelIndex filter(const QString &s, const QString &real);
 
     virtual Qt::ItemFlags flags(const QModelIndex &index) const
     { return QStringListModel::flags(index) & ~Qt::ItemIsEditable; }
@@ -116,7 +116,11 @@ private:
     QMultiMap<QString, QString> contents;
 };
 
-QModelIndex IndexListModel::filter(const QString &s)
+/**
+ * \a real is kinda a hack for the smart search, need a way to match a regexp to an item
+ * How would you say the best match for Q.*Wiget is QWidget?
+ */
+QModelIndex IndexListModel::filter(const QString &s, const QString &real)
 {
     QStringList lst;
 
@@ -134,8 +138,8 @@ QModelIndex IndexListModel::filter(const QString &s)
         const QString key = keys.at(i);
         if (key.contains(regExp) || key.contains(s, Qt::CaseInsensitive)) {
             lst.append(key);
-            
-            if (perfectMatch == -1 && key.startsWith(s, Qt::CaseInsensitive)) {
+            qDebug() << regExp << regExp.indexIn(s) << s << key << regExp.matchedLength();
+            if (perfectMatch == -1 && (key.startsWith(real, Qt::CaseInsensitive))) {
                 if (goodMatch == -1)
                     goodMatch = lst.count() - 1;
                 if (s.length() == key.length())
@@ -634,10 +638,10 @@ void HelpDialog::searchInIndex(const QString &searchString)
             start = match;
         }
         newSearch += searchString.mid(start);
-        ui.listIndex->setCurrentIndex(indexModel->filter(newSearch));
+        ui.listIndex->setCurrentIndex(indexModel->filter(newSearch, searchString));
     }
     else
-        ui.listIndex->setCurrentIndex(indexModel->filter(searchString));
+        ui.listIndex->setCurrentIndex(indexModel->filter(searchString, searchString));
 }
 
 QString HelpDialog::titleOfLink(const QString &link)
