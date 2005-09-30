@@ -992,13 +992,13 @@ static bool isMappedToNothing(const QChar &ch)
 }
 
 struct NameprepCaseFoldingEntry {
-    const ushort mapping[5];
+    int mapping[5];
 };
 
-static inline bool operator<(ushort one, const NameprepCaseFoldingEntry &other)
+static inline bool operator<(int one, const NameprepCaseFoldingEntry &other)
 { return one < other.mapping[0]; }
 
-static inline bool operator<(const NameprepCaseFoldingEntry &one, ushort other)
+static inline bool operator<(const NameprepCaseFoldingEntry &one, int other)
 { return one.mapping[0] < other; }
 
 static const NameprepCaseFoldingEntry NameprepCaseFolding[] = {
@@ -2381,15 +2381,15 @@ static QString mappedToLowerCase(const QString &str)
 
     QString tmp;
     for (int i = 0; i < str.size(); ++i) {
-	const NameprepCaseFoldingEntry *entry = qBinaryFind(NameprepCaseFolding,
+        const NameprepCaseFoldingEntry *entry = qBinaryFind(NameprepCaseFolding,
                                                             NameprepCaseFolding + N,
                                                             str.at(i).unicode());
-	if ((entry - NameprepCaseFolding) != N) {
-	    for (int j = 1; j < 5 && entry->mapping[j]; ++j)
-		tmp += QChar(entry->mapping[j]);
-	} else {
-	    tmp += str.at(i);
-	}
+        if ((entry - NameprepCaseFolding) != N) {
+            for (int j = 1; j < 5 && entry->mapping[j]; ++j)
+                tmp += QChar(entry->mapping[j]);
+        } else {
+            tmp += str.at(i);
+        }
     }
     return tmp;
 }
