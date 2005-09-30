@@ -831,13 +831,14 @@ void QWindowsXPStylePrivate::drawBackgroundDirectly(XPThemeData &themeData)
                             int(painter->deviceMatrix().dy() - painter->matrix().dy()));
     QRect area = themeData.rect.translated(redirectionDelta);
 
-    QRegion sysRgn = area;
-    bool addClipping = painter->hasClipping();
-    if (addClipping) {
-        sysRgn = painter->clipRegion();
-        sysRgn.translate(redirectionDelta);
-        SelectClipRgn(dc, sysRgn.handle());
-    }
+    QRegion sysRgn = painter->paintEngine()->systemClip();
+    if (sysRgn.isEmpty()) 
+        sysRgn = area;
+    else
+        sysRgn &= area;
+    if (painter->hasClipping())
+        sysRgn &= painter->clipRegion().translated(redirectionDelta);
+    SelectClipRgn(dc, sysRgn.handle());
 
 #ifdef DEBUG_XP_STYLE
         printf("---[ DIRECT PAINTING ]------------------> Name(%-10s) Part(%d) State(%d)\n",
@@ -845,17 +846,18 @@ void QWindowsXPStylePrivate::drawBackgroundDirectly(XPThemeData &themeData)
         showProperties(themeData);
 #endif
 
+    RECT drawRECT = themeData.toRECT(area);
     DTBGOPTS drawOptions;
     drawOptions.dwSize = sizeof(drawOptions);
-    drawOptions.rcClip = themeData.toRECT(area);
+    drawOptions.rcClip = themeData.toRECT(sysRgn.boundingRect());
     drawOptions.dwFlags = DTBG_CLIPRECT
                           | (themeData.noBorder ? DTBG_OMITBORDER : 0)
                           | (themeData.noContent ? DTBG_OMITCONTENT : 0)
                           | (themeData.mirrorHorizontally ? DTBG_MIRRORDC : 0);
+
     if (pDrawThemeBackgroundEx != 0) {
-	pDrawThemeBackgroundEx(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawOptions.rcClip), &drawOptions);
+        pDrawThemeBackgroundEx(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawRECT), &drawOptions);
     } else {
-	QRegion extraClip = sysRgn;
 	// We are running on a system where the uxtheme.dll does not have
 	// the DrawThemeBackgroundEx function, so we need to clip away
 	// borders or contents manually. All flips and mirrors uses the
@@ -867,10 +869,11 @@ void QWindowsXPStylePrivate::drawBackgroundDirectly(XPThemeData &themeData)
         pGetThemeInt(themeData.handle(), themeData.partId, themeData.stateId, TMT_BORDERSIZE, &borderSize);
 
 	// Clip away border region
+        QRegion extraClip = sysRgn;
 	if ((origin == PO_CLASS || origin == PO_PART || origin == PO_STATE) && borderSize > 0) {
 	    if (themeData.noBorder) {
-		extraClip &= area;
-		drawOptions.rcClip = themeData.toRECT(area.adjusted(-borderSize, -borderSize, borderSize, borderSize));
+		// extraClip &= area is already done
+		drawRECT = themeData.toRECT(area.adjusted(-borderSize, -borderSize, borderSize, borderSize));
 	    }
 
 	    // Clip away content region
@@ -880,17 +883,13 @@ void QWindowsXPStylePrivate::drawBackgroundDirectly(XPThemeData &themeData)
 	    }
 
 	    // Set the clip region, if used..
-	    if (themeData.noBorder || themeData.noContent) {
-		addClipping = true;
+	    if (themeData.noBorder || themeData.noContent)
 		SelectClipRgn(dc, extraClip.handle());
-	    }
-	}
+        }
 
-	pDrawThemeBackground(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawOptions.rcClip), 0);
+	pDrawThemeBackground(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawRECT), &(drawOptions.rcClip));
     }
-
-    if (addClipping)
-        SelectClipRgn(dc, 0);
+    SelectClipRgn(dc, 0);
 }
 
 /*! \internal
@@ -1485,39 +1484,42 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         {
             name = "TAB";
             partId = TABP_PANE;
-#if 0
             // This should work, but currently there's an error in the ::drawBackgroundDirectly()
             // code, when using the HDC directly..
-            QStyleOptionTabWidgetFrame frameOpt = *tab;
-            frameOpt.rect = widget->rect();
-            QRect contentsRect = subElementRect(SE_TabWidgetTabContents, &frameOpt, widget);
-            QRegion reg = option->rect;
-            reg -= contentsRect;
-            p->setClipRegion(reg);
-            XPThemeData theme(0, p, name, partId, stateId, rect);
-            theme.mirrorHorizontally = hMirrored;
-            theme.mirrorVertically = vMirrored;
-            dd->drawBackground(theme);
-
-            p->setClipRect(contentsRect);
-            partId = TABP_BODY;
+            if (widget) {
+                QStyleOptionTabWidgetFrame frameOpt = *tab;
+                frameOpt.rect = widget->rect();
+                QRect contentsRect = subElementRect(SE_TabWidgetTabContents, &frameOpt, widget);
+                QRegion reg = option->rect;
+                reg -= contentsRect;
+                p->setClipRegion(reg);
+                XPThemeData theme(widget, p, name, partId, stateId, rect);
+                theme.mirrorHorizontally = hMirrored;
+                theme.mirrorVertically = vMirrored;
+                dd->drawBackground(theme);
+                p->setClipRect(contentsRect);
+                partId = TABP_BODY;
+            }
             switch (tab->shape) {
             case QTabBar::RoundedNorth:
+            case QTabBar::TriangularNorth:
                 break;
             case QTabBar::RoundedSouth:
+            case QTabBar::TriangularSouth:
                 vMirrored = true;
                 break;
             case QTabBar::RoundedEast:
+            case QTabBar::TriangularEast:
                 rotate = 90;
                 break;
             case QTabBar::RoundedWest:
+            case QTabBar::TriangularWest:
                 rotate = 90;
                 hMirrored = true;
                 break;
             default:
                 break;
             }
-#endif
         }
         break;
 
@@ -2105,7 +2107,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
 
     int partId = 0;
     int stateId = 0;
-    if (widget->testAttribute(Qt::WA_UnderMouse) && widget->isActiveWindow())
+    if (widget && widget->testAttribute(Qt::WA_UnderMouse) && widget->isActiveWindow())
         flags |= State_MouseOver;
 
     switch (cc) {
@@ -2176,7 +2178,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 dd->drawBackground(theme);
                 if (!cmb->editable) {
                     QRect re = subControlRect(CC_ComboBox, option, SC_ComboBoxEditField, widget);
-                    if (widget->hasFocus()) {
+                    if (widget && widget->hasFocus()) {
                         p->fillRect(re, option->palette.highlight());
                         p->setPen(option->palette.highlightedText().color());
                         p->setBackground(option->palette.highlight());
@@ -2429,7 +2431,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     else
                         partId = TKP_THUMB;
 
-                    if (!widget->isEnabled())
+                    if (widget && !widget->isEnabled())
                         stateId = TUS_DISABLED;
                     else if (slider->activeSubControls & SC_SliderHandle && (slider->state & State_Sunken))
                         stateId = TUS_PRESSED;
@@ -2447,7 +2449,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     else
                         partId = TKP_THUMBVERT;
 
-                    if (!widget->isEnabled())
+                    if (widget && !widget->isEnabled())
                         stateId = TUVS_DISABLED;
                     else if (slider->activeSubControls & SC_SliderHandle && (slider->state & State_Sunken))
                         stateId = TUVS_PRESSED;
@@ -2550,7 +2552,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                         theme.stateId = stateId;
                         dd->drawBackground(theme);
                     } else {
-                        if (!qobject_cast<QToolBar*>(widget->parentWidget()) && !(bflags & State_AutoRaise))
+                        if (widget && !qobject_cast<QToolBar*>(widget->parentWidget()) && !(bflags & State_AutoRaise))
                             drawPrimitive(PE_PanelButtonBevel, option, p, widget);
                         else
                             drawPrimitive(PE_PanelButtonTool, option, p, widget);
@@ -2614,7 +2616,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 if (sub & SC_TitleBarSysMenu && tb->titleBarFlags & Qt::WindowSystemMenuHint) {
                     theme.rect = subControlRect(CC_TitleBar, option, SC_TitleBarSysMenu, widget);
                     partId = WP_SYSBUTTON;
-                    if (!widget->isEnabled() || !isActive)
+                    if ((widget && !widget->isEnabled()) || !isActive)
                         stateId = SBS_DISABLED;
                     else if (option->activeSubControls == SC_TitleBarSysMenu && (option->state & State_Sunken))
                         stateId = SBS_PUSHED;
@@ -2634,7 +2636,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 if (sub & SC_TitleBarMinButton && tb->titleBarFlags & Qt::WindowMinimizeButtonHint) {
                     theme.rect = subControlRect(CC_TitleBar, option, SC_TitleBarMinButton, widget);
                     partId = WP_MINBUTTON;
-                    if (!widget->isEnabled())
+                    if (widget && !widget->isEnabled())
                         stateId = MINBS_DISABLED;
                     else if (option->activeSubControls == SC_TitleBarMinButton && (option->state & State_Sunken))
                         stateId = MINBS_PUSHED;
@@ -2651,7 +2653,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 if (sub & SC_TitleBarMaxButton && tb->titleBarFlags & Qt::WindowMaximizeButtonHint) {
                     theme.rect = subControlRect(CC_TitleBar, option, SC_TitleBarMaxButton, widget);
                     partId = WP_MAXBUTTON;
-                    if (!widget->isEnabled())
+                    if (widget && !widget->isEnabled())
                         stateId = MAXBS_DISABLED;
                     else if (option->activeSubControls == SC_TitleBarMaxButton && (option->state & State_Sunken))
                         stateId = MAXBS_PUSHED;
@@ -3084,7 +3086,7 @@ int QWindowsXPStyle::styleHint(StyleHint hint, const QStyleOption *option, const
         break;
 
     case SH_GroupBox_TextLabelColor:
-        if (widget->isEnabled())
+        if (!widget || (widget && widget->isEnabled()))
             res = dd->groupBoxTextColor;
         else
             res = dd->groupBoxTextColorDisabled;
