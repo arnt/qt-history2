@@ -26,9 +26,9 @@
 MainWindow::MainWindow()
 {
     QMenu *fileMenu = new QMenu(tr("&File"), this);
-    QAction *openAction = fileMenu->addAction(tr("&Open"));
+    QAction *openAction = fileMenu->addAction(tr("&Open..."));
     openAction->setShortcut(QKeySequence(tr("Ctrl+O")));
-    QAction *saveAction = fileMenu->addAction(tr("&Save"));
+    QAction *saveAction = fileMenu->addAction(tr("&Save As..."));
     saveAction->setShortcut(QKeySequence(tr("Ctrl+S")));
     QAction *quitAction = fileMenu->addAction(tr("E&xit"));
     quitAction->setShortcut(QKeySequence(tr("Ctrl+Q")));
