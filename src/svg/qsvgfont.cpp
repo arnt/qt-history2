@@ -1,6 +1,7 @@
 #include "qsvgfont_p.h"
 
 #include "qpainter.h"
+#include "qpen.h"
 #include "qdebug.h"
 
 QSvgGlyph::QSvgGlyph(QChar unicode, const QPainterPath &path, qreal horizAdvX)
@@ -35,6 +36,15 @@ void QSvgFont::draw(QPainter *p, const QPointF &point, const QString &str, qreal
     p->save();
     p->translate(point);
     p->scale(pixelSize/m_unitsPerEm, -pixelSize/m_unitsPerEm);
+
+    // since in SVG the embedded font ain't really a path
+    // the outline has got to stay untransformed...
+    qreal penWidth = p->pen().widthF();
+    penWidth /= (pixelSize/m_unitsPerEm);
+    QPen pen = p->pen();
+    pen.setWidthF(penWidth);
+    p->setPen(pen);
+
     QString::const_iterator itr = str.begin();
     for ( ; itr != str.end(); ++itr) {
         QChar unicode = *itr;

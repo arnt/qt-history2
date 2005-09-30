@@ -1314,6 +1314,13 @@ static bool parseDefaultTextStyle(QSvgNode *node,
             parseStyle(node, attributes);
             return true;
         }
+    } else if (!fontFamily.isEmpty()) {
+        QSvgTinyDocument *doc = node->document();
+        QSvgFont *svgFont = doc->svgFont(fontFamily);
+        if (svgFont) {
+            parseStyle(node, attributes);
+            return true;
+        }
     }
 
     QString anchor = attrs.value("text-anchor");
