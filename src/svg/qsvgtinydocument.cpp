@@ -75,6 +75,7 @@ void QSvgTinyDocument::draw(QPainter *p)
     p->setPen(Qt::NoPen);
     p->setBrush(Qt::black);
     p->setRenderHint(QPainter::Antialiasing);
+    p->setRenderHint(QPainter::SmoothPixmapTransform);
     QList<QSvgNode*>::iterator itr = m_renderers.begin();
     applyStyle(p);
     while (itr != m_renderers.end()) {
