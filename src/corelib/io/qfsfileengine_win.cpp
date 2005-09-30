@@ -1099,7 +1099,7 @@ bool QFSFileEngine::link(const QString &newName)
 
     QString linkName = newName;
     //### assume that they add .lnk
-
+    
     QT_WA({
         HRESULT hres;
         IShellLink *psl;
@@ -1112,7 +1112,7 @@ bool QFSFileEngine::link(const QString &newName)
                 hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
         }
         if (SUCCEEDED(hres)) {
-            hres = psl->SetPath((TCHAR*)fileName(AbsoluteName).utf16());
+            hres = psl->SetPath((wchar_t *)fileName(AbsoluteName).replace('/', '\\').utf16());
             if (SUCCEEDED(hres)) {
                 IPersistFile *ppf;
                 hres = psl->QueryInterface(IID_IPersistFile, (void **)&ppf);
