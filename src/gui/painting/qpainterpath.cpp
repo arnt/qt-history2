@@ -739,13 +739,6 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
     }
 }
 
-void QPainterPath::addTextLine(const QPointF &pos, const QTextLine &line)
-{
-    if (!line.isValid())
-        return;
-    line.eng->drawLine(line.i, /*painter =*/0, this, pos, /*selection =*/0);
-}
-
 /*!
 
   Adds the path \a other to this path.

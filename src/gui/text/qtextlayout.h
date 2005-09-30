@@ -193,7 +193,6 @@ private:
     QTextLine(int line, QTextEngine *e) : i(line), eng(e) {}
     void layout_helper(int numGlyphs);
     friend class QTextLayout;
-    friend class QPainterPath;
     int i;
     QTextEngine *eng;
 };

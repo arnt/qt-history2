@@ -28,7 +28,6 @@ class QPainterPathData;
 class QPainterPathStrokerPrivate;
 class QPolygonF;
 class QRegion;
-class QTextLine;
 
 class Q_GUI_EXPORT QPainterPath
 {
@@ -88,7 +87,6 @@ public:
     void addPolygon(const QPolygonF &polygon);
     void addText(const QPointF &point, const QFont &f, const QString &text);
     inline void addText(qreal x, qreal y, const QFont &f, const QString &text);
-    void addTextLine(const QPointF &pos, const QTextLine &line);
     void addPath(const QPainterPath &path);
     void addRegion(const QRegion &region);
 
