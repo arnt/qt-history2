@@ -490,13 +490,11 @@ static const int scriptForWritingSystem[] = {
 static inline bool requiresOpenType(int writingSystem)
 {
     return ((writingSystem >= QFontDatabase::Syriac && writingSystem <= QFontDatabase::Sinhala)
-            || writingSystem == QFontDatabase::Myanmar
             || writingSystem == QFontDatabase::Khmer);
 }
 static inline bool scriptRequiresOpenType(int script)
 {
     return ((script >= QUnicodeTables::Syriac && script <= QUnicodeTables::Sinhala)
-            || script == QUnicodeTables::Myanmar
             || script == QUnicodeTables::Khmer);
 }
 #endif

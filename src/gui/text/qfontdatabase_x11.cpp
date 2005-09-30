@@ -840,7 +840,7 @@ static const char *languageForWritingSystem[] = {
 };
 enum { LanguageCount = sizeof(languageForWritingSystem) / sizeof(const char *) };
 
-// Unfortunately FontConfig doesn't know about some languages. We have to test these throught the
+// Unfortunately FontConfig doesn't know about some languages. We have to test these through the
 // charset. The lists below contain the systems where we need to do this.
 static const ushort sampleCharForWritingSystem[] = {
     0,     // Any
@@ -865,7 +865,7 @@ static const ushort sampleCharForWritingSystem[] = {
     0,  // Thai
     0,  // Lao
     0,  // Tibetan
-    0,  // Myanmar
+    0x1000,  // Myanmar
     0,  // Georgian
     0,  // Khmer
     0, // SimplifiedChinese
@@ -895,7 +895,7 @@ static ushort specialChars[] = {
     0, // Thai
     0, // Lao
     0, // Tibetan
-    0, // Myanmar
+    0x1000, // Myanmar
     0, // Korean
     0  // Khmer
 };
@@ -1507,7 +1507,98 @@ static QFontEngine *loadFcEngineFromPattern(FcPattern *pattern, const QFontPriva
     return fe;
 }
 
+
+static
+QFontEngine *loadFcEngine(int script,
+                          const QFontPrivate *fp, const QFontDef &request,
+                          const QString &family, const QString &foundry,
+                          const QtFontStyle::Key &styleKey, bool fakeOblique, bool smoothScalable,
+                          char pitch)
+{
+    if (!X11->has_fontconfig)
+        return 0;
+
+    qDebug("    using FontConfig to load %s for script %d", family.toUtf8().data(), script);
+    
+    FcPattern *pattern = FcPatternCreate();
+    if (!pattern)
+        return 0;
+
+    if (!foundry.isEmpty()) {
+        FcPatternAddString(pattern, FC_FOUNDRY,
+                           (const FcChar8 *)foundry.toUtf8().constData());
+    }
+    
+    QStringList familyList;
+    if (!family.isEmpty()) {
+        FcPatternAddString(pattern, FC_FAMILY,
+                           (const FcChar8 *)family.toUtf8().constData());
+        familyList << family;
+    }
+
+    QString stylehint;
+    switch (request.styleHint) {
+    case QFont::SansSerif:
+        stylehint = "sans-serif";
+        break;
+    case QFont::Serif:
+        stylehint = "serif";
+        break;
+    case QFont::TypeWriter:
+        stylehint = "monospace";
+        break;
+    default:
+        if (request.fixedPitch)
+            stylehint = "monospace";
+        break;
+    }
+    if (!stylehint.isEmpty()) {
+        FcPatternAddString(pattern, FC_FAMILY,
+                           (const FcChar8 *)stylehint.constData());
+        familyList << stylehint;
+    }
+
+    FcValue value;
+    value.type = FcTypeString;
+
+    // these should only get added to the pattern _after_ substitution
+    // append the default fallback font for the specified script
+    extern QString qt_fallback_font_family(int);
+    QString fallback = qt_fallback_font_family(script);
+    if (!fallback.isEmpty() && !familyList.contains(fallback)) {
+        QByteArray cs = fallback.toUtf8();
+        value.u.s = (const FcChar8 *)cs.data();
+        FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
+    }
+
+    // add the default family
+    QString defaultFamily = QApplication::font().family();
+    if (!familyList.contains(defaultFamily)) {
+        QByteArray cs = defaultFamily.toUtf8();
+        value.u.s = (const FcChar8 *)cs.data();
+        FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
+    }
+
+    // add QFont::defaultFamily() to the list, for compatibility with
+    // previous versions
+    defaultFamily = QApplication::font().defaultFamily();
+    if (!familyList.contains(defaultFamily)) {
+        QByteArray cs = defaultFamily.toUtf8();
+        value.u.s = (const FcChar8 *)cs.data();
+        FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
+    }
+
+    char pitch_value = (pitch == 'c' ? FC_CHARCELL :
+                        (pitch == 'm' ? FC_MONO : FC_PROPORTIONAL));
+    FcPatternAddInteger(pattern, FC_SPACING, pitch_value);
+    FcPatternAddBool(pattern, FC_SCALABLE, smoothScalable);
+
+    addPatternProps(pattern, styleKey, fakeOblique, smoothScalable,
+                    fp, request, script);
+    return loadFcEngineFromPattern(pattern, fp, request, script);
+}
 #endif // QT_NO_FONTCONFIG
+
 
 static
 QFontEngine *loadEngine(int script,
@@ -1536,85 +1627,11 @@ QFontEngine *loadEngine(int script,
 
 #ifndef QT_NO_FONTCONFIG
     if (X11->has_fontconfig && encoding->encoding == -1) {
-
-        FM_DEBUG("    using FontConfig");
-
-        FcPattern *pattern = FcPatternCreate();
-        if (!pattern)
-            return 0;
-
-        if (!foundry->name.isEmpty()) {
-            FcPatternAddString(pattern, FC_FOUNDRY,
-                               (const FcChar8 *)foundry->name.toUtf8().constData());
-        }
-
-        QStringList familyList;
-        if (!family->rawName.isEmpty()) {
-            FcPatternAddString(pattern, FC_FAMILY,
-                               (const FcChar8 *)family->rawName.toUtf8().constData());
-            familyList << family->name;
-        }
-
-        QString stylehint;
-        switch (request.styleHint) {
-        case QFont::SansSerif:
-            stylehint = "sans-serif";
-            break;
-        case QFont::Serif:
-            stylehint = "serif";
-            break;
-        case QFont::TypeWriter:
-            stylehint = "monospace";
-            break;
-        default:
-            if (request.fixedPitch)
-                stylehint = "monospace";
-            break;
-        }
-        if (!stylehint.isEmpty()) {
-            FcPatternAddString(pattern, FC_FAMILY,
-                               (const FcChar8 *)stylehint.toUtf8().constData());
-            familyList << family->name;
-        }
-
-        FcValue value;
-        value.type = FcTypeString;
-
-        // these should only get added to the pattern _after_ substitution
-        // append the default fallback font for the specified script
-        extern QString qt_fallback_font_family(int);
-        QString fallback = qt_fallback_font_family(script);
-        if (!fallback.isEmpty() && !familyList.contains(fallback)) {
-            QByteArray cs = fallback.toUtf8();
-            value.u.s = (const FcChar8 *)cs.data();
-            FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
-        }
-
-        // add the default family
-        QString defaultFamily = QApplication::font().family();
-        if (!familyList.contains(defaultFamily)) {
-            QByteArray cs = defaultFamily.toUtf8();
-            value.u.s = (const FcChar8 *)cs.data();
-            FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
-        }
-
-        // add QFont::defaultFamily() to the list, for compatibility with
-        // previous versions
-        defaultFamily = QApplication::font().defaultFamily();
-        if (!familyList.contains(defaultFamily)) {
-            QByteArray cs = defaultFamily.toUtf8();
-            value.u.s = (const FcChar8 *)cs.data();
-            FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
-        }
-
-        char pitch_value = (encoding->pitch == 'c' ? FC_CHARCELL :
-                            (encoding->pitch == 'm' ? FC_MONO : FC_PROPORTIONAL));
-        FcPatternAddInteger(pattern, FC_SPACING, pitch_value);
-        FcPatternAddBool(pattern, FC_SCALABLE, style->smoothScalable);
-
-        addPatternProps(pattern, style->key, style->fakeOblique, style->smoothScalable,
-                        fp, request, script);
-        return loadFcEngineFromPattern(pattern, fp, request, script);
+        QFontEngine *fe = loadFcEngine(script, fp, request, family->rawName, foundry->name,
+                                       style->key, style->fakeOblique, style->smoothScalable,
+                                       encoding->pitch);
+        if (fe)
+            return fe;
     }
 #endif // QT_NO_FONTCONFIG
 
