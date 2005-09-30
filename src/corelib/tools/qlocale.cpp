@@ -1854,6 +1854,66 @@ QString QLocale::timeFormat(FormatType format) const
     return QString::fromUtf8(time_format_data + idx);
 }
 
+/*!
+    \since 4.1
+
+    Returns the decimal point character of this locale.
+*/
+QChar QLocale::decimalPoint() const
+{
+    return d->decimal();
+}
+
+/*!
+    \since 4.1
+
+    Returns the group separator character of this locale.
+*/
+QChar QLocale::groupSeparator() const
+{
+    return d->group();
+}
+
+/*!
+    \since 4.1
+
+    Returns the percent character of this locale.
+*/
+QChar QLocale::percent() const
+{
+    return d->percent();
+}
+
+/*!
+    \since 4.1
+
+    Returns the zero digit character of this locale.
+*/
+QChar QLocale::zeroDigit() const
+{
+    return d->zero();
+}
+
+/*!
+    \since 4.1
+
+    Returns the negative sign character of this locale.
+*/
+QChar QLocale::negativeSign() const
+{
+    return d->minus();
+}
+
+/*!
+    \since 4.1
+
+    Returns the exponential character of this locale.
+*/
+QChar QLocale::exponential() const
+{
+    return d->exponential();
+}
+
 static bool qIsUpper(char c)
 {
     return c >= 'A' && c <= 'Z';

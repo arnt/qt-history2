@@ -462,6 +462,13 @@ public:
     QString dateFormat(FormatType format = LongFormat) const;
     QString timeFormat(FormatType format = LongFormat) const;
 
+    QChar decimalPoint() const;
+    QChar groupSeparator() const;
+    QChar percent() const;
+    QChar zeroDigit() const;
+    QChar negativeSign() const;
+    QChar exponential() const;
+
     inline bool operator==(const QLocale &other) const;
     inline bool operator!=(const QLocale &other) const;
 
