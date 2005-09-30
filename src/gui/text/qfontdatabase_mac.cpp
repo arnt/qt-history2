@@ -51,8 +51,13 @@ static void initializeDb()
             unsigned char *buff = (unsigned char *)malloc(len);
             ConvertFromPStringToUnicode(uni_info, fam_pstr, len, &len, (UniCharArrayPtr)buff);
             fam_name = "";
-            for(unsigned long x = 0; x < len; x+=2)
-                fam_name += QChar(buff[x+1], buff[x]);
+            for(unsigned long x = 0; x < len; x+=2) {
+#if defined(__i386__)
+		fam_name += QChar(buff[x], buff[x+1]);
+#else
+		fam_name += QChar(buff[x+1], buff[x]);
+#endif
+            }
             free(buff);
             DisposeTextToUnicodeInfo(&uni_info);
 
