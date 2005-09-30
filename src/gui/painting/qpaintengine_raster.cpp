@@ -71,8 +71,8 @@
 
 
 #ifdef Q_WS_WIN
-void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC hdc,
-                       uint txop, const QMatrix &matrix);
+void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC hdc, 
+                       bool convertToText = false);
 #endif
 
 // #define QT_DEBUG_DRAW
@@ -1721,7 +1721,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         Rectangle(hdc, 0, 0, devRect.width() + 1, devRect.height() + 1);
 
         // Fill buffer with stuff
-        qt_draw_text_item(QPoint(0, ti.ascent.toInt()), ti, hdc, d->txop, d->matrix);
+        qt_draw_text_item(QPoint(0, ti.ascent.toInt()), ti, hdc);
 
         BitBlt(d->fontRasterBuffer->hdc(), 0, 0, devRect.width(), devRect.height(),
                hdc, 0, 0, SRCCOPY);
@@ -1733,8 +1733,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         d->fontRasterBuffer->resetBuffer(255);
 
         // Fill buffer with stuff
-        qt_draw_text_item(QPoint(0, ti.ascent.toInt()), ti, d->fontRasterBuffer->hdc(), d->txop,
-            d->matrix);
+        qt_draw_text_item(QPoint(0, ti.ascent.toInt()), ti, d->fontRasterBuffer->hdc());
     }
 
     // Boundaries
@@ -2881,77 +2880,34 @@ void QSpanData::initGradient(const QGradient *g)
 }
 
 #ifdef Q_WS_WIN
-static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
-                               uint txop, const QMatrix &matrix)
+static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC hdc, 
+                               bool convertToText)
 {
     QPointF p = pos;
-
-    if (txop > QPainterPrivate::TxTranslate) {
-        XFORM m;
-        m.eM11 = matrix.m11();
-        m.eM12 = matrix.m12();
-        m.eM21 = matrix.m21();
-        m.eM22 = matrix.m22();
-        // Don't include the translation since it is done when we write the HDC
-        // Back to the screen.
-        m.eDx  = 0;
-        m.eDy  = 0;
-        if (!SetGraphicsMode(hdc, GM_ADVANCED))
-            qErrnoWarning("QWin32PaintEngine::setNativeMatrix(), SetGraphicsMode failed");
-        if (!SetWorldTransform(hdc, &m))
-            qErrnoWarning("QWin32PaintEngine::setNativeMatrix(), SetWorldTransformation failed");
-    }
-
     QFontEngine *fe = ti.fontEngine;
 
     SetTextAlign(hdc, TA_BASELINE);
     SetBkMode(hdc, TRANSPARENT);
     SetTextColor(hdc, RGB(0, 0, 0));
 
-    double scale = 1.;
-    int angle = 0;
-    bool transform = false;
     bool has_kerning = ti.f && ti.f->kerning();
 
     qreal x = p.x();
     qreal y = p.y();
 
-    if (txop >= QPainterPrivate::TxScale
-        && !(QSysInfo::WindowsVersion & QSysInfo::WV_NT_based)) {
-        // Draw rotated and sheared text on Windows 98
-
-        // All versions can draw rotated text natively. Scaling can be done with window/viewport transformations.
-        // Shearing transformations are done by QPainter.
-
-        // rotation + scale + translation
-        scale = sqrt(matrix.m11()*matrix.m22()
-                      - matrix.m12()*matrix.m21());
-        angle = qRound(1800*acos(matrix.m11()/scale)/Q_PI);
-        if (matrix.m12() < 0)
-            angle = 3600 - angle;
-
-        transform = true;
-    }
-
-    if (ti.flags & (QTextItem::Underline|QTextItem::StrikeOut) || scale != 1. || angle) {
+    if (ti.flags & (QTextItem::Underline|QTextItem::StrikeOut)) {
         LOGFONT lf = fe->logfont;
         lf.lfUnderline = (ti.flags & QTextItem::Underline);
         lf.lfStrikeOut = (ti.flags & QTextItem::StrikeOut);
-        if (angle) {
-            lf.lfOrientation = -angle;
-            lf.lfEscapement = -angle;
-        }
-        if (scale != 1.) {
-            lf.lfHeight = (int) (lf.lfHeight*scale);
-            lf.lfWidth = (int) (lf.lfWidth*scale);
-        }
         HFONT hf = QT_WA_INLINE(CreateFontIndirectW(&lf), CreateFontIndirectA((LOGFONTA*)&lf));
         SelectObject(hdc, hf);
     } else {
         SelectObject(hdc, fe->hfont);
     }
 
-    unsigned int options =  fe->ttf ? ETO_GLYPH_INDEX : 0;
+    unsigned int options =  fe->ttf && !convertToText ? ETO_GLYPH_INDEX : 0;
+
+    wchar_t *convertedGlyphs = (wchar_t *)ti.chars;    
 
     QGlyphLayout *glyphs = ti.glyphs;
 
@@ -2980,14 +2936,15 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
                 w += glyphs[i].advance.x;
             }
 
-            if (haveOffsets || transform || has_kerning) {
+            if (haveOffsets || has_kerning) {
                 for(int i = 0; i < ti.num_glyphs; i++) {
                     wchar_t chr = glyphs->glyph;
 		    qreal xp = x + glyphs->offset.x.toReal();
 		    qreal yp = y + glyphs->offset.y.toReal();
-                    if (transform)
-                        matrix.map(xp, yp, &xp, &yp);
-                    ExtTextOutW(hdc, qRound(xp), qRound(yp), options, 0, &chr, 1, 0);
+            
+            ExtTextOutW(hdc, qRound(xp), qRound(yp), options, 0, 
+                convertToText ? convertedGlyphs + i : &chr, 
+                1, 0);
 		    x += (glyphs->advance.x + QFixed::fromFixed(glyphs->space_18d6)).toReal();
 		    y += glyphs->advance.y.toReal();
                     glyphs++;
@@ -2998,10 +2955,11 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
                 for (int i = 0; i < ti.num_glyphs; ++i)
                     g[i] = glyphs[i].glyph;
                 // fast path
+                    QString s = QString::fromRawData(ti.chars, ti.num_chars);
                 ExtTextOutW(hdc,
 		            qRound(x + glyphs->offset.x.toReal()),
-		            qRound(y + glyphs->offset.y.toReal()),
-                            options, 0, g.data(), ti.num_glyphs, 0);
+		            qRound(y + glyphs->offset.y.toReal()), 
+                    options, 0, convertToText ? convertedGlyphs + i : g.data(), ti.num_glyphs, 0);
 		x += w.toReal();
             }
         }
@@ -3018,7 +2976,12 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
 
 	    int xp = qRound(x+glyphs[i].offset.x.toReal());
             int yp = qRound(y+glyphs[i].offset.y.toReal());
-            ExtTextOutW(hdc, xp, yp, options, 0, reinterpret_cast<wchar_t *>(&glyphs[i].glyph), 1, 0);
+            QString s = QString::fromRawData(ti.chars, ti.num_chars);
+            ExtTextOutW(hdc, xp, yp, options, 0, 
+                convertToText ? 
+                    convertedGlyphs + i 
+                    : reinterpret_cast<wchar_t *>(&glyphs[i].glyph), 
+                1, 0);
 
             if (glyphs[i].nKashidas) {
                 QChar ch(0x640); // Kashida character
@@ -3031,7 +2994,10 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
 
 		    int xp = qRound(x+g[0].offset.x.toReal());
 		    int yp = qRound(y+g[0].offset.y.toReal());
-                    ExtTextOutW(hdc, xp, yp, options, 0, reinterpret_cast<wchar_t *>(&g[0].glyph), 1, 0);
+                    ExtTextOutW(hdc, xp, yp, options, 0, 
+                        convertToText 
+                            ? &ch.unicode() 
+                            : reinterpret_cast<wchar_t *>(&g[0].glyph), 1, 0);
                 }
             } else {
 		x -= QFixed::fromFixed(glyphs[i].space_18d6).toReal();
@@ -3040,7 +3006,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
         }
     }
 
-    if (ti.flags & (QTextItem::Underline|QTextItem::StrikeOut) || scale != 1. || angle)
+    if (ti.flags & (QTextItem::Underline|QTextItem::StrikeOut))
         DeleteObject(SelectObject(hdc, fe->hfont));
 
     if (ti.flags & (QTextItem::Overline)) {
@@ -3048,20 +3014,10 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
 	int yp = qRound(y - fe->ascent().toReal() - 1);
         Rectangle(hdc, xo, yp, qRound(x), yp + lw);
     }
-
-    if (txop > QPainterPrivate::TxTranslate) {
-        XFORM m;
-        m.eM11 = m.eM22 = 1;
-        m.eDx = m.eDy = m.eM12 = m.eM21 = 0;
-        if (!SetWorldTransform(hdc, &m))
-            qErrnoWarning("SetWorldTransformation failed");
-        if (!SetGraphicsMode(hdc, GM_COMPATIBLE))
-            qErrnoWarning("SetGraphicsMode failed");
-    }
 }
 
-static void draw_text_item_multi(const QPointF &p, const QTextItemInt &ti, HDC hdc,
-                                 uint txop, const QMatrix &matrix)
+static void draw_text_item_multi(const QPointF &p, const QTextItemInt &ti, HDC hdc, 
+                                 bool convertToText)
 {
     QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
 
@@ -3070,7 +3026,7 @@ static void draw_text_item_multi(const QPointF &p, const QTextItemInt &ti, HDC h
             QTextItemInt ti2 = ti;
             ti2.fontEngine = multi->engine(0);
             ti2.f = ti.f;
-            draw_text_item_win(p, ti2, hdc, txop, matrix);
+            draw_text_item_win(p, ti2, hdc, convertToText);
         }
         return;
     }
@@ -3098,7 +3054,7 @@ static void draw_text_item_multi(const QPointF &p, const QTextItemInt &ti, HDC h
         ti2.num_glyphs = end - start;
         ti2.fontEngine = multi->engine(which);
         ti2.f = ti.f;
-        draw_text_item_win(QPointF(x, y), ti2, hdc, txop, matrix);
+        draw_text_item_win(QPointF(x, y), ti2, hdc, convertToText);
 
 	QFixed x_add;
         // reset the high byte for all glyphs and advance to the next sub-string
@@ -3124,7 +3080,7 @@ static void draw_text_item_multi(const QPointF &p, const QTextItemInt &ti, HDC h
     ti2.num_glyphs = end - start;
     ti2.fontEngine = multi->engine(which);
     ti2.f = ti.f;
-    draw_text_item_win(QPointF(x, y), ti2, hdc, txop, matrix);
+    draw_text_item_win(QPointF(x, y), ti2, hdc, convertToText);
 
     // reset the high byte for all glyphs
     const int hi = which << 24;
@@ -3132,19 +3088,19 @@ static void draw_text_item_multi(const QPointF &p, const QTextItemInt &ti, HDC h
         glyphs[i].glyph = hi | glyphs[i].glyph;
 }
 
-void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
-                       uint txop, const QMatrix &matrix)
+void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc, 
+                       bool convertToText)
 {
     if (!ti.num_glyphs)
         return;
 
     switch(ti.fontEngine->type()) {
     case QFontEngine::Multi:
-        draw_text_item_multi(pos, ti, hdc, txop, matrix);
+        draw_text_item_multi(pos, ti, hdc, convertToText);
         break;
     case QFontEngine::Win:
     default:
-        draw_text_item_win(pos, ti, hdc, txop, matrix);
+        draw_text_item_win(pos, ti, hdc, convertToText);
         break;
     }
 }

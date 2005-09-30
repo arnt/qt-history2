@@ -352,21 +352,27 @@ bool QWin32PrintEngine::abort()
     return false;
 }
 
-extern void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
-                              uint txop, const QMatrix &matrix);
+extern void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc, 
+                              bool convertToText);
 void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
     Q_D(const QWin32PrintEngine);
 
-    // Avoid using p as topLeft of logRect to avoid scaling the position. We only need 
-    // translation and we need to scale the ascent of the font.
-    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
-    QRectF logRect(0.0, 0.0 - ti.ascent.toReal(), ti.width.toReal(),
-		    ti.ascent.toReal());
-    QRectF devRect = d->matrix.mapRect(logRect);    
-        
-    qt_draw_text_item(devRect.topLeft() + p + QPointF(0.0, devRect.height()), ti, d->hdc, 
-        d->txop, d->matrix);
+    if (d->txop >= QPainterPrivate::TxScale) {
+        QPaintEngine::drawTextItem(p, textItem);
+        return ;
+    }
+
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);        
+
+    // We only want to convert the glyphs to text if the entire string is latin1
+    bool latin1String = true;
+    for (int i=0; (i<ti.num_chars && latin1String); ++i) 
+        latin1String = latin1String && (ti.chars[i].toLatin1() == ti.chars[i]);
+
+    qt_draw_text_item(
+        QPointF(d->matrix.dx(), d->matrix.dy()) + p,
+        ti, d->hdc, latin1String);
 }
 
 int QWin32PrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
