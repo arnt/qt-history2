@@ -4829,7 +4829,7 @@ void QDomElement::setAttribute(const QString& name, double value)
         return;
     QString x;
     char buf[256];
-    int count = snprintf(buf, sizeof(buf), "%.16g", value);
+    int count = qsnprintf(buf, sizeof(buf), "%.16g", value);
     if (count > 0)
         x = QString::fromLatin1(buf, count);
     else
