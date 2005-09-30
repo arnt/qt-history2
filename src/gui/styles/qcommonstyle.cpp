@@ -1340,26 +1340,31 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
 #ifndef QT_NO_COMBOBOX
     case CE_ComboBoxLabel:
         if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(opt)) {
-            p->save();
             QRect editRect = subControlRect(CC_ComboBox, cb, SC_ComboBoxEditField, widget);
+            p->save();
+            p->setClipRect(editRect);
             if (!cb->currentIcon.isNull()) {
-                QRect comboRect(editRect);
+                QIcon::Mode mode = cb->state & State_Enabled ? QIcon::Normal
+                                                             : QIcon::Disabled;
+                QPixmap pixmap = cb->currentIcon.pixmap(cb->iconSize, mode);
                 QRect iconRect(editRect);
-                iconRect.setWidth(cb->iconSize.width() +  4);
-                editRect.setWidth(editRect.width() - iconRect.width());
-                iconRect = alignedRect(cb->direction, Qt::AlignLeft, iconRect.size(), comboRect);
-                editRect = alignedRect(cb->direction, Qt::AlignRight, editRect.size(), comboRect);
-                p->setClipRect(iconRect);
+                iconRect.setWidth(cb->iconSize.width() + 4);
+                iconRect = alignedRect(QApplication::layoutDirection(),
+                                       Qt::AlignLeft | Qt::AlignVCenter,
+                                       iconRect.size(), editRect);
                 if (cb->editable)
                     p->fillRect(iconRect, opt->palette.brush(QPalette::Base));
-                cb->currentIcon.paint(p, iconRect);
+                drawItemPixmap(p, iconRect, Qt::AlignCenter, pixmap);
+
+                if (cb->direction == Qt::RightToLeft)
+                    editRect.translate(-4 - cb->iconSize.width(), 0);
+                else
+                    editRect.translate(cb->iconSize.width() + 4, 0);
             }
 
             if (!cb->currentText.isEmpty() && !cb->editable) {
-                p->setClipRect(editRect);
-                p->drawText(editRect.adjusted(1, 0, -1, 0),
-                            visualAlignment(cb->direction, Qt::AlignLeft | Qt::AlignVCenter),
-                            cb->currentText);
+                drawItemText(p, editRect, Qt::AlignLeft | Qt::AlignVCenter, cb->palette,
+                             cb->state & State_Enabled, cb->currentText);
             }
             p->restore();
         }

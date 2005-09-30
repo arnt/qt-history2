@@ -223,7 +223,9 @@ public:
             setItemText(currentIndex(), text);
     }
     inline QT3_SUPPORT QString text(int index) const { return itemText(index); }
-    inline QT3_SUPPORT QPixmap pixmap(int index) const { return itemIcon(index).pixmap(QSize(22,22)); }
+
+    inline QT3_SUPPORT QPixmap pixmap(int index) const
+    { return itemIcon(index).pixmap(iconSize(), isEnabled() ? QIcon::Normal : QIcon::Disabled); }
     inline QT3_SUPPORT void insertStringList(const QStringList &list, int index = -1)
         { insertItems((index < 0 ? count() : index), list); }
     inline QT3_SUPPORT void insertItem(const QString &text, int index = -1)

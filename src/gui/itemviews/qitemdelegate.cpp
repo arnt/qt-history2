@@ -430,12 +430,14 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem
                                    const QRect &rect, const QPixmap &pixmap) const
 {
     if (!pixmap.isNull() && !rect.isEmpty()) {
+        QPoint p = QStyle::alignedRect(option.direction, option.decorationAlignment,
+                                       pixmap.size(), rect).topLeft();
         if (option.state & QStyle::State_Selected) {
             bool enabled = option.state & QStyle::State_Enabled;
             QPixmap *pm = selected(pixmap, option.palette, enabled);
-            painter->drawPixmap(rect.topLeft(), *pm);
+            painter->drawPixmap(p, *pm);
         } else {
-            painter->drawPixmap(rect.topLeft(), pixmap, QRect(QPoint(0, 0), option.decorationSize));
+            painter->drawPixmap(p, pixmap);
         }
     }
 }
@@ -540,7 +542,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
             check.setRect(x, y, cw, h);
         }
     }
-    
+
     // at this point w should be the *total* width
 
     QRect display;
@@ -550,7 +552,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
         if (!pm.isEmpty())
             pm.setHeight(pm.height() + textMargin); // add space
         h = hint ? textRect->height() : h - pm.height();
-        
+
         if (option.direction == Qt::RightToLeft) {
             decoration.setRect(x, y, w - cw, pm.height());
             display.setRect(x, y + pm.height(), w - cw, h);
@@ -563,13 +565,13 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
         if (!textRect->isEmpty())
             textRect->setHeight(textRect->height() + textMargin); // add space
         h = hint ? textRect->height() + pm.height() : h;
-        
+
         if (option.direction == Qt::RightToLeft) {
             display.setRect(x, y, w - cw, textRect->height());
             decoration.setRect(x, y + h, w - cw, h - textRect->height());
         } else {
             display.setRect(x + cw, y, w - cw, textRect->height());
-            decoration.setRect(x + cw, y + h, w - cw, h - textRect->height());        
+            decoration.setRect(x + cw, y + h, w - cw, h - textRect->height());
         }
         break; }
     case QStyleOptionViewItem::Left: {

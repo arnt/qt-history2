@@ -69,7 +69,6 @@ QStyleOptionMenuItem QComboMenuDelegate::getStyleOption(const QStyleOptionViewIt
     menuOption.icon = qvariant_cast<QIcon>(index.model()->data(index, Qt::DecorationRole));
     menuOption.text = index.model()->data(index, Qt::DisplayRole).toString();
     menuOption.tabWidth = 0;
-    menuOption.maxIconWidth = 0;
     menuOption.maxIconWidth =  option.decorationSize.width() + 4;
     menuOption.menuRect = option.rect;
     menuOption.rect = option.rect;
@@ -1396,9 +1395,7 @@ QIcon QComboBox::itemIcon(int index) const
 {
     Q_D(const QComboBox);
     QModelIndex item = model()->index(index, d->modelColumn, rootModelIndex());
-    return qvariant_cast<QIcon>(model()->data(item, Qt::DecorationRole))
-        .pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize),
-                isEnabled() ? QIcon::Normal : QIcon::Disabled);
+    return qvariant_cast<QIcon>(model()->data(item, Qt::DecorationRole));
 }
 
 /*!
