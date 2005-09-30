@@ -432,7 +432,7 @@ void FormWindowManager::slotActionBreakLayoutActivated()
 
         while (currentWidget && currentWidget != m_activeFormWindow) {
             if (QLayout *layout = LayoutInfo::managedLayout(core(), currentWidget)) {
-                if (!layoutBaseList.contains(layout->parentWidget())) {
+                if (!layout->isEmpty() && !layoutBaseList.contains(layout->parentWidget())) {
                     layoutBaseList.prepend(layout->parentWidget());
                 }
             }
