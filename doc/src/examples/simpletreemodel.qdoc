@@ -1,6 +1,6 @@
 /*!
     \example itemviews/simpletreemodel
-    \title Simple Tree Model
+    \title Simple Tree Model Example
 
     The Simple Tree Model example shows how to create a basic, read-only
     hierarchical model to use with Qt's standard view classes. For a
@@ -311,15 +311,15 @@
     We begin with a text file in the following format:
 
     \code
-    Getting Started				How to familiarize yourself with Qt Designer
-        Launching Designer			Running the Qt Designer application
-        The User Interface			How to interact with Qt Designer
+    Getting Started                         How to familiarize yourself with Qt Designer
+        Launching Designer                  Running the Qt Designer application
+        The User Interface                  How to interact with Qt Designer
     \endcode
     \dots
     \code
-    Connection Editing Mode			Connecting widgets together with signals and slots
-        Connecting Objects			Making connections in Qt Designer
-        Editing Connections			Changing existing connections
+    Connection Editing Mode                 Connecting widgets together with signals and slots
+        Connecting Objects                  Making connections in Qt Designer
+        Editing Connections                 Changing existing connections
     \endcode
 
     We process the text file with the following two rules:

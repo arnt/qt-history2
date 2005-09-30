@@ -243,6 +243,7 @@
     provide an implementation for the \c parent() function. This returns a model index
     that corresponds to the parent of a child model index supplied as its argument:
 
+    \quotefromfile itemviews/simpledommodel/dommodel.cpp
     \skipto DomModel::parent
     \printuntil /^\}/
 
@@ -259,6 +260,7 @@
     the \l{Qt::DisplayRole}{display role}, returning an invalid variant for all other
     requests:
 
+    \quotefromfile itemviews/simpledommodel/dommodel.cpp
     \skipto DomModel::data
     \printuntil item->node()
 
