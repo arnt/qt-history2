@@ -28,6 +28,7 @@
 #include <qvariant.h>
 #include <qmap.h>
 #include <qdebug.h>
+#include <stdio.h>
 
 /*
   ### old todo comments -- I don't know if they still apply...
@@ -4810,12 +4811,29 @@ void QDomElement::setAttribute(const QString& name, qulonglong value)
 /*!
     \overload
 */
-void QDomElement::setAttribute(const QString& name, double value)
+void QDomElement::setAttribute(const QString& name, float value)
 {
     if (!impl)
         return;
     QString x;
     x.setNum(value);
+    IMPL->setAttribute(name, x);
+}
+
+/*!
+    \overload
+*/
+void QDomElement::setAttribute(const QString& name, double value)
+{
+    if (!impl)
+        return;
+    QString x;
+    char buf[256];
+    int count = snprintf(buf, sizeof(buf), "%.16g", value);
+    if (count > 0)
+        x = QString::fromLatin1(buf, count);
+    else
+        x.setNum(value); // Fallback
     IMPL->setAttribute(name, x);
 }
 

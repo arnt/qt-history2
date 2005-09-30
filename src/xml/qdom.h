@@ -441,6 +441,7 @@ public:
         { setAttribute(name, qlonglong(value)); }
     inline void setAttribute(const QString& name, uint value)
         { setAttribute(name, qulonglong(value)); }
+    void setAttribute(const QString& name, float value);
     void setAttribute(const QString& name, double value);
     void removeAttribute(const QString& name);
     QDomAttr attributeNode(const QString& name);
