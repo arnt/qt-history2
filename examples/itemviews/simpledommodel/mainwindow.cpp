@@ -31,14 +31,14 @@ MainWindow::MainWindow()
     view->setModel(model);
 
     setCentralWidget(view);
-    setWindowTitle("DOM Model View");
+    setWindowTitle("Simple DOM Model");
 }
 
 void MainWindow::openFile()
 {
     QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"),
-        xmlPath, tr("XML files (*.xml);;HTML files (*.html);;User Interface "
-                    "files (*.ui)"));
+        xmlPath, tr("XML files (*.xml);;HTML files (*.html);;"
+                    "SVG files (*.svg);;User Interface files (*.ui)"));
 
     if (!filePath.isEmpty()) {
         QFile file(filePath);
