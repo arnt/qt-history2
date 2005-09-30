@@ -1278,7 +1278,7 @@ bool QLineEdit::event(QEvent * e)
     if (e->type() == QEvent::ShortcutOverride && !d->readOnly) {
         QKeyEvent* ke = (QKeyEvent*) e;
         if (ke->modifiers() == Qt::NoModifier || ke->modifiers() == Qt::ShiftModifier
-             || ke->modifiers() == Qt::KeypadModifier) {
+            || ke->modifiers() == Qt::KeypadModifier) {
             if (ke->key() < Qt::Key_Escape) {
                 ke->accept();
             } else {
@@ -1713,6 +1713,11 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
         }
         break;
         case Qt::Key_Backspace:
+#if defined(Q_WS_WIN)
+            if (event->modifiers() & Qt::AltModifier)
+                (event->modifiers() & Qt::ShiftModifier) ? redo() : undo();
+            else
+#endif
             if (!d->readOnly)
                 backspace();
             break;

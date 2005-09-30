@@ -1646,16 +1646,26 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
 process:
     switch( e->key() ) {
     case Qt::Key_Backspace: {
-        QTextBlockFormat blockFmt = d->cursor.blockFormat();
+#if defined(Q_WS_WIN)
+        if (e->modifiers() & Qt::AltModifier) {
+            if (e->modifiers() & Qt::ShiftModifier)
+                document()->redo();
+            else
+                document()->undo();
+        } else
+#endif
+        {
+            QTextBlockFormat blockFmt = d->cursor.blockFormat();
 
-        QTextList *list = d->cursor.currentList();
-        if (list && d->cursor.atBlockStart()) {
-            list->remove(d->cursor.block());
-        } else if (d->cursor.atBlockStart() && blockFmt.indent() > 0) {
-            blockFmt.setIndent(blockFmt.indent() - 1);
-            d->cursor.setBlockFormat(blockFmt);
-        } else {
-            d->cursor.deletePreviousChar();
+            QTextList *list = d->cursor.currentList();
+            if (list && d->cursor.atBlockStart()) {
+                list->remove(d->cursor.block());
+            } else if (d->cursor.atBlockStart() && blockFmt.indent() > 0) {
+                blockFmt.setIndent(blockFmt.indent() - 1);
+                d->cursor.setBlockFormat(blockFmt);
+            } else {
+                d->cursor.deletePreviousChar();
+            }
         }
         break;
     }
@@ -2528,7 +2538,7 @@ QMenu *QTextEdit::createStandardContextMenu()
         a->setEnabled(md && canInsertFromMimeData(md));
 #endif
         a = menu->addAction(tr("Delete"), this, SLOT(deleteSelected()));
-        a->setEnabled(d->cursor.hasSelection());        
+        a->setEnabled(d->cursor.hasSelection());
     }
 
 
@@ -2644,7 +2654,7 @@ void QTextEdit::setTabStopWidth(int width)
     \brief whether the text edit accepts rich text insertions by the user
     \since 4.1
 
-    When this propery is set to false text edit will accept only 
+    When this propery is set to false text edit will accept only
     plain text input from the user. For example through clipboard or drag and drop.
 
     This property's default is true.
@@ -2655,7 +2665,7 @@ bool QTextEdit::acceptRichText() const
     Q_D(const QTextEdit);
     return d->acceptRichText;
 }
- 
+
 void QTextEdit::setAcceptRichText(bool accept)
 {
     Q_D(QTextEdit);
