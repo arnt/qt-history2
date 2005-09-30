@@ -242,8 +242,8 @@ int Launcher::readInfo(const QString &resource, const QDir &dir)
                 else
                     docName = categoryDirName+"-"+exampleFileName+".html";
 
-                exampleColors[exampleName] = exampleColor;
-                findDescriptionAndImages(exampleName, docName);
+                exampleColors[categoryName+"-"+exampleName] = exampleColor;
+                findDescriptionAndImages(categoryName+"-"+exampleName, docName);
 
                 if (!exampleDirName.isEmpty() && !exampleDir.cd(exampleDirName))
                     continue;
@@ -254,7 +254,7 @@ int Launcher::readInfo(const QString &resource, const QDir &dir)
                 if (exampleDir.cd(exampleFileName)) {
                     QString examplePath = findExecutable(exampleDir);
                     if (!examplePath.isNull())
-                        examplePaths[exampleName] = QPair<QString,QString>(exampleDir.absolutePath(), examplePath);
+                        examplePaths[categoryName+"-"+exampleName] = QPair<QString,QString>(exampleDir.absolutePath(), examplePath);
                 }
             }
 
@@ -713,7 +713,8 @@ void Launcher::showExamples(const QString &category)
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
         DisplayShape *background = new PanelShape(path,
-            QBrush(exampleColors[example]), QBrush(QColor("#e0e0ff")),
+            QBrush(exampleColors[currentCategory+"-"+example]),
+            QBrush(QColor("#e0e0ff")),
             Qt::NoPen, startPosition,
             QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
 
@@ -772,7 +773,7 @@ void Launcher::showExampleSummary(const QString &example)
 {
     newPage();
     fadeShapes();
-    currentExample = example;
+    currentExample = currentCategory+"-"+example;
 
     qreal horizontalMargin = 0.025*width();
     qreal verticalMargin = 0.025*height();
@@ -791,7 +792,7 @@ void Launcher::showExampleSummary(const QString &example)
     qreal leftMargin = 3*horizontalMargin;
     qreal rightMargin = width() - 3*horizontalMargin;
 
-    if (exampleDescriptions.contains(example)) {
+    if (exampleDescriptions.contains(currentExample)) {
         DocumentShape *description = new DocumentShape(
             exampleDescriptions[currentExample], documentFont,
             QPointF(leftMargin, topMargin),
@@ -806,9 +807,9 @@ void Launcher::showExampleSummary(const QString &example)
         space = description->position().y() - topMargin - 2*verticalMargin;
     }
 
-    if (imagePaths.contains(example)) {
+    if (imagePaths.contains(currentExample)) {
 
-        QImage image(imagePaths[example][0]);
+        QImage image(imagePaths[currentExample][0]);
 
         QSizeF imageMaxSize = QSizeF(width() - 8*horizontalMargin, space);
 
@@ -822,7 +823,7 @@ void Launcher::showExampleSummary(const QString &example)
 
         display->appendShape(currentFrame);
 
-        if (imagePaths[example].size() > 1) {
+        if (imagePaths[currentExample].size() > 1) {
             connect(slideshowTimer, SIGNAL(timeout()),
                     this, SLOT(updateExampleSummary()));
 
@@ -870,7 +871,7 @@ void Launcher::showExampleSummary(const QString &example)
         leftMargin = buttonBackground->rect().right();
     }
 
-    if (examplePaths.contains(example)) {
+    if (examplePaths.contains(currentExample)) {
 
         DisplayShape *launchCaption = new TitleShape(tr("Launch"),
             font(), QPen(Qt::white), QPointF(0.0, 0.0), maxSize,
@@ -898,11 +899,11 @@ void Launcher::showExampleSummary(const QString &example)
             QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
 
         background->setMetaData("fade minimum", 120);
-        background->setMetaData("launch", example);
+        background->setMetaData("launch", currentExample);
         background->setInteractive(true);
         background->setTarget(launchCaption->target());
 
-        if (runningExamples.contains(example)) {
+        if (runningExamples.contains(currentExample)) {
             background->setMetaData("highlight", true);
             background->setMetaData("highlight scale", 0.99);
             background->animate();
@@ -915,7 +916,7 @@ void Launcher::showExampleSummary(const QString &example)
         rightMargin = background->rect().left();
     }
 
-    if (documentPaths.contains(example)) {
+    if (documentPaths.contains(currentExample)) {
 
         DisplayShape *documentCaption = new TitleShape(tr("Show Documentation"),
             font(), QPen(Qt::white), QPointF(0.0, 0.0), maxSize,
@@ -947,7 +948,7 @@ void Launcher::showExampleSummary(const QString &example)
             QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
 
         background->setMetaData("fade minimum", 120);
-        background->setMetaData("documentation", example);
+        background->setMetaData("documentation", currentExample);
         background->setInteractive(true);
         background->setTarget(documentCaption->target());
 
