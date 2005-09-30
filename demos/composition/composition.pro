@@ -15,7 +15,7 @@ INSTALLS += target sources
 
 CONFIG += console
 
-win32-msvc.net {
+win32-msvc.net|win32-msvc {
     QMAKE_CXXFLAGS += /Zm500
     QMAKE_CFLAGS += /Zm500
 }
