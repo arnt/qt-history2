@@ -2154,11 +2154,8 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
     QFixed ypos = QFixed::fromReal(p.y() + d->matrix.dy());
 
     QFontEngineFT *ft = static_cast<QFontEngineFT *>(si.fontEngine);
-    if (ft->drawAsOutline() || d->txop >= QPainterPrivate::TxScale) {
-        uint hints = d->render_hints;
-        updateRenderHints(QFlag(hints|QPainter::Antialiasing));
+    if (!d->cpen.isSolid() || ft->drawAsOutline() || d->txop >= QPainterPrivate::TxScale) {
         QPaintEngine::drawTextItem(p, si);
-        updateRenderHints(QFlag(hints));
         return;
     }
 
