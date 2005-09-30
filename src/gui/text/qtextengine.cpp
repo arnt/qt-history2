@@ -1918,7 +1918,7 @@ void QTextEngine::drawLine(int lineNum, QPainter *p, QPainterPath *path, const Q
         }
 
 
-        if (hasFormats() || selection) {
+        if (p && (hasFormats() || selection)) {
             QTextCharFormat chf = format(&si);
             if (selection)
                 chf.merge(selection->format);
