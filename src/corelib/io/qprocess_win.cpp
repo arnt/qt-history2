@@ -746,7 +746,7 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
                                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0
                                    };
         success = CreateProcessW(0, (WCHAR*)args.utf16(),
-                                 0, 0, TRUE, CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE, 0, 0,
+                                 0, 0, FALSE, CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE, 0, 0,
                                  &startupInfo, &pinfo);
     } else
 #endif // UNICODE
@@ -758,7 +758,7 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
                                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0
                                   };
        success = CreateProcessA(0, args.toLocal8Bit().data(),
-                                0, 0, TRUE, CREATE_NEW_CONSOLE, 0, 0,
+                                0, 0, FALSE, CREATE_NEW_CONSOLE, 0, 0,
                                 &startupInfo, &pinfo);
 #endif // Q_OS_TEMP
     }
