@@ -513,6 +513,112 @@ static void parseQPen(QPen &pen, QSvgNode *node,
     }
 }
 
+static QMatrix parseTransformationMatrix(const QString &value)
+{
+    QMatrix matrix;
+    QString::const_iterator itr = value.begin();
+
+    while (itr != value.end()) {
+        if ((*itr) == 'm') {  //matrix
+            QString temp("m");
+            int remains = 6;
+            while (remains--) {
+                temp += *itr++;
+            }
+
+            while ((*itr).isSpace())
+                ++itr;
+            ++itr;// '('
+            QList<qreal> points = parseNumbersList(itr);
+            ++itr; // ')'
+
+            Q_ASSERT(points.count() == 6);
+            matrix = matrix * QMatrix(points[0], points[1],
+                                      points[2], points[3],
+                                      points[4], points[5]);
+
+            //qDebug()<<"matrix is "<<temp;
+        } else if ((*itr) == 't') { //translate
+            QString trans;
+            int remains = 9;
+            while (remains--) {
+                trans += *itr++;
+            }
+            while ((*itr).isSpace())
+                ++itr;
+            ++itr;// '('
+            QList<qreal> points = parseNumbersList(itr);
+            ++itr; // ')'
+
+            Q_ASSERT(points.count() == 2 ||
+                     points.count() == 1);
+            if (points.count() == 2)
+                matrix.translate(points[0], points[1]);
+            else
+                matrix.translate(points[0], 0);
+
+            //qDebug()<<"trans is "<<points;
+        } else if ((*itr) == 'r') { //rotate
+            QString rot;
+            int remains = 6;
+            while (remains--) {
+                rot += *itr++;
+            }
+            while ((*itr).isSpace())
+                ++itr;
+
+            ++itr;// '('
+            QList<qreal> points = parseNumbersList(itr);
+            ++itr;// ')'
+            Q_ASSERT(points.count() == 3 ||
+                     points.count() == 1);
+            if (points.count() == 3) {
+                matrix.translate(points[1], points[2]);
+                matrix.rotate(points[0]);
+                matrix.translate(-points[1], -points[2]);
+            }
+            else
+                matrix.rotate(points[0]);
+
+            //qDebug()<<"rot is "<<points;
+        } else if ((*itr) == 's') { //scale | skewX | skewY
+            QString temp;
+            int remains = 5;
+            while (remains--) {
+                temp += *itr++;
+            }
+            while ((*itr).isSpace())
+                ++itr;
+
+            ++itr;// '('
+            QList<qreal> points = parseNumbersList(itr);
+            ++itr;// ')'
+            Q_ASSERT(points.count() == 2 ||
+                     points.count() == 1);
+            if (temp == QLatin1String("scale")) {
+                if (points.count() == 2) {
+                    matrix.scale(points[0], points[1]);
+                }
+                else
+                    matrix.scale(points[0], points[0]);
+            } else if (temp == QLatin1String("skewX")) {
+                const qreal deg2rad = qreal(0.017453292519943295769);
+                matrix.shear(tan(points[0]*deg2rad), 0);
+            } else if (temp == QLatin1String("skewY")) {
+                const qreal deg2rad = qreal(0.017453292519943295769);
+                matrix.shear(0, tan(points[0]*deg2rad));
+            }
+        } else if ((*itr) == ' '  ||
+                   (*itr) == '\t' ||
+                   (*itr) == '\n') {
+            ++itr;
+        }
+        if (itr != value.end())
+            ++itr;
+    }
+    return matrix;
+}
+
 static void parsePen(QSvgNode *node,
                      const QXmlAttributes &attributes)
 {
@@ -807,108 +913,7 @@ static void parseTransform(QSvgNode *node,
     QString value = attributes.value("transform");
     QString myId = attributes.value("id");
     value = value.trimmed();
-    QMatrix matrix;
-    QString::const_iterator itr = value.begin();
-
-    while (itr != value.end()) {
-        if ((*itr) == 'm') {  //matrix
-            QString temp("m");
-            int remains = 6;
-            while (remains--) {
-                temp += *itr++;
-            }
-
-            while ((*itr).isSpace())
-                ++itr;
-            ++itr;// '('
-            QList<qreal> points = parseNumbersList(itr);
-            ++itr; // ')'
-
-            Q_ASSERT(points.count() == 6);
-            matrix = matrix * QMatrix(points[0], points[1],
-                                      points[2], points[3],
-                                      points[4], points[5]);
-
-            //qDebug()<<"matrix is "<<temp;
-        } else if ((*itr) == 't') { //translate
-            QString trans;
-            int remains = 9;
-            while (remains--) {
-                trans += *itr++;
-            }
-            while ((*itr).isSpace())
-                ++itr;
-            ++itr;// '('
-            QList<qreal> points = parseNumbersList(itr);
-            ++itr; // ')'
-
-            Q_ASSERT(points.count() == 2 ||
-                     points.count() == 1);
-            if (points.count() == 2)
-                matrix.translate(points[0], points[1]);
-            else
-                matrix.translate(points[0], 0);
-
-            //qDebug()<<"trans is "<<points;
-        } else if ((*itr) == 'r') { //rotate
-            QString rot;
-            int remains = 6;
-            while (remains--) {
-                rot += *itr++;
-            }
-            while ((*itr).isSpace())
-                ++itr;
-
-            ++itr;// '('
-            QList<qreal> points = parseNumbersList(itr);
-            ++itr;// ')'
-            Q_ASSERT(points.count() == 3 ||
-                     points.count() == 1);
-            if (points.count() == 3) {
-                matrix.translate(points[1], points[2]);
-                matrix.rotate(points[0]);
-                matrix.translate(-points[1], -points[2]);
-            }
-            else
-                matrix.rotate(points[0]);
-
-            //qDebug()<<"rot is "<<points;
-        } else if ((*itr) == 's') { //scale | skewX | skewY
-            QString temp;
-            int remains = 5;
-            while (remains--) {
-                temp += *itr++;
-            }
-            while ((*itr).isSpace())
-                ++itr;
-
-            ++itr;// '('
-            QList<qreal> points = parseNumbersList(itr);
-            ++itr;// ')'
-            Q_ASSERT(points.count() == 2 ||
-                     points.count() == 1);
-            if (temp == QLatin1String("scale")) {
-                if (points.count() == 2) {
-                    matrix.scale(points[0], points[1]);
-                }
-                else
-                    matrix.scale(points[0], points[0]);
-            } else if (temp == QLatin1String("skewX")) {
-                const qreal deg2rad = qreal(0.017453292519943295769);
-                matrix.shear(tan(points[0]*deg2rad), 0);
-            } else if (temp == QLatin1String("skewY")) {
-                const qreal deg2rad = qreal(0.017453292519943295769);
-                matrix.shear(0, tan(points[0]*deg2rad));
-            }
-        } else if ((*itr) == ' '  ||
-                   (*itr) == '\t' ||
-                   (*itr) == '\n') {
-            ++itr;
-        }
-        if (itr != value.end())
-            ++itr;
-    }
-
+    QMatrix matrix = parseTransformationMatrix(value);
     if (!matrix.isIdentity()) {
         node->appendStyleProperty(new QSvgTransformStyle(matrix), myId);
     }
