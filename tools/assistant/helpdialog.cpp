@@ -138,7 +138,7 @@ QModelIndex IndexListModel::filter(const QString &s, const QString &real)
         const QString key = keys.at(i);
         if (key.contains(regExp) || key.contains(s, Qt::CaseInsensitive)) {
             lst.append(key);
-            qDebug() << regExp << regExp.indexIn(s) << s << key << regExp.matchedLength();
+            //qDebug() << regExp << regExp.indexIn(s) << s << key << regExp.matchedLength();
             if (perfectMatch == -1 && (key.startsWith(real, Qt::CaseInsensitive))) {
                 if (goodMatch == -1)
                     goodMatch = lst.count() - 1;
