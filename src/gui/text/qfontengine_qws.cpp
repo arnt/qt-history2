@@ -414,13 +414,11 @@ qreal QFontEngineFT::maxCharWidth() const
 
 QFixed QFontEngineFT::xHeight() const
 {
-    FT_Face face = lockFace();
+    FT_Face face = handle();
     TT_PCLT *pct = (TT_PCLT *)FT_Get_Sfnt_Table(face, ft_sfnt_pclt);
     if (pct && pct->xHeight) {
-        unlockFace();
         return QFixed(pct->xHeight*face->size->metrics.y_ppem)/face->units_per_EM;
     }
-    unlockFace();
     return QFontEngine::xHeight();
 }
 
