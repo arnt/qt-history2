@@ -848,7 +848,7 @@ void QTreeView::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(QTreeView);
     if (d->itemDecorationAt(event->pos()) == -1)
-        QAbstractItemView::mousePressEvent(event);
+        QAbstractItemView::mouseReleaseEvent(event);
 }
 
 /*!
