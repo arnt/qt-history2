@@ -56,7 +56,7 @@ void QFilteringProxyModel::clear()
 {
     Q_D(QFilteringProxyModel);
     d->filtered_row_count.clear();
-    QMappingProxyModel::clear();    
+    QMappingProxyModel::clear();
 }
 
 /*!
@@ -65,7 +65,7 @@ void QFilteringProxyModel::clear()
 QModelIndex QFilteringProxyModel::index(int row, int column, const QModelIndex &parent) const
 {
     Q_D(const QFilteringProxyModel);
-    if (!d->filtered_row_count.contains(parent))
+    if (d->filtered_row_count.isEmpty() || !d->filtered_row_count.contains(parent))
         mapChildren(parent); // filter and map the children of parent, including proxy_index
     void *parent_node = 0;
     if (parent.isValid())
@@ -80,7 +80,7 @@ QModelIndex QFilteringProxyModel::index(int row, int column, const QModelIndex &
 int QFilteringProxyModel::rowCount(const QModelIndex &parent) const
 {
     Q_D(const QFilteringProxyModel);
-    if (!d->filtered_row_count.contains(parent))
+    if (d->filtered_row_count.isEmpty() || !d->filtered_row_count.contains(parent))
         mapChildren(parent); // filter and map the children of parent, including proxy_index
     return QMappingProxyModel::rowCount(parent) - d->filtered_row_count.value(parent);
 }
