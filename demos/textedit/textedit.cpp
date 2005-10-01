@@ -22,24 +22,18 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFontDatabase>
-#include <QLineEdit>
-#include <QList>
 #include <QMenu>
 #include <QMenuBar>
-#include <QPainter>
 #include <QPrintDialog>
 #include <QPrinter>
-#include <QTabWidget>
 #include <QTextCodec>
 #include <QTextEdit>
-#include <QTextDocumentFragment>
-#include <QTextFormat>
 #include <QToolBar>
 #include <QTextCursor>
 #include <QTextList>
 #include <QtDebug>
-
-#include <limits.h>
+#include <QCloseEvent>
+#include <QMessageBox>
 
 #ifdef Q_WS_MAC
 const QString rsrcPath = ":/images/mac";
@@ -54,22 +48,61 @@ TextEdit::TextEdit(QWidget *parent)
     setupEditActions();
     setupTextActions();
 
-    setWindowTitle(tr("Rich Text [*]"));
+    textEdit = new QTextEdit(this);
+    connect(textEdit, SIGNAL(currentCharFormatChanged(const QTextCharFormat &)),
+            this, SLOT(currentCharFormatChanged(const QTextCharFormat &)));
 
-    tabWidget = new QTabWidget(this);
-    connect(tabWidget, SIGNAL(currentChanged(int)),
-            this, SLOT(editorChanged()));
-    setCentralWidget(tabWidget);
+    setCentralWidget(textEdit);
+    setCurrentFileName(QString());
+
+    fontChanged(textEdit->font());
+    colorChanged(textEdit->textColor());
+    alignmentChanged(textEdit->alignment());
+
+    connect(textEdit->document(), SIGNAL(modificationChanged(bool)),
+            actionSave, SLOT(setEnabled(bool)));
+    connect(textEdit->document(), SIGNAL(modificationChanged(bool)),
+            this, SLOT(setWindowModified(bool)));
+    connect(textEdit->document(), SIGNAL(undoAvailable(bool)),
+            actionUndo, SLOT(setEnabled(bool)));
+    connect(textEdit->document(), SIGNAL(redoAvailable(bool)),
+            actionRedo, SLOT(setEnabled(bool)));
+
+    setWindowModified(textEdit->document()->isModified());
+    actionSave->setEnabled(textEdit->document()->isModified());
+    actionUndo->setEnabled(textEdit->document()->isUndoAvailable());
+    actionRedo->setEnabled(textEdit->document()->isRedoAvailable());
+
+    connect(actionUndo, SIGNAL(triggered()), textEdit->document(), SLOT(undo()));
+    connect(actionRedo, SIGNAL(triggered()), textEdit->document(), SLOT(redo()));
+
+    actionCut->setEnabled(false);
+    actionCopy->setEnabled(false);
+
+    connect(actionCut, SIGNAL(triggered()), textEdit, SLOT(cut()));
+    connect(actionCopy, SIGNAL(triggered()), textEdit, SLOT(copy()));
+    connect(actionPaste, SIGNAL(triggered()), textEdit, SLOT(paste()));
+
+    connect(textEdit, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
+    connect(textEdit, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
 
     connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
 
-    if (qApp->argc() == 1) {
-        if (!load("example.html"))
-            fileNew();
-    } else {
-        for (int i = 1; i < qApp->argc(); ++i)
-            load(qApp->argv()[i]);
-    }
+    QString initialFile = "example.html";
+    const QStringList args = QCoreApplication::arguments();
+    if (args.count() == 2)
+        initialFile = args.at(1);
+
+    if (!load(initialFile))
+        fileNew();
+}
+
+void TextEdit::closeEvent(QCloseEvent *e)
+{
+    if (maybeSave())
+        e->accept();
+    else
+        e->ignore();
 }
 
 void TextEdit::setupFileActions()
@@ -123,14 +156,9 @@ void TextEdit::setupFileActions()
 
     menu->addSeparator();
 
-    a = new QAction(tr("&Close"), this);
-    a->setShortcut(Qt::CTRL + Qt::Key_W);
-    connect(a, SIGNAL(triggered()), this, SLOT(fileClose()));
-    menu->addAction(a);
-
-    a = new QAction(tr("E&xit"), this);
+    a = new QAction(tr("&Quit"), this);
     a->setShortcut(Qt::CTRL + Qt::Key_Q);
-    connect(a, SIGNAL(triggered()), this, SLOT(fileExit()));
+    connect(a, SIGNAL(triggered()), this, SLOT(close()));
     menu->addAction(a);
 }
 
@@ -283,7 +311,6 @@ bool TextEdit::load(const QString &f)
 {
     if (!QFile::exists(f))
         return false;
-    QTextEdit *edit = createNewEditor(QFileInfo(f).fileName());
     QFile file(f);
     if (!file.open(QFile::ReadOnly))
         return false;
@@ -292,19 +319,54 @@ bool TextEdit::load(const QString &f)
     QTextCodec *codec = Qt::codecForHtml(data);
     QString str = codec->toUnicode(data);
     if (Qt::mightBeRichText(str)) {
-        edit->setHtml(str);
+        textEdit->setHtml(str);
     } else {
         str = QString::fromLocal8Bit(data);
-        edit->setPlainText(str);
+        textEdit->setPlainText(str);
     }
 
-    filenames.insert(edit, f);
+    setCurrentFileName(f);
     return true;
+}
+
+bool TextEdit::maybeSave()
+{
+    if (!textEdit->document()->isModified())
+        return true;
+    int ret = QMessageBox::warning(this, tr("Application"),
+                                   tr("The document has been modified.\n"
+                                      "Do you want to save your changes?"),
+                                   QMessageBox::Yes | QMessageBox::Default,
+                                   QMessageBox::No,
+                                   QMessageBox::Cancel | QMessageBox::Escape);
+    if (ret == QMessageBox::Yes)
+        return fileSave();
+    else if (ret == QMessageBox::Cancel)
+        return false;
+    return true;
+}
+
+void TextEdit::setCurrentFileName(const QString &fileName)
+{
+    this->fileName = fileName;
+    textEdit->document()->setModified(false);
+
+    QString shownName;
+    if (fileName.isEmpty())
+        shownName = "untitled.txt";
+    else
+        shownName = QFileInfo(fileName).fileName();
+
+    setWindowTitle(tr("%1[*] - %2").arg(shownName).arg(tr("Rich Text")));
+    setWindowModified(false);
 }
 
 void TextEdit::fileNew()
 {
-    createNewEditor();
+    if (maybeSave()) {
+        textEdit->clear();
+        setCurrentFileName(QString());
+    }
 }
 
 void TextEdit::fileOpen()
@@ -315,46 +377,39 @@ void TextEdit::fileOpen()
         load(fn);
 }
 
-void TextEdit::fileSave()
+bool TextEdit::fileSave()
 {
-    if (!currentEditor)
-        return;
-    if (filenames.find(currentEditor) == filenames.end()) {
-        fileSaveAs();
-    } else {
-        QFile file(*filenames.find(currentEditor));
-        if (!file.open(QFile::WriteOnly))
-            return;
-        QTextStream ts(&file);
-        ts.setCodec(QTextCodec::codecForName("UTF-8"));
-        ts << currentEditor->document()->toHtml("UTF-8");
-        currentEditor->document()->setModified(false);
-    }
+    if (fileName.isEmpty())
+        return fileSaveAs();
+
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly))
+        return false;
+    QTextStream ts(&file);
+    ts.setCodec(QTextCodec::codecForName("UTF-8"));
+    ts << textEdit->document()->toHtml("UTF-8");
+    textEdit->document()->setModified(false);
+    return true;
 }
 
-void TextEdit::fileSaveAs()
+bool TextEdit::fileSaveAs()
 {
-    if (!currentEditor)
-        return;
     QString fn = QFileDialog::getSaveFileName(this, tr("Save as..."),
                                               QString(), tr("HTML-Files (*.htm *.html);;All Files (*)"));
-    if (!fn.isEmpty()) {
-        filenames.insert(currentEditor, fn);
-        fileSave();
-        tabWidget->setTabText(tabWidget->indexOf(currentEditor), QFileInfo(fn).fileName());
-    }
+    if (fn.isEmpty())
+        return false;
+    setCurrentFileName(fn);
+    return fileSave();
 }
 
 void TextEdit::filePrint()
 {
-    if (!currentEditor)
-        return;
 #ifndef QT_NO_PRINTER
     QPrinter printer(QPrinter::HighResolution);
     printer.setFullPage(true);
     QPrintDialog *dlg = new QPrintDialog(&printer, this);
     if (dlg->exec() == QDialog::Accepted) {
-        currentEditor->document()->print(&printer);
+        textEdit->document()->print(&printer);
     }
     delete dlg;
 #endif
@@ -363,8 +418,6 @@ void TextEdit::filePrint()
 
 void TextEdit::filePrintPdf()
 {
-    if (!currentEditor)
-        return;
 #ifndef QT_NO_PRINTER
     QString fileName = QFileDialog::getSaveFileName(this, "Export PDF", QString(), "*.pdf");
     if (fileName.isEmpty())
@@ -372,65 +425,38 @@ void TextEdit::filePrintPdf()
     QPrinter printer(QPrinter::HighResolution);
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setOutputFileName(fileName);
-    currentEditor->document()->print(&printer);
+    textEdit->document()->print(&printer);
 #endif
-}
-
-void TextEdit::fileClose()
-{
-    const bool hadFocus = (currentEditor && currentEditor->hasFocus());
-    delete currentEditor;
-    currentEditor = qobject_cast<QTextEdit *>(tabWidget->currentWidget());
-    if (currentEditor && hadFocus)
-        currentEditor->setFocus();
-}
-
-void TextEdit::fileExit()
-{
-    qApp->quit();
 }
 
 void TextEdit::textBold()
 {
-    if (!currentEditor)
-        return;
-    currentEditor->setFontWeight(actionTextBold->isChecked() ? QFont::Bold : QFont::Normal);
+    textEdit->setFontWeight(actionTextBold->isChecked() ? QFont::Bold : QFont::Normal);
 }
 
 void TextEdit::textUnderline()
 {
-    if (!currentEditor)
-        return;
-    currentEditor->setFontUnderline(actionTextUnderline->isChecked());
+    textEdit->setFontUnderline(actionTextUnderline->isChecked());
 }
 
 void TextEdit::textItalic()
 {
-    if (!currentEditor)
-        return;
-    currentEditor->setFontItalic(actionTextItalic->isChecked());
+    textEdit->setFontItalic(actionTextItalic->isChecked());
 }
 
 void TextEdit::textFamily(const QString &f)
 {
-    if (!currentEditor)
-        return;
-    currentEditor->setFontFamily(f);
+    textEdit->setFontFamily(f);
 }
 
 void TextEdit::textSize(const QString &p)
 {
-    if (!currentEditor)
-        return;
-    currentEditor->setFontPointSize(p.toFloat());
+    textEdit->setFontPointSize(p.toFloat());
 }
 
 void TextEdit::textStyle(int styleIndex)
 {
-    if (!currentEditor)
-        return;
-
-    QTextCursor cursor = currentEditor->textCursor();
+    QTextCursor cursor = textEdit->textCursor();
 
     if (styleIndex != 0) {
         QTextListFormat::Style style = QTextListFormat::ListDisc;
@@ -486,34 +512,30 @@ void TextEdit::textStyle(int styleIndex)
 
 void TextEdit::textColor()
 {
-    if (!currentEditor)
-        return;
-    QColor col = QColorDialog::getColor(currentEditor->textColor(), this);
+    QColor col = QColorDialog::getColor(textEdit->textColor(), this);
     if (!col.isValid())
         return;
-    currentEditor->setTextColor(col);
+    textEdit->setTextColor(col);
     colorChanged(col);
 }
 
 void TextEdit::textAlign(QAction *a)
 {
-    if (!currentEditor)
-        return;
     if (a == actionAlignLeft)
-        currentEditor->setAlignment(Qt::AlignLeft);
+        textEdit->setAlignment(Qt::AlignLeft);
     else if (a == actionAlignCenter)
-        currentEditor->setAlignment(Qt::AlignHCenter);
+        textEdit->setAlignment(Qt::AlignHCenter);
     else if (a == actionAlignRight)
-        currentEditor->setAlignment(Qt::AlignRight);
+        textEdit->setAlignment(Qt::AlignRight);
     else if (a == actionAlignJustify)
-        currentEditor->setAlignment(Qt::AlignJustify);
+        textEdit->setAlignment(Qt::AlignJustify);
 }
 
 void TextEdit::currentCharFormatChanged(const QTextCharFormat &format)
 {
     fontChanged(format.font());
     colorChanged(format.foreground().color());
-    alignmentChanged(currentEditor->alignment());
+    alignmentChanged(textEdit->alignment());
 }
 
 void TextEdit::clipboardDataChanged()
@@ -549,76 +571,3 @@ void TextEdit::alignmentChanged(Qt::Alignment a)
         actionAlignJustify->setChecked(true);
 }
 
-void TextEdit::editorChanged()
-{
-    if (currentEditor) {
-        disconnect(currentEditor->document(), SIGNAL(modificationChanged(bool)),
-                   actionSave, SLOT(setEnabled(bool)));
-        disconnect(currentEditor->document(), SIGNAL(modificationChanged(bool)),
-                   this, SLOT(setWindowModified(bool)));
-        disconnect(currentEditor->document(), SIGNAL(undoAvailable(bool)),
-                   actionUndo, SLOT(setEnabled(bool)));
-        disconnect(currentEditor->document(), SIGNAL(redoAvailable(bool)),
-                   actionRedo, SLOT(setEnabled(bool)));
-
-        disconnect(actionUndo, SIGNAL(triggered()), currentEditor->document(), SLOT(undo()));
-        disconnect(actionRedo, SIGNAL(triggered()), currentEditor->document(), SLOT(redo()));
-
-        disconnect(actionCut, SIGNAL(triggered()), currentEditor, SLOT(cut()));
-        disconnect(actionCopy, SIGNAL(triggered()), currentEditor, SLOT(copy()));
-        disconnect(actionPaste, SIGNAL(triggered()), currentEditor, SLOT(paste()));
-
-        disconnect(currentEditor, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
-        disconnect(currentEditor, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
-
-    }
-
-    currentEditor = qobject_cast<QTextEdit *>(tabWidget->currentWidget());
-    if (!currentEditor)
-        return;
-
-    fontChanged(currentEditor->font());
-    colorChanged(currentEditor->textColor());
-    alignmentChanged(currentEditor->alignment());
-
-    connect(currentEditor->document(), SIGNAL(modificationChanged(bool)),
-            actionSave, SLOT(setEnabled(bool)));
-    connect(currentEditor->document(), SIGNAL(modificationChanged(bool)),
-            this, SLOT(setWindowModified(bool)));
-    connect(currentEditor->document(), SIGNAL(undoAvailable(bool)),
-            actionUndo, SLOT(setEnabled(bool)));
-    connect(currentEditor->document(), SIGNAL(redoAvailable(bool)),
-            actionRedo, SLOT(setEnabled(bool)));
-
-    setWindowModified(currentEditor->document()->isModified());
-    actionSave->setEnabled(currentEditor->document()->isModified());
-    actionUndo->setEnabled(currentEditor->document()->isUndoAvailable());
-    actionRedo->setEnabled(currentEditor->document()->isRedoAvailable());
-
-    connect(actionUndo, SIGNAL(triggered()), currentEditor->document(), SLOT(undo()));
-    connect(actionRedo, SIGNAL(triggered()), currentEditor->document(), SLOT(redo()));
-
-    const bool selection = currentEditor->textCursor().hasSelection();
-    actionCut->setEnabled(selection);
-    actionCopy->setEnabled(selection);
-
-    connect(actionCut, SIGNAL(triggered()), currentEditor, SLOT(cut()));
-    connect(actionCopy, SIGNAL(triggered()), currentEditor, SLOT(copy()));
-    connect(actionPaste, SIGNAL(triggered()), currentEditor, SLOT(paste()));
-
-    connect(currentEditor, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
-    connect(currentEditor, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
-}
-
-QTextEdit *TextEdit::createNewEditor(const QString &title)
-{
-    QTextEdit *edit = new QTextEdit;
-    connect(edit, SIGNAL(currentCharFormatChanged(const QTextCharFormat &)),
-            this, SLOT(currentCharFormatChanged(const QTextCharFormat &)));
-
-    int tab = tabWidget->addTab(edit, title.isEmpty() ? tr("noname") : title);
-    tabWidget->setCurrentIndex(tab);
-    edit->setFocus();
-
-    return edit;
-}
