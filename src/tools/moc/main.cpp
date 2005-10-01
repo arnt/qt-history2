@@ -96,6 +96,7 @@ int main(int argc, char **argv)
     QByteArray output;
     FILE *in = 0;
     FILE *out = 0;
+    bool ignoreConflictingOptions = false;
     for (int n = 1; n < argc; ++n) {
         QByteArray arg(argv[n]);
         if (arg[0] != '-') {
@@ -126,12 +127,16 @@ int main(int argc, char **argv)
             autoInclude = false;
             break;
         case 'f': // produce #include statement
+            if (ignoreConflictingOptions)
+                break;
             moc.noInclude        = false;
             autoInclude = false;
             if (opt[1])                        // -fsomething.h
                 moc.includeFiles.append(opt.mid(1));
             break;
         case 'p': // include file path
+            if (ignoreConflictingOptions)
+                break;
             if (!more) {
                 if (!(n < argc-1))
                     error("Missing path name for the -p option.");
@@ -189,6 +194,8 @@ int main(int argc, char **argv)
                     mocOutputRevision, QT_VERSION_STR);
             return 1;
         case 'n': // don't display warnings
+            if (ignoreConflictingOptions)
+                break;
             if (opt != "nw")
                 error();
             moc.displayWarnings = false;
@@ -196,6 +203,15 @@ int main(int argc, char **argv)
         case 'h': // help
             error(0); // 0 means usage only
             break;
+        case '-': 
+            if (more && arg == "--ignore-option-clashes") {
+                // -- ignore all following moc specific options that conflict
+                // with for example gcc, like -pthread conflicting with moc's
+                // -p option.
+                ignoreConflictingOptions = true;
+                break;
+            }
+            // fall through
         default:
             error();
         }
