@@ -1238,7 +1238,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             } while (pos < end);
             minw = qMax(tmpData.textWidth, minw);
 
-            if (check_full_otherwise_extend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap || (!sb_or_ws && !breakany)))
+            if ((sb_or_ws|breakany) && check_full_otherwise_extend(line, tmpData, spaceData, glyphCount, maxGlyphs, minw, manualWrap))
                 goto found;
             if (sb_or_ws)
                 breakany = false;
