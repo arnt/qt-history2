@@ -3004,16 +3004,7 @@ QByteArray QString::toUtf8() const
     return ba;
 }
 
-/*!
-    Returns a QString initialized with the first \a size characters
-    of the Latin-1 string \a str.
-
-    If \a size is -1 (the default), it is taken to be qstrlen(\a
-    str).
-
-    \sa toLatin1(), fromAscii(), fromUtf8(), fromLocal8Bit()
-*/
-QString QString::fromLatin1(const char *str, int size)
+QString::Data *QString::fromLatin1_helper(const char *str, int size)
 {
     Data *d;
     if (!str) {
@@ -3035,7 +3026,21 @@ QString QString::fromLatin1(const char *str, int size)
         while (size--)
            *i++ = (uchar)*str++;
     }
-    return QString(d, 0);
+    return d;
+}
+
+/*!
+    Returns a QString initialized with the first \a size characters
+    of the Latin-1 string \a str.
+
+    If \a size is -1 (the default), it is taken to be qstrlen(\a
+    str).
+
+    \sa toLatin1(), fromAscii(), fromUtf8(), fromLocal8Bit()
+*/
+QString QString::fromLatin1(const char *str, int size)
+{
+    return QString(fromLatin1_helper(str, size), 0);
 }
 
 

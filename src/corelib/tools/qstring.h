@@ -490,6 +490,7 @@ private:
     int toWCharArray(wchar_t *array) const;
     static QString fromWCharArray(const wchar_t *, int);
 #endif
+    static Data *fromLatin1_helper(const char *str, int size = -1);
     friend class QCharRef;
     friend class QTextCodec;
 };
@@ -522,8 +523,8 @@ private:
 };
 
 
-inline QString::QString(const QLatin1String &latin1) : d(&shared_null)
-{ d->ref.ref(); *this = fromLatin1(latin1.latin1()); }
+inline QString::QString(const QLatin1String &latin1) : d(fromLatin1_helper(latin1.latin1()))
+{ }
 inline int QString::length() const
 { return d->size; }
 inline const QChar QString::at(int i) const
