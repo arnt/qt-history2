@@ -64,4 +64,20 @@ public:
     Type type() const;
 };
 
+class QSvgSwitch : public QSvgStructureNode
+{
+public:
+    QSvgSwitch(QSvgNode *parent);
+    virtual void draw(QPainter *p);
+    Type type() const;
+private:
+    void init();
+private:
+    QString m_systemLanguage;
+    QString m_systemLanguagePrefix;
+private:
+    static QHash<QString, bool> m_features;
+    static QHash<QString, bool> m_extensions;
+};
+
 #endif // QSVGSTRUCTURE_P_H

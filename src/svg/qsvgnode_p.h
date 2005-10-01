@@ -41,6 +41,7 @@ public:
         DOC,
         G,
         DEFS,
+        SWITCH,
         ANIMATION,
         ARC,
         CIRCLE,
@@ -74,10 +75,31 @@ public:
 
     virtual Type type() const =0;
     virtual QRectF bounds() const;
+
+    void setRequiredFeatures(const QStringList &lst);
+    const QStringList & requiredFeatures() const;
+
+    void setRequiredExtensions(const QStringList &lst);
+    const QStringList & requiredExtensions() const;
+
+    void setRequiredLanguages(const QStringList &lst);
+    const QStringList & requiredLanguages() const;
+
+    void setRequiredFormats(const QStringList &lst);
+    const QStringList & requiredFormats() const;
+
+    void setRequiredFonts(const QStringList &lst);
+    const QStringList & requiredFonts() const;
 protected:
     QSvgNode   *m_parent;
     QSvgStyle   m_style;
     QHash<QString, QSvgStyleProperty*> m_styles;
+
+    QStringList m_requiredFeatures;
+    QStringList m_requiredExtensions;
+    QStringList m_requiredLanguages;
+    QStringList m_requiredFormats;
+    QStringList m_requiredFonts;
 };
 
 inline QSvgNode *QSvgNode::parent() const

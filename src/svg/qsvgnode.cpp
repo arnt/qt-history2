@@ -161,3 +161,53 @@ QSvgTinyDocument * QSvgNode::document() const
 
     return doc;
 }
+
+void QSvgNode::setRequiredFeatures(const QStringList &lst)
+{
+    m_requiredFeatures = lst;
+}
+
+const QStringList & QSvgNode::requiredFeatures() const
+{
+    return m_requiredFeatures;
+}
+
+void QSvgNode::setRequiredExtensions(const QStringList &lst)
+{
+    m_requiredExtensions = lst;
+}
+
+const QStringList & QSvgNode::requiredExtensions() const
+{
+    return m_requiredExtensions;
+}
+
+void QSvgNode::setRequiredLanguages(const QStringList &lst)
+{
+    m_requiredLanguages = lst;
+}
+
+const QStringList & QSvgNode::requiredLanguages() const
+{
+    return m_requiredLanguages;
+}
+
+void QSvgNode::setRequiredFormats(const QStringList &lst)
+{
+    m_requiredFormats = lst;
+}
+
+const QStringList & QSvgNode::requiredFormats() const
+{
+    return m_requiredFormats;
+}
+
+void QSvgNode::setRequiredFonts(const QStringList &lst)
+{
+    m_requiredFonts = lst;
+}
+
+const QStringList & QSvgNode::requiredFonts() const
+{
+    return m_requiredFonts;
+}

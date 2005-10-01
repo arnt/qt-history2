@@ -12,10 +12,10 @@
 ****************************************************************************/
 
 #include "qsvgstructure_p.h"
-
 #include "qsvgnode_p.h"
 #include "qsvgstyle_p.h"
 
+#include "qlocale.h"
 #include "qdebug.h"
 
 QSvgG::QSvgG(QSvgNode *parent)
@@ -62,11 +62,11 @@ void QSvgStructureNode::addChild(QSvgNode *child, const QString &id, bool def )
     if (!def)
         m_renderers.append(child);
 
-     if (child->type() == QSvgNode::DEFS) {
-         QSvgDefs *defs =
-             static_cast<QSvgDefs*>(child);
-         m_linkedScopes.append(defs);
-     }
+    if (child->type() == QSvgNode::DEFS) {
+        QSvgDefs *defs =
+            static_cast<QSvgDefs*>(child);
+        m_linkedScopes.append(defs);
+    }
 
     if (id.isEmpty())
         return; //we can't add it to scope without id
@@ -111,4 +111,110 @@ QSvgStyleProperty * QSvgStructureNode::scopeStyle(const QString &id) const
         group = static_cast<QSvgStructureNode*>(group->parent());
     }
     return 0;
+}
+
+QHash<QString, bool> QSvgSwitch::m_features;
+QHash<QString, bool> QSvgSwitch::m_extensions;
+
+QSvgSwitch::QSvgSwitch(QSvgNode *parent)
+    : QSvgStructureNode(parent)
+{
+    init();
+}
+
+void QSvgSwitch::draw(QPainter *p)
+{
+    QList<QSvgNode*>::iterator itr = m_renderers.begin();
+    applyStyle(p);
+    while (itr != m_renderers.end()) {
+        QSvgNode *node = *itr;
+        const QStringList &features  = node->requiredFeatures();
+        const QStringList &extensions = node->requiredExtensions();
+        const QStringList &languages = node->requiredLanguages();
+        const QStringList &formats = node->requiredFormats();
+        const QStringList &fonts = node->requiredFonts();
+
+        bool okToRender = true;
+        if (!features.isEmpty()) {
+            QStringList::const_iterator sitr = features.begin();
+            for (; sitr != features.end(); ++sitr) {
+                if (!m_features.contains(*sitr)) {
+                    okToRender = false;
+                    break;
+                }
+            }
+        }
+
+        if (okToRender && !extensions.isEmpty()) {
+            QStringList::const_iterator sitr = extensions.begin();
+            for (; sitr != extensions.end(); ++sitr) {
+                if (!m_extensions.contains(*sitr)) {
+                    okToRender = false;
+                    break;
+                }
+            }
+        }
+
+        if (okToRender && !languages.isEmpty()) {
+            QStringList::const_iterator sitr = languages.begin();
+            okToRender = false;
+            for (; sitr != languages.end(); ++sitr) {
+                if ((*sitr).startsWith(m_systemLanguagePrefix)) {
+                    okToRender = true;
+                    break;
+                }
+            }
+        }
+
+        if (okToRender && !formats.isEmpty()) {
+            okToRender = false;
+        }
+
+        if (okToRender && !fonts.isEmpty()) {
+            okToRender = false;
+        }
+
+        if (okToRender) {
+            node->draw(p);
+            break;
+        }
+        ++itr;
+    }
+    revertStyle(p);
+}
+
+QSvgNode::Type QSvgSwitch::type() const
+{
+    return SWITCH;
+}
+
+void QSvgSwitch::init()
+{
+    if (m_features.isEmpty()) {
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#SVG", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#SVG-static", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#CoreAttribute", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Structure", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#ConditionalProcessing", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#ConditionalProcessingAttribute", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Image", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Prefetch", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Shape", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Text", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#PaintAttribute", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#OpacityAttribute", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#GraphicsAttribute", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Gradient", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#SolidColor", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#XlinkAttribute", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#ExternalResourcesRequiredAttribute", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Font", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Hyperlinking", true);
+        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Extensibility", true);
+    }
+
+    QLocale locale;
+    m_systemLanguage = locale.name().replace("_", "-");
+    int idx = m_systemLanguage.indexOf('-');
+    m_systemLanguagePrefix = m_systemLanguage.mid(0, idx);
 }

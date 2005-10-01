@@ -371,9 +371,10 @@ static void parseBrush(QSvgNode *node,
 
             QSvgStructureNode *group = 0;
             QSvgNode *dummy = node;
-            while (dummy && (dummy->type() != QSvgNode::DOC &&
-                             dummy->type() != QSvgNode::G   &&
-                             dummy->type() != QSvgNode::DEFS)) {
+            while (dummy && (dummy->type() != QSvgNode::DOC  &&
+                             dummy->type() != QSvgNode::G    &&
+                             dummy->type() != QSvgNode::DEFS &&
+                             dummy->type() != QSvgNode::SWITCH)) {
                 dummy = dummy->parent();
             }
             if (dummy)
@@ -424,9 +425,10 @@ static void parseQPen(QPen &pen, QSvgNode *node,
                     QString id = idFromUrl(value);
                     QSvgStructureNode *group = 0;
                     QSvgNode *dummy = node;
-                    while (dummy && (dummy->type() != QSvgNode::DOC &&
-                                     dummy->type() != QSvgNode::G   &&
-                                     dummy->type() != QSvgNode::DEFS)) {
+                    while (dummy && (dummy->type() != QSvgNode::DOC  &&
+                                     dummy->type() != QSvgNode::G    &&
+                                     dummy->type() != QSvgNode::DEFS &&
+                                     dummy->type() != QSvgNode::SWITCH)) {
                         dummy = dummy->parent();
                     }
                     if (dummy)
@@ -538,9 +540,10 @@ static void parsePen(QSvgNode *node,
                     QString id = idFromUrl(value);
                     QSvgStructureNode *group = 0;
                     QSvgNode *dummy = node;
-                    while (dummy && (dummy->type() != QSvgNode::DOC &&
-                                     dummy->type() != QSvgNode::G   &&
-                                     dummy->type() != QSvgNode::DEFS)) {
+                    while (dummy && (dummy->type() != QSvgNode::DOC  &&
+                                     dummy->type() != QSvgNode::G    &&
+                                     dummy->type() != QSvgNode::DEFS &&
+                                     dummy->type() != QSvgNode::SWITCH)) {
                         dummy = dummy->parent();
                     }
                     if (dummy)
@@ -642,9 +645,10 @@ static bool parseQBrush(const QXmlAttributes &attributes, QSvgNode *node,
 
             QSvgStructureNode *group = 0;
             QSvgNode *dummy = node;
-            while (dummy && (dummy->type() != QSvgNode::DOC &&
-                             dummy->type() != QSvgNode::G   &&
-                             dummy->type() != QSvgNode::DEFS)) {
+            while (dummy && (dummy->type() != QSvgNode::DOC  &&
+                             dummy->type() != QSvgNode::G    &&
+                             dummy->type() != QSvgNode::DEFS &&
+                             dummy->type() != QSvgNode::SWITCH)) {
                 dummy = dummy->parent();
             }
             if (dummy)
@@ -1390,6 +1394,36 @@ static bool parseCSSStyle(QSvgNode *node,
     return true;
 }
 
+static inline QStringList stringToList(const QString &str)
+{
+    QStringList lst = str.split(",", QString::SkipEmptyParts);
+    return lst;
+}
+
+static bool parseCoreNode(QSvgNode *node,
+                          const QXmlAttributes &attributes)
+{
+    QString featuresStr   = attributes.value("requiredFeatures");
+    QString extensionsStr = attributes.value("requiredExtensions");
+    QString languagesStr  = attributes.value("systemLanguage");
+    QString formatsStr    = attributes.value("requiredFormats");
+    QString fontsStr      = attributes.value("requiredFonts");
+
+    QStringList features = stringToList(featuresStr);
+    QStringList extensions = stringToList(extensionsStr);
+    QStringList languages = stringToList(languagesStr);
+    QStringList formats = stringToList(formatsStr);
+    QStringList fonts = stringToList(fontsStr);
+
+    node->setRequiredFeatures(features);
+    node->setRequiredExtensions(extensions);
+    node->setRequiredLanguages(languages);
+    node->setRequiredFormats(formats);
+    node->setRequiredFonts(fonts);
+
+    return true;
+}
+
 static bool parseStyle(QSvgNode *node,
                        const QXmlAttributes &attributes)
 {
@@ -2052,11 +2086,12 @@ static QSvgNode *createSvgNode(QSvgNode *parent,
     return node;
 }
 
-static bool parseSwitchNode(QSvgNode *parent,
-                            const QXmlAttributes &attributes)
+static QSvgNode *createSwitchNode(QSvgNode *parent,
+                                  const QXmlAttributes &attributes)
 {
-    Q_UNUSED(parent); Q_UNUSED(attributes);
-    return true;
+    Q_UNUSED(attributes);
+    QSvgSwitch *node = new QSvgSwitch(parent);
+    return node;
 }
 
 static bool parseTbreakNode(QSvgNode *parent,
@@ -2111,6 +2146,7 @@ static QSvgNode *createUseNode(QSvgNode *parent,
     case QSvgNode::DOC:
     case QSvgNode::DEFS:
     case QSvgNode::G:
+    case QSvgNode::SWITCH:
         group = static_cast<QSvgStructureNode*>(parent);
         break;
     default:
@@ -2176,7 +2212,9 @@ bool QSvgHandler::startElement(const QString &namespaceURI,
             switch (m_nodes.top()->type()) {
             case QSvgNode::DOC:
             case QSvgNode::G:
-            case QSvgNode::DEFS: {
+            case QSvgNode::DEFS:
+            case QSvgNode::SWITCH:
+            {
                 QSvgStructureNode *group =
                     static_cast<QSvgStructureNode*>(m_nodes.top());
                 group->addChild(node, attributes.value("id"));
@@ -2186,6 +2224,7 @@ bool QSvgHandler::startElement(const QString &namespaceURI,
                 break;
             }
         }
+        parseCoreNode(node, attributes);
         parseStyle(node, attributes);
     } else if (s_graphicsFactory.contains(localName)) {
         //rendering element
@@ -2196,7 +2235,9 @@ bool QSvgHandler::startElement(const QString &namespaceURI,
             switch (m_nodes.top()->type()) {
             case QSvgNode::DOC:
             case QSvgNode::G:
-            case QSvgNode::DEFS: {
+            case QSvgNode::DEFS:
+            case QSvgNode::SWITCH:
+            {
                 QSvgStructureNode *group =
                     static_cast<QSvgStructureNode*>(m_nodes.top());
                 group->addChild(node, attributes.value("id"));
@@ -2205,6 +2246,8 @@ bool QSvgHandler::startElement(const QString &namespaceURI,
             default:
                 Q_ASSERT(!"not a grouping element is the parent");
             }
+
+            parseCoreNode(node, attributes);
             if (node->type() != QSvgNode::TEXT)
                 parseStyle(node, attributes);
             else
@@ -2323,7 +2366,6 @@ void QSvgHandler::init()
     s_utilFactory.insert("script", (ParseMethod) parseScriptNode);
     s_utilFactory.insert("set", (ParseMethod) parseSetNode);
     s_utilFactory.insert("style", (ParseMethod) parseStyleNode);
-    s_utilFactory.insert("switch", (ParseMethod) parseSwitchNode);
     s_utilFactory.insert("tBreak", (ParseMethod) parseTbreakNode);
     s_utilFactory.insert("title", (ParseMethod) parseTitleNode);
     s_utilFactory.insert("tspan", (ParseMethod) (ParseMethod) parseTspanNode);
@@ -2331,6 +2373,7 @@ void QSvgHandler::init()
     s_groupFactory.insert("svg", (FactoryMethod) createSvgNode);
     s_groupFactory.insert("g", (FactoryMethod) createGNode);
     s_groupFactory.insert("defs", (FactoryMethod) createDefsNode);
+    s_groupFactory.insert("switch", (FactoryMethod) createSwitchNode);
 
     s_graphicsFactory.insert("animation", (FactoryMethod) createAnimationNode);
     s_graphicsFactory.insert("circle", (FactoryMethod) createCircleNode);
