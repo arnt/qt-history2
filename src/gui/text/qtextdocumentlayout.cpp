@@ -260,10 +260,16 @@ struct QCheckPoint
     qreal y;
     int positionInFrame;
 };
+Q_DECLARE_TYPEINFO(QCheckPoint, Q_PRIMITIVE_TYPE);
 
 static bool operator<(const QCheckPoint &checkPoint, qreal y)
 {
     return checkPoint.y < y;
+}
+
+static bool operator<(const QCheckPoint &checkPoint, int pos)
+{
+    return checkPoint.positionInFrame < pos;
 }
 
 class QTextDocumentLayoutPrivate : public QAbstractTextDocumentLayoutPrivate
@@ -1534,11 +1540,29 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
 
     const bool inRootFrame = (it.parentFrame() == q->document()->rootFrame());
     if (inRootFrame) {
-        checkPoints.clear();
-        QCheckPoint cp;
-        cp.y = 0;
-        cp.positionInFrame = 0;
-        checkPoints << cp;
+        bool redoCheckPoints = layoutStruct->fullLayout || checkPoints.isEmpty();
+
+        if (!redoCheckPoints) {
+            QVector<QCheckPoint>::Iterator checkPoint = qLowerBound(checkPoints.begin(), checkPoints.end(), layoutFrom);
+            if (checkPoint != checkPoints.end()) {
+                if (checkPoint != checkPoints.begin())
+                    --checkPoint;
+
+                layoutStruct->y = checkPoint->y;
+                it = iteratorForTextPosition(checkPoint->positionInFrame);
+                checkPoints.resize(checkPoint - checkPoints.begin() + 1);
+            } else {
+                redoCheckPoints = true;
+            }
+        }
+
+        if (redoCheckPoints) {
+            checkPoints.clear();
+            QCheckPoint cp;
+            cp.y = 0;
+            cp.positionInFrame = 0;
+            checkPoints << cp;
+        }
     }
 
     QTextFrame *lastFrame = 0;
