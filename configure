@@ -2737,7 +2737,7 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
                     CFG_SQL_mysql=plugin
                 fi
             else
-                if [ "$CFG_SQL_psql" != "auto" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+                if [ "$CFG_SQL_mysql" != "auto" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
                     echo "MySQL support cannot be enabled due to functionality tests!"
                     echo " Turn on verbose messaging (-v) to $0 to see the final report."
                     echo " If you believe this message is in error you may use the continue"
