@@ -16,7 +16,7 @@
 #include <QByteArray>
 #include <QDateTime>
 
-static const char ClientID[] = "-QT-"QT_VERSION_STR"-";
+static const char ClientID[] = "QT-"QT_VERSION_STR;
 static const int MaxConnections = 250;
 
 Q_GLOBAL_STATIC(ConnectionManager, connectionManager)
@@ -52,6 +52,7 @@ QByteArray ConnectionManager::clientId() const
         // Generate peer id
         int startupTime = int(QDateTime::currentDateTime().toTime_t());
         id = ClientID + QByteArray::number(startupTime, 16);
+        id = id.left(8) + "-";
         id += QByteArray(20 - id.size(), '-');
     }
     return id;
