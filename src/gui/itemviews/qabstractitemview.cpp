@@ -1711,7 +1711,7 @@ int QAbstractItemView::verticalStepsPerItem() const
 void QAbstractItemView::keyboardSearch(const QString &search)
 {
     Q_D(QAbstractItemView);
-    if (!model())
+    if (!model() || !model()->rowCount(rootIndex()) || !model()->columnCount(rootIndex()))
         return;
 
     QModelIndex start = currentIndex().isValid() ? currentIndex()
