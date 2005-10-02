@@ -1140,6 +1140,7 @@ enum IndicProperties {
     CligProperty = 0x10000
 };
 
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
 static const QOpenType::Features indic_features[] = {
     { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty }, 
     { FT_MAKE_TAG('i', 'n', 'i', 't'), InitProperty },
@@ -1157,6 +1158,7 @@ static const QOpenType::Features indic_features[] = {
     { FT_MAKE_TAG('h', 'a', 'l', 'n'), HalantProperty }, 
     { 0, 0 }
 };
+#endif
 
 // #define INDIC_DEBUG
 #ifdef INDIC_DEBUG
@@ -1996,13 +1998,14 @@ static inline TibetanForm tibetan_form(const QChar &c)
     return (TibetanForm)tibetanForm[c.unicode() - 0x0f40];
 }
 
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
 static const QOpenType::Features tibetan_features[] = {
     { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty },
     { FT_MAKE_TAG('a', 'b', 'v', 's'), AboveSubstProperty },
     { FT_MAKE_TAG('b', 'l', 'w', 's'), BelowSubstProperty },
     {0, 0}
 };
-
+#endif
 
 static bool tibetan_shape_syllable(QOpenType *openType, QShaperItem *item, bool invalid)
 {
@@ -2471,6 +2474,7 @@ static inline int khmer_nextSyllableBoundary(const QString &s, int start, int en
 }
 
 
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
 static const QOpenType::Features khmer_features[] = {
     { FT_MAKE_TAG( 'p', 'r', 'e', 'f' ), PreFormProperty },
     { FT_MAKE_TAG( 'b', 'l', 'w', 'f' ), BelowFormProperty },
@@ -2483,11 +2487,14 @@ static const QOpenType::Features khmer_features[] = {
     { FT_MAKE_TAG( 'c', 'l', 'i', 'g' ), CligProperty }, 
     { 0, 0 }
 };
+#endif
 
 
 static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
 {
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
     openType->selectScript(QUnicodeTables::Khmer, khmer_features);
+#endif
     // according to the specs this is the max length one can get
     // ### the real value should be smaller
     assert(item->length < 13);
@@ -2895,6 +2902,7 @@ static int hangul_nextSyllableBoundary(const QString &s, int start, int end)
     return start+pos;
 }
 
+#if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
 static const QOpenType::Features hangul_features [] = {
     { FT_MAKE_TAG('c', 'c', 'm', 'p'), CcmpProperty }, 
     { FT_MAKE_TAG('l', 'j', 'm', 'o'), CcmpProperty }, 
@@ -2902,6 +2910,7 @@ static const QOpenType::Features hangul_features [] = {
     { FT_MAKE_TAG('t', 'j', 'm', 'o'), CcmpProperty }, 
     { 0, 0 }
 };
+#endif
 
 static bool hangul_shape_syllable(QOpenType *openType, QShaperItem *item)
 {
