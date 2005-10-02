@@ -78,8 +78,8 @@ private:
     void ensureLayouted(int position) const;
     void doLayout(int from, int oldLength, int length);
 
-    Q_PRIVATE_SLOT(d_func(), int dynamicPageCountSlot())
-    Q_PRIVATE_SLOT(d_func(), QSizeF dynamicDocumentSizeSlot())
+    Q_PRIVATE_SLOT(d_func(), int dynamicPageCount())
+    Q_PRIVATE_SLOT(d_func(), QSizeF dynamicDocumentSize())
 };
 
 #endif // QTEXTDOCUMENTLAYOUT_P_H

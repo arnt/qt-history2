@@ -335,9 +335,11 @@ QString QAbstractTextDocumentLayout::anchorAt(const QPointF& pos) const
 int QAbstractTextDocumentLayout::dynamicPageCount() const
 {
     int count = 0;
-    QMetaObject::invokeMethod(const_cast<QAbstractTextDocumentLayout *>(this),
-                              "dynamicPageCountSlot", Qt::DirectConnection,
-                              Q_RETURN_ARG(int, count));
+    bool invoked = QMetaObject::invokeMethod(const_cast<QAbstractTextDocumentLayout *>(this),
+                                            "dynamicPageCount", Qt::DirectConnection,
+                                            Q_RETURN_ARG(int, count));
+    if (!invoked)
+        count = pageCount();
     return count;
 }
 
@@ -347,9 +349,11 @@ int QAbstractTextDocumentLayout::dynamicPageCount() const
 QSizeF QAbstractTextDocumentLayout::dynamicDocumentSize() const
 {
     QSizeF size;
-    QMetaObject::invokeMethod(const_cast<QAbstractTextDocumentLayout *>(this),
-                              "dynamicDocumentSizeSlot", Qt::DirectConnection,
-                              Q_RETURN_ARG(QSizeF, size));
+    bool invoked = QMetaObject::invokeMethod(const_cast<QAbstractTextDocumentLayout *>(this),
+                                             "dynamicDocumentSize", Qt::DirectConnection,
+                                             Q_RETURN_ARG(QSizeF, size));
+    if (!invoked)
+        size = documentSize();
     return size;
 }
 
