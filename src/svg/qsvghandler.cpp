@@ -1908,7 +1908,7 @@ static bool parsePrefetchNode(QSvgNode *parent,
     return true;
 }
 
-static QSvgStyleProperty *createRadialGradientNode(QSvgNode *,
+static QSvgStyleProperty *createRadialGradientNode(QSvgNode *node,
                                                    const QXmlAttributes &attributes)
 {
     QString cx = attributes.value("cx");
@@ -1916,6 +1916,7 @@ static QSvgStyleProperty *createRadialGradientNode(QSvgNode *,
     QString r  = attributes.value("r");
     QString fx = attributes.value("fx");
     QString fy = attributes.value("fy");
+    QString link = attributes.value("xlink:href");
 
     qreal ncx = 0.5;
     qreal ncy = 0.5;
@@ -1930,6 +1931,15 @@ static QSvgStyleProperty *createRadialGradientNode(QSvgNode *,
     qreal nfy = fy.toDouble();
 
     QRadialGradient *grad = new QRadialGradient(ncx, ncy, nr, nfx, nfy);
+    if (!link.isEmpty()) {
+        QSvgStyleProperty *prop = node->styleProperty(link);
+        //qDebug()<<"inherited "<<prop<<" ("<<link<<")";
+        if (prop && prop->type() == QSvgStyleProperty::GRADIENT) {
+            QSvgGradientStyle *inherited =
+                static_cast<QSvgGradientStyle*>(prop);
+            grad->setStops(inherited->qgradient()->stops());
+        }
+    }
     QSvgStyleProperty *prop = new QSvgGradientStyle(grad);
     return prop;
 }
@@ -2034,7 +2044,7 @@ static bool parseStopNode(QSvgStyleProperty *parent,
     }
     bool colorOK = constructColor(colorStr, opacityStr, color);
     QGradient *grad = style->qgradient();
-//    qDebug()<<"set color at"<<offset<<color;
+    //qDebug()<<"set color at"<<offset<<color;
     grad->setColorAt(offset, color);
     if (!colorOK)
         style->addResolve(offset);
