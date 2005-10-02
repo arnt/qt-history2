@@ -2039,7 +2039,7 @@ Third Party Libraries:
 
     -no-libjpeg ........ Do not compile the plugin for JPEG support.
     -qt-libjpeg ........ Use the libjpeg bundled with Qt.
- +  -system-libjpeg .... Use jpeglib from the operating system.
+ +  -system-libjpeg .... Use libjpeg from the operating system.
                          See http://www.ijg.org
 
 Additional options:
