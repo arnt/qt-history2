@@ -374,12 +374,14 @@ char QSocks5Authenticator::methodId()
 
 bool QSocks5Authenticator::beginAuthenticate(QTcpSocket *socket, bool *completed)
 {
+    Q_UNUSED(socket);
     *completed = true;
     return true;
 }
 
 bool QSocks5Authenticator::continueAuthenticate(QTcpSocket *socket, bool *completed)
 {
+    Q_UNUSED(socket);
     *completed = true;
     return true;
 }
@@ -440,14 +442,14 @@ bool QSocks5PasswordAuthenticator::continueAuthenticate(QTcpSocket *socket, bool
 
 
 QSocks5SocketEnginePrivate::QSocks5SocketEnginePrivate()
-    : readNotificationEnabled(false)
+    : socks5State(unInitialized)
+    , readNotificationEnabled(false)
     , writeNotificationEnabled(false)
     , exceptNotificationEnabled(false)
     , data(0)
     , connectData(0)
     , udpData(0)
     , bindData(0)
-    , socks5State(unInitialized)
     , readNotificationActivated(false)
     , writeNotificationActivated(false)
 {
@@ -494,8 +496,6 @@ void QSocks5SocketEnginePrivate::initialize(Socks5Mode socks5Mode)
 
 void QSocks5SocketEnginePrivate::parseAuthenticationMethodReply()
 {
-    Q_Q(QSocks5SocketEngine);
-    
     // not enough data to begin
     if (data->controlSocket->bytesAvailable() < 2)
         return;
@@ -538,7 +538,6 @@ void QSocks5SocketEnginePrivate::parseAuthenticationMethodReply()
 
 void QSocks5SocketEnginePrivate::parseAuthenticatingReply()
 {
-    Q_Q(QSocks5SocketEngine);
     bool authComplete = false;
     if (!data->authenticator->continueAuthenticate(data->controlSocket, &authComplete)) {
         // authentication error
@@ -706,7 +705,6 @@ void QSocks5SocketEnginePrivate::emitWriteNotification()
 QSocks5SocketEngine::QSocks5SocketEngine(QObject *parent)
 :QAbstractSocketEngine(*new QSocks5SocketEnginePrivate(), parent)
 {
-    Q_D(QSocks5SocketEngine);
 }
 
 QSocks5SocketEngine::~QSocks5SocketEngine()
@@ -1222,13 +1220,14 @@ qint64 QSocks5SocketEngine::pendingDatagramSize() const
 
 int QSocks5SocketEngine::option(SocketOption option) const
 {
-    Q_D(const QSocks5SocketEngine);
+    Q_UNUSED(option);
     return -1; 
 }
 
 bool QSocks5SocketEngine::setOption(SocketOption option, int value)
 {
-    Q_D(const QSocks5SocketEngine);
+    Q_UNUSED(option);
+    Q_UNUSED(value);
     return false; 
 }
 
@@ -1319,7 +1318,7 @@ bool QSocks5SocketEngine::waitForReadOrWrite(bool *readyToRead, bool *readyToWri
                                             bool checkRead, bool checkWrite,
                                             int msecs, bool *timedOut) const
 {
-    Q_D(const QSocks5SocketEngine);
+    Q_UNUSED(checkRead);
     if (!checkWrite) {
         bool canRead = waitForRead(msecs, timedOut);
         if (readyToRead)
@@ -1377,6 +1376,8 @@ void QSocks5SocketEngine::setExceptionNotificationEnabled(bool enable)
 
 QAbstractSocketEngine *QSocks5SocketEngineHandler::createSocketEngine(const QHostAddress &address, QAbstractSocket::SocketType socketType, QObject *parent)
 {
+    Q_UNUSED(socketType);
+
     QSOCKS5_DEBUG << "createSocketEngine" << address;
 
     QNetworkProxy proxy;
