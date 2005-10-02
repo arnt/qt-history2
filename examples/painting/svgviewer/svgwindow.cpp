@@ -20,7 +20,7 @@ SvgWindow::SvgWindow()
     : QScrollArea()
 {
     QWidget *view = new QWidget(this);
-    renderer = SvgWindow::Native;
+    renderer = SvgWindow::Image;
     setWidget(view);
 }
 
