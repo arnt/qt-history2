@@ -1779,6 +1779,7 @@ static QSvgStyleProperty *createLinearGradientNode(QSvgNode *node,
     QString x2 = attributes.value("x2");
     QString y2 = attributes.value("y2");
     QString link = attributes.value("xlink:href");
+    QString trans = attributes.value("gradientTransform");
     qreal nx1 = x1.toDouble();
     qreal ny1 = y1.toDouble();
     qreal nx2 = x2.toDouble();
@@ -1795,6 +1796,18 @@ static QSvgStyleProperty *createLinearGradientNode(QSvgNode *node,
         nx2 = doc->viewBox().width();
     if (ny2 == 0)
         ny2 = doc->viewBox().height();
+
+    if (!trans.isEmpty()) {
+        QMatrix matrix;
+        matrix = parseTransformationMatrix(trans);
+        QPointF pt(nx1, ny1);
+        pt = matrix.map(pt);
+        nx1 = pt.x();
+        ny1 = pt.y();
+        pt = matrix.map(QPointF(nx2, ny2));
+        nx2 = pt.x();
+        ny2 = pt.y();
+    }
 
     QLinearGradient *grad = new QLinearGradient(nx1, ny1, nx2, ny2);
     if (!link.isEmpty()) {
@@ -1917,6 +1930,7 @@ static QSvgStyleProperty *createRadialGradientNode(QSvgNode *node,
     QString fx = attributes.value("fx");
     QString fy = attributes.value("fy");
     QString link = attributes.value("xlink:href");
+    QString trans = attributes.value("gradientTransform");
 
     qreal ncx = 0.5;
     qreal ncy = 0.5;
@@ -1930,6 +1944,18 @@ static QSvgStyleProperty *createRadialGradientNode(QSvgNode *node,
     qreal nfx = fx.toDouble();
     qreal nfy = fy.toDouble();
 
+    if (!trans.isEmpty()) {
+        QMatrix matrix;
+        matrix = parseTransformationMatrix(trans);
+        QPointF pt(ncx, ncy);
+        pt = matrix.map(pt);
+        ncx = pt.x();
+        ncy = pt.y();
+        pt = matrix.map(QPointF(nfx, nfy));
+        nfx = pt.x();
+        nfy = pt.y();
+    }
+
     QRadialGradient *grad = new QRadialGradient(ncx, ncy, nr, nfx, nfy);
     if (!link.isEmpty()) {
         QSvgStyleProperty *prop = node->styleProperty(link);
@@ -1940,7 +1966,7 @@ static QSvgStyleProperty *createRadialGradientNode(QSvgNode *node,
             grad->setStops(inherited->qgradient()->stops());
         }
     }
-    QSvgStyleProperty *prop = new QSvgGradientStyle(grad);
+    QSvgGradientStyle *prop = new QSvgGradientStyle(grad);
     return prop;
 }
 
