@@ -13,8 +13,6 @@
 
 #include "qsql_psql.h"
 
-#include <math.h>
-
 #include <qcoreapplication.h>
 #include <qvariant.h>
 #include <qdatetime.h>
@@ -29,6 +27,7 @@
 #include <libpq-fe.h>
 
 #include <stdlib.h>
+#include <math.h>
 
 // workaround for postgres defining their OIDs in a private header file
 #define QBOOLOID 16
