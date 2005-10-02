@@ -324,6 +324,8 @@ static qreal convertToPixels(qreal len, bool isX, LengthType type)
     case PC:
         break;
     case PT:
+        //### inkscape exports it as inkscape:export-[x,y]dpi
+        len *= (dpi/72.0);
         break;
     case MM:
         len *= screen/mm;
