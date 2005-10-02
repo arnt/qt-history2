@@ -163,9 +163,9 @@ public:
         Node *i;
         typedef std::random_access_iterator_tag  iterator_category;
         typedef ptrdiff_t difference_type;
-        typedef T value_type;
-        typedef T *pointer;
-        typedef T &reference;
+        typedef const T value_type;
+        typedef const T *pointer;
+        typedef const T &reference;
 
         inline const_iterator() : i(0) {}
         inline const_iterator(Node *n) : i(n) {}
