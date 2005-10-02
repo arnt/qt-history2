@@ -74,12 +74,11 @@ protected:
                           int posInDocument, const QTextFormat &format);
     virtual void timerEvent(QTimerEvent *e);
 private:
-    void ensureFrameLayouted(QTextFrame *frame) const;
-    void ensureLayouted(int position) const;
     void doLayout(int from, int oldLength, int length);
 
     Q_PRIVATE_SLOT(d_func(), int dynamicPageCount())
     Q_PRIVATE_SLOT(d_func(), QSizeF dynamicDocumentSize())
+    Q_PRIVATE_SLOT(d_func(), void ensureLayouted(qreal))
 };
 
 #endif // QTEXTDOCUMENTLAYOUT_P_H

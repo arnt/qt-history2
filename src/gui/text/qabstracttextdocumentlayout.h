@@ -62,6 +62,7 @@ public:
 
     int dynamicPageCount() const;
     QSizeF dynamicDocumentSize() const;
+    void ensureLayouted(qreal y);
 
     virtual QRectF frameBoundingRect(QTextFrame *frame) const = 0;
     virtual QRectF blockBoundingRect(const QTextBlock &block) const = 0;

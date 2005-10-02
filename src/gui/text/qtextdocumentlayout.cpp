@@ -357,6 +357,8 @@ public:
 
     int dynamicPageCount() const;
     QSizeF dynamicDocumentSize() const;
+    void ensureLayouted(qreal y) const;
+    void ensureLayoutFinished() const;
 };
 
 QTextFrame::Iterator QTextDocumentLayoutPrivate::iteratorForYPosition(qreal y) const
@@ -2143,14 +2145,20 @@ QSizeF QTextDocumentLayoutPrivate::dynamicDocumentSize() const
 
 int QTextDocumentLayout::pageCount() const
 {
-    ensureFrameLayouted(document()->rootFrame());
-    return d_func()->dynamicPageCount();
+    Q_D(const QTextDocumentLayout);
+    d->ensureLayoutFinished();
+    return d->dynamicPageCount();
 }
 
 QSizeF QTextDocumentLayout::documentSize() const
 {
-    ensureFrameLayouted(document()->rootFrame());
-    return d_func()->dynamicDocumentSize();
+    Q_D(const QTextDocumentLayout);
+    d->ensureLayoutFinished();
+    return d->dynamicDocumentSize();
+}
+
+void QTextDocumentLayoutPrivate::ensureLayouted(qreal y) const
+{
 }
 
 // Pull this private function in from qglobal.cpp
@@ -2223,7 +2231,7 @@ void QTextDocumentLayout::setFixedColumnWidth(int width)
 QRectF QTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
 {
     QPointF pos;
-    ensureFrameLayouted(frame);
+    d_func()->ensureLayoutFinished();
     QTextFrame *f = frame;
     while (f) {
         pos += data(f)->position;
@@ -2257,34 +2265,34 @@ QRectF QTextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
     return rect;
 }
 
-void QTextDocumentLayout::ensureFrameLayouted(QTextFrame *frame) const
+void QTextDocumentLayoutPrivate::ensureLayoutFinished() const
 {
-    // +1 to include EndOfFrame marker
-    ensureLayouted(frame->lastPosition() + 1);
+    // ####
 }
 
-void QTextDocumentLayout::ensureLayouted(int position) const
+/*
+void QTextDocumentLayoutPrivate::ensureLayouted(int position) const
 {
-    Q_D(const QTextDocumentLayout);
-    if (d->currentIncrementalLayoutPosition == -1)
+    if (currentIncrementalLayoutPosition == -1)
         return;
 
-    qDebug() << "ensureLayouted" << position << "(while current inremental layout pos is" << d->currentIncrementalLayoutPosition << ")";
+    qDebug() << "ensureLayouted" << position << "(while current inremental layout pos is" << currentIncrementalLayoutPosition << ")";
 
-    if (position >= d->currentIncrementalLayoutPosition) {
-        QTextDocumentLayout *that = const_cast<QTextDocumentLayout *>(this);
-        QTextDocumentLayoutPrivate *d = that->d_func();
+    if (position >= currentIncrementalLayoutPosition) {
+        Q_Q(const QTextDocumentLayout);
+        QTextDocumentLayoutPrivate *d = const_cast<QTextDocumentLayoutPrivate *>(this);
 
-        const int len = position - d->currentIncrementalLayoutPosition;
-        that->doLayout(d->currentIncrementalLayoutPosition, len, len);
+        const int len = position - currentIncrementalLayoutPosition;
+        const_cast<QTextDocumentLayout *>(q)->doLayout(currentIncrementalLayoutPosition, len, len);
         d->currentIncrementalLayoutPosition += len;
 
-        qDebug() << "doclen" << document()->docHandle()->length();
-        if (d->currentIncrementalLayoutPosition >= document()->docHandle()->length()) {
+        qDebug() << "doclen" << q->document()->docHandle()->length();
+        if (d->currentIncrementalLayoutPosition >= q->document()->docHandle()->length()) {
             d->currentIncrementalLayoutPosition = -1;
         }
     }
 }
+*/
 
 void QTextDocumentLayout::timerEvent(QTimerEvent *e)
 {

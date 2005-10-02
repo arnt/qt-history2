@@ -357,6 +357,12 @@ QSizeF QAbstractTextDocumentLayout::dynamicDocumentSize() const
     return size;
 }
 
+void QAbstractTextDocumentLayout::ensureLayouted(qreal y)
+{
+    QMetaObject::invokeMethod(this, "ensureLayouted", Qt::DirectConnection,
+                              Q_ARG(qreal, y));
+}
+
 /*!
     Returns the bounding rectacle of \a frame.
     \fn QRectF QAbstractTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const

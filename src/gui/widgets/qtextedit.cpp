@@ -1861,6 +1861,7 @@ void QTextEditPrivate::relayoutDocument()
     ignoreAutomaticScrollbarAdjustement = true;
 
     doc->setPageSize(QSize(width, INT_MAX));
+    layout->ensureLayouted(vbar->value() + viewport->height());
 
     ignoreAutomaticScrollbarAdjustement = false;
 
