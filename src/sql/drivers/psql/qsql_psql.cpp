@@ -888,4 +888,3 @@ QPSQLDriver::Protocol QPSQLDriver::protocol() const
 {
     return d->pro;
 }
-
