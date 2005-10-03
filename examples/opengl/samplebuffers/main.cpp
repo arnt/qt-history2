@@ -15,6 +15,11 @@
 
 int main(int argc, char **argv)
 {
+    if (!QGLFormat::hasOpenGL()) {
+        qWarning("This system does not support OpenGL. Exiting..");
+        return 0;
+    }
+
     QApplication a(argc, argv);
     GLWidget widget(0);
     widget.resize(640, 480);
