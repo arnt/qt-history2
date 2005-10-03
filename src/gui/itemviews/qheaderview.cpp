@@ -1967,7 +1967,7 @@ int QHeaderViewPrivate::sectionHandleAt(int position)
         return -1;
     int log = logicalIndex(visual);
     int pos = q->sectionViewportPosition(log);
-    Q_ASSERT(pos >= 0 && !isSectionHidden(log));
+    Q_ASSERT(pos >= 0 && !q->isSectionHidden(log));
     int grip = q->style()->pixelMetric(QStyle::PM_HeaderGripMargin);
     if (reverse()) { // FIXME:
         if (position < pos + grip)
@@ -1993,7 +1993,7 @@ void QHeaderViewPrivate::setupSectionIndicator(int section, int position)
 
     int x, y, w, h;
     int p = q->sectionViewportPosition(section);
-    Q_ASSERT(p >= 0 && !isSectionHidden(section));
+    Q_ASSERT(p >= 0 && !q->isSectionHidden(section));
     if (orientation == Qt::Horizontal) {
         x = p;
         y = 0;
