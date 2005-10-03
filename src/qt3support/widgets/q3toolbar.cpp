@@ -691,7 +691,7 @@ void Q3ToolBar::actionEvent(QActionEvent *e)
                 btn->setIconSet(icon);
             connect(btn, SIGNAL(clicked()), a, SIGNAL(triggered()));
             connect(btn, SIGNAL(clicked()), a, SIGNAL(activated()));
-//         connect(btn, SIGNAL(toggled(bool)), a, SLOT(toolButtonToggled(bool)));
+            connect(btn, SIGNAL(toggled(bool)), a, SLOT(setChecked(bool)));
 // #ifndef QT_NO_TOOLTIP
 //         connect(&(d->tipGroup), SIGNAL(showTip(QString)), this, SLOT(showStatusText(QString)));
 //         connect(&(d->tipGroup), SIGNAL(removeTip()), this, SLOT(clearStatusText()));
