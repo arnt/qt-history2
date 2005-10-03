@@ -200,6 +200,7 @@ protected:
     void keyPressEvent(QKeyEvent *e);
     void keyReleaseEvent(QKeyEvent *e);
     void wheelEvent(QWheelEvent *e);
+    void contextMenuEvent(QContextMenuEvent *e);
     void inputMethodEvent(QInputMethodEvent *);
     QVariant inputMethodQuery(Qt::InputMethodQuery) const;
 

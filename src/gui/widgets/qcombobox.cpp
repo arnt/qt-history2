@@ -1165,6 +1165,7 @@ void QComboBox::setLineEdit(QLineEdit *edit)
     connect(d->lineEdit, SIGNAL(textChanged(QString)), this, SIGNAL(textChanged(QString)));
 #endif
     d->lineEdit->setFrame(false);
+    d->lineEdit->setContextMenuPolicy(Qt::NoContextMenu);
     d->lineEdit->setFocusProxy(this);
     setAttribute(Qt::WA_InputMethodEnabled);
     d->updateLineEditGeometry();
@@ -1996,6 +1997,22 @@ void QComboBox::wheelEvent(QWheelEvent *e)
     }
 }
 #endif
+
+/*!
+    \reimp
+*/
+void QComboBox::contextMenuEvent(QContextMenuEvent *e)
+{
+    Q_D(QComboBox);
+    qDebug("contextMenuEvent");
+    if (d->lineEdit) {
+        qDebug("  contextMenuEvent");
+        Qt::ContextMenuPolicy p = d->lineEdit->contextMenuPolicy();
+        d->lineEdit->setContextMenuPolicy(Qt::DefaultContextMenu);
+        d->lineEdit->event(e);
+        d->lineEdit->setContextMenuPolicy(p);
+    }
+}
 
 /*!
     \reimp
