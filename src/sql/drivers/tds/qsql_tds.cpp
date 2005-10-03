@@ -538,6 +538,22 @@ bool QTDSDriver::open(const QString & db,
     DBSETLPWD(d->login, const_cast<char*>(password.toLocal8Bit().constData()));
     DBSETLUSER(d->login, const_cast<char*>(user.toLocal8Bit().constData()));
 
+    // Now, try to open and use the database. If this fails, return false.
+    DBPROCESS* dbproc;
+
+    dbproc = dbopen(d->login, const_cast<char*>(host.toLatin1().constData()));
+    if (!dbproc) {
+        setLastError(qMakeError(tr("Unable to open connection"), QSqlError::ConnectionError, -1));
+        setOpenError(true);
+        return false;
+    }
+    if (dbuse(dbproc, const_cast<char*>(db.toLatin1().constData())) == FAIL) {
+        setLastError(qMakeError(tr("Unable to use database"), QSqlError::ConnectionError, -1));
+        setOpenError(true);
+        return false;
+    }
+    dbclose( dbproc );
+
     setOpen(true);
     setOpenError(false);
     d->hostName = host;
