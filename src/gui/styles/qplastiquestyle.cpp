@@ -5104,6 +5104,7 @@ QPalette QPlastiqueStyle::standardPalette() const
     palette.setBrush(QPalette::Disabled, QPalette::BrightText, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Disabled, QPalette::ButtonText, QColor(QRgb(0xff808080)));
     palette.setBrush(QPalette::Disabled, QPalette::Base, QColor(QRgb(0xffefefef)));
+    palette.setBrush(QPalette::Disabled, QPalette::AlternateBase, palette.color(QPalette::Disabled, QPalette::Base).dark(110));
     palette.setBrush(QPalette::Disabled, QPalette::Background, QColor(QRgb(0xffefefef)));
     palette.setBrush(QPalette::Disabled, QPalette::Shadow, QColor(QRgb(0xff000000)));
     palette.setBrush(QPalette::Disabled, QPalette::Highlight, QColor(QRgb(0xff567594)));
@@ -5120,6 +5121,7 @@ QPalette QPlastiqueStyle::standardPalette() const
     palette.setBrush(QPalette::Active, QPalette::BrightText, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Active, QPalette::ButtonText, QColor(QRgb(0xff000000)));
     palette.setBrush(QPalette::Active, QPalette::Base, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Active, QPalette::AlternateBase, palette.color(QPalette::Active, QPalette::Base).dark(110));
     palette.setBrush(QPalette::Active, QPalette::Background, QColor(QRgb(0xffefefef)));
     palette.setBrush(QPalette::Active, QPalette::Shadow, QColor(QRgb(0xff000000)));
     palette.setBrush(QPalette::Active, QPalette::Highlight, QColor(QRgb(0xff678db2)));
@@ -5136,6 +5138,7 @@ QPalette QPlastiqueStyle::standardPalette() const
     palette.setBrush(QPalette::Inactive, QPalette::BrightText, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Inactive, QPalette::ButtonText, QColor(QRgb(0xff000000)));
     palette.setBrush(QPalette::Inactive, QPalette::Base, QColor(QRgb(0xffffffff)));
+    palette.setBrush(QPalette::Inactive, QPalette::AlternateBase, palette.color(QPalette::Inactive, QPalette::Base).dark(110));
     palette.setBrush(QPalette::Inactive, QPalette::Background, QColor(QRgb(0xffefefef)));
     palette.setBrush(QPalette::Inactive, QPalette::Shadow, QColor(QRgb(0xff000000)));
     palette.setBrush(QPalette::Inactive, QPalette::Highlight, QColor(QRgb(0xff678db2)));
