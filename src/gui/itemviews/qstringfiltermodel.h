@@ -34,7 +34,7 @@ public:
     int keyColumn() const;
     void setKeyColumn(int column);
 
-public slots:
+public Q_SLOTS:
     void setPattern(const QString &pattern); 
 
 protected:
