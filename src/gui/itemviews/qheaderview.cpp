@@ -646,6 +646,19 @@ bool QHeaderView::isSectionHidden(int logicalIndex) const
 }
 
 /*!
+    \since 4.1
+
+    Returns the number of sections in the header that has been hidden.
+
+    \sa setSectionHidden()
+*/
+int QHeaderView::hiddenSectionCount() const
+{
+    Q_D(const QHeaderView);
+    return d->hiddenSectionSize.count();
+}
+
+/*!
   If \a hide is true the section specified by \a logicalIndex is hidden,
   otherwise the section is shown.
 

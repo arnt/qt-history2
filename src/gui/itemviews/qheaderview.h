@@ -70,6 +70,7 @@ public:
 
     bool isSectionHidden(int logicalIndex) const;
     void setSectionHidden(int logicalIndex, bool hide);
+    int hiddenSectionCount() const;
 
     inline void hideSection(int logicalIndex);
     inline void showSection(int logicalIndex);
