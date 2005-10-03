@@ -613,9 +613,10 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
 
     if (d->has_pen) {
         QPainterPathStroker stroker;
-        stroker.setDashPattern(d->cpen.style());
+        stroker.setDashPattern(d->cpen.dashPattern());
         stroker.setCapStyle(d->cpen.capStyle());
         stroker.setJoinStyle(d->cpen.joinStyle());
+        stroker.setMiterLimit(d->cpen.miterLimit());
         QPainterPath stroke;
         qreal width = d->cpen.widthF();
         QPolygonF poly;
