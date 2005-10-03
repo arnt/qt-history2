@@ -856,6 +856,7 @@ void Moc::parseProperty(ClassDef *def)
     if (type.isEmpty())
         error();
     propDef.designable = propDef.scriptable = propDef.stored = "true";
+    propDef.user = "false";
     /*
       The Q_PROPERTY construct cannot contain any commas, since
       commas separate macro arguments. We therefore expect users
@@ -917,6 +918,9 @@ void Moc::parseProperty(ClassDef *def)
             propDef.editable = v + v2;
             break;
         case 'N': if (l != "NOTIFY") error(2);
+            break;
+        case 'U': if (l != "USER") error(2);
+            propDef.user = v + v2;
             break;
         default:
             error(2);

@@ -87,6 +87,7 @@
     \value QueryPropertyScriptable
     \value QueryPropertyStored
     \value QueryPropertyEditable
+    \value QueryPropertyUser
 */
 
 /*!
@@ -111,7 +112,9 @@ enum ProperyFlags  {
     Stored = 0x00010000,
     ResolveStored = 0x00020000,
     Editable = 0x00040000,
-    ResolveEditable = 0x00080000
+    ResolveEditable = 0x00080000,
+    User = 0x00160000,
+    ResolveUser = 0x00320000
 };
 
 enum MethodFlags  {
@@ -1827,6 +1830,30 @@ bool QMetaProperty::isStored(const QObject *object) const
     if (object) {
         void *argv[] = { &b };
         const_cast<QObject*>(object)->qt_metacall(QMetaObject::QueryPropertyStored,
+                                                  idx + mobj->propertyOffset(), argv);
+    }
+    return b;
+}
+
+/*!
+    Returns true if the property is user editable for \a object; otherwise returns
+    false.
+
+    If no \a object is given, the function returns false if the
+    \c{Q_PROPERTY()}'s \c USER attribute is false; otherwise returns
+    true (if the attribute is true or is a function or expression).
+
+    \sa isDesignable(), isScriptable(), isEditable()
+*/
+bool QMetaProperty::isUser(const QObject *object) const
+{
+    if (!mobj)
+        return false;
+    int flags = mobj->d.data[handle + 2];
+    bool b = flags & User;
+    if (object) {
+        void *argv[] = { &b };
+        const_cast<QObject*>(object)->qt_metacall(QMetaObject::QueryPropertyUser,
                                                   idx + mobj->propertyOffset(), argv);
     }
     return b;

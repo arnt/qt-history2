@@ -32,7 +32,9 @@ enum ProperyFlags  {
     Stored = 0x00010000,
     ResolveStored = 0x00020000,
     Editable = 0x00040000,
-    ResolveEditable = 0x00080000
+    ResolveEditable = 0x00080000,
+    User = 0x00160000,
+    ResolveUser = 0x00320000
 };
 enum MethodFlags {
     AccessPrivate = 0x00,
@@ -527,7 +529,12 @@ void Generator::generateProperties()
             flags |= ResolveEditable;
         else if (p.editable != "false")
             flags |= Editable;
-
+        
+        if (p.user.isEmpty())
+            flags |= ResolveUser;
+        else if (p.user != "false")
+            flags |= User;
+        
         fprintf(out, "    %4d, %4d, 0x%.8x,\n",
                  strreg(p.name),
                  strreg(p.type),
@@ -632,6 +639,7 @@ void Generator::generateMetacall()
         bool needScriptable = false;
         bool needStored = false;
         bool needEditable = false;
+        bool needUser = false;
         for (int i = 0; i < cdef->propertyList.size(); ++i) {
             const PropertyDef &p = cdef->propertyList.at(i);
             needGet |= !p.read.isEmpty();
@@ -645,6 +653,7 @@ void Generator::generateMetacall()
             needScriptable |= p.scriptable.endsWith(')');
             needStored |= p.stored.endsWith(')');
             needEditable |= p.editable.endsWith(')');
+            needUser |= p.user.endsWith(')');
         }
         bool needAnything = needGet
                             | needSet
@@ -652,7 +661,8 @@ void Generator::generateMetacall()
                             | needDesignable
                             | needScriptable
                             | needStored
-                            | needEditable;
+                            | needEditable
+                            | needUser;
         if (!needAnything)
             goto skip_properties;
         fprintf(out, "\n#ifndef QT_NO_PROPERTIES\n     ");
@@ -802,7 +812,26 @@ void Generator::generateMetacall()
                 "        _id -= %d;\n"
                 "    }", cdef->propertyList.count());
 
+        
+        fprintf(out, " else ");
+        fprintf(out, "if (_c == QMetaObject::QueryPropertyUser) {\n");
+        if (needUser) {
+            fprintf(out, "        bool *_b = reinterpret_cast<bool*>(_a[0]);\n");
+            fprintf(out, "        switch (_id) {\n");
+            for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
+                const PropertyDef &p = cdef->propertyList.at(propindex);
+                if (!p.user.endsWith(')'))
+                    continue;
+                fprintf(out, "        case %d: *_b = %s; break;\n",
+                         propindex, p.user.constData());
+            }
+            fprintf(out, "        }\n");
+        }
+        fprintf(out,
+                "        _id -= %d;\n"
+                "    }", cdef->propertyList.count());
 
+        
         fprintf(out, "\n#endif // QT_NO_PROPERTIES");
     }
  skip_properties:

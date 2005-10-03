@@ -66,7 +66,7 @@ struct FunctionDef
 struct PropertyDef
 {
     PropertyDef():gspec(ValueSpec){}
-    QByteArray name, type, read, write, reset, designable, scriptable, editable, stored;
+    QByteArray name, type, read, write, reset, designable, scriptable, editable, stored, user;
     enum Specification  { ValueSpec, ReferenceSpec, PointerSpec };
     Specification gspec;
     bool stdCppSet() const {
