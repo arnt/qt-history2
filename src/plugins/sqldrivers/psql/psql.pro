@@ -7,7 +7,7 @@ SOURCES		= main.cpp \
 unix:!contains( LIBS, .*pq.* ):LIBS	*= -lpq
 	
 win32:!contains(LIBS, .*pq.* ) {
-    LIBS    *= -lpq       
+    LIBS    *= -llibpq       
     LIBS    *= -lws2_32 -ladvapi32
 }
 

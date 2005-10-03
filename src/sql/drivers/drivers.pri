@@ -9,7 +9,7 @@ contains(sql-drivers, psql) {
     unix:!contains( LIBS, .*pq.* ):LIBS *= -lpq
 
     win32 {
-        !contains( LIBS, .*pq.* ):LIBS *= -lpq
+        !contains( LIBS, .*pq.* ):LIBS *= -llibpq
         LIBS *= -lws2_32 -ladvapi32
     }
 }
@@ -23,15 +23,10 @@ contains(sql-drivers, mysql) {
     } else:unix {
         !contains( LIBS, .*mysqlclient.* ):LIBS    *= -lmysqlclient
     }
-
-    win32 {
-        use_mysqlclient_r {
-	    !contains( LIBS, .*mysqlclient_r.* ):LIBS    *= -lmysqlclient_r
-        }
-        else {
-            !contains( LIBS, .*mysqlclient.* ):LIBS    *= -lmysqlclient
-        }
-    }
+    
+    win32:!contains(LIBS, .*mysql.*):!contains(LIBS, .*mysqld.*) {
+        LIBS     *= -llibmysql    
+    }    
 }
 
 contains(sql-drivers, odbc) {
