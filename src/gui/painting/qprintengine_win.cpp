@@ -204,7 +204,7 @@ bool QWin32PrintEngine::begin(QPaintDevice *)
 
     bool ok = d->state == QPrinter::Idle;
 
-    if (!d->hdc) 
+    if (!d->hdc)
         return false;
 
     // Assign the FILE: to get the query...
@@ -352,7 +352,7 @@ bool QWin32PrintEngine::abort()
     return false;
 }
 
-extern void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc, 
+extern void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
                               bool convertToText);
 void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
@@ -363,11 +363,11 @@ void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem
         return ;
     }
 
-    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);        
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
 
     // We only want to convert the glyphs to text if the entire string is latin1
     bool latin1String = true;
-    for (int i=0; (i<ti.num_chars && latin1String); ++i) 
+    for (int i=0; (i<ti.num_chars && latin1String); ++i)
         latin1String = latin1String && (ti.chars[i].toLatin1() == ti.chars[i]);
 
     qt_draw_text_item(
@@ -525,7 +525,7 @@ void QWin32PrintEngine::updateMatrix(const QMatrix &m)
     else if (d->matrix.dx() != 0 || d->matrix.dy() != 0)
         d->txop = QPainterPrivate::TxTranslate;
     else
-        d->txop = QPainterPrivate::TxNone;    
+        d->txop = QPainterPrivate::TxNone;
 
     d->complex_xform = (d->txop > QPainterPrivate::TxTranslate);
 }
@@ -718,9 +718,10 @@ void QWin32PrintEnginePrivate::fillPath(const QPainterPath &path, const QColor &
 void QWin32PrintEnginePrivate::strokePath(const QPainterPath &path, const QColor &color)
 {
     QPainterPathStroker stroker;
-    stroker.setDashPattern(pen.style());
+    stroker.setDashPattern(pen.dashPattern());
     stroker.setCapStyle(pen.capStyle());
     stroker.setJoinStyle(pen.joinStyle());
+    stroker.setMiterLimit(pen.miterLimit());
 
     QPainterPath stroke;
 
@@ -833,7 +834,7 @@ void QWin32PrintEnginePrivate::initialize()
     if (name.isEmpty())
         return;
 
-    txop = QPainterPrivate::TxNone;   
+    txop = QPainterPrivate::TxNone;
 
     bool ok;
     QT_WA( {

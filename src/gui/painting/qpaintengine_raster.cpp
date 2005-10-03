@@ -873,6 +873,7 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         d->pen = state.pen();
         d->basicStroker.setJoinStyle(d->pen.joinStyle());
         d->basicStroker.setCapStyle(d->pen.capStyle());
+        d->basicStroker.setMiterLimit(d->pen.miterLimit());
         qreal penWidth = d->pen.widthF();
         if (penWidth == 0)
             d->basicStroker.setStrokeWidth(1);

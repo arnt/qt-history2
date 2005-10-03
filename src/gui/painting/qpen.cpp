@@ -91,7 +91,7 @@ public:
 */
 inline QPenPrivate::QPenPrivate(const QBrush &_brush, qreal _width, Qt::PenStyle penStyle,
                                 Qt::PenCapStyle _capStyle, Qt::PenJoinStyle _joinStyle)
-    : ref(1), width(_width), brush(_brush), style(penStyle), capStyle(_capStyle), joinStyle(_joinStyle)
+    : ref(1), width(_width), brush(_brush), style(penStyle), capStyle(_capStyle), joinStyle(_joinStyle), miterLimit(2)
 {
 }
 
