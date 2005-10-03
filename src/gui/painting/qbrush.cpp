@@ -122,12 +122,36 @@ struct QGradientBrushData : public QBrushData
     \sa QPainter, QPainter::setBrush(), QPainter::setBrushOrigin()
 */
 
-struct QNullBrushData: public QBrushData
+class QBrushStatic
 {
-    inline QNullBrushData()
-    { ref = 1; style = Qt::BrushStyle(0); color = Qt::black; }
-    Q_GLOBAL_STATIC(QNullBrushData, instance)
+public:
+    QBrushData *pointer;
+    bool destroyed;
+
+    inline QBrushStatic()
+        : pointer(0), destroyed(false)
+    { }
+
+    inline ~QBrushStatic()
+    {
+        if (!pointer->ref.deref())
+            delete pointer;
+        pointer = 0;
+        destroyed = true;
+    }
 };
+
+static QBrushData *nullBrushInstance()
+{
+    static QBrushStatic defaultBrush;
+    if (!defaultBrush.pointer && !defaultBrush.destroyed) {
+        QBrushData *x = new QBrushData;
+        x->ref = 1; x->style = Qt::BrushStyle(0); x->color = Qt::black;
+        if (!q_atomic_test_and_set_ptr(&defaultBrush.pointer, 0, x))
+            delete x;
+    }
+    return defaultBrush.pointer;
+}
 
 /*!
   \internal
@@ -138,7 +162,7 @@ void QBrush::init(const QColor &color, Qt::BrushStyle style)
 {
     switch(style) {
     case Qt::NoBrush:
-        d = QNullBrushData::instance();
+        d = nullBrushInstance();
         d->ref.ref();
         return;
     case Qt::TexturePattern:
@@ -166,7 +190,7 @@ void QBrush::init(const QColor &color, Qt::BrushStyle style)
 
 QBrush::QBrush()
 {
-    d = QNullBrushData::instance();
+    d = nullBrushInstance();
     Q_ASSERT(d);
     d->ref.ref();
 }
