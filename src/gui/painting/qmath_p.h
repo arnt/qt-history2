@@ -98,8 +98,7 @@ inline double qSinCos(double a, bool calcCos=false)
 #define qSin(a) qSinCos(a, false)
 #define qCos(a) qSinCos(a, true)
 
-#endif
-#endif //WS_X11
+#endif //GNU_CC && I386
 
 #ifndef qSin
 # define qSin sin
