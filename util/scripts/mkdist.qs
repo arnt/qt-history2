@@ -185,8 +185,8 @@ licenseRemove["opensource"] = [ new RegExp("^/src/activeqt"),
 
 licenseRemove["preview"] = licenseRemove["opensource"];
 
-var skipTagReplace = [ new RegExp("^examples/tools/codecs/encodedfiles/"),
-                       new RegExp("^tools/designer/src/designer/extra/names.txt") ];
+var skipTagReplace = [ new RegExp("examples/tools/codecs/encodedfiles/"),
+                       new RegExp("tools/designer/src/designer/extra/names.txt") ];
 
 
 var finalRemove = [ new RegExp("^dist") ];
@@ -203,6 +203,7 @@ moduleMap["QtNetwork module"]            = new RegExp("^src/network");
 moduleMap["QtOpenGL module"]             = new RegExp("^src/opengl");
 moduleMap["QtSql module"]                = new RegExp("^src/sql");
 moduleMap["QtXML module"]                = new RegExp("^src/xml");
+moduleMap["QtSVG module"]                = new RegExp("^src/svg");
 moduleMap["ActiveQt Framework"]          = new RegExp("^src/activeqt");
 
 // main applications
@@ -259,6 +260,10 @@ for (var p in validPlatforms) {
 
 	    // run qdoc
 	    print("Running qdoc...");
+	    var tmpTag = new Array();
+	    tmpTag[licenseHeaders[license]] = /\*\* \$LICENSE\$\n/;
+	    replaceTags(platDir + "/examples", getFileList(platDir + "/examples"), tmpTag, false);
+	    replaceTags(platDir + "/demos", getFileList(platDir + "/demos"), tmpTag, false);
 	    qdoc(platDir, platform, license);
 
 	    // purge platform and license files
@@ -277,7 +282,7 @@ for (var p in validPlatforms) {
 
 	    // replace tags (like THISYEAR etc.)
 	    print("Traversing all txt files and replacing tags...");
-	    replaceTags(platDir, getFileList(platDir), platform, license, platName);
+	    replaceTags(platDir, getFileList(platDir), defaultTags(platform, license, platName), true);
 
 	    // package directory
 	    print("Compressing and packaging file(s)...");
@@ -304,7 +309,7 @@ for (var p in validPlatforms) {
 		    dir.rmdirs();
 		dir.mkdir();
 		copyEval(platDir);
-                replaceTags(platDir, getEvalFileList(platDir), platform, license, platName);
+                replaceTags(platDir, getEvalFileList(platDir), defaultTags(platform, license, platName), true);
 		compress(platform, platDir, platName.replace("commercial", "evalpatches"));
  		if (options["binaries"] && platform == "win") {
  		    createBinary(platform, "eval", platName, "vs2003");
@@ -933,9 +938,9 @@ function qdoc(packageDir, platform, license)
 }
 
 /************************************************************
- * goes through all txt files and replaces tags like %VERSION%, %THISYEAR% etc.
+ * returns the default search'n'replace array for substituting tags
  */
-function replaceTags(packageDir, fileList, platform, license, platName, additionalTags)
+function defaultTags(platform, license, platName)
 {
     var replace = new Array();
     replace[startDate.getYear().toString()] = /\$THISYEAR\$/g;
@@ -945,36 +950,35 @@ function replaceTags(packageDir, fileList, platform, license, platName, addition
     replace["#define QT_PACKAGEDATE_STR \"" + startDate.toString().left(10) + "\""] =
 	/#\s*define\s+QT_PACKAGEDATE_STR\s+\"([^\"]+)\"*/g;
     replace[platName] = /\%DISTNAME\%/g;
+    replace[licenseHeaders[license]] = /\*\* \$LICENSE\$\n/;
+    return replace;
+}
 
-    if (platform + "-" + license in licenseHeaders)
-	replace[licenseHeaders[platform+"-"+license]] = /\*\* \$LICENSE\$\n/;
-    else
-	replace[licenseHeaders[license]] = /\*\* \$LICENSE\$\n/;
-    for (var i in additionalTags)
-	replace[i] = additionalTags[i];
-
-
+/************************************************************
+ * goes through all txt files and replaces tags like %VERSION%, %THISYEAR% etc.
+ */
+function replaceTags(packageDir, fileList, replace, doMapping)
+{
     var fileName = new String();
     var absFileName = new String();
     var content = new String();
     for (var i in fileList) {
 	fileName = fileList[i];
 	absFileName = packageDir + "/" + fileName;
-        var doIgnore = false;
+	var skipFile = false;
         for (var r in skipTagReplace) {
-            if (fileName.find(skipTagReplace[r]) != -1) {
-                doIgnore = true;
-            }
-        }
-        if (doIgnore) {
-            // do nothing
-        } else if (File.isFile(absFileName) && !binaryFile(absFileName)) {
+            if (absFileName.find(skipTagReplace[r]) != -1) {
+                skipFile = true;
+		break;
+	    }
+	}
+	if (!skipFile && File.isFile(absFileName) && !binaryFile(absFileName)) {
 	    //only replace for non binary files
 	    content = File.read(absFileName);
 	    for (var i in replace)
 		content = content.replace(replace[i], i);
 	    // special case for $MODULE$
-	    if (content.find(/\$MODULE\$/) != -1) {
+	    if (doMapping && content.find(/\$MODULE\$/) != -1) {
 		var match = false;
 		for (var i in moduleMap) {
 		    if (fileName.find(moduleMap[i]) != -1) {
