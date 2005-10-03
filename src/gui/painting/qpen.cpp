@@ -73,7 +73,8 @@
 
 class QPenPrivate {
 public:
-    QPenPrivate(const QBrush &brush, qreal width, Qt::PenStyle, Qt::PenCapStyle, Qt::PenJoinStyle);
+    QPenPrivate(const QBrush &brush, qreal width, Qt::PenStyle, Qt::PenCapStyle,
+                Qt::PenJoinStyle _joinStyle);
 
     QAtomic ref;
     qreal width;
@@ -91,7 +92,8 @@ public:
 */
 inline QPenPrivate::QPenPrivate(const QBrush &_brush, qreal _width, Qt::PenStyle penStyle,
                                 Qt::PenCapStyle _capStyle, Qt::PenJoinStyle _joinStyle)
-    : ref(1), width(_width), brush(_brush), style(penStyle), capStyle(_capStyle), joinStyle(_joinStyle), miterLimit(2)
+    : ref(1), width(_width), brush(_brush), style(penStyle), capStyle(_capStyle),
+      joinStyle(_joinStyle)
 {
 }
 
@@ -123,7 +125,8 @@ static QPenPrivate *defaultPenInstance()
 {
     static QPenStatic defaultPen;
     if (!defaultPen.pointer && !defaultPen.destroyed) {
-        QPenPrivate *x = new QPenPrivate(Qt::black, 0, Qt::SolidLine, qpen_default_cap, qpen_default_join);
+        QPenPrivate *x = new QPenPrivate(Qt::black, 0, Qt::SolidLine,
+                                         qpen_default_cap, qpen_default_join);
         if (!q_atomic_test_and_set_ptr(&defaultPen.pointer, 0, x))
             delete x;
     }
@@ -229,7 +232,10 @@ void QPen::detach()
     if (d->ref == 1)
         return;
 
-    QPenPrivate *x = new QPenPrivate(d->brush, d->width, d->style, d->capStyle, d->joinStyle);
+    QPenPrivate *x = new QPenPrivate(d->brush, d->width, d->style, d->capStyle,
+                                     d->joinStyle);
+    x->miterLimit = d->miterLimit;
+    x->dashPattern = d->dashPattern;
     x = qAtomicSetPtr(&d, x);
     if (!x->ref.deref())
         delete x;
@@ -575,6 +581,8 @@ bool QPen::operator==(const QPen &p) const
                           && p.d->capStyle == d->capStyle
                           && p.d->joinStyle == d->joinStyle
                           && p.d->width == d->width
+                          && p.d->miterLimit == d->miterLimit
+                          && p.d->dashPattern == d->dashPattern
                           && p.d->brush == d->brush);
 }
 
@@ -617,6 +625,8 @@ QDataStream &operator<<(QDataStream &s, const QPen &p)
     } else {
         s << p.widthF();
         s << p.brush();
+        s << p.miterLimit();
+        s << p.dashPattern();
     }
     return s;
 }
@@ -637,6 +647,8 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
     double width = 0;
     QColor color;
     QBrush brush;
+    double miterLimit = 2;
+    QVector<qreal> dashPattern;
     s >> style;
     if (s.version() < 7) {
         s >> width8;
@@ -646,6 +658,8 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
     } else {
         s >> width;
         s >> brush;
+        s >> miterLimit;
+        s >> dashPattern;
     }
 
     Qt::PenStyle penStyle = Qt::PenStyle(style & Qt::MPenStyle);
@@ -653,6 +667,8 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
     Qt::PenJoinStyle joinStyle = Qt::PenJoinStyle(style & Qt::MPenJoinStyle);
 
     p = QPen(brush, width, penStyle, capStyle, joinStyle);
+    p.setMiterLimit(miterLimit);
+    p.setDashPattern(dashPattern);
 
     return s;
 }
