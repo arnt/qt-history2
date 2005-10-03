@@ -338,7 +338,7 @@ static HWND qt_create_internal_window(const QEventDispatcherWin32 *eventDispatch
 HWND QEventDispatcherWin32Private::internalHwnd() const
 {
     if (!m_internalHwnd)
-        qt_create_internal_window(q_func());
+        m_internalHwnd = qt_create_internal_window(q_func());
 
     return m_internalHwnd;
 }
