@@ -89,7 +89,7 @@ TextEdit::TextEdit(QWidget *parent)
 
     connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
 
-    QString initialFile = "example.html";
+    QString initialFile = ":/example.html";
     const QStringList args = QCoreApplication::arguments();
     if (args.count() == 2)
         initialFile = args.at(1);
