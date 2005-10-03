@@ -195,7 +195,6 @@ void TreeWidgetEditor::on_moveItemUpButton_clicked()
         return;
 
     QTreeWidgetItem *takenItem = 0;
-    ui.treeWidget->setCurrentItem(takenItem);
     if (curItem->parent()) {
         QTreeWidgetItem *parentItem = curItem->parent();
         takenItem = parentItem->takeChild(idx);
@@ -225,7 +224,6 @@ void TreeWidgetEditor::on_moveItemDownButton_clicked()
         return;
 
     QTreeWidgetItem *takenItem = 0;
-    ui.treeWidget->setCurrentItem(takenItem);
     if (curItem->parent()) {
         QTreeWidgetItem *parentItem = curItem->parent();
         takenItem = parentItem->takeChild(idx);
