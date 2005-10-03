@@ -1437,7 +1437,7 @@ QStringList QCoreApplication::arguments()
         return list;
     }
 #ifdef Q_OS_WIN
-    QString cmdline = QT_WA_INLINE(QString::fromUtf16(GetCommandLineW()), QString::fromLocal8Bit(GetCommandLineA()));
+    QString cmdline = QT_WA_INLINE(QString::fromUtf16((unsigned short *)GetCommandLineW()), QString::fromLocal8Bit(GetCommandLineA()));
     extern QStringList qWinCmdArgs(QString cmdLine);
     list = qWinCmdArgs(cmdline);
     if (self->d_func()->application_type) { // GUI app? Skip known - see qapplication.cpp

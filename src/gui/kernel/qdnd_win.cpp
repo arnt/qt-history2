@@ -329,6 +329,10 @@ QOleDataObject::QOleDataObject(QMimeData *mimeData)
     performedEffect = DROPEFFECT_NONE;
 }
 
+QOleDataObject::~QOleDataObject()
+{
+}
+
 void QOleDataObject::releaseQt()
 {
     data = 0;

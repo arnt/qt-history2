@@ -13,6 +13,7 @@
 
 #include "qcoreapplication.h"
 #include "qcoreapplication_p.h"
+#include "qstringlist.h"
 #include "qt_windows.h"
 #include "qvector.h"
 #include "qmutex.h"

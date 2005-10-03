@@ -2997,7 +2997,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
 		    int yp = qRound(y+g[0].offset.y.toReal());
                     ExtTextOutW(hdc, xp, yp, options, 0,
                         convertToText
-                            ? &ch.unicode()
+                            ? reinterpret_cast<wchar_t *>(&ch.unicode())
                             : reinterpret_cast<wchar_t *>(&g[0].glyph), 1, 0);
                 }
             } else {
