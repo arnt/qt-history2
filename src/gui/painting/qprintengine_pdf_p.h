@@ -458,7 +458,7 @@ public:
     bool fullPage;
     
 private:
-    Q_DISABLE_COPY(QPdfEnginePrivate);
+    Q_DISABLE_COPY(QPdfEnginePrivate)
     void writeInfo();
     void writeCatalog();
     void writePageRoot();
