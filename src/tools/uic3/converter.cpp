@@ -776,6 +776,15 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
             if (!prop)
                 continue;
 
+            if (prop->kind() == DomProperty::String) {
+                QDomNodeList comments = e.elementsByTagName(QLatin1String("comment"));
+                if (comments.length()) {
+                    QString comment = comments.item(0).firstChild().toText().data();
+                    if (!comment.isEmpty())
+                        prop->elementString()->setAttributeComment(comment);
+                }
+            }
+
             if (className == QLatin1String("Line")
                     && prop->attributeName() == QLatin1String("orientation")) {
                 delete prop;
