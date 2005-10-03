@@ -46,6 +46,7 @@ static const double Q_PI2  = 1.57079632679489661923;   // pi/2
 inline int qFloor(double d)
 { return d >= 0.0 ? int(d) : int(d - 0.9999); }
 
+#ifdef Q_WS_X11
 #if defined(Q_CC_GNU) && defined(__i386__)
 
 inline double qCos_x86(double a)
@@ -99,6 +100,7 @@ inline double qSinCos(double a, bool calcCos=false)
 #define qCos(a) qSinCos(a, true)
 
 #endif //GNU_CC && I386
+#endif //Q_WS_X11
 
 #ifndef qSin
 # define qSin sin

@@ -35,6 +35,7 @@ class Q_EXPORT_SQLDRIVER_OCI QOCIResult : public QSqlCachedResult
 {
     friend class QOCIDriver;
     friend class QOCIPrivate;
+    friend class QOCIResultPrivate;
 public:
     QOCIResult(const QOCIDriver * db, QOCIPrivate* p);
     ~QOCIResult();
@@ -58,6 +59,7 @@ private:
 class Q_EXPORT_SQLDRIVER_OCI QOCIDriver : public QSqlDriver
 {
     friend class QOCIResultPrivate;
+    friend class QOCIPrivate;
 public:
     explicit QOCIDriver(QObject* parent = 0);
     QOCIDriver(OCIEnv* env, OCISvcCtx* ctx, QObject* parent = 0);
