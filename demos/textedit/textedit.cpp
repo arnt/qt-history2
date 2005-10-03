@@ -53,6 +53,7 @@ TextEdit::TextEdit(QWidget *parent)
             this, SLOT(currentCharFormatChanged(const QTextCharFormat &)));
 
     setCentralWidget(textEdit);
+    textEdit->setFocus();
     setCurrentFileName(QString());
 
     fontChanged(textEdit->font());
