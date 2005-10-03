@@ -24,6 +24,8 @@ unix {
 			&& (cd config.tests/unix/getaddrinfo && $(MAKE) distclean) \
 			&& (cd config.tests/unix/cups && $(MAKE) distclean) \
 			&& (cd config.tests/unix/psql && $(MAKE) distclean) \
+			&& (cd config.tests/unix/mysql && $(MAKE) distclean) \
+ 	 		&& (cd config.tests/unix/mysql_r && $(MAKE) distclean) \
 			&& (cd config.tests/unix/nis && $(MAKE) distclean) \
 			&& (cd config.tests/unix/nix && $(MAKE) distclean) \
 			&& (cd config.tests/unix/odbc && $(MAKE) distclean) \
