@@ -93,19 +93,48 @@ inline QPenPrivate::QPenPrivate(const QBrush &_brush, qreal _width, Qt::PenStyle
 static const Qt::PenCapStyle qpen_default_cap = Qt::SquareCap;
 static const Qt::PenJoinStyle qpen_default_join = Qt::BevelJoin;
 
-struct QDefaultPenData : public QPenPrivate
+
+class QPenStatic
 {
-    inline QDefaultPenData()
-        : QPenPrivate(Qt::black, 0, Qt::SolidLine, qpen_default_cap, qpen_default_join) {}
-    Q_GLOBAL_STATIC(QDefaultPenData, instance)
-};
-struct QNullPenData: public QPenPrivate
-{
-    inline QNullPenData()
-        : QPenPrivate(Qt::black, 0, Qt::NoPen, qpen_default_cap, qpen_default_join) {}
-    Q_GLOBAL_STATIC(QNullPenData, instance)
+public:
+    QPenPrivate *pointer;
+    bool destroyed;
+
+    inline QPenStatic()
+        : pointer(0), destroyed(false)
+    { }
+
+    inline ~QPenStatic()
+    {
+        if (!pointer->ref.deref())
+            delete pointer;
+        pointer = 0;
+        destroyed = true;
+    }
 };
 
+
+static QPenPrivate *defaultPenInstance()
+{
+    static QPenStatic defaultPen;
+    if (!defaultPen.pointer && !defaultPen.destroyed) {
+        QPenPrivate *x = new QPenPrivate(Qt::black, 0, Qt::SolidLine, qpen_default_cap, qpen_default_join);
+        if (!q_atomic_test_and_set_ptr(&defaultPen.pointer, 0, x))
+            delete x;
+    }
+    return defaultPen.pointer;
+}
+
+static QPenPrivate *nullPenInstance()
+{
+    static QPenStatic defaultPen;
+    if (!defaultPen.pointer && !defaultPen.destroyed) {
+        QPenPrivate *x = new QPenPrivate(Qt::black, 0, Qt::NoPen, qpen_default_cap, qpen_default_join);
+        if (!q_atomic_test_and_set_ptr(&defaultPen.pointer, 0, x))
+            delete x;
+    }
+    return defaultPen.pointer;
+}
 
 /*!
     Constructs a default black solid line pen with 0 width.
@@ -113,7 +142,7 @@ struct QNullPenData: public QPenPrivate
 
 QPen::QPen()
 {
-    d = QDefaultPenData::instance();
+    d = defaultPenInstance();
     d->ref.ref();
 }
 
@@ -126,7 +155,7 @@ QPen::QPen()
 QPen::QPen(Qt::PenStyle style)
 {
     if (style == Qt::NoPen) {
-        d = QNullPenData::instance();
+        d = nullPenInstance();
         d->ref.ref();
     } else {
         d = new QPenPrivate(Qt::black, 0, style, qpen_default_cap, qpen_default_join);
