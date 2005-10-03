@@ -1349,8 +1349,8 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
         // Set a clear brush so that the metal shines through.
         QPalette pal = w->palette();
         QBrush background(Qt::transparent);
-        pal.setBrush(QPalette::Background, background);
-        pal.setBrush(QPalette::Button, background);
+        pal.setBrush(QPalette::All, QPalette::Background, background);
+        pal.setBrush(QPalette::All, QPalette::Button, background);
         w->setPalette(pal);
     }
 
@@ -1367,8 +1367,8 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
     if (!px.isNull()) {
         QPalette pal = w->palette();
         QBrush background(px);
-        pal.setBrush(QPalette::Background, background);
-        pal.setBrush(QPalette::Button, background);
+        pal.setBrush(QPalette::All, QPalette::Background, background);
+        pal.setBrush(QPalette::All, QPalette::Button, background);
         w->setPalette(pal);
     } else if (QRubberBand *rubber = qobject_cast<QRubberBand*>(w)) {
         rubber->setWindowOpacity(0.25);
@@ -1387,8 +1387,8 @@ void QMacStylePrivate::HIThemeUnpolish(QWidget *w)
         QPalette pal = w->palette();
         QPixmap tmp;
         QBrush background(tmp);
-        pal.setBrush(QPalette::Background, background);
-        pal.setBrush(QPalette::Button, background);
+        pal.setBrush(QPalette::All, QPalette::Background, background);
+        pal.setBrush(QPalette::All, QPalette::Button, background);
         w->setPalette(pal);
         w->setWindowOpacity(1.0);
     }
@@ -3216,8 +3216,8 @@ void QMacStylePrivate::AppManPolish(QWidget *w)
             EraseRect(&r);
         }
         QBrush background(pc, px);
-        pal.setBrush(QPalette::Background, background);
-        pal.setBrush(QPalette::Button, background);
+        pal.setBrush(QPalette::All, QPalette::Background, background);
+        pal.setBrush(QPalette::All, QPalette::Button, background);
         w->setPalette(pal);
     }
 #endif
@@ -4862,9 +4862,9 @@ void QMacStyle::polish(QPalette &pal)
         pc = QColor(c.red / 256, c.green / 256, c.blue / 256);
     }
     QBrush background(pc, px);
-    pal.setBrush(QPalette::Background, background);
-    pal.setBrush(QPalette::Button, background);
-    pal.setBrush(QPalette::AlternateBase, QColor(237, 243, 254));
+    pal.setBrush(QPalette::All, QPalette::Background, background);
+    pal.setBrush(QPalette::All, QPalette::Button, background);
+    pal.setBrush(QPalette::All, QPalette::AlternateBase, QColor(237, 243, 254));
 }
 
 /*! \reimp */
