@@ -553,7 +553,7 @@ void QPen::setBrush(const QBrush &brush)
 */
 bool QPen::isSolid() const
 {
-    return (d->style != Qt::NoPen && d->brush.style() == Qt::SolidPattern;
+    return (d->style != Qt::NoPen && d->brush.style() == Qt::SolidPattern);
 }
 
 
