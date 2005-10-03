@@ -158,6 +158,21 @@ The installation procedure is different for the different Qt platforms:
 
     NOTE: The install path must not contain any spaces.
 
+\o Environment variables
+
+   In order to build and use Qt, the \c PATH environment variable needs to be
+   extended:
+
+\code
+    PATH               - to locate qmake, moc and other Qt tools
+\endcode
+
+   This is done by adding \c{c:\Qt\%VERSION%\bin} to the \c PATH variable.
+
+   For newer versions of Windows, \c PATH can be extended through
+   "Control Panel->System->Advanced->Environment variables" and for
+   older versions by editing \c{c:\autoexec.bat}.
+
 \o  Building
 
     To configure the Qt library for your machine type:
@@ -194,21 +209,6 @@ The installation procedure is different for the different Qt platforms:
 \code
     nmake
 \endcode
-
-\o Environment variables
-
-   In order to use Qt, the \c PATH environment variable needs to be
-   extended:
-
-\code
-    PATH               - to locate qmake, moc and other Qt tools
-\endcode
-
-   This is done by adding \c{c:\Qt\%VERSION%\bin} to the \c PATH variable.
-
-   For newer versions of Windows, \c PATH can be extended through
-   "Control Panel->System->Advanced->Environment variables" and for
-   older versions by editing \c{c:\autoexec.bat}.
 
 \o  That's all. Qt is now installed.
 
