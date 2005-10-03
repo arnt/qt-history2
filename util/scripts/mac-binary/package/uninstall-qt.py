@@ -13,9 +13,9 @@
 ##
 #############################################################################
 
-import commands, sys, os, shutil
+import commands, sys, os, shutil, glob
 
-trace = True
+trace = False
 justTest = False
 # Globals
 AllPackages = ['docs', 'headers', 'examples', 'plugins', 'tools', 'libraries']
@@ -31,7 +31,7 @@ def realPackagesToRemove(packageList):
     return packageList
 
 #Remove the files in the list
-def removeFiles(fileList):
+def removeFiles(fileList, helperFunc=0):
     directories = []
     for file in fileList:
         file = file[1:]
@@ -50,6 +50,8 @@ def removeFiles(fileList):
     # Now remove any empty directories
     directories.reverse()
     for dir in directories:
+        if helperFunc:
+            helperFunc(dir)
         if (os.path.exists(dir)) and len(os.listdir(dir)) == 0:
             if trace:
                 print "remove dir: " + dir
@@ -57,6 +59,33 @@ def removeFiles(fileList):
                 os.rmdir(dir)
         elif trace and os.path.exists(dir):
             print "NOT removing " + dir
+
+def removeExampleGeneratedFiles(dir):
+    extraList = []
+    extraList.append(os.path.join(dir, "Info.plist"))
+    extraList.append(os.path.join(dir, ".DS_Store"))
+    extraList.append(os.path.join(dir, ".qmake.cache"))
+    extraList.append(os.path.join(dir, "Makefile"))
+    extraList.append(os.path.join(dir, ".obj"))
+    extraList.append(os.path.join(dir, ".moc"))
+
+    xcodeprojects = glob.glob(dir + "/*" + os.path.basename(dir) + "*.xcode*")
+    xcodeprojects += glob.glob(dir + "/.xcode*")  # Grab the items from qmake mess-up in 4.0.1
+
+    for file in xcodeprojects:
+        if trace:
+            print "  removing the tree in " + file
+        shutil.rmtree(file)
+
+    for file in extraList:
+        if os.path.exists(file):
+            if trace:
+                print "  removing the file in " + file
+            if os.path.isdir(file):
+                shutil.rmtree(file)
+            else:
+                os.remove(file)
+    
 
 # Remove the package
 def removePackage(package):
@@ -66,8 +95,11 @@ def removePackage(package):
     if os.path.exists(realPackageName) and os.path.isdir(realPackageName):
         fileList = commands.getoutput("/usr/bin/lsbom -f -p f -d -l " + bomLocation).split()
         if len(fileList) > 0:
-            removeFiles(fileList)
-            shutil.removetree(realPackageName)
+            if (package == "examples"):
+                removeFiles(fileList, removeExampleGeneratedFiles)
+            else:
+                removeFiles(fileList)
+            shutil.rmtree(realPackageName)
     else:
         print "%s is not installed, skipping." % package
 
