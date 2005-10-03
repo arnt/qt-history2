@@ -630,8 +630,10 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
             ret += copy_cmd;
         }
 
-        if(!project->isActiveConfig("debug") && !project->isEmpty("QMAKE_STRIP") &&
-           (project->first("TEMPLATE") != "lib" || !project->isActiveConfig("staticlib"))) {
+        if(project->first("TEMPLATE") == "lib" && project->isActiveConfig("staticlib")) {
+            if(!project->isEmpty("QMAKE_RANLIB"))
+                ret += QString("\n\t$(RANLIB) \"") + dst_targ + "\"";
+        } else if(!project->isActiveConfig("debug") && !project->isEmpty("QMAKE_STRIP")) {
             ret += "\n\t-" + var("QMAKE_STRIP");
             if(project->first("TEMPLATE") == "lib" && !project->isEmpty("QMAKE_STRIPFLAGS_LIB"))
                 ret += " " + var("QMAKE_STRIPFLAGS_LIB");
