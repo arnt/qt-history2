@@ -99,7 +99,7 @@ QAbstractPrintDialog::PrintDialogOptions QAbstractPrintDialog::enabledOptions() 
 }
 
 /*!
-    Returns true if the option \a option is enabled; otherwise returns false
+    Returns true if the specified \a option is enabled; otherwise returns false
 */
 bool QAbstractPrintDialog::isOptionEnabled(PrintDialogOption option) const
 {
