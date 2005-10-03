@@ -348,7 +348,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Matra, Halant, Invalid, Invalid,
 
     Invalid, Invalid, Invalid, Invalid,
-    Invalid, LengthMark, LengthMark, Invalid,
+    Invalid, LengthMark, Matra, Invalid,
     Invalid, Invalid, Invalid, Invalid,
     Invalid, Invalid, Invalid, Invalid,
 
