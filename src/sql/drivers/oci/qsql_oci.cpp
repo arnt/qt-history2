@@ -574,7 +574,7 @@ OraFieldInfo qMakeOraField(const QOCIPrivate* p, OCIParam* param)
         qOraWarning("qMakeOraField:", p);
 
     type = qDecodeOCIType(colType);
-      
+
     if (type == QVariant::Int) {
         if (colLength == 22 && colPrecision == 0 && colScale == 0)
             type = QVariant::String;
@@ -648,13 +648,9 @@ public:
     int readPiecewise(QVector<QVariant> &values, int index = 0);
     int readLOBs(QVector<QVariant> &values, int index = 0);
     void getOraFields(QSqlRecord &rinf);
-    char* at(int i);
-    int size();
-    bool isNull(int i);
-    QVariant::Type type(int i);
     int fieldFromDefine(OCIDefine* d);
-    int length(int i);
-    QVariant value(int i);
+    void getValues(QVector<QVariant> &v, int index);
+    inline int size() { return fieldInf.size(); }
 
 private:
     char* create(int position, int size);
@@ -718,15 +714,15 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
             dataSize = 50;  // magic number
 #endif //SQLT_INTERVAL_DS
 #endif //SQLT_INTERVAL_YM
-        else if (ofi.oraType == SQLT_NUM || ofi.oraType == SQLT_VNU){                       
+        else if (ofi.oraType == SQLT_NUM || ofi.oraType == SQLT_VNU){
             if (ofi.oraPrecision > 0)
                 dataSize = (ofi.oraPrecision + 1) * sizeof(utext);
-            else 
+            else
                 dataSize = (38 + 1) * sizeof(utext);
         }
         else
             dataSize = ofi.oraLength;
-            
+
         fieldInf[idx].typ = ofi.type;
         fieldInf[idx].oraType = ofi.oraType;
 
@@ -915,7 +911,6 @@ int QOCIResultPrivate::readPiecewise(QVector<QVariant> &values, int index)
         if (status == OCI_NO_DATA)
             break;
         if (nullField || !chunkSize) {
-            values[fieldNum + index] = QVariant(QVariant::ByteArray);
             fieldInf[fieldNum].ind = -1;
         } else {
             QByteArray ba = values.at(fieldNum + index).toByteArray();
@@ -980,10 +975,11 @@ int QOCIResultPrivate::readLOBs(QVector<QVariant> &values, int index)
     int r = OCI_SUCCESS;
 
     for (int i = 0; i < size(); ++i) {
-        if (isNull(i) || !(lob = fieldInf.at(i).lob))
+        const OraFieldInf &fi = fieldInf.at(i);
+        if (fi.ind == -1 || !(lob = fi.lob))
             continue;
 
-        bool isClob = fieldInf.at(i).oraType == SQLT_CLOB;
+        bool isClob = fi.oraType == SQLT_CLOB;
         QVariant var;
 
         if (isClob) {
@@ -1030,23 +1026,6 @@ void QOCIResultPrivate::getOraFields(QSqlRecord &rinf)
     }
 }
 
-inline char* QOCIResultPrivate::at(int i)
-{
-    return fieldInf.at(i).data;
-}
-inline int QOCIResultPrivate::size()
-{
-    return fieldInf.size();
-}
-inline bool QOCIResultPrivate::isNull(int i)
-{
-//    qDebug("ISNULL %d %d", i, fieldInf.at(i).ind);
-    return (fieldInf.at(i).ind == -1);
-}
-inline QVariant::Type QOCIResultPrivate::type(int i)
-{
-    return fieldInf.at(i).typ;
-}
 int QOCIResultPrivate::fieldFromDefine(OCIDefine* d)
 {
     for (int i = 0; i < fieldInf.count(); ++i) {
@@ -1055,36 +1034,40 @@ int QOCIResultPrivate::fieldFromDefine(OCIDefine* d)
     }
     return -1;
 }
-inline int QOCIResultPrivate::length(int i)
+
+void QOCIResultPrivate::getValues(QVector<QVariant> &v, int index)
 {
-    return fieldInf.at(i).len;
-}
-QVariant QOCIResultPrivate::value(int i)
-{
-    QVariant v;
-    switch (type(i)) {
-    case QVariant::DateTime:
-        v = QVariant(qMakeDate(at(i)));
-        break;
-    case QVariant::String:
-    case QVariant::Double: // when converted to strings
-    case QVariant::Int:    // keep these as strings so that we do not lose precision
-        v = QVariant(QString::fromUtf16((const short unsigned int*)at(i)));
-        break;
-    case QVariant::ByteArray: {
-        ub4 oraType = fieldInf.at(i).oraType;
-        if (oraType == SQLT_BIN || oraType == SQLT_LBI)
-            return QVariant(); // must be fetched piecewise
-        int len = length(i);
-        if (len > 0)
-            return QByteArray(at(i), len);
-        return QVariant(QVariant::ByteArray);
+    for (int i = 0; i < fieldInf.size(); ++i) {
+        const OraFieldInf &fld = fieldInf.at(i);
+
+        if (fld.ind == -1) {
+            // got a NULL value
+            v[index + i] = QVariant(fld.typ);
+            continue;
+        }
+
+        switch (fld.typ) {
+        case QVariant::DateTime:
+            v[index + i] = QVariant(qMakeDate(fld.data));
+            break;
+        case QVariant::String:
+        case QVariant::Double: // when converted to strings
+        case QVariant::Int:    // keep these as strings so that we do not lose precision
+            v[index + i] = QVariant(QString::fromUtf16((const short unsigned int*)fld.data));
+            break;
+        case QVariant::ByteArray:
+            if (fld.oraType == SQLT_BIN || fld.oraType == SQLT_LBI)
+                break;; // already fetched piecewise
+            if (fld.len > 0)
+                v[index + i] = QByteArray(fld.data, fld.len);
+            else
+                v[index + i] = QVariant(QVariant::ByteArray);
+            break;
+        default:
+            qWarning("QOCIResultPrivate::value: unknown data type");
+            break;
+        }
     }
-    default:
-        qWarning("QOCIResultPrivate::value: unknown data type");
-        break;
-    }
-    return v;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1160,16 +1143,13 @@ bool QOCIResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
                                 "Unable to goto next"), QSqlError::StatementError, d));
         break;
     }
-    if (r == OCI_SUCCESS) {
-        for (int i = 0; i < cols->size(); ++i) {
-            if (cols->isNull(i))
-                values[i + index] = QVariant(cols->type(i));
-            else
-                values[i + index] = cols->value(i);
-        }
-    }
+
+    // need to read piecewise before assigning values
     if (r == OCI_SUCCESS && piecewise)
         r = cols->readPiecewise(values, index);
+
+    if (r == OCI_SUCCESS)
+        cols->getValues(values, index);
     if (r == OCI_SUCCESS)
         r = cols->readLOBs(values, index);
     if (r != OCI_SUCCESS)
@@ -1320,6 +1300,7 @@ QSqlRecord QOCIResult::record() const
     if (!isActive() || !isSelect() || !cols)
         return inf;
     cols->getOraFields(inf);
+    qDebug() << inf;
     return inf;
 }
 
