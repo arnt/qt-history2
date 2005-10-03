@@ -1349,8 +1349,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
             // If the base consonant is not the last one, Uniscribe
             // moves the halant from the base consonant to the last
             // one.
-            if (lastConsonant > base
-                && (script != QUnicodeTables::Telugu || lastConsonant == len - 1 || uc[lastConsonant+1] != halant)) {
+            if (lastConsonant > base) {
                 int halantPos = 0;
                 if (uc[base+1] == halant)
                     halantPos = base + 1;
@@ -1571,6 +1570,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
                               | PreSubstProperty
                               | BelowSubstProperty
                               | AboveSubstProperty
+                              | HalantProperty
                               | PositioningProperties);
 
         // Ccmp always applies
@@ -1591,6 +1591,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
         // BelowForm
         for (i = base+1; i < len; ++i)
             properties[i] &= ~BelowFormProperty;
+
         if (script == QUnicodeTables::Devanagari || script == QUnicodeTables::Gujarati) {
             // vattu glyphs need this aswell
             bool vattu = false;
@@ -1634,12 +1635,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
         for (i = base+1; i < len; ++i)
             properties[i] &= ~PostSubstProperty;
 
-        // halant forms
-        if (base < len-1 && reordered[base+1] == halant || script == QUnicodeTables::Malayalam) {
-            // The hlnt feature needs to get always applied for malayalam according to the MS docs.
-            for (int i = 0; i < len; ++i)
-                properties[i] &= ~HalantProperty;
-        }
+        // halant always applies
 
 #ifdef INDIC_DEBUG
         {
@@ -1721,7 +1717,7 @@ static int indic_nextSyllableBoundary(int script, const QString &s, int start, i
     pos++;
 
     if (state != Consonant && state != IndependentVowel) {
-        if (state != Other && state != Control)
+        if (state != Other)
             *invalid = true;
         goto finish;
     }
