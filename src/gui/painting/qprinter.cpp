@@ -1426,8 +1426,13 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 }
 
 /*!
+    Returns true if the printer is set up to collate copies of printed documents;
+    otherwise returns false.
+
     Use QPrintDialog::isOptionEnabled(QPrintDialog::PrintCollateCopies)
     instead.
+
+    \sa collateCopies()
 */
 bool QPrinter::collateCopiesEnabled() const
 {
