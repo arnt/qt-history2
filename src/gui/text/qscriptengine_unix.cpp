@@ -1286,8 +1286,6 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
 
             int lastConsonant = 0;
             int matra = -1;
-            int skipped = 0;
-            Position pos = Post;
             // we remember:
             // * the last consonant since we need it for rule 2
             // * the matras position for rule 3 and 4
@@ -1318,19 +1316,19 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
                         matra = i;
                 }
             }
+            int skipped = 0;
+            Position pos = Post;
             for (i = len-1; i > base; i--) {
-                if (position[i] != Consonant
-                    && (position[i] != Control || script == QUnicodeTables::Kannada))
+                if (position[i] != Consonant && (position[i] != Control || script == QUnicodeTables::Kannada))
                     continue;
 
                 Position charPosition = indic_position(uc[i]);
                 if (pos == Post && charPosition == Post) {
-                    pos = Below;
+                    pos = Post;
                 } else if ((pos == Post || pos == Below) && charPosition == Below) {
-                    if (script != QUnicodeTables::Kannada && script != QUnicodeTables::Telugu)
-                        pos = None;
                     if (script == QUnicodeTables::Devanagari || script == QUnicodeTables::Gujarati)
                         base = i;
+                    pos = Below;
                 } else {
                     base = i;
                     break;
