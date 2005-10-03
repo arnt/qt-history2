@@ -50,7 +50,7 @@ void ListWidgetEditor::fillContentsFromComboBox(QComboBox *comboBox)
     for (int i=0; i<comboBox->count(); ++i) {
         QListWidgetItem *item = new QListWidgetItem();
         item->setText(comboBox->itemText(i));
-        item->setIcon(comboBox->itemIcon(i));
+        item->setIcon(comboBox->itemData(i).value<QIcon>());
         ui.listWidget->addItem(item);
     }
 

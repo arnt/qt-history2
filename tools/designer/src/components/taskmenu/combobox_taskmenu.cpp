@@ -69,6 +69,7 @@ void ComboBoxTaskMenu::editItems()
         m_comboBox->clear();
         for (int i=0; i<dlg.count(); ++i) {
             m_comboBox->addItem(dlg.icon(i), dlg.text(i));
+            m_comboBox->setItemData(i, dlg.icon(i));
         }
     }
 }

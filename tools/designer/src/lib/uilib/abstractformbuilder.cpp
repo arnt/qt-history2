@@ -1665,7 +1665,7 @@ void QAbstractFormBuilder::saveComboBoxExtraInfo(QComboBox *comboBox, DomWidget 
         p->setElementString(str);
         properties.append(p);
 
-        QIcon icon = comboBox->itemIcon(i);
+        QIcon icon = comboBox->itemData(i).value<QIcon>();
         if (!icon.isNull()) {
             QString iconPath = iconToFilePath(icon);
             QString qrcPath = iconToQrcPath(icon);
@@ -1797,6 +1797,7 @@ void QAbstractFormBuilder::loadComboBoxExtraInfo(DomWidget *ui_widget, QComboBox
         }
 
         comboBox->addItem(text, icon);
+        comboBox->setItemData((comboBox->count()-1), icon);
     }
 }
 
