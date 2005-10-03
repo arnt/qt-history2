@@ -63,6 +63,7 @@ public Q_SLOTS:
     void setActiveWindow(QWidget *w);
     void cascade();
     void tile();
+    void arrangeIcons();
     void closeActiveWindow();
     void closeAllWindows();
     void activateNextWindow();

@@ -2117,7 +2117,7 @@ void QWorkspace::activatePreviousWindow()
 /*!
     Arranges all the child windows in a cascade pattern.
 
-    \sa tile()
+    \sa tile() \sa arrangeIcons()
 */
 void QWorkspace::cascade()
 {
@@ -2185,7 +2185,7 @@ void QWorkspace::cascade()
 /*!
     Arranges all child windows in a tile pattern.
 
-    \sa cascade()
+    \sa cascade() \sa arrangeIcons()
 */
 void QWorkspace::tile()
 {
@@ -2291,6 +2291,36 @@ void QWorkspace::tile()
     d->updateWorkspace();
     blockSignals(false);
 }
+
+/*!
+    Arranges all iconsed windows at the bottom of the workspace.
+
+    \sa cascade() \sa tile()
+*/
+void QWorkspace::arrangeIcons()
+{
+    Q_D(QWorkspace);
+
+    QRect cr = d->updateWorkspace();
+    int x = 0;
+    int y = -1;
+
+    QList<QWidget *>::Iterator it(d->icons.begin());
+    while (it != d->icons.end()) {
+        QWidget* i = *it;
+        if (y == -1)
+            y = cr.height() - i->height();
+        if (x > 0 && x + i->width() > cr.width()) {
+            x = 0;
+            y -= i->height();
+        }
+        i->move(x, y);
+        x += i->width();
+        ++it;
+    }
+    d->updateWorkspace();
+}
+
 
 QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent, Qt::WFlags flags)
     : QWidget(parent,
