@@ -1072,17 +1072,18 @@ again.
 
 \image designer-resources-editing.png
 
-\QD fully supports \l{The Qt Resource System}, allowing resources to be
-specified alongside forms as they are designed. To help designers and
-developers manage the resources that are needed by applications, \QD's
-resource editing mode allows resources to be defined on a per-form basis.
+\QD fully supports \l{The Qt Resource System}, allowing resources to
+be specified alongside forms as they are designed. To help designers
+and developers manage the resources that are needed by applications,
+\QD's resource editor allows resources to be defined on a per-form
+basis.
 
 \tableofcontents
 
 \section1 The Resource Editor
 
-Each form has an associated resource editor which can be activated by
-opening the \key Edit menu and selecting \key{Edit Resources}.
+The resource editor can be enabled by opening the \key Tool menu, and
+switching on the \key{Resource Editor} option.
 */
 
 /*!
@@ -1092,7 +1093,6 @@ opening the \key Edit menu and selecting \key{Edit Resources}.
     \nextpage Using Custom Widgets with Qt Designer
 
     \title Customizing Forms
-
 
     \section1 Form Settings
 
