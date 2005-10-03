@@ -213,7 +213,73 @@ QWidgetBackingStore::~QWidgetBackingStore()
 
 }
 
-#define QT_FASTSCROLL
+/*
+  Only for opaque widgets without overlapping siblings
+
+  move the rectangle \a rect (in parent's coords!)
+  by dx, dy
+*/
+
+void QWidgetBackingStore::moveRect(const QRect &rect, int dx, int dy, QWidget *widget)
+{
+#ifdef Q_WS_X11
+    //### need cross-platform test
+    if (buffer.isNull())
+        return;
+#endif
+
+    const QPoint pOffs = widget->geometry().topLeft();
+
+    QRect wr = widget->d_func()->clipRect().translated(pOffs); //map to parent
+
+
+
+//    QRegion dirtyRgn(rect);
+
+    QRect newRect = rect.translated(dx,dy);
+
+
+    QRect destRect = rect.intersect(wr).translated(dx,dy).intersect(wr);
+    QRect sourceRect = destRect.translated(-dx, -dy);
+
+    // blt sourceRect -> destRect
+    if (sourceRect.isValid()) {
+    QPoint pos(widget->mapTo(tlw, sourceRect.topLeft()-pOffs)); //map from parent
+
+#if defined(Q_WS_WIN)
+    QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
+    HDC engine_dc = engine->getDC();
+    BitBlt(engine_dc, pos.x()+dx, pos.y()+dy, sourceRect.width(), sourceRect.height(),
+           engine_dc, pos.x(), pos.y(), SRCCOPY);
+    engine->releaseDC(engine_dc);
+#elif defined(Q_WS_X11)
+//    qDebug("XCreateGC");
+    GC gc = XCreateGC(widget->d_func()->xinfo.display(), buffer.handle(), 0, 0);
+//    qDebug() << "XCopyArea" << pos << sourceRect << "dx" << dy << "dy" << dy;
+    XCopyArea(X11->display, buffer.handle(), buffer.handle(), gc,
+              pos.x(), pos.y(), sourceRect.width(), sourceRect.height(),
+              pos.x()+dx, pos.y()+dy);
+//    qDebug("XFreeGC");
+    XFreeGC(widget->d_func()->xinfo.display(), gc);
+//    qDebug("done");
+#endif
+    }
+    // widget invalidate newRect - destRect
+    QRegion dirtyChildRgn(newRect.translated(-pOffs));
+    dirtyChildRgn -= destRect.translated(-pOffs);
+    dirtyRegion(dirtyChildRgn, widget);
+
+    // parent invalidate rect - newRect
+
+    QWidget *parent = widget->parentWidget();
+    if (parent) {
+        QRect pr = parent->d_func()->clipRect();
+        QRegion dirtyRgn(rect & pr);
+        dirtyRgn -= newRect;
+        if (!dirtyRgn.isEmpty())
+            dirtyRegion(dirtyRgn, parent);
+    }
+}
 
 /*
   Only for opaque widgets
@@ -228,17 +294,6 @@ void QWidgetBackingStore::scrollRegion(const QRect &rect, int dx, int dy, QWidge
 #endif
 
     QRegion dirtyRgn(rect);
-#ifndef QT_FASTSCROLL
-    QRegion area = widget->d_func()->clipRect();
-    if(area.isEmpty())
-        return;
-    dirtyRgn &= area;
-
-    QRect newrect = rect.translated(dx,dy);
-    dirtyRgn += newrect;
-
-    dirtyRegion(dirtyRgn, widget);
-#else
     QRegion area = widget->d_func()->clipRegion();
     if(area.isEmpty())
         return;
@@ -278,8 +333,6 @@ void QWidgetBackingStore::scrollRegion(const QRect &rect, int dx, int dy, QWidge
     }
 
     dirtyRegion(dirtyRgn, widget);
-
-#endif
 }
 
 #ifdef Q_WS_QWS
@@ -667,6 +720,21 @@ void QWidgetPrivate::scrollBuffer(const QRect &rect, int dx, int dy)
     x->backingStore->scrollRegion(rect, dx, dy, q);
 }
 
+/*
+  Only for opaque widgets
+  move the  \a rect part of q by (dx, dy), clipping to parent
+
+
+*/
+void QWidgetPrivate::moveBuffer(const QRect &rect, int dx, int dy)
+{
+    Q_Q(QWidget);
+    QWidget *tlw = q->window();
+    QTLWExtra* x = tlw->d_func()->topData();
+    x->backingStore->moveRect(rect, dx, dy, q);
+
+}
+
 void QWidgetPrivate::invalidateBuffer(const QRegion &rgn)
 {
     if(qApp && qApp->closingDown())
@@ -689,6 +757,10 @@ void QWidget::repaint(const QRegion& rgn)
     } else {
         Q_D(QWidget);
         d->cleanWidget_sys(rgn);
+
+
+        //     qDebug() << "QWidget::repaint paintOnScreen" << this << "region" << rgn;
+
 
         //update the "in paint event" flag
         if (testAttribute(Qt::WA_WState_InPaintEvent))

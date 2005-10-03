@@ -2296,7 +2296,11 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             QWidget *pw = q->parentWidget();
             QRect sr = QRect(oldPos, oldSize).intersect(pw->rect());
             if(isMove && accelerateMove) {
+#if 0
                 pw->d_func()->scrollBuffer(sr, x - oldPos.x(), y - oldPos.y());
+#else
+                moveBuffer(QRect(oldPos, oldSize), x - oldPos.x(), y - oldPos.y());
+#endif
             } else {
                 pw->d_func()->invalidateBuffer(sr);
             }
@@ -2450,8 +2454,17 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     } else
     if (!valid_rect) {        // scroll children
 #ifdef QT_USE_BACKINGSTORE
-        if (!just_update)
+        if (!just_update) {
+# if 0
             d->scrollBuffer(QRect(x1,y1,w,h), dx, dy);
+# else
+            //we know that we're scrolling the entire widget
+            //translation because we pretend that we're moving from outside
+            //the widget in order to get correct exposures
+            QRect moveRect = data->crect.translated(-dx,-dy);
+            d->moveBuffer(moveRect, dx, dy);
+# endif
+        }
 #endif
         if ( !d->children.isEmpty() ) {
             QPoint pd(dx, dy);

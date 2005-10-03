@@ -75,6 +75,7 @@ public:
     QWidgetBackingStore(QWidget *t);
     ~QWidgetBackingStore();
     void scrollRegion(const QRect &rect, int dx, int dy, QWidget *widget=0);
+    void moveRect(const QRect &rect, int dx, int dy, QWidget *widget=0);
     void dirtyRegion(const QRegion &rgn, QWidget *widget=0);
     void cleanRegion(const QRegion &rgn, QWidget *widget=0);
 #if defined(Q_WS_X11)
