@@ -669,10 +669,10 @@ void Generator::generateMetacall()
                 if (p.read.isEmpty())
                     continue;
                 if (p.gspec == PropertyDef::PointerSpec)
-                    fprintf(out, "        case %d: _a[0] = const_cast<void*>(static_cast<const void*>(%s())); break;\n",
+                    fprintf(out, "        case %d: _a[0] = const_cast<void*>(reinterpret_cast<const void*>(%s())); break;\n",
                             propindex, p.read.constData());
                 else if (p.gspec == PropertyDef::ReferenceSpec)
-                    fprintf(out, "        case %d: _a[0] = const_cast<void*>(static_cast<const void*>(&%s())); break;\n",
+                    fprintf(out, "        case %d: _a[0] = const_cast<void*>(reinterpret_cast<const void*>(&%s())); break;\n",
                             propindex, p.read.constData());
                 else if (cdef->enumDeclarations.value(p.type, false))
                     fprintf(out, "        case %d: *reinterpret_cast<int*>(_v) = QFlag(%s()); break;\n",
@@ -843,16 +843,16 @@ void Generator::generateSignal(FunctionDef *def,int index)
         fprintf(out, "0");
     } else {
         if (def->returnTypeIsVolatile)
-             fprintf(out, "const_cast<void*>(static_cast<const volatile void*>(&_t0))");
+             fprintf(out, "const_cast<void*>(reinterpret_cast<const volatile void*>(&_t0))");
         else
-             fprintf(out, "const_cast<void*>(static_cast<const void*>(&_t0))");
+             fprintf(out, "const_cast<void*>(reinterpret_cast<const void*>(&_t0))");
     }
     int i;
     for (i = 1; i < offset; ++i)
         if (def->arguments.at(i - 1).isVolatile)
-            fprintf(out, ", const_cast<void*>(static_cast<const volatile void*>(&_t%d))", i);
+            fprintf(out, ", const_cast<void*>(reinterpret_cast<const volatile void*>(&_t%d))", i);
         else
-            fprintf(out, ", const_cast<void*>(static_cast<const void*>(&_t%d))", i);
+            fprintf(out, ", const_cast<void*>(reinterpret_cast<const void*>(&_t%d))", i);
     fprintf(out, " };\n");
     int n = 0;
     for (i = 0; i < def->arguments.count(); ++i)
