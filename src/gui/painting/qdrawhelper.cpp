@@ -2108,13 +2108,13 @@ static uint detectCPUFeatures() {
 	push ebx
 	push ecx
 	push edx
-	pushf
+	pushfd
 	pop eax
 	mov ebx, eax
 	xor eax, 00200000h
 	push eax
-	popf
-	pushf
+	popfd
+	pushfd
         pop eax
 	mov edx, 0
 	xor eax, ebx
