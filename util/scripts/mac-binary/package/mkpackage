@@ -28,7 +28,7 @@ BINARY_DIR=
 SOURCE_DIR=
 SOURCE_PACKAGE=
 EVAL_PATCHES=
-CONFIGURE_ARGS="-qt-libpng -qt-libjpeg -plugin-sql-sqlite -plugin-sql-odbc -plugin-sql-psql -plugin-sql-mysql -release -framework -confirm-license -no-rpath -pch -I/usr/local/pgsql/include -I/usr/local/mysql/include -L/usr/local/pgsql/lib -L/usr/local/mysql/lib"
+CONFIGURE_ARGS="-qt-libpng -qt-libjpeg -plugin-sql-sqlite -plugin-sql-odbc -plugin-sql-psql -plugin-sql-mysql -framework -confirm-license -no-rpath -pch -I/usr/local/pgsql/include -I/usr/local/mysql/include -L/usr/local/pgsql/lib -L/usr/local/mysql/lib"
 
 doStringReplace()
 {
