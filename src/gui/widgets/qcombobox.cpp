@@ -2004,9 +2004,7 @@ void QComboBox::wheelEvent(QWheelEvent *e)
 void QComboBox::contextMenuEvent(QContextMenuEvent *e)
 {
     Q_D(QComboBox);
-    qDebug("contextMenuEvent");
     if (d->lineEdit) {
-        qDebug("  contextMenuEvent");
         Qt::ContextMenuPolicy p = d->lineEdit->contextMenuPolicy();
         d->lineEdit->setContextMenuPolicy(Qt::DefaultContextMenu);
         d->lineEdit->event(e);
