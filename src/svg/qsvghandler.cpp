@@ -37,8 +37,8 @@
 
 static bool parsePathDataFast(const QString &data, QPainterPath &path);
 
-static const QPen defaultPen(Qt::black, 1, Qt::SolidLine,
-                             Qt::FlatCap, Qt::MiterJoin);
+static QPen defaultPen(Qt::black, 1, Qt::SolidLine,
+                       Qt::FlatCap, Qt::MiterJoin);
 
 static QString xmlSimplify(const QString &str)
 {
@@ -451,8 +451,11 @@ static void parseQPen(QPen &pen, QSvgNode *node,
                 //we need to reset the style of our stroke to something
                 pen.setStyle(Qt::SolidLine);
             }
-            if (!width.isEmpty())
+            if (!width.isEmpty()) {
                 pen.setWidthF(width.toDouble());
+                if (miterlimit.isEmpty())
+                    pen.setMiterLimit(pen.miterLimit()/pen.widthF());
+            }
 
             if (!linejoin.isEmpty()) {
                 if (linejoin == "miter")
@@ -658,8 +661,11 @@ static void parsePen(QSvgNode *node,
                 //we need to reset the style of our stroke to something
                 pen.setStyle(Qt::SolidLine);
             }
-            if (!width.isEmpty())
+            if (!width.isEmpty()) {
                 pen.setWidthF(width.toDouble());
+                if (miterlimit.isEmpty())
+                    pen.setMiterLimit(pen.miterLimit()/pen.widthF());
+            }
 
             if (!linejoin.isEmpty()) {
                 if (linejoin == "miter")
@@ -2267,8 +2273,10 @@ QHash<QString, StyleParseMethod>   QSvgHandler::s_styleUtilFactory;
 QSvgHandler::QSvgHandler()
     : m_doc(0), m_style(0), m_defaultCoords(PX)
 {
-    if (s_groupFactory.isEmpty())
+    if (s_groupFactory.isEmpty()) {
+        defaultPen.setMiterLimit(4);
         init();
+    }
 }
 
 bool QSvgHandler::startElement(const QString &namespaceURI,
