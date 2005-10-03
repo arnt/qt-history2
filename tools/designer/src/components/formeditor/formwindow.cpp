@@ -564,20 +564,22 @@ void FormWindow::setCurrentWidget(QWidget *currentWidget)
 
 void FormWindow::selectWidget(QWidget* w, bool select)
 {
-    if (!isManaged(w))
+    if (!isManaged(w) && !isCentralWidget(w))
         return;
 
     if (isMainContainer(w)) {
         QWidget *opw = m_currentWidget;
         setCurrentWidget(mainContainer());
         repaintSelection(opw);
+        emitSelectionChanged();
         return;
     }
 
-    if (qobject_cast<QMainWindow*>(mainContainer()) && w == static_cast<QMainWindow*>(mainContainer())->centralWidget()) {
+    if (isCentralWidget(w)) {
         QWidget *opw = m_currentWidget;
         setCurrentWidget(mainContainer());
         repaintSelection(opw);
+        emitSelectionChanged();
         return;
     }
 
