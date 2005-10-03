@@ -576,6 +576,14 @@ void WriteInitialization::writeProperties(const QString &varName,
             output << option.indent << driver->findOrInsertWidget(buttonGroupWidget) << "->insert("
                    << varName << ", " << p->elementNumber() << ");\n";
             continue;
+        } else if (propertyName == QLatin1String("currentRow") // QListWidget::currentRow
+                    && uic->customWidgetsInfo()->extends(className, QLatin1String("QListWidget"))) {
+            // this property needs to be set later
+            continue;
+        } else if (propertyName == QLatin1String("currentIndex") // QComboBox::currentIndex
+                    && uic->customWidgetsInfo()->extends(className, QLatin1String("QComboBox"))) {
+            // this property needs to be set later
+            continue;
         } else if (propertyName == QLatin1String("control") // ActiveQt support
                     && uic->customWidgetsInfo()->extends(className, QLatin1String("QAxWidget"))) {
             // already done ;)
@@ -1181,6 +1189,13 @@ void WriteInitialization::initializeComboBox(DomWidget *w)
 
         refreshOut << trCall(text->elementString()) << ");\n";
     }
+
+    QHash<QString, DomProperty*> properties = propertyMap(w->elementProperty());
+    DomProperty *currentIndex = properties.value(QLatin1String("currentIndex"));
+    if (currentIndex) {
+        refreshOut << option.indent << varName << "->setCurrentIndex(";
+        refreshOut << QString::number(currentIndex->elementNumber()) << ");\n";
+    }
 }
 
 void WriteInitialization::initializeListWidget(DomWidget *w)
@@ -1213,6 +1228,13 @@ void WriteInitialization::initializeListWidget(DomWidget *w)
             if (p->attributeName() == QLatin1String("icon"))
                 refreshOut << option.indent << itemName << "->setIcon(" << pixCall(p) << ");\n";
         }
+    }
+
+    QHash<QString, DomProperty*> properties = propertyMap(w->elementProperty());
+    DomProperty *currentRow = properties.value(QLatin1String("currentRow"));
+    if (currentRow) {
+        refreshOut << option.indent << varName << "->setCurrentRow(";
+        refreshOut << QString::number(currentRow->elementNumber()) << ");\n";
     }
 }
 
