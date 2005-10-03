@@ -32,6 +32,7 @@
 #include <QtGui/QStatusBar>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QWidget>
+#include <QtGui/QSplitter>
 
 #include <QtXml/QDomDocument>
 
@@ -1062,7 +1063,17 @@ DomWidget *QAbstractFormBuilder::createDom(QWidget *widget, DomWidget *ui_parent
     QList<DomAction*> ui_actions;
     QList<DomActionGroup*> ui_action_groups;
 
-    QList<QObject*> children = widget->children();
+    QList<QObject*> children;
+
+    // splitters need to store their children in the order specified by child indexes,
+    // not the order of the child list.
+    if (QSplitter *splitter = qobject_cast<QSplitter*>(widget)) {
+        for (int i = 0; i < splitter->count(); ++i)
+            children.append(splitter->widget(i));
+    } else {
+        children = widget->children();
+    }
+
     foreach (QObject *obj, children) {
         if (QWidget *childWidget = qobject_cast<QWidget*>(obj)) {
             if (m_laidout.contains(childWidget) || recursive == false)

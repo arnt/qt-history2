@@ -608,40 +608,51 @@ static void replace_widget_item(QDesignerFormWindowInterface *fw, QWidget *wgt, 
     QWidget *parent = wgt->parentWidget();
 
     QRect info;
+    int splitter_idx = -1;
     if (QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parent)) {
-        QLayout *layout = LayoutInfo::managedLayout(core, parent);
-        Q_ASSERT(layout != 0);
+        if (QSplitter *splitter = qobject_cast<QSplitter*>(parent)) {
+            splitter_idx = splitter->indexOf(wgt);
+            Q_ASSERT(splitter_idx != -1);
+            wgt->setParent(0);
+        } else {
+            QLayout *layout = LayoutInfo::managedLayout(core, parent);
+            Q_ASSERT(layout != 0);
 
-        int old_index = layout->indexOf(wgt);
-        Q_ASSERT(old_index != -1);
+            int old_index = layout->indexOf(wgt);
+            Q_ASSERT(old_index != -1);
 
-        info = deco->itemInfo(old_index);
+            info = deco->itemInfo(old_index);
 
-        QLayoutItem *item = layout->takeAt(old_index);
-        delete item;
-        layout->activate();
+            QLayoutItem *item = layout->takeAt(old_index);
+            delete item;
+            layout->activate();
+        }
     }
 
     if (qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parent)) {
-        QLayout *layout = LayoutInfo::managedLayout(core, parent);
-        Q_ASSERT(layout != 0);
+        if (QSplitter *splitter = qobject_cast<QSplitter*>(parent)) {
+            splitter->insertWidget(splitter_idx, promoted);
+        } else {
+            QLayout *layout = LayoutInfo::managedLayout(core, parent);
+            Q_ASSERT(layout != 0);
 
-        // ### check if `info' is valid!
+            // ### check if `info' is valid!
 
-        switch (LayoutInfo::layoutType(core, layout)) {
-            default: Q_ASSERT(0); break;
+            switch (LayoutInfo::layoutType(core, layout)) {
+                default: Q_ASSERT(0); break;
 
-            case LayoutInfo::VBox:
-                insert_into_box_layout(static_cast<QBoxLayout*>(layout), info.top(), promoted);
-                break;
+                case LayoutInfo::VBox:
+                    insert_into_box_layout(static_cast<QBoxLayout*>(layout), info.top(), promoted);
+                    break;
 
-            case LayoutInfo::HBox:
-                insert_into_box_layout(static_cast<QBoxLayout*>(layout), info.left(), promoted);
-                break;
+                case LayoutInfo::HBox:
+                    insert_into_box_layout(static_cast<QBoxLayout*>(layout), info.left(), promoted);
+                    break;
 
-            case LayoutInfo::Grid:
-                add_to_grid_layout(static_cast<QGridLayout*>(layout), promoted, info.top(), info.left(), info.height(), info.width());
-                break;
+                case LayoutInfo::Grid:
+                    add_to_grid_layout(static_cast<QGridLayout*>(layout), promoted, info.top(), info.left(), info.height(), info.width());
+                    break;
+            }
         }
     }
 }
