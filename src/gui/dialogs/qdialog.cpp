@@ -631,7 +631,7 @@ void QDialog::setVisible(bool visible)
                 }
             }
         }
-        if (fw) {
+        if (fw && !fw->hasFocus()) {
             QFocusEvent e(QEvent::FocusIn, Qt::TabFocusReason);
             QApplication::sendEvent(fw, &e);
         }
