@@ -50,6 +50,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QProcess>
 #include <QtCore/QLibraryInfo>
+#include <QtCore/QMetaProperty>
 #include <QtCore/qdebug.h>
 
 #include <QtXml/QDomDocument>
@@ -1154,6 +1155,14 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
                 continue;
 
             DomProperty *p = new DomProperty;
+            // check if we have a standard cpp set function
+            const QMetaObject *meta = object->metaObject();
+            int pindex = meta->indexOfProperty(propertyName.toLatin1());
+            if (pindex != -1) {
+                QMetaProperty meta_property = meta->property(pindex);
+                if (!meta_property.hasStdCppSet())
+                    p->setAttributeStdset(0);
+            }
             p->setAttributeName(propertyName);
             p->setElementEnum(it.key());
             return p;
@@ -1170,6 +1179,14 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
             uint x = it.next().value().toUInt();
             if (v == x) {
                 DomProperty *p = new DomProperty;
+                // check if we have a standard cpp set function
+                const QMetaObject *meta = object->metaObject();
+                int pindex = meta->indexOfProperty(propertyName.toLatin1());
+                if (pindex != -1) {
+                    QMetaProperty meta_property = meta->property(pindex);
+                    if (!meta_property.hasStdCppSet())
+                        p->setAttributeStdset(0);
+                }
                 p->setAttributeName(propertyName);
                 p->setElementSet(it.key());
                 return p;
