@@ -823,6 +823,7 @@ public:
         DotLine,
         DashDotLine,
         DashDotDotLine,
+        CustomDashLine,
         MPenStyle = 0x0f
     };
 
