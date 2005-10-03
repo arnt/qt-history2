@@ -778,8 +778,11 @@ void QLabel::paintEvent(QPaintEvent *)
 #ifndef QT_NO_MOVIE
     if (mov) {
         QRect r = style->itemPixmapRect(cr, align, mov->currentPixmap());
-        // ### could resize movie frame at this point
-        paint.drawPixmap(r.x(), r.y(), mov->currentPixmap());
+        if (d->scaledcontents) {
+            paint.drawPixmap(cr.x(), cr.y(), mov->currentPixmap().scaled(cr.size()));
+        } else {
+            paint.drawPixmap(r.x(), r.y(), mov->currentPixmap());
+        }
     }
     else
 #endif
@@ -976,12 +979,22 @@ void QLabelPrivate::movieUpdated(const QRect& rect)
 {
     Q_Q(QLabel);
     if (lmovie && lmovie->isValid()) {
-        QRect r = q->contentsRect();
-        r = q->style()->itemPixmapRect(r, align, lmovie->currentPixmap());
-        r.translate(rect.x(), rect.y());
-        r.setWidth(qMin(r.width(), rect.width()));
-        r.setHeight(qMin(r.height(), rect.height()));
-        q->repaint(r);
+        QRect r;
+        if (scaledcontents) {
+            QRect cr = q->contentsRect();
+            QRect pixmapRect(cr.topLeft(), lmovie->currentPixmap().size());
+            if (pixmapRect.isEmpty())
+                return;
+            r.setRect(cr.left(), cr.top(),
+                      (rect.width() * cr.width()) / pixmapRect.width(),
+                      (rect.height() * cr.height()) / pixmapRect.height());
+        } else {
+            r = q->style()->itemPixmapRect(q->contentsRect(), align, lmovie->currentPixmap());
+            r.translate(rect.x(), rect.y());
+            r.setWidth(qMin(r.width(), rect.width()));
+            r.setHeight(qMin(r.height(), rect.height()));
+        }
+        q->update(r);
     }
 }
 
