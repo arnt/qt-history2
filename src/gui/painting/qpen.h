@@ -39,6 +39,12 @@ public:
     Qt::PenStyle style() const;
     void setStyle(Qt::PenStyle);
 
+    QVector<qreal> dashPattern() const;
+    void setDashPattern(const QVector<qreal> &pattern);
+
+    qreal miterLimit() const;
+    void setMiterLimit(qreal limit);
+
     qreal widthF() const;
     void setWidthF(qreal width);
 

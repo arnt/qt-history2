@@ -45,6 +45,9 @@
 
     Use the QBrush class to specify fill styles.
 
+    Since Qt 4.1 it is possible to specify a custom dash pattern in
+    QPen using setDashPattern().
+
     Example:
     \quotefromfile snippets/brush/brush.cpp
     \skipto PEN
@@ -78,6 +81,8 @@ public:
     Qt::PenStyle style;
     Qt::PenCapStyle capStyle;
     Qt::PenJoinStyle joinStyle;
+    QVector<qreal> dashPattern;
+    qreal miterLimit;
 };
 
 
@@ -277,6 +282,93 @@ void QPen::setStyle(Qt::PenStyle s)
         return;
     detach();
     d->style = s;
+}
+
+/*!
+    Returns the dash pattern of this pen.
+ */
+QVector<qreal> QPen::dashPattern() const
+{
+    if (d->style == Qt::SolidLine || d->style == Qt::NoPen) {
+        return QVector<qreal>();
+    } else if (d->dashPattern.isEmpty()) {
+        const qreal space = 2;
+        const qreal dot = 1;
+        const qreal dash = 4;
+
+        switch (d->style) {
+        case Qt::DashLine:
+            d->dashPattern << dash << space;
+            break;
+        case Qt::DotLine:
+            d->dashPattern << dot << space;
+            break;
+        case Qt::DashDotLine:
+            d->dashPattern << dash << space << dot << space;
+            break;
+        case Qt::DashDotDotLine:
+            d->dashPattern << dash << space << dot << space << dot << space;
+            break;
+        default:
+            break;
+        }
+    }
+    return d->dashPattern;
+}
+
+/*!
+    Sets the dash pattern for this pen to \a pattern. This implicitly
+    converts the style of the pen to Qt::CustomDashLine.
+
+    The pattern must be specified as an even number of entries where
+    the entries 1, 3, 5... are the dashes and 2, 4, 6... are the
+    spaces.
+
+    The dash pattern is specified in units of the pens width, e.g. a
+    dash of length 5 in width 10 is 50 pixels long. Each dash is also
+    subject to cap styles so a dash of 1 with square cap set will
+    extend 0.5 pixels out in each direction resulting in a total width
+    of 2.
+ */
+void QPen::setDashPattern(const QVector<qreal> &pattern)
+{
+    detach();
+    d->dashPattern = pattern;
+    d->style = Qt::CustomDashLine;
+
+    if (d->dashPattern.isEmpty()) {
+        d->style = Qt::SolidLine;
+        d->dashPattern = QVector<qreal>();
+        return;
+    } else if ((d->dashPattern.size() % 2) == 1) {
+        qWarning("QPen::setDashPattern(), pattern not of even length");
+        d->dashPattern << 1;
+    }
+}
+
+/*!
+    Returns the miter limit of the pen. The miter limt is only
+    relevant when the join style is set to Qt::MiterJoin.
+*/
+qreal QPen::miterLimit() const
+{
+    return d->miterLimit;
+}
+
+/*!
+    Sets the miter limit of this pen to \a limit.
+
+    The miter limit describes how far a miter join can extend from the
+    join point. This is used to reduce artifacts between line joins
+    where the lines are close to parallel.
+
+    This value does only have effect when the pen style is set to
+    Qt::MiterJoin. The value is specified in units of the pens width.
+*/
+void QPen::setMiterLimit(qreal limit)
+{
+    detach();
+    d->miterLimit = limit;
 }
 
 
