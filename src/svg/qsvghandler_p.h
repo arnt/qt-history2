@@ -68,6 +68,10 @@ public:
 
     QSvgTinyDocument *document() const;
 
+    void setDefaultCoordinateSystem(LengthType type);
+    LengthType defaultCoordinateSystem() const;
+
+public:
     bool startElement(const QString &namespaceURI, const QString &localName,
                       const QString &qName, const QXmlAttributes &attributes);
     bool endElement(const QString &namespaceURI, const QString &localName,
