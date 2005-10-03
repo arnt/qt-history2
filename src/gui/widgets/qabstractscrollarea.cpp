@@ -82,17 +82,17 @@
 inline  bool QAbstractScrollAreaPrivate::viewportEvent(QEvent *e)
 { Q_Q(QAbstractScrollArea); return q->viewportEvent(e); }
 
-class QAbstractScrollAreaHelper : public QWidget
+class QAbstractScrollAreaViewport : public QWidget
 {
     Q_OBJECT
 public:
-    QAbstractScrollAreaHelper(QWidget *parent):QWidget(parent){ setObjectName(QLatin1String("qt_scrollarea_helper")); }
+    QAbstractScrollAreaViewport(QWidget *parent):QWidget(parent){ setObjectName(QLatin1String("qt_scrollarea_viewport")); }
     bool event(QEvent *e);
     friend class QAbstractScrollArea;
 };
-bool QAbstractScrollAreaHelper::event(QEvent *e) {
+bool QAbstractScrollAreaViewport::event(QEvent *e) {
     if (QAbstractScrollArea* viewport = qobject_cast<QAbstractScrollArea*>(parentWidget()))
-        return ((QAbstractScrollAreaPrivate*)((QAbstractScrollAreaHelper*)viewport)->d_ptr)->viewportEvent(e);
+        return ((QAbstractScrollAreaPrivate*)((QAbstractScrollAreaViewport*)viewport)->d_ptr)->viewportEvent(e);
     return QWidget::event(e);
 }
 
@@ -117,7 +117,7 @@ void QAbstractScrollAreaPrivate::init()
     vbar->setVisible(false);
     QObject::connect(vbar, SIGNAL(valueChanged(int)), q, SLOT(vslide(int)));
     QObject::connect(vbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), Qt::QueuedConnection);
-    viewport = new QAbstractScrollAreaHelper(q);
+    viewport = new QAbstractScrollAreaViewport(q);
     viewport->setBackgroundRole(QPalette::Base);
     viewport->setFocusProxy(q);
     q->setFocusPolicy(Qt::WheelFocus);
@@ -411,6 +411,7 @@ bool QAbstractScrollArea::event(QEvent *e)
     case QEvent::DragMove:
     case QEvent::DragLeave:
 #endif
+        return false;
     case QEvent::StyleChange:
         d->layoutChildren();
         // fall through
@@ -462,7 +463,7 @@ bool QAbstractScrollArea::viewportEvent(QEvent *e)
     default:
         break;
     }
-    return static_cast<QAbstractScrollAreaHelper*>(d->viewport)->QWidget::event(e);
+    return static_cast<QAbstractScrollAreaViewport*>(d->viewport)->QWidget::event(e);
 }
 
 /*!
