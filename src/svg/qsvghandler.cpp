@@ -929,33 +929,33 @@ static void parseTransform(QSvgNode *node,
 }
 
 
-static void path_arc_segment(QPainterPath &path,
-                             double xc, double yc,
-                             double th0, double th1,
-                             double rx, double ry, double x_axis_rotation)
+static void pathArcSegment(QPainterPath &path,
+                           qreal xc, qreal yc,
+                           qreal th0, qreal th1,
+                           qreal rx, qreal ry, qreal x_axis_rotation)
 {
-    double sin_th, cos_th;
-    double a00, a01, a10, a11;
-    double x1, y1, x2, y2, x3, y3;
-    double t;
-    double th_half;
+    qreal sin_th, cos_th;
+    qreal a00, a01, a10, a11;
+    qreal x1, y1, x2, y2, x3, y3;
+    qreal t;
+    qreal th_half;
 
-    sin_th = sin (x_axis_rotation * (M_PI / 180.0));
-    cos_th = cos (x_axis_rotation * (M_PI / 180.0));
+    sin_th = sin(x_axis_rotation * (M_PI / 180.0));
+    cos_th = cos(x_axis_rotation * (M_PI / 180.0));
 
-    a00 = cos_th * rx;
+    a00 =  cos_th * rx;
     a01 = -sin_th * ry;
-    a10 = sin_th * rx;
-    a11 = cos_th * ry;
+    a10 =  sin_th * rx;
+    a11 =  cos_th * ry;
 
     th_half = 0.5 * (th1 - th0);
-    t = (8.0 / 3.0) * sin (th_half * 0.5) * sin (th_half * 0.5) / sin (th_half);
-    x1 = xc + cos (th0) - t * sin (th0);
-    y1 = yc + sin (th0) + t * cos (th0);
-    x3 = xc + cos (th1);
-    y3 = yc + sin (th1);
-    x2 = x3 + t * sin (th1);
-    y2 = y3 - t * cos (th1);
+    t = (8.0 / 3.0) * sin(th_half * 0.5) * sin(th_half * 0.5) / sin(th_half);
+    x1 = xc + cos(th0) - t * sin(th0);
+    y1 = yc + sin(th0) + t * cos(th0);
+    x3 = xc + cos(th1);
+    y3 = yc + sin(th1);
+    x2 = x3 + t * sin(th1);
+    y2 = y3 - t * cos(th1);
 
     path.cubicTo(a00 * x1 + a01 * y1, a10 * x1 + a11 * y1,
                  a00 * x2 + a01 * y2, a10 * x2 + a11 * y2,
@@ -963,29 +963,29 @@ static void path_arc_segment(QPainterPath &path,
 }
 
 // the code underneath is from XSVG
-static void path_arc(QPainterPath &path,
-                     double		rx,
-                     double		ry,
-                     double		x_axis_rotation,
-                     int		large_arc_flag,
-                     int		sweep_flag,
-                     double		x,
-                     double		y,
-                     double curx, double cury)
+static void pathArc(QPainterPath &path,
+                    qreal		rx,
+                    qreal		ry,
+                    qreal		x_axis_rotation,
+                    int		large_arc_flag,
+                    int		sweep_flag,
+                    qreal		x,
+                    qreal		y,
+                    qreal curx, qreal cury)
 {
-    double sin_th, cos_th;
-    double a00, a01, a10, a11;
-    double x0, y0, x1, y1, xc, yc;
-    double d, sfactor, sfactor_sq;
-    double th0, th1, th_arc;
+    qreal sin_th, cos_th;
+    qreal a00, a01, a10, a11;
+    qreal x0, y0, x1, y1, xc, yc;
+    qreal d, sfactor, sfactor_sq;
+    qreal th0, th1, th_arc;
     int i, n_segs;
-    double dx, dy, dx1, dy1, Pr1, Pr2, Px, Py, check;
+    qreal dx, dy, dx1, dy1, Pr1, Pr2, Px, Py, check;
 
-    rx = fabs (rx);
-    ry = fabs (ry);
+    rx = qAbs(rx);
+    ry = qAbs(ry);
 
-    sin_th = sin (x_axis_rotation * (M_PI / 180.0));
-    cos_th = cos (x_axis_rotation * (M_PI / 180.0));
+    sin_th = sin(x_axis_rotation * (M_PI / 180.0));
+    cos_th = cos(x_axis_rotation * (M_PI / 180.0));
 
     dx = (curx - x) / 2.0;
     dy = (cury - y) / 2.0;
@@ -997,16 +997,15 @@ static void path_arc(QPainterPath &path,
     Py = dy1 * dy1;
     /* Spec : check if radii are large enough */
     check = Px / Pr1 + Py / Pr2;
-    if(check > 1)
-    {
+    if (check > 1) {
         rx = rx * sqrt(check);
         ry = ry * sqrt(check);
     }
 
-    a00 = cos_th / rx;
-    a01 = sin_th / rx;
+    a00 =  cos_th / rx;
+    a01 =  sin_th / rx;
     a10 = -sin_th / ry;
-    a11 = cos_th / ry;
+    a11 =  cos_th / ry;
     x0 = a00 * curx + a01 * cury;
     y0 = a10 * curx + a11 * cury;
     x1 = a00 * x + a01 * y;
@@ -1019,14 +1018,14 @@ static void path_arc(QPainterPath &path,
     d = (x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0);
     sfactor_sq = 1.0 / d - 0.25;
     if (sfactor_sq < 0) sfactor_sq = 0;
-    sfactor = sqrt (sfactor_sq);
+    sfactor = sqrt(sfactor_sq);
     if (sweep_flag == large_arc_flag) sfactor = -sfactor;
     xc = 0.5 * (x0 + x1) - sfactor * (y1 - y0);
     yc = 0.5 * (y0 + y1) + sfactor * (x1 - x0);
     /* (xc, yc) is center of the circle. */
 
-    th0 = atan2 (y0 - yc, x0 - xc);
-    th1 = atan2 (y1 - yc, x1 - xc);
+    th0 = atan2(y0 - yc, x0 - xc);
+    th1 = atan2(y1 - yc, x1 - xc);
 
     th_arc = th1 - th0;
     if (th_arc < 0 && sweep_flag)
@@ -1034,22 +1033,21 @@ static void path_arc(QPainterPath &path,
     else if (th_arc > 0 && !sweep_flag)
         th_arc -= 2 * M_PI;
 
-    n_segs = int(ceil (fabs (th_arc / (M_PI * 0.5 + 0.001))));
+    n_segs = int(ceil(qAbs(th_arc / (M_PI * 0.5 + 0.001))));
 
     for (i = 0; i < n_segs; i++) {
-        path_arc_segment(path, xc, yc,
-                         th0 + i * th_arc / n_segs,
-                         th0 + (i + 1) * th_arc / n_segs,
-                         rx, ry, x_axis_rotation);
+        pathArcSegment(path, xc, yc,
+                       th0 + i * th_arc / n_segs,
+                       th0 + (i + 1) * th_arc / n_segs,
+                       rx, ry, x_axis_rotation);
     }
-
 }
 
 static bool parsePathDataFast(const QString &data, QPainterPath &path)
 {
     QString::const_iterator itr = data.begin();
-    double x0 = 0, y0 = 0;              // starting point
-    double x = 0, y = 0;                // current point
+    qreal x0 = 0, y0 = 0;              // starting point
+    qreal x = 0, y = 0;                // current point
     char lastMode = 0;
     QChar pathElem;
     QPointF ctrlPt;
@@ -1063,8 +1061,8 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
         if (pathElem == 'z' || pathElem == 'Z')
             arg.append(0);//dummy
         while (!arg.isEmpty()) {
-            double offsetX = x;        // correction offsets
-            double offsetY = y;        // for relative commands
+            qreal offsetX = x;        // correction offsets
+            qreal offsetY = y;        // for relative commands
             switch (pathElem.toAscii()) {
             case 'm': {
                 x = x0 = arg[0] + offsetX;
@@ -1239,17 +1237,17 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
                 break;
             }
             case 'a': {
-                double rx = arg[0];
-                double ry = arg[1];
-                double xAxisRotation = arg[2];
-                double largeArcFlag  = arg[3];
-                double sweepFlag = arg[4];
-                double ex = arg[5] + offsetX;
-                double ey = arg[6] + offsetY;
-                double curx = x;
-                double cury = y;
-                path_arc(path, rx, ry, xAxisRotation, int(largeArcFlag),
-                         int(sweepFlag), ex, ey, curx, cury);
+                qreal rx = arg[0];
+                qreal ry = arg[1];
+                qreal xAxisRotation = arg[2];
+                qreal largeArcFlag  = arg[3];
+                qreal sweepFlag = arg[4];
+                qreal ex = arg[5] + offsetX;
+                qreal ey = arg[6] + offsetY;
+                qreal curx = x;
+                qreal cury = y;
+                pathArc(path, rx, ry, xAxisRotation, int(largeArcFlag),
+                        int(sweepFlag), ex, ey, curx, cury);
 
                 x = ex;
                 y = ey;
@@ -1261,17 +1259,17 @@ static bool parsePathDataFast(const QString &data, QPainterPath &path)
             }
                 break;
             case 'A': {
-                double rx = arg[0];
-                double ry = arg[1];
-                double xAxisRotation = arg[2];
-                double largeArcFlag  = arg[3];
-                double sweepFlag = arg[4];
-                double ex = arg[5];
-                double ey = arg[6];
-                double curx = x;
-                double cury = y;
-                path_arc(path, rx, ry, xAxisRotation, int(largeArcFlag),
-                         int(sweepFlag), ex, ey, curx, cury);
+                qreal rx = arg[0];
+                qreal ry = arg[1];
+                qreal xAxisRotation = arg[2];
+                qreal largeArcFlag  = arg[3];
+                qreal sweepFlag = arg[4];
+                qreal ex = arg[5];
+                qreal ey = arg[6];
+                qreal curx = x;
+                qreal cury = y;
+                pathArc(path, rx, ry, xAxisRotation, int(largeArcFlag),
+                        int(sweepFlag), ex, ey, curx, cury);
                 x = ex;
                 y = ey;
                 arg.pop_front(); arg.pop_front();
@@ -1550,9 +1548,9 @@ static QSvgNode *createCircleNode(QSvgNode *parent,
     QString cx      = attributes.value("cx");
     QString cy      = attributes.value("cy");
     QString r       = attributes.value("r");
-    double ncx = cx.toDouble();
-    double ncy = cy.toDouble();
-    double nr  = r.toDouble();
+    qreal ncx = cx.toDouble();
+    qreal ncy = cy.toDouble();
+    qreal nr  = r.toDouble();
 
     QRectF rect(ncx-nr, ncy-nr, nr*2, nr*2);
     QSvgNode *circle = new QSvgCircle(parent, rect);
@@ -1592,10 +1590,10 @@ static QSvgNode *createEllipseNode(QSvgNode *parent,
     QString cy      = attributes.value("cy");
     QString rx      = attributes.value("rx");
     QString ry      = attributes.value("ry");
-    double ncx = cx.toDouble();
-    double ncy = cy.toDouble();
-    double nrx = rx.toDouble();
-    double nry = ry.toDouble();
+    qreal ncx = cx.toDouble();
+    qreal ncy = cy.toDouble();
+    qreal nrx = rx.toDouble();
+    qreal nry = ry.toDouble();
 
     QRectF rect(ncx-nrx, ncy-nry, nrx*2, nry*2);
     QSvgNode *ellipse = new QSvgEllipse(parent, rect);
@@ -1750,13 +1748,13 @@ static QSvgNode *createImageNode(QSvgNode *parent,
     QString width  = attributes.value("width");
     QString height = attributes.value("height");
     QString filename = attributes.value("xlink:href");
-    double nx = x.toDouble();
-    double ny = y.toDouble();
+    qreal nx = x.toDouble();
+    qreal ny = y.toDouble();
     LengthType type;
-    double nwidth = parseLength(width, type);
+    qreal nwidth = parseLength(width, type);
     nwidth = convertToPixels(nwidth, true, type);
 
-    double nheight = parseLength(height, type);
+    qreal nheight = parseLength(height, type);
     nheight = convertToPixels(nheight, false, type);
 
 
@@ -1797,10 +1795,10 @@ static QSvgNode *createLineNode(QSvgNode *parent,
     QString y1 = attributes.value("y1");
     QString x2 = attributes.value("x2");
     QString y2 = attributes.value("y2");
-    double nx1 = x1.toDouble();
-    double ny1 = y1.toDouble();
-    double nx2 = x2.toDouble();
-    double ny2 = y2.toDouble();
+    qreal nx1 = x1.toDouble();
+    qreal ny1 = y1.toDouble();
+    qreal nx2 = x2.toDouble();
+    qreal ny2 = y2.toDouble();
 
     QLineF lineBounds(nx1, ny1, nx2, ny2);
     QSvgNode *line = new QSvgLine(parent, lineBounds);
@@ -2032,8 +2030,8 @@ static QSvgNode *createRectNode(QSvgNode *parent,
 
     qreal nheight = parseLength(height, type);
     nheight = convertToPixels(nheight, true, type);
-    double nrx = rx.toDouble();
-    double nry = ry.toDouble();
+    qreal nrx = rx.toDouble();
+    qreal nry = ry.toDouble();
 
     QRectF bounds(x.toDouble(), y.toDouble(),
                   nwidth, nheight);
