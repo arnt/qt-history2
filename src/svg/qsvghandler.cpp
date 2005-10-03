@@ -453,9 +453,10 @@ static void parseQPen(QPen &pen, QSvgNode *node,
             }
             if (!width.isEmpty()) {
                 pen.setWidthF(width.toDouble());
-                if (miterlimit.isEmpty())
-                    pen.setMiterLimit(pen.miterLimit()/pen.widthF());
+//                 if (miterlimit.isEmpty())
+//                     pen.setMiterLimit(pen.miterLimit()/pen.widthF());
             }
+            qreal penw = pen.widthF();
 
             if (!linejoin.isEmpty()) {
                 if (linejoin == "miter")
@@ -464,6 +465,9 @@ static void parseQPen(QPen &pen, QSvgNode *node,
                     pen.setJoinStyle(Qt::RoundJoin);
                 else if (linejoin == "bevel")
                     pen.setJoinStyle(Qt::BevelJoin);
+            }
+            if (!miterlimit.isEmpty()) {
+                pen.setMiterLimit(miterlimit.toDouble()/penw);
             }
 
             if (!linecap.isEmpty()) {
@@ -475,7 +479,6 @@ static void parseQPen(QPen &pen, QSvgNode *node,
                     pen.setCapStyle(Qt::SquareCap);
             }
 
-            qreal penw = pen.widthF();
             if (!dashArray.isEmpty()) {
                 QString::const_iterator itr = dashArray.begin();
                 QList<qreal> dashes = parseNumbersList(itr);
@@ -486,9 +489,6 @@ static void parseQPen(QPen &pen, QSvgNode *node,
                     vec[i++] = dash/penw;
                 }
                 pen.setDashPattern(vec);
-            }
-            if (!miterlimit.isEmpty()) {
-                pen.setMiterLimit(miterlimit.toDouble()/penw);
             }
 
         } else {
