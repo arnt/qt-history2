@@ -346,6 +346,8 @@ public:
         WA_DropSiteRegistered = 79, // internal
         WA_ForceAcceptDrops = WA_DropSiteRegistered,
 
+        WA_WindowPropagation = 80,
+
         // Add new attributes above this
         WA_AttributeCount
     };

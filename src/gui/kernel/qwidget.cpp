@@ -620,7 +620,8 @@ QWidgetMapper *QWidgetPrivate::mapper = 0;                // app global widget m
 
 static QFont qt_naturalWidgetFont(QWidget* w) {
     QFont naturalfont = QApplication::font(w);
-    if (!w->isWindow() && w->parentWidget()) {
+    if (w->parentWidget()
+        && (!w->isWindow() || w->testAttribute(Qt::WA_WindowPropagation))) {
         if (!naturalfont.isCopyOf(QApplication::font()))
             naturalfont = naturalfont.resolve(w->parentWidget()->font());
         else
@@ -632,7 +633,8 @@ static QFont qt_naturalWidgetFont(QWidget* w) {
 
 static QPalette qt_naturalWidgetPalette(QWidget* w) {
     QPalette naturalpalette = QApplication::palette(w);
-    if (!w->isWindow() && w->parentWidget()) {
+    if (w->parentWidget()
+        && (!w->isWindow() || w->testAttribute(Qt::WA_WindowPropagation))) {
         if (!naturalpalette.isCopyOf(QApplication::palette()))
             naturalpalette = naturalpalette.resolve(w->parentWidget()->palette());
         else
@@ -770,6 +772,7 @@ void QWidgetPrivate::init(QWidget *desktopWidget, Qt::WFlags f)
 
     if (!(q->windowType() == Qt::Desktop))
         updateSystemBackground();
+
     if (q->isWindow()) {
         if (QApplication::isRightToLeft())
             q->setAttribute(Qt::WA_RightToLeft);
@@ -1263,7 +1266,8 @@ void QWidgetPrivate::propagatePaletteChange()
     if(!children.isEmpty()) {
         for(int i = 0; i < children.size(); ++i) {
             QWidget *w = qobject_cast<QWidget*>(children.at(i));
-            if (w && !w->isWindow())
+            if (w && (!w->isWindow()
+                      || w->testAttribute(Qt::WA_WindowPropagation)))
                 w->d_func()->resolvePalette();
         }
     }
@@ -3132,7 +3136,8 @@ void QWidgetPrivate::setFont_helper(const QFont &font)
 #endif
     for (int i = 0; i < children.size(); ++i) {
         QWidget *w = qobject_cast<QWidget*>(children.at(i));
-        if (w && !w->isWindow())
+        if (w && (!w->isWindow()
+                  || w->testAttribute(Qt::WA_WindowPropagation)))
             w->d_func()->resolveFont();
     }
     QEvent e(QEvent::FontChange);
@@ -6668,6 +6673,10 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         QWinInputContext::enable(this, on);
         break;
 #endif
+    case Qt::WA_WindowPropagation:
+        d->resolvePalette();
+        d->resolveFont();
+        break;
     default:
         break;
     }

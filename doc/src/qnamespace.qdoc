@@ -815,6 +815,8 @@
     \value WA_KeyboardFocusChange Set on a toplevel window when
         the users changes focus with the keyboard (tab, backtab, or shortcut).
 
+    \value WA_WindowPropagation Makes a toplevel window inherit font and palette from its parent.
+
     \value WA_InputMethodEnabled
     \value WA_InputMethodTransparent
     \value WA_MacNoClickThrough

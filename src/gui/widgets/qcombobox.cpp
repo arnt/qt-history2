@@ -128,6 +128,8 @@ QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView
     Q_ASSERT(parent);
     Q_ASSERT(itemView);
 
+    setAttribute(Qt::WA_WindowPropagation);
+
     // setup container
     blockMouseReleaseTimer.setSingleShot(true);
 
