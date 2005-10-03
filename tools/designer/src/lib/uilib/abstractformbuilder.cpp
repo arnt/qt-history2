@@ -1733,6 +1733,10 @@ void QAbstractFormBuilder::loadListWidgetExtraInfo(DomWidget *ui_widget, QListWi
             item->setIcon(nameToIcon(iconPath, qrcPath));
         }
     }
+
+    DomProperty *currentRow = propertyMap(ui_widget->elementProperty()).value("currentRow");
+    if (currentRow)
+        listWidget->setCurrentRow(currentRow->elementNumber());
 }
 
 /*!
@@ -1796,9 +1800,13 @@ void QAbstractFormBuilder::loadComboBoxExtraInfo(DomWidget *ui_widget, QComboBox
             icon = nameToIcon(iconPath, qrcPath);
         }
 
-        comboBox->addItem(text, icon);
+        comboBox->addItem(icon, text);
         comboBox->setItemData((comboBox->count()-1), icon);
     }
+
+    DomProperty *currentIndex = propertyMap(ui_widget->elementProperty()).value("currentIndex");
+    if (currentIndex)
+        comboBox->setCurrentIndex(currentIndex->elementNumber());
 }
 
 /*!
