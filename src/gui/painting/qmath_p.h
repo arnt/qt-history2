@@ -46,16 +46,6 @@ static const double Q_PI2  = 1.57079632679489661923;   // pi/2
 inline int qFloor(double d)
 { return d >= 0.0 ? int(d) : int(d - 0.9999); }
 
-#ifdef Q_WS_X11
-#if defined(Q_CC_GNU) && defined(Q_OS_AIX)
-// AIX 4.2 gcc 2.7.2.3 gets internal error.
-inline int qRoundAIX(double d)
-{
-    return qRound(d);
-}
-#define qRound qRoundAIX
-#endif
-
 #if defined(Q_CC_GNU) && defined(__i386__)
 
 inline double qCos_x86(double a)
