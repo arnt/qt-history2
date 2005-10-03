@@ -25,6 +25,7 @@
 #include "qpainterpath.h"
 #include "qbrush.h"
 #include "qtextformat.h"
+#include "qvector.h"
 #include "qdebug.h"
 
 #include <math.h>
@@ -471,35 +472,20 @@ static void parseQPen(QPen &pen, QSvgNode *node,
                     pen.setCapStyle(Qt::SquareCap);
             }
 
-            // ### we need custom pen styles for this to work
-            // 100% correctly
             if (!dashArray.isEmpty()) {
                 QString::const_iterator itr = dashArray.begin();
                 QList<qreal> dashes = parseNumbersList(itr);
-                qreal pen_width = pen.widthF();
-                int scale =  qRound(pen_width < 1 ? 1 : pen_width);
-                //int space = (pen_width < 1 ? 1 : (2 * scale));
-                int dot = 1 * scale;
-                int dash = 4 * scale;
-                if (dashes.size() == 6) {
-                    if (dashes.at(0) != dashes.at(2))
-                        pen.setStyle(Qt::DashDotDotLine);
-                    else {
-                        qreal dotDif = qAbs(dashes.at(0) - dot);
-                        qreal dashDif = qAbs(dashes.at(0) - dash);
-                        if (dotDif < dashDif)
-                            pen.setStyle(Qt::DashLine);
-                        else
-                            pen.setStyle(Qt::DotLine);
-                    }
-                } else if (dashes.size() >= 2) {
-                    qreal dotDif = qAbs(dashes.at(0) - dot);
-                    qreal dashDif = qAbs(dashes.at(0) - dash);
-                    if (dotDif < dashDif)
-                        pen.setStyle(Qt::DashLine);
-                    else
-                        pen.setStyle(Qt::DotLine);
+                QVector<qreal> vec(dashes.size());
+
+                qreal penw = pen.widthF();
+                int i = 0;
+                foreach(qreal dash, dashes) {
+                    vec[i++] = dash/penw;
                 }
+                pen.setDashPattern(vec);
+            }
+            if (!miterlimit.isEmpty()) {
+                pen.setMiterLimit(miterlimit.toDouble());
             }
 
         } else {
@@ -693,35 +679,21 @@ static void parsePen(QSvgNode *node,
                     pen.setCapStyle(Qt::SquareCap);
             }
 
-            // ### we need custom pen styles for this to work
-            // 100% correctly
             if (!dashArray.isEmpty()) {
                 QString::const_iterator itr = dashArray.begin();
                 QList<qreal> dashes = parseNumbersList(itr);
-                qreal pen_width = pen.widthF();
-                int scale =  qRound(pen_width < 1 ? 1 : pen_width);
-                //int space = (pen_width < 1 ? 1 : (2 * scale));
-                int dot = 1 * scale;
-                int dash = 4 * scale;
-                if (dashes.size() == 6) {
-                    if (dashes.at(0) != dashes.at(2))
-                        pen.setStyle(Qt::DashDotDotLine);
-                    else {
-                        qreal dotDif = qAbs(dashes.at(0) - dot);
-                        qreal dashDif = qAbs(dashes.at(0) - dash);
-                        if (dotDif < dashDif)
-                            pen.setStyle(Qt::DashLine);
-                        else
-                            pen.setStyle(Qt::DotLine);
-                    }
-                } else if (dashes.size() >= 2) {
-                    qreal dotDif = qAbs(dashes.at(0) - dot);
-                    qreal dashDif = qAbs(dashes.at(0) - dash);
-                    if (dotDif < dashDif)
-                        pen.setStyle(Qt::DashLine);
-                    else
-                        pen.setStyle(Qt::DotLine);
+                QVector<qreal> vec(dashes.size());
+
+                qreal penw = pen.widthF();
+                int i = 0;
+                foreach(qreal dash, dashes) {
+                    vec[i++] = dash/penw;
                 }
+
+                pen.setDashPattern(vec);
+            }
+            if (!miterlimit.isEmpty()) {
+                pen.setMiterLimit(miterlimit.toDouble());
             }
 
             node->appendStyleProperty(new QSvgStrokeStyle(pen), myId);
