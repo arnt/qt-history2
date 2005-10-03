@@ -52,6 +52,18 @@ typedef bool (*StyleParseMethod)(QSvgStyleProperty *,
 class QSvgHandler : public QXmlDefaultHandler
 {
 public:
+    enum LengthType {
+        PERCENT,
+        PX,
+        PC,
+        PT,
+        MM,
+        CM,
+        IN,
+        OTHER
+    };
+
+public:
     QSvgHandler();
 
     QSvgTinyDocument *document() const;
@@ -78,6 +90,10 @@ private:
         Style
     };
     QStack<CurrentNode> m_skipNodes;
+
+    QSvgStyleProperty *m_style;
+
+    LengthType m_defaultCoords;
 private:
     static QHash<QString, FactoryMethod> s_groupFactory;
     static QHash<QString, FactoryMethod> s_graphicsFactory;
@@ -85,17 +101,6 @@ private:
 
     static QHash<QString, StyleFactoryMethod>   s_styleFactory;
     static QHash<QString, StyleParseMethod>     s_styleUtilFactory;
-
-    QSvgStyleProperty *m_style;
-
-//     struct CurrentSvgStyle
-//     {
-//         QBrush          fill;
-//         QPen            pen;
-//         QTextCharFormat text;
-//     };
-//     QHash<void*, CurrentSvgStyle> m_styleHash;
-//    QStack<CurrentSvgStyle> m_styleStack;
 };
 
 #endif // QSVGHANDLER_P_H

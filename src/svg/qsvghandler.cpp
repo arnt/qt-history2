@@ -231,19 +231,7 @@ static bool constructColor(const QString &colorStr, const QString &opacity,
     return true;
 }
 
-enum LengthType
-{
-    PERCENT,
-    PX,
-    PC,
-    PT,
-    MM,
-    CM,
-    IN,
-    OTHER
-};
-
-static qreal parseLength(const QString &str, LengthType &type)
+static qreal parseLength(const QString &str, QSvgHandler::LengthType &type)
 {
     QString numStr = str.trimmed();
     qreal len = 0;
@@ -251,34 +239,34 @@ static qreal parseLength(const QString &str, LengthType &type)
     if (numStr.endsWith("%")) {
         numStr.chop(1);
         len = numStr.toDouble();
-        type = PERCENT;
+        type = QSvgHandler::PERCENT;
     } else if (numStr.endsWith("px")) {
         numStr.chop(2);
         len = numStr.toDouble();
-        type = PX;
+        type = QSvgHandler::PX;
     } else if (numStr.endsWith("pc")) {
         numStr.chop(2);
         len = numStr.toDouble();
-        type = PC;
+        type = QSvgHandler::PC;
     } else if (numStr.endsWith("pt")) {
         numStr.chop(2);
         len = numStr.toDouble();
-        type = PT;
+        type = QSvgHandler::PT;
     } else if (numStr.endsWith("mm")) {
         numStr.chop(2);
         len = numStr.toDouble();
-        type = MM;
+        type = QSvgHandler::MM;
     } else if (numStr.endsWith("cm")) {
         numStr.chop(2);
         len = numStr.toDouble();
-        type = CM;
+        type = QSvgHandler::CM;
     } else if (numStr.endsWith("in")) {
         numStr.chop(2);
         len = numStr.toDouble();
-        type = IN;
+        type = QSvgHandler::IN;
     } else {
         len = numStr.toDouble();
-        type = OTHER;
+        type = QSvgHandler::OTHER;
     }
     //qDebug()<<"len is "<<len<<", from "<<numStr;
     return len;
@@ -302,7 +290,7 @@ static bool createSvgGlyph(QSvgFont *font, const QXmlAttributes &attributes)
 }
 
 
-static qreal convertToPixels(qreal len, bool isX, LengthType type)
+static qreal convertToPixels(qreal len, bool isX, QSvgHandler::LengthType type)
 {
     QWidgetList widgets = QApplication::topLevelWidgets();
     QWidget *sampleWidget = widgets.first();
@@ -317,26 +305,26 @@ static qreal convertToPixels(qreal len, bool isX, LengthType type)
     qreal screen = isX ? sampleWidget->width() : sampleWidget->height();
 
     switch (type) {
-    case PERCENT:
+    case QSvgHandler::PERCENT:
         break;
-    case PX:
+    case QSvgHandler::PX:
         break;
-    case PC:
+    case QSvgHandler::PC:
         break;
-    case PT:
+    case QSvgHandler::PT:
         //### inkscape exports it as inkscape:export-[x,y]dpi
         len *= (90/72.0);
         break;
-    case MM:
+    case QSvgHandler::MM:
         len *= screen/mm;
         break;
-    case CM:
+    case QSvgHandler::CM:
         len *= dpi/2.54;
         break;
-    case IN:
+    case QSvgHandler::IN:
         len *= dpi;
         break;
-    case OTHER:
+    case QSvgHandler::OTHER:
         break;
     default:
         break;
@@ -816,10 +804,11 @@ static bool parseQFont(const QXmlAttributes &attributes,
             font.setFamily(family.trimmed());
         }
         if (!size.isEmpty()) {
-            LengthType type;
+            QSvgHandler::LengthType type;
             qreal len = parseLength(size, type);
             //len = convertToPixels(len, false, type);
-            if (type == PX || type == OTHER)
+            if (type == QSvgHandler::PX ||
+                type == QSvgHandler::OTHER)
                 font.setPixelSize(int(len));
             else
                 font.setPointSizeF(len);
@@ -1750,7 +1739,7 @@ static QSvgNode *createImageNode(QSvgNode *parent,
     QString filename = attributes.value("xlink:href");
     qreal nx = x.toDouble();
     qreal ny = y.toDouble();
-    LengthType type;
+    QSvgHandler::LengthType type;
     qreal nwidth = parseLength(width, type);
     nwidth = convertToPixels(nwidth, true, type);
 
@@ -2024,7 +2013,7 @@ static QSvgNode *createRectNode(QSvgNode *parent,
     QString rx      = attributes.value("rx");
     QString ry      = attributes.value("ry");
 
-    LengthType type;
+    QSvgHandler::LengthType type;
     qreal nwidth = parseLength(width, type);
     nwidth = convertToPixels(nwidth, true, type);
 
@@ -2110,10 +2099,10 @@ static bool parseStopNode(QSvgStyleProperty *parent,
     QString colorStr    = attrs.value("stop-color");
     QString opacityStr  = attrs.value("stop-opacity");
     QColor color;
-    LengthType type;
+    QSvgHandler::LengthType type;
     qreal offset = parseLength(offsetStr, type);
     offset = convertToPixels(offset, true, type);
-    if (type == PERCENT) {
+    if (type == QSvgHandler::PERCENT) {
         offset = offset/100.0;
     }
     bool colorOK = constructColor(colorStr, opacityStr, color);
@@ -2162,16 +2151,16 @@ static QSvgNode *createSvgNode(QSvgNode *parent,
         node->setViewBox(QRect(x.toInt(), y.toInt(),
                                width.toInt(), height.toInt()));
     }
-    LengthType type;
+    QSvgHandler::LengthType type;
     if (!widthStr.isEmpty()) {
         qreal width = parseLength(widthStr, type);
         width = convertToPixels(width, true, type);
-        node->setWidth(int(width), type == PERCENT);
+        node->setWidth(int(width), type == QSvgHandler::PERCENT);
     }
     if (!heightStr.isEmpty()) {
         qreal height = parseLength(heightStr, type);
         height = convertToPixels(height, false, type);
-        node->setHeight(int(height), type == PERCENT);
+        node->setHeight(int(height), type == QSvgHandler::PERCENT);
     }
 
     return node;
@@ -2201,7 +2190,7 @@ static QSvgNode *createTextNode(QSvgNode *parent,
     QString x = attributes.value("x");
     QString y = attributes.value("y");
     //### editable and rotate not handled
-    LengthType type;
+    QSvgHandler::LengthType type;
     qreal nx = parseLength(x, type);
     nx = convertToPixels(nx, true, type);
     qreal ny = parseLength(y, type);
@@ -2284,7 +2273,7 @@ QHash<QString, StyleParseMethod>   QSvgHandler::s_styleUtilFactory;
 //static const char *SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
 QSvgHandler::QSvgHandler()
-    : m_doc(0), m_style(0)
+    : m_doc(0), m_style(0), m_defaultCoords(PX)
 {
     if (s_groupFactory.isEmpty())
         init();
