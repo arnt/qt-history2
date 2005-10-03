@@ -33,16 +33,21 @@ class QSvgNode;
 class QSvgTinyDocument;
 class QXmlAttributes;
 class QSvgStyleProperty;
+class QSvgHandler;
 
 typedef QSvgNode *(*FactoryMethod)(QSvgNode *,
-                                   const QXmlAttributes &);
+                                   const QXmlAttributes &,
+                                   QSvgHandler *);
 typedef bool (*ParseMethod)(QSvgNode *,
-                            const QXmlAttributes &);
+                            const QXmlAttributes &,
+                            QSvgHandler *);
 
 typedef QSvgStyleProperty *(*StyleFactoryMethod)(QSvgNode *,
-                                                 const QXmlAttributes &);
+                                                 const QXmlAttributes &,
+                                                 QSvgHandler *);
 typedef bool (*StyleParseMethod)(QSvgStyleProperty *,
-                                 const QXmlAttributes &);
+                                 const QXmlAttributes &,
+                                 QSvgHandler *);
 
 class QSvgHandler : public QXmlDefaultHandler
 {
