@@ -195,12 +195,13 @@ void TreeWidgetEditor::on_moveItemUpButton_clicked()
         return;
 
     QTreeWidgetItem *takenItem = 0;
+    ui.treeWidget->setCurrentItem(takenItem);
     if (curItem->parent()) {
         QTreeWidgetItem *parentItem = curItem->parent();
-        QTreeWidgetItem *takenItem = parentItem->takeChild(idx);
+        takenItem = parentItem->takeChild(idx);
         parentItem->insertChild(idx - 1, takenItem);
     } else {
-        QTreeWidgetItem *takenItem = ui.treeWidget->takeTopLevelItem(idx);
+        takenItem = ui.treeWidget->takeTopLevelItem(idx);
         ui.treeWidget->insertTopLevelItem(idx - 1, takenItem);
     }
     ui.treeWidget->setCurrentItem(takenItem);
@@ -224,12 +225,13 @@ void TreeWidgetEditor::on_moveItemDownButton_clicked()
         return;
 
     QTreeWidgetItem *takenItem = 0;
+    ui.treeWidget->setCurrentItem(takenItem);
     if (curItem->parent()) {
         QTreeWidgetItem *parentItem = curItem->parent();
-        QTreeWidgetItem *takenItem = parentItem->takeChild(idx);
+        takenItem = parentItem->takeChild(idx);
         parentItem->insertChild(idx + 1, takenItem);
     } else {
-        QTreeWidgetItem *takenItem = ui.treeWidget->takeTopLevelItem(idx);
+        takenItem = ui.treeWidget->takeTopLevelItem(idx);
         ui.treeWidget->insertTopLevelItem(idx + 1, takenItem);
     }
     ui.treeWidget->setCurrentItem(takenItem);
@@ -276,11 +278,11 @@ void TreeWidgetEditor::on_moveItemLeftButton_clicked()
     QTreeWidgetItem *takenItem = 0;
     if (curItem->parent()) {
         QTreeWidgetItem *parentItem = curItem->parent()->child(idx + 1);
-        QTreeWidgetItem *takenItem = curItem->parent()->takeChild(idx);
+        takenItem = curItem->parent()->takeChild(idx);
         parentItem->insertChild(0, takenItem);
     } else {
         QTreeWidgetItem *parentItem = ui.treeWidget->topLevelItem(idx + 1);
-        QTreeWidgetItem *takenItem = ui.treeWidget->takeTopLevelItem(idx);
+        takenItem = ui.treeWidget->takeTopLevelItem(idx);
         parentItem->insertChild(0, takenItem);
     }
     ui.treeWidget->setCurrentItem(takenItem);
