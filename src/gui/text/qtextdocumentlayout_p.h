@@ -66,6 +66,9 @@ public:
     virtual QRectF frameBoundingRect(QTextFrame *frame) const;
     virtual QRectF blockBoundingRect(const QTextBlock &block) const;
 
+    // ####
+    int layoutStatus() const;
+
 protected:
     void documentChanged(int from, int oldLength, int length);
     void resizeInlineObject(QTextInlineObject item, int posInDocument, const QTextFormat &format);

@@ -102,6 +102,8 @@ public:
     void ensureVisible(int documentPosition);
     void ensureVisible(const QRect &rect);
 
+    void ensureViewportLayouted();
+
     void emitCursorPosChanged(const QTextCursor &someCursor);
 
     void setBlinkingCursorEnabled(bool enable);

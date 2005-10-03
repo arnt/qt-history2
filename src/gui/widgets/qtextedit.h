@@ -221,7 +221,7 @@ protected:
 #ifdef QT_KEYPAD_NAVIGATION
     virtual void keyReleaseEvent(QKeyEvent *e);
 #endif
-    virtual void resizeEvent(QResizeEvent *);
+    virtual void resizeEvent(QResizeEvent *e);
     virtual void paintEvent(QPaintEvent *e);
     virtual void mousePressEvent(QMouseEvent *e);
     virtual void mouseMoveEvent(QMouseEvent *e);

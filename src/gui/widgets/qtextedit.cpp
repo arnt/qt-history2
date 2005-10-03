@@ -553,7 +553,14 @@ void QTextEditPrivate::adjustScrollbars()
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
 
     const QSize viewportSize = viewport->size();
-    const QSize docSize = layout->dynamicDocumentSize().toSize();
+    QSize docSize = layout->dynamicDocumentSize().toSize();
+
+    if (QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout)) {
+        int percentageDone = tlayout->layoutStatus();
+        // extrapolate height
+        if (percentageDone > 0)
+            docSize.setHeight(docSize.height() * 100 / percentageDone);
+    }
 
     hbar->setRange(0, docSize.width() - viewportSize.width());
     hbar->setPageStep(viewportSize.width());
@@ -610,6 +617,14 @@ void QTextEditPrivate::ensureVisible(const QRect &rect)
         vbar->setValue(rect.y() - rect.height());
     else if (rect.y() + rect.height() > vbar->value() + visibleHeight)
         vbar->setValue(rect.y() + rect.height() - visibleHeight);
+}
+
+void QTextEditPrivate::ensureViewportLayouted()
+{
+    QAbstractTextDocumentLayout *layout = doc->documentLayout();
+    if (!layout)
+        return;
+    layout->ensureLayouted(vbar->value() + viewport->height());
 }
 
 void QTextEditPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
@@ -1827,9 +1842,14 @@ QVariant QTextEdit::loadResource(int type, const QUrl &name)
 
 /*! \reimp
 */
-void QTextEdit::resizeEvent(QResizeEvent *)
+void QTextEdit::resizeEvent(QResizeEvent *e)
 {
     Q_D(QTextEdit);
+    if (e->oldSize().width() == e->size().width()
+        && e->oldSize().height() != e->size().height()) {
+        d->adjustScrollbars();
+        return;
+    }
     d->relayoutDocument();
 }
 
@@ -2045,6 +2065,8 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
     if (!(e->button() & Qt::LeftButton))
         return;
 
+    d->ensureViewportLayouted();
+
     const QPoint pos = d->mapToContents(e->pos());
 
     d->mousePressed = true;
@@ -2123,6 +2145,9 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
           || d->selectedWordOnDoubleClick.hasSelection()
           || d->selectedLineOnDoubleClick.hasSelection()))
         return;
+
+    d->ensureViewportLayouted();
+
 #ifndef QT_NO_DRAGANDDROP
     if (d->mightStartDrag) {
         d->dragStartTimer.stop();
@@ -2173,6 +2198,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_D(QTextEdit);
 
+    d->ensureViewportLayouted();
     d->autoScrollTimer.stop();
     d->repaintSelection();
 
@@ -2214,6 +2240,7 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
         e->ignore();
         return;
     }
+    d->ensureViewportLayouted();
 #ifndef QT_NO_DRAGANDDROP
     d->mightStartDrag = false;
 #endif

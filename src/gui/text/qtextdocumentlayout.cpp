@@ -289,7 +289,8 @@ public:
         : blockTextFlags(0), wordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere),
           fixedColumnWidth(-1),
           tabStopWidth(80), // same default as in qtextengine.cpp
-          currentIncrementalLayoutPosition(-1)
+          currentLazyLayoutPosition(-1),
+          lazyLayoutStepSize(1000)
     { }
 
     bool pagedLayout;
@@ -303,8 +304,10 @@ public:
     int fixedColumnWidth;
     qreal tabStopWidth;
 
-    int currentIncrementalLayoutPosition;
+    mutable int currentLazyLayoutPosition;
+    mutable int lazyLayoutStepSize;
     QBasicTimer layoutTimer;
+    mutable QBasicTimer sizeChangedTimer;
 
     qreal indent(QTextBlock bl) const;
 
@@ -358,7 +361,10 @@ public:
     int dynamicPageCount() const;
     QSizeF dynamicDocumentSize() const;
     void ensureLayouted(qreal y) const;
-    void ensureLayoutFinished() const;
+    void ensureLayoutedByPosition(int position) const;
+    inline void ensureLayoutFinished() const
+    { ensureLayoutedByPosition(INT_MAX); }
+    void layoutStep() const;
 };
 
 QTextFrame::Iterator QTextDocumentLayoutPrivate::iteratorForYPosition(qreal y) const
@@ -640,6 +646,9 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
 {
     Q_Q(const QTextDocumentLayout);
     QTextFrameData *fd = data(frame);
+    // #######
+    if (fd->layoutDirty)
+        return OutsideClipRect;
     Q_ASSERT(!fd->sizeDirty);
     Q_ASSERT(!fd->layoutDirty);
 
@@ -970,6 +979,8 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPointF &offset, QPainter *p
     QSizeF size;
 
     QTextLayout *layout = bl.layout();
+    if (layout->lineCount() == 0)
+        return;
     QTextLine firstLine = layout->lineAt(0);
     Q_ASSERT(firstLine.isValid());
     QPointF pos = (offset + layout->boundingRect().topLeft() + layout->position()).toPoint();
@@ -1561,7 +1572,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
         if (redoCheckPoints) {
             checkPoints.clear();
             QCheckPoint cp;
-            cp.y = 0;
+            cp.y = layoutStruct->y;
             cp.positionInFrame = 0;
             checkPoints << cp;
         }
@@ -1573,19 +1584,30 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
     while (!it.atEnd()) {
         QTextFrame *c = it.currentFrame();
 
-        if (inRootFrame && qAbs(layoutStruct->y - checkPoints.last().y) > 2000) {
-            qreal left, right;
-            floatMargins(layoutStruct->y, layoutStruct, &left, &right);
-            if (left == layoutStruct->x_left && right == layoutStruct->x_right) {
-                QCheckPoint p;
-                p.y = layoutStruct->y;
-                if (it.currentFrame()) {
-                    p.positionInFrame = it.currentFrame()->firstPosition();
-                } else {
-                    p.positionInFrame = it.currentBlock().position();
-                }
+        if (inRootFrame) {
+            int docPos;
+            if (it.currentFrame())
+                docPos = it.currentFrame()->firstPosition();
+            else
+                docPos = it.currentBlock().position();
 
-                checkPoints.append(p);
+            if (qAbs(layoutStruct->y - checkPoints.last().y) > 2000) {
+                qreal left, right;
+                floatMargins(layoutStruct->y, layoutStruct, &left, &right);
+                if (left == layoutStruct->x_left && right == layoutStruct->x_right) {
+                    QCheckPoint p;
+                    p.y = layoutStruct->y;
+                    p.positionInFrame = docPos;
+                    checkPoints.append(p);
+
+                    if (currentLazyLayoutPosition != -1
+                        && docPos > currentLazyLayoutPosition + lazyLayoutStepSize)
+                        break;
+
+                    if (layoutTo != -1
+                        && docPos > layoutTo)
+                        break;
+                }
             }
         }
 
@@ -1670,11 +1692,21 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
         }
     }
 
+
     if (inRootFrame) {
-        QCheckPoint cp;
-        cp.y = layoutStruct->y;
-        cp.positionInFrame = q->document()->docHandle()->length();
-        checkPoints.append(cp);
+        if (it.atEnd()) {
+            //qDebug() << "layout done!";
+            currentLazyLayoutPosition = -1;
+            QCheckPoint cp;
+            cp.y = layoutStruct->y;
+            cp.positionInFrame = q->document()->docHandle()->length();
+            checkPoints.append(cp);
+        } else {
+            currentLazyLayoutPosition = checkPoints.last().positionInFrame;
+            //qDebug() << "after layout flow in that aborted early layoutpos is" << currentLazyLayoutPosition;
+            // #######
+            //checkPoints.last().positionInFrame = q->document()->docHandle()->length();
+        }
     }
 
 
@@ -1965,6 +1997,11 @@ void QTextDocumentLayout::draw(QPainter *painter, const PaintContext &context)
     QTextFrame *frame = document()->rootFrame();
     if(data(frame)->sizeDirty)
         return;
+    if (context.clip.isValid()) {
+        d->ensureLayouted(context.clip.bottom());
+    } else {
+        d->ensureLayoutFinished();
+    }
     d->drawFrame(QPointF(), painter, context, frame);
 }
 
@@ -2005,19 +2042,20 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
     const QSizeF oldSize = d->dynamicDocumentSize();
     const int oldPageCount = d->dynamicPageCount();
 
-#if defined(QT_EXPERIMENTAL_INCREMENTAL_LAYOUTING)
-    if ((oldLength == 0 && length == document()->docHandle()->length())
-        || d->currentIncrementalLayoutPosition != -1) {
+    d->lazyLayoutStepSize = 1000;
 
-        d->currentIncrementalLayoutPosition = qBound(0, from, d->currentIncrementalLayoutPosition);
-
-        if (!d->layoutTimer.isActive())
-            d->layoutTimer.start(20, this);
-    } else
-#endif
-    {
+    bool fullLayout = (oldLength == 0 && length == document()->docHandle()->length());
+    if (fullLayout) {
+        d->currentLazyLayoutPosition = 0;
+        d->checkPoints.clear();
+        d->layoutStep();
+    } else {
+        d->ensureLayoutedByPosition(from);
         doLayout(from, oldLength, length);
     }
+
+    if (!d->layoutTimer.isActive() && d->currentLazyLayoutPosition != -1)
+        d->layoutTimer.start(10, this);
 
     const QSizeF newSize = d->dynamicDocumentSize();
     if (newSize != oldSize)
@@ -2047,6 +2085,7 @@ void QTextDocumentLayout::doLayout(int from, int oldLength, int length)
 int QTextDocumentLayout::hitTest(const QPointF &point, Qt::HitTestAccuracy accuracy) const
 {
     Q_D(const QTextDocumentLayout);
+    d->ensureLayouted(point.y());
     QTextFrame *f = document()->rootFrame();
     int position = 0;
     QTextDocumentLayoutPrivate::HitPoint p = d->hitTest(f, point, &position);
@@ -2159,6 +2198,38 @@ QSizeF QTextDocumentLayout::documentSize() const
 
 void QTextDocumentLayoutPrivate::ensureLayouted(qreal y) const
 {
+    if (currentLazyLayoutPosition == -1)
+        return;
+    const QSizeF oldSize = dynamicDocumentSize();
+    const int oldPageCount = dynamicPageCount();
+
+    if (checkPoints.isEmpty())
+        layoutStep();
+
+    while (currentLazyLayoutPosition != -1
+           && checkPoints.last().y < y)
+        layoutStep();
+
+    sizeChangedTimer.start(0, const_cast<QTextDocumentLayout *>(q_func()));
+}
+
+void QTextDocumentLayoutPrivate::ensureLayoutedByPosition(int position) const
+{
+    if (currentLazyLayoutPosition == -1)
+        return;
+    if (position < currentLazyLayoutPosition)
+        return;
+    while (currentLazyLayoutPosition != -1
+           && currentLazyLayoutPosition < position) {
+        const_cast<QTextDocumentLayout *>(q_func())->doLayout(currentLazyLayoutPosition, 0, INT_MAX - currentLazyLayoutPosition);
+    }
+    sizeChangedTimer.start(0, const_cast<QTextDocumentLayout *>(q_func()));
+}
+
+void QTextDocumentLayoutPrivate::layoutStep() const
+{
+    ensureLayoutedByPosition(currentLazyLayoutPosition + lazyLayoutStepSize);
+    lazyLayoutStepSize *= 2;
 }
 
 // Pull this private function in from qglobal.cpp
@@ -2242,6 +2313,7 @@ QRectF QTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
 
 QRectF QTextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
 {
+    d_func()->ensureLayoutedByPosition(block.position() + block.length());
     QTextFrame *frame = document()->frameAt(block.position());
     QPointF offset;
     const int blockPos = block.position();
@@ -2265,45 +2337,24 @@ QRectF QTextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
     return rect;
 }
 
-void QTextDocumentLayoutPrivate::ensureLayoutFinished() const
+int QTextDocumentLayout::layoutStatus() const
 {
-    // ####
+    int pos = d_func()->currentLazyLayoutPosition;
+    if (pos == -1)
+        return 100;
+    return pos * 100 / document()->docHandle()->length();
 }
-
-/*
-void QTextDocumentLayoutPrivate::ensureLayouted(int position) const
-{
-    if (currentIncrementalLayoutPosition == -1)
-        return;
-
-    qDebug() << "ensureLayouted" << position << "(while current inremental layout pos is" << currentIncrementalLayoutPosition << ")";
-
-    if (position >= currentIncrementalLayoutPosition) {
-        Q_Q(const QTextDocumentLayout);
-        QTextDocumentLayoutPrivate *d = const_cast<QTextDocumentLayoutPrivate *>(this);
-
-        const int len = position - currentIncrementalLayoutPosition;
-        const_cast<QTextDocumentLayout *>(q)->doLayout(currentIncrementalLayoutPosition, len, len);
-        d->currentIncrementalLayoutPosition += len;
-
-        qDebug() << "doclen" << q->document()->docHandle()->length();
-        if (d->currentIncrementalLayoutPosition >= q->document()->docHandle()->length()) {
-            d->currentIncrementalLayoutPosition = -1;
-        }
-    }
-}
-*/
 
 void QTextDocumentLayout::timerEvent(QTimerEvent *e)
 {
     Q_D(QTextDocumentLayout);
     if (e->timerId() == d->layoutTimer.timerId()) {
-        qDebug() << "layoutTimer";
-        if (d->currentIncrementalLayoutPosition != -1) {
+//        qDebug() << "layoutTimer";
+        if (d->currentLazyLayoutPosition != -1) {
             const QSizeF oldSize = d->dynamicDocumentSize();
             const int oldPageCount = d->dynamicPageCount();
 
-            ensureLayouted(d->currentIncrementalLayoutPosition + 10000);
+            d->layoutStep();
 
             const QSizeF newSize = d->dynamicDocumentSize();
             if (newSize != oldSize)
@@ -2311,15 +2362,20 @@ void QTextDocumentLayout::timerEvent(QTimerEvent *e)
             const int newPageCount = d->dynamicPageCount();
             if (oldPageCount != newPageCount)
                 emit pageCountChanged(newPageCount);
-
-            emit update();
+            d->sizeChangedTimer.stop();
         }
 
-        if (d->currentIncrementalLayoutPosition == -1)
+        if (d->currentLazyLayoutPosition == -1) {
+            emit update();
             d->layoutTimer.stop();
-        return;
+        }
+    } else if (e->timerId() == d->sizeChangedTimer.timerId()) {
+        emit documentSizeChanged(d->dynamicDocumentSize());
+        emit pageCountChanged(d->dynamicPageCount());
+        d->sizeChangedTimer.stop();
+    } else {
+        QAbstractTextDocumentLayout::timerEvent(e);
     }
-    QAbstractTextDocumentLayout::timerEvent(e);
 }
 
 #include "moc_qtextdocumentlayout_p.cpp"
