@@ -60,7 +60,6 @@ class QWidgetBackingStore
     bool dirtyBufferSize;
 
     bool isOpaque(const QWidget *widget);
-    bool hasBackground(const QWidget *widget);
 
     void paintToBuffer(const QRegion &rgn, QWidget *widget, const QPoint &offset, bool asRoot = true);
     void copyToScreen(const QRegion &rgn, QWidget *widget, const QPoint &offset, bool recursive = true);

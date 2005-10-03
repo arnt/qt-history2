@@ -585,19 +585,6 @@ bool QWidgetBackingStore::isOpaque(const QWidget *widget)
     return widget->d_func()->isOpaque();
 }
 
-bool QWidgetBackingStore::hasBackground(const QWidget *widget)
-{
-    if (!widget->testAttribute(Qt::WA_NoBackground) && !widget->testAttribute(Qt::WA_NoSystemBackground)) {
-        const QPalette &pal = widget->palette();
-        QPalette::ColorRole bg = widget->backgroundRole();
-        QBrush bgBrush = pal.brush(bg);
-        return (bgBrush.style() != Qt::NoBrush &&
-                ((widget->isWindow() || widget->windowType() == Qt::SubWindow)
-                 || (widget->d_func()->bg_role != QPalette::NoRole || (pal.resolve() & (1<<bg)))));
-    }
-    return false;
-}
-
 #ifdef Q_WS_QWS
 #define PAINTDEVICE buffer.pixmap()
 #else
@@ -634,7 +621,7 @@ void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, con
 
             //paint the background
             if((asRoot && !widget->testAttribute(Qt::WA_NoBackground) && !widget->testAttribute(Qt::WA_NoBackground))
-               || hasBackground(widget)) {
+               || widget->d_func()->hasBackground()) {
 
                 QPainter p(widget);
                 const QBrush bg = widget->palette().brush(widget->backgroundRole());

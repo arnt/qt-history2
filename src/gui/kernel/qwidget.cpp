@@ -1362,8 +1362,19 @@ void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRect &clipRect,
     }
 }
 
-
-
+bool QWidgetPrivate::hasBackground() const
+{
+    Q_Q(const QWidget);
+    if (!q->testAttribute(Qt::WA_NoBackground) && !q->testAttribute(Qt::WA_NoSystemBackground)) {
+        const QPalette &pal = q->palette();
+        QPalette::ColorRole bg = q->backgroundRole();
+        QBrush bgBrush = pal.brush(bg);
+        return (bgBrush.style() != Qt::NoBrush &&
+                ((q->isWindow() || q->windowType() == Qt::SubWindow)
+                 || (bg_role != QPalette::NoRole || (pal.resolve() & (1<<bg)))));
+    }
+    return false;
+}
 
 bool QWidgetPrivate::isOpaque() const
 {

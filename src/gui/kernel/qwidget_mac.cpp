@@ -31,6 +31,7 @@
 #include "qstyle.h"
 #include "qtextcodec.h"
 #include "qtimer.h"
+#include "qdebug.h"
 
 #include <ApplicationServices/ApplicationServices.h>
 #include <limits.h>
@@ -453,7 +454,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                     const QBrush bg = widget->palette().brush(widget->backgroundRole());
                     if(engine && !widget->testAttribute(Qt::WA_NoBackground) &&
                        !widget->testAttribute(Qt::WA_NoSystemBackground) &&
-                       (!widget->d_func()->isBackgroundInherited() ||
+                       (widget->d_func()->hasBackground() ||
                         !bg.isOpaque() && widget->testAttribute(Qt::WA_SetPalette))) {
                         if (!redirectionOffset.isNull())
                             QPainter::setRedirected(widget, widget, redirectionOffset);
