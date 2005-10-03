@@ -76,6 +76,7 @@ private:
     QAction *closeAllAct;
     QAction *tileAct;
     QAction *cascadeAct;
+    QAction *arrangeAct;
     QAction *nextAct;
     QAction *previousAct;
     QAction *separatorAct;
