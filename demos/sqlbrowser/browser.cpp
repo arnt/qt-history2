@@ -27,9 +27,6 @@ Browser::Browser(QWidget *parent)
                                  tr("This demo requires at least one Qt database driver. "
                                     "Please check the documentation how to build the "
                                     "Qt SQL plugins."));
-    else {
-        QMetaObject::invokeMethod(this, "addConnection", Qt::QueuedConnection);
-    }
 
     emit statusMessage(tr("Ready."));
 }
@@ -51,6 +48,26 @@ void Browser::exec()
     else
         emit statusMessage(tr("Query OK, number of affected rows: %1").arg(
                     model->query().numRowsAffected()));
+}
+
+QSqlError Browser::addConnection(const QString &driver, const QString &dbName, const QString &host,
+                            const QString &user, const QString &passwd, int port)
+{
+    static int cCount = 0;
+
+    QSqlError err;
+    QSqlDatabase db = QSqlDatabase::addDatabase(driver, QString("Browser%1").arg(++cCount));
+    db.setDatabaseName(dbName);
+    db.setHostName(host);
+    db.setPort(port);
+    if (!db.open(user, passwd)) {
+        err = db.lastError();
+        db = QSqlDatabase();
+        QSqlDatabase::removeDatabase(QString("Browser%1").arg(cCount));
+    }
+    connectionWidget->refresh();
+
+    return err;
 }
 
 void Browser::addConnection()
@@ -82,20 +99,14 @@ void Browser::addConnection()
         q.exec("insert into Names values (2, 'Donald', 'Duck', 'Andeby')");
         q.exec("insert into Names values (3, 'Buck', 'Rogers', 'Paris')");
         q.exec("insert into Names values (4, 'Sherlock', 'Holmes', 'London')");
+        connectionWidget->refresh();
     } else {
-        static int cCount = 0;
-        QSqlDatabase db = QSqlDatabase::addDatabase(dialog.driverName(),
-                                                    QString("Browser%1").arg(++cCount));
-        db.setDatabaseName(dialog.databaseName());
-        db.setHostName(dialog.hostName());
-        db.setUserName(dialog.userName());
-        db.setPassword(dialog.password());
-        db.setPort(dialog.port());
-        if (!db.open())
+        QSqlError err = addConnection(dialog.driverName(), dialog.databaseName(), dialog.hostName(),
+                           dialog.userName(), dialog.password(), dialog.port());
+        if (err.type() != QSqlError::NoError)
             QMessageBox::warning(this, tr("Unable to open database"), tr("An error occured while "
-                                                                         "opening the connection: ") + db.lastError().text());
+                                      "opening the connection: ") + err.text());
     }
-    connectionWidget->refresh();
 }
 
 void Browser::showTable(const QString &t)
@@ -107,3 +118,4 @@ void Browser::showTable(const QString &t)
         emit statusMessage(model->lastError().text());
     table->setModel(model);
 }
+

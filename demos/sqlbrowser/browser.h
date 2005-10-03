@@ -21,6 +21,7 @@ class ConnectionWidget;
 class QTableView;
 class QPushButton;
 class QTextEdit;
+class QSqlError;
 
 class Browser: public QWidget, private Ui::Browser
 {
@@ -28,6 +29,9 @@ class Browser: public QWidget, private Ui::Browser
 public:
     Browser(QWidget *parent = 0);
     virtual ~Browser();
+
+    QSqlError addConnection(const QString &driver, const QString &dbName, const QString &host,
+                  const QString &user, const QString &passwd, int port = -1);
 
 public slots:
     void exec();

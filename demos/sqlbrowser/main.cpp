@@ -13,11 +13,24 @@
 
 #include "browser.h"
 
-#include <QApplication>
-#include <QMainWindow>
-#include <QMenu>
-#include <QMenuBar>
-#include <QStatusBar>
+#include <QtCore>
+#include <QtGui>
+#include <QtSql>
+
+void addConnectionsFromCommandline(const QStringList &args, Browser *browser)
+{
+    for (int i = 1; i < args.count(); ++i) {
+        QUrl url(args.at(i), QUrl::TolerantMode);
+        if (!url.isValid()) {
+            qWarning("Invalid URL: %s", qPrintable(args.at(i)));
+            continue;
+        }
+        QSqlError err = browser->addConnection(url.scheme(), url.host(), url.path(), url.userName(),
+                                               url.password(), url.port(-1));
+        if (err.type() != QSqlError::NoError)
+            qDebug() << "Unable to open connection:" << err;
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -36,7 +49,11 @@ int main(int argc, char *argv[])
 
     QObject::connect(&browser, SIGNAL(statusMessage(QString)),
                      mainWin.statusBar(), SLOT(showMessage(QString)));
+
+    addConnectionsFromCommandline(app.arguments(), &browser);
     mainWin.show();
+    if (QSqlDatabase::connectionNames().isEmpty())
+        QMetaObject::invokeMethod(&browser, "addConnection", Qt::QueuedConnection);
 
     return app.exec();
 }
