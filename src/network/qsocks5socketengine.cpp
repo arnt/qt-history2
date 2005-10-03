@@ -508,7 +508,7 @@ void QSocks5SocketEnginePrivate::parseAuthenticationMethodReply()
     if (buf.at(0) != S5_VERSION_5) {
         qDebug() << " serrios error i gues2";
     }
-    if (buf.at(1) == 0xFF) {
+    if (uchar(buf.at(1)) == 0xFF) {
         // set local error / error string and fire write notification
         //setError(QAbstractSocket::SocketAccessError, "Socks5 did not like the auth methods");
         //### fire notfiy and bla
