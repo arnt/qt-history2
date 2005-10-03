@@ -472,12 +472,12 @@ static void parseQPen(QPen &pen, QSvgNode *node,
                     pen.setCapStyle(Qt::SquareCap);
             }
 
+            qreal penw = pen.widthF();
             if (!dashArray.isEmpty()) {
                 QString::const_iterator itr = dashArray.begin();
                 QList<qreal> dashes = parseNumbersList(itr);
                 QVector<qreal> vec(dashes.size());
 
-                qreal penw = pen.widthF();
                 int i = 0;
                 foreach(qreal dash, dashes) {
                     vec[i++] = dash/penw;
@@ -485,7 +485,7 @@ static void parseQPen(QPen &pen, QSvgNode *node,
                 pen.setDashPattern(vec);
             }
             if (!miterlimit.isEmpty()) {
-                pen.setMiterLimit(miterlimit.toDouble());
+                pen.setMiterLimit(miterlimit.toDouble()/penw);
             }
 
         } else {
@@ -679,12 +679,12 @@ static void parsePen(QSvgNode *node,
                     pen.setCapStyle(Qt::SquareCap);
             }
 
+            qreal penw = pen.widthF();
             if (!dashArray.isEmpty()) {
                 QString::const_iterator itr = dashArray.begin();
                 QList<qreal> dashes = parseNumbersList(itr);
                 QVector<qreal> vec(dashes.size());
 
-                qreal penw = pen.widthF();
                 int i = 0;
                 foreach(qreal dash, dashes) {
                     vec[i++] = dash/penw;
@@ -693,7 +693,7 @@ static void parsePen(QSvgNode *node,
                 pen.setDashPattern(vec);
             }
             if (!miterlimit.isEmpty()) {
-                pen.setMiterLimit(miterlimit.toDouble());
+                pen.setMiterLimit(miterlimit.toDouble()/penw);
             }
 
             node->appendStyleProperty(new QSvgStrokeStyle(pen), myId);
