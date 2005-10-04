@@ -1353,6 +1353,17 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
             dom_prop->setElementSizePolicy(dom);
         } break;
 
+        case QVariant::Time: {
+            DomTime *dom = new DomTime();
+            QTime time = qvariant_cast<QTime>(v);
+
+            dom->setElementHour(time.hour());
+            dom->setElementMinute(time.minute());
+            dom->setElementSecond(time.second());
+
+            dom_prop->setElementTime(dom);
+        } break;
+
         case QVariant::Pixmap:
         case QVariant::Icon: {
             DomResourcePixmap *r = new DomResourcePixmap;
