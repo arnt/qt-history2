@@ -145,6 +145,9 @@ private:
     QString m_generatedClass;
 
     QString m_delayedInitialization;
+    QTextStream delayedOut;
+
+    QString m_refreshInitialization;
     QTextStream refreshOut;
 
     QString m_delayedActionInitialization;

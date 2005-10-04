@@ -27,7 +27,8 @@
 WriteInitialization::WriteInitialization(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option()),
       m_defaultMargin(INT_MIN), m_defaultSpacing(INT_MIN),
-      refreshOut(&m_delayedInitialization, QIODevice::WriteOnly),
+      refreshOut(&m_refreshInitialization, QIODevice::WriteOnly),
+      delayedOut(&m_delayedInitialization, QIODevice::WriteOnly),
       actionOut(&m_delayedActionInitialization, QIODevice::WriteOnly)
 {
     this->uic = uic;
@@ -106,18 +107,21 @@ void WriteInitialization::acceptUI(DomUI *node)
     if (node->elementConnections())
         acceptConnections(node->elementConnections());
 
+    if (!m_delayedInitialization.isEmpty())
+        output << "\n" << m_delayedInitialization << "\n";
+
     if (option.autoConnection)
         output << "\n" << option.indent << "QMetaObject::connectSlotsByName(" << varName << ");\n";
 
     output << option.indent << "} // setupUi\n\n";
 
     if (m_delayedActionInitialization.isEmpty()) {
-        m_delayedInitialization += option.indent + QLatin1String("Q_UNUSED(") + varName + QLatin1String(");\n");
+        m_refreshInitialization += option.indent + QLatin1String("Q_UNUSED(") + varName + QLatin1String(");\n");
     }
 
     output << option.indent << "void " << "retranslateUi(" << widgetClassName << " *" << varName << ")\n"
            << option.indent << "{\n"
-           << m_delayedInitialization
+           << m_refreshInitialization
            << option.indent << "} // retranslateUi\n\n";
 
     m_layoutChain.pop();
@@ -580,11 +584,16 @@ void WriteInitialization::writeProperties(const QString &varName,
             continue;
         } else if (propertyName == QLatin1String("currentRow") // QListWidget::currentRow
                     && uic->customWidgetsInfo()->extends(className, QLatin1String("QListWidget"))) {
-            // this property needs to be set later
+            delayedOut << option.indent << varName << "->setCurrentRow("
+                       << p->elementNumber() << ");\n";
             continue;
-        } else if (propertyName == QLatin1String("currentIndex") // QComboBox::currentIndex
-                    && uic->customWidgetsInfo()->extends(className, QLatin1String("QComboBox"))) {
-            // this property needs to be set later
+        } else if (propertyName == QLatin1String("currentIndex") // set currentIndex later
+                    && (uic->customWidgetsInfo()->extends(className, QLatin1String("QComboBox"))
+                    || uic->customWidgetsInfo()->extends(className, QLatin1String("QStackedWidget"))
+                    || uic->customWidgetsInfo()->extends(className, QLatin1String("QTabWidget"))
+                    || uic->customWidgetsInfo()->extends(className, QLatin1String("QToolBox")))) {
+            delayedOut << option.indent << varName << "->setCurrentIndex("
+                       << p->elementNumber() << ");\n";
             continue;
         } else if (propertyName == QLatin1String("control") // ActiveQt support
                     && uic->customWidgetsInfo()->extends(className, QLatin1String("QAxWidget"))) {
@@ -1191,13 +1200,6 @@ void WriteInitialization::initializeComboBox(DomWidget *w)
 
         refreshOut << trCall(text->elementString()) << ");\n";
     }
-
-    QHash<QString, DomProperty*> properties = propertyMap(w->elementProperty());
-    DomProperty *currentIndex = properties.value(QLatin1String("currentIndex"));
-    if (currentIndex) {
-        refreshOut << option.indent << varName << "->setCurrentIndex(";
-        refreshOut << QString::number(currentIndex->elementNumber()) << ");\n";
-    }
 }
 
 void WriteInitialization::initializeListWidget(DomWidget *w)
@@ -1230,13 +1232,6 @@ void WriteInitialization::initializeListWidget(DomWidget *w)
             if (p->attributeName() == QLatin1String("icon"))
                 refreshOut << option.indent << itemName << "->setIcon(" << pixCall(p) << ");\n";
         }
-    }
-
-    QHash<QString, DomProperty*> properties = propertyMap(w->elementProperty());
-    DomProperty *currentRow = properties.value(QLatin1String("currentRow"));
-    if (currentRow) {
-        refreshOut << option.indent << varName << "->setCurrentRow(";
-        refreshOut << QString::number(currentRow->elementNumber()) << ");\n";
     }
 }
 

@@ -874,16 +874,15 @@ DomWidget *QDesignerResource::saveWidget(QDesignerToolBox *widget, DomWidget *ui
     return ui_widget;
 }
 
-bool QDesignerResource::checkProperty(QDesignerStackedWidget *widget, const QString &prop) const
-{
-    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), widget))
-        return sheet->isAttribute(sheet->indexOf(prop)) == false;
-
-    return true;
-}
-
 bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
 {
+    const QMetaObject *meta = obj->metaObject();
+    int pindex = meta->indexOfProperty(prop.toLatin1());
+    if (pindex != -1) {
+        if (!meta->property(pindex).isStored(obj))
+            return false;
+    }
+
     if (prop == QLatin1String("objectName")) { // ### don't store the property objectName
         return false;
     } else if (prop == QLatin1String("geometry") && obj->isWidgetType()) {
@@ -892,12 +891,6 @@ bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
             check_widget = promoted;
 
         return !LayoutInfo::isWidgetLaidout(core(), check_widget);
-    } else if (!checkProperty(qobject_cast<QDesignerTabWidget*>(obj), prop)) {
-        return false;
-    } else if (!checkProperty(qobject_cast<QDesignerToolBox*>(obj), prop)) {
-        return false;
-    } else if (!checkProperty(qobject_cast<QLayoutWidget*>(obj), prop)) {
-        return false;
     }
 
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), obj)) {
@@ -909,30 +902,6 @@ bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
     }
 
     return false;
-}
-
-bool QDesignerResource::checkProperty(QLayoutWidget *widget, const QString &prop) const
-{
-    if (!widget)
-        return true;
-
-    return widget->QWidget::metaObject()->indexOfProperty(prop.toUtf8()) != -1;
-}
-
-bool QDesignerResource::checkProperty(QDesignerTabWidget *widget, const QString &prop) const
-{
-    if (!widget)
-        return true;
-
-    return widget->QTabWidget::metaObject()->indexOfProperty(prop.toUtf8()) != -1;
-}
-
-bool QDesignerResource::checkProperty(QDesignerToolBox *widget, const QString &prop) const
-{
-    if (!widget)
-        return true;
-
-    return widget->QToolBox::metaObject()->indexOfProperty(prop.toUtf8()) != -1;
 }
 
 bool QDesignerResource::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)

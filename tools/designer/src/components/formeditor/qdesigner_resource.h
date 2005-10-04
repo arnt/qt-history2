@@ -99,11 +99,6 @@ protected:
 
     virtual bool checkProperty(QObject *obj, const QString &prop) const;
 
-    bool checkProperty(QDesignerTabWidget *widget, const QString &prop) const;
-    bool checkProperty(QDesignerStackedWidget *widget, const QString &prop) const;
-    bool checkProperty(QDesignerToolBox *widget, const QString &prop) const;
-    bool checkProperty(QLayoutWidget *widget, const QString &prop) const;
-
     DomWidget *saveWidget(QDesignerTabWidget *widget, DomWidget *ui_parentWidget);
     DomWidget *saveWidget(QDesignerStackedWidget *widget, DomWidget *ui_parentWidget);
     DomWidget *saveWidget(QDesignerToolBox *widget, DomWidget *ui_parentWidget);

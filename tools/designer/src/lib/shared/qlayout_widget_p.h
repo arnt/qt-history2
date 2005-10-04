@@ -122,8 +122,8 @@ private:
 class QT_SHARED_EXPORT QLayoutWidget: public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY(int margin READ layoutMargin WRITE setLayoutMargin DESIGNABLE true)
-    Q_PROPERTY(int spacing READ layoutSpacing WRITE setLayoutSpacing DESIGNABLE true)
+    Q_PROPERTY(int margin READ layoutMargin WRITE setLayoutMargin STORED false DESIGNABLE true)
+    Q_PROPERTY(int spacing READ layoutSpacing WRITE setLayoutSpacing STORED false DESIGNABLE true)
 public:
     QLayoutWidget(QDesignerFormWindowInterface *formWindow, QWidget *parent = 0);
 

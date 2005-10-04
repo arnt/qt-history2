@@ -1940,6 +1940,18 @@ void QAbstractFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, 
         loadTreeWidgetExtraInfo(ui_widget, treeWidget, parentWidget);
     } else if (QComboBox *comboBox = qobject_cast<QComboBox*>(widget)) {
         loadComboBoxExtraInfo(ui_widget, comboBox, parentWidget);
+    } else if (QTabWidget *tabWidget = qobject_cast<QTabWidget*>(widget)) {
+        DomProperty *currentIndex = propertyMap(ui_widget->elementProperty()).value("currentIndex");
+        if (currentIndex)
+            tabWidget->setCurrentIndex(currentIndex->elementNumber());
+    } else if (QStackedWidget *stackedWidget = qobject_cast<QStackedWidget*>(widget)) {
+        DomProperty *currentIndex = propertyMap(ui_widget->elementProperty()).value("currentIndex");
+        if (currentIndex)
+            stackedWidget->setCurrentIndex(currentIndex->elementNumber());
+    } else if (QToolBox *toolBox = qobject_cast<QToolBox*>(widget)) {
+        DomProperty *currentIndex = propertyMap(ui_widget->elementProperty()).value("currentIndex");
+        if (currentIndex)
+            toolBox->setCurrentIndex(currentIndex->elementNumber());
     }
 }
 
