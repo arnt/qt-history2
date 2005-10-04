@@ -15,16 +15,16 @@ QOBJS=qchar.o qstring.o qstringmatcher.o qtextstream.o qiodevice.o qglobal.o \
 #all sources, used for the depend target
 DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makefile.cpp generators/unix/unixmake2.cpp \
            generators/unix/unixmake.cpp generators/win32/winmakefile.cpp generators/projectgenerator.cpp \
-	   generators/mac/pbuilder_pbx.cpp \
+	   generators/mac/pbuilder_pbx.cpp generators/mac/xmloutput.cpp generators/metamakefile.cpp \
+	   generators/makefiledeps.cpp option.cpp generators/win32/mingw_make.cpp generators/makefile.cpp \
 	   @SOURCE_PATH@/src/corelib/tools/qchar.cpp @SOURCE_PATH@/src/corelib/tools/qstring.cpp \
 	   @SOURCE_PATH@/src/corelib/io/qfile.cpp @SOURCE_PATH@/src/corelib/tools/qstringmatcher.cpp \
 	   @SOURCE_PATH@/src/corelib/io/qtextstream.cpp @SOURCE_PATH@/src/corelib/io/qiodevice.cpp \
 	   @SOURCE_PATH@/src/corelib/global/qglobal.cpp @SOURCE_PATH@/src/corelib/tools/qregexp.cpp \
 	   @SOURCE_PATH@/src/corelib/tools/qbytearray.cpp @SOURCE_PATH@/src/corelib/tools/qbytearraymatcher.cpp \
-	   @SOURCE_PATH@/src/corelib/tools/.cpp @SOURCE_PATH@/src/corelib/tools/qbytearraymatcher.cpp \
 	   @SOURCE_PATH@/src/corelib/io/qdatastream.cpp @SOURCE_PATH@/src/corelib/io/qbuffer.cpp \
 	   @SOURCE_PATH@/src/corelib/io/qfsfileengine_unix.cpp @SOURCE_PATH@/src/corelib/io/qabstractfileengine.cpp \
-	   @SOURCE_PATH@/src/corelib/io/qfsfileengine.cpp \
+	   @SOURCE_PATH@/src/corelib/io/qfsfileengine.cpp @SOURCE_PATH@/src/corelib/tools/qlistdata.cpp \
 	   @SOURCE_PATH@/src/corelib/tools/qvector.cpp @SOURCE_PATH@/src/corelib/tools/qbitarray.cpp \
 	   @SOURCE_PATH@/src/corelib/io/qdir.cpp @SOURCE_PATH@/src/corelib/plugin/quuid.cpp \
 	   @SOURCE_PATH@/src/corelib/io/qfileinfo.cpp @SOURCE_PATH@/src/corelib/tools/qdatetime.cpp \
@@ -33,8 +33,9 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makef
 	   @SOURCE_PATH@/src/corelib/tools/qlocale.cpp @SOURCE_PATH@/src/corelib/tools/qlinkedlist.cpp \
 	   @SOURCE_PATH@/src/corelib/tools/qhash.cpp @SOURCE_PATH@/src/corelib/kernel/qcore_mac.cpp \
 	   @SOURCE_PATH@/src/corelib/io/qtemporaryfile.cpp @SOURCE_PATH@/src/corelib/kernel/qmetatype.cpp \
-	   @SOURCE_PATH@/src/corelib/tools/qvsnprintf.cpp \
-	   $(COMMERCIAL_DEPEND_SRC)
+	   @SOURCE_PATH@/src/corelib/tools/qvsnprintf.cpp @SOURCE_PATH@/src/corelib/tools/qunicodetables.cpp \
+	   @SOURCE_PATH@/src/corelib/io/qsettings.cpp @SOURCE_PATH@/src/corelib/kernel/qvariant.cpp \
+	   @QMAKE_QTSRCS@ $(COMMERCIAL_DEPEND_SRC)
 
 CXXFLAGS = @QMAKE_CXXFLAGS@ \
 	   -I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
@@ -58,7 +59,7 @@ distclean:: clean
 	rm -rf @BUILD_PATH/bin/qmake .deps
 
 depend:
-	makedepend $(CXXFLAGS) -D__MAKEDEPEND__ $(DEPEND_SRC)
+	makedepend -D__MAKEDEPEND__ $(DEPEND_SRC)
 
 # don't use optimization for these
 qtextstream.o: @SOURCE_PATH@/src/corelib/io/qtextstream.cpp
