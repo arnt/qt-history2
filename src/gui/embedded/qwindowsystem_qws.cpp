@@ -932,9 +932,6 @@ QWSCommand* QWSClient::readMoreCommand()
         QList<QWSCommand*> *serverQueue = qt_get_server_queue();
         return serverQueue->isEmpty() ? 0 : serverQueue->takeFirst();
     }
-    Q_UNUSED(csocket);
-    Q_UNUSED(command);
-    Q_UNUSED(command_type);
 }
 
 
