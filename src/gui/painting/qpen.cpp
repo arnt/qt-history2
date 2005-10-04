@@ -338,15 +338,13 @@ QVector<qreal> QPen::dashPattern() const
  */
 void QPen::setDashPattern(const QVector<qreal> &pattern)
 {
+    if (pattern.isEmpty())
+        return;
     detach();
     d->dashPattern = pattern;
     d->style = Qt::CustomDashLine;
 
-    if (d->dashPattern.isEmpty()) {
-        d->style = Qt::SolidLine;
-        d->dashPattern = QVector<qreal>();
-        return;
-    } else if ((d->dashPattern.size() % 2) == 1) {
+    if ((d->dashPattern.size() % 2) == 1) {
         qWarning("QPen::setDashPattern(), pattern not of even length");
         d->dashPattern << 1;
     }
