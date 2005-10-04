@@ -1347,7 +1347,8 @@ void QGLExtensions::init()
     QWidget dmy(0);
     HDC dmy_pdc = GetDC(dmy.winId());
     PIXELFORMATDESCRIPTOR dmy_pfd = {
-	sizeof(PIXELFORMATDESCRIPTOR), 1, PFD_SUPPORT_OPENGL | PFD_DRAW_TO_BITMAP,
+	sizeof(PIXELFORMATDESCRIPTOR), 1,
+	PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW,
 	PFD_TYPE_RGBA, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, PFD_MAIN_PLANE, 0, 0, 0, 0
     };
