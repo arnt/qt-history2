@@ -12,3 +12,4 @@ QT += opengl
 # Input
 HEADERS += glwidget.h
 SOURCES += glwidget.cpp main.cpp
+RESOURCES += pbuffers.qrc

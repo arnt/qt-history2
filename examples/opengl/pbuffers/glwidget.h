@@ -33,6 +33,7 @@ private:
     GLfloat rot[3], xOffs[3], yOffs[3], xInc[3];
     GLuint pbufferList;
     GLuint dynamicTexture;
+    GLuint cubeTexture;
     int timerId;
 
     QGLPbuffer *pbuffer;

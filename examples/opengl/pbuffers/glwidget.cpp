@@ -73,8 +73,7 @@ void GLWidget::initializeGL()
     glEnable(GL_CULL_FACE);
     initCommon();
     initPbuffer();
-    glBindTexture(GL_TEXTURE_2D, dynamicTexture);
-
+    
     for (int i = 0; i < 3; ++i) {
         yOffs[i] = 0.0f;
         xInc[i] = 0.005f;
@@ -83,6 +82,12 @@ void GLWidget::initializeGL()
     xOffs[0]= 0.0f;
     xOffs[1]= 0.5f;
     xOffs[2]= 1.0f;
+    
+    pbuffer->makeCurrent();
+    cubeTexture = bindTexture(QImage(":res/cubelogo.png"));
+    glBindTexture(GL_TEXTURE_2D, cubeTexture);
+    makeCurrent();
+    glBindTexture(GL_TEXTURE_2D, dynamicTexture);
 }
 
 void GLWidget::resizeGL(int w, int h)
@@ -114,7 +119,16 @@ void GLWidget::paintGL()
     glLoadIdentity();
 
     glVertexPointer(2, GL_INT, 0, faceArray);
-    glDrawArrays(GL_QUADS, 0, 4);
+    glTranslatef(-1.2f, -0.8f, 0.0f);
+    glScalef(0.2f, 0.2f, 0.2f);
+    for (int y = 0; y < 5; ++y) {
+	for (int x = 0; x < 5; ++x) {
+	    glTranslatef(2.0f, 0, 0);
+	    glColor4f(0.5, 0.5, 0.5, 1.0);
+	    glDrawArrays(GL_QUADS, 0, 4);
+	}
+ 	glTranslatef(-10.0f, 2.0f, 0);
+    }
     glVertexPointer(3, GL_INT, 0, cubeArray);
 
     glPopMatrix();
@@ -197,7 +211,7 @@ void GLWidget::initPbuffer()
 	glDisableClientState(GL_COLOR_ARRAY);
 	glEnable(GL_TEXTURE_2D);
         glPopMatrix();
-
+	
 	// draw cube 
         glTranslatef(0.5f, 0.5f, 0.5f);
         glRotatef(3.0f, 1.0f, 1.0f, 1.0f);
@@ -208,9 +222,9 @@ void GLWidget::initPbuffer()
     glEndList();
     // generate a texture that has the same size/format as the pbuffer
     dynamicTexture = pbuffer->generateTexture();
-    makeCurrent();
 
     // bind the dynamic texture to the pbuffer - this is a no-op under X11
     pbuffer->bind(dynamicTexture);
+    makeCurrent();
 }
 
