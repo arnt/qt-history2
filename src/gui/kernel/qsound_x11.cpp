@@ -11,10 +11,6 @@
 **
 ****************************************************************************/
 
-#ifndef QT_CLEAN_NAMESPACE
-#define QT_CLEAN_NAMESPACE
-#endif
-
 #include "qsound.h"
 
 #ifndef QT_NO_SOUND
@@ -23,7 +19,6 @@
 #include "qsocketnotifier.h"
 #include "qapplication.h"
 #include "qsound_p.h"
-
 
 #ifdef QT_NAS_SUPPORT
 
