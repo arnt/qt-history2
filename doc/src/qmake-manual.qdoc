@@ -214,10 +214,15 @@
     \section2 Comments
 
     You can add comments to project files. Comments begin with the \c
-    # symbol and continue to the end of the same line. For example:
+    # character and continue to the end of the same line. For example:
 
     \quotefromfile snippets/qmake/comments.pro
     \printuntil .
+
+    To include the \c # character in variable assignments, it is necessary
+    to use the contents of the built-in \c LITERAL_HASH variable. See the
+    \l{qmake Variable Reference#LITERAL_HASH}{variable reference} for more
+    information.
 
     \section2 Built-in Functions and Control Flow
 
@@ -783,7 +788,14 @@
 
     \e {This is only used on Windows when using the \c app template}.
 
-    Specifies a .def file to be included in the project.
+    Specifies a \c .def file to be included in the project.
+
+    \target DEPENDPATH
+    \section1 DEPENDPATH
+
+    This variable contains the list of all directories to look in to
+    resolve dependencies. This will be used when crawling through
+    \c included files.
 
     \target DESTDIR
     \section1 DESTDIR
@@ -795,6 +807,14 @@
     \code
         DESTDIR = ../../lib
     \endcode
+
+    \target DESTDIR_TARGET
+    \section1 DESTDIR_TARGET
+
+    This variable is set internally by \c qmake, which is basically the
+    \c DESTDIR variable with the \c TARGET variable appened at the end.
+    The value of this variable is typically handled by \c qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
     \target DLLDESTDIR
     \section1 DLLDESTDIR
@@ -811,6 +831,30 @@
 
     \code
         DISTFILES += ../program.txt
+    \endcode
+
+    \target DSP_TEMPLATE
+    \section1 DSP_TEMPLATE
+
+    This variable is set internally by \c qmake, which specifies where the
+    dsp template file for basing generated dsp files is stored. The value
+    of this variable is typically handled by \c qmake or
+    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \target FORMS
+    \section1 FORMS
+
+    This variable specifies the .ui files (see \link
+    designer-manual.html Qt Designer \endlink) to be processed through \c uic
+    before compiling.  All dependencies, headers and source files required
+    to build these .ui files will automatically be added to the project.
+
+    For example:
+
+    \code
+        FORMS = mydialog.ui \
+            mywidget.ui \
+                myconfig.ui
     \endcode
 
     \target HEADERS
@@ -848,21 +892,19 @@
         INCLUDEPATH = c:\msdev\include d:\stl\include
     \endcode
 
-    \target FORMS
-    \section1 FORMS
+    \target LEXIMPLS
+    \section1 LEXIMPLS
 
-    This variable specifies the .ui files (see \link
-    designer-manual.html Qt Designer \endlink) to be processed through \c uic
-    before compiling.  All dependencies, headers and source files required
-    to build these .ui files will automatically be added to the project.
+    This variable contains a list of lex implementation files.  The value
+    of this variable is typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
+    needs to be modified.
 
-    For example:
+    \target LEXOBJECTS
+    \section1 LEXOBJECTS
 
-    \code
-        FORMS = mydialog.ui \
-            mywidget.ui \
-                myconfig.ui
-    \endcode
+    This variable contains the names of intermediate lex object
+    files.The value of this variable is typically handled by
+    \c qmake and rarely needs to be modified.
 
     \target LEXSOURCES
     \section1 LEXSOURCES
@@ -894,226 +936,21 @@
         win32:LIBS += c:\mylibs\math.lib
     \endcode
 
-    \target MOC_DIR
-    \section1 MOC_DIR
+    \target LITERAL_HASH
+    \section1 LITERAL_HASH
 
-    This variable specifies the directory where all intermediate moc
-    files should be placed.
-
-    For example:
-
-    \code
-        unix:MOC_DIR = ../myproject/tmp
-        win32:MOC_DIR = c:\myproject\tmp
-    \endcode
-
-    \target OBJECTS_DIR
-    \section1 OBJECTS_DIR
-
-    This variable specifies the directory where all intermediate
-    objects should be placed.
+    This variable is used whenever a literal hash character (\c{#}) is needed in
+    a variable declaration, perhaps as part of a file name or in a string passed
+    to some external application.
 
     For example:
 
-    \code
-        unix:OBJECTS_DIR = ../myproject/tmp
-        win32:OBJECTS__DIR = c:\myproject\tmp
-    \endcode
+    \quotefromfile snippets/qmake/comments.pro
+    \skipto To include
+    \printuntil message
 
-    \target UI_DIR
-    \section1 UI_DIR
-
-    This variable specifies the directory where all intermediate files from uic
-    should be placed. This variable overrides both UI_SOURCES_DIR and
-    UI_HEADERS_DIR.
-
-    For example:
-
-    \code
-        unix:UI_DIR = ../myproject/ui
-        win32:UI_DIR = c:\myproject\ui
-    \endcode
-
-    \target UI_HEADERS_DIR
-    \section1 UI_HEADERS_DIR
-
-    This variable specifies the directory where all declaration files (as
-    generated by uic) should be placed.
-
-    For example:
-
-    \code
-        unix:UI_HEADERS_DIR = ../myproject/ui/include
-        win32:UI_HEADERS_DIR = c:\myproject\ui\include
-    \endcode
-
-    \target UI_SOURCES_DIR
-    \section1 UI_SOURCES_DIR
-
-    This variable specifies the directory where all implementation files (as generated
-    by uic) should be placed.
-
-    For example:
-
-    \code
-        unix:UI_SOURCES_DIR = ../myproject/ui/src
-        win32:UI_SOURCES_DIR = c:\myproject\ui\src
-    \endcode
-
-    \target RCC_DIR
-    \section1 RCC_DIR
-
-    This variable specifies the directory where all intermediate
-    resource files should be placed.
-
-    For example:
-
-    \code
-        unix:RCC_DIR = ../myproject/resources
-        win32:RCC_DIR = c:\myproject\resources
-    \endcode
-
-    \target REQUIRES
-    \section1 REQUIRES
-
-    This is a special variable processed by \c qmake.  If the
-    contents of this variable do not appear in CONFIG by the time this
-    variable is assigned, then a minimal Makefile will be generated that
-    states what dependencies (the values assigned to REQUIRES) are
-    missing.
-
-    This is mainly used in Qt's build system for building the examples.
-
-    \target SOURCES
-    \section1 SOURCES
-
-    This variable contains the name of all source files in the project.
-
-    For example:
-
-    \code
-        SOURCES = myclass.cpp \
-              login.cpp \
-              mainwindow.cpp
-    \endcode
-
-    See also \l{#HEADERS}{HEADERS}
-
-    \target SUBDIRS
-    \section1 SUBDIRS
-
-    This variable, when used with the \c subdirs
-    \l{#TEMPLATE}{TEMPLATE} contains the names of all subdirectories
-    to look for a project file.
-
-    For example:
-
-    \code
-        SUBDIRS = kernel \
-              tools
-    \endcode
-
-    \target TARGET
-    \section1 TARGET
-
-    This specifies the name of the target file.
-
-    For example:
-
-    \code
-        TEMPLATE = app
-        TARGET = myapp
-        SOURCES = main.cpp
-    \endcode
-
-    The project file above would produce an executable named \c myapp on
-    unix and 'myapp.exe' on windows.
-
-    \target TEMPLATE
-    \section1 TEMPLATE
-
-    This variable contains the name of the template to use when
-    generating the project.  The allowed values are:
-
-    \list
-    \o app - Creates a Makefile for building applications (the default)
-    \o lib - Creates a Makefile for building libraries
-    \o subdirs - Creates a Makefile for building targets in subdirectories
-    \o vcapp - \e {win32 only}  Creates an application project file for
-    Visual Studio
-    \o vclib - \e {win32 only}  Creates a library project file for Visual
-    Studio
-
-    \endlist
-
-    For example:
-
-    \code
-        TEMPLATE = lib
-        SOURCES = main.cpp
-        TARGET = mylib
-    \endcode
-
-    The template can be overridden by specifying a new template type with the
-    \c -t command line option. This overrides the template type \e after the .pro
-    file has been processed. With .pro files that use the template type to
-    determine how the project is built, it is necessary to declare TEMPLATE on
-    the command line rather than use the \c -t option.
-
-    \target VERSION
-    \section1 VERSION
-
-    This variable contains the version number of the library if the
-    \c lib \l{#TEMPLATE}{TEMPLATE} is specified.
-
-    For example:
-
-    \code
-        VERSION = 1.2.3
-    \endcode
-
-    \target YACCSOURCES
-    \section1 YACCSOURCES
-
-    This variable contains a list of yacc source files to be included
-    in the project.  All dependencies, headers and source files will
-    automatically be included in the project.
-
-    For example:
-
-    \code
-        YACCSOURCES = moc.y
-    \endcode
-
-    \target DESTDIR_TARGET
-    \section1 DESTDIR_TARGET
-
-    This variable is set internally by \c qmake, which is basically the
-    \c DESTDIR variable with the \c TARGET variable appened at the end.
-    The value of this variable is typically handled by \c qmake or
-    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
-
-    \target DSP_TEMPLATE
-    \section1 DSP_TEMPLATE
-
-    This variable is set internally by \c qmake, which specifies where the
-    dsp template file for basing generated dsp files is stored. The value
-    of this variable is typically handled by \c qmake or
-    \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
-
-    \target LEXIMPLS
-    \section1 LEXIMPLS
-
-    This variable contains a list of lex implementation files.  The value
-    of this variable is typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
-    needs to be modified.
-
-    \target LEXOBJECTS
-    \section1 LEXOBJECTS
-
-    This variable contains the names of intermediate lex object
-    files.The value of this variable is typically handled by
-    \c qmake and rarely needs to be modified.
+    By using \c LITERAL_HASH in this way, the \c # character can be used
+    to construct a URL for the \c message() function to print to the console.
 
     \target MAKEFILE
     \section1 MAKEFILE
@@ -1130,6 +967,19 @@
     when generating a Makefile.  The value of this variable is typically
     handled internally by \c qmake and rarely needs to be modified.
 
+    \target MOC_DIR
+    \section1 MOC_DIR
+
+    This variable specifies the directory where all intermediate moc
+    files should be placed.
+
+    For example:
+
+    \code
+        unix:MOC_DIR = ../myproject/tmp
+        win32:MOC_DIR = c:\myproject\tmp
+    \endcode
+
     \target OBJECTS
     \section1 OBJECTS
 
@@ -1138,6 +988,19 @@
     replaced by .o (Unix) or .obj (Win32).  The value of this variable is
     typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and
     rarely needs to be modified.
+
+    \target OBJECTS_DIR
+    \section1 OBJECTS_DIR
+
+    This variable specifies the directory where all intermediate
+    objects should be placed.
+
+    For example:
+
+    \code
+        unix:OBJECTS_DIR = ../myproject/tmp
+        win32:OBJECTS__DIR = c:\myproject\tmp
+    \endcode
 
     \target OBJMOC
     \section1 OBJMOC
@@ -1398,6 +1261,58 @@
     variable is typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf}
     and rarely needs to be modified.
 
+    \section1 QMAKE_EXT_MOC
+
+    This variable changes the extention used on included moc files.
+
+    See also \l{Configuring qmake's Environment#Extensions}{File Extensions}.
+
+    \section1 QMAKE_EXT_UI
+
+    This variable changes the extention used on /e Designer UI files.
+
+    See also \l{Configuring qmake's Environment#Extensions}{File Extensions}.
+
+    \section1 QMAKE_EXT_PRL
+
+    This variable changes the extention used on created PRL files.
+
+    See also \l{Configuring qmake's Environment#Extensions}{File Extensions},
+             \l{Configuring qmake's Environment#libdepend}{Library Dependencies}.
+
+    \section1 QMAKE_EXT_LEX
+
+    This variable changes the extention used on files given to lex.
+
+    See also \l{Configuring qmake's Environment#Extensions}{File Extensions},
+             \l{#LEXSOURCES}{LEXSOURCES}.
+
+    \section1 QMAKE_EXT_YACC
+    This variable changes the extention used on files given to yacc.
+
+    See also \l{Configuring qmake's Environment#Extensions}{File Extensions},
+             \l{#YACCSOURCES}{YACCSOURCES}.
+
+    \section1 QMAKE_EXT_OBJ
+
+    This variable changes the extention used on generated object files.
+
+    See also \l{Configuring qmake's Environment#Extensions}{File Extensions}.
+
+    \section1 QMAKE_EXT_CPP
+
+    This variable changes the interpretation of all suffixes in this
+    list of values as files of type C++ source code.
+
+    See also \l{Configuring qmake's Environment#Extensions}{File Extensions}.
+
+    \section1 QMAKE_EXT_H
+
+    This variable changes the interpretation of all suffixes in this
+    list of values as files of type C header files.
+
+    See also \l{Configuring qmake's Environment#Extensions}{File Extensions}.
+
     \target QMAKE_FAILED_REQUIREMENTS
     \section1 QMAKE_FAILED_REQUIREMENTS
 
@@ -1577,23 +1492,6 @@
     directory with -L prefixed.  The value of this variable is typically handled by
     \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
-
-    \section1 VPATH
-
-    This variable tells \c qmake where to search for files it cannot
-    open. With this you may tell \c qmake where it may look for things
-    like SOURCES, and if it finds an entry in SOURCES that cannot be
-    opened it will look through the entire VPATH list to see if it can
-    find the file on its own.
-
-    See also \l{#DEPENDPATH}{DEPENDPATH}.
-
-    \target DEPENDPATH
-    \section1 DEPENDPATH
-
-    This variable contains the list of all directories to look in to
-    resolve dependencies. This will be used when crawling through
-    \c included files.
 
     \section1 QMAKE_LIBDIR_OPENGL
 
@@ -1832,11 +1730,50 @@
     The value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
 
+    \target RCC_DIR
+    \section1 RCC_DIR
+
+    This variable specifies the directory where all intermediate
+    resource files should be placed.
+
+    For example:
+
+    \code
+        unix:RCC_DIR = ../myproject/resources
+        win32:RCC_DIR = c:\myproject\resources
+    \endcode
+
+    \target REQUIRES
+    \section1 REQUIRES
+
+    This is a special variable processed by \c qmake.  If the
+    contents of this variable do not appear in CONFIG by the time this
+    variable is assigned, then a minimal Makefile will be generated that
+    states what dependencies (the values assigned to REQUIRES) are
+    missing.
+
+    This is mainly used in Qt's build system for building the examples.
+
     \section1 RES_FILE
 
     This variable contains the name of the resource file for the application.
     The value of this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \target SOURCES
+    \section1 SOURCES
+
+    This variable contains the name of all source files in the project.
+
+    For example:
+
+    \code
+        SOURCES = myclass.cpp \
+              login.cpp \
+              mainwindow.cpp
+    \endcode
+
+    See also \l{#HEADERS}{HEADERS}
 
     \section1 SRCMOC
 
@@ -1845,6 +1782,36 @@
     name of all the generated moc files. The value of this variable
     is typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be
     modified.
+
+    \target SUBDIRS
+    \section1 SUBDIRS
+
+    This variable, when used with the \c subdirs
+    \l{#TEMPLATE}{TEMPLATE} contains the names of all subdirectories
+    to look for a project file.
+
+    For example:
+
+    \code
+        SUBDIRS = kernel \
+              tools
+    \endcode
+
+    \target TARGET
+    \section1 TARGET
+
+    This specifies the name of the target file.
+
+    For example:
+
+    \code
+        TEMPLATE = app
+        TARGET = myapp
+        SOURCES = main.cpp
+    \endcode
+
+    The project file above would produce an executable named \c myapp on
+    unix and 'myapp.exe' on windows.
 
     \section1 TARGET_EXT
 
@@ -1864,6 +1831,45 @@
     is typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be
     modified.
 
+    \target TEMPLATE
+    \section1 TEMPLATE
+
+    This variable contains the name of the template to use when
+    generating the project.  The allowed values are:
+
+    \list
+    \o app - Creates a Makefile for building applications (the default)
+    \o lib - Creates a Makefile for building libraries
+    \o subdirs - Creates a Makefile for building targets in subdirectories
+    \o vcapp - \e {win32 only}  Creates an application project file for
+    Visual Studio
+    \o vclib - \e {win32 only}  Creates a library project file for Visual
+    Studio
+
+    \endlist
+
+    For example:
+
+    \code
+        TEMPLATE = lib
+        SOURCES = main.cpp
+        TARGET = mylib
+    \endcode
+
+    The template can be overridden by specifying a new template type with the
+    \c -t command line option. This overrides the template type \e after the .pro
+    file has been processed. With .pro files that use the template type to
+    determine how the project is built, it is necessary to declare TEMPLATE on
+    the command line rather than use the \c -t option.
+
+    \section1 TRANSLATIONS
+
+    This variable contains a list of translation (.ts) files that contain
+    translations of the user interface text into non-native languages.
+
+    See the \l{Qt Linguist Manual} for more information about
+    internationalization (i18n) and localization (l10n) with Qt.
+
     \section1 UICIMPLS
 
     This variable contains a list of the generated implementation files by UIC.
@@ -1877,6 +1883,58 @@
     file will have been replaced by .o (Unix) or .obj (Win32).  The value of this variable is
     typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and
     rarely needs to be modified.
+
+    \target UI_DIR
+    \section1 UI_DIR
+
+    This variable specifies the directory where all intermediate files from uic
+    should be placed. This variable overrides both UI_SOURCES_DIR and
+    UI_HEADERS_DIR.
+
+    For example:
+
+    \code
+        unix:UI_DIR = ../myproject/ui
+        win32:UI_DIR = c:\myproject\ui
+    \endcode
+
+    \target UI_HEADERS_DIR
+    \section1 UI_HEADERS_DIR
+
+    This variable specifies the directory where all declaration files (as
+    generated by uic) should be placed.
+
+    For example:
+
+    \code
+        unix:UI_HEADERS_DIR = ../myproject/ui/include
+        win32:UI_HEADERS_DIR = c:\myproject\ui\include
+    \endcode
+
+    \target UI_SOURCES_DIR
+    \section1 UI_SOURCES_DIR
+
+    This variable specifies the directory where all implementation files (as generated
+    by uic) should be placed.
+
+    For example:
+
+    \code
+        unix:UI_SOURCES_DIR = ../myproject/ui/src
+        win32:UI_SOURCES_DIR = c:\myproject\ui\src
+    \endcode
+
+    \target VERSION
+    \section1 VERSION
+
+    This variable contains the version number of the library if the
+    \c lib \l{#TEMPLATE}{TEMPLATE} is specified.
+
+    For example:
+
+    \code
+        VERSION = 1.2.3
+    \endcode
 
     \section1 VER_MAJ
 
@@ -1893,65 +1951,15 @@
     This variable contains the patch version number of the library, if the
     \c lib \l{#TEMPLATE}{template} is specified.
 
-    \section1 QMAKE_EXT_MOC
+    \section1 VPATH
 
-    This variable changes the extention used on included moc files.
+    This variable tells \c qmake where to search for files it cannot
+    open. With this you may tell \c qmake where it may look for things
+    like SOURCES, and if it finds an entry in SOURCES that cannot be
+    opened it will look through the entire VPATH list to see if it can
+    find the file on its own.
 
-    See also \l{Configuring qmake's Environment#Extensions}{File Extensions}.
-
-    \section1 QMAKE_EXT_UI
-
-    This variable changes the extention used on /e Designer UI files.
-
-    See also \l{Configuring qmake's Environment#Extensions}{File Extensions}.
-
-    \section1 QMAKE_EXT_PRL
-
-    This variable changes the extention used on created PRL files.
-
-    See also \l{Configuring qmake's Environment#Extensions}{File Extensions},
-             \l{Configuring qmake's Environment#libdepend}{Library Dependencies}.
-
-    \section1 QMAKE_EXT_LEX
-
-    This variable changes the extention used on files given to lex.
-
-    See also \l{Configuring qmake's Environment#Extensions}{File Extensions},
-             \l{#LEXSOURCES}{LEXSOURCES}.
-
-    \section1 QMAKE_EXT_YACC
-    This variable changes the extention used on files given to yacc.
-
-    See also \l{Configuring qmake's Environment#Extensions}{File Extensions},
-             \l{#YACCSOURCES}{YACCSOURCES}.
-
-    \section1 QMAKE_EXT_OBJ
-
-    This variable changes the extention used on generated object files.
-
-    See also \l{Configuring qmake's Environment#Extensions}{File Extensions}.
-
-    \section1 QMAKE_EXT_CPP
-
-    This variable changes the interpretation of all suffixes in this
-    list of values as files of type C++ source code.
-
-    See also \l{Configuring qmake's Environment#Extensions}{File Extensions}.
-
-    \section1 QMAKE_EXT_H
-
-    This variable changes the interpretation of all suffixes in this
-    list of values as files of type C header files.
-
-    See also \l{Configuring qmake's Environment#Extensions}{File Extensions}.
-
-    \section1 TRANSLATIONS
-
-    This variable contains a list of translation (.ts) files that contain
-    translations of the user interface text into non-native languages.
-
-    See the \l{Qt Linguist Manual} for more information about
-    internationalization (i18n) and localization (l10n) with Qt.
+    See also \l{#DEPENDPATH}{DEPENDPATH}.
 
     \section1 YACCIMPLS
 
@@ -1964,6 +1972,19 @@
     This variable contains a list of yacc object files. The value of
     this variable is typically handled by \c qmake or
      \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \target YACCSOURCES
+    \section1 YACCSOURCES
+
+    This variable contains a list of yacc source files to be included
+    in the project.  All dependencies, headers and source files will
+    automatically be included in the project.
+
+    For example:
+
+    \code
+        YACCSOURCES = moc.y
+    \endcode
 */
 
 /*!
