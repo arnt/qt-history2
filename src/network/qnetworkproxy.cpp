@@ -11,6 +11,30 @@
 **
 ****************************************************************************/
 
+
+/*! \class QNetworkProxy
+
+    \brief The QNetworkProxy class provides a network layer proxying.
+
+    \reentrant
+    \ingroup io
+    \module network
+
+    \sa QAbstractSocket, QTcpSocket
+*/
+
+/*! 
+    \enum QNetworkProxy::ProxyType
+
+    This enum describes the types of network proxying provided in Qt.
+
+    \value AutoProxy Proxying is determind based on application settings
+    \value Socks5Proxy Socks 5 proxying is used
+    \value NoProxy No proxying is used
+
+    \sa setType(), type()
+*/
+
 #include "qnetworkproxy.h"
 #include "qsocks5socketengine_p.h"
 #include "qmutex.h"
@@ -60,7 +84,7 @@ class QNetworkProxyPrivate
     Q_DECLARE_PUBLIC(QNetworkProxy)
 
 public:
-    QNetworkProxy::Type type;
+    QNetworkProxy::ProxyType type;
     QString userName;
     QString password;
     QHostAddress address;
@@ -78,7 +102,12 @@ QNetworkProxy::QNetworkProxy()
     d->port = 0;
 }
 
-void QNetworkProxy::setType(QNetworkProxy::Type type)
+/*!
+    Sets the method of proxying fro this instance to be \a type.
+
+    \sa type()
+*/
+void QNetworkProxy::setType(QNetworkProxy::ProxyType type)
 {
     Q_D(QNetworkProxy);
 
@@ -87,7 +116,12 @@ void QNetworkProxy::setType(QNetworkProxy::Type type)
     d->type = type;
 }
 
-QNetworkProxy::Type QNetworkProxy::type() const
+/*!
+    Returns the method of proxying used for this instance.
+
+    \sa setType()
+*/
+QNetworkProxy::ProxyType QNetworkProxy::type() const
 {
     Q_D(const QNetworkProxy);
 
@@ -96,6 +130,11 @@ QNetworkProxy::Type QNetworkProxy::type() const
     return d->type;
 }
 
+/*!
+    Sets the user name for proxy authentication to be \a userName.
+
+    \sa userName(), setPassword(), password()
+*/
 void QNetworkProxy::setUserName(const QString &userName)
 {
     Q_D(QNetworkProxy);
@@ -105,6 +144,11 @@ void QNetworkProxy::setUserName(const QString &userName)
     d->userName = userName;
 }
 
+/*!
+    Returns the user name used for authentication.
+
+    \sa setUserName(), setPassword(), password()
+*/
 QString QNetworkProxy::userName() const
 {
     Q_D(const QNetworkProxy);
@@ -114,6 +158,11 @@ QString QNetworkProxy::userName() const
     return d->userName;
 }
 
+/*!
+    Sets the password for proxy authentication to be \a password.
+
+    \sa userName(), setUserName(), password()
+*/
 void QNetworkProxy::setPassword(const QString &password)
 {
     Q_D(QNetworkProxy);
@@ -123,6 +172,11 @@ void QNetworkProxy::setPassword(const QString &password)
     d->password = password;
 }
 
+/*!
+    Returns the password used for authentication.
+
+    \sa userName(), setPassword(), setUserName()
+*/
 QString QNetworkProxy::password() const
 {
     Q_D(const QNetworkProxy);
@@ -132,6 +186,11 @@ QString QNetworkProxy::password() const
     return d->password;
 }
 
+/*!
+    Sets the address of the proxy host to be \a address.
+
+    \sa address(), setPort(), port()
+*/
 void QNetworkProxy::setAddress(const QHostAddress &address)
 {
     Q_D(QNetworkProxy);
@@ -141,6 +200,11 @@ void QNetworkProxy::setAddress(const QHostAddress &address)
     d->address = address;
 }
 
+/*!
+    Returns the address of the proxy host.
+
+    \sa setAddress(), setPort(), port()
+*/
 QHostAddress QNetworkProxy::address() const
 {
     Q_D(const QNetworkProxy);
@@ -150,6 +214,11 @@ QHostAddress QNetworkProxy::address() const
     return d->address;
 }
 
+/*!
+    Sets the port of the proxy host to be \a port.
+
+    \sa address(), setAddress(), port()
+*/
 void QNetworkProxy::setPort(quint16 port)
 {
     Q_D(QNetworkProxy);
@@ -159,6 +228,11 @@ void QNetworkProxy::setPort(quint16 port)
     d->port = port;
 }
 
+/*!
+    Returns the port of the proxy host.
+
+    \sa setAddress(), setPort(), address()
+*/
 quint16 QNetworkProxy::port() const
 {
     Q_D(const QNetworkProxy);
@@ -168,12 +242,22 @@ quint16 QNetworkProxy::port() const
     return d->port;
 }
 
+/*!
+    Sets the application level netwok proxying to be \networkProxy.
+
+    \sa QAbstractSocket::setProxy(), QTcpServer::setProxy()
+*/
 void QNetworkProxy::setProxy(const QNetworkProxy &networkProxy)
 {
     if (globalNetworkProxy())
         globalNetworkProxy()->setProxy(networkProxy);
 }
 
+/*!
+    Returns the application level network proxying.
+
+    \sa QAbstractSocket::proxy(), QTcpServer::proxy()
+*/
 QNetworkProxy QNetworkProxy::proxy()
 {
     if (globalNetworkProxy())

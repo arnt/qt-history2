@@ -25,7 +25,7 @@ class Q_NETWORK_EXPORT QNetworkProxy
     Q_DECLARE_PRIVATE(QNetworkProxy)
 
 public:
-    enum Type {
+    enum ProxyType {
         AutoProxy,
         Socks5Proxy,
         NoProxy
@@ -33,8 +33,8 @@ public:
 
     QNetworkProxy();
 
-    void setType(QNetworkProxy::Type type);
-    QNetworkProxy::Type type() const;
+    void setType(QNetworkProxy::ProxyType type);
+    QNetworkProxy::ProxyType type() const;
 
     void setUserName(const QString &userName);
     QString userName() const;
