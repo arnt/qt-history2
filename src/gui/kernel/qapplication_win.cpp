@@ -321,6 +321,7 @@ public:
     void eraseWindowBackground(HDC);
     inline void showChildren(bool spontaneous) { d_func()->showChildren(spontaneous); }
     inline void hideChildren(bool spontaneous) { d_func()->hideChildren(spontaneous); }
+    inline uint testWindowState(uint teststate){ return dataPtr()->window_state & teststate; }
 };
 
 static void qt_show_system_menu(QWidget* tlw)
@@ -1767,6 +1768,18 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                         RETURN(0);
                 }
 #endif
+                if (widget->isWindow() && widget->testAttribute(Qt::WA_WState_Visible)
+                    && !widget->testWindowState(Qt::WindowMinimized)) {
+                    if (lParam == SW_PARENTOPENING) {
+                        QShowEvent e;
+                        qt_sendSpontaneousEvent(widget, &e);
+                        widget->showChildren(true);
+                    } else if (lParam == SW_PARENTCLOSING) {
+                        QHideEvent e;
+                        qt_sendSpontaneousEvent(widget, &e);
+                        widget->hideChildren(true);
+                    }
+                }
                 if  (!wParam && autoCaptureWnd == widget->winId())
                     releaseAutoCapture();
                 result = false;
