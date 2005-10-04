@@ -14,7 +14,7 @@
 #ifndef QANIMATIONWRITER_H
 #define QANIMATIONWRITER_H
 
-#include <qimage.h>
+#include <QImage>
 
 class QAnimationWriterData;
 

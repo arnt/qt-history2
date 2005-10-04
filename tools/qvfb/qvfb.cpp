@@ -11,29 +11,6 @@
 **
 ****************************************************************************/
 
-#include <qmenubar.h>
-#include <Q3PopupMenu>
-#include <qapplication.h>
-#include <qmessagebox.h>
-#include <qcombobox.h>
-#include <qlabel.h>
-#include <QFileDialog>
-#include <qslider.h>
-#include <qspinbox.h>
-#include <qlayout.h>
-#include <qradiobutton.h>
-#include <qimage.h>
-#include <qpixmap.h>
-#include <qcheckbox.h>
-#include <qcursor.h>
-#include <QTime>
-#include <QScrollArea>
-
-#include <qprogressbar.h>
-#include <qpushbutton.h>
-#include <qtextstream.h>
-#include <qfile.h>
-
 #include "qvfb.h"
 #include "qvfbview.h"
 #include "qvfbratedlg.h"
@@ -41,9 +18,31 @@
 #include "skin.h"
 #include "qanimationwriter.h"
 
-#include <sys/types.h>
-#include <stdlib.h>
+#include <QMenuBar>
+#include <Q3PopupMenu>
+#include <QApplication>
+#include <QMessageBox>
+#include <QComboBox>
+#include <QLabel>
+#include <QFileDialog>
+#include <QSlider>
+#include <QSpinBox>
+#include <QLayout>
+#include <QRadioButton>
+#include <QImage>
+#include <QPixmap>
+#include <QCheckBox>
+#include <QCursor>
+#include <QTime>
+#include <QScrollArea>
+#include <QProgressBar>
+#include <QPushButton>
+#include <QTextStream>
+#include <QFile>
+
 #include <unistd.h>
+#include <stdlib.h>
+#include <sys/types.h>
 
 // =====================================================================
 
@@ -916,4 +915,3 @@ void AnimationSaveWidget::save()
 }
 
 #include "qvfb.moc"
-

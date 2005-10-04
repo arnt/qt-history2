@@ -14,17 +14,15 @@
 #ifndef SKIN_H
 #define SKIN_H
 
-#include <qwidget.h>
+#include <QWidget>
 #include <Q3PointArray>
-#include <qregion.h>
-#include <qpixmap.h>
-
+#include <QRegion>
+#include <QPixmap>
 
 class QVFb;
 class QVFbView;
 class CursorWindow;
 class QTextStream;
-
 
 class Skin : public QWidget
 {

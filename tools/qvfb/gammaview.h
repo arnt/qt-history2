@@ -14,7 +14,7 @@
 #ifndef GAMMAVIEW_H
 #define GAMMAVIEW_H
 
-#include <qwidget.h>
+#include <QWidget>
 
 class GammaView: public QWidget
 {

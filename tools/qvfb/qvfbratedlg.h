@@ -14,7 +14,7 @@
 #ifndef QVFBRATEDLG_H
 #define QVFBRATEDLG_H
 
-#include <qdialog.h>
+#include <QDialog>
 
 class QLabel;
 class QSlider;

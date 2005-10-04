@@ -11,13 +11,13 @@
 **
 ****************************************************************************/
 
-#include <qapplication.h>
+#include "qvfb.h"
+
+#include <QApplication>
+#include <QRegExp>
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
-#include <qregexp.h>
-
-#include "qvfb.h"
 
 void fn_quit_qvfb(int)
 {
@@ -97,5 +97,3 @@ int main( int argc, char *argv[] )
 
     return app.exec();
 }
-
-

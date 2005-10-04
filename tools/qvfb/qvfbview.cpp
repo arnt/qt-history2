@@ -24,16 +24,16 @@
 
 #define QTE_PIPE "QtEmbedded-%1"
 
-#include <qapplication.h>
-#include <qpainter.h>
-#include <qimage.h>
-#include <qbitmap.h>
-#include <qtimer.h>
-#include <qwmatrix.h>
+#include "qanimationwriter.h"
+#include <QApplication>
+#include <QPainter>
+#include <QImage>
+#include <QBitmap>
+#include <QTimer>
+#include <QWMatrix>
 #include <QPaintEvent>
 #include <QScrollArea>
-#include <qfile.h>
-#include "qanimationwriter.h"
+#include <QFile>
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -748,4 +748,3 @@ void QVFbView::skinKeyReleaseEvent( int code, const QString& text, bool autorep 
     QKeyEvent e(QEvent::KeyRelease,code,text.isEmpty() ? 0 : text[0].latin1(),0,text,autorep);
     keyReleaseEvent(&e);
 }
-

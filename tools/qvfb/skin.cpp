@@ -11,37 +11,23 @@
 **
 ****************************************************************************/
 
-//depot/qt/2.3/tools/qvfb/skin.cpp#2 - edit change 67695 (text)
-
-// get Key_Flip
-#define QT_KEYPAD_MODE
-#include <qnamespace.h>
-#undef QT_KEYPAD_MODE
-
-// FIXME: When building qvfb 2.3.9 against Qt 2.3.2 this fails because Key_Flip isn't defined in Qt 2.3.2
-// So create a workaround for that.
-#if QT_VERSION < 239
-# define Key_Flip 0xffea
-#endif
-
-// Key_Flip does not appeared to be defined in Qt 4 yet
-#define Key_Flip 0xffea
-
-#include <qapplication.h>
-#include <qbitmap.h>
-#include <qpixmap.h>
-#include <qpainter.h>
-#include <qtextstream.h>
-#include <qfile.h>
-#include <qfileinfo.h>
-#include <qimage.h>
-#include <qtimer.h>
-#include <qdir.h>
-#include <qregexp.h>
-#include <QMouseEvent>
 #include "skin.h"
 #include "qvfb.h"
 #include "qvfbview.h"
+
+#include <qnamespace.h>
+#include <QApplication>
+#include <QBitmap>
+#include <QPixmap>
+#include <QPainter>
+#include <QTextStream>
+#include <QFile>
+#include <QFileInfo>
+#include <QImage>
+#include <QTimer>
+#include <QDir>
+#include <QRegExp>
+#include <QMouseEvent>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -424,10 +410,10 @@ void Skin::flip(bool open)
 	return;
     if ( open ) {
 	parent->setMask( skinImageUp.mask() );
-	view->skinKeyReleaseEvent( Qt::Key(Key_Flip), "Flip" );
+	view->skinKeyReleaseEvent( Qt::Key(Qt::Key_Flip), "Flip" );
     } else {
 	parent->setMask( skinImageClosed.mask() );
-	view->skinKeyPressEvent( Qt::Key(Key_Flip), "Flip" );
+	view->skinKeyPressEvent( Qt::Key(Qt::Key_Flip), "Flip" );
     }
     flipped_open = open;
     repaint(false);
@@ -438,7 +424,7 @@ void Skin::startPress(int i)
     buttonPressed = true;
     buttonIndex = i;
     if (view) {
-	if ( areas[buttonIndex].keyCode == Key_Flip ) {
+	if ( areas[buttonIndex].keyCode == Qt::Key_Flip ) {
 	    flip(false);
 	} else {
 	    view->skinKeyPressEvent( areas[buttonIndex].keyCode, areas[buttonIndex].text );
@@ -451,7 +437,7 @@ void Skin::startPress(int i)
 
 void Skin::endPress()
 {
-    if (view && areas[buttonIndex].keyCode != Key_Flip )
+    if (view && areas[buttonIndex].keyCode != Qt::Key_Flip )
 	view->skinKeyReleaseEvent( areas[buttonIndex].keyCode, areas[buttonIndex].text );
     t_skinkey->stop();
     buttonPressed = false;

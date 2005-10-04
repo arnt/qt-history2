@@ -11,13 +11,12 @@
 **
 ****************************************************************************/
 
-#define QT_CLEAN_NAMESPACE
 #include "qanimationwriter.h"
-#include <qfile.h>
-#include <limits.h>
-#include <png.h>
-#include <netinet/in.h> // for htonl
+#include <QFile>
 #include <Q3CString>
+#include <png.h>
+#include <limits.h>
+#include <netinet/in.h> // for htonl
 
 class QAnimationWriterData {
 public:

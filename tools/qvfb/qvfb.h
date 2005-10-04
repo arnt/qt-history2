@@ -14,8 +14,8 @@
 #ifndef QVFB_H
 #define QVFB_H
 
-#include <qmainwindow.h>
-#include <qstringlist.h>
+#include <QMainWindow>
+#include <QStringList>
 
 class QVFbView;
 class QVFbRateDialog;

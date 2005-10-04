@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include <qlayout.h>
-#include <qlabel.h>
-#include <qslider.h>
-#include <qpushbutton.h>
 #include "qvfbratedlg.h"
+#include <QLayout>
+#include <QLabel>
+#include <qslider.h>
+#include <QPushButton>
 
 QVFbRateDialog::QVFbRateDialog( int rate, QWidget *parent, const char *name,
     bool modal )
