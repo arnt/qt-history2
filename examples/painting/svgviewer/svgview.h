@@ -16,7 +16,9 @@
 
 #include <QWidget>
 #include <QImage>
+#ifndef QT_NO_OPENGL
 #include <QGLWidget>
+#endif
 
 class QPaintEvent;
 class QSvgRenderer;

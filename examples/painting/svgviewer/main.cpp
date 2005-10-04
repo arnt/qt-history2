@@ -12,8 +12,10 @@
 ****************************************************************************/
 
 #include <QApplication>
-#include <QGLFormat>
 #include <QString>
+#ifndef QT_NO_OPENGL
+#include <QGLFormat>
+#endif
 
 #include "mainwindow.h"
 
