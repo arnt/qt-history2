@@ -285,6 +285,9 @@ bool qt_resolve_pbuffer_extensions()
     else if (resolved)
         return false;
 
+    QGLWidget dummy;
+    dummy.makeCurrent();
+    
     wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)
 				wglGetProcAddress("wglGetExtensionsStringARB");
     QString extensions;
