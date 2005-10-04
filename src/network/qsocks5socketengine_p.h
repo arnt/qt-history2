@@ -14,6 +14,17 @@
 #ifndef QSOCKS5SOCKETENGINE_P_H
 #define QSOCKS5SOCKETENGINE_P_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #include "qabstractsocketengine_p.h"
 #include "qnetworkproxy.h"
 
@@ -69,20 +80,15 @@ public:
     bool isExceptionNotificationEnabled() const;
     void setExceptionNotificationEnabled(bool enable);
 
-signals:
-    void readNotification();
-    void writeNotification();
-    
-private slots:
-    void controlSocketConnected();
-    void controlSocketReadNotification();
-    void controlSocketError(QAbstractSocket::SocketError);
-    void udpSocketReadNotification();
-    void controlSocketBytesWritten();
-
 private:
     Q_DECLARE_PRIVATE(QSocks5SocketEngine)
     Q_DISABLE_COPY(QSocks5SocketEngine)
+    Q_PRIVATE_SLOT(d_func(), void controlSocketConnected());
+    Q_PRIVATE_SLOT(d_func(), void controlSocketReadNotification());
+    Q_PRIVATE_SLOT(d_func(), void controlSocketError(QAbstractSocket::SocketError));
+    Q_PRIVATE_SLOT(d_func(), void udpSocketReadNotification());
+    Q_PRIVATE_SLOT(d_func(), void controlSocketBytesWritten());
+
 };
 
 
@@ -175,6 +181,12 @@ public:
     void sendRequestMethod();
     void parseRequestMethodReply();
     void parseNewConnection();
+
+    void controlSocketConnected();
+    void controlSocketReadNotification();
+    void controlSocketError(QAbstractSocket::SocketError);
+    void udpSocketReadNotification();
+    void controlSocketBytesWritten();
 
     QNetworkProxy proxyInfo;
 
