@@ -1343,12 +1343,14 @@ static void initFontSubst()
 
 #if defined(Q_WS_X11)
         "arial",        "helvetica",
-        "helv",         "helvetica",
-        "tms rmn",      "times",
+        "times new roman", "times", 
+        "courier new",  "courier", 
+        "sans serif",   "helvetica",
 #elif defined(Q_WS_WIN)
-        "times",        "Times New Roman",
-        "courier",      "Courier New",
-        "helvetica",    "Arial",
+        "times",        "times new roman",
+        "courier",      "courier new",
+        "helvetica",    "arial",
+        "sans serif",   "arial",
 #endif
 
         0,              0
@@ -1383,7 +1385,7 @@ QString QFont::substitute(const QString &familyName)
 
     QFontSubst *fontSubst = globalFontSubst();
     Q_ASSERT(fontSubst != 0);
-    QFontSubst::Iterator it = fontSubst->find(familyName);
+    QFontSubst::Iterator it = fontSubst->find(familyName.toLower());
     if (it != fontSubst->constEnd() && !(*it).isEmpty())
         return (*it).first();
 
@@ -1406,7 +1408,7 @@ QStringList QFont::substitutes(const QString &familyName)
 
     QFontSubst *fontSubst = globalFontSubst();
     Q_ASSERT(fontSubst != 0);
-    return fontSubst->value(familyName, QStringList());
+    return fontSubst->value(familyName.toLower(), QStringList());
 }
 
 
@@ -1423,9 +1425,10 @@ void QFont::insertSubstitution(const QString &familyName,
 
     QFontSubst *fontSubst = globalFontSubst();
     Q_ASSERT(fontSubst != 0);
-    QStringList &list = (*fontSubst)[familyName];
-    if (!list.contains(substituteName))
-        list.append(substituteName);
+    QStringList &list = (*fontSubst)[familyName.toLower()];
+    QString s = substituteName.toLower();
+    if (!list.contains(s))
+        list.append(s);
 }
 
 
