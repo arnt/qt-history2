@@ -276,11 +276,11 @@ public:
     QPdfPen();
     void streamText(QPdfByteStream &stream);
 
-    QPdfPen* setLineWidth(double v);
+    QPdfPen* setLineWidth(qreal v);
     QPdfPen* setLineCap(unsigned v);
     QPdfPen* setLineJoin(unsigned v);
-    QPdfPen* setMiterLimit(double v);
-    QPdfPen* setDashArray(const QPen& pen, double phase);
+    QPdfPen* setMiterLimit(qreal v);
+    QPdfPen* setDashArray(const QPen& pen, qreal phase);
     QPdfPen* setColor(const QColor &rgba);
     bool stroking() const;
     qreal alpha() const;
@@ -308,7 +308,7 @@ private:
 
     QVector<SUBTYPE> streamstate_;
     QVector<DashArray> da_;
-    QVector<double> lw_, ml_;
+    QVector<qreal> lw_, ml_;
     QVector<int>   lc_, lj_;
     QVector<QByteArray> ri_;
     QVector<QColor> col_;

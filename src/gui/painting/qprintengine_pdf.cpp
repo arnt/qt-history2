@@ -46,7 +46,7 @@ static const char *qreal_to_string(qreal val, char *buf) {
         val = -val;
     }
     int ival = (int) val;
-    double frac = val - (qreal)ival;
+    qreal frac = val - (qreal)ival;
 
     int ifrac = (int)(frac * 1000000);
     if (ifrac == 1000000) {
@@ -1811,7 +1811,7 @@ void QPdfPen::streamText(QPdfByteStream &s)
     }
 }
 
-QPdfPen* QPdfPen::setLineWidth(double v)
+QPdfPen* QPdfPen::setLineWidth(qreal v)
 {
     streamstate_.append(LINEWIDTH);
     lw_.append((v<0) ? 0 : v);
@@ -1832,7 +1832,7 @@ QPdfPen* QPdfPen::setLineJoin(unsigned v)
     return this;
 }
 
-QPdfPen* QPdfPen::setMiterLimit(double v)
+QPdfPen* QPdfPen::setMiterLimit(qreal v)
 {
     streamstate_.append(MITERLIMIT);
     ml_.append(v);
@@ -1855,7 +1855,7 @@ qreal QPdfPen::alpha() const
     return col_.last().alphaF();
 }
 
-QPdfPen* QPdfPen::setDashArray(const QPen& pen, double phase)
+QPdfPen* QPdfPen::setDashArray(const QPen& pen, qreal phase)
 {
     QVector<qreal> sequence;
 
