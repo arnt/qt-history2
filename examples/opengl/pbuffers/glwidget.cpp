@@ -73,7 +73,7 @@ void GLWidget::initializeGL()
     glEnable(GL_CULL_FACE);
     initCommon();
     initPbuffer();
-    
+
     for (int i = 0; i < 3; ++i) {
         yOffs[i] = 0.0f;
         xInc[i] = 0.005f;
@@ -82,12 +82,8 @@ void GLWidget::initializeGL()
     xOffs[0]= 0.0f;
     xOffs[1]= 0.5f;
     xOffs[2]= 1.0f;
-    
-    pbuffer->makeCurrent();
+
     cubeTexture = bindTexture(QImage(":res/cubelogo.png"));
-    glBindTexture(GL_TEXTURE_2D, cubeTexture);
-    makeCurrent();
-    glBindTexture(GL_TEXTURE_2D, dynamicTexture);
 }
 
 void GLWidget::resizeGL(int w, int h)
@@ -99,6 +95,7 @@ void GLWidget::paintGL()
 {
     // draw a spinning cube into the pbuffer..
     pbuffer->makeCurrent();
+    glBindTexture(GL_TEXTURE_2D, cubeTexture);
     glCallList(pbufferList);
 
 #if  defined(Q_WS_X11)
@@ -108,6 +105,7 @@ void GLWidget::paintGL()
     // ..and use the pbuffer contents as a texture when rendering the
     // background and the bouncing cubes
     makeCurrent();
+    glBindTexture(GL_TEXTURE_2D, dynamicTexture);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // draw the background
@@ -211,8 +209,8 @@ void GLWidget::initPbuffer()
 	glDisableClientState(GL_COLOR_ARRAY);
 	glEnable(GL_TEXTURE_2D);
         glPopMatrix();
-	
-	// draw cube 
+
+	// draw cube
         glTranslatef(0.5f, 0.5f, 0.5f);
         glRotatef(3.0f, 1.0f, 1.0f, 1.0f);
         glTranslatef(-0.5f, -0.5f, -0.5f);
