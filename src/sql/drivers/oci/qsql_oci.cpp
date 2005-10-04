@@ -1300,7 +1300,6 @@ QSqlRecord QOCIResult::record() const
     if (!isActive() || !isSelect() || !cols)
         return inf;
     cols->getOraFields(inf);
-    qDebug() << inf;
     return inf;
 }
 
