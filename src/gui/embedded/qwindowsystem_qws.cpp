@@ -962,7 +962,7 @@ void QWSServer::doClient()
     }
     else
     {
-        QWSClient* client = (QWSClient*)sender();
+        client = (QWSClient*)sender();
     }
     doClient(client);
     active = false;
@@ -1855,6 +1855,7 @@ void QWSServer::setFocus(QWSWindow* changingw, bool gain)
 
 void QWSServer::invokeSetOpacity(const QWSSetOpacityCommand *cmd, QWSClient *client)
 {
+    Q_UNUSED( client );
     int winId = cmd->simpleData.windowid;
     int opacity = cmd->simpleData.opacity;
 
@@ -1873,6 +1874,7 @@ void QWSServer::invokeSetOpacity(const QWSSetOpacityCommand *cmd, QWSClient *cli
 void QWSServer::invokeSetAltitude(const QWSChangeAltitudeCommand *cmd,
                                    QWSClient *client)
 {
+    Q_UNUSED( client );
     int winId = cmd->simpleData.windowid;
     int alt = cmd->simpleData.altitude;
     bool fixed = cmd->simpleData.fixed;
@@ -2461,6 +2463,7 @@ void QWSServer::repaint_region(int wid, bool opaque, QRegion region)
 void QWSServer::request_region(int wid, int shmid, bool opaque, QRegion region)
 {
     QWSClient *serverClient = clientMap[-1];
+    Q_UNUSED( serverClient );
     QWSWindow* changingw = findWindow(wid, 0);
     if (!changingw) {
         return;
