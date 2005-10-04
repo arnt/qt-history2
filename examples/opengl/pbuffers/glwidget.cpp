@@ -50,6 +50,7 @@ GLWidget::GLWidget(QWidget *parent)
     // create the pbuffer
     pbuffer = new QGLPbuffer(QSize(512, 512), format(), this);
     timerId = startTimer(20);
+    setWindowTitle(tr("OpenGL pbuffers"));
 }
 
 GLWidget::~GLWidget()
