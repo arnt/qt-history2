@@ -2977,7 +2977,9 @@ void Q3ListView::drawContentsOffset(QPainter * p, int ox, int oy,
 
             if (r.isValid()) {
                 p->save();
+                p->setClipRect(QRect(d->h->cellPos(cell), cy + oy, d->h->cellSize(cell), ch));
                 p->translate(rleft-ox, crtop-oy);
+
                 current.i->paintBranches(p, palette(), treeStepSize(),
                                            rtop - crtop, r.height());
                 p->restore();
