@@ -13,7 +13,7 @@
 
 #include "previewwidgetbase.h"
 
-#include <qvariant.h>
+#include <QVariant>
 
 /*
  *  Constructs a PreviewWidgetBase as a child of 'parent', with the

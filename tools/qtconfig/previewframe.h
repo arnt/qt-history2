@@ -16,7 +16,7 @@
 
 #include "previewwidget.h"
 
-#include <qworkspace.h>
+#include <QWorkspace>
 
 class Workspace : public QWorkspace
 {

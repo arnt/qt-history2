@@ -13,13 +13,13 @@
 
 #include "colorbutton.h"
 
-#include <qapplication.h>
-#include <qevent.h>
-#include <qcolordialog.h>
-#include <qpainter.h>
-#include <qmimedata.h>
-#include <qstyle.h>
-#include <qstyleoption.h>
+#include <QApplication>
+#include <QtEvents>
+#include <QColorDialog>
+#include <QPainter>
+#include <QMimeData>
+#include <QStyle>
+#include <QStyleOption>
 
 ColorButton::ColorButton(QWidget *parent)
     : QAbstractButton(parent), mousepressed(false)

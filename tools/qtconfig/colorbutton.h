@@ -14,8 +14,7 @@
 #ifndef COLORBUTTON_H
 #define COLORBUTTON_H
 
-#include <qabstractbutton.h>
-
+#include <QAbstractButton>
 
 class ColorButton : public QAbstractButton
 {

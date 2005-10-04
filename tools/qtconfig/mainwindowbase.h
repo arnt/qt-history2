@@ -15,7 +15,7 @@
 #define MAINWINDOWBASE_H
 
 #include "ui_mainwindowbase.h"
-#include <qvariant.h>
+#include <QVariant>
 
 class ColorButton;
 class PreviewFrame;

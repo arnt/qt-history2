@@ -15,9 +15,9 @@
 #include "colorbutton.h"
 #include "previewframe.h"
 
-#include <qvariant.h>
-#include <qimage.h>
-#include <qpixmap.h>
+#include <QVariant>
+#include <QImage>
+#include <QPixmap>
 
 /*
  *  Constructs a MainWindowBase as a child of 'parent', with the

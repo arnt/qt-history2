@@ -14,7 +14,7 @@
 #include "paletteeditoradvancedbase.h"
 #include "colorbutton.h"
 
-#include <qvariant.h>
+#include <QVariant>
 
 /*
  *  Constructs a PaletteEditorAdvancedBase as a child of 'parent', with the

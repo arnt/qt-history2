@@ -13,8 +13,8 @@
 
 #include "previewframe.h"
 
-#include <qboxlayout.h>
-#include <qpainter.h>
+#include <QBoxLayout>
+#include <QPainter>
 
 PreviewFrame::PreviewFrame( QWidget *parent, const char *name )
     : QFrame( parent, name )

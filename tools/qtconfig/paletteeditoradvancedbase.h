@@ -14,8 +14,8 @@
 #ifndef PALETTEEDITORADVANCEDBASE_H
 #define PALETTEEDITORADVANCEDBASE_H
 
-#include <qvariant.h>
 #include "ui_paletteeditoradvancedbase.h"
+#include <QVariant>
 
 class ColorButton;
 
@@ -40,7 +40,6 @@ protected slots:
     virtual void onToggleBuildEffects(bool);
     virtual void onToggleBuildInactive(bool);
     virtual void paletteSelected(int);
-
 
 };
 

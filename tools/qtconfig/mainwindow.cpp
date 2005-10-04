@@ -16,30 +16,29 @@
 #include "previewframe.h"
 #include "paletteeditoradvanced.h"
 
-#include <qlabel.h>
-#include <qapplication.h>
-#include <qcombobox.h>
-#include <qstylefactory.h>
-#include <qfontdatabase.h>
-#include <qlineedit.h>
-#include <qspinbox.h>
-#include <qcheckbox.h>
-#include <qfiledialog.h>
-#include <qaction.h>
-#include <qstatusbar.h>
-#include <qsettings.h>
-#include <qmessagebox.h>
-#include <qstyle.h>
-#include <qevent.h>
-#include <q3valuelist.h>
-#include <qdebug.h>
+#include <QLabel>
+#include <QApplication>
+#include <QComboBox>
+#include <QStyleFactory>
+#include <QFontDatabase>
+#include <QLineEdit>
+#include <QSpinBox>
+#include <QCheckBox>
+#include <QFileDialog>
+#include <QAction>
+#include <QStatusBar>
+#include <QSettings>
+#include <QMessageBox>
+#include <QStyle>
+#include <QtEvents>
+#include <Q3ValueList>
+#include <QtDebug>
 
 #include <stdlib.h>
 
 // from qapplication.cpp and qapplication_x11.cpp - These are NOT for
 // external use ignore them
 // extern bool Q_CORE_EXPORT qt_resolve_symlinks;
-
 
 static const char *appearance_text =
 "<p><b><font size+=2>Appearance</font></b></p>"

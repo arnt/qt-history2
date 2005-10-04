@@ -14,12 +14,12 @@
 #include "paletteeditoradvanced.h"
 #include "colorbutton.h"
 
-#include <qcheckbox.h>
-#include <qcombobox.h>
-#include <qapplication.h>
-#include <qpushbutton.h>
-#include <qpainter.h>
-#include <qgroupbox.h>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QApplication>
+#include <QPushButton>
+#include <QPainter>
+#include <QGroupBox>
 
 PaletteEditorAdvanced::PaletteEditorAdvanced( QWidget * parent,
                                               const char * name, bool modal, Qt::WFlags f )

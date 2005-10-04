@@ -14,8 +14,8 @@
 #ifndef PREVIEWWIDGETBASE_H
 #define PREVIEWWIDGETBASE_H
 
-#include <qvariant.h>
 #include "ui_previewwidgetbase.h"
+#include <QVariant>
 
 class PreviewWidgetBase : public QWidget, public Ui::PreviewWidgetBase
 {
@@ -30,7 +30,6 @@ protected slots:
 
     virtual void init();
     virtual void destroy();
-
 
 };
 

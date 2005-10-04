@@ -16,7 +16,6 @@
 
 #include "mainwindowbase.h"
 
-
 class MainWindow : public MainWindowBase
 {
     Q_OBJECT
