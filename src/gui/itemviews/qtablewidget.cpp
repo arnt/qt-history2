@@ -36,6 +36,11 @@ class QTableModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
+    enum ItemFlagsExtension {
+        ItemIsVerticalHeaderItem = Qt::ItemIsTristate * 2,
+        ItemIsHorizontalHeaderItem = Qt::ItemIsTristate * 4
+    }; // we need this to separate header items from other items
+
     QTableModel(int rows, int columns, QTableWidget *parent);
     ~QTableModel();
 
@@ -417,10 +422,10 @@ Qt::ItemFlags QTableModel::flags(const QModelIndex &index) const
     QTableWidgetItem *itm = item(index);
     if (itm)
         return itm->flags();
-    return Qt::ItemIsEditable
-        |Qt::ItemIsSelectable
-        |Qt::ItemIsUserCheckable
-        |Qt::ItemIsEnabled;
+    return (Qt::ItemIsEditable
+            |Qt::ItemIsSelectable
+            |Qt::ItemIsUserCheckable
+            |Qt::ItemIsEnabled);
 }
 
 void QTableModel::sort(int column, Qt::SortOrder order)
@@ -537,8 +542,21 @@ void QTableModel::clear()
 
 void QTableModel::itemChanged(QTableWidgetItem *item)
 {
-    QModelIndex idx = index(item);
-    emit dataChanged(idx, idx);
+    if (!item)
+        return;
+    if (item->flags() & ItemIsVerticalHeaderItem) {
+        int row = vertical.indexOf(item);
+        if (row >= 0)
+            emit headerDataChanged(Qt::Vertical, row, row);
+    } else if (item->flags() & ItemIsHorizontalHeaderItem) {
+        int column = horizontal.indexOf(item);
+        if (column >= 0)
+            emit headerDataChanged(Qt::Horizontal, column, column);
+    } else {
+        QModelIndex idx = index(item);
+        if (idx.isValid())
+            emit dataChanged(idx, idx);
+    }
 }
 
 QStringList QTableModel::mimeTypes() const
@@ -1500,6 +1518,7 @@ void QTableWidget::setVerticalHeaderItem(int row, QTableWidgetItem *item)
 {
     Q_D(QTableWidget);
     item->view = this;
+    item->itemFlags = Qt::ItemFlags(int(item->itemFlags)|QTableModel::ItemIsVerticalHeaderItem);
     d->model()->setVerticalHeaderItem(row, item);
 }
 
@@ -1519,6 +1538,7 @@ void QTableWidget::setHorizontalHeaderItem(int column, QTableWidgetItem *item)
 {
     Q_D(QTableWidget);
     item->view = this;
+    item->itemFlags = Qt::ItemFlags(int(item->itemFlags)|QTableModel::ItemIsHorizontalHeaderItem);
     d->model()->setHorizontalHeaderItem(column, item);
 }
 
