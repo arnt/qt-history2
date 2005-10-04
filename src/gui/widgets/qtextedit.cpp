@@ -553,13 +553,16 @@ void QTextEditPrivate::adjustScrollbars()
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
 
     const QSize viewportSize = viewport->size();
-    QSize docSize = layout->dynamicDocumentSize().toSize();
+    QSize docSize;
 
     if (QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout)) {
+        docSize = tlayout->dynamicDocumentSize().toSize();
         int percentageDone = tlayout->layoutStatus();
         // extrapolate height
         if (percentageDone > 0)
             docSize.setHeight(docSize.height() * 100 / percentageDone);
+    } else {
+        docSize = layout->documentSize().toSize();
     }
 
     hbar->setRange(0, docSize.width() - viewportSize.width());
@@ -624,7 +627,8 @@ void QTextEditPrivate::ensureViewportLayouted()
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
     if (!layout)
         return;
-    layout->ensureLayouted(vbar->value() + viewport->height());
+    if (QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout))
+        tlayout->ensureLayouted(vbar->value() + viewport->height());
 }
 
 void QTextEditPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
@@ -1876,7 +1880,12 @@ void QTextEditPrivate::relayoutDocument()
     if (lineWrap == QTextEdit::FixedPixelWidth)
         width = lineWrapColumnOrWidth;
 
-    const QSize lastUsedSize = layout->dynamicDocumentSize().toSize();
+    QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout);
+    QSize lastUsedSize;
+    if (tlayout)
+        lastUsedSize = tlayout->dynamicDocumentSize().toSize();
+    else
+        lastUsedSize = layout->documentSize().toSize();
 
     // ignore calls to adjustScrollbars caused by an emission of the
     // usedSizeChanged() signal in the layout, as we're calling it
@@ -1884,11 +1893,16 @@ void QTextEditPrivate::relayoutDocument()
     ignoreAutomaticScrollbarAdjustement = true;
 
     doc->setPageSize(QSize(width, INT_MAX));
-    layout->ensureLayouted(vbar->value() + viewport->height());
+    if (tlayout)
+        tlayout->ensureLayouted(vbar->value() + viewport->height());
 
     ignoreAutomaticScrollbarAdjustement = false;
 
-    QSize usedSize = layout->dynamicDocumentSize().toSize();
+    QSize usedSize;
+    if (tlayout)
+        usedSize = tlayout->dynamicDocumentSize().toSize();
+    else
+        usedSize = layout->documentSize().toSize();
 
     // this is an obscure situation in the layout that can happen:
     // if a character at the end of a line is the tallest one and therefore

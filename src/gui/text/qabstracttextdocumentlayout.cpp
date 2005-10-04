@@ -330,40 +330,6 @@ QString QAbstractTextDocumentLayout::anchorAt(const QPointF& pos) const
 }
 
 /*!
-    \since 4.1
-*/
-int QAbstractTextDocumentLayout::dynamicPageCount() const
-{
-    int count = 0;
-    bool invoked = QMetaObject::invokeMethod(const_cast<QAbstractTextDocumentLayout *>(this),
-                                            "dynamicPageCount", Qt::DirectConnection,
-                                            Q_RETURN_ARG(int, count));
-    if (!invoked)
-        count = pageCount();
-    return count;
-}
-
-/*!
-    \since 4.1
-*/
-QSizeF QAbstractTextDocumentLayout::dynamicDocumentSize() const
-{
-    QSizeF size;
-    bool invoked = QMetaObject::invokeMethod(const_cast<QAbstractTextDocumentLayout *>(this),
-                                             "dynamicDocumentSize", Qt::DirectConnection,
-                                             Q_RETURN_ARG(QSizeF, size));
-    if (!invoked)
-        size = documentSize();
-    return size;
-}
-
-void QAbstractTextDocumentLayout::ensureLayouted(qreal y)
-{
-    QMetaObject::invokeMethod(this, "ensureLayouted", Qt::DirectConnection,
-                              Q_ARG(qreal, y));
-}
-
-/*!
     Returns the bounding rectacle of \a frame.
     \fn QRectF QAbstractTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
     Returns the bounding rectangle of \a frame.

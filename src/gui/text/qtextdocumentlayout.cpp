@@ -358,8 +358,6 @@ public:
     QTextFrame::Iterator iteratorForYPosition(qreal y) const;
     QTextFrame::Iterator iteratorForTextPosition(int position) const;
 
-    int dynamicPageCount() const;
-    QSizeF dynamicDocumentSize() const;
     void ensureLayouted(qreal y) const;
     void ensureLayoutedByPosition(int position) const;
     inline void ensureLayoutFinished() const
@@ -2042,8 +2040,8 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
     if (pageSize.isNull() || !pageSize.isValid())
         return;
 
-    const QSizeF oldSize = d->dynamicDocumentSize();
-    const int oldPageCount = d->dynamicPageCount();
+    const QSizeF oldSize = dynamicDocumentSize();
+    const int oldPageCount = dynamicPageCount();
 
     d->lazyLayoutStepSize = 1000;
 
@@ -2060,10 +2058,10 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
     if (!d->layoutTimer.isActive() && d->currentLazyLayoutPosition != -1)
         d->layoutTimer.start(10, this);
 
-    const QSizeF newSize = d->dynamicDocumentSize();
+    const QSizeF newSize = dynamicDocumentSize();
     if (newSize != oldSize)
         emit documentSizeChanged(newSize);
-    const int newPageCount = d->dynamicPageCount();
+    const int newPageCount = dynamicPageCount();
     if (oldPageCount != newPageCount)
         emit pageCountChanged(newPageCount);
 
@@ -2174,37 +2172,38 @@ void QTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTex
     QAbstractTextDocumentLayout::drawInlineObject(p, r, item, posInDocument, format);
 }
 
-int QTextDocumentLayoutPrivate::dynamicPageCount() const
+int QTextDocumentLayout::dynamicPageCount() const
 {
     return (int)(dynamicDocumentSize().height()
-                 / q_func()->document()->pageSize().height()) + 1;
+                 / document()->pageSize().height()) + 1;
 }
 
-QSizeF QTextDocumentLayoutPrivate::dynamicDocumentSize() const
+QSizeF QTextDocumentLayout::dynamicDocumentSize() const
 {
-    return data(q_func()->document()->rootFrame())->size;
+    return data(document()->rootFrame())->size;
 }
 
 int QTextDocumentLayout::pageCount() const
 {
     Q_D(const QTextDocumentLayout);
     d->ensureLayoutFinished();
-    return d->dynamicPageCount();
+    return dynamicPageCount();
 }
 
 QSizeF QTextDocumentLayout::documentSize() const
 {
     Q_D(const QTextDocumentLayout);
     d->ensureLayoutFinished();
-    return d->dynamicDocumentSize();
+    return dynamicDocumentSize();
 }
 
 void QTextDocumentLayoutPrivate::ensureLayouted(qreal y) const
 {
+    Q_Q(const QTextDocumentLayout);
     if (currentLazyLayoutPosition == -1)
         return;
-    const QSizeF oldSize = dynamicDocumentSize();
-    const int oldPageCount = dynamicPageCount();
+    const QSizeF oldSize = q->dynamicDocumentSize();
+    const int oldPageCount = q->dynamicPageCount();
 
     if (checkPoints.isEmpty())
         layoutStep();
@@ -2354,15 +2353,15 @@ void QTextDocumentLayout::timerEvent(QTimerEvent *e)
     if (e->timerId() == d->layoutTimer.timerId()) {
 //        qDebug() << "layoutTimer";
         if (d->currentLazyLayoutPosition != -1) {
-            const QSizeF oldSize = d->dynamicDocumentSize();
-            const int oldPageCount = d->dynamicPageCount();
+            const QSizeF oldSize = dynamicDocumentSize();
+            const int oldPageCount = dynamicPageCount();
 
             d->layoutStep();
 
-            const QSizeF newSize = d->dynamicDocumentSize();
+            const QSizeF newSize = dynamicDocumentSize();
             if (newSize != oldSize)
                 emit documentSizeChanged(newSize);
-            const int newPageCount = d->dynamicPageCount();
+            const int newPageCount = dynamicPageCount();
             if (oldPageCount != newPageCount)
                 emit pageCountChanged(newPageCount);
             d->sizeChangedTimer.stop();
@@ -2373,12 +2372,17 @@ void QTextDocumentLayout::timerEvent(QTimerEvent *e)
             d->layoutTimer.stop();
         }
     } else if (e->timerId() == d->sizeChangedTimer.timerId()) {
-        emit documentSizeChanged(d->dynamicDocumentSize());
-        emit pageCountChanged(d->dynamicPageCount());
+        emit documentSizeChanged(dynamicDocumentSize());
+        emit pageCountChanged(dynamicPageCount());
         d->sizeChangedTimer.stop();
     } else {
         QAbstractTextDocumentLayout::timerEvent(e);
     }
+}
+
+void QTextDocumentLayout::ensureLayouted(qreal y)
+{
+    d_func()->ensureLayouted(y);
 }
 
 #include "moc_qtextdocumentlayout_p.cpp"
