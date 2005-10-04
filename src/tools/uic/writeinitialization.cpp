@@ -252,6 +252,8 @@ void WriteInitialization::acceptWidget(DomWidget *node)
         refreshOut << option.indent << parentWidget << "->setItemText("
                    << parentWidget << "->indexOf(" << varName << "), " << trCall(label) << ");\n";
 
+    } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QSplitter"))) {
+        output << option.indent << parentWidget << "->addWidget(" << varName << ");\n";
     } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QTabWidget"))) {
         QString icon;
         if (DomProperty *picon = attributes.value(QLatin1String("icon"))) {
