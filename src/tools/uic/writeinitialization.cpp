@@ -27,8 +27,8 @@
 WriteInitialization::WriteInitialization(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option()),
       m_defaultMargin(INT_MIN), m_defaultSpacing(INT_MIN),
-      refreshOut(&m_refreshInitialization, QIODevice::WriteOnly),
       delayedOut(&m_delayedInitialization, QIODevice::WriteOnly),
+      refreshOut(&m_refreshInitialization, QIODevice::WriteOnly),
       actionOut(&m_delayedActionInitialization, QIODevice::WriteOnly)
 {
     this->uic = uic;
