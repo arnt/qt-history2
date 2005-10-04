@@ -576,7 +576,7 @@ void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, con
                     p.setCompositionMode(QPainter::CompositionMode_Source); //copy alpha straight in
 #endif
                 if (bg.style() == Qt::TexturePattern)
-                    p.drawTiledPixmap(toBePainted.boundingRect(), bg.texture());
+                    p.drawTiledPixmap(toBePainted.boundingRect(), bg.texture(), toBePainted.boundingRect().topLeft());
                 else
                     p.fillRect(toBePainted.boundingRect(), bg);
             }
@@ -689,7 +689,15 @@ void QWidget::repaint(const QRegion& rgn)
         qt_flushPaint(this, rgn);
 
         QPaintEngine *engine = paintEngine();
-        engine->setSystemClip(rgn);
+
+        QRegion systemClipRgn(rgn);
+#ifndef Q_WS_QWS //QWS doesn't need wrect
+        if (!data->wrect.topLeft().isNull()) {
+            QPainter::setRedirected(this, this, data->wrect.topLeft());
+            systemClipRgn.translate(-data->wrect.topLeft());
+        }
+#endif
+        engine->setSystemClip(systemClipRgn);
 
         //paint the background
         QPaintEvent e(rgn);
@@ -716,6 +724,10 @@ void QWidget::repaint(const QRegion& rgn)
                 d->hd = 0;
             }
         }
+#endif
+#ifndef Q_WS_QWS
+        if (!data->wrect.topLeft().isNull())
+            QPainter::restoreRedirected(this);
 #endif
         engine->setSystemClip(QRegion());
 
