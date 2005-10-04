@@ -948,12 +948,13 @@ tabs.
 
 To delete a tab, make it the current tab by clicking on its label,
 select the tab widget, open the context menu over the tab, and select
-\key{Delete Page}. To add a new tab \e{to the left} of the current tab,
-select the tab widget, open the context menu, and select \key{Add Page}.
-\QD will create a new widget for that tab, and insert it into the
-tab widget. The title of the current tab can be set by selecting the
-tab widget, and changing the \c currentTabText property in the
-Property Editor.
+\key{Delete Page}. To add a new tab, select the tab widget, open the
+context menu, and select \key{Insert Page}. Then you are given the
+option of adding the page either before or after the \e current page.
+\QD will create a new widget for that tab, and insert it into the tab
+widget. The title of the current tab can be set by selecting the tab
+widget, and changing the \c currentTabText property in the Property
+Editor.
 
 Each tab can be given its own layout, and one must be defined for each
 tab that contains other objects. To add a layout to a tab, click inside
