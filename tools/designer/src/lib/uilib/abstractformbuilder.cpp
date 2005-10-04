@@ -19,6 +19,7 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
+#include <QtCore/QQueue>
 
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
@@ -1609,6 +1610,63 @@ void QAbstractFormBuilder::saveTreeWidgetExtraInfo(QTreeWidget *treeWidget, DomW
     }
 
     ui_widget->setElementColumn(columns);
+
+    QList<DomItem *> items = ui_widget->elementItem();
+
+    QQueue<QPair<QTreeWidgetItem *, DomItem *> > pendingQueue;
+    for (int i = 0; i < treeWidget->topLevelItemCount(); i++)
+        pendingQueue.enqueue(qMakePair(treeWidget->topLevelItem(i), (DomItem *)0));
+
+    while (!pendingQueue.isEmpty()) {
+        QPair<QTreeWidgetItem *, DomItem *> pair = pendingQueue.dequeue();
+        QTreeWidgetItem *item = pair.first;
+        DomItem *parentDomItem = pair.second;
+
+        DomItem *currentDomItem = new DomItem;
+
+        QList<DomProperty*> properties;
+        for (int c = 0; c < treeWidget->columnCount(); c++) {
+            DomProperty *ptext = new DomProperty;
+            DomString *str = new DomString;
+            str->setText(item->text(c));
+            ptext->setAttributeName(QLatin1String("text"));
+            ptext->setElementString(str);
+            properties.append(ptext);
+
+            QIcon icon = item->icon(c);
+            if (!icon.isNull()) {
+                QString iconPath = iconToFilePath(icon);
+                QString qrcPath = iconToQrcPath(icon);
+
+                DomProperty *p = new DomProperty;
+
+                DomResourcePixmap *pix = new DomResourcePixmap;
+                if (!qrcPath.isEmpty())
+                    pix->setAttributeResource(qrcPath);
+
+                pix->setText(iconPath);
+
+                p->setAttributeName(QLatin1String("icon"));
+                p->setElementIconSet(pix);
+
+                properties.append(p);
+            }
+
+        }
+        currentDomItem->setElementProperty(properties);
+
+        if (parentDomItem) {
+            QList<DomItem *> childrenItems = parentDomItem->elementItem();
+            childrenItems.append(currentDomItem);
+            parentDomItem->setElementItem(childrenItems);
+        } else
+            items.append(currentDomItem);
+
+        for (int i = 0; i < item->childCount(); i++)
+            pendingQueue.enqueue(qMakePair(item->child(i), currentDomItem));
+    }
+
+    ui_widget->setElementItem(items);
 }
 
 /*!
@@ -1790,6 +1848,46 @@ void QAbstractFormBuilder::loadTreeWidgetExtraInfo(DomWidget *ui_widget, QTreeWi
 
             treeWidget->headerItem()->setIcon(i, nameToIcon(iconPath, qrcPath));
         }
+    }
+
+    QQueue<QPair<DomItem *, QTreeWidgetItem *> > pendingQueue;
+    foreach (DomItem *ui_item, ui_widget->elementItem())
+        pendingQueue.enqueue(qMakePair(ui_item, (QTreeWidgetItem *)0));
+
+    while (!pendingQueue.isEmpty()) {
+        QPair<DomItem *, QTreeWidgetItem *> pair = pendingQueue.dequeue();
+        DomItem *domItem = pair.first;
+        QTreeWidgetItem *parentItem = pair.second;
+
+        QTreeWidgetItem *currentItem = 0;
+
+        if (parentItem)
+            currentItem = new QTreeWidgetItem(parentItem);
+        else
+            currentItem = new QTreeWidgetItem(treeWidget);
+
+        QList<DomProperty *> properties = domItem->elementProperty();
+        int col = 0;
+        foreach (DomProperty *property, properties) {
+            if (property->attributeName() == QLatin1String("text") &&
+                        property->elementString()) {
+                currentItem->setText(col, property->elementString()->text());
+                col++;
+            } else if (property->attributeName() == QLatin1String("icon") &&
+                        property->kind() == DomProperty::IconSet && col > 0) {
+                DomResourcePixmap *icon = property->elementIconSet();
+                Q_ASSERT(icon != 0);
+                QString iconPath = icon->text();
+                QString qrcPath = icon->attributeResource();
+
+                currentItem->setIcon(col - 1, nameToIcon(iconPath, qrcPath));
+            }
+        }
+
+
+        foreach (DomItem *childItem, domItem->elementItem())
+            pendingQueue.enqueue(qMakePair(childItem, currentItem));
+
     }
 }
 
