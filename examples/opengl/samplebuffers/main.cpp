@@ -17,8 +17,13 @@ int main(int argc, char **argv)
 {
     QApplication a(argc, argv);
 
+    QGLFormat f = QGLFormat::defaultFormat();
+    f.setSampleBuffers(true);
+    QGLFormat::setDefaultFormat(f);
     if (!QGLFormat::hasOpenGL()) {
-        qWarning("This system does not support OpenGL. Exiting..");
+	QMessageBox::information(0, "OpenGL samplebuffers", 
+				 "This system does not support OpenGL.",
+				 QMessageBox::Ok);
         return 0;
     }
 

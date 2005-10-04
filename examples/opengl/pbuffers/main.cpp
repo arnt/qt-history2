@@ -11,14 +11,17 @@
 **
 ****************************************************************************/
 
+#include <QMessageBox>
 #include "glwidget.h"
 
 int main(int argc, char **argv)
 {
     QApplication a(argc, argv);
     if (!QGLFormat::hasOpenGL() || !QGLPbuffer::hasPbuffers()) {
-        qWarning("This system does not support OpenGL/pbuffers. Exiting..");
-        return 0;
+	QMessageBox::information(0, "OpenGL pbuffers", 
+				 "This system does not support OpenGL/pbuffers.",
+				 QMessageBox::Ok);
+        return -1;
     }
 
     GLWidget widget(0);
