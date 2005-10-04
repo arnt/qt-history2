@@ -26,8 +26,14 @@ QDesignerToolBox::QDesignerToolBox(QWidget *parent)
     connect(m_actionDeletePage, SIGNAL(triggered()), this, SLOT(removeCurrentPage()));
 
     m_actionInsertPage = new QAction(this);
-    m_actionInsertPage->setText(tr("Add Page"));
+    m_actionInsertPage->setText(tr("Before Current Page"));
     connect(m_actionInsertPage, SIGNAL(triggered()), this, SLOT(addPage()));
+
+    m_actionInsertPageAfter = new QAction(this);
+    m_actionInsertPageAfter->setText(tr("After Current Page"));
+    connect(m_actionInsertPageAfter, SIGNAL(triggered()), this, SLOT(addPageAfter()));
+
+    connect(this, SIGNAL(currentChanged(int)), this, SLOT(slotCurrentChanged(int)));
 }
 
 QString QDesignerToolBox::currentItemText() const
@@ -93,7 +99,16 @@ void QDesignerToolBox::addPage()
 {
     if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
         AddToolBoxPageCommand *cmd = new AddToolBoxPageCommand(fw);
-        cmd->init(this);
+        cmd->init(this, AddToolBoxPageCommand::InsertBefore);
+        fw->commandHistory()->push(cmd);
+    }
+}
+
+void QDesignerToolBox::addPageAfter()
+{
+    if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
+        AddToolBoxPageCommand *cmd = new AddToolBoxPageCommand(fw);
+        cmd->init(this, AddToolBoxPageCommand::InsertAfter);
         fw->commandHistory()->push(cmd);
     }
 }
@@ -116,5 +131,15 @@ void QDesignerToolBox::setCurrentItemBackgroundRole(QPalette::ColorRole role)
         QWidget *w = widget(i);
         w->setBackgroundRole(role);
         w->update();
+    }
+}
+
+void QDesignerToolBox::slotCurrentChanged(int index)
+{
+    if (widget(index)) {
+        if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
+            fw->clearSelection();
+            fw->selectWidget(this, true);
+        }
     }
 }

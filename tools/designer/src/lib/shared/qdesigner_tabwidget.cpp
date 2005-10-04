@@ -34,8 +34,12 @@ QDesignerTabWidget::QDesignerTabWidget(QWidget *parent)
     tabBar()->installEventFilter(this);
 
     m_actionInsertPage = new QAction(this);
-    m_actionInsertPage->setText(tr("Add Page"));
+    m_actionInsertPage->setText(tr("Before Current Page"));
     connect(m_actionInsertPage, SIGNAL(triggered()), this, SLOT(addPage()));
+
+    m_actionInsertPageAfter = new QAction(this);
+    m_actionInsertPageAfter->setText(tr("After Current Page"));
+    connect(m_actionInsertPageAfter, SIGNAL(triggered()), this, SLOT(addPageAfter()));
 
     m_actionDeletePage = new QAction(this);
     m_actionDeletePage->setText(tr("Delete Page"));
@@ -265,7 +269,16 @@ void QDesignerTabWidget::addPage()
 {
     if (QDesignerFormWindowInterface *fw = formWindow()) {
         AddTabPageCommand *cmd = new AddTabPageCommand(fw);
-        cmd->init(this);
+        cmd->init(this, AddTabPageCommand::InsertBefore);
+        fw->commandHistory()->push(cmd);
+    }
+}
+
+void QDesignerTabWidget::addPageAfter()
+{
+    if (QDesignerFormWindowInterface *fw = formWindow()) {
+        AddTabPageCommand *cmd = new AddTabPageCommand(fw);
+        cmd->init(this, AddTabPageCommand::InsertAfter);
         fw->commandHistory()->push(cmd);
     }
 }

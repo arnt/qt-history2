@@ -52,6 +52,9 @@ public:
     inline QAction *actionInsertPage() const
     { return m_actionInsertPage; }
 
+    inline QAction *actionInsertPageAfter() const
+    { return m_actionInsertPageAfter; }
+
     QString currentPageName() const;
     void setCurrentPageName(const QString &pageName);
 
@@ -69,6 +72,8 @@ private slots:
     void nextPage();
     void removeCurrentPage();
     void addPage();
+    void addPageAfter();
+    void slotCurrentChanged(int index);
 
 private:
     QToolButton *prev, *next;
@@ -76,6 +81,7 @@ private:
     QAction *m_actionNextPage;
     QAction *m_actionDeletePage;
     QAction *m_actionInsertPage;
+    QAction *m_actionInsertPageAfter;
 };
 
 #endif // QDESIGNER_STACKEDBOX_H

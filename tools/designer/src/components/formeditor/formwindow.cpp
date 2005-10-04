@@ -1608,14 +1608,18 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
         if (tabWidget->count()) {
             popup->addAction(tabWidget->actionDeletePage());
         }
-        popup->addAction(tabWidget->actionInsertPage());
+        QMenu *insertPageMenu = popup->addMenu(tr("Insert Page"));
+        insertPageMenu->addAction(tabWidget->actionInsertPageAfter());
+        insertPageMenu->addAction(tabWidget->actionInsertPage());
         popup->addSeparator();
     } else if (qobject_cast<QDesignerStackedWidget*>(w)) {
         QDesignerStackedWidget *stackedWidget = static_cast<QDesignerStackedWidget*>(w);
         if (stackedWidget->count()) {
             popup->addAction(stackedWidget->actionDeletePage());
         }
-        popup->addAction(stackedWidget->actionInsertPage());
+        QMenu *insertPageMenu = popup->addMenu(tr("Insert Page"));
+        insertPageMenu->addAction(stackedWidget->actionInsertPageAfter());
+        insertPageMenu->addAction(stackedWidget->actionInsertPage());
         popup->addAction(stackedWidget->actionNextPage());
         popup->addAction(stackedWidget->actionPreviousPage());
         popup->addSeparator();
@@ -1624,7 +1628,9 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
         if (toolBox->count()) {
             popup->addAction(toolBox->actionDeletePage());
         }
-        popup->addAction(toolBox->actionInsertPage());
+        QMenu *insertPageMenu = popup->addMenu(tr("Insert Page"));
+        insertPageMenu->addAction(toolBox->actionInsertPageAfter());
+        insertPageMenu->addAction(toolBox->actionInsertPage());
         popup->addSeparator();
     }
 

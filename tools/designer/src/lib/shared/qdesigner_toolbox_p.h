@@ -62,9 +62,14 @@ public:
     inline QAction *actionInsertPage() const
     { return m_actionInsertPage; }
 
+    inline QAction *actionInsertPageAfter() const
+    { return m_actionInsertPageAfter; }
+
 private slots:
     void removeCurrentPage();
     void addPage();
+    void addPageAfter();
+    void slotCurrentChanged(int index);
 
 protected:
     void itemInserted(int index);
@@ -72,6 +77,7 @@ protected:
 private:
     QAction *m_actionDeletePage;
     QAction *m_actionInsertPage;
+    QAction *m_actionInsertPageAfter;
 };
 
 

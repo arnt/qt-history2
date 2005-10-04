@@ -448,10 +448,15 @@ class QT_SHARED_EXPORT AddToolBoxPageCommand: public ToolBoxCommand
 {
     Q_OBJECT
 public:
+    enum InsertionMode {
+        InsertBefore,
+        InsertAfter
+    };
     AddToolBoxPageCommand(QDesignerFormWindowInterface *formWindow);
     virtual ~AddToolBoxPageCommand();
 
     void init(QToolBox *toolBox);
+    void init(QToolBox *toolBox, InsertionMode mode);
 
     virtual void redo();
     virtual void undo();
@@ -494,10 +499,15 @@ class QT_SHARED_EXPORT AddTabPageCommand: public TabWidgetCommand
 {
     Q_OBJECT
 public:
+    enum InsertionMode {
+        InsertBefore,
+        InsertAfter
+    };
     AddTabPageCommand(QDesignerFormWindowInterface *formWindow);
     virtual ~AddTabPageCommand();
 
     void init(QTabWidget *tabWidget);
+    void init(QTabWidget *tabWidget, InsertionMode mode);
 
     virtual void redo();
     virtual void undo();
@@ -560,10 +570,15 @@ class QT_SHARED_EXPORT AddStackedWidgetPageCommand: public StackedWidgetCommand
 {
     Q_OBJECT
 public:
+    enum InsertionMode {
+        InsertBefore,
+        InsertAfter
+    };
     AddStackedWidgetPageCommand(QDesignerFormWindowInterface *formWindow);
     virtual ~AddStackedWidgetPageCommand();
 
     void init(QStackedWidget *stackedWidget);
+    void init(QStackedWidget *stackedWidget, InsertionMode mode);
 
     virtual void redo();
     virtual void undo();

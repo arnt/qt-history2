@@ -907,6 +907,7 @@ void ToolBoxCommand::addPage()
 {
     m_widget->setParent(m_toolBox);
     m_toolBox->insertItem(m_index, m_widget, m_itemIcon, m_itemText);
+    m_toolBox->setCurrentIndex(m_index);
 
     m_widget->show();
 }
@@ -953,16 +954,23 @@ AddToolBoxPageCommand::~AddToolBoxPageCommand()
 
 void AddToolBoxPageCommand::init(QToolBox *toolBox)
 {
+    init(toolBox, InsertBefore);
+}
+
+void AddToolBoxPageCommand::init(QToolBox *toolBox, InsertionMode mode)
+{
     m_toolBox = toolBox;
 
     m_index = m_toolBox->currentIndex();
+    if (mode == InsertAfter)
+        m_index++;
     m_widget = new QDesignerWidget(formWindow(), m_toolBox);
     m_itemText = tr("Page");
     m_itemIcon = QIcon();
     m_widget->setObjectName(tr("page"));
     formWindow()->ensureUniqueObjectName(m_widget);
 
-    setDescription(tr("Add Page"));
+    setDescription(tr("Insert Page"));
 
     QDesignerFormEditorInterface *core = formWindow()->core();
     core->metaDataBase()->add(m_widget);
@@ -1060,16 +1068,23 @@ AddTabPageCommand::~AddTabPageCommand()
 
 void AddTabPageCommand::init(QTabWidget *tabWidget)
 {
+    init(tabWidget, InsertBefore);
+}
+
+void AddTabPageCommand::init(QTabWidget *tabWidget, InsertionMode mode)
+{
     m_tabWidget = tabWidget;
 
     m_index = m_tabWidget->currentIndex();
+    if (mode == InsertAfter)
+        m_index++;
     m_widget = new QDesignerWidget(formWindow(), m_tabWidget);
     m_itemText = tr("Page");
     m_itemIcon = QIcon();
     m_widget->setObjectName(tr("tab"));
     formWindow()->ensureUniqueObjectName(m_widget);
 
-    setDescription(tr("Add Page"));
+    setDescription(tr("Insert Page"));
 
     QDesignerFormEditorInterface *core = formWindow()->core();
     core->metaDataBase()->add(m_widget);
@@ -1157,6 +1172,8 @@ void StackedWidgetCommand::addPage()
     m_stackedWidget->insertWidget(m_index, m_widget);
 
     m_widget->show();
+    m_stackedWidget->setCurrentIndex(m_index+1); // Work around bug in QStackedWidget
+    m_stackedWidget->setCurrentIndex(m_index);
 }
 
 // ---- DeleteStackedWidgetPageCommand ----
@@ -1201,14 +1218,21 @@ AddStackedWidgetPageCommand::~AddStackedWidgetPageCommand()
 
 void AddStackedWidgetPageCommand::init(QStackedWidget *stackedWidget)
 {
+    init(stackedWidget, InsertBefore);
+}
+
+void AddStackedWidgetPageCommand::init(QStackedWidget *stackedWidget, InsertionMode mode)
+{
     m_stackedWidget = stackedWidget;
 
     m_index = m_stackedWidget->currentIndex();
+    if (mode == InsertAfter)
+        m_index++;
     m_widget = new QDesignerWidget(formWindow(), m_stackedWidget);
     m_widget->setObjectName(tr("page"));
     formWindow()->ensureUniqueObjectName(m_widget);
 
-    setDescription(tr("Add Page"));
+    setDescription(tr("Insert Page"));
 
     QDesignerFormEditorInterface *core = formWindow()->core();
     core->metaDataBase()->add(m_widget);

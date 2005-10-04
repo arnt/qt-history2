@@ -61,6 +61,9 @@ public:
     inline QAction *actionInsertPage() const
     { return m_actionInsertPage; }
 
+    inline QAction *actionInsertPageAfter() const
+    { return m_actionInsertPageAfter; }
+
     bool eventFilter(QObject *o, QEvent *e);
 
     QDesignerFormWindowInterface *formWindow() const;
@@ -68,6 +71,7 @@ public:
 private slots:
     void removeCurrentPage();
     void addPage();
+    void addPageAfter();
     void slotCurrentChanged(int index);
 
 protected:
@@ -85,6 +89,7 @@ private:
     bool mousePressed;
     QAction *m_actionDeletePage;
     QAction *m_actionInsertPage;
+    QAction *m_actionInsertPageAfter;
 };
 
 #endif // QDESIGNER_TABWIDGET_H

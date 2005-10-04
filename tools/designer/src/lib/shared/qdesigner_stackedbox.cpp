@@ -59,8 +59,13 @@ QDesignerStackedWidget::QDesignerStackedWidget(QWidget *parent)
     m_actionDeletePage = new QAction(tr("Delete Page"), this);
     connect(m_actionDeletePage, SIGNAL(triggered()), this, SLOT(removeCurrentPage()));
 
-    m_actionInsertPage = new QAction(tr("Add Page"), this);
+    m_actionInsertPage = new QAction(tr("Before Current Page"), this);
     connect(m_actionInsertPage, SIGNAL(triggered()), this, SLOT(addPage()));
+
+    m_actionInsertPageAfter = new QAction(tr("After Current Page"), this);
+    connect(m_actionInsertPageAfter, SIGNAL(triggered()), this, SLOT(addPageAfter()));
+
+    connect(this, SIGNAL(currentChanged(int)), this, SLOT(slotCurrentChanged(int)));
 }
 
 void QDesignerStackedWidget::removeCurrentPage()
@@ -79,7 +84,16 @@ void QDesignerStackedWidget::addPage()
 {
     if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
         AddStackedWidgetPageCommand *cmd = new AddStackedWidgetPageCommand(fw);
-        cmd->init(this);
+        cmd->init(this, AddStackedWidgetPageCommand::InsertBefore);
+        fw->commandHistory()->push(cmd);
+    }
+}
+
+void QDesignerStackedWidget::addPageAfter()
+{
+    if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
+        AddStackedWidgetPageCommand *cmd = new AddStackedWidgetPageCommand(fw);
+        cmd->init(this, AddStackedWidgetPageCommand::InsertAfter);
         fw->commandHistory()->push(cmd);
     }
 }
@@ -185,5 +199,15 @@ void QDesignerStackedWidget::setCurrentPageName(const QString &pageName)
 
     if (QWidget *w = widget(currentIndex())) {
         w->setObjectName(pageName);
+    }
+}
+
+void QDesignerStackedWidget::slotCurrentChanged(int index)
+{
+    if (widget(index)) {
+        if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
+            fw->clearSelection();
+            fw->selectWidget(this, true);
+        }
     }
 }
