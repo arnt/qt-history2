@@ -1063,7 +1063,7 @@ void WriteInitialization::initializeTreeWidgetItems(const QString &className, co
         refreshOut << "\n";
         refreshOut << option.indent << "QTreeWidgetItem *" << itemName << " = new QTreeWidgetItem(" << varName << ");\n";
 
-        int textCount = 0, pixCount = 0;
+        int textCount = 0;
         QList<DomProperty*> properties = item->elementProperty();
         for (int i=0; i<properties.size(); ++i) {
             DomProperty *p = properties.at(i);
@@ -1071,13 +1071,13 @@ void WriteInitialization::initializeTreeWidgetItems(const QString &className, co
                 refreshOut << option.indent << itemName << "->setText(" << textCount++ << ", "
                            << trCall(p->elementString()) << ");\n";
 
-            if (p->attributeName() == QLatin1String("icon"))
-                refreshOut << option.indent << itemName << "->setIcon(" << pixCount++ << ", "
+            if (p->attributeName() == QLatin1String("icon") && textCount > 0)
+                refreshOut << option.indent << itemName << "->setIcon(" << textCount - 1 << ", "
                            << pixCall(p) << ");\n";
         }
 
         if (item->elementItem().size()) {
-            refreshOut << option.indent << varName << "->setExpanded(" << itemName << ", " << "true);\n";
+            refreshOut << option.indent << varName << "->setItemExpanded(" << itemName << ", " << "true);\n";
             initializeTreeWidgetItems(className, itemName, item->elementItem());
         }
     }
@@ -1259,7 +1259,7 @@ void WriteInitialization::initializeTreeWidget(DomWidget *w)
 
         if (icon != 0 && icon->elementIconSet()) {
             output << option.indent << varName << "->headerItem()->setIcon("
-                   << varName << "->headerItem()->childCount() - 1, " << pixCall(icon) << ");\n";
+                   << i << ", " << pixCall(icon) << ");\n";
         }
     }
 
