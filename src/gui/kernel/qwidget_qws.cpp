@@ -930,10 +930,11 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             if (q->isWindow()) {
                 invalidateBuffer(q->rect()); //###
             } else {
-                if(isMove)
-                    q->parentWidget()->d_func()->scrollBuffer(QRect(oldPos, olds),
-                                                          x - oldPos.x(), y - oldPos.y());
-                else
+//### move not optimized yet
+//                 if(isMove)
+//                     q->parentWidget()->d_func()->scrollBuffer(QRect(oldPos, olds),
+//                                                           x - oldPos.x(), y - oldPos.y());
+//                 else
                     q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, olds));
             }
         }

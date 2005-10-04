@@ -281,60 +281,6 @@ void QWidgetBackingStore::moveRect(const QRect &rect, int dx, int dy, QWidget *w
     }
 }
 
-/*
-  Only for opaque widgets
-  scroll \a rect, which needs to be within widget->rect(), by dx, dy
-*/
-void QWidgetBackingStore::scrollRegion(const QRect &rect, int dx, int dy, QWidget *widget)
-{
-#ifdef Q_WS_X11
-    //### need cross-platform test
-    if (buffer.isNull())
-        return;
-#endif
-
-    QRegion dirtyRgn(rect);
-    QRegion area = widget->d_func()->clipRegion();
-    if(area.isEmpty())
-        return;
-
-    QRect newrect = rect.translated(dx,dy);
-
-    dirtyRgn += newrect;
-
-    QRect wr = widget->rect();
-    QRect sr = rect.intersect(wr).intersect(wr.translated(-dx,-dy));
-    dirtyRgn -= sr.translated(dx,dy);
-
-    QPoint pos(widget->mapTo(tlw, sr.topLeft()));
-    //wrgn.translate(pos);
-#if defined(Q_WS_WIN)
-    QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
-    HDC engine_dc = engine->getDC();
-    BitBlt(engine_dc, pos.x()+dx, pos.y()+dy, sr.width(), sr.height(),
-           engine_dc, pos.x(), pos.y(), SRCCOPY);
-    engine->releaseDC(engine_dc);
-#elif defined(Q_WS_X11)
-    GC gc = XCreateGC(widget->d_func()->xinfo.display(), buffer.handle(), 0, 0);
-    XCopyArea(X11->display, buffer.handle(), buffer.handle(), gc,
-              pos.x(), pos.y(), sr.width(), sr.height(),
-              pos.x()+dx, pos.y()+dy);
-    XFreeGC(widget->d_func()->xinfo.display(), gc);
-#endif
-
-//    qDebug() << "QWidgetBackingStore::scrollRegion" << rect << newrect << wrgn;
-//    qDebug() << "isOpaque" << isOpaque(widget);
-
-    dirtyRgn &= area;
-
-    if(QWExtra *extra = widget->d_func()->extraData()) {
-        if(!extra->mask.isEmpty())
-            dirtyRgn &= extra->mask;
-    }
-
-    dirtyRegion(dirtyRgn, widget);
-}
-
 #ifdef Q_WS_QWS
 void QWidgetPrivate::scrollWidget(int dx, int dy, const QRect &sr)
 {
@@ -692,20 +638,6 @@ void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, con
 }
 
 /* cross-platform QWidget code */
-
-
-/*
-  Only for opaque widgets
-  scroll \a rect, which needs to be within q->rect(), by dx, dy
-*/
-
-void QWidgetPrivate::scrollBuffer(const QRect &rect, int dx, int dy)
-{
-    Q_Q(QWidget);
-    QWidget *tlw = q->window();
-    QTLWExtra* x = tlw->d_func()->topData();
-    x->backingStore->scrollRegion(rect, dx, dy, q);
-}
 
 /*
   Only for opaque widgets
