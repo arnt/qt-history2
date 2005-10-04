@@ -40,6 +40,7 @@ HEADERS += \
         widgets/qspinbox.h \
         widgets/qsplashscreen.h \
         widgets/qsplitter.h \
+        widgets/qsplitter_p.h \
         widgets/qstackedwidget.h \
         widgets/qstatusbar.h \
         widgets/qtabbar.h \

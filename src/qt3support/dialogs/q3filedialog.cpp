@@ -47,7 +47,7 @@
 #include "q3ptrvector.h"
 #include "qpushbutton.h"
 #include "qregexp.h"
-#include "qsplitter.h"
+#include "q3splitter.h"
 #include "q3strlist.h"
 #include "qstyle.h"
 #include "qtimer.h"
@@ -2418,7 +2418,7 @@ void Q3FileDialog::init()
              this, SLOT(fileNameEditDone()));
     nameEdit->installEventFilter(this);
 
-    d->splitter = new QSplitter(this, "qt_splitter");
+    d->splitter = new Q3Splitter(this, "qt_splitter");
 
     d->stack = new Q3WidgetStack(d->splitter, "files and more files");
 

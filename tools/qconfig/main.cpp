@@ -128,12 +128,14 @@ Main::Main()
 
     featureModel = new FeatureTreeModel(this);
     featureTree = new QTreeView(splitter);    
+    splitter->addWidget(featureTree);
     featureTree->setRootIsDecorated(true);
     featureTree->setModel(featureModel);
     featureTree->show();    
     
     textBrowser = new FeatureTextBrowser(splitter);
     textBrowser->setFrameStyle(QFrame::WinPanel|QFrame::Sunken);
+    splitter->addWidget(textBrowser);
     textBrowser->show();    
     
     connect(textBrowser, SIGNAL(featureClicked(const QString&)),

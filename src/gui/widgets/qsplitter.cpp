@@ -27,94 +27,15 @@
 #include "qtextstream.h"
 #include "qvarlengtharray.h"
 #include "qvector.h"
-#include "private/qframe_p.h"
 #include "private/qlayoutengine_p.h"
+#include "private/qsplitter_p.h"
 #include "qdebug.h"
 
 #include <ctype.h>
 
 //#define QSPLITTER_DEBUG
 
-const uint Default = 2;
 static int mouseOffset;
-
-class QSplitterLayoutStruct
-{
-public:
-    QRect rect;
-    int sizer;
-    uint collapsed : 1;
-    uint collapsible : 2;
-    QWidget *widget;
-    QSplitterHandle *handle;
-
-    QSplitterLayoutStruct() : sizer(-1), collapsed(false), collapsible(Default), widget(0), handle(0) {}
-    ~QSplitterLayoutStruct() { delete handle; }
-    int getWidgetSize(Qt::Orientation orient);
-    int getHandleSize(Qt::Orientation orient);
-    int pick(const QSize &size, Qt::Orientation orient)
-    { return (orient == Qt::Horizontal) ? size.width() : size.height(); }
-};
-
-class QSplitterPrivate : public QFramePrivate
-{
-    Q_DECLARE_PUBLIC(QSplitter)
-public:
-    QSplitterPrivate() : rubberBand(0), opaque(true), firstShow(true),
-                         childrenCollapsible(true), compatMode(false), handleWidth(0), blockChildAdd(false) {}
-
-    QPointer<QRubberBand> rubberBand;
-    mutable QList<QSplitterLayoutStruct *> list;
-    Qt::Orientation orient;
-    bool opaque : 8;
-    bool firstShow : 8;
-    bool childrenCollapsible : 8;
-    bool compatMode : 8;
-    int handleWidth;
-    bool blockChildAdd;
-
-    inline int pick(const QPoint &pos) const
-    { return orient == Qt::Horizontal ? pos.x() : pos.y(); }
-    inline int pick(const QSize &s) const
-    { return orient == Qt::Horizontal ? s.width() : s.height(); }
-
-    inline int trans(const QPoint &pos) const
-    { return orient == Qt::Vertical ? pos.x() : pos.y(); }
-    inline int trans(const QSize &s) const
-    { return orient == Qt::Vertical ? s.width() : s.height(); }
-
-    void init();
-    void recalc(bool update = false);
-    void doResize();
-    void storeSizes();
-    void getRange(int index, int *, int *, int *, int *) const;
-    void addContribution(int, int *, int *, bool) const;
-    int adjustPos(int, int, int *, int *, int *, int *) const;
-    bool collapsible(QSplitterLayoutStruct *) const;
-    QSplitterLayoutStruct *findWidget(QWidget *) const;
-    QSplitterLayoutStruct *insertWidget(int index, QWidget *);
-    void doMove(bool backwards, int pos, int index, int delta,
-                bool mayCollapse, int *positions, int *widths);
-    void setGeo(QSplitterLayoutStruct *s, int pos, int size, bool allowCollapse);
-    int findWidgetJustBeforeOrJustAfter(int index, int delta, int &collapsibleSize) const;
-    void updateHandles();
-
-};
-
-class QSplitterHandlePrivate : public QWidgetPrivate
-{
-    Q_DECLARE_PUBLIC(QSplitterHandle)
-public:
-    QSplitterHandlePrivate() : orient(Qt::Horizontal), opaq(false), s(0) {}
-
-    inline int pick(const QPoint &pos) const
-    { return orient == Qt::Horizontal ? pos.x() : pos.y(); }
-
-    Qt::Orientation orient;
-    bool opaq;
-    QSplitter *s;
-    bool hover;
-};
 
 /*!
     \class QSplitterHandle
@@ -747,16 +668,6 @@ void QSplitterPrivate::doMove(bool backwards, int hPos, int index, int delta, bo
 
 }
 
-
-QSplitterLayoutStruct *QSplitterPrivate::findWidget(QWidget *w) const
-{
-    for (int i = 0; i < list.size(); ++i) {
-        if (list.at(i)->widget == w)
-            return list.at(i);
-    }
-    return 0;
-}
-
 #ifdef QT3_SUPPORT
 static void setStretch(QWidget *w, int sf)
 {
@@ -1229,13 +1140,13 @@ int QSplitter::count() const
     Tells the splitter that the child widget described by \a c has been
     inserted or removed.
 
-    This method is also used to handle the situation where a widget is created
-    with the splitter as a parent but not explicitly added with insertWidget()
-    or addWidget(). This is for compatiblity and not the recommended way of
-    putting widgets into a splitter in new code. Please use insertWidget() or
-    addWidget() in new code.
+    In Qt 4.0, This method used to handle the situation where a widget is
+    created with the splitter as a parent but not explicitly added with
+    insertWidget() or addWidget(). Since this was for compatiblity and since it
+    caused problems, the code has been moved to Q3Splitter and QSplitter will
+    only add widgets with insertWiget() or addWidget() from 4.1 and up
 
-    \sa addWidget() insertWidget()
+    \sa addWidget() insertWidget() Q3Splitter
 */
 
 void QSplitter::childEvent(QChildEvent *c)
@@ -1245,9 +1156,7 @@ void QSplitter::childEvent(QChildEvent *c)
         return;
     QWidget *w = static_cast<QWidget*>(c->child());
 
-    if (c->added() && !d->blockChildAdd && !w->isWindow() && !d->findWidget(w)) {
-        addWidget(w);
-    } else  if (c->type() == QEvent::ChildRemoved) {
+    if (c->type() == QEvent::ChildRemoved) {
         for (int i = 0; i < d->list.size(); ++i) {
             QSplitterLayoutStruct *s = d->list.at(i);
             if (s->widget == w) {

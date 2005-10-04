@@ -3157,6 +3157,13 @@
     The obsolete function drawSplitter() has been removed. Use
     QStyle::drawPrimitive() to acheive similar functionality.
 
+    Previously widgets would add themselves to the splitter if they were
+    created as children of the splitter. This was supported in the initial
+    release of Qt 4.0.  Since this can lead to subtle bugs, Qt 4.1 REMOVES the
+    ability from QSplitter and introduces Q3Splitter that does support it.
+    The addWidget() and instertWidget() functions are the correct way to add
+    widgets to a splitter
+
     \section1 QSpinBox
 
     See \l{#properties}{Properties} for a list of QSpinBox properties

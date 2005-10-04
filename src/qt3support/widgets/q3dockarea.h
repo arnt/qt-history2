@@ -24,7 +24,6 @@ QT_MODULE(Qt3SupportLight)
 
 #ifndef QT_NO_MAINWINDOW
 
-class QSplitter;
 class QBoxLayout;
 class Q3DockAreaLayout;
 class QMouseEvent;
