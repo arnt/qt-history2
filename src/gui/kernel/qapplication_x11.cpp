@@ -1503,7 +1503,8 @@ void qt_init(QApplicationPrivate *priv, int,
 
         X11->has_fontconfig = false;
 #if !defined(QT_NO_FONTCONFIG)
-        X11->has_fontconfig = FcInit();
+        if (qgetenv("QT_X11_NO_FONTCONFIG").isNull())
+            X11->has_fontconfig = FcInit();
 
         int dpi = 0;
         getXDefault("Xft", FC_DPI, &dpi);
