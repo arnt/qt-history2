@@ -4622,7 +4622,7 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
                     toMax = dt.daysTo(maximum.toDateTime());
                 }
                 int maxChange = QDateTimeParser::maxChange(i);
-                int maxChangeUnits = maxChange * multi;
+                qlonglong maxChangeUnits = (qint64)maxChange * (qint64)multi;
                 if (toMin > maxChangeUnits) {
                     QDTPDEBUG << "invalid because toMin > maxChangeUnits" << toMin
                               << maxChangeUnits << t << dt << minimum.toDateTime()
