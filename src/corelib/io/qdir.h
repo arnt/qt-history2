@@ -181,15 +181,8 @@ public:
     inline QT3_SUPPORT QString absPath() const { return absolutePath(); }
     inline QT3_SUPPORT QString absFilePath(const QString &fileName, bool acceptAbsPath = true) const
        { Q_UNUSED(acceptAbsPath); return absoluteFilePath(fileName); }
-    inline QT3_SUPPORT bool matchAllDirs() const
-        { return filter() & AllDirs; }
-    inline QT3_SUPPORT void setMatchAllDirs(bool on)
-    {
-        if(on)
-            setFilter(filter() | AllDirs);
-        else
-            setFilter(filter() & ~(int)AllDirs);
-    }
+    QT3_SUPPORT bool matchAllDirs() const;
+    QT3_SUPPORT void setMatchAllDirs(bool on);
     inline QT3_SUPPORT QStringList entryList(const QString &nameFilter, Filters filters = NoFilter,
                                            SortFlags sort = NoSort) const
     { return entryList(nameFiltersFromString(nameFilter), filters, sort); }

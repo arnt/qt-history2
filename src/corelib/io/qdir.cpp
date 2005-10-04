@@ -58,6 +58,7 @@ protected:
 private:
 #ifdef QT3_SUPPORT
     QChar filterSepChar;
+    bool matchAllDirs;
 #endif
     static inline QChar getFilterSepChar(const QString &nameFilter)
     {
@@ -131,6 +132,7 @@ private:
 QDirPrivate::QDirPrivate(QDir *qq, const QDir *copy) : q_ptr(qq)
 #ifdef QT3_SUPPORT
                                                      , filterSepChar(0)
+                                                     , matchAllDirs(false)
 #endif
 {
     if(copy) {
@@ -1132,6 +1134,10 @@ QStringList QDir::entryList(const QStringList &nameFilters, Filters filters,
 
     if (filters == NoFilter)
         filters = d->data->filters;
+#ifdef QT3_SUPPORT
+    if (d->matchAllDirs)
+        filters |= AllDirs;
+#endif
     if (sort == NoSort)
         sort = d->data->sort;
     if (filters == NoFilter && sort == NoSort && nameFilters == d->data->nameFilters) {
@@ -1168,6 +1174,10 @@ QFileInfoList QDir::entryInfoList(const QStringList &nameFilters, Filters filter
 
     if (filters == NoFilter)
         filters = d->data->filters;
+#ifdef QT3_SUPPORT
+    if (d->matchAllDirs)
+        filters |= AllDirs;
+#endif
     if (sort == NoSort)
         sort = d->data->sort;
     if (filters == NoFilter && sort == NoSort && nameFilters == d->data->nameFilters) {
@@ -1955,6 +1965,30 @@ QStringList QDir::nameFiltersFromString(const QString &nameFilter)
 */
 
 #ifdef QT3_SUPPORT
+
+/*!
+    \fn bool QDir::matchAllDirs() const
+
+    Use filter() & AllDirs instead.
+*/
+bool QDir::matchAllDirs() const
+{
+    Q_D(const QDir);
+    return d->matchAllDirs;
+}
+
+
+/*!
+    \fn void QDir::setMatchAllDirs(bool on)
+
+    Use setFilter() instead.
+*/
+void QDir::setMatchAllDirs(bool on)
+{
+    Q_D(QDir);
+    d->matchAllDirs = on;
+}
+
 /*!
     Use nameFilters() instead.
 */
@@ -2021,18 +2055,6 @@ void QDir::setNameFilter(const QString &nameFilter)
     Use rmdir(\a dirName) instead.
 
     The \a acceptAbsPath parameter is ignored.
-*/
-
-/*!
-    \fn bool QDir::matchAllDirs() const
-
-    Use filter() & AllDirs instead.
-*/
-
-/*!
-    \fn void QDir::setMatchAllDirs(bool on)
-
-    Use setFilter() instead.
 */
 
 /*!
