@@ -1109,10 +1109,10 @@ void QRenameEdit::keyPressEvent(QKeyEvent *e)
 
 void QRenameEdit::focusOutEvent(QFocusEvent *)
 {
-    if (!doRenameAlreadyEmitted)
+    if (!doRenameAlreadyEmitted) {
+        doRenameAlreadyEmitted = true;
         emit doRename();
-    else
-        doRenameAlreadyEmitted = false;
+    }
 }
 
 void QRenameEdit::slotReturnPressed()
