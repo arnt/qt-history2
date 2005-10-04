@@ -369,22 +369,22 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             QPen oldPen = p->pen();
             if (header->sortIndicator & QStyleOptionHeader::SortUp) {
                 QPolygon pa(3);
-                p->setPen(opt->palette.light());
+                p->setPen(QPen(opt->palette.light(), 0));
                 p->drawLine(opt->rect.x() + opt->rect.width(), opt->rect.y(),
                             opt->rect.x() + opt->rect.width() / 2, opt->rect.height());
-                p->setPen(opt->palette.dark());
+                p->setPen(QPen(opt->palette.dark(), 0));
                 pa.setPoint(0, opt->rect.x() + opt->rect.width() / 2, opt->rect.height());
                 pa.setPoint(1, opt->rect.x(), opt->rect.y());
                 pa.setPoint(2, opt->rect.x() + opt->rect.width(), opt->rect.y());
                 p->drawPolyline(pa);
             } else if (header->sortIndicator & QStyleOptionHeader::SortDown) {
                 QPolygon pa(3);
-                p->setPen(opt->palette.light());
+                p->setPen(QPen(opt->palette.light(), 0));
                 pa.setPoint(0, opt->rect.x(), opt->rect.height());
                 pa.setPoint(1, opt->rect.x() + opt->rect.width(), opt->rect.height());
                 pa.setPoint(2, opt->rect.x() + opt->rect.width() / 2, opt->rect.y());
                 p->drawPolyline(pa);
-                p->setPen(opt->palette.dark());
+                p->setPen(QPen(opt->palette.dark(), 0));
                 p->drawLine(opt->rect.x(), opt->rect.height(),
                             opt->rect.x() + opt->rect.width() / 2, opt->rect.y());
             }
@@ -402,26 +402,26 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             switch (tbb->shape) {
             case QTabBar::RoundedNorth:
             case QTabBar::TriangularNorth:
-                p->setPen(tbb->palette.light());
+                p->setPen(QPen(tbb->palette.light(), 0));
                 p->drawLine(tbb->rect.topLeft(), tbb->rect.topRight());
                 break;
             case QTabBar::RoundedWest:
             case QTabBar::TriangularWest:
-                p->setPen(tbb->palette.light());
+                p->setPen(QPen(tbb->palette.light(), 0));
                 p->drawLine(tbb->rect.topLeft(), tbb->rect.bottomLeft());
                 break;
             case QTabBar::RoundedSouth:
             case QTabBar::TriangularSouth:
-                p->setPen(tbb->palette.shadow());
+                p->setPen(QPen(tbb->palette.shadow(), 0));
                 p->drawLine(tbb->rect.left(), tbb->rect.bottom(),
                             tbb->rect.right(), tbb->rect.bottom());
-                p->setPen(tbb->palette.dark());
+                p->setPen(QPen(tbb->palette.dark(), 0));
                 p->drawLine(tbb->rect.left(), tbb->rect.bottom() - 1,
                             tbb->rect.right() - 1, tbb->rect.bottom() - 1);
                 break;
             case QTabBar::RoundedEast:
             case QTabBar::TriangularEast:
-                p->setPen(tbb->palette.dark());
+                p->setPen(QPen(tbb->palette.dark(), 0));
                 p->drawLine(tbb->rect.topRight(), tbb->rect.bottomRight());
                 break;
             }
@@ -1110,7 +1110,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 }
             }
 
-            p->setPen(tab->palette.foreground());
+            p->setPen(QPen(tab->palette.foreground(), 0));
             if (selected) {
                 p->setBrush(tab->palette.base());
             } else {
@@ -1118,7 +1118,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                     p->setBrush(widget->parentWidget()->palette().background());
                 else
                     p->setBrush(tab->palette.background());
-            } 
+            }
 
             int y;
             int x;
