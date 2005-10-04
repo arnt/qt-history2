@@ -422,7 +422,7 @@ QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPointF &point, int
     Q_Q(const QTextDocumentLayout);
     QTextFrameData *fd = data(frame);
     // #########
-    if (!fd->layoutDirty)
+    if (fd->layoutDirty)
         return PointAfter;
     Q_ASSERT(!fd->layoutDirty);
     Q_ASSERT(!fd->sizeDirty);
