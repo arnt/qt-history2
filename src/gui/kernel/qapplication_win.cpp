@@ -3229,6 +3229,13 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
         QRect desktopArea = qt_desktopWidget->geometry();
         QPointF hiResGlobal = tdd.scaleCoord(ptNew.x, ptNew.y, desktopArea.left(), desktopArea.width(),
                                              desktopArea.top(), desktopArea.height());
+
+        // adjust to current on screen cursor pos. (only really needed when tablet is in mouse mode)
+        POINT point;
+        GetCursorPos(&point);
+        hiResGlobal.setX(hiResGlobal.x() - int(hiResGlobal.x() - .5) + point.x);
+        hiResGlobal.setY(hiResGlobal.y() - int(hiResGlobal.y() - .5) + point.y);
+
         if (btnNew) {
             if (pointerType == QTabletEvent::Pen || pointerType == QTabletEvent::Eraser)
                 prsNew = localPacketBuf[i].pkNormalPressure / qreal(tdd.maxPressure - tdd.minPressure);
