@@ -64,7 +64,7 @@ void GLWidget::paintGL()
     glCallList(list);
     glPopMatrix();
 
-    rot += 0.2;
+    rot += 0.2f;
 
     qglColor(Qt::black);
     renderText(-0.35, 0.4, 0.0, "Multisampling enabled");
