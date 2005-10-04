@@ -320,8 +320,10 @@ QString QColor::name() const
     \i #RRGGBB
     \i #RRRGGGBBB
     \i #RRRRGGGGBBBB
-    \i A name from the X color database (rgb.txt) (e.g.
-    "steelblue" or "gainsboro"). These color names work on all platforms.
+    \i A name from the list of colors defined in the list of \l{SVG color keyword names}
+       provided by the World Wide Web Consortium; for example, "steelblue" or "gainsboro".
+       These color names work on all platforms.
+    \i \c transparent - representing the absence of a color.
     \endlist
 
     The color is invalid if \a name cannot be parsed.

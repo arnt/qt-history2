@@ -33,3 +33,8 @@
     \externalpage http://www.amnesty.org/
     \title Amnesty International
 */
+
+/*!
+    \externalpage http://www.w3.org/TR/SVG/types.html#ColorKeywords
+    \title SVG color keyword names
+*/
