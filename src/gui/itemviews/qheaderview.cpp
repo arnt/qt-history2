@@ -585,7 +585,6 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
     int w = d->viewport->width();
     int h = d->viewport->height();
     int pos = sectionViewportPosition(logicalIndex);
-    Q_ASSERT(pos >= 0 && !isSectionHidden(logicalIndex));
     QRect r;
     if (orientation() == Qt::Horizontal)
         if (isRightToLeft())
@@ -1079,15 +1078,11 @@ void QHeaderView::headerDataChanged(Qt::Orientation orientation, int logicalFirs
     if (orientation == Qt::Horizontal) {
         int left = sectionViewportPosition(logicalFirst);
         int right = sectionViewportPosition(logicalLast);
-        Q_ASSERT(left >= 0 && !isSectionHidden(logicalFirst));
-        Q_ASSERT(right >= 0 && !isSectionHidden(logicalLast));
         right += sectionSize(logicalLast);
         d->viewport->update(left, 0, right - left, d->viewport->height());
     } else {
         int top = sectionViewportPosition(logicalFirst);
         int bottom = sectionViewportPosition(logicalLast);
-        Q_ASSERT(left >= 0 && !isSectionHidden(logicalFirst));
-        Q_ASSERT(right >= 0 && !isSectionHidden(logicalLast));
         bottom += sectionSize(logicalLast);
         d->viewport->update(0, top, d->viewport->width(), bottom - top);
     }
@@ -1935,8 +1930,6 @@ QRegion QHeaderView::visualRegionForSelection(const QItemSelection &selection) c
 
         int leftPos = sectionViewportPosition(logicalLeft);
         int rightPos = sectionViewportPosition(logicalRight);
-        Q_ASSERT(leftPos >= 0 && !isSectionHidden(logicalLeft));
-        Q_ASSERT(rightPos >= 0 && !isSectionHidden(logicalRight));
         rightPos += sectionSize(logicalRight);
         return QRect(leftPos, 0, rightPos - leftPos, height());
     }
@@ -1980,7 +1973,6 @@ int QHeaderViewPrivate::sectionHandleAt(int position)
         return -1;
     int log = logicalIndex(visual);
     int pos = q->sectionViewportPosition(log);
-    Q_ASSERT(pos >= 0 && !q->isSectionHidden(log));
     int grip = q->style()->pixelMetric(QStyle::PM_HeaderGripMargin);
     if (reverse()) { // FIXME:
         if (position < pos + grip)
@@ -2006,7 +1998,6 @@ void QHeaderViewPrivate::setupSectionIndicator(int section, int position)
 
     int x, y, w, h;
     int p = q->sectionViewportPosition(section);
-    Q_ASSERT(p >= 0 && !q->isSectionHidden(section));
     if (orientation == Qt::Horizontal) {
         x = p;
         y = 0;
