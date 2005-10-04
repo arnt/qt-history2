@@ -1404,6 +1404,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         data.window_state &= ~Qt::WindowFullScreen;
     }
 
+    bool accelerateMove = false;
     if (q->testAttribute(Qt::WA_WState_ConfigPending)) {        // processing config event
         qWinRequestConfig(q->winId(), isMove ? 2 : 1, x, y, w, h);
     } else {
@@ -1424,7 +1425,6 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     	    data.crect.setRect(x, y, rect.right - rect.left, rect.bottom - rect.top);
         } else {
 #ifdef QT_USE_BACKINGSTORE
-            bool accelerateMove = false;
             if(q->isVisible() && !q->isHidden()) {
                 QWidget *pw = q->parentWidget();
                 QRect sr = QRect(oldPos, oldSize).intersect(pw->rect());
