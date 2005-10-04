@@ -27,6 +27,7 @@
 #include "qpainterpath.h"
 #include "qpixmap.h"
 #include "qregion.h"
+#include "qdebug.h"
 
 /*!
     \class QPicture qpicture.h
@@ -67,7 +68,7 @@
 */
 
 const char  *qt_mfhdr_tag = "QPIC"; // header tag
-const quint16 mfhdr_maj = 7; // major version #
+const quint16 mfhdr_maj = 8; // major version #
 const quint16 mfhdr_min = 0; // minor version #
 
 /*!
@@ -438,6 +439,10 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     QMatrix     matrix;
 
     QMatrix worldMatrix = painter->matrix();
+    QMatrix oldWorldMatrix = worldMatrix;
+    worldMatrix.scale(painter->device()->logicalDpiX() / 72.,
+                      painter->device()->logicalDpiY() / 72.);
+    painter->setMatrix(worldMatrix);
 
     while (nrecords-- && !s.atEnd()) {
         s >> c;                 // read cmd
@@ -536,6 +541,30 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             s >> r >> i_16 >> str;
             painter->drawText(r, i_16, str);
             break;
+        case QPicturePrivate::PdcDrawTextItem: {
+            Qt::LayoutDirection oldDir = painter->layoutDirection();
+
+            s >> p >> str >> font >> ul;
+
+            if (ul & QTextItem::RightToLeft)
+                painter->setLayoutDirection(Qt::RightToLeft);
+            else
+                painter->setLayoutDirection(Qt::LeftToRight);
+
+            font = QFont(font, painter->device());
+
+            QMatrix matrix = painter->matrix();
+            painter->setMatrix(oldWorldMatrix);
+
+            p.rx() *= painter->device()->logicalDpiX() / 72.;
+            p.ry() *= painter->device()->logicalDpiY() / 72.;
+
+            qt_format_text(font, QRectF(p, QSizeF(1, 1)), Qt::TextSingleLine | Qt::TextDontClip, str, /*brect=*/0, /*tabstops=*/0, /*...*/0, /*tabarraylen=*/0, painter);
+
+            painter->setLayoutDirection(oldDir);
+            painter->setMatrix(matrix);
+            break;
+        }
         case QPicturePrivate::PdcDrawPixmap: {
             QPixmap pixmap;
             if (d->formatMajor < 4) {
@@ -644,8 +673,12 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             break;
         case QPicturePrivate::PdcSetWMatrix:
             s >> matrix >> i_8;
+            matrix.setMatrix(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(),
+                             matrix.dx() * painter->device()->logicalDpiX() / 72.,
+                             matrix.dy() * painter->device()->logicalDpiY() / 72.);
             // i_8 is always false due to updateXForm() in qpaintengine_pic.cpp
             painter->setMatrix(worldMatrix * matrix, false);
+            oldWorldMatrix *= matrix;
             break;
 // #ifdef Q_Q3PAINTER
 //             case QPicturePrivate::PdcSaveWMatrix:

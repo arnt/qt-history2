@@ -69,7 +69,7 @@ public:
         PdcDrawImage = 18, // rect,image
         PdcDrawText2 = 19, // point,str
         PdcDrawText2Formatted = 20, // rect,ival,str
-        PdcDrawTextItem = 21,
+        PdcDrawTextItem = 21, // pos,text,font,flags
         PdcDrawLast = PdcDrawTextItem,
         PdcDrawPoints = 22, // ptarr,ival,ival
         PdcDrawWinFocusRect = 23, // rect,color

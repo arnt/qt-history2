@@ -25,7 +25,7 @@
 #include "qpolygon.h"
 #include "qrect.h"
 
-// #define QT_PICTURE_DEBUG
+//#define QT_PICTURE_DEBUG
 #include <qdebug.h>
 
 class QPicturePaintEnginePrivate : public QPaintEnginePrivate
@@ -335,12 +335,20 @@ void QPicturePaintEngine::drawTextItem(const QPointF &p , const QTextItem &ti)
 {
     Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
-    qDebug() << " -> drawTextItem():" << p << QString(ti.chars, ti.num_chars);
+    qDebug() << " -> drawTextItem():" << p << ti.text();
 #endif
-    int pos;
-    SERIALIZE_CMD(QPicturePrivate::PdcDrawText2);
-    d->s << p << ti.text();
-    writeCmdLength(pos, QRectF(p, QSizeF(1,1)), true);
+    if (d->pic_d->formatMajor >= 8) {
+        int pos;
+        SERIALIZE_CMD(QPicturePrivate::PdcDrawTextItem);
+        d->s << QPointF(p.x(), p.y() - ti.ascent()) << ti.text() << ti.font() << ti.renderFlags();
+        writeCmdLength(pos, /*brect=*/QRectF(), /*corr=*/false);
+    } else {
+        // old (buggy) format
+        int pos;
+        SERIALIZE_CMD(QPicturePrivate::PdcDrawText2);
+        d->s << p << ti.text();
+        writeCmdLength(pos, QRectF(p, QSizeF(1,1)), true);
+    }
 }
 
 void QPicturePaintEngine::updateState(const QPaintEngineState &state)
