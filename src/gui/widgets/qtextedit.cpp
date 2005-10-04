@@ -1845,12 +1845,15 @@ QVariant QTextEdit::loadResource(int type, const QUrl &name)
 void QTextEdit::resizeEvent(QResizeEvent *e)
 {
     Q_D(QTextEdit);
-    if (e->oldSize().width() == e->size().width()
-        && e->oldSize().height() != e->size().height()) {
+    if (d->lineWrap == WidgetWidth) {
+        if (e->oldSize().width() == e->size().width()
+            && e->oldSize().height() != e->size().height())
+            d->adjustScrollbars();
+        else
+            d->relayoutDocument();
+    } else {
         d->adjustScrollbars();
-        return;
     }
-    d->relayoutDocument();
 }
 
 void QTextEditPrivate::relayoutDocument()
