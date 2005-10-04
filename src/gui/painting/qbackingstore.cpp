@@ -412,7 +412,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
             widget_dc = GetDC(widget->winId());
             tmp_widget_dc = true;
         }
-        BitBlt(widget_dc, wOffset.x(), wOffset.y(), widget->data->wrect.width(), widget->data->wrect.height(),
+        BitBlt(widget_dc, wOffset.x(), wOffset.y(), widget->width(), widget->height(),
                engine_dc, offset.x(), offset.y(), SRCCOPY);
         if (tmp_widget_dc)
             ReleaseDC(widget->winId(), widget_dc);
