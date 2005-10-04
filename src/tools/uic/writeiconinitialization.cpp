@@ -18,7 +18,7 @@
 #include "utils.h"
 #include "uic.h"
 
-#include <qtextstream.h>
+#include <QTextStream>
 
 WriteIconInitialization::WriteIconInitialization(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option())

@@ -14,7 +14,8 @@
 #ifndef MWERKS_MAC_H
 #define MWERKS_MAC_H
 
-#include <qglobal.h>
+#include <QtGlobal>
+
 #ifdef Q_OS_MAC
 
 #define macintosh

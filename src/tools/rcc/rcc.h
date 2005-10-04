@@ -14,11 +14,11 @@
 #ifndef RCC_H
 #define RCC_H
 
-#include <qstringlist.h>
-#include <qfileinfo.h>
-#include <qlocale.h>
-#include <qhash.h>
-#include <qstring.h>
+#include <QStringList>
+#include <QFileInfo>
+#include <QLocale>
+#include <QHash>
+#include <QString>
 
 #define TAG_RCC "RCC"
 #define TAG_RESOURCE "qresource"
@@ -29,7 +29,6 @@
 #define ATTRIBUTE_ALIAS "alias"
 #define ATTRIBUTE_THRESHOLD "threshold"
 #define ATTRIBUTE_COMPRESS "compress"
-
 
 #define CONSTANT_HEADER_SIZE 8
 #define CONSTANT_COMPRESSLEVEL_DEFAULT 0

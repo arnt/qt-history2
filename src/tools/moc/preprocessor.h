@@ -15,9 +15,9 @@
 #define PREPROCESSOR_H
 
 #include "symbols.h"
-#include <qlist.h>
-#include <qmap.h>
-#include <qset.h>
+#include <QList>
+#include <QMap>
+#include <QSet>
 #include <stdio.h>
 
 typedef QMap<QByteArray,QByteArray> Macros;

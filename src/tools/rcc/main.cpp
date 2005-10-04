@@ -12,8 +12,8 @@
 ****************************************************************************/
 
 #include "rcc.h"
-#include <qfile.h>
-#include <qdir.h>
+#include <QFile>
+#include <QDir>
 
 // Some static globals
 static bool writeBinary = false;

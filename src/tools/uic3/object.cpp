@@ -14,10 +14,10 @@
 #include "ui3reader.h"
 #include "parser.h"
 #include "domtool.h"
-#include <qregexp.h>
-#include <qstringlist.h>
-#include <globaldefs.h>
-#include <qdebug.h>
+#include "globaldefs.h"
+#include <QRegExp>
+#include <QStringList>
+#include <QtDebug>
 
 /*! Extracts a named object property from \a e.
  */

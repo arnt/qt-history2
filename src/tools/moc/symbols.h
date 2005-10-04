@@ -15,8 +15,8 @@
 #define SYMBOLS_H
 
 #include "token.h"
-#include <qstring.h>
-#include <qvector.h>
+#include <QString>
+#include <QVector>
 
 struct Symbol
 {

@@ -14,9 +14,7 @@
 #include "scanner.h"
 #include "moc.h"
 #include "utils.h"
-
 #include "keywords.cpp"
-
 
 Symbols Scanner::scan(const QByteArray &input)
 {

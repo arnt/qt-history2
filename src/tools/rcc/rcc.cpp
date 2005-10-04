@@ -12,12 +12,12 @@
 ****************************************************************************/
 
 #include "rcc.h"
-#include <qfile.h>
-#include <qdatetime.h>
-#include <qbytearray.h>
-#include <qdir.h>
-#include <qstack.h>
-#include <qdom.h>
+#include <QFile>
+#include <QDateTime>
+#include <QByteArray>
+#include <QDir>
+#include <QStack>
+#include <QDomDocument>
 
 static bool qt_rcc_write_number(FILE *out, quint32 number, int width, RCCResourceLibrary::Format format)
 {

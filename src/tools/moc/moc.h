@@ -15,12 +15,12 @@
 #define MOC_H
 
 #include "scanner.h"
-#include <qstringlist.h>
-#include <qmap.h>
-#include <qpair.h>
-#include <qstack.h>
-#include <ctype.h>
+#include <QStringList>
+#include <QMap>
+#include <QPair>
+#include <QStack>
 #include <stdio.h>
+#include <ctype.h>
 
 struct EnumDef
 {

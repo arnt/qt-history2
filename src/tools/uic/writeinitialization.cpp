@@ -19,8 +19,8 @@
 #include "databaseinfo.h"
 #include "globaldefs.h"
 
-#include <qtextstream.h>
-#include <qdebug.h>
+#include <QTextStream>
+#include <QtDebug>
 
 #include <limits.h>
 

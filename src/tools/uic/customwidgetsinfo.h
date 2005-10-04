@@ -15,8 +15,8 @@
 #define CUSTOMWIDGETSINFO_H
 
 #include "treewalker.h"
-#include <qstringlist.h>
-#include <qmap.h>
+#include <QStringList>
+#include <QMap>
 
 class Driver;
 

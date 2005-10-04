@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <qfile.h>
+#include <QFile>
 #include <qt_windows.h>
 #include <io.h>
 

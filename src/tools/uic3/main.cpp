@@ -13,14 +13,14 @@
 
 #include "ui3reader.h"
 #include "domtool.h"
+#include "globaldefs.h"
 
-#include <qapplication.h>
-#include <qfile.h>
-#include <qfileinfo.h>
-#include <qstringlist.h>
-#include <qdatetime.h>
-#include <qsettings.h>
-#include <globaldefs.h>
+#include <QApplication>
+#include <QFile>
+#include <QFileInfo>
+#include <QStringList>
+#include <QDateTime>
+#include <QSettings>
 #include <stdio.h>
 #include <stdlib.h>
 

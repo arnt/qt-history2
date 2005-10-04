@@ -16,7 +16,7 @@
 #include "ui4.h"
 #include "uic.h"
 
-#include <qtextstream.h>
+#include <QTextStream>
 
 Validator::Validator(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option())

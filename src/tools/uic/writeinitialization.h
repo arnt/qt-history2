@@ -15,10 +15,10 @@
 #define WRITEINITIALIZATION_H
 
 #include "treewalker.h"
-#include <qpair.h>
-#include <qhash.h>
-#include <qstack.h>
-#include <qtextstream.h>
+#include <QPair>
+#include <QHash>
+#include <QStack>
+#include <QTextStream>
 
 class Driver;
 class Uic;

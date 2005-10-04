@@ -15,9 +15,9 @@
 #include "uic.h"
 #include "ui4.h"
 
-#include <qregexp.h>
-#include <qfileinfo.h>
-#include <qdebug.h>
+#include <QRegExp>
+#include <QFileInfo>
+#include <QtDebug>
 
 Driver::Driver()
     : m_stdout(stdout, QFile::WriteOnly)

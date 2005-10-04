@@ -10,12 +10,14 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef UI4_H
 #define UI4_H
 
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <QList>
+#include <QString>
+#include <QStringList>
+
 class QDomDocument;
 class QDomElement;
 

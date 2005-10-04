@@ -14,10 +14,10 @@
 #include "preprocessor.h"
 #include "utils.h"
 #include "ppkeywords.cpp"
-#include <qstringlist.h>
-#include <qfile.h>
-#include <qdir.h>
-#include <qfileinfo.h>
+#include <QStringList>
+#include <QFile>
+#include <QDir>
+#include <QFileInfo>
 
 QList<QByteArray> Preprocessor::includes;
 Macros Preprocessor::macros;

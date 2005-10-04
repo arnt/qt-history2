@@ -17,7 +17,7 @@
 #include "uic.h"
 #include "databaseinfo.h"
 
-#include <qtextstream.h>
+#include <QTextStream>
 
 struct ClassInfoEntry
 {

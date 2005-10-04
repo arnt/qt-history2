@@ -13,7 +13,6 @@
 
 #include "qt3to4.h"
 
-#include <qconfig.h>
 #include <QApplication>
 #include <QDir>
 #include <QFile>

@@ -15,17 +15,15 @@
 #include "ui4.h"
 #include "driver.h"
 #include "option.h"
-
-// operations
 #include "treewalker.h"
 #include "validator.h"
 #include "writeincludes.h"
 #include "writedeclaration.h"
 
-#include <qdom.h>
-#include <qfileinfo.h>
-#include <qregexp.h>
-#include <qtextstream.h>
+#include <QDomDocument>
+#include <QFileInfo>
+#include <QRegExp>
+#include <QTextStream>
 
 #if defined Q_WS_WIN
 #include <qt_windows.h>

@@ -18,14 +18,14 @@
 #include "widgetinfo.h"
 #include "globaldefs.h"
 #include "qt3to4.h"
-#include "../uic/utils.h"
+#include "utils.h"
 
-#include <qdebug.h>
-#include <qfile.h>
-#include <qhash.h>
-#include <qstringlist.h>
-#include <qdatetime.h>
-#include <qregexp.h>
+#include <QtDebug>
+#include <QFile>
+#include <QHash>
+#include <QStringList>
+#include <QDateTime>
+#include <QRegExp>
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -12,12 +12,12 @@
 ****************************************************************************/
 
 #include "ui3reader.h"
-#include <qfile.h>
-#include <qimage.h>
-#include <qstringlist.h>
-#include <qdatetime.h>
-#include <qfileinfo.h>
-#include <qvector.h>
+#include <QFile>
+#include <QImage>
+#include <QStringList>
+#include <QDateTime>
+#include <QFileInfo>
+#include <QVector>
 #include <stdio.h>
 #include <ctype.h>
 

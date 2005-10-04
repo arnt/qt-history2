@@ -15,10 +15,10 @@
 #define DRIVER_H
 
 #include "option.h"
-#include <qhash.h>
-#include <qstring.h>
-#include <qstringlist.h>
-#include <qtextstream.h>
+#include <QHash>
+#include <QString>
+#include <QStringList>
+#include <QTextStream>
 
 class QTextStream;
 class DomUI;

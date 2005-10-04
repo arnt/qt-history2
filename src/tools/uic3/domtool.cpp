@@ -13,16 +13,16 @@
 
 #include "domtool.h"
 
-#include <qsizepolicy.h>
-#include <qcolor.h>
-#include <qcursor.h>
-#include <qdatetime.h>
-#include <qrect.h>
-#include <qsize.h>
-#include <qfont.h>
-#include <qdom.h>
-#include <qbytearray.h>
-#include <qdebug.h>
+#include <QSizePolicy>
+#include <QColor>
+#include <QCursor>
+#include <QDateTime>
+#include <QRect>
+#include <QSize>
+#include <QFont>
+#include <QDomElement>
+#include <QByteArray>
+#include <QtDebug>
 
 /*
   \class DomTool domtool.h

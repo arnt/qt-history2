@@ -19,12 +19,12 @@
 #include "globaldefs.h"
 #include "qt3to4.h"
 
-#include <qfile.h>
-#include <qdatetime.h>
-#include <qregexp.h>
+#include <QFile>
+#include <QDateTime>
+#include <QRegExp>
+#include <QtDebug>
 #include <stdio.h>
 #include <stdlib.h>
-#include <qdebug.h>
 
 
 bool Ui3Reader::isMainWindow = false;

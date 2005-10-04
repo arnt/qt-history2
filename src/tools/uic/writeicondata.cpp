@@ -16,7 +16,7 @@
 #include "ui4.h"
 #include "uic.h"
 
-#include <qtextstream.h>
+#include <QTextStream>
 
 static QByteArray unzipXPM(QString data, ulong& length)
 {

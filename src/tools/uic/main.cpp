@@ -14,9 +14,9 @@
 #include "uic.h"
 #include "option.h"
 #include "driver.h"
-#include <qfile.h>
-#include <qtextstream.h>
-#include <qtextcodec.h>
+#include <QFile>
+#include <QTextStream>
+#include <QTextCodec>
 
 static const char *error = 0;
 

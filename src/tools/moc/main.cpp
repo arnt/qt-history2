@@ -15,12 +15,12 @@
 #include "scanner.h"
 #include "moc.h"
 #include "outputrevision.h"
-#include <qfile.h>
-#include <qfileinfo.h>
-#include <qdir.h>
-#include <ctype.h>
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 /*
     This function looks at two file names and returns the name of the
