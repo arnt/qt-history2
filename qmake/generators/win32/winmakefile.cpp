@@ -253,8 +253,10 @@ void Win32MakefileGenerator::processVars()
 
     if (!project->variables()["VERSION"].isEmpty()) {
         QStringList l = project->first("VERSION").split('.');
-        project->variables()["VER_MAJ"].append(l[0]);
-        project->variables()["VER_MIN"].append(l[1]);
+        if (l.size() > 0)
+            project->variables()["VER_MAJ"].append(l[0]);
+        if (l.size() > 1)
+            project->variables()["VER_MIN"].append(l[1]);
     }
 
     // TARGET_VERSION_EXT will be used to add a version number onto the target name
