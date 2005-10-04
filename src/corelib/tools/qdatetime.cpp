@@ -3305,10 +3305,10 @@ QDebug operator<<(QDebug dbg, const QDateTime &date)
 #endif
 
 #ifndef QT_BOOTSTRAPPED
-bool operator<(const QVariant &arg1, const QVariant &arg2);
-bool operator>(const QVariant &arg1, const QVariant &arg2);
-bool operator<=(const QVariant &arg1, const QVariant &arg2);
-bool operator>=(const QVariant &arg1, const QVariant &arg2);
+Q_CORE_EXPORT bool operator<(const QVariant &arg1, const QVariant &arg2);
+Q_CORE_EXPORT bool operator>(const QVariant &arg1, const QVariant &arg2);
+Q_CORE_EXPORT bool operator<=(const QVariant &arg1, const QVariant &arg2);
+Q_CORE_EXPORT bool operator>=(const QVariant &arg1, const QVariant &arg2);
 
 bool QDateTimeParser::isSpecial(const QChar &c) const
 {
