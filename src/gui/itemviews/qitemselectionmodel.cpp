@@ -762,7 +762,7 @@ QModelIndex QItemSelectionModel::currentIndex() const
 bool QItemSelectionModel::isSelected(const QModelIndex &index) const
 {
     Q_D(const QItemSelectionModel);
-    if (model() != index.model()
+    if (model() != index.model() || !index.isValid()
         || (model()->flags(index) & Qt::ItemIsSelectable) == 0)
         return false;
     bool selected = false;
