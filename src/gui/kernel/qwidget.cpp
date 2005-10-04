@@ -1215,8 +1215,13 @@ void QWidgetPrivate::composeBackground(const QRect &crect)
         QBrush bgBrush = w->palette().brush(w->backgroundRole());
         if (w == top || (!bgBrush.isOpaque() && w->testAttribute(Qt::WA_SetPalette))) {
             QPainter bgPainter(q);
-            bgPainter.setBrushOrigin(-offset);
-            bgPainter.fillRect(crect, bgBrush);
+            if (bgBrush.style() == Qt::TexturePattern) {
+                //### optimization because translation makes pattern brushes slow - should be improved in painter
+                bgPainter.drawTiledPixmap(crect, bgBrush.texture(), crect.topLeft() + offset);
+            } else {
+                bgPainter.setBrushOrigin(-offset);
+                bgPainter.fillRect(crect, bgBrush);
+            }
         }
 
         // Propagate contents if enabled and w is not the actual widget.

@@ -163,6 +163,9 @@ void qt_syncBackingStore(QRegion rgn, QWidget *widget)
 #if defined(Q_WS_X11)
 void qt_syncBackingStore(QWidget *widget)
 {
+    // dirtyOnScreen may get out of sync when widget is scrolled or moved
+    widget->d_func()->dirtyOnScreen &= widget->d_func()->clipRect();
+
     const QRegion dirty =  widget->d_func()->dirtyOnScreen;
     QWidget *tlw = widget->window();
     if (!QWidgetBackingStore::paintOnScreen(widget)) {
@@ -398,6 +401,8 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
 
         qt_flushUpdate(widget, rgn);
 
+        QPoint wOffset = widget->data->wrect.topLeft();
+
 #if defined(Q_WS_WIN)
         QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
         HDC engine_dc = engine->getDC();
@@ -407,7 +412,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
             widget_dc = GetDC(widget->winId());
             tmp_widget_dc = true;
         }
-        BitBlt(widget_dc, 0, 0, widget->width(), widget->height(),
+        BitBlt(widget_dc, wOffset.x(), wOffset.y(), widget->data->wrect.width(), widget->data->wrect.height(),
                engine_dc, offset.x(), offset.y(), SRCCOPY);
         if (tmp_widget_dc)
             ReleaseDC(widget->winId(), widget_dc);
@@ -415,13 +420,21 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
 #elif defined(Q_WS_X11)
         extern void *qt_getClipRects(const QRegion &r, int &num); // in qpaintengine_x11.cpp
         GC gc = XCreateGC(X11->display, buffer.handle(), 0, 0);
+        QRegion wrgn(rgn);
+        QRect br = rgn.boundingRect();
+        if (!wOffset.isNull())
+            wrgn.translate(-wOffset);
+        QRect wbr = wrgn.boundingRect();
         int num;
-        XRectangle *rects = (XRectangle *)qt_getClipRects(rgn, num);
+        XRectangle *rects = (XRectangle *)qt_getClipRects(wrgn, num);
+//         qDebug() << "XSetClipRectangles";
+//         for  (int i = 0; i < num; ++i)
+//             qDebug() << " " << i << rects[i].x << rects[i].x << rects[i].y << rects[i].width << rects[i].height;
         XSetClipRectangles(X11->display, gc, 0, 0, rects, num, YXBanded );
         XSetGraphicsExposures(X11->display, gc, False);
 //         XFillRectangle(X11->display, widget->handle(), gc, 0, 0, widget->width(), widget->height());
         XCopyArea(X11->display, buffer.handle(), widget->handle(), gc,
-                  offset.x(), offset.y(), widget->width(), widget->height(), 0, 0);
+                  br.x() + offset.x(), br.y() + offset.y(), br.width(), br.height(), wbr.x(), wbr.y());
         XFreeGC(X11->display, gc);
 #endif
     }
@@ -542,7 +555,7 @@ void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, con
     if (!widget->isVisible() || !widget->updatesEnabled() || rgn.isEmpty())
         return;
 
-    QRegion toBePainted  = rgn; //(rgn & widget->d_func()->visibleRegion());
+    QRegion toBePainted  = rgn & widget->d_func()->clipRect(); //(rgn & widget->d_func()->visibleRegion());
     widget->d_func()->subtractOpaqueChildren(toBePainted, widget->rect(), QPoint());
 
     if (!toBePainted.isEmpty()) {
@@ -668,6 +681,7 @@ void QWidget::repaint(const QRegion& rgn)
 {
     if (!isVisible() || !updatesEnabled() || rgn.isEmpty())
         return;
+//    qDebug() << "repaint" << this << rgn;
     if (!QWidgetBackingStore::paintOnScreen(this)) {
         QWidget *tlw = window();
         QTLWExtra* x = tlw->d_func()->topData();

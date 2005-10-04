@@ -2289,7 +2289,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 #ifdef QT_USE_BACKINGSTORE
         static int accelEnv = -1;
         if (accelEnv == -1) {
-            accelEnv = qgetenv("QT_FAST_MOVE").toInt() != 0;
+            accelEnv = qgetenv("QT_NO_FAST_MOVE").toInt() == 0;
         }
         bool accelerateMove = accelEnv; //&&  isOpaque && !overlappingSiblings
         if(q->isVisible()) {
@@ -2442,7 +2442,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 
     static int accelEnv = -1;
     if (accelEnv == -1) {
-        accelEnv = qgetenv("QT_FAST_SCROLL").toInt() != 0;
+        accelEnv = qgetenv("QT_NO_FAST_SCROLL").toInt() == 0;
     }
 
     if (!accelEnv) {
