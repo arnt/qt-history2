@@ -13,6 +13,7 @@
 
 #include "qprintengine_pdf_p.h"
 
+#ifndef QT_NO_PRINTER
 #include <qiodevice.h>
 #include <qpainter.h>
 #include <qbitmap.h>
@@ -2697,3 +2698,5 @@ int QPdfEnginePrivate::addxentry(int objnumber, bool printostr)
 
     return objnumber;
 }
+
+#endif // QT_NO_PRINTER

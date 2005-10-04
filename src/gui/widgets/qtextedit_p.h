@@ -112,7 +112,7 @@ public:
     void extendLinewiseSelection(int suggestedNewPosition);
 
     void relayoutDocument();
-    
+
     void deleteSelected();
 
     QRect rectForPosition(int position) const;
@@ -142,7 +142,7 @@ public:
     QPoint dragStartPos;
     QBasicTimer dragStartTimer;
 #endif
-    
+
     QTextEdit::LineWrapMode lineWrap;
     int lineWrapColumnOrWidth;
 
@@ -171,6 +171,7 @@ public:
     bool acceptRichText;
 };
 
+#ifndef QT_NO_MENU
 class QUnicodeControlCharacterMenu : public QMenu
 {
     Q_OBJECT
@@ -183,7 +184,7 @@ private Q_SLOTS:
 private:
     QWidget *editWidget;
 };
+#endif // QT_NO_MENU
 
 #endif // QT_NO_TEXTEDIT
-
 #endif // QTEXTEDIT_P_H

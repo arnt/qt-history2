@@ -1251,6 +1251,83 @@ void QPrinter::setPrinterSelectionOption(const QString &option)
 }
 #endif
 
+/*!
+    \since 4.1
+    \fn int QPrinter::fromPage() const
+
+    Returns the from-page setting. The default value is 0.
+
+    If fromPage() and toPage() both return 0 this signifies 'print the
+    whole document'.
+
+    \sa setFromTo(), toPage()
+*/
+
+int QPrinter::fromPage() const
+{
+#if defined(QT3SUPPORT) && !defined(QT_NO_PRINTDIALOG)
+    Q_D(const QPrinter);
+    if (!d->printDialog)
+        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+    return const_cast<QPrinter*>(this)->d_func()->printDialog->fromPage();
+#else
+    return 0;
+#endif
+}
+
+/*!
+    \since 4.1
+
+    Returns the to-page setting. The default value is 0.
+
+    If fromPage() and toPage() both return 0 this signifies 'print the
+    whole document'.
+
+    The programmer is responsible for reading this setting and
+    printing accordingly.
+
+    \sa setFromTo(), fromPage()
+*/
+
+int QPrinter::toPage() const
+{
+#if defined(QT3SUPPORT) && !defined(QT_NO_PRINTDIALOG)
+    Q_D(const QPrinter);
+    if (!d->printDialog)
+        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+    return const_cast<QPrinter*>(this)->d_func()->printDialog->toPage();
+#else
+    return 0;
+#endif
+}
+
+/*!
+    \since 4.1
+
+    Sets the from-page and to-page settings to \a from and \a
+    to respectively.
+
+    The from-page and to-page settings specify what pages to print.
+
+    If from and to both return 0 this signifies 'print the whole
+    document'.
+
+    This function is useful mostly to set a default value that the
+    user can override in the print dialog when you call setup().
+
+    \sa fromPage(), toPage()
+*/
+
+void QPrinter::setFromTo(int from, int to)
+{
+#if defined(QT3SUPPORT) && !defined(QT_NO_PRINTDIALOG)
+    Q_D(QPrinter);
+    if (!d->printDialog)
+        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
+    d->printDialog->setFromTo(from, to);
+#endif
+}
+
 #if defined(QT3_SUPPORT) && !(defined(QT_NO_PRINTDIALOG))
 
 void QPrinter::setOutputToFile(bool f)
@@ -1323,73 +1400,6 @@ bool QPrinter::setup(QWidget *parent)
         && qt_compat_QPrinter_pageSetup(this, parent);
 #endif
         ;
-}
-
-/*!
-    \since 4.1
-    \fn int QPrinter::fromPage() const
-
-    Returns the from-page setting. The default value is 0.
-
-    If fromPage() and toPage() both return 0 this signifies 'print the
-    whole document'.
-
-    \sa setFromTo(), toPage()
-*/
-
-int QPrinter::fromPage() const
-{
-    Q_D(const QPrinter);
-    if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
-    return const_cast<QPrinter*>(this)->d_func()->printDialog->fromPage();
-}
-
-/*!
-    \since 4.1
-
-    Returns the to-page setting. The default value is 0.
-
-    If fromPage() and toPage() both return 0 this signifies 'print the
-    whole document'.
-
-    The programmer is responsible for reading this setting and
-    printing accordingly.
-
-    \sa setFromTo(), fromPage()
-*/
-
-int QPrinter::toPage() const
-{
-    Q_D(const QPrinter);
-    if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
-    return const_cast<QPrinter*>(this)->d_func()->printDialog->toPage();
-}
-
-/*!
-    \since 4.1
-
-    Sets the from-page and to-page settings to \a from and \a
-    to respectively.
-
-    The from-page and to-page settings specify what pages to print.
-
-    If from and to both return 0 this signifies 'print the whole
-    document'.
-
-    This function is useful mostly to set a default value that the
-    user can override in the print dialog when you call setup().
-
-    \sa fromPage(), toPage()
-*/
-
-void QPrinter::setFromTo(int from, int to)
-{
-    Q_D(QPrinter);
-    if (!d->printDialog)
-        const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
-    d->printDialog->setFromTo(from, to);
 }
 
 /*!

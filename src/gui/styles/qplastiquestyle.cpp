@@ -763,10 +763,12 @@ public:
     QPlastiqueStylePrivate(QPlastiqueStyle *qq);
     virtual ~QPlastiqueStylePrivate();
 
+#ifndef QT_NO_PROGRESSBAR
     QList<QProgressBar *> bars;
     int progressBarAnimateTimer;
     QTime timer;
     int animateStep;
+#endif
 
     QPlastiqueStyle *q;
 };
@@ -774,8 +776,11 @@ public:
 /*!
   \internal
  */
-QPlastiqueStylePrivate::QPlastiqueStylePrivate(QPlastiqueStyle *qq)
-    : progressBarAnimateTimer(0), animateStep(0), q(qq)
+QPlastiqueStylePrivate::QPlastiqueStylePrivate(QPlastiqueStyle *qq) :
+#ifndef QT_NO_PROGRESSBAR
+    progressBarAnimateTimer(0), animateStep(0),
+#endif
+    q(qq)
 {
 }
 
@@ -1212,6 +1217,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         break;
     }
 #endif // QT3_SUPPORT
+#ifndef QT_NO_MAINWINDOW
     case PE_PanelMenuBar:
         if (widget && qobject_cast<const QMainWindow *>(widget->parentWidget())) {
             // Draws the light line above and the dark line below menu bars and
@@ -1235,6 +1241,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             painter->setPen(oldPen);
         }
         break;
+#endif // QT_NO_MAINWINDOW
     case PE_PanelButtonTool:
         // Draws a tool button (f.ex., in QToolBar and QTabBar)
         if ((option->state & State_Enabled) || !(option->state & State_AutoRaise))
@@ -2944,6 +2951,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         }
         break;
 #endif // QT_NO_DOCKWIDGET
+#ifndef QT_NO_TOOLBAR
     case CE_ToolBar:
         if (const QStyleOptionToolBar *toolBar = qstyleoption_cast<const QStyleOptionToolBar *>(option)) {
             // Draws the light line above and the dark line below menu bars and
@@ -3049,6 +3057,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->setPen(oldPen);
         }
         break;
+#endif // QT_NO_TOOLBAR
     default:
         QWindowsStyle::drawControl(element, option, painter, widget);
         break;
@@ -3640,7 +3649,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 spinBoxCopy.rect = pixmapRect;
                 QRect upRect = subControlRect(CC_SpinBox, &spinBoxCopy, SC_SpinBoxUp, widget);
                 QRect downRect = subControlRect(CC_SpinBox, &spinBoxCopy, SC_SpinBoxDown, widget);
-                
+
                 if (isEnabled) {
                     // gradients
                     if (upIsActive && sunken) {
@@ -3751,7 +3760,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     cachePainter.drawLine(upRect.left() + 1, upRect.top() + 2,
                                           upRect.left() + 1, upRect.bottom() - 2);
                 }
-                
+
                 if (hover && upIsActive && !sunken) {
                     cachePainter.setPen(highlightedDarkInnerBorderColor.dark(105));
                 } else {
@@ -3781,7 +3790,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     } else {
                         cachePainter.setPen(gradientStartColor.light(105));
                     }
-                }                
+                }
                 if (spinBox->direction == Qt::RightToLeft) {
                     cachePainter.drawLine(downRect.right() - 1, downRect.top() + 1,
                                           downRect.left() + 1, downRect.top() + 1);
@@ -3856,7 +3865,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                             cachePainter.drawLine(downRect.left() + 2, downRect.top() + 3,
                                                   downRect.left() + 2, downRect.bottom() - 3);
                         }
-                        
+
                         cachePainter.setPen(highlightedLightInnerBorderColor.dark(105));
                         if (spinBox->direction == Qt::RightToLeft) {
                             cachePainter.drawLine(downRect.right() - 2, downRect.bottom() - 2,
@@ -5189,16 +5198,16 @@ void QPlastiqueStyle::polish(QWidget *widget)
 #endif
 #ifndef QT_NO_TOOLBAR
         || qobject_cast<QToolBar *>(widget)
-#endif
-#ifndef QT_NO_TOOLBUTTON
         || (widget && qobject_cast<QToolBar *>(widget->parent()))
 #endif
         ) {
         widget->setBackgroundRole(QPalette::Background);
     }
 
+#ifndef QT_NO_PROGRESSBAR
     if (AnimateBusyProgressBar && qobject_cast<QProgressBar *>(widget))
         widget->installEventFilter(this);
+#endif
 
 #if defined QPlastique_MaskButtons
     if (qobject_cast<QPushButton *>(widget) || qobject_cast<QToolButton *>(widget))
@@ -5250,16 +5259,16 @@ void QPlastiqueStyle::unpolish(QWidget *widget)
 #endif
 #ifndef QT_NO_TOOLBAR
         || qobject_cast<QToolBar *>(widget)
-#endif
-#ifndef QT_NO_TOOLBUTTON
         || (widget && qobject_cast<QToolBar *>(widget->parent()))
 #endif
         ) {
         widget->setBackgroundRole(QPalette::Button);
     }
 
+#ifndef QT_NO_PROGRESSBAR
     if (AnimateBusyProgressBar && qobject_cast<QProgressBar *>(widget))
         widget->removeEventFilter(this);
+#endif
 
 #if defined QPlastique_MaskButtons
     if (qobject_cast<QPushButton *>(widget) || qobject_cast<QToolButton *>(widget))

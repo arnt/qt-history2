@@ -375,28 +375,29 @@ void QScrollBar::contextMenuEvent(QContextMenuEvent *event)
         return ;
     }
 
+#ifndef QT_NO_MENU
     bool horiz = HORIZONTAL;
     QMenu menu;
-        QAction *actScrollHere = 
+        QAction *actScrollHere =
             menu.addAction(tr("Scroll here"));
         menu.addSeparator();
-        QAction *actScrollTop = 
+        QAction *actScrollTop =
             menu.addAction(horiz ? tr("Left edge") : tr("Top"));
-        QAction *actScrollBottom = 
+        QAction *actScrollBottom =
             menu.addAction(horiz ? tr("Right edge") : tr("Bottom"));
         menu.addSeparator();
-        QAction *actPageUp = 
+        QAction *actPageUp =
             menu.addAction(horiz ? tr("Page left") : tr("Page up"));
-        QAction *actPageDn = 
+        QAction *actPageDn =
             menu.addAction(horiz ? tr("Page right") : tr("Page down"));
         menu.addSeparator();
-        QAction *actScrollUp = 
+        QAction *actScrollUp =
             menu.addAction(horiz ? tr("Scroll left") : tr("Scroll up"));
-        QAction *actScrollDn = 
+        QAction *actScrollDn =
             menu.addAction(horiz ? tr("Scroll right") : tr("Scroll down"));
 
     QAction *actionSelected = menu.exec(event->globalPos());
-    if (actionSelected == 0) 
+    if (actionSelected == 0)
         /* do nothing */ ;
     else if (actionSelected == actScrollHere)
         setValue(d_func()->pixelPosToRangeValue(horiz ? event->pos().x() : event->pos().y()));
@@ -411,7 +412,8 @@ void QScrollBar::contextMenuEvent(QContextMenuEvent *event)
     else if (actionSelected == actScrollUp)
         triggerAction(QAbstractSlider::SliderSingleStepSub);
     else if (actionSelected == actScrollDn)
-        triggerAction(QAbstractSlider::SliderSingleStepAdd);        
+        triggerAction(QAbstractSlider::SliderSingleStepAdd);
+#endif // QT_NO_MENU
 }
 
 

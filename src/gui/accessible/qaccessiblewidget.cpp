@@ -775,8 +775,10 @@ QString QAccessibleWidget::text(Text t, int child) const
     case Help:
         if (!d->help.isEmpty())
             str = d->help;
+#ifndef QT_NO_WHATSTHIS
         else
             str = widget()->whatsThis();
+#endif
         break;
     case Accelerator:
         if (!d->accelerator.isEmpty())

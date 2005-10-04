@@ -156,14 +156,20 @@ inline void QTreeWidgetItem::setText(int column, const QString &atext)
 inline void QTreeWidgetItem::setIcon(int column, const QIcon &aicon)
 { setData(column, Qt::DecorationRole, aicon); }
 
+#ifndef QT_NO_STATUSTIP
 inline void QTreeWidgetItem::setStatusTip(int column, const QString &astatusTip)
 { setData(column, Qt::StatusTipRole, astatusTip); }
+#endif
 
+#ifndef QT_NO_TOOLTIP
 inline void QTreeWidgetItem::setToolTip(int column, const QString &atoolTip)
 { setData(column, Qt::ToolTipRole, atoolTip); }
+#endif
 
+#ifndef QT_NO_WHATSTHIS
 inline void QTreeWidgetItem::setWhatsThis(int column, const QString &awhatsThis)
 { setData(column, Qt::WhatsThisRole, awhatsThis); }
+#endif
 
 inline void QTreeWidgetItem::setFont(int column, const QFont &afont)
 { setData(column, Qt::FontRole, afont); }

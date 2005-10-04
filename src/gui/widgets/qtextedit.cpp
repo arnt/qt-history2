@@ -1675,7 +1675,6 @@ process:
 #endif
         {
             QTextBlockFormat blockFmt = d->cursor.blockFormat();
-
             QTextList *list = d->cursor.currentList();
             if (list && d->cursor.atBlockStart()) {
                 list->remove(d->cursor.block());
@@ -3503,6 +3502,7 @@ void QTextEdit::ensureCursorVisible()
     Use setTextColor() instead.
 */
 
+#ifndef QT_NO_MENU
 #define NUM_CONTROL_CHARACTERS 10
 const struct QUnicodeControlCharacter {
     const char *text;
@@ -3543,6 +3543,7 @@ void QUnicodeControlCharacterMenu::actionTriggered()
     else if (QLineEdit *edit = qobject_cast<QLineEdit *>(editWidget))
         edit->insert(str);
 }
+#endif // QT_NO_MENU
 
 #include "moc_qtextedit.cpp"
 #include "moc_qtextedit_p.cpp"

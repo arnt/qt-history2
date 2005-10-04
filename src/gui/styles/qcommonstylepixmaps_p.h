@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#ifndef QT_NO_IMAGEFORMAT_XPM
+
 static const char * const check_list_controller_xpm[] = {
 "16 16 4 1",
 "        c None",
@@ -141,3 +143,5 @@ static const char * const filedialog_end_xpm[]={
     "aaeeeeeeeeeeeee.",
     "aaa.............",
     "aaaaaaaaaaaaaaaa"};
+
+#endif // QT_NO_IMAGEFORMAT_XPM

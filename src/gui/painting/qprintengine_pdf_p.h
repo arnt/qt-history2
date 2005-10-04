@@ -25,12 +25,14 @@
 // We mean it.
 //
 
+#include "QtGui/qprintengine.h"
+
+#ifndef QT_NO_PRINTER
 #include "QtCore/qmap.h"
 #include "QtGui/qmatrix.h"
 #include "QtCore/qstring.h"
 #include "QtCore/qvector.h"
 #include "QtGui/qpaintengine.h"
-#include "QtGui/qprintengine.h"
 
 class QImage;
 class QDataStream;
@@ -456,7 +458,7 @@ public:
     QPrinter::PageOrder pageOrder;
     QPrinter::Orientation orientation;
     bool fullPage;
-    
+
 private:
     Q_DISABLE_COPY(QPdfEnginePrivate)
     void writeInfo();
@@ -552,4 +554,5 @@ private:
     QFile* outFile_;
 };
 
+#endif // QT_NO_PRINTER
 #endif // QPRINTENGINE_PDF_P_H

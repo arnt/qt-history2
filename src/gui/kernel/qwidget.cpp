@@ -5275,12 +5275,16 @@ bool QWidget::event(QEvent *e)
         if (ev->child())
             return false;
         switch (ev->type()) {
+#ifndef QT_NO_TOOLTIP
         case QEvent::AccessibilityDescription:
             ev->setValue(d->toolTip);
             break;
+#endif
+#ifndef QT_NO_WHATSTHIS
         case QEvent::AccessibilityHelp:
             ev->setValue(d->whatsThis);
             break;
+#endif
         default:
             return false;
         }
