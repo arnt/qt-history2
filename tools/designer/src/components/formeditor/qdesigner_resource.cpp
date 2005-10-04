@@ -394,7 +394,12 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
 
             int index = sheet->indexOf(propertyName);
             if (index != -1) {
-                QVariant v = toVariant(o->metaObject(), p);
+                const QMetaObject *meta = 0;
+                if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(o))
+                    meta = promoted->child()->metaObject();
+                else
+                    meta = o->metaObject();
+                QVariant v = toVariant(meta, p);
 
                 if (!core()->metaDataBase()->item(o)) {
                     qWarning() << "** WARNING no ``meta database item'' for object:" << o;
