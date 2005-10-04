@@ -598,7 +598,7 @@ qreal QTextDocumentLayoutPrivate::indent(QTextBlock bl) const
     qreal scale = 1;
     if (q->paintDevice()) {
         extern int qt_defaultDpi();
-        scale = q->paintDevice()->logicalDpiY() / qt_defaultDpi();
+        scale = qreal(q->paintDevice()->logicalDpiY()) / qreal(qt_defaultDpi());
     }
 
     return indent * TextIndentValue * scale;
