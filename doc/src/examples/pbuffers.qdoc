@@ -1,0 +1,8 @@
+/*!
+    \example opengl/pbuffers
+    \title Pbuffers Example
+
+    The Pbuffers example demonstrates how to use the QGLPbuffer class to
+    render into an offscreen buffer and use the contents as a dynamic
+    texture in a QGLWidget.
+*/

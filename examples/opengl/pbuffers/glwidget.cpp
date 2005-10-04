@@ -49,7 +49,7 @@ GLWidget::GLWidget(QWidget *parent)
 {
     // create the pbuffer
     pbuffer = new QGLPbuffer(QSize(512, 512), format(), this);
-    startTimer(20);
+    timerId = startTimer(20);
 }
 
 GLWidget::~GLWidget()

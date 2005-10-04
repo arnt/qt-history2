@@ -163,6 +163,8 @@
     \o \l{opengl/grabber}{Grabber}
     \o \l{opengl/hellogl}{Hello GL}
     \o \l{opengl/textures}{Textures}
+    \o \l{opengl/samplebuffers}{Samplebuffers}
+    \o \l{opengl/pbuffers}{Pbuffers}
     \endlist
 
     \section1 XML Examples
