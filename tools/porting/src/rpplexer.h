@@ -11,13 +11,15 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef RPPLEXER_H
 #define RPPLEXER_H
 
-#include <QByteArray>
-#include <QVector>
 #include "tokens.h"
 #include "tokenengine.h"
+#include <QByteArray>
+#include <QVector>
+
 namespace Rpp {
 
 class RppLexer
@@ -62,7 +64,5 @@ private:
 };
 
 } //namespace Rpp
-
-
 
 #endif

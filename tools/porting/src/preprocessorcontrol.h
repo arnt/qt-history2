@@ -10,16 +10,18 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef PREPROCESSORCONTROL_H
 #define PREPROCESSORCONTROL_H
-#include <QString>
-#include <QStringList>
-#include <QHash>
+
 #include "tokenengine.h"
 #include "tokenizer.h"
 #include "rpplexer.h"
 #include "rpptreeevaluator.h"
 #include "rpp.h"
+#include <QString>
+#include <QStringList>
+#include <QHash>
 
 class IncludeFiles
 {
@@ -102,6 +104,4 @@ private:
     StandardOutErrorHandler m_errorHandler;
 };
 
-
 #endif
-

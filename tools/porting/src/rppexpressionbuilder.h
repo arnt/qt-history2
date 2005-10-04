@@ -10,14 +10,15 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef RPPEXPRESSIONBUILDER_H
 #define RPPEXPRESSIONBUILDER_H
 
-#include <QByteArray>
 #include "tokens.h"
 #include "tokenengine.h"
 #include "smallobject.h"
 #include "rpp.h"
+#include <QByteArray>
 
 namespace Rpp {
 

@@ -11,16 +11,17 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef CODEMODEL_H
 #define CODEMODEL_H
+
+#include "smallobject.h"
+#include "tokenengine.h"
 
 #include <QByteArray>
 #include <QList>
 #include <QMap>
 #include <QHash>
-
-#include "smallobject.h"
-#include "tokenengine.h"
 
 namespace CodeModel
 {
@@ -740,6 +741,5 @@ T *Create(TypedPool<CodeModel::Item> *p)
 }
 
 } // namespace CodeModel
-
 
 #endif // CODEMODEL_H

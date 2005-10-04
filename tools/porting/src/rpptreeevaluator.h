@@ -10,16 +10,17 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef RPPTREEEVALUATOR_H
 #define RPPTREEEVALUATOR_H
 
+#include "tokenengine.h"
+#include "rpp.h"
+#include "rpptreewalker.h"
 #include <QObject>
 #include <QList>
 #include <QHash>
 #include <QSet>
-#include "tokenengine.h"
-#include "rpp.h"
-#include "rpptreewalker.h"
 
 namespace Rpp {
 
@@ -78,4 +79,5 @@ private:
 };
 
 }//namespace Rpp
+
 #endif

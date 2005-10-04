@@ -11,12 +11,13 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef CPPLEXER_H
 #define CPPLEXER_H
 
-#include <QVector>
 #include "tokenengine.h"
 #include "tokens.h"
+#include <QVector>
 
 class CppLexer
 {

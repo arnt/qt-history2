@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef TOKENENGINE_H
 #define TOKENENGINE_H
 
@@ -399,4 +400,3 @@ TokenContainer copy(const TokenSequenceType &tokenSequence, int startToken, int 
 } //namespace TokenEngine
 
 #endif
-

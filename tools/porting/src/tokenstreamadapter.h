@@ -11,13 +11,14 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef TOKENSTREAMADAPTER_H
 #define TOKENSTREAMADAPTER_H
 
-#include <QVector>
-
 #include "tokenengine.h"
 #include "tokens.h"
+
+#include <QVector>
 
 namespace TokenStreamAdapter {
 struct TokenStream

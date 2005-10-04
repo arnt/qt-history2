@@ -11,17 +11,18 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef SEMANTIC_H
 #define SEMANTIC_H
+
+#include "treewalker.h"
+#include "codemodel.h"
+#include "tokenstreamadapter.h"
 
 #include <QObject>
 #include <QStack>
 #include <QList>
 #include <QByteArray>
-
-#include "treewalker.h"
-#include "codemodel.h"
-#include "tokenstreamadapter.h"
 
 class Semantic: public QObject, public TreeWalker
 {

@@ -14,13 +14,13 @@
 #ifndef PORTINGRULES_H
 #define PORTINGRULES_H
 
+#include "qtsimplexml.h"
+#include "tokenreplacements.h"
 #include <QList>
 #include <QPair>
 #include <QHash>
 #include <QSet>
 #include <QStringList>
-#include "qtsimplexml.h"
-#include "tokenreplacements.h"
 
 class RuleDescription
 {

@@ -11,19 +11,20 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef RPP_H
 #define RPP_H
 
+#include "tokenengine.h"
+#include "rpplexer.h"
+#include "tokens.h"
+#include "smallobject.h"
 #include <QHash>
 #include <QStringList>
 #include <QFile>
 #include <QByteArray>
 #include <QDir>
 #include <QMultiMap>
-#include "tokenengine.h"
-#include "rpplexer.h"
-#include "tokens.h"
-#include "smallobject.h"
 #include <ctype.h>
 
 namespace Rpp

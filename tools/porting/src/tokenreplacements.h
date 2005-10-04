@@ -14,10 +14,10 @@
 #ifndef TOKENREPLACEMENTS_H
 #define TOKENREPLACEMENTS_H
 
-#include <QStringList>
-#include <QByteArray>
 #include "tokenengine.h"
 #include "textreplacement.h"
+#include <QStringList>
+#include <QByteArray>
 
 void addLogSourceEntry(const QString &text, const TokenEngine::TokenContainer&, const int index);
 void addLogWarning(const QString &text);

@@ -10,11 +10,12 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef LIST_H
 #define LIST_H
 
-#include <qglobal.h>
-#include <smallobject.h>
+#include "smallobject.h"
+#include <QtGlobal>
 
 template <typename T>
 class List

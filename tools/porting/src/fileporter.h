@@ -14,13 +14,13 @@
 #ifndef FILEPORTER_H
 #define FILEPORTER_H
 
-#include <QString>
-#include <QSet>
-#include <QMap>
 #include "portingrules.h"
 #include "replacetoken.h"
 #include "filewriter.h"
 #include "preprocessorcontrol.h"
+#include <QString>
+#include <QSet>
+#include <QMap>
 
 class FilePorter
 {
@@ -78,6 +78,5 @@ private:
     QSet<QByteArray> m_includedHeaders;
     QSet<QByteArray> m_usedClasses;
 };
-
 
 #endif

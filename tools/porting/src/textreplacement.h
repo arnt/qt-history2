@@ -16,7 +16,7 @@
 
 #include <QByteArray>
 #include <QList>
-#include <qalgorithms.h>
+#include <QtAlgorithms>
 
 class TextReplacement
 {

@@ -11,10 +11,11 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef ERRORS_H
 #define ERRORS_H
 
-#include <qstring.h>
+#include <QString>
 
 class Error
 {

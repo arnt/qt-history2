@@ -14,11 +14,11 @@
 #ifndef REPLACETOKEN_H
 #define REPLACETOKEN_H
 
-#include <QList>
-#include <QMultiMap>
 #include "tokenengine.h"
 #include "tokenreplacements.h"
 #include "textreplacement.h"
+#include <QList>
+#include <QMultiMap>
 
 class ReplaceToken
 {

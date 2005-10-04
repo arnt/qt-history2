@@ -14,10 +14,10 @@
 #ifndef PROJECTPORTER_H
 #define PROJECTPORTER_H
 
-#include <QString>
-#include <QSet>
 #include "fileporter.h"
 #include "preprocessorcontrol.h"
+#include <QString>
+#include <QSet>
 
 class ProjectPorter : public QObject
 {

@@ -89,5 +89,4 @@ private:
     QList<LogEntry*> pendingLogEntries;
 };
 
-
 #endif
