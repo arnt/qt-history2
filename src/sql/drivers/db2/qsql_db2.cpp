@@ -1366,11 +1366,15 @@ QSqlIndex QDB2Driver::primaryIndex(const QString& tablename) const
 bool QDB2Driver::hasFeature(DriverFeature f) const
 {
     switch (f) {
-        case Transactions:
-            return true;
         case QuerySize:
+        case NamedPlaceholders:
+        case BatchOperations:
+        case LastInsertId:
             return false;
         case BLOB:
+        case Transactions:
+        case PreparedQueries:
+        case PositionalPlaceholders:
             return true;
         case Unicode:
         // this is the query that shows the codepage for the types:
@@ -1380,15 +1384,8 @@ bool QDB2Driver::hasFeature(DriverFeature f) const
 #else
             return false;
 #endif
-        case PreparedQueries:
-            return true;
-        case PositionalPlaceholders:
-            return true;
-        case NamedPlaceholders:
-            return false;
-        default:
-            return false;
     }
+    return false;
 }
 
 bool QDB2Driver::beginTransaction()

@@ -902,20 +902,24 @@ bool QMYSQLDriver::hasFeature(DriverFeature f) const
         }
 #endif
         return false;
+    case NamedPlaceholders:
+    case BatchOperations:
+        return false;
     case QuerySize:
     case BLOB:
     case LastInsertId:
         return true;
     case Unicode:
         return true;
-#if MYSQL_VERSION_ID >= 40108
     case PreparedQueries:
     case PositionalPlaceholders:
+#if MYSQL_VERSION_ID >= 40108
         return d->preparedQuerysEnabled;
-#endif
-    default:
+#else
         return false;
+#endif
     }
+    return false;
 }
 
 static void setOptionFlag(uint &optionFlags, const QString &opt)

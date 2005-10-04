@@ -386,6 +386,7 @@ bool QSQLiteDriver::hasFeature(DriverFeature f) const
         return true;
     case QuerySize:
     case NamedPlaceholders:
+    case BatchOperations:
         return false;
     }
     return false;

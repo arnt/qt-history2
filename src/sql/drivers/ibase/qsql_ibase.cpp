@@ -1183,16 +1183,19 @@ QIBaseDriver::~QIBaseDriver()
 bool QIBaseDriver::hasFeature(DriverFeature f) const
 {
     switch (f) {
+    case QuerySize:
+    case NamedPlaceholders:
+    case LastInsertId:
+    case BatchOperations:
+        return false;
     case Transactions:
-//    case QuerySize:
     case PreparedQueries:
     case PositionalPlaceholders:
     case Unicode:
     case BLOB:
         return true;
-    default:
-        return false;
     }
+    return false;
 }
 
 bool QIBaseDriver::open(const QString & db,

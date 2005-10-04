@@ -1336,19 +1336,19 @@ bool QODBCDriver::hasFeature(DriverFeature f) const
         else
             return true;
     }
-    case QuerySize:
-        return false;
-    case BLOB:
-        return true;
     case Unicode:
         return d->unicode;
     case PreparedQueries:
-        return true;
+    case BLOB:
     case PositionalPlaceholders:
         return true;
-    default:
+    case QuerySize:
+    case NamedPlaceholders:
+    case LastInsertId:
+    case BatchOperations:
         return false;
     }
+    return false;
 }
 
 bool QODBCDriver::open(const QString & db,

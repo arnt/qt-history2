@@ -462,13 +462,17 @@ bool QPSQLDriver::hasFeature(DriverFeature f) const
     case QuerySize:
     case LastInsertId:
         return true;
+    case BatchOperations:
+    case PreparedQueries:
+    case NamedPlaceholders:
+    case PositionalPlaceholders:
+        return false;
     case BLOB:
         return d->pro >= QPSQLDriver::Version71;
     case Unicode:
         return d->isUtf8;
-    default:
-        return false;
     }
+    return false;
 }
 
 /*

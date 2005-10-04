@@ -810,6 +810,62 @@ QVariant QSqlResult::lastInsertId() const
 */
 void QSqlResult::virtual_hook(int, void *)
 {
+    Q_ASSERT(false);
+}
+
+/*!
+    Executes a prepared query in batch mode if the driver supports it,
+    otherwise emulates a batch execution using bindValue() and exec().
+    QSqlDriver::hasFeature() can be used to find out whether a driver
+    supports batch execution.
+
+    Batch execution can be faster for large amounts of data since it
+    reduces network roundtrips.
+
+    For batch executions, the \a values have to be provided as a vector
+    of a vector of variants. The outer vector represents a row, the inner
+    vectors the values for each column.
+
+    The amount or type of values must not change.
+
+    Example:
+
+    \code
+    QSqlQuery q;
+    q.prepare("insert into test (i1, i2, s) values (?, ?, ?)");
+
+    QVector<QVariant> row1;
+    row1 << 1 << 2 << "hello";
+    QVector<QVariant> row2;
+    row2 << 3 << 4 << "world";
+
+    QVector<QVector<QVariant> > values;
+    values << row1 << row2;
+
+    if (!q.execBatch(values))
+        qDebug() << q.lastError();
+    \endcode
+
+    Here, we insert two rows into a SQL table, with each row containing three values.
+
+    \sa exec(), QSqlDriver::hasFeature()
+*/
+bool QSqlResult::execBatch(const QVector<QVector<QVariant> > &values)
+{
+    if (driver()->hasFeature(QSqlDriver::BatchOperations)) {
+        virtual_hook(BatchOperation, &const_cast<QVector<QVector<QVariant> >&>(values));
+        return d->error.type() != QSqlError::NoError;
+    } else {
+        for (int i = 0; i < values.count(); ++i) {
+            const QVector<QVariant> &val = values.at(i);
+            for (int j = 0; j < val.count(); ++j)
+                bindValue(i, val.at(j), QSql::In);
+            if (!exec())
+                return false;
+        }
+        return true;
+    }
+    return false;
 }
 
 

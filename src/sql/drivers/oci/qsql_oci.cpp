@@ -1396,12 +1396,12 @@ bool QOCIDriver::hasFeature(DriverFeature f) const
     case NamedPlaceholders:
         return true;
     case QuerySize:
+    case PositionalPlaceholders:
         return false;
     case Unicode:
         return d->serverVersion >= 9;
-    default:
-        return false;
     }
+    return false;
 }
 
 static void qParseOpts(const QString &options, QOCIPrivate *d)
