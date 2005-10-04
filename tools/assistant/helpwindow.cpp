@@ -17,24 +17,24 @@
 #include "helpdialog.h"
 #include "config.h"
 
-#include <qapplication.h>
-#include <qclipboard.h>
-#include <qurl.h>
-#include <qmessagebox.h>
-#include <qdir.h>
-#include <qfile.h>
-#include <qprocess.h>
-#include <qmenu.h>
-#include <qaction.h>
-#include <qfileinfo.h>
-#include <qevent.h>
-#include <qtextstream.h>
-#include <qtextcodec.h>
-#include <qstatusbar.h>
-#include <qtextcursor.h>
-#include <qtextobject.h>
-#include <qtextlayout.h>
-#include <qdebug.h>
+#include <QApplication>
+#include <QClipboard>
+#include <QUrl>
+#include <QMessageBox>
+#include <QDir>
+#include <QFile>
+#include <QProcess>
+#include <QMenu>
+#include <QAction>
+#include <QFileInfo>
+#include <QtEvents>
+#include <QTextStream>
+#include <QTextCodec>
+#include <QStatusBar>
+#include <QTextCursor>
+#include <QTextObject>
+#include <QTextLayout>
+#include <QtDebug>
 
 #if defined(Q_OS_WIN32)
 #  include <windows.h>
@@ -297,4 +297,3 @@ bool HelpWindow::isKDERunning() const
 {
     return !qgetenv("KDE_FULL_SESSION").isEmpty();
 }
-

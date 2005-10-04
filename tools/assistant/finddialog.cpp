@@ -11,18 +11,17 @@
 **
 ****************************************************************************/
 
-
 #include "finddialog.h"
 #include "mainwindow.h"
 #include "tabbedbrowser.h"
 #include "helpwindow.h"
 
-#include <qtextbrowser.h>
-#include <qtextcursor.h>
-#include <qstatusbar.h>
-#include <qlineedit.h>
-#include <qdatetime.h>
-#include <qgridlayout.h>
+#include <QTextBrowser>
+#include <QTextCursor>
+#include <QStatusBar>
+#include <QLineEdit>
+#include <QDateTime>
+#include <QGridLayout>
 
 CaseSensitiveModel::CaseSensitiveModel(int rows, int columns, QObject *parent)
     : QStandardItemModel(rows, columns, parent)
@@ -142,4 +141,3 @@ void FindDialog::reset()
     ui.comboFind->lineEdit()->setSelection(
         0, ui.comboFind->lineEdit()->text().length());
 }
-

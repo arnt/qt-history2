@@ -16,15 +16,15 @@
 #include "helpwindow.h"
 #include "config.h"
 
-#include <QtGui/QStyleOptionTab>
-#include <qtooltip.h>
-#include <qfileinfo.h>
-#include <qtoolbutton.h>
-#include <qpixmap.h>
-#include <qicon.h>
-#include <qstyle.h>
-#include <qtimer.h>
-#include <qstackedwidget.h>
+#include <QStyleOptionTab>
+#include <QToolTip>
+#include <QFileInfo>
+#include <QToolButton>
+#include <QPixmap>
+#include <QIcon>
+#include <QStyle>
+#include <QTimer>
+#include <QStackedWidget>
 
 TabbedBrowser::TabbedBrowser(MainWindow *parent)
     : QWidget(parent)

@@ -13,16 +13,16 @@
 
 #include "index.h"
 
-#include <qfile.h>
-#include <qdir.h>
-#include <qstringlist.h>
-#include <qapplication.h>
-#include <qbytearray.h>
+#include <QFile>
+#include <QDir>
+#include <QStringList>
+#include <QApplication>
+#include <QByteArray>
+#include <QTextStream>
+#include <QtAlgorithms>
+#include <QUrl>
+#include <QTextCodec>
 #include <ctype.h>
-#include <qtextstream.h>
-#include <qalgorithms.h>
-#include <qurl.h>
-#include <qtextcodec.h>
 
 struct Term {
     Term() : frequency(-1) {}

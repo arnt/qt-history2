@@ -14,7 +14,7 @@
 #ifndef DOCUWINDOW_H
 #define DOCUWINDOW_H
 
-#include <qmainwindow.h>
+#include <QMainWindow>
 
 class QTextBrowser;
 

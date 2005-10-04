@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include <qaxobject.h>
-#include <qfile.h>
-#include <qtextstream.h>
+#include <QAxObject>
+#include <QFile>
+#include <QTextStream>
 #include <qt_windows.h>
 
 int main(int argc, char **argv)

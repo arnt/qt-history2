@@ -15,22 +15,22 @@
 #include "docuparser.h"
 #include "config.h"
 
-#include <qapplication.h>
-#include <qpushbutton.h>
-#include <qcheckbox.h>
-#include <qcolordialog.h>
-#include <qdir.h>
-#include <qfiledialog.h>
-#include <qfileinfo.h>
-#include <qlineedit.h>
-#include <qlistwidget.h>
-#include <qmessagebox.h>
-#include <qsettings.h>
-#include <qtimer.h>
-#include <qtoolbutton.h>
-#include <qtabwidget.h>
-#include <qmap.h>
-#include <qfontdatabase.h>
+#include <QApplication>
+#include <QPushButton>
+#include <QCheckBox>
+#include <QColorDialog>
+#include <QDir>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QLineEdit>
+#include <QListWidget>
+#include <QMessageBox>
+#include <QSettings>
+#include <QTimer>
+#include <QToolButton>
+#include <QTabWidget>
+#include <QMap>
+#include <QFontDatabase>
 
 SettingsDialog::SettingsDialog(QWidget *parent)
     : QDialog(parent)
@@ -97,4 +97,3 @@ void SettingsDialog::on_buttonCancel_clicked()
 {
     reject();
 }
-

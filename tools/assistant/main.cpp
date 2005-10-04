@@ -15,19 +15,19 @@
 #include "helpdialog.h"
 #include "config.h"
 
-#include <qtcpserver.h>
-#include <qtcpsocket.h>
-#include <qapplication.h>
-#include <qpixmap.h>
-#include <qstringlist.h>
-#include <qdir.h>
-#include <qmessagebox.h>
-#include <qpointer.h>
+#include <QTcpServer>
+#include <QTcpSocket>
+#include <QApplication>
+#include <QPixmap>
+#include <QStringList>
+#include <QDir>
+#include <QMessageBox>
+#include <QPointer>
+#include <QTranslator>
+#include <QLibraryInfo>
+#include <QLocale>
 #include <stdlib.h>
 #include <stdio.h>
-#include <qtranslator.h>
-#include <qlocale.h>
-#include <qlibraryinfo.h>
 
 #ifdef Q_WS_WIN
 #define INDEX_CHECK( text ) if( i+1 >= argc ) { QMessageBox::information( 0, "Qt Assistant", text ); return 1; }

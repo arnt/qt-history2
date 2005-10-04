@@ -8,10 +8,10 @@
 **
 *****************************************************************************/
 
-#include <qapplication.h>
-#include <qaxfactory.h>
-
 #include "mainwindow.h"
+
+#include <QApplication>
+#include <QAxFactory>
 
 QAXFACTORY_DEFAULT(MainWindow,
 		   "{5f5ce700-48a8-47b1-9b06-3b7f79e41d7c}",

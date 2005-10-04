@@ -15,8 +15,8 @@
 #define MAINWINDOW_H
 
 #include "ui_mainwindow.h"
-#include <qpointer.h>
-#include <qmap.h>
+#include <QPointer>
+#include <QMap>
 
 class TabbedBrowser;
 class HelpDialog;

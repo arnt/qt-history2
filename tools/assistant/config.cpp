@@ -15,17 +15,17 @@
 #include "profile.h"
 #include "docuparser.h"
 
-#include <qapplication.h>
-#include <qdesktopwidget.h>
-#include <qlibraryinfo.h>
-#include <qfont.h>
-#include <qfontinfo.h>
-#include <qdir.h>
-#include <qfile.h>
-#include <qfileinfo.h>
-#include <qsettings.h>
-#include <qxml.h>
-#include <qlist.h>
+#include <QApplication>
+#include <QDesktopWidget>
+#include <QLibraryInfo>
+#include <QFont>
+#include <QFontInfo>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QSettings>
+#include <QtXml>
+#include <QList>
 
 static Config *static_configuration = 0;
 

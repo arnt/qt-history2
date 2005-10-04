@@ -14,13 +14,13 @@
 #ifndef INDEX_H
 #define INDEX_H
 
-#include <qstringlist.h>
-#include <qhash.h>
-#include <qdatastream.h>
-#include <qobject.h>
-#include <qlist.h>
-#include <qfile.h>
-#include <qvector.h>
+#include <QStringList>
+#include <QHash>
+#include <QDataStream>
+#include <QObject>
+#include <QList>
+#include <QFile>
+#include <QVector>
 
 struct Document {
     Document( int d, int f ) : docNumber( d ), frequency( f ) {}

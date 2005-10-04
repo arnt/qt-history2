@@ -18,25 +18,25 @@
 #include "settingsdialog.h"
 #include "config.h"
 
-#include <qdockwidget.h>
-#include <qdir.h>
-#include <qtimer.h>
-#include <qstatusbar.h>
-#include <qshortcut.h>
-#include <qmessagebox.h>
-#include <qpainter.h>
-#include <qeventloop.h>
-#include <qevent.h>
-#include <qfontdatabase.h>
-#include <qwhatsthis.h>
-#include <qtextdocumentfragment.h>
-#include <qlibraryinfo.h>
-#include <qprinter.h>
-#include <qprintdialog.h>
-#include <qabstracttextdocumentlayout.h>
-#include <qtextdocument.h>
-#include <qtextobject.h>
-#include <qfiledialog.h>
+#include <QDockWidget>
+#include <QDir>
+#include <QTimer>
+#include <QStatusBar>
+#include <QShortcut>
+#include <QMessageBox>
+#include <QPainter>
+#include <QEventLoop>
+#include <QtEvents>
+#include <QFontDatabase>
+#include <QWhatsThis>
+#include <QTextDocumentFragment>
+#include <QLibraryInfo>
+#include <QPrinter>
+#include <QPrintDialog>
+#include <QAbstractTextDocumentLayout>
+#include <QTextDocument>
+#include <QTextObject>
+#include <QFileDialog>
 
 QList<MainWindow*> MainWindow::windows;
 

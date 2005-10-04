@@ -14,10 +14,10 @@
 #ifndef PROFILE_H
 #define PROFILE_H
 
-#include <qfileinfo.h>
-#include <qstring.h>
-#include <qstringlist.h>
-#include <qmap.h>
+#include <QFileInfo>
+#include <QString>
+#include <QStringList>
+#include <QMap>
 
 class DocuParser;
 
@@ -107,4 +107,4 @@ inline bool Profile::hasDocFile( const QString &name )
     return docs.contains( name );
 }
 
-#endif
+#endif // PROFILE_H

@@ -16,8 +16,8 @@
 
 #include "ui_topicchooser.h"
 
-#include <qdialog.h>
-#include <qstringlist.h>
+#include <QDialog>
+#include <QStringList>
 
 class TopicChooser : public QDialog
 {

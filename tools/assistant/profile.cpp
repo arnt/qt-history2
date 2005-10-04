@@ -12,13 +12,13 @@
 ****************************************************************************/
 
 #include "profile.h"
-#include <qxml.h>
-#include <qtextcodec.h>
-#include <qfileinfo.h>
-#include <qregexp.h>
-#include <qdir.h>
-#include <qlist.h>
-#include <qlibraryinfo.h>
+#include <QtXml>
+#include <QTextCodec>
+#include <QFileInfo>
+#include <QRegExp>
+#include <QDir>
+#include <QList>
+#include <QLibraryInfo>
 
 #define QT_TITLE         QLatin1String("Qt Reference Documentation")
 #define DESIGNER_TITLE   QLatin1String("Qt Designer Manual")

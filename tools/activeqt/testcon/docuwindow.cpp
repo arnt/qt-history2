@@ -12,17 +12,17 @@
 ****************************************************************************/
 
 #include "docuwindow.h"
-#include <qtextbrowser.h>
-#include <qtextdocument.h>
-#include <qtoolbar.h>
-#include <qtoolbutton.h>
-#include <qfiledialog.h>
-#include <qfile.h>
-#include <qstatusbar.h>
-#include <qprinter.h>
-#include <qpainter.h>
-#include <qprintdialog.h>
-#include <qtextstream.h>
+#include <QTextBrowser>
+#include <QTextDocument>
+#include <QToolBar>
+#include <QToolButton>
+#include <QFileDialog>
+#include <QFile>
+#include <QStatusBar>
+#include <QPrinter>
+#include <QPainter>
+#include <QPrintDialog>
+#include <QTextStream>
 
 static const char *filesave[] = {
 "    14    14        4            1",

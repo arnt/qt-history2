@@ -14,13 +14,13 @@
 #include "docuparser.h"
 #include "profile.h"
 
-#include <qdir.h>
-#include <qfile.h>
-#include <qfileinfo.h>
-#include <qregexp.h>
-#include <qstring.h>
-#include <qxml.h>
-#include <qdatastream.h>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QRegExp>
+#include <QString>
+#include <QtXml>
+#include <QDataStream>
 
 QDataStream &operator>>(QDataStream &s, ContentItem &ci)
 {

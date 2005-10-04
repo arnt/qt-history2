@@ -16,8 +16,8 @@
 
 #include "ui_settingsdialog.h"
 
-#include <qdialog.h>
-#include <qstringlist.h>
+#include <QDialog>
+#include <QStringList>
 
 class SettingsDialog : public QDialog
 {

@@ -19,8 +19,8 @@
 #include "config.h"
 #include "tabbedbrowser.h"
 
-#include <QtGui/QtGui>
-#include <QtCore/qdebug.h>
+#include <QtGui>
+#include <QtDebug>
 
 #include <stdlib.h>
 #include <limits.h>

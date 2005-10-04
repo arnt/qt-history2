@@ -16,10 +16,10 @@
 
 #include "profile.h"
 
-#include <qstring.h>
-#include <qstringlist.h>
-#include <qpixmap.h>
-#include <qmap.h>
+#include <QString>
+#include <QStringList>
+#include <QPixmap>
+#include <QMap>
 
 class Profile;
 
@@ -109,4 +109,4 @@ private:
     bool rebuildDocs;
 };
 
-#endif
+#endif // CONFIG_H

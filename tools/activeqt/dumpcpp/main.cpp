@@ -11,15 +11,14 @@
 **
 ****************************************************************************/
 
-#include <qaxobject.h>
-#include <qfile.h>
-#include <qmetaobject.h>
-#include <qtextstream.h>
-#include <qsettings.h>
-#include <qstringlist.h>
-#include <quuid.h>
-#include <qwidget.h>
-
+#include <QAxObject>
+#include <QFile>
+#include <QMetaObject>
+#include <QTextStream>
+#include <QSettings>
+#include <QStringList>
+#include <QUuid>
+#include <QWidget>
 #include <qt_windows.h>
 #include <ocidl.h>
 

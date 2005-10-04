@@ -13,9 +13,9 @@
 
 #include "topicchooser.h"
 
-#include <qlabel.h>
-#include <qlistwidget.h>
-#include <qpushbutton.h>
+#include <QLabel>
+#include <QListWidget>
+#include <QPushButton>
 
 TopicChooser::TopicChooser(QWidget *parent, const QStringList &lnkNames,
                             const QStringList &lnks, const QString &title)
@@ -67,4 +67,3 @@ void TopicChooser::on_listbox_itemActivated(QListWidgetItem *item)
     Q_UNUSED(item);
     accept();
 }
-
