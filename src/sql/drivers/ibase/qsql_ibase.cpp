@@ -482,7 +482,7 @@ QVariant QIBaseResultPrivate::fetchArray(int pos, ISC_QUAD *arr)
         return list;
 
     QByteArray relname(sqlda->sqlvar[pos].relname, sqlda->sqlvar[pos].relname_length);
-    QByteArray sqlname(sqlda->sqlvar[pos].sqlname, sqlda->sqlvar[pos].sqlname_length);
+    QByteArray sqlname(sqlda->sqlvar[pos].aliasname, sqlda->sqlvar[pos].aliasname_length);
 
     isc_array_lookup_bounds(status, &ibase, &trans, relname.data(), sqlname.data(), &desc);
     if (isError(QT_TRANSLATE_NOOP("QIBaseResult", "Could not find array"),
@@ -668,7 +668,7 @@ bool QIBaseResultPrivate::writeArray(int column, const QList<QVariant> &list)
     ISC_ARRAY_DESC desc;
 
     QByteArray relname(inda->sqlvar[column].relname, inda->sqlvar[column].relname_length);
-    QByteArray sqlname(inda->sqlvar[column].sqlname, inda->sqlvar[column].sqlname_length);
+    QByteArray sqlname(inda->sqlvar[column].aliasname, inda->sqlvar[column].aliasname_length);
 
 
     isc_array_lookup_bounds(status, &ibase, &trans, relname.data(), sqlname.data(), &desc);
@@ -1143,7 +1143,7 @@ QSqlRecord QIBaseResult::record() const
     XSQLVAR v;
     for (int i = 0; i < d->sqlda->sqld; ++i) {
         v = d->sqlda->sqlvar[i];
-        QSqlField f(QString::fromLatin1(v.sqlname, v.sqlname_length).simplified(),
+        QSqlField f(QString::fromLatin1(v.aliasname, v.aliasname_length).simplified(),
                     qIBaseTypeName2(d->sqlda->sqlvar[i].sqltype));
         f.setLength(v.sqllen);
         f.setPrecision(v.sqlscale);
