@@ -32,13 +32,6 @@ public:
 
     void fillTreeWidgetFromContents(QTreeWidget *treeWidget);
 
-    // or
-    /*
-    int count() const;
-    int parentRow(int row) const;
-    QIcon icon(int row, int col) const;
-    QString text(int row, int col) const;
-    */
 private slots:
     void on_newItemButton_clicked();
     void on_newSubItemButton_clicked();
