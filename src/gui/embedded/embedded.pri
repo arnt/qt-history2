@@ -101,6 +101,11 @@ embedded {
 	    DEFINES += QT_NO_FREETYPE
 	}
 
+# After policies are developed this should be set so discovery mode is
+# off by default, unless turned on explicitly
+#	contains(QT_CONFIG, sxv_discovery):\
+            DEFINES += SXV_DISCOVERY
+
 #
 # Decorations
 #

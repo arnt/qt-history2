@@ -351,13 +351,12 @@ QWSClient::QWSClient(QObject* parent, QTcpSocket* sock, int id)
     : QObject(parent), command(0), cid(id)
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
+    csocket = 0;
     if (!sock) {
         socketDescriptor = -1;
-        csocket = 0;
         isClosed = false;
     } else {
         csocket = static_cast<QWSSocket*>(sock); //###
-
         isClosed = false;
 
         csocket->flush();
@@ -771,19 +770,25 @@ void QWSServer::newConnection()
     while (QTcpSocket *sock = ssocket->nextPendingConnection()) {
         int socket = sock->socketDescriptor();
 
-        // Note:  Check the Trusted and Connection assertions against
-        // the doc in QTransportAuth for particular installations
-        QTransportAuth::getInstance()->connectTransport(
-                QTransportAuth::Trusted |
-                QTransportAuth::Connection |
-                QTransportAuth::UnixStreamSock, socket );
+        clientMap[socket] = new QWSClient(this,sock, get_object_id());
+
 #ifdef QTRANSPORTAUTH_DEBUG
         qDebug( "Transport auth connected: unix stream socket %d", socket );
 #endif
+        // get a handle to the per-process authentication service
+        QTransportAuth *a = QTransportAuth::getInstance();
 
-        clientMap[socket] = new QWSClient(this,sock, get_object_id());
-        connect(clientMap[socket], SIGNAL(readyRead()),
+        // assert that this transport is trusted
+        QTransportAuth::Data *d = a->connectTransport(
+                QTransportAuth::UnixStreamSock |
+                QTransportAuth::Trusted, socket );
+
+        AuthDevice *ad = a->recvBuf( d, sock );
+        ad->setClient( clientMap[socket] );
+
+        connect(ad, SIGNAL(readyRead()),
                 this, SLOT(doClient()));
+
         connect(clientMap[socket], SIGNAL(connectionClosed()),
                 this, SLOT(clientClosed()));
 
@@ -877,98 +882,39 @@ void QWSServer::deleteWindowsLater()
 
 #endif //QT_NO_QWS_MULTIPROCESS
 
-/**
-  \internal
-  The \a csocket has pending authentication information.  Pull it off the
-  socket, and check if the transport is valid.
-
-  For unreliable transports this also means checking the payLoad of the
-  message as well, against a message authentication code.
-
-  For reliable transports the payload is ignored and the shared secret
-  alone is checked.
-*/
-void QWSClient::doAuth( QWSSocket *csocket, QWSCommand *&command, int &command_type )
-{
-#ifndef QT_NO_QWS_MULTIPROCESS
-    AuthMessage msg;
-    qint64 rs = csocket->read( reinterpret_cast<char *>(msg.authData),
-            sizeof(msg.authData) );
-#ifdef QTRANSPORTAUTH_DEBUG
-    qDebug( "bytes read of auth: %i - payload length %u, buffer len: %u",
-            (int)rs, msg.hdr.len, sizeof(msg.authData));
-#endif
-    if ( rs < sizeof(msg.authData) )
-        if ( rs == -1 )
-            qWarning( "error reading transport auth data %s", strerror( errno ));
-        else
-            qWarning( "short read on auth data" );
-    rs = csocket->read( reinterpret_cast<char *>(msg.payLoad), msg.hdr.len );
-    if ( rs < msg.hdr.len )
-        if ( rs == -1 )
-            qWarning( "error reading transport auth payload %s", strerror( errno ));
-        else
-            qWarning( "short read on auth payload" );
-#ifdef QTRANSPORTAUTH_DEBUG
-    qDebug( "payload read for auth: %i - payload length %u, buffer len: %u",
-            (int)rs, msg.hdr.len, sizeof(msg.authData));
-#endif
-    QTransportAuth::Result r = QTransportAuth::Allow;
-    r = QTransportAuth::getInstance()->authFromSocket(
-            QTransportAuth::UnixStreamSock, socket(),
-            reinterpret_cast<char *>(&msg), AUTH_SPACE(msg.hdr.len) );
-
-    QBuffer abuf;
-    abuf.setData( msg.payLoad );
-    abuf.open( QIODevice::ReadOnly );
-    command_type = qws_read_uint( &abuf );
-
-    if (command_type>=0) {
-        command = QWSCommand::factory(command_type);
-    }
-    if ( command )
-        command->read( &abuf );
-
-    if (( r & QTransportAuth::StatusMask ) == QTransportAuth::Deny )
-    {
-        qWarning( "Transport not valid" );
-#ifdef QTRANSPORTAUTH_DEBUG
-        qDebug() << "command denied " << command->type;
-#endif
-        delete command;
-        command = 0;
-    }
-#else 
-    Q_UNUSED(csocket);
-    Q_UNUSED(command);
-    Q_UNUSED(command_type);
-#endif // QT_NO_QWS_MULTIPROCESS
-}
-
-
 QWSCommand* QWSClient::readMoreCommand()
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
-    if (csocket)
+    QIODevice *ad = 0;
+    if ( socketDescriptor != -1 )  // not server socket
+        ad = QTransportAuth::getInstance()->passThroughByClient( this );
+#if QTRANSPORTAUTH_DEBUG
+    if ( ad )
+    {
+        char displaybuf[1024];
+        qint64 bytes = ad->bytesAvailable();
+        if ( bytes > 511 ) bytes = 511;
+        hexstring( displaybuf, ((unsigned char *)(reinterpret_cast<AuthDevice*>(ad)->buffer().constData())), bytes );
+        qDebug( "readMoreCommand: %lli bytes - %s", ad->bytesAvailable(), displaybuf );
+    }
+#endif
+    if ( !ad )
+        ad = csocket;   // server socket
+    if (ad)
     {
         // read next command
         if (!command)
         {
-            int command_type = qws_read_uint(csocket);
+            int command_type = qws_read_uint(ad);
+
+            // qDebug("Got cmd: %s", getCommandTypeString( (QWSCommand::Type)command_type ));
 
             if ( command_type >= 0 )
                 command = QWSCommand::factory(command_type);
-
-            // authentication header detected, and this is not
-            // a message from myself
-            if ( command_type == magicInt && socket() != -1 )
-            {
-                doAuth( csocket, command, command_type );
-            }
         }
         if (command)
         {
-            if (command->read(csocket))
+            if (command->read(ad))
             {
                 // Finished reading a whole command.
                 QWSCommand* result = command;
@@ -986,6 +932,9 @@ QWSCommand* QWSClient::readMoreCommand()
         QList<QWSCommand*> *serverQueue = qt_get_server_queue();
         return serverQueue->isEmpty() ? 0 : serverQueue->takeFirst();
     }
+    Q_UNUSED(csocket);
+    Q_UNUSED(command);
+    Q_UNUSED(command_type);
 }
 
 
@@ -1008,7 +957,16 @@ void QWSServer::doClient()
         return;
     }
     active = true;
-    QWSClient* client = (QWSClient*)sender();
+    AuthDevice *ad = qobject_cast<AuthDevice*>(sender());
+    QWSClient* client;
+    if ( ad )
+    {
+        client = ad->client();
+    }
+    else
+    {
+        QWSClient* client = (QWSClient*)sender();
+    }
     doClient(client);
     active = false;
 }

@@ -17,6 +17,8 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qhash.h>
 #include <QtCore/qstring.h>
+#include <QtCore/qbuffer.h>
+#include <QtCore/qpointer.h>
 
 QT_MODULE(Gui)
 
@@ -118,6 +120,9 @@ struct AuthCookie
     unsigned char progId;
 };
 
+class AuthDevice;
+class QWSClient;
+class QIODevice;
 
 /**
   \class QTransportAuth
@@ -137,23 +142,49 @@ struct AuthCookie
   disabled and instances of QTransportAuth should never be constructed by
   calling classes.
 
-  Check the authorization using the checkAuth() method.
+  To make the Authentication easier to use a proxied QIODevice is provided
+  which uses an internal QBuffer.
 
-  For client processes authentication information can be added using the
-  addAuth() method.  Note that if the transport is connection oriented
-  it will be assumed that the server has cached the authentication infor-
-  mation and this method will be a no-op.
+  In the server code first get a pointer to a QTransportAuth::Data object
+  using the connectTransport() method:
 
-  Generally these methods should never need to be called except by lower
-  level message handling logic.
+  \code
+  QTransportAuth::Data *conData;
+  QTransportAuth *a = QTransportAuth::getInstance();
+
+  conData = a->QTransportconnectTransport(
+        QTransportAuth::Trusted | QTransportAuth::UnixStreamSock,
+        socketDescriptor );
+  \endcode
+
+  Here it is asserted that the transport is trusted.  See the assumptions
+  listed in the \link secure-exe-environ.html SXV documentation \endlink
+
+  Then proxy in the authentication device:
+
+  \code
+  // mySocket can be any QIODevice subclass
+  AuthDevice *ad = a->recvBuf( d, mySocket );
+
+  // proxy in the auth device where the socket would have gone
+  connect( ad, SIGNAL(readyRead()), this, SLOT(mySocketReadyRead()));
+  \endcode
+
+  In the client code it is similar.  Use the connectTransport() method
+  just the same then proxy in the authentication device instead of the
+  socket in write calls:
+
+  \code
+  AuthDevice *ad = a->authBuf( d, mySocket );
+
+  ad->write( someData );
+  \endcode
 */
 class Q_GUI_EXPORT QTransportAuth : public QObject
 {
     Q_OBJECT
 public:
     static QTransportAuth *getInstance();
-
-    static const char *errorStrings[];
 
     enum Result {
         // Error codes
@@ -189,46 +220,43 @@ public:
 
     struct Data
     {
+        Data() {}
+        Data( unsigned char p, int d )
+            : properties( p )
+            , descriptor( d )
+        {
+            if (( properties & TransportType ) == TCP ||
+                ( properties & TransportType ) == UnixStreamSock )
+                properties |= Connection;
+        }
+
         unsigned char properties;
         unsigned char progId;
         unsigned char status;
         unsigned int descriptor;   // socket fd or shmget key
 
-        bool operator==( const Data &rhs ) const
-        {
-            return ((( this->properties & TransportType ) ==
-                        ( rhs.properties & TransportType )) &&
-                    this->descriptor == rhs.descriptor );
-        }
-        const char *error() const
-        {
-            if  (( status & ErrMask ) <= FailMatch )
-                return ( errorStrings[int( status & ErrMask )] );
-            else
-                return "Success";
-        }
+        bool trusted() const;
+        void setTrusted( bool );
+        bool connection() const;
+        void setConnection( bool );
     };
 
-    void connectTransport( unsigned char properties, int descriptor );
-    bool addAuth( char *msg, int msgLen, Data d );
-    bool checkAuth( char *msg, int msgLen, Data &d );
+    static const char *errorString( const Data & );
+
+    Data *connectTransport( unsigned char, int );
+
+    AuthDevice *authBuf( Data *, QIODevice * );
+    AuthDevice *recvBuf( Data *, QIODevice * );
+    QIODevice *passThroughByClient( QWSClient * ) const;
+
     void setKeyFilePath( const QString & );
-    QString keyFilePath() const { return m_keyFilePath; }
+    QString keyFilePath() const;
+    void setLogFilePath( const QString & );
+    QString logFilePath() const;
+    bool isDiscoveryMode() const;
     void setProcessKey( const char * );
+    void registerPolicyReceiver( QObject * );
 
-    Result authFromSocket( unsigned char properties, int descriptor, char *msg, int len );
-    void authToSocket( unsigned char properties, int descriptor, char *msg, int len );
-
-    bool trusted( QTransportAuth::Data );
-    void setTrusted( bool, QTransportAuth::Data & );
-    bool connection( QTransportAuth::Data );
-    void setConnection( bool, QTransportAuth::Data & );
-
-Q_SIGNALS:
-    void authViolation( QTransportAuth::Data );
-    void policyCheck( QTransportAuth::Data );
-public Q_SLOTS:
-    void closeTransport(  unsigned char properties, int descriptor );
 private:
     // users should never construct their own
     QTransportAuth();
@@ -237,12 +265,56 @@ private:
     const unsigned char *getClientKey( unsigned char progId );
 
     bool keyInitialised;
+    QString m_logFilePath;
     QString m_keyFilePath;
     AuthCookie authKey;
-    QList<Data> data;
+    QList<Data*> data;
+    QHash<Data*,AuthDevice*> buffers;
+    QList< QPointer<QObject> > policyReceivers;
+    QHash<QWSClient*,QIODevice*> buffersByClient;
+    friend class AuthDevice;
 };
 
-uint qHash( QTransportAuth::Data );
+/**
+  \internal
+  \class AuthDevice
+
+  \brief Pass-through QIODevice sub-class for authentication.
+
+   Use this class to forward on or receive forwarded data over a real
+   device for authentication.
+*/
+class Q_GUI_EXPORT AuthDevice : public QBuffer
+{
+    Q_OBJECT
+public:
+    enum AuthDirection {
+        Receive,
+        Send
+    };
+    AuthDevice( QIODevice *, QTransportAuth::Data *, AuthDirection );
+    ~AuthDevice();
+    void setTarget( QIODevice *t ) { m_target = t; }
+    QIODevice *target() const { return m_target; }
+    void setClient( QWSClient *c );
+    QWSClient *client() const;
+    bool authToMessage( QTransportAuth::Data &d, char *hdr, const char *msg, int msgLen );
+    bool authFromMessage( QTransportAuth::Data &d, const char *msg, int msgLen );
+signals:
+    void authViolation( QTransportAuth::Data & );
+    void policyCheck( QTransportAuth::Data &, const QString & );
+protected:
+    qint64 writeData(const char *, qint64 );
+private slots:
+    void recvReadyRead();
+private:
+    void authorizeMessage();
+
+    QTransportAuth::Data *d;
+    AuthDirection way;
+    QIODevice *m_target;
+    QWSClient *m_client;
+};
 
 int hmac_md5(
         unsigned char*  text,         /* pointer to data stream */
@@ -254,7 +326,7 @@ int hmac_md5(
 
 
 #ifdef QTRANSPORTAUTH_DEBUG
-void stringify_key( char *buf, const unsigned char* key, size_t sz );
+void hexstring( char *buf, const unsigned char* key, size_t sz );
 #endif
 
 #endif // QTRANSPORTAUTH_QWS_H

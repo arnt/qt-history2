@@ -14,6 +14,12 @@
 #ifndef QWSCOMMAND_QWS_H
 #define QWSCOMMAND_QWS_H
 
+// When reading commands "off the wire" in the server, the rawLen is read
+// and then that many bytes are allocated.  If the rawLen is corrupted (or
+// the protocol is being attacked) too many bytes can be allocated.  Set
+// a hard limit here for security.
+#define MAX_COMMAND_SIZE 1024
+
 #include <QtCore/qbytearray.h>
 #include <QtGui/qwsutils_qws.h>
 #include <QtGui/qfont.h>
@@ -111,6 +117,8 @@ struct QWSCommand : QWSProtocolItem
     static QWSCommand *factory(int type);
 };
 
+const char *getCommandTypeString( QWSCommand::Type tp );
+
 #ifndef QT_NO_DEBUG
 class QDebug;
 QDebug &operator<<(QDebug &dbg, QWSCommand::Type tp);
@@ -130,6 +138,11 @@ struct QWSIdentifyCommand : public QWSCommand
 
     void setData(const char *d, int len, bool allocateMem) {
         QWSCommand::setData(d, len, allocateMem);
+        if ( simpleData.idLen > MAX_COMMAND_SIZE )
+        {
+            qWarning( "Identify command - name length %d - too big!", simpleData.idLen );
+            simpleData.idLen = MAX_COMMAND_SIZE;
+        }
         id = QString(reinterpret_cast<const QChar*>(d), simpleData.idLen);
     }
 
@@ -160,6 +173,16 @@ struct QWSRegionNameCommand : public QWSCommand
 
     void setData(const char *d, int len, bool allocateMem) {
         QWSCommand::setData(d, len, allocateMem);
+        if ( simpleData.nameLen > MAX_COMMAND_SIZE )
+        {
+            qWarning( "region name command - name length too big!" );
+            simpleData.nameLen = MAX_COMMAND_SIZE;
+        }
+        if ( simpleData.captionLen > MAX_COMMAND_SIZE )
+        {
+            qWarning( "region name command - caption length too big!" );
+            simpleData.captionLen = MAX_COMMAND_SIZE;
+        }
         name = QString(reinterpret_cast<const QChar*>(d), simpleData.nameLen/2);
         d += simpleData.nameLen;
         caption = QString(reinterpret_cast<const QChar*>(d), simpleData.captionLen/2);
@@ -474,6 +497,11 @@ struct QWSQCopRegisterChannelCommand : public QWSCommand
 
     void setData(const char *d, int len, bool allocateMem) {
         QWSCommand::setData(d, len, allocateMem);
+        if ( simpleData.chLen > MAX_COMMAND_SIZE )
+        {
+            qWarning( "Command channel name too large!" );
+            simpleData.chLen = MAX_COMMAND_SIZE;
+        }
         channel = QString(reinterpret_cast<const QChar*>(d), simpleData.chLen);
     }
 

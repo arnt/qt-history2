@@ -453,6 +453,7 @@ public:
         mouseFilter = filter;
     }
 };
+#include <QtCore/qthread.h>
 
 void QWSDisplay::Data::init()
 {
@@ -481,20 +482,16 @@ void QWSDisplay::Data::init()
         QWSIdentifyCommand cmd;
         cmd.setId(appName);
 #ifndef QT_NO_QWS_MULTIPROCESS
-        QBuffer authBuf;
-        authBuf.open( QIODevice::WriteOnly );
-        cmd.write( &authBuf );
-        authBuf.close();
-        authBuf.open( QIODevice::ReadOnly );
-        int len = authBuf.bytesAvailable();
-        char *aptr = authBuf.peek( len ).data();
-        if  (csocket)
-            QTransportAuth::getInstance()->authToSocket(
+        QTransportAuth *a = QTransportAuth::getInstance();
+        QTransportAuth::Data *d = a->connectTransport(
                 QTransportAuth::UnixStreamSock |
-                QTransportAuth::Trusted |
-                QTransportAuth::Connection,
-                csocket->socketDescriptor(),
-                aptr, len );
+                QTransportAuth::Trusted,
+                csocket->socketDescriptor());
+
+        AuthDevice *ad = a->authBuf( d, csocket );
+
+        if  (csocket)
+            cmd.write( ad );
         else
 #endif
             qt_server_enqueue(&cmd);

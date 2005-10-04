@@ -13,7 +13,7 @@
 
 #include "qwscommand_qws.h"
 
-// #define QWSCOMMAND_DEBUG // Uncomment to debug client/server communication
+// #define QWSCOMMAND_DEBUG 1 // Uncomment to debug client/server communication
 
 #ifdef QWSCOMMAND_DEBUG
 # include <qdebug.h>
@@ -175,6 +175,36 @@ QDebug operator<<(QDebug dbg, QWSHexDump hd) {
 
 QDebug &operator<<(QDebug &dbg, QWSCommand::Type tp)
 {
+    dbg << getCommandTypeString( tp );
+    return dbg;
+}
+
+#define N_EVENTS 18
+const char * eventNames[N_EVENTS] =  {
+        "NoEvent",
+        "Connected",
+        "Mouse", "Focus", "Key",
+        "RegionModified",
+        "Creation",
+        "PropertyNotify",
+        "PropertyReply",
+        "SelectionClear",
+        "SelectionRequest",
+        "SelectionNotify",
+        "MaxWindowRect",
+        "QCopMessage",
+        "WindowOperation",
+        "IMEvent",
+        "IMQuery",
+        "IMInit"
+    };
+
+class QWSServer;
+extern QWSServer *qwsServer;
+#endif
+
+const char *getCommandTypeString( QWSCommand::Type tp )
+{
     const char *typeStr;
     switch(tp) {
         case QWSCommand::Create:
@@ -266,33 +296,8 @@ QDebug &operator<<(QDebug &dbg, QWSCommand::Type tp)
             typeStr = "Unknown";
             break;
     }
-    dbg << typeStr;
-    return dbg.space();
-};
-
-#define N_EVENTS 18
-const char * eventNames[N_EVENTS] =  {
-        "NoEvent",
-        "Connected",
-        "Mouse", "Focus", "Key",
-        "RegionModified",
-        "Creation",
-        "PropertyNotify",
-        "PropertyReply",
-        "SelectionClear",
-        "SelectionRequest",
-        "SelectionNotify",
-        "MaxWindowRect",
-        "QCopMessage",
-        "WindowOperation",
-        "IMEvent",
-        "IMQuery",
-        "IMInit"
-    };
-
-class QWSServer;
-extern QWSServer *qwsServer;
-#endif
+    return typeStr;
+}
 
 
 /*********************************************************************
@@ -312,7 +317,7 @@ void qws_write_command(QIODevice *socket, int type, char *simpleData, int simple
     qws_write_uint(socket, type);
     qws_write_uint(socket, rawLen == -1 ? 0 : rawLen);
 
-    // Add total lenght of command here, allowing for later command expansion...
+    // Add total length of command here, allowing for later command expansion...
     // qws_write_uint(socket, rawLen == -1 ? 0 : rawLen);
 
     if (simpleData && simpleLen)
@@ -354,7 +359,8 @@ bool qws_read_command(QIODevice *socket, char *&simpleData, int &simpleLen,
     if (bytesRead) {
         if (!rawLen)
             return true;
-        if (socket->bytesAvailable() < uint(rawLen))
+        if (socket->bytesAvailable() < uint(rawLen) ||
+                uint(rawLen) > MAX_COMMAND_SIZE )
             return false;
         rawData = new char[rawLen];
         bytesRead += socket->read(rawData, rawLen);
@@ -403,6 +409,12 @@ bool QWSProtocolItem::read(QIODevice *s) {
         setData(rawDataPtr, rawLen, false);
         deleteRaw = true;
     }
+#ifdef QWSCOMMAND_DEBUG
+    else
+    {
+        qDebug() << "error in reading command " << static_cast<QWSCommand::Type>(type);
+    }
+#endif
     return b;
 }
 #endif // QT_NO_QWS_MULTIPROCESS

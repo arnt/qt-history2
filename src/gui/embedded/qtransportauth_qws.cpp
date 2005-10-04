@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#define QTRANSPORTAUTHLIB 1
-
 #include "qtransportauth_qws.h"
 #include "md5.h"
 
 #include "qwsutils_qws.h"
+#include "qwscommand_qws.h"
+#include "qwindowsystem_qws.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -27,22 +27,16 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#include <QtCore/qbuffer.h>
+#include <QtCore/qthread.h>
+#include <QtNetwork/qabstractsocket.h>
+#include <QtCore/qfile.h>
+
+#include <qdebug.h>`
+
 #define KEY_CACHE_SIZE 10
 
-
-// Uncomment this value to have the authentication mechanism always check
-// for authentication bytes and remove them if detected.  Otherwise the
-// client will be assumed to only ever put on the header on the first
-// connection, and never at any other time
-// #define AUTH_SOCK_SAFE 1
-
-uint qHash( QTransportAuth::Data d )
-{
-    uint h = d.properties;
-    return ( h << 8 ) ^ d.descriptor;
-}
-
-const char * QTransportAuth::errorStrings[] = {
+const char * errorStrings[] = {
     QT_TRANSLATE_NOOP( "Transport Auth error",  "pending identity verification" ),
     QT_TRANSLATE_NOOP( "Transport Auth error",  "message too small to carry auth data" ),
     QT_TRANSLATE_NOOP( "Transport Auth error",  "cache miss on connection oriented transport"  ),
@@ -51,6 +45,13 @@ const char * QTransportAuth::errorStrings[] = {
     QT_TRANSLATE_NOOP( "Transport Auth error",  "authorization key match failed"  )
 };
 
+const char *QTransportAuth::errorString( const Data &d )
+{
+    if (( d.status & ErrMask ) == Success )
+        return "success";
+    return errorStrings[( d.status & ErrMask )];
+}
+
 /**
   \internal
   Construct a new QTransportAuth
@@ -58,6 +59,7 @@ const char * QTransportAuth::errorStrings[] = {
 QTransportAuth::QTransportAuth()
     : keyInitialised( false )
 {
+    // qDebug( "creating transport auth" );
 }
 
 /**
@@ -67,22 +69,30 @@ QTransportAuth::QTransportAuth()
 QTransportAuth::~QTransportAuth()
 {
     freeCache();
+    while ( data.count() )
+        delete data.takeLast();
+    // qDebug( "deleting transport auth" );
 }
 
 void QTransportAuth::setProcessKey( const char *authdata )
 {
-    qDebug( "set process key" );
+    // qDebug( "set process key" );
     ::memcpy( &authKey, authdata, sizeof(authKey) );
     keyInitialised = true;
 }
 
-void QTransportAuth::connectTransport( unsigned char properties, int descriptor )
+void QTransportAuth::registerPolicyReceiver( QObject *pr )
 {
-    Data d;
-    d.properties = properties;
-    d.descriptor = descriptor;
-    d.status = Pending;
+    QPointer<QObject> guard = pr;
+    policyReceivers.append( guard );
+}
+
+QTransportAuth::Data *QTransportAuth::connectTransport( unsigned char properties, int descriptor )
+{
+    Data *d = new Data( properties, descriptor );
+    d->status = Pending;
     data.append( d );
+    return d;
 }
 
 /**
@@ -95,9 +105,9 @@ void QTransportAuth::connectTransport( unsigned char properties, int descriptor 
   the transport is sound, ie it cannot be compromised by writing to
   /dev/kmem or loading untrusted modules
 */
-inline bool QTransportAuth::trusted( QTransportAuth::Data d )
+inline bool QTransportAuth::Data::trusted() const
 {
-    return (bool)(d.properties & Trusted);
+    return (bool)(properties & Trusted);
 }
 
 /**
@@ -110,9 +120,9 @@ inline bool QTransportAuth::trusted( QTransportAuth::Data d )
 
   \sa trusted()
 */
-inline void QTransportAuth::setTrusted( bool t, QTransportAuth::Data &d )
+inline void QTransportAuth::Data::setTrusted( bool t )
 {
-    d.properties = t ? d.properties | Trusted : d.properties & ~Trusted;
+    properties = t ? properties | Trusted : properties & ~Trusted;
 }
 
 /**
@@ -128,12 +138,12 @@ inline void QTransportAuth::setTrusted( bool t, QTransportAuth::Data &d )
   trusted, it can be treated as connection oriented; but this is only the
   case if intervening routers are trusted.
 
-  Connection oriented transports may have authorization cached against the
-  connection.
+  Connection oriented transports have authorization cached against the
+  connection, and thus authorization is only done at connect time.
 */
-inline bool QTransportAuth::connection( QTransportAuth::Data d )
+inline bool QTransportAuth::Data::connection() const
 {
-    return (bool)(d.properties & Connection);
+    return (bool)(properties & Connection);
 }
 
 /**
@@ -141,9 +151,9 @@ inline bool QTransportAuth::connection( QTransportAuth::Data d )
 
   \sa connection()
 */
-inline void QTransportAuth::setConnection( bool t, QTransportAuth::Data &d )
+inline void QTransportAuth::Data::setConnection( bool t )
 {
-    d.properties = t ? d.properties | Connection : d.properties & ~Connection;
+    properties = t ? properties | Connection : properties & ~Connection;
 }
 
 /**
@@ -170,120 +180,113 @@ void QTransportAuth::setKeyFilePath( const QString &path )
     m_keyFilePath = path;
 }
 
-/**
-  \function violation(AuthError)
-  This signal is emitted if an authorization failure is generated, as
-  described in checkAuth();
-
-  \sa checkAuth()
-*/
-
-void QTransportAuth::closeTransport( unsigned char properties, int descriptor )
+QString QTransportAuth::keyFilePath() const
 {
-    Data d;
-    d.properties = properties;
-    d.descriptor = descriptor;
-    int pos = data.indexOf( d );
-    if ( pos != -1 ) data.removeAt( pos );
+    return m_keyFilePath;
+}
+
+void QTransportAuth::setLogFilePath( const QString &path )
+{
+    m_logFilePath = path;
+}
+
+QString QTransportAuth::logFilePath() const
+{
+    return m_logFilePath;
+}
+
+bool QTransportAuth::isDiscoveryMode() const
+{
+#if defined(SXV_DISCOVERY)
+    static bool checked = false;
+    static bool yesItIs = false;
+
+    if ( checked ) return yesItIs;
+
+    yesItIs = ( getenv( "SXV_DISCOVERY_MODE" ) != 0 );
+    if ( yesItIs )
+    {
+        qWarning() << "SXV Discovery mode on, ALLOWING ALL requests and logging to"
+            << logFilePath();
+        QFile::remove( logFilePath() );
+    }
+    checked = true;
+    return yesItIs;
+#else
+    return false;
+#endif
 }
 
 /**
   \internal
-   Add authentication header to the beginning of a message
-
-   Note that the per-process auth cookie is used.  This key should be rewritten in
-   the binary image of the executable at install time to make it unique.
-
-   For this to be secure some mechanism (eg MAC kernel or other
-   permissions) must prevent other processes from reading the key.
-
-   The buffer must have bytes spare at the beginning for the
-   authentication header to be added.
-
-   Use code like:
-    \code
-       char msg_buf[ AUTH_SPACE(100) ];
-       memcpy( AUTH_DATA(msg_buf), &msg_data, 100 );
-       bool result = QTransportAuth::getInstance()->addAuth( msg_buf, AUTH_SPACE(100), d );
-   \endcode
-
-   Returns true if header successfully added
+  Return the authorizer device mapped to this client.  Note that this
+  could probably all be void* instead of QWSClient* for generality.
+  Until the need for that rears its head its QWSClient* to save the casts.
 */
-bool QTransportAuth::addAuth( char *msg, int msgLen, QTransportAuth::Data d )
+QIODevice *QTransportAuth::passThroughByClient( QWSClient *client ) const
 {
-    if ( ! keyInitialised )
+    if ( client == 0 ) return 0;
+    if ( buffersByClient.contains( client ))
     {
-        qWarning( "Cannot add transport authentication - key not initialised!" );
-        return false;
+        return buffersByClient[client];
     }
-    unsigned char digest[KEY_LEN];
-    char *msgPtr = msg;
-    // magic always goes on the beginning
-    for ( int m = 0; m < MAGIC_BYTES; ++m )
-        *msgPtr++ = magic[m];
-    if ( msgLen > AMOUNT_TO_AUTHENTICATE )
-        msgLen = AMOUNT_TO_AUTHENTICATE;
-    msg[ LEN_IDX ] = (unsigned char)msgLen;
-    if ( !trusted( d ))
-    {
-        // Use HMAC
-        int rc = hmac_md5( AUTH_DATA(msg), msgLen, authKey.key, KEY_LEN, digest );
-        if ( rc == -1 )
-            return false;
-        memcpy( msg + KEY_IDX, digest, KEY_LEN );
-    }
-    else
-    {
-        memcpy( msg + KEY_IDX, authKey.key, KEY_LEN );
-    }
-
-    msg[ PROG_IDX ] = authKey.progId;
-
-#ifdef QTRANSPORTAUTH_DEBUG
-    char keydisplay[KEY_LEN*2+1];
-    stringify_key( keydisplay, authKey.key, KEY_LEN );
-
-    qDebug( "Auth to message %s against prog id %u and key %s\n",
-            AUTH_DATA(msg), authKey.progId, keydisplay );
-#endif
-
-    // TODO implement sequence to prevent replay attack, not required
-    // for trusted transports
-    msg[ SEQ_IDX ] = 1;  // dummy sequence
-
-    return true;
+    qWarning( "buffer not found for client %p", client );
+    return 0;
 }
 
 /**
-  Add authentication information to the socket \a descriptor, of type
-  \a properties.  The authentication will use the \a msg of \a len
-  as the authenticated payload.
+  \internal
+  Return a QIODevice pointer (to an internal QBuffer) which can be used
+  to receive data after authorisation on transport \a d.
+
+  The return QIODevice will act as a pass-through.
+
+  The data will be consumed from \a iod and forwarded on to the returned
+  QIODevice which can be connected to readyRead() signal handlers in
+  place of the original QIODevice \a iod.
+
+  This will be called in the server process to handle incoming
+  authenticated requests.
+
+  \sa setTargetDevice()
 */
-void QTransportAuth::authToSocket( unsigned char properties, int descriptor, char *msg, int len )
+AuthDevice *QTransportAuth::recvBuf( QTransportAuth::Data *d, QIODevice *iod )
 {
-    struct Data d;
-    d.properties = properties;
-    d.descriptor = descriptor;
-    int pos = data.indexOf( d );
-    if ( pos != -1 )
-        d = data.at( pos );
-    else
-        d.status = 0;
-    if ( connection( d ) && (( d.status & ErrMask ) != Pending ))
-        return;
-    char buf[AUTH_SPACE(AMOUNT_TO_AUTHENTICATE)];
-    int authLen = len;
-    if ( authLen > AMOUNT_TO_AUTHENTICATE )
-        authLen = AMOUNT_TO_AUTHENTICATE;
-    if ( msg != NULL )
-        memcpy( AUTH_DATA(buf), msg, authLen );
-    if ( ! addAuth( buf, authLen, d ))
-        return;
-    int rs = ::send( d.descriptor, buf, AUTH_SPACE(len), 0 );
-    if ( rs == -1 )
-        perror( "putting auth data on socket" );
-    d.status = ( d.status | Success );
-    data.append( d );
+    if ( buffers.contains( d ))
+        return buffers[d];
+    AuthDevice *authBuf = new AuthDevice( iod, d, AuthDevice::Receive );
+    for ( int i = 0; i < policyReceivers.count(); ++i )
+    {
+        connect( authBuf, SIGNAL(policyCheck(QTransportAuth::Data &, const QString &)),
+                policyReceivers[i], SLOT(policyCheck(QTransportAuth::Data &, const QString &)));
+    }
+    // qDebug( "created new authbuf %p", authBuf );
+    buffers[d] = authBuf;
+    return authBuf;
+}
+
+/**
+  Return a QIODevice pointer (to an internal QBuffer) which can be used
+  to write data onto, for authorisation on transport \a d.
+
+  The return QIODevice will act as a pass-through.
+
+  The data written to the return QIODevice will be forwarded on to the
+  returned QIODevice.  In the case of a QTcpSocket, this will cause it
+  to send out the data with the authentication information on it.
+
+  This will be called in the client process to generate outgoing
+  authenticated requests.
+
+  \sa setTargetDevice()
+*/
+AuthDevice *QTransportAuth::authBuf( QTransportAuth::Data *d, QIODevice *iod )
+{
+    if ( buffers.contains( d ))
+        return buffers[d];
+    AuthDevice *authBuf = new AuthDevice( iod, d, AuthDevice::Send );
+    buffers[d] = authBuf;
+    return authBuf;
 }
 
 static struct AuthCookie *keyCache[ KEY_CACHE_SIZE ] = { 0 };
@@ -291,6 +294,8 @@ static struct AuthCookie *keyCache[ KEY_CACHE_SIZE ] = { 0 };
 /**
   \internal
   Free the key cache on destruction of this object
+
+TODO: reimplement this using Qt structures
 */
 void QTransportAuth::freeCache()
 {
@@ -356,88 +361,405 @@ const unsigned char *QTransportAuth::getClientKey( unsigned char progId )
     return NULL;
 }
 
-/**
-  Check authorization on the \a msg, which must be of size \a msgLen.
 
-  If successful return the program identity of the message source in the
-  reference \a progId, and return true.
+////////////////////////////////////////////////////////////////////////
+////
+////  AuthDevice definition
+////
+
+AuthDevice::AuthDevice( QIODevice *parent, QTransportAuth::Data *data, AuthDirection dir )
+    : QBuffer( parent )
+    , d( data )
+    , way( dir )
+    , m_target( parent )
+    , m_client( 0 )
+{
+    // qDebug( "constructing new auth device; parent %p", parent );
+    if ( dir == Receive ) // server side
+    {
+        connect( m_target, SIGNAL(readyRead()),
+                this, SLOT(recvReadyRead()));
+    }
+    open( QIODevice::WriteOnly );
+}
+
+AuthDevice::~AuthDevice()
+{
+    // qDebug( "destroying authdevice" );
+}
+
+void AuthDevice::setClient( QWSClient *cli )
+{
+    m_client = cli;
+    QTransportAuth::getInstance()->buffersByClient[cli] = this;
+}
+
+QWSClient *AuthDevice::client() const
+{
+    return m_client;
+}
+
+/**
+  \function authViolation(QTransportAuth::Data&)
+  This signal is emitted if an authorization failure is generated, as
+  described in checkAuth();
+
+  \sa checkAuth()
+*/
+
+
+/**
+  \function policyCheck(QTransportAuth::Data& transport, const QString &request )
+  This signal is emitted when a transport successfully delivers a request
+  and gives the opportunity to either deny or accept the request.
+
+  This signal must be connected in the same thread, ie it cannot be queued.
+
+  As soon as all handlers connected to this signal are processed the Allow or
+  Deny state on the \a transport is checked, and the request is allowed or denied
+  accordingly.
+
+  \sa checkAuth()
+*/
+
+/**
+  \internal
+  Reimplement QIODevice writeData method.
+
+  For client end, when the device is written to the incoming data is
+  processed and an authentication header calculated.  This is pushed
+  into the target device, followed by the actual incoming data (the
+  payload).
+
+  For server end, the writeData implementation in QBuffer is called.
+*/
+qint64 AuthDevice::writeData(const char *data, qint64 len)
+{
+    if ( way == Receive )  // server
+        return QBuffer::writeData( data, len );
+    // qDebug( "write data %lli bytes", len );
+    char header[AUTH_SPACE(0)];
+    qint64 bytes = 0;
+    if ( authToMessage( *d, header, data, len ))
+        bytes = QBuffer::writeData( header, AUTH_SPACE(0) );
+    bytes += QBuffer::writeData( data, len );
+    close();
+    char buf[128];
+    qint64 ba;
+    qint64 tot = 0;
+    open( QIODevice::ReadOnly );
+    qint64 amtRead;
+    qint64 amtWrit;
+#ifdef QTRANSPORTAUTH_DEBUG
+    char displaybuf[1024];
+    char *dbufptr = displaybuf;
+#endif
+    while (( ba = bytesAvailable() ))
+    {
+        amtRead = read( buf, ba < 128 ? ba : 128 );
+        amtWrit = m_target->write( buf, amtRead );
+#ifdef QTRANSPORTAUTH_DEBUG
+        if (( displaybuf + 1023 - dbufptr ) >= ( amtRead * 2 ))
+        {
+            hexstring( dbufptr, (unsigned char *)buf, amtRead );
+            dbufptr += ( amtRead * 2 );
+        }
+#endif
+        tot += amtWrit;
+    }
+    if ( m_target->inherits( "QAbstractSocket" ))
+        reinterpret_cast<QAbstractSocket*>(m_target)->flush();
+    close();
+    buffer().resize( 0 );
+    open( QIODevice::WriteOnly );
+#ifdef QTRANSPORTAUTH_DEBUG
+    qDebug( "%lli bytes written from authdevice to target: %s", tot, displaybuf );
+#endif
+    return tot;
+}
+
+/**
+  \internal
+  Receive readyRead signal from the target recv device.  In response
+  authorize the data, and write results out to the recvBuf() device
+  for processing by the application.  Trigger the readyRead signal.
+
+  Authorizing involves first checking the transport is valid, ie the
+  handshake has either already been done and is cached on a trusted
+  transport, or was valid with this message; then second passing the
+  string representation of the service request up to any policyReceivers
+
+  If either of these fail, the message is denied.  In discovery mode
+  denied messages are allowed, but the message is logged.
+*/
+void AuthDevice::recvReadyRead()
+{
+    qint64 bytes = m_target->bytesAvailable();
+    if ( bytes <= 0 ) return;
+    char *lookahead = (char*)(malloc( bytes ));
+    Q_CHECK_PTR( lookahead );
+    qint64 peeked = m_target->peek( lookahead, bytes );
+    if ( peeked == -1 )
+    {
+        qWarning( "socket/device error in auth: %s",
+                m_target->errorString().toLocal8Bit().constData() );
+        free( lookahead );
+        return;
+    }
+#ifdef QTRANSPORTAUTH_DEBUG
+    char displaybuf[1024];
+    hexstring( displaybuf, reinterpret_cast<const unsigned char *>(lookahead), bytes > 500 ? 500 : bytes );
+    qDebug( "recv ready read %lli bytes - msg %s", bytes, displaybuf );
+#endif
+    if ( !authFromMessage( *d, lookahead, bytes ))
+    {
+        // not all arrived yet?  come back later
+        if (( d->status & QTransportAuth::ErrMask ) == QTransportAuth::TooSmall )
+        {
+            free( lookahead );
+            return;
+        }
+    }
+    free( lookahead );
+    authorizeMessage();
+
+    // ...and re-open, and triggering its readyRead
+    open( QIODevice::ReadOnly );
+    emit QBuffer::readyRead();
+}
+
+void AuthDevice::authorizeMessage()
+{
+    char buf[128];
+    // msg auth header detected and auth determined, remove hdr
+    if (( d->status & QTransportAuth::ErrMask ) != QTransportAuth::NoMagic )
+        m_target->read( buf, HEADER_LEN );
+    QBuffer cmdBuf;
+    cmdBuf.open( QIODevice::WriteOnly );
+    qint64 bytes;
+    while (( bytes = m_target->bytesAvailable() ))
+    {
+        m_target->read( buf, bytes > 128 ? 128 : bytes );
+        cmdBuf.write( buf, bytes > 128 ? 128 : bytes );
+    }
+    cmdBuf.close();
+    cmdBuf.open( QIODevice::ReadOnly );
+    QWSCommand::Type command_type = (QWSCommand::Type)(qws_read_uint( &cmdBuf ));
+    QString request( getCommandTypeString( command_type ));
+    if ( command_type == QWSCommand::QCopSend )
+    {
+        QWSQCopSendCommand *command = reinterpret_cast<QWSQCopSendCommand*>(QWSCommand::factory(command_type));
+        // not all command arrived yet - come back later
+        if ( !command->read( &cmdBuf ))
+            return;
+        request += QString( "/QCop/%1/%2" ).arg( command->channel ).arg( command->message );
+    }
+
+    if ( !request.isEmpty() )
+        emit policyCheck( *d, request );
+
+    QTransportAuth *auth = QTransportAuth::getInstance();
+    bool isAuthorized = (( d->status & QTransportAuth::StatusMask ) == QTransportAuth::Allow );
+#if defined(SXV_DISCOVERY)
+    if ( auth->isDiscoveryMode() )
+    {
+        QFile log( auth->logFilePath() );
+        if ( !log.open( QIODevice::WriteOnly | QIODevice::Append ))
+        {
+            qWarning() << "Could not write to log in discovery mode:"
+                    << auth->logFilePath();
+        }
+        else
+        {
+            QTextStream ts( &log );
+            ts << d->progId << '\t' << ( isAuthorized ? "Allow" : "Deny" ) << '\t' << request << endl;
+        }
+        isAuthorized = true;
+    }
+#endif
+    // copy message into the authBuf...
+    close();
+    buffer().resize(0);
+    if ( isAuthorized )
+        setData( cmdBuf.buffer() );
+#if defined(SXV_DISCOVERY)
+    else
+        qWarning() << request << " - denied: (to turn on discovery mode, export SXV_DISCOVERY_MODE=1";
+#endif
+}
+
+/**
+  \internal
+   Add authentication header to the beginning of a message
+
+   Note that the per-process auth cookie is used.  This key should be rewritten in
+   the binary image of the executable at install time to make it unique.
+
+   For this to be secure some mechanism (eg MAC kernel or other
+   permissions) must prevent other processes from reading the key.
+
+   The buffer must have AUTH_SPACE(0) bytes spare at the beginning for the
+   authentication header to be added.
+
+   Returns true if header successfully added.  Will fail if the
+   per-process key has not yet been set with setProcessKey()
+*/
+bool AuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char *msg, int msgLen )
+{
+    QTransportAuth *a = QTransportAuth::getInstance();
+    // only authorize connection oriented transports once
+    if ( d.connection() &&
+            (( d.status & QTransportAuth::ErrMask ) != QTransportAuth::Pending ))
+        return false;
+    if ( ! a->keyInitialised )
+    {
+        qWarning( "Cannot add transport authentication - key not initialised!" );
+        return false;
+    }
+    unsigned char digest[KEY_LEN];
+    char *msgPtr = hdr;
+    // magic always goes on the beginning
+    for ( int m = 0; m < MAGIC_BYTES; ++m )
+        *msgPtr++ = magic[m];
+    hdr[ LEN_IDX ] = (unsigned char)msgLen;
+    if ( !d.trusted())
+    {
+        // Use HMAC
+        int rc = hmac_md5( (unsigned char *)msg, msgLen, a->authKey.key, KEY_LEN, digest );
+        if ( rc == -1 )
+            return false;
+        memcpy( hdr + KEY_IDX, digest, KEY_LEN );
+    }
+    else
+    {
+        memcpy( hdr + KEY_IDX, a->authKey.key, KEY_LEN );
+    }
+
+    hdr[ PROG_IDX ] = a->authKey.progId;
+
+#ifdef QTRANSPORTAUTH_DEBUG
+    char keydisplay[KEY_LEN*2+1];
+    hexstring( keydisplay, a->authKey.key, KEY_LEN );
+
+    qDebug( "Auth to message %s against prog id %u and key %s\n",
+            msg, a->authKey.progId, keydisplay );
+#endif
+
+    // TODO implement sequence to prevent replay attack, not required
+    // for trusted transports
+    hdr[ SEQ_IDX ] = 1;  // dummy sequence
+
+    d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::Success;
+    return true;
+}
+
+
+/**
+  Check authorization on the \a msg, which must be of size \a msgLen,
+  for the transport \a d.
+
+  If able to determine authorization, return the program identity of
+  the message source in the reference \a progId, and return true.
 
   Otherwise return false.
 
-  This method will return false in the following cases:
+  If data is being recieved on a socket, it may be that more data is yet
+  needed before authentication can proceed.
+
+  Also the message may not be an authenticated at all.
+
+  In these cases the method returns false to indicate authorization could
+  not be determined:
   \list
     \i The message is too small to carry the authentication data
+       (status TooSmall is set on the \a d transport )
     \i The 4 magic bytes are missing from the message start
-    \i The program id claimed by the message is not found in the key file
+       (status NoMagic is set on the \a d transport )
+    \i The message is too small to carry the auth + claimed payload
+       (status TooSmall is set on the \a d transport )
+  \endlist
+
+  If however the authentication header (preceded by the magic bytes) and
+  any authenticated payload is received the method will determine the
+  authentication status, and return true.
+
+  In the following cases as well as returning true it will also emit
+  an authViolation():
+  \list
+    \i If the program id claimed by the message is not found in the key file
+       (status NoSuchKey is set on the \a d transport )
     \i The authentication token failed against the claimed program id:
         \list
             \i in the case of trusted transports, the secret did not match
             \i in the case of untrusted transports the HMAC code did not match
         \endlist
+       (status FailMatch is set on the \a d transport )
     \endlist
 
   In these cases the authViolation( QTransportAuth::Data d ) signal is emitted
-  and the error code can be obtained by eg:
+  and the error string can be obtained from the status like this:
   \code
       QTransportAuth::Result r = d.status & QTransportAuth::ErrMask;
-      qWarning( "error: %s", QTransportAuth::errorStrings[r]; );
+      qWarning( "error: %s", QTransportAuth::errorStrings[r] );
   \endcode
 */
-bool QTransportAuth::checkAuth( char *msg, int msgLen, QTransportAuth::Data &d )
+bool AuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int msgLen )
 {
+    if ( msgLen < MAGIC_BYTES )
+    {
+        d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::TooSmall;
+        return false;
+    }
+    // if no magic bytes, exit straight away
+    int m;
+    const unsigned char *mptr = reinterpret_cast<const unsigned char *>(msg);
+    for ( m = 0; m < MAGIC_BYTES; ++m )
+    {
+        if ( *mptr++ != magic[m] )
+        {
+            d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::NoMagic;
+            return false;
+        }
+    }
+    QTransportAuth *a = QTransportAuth::getInstance();
     if ( msgLen < AUTH_SPACE(1) )
     {
-        d.status = ( d.status & StatusMask ) | TooSmall;
-        emit authViolation( d );
+        d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::TooSmall;
         return false;
     }
 
 #ifdef QTRANSPORTAUTH_DEBUG
     char authhdr[HEADER_LEN*2+1];
-    stringify_key( authhdr, (unsigned char *)msg, HEADER_LEN );
-    qDebug( "message header is %s", authhdr );
+    hexstring( authhdr, reinterpret_cast<const unsigned char *>(msg), HEADER_LEN );
+    qDebug( "authFromMessage(): message header is %s", authhdr );
 #endif
 
-    // if no magic bytes, exit straight away
-    int m;
-    unsigned char *mptr = (unsigned char *)msg;
-    for ( m = 0; m < MAGIC_BYTES; ++m )
-    {
-        if ( *mptr++ != magic[m] )
-        {
-            d.status = ( d.status & StatusMask ) | NoMagic;
-            emit authViolation( d );
-            return false;
-        }
-    }
     unsigned char authLen = (unsigned char)(msg[ LEN_IDX ]);
-    // its OK to be more, we may be peeking ahead into the buffer
+
     if ( msgLen < AUTH_SPACE(authLen) )
     {
-        d.status = ( d.status & StatusMask ) | TooSmall;
-        emit authViolation( d );
+        d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::TooSmall;
         return false;
     }
     unsigned char progbuf = (unsigned char)(msg[ PROG_IDX ]);
-    const unsigned char *clientKey = getClientKey( progbuf );
+    const unsigned char *clientKey = a->getClientKey( progbuf );
     if ( clientKey == NULL )
     {
-        d.status = ( d.status & StatusMask ) | NoSuchKey;
+        d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::NoSuchKey;
         emit authViolation( d );
         return false;
     }
 
 #ifdef QTRANSPORTAUTH_DEBUG
     char keydisplay[KEY_LEN*2+1];
-    stringify_key( keydisplay, clientKey, KEY_LEN );
-
-    qDebug( "checking auth of message %s against prog id %u and key %s\n",
+    hexstring( keydisplay, clientKey, KEY_LEN );
+    qDebug( "authFromMessage(): message %s against prog id %u and key %s\n",
             AUTH_DATA(msg), ((unsigned int)(msg[ PROG_IDX ])), keydisplay );
 #endif
 
     const unsigned char *auth_tok;
     unsigned char digest[KEY_LEN];
-    if ( !trusted( d ))
+    if ( !d.trusted())
     {
         hmac_md5( AUTH_DATA(msg), authLen, clientKey, KEY_LEN, digest );
         auth_tok = digest;
@@ -446,64 +768,23 @@ bool QTransportAuth::checkAuth( char *msg, int msgLen, QTransportAuth::Data &d )
     {
         auth_tok = clientKey;
     }
-    mptr = reinterpret_cast<unsigned char *>( msg + KEY_IDX );
+    mptr = reinterpret_cast<const unsigned char *>( msg + KEY_IDX );
     for ( m = 0; m < KEY_LEN; ++m )
     {
         if ( *mptr++ != *auth_tok++ )
         {
-            d.status = ( d.status & StatusMask ) | FailMatch;
+            d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::FailMatch;
             emit authViolation( d );
             return false;
         }
     }
     // TODO - provide sequence number check against replay attack
     d.progId = msg[PROG_IDX];
-    d.status = ( d.status & StatusMask ) | Success;
+    d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::Success;
     return true;
 }
 
-/**
-  Apply the checkAuth() method to the data on the socket represented by
-  \a properties and \a descriptor.
 
-  If the checkAuth() passes a checkPolicy() signal will be emitted
-  with a QTransportAuth::Data object containing the program identity.
-*/
-QTransportAuth::Result QTransportAuth::authFromSocket( unsigned char properties, int descriptor, char *msg, int len )
-{
-    qDebug( "auth from socket" );
-    struct Data d;
-    d.properties = properties;
-    d.descriptor = descriptor;
-    int rs = 0;
-    int pos = data.indexOf( d );
-    if ( pos != -1 )
-    {
-#ifdef QTRANSPORTAUTH_DEBUG
-        qDebug( "found previous cached connection with descriptor %d, properties %x, status %x", descriptor, properties, d.status );
-#endif
-        d = data.at( pos );
-    }
-    if ( connection( d ))
-    {
-        if (( d.status & ErrMask ) == Success )
-        {
-            emit policyCheck( d );
-            return Success;
-        }
-        if (( d.status & ErrMask ) != Pending )
-        {
-            d.status = Deny | CacheMiss;
-            emit authViolation( d );
-            return CacheMiss;
-        }
-    }
-    bool authGood = checkAuth( msg, len, d );
-    if ( pos == -1 )
-        data.append( d );
-    emit policyCheck( d );
-    return Success;
-}
 
 
 #ifdef QTRANSPORTAUTH_DEBUG
@@ -513,7 +794,7 @@ QTransportAuth::Result QTransportAuth::authFromSocket( unsigned char properties,
 
   The target buf should be [ key_len * 2 + 1 ] in size
 */
-static void stringify_key( char *buf, const unsigned char* key, size_t key_len )
+void hexstring( char *buf, const unsigned char* key, size_t key_len )
 {
     unsigned int i, p;
     for ( i = 0, p = 0; i < key_len; i++, p+=2 )
