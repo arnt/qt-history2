@@ -150,19 +150,6 @@ void GLWidget::drawCube(int i, GLfloat z, GLfloat rotation, GLfloat jmp, GLfloat
     rot[i] += rotation;
 }
 
-void GLWidget::drawFace()
-{
-    glDisable(GL_TEXTURE_2D);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glVertexPointer(2, GL_INT, 0, faceArray);
-
-    glDrawArrays(GL_QUADS, 0, 4);
-
-    glVertexPointer(3, GL_INT, 0, cubeArray);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glEnable(GL_TEXTURE_2D);
-}
-
 void GLWidget::initCommon()
 {
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -198,13 +185,20 @@ void GLWidget::initPbuffer()
     {
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
+	// draw cube background
         glPushMatrix();
         glLoadIdentity();
-        glTranslatef(0.5f, 0.5f, 0.0f);
-        glTranslatef(0.0f, 0.0f, -2.0f);
-        drawFace();
+        glTranslatef(0.5f, 0.5f, -2.0f);
+	glDisable(GL_TEXTURE_2D);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glVertexPointer(2, GL_INT, 0, faceArray);
+	glDrawArrays(GL_QUADS, 0, 4);
+	glVertexPointer(3, GL_INT, 0, cubeArray);
+	glDisableClientState(GL_COLOR_ARRAY);
+	glEnable(GL_TEXTURE_2D);
         glPopMatrix();
 
+	// draw cube 
         glTranslatef(0.5f, 0.5f, 0.5f);
         glRotatef(3.0f, 1.0f, 1.0f, 1.0f);
         glTranslatef(-0.5f, -0.5f, -0.5f);

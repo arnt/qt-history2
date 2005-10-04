@@ -26,7 +26,6 @@ public:
     void mouseReleaseEvent(QMouseEvent *) { timerId = startTimer(20); }
 
     void drawCube(int i, GLfloat z, GLfloat ri, GLfloat jmp, GLfloat amp);
-    void drawFace();
     void initCommon();
     void initPbuffer();
 
