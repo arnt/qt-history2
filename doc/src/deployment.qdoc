@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+** Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 ** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
@@ -17,8 +17,8 @@
 
     Deploying an Qt application does not require any C++
     programming. All you need to do is to build Qt and your
-    application following the procedures described in this
-    documentation. We will demonstrate the procedures in terms of
+    application in release mode, following the procedures described in
+    this documentation. We will demonstrate the procedures in terms of
     deploying the \l {tools/plugandpaint}{Plug & Paint} application
     that is provided in Qt's examples directory.
 
@@ -26,7 +26,7 @@
 
     \list
         \o Static Linking
-        \o Shared Libraries
+        \o Shared Libraries (Frameworks on Mac)
     \endlist
 
     Static linking results in a stand-alone executable. The advantage
@@ -95,6 +95,7 @@
 
 /*!
     \page deployment-x11.html
+    \previouspage Deploying Qt Applications
 
     \title Deploying an Application on Qt/X11
 
@@ -155,7 +156,7 @@
     \endcode
 
     Now run qmake to create a new makefile for the application, and do
-    a clean build to create the dynamically linked executable:
+    a clean build to create the statically linked executable:
 
     \code
         make clean
@@ -405,10 +406,16 @@
     had success by compiling their software on very old machines and
     have been very careful not to upgrade any of the software running
     on them.
+
+    When linking your application against the static Qt libraries, you
+    must explicitly link with the dependent libraries mentioned
+    above. Do this by adding them to the \c LIBS variable in your
+    project file.
 */
 
 /*!
     \page deployment-windows.html
+    \previouspage Deploying Qt Applications
 
     \title Deploying an Application on Qt/Windows
 
@@ -717,6 +724,583 @@
 
 /*!
     \page deployment-mac.html
+    \previouspage Deploying Qt Applications
 
     \title Deploying an Application on Qt/Mac
+
+    This documentation will describe how to create a bundle, and how
+    to make sure that the application will find the resources it needs
+    at run-time. We will demonstrate the procedures in terms of
+    deploying the \l {tools/plugandpaint}{Plug & Paint} application
+    that is provided in Qt's examples directory.
+
+    \tableofcontents
+
+    \section1 The Bundle
+
+    On the Mac, an application must be built and run from a bundle. A
+    bundle is a directory structure that appears as a single entity
+    when viewed in the Finder. A bundle for an application typcially
+    contains the executable and all the resources it needs. See the
+    image below:
+
+    \image deployment-mac-bundlestructure
+
+    The bundle provides many advantages to the user. One primary
+    advantage is that, since it is a single entity, it allows for
+    drag-and-drop installation. As a programmer you can access bundle
+    information in your own code. This is specific to Mac OS X and
+    beyond the scope of this document. More information about bundles
+    is available on \l
+    {http://developer.apple.com/documentation/CoreFoundation/Conceptual/CFBundles/index.html}{Apple's Developer Website}.
+
+    A Qt command line application on Mac OS X works similar to a
+    command line application on Unix and Windows. You probably don't
+    want to run it in a bundle: Add this to your application's .pro:
+
+    \code
+        CONFIG-=app_bundle
+    \endcode
+
+    This will tell \c qmake not to put the executable inside a
+    bundle. Please refer to the \l {Deploying an application on
+    Qt/x11} {x11 deployment documentation} for information about how
+    to deploy these "bundle-less" applications.
+
+    \section1 Xcode
+
+    We will only concern ourselves with command-line tools here. While
+    it is possible to use Xcode for this, Xcode has changed enough
+    between each version that it makes it difficult to document it
+    perfectly for each version. A future version of this document may
+    include more information for using Xcode in the deployment
+    process.
+
+    \section1 Static Linking
+
+    If you want to keep things simple by only having a few files to
+    deploy, then you must build everything statically.
+
+    \section2 Building Qt Statically
+
+    Start by installing a static version of the Qt library. Remember
+    that you will not be able to use plugins and you must build in all
+    the image formats, sqldrivers, etc..
+
+    \code
+        cd /path/to/Qt
+        ./configure -static <other parameters>
+        make sub-src
+    \endcode
+
+    You can check the various options that are available by running \c
+    configure -help.
+
+    \section2 Linking the Application to the Static Version of Qt
+
+    Once Qt is built statically, the next step is to regenerate the
+    makefile and rebuild the application. First, we must go into the
+    directory that contains the application:
+
+    \code
+        cd /path/to/Qt/examples/tools/plugandpaint
+    \endcode
+
+    Now run \c qmake to create a new makefile for the application, and do
+    a clean build to create the statically linked executable:
+
+    \code
+        make clean
+        qmake -config release
+        make
+    \endcode
+
+    You probably want to link against the release libraries, and you
+    can specify this when invoking \c qmake. In addition, if you have
+    Xcode 1.5 or higher installed, you may want to take advantage of
+    "dead code stripping" to reduce the size of your binary even
+    more. You can do this by passing \c {LIBS+= -dead_strip} to \c
+    qmake in addition to the \c {-config release} parameter. This
+    doesn't have as large an effect if you are using GCC 4, since Qt
+    will then have function visibility hints built-in, but if you use
+    GCC 3.3, it could make a difference.
+
+    Now, provided that everything compiled and linked without any
+    errors, we should have a \c plugandpaint.app bundle that is ready
+    for deployment. One easy way to check that the application really
+    can be run stand-alone is to copy the bundle to a machine that
+    doesn't have Qt or any Qt applications installed, and run the
+    application on that machine.
+
+    You can check what other libraries your application links to using
+    the \c otool.
+
+    \code
+        otool -L plugandpaint.app/contents/MacOs/plugandpaint
+    \endcode
+
+    For more information, see the \l {Application Dependencies}
+    section. Here is what the output looks like for the static \l
+    {tools/plugandpaint}{Plug & Paint}:
+
+    \code
+        plugandpaint.app/Contents/MacOS/plugandpaint:
+        /System/Library/Frameworks/Carbon.framework/Versions/A/Carbon
+                (compatibility version 2.0.0, current version 128.0.0)
+        /System/Library/Frameworks/QuickTime.framework/Versions/A/QuickTime
+                (compatibility version 1.0.0, current version 10.0.0)
+        /usr/lib/libz.1.dylib
+                (compatibility version 1.0.0, current version 1.2.3)
+        /System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices
+                (compatibility version 1.0.0, current version 22.0.0)
+        /usr/lib/libstdc++.6.dylib
+                (compatibility version 7.0.0, current version 7.3.0)
+        /usr/lib/libgcc_s.1.dylib
+                (compatibility version 1.0.0, current version 1.0.0)
+        /usr/lib/libmx.A.dylib
+                (compatibility version 1.0.0, current version 92.0.0)
+        /usr/lib/libSystem.B.dylib
+                (compatibility version 1.0.0, current version 88.0.0)
+    \endcode
+
+    If you see \e Qt libraries in the output, it probably means that
+    you have both dynamic and static Qt libraries installed on your
+    machine. The linker will always choose dynamic over static. There
+    are two solutions: Either move your Qt dynamic libraries (\c
+    .dylibs) away to another directory while you link the application
+    and then move them back, or edit the \c Makefile and replace link
+    lines for the Qt libraries with the absolute path to the static
+    libraries. For example, replace
+
+    \code
+        -lQtGui
+    \endcode
+
+    with
+
+    \code
+        /where/static/qt/lib/is/libQtGui.a
+    \endcode
+
+    The \l {tools/plugandpaint}{Plug & Paint} example consists of
+    several components: The core application (\l
+    {tools/plugandpaint}{Plug & Paint}), and the \l
+    {tools/plugandpaintplugins/basictools}{Basic Tools} and \l
+    {tools/plugandpaintplugins/extrafilters}{Extra Filters}
+    plugins. Since we cannot deploy plugins using the static linking
+    approach, the bundle we have prepared so far is incomplete. The
+    application will run, but the functionality will be disabled due
+    to the missing plugins. To deploy plugin-based applications we
+    should use the framework approach.
+
+    \section1 Frameworks
+
+    We have two challenges when deploying the \l
+    {tools/plugandpaint}{Plug & Paint} application using frameworks:
+    The Qt runtime has to be correctly redistributed along with the
+    application bundle, and the plugins have to be installed in the
+    correct location so that the application can find them.
+
+    When distributing Qt with your application using frameworks, you
+    have to options: You can either distribute Qt as a private
+    framework within your application bundle, or you can distribute Qt
+    as a standard framework (alternatively use the Qt frameworks in
+    the installed binary). These two approaches are essentially the
+    same. The former option is good if you have many Qt applications
+    and you would prefer to save memory. The latter is good if you
+    have Qt built in a special way, or want to make sure the framework
+    is there. It just comes down to where you place the Qt frameworks.
+
+    \section2 Building Qt as Frameworks
+
+    We assume that you already have installed Qt as frameworks, which
+    is the default when installing Qt, in the /path/to/Qt
+    directory. For more information on how to build Qt, see the \l
+    Installation documentation.
+
+    When installing, the install name of the frameworks will also be
+    set. The install name is what the dynamic linker (\c dyld) uses to
+    find the libraries for your application.
+
+    \section2 Linking the Application to Qt as Frameworks
+
+    After ensuring that Qt is built as frameworks, we can build the \l
+    {tools/plugandpaint}{Plug & Paint} application. First, we must go
+    into the directory that contains the application:
+
+    \code
+        cd /path/to/Qt/examples/tools/plugandpaint
+    \endcode
+
+    Now run qmake to create a new makefile for the application, and do
+    a clean build to create the dynamically linked executable:
+
+    \code
+        make clean
+        qmake -config release
+        make
+    \endcode
+
+    This builds the core application, the following will build the
+    plugins:
+
+    \code
+        cd ../plugandpaintplugins
+        make clean
+        qmake -config release
+        make
+    \endcode
+
+    Now, if we run the \c otool for the Qt frameworks, for example Qt Gui:
+
+    \code
+        otool -L QtGui.framework/QtGui
+    \endcode
+
+    we will get the following output:
+
+    \code
+        QtGui.framework/QtGui:
+        /path/to/Qt/lib/QtGui.framework/Versions/4.0/QtGui
+                (compatibility version 4.0.0, current version 4.0.1)
+        /System/Library/Frameworks/Carbon.framework/Versions/A/Carbon
+                (compatibility version 2.0.0, current version 128.0.0)
+        /System/Library/Frameworks/QuickTime.framework/Versions/A/QuickTime
+                (compatibility version 1.0.0, current version 10.0.0)
+        /path/to/Qt/QtCore.framework/Versions/4.0/QtCore
+                (compatibility version 4.0.0, current version 4.0.1)
+        /usr/lib/libz.1.dylib
+                (compatibility version 1.0.0, current version 1.2.3)
+        /System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices
+                (compatibility version 1.0.0, current version 22.0.0)
+        /usr/lib/libstdc++.6.dylib
+                (compatibility version 7.0.0, current version 7.3.0)
+        /usr/lib/libgcc_s.1.dylib
+                (compatibility version 1.0.0, current version 1.0.0)
+        /usr/lib/libmx.A.dylib
+                (compatibility version 1.0.0, current version 92.0.0)
+        /usr/lib/libSystem.B.dylib
+                (compatibility version 1.0.0, current version 88.0.0)
+    \endcode
+
+    For the Qt frameworks, the first line (i.e. \c
+    {path/to/Qt/lib/QtGui.framework/Versions/4.0/QtGui (compatibility
+    version 4.0.0, current version 4.0.1)}) becomes the framework's
+    identification name which is used by the dynamic linker (\c dyld).
+
+    But when you are deploying the application, your users may not
+    have the Qt frameworks installed in the specified location. For
+    that reason, you must either provide the frameworks in an agreed
+    upon location, or store the frameworks in the bundle itself.
+    Regardless of which solution you choose, you must make sure that
+    the frameworks return the proper identification name for
+    themselves, and that the application will look for these
+    names. Luckily we can control this with the \c install_name_tool
+    command-line tool.
+
+    The \c install_name_tool works in two modes, \c -id and \c
+    -change. The \c -id mode is for libraries and frameworks, and
+    allows us to specify a new identification name. We use the \c
+    -change mode to change the paths in the application.
+
+    Let's test this out by copying the Qt frameworks into the Plug &
+    Paint bundle. Looking at \c otool's output for the bundle, we can
+    see that we must copy both the QtCore and QtGui frameworks into
+    the bundle. We will assume that we are in the directory where we
+    built the bundle.
+
+    \code
+        mkdir plugandpaint.app/Contents/Frameworks
+        cp -R /path/to/Qt/lib/QtCore.framework
+                plugandpaint.app/Contents/Frameworks
+        cp -R /path/to/Qt/lib/QtGui.framework
+               plugandpaint.app/Contents/Frameworks
+    \endcode
+
+    First we create a \c Frameworks directory inside the bundle. This
+    follows the Mac OS X application convention. We then copy the
+    frameworks into the new directory. Since frameworks contain
+    symbolic links, and we want to preserve them, we use the \c -R
+    option.
+
+    \code
+        install_name_tool -id @executable_path/../Frameworks/QtCore.framework/Versions/4.0/QtCore
+               plugandpaint.app/Contents/Frameworks/QtCore.framework/Versions/4.0/QtCore
+        install_name_tool -id @executable_path/../Frameworks/QtGui.framework/Versions/4.0/QtGui
+               plugandpaint.app/Contents/Frameworks/QtGui.framework/Versions/4.0/QtGui
+    \endcode
+
+    Then we run \c install_name_tool to set the identification names
+    for the frameworks. The first argument after \c -id is the new
+    name, and the second argument is the framework which
+    identification we wish to change.  The text \c @executable_path is
+    a special \c dyld variable telling \c dyld to start looking where
+    the executable is located. The new names specifies that these
+    frameworks will be located "one directory up and over" in the \c
+    Frameworks directory.
+
+    \code
+        install_name_tool -change path/to/Qt/lib/QtCore.framework/Versions/4.0/QtCore
+                @executable_path/../Frameworks/QtCore.framework/Versions/4.0/QtCore
+                plugandpaint.app/Contents/MacOs/plugandpaint
+        install_name_tool -change path/to/qt/lib/QtGui.framework/Versions/4.0/QtGui
+                @executable_path/../Frameworks/QtGui.framework/Versions/4.0/QtGui
+                plugandpaint.app/Contents/MacOs/plugandpaint
+    \endcode
+
+    Now, the dynamic linker knows where to look for QtCore and
+    QtGui. Then we must make the application aware of the library
+    locations as well using \c install_name_tool's \c -change mode.
+    This basically comes down to string replacement, to match the
+    identification names that we set for the frameworks.
+
+    Finally, since the QtGui framework depends on QtCore, we must
+    remember to change the reference for QtGui:
+
+    \code
+        install_name_tool -change path/to/Qt/lib/QtCore.framework/Versions/4.0/QtCore
+                @executable_path/../Frameworks/QtCore.framework/Versions/4.0/QtCore
+                plugandpaint.app/Contents/Frameworks/QtGui.framework/Versions/4.0/QtGui
+    \endcode
+
+    After all this we can run \c otool again and see that the
+    application will look in the right locations.
+
+    Of course, the thing that makes the plug and paint example
+    intesting are its plugins. The basic steps we need to follow with
+    plugins are:
+
+    \list
+        \o Put the plugins inside bundle
+        \o Make sure that the plugins use the correct library using the
+           \c install_name_tool
+        \o Make sure that the application knows where to get the plugins
+    \endlist
+
+    While we can put the plugins anywhere we want in the bundle, the
+    best location to put them is under Contents/Plugins. When we built
+    the Plug & Paint plugins, the \c DESTDIR variable in their \c .pro
+    file put the plugins' \c .dylib files in a \c plugins subdirectory
+    in the \c plugandpaint directory. So, in this example, all we need
+    to do is move this directory:
+
+    \code
+        mv plugins plugandpaint.app/Contents
+    \endcode
+
+    If we run \c otool on for example the Basic Tools plugin's \c .dylib
+    file we get the following information.
+
+    \code
+        libpnp_basictools.dylib:
+        libpnp_basictools.dylib
+               (compatibility version 0.0.0, current version 0.0.0)
+        /path/to/Qt/lib/QtGui.framework/Versions/4.0/QtGui
+               (compatibility version 4.0.0, current version 4.0.1)
+        /System/Library/Frameworks/Carbon.framework/Versions/A/Carbon
+               (compatibility version 2.0.0, current version 128.0.0)
+        /System/Library/Frameworks/QuickTime.framework/Versions/A/QuickTime
+               (compatibility version 1.0.0, current version 10.0.0)
+        /path/to/Qt/lib/QtCore.framework/Versions/4.0/QtCore
+               (compatibility version 4.0.0, current version 4.0.1)
+        /usr/lib/libz.1.dylib
+               (compatibility version 1.0.0, current version 1.2.3)
+        /System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices
+               (compatibility version 1.0.0, current version 22.0.0)
+        /usr/lib/libstdc++.6.dylib
+               (compatibility version 7.0.0, current version 7.3.0)
+        /usr/lib/libgcc_s.1.dylib
+               (compatibility version 1.0.0, current version 1.0.0)
+        /usr/lib/libmx.A.dylib
+               (compatibility version 1.0.0, current version 92.0.0)
+        /usr/lib/libSystem.B.dylib
+               (compatibility version 1.0.0, current version 88.0.0)
+    \endcode
+
+    Then we can see that the plugin links to the Qt frameworks it was
+    built against. Since we want the plugins to use the framework in
+    the application bundle we change them the same way as we did for
+    the application. For example for the Basic Tools plugin:
+
+    \code
+        install_name_tool -change /path/to/Qt/lib/QtCore.framework/Versions/4.0/QtCore
+                @executable_path/../Frameworks/QtCore.framework/Versions/4.0/QtCore
+                plugandpaint.app/Contents/plugins/libpnp_basictools.dylib
+        install_name_tool -change /path/to/Qt/lib/QtGui.framework/Versions/4.0/QtGui
+                @executable_path/../Frameworks/QtGui.framework/Versions/4.0/QtGui
+                plugandpaint.app/Contents/plugins/libpnp_basictools.dylib
+    \endcode
+
+
+    We must also modify the code in \c
+    tools/plugandpaint/mainwindow.cpp to \l {QDir::cdUp()}{cdUp()} one
+    directory since the plugins live in the bundle. Add the following
+    code to the \c mainwindow.cpp file:
+
+    \code
+        #elif defined(Q_OS_MAC)
+        if (pluginsDir.dirName() == "MacOS") {
+            pluginsDir.cdUp();
+        }
+        #endif
+    \endcode
+
+    \table
+    \row
+    \o \inlineimage deployment-mac-application.png
+    \o
+    The additional code in \c tools/plugandpaint/mainwindow.cpp also
+    enables us to view the plugins in the Finder, as shown to the left.
+
+    We can also add plugins extending Qt, for example adding SQL
+    drivers or image formats. We just need to follow the directory
+    structure outlined in plugin documentation, and make sure they are
+    included in the QCoreApplication::libraryPaths(). Let's quickly do
+    this with the image formats, following the approach from above.
+
+    Copy the Qt's image format plugins into the bundle:
+
+    \code
+        cp -R /path/to/Qt/plugins/imageformats
+                pluginandpaint.app/Contents/plugins
+    \endcode
+
+    Use \c install_name_tool to link the plugins to the frameworks in
+    the bundle:
+
+    \code
+        install_name_tool -change /path/to/Qt/lib/QtGui.framework/Versions/4.0/QtGui
+                @executable_path/../Frameworks/QtGui.framework/Versions/4.0/QtGui
+                plugandpaint.app/Contents/plugins/imageformats/libqjpeg.dylib
+        install_name_tool -change /path/to/Qt/lib/QtCore.framework/Versions/4.0/QtCore
+                @executable_path/../Frameworks/QtCore.framework/Versions/4.0/QtCore
+                plugandpaint.app/Contents/plugins/imageformats/libqjpeg.dylib
+    \endcode
+
+    Then we update the source code in \c tools/plugandpaint/main.cpp
+    to look for the the new plugins. After constructing the
+    QApplication, we add the following code:
+
+    \code
+        QDir dir(QApplication::applicationDirPath());
+        dir.cdUp();
+        dir.cd("plugins");
+        QApplication::setLibraryPaths(QStringList(dir.absolutePath()));
+    \endcode
+
+    First, we tell the application to only look for plugins in this
+    directory. In our case, this is what we want since we only want to
+    look for the plugins that we distribute with the bundle. If we
+    were part of a bigger Qt installation we could have used
+    QCoreApplication::addLibraryPath() instead.
+
+    \endtable
+
+    \warning When deploying plugins, and thus make changes to the
+    source code, the default identification names are restored when
+    rebuilding the application, and you must repeat the process of
+    making your application and plugins link to the Qt frameworks in
+    the bundle using \c install_name_tool.
+
+    Now you should be able to move the application to another Mac OS X
+    machine and run it without Qt installed. Alternatively, you can
+    move your frameworks that live outside of the bundle to another
+    directory and see if the application still runs.
+
+    If you store the frameworks in another location than in the
+    bundle, the technique of linking your application is similar; you
+    must make sure that the application and the frameworks agree where
+    to be looking for the Qt libraries as well as the plugins.
+
+    \section2 Creating the Application Package
+
+    Regardless of whether you chose the static linking approach or
+    used Qt as frameworks, your application is ready to be
+    distributed. Apple provides a fair bit of information about how to
+    do this and instead of repeating it here, we recommend that you
+    consult their \l {
+    http://developer.apple.com/documentation/DeveloperTools/Conceptual/SoftwareDistribution/SoftwareDistribution.html
+    }{software distribution} documentation.
+
+    Although deploying application do have some pitfalls, once you
+    know the various issues you can easily create packages that all
+    your Mac OS X users will enjoy.
+
+    \section1 Application Dependencies
+
+    You can check which libraries your application is linking against
+    by using the \c otool tool. To use \c otool, all you need to do is
+    to run it like this:
+
+    \code
+        otool -L MyApp.app/Contents/MacOS/MyApp
+    \endcode
+
+    Unlike the deployment processes on \l {Deploying an Application on
+    Qt/X11}{X11} and \l {Deploying an Application on
+    Qt/Windows}{Windows}, compiler specific libraries rarely have to
+    be redistributed along with your application. But since Qt can be
+    configured, built, and installed in several ways on Mac OS X,
+    there are also several ways to deploy applications. Typically your
+    goals help determine how you are going to deploy the
+    application. The last sections describe a couple things to keep in
+    mind when you are deploying.
+
+    \section2 Mac OS X Version Dependencies
+
+    Qt 4.x has been designed to be built and deployed on Mac OS X 10.2
+    up until the current version as of this writing, Mac OS X 10.4 and
+    all their minor releases. Qt acheives this by using "weak
+    linking." This means that Qt tests if a function added in newer
+    versions of Mac OS X is available on the computer it is running on
+    before it uses it. This results in getting access to newer
+    features when running on newer versions of OS X while still
+    remaining compatible on older versions.
+
+    For more information about cross development issues on Mac OS X,
+    see \l
+    {http://developer.apple.com/documentation/DeveloperTools/Conceptual/cross_development/index.html}{Apple's Developer Website}.
+
+    However, there is a bit of a wrinkle to keep in mind when your are
+    deploying. Mac OS X 10.4 ("Tiger") ships GCC 4.0 as its default
+    compiler. This is also the GCC compiler we use for building the
+    binary Qt package. If you use GCC 4.0 to build your application,
+    it will link against a dynamic libstdc++ that is only available on
+    Mac OS X 10.4 and Mac OS X 10.3.9.  The application will refuse to
+    run on older versions of the operating system.
+
+    For more information about C++ runtime environment, see \l
+    {http://developer.apple.com/documentation/DeveloperTools/Conceptual/CppRuntimeEnv/index.html}{Apple's Developer Website}
+
+    If you want to deploy to versions of Mac OS X earlier than 10.3.9,
+    you must build with GCC 3.3. This is the default on Mac OS X 10.3,
+    is available on the Mac OS X 10.4 "Xcode Tools" CD and as a
+    download for Mac OS X 10.2 from Apple (connect.apple.com). You can
+    use Apple's gcc_select(1) command line tool to switch the default
+    complier on your system.
+
+    \section2 Architecture Dependencies
+
+    The Qt/Mac libraries, tools, and examples can be built "universal"
+    (i.e. they run native on both Intel and PowerPC machines).  This
+    is accomplished by passing \c -universal on the \c configure line
+    of the source package. This requires that you use GCC 4.0. The
+    current binary package is only built as PowerPC.
+
+    If you want to create a binary that runs on older versions of
+    PowerPC and x86.  It is possible to build Qt for the PowerPC with
+    GCC 3.3, an x86 one using GCC 4.0 and use Apple's \c lipo(1) tool
+    to stitch them together. This is beyond the scope of this document
+    and is not something we have tried, but Apple documents it on
+    their \l {http://developer.apple.com/documentation}{developer
+    website}.
+
+    Once you have a universal Qt, Qt will build for its host
+    architecture by default. If you want to build for a specific
+    architecture. You can control this with \c CONFIG line in you \c
+    .pro file. Use \c CONFIG+=ppc for PowerPC, and \c CONFIG+=x86 for
+    x86. If you desire both, simply add both to the \c CONFIG line.
+
+    Besides \c lipo, you can also check your binaries with the file(1)
+    command line tool or the Finder.
 */
