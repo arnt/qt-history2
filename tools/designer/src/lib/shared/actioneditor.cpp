@@ -101,6 +101,7 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
 
 #if 0 // ### implement me
     m_actionGroups = new QListWidget(splitter);
+    splitter->addWidget(m_actionGroups);
     m_actionGroups->setItemDelegate(new ActionGroupDelegate(m_actionGroups));
     m_actionGroups->setMovement(QListWidget::Static);
     m_actionGroups->setResizeMode(QListWidget::Fixed);
@@ -111,6 +112,7 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
 #endif
 
     m_actionRepository = new ActionRepository(splitter);
+    splitter->addWidget(m_actionRepository);
 
     connect(m_actionRepository, SIGNAL(itemClicked(QListWidgetItem*)),
         this, SLOT(slotItemChanged(QListWidgetItem*)));

@@ -522,6 +522,9 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
     if (QStackedWidget *stackedWidget = qobject_cast<QStackedWidget*>(parentWidget)) {
         stackedWidget->addWidget(widget);
         return true;
+    } else if (QSplitter *splitter = qobject_cast<QSplitter*>(parentWidget)) {
+        splitter->addWidget(widget);
+        return true;
     } else if (QToolBox *toolBox = qobject_cast<QToolBox*>(parentWidget)) {
         toolBox->addItem(widget, label);
         return true;
