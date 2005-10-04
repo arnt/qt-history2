@@ -512,9 +512,13 @@ you can enter editing mode by opening the \key Edit menu and selecting
 \key{Edit Widgets}, or by pressing the \key F3 key.
 
 Objects are added to the form by dragging them from the main toolbox
-and dropping them in the desired location on the form. Once there, they
-can be moved around simply by dragging them. Objects can be selected by
-clicking on them using the left mouse button.
+and dropping them in the desired location on the form. Once there,
+they can be moved around simply by dragging them, or by using the
+cursor keys. Pressing the \key Ctrl key at the same time moves the
+selected widget pixel by pixel, while using the cursor keys alone
+make the selected widget snap to the grid when it is moved. Objects
+can be selected by clicking on them using the left mouse button. You
+can also use the \key Tab key to change the selection.
 
 The toolbox contains objects in a number of different categories, all of
 which can be simply placed on the form as required. The only objects that
