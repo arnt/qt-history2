@@ -1096,6 +1096,25 @@ void QFileDialogPrivate::showHidden()
 void QFileDialogPrivate::useFilter(const QString &filter)
 {
     QStringList filters = qt_clean_filter_list(filter);
+    
+    // If acceptMode is AcceptSave, replace the file extension
+    // in the fileNameEdit with the new filter extension. 
+    if (acceptMode == QFileDialog::AcceptSave) {
+
+        QString filterExtension;
+        if (filters.count() > 0)
+            filterExtension = QFileInfo(filters.at(0)).suffix();
+    
+        QString fileNameText = fileNameEdit->text();
+        const QString fileNameExtension = QFileInfo(fileNameText).suffix();
+        
+        if (fileNameExtension.isEmpty() == false && filterExtension.isEmpty() == false) {
+            const int fileNameExtensionLenght = fileNameExtension.count();
+            fileNameText.replace(fileNameText.count() - fileNameExtensionLenght, fileNameExtensionLenght, filterExtension);
+            fileNameEdit->setText(fileNameText);
+        }
+    }
+    
     model->setNameFilters(filters);
     // FIXME: workaroud for problem in rowsRemoved()/rowsInserted()
     listView->doItemsLayout();
