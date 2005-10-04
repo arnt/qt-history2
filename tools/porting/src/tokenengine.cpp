@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "tokenengine.h"
 
 namespace TokenEngine {
@@ -367,4 +368,3 @@ TokenTempRef TokenSectionSequenceIterator::tokenTempRef() const
 
 
 } //namespace TokenEngine
-

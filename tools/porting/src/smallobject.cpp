@@ -25,5 +25,3 @@ void *SmallObject::operator new(size_t size)
 void SmallObject::operator delete(void * /*p*/ )
 {
 }
-
-

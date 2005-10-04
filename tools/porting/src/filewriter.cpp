@@ -12,10 +12,10 @@
 ****************************************************************************/
 
 #include "filewriter.h"
-#include <ctype.h>
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
+#include <ctype.h>
 
 FileWriter *FileWriter::theInstance  = 0;
 

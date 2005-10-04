@@ -11,9 +11,10 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "ast.h"
+#include <QStringList>
 #include <stdio.h>
-#include <qstringlist.h>
 
 int AST::N = 0;
 
@@ -1180,4 +1181,3 @@ AbstractExpressionAST::AbstractExpressionAST()
 {
     m_symbol = 0;
 }
-

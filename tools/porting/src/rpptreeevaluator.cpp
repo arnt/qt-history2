@@ -11,6 +11,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "rpptreeevaluator.h"
 #include <QChar>
 #include <QDebug>
@@ -517,7 +518,5 @@ TokenSection MacroFunctionParser::argument(int argumentIndex)
     Q_ASSERT(argumentIndex < m_arguments.count());
     return m_arguments.at(argumentIndex);
 }
-
-
 
 } //namespace Rpp

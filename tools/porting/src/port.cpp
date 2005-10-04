@@ -11,6 +11,11 @@
 **
 ****************************************************************************/
 
+#include "projectporter.h"
+#include "fileporter.h"
+#include "logger.h"
+#include "preprocessorcontrol.h"
+
 #include <QString>
 #include <QFile>
 #include <QFileInfo>
@@ -20,12 +25,7 @@
 #include <QTextStream>
 #include <QCoreApplication>
 #include <QLibraryInfo>
-#include <QDebug>
-
-#include "projectporter.h"
-#include "fileporter.h"
-#include "logger.h"
-#include "preprocessorcontrol.h"
+#include <QtDebug>
 
 QString rulesFilePath;
 QString applicationDirPath;

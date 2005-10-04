@@ -10,16 +10,17 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include <QFile>
-#include <QDir>
-#include <QFileInfo>
-#include <QHash>
-#include <QDebug>
+
 #include "preprocessorcontrol.h"
 #include "fileporter.h"
 #include "replacetoken.h"
 #include "logger.h"
 #include "tokenizer.h"
+#include <QFile>
+#include <QDir>
+#include <QFileInfo>
+#include <QHash>
+#include <QtDebug>
 
 using namespace TokenEngine;
 using namespace Rpp;

@@ -11,14 +11,13 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include "semantic.h"
-#include <QDebug>
-#include <QString>
-#include <QRegExp>
 
 #include "smallobject.h"
 #include "tokenengine.h"
-
+#include "semantic.h"
+#include <QtDebug>
+#include <QString>
+#include <QRegExp>
 
 using namespace TokenStreamAdapter;
 using namespace TokenEngine;

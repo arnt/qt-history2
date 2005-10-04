@@ -12,11 +12,12 @@
 ****************************************************************************/
 
 #include "portingrules.h"
+#include "logger.h"
+#include "qtsimplexml.h"
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
-#include "logger.h"
-#include "qtsimplexml.h"
+
 PortingRules *PortingRules::theInstance  = 0;
 
 void PortingRules::createInstance(QString xmlFilePath)

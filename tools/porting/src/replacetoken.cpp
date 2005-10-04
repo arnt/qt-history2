@@ -11,9 +11,10 @@
 **
 ****************************************************************************/
 
-#include <QByteArray>
 #include "replacetoken.h"
 #include "tokenreplacements.h"
+#include <QByteArray>
+
 /*
     Add an entry to the tokenRuleLookup map for each token replacement rule.
 */

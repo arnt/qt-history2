@@ -11,8 +11,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include "rpp.h"
 
+#include "rpp.h"
 #include "rppexpressionbuilder.h"
 
 using namespace TokenEngine;

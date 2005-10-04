@@ -12,18 +12,18 @@
 ****************************************************************************/
 
 #include "projectporter.h"
-#include <QDebug>
-#include <QFile>
-#include <QDir>
-#include <QStringList>
-#include <QFileInfo>
-#include <QBuffer>
 #include "proparser.h"
 #include "textreplacement.h"
 #include "fileporter.h"
 #include "logger.h"
 #include "translationunit.h"
 #include "codemodelattributes.h"
+#include <QtDebug>
+#include <QFile>
+#include <QDir>
+#include <QStringList>
+#include <QFileInfo>
+#include <QBuffer>
 
 using namespace TokenEngine;
 

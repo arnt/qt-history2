@@ -13,9 +13,9 @@
 ****************************************************************************/
 
 #include "tokenizer.h"
+#include "tokens.h"
 #include <QDateTime>
 #include <QHash>
-#include "tokens.h"
 #include <ctype.h>
 
 using TokenEngine::Token;

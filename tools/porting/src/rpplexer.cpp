@@ -11,9 +11,10 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "rpplexer.h"
-#include <ctype.h>
 #include <QChar>
+#include <ctype.h>
 
 using namespace TokenEngine;
 
