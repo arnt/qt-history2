@@ -35,6 +35,7 @@
 #include "QtCore/qdatetime.h"
 #include "QtCore/qvariant.h"
 #include "private/qwidget_p.h"
+#include "private/qdatetime_p.h"
 
 bool operator<(const QVariant &arg1, const QVariant &arg2);
 bool operator>(const QVariant &arg1, const QVariant &arg2);
@@ -44,14 +45,6 @@ QVariant operator+(const QVariant &arg1, const QVariant &arg2);
 QVariant operator-(const QVariant &arg1, const QVariant &arg2);
 QVariant operator*(const QVariant &arg1, double multiplier);
 double operator/(const QVariant &arg1, const QVariant &arg2);
-
-#define TIME_MIN QTime(0, 0, 0, 0)
-#define TIME_MAX QTime(23, 59, 59, 999)
-#define DATE_MIN QDate(1752, 9, 14)
-#define DATE_MAX QDate(7999, 12, 31)
-#define DATETIME_MIN QDateTime(DATE_MIN, TIME_MIN)
-#define DATETIME_MAX QDateTime(DATE_MAX, TIME_MAX)
-#define DATE_INITIAL QDate(2000, 1, 1)
 
 enum EmitPolicy {
     EmitIfChanged,
