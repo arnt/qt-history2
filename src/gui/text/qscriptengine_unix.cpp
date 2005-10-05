@@ -2487,7 +2487,8 @@ static const QOpenType::Features khmer_features[] = {
 static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
 {
 #if defined(QT_HAVE_FREETYPE) && !defined(QT_NO_FREETYPE)
-    openType->selectScript(QUnicodeTables::Khmer, khmer_features);
+    if (openType)
+        openType->selectScript(QUnicodeTables::Khmer, khmer_features);
 #endif
     // according to the specs this is the max length one can get
     // ### the real value should be smaller
