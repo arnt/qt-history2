@@ -1485,10 +1485,13 @@ QTableWidgetItem *QTableWidget::item(int row, int column) const
 */
 void QTableWidget::setItem(int row, int column, QTableWidgetItem *item)
 {
-    Q_ASSERT(item);
     Q_D(QTableWidget);
-    item->view = this;
-    d->model()->setItem(row, column, item);
+    if (item) {
+        item->view = this;
+        d->model()->setItem(row, column, item);
+    } else {
+        delete takeItem(row, column);
+    }
 }
 
 /*!
@@ -1498,7 +1501,8 @@ QTableWidgetItem *QTableWidget::takeItem(int row, int column)
 {
     Q_D(QTableWidget);
     QTableWidgetItem *item = d->model()->takeItem(row, column);
-    item->view = 0;
+    if (item)
+        item->view = 0;
     return item;
 }
 
