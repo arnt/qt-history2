@@ -111,7 +111,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxLength)
 
 #else
 
-#define WS_ERROR_DEBUG(x)
+#define WS_ERROR_DEBUG(x) if (0) {x;}
 
 #endif
 
