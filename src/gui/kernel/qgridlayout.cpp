@@ -277,20 +277,21 @@ QSize QGridLayoutPrivate::findSize(int QLayoutStruct::*size, int spacer) const
     int w = 0;
     int h = 0;
     int n = 0;
-    for (int r = 0; r < rr; r++) {
-        h = h + rowData[r].*size;
-        if (!rowData[r].empty)
+
+    for (int r = 0; r < rr; r++)
+        if (!rowData[r].empty) {
+            h = h + rowData[r].*size;
             n++;
-    }
+        }
     if (n)
         h += (n - 1) * spacer;
 
     n = 0;
-    for (int c = 0; c < cc; c++) {
-        w = w + colData[c].*size;
-        if (!colData[c].empty)
+    for (int c = 0; c < cc; c++)
+        if (!colData[c].empty) {
+            w = w + colData[c].*size;
             n++;
-    }
+        }
     if (n)
         w += (n - 1) * spacer;
     w = qMin(QLAYOUTSIZE_MAX, w);
