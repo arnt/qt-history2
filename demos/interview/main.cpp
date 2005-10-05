@@ -30,23 +30,27 @@ int main(int argc, char *argv[])
     QAbstractItemModel *data = new Model(1000, 10, &page);
     QItemSelectionModel *selections = new QItemSelectionModel(data);
 
-    QTableView *table = new QTableView(&page);
+    QTableView *table = new QTableView;
     table->setModel(data);
     table->setSelectionModel(selections);
     table->horizontalHeader()->setMovable(true);
     table->verticalHeader()->setMovable(true);
+    page.addWidget(table);
 
-    QTreeView *tree = new QTreeView(&page);
+    QTreeView *tree = new QTreeView;
     tree->setModel(data);
     tree->setSelectionModel(selections);
     tree->setUniformRowHeights(true);
+    tree->header()->setStretchLastSection(false);
+    page.addWidget(tree);
 
-    QListView *list = new QListView(&page);
+    QListView *list = new QListView;
     list->setModel(data);
     list->setSelectionModel(selections);
     list->setViewMode(QListView::IconMode);
     list->setSelectionMode(QAbstractItemView::ExtendedSelection);
     list->setAlternatingRowColors(false);
+    page.addWidget(list);
 
     page.setWindowIcon(QPixmap(":/images/interview.png"));
     page.setWindowTitle("Interview");
