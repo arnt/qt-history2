@@ -1434,7 +1434,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                 }
                 accelerateMove = accelEnv;  //&& ! isOpaque && !overlappingSiblings
                 if(isMove && accelerateMove)
-                    moveBuffer(QRect(oldPos, oldSize), x - q->x(), y - q->y());
+                    moveRect(QRect(oldPos, oldSize), x - q->x(), y - q->y());
                 else
                     pw->d_func()->invalidateBuffer(sr);
             }
@@ -1488,7 +1488,7 @@ void QWidget::scroll(int dx, int dy)
         flags |= SW_ERASE;
 
 #ifdef QT_USE_BACKINGSTORE
-    d_func()->moveBuffer(data->crect.translated(-dx, -dy), dx, dy);
+    d_func()->scrollRect(rect(), dx, dy);
 #endif
     ScrollWindowEx(winId(), dx, dy, 0, 0, 0, 0, flags);
     UpdateWindow(winId());
@@ -1509,8 +1509,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     wr.right = r.right()+1;
 
 #ifdef QT_USE_BACKINGSTORE
-    //d_func()->scrollBuffer(scrollingRect(r, dx, dy), dx, dy);
-    d_func()->invalidateBuffer(r); //### can be optimized if anyone still uses this functionality
+    d_func()->scrollRect(r, dx, dy);
 #endif
     ScrollWindowEx(winId(), dx, dy, &wr, &wr, 0, 0, flags);
     UpdateWindow(winId());

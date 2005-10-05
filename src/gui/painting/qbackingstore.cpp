@@ -217,13 +217,12 @@ QWidgetBackingStore::~QWidgetBackingStore()
 }
 
 /*
-  Only for opaque widgets without overlapping siblings
-
-  move the rectangle \a rect (in parent's coords!)
-  by dx, dy
+  Widget's coordinate system
+  move whole rect by dx,dy
+  rect must be valid
+  don't generate any updates
 */
-
-void QWidgetBackingStore::moveRect(const QRect &rect, int dx, int dy, QWidget *widget)
+void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *widget)
 {
 #ifdef Q_WS_X11
     //### need cross-platform test
@@ -231,57 +230,79 @@ void QWidgetBackingStore::moveRect(const QRect &rect, int dx, int dy, QWidget *w
         return;
 #endif
 
-    const QPoint pOffs = widget->geometry().topLeft();
-
-    QRect wr = widget->d_func()->clipRect().translated(pOffs); //map to parent
-
-
-
-//    QRegion dirtyRgn(rect);
-
-    QRect newRect = rect.translated(dx,dy);
-
-
-    QRect destRect = rect.intersect(wr).translated(dx,dy).intersect(wr);
-    QRect sourceRect = destRect.translated(-dx, -dy);
-
-    // blt sourceRect -> destRect
-    if (sourceRect.isValid()) {
-    QPoint pos(widget->mapTo(tlw, sourceRect.topLeft()-pOffs)); //map from parent
+    QPoint pos(widget->mapTo(tlw, rect.topLeft()));
 
 #if defined(Q_WS_WIN)
     QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
     HDC engine_dc = engine->getDC();
-    BitBlt(engine_dc, pos.x()+dx, pos.y()+dy, sourceRect.width(), sourceRect.height(),
+    BitBlt(engine_dc, pos.x()+dx, pos.y()+dy, rect.width(), rect.height(),
            engine_dc, pos.x(), pos.y(), SRCCOPY);
     engine->releaseDC(engine_dc);
 #elif defined(Q_WS_X11)
 //    qDebug("XCreateGC");
     GC gc = XCreateGC(widget->d_func()->xinfo.display(), buffer.handle(), 0, 0);
-//    qDebug() << "XCopyArea" << pos << sourceRect << "dx" << dy << "dy" << dy;
+//    qDebug() << "XCopyArea" << pos << rect << "dx" << dy << "dy" << dy;
     XCopyArea(X11->display, buffer.handle(), buffer.handle(), gc,
-              pos.x(), pos.y(), sourceRect.width(), sourceRect.height(),
+              pos.x(), pos.y(), rect.width(), rect.height(),
               pos.x()+dx, pos.y()+dy);
 //    qDebug("XFreeGC");
     XFreeGC(widget->d_func()->xinfo.display(), gc);
 //    qDebug("done");
+#elif defined(Q_WS_QWS)
+    //### QWS has its own implementation; should be unified
 #endif
-    }
-    // widget invalidate newRect - destRect
-    QRegion dirtyChildRgn(newRect.translated(-pOffs));
-    dirtyChildRgn -= destRect.translated(-pOffs);
-    dirtyRegion(dirtyChildRgn, widget);
+}
 
-    // parent invalidate rect - newRect
 
-    QWidget *parent = widget->parentWidget();
-    if (parent) {
-        QRect pr = parent->d_func()->clipRect();
-        QRegion dirtyRgn(rect & pr);
-        dirtyRgn -= newRect;
-        if (!dirtyRgn.isEmpty())
-            dirtyRegion(dirtyRgn, parent);
-    }
+//parent's coordinates; move whole rect; update parent and widget
+//assume the screen blt has already been done, so we don't need to refresh that part
+void QWidgetPrivate::moveRect(const QRect &rect, int dx, int dy)
+{
+    Q_Q(QWidget);
+    QWidget *tlw = q->window();
+    QTLWExtra* x = tlw->d_func()->topData();
+
+    QWidget *pw = q->parentWidget();
+    QWidgetPrivate *pd = pw->d_func();
+    QRect clipR = pd->clipRect();
+    QRect newRect = rect.translated(dx,dy);
+
+
+    QRect destRect = rect.intersect(clipR).translated(dx,dy).intersect(clipR);
+    QRect sourceRect = destRect.translated(-dx, -dy);
+
+    if (sourceRect.isValid())
+        x->backingStore->bltRect(sourceRect, dx, dy, pw);
+
+    QRegion parentExpose = rect & clipR;
+    parentExpose -= newRect;
+    pd->invalidateBuffer(parentExpose);
+
+    QRegion childExpose = newRect & clipR;
+    childExpose -= destRect;
+    childExpose.translate(-data.crect.topLeft());
+    invalidateBuffer(childExpose);
+
+}
+
+//widget's coordinates; scroll within rect;  only update widget
+void QWidgetPrivate::scrollRect(const QRect &rect, int dx, int dy)
+{
+    Q_Q(QWidget);
+    QWidget *tlw = q->window();
+    QTLWExtra* x = tlw->d_func()->topData();
+
+    QRect scrollRect = rect & clipRect();
+
+    QRect destRect = scrollRect.translated(dx,dy).intersect(scrollRect);
+    QRect sourceRect = destRect.translated(-dx, -dy);
+
+    if (sourceRect.isValid())
+        x->backingStore->bltRect(sourceRect, dx, dy, q);
+
+    QRegion childExpose = scrollRect;
+    childExpose -= destRect;
+    invalidateBuffer(childExpose);
 }
 
 #ifdef Q_WS_QWS
@@ -412,8 +433,10 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
             widget_dc = GetDC(widget->winId());
             tmp_widget_dc = true;
         }
-        BitBlt(widget_dc, wOffset.x(), wOffset.y(), widget->width(), widget->height(),
-               engine_dc, offset.x(), offset.y(), SRCCOPY);
+        QRect br = rgn.boundingRect();
+        QRect wbr = rgn.boundingRect().translated(wOffset);
+        BitBlt(widget_dc, wbr.x(), wbr.y(), wbr.width(), wbr.height(),
+               engine_dc, br.x() + offset.x(), br.y() + offset.y(), SRCCOPY);
         if (tmp_widget_dc)
             ReleaseDC(widget->winId(), widget_dc);
         engine->releaseDC(engine_dc);
@@ -651,21 +674,6 @@ void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, con
 }
 
 /* cross-platform QWidget code */
-
-/*
-  Only for opaque widgets
-  move the  \a rect part of q by (dx, dy), clipping to parent
-
-
-*/
-void QWidgetPrivate::moveBuffer(const QRect &rect, int dx, int dy)
-{
-    Q_Q(QWidget);
-    QWidget *tlw = q->window();
-    QTLWExtra* x = tlw->d_func()->topData();
-    x->backingStore->moveRect(rect, dx, dy, q);
-
-}
 
 void QWidgetPrivate::invalidateBuffer(const QRegion &rgn)
 {

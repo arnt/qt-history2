@@ -222,7 +222,8 @@ public:
 #ifdef QT_USE_BACKINGSTORE
     void dirtyWidget_sys(const QRegion &rgn);
     void cleanWidget_sys(const QRegion& rgn);
-    void moveBuffer(const QRect &, int dx, int dy);
+    void moveRect(const QRect &, int dx, int dy);
+    void scrollRect(const QRect &, int dx, int dy);
     void invalidateBuffer(const QRegion &);
 # if defined(Q_WS_X11)
     QRegion dirtyOnScreen;
