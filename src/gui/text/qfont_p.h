@@ -136,7 +136,7 @@ public:
 #ifndef Q_WS_X11
     void load(int script);
 #endif
-#if defined(Q_WS_X11) || defined(Q_WS_WIN)
+#if defined(Q_WS_X11)
     inline QFontEngine *engineForScript(int script) const
     {
         if (script >= QUnicodeTables::Inherited)
