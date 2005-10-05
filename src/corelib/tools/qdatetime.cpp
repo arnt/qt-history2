@@ -3305,11 +3305,6 @@ QDebug operator<<(QDebug dbg, const QDateTime &date)
 #endif
 
 #ifndef QT_BOOTSTRAPPED
-Q_CORE_EXPORT bool operator<(const QVariant &arg1, const QVariant &arg2);
-Q_CORE_EXPORT bool operator>(const QVariant &arg1, const QVariant &arg2);
-Q_CORE_EXPORT bool operator<=(const QVariant &arg1, const QVariant &arg2);
-Q_CORE_EXPORT bool operator>=(const QVariant &arg1, const QVariant &arg2);
-
 bool QDateTimeParser::isSpecial(const QChar &c) const
 {
     switch (c.cell()) {
@@ -4778,6 +4773,9 @@ Q_CORE_EXPORT bool operator<(const QVariant &arg1, const QVariant &arg2)
     case QVariant::Date: return arg1.toDate() < arg2.toDate();
     case QVariant::Time: return arg1.toTime() < arg2.toTime();
     case QVariant::DateTime: return arg1.toDateTime() < arg2.toDateTime();
+    case QVariant::Int: return arg1.toInt() < arg2.toInt();
+    case QVariant::Double: return arg1.toDouble() < arg2.toDouble();
+
     default: break;
     }
     return false;
@@ -4799,6 +4797,8 @@ Q_CORE_EXPORT bool operator>(const QVariant &arg1, const QVariant &arg2)
     case QVariant::Time: return arg1.toTime() > arg2.toTime();
     case QVariant::Date: return arg1.toDate() > arg2.toDate();
     case QVariant::DateTime: return arg1.toDateTime() > arg2.toDateTime();
+    case QVariant::Int: return arg1.toInt() > arg2.toInt();
+    case QVariant::Double: return arg1.toDouble() > arg2.toDouble();
     default: break;
     }
     return false;
@@ -4806,12 +4806,9 @@ Q_CORE_EXPORT bool operator>(const QVariant &arg1, const QVariant &arg2)
 
 Q_CORE_EXPORT bool operator<=(const QVariant &arg1, const QVariant &arg2)
 {
-    if ((arg1.type() == QVariant::Time && arg2.type() == QVariant::Date)
-        || (arg1.type() == QVariant::Date && arg2.type() == QVariant::Time)) {
-        qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
-                 arg1.typeName(), arg2.typeName());
-    }
     switch (arg2.type()) {
+    case QVariant::Int:
+    case QVariant::Double:
     case QVariant::Date:
     case QVariant::Time:
     case QVariant::DateTime: return (arg1 < arg2 || arg1 == arg2);
@@ -4828,12 +4825,9 @@ Q_CORE_EXPORT bool operator<=(const QVariant &arg1, const QVariant &arg2)
 
 Q_CORE_EXPORT bool operator>=(const QVariant &arg1, const QVariant &arg2)
 {
-    if ((arg1.type() == QVariant::Time && arg2.type() == QVariant::Date)
-        || (arg1.type() == QVariant::Date && arg2.type() == QVariant::Time)) {
-        qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
-                 arg1.typeName(), arg2.typeName());
-    }
     switch (arg2.type()) {
+    case QVariant::Int:
+    case QVariant::Double:
     case QVariant::Time:
     case QVariant::Date:
     case QVariant::DateTime: return (arg1 > arg2 || arg1 == arg2);

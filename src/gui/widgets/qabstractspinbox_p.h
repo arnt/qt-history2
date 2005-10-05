@@ -37,10 +37,6 @@
 #include "private/qwidget_p.h"
 #include "private/qdatetime_p.h"
 
-bool operator<(const QVariant &arg1, const QVariant &arg2);
-bool operator>(const QVariant &arg1, const QVariant &arg2);
-bool operator<=(const QVariant &arg1, const QVariant &arg2);
-bool operator>=(const QVariant &arg1, const QVariant &arg2);
 QVariant operator+(const QVariant &arg1, const QVariant &arg2);
 QVariant operator-(const QVariant &arg1, const QVariant &arg2);
 QVariant operator*(const QVariant &arg1, double multiplier);

@@ -13,6 +13,7 @@
 
 #include <math.h>
 #include <private/qabstractspinbox_p.h>
+#include <private/qdatetime_p.h>
 #include <qabstractspinbox.h>
 #include <qapplication.h>
 #include <qdatetimeedit.h>

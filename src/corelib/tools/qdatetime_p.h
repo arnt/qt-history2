@@ -39,6 +39,14 @@
 #define QDATETIME_MAX QDateTime(QDATE_MAX, QTIME_MAX)
 #define QDATE_INITIAL QDate(2000, 1, 1)
 
+#ifndef QT_BOOTSTRAPPED
+Q_CORE_EXPORT bool operator<(const QVariant &arg1, const QVariant &arg2);
+Q_CORE_EXPORT bool operator>(const QVariant &arg1, const QVariant &arg2);
+Q_CORE_EXPORT bool operator<=(const QVariant &arg1, const QVariant &arg2);
+Q_CORE_EXPORT bool operator>=(const QVariant &arg1, const QVariant &arg2);
+#endif
+
+
 class QDateTimePrivate
 {
 public:

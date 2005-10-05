@@ -13,6 +13,7 @@
 
 #include <qplatformdefs.h>
 #include <private/qabstractspinbox_p.h>
+#include <private/qdatetime_p.h>
 #include <qabstractspinbox.h>
 
 #ifndef QT_NO_SPINBOX
@@ -1656,92 +1657,8 @@ void QSpinBoxValidator::fixup(QString &input) const
 {
     qptr->fixup(input);
 }
+
 // --- global ---
-
-
-/*!
-    \internal
-    Compares two variants and returns true if \a arg1 < \a arg2
-*/
-
-bool operator<(const QVariant &arg1, const QVariant &arg2)
-{
-    if (arg1.type() != arg2.type())
-        qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
-                 arg1.typeName(), arg2.typeName());
-    switch (arg1.type()) {
-    case QVariant::Int: return arg1.toInt() < arg2.toInt();
-    case QVariant::Double: return arg1.toDouble() < arg2.toDouble();
-    case QVariant::Date: return arg1.toDate() < arg2.toDate();
-    case QVariant::Time: return arg1.toTime() < arg2.toTime();
-    case QVariant::DateTime: return arg1.toDateTime() < arg2.toDateTime();
-    default: break;
-    }
-    return false;
-}
-
-/*!
-    \internal
-    Compares two variants and returns true if \a arg1 > \a arg2
-*/
-
-bool operator>(const QVariant &arg1, const QVariant &arg2)
-{
-    if (arg1.type() != arg2.type())
-        qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
-                 arg1.typeName(), arg2.typeName());
-    switch (arg1.type()) {
-    case QVariant::Int: return arg1.toInt() > arg2.toInt();
-    case QVariant::Double: return arg1.toDouble() > arg2.toDouble();
-    case QVariant::Time: return arg1.toTime() > arg2.toTime();
-    case QVariant::Date: return arg1.toDate() > arg2.toDate();
-    case QVariant::DateTime: return arg1.toDateTime() > arg2.toDateTime();
-    default: break;
-    }
-    return false;
-}
-
-/*!
-    \internal
-    Compares two variants and returns true if \a arg1 >= \a arg2
-*/
-
-bool operator<=(const QVariant &arg1, const QVariant &arg2)
-{
-    if (arg1.type() != arg2.type())
-        qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
-                 arg1.typeName(), arg2.typeName());
-    switch (arg1.type()) {
-    case QVariant::Int:
-    case QVariant::Double:
-    case QVariant::Date:
-    case QVariant::Time:
-    case QVariant::DateTime: return (arg1 < arg2 || arg1 == arg2);
-    default: break;
-    }
-    return false;
-}
-
-/*!
-    \internal
-    Compares two variants and returns true if \a arg1 >= \a arg2
-*/
-
-bool operator>=(const QVariant &arg1, const QVariant &arg2)
-{
-    if (arg1.type() != arg2.type())
-        qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
-                 arg1.typeName(), arg2.typeName());
-    switch (arg1.type()) {
-    case QVariant::Int:
-    case QVariant::Double:
-    case QVariant::Time:
-    case QVariant::Date:
-    case QVariant::DateTime: return (arg1 > arg2 || arg1 == arg2);
-    default: break;
-    }
-    return false;
-}
 
 /*!
     \internal
