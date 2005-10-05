@@ -465,12 +465,12 @@ private:
     void writeCatalog();
     void writePageRoot();
     void flushPage();
-    uint requestObjNumber()
+    uint requestObject()
     {
-        return objnumber_++;
+        return currentObject++;
     }
 
-    QVector<int> xrefpos_;
+    QVector<int> xrefPositions;
     int streampos_;
     int options_;
     bool landscape_;
@@ -478,10 +478,13 @@ private:
     QDataStream* stream_;
 
     int xprintf(const char* fmt, ...);
-    int addxentry(int objnumber, bool printostr = true);
+    int addXrefEntry(int object, bool printostr = true);
 
-    int objnumber_, pagesobjnumber_, root_, info_, gsobjnumber_, pcsobjnumber_, csobjnumber_,csgobjnumber_;
-    QVector<QVector<uint> > pageobjnumber_;
+    int currentObject;
+
+    // various PDF objects
+    int pageRoot, catalog, info, graphicsState, patternColorSpace, colorSpace, colorSpaceGray;
+    QVector<uint> pages;
 };
 
 

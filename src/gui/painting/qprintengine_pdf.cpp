@@ -2176,7 +2176,7 @@ QPdfObject* QPdfPage::append(QPdfObject* val, bool protect)
 
 QPdfEnginePrivate::QPdfEnginePrivate()
 {
-    objnumber_ = 1;
+    currentObject = 1;
     width_ = 0;
     height_ = 0;
     options_ = 0;
@@ -2239,17 +2239,17 @@ void QPdfEnginePrivate::unsetDevice()
 
 void QPdfEnginePrivate::writeHeader()
 {
-    addxentry(0,false);
+    addXrefEntry(0,false);
 
-    xprintf("%%PDF-1.4\n");
+    xprintf("%%PDF-1.4\n%\342\343\317\323\n");
 
     writeInfo();
     writeCatalog();
 
-    gsobjnumber_ = requestObjNumber();
-    pcsobjnumber_ = requestObjNumber();
-    csobjnumber_ = requestObjNumber();
-    csgobjnumber_ = requestObjNumber();
+    graphicsState = requestObject();
+    patternColorSpace = requestObject();
+    colorSpace = requestObject();
+    colorSpaceGray = requestObject();
 }
 
 void QPdfEnginePrivate::writeInfo()
@@ -2264,7 +2264,7 @@ void QPdfEnginePrivate::writeInfo()
     if (newtime && newtime->tm_year+1900 > 1992)
         y += QByteArray::number(newtime->tm_year+1900);
 
-    info_ = addxentry(-1);
+    info = addXrefEntry(-1);
     xprintf("<<\n"
             "/Title (%s)\n"
             "/Author (%s)\n"
@@ -2295,18 +2295,18 @@ void QPdfEnginePrivate::writeInfo()
 
 void QPdfEnginePrivate::writeCatalog()
 {
-    root_ = addxentry(-1);
-    pagesobjnumber_ = requestObjNumber();
+    catalog = addXrefEntry(-1);
+    pageRoot = requestObject();
     xprintf("<<\n"
             "/Type /Catalog\n"
             "/Pages %d 0 R\n"
             ">>\n"
-            "endobj\n",pagesobjnumber_);
+            "endobj\n",pageRoot);
 }
 
 void QPdfEnginePrivate::writePageRoot()
 {
-    addxentry(pagesobjnumber_);
+    addXrefEntry(pageRoot);
     int viewport[4] = {0,0,width_,height_};
 
     xprintf("<<\n"
@@ -2314,16 +2314,16 @@ void QPdfEnginePrivate::writePageRoot()
             "/Kids \n");
 
     xprintf("[\n");
-    int size = pageobjnumber_.size();
-    for (int i = 0; i != size; ++i)
-        xprintf("%d 0 R\n",pageobjnumber_[pageOrder == QPrinter::FirstPageFirst ? i : size-i-1][2]);
+    int size = pages.size();
+    for (int i = 0; i < size; ++i)
+        xprintf("%d 0 R\n",pages[pageOrder == QPrinter::FirstPageFirst ? i : size-i-1]);
     xprintf("]\n");
 
     //xprintf("/Group <</S /Transparency /I true /K false>>\n");
 
     xprintf("/Count %d\n"
             "/MediaBox [%d %d %d %d]\n",
-            pageobjnumber_.size(), viewport[0], viewport[1], viewport[2], viewport[3]);
+            pages.size(), viewport[0], viewport[1], viewport[2], viewport[3]);
 
     xprintf("/ProcSet [/PDF /Text /ImageB /ImageC]\n"
             ">>\n"
@@ -2332,7 +2332,7 @@ void QPdfEnginePrivate::writePageRoot()
 
     // graphics state
 
-    addxentry(gsobjnumber_);
+    addXrefEntry(graphicsState);
     xprintf("<<\n"
             "/Type /ExtGState\n"
             "/SA true\n"
@@ -2349,11 +2349,11 @@ void QPdfEnginePrivate::writePageRoot()
 
     // color space for pattern
 
-    addxentry(pcsobjnumber_);
+    addXrefEntry(patternColorSpace);
     xprintf("[/Pattern %d 0 R]\n"
-            "endobj\n", csobjnumber_);
+            "endobj\n", colorSpace);
 
-    addxentry(csobjnumber_);
+    addXrefEntry(colorSpace);
     xprintf("[ /CalRGB\n"
             "<<\n"
             "/WhitePoint [0.9505 1.0000 1.0890]\n"
@@ -2364,7 +2364,7 @@ void QPdfEnginePrivate::writePageRoot()
             "]\n"
             "endobj\n");
 
-    addxentry(csgobjnumber_);
+    addXrefEntry(colorSpaceGray);
     xprintf("[ /CalGray\n"
             "<<\n"
             "/WhitePoint [0.9505 1.0000 1.0890]\n"
@@ -2388,23 +2388,23 @@ void QPdfEnginePrivate::newPage()
     curPage->append(curPen->setColor(QColor()),true);
     curPage->append(curBrush->setFixed(Qt::NoBrush, QColor()),true);
 
-    pageobjnumber_.append(QVector<uint>(4));
-    pageobjnumber_.last()[0] = requestObjNumber();	// page stream object
-    pageobjnumber_.last()[1] = requestObjNumber();	// stream length object
-    pageobjnumber_.last()[2] = requestObjNumber();	// page object
-    pageobjnumber_.last()[3] = requestObjNumber();	// page resources (pattern etc.)
+    pages.append(requestObject());
 }
 
 
 void QPdfEnginePrivate::flushPage()
 {
-    if (pageobjnumber_.empty())
+    if (pages.empty())
         return;
 
     QPdfStream cs;
     cs.setStream(*stream_);
 
-    addxentry(pageobjnumber_.last()[2]);
+    uint pageStream = requestObject();
+    uint pageStreamLength = requestObject();
+    uint resources = requestObject();
+
+    addXrefEntry(pages.last());
     xprintf("<<\n"
             "/Type /Page\n"
             "/Parent %d 0 R\n"
@@ -2412,10 +2412,10 @@ void QPdfEnginePrivate::flushPage()
             "/Resources %d 0 R\n"
             ">>\n"
             "endobj\n",
-            pagesobjnumber_, pageobjnumber_.last()[0], pageobjnumber_.last()[3]);
+            pageRoot, pageStream, resources);
 
 
-    addxentry(pageobjnumber_.last()[3]);
+    addXrefEntry(resources);
     xprintf("<<\n"
             "/ColorSpace <<\n"
             "/PCSp %d 0 R\n"
@@ -2426,7 +2426,7 @@ void QPdfEnginePrivate::flushPage()
             ">>\n"
             "/ExtGState <<\n"
             "/GSa %d 0 R\n",
-            pcsobjnumber_, csobjnumber_, csgobjnumber_, gsobjnumber_);
+            patternColorSpace, colorSpace, colorSpaceGray, graphicsState);
 
     int i;
 
@@ -2436,7 +2436,7 @@ void QPdfEnginePrivate::flushPage()
         QPdfPath* p = curPage->paths[i];
 
         if (p->hasTrueAlpha()) {
-            p->setAlpha("/GStr", requestObjNumber());
+            p->setAlpha("/GStr", requestObject());
             xprintf("%s %d 0 R\n", p->alphaName().constData(), p->alphaObject());
         }
     }
@@ -2445,10 +2445,10 @@ void QPdfEnginePrivate::flushPage()
 
     for (i=0; i<curBrush->gradients.size();++i) {
         QPdfGradient* sh = curBrush->gradients[i].shader;
-        sh->setColorSpaceObject(csobjnumber_);
-        sh->setSoftMaskColorSpaceObject(csgobjnumber_);
+        sh->setColorSpaceObject(colorSpace);
+        sh->setSoftMaskColorSpaceObject(colorSpaceGray);
         if (sh->hasSoftMask()) {
-            sh->setSoftMaskObjects(requestObjNumber(),requestObjNumber(),requestObjNumber());
+            sh->setSoftMaskObjects(requestObject(),requestObject(),requestObject());
             xprintf("%s <</Type /ExtGState /SMask <</S /Alpha /G %d 0 R>> >>\n"
                     ,sh->softMaskGraphicStateName().constData(),sh->softMaskFormObject());
         }
@@ -2466,7 +2466,7 @@ void QPdfEnginePrivate::flushPage()
         if (!p.isTruePattern())
             continue;
 
-        fno.append(requestObjNumber());
+        fno.append(requestObject());
         xprintf("%s %d 0 R\n",
                 curBrush->fixeds[i].name.constData(),fno.last());
     }
@@ -2475,7 +2475,7 @@ void QPdfEnginePrivate::flushPage()
 
     QVector<uint> pno;
     for (i=0; i<curBrush->pixmaps.size();++i) {
-        pno.append(requestObjNumber());
+        pno.append(requestObject());
         xprintf("%s %d 0 R\n",
                 curBrush->pixmaps[i].name.constData(),pno.last());
     }
@@ -2483,7 +2483,7 @@ void QPdfEnginePrivate::flushPage()
     // ... linear gradient brushes
 
     for (i=0; i<curBrush->gradients.size();++i) {
-        int obj = requestObjNumber();
+        int obj = requestObject();
         curBrush->gradients[i].setMainObj(obj);
         xprintf("%s %d 0 R\n",
                 curBrush->gradients[i].name.constData(), obj);
@@ -2497,7 +2497,7 @@ void QPdfEnginePrivate::flushPage()
     xprintf("/XObject <<\n");
     QVector<int> iv;
     for (i=0; i<curPage->images.size();++i) {
-        iv.append(requestObjNumber());
+        iv.append(requestObject());
         xprintf("%s %d 0 R\n",
                 curPage->images[i]->name.constData(),iv.last());
     }
@@ -2517,7 +2517,7 @@ void QPdfEnginePrivate::flushPage()
         QPdfPath* p = curPage->paths[i];
 
         if (p->hasTrueAlpha()) {
-            addxentry(p->alphaObject());
+            addXrefEntry(p->alphaObject());
             xprintf(p->getAlphaDefinition().constData());
         }
     }
@@ -2531,7 +2531,7 @@ void QPdfEnginePrivate::flushPage()
         if (!p.isTruePattern())
             continue;
 
-        addxentry(fno[k++]);
+        addXrefEntry(fno[k++]);
         xprintf(p.getDefinition().constData());
     }
 
@@ -2541,22 +2541,22 @@ void QPdfEnginePrivate::flushPage()
 
     for (i=0; i<curBrush->gradients.size();++i) {
         QPdfBrush::GradientPattern p = curBrush->gradients[i];
-        p.shader->setObjects(requestObjNumber(), requestObjNumber());
+        p.shader->setObjects(requestObject(), requestObject());
 
-        addxentry(p.getMainObj());
+        addXrefEntry(p.getMainObj());
         xprintf(p.getDefinition().constData());
 
-        addxentry(p.shader->mainObject());
+        addXrefEntry(p.shader->mainObject());
         xprintf(p.shader->getMainDefinition().constData());
-        addxentry(p.shader->functionObject());
+        addXrefEntry(p.shader->functionObject());
         xprintf(p.shader->getFuncDefinition().constData());
 
         if (p.shader->hasSoftMask()) {
-            addxentry(p.shader->softMaskFormObject());
+            addXrefEntry(p.shader->softMaskFormObject());
             xprintf(p.shader->getSoftMaskFormDefinition().constData());
-            addxentry(p.shader->softMaskMainObject());
+            addXrefEntry(p.shader->softMaskMainObject());
             xprintf(p.shader->getSoftMaskMainDefinition().constData());
-            addxentry(p.shader->softMaskFunctionObject());
+            addXrefEntry(p.shader->softMaskFunctionObject());
             xprintf(p.shader->getSoftMaskFuncDefinition().constData());
         }
     }
@@ -2568,8 +2568,8 @@ void QPdfEnginePrivate::flushPage()
     QVector<QPdfImage*> images = curPage->images;
     for (i=0; i<curBrush->pixmaps.size();++i) {
         QPdfBrush::PixmapPattern p = curBrush->pixmaps[i];
-        addxentry(pno[i]);
-        iv.append(requestObjNumber());
+        addXrefEntry(pno[i]);
+        iv.append(requestObject());
         xprintf(p.getDefinition(iv.last()).constData());
         images.append(curBrush->pixmaps[i].image);
     }
@@ -2577,51 +2577,51 @@ void QPdfEnginePrivate::flushPage()
     // write all image objects
 
     for (i=0; i<images.size();++i) {
-        addxentry(iv[i]);
+        addXrefEntry(iv[i]);
         QPdfImage* im = images[i];
 
         if (im->hasHardMask())
-            im->setMaskObj(requestObjNumber());
+            im->setMaskObj(requestObject());
         if (im->hasSoftMask())
-            im->setSoftMaskObj(requestObjNumber());
-        im->setLenObj(requestObjNumber());
+            im->setSoftMaskObj(requestObject());
+        im->setLenObj(requestObject());
         xprintf("%sstream\n", im->getDefinition().constData());
         int len = streampos_;
         streampos_ += (int)cs.write(im->data(), im->rawLength());
         len = streampos_-len;
         xprintf("endstream\n"
                 "endobj\n");
-        addxentry(im->lenObj());
+        addXrefEntry(im->lenObj());
         xprintf("%d\n"
                 "endobj\n", len);
 
         // ... image masks
 
         if (im->hasHardMask()) {
-            addxentry(im->hardMaskObj());
+            addXrefEntry(im->hardMaskObj());
             QPdfImage* im2 = im->stencil;
-            im2->setLenObj(requestObjNumber());
+            im2->setLenObj(requestObject());
             xprintf("%sstream\n", im2->getDefinition().constData());
             len = streampos_;
             streampos_ += (int)cs.write(im2->data(), im2->rawLength());
             len = streampos_-len;
             xprintf("endstream\n"
                     "endobj\n");
-            addxentry(im2->lenObj());
+            addXrefEntry(im2->lenObj());
             xprintf("%d\n"
                     "endobj\n", len);
         }
         if (im->hasSoftMask()) {
-            addxentry(im->softMaskObj());
+            addXrefEntry(im->softMaskObj());
             QPdfImage* im2 = im->softmask;
-            im2->setLenObj(requestObjNumber());
+            im2->setLenObj(requestObject());
             xprintf("%sstream\n", im2->getDefinition().constData());
             len = streampos_;
             streampos_ += (int)cs.write(im2->data(), im2->rawLength());
             len = streampos_-len;
             xprintf("endstream\n"
                     "endobj\n");
-            addxentry(im2->lenObj());
+            addXrefEntry(im2->lenObj());
             xprintf("%d\n"
                     "endobj\n", len);
         }
@@ -2630,10 +2630,9 @@ void QPdfEnginePrivate::flushPage()
 
     // open page stream object
 
-    addxentry(pageobjnumber_.last()[0]);
+    addXrefEntry(pageStream);
     xprintf("<<\n"
-            "/Length %d 0 R\n",
-            pageobjnumber_.last()[1]); // object number for stream length object
+            "/Length %d 0 R\n", pageStreamLength); // object number for stream length object
     if (do_compress)
         xprintf("/Filter /FlateDecode\n");
 
@@ -2656,7 +2655,7 @@ void QPdfEnginePrivate::flushPage()
     xprintf("endstream\n"
             "endobj\n");
 
-    addxentry(pageobjnumber_.last()[1]);
+    addXrefEntry(pageStreamLength);
     xprintf("%d\n"
             "endobj\n",len);
 }
@@ -2665,13 +2664,13 @@ void QPdfEnginePrivate::writeTail()
 {
     flushPage();
     writePageRoot();
-    addxentry(xrefpos_.size(),false);
+    addXrefEntry(xrefPositions.size(),false);
     xprintf("xref\n"
             "0 %d\n"
-            "%010d 65535 f \n", xrefpos_.size()-1, xrefpos_[0]);
+            "%010d 65535 f \n", xrefPositions.size()-1, xrefPositions[0]);
 
-    for (int i=1; i!=xrefpos_.size()-1; ++i)
-        xprintf("%010d 00000 n \n", xrefpos_[i]);
+    for (int i = 1; i < xrefPositions.size()-1; ++i)
+        xprintf("%010d 00000 n \n", xrefPositions[i]);
 
     xprintf("trailer\n"
             "<<\n"
@@ -2681,22 +2680,22 @@ void QPdfEnginePrivate::writeTail()
             ">>\n"
             "startxref\n%d\n"
             "%%%%EOF\n",
-            xrefpos_.size()-1, info_, root_, xrefpos_.last());
+            xrefPositions.size()-1, info, catalog, xrefPositions.last());
 }
 
-int QPdfEnginePrivate::addxentry(int objnumber, bool printostr)
+int QPdfEnginePrivate::addXrefEntry(int object, bool printostr)
 {
-    if (objnumber < 0)
-        objnumber = requestObjNumber();
+    if (object < 0)
+        object = requestObject();
 
-    if (objnumber>=xrefpos_.size())
-        xrefpos_.resize(objnumber+1);
+    if (object>=xrefPositions.size())
+        xrefPositions.resize(object+1);
 
-    xrefpos_[objnumber] = streampos_;
+    xrefPositions[object] = streampos_;
     if (printostr)
-        xprintf("%d 0 obj\n",objnumber);
+        xprintf("%d 0 obj\n",object);
 
-    return objnumber;
+    return object;
 }
 
 #endif // QT_NO_PRINTER
