@@ -1511,44 +1511,43 @@ QCoreGraphicsPaintEnginePrivate::setStrokePen(const QPen &pen)
     else if(pen.joinStyle() == Qt::RoundJoin)
         cglinejoin = kCGLineJoinRound;
     CGContextSetLineJoin(hd, cglinejoin);
+    CGContextSetMiterLimit(hd, pen.miterLimit());
 
     //pen style
-    int count = 0;
-    float lengths[10];
-    if(pen.style() == Qt::DashLine) {
-        lengths[0] = 3;
-        lengths[1] = 1;
-        count = 2;
+    QVector<float> linedashes;
+    if(pen.style() == Qt::CustomDashLine) {
+        QVector<qreal> customs = pen.dashPattern();
+        for(int i = 0; i < customs.size(); ++i)
+            linedashes.append(customs.at(i));
+    } else if(pen.style() == Qt::DashLine) {
+        linedashes.append(3);
+        linedashes.append(1);
     } else if(pen.style() == Qt::DotLine) {
-        lengths[0] = 1;
-        lengths[1] = 1;
-        count = 2;
+        linedashes.append(1);
+        linedashes.append(1);
     } else if(pen.style() == Qt::DashDotLine) {
-        lengths[0] = 3;
-        lengths[1] = 1;
-        lengths[2] = 1;
-        lengths[3] = 1;
-        count = 4;
+        linedashes.append(3);
+        linedashes.append(1);
+        linedashes.append(1);
+        linedashes.append(1);
     } else if(pen.style() == Qt::DashDotDotLine) {
-        lengths[0] = 3;
-        lengths[1] = 1;
-        lengths[2] = 1;
-        lengths[3] = 1;
-        lengths[4] = 1;
-        lengths[5] = 1;
-        count = 6;
+        linedashes.append(3);
+        linedashes.append(1);
+        linedashes.append(1);
+        linedashes.append(1);
+        linedashes.append(1);
+        linedashes.append(1);
     }
-    for(int i = 0; i < count; ++i) {
-        lengths[i] *= cglinewidth;
+    for(int i = 0; i < linedashes.size(); ++i) {
+        linedashes[i] *= cglinewidth;
         if(cglinecap == kCGLineCapSquare || cglinecap == kCGLineCapRound) {
             if((i%2))
-                lengths[i] += cglinewidth/2;
+                linedashes[i] += cglinewidth/2;
             else
-                lengths[i] -= cglinewidth/2;
+                linedashes[i] -= cglinewidth/2;
         }
     }
-    Q_ASSERT(count < 10);
-    CGContextSetLineDash(hd, 0, lengths, count);
+    CGContextSetLineDash(hd, 0, linedashes.data(), linedashes.size());
 
     //color
     const QColor &col = pen.color();
