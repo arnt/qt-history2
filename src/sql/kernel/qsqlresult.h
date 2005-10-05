@@ -14,6 +14,8 @@
 #ifndef QSQLRESULT_H
 #define QSQLRESULT_H
 
+#include <QtCore/qvariant.h>
+#include <QtCore/qvector.h>
 #include <QtSql/qsql.h>
 
 QT_MODULE(Sql)
@@ -96,9 +98,14 @@ protected:
     virtual QVariant lastInsertId() const;
 
     enum VirtualHookOperation { BatchOperation };
+    struct BatchOperationData
+    {
+        int colCount;
+        const QVector<QVariant> *values;
+    };
     virtual void virtual_hook(int id, void *data);
 
-    bool execBatch(const QVector<QVector<QVariant> > &values);
+    bool execBatch(const QVector<QVariant> &values, int placeHolderCount);
 
 private:
     QSqlResultPrivate* d;

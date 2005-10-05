@@ -50,6 +50,7 @@ protected:
     int numRowsAffected();
     QSqlRecord record() const;
     QVariant lastInsertId() const;
+    void virtual_hook(int id, void *data);
 
 private:
     QOCIPrivate*        d;

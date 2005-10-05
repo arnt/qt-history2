@@ -834,15 +834,11 @@ void QSqlResult::virtual_hook(int, void *)
     QSqlQuery q;
     q.prepare("insert into test (i1, i2, s) values (?, ?, ?)");
 
-    QVector<QVariant> row1;
-    row1 << 1 << 2 << "hello";
-    QVector<QVariant> row2;
-    row2 << 3 << 4 << "world";
+    QVector<QVariant> values;
+    values << 1 << 2 << "hello"; // row 1
+    values << 3 << 4 << "world"; // row 2
 
-    QVector<QVector<QVariant> > values;
-    values << row1 << row2;
-
-    if (!q.execBatch(values))
+    if (!q.execBatch(values, 3))
         qDebug() << q.lastError();
     \endcode
 
@@ -850,16 +846,17 @@ void QSqlResult::virtual_hook(int, void *)
 
     \sa exec(), QSqlDriver::hasFeature()
 */
-bool QSqlResult::execBatch(const QVector<QVector<QVariant> > &values)
+bool QSqlResult::execBatch(const QVector<QVariant> &values, int holderCount)
 {
     if (driver()->hasFeature(QSqlDriver::BatchOperations)) {
-        virtual_hook(BatchOperation, &const_cast<QVector<QVector<QVariant> >&>(values));
+        BatchOperationData data = { holderCount, &values };
+        virtual_hook(BatchOperation, &data);
         return d->error.type() != QSqlError::NoError;
     } else {
-        for (int i = 0; i < values.count(); ++i) {
-            const QVector<QVariant> &val = values.at(i);
-            for (int j = 0; j < val.count(); ++j)
-                bindValue(i, val.at(j), QSql::In);
+        int rowCount = values.count() / holderCount;
+        for (int i = 0; i < rowCount; ++i) {
+            for (int j = 0; j < holderCount; ++j)
+                bindValue(j, values.at(i * holderCount + j), QSql::In);
             if (!exec())
                 return false;
         }
