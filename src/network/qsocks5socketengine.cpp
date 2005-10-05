@@ -960,7 +960,7 @@ void QSocks5SocketEnginePrivate::udpSocketReadNotification()
         int pos = 0;
         const char *buf = inBuf.constData();
         if (inBuf.size() < 4)
-            qDebug() << "we are fucked";
+            qDebug() << "####we are fucked";
     
         QSocks5RevivedDatagram datagram;
         if (buf[pos++] != 0 || buf[pos++] != 0)
@@ -969,7 +969,7 @@ void QSocks5SocketEnginePrivate::udpSocketReadNotification()
             qDebug() << "dont support fragmentation yet";
         if (!qt_socks5_get_host_address_and_port(inBuf, &datagram.address, &datagram.port, &pos)) {
         }
-        datagram.data = QByteArray(inBuf.size() - pos, buf[pos]);
+        datagram.data = QByteArray(&buf[pos], inBuf.size() - pos);
         udpData->pendingDatagrams.enqueue(datagram);
     }
     emitReadNotification();
@@ -1025,6 +1025,9 @@ bool QSocks5SocketEngine::bind(const QHostAddress &address, quint16 port)
                 d->udpData->associatePort = d->localPort;
                 d->localPort = 0;
                 QUdpSocket dummy;
+                QNetworkProxy proxy;
+                proxy.setType(QNetworkProxy::NoProxy);
+                dummy.setProxy(proxy);
                 if (!dummy.bind()
                     || writeDatagram(0,0, d->data->controlSocket->localAddress(), dummy.localPort()) != 0
                     || !dummy.waitForReadyRead(qt_timeout_value(msecs, stopWatch.elapsed()))
@@ -1121,8 +1124,8 @@ qint64 QSocks5SocketEngine::bytesAvailable() const
 qint64 QSocks5SocketEngine::read(char *data, qint64 maxlen)
 {
     Q_D(QSocks5SocketEngine);
-    QSOCKS5_DEBUG << "read ...";
-    if (socketType() == QAbstractSocket::TcpSocket) {
+    QSOCKS5_DEBUG << "read( , maxlen = " << maxlen << ")";
+    if (d->mode == QSocks5SocketEnginePrivate::ConnectMode) {
         if (d->connectData->readBuffer.size() == 0 && maxlen != 0) {
             //imitate remote closed
             close();
@@ -1136,6 +1139,8 @@ qint64 QSocks5SocketEngine::read(char *data, qint64 maxlen)
         d->connectData->readBuffer.remove(0, copy);
         QSOCKS5_DEBUG << "read" << dump(QByteArray(data, copy));
         return copy; 
+    } else if (d->mode == QSocks5SocketEnginePrivate::UdpAssociateMode) {
+        return readDatagram(data, maxlen);
     }
     return 0;
 }
@@ -1146,16 +1151,16 @@ qint64 QSocks5SocketEngine::write(const char *data, qint64 len)
     QSOCKS5_DEBUG << "write" << dump(QByteArray(data, len));
     
     if (d->mode == QSocks5SocketEnginePrivate::ConnectMode) {
-                
+        
         int msecs = 10;
         QTime stopWatch;
         stopWatch.start();
         qint64 totalWritten = 0;
         
         while (!d->data->controlSocket->bytesToWrite() 
-               && totalWritten < len 
-               && stopWatch.elapsed() < msecs) {
-
+            && totalWritten < len 
+            && stopWatch.elapsed() < msecs) {
+            
             QByteArray buf(data + totalWritten, qMin<int>(len - totalWritten, 49152));
             QByteArray sealedBuf;
             if (!d->data->authenticator->seal(buf, &sealedBuf))
@@ -1166,12 +1171,12 @@ qint64 QSocks5SocketEngine::write(const char *data, qint64 len)
             totalWritten += buf.size();
             while(d->data->controlSocket->bytesToWrite()) {
                 if (!d->data->controlSocket->waitForBytesWritten(qt_timeout_value(msecs, stopWatch.elapsed())))
-                   break;
+                    break;
             }
         }
         QSOCKS5_DEBUG << "wrote" << totalWritten;
         return totalWritten;
-   } else if (d->mode == QSocks5SocketEnginePrivate::UdpAssociateMode) {
+    } else if (d->mode == QSocks5SocketEnginePrivate::UdpAssociateMode) {
         // send to connected address
         return writeDatagram(data, len, d->peerAddress, d->peerPort);
     }
