@@ -1177,6 +1177,34 @@ void QWidgetPrivate::updatePropagatedBackground(const QRegion *reg)
 #endif
 }
 
+#ifdef QT_USE_BACKINGSTORE
+/*
+  Returns true if there are widgets above this which overlap with
+  \a rect, which is in parent's coordinate system (same as crect).
+*/
+
+bool QWidgetPrivate::isOverlapped(const QRect &rect) const
+{
+    Q_Q(const QWidget);
+
+    if (q->isWindow())
+        return false;
+    QWidgetPrivate *pd = q->parentWidget()->d_func();
+    bool above = false;
+    for (int i = 0; i < pd->children.size(); ++i) {
+        QWidget *w = qobject_cast<QWidget *>(pd->children.at(i));
+        if (!w)
+            continue;
+        if (!above) {
+            above = (w == q);
+            continue;
+        }
+        if (w->data->crect.intersects(rect))
+            return true;
+    }
+    return pd->isOverlapped(rect.translated(pd->data.crect.topLeft()));
+}
+#endif
 
 void QWidgetPrivate::composeBackground(const QRect &crect)
 {

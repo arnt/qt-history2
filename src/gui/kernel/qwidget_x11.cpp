@@ -2295,6 +2295,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         if(q->isVisible()) {
             QWidget *pw = q->parentWidget();
             QRect sr = QRect(oldPos, oldSize).intersect(pw->rect());
+            accelerateMove = accelerateMove && isOpaque()  && !isOverlapped(sr);
             if(isMove && accelerateMove) {
                 moveRect(QRect(oldPos, oldSize), x - oldPos.x(), y - oldPos.y());
             } else {
@@ -2445,7 +2446,10 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         accelEnv = qgetenv("QT_NO_FAST_SCROLL").toInt() == 0;
     }
 
-    if (!accelEnv) {
+    bool accelerateScroll = accelEnv &&  d->isOpaque()  && !d->isOverlapped(geometry());
+
+
+    if (!accelerateScroll) {
         update();
     } else
     if (!valid_rect) {        // scroll children

@@ -226,6 +226,7 @@ public:
     void moveRect(const QRect &, int dx, int dy);
     void scrollRect(const QRect &, int dx, int dy);
     void invalidateBuffer(const QRegion &);
+    bool isOverlapped(const QRect&) const;
 # if defined(Q_WS_X11)
     QRegion dirtyOnScreen;
 # endif
