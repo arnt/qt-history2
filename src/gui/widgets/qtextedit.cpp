@@ -1161,6 +1161,7 @@ void QTextEdit::setTextCursor(const QTextCursor &cursor)
     d->updateCurrentCharFormatAndSelection();
     ensureCursorVisible();
     d->viewport->update();
+    emit cursorPositionChanged();
 }
 
 /*!
