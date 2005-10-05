@@ -118,7 +118,10 @@
     class definition that is specific to this particular custom widget
     is the class name:
 
-    \include designer/containerextension/multipagewidgetplugin.h
+    \quotefromfile designer/containerextension/multipagewidgetplugin.h
+    \skipto #ifndef
+    \printuntil #endif
+
 
     The plugin class provides \QD with basic information about our
     plugin, such as its class name and its include file. Furthermore

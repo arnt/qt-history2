@@ -119,7 +119,9 @@
     class definition that is specific to this particular custom widget
     is the class name:
 
-    \include designer/taskmenuextension/tictactoeplugin.h
+    \quotefromfile designer/taskmenuextension/tictactoeplugin.h
+    \skipto #ifndef
+    \printuntil #endif
 
     The plugin class provides \QD with basic information about our
     plugin, such as its class name and its include file. Furthermore
