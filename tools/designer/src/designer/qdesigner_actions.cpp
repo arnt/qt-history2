@@ -604,6 +604,8 @@ void QDesignerActions::previewForm(QAction *action)
         widget->setParent(fakeTopLevel, 0);
         layout->addWidget(widget);
 
+        widget->installEventFilter(this);
+
         QStyle *style = 0;
 
         if (action != 0 && action->objectName().startsWith(QLatin1String("__qt_action_style_"))) {
@@ -629,6 +631,21 @@ void QDesignerActions::previewForm(QAction *action)
         delete fakeTopLevel;
         delete style;
     }
+}
+
+bool QDesignerActions::eventFilter(QObject *obj, QEvent *event)
+{
+    bool retval = QObject::eventFilter(obj, event);
+    
+    if (event->type() == QEvent::Resize) {
+        QWidget *w = qobject_cast<QDialog *>(obj);
+        QDialog *dlg = qobject_cast<QDialog *>(obj->parent());
+        if ((w && dlg) && (w->size() != dlg->size())) {
+            dlg->resize(w->size());
+        }
+    }
+    
+    return retval;
 }
 
 void QDesignerActions::fixActionContext()
