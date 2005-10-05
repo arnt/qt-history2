@@ -37,8 +37,14 @@ TableWidgetEditor::TableWidgetEditor(QDesignerFormWindowInterface *form, QWidget
 
     QIcon upIcon = createIconSet(QString::fromUtf8("up.png"));
     QIcon downIcon = createIconSet(QString::fromUtf8("down.png"));
+    QIcon minusIcon = createIconSet(QString::fromUtf8("minus.png"));
+    QIcon plusIcon = createIconSet(QString::fromUtf8("plus.png"));
+    ui.newColumnButton->setIcon(plusIcon);
+    ui.deleteColumnButton->setIcon(minusIcon);
     ui.moveColumnUpButton->setIcon(upIcon);
     ui.moveColumnDownButton->setIcon(downIcon);
+    ui.newRowButton->setIcon(plusIcon);
+    ui.deleteRowButton->setIcon(minusIcon);
     ui.moveRowUpButton->setIcon(upIcon);
     ui.moveRowDownButton->setIcon(downIcon);
 

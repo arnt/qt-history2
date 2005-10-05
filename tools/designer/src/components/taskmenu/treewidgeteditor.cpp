@@ -37,12 +37,18 @@ TreeWidgetEditor::TreeWidgetEditor(QDesignerFormWindowInterface *form, QWidget *
     QIcon downIcon = createIconSet(QString::fromUtf8("down.png"));
     QIcon backIcon = createIconSet(QString::fromUtf8("back.png"));
     QIcon forwardIcon = createIconSet(QString::fromUtf8("forward.png"));
+    QIcon minusIcon = createIconSet(QString::fromUtf8("minus.png"));
+    QIcon plusIcon = createIconSet(QString::fromUtf8("plus.png"));
+    ui.newColumnButton->setIcon(plusIcon);
+    ui.deleteColumnButton->setIcon(minusIcon);
     ui.moveColumnUpButton->setIcon(upIcon);
     ui.moveColumnDownButton->setIcon(downIcon);
+    ui.newItemButton->setIcon(plusIcon);
+    ui.deleteItemButton->setIcon(minusIcon);
     ui.moveItemUpButton->setIcon(upIcon);
     ui.moveItemDownButton->setIcon(downIcon);
-    ui.moveItemRightButton->setIcon(backIcon);
-    ui.moveItemLeftButton->setIcon(forwardIcon);
+    ui.moveItemRightButton->setIcon(forwardIcon);
+    ui.moveItemLeftButton->setIcon(backIcon);
 }
 
 TreeWidgetEditor::~TreeWidgetEditor()
@@ -237,7 +243,7 @@ void TreeWidgetEditor::on_moveItemDownButton_clicked()
     ui.treeWidget->setCurrentItem(takenItem);
 }
 
-void TreeWidgetEditor::on_moveItemRightButton_clicked()
+void TreeWidgetEditor::on_moveItemLeftButton_clicked()
 {
     QTreeWidgetItem *curItem = ui.treeWidget->currentItem();
     if (!curItem)
@@ -258,7 +264,7 @@ void TreeWidgetEditor::on_moveItemRightButton_clicked()
     ui.treeWidget->setCurrentItem(takenItem);
 }
 
-void TreeWidgetEditor::on_moveItemLeftButton_clicked()
+void TreeWidgetEditor::on_moveItemRightButton_clicked()
 {
     QTreeWidgetItem *curItem = ui.treeWidget->currentItem();
     if (!curItem)
@@ -345,7 +351,7 @@ void TreeWidgetEditor::updateEditor()
             int idxCount;
             currentItemEnabled = true;
             if (current->parent()) {
-                moveItemRightEnabled = true;
+                moveItemLeftEnabled = true;
                 idx = current->parent()->indexOfChild(current);
                 idxCount = current->parent()->childCount();
             } else {
@@ -356,7 +362,7 @@ void TreeWidgetEditor::updateEditor()
                 moveItemUpEnabled = true;
             if (idx < idxCount - 1) {
                 moveItemDownEnabled = true;
-                moveItemLeftEnabled = true;
+                moveItemRightEnabled = true;
             }
         }
     }
