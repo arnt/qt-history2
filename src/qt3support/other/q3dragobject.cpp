@@ -45,13 +45,11 @@ class Q3DragObjectPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(Q3DragObject)
 public:
-    Q3DragObjectPrivate(): hot(0,0) {}
-    ~Q3DragObjectPrivate();
+    Q3DragObjectPrivate(): hot(0,0),pm_cursor(0) {}
     QPixmap pixmap;
     QPoint hot;
     // store default cursors
     QPixmap *pm_cursor;
-    QDragMime *data;
 };
 
 class Q3TextDragPrivate : public Q3DragObjectPrivate
@@ -89,22 +87,19 @@ public:
 class QDragMime : public QMimeData
 {
 public:
-    QDragMime(Q3DragObject *parent) : QMimeData() { dragObject = parent; }
+    QDragMime(Q3DragObject *parent) : QMimeData(), dragObject(parent) { }
     ~QDragMime();
 
     QByteArray data(const QString &mimetype) const;
     bool hasFormat(const QString &mimetype) const;
     QStringList formats() const;
 
-    Q3DragObject *dragObject;
+    QPointer<Q3DragObject> dragObject;
 };
 
 QDragMime::~QDragMime()
 {
-    if (dragObject) {
-        dragObject->d_func()->data = 0;
-        delete dragObject;
-    }
+    delete dragObject;
 }
 QByteArray QDragMime::data(const QString &mimetype) const
 {
@@ -128,14 +123,6 @@ QStringList QDragMime::formats() const
     return f;
 }
 
-Q3DragObjectPrivate::~Q3DragObjectPrivate()
-{
-    if (data) {
-        data->dragObject = 0;
-        delete data;
-    }
-}
-
 /*!
     Constructs a drag object called \a name with a parent \a
     dragSource.
@@ -147,18 +134,13 @@ Q3DragObjectPrivate::~Q3DragObjectPrivate()
 Q3DragObject::Q3DragObject(QWidget * dragSource, const char * name)
     : QObject(*(new Q3DragObjectPrivate), dragSource)
 {
-    Q_D(Q3DragObject);
     setObjectName(QLatin1String(name));
-    d->data = new QDragMime(this);
 }
 
 /*! \internal */
 Q3DragObject::Q3DragObject(Q3DragObjectPrivate &dd, QWidget *dragSource)
     : QObject(dd, dragSource)
 {
-    Q_D(Q3DragObject);
-    d->pm_cursor = 0;
-    d->data = new QDragMime(this);
 }
 
 /*!
@@ -342,16 +324,16 @@ void Q3DragObject::dragLink()
 bool Q3DragObject::drag(DragMode mode)
 {
     Q_D(Q3DragObject);
-    d->data->clear();
+    QDragMime *data = new QDragMime(this);
     int i = 0;
     const char *fmt;
     while ((fmt = format(i))) {
-        d->data->setData(QLatin1String(fmt), encodedData(fmt));
+        data->setData(QLatin1String(fmt), encodedData(fmt));
         ++i;
     }
 
     QDrag *drag = new QDrag(qobject_cast<QWidget *>(parent()));
-    drag->setMimeData(d->data);
+    drag->setMimeData(data);
     drag->setPixmap(d->pixmap);
     drag->setHotSpot(d->hot);
 
