@@ -36,15 +36,20 @@ public:
 public slots:
     void exec();
     void showTable(const QString &table);
+    void showMetaData(const QString &table);
     void addConnection();
 
     void on_connectionWidget_tableActivated(const QString &table)
     { showTable(table); }
-    void on_submitButton_clicked() {
+    void on_connectionWidget_metaDataRequested(const QString &table)
+    { showMetaData(table); }
+    void on_submitButton_clicked()
+    {
         exec();
         sqlEdit->setFocus();
     }
-    void on_clearButton_clicked() {
+    void on_clearButton_clicked()
+    {
         sqlEdit->clear();
         sqlEdit->setFocus();
     }

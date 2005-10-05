@@ -87,13 +87,13 @@ void Browser::addConnection()
         QSqlQuery q("", db);
         q.exec("drop table Movies");
         q.exec("drop table Names");
-        q.exec("create table Movies (id int primary key, Title varchar(50), Director varchar(20), Rating number(2,2))");
+        q.exec("create table Movies (id integer primary key, Title varchar, Director varchar, Rating number)");
         q.exec("insert into Movies values (0, 'Metropolis', 'Fritz Lang', '8.4')");
         q.exec("insert into Movies values (1, 'Nosferatu, eine Symphonie des Grauens', 'F.W. Murnau', '8.1')");
         q.exec("insert into Movies values (2, 'Bis ans Ende der Welt', 'Wim Wenders', '6.5')");
         q.exec("insert into Movies values (3, 'Hardware', 'Richard Stanley', '5.2')");
         q.exec("insert into Movies values (4, 'Mitchell', 'Andrew V. McLaglen', '2.1')");
-        q.exec("create table Names (id int primary key, Firstname varchar(20), Lastname varchar(20), City varchar(20))");
+        q.exec("create table Names (id integer primary key, Firstname varchar, Lastname varchar, City varchar)");
         q.exec("insert into Names values (0, 'Sala', 'Palmer', 'Morristown')");
         q.exec("insert into Names values (1, 'Christopher', 'Walker', 'Morristown')");
         q.exec("insert into Names values (2, 'Donald', 'Duck', 'Andeby')");
@@ -116,6 +116,40 @@ void Browser::showTable(const QString &t)
     model->select();
     if (model->lastError().type() != QSqlError::NoError)
         emit statusMessage(model->lastError().text());
+    table->setModel(model);
+}
+
+void Browser::showMetaData(const QString &t)
+{
+    QSqlRecord rec = connectionWidget->currentDatabase().record(t);
+    QStandardItemModel *model = new QStandardItemModel(table);
+
+    model->insertRows(0, rec.count());
+    model->insertColumns(0, 7);
+
+    model->setHeaderData(0, Qt::Horizontal, "Fieldname");
+    model->setHeaderData(1, Qt::Horizontal, "Type");
+    model->setHeaderData(2, Qt::Horizontal, "Length");
+    model->setHeaderData(3, Qt::Horizontal, "Precision");
+    model->setHeaderData(4, Qt::Horizontal, "Required");
+    model->setHeaderData(5, Qt::Horizontal, "AutoValue");
+    model->setHeaderData(6, Qt::Horizontal, "DefaultValue");
+
+
+    for (int i = 0; i < rec.count(); ++i) {
+        QSqlField fld = rec.field(i);
+        model->setData(model->index(i, 0), fld.name());
+        model->setData(model->index(i, 1), fld.typeID() == -1
+                ? QString(QVariant::typeToName(fld.type()))
+                : QString("%1 (%2)").arg(QVariant::typeToName(fld.type())).arg(fld.typeID()));
+        model->setData(model->index(i, 2), fld.length());
+        model->setData(model->index(i, 3), fld.precision());
+        model->setData(model->index(i, 4), fld.requiredStatus() == -1 ? QVariant("?")
+                : QVariant(bool(fld.requiredStatus())));
+        model->setData(model->index(i, 5), fld.isAutoValue());
+        model->setData(model->index(i, 6), fld.defaultValue());
+    }
+
     table->setModel(model);
 }
 
