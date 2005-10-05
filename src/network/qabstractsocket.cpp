@@ -1240,7 +1240,7 @@ bool QAbstractSocket::waitForConnected(int msecs)
         d->hostLookupId = -1;
         d->startConnecting(QHostInfo::fromName(d->hostName));
     } else {
-        d->connectToNextAddress();
+        d->testConnection();
     }
     if (state() == UnconnectedState)
         return false;
