@@ -22,48 +22,6 @@
     key, ie. "\foo\bar\alpha\beta". */
 
 /*******************************************************************************
-** Private classes
-*/
-
-struct RegistryLocation {
-    RegistryLocation()
-        : handle(0), readOnly(false) {}
-
-    QString key;
-    HKEY handle;
-    bool readOnly;
-};
-
-typedef QVector<RegistryLocation> RegistryLocationList;
-
-class QWinSettingsPrivate : public QSettingsPrivate
-{
-public:
-    QWinSettingsPrivate(QSettings::Scope scope, const QString &organization,
-                        const QString &application);
-    QWinSettingsPrivate(QString rKey);
-    ~QWinSettingsPrivate();
-
-    void remove(const QString &uKey);
-    void set(const QString &uKey, const QVariant &value);
-    bool get(const QString &uKey, QVariant *value) const;
-    QStringList children(const QString &uKey, ChildSpec spec) const;
-    void clear();
-    void sync();
-    void flush();
-    bool isWritable() const;
-    HKEY writeHandle() const;
-    bool readKey(HKEY parentHandle, const QString &rSubKey, QVariant *value) const;
-    QString fileName() const;
-
-private:
-    RegistryLocationList regList; // list of registry locations to search for keys
-    bool deleteWriteHandleOnExit;
-};
-
-typedef QMap<QString, QString> NameSet;
-
-/*******************************************************************************
 ** Some convenience functions
 */
 
@@ -105,6 +63,8 @@ static QString unescapedKey(QString rKey)
 {
     return escapedKey(rKey);
 }
+
+typedef QMap<QString, QString> NameSet;
 
 static void mergeKeySets(NameSet *dest, const NameSet &src)
 {
@@ -216,17 +176,6 @@ static HKEY createOrOpenKey(HKEY parentHandle, const QString &rSubKey, bool *rea
     }
 
      return 0;
-}
-
-/* Open or create a key in read-write mode if possible, otherwise read-only,
-   and initialize loc with it */
-static bool createOrOpenKey(HKEY parentHandle, const QString &rSubKey, RegistryLocation *loc)
-{
-    Q_ASSERT(loc != 0);
-
-    loc->key = rSubKey;
-    loc->handle = createOrOpenKey(parentHandle, loc->key, &loc->readOnly);
-    return loc->handle != 0;
 }
 
 static QStringList childKeysOrGroups(HKEY parentHandle, QSettingsPrivate::ChildSpec spec)
@@ -364,8 +313,92 @@ static void deleteChildGroups(HKEY parentHandle)
 }
 
 /*******************************************************************************
+** class RegistryKey
+*/
+
+class RegistryKey
+{
+public:
+    RegistryKey(HKEY parent_handle = 0, const QString &key = QString(), bool read_only = true);
+    QString key() const;
+    HKEY handle() const;
+    bool readOnly() const;
+    void close();
+private:
+    HKEY m_parent_handle;
+    mutable HKEY m_handle;
+    QString m_key;
+    mutable bool m_read_only;
+};
+
+RegistryKey::RegistryKey(HKEY parent_handle, const QString &key, bool read_only)
+{
+    m_parent_handle = parent_handle;
+    m_handle = 0;
+    m_read_only = read_only;
+    m_key = key;
+}
+
+QString RegistryKey::key() const
+{
+    return m_key;
+}
+
+HKEY RegistryKey::handle() const
+{
+    if (m_handle != 0)
+        return m_handle;
+
+    if (m_read_only)
+        m_handle = openKey(m_parent_handle, KEY_READ, m_key);
+    else
+        m_handle = createOrOpenKey(m_parent_handle, m_key, &m_read_only);
+
+    return m_handle;
+}
+
+bool RegistryKey::readOnly() const
+{
+    return m_read_only;
+}
+
+void RegistryKey::close()
+{
+    if (m_handle != 0)
+        RegCloseKey(m_handle);
+    m_handle = 0;
+}
+
+typedef QVector<RegistryKey> RegistryKeyList;
+
+/*******************************************************************************
 ** class QWinSettingsPrivate
 */
+
+class QWinSettingsPrivate : public QSettingsPrivate
+{
+public:
+    QWinSettingsPrivate(QSettings::Scope scope, const QString &organization,
+                        const QString &application);
+    QWinSettingsPrivate(QString rKey);
+    ~QWinSettingsPrivate();
+
+    void remove(const QString &uKey);
+    void set(const QString &uKey, const QVariant &value);
+    bool get(const QString &uKey, QVariant *value) const;
+    QStringList children(const QString &uKey, ChildSpec spec) const;
+    void clear();
+    void sync();
+    void flush();
+    bool isWritable() const;
+    HKEY writeHandle() const;
+    bool readKey(HKEY parentHandle, const QString &rSubKey, QVariant *value) const;
+    QString fileName() const;
+
+private:
+    RegistryKeyList regList; // list of registry locations to search for keys
+    bool deleteWriteHandleOnExit;
+};
 
 QWinSettingsPrivate::QWinSettingsPrivate(QSettings::Scope scope, const QString &organization,
                                          const QString &application)
@@ -377,24 +410,17 @@ QWinSettingsPrivate::QWinSettingsPrivate(QSettings::Scope scope, const QString &
         QString orgPrefix = prefix + QLatin1String("\\OrganizationDefaults");
         QString appPrefix = prefix + QLatin1Char('\\') + application;
 
-        RegistryLocation loc;
         if (scope == QSettings::UserScope) {
-            if (!application.isEmpty()) {
-                if (createOrOpenKey(HKEY_CURRENT_USER, appPrefix, &loc))
-                    regList.append(loc);
-            }
+            if (!application.isEmpty())
+                regList.append(RegistryKey(HKEY_CURRENT_USER, appPrefix, !regList.isEmpty()));
 
-            if (createOrOpenKey(HKEY_CURRENT_USER, orgPrefix, &loc))
-                regList.append(loc);
+            regList.append(RegistryKey(HKEY_CURRENT_USER, orgPrefix, !regList.isEmpty()));
         }
 
-        if (!application.isEmpty()) {
-            if (createOrOpenKey(HKEY_LOCAL_MACHINE, appPrefix, &loc))
-                regList.append(loc);
-        }
+        if (!application.isEmpty())
+            regList.append(RegistryKey(HKEY_LOCAL_MACHINE, appPrefix, !regList.isEmpty()));
 
-        if (createOrOpenKey(HKEY_LOCAL_MACHINE, orgPrefix, &loc))
-            regList.append(loc);
+        regList.append(RegistryKey(HKEY_LOCAL_MACHINE, orgPrefix, !regList.isEmpty()));
     }
 
     if (regList.isEmpty())
@@ -408,23 +434,16 @@ QWinSettingsPrivate::QWinSettingsPrivate(QString rPath)
     if (rPath.startsWith("\\"))
         rPath = rPath.mid(1);
 
-    RegistryLocation loc;
-    if (rPath.startsWith("HKEY_CURRENT_USER\\")) {
-        if (createOrOpenKey(HKEY_CURRENT_USER, rPath.mid(18), &loc))
-            regList.append(loc);
-    } else if (rPath == QLatin1String("HKEY_CURRENT_USER")) {
-        if (createOrOpenKey(HKEY_CURRENT_USER, QString(), &loc))
-            regList.append(loc);
-    } else if (rPath.startsWith("HKEY_LOCAL_MACHINE\\")) {
-        if (createOrOpenKey(HKEY_LOCAL_MACHINE, rPath.mid(19), &loc))
-            regList.append(loc);
-    } else if (rPath == QLatin1String("HKEY_LOCAL_MACHINE")) {
-        if (createOrOpenKey(HKEY_LOCAL_MACHINE, QString(), &loc))
-            regList.append(loc);
-    } else {
-        if (createOrOpenKey(HKEY_LOCAL_MACHINE, QString(), &loc))
-            regList.append(loc);
-    }
+    if (rPath.startsWith("HKEY_CURRENT_USER\\"))
+        regList.append(RegistryKey(HKEY_CURRENT_USER, rPath.mid(18), false));
+    else if (rPath == QLatin1String("HKEY_CURRENT_USER"))
+        regList.append(RegistryKey(HKEY_CURRENT_USER, QString(), false));
+    else if (rPath.startsWith("HKEY_LOCAL_MACHINE\\"))
+        regList.append(RegistryKey(HKEY_LOCAL_MACHINE, rPath.mid(19), false));
+    else if (rPath == QLatin1String("HKEY_LOCAL_MACHINE"))
+        regList.append(RegistryKey(HKEY_LOCAL_MACHINE, QString(), false));
+    else
+        regList.append(RegistryKey(HKEY_LOCAL_MACHINE, QString(), false));
 
     if (regList.isEmpty())
         setStatus(QSettings::AccessError);
@@ -542,18 +561,15 @@ HKEY QWinSettingsPrivate::writeHandle() const
 {
     if (regList.isEmpty())
         return 0;
-    const RegistryLocation &loc = regList.at(0);
-    if (loc.readOnly == true)
+    const RegistryKey &key = regList.at(0);
+    if (key.handle() == 0 || key.readOnly())
         return 0;
-    return loc.handle;
+    return key.handle();
 }
 
 QWinSettingsPrivate::~QWinSettingsPrivate()
 {
-    if (deleteWriteHandleOnExit
-            && !regList.isEmpty()
-            && !regList.at(0).readOnly) {
-
+    if (deleteWriteHandleOnExit && writeHandle() != 0) {
         QString emptyKey;
         DWORD res;
         QT_WA( {
@@ -563,16 +579,21 @@ QWinSettingsPrivate::~QWinSettingsPrivate()
         } );
         if (res != ERROR_SUCCESS) {
             qWarning("QSettings: failed to delete key \"%s\": %s",
-                    regList.at(0).key.toLatin1().data(), errorCodeToString(res).toLatin1().data());
+                    regList.at(0).key().toLatin1().data(), errorCodeToString(res).toLatin1().data());
         }
     }
 
     for (int i = 0; i < regList.size(); ++i)
-        RegCloseKey(regList.at(i).handle);
+        regList[i].close();
 }
 
 void QWinSettingsPrivate::remove(const QString &uKey)
 {
+    if (writeHandle() == 0) {
+        setStatus(QSettings::AccessError);
+        return;
+    }
+
     QString rKey = escapedKey(uKey);
 
     // try to delete value bar in key foo
@@ -636,11 +657,18 @@ static bool stringContainsNullChar(const QString &s)
 
 void QWinSettingsPrivate::set(const QString &uKey, const QVariant &value)
 {
+    if (writeHandle() == 0) {
+        setStatus(QSettings::AccessError);
+        return;
+    }
+
     QString rKey = escapedKey(uKey);
 
     HKEY handle = createOrOpenKey(writeHandle(), KEY_ALL_ACCESS, keyPath(rKey));
-    if (handle == 0)
+    if (handle == 0) {
+        setStatus(QSettings::AccessError);
         return;
+    }
 
     DWORD type;
     QByteArray regValueBuff;
@@ -734,6 +762,7 @@ void QWinSettingsPrivate::set(const QString &uKey, const QVariant &value)
     } else {
         qWarning("QSettings: failed to set subkey \"%s\": %s",
                 rKey.toLatin1().data(), errorCodeToString(res).toLatin1().data());
+        setStatus(QSettings::AccessError);
     }
 
     RegCloseKey(handle);
@@ -744,7 +773,8 @@ bool QWinSettingsPrivate::get(const QString &uKey, QVariant *value) const
     QString rKey = escapedKey(uKey);
 
     for (int i = 0; i < regList.size(); ++i) {
-        if (readKey(regList.at(i).handle, rKey, value))
+        HKEY handle = regList.at(i).handle();
+        if (handle != 0 && readKey(handle, rKey, value))
             return true;
 
         if (!fallbacks)
@@ -760,7 +790,10 @@ QStringList QWinSettingsPrivate::children(const QString &uKey, ChildSpec spec) c
     QString rKey = escapedKey(uKey);
 
     for (int i = 0; i < regList.size(); ++i) {
-        HKEY handle = openKey(regList.at(i).handle, KEY_READ, rKey);
+        HKEY parent_handle = regList.at(i).handle();
+        if (parent_handle == 0)
+            continue;
+        HKEY handle = openKey(parent_handle, KEY_READ, rKey);
         if (handle == 0)
             continue;
 
@@ -802,7 +835,7 @@ QString QWinSettingsPrivate::fileName() const
 {
     if (regList.isEmpty())
         return QString();
-    return regList.at(0).key;
+    return regList.at(0).key();
 }
 
 bool QWinSettingsPrivate::isWritable() const
