@@ -43,8 +43,6 @@ TreeWidgetEditor::TreeWidgetEditor(QDesignerFormWindowInterface *form, QWidget *
     ui.moveItemDownButton->setIcon(downIcon);
     ui.moveItemRightButton->setIcon(backIcon);
     ui.moveItemLeftButton->setIcon(forwardIcon);
-
-    ui.treeWidget->setEditTriggers(QAbstractItemView::AllEditTriggers);
 }
 
 TreeWidgetEditor::~TreeWidgetEditor()
@@ -94,6 +92,7 @@ void TreeWidgetEditor::copyContents(QTreeWidget *sourceWidget, QTreeWidget *dest
     for (int i = 0; i < sourceWidget->topLevelItemCount(); i++) {
         QTreeWidgetItem *origItem = sourceWidget->topLevelItem(i);
         lastItem = new QTreeWidgetItem(destWidget);
+        lastItem->setFlags(lastItem->flags() | Qt::ItemIsEditable);
         for (int j = 0; j < colCount; j++) {
             lastItem->setText(j, origItem->text(j));
             lastItem->setIcon(j, origItem->icon(j));
@@ -110,6 +109,7 @@ void TreeWidgetEditor::copyContents(QTreeWidgetItem *sourceItem, QTreeWidgetItem
     for (int i = 0; i < sourceItem->childCount(); i++) {
         QTreeWidgetItem *origItem = sourceItem->child(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(destItem);
+        item->setFlags(item->flags() | Qt::ItemIsEditable);
         for (int j = 0; j < colCount; j++) {
             item->setText(j, origItem->text(j));
             item->setIcon(j, origItem->icon(j));
@@ -131,6 +131,7 @@ void TreeWidgetEditor::on_newItemButton_clicked()
     } else
         newItem = new QTreeWidgetItem(ui.treeWidget);
     newItem->setText(0, tr("New Item"));
+    newItem->setFlags(newItem->flags() | Qt::ItemIsEditable);
 
     ui.treeWidget->setCurrentItem(newItem);
 }
@@ -142,6 +143,7 @@ void TreeWidgetEditor::on_newSubItemButton_clicked()
         return;
     QTreeWidgetItem *newItem = new QTreeWidgetItem(curItem);
     newItem->setText(0, tr("New Sub Item"));
+    newItem->setFlags(newItem->flags() | Qt::ItemIsEditable);
 
     ui.treeWidget->setCurrentItem(newItem);
 }
@@ -286,15 +288,19 @@ void TreeWidgetEditor::on_moveItemLeftButton_clicked()
     ui.treeWidget->setCurrentItem(takenItem);
 }
 
-//void TreeWidgetEditor::on_treeWidget_itemClicked(QTreeWidgetItem *,
-//            int column)
 void TreeWidgetEditor::on_treeWidget_currentItemChanged(QTreeWidgetItem *,
             QTreeWidgetItem *)
 {
-//    ui.listWidget->setCurrentRow(column);
+    QModelIndex idx = ui.treeWidget->selectionModel()->currentIndex();
+    ui.listWidget->setCurrentRow(idx.column());
     updateEditor();
     ui.itemTextLineEdit->selectAll();
     ui.itemTextLineEdit->setFocus();
+}
+
+void TreeWidgetEditor::on_treeWidget_itemChanged(QTreeWidgetItem *)
+{
+    updateEditor();
 }
 
 void TreeWidgetEditor::on_listWidget_currentRowChanged(int)

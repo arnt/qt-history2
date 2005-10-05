@@ -36,12 +36,13 @@ private slots:
 
     void on_tableWidget_currentItemChanged(QTableWidgetItem *current,
             QTableWidgetItem *previous);
+    void on_tableWidget_itemChanged(QTableWidgetItem *item);
 
     void on_itemTextLineEdit_textChanged(const QString &text);
     void on_previewPixmapItemButton_clicked();
     void on_deletePixmapItemButton_clicked();
 
-    void on_columnsListWidget_currentRowChanged(int currentRow);
+    void on_columnsListWidget_currentRowChanged(int col);
     void on_columnsListWidget_itemChanged(QListWidgetItem *item);
 
     void on_newColumnButton_clicked();
@@ -53,7 +54,7 @@ private slots:
     void on_previewPixmapColumnButton_clicked();
     void on_deletePixmapColumnButton_clicked();
 
-    void on_rowsListWidget_currentRowChanged(int currentRow);
+    void on_rowsListWidget_currentRowChanged(int row);
     void on_rowsListWidget_itemChanged(QListWidgetItem *item);
 
     void on_newRowButton_clicked();
@@ -74,6 +75,7 @@ private:
 
     Ui::TableWidgetEditor ui;
     QDesignerFormWindowInterface *m_form;
+    bool updating;
 };
 
 }  // namespace qdesigner_internal
