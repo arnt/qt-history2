@@ -3184,21 +3184,17 @@ QString QString::fromLocal8Bit(const char *str, int size)
     if (!str)
         return QString();
 #if defined(Q_OS_WIN32)
-    if (size >= 0) {
-        QByteArray ba(str, size); // creates a '\0'-terminated deep copy
-        return qt_winMB2QString(ba, size);
-    } else {
+    if(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
         return qt_winMB2QString(str, size);
     }
-#elif defined(Q_OS_UNIX)
-#  if !defined(QT_NO_TEXTCODEC)
+#endif
+#if !defined(QT_NO_TEXTCODEC)
     if (size < 0)
         size = qstrlen(str);
     QTextCodec *codec = QTextCodec::codecForLocale();
     if (codec)
         return codec->toUnicode(str, size);
-#  endif // !QT_NO_TEXTCODEC
-#endif
+#endif // !QT_NO_TEXTCODEC
     return fromLatin1(str, size);
 }
 

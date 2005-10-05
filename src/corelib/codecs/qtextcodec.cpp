@@ -787,10 +787,16 @@ QList<int> QTextCodec::availableMibs()
     This might be needed for some applications that want to use their
     own mechanism for setting the locale.
 
+    Setting this codec is not supported on DOS based Windows.
+
     \sa codecForLocale()
 */
 void QTextCodec::setCodecForLocale(QTextCodec *c)
 {
+#ifdef Q_WS_WIN
+    if (QSysInfo::WindowsVersion& QSysInfo::WV_DOS_based)
+	return;
+#endif
     localeMapper = c;
 }
 
