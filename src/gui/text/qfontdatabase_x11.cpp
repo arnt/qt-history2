@@ -1382,7 +1382,7 @@ static FcPattern *getFcPattern(const QFontPrivate *fp, int script, const QFontDe
     if (!pattern)
         return 0;
 
-    QtFontFamily *qt_family = 0;
+    QtFontDesc desc;
 
     QStringList families_and_foundries = familyList(request);
     for (int i = 0; i < families_and_foundries.size(); ++i) {
@@ -1391,7 +1391,7 @@ static FcPattern *getFcPattern(const QFontPrivate *fp, int script, const QFontDe
         if (!family.isEmpty())
             FcPatternAddString(pattern, FC_FAMILY, (const FcChar8 *)family.toUtf8().constData());
         if (i == 0) {
-            qt_family = privateDb()->family(family);
+            ::match(script, request, family, foundry, -1, &desc);
             if (!foundry.isEmpty())
                 FcPatternAddString(pattern, FC_FOUNDRY, (const FcChar8 *)foundry.toUtf8().constData());
         }
@@ -1429,11 +1429,11 @@ static FcPattern *getFcPattern(const QFontPrivate *fp, int script, const QFontDe
 
     if (!request.ignorePitch) {
         char pitch_value = FC_PROPORTIONAL;
-        if (request.fixedPitch || (qt_family && qt_family->fixedPitch))
+        if (request.fixedPitch || (desc.family && desc.family->fixedPitch))
             pitch_value = FC_MONO;
         FcPatternAddInteger(pattern, FC_SPACING, pitch_value);
     }
-    if (::forceScalable(request))
+    if (::forceScalable(request) || (desc.style && desc.style->smoothScalable))
         FcPatternAddBool(pattern, FC_SCALABLE, true);
 
     addPatternProps(pattern, fp, script, request);
@@ -1506,7 +1506,7 @@ static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &r
         }
     }
 
-    FM_DEBUG("infal pattern contains %d fonts\n", fs->nfont);
+    FM_DEBUG("final pattern contains %d fonts\n", fs->nfont);
 
     QFontEngine *fe = 0;
     if (script != QUnicodeTables::Common) {
