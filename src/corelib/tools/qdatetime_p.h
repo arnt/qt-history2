@@ -40,6 +40,7 @@
 #define QDATE_INITIAL QDate(2000, 1, 1)
 
 #ifndef QT_BOOTSTRAPPED
+#include "QtCore/qvariant.h"
 Q_CORE_EXPORT bool operator<(const QVariant &arg1, const QVariant &arg2);
 Q_CORE_EXPORT bool operator>(const QVariant &arg1, const QVariant &arg2);
 Q_CORE_EXPORT bool operator<=(const QVariant &arg1, const QVariant &arg2);
@@ -204,7 +205,6 @@ Q_CORE_EXPORT bool operator==(const QDateTimeParser::SectionNode &s1, const QDat
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDateTimeParser::Sections)
 
-
 #endif // QT_BOOTSTRAPPED
-#endif // QDATETIME_P_H
 
+#endif // QDATETIME_P_H
