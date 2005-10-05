@@ -2261,6 +2261,7 @@ static void convert_RGB_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
                 dst_data += dst->bytes_per_line;
             }
             dst->has_alpha_clut = true;
+            delete mask;
         }
 
 #undef MAX_R
