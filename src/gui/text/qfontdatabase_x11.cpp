@@ -1587,7 +1587,7 @@ static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &r
             }
         }
         FM_DEBUG("engine for script %d is %s\n", script, fe ? fe->fontDef.family.toLatin1().data(): "(null)");
-    } else {
+    } else if (fs->nfont) {
         // create a multi engine for the fontset fontconfig gave us
         FcFontSet *fontSet = FcFontSetCreate();
         for (int i = 0; i < fs->nfont; ++i) {
@@ -1597,7 +1597,7 @@ static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &r
             addPatternProps(pattern, fp, script, request);
             FcFontSetAdd(fontSet, pattern);
         }
-
+        
         fe = new QFontEngineMultiFT(fontSet, fp->screen, request);
     }
 
