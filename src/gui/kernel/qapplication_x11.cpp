@@ -5082,21 +5082,22 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
 #if !defined( QT_USE_BACKINGSTORE )
         testAttribute(Qt::WA_WState_InPaintEvent)?update():repaint();
 #else
+        XEvent xevent;
+        PaintEventInfo info;
+        info.window = winId();
+        while (XCheckIfEvent(X11->display,&xevent,isPaintOrScrollDoneEvent,
+                             (XPointer)&info) &&
+               !qt_x11EventFilter(&xevent)  &&
+               !x11Event(&xevent)) // send event through filter
+            ;
         if(QWidgetBackingStore::paintOnScreen(this)) {
-            XEvent xevent;
-            PaintEventInfo info;
-            info.window = winId();
-            while (XCheckIfEvent(X11->display,&xevent,isPaintOrScrollDoneEvent,
-                                 (XPointer)&info) &&
-                   !qt_x11EventFilter(&xevent)  &&
-                   !x11Event(&xevent)) // send event through filter
-                ;
             repaint();
+        } else {
+            extern void qt_syncBackingStore(QRegion rgn, QWidget *widget);
+            qt_syncBackingStore(d->clipRect(), this);
         }
 #endif
     }
-
-
     return true;
 }
 
