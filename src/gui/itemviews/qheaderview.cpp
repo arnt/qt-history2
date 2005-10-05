@@ -1310,14 +1310,14 @@ void QHeaderView::initializeSections(int start, int end)
 void QHeaderView::currentChanged(const QModelIndex &current, const QModelIndex &old)
 {
     Q_D(QHeaderView);
-    if (d->orientation == Qt::Horizontal) {
+    if (d->orientation == Qt::Horizontal && current.column() != old.column()) {
         if (old.isValid())
             d->setDirtyRegion(QRect(sectionViewportPosition(old.column()), 0,
                                     sectionSize(old.column()), d->viewport->height()));
         if (current.isValid())
             d->setDirtyRegion(QRect(sectionViewportPosition(current.column()), 0,
                                     sectionSize(current.column()), d->viewport->height()));
-    } else {
+    } else if (current.row() != old.row()) {
         if (old.isValid())
             d->setDirtyRegion(QRect(0, sectionViewportPosition(old.row()),
                                     d->viewport->width(), sectionSize(old.row())));
