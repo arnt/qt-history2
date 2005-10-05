@@ -198,7 +198,7 @@ struct QtFontStyle
     Key key;
     bool bitmapScalable : 1;
     bool smoothScalable : 1;
-    signed int count    : 29;
+    signed int count    : 30;
     QtFontSize *pixelSizes;
 
 #ifdef Q_WS_X11
