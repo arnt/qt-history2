@@ -659,6 +659,8 @@ void QAbstractScrollArea::dropEvent(QDropEvent *)
 
 /*!
     Scrolls the viewport's contents by \a dx, \a dy.
+
+    The default implementation simply updates the entire viewport().
 */
 void QAbstractScrollArea::scrollContentsBy(int, int)
 {
