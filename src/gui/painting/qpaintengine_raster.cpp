@@ -2896,15 +2896,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
     qreal x = p.x();
     qreal y = p.y();
 
-    if (ti.flags & (QTextItem::Underline|QTextItem::StrikeOut)) {
-        LOGFONT lf = fe->logfont;
-        lf.lfUnderline = (ti.flags & QTextItem::Underline);
-        lf.lfStrikeOut = (ti.flags & QTextItem::StrikeOut);
-        HFONT hf = QT_WA_INLINE(CreateFontIndirectW(&lf), CreateFontIndirectA((LOGFONTA*)&lf));
-        SelectObject(hdc, hf);
-    } else {
-        SelectObject(hdc, fe->hfont);
-    }
+    SelectObject(hdc, fe->hfont);
 
     unsigned int options =  fe->ttf && !convertToText ? ETO_GLYPH_INDEX : 0;
 
@@ -3007,13 +2999,22 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
         }
     }
 
-    if (ti.flags & (QTextItem::Underline|QTextItem::StrikeOut))
-        DeleteObject(SelectObject(hdc, fe->hfont));
+    if (ti.flags & (QTextItem::Underline)) {
+	    int lw = qRound(fe->lineThickness());
+	    int yp = qRound(y + fe->underlinePosition().toReal());
+        Rectangle(hdc, xo, yp, qRound(ti.width) + xo, yp + lw);
+    }
+
+    if (ti.flags & (QTextItem::StrikeOut)) {
+	    int lw = qRound(fe->lineThickness());
+	    int yp = qRound(y - fe->ascent().toReal()/3.);
+        Rectangle(hdc, xo, yp, qRound(ti.width) + xo, yp + lw);
+    }
 
     if (ti.flags & (QTextItem::Overline)) {
-	int lw = qRound(fe->lineThickness());
-	int yp = qRound(y - fe->ascent().toReal() - 1);
-        Rectangle(hdc, xo, yp, qRound(x), yp + lw);
+	    int lw = qRound(fe->lineThickness());
+	    int yp = qRound(y - fe->ascent().toReal());
+        Rectangle(hdc, xo, yp, qRound(ti.width) + xo, yp + lw);
     }
 }
 
@@ -3092,9 +3093,6 @@ static void draw_text_item_multi(const QPointF &p, const QTextItemInt &ti, HDC h
 void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
                        bool convertToText)
 {
-    if (!ti.num_glyphs)
-        return;
-
     switch(ti.fontEngine->type()) {
     case QFontEngine::Multi:
         draw_text_item_multi(pos, ti, hdc, convertToText);

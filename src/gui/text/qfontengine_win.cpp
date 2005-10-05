@@ -77,7 +77,7 @@ QFixed QFontEngine::lineThickness() const
 {
     // ad hoc algorithm
     int score = fontDef.weight * fontDef.pixelSize;
-    QFixed lw = QFixed(score) / 700;
+    int lw = score / 700;
 
     // looks better with thicker line for small pointsizes
     if (lw < 2 && score >= 1050) lw = 2;
@@ -203,6 +203,7 @@ QFontEngineWin::QFontEngineWin(const QString &name, HFONT _hfont, bool stockFont
     logfont = lf;
     SelectObject(shared_dc, hfont);
     this->stockFont = stockFont;
+    fontDef.pixelSize = -lf.lfHeight;
 
     lbearing = SHRT_MIN;
     rbearing = SHRT_MIN;
