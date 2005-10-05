@@ -19,8 +19,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>456</width>
-    <height>262</height>
+    <width>583</width>
+    <height>278</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -33,10 +33,10 @@
    <property name="spacing" >
     <number>6</number>
    </property>
-   <item row="0" column="0" >
-    <widget class="QGroupBox" name="itemsBox" >
+   <item row="0" column="1" >
+    <widget class="QGroupBox" name="columnsBox" >
      <property name="title" >
-      <string>Tree Items</string>
+      <string>Columns</string>
      </property>
      <layout class="QGridLayout" >
       <property name="margin" >
@@ -45,313 +45,7 @@
       <property name="spacing" >
        <number>6</number>
       </property>
-      <item row="2" column="0" colspan="2" >
-       <widget class="QFrame" name="currentItemBox" >
-        <property name="frameShape" >
-         <enum>QFrame::NoFrame</enum>
-        </property>
-        <property name="frameShadow" >
-         <enum>QFrame::Plain</enum>
-        </property>
-        <layout class="QHBoxLayout" >
-         <property name="margin" >
-          <number>0</number>
-         </property>
-         <property name="spacing" >
-          <number>6</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="label1" >
-           <property name="sizePolicy" >
-            <sizepolicy>
-             <hsizetype>0</hsizetype>
-             <vsizetype>5</vsizetype>
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text" >
-            <string>&amp;Text</string>
-           </property>
-           <property name="buddy" >
-            <cstring>itemTextLineEdit</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="itemTextLineEdit" >
-           <property name="sizePolicy" >
-            <sizepolicy>
-             <hsizetype>13</hsizetype>
-             <vsizetype>0</vsizetype>
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label2" >
-           <property name="sizePolicy" >
-            <sizepolicy>
-             <hsizetype>0</hsizetype>
-             <vsizetype>5</vsizetype>
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text" >
-            <string>&amp;Pixmap</string>
-           </property>
-           <property name="buddy" >
-            <cstring>previewPixmapItemButton</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="previewPixmapItemButton" >
-           <property name="text" >
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="deletePixmapItemButton" >
-           <property name="text" >
-            <string/>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="0" column="1" >
-       <layout class="QVBoxLayout" >
-        <property name="margin" >
-         <number>0</number>
-        </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <spacer>
-          <property name="orientation" >
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" >
-           <size>
-            <width>22</width>
-            <height>16</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QToolButton" name="moveItemUpButton" >
-          <property name="text" >
-           <string>U</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="moveItemDownButton" >
-          <property name="text" >
-           <string>D</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="0" column="0" >
-       <widget class="QTreeWidget" name="treeWidget" >
-        <property name="focusPolicy" >
-         <enum>Qt::TabFocus</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="2" >
-       <layout class="QHBoxLayout" >
-        <property name="margin" >
-         <number>0</number>
-        </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <widget class="QToolButton" name="newItemButton" >
-          <property name="text" >
-           <string>&amp;New Item</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="newSubItemButton" >
-          <property name="text" >
-           <string>New &amp;Subitem</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="deleteItemButton" >
-          <property name="text" >
-           <string>&amp;Delete Item</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer>
-          <property name="orientation" >
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" >
-           <size>
-            <width>21</width>
-            <height>23</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QToolButton" name="moveItemLeftButton" >
-          <property name="text" >
-           <string>L</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="moveItemRightButton" >
-          <property name="text" >
-           <string>R</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="2" >
-    <layout class="QHBoxLayout" >
-     <property name="margin" >
-      <number>0</number>
-     </property>
-     <property name="spacing" >
-      <number>6</number>
-     </property>
-     <item>
-      <spacer>
-       <property name="orientation" >
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" >
-        <size>
-         <width>431</width>
-         <height>30</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="okButton" >
-       <property name="text" >
-        <string>OK</string>
-       </property>
-       <property name="default" >
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="cancelButton" >
-       <property name="text" >
-        <string>Cancel</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="0" column="1" >
-    <widget class="QGroupBox" name="columnsBox" >
-     <property name="title" >
-      <string>Columns</string>
-     </property>
-     <layout class="QVBoxLayout" >
-      <property name="margin" >
-       <number>8</number>
-      </property>
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <item>
-       <widget class="QListWidget" name="listWidget" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>13</hsizetype>
-          <vsizetype>7</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="focusPolicy" >
-         <enum>Qt::TabFocus</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" >
-        <property name="margin" >
-         <number>0</number>
-        </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <widget class="QToolButton" name="newColumnButton" >
-          <property name="text" >
-           <string>New</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="renameColumnButton" >
-          <property name="text" >
-           <string>Rename</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="deleteColumnButton" >
-          <property name="text" >
-           <string>Delete</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer>
-          <property name="orientation" >
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType" >
-           <enum>QSizePolicy::Ignored</enum>
-          </property>
-          <property name="sizeHint" >
-           <size>
-            <width>20</width>
-            <height>10</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QToolButton" name="moveColumnUpButton" >
-          <property name="text" >
-           <string>U</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
+      <item row="2" column="0" >
        <layout class="QHBoxLayout" >
         <property name="margin" >
          <number>0</number>
@@ -404,30 +98,308 @@
           </property>
          </spacer>
         </item>
+       </layout>
+      </item>
+      <item row="1" column="0" >
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
         <item>
-         <widget class="QToolButton" name="moveColumnDownButton" >
+         <widget class="QToolButton" name="newColumnButton" >
           <property name="text" >
-           <string>D</string>
+           <string>New</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="renameColumnButton" >
+          <property name="text" >
+           <string>Rename</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="deleteColumnButton" >
+          <property name="text" >
+           <string>Delete</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer>
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType" >
+           <enum>QSizePolicy::Ignored</enum>
+          </property>
+          <property name="sizeHint" >
+           <size>
+            <width>29</width>
+            <height>23</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QToolButton" name="moveColumnUpButton" >
+        <property name="text" >
+         <string>U</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" >
+       <widget class="QToolButton" name="moveColumnDownButton" >
+        <property name="text" >
+         <string>D</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="2" >
+       <widget class="QListWidget" name="listWidget" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>13</hsizetype>
+          <vsizetype>7</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="focusPolicy" >
+         <enum>Qt::TabFocus</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0" >
+    <widget class="QGroupBox" name="itemsBox" >
+     <property name="title" >
+      <string>Tree Items</string>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="margin" >
+       <number>8</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item row="2" column="0" >
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="pixmapLabel" >
+          <property name="sizePolicy" >
+           <sizepolicy>
+            <hsizetype>0</hsizetype>
+            <vsizetype>5</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text" >
+           <string>&amp;Pixmap</string>
+          </property>
+          <property name="buddy" >
+           <cstring>previewPixmapItemButton</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="previewPixmapItemButton" >
+          <property name="text" >
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="deletePixmapItemButton" >
+          <property name="text" >
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="textLabel" >
+          <property name="sizePolicy" >
+           <sizepolicy>
+            <hsizetype>0</hsizetype>
+            <vsizetype>5</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text" >
+           <string>&amp;Text</string>
+          </property>
+          <property name="buddy" >
+           <cstring>itemTextLineEdit</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="itemTextLineEdit" >
+          <property name="sizePolicy" >
+           <sizepolicy>
+            <hsizetype>13</hsizetype>
+            <vsizetype>4</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
          </widget>
         </item>
        </layout>
       </item>
+      <item row="1" column="0" >
+       <layout class="QHBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <property name="spacing" >
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QToolButton" name="newItemButton" >
+          <property name="text" >
+           <string>&amp;New Item</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="newSubItemButton" >
+          <property name="text" >
+           <string>New &amp;Subitem</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="deleteItemButton" >
+          <property name="text" >
+           <string>&amp;Delete Item</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer>
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" >
+           <size>
+            <width>16</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QToolButton" name="moveItemLeftButton" >
+          <property name="text" >
+           <string>L</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="moveItemRightButton" >
+          <property name="text" >
+           <string>R</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QToolButton" name="moveItemUpButton" >
+        <property name="text" >
+         <string>U</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" >
+       <widget class="QToolButton" name="moveItemDownButton" >
+        <property name="text" >
+         <string>D</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="2" >
+       <widget class="QTreeWidget" name="treeWidget" >
+        <property name="focusPolicy" >
+         <enum>Qt::TabFocus</enum>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
+   </item>
+   <item row="1" column="0" colspan="2" >
+    <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>431</width>
+         <height>30</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="okButton" >
+       <property name="text" >
+        <string>OK</string>
+       </property>
+       <property name="default" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelButton" >
+       <property name="text" >
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
  <pixmapfunction></pixmapfunction>
  <tabstops>
   <tabstop>treeWidget</tabstop>
-  <tabstop>moveItemUpButton</tabstop>
-  <tabstop>moveItemDownButton</tabstop>
-  <tabstop>moveItemRightButton</tabstop>
-  <tabstop>moveItemLeftButton</tabstop>
   <tabstop>newItemButton</tabstop>
   <tabstop>newSubItemButton</tabstop>
   <tabstop>deleteItemButton</tabstop>
+  <tabstop>moveItemLeftButton</tabstop>
+  <tabstop>moveItemRightButton</tabstop>
+  <tabstop>moveItemUpButton</tabstop>
+  <tabstop>moveItemDownButton</tabstop>
+  <tabstop>previewPixmapItemButton</tabstop>
+  <tabstop>deletePixmapItemButton</tabstop>
+  <tabstop>itemTextLineEdit</tabstop>
   <tabstop>listWidget</tabstop>
   <tabstop>newColumnButton</tabstop>
   <tabstop>renameColumnButton</tabstop>

@@ -112,12 +112,11 @@ void TableWidgetEditor::copyContents(QTableWidget *sourceWidget, QTableWidget *d
                 headerItem = new QTableWidgetItem;
             headerItem->setText(origHeaderItem->text());
             headerItem->setIcon(origHeaderItem->icon());
+            destWidget->setHorizontalHeaderItem(col, headerItem);
         } else {
             if (headerItem)
                 delete headerItem;
-            headerItem = 0;
         }
-        destWidget->setHorizontalHeaderItem(col, headerItem);
     }
 
     int rowCount = sourceWidget->rowCount();
@@ -130,12 +129,11 @@ void TableWidgetEditor::copyContents(QTableWidget *sourceWidget, QTableWidget *d
                 headerItem = new QTableWidgetItem;
             headerItem->setText(origHeaderItem->text());
             headerItem->setIcon(origHeaderItem->icon());
+            destWidget->setVerticalHeaderItem(row, headerItem);
         } else {
             if (headerItem)
                 delete headerItem;
-            headerItem = 0;
         }
-        destWidget->setVerticalHeaderItem(row, headerItem);
     }
 
     for (int col = 0; col < colCount; col++) {
@@ -143,16 +141,22 @@ void TableWidgetEditor::copyContents(QTableWidget *sourceWidget, QTableWidget *d
             QTableWidgetItem *origItem = sourceWidget->item(row, col);
             QTableWidgetItem *newItem = destWidget->item(row, col);
             if (origItem) {
-                if (!newItem)
-                    newItem = new QTableWidgetItem;
-                newItem->setText(origItem->text());
-                newItem->setIcon(origItem->icon());
+                QString text = origItem->text();
+                QIcon icon = origItem->icon();
+                if (text.isEmpty() && icon.isNull()) {
+                    if (newItem)
+                        delete newItem;
+                } else {
+                    if (!newItem)
+                        newItem = new QTableWidgetItem;
+                    newItem->setText(text);
+                    newItem->setIcon(icon);
+                    destWidget->setItem(row, col, newItem);
+                }
             } else {
                 if (newItem)
                     delete newItem;
-                newItem = 0;
             }
-            destWidget->setItem(row, col, newItem);
         }
     }
 }
@@ -268,7 +272,11 @@ void TableWidgetEditor::updateEditor()
         itemsEnabled = true;
 
     ui.itemsBox->setEnabled(itemsEnabled);
-    ui.currentItemBox->setEnabled(currentItemEnabled);
+    ui.textLabel->setEnabled(currentItemEnabled);
+    ui.pixmapLabel->setEnabled(currentItemEnabled);
+    ui.deletePixmapItemButton->setEnabled(currentItemEnabled);
+    ui.previewPixmapItemButton->setEnabled(currentItemEnabled);
+    ui.itemTextLineEdit->setEnabled(currentItemEnabled);
 
     ui.renameColumnButton->setEnabled(currentColumnEnabled);
     ui.deleteColumnButton->setEnabled(currentColumnEnabled);
@@ -414,9 +422,11 @@ void TableWidgetEditor::moveColumnsLeft(int fromColumn, int toColumn)
                 headerItem = new QTableWidgetItem;
             headerItem->setText(prevHeaderItem->text());
             headerItem->setIcon(prevHeaderItem->icon());
-        } else
-            headerItem = 0;
-        ui.tableWidget->setHorizontalHeaderItem(i, headerItem);
+            ui.tableWidget->setHorizontalHeaderItem(i, headerItem);
+        } else {
+            if (headerItem)
+                delete headerItem;
+        }
     }
     QTableWidgetItem *headerItem = ui.tableWidget->horizontalHeaderItem(fromColumn);
     if (lastItem) {
@@ -424,9 +434,11 @@ void TableWidgetEditor::moveColumnsLeft(int fromColumn, int toColumn)
             headerItem = new QTableWidgetItem;
         headerItem->setText(text);
         headerItem->setIcon(icon);
-    } else
-        headerItem = 0;
-    ui.tableWidget->setHorizontalHeaderItem(fromColumn, headerItem);
+        ui.tableWidget->setHorizontalHeaderItem(fromColumn, headerItem);
+    } else {
+        if (headerItem)
+            delete headerItem;
+    }
 
     for (int i = 0; i < ui.tableWidget->rowCount(); i++) {
         QTableWidgetItem *lastItem = ui.tableWidget->item(i, toColumn);
@@ -458,9 +470,11 @@ void TableWidgetEditor::moveColumnsRight(int fromColumn, int toColumn)
                 headerItem = new QTableWidgetItem;
             headerItem->setText(prevHeaderItem->text());
             headerItem->setIcon(prevHeaderItem->icon());
-        } else
-            headerItem = 0;
-        ui.tableWidget->setHorizontalHeaderItem(i, headerItem);
+            ui.tableWidget->setHorizontalHeaderItem(i, headerItem);
+        } else {
+            if (headerItem)
+                delete headerItem;
+        }
     }
     QTableWidgetItem *headerItem = ui.tableWidget->horizontalHeaderItem(toColumn);
     if (lastItem) {
@@ -468,9 +482,11 @@ void TableWidgetEditor::moveColumnsRight(int fromColumn, int toColumn)
             headerItem = new QTableWidgetItem;
         headerItem->setText(text);
         headerItem->setIcon(icon);
-    } else
-        headerItem = 0;
-    ui.tableWidget->setHorizontalHeaderItem(toColumn, headerItem);
+        ui.tableWidget->setHorizontalHeaderItem(toColumn, headerItem);
+    } else {
+        if (headerItem)
+            delete headerItem;
+    }
 
     for (int i = 0; i < ui.tableWidget->rowCount(); i++) {
         QTableWidgetItem *lastItem = ui.tableWidget->takeItem(i, fromColumn);
@@ -500,9 +516,11 @@ void TableWidgetEditor::moveRowsDown(int fromRow, int toRow)
                 headerItem = new QTableWidgetItem;
             headerItem->setText(prevHeaderItem->text());
             headerItem->setIcon(prevHeaderItem->icon());
-        } else
-            headerItem = 0;
         ui.tableWidget->setVerticalHeaderItem(i, headerItem);
+        } else {
+            if (headerItem)
+                delete headerItem;
+        }
     }
     QTableWidgetItem *headerItem = ui.tableWidget->verticalHeaderItem(fromRow);
     if (lastItem) {
@@ -510,9 +528,11 @@ void TableWidgetEditor::moveRowsDown(int fromRow, int toRow)
             headerItem = new QTableWidgetItem;
         headerItem->setText(text);
         headerItem->setIcon(icon);
-    } else
-        headerItem = 0;
-    ui.tableWidget->setVerticalHeaderItem(fromRow, headerItem);
+        ui.tableWidget->setVerticalHeaderItem(fromRow, headerItem);
+    } else {
+        if (headerItem)
+            delete headerItem;
+    }
 
     for (int i = 0; i < ui.tableWidget->columnCount(); i++) {
         QTableWidgetItem *lastItem = ui.tableWidget->takeItem(toRow, i);
@@ -542,9 +562,11 @@ void TableWidgetEditor::moveRowsUp(int fromRow, int toRow)
                 headerItem = new QTableWidgetItem;
             headerItem->setText(prevHeaderItem->text());
             headerItem->setIcon(prevHeaderItem->icon());
-        } else
-            headerItem = 0;
-        ui.tableWidget->setVerticalHeaderItem(i, headerItem);
+            ui.tableWidget->setVerticalHeaderItem(i, headerItem);
+        } else {
+            if (headerItem)
+                delete headerItem;
+        }
     }
     QTableWidgetItem *headerItem = ui.tableWidget->verticalHeaderItem(toRow);
     if (lastItem) {
@@ -552,9 +574,11 @@ void TableWidgetEditor::moveRowsUp(int fromRow, int toRow)
             headerItem = new QTableWidgetItem;
         headerItem->setText(text);
         headerItem->setIcon(icon);
-    } else
-        headerItem = 0;
-    ui.tableWidget->setVerticalHeaderItem(toRow, headerItem);
+        ui.tableWidget->setVerticalHeaderItem(toRow, headerItem);
+    } else {
+        if (headerItem)
+            delete headerItem;
+    }
 
     for (int i = 0; i < ui.tableWidget->columnCount(); i++) {
         QTableWidgetItem *lastItem = ui.tableWidget->takeItem(fromRow, i);

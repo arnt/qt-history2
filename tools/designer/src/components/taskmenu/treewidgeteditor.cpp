@@ -367,7 +367,11 @@ void TreeWidgetEditor::updateEditor()
         }
     }
     ui.itemsBox->setEnabled(itemsEnabled);
-    ui.currentItemBox->setEnabled(currentItemEnabled);
+    ui.textLabel->setEnabled(currentItemEnabled);
+    ui.pixmapLabel->setEnabled(currentItemEnabled);
+    ui.deletePixmapItemButton->setEnabled(currentItemEnabled);
+    ui.previewPixmapItemButton->setEnabled(currentItemEnabled);
+    ui.itemTextLineEdit->setEnabled(currentItemEnabled);
     ui.newSubItemButton->setEnabled(currentItemEnabled);
     ui.deleteItemButton->setEnabled(currentItemEnabled);
 
