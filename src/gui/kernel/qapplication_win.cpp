@@ -3179,6 +3179,9 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
     qreal rotation = 0.0;
     qreal tangentialPressure;
 
+    POINT point;
+    GetCursorPos(&point);
+
     // the most common event that we get...
     t = QEvent::TabletMove;
     for (i = 0; i < numPackets; i++) {
@@ -3244,8 +3247,6 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
                                              desktopArea.top(), desktopArea.height());
 
         // adjust to current on screen cursor pos. (only really needed when tablet is in mouse mode)
-        POINT point;
-        GetCursorPos(&point);
         hiResGlobal.setX(hiResGlobal.x() - int(hiResGlobal.x() - .5) + point.x);
         hiResGlobal.setY(hiResGlobal.y() - int(hiResGlobal.y() - .5) + point.y);
 
