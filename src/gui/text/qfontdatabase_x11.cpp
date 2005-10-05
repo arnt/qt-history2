@@ -1628,17 +1628,17 @@ static QFontEngine *loadRaw(const QFontPrivate *fp, const QFontDef &request)
 QFontEngine *QFontDatabase::loadXlfd(int screen, int script, const QFontDef &request, int force_encoding_id)
 {
     QtFontDesc desc;
-    qDebug() << "---> loadXlfd: request is" << request.family;
+    FM_DEBUG() << "---> loadXlfd: request is" << request.family;
     QStringList families_and_foundries = ::familyList(request);
     const char *stylehint = styleHint(request);
     if (stylehint) 
         families_and_foundries << QString::fromLatin1(stylehint);
     families_and_foundries << QString();
-    qDebug() << "loadXlfd: list is" << families_and_foundries;
+    FM_DEBUG() << "loadXlfd: list is" << families_and_foundries;
     for (int i = 0; i < families_and_foundries.size(); ++i) {
         QString family, foundry;
         ::parseFontName(families_and_foundries.at(i), foundry, family);
-        qDebug("loadXlfd: >>>>>>>>>>>>>>trying to match '%s' encoding=%d", family.toLatin1().data(), force_encoding_id);
+        FM_DEBUG("loadXlfd: >>>>>>>>>>>>>>trying to match '%s' encoding=%d", family.toLatin1().data(), force_encoding_id);
         ::match(script, request, family, foundry, force_encoding_id, &desc);
         if (desc.family)
             break;
@@ -1681,7 +1681,7 @@ QFontEngine *QFontDatabase::loadXlfd(int screen, int script, const QFontDef &req
             xlfd += "-";
             xlfd += xlfd_for_id(desc.encoding->encoding);
             
-            qDebug("    using XLFD: %s\n", xlfd.data());
+            FM_DEBUG("    using XLFD: %s\n", xlfd.data());
             
             const int mib = xlfd_encoding[desc.encoding->encoding].mib;
             XFontStruct *xfs;
