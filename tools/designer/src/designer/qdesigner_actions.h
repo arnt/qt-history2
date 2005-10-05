@@ -156,6 +156,7 @@ private:
     QDesignerWorkbench *m_workbench;
     QDesignerFormEditorInterface *m_core;
     QAssistantClient *m_assistantClient;
+    QString m_openDirectory;
 
     QActionGroup *m_fileActions;
     QActionGroup *m_recentFilesActions;

@@ -47,7 +47,7 @@
 
 QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     : QObject(workbench),
-      m_workbench(workbench), m_assistantClient(0)
+      m_workbench(workbench), m_assistantClient(0), m_openDirectory(QString())
 {
     Q_ASSERT(m_workbench != 0);
 
@@ -492,7 +492,7 @@ bool QDesignerActions::openForm()
 {
     QString fileName = QFileDialog::getOpenFileName(
             core()->topLevel(),
-            tr("Open Form"), QString(),
+            tr("Open Form"), m_openDirectory,
             tr("Designer UI files (*.ui)"), 0, QFileDialog::DontUseSheet);
 
     if (!fileName.isEmpty()) {
@@ -686,6 +686,7 @@ bool QDesignerActions::readInForm(const QString &fileName)
         return false;
     }
 
+    m_openDirectory = QFileInfo(f).absolutePath();
 
     QDesignerFormWindow *formWindow = workbench()->createFormWindow();
     if (QDesignerFormWindowInterface *editor = formWindow->editor()) {
