@@ -1137,13 +1137,20 @@ void QTreeView::scrollContentsBy(int dx, int dy)
     }
 
     if (dx) {
+        int value = horizontalScrollBar()->value();
         int steps = horizontalStepsPerItem();
-        int scrollbarValue = horizontalScrollBar()->value();
-        int column = d->header->logicalIndex(scrollbarValue / steps);
-        while (d->header->isSectionHidden(column))
-           ++column;
-        int left = (scrollbarValue % steps) * d->header->sectionSize(column);
-        int offset = (left / steps) + d->header->sectionPosition(column);
+        int visual = value / steps;
+        if (d->header->sectionsHidden()) {
+            for (int i = 0; i <= visual; ++i) { // hidden sections to the left
+                if (d->header->isSectionHidden(i)) {
+                    value += steps;
+                    ++visual;
+                }
+            }
+        }
+        int section = d->header->logicalIndex(visual);
+        int left = (value % steps) * d->header->sectionSize(section);
+        int offset = (left / steps) + d->header->sectionPosition(section);
         if (isRightToLeft())
             dx = offset - d->header->offset();
         else
@@ -1285,6 +1292,8 @@ void QTreeView::resizeColumnToContents(int column)
 {
     Q_D(QTreeView);
     d->executePostedLayout();
+    if (column < 0 || column >= d->header->count())
+        return;
     int contents = sizeHintForColumn(column);
     int header = d->header->isHidden() ? 0 : d->header->sectionSizeHint(column);
     d->header->resizeSection(column, qMax(contents, header));
@@ -1361,14 +1370,10 @@ void QTreeView::updateGeometries()
     }
 
     // update scrollbars
-    if (model() && model()->rowCount(rootIndex()) > 0)
+    if (model()) {
         d->updateVerticalScrollbar();
-    else
-        verticalScrollBar()->setRange(0, 0);
-    if (model() && model()->columnCount(rootIndex()) > 0)
         d->updateHorizontalScrollbar();
-    else
-        horizontalScrollBar()->setRange(0, 0);
+    }
 
     QAbstractItemView::updateGeometries();
 }
@@ -1465,6 +1470,16 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
     }
 
     return height;
+}
+
+/*!
+  \reimp
+*/
+void QTreeView::horizontalScrollbarAction(int action)
+{
+    Q_D(QTreeView);
+    d->updateHorizontalScrollbar();
+    QAbstractItemView::horizontalScrollbarAction(action);
 }
 
 /*!
@@ -1800,37 +1815,43 @@ void QTreeViewPrivate::updateHorizontalScrollbar()
 {
     Q_Q(QTreeView);
 
-    int width = viewport->width();
     int count = header->count();
-
     // if the header is out of sync we have to relayout
     if (count != model->columnCount(root)) {
         header->doItemsLayout();
         count = header->count();
     }
 
+    int width = viewport->width();
     // if we have no viewport or no columns, there is nothing to do
     if (width <= 0 || count <= 0) {
         q->horizontalScrollBar()->setRange(0, 0);
         return;
     }
-
-    // set the scroller range
-    int x = width;
-    while (x > 0 && count > 0)
-        x -= header->sectionSize(--count);
-    int max = count * horizontalStepsPerItem;
-
-    // set page step size
-    int visibleCount = header->count() - count - 1;
+    
+    // count how many items are visible in the viewport
+    int left = q->horizontalScrollBar()->value() / horizontalStepsPerItem;
+    while (header->isSectionHidden(left))
+        ++left;
+    Q_ASSERT(left >= 0);
+    int visibleCount = 0;
+    int x = 0;
+    for (int section = left; section < count && x < width; ++section) {
+        if (!header->isSectionHidden(section)) {
+            x += header->sectionSize(section);
+            ++visibleCount;
+        }
+    }
     q->horizontalScrollBar()->setPageStep(visibleCount * horizontalStepsPerItem);
 
-    if (x < 0) { // if the first item starts left of the viewport, we have to backtrack
-        int sectionSize = header->sectionSize(count);
-        if (sectionSize > 0) // avoid division by zero
-            max += ((-x * horizontalStepsPerItem) / sectionSize) + 1;
+    // the scrollbar range is tne total number of items minus the items that are already visible
+    int hidden = header->hiddenSectionCount();
+    int max = (count - visibleCount - hidden) * horizontalStepsPerItem;
+    if (x > width) { // if only part of an item is visible
+        int sectionSize = header->sectionSize(left);
+        Q_ASSERT(sectionSize > 0);
+        max += (((x - width) * horizontalStepsPerItem) / sectionSize) + 1;
     }
-
     q->horizontalScrollBar()->setRange(0, max);
 
     if (q->horizontalScrollBar()->value() == max) {

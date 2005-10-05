@@ -358,9 +358,9 @@ int QHeaderView::visualIndexAt(int position) const
 {
     Q_D(const QHeaderView);
     d->executePostedLayout();
-    if (count() < 1)
+    int count = this->count();
+    if (count < 1 || position < 0)
         return -1;
-
     if (d->reverse())
         position = d->viewport->width() - position;
     position += d->offset;
@@ -368,20 +368,21 @@ int QHeaderView::visualIndexAt(int position) const
         return -1;
 
     int start = 0;
-    int end = count() - 1;
+    int end = count - 1;
     int visual = (end + 1) / 2;
 
-    const QHeaderViewPrivate::HeaderSection *sections = d->sections.constData();
-
+    const QVector<QHeaderViewPrivate::HeaderSection> sections = d->sections;
     while (end - start > 0) {
-        if (sections[visual].position > position)
+        if (sections.at(visual).position > position)
             end = visual - 1;
         else
             start = visual;
         visual = (start + end + 1) / 2;
     }
 
-    if (visual == end && sections[end + 1].position < position)
+    while (sections.at(visual).hidden && visual < count)
+        ++visual;
+    if (visual >= count || (visual == end && sections.at(end + 1).position < position))
         return -1;
     return visual;
 }
@@ -422,8 +423,8 @@ int QHeaderView::sectionPosition(int logicalIndex) const
     Q_D(const QHeaderView);
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
-    if (d->sections.at(visual).hidden)
-        return -1;
+//     if (d->sections.at(visual).hidden)
+//         return -1;
     return d->sections.at(visual).position;
 }
 
@@ -1489,7 +1490,8 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
 {
     Q_D(QHeaderView);
     int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
-
+    if (pos < 0)
+        return;
     switch (d->state) {
         case QHeaderViewPrivate::ResizeSection: {
             int delta = d->reverse() ? d->lastPos - pos : pos - d->lastPos;
@@ -1973,8 +1975,10 @@ int QHeaderViewPrivate::sectionHandleAt(int position)
         return -1;
     int log = logicalIndex(visual);
     int pos = q->sectionViewportPosition(log);
+    if (pos < 0)
+        return -1;
     int grip = q->style()->pixelMetric(QStyle::PM_HeaderGripMargin);
-    if (reverse()) { // FIXME:
+    if (reverse()) {
         if (position < pos + grip)
             return log;
         if (visual > 0 && position > pos + q->sectionSize(log) - grip)
