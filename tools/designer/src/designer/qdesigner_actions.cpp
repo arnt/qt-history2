@@ -638,9 +638,9 @@ bool QDesignerActions::eventFilter(QObject *obj, QEvent *event)
     bool retval = QObject::eventFilter(obj, event);
     
     if (event->type() == QEvent::Resize) {
-        QWidget *w = qobject_cast<QDialog *>(obj);
+        QDialog *w = qobject_cast<QDialog *>(obj);
         QDialog *dlg = qobject_cast<QDialog *>(obj->parent());
-        if ((w && dlg) && (w->size() != dlg->size())) {
+        if ((w && dlg) && w->isSizeGripEnabled() && (w->size() != dlg->size())) {
             dlg->resize(w->size());
         }
     }
