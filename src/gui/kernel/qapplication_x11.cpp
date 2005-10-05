@@ -2804,25 +2804,41 @@ int QApplication::x11ProcessEvent(XEvent* event)
         break;
 
     case UnmapNotify:                                // window hidden
-        if (widget->isWindow() && !(widget->windowType() == Qt::Popup)) {
-            widget->setAttribute(Qt::WA_Mapped, false);
-            if (widget->isVisible()) {
-                widget->d_func()->topData()->spont_unmapped = 1;
-                QHideEvent e;
+        if (widget->isWindow()) {
+            widget->d_func()->topData()->waitingForMapNotify = 0;
+
+            if (widget->windowType() != Qt::Popup) {
+                widget->setAttribute(Qt::WA_Mapped, false);
+                if (widget->isVisible()) {
+                    widget->d_func()->topData()->spont_unmapped = 1;
+                    QHideEvent e;
                 QApplication::sendSpontaneousEvent(widget, &e);
                 widget->d_func()->hideChildren(true);
+                }
+            }
+
+            if (!widget->d_func()->topData()->validWMState) {
+                int idx = X11->deferred_map.indexOf(widget);
+                if (idx != -1) {
+                    X11->deferred_map.removeAt(idx);
+                    XMapWindow(X11->display, widget->winId());
+                }
             }
         }
         break;
 
     case MapNotify:                                // window shown
-        if (widget->isWindow() && !(widget->windowType() == Qt::Popup)) {
-            widget->setAttribute(Qt::WA_Mapped);
-            if (widget->d_func()->topData()->spont_unmapped) {
-                widget->d_func()->topData()->spont_unmapped = 0;
-                widget->d_func()->showChildren(true);
-                QShowEvent e;
-                QApplication::sendSpontaneousEvent(widget, &e);
+        if (widget->isWindow()) {
+            widget->d_func()->topData()->waitingForMapNotify = 0;
+
+            if (widget->windowType() != Qt::Popup) {
+                widget->setAttribute(Qt::WA_Mapped);
+                if (widget->d_func()->topData()->spont_unmapped) {
+                    widget->d_func()->topData()->spont_unmapped = 0;
+                    widget->d_func()->showChildren(true);
+                    QShowEvent e;
+                    QApplication::sendSpontaneousEvent(widget, &e);
+                }
             }
         }
         break;
@@ -2836,22 +2852,28 @@ int QApplication::x11ProcessEvent(XEvent* event)
                                       ReparentNotify,
                                       event))
             ;        // skip old reparent events
-        if (event->xreparent.parent == QX11Info::appRootWindow()) {
-            if (widget->isWindow()) {
-                widget->d_func()->topData()->parentWinId = event->xreparent.parent;
-                int idx = X11->deferred_map.indexOf(widget);
-                if (idx != -1) {
-                    X11->deferred_map.removeAt(idx);
-                    XMapWindow(X11->display, widget->winId());
-                }
-            }
-        } else
-            // store the parent. Useful for many things, embedding for instance.
-            widget->d_func()->topData()->parentWinId = event->xreparent.parent;
         if (widget->isWindow()) {
+            QTLWExtra *topData = widget->d_func()->topData();
+
+            // store the parent. Useful for many things, embedding for instance.
+            topData->parentWinId = event->xreparent.parent;
+
             // the widget frame strut should also be invalidated
-            widget->d_func()->topData()->fleft = widget->d_func()->topData()->fright =
-             widget->d_func()->topData()->ftop = widget->d_func()->topData()->fbottom = 0;
+            topData->fleft = topData->fright = topData->ftop = topData->fbottom = 0;
+
+            // work around broken window managers... if we get a
+            // ReparentNotify before the MapNotify, we assume that
+            // we're being managed by a reparenting window
+            // manager.
+            //
+            // however, the WM_STATE property may not have been set
+            // yet, but we are going to assume that it will
+            // be... otherwise we could try to map again after getting
+            // an UnmapNotify... which could then, in turn, trigger a
+            // race in the window manager which causes the window to
+            // disappear when it really should be hidden.
+            if (topData->waitingForMapNotify && !topData->validWMState)
+                topData->validWMState = 1;
 
             if (X11->focus_model != QX11Data::FM_Unknown) {
                 // toplevel reparented...
@@ -3831,6 +3853,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
             // so it is now in the withdrawn state (ICCCM 4.1.3.1) and
             // we are free to reuse this window
             d->topData()->parentWinId = 0;
+            d->topData()->validWMState = 0;
             // map the window if we were waiting for a transition to
             // withdrawn
             if (X11->deferred_map.removeAll(this)) {
@@ -3843,16 +3866,12 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                 // doesn't seem to care
                 hide();
             }
-        } else if (d->topData()->parentWinId != QX11Info::appRootWindow(x11Info().screen())) {
+        } else {
             // the window manager has changed the WM State property...
             // we are wanting to see if we are withdrawn so that we
-            // can reuse this window... we only do this check *IF* we
-            // haven't been reparented to root - (the parentWinId !=
-            // QX11Info::x11AppRootWindow(x11Screen())) check
-            // above
-
-            e = XGetWindowProperty(X11->display, winId(), ATOM(WM_STATE), 0, 2, False, ATOM(WM_STATE),
-                                   &ret, &format, &nitems, &after, &data);
+            // can reuse this window...
+            e = XGetWindowProperty(X11->display, winId(), ATOM(WM_STATE), 0, 2, False,
+                                   ATOM(WM_STATE), &ret, &format, &nitems, &after, &data);
 
             if (e == Success && ret == ATOM(WM_STATE) && format == 32 && nitems > 0) {
                 long *state = (long *) data;
@@ -3866,6 +3885,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                     // set the parent id to zero, so that show() will
                     // work again
                     d->topData()->parentWinId = 0;
+                    d->topData()->validWMState = 0;
                     // map the window if we were waiting for a
                     // transition to withdrawn
                     if (X11->deferred_map.removeAll(this)) {
@@ -3882,6 +3902,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                     break;
 
                 case IconicState:
+                    d->topData()->validWMState = 1;
                     if (!isMinimized()) {
                         // window was minimized
                         this->data->window_state = this->data->window_state | Qt::WindowMinimized;
@@ -3891,6 +3912,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                     break;
 
                 default:
+                    d->topData()->validWMState = 1;
                     if (isMinimized()) {
                         // window was un-minimized
                         this->data->window_state &= ~Qt::WindowMinimized;

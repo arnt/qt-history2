@@ -1877,8 +1877,7 @@ void QWidgetPrivate::show_sys()
         }
 
         if (!topData()->embedded
-            && topData()->parentWinId
-            && topData()->parentWinId != QX11Info::appRootWindow(xinfo.screen())
+            && (topData()->validWMState || topData()->waitingForMapNotify)
             && !q->isMinimized()) {
             X11->deferred_map.append(q);
             return;
@@ -1925,6 +1924,7 @@ void QWidgetPrivate::show_sys()
     if (q->testAttribute(Qt::WA_OutsideWSRange))
         return;
     q->setAttribute(Qt::WA_Mapped);
+    topData()->waitingForMapNotify = 1;
 
     if (!q->isWindow()
         && (q->testAttribute(Qt::WA_NoBackground)
@@ -2561,6 +2561,8 @@ void QWidgetPrivate::createTLSysExtra()
 #ifdef QT_USE_BACKINGSTORE
     extra->topextra->backingStore = new QWidgetBackingStore(q_func());
 #endif
+    extra->topextra->validWMState = 0;
+    extra->topextra->waitingForMapNotify = 0;
 }
 
 void QWidgetPrivate::deleteTLSysExtra()

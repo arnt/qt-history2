@@ -84,10 +84,11 @@ struct QTLWExtra {
     WId parentWinId; // parent window Id (valid after reparenting)
     uint embedded : 1; // window is embedded in another Qt application
     uint spont_unmapped: 1; // window was spontaneously unmapped
-    uint reserved: 1; // reserved
     uint dnd : 1; // DND properties installed
     uint uspos : 1; // User defined position
     uint ussize : 1; // User defined size
+    uint validWMState : 1; // is WM_STATE valid?
+    uint waitingForMapNotify : 1; // show() has been called, haven't got the MapNotify yet
     QPoint fullScreenOffset;
     QBitmap *iconMask;
 #endif
