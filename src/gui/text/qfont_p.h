@@ -136,22 +136,13 @@ public:
 #ifndef Q_WS_X11
     void load(int script);
 #endif
-#if defined(Q_WS_X11)
+#if defined(Q_WS_X11) || defined(Q_WS_WIN)
     inline QFontEngine *engineForScript(int script) const
     {
         if (script >= QUnicodeTables::Inherited)
             script = QUnicodeTables::Common;
         if (!engineData || !engineData->engines[script])
             QFontDatabase::load(this, script);
-        return engineData->engines[script];
-    }
-#elif defined(Q_WS_WIN)
-    inline QFontEngine *engineForScript(int script) const
-    {
-        if (script >= QUnicodeTables::Inherited)
-            script = QUnicodeTables::Common;
-        if (!engineData || !engineData->engines[script])
-            const_cast<QFontPrivate *>(this)->load(script);
         return engineData->engines[script];
     }
 #else

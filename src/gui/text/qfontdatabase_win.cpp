@@ -652,15 +652,9 @@ static inline HFONT systemFont()
 #endif
 
 static
-QFontEngine *loadEngine(int script, const QFontPrivate *fp,
-                        const QFontDef &request,
-                        QtFontFamily *family, QtFontFoundry *foundry,
-                        QtFontStyle *style)
+QFontEngine *loadEngine(int script, const QFontPrivate *fp, const QFontDef &request, const QtFontDesc *desc,
+			const QStringList &family_list)
 {
-    Q_UNUSED(script);
-    Q_UNUSED(foundry);
-    Q_UNUSED(style);
-
     LOGFONT lf;
     memset(&lf, 0, sizeof(LOGFONT));
 
@@ -677,7 +671,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
             deffnt = SYSTEM_FONT;
         else
             deffnt = DEFAULT_GUI_FONT;
-        QString fam = family->rawName.toLower();
+        QString fam = desc->family->rawName.toLower();
         if (fam == "default")
             f = deffnt;
         else if (fam == "system")
@@ -734,15 +728,15 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
         lf.lfWidth                = 0;
         lf.lfEscapement        = 0;
         lf.lfOrientation        = 0;
-        if (style->key.weight == 50)
+        if (desc->style->key.weight == 50)
             lf.lfWeight = FW_DONTCARE;
         else
-            lf.lfWeight = (style->key.weight*900)/99;
-        lf.lfItalic                = (style->key.style != QFont::StyleNormal);
+            lf.lfWeight = (desc->style->key.weight*900)/99;
+        lf.lfItalic                = (desc->style->key.style != QFont::StyleNormal);
         lf.lfCharSet        = DEFAULT_CHARSET;
 
         int strat = OUT_DEFAULT_PRECIS;
-        if ( request.styleStrategy & QFont::PreferBitmap) {
+        if (request.styleStrategy & QFont::PreferBitmap) {
             strat = OUT_RASTER_PRECIS;
 #ifndef Q_OS_TEMP
         } else if (request.styleStrategy & QFont::PreferDevice) {
@@ -783,22 +777,9 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
         lf.lfClipPrecision  = CLIP_DEFAULT_PRECIS;
         lf.lfPitchAndFamily = DEFAULT_PITCH | hint;
 
-        QString fam = family->rawName;
-        if (fam.isEmpty()) {
-            switch ( request.styleHint ) {
-	    case QFont::SansSerif:
-		fam = "MS Sans Serif";
-		break;
-	    case QFont::Serif:
-		fam = "Times New Roman";
-		break;
-	    case QFont::TypeWriter:
-		fam = "Courier New";
-		break;
-	    default:
-		break;
-            }
-        }
+        QString fam = desc->family->rawName;
+	if(fam.isEmpty())
+	    fam = "MS Sans Serif";
 
         if ((fam == "MS Sans Serif")
             && (request.style == QFont::StyleItalic || (-lf.lfHeight > 18 && -lf.lfHeight != 24))) {
@@ -856,7 +837,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 #endif
 
     }
-    QFontEngine *fe = new QFontEngineWin(family->name, hfont, stockFont, lf);
+    QFontEngine *fe = new QFontEngineWin(desc->family->name, hfont, stockFont, lf);
     if(script == QUnicodeTables::Common) {
         if(!tryFonts) {
 	    LANGID lid = GetUserDefaultLangID();
@@ -879,7 +860,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 	    }
         }
         QStringList fm = QFontDatabase().families();
-        QStringList list;
+        QStringList list = family_list;
         const char **tf = tryFonts;
         while(tf && *tf) {
             if(fm.contains(QLatin1String(*tf)))
@@ -890,3 +871,119 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
     }
     return fe;
 }
+
+const char *styleHint(const QFontDef &request)
+{
+    const char *stylehint = 0;
+    switch (request.styleHint) {
+    case QFont::SansSerif:
+        stylehint = "Arial";
+        break;
+    case QFont::Serif:
+        stylehint = "Times New Roman";
+        break;
+    case QFont::TypeWriter:
+        stylehint = "Courier New";
+        break;
+    default:
+        if (request.fixedPitch)
+            stylehint = "Courier New";
+        break;
+    }
+    return stylehint;
+}
+
+static QFontEngine *loadWin(const QFontPrivate *d, int script, const QFontDef &req)
+{
+    // list of families to try
+    QStringList family_list = familyList(req);
+
+    if(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based && req.family.toLower() == "ms sans serif") {
+        // small hack for Dos based machines to get the right font for non
+        // latin text when using the default font.
+        family_list << "Arial";
+    }
+
+    const char *stylehint = styleHint(d->request);
+    if (stylehint) 
+        family_list << QLatin1String(stylehint);
+
+    // append the default fallback font for the specified script
+    // family_list << ... ; ###########
+
+    // add the default family
+    QString defaultFamily = QApplication::font().family();
+    if (! family_list.contains(defaultFamily))
+        family_list << defaultFamily;
+
+    // add QFont::defaultFamily() to the list, for compatibility with
+    // previous versions
+    family_list << QApplication::font().defaultFamily();
+
+    // null family means find the first font matching the specified script
+    family_list << QString();
+
+    QtFontDesc desc;
+    for (int i = 0; i < family_list.size(); ++i) {
+        QString family, foundry;
+        ::parseFontName(family_list.at(i), foundry, family);
+        FM_DEBUG("loadWin: >>>>>>>>>>>>>>trying to match '%s'", family.toLatin1().data());
+        ::match(script, req, family, foundry, -1, &desc);
+        if (desc.family)
+            break;
+    }
+    QFontEngine *fe = loadEngine(script, d, req, &desc, family_list);
+    return fe;
+}
+
+
+void QFontDatabase::load(const QFontPrivate *d, int script)
+{
+    // sanity checks
+    if (!QFontCache::instance)
+        qWarning("Must construct a QApplication before a QFont");
+    Q_ASSERT(script >= 0 && script < QUnicodeTables::ScriptCount);
+
+    if (!privateDb()->count)
+        initializeDb();
+
+    // normalize the request to get better caching
+    QFontDef req = d->request;
+    if (req.pixelSize <= 0)
+        req.pixelSize = qRound(req.pointSize * d->dpi / 72.);
+    req.pointSize = 0;
+    if (req.weight == 0)
+        req.weight = QFont::Normal;
+    if (req.stretch == 0)
+        req.stretch = 100;
+
+    QFontCache::Key key(req, d->rawMode ? QUnicodeTables::Common : script, d->screen);
+    if (!d->engineData)
+        getEngineData(d, key);
+
+    // the cached engineData could have already loaded the engine we want
+    if (d->engineData->engines[script])
+        return;
+
+    QFontEngine *fe = QFontCache::instance->findEngine(key);
+
+    // set it to the actual pointsize, so QFontInfo will do the right thing
+    req.pointSize = req.pixelSize*72./d->dpi;
+
+    if (!fe) {
+        if (qt_enable_test_font && req.family == QLatin1String("__Qt__Box__Engine__")) {
+            fe = new QTestFontEngine(req.pixelSize);
+            fe->fontDef = req;
+	} else {
+            fe = loadWin(d, script, req);
+        }
+        if (!fe) {
+            fe = new QFontEngineBox(req.pixelSize);
+            fe->fontDef = QFontDef();
+        }
+    }    
+    d->engineData->engines[script] = fe;
+    fe->ref.ref();
+    QFontCache::instance->insertEngine(key, fe);
+}
+

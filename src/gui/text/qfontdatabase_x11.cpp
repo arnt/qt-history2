@@ -1297,34 +1297,6 @@ static void initializeDb()
 // font loader
 // --------------------------------------------------------------------------------------
 
-static QStringList familyList(const QFontDef &req)
-{
-    // list of families to try
-    QStringList family_list;
-    if (req.family.isEmpty())
-        return family_list;
-    
-    QStringList list = req.family.split(',');
-    for (int i = 0; i < list.size(); ++i) {
-        QString str = list.at(i).trimmed();
-        if ((str.startsWith('"') && str.endsWith('"'))
-            || (str.startsWith('\'') && str.endsWith('\'')))
-            str = str.mid(1, str.length() - 2);
-        family_list << str;
-    }
-    
-    // append the substitute list for each family in family_list
-    QStringList subs_list;
-    QStringList::ConstIterator it = family_list.constBegin(), end = family_list.constEnd();
-    for (; it != end; ++it)
-        subs_list += QFont::substitutes(*it);
-//         qDebug() << "adding substs: " << subs_list;
-
-    family_list += subs_list;
-
-    return family_list;
-}
-
 const char *styleHint(const QFontDef &request)
 {
     const char *stylehint = 0;
@@ -1726,20 +1698,6 @@ QFontEngine *QFontDatabase::loadXlfd(int screen, int script, const QFontDef &req
     return fe;
 }
 
-
-static void getEngineData(const QFontPrivate *d, const QFontCache::Key &key)
-{
-    // look for the requested font in the engine data cache
-    d->engineData = QFontCache::instance->findEngineData(key);
-    if (!d->engineData) {
-        // create a new one
-        d->engineData = new QFontEngineData;
-        QFontCache::instance->insertEngineData(key, d->engineData);
-    } else {
-        d->engineData->ref.ref();
-    }
-}
-
 /*! \internal
     Loads a QFontEngine for the specified \a script that matches the
     QFontDef \e request member variable.
@@ -1768,6 +1726,9 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     // the cached engineData could have already loaded the engine we want
     if (d->engineData->engines[script])
         return;
+
+    // set it to the actual pointsize, so QFontInfo will do the right thing
+    req.pointSize = qt_pointSize(request.pixelSize, dpi);
 
     QFontEngine *fe = QFontCache::instance->findEngine(key);
 
