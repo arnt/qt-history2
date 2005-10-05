@@ -223,7 +223,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glDisable(GL_MULTISAMPLE);
     glDisable(GL_TEXTURE_1D);
     glDisable(GL_TEXTURE_2D);
-    glDisable(GL_TEXTURE_3D);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
 
