@@ -742,7 +742,7 @@ QFontDef FcPatternToQFontDef(FcPattern *pattern, const QFontDef &request)
                        ? QFont::StyleOblique
                        : QFont::StyleNormal);
 
-    
+
     FcBool scalable;
     if (FcPatternGetBool(pattern, FC_SCALABLE, 0, &scalable) != FcResultMatch)
         scalable = false;
@@ -1047,11 +1047,11 @@ static void loadFontConfig()
             for (int i = 1; i < SampleCharCount; ++i) {
                 if (!sampleCharForWritingSystem[i])
                     continue;
-                if (FcCharSetHasChar(cs, sampleCharForWritingSystem[i])) 
+                if (FcCharSetHasChar(cs, sampleCharForWritingSystem[i]))
                     family->writingSystems[i] = QtFontFamily::Supported;
             }
         }
-        
+
 #if FC_VERSION >= 20297
         for (int j = 1; j < LanguageCount; ++j) {
             if (family->writingSystems[j] == QtFontFamily::Supported && requiresOpenType(j) && openType[j]) {
@@ -1383,22 +1383,22 @@ static FcPattern *getFcPattern(const QFontPrivate *fp, int script, const QFontDe
         return 0;
 
     QtFontFamily *qt_family = 0;
-    
+
     QStringList families_and_foundries = familyList(request);
     for (int i = 0; i < families_and_foundries.size(); ++i) {
         QString family, foundry;
         parseFontName(families_and_foundries.at(i), foundry, family);
-        if (!family.isEmpty()) 
+        if (!family.isEmpty())
             FcPatternAddString(pattern, FC_FAMILY, (const FcChar8 *)family.toUtf8().constData());
         if (i == 0) {
             qt_family = privateDb()->family(family);
-            if (!foundry.isEmpty()) 
+            if (!foundry.isEmpty())
                 FcPatternAddString(pattern, FC_FOUNDRY, (const FcChar8 *)foundry.toUtf8().constData());
         }
     }
 
     const char *stylehint = styleHint(request);
-    if (stylehint) 
+    if (stylehint)
         FcPatternAddString(pattern, FC_FAMILY, (const FcChar8 *)stylehint);
 
     FcValue value;
@@ -1429,13 +1429,13 @@ static FcPattern *getFcPattern(const QFontPrivate *fp, int script, const QFontDe
 
     if (!request.ignorePitch) {
         char pitch_value = FC_PROPORTIONAL;
-        if (request.fixedPitch || (qt_family && qt_family->fixedPitch)) 
+        if (request.fixedPitch || (qt_family && qt_family->fixedPitch))
             pitch_value = FC_MONO;
         FcPatternAddInteger(pattern, FC_SPACING, pitch_value);
     }
     if (::forceScalable(request))
         FcPatternAddBool(pattern, FC_SCALABLE, true);
-    
+
     addPatternProps(pattern, fp, script, request);
 
     return pattern;
@@ -1455,7 +1455,7 @@ static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &r
 {
     FM_DEBUG("===================== loadFc: script=%d family='%s'\n", script, request.family.toLatin1().data());
     FcPattern *pattern = getFcPattern(fp, script, request);
-        
+
     FcBool forceScalable = ::forceScalable(request);
     FcPatternGetBool(pattern, FC_SCALABLE, 0, &forceScalable);
 
@@ -1520,9 +1520,9 @@ static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &r
             if (specialChars[script]) {
                 // need to check the charset, as the langset doesn't work for these scripts
                 FcCharSet *cs;
-                if (FcPatternGetCharSet(fs->fonts[i], FC_CHARSET, 0, &cs) != FcResultMatch) 
+                if (FcPatternGetCharSet(fs->fonts[i], FC_CHARSET, 0, &cs) != FcResultMatch)
                     continue;
-                if (!FcCharSetHasChar(cs, specialChars[script])) 
+                if (!FcCharSetHasChar(cs, specialChars[script]))
                     continue;
             } else {
                 FcLangSet *langSet = 0;
@@ -1569,7 +1569,7 @@ static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &r
             addPatternProps(pattern, fp, script, request);
             FcFontSetAdd(fontSet, pattern);
         }
-        
+
         fe = new QFontEngineMultiFT(fontSet, fp->screen, request);
     }
 
@@ -1587,7 +1587,7 @@ static QFontEngine *loadRaw(const QFontPrivate *fp, const QFontDef &request)
 
     QFontEngine *fe;
     XFontStruct *xfs;
-    if (!(xfs = XLoadQueryFont(QX11Info::display(), xlfd.data()))) 
+    if (!(xfs = XLoadQueryFont(QX11Info::display(), xlfd.data())))
         return 0;
 
     fe = new QFontEngineXLFD(xfs, xlfd, 0);
@@ -1603,7 +1603,7 @@ QFontEngine *QFontDatabase::loadXlfd(int screen, int script, const QFontDef &req
     FM_DEBUG() << "---> loadXlfd: request is" << request.family;
     QStringList families_and_foundries = ::familyList(request);
     const char *stylehint = styleHint(request);
-    if (stylehint) 
+    if (stylehint)
         families_and_foundries << QString::fromLatin1(stylehint);
     families_and_foundries << QString();
     FM_DEBUG() << "loadXlfd: list is" << families_and_foundries;
@@ -1624,7 +1624,7 @@ QFontEngine *QFontDatabase::loadXlfd(int screen, int script, const QFontDef &req
                 px = request.pixelSize;
             else if (desc.style->bitmapScalable && px == 0)
                 px = request.pixelSize;
-            
+
             QByteArray xlfd("-");
             xlfd += desc.foundry->name.isEmpty() ? QByteArray("*") : desc.foundry->name.toLatin1();
             xlfd += "-";
@@ -1652,9 +1652,9 @@ QFontEngine *QFontDatabase::loadXlfd(int screen, int script, const QFontDef &req
             xlfd += QByteArray::number(desc.encoding->avgwidth);
             xlfd += "-";
             xlfd += xlfd_for_id(desc.encoding->encoding);
-            
+
             FM_DEBUG("    using XLFD: %s\n", xlfd.data());
-            
+
             const int mib = xlfd_encoding[desc.encoding->encoding].mib;
             XFontStruct *xfs;
             if ((xfs = XLoadQueryFont(QX11Info::display(), xlfd))) {
@@ -1665,7 +1665,7 @@ QFontEngine *QFontDatabase::loadXlfd(int screen, int script, const QFontDef &req
         if (!fe) {
             fe = new QFontEngineBox(request.pixelSize);
             fe->fontDef = QFontDef();
-        }            
+        }
     } else {
         QList<int> encodings;
         if (desc.encoding)
@@ -1708,7 +1708,7 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
 
     if (!privateDb()->count)
         initializeDb();
-    
+
     // normalize the request to get better caching
     QFontDef req = d->request;
     if (req.pixelSize <= 0)
@@ -1728,7 +1728,7 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
         return;
 
     // set it to the actual pointsize, so QFontInfo will do the right thing
-    req.pointSize = qt_pointSize(request.pixelSize, dpi);
+    req.pointSize = qt_pointSize(req.pixelSize, d->dpi);
 
     QFontEngine *fe = QFontCache::instance->findEngine(key);
 
@@ -1738,7 +1738,7 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
             fe->fontDef = req;
         } else if (d->rawMode) {
             fe = loadRaw(d, req);
-        } else 
+        } else
 #ifndef QT_NO_FONTCONFIG
         if (X11->has_fontconfig) {
             fe = loadFc(d, script, req);
@@ -1751,7 +1751,7 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
             fe = new QFontEngineBox(req.pixelSize);
             fe->fontDef = QFontDef();
         }
-    }    
+    }
     d->engineData->engines[script] = fe;
     fe->ref.ref();
     QFontCache::instance->insertEngine(key, fe);
