@@ -123,12 +123,6 @@ QListView::QListView(QWidget *parent)
 {
     setViewMode(ListMode);
     setSelectionMode(SingleSelection);
-    //we want to be sure that the changes on the scrollbar's are atomic
-    //and we can't allow those signals to arrive asynchronously
-    QObject::disconnect(horizontalScrollBar(), SIGNAL(rangeChanged(int,int)),
-                        this, SLOT(showOrHideScrollBars()));
-    QObject::disconnect(verticalScrollBar(), SIGNAL(rangeChanged(int,int)),
-                        this, SLOT(showOrHideScrollBars()));
 }
 
 /*!
@@ -534,8 +528,6 @@ void QListView::resizeContents(int width, int height)
     d->contentsSize = QSize(width, height);
     horizontalScrollBar()->setRange(0, width - viewport()->width() - 1);
     verticalScrollBar()->setRange(0, height - viewport()->height() - 1);
-    //### this forces atomic relayout of children
-    setVerticalScrollBarPolicy(verticalScrollBarPolicy());
 }
 
 /*!
@@ -1230,8 +1222,6 @@ void QListView::updateGeometries()
     }
 
     QAbstractItemView::updateGeometries();
-    //### this forces atomic relayout of children
-    setVerticalScrollBarPolicy(verticalScrollBarPolicy());
 }
 
 /*!
@@ -1302,12 +1292,20 @@ QListViewPrivate::QListViewPrivate()
 
 void QListViewPrivate::prepareItemsLayout()
 {
+    Q_Q(QListView);
     // initialization of data structs
     batchStartRow = 0;
     batchSavedPosition = 0;
     batchSavedDeltaSeg = 0;
-    layoutBounds = viewport->rect();
     cachedItemSize = QSize();
+    layoutBounds = viewport->rect();
+
+    if (resizeMode == QListView::Adjust) {
+        int margin = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
+        int dw = q->verticalScrollBar()->isVisible() ? 0 : margin;
+        int dh = q->horizontalScrollBar()->isVisible() ? 0 : margin;
+        layoutBounds.adjust(0, 0, -dw, -dh);
+    }
 
     int rowCount = model ? model->rowCount(root) : 0;
     int colCount = model ? model->columnCount(root) : 0;
