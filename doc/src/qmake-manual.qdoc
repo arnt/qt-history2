@@ -327,6 +327,9 @@
     in the \l{qmake-advanced-usage.html#Scopes}{Scopes} section of the
     Advanced Usage chapter of this manual.
 
+    You can test for the presence of certain configuration options by using the
+    built-in \l{qmake Function Reference#CONFIG(config)}{CONFIG()} function.
+
     The following options define the type of project to be built. Note that some
     of these options only take effect when used on the relevant platform. On other
     platforms, they have no effect.
