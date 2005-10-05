@@ -1242,50 +1242,102 @@ void QTableWidgetPrivate::setup()
 void QTableWidgetPrivate::emitItemPressed(const QModelIndex &index)
 {
     Q_Q(QTableWidget);
-    emit q->itemPressed(model()->item(index));
+    if (QTableWidgetItem *item = model()->item(index))
+        emit q->itemPressed(item);
+    emit q->cellPressed(index.row(), index.column());
 }
 
 void QTableWidgetPrivate::emitItemClicked(const QModelIndex &index)
 {
     Q_Q(QTableWidget);
-    emit q->itemClicked(model()->item(index));
+    if (QTableWidgetItem *item = model()->item(index))
+        emit q->itemClicked(item);
+    emit q->cellClicked(index.row(), index.column());
 }
 
 void QTableWidgetPrivate::emitItemDoubleClicked(const QModelIndex &index)
 {
     Q_Q(QTableWidget);
-    emit q->itemDoubleClicked(model()->item(index));
+    if (QTableWidgetItem *item = model()->item(index))
+        emit q->itemDoubleClicked(item);
+    emit q->cellDoubleClicked(index.row(), index.column());
 }
 
 void QTableWidgetPrivate::emitItemActivated(const QModelIndex &index)
 {
     Q_Q(QTableWidget);
-    emit q->itemActivated(model()->item(index));
+    if (QTableWidgetItem *item = model()->item(index))
+        emit q->itemActivated(item);
+    emit q->cellActivated(index.row(), index.column());
 }
 
 void QTableWidgetPrivate::emitItemEntered(const QModelIndex &index)
 {
     Q_Q(QTableWidget);
-    emit q->itemEntered(model()->item(index));
+    if (QTableWidgetItem *item = model()->item(index))
+        emit q->itemEntered(item);
 }
 
 void QTableWidgetPrivate::emitItemChanged(const QModelIndex &index)
 {
     Q_Q(QTableWidget);
-    emit q->itemChanged(model()->item(index));
+    if (QTableWidgetItem *item = model()->item(index))
+        emit q->itemChanged(item);
+    emit q->cellChanged(index.row(), index.column());
 }
 
 void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
                                                  const QModelIndex &previous)
 {
     Q_Q(QTableWidget);
-    emit q->currentItemChanged(model()->item(current), model()->item(previous));
+    QTableWidgetItem *currentItem = model()->item(current);
+    QTableWidgetItem *previousItem = model()->item(previous);
+    if (currentItem || previousItem)
+        emit q->currentItemChanged(currentItem, previousItem);
+    emit q->currentCellChanged(current.row(), current.column(), previous.row(), previous.column());
 }
+
+/*!
+    \fn void QTableWidget::itemPressed(QTableWidgetItem *item)
+
+    This signal is emitted whenever an item in the table is pressed.
+    The \a item specified is the item that was pressed.
+*/
+
+/*!
+    \fn void QTableWidget::itemClicked(QTableWidgetItem *item)
+
+    This signal is emitted whenever an item in the table is clicked.
+    The \a item specified is the item that was clicked.
+*/
+
+/*!
+    \fn void QTableWidget::itemDoubleClicked(QTableWidgetItem *item)
+
+    This signal is emitted whenever an item in the table is double
+    clicked. The \a item specified is the item that was double clicked.
+*/
 
 /*!
     \fn void QTableWidget::itemActivated(QTableWidgetItem *item)
 
     This signal is emitted when the specified \a item has been activated
+*/
+
+/*!
+    \fn void QTableWidget::itemEntered(QTableWidgetItem *item)
+
+    This signal is emitted when the mouse cursor enters an item. The
+    \a item is the item entered.
+
+    This signal is only emitted when mouseTracking is turned on, or when a
+    mouse button is pressed while moving into an item.
+*/
+
+/*!
+    \fn void QTableWidget::itemChanged(QTableWidgetItem *item)
+
+    This signal is emitted whenever the data of \a item has changed.
 */
 
 /*!
@@ -1304,42 +1356,68 @@ void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
     \sa selectedItems() isItemSelected()
 */
 
-/*!
-    \fn void QTableWidget::itemClicked(QTableWidgetItem *item)
 
-    This signal is emitted whenever an item in the table is clicked.
-    The \a item specified is the item that was clicked.
+/*!
+  \since 4.1
+  \fn void QTableWidget::cellPressed(int row, int column)
+
+  This signal is emitted whenever a cell the table is pressed.
+  The \a row and \a column specified is the cell that was pressed.
 */
 
 /*!
-    \fn void QTableWidget::itemDoubleClicked(QTableWidgetItem *item)
+  \since 4.1
+  \fn void QTableWidget::cellClicked(int row, int column)
 
-    This signal is emitted whenever an item in the table is double
-    clicked. The \a item specified is the item that was double clicked.
+  This signal is emitted whenever a cell in the table is clicked.
+  The \a row and \a column specified is the cell that was clicked.
 */
 
 /*!
-    \fn void QTableWidget::itemEntered(QTableWidgetItem *item)
+  \since 4.1
+  \fn void QTableWidget::cellDoubleClicked(int row, int column)
 
-    This signal is emitted when the mouse cursor enters an item. The
-    \a item is the item entered.
-
-    This signal is only emitted when mouseTracking is turned on, or when a
-    mouse button is pressed while moving into an item.
+  This signal is emitted whenever a cell in the table is double
+  clicked. The \a row and \a column specified is the cell that was
+  double clicked.
 */
 
 /*!
-    \fn void QTableWidget::itemPressed(QTableWidgetItem *item)
+  \since 4.1
+  \fn void QTableWidget::cellActivated(int row, int column)
 
-    This signal is emitted whenever an item in the table is pressed.
-    The \a item specified is the item that was pressed.
+  This signal is emitted when the cell specified  by \a row and \a column
+  has been activated
 */
 
 /*!
-    \fn void QTableWidget::itemChanged(QTableWidgetItem *item)
+  \since 4.1
+  \fn void QTableWidget::cellEntered(int row, int column)
 
-    This signal is emitted whenever the data of \a item has changed.
+  This signal is emitted when the mouse cursor enters a cell. The
+  cell is specified by \a row and \a column.
+
+  This signal is only emitted when mouseTracking is turned on, or when a
+  mouse button is pressed while moving into an item.
 */
+
+/*!
+  \since 4.1
+  \fn void QTableWidget::cellChanged(int row, int column)
+
+  This signal is emitted whenever the data of the item in the cell
+  specidied by \a row and \a column has changed.
+*/
+
+/*!
+  \since 4.1
+  \fn void QTableWidget::currentCellChanged(int currentRow, int currentColumn, int previousRow, int previousColumn)
+
+  This signal is emitted whenever the current cell changes. The cell specified by \a
+  previousRow and \previousColumn is the cell that previously had the focus, the cell
+  specified by \a currentRow and \a previouscolumn is the new current cell.
+*/
+
 
 /*!
     \fn QTableWidgetItem *QTableWidget::itemAt(int ax, int ay) const

@@ -258,6 +258,16 @@ Q_SIGNALS:
     void currentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous);
     void itemSelectionChanged();
 
+    void cellPressed(int row, int column);
+    void cellClicked(int row, int column);
+    void cellDoubleClicked(int row, int column);
+
+    void cellActivated(int row, int column);
+    void cellEntered(int row, int column);
+    void cellChanged(int row, int column);
+
+    void currentCellChanged(int currentRow, int currentColumn, int previousRow, int previousColumn);
+
 protected:
     virtual QStringList mimeTypes() const;
     virtual QMimeData *mimeData(const QList<QTableWidgetItem*> items) const;
