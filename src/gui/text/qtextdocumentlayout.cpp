@@ -311,14 +311,12 @@ public:
 
     qreal indent(QTextBlock bl) const;
 
-    enum DrawResult { OutsideClipRect, Drawn };
-
-    DrawResult drawFrame(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
-                         QTextFrame *f) const;
+    void drawFrame(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
+                   QTextFrame *f) const;
     void drawFlow(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                   QTextFrame::Iterator it, QTextBlock *cursorBlockNeedingRepaint) const;
-    DrawResult drawBlock(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
-                         QTextBlock bl) const;
+    void drawBlock(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
+                   QTextBlock bl) const;
     void drawListItem(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                       QTextBlock bl, const QTextCharFormat *selectionFormat) const;
 
@@ -640,16 +638,15 @@ static void drawFrameDecoration(QPainter *painter, QTextFrame *frame, QTextFrame
     }
 }
 
-QTextDocumentLayoutPrivate::DrawResult
-QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
-                                      const QAbstractTextDocumentLayout::PaintContext &context,
-                                      QTextFrame *frame) const
+void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
+                                           const QAbstractTextDocumentLayout::PaintContext &context,
+                                           QTextFrame *frame) const
 {
     Q_Q(const QTextDocumentLayout);
     QTextFrameData *fd = data(frame);
     // #######
     if (fd->layoutDirty)
-        return OutsideClipRect;
+        return;
     Q_ASSERT(!fd->sizeDirty);
     Q_ASSERT(!fd->layoutDirty);
 
@@ -657,7 +654,7 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
     if (context.clip.isValid()
         && (off.y() > context.clip.bottom() || off.y() + fd->size.height() < context.clip.top()
             || off.x() > context.clip.right() || off.x() + fd->size.width() < context.clip.left()))
-        return OutsideClipRect;
+        return;
 
 //     LDEBUG << debug_indent << "drawFrame" << frame->firstPosition() << "--" << frame->lastPosition() << "at" << offset;
 //     INC_INDENT;
@@ -844,36 +841,47 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
 
 //     DEC_INDENT;
 
-    return Drawn;
+    return;
 }
 
 void QTextDocumentLayoutPrivate::drawFlow(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                                           QTextFrame::Iterator it, QTextBlock *cursorBlockNeedingRepaint) const
 {
     const bool inRootFrame = (!it.atEnd() && it.parentFrame() && it.parentFrame()->parentFrame() == 0);
-    DrawResult previousDrawResult = OutsideClipRect;
+
+    QVector<QCheckPoint>::ConstIterator lastVisibleCheckPoint;
+    if (inRootFrame && context.clip.isValid()) {
+        lastVisibleCheckPoint = qLowerBound(checkPoints.begin(), checkPoints.end(), qreal(context.clip.bottom()));
+    }
 
     QTextBlock lastBlock;
 
     for (; !it.atEnd(); ++it) {
         QTextFrame *c = it.currentFrame();
-        DrawResult r;
+
+        if (inRootFrame && !checkPoints.isEmpty()) {
+            int currentPosInDoc;
+            if (c)
+                currentPosInDoc = c->firstPosition();
+            else
+                currentPosInDoc = it.currentBlock().position();
+
+            // if we're past what is already layouted then we're better off
+            // not trying to draw things that may not be positioned correctly yet
+            if (currentPosInDoc > checkPoints.last().positionInFrame)
+                break;
+
+            if (lastVisibleCheckPoint != checkPoints.end()
+                && context.clip.isValid()
+                && currentPosInDoc > lastVisibleCheckPoint->positionInFrame
+               )
+                break;
+        }
+
         if (c)
-            r = drawFrame(offset, painter, context, c);
+            drawFrame(offset, painter, context, c);
         else
-            r = drawBlock(offset, painter, context, it.currentBlock());
-
-        if (inRootFrame
-            // floats do not necessarily follow vertical ordering, so don't
-            // let them influence the optimization below
-            && c && c->frameFormat().position() != QTextFrameFormat::InFlow
-            // assume vertical ordering and thus stop when we reached
-            // unreachable parts
-            && previousDrawResult == Drawn && r == OutsideClipRect
-           )
-            break;
-
-        previousDrawResult = r;
+            drawBlock(offset, painter, context, it.currentBlock());
 
         // when entering a table and the previous block is empty
         // then layoutFlow 'hides' the block that just causes a
@@ -891,17 +899,16 @@ void QTextDocumentLayoutPrivate::drawFlow(const QPointF &offset, QPainter *paint
     }
 }
 
-QTextDocumentLayoutPrivate::DrawResult
-QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *painter,
-                                      const QAbstractTextDocumentLayout::PaintContext &context,
-                                      QTextBlock bl) const
+void QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *painter,
+                                           const QAbstractTextDocumentLayout::PaintContext &context,
+                                           QTextBlock bl) const
 {
     Q_Q(const QTextDocumentLayout);
     const QTextLayout *tl = bl.layout();
     QRectF r = tl->boundingRect();
     r.translate(offset + tl->position());
     if (context.clip.isValid() && !r.intersects(context.clip))
-        return OutsideClipRect;
+        return;
 //      LDEBUG << debug_indent << "drawBlock" << bl.position() << "at" << offset << "br" << tl->boundingRect();
 
     QTextBlockFormat blockFormat = bl.blockFormat();
@@ -959,8 +966,6 @@ QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *painter,
     }
 
     painter->setPen(oldPen);
-
-    return Drawn;
 }
 
 
