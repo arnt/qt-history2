@@ -14,7 +14,7 @@
 
 #include "rpptreeevaluator.h"
 #include <QChar>
-#include <QDebug>
+#include <QtDebug>
 
 using namespace TokenEngine;
 namespace Rpp {

@@ -13,8 +13,8 @@
 
 #include "featuretreemodel.h"
 #include "feature.h"
-#include <QDebug>
 #include <QColor>
+#include <QtDebug>
 
 class Node
 {

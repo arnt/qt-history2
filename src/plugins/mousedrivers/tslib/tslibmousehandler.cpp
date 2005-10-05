@@ -40,7 +40,7 @@
 #include <QTextStream>
 #include <QScreen>
 #include <QSocketNotifier>
-#include <QDebug>
+#include <QtDebug>
 
 #include <tslib.h>
 
