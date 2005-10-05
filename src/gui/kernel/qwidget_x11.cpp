@@ -2446,7 +2446,11 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         accelEnv = qgetenv("QT_NO_FAST_SCROLL").toInt() == 0;
     }
 
-    bool accelerateScroll = accelEnv &&  d->isOpaque()  && !d->isOverlapped(geometry());
+    bool accelerateScroll = accelEnv &&  d->isOpaque()
+#ifdef QT_USE_BACKINGSTORE
+                            && !d->isOverlapped(geometry())
+#endif
+                            ;
 
 
     if (!accelerateScroll) {
