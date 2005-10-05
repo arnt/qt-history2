@@ -1037,7 +1037,7 @@ bool QOCIResultPrivate::execBatch(QOCIPrivate *d, int columnCount, const QVector
     // now we populate arrays with data
     for (row = 0; row < recordCount; ++row) {
         for (c = 0; c < columnCount; ++c) {
-            QVariant val = values.at(row * columnCount + c);
+            const QVariant &val = values.at(row * columnCount + c);
             if (val.isNull()){
                 columns[c].indicators[row] = -1;
                 columns[c].lengths[row] = 0;

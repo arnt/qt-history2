@@ -851,7 +851,7 @@ bool QSqlResult::execBatch(const QVector<QVariant> &values, int holderCount)
     if (driver()->hasFeature(QSqlDriver::BatchOperations)) {
         BatchOperationData data = { holderCount, &values };
         virtual_hook(BatchOperation, &data);
-        return d->error.type() != QSqlError::NoError;
+        return d->error.type() == QSqlError::NoError;
     } else {
         int rowCount = values.count() / holderCount;
         for (int i = 0; i < rowCount; ++i) {
