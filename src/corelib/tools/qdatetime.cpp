@@ -19,9 +19,7 @@
 #include "qlocale.h"
 #include "qdatetime.h"
 #include "qregexp.h"
-#ifndef QT_NO_DEBUG_STREAM
 #include "qdebug.h"
-#endif
 #if defined(Q_OS_WIN32)
 #include <windows.h>
 #endif
