@@ -418,8 +418,9 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
                 }
 
                 // ### move me
-                if (qobject_cast<QLayout*>(o) && propertyName == QLatin1String("margin")) {
-                    v = v.toInt() + 1;
+                if (QLayout *layout = qobject_cast<QLayout*>(o)) {
+                    if (propertyName == QLatin1String("margin") && qobject_cast<QLayoutWidget*>(layout->parentWidget()))
+                        v = v.toInt() + 1;
                 }
 
                 sheet->setProperty(index, v);
@@ -1090,8 +1091,8 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
             QString propertyName = sheet->propertyName(index);
             QVariant value = sheet->property(index);
 
-            if (qobject_cast<QLayout*>(object)) {
-                if (propertyName == QLatin1String("margin"))
+            if (QLayout *layout = qobject_cast<QLayout*>(object)) {
+                if (propertyName == QLatin1String("margin") && qobject_cast<QLayoutWidget*>(layout->parentWidget()))
                     value = value.toInt() - 1;
             }
 
