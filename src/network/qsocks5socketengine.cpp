@@ -684,7 +684,7 @@ void QSocks5SocketEnginePrivate::parseNewConnection()
         return;
     }
 
-    // need a better pålace to keep this stuff and any others untill connect called again
+    // need a better place to keep this stuff and any others untill connect called again
     // should use peek
     inBuf.remove(0, pos);
     for (int i = inBuf.size() - 1; i >= 0 ; --i)
@@ -770,10 +770,7 @@ bool QSocks5SocketEngine::initialize(int socketDescriptor, QAbstractSocket::Sock
         d->data->controlSocket = bindData->controlSocket;
         bindData->controlSocket = 0;
         d->data->controlSocket->setParent(this);
-        QObject::connect(d->data->controlSocket, SIGNAL(connected()), this, SLOT(controlSocketConnected()));
-        QObject::connect(d->data->controlSocket, SIGNAL(readyRead()), this, SLOT(controlSocketReadNotification()));
-        QObject::connect(d->data->controlSocket, SIGNAL(bytesWritten(qint64)), this, SLOT(controlSocketBytesWritten()));
-        QObject::connect(d->data->controlSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(controlSocketError(QAbstractSocket::SocketError)));
+        d->socketProtocol = d->data->controlSocket->localAddress().protocol();
         d->data->authenticator = bindData->authenticator;
         bindData->authenticator = 0;
         d->localPort = bindData->localPort;
@@ -782,6 +779,12 @@ bool QSocks5SocketEngine::initialize(int socketDescriptor, QAbstractSocket::Sock
         d->peerAddress = bindData->peerAddress;
         delete bindData;
 
+        QObject::connect(d->data->controlSocket, SIGNAL(connected()), this, SLOT(controlSocketConnected()));
+        QObject::connect(d->data->controlSocket, SIGNAL(readyRead()), this, SLOT(controlSocketReadNotification()));
+        QObject::connect(d->data->controlSocket, SIGNAL(bytesWritten(qint64)), this, SLOT(controlSocketBytesWritten()));
+        QObject::connect(d->data->controlSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(controlSocketError(QAbstractSocket::SocketError)));
+    
+        d->socks5State = QSocks5SocketEnginePrivate::Connected;
         //### if there is data then emit readyRead in single shoot
 
         return true;
@@ -1066,6 +1069,8 @@ int QSocks5SocketEngine::accept()
         d->bindData = 0;
         //### do something about this socket layer ... set it closed and an error about why ...
         // reset state and local port/address
+        d->socks5State = QSocks5SocketEnginePrivate::unInitialized; // ..??
+        d->socketState = QAbstractSocket::UnconnectedState;
         return sd;
     } else if (d->socks5State == QSocks5SocketEnginePrivate::BindError) {
         // what now
