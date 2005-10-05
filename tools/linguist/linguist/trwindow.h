@@ -15,11 +15,10 @@
 #define TRWINDOW_H
 
 #include "phrase.h"
-
-#include <metatranslator.h>
-#include <qmainwindow.h>
-#include <qhash.h>
-#include <qprinter.h>
+#include "metatranslator.h"
+#include <QMainWindow>
+#include <QHash>
+#include <QPrinter>
 
 class QModelIndex;
 class QStringList;

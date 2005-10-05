@@ -14,8 +14,8 @@
 #ifndef STATISTICS_H
 #define STATISTICS_H
 
-#include <qvariant.h>
 #include "ui_statistics.h"
+#include <QVariant>
 
 class Statistics : public QDialog, public Ui::Statistics
 {

@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include <metatranslator.h>
+#include "metatranslator.h"
 
-#include <qmap.h>
+#include <QMap>
 #include <stdio.h>
 
 typedef QMap<QByteArray, MetaTranslatorMessage> TMM;

@@ -14,11 +14,11 @@
 #ifndef PRINTOUT_H
 #define PRINTOUT_H
 
-#include <qfont.h>
-#include <qpainter.h>
-#include <qrect.h>
-#include <qlist.h>
-#include <qdatetime.h>
+#include <QFont>
+#include <QPainter>
+#include <QRect>
+#include <QList>
+#include <QDateTime>
 
 class QPrinter;
 class QFontMetrics;

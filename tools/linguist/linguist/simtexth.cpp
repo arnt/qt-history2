@@ -12,13 +12,10 @@
 ****************************************************************************/
 
 #include "simtexth.h"
+#include "metatranslator.h"
 
-#include <metatranslator.h>
-
-#include <qmap.h>
-#include <qstring.h>
-#include <qstringlist.h>
-#include <qlist.h>
+#include <QString>
+#include <QList>
 
 #include <string.h>
 

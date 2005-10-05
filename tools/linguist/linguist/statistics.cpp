@@ -13,10 +13,6 @@
 
 #include "statistics.h"
 
-#include <qvariant.h>
-#include <qimage.h>
-#include <qpixmap.h>
-
 Statistics::Statistics(QWidget* parent, Qt::WFlags fl)
 : QDialog(parent, fl)
 {

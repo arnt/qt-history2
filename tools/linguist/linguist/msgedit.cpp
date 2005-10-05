@@ -23,27 +23,23 @@
 #include "messagemodel.h"
 #include "phrasemodel.h"
 
-#include <qmenu.h>
-#include <qaction.h>
-#include <qapplication.h>
-#include <qclipboard.h>
-#include <qlabel.h>
-#include <qlayout.h>
-#include <qtextedit.h>
-#include <qpalette.h>
-#include <qstring.h>
-#include <qpainter.h>
-#include <qscrollbar.h>
-#include <qheaderview.h>
-#include <qshortcut.h>
-#include <qregexp.h>
-#include <qdockwidget.h>
-#include <qfont.h>
-#include <qtreeview.h>
-#include <qscrollarea.h>
-#include <qtextdocumentfragment.h>
-#include <qtextcursor.h>
-#include <QTextBlock>
+#include <QMenu>
+#include <QAction>
+#include <QApplication>
+#include <QClipboard>
+#include <QLabel>
+#include <QLayout>
+#include <QTextEdit>
+#include <QPalette>
+#include <QString>
+#include <QPainter>
+#include <QHeaderView>
+#include <QDockWidget>
+#include <QFont>
+#include <QTreeView>
+#include <QScrollArea>
+#include <QTextDocumentFragment>
+#include <QTextCursor>
 #include <QAbstractTextDocumentLayout>
 
 static const int MaxCandidates = 5;

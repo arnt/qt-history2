@@ -11,13 +11,12 @@
 **
 ****************************************************************************/
 
-#include <metatranslator.h>
+#include "metatranslator.h"
 
-#include <qvector.h>
-#include <qmap.h>
-#include <qstringlist.h>
+#include <QVector>
+#include <QMap>
+#include <QStringList>
 #include <stdio.h>
-
 #include <ctype.h>
 
 typedef QMap<QByteArray, MetaTranslatorMessage> TMM;

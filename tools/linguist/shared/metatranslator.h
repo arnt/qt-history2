@@ -14,10 +14,10 @@
 #ifndef METATRANSLATOR_H
 #define METATRANSLATOR_H
 
-#include <qmap.h>
-#include <qstring.h>
-#include <translator.h>
-#include <qlist.h>
+#include "translator.h"
+#include <QMap>
+#include <QString>
+#include <QList>
 
 class QTextCodec;
 

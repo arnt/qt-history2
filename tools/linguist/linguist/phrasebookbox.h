@@ -14,11 +14,10 @@
 #ifndef PHRASEBOOKBOX_H
 #define PHRASEBOOKBOX_H
 
+#include "ui_phrasebookbox.h"
 #include "phrase.h"
 #include "phrasemodel.h"
-
-#include <qdialog.h>
-#include "ui_phrasebookbox.h"
+#include <QDialog>
 
 class PhraseBookBox : public QDialog, public Ui::PhraseBookBox
 {

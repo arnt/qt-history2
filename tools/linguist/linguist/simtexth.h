@@ -14,8 +14,8 @@
 #ifndef SIMTEXTH_H
 #define SIMTEXTH_H
 
-#include <qstring.h>
-#include <qlist.h>
+#include <QString>
+#include <QList>
 
 class MetaTranslator;
 

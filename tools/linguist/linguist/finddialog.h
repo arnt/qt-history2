@@ -14,8 +14,8 @@
 #ifndef FINDDIALOG_H
 #define FINDDIALOG_H
 
-#include <qdialog.h>
 #include "ui_finddialog.h"
+#include <QDialog>
 
 class FindDialog : public QDialog, public Ui::FindDialog
 {

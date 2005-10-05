@@ -11,21 +11,18 @@
 **
 ****************************************************************************/
 
-#include "qplatformdefs.h"
-
 #include "translator.h"
+#include <qplatformdefs.h>
 
 #ifndef QT_NO_TRANSLATION
 
-#include "qfileinfo.h"
-#include "qstring.h"
-#include "qcoreapplication.h"
-#include "qdatastream.h"
-#include "qfile.h"
-#include "qmap.h"
-#include "qalgorithms.h"
-#include "qhash.h"
-#include "qglobal.h"
+#include <QFileInfo>
+#include <QString>
+#include <QCoreApplication>
+#include <QDataStream>
+#include <QFile>
+#include <QMap>
+#include <QtAlgorithms>
 
 #if defined(Q_OS_UNIX)
 #define QT_USE_MMAP

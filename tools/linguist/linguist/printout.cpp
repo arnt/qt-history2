@@ -13,8 +13,8 @@
 
 #include "printout.h"
 
-#include <qprinter.h>
-#include <qfontmetrics.h>
+#include <QPrinter>
+#include <QFontMetrics>
 
 PrintOut::PrintOut( QPrinter *printer )
     : pr( printer ), nextRule( NoRule ), page( 0 )

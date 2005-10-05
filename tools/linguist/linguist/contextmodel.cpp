@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-#include <qapplication.h>
-
 #include "contextmodel.h"
 #include "messagemodel.h"
 #include "trwindow.h"

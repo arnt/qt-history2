@@ -19,15 +19,10 @@
 
 #include "phrasebookbox.h"
 
-#include <qapplication.h>
-#include <qevent.h>
-#include <qlabel.h>
-#include <qlayout.h>
-#include <qlineedit.h>
-#include <qmessagebox.h>
-#include <qpushbutton.h>
-#include <qwhatsthis.h>
-#include <qheaderview.h>
+#include <QtEvents>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QHeaderView>
 
 #define NewPhrase tr("(New Phrase)")
 

@@ -11,15 +11,15 @@
 **
 ****************************************************************************/
 
-#include <metatranslator.h>
-#include <proparser.h>
+#include "metatranslator.h"
+#include "proparser.h"
 
-#include <qdir.h>
-#include <qfile.h>
-#include <qfileinfo.h>
-#include <qstring.h>
-#include <qstringlist.h>
-#include <qtextstream.h>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QString>
+#include <QStringList>
+#include <QTextStream>
 
 #include <errno.h>
 #include <string.h>

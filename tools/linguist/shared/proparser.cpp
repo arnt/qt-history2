@@ -13,12 +13,12 @@
 
 #include "proparser.h"
 
-#include <qdir.h>
-#include <qfile.h>
-#include <qfileinfo.h>
-#include <qregexp.h>
-#include <qstringlist.h>
-#include <qtextstream.h>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QRegExp>
+#include <QStringList>
+#include <QTextStream>
 
 #ifdef Q_OS_UNIX
 #include <unistd.h>

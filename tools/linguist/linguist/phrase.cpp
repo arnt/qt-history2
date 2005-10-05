@@ -13,12 +13,12 @@
 
 #include "phrase.h"
 
-#include <qapplication.h>
-#include <qfile.h>
-#include <qmessagebox.h>
-#include <qregexp.h>
-#include <qtextstream.h>
-#include <qxml.h>
+#include <QApplication>
+#include <QFile>
+#include <QMessageBox>
+#include <QRegExp>
+#include <QTextStream>
+#include <QtXml>
 
 static QByteArray protect(const QByteArray& str)
 {

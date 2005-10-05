@@ -16,8 +16,8 @@
 
 #include "phrase.h"
 
-#include <qlist.h>
-#include <qabstractitemmodel.h>
+#include <QList>
+#include <QAbstractItemModel>
 
 class PhraseModel : public QAbstractTableModel
 {
@@ -57,4 +57,4 @@ private:
     QList<Phrase> plist;
 };
 
-#endif //PHRASEMODEL_H
+#endif // PHRASEMODEL_H

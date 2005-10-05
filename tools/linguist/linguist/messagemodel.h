@@ -14,9 +14,9 @@
 #ifndef MESSAGEMODEL_H
 #define MESSAGEMODEL_H
 
-#include <metatranslator.h>
-#include <qabstractitemmodel.h>
-#include <qlist.h>
+#include "metatranslator.h"
+#include <QAbstractItemModel>
+#include <QList>
 
 class ContextItem;
 

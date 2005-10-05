@@ -13,9 +13,7 @@
 
 #include "about.h"
 
-#include <qvariant.h>
-#include <qimage.h>
-#include <qpixmap.h>
+#include <QPixmap>
 
 AboutDialog::AboutDialog(QWidget* parent, Qt::WFlags fl)
     : QDialog(parent, fl)

@@ -13,17 +13,14 @@
 
 #include "trwindow.h"
 
-#include <qapplication.h>
-#include <qdesktopwidget.h>
-#include <qlabel.h>
-#include <qpixmap.h>
-#include <qtimer.h>
-#include <qtextcodec.h>
-#include <qtranslator.h>
-#include <qsettings.h>
-#include <qsplashscreen.h>
-#include <qcursor.h>
-#include <qlocale.h>
+#include <QApplication>
+#include <QDesktopWidget>
+#include <QPixmap>
+#include <QTextCodec>
+#include <QTranslator>
+#include <QSettings>
+#include <QSplashScreen>
+#include <QLocale>
 
 int main(int argc, char **argv)
 {

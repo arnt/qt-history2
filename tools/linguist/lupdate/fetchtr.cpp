@@ -13,19 +13,17 @@
 
 #include <metatranslator.h>
 
-#include <qfile.h>
-#include <qregexp.h>
-#include <qstring.h>
-#include <qtextstream.h>
-#include <qstack.h>
-#include <qxml.h>
+#include <QFile>
+#include <QRegExp>
+#include <QString>
+#include <QStack>
+#include <QtXml>
+#include <QTextCodec>
 
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-
-#include <QTextCodec>
 
 /* qmake ignore Q_OBJECT */
 

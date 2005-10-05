@@ -11,11 +11,10 @@
 **
 ****************************************************************************/
 
-#include <metatranslator.h>
+#include "metatranslator.h"
 
-#include <qregexp.h>
-#include <qstring.h>
-#include <qtranslator.h>
+#include <QRegExp>
+#include <QString>
 #include <stdio.h>
 
 typedef QList<TranslatorMessage> TML;

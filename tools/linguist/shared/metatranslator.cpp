@@ -13,13 +13,13 @@
 
 #include "metatranslator.h"
 
-#include <qapplication.h>
-#include <qbytearray.h>
-#include <qfile.h>
-#include <qmessagebox.h>
-#include <qtextcodec.h>
-#include <qtextstream.h>
-#include <qxml.h>
+#include <QApplication>
+#include <QByteArray>
+#include <QFile>
+#include <QMessageBox>
+#include <QTextCodec>
+#include <QTextStream>
+#include <QtXml>
 
 static bool encodingIsUtf8( const QXmlAttributes& atts )
 {

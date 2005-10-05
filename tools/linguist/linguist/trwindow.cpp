@@ -27,28 +27,28 @@
 #include "messagemodel.h"
 #include "phrasemodel.h"
 
-#include <qaction.h>
-#include <qapplication.h>
-#include <qbitmap.h>
-#include <qdockwidget.h>
-#include <qfile.h>
-#include <qfiledialog.h>
-#include <qfileinfo.h>
-#include <qheaderview.h>
-#include <qlabel.h>
-#include <qlayout.h>
-#include <qmenubar.h>
-#include <qmessagebox.h>
-#include <qmenu.h>
-#include <qregexp.h>
-#include <qsettings.h>
-#include <qstatusbar.h>
-#include <qtoolbar.h>
+#include <QAction>
+#include <QApplication>
+#include <QBitmap>
+#include <QDockWidget>
+#include <QFile>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QHeaderView>
+#include <QLabel>
+#include <QLayout>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QMenu>
+#include <QRegExp>
+#include <QSettings>
+#include <QStatusBar>
+#include <QToolBar>
 #include <QWhatsThis>
-#include <qassistantclient.h>
-#include <qdesktopwidget.h>
-#include <qprintdialog.h>
-#include <qlibraryinfo.h>
+#include <QAssistantClient>
+#include <QDesktopWidget>
+#include <QPrintDialog>
+#include <QLibraryInfo>
 
 #define pagecurl_mask_width 53
 #define pagecurl_mask_height 51

@@ -14,9 +14,8 @@
 #ifndef ABOUT_H
 #define ABOUT_H
 
-#include <qvariant.h>
 #include "ui_about.h"
-
+#include <QVariant>
 
 class AboutDialog : public QDialog, public Ui::AboutDialog
 {

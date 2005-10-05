@@ -17,15 +17,15 @@
 #include "trwindow.h"
 #include "phrase.h"
 
-#include <qstring.h>
-#include <qpixmap.h>
-#include <qbitmap.h>
-#include <qtooltip.h>
-#include <qevent.h>
-#include <qshortcut.h>
-#include <qframe.h>
-#include <qtextedit.h>
-#include <qscrollarea.h>
+#include <QString>
+#include <QPixmap>
+#include <QBitmap>
+#include <QToolTip>
+#include <QtEvents>
+#include <QShortcut>
+#include <QFrame>
+#include <QTextEdit>
+#include <QScrollArea>
 #include <QTextCharFormat>
 
 template <typename T> class QList;

@@ -14,8 +14,8 @@
 #ifndef PROPARSER_H
 #define PROPARSER_H
 
-#include <qmap.h>
-#include <qstring.h>
+#include <QMap>
+#include <QString>
 
 QMap<QString, QString> proFileTagMap( const QString& text );
 

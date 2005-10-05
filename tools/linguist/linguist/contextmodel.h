@@ -16,8 +16,8 @@
 
 #include "messagemodel.h"
 
-#include <qabstractitemmodel.h>
-#include <qlist.h>
+#include <QAbstractItemModel>
+#include <QList>
 
 class MessageModel;
 class ContextModel;
