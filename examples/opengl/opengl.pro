@@ -1,8 +1,10 @@
 TEMPLATE      = subdirs
 SUBDIRS       = grabber \
                 hellogl \
-                textures \
-		samplebuffers
+                pbuffers \
+                samplebuffers \
+                textures
+		
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/opengl
