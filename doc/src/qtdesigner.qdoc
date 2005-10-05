@@ -706,7 +706,7 @@
 
     QDesignerTaskMenuExtension provides an interface for creating
     custom task menu extensions. It is typically used to create task
-    menu entries that is specific to a plugin in \QD.
+    menu entries that are specific to a plugin in \QD.
 
     \QD uses the QDesignerTaskMenuExtension to feed its task
     menu. Whenever a task menu is requested, \QD will query
@@ -716,8 +716,8 @@
 
     A task menu extension is a collection of QActions. The actions
     appear as entries in the task menu when the plugin with the
-    specified extension is selected. The image above show the custom
-    \gui {Edit State...} action which appear in addition to \QD's
+    specified extension is selected. The image above shows the custom
+    \gui {Edit State...} action which appears in addition to \QD's
     default task menu entries: \gui Cut, \gui Copy, \gui Paste etc.
 
     To create a custom task menu extension, your extension class must
@@ -746,8 +746,8 @@
         };
     \endcode
 
-    Since we are implementing an interface, we must ensure that it's
-    made known to the meta object system using the Q_INTERFACES()
+    Since we are implementing an interface, we must ensure that it
+    is made known to the meta-object system using the Q_INTERFACES()
     macro. This enables \QD to use the qobject_cast() function to
     query for supported interfaces using nothing but a QObject
     pointer.
@@ -757,26 +757,26 @@
     can reimplement the preferredEditAction() function to set the
     action that is invoked when selecting your plugin and pressing
     \key F2. The preferred edit action must be one of the actions
-    returned by taskActions(), and, if it's not defined, pressing \key F2
-    will simply be ignored.
+    returned by taskActions() and, if it's not defined, \key F2
+    key presses will simply be ignored.
 
-    In \QD the extensions are not created until they are required. A
+    In \QD, extensions are not created until they are required. A
     task menu extension, for example, is created when you click the
     right mouse button over a widget in \QD's workspace. For that
-    reason you must also create a QExtensionFactory, i.e a class that
-    is able to make an instance of your extension, and register it
-    using \QD's \l {QExtensionManager}{extension manager}.
+    reason you must also construct an extension factory, using either
+    QExtensionFactory or a subclass, and register it using \QD's
+    \l {QExtensionManager}{extension manager}. The extension factory
+    will be used to create new instances of your extensions.
 
     When a task menu extension is required, \QD will run
     through all its registered factories calling
-    QExtensionFactory::createExtension() for each until the first one
+    QExtensionFactory::createExtension() for each until it finds one
     that is able to create a task menu extension for the selected
-    widget, is found. This factory will then make an instance of the
-    extension.
+    widget. This factory will then make an instance of the extension.
 
     There are four available types of extensions in \QD:
-    QDesignerContainerExtension , QDesignerMemberSheetExtension,
-    QDesignerPropertySheetExtension and QDesignerTaskMenuExtension.
+    QDesignerContainerExtension, QDesignerMemberSheetExtension,
+    QDesignerPropertySheetExtension, and QDesignerTaskMenuExtension.
     \QD's behavior is the same whether the requested extension is
     associated with a container, a member sheet, a property sheet or a
     task menu.
