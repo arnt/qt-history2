@@ -329,6 +329,13 @@
 
     You can test for the presence of certain configuration options by using the
     built-in \l{qmake Function Reference#CONFIG(config)}{CONFIG()} function.
+    For example, the following lines show the function as the condition in a scope
+    to test whether only the \c debug option is in use:
+
+    \quotefromfile snippets/qmake/configscopes.pro
+    \skipto CONFIG(
+    \printuntil release mode
+    \printuntil }
 
     The following options define the type of project to be built. Note that some
     of these options only take effect when used on the relevant platform. On other

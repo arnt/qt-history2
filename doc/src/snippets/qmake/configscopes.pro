@@ -8,3 +8,9 @@ debug {
 release {
     TARGET = application
 }
+
+CONFIG(debug, debug|release) {
+    message(Building in debug mode.)
+} else {
+    message(Building in release mode. Ignoring debug if it is available.)
+}
