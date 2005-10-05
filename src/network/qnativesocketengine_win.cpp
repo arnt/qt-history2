@@ -107,11 +107,11 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxLength)
 }
 
 
-#define WS_ERROR_DEBUG verboseWSErrorDebug(WSAGetLastError());
+#define WS_ERROR_DEBUG(x) verboseWSErrorDebug(x);
 
 #else
 
-#define WS_ERROR_DEBUG
+#define WS_ERROR_DEBUG(x)
 
 #endif
 
@@ -236,7 +236,7 @@ static inline QAbstractSocket::SocketType qt_socket_getType(int socketDescriptor
     int value = 0;
     QT_SOCKLEN_T valueSize = sizeof(value);
     if (::getsockopt(socketDescriptor, SOL_SOCKET, SO_TYPE, (char *) &value, &valueSize) != 0) {
-	WS_ERROR_DEBUG
+        WS_ERROR_DEBUG(WSAGetLastError());
     } else {
         if (value == SOCK_STREAM)
             return QAbstractSocket::TcpSocket;
@@ -254,7 +254,7 @@ static inline int qt_socket_getMaxMsgSize(int socketDescriptor)
     int value = 0;
     QT_SOCKLEN_T valueSize = sizeof(value);
     if (::getsockopt(socketDescriptor, SOL_SOCKET, SO_MAX_MSG_SIZE, (char *) &value, &valueSize) != 0) {
-        WS_ERROR_DEBUG
+        WS_ERROR_DEBUG(WSAGetLastError());
     }
     return value;
 }
@@ -296,8 +296,9 @@ bool QNativeSocketEnginePrivate::createNewSocket(QAbstractSocket::SocketType soc
     SOCKET socket = ::WSASocket(protocol, type, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 
     if (socket == INVALID_SOCKET) {
-        WS_ERROR_DEBUG
-        switch (WSAGetLastError()) {
+        int err = WSAGetLastError();
+        WS_ERROR_DEBUG(err);
+        switch (err) {
         case WSANOTINITIALISED:
             //###
             break;
@@ -395,7 +396,7 @@ bool QNativeSocketEnginePrivate::setOption(QNativeSocketEngine::SocketOption opt
         unsigned long outBuf;
         DWORD sizeWritten = 0;
         if (::WSAIoctl(socketDescriptor, FIONBIO, &buf, sizeof(unsigned long), &outBuf, sizeof(unsigned long), &sizeWritten, 0,0) == SOCKET_ERROR) {
-            WS_ERROR_DEBUG
+            WS_ERROR_DEBUG(WSAGetLastError());
             return false;
         }
         return true;
@@ -410,7 +411,7 @@ bool QNativeSocketEnginePrivate::setOption(QNativeSocketEngine::SocketOption opt
     }
 
     if (::setsockopt(socketDescriptor, SOL_SOCKET, n, (char*)&v, sizeof(v)) != 0) {
-        WS_ERROR_DEBUG
+        WS_ERROR_DEBUG(WSAGetLastError());
         return false;
     }
     return true;
@@ -457,19 +458,20 @@ bool QNativeSocketEnginePrivate::fetchConnectionParameters()
             break;
         }
     } else {
-	WS_ERROR_DEBUG
-	if (WSAGetLastError() == WSAENOTSOCK) {
-	    setError(QAbstractSocket::UnsupportedSocketOperationError, 
-                 InvalidSocketErrorString);
+        int err = WSAGetLastError();
+        WS_ERROR_DEBUG(err);
+        if (err == WSAENOTSOCK) {
+            setError(QAbstractSocket::UnsupportedSocketOperationError, 
+                InvalidSocketErrorString);
             return false;
-	}
+        }
     }
-
+    
     memset(&sa, 0, sizeof(sa));
     if (::getpeername(socketDescriptor, pSa, &sz) == 0) {
         qt_socket_getPortAndAddress(socketDescriptor, pSa, &peerPort, &peerAddress);
     } else {
-	WS_ERROR_DEBUG
+        WS_ERROR_DEBUG(WSAGetLastError());
     }
 
     socketType = qt_socket_getType(socketDescriptor);
@@ -508,8 +510,9 @@ bool QNativeSocketEnginePrivate::nativeConnect(const QHostAddress &address, quin
     forever {
         int connectResult = ::WSAConnect(socketDescriptor, sockAddrPtr, sockAddrSize, 0,0,0,0);
         if (connectResult == SOCKET_ERROR) {
-            WS_ERROR_DEBUG
-            switch (WSAGetLastError()) {
+            int err = WSAGetLastError();
+            WS_ERROR_DEBUG(err);
+            switch (err) {
             case WSANOTINITIALISED:
                 //###
                 break;
@@ -584,8 +587,9 @@ bool QNativeSocketEnginePrivate::nativeBind(const QHostAddress &address, quint16
 
     int bindResult = ::bind(socketDescriptor, sockAddrPtr, sockAddrSize);
     if (bindResult == SOCKET_ERROR) {
-        WS_ERROR_DEBUG
-        switch (WSAGetLastError()) {
+        int err = WSAGetLastError();
+        WS_ERROR_DEBUG(err);
+        switch (err) {
         case WSANOTINITIALISED:
             //###
             break;
@@ -623,8 +627,9 @@ bool QNativeSocketEnginePrivate::nativeBind(const QHostAddress &address, quint16
 bool QNativeSocketEnginePrivate::nativeListen(int backlog)
 {
     if (::listen(socketDescriptor, backlog) == SOCKET_ERROR) {
-        WS_ERROR_DEBUG
-        switch (WSAGetLastError()) {
+        int err = WSAGetLastError();
+        WS_ERROR_DEBUG(err);
+        switch (err) {
         case WSANOTINITIALISED:
             //###
             break;
@@ -676,7 +681,7 @@ qint64 QNativeSocketEnginePrivate::nativeBytesAvailable() const
     unsigned long dummy = 0;
     DWORD sizeWritten = 0;
     if (::WSAIoctl(socketDescriptor, FIONREAD, &dummy, sizeof(dummy), &nbytes, sizeof(nbytes), &sizeWritten, 0,0) == SOCKET_ERROR) {
-        WS_ERROR_DEBUG
+        WS_ERROR_DEBUG(WSAGetLastError());
         return -1;
     }
 
@@ -727,10 +732,11 @@ bool QNativeSocketEnginePrivate::nativeHasPendingDatagrams() const
     DWORD available = 0;
     DWORD flags = MSG_PEEK;
     int ret = ::WSARecvFrom(socketDescriptor, &buf, 1, &available, &flags, storagePtr, &storageSize,0,0);
-    if (ret == SOCKET_ERROR && WSAGetLastError() !=  WSAEMSGSIZE) {
-	WS_ERROR_DEBUG;
+    int err = WSAGetLastError();
+    if (ret == SOCKET_ERROR && err !=  WSAEMSGSIZE) {
+	    WS_ERROR_DEBUG(err);
     } else {
-         // If the port was set in the sockaddr structure, then a new message is available.
+    // If the port was set in the sockaddr structure, then a new message is available.
 #if !defined(QT_NO_IPV6)
         if (storagePtr->sa_family == AF_INET6)
             result = (storagePtrIPv6->sin6_port != 0);
@@ -767,15 +773,15 @@ qint64 QNativeSocketEnginePrivate::nativePendingDatagramSize() const
         flags = MSG_PEEK;
         DWORD bytesRead = 0;
         recvResult = ::WSARecv(socketDescriptor, buf, bufferCount, &bytesRead, &flags, 0,0);
-
+        int err = WSAGetLastError();
         if (recvResult != SOCKET_ERROR) {
             ret = qint64(bytesRead);
             break;
-        } else if (recvResult == SOCKET_ERROR && WSAGetLastError() == WSAEMSGSIZE) {
+        } else if (recvResult == SOCKET_ERROR && err == WSAEMSGSIZE) {
            bufferCount += 5;
            delete buf;
         } else if (recvResult == SOCKET_ERROR) {
-            WS_ERROR_DEBUG
+            WS_ERROR_DEBUG(err);
             ret = -1;
             break;
         }
@@ -812,12 +818,13 @@ qint64 QNativeSocketEnginePrivate::nativeReceiveDatagram(char *data, qint64 maxL
     DWORD bytesRead = 0;
     int wsaRet = ::WSARecvFrom(socketDescriptor, &buf, 1, &bytesRead, &flags, (struct sockaddr *) &aa, &sz,0,0);
     if (wsaRet == SOCKET_ERROR) {
-        if (WSAGetLastError() == WSAEMSGSIZE) {
+        int err = WSAGetLastError();
+        if (err == WSAEMSGSIZE) {
             // it is ok the buffer was to small if bytesRead is larger than
             // maxLength (win 9x) then assume bytes read is really maxLenth
             ret = qint64(bytesRead) > maxLength ? maxLength : qint64(bytesRead);
         } else {
-            WS_ERROR_DEBUG
+            WS_ERROR_DEBUG(err);
             setError(QAbstractSocket::NetworkError, ReceiveDatagramErrorString);
             ret = -1;
         }
@@ -859,8 +866,9 @@ qint64 QNativeSocketEnginePrivate::nativeSendDatagram(const char *data, qint64 l
         DWORD flags = 0;
         DWORD bytesSent = 0;
         if (::WSASendTo(socketDescriptor, &buf, 1, &bytesSent, flags, sockAddrPtr, sockAddrSize, 0,0) ==  SOCKET_ERROR) {
-            WS_ERROR_DEBUG
-            switch (WSAGetLastError()) {
+            int err = WSAGetLastError();
+            WS_ERROR_DEBUG(err);
+            switch (err) {
             case WSAEMSGSIZE:
                 setError(QAbstractSocket::DatagramTooLargeError, DatagramTooLargeErrorString);
                 break;
@@ -908,8 +916,9 @@ qint64 QNativeSocketEnginePrivate::nativeWrite(const char *data, qint64 len)
         } else if (WSAGetLastError() == WSAEWOULDBLOCK) {
             break;
         } else {
-            WS_ERROR_DEBUG
-            switch (WSAGetLastError()) {
+            int err = WSAGetLastError();
+            WS_ERROR_DEBUG(err);
+            switch (err) {
             case WSAECONNRESET:
             case WSAECONNABORTED:
                 ret = -1;
@@ -940,8 +949,9 @@ qint64 QNativeSocketEnginePrivate::nativeRead(char *data, qint64 maxLength)
     DWORD flags = 0;
     DWORD bytesRead = 0;
     if (::WSARecv(socketDescriptor, &buf, 1, &bytesRead, &flags, 0,0) ==  SOCKET_ERROR) {
-        WS_ERROR_DEBUG
-        switch (WSAGetLastError()) {
+        int err = WSAGetLastError();
+        WS_ERROR_DEBUG(err);
+        switch (err) {
         case WSAEBADF:
         case WSAEINVAL:
             setError(QAbstractSocket::NetworkError, ReadErrorString);
