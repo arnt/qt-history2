@@ -31,7 +31,6 @@ Q3Frame::Q3Frame(QWidget* parent, const char* name, Qt::WFlags f)
     if (name)
         setObjectName(name);
     setAttribute(Qt::WA_LayoutOnEntireRect);
-    setAttribute(Qt::WA_PaintOnScreen);
 }
 
 /*!

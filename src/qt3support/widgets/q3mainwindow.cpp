@@ -688,7 +688,6 @@ Q3MainWindow::Q3MainWindow(QWidget * parent, const char * name, Qt::WFlags f)
 {
     Q_D(Q3MainWindow);
     setObjectName(name);
-    setAttribute(Qt::WA_PaintOnScreen); // disable double buffering
 #ifdef Q_WS_MAC
     d->opaque = true;
 #else
