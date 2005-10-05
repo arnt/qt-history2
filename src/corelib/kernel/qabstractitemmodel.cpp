@@ -1341,7 +1341,9 @@ bool QAbstractItemModel::canFetchMore(const QModelIndex &) const
 */
 Qt::ItemFlags QAbstractItemModel::flags(const QModelIndex &index) const
 {
-    Q_UNUSED(index);
+    if (!index.isValid())
+        return 0;
+
     return Qt::ItemIsSelectable|Qt::ItemIsEnabled;
 }
 
