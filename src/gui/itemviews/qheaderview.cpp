@@ -1317,7 +1317,7 @@ void QHeaderView::currentChanged(const QModelIndex &current, const QModelIndex &
         if (current.isValid())
             d->setDirtyRegion(QRect(sectionViewportPosition(current.column()), 0,
                                     sectionSize(current.column()), d->viewport->height()));
-    } else if (current.row() != old.row()) {
+    } else if (d->orientation == Qt::Vertical && current.row() != old.row()) {
         if (old.isValid())
             d->setDirtyRegion(QRect(0, sectionViewportPosition(old.row()),
                                     d->viewport->width(), sectionSize(old.row())));
