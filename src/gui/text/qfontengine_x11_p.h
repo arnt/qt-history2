@@ -38,12 +38,13 @@ public:
 private:
     QList<int> encodings;
     int screen;
+    QFontDef request;
 };
 
 class QFontEngineXLFD : public QFontEngine
 {
 public:
-    QFontEngineXLFD(XFontStruct *f, const char *name, int mib);
+    QFontEngineXLFD(XFontStruct *f, const QByteArray &name, int mib);
     ~QFontEngineXLFD();
 
     FECaps capabilites() const;
@@ -88,7 +89,7 @@ private:
 class Q_GUI_EXPORT QFontEngineMultiFT : public QFontEngineMulti
 {
 public:
-    QFontEngineMultiFT(FcFontSet *fs, int s);
+    QFontEngineMultiFT(FcFontSet *fs, int s, const QFontDef &request);
     ~QFontEngineMultiFT();
 
     void loadEngine(int at);

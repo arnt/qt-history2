@@ -69,10 +69,10 @@ QFixed QFontEngine::underlinePosition() const
 // ------------------------------------------------------------------
 
 QFontEngineMultiXLFD::QFontEngineMultiXLFD(const QFontDef &r, const QList<int> &l, int s)
-    : QFontEngineMulti(l.size()), encodings(l), screen(s)
+    : QFontEngineMulti(l.size()), encodings(l), screen(s), request(r)
 {
-    fontDef = r;
     loadEngine(0);
+    fontDef = engines[0]->fontDef;
 }
 
 QFontEngineMultiXLFD::~QFontEngineMultiXLFD()
@@ -83,12 +83,7 @@ void QFontEngineMultiXLFD::loadEngine(int at)
     Q_ASSERT(at < engines.size());
     Q_ASSERT(engines.at(at) == 0);
     const int encoding = encodings.at(at);
-    QFontDef req = fontDef;
-    QFontEngine *fontEngine = QFontDatabase::findFont(QUnicodeTables::Common, 0, req, encoding);
-    if (!fontEngine) {
-        req.family.clear();
-        fontEngine = QFontDatabase::findFont(QUnicodeTables::Common, 0, req, encoding);
-    }
+    QFontEngine *fontEngine = QFontDatabase::loadXlfd(0, QUnicodeTables::Common, request, encoding);
     Q_ASSERT(fontEngine != 0);
     fontEngine->ref.ref();
     engines[at] = fontEngine;
@@ -111,21 +106,17 @@ static inline XCharStruct *charStruct(XFontStruct *xfs, uint ch)
          r <= xfs->max_byte1 &&
          c >= xfs->min_char_or_byte2 &&
          c <= xfs->max_char_or_byte2) {
-        if (!xfs->per_char)
-            xcs = &(xfs->min_bounds);
-        else {
-            xcs = xfs->per_char + ((r - xfs->min_byte1) *
-                                   (xfs->max_char_or_byte2 -
-                                    xfs->min_char_or_byte2 + 1)) +
-                  (c - xfs->min_char_or_byte2);
-            if (xcs->width == 0 && xcs->ascent == 0 &&  xcs->descent == 0)
-                xcs = 0;
-        }
+        xcs = xfs->per_char + ((r - xfs->min_byte1) *
+                               (xfs->max_char_or_byte2 -
+                                xfs->min_char_or_byte2 + 1)) +
+              (c - xfs->min_char_or_byte2);
+        if (xcs->width == 0 && xcs->ascent == 0 &&  xcs->descent == 0)
+            xcs = 0;
     }
     return xcs;
 }
 
-QFontEngineXLFD::QFontEngineXLFD(XFontStruct *fs, const char *name, int mib)
+QFontEngineXLFD::QFontEngineXLFD(XFontStruct *fs, const QByteArray &name, int mib)
     : _fs(fs), _name(name), _codec(0), _cmap(mib)
 {
     if (_cmap) _codec = QTextCodec::codecForMib(_cmap);
@@ -211,8 +202,16 @@ bool QFontEngineXLFD::stringToCMap(const QChar *str, int len, QGlyphLayout *glyp
         xcs = &_fs->min_bounds;
         while (g != glyphs) {
             --g;
-            g->advance.x = xcs->width;
-            g->advance.y = 0;
+            const unsigned char r = g->glyph >> 8;
+            const unsigned char c = g->glyph & 0xff;
+            if (r >= _fs->min_byte1 &&
+                r <= _fs->max_byte1 &&
+                c >= _fs->min_char_or_byte2 &&
+                c <= _fs->max_char_or_byte2) {
+                g->glyph = 0;
+            } else {
+                g->advance.x = xcs->width;
+            }
         }
     }
     else if (!_fs->max_byte1) {
@@ -221,15 +220,21 @@ bool QFontEngineXLFD::stringToCMap(const QChar *str, int len, QGlyphLayout *glyp
             unsigned int gl = (--g)->glyph;
             xcs = (gl >= _fs->min_char_or_byte2 && gl <= _fs->max_char_or_byte2) ?
                   base + gl : 0;
-            g->advance.x = (!xcs || (!xcs->width && !xcs->ascent && !xcs->descent)) ? _fs->ascent : xcs->width;
-            g->advance.y = 0;
+            if (!xcs || (!xcs->width && !xcs->ascent && !xcs->descent)) {
+                g->glyph = 0;
+            } else {
+                g->advance.x = xcs->width;
+            }
         }
     }
     else {
         while (g != glyphs) {
             xcs = charStruct(_fs, (--g)->glyph);
-            g->advance.x = xcs ? xcs->width : _fs->ascent;
-            g->advance.y = 0;
+            if (!xcs) {
+                g->glyph = 0;
+            } else {
+                g->advance.x = xcs->width;
+            }
         }
     }
     return true;
@@ -408,10 +413,12 @@ bool QFontEngineXLFD::canRender(const QChar *string, int len)
 #include FT_OUTLINE_H
 #include FT_TRUETYPE_TABLES_H
 
-QFontEngineMultiFT::QFontEngineMultiFT(FcFontSet *fs, int s)
+QFontEngineMultiFT::QFontEngineMultiFT(FcFontSet *fs, int s, const QFontDef &request)
     : QFontEngineMulti(fs->nfont), fontSet(fs), screen(s)
 {
+    fontDef = request;
     loadEngine(0);
+    fontDef = engines[0]->fontDef;
     cache_cost = 100;
 }
 
@@ -425,8 +432,8 @@ void QFontEngineMultiFT::loadEngine(int at)
     Q_ASSERT(at < engines.size());
     Q_ASSERT(engines.at(at) == 0);
     FcPattern *pattern = fontSet->fonts[at];
-    extern QFontDef FcPatternToQFontDef(FcPattern *pattern);
-    QFontDef fontDef = FcPatternToQFontDef(fontSet->fonts[at]);
+    extern QFontDef FcPatternToQFontDef(FcPattern *pattern, const QFontDef &);
+    QFontDef fontDef = FcPatternToQFontDef(fontSet->fonts[at], this->fontDef);
     // note: we use -1 for the script to make sure that we keep real
     // FT engines separate from Multi engines in the font cache
     QFontCache::Key key(fontDef, -1, screen);
@@ -623,15 +630,14 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
     if (FT_IS_SCALABLE(face)) {
         line_thickness =  QFixed::fromFixed(FT_MulFix(face->underline_thickness, face->size->metrics.y_scale));
         underline_position = QFixed::fromFixed(-FT_MulFix(face->underline_position, face->size->metrics.y_scale));
-        FcMatrix *fc_matrix;
-        if (FcPatternGetMatrix (pattern, FC_MATRIX, 0, &fc_matrix) == FcResultMatch) {
-            matrix.xx = qRound(0x10000 * fc_matrix->xx);
-            matrix.yy = qRound(0x10000 * fc_matrix->yy);
-            matrix.xy = qRound(0x10000 * fc_matrix->xy);
-            matrix.yx = qRound(0x10000 * fc_matrix->yx);
-            FT_Set_Transform(face, &matrix, 0);
+        int width = fontDef.stretch;
+        bool fake_oblique = (fontDef.style != QFont::StyleNormal) && !(face->style_flags & FT_STYLE_FLAG_ITALIC);
+        matrix.xx = 0x10000 * width/100;
+        if (fake_oblique)
+            matrix.xy = 0x10000*2/10;
+        FT_Set_Transform(face, &matrix, 0);
+        if (width != 100 || fake_oblique)
             transform = true;
-        }            
     } else {
         // copied from QFontEngineQPF
         // ad hoc algorithm

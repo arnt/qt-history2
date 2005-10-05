@@ -362,11 +362,10 @@ QFontEngineData::~QFontEngineData()
     either.
 
     \code
-    QFont f1("Helvetica [Cronyx]");  // Qt 4.x and 3.x
-    QFont f2("Cronyx-Helvetica");    // Qt 2.x compatibility
+    QFont f("Helvetica [Cronyx]"); 
     \endcode
-    You can specify the foundry you want in the family name. Both fonts,
-    f1 and f2, in the above example will be set to "Helvetica
+    You can specify the foundry you want in the family name. The font f
+    in the above example will be set to "Helvetica
     [Cronyx]".
 
     To determine the attributes of the font actually used in the window
@@ -484,8 +483,7 @@ QFont::QFont()
     If \a pointSize is <= 0, it is set to 12.
 
     The \a family name may optionally also include a foundry name,
-    e.g. "Helvetica [Cronyx]". (The Qt 2.x syntax, i.e.
-    "Cronyx-Helvetica", is also supported.) If the \a family is
+    e.g. "Helvetica [Cronyx]". If the \a family is
     available from more than one foundry and the foundry isn't
     specified, an arbitrary foundry is chosen. If the family isn't
     available a family will be set using the \l{QFont}{font matching}
@@ -565,8 +563,7 @@ QString QFont::family() const
     may include a foundry name.
 
     The \a family name may optionally also include a foundry name,
-    e.g. "Helvetica [Cronyx]". (The Qt 2.x syntax, i.e.
-    "Cronyx-Helvetica", is also supported.) If the \a family is
+    e.g. "Helvetica [Cronyx]". If the \a family is
     available from more than one foundry and the foundry isn't
     specified, an arbitrary foundry is chosen. If the family isn't
     available a family will be set using the \l{QFont}{font matching}

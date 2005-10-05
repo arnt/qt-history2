@@ -101,9 +101,15 @@ public:
 private:
     static void createDatabase();
     static void parseFontName(const QString &name, QString &foundry, QString &family);
+#ifndef Q_WS_X11
     static QFontEngine *findFont(int script, const QFontPrivate *fp,
                                  const QFontDef &request, int force_encoding_id = -1);
-
+#endif
+#ifdef Q_WS_X11
+    static void load(const QFontPrivate *d, int script);
+    static QFontEngine *loadXlfd(int screen, int script, const QFontDef &request, int force_encoding_id = -1);
+#endif
+    
     friend struct QFontDef;
     friend class QFontPrivate;
     friend class QFontDialog;
