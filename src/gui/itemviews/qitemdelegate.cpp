@@ -294,10 +294,8 @@ QWidget *QItemDelegate::createEditor(QWidget *parent,
     if (factory == 0)
         factory = QItemEditorFactory::defaultFactory();
     QWidget *w = factory->createEditor(t, parent);
-    if (w) {
+    if (w)
         w->installEventFilter(const_cast<QItemDelegate *>(this));
-        w->setObjectName(QLatin1String("item_delegate_editor"));
-    }
     return w;
 }
 
