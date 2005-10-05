@@ -1,9 +1,9 @@
 TEMPLATE = lib
-CONFIG   += qt warn_on dll
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 contains(QT_CONFIG, debug):contains(QT_CONFIG, release):CONFIG += debug_and_release build_all
 contains(QT_CONFIG, embedded):CONFIG += embedded
+!contains(CONFIG, static):CONFIG += dll
 
 CONFIG(debug, debug|release) {
     TARGET = QtTest_debug
@@ -18,9 +18,17 @@ QT       = core
 INCLUDEPATH += .
 
 MOC_DIR         = tmp
-DESTDIR         = $$[QT_INSTALL_LIBS]
-DLLDESTDIR      = $$[QT_INSTALL_BINS]
-VERSION         = 4.1.0
+DESTDIR = ../../lib
+DLLDESTDIR = ../../bin
+isEmpty(QT_MAJOR_VERSION) {
+   VERSION=4.1.0
+} else {
+   VERSION=$${QT_MAJOR_VERSION}.$${QT_MINOR_VERSION}.$${QT_PATCH_VERSION}
+}
+QMAKE_TARGET_COMPANY = Trolltech AS
+QMAKE_TARGET_PRODUCT = QTestLib
+QMAKE_TARGET_DESCRIPTION = Qt Unit Testing Library
+QMAKE_TARGET_COPYRIGHT = Copyright (c) 2003-2005 Trolltech
 
 unix {
    CONFIG     += create_libtool create_pc explicitlib
@@ -35,6 +43,14 @@ unix {
 HEADERS = qtest_global.h qtestcase.h qtestdata.h
 SOURCES = qtestcase.cpp qtestlog.cpp qtesttable.cpp qtestdata.cpp qtestresult.cpp qasciikey.cpp qplaintestlogger.cpp qxmltestlogger.cpp qsignaldumper.cpp qabstracttestlogger.cpp
 
-DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII QTESTLIB_MAKEDLL QT_NO_DATASTREAM QTEST_LIGHT QTEST_NOEXITCODE
+DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII QTESTLIB_MAKEDLL QT_NO_DATASTREAM QTEST_LIGHT
 
 embedded:QMAKE_CXXFLAGS+=-fno-rtti
+
+target.path=$$[QT_INSTALL_LIBS]
+INSTALLS        += target
+
+include($$QT_SOURCE_TREE/include/QtTest/headers.pri)
+qtestlib_headers.files = $$SYNCQT.HEADER_FILES $$SYNCQT.HEADER_CLASSES
+qtestlib_headers.path = $$[QT_INSTALL_HEADERS]/QtTest
+INSTALLS        += qtestlib_headers

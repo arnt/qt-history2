@@ -422,7 +422,7 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
 
     QTestLog::stopLogging();
     currentTestObject = 0;
-#ifdef QTEST_NOEXITCODE
+#if defined(QTEST_NOEXITCODE) || defined(QT_BUILD_INTERNAL)
     return 0;
 #else
     return QTestResult::failCount();
