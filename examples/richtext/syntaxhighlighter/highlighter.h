@@ -17,8 +17,8 @@
 #include <QSyntaxHighlighter>
 
 #include <QHash>
+#include <QTextCharFormat>
 
-class QTextCharFormat;
 class QTextDocument;
 
 class Highlighter : public QSyntaxHighlighter
@@ -33,6 +33,7 @@ protected:
 
 private:
     QHash<QString,QTextCharFormat> mappings;
+    QTextCharFormat multiLineCommentFormat;
 };
 
 #endif

@@ -18,24 +18,40 @@
 Highlighter::Highlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
 {
-    QTextCharFormat variableFormat;
-    variableFormat.setFontWeight(QFont::Bold);
-    variableFormat.setForeground(Qt::blue);
-    mappings["\\b[A-Z_]+\\b"] = variableFormat;
+    QTextCharFormat keywordFormat;
+    keywordFormat.setForeground(Qt::darkBlue);
+    keywordFormat.setFontWeight(QFont::Bold);
+    QStringList keywordPatterns;
+    keywordPatterns << "\\bchar\\b" << "\\bclass\\b" << "\\bconst\\b" << "\\bdouble\\b"
+                    << "\\benum\\b" << "\\bexplicit\\b" << "\\bfriend\\b" << "\\binline\\b"
+                    << "\\bint\\b" << "\\blong\\b" << "\\bnamespace\\b" << "\\boperator\\b"
+                    << "\\bprivate\\b" << "\\bprotected\\b" << "\\bpublic\\b"
+                    << "\\bshort\\b" << "\\bsignals\\b" << "\\bsigned\\b"
+                    << "\\bslots\\b" << "\\bstatic\\b" << "\\bstruct\\b" << "\\btemplate\\b"
+                    << "\\btypedef\\b" << "\\btypename\\b" << "\\bunion\\b" << "\\bunsigned\\b"
+                    << "\\bvirtual\\b"<< "\\bvoid\\b" << "\\bvolatile\\b";
+    foreach (QString pattern, keywordPatterns)
+        mappings[pattern] = keywordFormat;
+
+    QTextCharFormat classFormat;
+    classFormat.setFontWeight(QFont::Bold);
+    classFormat.setForeground(Qt::darkMagenta);
+    mappings["\\bQ[A-Za-z]+\\b"] = classFormat;
 
     QTextCharFormat singleLineCommentFormat;
-    singleLineCommentFormat.setBackground(QColor("#77ff77"));
-    mappings["#[^\n]*"] = singleLineCommentFormat;
+    singleLineCommentFormat.setForeground(Qt::red);
+    mappings["//[^\n]*"] = singleLineCommentFormat;
+
+    multiLineCommentFormat.setForeground(Qt::red);
 
     QTextCharFormat quotationFormat;
-    quotationFormat.setBackground(Qt::cyan);
-    quotationFormat.setForeground(Qt::blue);
+    quotationFormat.setForeground(Qt::darkGreen);
     mappings["\".*\""] = quotationFormat;
 
     QTextCharFormat functionFormat;
     functionFormat.setFontItalic(true);
     functionFormat.setForeground(Qt::blue);
-    mappings["\\b[a-z0-9_]+\\(.*\\)"] = functionFormat;
+    mappings["\\b[A-Za-z0-9_]+\\(.*\\)"] = functionFormat;
 }
 
 void Highlighter::highlightBlock(const QString &text)
@@ -48,5 +64,26 @@ void Highlighter::highlightBlock(const QString &text)
             setFormat(index, length, mappings[pattern]);
             index = text.indexOf(expression, index + length);
         }
+    }
+    setCurrentBlockState(0);
+
+    QRegExp startExpression( "/\\*");
+    QRegExp endExpression("\\*/");
+
+    int startIndex = 0;
+    if (previousBlockState() != 1)
+        startIndex = text.indexOf(startExpression);
+
+    while (startIndex >= 0) {
+       int endIndex = text.indexOf(endExpression, startIndex);
+       int commentLength;
+       if (endIndex == -1) {
+           setCurrentBlockState(1);
+           commentLength = text.length() - startIndex;
+       } else {
+           commentLength = endIndex - startIndex + endExpression.matchedLength();
+       }
+       setFormat(startIndex, commentLength, multiLineCommentFormat);
+       startIndex = text.indexOf(startExpression, startIndex + commentLength);
     }
 }

@@ -36,7 +36,7 @@ void MainWindow::openFile(const QString &path)
 
     if (fileName.isNull())
         fileName = QFileDialog::getOpenFileName(this,
-            tr("Open File"), "", "qmake Files (*.pro *.prf *.pri)");
+            tr("Open File"), "", "C++ Files (*.cpp *.h)");
 
     if (!fileName.isEmpty()) {
         QFile file(fileName);
@@ -54,7 +54,12 @@ void MainWindow::setupEditor()
 
     editor = new QTextEdit;
     editor->setFont(font);
+
     highlighter = new Highlighter(editor->document());
+
+    QFile file("mainwindow.h");
+    if (file.open(QFile::ReadOnly | QFile::Text))
+        editor->setPlainText(file.readAll());
 }
 
 void MainWindow::setupFileMenu()
