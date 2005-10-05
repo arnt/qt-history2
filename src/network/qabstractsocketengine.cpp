@@ -63,8 +63,8 @@ QAbstractSocketEngine::QAbstractSocketEngine(QAbstractSocketEnginePrivate &dd, Q
 QAbstractSocketEngine *QAbstractSocketEngine::createSocketEngine(const QHostAddress &address, QAbstractSocket::SocketType socketType, QObject *parent)
 {
     QMutexLocker locker(&socketHandlers()->mutex);
-    for(int i = 0; i < socketHandlers()->size(); i++) {
-        if(QAbstractSocketEngine *ret = socketHandlers()->at(i)->createSocketEngine(address, socketType, parent))
+    for (int i = 0; i < socketHandlers()->size(); i++) {
+        if (QAbstractSocketEngine *ret = socketHandlers()->at(i)->createSocketEngine(address, socketType, parent))
             return ret;
     }
     return new QNativeSocketEngine(parent);
@@ -73,8 +73,8 @@ QAbstractSocketEngine *QAbstractSocketEngine::createSocketEngine(const QHostAddr
 QAbstractSocketEngine *QAbstractSocketEngine::createSocketEngine(int socketDescripter, QObject *parent)
 {
     QMutexLocker locker(&socketHandlers()->mutex);
-    for(int i = 0; i < socketHandlers()->size(); i++) {
-        if(QAbstractSocketEngine *ret = socketHandlers()->at(i)->createSocketEngine(socketDescripter, parent))
+    for (int i = 0; i < socketHandlers()->size(); i++) {
+        if (QAbstractSocketEngine *ret = socketHandlers()->at(i)->createSocketEngine(socketDescripter, parent))
             return ret;
     }
     return new QNativeSocketEngine(parent);
