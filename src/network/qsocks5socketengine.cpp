@@ -602,6 +602,8 @@ void QSocks5SocketEnginePrivate::sendRequestMethod()
 
 void QSocks5SocketEnginePrivate::parseRequestMethodReply()
 {
+    QSOCKS5_DEBUG << "parseRequestMethodReply()";
+
     QByteArray inBuf;
     if (!data->authenticator->unSeal(data->controlSocket, &inBuf)) {
         // ### check error and not just not enough data
@@ -650,6 +652,7 @@ void QSocks5SocketEnginePrivate::parseRequestMethodReply()
 
 void QSocks5SocketEnginePrivate::parseNewConnection()
 {
+    QSOCKS5_DEBUG << "parseNewConnection()";
     // only emit readyRead if in listening state ...
     QByteArray inBuf;
     if (!data->authenticator->unSeal(data->controlSocket, &inBuf)) {
@@ -701,9 +704,9 @@ void QSocks5SocketEnginePrivate::emitReadNotification()
     Q_Q(QSocks5SocketEngine);
     readNotificationActivated = true;
     if (readNotificationEnabled) {
-        //###qDebug() << this << "queing readNotification";
-        emit q->readNotification();
-        //###QMetaObject::invokeMethod(q, "readNotification", Qt::QueuedConnection);
+       /// qDebug() << this << "queing readNotification";
+        //emit q->readNotification();
+        QMetaObject::invokeMethod(q, "readNotification", Qt::QueuedConnection);
     }
 }
 
@@ -854,6 +857,9 @@ bool QSocks5SocketEngine::connectToHost(const QHostAddress &address, quint16 por
     } else if (d->socks5State == QSocks5SocketEnginePrivate::ConnectError) {
         setError(d->data->controlSocket->error(), d->data->controlSocket->errorString());
         setState(QAbstractSocket::UnconnectedState);
+        return false;
+    } else if (d->socketState == QAbstractSocket::ConnectingState && d->socks5State != QSocks5SocketEnginePrivate::RequestSuccess) {
+        QSOCKS5_DEBUG << "not yet connected";
         return false;
     } else {
         qDebug() << "unexpected call to contectToHost";  
@@ -1261,15 +1267,21 @@ bool QSocks5SocketEngine::waitForRead(int msecs, bool *timedOut) const
         while (!d->readNotificationActivated && d->data->controlSocket->waitForReadyRead(qt_timeout_value(msecs, stopWatch.elapsed()))) {
             QSOCKS5_DEBUG << "looping";
         }
-        if (timedOut && d->data->controlSocket->error() == QAbstractSocket::SocketTimeoutError)
-        *timedOut = true;
+        if (d->data->controlSocket->error() != QAbstractSocket::UnknownSocketError) {
+            setError(d->data->controlSocket->error(), d->data->controlSocket->errorString());
+            if (timedOut && d->data->controlSocket->error() == QAbstractSocket::SocketTimeoutError)
+                *timedOut = true;
+        }
     } else {
         // what about if the tcp socket is disconnected ...
         while (!d->readNotificationActivated && d->udpData->udpSocket->waitForReadyRead(qt_timeout_value(msecs, stopWatch.elapsed()))) {
             QSOCKS5_DEBUG << "looping";
         }
-        if (timedOut && d->udpData->udpSocket->error() == QAbstractSocket::SocketTimeoutError)
-        *timedOut = true;
+        if (d->udpData->udpSocket->error() != QAbstractSocket::UnknownSocketError) {
+            setError(d->udpData->udpSocket->error(), d->udpData->udpSocket->errorString());
+            if (timedOut && d->udpData->udpSocket->error() == QAbstractSocket::SocketTimeoutError)
+                *timedOut = true;
+        }
     }
     
     
@@ -1391,6 +1403,11 @@ QAbstractSocketEngine *QSocks5SocketEngineHandler::createSocketEngine(const QHos
     Q_UNUSED(socketType);
 
     QSOCKS5_DEBUG << "createSocketEngine" << address;
+
+    if (address == QHostAddress::LocalHost || address == QHostAddress::LocalHostIPv6) {
+        QSOCKS5_DEBUG << "not proxying";
+        return 0;
+    }
 
     QNetworkProxy proxy;
     // find proxy info
