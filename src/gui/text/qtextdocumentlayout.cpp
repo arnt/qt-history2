@@ -849,7 +849,7 @@ void QTextDocumentLayoutPrivate::drawFlow(const QPointF &offset, QPainter *paint
 {
     const bool inRootFrame = (!it.atEnd() && it.parentFrame() && it.parentFrame()->parentFrame() == 0);
 
-    QVector<QCheckPoint>::ConstIterator lastVisibleCheckPoint;
+    QVector<QCheckPoint>::ConstIterator lastVisibleCheckPoint = checkPoints.end();
     if (inRootFrame && context.clip.isValid()) {
         lastVisibleCheckPoint = qLowerBound(checkPoints.begin(), checkPoints.end(), qreal(context.clip.bottom()));
     }
@@ -2236,7 +2236,7 @@ void QTextDocumentLayoutPrivate::ensureLayoutedByPosition(int position) const
 void QTextDocumentLayoutPrivate::layoutStep() const
 {
     ensureLayoutedByPosition(currentLazyLayoutPosition + lazyLayoutStepSize);
-    lazyLayoutStepSize *= 2;
+    lazyLayoutStepSize = qMin(200000, lazyLayoutStepSize * 2);
 }
 
 // Pull this private function in from qglobal.cpp
