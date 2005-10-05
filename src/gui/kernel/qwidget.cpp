@@ -1187,22 +1187,28 @@ bool QWidgetPrivate::isOverlapped(const QRect &rect) const
 {
     Q_Q(const QWidget);
 
-    if (q->isWindow())
-        return false;
-    QWidgetPrivate *pd = q->parentWidget()->d_func();
-    bool above = false;
-    for (int i = 0; i < pd->children.size(); ++i) {
-        QWidget *w = qobject_cast<QWidget *>(pd->children.at(i));
-        if (!w)
-            continue;
-        if (!above) {
-            above = (w == q);
-            continue;
+    const QWidget *w = q;
+    QRect r = rect;
+    while (w) {
+        if (w->isWindow())
+            return false;
+        QWidgetPrivate *pd = w->parentWidget()->d_func();
+        bool above = false;
+        for (int i = 0; i < pd->children.size(); ++i) {
+            QWidget *sibling = qobject_cast<QWidget *>(pd->children.at(i));
+            if (!sibling)
+                continue;
+            if (!above) {
+                above = (sibling == w);
+                continue;
+            }
+            if (sibling->data->crect.intersects(r))
+                return true;
         }
-        if (w->data->crect.intersects(rect))
-            return true;
+        w = w->parentWidget();
+        r.translate(pd->data.crect.topLeft());
     }
-    return pd->isOverlapped(rect.translated(pd->data.crect.topLeft()));
+    return false;
 }
 #endif
 
