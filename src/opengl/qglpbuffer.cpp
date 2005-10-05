@@ -270,3 +270,9 @@ void QGLPbuffer::deleteTexture(GLuint texture_id)
     d->qctx->deleteTexture(texture_id);
 }
 
+
+QGLFormat QGLPbuffer::format() const
+{
+    Q_D(const QGLPbuffer);
+    return d->format;
+}

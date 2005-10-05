@@ -51,7 +51,7 @@ public:
     QImage toImage() const;
 
     QPaintEngine *paintEngine() const;
-    QGLFormat format() const { return QGLFormat::defaultFormat(); }
+    QGLFormat format() const;
 
     static bool hasPbuffers();
 protected:

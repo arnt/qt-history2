@@ -50,6 +50,7 @@ public:
     QSize size;
     QGLContext *qctx;
     QGLPbuffer *q_ptr;
+    QGLFormat format;
 
 #ifdef Q_WS_X11
     GLXPbuffer pbuf;

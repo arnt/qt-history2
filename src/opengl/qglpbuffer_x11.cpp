@@ -33,6 +33,11 @@
 #define GLX_PBUFFER_WIDTH       0x8041
 #endif
 
+#ifndef GLX_ARB_multisample
+#define GLX_SAMPLE_BUFFERS_ARB  100000
+#define GLX_SAMPLES_ARB         100001
+#endif
+
 typedef GLXFBConfig* (*_glXChooseFBConfig) (Display *dpy, int screen, const int *attrib_list, int *nelements);
 typedef int (*_glXGetFBConfigAttrib) (Display *dpy, GLXFBConfig config, int attribute, int *value);
 typedef GLXPbuffer (*_glXCreatePbuffer) (Display *dpy, GLXFBConfig config, const int *attrib_list);
@@ -125,10 +130,49 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
             attribs[i++] = f.accumBufferSize() == -1 ? 1 : f.accumBufferSize();
         }
     }
+    if (f.sampleBuffers()) {
+        attribs[i++] = GLX_SAMPLE_BUFFERS_ARB;
+        attribs[i++] = 1;
+        attribs[i++] = GLX_SAMPLES_ARB;
+        attribs[i++] = f.samples() == -1 ? 4 : f.samples();
+    }
+
     attribs[i] = XNone;
 
-    GLXFBConfig *configs = glXChooseFBConfig(QX11Info::display(), QX11Info::appScreen(), attribs, &num_configs);
+    GLXFBConfig *configs = glXChooseFBConfig(X11->display, X11->defaultScreen, attribs, &num_configs);
     if (configs && num_configs) {
+        int res;
+        glXGetFBConfigAttrib(X11->display, configs[0], GLX_LEVEL, &res);
+        d->format.setPlane(res);
+        glXGetFBConfigAttrib(X11->display, configs[0], GLX_DOUBLEBUFFER, &res);
+        d->format.setDoubleBuffer(res);
+        glXGetFBConfigAttrib(X11->display, configs[0], GLX_DEPTH_SIZE, &res);
+        d->format.setDepth(res);
+        if (d->format.depth())
+            d->format.setDepthBufferSize(res);
+        glXGetFBConfigAttrib(X11->display, configs[0], GLX_RGBA, &res);
+        d->format.setRgba(res);
+        glXGetFBConfigAttrib(X11->display, configs[0], GLX_ALPHA_SIZE, &res);
+        d->format.setAlpha(res);
+        if (d->format.alpha())
+            d->format.setAlphaBufferSize(res);
+        glXGetFBConfigAttrib(X11->display, configs[0], GLX_ACCUM_RED_SIZE, &res);
+        d->format.setAccum(res);
+        if (d->format.accum())
+            d->format.setAccumBufferSize(res);
+        glXGetFBConfigAttrib(X11->display, configs[0], GLX_STENCIL_SIZE, &res);
+        d->format.setStencil(res);
+        if (d->format.stencil())
+            d->format.setStencilBufferSize(res);
+        glXGetFBConfigAttrib(X11->display, configs[0], GLX_STEREO, &res);
+        d->format.setStereo(res);
+        glXGetFBConfigAttrib(X11->display, configs[0], GLX_SAMPLE_BUFFERS_ARB, &res);
+        d->format.setSampleBuffers(res);
+        if (d->format.sampleBuffers()) {
+            glXGetFBConfigAttrib(X11->display, configs[0], GLX_SAMPLES_ARB, &res);
+            d->format.setSamples(res);
+        }
+
         int pb_attribs[] = {GLX_PBUFFER_WIDTH, size.width(), GLX_PBUFFER_HEIGHT, size.height(), XNone};
         GLXContext shareContext = 0;
         if (shareWidget && shareWidget->d_func()->glcx)
