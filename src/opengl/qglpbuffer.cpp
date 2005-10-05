@@ -270,7 +270,10 @@ void QGLPbuffer::deleteTexture(GLuint texture_id)
     d->qctx->deleteTexture(texture_id);
 }
 
-
+/*!
+    Returns the format of the pbuffer. The format may be different
+    than the one that was requested.
+*/
 QGLFormat QGLPbuffer::format() const
 {
     Q_D(const QGLPbuffer);
