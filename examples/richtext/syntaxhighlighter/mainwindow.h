@@ -36,7 +36,7 @@ private:
     void setupFileMenu();
 
     QTextEdit *editor;
-    Highlighter highlighter;
+    Highlighter *highlighter;
 };
 
 #endif

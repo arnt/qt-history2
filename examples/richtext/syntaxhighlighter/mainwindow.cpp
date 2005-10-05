@@ -47,25 +47,6 @@ void MainWindow::openFile(const QString &path)
 
 void MainWindow::setupEditor()
 {
-    QTextCharFormat variableFormat;
-    variableFormat.setFontWeight(QFont::Bold);
-    variableFormat.setForeground(Qt::blue);
-    highlighter.addMapping("\\b[A-Z_]+\\b", variableFormat);
-
-    QTextCharFormat singleLineCommentFormat;
-    singleLineCommentFormat.setBackground(QColor("#77ff77"));
-    highlighter.addMapping("#[^\n]*", singleLineCommentFormat);
-
-    QTextCharFormat quotationFormat;
-    quotationFormat.setBackground(Qt::cyan);
-    quotationFormat.setForeground(Qt::blue);
-    highlighter.addMapping("\".*\"", quotationFormat);
-
-    QTextCharFormat functionFormat;
-    functionFormat.setFontItalic(true);
-    functionFormat.setForeground(Qt::blue);
-    highlighter.addMapping("\\b[a-z0-9_]+\\(.*\\)", functionFormat);
-
     QFont font;
     font.setFamily("Courier");
     font.setFixedPitch(true);
@@ -73,7 +54,7 @@ void MainWindow::setupEditor()
 
     editor = new QTextEdit;
     editor->setFont(font);
-    highlighter.addToDocument(editor->document());
+    highlighter = new Highlighter(editor->document());
 }
 
 void MainWindow::setupFileMenu()

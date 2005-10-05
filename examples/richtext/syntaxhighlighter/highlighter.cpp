@@ -15,65 +15,38 @@
 
 #include "highlighter.h"
 
-Highlighter::Highlighter(QObject *parent)
-    : QObject(parent)
+Highlighter::Highlighter(QTextDocument *parent)
+    : QSyntaxHighlighter(parent)
 {
+    QTextCharFormat variableFormat;
+    variableFormat.setFontWeight(QFont::Bold);
+    variableFormat.setForeground(Qt::blue);
+    mappings["\\b[A-Z_]+\\b"] = variableFormat;
+
+    QTextCharFormat singleLineCommentFormat;
+    singleLineCommentFormat.setBackground(QColor("#77ff77"));
+    mappings["#[^\n]*"] = singleLineCommentFormat;
+
+    QTextCharFormat quotationFormat;
+    quotationFormat.setBackground(Qt::cyan);
+    quotationFormat.setForeground(Qt::blue);
+    mappings["\".*\""] = quotationFormat;
+
+    QTextCharFormat functionFormat;
+    functionFormat.setFontItalic(true);
+    functionFormat.setForeground(Qt::blue);
+    mappings["\\b[a-z0-9_]+\\(.*\\)"] = functionFormat;
 }
 
-void Highlighter::addToDocument(QTextDocument *doc)
+void Highlighter::highlightBlock(const QString &text)
 {
-    connect(doc, SIGNAL(contentsChange(int, int, int)),
-            this, SLOT(highlight(int, int, int)));
-}
-
-void Highlighter::addMapping(const QString &pattern,
-                             const QTextCharFormat &format)
-{
-    mappings[pattern] = format;
-}
-
-void Highlighter::highlight(int position, int removed, int added)
-{
-    QTextDocument *doc = qobject_cast<QTextDocument *>(sender());
-
-    QTextBlock block = doc->findBlock(position);
-    if (!block.isValid())
-        return;
-
-    QTextBlock endBlock;
-    if (added > removed)
-        endBlock = doc->findBlock(position + added);
-    else
-        endBlock = block;
-
-    while (block.isValid() && !(endBlock < block)) {
-        highlightBlock(block);
-        block = block.next();
-    }
-}
-
-void Highlighter::highlightBlock(QTextBlock block)
-{
-    QTextLayout *layout = block.layout();
-    const QString text = block.text();
-
-    QList<QTextLayout::FormatRange> overrides;
-
     foreach (QString pattern, mappings.keys()) {
         QRegExp expression(pattern);
-        int i = text.indexOf(expression);
-        while (i >= 0) {
-            QTextLayout::FormatRange range;
-            range.start = i;
-            range.length = expression.matchedLength();
-            range.format = mappings[pattern];
-            overrides << range;
-
-            i = text.indexOf(expression, i + expression.matchedLength());
+        int index = text.indexOf(expression);
+        while (index >= 0) {
+            int length = expression.matchedLength();
+            setFormat(index, length, mappings[pattern]);
+            index = text.indexOf(expression, index + length);
         }
     }
-
-    layout->setAdditionalFormats(overrides);
-    const_cast<QTextDocument *>(block.document())->markContentsDirty(
-        block.position(), block.length());
 }
