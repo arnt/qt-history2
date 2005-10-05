@@ -117,6 +117,7 @@ void Browser::showTable(const QString &t)
     if (model->lastError().type() != QSqlError::NoError)
         emit statusMessage(model->lastError().text());
     table->setModel(model);
+    table->setEditTriggers(QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed);
 }
 
 void Browser::showMetaData(const QString &t)
@@ -151,5 +152,6 @@ void Browser::showMetaData(const QString &t)
     }
 
     table->setModel(model);
+    table->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
