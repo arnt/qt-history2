@@ -2147,7 +2147,15 @@ void QPainter::setPen(const QColor &color)
     if (qt_show_painter_debug_output)
         printf("QPainter::setPen(), color=%04x\n", color.rgb());
 #endif
-    setPen(QPen(color.isValid() ? color : QColor(Qt::black), 0, Qt::SolidLine));
+    Q_D(QPainter);
+
+    if (d->state->pen.style() == Qt::SolidLine
+        && d->state->pen.widthF() == 0
+        && d->state->pen.isSolid()
+        && d->state->pen.color() == color)
+        return;
+    d->state->pen = QPen(color.isValid() ? color : QColor(Qt::black), 0, Qt::SolidLine);
+    d->state->dirtyFlags |= QPaintEngine::DirtyPen;
 }
 
 /*!
@@ -2168,6 +2176,17 @@ void QPainter::setPen(const QPen &pen)
            pen.color().rgb(), pen.brush().style(), pen.style(), pen.capStyle(), pen.joinStyle());
 #endif
     Q_D(QPainter);
+
+    // Do some checks to see if we are the same pen.
+    Qt::PenStyle currentStyle = d->state->pen.style();
+    if (currentStyle == pen.style()) {
+        if (currentStyle == Qt::NoPen ||
+            (d->state->pen.isSolid() && pen.isSolid()
+             && d->state->pen.color() == pen.color()
+             && d->state->pen.widthF() == pen.widthF()))
+            return;
+    }
+
     d->state->pen = pen;
     d->state->dirtyFlags |= QPaintEngine::DirtyPen;
 }
@@ -2183,7 +2202,16 @@ void QPainter::setPen(const QPen &pen)
 
 void QPainter::setPen(Qt::PenStyle style)
 {
-    setPen(QPen(Qt::black, 0, style));
+    Q_D(QPainter);
+
+    if (d->state->pen.style() == style
+        && (style == Qt::NoPen || (d->state->pen.widthF() == 0
+                                   && d->state->pen.isSolid()
+                                   && d->state->pen.color() == QColor(Qt::black))))
+        return;
+    d->state->pen = QPen(Qt::black, 0, style);
+    d->state->dirtyFlags |= QPaintEngine::DirtyPen;
+
 }
 
 /*!
@@ -2216,6 +2244,15 @@ void QPainter::setBrush(const QBrush &brush)
         printf("QPainter::setBrush(), color=%04x, style=%d\n", brush.color().rgb(), brush.style());
 #endif
     Q_D(QPainter);
+
+    Qt::BrushStyle currentStyle = d->state->brush.style();
+    if (currentStyle == brush.style()) {
+        if (currentStyle == Qt::NoBrush
+            || (currentStyle == Qt::SolidPattern
+                && d->state->brush.color() == brush.color()))
+            return;
+    }
+
     d->state->brush = brush;
     d->state->dirtyFlags |= QPaintEngine::DirtyBrush;
 }
@@ -2230,7 +2267,13 @@ void QPainter::setBrush(const QBrush &brush)
 
 void QPainter::setBrush(Qt::BrushStyle style)
 {
-    setBrush(QBrush(Qt::black, style));
+    Q_D(QPainter);
+    if (d->state->brush.style() == style &&
+        (style == Qt::NoBrush
+         || (style == Qt::SolidPattern && d->state->brush.color() == QColor(0, 0, 0))))
+        return;
+    d->state->brush = QBrush(Qt::black, style);
+    d->state->dirtyFlags |= QPaintEngine::DirtyBrush;
 }
 
 /*!
