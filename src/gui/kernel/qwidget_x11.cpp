@@ -2288,22 +2288,16 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             XResizeWindow(dpy, data.winid, w, h);
     } else {
 #ifdef QT_USE_BACKINGSTORE
-        static int accelEnv = -1;
-        if (accelEnv == -1) {
-            accelEnv = qgetenv("QT_NO_FAST_MOVE").toInt() == 0;
-        }
-        bool accelerateMove = accelEnv;
         if(q->isVisible()) {
-            QWidget *pw = q->parentWidget();
-            QRect sr = QRect(oldPos, oldSize).intersect(pw->rect());
-            accelerateMove = accelerateMove && isOpaque()  && !isOverlapped(sr);
             moveRect(QRect(oldPos, oldSize), x - oldPos.x(), y - oldPos.y());
         }
 #endif
         setWSGeometry();
 #ifdef QT_USE_BACKINGSTORE
-        if (isResize || !accelerateMove)
+        if (isResize) {
             invalidateBuffer(q->rect()); //after the resize
+            q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, oldSize));
+        }
 #endif
     }
 
