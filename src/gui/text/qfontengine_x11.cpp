@@ -432,8 +432,8 @@ void QFontEngineMultiFT::loadEngine(int at)
     Q_ASSERT(at < engines.size());
     Q_ASSERT(engines.at(at) == 0);
     FcPattern *pattern = fontSet->fonts[at];
-    extern QFontDef FcPatternToQFontDef(FcPattern *pattern, const QFontDef &);
-    QFontDef fontDef = FcPatternToQFontDef(fontSet->fonts[at], this->fontDef);
+    extern QFontDef qt_FcPatternToQFontDef(FcPattern *pattern, const QFontDef &);
+    QFontDef fontDef = qt_FcPatternToQFontDef(fontSet->fonts[at], this->fontDef);
     // note: we use -1 for the script to make sure that we keep real
     // FT engines separate from Multi engines in the font cache
     QFontCache::Key key(fontDef, -1, screen);

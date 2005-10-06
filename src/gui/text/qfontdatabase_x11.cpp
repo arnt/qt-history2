@@ -700,7 +700,7 @@ static int getFCWeight(int fc_weight)
     return qtweight;
 }
 
-QFontDef FcPatternToQFontDef(FcPattern *pattern, const QFontDef &request)
+QFontDef qt_FcPatternToQFontDef(FcPattern *pattern, const QFontDef &request)
 {
     QFontDef fontDef;
 
@@ -1542,7 +1542,7 @@ static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &r
             FcDefaultSubstitute(pattern);
             FcResult res;
             FcPattern *match = FcFontMatch(0, pattern, &res);
-            QFontEngineFT *engine = new QFontEngineFT(match, FcPatternToQFontDef(match, request), fp->screen);
+            QFontEngineFT *engine = new QFontEngineFT(match, qt_FcPatternToQFontDef(match, request), fp->screen);
             if (engine->invalid()) {
                 FM_DEBUG("   --> invalid!\n");
                 delete engine;
