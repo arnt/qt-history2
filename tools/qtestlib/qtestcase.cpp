@@ -38,6 +38,569 @@
 #include <time.h>
 #endif
 
+
+/*! \namespace QTest
+
+   \brief The QTest namespace contains all the functions and
+   declarations that are related to the QTestLib tool.
+
+   Please refer to the \l{QTestLib Manual} documentation for information on
+   how to write unit tests.
+*/
+
+/*! \macro QVERIFY(condition)
+
+   \relates QTest
+
+   The QVERIFY() macro checks whether the \a condition is true or not. If it is
+   true, execution continues. If not, a failure is recorded in the test log
+   and the test won't be executed further.
+
+   \bold {Note:} This macro can only be used in a test function that is invoked
+   by the test framework.
+
+   Example:
+   \code
+   QVERIFY(1 + 1 == 2);
+   \endcode
+
+   \sa QCOMPARE()
+*/
+
+/*! \macro QCOMPARE(actual, expected)
+
+   \relates QTest
+
+   The QCOMPARE macro compares an \a actual value to an \a expected value using
+   the equals operator. If \a actual and \a expected are identical, execution
+   continues. If not, a failure is recorded in the test log and the test
+   won't be executed further.
+
+   QCOMPARE tries to output the contents of the values if the comparison fails,
+   so it is visible from the test log why the comparison failed.
+
+   \bold {Note:} QCOMPARE is very strict on the data types. Both \a
+   actual and \a expected have to be of the same type, otherwise the
+   test won't compile. This prohibits unspecified behavior from being
+   introduced; that is behavior that usually occurs when the compiler
+   implicitely casts the argument.
+
+   Note that, for your own classes, you can use \l QTest::toString()
+   to format values for outputting into the test log.
+
+   \bold {Note:} This macro can only be used in a test function that is invoked
+   by the test framework.
+
+   Example:
+   \code
+   QCOMPARE(QString("hello").toUpper(), QString("HELLO"));
+   \endcode
+
+   \sa QVERIFY(), QTest::toString()
+*/
+
+/*! \macro QFETCH(type, name)
+
+   \relates QTest
+
+   The fetch macro creates a local variable named \a name with the type \a type
+   on the stack. \a name has to match the element name from the test's data.
+   If no such element exists, the test will assert.
+
+   Assuming a test has the following data:
+
+   \code
+   void TestQString::toInt_data()
+   {
+       QTest::addColumn<QString>("aString");
+       QTest::addColumn<int>("expected");
+
+       QTest::newRow("positive value") << "42" << 42;
+       QTest::newRow("negative value") << "-42" << -42;
+       QTest::newRow("zero") << "0" << 0;
+   }
+   \endcode
+
+   The test data has two elements, a QString called \c aString and an integer
+   called \c expected. To fetch these values in the actual test:
+
+   \code
+   void TestQString::toInt()
+   {
+        QFETCH(QString, aString);
+        QFETCH(int, expected);
+
+        QCOMPARE(aString.toInt(), expected);
+   }
+   \endcode
+
+   \c aString and \c expected are variables on the stack that are initialized with
+   the current test data.
+
+   \bold {Note:} This macro can only be used in a test function that is invoked
+   by the test framework. The test function must have a _data function.
+*/
+
+/*! \macro QWARN(message)
+
+   \relates QTest
+   \threadsafe
+
+   Appends \a message as a warning to the test log. This macro can be used anywhere
+   in your tests.
+*/
+
+/*! \macro QFAIL(message)
+
+   \relates QTest
+
+   This macro can be used to force a test failure. The test stops
+   executing and the failure \a message is appended to the test log.
+
+   \bold {Note:} This macro can only be used in a test function that is invoked
+   by the test framework.
+
+   Example:
+
+   \code
+   if (sizeof(int) != 4)
+       QFAIL("This test has not been ported to this platform yet.");
+   \endcode
+*/
+
+/*! \macro QTEST(actual, testElement)
+
+   \relates QTest
+
+   QTEST() is a convenience macro for \l QCOMPARE() that compares
+   the value \a actual with the element \a testElement from the test's data.
+   If there is no such element, the test asserts.
+
+   Apart from that, QTEST() behaves exactly as \l QCOMPARE().
+
+   Instead of writing:
+
+   \code
+   QFETCH(QString, myString);
+   QCOMPARE(QString("hello").toUpper(), myString);
+   \endcode
+
+   you can write:
+
+   \code
+   QTEST(QString("hello").toUpper(), "myString");
+   \endcode
+
+   \sa QCOMPARE()
+*/
+
+/*! \macro QSKIP(description, mode)
+
+   \relates QTest
+
+   The QSKIP() macro stops execution of the test without adding a failure to the
+   test log. You can use it to skip tests that wouldn't make sense in the current
+   configuration. The text \a description is appended to the test log and should
+   contain an explanation why the test couldn't be executed. \a mode is a QTest::SkipMode
+   and describes whether to proceed with the rest of the test data or not.
+
+   \bold {Note:} This macro can only be used in a test function that is invoked
+   by the test framework.
+
+   Example:
+   \code
+   if (!QSqlDatabase::drivers().contains("SQLITE"))
+       QSKIP("This test requires the SQLITE database driver", SkipAll);
+   \endcode
+
+   \sa QTest::SkipMode
+*/
+
+/*! \macro QEXPECT_FAIL(dataIndex, comment, mode)
+
+   \relates QTest
+
+   The QEXPECT_FAIL() macro marks the next \l QCOMPARE() or \l QVERIFY() as an
+   expected failure. Instead of adding a failure to the test log, an expected
+   failure will be reported.
+
+   If a \l QVERIFY() or \l QCOMPARE() is marked as an expected failure,
+   but passes instead, an unexpected pass (XPASS) is written to the test log.
+   Unexpected passes behave exactly as failures, the test will stop executing.
+
+   The parameter \a dataIndex describes for which entry in the test data the
+   failure is expected. Pass an empty string (\c{""}) if the failure
+   is expected for all entries or if no test data exists.
+
+   \a comment will be appended to the test log for the expected failure.
+
+   \a mode is a \l QTest::TestFailMode and sets whether the test should
+   continue to execute or not.
+
+   \bold {Note:} This macro can only be used in a test function that is invoked
+   by the test framework.
+
+   Example 1:
+   \code
+   QEXPECT_FAIL("", "Will fix in the next release", Continue);
+   QCOMPARE(i, 42);
+   QCOMPARE(j, 43);
+   \endcode
+
+   In the example above, an expected fail will be written into the test output
+   if the variable \c i is not 42. If the variable \c i is 42, an unexpected pass
+   is written instead. The QEXPECT_FAIL() has no influence on the second QCOMPARE()
+   statement in the example.
+
+   Example 2:
+   \code
+   QEXPECT_FAIL("data27", "Oh my, this is soooo broken", Abort);
+   QCOMPARE(i, 42);
+   \endcode
+
+   The above testfunction will not continue executing for the test data
+   entry \c{data27}.
+
+   \sa QTest::TestFailMode, QVERIFY(), QCOMPARE()
+*/
+
+/*! \macro QTEST_MAIN(TestClass)
+
+    \relates QTest
+
+    Implements a main() function that instanciates a QApplication object and
+    the \a TestClass, and executes all tests in the order they were defined.
+    Use this macro to build stand-alone executables.
+
+    Example:
+    \code
+    class TestQString: public QObject { ... };
+    QTEST_MAIN(TestQString)
+    \endcode
+
+    \sa QTEST_APPLESS_MAIN(), QTest::exec()
+*/
+
+/*! \macro QTEST_APPLESS_MAIN(TestClass)
+
+    \relates QTest
+
+    Implements a main() function that executes all tests in \a TestClass.
+
+    Behaves like \l QTEST_MAIN(), but doesn't instanciate a QApplication
+    object. Use this macro for really simple stand-alone non-GUI tests.
+
+    \sa QTEST_MAIN()
+*/
+
+/*! \macro QTEST_NOOP_MAIN()
+
+    \relates QTest
+
+    Implements a main() function with a test class that does absolutely nothing.
+    Use this macro to create a test that produces valid test output but just
+    doesn't execute any test, for example in conditional compilations:
+
+    \code
+    #ifdef Q_WS_X11
+        QTEST_MAIN(MyX11Test)
+    #else
+        // do nothing on non-X11 platforms
+        QTEST_NOOP_MAIN
+    #endif
+    \endcode
+
+    \sa QTEST_MAIN()
+*/
+
+/*! \enum QTest::SkipMode
+
+    This enum describes the modes for skipping tests during execution
+    of the test data.
+
+    \value SkipSingle Skips the current entry in the test table; continues
+           execution of all the other entries in the table.
+
+    \value SkipAll Skips all the entries in the test table; the test won't
+           be executed further.
+
+    \sa QSKIP()
+*/
+
+/*! \enum QTest::TestFailMode
+
+    This enum describes the modes for handling an expected failure of the
+    \l QVERIFY() or \l QCOMPARE() macros.
+
+    \value Abort Aborts the execution of the test. Use this mode when it
+           doesn't make sense to execute the test any further after the
+           expected failure.
+
+    \value Continue Continues execution of the test after the expected failure.
+
+    \sa QEXPECT_FAIL()
+*/
+
+/*! \enum QTest::KeyAction
+
+    This enum describes possible actions for key handling.
+
+    \value Press    The key is pressed.
+    \value Release  The key is released.
+    \value Click    The key is clicked (pressed and released).
+*/
+
+/*! \enum QTest::MouseAction
+
+    This enum describes possible actions for mouse handling.
+
+    \value MousePress    A mouse button is pressed.
+    \value MouseRelease  A mouse button is released.
+    \value MouseClick    A mouse button is clicked (pressed and released).
+    \value MouseDClick   A mouse button is double clicked (pressed and released twice).
+    \value MouseMove     The mouse pointer has moved.
+*/
+
+/*! \fn void QTest::keyClick(QWidget *widget, char key, Qt::KeyboardModifiers modifier = Qt::NoModifier, int delay=-1)
+
+    \overload
+
+    Simulates clicking of \a key with an optional \a modifier on a \a widget. If \a delay is larger than 0, the test will wait for \a delay milliseconds.
+
+    Example:
+    \code
+    QTest::keyClick(myWidget, 'a');
+    \endcode
+
+    The example above simulates clicking \c a on \c myWidget without
+    any keyboard modifiers and without delay of the test.
+
+    \sa QTest::keyClicks()
+*/
+
+/*! \fn void QTest::keyClick(QWidget *widget, Qt::Key key, Qt::KeyboardModifiers modifier = Qt::NoModifier, int delay=-1)
+
+    Simulates clicking of \a key with an optional \a modifier on a \a widget. If \a delay is larger than 0, the test will wait for \a delay milliseconds.
+
+    Examples:
+    \code
+    QTest::keyClick(myWidget, Qt::Key_Escape);
+
+    QTest::keyClick(myWidget, Qt::Key_Escape, Qt::ShiftModifier, 200);
+    \endcode
+
+    The first example above simulates clicking the \c escape key on \c
+    myWidget without any keyboard modifiers and without delay. The
+    second example simulates clicking \c shift-escape on \c myWidget
+    with a following 200 ms delay of the test.
+
+    \sa QTest::keyClicks()
+*/
+
+/*! \fn void QTest::keyEvent(KeyAction action, QWidget *widget, Qt::Key key, Qt::KeyboardModifiers modifier = Qt::NoModifier, int delay=-1)
+
+    Sends a Qt key event to \a widget with the given \a key and an associated \a action. Optionally, a keyboard \a modifier can be specified, as well as a \a delay (in milliseconds) of the test after sending the event.
+*/
+
+/*! \fn void QTest::keyEvent(KeyAction action, QWidget *widget, char ascii, Qt::KeyboardModifiers modifier = Qt::NoModifier, int delay=-1)
+
+    \overload
+
+    Sends a Qt key event to \a widget with the given key \a ascii and an associated \a action. Optionally, a keyboard \a modifier can be specified, as well as a \a delay (in milliseconds) of the test after sending the event.
+
+*/
+
+/*! \fn void QTest::keyPress(QWidget *widget, Qt::Key key, Qt::KeyboardModifiers modifier = Qt::NoModifier, int delay=-1)
+
+    Simulates pressing a \a key with an optional \a modifier on a \a widget. If \a delay is larger than 0, the test will wait for \a delay milliseconds.
+
+    \bold {Note:} At some point you should release the key using \l keyRelease().
+
+    \sa QTest::keyRelease(), QTest::keyClick()
+*/
+
+/*! \fn void QTest::keyPress(QWidget *widget, char key, Qt::KeyboardModifiers modifier = Qt::NoModifier, int delay=-1)
+
+    \overload
+
+    Simulates pressing a \a key with an optional \a modifier on a \a widget. If \a delay is larger than 0, the test will wait for \a delay milliseconds.
+
+    \bold {Note:} At some point you should release the key using \l keyRelease().
+
+    \sa QTest::keyRelease(), QTest::keyClick()
+*/
+
+/*! \fn void QTest::keyRelease(QWidget *widget, Qt::Key key, Qt::KeyboardModifiers modifier = Qt::NoModifier, int delay=-1)
+
+    Simulates releasing a \a key with an optional \a modifier on a \a widget. If \a delay is larger than 0, the test will wait for \a delay milliseconds.
+
+    \sa QTest::keyPress(), QTest::keyClick()
+*/
+
+/*! \fn void QTest::keyRelease(QWidget *widget, char key, Qt::KeyboardModifiers modifier = Qt::NoModifier, int delay=-1)
+
+    \overload
+
+    Simulates releasing a \a key with an optional \a modifier on a \a widget. If \a delay is larger than 0, the test will wait for \a delay milliseconds.
+
+    \sa QTest::keyClick()
+*/
+
+
+/*! \fn void QTest::keyClicks(QWidget *widget, const QString &sequence, Qt::KeyboardModifiers modifier = Qt::NoModifier, int delay=-1)
+
+    Simulates clicking a \a sequence of keys on a \a
+    widget. Optionally, a keyboard \a modifier can be specified as
+    well as a \a delay (in milliseconds) of the test after each key
+    click.
+
+    Example:
+    \code
+    QTest::keyClicks(myWidget, "hello world");
+    \endcode
+
+    The example above simulates clicking the sequence of keys
+    representing "hello world" on \c myWidget without any keyboard
+    modifiers and without delay of the test.
+
+    \sa QTest::keyClick()
+*/
+
+/*! \fn void QTest::mousePress(QWidget *widget, Qt::MouseButton button, Qt::KeyboardModifiers modifier = 0, QPoint pos = QPoint(), int delay=-1)
+
+    Simulates pressing a mouse \a button with an optional \a modifier
+    on a \a widget.  The position is defined by \a pos; the default
+    position is the center of the widget. If \a delay is specified,
+    the test will wait for the specified amount of milliseconds after
+    the press.
+
+    \sa QTest::mouseRelease(), QTest::mouseClick()
+*/
+
+/*! \fn void QTest::mouseRelease(QWidget *widget, Qt::MouseButton button, Qt::KeyboardModifiers modifier = 0, QPoint pos = QPoint(), int delay=-1)
+
+    Simulates releasing a mouse \a button with an optional \a modifier
+    on a \a widget.  The position of the release is defined by \a pos;
+    the default position is the center of the widget. If \a delay is
+    specified, the test will wait for the specified amount of
+    milliseconds after releasing the button.
+
+    \sa QTest::mousePress(), QTest::mouseClick()
+*/
+
+/*! \fn void QTest::mouseClick(QWidget *widget, Qt::MouseButton button, Qt::KeyboardModifiers modifier = 0, QPoint pos = QPoint(), int delay=-1)
+
+    Simulates clicking a mouse \a button with an optional \a modifier
+    on a \a widget.  The position of the click is defined by \a pos;
+    the default position is the center of the widget. If \a delay is
+    specified, the test will wait for the specified amount of
+    milliseconds after pressing and after releasing the button.
+
+    \sa QTest::mousePress(), QTest::mouseRelease()
+*/
+
+/*! \fn void QTest::mouseDClick(QWidget *widget, Qt::MouseButton button, Qt::KeyboardModifiers modifier = 0, QPoint pos = QPoint(), int delay=-1)
+
+    Simulates double clicking a mouse \a button with an optional \a
+    modifier on a \a widget.  The position of the click is defined by
+    \a pos; the default position is the center of the widget. If \a
+    delay is specified, the test will wait for the specified amount of
+    milliseconds after each press and release.
+
+    \sa QTest::mouseClick()
+*/
+
+/*! \fn void QTest::mouseMove(QWidget *widget, QPoint pos = QPoint(), int delay=-1)
+
+    Moves the mouse pointer to a \a widget. If \a pos is not
+    specified, the mouse pointer moves to the center of the widget. If
+    a \a delay (in milliseconds) is given, the test will wait after
+    moving the mouse pointer.
+*/
+
+/*!
+    \fn char *QTest::toString(const T &value)
+
+    Returns a textual representation of \a value. This function is used by
+    \l QCOMPARE() to output verbose information in case of a test failure.
+
+    You can add specializations of this function to your test to enable
+    verbose output.
+
+    \bold {Note:} The caller of toString() must delete the returned data
+    using \c{delete[]}.  Your implementation should return a string
+    created with \c{new[]} or qstrdup().
+
+    Example:
+
+    \code
+    namespace QTest {
+        template<>
+        char *toString(const MyPoint &point)
+        {
+            QByteArray ba = "MyPoint(";
+            ba += QByteArray::number(point.x()) + ", " + QByteArray::number(point.y());
+            ba += ")";
+            return qstrdup(ba.data());
+        }
+    }
+    \endcode
+
+    The example above defines a toString() specialization for a class
+    called \c MyPoint. Whenever a comparison of two instances of \c
+    MyPoint fails, \l QCOMPARE() will call this function to output the
+    contents of \c MyPoint to the test log.
+
+    \sa QCOMPARE()
+*/
+
+/*! \fn void QTest::qWait(int ms)
+
+    Waits for \a ms milliseconds. While waiting, events will be processed and
+    your test will stay responsive to user interface events or network communication.
+
+    Example:
+    \code
+    int i = 0;
+    while (myNetworkServerNotResponding() && i++ < 50)
+        QTest::qWait(250);
+    \endcode
+
+    The code above will wait until the network server is responding for a
+    maximum of about 12.5 seconds.
+
+    \sa qSleep()
+*/
+
+/*! \fn int QTest::defaultMouseDelay()
+    \internal
+*/
+
+/*! \fn int QTest::defaultKeyDelay()
+    \internal
+*/
+
+/*! \fn int QTest::defaultEventDelay()
+    \internal
+*/
+
+/*! \fn void QTest::mouseEvent(MouseAction action, QWidget *widget, Qt::MouseButton button, Qt::KeyboardModifiers stateKey, QPoint pos, int delay=-1)
+
+    \internal
+*/
+
+/*! \fn void QTest::simulateEvent(QWidget *widget, bool press, int code, Qt::KeyboardModifiers modifier, QString text, bool repeat, int delay=-1)
+    \internal
+*/
+
+/*! \fn void QTest::sendKeyEvent(KeyAction action, QWidget *widget, Qt::Key code, QString text, Qt::KeyboardModifiers modifier, int delay=-1)
+    \internal
+*/
+
+/*! \fn void QTest::sendKeyEvent(KeyAction action, QWidget *widget, Qt::Key code, char ascii, Qt::KeyboardModifiers modifier, int delay=-1)
+    \internal
+*/
+
 namespace QTest
 {
     static bool skipCurrentTest = false;
@@ -350,6 +913,18 @@ void *fetchData(QTestData *data, const char *tagName, int typeId)
 
 } // namespace
 
+/*! \fn int QTest::qExec(QObject *testObject, int argc = 0, char **argv = 0)
+
+    Executes tests declared in \a testObject. Optionally, the command line arguments
+    \a argc and \a argv can be provided. For a list of recognized arguments, read
+    \l {QTestLib Command Line Arguments}.
+
+    For stand-alone tests, the convenience macro \l QTEST_MAIN() can
+    be used to declare a main method that parses the command line arguments
+    and executes the tests.
+
+    \sa QTEST_MAIN()
+*/
 int QTest::qExec(QObject *testObject, int argc, char **argv)
 {
 #ifndef QT_NO_EXCEPTION
@@ -429,17 +1004,23 @@ int QTest::qExec(QObject *testObject, int argc, char **argv)
 #endif
 }
 
+/*! \internal
+ */
 void QTest::qFail(const char *statementStr, const char *file, int line)
 {
     QTestResult::addFailure(statementStr, file, line);
 }
 
+/*! \internal
+ */
 bool QTest::qVerify(bool statement, const char *statementStr, const char *description,
                    const char *file, int line)
 {
     return QTestResult::verify(statement, statementStr, description, file, line);
 }
 
+/*! \internal
+ */
 void QTest::qSkip(const char *message, QTest::SkipMode mode,
                  const char *file, int line)
 {
@@ -448,32 +1029,64 @@ void QTest::qSkip(const char *message, QTest::SkipMode mode,
         skipCurrentTest = true;
 }
 
+/*! \internal
+ */
 bool QTest::qExpectFail(const char *dataIndex, const char *comment,
                        QTest::TestFailMode mode, const char *file, int line)
 {
     return QTestResult::expectFail(dataIndex, comment, mode, file, line);
 }
 
+/*! \internal
+ */
 void QTest::qWarn(const char *message)
 {
     QTestLog::warn(message);
 }
 
+/*! \fn void QTest::ignoreMessage(QtMsgType type, const char *message)
+
+    Ignores messages created by qDebug() or qWarning(). If the \a message
+    with the corresponding \a type is outputted, it will be removed from the
+    test log. If the test finished and the \a message was not outputted,
+    a test failure is appended to the test log.
+
+    \bold {Note:} Invoking this function will only ignore one message.
+    If the message you want to ignore is outputted twice, you have to
+    call ignoreMessage() twice, too.
+
+    Example:
+    \code
+    QDir dir;
+
+    QTest::ignoreMessage(QtWarningMessage, "QDir::mkdir: Empty or null file name(s)");
+    dir.mkdir("");
+    \endcode
+
+    The example above tests that QDir::mkdir() outputs the right warning when invoked
+    with an invalid file name.
+*/
 void QTest::ignoreMessage(QtMsgType type, const char *message)
 {
     QTestResult::ignoreMessage(type, message);
 }
 
+/*! \internal
+ */
 void *QTest::qData(const char *tagName, int typeId)
 {
     return fetchData(QTestResult::currentTestData(), tagName, typeId);
 }
 
+/*! \internal
+ */
 void *QTest::qGlobalData(const char *tagName, int typeId)
 {
     return fetchData(QTestResult::currentGlobalTestData(), tagName, typeId);
 }
 
+/*! \internal
+ */
 void *QTest::qElementData(const char *tagName, int metaTypeId)
 {
     QTEST_ASSERT(tagName);
@@ -488,6 +1101,8 @@ void *QTest::qElementData(const char *tagName, int metaTypeId)
     return data->data(data->parent()->indexOf(tagName));
 }
 
+/*! \internal
+ */
 void QTest::addColumnInternal(int id, const char *name)
 {
     QTestTable *tbl = QTestTable::currentTestTable();
@@ -496,6 +1111,27 @@ void QTest::addColumnInternal(int id, const char *name)
     tbl->addColumn(id, name);
 }
 
+/*!
+    Appends a new row to the current test data. \a dataTag is the name of
+    the testdata that will appear in the test output. Returns a QTestData reference
+    that can be used to stream in data.
+
+    Example:
+    \code
+    void myTestFunction_data() {
+        QTest::addColumn<QString>("aString");
+        QTest::newRow("just hello") << QString("hello");
+        QTest::newRow("a null string") << QString();
+    }
+    \endcode
+
+    \bold {Note:} This macro can only be used in a test's data function
+    that is invoked by the test framework.
+
+    ### link to test-driven
+
+    \sa addColumn(), QTestData, QFETCH()
+*/
 QTestData &QTest::newRow(const char *dataTag)
 {
     QTestTable *tbl = QTestTable::currentTestTable();
@@ -504,21 +1140,97 @@ QTestData &QTest::newRow(const char *dataTag)
     return *tbl->newData(dataTag);
 }
 
+/*! \fn void addColumn(const char *name, T *dummy = 0)
+
+    Adds a column with type \c{T} to the current test data.
+    \a name is the name of the column. \a dummy is a workaround
+    for buggy compilers and can be ignored.
+
+    To populate the column with values, newRow() can be used. Use
+    \l QFETCH() to fetch the data in the actual test.
+
+    Example:
+    \code
+    void myTestFunction_data() {
+        QTest::addColumn<int>("intval");
+        QTest::addColumn<QString>("str");
+        QTest::addColumn<double>("dbl");
+
+        QTest::newRow("row1") << 1 << "hello" << 1.5;
+    }
+    \endcode
+
+    To add custom types to the testdata, the type must be registered with
+    QMetaType via \l Q_DECLARE_METATYPE().
+
+    \bold {Note:} This macro can only be used in a test's data function
+    that is invoked by the test framework.
+
+    ### link to test-driven
+
+    \sa newRow(), QFETCH(), QMetaType
+*/
+
+/*! \fn const char *QTest::currentTestFunction()
+
+    Returns the name of the test function that is currently executed.
+
+    Example:
+
+    \code
+    void MyTestClass::cleanup()
+    {
+        if (qstrcmp(currentTestFunction(), "myDatabaseTest") == 0) {
+            // clean up all database connections
+            closeAllDatabases();
+        }
+    }
+    \endcode
+*/
 const char *QTest::currentTestFunction()
 {
     return QTestResult::currentTestFunction();
 }
 
+/*! \fn const char *QTest::currentDataTag()
+
+    Returns the name of the current test data. If the test doesn't
+    have any assigned testdata, the function returns 0.
+
+    \sa QTestTable
+*/
 const char *QTest::currentDataTag()
 {
     return QTestResult::currentDataTag();
 }
 
+/*! \fn void QTest::currentTestFailed()
+
+    Returns true if the current test function failed, otherwise false.
+*/
 bool QTest::currentTestFailed()
 {
     return QTestResult::currentTestFailed();
 }
 
+/*! \fn void QTest::qSleep(int ms)
+
+    Sleeps for \a ms milliseconds, blocking execution of the
+    test. qSleep() will not do any event processing and leave your test
+    unresponsive. Network communication might time out while
+    sleeping. Use \l qWait() to do non-blocking sleeping.
+
+    \bold {Note:} The qSleep() function calls either \c nanosleep() on
+    unix or \c Sleep() on windows, so the accuracy of time spent in
+    qSleep() depends on the operating system.
+
+    Example:
+    \code
+    QTest::qSleep(250);
+    \endcode
+
+    \sa qWait()
+*/
 void QTest::qSleep(int ms)
 {
 #ifdef Q_OS_WIN32
@@ -531,16 +1243,22 @@ void QTest::qSleep(int ms)
 #endif
 }
 
+/*! \internal
+ */
 QObject *QTest::testObject()
 {
     return currentTestObject;
 }
 
+/*! \internal
+ */
 bool QTest::compare_helper(bool success, const char *msg, const char *file, int line)
 {
     return QTestResult::compare(success, msg, file, line);
 }
 
+/*! \internal
+ */
 bool QTest::compare_helper(bool success, const char *msg, char *val1, char *val2,
                     const char *actual, const char *expected, const char *file, int line)
 {
@@ -588,6 +1306,8 @@ COMPARE_IMPL2(char, %c)
 COMPARE_IMPL2(float, %f);
 COMPARE_IMPL2(double, %lf);
 
+/*! \internal
+ */
 char *QTest::toString(const char *str)
 {
     if (!str)
@@ -596,6 +1316,8 @@ char *QTest::toString(const char *str)
     return strcpy(msg, str);
 }
 
+/*! \internal
+ */
 char *QTest::toString(const void *p)
 {
     char *msg = new char[128];
@@ -603,6 +1325,8 @@ char *QTest::toString(const void *p)
     return msg;
 }
 
+/*! \internal
+ */
 bool QTest::compare_string_helper(const char *t1, const char *t2, const char *actual,
                                   const char *expected, const char *file, int line)
 {

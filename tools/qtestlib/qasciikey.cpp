@@ -14,14 +14,13 @@
 #include "QtTest/qtestcase.h"
 #include "QtTest/qtestassert.h"
 
-/*
+/*! \internal
     Convert an ascii char key value to a Qt Key value.
     If the key is unknown a 0 is returned.
 
     Note: this may happen more than you like since not all known
     ascii keys _are_ converted already. So feel free to add all the keys you need.
-*/
-
+  */
 Qt::Key QTest::asciiToKey(char ascii)
 {
     switch ((unsigned char)ascii) {
@@ -197,14 +196,13 @@ Qt::Key QTest::asciiToKey(char ascii)
     }
 }
 
-/*
+/*! \internal
     Convert a Qt Key to an ascii char value.
     If the Qt key is unknown a 0 is returned.
 
     Note: this may happen more than you like since not all known
     Qt keys _are_ converted already. So feel free to add all the keys you need.
 */
-
 char QTest::keyToAscii(Qt::Key key)
 {
     switch (key) {
