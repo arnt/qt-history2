@@ -471,54 +471,7 @@ static void qt_set_windows_resources()
 
     QApplicationPrivate::setSystemPalette(pal);
 
-    QColor menuCol(qt_colorref2qrgb(GetSysColor(COLOR_MENU)));
-    QColor menuText(qt_colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
-    {
-        BOOL isFlat = 0;
-        if ((QSysInfo::WindowsVersion >= QSysInfo::WV_XP
-            && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based))
-            SystemParametersInfo(0x1022 /*SPI_GETFLATMENU*/, 0, &isFlat, 0);
-        QPalette menu(pal);
-        // we might need a special color group for the menu.
-        menu.setColor(QPalette::Active, QPalette::Button, menuCol);
-        menu.setColor(QPalette::Active, QPalette::Text, menuText);
-        menu.setColor(QPalette::Active, QPalette::Foreground, menuText);
-        menu.setColor(QPalette::Active, QPalette::ButtonText, menuText);
-        const QColor fg = menu.foreground().color(), btn = menu.button().color();
-        QColor disabled(qt_colorref2qrgb(GetSysColor(COLOR_GRAYTEXT)));
-        menu.setColor(QPalette::Disabled, QPalette::Foreground, disabled);
-        menu.setColor(QPalette::Disabled, QPalette::Text, disabled);
-        menu.setColor(QPalette::Disabled, QPalette::Highlight,
-                       QColor(qt_colorref2qrgb(GetSysColor(
-                                               (QSysInfo::WindowsVersion >= QSysInfo::WV_XP
-                                               && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based)
-                                               && isFlat ? COLOR_MENUHILIGHT
-                                                         : COLOR_HIGHLIGHT))));
-        menu.setColor(QPalette::Disabled, QPalette::HighlightedText, disabled);
-        menu.setColor(QPalette::Disabled, QPalette::Button,
-                      menu.color(QPalette::Active, QPalette::Button));
-        menu.setColor(QPalette::Inactive, QPalette::Button,
-                      menu.color(QPalette::Active, QPalette::Button));
-        menu.setColor(QPalette::Inactive, QPalette::Text,
-                      menu.color(QPalette::Active, QPalette::Text));
-        menu.setColor(QPalette::Inactive, QPalette::Foreground,
-                      menu.color(QPalette::Active, QPalette::Foreground));
-        menu.setColor(QPalette::Inactive, QPalette::ButtonText,
-                      menu.color(QPalette::Active, QPalette::ButtonText));
-        if (QSysInfo::WindowsVersion != QSysInfo::WV_NT && QSysInfo::WindowsVersion != QSysInfo::WV_95)
-            menu.setColor(QPalette::Inactive, QPalette::ButtonText,
-                          pal.color(QPalette::Inactive, QPalette::Dark));
-        QApplication::setPalette(menu, "QMenu");
-
-        if ((QSysInfo::WindowsVersion >= QSysInfo::WV_XP
-            && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based) && isFlat) {
-            QColor menubar(qt_colorref2qrgb(GetSysColor(COLOR_MENUBAR)));
-            menu.setColor(QPalette::Active, QPalette::Button, menubar);
-            menu.setColor(QPalette::Disabled, QPalette::Button, menubar);
-            menu.setColor(QPalette::Inactive, QPalette::Button, menubar);
-        }
-        QApplication::setPalette(menu, "QMenuBar");
-    }
+    QApplicationPrivate::initializeWidgetPaletteHash();
 
     QColor ttip(qt_colorref2qrgb(GetSysColor(COLOR_INFOBK)));
 
@@ -548,6 +501,53 @@ static void qt_set_windows_resources()
 
 void QApplicationPrivate::initializeWidgetPaletteHash()
 {
+    QPalette pal = *QApplicationPrivate::sys_pal;
+    QColor menuCol(qt_colorref2qrgb(GetSysColor(COLOR_MENU)));
+    QColor menuText(qt_colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
+    BOOL isFlat = 0;
+    if ((QSysInfo::WindowsVersion >= QSysInfo::WV_XP
+        && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based))
+        SystemParametersInfo(0x1022 /*SPI_GETFLATMENU*/, 0, &isFlat, 0);
+    QPalette menu(pal);
+    // we might need a special color group for the menu.
+    menu.setColor(QPalette::Active, QPalette::Button, menuCol);
+    menu.setColor(QPalette::Active, QPalette::Text, menuText);
+    menu.setColor(QPalette::Active, QPalette::Foreground, menuText);
+    menu.setColor(QPalette::Active, QPalette::ButtonText, menuText);
+    const QColor fg = menu.foreground().color(), btn = menu.button().color();
+    QColor disabled(qt_colorref2qrgb(GetSysColor(COLOR_GRAYTEXT)));
+    menu.setColor(QPalette::Disabled, QPalette::Foreground, disabled);
+    menu.setColor(QPalette::Disabled, QPalette::Text, disabled);
+    menu.setColor(QPalette::Disabled, QPalette::Highlight,
+                    QColor(qt_colorref2qrgb(GetSysColor(
+                                            (QSysInfo::WindowsVersion >= QSysInfo::WV_XP
+                                            && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based)
+                                            && isFlat ? COLOR_MENUHILIGHT
+                                                        : COLOR_HIGHLIGHT))));
+    menu.setColor(QPalette::Disabled, QPalette::HighlightedText, disabled);
+    menu.setColor(QPalette::Disabled, QPalette::Button,
+                    menu.color(QPalette::Active, QPalette::Button));
+    menu.setColor(QPalette::Inactive, QPalette::Button,
+                    menu.color(QPalette::Active, QPalette::Button));
+    menu.setColor(QPalette::Inactive, QPalette::Text,
+                    menu.color(QPalette::Active, QPalette::Text));
+    menu.setColor(QPalette::Inactive, QPalette::Foreground,
+                    menu.color(QPalette::Active, QPalette::Foreground));
+    menu.setColor(QPalette::Inactive, QPalette::ButtonText,
+                    menu.color(QPalette::Active, QPalette::ButtonText));
+    if (QSysInfo::WindowsVersion != QSysInfo::WV_NT && QSysInfo::WindowsVersion != QSysInfo::WV_95)
+        menu.setColor(QPalette::Inactive, QPalette::ButtonText,
+                        pal.color(QPalette::Inactive, QPalette::Dark));
+    QApplication::setPalette(menu, "QMenu");
+
+    if ((QSysInfo::WindowsVersion >= QSysInfo::WV_XP
+        && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based) && isFlat) {
+        QColor menubar(qt_colorref2qrgb(GetSysColor(COLOR_MENUBAR)));
+        menu.setColor(QPalette::Active, QPalette::Button, menubar);
+        menu.setColor(QPalette::Disabled, QPalette::Button, menubar);
+        menu.setColor(QPalette::Inactive, QPalette::Button, menubar);
+    }
+    QApplication::setPalette(menu, "QMenuBar");
 }
 
 /*****************************************************************************
