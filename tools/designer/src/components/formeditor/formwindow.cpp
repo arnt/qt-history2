@@ -1026,7 +1026,7 @@ void FormWindow::handleArrowKeyEvent(int key, bool modifier)
             cmd->init(c->selectedWidget(index), QLatin1String("geometry"), geom);
             cmd->setDescription(tr("Key Move"));
             m_commandHistory->push(cmd);
-            
+
             if (m_moveSelection.count() > index)
                 m_moveSelection.replace(index, cmd);
             else
@@ -1345,34 +1345,22 @@ void FormWindow::endCommand()
 
 void FormWindow::raiseWidgets()
 {
-    beginCommand(tr("Raise"));
-
     QList<QWidget*> widgets = selectedWidgets();
     simplifySelection(&widgets);
 
     foreach (QWidget *widget, widgets) {
-        RaiseWidgetCommand *cmd = new RaiseWidgetCommand(this);
-        cmd->init(widget);
-        commandHistory()->push(cmd);
+        widget->raise();
     }
-
-    endCommand();
 }
 
 void FormWindow::lowerWidgets()
 {
-    beginCommand(tr("Lower"));
-
     QList<QWidget*> widgets = selectedWidgets();
     simplifySelection(&widgets);
 
     foreach (QWidget *widget, widgets) {
-        LowerWidgetCommand *cmd = new LowerWidgetCommand(this);
-        cmd->init(widget);
-        commandHistory()->push(cmd);
+        widget->lower();
     }
-
-    endCommand();
 }
 
 bool FormWindow::handleMouseButtonDblClickEvent(QWidget *, QWidget *managedWidget, QMouseEvent *e)
