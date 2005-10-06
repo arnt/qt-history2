@@ -32,6 +32,7 @@
 #include <QtGui/QShortcut>
 #include <QtGui/QStatusBar>
 #include <QtGui/QTreeWidget>
+#include <QtGui/QTableWidget>
 #include <QtGui/QWidget>
 #include <QtGui/QSplitter>
 
@@ -1675,6 +1676,139 @@ void QAbstractFormBuilder::saveTreeWidgetExtraInfo(QTreeWidget *treeWidget, DomW
 /*!
     \internal
 */
+void QAbstractFormBuilder::saveTableWidgetExtraInfo(QTableWidget *tableWidget, DomWidget *ui_widget, DomWidget *ui_parentWidget)
+{
+    Q_UNUSED(ui_parentWidget);
+
+    // save the horizontal header
+    QList<DomColumn*> columns;
+    for (int c = 0; c < tableWidget->columnCount(); c++) {
+        DomColumn *column = new DomColumn;
+        QList<DomProperty*> properties;
+        QTableWidgetItem *item = tableWidget->horizontalHeaderItem(c);
+        if (item) {
+            // property text
+            DomProperty *ptext = new DomProperty;
+            DomString *str = new DomString;
+            str->setText(item->text());
+            ptext->setAttributeName(QLatin1String("text"));
+            ptext->setElementString(str);
+            properties.append(ptext);
+
+            QIcon icon = item->icon();
+            if (!icon.isNull()) {
+                QString iconPath = iconToFilePath(icon);
+                QString qrcPath = iconToQrcPath(icon);
+
+                DomProperty *p = new DomProperty;
+
+                DomResourcePixmap *pix = new DomResourcePixmap;
+                if (!qrcPath.isEmpty())
+                    pix->setAttributeResource(qrcPath);
+
+                pix->setText(iconPath);
+
+                p->setAttributeName(QLatin1String("icon"));
+                p->setElementIconSet(pix);
+
+                properties.append(p);
+            }
+        }
+
+        column->setElementProperty(properties);
+        columns.append(column);
+    }
+    ui_widget->setElementColumn(columns);
+
+    // save the vertical header
+    QList<DomRow*> rows;
+    for (int r = 0; r < tableWidget->rowCount(); r++) {
+        DomRow *row = new DomRow;
+        QList<DomProperty*> properties;
+        QTableWidgetItem *item = tableWidget->verticalHeaderItem(r);
+        if (item) {
+            // property text
+            DomProperty *ptext = new DomProperty;
+            DomString *str = new DomString;
+            str->setText(item->text());
+            ptext->setAttributeName(QLatin1String("text"));
+            ptext->setElementString(str);
+            properties.append(ptext);
+
+            QIcon icon = item->icon();
+            if (!icon.isNull()) {
+                QString iconPath = iconToFilePath(icon);
+                QString qrcPath = iconToQrcPath(icon);
+
+                DomProperty *p = new DomProperty;
+
+                DomResourcePixmap *pix = new DomResourcePixmap;
+                if (!qrcPath.isEmpty())
+                    pix->setAttributeResource(qrcPath);
+
+                pix->setText(iconPath);
+
+                p->setAttributeName(QLatin1String("icon"));
+                p->setElementIconSet(pix);
+
+                properties.append(p);
+            }
+        }
+
+        row->setElementProperty(properties);
+        rows.append(row);
+    }
+    ui_widget->setElementRow(rows);
+
+    QList<DomItem *> items = ui_widget->elementItem();
+
+    for (int r = 0; r < tableWidget->rowCount(); r++)
+        for (int c = 0; c < tableWidget->columnCount(); c++) {
+            QTableWidgetItem *item = tableWidget->item(r, c);
+            if (item) {
+                DomItem *domItem = new DomItem;
+                domItem->setAttributeRow(r);
+                domItem->setAttributeColumn(c);
+                QList<DomProperty*> properties;
+
+                DomProperty *ptext = new DomProperty;
+
+                DomString *str = new DomString;
+                str->setText(item->text());
+                ptext->setAttributeName(QLatin1String("text"));
+                ptext->setElementString(str);
+                properties.append(ptext);
+
+                QIcon icon = item->icon();
+                if (!icon.isNull()) {
+                    QString iconPath = iconToFilePath(icon);
+                    QString qrcPath = iconToQrcPath(icon);
+
+                    DomProperty *p = new DomProperty;
+
+                    DomResourcePixmap *pix = new DomResourcePixmap;
+                    if (!qrcPath.isEmpty())
+                        pix->setAttributeResource(qrcPath);
+
+                    pix->setText(iconPath);
+
+                    p->setAttributeName(QLatin1String("icon"));
+                    p->setElementIconSet(pix);
+
+                    properties.append(p);
+                }
+
+                domItem->setElementProperty(properties);
+                items.append(domItem);
+            }
+        }
+
+    ui_widget->setElementItem(items);
+}
+
+/*!
+    \internal
+*/
 void QAbstractFormBuilder::saveListWidgetExtraInfo(QListWidget *listWidget, DomWidget *ui_widget, DomWidget *ui_parentWidget)
 {
     Q_UNUSED(ui_parentWidget);
@@ -1783,6 +1917,8 @@ void QAbstractFormBuilder::saveExtraInfo(QWidget *widget, DomWidget *ui_widget, 
         saveListWidgetExtraInfo(listWidget, ui_widget, ui_parentWidget);
     } else if (QTreeWidget *treeWidget = qobject_cast<QTreeWidget*>(widget)) {
         saveTreeWidgetExtraInfo(treeWidget, ui_widget, ui_parentWidget);
+    } else if (QTableWidget *tableWidget = qobject_cast<QTableWidget*>(widget)) {
+        saveTableWidgetExtraInfo(tableWidget, ui_widget, ui_parentWidget);
     } else if (QComboBox *comboBox = qobject_cast<QComboBox*>(widget)) {
         saveComboBoxExtraInfo(comboBox, ui_widget, ui_parentWidget);
     }
@@ -1897,6 +2033,90 @@ void QAbstractFormBuilder::loadTreeWidgetExtraInfo(DomWidget *ui_widget, QTreeWi
 /*!
     \internal
 */
+void QAbstractFormBuilder::loadTableWidgetExtraInfo(DomWidget *ui_widget, QTableWidget *tableWidget, QWidget *parentWidget)
+{
+    Q_UNUSED(parentWidget);
+
+    QList<DomColumn*> columns = ui_widget->elementColumn();
+    tableWidget->setColumnCount(columns.count());
+    for (int i = 0; i< columns.count(); i++) {
+        DomColumn *c = columns.at(i);
+        QHash<QString, DomProperty*> properties = propertyMap(c->elementProperty());
+
+        DomProperty *ptext = properties.value(QLatin1String("text"));
+        DomProperty *picon = properties.value(QLatin1String("icon"));
+
+        if (ptext || picon) {
+            QTableWidgetItem *item = new QTableWidgetItem;
+            if (ptext != 0 && ptext->elementString()) {
+                item->setText(ptext->elementString()->text());
+            }
+
+            if (picon && picon->kind() == DomProperty::IconSet) {
+                DomResourcePixmap *icon = picon->elementIconSet();
+                Q_ASSERT(icon != 0);
+                QString iconPath = icon->text();
+                QString qrcPath = icon->attributeResource();
+
+                item->setIcon(nameToIcon(iconPath, qrcPath));
+            }
+            tableWidget->setHorizontalHeaderItem(i, item);
+        }
+    }
+
+    QList<DomRow*> rows = ui_widget->elementRow();
+    tableWidget->setRowCount(rows.count());
+    for (int i = 0; i< rows.count(); i++) {
+        DomRow *r = rows.at(i);
+        QHash<QString, DomProperty*> properties = propertyMap(r->elementProperty());
+
+        DomProperty *ptext = properties.value(QLatin1String("text"));
+        DomProperty *picon = properties.value(QLatin1String("icon"));
+
+        if (ptext || picon) {
+            QTableWidgetItem *item = new QTableWidgetItem;
+            if (ptext != 0 && ptext->elementString()) {
+                item->setText(ptext->elementString()->text());
+            }
+
+            if (picon && picon->kind() == DomProperty::IconSet) {
+                DomResourcePixmap *icon = picon->elementIconSet();
+                Q_ASSERT(icon != 0);
+                QString iconPath = icon->text();
+                QString qrcPath = icon->attributeResource();
+
+                item->setIcon(nameToIcon(iconPath, qrcPath));
+            }
+            tableWidget->setVerticalHeaderItem(i, item);
+        }
+    }
+
+    foreach (DomItem *ui_item, ui_widget->elementItem()) {
+        if (ui_item->hasAttributeRow() && ui_item->hasAttributeColumn()) {
+            QTableWidgetItem *item = new QTableWidgetItem;
+            foreach (DomProperty *property, ui_item->elementProperty()) {
+                if (property->attributeName() == QLatin1String("text") &&
+                        property->elementString()) {
+                    item->setText(property->elementString()->text());
+                } else if (property->attributeName() == QLatin1String("icon") &&
+                        property->kind() == DomProperty::IconSet) {
+                    DomResourcePixmap *icon = property->elementIconSet();
+                    Q_ASSERT(icon != 0);
+                    QString iconPath = icon->text();
+                    QString qrcPath = icon->attributeResource();
+
+                    item->setIcon(nameToIcon(iconPath, qrcPath));
+                }
+
+            }
+            tableWidget->setItem(ui_item->attributeRow(), ui_item->attributeColumn(), item);
+        }
+    }
+}
+
+/*!
+    \internal
+*/
 void QAbstractFormBuilder::loadComboBoxExtraInfo(DomWidget *ui_widget, QComboBox *comboBox, QWidget *parentWidget)
 {
     Q_UNUSED(parentWidget);
@@ -1941,6 +2161,8 @@ void QAbstractFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, 
         loadListWidgetExtraInfo(ui_widget, listWidget, parentWidget);
     } else if (QTreeWidget *treeWidget = qobject_cast<QTreeWidget*>(widget)) {
         loadTreeWidgetExtraInfo(ui_widget, treeWidget, parentWidget);
+    } else if (QTableWidget *tableWidget = qobject_cast<QTableWidget*>(widget)) {
+        loadTableWidgetExtraInfo(ui_widget, tableWidget, parentWidget);
     } else if (QComboBox *comboBox = qobject_cast<QComboBox*>(widget)) {
         loadComboBoxExtraInfo(ui_widget, comboBox, parentWidget);
     } else if (QTabWidget *tabWidget = qobject_cast<QTabWidget*>(widget)) {

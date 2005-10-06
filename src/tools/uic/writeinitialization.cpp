@@ -1267,8 +1267,89 @@ void WriteInitialization::initializeTreeWidget(DomWidget *w)
 
 void WriteInitialization::initializeTableWidget(DomWidget *w)
 {
-    // ### not implemented yet
-    Q_UNUSED(w);
+    QString varName = driver->findOrInsertWidget(w);
+    QString className = w->attributeClass();
+
+    // columns
+    QList<DomColumn *> columns = w->elementColumn();
+    for (int i = 0; i < columns.size(); ++i) {
+        DomColumn *column = columns.at(i);
+
+        QHash<QString, DomProperty*> properties = propertyMap(column->elementProperty());
+        DomProperty *text = properties.value(QLatin1String("text"));
+        DomProperty *icon = properties.value(QLatin1String("icon"));
+        if (text || icon) {
+            QString itemName = driver->unique(QLatin1String("__colItem"));
+            refreshOut << "\n";
+            refreshOut << option.indent << "QTableWidgetItem *"
+                           << itemName << " = new QTableWidgetItem();\n";
+
+            if (text && text->attributeName() == QLatin1String("text"))
+                refreshOut << option.indent << itemName << "->setText("
+                           << trCall(text->elementString()) << ");\n";
+
+            if (icon && icon->attributeName() == QLatin1String("icon"))
+                refreshOut << option.indent << itemName << "->setIcon("
+                           << pixCall(icon) << ");\n";
+            refreshOut << option.indent << varName << "->setHorizontalHeaderItem("
+                           << i << ", " << itemName << ");\n";
+        }
+    }
+
+    // rows
+    QList<DomRow *> rows = w->elementRow();
+    for (int i = 0; i < rows.size(); ++i) {
+        DomRow *row = rows.at(i);
+
+        QHash<QString, DomProperty*> properties = propertyMap(row->elementProperty());
+        DomProperty *text = properties.value(QLatin1String("text"));
+        DomProperty *icon = properties.value(QLatin1String("icon"));
+        if (text || icon) {
+            QString itemName = driver->unique(QLatin1String("__rowItem"));
+            refreshOut << "\n";
+            refreshOut << option.indent << "QTableWidgetItem *"
+                           << itemName << " = new QTableWidgetItem();\n";
+
+            if (text && text->attributeName() == QLatin1String("text"))
+                refreshOut << option.indent << itemName << "->setText("
+                           << trCall(text->elementString()) << ");\n";
+
+            if (icon && icon->attributeName() == QLatin1String("icon"))
+                refreshOut << option.indent << itemName << "->setIcon("
+                           << pixCall(icon) << ");\n";
+            refreshOut << option.indent << varName << "->setVerticalHeaderItem("
+                           << i << ", " << itemName << ");\n";
+        }
+    }
+
+    // items
+    QList<DomItem *> items = w->elementItem();
+    for (int i = 0; i < items.size(); ++i) {
+        DomItem *item = items.at(i);
+        if (item->hasAttributeRow() && item->hasAttributeColumn()) {
+            QHash<QString, DomProperty*> properties = propertyMap(item->elementProperty());
+            DomProperty *text = properties.value(QLatin1String("text"));
+            DomProperty *icon = properties.value(QLatin1String("icon"));
+            if (text || icon) {
+                QString itemName = driver->unique(QLatin1String("__item"));
+                refreshOut << "\n";
+                refreshOut << option.indent << "QTableWidgetItem *"
+                    << itemName << " = new QTableWidgetItem();\n";
+
+                if (text && text->attributeName() == QLatin1String("text"))
+                    refreshOut << option.indent << itemName << "->setText("
+                        << trCall(text->elementString()) << ");\n";
+
+                if (icon && icon->attributeName() == QLatin1String("icon"))
+                    refreshOut << option.indent << itemName << "->setIcon("
+                        << pixCall(icon) << ");\n";
+                refreshOut << option.indent << varName << "->setItem("
+                    << item->attributeRow() << ", "
+                    << item->attributeColumn() << ", "
+                    << itemName << ");\n";
+            }
+        }
+    }
 }
 
 QString WriteInitialization::trCall(const QString &str, const QString &commentHint) const
