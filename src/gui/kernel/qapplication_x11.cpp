@@ -3269,6 +3269,9 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                 || nextEvent.type == Expose
                 || nextEvent.type == GraphicsExpose
                 || nextEvent.type == NoExpose
+                || nextEvent.type == KeymapNotify
+                || ((nextEvent.type == EnterNotify || nextEvent.type == LeaveNotify)
+                    && qt_button_down == this)
                 || (nextEvent.type == ClientMessage
                     && nextEvent.xclient.message_type == ATOM(_QT_SCROLL_DONE))) {
                 qApp->x11ProcessEvent(&nextEvent);
@@ -3308,6 +3311,8 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         modifiers = translateModifiers(xevent->xcrossing.state);
         if (qt_button_down && !buttons)
             qt_button_down = 0;
+        if (qt_button_down)
+            return true;
     } else {                                        // button press or release
         pos.rx() = event->xbutton.x;
         pos.ry() = event->xbutton.y;
