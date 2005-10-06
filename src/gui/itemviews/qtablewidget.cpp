@@ -57,7 +57,9 @@ public:
     void removeItem(QTableWidgetItem *item);
 
     void setHorizontalHeaderItem(int section, QTableWidgetItem *item);
+    QTableWidgetItem *takeHorizontalHeaderItem(int section);
     void setVerticalHeaderItem(int section, QTableWidgetItem *item);
+    QTableWidgetItem *takeVerticalHeaderItem(int section);
     QTableWidgetItem *horizontalHeaderItem(int section);
     QTableWidgetItem *verticalHeaderItem(int section);
 
@@ -310,6 +312,18 @@ void QTableModel::setHorizontalHeaderItem(int section, QTableWidgetItem *item)
     emit headerDataChanged(Qt::Horizontal, section, section);
 }
 
+QTableWidgetItem *QTableModel::takeHorizontalHeaderItem(int section)
+{
+    if (section < 0 || section >= horizontal.count())
+        return 0;
+    QTableWidgetItem *itm = horizontal.at(section);
+    if (itm) {
+        itm->model = 0;
+        horizontal[section] = 0;
+    }
+    return itm;
+}
+
 void QTableModel::setVerticalHeaderItem(int section, QTableWidgetItem *item)
 {
     if (section < 0 || section >= vertical.count())
@@ -326,6 +340,18 @@ void QTableModel::setVerticalHeaderItem(int section, QTableWidgetItem *item)
         item->model = this;
     vertical[section] = item;
     emit headerDataChanged(Qt::Vertical, section, section);
+}
+
+QTableWidgetItem *QTableModel::takeVerticalHeaderItem(int section)
+{
+    if (section < 0 || section >= vertical.count())
+        return 0;
+    QTableWidgetItem *itm = vertical.at(section);
+    if (itm) {
+        itm->model = 0;
+        vertical[section] = 0;
+    }
+    return itm;
 }
 
 QTableWidgetItem *QTableModel::horizontalHeaderItem(int section)
@@ -1599,9 +1625,29 @@ QTableWidgetItem *QTableWidget::verticalHeaderItem(int row) const
 void QTableWidget::setVerticalHeaderItem(int row, QTableWidgetItem *item)
 {
     Q_D(QTableWidget);
-    item->view = this;
-    item->itemFlags = Qt::ItemFlags(int(item->itemFlags)|QTableModel::ItemIsVerticalHeaderItem);
-    d->model()->setVerticalHeaderItem(row, item);
+    if (item) {
+        item->view = this;
+        item->itemFlags = Qt::ItemFlags(int(item->itemFlags) |
+                    QTableModel::ItemIsVerticalHeaderItem);
+        d->model()->setVerticalHeaderItem(row, item);
+    } else {
+        delete takeVerticalHeaderItem(row);
+    }
+}
+
+/*!
+  \since 4.1
+    Removes the vertical header item at \a row from the header without deleting it.
+*/
+QTableWidgetItem *QTableWidget::takeVerticalHeaderItem(int row)
+{
+    Q_D(QTableWidget);
+    QTableWidgetItem *itm = d->model()->takeVerticalHeaderItem(row);
+    if (itm) {
+        itm->view = 0;
+        itm->itemFlags &= ~QTableModel::ItemIsVerticalHeaderItem;
+    }
+    return itm;
 }
 
 /*!
@@ -1619,9 +1665,29 @@ QTableWidgetItem *QTableWidget::horizontalHeaderItem(int column) const
 void QTableWidget::setHorizontalHeaderItem(int column, QTableWidgetItem *item)
 {
     Q_D(QTableWidget);
-    item->view = this;
-    item->itemFlags = Qt::ItemFlags(int(item->itemFlags)|QTableModel::ItemIsHorizontalHeaderItem);
-    d->model()->setHorizontalHeaderItem(column, item);
+    if (item) {
+        item->view = this;
+        item->itemFlags = Qt::ItemFlags(int(item->itemFlags) |
+                    QTableModel::ItemIsHorizontalHeaderItem);
+        d->model()->setHorizontalHeaderItem(column, item);
+    } else {
+        delete takeHorizontalHeaderItem(column);
+    }
+}
+
+/*!
+  \since 4.1
+    Removes the horizontal header item at \a column from the header without deleting it.
+*/
+QTableWidgetItem *QTableWidget::takeHorizontalHeaderItem(int column)
+{
+    Q_D(QTableWidget);
+    QTableWidgetItem *itm = d->model()->takeHorizontalHeaderItem(column);
+    if (itm) {
+        itm->view = 0;
+        itm->itemFlags &= ~QTableModel::ItemIsHorizontalHeaderItem;
+    }
+    return itm;
 }
 
 /*!

@@ -197,9 +197,11 @@ public:
 
     QTableWidgetItem *verticalHeaderItem(int row) const;
     void setVerticalHeaderItem(int row, QTableWidgetItem *item);
+    QTableWidgetItem *takeVerticalHeaderItem(int row);
 
     QTableWidgetItem *horizontalHeaderItem(int column) const;
     void setHorizontalHeaderItem(int column, QTableWidgetItem *item);
+    QTableWidgetItem *takeHorizontalHeaderItem(int column);
     void setVerticalHeaderLabels(const QStringList &labels);
     void setHorizontalHeaderLabels(const QStringList &labels);
 
