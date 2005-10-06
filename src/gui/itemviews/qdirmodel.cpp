@@ -771,6 +771,9 @@ QStringList QDirModel::nameFilters() const
 /*!
   Sets the directory model's filter to that specified by \a filters.
 
+  Note that the filter you set should always include the QDir::AllDirs enum value,
+  otherwise QDirModel won't be able to read the directory structure.
+
   \sa QDir::Filters
 */
 
