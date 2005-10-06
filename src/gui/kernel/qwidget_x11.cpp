@@ -1924,7 +1924,8 @@ void QWidgetPrivate::show_sys()
     if (q->testAttribute(Qt::WA_OutsideWSRange))
         return;
     q->setAttribute(Qt::WA_Mapped);
-    topData()->waitingForMapNotify = 1;
+    if (q->isWindow())
+        topData()->waitingForMapNotify = 1;
 
     if (!q->isWindow()
         && (q->testAttribute(Qt::WA_NoBackground)
