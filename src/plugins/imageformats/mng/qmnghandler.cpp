@@ -13,10 +13,9 @@
 
 #include "qmnghandler.h"
 
-#include <QImage>
-#include <QSysInfo>
-#include <QVariant>
-#include <QColor>
+#include "qimage.h"
+#include "qvariant.h"
+#include "qcolor.h"
 
 #define MNG_USE_SO
 #include <libmng.h>

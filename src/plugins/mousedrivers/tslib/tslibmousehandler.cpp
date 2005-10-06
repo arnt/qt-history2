@@ -1,3 +1,16 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 /*
 
  Copyright (C) 2003, 2004, 2005 Texas Instruments, Inc.
@@ -36,11 +49,11 @@
 #include "tslibmousehandler.h"
 
 #ifdef QT_QWS_TSLIB
-#include <QFile>
-#include <QTextStream>
-#include <QScreen>
-#include <QSocketNotifier>
-#include <QtDebug>
+#include "qfile.h"
+#include "qtextstream.h"
+#include "qscreen.h"
+#include "qsocketnotifier.h"
+#include "qdebug.h"
 
 #include <tslib.h>
 

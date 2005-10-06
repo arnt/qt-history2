@@ -13,26 +13,23 @@
 
 #include "qtransportauth_qws.h"
 #include "md5.h"
-
 #include "qwsutils_qws.h"
 #include "qwscommand_qws.h"
 #include "qwindowsystem_qws.h"
+#include "qbuffer.h"
+#include "qthread.h"
+#include "qabstractsocket.h"
+#include "qfile.h"
+#include "qdebug.h"
 
-#include <fcntl.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-
-#include <QtCore/qbuffer.h>
-#include <QtCore/qthread.h>
-#include <QtNetwork/qabstractsocket.h>
-#include <QtCore/qfile.h>
-
-#include <qdebug.h>
 
 #define KEY_CACHE_SIZE 10
 

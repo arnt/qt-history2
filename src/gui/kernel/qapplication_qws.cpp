@@ -47,18 +47,25 @@
 #include "qhash.h"
 #include "qdesktopwidget.h"
 #include "qcolormap.h"
-#include <private/qcursor_p.h>
-
+#include "private/qcursor_p.h"
 #include "qsettings.h"
 #include "qdebug.h"
+#include "qeventdispatcher_qws_p.h"
+#include "private/qwidget_p.h"
+
 
 #include <unistd.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <locale.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <sys/time.h>
+#include <sys/stat.h>
 #include <sys/types.h>
-#ifndef QT_NO_QWS_MULTIPROCESS
 
+#ifndef QT_NO_QWS_MULTIPROCESS
 #ifdef QT_NO_QSHM
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -70,16 +77,6 @@
 #include "private/qsharedmemory_p.h"
 #endif
 #endif
-
-#include "qeventdispatcher_qws_p.h"
-
-#include <stdlib.h>
-#include <string.h>
-#include <locale.h>
-#include <errno.h>
-#include <sys/time.h>
-
-#include "private/qwidget_p.h"
 
 const int qwsSharedRamSize = 100 * 1024;
                           //Small amount to fit on small devices.
@@ -453,7 +450,8 @@ public:
         mouseFilter = filter;
     }
 };
-#include <QtCore/qthread.h>
+
+#include "qthread.h"
 
 void QWSDisplay::Data::init()
 {
@@ -3348,4 +3346,3 @@ void QApplication::setArgs(int c, char **v)
     d->argc = c;
     d->argv = v;
 }
-

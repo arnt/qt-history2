@@ -11,10 +11,11 @@
 **
 ****************************************************************************/
 
-#include "qmessagebox.h"
+#include "qglobal.h"
 
 #ifndef QT_NO_MESSAGEBOX
 
+#include "qmessagebox.h"
 #include "qbuffer.h"
 #include "qimagereader.h"
 #include "qevent.h"

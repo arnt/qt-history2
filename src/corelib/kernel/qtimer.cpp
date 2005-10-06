@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qtimer.h"
-
 #include "qabstracteventdispatcher.h"
 #include "qcoreapplication.h"
 

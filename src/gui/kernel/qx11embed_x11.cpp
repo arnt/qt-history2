@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "qx11embed_x11.h"
 #include <qapplication.h>
 #include <qevent.h>
 #include <qpainter.h>
@@ -20,8 +21,7 @@
 #include <qdatetime.h>
 #include <qpointer.h>
 #include <qdebug.h>
-
-#include <QX11Info>
+#include <qx11info_x11.h>
 #include <private/qt_x11_p.h>
 #include <private/qwidget_p.h>
 
@@ -37,8 +37,6 @@
 #ifndef XK_ISO_Left_Tab
 #define XK_ISO_Left_Tab 0xFE20
 #endif
-
-#include "qx11embed_x11.h"
 
 /*! 
     \class QX11EmbedWidget

@@ -149,21 +149,21 @@
     \sa QMovie::stop()
 */
 
-#include "qmovie.h"
+#include "qglobal.h"
 
 #ifndef QT_NO_MOVIE
 
-#include <qimage.h>
-#include <qimagereader.h>
-#include <qpixmap.h>
-#include <qrect.h>
-#include <qtimer.h>
-#include <private/qobject_p.h>
-
-#include <QPair>
-#include <QMap>
-#include <QMutableListIterator>
-#include <QBuffer>
+#include "qmovie.h"
+#include "qimage.h"
+#include "qimagereader.h"
+#include "qpixmap.h"
+#include "qrect.h"
+#include "qtimer.h"
+#include "qpair.h"
+#include "qmap.h"
+#include "qlist.h"
+#include "qbuffer.h"
+#include "private/qobject_p.h"
 
 #define QMOVIE_INVALID_DELAY -1
 
