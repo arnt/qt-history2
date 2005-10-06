@@ -1,4 +1,4 @@
-CONFIG += designer
+CONFIG += form
 SOURCES += main.cpp
 RESOURCES += worldtimeclockbuilder.qrc
 

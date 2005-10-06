@@ -11,21 +11,18 @@
 **
 ****************************************************************************/
 
-#include <QtDesigner/QFormBuilder>
+#include <QtForm>
 #include <QtGui>
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QFormBuilder builder;
-
-    QString pluginsPath = QLibraryInfo::location(QLibraryInfo::PluginsPath);
-    builder.addPluginPath(pluginsPath + QLatin1String("/designer"));
+    QForm::Loader loader;
 
     QFile file(":/forms/form.ui");
     if (file.open(QFile::ReadOnly)) {
-        QWidget *widget = builder.load(&file, 0);
+        QWidget *widget = loader.load(&file, 0);
         Q_ASSERT(widget != 0);
         widget->show();
     }
