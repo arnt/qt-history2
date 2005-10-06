@@ -8,11 +8,12 @@ my %VARS = (
     "libs" => "/Library/Frameworks", 
     "plug" => "/Developer/Applications/Qt/plugins", 
     "trns" => "/Developer/Applications/Qt/translations",
-# This is a Qt 4.0-only hack.
-    "data" => "/usr/local/Qt$(VERSION_MAJOR).$(VERSION_MINOR)",
+    "data" => "/usr/local/Qt" . $ENV{"VERSION_MAJOR"} . "." . $ENV{"VERSION_MINOR"},
     "bins" => "/Developer/Tools/Qt",
     "demo" => "/Developer/Examples/Qt/Demos",
-    "xmpl" => "/Developer/Examples/Qt/"
+    "xmpl" => "/Developer/Examples/Qt/",
+    "hdrs" => "/usr/include",
+    "prfx" => "/"
 );
 my $file_in = 0;
 my $file_out = 0;
