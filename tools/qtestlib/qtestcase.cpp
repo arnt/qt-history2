@@ -619,6 +619,8 @@ namespace QTest
     static int eventDelay = -1;
     static int keyVerbose = -1;
 
+/*! \internal
+ */
 int qt_snprintf(char *str, int size, const char *format, ...)
 {
     va_list ap;
@@ -835,9 +837,11 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
         if (!gTable->isEmpty())
             QTestResult::setCurrentGlobalTestData(gTable->testData(curGlobalDataIndex));
 
-        QTestResult::setCurrentTestLocation(QTestResult::DataFunc);
-        QTest::qt_snprintf(cur, 512, "%s_data", sl);
-        QMetaObject::invokeMethod(QTest::currentTestObject, cur, Qt::DirectConnection);
+        if (curGlobalDataIndex == 0) {
+            QTestResult::setCurrentTestLocation(QTestResult::DataFunc);
+            QTest::qt_snprintf(cur, 512, "%s_data", sl);
+            QMetaObject::invokeMethod(QTest::currentTestObject, cur, Qt::DirectConnection);
+        }
 
         bool foundFunction = false;
         if (!QTest::skipCurrentTest) {
