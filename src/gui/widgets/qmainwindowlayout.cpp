@@ -818,7 +818,7 @@ QLayoutItem *QMainWindowLayout::takeAt(int index)
   Fixes the mininum and maximum sizes depending on the current corner
   configuration.
 */
-void fix_minmax(QVector<QLayoutStruct> &ls,
+static void fix_minmax(QVector<QLayoutStruct> &ls,
                 const QMainWindowLayout * const layout,
                 POSITION pos)
 {
