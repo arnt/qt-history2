@@ -1,0 +1,138 @@
+/****************************************************************************
+**
+** Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+/*!
+    \page qt-conf.html
+
+    \title Using qt.conf
+
+    \omit
+    ### Who?
+    \endomit
+
+    Anyone who distributes software using shared Qt run-time libraries
+    can use \c qt.conf.
+
+    \omit
+    ### What?
+    \endomit
+
+    The \c qt.conf file overrides the hard-coded paths that are
+    compiled into the Qt library. These paths are accessible using the
+    QLibraryInfo class. Without \c qt.conf, the functions in
+    QLibraryInfo return these hard-coded paths; otherwise they return
+    the paths as specified in \c qt.conf.
+
+    \omit
+    ### When?
+    \endomit
+
+    You need to provide a \c qt.conf file when distributing your
+    application together with the shared Qt run-time libraries. If you
+    are using a static Qt library or a pre-installed Qt library (as
+    found on many Linux distributions), you do not need to ship \c
+    qt.conf with your application.
+
+    \omit
+    ### Where?
+    \endomit
+
+    QLibraryInfo will load \c qt.conf from one of the following locations:
+
+    \list 1
+
+    \i \c :/qt/etc/qt.conf using the resource system
+
+    \i on Mac OS X, in the Resource directory inside the appliction
+    bundle, for example \c assistant.app/Contents/Resources/qt.conf
+
+    \i in the directory containing the application executable, i.e.
+    QCoreApplication::applicationDirPath() + QDir::separator() + "qt.conf"
+
+    \endlist
+
+    \omit
+    ### Why?
+    \endomit
+
+    Without \c qt.conf, the Qt libraries will use the hard-coded paths
+    to look for plugins, translations, and so on. These paths may not
+    exist on the target system, or they may not be
+    accesssible. Because of this, you need \c qt.conf to make the Qt
+    libraries look elsewhere.
+
+
+    \omit
+    ### How?
+    \endomit
+    The \c qt.conf file is an INI text file, as described in the
+    QSettings documentation. The file should have a \c Paths group
+    which contains the entries that correspond to each value of the
+    QLibraryInfo::LibraryLocation enum. See the QLibraryInfo
+    documentation for details on the meaning of the various locations.
+
+    \table
+
+    \header \i Entry            \i Default Value
+
+    \row \i Prefix              \i QCoreApplication::applicationDirPath()
+    \row \i Documentation       \i \c doc
+    \row \i Headers             \i \c include
+    \row \i Libraries           \i \c lib
+    \row \i Binaries            \i \c bin
+    \row \i Plugins             \i \c plugins
+    \row \i Data                \i \c Prefix
+    \row \i Translations        \i \c translations
+    \row \i Settings            \i \c .
+    \row \i Examples            \i \c .
+    \row \i Demos               \i \c .
+
+    \endtable
+
+    Absolute paths are used as specified in the \c qt.conf. All paths
+    are relative to the \c Prefix. On Windows and X11, the \c Prefix
+    is relative to the directory containing the application executable
+    (QCoreApplication::applicationDirPath()). On Mac OS X, the \c
+    Prefix is relative to the \c Contents in the application
+    bundle. For example, \c application.app/Contents/plugins/ is the
+    default location for loading Qt plugins.
+
+    Sub-groups of the \c Paths group may be used to specify locations
+    for specific versions of the Qt libraries. Such sub-groups are of
+    the form \c Paths/x.y.z, where x is the major version of the Qt
+    libraries, y the minor, and z the patch-level. The sub-group that
+    most closely matches the current Qt version is used. If no
+    sub-group matches, the \c Paths group is used as the fallback. The
+    minor and patch-level may be omitted, in which case they default
+    to zero.
+
+    For example, given the following groups:
+
+    \code
+    Paths
+    Paths/4
+    Paths/4.1
+    Paths/4.2.5
+    Paths/4.6.3
+    Paths/6
+    \endcode
+
+    The current version will be matched as shown:
+
+    \list
+    \i 4.0.1 matches \c Paths/4
+    \i 4.1.5 matches \c Paths/4.1
+    \i 4.6.3 matches \c Paths/4.2.5
+    \i 5.0.0 matches \c Paths
+    \i 6.0.2 matches \c Paths/6
+    \endlist
+*/
