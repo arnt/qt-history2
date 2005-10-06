@@ -42,6 +42,7 @@ class QDesignerFormWindowInterface;
 class QDesignerWidgetDataBaseItemInterface;
 class Layout;
 
+class QDesignerContainerExtension;
 class QDesignerPropertySheetExtension;
 class QDesignerMetaDataBaseItemInterface;
 class QDesignerPromotedWidget;
@@ -83,6 +84,7 @@ public:
     QDesignerFormWindowCommand(const QString &description, QDesignerFormWindowInterface *formWindow);
 
     QDesignerFormWindowInterface *formWindow() const;
+    QDesignerFormEditorInterface *core() const;
 
 protected:
     void checkObjectName(QObject *object);
@@ -628,5 +630,57 @@ private:
     QPointer<QMainWindow> m_mainWindow;
     QPointer<QDockWidget> m_dockWidget;
 };
+
+class QT_SHARED_EXPORT ContainerWidgetCommand: public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    ContainerWidgetCommand(QDesignerFormWindowInterface *formWindow);
+    virtual ~ContainerWidgetCommand();
+
+    QDesignerContainerExtension *containerExtension() const;
+
+    void init(QWidget *containerWidget);
+
+    virtual void removePage();
+    virtual void addPage();
+
+protected:
+    QPointer<QWidget> m_containerWidget;
+    QPointer<QWidget> m_widget;
+    int m_index;
+};
+
+class QT_SHARED_EXPORT DeleteContainerWidgetPageCommand: public ContainerWidgetCommand
+{
+    Q_OBJECT
+public:
+    DeleteContainerWidgetPageCommand(QDesignerFormWindowInterface *formWindow);
+    virtual ~DeleteContainerWidgetPageCommand();
+
+    void init(QWidget *containerWidget);
+
+    virtual void redo();
+    virtual void undo();
+};
+
+class QT_SHARED_EXPORT AddContainerWidgetPageCommand: public ContainerWidgetCommand
+{
+    Q_OBJECT
+public:
+    enum InsertionMode {
+        InsertBefore,
+        InsertAfter
+    };
+    AddContainerWidgetPageCommand(QDesignerFormWindowInterface *formWindow);
+    virtual ~AddContainerWidgetPageCommand();
+
+    void init(QWidget *containerWidget);
+    void init(QWidget *containerWidget, InsertionMode mode);
+
+    virtual void redo();
+    virtual void undo();
+};
+
 
 #endif // QDESIGNER_COMMAND_H

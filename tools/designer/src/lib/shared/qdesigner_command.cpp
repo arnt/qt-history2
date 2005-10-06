@@ -64,6 +64,14 @@ QDesignerFormWindowInterface *QDesignerFormWindowCommand::formWindow() const
     return m_formWindow;
 }
 
+QDesignerFormEditorInterface *QDesignerFormWindowCommand::core() const
+{
+    if (QDesignerFormWindowInterface *fw = formWindow())
+        return fw->core();
+
+    return 0;
+}
+
 bool QDesignerFormWindowCommand::hasLayout(QWidget *widget) const
 {
     QDesignerFormEditorInterface *core = formWindow()->core();
@@ -1469,3 +1477,130 @@ void InsertRowCommand::redo()
 void InsertRowCommand::undo()
 {
 }
+
+
+
+// ---- ContainerWidgetCommand ----
+ContainerWidgetCommand::ContainerWidgetCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(QString(), formWindow)
+{
+}
+
+ContainerWidgetCommand::~ContainerWidgetCommand()
+{
+}
+
+QDesignerContainerExtension *ContainerWidgetCommand::containerExtension() const
+{
+    QExtensionManager *mgr = core()->extensionManager();
+    return qt_extension<QDesignerContainerExtension*>(mgr, m_containerWidget);
+}
+
+void ContainerWidgetCommand::init(QWidget *containerWidget)
+{
+    m_containerWidget = containerWidget;
+
+    if (QDesignerContainerExtension *c = containerExtension()) {
+        m_index = c->currentIndex();
+        m_widget = c->widget(m_index);
+    }
+}
+
+void ContainerWidgetCommand::removePage()
+{
+    if (QDesignerContainerExtension *c = containerExtension()) {
+        c->remove(m_index);
+
+        m_widget->hide();
+        m_widget->setParent(formWindow());
+    }
+}
+
+void ContainerWidgetCommand::addPage()
+{
+    if (QDesignerContainerExtension *c = containerExtension()) {
+        c->insertWidget(m_index, m_widget);
+
+        m_widget->show();
+        c->setCurrentIndex(m_index);
+    }
+}
+
+// ---- DeleteContainerWidgetPageCommand ----
+DeleteContainerWidgetPageCommand::DeleteContainerWidgetPageCommand(QDesignerFormWindowInterface *formWindow)
+    : ContainerWidgetCommand(formWindow)
+{
+}
+
+DeleteContainerWidgetPageCommand::~DeleteContainerWidgetPageCommand()
+{
+}
+
+void DeleteContainerWidgetPageCommand::init(QWidget *containerWidget)
+{
+    ContainerWidgetCommand::init(containerWidget);
+    setDescription(tr("Delete Page"));
+}
+
+void DeleteContainerWidgetPageCommand::redo()
+{
+    removePage();
+    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
+        objectInspector->setFormWindow(formWindow());
+}
+
+void DeleteContainerWidgetPageCommand::undo()
+{
+    addPage();
+    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
+        objectInspector->setFormWindow(formWindow());
+}
+
+// ---- AddContainerWidgetPageCommand ----
+AddContainerWidgetPageCommand::AddContainerWidgetPageCommand(QDesignerFormWindowInterface *formWindow)
+    : ContainerWidgetCommand(formWindow)
+{
+}
+
+AddContainerWidgetPageCommand::~AddContainerWidgetPageCommand()
+{
+}
+
+void AddContainerWidgetPageCommand::init(QWidget *containerWidget)
+{
+    init(containerWidget, InsertBefore);
+}
+
+void AddContainerWidgetPageCommand::init(QWidget *containerWidget, InsertionMode mode)
+{
+    m_containerWidget = containerWidget;
+
+    if (QDesignerContainerExtension *c = containerExtension()) {
+        m_index = c->currentIndex();
+        if (mode == InsertAfter)
+            m_index++;
+        m_widget = new QDesignerWidget(formWindow(), m_containerWidget);
+        m_widget->setObjectName(tr("page"));
+        formWindow()->ensureUniqueObjectName(m_widget);
+
+        setDescription(tr("Insert Page"));
+
+        QDesignerFormEditorInterface *core = formWindow()->core();
+        core->metaDataBase()->add(m_widget);
+    }
+}
+
+void AddContainerWidgetPageCommand::redo()
+{
+    addPage();
+    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
+        objectInspector->setFormWindow(formWindow());
+}
+
+void AddContainerWidgetPageCommand::undo()
+{
+    removePage();
+    if (QDesignerObjectInspectorInterface *objectInspector = formWindow()->core()->objectInspector())
+        objectInspector->setFormWindow(formWindow());
+}
+
