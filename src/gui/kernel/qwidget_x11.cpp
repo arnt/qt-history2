@@ -2373,6 +2373,7 @@ void QWidget::scroll(int dx, int dy)
                 QPoint oldp = w->pos();
                 QRect  r(w->pos() + pd, w->size());
                 w->data->crect = r;
+                w->d_func()->setWSGeometry();
                 QMoveEvent e(r.topLeft(), oldp);
                 QApplication::sendEvent(w, &e);
             }
