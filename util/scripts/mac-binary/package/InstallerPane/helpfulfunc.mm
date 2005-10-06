@@ -12,6 +12,8 @@
 #include "helpfulfunc.h"
 #include "keydec.h"
 
+#include <Cocoa/Cocoa.h>
+
 FILE *getQtLicenseFile(const char *mode)
 {
     const char *homeDir = getenv("HOME");
@@ -58,5 +60,26 @@ int validateLicense(const char *string)
             }
         }
     }
-        return ret;
+
+    if (ret == LicenseOK) {
+        // We need to check ourselves against the build date
+        // First read in the build date and then use it to compare with the
+        // Expiry Date if it's commercial or the current date if it's an eval.
+        CDate date = key.getExpiryDate();
+        NSCalendarDate *expiryDate = [NSCalendarDate dateWithYear:date.year()
+                                                            month:date.month() day:date.day()
+                                                             hour:23 minute:59 second:59 
+                                                         timeZone:[NSTimeZone systemTimeZone]];
+        NSCalendarDate *compareDay = 0;
+        if (key.getLicenseSchema() & KeyDecoder::FullCommercial) {
+            compareDay = [NSCalendarDate dateWithString:[NSString stringWithContentsOfFile:[[NSBundle mainBundle]
+                                                                pathForResource:@".package_date" ofType:nil] encoding:NSUTF8StringEncoding error:0]
+                                                        calendarFormat:@"%F"];
+        } else {
+            compareDay = [NSCalendarDate calendarDate];
+        }
+        if ([expiryDate laterDate: compareDay] != expiryDate)
+            ret = LicenseExpired;
+    }
+    return ret;
 }

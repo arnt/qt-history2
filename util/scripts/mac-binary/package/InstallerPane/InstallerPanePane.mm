@@ -116,10 +116,13 @@
         [errorField setStringValue:@""];
         break;
     case InvalidType:
-        [errorField setStringValue:@"This License cannot be used with this version of Qt"];
+        [errorField setStringValue:@"This license cannot be used with this version of Qt"];
         break;
     case InvalidPlatform:
-        [errorField setStringValue:@"This License cannot be used for this Qt Platform"];
+        [errorField setStringValue:@"This license cannot be used for this Qt Platform"];
+        break;
+    case LicenseExpired:
+        [errorField setStringValue:@"This license has expired for this product,\n contact sales@trolltech.com for an upgrade"];
         break;
     }
 }

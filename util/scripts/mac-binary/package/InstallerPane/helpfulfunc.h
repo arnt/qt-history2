@@ -15,7 +15,7 @@
 static const char LicenseKeyExtString[] = "LicenseKeyExt=";
 static const char LicenseeString[] = "Licensee=";
 
-enum LicenseValues { LicenseOK = 0, InvalidLicense, InvalidProduct, InvalidPlatform, InvalidType };
+enum LicenseValues { LicenseOK = 0, InvalidLicense, InvalidProduct, InvalidPlatform, InvalidType, LicenseExpired };
 
 FILE *getQtLicenseFile(const char *mode);
 int validateLicense(const char *string);
