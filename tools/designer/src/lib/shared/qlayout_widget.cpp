@@ -49,7 +49,7 @@ QLayoutSupport::QLayoutSupport(QDesignerFormWindowInterface *formWindow, QWidget
       m_currentInsertMode(QDesignerLayoutDecorationExtension::InsertWidgetMode)
 {
     QPalette p;
-    p.setColor(QPalette::Background, Qt::red);
+    p.setColor(QPalette::Base, Qt::red);
 
     m_indicatorLeft = new InvisibleWidget(m_widget);
     m_indicatorLeft->setPalette(p);
@@ -813,6 +813,7 @@ QLayoutWidget::QLayoutWidget(QDesignerFormWindowInterface *formWindow, QWidget *
     : QWidget(parent), m_formWindow(formWindow),
       m_support(formWindow, this)
 {
+    setBackgroundRole(QPalette::Base);
 }
 
 void QLayoutWidget::paintEvent(QPaintEvent*)
