@@ -280,7 +280,7 @@
 
     \o You can pass a predetermined path to the \c -rpath command-line
        option when linking the application. This will tell the dynamic
-       linker to look in this directory when starting up.
+       linker to look in this directory when starting your application.
 
     \o You can write a startup script for your application,
        where you modify the dynamic linker configuration (e.g.
@@ -293,7 +293,7 @@
     that the user may not have privileges to install into the
     predetemined path. In either case, the users don't have the option
     of installing to their home directory. We recommend using the
-    third approach since it is the most flexible. For example a \c
+    third approach since it is the most flexible. For example, a \c
     plugandpaint.sh script will look like this:
 
     \code
@@ -399,11 +399,11 @@
     library might cause your application to crash.
 
     It's also worth mentioning that Qt will look for certain X11
-    extensions, such as Xinerama and Xcursor, and possibly pull them
+    extensions, such as Xinerama and Xrandr, and possibly pull them
     in, including all the libraries that they link against. If you
     can't guarantee the presence of a certain extension, the safest
     approach is to disable it when configuring Qt (e.g. \c {./configure
-    -no-xcursor}).
+    -no-xrandr}).
 
     FontConfig and FreeType are other examples of libraries that
     aren't always available or that aren't always binary
