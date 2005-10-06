@@ -1245,6 +1245,10 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
     QImage tx;
     int tx_w = nearest_gl_texture_size(image.width());
     int tx_h = nearest_gl_texture_size(image.height());
+
+    if (image.format() != QImage::Format_ARGB32)
+        tx = image.convertToFormat(QImage::Format_ARGB32);
+
     if (target == GL_TEXTURE_2D && (tx_w != image.width() || tx_h != image.height()))
 	tx = QGLWidget::convertToGLFormat(image.scaled(tx_w, tx_h));
     else

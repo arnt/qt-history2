@@ -412,7 +412,6 @@ void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
     Q_D(QOpenGLPaintEngine);
-
     // ### this could be done faster I'm sure...
     for (int i=0; i<rectCount; ++i) {
         QRectF r = rects[i];
@@ -465,6 +464,7 @@ void QOpenGLPaintEngine::drawPoints(const QPointF *points, int pointCount)
 void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
     Q_D(QOpenGLPaintEngine);
+
     GLfloat pen_width = d->cpen.widthF();
     if (pen_width > 1 || (pen_width > 0 && d->txop > QPainterPrivate::TxTranslate)) {
         QPainterPath path(lines[0].p1());
@@ -600,6 +600,7 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
 {
     Q_D(QOpenGLPaintEngine);
+
     if (path.isEmpty())
         return;
 
@@ -787,7 +788,20 @@ QOpenGLPaintEngine::handle() const
     return 0;
 }
 
-void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
+void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
-    QPaintEngine::drawTextItem(p, ti);
+    Q_D(QOpenGLPaintEngine);
+    QImage img((int)textItem.width(),
+               (int)(textItem.ascent() + textItem.descent()),
+               QImage::Format_ARGB32_Premultiplied);
+    img.fill(0);
+    QPainter painter(&img);
+    painter.setPen(d->cpen);
+    painter.setBrush(d->cbrush);
+    painter.drawTextItem(QPoint(0, (int)(textItem.ascent())), textItem);
+    painter.end();
+    drawImage(QRectF(p.x(), p.y(), img.width(), img.height()),
+              img,
+              QRectF(0, 0, img.width(), img.height()),
+              Qt::AutoColor);
 }
