@@ -1870,6 +1870,8 @@ void QTreeViewPrivate::updateHorizontalScrollbar()
 int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
 {
     Q_Q(const QTreeView);
+    if (!rootDecoration)
+        return -1;
     int x = pos.x();
     int column = header->logicalIndexAt(x);
     if (column == -1)
