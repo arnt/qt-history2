@@ -5318,6 +5318,9 @@ bool QPlastiqueStyle::eventFilter(QObject *watched, QEvent *event)
             }
         }
         break;
+    case QEvent::Destroy:
+        d->bars.removeAll(reinterpret_cast<QProgressBar *>(watched));
+        break;
     case QEvent::Hide:
         if (QProgressBar *bar = qobject_cast<QProgressBar *>(watched)) {
             d->bars.removeAll(bar);
