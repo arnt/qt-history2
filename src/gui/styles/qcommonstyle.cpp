@@ -1107,6 +1107,8 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 case QTabBar::TriangularWest:
                     rect.adjust(0, 0, -tabOverlap, 0);
                     break;
+                default:
+                    break;
                 }
             }
 
