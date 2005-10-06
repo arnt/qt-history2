@@ -197,6 +197,9 @@ public:
     QDomElement previousSiblingElement(const QString &tagName = QString()) const;
     QDomElement nextSiblingElement(const QString &taName = QString()) const;
 
+    int lineNumber() const;
+    int columnNumber() const;
+
 protected:
     QDomNodePrivate* impl;
     QDomNode(QDomNodePrivate*);

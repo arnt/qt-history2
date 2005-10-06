@@ -156,6 +156,8 @@ public:
 
     virtual void save(QTextStream&, int, int) const;
 
+    void setLocation(int lineNumber, int columnNumber);
+
     // Variables
     QAtomic ref;
     QDomNodePrivate* prev;
@@ -170,6 +172,9 @@ public:
     QString namespaceURI; // set this only for ElementNode and AttributeNode
     bool createdWithDom1Interface : 1;
     bool hasParent                : 1;
+
+    int lineNumber;
+    int columnNumber;
 };
 
 class QDomNodeListPrivate
@@ -545,6 +550,8 @@ public:
     bool notationDecl(const QString & name, const QString & publicId, const QString & systemId);
     bool unparsedEntityDecl(const QString &name, const QString &publicId, const QString &systemId, const QString &notationName) ;
 
+    void setDocumentLocator(QXmlLocator *locator);
+
     QString errorMsg;
     int errorLine;
     int errorColumn;
@@ -555,6 +562,7 @@ private:
     QString entityName;
     bool cdata;
     bool nsProcessing;
+    QXmlLocator *locator;
 };
 
 /**************************************************************
@@ -1598,6 +1606,8 @@ QDomNodePrivate::QDomNodePrivate(QDomDocumentPrivate *doc, QDomNodePrivate *par)
     first = 0;
     last = 0;
     createdWithDom1Interface = true;
+    lineNumber = -1;
+    columnNumber = -1;
 }
 
 QDomNodePrivate::QDomNodePrivate(QDomNodePrivate *n, bool deep)
@@ -1614,6 +1624,8 @@ QDomNodePrivate::QDomNodePrivate(QDomNodePrivate *n, bool deep)
     prefix = n->prefix;
     namespaceURI = n->namespaceURI;
     createdWithDom1Interface = n->createdWithDom1Interface;
+    lineNumber = -1;
+    columnNumber = -1;
 
     if (!deep)
         return;
@@ -2042,6 +2054,12 @@ void QDomNodePrivate::save(QTextStream& s, int depth, int indent) const
         n->save(s, depth, indent);
         n = n->next;
     }
+}
+
+void QDomNodePrivate::setLocation(int lineNumber, int columnNumber)
+{
+    this->lineNumber = lineNumber;
+    this->columnNumber = columnNumber;
 }
 
 /**************************************************************
@@ -3075,6 +3093,34 @@ QDomElement QDomNode::previousSiblingElement(const QString &tagName) const
         }
     }
     return QDomElement();
+}
+
+/*!
+    \since 4.1
+
+    For nodes created by QDomDocument::setContent(), this function
+    returns the line number in the XML document where the node was parsed.
+    Otherwise, -1 is returned.
+
+    \sa columnNumber(), QDomDocument::setContent()
+*/
+int QDomNode::lineNumber() const
+{
+    return impl ? impl->lineNumber : -1;
+}
+
+/*!
+    \since 4.1
+
+    For nodes created by QDomDocument::setContent(), this function
+    returns the column number in the XML document where the node was parsed.
+    Otherwise, -1 is returned.
+
+    \sa lineNumber(), QDomDocument::setContent()
+*/
+int QDomNode::columnNumber() const
+{
+    return impl ? impl->columnNumber : -1;
 }
 
 
@@ -7282,6 +7328,8 @@ bool QDomHandler::startElement(const QString& nsURI, const QString&, const QStri
     } else {
         n = doc->createElement(qName);
     }
+    n->setLocation(locator->lineNumber(), locator->columnNumber());
+
     node->appendChild(n);
     node = n;
 
@@ -7313,30 +7361,38 @@ bool QDomHandler::characters(const QString&  ch)
     if (node == doc)
         return false;
 
+    QDomNodePrivate *n;
     if (cdata) {
-        node->appendChild(doc->createCDATASection(ch));
+        n = doc->createCDATASection(ch);
     } else if (!entityName.isEmpty()) {
         QDomEntityPrivate* e = new QDomEntityPrivate(doc, 0, entityName,
                 QString(), QString(), QString());
         e->value = ch;
         doc->doctype()->appendChild(e);
-        node->appendChild(doc->createEntityReference(entityName));
+        n = doc->createEntityReference(entityName);
     } else {
-        node->appendChild(doc->createTextNode(ch));
+        n = doc->createTextNode(ch);
     }
+    n->setLocation(locator->lineNumber(), locator->columnNumber());
+    node->appendChild(n);
 
     return true;
 }
 
 bool QDomHandler::processingInstruction(const QString& target, const QString& data)
 {
-    node->appendChild(doc->createProcessingInstruction(target, data));
+    QDomNodePrivate *n;
+    n = doc->createProcessingInstruction(target, data);
+    n->setLocation(locator->lineNumber(), locator->columnNumber());
+    node->appendChild(n);
     return true;
 }
 
 bool QDomHandler::skippedEntity(const QString& name)
 {
-    node->appendChild(doc->createEntityReference(name));
+    QDomNodePrivate *n = doc->createEntityReference(name);
+    n->setLocation(locator->lineNumber(), locator->columnNumber());
+    node->appendChild(n);
     return true;
 }
 
@@ -7374,7 +7430,10 @@ bool QDomHandler::endEntity(const QString &)
 
 bool QDomHandler::comment(const QString& ch)
 {
-    node->appendChild(doc->createComment(ch));
+    QDomNodePrivate *n;
+    n = doc->createComment(ch);
+    n->setLocation(locator->lineNumber(), locator->columnNumber());
+    node->appendChild(n);
     return true;
 }
 
@@ -7396,6 +7455,11 @@ bool QDomHandler::notationDecl(const QString & name, const QString & publicId, c
     QDomNotationPrivate* n = new QDomNotationPrivate(doc, 0, name, publicId, systemId);
     doc->doctype()->appendChild(n);
     return true;
+}
+
+void QDomHandler::setDocumentLocator(QXmlLocator *locator)
+{
+    this->locator = locator;
 }
 
 #endif // QT_NO_DOM
