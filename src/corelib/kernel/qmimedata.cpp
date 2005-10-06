@@ -18,7 +18,7 @@
 #include "qstringlist.h"
 #include "qtextcodec.h"
 
-struct MimeData
+struct QMimeDataStruct
 {
     QString format;
     QVariant data;
@@ -33,7 +33,7 @@ public:
 
     QVariant retrieveTypedData(const QString &format, QVariant::Type type) const;
 
-    QList<MimeData> dataList;
+    QList<QMimeDataStruct> dataList;
 };
 
 void QMimeDataPrivate::setData(const QString &format, const QVariant &data)
@@ -45,7 +45,7 @@ void QMimeDataPrivate::setData(const QString &format, const QVariant &data)
             break;
         }
     }
-    MimeData mimeData;
+    QMimeDataStruct mimeData;
     mimeData.format = format;
     mimeData.data = data;
     dataList += mimeData;
