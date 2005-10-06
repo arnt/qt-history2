@@ -1023,7 +1023,7 @@ static bool canConvert(const QVariant::Private *d, QVariant::Type t)
 }
 
 #if !defined(QT_NO_DEBUG_STREAM) && !defined(Q_BROKEN_DEBUG_STREAM)
-void streamDebug(QDebug dbg, const QVariant &v)
+static void streamDebug(QDebug dbg, const QVariant &v)
 {
     switch (v.type()) {
     case QVariant::Int:
