@@ -14,6 +14,7 @@
 #include <QAxObject>
 #include <QFile>
 #include <QMetaObject>
+#include <QMetaEnum>
 #include <QTextStream>
 #include <QSettings>
 #include <QStringList>
