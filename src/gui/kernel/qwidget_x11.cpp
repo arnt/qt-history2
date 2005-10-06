@@ -2382,6 +2382,7 @@ void QWidget::scroll(int dx, int dy)
 
     d->scrollRect(rect(), dx, dy);
     d->dirtyWidget_sys(rect());
+    QApplication::sendPostedEvents(0, QEvent::UpdateRequest); //synchronous updates
 #else
     scroll(dx, dy, QRect());
 #endif
