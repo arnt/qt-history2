@@ -2366,7 +2366,34 @@ void QWidgetPrivate::setConstraints_sys()
 
 void QWidget::scroll(int dx, int dy)
 {
+#ifdef QT_USE_BACKINGSTORE
+    Q_D(QWidget);
+    if (!updatesEnabled() && children().size() == 0)
+        return;
+    if (dx == 0 && dy == 0)
+        return;
+
+    if (children().size() > 0) {        // scroll children
+        QPoint pd(dx, dy);
+        QObjectList childObjects = children();
+        for (int i = 0; i < childObjects.size(); ++i) { // move all children
+            QObject *object = childObjects.at(i);
+            if (object->isWidgetType()) {
+                QWidget *w = static_cast<QWidget *>(object);
+                QPoint oldp = w->pos();
+                QRect  r(w->pos() + pd, w->size());
+                w->data->crect = r;
+                QMoveEvent e(r.topLeft(), oldp);
+                QApplication::sendEvent(w, &e);
+            }
+        }
+    }
+
+    d->scrollRect(rect(), dx, dy);
+    d->dirtyWidget_sys(rect());
+#else
     scroll(dx, dy, QRect());
+#endif
 }
 
 /*!
@@ -2381,22 +2408,28 @@ void QWidget::scroll(int dx, int dy)
 */
 void QWidget::scroll(int dx, int dy, const QRect& r)
 {
+#ifdef QT_USE_BACKINGSTORE
+    Q_D(QWidget);
+    if (!updatesEnabled() && children().size() == 0)
+        return;
+    if (dx == 0 && dy == 0)
+        return;
+
+    d->scrollRect(r, dx, dy);
+    d->dirtyWidget_sys(r);
+
+#else
     Q_D(QWidget);
     if (!updatesEnabled() && children().size() == 0)
         return;
     bool valid_rect = r.isValid();
+    bool just_update = qAbs(dx) > width() || qAbs(dy) > height();
     QRect sr = valid_rect ? r : d->clipRect();
-    bool just_update = qAbs(dx) > sr.width() || qAbs(dy) > sr.height();
-#ifdef QT_USE_BACKINGSTORE
-    if (just_update)
-        update(sr);
-#else
     if (just_update) {
-        update(sr);
+        update();
     } else if (!valid_rect){
         d->invalidated_region.translate(dx, dy);
     }
-#endif
 
     int x1, y1, x2, y2, w = sr.width(), h = sr.height();
     if (dx > 0) {
@@ -2428,55 +2461,18 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         XSetGraphicsExposures(dpy, gc, True);
         XCopyArea(dpy, winId(), winId(), gc, x1, y1, w, h, x2, y2);
         XFreeGC(dpy, gc);
-
-//        qDebug() << "scrolling" << dx << dy << "XCopyArea" << x1 << y1 << w << h << x2 << y2 << "rect" << rect() << "sr" << sr;
     }
 
-    static int flushEnv = -1;
-    if (flushEnv == -1) {
-        flushEnv = qgetenv("QT_FLUSH_SCROLL").toInt();
-    }
-    if (flushEnv) {
-         QApplication::syncX();
-          ::usleep(10000*flushEnv);
-    }
-
-    static int accelEnv = -1;
-    if (accelEnv == -1) {
-        accelEnv = qgetenv("QT_NO_FAST_SCROLL").toInt() == 0;
-    }
-
-    bool accelerateScroll = accelEnv &&  d->isOpaque()
-#ifdef QT_USE_BACKINGSTORE
-                            && !d->isOverlapped(geometry())
-#endif
-                            ;
-
-
-    if (!accelerateScroll) {
-        update();
-    } else
-    if (!valid_rect) {        // scroll children
-#ifdef QT_USE_BACKINGSTORE
-        if (!just_update) {
-            d->scrollRect(sr, dx, dy);
-        }
-#endif
-        if ( !d->children.isEmpty() ) {
-            QPoint pd(dx, dy);
-            for (int i = 0; i < d->children.size(); ++i) { // move all children
-                register QObject *object = d->children.at(i);
-                if (object->isWidgetType()) {
-                    QWidget *w = static_cast<QWidget *>(object);
-                    if (!w->isWindow())
-                        w->move(w->pos() + pd);
-                }
+    if (!valid_rect && !d->children.isEmpty()) {        // scroll children
+        QPoint pd(dx, dy);
+        for (int i = 0; i < d->children.size(); ++i) { // move all children
+            register QObject *object = d->children.at(i);
+            if (object->isWidgetType()) {
+                QWidget *w = static_cast<QWidget *>(object);
+                if (!w->isWindow())
+                    w->move(w->pos() + pd);
             }
         }
-    } else {
-#ifdef QT_USE_BACKINGSTORE
-        d->invalidateBuffer(rect());
-#endif
     }
 
     if (just_update)
@@ -2501,6 +2497,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     }
 
     qt_insert_sip(this, dx, dy); // #### ignores r
+#endif
 }
 
 /*!

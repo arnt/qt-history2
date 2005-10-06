@@ -220,7 +220,7 @@ QWidgetBackingStore::~QWidgetBackingStore()
   Widget's coordinate system
   move whole rect by dx,dy
   rect must be valid
-  don't generate any updates
+  doesn't generate any updates
 */
 void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *widget)
 {
@@ -240,13 +240,13 @@ void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *wi
     engine->releaseDC(engine_dc);
 #elif defined(Q_WS_X11)
 //    qDebug("XCreateGC");
-    GC gc = XCreateGC(widget->d_func()->xinfo.display(), buffer.handle(), 0, 0);
+    GC gc = XCreateGC(tlw->d_func()->xinfo.display(), buffer.handle(), 0, 0);
 //    qDebug() << "XCopyArea" << pos << rect << "dx" << dy << "dy" << dy;
     XCopyArea(X11->display, buffer.handle(), buffer.handle(), gc,
               pos.x(), pos.y(), rect.width(), rect.height(),
               pos.x()+dx, pos.y()+dy);
 //    qDebug("XFreeGC");
-    XFreeGC(widget->d_func()->xinfo.display(), gc);
+    XFreeGC(tlw->d_func()->xinfo.display(), gc);
 //    qDebug("done");
 #elif defined(Q_WS_QWS)
     //### QWS has its own implementation; should be unified
@@ -292,17 +292,38 @@ void QWidgetPrivate::scrollRect(const QRect &rect, int dx, int dy)
     QWidget *tlw = q->window();
     QTLWExtra* x = tlw->d_func()->topData();
 
-    QRect scrollRect = rect & clipRect();
 
-    QRect destRect = scrollRect.translated(dx,dy).intersect(scrollRect);
-    QRect sourceRect = destRect.translated(-dx, -dy);
+    static int accelEnv = -1;
+    if (accelEnv == -1) {
+        accelEnv = qgetenv("QT_NO_FAST_SCROLL").toInt() == 0;
+    }
 
-    if (sourceRect.isValid())
-        x->backingStore->bltRect(sourceRect, dx, dy, q);
+    bool accelerateScroll = accelEnv &&  isOpaque()  && !isOverlapped(data.crect);
 
-    QRegion childExpose = scrollRect;
-    childExpose -= destRect;
-    invalidateBuffer(childExpose);
+    if (!accelerateScroll) {
+        invalidateBuffer(rect);
+    } else {
+        QRect scrollRect = rect & clipRect();
+
+        QRect destRect = scrollRect.translated(dx,dy).intersect(scrollRect);
+        QRect sourceRect = destRect.translated(-dx, -dy);
+
+        QWidgetBackingStore *wbs = x->backingStore;
+
+        QPoint toplevelOffset = q->mapTo(tlw, QPoint());
+
+
+        if (sourceRect.isValid())
+            wbs->bltRect(sourceRect, dx, dy, q);
+
+        QRegion childExpose = scrollRect;
+        childExpose -= destRect;
+//        childExpose += (wbs->dirty & sourceRect.translated(toplevelOffset)).boundingRect().translated(QPoint(dx,dy) - toplevelOffset);
+        QRect newDirty = (wbs->dirty & sourceRect.translated(toplevelOffset)).boundingRect().translated(QPoint(dx,dy) - toplevelOffset);
+//         qDebug() << "scrollRect" << q << rect << dx << dy << "dirty" << wbs->dirty << "newDirty" << newDirty;
+        childExpose += newDirty;
+        invalidateBuffer(childExpose);
+    }
 }
 
 #ifdef Q_WS_QWS
