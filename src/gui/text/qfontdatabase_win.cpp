@@ -932,7 +932,7 @@ static QFontEngine *loadWin(const QFontPrivate *d, int script, const QFontDef &r
         if (desc.family)
             break;
     }
-    QFontEngine *fe = loadEngine(script, d, req, &desc, family_list);
+    QFontEngine *fe = desc.family ? loadEngine(script, d, req, &desc, family_list) : 0;
     return fe;
 }
 
