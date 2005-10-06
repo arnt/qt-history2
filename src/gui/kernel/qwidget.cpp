@@ -1388,8 +1388,9 @@ void QWidgetPrivate::subtractOpaqueChildren(QRegion &rgn, const QRect &clipRect,
 
                 if (childRect.isEmpty())
                     continue;
-                bool hasMask = false; //########
                 QWidgetPrivate *cd = child->d_func();
+                bool hasMask = cd->extra && !cd->extra->mask.isEmpty();
+
                 if (!hasMask && cd->isOpaque()) {
                     rgn -= childRect;
                 } else {
