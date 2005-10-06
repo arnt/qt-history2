@@ -32,7 +32,7 @@
 #include <QtNetwork/qabstractsocket.h>
 #include <QtCore/qfile.h>
 
-#include <qdebug.h>`
+#include <qdebug.h>
 
 #define KEY_CACHE_SIZE 10
 
