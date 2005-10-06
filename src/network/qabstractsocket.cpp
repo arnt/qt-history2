@@ -1369,9 +1369,9 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
             qDebug("QAbstractSocket::waitForBytesWritten(%i) failed (%i, %s)",
                    msecs, d->socketError, errorString().toLatin1().constData());
 #endif
+            emit error(d->socketError);
             if (d->socketError != SocketTimeoutError)
-                emit error(d->socketError);
-            close();
+                close();
             return false;
         }
 
