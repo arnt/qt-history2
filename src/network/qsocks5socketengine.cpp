@@ -713,6 +713,7 @@ void QSocks5SocketEnginePrivate::emitReadNotification()
 void QSocks5SocketEnginePrivate::emitWriteNotification()
 {
     Q_Q(QSocks5SocketEngine);
+    QSOCKS5_DEBUG << "emitWriteNotification()";
     writeNotificationActivated = true;
     if (writeNotificationEnabled)
         QMetaObject::invokeMethod(q, "writeNotification", Qt::QueuedConnection);
@@ -927,7 +928,7 @@ void QSocks5SocketEnginePrivate::controlSocketBytesWritten()
 
 void QSocks5SocketEnginePrivate::controlSocketError(QAbstractSocket::SocketError error)
 {
-    QSOCKS5_DEBUG << "controlSocketErrornnnn" << error << data->controlSocket->errorString();
+    QSOCKS5_DEBUG << "controlSocketError" << error << data->controlSocket->errorString();
 
     if (error == QAbstractSocket::RemoteHostClosedError) {
         socks5State = ControlSocketError;
@@ -1346,7 +1347,7 @@ bool QSocks5SocketEngine::waitForWrite(int msecs, bool *timedOut) const
         stopWatch.start();
 
         if (!d->data->controlSocket->waitForConnected(qt_timeout_value(msecs, stopWatch.elapsed()))) {
-            qDebug() << "failed to connect";
+            qDebug() << "failed to connect to proxy";
             if (timedOut && d->data->controlSocket->error() == QAbstractSocket::SocketTimeoutError)
                 *timedOut = true;
             return false; // ???
@@ -1356,8 +1357,10 @@ bool QSocks5SocketEngine::waitForWrite(int msecs, bool *timedOut) const
                && d->data->controlSocket->waitForReadyRead(qt_timeout_value(msecs, stopWatch.elapsed()))) {
             QSOCKS5_DEBUG << "looping";
         }
-        if (timedOut && d->data->controlSocket->error() == QAbstractSocket::SocketTimeoutError)
+        if (timedOut && d->data->controlSocket->error() == QAbstractSocket::SocketTimeoutError) {
+            QSOCKS5_DEBUG << "timeout";
             *timedOut = true;
+        }
        
         bool ret = d->writeNotificationActivated;
         d->writeNotificationActivated = false;
