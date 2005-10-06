@@ -772,7 +772,7 @@
 ****************************************************************************/
 </xsl:text>
         <xsl:text>#include "ui4.h"&endl;</xsl:text>
-        <xsl:text>#include &lt;QtXml/QDomDocument&gt;&endl;</xsl:text>
+        <xsl:text>#include &lt;QDomDocument&gt;&endl;</xsl:text>
         <xsl:text>&endl;</xsl:text>
 
         <xsl:text>#ifdef QFORMINTERNAL_NAMESPACE&endl;</xsl:text>

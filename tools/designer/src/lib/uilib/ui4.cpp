@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 #include "ui4.h"
-#include <QtXml/QDomDocument>
+#include <QDomDocument>
 
 #ifdef QFORMINTERNAL_NAMESPACE
 using namespace QFormInternal;
@@ -2180,12 +2180,20 @@ void DomItem::clear(bool clear_all)
 
     if (clear_all) {
     m_text = QString();
+    m_has_attr_row = false;
+    m_attr_row = 0;
+    m_has_attr_column = false;
+    m_attr_column = 0;
     }
 
 }
 
 DomItem::DomItem()
 {
+    m_has_attr_row = false;
+    m_attr_row = 0;
+    m_has_attr_column = false;
+    m_attr_column = 0;
 }
 
 DomItem::~DomItem()
@@ -2200,6 +2208,10 @@ DomItem::~DomItem()
 
 void DomItem::read(const QDomElement &node)
 {
+    if (node.hasAttribute(QLatin1String("row")))
+        setAttributeRow(node.attribute(QLatin1String("row")).toInt());
+    if (node.hasAttribute(QLatin1String("column")))
+        setAttributeColumn(node.attribute(QLatin1String("column")).toInt());
 
     for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
         if (!n.isElement())
@@ -2232,6 +2244,12 @@ QDomElement DomItem::write(QDomDocument &doc, const QString &tagName)
     QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("item") : tagName.toLower());
 
     QDomElement child;
+
+    if (hasAttributeRow())
+        e.setAttribute(QLatin1String("row"), attributeRow());
+
+    if (hasAttributeColumn())
+        e.setAttribute(QLatin1String("column"), attributeColumn());
 
     for (int i = 0; i < m_property.size(); ++i) {
         DomProperty* v = m_property[i];

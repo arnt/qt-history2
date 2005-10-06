@@ -13,9 +13,9 @@
 #ifndef UI4_H
 #define UI4_H
 
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <QList>
+#include <QString>
+#include <QStringList>
 class QDomDocument;
 class QDomElement;
 
@@ -1033,6 +1033,16 @@ public:
     inline void setText(const QString &s) { m_text = s; }
 
     // attribute accessors
+    inline bool hasAttributeRow() { return m_has_attr_row; }
+    inline int attributeRow() { return m_attr_row; }
+    inline void setAttributeRow(int a) { m_attr_row = a; m_has_attr_row = true; }
+    inline void clearAttributeRow() { m_has_attr_row = false; }
+
+    inline bool hasAttributeColumn() { return m_has_attr_column; }
+    inline int attributeColumn() { return m_attr_column; }
+    inline void setAttributeColumn(int a) { m_attr_column = a; m_has_attr_column = true; }
+    inline void clearAttributeColumn() { m_has_attr_column = false; }
+
     // child element accessors
     inline QList<DomProperty*> elementProperty() { return m_property; }
     void setElementProperty(const QList<DomProperty*>& a);
@@ -1045,6 +1055,12 @@ private:
     void clear(bool clear_all = true);
 
     // attribute data
+    int m_attr_row;
+    bool m_has_attr_row;
+
+    int m_attr_column;
+    bool m_has_attr_column;
+
     // child element data
     QList<DomProperty*> m_property;
     QList<DomItem*> m_item;

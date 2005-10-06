@@ -200,6 +200,8 @@
                         <xs:element name="property" type="Property" />
                         <xs:element name="item" type="Item" />
                 </xs:sequence>
+                <xs:attribute name="row" type="xs:integer"/>
+                <xs:attribute name="column" type="xs:integer"/>
         </xs:complexType>
 <!-- item view end -->
 

@@ -269,9 +269,9 @@
         <xsl:text>#ifndef UI4_H&endl;</xsl:text>
         <xsl:text>#define UI4_H&endl;</xsl:text>
         <xsl:text>&endl;</xsl:text>
-        <xsl:text>#include &lt;QtCore/QList&gt;&endl;</xsl:text>
-        <xsl:text>#include &lt;QtCore/QString&gt;&endl;</xsl:text>
-        <xsl:text>#include &lt;QtCore/QStringList&gt;&endl;</xsl:text>
+        <xsl:text>#include &lt;QList&gt;&endl;</xsl:text>
+        <xsl:text>#include &lt;QString&gt;&endl;</xsl:text>
+        <xsl:text>#include &lt;QStringList&gt;&endl;</xsl:text>
         <xsl:text>class QDomDocument;&endl;</xsl:text>
         <xsl:text>class QDomElement;&endl;</xsl:text>
 
