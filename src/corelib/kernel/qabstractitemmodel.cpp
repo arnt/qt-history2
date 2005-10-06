@@ -429,11 +429,11 @@ void QAbstractItemModelPrivate::rowsAboutToBeRemoved(const QModelIndex &parent,
     persistent.changed.clear();
     persistent.invalidated.clear();
 
-    QStack<Change> changes;
-    changes.push(Change(parent, first, last));
+    QStack<Change> persistent_changes;
+    persistent_changes.push(Change(parent, first, last));
 
-    while (!changes.isEmpty()) {
-        Change change = changes.pop();
+    while (!persistent_changes.isEmpty()) {
+        Change change = persistent_changes.pop();
         for (int position = 0; position < persistent.indexes.count(); ++position) {
             QModelIndex index = persistent.indexes.at(position)->index;
             if (index.isValid() && index.parent() == change.parent) {
@@ -441,7 +441,7 @@ void QAbstractItemModelPrivate::rowsAboutToBeRemoved(const QModelIndex &parent,
                     persistent.changed.append(position);
                 } else if (index.row() >= change.first) { // about to be removed
                     if (q_func()->hasChildren(index)) // the children are invalidated too
-                        changes.push(Change(index, 0, q_func()->rowCount(index) - 1));
+                        persistent_changes.push(Change(index, 0, q_func()->rowCount(index) - 1));
                     persistent.invalidated.append(position);
                 }
             }
@@ -496,11 +496,11 @@ void QAbstractItemModelPrivate::columnsAboutToBeRemoved(const QModelIndex &paren
     persistent.changed.clear();
     persistent.invalidated.clear();
 
-    QStack<Change> changes;
-    changes.push(Change(parent, first, last));
+    QStack<Change> persistent_changes;
+    persistent_changes.push(Change(parent, first, last));
 
-    while (!changes.isEmpty()) {
-        Change change = changes.pop();
+    while (!persistent_changes.isEmpty()) {
+        Change change = persistent_changes.pop();
         for (int position = 0; position < persistent.indexes.count(); ++position) {
             QModelIndex index = persistent.indexes.at(position)->index;
             if (index.isValid() && index.parent() == change.parent) {
@@ -508,7 +508,7 @@ void QAbstractItemModelPrivate::columnsAboutToBeRemoved(const QModelIndex &paren
                     persistent.changed.append(position);
                 } else if (index.column() >= change.first) { // about to be removed
                     if (q_func()->hasChildren(index)) // children are invalidated too
-                        changes.push(Change(index, 0, q_func()->columnCount(index) - 1));
+                        persistent_changes.push(Change(index, 0, q_func()->columnCount(index) - 1));
                     persistent.invalidated.append(position);
                 }
             }
@@ -1631,9 +1631,7 @@ bool QAbstractItemModel::decodeData(int row, int column, const QModelIndex &pare
 void QAbstractItemModel::beginInsertRows(const QModelIndex &parent, int first, int last)
 {
     Q_D(QAbstractItemModel);
-    d->change.parent = parent;
-    d->change.first = first;
-    d->change.last = last;
+    d->changes.push(QAbstractItemModelPrivate::Change(parent, first, last));
     emit rowsAboutToBeInserted(parent, first, last);
     d->rowsAboutToBeInserted(parent, first, last);
 }
@@ -1650,8 +1648,9 @@ void QAbstractItemModel::beginInsertRows(const QModelIndex &parent, int first, i
 void QAbstractItemModel::endInsertRows()
 {
     Q_D(QAbstractItemModel);
-    d->rowsInserted(d->change.parent, d->change.first, d->change.last);
-    emit rowsInserted(d->change.parent, d->change.first, d->change.last);
+    QAbstractItemModelPrivate::Change change = d->changes.pop();
+    d->rowsInserted(change.parent, change.first, change.last);
+    emit rowsInserted(change.parent, change.first, change.last);
 }
 
 /*!
@@ -1670,9 +1669,7 @@ void QAbstractItemModel::endInsertRows()
 void QAbstractItemModel::beginRemoveRows(const QModelIndex &parent, int first, int last)
 {
     Q_D(QAbstractItemModel);
-    d->change.parent = parent;
-    d->change.first = first;
-    d->change.last = last;
+    d->changes.push(QAbstractItemModelPrivate::Change(parent, first, last));
     emit rowsAboutToBeRemoved(parent, first, last);
     d->rowsAboutToBeRemoved(parent, first, last);
 }
@@ -1689,8 +1686,9 @@ void QAbstractItemModel::beginRemoveRows(const QModelIndex &parent, int first, i
 void QAbstractItemModel::endRemoveRows()
 {
     Q_D(QAbstractItemModel);
-    d->rowsRemoved(d->change.parent, d->change.first, d->change.last);
-    emit rowsRemoved(d->change.parent, d->change.first, d->change.last);
+    QAbstractItemModelPrivate::Change change = d->changes.pop();
+    d->rowsRemoved(change.parent, change.first, change.last);
+    emit rowsRemoved(change.parent, change.first, change.last);
 }
 
 /*!
@@ -1709,9 +1707,7 @@ void QAbstractItemModel::endRemoveRows()
 void QAbstractItemModel::beginInsertColumns(const QModelIndex &parent, int first, int last)
 {
     Q_D(QAbstractItemModel);
-    d->change.parent = parent;
-    d->change.first = first;
-    d->change.last = last;
+    d->changes.push(QAbstractItemModelPrivate::Change(parent, first, last));
     emit columnsAboutToBeInserted(parent, first, last);
     d->columnsAboutToBeInserted(parent, first, last);
 }
@@ -1728,8 +1724,9 @@ void QAbstractItemModel::beginInsertColumns(const QModelIndex &parent, int first
 void QAbstractItemModel::endInsertColumns()
 {
     Q_D(QAbstractItemModel);
-    d->columnsInserted(d->change.parent, d->change.first, d->change.last);
-    emit columnsInserted(d->change.parent, d->change.first, d->change.last);
+    QAbstractItemModelPrivate::Change change = d->changes.pop();
+    d->columnsInserted(change.parent, change.first, change.last);
+    emit columnsInserted(change.parent, change.first, change.last);
 }
 
 /*!
@@ -1748,9 +1745,7 @@ void QAbstractItemModel::endInsertColumns()
 void QAbstractItemModel::beginRemoveColumns(const QModelIndex &parent, int first, int last)
 {
     Q_D(QAbstractItemModel);
-    d->change.parent = parent;
-    d->change.first = first;
-    d->change.last = last;
+    d->changes.push(QAbstractItemModelPrivate::Change(parent, first, last));
     emit columnsAboutToBeRemoved(parent, first, last);
     d->columnsAboutToBeRemoved(parent, first, last);
 }
@@ -1767,8 +1762,9 @@ void QAbstractItemModel::beginRemoveColumns(const QModelIndex &parent, int first
 void QAbstractItemModel::endRemoveColumns()
 {
     Q_D(QAbstractItemModel);
-    d->columnsRemoved(d->change.parent, d->change.first, d->change.last);
-    emit columnsRemoved(d->change.parent, d->change.first, d->change.last);
+    QAbstractItemModelPrivate::Change change = d->changes.pop();
+    d->columnsRemoved(change.parent, change.first, change.last);
+    emit columnsRemoved(change.parent, change.first, change.last);
 }
 
 /*!

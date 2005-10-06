@@ -27,6 +27,7 @@
 //
 
 #include "private/qobject_p.h"
+#include "QtCore/qstack.h"
 
 class Q_CORE_EXPORT QPersistentModelIndexData
 {
@@ -59,10 +60,12 @@ public:
 
     struct Change {
         Change() : first(-1), last(-1) {}
+        Change(const Change &c) : parent(c.parent), first(c.first), last(c.last) {}
         Change(const QModelIndex &p, int f, int l) : parent(p), first(f), last(l) {}
         QModelIndex parent;
         int first, last;
-    } change;
+    };
+    QStack<Change> changes;
 
     struct Persistent {
         QList<QPersistentModelIndexData*> indexes;
