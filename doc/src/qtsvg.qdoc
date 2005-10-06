@@ -8,6 +8,25 @@
   \brief The QtSvg module provides classes for displaying the contents of SVG
   files.
 
+  SVG is a language for describing two-dimensional graphics and graphical
+  applications in XML.  SVG 1.1 is a W3C Recommendation and forms the core
+  of the current SVG developments. SVG 1.2 is the specification currently
+  being developed as is available in draft form (comments welcome). The
+  SVG Mobile Profiles: SVG Basic and SVG Tiny are targetted to
+  resource-limited devices and are part of the 3GPP platform for third
+  generation mobile phones. You can read more about SVG at
+  \l{http://www.w3.org/Graphics/SVG/About.html}.
+
+  \tableofcontents
+
+  \section1 SVG Support
+  Qt supports Tiny profiles of both SVG 1.1 and SVG 1.2.
+  ECMA scripts and DOM manipulation are currently not supported.
+
+  \section1 Configuring the Build Process
+
+  Applications that use Qt's SVG classes need to
+  be configured to be built against the QtSvg module.
   To include the definitions of the module's classes, use the
   following directive:
 
@@ -15,6 +34,34 @@
       #include <QtSvg>
   \endcode
 
+  To link against the module, add this line to your \l qmake \c
+  .pro file:
+
+  \code
+      QT += svg
+  \endcode
+
   The QtSvg module is part of the \l{Qt Desktop Edition} and the
   \l{Qt Open Source Edition}.
+
+  \section1 Rendering SVG files
+
+  QSvgRenderer is a base class responsible for rendering SVG files.
+  You load an SVG file by specifying the file name or the contents
+  of that file on the construction of QSvgRenderer or by calling
+  the QSvgRenderer::load() function. If the SVG file has been
+  loaded successfully the QSvgRenderer::isValid() will return true.
+
+  Once you have loaded the SVG file successfully you can render it
+  by passing a pointer to a QPainter object to the
+  QSvgRenderer::render() method. Note that this scheme allows you
+  to render SVG files on a all surfaces supported by Qt (for example
+  QWidget, QGLWidget or QImage).
+
+  \section1 Quick way of rendering SVG files
+
+  The easiest way of rendering SVG files in Qt involves using QSvgWidget.
+  Just create the widget and load the SVG file by one of the
+  QSvgWidget::load() functions.
+
 */
