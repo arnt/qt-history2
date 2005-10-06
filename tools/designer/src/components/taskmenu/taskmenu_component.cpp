@@ -19,6 +19,7 @@
 #include "listwidget_taskmenu.h"
 #include "treewidget_taskmenu.h"
 #include "tablewidget_taskmenu.h"
+#include "containerwidget_taskmenu.h"
 #include "combobox_taskmenu.h"
 #include "textedit_taskmenu.h"
 
@@ -34,6 +35,9 @@ TaskMenuComponent::TaskMenuComponent(QDesignerFormEditorInterface *core, QObject
     Q_ASSERT(m_core != 0);
 
     QExtensionManager *mgr = core->extensionManager();
+
+    ContainerWidgetTaskMenuFactory *containerwidget_factory = new ContainerWidgetTaskMenuFactory(mgr);
+    mgr->registerExtensions(containerwidget_factory, Q_TYPEID(QDesignerTaskMenuExtension));
 
     ButtonTaskMenuFactory *button_factory = new ButtonTaskMenuFactory(mgr);
     mgr->registerExtensions(button_factory, Q_TYPEID(QDesignerTaskMenuExtension));
