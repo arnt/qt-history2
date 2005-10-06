@@ -53,13 +53,13 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
     }
     Q_ASSERT(baseMeta != 0);
 
-    // ### hack
     for (int index=0; index<count(); ++index) {
         QMetaProperty p = meta->property(index);
-        // setVisible(index, p.isDesignable(m_object));
 
         if (p.type() == QVariant::KeySequence)
             createFakeProperty(QString::fromUtf8(p.name()));
+        else
+            setVisible(index, false); // use the default for `real' properties
 
         QString pgroup = QString::fromUtf8(baseMeta->className());
 
@@ -361,6 +361,7 @@ bool QDesignerPropertySheet::isFakeLayoutProperty(int index) const
         return false;
 
     QString pname = propertyName(index);
+
     if (pname == QLatin1String("margin")
             || pname == QLatin1String("spacing")
             || pname == QLatin1String("sizeConstraint"))
@@ -368,9 +369,6 @@ bool QDesignerPropertySheet::isFakeLayoutProperty(int index) const
 
     return false;
 }
-
-#include <QToolBar>
-#include <qdebug.h>
 
 bool QDesignerPropertySheet::isVisible(int index) const
 {
@@ -387,7 +385,7 @@ bool QDesignerPropertySheet::isVisible(int index) const
         return true;
 
     QMetaProperty p = meta->property(index);
-    return p.isWritable() && p.isDesignable(m_object) && m_info.value(index).visible;
+    return (p.isWritable() && p.isDesignable(m_object)) || m_info.value(index).visible;
 }
 
 void QDesignerPropertySheet::setVisible(int index, bool visible)
