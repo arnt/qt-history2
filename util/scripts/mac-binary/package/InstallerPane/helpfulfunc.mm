@@ -9,6 +9,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "helpfulfunc.h"
 #include "keydec.h"
 
@@ -72,9 +73,20 @@ int validateLicense(const char *string)
                                                          timeZone:[NSTimeZone systemTimeZone]];
         NSCalendarDate *compareDay = 0;
         if (key.getLicenseSchema() & KeyDecoder::FullCommercial) {
-            compareDay = [NSCalendarDate dateWithString:[NSString stringWithContentsOfFile:[[NSBundle mainBundle]
-                                                                pathForResource:@".package_date" ofType:nil] encoding:NSUTF8StringEncoding error:0]
-                                                        calendarFormat:@"%F"];
+            // There's a lot of bundles here, so we have to make sure we get the correct one
+            NSBundle *bundle = nil;
+            NSArray *bundles = [NSBundle allBundles];
+            for (uint i = 0; i < [bundles count]; ++i) {
+                NSBundle *bun = [bundles objectAtIndex: i];
+                NSRange location = [[bun bundleIdentifier] rangeOfString:@"com.trolltech.qt4."];
+                if (location.length != 0) {
+                    bundle = bun;
+                    break;
+                }
+            }
+            NSString *contents = [NSString stringWithContentsOfFile:[bundle pathForResource:@".package_date" ofType:nil]
+                                                        encoding:NSUTF8StringEncoding error:0];
+            compareDay = [NSCalendarDate dateWithString: contents calendarFormat:@"%Y-%m-%d"];
         } else {
             compareDay = [NSCalendarDate calendarDate];
         }

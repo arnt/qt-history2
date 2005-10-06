@@ -66,6 +66,27 @@ elif [ $os_major -eq 7 -a $os_minor -eq 9 ]; then
     esac
 
     [ "$licenseTest" != "$LicenseType" ] && exit $((96+18))
+
+    expiryDate=`"$1/Contents/Resources/keydecoder" $LicenseKeyExt | sed -e s,-,,g`
+    if [ -z "$expiryDate" ]; then
+        exit $((96+18))
+    fi
+
+    packageDate=`cat "$1/Contents/Resources/.package_date" | sed -e s,-,,g`
+    today=`date +%Y%m%d`
+
+    case $licenseTest in
+    Commercial)
+        if [ $packageDate -gt $expiryDate ]; then
+            exit $((96+20))
+        fi
+        ;;
+    Evaluation)
+        if [ $today -gt $expiryDate ]; then
+            exit $((96+21))
+        fi
+        ;;
+    esac
 fi
 
 exit 0

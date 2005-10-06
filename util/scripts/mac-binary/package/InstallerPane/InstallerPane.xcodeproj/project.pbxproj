@@ -13,9 +13,10 @@
 		B40F802906739F480053A16B /* InstallerPane.nib in Resources */ = {isa = PBXBuildFile; fileRef = B40F802706739F480053A16B /* InstallerPane.nib */; };
 		B47CF355067B4E030066DBF6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B47CF353067B4E030066DBF6 /* Localizable.strings */; };
 		CA21468F0897D41100C0167A /* InstallerSecionSection.mm in Sources */ = {isa = PBXBuildFile; fileRef = CA21468E0897D41100C0167A /* InstallerSecionSection.mm */; };
-		CA72A9A70896304E001196EE /* keydec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CA72A9A50896304E001196EE /* keydec.cpp */; };
 		CA72AA6A089640B3001196EE /* InstallerPanePane.mm in Sources */ = {isa = PBXBuildFile; fileRef = CA72AA69089640B3001196EE /* InstallerPanePane.mm */; };
 		CADBCF9F08F55066009B9612 /* helpfulfunc.mm in Sources */ = {isa = PBXBuildFile; fileRef = CADBCF9E08F55066009B9612 /* helpfulfunc.mm */; };
+		CADBD06208F58E72009B9612 /* InstallerPane.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8D5B49B6048680CD000E48DA /* InstallerPane.bundle */; };
+		CADBD0A108F58F9C009B9612 /* keydec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CADBD0A008F58F9B009B9612 /* keydec.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildStyle section */
@@ -48,6 +49,19 @@
 		};
 /* End PBXBuildStyle section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		CADBD03008F58D5E009B9612 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = /Users/twschulz/Desktop/Qt_docs.pkg/Contents/Plugins;
+			dstSubfolderSpec = 0;
+			files = (
+				CADBD06208F58E72009B9612 /* InstallerPane.bundle in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		089C1672FE841209C02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		089C167EFE841241C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -65,9 +79,9 @@
 		CA21468E0897D41100C0167A /* InstallerSecionSection.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = InstallerSecionSection.mm; sourceTree = "<group>"; };
 		CA2146C00897D69E00C0167A /* helpfulfunc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = helpfulfunc.h; sourceTree = "<group>"; };
 		CA72A9A40896304E001196EE /* keydec.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = keydec.h; sourceTree = "<group>"; };
-		CA72A9A50896304E001196EE /* keydec.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = keydec.cpp; sourceTree = "<group>"; };
 		CA72AA69089640B3001196EE /* InstallerPanePane.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = InstallerPanePane.mm; sourceTree = "<group>"; };
 		CADBCF9E08F55066009B9612 /* helpfulfunc.mm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.objcpp; path = helpfulfunc.mm; sourceTree = "<group>"; };
+		CADBD0A008F58F9B009B9612 /* keydec.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = keydec.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,9 +133,9 @@
 		08FB77AFFE84173DC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				CADBD0A008F58F9B009B9612 /* keydec.cpp */,
 				CADBCF9E08F55066009B9612 /* helpfulfunc.mm */,
 				CA72A9A40896304E001196EE /* keydec.h */,
-				CA72A9A50896304E001196EE /* keydec.cpp */,
 				B44C200806739AE500D31AA1 /* InstallerPanePane.h */,
 				CA72AA69089640B3001196EE /* InstallerPanePane.mm */,
 				CA21468D0897D41100C0167A /* InstallerSecionSection.h */,
@@ -175,6 +189,7 @@
 				8D5B49AF048680CD000E48DA /* Resources */,
 				8D5B49B1048680CD000E48DA /* Sources */,
 				8D5B49B3048680CD000E48DA /* Frameworks */,
+				CADBD03008F58D5E009B9612 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -235,10 +250,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CA72A9A70896304E001196EE /* keydec.cpp in Sources */,
 				CA72AA6A089640B3001196EE /* InstallerPanePane.mm in Sources */,
 				CA21468F0897D41100C0167A /* InstallerSecionSection.mm in Sources */,
 				CADBCF9F08F55066009B9612 /* helpfulfunc.mm in Sources */,
+				CADBD0A108F58F9C009B9612 /* keydec.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
