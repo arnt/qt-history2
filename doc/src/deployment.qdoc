@@ -71,8 +71,12 @@
     Since Qt is not a system library, it has to be redistributed along
     with your application; the minimum is to redistribute the run-time
     of the libraries used by the application.  Using static linking,
-    however, the Qt run-time is compiled into the
-    executable.
+    however, the Qt run-time is compiled into the executable.
+
+    In particular you will need to deploy plugins built with Qt, like
+    for example JPEG support. For more information about plugins, see
+    the \l {plugins-howto.html}{How to Create Qt Plugins}
+    documentation.
 
     Depending on configuration, compiler specific libraries must be
     redistributed as well. For more information, see the platform
@@ -162,12 +166,13 @@
         make clean
         PATH=/path/to/Qt/bin:$PATH
         export PATH
-        qmake
+        qmake -config release
         make
     \endcode
 
-    Note that we must set the path to the static Qt that we just
-    built.
+    You probably want to link against the release libraries, and you
+    can specify this when invoking \c qmake. Note that we must set the
+    path to the static Qt that we just built.
 
     To check that the application really links statically with Qt, run
     the \c ldd tool (available on most Unices):
@@ -230,8 +235,8 @@
     a clean build to create the dynamically linked executable:
 
     \code
-        qmake plugandpaint.pro
         make clean
+        qmake -config release
         make
     \endcode
 
@@ -240,8 +245,8 @@
 
     \code
         cd ../plugandpaintplugins
-        qmake plugandpaint.pro
         make clean
+        qmake -config release
         make
     \endcode
 
@@ -454,9 +459,9 @@
         nmake sub-src
     \endcode
 
-    This will build Qt statically in release mode. Note that we have
-    used \c nmake in all the examples, but if you use MinGW you must
-    use the \c mingw32-make instead.
+    This will build Qt statically. Note that we have used \c nmake in
+    all the examples, but if you use MinGW you must use the \c
+    mingw32-make instead.
 
     \section2 Linking the Application to the Static Version of Qt
 
@@ -473,16 +478,18 @@
     executable:
 
     \code
-        qmake plugandpaint.pro
         nmake clean
+        qmake -config release
         nmake
     \endcode
 
-    Now, provided that everything compiled and linked without any
-    errors, we should have a \c plugandpaint.exe file that is ready for
-    deployment. One easy way to check that the application really can
-    be run stand-alone is to copy it to a machine that doesn't have Qt
-    or any Qt applications installed, and run it on that machine.
+    You probably want to link against the release libraries, and you
+    can specify this when invoking \c qmake. Now, provided that
+    everything compiled and linked without any errors, we should have
+    a \c plugandpaint.exe file that is ready for deployment. One easy
+    way to check that the application really can be run stand-alone is
+    to copy it to a machine that doesn't have Qt or any Qt
+    applications installed, and run it on that machine.
 
     Remember that if your application depends on compiler specific
     libraries, these must still be redistributed along with your
@@ -524,25 +531,25 @@
     must go into the directory that contains the application:
 
     \code
-        cd ..\examples\tools\plugandpaint
+        cd examples\tools\plugandpaint
     \endcode
 
     Now run \c qmake to create a new makefile for the application, and
     do a clean build to create the dynamically linked executable:
 
     \code
-        qmake plugandpaint.pro
         nmake clean
+        qmake -config release
         nmake
     \endcode
 
-    This build the core application, the following will build the
+    This builds the core application, the following will build the
     plugins:
 
     \code
         cd ..\plugandpaintplugins
-        qmake plugandpaint.pro
         nmake clean
+        qmake -config release
         nmake
     \endcode
 
@@ -688,7 +695,7 @@
     This will provide a list of the libraries that your application
     depends on and other information.
 
-    \image depends-screenshot
+    \image deployment-windows-depends.png
 
     Looking at the release build of the \l {tools/plugandpaint}{Plug &
     Paint} executable (\c plugandpaint.exe) with the \c depends tool,
@@ -816,14 +823,14 @@
     \endcode
 
     You probably want to link against the release libraries, and you
-    can specify this when invoking \c qmake. In addition, if you have
-    Xcode 1.5 or higher installed, you may want to take advantage of
-    "dead code stripping" to reduce the size of your binary even
-    more. You can do this by passing \c {LIBS+= -dead_strip} to \c
-    qmake in addition to the \c {-config release} parameter. This
-    doesn't have as large an effect if you are using GCC 4, since Qt
-    will then have function visibility hints built-in, but if you use
-    GCC 3.3, it could make a difference.
+    can specify this when invoking \c qmake. If you have Xcode 1.5 or
+    higher installed, you may want to take advantage of "dead code
+    stripping" to reduce the size of your binary even more. You can do
+    this by passing \c {LIBS+= -dead_strip} to \c qmake in addition to
+    the \c {-config release} parameter. This doesn't have as large an
+    effect if you are using GCC 4, since Qt will then have function
+    visibility hints built-in, but if you use GCC 3.3, it could make a
+    difference.
 
     Now, provided that everything compiled and linked without any
     errors, we should have a \c plugandpaint.app bundle that is ready
@@ -833,14 +840,13 @@
     application on that machine.
 
     You can check what other libraries your application links to using
-    the \c otool.
+    the \c otool:
 
     \code
         otool -L plugandpaint.app/contents/MacOs/plugandpaint
     \endcode
 
-    For more information, see the \l {Application Dependencies}
-    section. Here is what the output looks like for the static \l
+    Here is what the output looks like for the static \l
     {tools/plugandpaint}{Plug & Paint}:
 
     \code
@@ -863,14 +869,17 @@
                 (compatibility version 1.0.0, current version 88.0.0)
     \endcode
 
-    If you see \e Qt libraries in the output, it probably means that
-    you have both dynamic and static Qt libraries installed on your
-    machine. The linker will always choose dynamic over static. There
-    are two solutions: Either move your Qt dynamic libraries (\c
-    .dylibs) away to another directory while you link the application
-    and then move them back, or edit the \c Makefile and replace link
-    lines for the Qt libraries with the absolute path to the static
-    libraries. For example, replace
+    For more information, see the \l {Application Dependencies}
+    section.
+
+    If you see \e Qt libraries in the output, it probably
+    means that you have both dynamic and static Qt libraries installed
+    on your machine. The linker will always choose dynamic over
+    static. There are two solutions: Either move your Qt dynamic
+    libraries (\c .dylibs) away to another directory while you link
+    the application and then move them back, or edit the \c Makefile
+    and replace link lines for the Qt libraries with the absolute path
+    to the static libraries. For example, replace
 
     \code
         -lQtGui
@@ -918,9 +927,9 @@
     directory. For more information on how to build Qt, see the \l
     Installation documentation.
 
-    When installing, the install name of the frameworks will also be
-    set. The install name is what the dynamic linker (\c dyld) uses to
-    find the libraries for your application.
+    When installing, the identification name of the frameworks will
+    also be set. The identification name is what the dynamic linker
+    (\c dyld) uses to find the libraries for your application.
 
     \section2 Linking the Application to Qt as Frameworks
 
@@ -951,13 +960,13 @@
         make
     \endcode
 
-    Now, if we run the \c otool for the Qt frameworks, for example Qt Gui:
+    Now run the \c otool for the Qt frameworks, for example Qt Gui:
 
     \code
         otool -L QtGui.framework/QtGui
     \endcode
 
-    we will get the following output:
+    You will get the following output:
 
     \code
         QtGui.framework/QtGui:
@@ -1067,7 +1076,7 @@
     application will look in the right locations.
 
     Of course, the thing that makes the plug and paint example
-    intesting are its plugins. The basic steps we need to follow with
+    interesting are its plugins. The basic steps we need to follow with
     plugins are:
 
     \list
@@ -1214,17 +1223,17 @@
 
     \section2 Creating the Application Package
 
-    Regardless of whether you chose the static linking approach or
-    used Qt as frameworks, your application is ready to be
+    When you are done linking your application to Qt, either
+    statically or as frameworks, the application is ready to be
     distributed. Apple provides a fair bit of information about how to
     do this and instead of repeating it here, we recommend that you
     consult their \l {
     http://developer.apple.com/documentation/DeveloperTools/Conceptual/SoftwareDistribution/SoftwareDistribution.html
     }{software distribution} documentation.
 
-    Although deploying application do have some pitfalls, once you
-    know the various issues you can easily create packages that all
-    your Mac OS X users will enjoy.
+    Although the process of deploying an application do have some
+    pitfalls, once you know the various issues you can easily create
+    packages that all your Mac OS X users will enjoy.
 
     \section1 Application Dependencies
 
@@ -1243,8 +1252,8 @@
     configured, built, and installed in several ways on Mac OS X,
     there are also several ways to deploy applications. Typically your
     goals help determine how you are going to deploy the
-    application. The last sections describe a couple things to keep in
-    mind when you are deploying.
+    application. The last sections describe a couple of things to keep
+    in mind when you are deploying your application.
 
     \section2 Mac OS X Version Dependencies
 
