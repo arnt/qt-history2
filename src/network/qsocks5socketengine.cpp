@@ -576,7 +576,7 @@ void QSocks5SocketEnginePrivate::sendRequestMethod()
         port = localPort;
     } else {
         command = S5_UDP_ASSOCIATE;
-        address = localAddress;
+        address = localAddress; //data->controlSocket->localAddress();
         port = localPort;
     }
 
@@ -819,6 +819,8 @@ bool QSocks5SocketEngine::isValid() const
 bool QSocks5SocketEngine::connectToHost(const QHostAddress &address, quint16 port)
 {
     Q_D(QSocks5SocketEngine);
+    
+    QSOCKS5_DEBUG << "connectToHost" << address << ":" << port;
 
     if (!d->data) {
         if (socketType() == QAbstractSocket::TcpSocket) {
@@ -940,6 +942,13 @@ void QSocks5SocketEnginePrivate::controlSocketError(QAbstractSocket::SocketError
     }
 }
 
+void QSocks5SocketEnginePrivate::checkForDatagrams() const
+{
+    // udp should be unbuffered so we need to do some polling at certain points
+    if (udpData->udpSocket->hasPendingDatagrams())
+        const_cast<QSocks5SocketEnginePrivate *>(this)->udpSocketReadNotification();
+}
+
 void QSocks5SocketEnginePrivate::udpSocketReadNotification()
 {
     // check some state stuff
@@ -1032,9 +1041,11 @@ bool QSocks5SocketEngine::bind(const QHostAddress &address, quint16 port)
                     || writeDatagram(0,0, d->data->controlSocket->localAddress(), dummy.localPort()) != 0
                     || !dummy.waitForReadyRead(qt_timeout_value(msecs, stopWatch.elapsed()))
                     || dummy.readDatagram(0,0, &d->localAddress, &d->localPort) != 0) {
+                    QSOCKS5_DEBUG << "udp actual address and port lookup failed";
                     //### reset and error
                     return false;
                 }
+                QSOCKS5_DEBUG << "udp actual address and port" << d->localAddress << ":" << d->localPort;
             }
             return true;
         }
@@ -1188,6 +1199,9 @@ qint64 QSocks5SocketEngine::readDatagram(char *data, qint64 maxlen, QHostAddress
                                         quint16 *port)
 {
     Q_D(QSocks5SocketEngine);
+    
+    d->checkForDatagrams();
+
     if (d->udpData->pendingDatagrams.isEmpty())
         return 0;
 
@@ -1206,6 +1220,16 @@ qint64 QSocks5SocketEngine::writeDatagram(const char *data, qint64 len, const QH
 {
     Q_D(QSocks5SocketEngine);
 
+    // it is possible to send with out first binding with udp, but socks5 requires a bind.
+    if (!d->data) {
+        d->initialize(QSocks5SocketEnginePrivate::UdpAssociateMode);
+        // all udp needs to be bound
+        if (!bind(QHostAddress("0.0.0.0"), 0)) {
+            //### set error
+            return -1;
+        }
+    }
+
     QByteArray outBuf;
     outBuf.reserve(270 + len);
     char *buf = outBuf.data();
@@ -1216,12 +1240,17 @@ qint64 QSocks5SocketEngine::writeDatagram(const char *data, qint64 len, const QH
     if (!qt_socks5_set_host_address_and_port(address, port, &outBuf, &pos)) {
     }
     outBuf += QByteArray(data, len);
-    QSOCKS5_DEBUG << "sending" << dump(buf);
+    QSOCKS5_DEBUG << "sending" << dump(outBuf);
     QByteArray sealedBuf;
     if (!d->data->authenticator->seal(outBuf, &sealedBuf))
         qDebug() << "shit";
-    if (!d->udpData->udpSocket->writeDatagram(sealedBuf, d->udpData->associateAddress, d->udpData->associatePort))
-        qDebug() << "no write datagram";
+    if (d->udpData->udpSocket->writeDatagram(sealedBuf, d->udpData->associateAddress, d->udpData->associatePort) != sealedBuf.size()) {
+        //### try frgamenting
+        if (d->udpData->udpSocket->error() == QAbstractSocket::DatagramTooLargeError)
+            setError(d->udpData->udpSocket->error(), d->udpData->udpSocket->errorString());
+        //### else maybe more serious error
+        return -1;
+    }
    
     return len; 
 }
@@ -1230,12 +1259,18 @@ bool QSocks5SocketEngine::hasPendingDatagrams() const
 {
     Q_D(const QSocks5SocketEngine);
     Q_INIT_CHECK(false);
+    
+    d->checkForDatagrams();
+    
     return !d->udpData->pendingDatagrams.isEmpty(); 
 }
 
 qint64 QSocks5SocketEngine::pendingDatagramSize() const
 {
     Q_D(const QSocks5SocketEngine);
+    
+    d->checkForDatagrams();
+
     if (!d->udpData->pendingDatagrams.isEmpty())
         return d->udpData->pendingDatagrams.head().data.size();
     return 0; 

@@ -185,6 +185,7 @@ public:
     void controlSocketConnected();
     void controlSocketReadNotification();
     void controlSocketError(QAbstractSocket::SocketError);
+    void checkForDatagrams() const;
     void udpSocketReadNotification();
     void controlSocketBytesWritten();
 
