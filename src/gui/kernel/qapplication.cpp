@@ -1096,11 +1096,14 @@ void QApplication::setStyle(QStyle *style)
     // take care of possible palette requirements of certain gui
     // styles. Do it before polishing the application since the style
     // might call QApplication::setStyle() itself
-    if (QApplicationPrivate::set_pal || QApplicationPrivate::sys_pal)
-        QApplication::setPalette(QApplicationPrivate::set_pal
-                                 ? *QApplicationPrivate::set_pal : *QApplicationPrivate::sys_pal);
-    else
+    if (QApplicationPrivate::set_pal) {
+        QApplication::setPalette(*QApplicationPrivate::set_pal);
+    } else if (QApplicationPrivate::sys_pal) {
+        QApplicationPrivate::initializeWidgetPaletteHash();
+        QApplicationPrivate::setPalette_helper(*QApplicationPrivate::sys_pal, /*className=*/0, /*clearWidgetPaletteHash=*/false);
+    } else {
         qWarning("QApplication::setStyle(): Called before creating QApplication, palette undefined.");
+    }
 
     // initialize the application with the new style
     QApplicationPrivate::app_style->polish(qApp);
@@ -1328,21 +1331,7 @@ QPalette QApplication::palette(const char *className)
     return *QApplicationPrivate::app_pal;
 }
 
-/*!
-  Changes the default application palette to \a palette.
-
-  If \a className is passed, the change applies only to widgets that
-  inherit \a className (as reported by QObject::inherits()). If
-  \a className is left 0, the change affects all widgets, thus overriding
-  any previously set class specific palettes.
-
-  The palette may be changed according to the current GUI style in
-  QStyle::polish().
-
-  \sa QWidget::setPalette(), palette(), QStyle::polish()
-*/
-
-void QApplication::setPalette(const QPalette &palette, const char* className)
+void QApplicationPrivate::setPalette_helper(const QPalette &palette, const char* className, bool clearWidgetPaletteHash)
 {
     QPalette pal = palette;
 
@@ -1360,7 +1349,8 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
             *QApplicationPrivate::app_pal = pal;
         if (hash && hash->size()) {
             all = true;
-            hash->clear();
+            if (clearWidgetPaletteHash)
+                hash->clear();
         }
     } else if (hash) {
         hash->insert(className, pal);
@@ -1372,7 +1362,7 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
              it != QWidgetPrivate::mapper->constEnd(); ++it) {
             register QWidget *w = *it;
             if (all || (!className && w->isWindow()) || w->inherits(className)) // matching class
-                sendEvent(w, &e);
+                QApplication::sendEvent(w, &e);
         }
     }
     if (!className && (!QApplicationPrivate::sys_pal || !palette.isCopyOf(*QApplicationPrivate::sys_pal))) {
@@ -1381,6 +1371,25 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
         else
             *QApplicationPrivate::set_pal = palette;
     }
+}
+
+/*!
+  Changes the default application palette to \a palette.
+
+  If \a className is passed, the change applies only to widgets that
+  inherit \a className (as reported by QObject::inherits()). If
+  \a className is left 0, the change affects all widgets, thus overriding
+  any previously set class specific palettes.
+
+  The palette may be changed according to the current GUI style in
+  QStyle::polish().
+
+  \sa QWidget::setPalette(), palette(), QStyle::polish()
+*/
+
+void QApplication::setPalette(const QPalette &palette, const char* className)
+{
+    QApplicationPrivate::setPalette_helper(palette, className, /*clearWidgetPaletteHash=*/ true);
 }
 
 

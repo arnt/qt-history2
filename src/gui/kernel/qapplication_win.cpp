@@ -546,6 +546,10 @@ static void qt_set_windows_resources()
     }
 }
 
+void QApplicationPrivate::initializeWidgetPaletteHash()
+{
+}
+
 /*****************************************************************************
   qt_init() - initializes Qt for Windows
  *****************************************************************************/

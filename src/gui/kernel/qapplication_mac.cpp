@@ -496,6 +496,10 @@ void qt_mac_update_os_settings()
 #endif
 }
 
+void QApplicationPrivate::initializeWidgetPaletteHash()
+{
+}
+
 static void qt_mac_event_release(EventRef &event)
 {
     ReleaseEvent(event);

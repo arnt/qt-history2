@@ -1510,7 +1510,9 @@ static void qt_set_qws_resources()
     }
 }
 
-
+void QApplicationPrivate::initializeWidgetPaletteHash()
+{
+}
 
 /*! \internal
     apply the settings to the application

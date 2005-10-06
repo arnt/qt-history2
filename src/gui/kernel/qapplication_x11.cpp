@@ -1905,6 +1905,9 @@ void QApplicationPrivate::x11_initialize_style()
     }
 }
 
+void QApplicationPrivate::initializeWidgetPaletteHash()
+{
+}
 
 /*****************************************************************************
   qt_cleanup() - cleans up when the application is finished

@@ -241,6 +241,8 @@ public:
     static bool widgetCount; // Coupled with -widgetcount switch
 
     static void setSystemPalette(const QPalette &pal);
+    static void setPalette_helper(const QPalette &palette, const char* className, bool clearWidgetPaletteHash);
+    static void initializeWidgetPaletteHash();
 
 #if defined(Q_WS_X11)
     static void applyX11SpecificCommandLineArguments(QWidget *main_widget);
