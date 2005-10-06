@@ -1023,7 +1023,7 @@ bool VCLinkerTool::parseOption(const char* option)
     displayHash("/DELAYLOAD"); displayHash("/DLL"); displayHash("/DRIVER");
     displayHash("/ENTRY"); displayHash("/EXETYPE"); displayHash("/EXPORT");
     displayHash("/FIXED"); displayHash("/FORCE"); displayHash("/HEAP");
-    displayHash("/IDLOUT"); displayHash("/IGNOREIDL"); displayHash("/IMPLIB");
+    displayHash("/IDLOUT"); displayHash("/IGNORE"); displayHash("/IGNOREIDL"); displayHash("/IMPLIB");
     displayHash("/INCLUDE"); displayHash("/INCREMENTAL"); displayHash("/LARGEADDRESSAWARE");
     displayHash("/LIBPATH"); displayHash("/LTCG"); displayHash("/MACHINE");
     displayHash("/MAP"); displayHash("/MAPINFO"); displayHash("/MERGE");
@@ -1035,6 +1035,7 @@ bool VCLinkerTool::parseOption(const char* option)
     displayHash("/SWAPRUN"); displayHash("/TLBID"); displayHash("/TLBOUT");
     displayHash("/TSAWARE"); displayHash("/VERBOSE"); displayHash("/VERSION");
     displayHash("/VXD"); displayHash("/WS "); displayHash("/libpath");
+    
 #endif
 #ifdef USE_DISPLAY_HASH
     // Sub options
@@ -1056,6 +1057,8 @@ bool VCLinkerTool::parseOption(const char* option)
     case 0x3ad5444: // /EXPORT:entryname[,@ordinal[,NONAME]][,DATA]
     case 0x33aec94: // /FIXED[:NO]
     case 0x33b4675: // /FORCE:[MULTIPLE|UNRESOLVED]
+    case 0x3dc3455: // /IGNORE:number,number,number,number  ### NOTE: This one is undocumented, but it is even used by Microsoft.
+                    //                                      In recent versions of the Microsoft linker they have disabled this undocumented feature.
     case 0x7988f7e: // /SECTION:name,[E][R][W][S][D][K][L][P][X][,ALIGN=#]
     case 0x0348992: // /STUB:filename
     case 0x0034bc4: // /VXD
