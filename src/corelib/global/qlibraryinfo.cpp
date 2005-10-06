@@ -297,16 +297,25 @@ QLibraryInfo::location(LibraryLocation loc)
                   following groups:
 
                   Paths
-                  Paths/4.0.0
-                  Paths/4.1.0
+                  Paths/4.0
+                  Paths/4.1.2
+                  Paths/4.2.5
+                  Paths/5
 
-                  if QT_VERSION is 4.0.1, then we use 'Paths'; if
-                  QT_VERSION is 4.1.2, then we use Paths/4.1.0
+                  if QT_VERSION is 4.0.1, then we use 'Paths/4.0'
+                  if QT_VERSION is 4.1.5, then we use 'Paths/4.1.2'
+                  if QT_VERSION is 4.6.3, then we use 'Paths/4.2.5'
+                  if QT_VERSION is 6.0.2, then we use 'Paths/5'
 
                   note: any of the trailing version numbers may be
                   omitted (in which case, they default to zero),
                   i.e. 4 == 4.0.0, 4.1 == 4.1.0, and so on
                 */
+                enum {
+                    QT_MAJOR = ((QT_VERSION >> 16) & 0xFF),
+                    QT_MINOR = ((QT_VERSION >> 8) & 0xFF),
+                    QT_PATCH = (QT_VERSION & 0xFF)
+                };
                 int maj = 0, min = 0, pat = 0;
                 QStringList children = config->childGroups();
                 for(int child = 0; child < children.size(); ++child) {
@@ -332,9 +341,9 @@ QLibraryInfo::location(LibraryLocation loc)
                             if(cpat < 0)
                                 cpat = -1;
                         }
-                        if((cmaj >= maj && cmaj <= ((QT_VERSION >> 16) & 0xFF)) &&
-                           (cmin == -1 || (cmin >= min && cmin <= ((QT_VERSION >> 8) & 0xFF))) &&
-                           (cpat == -1 || (cpat >= pat && cpat <= (QT_VERSION & 0xFF))) &&
+                        if((cmaj >= maj && cmaj <= QT_MAJOR) &&
+                           (cmin == -1 || (cmin >= min && cmin <= QT_MINOR)) &&
+                           (cpat == -1 || (cpat >= pat && cpat <= QT_PATCH)) &&
                            config->contains(cver + QLatin1Char('/') + key)) {
                             subKey = cver + QLatin1Char('/');
                             maj = cmaj;
