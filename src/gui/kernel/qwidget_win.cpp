@@ -1426,17 +1426,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         } else {
 #ifdef QT_USE_BACKINGSTORE
             if(q->isVisible() && !q->isHidden()) {
-                QWidget *pw = q->parentWidget();
-                QRect sr = QRect(oldPos, oldSize).intersect(pw->rect());
-                static int accelEnv = -1;
-                if (accelEnv == -1) {
-                    accelEnv = qgetenv("QT_FAST_MOVE").toInt() != 0;
-                }
-                accelerateMove = accelEnv;  //&& ! isOpaque && !overlappingSiblings
-                if(isMove && accelerateMove)
-                    moveRect(QRect(oldPos, oldSize), x - q->x(), y - q->y());
-                else
-                    pw->d_func()->invalidateBuffer(sr);
+                moveRect(QRect(oldPos, oldSize), x - q->x(), y - q->y());
             }
 #endif
             data.crect.setRect(x, y, w, h);
@@ -1446,8 +1436,10 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     }
 
 #ifdef QT_USE_BACKINGSTORE
-    if(q->isVisible() && !q->isHidden() && (isResize||!accelerateMove))
+    if (q->isVisible() && !q->isHidden() && isResize) {
         invalidateBuffer(q->rect()); //after the resize
+        q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, oldSize));
+    }
 #endif
 
     // Process events immediately rather than in translateConfigEvent to
