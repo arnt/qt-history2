@@ -434,11 +434,18 @@ char QSocks5PasswordAuthenticator::methodId()
 bool QSocks5PasswordAuthenticator::beginAuthenticate(QTcpSocket *socket, bool *completed)
 {
     *completed = false;
-    QByteArray buf = "aap1ap1";
-    buf[0] = 0x01;
-    buf[1] = 0x02;
-    buf[4] = 0x02;
-    return socket->write(buf) == buf.size();
+    QByteArray uname = userName.toLatin1();
+    QByteArray passwd = password.toLatin1();
+    QByteArray dataBuf(3 + uname.size() + passwd.size(), 0);
+    char *buf = dataBuf.data();
+    int pos = 0;
+    buf[pos++] = 0x01;
+    buf[pos++] = uname.size();
+    memcpy(&buf[pos], uname.data(), uname.size());
+    pos += uname.size();
+    buf[pos++] = passwd.size();
+    memcpy(&buf[pos], passwd.data(), passwd.size());
+    return socket->write(dataBuf) == dataBuf.size();
 }
 
 bool QSocks5PasswordAuthenticator::continueAuthenticate(QTcpSocket *socket, bool *completed)
@@ -454,6 +461,11 @@ bool QSocks5PasswordAuthenticator::continueAuthenticate(QTcpSocket *socket, bool
         return buf.at(1) == 0x00;
     }
     return false;
+}
+
+QString QSocks5PasswordAuthenticator::errorString()
+{
+    return "Socks5 user name or password incorrect";
 }
 
 
@@ -513,11 +525,17 @@ void QSocks5SocketEnginePrivate::initialize(Socks5Mode socks5Mode)
     QObject::connect(data->controlSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), 
                      q, SLOT(controlSocketStateChanged(QAbstractSocket::SocketState)));
     //### this should be some where else
-    data->authenticator = new QSocks5Authenticator();
+    if (!proxyInfo.userName().isEmpty() || !proxyInfo.password().isEmpty()) {
+        data->authenticator = new QSocks5PasswordAuthenticator(proxyInfo.userName(), proxyInfo.password());
+    } else {
+        data->authenticator = new QSocks5Authenticator();
+    }
 }
 
 void QSocks5SocketEnginePrivate::parseAuthenticationMethodReply()
 {
+    Q_Q(QSocks5SocketEngine);
+
     // not enough data to begin
     if (data->controlSocket->bytesAvailable() < 2)
         return;
@@ -531,24 +549,21 @@ void QSocks5SocketEnginePrivate::parseAuthenticationMethodReply()
         qDebug() << " serrios error i gues2";
     }
     if (uchar(buf.at(1)) == 0xFF) {
-        // set local error / error string and fire write notification
-        //setError(QAbstractSocket::SocketAccessError, "Socks5 did not like the auth methods");
-        //### fire notfiy and bla
-        qDebug() << "error i gues3";
+        QSOCKS5_D_DEBUG << "Authentication method not supported";
+        socks5State = AuthenticatingError;
+        q->setError(QAbstractSocket::SocketAccessError, "Socks5 host did not support authentication method.");
+        emitWriteNotification();
         return;
     }
-    if (buf.at(1) == 0x00) {
-        // use defulat no auth
-        QSOCKS5_DEBUG << "no auth required";
-    }
-    // find the correct auth
     if (buf.at(1) != data->authenticator->methodId()) {
-        qDebug() << "error i gues2";
+        QSOCKS5_D_DEBUG << "Authentication method was not what we sent";
     }
     bool AuthComplete = false;
     if (!data->authenticator->beginAuthenticate(data->controlSocket, &AuthComplete)) {
-        // authentication error
-        qDebug() << "auth error";
+        QSOCKS5_D_DEBUG << "Authentication faled" << data->authenticator->errorString();
+        socks5State = AuthenticatingError;
+        q->setError(QAbstractSocket::SocketAccessError, data->authenticator->errorString());
+        emitWriteNotification();
         return;
     }
     if (AuthComplete) {
@@ -560,10 +575,14 @@ void QSocks5SocketEnginePrivate::parseAuthenticationMethodReply()
 
 void QSocks5SocketEnginePrivate::parseAuthenticatingReply()
 {
+    Q_Q(QSocks5SocketEngine);
+
     bool authComplete = false;
     if (!data->authenticator->continueAuthenticate(data->controlSocket, &authComplete)) {
-        // authentication error
-        qDebug() << "auth error";
+        QSOCKS5_D_DEBUG << "Authentication faled" << data->authenticator->errorString();
+        socks5State = AuthenticatingError;
+        q->setError(QAbstractSocket::SocketAccessError, data->authenticator->errorString());
+        emitWriteNotification();
         return;
     }
     if (authComplete)
@@ -893,6 +912,9 @@ bool QSocks5SocketEngine::connectToHost(const QHostAddress &address, quint16 por
         return false;
     } else if (d->socks5State == QSocks5SocketEnginePrivate::ConnectError) {
         setError(d->data->controlSocket->error(), d->data->controlSocket->errorString());
+        setState(QAbstractSocket::UnconnectedState);
+        return false;
+    } else if (d->socks5State == QSocks5SocketEnginePrivate::AuthenticatingError) {
         setState(QAbstractSocket::UnconnectedState);
         return false;
     } else if (d->socketState == QAbstractSocket::ConnectingState && d->socks5State != QSocks5SocketEnginePrivate::RequestSuccess) {

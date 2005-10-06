@@ -110,6 +110,8 @@ public:
     virtual bool seal(const QByteArray buf, QByteArray *sealedBuf);
     virtual bool unSeal(const QByteArray sealedBuf, QByteArray *buf);
     virtual bool unSeal(QTcpSocket *sealedSocket, QByteArray *buf);
+
+    virtual QString errorString() { return QString(); }
 };
 
 class QSocks5PasswordAuthenticator : public QSocks5Authenticator
@@ -119,6 +121,9 @@ public:
     char methodId();
     bool beginAuthenticate(QTcpSocket *socket, bool *completed);
     bool continueAuthenticate(QTcpSocket *socket, bool *completed);
+
+    QString errorString();
+
 private:
     QString userName;
     QString password;
@@ -142,6 +147,7 @@ public:
         ConnectError,
         AuthenticationMethodsSent,
         Authenticating,
+        AuthenticatingError,
         RequestMethodSent,
         RequestSuccess,
         RequestError,
