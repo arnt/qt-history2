@@ -1,0 +1,11 @@
+QT += xml
+
+# Include the correct version of the Form library
+CONFIG(debug, debug|release) {
+    unix: LIBS += -lQtForm_debug
+    else: LIBS += -lQtFormd
+} else {
+    LIBS += -lQtForm
+}
+
+INCLUDEPATH += $$QMAKE_INCDIR_QT/QtForm
