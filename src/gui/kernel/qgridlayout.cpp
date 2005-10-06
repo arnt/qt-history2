@@ -236,10 +236,11 @@ void QGridLayoutPrivate::recalcHFW(int w, int spacing)
     int mh = 0;
     int n = 0;
     for (int r = 0; r < rr; r++) {
-        h += rData[r].sizeHint;
-        mh += rData[r].minimumSize;
-        if (!rData[r].empty)
+        if (!rData[r].empty) {
+            h += rData[r].sizeHint;
+            mh += rData[r].minimumSize;
             n++;
+        }
     }
     if (n) {
         h += (n - 1) * spacing;
@@ -294,6 +295,7 @@ QSize QGridLayoutPrivate::findSize(int QLayoutStruct::*size, int spacer) const
         }
     if (n)
         w += (n - 1) * spacer;
+
     w = qMin(QLAYOUTSIZE_MAX, w);
     h = qMin(QLAYOUTSIZE_MAX, h);
 
@@ -434,6 +436,10 @@ void QGridLayoutPrivate::addData(QGridBox *box, bool r, bool c)
     QSize hint = box->sizeHint();
     QSize minS = box->minimumSize();
     QSize maxS = box->maximumSize();
+    const QWidget *widget = box->item()->widget();
+
+    if (box->isEmpty() && widget)
+        return;
 
     if (c) {
         if (!cStretch[box->col])
@@ -461,22 +467,7 @@ void QGridLayoutPrivate::addData(QGridBox *box, bool r, bool c)
                      maxS.height(),
                      box->expandingDirections() & Qt::Vertical);
     }
-    if (box->isEmpty()) {
-        if (box->item()->widget() != 0) {
-            /*
-              Hidden widgets should behave exactly the same as if
-              there were no widgets at all in the cell. We could have
-              QWidgetItem::maximumSize() to return
-              QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX). However, that
-              value is not suitable for QBoxLayouts. So let's fix it
-              here.
-            */
-            if (c)
-                colData[box->col].maximumSize = QLAYOUTSIZE_MAX;
-            if (r)
-                rowData[box->row].maximumSize = QLAYOUTSIZE_MAX;
-        }
-    } else {
+    if (!box->isEmpty()) {
         // Empty boxes (i.e. spacers) do not get borders. This is
         // hacky, but compatible.
         if (c)
