@@ -800,7 +800,7 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     painter.setBrush(d->cbrush);
     painter.drawTextItem(QPoint(0, (int)(textItem.ascent())), textItem);
     painter.end();
-    drawImage(QRectF(p.x(), p.y(), img.width(), img.height()),
+    drawImage(QRectF(p.x(), p.y()-(textItem.ascent()), img.width(), img.height()),
               img,
               QRectF(0, 0, img.width(), img.height()),
               Qt::AutoColor);
