@@ -2395,44 +2395,64 @@ QDateTime QDateTime::addYears(int nyears) const
     return QDateTime(d->date.addYears(nyears), d->time, timeSpec());
 }
 
-/*!
-    Returns a QDateTime object containing a datetime \a nsecs seconds
-    later than the datetime of this object (or earlier if \a nsecs is
-    negative).
 
-    \sa secsTo(), addDays(), addMonths(), addYears()
-*/
-
-QDateTime QDateTime::addSecs(int nsecs) const
+QDateTime QDateTimePrivate::addMSecs(const QDateTime &dt, qint64 msecs)
 {
     QDate utcDate;
     QTime utcTime;
-    d->getUTC(utcDate, utcTime);
+    dt.d->getUTC(utcDate, utcTime);
 
     uint dd = utcDate.jd;
     int tt = utcTime.ds();
     int sign = 1;
-    if (nsecs < 0) {
-        nsecs = -nsecs;
+    if (msecs < 0) {
+        msecs = -msecs;
         sign = -1;
     }
-    if (nsecs >= (int)SECS_PER_DAY) {
-        dd += sign * (nsecs / SECS_PER_DAY);
-        nsecs %= SECS_PER_DAY;
+    if (msecs >= int(MSECS_PER_DAY)) {
+        dd += sign * (msecs / MSECS_PER_DAY);
+        msecs %= MSECS_PER_DAY;
     }
-    tt += sign * nsecs * 1000;
+
+    tt += sign * msecs;
     if (tt < 0) {
         tt = MSECS_PER_DAY - tt - 1;
         dd -= tt / MSECS_PER_DAY;
         tt = tt % MSECS_PER_DAY;
         tt = MSECS_PER_DAY - tt - 1;
-    } else if (tt >= (int)MSECS_PER_DAY) {
+    } else if (tt >= int(MSECS_PER_DAY)) {
         dd += tt / MSECS_PER_DAY;
         tt = tt % MSECS_PER_DAY;
     }
+
     utcDate.jd = dd;
     utcTime.mds = tt;
-    return QDateTime(utcDate, utcTime, Qt::UTC).toTimeSpec(timeSpec());
+    return QDateTime(utcDate, utcTime, Qt::UTC).toTimeSpec(dt.timeSpec());
+}
+
+/*!
+    Returns a QDateTime object containing a datetime \a nsecs seconds
+    later than the datetime of this object (or earlier if \a nsecs is
+    negative).
+
+    \sa addMSecs(), secsTo(), addDays(), addMonths(), addYears()
+*/
+
+QDateTime QDateTime::addSecs(int nsecs) const
+{
+    return d->addMSecs(*this, qint64(nsecs) * 1000);
+}
+
+/*!
+    Returns a QDateTime object containing a datetime \a msecs miliseconds
+    later than the datetime of this object (or earlier if \a msecs is
+    negative).
+
+    \sa addSecs(), secsTo(), addDays(), addMonths(), addYears()
+*/
+QDateTime QDateTime::addMSecs(qint64 msecs) const
+{
+    return d->addMSecs(*this, msecs);
 }
 
 /*!

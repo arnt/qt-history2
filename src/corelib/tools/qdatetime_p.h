@@ -65,6 +65,7 @@ public:
 
     Spec getLocal(QDate &outDate, QTime &outTime) const;
     void getUTC(QDate &outDate, QTime &outTime) const;
+    static QDateTime addMSecs(const QDateTime &dt, qint64 msecs);
 };
 
 #ifndef QT_BOOTSTRAPPED

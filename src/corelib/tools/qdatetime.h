@@ -90,6 +90,7 @@ private:
     uint jd;
 
     friend class QDateTime;
+    friend class QDateTimePrivate;
 #ifndef QT_NO_DATASTREAM
     friend Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QDate &);
     friend Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QDate &);
@@ -150,6 +151,7 @@ private:
     int mds;
 
     friend class QDateTime;
+    friend class QDateTimePrivate;
 #ifndef QT_NO_DATASTREAM
     friend Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QTime &);
     friend Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QTime &);
@@ -189,6 +191,7 @@ public:
     QDateTime addMonths(int months) const;
     QDateTime addYears(int years) const;
     QDateTime addSecs(int secs) const;
+    QDateTime addMSecs(qint64 msecs) const;
     QDateTime toTimeSpec(Qt::TimeSpec spec) const;
     inline QDateTime toLocalTime() const { return toTimeSpec(Qt::LocalTime); }
     inline QDateTime toUTC() const { return toTimeSpec(Qt::UTC); }
@@ -223,6 +226,7 @@ public:
 #endif
 
 private:
+    friend class QDateTimePrivate;
     void detach();
     QDateTimePrivate *d;
 
