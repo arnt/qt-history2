@@ -768,7 +768,7 @@ void QAbstractSocketPrivate::testConnection()
             connectTimer->stop();
     }
 
-    if (socketEngine->state() == QAbstractSocket::ConnectedState || socketEngine->connectToHost(host, port)) {
+    if (socketEngine && (socketEngine->state() == QAbstractSocket::ConnectedState || socketEngine->connectToHost(host, port))) {
         state = QAbstractSocket::ConnectedState;
         emit q->stateChanged(state);
 
