@@ -46,6 +46,7 @@ ListWidgetEditor::~ListWidgetEditor()
 
 void ListWidgetEditor::fillContentsFromListWidget(QListWidget *listWidget)
 {
+    setWindowTitle(tr("Edit List Widget"));
     for (int i=0; i<listWidget->count(); ++i) {
         QListWidgetItem *oldItem = listWidget->item(i);
         QListWidgetItem *item = oldItem->clone();
@@ -61,6 +62,7 @@ void ListWidgetEditor::fillContentsFromListWidget(QListWidget *listWidget)
 
 void ListWidgetEditor::fillContentsFromComboBox(QComboBox *comboBox)
 {
+    setWindowTitle(tr("Edit Combobox"));
     for (int i=0; i<comboBox->count(); ++i) {
         QListWidgetItem *item = new QListWidgetItem();
         item->setText(comboBox->itemText(i));

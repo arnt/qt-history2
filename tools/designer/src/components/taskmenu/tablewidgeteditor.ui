@@ -24,7 +24,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Edit Tree Widget</string>
+   <string>Edit Table Widget</string>
   </property>
   <layout class="QGridLayout" >
    <property name="margin" >
