@@ -262,27 +262,44 @@ void QWidgetPrivate::moveRect(const QRect &rect, int dx, int dy)
     QWidget *tlw = q->window();
     QTLWExtra* x = tlw->d_func()->topData();
 
+
+    static int accelEnv = -1;
+    if (accelEnv == -1) {
+        accelEnv = qgetenv("QT_NO_FAST_MOVE").toInt() == 0;
+    }
+
     QWidget *pw = q->parentWidget();
     QWidgetPrivate *pd = pw->d_func();
     QRect clipR = pd->clipRect();
     QRect newRect = rect.translated(dx,dy);
 
+    bool accelerateMove = accelEnv &&  isOpaque()  && !isOverlapped(rect & clipR);
 
-    QRect destRect = rect.intersect(clipR).translated(dx,dy).intersect(clipR);
-    QRect sourceRect = destRect.translated(-dx, -dy);
+    if (!accelerateMove) {
+        pd->invalidateBuffer(QRegion(rect & clipR) - newRect);
+        invalidateBuffer((newRect & clipR).translated(-data.crect.topLeft()));
+    } else {
+        QRect destRect = rect.intersect(clipR).translated(dx,dy).intersect(clipR);
+        QRect sourceRect = destRect.translated(-dx, -dy);
+        QWidgetBackingStore *wbs = x->backingStore;
+        if (sourceRect.isValid())
+            wbs->bltRect(sourceRect, dx, dy, pw);
 
-    if (sourceRect.isValid())
-        x->backingStore->bltRect(sourceRect, dx, dy, pw);
 
-    QRegion parentExpose = rect & clipR;
-    parentExpose -= newRect;
-    pd->invalidateBuffer(parentExpose);
+        QRegion childExpose = newRect & clipR;
+        childExpose -= destRect;
 
-    QRegion childExpose = newRect & clipR;
-    childExpose -= destRect;
-    childExpose.translate(-data.crect.topLeft());
-    invalidateBuffer(childExpose);
+        QPoint toplevelOffset = pw->mapTo(tlw, QPoint());
+        QRect newDirty = (wbs->dirty & sourceRect.translated(toplevelOffset)).boundingRect().translated(QPoint(dx,dy) - toplevelOffset);
+        childExpose += newDirty;
 
+        childExpose.translate(-data.crect.topLeft());
+        invalidateBuffer(childExpose);
+
+        QRegion parentExpose = rect & clipR;
+        parentExpose -= newRect;
+        pd->invalidateBuffer(parentExpose);
+    }
 }
 
 //widget's coordinates; scroll within rect;  only update widget
