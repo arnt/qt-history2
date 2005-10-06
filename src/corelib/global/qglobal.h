@@ -323,7 +323,7 @@
    Compaq C++ V6.3-002.
    This compiler is different enough from other EDG compilers to handle
    it separately anyway. */
-#elif defined(__DECCXX)
+#elif defined(__DECCXX) || defined(__DECC)
 #  define Q_CC_DEC
 /* Compaq C++ V6 compilers are EDG-based but I'm not sure about older
    DEC C++ V5 compilers. */
