@@ -1,3 +1,16 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef QFORMLOADER_H
 #define QFORMLOADER_H
 
@@ -18,7 +31,14 @@ public:
     Loader(QObject *parent = 0);
     virtual ~Loader();
 
+    QStringList pluginPaths() const;
+    void clearPluginParhs();
+    void addPluginPath(const QString &path);
+
     QWidget *load(QIODevice *device, QWidget *parentWidget = 0);
+
+    virtual QWidget *createWidget(const QString &className, QWidget *parent = 0);
+    QStringList availableWidgets() const;
 
 private:
     Q_DECLARE_PRIVATE(Loader)
