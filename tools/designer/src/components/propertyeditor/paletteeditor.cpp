@@ -439,7 +439,6 @@ RoleEditor::RoleEditor(QWidget *parent)
     connect(button, SIGNAL(clicked()), this, SLOT(emitResetProperty()));
 }
 
-
 void RoleEditor::setLabel(const QString &label)
 {
     m_label->setText(label);
@@ -470,19 +469,21 @@ void RoleEditor::emitResetProperty()
 QWidget *ColorDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &,
                 const QModelIndex &index) const
 {
+    QWidget *ed = 0;
     if (index.column() == 0) {
         RoleEditor *editor = new RoleEditor(parent);
         connect(editor, SIGNAL(changed(QWidget *)), this, SIGNAL(commitData(QWidget *)));
-        editor->setFocusPolicy(Qt::NoFocus);
-        editor->installEventFilter(const_cast<ColorDelegate *>(this));
-        return editor;
+        //editor->setFocusPolicy(Qt::NoFocus);
+        //editor->installEventFilter(const_cast<ColorDelegate *>(this));
+        ed = editor;
     } else {
         ColorEditor *editor = new ColorEditor(parent);
         connect(editor, SIGNAL(changed(QWidget *)), this, SIGNAL(commitData(QWidget *)));
         editor->setFocusPolicy(Qt::NoFocus);
         editor->installEventFilter(const_cast<ColorDelegate *>(this));
-        return editor;
+        ed = editor;
     }
+    return ed;
 }
 
 void ColorDelegate::setEditorData(QWidget *ed, const QModelIndex &index) const
