@@ -280,11 +280,11 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     return *this; } while (0)
 
 #ifndef QT_NO_QOBJECT
-class DeviceClosedNotifier : public QObject
+class QDeviceClosedNotifier : public QObject
 {
     Q_OBJECT
 public:
-    inline DeviceClosedNotifier()
+    inline QDeviceClosedNotifier()
     { }
 
     inline void setupDevice(QTextStream *stream, QIODevice *device)
@@ -313,7 +313,7 @@ public:
     // device
     QIODevice *device;
 #ifndef QT_NO_QOBJECT
-    DeviceClosedNotifier deviceClosedNotifier;
+    QDeviceClosedNotifier deviceClosedNotifier;
 #endif
     bool deleteDevice;
 
