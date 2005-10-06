@@ -1,4 +1,4 @@
 SOURCES = sqlite2.cpp
 CONFIG -= qt dylib
-mac:CONFIG -= appbundle
+mac:CONFIG -= app_bundle
 LIBS += -lsqlite

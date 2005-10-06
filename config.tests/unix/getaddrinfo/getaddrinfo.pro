@@ -1,4 +1,4 @@
 SOURCES = getaddrinfotest.cpp
 CONFIG -= qt dylib
-mac:CONFIG -= appbundle
+mac:CONFIG -= app_bundle
 solaris-cc*:LIBS += -lsocket -lnsl

@@ -1,4 +1,4 @@
 SOURCES = ../mysql/mysql.cpp
 CONFIG -= qt dylib
-mac:CONFIG -= appbundle
+CONFIG -= app_bundle
 LIBS += -lmysqlclient_r

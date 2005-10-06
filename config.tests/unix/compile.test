@@ -1,5 +1,6 @@
 #!/bin/sh
 
+echo "Some junk"
 SUCCESS=no
 QMKSPEC=$1
 XPLATFORM=`basename $1`
@@ -36,11 +37,11 @@ cd $OUTDIR/$TEST
 
 $OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" "LIBS*=$LIBPATH" "INCLUDEPATH*=$INCLUDEPATH" $SRCDIR/$TEST/$EXE.pro -o $OUTDIR/$TEST/Makefile >/dev/null 2>&1
 
-if [ "$VERBOSE" = "yes" ]; then
+#if [ "$VERBOSE" = "yes" ]; then
     make
-else
-    make >/dev/null 2>&1
-fi
+#else
+#    make >/dev/null 2>&1
+#fi
 
 [ -x $EXE ] && SUCCESS=yes
 

@@ -1,4 +1,4 @@
 SOURCES = ibase.cpp
 CONFIG -= qt dylib
-mac:CONFIG -= appbundle
+mac:CONFIG -= app_bundle
 LIBS += -lgds

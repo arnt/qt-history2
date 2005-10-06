@@ -1,4 +1,4 @@
 SOURCES = db2.cpp
 CONFIG -= qt dylib
-mac:CONFIG -= appbundle
+mac:CONFIG -= app_bundle
 LIBS += -ldb2
