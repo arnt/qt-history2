@@ -2378,8 +2378,8 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                 }
             } else {
                 int slideWidth = ((rect.width() - 4) * 2) / 3;
-                int step = (d->animateStep * (slideWidth / ProgressBarFps)) % slideWidth;
-                if (((d->animateStep * (slideWidth / ProgressBarFps)) % (2 * slideWidth)) >= slideWidth)
+                int step = ((d->animateStep * slideWidth) / ProgressBarFps) % slideWidth;
+                if ((((d->animateStep * slideWidth) / ProgressBarFps) % (2 * slideWidth)) >= slideWidth)
                     step = slideWidth - step;
                 progressBar.setRect(rect.left() + 2 + step, rect.top() + 2,
                                     slideWidth / 2, rect.height() - 4);
