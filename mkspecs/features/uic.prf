@@ -13,24 +13,36 @@ isEmpty(UI_DIR):UI_DIR = .
 isEmpty(UI_SOURCES_DIR):UI_SOURCES_DIR = $$UI_DIR
 isEmpty(UI_HEADERS_DIR):UI_HEADERS_DIR = $$UI_DIR
 
-uic.commands = $$QMAKE_UIC ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
-!uic3:uic.depend_command = $$QMAKE_UIC -d ${QMAKE_FILE_IN}
 
-uic.output = $$UI_HEADERS_DIR/ui_${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
-uic.input = FORMS
-uic.variable_out = GENERATED_FILES
-uic.CONFIG += no_link
-uic.name = UIC ${QMAKE_FILE_IN}
-unix:silent:uic.commands = @echo uic ${QMAKE_FILE_IN} && $$uic.commands
-QMAKE_EXTRA_COMPILERS += uic
+# Allow FORMS3 to contain old UIC3 forms, while FORMS contains new
+# UIC files in the same project. However, if CONFIG+=uic3 and no
+# FORMS3 is defined, FORMS may only contain old UIC3 files.
+
+!uic3|!isEmpty(FORMS3) {
+    # If we have CONFIG+=uic3 and no FORMS3, then don't do this step,
+    # as UIC3 files don't need a ui_<formname>.h file
+
+    uic.commands = $$QMAKE_UIC ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+    uic.depend_command = $$QMAKE_UIC -d ${QMAKE_FILE_IN}
+    uic.output = $$UI_HEADERS_DIR/ui_${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
+    uic.input = FORMS
+    uic.variable_out = GENERATED_FILES
+    uic.CONFIG += no_link
+    uic.name = UIC ${QMAKE_FILE_IN}
+    unix:silent:uic.commands = @echo uic ${QMAKE_FILE_IN} && $$uic.commands
+    QMAKE_EXTRA_COMPILERS += uic
+}
 
 INCLUDEPATH += $$UI_HEADERS_DIR
 
 uic3 {
+    isEmpty(FORMS3): UIC3_FORMS = FORMS
+    else:            UIC3_FORMS = FORMS3
+
     uic3_decl.commands = $$QMAKE_UIC3 ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
     uic3_decl.dependency_type = TYPE_UI
     uic3_decl.output = $$UI_HEADERS_DIR/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
-    uic3_decl.input = FORMS
+    uic3_decl.input = $$UIC3_FORMS
     uic3_decl.CONFIG += no_link
     uic3_decl.variable_out = GENERATED_FILES UIC3_HEADERS
     uic3_decl.name = UIC3 Decl ${QMAKE_FILE_IN}
@@ -41,7 +53,7 @@ uic3 {
     uic3_impl.dependency_type = TYPE_UI
     uic3_impl.output = $$UI_SOURCES_DIR/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_CPP)}
     uic3_impl.depends = $$UI_HEADERS_DIR/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
-    uic3_impl.input = FORMS
+    uic3_impl.input = $$UIC3_FORMS
     uic3_impl.variable_out = GENERATED_SOURCES
     uic3_impl.name = UIC3 Impl ${QMAKE_FILE_IN}
     unix:silent:uic3_impl.commands = @echo uic3 -impl ${QMAKE_FILE_IN} && $$uic3_impl.commands

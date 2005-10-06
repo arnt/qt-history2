@@ -268,7 +268,7 @@ void ProjectPorter::portProFile(QString fileName, QMap<QString, QString> tagMap)
         logger->addEntry(new PlainLogEntry("Info", "Porting", logText));
     }
 
-    // Add uic3 if we have forms.
+    // Add uic3 if we have forms, and change FORMS and INTERFACES to FORMS3
     if (!tagMap["FORMS"].isEmpty() || !tagMap["INTERFACES"].isEmpty()) {
         changesMade = true;
         lines += QString("#The following line was inserted by qt3to4");
@@ -279,6 +279,30 @@ void ProjectPorter::portProFile(QString fileName, QMap<QString, QString> tagMap)
                         + ": Added entry "
                         + insertText;
         logger->addEntry(new PlainLogEntry("Info", "Porting", logText));
+
+        const QString formsToForms3("#The following line was changed from FORMS to FORMS3 by qt3to4");
+        const QString interfacesToForms3("#The following line was changed from INTERFACES to FORMS3 by qt3to4");
+        for (int i = 0; i < lines.count(); ++i) {
+            QString cLine = lines.at(i);
+            cLine = cLine.trimmed();
+            if (cLine.startsWith("FORMS")) {
+                lines[i].replace("FORMS", "FORMS3");
+                lines.insert(i, formsToForms3);
+                ++i;
+                QString logText = "In file "
+                    + logger->globalState.value("currentFileName")
+                    + ": Renamed FORMS to FORMS3";
+                logger->addEntry(new PlainLogEntry("Info", "Porting", logText));
+            } else if (cLine.startsWith("INTERFACES")) {
+                lines[i].replace("INTERFACES", "FORMS3");
+                lines.insert(i, interfacesToForms3);
+                ++i;
+                QString logText = "In file "
+                    + logger->globalState.value("currentFileName")
+                    + ": Renamed INTERFACES to FORMS3";
+                logger->addEntry(new PlainLogEntry("Info", "Porting", logText));
+            }
+        }
     }
 
     // Comment out any REQUIRES tag.

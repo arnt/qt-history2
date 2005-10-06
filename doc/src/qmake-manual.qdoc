@@ -407,6 +407,7 @@
     \row    \o network                    \o QtNetwork module
     \row    \o opengl                     \o QtOpenGL module
     \row    \o sql                        \o QtSql module
+    \row    \o svg                        \o QtSvg module
     \row    \o xml                        \o QtXml module
     \row    \o qt3support                 \o Qt3Support module
     \endtable
@@ -666,6 +667,7 @@
     \o \l{qmake Variable Reference#DISTFILES}{DISTFILES}
     \o \l{qmake Variable Reference#DLLDESTDIR}{DLLDESTDIR}
     \o \l{qmake Variable Reference#FORMS}{FORMS}
+    \o \l{qmake Variable Reference#FORMS3}{FORMS3}
     \o \l{qmake Variable Reference#HEADERS}{HEADERS}
     \o \l{qmake Variable Reference#INCLUDEPATH}{INCLUDEPATH}
     \o \l{qmake Variable Reference#LEXSOURCES}{LEXSOURCES}
@@ -748,6 +750,8 @@
     \o staticlib - The target is a static library (lib only).  The proper
         compiler flags will automatically be added to the project.
     \o plugin - The target is a plugin (lib only). This enables dll as well.
+    \o designer - The target is a plugin for \QD.
+    \o uic3 - Configures qmake to run uic3 on the content of FORMS3 if defined, else FORMS.
     \endlist
 
     These options are used to set the compiler flags:
@@ -865,6 +869,27 @@
         FORMS = mydialog.ui \
             mywidget.ui \
                 myconfig.ui
+    \endcode
+
+    If FORMS3 is defined in your project, then this variable must contain
+    forms for uic, and not uic3. If CONFIG contains uic3, and FORMS3 is not
+    defined, the this variable must contain only uic3 type forms.
+    
+
+    \target FORMS3
+    \section1 FORMS3
+
+    This variable specifies the old style .ui files to be processed
+    through \c uic3 before compiling, when \c CONFIG contains uic3.
+    All dependencies, headers and source files required to build these
+    .ui files will automatically be added to the project.
+
+    For example:
+
+    \code
+        FORMS3 = my_uic3_dialog.ui \
+             my_uic3_widget.ui \
+                 my_uic3_config.ui
     \endcode
 
     \target HEADERS
