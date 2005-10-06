@@ -276,7 +276,7 @@ void QRubberBand::showEvent(QShowEvent *e)
 */
 void QRubberBand::setGeometry(const QRect &geom)
 {
-    return QWidget::setGeometry(geom);
+    QWidget::setGeometry(geom);
 }
 
 #endif // QT_NO_RUBBERBAND
