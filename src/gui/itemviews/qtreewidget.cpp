@@ -756,7 +756,8 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
 /*!
     \fn void QTreeWidgetItem::setStatusTip(int column, const QString &statusTip)
 
-    Sets the status tip for the given \a column to the given \a statusTip.
+    Sets the status tip for the given \a column to the given \a statusTip.  
+    QTreeWidget mouse tracking needs to be enabled for this feature to work.
 
     \sa statusTip() setToolTip() setWhatsThis()
 */
@@ -1695,6 +1696,7 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 
     This signal is emitted when the mouse cursor enters an \a item over the
     specified \a column.
+    QTreeWidget mouse tracking needs to be enabled for this feature to work.
 */
 
 /*!

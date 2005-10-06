@@ -293,6 +293,7 @@ void QAbstractItemViewPrivate::init()
 
     This signal is emitted when the mouse cursor enters the item
     specified by \a index.
+    Mouse tracking needs to be enabled for this feature to work.
 
     \sa viewportEntered(), activated(), clicked(), doubleClicked(), pressed()
 */
@@ -301,6 +302,7 @@ void QAbstractItemViewPrivate::init()
     \fn void QAbstractItemView::viewportEntered()
 
     This signal is emitted when the mouse cursor enters the viewport.
+    Mouse tracking needs to be enabled for this feature to work.
 
     \sa entered()
 */
@@ -876,7 +878,11 @@ bool QAbstractItemView::viewportEvent(QEvent *event)
             QToolTip::showText(he->globalPos(), tooltip, this);
             return true;
         }
-        break; }
+        else {
+            QString emptyString;
+            QToolTip::showText(he->globalPos(), emptyString, this);
+        }
+        break;}
 #endif
 #ifndef QT_NO_WHATSTHIS
     case QEvent::QueryWhatsThis: {
@@ -894,17 +900,6 @@ bool QAbstractItemView::viewportEvent(QEvent *event)
             return true;
         }
         break ; }
-#endif
-#ifndef QT_NO_STATUSTIP
-    case QEvent::StatusTip: {
-        QHelpEvent *he = static_cast<QHelpEvent*>(event);
-        QModelIndex index = indexAt(he->pos());
-        if (index.isValid()) {
-            QString statustip = model()->data(index, Qt::StatusTipRole).toString();
-            if (!statustip.isEmpty())
-                setStatusTip(statustip);
-        }
-        return true; }
 #endif
     case QEvent::WindowActivate:
     case QEvent::WindowDeactivate:
@@ -991,10 +986,23 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
     if (d->enteredIndex != index) {
         // signal handlers may change the model
         QPersistentModelIndex persistent = index;
-        if (index.isValid())
+        if (index.isValid()){
             emit entered(index);
-        else
+#ifndef QT_NO_STATUSTIP
+            QString statustip = model()->data(index, Qt::StatusTipRole).toString();
+            if (!statustip.isEmpty()){
+                QStatusTipEvent tip(statustip);
+                QApplication::sendEvent(parent(), &tip);
+            }
+#endif
+        } else {
+#ifndef QT_NO_STATUSTIP
+            QString emptyString;
+            QStatusTipEvent tip(emptyString);
+            QApplication::sendEvent(parent(), &tip);
+#endif
             emit viewportEntered();
+        }
         d->enteredIndex = persistent;
         index = persistent;
     }
