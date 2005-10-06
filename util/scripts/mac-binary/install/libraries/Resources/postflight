@@ -31,7 +31,27 @@ t()
 for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support; do
    [ -d "${3}/Library/Frameworks/${lib}.framework" ] || continue
    cd "${3}/Library/Frameworks/${lib}.framework/Versions/$VERSION_MAJOR$.$VERSION_MINOR$" 
-   (Products="no-license"; Licensee="not-licensed"; LicenseKeyExt="bad-license"; . $HOME/.qt-license >/dev/null 2>&1
+   Products="bad product"
+   (Licensee="not-licensed"; LicenseKeyExt="bad-license"; . $HOME/.qt-license >/dev/null 2>&1
+   if [ "$LicenseKeyExt" != "bad-license" ]; then
+       productTest=`echo $LicenseKeyExt | cut -f 1 -d - | cut -b 1`
+       case $productTest in
+       F)
+       # Universal
+       Products="Universal"
+       ;;
+       B)
+       # Desktop
+       Products="Desktop"
+       ;;
+       L)
+       # Desktop Lite
+       Products="Desktop Light"
+       ;;
+       *)
+       Products="bad product"
+       esac
+   fi
    t "$lib" "$Licensee" "$Products" "$LicenseKeyExt"
    [ -e "${lib}_debug" ] && t "${lib}_debug" "$Licensee" "$Products" "$LicenseKeyExt")
 done

@@ -119,4 +119,21 @@ done
 #copy q3porting.xml. qt3to4 looks for it in QLibraryInfo::DataPath and QLibraryInfo::PrefixPath
 cp $BINDIR/tools/porting/src/q3porting.xml $OUTDIR/usr/local/Qt${VERSION_MAJOR}.${VERSION_MINOR}/q3porting.xml
 
+#Handle the qtestlib
+[ -e "${BINDIR}/lib/libQtTest.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/libQtTest.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/libQtTest.${VERSION_MAJOR}.dylib"
+[ "$DO_DEBUG" = "yes" ] && [ -e "${BINDIR}/lib/libQtTest_debug.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/libQtTest_debug.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/libQtTest_debug.${VERSION_MAJOR}.dylib"
+
+#copy QTest headers
+mkdir -p "$OUTDIR/usr/include/QtTest"
+for header in `find "${BINDIR}/include/QtTest" -type f`; do
+    case $header in
+    *_pch.h|*_p.h|headers.pri)
+        continue
+        ;;
+    *)
+        copyHeader "$header" "$OUTDIR/usr/include/QtTest"
+        ;;
+    esac
+done
+
 exit 0
