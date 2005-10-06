@@ -413,6 +413,14 @@ void qt_mac_update_os_settings()
             }
         }
     }
+    QApplicationPrivate::initializeWidgetPaletteHash();
+#ifdef DEBUG_PLATFORM_SETTINGS
+    qDebug("qt_mac_update_os_settings END !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+#endif
+}
+
+void QApplicationPrivate::initializeWidgetPaletteHash()
+{
     { //setup the palette
         struct {
             const char *const qt_class;
@@ -491,13 +499,6 @@ void qt_mac_update_os_settings()
             }
         }
     }
-#ifdef DEBUG_PLATFORM_SETTINGS
-    qDebug("qt_mac_update_os_settings END !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-#endif
-}
-
-void QApplicationPrivate::initializeWidgetPaletteHash()
-{
 }
 
 static void qt_mac_event_release(EventRef &event)
