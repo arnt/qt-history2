@@ -2552,9 +2552,9 @@ QString QString::section(const QString &sep, int start, int end, SectionFlags fl
 }
 
 #ifndef QT_NO_REGEXP
-class section_chunk {
+class qt_section_chunk {
 public:
-    section_chunk(int l, QString s) { length = l; string = s; }
+    qt_section_chunk(int l, QString s) { length = l; string = s; }
     int length;
     QString string;
 };
@@ -2592,15 +2592,15 @@ QString QString::section(const QRegExp &reg, int start, int end, SectionFlags fl
     sep.setCaseSensitivity((flags & SectionCaseInsensitiveSeps) ? Qt::CaseInsensitive
                                                                 : Qt::CaseSensitive);
 
-    QList<section_chunk> sections;
+    QList<qt_section_chunk> sections;
     int n = length(), m = 0, last_m = 0, last_len = 0;
     while ((m = sep.indexIn(*this, m)) != -1) {
-        sections.append(section_chunk(last_len, QString(uc + last_m, m - last_m)));
+        sections.append(qt_section_chunk(last_len, QString(uc + last_m, m - last_m)));
         last_m = m;
         last_len = sep.matchedLength();
         m += qMax(sep.matchedLength(), 1);
     }
-    sections.append(section_chunk(last_len, QString(uc + last_m, n - last_m)));
+    sections.append(qt_section_chunk(last_len, QString(uc + last_m, n - last_m)));
 
     if(start < 0)
         start += sections.count();
@@ -2611,7 +2611,7 @@ QString QString::section(const QRegExp &reg, int start, int end, SectionFlags fl
     int x = 0;
     int first_i = start, last_i = end;
     for (int i = 0; x <= end && i < sections.size(); ++i) {
-        const section_chunk &section = sections.at(i);
+        const qt_section_chunk &section = sections.at(i);
         const bool empty = (section.length == section.string.length());
         if (x >= start) {
             if(x == start)
@@ -2627,11 +2627,11 @@ QString QString::section(const QRegExp &reg, int start, int end, SectionFlags fl
             x++;
     }
     if((flags & SectionIncludeLeadingSep)) {
-        const section_chunk &section = sections.at(first_i);
+        const qt_section_chunk &section = sections.at(first_i);
         ret.prepend(section.string.left(section.length));
     }
     if((flags & SectionIncludeTrailingSep) && last_i+1 <= sections.size()-1) {
-        const section_chunk &section = sections.at(last_i+1);
+        const qt_section_chunk &section = sections.at(last_i+1);
         ret += section.string.left(section.length);
     }
     return ret;

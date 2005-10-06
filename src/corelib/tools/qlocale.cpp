@@ -3062,7 +3062,7 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 #error Exactly one of IEEE_BIG_OR_LITTLE_ENDIAN, VAX, or IBM should be defined.
 #endif
 
-inline ULong getWord0(const NEEDS_VOLATILE double x)
+static inline ULong getWord0(const NEEDS_VOLATILE double x)
 {
     const NEEDS_VOLATILE uchar *ptr = reinterpret_cast<const NEEDS_VOLATILE uchar *>(&x);
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
@@ -3072,7 +3072,7 @@ inline ULong getWord0(const NEEDS_VOLATILE double x)
     }
 }
 
-inline void setWord0(NEEDS_VOLATILE double *x, ULong l)
+static inline void setWord0(NEEDS_VOLATILE double *x, ULong l)
 {
     NEEDS_VOLATILE uchar *ptr = reinterpret_cast<NEEDS_VOLATILE uchar *>(x);
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
@@ -3088,7 +3088,7 @@ inline void setWord0(NEEDS_VOLATILE double *x, ULong l)
     }
 }
 
-inline ULong getWord1(const NEEDS_VOLATILE double x)
+static inline ULong getWord1(const NEEDS_VOLATILE double x)
 {
     const NEEDS_VOLATILE uchar *ptr = reinterpret_cast<const NEEDS_VOLATILE uchar *>(&x);
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
@@ -3097,7 +3097,7 @@ inline ULong getWord1(const NEEDS_VOLATILE double x)
         return (ptr[3]<<24) + (ptr[2]<<16) + (ptr[1]<<8) + ptr[0];
     }
 }
-inline void setWord1(NEEDS_VOLATILE double *x, ULong l)
+static inline void setWord1(NEEDS_VOLATILE double *x, ULong l)
 {
     NEEDS_VOLATILE uchar *ptr = reinterpret_cast<uchar NEEDS_VOLATILE *>(x);
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {

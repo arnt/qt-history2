@@ -4389,7 +4389,7 @@ inline bool q_strchr(const char str[], char chr)
 }
 
 static const char hexnumbers[] = "0123456789ABCDEF";
-inline char toHex(char c)
+static inline char toHex(char c)
 {
     return hexnumbers[c & 0xf];
 }
@@ -4472,7 +4472,7 @@ QByteArray QUrl::toPercentEncoding(const QString &input, const QByteArray &exclu
     return QByteArray(output.data(), length);
 }
 
-inline uint adapt(uint delta, uint numpoints, bool firsttime)
+static inline uint adapt(uint delta, uint numpoints, bool firsttime)
 {
     delta /= (firsttime ? damp : 2);
     delta += (delta / numpoints);
@@ -4484,7 +4484,7 @@ inline uint adapt(uint delta, uint numpoints, bool firsttime)
     return k + (((base - tmin + 1) * delta) / (delta + skew));
 }
 
-inline char encodeDigit(uint digit)
+static inline char encodeDigit(uint digit)
 {
   return digit + 22 + 75 * (digit < 26);
 }
