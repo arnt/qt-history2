@@ -465,6 +465,7 @@ QSocks5SocketEnginePrivate::QSocks5SocketEnginePrivate()
     , bindData(0)
     , readNotificationActivated(false)
     , writeNotificationActivated(false)
+    , readNotificationPending(false)
 {
     mode = NoMode;
 }
@@ -699,14 +700,22 @@ void QSocks5SocketEnginePrivate::parseNewConnection()
         emitReadNotification();
 }
 
+void QSocks5SocketEnginePrivate::emitPendingReadNotification()
+{
+    Q_Q(QSocks5SocketEngine);
+    if (readNotificationEnabled)
+        emit q->readNotification();
+    readNotificationPending = false;
+}
+
 void QSocks5SocketEnginePrivate::emitReadNotification()
 {
     Q_Q(QSocks5SocketEngine);
     readNotificationActivated = true;
-    if (readNotificationEnabled) {
-       /// qDebug() << this << "queing readNotification";
-        //emit q->readNotification();
-        QMetaObject::invokeMethod(q, "readNotification", Qt::QueuedConnection);
+    if (readNotificationEnabled && !readNotificationPending) {
+        QSOCKS5_DEBUG << "queing readNotification";
+        readNotificationPending = true;
+        QMetaObject::invokeMethod(q, "emitPendingReadNotification", Qt::QueuedConnection);
     }
 }
 

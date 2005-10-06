@@ -88,6 +88,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void controlSocketError(QAbstractSocket::SocketError));
     Q_PRIVATE_SLOT(d_func(), void udpSocketReadNotification());
     Q_PRIVATE_SLOT(d_func(), void controlSocketBytesWritten());
+    Q_PRIVATE_SLOT(d_func(), void emitPendingReadNotification());
 
 };
 
@@ -201,6 +202,8 @@ public:
     mutable bool readNotificationActivated;
     mutable bool writeNotificationActivated;
 
+    bool readNotificationPending;
+    void emitPendingReadNotification();
     void emitReadNotification();
     void emitWriteNotification();
 };
