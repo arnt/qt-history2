@@ -2087,7 +2087,7 @@ int QObject::receivers(const char *signal) const
     duplicate a connection, two signals will be emitted. You can
     always break a connection using disconnect().
 
-    \sa disconnect()
+    \sa disconnect(), sender()
 */
 
 bool QObject::connect(const QObject *sender, const char *signal,
