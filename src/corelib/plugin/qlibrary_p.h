@@ -47,6 +47,7 @@ public:
     pHnd;
 
     QString fileName, qualifiedFileName;
+    int majorVerNum;
 
     bool load();
     bool loadPlugin(); // loads and resolves instance
@@ -54,7 +55,7 @@ public:
     void release();
     void *resolve(const char *);
 
-    static QLibraryPrivate *findOrCreate(const QString &fileName);
+    static QLibraryPrivate *findOrCreate(const QString &fileName, int verNum = -1);
 
     QtPluginInstanceFunction instance;
     uint qt_version;
@@ -64,7 +65,7 @@ public:
 
 
 private:
-    explicit QLibraryPrivate(const QString &canonicalFileName);
+    explicit QLibraryPrivate(const QString &canonicalFileName, int verNum = -1);
     ~QLibraryPrivate();
 
     bool load_sys();

@@ -351,12 +351,12 @@ static bool qt_unix_query(const QString &library, uint *version, bool *debug, QB
 typedef QMap<QString, QLibraryPrivate*> LibraryMap;
 Q_GLOBAL_STATIC(LibraryMap, libraryMap)
 
-QLibraryPrivate::QLibraryPrivate(const QString &canonicalFileName)
-    :pHnd(0), fileName(canonicalFileName), instance(0), qt_version(0),
+QLibraryPrivate::QLibraryPrivate(const QString &canonicalFileName, int verNum)
+    :pHnd(0), fileName(canonicalFileName), majorVerNum(verNum), instance(0), qt_version(0),
      libraryRefCount(1), libraryUnloadCount(1), pluginState(MightBeAPlugin)
 { libraryMap()->insert(canonicalFileName, this); }
 
-QLibraryPrivate *QLibraryPrivate::findOrCreate(const QString &fileName)
+QLibraryPrivate *QLibraryPrivate::findOrCreate(const QString &fileName, int verNum)
 {
     QMutexLocker locker(qt_library_mutex());
     if (QLibraryPrivate *lib = libraryMap()->value(fileName)) {
@@ -364,7 +364,8 @@ QLibraryPrivate *QLibraryPrivate::findOrCreate(const QString &fileName)
         lib->libraryRefCount.ref();
         return lib;
     }
-    return new QLibraryPrivate(fileName);
+    
+    return new QLibraryPrivate(fileName, verNum);
 }
 
 QLibraryPrivate::~QLibraryPrivate()
@@ -670,6 +671,22 @@ QLibrary::QLibrary(const QString& fileName, QObject *parent)
     setFileName(fileName);
 }
 
+
+/*!
+    Constructs a library object with the given \a parent that will
+    load the library specified by \a fileName and major version number \a verNum.
+
+    We recommend omitting the file's suffix in \a fileName, since
+    QLibrary will automatically look for the file with the appropriate
+    suffix in accordance with the platform, e.g. ".so" on Unix,
+    ".dylib" on Mac OS X, and ".dll" on Windows. (See \l{fileName}.)
+ */
+QLibrary::QLibrary(const QString& fileName, int verNum, QObject *parent)
+    :QObject(parent), d(0), did_load(false)
+{
+    setFileNameAndVersion(fileName, verNum);
+}
+
 /*!
     Destroys the QLibrary object.
 
@@ -715,13 +732,29 @@ void QLibrary::setFileName(const QString &fileName)
 }
 
 QString QLibrary::fileName() const
-{
+{   
     if (d)
-        return d->qualifiedFileName.isEmpty() ? d->fileName : d->qualifiedFileName;
+        return d->qualifiedFileName.isEmpty() ? d->fileName : d->qualifiedFileName;        
     return QString();
 }
 
-
+/*!
+    Sets the fileName property and major version number.
+    
+    \sa setFileName()
+*/
+void QLibrary::setFileNameAndVersion(const QString &fileName, int verNum)
+{
+    if (d) {
+        d->release();
+        d = 0;
+        did_load = false;
+    }
+    d = QLibraryPrivate::findOrCreate(fileName, verNum);
+    if (d && d->pHnd)
+        did_load = true;    
+}
+    
 /*!
     Returns the address of the exported symbol \a symbol. The library is
     loaded if necessary. The function returns 0 if the symbol could
@@ -811,6 +844,25 @@ void *QLibrary::resolve(const char *symbol)
 void *QLibrary::resolve(const QString &fileName, const char *symbol)
 {
     QLibrary library(fileName);
+    return library.resolve(symbol);
+}
+
+/*!
+    \overload
+
+    Loads the library \a fileName with major version number \a verNum and 
+    returns the address of the exported symbol \a symbol. 
+    Note that \a fileName should not include the platform-specific file suffix; 
+    (see \l{fileName}). The library remains loaded until the application exits.
+
+    The function returns 0 if the symbol could not be resolved or if
+    the library could not be loaded.
+
+    \sa resolve() 
+*/
+void *QLibrary::resolve(const QString &fileName, int verNum, const char *symbol)
+{
+    QLibrary library(fileName, verNum);
     return library.resolve(symbol);
 }
 

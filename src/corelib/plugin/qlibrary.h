@@ -29,10 +29,12 @@ class Q_CORE_EXPORT QLibrary : public QObject
 public:
     explicit QLibrary(QObject *parent = 0);
     explicit QLibrary(const QString& fileName, QObject *parent = 0);
+    explicit QLibrary(const QString& fileName, int verNum, QObject *parent = 0);
     ~QLibrary();
 
     void *resolve(const char *symbol);
     static void *resolve(const QString &fileName, const char *symbol);
+    static void *resolve(const QString &fileName, int verNum, const char *symbol);
 
     bool load();
     bool unload();
@@ -41,7 +43,9 @@ public:
     static bool isLibrary(const QString &fileName);
 
     void setFileName(const QString &fileName);
-    QString fileName() const;
+    QString fileName() const;   
+       
+    void setFileNameAndVersion(const QString &fileName, int verNum);           
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT QString library() const { return fileName(); }

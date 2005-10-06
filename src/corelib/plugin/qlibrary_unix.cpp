@@ -101,15 +101,24 @@ bool QLibraryPrivate::load_sys()
         prefixes << "lib";
 #if defined(Q_OS_HPUX)
         suffixes << ".sl";
+        suffixes << QString(".%1").arg(majorVerNum);
 #elif defined(Q_OS_AIX)
         suffixes << ".a";
 #else
-        suffixes << ".so";
+        suffixes << ".so";       
+        if (majorVerNum > -1)
+            suffixes << QString(".so.%1").arg(majorVerNum);
 #endif
 # ifdef Q_OS_MAC
         suffixes << ".bundle" << ".dylib";
-#endif
+        if (majorVerNum > -1) {
+            suffixes << QString(".%1.bundle").arg(majorVerNum);
+            suffixes << QString(".%1.dylib").arg(majorVerNum);
+        }
+
+#endif            
     }
+        
     QString attempt;
     for(int prefix = 0; !pHnd && prefix < prefixes.size(); prefix++) {
         for(int suffix = 0; !pHnd && suffix < suffixes.size(); suffix++) {
@@ -117,7 +126,7 @@ bool QLibraryPrivate::load_sys()
                 continue;
             if (!suffixes.at(suffix).isEmpty() && name.endsWith(suffixes.at(suffix)))
                 continue;
-            attempt = path + prefixes.at(prefix) + name + suffixes.at(suffix);
+            attempt = path + prefixes.at(prefix) + name + suffixes.at(suffix);                        
             pHnd = DL_PREFIX(dlopen)(QFile::encodeName(attempt), RTLD_LAZY);
         }
     }
@@ -138,7 +147,7 @@ bool QLibraryPrivate::load_sys()
     }
 #endif
     if (pHnd)
-        qualifiedFileName = attempt;
+        qualifiedFileName = attempt;        
     return (pHnd != 0);
 }
 
