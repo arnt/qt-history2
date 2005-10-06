@@ -147,6 +147,7 @@ PFNWGLSETPBUFFERATTRIBARBPROC wglSetPbufferAttribARB = 0;
 #endif
 
 bool qt_resolve_pbuffer_extensions();
+QGLFormat pfiToQGLFormat(HDC hdc, int pfi);
 
 QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
     : d_ptr(new QGLPbufferPrivate)
@@ -158,27 +159,59 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
     d->dc = GetDC(d->dmy.winId());
     Q_ASSERT(d->dc);
 
-    int attribs[] = {WGL_SUPPORT_OPENGL_ARB, TRUE,
-		     WGL_DRAW_TO_PBUFFER_ARB, TRUE,
-		     WGL_BIND_TO_TEXTURE_RGBA_ARB, TRUE,
-		     WGL_RED_BITS_ARB, 8,
-		     WGL_GREEN_BITS_ARB, 8,
-		     WGL_BLUE_BITS_ARB, 8,
-		     WGL_ALPHA_BITS_ARB, 8,
-		     WGL_DEPTH_BITS_ARB, 16,
-		     WGL_DOUBLE_BUFFER_ARB, FALSE,
-		     0};
+    int attribs[40];
+    int i = 0;
+    attribs[i++] = WGL_SUPPORT_OPENGL_ARB;
+    attribs[i++] = TRUE;
+    attribs[i++] = WGL_DRAW_TO_PBUFFER_ARB;
+    attribs[i++] = TRUE;
+    attribs[i++] = WGL_BIND_TO_TEXTURE_RGBA_ARB;
+    attribs[i++] = TRUE;
+    attribs[i++] = WGL_COLOR_BITS_ARB;
+    attribs[i++] = 32;
+    attribs[i++] = WGL_DOUBLE_BUFFER_ARB;
+    attribs[i++] = FALSE;
+    if (f.stereo()) {
+	attribs[i++] = WGL_STEREO_ARB;
+	attribs[i++] = TRUE;
+    }
+    if (f.depth()) {
+	attribs[i++] = WGL_DEPTH_BITS_ARB;
+	attribs[i++] = f.depthBufferSize() == -1 ? 24 : f.depthBufferSize();
+    }
+    if (f.alpha()) {
+	attribs[i++] = WGL_ALPHA_BITS_ARB;
+	attribs[i++] = f.alphaBufferSize() == -1 ? 8 : f.alphaBufferSize();
+    }
+    if (f.accum()) {
+	attribs[i++] = WGL_ACCUM_BITS_ARB;
+	attribs[i++] = f.accumBufferSize() == -1 ? 16 : f.accumBufferSize();
+    }
+    if (f.stencil()) {
+	attribs[i++] = WGL_STENCIL_BITS_ARB;
+	attribs[i++] = f.stencilBufferSize() == -1 ? 8 : f.stencilBufferSize();
+    }
+    // sample buffers doesn't work in conjunction with the render_texture extension
+    // so igonre that for now
+    // if (f.sampleBuffers()) {
+    // 	   attribs[i++] = WGL_SAMPLE_BUFFERS_ARB;
+    // 	   attribs[i++] = 1;
+    // 	   attribs[i++] = WGL_SAMPLES_ARB;
+    // 	   attribs[i++] = f.samples() == -1 ? 16 : f.samples();
+    // }
+    attribs[i] = 0;
 
     // Find pbuffer capable pixel format.
     unsigned int num_formats = 0;
     int pixel_format;
     wglChoosePixelFormatARB(d->dc, attribs, 0, 1, &pixel_format, &num_formats);
     if (num_formats == 0) {
-	qWarning("Unable to find pixel format for pbuffer - giving up.");
+	qWarning("QGLPbuffer::Unable to find a pixel format with pbuffer  - giving up.");
 	ReleaseDC(d->dmy.winId(), d->dc);
 	return;
     }
-
+    d->format = pfiToQGLFormat(d->dc, pixel_format);
+    
     // NB! The below ONLY works if the width/height are powers of 2.
     // Set some pBuffer attributes so that we can use this pBuffer as
     // a 2D RGBA texture target.
@@ -188,7 +221,7 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
 
     d->pbuf = wglCreatePbufferARB(d->dc, pixel_format, size.width(), size.height(), pb_attribs);
     if(!d->pbuf) {
-	qWarning("Unable to create pbuffer [w=%d, h=%d] - giving up.", size.width(), size.height());
+	qWarning("QGLPbuffer::Unable to create pbuffer [w=%d, h=%d] - giving up.", size.width(), size.height());
 	ReleaseDC(d->dmy.winId(), d->dc);
 	return;
     }
@@ -198,13 +231,13 @@ QGLPbuffer::QGLPbuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWi
     d->ctx = wglCreateContext(d->dc);
 
     if (!d->dc || !d->ctx) {
-	qWarning("Unable to create pbuffer context - giving up.");
+	qWarning("QGLPbuffer::Unable to create pbuffer context - giving up.");
 	return;
     }
 
     HGLRC share_ctx = shareWidget ? shareWidget->d_func()->glcx->d_func()->rc : 0;
     if (share_ctx && !wglShareLists(share_ctx, d->ctx))
-        qWarning("Unable to share display lists - with share widget.");
+        qWarning("QGLPbuffer::Unable to share display lists - with share widget.");
 
     int width, height;
     wglQueryPbufferARB(d->pbuf, WGL_PBUFFER_WIDTH_ARB, &width);

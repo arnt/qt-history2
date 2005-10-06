@@ -517,7 +517,7 @@ static QGLFormat pfdToQGLFormat(const PIXELFORMATDESCRIPTOR* pfd)
     return fmt;
 }
 
-static QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
+QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
 {
     QGLFormat fmt;
     QVarLengthArray<int> iAttributes(40);
