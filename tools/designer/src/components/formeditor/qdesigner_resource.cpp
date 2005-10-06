@@ -531,7 +531,7 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
     else if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), widget))
         w = saveWidget(widget, container, ui_parentWidget);
     else if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget))
-        w = QAbstractFormBuilder::createDom(promoted->child(), ui_parentWidget, recursive);
+        w = createDom(promoted->child(), ui_parentWidget, recursive);
     else
         w = QAbstractFormBuilder::createDom(widget, ui_parentWidget, recursive);
 

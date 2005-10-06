@@ -104,17 +104,6 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
         if (m_selected == object)
             theSelectedItem = item;
 
-        QString objectName;
-        if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(object))
-            objectName = promoted->child()->objectName();
-        else
-            objectName = object->objectName();
-
-        if (objectName.isEmpty())
-            objectName = tr("<noname>");
-
-        item->setText(0, objectName);
-
         QString className;
         if (QDesignerWidgetDataBaseItemInterface *widgetItem = db->item(db->indexOfObject(object, true))) {
             className = widgetItem->name();
@@ -129,6 +118,15 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
         }
 
         item->setData(0, 1000, qVariantFromValue(object));
+
+        if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(object))
+            object = promoted->child();
+
+        QString objectName = object->objectName();
+        if (objectName.isEmpty())
+            objectName = tr("<noname>");
+
+        item->setText(0, objectName);
 
         if (QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(fw->core()->extensionManager(), object)) {
             for (int i=0; i<c->count(); ++i) {
