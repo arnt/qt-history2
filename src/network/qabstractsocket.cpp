@@ -1262,7 +1262,7 @@ bool QAbstractSocket::waitForConnected(int msecs)
         d->testConnection();
     }
 
-    if (timedOut && state() != ConnectedState) {
+    if ((timedOut && state() != ConnectedState) || state() == ConnectingState) {
         d->socketError = SocketTimeoutError;
         setSocketState(UnconnectedState);
         d->resetSocketLayer();
