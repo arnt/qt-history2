@@ -1180,7 +1180,6 @@ void StackedWidgetCommand::addPage()
     m_stackedWidget->insertWidget(m_index, m_widget);
 
     m_widget->show();
-    m_stackedWidget->setCurrentIndex(m_index+1); // Work around bug in QStackedWidget
     m_stackedWidget->setCurrentIndex(m_index);
 }
 
