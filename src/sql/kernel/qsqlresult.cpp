@@ -174,6 +174,11 @@ QString QSqlResultPrivate::namedToPositionalBinding()
 */
 
 /*!
+    \enum QSqlResult::VirtualHookOperation
+    \internal
+*/
+
+/*!
     Creates a QSqlResult using database driver \a db. The object is
     initialized to an inactive state.
 
@@ -823,10 +828,10 @@ void QSqlResult::virtual_hook(int, void *)
     reduces network roundtrips.
 
     For batch executions, the \a values have to be provided as a vector
-    of a vector of variants. The outer vector represents a row, the inner
-    vectors the values for each column.
-
-    The amount or type of values must not change.
+    of variants. The parameter \a holderCount has to contain the number
+    of placeholders. Each row must contain the same amount and same types
+    of values. NULL values are passed in as typed QVariants, for example
+    \c {QVariant(QVariant::Int)} for an integer NULL value.
 
     Example:
 
