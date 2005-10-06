@@ -373,7 +373,7 @@ void FormWindowManager::slotActionLowerActivated()
 
 void FormWindowManager::slotActionRaiseActivated()
 {
-    m_activeFormWindow->lowerWidgets();
+    m_activeFormWindow->raiseWidgets();
 }
 
 void FormWindowManager::slotActionHorizontalLayoutActivated()
