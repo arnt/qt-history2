@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/res">
+   <file>bg1.jpg</file>
+   <file>flower_2.png</file>
+</qresource>
+</RCC>
