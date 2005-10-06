@@ -827,7 +827,7 @@ int QTabWidget::count() const
     return d->tabs->count();
 }
 
-
+#ifndef QT_NO_TOOLTIP
 /*!
     Sets the tab tool tip for the page at position \a index to \a tip.
 
@@ -850,6 +850,33 @@ QString QTabWidget::tabToolTip(int index) const
     Q_D(const QTabWidget);
     return d->tabs->tabToolTip(index);
 }
+#endif // QT_NO_TOOLTIP
+
+#ifndef QT_NO_WHATSTHIS
+/*!
+    \since 4.1
+
+    Sets the What's This help text for the page at position \a index
+    to \a text.
+*/
+void QTabWidget::setTabWhatsThis(int index, const QString &text)
+{
+    Q_D(QTabWidget);
+    d->tabs->setTabWhatsThis(index, text);
+}
+
+/*!
+    \since 4.1
+
+    Returns the What's This help text for the page at position \a index,
+    or an empty string if no help text has been set.
+*/
+QString QTabWidget::tabWhatsThis(int index) const
+{
+    Q_D(const QTabWidget);
+    return d->tabs->tabWhatsThis(index);
+}
+#endif // QT_NO_WHATSTHIS
 
 /*!
   This virtual handler is called after a new tab was added or

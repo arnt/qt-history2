@@ -54,8 +54,15 @@ public:
     QIcon tabIcon(int index) const;
     void setTabIcon(int index, const QIcon & icon);
 
+#ifndef QT_NO_TOOLTIP
     void setTabToolTip(int index, const QString & tip);
     QString tabToolTip(int index) const;
+#endif
+
+#ifndef QT_NO_WHATSTHIS
+    void setTabWhatsThis(int index, const QString &text);
+    QString tabWhatsThis(int index) const;
+#endif
 
     int currentIndex() const;
     QWidget *currentWidget() const;

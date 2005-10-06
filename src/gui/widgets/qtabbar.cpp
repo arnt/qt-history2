@@ -23,6 +23,7 @@
 #include "qtabwidget.h"
 #include "qtoolbutton.h"
 #include "qtooltip.h"
+#include "qwhatsthis.h"
 #include "qstylepainter.h"
 #include <private/qinternal_p.h>
 #ifndef QT_NO_ACCESSIBILITY
@@ -55,7 +56,13 @@ public:
         inline Tab(const QIcon &ico, const QString &txt):enabled(true), shortcutId(0), text(txt), icon(ico){}
         bool enabled;
         int shortcutId;
-        QString text, toolTip;
+        QString text;
+#ifndef QT_NO_TOOLTIP
+        QString toolTip;
+#endif
+#ifndef QT_NO_WHATSTHIS
+        QString whatsThis;
+#endif
         QIcon icon;
         QRect rect;
         QVariant data;
@@ -156,10 +163,10 @@ QStyleOptionTabV2 QTabBarPrivate::getStyleOption(int tab) const
     look and feel. Qt also provides a ready-made \l{QTabWidget}.
 
     Each tab has a tabText(), an optional tabIcon(), an optional
-    tabToolTip(), and optional tabData(). The tabs's attributes can be
-    changed with setTabText(), setTabIcon(), setTabToolTip(), and
-    setTabData(). Each tabs can be enabled or disabled individually
-    with setTabEnabled().
+    tabToolTip(), optional tabWhatsThis() and optional tabData().
+    The tabs's attributes can be changed with setTabText(), setTabIcon(),
+    setTabToolTip(), setTabWhatsThis and setTabData(). Each tabs can be
+    enabled or disabled individually with setTabEnabled().
 
     Tabs are added using addTab(), or inserted at particular positions
     using insertTab(). The total number of tabs is given by
@@ -701,7 +708,7 @@ void QTabBar::setTabIcon(int index, const QIcon & icon)
     }
 }
 
-
+#ifndef QT_NO_TOOLTIP
 /*!
     Sets the tool tip of the tab at position \a index to \a tip.
 */
@@ -723,6 +730,37 @@ QString QTabBar::tabToolTip(int index) const
         return tab->toolTip;
     return QString();
 }
+#endif // QT_NO_TOOLTIP
+
+#ifndef QT_NO_WHATSTHIS
+/*!
+    \since 4.1
+
+    Sets the What's This help text of the tab at position \a index
+    to \a text.
+*/
+void QTabBar::setTabWhatsThis(int index, const QString &text)
+{
+    Q_D(QTabBar);
+    if (QTabBarPrivate::Tab *tab = d->at(index))
+        tab->whatsThis = text;
+}
+
+/*!
+    \since 4.1
+
+    Returns the What's This help text of the tab at position \a index,
+    or an empty string if \a index is out of range.
+*/
+QString QTabBar::tabWhatsThis(int index) const
+{
+    Q_D(const QTabBar);
+    if (const QTabBarPrivate::Tab *tab = d->at(index))
+        return tab->whatsThis;
+    return QString();
+}
+
+#endif // QT_NO_WHATSTHIS
 
 /*!
     Sets the data of the tab at position \a index to \a data.
@@ -960,6 +998,21 @@ bool QTabBar::event(QEvent *e)
             }
         }
 #endif // QT_NO_TOOLTIP
+#ifndef QT_NO_WHATSTHIS
+    } else if (e->type() == QEvent::QueryWhatsThis) {
+        const QTabBarPrivate::Tab *tab = d->at(d->indexAtPos(static_cast<QHelpEvent*>(e)->pos()));
+        if (!tab || tab->whatsThis.isEmpty())
+            e->ignore();
+        return true;
+    } else if (e->type() == QEvent::WhatsThis) {
+        if (const QTabBarPrivate::Tab *tab = d->at(d->indexAtPos(static_cast<QHelpEvent*>(e)->pos()))) {
+            if (!tab->whatsThis.isEmpty()) {
+                QWhatsThis::showText(static_cast<QHelpEvent*>(e)->globalPos(),
+                                     tab->whatsThis, this);
+                return true;
+            }
+        }
+#endif // QT_NO_WHATSTHIS
 #ifndef QT_NO_SHORTCUT
     } else if (e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
