@@ -42,11 +42,13 @@ private slots:
     void on_moveItemUpButton_clicked();
     void on_moveItemDownButton_clicked();
     void on_listWidget_currentRowChanged(int currentRow);
+    void on_listWidget_itemChanged(QListWidgetItem *item);
     void on_itemTextLineEdit_textChanged(const QString &text);
-    void on_previewButton_clicked();
-    void on_deleteButton_clicked();
+    void on_previewPixmapItemButton_clicked();
+    void on_deletePixmapItemButton_clicked();
 
 private:
+    void updateEditor();
     Ui::ListWidgetEditor ui;
     QDesignerFormWindowInterface *m_form;
 };
