@@ -1550,7 +1550,9 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
                                                 const QModelIndex &previous)
 {
     Q_Q(QTreeWidget);
-    emit q->currentItemChanged(model()->item(current), model()->item(previous));
+    QTreeWidgetItem *currentItem = model()->item(current);
+    QTreeWidgetItem *previousItem = model()->item(previous);
+    emit q->currentItemChanged(currentItem, previousItem);
 }
 
 /*!
@@ -1935,11 +1937,21 @@ void QTreeWidget::setHeaderLabels(const QStringList &labels)
 
     \sa setCurrentItem()
 */
-
 QTreeWidgetItem *QTreeWidget::currentItem() const
 {
     Q_D(const QTreeWidget);
     return d->model()->item(currentIndex());
+}
+
+/*!
+  \since 4.1
+    Returns the current column in the tree widget.
+
+    \sa setCurrentItem()
+*/
+int QTreeWidget::currentColumn() const
+{
+    return currentIndex().column();
 }
 
 /*!
@@ -1949,9 +1961,20 @@ QTreeWidgetItem *QTreeWidget::currentItem() const
 */
 void QTreeWidget::setCurrentItem(QTreeWidgetItem *item)
 {
+    setCurrentItem(item, 0);
+}
+
+/*!
+  \since 4.1
+  Sets the current \a item in the tree widget and the curernt column to \a column.
+
+  \sa currentItem()
+*/
+void QTreeWidget::setCurrentItem(QTreeWidgetItem *item, int column)
+{
     Q_D(const QTreeWidget);
     if (item)
-        setCurrentIndex(d->model()->index(item, 0));
+        setCurrentIndex(d->model()->index(item, column));
     else
         setCurrentIndex(QModelIndex());
 }
@@ -1959,7 +1982,6 @@ void QTreeWidget::setCurrentItem(QTreeWidgetItem *item)
 /*!
   Returns a pointer to the item at the coordinates \a p.
 */
-
 QTreeWidgetItem *QTreeWidget::itemAt(const QPoint &p) const
 {
     Q_D(const QTreeWidget);

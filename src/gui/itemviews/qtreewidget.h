@@ -214,7 +214,9 @@ public:
     void setHeaderLabels(const QStringList &labels);
 
     QTreeWidgetItem *currentItem() const;
+    int currentColumn() const;
     void setCurrentItem(QTreeWidgetItem *item);
+    void setCurrentItem(QTreeWidgetItem *item, int column);
 
     QTreeWidgetItem *itemAt(const QPoint &p) const;
     inline QTreeWidgetItem *itemAt(int x, int y) const;
