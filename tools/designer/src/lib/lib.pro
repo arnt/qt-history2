@@ -1,6 +1,7 @@
 TEMPLATE=lib
 TARGET=QtDesigner
 QT += xml
+contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 CONFIG += qt debug_and_release
 DESTDIR = ../../../../lib
 DLLDESTDIR = ../../../../bin

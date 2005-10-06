@@ -1,5 +1,6 @@
 TEMPLATE = lib
 TARGET = QtDesignerComponents
+contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 CONFIG += qt debug_and_release depend_prl
 DESTDIR = $$QT_BUILD_TREE/lib
 DLLDESTDIR = $$QT_BUILD_TREE/bin
