@@ -89,6 +89,9 @@ private:
     Q_PRIVATE_SLOT(d_func(), void udpSocketReadNotification());
     Q_PRIVATE_SLOT(d_func(), void controlSocketBytesWritten());
     Q_PRIVATE_SLOT(d_func(), void emitPendingReadNotification());
+    Q_PRIVATE_SLOT(d_func(), void emitPendingWriteNotification());
+    Q_PRIVATE_SLOT(d_func(), void controlSocketDisconnected());
+    Q_PRIVATE_SLOT(d_func(), void controlSocketStateChanged(QAbstractSocket::SocketState));
 
 };
 
@@ -189,6 +192,8 @@ public:
     void checkForDatagrams() const;
     void udpSocketReadNotification();
     void controlSocketBytesWritten();
+    void controlSocketDisconnected();
+    void controlSocketStateChanged(QAbstractSocket::SocketState);
 
     QNetworkProxy proxyInfo;
 
@@ -205,6 +210,8 @@ public:
     bool readNotificationPending;
     void emitPendingReadNotification();
     void emitReadNotification();
+    bool writeNotificationPending;
+    void emitPendingWriteNotification();
     void emitWriteNotification();
 };
 

@@ -30,9 +30,13 @@
     } } while (0)
 
 #ifdef QSOCKS5SOCKETLAYER_DEBUG
+#  define QSOCKS5_Q_DEBUG qDebug() << this 
+#  define QSOCKS5_D_DEBUG qDebug() << q 
 #  define QSOCKS5_DEBUG qDebug() << "[QSocks5]"
 #else
 #  define QSOCKS5_DEBUG if (0) qDebug()
+#  define QSOCKS5_Q_DEBUG if (0) qDebug()
+#  define QSOCKS5_D_DEBUG if (0) qDebug()
 #endif 
 
 #define S5_VERSION_5 0x05
@@ -466,6 +470,7 @@ QSocks5SocketEnginePrivate::QSocks5SocketEnginePrivate()
     , readNotificationActivated(false)
     , writeNotificationActivated(false)
     , readNotificationPending(false)
+    , writeNotificationPending(false)
 {
     mode = NoMode;
 }
@@ -504,6 +509,9 @@ void QSocks5SocketEnginePrivate::initialize(Socks5Mode socks5Mode)
     QObject::connect(data->controlSocket, SIGNAL(bytesWritten(qint64)), q, SLOT(controlSocketBytesWritten()));
     QObject::connect(data->controlSocket, SIGNAL(error(QAbstractSocket::SocketError)), 
                      q, SLOT(controlSocketError(QAbstractSocket::SocketError)));
+    QObject::connect(data->controlSocket, SIGNAL(disconnected()), q, SLOT(controlSocketDisconnected()));
+    QObject::connect(data->controlSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), 
+                     q, SLOT(controlSocketStateChanged(QAbstractSocket::SocketState)));
     //### this should be some where else
     data->authenticator = new QSocks5Authenticator();
 }
@@ -703,9 +711,11 @@ void QSocks5SocketEnginePrivate::parseNewConnection()
 void QSocks5SocketEnginePrivate::emitPendingReadNotification()
 {
     Q_Q(QSocks5SocketEngine);
-    if (readNotificationEnabled)
-        emit q->readNotification();
     readNotificationPending = false;
+    if (readNotificationEnabled) {
+        QSOCKS5_D_DEBUG << "emitting readNotification";
+        emit q->readNotification();
+    }
 }
 
 void QSocks5SocketEnginePrivate::emitReadNotification()
@@ -713,19 +723,31 @@ void QSocks5SocketEnginePrivate::emitReadNotification()
     Q_Q(QSocks5SocketEngine);
     readNotificationActivated = true;
     if (readNotificationEnabled && !readNotificationPending) {
-        QSOCKS5_DEBUG << "queing readNotification";
+        QSOCKS5_D_DEBUG << "queing readNotification";
         readNotificationPending = true;
         QMetaObject::invokeMethod(q, "emitPendingReadNotification", Qt::QueuedConnection);
+    }
+}
+
+void QSocks5SocketEnginePrivate::emitPendingWriteNotification()
+{
+    writeNotificationPending = false;
+    Q_Q(QSocks5SocketEngine);
+    if (writeNotificationEnabled) {
+        QSOCKS5_D_DEBUG << "emitting writeNotification";
+        emit q->writeNotification();
     }
 }
 
 void QSocks5SocketEnginePrivate::emitWriteNotification()
 {
     Q_Q(QSocks5SocketEngine);
-    QSOCKS5_DEBUG << "emitWriteNotification()";
     writeNotificationActivated = true;
-    if (writeNotificationEnabled)
-        QMetaObject::invokeMethod(q, "writeNotification", Qt::QueuedConnection);
+    if (writeNotificationEnabled && !writeNotificationPending) {
+        QSOCKS5_D_DEBUG << "queing writeNotification";
+        writeNotificationPending = true;
+        QMetaObject::invokeMethod(q, "emitPendingWriteNotification", Qt::QueuedConnection);
+    }
 }
 
 QSocks5SocketEngine::QSocks5SocketEngine(QObject *parent)
@@ -796,7 +818,10 @@ bool QSocks5SocketEngine::initialize(int socketDescriptor, QAbstractSocket::Sock
         QObject::connect(d->data->controlSocket, SIGNAL(readyRead()), this, SLOT(controlSocketReadNotification()));
         QObject::connect(d->data->controlSocket, SIGNAL(bytesWritten(qint64)), this, SLOT(controlSocketBytesWritten()));
         QObject::connect(d->data->controlSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(controlSocketError(QAbstractSocket::SocketError)));
-    
+        QObject::connect(d->data->controlSocket, SIGNAL(disconnected()), this, SLOT(controlSocketDisconnected()));
+        QObject::connect(d->data->controlSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), 
+                         this, SLOT(controlSocketStateChanged(QAbstractSocket::SocketState)));
+
         d->socks5State = QSocks5SocketEnginePrivate::Connected;
         //### if there is data then emit readyRead in single shoot
 
@@ -892,7 +917,8 @@ void QSocks5SocketEnginePrivate::controlSocketConnected()
 
 void QSocks5SocketEnginePrivate::controlSocketReadNotification()
 {
-    QSOCKS5_DEBUG << "controlSocketReadNotification ... socks5 state" <<  s5StateToString(socks5State);
+    Q_Q(QSocks5SocketEngine);
+    QSOCKS5_D_DEBUG << "controlSocketReadNotification ... socks5 state" <<  s5StateToString(socks5State);
     switch (socks5State) {
         case AuthenticationMethodsSent: 
             parseAuthenticationMethodReply();
@@ -950,6 +976,18 @@ void QSocks5SocketEnginePrivate::controlSocketError(QAbstractSocket::SocketError
         socks5State = ConnectError;
         emitWriteNotification();
     }
+}
+
+void QSocks5SocketEnginePrivate::controlSocketDisconnected()
+{
+    Q_Q(QSocks5SocketEngine);
+    QSOCKS5_D_DEBUG << "controlSocketDisconnected";
+}
+
+void QSocks5SocketEnginePrivate::controlSocketStateChanged(QAbstractSocket::SocketState state)
+{
+    Q_Q(QSocks5SocketEngine);
+    QSOCKS5_D_DEBUG << "controlSocketStateChanged" << state;
 }
 
 void QSocks5SocketEnginePrivate::checkForDatagrams() const
@@ -1114,6 +1152,7 @@ int QSocks5SocketEngine::accept()
 
 void QSocks5SocketEngine::close()
 {
+    QSOCKS5_Q_DEBUG << "close()";
     Q_D(QSocks5SocketEngine);
     if (d->data && d->data->controlSocket) {
         if (d->data->controlSocket->state() == QAbstractSocket::ConnectedState) {
@@ -1145,7 +1184,7 @@ qint64 QSocks5SocketEngine::bytesAvailable() const
 qint64 QSocks5SocketEngine::read(char *data, qint64 maxlen)
 {
     Q_D(QSocks5SocketEngine);
-    QSOCKS5_DEBUG << "read( , maxlen = " << maxlen << ")";
+    QSOCKS5_Q_DEBUG << "read( , maxlen = " << maxlen << ")";
     if (d->mode == QSocks5SocketEnginePrivate::ConnectMode) {
         if (d->connectData->readBuffer.size() == 0 && maxlen != 0) {
             //imitate remote closed
@@ -1169,7 +1208,7 @@ qint64 QSocks5SocketEngine::read(char *data, qint64 maxlen)
 qint64 QSocks5SocketEngine::write(const char *data, qint64 len)
 {
     Q_D(QSocks5SocketEngine);
-    QSOCKS5_DEBUG << "write" << dump(QByteArray(data, len));
+    QSOCKS5_Q_DEBUG << "write" << dump(QByteArray(data, len));
     
     if (d->mode == QSocks5SocketEnginePrivate::ConnectMode) {
         
@@ -1178,15 +1217,16 @@ qint64 QSocks5SocketEngine::write(const char *data, qint64 len)
         stopWatch.start();
         qint64 totalWritten = 0;
         
-        while (!d->data->controlSocket->bytesToWrite() 
-            && totalWritten < len 
+        while (totalWritten < len 
             && stopWatch.elapsed() < msecs) {
             
             QByteArray buf(data + totalWritten, qMin<int>(len - totalWritten, 49152));
             QByteArray sealedBuf;
             if (!d->data->authenticator->seal(buf, &sealedBuf))
                 qDebug() << "shit";
-            if (d->data->controlSocket->write(sealedBuf) != sealedBuf.size()) {
+            int written = d->data->controlSocket->write(sealedBuf);
+            if (written != sealedBuf.size()) {
+                QSOCKS5_Q_DEBUG << "control socket write failed :" << d->data->controlSocket->errorString();
                 return -1; //### ?????
             }
             totalWritten += buf.size();
