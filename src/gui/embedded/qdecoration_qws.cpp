@@ -13,8 +13,6 @@
 
 #include "qdecoration_qws.h"
 
-#ifndef QT_NO_QWS_MANAGER
-
 #include "qapplication.h"
 #include "qdrawutil.h"
 #include "qpainter.h"
@@ -257,9 +255,11 @@ void QDecoration::regionDoubleClicked(QWidget *widget, int reg)
 */
 void QDecoration::startMove(QWidget *widget)
 {
+#ifndef QT_NO_QWS_MANAGER
     QWSManager *manager = widget->d_func()->topData()->qwsManager;
     if (manager)
         manager->startMove();
+#endif
 }
 
 /*!
@@ -268,9 +268,10 @@ void QDecoration::startMove(QWidget *widget)
 */
 void QDecoration::startResize(QWidget *widget)
 {
+#ifndef QT_NO_QWS_MANAGER
     QWSManager *manager = widget->d_func()->topData()->qwsManager;
     if (manager)
         manager->startResize();
+#endif
 }
 
-#endif

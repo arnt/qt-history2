@@ -129,7 +129,7 @@ public:
         scrollDirtyRegion(dx, dy);
         viewport->scroll(dx, dy);
     }
-    
+
     void updateDirtyRegion() {
         updateTimer.stop();
         viewport->update(updateRegion);
@@ -173,8 +173,8 @@ public:
     bool showDropIndicator;
     QRect dropIndicatorRect;
     bool dragEnabled;
-#endif
     QAbstractItemView::DropIndicatorPosition dropIndicatorPosition;
+#endif
 
     QString keyboardInput;
     QTime keyboardInputTime;

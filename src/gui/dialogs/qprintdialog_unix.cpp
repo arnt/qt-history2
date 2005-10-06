@@ -826,6 +826,7 @@ static char *parseCupsOutput(QList<QPrinterDescription> *printers)
     char *defaultPrinter = 0;
     int nd;
     cups_dest_t *d;
+#ifndef QT_NO_LIBRARY
     QLibrary lib("cups", 2);
     typedef int (*CupsGetDests)(cups_dest_t **dests);
     CupsGetDests _cupsGetDests = (CupsGetDests)lib.resolve("cupsGetDests");
@@ -843,6 +844,7 @@ static char *parseCupsOutput(QList<QPrinterDescription> *printers)
             n++;
         }
     }
+#endif
     return defaultPrinter;
 }
 #endif

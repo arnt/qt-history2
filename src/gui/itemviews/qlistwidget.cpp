@@ -67,9 +67,11 @@ public:
     // dnd
     QStringList mimeTypes() const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;
+#ifndef QT_NO_DRAGANDDROP
     bool dropMimeData(const QMimeData *data, Qt::DropAction action,
                       int row, int column, const QModelIndex &parent);
     Qt::DropActions supportedDropActions() const;
+#endif
 
     QMimeData *internalMimeData()  const;
 private:
@@ -314,6 +316,7 @@ QMimeData *QListModel::mimeData(const QModelIndexList &indexes) const
     return mimeData;
 }
 
+#ifndef QT_NO_DRAGANDDROP
 bool QListModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
                               int row, int column, const QModelIndex &index)
 {
@@ -331,6 +334,7 @@ Qt::DropActions QListModel::supportedDropActions() const
     const QListWidget *view = ::qobject_cast<const QListWidget*>(QObject::parent());
     return view->supportedDropActions();
 }
+#endif // QT_NO_DRAGANDDROP
 
 /*!
     \class QListWidgetItem
@@ -1426,6 +1430,7 @@ QMimeData *QListWidget::mimeData(const QList<QListWidgetItem*>) const
     return d_func()->model()->internalMimeData();
 }
 
+#ifndef QT_NO_DRAGANDDROP
 /*!
     Handles the \a data supplied by a drag and drop operation that ended with
     the given \a action in the given \a index.
@@ -1455,6 +1460,7 @@ Qt::DropActions QListWidget::supportedDropActions() const
 {
     return d_func()->model()->QAbstractListModel::supportedDropActions();
 }
+#endif // QT_NO_DRAGANDDROP
 
 /*!
   Returns a list of pointers to the items contained in the \a data object.

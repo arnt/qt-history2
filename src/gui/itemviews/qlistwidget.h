@@ -97,7 +97,7 @@ public:
         { return qvariant_cast<QSize>(data(Qt::SizeHintRole)); }
     inline void setSizeHint(const QSize &size)
         { setData(Qt::SizeHintRole, size); }
-    
+
     virtual QVariant data(int role) const;
     virtual void setData(int role, const QVariant &value);
 
@@ -222,8 +222,10 @@ Q_SIGNALS:
 protected:
     virtual QStringList mimeTypes() const;
     virtual QMimeData *mimeData(const QList<QListWidgetItem*> items) const;
+#ifndef QT_NO_DRAGANDDROP
     virtual bool dropMimeData(int index, const QMimeData *data, Qt::DropAction action);
     virtual Qt::DropActions supportedDropActions() const;
+#endif
     QList<QListWidgetItem*> items(const QMimeData *data) const;
 
     QModelIndex indexFromItem(QListWidgetItem *item) const;

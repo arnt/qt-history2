@@ -579,7 +579,7 @@ void QTableView::paintEvent(QPaintEvent *event)
                 painter.drawLine(area.left(), rowp + rowh, area.right(), rowp + rowh);
                 painter.setPen(old);
             }
-            bPaintAlternateBase = !bPaintAlternateBase;            
+            bPaintAlternateBase = !bPaintAlternateBase;
         }
 
         int w = d->viewport->width();
@@ -599,9 +599,11 @@ void QTableView::paintEvent(QPaintEvent *event)
                 painter.fillRect(l, option.palette.brush(QPalette::Base));
         }
     }
-    
+
+#ifndef QT_NO_DRAGANDDROP
     // Paint the dropIndicator
     d_func()->paintDropIndicator(&painter);
+#endif
 }
 
 /*!
@@ -918,7 +920,7 @@ void QTableView::columnCountChanged(int, int)
 void QTableView::updateGeometries()
 {
     Q_D(QTableView);
-    
+
     int width = !d->verticalHeader->isHidden() ? d->verticalHeader->sizeHint().width() : 0;
     int height = !d->horizontalHeader->isHidden() ? d->horizontalHeader->sizeHint().height() : 0;
     bool reverse = isRightToLeft();
@@ -1301,7 +1303,7 @@ void QTableView::timerEvent(QTimerEvent *event)
             int y = rowViewportPosition(d->rowsToUpdate.at(i));
             top = qMin(top, y);
         }
-        
+
         updateGeometries();
         d->viewport->update(QRect(0, top, viewportWidth, viewportHeight - top));
         d->rowsToUpdate.clear();

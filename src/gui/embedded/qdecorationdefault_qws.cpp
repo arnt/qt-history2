@@ -17,7 +17,6 @@
 #include <qdrawutil.h>
 #include "qdecorationdefault_qws.h"
 
-#ifndef QT_NO_QWS_MANAGER
 #if !defined(QT_NO_QWS_DECORATION_DEFAULT) || defined(QT_PLUGIN)
 
 QPixmap *QDecorationDefault::staticHelpPixmap = 0;
@@ -621,5 +620,3 @@ void QDecorationDefault::paintButton(QPainter *painter, const QWidget *widget,
 
 
 #endif // QT_NO_QWS_DECORATION_DEFAULT
-
-#endif // QT_NO_QWS_MANAGER

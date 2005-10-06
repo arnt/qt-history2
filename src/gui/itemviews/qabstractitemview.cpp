@@ -40,9 +40,11 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         state(QAbstractItemView::NoState),
         editTriggers(QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed),
         tabKeyNavigation(false),
+#ifndef QT_NO_DRAGANDDROP
         showDropIndicator(false),
         dragEnabled(false),
         dropIndicatorPosition(QAbstractItemView::OnItem),
+#endif
         autoScroll(true),
         autoScrollMargin(16),
         autoScrollInterval(50),
@@ -748,6 +750,7 @@ bool QAbstractItemView::tabKeyNavigation() const
     return d_func()->tabKeyNavigation;
 }
 
+#ifndef QT_NO_DRAGANDDROP
 /*!
   \property QAbstractItemView::showDropIndicator
   \brief whether the drop indicator is shown when dragging items and dropping.
@@ -763,7 +766,6 @@ bool QAbstractItemView::showDropIndicator() const
     return d_func()->showDropIndicator;
 }
 
-#ifndef QT_NO_DRAGANDDROP
 /*!
   \property QAbstractItemView::dragEnabled
   \brief whether the view supports dragging of its own items
@@ -1440,6 +1442,7 @@ bool QAbstractItemView::focusNextPrevChild(bool next)
          return QAbstractScrollArea::focusNextPrevChild(next);
 }
 
+#ifndef QT_NO_DRAGANDDROP
 /*!
     \since 4.1
 
@@ -1450,6 +1453,7 @@ QAbstractItemView::DropIndicatorPosition QAbstractItemView::dropIndicatorPositio
     Q_D(const QAbstractItemView);
     return d->dropIndicatorPosition;
 }
+#endif
 
 /*!
   This convenience function returns a list of all selected and
@@ -1981,7 +1985,7 @@ void QAbstractItemView::selectionChanged(const QItemSelection &selected,
 void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     Q_ASSERT(model());
-    
+
     Q_D(QAbstractItemView);
     if (previous.isValid()) {
         QModelIndex buddy = model()->buddy(previous);

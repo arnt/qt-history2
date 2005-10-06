@@ -672,8 +672,11 @@ void QTreeView::paintEvent(QPaintEvent *event)
                 painter.fillRect(left, baseBrush);
         }
     }
+
+#ifndef QT_NO_DRAGANDDROP
     // Paint the dropIndicator
     d_func()->paintDropIndicator(&painter);
+#endif
 }
 
 /*!
@@ -1898,7 +1901,7 @@ int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
     QRect returning = q->style()->subElementRect(QStyle::SE_TreeViewDisclosureItem, &opt, q);
     if (!returning.contains(pos))
         return -1;
-    
+
     return viewItemIndex;
 }
 

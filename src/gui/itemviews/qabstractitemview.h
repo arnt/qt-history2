@@ -36,8 +36,8 @@ class Q_GUI_EXPORT QAbstractItemView : public QAbstractScrollArea
     Q_PROPERTY(bool autoScroll READ hasAutoScroll WRITE setAutoScroll)
     Q_PROPERTY(EditTriggers editTriggers READ editTriggers WRITE setEditTriggers)
     Q_PROPERTY(bool tabKeyNavigation READ tabKeyNavigation WRITE setTabKeyNavigation)
-    Q_PROPERTY(bool showDropIndicator READ showDropIndicator WRITE setDropIndicatorShown)
 #ifndef QT_NO_DRAGANDDROP
+    Q_PROPERTY(bool showDropIndicator READ showDropIndicator WRITE setDropIndicatorShown)
     Q_PROPERTY(bool dragEnabled READ dragEnabled WRITE setDragEnabled)
 #endif
     Q_PROPERTY(bool alternatingRowColors READ alternatingRowColors WRITE setAlternatingRowColors)
@@ -109,10 +109,10 @@ public:
     void setTabKeyNavigation(bool enable);
     bool tabKeyNavigation() const;
 
+#ifndef QT_NO_DRAGANDDROP
     void setDropIndicatorShown(bool enable);
     bool showDropIndicator() const;
 
-#ifndef QT_NO_DRAGANDDROP
     void setDragEnabled(bool enable);
     bool dragEnabled() const;
 #endif
@@ -254,8 +254,10 @@ protected:
 
     bool focusNextPrevChild(bool next);
 
+#ifndef QT_NO_DRAGANDDROP
     enum DropIndicatorPosition { OnItem, AboveItem, BelowItem, OnViewport };
     DropIndicatorPosition dropIndicatorPosition() const;
+#endif
 
 private:
     Q_DECLARE_PRIVATE(QAbstractItemView)

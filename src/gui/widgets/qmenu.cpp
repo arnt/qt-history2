@@ -331,9 +331,11 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, bool activateFir
     }
     if (hideActiveMenu) {
         activeMenu = 0;
+#ifndef QT_NO_EFFECTS
         // kill any running effect
         qFadeEffect(0);
         qScrollEffect(0);
+#endif
         hideActiveMenu->hide();
     }
 }

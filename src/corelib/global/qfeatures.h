@@ -303,11 +303,6 @@
 #define QT_NO_LIBRARY
 #endif
 
-// Menu bars
-#if !defined(QT_NO_MENUBAR) && (defined(QT_NO_MENU))
-#define QT_NO_MENUBAR
-#endif
-
 // QScrollArea
 #if !defined(QT_NO_SCROLLAREA) && (defined(QT_NO_SCROLLBAR))
 #define QT_NO_SCROLLAREA
@@ -433,6 +428,11 @@
 #define QT_NO_LISTWIDGET
 #endif
 
+// Menu bars
+#if !defined(QT_NO_MENUBAR) && (defined(QT_NO_MENU) || defined(QT_NO_TOOLBUTTON))
+#define QT_NO_MENUBAR
+#endif
+
 // QTableWidget
 #if !defined(QT_NO_TABLEWIDGET) && (defined(QT_NO_TABLEVIEW))
 #define QT_NO_TABLEWIDGET
@@ -488,14 +488,14 @@
 #define QT_NO_FONTDIALOG
 #endif
 
-// QWorkSpace
-#if !defined(QT_NO_WORKSPACE) && (defined(QT_NO_SCROLLBAR) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_MENU) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_MAINWINDOW) || defined(QT_NO_TOOLBAR) || defined(QT_NO_MENUBAR))
-#define QT_NO_WORKSPACE
-#endif
-
 // QFileDialog
 #if !defined(QT_NO_FILEDIALOG) && (defined(QT_NO_DIRMODEL) || defined(QT_NO_TREEVIEW) || defined(QT_NO_MESSAGEBOX) || defined(QT_NO_COMBOBOX) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_BUTTONGROUP))
 #define QT_NO_FILEDIALOG
+#endif
+
+// QWorkSpace
+#if !defined(QT_NO_WORKSPACE) && (defined(QT_NO_SCROLLBAR) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_MENU) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_MAINWINDOW) || defined(QT_NO_TOOLBAR) || defined(QT_NO_MENUBAR))
+#define QT_NO_WORKSPACE
 #endif
 
 // Printing

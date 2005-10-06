@@ -486,7 +486,7 @@ void QTableModel::sort(int column, Qt::SortOrder order)
             changePersistentIndex(from, to);
         }
     }
-    
+
     table = sorted_table;
 
     emit layoutChanged();
@@ -620,7 +620,7 @@ bool QTableModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
         row = rowCount();
         column = 0;
     }
-    
+
     QTableWidget *view = ::qobject_cast<QTableWidget*>(QObject::parent());
     return view->dropMimeData(row, column, data, action);
 }
@@ -2138,12 +2138,14 @@ QMimeData *QTableWidget::mimeData(const QList<QTableWidgetItem*>) const
 bool QTableWidget::dropMimeData(int row, int column, const QMimeData *data, Qt::DropAction action)
 {
     QModelIndex idx;
+#ifndef QT_NO_DRAGANDDROP
     if (dropIndicatorPosition() == QAbstractItemView::OnItem) {
         // QAbstractTableModel::dropMimeData will overwrite on the index if row == -1 and column == -1
         idx = model()->index(row, column);
         row = -1;
         column = -1;
     }
+#endif
     return d_func()->model()->QAbstractTableModel::dropMimeData(data, action , row, column, idx);
 }
 

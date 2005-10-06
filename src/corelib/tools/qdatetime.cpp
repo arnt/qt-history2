@@ -2978,6 +2978,22 @@ QDataStream &operator>>(QDataStream &in, QDateTime &dateTime)
     instead.
 */
 
+// checks if there is an unqoted 'AP' or 'ap' in the string
+static bool hasUnquotedAP(const QString &f)
+{
+    const char quote = '\'';
+    bool inquote = false;
+    QChar status = QLatin1Char('0');
+    for (int i=0; i<f.size(); ++i) {
+        if (f.at(i) == quote) {
+            inquote = !inquote;
+        } else if (!inquote && f.at(i).toUpper() == QLatin1Char('A')) {
+            return true;
+        }
+    }
+    return false;
+}
+
 #ifndef QT_NO_DATESTRING
 /*****************************************************************************
   Some static function used by QDate, QTime and QDateTime
@@ -3080,22 +3096,6 @@ static QString getFmtString(const QString& f, const QTime* dt = 0, const QDate* 
     }
 
     return buf + getFmtString(f.mid(removed), dt, dd, am_pm);
-}
-
-// checks if there is an unqoted 'AP' or 'ap' in the string
-static bool hasUnquotedAP(const QString &f)
-{
-    const char quote = '\'';
-    bool inquote = false;
-    QChar status = QLatin1Char('0');
-    for (int i=0; i<f.size(); ++i) {
-        if (f.at(i) == quote) {
-            inquote = !inquote;
-        } else if (!inquote && f.at(i).toUpper() == QLatin1Char('A')) {
-            return true;
-        }
-    }
-    return false;
 }
 
 // Parses the format string and uses getFmtString to get the values for the tokens. Ret

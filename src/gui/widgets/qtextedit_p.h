@@ -170,6 +170,7 @@ public:
     bool overwriteMode;
     bool acceptRichText;
 };
+#endif // QT_NO_TEXTEDIT
 
 #ifndef QT_NO_MENU
 class QUnicodeControlCharacterMenu : public QMenu
@@ -186,5 +187,4 @@ private:
 };
 #endif // QT_NO_MENU
 
-#endif // QT_NO_TEXTEDIT
 #endif // QTEXTEDIT_P_H

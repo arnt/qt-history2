@@ -278,7 +278,7 @@ SeeAlso: ???
 
 Feature: MENUBAR
 Section: Widgets
-Requires: MENU
+Requires: MENU TOOLBUTTON
 Name: Menu bars
 SeeAlso: ???
 

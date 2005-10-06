@@ -13,6 +13,7 @@
 
 #include "qtextedit.h"
 #include "qtextedit_p.h"
+#include "qlineedit.h"
 
 #ifndef QT_NO_TEXTEDIT
 
@@ -29,7 +30,6 @@
 #include "private/qtextdocumentlayout_p.h"
 #include "qtextdocument.h"
 #include "qtextlist.h"
-#include "qlineedit.h"
 
 #include <qtextformat.h>
 #include <qdatetime.h>
@@ -3502,6 +3502,7 @@ void QTextEdit::ensureCursorVisible()
 
     Use setTextColor() instead.
 */
+#endif // QT_NO_TEXTEDIT
 
 #ifndef QT_NO_MENU
 #define NUM_CONTROL_CHARACTERS 10
@@ -3539,13 +3540,20 @@ void QUnicodeControlCharacterMenu::actionTriggered()
     QChar c(qt_controlCharacters[idx].character);
     QString str(c);
 
-    if (QTextEdit *edit = qobject_cast<QTextEdit *>(editWidget))
+#ifndef QT_NO_TEXTEDIT
+    if (QTextEdit *edit = qobject_cast<QTextEdit *>(editWidget)) {
         edit->insertPlainText(str);
-    else if (QLineEdit *edit = qobject_cast<QLineEdit *>(editWidget))
+        return;
+    }
+#endif
+#ifndef QT_NO_LINEEDIT
+    if (QLineEdit *edit = qobject_cast<QLineEdit *>(editWidget)) {
         edit->insert(str);
+        return;
+    }
+#endif
 }
 #endif // QT_NO_MENU
 
 #include "moc_qtextedit.cpp"
 #include "moc_qtextedit_p.cpp"
-#endif // QT_NO_TEXTEDIT

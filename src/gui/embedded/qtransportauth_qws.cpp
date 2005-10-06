@@ -546,6 +546,7 @@ void AuthDevice::authorizeMessage()
     cmdBuf.open( QIODevice::ReadOnly );
     QWSCommand::Type command_type = (QWSCommand::Type)(qws_read_uint( &cmdBuf ));
     QString request( getCommandTypeString( command_type ));
+#ifndef QT_NO_COP
     if ( command_type == QWSCommand::QCopSend )
     {
         QWSQCopSendCommand *command = reinterpret_cast<QWSQCopSendCommand*>(QWSCommand::factory(command_type));
@@ -554,7 +555,8 @@ void AuthDevice::authorizeMessage()
             return;
         request += QString( "/QCop/%1/%2" ).arg( command->channel ).arg( command->message );
     }
-
+#endif
+    
     if ( !request.isEmpty() )
         emit policyCheck( *d, request );
 

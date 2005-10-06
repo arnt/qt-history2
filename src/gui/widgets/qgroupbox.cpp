@@ -40,7 +40,7 @@ public:
 #ifndef QT_NO_SHORTCUT
     int shortcutId;
 #endif
-    
+
     void fixFocus();
     void setChildrenEnabled(bool b);
     bool flat;
@@ -260,8 +260,8 @@ void QGroupBox::paintEvent(QPaintEvent *)
 /*! \reimp  */
 bool QGroupBox::event(QEvent *e)
 {
-#ifndef QT_NO_SHORTCUT
     Q_D(QGroupBox);
+#ifndef QT_NO_SHORTCUT
     if (e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         if (se->shortcutId() == d->shortcutId) {
@@ -440,7 +440,7 @@ void QGroupBox::setCheckable(bool checkable)
 
     bool wasCheckable = d->checkable;
     d->checkable = checkable;
-    
+
     if (checkable) {
         setChecked(true);
         if (!wasCheckable) {

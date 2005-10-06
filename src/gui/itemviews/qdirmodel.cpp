@@ -233,7 +233,7 @@ public:
 
     void savePersistentIndexes();
     void restorePersistentIndexes();
-    
+
     QFileInfoList entryInfoList(const QString &path) const;
     QStringList entryList(const QString &path) const;
 
@@ -410,7 +410,7 @@ QModelIndex QDirModel::index(int row, int column, const QModelIndex &parent) con
 QModelIndex QDirModel::parent(const QModelIndex &child) const
 {
     Q_D(const QDirModel);
-    
+
     if (!child.isValid())
 	return QModelIndex();
     QDirModelPrivate::QDirNode *node = d->node(child);
@@ -554,11 +554,11 @@ bool QDirModel::hasChildren(const QModelIndex &parent) const
     if (!parent.isValid()) // the invalid index is the "My Computer" item
         return true; // the drives
     QDirModelPrivate::QDirNode *p = d->node(parent);
-    
+
     // If parent is a symlink and we are not resolving symlinks then it does not have children.
     if (!d->resolveSymlinks && p->info.isSymLink())
         return false;
-    
+
     if (d->lazyChildCount) { // optimization that only checks for children if the node has been populated
         if (p->populated)
             return rowCount(parent) > 0; // rowCount will lazily populate if needed
@@ -1280,7 +1280,7 @@ void QDirModelPrivate::restorePersistentIndexes()
         deleteList.removeLast();
     }
 }
-    
+
 QFileInfoList QDirModelPrivate::entryInfoList(const QString &path) const
 {
     const QDir dir(path);
@@ -1318,7 +1318,7 @@ QString QDirModelPrivate::name(const QModelIndex &index) const
 #endif
         return name;
     }
-    return n->info.fileName();        
+    return n->info.fileName();
 }
 
 QString QDirModelPrivate::size(const QModelIndex &index) const
@@ -1340,7 +1340,11 @@ QString QDirModelPrivate::type(const QModelIndex &index) const
 
 QString QDirModelPrivate::time(const QModelIndex &index) const
 {
+#ifndef QT_NO_DATESTRING
     return node(index)->info.lastModified().toString("yyyy-MM-dd hh:mm:ss");
+#else
+    return QString();
+#endif
 }
 
 #endif // QT_NO_DIRMODEL

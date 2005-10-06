@@ -890,8 +890,10 @@ void QListView::paintEvent(QPaintEvent *e)
         d->drawItems(&painter, d->draggedItems);
     }
 
+#ifndef QT_NO_DRAGANDDROP
     // Paint the dropIndicator
     d_func()->paintDropIndicator(&painter);
+#endif
 
 #ifndef QT_NO_RUBBERBAND
     if (d->elasticBand.isValid()) {
@@ -1830,11 +1832,11 @@ void QListViewPrivate::removeItem(int index)
 void QListViewPrivate::moveItem(int index, const QPoint &dest)
 {
     Q_Q(QListView);
-    
+
     // does not impact on the bintree itself or the contents rect
     QListViewItem *item = &items[index];
     QRect rect = item->rect();
-    
+
     // move the item without removing it from the tree
     tree.removeLeaf(rect, index);
     item->x = dest.x();
