@@ -1015,7 +1015,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 
         if (lineHidden)
             continue;
- 
+
 	switch (lineInfo.pos) {
 	case TOP:
 	    tb_sz = rest_sz[line];
@@ -1105,10 +1105,10 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
                 int cur_pt = info.size.isEmpty()
                              ? (pick_perp(where, prev.pos) + pick_perp(where, get_real_sh(prev.item->widget()->layout())))
                              : (info.user_pos.isNull()
-                                ? pick_perp(where, prev.pos) + pick_perp(where, prev.size)
+                                ? (pick_perp(where, prev.pos) + pick_perp(where, get_real_sh(prev.item->widget()->layout())))
                                 : pick_perp(where, info.user_pos));
                 cur_pt = qMax(cur_pt, 0);
- 		const int prev_min = pick_perp(where, prev.item->widget()->minimumSize());
+                const int prev_min = pick_perp(where, prev.item->widget()->minimumSize());
                 const int snap_dist = 12;
 
                 info.pos = tb_rect[line].topLeft();
@@ -2353,10 +2353,10 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
         //We have to update all toolbars in affected areas, since
         //QStyleOptionToolbar can handle toolbars differently depending on their positions
         int currentPos = positionForArea(toolBarArea(toolbar));
-        
+
         for (int i = 0; i < tb_layout_info.size(); ++i) {
             const ToolBarLineInfo &lineInfo = tb_layout_info.at(i);
-            if (lineInfo.pos == currentPos || lineInfo.pos == where) {    
+            if (lineInfo.pos == currentPos || lineInfo.pos == where) {
                 for (int j = 0; j < lineInfo.list.size(); ++j)
                     lineInfo.list.at(j).item->widget()->update();
             }
