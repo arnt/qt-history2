@@ -51,28 +51,28 @@ extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
   Colormaps are also deleted when the application terminates.
 */
 
-struct CMapEntry {
-    CMapEntry();
-    ~CMapEntry();
+struct QCMapEntry {
+    QCMapEntry();
+    ~QCMapEntry();
 
     Colormap cmap;
     bool alloc;
     XStandardColormap scmap;
 };
 
-CMapEntry::CMapEntry()
+QCMapEntry::QCMapEntry()
 {
     cmap = 0;
     alloc = false;
     scmap.colormap = 0;
 }
 
-CMapEntry::~CMapEntry()
+QCMapEntry::~QCMapEntry()
 {
     if (alloc)
         XFreeColormap(X11->display, cmap);
 }
-typedef QHash<int, CMapEntry *> CMapEntryHash;
+typedef QHash<int, QCMapEntry *> CMapEntryHash;
 typedef QHash<int, QMap<int, QRgb> > GLCMapHash;
 static bool mesa_gl = false;
 static bool first_time = true;
@@ -102,7 +102,7 @@ static void cleanup_cmaps()
 {
     if (!cmap_handler()->cleaned_up) {
         CMapEntryHash *hash = cmap_handler()->cmap_hash;
-        QHash<int, CMapEntry *>::ConstIterator it = hash->constBegin();
+        QHash<int, QCMapEntry *>::ConstIterator it = hash->constBegin();
         while (it != hash->constEnd()) {
             delete it.value();
             ++it;
@@ -132,7 +132,7 @@ static Colormap choose_cmap(Display *dpy, XVisualInfo *vi)
         return QX11Info::appColormap(vi->screen);
     }
 
-    CMapEntry *x = new CMapEntry();
+    QCMapEntry *x = new QCMapEntry();
 
     XStandardColormap *c;
     int n, i;
@@ -190,14 +190,14 @@ static Colormap choose_cmap(Display *dpy, XVisualInfo *vi)
     return x->cmap;
 }
 
-struct TransColor
+struct QTransColor
 {
     VisualID vis;
     int screen;
     long color;
 };
 
-static QVector<TransColor> trans_colors;
+static QVector<QTransColor> trans_colors;
 static int trans_colors_init = false;
 
 static void find_trans_colors()
@@ -676,7 +676,7 @@ uint QGLContext::colorIndex(const QColor& c) const
         XVisualInfo *info = (XVisualInfo *) d->vi;
         CMapEntryHash *hash = cmap_handler()->cmap_hash;
         CMapEntryHash::ConstIterator it = hash->find((long) info->visualid + (info->screen * 256));
-        CMapEntry *x = 0;
+        QCMapEntry *x = 0;
         if (it != hash->constEnd())
             x = it.value();
         if (x && !x->alloc) {                // It's a standard colormap
