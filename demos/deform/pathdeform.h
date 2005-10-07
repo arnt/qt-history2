@@ -23,6 +23,12 @@
 class PathDeformRenderer : public ArthurFrame
 {
     Q_OBJECT
+    Q_PROPERTY(bool animated READ animated WRITE setAnimated);
+    Q_PROPERTY(int radius READ radius WRITE setRadius);
+    Q_PROPERTY(int fontSize READ fontSize WRITE setFontSize);
+    Q_PROPERTY(int intensity READ intensity WRITE setIntensity);
+    Q_PROPERTY(QString text READ text WRITE setText);
+
 public:
     PathDeformRenderer(QWidget *widget);
 
@@ -34,6 +40,12 @@ public:
     void timerEvent(QTimerEvent *e);
 
     QSize sizeHint() const { return QSize(600, 500); }
+
+    bool animated() const { return m_animated; }
+    int radius() const { return m_radius; }
+    int fontSize() const { return m_fontSize; }
+    int intensity() const { return m_intensity; }
+    QString text() const { return m_text; }
 
 public slots:
     void setRadius(int radius);
