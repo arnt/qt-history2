@@ -229,7 +229,7 @@ QRect QAccessibleWidget::rect(int child) const
 
 #include <private/qobject_p.h>
 
-class ConnectionObject : public QObject
+class QACConnectionObject : public QObject
 {
     Q_DECLARE_PRIVATE(QObject)
 public:
@@ -334,7 +334,7 @@ QAccessible::Relation QAccessibleWidget::relationTo(int child,
     if (object() == focus && isAncestor(o, focus))
         relation |= FocusChild;
 
-    ConnectionObject *connectionObject = (ConnectionObject*)object();
+    QACConnectionObject *connectionObject = (QACConnectionObject*)object();
     for (int sig = 0; sig < d->primarySignals.count(); ++sig) {
         if (connectionObject->isSender(o, d->primarySignals.at(sig).toAscii())) {
             relation |= Controller;
@@ -694,7 +694,7 @@ int QAccessibleWidget::navigate(RelationFlag relation, int entry,
         if (entry > 0) {
             // check all senders we are connected to,
             // and figure out which one are controllers to us
-            ConnectionObject *connectionObject = (ConnectionObject*)object();
+            QACConnectionObject *connectionObject = (QACConnectionObject*)object();
             QObjectList allSenders = connectionObject->senderList();
             QObjectList senders;
             for (int s = 0; s < allSenders.size(); ++s) {
@@ -713,7 +713,7 @@ int QAccessibleWidget::navigate(RelationFlag relation, int entry,
     case Controlled:
         if (entry > 0) {
             QObjectList allReceivers;
-            ConnectionObject *connectionObject = (ConnectionObject*)object();
+            QACConnectionObject *connectionObject = (QACConnectionObject*)object();
             for (int sig = 0; sig < d->primarySignals.count(); ++sig) {
                 QObjectList receivers = connectionObject->receiverList(d->primarySignals.at(sig).toAscii());
                 allReceivers += receivers;
