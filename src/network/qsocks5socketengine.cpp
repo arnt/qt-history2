@@ -22,6 +22,9 @@
 #include "qhash.h"
 #include "qqueue.h"
 #include "qdatetime.h"
+#include "qmutex.h"
+#include "qthread.h"
+#include "qcoreapplication.h"
 
 //#define QSOCKS5SOCKETLAYER_DEBUG
 
@@ -319,6 +322,8 @@ protected:
 
     int sweepTimerId;
 
+    QMutex mutex;
+
     //socket descriptor, data, timestamp
     QHash<int, QSocks5BindData *> store;
 };
@@ -326,8 +331,12 @@ protected:
 Q_GLOBAL_STATIC(QSocks5BindStore, socks5BindStore);
 
 QSocks5BindStore::QSocks5BindStore()
-    : sweepTimerId(-1)
+    : mutex(QMutex::Recursive)
+    , sweepTimerId(-1)
 {
+    QCoreApplication *app = QCoreApplication::instance();
+    if (app->thread() != thread())
+        moveToThread(app->thread());
 }
 
 QSocks5BindStore::~QSocks5BindStore()
@@ -336,8 +345,9 @@ QSocks5BindStore::~QSocks5BindStore()
 
 int QSocks5BindStore::add(QSocks5BindData *bindData)
 {
+    QMutexLocker lock(&mutex);
     if (store.contains(bindData->controlSocket->socketDescriptor())) {
-        qDebug() << "shit delete it";
+        qDebug() << "delete it";
     }
     bindData->timeStamp = QDateTime::currentDateTime();
     store.insert(bindData->controlSocket->socketDescriptor(), bindData);
@@ -349,14 +359,29 @@ int QSocks5BindStore::add(QSocks5BindData *bindData)
 
 bool QSocks5BindStore::contains(int socketDescriptor)
 {
-    return store.contains(socketDescriptor);
+    QMutexLocker lock(&mutex);
+    QSocks5BindData *bindData = store.value(socketDescriptor, 0);
+    if (bindData) {
+        if (bindData->controlSocket->thread() != QThread::currentThread()) {
+            qWarning("Can not access socks5 bind data from different thread");
+            return false;
+        }
+        return true;
+    }
+    return false;
 }
 
 QSocks5BindData *QSocks5BindStore::retive(int socketDescriptor)
 {
+    QMutexLocker lock(&mutex);
     QSocks5BindData *bindData = store.value(socketDescriptor, 0);
-    if (!bindData) {
-        qDebug() << "shit what happened";
+    if (bindData) {
+        if (bindData->controlSocket->thread() != QThread::currentThread()) {
+            qWarning("Can not access socks5 bind data from different thread");
+            return 0;
+        }
+    } else {
+        QSOCKS5_DEBUG << "__ERROR__ binddata == 0";
     }
     // stop the sweep timer if not needed
     if (store.isEmpty()) {
@@ -368,6 +393,7 @@ QSocks5BindData *QSocks5BindStore::retive(int socketDescriptor)
 
 void QSocks5BindStore::timerEvent(QTimerEvent * event)
 {
+    QMutexLocker lock(&mutex);
     if (event->timerId() == sweepTimerId) {
         QSOCKS5_DEBUG << "QSocks5BindStore performing sweep";
         QMutableHashIterator<int, QSocks5BindData *> it(store);
