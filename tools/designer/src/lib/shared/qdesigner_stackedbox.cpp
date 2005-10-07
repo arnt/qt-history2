@@ -24,6 +24,8 @@
 #include <QtGui/qevent.h>
 #include <QtCore/qdebug.h>
 
+using namespace qdesigner_internal;
+
 QDesignerStackedWidget::QDesignerStackedWidget(QWidget *parent)
     : QStackedWidget(parent), m_actionDeletePage(0)
 {
@@ -211,3 +213,4 @@ void QDesignerStackedWidget::slotCurrentChanged(int index)
         }
     }
 }
+

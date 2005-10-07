@@ -34,8 +34,11 @@
 #include <QtDesigner/QtDesigner>
 #include <QtDesigner/QExtensionFactory>
 
-class QDesignerPromotedWidget;
 class QExtensionManager;
+
+namespace qdesigner_internal {
+
+class QDesignerPromotedWidget;
 
 class QT_SHARED_EXPORT PromotedWidgetPropertySheet: public QObject, public QDesignerPropertySheetExtension
 {
@@ -104,5 +107,7 @@ private:
     QByteArray m_custom_class_name;
     QWidget *m_child;
 };
+
+} // namespace qdesigner_internal
 
 #endif // QDESIGNER_PROMOTEDWIDGET_H

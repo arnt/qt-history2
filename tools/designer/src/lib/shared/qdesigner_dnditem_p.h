@@ -30,6 +30,8 @@
 #include "shared_global_p.h"
 #include <QtDesigner/abstractdnditem.h>
 
+namespace qdesigner_internal {
+
 class QT_SHARED_EXPORT QDesignerDnDItem: public QDesignerDnDItemInterface
 {
 public:
@@ -58,4 +60,7 @@ private:
 
     Q_DISABLE_COPY(QDesignerDnDItem)
 };
+
+} // namespace qdesigner_internal
+
 #endif // QDESIGNER_DNDITEM_H

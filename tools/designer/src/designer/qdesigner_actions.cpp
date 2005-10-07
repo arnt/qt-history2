@@ -585,7 +585,7 @@ void QDesignerActions::previewForm(QAction *action)
         QHBoxLayout *layout = new QHBoxLayout(fakeTopLevel);
         layout->setMargin(0);
 
-        QDesignerFormBuilder builder(core());
+        qdesigner_internal::QDesignerFormBuilder builder(core());
         builder.setWorkingDirectory(fw->absoluteDir());
 
         QByteArray bytes = fw->contents().toUtf8();
@@ -636,7 +636,7 @@ void QDesignerActions::previewForm(QAction *action)
 bool QDesignerActions::eventFilter(QObject *obj, QEvent *event)
 {
     bool retval = QObject::eventFilter(obj, event);
-    
+
     if (event->type() == QEvent::Resize) {
         QDialog *w = qobject_cast<QDialog *>(obj);
         QDialog *dlg = qobject_cast<QDialog *>(obj->parent());
@@ -644,7 +644,7 @@ bool QDesignerActions::eventFilter(QObject *obj, QEvent *event)
             dlg->resize(w->size());
         }
     }
-    
+
     return retval;
 }
 

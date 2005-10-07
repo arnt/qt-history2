@@ -20,10 +20,10 @@
 
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
-class TreeWidget;
 
 namespace qdesigner_internal {
 
+class TreeWidget;
 class ObjectItem;
 
 class QT_OBJECTINSPECTOR_EXPORT ObjectInspector: public QDesignerObjectInspectorInterface

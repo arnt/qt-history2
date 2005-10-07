@@ -17,7 +17,6 @@
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
 
-class Connection;
 class QDesignerFormWindowInterface;
 class QDesignerFormEditorInterface;
 class QModelIndex;
@@ -28,6 +27,7 @@ namespace qdesigner_internal {
 
 class SignalSlotEditor;
 class ConnectionModel;
+class Connection;
 
 class SignalSlotEditorWindow : public QWidget
 {

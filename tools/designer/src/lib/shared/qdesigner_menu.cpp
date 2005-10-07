@@ -29,6 +29,8 @@
 Q_DECLARE_METATYPE(QAction*)
 Q_DECLARE_METATYPE(QListWidgetItem*)
 
+using namespace qdesigner_internal;
+
 QDesignerMenu::QDesignerMenu(QWidget *parent)
     : QMenu(parent)
 {
@@ -306,3 +308,4 @@ QDesignerActionProviderExtension *QDesignerMenu::actionProvider()
 
     return 0;
 }
+

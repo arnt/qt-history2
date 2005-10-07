@@ -31,8 +31,7 @@
 
 #include <QtCore/qdebug.h>
 
-namespace
-{
+using namespace qdesigner_internal;
 
 static void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow, QPaintEvent *e, bool needFrame = false)
 {
@@ -42,7 +41,7 @@ static void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow,
     p.fillRect(e->rect(), widget->palette().brush(widget->backgroundRole()));
 
     QString grid_name;
-    grid_name.sprintf("QDesignerFormWindowInterfaceGrid_%d_%d", formWindow->grid().x(), formWindow->grid().y());
+    grid_name.sprintf("__qt_designer_grid_%d_%d", formWindow->grid().x(), formWindow->grid().y());
 
     QPixmap grid;
     if (!QPixmapCache::find(grid_name, grid)) {
@@ -71,8 +70,6 @@ static void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow,
         p.drawRect(widget->rect());
     }
 }
-
-} // anonymous namespace
 
 void QDesignerDialog::paintEvent(QPaintEvent *e)
 {
@@ -125,4 +122,3 @@ void QDesignerLabel::setBuddy(QWidget *widget)
 {
     QLabel::setBuddy(widget);
 }
-

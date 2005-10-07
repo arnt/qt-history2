@@ -18,6 +18,8 @@
 
 #include <QtGui/QAction>
 
+using namespace qdesigner_internal;
+
 QDesignerToolBox::QDesignerToolBox(QWidget *parent)
     : QToolBox(parent)
 {

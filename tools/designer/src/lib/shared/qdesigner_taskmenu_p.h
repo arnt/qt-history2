@@ -36,6 +36,8 @@
 class QWidget;
 class QDesignerFormWindowInterface;
 
+namespace qdesigner_internal {
+
 class QT_SHARED_EXPORT QDesignerTaskMenu: public QObject, public QDesignerTaskMenuExtension
 {
     Q_OBJECT
@@ -82,5 +84,7 @@ public:
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
+
+} // namespace qdesigner_internal
 
 #endif // QDESIGNER_TASKMENU_H

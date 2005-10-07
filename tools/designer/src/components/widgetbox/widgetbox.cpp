@@ -544,7 +544,7 @@ WidgetBoxTreeView::CategoryList WidgetBoxTreeView::loadCustomCategoryList() cons
 {
     CategoryList result;
 
-    PluginManager *pm = m_core->pluginManager();
+    QDesignerPluginManager *pm = m_core->pluginManager();
 
     QList<QDesignerCustomWidgetInterface*> customWidgets = pm->registeredCustomWidgets();
 

@@ -24,7 +24,6 @@ class QDesigner;
 class QDesignerActions;
 class QDesignerToolWindow;
 class QDesignerFormWindow;
-class QDesignerIntegration;
 
 class QAction;
 class QActionGroup;
@@ -39,6 +38,10 @@ class QCloseEvent;
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 class QDesignerFormWindowManagerInterface;
+
+namespace qdesigner_internal {
+class QDesignerIntegration;
+}
 
 class QDesignerWorkbench: public QObject
 {
@@ -121,7 +124,7 @@ private:
 
 private:
     QDesignerFormEditorInterface *m_core;
-    QDesignerIntegration *m_integration;
+    qdesigner_internal::QDesignerIntegration *m_integration;
 
     QDesignerActions *m_actionManager;
     QActionGroup *m_toolActions;

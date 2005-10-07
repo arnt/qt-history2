@@ -30,16 +30,13 @@
 #include <QtGui/QPixmap>
 
 class DomConnections;
-class Connection;
 
-class SetPropertyCommand;
 class QLabel;
 class QTimer;
 class QAction;
 class QMenu;
 class QtUndoStack;
 class QRubberBand;
-class BreakLayoutCommand;
 
 namespace qdesigner_internal {
 
@@ -50,6 +47,9 @@ class WidgetEditorTool;
 class FormWindowWidgetStack;
 class FormWindowManager;
 class FormWindowDnDItem;
+class SetPropertyCommand;
+class BreakLayoutCommand;
+class Connection;
 
 class QT_FORMEDITOR_EXPORT FormWindow: public QDesignerFormWindowInterface
 {

@@ -25,6 +25,8 @@
 #include "resourcefile_p.h"
 #include <QtDesigner/abstractformbuilder.h>
 
+namespace qdesigner_internal {
+
 /******************************************************************************
 ** ResourceFile
 */
@@ -285,7 +287,7 @@ QString ResourceFile::relativePath(const QString &abs_path) const
 {
     if (m_file_name.isEmpty() || QFileInfo(abs_path).isRelative())
          return abs_path;
-         
+
     QFileInfo fileInfo(m_file_name);
     return fileInfo.absoluteDir().relativeFilePath(abs_path);
 }
@@ -647,3 +649,4 @@ bool ResourceModel::save()
     return result;
 }
 
+} // namespace qdesigner_internal

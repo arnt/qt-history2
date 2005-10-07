@@ -36,6 +36,8 @@ class QDesignerFormWindowManagerInterface;
 class QVariant;
 class QWidget;
 
+namespace qdesigner_internal {
+
 class QT_SHARED_EXPORT QDesignerIntegration: public QObject
 {
     Q_OBJECT
@@ -70,5 +72,6 @@ private:
 inline QDesignerFormEditorInterface *QDesignerIntegration::core() const
 { return m_core; }
 
+} // namespace qdesigner_internal
 
 #endif // QDESIGNER_INTEGRATION_H

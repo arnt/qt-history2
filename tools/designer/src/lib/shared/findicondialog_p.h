@@ -38,6 +38,8 @@ namespace Ui
     class FindIconDialog;
 } // namespace Ui
 
+namespace qdesigner_internal {
+
 class QT_SHARED_EXPORT FindIconDialog : public QDialog
 {
     Q_OBJECT
@@ -68,5 +70,7 @@ private:
     QString m_icon_file_name;
     QDesignerFormWindowInterface *m_form;
 };
+
+} // namespace qdesigner_internal
 
 #endif // FINDICONDIALOG_H

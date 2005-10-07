@@ -32,6 +32,8 @@
 #define GROUND_W                20
 #define GROUND_H                25
 
+namespace qdesigner_internal {
+
 /*******************************************************************************
 ** Tools
 */
@@ -750,10 +752,10 @@ QRect Connection::endPointRect(EndPoint::Type type) const
 {
     if (type == EndPoint::Source) {
         if (m_source_pos != QPoint(-1, -1))
-            return ::endPointRect(m_source_pos);
+            return qdesigner_internal::endPointRect(m_source_pos);
     } else {
         if (m_target_pos != QPoint(-1, -1))
-            return ::endPointRect(m_target_pos);
+            return qdesigner_internal::endPointRect(m_target_pos);
     }
     return QRect();
 }
@@ -1457,5 +1459,7 @@ void ConnectionEdit::setTarget(Connection *con, const QString &obj_name)
 
     m_undo_stack->push(new SetEndPointCommand(this, con, EndPoint::Target, w));
 }
+
+} // namespace qdesigner_internal
 
 #include "connectionedit.moc"

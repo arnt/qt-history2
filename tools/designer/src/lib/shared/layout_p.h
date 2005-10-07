@@ -38,6 +38,8 @@
 
 class QDesignerFormWindowInterface;
 
+namespace qdesigner_internal {
+
 void QT_SHARED_EXPORT add_to_box_layout(QBoxLayout *box, QWidget *widget);
 void QT_SHARED_EXPORT insert_into_box_layout(QBoxLayout *box, int index, QWidget *widget);
 void QT_SHARED_EXPORT add_to_grid_layout(QGridLayout *grid, QWidget *widget, int r, int c, int rs, int cs, Qt::Alignment align = 0);
@@ -188,5 +190,7 @@ inline int indexOfWidget(QLayout *layout, QWidget *widget)
 }
 
 } // namespace Utils
+
+} // namespace qdesigner_internal
 
 #endif // LAYOUT_H

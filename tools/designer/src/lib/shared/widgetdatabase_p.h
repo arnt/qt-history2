@@ -37,6 +37,8 @@
 class QObject;
 class QDesignerCustomWidgetInterface;
 
+namespace qdesigner_internal {
+
 class QT_SHARED_EXPORT WidgetDataBaseItem: public QDesignerWidgetDataBaseItemInterface
 {
 public:
@@ -122,5 +124,7 @@ private:
 
     QDesignerFormEditorInterface *m_core;
 };
+
+} // namespace qdesigner_internal
 
 #endif // WIDGETDATABASE_H

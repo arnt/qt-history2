@@ -24,6 +24,7 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QImageReader>
 
+namespace qdesigner_internal {
 
 FindIconDialog::FindIconDialog(QDesignerFormWindowInterface *form, QWidget *parent)
     : QDialog(parent)
@@ -226,3 +227,5 @@ void FindIconDialog::browseFileDir()
         ui->m_file_dir_input->setText(dir);
 }
 
+
+} // namespace qdesigner_internal

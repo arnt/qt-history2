@@ -21,6 +21,8 @@
 #include <QtCore/QMap>
 #include <QtCore/qdebug.h>
 
+namespace qdesigner_internal {
+
 LayoutInfo::Type LayoutInfo::layoutType(QDesignerFormEditorInterface *core, QWidget *w, QLayout *&layout)
 {
     layout = 0;
@@ -163,3 +165,5 @@ QLayout *LayoutInfo::managedLayout(QDesignerFormEditorInterface *core, QWidget *
     return item != 0 ? layout : 0;
 }
 
+
+} // namespace qdesigner_internal

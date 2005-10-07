@@ -35,6 +35,8 @@ class QTimer;
 class QDesignerFormWindowInterface;
 class QDesignerActionProviderExtension;
 
+namespace qdesigner_internal {
+
 class QT_SHARED_EXPORT SentinelAction: public QAction
 {
     Q_OBJECT
@@ -50,6 +52,8 @@ public:
     Sentinel(QWidget *widget);
     virtual ~Sentinel();
 };
+
+} // namespace qdesigner_internal
 
 class QT_SHARED_EXPORT QDesignerToolBar: public QToolBar
 {

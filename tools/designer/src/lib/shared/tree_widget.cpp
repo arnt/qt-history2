@@ -23,6 +23,8 @@
 #include <QtGui/QPainter>
 #include <QtGui/QStyle>
 
+namespace qdesigner_internal {
+
 class TreeWidgetDelegate: public QItemDelegate
 {
 public:
@@ -81,3 +83,5 @@ void TreeWidget::drawBranches(QPainter *painter, const QRect &rect, const QModel
     }
     painter->drawLine(rect.x(), rect.bottom(), rect.right(), rect.bottom());
 }
+
+} // namespace qdesigner_internal

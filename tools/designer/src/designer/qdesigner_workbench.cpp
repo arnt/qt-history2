@@ -203,7 +203,7 @@ void QDesignerWorkbench::initialize()
     tw->setObjectName(QLatin1String("qt_designer_actioneditor"));
     addToolWindow(tw);
 
-    m_integration = new QDesignerIntegration(core(), this);
+    m_integration = new qdesigner_internal::QDesignerIntegration(core(), this);
 
     (void) QDesignerComponents::createTaskMenu(core(), this);
 

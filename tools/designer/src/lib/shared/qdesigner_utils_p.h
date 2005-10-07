@@ -28,6 +28,8 @@
 #include <QtCore/QVariant>
 #include <QtCore/QMap>
 
+namespace qdesigner_internal {
+
 class EnumType
 {
 public:
@@ -35,7 +37,6 @@ public:
     QMap<QString, QVariant> items;
 };
 
-Q_DECLARE_METATYPE(EnumType)
 
 class FlagType
 {
@@ -43,8 +44,6 @@ public:
     QVariant value;
     QMap<QString, QVariant> items;
 };
-
-Q_DECLARE_METATYPE(FlagType)
 
 namespace Utils
 {
@@ -60,5 +59,10 @@ inline int valueOf(const QVariant &value, bool *ok = 0)
 }
 
 } // namespace Utils
+
+} // namespace qdesigner_internal
+
+Q_DECLARE_METATYPE(qdesigner_internal::EnumType)
+Q_DECLARE_METATYPE(qdesigner_internal::FlagType)
 
 #endif // QDESIGNER_UTILS_H

@@ -23,6 +23,19 @@
 
 #include <QtCore/qdebug.h>
 
+namespace qdesigner_internal {
+
+class MyMimeData : public QMimeData
+{
+    Q_OBJECT
+public:
+    QDesignerTabWidget *tab;
+};
+
+} // namespace qdesigner_internal
+
+using namespace qdesigner_internal;
+
 QDesignerTabWidget::QDesignerTabWidget(QWidget *parent)
     : QTabWidget(parent), m_actionDeletePage(0)
 {
@@ -95,13 +108,6 @@ void QDesignerTabWidget::setCurrentTabIcon(const QIcon &tabIcon)
     setTabIcon(currentIndex(), tabIcon);
 }
 
-class MyMimeData : public QMimeData
-{
-    Q_OBJECT
-public:
-    QDesignerTabWidget *tab;
-};
-
 bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
 {
     if (o != tabBar())
@@ -130,7 +136,7 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
         if (mousePressed && canMove(mouseEvent)) {
             mousePressed = false;
             QDrag *drg = new QDrag(this);
-            MyMimeData *mimeData = new MyMimeData();
+            qdesigner_internal::MyMimeData *mimeData = new qdesigner_internal::MyMimeData();
             mimeData->tab = this;
             drg->setMimeData(mimeData);
 
@@ -164,7 +170,7 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
 
         bool accept = false;
         if (const QMimeData *mimeData = de->mimeData()) {
-            const MyMimeData *m = qobject_cast<const MyMimeData *>(mimeData);
+            const qdesigner_internal::MyMimeData *m = qobject_cast<const qdesigner_internal::MyMimeData *>(mimeData);
             if (m && m->tab == this)
                 accept = true;
         }
@@ -214,7 +220,7 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
 
         bool accept = false;
         if (const QMimeData *mimeData = de->mimeData()) {
-            const MyMimeData *m = qobject_cast<const MyMimeData *>(mimeData);
+            const qdesigner_internal::MyMimeData *m = qobject_cast<const qdesigner_internal::MyMimeData *>(mimeData);
             if (m && m->tab == this)
                 accept = true;
         }

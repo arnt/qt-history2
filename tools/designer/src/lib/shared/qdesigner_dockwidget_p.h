@@ -28,6 +28,8 @@
 #include "shared_global_p.h"
 #include <QtGui/QDockWidget>
 
+namespace qdesigner_internal {
+
 class QT_SHARED_EXPORT QDesignerDockWidget: public QDockWidget
 {
     Q_OBJECT
@@ -41,5 +43,7 @@ public:
 
     bool inMainWindow() const;
 };
+
+} // namespace qdesigner_internal
 
 #endif // QDESIGNER_DOCKWIDGET_H

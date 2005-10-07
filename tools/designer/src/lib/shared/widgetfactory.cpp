@@ -35,6 +35,8 @@
 #include <QtGui/QtGui>
 #include <QtCore/qdebug.h>
 
+namespace qdesigner_internal {
+
 QPointer<QWidget> *WidgetFactory::m_lastPassiveInteractor = new QPointer<QWidget>();
 bool WidgetFactory::m_lastWasAPassiveInteractor = false;
 
@@ -53,7 +55,7 @@ void WidgetFactory::loadPlugins()
 {
     m_customFactory.clear();
 
-    PluginManager *pluginManager = m_core->pluginManager();
+    QDesignerPluginManager *pluginManager = m_core->pluginManager();
 
     QList<QDesignerCustomWidgetInterface*> lst = pluginManager->registeredCustomWidgets();
     foreach (QDesignerCustomWidgetInterface *c, lst) {
@@ -355,3 +357,4 @@ bool WidgetFactory::isPassiveInteractor(QWidget *widget)
     return m_lastWasAPassiveInteractor;
 }
 
+} // namespace qdesigner_internal

@@ -41,7 +41,7 @@ using namespace qdesigner_internal;
 FormEditor::FormEditor(QObject *parent)
     : QDesignerFormEditorInterface(parent)
 {
-    PluginManager *pluginManager = new PluginManager(this);
+    QDesignerPluginManager *pluginManager = new QDesignerPluginManager(this);
     setPluginManager(pluginManager);
 
     WidgetDataBase *widgetDatabase = new WidgetDataBase(this);

@@ -22,6 +22,8 @@
 
 #include <QtCore/qdebug.h>
 
+namespace qdesigner_internal {
+
 QDesignerIntegration::QDesignerIntegration(QDesignerFormEditorInterface *core, QObject *parent)
     : QObject(parent),
       m_core(core)
@@ -158,3 +160,5 @@ QWidget *QDesignerIntegration::containerWindow(QWidget *widget)
     return widget;
 }
 
+
+} // namespace qdesigner_internal

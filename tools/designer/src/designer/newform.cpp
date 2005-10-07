@@ -45,7 +45,7 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
       m_workbench(workbench)
 {
     ui.setupUi(this);
-    ui.treeWidget->setItemDelegate(new SheetDelegate(ui.treeWidget, this));
+    ui.treeWidget->setItemDelegate(new qdesigner_internal::SheetDelegate(ui.treeWidget, this));
     ui.treeWidget->header()->hide();
     ui.treeWidget->header()->setStretchLastSection(true);
     ui.lblPreview->setBackgroundRole(QPalette::Base);
@@ -148,7 +148,7 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
 
     QFile f(fileName);
     if (f.open(QFile::ReadOnly)) {
-        QDesignerFormBuilder formBuilder(workbench()->core());
+        qdesigner_internal::QDesignerFormBuilder formBuilder(workbench()->core());
 
         QWidget *fake = new QWidget(0);
         if (QWidget *widget = formBuilder.load(&f, fake)) {

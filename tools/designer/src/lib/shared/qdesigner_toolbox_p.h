@@ -80,5 +80,4 @@ private:
     QAction *m_actionInsertPageAfter;
 };
 
-
 #endif // QDESIGNER_TOOLBOX_H

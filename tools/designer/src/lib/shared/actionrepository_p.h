@@ -29,6 +29,8 @@
 #include <QtCore/QMimeData>
 #include <QtGui/QListWidget>
 
+namespace qdesigner_internal {
+
 class QT_SHARED_EXPORT ActionRepository: public QListWidget
 {
     Q_OBJECT
@@ -62,5 +64,7 @@ public:
     virtual bool hasFormat(const QString &mimeType) const
     { return mimeType == QLatin1String("action-repository/actions"); }
 };
+
+} // namespace qdesigner_internal
 
 #endif // ACTIONREPOSITORY_H

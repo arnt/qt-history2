@@ -41,6 +41,8 @@ static bool operator < (const QColor &c1, const QColor &c2)
     return c1.blue() < c2.blue();
 }
 
+namespace qdesigner_internal {
+
 class RichTextEditorToolBar : public QToolBar
 {
     Q_OBJECT
@@ -290,4 +292,8 @@ RichTextEditor *RichTextEditorDialog::editor()
     return m_editor;
 }
 
+} // namespace qdesigner_internal
+
 #include "richtexteditor.moc"
+
+

@@ -16,6 +16,8 @@
 
 #include <QtGui/QMainWindow>
 
+namespace qdesigner_internal {
+
 QDesignerDockWidget::QDesignerDockWidget(QWidget *parent)
     : QDockWidget(parent)
 {
@@ -46,3 +48,5 @@ bool QDesignerDockWidget::inMainWindow() const
     return qobject_cast<QMainWindow*>(parentWidget()) != 0;
 }
 
+
+} // namespace qdesigner_internal

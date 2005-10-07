@@ -20,6 +20,8 @@
 #include <QtCore/qalgorithms.h>
 #include <QtCore/qdebug.h>
 
+namespace qdesigner_internal {
+
 MetaDataBaseItem::MetaDataBaseItem(QObject *object)
     : m_object(object),
       m_enabled(true)
@@ -155,3 +157,5 @@ void MetaDataBase::dump()
     }
 }
 
+
+} // namespace qdesigner_internal

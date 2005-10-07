@@ -239,7 +239,7 @@ void QDesignerFormEditorInterface::setIconCache(QDesignerIconCacheInterface *cac
 
     Returns the plugin manager used by the form editor.
 */
-PluginManager *QDesignerFormEditorInterface::pluginManager() const
+QDesignerPluginManager *QDesignerFormEditorInterface::pluginManager() const
 { return m_pluginManager; }
 
 /*!
@@ -248,7 +248,7 @@ PluginManager *QDesignerFormEditorInterface::pluginManager() const
     Sets the plugin manager used by the form editor to the specified
     \a pluginManager.
 */
-void QDesignerFormEditorInterface::setPluginManager(PluginManager *pluginManager)
+void QDesignerFormEditorInterface::setPluginManager(QDesignerPluginManager *pluginManager)
 { m_pluginManager = pluginManager; }
 
 /*!

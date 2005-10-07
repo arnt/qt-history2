@@ -205,5 +205,4 @@ protected:
     { Q_ASSERT(me()->widget()); return me()->widget()->layout(); }
 };
 
-
 #endif // QDESIGNER_WIDGET_H

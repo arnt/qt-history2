@@ -36,6 +36,8 @@
 
 #include <QtCore/qdebug.h>
 
+namespace qdesigner_internal {
+
 QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     : QObject(parent),
       m_widget(widget)
@@ -277,3 +279,5 @@ void QDesignerTaskMenu::changeWhatsThis()
 {
     changeRichTextProperty(QLatin1String("whatsThis"));
 }
+
+} // namespace qdesigner_internal

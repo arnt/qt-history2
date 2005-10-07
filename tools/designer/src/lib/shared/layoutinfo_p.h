@@ -33,6 +33,8 @@ class QWidget;
 class QLayout;
 class QDesignerFormEditorInterface;
 
+namespace qdesigner_internal {
+
 class QT_SHARED_EXPORT LayoutInfo
 {
 public:
@@ -66,5 +68,7 @@ public:
     typedef QList<Interval> IntervalList;
     static void cells(QLayout *layout, IntervalList *rows, IntervalList *columns);
 };
+
+} // namespace qdesigner_internal
 
 #endif // LAYOUTINFO_H

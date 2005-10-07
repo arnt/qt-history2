@@ -5,6 +5,8 @@
 Q_DECLARE_METATYPE(QAction*)
 Q_DECLARE_METATYPE(QListWidgetItem*)
 
+namespace qdesigner_internal {
+
 ActionRepository::ActionRepository(QWidget *parent)
     : QListWidget(parent)
 {
@@ -56,3 +58,6 @@ void ActionRepository::filter(const QString &text)
         setItemHidden(i, !visibleItems.contains(i));
     }
 }
+
+
+} // namespace qdesigner_internal

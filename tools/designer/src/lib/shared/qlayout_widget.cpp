@@ -32,13 +32,20 @@
 
 #include <QtCore/qdebug.h>
 
+namespace qdesigner_internal {
+
 class FriendlyLayout: public QLayout
 {
 public:
     inline FriendlyLayout(): QLayout() { Q_ASSERT(0); }
 
-    friend class QLayoutWidgetItem;
+    friend class ::QLayoutWidgetItem;
 };
+
+} // namespace qdesigner_internal
+
+
+using namespace qdesigner_internal;
 
 // ---- QLayoutSupport ----
 QLayoutSupport::QLayoutSupport(QDesignerFormWindowInterface *formWindow, QWidget *widget, QObject *parent)
@@ -499,7 +506,7 @@ Qt::Orientations QLayoutWidgetItem::expandingDirections() const
 
 void QLayoutWidgetItem::addTo(QLayout *layout)
 {
-    static_cast<FriendlyLayout*>(layout)->addChildWidget(widget());
+    static_cast<qdesigner_internal::FriendlyLayout*>(layout)->addChildWidget(widget());
 }
 
 bool QLayoutWidgetItem::hasHeightForWidth() const
@@ -910,3 +917,4 @@ void QLayoutWidget::setLayoutSpacing(int layoutSpacing)
     if (layout())
         layout()->setSpacing(layoutSpacing);
 }
+

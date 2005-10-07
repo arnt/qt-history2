@@ -40,18 +40,21 @@ class QDesignerFormEditorInterface;
 class QDesignerFormWindowManagerInterface;
 class QDesignerFormWindowInterface;
 class QDesignerWidgetDataBaseItemInterface;
-class Layout;
 
 class QDesignerContainerExtension;
 class QDesignerPropertySheetExtension;
 class QDesignerMetaDataBaseItemInterface;
-class QDesignerPromotedWidget;
 
 class QToolBox;
 class QTabWidget;
 class QStackedWidget;
 class QDockWidget;
 class QMainWindow;
+
+namespace qdesigner_internal {
+
+class QDesignerPromotedWidget;
+class Layout;
 
 class QT_SHARED_EXPORT QDesignerFormEditorCommand: public QtCommand
 {
@@ -682,5 +685,6 @@ public:
     virtual void undo();
 };
 
+} // namespace qdesigner_internal
 
 #endif // QDESIGNER_COMMAND_H

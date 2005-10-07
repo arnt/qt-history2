@@ -20,6 +20,8 @@
 #include <QtGui/QPainter>
 #include <QtCore/qdebug.h>
 
+using namespace qdesigner_internal;
+
 Spacer::Spacer(QWidget *parent)
     : QWidget(parent),
       orient(Qt::Vertical), interactive(true), sh(20, 40)
@@ -174,3 +176,4 @@ void Spacer::setOrientation(Qt::Orientation o)
     update();
     updateGeometry();
 }
+

@@ -33,6 +33,8 @@
 
 class QTreeView;
 
+namespace qdesigner_internal {
+
 class QT_SHARED_EXPORT SheetDelegate: public QItemDelegate
 {
     Q_OBJECT
@@ -45,5 +47,7 @@ public:
 private:
     QTreeView *m_view;
 };
+
+} // namespace qdesigner_internal
 
 #endif // SHEET_DELEGATE_H

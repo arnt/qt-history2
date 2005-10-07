@@ -29,11 +29,15 @@
 
 #include <QtGui/QWidget>
 
+namespace qdesigner_internal {
+
 class QT_SHARED_EXPORT InvisibleWidget: public QWidget
 {
     Q_OBJECT
 public:
     InvisibleWidget(QWidget *parent = 0);
 };
+
+} // namespace qdesigner_internal
 
 #endif // INVISIBLE_WIDGET_H

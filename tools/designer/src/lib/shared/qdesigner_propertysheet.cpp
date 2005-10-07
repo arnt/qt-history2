@@ -25,8 +25,7 @@
 #include <QtGui/QPixmap>
 
 
-namespace
-{
+namespace qdesigner_internal {
 
 static const QMetaObject *introducedBy(const QMetaObject *meta, int index)
 {
@@ -39,7 +38,9 @@ static const QMetaObject *introducedBy(const QMetaObject *meta, int index)
     return 0;
 }
 
-} // anonymous namespace
+} // qdesigner_internal
+
+using namespace qdesigner_internal;
 
 QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
     : QObject(parent),
@@ -63,7 +64,7 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
 
         QString pgroup = QString::fromUtf8(baseMeta->className());
 
-        if (const QMetaObject *pmeta = introducedBy(baseMeta, index)) {
+        if (const QMetaObject *pmeta = qdesigner_internal::introducedBy(baseMeta, index)) {
             pgroup = QString::fromUtf8(pmeta->className());
         }
 
@@ -428,3 +429,4 @@ QObject *QDesignerPropertySheetFactory::createExtension(QObject *object, const Q
 
     return 0;
 }
+

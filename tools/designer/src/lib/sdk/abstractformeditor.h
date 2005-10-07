@@ -28,7 +28,7 @@ class QDesignerWidgetFactoryInterface;
 class QDesignerObjectInspectorInterface;
 class QDesignerIconCacheInterface;
 class QDesignerActionEditorInterface;
-class PluginManager;
+class QDesignerPluginManager;
 
 class QWidget;
 
@@ -53,14 +53,14 @@ public:
     QDesignerWidgetFactoryInterface *widgetFactory() const;
     QDesignerIconCacheInterface *iconCache() const;
     QDesignerActionEditorInterface *actionEditor() const;
-    PluginManager *pluginManager() const;
+    QDesignerPluginManager *pluginManager() const;
     QString resourceLocation() const;
 
     void setTopLevel(QWidget *topLevel);
     void setWidgetBox(QDesignerWidgetBoxInterface *widgetBox);
     void setPropertyEditor(QDesignerPropertyEditorInterface *propertyEditor);
     void setObjectInspector(QDesignerObjectInspectorInterface *objectInspector);
-    void setPluginManager(PluginManager *pluginManager);
+    void setPluginManager(QDesignerPluginManager *pluginManager);
     void setActionEditor(QDesignerActionEditorInterface *actionEditor);
 
 protected:
@@ -83,7 +83,7 @@ private:
     QPointer<QDesignerObjectInspectorInterface> m_objectInspector;
     QPointer<QDesignerIconCacheInterface> m_iconCache;
     QPointer<QDesignerActionEditorInterface> m_actionEditor;
-    PluginManager *m_pluginManager;
+    QDesignerPluginManager *m_pluginManager;
 
 private:
     QDesignerFormEditorInterface(const QDesignerFormEditorInterface &other);

@@ -30,6 +30,8 @@
 Q_DECLARE_METATYPE(QAction*)
 Q_DECLARE_METATYPE(QListWidgetItem*)
 
+namespace qdesigner_internal {
+
 class ActionFilterWidget: public QWidget
 {
 public:
@@ -216,3 +218,5 @@ void ActionEditor::slotNotImplemented()
 {
     QMessageBox::information(this, tr("Designer"), tr("Feature not implemented!"));
 }
+
+} // namespace qdesigner_internal

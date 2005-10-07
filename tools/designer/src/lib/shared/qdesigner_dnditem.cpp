@@ -20,6 +20,8 @@
 
 #include <QtDesigner/ui4.h>
 
+namespace qdesigner_internal {
+
 QDesignerDnDItem::QDesignerDnDItem(DropType type, QWidget *source)
 {
     m_source = source;
@@ -85,3 +87,6 @@ void QDesignerDnDItem::setDomUi(DomUI *dom_ui)
     delete m_dom_ui;
     m_dom_ui = dom_ui;
 }
+
+
+} // namespace qdesigner_internal

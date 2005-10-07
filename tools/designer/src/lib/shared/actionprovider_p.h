@@ -32,5 +32,4 @@ public:
 };
 Q_DECLARE_EXTENSION_INTERFACE(QDesignerActionProviderExtension, "com.trolltech.Qt.Designer.ActionProvider")
 
-
 #endif // ACTIONPROVIDER_H

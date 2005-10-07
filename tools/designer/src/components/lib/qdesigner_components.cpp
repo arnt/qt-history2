@@ -122,7 +122,7 @@ QDesignerObjectInspectorInterface *QDesignerComponents::createObjectInspector(QD
     Returns a new action editor interface with the given \a parent for the \a core interface.*/
 QDesignerActionEditorInterface *QDesignerComponents::createActionEditor(QDesignerFormEditorInterface *core, QWidget *parent)
 {
-    return new ActionEditor(core, parent);
+    return new qdesigner_internal::ActionEditor(core, parent);
 }
 
 /*!

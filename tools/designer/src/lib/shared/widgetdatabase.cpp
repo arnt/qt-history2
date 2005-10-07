@@ -24,6 +24,8 @@
 #include <QtCore/qdebug.h>
 #include <QtCore/QMetaProperty>
 
+namespace qdesigner_internal {
+
 // ----------------------------------------------------------
 WidgetDataBaseItem::WidgetDataBaseItem(const QString &name, const QString &group)
     : m_name(name),
@@ -187,7 +189,6 @@ WidgetDataBase::WidgetDataBase(QDesignerFormEditorInterface *core, QObject *pare
     append(new WidgetDataBaseItem(QString::fromUtf8("QLayoutWidget")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerWidget")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerDialog")));
-    append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerCompatWidget")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerToolBar")));
 
     // ### remove me
@@ -235,7 +236,7 @@ QDesignerWidgetDataBaseItemInterface *WidgetDataBase::item(int index) const
 
 void WidgetDataBase::loadPlugins()
 {
-    PluginManager *pluginManager = m_core->pluginManager();
+    QDesignerPluginManager *pluginManager = m_core->pluginManager();
 
     QStringList plugins = pluginManager->registeredPlugins();
 
@@ -317,3 +318,5 @@ void WidgetDataBase::grabDefaultPropertyValues()
 
     }
 }
+
+} // namespace qdesigner_internal

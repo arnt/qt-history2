@@ -31,6 +31,8 @@
 
 class QToolBar;
 
+namespace qdesigner_internal {
+
 class QT_SHARED_EXPORT RichTextEditor : public QTextEdit
 {
     Q_OBJECT
@@ -63,5 +65,7 @@ public:
 private:
     RichTextEditor *m_editor;
 };
+
+} // namespace qdesigner_internal
 
 #endif // RITCHTEXTEDITOR_H

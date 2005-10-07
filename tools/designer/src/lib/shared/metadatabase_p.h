@@ -32,6 +32,8 @@
 #include <QtCore/QHash>
 #include <QtGui/QCursor>
 
+namespace qdesigner_internal {
+
 class QT_SHARED_EXPORT MetaDataBaseItem: public QDesignerMetaDataBaseItemInterface
 {
 public:
@@ -84,5 +86,7 @@ private:
     typedef QHash<QObject *, MetaDataBaseItem*> ItemMap;
     ItemMap m_items;
 };
+
+} // namespace qdesigner_internal
 
 #endif // METADATABASE_H

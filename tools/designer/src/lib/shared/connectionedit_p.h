@@ -39,6 +39,9 @@
 
 class QDesignerFormWindowInterface;
 class QtUndoStack;
+
+namespace qdesigner_internal {
+
 class Connection;
 class ConnectionEdit;
 
@@ -255,5 +258,6 @@ private:
     ConnectionList m_con_list;
 };
 
+} // namespace qdesigner_internal
 
 #endif // CONNECTIONEDIT_H

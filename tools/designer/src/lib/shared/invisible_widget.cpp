@@ -13,6 +13,8 @@
 
 #include "invisible_widget_p.h"
 
+namespace qdesigner_internal {
+
 InvisibleWidget::InvisibleWidget(QWidget *parent)
     : QWidget()
 {
@@ -20,3 +22,4 @@ InvisibleWidget::InvisibleWidget(QWidget *parent)
     setParent(parent);
 }
 
+} // namespace qdesigner_internal

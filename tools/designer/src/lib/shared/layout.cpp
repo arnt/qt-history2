@@ -29,6 +29,8 @@
 #include <QtGui/QSplitter>
 #include <QtGui/QMainWindow>
 
+namespace qdesigner_internal {
+
 class FriendlyBoxLayout: public QBoxLayout
 {
 public:
@@ -36,11 +38,6 @@ public:
 
     friend void insert_into_box_layout(QBoxLayout *box, int index, QWidget *widget);
 };
-
-static bool operator<(const QPointer<QWidget> &p1, const QPointer<QWidget> &p2)
-{
-    return p1.operator->() < p2.operator->();
-}
 
 void add_to_box_layout(QBoxLayout *box, QWidget *widget)
 {
@@ -962,3 +959,6 @@ void GridLayout::buildGrid()
 
     grid->simplify();
 }
+
+
+} // namespace qdesigner_internal

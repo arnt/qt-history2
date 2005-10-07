@@ -37,6 +37,8 @@
 #include <QtCore/QBuffer>
 #include <QtCore/qdebug.h>
 
+namespace qdesigner_internal {
+
 QDesignerFormBuilder::QDesignerFormBuilder(QDesignerFormEditorInterface *core)
     : m_core(core)
 {
@@ -138,3 +140,6 @@ QWidget *QDesignerFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
 
     return widget;
 }
+
+
+} // namespace qdesigner_internal

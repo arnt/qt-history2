@@ -33,6 +33,8 @@
 class QDesignerFormEditorInterface;
 class QDesignerCustomWidgetInterface;
 
+namespace qdesigner_internal {
+
 class QT_SHARED_EXPORT QDesignerFormBuilder: public QFormBuilder
 {
 public:
@@ -65,5 +67,7 @@ protected:
 private:
     QDesignerFormEditorInterface *m_core;
 };
+
+} // namespace qdesigner_internal
 
 #endif // QDESIGNER_FORMBUILDER_H

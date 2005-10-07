@@ -32,6 +32,8 @@
 
 #include "shared_global_p.h"
 
+namespace qdesigner_internal {
+
 class QT_SHARED_EXPORT ResourceFile
 {
 public:
@@ -137,5 +139,7 @@ private:
     ResourceFile m_resource_file;
     bool m_dirty;
 };
+
+} // namespace qdesigner_internal
 
 #endif // RESOURCEFILE_H

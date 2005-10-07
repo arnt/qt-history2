@@ -28,6 +28,8 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QMainWindow>
 
+namespace qdesigner_internal {
+
 // ---- QDesignerFormEditorCommand ----
 QDesignerFormEditorCommand::QDesignerFormEditorCommand(const QString &description, QDesignerFormEditorInterface *core)
     : QtCommand(description),
@@ -1603,3 +1605,5 @@ void AddContainerWidgetPageCommand::undo()
         objectInspector->setFormWindow(formWindow());
 }
 
+
+} // namespace qdesigner_internal

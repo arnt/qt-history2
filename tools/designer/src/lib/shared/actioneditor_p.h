@@ -28,11 +28,14 @@
 #include "shared_global_p.h"
 #include <QtDesigner/QDesignerActionEditorInterface>
 
-class ActionRepository;
 class QDesignerPropertyEditorInterface;
 class QListWidget;
 class QListWidgetItem;
 class QSplitter;
+
+namespace qdesigner_internal {
+
+class ActionRepository;
 
 class QT_SHARED_EXPORT ActionEditor: public QDesignerActionEditorInterface
 {
@@ -69,5 +72,7 @@ private:
     QAction *m_actionDelete;
     QString m_filter;
 };
+
+} // namespace qdesigner_internal
 
 #endif // ACTIONEDITOR_H
