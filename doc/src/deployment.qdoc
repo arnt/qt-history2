@@ -1364,7 +1364,7 @@
     current binary package is only built as PowerPC.
 
     If you want to create a binary that runs on older versions of
-    PowerPC and x86.  It is possible to build Qt for the PowerPC with
+    PowerPC and x86, it is possible to build Qt for the PowerPC with
     GCC 3.3, an x86 one using GCC 4.0 and use Apple's \c lipo(1) tool
     to stitch them together. This is beyond the scope of this document
     and is not something we have tried, but Apple documents it on
@@ -1373,7 +1373,7 @@
 
     Once you have a universal Qt, Qt will build for its host
     architecture by default. If you want to build for a specific
-    architecture. You can control this with \c CONFIG line in you \c
+    architecture, you can control this with \c CONFIG line in you \c
     .pro file. Use \c CONFIG+=ppc for PowerPC, and \c CONFIG+=x86 for
     x86. If you desire both, simply add both to the \c CONFIG line.
 
