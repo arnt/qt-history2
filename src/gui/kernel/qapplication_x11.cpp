@@ -568,7 +568,7 @@ bool QApplicationPrivate::x11_apply_settings()
     if (groupCount == QPalette::NColorGroups)
         QApplicationPrivate::setSystemPalette(pal);
 
-    if (!qt_app_has_font) {
+    if (!qt_app_has_font && !appFont) {
         QFont font(QApplication::font());
         QString str = settings.value(QLatin1String("font")).toString();
         if (!str.isEmpty()) {
