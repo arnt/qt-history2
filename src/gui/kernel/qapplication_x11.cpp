@@ -2719,10 +2719,10 @@ int QApplication::x11ProcessEvent(XEvent* event)
             break;
         if (!widget->isWindow())
             break;
-        if (event->xfocus.mode == NotifyGrab)
+        if (event->xfocus.mode == NotifyGrab) {
             qt_xfocusout_grab_counter++;
-        if (event->xfocus.mode != NotifyNormal)
             break;
+        }
         if (event->xfocus.detail != NotifyAncestor &&
             event->xfocus.detail != NotifyNonlinearVirtual &&
             event->xfocus.detail != NotifyNonlinear)
