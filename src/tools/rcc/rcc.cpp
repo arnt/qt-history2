@@ -124,7 +124,7 @@ qint64 RCCFileInfo::writeDataBlob(FILE *out, qint64 offset, RCCResourceLibrary::
 
 #ifndef QT_NO_COMPRESS
     // Check if compression is useful for this file
-    if (mCompressLevel != 0) {
+    if (mCompressLevel != 0 && data.size() != 0) {
         QByteArray compressed = qCompress(reinterpret_cast<uchar *>(data.data()), data.size(), mCompressLevel);
 
         int compressRatio = int(100.0f * (float(data.size() - compressed.size()) / float(data.size())));
