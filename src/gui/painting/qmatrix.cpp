@@ -800,6 +800,10 @@ const qreal deg2rad = qreal(0.017453292519943295769);        // pi/180
 /*!
     Rotates the coordinate system \a a degrees counterclockwise.
 
+    Note that if you apply a QMatrix to a point defined in widget
+    coordinates, the direction of the rotation will be clockwise
+    because the y-axis point downwards.
+
     Returns a reference to the matrix.
 
     \sa translate(), scale(), shear()
