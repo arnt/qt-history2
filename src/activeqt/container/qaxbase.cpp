@@ -1122,7 +1122,7 @@ QStringList QAxBase::verbs() const
                 while (enumVerbs->Next(1, &verb, &c) == S_OK) {
                     if (!verb.lpszVerbName)
                         continue;
-                    QString verbName = QString::fromUtf16(verb.lpszVerbName);
+                    QString verbName = QString::fromUtf16((unsigned short *)verb.lpszVerbName);
                     if (!verbName.isEmpty())
                         d->verbs.insert(verbName, verb.lVerb);
                 }
