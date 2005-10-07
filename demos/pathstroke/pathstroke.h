@@ -20,6 +20,8 @@
 class PathStrokeRenderer : public ArthurFrame
 {
     Q_OBJECT
+    Q_PROPERTY(bool animation READ animation WRITE setAnimation);
+    Q_PROPERTY(double penWidth READ realPenWidth WRITE setRealPenWidth);
 public:
     enum PathMode { CurveMode, LineMode };
 
@@ -32,6 +34,11 @@ public:
     void timerEvent(QTimerEvent *e);
 
     QSize sizeHint() const { return QSize(500, 500); }
+
+    bool animation() const { return m_timer.isActive(); }
+
+    double realPenWidth() const { return m_penWidth; }
+    void setRealPenWidth(double penWidth) { m_penWidth = penWidth; update(); }
 
 public slots:
     void setPenWidth(int penWidth) { m_penWidth = penWidth / 10.0; update(); }

@@ -26,6 +26,11 @@ class XFormView : public ArthurFrame
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool animation READ animation WRITE setAnimation);
+    Q_PROPERTY(double shear READ shear WRITE changeShear);
+    Q_PROPERTY(double rotation READ rotation WRITE changeRotation);
+    Q_PROPERTY(double scale READ scale WRITE changeScale);
+
 public:
     XFormView(QWidget *parent);
     void paint(QPainter *);
@@ -39,6 +44,11 @@ public:
     HoverPoints *hoverPoints() { return pts; }
 
     QLineEdit *textEditor;
+
+    bool animation() const { return timer.isActive(); }
+    double shear() const { return m_shear; }
+    double scale() const { return m_scale; }
+    double rotation() const { return m_rotation; }
 
 public slots:
     void setAnimation(bool animate);
@@ -66,9 +76,9 @@ private:
 
     QPolygonF ctrlPoints;
     HoverPoints *pts;
-    double rotation;
-    double scale;
-    double shear;
+    double m_rotation;
+    double m_scale;
+    double m_shear;
     XFormType type;
     QPixmap pixmap;
     QBasicTimer timer;
