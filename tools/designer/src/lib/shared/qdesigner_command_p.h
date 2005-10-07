@@ -439,7 +439,7 @@ protected:
     QIcon m_itemIcon;
 };
 
-class QT_SHARED_EXPORT MoveToolBoxPageCommand: public ToolBoxCommand
+class QDESIGNER_SHARED_EXPORT MoveToolBoxPageCommand: public ToolBoxCommand
 {
     Q_OBJECT
 public:
@@ -578,7 +578,7 @@ protected:
     int m_index;
 };
 
-class QT_SHARED_EXPORT MoveStackedWidgetCommand: public StackedWidgetCommand
+class QDESIGNER_SHARED_EXPORT MoveStackedWidgetCommand: public StackedWidgetCommand
 {
     Q_OBJECT
 public:
