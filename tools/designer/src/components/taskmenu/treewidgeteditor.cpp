@@ -14,6 +14,7 @@
 #include "treewidgeteditor.h"
 #include <findicondialog_p.h>
 #include <iconloader_p.h>
+#include <qdesigner_command_p.h>
 
 #include <QtDesigner/QtDesigner>
 #include <QtCore/QDir>
@@ -70,16 +71,19 @@ void TreeWidgetEditor::fillContentsFromTreeWidget(QTreeWidget *treeWidget)
         item->setIcon(headerItem->icon(col));
     }
 
-    if (colCount > 0)
+    if (colCount > 0) {
         ui.listWidget->setCurrentRow(0);
-    if (ui.treeWidget->topLevelItemCount() > 0)
-        ui.treeWidget->setCurrentItem(ui.treeWidget->topLevelItem(0));
+        if (ui.treeWidget->topLevelItemCount() > 0)
+            ui.treeWidget->setCurrentItem(ui.treeWidget->topLevelItem(0));
+    }
     updateEditor();
 }
 
 void TreeWidgetEditor::fillTreeWidgetFromContents(QTreeWidget *treeWidget)
 {
-    copyContents(ui.treeWidget, treeWidget);
+    ChangeTreeContentsCommand *cmd = new ChangeTreeContentsCommand(m_form);
+    cmd->init(treeWidget, ui.treeWidget);
+    m_form->commandHistory()->push(cmd);
 }
 
 void TreeWidgetEditor::copyContents(QTreeWidget *sourceWidget, QTreeWidget *destWidget)
@@ -94,6 +98,10 @@ void TreeWidgetEditor::copyContents(QTreeWidget *sourceWidget, QTreeWidget *dest
         headerItem->setText(col, origHeaderItem->text(col));
         headerItem->setIcon(col, origHeaderItem->icon(col));
     }
+
+    if (!colCount)
+        return;
+
     QTreeWidgetItem *lastItem = 0;
     for (int i = 0; i < sourceWidget->topLevelItemCount(); i++) {
         QTreeWidgetItem *origItem = sourceWidget->topLevelItem(i);

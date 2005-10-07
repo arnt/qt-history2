@@ -48,6 +48,8 @@ class QDesignerMetaDataBaseItemInterface;
 class QToolBox;
 class QTabWidget;
 class QTableWidget;
+class QTreeWidget;
+class QTreeWidgetItem;
 class QListWidget;
 class QComboBox;
 class QStackedWidget;
@@ -749,6 +751,34 @@ private:
     int m_newColumnCount;
     int m_oldRowCount;
     int m_newRowCount;
+};
+
+class QDESIGNER_SHARED_EXPORT ChangeTreeContentsCommand: public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    ChangeTreeContentsCommand(QDesignerFormWindowInterface *formWindow);
+    ~ChangeTreeContentsCommand();
+
+    void init(QTreeWidget *treeWidget, QTreeWidget *fromTreeWidget);
+    virtual void redo();
+    virtual void undo();
+private:
+    void initState(QList<QTreeWidgetItem *> &itemsState,
+                QTreeWidgetItem *&headerItemState, QTreeWidget *fromTreeWidget) const;
+    void changeContents(QTreeWidget *treeWidget, int columnCount,
+                const QList<QTreeWidgetItem *> &itemsState,
+                const QTreeWidgetItem *headerItemState) const;
+    void clearState(QList<QTreeWidgetItem *> &itemsState,
+                QTreeWidgetItem *&headerItemState) const;
+
+    QPointer<QTreeWidget> m_treeWidget;
+    QTreeWidgetItem *m_oldHeaderItemState;
+    QTreeWidgetItem *m_newHeaderItemState;
+    QList<QTreeWidgetItem *> m_oldItemsState;
+    QList<QTreeWidgetItem *> m_newItemsState;
+    int m_oldColumnCount;
+    int m_newColumnCount;
 };
 
 class QDESIGNER_SHARED_EXPORT ChangeListContentsCommand: public QDesignerFormWindowCommand

@@ -25,6 +25,7 @@
 #include <QtGui/QStackedWidget>
 #include <QtGui/QTabWidget>
 #include <QtGui/QTableWidget>
+#include <QtGui/QTreeWidget>
 #include <QtGui/QListWidget>
 #include <QtGui/QComboBox>
 #include <QtGui/QSplitter>
@@ -1843,6 +1844,81 @@ void ChangeTableContentsCommand::undo()
 {
     changeContents(m_tableWidget, m_oldRowCount, m_oldColumnCount,
                 m_oldHorizontalHeaderState, m_oldVerticalHeaderState, m_oldItemsState);
+}
+
+// ---- ChangeTreeContentsCommand ----
+ChangeTreeContentsCommand::ChangeTreeContentsCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Change Tree Contents"), formWindow),
+        m_oldHeaderItemState(0),
+        m_newHeaderItemState(0),
+        m_oldColumnCount(0),
+        m_newColumnCount(0)
+{
+
+}
+
+ChangeTreeContentsCommand::~ChangeTreeContentsCommand()
+{
+    clearState(m_oldItemsState, m_oldHeaderItemState);
+    clearState(m_newItemsState, m_newHeaderItemState);
+}
+
+void ChangeTreeContentsCommand::init(QTreeWidget *treeWidget, QTreeWidget *fromTreeWidget)
+{
+    m_treeWidget = treeWidget;
+    m_oldColumnCount = treeWidget->columnCount();
+    m_newColumnCount = fromTreeWidget->columnCount();
+
+    initState(m_oldItemsState, m_oldHeaderItemState, treeWidget);
+    initState(m_newItemsState, m_newHeaderItemState, fromTreeWidget);
+}
+
+void ChangeTreeContentsCommand::redo()
+{
+    changeContents(m_treeWidget, m_newColumnCount, m_newItemsState, m_newHeaderItemState);
+}
+
+void ChangeTreeContentsCommand::undo()
+{
+    changeContents(m_treeWidget, m_oldColumnCount, m_oldItemsState, m_oldHeaderItemState);
+}
+
+void ChangeTreeContentsCommand::initState(QList<QTreeWidgetItem *> &itemsState,
+                QTreeWidgetItem *&headerItemState, QTreeWidget *fromTreeWidget) const
+{
+    clearState(itemsState, headerItemState);
+
+    for (int i = 0; i < fromTreeWidget->topLevelItemCount(); i++)
+        itemsState.append(fromTreeWidget->topLevelItem(i)->clone());
+
+    headerItemState = fromTreeWidget->headerItem()->clone();
+}
+
+void ChangeTreeContentsCommand::changeContents(QTreeWidget *treeWidget, int columnCount,
+        const QList<QTreeWidgetItem *> &itemsState, const QTreeWidgetItem *headerItemState) const
+{
+    treeWidget->clear();
+    treeWidget->setColumnCount(columnCount);
+
+    treeWidget->setHeaderItem(headerItemState->clone());
+
+    if (!columnCount)
+        return;
+
+    foreach (QTreeWidgetItem *item, itemsState)
+        treeWidget->addTopLevelItem(item->clone());
+}
+
+void ChangeTreeContentsCommand::clearState(QList<QTreeWidgetItem *> &itemsState,
+            QTreeWidgetItem *&headerItemState) const
+{
+    QListIterator<QTreeWidgetItem *> it(itemsState);
+    while (it.hasNext())
+        delete it.next();
+    itemsState.clear();
+    if (headerItemState)
+        delete headerItemState;
+    headerItemState = 0;
 }
 
 // ---- ChangeListContentsCommand ----
