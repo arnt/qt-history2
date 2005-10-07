@@ -564,7 +564,6 @@ bool QApplicationPrivate::x11_apply_settings()
                          QColor(strlist[i]));
     }
 
-
     if (groupCount == QPalette::NColorGroups)
         QApplicationPrivate::setSystemPalette(pal);
 
@@ -761,7 +760,11 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
     QApplication::setEffectEnabled(Qt::UI_FadeTooltip, false);
     QApplication::setEffectEnabled(Qt::UI_AnimateToolBox, false);
 
-    if (QApplication::desktopSettingsAware() && !QApplicationPrivate::x11_apply_settings()) {
+    if (QApplication::desktopSettingsAware()) {
+        // first, read from settings
+        QApplicationPrivate::x11_apply_settings();
+
+        // second, parse the RESOURCE_MANAGER property
         int format;
         ulong  nitems, after = 1;
         QString res;
@@ -884,7 +887,8 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         }
     }
 
-    if (button || !resBG.isEmpty() || !resFG.isEmpty()) {// set app colors
+    if (!QApplicationPrivate::sys_pal
+        && (button || !resBG.isEmpty() || !resFG.isEmpty())) {// set app colors
         (void) QApplication::style();  // trigger creation of application style and system palettes
         QColor btn;
         QColor bg;
