@@ -62,7 +62,11 @@ class QWSManager;
 #endif
 
 #ifndef QT_NO_TABLET_SUPPORT
+#if defined(Q_WS_X11)
+struct QTabletDeviceData
+#else
 struct TabletDeviceData
+#endif
 {
     int minPressure;
     int maxPressure;
@@ -93,7 +97,11 @@ static inline int sign(int x)
     return x >= 0 ? 1 : -1;
 }
 
+#if defined(Q_WS_X11)
+inline QPointF QTabletDeviceData::scaleCoord(int coordX, int coordY,
+#else
 inline QPointF TabletDeviceData::scaleCoord(int coordX, int coordY,
+#endif
                                             int outOriginX, int outExtentX,
                                             int outOriginY, int outExtentY) const
 {
@@ -112,8 +120,13 @@ inline QPointF TabletDeviceData::scaleCoord(int coordX, int coordY,
     return ret;
 }
 
+#if defined(Q_WS_X11)
+typedef QList<QTabletDeviceData> QTabletDeviceDataList;
+QTabletDeviceDataList *qt_tablet_devices();
+#else
 typedef QList<TabletDeviceData> TabletDeviceDataList;
 TabletDeviceDataList *qt_tablet_devices();
+#endif
 #endif
 
 #ifdef QT3_SUPPORT

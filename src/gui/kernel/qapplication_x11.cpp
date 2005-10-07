@@ -312,8 +312,8 @@ bool qt_reuse_double_buffer = true;
 Q_GUI_EXPORT int qt_xfocusout_grab_counter = 0;
 
 #if !defined (QT_NO_TABLET_SUPPORT)
-Q_GLOBAL_STATIC(TabletDeviceDataList, tablet_devices)
-TabletDeviceDataList *qt_tablet_devices()
+Q_GLOBAL_STATIC(QTabletDeviceDataList, tablet_devices)
+QTabletDeviceDataList *qt_tablet_devices()
 {
     return tablet_devices();
 }
@@ -366,7 +366,7 @@ public:
     bool translateWheelEvent(int global_x, int global_y, int delta, Qt::MouseButtons buttons,
                              Qt::KeyboardModifiers modifiers, Qt::Orientation orient);
 #if !defined (QT_NO_TABLET_SUPPORT)
-    bool translateXinputEvent(const XEvent*, const TabletDeviceData *tablet);
+    bool translateXinputEvent(const XEvent*, const QTabletDeviceData *tablet);
 #endif
     bool translatePropertyEvent(const XEvent *);
 };
@@ -1717,7 +1717,7 @@ void qt_init(QApplicationPrivate *priv, int,
                         continue;
                     }
 
-                    TabletDeviceData device_data;
+                    QTabletDeviceData device_data;
                     device_data.deviceType = deviceType;
                     device_data.eventCount = 0;
                     device_data.device = dev;
@@ -1936,7 +1936,7 @@ void qt_cleanup()
     }
 #endif
 #if !defined (QT_NO_TABLET_SUPPORT)
-    TabletDeviceDataList *devices = qt_tablet_devices();
+    QTabletDeviceDataList *devices = qt_tablet_devices();
     for (int i = 0; i < devices->size(); ++i)
         XCloseDevice(X11->display, (XDevice*)devices->at(i).device);
 #endif
@@ -2611,9 +2611,9 @@ int QApplication::x11ProcessEvent(XEvent* event)
     if (widget->x11Event(event))                // send through widget filter
         return 1;
 #if !defined (QT_NO_TABLET_SUPPORT)
-    TabletDeviceDataList *tablets = qt_tablet_devices();
+    QTabletDeviceDataList *tablets = qt_tablet_devices();
     for (int i = 0; i < tablets->size(); ++i) {
-        const TabletDeviceData &tab = tablets->at(i);
+        const QTabletDeviceData &tab = tablets->at(i);
         if (event->type == tab.xinput_motion ||
             event->type == tab.xinput_button_release ||
             event->type == tab.xinput_button_press) {
@@ -3588,7 +3588,7 @@ bool QETWidget::translateWheelEvent(int global_x, int global_y, int delta,
 // XInput Translation Event
 //
 #if !defined (QT_NO_TABLET_SUPPORT)
-bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *tablet)
+bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *tablet)
 {
 #if defined (Q_OS_IRIX)
     // Wacom has put defines in their wacom.h file so it would be quite wise
@@ -3726,10 +3726,10 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
     }
     XFreeDeviceState(s);
 #else
-    TabletDeviceDataList *tablet_list = qt_tablet_devices();
+    QTabletDeviceDataList *tablet_list = qt_tablet_devices();
     XID device_id = ev->type == tablet->xinput_motion ? motion->deviceid : button->deviceid;
     for (int i = 0; i < tablet_list->size(); ++i) {
-        const TabletDeviceData &t = tablet_list->at(i);
+        const QTabletDeviceData &t = tablet_list->at(i);
         if (device_id == static_cast<XDevice *>(t.device)->device_id) {
             deviceType = t.deviceType;
             if (deviceType == QTabletEvent::XFreeEraser) {
