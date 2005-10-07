@@ -61,20 +61,22 @@
     \endtable
 
     But where is the \c{plugins} directory? When the application is
-    run, Qt will first treat the application's executable directory
-    as the \c{pluginsbase}. For example if the application is in
-    \c{C:\Program Files\MyApp} and has a style plugin, Qt will look
-    in \c{C:\Program Files\MyApp\styles}. (See
+    run, Qt will first treat the application's executable directory as
+    the \c{pluginsbase}. For example if the application is in
+    \c{C:\Program Files\MyApp} and has a style plugin, Qt will look in
+    \c{C:\Program Files\MyApp\styles}. (See
     QCoreApplication::applicationDirPath() for how to find out where
     the application's executable is.) Qt will also look in the
     directory specified by
-    QLibraryInfo::location(QLibraryInfo::PluginsPath), which
-    typically is located in \c QTDIR/plugins (where \c QTDIR is the
-    directory where Qt is installed). If you want Qt to look in
-    additional places you can add as many paths as you need with
-    calls to QCoreApplication::addLibraryPath(). And if you want to
-    set your own path or paths you can use
-    QCoreApplication::setLibraryPaths().
+    QLibraryInfo::location(QLibraryInfo::PluginsPath), which typically
+    is located in \c QTDIR/plugins (where \c QTDIR is the directory
+    where Qt is installed). If you want Qt to look in additional
+    places you can add as many paths as you need with calls to
+    QCoreApplication::addLibraryPath(). And if you want to set your
+    own path or paths you can use QCoreApplication::setLibraryPaths().
+    You can also use a \c qt.conf file to override the hard-coded
+    paths that are compiled into the Qt library. For more information,
+    see the \l {Using qt.conf} documentation.
 
     Suppose that you have a new style class called \c MyStyle that
     you want to make available as a plugin. The required code is
@@ -85,10 +87,10 @@
         {
         public:
             QStringList keys() const {
-                return QStringList() << "mystyle"; 
+                return QStringList() << "mystyle";
             }
 
-            QStyle *create(const QString &key) { 
+            QStyle *create(const QString &key) {
                 if (key == "mystyle")
                     return new MyStyle;
                 return 0;
@@ -136,10 +138,11 @@
 
     The normal way to include a plugin with an application is either
     to compile it in with the application or to compile it into a
-    dynamic library and use it like any other library. If you want
-    the plugin to be loadable then one approach is to create a
+    dynamic library and use it like any other library. If you want the
+    plugin to be loadable then one approach is to create a
     subdirectory under the application and place the plugin in that
-    directory.
+    directory. For more information about deployment, see the \l
+    {Deploying Qt Applications} documentation.
 
     \section1 The Lower-Level API: Extending Qt Applications
 
@@ -226,7 +229,7 @@
     When building plugins to extend an application, it is important to ensure
     that the plugin is configured in the same way as the application. This means
     that if the application was built in release mode, plugins should be built
-    in release mode, too. 
+    in release mode, too.
 
     If you configure Qt to be built in both debug and release modes,
     but only build applications in release mode, you need to ensure that your
@@ -259,7 +262,7 @@
 
     \o Configuration of the Qt library. The configuration is a list
        of the missing features that affect the available API in the
-       library. 
+       library.
 
        \e {Rationale:}
        Two different configurations of the same version of

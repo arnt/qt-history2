@@ -112,7 +112,11 @@ QSettings *QLibraryInfoPrivate::findConfiguration()
                licensedProducts() \o Licensing information.
     \endtable
 
-    \sa QSysInfo
+    You can also use a \c qt.conf file to override the hard-coded paths
+    that are compiled into the Qt library. For more information, see
+    the \l {Using qt.conf} documentation.
+
+    \sa QSysInfo, {Using qt.conf}
 */
 
 /*! \internal

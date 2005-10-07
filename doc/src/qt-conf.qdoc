@@ -15,54 +15,11 @@
 
     \title Using qt.conf
 
-    \omit
-    ### Who?
-    \endomit
-
-    Anyone who distributes software using shared Qt run-time libraries
-    can use \c qt.conf.
-
-    \omit
-    ### What?
-    \endomit
-
     The \c qt.conf file overrides the hard-coded paths that are
     compiled into the Qt library. These paths are accessible using the
     QLibraryInfo class. Without \c qt.conf, the functions in
     QLibraryInfo return these hard-coded paths; otherwise they return
     the paths as specified in \c qt.conf.
-
-    \omit
-    ### When?
-    \endomit
-
-    You need to provide a \c qt.conf file when distributing your
-    application together with the shared Qt run-time libraries. If you
-    are using a static Qt library or a pre-installed Qt library (as
-    found on many Linux distributions), you do not need to ship \c
-    qt.conf with your application.
-
-    \omit
-    ### Where?
-    \endomit
-
-    QLibraryInfo will load \c qt.conf from one of the following locations:
-
-    \list 1
-
-    \i \c :/qt/etc/qt.conf using the resource system
-
-    \i on Mac OS X, in the Resource directory inside the appliction
-    bundle, for example \c assistant.app/Contents/Resources/qt.conf
-
-    \i in the directory containing the application executable, i.e.
-    QCoreApplication::applicationDirPath() + QDir::separator() + "qt.conf"
-
-    \endlist
-
-    \omit
-    ### Why?
-    \endomit
 
     Without \c qt.conf, the Qt libraries will use the hard-coded paths
     to look for plugins, translations, and so on. These paths may not
@@ -70,31 +27,51 @@
     accesssible. Because of this, you need \c qt.conf to make the Qt
     libraries look elsewhere.
 
+    You can provide a \c qt.conf file when distributing your
+    application together with the shared Qt run-time libraries. If you
+    are using a static Qt library or a pre-installed Qt library (as
+    found on many Linux distributions), there is no reason to ship \c
+    qt.conf with your application.
 
-    \omit
-    ### How?
-    \endomit
-    The \c qt.conf file is an INI text file, as described in the
-    QSettings documentation. The file should have a \c Paths group
-    which contains the entries that correspond to each value of the
-    QLibraryInfo::LibraryLocation enum. See the QLibraryInfo
-    documentation for details on the meaning of the various locations.
+    Anyone who distributes software using shared Qt run-time libraries
+    can use \c qt.conf.
+
+    QLibraryInfo will load \c qt.conf from one of the following locations:
+
+    \list 1
+
+    \o \c :/qt/etc/qt.conf using the resource system
+
+    \o on Mac OS X, in the Resource directory inside the appliction
+    bundle, for example \c assistant.app/Contents/Resources/qt.conf
+
+    \o in the directory containing the application executable, i.e.
+    QCoreApplication::applicationDirPath() + QDir::separator() + "qt.conf"
+
+    \endlist
+
+    The \c qt.conf file is an INI text file, as described in the \l
+    {QSettings::Format}{QSettings} documentation. The file should have
+    a \c Paths group which contains the entries that correspond to
+    each value of the QLibraryInfo::LibraryLocation enum. See the
+    QLibraryInfo documentation for details on the meaning of the
+    various locations.
 
     \table
 
-    \header \i Entry            \i Default Value
+    \header \o Entry            \o Default Value
 
-    \row \i Prefix              \i QCoreApplication::applicationDirPath()
-    \row \i Documentation       \i \c doc
-    \row \i Headers             \i \c include
-    \row \i Libraries           \i \c lib
-    \row \i Binaries            \i \c bin
-    \row \i Plugins             \i \c plugins
-    \row \i Data                \i \c Prefix
-    \row \i Translations        \i \c translations
-    \row \i Settings            \i \c .
-    \row \i Examples            \i \c .
-    \row \i Demos               \i \c .
+    \row \o Prefix              \o QCoreApplication::applicationDirPath()
+    \row \o Documentation       \o \c doc
+    \row \o Headers             \o \c include
+    \row \o Libraries           \o \c lib
+    \row \o Binaries            \o \c bin
+    \row \o Plugins             \o \c plugins
+    \row \o Data                \o \c .
+    \row \o Translations        \o \c translations
+    \row \o Settings            \o \c .
+    \row \o Examples            \o \c .
+    \row \o Demos               \o \c .
 
     \endtable
 
@@ -105,6 +82,14 @@
     Prefix is relative to the \c Contents in the application
     bundle. For example, \c application.app/Contents/plugins/ is the
     default location for loading Qt plugins.
+
+    For example, a \c qt.conf file could contain the following:
+
+    \code
+        [Paths]
+        Prefix = /some/path
+        Translations = i18n
+    \endcode
 
     Sub-groups of the \c Paths group may be used to specify locations
     for specific versions of the Qt libraries. Such sub-groups are of
@@ -122,17 +107,16 @@
     Paths/4
     Paths/4.1
     Paths/4.2.5
-    Paths/4.6.3
     Paths/6
     \endcode
 
     The current version will be matched as shown:
 
     \list
-    \i 4.0.1 matches \c Paths/4
-    \i 4.1.5 matches \c Paths/4.1
-    \i 4.6.3 matches \c Paths/4.2.5
-    \i 5.0.0 matches \c Paths
-    \i 6.0.2 matches \c Paths/6
+    \o 4.0.1 matches \c Paths/4
+    \o 4.1.5 matches \c Paths/4.1
+    \o 4.6.3 matches \c Paths/4.2.5
+    \o 5.0.0 matches \c Paths
+    \o 6.0.2 matches \c Paths/6
     \endlist
 */
