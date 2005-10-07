@@ -34,7 +34,7 @@
 
 namespace qdesigner_internal {
 
-class QT_SHARED_EXPORT MetaDataBaseItem: public QDesignerMetaDataBaseItemInterface
+class QDESIGNER_SHARED_EXPORT MetaDataBaseItem: public QDesignerMetaDataBaseItemInterface
 {
 public:
     MetaDataBaseItem(QObject *object);
@@ -61,7 +61,7 @@ private:
     bool m_enabled;
 };
 
-class QT_SHARED_EXPORT MetaDataBase: public QDesignerMetaDataBaseInterface
+class QDESIGNER_SHARED_EXPORT MetaDataBase: public QDesignerMetaDataBaseInterface
 {
     Q_OBJECT
 public:

@@ -38,7 +38,7 @@ class QWidget;
 
 namespace qdesigner_internal {
 
-class QT_SHARED_EXPORT QDesignerIntegration: public QObject
+class QDESIGNER_SHARED_EXPORT QDesignerIntegration: public QObject
 {
     Q_OBJECT
 public:

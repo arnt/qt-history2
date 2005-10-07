@@ -22,7 +22,7 @@ class QDesignerFormEditorInterface;
 class QString;
 class QVariant;
 
-class QT_SDK_EXPORT QDesignerPropertyEditorInterface: public QWidget
+class QDESIGNER_SDK_EXPORT QDesignerPropertyEditorInterface: public QWidget
 {
     Q_OBJECT
 public:

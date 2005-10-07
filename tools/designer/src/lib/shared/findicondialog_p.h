@@ -40,7 +40,7 @@ namespace Ui
 
 namespace qdesigner_internal {
 
-class QT_SHARED_EXPORT FindIconDialog : public QDialog
+class QDESIGNER_SHARED_EXPORT FindIconDialog : public QDialog
 {
     Q_OBJECT
 

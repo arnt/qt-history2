@@ -17,15 +17,15 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 
-#define QT_UILIB_EXTERN Q_DECL_EXPORT
-#define QT_UILIB_IMPORT Q_DECL_IMPORT
+#define QDESIGNER_UILIB_EXTERN Q_DECL_EXPORT
+#define QDESIGNER_UILIB_IMPORT Q_DECL_IMPORT
 
 #ifdef QT_DESIGNER_STATIC
-#  define QT_UILIB_EXPORT
-#elif defined(QT_UILIB_LIBRARY)
-#  define QT_UILIB_EXPORT QT_UILIB_EXTERN
+#  define QDESIGNER_UILIB_EXPORT
+#elif defined(QDESIGNER_UILIB_LIBRARY)
+#  define QDESIGNER_UILIB_EXPORT QDESIGNER_UILIB_EXTERN
 #else
-#  define QT_UILIB_EXPORT QT_UILIB_IMPORT
+#  define QDESIGNER_UILIB_EXPORT QDESIGNER_UILIB_IMPORT
 #endif
 
 class QDomDocument;
@@ -91,7 +91,7 @@ class DomConnectionHint;
 ** Declarations
 */
 
-class QT_UILIB_EXPORT DomUI {
+class QDESIGNER_UILIB_EXPORT DomUI {
 public:
     DomUI();
     ~DomUI();
@@ -186,7 +186,7 @@ private:
     void operator = (const DomUI&other);
 };
 
-class QT_UILIB_EXPORT DomIncludes {
+class QDESIGNER_UILIB_EXPORT DomIncludes {
 public:
     DomIncludes();
     ~DomIncludes();
@@ -213,7 +213,7 @@ private:
     void operator = (const DomIncludes&other);
 };
 
-class QT_UILIB_EXPORT DomInclude {
+class QDESIGNER_UILIB_EXPORT DomInclude {
 public:
     DomInclude();
     ~DomInclude();
@@ -252,7 +252,7 @@ private:
     void operator = (const DomInclude&other);
 };
 
-class QT_UILIB_EXPORT DomResources {
+class QDESIGNER_UILIB_EXPORT DomResources {
 public:
     DomResources();
     ~DomResources();
@@ -287,7 +287,7 @@ private:
     void operator = (const DomResources&other);
 };
 
-class QT_UILIB_EXPORT DomResource {
+class QDESIGNER_UILIB_EXPORT DomResource {
 public:
     DomResource();
     ~DomResource();
@@ -318,7 +318,7 @@ private:
     void operator = (const DomResource&other);
 };
 
-class QT_UILIB_EXPORT DomActionGroup {
+class QDESIGNER_UILIB_EXPORT DomActionGroup {
 public:
     DomActionGroup();
     ~DomActionGroup();
@@ -365,7 +365,7 @@ private:
     void operator = (const DomActionGroup&other);
 };
 
-class QT_UILIB_EXPORT DomAction {
+class QDESIGNER_UILIB_EXPORT DomAction {
 public:
     DomAction();
     ~DomAction();
@@ -412,7 +412,7 @@ private:
     void operator = (const DomAction&other);
 };
 
-class QT_UILIB_EXPORT DomActionRef {
+class QDESIGNER_UILIB_EXPORT DomActionRef {
 public:
     DomActionRef();
     ~DomActionRef();
@@ -443,7 +443,7 @@ private:
     void operator = (const DomActionRef&other);
 };
 
-class QT_UILIB_EXPORT DomImages {
+class QDESIGNER_UILIB_EXPORT DomImages {
 public:
     DomImages();
     ~DomImages();
@@ -470,7 +470,7 @@ private:
     void operator = (const DomImages&other);
 };
 
-class QT_UILIB_EXPORT DomImage {
+class QDESIGNER_UILIB_EXPORT DomImage {
 public:
     DomImage();
     ~DomImage();
@@ -505,7 +505,7 @@ private:
     void operator = (const DomImage&other);
 };
 
-class QT_UILIB_EXPORT DomImageData {
+class QDESIGNER_UILIB_EXPORT DomImageData {
 public:
     DomImageData();
     ~DomImageData();
@@ -544,7 +544,7 @@ private:
     void operator = (const DomImageData&other);
 };
 
-class QT_UILIB_EXPORT DomCustomWidgets {
+class QDESIGNER_UILIB_EXPORT DomCustomWidgets {
 public:
     DomCustomWidgets();
     ~DomCustomWidgets();
@@ -571,7 +571,7 @@ private:
     void operator = (const DomCustomWidgets&other);
 };
 
-class QT_UILIB_EXPORT DomHeader {
+class QDESIGNER_UILIB_EXPORT DomHeader {
 public:
     DomHeader();
     ~DomHeader();
@@ -602,7 +602,7 @@ private:
     void operator = (const DomHeader&other);
 };
 
-class QT_UILIB_EXPORT DomCustomWidget {
+class QDESIGNER_UILIB_EXPORT DomCustomWidget {
 public:
     DomCustomWidget();
     ~DomCustomWidget();
@@ -657,7 +657,7 @@ private:
     void operator = (const DomCustomWidget&other);
 };
 
-class QT_UILIB_EXPORT DomProperties {
+class QDESIGNER_UILIB_EXPORT DomProperties {
 public:
     DomProperties();
     ~DomProperties();
@@ -684,7 +684,7 @@ private:
     void operator = (const DomProperties&other);
 };
 
-class QT_UILIB_EXPORT DomPropertyData {
+class QDESIGNER_UILIB_EXPORT DomPropertyData {
 public:
     DomPropertyData();
     ~DomPropertyData();
@@ -715,7 +715,7 @@ private:
     void operator = (const DomPropertyData&other);
 };
 
-class QT_UILIB_EXPORT DomSizePolicyData {
+class QDESIGNER_UILIB_EXPORT DomSizePolicyData {
 public:
     DomSizePolicyData();
     ~DomSizePolicyData();
@@ -746,7 +746,7 @@ private:
     void operator = (const DomSizePolicyData&other);
 };
 
-class QT_UILIB_EXPORT DomLayoutDefault {
+class QDESIGNER_UILIB_EXPORT DomLayoutDefault {
 public:
     DomLayoutDefault();
     ~DomLayoutDefault();
@@ -785,7 +785,7 @@ private:
     void operator = (const DomLayoutDefault&other);
 };
 
-class QT_UILIB_EXPORT DomLayoutFunction {
+class QDESIGNER_UILIB_EXPORT DomLayoutFunction {
 public:
     DomLayoutFunction();
     ~DomLayoutFunction();
@@ -824,7 +824,7 @@ private:
     void operator = (const DomLayoutFunction&other);
 };
 
-class QT_UILIB_EXPORT DomTabStops {
+class QDESIGNER_UILIB_EXPORT DomTabStops {
 public:
     DomTabStops();
     ~DomTabStops();
@@ -851,7 +851,7 @@ private:
     void operator = (const DomTabStops&other);
 };
 
-class QT_UILIB_EXPORT DomLayout {
+class QDESIGNER_UILIB_EXPORT DomLayout {
 public:
     DomLayout();
     ~DomLayout();
@@ -894,7 +894,7 @@ private:
     void operator = (const DomLayout&other);
 };
 
-class QT_UILIB_EXPORT DomLayoutItem {
+class QDESIGNER_UILIB_EXPORT DomLayoutItem {
 public:
     DomLayoutItem();
     ~DomLayoutItem();
@@ -965,7 +965,7 @@ private:
     void operator = (const DomLayoutItem&other);
 };
 
-class QT_UILIB_EXPORT DomRow {
+class QDESIGNER_UILIB_EXPORT DomRow {
 public:
     DomRow();
     ~DomRow();
@@ -992,7 +992,7 @@ private:
     void operator = (const DomRow&other);
 };
 
-class QT_UILIB_EXPORT DomColumn {
+class QDESIGNER_UILIB_EXPORT DomColumn {
 public:
     DomColumn();
     ~DomColumn();
@@ -1019,7 +1019,7 @@ private:
     void operator = (const DomColumn&other);
 };
 
-class QT_UILIB_EXPORT DomItem {
+class QDESIGNER_UILIB_EXPORT DomItem {
 public:
     DomItem();
     ~DomItem();
@@ -1066,7 +1066,7 @@ private:
     void operator = (const DomItem&other);
 };
 
-class QT_UILIB_EXPORT DomWidget {
+class QDESIGNER_UILIB_EXPORT DomWidget {
 public:
     DomWidget();
     ~DomWidget();
@@ -1149,7 +1149,7 @@ private:
     void operator = (const DomWidget&other);
 };
 
-class QT_UILIB_EXPORT DomSpacer {
+class QDESIGNER_UILIB_EXPORT DomSpacer {
 public:
     DomSpacer();
     ~DomSpacer();
@@ -1184,7 +1184,7 @@ private:
     void operator = (const DomSpacer&other);
 };
 
-class QT_UILIB_EXPORT DomColor {
+class QDESIGNER_UILIB_EXPORT DomColor {
 public:
     DomColor();
     ~DomColor();
@@ -1219,7 +1219,7 @@ private:
     void operator = (const DomColor&other);
 };
 
-class QT_UILIB_EXPORT DomColorGroup {
+class QDESIGNER_UILIB_EXPORT DomColorGroup {
 public:
     DomColorGroup();
     ~DomColorGroup();
@@ -1246,7 +1246,7 @@ private:
     void operator = (const DomColorGroup&other);
 };
 
-class QT_UILIB_EXPORT DomPalette {
+class QDESIGNER_UILIB_EXPORT DomPalette {
 public:
     DomPalette();
     ~DomPalette();
@@ -1281,7 +1281,7 @@ private:
     void operator = (const DomPalette&other);
 };
 
-class QT_UILIB_EXPORT DomFont {
+class QDESIGNER_UILIB_EXPORT DomFont {
 public:
     DomFont();
     ~DomFont();
@@ -1332,7 +1332,7 @@ private:
     void operator = (const DomFont&other);
 };
 
-class QT_UILIB_EXPORT DomPoint {
+class QDESIGNER_UILIB_EXPORT DomPoint {
 public:
     DomPoint();
     ~DomPoint();
@@ -1363,7 +1363,7 @@ private:
     void operator = (const DomPoint&other);
 };
 
-class QT_UILIB_EXPORT DomRect {
+class QDESIGNER_UILIB_EXPORT DomRect {
 public:
     DomRect();
     ~DomRect();
@@ -1402,7 +1402,7 @@ private:
     void operator = (const DomRect&other);
 };
 
-class QT_UILIB_EXPORT DomSizePolicy {
+class QDESIGNER_UILIB_EXPORT DomSizePolicy {
 public:
     DomSizePolicy();
     ~DomSizePolicy();
@@ -1441,7 +1441,7 @@ private:
     void operator = (const DomSizePolicy&other);
 };
 
-class QT_UILIB_EXPORT DomSize {
+class QDESIGNER_UILIB_EXPORT DomSize {
 public:
     DomSize();
     ~DomSize();
@@ -1472,7 +1472,7 @@ private:
     void operator = (const DomSize&other);
 };
 
-class QT_UILIB_EXPORT DomDate {
+class QDESIGNER_UILIB_EXPORT DomDate {
 public:
     DomDate();
     ~DomDate();
@@ -1507,7 +1507,7 @@ private:
     void operator = (const DomDate&other);
 };
 
-class QT_UILIB_EXPORT DomTime {
+class QDESIGNER_UILIB_EXPORT DomTime {
 public:
     DomTime();
     ~DomTime();
@@ -1542,7 +1542,7 @@ private:
     void operator = (const DomTime&other);
 };
 
-class QT_UILIB_EXPORT DomDateTime {
+class QDESIGNER_UILIB_EXPORT DomDateTime {
 public:
     DomDateTime();
     ~DomDateTime();
@@ -1589,7 +1589,7 @@ private:
     void operator = (const DomDateTime&other);
 };
 
-class QT_UILIB_EXPORT DomStringList {
+class QDESIGNER_UILIB_EXPORT DomStringList {
 public:
     DomStringList();
     ~DomStringList();
@@ -1616,7 +1616,7 @@ private:
     void operator = (const DomStringList&other);
 };
 
-class QT_UILIB_EXPORT DomResourcePixmap {
+class QDESIGNER_UILIB_EXPORT DomResourcePixmap {
 public:
     DomResourcePixmap();
     ~DomResourcePixmap();
@@ -1647,7 +1647,7 @@ private:
     void operator = (const DomResourcePixmap&other);
 };
 
-class QT_UILIB_EXPORT DomString {
+class QDESIGNER_UILIB_EXPORT DomString {
 public:
     DomString();
     ~DomString();
@@ -1686,7 +1686,7 @@ private:
     void operator = (const DomString&other);
 };
 
-class QT_UILIB_EXPORT DomProperty {
+class QDESIGNER_UILIB_EXPORT DomProperty {
 public:
     DomProperty();
     ~DomProperty();
@@ -1817,7 +1817,7 @@ private:
     void operator = (const DomProperty&other);
 };
 
-class QT_UILIB_EXPORT DomConnections {
+class QDESIGNER_UILIB_EXPORT DomConnections {
 public:
     DomConnections();
     ~DomConnections();
@@ -1844,7 +1844,7 @@ private:
     void operator = (const DomConnections&other);
 };
 
-class QT_UILIB_EXPORT DomConnection {
+class QDESIGNER_UILIB_EXPORT DomConnection {
 public:
     DomConnection();
     ~DomConnection();
@@ -1887,7 +1887,7 @@ private:
     void operator = (const DomConnection&other);
 };
 
-class QT_UILIB_EXPORT DomConnectionHints {
+class QDESIGNER_UILIB_EXPORT DomConnectionHints {
 public:
     DomConnectionHints();
     ~DomConnectionHints();
@@ -1914,7 +1914,7 @@ private:
     void operator = (const DomConnectionHints&other);
 };
 
-class QT_UILIB_EXPORT DomConnectionHint {
+class QDESIGNER_UILIB_EXPORT DomConnectionHint {
 public:
     DomConnectionHint();
     ~DomConnectionHint();

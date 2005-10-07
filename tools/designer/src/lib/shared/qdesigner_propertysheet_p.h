@@ -31,7 +31,7 @@
 #include <QtCore/QVariant>
 #include <QtCore/QPair>
 
-class QT_SHARED_EXPORT QDesignerPropertySheet: public QObject, public QDesignerPropertySheetExtension
+class QDESIGNER_SHARED_EXPORT QDesignerPropertySheet: public QObject, public QDesignerPropertySheetExtension
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerPropertySheetExtension)
@@ -100,7 +100,7 @@ protected:
     QHash<QString, int> m_addIndex;
 };
 
-class QT_SHARED_EXPORT QDesignerPropertySheetFactory: public QExtensionFactory
+class QDESIGNER_SHARED_EXPORT QDesignerPropertySheetFactory: public QExtensionFactory
 {
     Q_OBJECT
     Q_INTERFACES(QAbstractExtensionFactory)

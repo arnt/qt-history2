@@ -33,7 +33,7 @@
 class QAction;
 class QToolButton;
 
-class QT_SHARED_EXPORT QDesignerStackedWidget : public QStackedWidget
+class QDESIGNER_SHARED_EXPORT QDesignerStackedWidget : public QStackedWidget
 {
     Q_OBJECT
     Q_PROPERTY(QString currentPageName READ currentPageName WRITE setCurrentPageName STORED false DESIGNABLE true)

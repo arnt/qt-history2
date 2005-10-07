@@ -33,7 +33,7 @@
 class QDesignerFormEditorInterface;
 class QDesignerCustomWidgetInterface;
 
-class QT_SHARED_EXPORT QDesignerPluginManager: public QObject
+class QDESIGNER_SHARED_EXPORT QDesignerPluginManager: public QObject
 {
     Q_OBJECT
 public:

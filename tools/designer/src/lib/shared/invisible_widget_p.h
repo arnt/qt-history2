@@ -31,7 +31,7 @@
 
 namespace qdesigner_internal {
 
-class QT_SHARED_EXPORT InvisibleWidget: public QWidget
+class QDESIGNER_SHARED_EXPORT InvisibleWidget: public QWidget
 {
     Q_OBJECT
 public:

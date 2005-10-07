@@ -33,7 +33,7 @@
 
 class QDesignerFormWindowInterface;
 
-class QT_SHARED_EXPORT Spacer: public QWidget
+class QDESIGNER_SHARED_EXPORT Spacer: public QWidget
 {
     Q_OBJECT
 

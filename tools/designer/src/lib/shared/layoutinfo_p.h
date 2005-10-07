@@ -35,7 +35,7 @@ class QDesignerFormEditorInterface;
 
 namespace qdesigner_internal {
 
-class QT_SHARED_EXPORT LayoutInfo
+class QDESIGNER_SHARED_EXPORT LayoutInfo
 {
 public:
     enum Type

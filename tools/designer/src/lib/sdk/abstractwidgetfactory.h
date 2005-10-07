@@ -21,7 +21,7 @@ class QDesignerFormEditorInterface;
 class QWidget;
 class QLayout;
 
-class QT_SDK_EXPORT QDesignerWidgetFactoryInterface: public QObject
+class QDESIGNER_SDK_EXPORT QDesignerWidgetFactoryInterface: public QObject
 {
     Q_OBJECT
 public:

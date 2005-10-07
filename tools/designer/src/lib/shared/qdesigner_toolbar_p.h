@@ -37,7 +37,7 @@ class QDesignerActionProviderExtension;
 
 namespace qdesigner_internal {
 
-class QT_SHARED_EXPORT SentinelAction: public QAction
+class QDESIGNER_SHARED_EXPORT SentinelAction: public QAction
 {
     Q_OBJECT
 public:
@@ -45,7 +45,7 @@ public:
     virtual ~SentinelAction();
 };
 
-class QT_SHARED_EXPORT Sentinel: public QToolButton
+class QDESIGNER_SHARED_EXPORT Sentinel: public QToolButton
 {
     Q_OBJECT
 public:
@@ -55,7 +55,7 @@ public:
 
 } // namespace qdesigner_internal
 
-class QT_SHARED_EXPORT QDesignerToolBar: public QToolBar
+class QDESIGNER_SHARED_EXPORT QDesignerToolBar: public QToolBar
 {
     Q_OBJECT
 public:

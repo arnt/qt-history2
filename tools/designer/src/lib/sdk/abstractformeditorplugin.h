@@ -21,7 +21,7 @@
 class QDesignerFormEditorInterface;
 class QAction;
 
-class QT_SDK_EXPORT QDesignerFormEditorPluginInterface
+class QDESIGNER_SDK_EXPORT QDesignerFormEditorPluginInterface
 {
 public:
     virtual ~QDesignerFormEditorPluginInterface() {}

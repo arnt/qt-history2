@@ -32,7 +32,7 @@
 
 namespace qdesigner_internal {
 
-class QT_SHARED_EXPORT QDesignerDnDItem: public QDesignerDnDItemInterface
+class QDESIGNER_SHARED_EXPORT QDesignerDnDItem: public QDesignerDnDItemInterface
 {
 public:
     QDesignerDnDItem(DropType type, QWidget *source = 0);

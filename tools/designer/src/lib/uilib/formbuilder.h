@@ -32,7 +32,7 @@ namespace QFormInternal
 {
 #endif
 
-class QT_UILIB_EXPORT QFormBuilder: public QAbstractFormBuilder
+class QDESIGNER_UILIB_EXPORT QFormBuilder: public QAbstractFormBuilder
 {
 public:
     QFormBuilder();

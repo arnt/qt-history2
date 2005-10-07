@@ -34,7 +34,7 @@
 
 namespace qdesigner_internal {
 
-class QT_SHARED_EXPORT ResourceFile
+class QDESIGNER_SHARED_EXPORT ResourceFile
 {
 public:
     ResourceFile(const QString &file_name = QString());
@@ -91,7 +91,7 @@ private:
     int matchPrefix(const QString &path) const;
 };
 
-class QT_SHARED_EXPORT ResourceModel : public QAbstractItemModel
+class QDESIGNER_SHARED_EXPORT ResourceModel : public QAbstractItemModel
 {
     Q_OBJECT
 

@@ -22,7 +22,7 @@ class QIcon;
 class QPixmap;
 class QString;
 
-class QT_SDK_EXPORT QDesignerIconCacheInterface : public QObject
+class QDESIGNER_SDK_EXPORT QDesignerIconCacheInterface : public QObject
 {
     Q_OBJECT
 public:

@@ -35,7 +35,7 @@ class QTreeView;
 
 namespace qdesigner_internal {
 
-class QT_SHARED_EXPORT SheetDelegate: public QItemDelegate
+class QDESIGNER_SHARED_EXPORT SheetDelegate: public QItemDelegate
 {
     Q_OBJECT
 public:

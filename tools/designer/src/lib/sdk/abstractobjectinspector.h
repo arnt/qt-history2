@@ -21,7 +21,7 @@
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 
-class QT_SDK_EXPORT QDesignerObjectInspectorInterface: public QWidget
+class QDESIGNER_SDK_EXPORT QDesignerObjectInspectorInterface: public QWidget
 {
     Q_OBJECT
 public:

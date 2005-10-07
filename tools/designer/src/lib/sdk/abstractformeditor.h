@@ -34,7 +34,7 @@ class QWidget;
 
 class QExtensionManager;
 
-class QT_SDK_EXPORT QDesignerFormEditorInterface: public QObject
+class QDESIGNER_SDK_EXPORT QDesignerFormEditorInterface: public QObject
 {
     Q_OBJECT
 public:

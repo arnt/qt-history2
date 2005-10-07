@@ -64,7 +64,7 @@ class DomTabStops;
 class DomUI;
 class DomWidget;
 
-class QT_UILIB_EXPORT QAbstractFormBuilder
+class QDESIGNER_UILIB_EXPORT QAbstractFormBuilder
 {
 public:
     QAbstractFormBuilder();

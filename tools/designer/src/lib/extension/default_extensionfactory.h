@@ -23,7 +23,7 @@
 
 class QExtensionManager;
 
-class QT_EXTENSION_EXPORT QExtensionFactory : public QObject, public QAbstractExtensionFactory
+class QDESIGNER_EXTENSION_EXPORT QExtensionFactory : public QObject, public QAbstractExtensionFactory
 {
     Q_OBJECT
     Q_INTERFACES(QAbstractExtensionFactory)

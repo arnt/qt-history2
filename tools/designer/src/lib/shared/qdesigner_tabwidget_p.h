@@ -31,7 +31,7 @@
 
 class QDesignerFormWindowInterface;
 
-class QT_SHARED_EXPORT QDesignerTabWidget : public QTabWidget
+class QDESIGNER_SHARED_EXPORT QDesignerTabWidget : public QTabWidget
 {
     Q_OBJECT
     Q_PROPERTY(QString currentTabName READ currentTabName WRITE setCurrentTabName STORED false DESIGNABLE true)

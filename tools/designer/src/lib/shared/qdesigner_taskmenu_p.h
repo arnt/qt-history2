@@ -38,7 +38,7 @@ class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
 
-class QT_SHARED_EXPORT QDesignerTaskMenu: public QObject, public QDesignerTaskMenuExtension
+class QDESIGNER_SHARED_EXPORT QDesignerTaskMenu: public QObject, public QDesignerTaskMenuExtension
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerTaskMenuExtension)
@@ -75,7 +75,7 @@ private:
     QAction *m_demoteFromCustomWidgetAction;
 };
 
-class QT_SHARED_EXPORT QDesignerTaskMenuFactory: public QExtensionFactory
+class QDESIGNER_SHARED_EXPORT QDesignerTaskMenuFactory: public QExtensionFactory
 {
     Q_OBJECT
 public:

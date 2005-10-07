@@ -68,7 +68,7 @@ public:
     virtual QList<QVariant> defaultPropertyValues() const = 0;
 };
 
-class QT_SDK_EXPORT QDesignerWidgetDataBaseInterface: public QObject
+class QDESIGNER_SDK_EXPORT QDesignerWidgetDataBaseInterface: public QObject
 {
     Q_OBJECT
 public:

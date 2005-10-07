@@ -25,7 +25,7 @@ class DomUI;
 class QtUndoStack;
 class QDir;
 
-class QT_SDK_EXPORT QDesignerFormWindowInterface: public QWidget
+class QDESIGNER_SDK_EXPORT QDesignerFormWindowInterface: public QWidget
 {
     Q_OBJECT
 public:

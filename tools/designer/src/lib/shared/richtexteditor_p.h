@@ -33,7 +33,7 @@ class QToolBar;
 
 namespace qdesigner_internal {
 
-class QT_SHARED_EXPORT RichTextEditor : public QTextEdit
+class QDESIGNER_SHARED_EXPORT RichTextEditor : public QTextEdit
 {
     Q_OBJECT
 public:
@@ -55,7 +55,7 @@ private:
     Qt::TextFormat detectFormat() const;
 };
 
-class QT_SHARED_EXPORT RichTextEditorDialog : public QDialog
+class QDESIGNER_SHARED_EXPORT RichTextEditorDialog : public QDialog
 {
     Q_OBJECT
 public:

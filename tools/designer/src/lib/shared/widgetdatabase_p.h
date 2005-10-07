@@ -39,7 +39,7 @@ class QDesignerCustomWidgetInterface;
 
 namespace qdesigner_internal {
 
-class QT_SHARED_EXPORT WidgetDataBaseItem: public QDesignerWidgetDataBaseItemInterface
+class QDESIGNER_SHARED_EXPORT WidgetDataBaseItem: public QDesignerWidgetDataBaseItemInterface
 {
 public:
     WidgetDataBaseItem(const QString &name = QString(),
@@ -101,7 +101,7 @@ private:
     QList<QVariant> m_defaultPropertyValues;
 };
 
-class QT_SHARED_EXPORT WidgetDataBase: public QDesignerWidgetDataBaseInterface
+class QDESIGNER_SHARED_EXPORT WidgetDataBase: public QDesignerWidgetDataBaseInterface
 {
     Q_OBJECT
 public:

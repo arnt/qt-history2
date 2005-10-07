@@ -23,7 +23,7 @@
 class DomUI;
 class QDesignerDnDItemInterface;
 
-class QT_SDK_EXPORT QDesignerWidgetBoxInterface : public QWidget
+class QDESIGNER_SDK_EXPORT QDesignerWidgetBoxInterface : public QWidget
 {
     Q_OBJECT
 public:

@@ -20,11 +20,10 @@ QMAKE_TARGET_COPYRIGHT = Copyright (c) 2003-2005 Trolltech
     CONFIG += dll
 
     DEFINES += \
-        QT_SDK_LIBRARY \
-        QT_EXTENSION_LIBRARY \
-        QT_UILIB_LIBRARY \
-        QT_SHARED_LIBRARY \
-        QT_PROPERTYEDITOR_LIBRARY
+        QDESIGNER_SDK_LIBRARY \
+        QDESIGNER_EXTENSION_LIBRARY \
+        QDESIGNER_UILIB_LIBRARY \
+        QDESIGNER_SHARED_LIBRARY
 } else {
     DEFINES += QT_DESIGNER_STATIC
 }
@@ -34,8 +33,6 @@ include(sdk/sdk.pri)
 include(uilib/uilib.pri)
 include(shared/shared.pri)
 PRECOMPILED_HEADER=lib_pch.h
-
-### include(propertyeditor/propertyeditor.pri)
 
 include(../components/component.pri)
 include(../sharedcomponents.pri)

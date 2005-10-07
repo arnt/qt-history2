@@ -23,7 +23,7 @@ class QWidget;
 
 class QDesignerFormEditorInterface;
 
-class QT_SDK_EXPORT QDesignerExtraInfoExtension
+class QDESIGNER_SDK_EXPORT QDesignerExtraInfoExtension
 {
 public:
     virtual ~QDesignerExtraInfoExtension() {}

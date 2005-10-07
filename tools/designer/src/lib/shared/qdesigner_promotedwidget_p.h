@@ -40,7 +40,7 @@ namespace qdesigner_internal {
 
 class QDesignerPromotedWidget;
 
-class QT_SHARED_EXPORT PromotedWidgetPropertySheet: public QObject, public QDesignerPropertySheetExtension
+class QDESIGNER_SHARED_EXPORT PromotedWidgetPropertySheet: public QObject, public QDesignerPropertySheetExtension
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerPropertySheetExtension)
@@ -75,7 +75,7 @@ private:
     QDesignerPropertySheetExtension *m_sheet;
 };
 
-class QT_SHARED_EXPORT PromotedWidgetPropertySheetFactory: public QExtensionFactory
+class QDESIGNER_SHARED_EXPORT PromotedWidgetPropertySheetFactory: public QExtensionFactory
 {
     Q_OBJECT
     Q_INTERFACES(QAbstractExtensionFactory)
@@ -86,7 +86,7 @@ protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
 
-class QT_SHARED_EXPORT QDesignerPromotedWidget : public QWidget
+class QDESIGNER_SHARED_EXPORT QDesignerPromotedWidget : public QWidget
 {
     Q_OBJECT
 public:

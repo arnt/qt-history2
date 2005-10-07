@@ -34,7 +34,7 @@ class QTimer;
 class QDesignerFormWindowInterface;
 class QDesignerActionProviderExtension;
 
-class QT_SHARED_EXPORT QDesignerMenu: public QMenu
+class QDESIGNER_SHARED_EXPORT QDesignerMenu: public QMenu
 {
     Q_OBJECT
 public:

@@ -37,7 +37,7 @@ namespace qdesigner_internal {
 
 class ActionRepository;
 
-class QT_SHARED_EXPORT ActionEditor: public QDesignerActionEditorInterface
+class QDESIGNER_SHARED_EXPORT ActionEditor: public QDesignerActionEditorInterface
 {
     Q_OBJECT
 public:

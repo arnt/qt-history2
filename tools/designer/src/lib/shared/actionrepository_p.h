@@ -31,7 +31,7 @@
 
 namespace qdesigner_internal {
 
-class QT_SHARED_EXPORT ActionRepository: public QListWidget
+class QDESIGNER_SHARED_EXPORT ActionRepository: public QListWidget
 {
     Q_OBJECT
 public:
@@ -52,7 +52,7 @@ protected:
     virtual QMimeData *mimeData(const QList<QListWidgetItem*> items) const;
 };
 
-class QT_SHARED_EXPORT ActionRepositoryMimeData: public QMimeData
+class QDESIGNER_SHARED_EXPORT ActionRepositoryMimeData: public QMimeData
 {
     Q_OBJECT
 public:

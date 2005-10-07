@@ -30,7 +30,7 @@
 
 namespace qdesigner_internal {
 
-class QT_SHARED_EXPORT QDesignerDockWidget: public QDockWidget
+class QDESIGNER_SHARED_EXPORT QDesignerDockWidget: public QDockWidget
 {
     Q_OBJECT
     Q_PROPERTY(Qt::DockWidgetArea dockWidgetArea READ dockWidgetArea WRITE setDockWidgetArea DESIGNABLE inMainWindow)

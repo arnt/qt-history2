@@ -31,7 +31,7 @@
 
 namespace qdesigner_internal {
 
-class QT_SHARED_EXPORT TreeWidget: public QTreeWidget
+class QDESIGNER_SHARED_EXPORT TreeWidget: public QTreeWidget
 {
     Q_OBJECT
 public:
