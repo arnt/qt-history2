@@ -47,6 +47,7 @@ class Q_CORE_EXPORT QAbstractItemModelPrivate : public QObjectPrivate
 public:
     ~QAbstractItemModelPrivate();
 
+    void removePersistentIndexData(QPersistentModelIndexData *data);
     void invalidate(int position);
     void rowsAboutToBeInserted(const QModelIndex &parent, int first, int last);
     void rowsInserted(const QModelIndex &parent, int first, int last);
@@ -69,8 +70,8 @@ public:
 
     struct Persistent {
         QList<QPersistentModelIndexData*> indexes;
-        QList<int> changed;
-        QList<int> invalidated;
+        QStack<QList<int> > moved;
+        QStack<QList<int> > invalidated;
     } persistent;
 };
 

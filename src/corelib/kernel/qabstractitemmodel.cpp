@@ -53,10 +53,8 @@ void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
     // a valid persistent model index with a null model pointer can only happen if the model was destroyed
     if (model) {
         QAbstractItemModelPrivate *p = model->d_func();
-        int position = p->persistent.indexes.indexOf(data);
-        p->persistent.changed.removeAll(position);
-        p->persistent.invalidated.removeAll(position);
-        p->persistent.indexes.removeAll(data);
+        Q_ASSERT(p);
+        p->removePersistentIndexData(data);
     }
     delete data;
 }
@@ -391,6 +389,33 @@ QAbstractItemModelPrivate::~QAbstractItemModelPrivate()
     }
 }
 
+void QAbstractItemModelPrivate::removePersistentIndexData(QPersistentModelIndexData *data)
+{
+    int data_index = persistent.indexes.indexOf(data);
+    persistent.indexes.removeAt(data_index);
+    Q_ASSERT(!persistent.indexes.contains(data));
+    // update the references to moved persistend indexes
+    for (int i = persistent.moved.count() - 1; i >= 0; --i) {
+        QList<int> moved = persistent.moved.at(i);
+        for (int j = moved.count() - 1; j >= 0; --j) {
+            if (moved.at(j) > data_index)
+                --persistent.moved[i][j];
+            else if (moved.at(j) == data_index)
+                persistent.moved[i].remove(j);   
+        }
+    }
+    // update the references to invalidated persistend indexes
+    for (int i = persistent.invalidated.count() - 1; i >= 0; --i) {
+        QList<int> invalidated = persistent.invalidated.at(i);
+        for (int j = invalidated.count() - 1; j >= 0; --j) {
+            if (invalidated.at(j) > data_index)
+                --persistent.invalidated[i][j];
+            else if (invalidated.at(j) == data_index)
+                persistent.invalidated[i].remove(j);   
+        }
+    }
+}
+
 void QAbstractItemModelPrivate::invalidate(int position)
 {
     // no need to make invalidate recursive, since the *AboutToBeRemoved functions
@@ -402,35 +427,36 @@ void QAbstractItemModelPrivate::rowsAboutToBeInserted(const QModelIndex &parent,
                                                       int first, int last)
 {
     Q_UNUSED(last);
-    persistent.changed.clear();
+    QList<int> persistent_moved;
     for (int position = 0; position < persistent.indexes.count(); ++position) {
         QModelIndex index = persistent.indexes.at(position)->index;
         if (index.isValid() && index.parent() == parent && index.row() >= first)
-            persistent.changed.append(position);
+            persistent_moved.append(position);
     }
+    persistent.moved.push(persistent_moved);
 }
 
 void QAbstractItemModelPrivate::rowsInserted(const QModelIndex &parent,
                                              int first, int last)
 {
+    QList<int> persistent_moved = persistent.moved.pop();
     int count = (last - first) + 1;
-    for (int i = 0; i < persistent.changed.count(); ++i) {
-        int position = persistent.changed.at(i);
+    for (int i = 0; i < persistent_moved.count(); ++i) {
+        int position = persistent_moved.at(i);
         QModelIndex old = persistent.indexes.at(position)->index;
         persistent.indexes[position]->index =
             q_func()->index(old.row() + count, old.column(), parent);
     }
-    persistent.changed.clear();
 }
 
 void QAbstractItemModelPrivate::rowsAboutToBeRemoved(const QModelIndex &parent,
                                                      int first, int last)
 {
-    persistent.changed.clear();
-    persistent.invalidated.clear();
-
     QStack<Change> persistent_changes;
     persistent_changes.push(Change(parent, first, last));
+
+    QList<int> persistent_moved;
+    QList<int> persistent_invalidated;
 
     while (!persistent_changes.isEmpty()) {
         Change change = persistent_changes.pop();
@@ -438,66 +464,73 @@ void QAbstractItemModelPrivate::rowsAboutToBeRemoved(const QModelIndex &parent,
             QModelIndex index = persistent.indexes.at(position)->index;
             if (index.isValid() && index.parent() == change.parent) {
                 if (index.row() > change.last) { // below the removed rows
-                    persistent.changed.append(position);
+                    persistent_moved.append(position);
                 } else if (index.row() >= change.first) { // about to be removed
                     if (q_func()->hasChildren(index)) // the children are invalidated too
                         persistent_changes.push(Change(index, 0, q_func()->rowCount(index) - 1));
-                    persistent.invalidated.append(position);
+                    persistent_invalidated.append(position);
                 }
             }
         }
     }
+
+    persistent.moved.push(persistent_moved);
+    persistent.invalidated.push(persistent_invalidated);
 }
 
 void QAbstractItemModelPrivate::rowsRemoved(const QModelIndex &parent,
-                                               int first, int last)
+                                            int first, int last)
 {
+    QList<int> persistent_moved = persistent.moved.pop();
+    // it is important that we update the persistent index positions first and then invalidate indexes later
+    // this is because the invalidation of indexes may remove them from the list of persistent indexes
+    // and this in turn will go through the list of moved and invalidated indexes and update them
     int count = (last - first) + 1;
-    for (int i = 0; i < persistent.changed.count(); ++i) {
-        int position = persistent.changed.at(i);
+    for (int i = 0; i < persistent_moved.count(); ++i) {
+        int position = persistent_moved.at(i);
         QModelIndex old = persistent.indexes.at(position)->index;
         persistent.indexes[position]->index =
             q_func()->index(old.row() - count, old.column(), parent);
     }
-    persistent.changed.clear();
-    for (int j = 0; j < persistent.invalidated.count(); ++j)
-        invalidate(persistent.invalidated.at(j));
-    persistent.invalidated.clear();
+    QList<int> persistent_invalidated = persistent.invalidated.pop();
+    for (int j = 0; j < persistent_invalidated.count(); ++j)
+        invalidate(persistent_invalidated.at(j));
 }
 
 void QAbstractItemModelPrivate::columnsAboutToBeInserted(const QModelIndex &parent,
                                                          int first, int last)
 {
     Q_UNUSED(last);
-    persistent.changed.clear();
+    QList<int> persistent_moved;
     for (int position = 0; position < persistent.indexes.count(); ++position) {
         QModelIndex index = persistent.indexes.at(position)->index;
         if (index.isValid() && index.parent() == parent && index.column() >= first)
-            persistent.changed.append(position);
+            persistent_moved.append(position);
     }
+    persistent.moved.push(persistent_moved);
 }
 
 void QAbstractItemModelPrivate::columnsInserted(const QModelIndex &parent,
                                                 int first, int last)
 {
+    QList<int> persistent_moved = persistent.moved.pop();
     int count = (last - first) + 1;
-    for (int i = 0; i < persistent.changed.count(); ++i) {
-        int position = persistent.changed.at(i);
+    for (int i = 0; i < persistent_moved.count(); ++i) {
+        int position = persistent_moved.at(i);
         QModelIndex old = persistent.indexes.at(position)->index;
         persistent.indexes[position]->index =
             q_func()->index(old.row(), old.column() + count, parent);
     }
-    persistent.changed.clear();
 }
 
 void QAbstractItemModelPrivate::columnsAboutToBeRemoved(const QModelIndex &parent,
                                                         int first, int last)
 {
-    persistent.changed.clear();
-    persistent.invalidated.clear();
-
     QStack<Change> persistent_changes;
     persistent_changes.push(Change(parent, first, last));
+
+    QList<int> persistent_moved;
+    QList<int> persistent_invalidated;
 
     while (!persistent_changes.isEmpty()) {
         Change change = persistent_changes.pop();
@@ -505,31 +538,37 @@ void QAbstractItemModelPrivate::columnsAboutToBeRemoved(const QModelIndex &paren
             QModelIndex index = persistent.indexes.at(position)->index;
             if (index.isValid() && index.parent() == change.parent) {
                 if (index.column() > change.last) { // after the removed columns
-                    persistent.changed.append(position);
+                    persistent_moved.append(position);
                 } else if (index.column() >= change.first) { // about to be removed
                     if (q_func()->hasChildren(index)) // children are invalidated too
                         persistent_changes.push(Change(index, 0, q_func()->columnCount(index) - 1));
-                    persistent.invalidated.append(position);
+                    persistent_invalidated.append(position);
                 }
             }
         }
     }
+
+    persistent.moved.push(persistent_moved);
+    persistent.invalidated.push(persistent_invalidated);
 }
 
 void QAbstractItemModelPrivate::columnsRemoved(const QModelIndex &parent,
                                                int first, int last)
 {
+    QList<int> persistent_moved = persistent.moved.pop();
+    // it is important that we update the persistent index positions first and then invalidate indexes later
+    // this is because the invalidation of indexes may remove them from the list of persistent indexes
+    // and this in turn will go through the list of moved and invalidated indexes and update them
     int count = (last - first) + 1;
-    for (int i = 0; i < persistent.changed.count(); ++i) {
-        int position = persistent.changed.at(i);
+    for (int i = 0; i < persistent_moved.count(); ++i) {
+        int position = persistent_moved.at(i);
         QModelIndex old = persistent.indexes.at(position)->index;
         persistent.indexes[position]->index =
             q_func()->index(old.row(), old.column() - count, parent);
     }
-    persistent.changed.clear();
-    for (int j = 0; j < persistent.invalidated.count(); ++j)
-        invalidate(persistent.invalidated.at(j));
-    persistent.invalidated.clear();
+    QList<int> persistent_invalidated = persistent.invalidated.pop();
+    for (int j = 0; j < persistent_invalidated.count(); ++j)
+        invalidate(persistent_invalidated.at(j));
 }
 
 void QAbstractItemModelPrivate::reset()
