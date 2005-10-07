@@ -351,6 +351,9 @@ void InnerNode::removeChild( Node *child )
     and examine everything between "src/" and the filename.
     This is semi-dirty because we are assuming a particular directory
     structure.
+
+    This function is only really useful if the class's module has not
+    been defined with an \inmodule command in the documentation.
 */
 QString Node::moduleName() const
 {
@@ -358,20 +361,23 @@ QString Node::moduleName() const
         return mod;
 
     QString path = location().filePath();
-    int start = path.lastIndexOf(QString("src") + QDir::separator());
+    QString pattern = QString("src") + QDir::separator();
+    int start = path.lastIndexOf(pattern);
     if (start == -1)
         return "";
 
-    QString moduleDir = path.mid(start + 4);
+    QString moduleDir = path.mid(start + pattern.size());
     int finish = moduleDir.indexOf(QDir::separator());
 
-    if (start == -1)
+    if (finish == -1)
         return "";
 
     moduleDir = moduleDir.left(finish);
 
     if (moduleDir == "corelib")
         return "QtCore";
+    else if (moduleDir == "form")
+        return "QtForm";
     else if (moduleDir == "gui")
         return "QtGui";
     else if (moduleDir == "network")

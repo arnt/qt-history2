@@ -7,13 +7,14 @@ url                     = http://doc.trolltech.com/4.0
 edition.Console         = QtCore QtNetwork QtSql QtXml
 edition.Desktop         = QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtXml \
                           QtDesigner QtAssistant Qt3Support QAxContainer \
-                          QAxServer
+                          QAxServer QtForm
 edition.DesktopLight    = QtCore QtGui Qt3SupportLight
 
 language                = Cpp
 headerdirs              = $QTDIR/src \
                           $QTDIR/extensions/activeqt \
                           $QTDIR/tools/assistant/lib \
+                          $QTDIR/tools/designer/src/form \
                           $QTDIR/tools/designer/src/lib/extension \
                           $QTDIR/tools/designer/src/lib/sdk \
                           $QTDIR/tools/designer/src/lib/uilib
@@ -21,6 +22,7 @@ sourcedirs              = $QTDIR/src \
                           $QTDIR/doc/src \
                           $QTDIR/extensions/activeqt \
                           $QTDIR/tools/assistant/lib \
+                          $QTDIR/tools/designer/src/form \
                           $QTDIR/tools/designer/src/lib/extension \
                           $QTDIR/tools/designer/src/lib/sdk \
                           $QTDIR/tools/designer/src/lib/uilib
@@ -59,6 +61,11 @@ macro.aring.HTML        = "&aring;"
 macro.Auml.HTML         = "&Auml;"
 
 Cpp.ignoretokens        = QAXFACTORY_EXPORT \
+                          QDESIGNER_COMPONENTS_LIBRARY \
+                          QDESIGNER_EXTENSION_LIBRARY \
+                          QDESIGNER_SDK_LIBRARY \
+                          QDESIGNER_SHARED_LIBRARY \
+                          QDESIGNER_UILIB_LIBRARY \
                           QM_EXPORT_CANVAS \
                           QM_EXPORT_DNS \
                           QM_EXPORT_DOM \
@@ -71,6 +78,7 @@ Cpp.ignoretokens        = QAXFACTORY_EXPORT \
                           QM_EXPORT_TABLE \
                           QM_EXPORT_WORKSPACE \
                           QM_EXPORT_XML \
+                          QT_DESIGNER_STATIC \
                           QT_WIDGET_PLUGIN_EXPORT \
                           Q_COMPAT_EXPORT \
                           Q_CORE_EXPORT \

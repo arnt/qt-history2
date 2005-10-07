@@ -1,0 +1,29 @@
+/*!
+  \module QtForm
+  \title QtForm Module
+  \contentspage Qt's Modules
+  \previouspage QtDesigner
+  \nextpage QtAssistant
+
+  \brief The QtForm module provides classes to handle forms created with Qt Designer.
+
+  \tableofcontents
+
+  \section1 Configuring the Build Process
+
+  Applications that use the form handling classes need to
+  be configured to be built against the QtForm module.
+  The following declaration in a \c qmake project file ensures that
+  an application is compiled and linked appropriately:
+
+  \code
+      CONFIG += form
+  \endcode
+
+  To include the definitions of the module's classes, use the
+  following directive:
+
+  \code
+      #include <QtForm>
+  \endcode
+*/
