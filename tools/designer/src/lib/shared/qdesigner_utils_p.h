@@ -45,8 +45,12 @@ public:
     QMap<QString, QVariant> items;
 };
 
-namespace Utils
-{
+} // namespace qdesigner_internal
+
+Q_DECLARE_METATYPE(qdesigner_internal::EnumType)
+Q_DECLARE_METATYPE(qdesigner_internal::FlagType)
+
+namespace qdesigner_internal { namespace Utils {
 
 inline int valueOf(const QVariant &value, bool *ok = 0)
 {
@@ -61,8 +65,5 @@ inline int valueOf(const QVariant &value, bool *ok = 0)
 } // namespace Utils
 
 } // namespace qdesigner_internal
-
-Q_DECLARE_METATYPE(qdesigner_internal::EnumType)
-Q_DECLARE_METATYPE(qdesigner_internal::FlagType)
 
 #endif // QDESIGNER_UTILS_H
