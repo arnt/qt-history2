@@ -186,7 +186,6 @@ protected:
 private:
     QWidget *m_bg_widget;
     QtUndoStack *m_undo_stack;
-    QPixmap m_bg_pixmap;
     bool m_enable_update_background;
 
     Connection *m_tmp_con; // the connection we are currently editing

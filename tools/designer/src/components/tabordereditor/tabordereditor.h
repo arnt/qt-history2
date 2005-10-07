@@ -61,7 +61,6 @@ private:
 
     QWidget *m_bg_widget;
     QtUndoStack *m_undo_stack;
-    QPixmap m_bg_pixmap;
     QRegion m_indicator_region;
 
     QFontMetrics m_font_metrics;

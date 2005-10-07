@@ -63,6 +63,7 @@ void FormWindowWidgetStack::setCurrentTool(int index)
     if (w != 0) {
         if (w->rect() != rect())
             w->setGeometry(rect());
+        m_tools.at(0)->editor()->raise();
         w->raise();
     }
 

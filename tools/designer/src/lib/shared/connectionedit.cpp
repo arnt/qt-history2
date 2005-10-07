@@ -922,7 +922,7 @@ void ConnectionEdit::clear()
 {
     m_con_list.clear();
     m_sel_con_set.clear();
-//    m_bg_widget = 0;
+    m_bg_widget = 0;
     m_widget_under_mouse = 0;
     m_tmp_con = 0;
 }
@@ -953,17 +953,8 @@ void ConnectionEdit::updateBackground()
     if (!m_enable_update_background)
         return;
 
-    m_bg_pixmap = QPixmap::grabWidget(m_bg_widget);
-/*
-    QPainter p(&m_bg_pixmap);
-    p.setPen(QColor(0, 0, 255, 22));
-    for (int y = 0; y < m_bg_pixmap.height(); y += 2)
-        p.drawLine(0, y, m_bg_pixmap.width(), y); */
-
-
-    foreach(Connection *c, m_con_list) {
+    foreach(Connection *c, m_con_list)
         c->updateVisibility();
-    }
 
     updateLines();
     update();
@@ -1037,11 +1028,6 @@ void ConnectionEdit::paintEvent(QPaintEvent *e)
 {
     QPainter p(this);
     p.setClipRegion(e->region());
-
-    if (m_bg_pixmap.isNull())
-        updateBackground();
-
-    p.drawPixmap(m_bg_pixmap.rect(), m_bg_pixmap);
 
     WidgetSet heavy_highlight_set, light_highlight_set;
 

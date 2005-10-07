@@ -36,7 +36,7 @@ using namespace qdesigner_internal;
 static void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow, QPaintEvent *e, bool needFrame = false)
 {
     QPainter p(widget);
-    p.setClipRect(e->rect());
+    // p.setClipRect(e->rect());
 
     p.fillRect(e->rect(), widget->palette().brush(widget->backgroundRole()));
 
@@ -76,7 +76,8 @@ void QDesignerDialog::paintEvent(QPaintEvent *e)
     if (m_formWindow->currentTool() == 0 && m_formWindow->hasFeature(QDesignerFormWindowInterface::GridFeature)) {
         paintGrid(this, m_formWindow, e);
     } else {
-        QDialog::paintEvent(e);
+        QPainter p(this);
+        p.fillRect(rect(), palette().brush(QPalette::Background));
     }
 }
 
@@ -93,6 +94,7 @@ QDesignerWidget::QDesignerWidget(QDesignerFormWindowInterface* formWindow, QWidg
     : QWidget(parent), m_formWindow(formWindow)
 {
     need_frame = true;
+    setBackgroundRole(QPalette::Background);
 }
 
 QDesignerWidget::~QDesignerWidget()
@@ -101,11 +103,10 @@ QDesignerWidget::~QDesignerWidget()
 
 void QDesignerWidget::paintEvent(QPaintEvent *e)
 {
-    if (m_formWindow->currentTool() == 0 && m_formWindow->hasFeature(QDesignerFormWindowInterface::GridFeature)) {
+    if (m_formWindow->currentTool() == 0 && m_formWindow->hasFeature(QDesignerFormWindowInterface::GridFeature))
         paintGrid(this, m_formWindow, e);
-    } else {
+    else
         QWidget::paintEvent(e);
-    }
 }
 
 void QDesignerWidget::dragEnterEvent(QDragEnterEvent *)

@@ -81,13 +81,6 @@ void TabOrderEditor::updateBackground()
         return;
     }
 
-    m_bg_pixmap = QPixmap::grabWidget(m_bg_widget);
-
-/*    QPainter p(&m_bg_pixmap);
-    p.setPen(QColor(0, 0, 255, 22));
-    for (int y = 0; y < m_bg_pixmap.height(); y += 2)
-        p.drawLine(0, y, m_bg_pixmap.width(), y); */
-
     initTabOrder();
     update();
 }
@@ -129,11 +122,6 @@ void TabOrderEditor::paintEvent(QPaintEvent *e)
 {
     QPainter p(this);
     p.setClipRegion(e->region());
-
-    if (m_bg_pixmap.isNull())
-        updateBackground();
-
-    p.drawPixmap(m_bg_pixmap.rect(), m_bg_pixmap);
 
     for (int i = 0; i < m_tab_order_list.size(); ++i) {
         QWidget *widget = m_tab_order_list.at(i);
