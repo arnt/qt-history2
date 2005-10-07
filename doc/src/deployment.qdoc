@@ -369,14 +369,9 @@
         qApp->addLibraryPath("/some/other/path");
     \endcode
 
-    When you build the Qt library, the search path for plugins (as
-    well as a few other paths) is hard-coded into the library. By
-    default, the first plugin search path will be hard-coded as \c
-    /path/to/Qt/plugins. Alternatively, you may use a third party
-    installation utility or the target system's package manager to
-    change the hard-coded paths in the Qt libraries.
-
     \section1 Application Dependencies
+
+    \section2 Additional Libraries
 
     To find out which libraries your application depends on, run the
     \c ldd tool (available on most Unices):
@@ -416,6 +411,33 @@
     must explicitly link with the dependent libraries mentioned
     above. Do this by adding them to the \c LIBS variable in your
     project file.
+
+    \section2 Qt Plugins
+
+    Your application may also depend on one or more Qt plugins, such
+    as the JPEG image format plugin or an SQL driver plugin. Be sure
+    to distribute any Qt plugins that you need with your application.
+
+    The search path for Qt plugins (as well as a few other paths) is
+    hard-coded into the QtCore library. By default, the first plugin
+    search path will be hard-coded as \c /path/to/Qt/plugins. As
+    mentioned above, using pre-determined paths has certain
+    disadvantages, so you need to examine various alternatives to make
+    sure that the Qt plugins are found:
+
+    \list
+
+    \o Using QApplication::addLibraryPath() or
+    QApplication::setLibraryPaths().
+
+    \o Using a third party installation utility or the target system's
+    package manager to change the hard-coded paths in the QtCore
+    library.
+
+    \o \l{qt-conf.html}{Using \c qt.conf}. This is the recommended
+    approach since it provides the most flexibility.
+
+    \endlist
 */
 
 /*!
