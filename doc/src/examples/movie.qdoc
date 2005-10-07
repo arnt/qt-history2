@@ -1,5 +1,5 @@
 /*!
-    \example widgets/Movie
+    \example widgets/movie
     \title Movie Example
 
     The Movie example demonstrates how to use QMovie and QLabel to
