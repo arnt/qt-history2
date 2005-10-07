@@ -1734,7 +1734,12 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     }
 
     QFixed x_buffering = ti.ascent;
-    QRectF logRect(p.x(), p.y() - ti.ascent.toReal(), (ti.width + x_buffering).toReal(),
+
+    // Hack to reserve some space on the left side of the string in case 
+    // the character has a large negative bearing (e.g. it should be drawn on top
+    // of the previous character)
+    qreal leftBearingReserve = ti.fontEngine->maxCharWidth();
+    QRectF logRect(p.x() - leftBearingReserve, p.y() - ti.ascent.toReal(), (ti.width + x_buffering).toReal() + leftBearingReserve,
 		    (ti.ascent + ti.descent).toReal());
     QRect devRect = d->matrix.mapRect(logRect).toRect();
 
@@ -1760,7 +1765,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         Rectangle(hdc, 0, 0, devRect.width() + 1, devRect.height() + 1);
 
         // Fill buffer with stuff
-        qt_draw_text_item(QPoint(0, ti.ascent.toInt()), ti, hdc);
+        qt_draw_text_item(QPoint(qRound(leftBearingReserve), ti.ascent.toInt()), ti, hdc);
 
         BitBlt(d->fontRasterBuffer->hdc(), 0, 0, devRect.width(), devRect.height(),
                hdc, 0, 0, SRCCOPY);
@@ -1787,7 +1792,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         // Fill buffer with stuff
         SetTextColor(d->fontRasterBuffer->hdc(), 
             RGB(qRed(penColor), qGreen(penColor), qBlue(penColor)));
-        qt_draw_text_item(QPoint(0, ti.ascent.toInt()), ti, d->fontRasterBuffer->hdc());
+        qt_draw_text_item(QPoint(qRound(leftBearingReserve), ti.ascent.toInt()), ti, d->fontRasterBuffer->hdc());
 
         // Clean up alpha channel
         if (clearType) {   
