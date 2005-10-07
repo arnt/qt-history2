@@ -25,23 +25,23 @@
 #include <windows.h>
 
 typedef bool (APIENTRY *PFNWGLGETPIXELFORMATATTRIBIVARB)(HDC hdc,
-							 int iPixelFormat,
-							 int iLayerPlane,
-							 uint nAttributes,
-							 const int *piAttributes,
-							 int *piValues);
+                                                         int iPixelFormat,
+                                                         int iLayerPlane,
+                                                         uint nAttributes,
+                                                         const int *piAttributes,
+                                                         int *piValues);
 typedef bool (APIENTRY *PFNWGLCHOOSEPIXELFORMATARB)(HDC hdc,
-						    const int *piAttribList,
-						    const float *pfAttribFList,
-						    uint nMaxFormats,
-						    int *piFormats,
-						    UINT *nNumFormats);
+                                                    const int *piAttribList,
+                                                    const float *pfAttribFList,
+                                                    uint nMaxFormats,
+                                                    int *piFormats,
+                                                    UINT *nNumFormats);
 static PFNWGLCHOOSEPIXELFORMATARB wglChoosePixelFormatARB = 0;
 static PFNWGLGETPIXELFORMATATTRIBIVARB wglGetPixelFormatAttribivARB = 0;
 
 #ifndef WGL_ARB_multisample
-#define WGL_SAMPLE_BUFFERS_ARB		     0x2041
-#define WGL_SAMPLES_ARB			     0x2042
+#define WGL_SAMPLE_BUFFERS_ARB               0x2041
+#define WGL_SAMPLES_ARB                      0x2042
 #endif
 
 #ifndef WGL_ARB_pixel_format
@@ -499,17 +499,17 @@ static QGLFormat pfdToQGLFormat(const PIXELFORMATDESCRIPTOR* pfd)
     fmt.setDoubleBuffer(pfd->dwFlags & PFD_DOUBLEBUFFER);
     fmt.setDepth(pfd->cDepthBits);
     if (fmt.depth())
-	fmt.setDepthBufferSize(pfd->cDepthBits);
+        fmt.setDepthBufferSize(pfd->cDepthBits);
     fmt.setRgba(pfd->iPixelType == PFD_TYPE_RGBA);
     fmt.setAlpha(pfd->cAlphaBits);
     if (fmt.alpha())
-	fmt.setAlphaBufferSize(pfd->cAlphaBits);
+        fmt.setAlphaBufferSize(pfd->cAlphaBits);
     fmt.setAccum(pfd->cAccumBits);
     if (fmt.accum())
-	fmt.setAccumBufferSize(pfd->cAccumRedBits);
+        fmt.setAccumBufferSize(pfd->cAccumRedBits);
     fmt.setStencil(pfd->cStencilBits);
     if (fmt.stencil())
-	fmt.setStencilBufferSize(pfd->cStencilBits);
+        fmt.setStencilBufferSize(pfd->cStencilBits);
     fmt.setStereo(pfd->dwFlags & PFD_STEREO);
     fmt.setDirectRendering((pfd->dwFlags & PFD_GENERIC_ACCELERATED) ||
                             !(pfd->dwFlags & PFD_GENERIC_FORMAT));
@@ -535,28 +535,28 @@ QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
     iAttributes[i++] = WGL_SAMPLES_ARB; // 9
 
     if (wglGetPixelFormatAttribivARB(hdc, pfi, 0, i,
-				     iAttributes.constData(),
-				     iValues.data()))
+                                     iAttributes.constData(),
+                                     iValues.data()))
     {
-	fmt.setDoubleBuffer(iValues[0]);
-	fmt.setDepth(iValues[1]);
-	if (fmt.depth())
-	    fmt.setDepthBufferSize(iValues[1]);
-	fmt.setRgba(iValues[2] == WGL_TYPE_RGBA_ARB);
-	fmt.setAlpha(iValues[3]);
-	if (fmt.alpha())
-	    fmt.setAlphaBufferSize(iValues[3]);
-	fmt.setAccum(iValues[4]);
-	if (fmt.accum())
-	    fmt.setAccumBufferSize(iValues[4]);
-	fmt.setStencil(iValues[5]);
-	if (fmt.stencil())
-	    fmt.setStencilBufferSize(iValues[5]);
-	fmt.setStereo(iValues[6]);
-	fmt.setDirectRendering(iValues[7]);
-	fmt.setSampleBuffers(iValues[8]);
-	if (fmt.sampleBuffers())
-	    fmt.setSamples(iValues[9]);
+        fmt.setDoubleBuffer(iValues[0]);
+        fmt.setDepth(iValues[1]);
+        if (fmt.depth())
+            fmt.setDepthBufferSize(iValues[1]);
+        fmt.setRgba(iValues[2] == WGL_TYPE_RGBA_ARB);
+        fmt.setAlpha(iValues[3]);
+        if (fmt.alpha())
+            fmt.setAlphaBufferSize(iValues[3]);
+        fmt.setAccum(iValues[4]);
+        if (fmt.accum())
+            fmt.setAccumBufferSize(iValues[4]);
+        fmt.setStencil(iValues[5]);
+        if (fmt.stencil())
+            fmt.setStencilBufferSize(iValues[5]);
+        fmt.setStereo(iValues[6]);
+        fmt.setDirectRendering(iValues[7]);
+        fmt.setSampleBuffers(iValues[8]);
+        if (fmt.sampleBuffers())
+            fmt.setSamples(iValues[9]);
     }
 #if 0
     qDebug() << "values for pfi:" << pfi;
@@ -587,15 +587,15 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 
     bool result = true;
     HDC myDc;
-    
+
     if (deviceIsPixmap()) {
         if (d->glFormat.plane())
             return false;                // Pixmaps can't have overlay
         d->win = 0;
-	myDc = d->hbitmap_hdc = CreateCompatibleDC(qt_win_display_dc());
-	QPixmap *px = static_cast<QPixmap *>(d->paintDevice);
-	d->hbitmap = CreateCompatibleBitmap(qt_win_display_dc(), px->width(), px->height());
-	SelectObject(myDc, d->hbitmap);
+        myDc = d->hbitmap_hdc = CreateCompatibleDC(qt_win_display_dc());
+        QPixmap *px = static_cast<QPixmap *>(d->paintDevice);
+        d->hbitmap = CreateCompatibleBitmap(qt_win_display_dc(), px->width(), px->height());
+        SelectObject(myDc, d->hbitmap);
     } else {
         d->win = ((QWidget*)d->paintDevice)->winId();
         myDc = GetDC(d->win);
@@ -632,14 +632,14 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         d->glFormat.setStencil(lpfd.cStencilBits);
         d->glFormat.setStereo(lpfd.dwFlags & LPD_STEREO);
         d->glFormat.setDirectRendering(false);
-	if (d->glFormat.depth())
-	    d->glFormat.setDepthBufferSize(lpfd.cDepthBits);
-	if (d->glFormat.alpha())
-	    d->glFormat.setAlphaBufferSize(lpfd.cAlphaBits);
-	if (d->glFormat.accum())
-	    d->glFormat.setAccumBufferSize(lpfd.cAccumRedBits);
-	if (d->glFormat.stencil())
-	    d->glFormat.setStencilBufferSize(lpfd.cStencilBits);
+        if (d->glFormat.depth())
+            d->glFormat.setDepthBufferSize(lpfd.cDepthBits);
+        if (d->glFormat.alpha())
+            d->glFormat.setAlphaBufferSize(lpfd.cAlphaBits);
+        if (d->glFormat.accum())
+            d->glFormat.setAccumBufferSize(lpfd.cAccumRedBits);
+        if (d->glFormat.stencil())
+            d->glFormat.setStencilBufferSize(lpfd.cStencilBits);
 
         if (d->glFormat.rgba()) {
             if (lpfd.dwFlags & LPD_TRANSPARENT)
@@ -677,11 +677,11 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         }
 
         bool overlayRequested = d->glFormat.hasOverlay();
-	DescribePixelFormat(myDc, d->pixelFormatId, sizeof(PIXELFORMATDESCRIPTOR), &realPfd);
-	if (wglGetPixelFormatAttribivARB)
-	    d->glFormat = pfiToQGLFormat(myDc, d->pixelFormatId);
-	else
-	    d->glFormat = pfdToQGLFormat(&realPfd);
+        DescribePixelFormat(myDc, d->pixelFormatId, sizeof(PIXELFORMATDESCRIPTOR), &realPfd);
+        if (wglGetPixelFormatAttribivARB)
+            d->glFormat = pfiToQGLFormat(myDc, d->pixelFormatId);
+        else
+            d->glFormat = pfdToQGLFormat(&realPfd);
 
         d->glFormat.setOverlay(d->glFormat.hasOverlay() && overlayRequested);
 
@@ -713,7 +713,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         if (shareContext && shareContext->isValid()) {
             d->sharing = (wglShareLists(shareContext->d_func()->rc, d->rc) != 0);
             const_cast<QGLContext *>(shareContext)->d_func()->sharing = d->sharing;
-	}
+        }
 
         if(!deviceIsPixmap()) {
             QRgb* pal = qgl_create_rgb_palette(&realPfd);
@@ -764,179 +764,176 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
     }
 
     int chosenPfi = 0;
-    if (wglChoosePixelFormatARB) {
-	bool valid;
-	int pixelFormat = 0;
-	uint numFormats = 0;
-	float fAttributes[] = {0, 0};
-	QVarLengthArray<int> iAttributes(40);
-	int i = 0;
-	iAttributes[i++] = WGL_ACCELERATION_ARB;
-	iAttributes[i++] = deviceIsPixmap() ? WGL_GENERIC_ACCELERATION_ARB : WGL_FULL_ACCELERATION_ARB;
-	iAttributes[i++] = WGL_SUPPORT_OPENGL_ARB;
-	iAttributes[i++] = GL_TRUE;
-	iAttributes[i++] = deviceIsPixmap() ? WGL_DRAW_TO_BITMAP_ARB : WGL_DRAW_TO_WINDOW_ARB;
-	iAttributes[i++] = GL_TRUE;
-	iAttributes[i++] = WGL_COLOR_BITS_ARB;
-	iAttributes[i++] = 32;
-	if (d->glFormat.doubleBuffer() && !deviceIsPixmap()) {
-	    iAttributes[i++] = WGL_DOUBLE_BUFFER_ARB;
-	    iAttributes[i++] = GL_TRUE;
-	}
-	if (d->glFormat.stereo()) {
-	    iAttributes[i++] = WGL_STEREO_ARB;
-	    iAttributes[i++] = GL_TRUE;
-	}
-	if (d->glFormat.depth()) {
-	    iAttributes[i++] = WGL_DEPTH_BITS_ARB;
-	    iAttributes[i++] = d->glFormat.depthBufferSize() == -1 ? 24 : d->glFormat.depthBufferSize();
-	}
-	iAttributes[i++] = WGL_PIXEL_TYPE_ARB;
-	if (d->glFormat.rgba())
-	    iAttributes[i++] = WGL_TYPE_RGBA_ARB;
-	else
-	    iAttributes[i++] = WGL_TYPE_COLORINDEX_ARB;
-	if (d->glFormat.alpha()) {
-	    iAttributes[i++] = WGL_ALPHA_BITS_ARB;
-	    iAttributes[i++] = d->glFormat.alphaBufferSize() == -1 ? 8 : d->glFormat.alphaBufferSize();
-	}
- 	if (d->glFormat.accum()) {
- 	    iAttributes[i++] = WGL_ACCUM_BITS_ARB;
- 	    iAttributes[i++] = d->glFormat.accumBufferSize() == -1 ? 16 : d->glFormat.accumBufferSize();
- 	}
- 	if (d->glFormat.stencil()) {
-	    iAttributes[i++] = WGL_STENCIL_BITS_ARB;
-	    iAttributes[i++] = d->glFormat.stencilBufferSize() == -1 ? 8 : d->glFormat.stencilBufferSize();
-	}
-	int si = 0;
-	if (d->glFormat.sampleBuffers()) {
-	    iAttributes[i++] = WGL_SAMPLE_BUFFERS_ARB;
-	    iAttributes[i++] = GL_TRUE;
-	    iAttributes[i++] = WGL_SAMPLES_ARB;
-	    si = i;
-	    iAttributes[i++] = d->glFormat.samples() == -1 ? 16 : d->glFormat.samples();
-	}
-	iAttributes[i] = 0;
+    if (!deviceIsPixmap() && wglChoosePixelFormatARB) {
+        bool valid;
+        int pixelFormat = 0;
+        uint numFormats = 0;
+        QVarLengthArray<int> iAttributes(40);
+        int i = 0;
+        iAttributes[i++] = WGL_ACCELERATION_ARB;
+        iAttributes[i++] = WGL_FULL_ACCELERATION_ARB;
+        iAttributes[i++] = WGL_SUPPORT_OPENGL_ARB;
+        iAttributes[i++] = TRUE;
+        iAttributes[i++] = WGL_DRAW_TO_WINDOW_ARB;
+        iAttributes[i++] = TRUE;
+        iAttributes[i++] = WGL_COLOR_BITS_ARB;
+        iAttributes[i++] = 32;
+        iAttributes[i++] = WGL_DOUBLE_BUFFER_ARB;
+        iAttributes[i++] = d->glFormat.doubleBuffer();
+        if (d->glFormat.stereo()) {
+            iAttributes[i++] = WGL_STEREO_ARB;
+            iAttributes[i++] = TRUE;
+        }
+        if (d->glFormat.depth()) {
+            iAttributes[i++] = WGL_DEPTH_BITS_ARB;
+            iAttributes[i++] = d->glFormat.depthBufferSize() == -1 ? 24 : d->glFormat.depthBufferSize();
+        }
+        iAttributes[i++] = WGL_PIXEL_TYPE_ARB;
+        if (d->glFormat.rgba())
+            iAttributes[i++] = WGL_TYPE_RGBA_ARB;
+        else
+            iAttributes[i++] = WGL_TYPE_COLORINDEX_ARB;
+        if (d->glFormat.alpha()) {
+            iAttributes[i++] = WGL_ALPHA_BITS_ARB;
+            iAttributes[i++] = d->glFormat.alphaBufferSize() == -1 ? 8 : d->glFormat.alphaBufferSize();
+        }
+        if (d->glFormat.accum()) {
+            iAttributes[i++] = WGL_ACCUM_BITS_ARB;
+            iAttributes[i++] = d->glFormat.accumBufferSize() == -1 ? 16 : d->glFormat.accumBufferSize();
+        }
+        if (d->glFormat.stencil()) {
+            iAttributes[i++] = WGL_STENCIL_BITS_ARB;
+            iAttributes[i++] = d->glFormat.stencilBufferSize() == -1 ? 8 : d->glFormat.stencilBufferSize();
+        }
+        int si = 0;
+        if (d->glFormat.sampleBuffers()) {
+            iAttributes[i++] = WGL_SAMPLE_BUFFERS_ARB;
+            iAttributes[i++] = TRUE;
+            iAttributes[i++] = WGL_SAMPLES_ARB;
+            si = i;
+            iAttributes[i++] = d->glFormat.samples() == -1 ? 16 : d->glFormat.samples();
+        }
+        iAttributes[i] = 0;
 
-	do {
-	    valid = wglChoosePixelFormatARB(pdc, iAttributes.constData(), fAttributes, 1,
-					    &pixelFormat, &numFormats);
-	    if ((!valid || numFormats < 1) && d->glFormat.sampleBuffers())
-		iAttributes[si] /= 2; // try different no. samples - we aim for the best one
-	    else
-		break;
-	} while ((!valid || numFormats < 1) && iAttributes[si] > 1);
-	chosenPfi = pixelFormat;
+        do {
+            valid = wglChoosePixelFormatARB(pdc, iAttributes.constData(), 0, 1,
+                                            &pixelFormat, &numFormats);
+            if ((!valid || numFormats < 1) && d->glFormat.sampleBuffers())
+                iAttributes[si] /= 2; // try different no. samples - we aim for the best one
+            else
+                break;
+        } while ((!valid || numFormats < 1) && iAttributes[si] > 1);
+        chosenPfi = pixelFormat;
     } else {
-	int pmDepth = deviceIsPixmap() ? ((QPixmap*)d->paintDevice)->depth() : 0;
-	PIXELFORMATDESCRIPTOR* p = (PIXELFORMATDESCRIPTOR*)dummyPfd;
-	memset(p, 0, sizeof(PIXELFORMATDESCRIPTOR));
-	p->nSize = sizeof(PIXELFORMATDESCRIPTOR);
-	p->nVersion = 1;
-	p->dwFlags  = PFD_SUPPORT_OPENGL;
-	if (deviceIsPixmap())
-	    p->dwFlags |= PFD_DRAW_TO_BITMAP;
-	else
-	    p->dwFlags |= PFD_DRAW_TO_WINDOW;
-	if (d->glFormat.doubleBuffer() && !deviceIsPixmap())
-	    p->dwFlags |= PFD_DOUBLEBUFFER;
-	if (d->glFormat.stereo())
-	    p->dwFlags |= PFD_STEREO;
-	if (d->glFormat.depth() && !deviceIsPixmap())
-	    p->cDepthBits = d->glFormat.depthBufferSize() == -1 ? 32 : d->glFormat.depthBufferSize();
-	else
-	    p->dwFlags |= PFD_DEPTH_DONTCARE;
-	if (d->glFormat.rgba()) {
-	    p->iPixelType = PFD_TYPE_RGBA;
-	    if (deviceIsPixmap())
-		p->cColorBits = pmDepth;
-	    else
-		p->cColorBits = 32;
-	} else {
-	    p->iPixelType = PFD_TYPE_COLORINDEX;
-	    p->cColorBits = 8;
-	}
-	if (d->glFormat.alpha())
-	    p->cAlphaBits = d->glFormat.alphaBufferSize() == -1 ? 8 : d->glFormat.alphaBufferSize();
-	if (d->glFormat.accum()) {
-	    p->cAccumRedBits = p->cAccumGreenBits = p->cAccumBlueBits = p->cAccumAlphaBits =
-			       d->glFormat.accumBufferSize() == -1 ? 16 : d->glFormat.accumBufferSize();
-	}
-	if (d->glFormat.stencil())
-	    p->cStencilBits = d->glFormat.stencilBufferSize() == -1 ? 8 : d->glFormat.stencilBufferSize();
-	p->iLayerType = PFD_MAIN_PLANE;
-	chosenPfi = ChoosePixelFormat(pdc, p);
+        int pmDepth = deviceIsPixmap() ? ((QPixmap*)d->paintDevice)->depth() : 0;
+        PIXELFORMATDESCRIPTOR* p = (PIXELFORMATDESCRIPTOR*)dummyPfd;
+        memset(p, 0, sizeof(PIXELFORMATDESCRIPTOR));
+        p->nSize = sizeof(PIXELFORMATDESCRIPTOR);
+        p->nVersion = 1;
+        p->dwFlags  = PFD_SUPPORT_OPENGL;
+        if (deviceIsPixmap())
+            p->dwFlags |= PFD_DRAW_TO_BITMAP;
+        else
+            p->dwFlags |= PFD_DRAW_TO_WINDOW;
+        if (d->glFormat.doubleBuffer() && !deviceIsPixmap())
+            p->dwFlags |= PFD_DOUBLEBUFFER;
+        if (d->glFormat.stereo())
+            p->dwFlags |= PFD_STEREO;
+        if (d->glFormat.depth() && !deviceIsPixmap())
+            p->cDepthBits = d->glFormat.depthBufferSize() == -1 ? 32 : d->glFormat.depthBufferSize();
+        else
+            p->dwFlags |= PFD_DEPTH_DONTCARE;
+        if (d->glFormat.rgba()) {
+            p->iPixelType = PFD_TYPE_RGBA;
+            if (deviceIsPixmap())
+                p->cColorBits = pmDepth;
+            else
+                p->cColorBits = 32;
+        } else {
+            p->iPixelType = PFD_TYPE_COLORINDEX;
+            p->cColorBits = 8;
+        }
+        if (d->glFormat.alpha())
+            p->cAlphaBits = d->glFormat.alphaBufferSize() == -1 ? 8 : d->glFormat.alphaBufferSize();
+        if (d->glFormat.accum()) {
+            p->cAccumRedBits = p->cAccumGreenBits = p->cAccumBlueBits = p->cAccumAlphaBits =
+                               d->glFormat.accumBufferSize() == -1 ? 16 : d->glFormat.accumBufferSize();
+        }
+        if (d->glFormat.stencil())
+            p->cStencilBits = d->glFormat.stencilBufferSize() == -1 ? 8 : d->glFormat.stencilBufferSize();
+        p->iLayerType = PFD_MAIN_PLANE;
+        chosenPfi = ChoosePixelFormat(pdc, p);
 
-	if (!chosenPfi)
-	    qErrnoWarning("QGLContext: ChoosePixelFormat failed");
+        if (!chosenPfi)
+            qErrnoWarning("QGLContext: ChoosePixelFormat failed");
 
-	// Since the GDI function ChoosePixelFormat() does not handle
-	// overlay and direct-rendering requests, we must roll our own here
+        // Since the GDI function ChoosePixelFormat() does not handle
+        // overlay and direct-rendering requests, we must roll our own here
 
-	bool doSearch = chosenPfi <= 0;
-	PIXELFORMATDESCRIPTOR pfd;
-	QGLFormat fmt;
-	if (!doSearch) {
-	    DescribePixelFormat(pdc, chosenPfi, sizeof(PIXELFORMATDESCRIPTOR),
-				&pfd);
-	    fmt = pfdToQGLFormat(&pfd);
-	    if (d->glFormat.hasOverlay() && !fmt.hasOverlay())
-		doSearch = true;
-	    else if (!qLogEq(d->glFormat.directRendering(), fmt.directRendering()))
-		doSearch = true;
-	    else if (deviceIsPixmap() && (!(pfd.dwFlags & PFD_DRAW_TO_BITMAP) ||
-					  pfd.cColorBits != pmDepth))
-		doSearch = true;
-	    else if (!deviceIsPixmap() && !(pfd.dwFlags & PFD_DRAW_TO_WINDOW))
-		doSearch = true;
-	    else if (!qLogEq(d->glFormat.rgba(), fmt.rgba()))
-		doSearch = true;
-	}
+        bool doSearch = chosenPfi <= 0;
+        PIXELFORMATDESCRIPTOR pfd;
+        QGLFormat fmt;
+        if (!doSearch) {
+            DescribePixelFormat(pdc, chosenPfi, sizeof(PIXELFORMATDESCRIPTOR),
+                                &pfd);
+            fmt = pfdToQGLFormat(&pfd);
+            if (d->glFormat.hasOverlay() && !fmt.hasOverlay())
+                doSearch = true;
+            else if (!qLogEq(d->glFormat.directRendering(), fmt.directRendering()))
+                doSearch = true;
+            else if (deviceIsPixmap() && (!(pfd.dwFlags & PFD_DRAW_TO_BITMAP) ||
+                                          pfd.cColorBits != pmDepth))
+                doSearch = true;
+            else if (!deviceIsPixmap() && !(pfd.dwFlags & PFD_DRAW_TO_WINDOW))
+                doSearch = true;
+            else if (!qLogEq(d->glFormat.rgba(), fmt.rgba()))
+                doSearch = true;
+        }
 
-	if (doSearch) {
-	    int pfiMax = DescribePixelFormat(pdc, 0, 0, NULL);
-	    int bestScore = -1;
-	    int bestPfi = -1;
-	    for (int pfi = 1; pfi <= pfiMax; pfi++) {
-		DescribePixelFormat(pdc, pfi, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
-		if (!(pfd.dwFlags & PFD_SUPPORT_OPENGL))
-		    continue;
-		if (deviceIsPixmap() && (!(pfd.dwFlags & PFD_DRAW_TO_BITMAP) ||
-					 pfd.cColorBits != pmDepth))
-		    continue;
-		if (!deviceIsPixmap() && !(pfd.dwFlags & PFD_DRAW_TO_WINDOW))
-		    continue;
+        if (doSearch) {
+            int pfiMax = DescribePixelFormat(pdc, 0, 0, NULL);
+            int bestScore = -1;
+            int bestPfi = -1;
+            for (int pfi = 1; pfi <= pfiMax; pfi++) {
+                DescribePixelFormat(pdc, pfi, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
+                if (!(pfd.dwFlags & PFD_SUPPORT_OPENGL))
+                    continue;
+                if (deviceIsPixmap() && (!(pfd.dwFlags & PFD_DRAW_TO_BITMAP) ||
+                                         pfd.cColorBits != pmDepth))
+                    continue;
+                if (!deviceIsPixmap() && !(pfd.dwFlags & PFD_DRAW_TO_WINDOW))
+                    continue;
 
-		fmt = pfdToQGLFormat(&pfd);
-		if (d->glFormat.hasOverlay() && !fmt.hasOverlay())
-		    continue;
+                fmt = pfdToQGLFormat(&pfd);
+                if (d->glFormat.hasOverlay() && !fmt.hasOverlay())
+                    continue;
 
-		int score = pfd.cColorBits;
-		if (qLogEq(d->glFormat.depth(), fmt.depth()))
-		    score += pfd.cDepthBits;
-		if (qLogEq(d->glFormat.alpha(), fmt.alpha()))
-		    score += pfd.cAlphaBits;
-		if (qLogEq(d->glFormat.accum(), fmt.accum()))
-		    score += pfd.cAccumBits;
-		if (qLogEq(d->glFormat.stencil(), fmt.stencil()))
-		    score += pfd.cStencilBits;
-		if (qLogEq(d->glFormat.doubleBuffer(), fmt.doubleBuffer()))
-		    score += 1000;
-		if (qLogEq(d->glFormat.stereo(), fmt.stereo()))
-		    score += 2000;
-		if (qLogEq(d->glFormat.directRendering(), fmt.directRendering()))
-		    score += 4000;
-		if (qLogEq(d->glFormat.rgba(), fmt.rgba()))
-		    score += 8000;
-		if (score > bestScore) {
-		    bestScore = score;
-		    bestPfi = pfi;
-		}
-	    }
+                int score = pfd.cColorBits;
+                if (qLogEq(d->glFormat.depth(), fmt.depth()))
+                    score += pfd.cDepthBits;
+                if (qLogEq(d->glFormat.alpha(), fmt.alpha()))
+                    score += pfd.cAlphaBits;
+                if (qLogEq(d->glFormat.accum(), fmt.accum()))
+                    score += pfd.cAccumBits;
+                if (qLogEq(d->glFormat.stencil(), fmt.stencil()))
+                    score += pfd.cStencilBits;
+                if (qLogEq(d->glFormat.doubleBuffer(), fmt.doubleBuffer()))
+                    score += 1000;
+                if (qLogEq(d->glFormat.stereo(), fmt.stereo()))
+                    score += 2000;
+                if (qLogEq(d->glFormat.directRendering(), fmt.directRendering()))
+                    score += 4000;
+                if (qLogEq(d->glFormat.rgba(), fmt.rgba()))
+                    score += 8000;
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestPfi = pfi;
+                }
+            }
 
-	    if (bestPfi > 0)
-		chosenPfi = bestPfi;
-	}
+            if (bestPfi > 0)
+                chosenPfi = bestPfi;
+        }
     }
     return chosenPfi;
 }
@@ -963,10 +960,10 @@ void QGLContext::reset()
     if (d->win && d->dc)
         ReleaseDC(d->win, d->dc);
     if (deviceIsPixmap()) {
-	DeleteDC(d->hbitmap_hdc);
-	DeleteObject(d->hbitmap);
-	d->hbitmap_hdc = 0;
-	d->hbitmap = 0;
+        DeleteDC(d->hbitmap_hdc);
+        DeleteObject(d->hbitmap);
+        d->hbitmap_hdc = 0;
+        d->hbitmap = 0;
     }
     d->dc  = 0;
     d->win = 0;
@@ -994,10 +991,10 @@ void QGLContext::makeCurrent()
         return;
     if (d->win) {
         d->dc = GetDC(d->win);
-	if (!d->dc) {
-	    qwglError("QGLContext::makeCurrent()", "GetDC()");
-	    return;
-	}
+        if (!d->dc) {
+            qwglError("QGLContext::makeCurrent()", "GetDC()");
+            return;
+        }
     } else if (deviceIsPixmap()) {
         d->dc = d->hbitmap_hdc;
     }
@@ -1078,24 +1075,17 @@ uint QGLContext::colorIndex(const QColor& c) const
 void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 {
     Q_D(QGLContext);
-    WId winId;
-    HDC glHdc;
     if (!isValid())
         return;
-    if (deviceIsPixmap()) {
-        winId = 0;
-        glHdc = d->paintDevice->getDC();
-    } else {
-        winId = ((QWidget*)d->paintDevice)->winId();
-        glHdc = GetDC(winId);
-    }
-    SelectObject(glHdc, fnt.handle());
-    if (!wglUseFontBitmaps(glHdc, 0, 256, listBase))
+
+    HDC tmp_dc = CreateCompatibleDC(qt_win_display_dc());
+    HGDIOBJ old_font = SelectObject(tmp_dc, fnt.handle());
+
+    if (!wglUseFontBitmaps(tmp_dc, 0, 256, listBase))
         qWarning("QGLContext::generateFontDisplayLists: Could not generate display lists for font '%s'", fnt.family().toLatin1().data());
-    if (winId)
-        ReleaseDC(winId, glHdc);
-    else if (deviceIsPixmap())
-        d->paintDevice->releaseDC(glHdc);
+
+    SelectObject(tmp_dc, old_font);
+    DeleteDC(tmp_dc);
 }
 
 void *QGLContext::getProcAddress(const QString &proc) const
@@ -1143,18 +1133,18 @@ bool QGLWidget::event(QEvent *e)
     Q_D(QGLWidget);
     if (e->type() == QEvent::ParentChange) {
         setContext(new QGLContext(d->glcx->requestedFormat(), this));
-	// the overlay needs to be recreated as well
-	delete d->olcx;
-	if (isValid() && context()->format().hasOverlay()) {
-	    d->olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), this);
-	    if (!d->olcx->create(isSharing() ? d->glcx : 0)) {
-		delete d->olcx;
-		d->olcx = 0;
-		d->glcx->d_func()->glFormat.setOverlay(false);
-	    }
-	} else {
-	    d->olcx = 0;
-	}
+        // the overlay needs to be recreated as well
+        delete d->olcx;
+        if (isValid() && context()->format().hasOverlay()) {
+            d->olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), this);
+            if (!d->olcx->create(isSharing() ? d->glcx : 0)) {
+                delete d->olcx;
+                d->olcx = 0;
+                d->glcx->d_func()->glFormat.setOverlay(false);
+            }
+        } else {
+            d->olcx = 0;
+        }
     }
     return QWidget::event(e);
 }
@@ -1339,28 +1329,29 @@ void QGLExtensions::init()
     static bool init_done = false;
 
     if (init_done)
-	return;
+        return;
     init_done = true;
 
     // we need a current GL context in order to obtain the API
     // entries and GL extension strings
     QWidget dmy(0);
     HDC dmy_pdc = GetDC(dmy.winId());
-    PIXELFORMATDESCRIPTOR dmy_pfd = {
-	sizeof(PIXELFORMATDESCRIPTOR), 1,
-	PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW,
-	PFD_TYPE_RGBA, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, PFD_MAIN_PLANE, 0, 0, 0, 0
-    };
+    PIXELFORMATDESCRIPTOR dmy_pfd;
+    memset(&dmy_pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
+    dmy_pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+    dmy_pfd.nVersion = 1;
+    dmy_pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
+    dmy_pfd.iPixelType = PFD_TYPE_RGBA;
+
     int dmy_pf = ChoosePixelFormat(dmy_pdc, &dmy_pfd);
     SetPixelFormat(dmy_pdc, dmy_pf, &dmy_pfd);
     HGLRC dmy_rc = wglCreateContext(dmy_pdc);
     wglMakeCurrent(dmy_pdc, dmy_rc);
 
     wglChoosePixelFormatARB =
-	(PFNWGLCHOOSEPIXELFORMATARB) wglGetProcAddress("wglChoosePixelFormatARB");
+        (PFNWGLCHOOSEPIXELFORMATARB) wglGetProcAddress("wglChoosePixelFormatARB");
     wglGetPixelFormatAttribivARB =
-	(PFNWGLGETPIXELFORMATATTRIBIVARB) wglGetProcAddress("wglGetPixelFormatAttribivARB");
+        (PFNWGLGETPIXELFORMATATTRIBIVARB) wglGetProcAddress("wglGetPixelFormatAttribivARB");
 
     init_extensions();
 
