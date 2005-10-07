@@ -901,6 +901,9 @@ bool QAbstractItemView::viewportEvent(QEvent *event)
         }
         break ; }
 #endif
+    case QEvent::FontChange:
+        d->doDelayedItemsLayout(); // the size of the items will change
+        break;
     case QEvent::WindowActivate:
     case QEvent::WindowDeactivate:
         d->viewport->update();
