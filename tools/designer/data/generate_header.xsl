@@ -164,7 +164,7 @@
         <xsl:param name="node"/>
         <xsl:variable name="name" select="concat('Dom', $node/@name)"/>
 
-        <xsl:text>class QT_UI4_EXPORT </xsl:text>
+        <xsl:text>class QDESIGNER_UILIB_EXPORT </xsl:text>
         <xsl:value-of select="$name"/>
         <xsl:text> {&endl;</xsl:text>
         <xsl:text>public:&endl;</xsl:text>
@@ -264,31 +264,46 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of Qt Designer.  This header
+// file may change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
+
 </xsl:text>
 
         <xsl:text>#ifndef UI4_H&endl;</xsl:text>
         <xsl:text>#define UI4_H&endl;</xsl:text>
         <xsl:text>&endl;</xsl:text>
-        <xsl:text>#include &lt;QList&gt;&endl;</xsl:text>
-        <xsl:text>#include &lt;QString&gt;&endl;</xsl:text>
-        <xsl:text>#include &lt;QStringList&gt;&endl;</xsl:text>
+        <xsl:text>#include &lt;QtCore/QList&gt;&endl;</xsl:text>
+        <xsl:text>#include &lt;QtCore/QString&gt;&endl;</xsl:text>
+        <xsl:text>#include &lt;QtCore/QStringList&gt;&endl;</xsl:text>
         <xsl:text>class QDomDocument;&endl;</xsl:text>
         <xsl:text>class QDomElement;&endl;</xsl:text>
 
 <xsl:text>
 #include &lt;QtCore/qglobal.h&gt;
-#if defined(QT_DESIGNER) &amp;&amp; defined(Q_OS_WIN) &amp;&amp; !defined(QT_DESIGNER_STATIC)
-#    ifdef QT_UILIB_LIBRARY
-#        define QT_UI4_EXPORT __declspec(dllexport)
-#    else
-#        define QT_UI4_EXPORT __declspec(dllimport)
-#    endif
+
+#define QDESIGNER_UILIB_EXTERN Q_DECL_EXPORT
+#define QDESIGNER_UILIB_IMPORT Q_DECL_IMPORT
+
+#ifdef QT_DESIGNER_STATIC
+#  define QDESIGNER_UILIB_EXPORT
+#elif defined(QDESIGNER_UILIB_LIBRARY)
+#  define QDESIGNER_UILIB_EXPORT QDESIGNER_UILIB_EXTERN
+#else
+#  define QDESIGNER_UILIB_EXPORT QDESIGNER_UILIB_IMPORT
 #endif
 
-#ifndef QT_UI4_EXPORT
-#    define QT_UI4_EXPORT
+#ifndef QDESIGNER_UILIB_EXPORT
+#    define QDESIGNER_UILIB_EXPORT
 #endif
-
 
 #ifdef QFORMINTERNAL_NAMESPACE
 namespace QFormInternal
