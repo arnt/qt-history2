@@ -21,10 +21,10 @@
 #include "qvector.h"
 #include "qsqldriver.h"
 
-struct Holder {
-    Holder(const QString& hldr = QString(), int index = -1): holderName(hldr), holderPos(index) {}
-    bool operator==(const Holder& h) const { return h.holderPos == holderPos && h.holderName == holderName; }
-    bool operator!=(const Holder& h) const { return h.holderPos != holderPos || h.holderName != holderName; }
+struct QHolder {
+    QHolder(const QString& hldr = QString(), int index = -1): holderName(hldr), holderPos(index) {}
+    bool operator==(const QHolder& h) const { return h.holderPos == holderPos && h.holderName == holderName; }
+    bool operator!=(const QHolder& h) const { return h.holderPos != holderPos || h.holderName != holderName; }
     QString holderName;
     int            holderPos;
 };
@@ -84,8 +84,8 @@ public:
     typedef QHash<QString, int> IndexMap;
     IndexMap indexes;
 
-    typedef QVector<Holder> HolderVector;
-    HolderVector holders;
+    typedef QVector<QHolder> QHolderVector;
+    QHolderVector holders;
 };
 
 QString QSqlResultPrivate::holderAt(int index) const
@@ -535,7 +535,7 @@ bool QSqlResult::prepare(const QString& query)
     int i = 0;
     while ((i = rx.indexIn(query, i)) != -1) {
         if (!rx.cap(1).isEmpty())
-            d->holders.append(Holder(rx.cap(0), i));
+            d->holders.append(QHolder(rx.cap(0), i));
         i += rx.matchedLength();
     }
     d->sql = query;

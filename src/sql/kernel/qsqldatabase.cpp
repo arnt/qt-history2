@@ -71,7 +71,7 @@ QT_STATIC_CONST_IMPL char *QSqlDatabase::defaultConnection = "qt_sql_default_con
 
 typedef QHash<QString, QSqlDriverCreatorBase*> DriverDict;
 
-class ConnectionDict: public QHash<QString, QSqlDatabase>
+class QConnectionDict: public QHash<QString, QSqlDatabase>
 {
 public:
     inline bool contains_ts(const QString &key)
@@ -119,7 +119,7 @@ public:
     static void removeDatabase(const QString& name);
     static void invalidateDb(const QSqlDatabase &db, const QString &name);
     static DriverDict &driverDict();
-    Q_GLOBAL_STATIC(ConnectionDict, dbDict)
+    Q_GLOBAL_STATIC(QConnectionDict, dbDict)
     static void cleanConnections();
 };
 
@@ -144,11 +144,11 @@ QSqlDatabasePrivate::~QSqlDatabasePrivate()
 
 void QSqlDatabasePrivate::cleanConnections()
 {
-    ConnectionDict *dict = dbDict();
+    QConnectionDict *dict = dbDict();
     Q_ASSERT(dict);
     QWriteLocker locker(&dict->lock);
 
-    ConnectionDict::iterator it = dict->begin();
+    QConnectionDict::iterator it = dict->begin();
     while (it != dict->end()) {
         invalidateDb(it.value(), it.key());
         ++it;
@@ -193,7 +193,7 @@ void QSqlDatabasePrivate::invalidateDb(const QSqlDatabase &db, const QString &na
 
 void QSqlDatabasePrivate::removeDatabase(const QString &name)
 {
-    ConnectionDict *dict = dbDict();
+    QConnectionDict *dict = dbDict();
     Q_ASSERT(dict);
     QWriteLocker locker(&dict->lock);
 
@@ -205,7 +205,7 @@ void QSqlDatabasePrivate::removeDatabase(const QString &name)
 
 void QSqlDatabasePrivate::addDatabase(const QSqlDatabase &db, const QString &name)
 {
-    ConnectionDict *dict = dbDict();
+    QConnectionDict *dict = dbDict();
     Q_ASSERT(dict);
     QWriteLocker locker(&dict->lock);
 
@@ -221,7 +221,7 @@ void QSqlDatabasePrivate::addDatabase(const QSqlDatabase &db, const QString &nam
 */
 QSqlDatabase QSqlDatabasePrivate::database(const QString& name, bool open)
 {
-    const ConnectionDict *dict = dbDict();
+    const QConnectionDict *dict = dbDict();
     Q_ASSERT(dict);
 
     dict->lock.lockForRead();

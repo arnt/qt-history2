@@ -85,9 +85,9 @@
     returns false.
 */
 
-struct Relation
+struct QRelation
 {
-    Relation(): model(0) {}
+    QRelation(): model(0) {}
     QSqlRelation rel;
     QSqlTableModel *model;
     QHash<int, QVariant> displayValues;
@@ -101,7 +101,7 @@ public:
     {}
 
     int nameToIndex(const QString &name) const;
-    mutable QVector<Relation> relations;
+    mutable QVector<QRelation> relations;
     QSqlRecord baseRec; // the record without relations
     void clearChanges();
     void clearEditBuffer();
@@ -122,7 +122,7 @@ static void qAppendWhereClause(QString &query, const QString &clause1, const QSt
 void QSqlRelationalTableModelPrivate::clearChanges()
 {
     for (int i = 0; i < relations.count(); ++i) {
-        Relation &rel = relations[i];
+        QRelation &rel = relations[i];
         delete rel.model;
         rel.displayValues.clear();
     }
@@ -130,7 +130,7 @@ void QSqlRelationalTableModelPrivate::clearChanges()
 
 int QSqlRelationalTableModelPrivate::nameToIndex(const QString &name) const
 {
-    return baseRec.indexOf(name);  
+    return baseRec.indexOf(name);
 }
 
 void QSqlRelationalTableModelPrivate::clearEditBuffer()
@@ -327,7 +327,7 @@ QString QSqlRelationalTableModel::selectStatement() const
 
     QSqlRecord rec = database().record(tableName());
     QStringList tables;
-    const Relation nullRelation;
+    const QRelation nullRelation;
     for (int i = 0; i < rec.count(); ++i) {
         QSqlRelation relation = d->relations.value(i, nullRelation).rel;
         if (relation.isValid()) {
@@ -377,7 +377,7 @@ QString QSqlRelationalTableModel::selectStatement() const
 QSqlTableModel *QSqlRelationalTableModel::relationModel(int column) const
 {
     Q_D(const QSqlRelationalTableModel);
-    Relation relation = d->relations.value(column);
+    QRelation relation = d->relations.value(column);
     if (!relation.rel.isValid())
         return 0;
 
