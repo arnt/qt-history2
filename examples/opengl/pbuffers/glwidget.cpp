@@ -45,7 +45,7 @@ static GLubyte colorArray[][4] = {
 };
 
 GLWidget::GLWidget(QWidget *parent)
-    : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
+  : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
 {
     // create the pbuffer
     pbuffer = new QGLPbuffer(QSize(512, 512), format(), this);
@@ -97,6 +97,7 @@ void GLWidget::paintGL()
     pbuffer->makeCurrent();
     glBindTexture(GL_TEXTURE_2D, cubeTexture);
     glCallList(pbufferList);
+    glFlush();
 
 #if  defined(Q_WS_X11)
     // rendering directly to a texture is not supported on X11, unfortunately

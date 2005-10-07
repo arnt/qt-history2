@@ -13,17 +13,17 @@
 
 /*!
     \class QGLPbuffer
-    \brief The QGLPbuffer class encapsulates an OpenGL \c pbuffer.
+    \brief The QGLPbuffer class encapsulates an OpenGL pbuffer.
     \since 4.1
 
     \ingroup multimedia
 
     QGLPbuffer provides functionality for creating and managing an
-    OpenGL \c pbuffer. A \c pbuffer can be rendered into using full
+    OpenGL pbuffer. A pbuffer can be rendered into using full
     hardware acceleration. This is usually much faster than rendering
     into a system pixmap, where software rendering is often
     used. Under Windows and on the Mac it is also possible to bind the
-    \c pbuffer directly as a texture using the \c render_texture
+    pbuffer directly as a texture using the \c render_texture
     extension, thus eliminating the need for additional copy
     operations to generate dynamic textures.
 
@@ -40,7 +40,7 @@
 
 /*! \fn bool QGLPbuffer::makeCurrent()
 
-    Makes this \c pbuffer the current GL rendering context. Returns true
+    Makes this pbuffer the current GL rendering context. Returns true
     on success, false otherwise.
  */
 
@@ -68,6 +68,10 @@
     currently not supported under X11. Under X11 you can achieve the
     same by copying the buffer contents to a texture after drawing
     into the buffer using copyToTexture().
+
+    For the bind() call to succeed on the Mac, the pbuffer needs a
+    shared context, i.e. the QGLPbuffer have to be created with a
+    share widget.
  */
 
 /*! \fn bool QGLPbuffer::release()
@@ -91,7 +95,7 @@
     This is a convenience function that copies the buffer contents
     (using \c {glCopyTexImage2D()}) into the texture specified with \a
     texture_id, which has the internal format \a format. The default
-    format is \c GL_RGBA8.
+    internal format is \c GL_RGBA8.
  */
 void QGLPbuffer::copyToTexture(GLuint texture_id, GLint format)
 {
@@ -110,7 +114,6 @@ QSize QGLPbuffer::size() const
     Q_D(const QGLPbuffer);
     return d->size;
 }
-
 
 /*!
     Returns the contents of the buffer as a QImage.
@@ -149,12 +152,15 @@ QImage QGLPbuffer::toImage() const
     return img.mirrored();
 }
 
+/*!
+    Returns the native pbuffer handle.
+*/
 Qt::HANDLE QGLPbuffer::handle() const
 {
     Q_D(const QGLPbuffer);
     if (d->invalid)
         return 0;
-    return 0;
+    return d->pbuf;
 }
 
 /*!
@@ -176,8 +182,7 @@ QPaintEngine *QGLPbuffer::paintEngine() const
 
 extern int qt_defaultDpi();
 
-/*!
-    Returns the size for the specified \a metric on the device.
+/*! \reimp 
 */
 int QGLPbuffer::metric(PaintDeviceMetric metric) const
 {
@@ -272,7 +277,7 @@ void QGLPbuffer::deleteTexture(GLuint texture_id)
 
 /*!
     Returns the format of the pbuffer. The format may be different
-    than the one that was requested.
+    from the one that was requested.
 */
 QGLFormat QGLPbuffer::format() const
 {
