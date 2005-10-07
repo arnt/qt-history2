@@ -2035,6 +2035,7 @@ void FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
         if (item->type() == QDesignerDnDItemInterface::CopyDrop) {
             QWidget *widget = createWidget(dom_ui, geometry, parent);
             selectWidget(widget, true);
+            widget->setFocus(Qt::MouseFocusReason); // ### workaround for QWorkSpace (?) bug
         } else {
             QWidget *widget = item->widget();
             Q_ASSERT(widget != 0);
