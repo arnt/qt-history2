@@ -25,7 +25,7 @@
 
 void QSvgAnimation::draw(QPainter *)
 {
-    qWarning()<<"<animation> no implemented";
+    qWarning("<animation> no implemented");
 }
 
 

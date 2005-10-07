@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qtransportauth_qws.h"
+
+#ifndef QT_NO_QWS_MULTIPROCESS
+
 #include "md5.h"
 #include "qwsutils_qws.h"
 #include "qwscommand_qws.h"
@@ -203,8 +206,8 @@ bool QTransportAuth::isDiscoveryMode() const
     yesItIs = ( getenv( "SXV_DISCOVERY_MODE" ) != 0 );
     if ( yesItIs )
     {
-        qWarning() << "SXV Discovery mode on, ALLOWING ALL requests and logging to"
-            << logFilePath();
+        qWarning("SXV Discovery mode on, ALLOWING ALL requests and logging to %s",
+                 qPrintable(logFilePath()));
         QFile::remove( logFilePath() );
     }
     checked = true;
@@ -553,7 +556,7 @@ void AuthDevice::authorizeMessage()
         request += QString( "/QCop/%1/%2" ).arg( command->channel ).arg( command->message );
     }
 #endif
-    
+
     if ( !request.isEmpty() )
         emit policyCheck( *d, request );
 
@@ -562,17 +565,19 @@ void AuthDevice::authorizeMessage()
 #if defined(SXV_DISCOVERY)
     if ( auth->isDiscoveryMode() )
     {
+#ifndef QT_NO_TEXTSTREAM
         QFile log( auth->logFilePath() );
         if ( !log.open( QIODevice::WriteOnly | QIODevice::Append ))
         {
-            qWarning() << "Could not write to log in discovery mode:"
-                    << auth->logFilePath();
+            qWarning("Could not write to log in discovery mode:",
+                     qPrintable(auth->logFilePath()));
         }
         else
         {
             QTextStream ts( &log );
             ts << d->progId << '\t' << ( isAuthorized ? "Allow" : "Deny" ) << '\t' << request << endl;
         }
+#endif
         isAuthorized = true;
     }
 #endif
@@ -583,7 +588,8 @@ void AuthDevice::authorizeMessage()
         setData( cmdBuf.buffer() );
 #if defined(SXV_DISCOVERY)
     else
-        qWarning() << request << " - denied: (to turn on discovery mode, export SXV_DISCOVERY_MODE=1";
+        qWarning("%s - denied: (to turn on discovery mode, export SXV_DISCOVERY_MODE=1",
+                 qPrintable(request));
 #endif
 }
 
@@ -880,3 +886,5 @@ int hmac_md5(
         MD5Final(digest, &context);          /* finish up 2nd pass */
         return 1;
 }
+
+#endif // QT_NO_QWS_MULTIPROCESS

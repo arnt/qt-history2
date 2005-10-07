@@ -884,13 +884,13 @@ void QListView::paintEvent(QPaintEvent *e)
         delegate->paint(&painter, option, *it);
     }
 
+#ifndef QT_NO_DRAGANDDROP
     if (!d->draggedItems.isEmpty() && d->viewport->rect().contains(d->draggedItemsPos)) {
         QPoint delta = d->draggedItemsDelta();
         painter.translate(delta.x(), delta.y());
         d->drawItems(&painter, d->draggedItems);
     }
 
-#ifndef QT_NO_DRAGANDDROP
     // Paint the dropIndicator
     d_func()->paintDropIndicator(&painter);
 #endif

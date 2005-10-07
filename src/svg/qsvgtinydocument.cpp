@@ -35,9 +35,8 @@ QSvgTinyDocument * QSvgTinyDocument::load(const QString &fileName)
 
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        qWarning()<<"Cannot open file '"<<fileName
-                  <<"', because: "
-                  <<file.errorString();
+        qWarning("Cannot open file '%s', because: %s",
+                 qPrintable(fileName), qPrintable(file.errorString()));
         return 0;
     }
 

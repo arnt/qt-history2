@@ -326,11 +326,6 @@
 #define QT_NO_DRAGANDDROP
 #endif
 
-// Server to play sound
-#if !defined(QT_NO_QWS_SOUNDSERVER) && (defined(QT_NO_SOUND) || defined(QT_NO_HOSTINFO))
-#define QT_NO_QWS_SOUNDSERVER
-#endif
-
 // Spin boxes
 #if !defined(QT_NO_SPINBOX) && (defined(QT_NO_SPINWIDGET) || defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR))
 #define QT_NO_SPINBOX
@@ -359,6 +354,11 @@
 // The Model/View Framework
 #if !defined(QT_NO_ITEMVIEWS) && (defined(QT_NO_RUBBERBAND) || defined(QT_NO_SCROLLAREA))
 #define QT_NO_ITEMVIEWS
+#endif
+
+// Server to play sound
+#if !defined(QT_NO_QWS_SOUNDSERVER) && (defined(QT_NO_SOUND) || defined(QT_NO_HOSTINFO) || defined(QT_NO_QWS_MULTIPROCESS))
+#define QT_NO_QWS_SOUNDSERVER
 #endif
 
 // QSyntaxHighlighter

@@ -299,7 +299,7 @@ static qreal convertToPixels(qreal len, bool isX, QSvgHandler::LengthType type)
     QWidget *sampleWidget = widgets.first();
 
     if (!sampleWidget) {
-        qWarning()<<"can't produce matrics without some widget";
+        qWarning("can't produce matrics without some widget");
         return 0;
     }
 
@@ -381,7 +381,7 @@ static void parseBrush(QSvgNode *node,
                     node->appendStyleProperty(style,
                                               attributes.value("id"));
                 else {
-                    qWarning()<<"Couldn't resolve property: "<<id;
+                    qWarning("Couldn't resolve property: %s", qPrintable(id));
                 }
             }
         } else if (value != QLatin1String("none")) {
@@ -753,7 +753,7 @@ static bool parseQBrush(const QXmlAttributes &attributes, QSvgNode *node,
                     break;
                 }
                 default:
-                    qWarning()<<"Couldn't resolve property: "<<id;
+                    qWarning("Couldn't resolve property: %s", qPrintable(id));
                 }
             }
         } else if (value != QLatin1String("none")) {
@@ -2111,7 +2111,8 @@ static QSvgNode *createSvgNode(QSvgNode *parent,
     QString baseProfile = attributes.value("baseProfile");
 
     if (baseProfile.isEmpty() && baseProfile != QLatin1String("tiny")) {
-        qWarning()<<"Profile is "<<baseProfile<<", while we only support tiny!";
+        qWarning("Profile is %s while we only support tiny!",
+                 qPrintable(baseProfile));
     }
 
     QSvgTinyDocument *node = new QSvgTinyDocument();
@@ -2248,7 +2249,7 @@ static QSvgNode *createUseNode(QSvgNode *parent,
         }
     }
 
-    qWarning()<<"link "<<linkId<<" hasn't been detected!";
+    qWarning("link %s hasn't been detected!", qPrintable(linkId));
     return 0;
 }
 
@@ -2345,7 +2346,7 @@ bool QSvgHandler::startElement(const QString &namespaceURI,
         Q_ASSERT(!m_nodes.isEmpty());
         m_style = 0;
         if (!s_utilFactory[localName](m_nodes.top(), attributes, this)) {
-            qWarning()<<"Problem parsing "<<localName;
+            qWarning("Problem parsing %s", qPrintable(localName));
         }
     } else if (s_styleFactory.contains(localName)) {
         QSvgStyleProperty *prop = s_styleFactory[localName](
@@ -2355,12 +2356,12 @@ bool QSvgHandler::startElement(const QString &namespaceURI,
             m_nodes.top()->appendStyleProperty(prop, id, true);
             m_style = prop;
         } else {
-            qWarning()<<"Couldn't parse node: "<<localName;
+            qWarning("Couldn't parse node: %s", qPrintable(localName));
         }
     } else if (s_styleUtilFactory.contains(localName)) {
         if (m_style) {
             if (!s_styleUtilFactory[localName](m_style, attributes, this)) {
-                qWarning()<<"Problem parsing "<<localName;
+                qWarning("Problem parsing %s", qPrintable(localName));
             }
         }
     } else {
@@ -2421,9 +2422,9 @@ bool QSvgHandler::characters(const QString &str)
 
 bool QSvgHandler::fatalError(const QXmlParseException &exception)
 {
-    qWarning() << "Fatal error on line" << exception.lineNumber()
-               << ", column" << exception.columnNumber() << ":"
-               << exception.message();
+    qWarning("Fatal error on line %i, column %i: %s",
+             exception.lineNumber(), exception.columnNumber(),
+             qPrintable(exception.message()));
 
     return true;
 }

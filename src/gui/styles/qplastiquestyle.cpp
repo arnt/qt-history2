@@ -1006,6 +1006,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         }
         break ;
 #endif // QT_NO_TABBAR
+#ifndef QT_NO_GROUPBOX
     case PE_FrameGroupBox:
         if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
             QStyleOptionFrameV2 frameV2(*frame);
@@ -1020,6 +1021,8 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             }
         }
         break;
+#endif // QT_NO_GROUPBOX
+#ifndef QT_NO_LINEEDIT
     case PE_FrameLineEdit:
         if (widget && widget->parent()) {
             // Line edits use QPalette::Base as background role, so if we can
@@ -1036,6 +1039,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             alphaCornerColor = mergedColors(backgroundColor, borderColor);
         }
         // fall through
+#endif // QT_NO_LINEEDIT
     case PE_Frame:
 #ifdef QT3_SUPPORT
         if (widget && widget->inherits("Q3ToolBar")) {
@@ -5123,7 +5127,9 @@ void QPlastiqueStyle::polish(QWidget *widget)
         || qobject_cast<QAbstractSpinBox *>(widget)
 #endif
         || qobject_cast<QCheckBox *>(widget)
+#ifndef QT_NO_GROUPBOX
         || qobject_cast<QGroupBox *>(widget)
+#endif
         || qobject_cast<QRadioButton *>(widget)
 #ifndef QT_NO_SPLITTER
         || qobject_cast<QSplitterHandle *>(widget)
@@ -5181,7 +5187,9 @@ void QPlastiqueStyle::unpolish(QWidget *widget)
         || qobject_cast<QAbstractSpinBox *>(widget)
 #endif
         || qobject_cast<QCheckBox *>(widget)
+#ifndef QT_NO_GROUPBOX
         || qobject_cast<QGroupBox *>(widget)
+#endif
 #ifndef QT_NO_SPLITTER
         || qobject_cast<QSplitterHandle *>(widget)
 #endif

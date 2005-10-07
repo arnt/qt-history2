@@ -20,6 +20,8 @@
 #include <QtCore/qbuffer.h>
 #include <QtCore/qpointer.h>
 
+#ifndef QT_NO_QWS_MULTIPROCESS
+
 QT_MODULE(Gui)
 
 // Uncomment to generate debug output
@@ -329,4 +331,5 @@ int hmac_md5(
 void hexstring( char *buf, const unsigned char* key, size_t sz );
 #endif
 
+#endif // QT_NO_QWS_MULTIPROCESS
 #endif // QTRANSPORTAUTH_QWS_H
