@@ -474,7 +474,7 @@ QCoreApplication::~QCoreApplication()
   \list 1
   \i Reimplementing paintEvent(), mousePressEvent() and so
   on. This is the commonest, easiest and least powerful way.
-  
+
   \i Reimplementing this function. This is very powerful, providing
   complete control; but only one subclass can be active at a time.
 
@@ -1337,6 +1337,14 @@ QString QCoreApplication::applicationFilePath()
     QFileInfo fi(qAppFileName());
     return fi.exists() ? fi.canonicalFilePath() : QString();
 #else
+#  ifdef Q_OS_LINUX
+    // Try looking for a /proc/<pid>/exe symlink first which points to
+    // the absolute path of the executable
+    QFileInfo pfi(QString("/proc/%1/exe").arg(getpid()));
+    if (pfi.exists() && pfi.isSymLink())
+        return pfi.canonicalFilePath();
+#  endif
+
     QString argv0 = QFile::decodeName(QByteArray(argv()[0]));
     QString absPath;
 
