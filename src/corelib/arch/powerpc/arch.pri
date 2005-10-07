@@ -12,7 +12,7 @@ HEADERS += $$ARCH_H/qatomic.h
     *-64 {
         SOURCES += $$ARCH_CPP/qatomic64.s
     } else {
-        else: SOURCES += $$ARCH_CPP/qatomic32.s
+        SOURCES += $$ARCH_CPP/qatomic32.s
     }
 }
 
