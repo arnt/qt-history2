@@ -17,7 +17,6 @@ HEADERS += \
     widgets/q3mainwindow_p.h \
     widgets/q3progressbar.h \
     widgets/q3scrollview.h \
-    widgets/q3splitter.h \
     widgets/q3titlebar_p.h \
     widgets/q3toolbar.h \
     widgets/q3whatsthis.h \
@@ -42,7 +41,6 @@ SOURCES += \
     widgets/q3mainwindow.cpp \
     widgets/q3progressbar.cpp \
     widgets/q3scrollview.cpp \
-    widgets/q3splitter.cpp \
     widgets/q3titlebar.cpp \
     widgets/q3toolbar.cpp \
     widgets/q3whatsthis.cpp \

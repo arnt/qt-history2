@@ -83,6 +83,7 @@ public:
     void addContribution(int, int *, int *, bool) const;
     int adjustPos(int, int, int *, int *, int *, int *) const;
     bool collapsible(QSplitterLayoutStruct *) const;
+    QSplitterLayoutStruct *findWidget(QWidget *) const;
     QSplitterLayoutStruct *insertWidget(int index, QWidget *);
     void doMove(bool backwards, int pos, int index, int delta,
                 bool mayCollapse, int *positions, int *widths);

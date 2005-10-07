@@ -668,6 +668,15 @@ void QSplitterPrivate::doMove(bool backwards, int hPos, int index, int delta, bo
 
 }
 
+QSplitterLayoutStruct *QSplitterPrivate::findWidget(QWidget *w) const
+{
+    for (int i = 0; i < list.size(); ++i) {
+        if (list.at(i)->widget == w)
+            return list.at(i);
+    }
+    return 0;
+}
+
 #ifdef QT3_SUPPORT
 static void setStretch(QWidget *w, int sf)
 {
@@ -1140,13 +1149,13 @@ int QSplitter::count() const
     Tells the splitter that the child widget described by \a c has been
     inserted or removed.
 
-    In Qt 4.0, This method used to handle the situation where a widget is
-    created with the splitter as a parent but not explicitly added with
-    insertWidget() or addWidget(). Since this was for compatiblity and since it
-    caused problems, the code has been moved to Q3Splitter and QSplitter will
-    only add widgets with insertWiget() or addWidget() from 4.1 and up
+    This method is also used to handle the situation where a widget is created
+    with the splitter as a parent but not explicitly added with insertWidget()
+    or addWidget(). This is for compatiblity and not the recommended way of
+    putting widgets into a splitter in new code. Please use insertWidget() or
+    addWidget() in new code.
 
-    \sa addWidget() insertWidget() Q3Splitter
+    \sa addWidget() insertWidget()
 */
 
 void QSplitter::childEvent(QChildEvent *c)
@@ -1156,7 +1165,9 @@ void QSplitter::childEvent(QChildEvent *c)
         return;
     QWidget *w = static_cast<QWidget*>(c->child());
 
-    if (c->type() == QEvent::ChildRemoved) {
+    if (c->added() && !d->blockChildAdd && !w->isWindow() && !d->findWidget(w)) {
+        addWidget(w);
+    } else  if (c->type() == QEvent::ChildRemoved) {
         for (int i = 0; i < d->list.size(); ++i) {
             QSplitterLayoutStruct *s = d->list.at(i);
             if (s->widget == w) {
