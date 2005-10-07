@@ -24,6 +24,7 @@
 #include <QtGui/QToolBox>
 #include <QtGui/QStackedWidget>
 #include <QtGui/QTabWidget>
+#include <QtGui/QTableWidget>
 #include <QtGui/QSplitter>
 #include <QtGui/QDockWidget>
 #include <QtGui/QMainWindow>
@@ -1605,5 +1606,175 @@ void AddContainerWidgetPageCommand::undo()
         objectInspector->setFormWindow(formWindow());
 }
 
+// ---- ChangeTableContentsCommand ----
+ChangeTableContentsCommand::ChangeTableContentsCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Change Table Contents"), formWindow),
+        m_oldColumnCount(0),
+        m_newColumnCount(0),
+        m_oldRowCount(0),
+        m_newRowCount(0)
+{
+
+}
+
+void ChangeTableContentsCommand::init(QTableWidget *tableWidget, QTableWidget *fromTableWidget)
+{
+    m_tableWidget = tableWidget;
+
+    m_oldItemsState.clear();
+    m_newItemsState.clear();
+    m_oldHorizontalHeaderState.clear();
+    m_newHorizontalHeaderState.clear();
+    m_oldVerticalHeaderState.clear();
+    m_newVerticalHeaderState.clear();
+
+    m_oldColumnCount = tableWidget->columnCount();
+    m_oldRowCount = tableWidget->rowCount();
+    m_newColumnCount = fromTableWidget->columnCount();
+    m_newRowCount = fromTableWidget->rowCount();
+
+    for (int col = 0; col < m_oldColumnCount; col++) {
+        QTableWidgetItem *item = tableWidget->horizontalHeaderItem(col);
+        if (item) {
+            QString text = item->text();
+            QIcon icon = item->icon();
+            if (!text.isEmpty() || !icon.isNull()) {
+                m_oldHorizontalHeaderState[col] =
+                            qMakePair<QString, QIcon>(text, icon);
+            }
+        }
+    }
+
+    for (int row = 0; row < m_oldRowCount; row++) {
+        QTableWidgetItem *item = tableWidget->verticalHeaderItem(row);
+        if (item) {
+            QString text = item->text();
+            QIcon icon = item->icon();
+            if (!text.isEmpty() || !icon.isNull()) {
+                m_oldVerticalHeaderState[row] =
+                            qMakePair<QString, QIcon>(text, icon);
+            }
+        }
+    }
+
+    for (int col = 0; col < m_oldColumnCount; col++) {
+        for (int row = 0; row < m_oldRowCount; row++) {
+            QTableWidgetItem *item = tableWidget->item(row, col);
+            if (item) {
+                QString text = item->text();
+                QIcon icon = item->icon();
+                if (!text.isEmpty() || !icon.isNull()) {
+                    m_oldItemsState[qMakePair<int, int>(row, col)] =
+                                qMakePair<QString, QIcon>(text, icon);
+                }
+            }
+        }
+    }
+
+
+    for (int col = 0; col < m_newColumnCount; col++) {
+        QTableWidgetItem *item = fromTableWidget->horizontalHeaderItem(col);
+        if (item) {
+            QString text = item->text();
+            QIcon icon = item->icon();
+            if (!text.isEmpty() || !icon.isNull()) {
+                m_newHorizontalHeaderState[col] =
+                            qMakePair<QString, QIcon>(text, icon);
+            }
+        }
+    }
+
+    for (int row = 0; row < m_newRowCount; row++) {
+        QTableWidgetItem *item = fromTableWidget->verticalHeaderItem(row);
+        if (item) {
+            QString text = item->text();
+            QIcon icon = item->icon();
+            if (!text.isEmpty() || !icon.isNull()) {
+                m_newVerticalHeaderState[row] =
+                            qMakePair<QString, QIcon>(text, icon);
+            }
+        }
+    }
+
+    for (int col = 0; col < m_newColumnCount; col++) {
+        for (int row = 0; row < m_newRowCount; row++) {
+            QTableWidgetItem *item = fromTableWidget->item(row, col);
+            if (item) {
+                QString text = item->text();
+                QIcon icon = item->icon();
+                if (!text.isEmpty() || !icon.isNull()) {
+                    m_newItemsState[qMakePair<int, int>(row, col)] =
+                                qMakePair<QString, QIcon>(text, icon);
+                }
+            }
+        }
+    }
+}
+
+void ChangeTableContentsCommand::changeContents(QTableWidget *tableWidget,
+        int rowCount, int columnCount,
+        const QMap<int, QPair<QString, QIcon> > &horizontalHeaderState,
+        const QMap<int, QPair<QString, QIcon> > &verticalHeaderState,
+        const QMap<QPair<int, int>, QPair<QString, QIcon> > &itemsState) const
+{
+    tableWidget->clear();
+
+    tableWidget->setColumnCount(columnCount);
+    QMap<int, QPair<QString, QIcon> >::ConstIterator itColumn =
+                horizontalHeaderState.constBegin();
+    while (itColumn != horizontalHeaderState.constEnd()) {
+        int column = itColumn.key();
+        QString text = itColumn.value().first;
+        QIcon icon = itColumn.value().second;
+        QTableWidgetItem *item = new QTableWidgetItem;
+        item->setText(text);
+        item->setIcon(icon);
+        tableWidget->setHorizontalHeaderItem(column, item);
+
+        itColumn++;
+    }
+
+    tableWidget->setRowCount(rowCount);
+    QMap<int, QPair<QString, QIcon> >::ConstIterator itRow =
+                verticalHeaderState.constBegin();
+    while (itRow != verticalHeaderState.constEnd()) {
+        int row = itRow.key();
+        QString text = itRow.value().first;
+        QIcon icon = itRow.value().second;
+        QTableWidgetItem *item = new QTableWidgetItem;
+        item->setText(text);
+        item->setIcon(icon);
+        tableWidget->setVerticalHeaderItem(row, item);
+
+        itRow++;
+    }
+
+    QMap<QPair<int, int>, QPair<QString, QIcon> >::ConstIterator itItem =
+                itemsState.constBegin();
+    while (itItem != itemsState.constEnd()) {
+        int row = itItem.key().first;
+        int column = itItem.key().second;
+        QString text = itItem.value().first;
+        QIcon icon = itItem.value().second;
+        QTableWidgetItem *item = new QTableWidgetItem;
+        item->setText(text);
+        item->setIcon(icon);
+        tableWidget->setItem(row, column, item);
+
+        itItem++;
+    }
+}
+
+void ChangeTableContentsCommand::redo()
+{
+    changeContents(m_tableWidget, m_newRowCount, m_newColumnCount,
+                m_newHorizontalHeaderState, m_newVerticalHeaderState, m_newItemsState);
+}
+
+void ChangeTableContentsCommand::undo()
+{
+    changeContents(m_tableWidget, m_oldRowCount, m_oldColumnCount,
+                m_oldHorizontalHeaderState, m_oldVerticalHeaderState, m_oldItemsState);
+}
 
 } // namespace qdesigner_internal

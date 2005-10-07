@@ -14,6 +14,7 @@
 #include "tablewidgeteditor.h"
 #include <findicondialog_p.h>
 #include <iconloader_p.h>
+#include <qdesigner_command_p.h>
 
 #include <QtDesigner/QtDesigner>
 #include <QtCore/QDir>
@@ -97,7 +98,9 @@ void TableWidgetEditor::fillContentsFromTableWidget(QTableWidget *tableWidget)
 
 void TableWidgetEditor::fillTableWidgetFromContents(QTableWidget *tableWidget)
 {
-    copyContents(ui.tableWidget, tableWidget);
+    ChangeTableContentsCommand *cmd = new ChangeTableContentsCommand(m_form);
+    cmd->init(tableWidget, ui.tableWidget);
+    m_form->commandHistory()->push(cmd);
 }
 
 void TableWidgetEditor::copyContents(QTableWidget *sourceWidget, QTableWidget *destWidget)

@@ -47,6 +47,7 @@ class QDesignerMetaDataBaseItemInterface;
 
 class QToolBox;
 class QTabWidget;
+class QTableWidget;
 class QStackedWidget;
 class QDockWidget;
 class QMainWindow;
@@ -683,6 +684,35 @@ public:
 
     virtual void redo();
     virtual void undo();
+};
+
+class QT_SHARED_EXPORT ChangeTableContentsCommand: public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    ChangeTableContentsCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QTableWidget *tableWidget, QTableWidget *fromTableWidget);
+    virtual void redo();
+    virtual void undo();
+private:
+    void changeContents(QTableWidget *tableWidget,
+        int rowCount, int columnCount,
+        const QMap<int, QPair<QString, QIcon> > &horizontalHeaderState,
+        const QMap<int, QPair<QString, QIcon> > &verticalHeaderState,
+        const QMap<QPair<int, int>, QPair<QString, QIcon> > &itemsState) const;
+
+    QPointer<QTableWidget> m_tableWidget;
+    QMap<QPair<int, int>, QPair<QString, QIcon> > m_oldItemsState;
+    QMap<QPair<int, int>, QPair<QString, QIcon> > m_newItemsState;
+    QMap<int, QPair<QString, QIcon> > m_oldHorizontalHeaderState;
+    QMap<int, QPair<QString, QIcon> > m_newHorizontalHeaderState;
+    QMap<int, QPair<QString, QIcon> > m_oldVerticalHeaderState;
+    QMap<int, QPair<QString, QIcon> > m_newVerticalHeaderState;
+    int m_oldColumnCount;
+    int m_newColumnCount;
+    int m_oldRowCount;
+    int m_newRowCount;
 };
 
 } // namespace qdesigner_internal
