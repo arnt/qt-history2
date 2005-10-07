@@ -3421,7 +3421,7 @@ bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
   Stubbed session management support
  *****************************************************************************/
 #ifndef QT_NO_SESSIONMANAGER
-#if defined(QT_NO_SM_SUPPORT) || defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
+#if defined(QT_NO_SM) || defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
 
 class QSessionManagerPrivate : public QObjectPrivate
 {
@@ -3553,8 +3553,8 @@ void QSessionManager::requestPhase2()
 {
 }
 
-#endif // QT_NO_SM_SUPPORT
-#endif //QT_NO_SESSIONMANAGER
+#endif // QT_NO_SM
+#endif // QT_NO_SESSIONMANAGER
 
 /*!
     \typedef QApplication::ColorMode

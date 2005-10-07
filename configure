@@ -357,7 +357,7 @@ unset QTDIR
 # initalize internal variables
 CFG_CONFIGURE_EXIT_ON_ERROR=yes
 CFG_PROFILE=no
-CFG_EXCEPTION_SUPPORT=unspecified
+CFG_EXCEPTIONS=unspecified
 CFG_INCREMENTAL=auto
 CFG_QCONFIG=full
 CFG_EMBEDDED=no
@@ -770,9 +770,9 @@ while [ "$#" -gt 0 ]; do
         ;;
     exceptions|g++-exceptions)
         if [ "$VAL" = "no" ]; then
-            CFG_EXCEPTION_SUPPORT=no
+            CFG_EXCEPTIONS=no
         elif [ "$VAL" = "yes" ]; then
-            CFG_EXCEPTION_SUPPORT=yes
+            CFG_EXCEPTIONS=yes
         else
             UNKNOWN_OPT=yes
         fi
@@ -3546,11 +3546,11 @@ fi
 
 # turn off exceptions for the compilers that support it
 COMPILER=`echo $PLATFORM | cut -f 2- -d-`
-if [ "$CFG_EXCEPTION_SUPPORT" = "unspecified" -a "$PLATFORM_QWS" = "yes" ]; then
-    CFG_EXCEPTION_SUPPORT=no
+if [ "$CFG_EXCEPTIONS" = "unspecified" -a "$PLATFORM_QWS" = "yes" ]; then
+    CFG_EXCEPTIONS=no
 fi
 
-if [ "$CFG_EXCEPTION_SUPPORT" = "no" ]; then
+if [ "$CFG_EXCEPTIONS" = "no" ]; then
     case "$COMPILER" in
     g++*)
         QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=-fno-exceptions\""
@@ -3859,19 +3859,19 @@ QMAKE_VARS="$QMAKE_VARS \"sql-plugins = $SQL_PLUGINS\""
 [ "$CFG_MNG" != "yes" ]      && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IMAGEFORMAT_MNG"
 [ "$CFG_ZLIB" != "yes" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_ZLIB"
 
-[ "$CFG_EXCEPTION_SUPPORT" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_EXCEPTIONS"
-[ "$CFG_TABLET" = "no" ]    && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_TABLET_SUPPORT"
+[ "$CFG_EXCEPTIONS" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_EXCEPTIONS"
+[ "$CFG_TABLET" = "no" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_TABLET"
 [ "$CFG_IPV6" = "no" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IPV6"
 
 # X11/Unix/Mac only configs
 [ "$CFG_CUPS" = "no" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_CUPS"
 [ "$CFG_GETADDRINFO" = "no" ]&& QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GETADDRINFO"
 [ "$CFG_IPV6IFNAME" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IPV6IFNAME"
-[ "$CFG_NAS" = "yes" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NAS_SUPPORT"
+[ "$CFG_NAS" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_NAS"
 [ "$CFG_NIS" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_NIS"
-[ "$CFG_SM" = "no" ]         && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_SM_SUPPORT"
+[ "$CFG_SM" = "no" ]         && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_SM"
 [ "$CFG_XCURSOR" = "no" ]    && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XCURSOR"
-[ "$CFG_FONTCONFIG" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_FONTCONFIG"
+[ "$CFG_FONTCONFIG" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_FONTCONFIG"
 [ "$CFG_XINERAMA" = "no" ]   && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XINERAMA"
 [ "$CFG_XKB" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XKB"
 [ "$CFG_XRANDR" = "no" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XRANDR"
@@ -4078,7 +4078,7 @@ fi
 
 case "$COMPILER" in
 g++*)
-    if [ "$CFG_EXCEPTION_SUPPORT" != "no" ]; then
+    if [ "$CFG_EXCEPTIONS" != "no" ]; then
         cat <<EOF
 
         This target is using the GNU C++ compiler ($PLATFORM).
@@ -4097,7 +4097,7 @@ EOF
 cc*)
     case "$PLATFORM" in
     irix-cc*)
-        if [ "$CFG_EXCEPTION_SUPPORT" != "no" ]; then
+        if [ "$CFG_EXCEPTIONS" != "no" ]; then
             cat <<EOF
 
         This target is using the MIPSpro C++ compiler ($PLATFORM).

@@ -311,7 +311,7 @@ bool qt_reuse_double_buffer = true;
 
 Q_GUI_EXPORT int qt_xfocusout_grab_counter = 0;
 
-#if !defined (QT_NO_TABLET_SUPPORT)
+#if !defined (QT_NO_TABLET)
 Q_GLOBAL_STATIC(QTabletDeviceDataList, tablet_devices)
 QTabletDeviceDataList *qt_tablet_devices()
 {
@@ -365,7 +365,7 @@ public:
     bool translateScrollDoneEvent(const XEvent *);
     bool translateWheelEvent(int global_x, int global_y, int delta, Qt::MouseButtons buttons,
                              Qt::KeyboardModifiers modifiers, Qt::Orientation orient);
-#if !defined (QT_NO_TABLET_SUPPORT)
+#if !defined (QT_NO_TABLET)
     bool translateXinputEvent(const XEvent*, const QTabletDeviceData *tablet);
 #endif
     bool translatePropertyEvent(const XEvent *);
@@ -1117,7 +1117,7 @@ static void qt_check_focus_model()
         X11->focus_model = QX11Data::FM_Other;
 }
 
-#ifndef QT_NO_TABLET_SUPPORT
+#ifndef QT_NO_TABLET
 static bool isXInputSupported(Display *dpy)
 {
     Bool exists;
@@ -1664,7 +1664,7 @@ void qt_init(QApplicationPrivate *priv, int,
             QApplication::setFont(f);
         }
 
-#if !defined (QT_NO_TABLET_SUPPORT)
+#if !defined (QT_NO_TABLET)
         if (isXInputSupported(X11->display)) {
             int ndev,
                 i,
@@ -1825,7 +1825,7 @@ void qt_init(QApplicationPrivate *priv, int,
             }
             XFreeDeviceList(devices);
         }
-#endif // QT_NO_TABLET_SUPPORT
+#endif // QT_NO_TABLET
 
         X11->startupId = getenv("DESKTOP_STARTUP_ID");
         putenv(strdup("DESKTOP_STARTUP_ID="));
@@ -1939,7 +1939,7 @@ void qt_cleanup()
             XRenderFreePicture(X11->display, X11->pattern_fills[i].picture);
     }
 #endif
-#if !defined (QT_NO_TABLET_SUPPORT)
+#if !defined (QT_NO_TABLET)
     QTabletDeviceDataList *devices = qt_tablet_devices();
     for (int i = 0; i < devices->size(); ++i)
         XCloseDevice(X11->display, (XDevice*)devices->at(i).device);
@@ -2614,7 +2614,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
 
     if (widget->x11Event(event))                // send through widget filter
         return 1;
-#if !defined (QT_NO_TABLET_SUPPORT)
+#if !defined (QT_NO_TABLET)
     QTabletDeviceDataList *tablets = qt_tablet_devices();
     for (int i = 0; i < tablets->size(); ++i) {
         const QTabletDeviceData &tab = tablets->at(i);
@@ -2664,11 +2664,11 @@ int QApplication::x11ProcessEvent(XEvent* event)
             qt_net_update_user_time(widget->window());
         // fall through intended
     case MotionNotify:
-#if !defined(QT_NO_TABLET_SUPPORT)
+#if !defined(QT_NO_TABLET)
         if (!qt_tabletChokeMouse) {
 #endif
             widget->translateMouseEvent(event);
-#if !defined(QT_NO_TABLET_SUPPORT)
+#if !defined(QT_NO_TABLET)
         } else {
             qt_tabletChokeMouse = false;
         }
@@ -3369,7 +3369,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         }
         if (event->type == ButtonPress) {        // mouse button pressed
             buttons |= button;
-#if defined(Q_OS_IRIX) && !defined(QT_NO_TABLET_SUPPORT)
+#if defined(Q_OS_IRIX) && !defined(QT_NO_TABLET)
             TabletDeviceDataList *tablets = qt_tablet_devices();
             for (int i = 0; i < tablets->size(); ++i) {
                 const TabletDeviceData &tab = tablets->at(i);
@@ -3407,7 +3407,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             mouseGlobalYPos = globalPos.y();
         } else {                                // mouse button released
             buttons &= ~button;
-#if defined(Q_OS_IRIX) && !defined(QT_NO_TABLET_SUPPORT)
+#if defined(Q_OS_IRIX) && !defined(QT_NO_TABLET)
             TabletDeviceDataList *tablets = qt_tablet_devices();
             for (int i = 0; i < tablets->size(); ++i) {
                 const TabletDeviceData &tab = tablets->at(i);
@@ -3591,7 +3591,7 @@ bool QETWidget::translateWheelEvent(int global_x, int global_y, int delta,
 //
 // XInput Translation Event
 //
-#if !defined (QT_NO_TABLET_SUPPORT)
+#if !defined (QT_NO_TABLET)
 bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *tablet)
 {
 #if defined (Q_OS_IRIX)
@@ -5291,7 +5291,7 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
   Session management support
  *****************************************************************************/
 
-#ifndef QT_NO_SM_SUPPORT
+#ifndef QT_NO_SM
 
 #include <X11/SM/SMlib.h>
 
@@ -5778,5 +5778,4 @@ void QSessionManager::requestPhase2()
     sm_phase2 = true;
 }
 
-
-#endif // QT_NO_SM_SUPPORT
+#endif // QT_NO_SM

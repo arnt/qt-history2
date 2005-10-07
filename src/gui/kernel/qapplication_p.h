@@ -61,7 +61,7 @@ extern QSysInfo::MacVersion qt_macver;
 class QWSManager;
 #endif
 
-#ifndef QT_NO_TABLET_SUPPORT
+#ifndef QT_NO_TABLET
 struct QTabletDeviceData
 {
     int minPressure;

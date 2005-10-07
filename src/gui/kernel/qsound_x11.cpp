@@ -20,7 +20,7 @@
 #include "qapplication.h"
 #include "qsound_p.h"
 
-#ifdef QT_NAS_SUPPORT
+#ifndef QT_NO_NAS
 
 #include <audio/audiolib.h>
 #include <audio/soundlib.h>
@@ -246,7 +246,7 @@ QAuServerNull::QAuServerNull(QObject* parent)
 
 QAuServer* qt_new_audio_server()
 {
-#ifdef QT_NAS_SUPPORT
+#ifndef QT_NO_NAS
     QAuServer* s = new QAuServerNAS(qApp);
     if (s->okay())
         return s;
