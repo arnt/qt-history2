@@ -1,10 +1,14 @@
 TEMPLATE = lib
-TARGET = QtForm_debug
+TARGET = QtForm
 QT += xml
-CONFIG += qt debug
-CONFIG += static
+CONFIG += qt staticlib
 DESTDIR = ../../../../lib
 DLLDESTDIR = ../../../../bin
+
+CONFIG(debug, debug|release) {
+    unix:TARGET = $$member(TARGET, 0)_debug
+    else:TARGET = $$member(TARGET, 0)d
+}
 
 DEFINES += QFORMINTERNAL_NAMESPACE QT_DESIGNER_STATIC
 isEmpty(QT_MAJOR_VERSION) {
