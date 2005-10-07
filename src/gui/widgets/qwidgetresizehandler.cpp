@@ -65,14 +65,13 @@ bool QWidgetResizeHandler::isActive(Action ac) const
 
 bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
 {
-    if (!isActive() || !ee->spontaneous())
-        return false;
-
-    if (ee->type() != QEvent::MouseButtonPress &&
-         ee->type() != QEvent::MouseButtonRelease &&
-         ee->type() != QEvent::MouseMove &&
-         ee->type() != QEvent::KeyPress &&
-         ee->type() != QEvent::ShortcutOverride)
+    if (!isActive()
+        || (ee->type() != QEvent::MouseButtonPress
+            && ee->type() != QEvent::MouseButtonRelease
+            && ee->type() != QEvent::MouseMove
+            && ee->type() != QEvent::KeyPress
+            && ee->type() != QEvent::ShortcutOverride)
+        )
         return false;
 
     Q_ASSERT(o == widget);
@@ -281,9 +280,11 @@ void QWidgetResizeHandler::setMouseCursor(MousePosition m)
 #ifndef QT_NO_CURSOR
     QObjectList children = widget->children();
     for (int i = 0; i < children.size(); ++i) {
-        if (QWidget *w = qobject_cast<QWidget*>(children.at(i)))
-            if (!w->testAttribute(Qt::WA_SetCursor))
+        if (QWidget *w = qobject_cast<QWidget*>(children.at(i))) {
+            if (!w->testAttribute(Qt::WA_SetCursor) && !w->inherits("QWorkspaceTitleBar")) {
                 w->setCursor(Qt::ArrowCursor);
+            }
+        }
     }
 
     switch (m) {
