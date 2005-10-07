@@ -1728,7 +1728,13 @@ QWidget *FormWindow::findContainer(QWidget *w, bool excludeLayout) const
 
 void FormWindow::simplifySelection(QList<QWidget*> *sel) const
 {
-    QMutableListIterator<QWidget*> it(*sel);
+    // Figure out which widgets should be removed from selection.
+    // We want to remove those whose parent widget is also in the
+    // selection (because the child widgets are contained by
+    // their parent, they shouldn't be in the selection --
+    // they are "implicitly" selected)
+    QList<QWidget*> toBeRemoved;
+    QListIterator<QWidget*> it(*sel);
     while (it.hasNext()) {
         QWidget *child = it.next();
         QWidget *w = child;
@@ -1737,8 +1743,12 @@ void FormWindow::simplifySelection(QList<QWidget*> *sel) const
             w = w->parentWidget();
 
         if (child != w)
-            it.remove();
+            toBeRemoved.append(child);
     }
+    // Now we can actually remove the widgets that were marked
+    // for removal in the previous pass.
+    while (!toBeRemoved.isEmpty())
+        sel->removeAll(toBeRemoved.takeFirst());
 }
 
 FormWindow *FormWindow::findFormWindow(QWidget *w)
