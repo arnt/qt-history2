@@ -375,4 +375,40 @@ bool QScrollArea::focusNextPrevChild(bool next)
     return false;
 }
 
+/*!
+    Scrolls the content so that the point (x, y) is visible with 50-pixel margins (if possible).
+    Otherwise scrolls to the nearest valid position.
+    
+    Note: If you call this function before entering an event loop, make sure that you have set 
+    the focus on the QScrollArea widget. Otherwise, the content will be scrolled back.
+    
+    \code
+        QScrollArea sa;
+        sa.setBackgroundRole(QPalette::Dark);
+        sa.setWidget(childWidget);                     
+        sa.show();
+        
+        sa.setFocus();
+        
+        qapp.exec();
+    \endcode    
+*/
+void QScrollArea::ensureVisible(int x, int y)
+{
+    Q_D(QScrollArea); 
+    int visMargin = 50;    
+        
+    if (x < d->hbar->value() - visMargin){
+        d->hbar->setValue(qMax(0, x - visMargin));
+    } else if (x > d->hbar->value() + d->viewport->width() - visMargin) {
+        d->hbar->setValue(qMin(x - d->viewport->width() + visMargin, d->hbar->maximum()));
+    }
+    
+    if (y < d->vbar->value() - visMargin){
+        d->vbar->setValue(qMax(0, y - visMargin));
+    } else if (y > d->vbar->value() + d->viewport->height() - visMargin) {
+        d->vbar->setValue(qMin(y - d->viewport->height() + visMargin, d->vbar->maximum()));
+    }                   
+}
+
 #endif // QT_NO_SCROLLAREA

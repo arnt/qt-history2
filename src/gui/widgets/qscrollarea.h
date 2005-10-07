@@ -39,6 +39,8 @@ public:
 
     QSize sizeHint() const;
     bool focusNextPrevChild(bool next);
+    
+    void ensureVisible(int x, int y);
 
 protected:
     bool event(QEvent *);
