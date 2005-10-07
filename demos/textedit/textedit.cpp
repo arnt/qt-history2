@@ -334,6 +334,8 @@ bool TextEdit::maybeSave()
 {
     if (!textEdit->document()->isModified())
         return true;
+    if (fileName.startsWith(QLatin1String(":/")))
+        return true;
     int ret = QMessageBox::warning(this, tr("Application"),
                                    tr("The document has been modified.\n"
                                       "Do you want to save your changes?"),
