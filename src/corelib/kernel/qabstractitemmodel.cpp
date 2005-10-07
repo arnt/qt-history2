@@ -440,7 +440,7 @@ void QAbstractItemModelPrivate::rowsInserted(const QModelIndex &parent,
                                              int first, int last)
 {
     QList<int> persistent_moved = persistent.moved.pop();
-    int count = (last - first) + 1;
+    int count = (last - first) + 1; // it is important to only use the delta, because the change could be nested
     for (int i = 0; i < persistent_moved.count(); ++i) {
         int position = persistent_moved.at(i);
         QModelIndex old = persistent.indexes.at(position)->index;
@@ -485,7 +485,7 @@ void QAbstractItemModelPrivate::rowsRemoved(const QModelIndex &parent,
     // it is important that we update the persistent index positions first and then invalidate indexes later
     // this is because the invalidation of indexes may remove them from the list of persistent indexes
     // and this in turn will go through the list of moved and invalidated indexes and update them
-    int count = (last - first) + 1;
+    int count = (last - first) + 1; // it is important to only use the delta, because the change could be nested
     for (int i = 0; i < persistent_moved.count(); ++i) {
         int position = persistent_moved.at(i);
         QModelIndex old = persistent.indexes.at(position)->index;
@@ -514,7 +514,7 @@ void QAbstractItemModelPrivate::columnsInserted(const QModelIndex &parent,
                                                 int first, int last)
 {
     QList<int> persistent_moved = persistent.moved.pop();
-    int count = (last - first) + 1;
+    int count = (last - first) + 1; // it is important to only use the delta, because the change could be nested
     for (int i = 0; i < persistent_moved.count(); ++i) {
         int position = persistent_moved.at(i);
         QModelIndex old = persistent.indexes.at(position)->index;
@@ -559,7 +559,7 @@ void QAbstractItemModelPrivate::columnsRemoved(const QModelIndex &parent,
     // it is important that we update the persistent index positions first and then invalidate indexes later
     // this is because the invalidation of indexes may remove them from the list of persistent indexes
     // and this in turn will go through the list of moved and invalidated indexes and update them
-    int count = (last - first) + 1;
+    int count = (last - first) + 1; // it is important to only use the delta, because the change could be nested
     for (int i = 0; i < persistent_moved.count(); ++i) {
         int position = persistent_moved.at(i);
         QModelIndex old = persistent.indexes.at(position)->index;
