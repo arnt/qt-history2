@@ -41,7 +41,7 @@ public:
     bool autoDelete;
 };
 
-QSqlIndex indexFromStringList(const QStringList& l, const Q3SqlCursor* cursor)
+static QSqlIndex indexFromStringList(const QStringList& l, const Q3SqlCursor* cursor)
 {
     QSqlIndex newSort;
     for (int i = 0; i < l.count(); ++i) {

@@ -85,7 +85,7 @@ static inline int scale(int value, QPainter *painter)
 }
 
 
-inline bool isBreakable(Q3TextString *string, int pos)
+static inline bool isBreakable(Q3TextString *string, int pos)
 {
     if (string->at(pos).nobreak)
         return false;

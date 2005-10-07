@@ -32,16 +32,16 @@ static const char systemId[] = "http://www.w3.org/TR/2000/CR-SVG-20001102/DTD/sv
 
 static QString qt_svg_compose_path(const QPainterPath &path);
 
-struct ImgElement {
+struct QImgElement {
     QDomElement element;
     QImage image;
-    Q_DUMMY_COMPARISON_OPERATOR(ImgElement)
+    Q_DUMMY_COMPARISON_OPERATOR(QImgElement)
 };
 
-struct PixElement {
+struct QPixElement {
     QDomElement element;
     QPixmap pixmap;
-    Q_DUMMY_COMPARISON_OPERATOR(PixElement)
+    Q_DUMMY_COMPARISON_OPERATOR(QPixElement)
 };
 
 struct Q3SVGPaintEngineState {
@@ -50,8 +50,8 @@ struct Q3SVGPaintEngineState {
     Q_DUMMY_COMPARISON_OPERATOR(Q3SVGPaintEngineState)
 };
 
-typedef QList<ImgElement> ImageList;
-typedef QList<PixElement> PixmapList;
+typedef QList<QImgElement> ImageList;
+typedef QList<QPixElement> PixmapList;
 typedef QList<Q3SVGPaintEngineState> StateList;
 
 enum ElementType {
@@ -375,7 +375,7 @@ void Q3SVGPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
     e.setAttribute("width", r.width());
     e.setAttribute("height", r.height());
 
-    PixElement pe;
+    QPixElement pe;
     pe.element = e;
     pe.pixmap = pm;
     d->pixmaps.append(pe);
@@ -431,7 +431,7 @@ void Q3SVGPaintEngine::drawImage(const QRectF &r, const QImage &im,
     e.setAttribute("y", r.y());
     e.setAttribute("width", r.width());
     e.setAttribute("height", r.height());
-    ImgElement ie;
+    QImgElement ie;
     ie.element = e;
     ie.image = im;
     d->images.append(ie);

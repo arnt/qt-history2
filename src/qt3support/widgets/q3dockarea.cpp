@@ -24,14 +24,14 @@
 
 //#define QDOCKAREA_DEBUG
 
-struct DockData
+struct Q3DockData
 {
-    DockData() : w(0), rect() {}
-    DockData(Q3DockWindow *dw, const QRect &r) : w(dw), rect(r) {}
+    Q3DockData() : w(0), rect() {}
+    Q3DockData(Q3DockWindow *dw, const QRect &r) : w(dw), rect(r) {}
     Q3DockWindow *w;
     QRect rect;
 
-    Q_DUMMY_COMPARISON_OPERATOR(DockData)
+    Q_DUMMY_COMPARISON_OPERATOR(Q3DockData)
 };
 
 static int fix_x(Q3DockWindow* w, int width = -1) {
@@ -233,11 +233,11 @@ static void shrink_extend(Q3DockWindow *dw, int &dockExtend, int /*spaceLeft*/, 
     }
 }
 
-static void place_line(QList<DockData> &lastLine, Qt::Orientation o, int linestrut, int fullextent, int tbstrut, int maxsize, Q3DockAreaLayout *)
+static void place_line(QList<Q3DockData> &lastLine, Qt::Orientation o, int linestrut, int fullextent, int tbstrut, int maxsize, Q3DockAreaLayout *)
 {
     Q3DockWindow *last = 0;
     QRect lastRect;
-    for (QList<DockData>::Iterator it = lastLine.begin(); it != lastLine.end(); ++it) {
+    for (QList<Q3DockData>::Iterator it = lastLine.begin(); it != lastLine.end(); ++it) {
         if (tbstrut != -1 && qobject_cast<Q3ToolBar*>((*it).w))
             (*it).rect.setHeight(tbstrut);
         if (!last) {
@@ -312,7 +312,7 @@ int Q3DockAreaLayout::layoutItems(const QRect &rect, bool testonly)
     int pos = start;
     int sectionpos = 0;
     int linestrut = 0;
-    QList<DockData> lastLine;
+    QList<Q3DockData> lastLine;
     int tbstrut = -1;
     int maxsize = size_extent(rect.size(), orientation());
     int visibleWindows = 0;
@@ -366,7 +366,7 @@ int Q3DockAreaLayout::layoutItems(const QRect &rect, bool testonly)
         }
         // do some calculations and add the remember the rect which the docking widget requires for the placing
         QRect dwRect(pos, sectionpos, dockExtend, dock_strut(dw, orientation() ));
-        lastLine.append(DockData(dw, dwRect));
+        lastLine.append(Q3DockData(dw, dwRect));
         if (qobject_cast<Q3ToolBar*>(dw))
             tbstrut = qMax(tbstrut, dock_strut(dw, orientation()));
         linestrut = qMax(dock_strut(dw, orientation()), linestrut);
