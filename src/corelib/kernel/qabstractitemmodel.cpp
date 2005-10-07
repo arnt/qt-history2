@@ -401,7 +401,7 @@ void QAbstractItemModelPrivate::removePersistentIndexData(QPersistentModelIndexD
             if (moved.at(j) > data_index)
                 --persistent.moved[i][j];
             else if (moved.at(j) == data_index)
-                persistent.moved[i].remove(j);   
+                persistent.moved[i].removeAll(j);
         }
     }
     // update the references to invalidated persistend indexes
@@ -411,7 +411,7 @@ void QAbstractItemModelPrivate::removePersistentIndexData(QPersistentModelIndexD
             if (invalidated.at(j) > data_index)
                 --persistent.invalidated[i][j];
             else if (invalidated.at(j) == data_index)
-                persistent.invalidated[i].remove(j);   
+                persistent.invalidated[i].removeAll(j);
         }
     }
 }
