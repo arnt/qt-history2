@@ -557,7 +557,7 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
     \fn const QList<QWSWindow*> &QWSServer::clientWindows()
 
     Returns the list of top-level windows. This list will change as
-    applications add and remove wigdets so it should not be stored for
+    applications add and remove widgets so it should not be stored for
     future use. The windows are sorted in stacking order from
     top-most to bottom-most.
 */
