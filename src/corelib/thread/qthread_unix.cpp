@@ -125,9 +125,13 @@ Qt::HANDLE QThread::currentThreadId()
 }
 
 /*!
-    Returns a pointer to the currently executing QThread. If the
-    current thread was not started using the QThread API (e.g., the
-    GUI thread), this function returns zero.
+    Returns a pointer to the currently executing QThread.  If the
+    current thread was not started using the QThread API, this
+    function returns zero.
+
+    Note that QApplication creates a QThread object to represent the
+    main thread; calling this function from main() after creating
+    QApplication will return a valid pointer.
 */
 QThread *QThread::currentThread()
 {
