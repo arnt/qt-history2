@@ -1746,7 +1746,7 @@ void QApplication::aboutQt()
 
     This signal is emitted when the widget that has keyboard focus
     changed from \a old to \a now, i.e. because the user presse the
-    tab-key, clicked into a widget or changed the active window. Note 
+    tab-key, clicked into a widget or changed the active window. Note
     that both \a old and \a now can be the null-pointer.
 
     The signal is emitted after both widget have been notified about
@@ -2084,6 +2084,8 @@ bool QApplicationPrivate::isBlockedByModal(QWidget *widget)
 
         switch (windowModality) {
         case Qt::ApplicationModal:
+            if (modalWidget == widget)
+                return false;
             if (modalWidget != widget)
                 blocked = true;
             break;
@@ -2131,7 +2133,7 @@ void QApplicationPrivate::enterModal(QWidget *widget)
     QEvent e(QEvent::WindowBlocked);
     for (int i = 0; i < windows.count(); ++i) {
         QWidget *window = windows.at(i);
-        if (!blocked.contains(widget) && isBlockedByModal(window))
+        if (!blocked.contains(window) && isBlockedByModal(window))
             QApplication::sendEvent(window, &e);
     }
 }
@@ -3022,7 +3024,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         }
         break;
     case QEvent::DragMove:
-    case QEvent::Drop: 
+    case QEvent::Drop:
     case QEvent::DragLeave: {
             QWidget * w = QDragManager::self()->currentTarget();
             if (!w)
