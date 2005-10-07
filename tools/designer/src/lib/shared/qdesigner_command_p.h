@@ -717,7 +717,7 @@ private:
     int m_newRowCount;
 };
 
-class QT_SHARED_EXPORT ChangeListContentsCommand: public QDesignerFormWindowCommand
+class QDESIGNER_SHARED_EXPORT ChangeListContentsCommand: public QDesignerFormWindowCommand
 {
     Q_OBJECT
 public:
