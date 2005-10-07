@@ -247,8 +247,17 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
         green_shift = 8;
         red_shift = 16;
         blue_scale = green_scale = red_scale = 1;
-    } else if (comp == BMP_RGB && nbits == 16)  // don't support RGB values for 15/16 bpp
-        return false;
+    } else if (comp == BMP_RGB && nbits == 16) {
+        blue_mask = 0x001f;
+        green_mask = 0x03e0;
+        red_mask = 0x7c00;
+        blue_shift = 0;
+        green_shift = 2;
+        red_shift = 7;
+        red_scale = 1;
+        green_scale = 1;
+        blue_scale = 8;
+    }
 
     // offset can be bogus, be careful
     if (offset>=0 && startpos + offset > d->pos())
