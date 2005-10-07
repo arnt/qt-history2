@@ -3811,6 +3811,7 @@ void DomResourcePixmap::clear(bool clear_all)
     if (clear_all) {
     m_text = QString();
     m_has_attr_resource = false;
+    m_has_attr_alias = false;
     }
 
 }
@@ -3818,6 +3819,7 @@ void DomResourcePixmap::clear(bool clear_all)
 DomResourcePixmap::DomResourcePixmap()
 {
     m_has_attr_resource = false;
+    m_has_attr_alias = false;
 }
 
 DomResourcePixmap::~DomResourcePixmap()
@@ -3828,6 +3830,8 @@ void DomResourcePixmap::read(const QDomElement &node)
 {
     if (node.hasAttribute(QLatin1String("resource")))
         setAttributeResource(node.attribute(QLatin1String("resource")));
+    if (node.hasAttribute(QLatin1String("alias")))
+        setAttributeAlias(node.attribute(QLatin1String("alias")));
 
     for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
         if (!n.isElement())
@@ -3851,6 +3855,9 @@ QDomElement DomResourcePixmap::write(QDomDocument &doc, const QString &tagName)
 
     if (hasAttributeResource())
         e.setAttribute(QLatin1String("resource"), attributeResource());
+
+    if (hasAttributeAlias())
+        e.setAttribute(QLatin1String("alias"), attributeAlias());
 
     if (!m_text.isEmpty())
         e.appendChild(doc.createTextNode(m_text));

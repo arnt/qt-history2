@@ -36,17 +36,18 @@ ResourceFile::ResourceFile(const QString &file_name)
     setFileName(file_name);
 }
 
-static QStringList uniqueItems(QStringList list)
+template <typename T>
+static QList<T> uniqueItems(QList<T> list)
 {
-    QStringList result;
+    QList<T> result;
 
-    list.sort();
-    QString last;
+    qSort(list.begin(), list.end());
+    T last;
     bool first = true;
-    foreach (QString s, list) {
-        if (first || s != last) {
-            result.append(s);
-            last = s;
+    foreach (const T &t, list) {
+        if (first || t != last) {
+            result.append(t);
+            last = t;
         }
         first = false;
     }
@@ -89,10 +90,10 @@ bool ResourceFile::load()
 
     QDomElement relt = root.firstChildElement(QLatin1String("qresource"));
     for (; !relt.isNull(); relt = relt.nextSiblingElement(QLatin1String("qresource"))) {
-        QStringList file_list;
+        FileList file_list;
         QDomElement felt = relt.firstChildElement(QLatin1String("file"));
         for (; !felt.isNull(); felt = felt.nextSiblingElement(QLatin1String("file")))
-            file_list.append(absolutePath(felt.text()));
+            file_list.append(File(absolutePath(felt.text()), felt.attribute(QLatin1String("alias"))));
 
         QString prefix = fixPrefix(relt.attribute(QLatin1String("prefix")));
         if (prefix.isEmpty())
@@ -132,7 +133,7 @@ bool ResourceFile::save()
     QStringList name_list = uniqueItems(prefixList());
 
     foreach (QString name, name_list) {
-        QStringList file_list;
+        FileList file_list;
         foreach (Prefix pref, m_prefix_list) {
             if (pref.name == name)
                 file_list += pref.file_list;
@@ -143,12 +144,14 @@ bool ResourceFile::save()
         root.appendChild(relt);
         relt.setAttribute(QLatin1String("prefix"), name);
 
-        foreach (QString file, file_list) {
+        foreach (const File &file, file_list) {
             QDomElement felt = doc.createElement(QLatin1String("file"));
             relt.appendChild(felt);
-            QString conv_file = relativePath(file).replace(QDir::separator(), QLatin1Char('/'));
+            QString conv_file = relativePath(file.name).replace(QDir::separator(), QLatin1Char('/'));
             QDomText text = doc.createTextNode(conv_file);
             felt.appendChild(text);
+            if (!file.alias.isEmpty())
+                felt.setAttribute(QLatin1String("alias"), file.alias);
         }
     }
 
@@ -228,10 +231,10 @@ bool ResourceFile::isEmpty() const
 
 QStringList ResourceFile::fileList(int pref_idx) const
 {
-    const QStringList &abs_file_list = m_prefix_list.at(pref_idx).file_list;
+    const FileList &abs_file_list = m_prefix_list.at(pref_idx).file_list;
     QStringList result;
-    foreach (QString abs_file, abs_file_list)
-        result.append(relativePath(abs_file));
+    foreach (const File &abs_file, abs_file_list)
+        result.append(relativePath(abs_file.name));
     return result;
 }
 
@@ -349,7 +352,12 @@ int ResourceFile::fileCount(int prefix_idx) const
 
 QString ResourceFile::file(int prefix_idx, int file_idx) const
 {
-    return relativePath(m_prefix_list.at(prefix_idx).file_list.at(file_idx));
+    return relativePath(m_prefix_list.at(prefix_idx).file_list.at(file_idx).name);
+}
+
+QString ResourceFile::alias(int prefix_idx, int file_idx) const
+{
+    return m_prefix_list.at(prefix_idx).file_list.at(file_idx).alias;
 }
 
 /******************************************************************************

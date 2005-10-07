@@ -54,6 +54,7 @@ public:
     QString prefix(int idx) const;
     int fileCount(int prefix_idx) const;
     QString file(int prefix_idx, int file_idx) const;
+    QString alias(int prefix_idx, int file_idx) const;
 
     void addFile(int prefix_idx, const QString &file);
     void addPrefix(const QString &prefix);
@@ -76,12 +77,22 @@ public:
     bool isEmpty() const;
 
 private:
+    struct File {
+        File(const QString &_name = QString(), const QString &_alias = QString())
+            : name(_name), alias(_alias) {}
+        bool operator < (const File &other) const { return name < other.name; }
+        bool operator == (const File &other) const { return name == other.name; }
+        bool operator != (const File &other) const { return name != other.name; }
+        QString name;
+        QString alias;
+    };
+    typedef QList<File> FileList;
     struct Prefix {
         Prefix(const QString &_name = QString(),
-                const QStringList &_file_list = QStringList())
+                const FileList &_file_list = FileList())
             : name(_name), file_list(_file_list) {}
         QString name;
-        QStringList file_list;
+        FileList file_list;
     };
     typedef QList<Prefix> PrefixList;
     PrefixList m_prefix_list;

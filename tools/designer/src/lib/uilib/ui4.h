@@ -10,12 +10,28 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of Qt Designer.  This header
+// file may change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #ifndef UI4_H
 #define UI4_H
 
 #include <QtCore/QList>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+class QDomDocument;
+class QDomElement;
+
+#include <QtCore/qglobal.h>
 
 #define QDESIGNER_UILIB_EXTERN Q_DECL_EXPORT
 #define QDESIGNER_UILIB_IMPORT Q_DECL_IMPORT
@@ -28,13 +44,15 @@
 #  define QDESIGNER_UILIB_EXPORT QDESIGNER_UILIB_IMPORT
 #endif
 
-class QDomDocument;
-class QDomElement;
+#ifndef QDESIGNER_UILIB_EXPORT
+#    define QDESIGNER_UILIB_EXPORT
+#endif
 
 #ifdef QFORMINTERNAL_NAMESPACE
 namespace QFormInternal
 {
 #endif
+
 
 /*******************************************************************************
 ** Forward declarations
@@ -1632,6 +1650,11 @@ public:
     inline void setAttributeResource(const QString& a) { m_attr_resource = a; m_has_attr_resource = true; }
     inline void clearAttributeResource() { m_has_attr_resource = false; }
 
+    inline bool hasAttributeAlias() { return m_has_attr_alias; }
+    inline QString attributeAlias() { return m_attr_alias; }
+    inline void setAttributeAlias(const QString& a) { m_attr_alias = a; m_has_attr_alias = true; }
+    inline void clearAttributeAlias() { m_has_attr_alias = false; }
+
     // child element accessors
 private:
     QString m_text;
@@ -1640,6 +1663,9 @@ private:
     // attribute data
     QString m_attr_resource;
     bool m_has_attr_resource;
+
+    QString m_attr_alias;
+    bool m_has_attr_alias;
 
     // child element data
 

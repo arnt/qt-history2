@@ -14,7 +14,10 @@
 #ifndef ORDERDIALOG_P_H
 #define ORDERDIALOG_P_H
 
+#include <QDialog>
 #include "ui_orderdialog.h"
+
+class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
 
