@@ -116,7 +116,7 @@ const SCRIPT_PROPERTIES **script_properties = 0;
 int num_scripts = 0;
 int usp_latin_script = 0;
 
-static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl &control, QChar::Direction dir);
+static void uspAppendItems(QTextEngine *engine, int &start, int &stop, QBidiControl &control, QChar::Direction dir);
 
 static void resolveUsp10()
 {
@@ -402,7 +402,7 @@ static inline QUnicodeTables::Script scriptForWinLanguage(DWORD langid)
 // (b) seems to work wrongly when trying to use it with a base level != 0.
 //
 // This function does uses Uniscribe to do the script analysis and creates items from this.
-static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl &control, QChar::Direction dir)
+static void uspAppendItems(QTextEngine *engine, int &start, int &stop, QBidiControl &control, QChar::Direction dir)
 {
     QScriptItemArray &items = engine->layoutData->items;
     const QChar *text = engine->layoutData->string.unicode();
