@@ -65,6 +65,7 @@ public:
 #endif
         QIcon icon;
         QRect rect;
+        QColor textColor;
         QVariant data;
     };
     QList<Tab> tabList;
@@ -117,6 +118,10 @@ QStyleOptionTabV2 QTabBarPrivate::getStyleOption(int tab) const
         opt.state |= QStyle::State_MouseOver;
     opt.shape = shape;
     opt.text = ptab->text;
+
+    if (ptab->textColor.isValid())
+        opt.palette.setColor(q->foregroundRole(), ptab->textColor);
+
     opt.icon = ptab->icon;
     opt.iconSize = q->iconSize();  // Will get the default value then.
 
@@ -679,6 +684,32 @@ void QTabBar::setTabText(int index, const QString &text)
     }
 }
 
+/*!
+    Returns the text color of the tab at position \a index, or a invlaid
+    color if \a index is out of range.
+*/
+QColor QTabBar::tabTextColor(int index) const
+{
+    Q_D(const QTabBar);
+    if (const QTabBarPrivate::Tab *tab = d->at(index))
+        return tab->textColor;
+    return QColor();
+}
+
+/*!
+    Sets the text color of the tab at position \a index to \a color.
+
+    Setting an invlid color will reset the tab to use the QTabBar
+    foreground role.
+*/
+void QTabBar::setTabTextColor(int index, const QColor &color)
+{
+    Q_D(QTabBar);
+    if (QTabBarPrivate::Tab *tab = d->at(index)) {
+        tab->textColor = color;
+        update(tabRect(index));
+    }
+}
 
 /*!
     Returns the icon of the tab at position \a index, or a null icon
