@@ -2386,10 +2386,12 @@ void QWidget::scroll(int dx, int dy)
             }
         }
     }
-
-    d->scrollRect(rect(), dx, dy);
-    d->dirtyWidget_sys(rect());
-    QApplication::sendPostedEvents(0, QEvent::UpdateRequest); //synchronous updates
+    if (!QWidgetBackingStore::paintOnScreen(this)) {
+        d->scrollRect(rect(), dx, dy);
+        QApplication::sendPostedEvents(0, QEvent::UpdateRequest); //synchronous updates
+    } else {
+        scroll(dx, dy, QRect());
+    }
 #else
     scroll(dx, dy, QRect());
 #endif
@@ -2407,27 +2409,31 @@ void QWidget::scroll(int dx, int dy)
 */
 void QWidget::scroll(int dx, int dy, const QRect& r)
 {
-#ifdef QT_USE_BACKINGSTORE
+
     Q_D(QWidget);
     if (!updatesEnabled() && children().size() == 0)
         return;
     if (dx == 0 && dy == 0)
         return;
+#ifdef QT_USE_BACKINGSTORE
 
-    d->scrollRect(r, dx, dy);
-    d->dirtyWidget_sys(r);
-
-#else
-    Q_D(QWidget);
-    if (!updatesEnabled() && children().size() == 0)
+    if (!QWidgetBackingStore::paintOnScreen(this)) {
+        d->scrollRect(r, dx, dy);
+        d->dirtyWidget_sys(r);
         return;
+    }
+#endif
     bool valid_rect = r.isValid();
     bool just_update = qAbs(dx) > width() || qAbs(dy) > height();
     QRect sr = valid_rect ? r : d->clipRect();
     if (just_update) {
         update();
     } else if (!valid_rect){
+#ifdef QT_USE_BACKINGSTORE
+        d->dirtyOnScreen.translate(dx,dy);
+#else
         d->invalidated_region.translate(dx, dy);
+#endif
     }
 
     int x1, y1, x2, y2, w = sr.width(), h = sr.height();
@@ -2496,7 +2502,6 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     }
 
     qt_insert_sip(this, dx, dy); // #### ignores r
-#endif
 }
 
 /*!

@@ -40,7 +40,7 @@ extern bool qt_sendSpontaneousEvent(QObject*, QEvent*); // qapplication_xxx.cpp
 
 bool QWidgetBackingStore::paintOnScreen(QWidget *w)
 {
-    if (w && (w->testAttribute(Qt::WA_PaintOnScreen) || w->testAttribute(Qt::WA_NoSystemBackground)))
+    if (w && (w->testAttribute(Qt::WA_PaintOnScreen)))
         return true;
     static signed char checked_env = -1;
     if(checked_env == -1)
@@ -340,6 +340,11 @@ void QWidgetPrivate::scrollRect(const QRect &rect, int dx, int dy)
 //         qDebug() << "scrollRect" << q << rect << dx << dy << "dirty" << wbs->dirty << "newDirty" << newDirty;
         childExpose += newDirty;
         invalidateBuffer(childExpose);
+#ifndef Q_WS_WIN
+        // windows uses native scroll-on-screen, otherwise we copy from backingstore, giving only one
+        // screen update for each scroll, and a solid appearance
+        dirtyWidget_sys(rect);
+#endif
     }
 }
 
