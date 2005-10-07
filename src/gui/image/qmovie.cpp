@@ -167,21 +167,21 @@
 
 #define QMOVIE_INVALID_DELAY -1
 
-class FrameInfo
+class QFrameInfo
 {
 public:
     QPixmap pixmap;
     int delay;
     bool endMark;
-    inline FrameInfo(bool endMark)
+    inline QFrameInfo(bool endMark)
         : pixmap(QPixmap()), delay(QMOVIE_INVALID_DELAY), endMark(endMark)
     { }
     
-    inline FrameInfo()
+    inline QFrameInfo()
         : pixmap(QPixmap()), delay(QMOVIE_INVALID_DELAY), endMark(false)
     { }
     
-    inline FrameInfo(const QPixmap &pixmap, int delay)
+    inline QFrameInfo(const QPixmap &pixmap, int delay)
         : pixmap(pixmap), delay(delay), endMark(false)
     { }
     
@@ -193,8 +193,8 @@ public:
     inline bool isEndMarker()
     { return endMark; }
     
-    static inline FrameInfo endMarker()
-    { return FrameInfo(true); }
+    static inline QFrameInfo endMarker()
+    { return QFrameInfo(true); }
 };
 
 class QMoviePrivate : public QObjectPrivate
@@ -209,7 +209,7 @@ public:
     bool jumpToFrame(int frameNumber);
     int frameCount() const;
     bool jumpToNextFrame();
-    FrameInfo infoForFrame(int frameNumber);
+    QFrameInfo infoForFrame(int frameNumber);
 
     // private slots
     void loadNextFrame();
@@ -228,7 +228,7 @@ public:
     QMovie::CacheMode cacheMode;
     bool haveReadAll;
     bool isFirstIteration;
-    QMap<int, FrameInfo> frameMap;
+    QMap<int, QFrameInfo> frameMap;
 
     QTimer nextImageTimer;
 };
@@ -268,24 +268,24 @@ int QMoviePrivate::speedAdjustedDelay(int delay) const
 /*!
     \internal
 
-    Returns the FrameInfo for the given \a frameNumber.
+    Returns the QFrameInfo for the given \a frameNumber.
 
-    If the frame number is invalid, an invalid FrameInfo is
+    If the frame number is invalid, an invalid QFrameInfo is
     returned.
 
     If the end of the animation has been reached, a
-    special end marker FrameInfo is returned.
+    special end marker QFrameInfo is returned.
 
 */
-FrameInfo QMoviePrivate::infoForFrame(int frameNumber)
+QFrameInfo QMoviePrivate::infoForFrame(int frameNumber)
 {
     if (frameNumber < 0)
-        return FrameInfo(); // Invalid
+        return QFrameInfo(); // Invalid
 
     if (haveReadAll && (frameNumber > greatestFrameNumber)) {
         if (frameNumber == greatestFrameNumber+1)
-            return FrameInfo::endMarker();
-        return FrameInfo(); // Invalid
+            return QFrameInfo::endMarker();
+        return QFrameInfo(); // Invalid
     }
 
     if (cacheMode == QMovie::CacheNone) {
@@ -296,7 +296,7 @@ FrameInfo QMoviePrivate::infoForFrame(int frameNumber)
                     // Special case: Attempt to "rewind" so we can loop
                     // ### This could be implemented as QImageReader::rewind()
                     if (reader->device()->isSequential())
-                        return FrameInfo(); // Invalid
+                        return QFrameInfo(); // Invalid
                     QString fileName = reader->fileName();
                     QByteArray format = reader->format();
                     QIODevice *device = reader->device();
@@ -312,7 +312,7 @@ FrameInfo QMoviePrivate::infoForFrame(int frameNumber)
                     reader->setBackgroundColor(bgColor);
                     reader->setScaledSize(scaledSize);
                 } else {
-                    return FrameInfo(); // Invalid
+                    return QFrameInfo(); // Invalid
                 }
             }
         }
@@ -321,17 +321,17 @@ FrameInfo QMoviePrivate::infoForFrame(int frameNumber)
             QImage anImage = reader->read();
             if (anImage.isNull()) {
                 // Reading image failed.
-                return FrameInfo(); // Invalid
+                return QFrameInfo(); // Invalid
             }
             if (frameNumber > greatestFrameNumber)
                 greatestFrameNumber = frameNumber;
             QPixmap aPixmap = QPixmap::fromImage(anImage);
             int aDelay = reader->nextImageDelay();
-            return FrameInfo(aPixmap, aDelay);
+            return QFrameInfo(aPixmap, aDelay);
         } else {
             // We've read all frames now. Return an end marker
             haveReadAll = true;
-            return FrameInfo::endMarker();
+            return QFrameInfo::endMarker();
         }
     }
 
@@ -344,12 +344,12 @@ FrameInfo QMoviePrivate::infoForFrame(int frameNumber)
                 QImage anImage = reader->read();
                 if (anImage.isNull()) {
                     // Reading image failed.
-                    return FrameInfo(); // Invalid
+                    return QFrameInfo(); // Invalid
                 }
                 greatestFrameNumber = i;
                 QPixmap aPixmap = QPixmap::fromImage(anImage);
                 int aDelay = reader->nextImageDelay();
-                FrameInfo info(aPixmap, aDelay);
+                QFrameInfo info(aPixmap, aDelay);
                 // Cache it!
                 frameMap.insert(i, info);
                 if (i == frameNumber) {
@@ -358,7 +358,7 @@ FrameInfo QMoviePrivate::infoForFrame(int frameNumber)
             } else {
                 // We've read all frames now. Return an end marker
                 haveReadAll = true;
-                return FrameInfo::endMarker();
+                return QFrameInfo::endMarker();
             }
         }
     }
@@ -379,7 +379,7 @@ FrameInfo QMoviePrivate::infoForFrame(int frameNumber)
 */
 bool QMoviePrivate::next()
 {
-    FrameInfo info = infoForFrame(nextFrameNumber);
+    QFrameInfo info = infoForFrame(nextFrameNumber);
     if (!info.isValid())
         return false;
     if (info.isEndMarker()) {
