@@ -1297,7 +1297,7 @@ static void initializeDb()
 // font loader
 // --------------------------------------------------------------------------------------
 
-const char *styleHint(const QFontDef &request)
+static const char *styleHint(const QFontDef &request)
 {
     const char *stylehint = 0;
     switch (request.styleHint) {

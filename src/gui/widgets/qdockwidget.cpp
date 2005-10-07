@@ -35,7 +35,7 @@
 #include "qmainwindowlayout_p.h"
 
 
-inline bool hasFeature(QDockWidget *dockwidget, QDockWidget::DockWidgetFeature feature)
+static inline bool hasFeature(QDockWidget *dockwidget, QDockWidget::DockWidgetFeature feature)
 { return (dockwidget->features() & feature) == feature; }
 
 

@@ -835,14 +835,14 @@ This seems to imply that we have at most one kashida point per arabic word.
 
 */
 
-struct ArabicProperties {
+struct QArabicProperties {
     unsigned char shape;
     unsigned char justification;
 };
-Q_DECLARE_TYPEINFO(ArabicProperties, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(QArabicProperties, Q_PRIMITIVE_TYPE);
 
 
-static void getArabicProperties(const unsigned short *chars, int len, ArabicProperties *properties)
+static void getArabicProperties(const unsigned short *chars, int len, QArabicProperties *properties)
 {
 //     qDebug("arabicSyriacOpenTypeShape: properties:");
     int lastPos = 0;
@@ -1310,8 +1310,8 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
         return;
     }
 
-    QVarLengthArray<ArabicProperties> props(len+2);
-    ArabicProperties *properties = props.data();
+    QVarLengthArray<QArabicProperties> props(len+2);
+    QArabicProperties *properties = props.data();
     int f = from;
     int l = len;
     if (from > 0) {
@@ -1464,8 +1464,8 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
     unsigned short *logClusters = item->log_clusters;
     const unsigned short *uc = (const unsigned short *)item->string->unicode() + item->from;
 
-    QVarLengthArray<ArabicProperties> props(item->length+2);
-    ArabicProperties *properties = props.data();
+    QVarLengthArray<QArabicProperties> props(item->length+2);
+    QArabicProperties *properties = props.data();
     int f = 0;
     int l = item->length;
     if (item->from > 0) {

@@ -422,16 +422,16 @@ int QKeySequence::assign(const QString &ks)
     return n;
 }
 
-struct ModifKeyName {
-    ModifKeyName() { }
-    ModifKeyName(int q, QChar n) : qt_key(q), name(n) { }
-    ModifKeyName(int q, const QString &n) : qt_key(q), name(n) { }
+struct QModifKeyName {
+    QModifKeyName() { }
+    QModifKeyName(int q, QChar n) : qt_key(q), name(n) { }
+    QModifKeyName(int q, const QString &n) : qt_key(q), name(n) { }
     int qt_key;
     QString name;
 };
 
-Q_GLOBAL_STATIC(QList<ModifKeyName>, globalModifs)
-Q_GLOBAL_STATIC(QList<ModifKeyName>, globalPortableModifs)
+Q_GLOBAL_STATIC(QList<QModifKeyName>, globalModifs)
+Q_GLOBAL_STATIC(QList<QModifKeyName>, globalPortableModifs)
 
 /*!
   Constructs a single key from the string \a str.
@@ -447,50 +447,50 @@ int QKeySequencePrivate::decodeString(const QString &str, QKeySequence::Sequence
     QString accel = str.toLower();
     bool nativeText = (format == QKeySequence::NativeText);
 
-    QList<ModifKeyName> *gmodifs;
+    QList<QModifKeyName> *gmodifs;
     if (nativeText) {
         gmodifs = globalModifs();
         if (gmodifs->isEmpty()) {
 #ifdef QMAC_CTRL
-            *gmodifs << ModifKeyName(Qt::CTRL, QMAC_CTRL);
+            *gmodifs << QModifKeyName(Qt::CTRL, QMAC_CTRL);
 #endif
 #ifdef QMAC_ALT
-            *gmodifs << ModifKeyName(Qt::ALT, QMAC_ALT);
+            *gmodifs << QModifKeyName(Qt::ALT, QMAC_ALT);
 #endif
 #ifdef QMAC_META
-            *gmodifs << ModifKeyName(Qt::META, QMAC_META);
+            *gmodifs << QModifKeyName(Qt::META, QMAC_META);
 #endif
 #ifdef QMAC_SHIFT
-            *gmodifs << ModifKeyName(Qt::SHIFT, QMAC_SHIFT);
+            *gmodifs << QModifKeyName(Qt::SHIFT, QMAC_SHIFT);
 #endif
-            *gmodifs << ModifKeyName(Qt::CTRL, QLatin1String("ctrl+"))
-                     << ModifKeyName(Qt::SHIFT, QLatin1String("shift+"))
-                     << ModifKeyName(Qt::ALT, QLatin1String("alt+"))
-                     << ModifKeyName(Qt::META, QLatin1String("meta+"));
+            *gmodifs << QModifKeyName(Qt::CTRL, QLatin1String("ctrl+"))
+                     << QModifKeyName(Qt::SHIFT, QLatin1String("shift+"))
+                     << QModifKeyName(Qt::ALT, QLatin1String("alt+"))
+                     << QModifKeyName(Qt::META, QLatin1String("meta+"));
         }
     } else {
         gmodifs = globalPortableModifs();
         if (gmodifs->isEmpty()) {
-            *gmodifs << ModifKeyName(Qt::CTRL, QLatin1String("ctrl+"))
-                     << ModifKeyName(Qt::SHIFT, QLatin1String("shift+"))
-                     << ModifKeyName(Qt::ALT, QLatin1String("alt+"))
-                     << ModifKeyName(Qt::META, QLatin1String("meta+"));
+            *gmodifs << QModifKeyName(Qt::CTRL, QLatin1String("ctrl+"))
+                     << QModifKeyName(Qt::SHIFT, QLatin1String("shift+"))
+                     << QModifKeyName(Qt::ALT, QLatin1String("alt+"))
+                     << QModifKeyName(Qt::META, QLatin1String("meta+"));
         }
     }
     if (!gmodifs) return ret;
 
 
-    QList<ModifKeyName> modifs = *gmodifs;
+    QList<QModifKeyName> modifs = *gmodifs;
     if (nativeText) {
-        modifs << ModifKeyName(Qt::CTRL, QShortcut::tr("Ctrl").toLower().append(QLatin1Char('+')))
-               << ModifKeyName(Qt::SHIFT, QShortcut::tr("Shift").toLower().append(QLatin1Char('+')))
-               << ModifKeyName(Qt::ALT, QShortcut::tr("Alt").toLower().append(QLatin1Char('+')))
-               << ModifKeyName(Qt::ALT, QShortcut::tr("Meta").toLower().append(QLatin1Char('+')));
+        modifs << QModifKeyName(Qt::CTRL, QShortcut::tr("Ctrl").toLower().append(QLatin1Char('+')))
+               << QModifKeyName(Qt::SHIFT, QShortcut::tr("Shift").toLower().append(QLatin1Char('+')))
+               << QModifKeyName(Qt::ALT, QShortcut::tr("Alt").toLower().append(QLatin1Char('+')))
+               << QModifKeyName(Qt::ALT, QShortcut::tr("Meta").toLower().append(QLatin1Char('+')));
     }
 
     QString sl = accel;
     for (int i = 0; i < modifs.size(); ++i) {
-        const ModifKeyName &mkf = modifs.at(i);
+        const QModifKeyName &mkf = modifs.at(i);
         if (sl.contains(mkf.name)) {
             ret |= mkf.qt_key;
             accel.remove(mkf.name);

@@ -193,11 +193,11 @@ QFontEngine::Type QFontEngineBox::type() const
 // Multi engine
 // ------------------------------------------------------------------
 
-uchar highByte(glyph_t glyph)
+static inline uchar highByte(glyph_t glyph)
 { return glyph >> 24; }
 
 // strip high byte from glyph
-glyph_t stripped(glyph_t glyph)
+static inline glyph_t stripped(glyph_t glyph)
 { return glyph & 0x00ffffff; }
 
 QFontEngineMulti::QFontEngineMulti(int engineCount)

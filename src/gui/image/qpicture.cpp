@@ -68,8 +68,8 @@
 */
 
 const char  *qt_mfhdr_tag = "QPIC"; // header tag
-const quint16 mfhdr_maj = 8; // major version #
-const quint16 mfhdr_min = 0; // minor version #
+static const quint16 mfhdr_maj = 8; // major version #
+static const quint16 mfhdr_min = 0; // minor version #
 
 /*!
     Constructs an empty picture.

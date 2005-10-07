@@ -113,7 +113,7 @@ static void deleteStaticcQErrorMessage() // post-routine
 
 static bool metFatal = false;
 
-void jump(QtMsgType t, const char * m)
+static void jump(QtMsgType t, const char * m)
 {
     if (!qtMessageHandler)
         return;

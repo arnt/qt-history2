@@ -48,8 +48,8 @@ static const char *directions[] = {
 
 #endif
 
-struct BidiStatus {
-    BidiStatus() {
+struct QBidiStatus {
+    QBidiStatus() {
         eor = QChar::DirON;
         lastStrong = QChar::DirON;
         last = QChar:: DirON;
@@ -208,7 +208,7 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
     int current = 0;
 
     QChar::Direction dir = rightToLeft ? QChar::DirR : QChar::DirL;
-    BidiStatus status;
+    QBidiStatus status;
     QChar::Direction sdir = direction(*unicode);
     if (sdir != QChar::DirL && sdir != QChar::DirR && sdir != QChar::DirEN && sdir != QChar::DirAN)
 	sdir = QChar::DirON;
@@ -1100,16 +1100,16 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si) const
     return font.d->engineForScript(si.analysis.script);
 }
 
-struct JustificationPoint {
+struct QJustificationPoint {
     int type;
     QFixed kashidaWidth;
     QGlyphLayout *glyph;
     QFontEngine *fontEngine;
 };
 
-Q_DECLARE_TYPEINFO(JustificationPoint, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(QJustificationPoint, Q_PRIMITIVE_TYPE);
 
-static void set(JustificationPoint *point, int type, QGlyphLayout *glyph, QFontEngine *fe)
+static void set(QJustificationPoint *point, int type, QGlyphLayout *glyph, QFontEngine *fe)
 {
     point->type = type;
     point->glyph = glyph;
@@ -1166,7 +1166,7 @@ void QTextEngine::justify(const QScriptLine &line)
     int firstItem = findItem(line.from);
     int nItems = findItem(line.from + line_length - 1) - firstItem + 1;
 
-    QVarLengthArray<JustificationPoint> justificationPoints;
+    QVarLengthArray<QJustificationPoint> justificationPoints;
     int nPoints = 0;
 //     qDebug("justifying from %d len %d, firstItem=%d, nItems=%d", line.from, line_length, firstItem, nItems);
     QFixed minKashida = 0x100000;
