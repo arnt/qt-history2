@@ -40,7 +40,7 @@ public:
     QSize sizeHint() const;
     bool focusNextPrevChild(bool next);
     
-    void ensureVisible(int x, int y);
+    void ensureVisible(int x, int y, int xmargin = 50, int ymargin = 50);
 
 protected:
     bool event(QEvent *);

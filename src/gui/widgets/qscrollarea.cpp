@@ -376,8 +376,8 @@ bool QScrollArea::focusNextPrevChild(bool next)
 }
 
 /*!
-    Scrolls the content so that the point (x, y) is visible with 50-pixel margins (if possible).
-    Otherwise scrolls to the nearest valid position.
+    Scrolls the content so that the point (x, y) is visible with (xmargin, ymargin) pixel margins (if possible).
+    Otherwise scrolls to the nearest valid position. Default value for both margins is 50 pixels.
     
     Note: If you call this function before entering an event loop, make sure that you have set 
     the focus on the QScrollArea widget. Otherwise, the content will be scrolled back.
@@ -389,25 +389,25 @@ bool QScrollArea::focusNextPrevChild(bool next)
         sa.show();
         
         sa.setFocus();
+        sa.ensureVisible(640, 480, 10, 10);
         
         qapp.exec();
     \endcode    
 */
-void QScrollArea::ensureVisible(int x, int y)
+void QScrollArea::ensureVisible(int x, int y, int xmargin, int ymargin)
 {
-    Q_D(QScrollArea); 
-    int visMargin = 50;    
+    Q_D(QScrollArea);   
         
-    if (x < d->hbar->value() - visMargin){
-        d->hbar->setValue(qMax(0, x - visMargin));
-    } else if (x > d->hbar->value() + d->viewport->width() - visMargin) {
-        d->hbar->setValue(qMin(x - d->viewport->width() + visMargin, d->hbar->maximum()));
+    if (x < d->hbar->value() - xmargin){
+        d->hbar->setValue(qMax(0, x - xmargin));
+    } else if (x > d->hbar->value() + d->viewport->width() - xmargin) {
+        d->hbar->setValue(qMin(x - d->viewport->width() + xmargin, d->hbar->maximum()));
     }
     
-    if (y < d->vbar->value() - visMargin){
-        d->vbar->setValue(qMax(0, y - visMargin));
-    } else if (y > d->vbar->value() + d->viewport->height() - visMargin) {
-        d->vbar->setValue(qMin(y - d->viewport->height() + visMargin, d->vbar->maximum()));
+    if (y < d->vbar->value() - ymargin){
+        d->vbar->setValue(qMax(0, y - ymargin));
+    } else if (y > d->vbar->value() + d->viewport->height() - ymargin) {
+        d->vbar->setValue(qMin(y - d->viewport->height() + ymargin, d->vbar->maximum()));
     }                   
 }
 
