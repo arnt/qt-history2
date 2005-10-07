@@ -535,12 +535,12 @@ QObject::QObject(QObject *parent)
 {
     Q_D(QObject);
     ::qt_addObject(d_ptr->q_ptr = this);
-    if (parent) {
-        d->thread = parent->d_func()->thread;
-    } else {
-        QThread *currentThread = QThread::currentThread();
-        d->thread = currentThread ? QThreadData::get(currentThread)->id : -1;
-    }
+    QThread *currentThread = QThread::currentThread();
+    d->thread = currentThread ? QThreadData::get(currentThread)->id : -1;
+    Q_ASSERT_X(!parent || parent->d_func()->thread == d->thread, "QObject::QObject()",
+               "Cannot create children for a parent that is in a different thread.");
+    if (parent && parent->d_func()->thread != d->thread)
+        parent = 0;
     setParent(parent);
 }
 
@@ -556,12 +556,12 @@ QObject::QObject(QObject *parent, const char *name)
 {
     Q_D(QObject);
     ::qt_addObject(d_ptr->q_ptr = this);
-    if (parent) {
-        d->thread = parent->d_func()->thread;
-    } else {
-        QThread *currentThread = QThread::currentThread();
-        d->thread = currentThread ? QThreadData::get(currentThread)->id : -1;
-    }
+    QThread *currentThread = QThread::currentThread();
+    d->thread = currentThread ? QThreadData::get(currentThread)->id : -1;
+    Q_ASSERT_X(!parent || parent->d_func()->thread == d->thread, "QObject::QObject()",
+               "Cannot create children for a parent that is in a different thread.");
+    if (parent && parent->d_func()->thread != d->thread)
+        parent = 0;
     setParent(parent);
     setObjectName(QString::fromAscii(name));
 }
@@ -574,12 +574,12 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
 {
     Q_D(QObject);
     ::qt_addObject(d_ptr->q_ptr = this);
-    if (parent) {
-        d->thread = parent->d_func()->thread;
-    } else {
-        QThread *currentThread = QThread::currentThread();
-        d->thread = currentThread ? QThreadData::get(currentThread)->id : -1;
-    }
+    QThread *currentThread = QThread::currentThread();
+    d->thread = currentThread ? QThreadData::get(currentThread)->id : -1;
+    Q_ASSERT_X(!parent || parent->d_func()->thread == d->thread, "QObject::QObject()",
+               "Cannot create children for a parent that is in a different thread.");
+    if (parent && parent->d_func()->thread != d->thread)
+        parent = 0;
     if (d->isWidget) {
         if (parent) {
             d->parent = parent;
