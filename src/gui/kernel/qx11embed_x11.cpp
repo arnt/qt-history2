@@ -263,7 +263,7 @@ const int XButtonRelease = ButtonRelease;
 
 // This is a hack to move topData() out from QWidgetPrivate to public.  We
 // need to to inspect window()'s embedded state.
-class HackWidget : public QWidget
+class QHackWidget : public QWidget
 {
     Q_DECLARE_PRIVATE(QWidget)
 public:
@@ -602,7 +602,7 @@ void QX11EmbedWidgetPrivate::clearFocus()
 void QX11EmbedWidgetPrivate::setEmbedded()
 {
     Q_Q(QX11EmbedWidget);
-    ((HackWidget *)q->window())->topData()->embedded = 1;
+    ((QHackWidget *)q->window())->topData()->embedded = 1;
 }
 
 /*! \internal
@@ -1018,7 +1018,7 @@ void QX11EmbedContainer::paintEvent(QPaintEvent *)
 bool QX11EmbedContainerPrivate::isEmbedded() const
 {
     Q_Q(const QX11EmbedContainer);
-    return ((HackWidget *)q->window())->topData()->embedded == 1;
+    return ((QHackWidget *)q->window())->topData()->embedded == 1;
 }
 
 /*! \internal
@@ -1028,7 +1028,7 @@ bool QX11EmbedContainerPrivate::isEmbedded() const
 WId QX11EmbedContainerPrivate::topLevelParentWinId() const
 {
     Q_Q(const QX11EmbedContainer);
-    return ((HackWidget *)q->window())->topData()->parentWinId;
+    return ((QHackWidget *)q->window())->topData()->parentWinId;
 }
 
 /*!
