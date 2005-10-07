@@ -103,6 +103,12 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
             buttonDown = true;
             moveOffset = widget->mapFromGlobal(e->globalPos());
             invertedMoveOffset = widget->rect().bottomRight() - moveOffset;
+            if (mode == Center) {
+                if (movingEnabled)
+                    return true;
+            } else {
+                return true;
+            }
         }
     } break;
     case QEvent::MouseButtonRelease:
@@ -113,6 +119,12 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
             buttonDown = false;
             widget->releaseMouse();
             widget->releaseKeyboard();
+            if (mode == Center) {
+                if (movingEnabled)
+                    return true;
+            } else {
+                return true;
+            }
         }
         break;
     case QEvent::MouseMove: {
@@ -122,8 +134,12 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
         movingEnabled = (me && o == widget && buttonDown);
         mouseMoveEvent(e);
         movingEnabled = me;
-        if (mode != Center)
+        if (mode == Center) {
+            if (movingEnabled)
+                return true;
+        } else {
             return true;
+        }
     } break;
     case QEvent::KeyPress:
         keyPressEvent((QKeyEvent*)e);
