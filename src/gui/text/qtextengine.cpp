@@ -64,8 +64,8 @@ struct BidiStatus {
 // The Unicode standard says this should be 61, setting it to 29 would save quite some space here.
 enum { MaxBidiLevel = 61 };
 
-struct BidiControl {
-    inline BidiControl(bool rtl)
+struct QBidiControl {
+    inline QBidiControl(bool rtl)
         : cCtx(0), base(rtl), override(false), level(rtl) {}
 
     inline void embed(bool rtl, bool o = false) {
@@ -113,7 +113,7 @@ struct BidiControl {
     unsigned char level : 6;
 };
 
-static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl &control, QChar::Direction dir)
+static void qAppendItems(QTextEngine *engine, int &start, int &stop, QBidiControl &control, QChar::Direction dir)
 {
     QScriptItemArray &items = engine->layoutData->items;
     const QChar *text = engine->layoutData->string.unicode();
@@ -180,7 +180,7 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
     start = stop;
 }
 
-typedef void (* fAppendItems)(QTextEngine *, int &start, int &stop, BidiControl &control, QChar::Direction dir);
+typedef void (* fAppendItems)(QTextEngine *, int &start, int &stop, QBidiControl &control, QChar::Direction dir);
 static fAppendItems appendItems = qAppendItems;
 
 // creates the next QScript items.
@@ -189,7 +189,7 @@ static bool bidiItemize(QTextEngine *engine, bool rightToLeft)
 #if BIDI_DEBUG >= 2
     cout << "bidiItemize: rightToLeft=" << rightToLeft << endl;
 #endif
-    BidiControl control(rightToLeft);
+    QBidiControl control(rightToLeft);
 
     bool hasBidi = rightToLeft;
 
@@ -945,7 +945,7 @@ void QTextEngine::itemize() const
     if (!ignoreBidi) {
         layoutData->hasBidi = bidiItemize(const_cast<QTextEngine *>(this), (option.textDirection() == Qt::RightToLeft));
     } else {
-        BidiControl control(false);
+        QBidiControl control(false);
         int start = 0;
         int stop = layoutData->string.length() - 1;
         appendItems(const_cast<QTextEngine *>(this), start, stop, control, QChar::DirL);
