@@ -66,8 +66,8 @@
 
 #ifdef QT_LARGEFILE_SUPPORT
 #define QT_FOPEN                ::fopen64
-#define QT_FSEEK                ::fseeko
-#define QT_FTELL                ::ftello
+#define QT_FSEEK                ::fseeko64
+#define QT_FTELL                ::ftello64
 #define QT_FGETPOS              ::fgetpos64
 #define QT_FSETPOS              ::fsetpos64
 #define QT_FPOS_T               fpos64_t
