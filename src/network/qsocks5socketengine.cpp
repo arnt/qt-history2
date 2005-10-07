@@ -534,8 +534,8 @@ void QSocks5SocketEnginePrivate::initialize(Socks5Mode socks5Mode)
     QObject::connect(data->controlSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
                      q, SLOT(controlSocketStateChanged(QAbstractSocket::SocketState)));
     //### this should be some where else
-    if (!proxyInfo.userName().isEmpty() || !proxyInfo.password().isEmpty()) {
-        data->authenticator = new QSocks5PasswordAuthenticator(proxyInfo.userName(), proxyInfo.password());
+    if (!proxyInfo.user().isEmpty() || !proxyInfo.password().isEmpty()) {
+        data->authenticator = new QSocks5PasswordAuthenticator(proxyInfo.user(), proxyInfo.password());
     } else {
         data->authenticator = new QSocks5Authenticator();
     }
@@ -912,7 +912,7 @@ bool QSocks5SocketEngine::connectToHost(const QHostAddress &address, quint16 por
         setPeerAddress(address);
         setPeerPort(port);
         setState(QAbstractSocket::ConnectingState);
-        d->data->controlSocket->connectToHost(d->proxyInfo.address(), d->proxyInfo.port());
+        d->data->controlSocket->connectToHost(d->proxyInfo.hostName(), d->proxyInfo.port());
         return false;
     } else if (d->socks5State == QSocks5SocketEnginePrivate::RequestSuccess) {
         setState(QAbstractSocket::ConnectedState);
@@ -1111,7 +1111,7 @@ bool QSocks5SocketEngine::bind(const QHostAddress &address, quint16 port)
     int msecs = 3000;
     QTime stopWatch;
     stopWatch.start();
-    d->data->controlSocket->connectToHost(d->proxyInfo.address(), d->proxyInfo.port());
+    d->data->controlSocket->connectToHost(d->proxyInfo.hostName(), d->proxyInfo.port());
     if (!d->data->controlSocket->waitForConnected(qt_timeout_value(msecs, stopWatch.elapsed()))) {
         //### ?
         return false;
@@ -1561,17 +1561,17 @@ QAbstractSocketEngine *QSocks5SocketEngineHandler::createSocketEngine(const QHos
     // find proxy info
     if (qobject_cast<QAbstractSocket *>(parent)) {
         QAbstractSocket *abstractSocket = qobject_cast<QAbstractSocket *>(parent);
-        if (abstractSocket->proxy().type() != QNetworkProxy::AutoProxy)
+        if (abstractSocket->proxy().type() != QNetworkProxy::DefaultProxy)
             proxy = abstractSocket->proxy();
     } else if (qobject_cast<QTcpServer *>(parent)) {
         QTcpServer *server = qobject_cast<QTcpServer *>(parent);
-        if (server->proxy().type() != QNetworkProxy::AutoProxy)
+        if (server->proxy().type() != QNetworkProxy::DefaultProxy)
             proxy = server->proxy();
     }
-    if (proxy.type() == QNetworkProxy::AutoProxy) {
-        proxy = QNetworkProxy::proxy();
+    if (proxy.type() == QNetworkProxy::DefaultProxy) {
+        proxy = QNetworkProxy::applicationProxy();
     }
-    if (proxy.type() == QNetworkProxy::AutoProxy || proxy.type() == QNetworkProxy::NoProxy) {
+    if (proxy.type() == QNetworkProxy::DefaultProxy || proxy.type() == QNetworkProxy::NoProxy || proxy.type() != QNetworkProxy::Socks5Proxy) {
         QSOCKS5_DEBUG << "not proxying";
         return 0;
     }
@@ -1581,11 +1581,11 @@ QAbstractSocketEngine *QSocks5SocketEngineHandler::createSocketEngine(const QHos
     return engine;
 }
 
-QAbstractSocketEngine *QSocks5SocketEngineHandler::createSocketEngine(int socketDescripter, QObject *parent)
+QAbstractSocketEngine *QSocks5SocketEngineHandler::createSocketEngine(int socketDescriptor, QObject *parent)
 {
-    QSOCKS5_DEBUG << "createSocketEngine" << socketDescripter;
-    if (socks5BindStore()->contains(socketDescripter)) {
-        QSOCKS5_DEBUG << "bind store contains" << socketDescripter;
+    QSOCKS5_DEBUG << "createSocketEngine" << socketDescriptor;
+    if (socks5BindStore()->contains(socketDescriptor)) {
+        QSOCKS5_DEBUG << "bind store contains" << socketDescriptor;
         return new QSocks5SocketEngine(parent);
     }
     return 0;

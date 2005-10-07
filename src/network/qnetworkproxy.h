@@ -28,30 +28,32 @@ class Q_NETWORK_EXPORT QNetworkProxy
 
 public:
     enum ProxyType {
-        AutoProxy,
+        DefaultProxy,
         Socks5Proxy,
         NoProxy
     };
 
     QNetworkProxy();
+    QNetworkProxy(ProxyType type, const QString &hostName = QString(), quint16 port = 0,
+                  const QString &user = QString(), const QString &password = QString());
 
     void setType(QNetworkProxy::ProxyType type);
     QNetworkProxy::ProxyType type() const;
 
-    void setUserName(const QString &userName);
-    QString userName() const;
+    void setUser(const QString &userName);
+    QString user() const;
 
     void setPassword(const QString &password);
     QString password() const;
 
-    void setAddress(const QHostAddress & address);
-    QHostAddress address() const;
+    void setHostName(const QString &hostName);
+    QString hostName() const;
 
     void setPort(quint16 port);
     quint16 port() const;
 
-    static void setProxy(const QNetworkProxy &networkProxy);
-    static QNetworkProxy proxy();
+    static void setApplicationProxy(const QNetworkProxy &proxy);
+    static QNetworkProxy applicationProxy();
 
 private:
     QNetworkProxyPrivate *d_ptr;
