@@ -31,7 +31,7 @@ class Q_GUI_EXPORT QSpinBox : public QAbstractSpinBox
     Q_PROPERTY(int maximum READ maximum WRITE setMaximum)
     Q_PROPERTY(int minimum READ minimum WRITE setMinimum)
     Q_PROPERTY(int singleStep READ singleStep WRITE setSingleStep)
-    Q_PROPERTY(int value READ value WRITE setValue NOTIFY valueChanged)
+    Q_PROPERTY(int value READ value WRITE setValue NOTIFY valueChanged USER true)
 
 public:
     explicit QSpinBox(QWidget *parent = 0);

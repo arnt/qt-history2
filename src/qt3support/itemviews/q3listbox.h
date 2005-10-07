@@ -35,7 +35,7 @@ class Q_COMPAT_EXPORT Q3ListBox : public Q3ScrollView
     Q_ENUMS(SelectionMode LayoutMode)
     Q_PROPERTY(uint count READ count)
     Q_PROPERTY(int numItemsVisible READ numItemsVisible)
-    Q_PROPERTY(int currentItem READ currentItem WRITE setCurrentItem)
+    Q_PROPERTY(int currentItem READ currentItem WRITE setCurrentItem USER true)
     Q_PROPERTY(QString currentText READ currentText)
     Q_PROPERTY(int topItem READ topItem WRITE setTopItem DESIGNABLE false)
     Q_PROPERTY(SelectionMode selectionMode READ selectionMode WRITE setSelectionMode)

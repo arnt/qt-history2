@@ -29,7 +29,7 @@ class Q_GUI_EXPORT QGroupBox : public QWidget
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
     Q_PROPERTY(bool flat READ isFlat WRITE setFlat)
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
-    Q_PROPERTY(bool checked READ isChecked WRITE setChecked)
+    Q_PROPERTY(bool checked READ isChecked WRITE setChecked NOTIFY toggled USER true)
 public:
     explicit QGroupBox(QWidget* parent=0);
     explicit QGroupBox(const QString &title, QWidget* parent=0);

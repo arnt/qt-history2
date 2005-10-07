@@ -149,13 +149,12 @@ Q3SqlPropertyMap::Q3SqlPropertyMap()
         { "QAbstractButton", "text" },
         { "QCheckBox", "checked" },
         { "QRadioButton", "checked" },
-        { "QComboBox", "currentItem" },
+        { "QComboBox", "currentIndex" },
         { "QDateTimeEdit", "dateTime" },
         { "QDial", "value" },
         { "QLabel", "text" },
         { "QLCDNumber", "value" },
         { "QLineEdit", "text" },
-        { "QMultiLineEdit", "text" },
         { "QPushButton", "text" },
         { "QScrollBar", "value" },
         { "QSlider", "value" },
@@ -164,7 +163,7 @@ Q3SqlPropertyMap::Q3SqlPropertyMap()
         { "QTabWidget", "currentPage" },
         { "QTextBrowser", "source" },
         { "QTextEdit", "text" },
-        { "QTextView", "text" }
+        { "QGroupBox", "checked" }
     };
 
     const MapData *m = mapData;

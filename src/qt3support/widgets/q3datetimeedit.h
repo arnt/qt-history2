@@ -49,7 +49,7 @@ class Q_COMPAT_EXPORT Q3DateEdit : public Q3DateTimeEditBase
     Q_OBJECT
     Q_ENUMS(Order)
     Q_PROPERTY(Order order READ order WRITE setOrder)
-    Q_PROPERTY(QDate date READ date WRITE setDate)
+    Q_PROPERTY(QDate date READ date WRITE setDate USER true)
     Q_PROPERTY(bool autoAdvance READ autoAdvance WRITE setAutoAdvance)
     Q_PROPERTY(QDate maxValue READ maxValue WRITE setMaxValue)
     Q_PROPERTY(QDate minValue READ minValue WRITE setMinValue)
@@ -125,7 +125,7 @@ class Q_COMPAT_EXPORT Q3TimeEdit : public Q3DateTimeEditBase
 {
     Q_OBJECT
     Q_FLAGS(Display)
-    Q_PROPERTY(QTime time READ time WRITE setTime)
+    Q_PROPERTY(QTime time READ time WRITE setTime USER true)
     Q_PROPERTY(bool autoAdvance READ autoAdvance WRITE setAutoAdvance)
     Q_PROPERTY(QTime maxValue READ maxValue WRITE setMaxValue)
     Q_PROPERTY(QTime minValue READ minValue WRITE setMinValue)
@@ -205,7 +205,7 @@ class Q3DateTimeEditPrivate;
 class Q_COMPAT_EXPORT Q3DateTimeEdit : public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
+    Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime USER true)
 
 public:
     Q3DateTimeEdit(QWidget* parent=0, const char* name=0);
