@@ -32,7 +32,7 @@ public:
     virtual ~Loader();
 
     QStringList pluginPaths() const;
-    void clearPluginParhs();
+    void clearPluginPaths();
     void addPluginPath(const QString &path);
 
     QWidget *load(QIODevice *device, QWidget *parentWidget = 0);

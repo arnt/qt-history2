@@ -97,7 +97,7 @@ QStringList Loader::pluginPaths() const
     return d->builder.pluginPaths();
 }
 
-void Loader::clearPluginParhs()
+void Loader::clearPluginPaths()
 {
     Q_D(Loader);
     d->builder.clearPluginPaths();
