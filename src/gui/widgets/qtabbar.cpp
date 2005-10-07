@@ -173,6 +173,10 @@ QStyleOptionTabV2 QTabBarPrivate::getStyleOption(int tab) const
     setTabToolTip(), setTabWhatsThis and setTabData(). Each tabs can be
     enabled or disabled individually with setTabEnabled().
 
+    Each tab can display text in a distinct color. The current text color
+    for a tab can be found with the tabTextColor() function. Set the text
+    color for a particular tab with setTabTextColor().
+
     Tabs are added using addTab(), or inserted at particular positions
     using insertTab(). The total number of tabs is given by
     count(). Tabs can be removed from the tab bar with
@@ -685,8 +689,10 @@ void QTabBar::setTabText(int index, const QString &text)
 }
 
 /*!
-    Returns the text color of the tab at position \a index, or a invlaid
+    Returns the text color of the tab with the given \a index, or a invalid
     color if \a index is out of range.
+
+    \sa setTabTextColor()
 */
 QColor QTabBar::tabTextColor(int index) const
 {
@@ -697,10 +703,11 @@ QColor QTabBar::tabTextColor(int index) const
 }
 
 /*!
-    Sets the text color of the tab at position \a index to \a color.
+    Sets the color of the text in the tab with the given \a index to the specified \a color.
 
-    Setting an invlid color will reset the tab to use the QTabBar
-    foreground role.
+    If an invalid color is specified, the tab will use the QTabBar foreground role instead.
+
+    \sa tabTextColor()
 */
 void QTabBar::setTabTextColor(int index, const QColor &color)
 {
