@@ -38,6 +38,8 @@
 
 #include <QtXml/QDomDocument>
 
+#include <QtGui/QDialog>
+
 // containers
 #include <QtGui/QToolBox>
 #include <QtGui/QStackedWidget>
@@ -433,6 +435,9 @@ QWidget *QAbstractFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
 
     loadExtraInfo(ui_widget, w, parentWidget);
     addItem(ui_widget, w, parentWidget);
+
+    if (qobject_cast<QDialog *>(w) && parentWidget)
+        w->setAttribute(Qt::WA_Moved, false); // So that QDialog::setVisible(true) will center it
 
     return w;
 }

@@ -145,7 +145,7 @@ QWidget *QFormBuilder::createWidget(const QString &widgetName, QWidget *parentWi
     w->setObjectName(name);
 
     if (qobject_cast<QDialog *>(w))
-        w->setParent(parentWidget, 0);
+        w->setParent(parentWidget);
 
     return w;
 }
