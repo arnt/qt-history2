@@ -960,9 +960,9 @@ struct DDSFormat {
     quint32 dwMipMapCount;
     quint32 dummy2[11];
     struct {
-	quint32 dummy3[2];
-	quint32 dwFourCC;
-	quint32 dummy4[5];
+        quint32 dummy3[2];
+        quint32 dwFourCC;
+        quint32 dummy4[5];
     } ddsPixelFormat;
 };
 
@@ -1066,19 +1066,19 @@ QGLContext::~QGLContext()
     Q_D(QGLContext);
     // remove any textures cached in this context
     if (qt_tex_cache) {
-	QList<QString> keys = qt_tex_cache->keys();
-	for (int i = 0; i < keys.size(); ++i) {
-	    const QString &key = keys.at(i);
-	    if (qt_tex_cache->object(key)->context == this)
-		qt_tex_cache->remove(key);
-	}
-	// ### thread safety
-	if (qt_tex_cache->size() == 0) {
+        QList<QString> keys = qt_tex_cache->keys();
+        for (int i = 0; i < keys.size(); ++i) {
+            const QString &key = keys.at(i);
+            if (qt_tex_cache->object(key)->context == this)
+                qt_tex_cache->remove(key);
+        }
+        // ### thread safety
+        if (qt_tex_cache->size() == 0) {
             qt_pixmap_cleanup_hook = 0;
             qt_image_cleanup_hook = 0;
-	    delete qt_tex_cache;
-	    qt_tex_cache = 0;
-	}
+            delete qt_tex_cache;
+            qt_tex_cache = 0;
+        }
     }
 
     reset();
@@ -1103,18 +1103,18 @@ GLuint QGLContext::bindTexture(const QString &fileName)
     if (!qt_glCompressedTexImage2DARB) {
         qWarning("QGLContext::bindTexture(): The GL implementation does not support texture"
                  "compression extensions.");
-	return 0;
+        return 0;
     }
 
     if (!qt_tex_cache)
-	qt_tex_cache = new QGLTextureCache(qt_tex_cache_limit);
+        qt_tex_cache = new QGLTextureCache(qt_tex_cache_limit);
 
     QString key(fileName);
     QGLTexture *texture = qt_tex_cache->object(key);
 
     if (texture && texture->context == this) {
-	glBindTexture(GL_TEXTURE_2D, texture->id);
-	return texture->id;
+        glBindTexture(GL_TEXTURE_2D, texture->id);
+        return texture->id;
     }
 
     QFile f(fileName);
@@ -1123,16 +1123,16 @@ GLuint QGLContext::bindTexture(const QString &fileName)
     char tag[4];
     f.read(&tag[0], 4);
     if (strncmp(tag,"DDS ", 4) != 0) {
-	qWarning("QGLContext::bindTexture(): not a DDS image file.");
-	return 0;
+        qWarning("QGLContext::bindTexture(): not a DDS image file.");
+        return 0;
     }
 
     DDSFormat ddsHeader;
     f.read((char *) &ddsHeader, sizeof(DDSFormat));
 
     if (!ddsHeader.dwLinearSize) {
-	qWarning("QGLContext::bindTexture() DDS image size is not valid.");
-	return 0;
+        qWarning("QGLContext::bindTexture() DDS image size is not valid.");
+        return 0;
     }
 
     int factor = 4;
@@ -1142,19 +1142,19 @@ GLuint QGLContext::bindTexture(const QString &fileName)
 
     switch(ddsHeader.ddsPixelFormat.dwFourCC) {
     case FOURCC_DXT1:
-	format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-	factor = 2;
-	blockSize = 8;
-	break;
+        format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+        factor = 2;
+        blockSize = 8;
+        break;
     case FOURCC_DXT3:
-	format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-	break;
+        format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+        break;
     case FOURCC_DXT5:
-	format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-	break;
+        format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+        break;
     default:
-	qWarning("QGLContext::bindTexture() DDS image format not supported.");
-	return 0;
+        qWarning("QGLContext::bindTexture() DDS image format not supported.");
+        return 0;
     }
 
     if (ddsHeader.dwMipMapCount > 1)
@@ -1179,17 +1179,17 @@ GLuint QGLContext::bindTexture(const QString &fileName)
 
     // load mip-maps
     for(int i = 0; i < (int) ddsHeader.dwMipMapCount; ++i) {
-	if (w == 0) w = 1;
-	if (h == 0) h = 1;
+        if (w == 0) w = 1;
+        if (h == 0) h = 1;
 
-	size = ((w+3)/4) * ((h+3)/4) * blockSize;
-	qt_glCompressedTexImage2DARB(GL_TEXTURE_2D, i, format, w, h, 0,
+        size = ((w+3)/4) * ((h+3)/4) * blockSize;
+        qt_glCompressedTexImage2DARB(GL_TEXTURE_2D, i, format, w, h, 0,
                                      size, pixels + offset);
-	offset += size;
+        offset += size;
 
-	// half size for each mip-map level
-	w = w/2;
-	h = h/2;
+        // half size for each mip-map level
+        w = w/2;
+        h = h/2;
     }
 
     free(pixels);
@@ -1235,7 +1235,7 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
     Q_Q(QGLContext);
 
     if (!qt_tex_cache) {
-	qt_tex_cache = new QGLTextureCache(qt_tex_cache_limit);
+        qt_tex_cache = new QGLTextureCache(qt_tex_cache_limit);
         qt_pixmap_cleanup_hook = qt_gl_pixmap_cleanup;
         qt_image_cleanup_hook = qt_gl_image_cleanup;
     }
@@ -1250,26 +1250,26 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
         tx = image.convertToFormat(QImage::Format_ARGB32);
 
     if (target == GL_TEXTURE_2D && (tx_w != image.width() || tx_h != image.height()))
-	tx = QGLWidget::convertToGLFormat(image.scaled(tx_w, tx_h));
+        tx = QGLWidget::convertToGLFormat(image.scaled(tx_w, tx_h));
     else
-	tx = QGLWidget::convertToGLFormat(image);
+        tx = QGLWidget::convertToGLFormat(image);
 
     GLuint tx_id;
     glGenTextures(1, &tx_id);
     glBindTexture(target, tx_id);
     glTexParameterf(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     if (QGLExtensions::glExtensions & QGLExtensions::GenerateMipmap
-	&& target == GL_TEXTURE_2D)
+        && target == GL_TEXTURE_2D)
     {
-	glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
-	glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+        glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
+        glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
         glTexParameterf(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     } else {
         glTexParameterf(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
 
     glTexImage2D(target, 0, format, tx.width(), tx.height(), 0, GL_RGBA,
-		 GL_UNSIGNED_BYTE, tx.bits());
+                 GL_UNSIGNED_BYTE, tx.bits());
 
     // this assumes the size of a texture is always smaller than the max cache size
     int cost = tx.width()*tx.height()*4/1024;
@@ -1387,15 +1387,15 @@ GLuint QGLContext::bindTexture(const QPixmap &pixmap, GLenum target, GLint forma
 void QGLContext::deleteTexture(GLuint id)
 {
     if (!qt_tex_cache)
-	return;
+        return;
 
     QList<QString> keys = qt_tex_cache->keys();
     for (int i = 0; i < keys.size(); ++i) {
-	QGLTexture *tex = qt_tex_cache->object(keys.at(i));
-	if (tex->id == id && tex->context == this) {
-	    qt_tex_cache->remove(keys.at(i));
-	    break;
-	}
+        QGLTexture *tex = qt_tex_cache->object(keys.at(i));
+        if (tex->id == id && tex->context == this) {
+            qt_tex_cache->remove(keys.at(i));
+            break;
+        }
     }
 }
 
@@ -1411,7 +1411,7 @@ void QGLContext::setTextureCacheLimit(int size)
 {
     qt_tex_cache_limit = size;
     if (qt_tex_cache)
-	qt_tex_cache->setMaxCost(qt_tex_cache_limit);
+        qt_tex_cache->setMaxCost(qt_tex_cache_limit);
 }
 
 /*!
@@ -2482,6 +2482,7 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
         success = false;
 
 #if defined(Q_WS_WIN)
+    glFlush();
     pm = QPixmap::fromWinHBITMAP(d->glcx->d_func()->hbitmap);
 #endif
 
@@ -3015,13 +3016,13 @@ void QGLExtensions::init_extensions()
 {
     QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
     if (extensions.contains("texture_rectangle"))
-	glExtensions |= TextureRectangle;
+        glExtensions |= TextureRectangle;
     if (extensions.contains("multisample"))
-	glExtensions |= SampleBuffers;
+        glExtensions |= SampleBuffers;
     if (extensions.contains("generate_mipmap"))
-	glExtensions |= GenerateMipmap;
+        glExtensions |= GenerateMipmap;
     if (extensions.contains("texture_compression_s3tc"))
-	glExtensions |= TextureCompression;
+        glExtensions |= TextureCompression;
 
     QGLContext cx(QGLFormat::defaultFormat());
     if (glExtensions & TextureCompression) {
