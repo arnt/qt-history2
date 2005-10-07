@@ -196,7 +196,6 @@ void qt_XDestroyWindow(const QWidget *destroyer,
                         Display *display, Window window);
 
 
-#ifndef QT_USE_BACKINGSTORE
 static void qt_insert_sip(QWidget* scrolled_widget, int dx, int dy)
 {
     QX11Data::ScrollInProgress sip = { X11->sip_serial++, scrolled_widget, dx, dy };
@@ -225,7 +224,6 @@ static int qt_sip_count(QWidget* scrolled_widget)
 
     return sips;
 }
-#endif
 
 static void create_wm_client_leader()
 {
