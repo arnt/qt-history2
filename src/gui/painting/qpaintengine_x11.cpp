@@ -674,17 +674,21 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
         return false;
     }
 
+    d->bg_col = Qt::white;
+    d->bg_mode = Qt::TransparentMode;
     d->crgn = QRegion();
-    d->has_clipping = false;
     d->gc = XCreateGC(d->dpy, d->hd, 0, 0);
     d->gc_brush = XCreateGC(d->dpy, d->hd, 0, 0);
-    d->use_path_fallback = false;
+    d->has_alpha_brush = false;
+    d->has_alpha_pen = false;
+    d->has_clipping = false;
+    d->has_complex_xform = false;
+    d->has_custom_pen = false;
     d->matrix = QMatrix();
-    d->render_hints = 0;
-    d->bg_mode = Qt::TransparentMode;
-    d->bg_col = Qt::white;
-    d->txop = QPainterPrivate::TxNone;
     d->pdev_depth = d->pdev->depth();
+    d->render_hints = 0;
+    d->txop = QPainterPrivate::TxNone;
+    d->use_path_fallback = false;
     d->xlibMaxLinePoints = 32762; // a safe number used to avoid, call to XMaxRequestSize(d->dpy) - 3;
 
     // Set up the polygon clipper. Note: This will only work in
@@ -862,7 +866,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
     Q_ASSERT(rects);
     Q_ASSERT(rectCount);
 
-    if (d->use_path_fallback || (d->has_pen && d->alpha_pen)) {
+    if (d->use_path_fallback) {
         for (int i = 0; i < rectCount; ++i) {
             QPainterPath path;
             path.addRect(rects[i]);
@@ -877,7 +881,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
     ::Picture pict = d->picture;
 
     if (X11->use_xrender && pict && d->has_brush && d->pdev_depth != 1
-        && (d->has_texture || d->alpha_brush))
+        && (d->has_texture || d->has_alpha_brush))
     {
         XRenderColor xc;
         if (!d->has_texture && !d->has_pattern)
@@ -957,9 +961,7 @@ void QX11PaintEngine::drawPoints(const QPointF *points, int pointCount)
     if (!d->has_pen)
         return;
 
-    float pen_width = d->cpen.widthF();
-    if (d->alpha_pen || pen_width > 1
-        || (pen_width > 0 && d->txop > QPainterPrivate::TxTranslate)) {
+    if (d->use_path_fallback) {
         const QPointF *end = points + pointCount;
         while (points < end) {
             QPainterPath path;
@@ -990,6 +992,7 @@ QPainter::RenderHints QX11PaintEngine::supportedRenderHints() const
 
 void QX11PaintEngine::updateState(const QPaintEngineState &state)
 {
+    Q_D(QX11PaintEngine);
     QPaintEngine::DirtyFlags flags = state.state();
     if (flags & DirtyTransform) updateMatrix(state.matrix());
     if (flags & DirtyPen) updatePen(state.pen());
@@ -1012,6 +1015,7 @@ void QX11PaintEngine::updateState(const QPaintEngineState &state)
     }
     if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
     if (flags & DirtyHints) updateRenderHints(state.renderHints());
+    d->decidePathFallback();
 }
 
 void QX11PaintEngine::updateRenderHints(QPainter::RenderHints hints)
@@ -1042,12 +1046,7 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     int ps = pen.style();
 
     d->has_pen = (ps != Qt::NoPen);
-    d->alpha_pen = (pen.color().alpha() != 255);
-
-    // forces the use of the same drawing algorithm for strokes/fills
-    // to avoid drawing errors
-    if (d->alpha_pen && !d->alpha_brush)
-        d->alpha_brush = true;
+    d->has_alpha_pen = (pen.color().alpha() != 255);
 
     switch (pen.capStyle()) {
     case Qt::SquareCap:
@@ -1091,6 +1090,8 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     int dot = 1 * scale;
     int dash = 4 * scale;
 
+    d->has_custom_pen = false;
+
     switch (ps) {
     case Qt::NoPen:
     case Qt::SolidLine:
@@ -1125,6 +1126,9 @@ void QX11PaintEngine::updatePen(const QPen &pen)
 	dashes[5] = space;
 	dash_len = 6;
         xStyle = LineOnOffDash;
+        break;
+    case Qt::CustomDashLine:
+        d->has_custom_pen = true;
         break;
     }
 
@@ -1181,12 +1185,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     d->has_brush = (bs != Qt::NoBrush);
     d->has_pattern = bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern;
     d->has_texture = bs == Qt::TexturePattern;
-    d->alpha_brush = brush.color().alpha() != 255;
-
-    // forces the use of the same drawing algorithm for strokes/fills
-    // to avoid drawing errors
-    if (d->alpha_brush && !d->alpha_pen)
-        d->alpha_pen = true;
+    d->has_alpha_brush = brush.color().alpha() != 255;
 
     ulong mask = GCForeground | GCBackground | GCGraphicsExposures
                  | GCLineStyle | GCCapStyle | GCJoinStyle | GCFillStyle;
@@ -1273,7 +1272,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
         vals.ts_y_origin = qRound(origin.y());
     }
 #if !defined(QT_NO_XRENDER)
-    else if (d->alpha_brush) {
+    else if (d->has_alpha_brush) {
         d->current_brush = X11->getSolidFill(d->scrn, d->cbrush.color());
     }
 #endif
@@ -1296,10 +1295,7 @@ void QX11PaintEngine::drawEllipse(const QRect &rect)
     QRect r(rect);
     if (d->txop == QPainterPrivate::TxTranslate)
         r.translate(qRound(d->matrix.dx()), qRound(d->matrix.dy()));
-    if (d->use_path_fallback
-        || d->alpha_pen
-        || d->alpha_brush
-        || devclip.intersect(r) != r) {
+    if (d->use_path_fallback || devclip.intersect(r) != r) {
         QPainterPath path;
         path.addEllipse(rect);
         drawPath(path);
@@ -1391,10 +1387,9 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
 #if !defined(QT_NO_XRENDER)
     bool antialias = render_hints & QPainter::Antialiasing;
     if (X11->use_xrender && fill.style() != Qt::NoBrush && !has_fill_pattern &&
-        (has_fill_texture || antialias || fill.color().alpha() != 255 || alpha_pen))
+        (has_fill_texture || antialias || fill.color().alpha() != 255))
     {
         if (picture) {
-
             if (clippedCount > 0) {
                 int x_offset = 0;
                 int y_offset = 0;
@@ -1478,7 +1473,7 @@ void QX11PaintEnginePrivate::strokePolygon_dev(const QPointF *polygonPoints, int
 void QX11PaintEngine::drawPolygon(const QPointF *polygonPoints, int pointCount, PolygonDrawMode mode)
 {
     Q_D(QX11PaintEngine);
-    if (d->use_path_fallback || d->alpha_pen) {
+    if (d->use_path_fallback) {
         QPainterPath path(polygonPoints[0]);
         for (int i = 1; i < pointCount; ++i)
             path.lineTo(polygonPoints[i]);
@@ -1521,12 +1516,15 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
         d->fillPath(path, QX11PaintEnginePrivate::BrushGC, true);
 
     if (d->has_pen
-        && ((X11->use_xrender && (d->alpha_pen
+        && ((X11->use_xrender && (d->has_alpha_pen
                                   || (d->render_hints & QPainter::Antialiasing)))
             || (d->cpen.widthF() > 0 && d->txop > QPainterPrivate::TxTranslate)
             || (d->cpen.style() > Qt::SolidLine))) {
         QPainterPathStroker stroker;
-        stroker.setDashPattern(d->cpen.style());
+        if (d->cpen.style() == Qt::CustomDashLine)
+            stroker.setDashPattern(d->cpen.dashPattern());
+        else
+            stroker.setDashPattern(d->cpen.style());
         stroker.setCapStyle(d->cpen.capStyle());
         stroker.setJoinStyle(d->cpen.joinStyle());
         QPainterPath stroke;
@@ -1591,7 +1589,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
 #if !defined(QT_NO_XRENDER)
     ::Picture src_pict = pixmap.data->picture;
     if (src_pict && d->picture) {
-        if (pixmap.data->d == 1 && (d->alpha_pen || d->bg_brush != Qt::NoBrush)) {
+        if (pixmap.data->d == 1 && (d->has_alpha_pen || d->bg_brush != Qt::NoBrush)) {
             qt_render_bitmap(d->dpy, d->scrn, src_pict, d->picture,
                              sx, sy, x, y, sw, sh, d->cpen, d->bg_brush,
                              d->bg_mode == Qt::OpaqueMode);
@@ -1708,11 +1706,7 @@ void QX11PaintEngine::updateMatrix(const QMatrix &mtx)
     else
         d->txop = QPainterPrivate::TxNone;
 
-    if ((d->txop > QPainterPrivate::TxTranslate)
-        || (d->render_hints & QPainter::Antialiasing))
-        d->use_path_fallback = true;
-    else
-        d->use_path_fallback = false;
+    d->has_complex_xform = (d->txop > QPainterPrivate::TxTranslate);
 }
 
 void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)
