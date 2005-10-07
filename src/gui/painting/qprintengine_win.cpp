@@ -358,7 +358,10 @@ void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem
 {
     Q_D(const QWin32PrintEngine);
 
-    if (d->txop >= QPainterPrivate::TxScale) {
+    QRgb brushColor = state->pen().brush().color().rgb();
+    bool fallBack = (d->txop >= QPainterPrivate::TxScale || state->pen().brush().style() != Qt::SolidPattern 
+        || qAlpha(brushColor) != 0xff);
+    if (fallBack) {
         QPaintEngine::drawTextItem(p, textItem);
         return ;
     }
@@ -370,6 +373,7 @@ void QWin32PrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem
     for (int i=0; (i<ti.num_chars && latin1String); ++i)
         latin1String = latin1String && (ti.chars[i].toLatin1() == ti.chars[i]);
 
+    SetTextColor(d->hdc, RGB(qRed(brushColor), qGreen(brushColor), qBlue(brushColor)));
     qt_draw_text_item(
         QPointF(d->matrix.dx(), d->matrix.dy()) + p,
         ti, d->hdc, latin1String);
