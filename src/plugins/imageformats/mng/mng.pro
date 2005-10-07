@@ -1,10 +1,8 @@
 TARGET  = qmng
 include(../../qpluginbase.pri)
 
-DESTDIR  = $$QT_BUILD_TREE/plugins/imageformats
-
 VERSION = 1.0.0
-QTDIR_build:REQUIRES = "!contains(QT_CONFIG, no-mng)" "!contains(QT_CONFIG, mng)"
+QTDIR_build:REQUIRES = "!contains(QT_CONFIG, no-mng)"
 
 HEADERS += qmnghandler.h
 SOURCES += main.cpp \
@@ -40,5 +38,6 @@ contains(QT_CONFIG, system-mng) {
             ../../../3rdparty/libmng/libmng_zlib.c
 }
 
+DESTDIR  = $$QT_BUILD_TREE/plugins/imageformats
 target.path += $$[QT_INSTALL_PLUGINS]/imageformats
-INSTALLS += target 
+INSTALLS += target

@@ -108,7 +108,73 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
       }
    }
 }
+for(QTPLUG, $$list($$lower($$unique(QTPLUGIN)))) {
+   qplugin_style = 
+   false:contains(QTPLUG, ".*_debug$") {
+      qplugin_style = debug
+      QTPLUG ~= s,_debug$,,g
+   } else:false:contains(QTPLUG, ".*_release$") {
+      qplugin_style = release
+      QTPLUG ~= s,_release$,,g
+   } else:!qt_debug:!qt_release {
+      CONFIG(debug, debug|release):qplugin_style = debug
+      else:qplugin_style = release
+   } else:CONFIG(qt_debug, qt_debug|qt_release) {
+      qplugin_style = debug
+   } else {
+      qplugin_style = release
+   }
 
+   # Check if the plugin is known
+   IMAGEPLUGINS = mng jpeg gif
+   #CODECPLUGINS = cn jp kr tw
+   #SQLPLUGINS = sqlite
+   #INPUTPLUGINS = imsw-multi
+   ALLPLUGINS = $$IMAGEPLUGINS $$CODECPLUGINS $$SQLPLUGINS $$INPUTPLUGINS
+   !contains(ALLPLUGINS, $$QTPLUG):warning(Unknown plugin: $$QTPLUG)
+   contains(ALLPLUGINS, $$QTPLUG) {
+       # Determine the plugin path
+       QT_PLUGINPATH = 
+       contains(IMAGEPLUGINS, $$QTPLUG) {
+           QT_PLUGINPATH = $$[QT_INSTALL_PLUGINS]/imageformats/
+           qplugin = q$$QTPLUG
+       }
+       contains(CODECPLUGINS, $$QTPLUG) {
+           QT_PLUGINPATH = $$[QT_INSTALL_PLUGINS]/codecs/
+           qplugin = q$${QTPLUG}codecs
+       }
+       contains(SQLPLUGINS, $$QTPLUG) {
+           QT_PLUGINPATH = $$[QT_INSTALL_PLUGINS]/sqldrivers/
+           qplugin = q$${QTPLUG}
+       }
+       contains(INPUTPLUGINS, $$QTPLUG) {
+           QT_PLUGINPATH = $$[QT_INSTALL_PLUGINS]/inputmethods/
+           qplugin = q$${QTPLUG}
+       }
+       !exists($$QT_PLUGINPATH):warning(Cannot find the "$$QTPLUG" plugin in $$[QT_INSTALL_PLUGINS])
+    
+       # Determine the plugin linker line
+       target_qt:isEqual(TARGET, qplugin) {
+          warning($$TARGET cannot have a QTPLUGIN of $$QTPLUG)
+       } else {
+          QT_LINKAGE =
+          false {
+             QT_LINKAGE = -l$${qplugin}
+          } else:isEmpty(QT_LINKAGE) {
+             win32 {
+                CONFIG(debug, debug|release):QT_LINKAGE = -l$${qplugin}d
+                else:QT_LINKAGE = -l$${qplugin}
+             } else { 
+                isEqual(qplugin_style, debug):QT_LINKAGE = -l$${qplugin}_debug
+                else:QT_LINKAGE = -l$${qplugin}
+             }
+          }
+             
+          LIBS += -L$$QT_PLUGINPATH $$QT_LINKAGE
+       }
+   }
+}
+    
 qt_compat {
    !qt_compat_no_warning:QTDIR_build:warning(***USE of COMPAT inside of QTDIR!**) #just for us
    INCLUDEPATH *= $$QMAKE_INCDIR_QT/Qt

@@ -4200,11 +4200,12 @@ fi
 [ "$CFG_SQL_sqlite2" != "no" ] && echo "SQLite 2 support .... $CFG_SQL_sqlite2"
 [ "$CFG_SQL_sqlite" != "no" ] && echo "SQLite support ...... $CFG_SQL_sqlite"
 
-# complain about not being able to use plugins if we are using a static build
+# complain about not being able to use dynamic plugins if we are using a static build
 if [ "$CFG_SHARED" = "no" ]; then
     echo
-    echo "WARNING: Using static linking will disable the use of plugins."
-    echo "Make sure you compile ALL needed modules into the library."
+    echo "WARNING: Using static linking will disable the use of dynamically"
+    echo "loaded plugins. Make sure to import all needed static plugins,"
+    echo "or compile needed modules into the library."
     echo
 fi
 if [ "$PLATFORM_MAC" = "yes" ] && [ "$CFG_FRAMEWORK" = "yes" ] && [ "$CFG_DEBUG" = "yes" ] && [ "$CFG_DEBUG_RELEASE" = "no" ]; then

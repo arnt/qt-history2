@@ -116,6 +116,48 @@
 */
 
 /*!
+    \macro Q_IMPORT_PLUGIN(ClassName)
+    \relates QPluginLoader
+
+    This macro imports the plugin class \a ClassName. Inserting this macro
+    into your application's source code will allow you to
+    make use of a static plugin.
+
+    Example:
+
+    \code
+        Q_IMPORT_PLUGIN(QJpegPlugin)
+    \endcode
+
+    Static plugins must also be included by the linker when your
+    application is built. With qmake, you can use QTPLUGIN to add
+    the required plugins to your build.
+
+    Example:
+
+    \code
+        TEMPLATE = app
+        QTPLUGIN += jpeg gif mng # image formats
+        QTPLUGIN += cn tw        # codecs
+    \endcode
+
+    Depending on your build, Qt provides the following static plugins:
+
+    \table
+    \header
+    \i Plugin class     \i Type     \i Description         \i QTPLUGIN entry
+    \row
+    \i QJpegPlugin      \i Image format \i The JPEG image format \i jpeg
+    \row
+    \i QGifPlugin      \i Image format \i The GIF image format \i gif
+    \row
+    \i QMngPlugin      \i Image format \i The MNG image format \i mng
+    \endtable
+
+    \sa {How to Create Qt Plugins}, {Using qmake}
+*/
+
+/*!
     \macro Q_EXPORT_STATIC_PLUGIN(ClassName)
     \relates QPluginLoader
     \internal

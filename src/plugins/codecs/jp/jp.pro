@@ -4,8 +4,6 @@ include(../../qpluginbase.pri)
 CONFIG	+= warn_on
 DESTDIR	 = $$QT_BUILD_TREE/plugins/codecs
 
-REQUIRES   = shared
-
 HEADERS		= qjpunicode.h \
                   qeucjpcodec.h \
 		  qjiscodec.h \
