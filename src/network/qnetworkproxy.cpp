@@ -23,7 +23,7 @@
     \sa QAbstractSocket, QTcpSocket
 */
 
-/*! 
+/*!
     \enum QNetworkProxy::ProxyType
 
     This enum describes the types of network proxying provided in Qt.
@@ -36,6 +36,9 @@
 */
 
 #include "qnetworkproxy.h"
+
+#ifndef QT_NO_NETWORKPROXY
+
 #include "qsocks5socketengine_p.h"
 #include "qmutex.h"
 
@@ -43,20 +46,26 @@ class QGlobalNetworkProxy
 {
 public:
     QGlobalNetworkProxy()
+#ifndef QT_NO_SOCKS5
         : socks5SocketEngineHandler(0)
+#endif
     {
     }
 
     ~QGlobalNetworkProxy()
     {
+#ifndef QT_NO_SOCKS5
         delete socks5SocketEngineHandler;
+#endif
     }
 
     void init()
     {
+#ifndef QT_NO_SOCKS5
         QMutexLocker lock(&mutex);
         if (!socks5SocketEngineHandler)
             socks5SocketEngineHandler = new QSocks5SocketEngineHandler();
+#endif
     }
 
     void setProxy(const QNetworkProxy &networkProxy)
@@ -74,7 +83,9 @@ public:
 private:
     QMutex mutex;
     QNetworkProxy globalProxy;
+#ifndef QT_NO_SOCKS5
     QSocks5SocketEngineHandler *socks5SocketEngineHandler;
+#endif
 };
 
 Q_GLOBAL_STATIC(QGlobalNetworkProxy, globalNetworkProxy);
@@ -264,3 +275,5 @@ QNetworkProxy QNetworkProxy::proxy()
         return globalNetworkProxy()->proxy();
     return QNetworkProxy();
 }
+
+#endif // QT_NO_NETWORKPROXY

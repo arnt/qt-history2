@@ -100,7 +100,9 @@ public:
 
     int maxConnections;
 
+#ifndef QT_NO_NETWORKPROXY
     QNetworkProxy *proxy;
+#endif
 
     // private slots
     void processIncomingConnection();
@@ -114,7 +116,9 @@ QTcpServerPrivate::QTcpServerPrivate()
  , socketEngine(0)
  , serverSocketError(QAbstractSocket::UnknownSocketError)
  , maxConnections(30)
+#ifndef QT_NO_NETWORKPROXY
  , proxy(0)
+#endif
 {
 }
 
@@ -122,7 +126,9 @@ QTcpServerPrivate::QTcpServerPrivate()
 */
 QTcpServerPrivate::~QTcpServerPrivate()
 {
+#ifndef QT_NO_NETWORKPROXY
      delete proxy;
+#endif
 }
 
 /*! \internal
@@ -520,6 +526,7 @@ QString QTcpServer::errorString() const
     return d_func()->serverSocketErrorString;
 }
 
+#ifndef QT_NO_NETWORKPROXY
 void QTcpServer::setProxy(const QNetworkProxy &networkProxy)
 {
     Q_D(QTcpServer);
@@ -535,6 +542,7 @@ QNetworkProxy QTcpServer::proxy() const
         return *d->proxy;
     return QNetworkProxy();
 }
+#endif // QT_NO_NETWORKPROXY
 
 #include "moc_qtcpserver.cpp"
 

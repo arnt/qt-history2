@@ -115,8 +115,10 @@ public:
     bool waitForBytesWritten(int msecs = 30000);
     bool waitForDisconnected(int msecs = 30000);
 
+#ifndef QT_NO_NETWORKPROXY
     void setProxy(const QNetworkProxy &networkProxy);
     QNetworkProxy proxy() const;
+#endif
 
 Q_SIGNALS:
     void hostFound();

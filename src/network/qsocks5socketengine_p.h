@@ -28,6 +28,8 @@
 #include "qabstractsocketengine_p.h"
 #include "qnetworkproxy.h"
 
+#ifndef QT_NO_SOCKS5
+
 class QSocks5SocketEnginePrivate;
 
 class QSocks5SocketEngine : public QAbstractSocketEngine
@@ -41,38 +43,40 @@ public:
     bool initialize(int socketDescriptor, QAbstractSocket::SocketState socketState = QAbstractSocket::ConnectedState);
 
     void setProxy(const QNetworkProxy &networkProxy);
-        
+
     int socketDescriptor() const;
-    
+
     bool isValid() const;
-    
+
     bool connectToHost(const QHostAddress &address, quint16 port);
     bool bind(const QHostAddress &address, quint16 port);
     bool listen();
     int accept();
     void close();
-    
+
     qint64 bytesAvailable() const;
-    
+
     qint64 read(char *data, qint64 maxlen);
     qint64 write(const char *data, qint64 len);
-    
+
+#ifndef QT_NO_UDPSOCKET
     qint64 readDatagram(char *data, qint64 maxlen, QHostAddress *addr = 0,
         quint16 *port = 0);
     qint64 writeDatagram(const char *data, qint64 len, const QHostAddress &addr,
         quint16 port);
     bool hasPendingDatagrams() const;
     qint64 pendingDatagramSize() const;
-    
+#endif // QT_NO_UDPSOCKET
+
     int option(SocketOption option) const;
     bool setOption(SocketOption option, int value);
-    
+
     bool waitForRead(int msecs = 30000, bool *timedOut = 0) const;
     bool waitForWrite(int msecs = 30000, bool *timedOut = 0) const;
     bool waitForReadOrWrite(bool *readyToRead, bool *readyToWrite,
                             bool checkRead, bool checkWrite,
                             int msecs = 30000, bool *timedOut = 0) const;
-    
+
     bool isReadNotificationEnabled() const;
     void setReadNotificationEnabled(bool enable);
     bool isWriteNotificationEnabled() const;
@@ -86,7 +90,9 @@ private:
     Q_PRIVATE_SLOT(d_func(), void controlSocketConnected());
     Q_PRIVATE_SLOT(d_func(), void controlSocketReadNotification());
     Q_PRIVATE_SLOT(d_func(), void controlSocketError(QAbstractSocket::SocketError));
+#ifndef QT_NO_UDPSOCKET
     Q_PRIVATE_SLOT(d_func(), void udpSocketReadNotification());
+#endif
     Q_PRIVATE_SLOT(d_func(), void controlSocketBytesWritten());
     Q_PRIVATE_SLOT(d_func(), void emitPendingReadNotification());
     Q_PRIVATE_SLOT(d_func(), void emitPendingWriteNotification());
@@ -106,7 +112,7 @@ public:
     virtual char methodId();
     virtual bool beginAuthenticate(QTcpSocket *socket, bool *completed);
     virtual bool continueAuthenticate(QTcpSocket *socket, bool *completed);
-    
+
     virtual bool seal(const QByteArray buf, QByteArray *sealedBuf);
     virtual bool unSeal(const QByteArray sealedBuf, QByteArray *buf);
     virtual bool unSeal(QTcpSocket *sealedSocket, QByteArray *buf);
@@ -183,9 +189,9 @@ public:
     };
     Socks5Error socks5Error;
     QString socks5ErrorString;
-    
+
     void initialize(Socks5Mode socks5Mode);
-    
+
     void parseAuthenticationMethodReply();
     void parseAuthenticatingReply();
     void sendRequestMethod();
@@ -195,8 +201,10 @@ public:
     void controlSocketConnected();
     void controlSocketReadNotification();
     void controlSocketError(QAbstractSocket::SocketError);
+#ifndef QT_NO_UDPSOCKET
     void checkForDatagrams() const;
     void udpSocketReadNotification();
+#endif
     void controlSocketBytesWritten();
     void controlSocketDisconnected();
     void controlSocketStateChanged(QAbstractSocket::SocketState);
@@ -207,7 +215,9 @@ public:
 
     QSocks5Data *data;
     QSocks5ConnectData *connectData;
+#ifndef QT_NO_UDPSOCKET
     QSocks5UdpAssociateData *udpData;
+#endif
     QSocks5BindData *bindData;
 
     mutable bool readNotificationActivated;
@@ -228,4 +238,5 @@ public:
     virtual QAbstractSocketEngine *createSocketEngine(int socketDescripter, QObject *parent);
 };
 
+#endif // QT_NO_SOCKS5
 #endif // QSOCKS5SOCKETENGINE_H

@@ -68,6 +68,9 @@
 // Animated images
 //#define QT_NO_MOVIE
 
+// QNetworkProxy
+//#define QT_NO_NETWORKPROXY
+
 // QPicture
 //#define QT_NO_PICTURE
 
@@ -271,6 +274,11 @@
 // Persistent application settings
 #if !defined(QT_NO_SETTINGS) && (defined(QT_NO_TEXTSTREAM))
 #define QT_NO_SETTINGS
+#endif
+
+// SOCKS v5 network proxy
+#if !defined(QT_NO_SOCKS5) && (defined(QT_NO_NETWORKPROXY))
+#define QT_NO_SOCKS5
 #endif
 
 // Splitters

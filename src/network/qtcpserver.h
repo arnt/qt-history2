@@ -52,8 +52,10 @@ public:
     QAbstractSocket::SocketError serverError() const;
     QString errorString() const;
 
+#ifndef QT_NO_NETWORKPROXY
     void setProxy(const QNetworkProxy &networkProxy);
     QNetworkProxy proxy() const;
+#endif
 
 protected:
     virtual void incomingConnection(int handle);

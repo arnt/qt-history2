@@ -97,7 +97,9 @@ public:
 
     QAbstractSocket::SocketError socketError;
 
+#ifndef QT_NO_NETWORKPROXY
     QNetworkProxy *proxy;
+#endif
 };
 
 #endif // QABSTRACTSOCKET_P_H

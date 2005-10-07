@@ -694,6 +694,18 @@ Requires:
 Name: QUdpSocket
 SeeAlso: ???
 
+Feature: NETWORKPROXY
+Section: Networking
+Requires: 
+Name: QNetworkProxy
+SeeAlso: ???
+
+Feature: SOCKS5
+Section: Networking
+Requires: NETWORKPROXY
+Name: SOCKS v5 network proxy
+SeeAlso: ???
+
 Feature: COP
 Section: Networking
 Requires:

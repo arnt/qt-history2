@@ -165,7 +165,7 @@
     \sa state()
 */
 
-/*! 
+/*!
     \enum QAbstractSocket::NetworkLayerProtocol
 
     This enum describes the network layer protocol values used in Qt.
@@ -326,8 +326,10 @@ QAbstractSocketPrivate::QAbstractSocketPrivate()
       connectTimeElapsed(0),
       hostLookupId(-1),
       state(QAbstractSocket::UnconnectedState),
-      socketError(QAbstractSocket::UnknownSocketError),
-      proxy(0)
+      socketError(QAbstractSocket::UnknownSocketError)
+#ifndef QT_NO_NETWORKPROXY
+    , proxy(0)
+#endif
 {
 }
 
@@ -338,7 +340,9 @@ QAbstractSocketPrivate::QAbstractSocketPrivate()
 */
 QAbstractSocketPrivate::~QAbstractSocketPrivate()
 {
+#ifndef QT_NO_NETWORKPROXY
     delete proxy;
+#endif
 }
 
 /*! \internal
@@ -369,7 +373,7 @@ void QAbstractSocketPrivate::resetSocketLayer()
 void QAbstractSocketPrivate::setupSocketNotifiers()
 {
     Q_Q(QAbstractSocket);
-    
+
     QObject::connect(socketEngine, SIGNAL(readNotification()),
                      q, SLOT(canReadNotification()));
     QObject::connect(socketEngine, SIGNAL(writeNotification()),
@@ -780,7 +784,7 @@ void QAbstractSocketPrivate::testConnection()
         localAddress = socketEngine->localAddress();
         peerAddress = socketEngine->peerAddress();
         peerName = hostName;
-        
+
         emit q->connected();
 #if defined(QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocketPrivate::testConnection() connection to %s:%i established",
@@ -1153,7 +1157,7 @@ int QAbstractSocket::socketDescriptor() const
 bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, SocketState socketState,
                                           OpenMode openMode)
 {
-    Q_D(QAbstractSocket);    
+    Q_D(QAbstractSocket);
     d->resetSocketLayer();
     d->socketEngine = QAbstractSocketEngine::createSocketEngine(socketDescriptor, this);
     bool result = d->socketEngine->initialize(socketDescriptor, socketState);
@@ -1178,7 +1182,7 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, SocketState sock
     d->peerPort = d->socketEngine->peerPort();
     d->localAddress = d->socketEngine->localAddress();
     d->peerAddress = d->socketEngine->peerAddress();
-    
+
     return true;
 }
 
@@ -1757,7 +1761,7 @@ void QAbstractSocket::disconnectFromHostImplementation()
     // Disable and delete read notification
     if (d->socketEngine)
         d->socketEngine->setReadNotificationEnabled(false);
-    
+
     // Perhaps emit closing()
     if (d->state != ClosingState) {
         d->state = ClosingState;
@@ -1798,7 +1802,7 @@ void QAbstractSocket::disconnectFromHostImplementation()
     d->peerPort = 0;
     d->localAddress.clear();
     d->peerAddress.clear();
-    
+
 #if defined(QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocket::disconnectFromHost() disconnected!");
 #endif
@@ -1899,6 +1903,7 @@ void QAbstractSocket::setSocketError(SocketError socketError)
     d_func()->socketError = socketError;
 }
 
+#ifndef QT_NO_NETWORKPROXY
 void QAbstractSocket::setProxy(const QNetworkProxy &networkProxy)
 {
     Q_D(QAbstractSocket);
@@ -1914,6 +1919,7 @@ QNetworkProxy QAbstractSocket::proxy() const
         return *d->proxy;
     return QNetworkProxy();
 }
+#endif // QT_NO_NETWORKPROXY
 
 #ifdef QT3_SUPPORT
 /*! \enum QAbstractSocket::Error

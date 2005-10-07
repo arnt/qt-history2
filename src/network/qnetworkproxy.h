@@ -16,6 +16,8 @@
 
 #include <QtNetwork/qhostaddress.h>
 
+#ifndef QT_NO_NETWORKPROXY
+
 QT_MODULE(Network)
 
 class QNetworkProxyPrivate;
@@ -44,15 +46,15 @@ public:
 
     void setAddress(const QHostAddress & address);
     QHostAddress address() const;
-    
+
     void setPort(quint16 port);
     quint16 port() const;
 
     static void setProxy(const QNetworkProxy &networkProxy);
     static QNetworkProxy proxy();
-   
+
 private:
     QNetworkProxyPrivate *d_ptr;
 };
-
+#endif // QT_NO_NETWORKPROXY
 #endif // QHOSTINFO_H
