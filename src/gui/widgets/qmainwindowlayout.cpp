@@ -1047,6 +1047,14 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     // put the right and bottom rects back in correct order
     for (int line = 0; line < tb_layout_info.size(); ++line) {
         const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
+
+        bool lineHidden = true;
+        for (int i = 0; i < lineInfo.list.size(); ++i)
+            lineHidden &= lineInfo.list.at(i).item->isEmpty();
+
+        if (lineHidden)
+            continue;
+
 	if (lineInfo.pos == BOTTOM)
 	    tb_rect[line] = bottom_rect.pop();
 	else if (lineInfo.pos == RIGHT)
