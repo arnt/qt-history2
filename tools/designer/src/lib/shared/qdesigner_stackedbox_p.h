@@ -55,6 +55,9 @@ public:
     inline QAction *actionInsertPageAfter() const
     { return m_actionInsertPageAfter; }
 
+    inline QAction *actionChangePageOrder() const
+    { return m_actionChangePageOrder; }
+
     QString currentPageName() const;
     void setCurrentPageName(const QString &pageName);
 
@@ -73,6 +76,7 @@ private slots:
     void removeCurrentPage();
     void addPage();
     void addPageAfter();
+    void changeOrder();
     void slotCurrentChanged(int index);
 
 private:
@@ -82,6 +86,7 @@ private:
     QAction *m_actionDeletePage;
     QAction *m_actionInsertPage;
     QAction *m_actionInsertPageAfter;
+    QAction *m_actionChangePageOrder;
 };
 
 #endif // QDESIGNER_STACKEDBOX_H

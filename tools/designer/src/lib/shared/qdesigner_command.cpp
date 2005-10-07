@@ -925,6 +925,40 @@ void ToolBoxCommand::addPage()
     m_widget->show();
 }
 
+// ---- MoveToolBoxPageCommand ----
+MoveToolBoxPageCommand::MoveToolBoxPageCommand(QDesignerFormWindowInterface *formWindow)
+    : ToolBoxCommand(formWindow)
+{
+}
+
+MoveToolBoxPageCommand::~MoveToolBoxPageCommand()
+{
+}
+
+void MoveToolBoxPageCommand::init(QToolBox *toolBox, QWidget *page, int newIndex)
+{
+    ToolBoxCommand::init(toolBox);
+    setDescription(tr("Move Page"));
+
+    m_widget = page;
+    m_oldIndex = m_toolBox->indexOf(m_widget);
+    m_itemText = m_toolBox->itemText(m_oldIndex);
+    m_itemIcon = m_toolBox->itemIcon(m_oldIndex);
+    m_newIndex = newIndex;
+}
+
+void MoveToolBoxPageCommand::redo()
+{
+    m_toolBox->removeItem(m_oldIndex);
+    m_toolBox->insertItem(m_newIndex, m_widget, m_itemIcon, m_itemText);
+}
+
+void MoveToolBoxPageCommand::undo()
+{
+    m_toolBox->removeItem(m_newIndex);
+    m_toolBox->insertItem(m_oldIndex, m_widget, m_itemIcon, m_itemText);
+}
+
 // ---- DeleteToolBoxPageCommand ----
 DeleteToolBoxPageCommand::DeleteToolBoxPageCommand(QDesignerFormWindowInterface *formWindow)
     : ToolBoxCommand(formWindow)
@@ -1186,6 +1220,38 @@ void StackedWidgetCommand::addPage()
 
     m_widget->show();
     m_stackedWidget->setCurrentIndex(m_index);
+}
+
+// ---- MoveStackedWidgetCommand ----
+MoveStackedWidgetCommand::MoveStackedWidgetCommand(QDesignerFormWindowInterface *formWindow)
+    : StackedWidgetCommand(formWindow)
+{
+}
+
+MoveStackedWidgetCommand::~MoveStackedWidgetCommand()
+{
+}
+
+void MoveStackedWidgetCommand::init(QStackedWidget *stackedWidget, QWidget *page, int newIndex)
+{
+    StackedWidgetCommand::init(stackedWidget);
+    setDescription(tr("Move Page"));
+
+    m_widget = page;
+    m_newIndex = newIndex;
+    m_oldIndex = m_stackedWidget->indexOf(m_widget);
+}
+
+void MoveStackedWidgetCommand::redo()
+{
+    m_stackedWidget->removeWidget(m_widget);
+    m_stackedWidget->insertWidget(m_newIndex, m_widget);
+}
+
+void MoveStackedWidgetCommand::undo()
+{
+    m_stackedWidget->removeWidget(m_widget);
+    m_stackedWidget->insertWidget(m_oldIndex, m_widget);
 }
 
 // ---- DeleteStackedWidgetPageCommand ----

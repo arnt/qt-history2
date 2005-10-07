@@ -15,6 +15,7 @@
 #include "abstractformwindow.h"
 #include "qdesigner_command_p.h"
 #include "qtundo_p.h"
+#include "orderdialog_p.h"
 
 #include <QtDesigner/QtDesigner>
 #include <QtDesigner/QExtensionManager>
@@ -67,6 +68,9 @@ QDesignerStackedWidget::QDesignerStackedWidget(QWidget *parent)
     m_actionInsertPageAfter = new QAction(tr("After Current Page"), this);
     connect(m_actionInsertPageAfter, SIGNAL(triggered()), this, SLOT(addPageAfter()));
 
+    m_actionChangePageOrder = new QAction(tr("Change Page Order..."), this);
+    connect(m_actionChangePageOrder, SIGNAL(triggered()), this, SLOT(changeOrder()));
+
     connect(this, SIGNAL(currentChanged(int)), this, SLOT(slotCurrentChanged(int)));
 }
 
@@ -79,6 +83,35 @@ void QDesignerStackedWidget::removeCurrentPage()
         DeleteStackedWidgetPageCommand *cmd = new DeleteStackedWidgetPageCommand(fw);
         cmd->init(this);
         fw->commandHistory()->push(cmd);
+    }
+}
+
+void QDesignerStackedWidget::changeOrder()
+{
+    QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this);
+    
+    if (!fw)
+        return;
+
+    OrderDialog *dlg = new OrderDialog(fw, this);
+
+    QList<QWidget*> wList;
+    for(int i=0; i<count(); ++i) {
+        wList.append(widget(i));
+    }
+    dlg->setPageList(&wList);
+
+    if (dlg->exec() == QDialog::Accepted)
+    {
+        fw->beginCommand(tr("Change Page Order"));
+        for(int i=0; i<wList.count(); ++i) {
+            if (wList.at(i) == widget(i))
+                continue;
+            MoveStackedWidgetCommand *cmd = new MoveStackedWidgetCommand(fw);
+            cmd->init(this, wList.at(i), i);
+            fw->commandHistory()->push(cmd);
+        }
+        fw->endCommand();
     }
 }
 

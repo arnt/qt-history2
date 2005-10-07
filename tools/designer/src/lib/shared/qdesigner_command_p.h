@@ -439,6 +439,23 @@ protected:
     QIcon m_itemIcon;
 };
 
+class QT_SHARED_EXPORT MoveToolBoxPageCommand: public ToolBoxCommand
+{
+    Q_OBJECT
+public:
+    MoveToolBoxPageCommand(QDesignerFormWindowInterface *formWindow);
+    virtual ~MoveToolBoxPageCommand();
+
+    void init(QToolBox *toolBox, QWidget *page, int newIndex);
+
+    virtual void redo();
+    virtual void undo();
+
+private:
+    int m_newIndex;
+    int m_oldIndex;
+};
+
 class QDESIGNER_SHARED_EXPORT DeleteToolBoxPageCommand: public ToolBoxCommand
 {
     Q_OBJECT
@@ -559,6 +576,23 @@ protected:
     QPointer<QStackedWidget> m_stackedWidget;
     QPointer<QWidget> m_widget;
     int m_index;
+};
+
+class QT_SHARED_EXPORT MoveStackedWidgetCommand: public StackedWidgetCommand
+{
+    Q_OBJECT
+public:
+    MoveStackedWidgetCommand(QDesignerFormWindowInterface *formWindow);
+    virtual ~MoveStackedWidgetCommand();
+
+    void init(QStackedWidget *stackedWidget, QWidget *page, int newIndex);
+
+    virtual void redo();
+    virtual void undo();
+
+private:
+    int m_newIndex;
+    int m_oldIndex;
 };
 
 class QDESIGNER_SHARED_EXPORT DeleteStackedWidgetPageCommand: public StackedWidgetCommand

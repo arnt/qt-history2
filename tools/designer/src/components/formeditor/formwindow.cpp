@@ -1611,6 +1611,9 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
         insertPageMenu->addAction(stackedWidget->actionInsertPage());
         popup->addAction(stackedWidget->actionNextPage());
         popup->addAction(stackedWidget->actionPreviousPage());
+        if (stackedWidget->count() > 1) {
+            popup->addAction(stackedWidget->actionChangePageOrder());
+        }
         popup->addSeparator();
     } else if (qobject_cast<QDesignerToolBox*>(w)) {
         QDesignerToolBox *toolBox = static_cast<QDesignerToolBox*>(w);
@@ -1620,6 +1623,9 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
         QMenu *insertPageMenu = popup->addMenu(tr("Insert Page"));
         insertPageMenu->addAction(toolBox->actionInsertPageAfter());
         insertPageMenu->addAction(toolBox->actionInsertPage());
+        if (toolBox->count() > 1) {
+            popup->addAction(toolBox->actionChangePageOrder());
+        }
         popup->addSeparator();
     }
 
