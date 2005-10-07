@@ -13,23 +13,24 @@
 
 #include "qplatformdefs.h"
 #include "qreadwritelock.h"
-#include "qatomic.h"
-#include "qreadwritelock_p.h"
 
 #ifndef QT_NO_THREAD
+#include "qmutex.h"
+#include "qwaitcondition.h"
 
-#include <errno.h>
-#include <string.h>
-#include <pthread.h>
-
-/*
-    Duplicated code from qmutex_unix.cpp
-*/
-static void report_error(int code, const char *where, const char *what)
+struct QReadWriteLockPrivate
 {
-    if (code != 0)
-        qWarning("%s: %s failure: %s", where, what, strerror(code));
-}
+    QReadWriteLockPrivate()
+    : accessCount(0), waitingReaders(0), waitingWriters(0) {}
+    
+    QMutex mutex;
+    QWaitCondition readerWait;
+    QWaitCondition writerWait;
+   
+    int accessCount;
+    int waitingReaders;
+    int waitingWriters;
+};
 
 /*! \class QReadWriteLock
     \brief The QReadWriteLock class provides read-write locking.
@@ -90,12 +91,8 @@ static void report_error(int code, const char *where, const char *what)
     \sa lockForRead(), lockForWrite()
 */
 QReadWriteLock::QReadWriteLock()
-:d(new QReadWriteLockPrivate())
+    :d(new QReadWriteLockPrivate())
 {
-    d->waitingReaders=0;
-    report_error(pthread_mutex_init(&d->mutex, NULL), "QReadWriteLock", "mutex init");
-    report_error(pthread_cond_init(&d->readerWait, NULL), "QReadWriteLock", "cv init");
-    report_error(pthread_cond_init(&d->writerWait, NULL), "QReadWriteLock", "cv init");
 }
 
 /*!
@@ -106,12 +103,6 @@ QReadWriteLock::QReadWriteLock()
 */
 QReadWriteLock::~QReadWriteLock()
 {
-    // Spin-wait until all other threads has exited unlock()
-    while (!d->unlockSenteniel.testAndSet(0,0));
-
-    report_error(pthread_cond_destroy(&d->writerWait), "QReadWriteLock", "cv destroy");
-    report_error(pthread_cond_destroy(&d->readerWait), "QReadWriteLock", "cv destroy");
-    report_error(pthread_mutex_destroy(&d->mutex), "QReadWriteLock", "mutex destroy");
     delete d;
 }
 
@@ -123,24 +114,14 @@ QReadWriteLock::~QReadWriteLock()
 */
 void QReadWriteLock::lockForRead()
 {
-    d->waitingReaders.ref();
-    for (;;) {
-        int localAccessCount(d->accessCount);
-        if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount < INT_MAX) {
-            if (d->accessCount.testAndSet(localAccessCount, localAccessCount + 1))
-                break;
-        } else {
-            report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::lock()", "mutex lock");
-            if (d->waitingWriters == 0 && d->accessCount != -1 && d->accessCount < INT_MAX) {
-                report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
-                continue;
-            }
-            report_error(pthread_cond_wait(&d->readerWait, &d->mutex), "QReadWriteLock::lock()", "cv wait");
-            report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
-            continue;
-        }
-    }
-    d->waitingReaders.deref();
+    QMutexLocker lock(&d->mutex);
+    while (d->accessCount < 0 || d->waitingWriters) {
+        ++d->waitingReaders;
+        d->readerWait.wait(&d->mutex);
+        --d->waitingReaders;
+     }
+    ++d->accessCount;
+    Q_ASSERT_X(d->accessCount > 0, "QReadWriteLock::lockForRead()", "Overflow in lock counter");
 }
 
 /*!
@@ -158,20 +139,15 @@ void QReadWriteLock::lockForRead()
 */
 bool QReadWriteLock::tryLockForRead()
 {
-    bool result;
-    for(;;){
-        int localAccessCount(d->accessCount);
-        if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount < INT_MAX) {
-            if (d->accessCount.testAndSet(localAccessCount, localAccessCount + 1)) {
-                result=true;
-                break;
-            }
-        } else {
-            result=false;
-            break;
-        }
-    }
-    return result;
+   QMutexLocker lock(&d->mutex);
+    
+    if (d->accessCount < 0)
+        return false;
+    
+    ++d->accessCount;
+    Q_ASSERT_X(d->accessCount > 0, "QReadWriteLock::lockForRead()", "Overflow in lock counter");
+    
+    return true;
 }
 
  /*!
@@ -182,24 +158,13 @@ bool QReadWriteLock::tryLockForRead()
  */
 void QReadWriteLock::lockForWrite()
 {
-    d->waitingWriters.ref();
-    for(;;) {
-        int localAccessCount(d->accessCount);
-        if(localAccessCount == 0){
-            if (d->accessCount.testAndSet(0, -1))
-                break;
-        } else {
-            report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::lock()", "mutex lock");
-            if (d->accessCount == 0) {
-                report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
-                continue;
-            }
-            report_error(pthread_cond_wait(&d->writerWait, &d->mutex), "QReadWriteLock::lock()", "cv wait");
-            report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
-            continue;
-        }
+    QMutexLocker lock(&d->mutex);
+    while (d->accessCount != 0) {
+        ++d->waitingWriters;
+        d->writerWait.wait(&d->mutex);
+        --d->waitingWriters;
     }
-    d->waitingWriters.deref();
+    d->accessCount = -1;
 }
 
 /*!
@@ -216,22 +181,13 @@ void QReadWriteLock::lockForWrite()
 */
 bool QReadWriteLock::tryLockForWrite()
 {
-    bool result;
-    d->waitingWriters.ref();
-    for(;;){
-        int localAccessCount(d->accessCount);
-        if(localAccessCount == 0){
-            if (d->accessCount.testAndSet(0, -1)) {
-                result=true;
-                break;
-            }
-        } else {
-            result=false;
-            break;
-        }
-    }
-    d->waitingWriters.deref();
-    return result;
+    QMutexLocker lock(&d->mutex);
+    
+    if (d->accessCount != 0)
+        return false;
+    
+    d->accessCount = -1;
+    return true;
 }
 
 /*!
@@ -244,28 +200,17 @@ bool QReadWriteLock::tryLockForWrite()
 */
 void QReadWriteLock::unlock()
 {
-    d->unlockSenteniel.ref();
+    QMutexLocker lock(&d->mutex);
+    
     Q_ASSERT_X(d->accessCount != 0, "QReadWriteLock::unlock()", "Cannot unlock an unlocked lock");
-
-    bool unlocked = d->accessCount.testAndSet(-1, 0);
-    if (!unlocked) {
-        unlocked = !d->accessCount.deref();
-        if (!unlocked) {
-            d->unlockSenteniel.deref();
-            return; // still locked, can't wake anyone up
+  
+    if ((d->accessCount > 0 && --d->accessCount == 0) || (d->accessCount == -1 && ++d->accessCount == 0)) {
+        if (d->waitingWriters) {
+            d->writerWait.wakeOne();
+        } else if (d->waitingReaders) {
+            d->readerWait.wakeAll();
         }
-    }
-
-    if (d->waitingWriters != 0) {
-        report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::unlock()", "mutex lock");
-        pthread_cond_signal(&d->writerWait);
-        report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::unlock()", "mutex unlock");
-    } else if (d->waitingReaders != 0) {
-        report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::unlock()", "mutex lock");
-        pthread_cond_broadcast(&d->readerWait);
-        report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::unlock()", "mutex unlock");
-    }
-    d->unlockSenteniel.deref();
+   }      
 }
 
 /*!
@@ -449,4 +394,5 @@ void QReadWriteLock::unlock()
     Returns a pointer to the read-write lock that was passed
     to the constructor.
 */
+
 #endif // QT_NO_THREAD
