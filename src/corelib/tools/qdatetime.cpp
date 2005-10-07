@@ -1050,7 +1050,6 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
     }
     return QDate();
 }
-#endif //QT_NO_DATESTRING
 
 /*!
     \fn QDate::fromString(const QString &string, const QString &format)
@@ -1138,6 +1137,7 @@ QDate QDate::fromString(const QString &string, const QString &format)
 #endif
     return date;
 }
+#endif // QT_NO_DATESTRING
 
 /*!
     \overload
@@ -1754,8 +1754,6 @@ QTime QTime::fromString(const QString& s, Qt::DateFormat f)
     float msec(msec_s.toFloat());
     return QTime(hour, minute, second, qRound(msec * 1000.0));
 }
-#endif
-
 
 /*!
     \fn QTime::fromString(const QString &string, const QString &format)
@@ -1829,6 +1827,9 @@ QTime QTime::fromString(const QString &string, const QString &format)
 #endif
     return time;
 }
+
+#endif // QT_NO_DATESTRING
+
 
 /*!
     \overload
@@ -2706,7 +2707,6 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
 #endif //QT_NO_REGEXP
     return QDateTime();
 }
-#endif //QT_NO_DATESTRING
 
 /*!
     \fn QDateTime::fromString(const QString &string, const QString &format)
@@ -2818,9 +2818,10 @@ QDateTime QDateTime::fromString(const QString &string, const QString &format)
     Q_UNUSED(string);
     Q_UNUSED(format);
 #endif
-
     return QDateTime(QDate(), QTime(-1, -1, -1));
 }
+
+#endif // QT_NO_DATESTRING
 /*!
     \fn QDateTime QDateTime::toLocalTime() const
 
@@ -3733,8 +3734,10 @@ int QDateTimeParser::sectionSize(int sectionIndex) const
 
 int QDateTimeParser::sectionMaxSize(Section s, int count) const
 {
+#ifndef QT_NO_TEXTDATE
     int mcount = 12;
     QString(*nameFunction)(int) = &QDate::longMonthName;
+#endif
 
     switch (s) {
     case FirstSection:
@@ -3753,9 +3756,18 @@ int QDateTimeParser::sectionMaxSize(Section s, int count) const
     case Hour12Section:
     case MinuteSection:
     case SecondSection: return 2;
-    case DaySection: nameFunction = &QDate::longDayName; mcount = 7;
+    case DaySection:
+#ifdef QT_NO_TEXTDATE
+        return 2;
+#else
+        nameFunction = &QDate::longDayName;
+        mcount = 7;
         // fall through
+#endif
     case MonthSection:
+#ifdef QT_NO_TEXTDATE
+        return 2;
+#else
         if (count <= 3) {
             return qMax(2, count);
         } else {
@@ -3765,7 +3777,7 @@ int QDateTimeParser::sectionMaxSize(Section s, int count) const
             }
             return ret;
         }
-
+#endif
     case MSecSection: return 3;
     case YearSection: return count;
 
@@ -3805,6 +3817,7 @@ QString QDateTimeParser::sectionText(const QString &text, int sectionIndex, int 
     return text.mid(index, sectionSize(sectionIndex));
 }
 
+#ifndef QT_NO_TEXTDATE
 /*!
   \internal
 
@@ -3948,7 +3961,9 @@ int QDateTimeParser::parseSection(int sectionIndex, QString &text, int index,
 
     return (state != Invalid ? num : -1);
 }
+#endif // QT_NO_TEXTDATE
 
+#ifndef QT_NO_DATESTRING
 /*!
   \internal
   \reimp
@@ -4187,7 +4202,9 @@ end:
     text = input; // ### do I need this?
     return node;
 }
+#endif // QT_NO_DATESTRING
 
+#ifndef QT_NO_TEXTDATE
 /*!
   \internal finds the first possible monthname that \a str1 can
   match. Starting from \a index; str should already by lowered
@@ -4305,6 +4322,7 @@ int QDateTimeParser::findDay(const QString &str1, int startDay, int sectionIndex
 
     return bestMatch;
 }
+#endif // QT_NO_TEXTDATE
 
 /*!
   \internal
@@ -4562,6 +4580,7 @@ int QDateTimeParser::potentialValueHelper(const QString &str, int min, int max, 
     return -1;
 }
 
+#ifndef QT_NO_DATESTRING
 /*!
   \internal Returns whether \a str is a string which value cannot be
   parsed but still might turn into something valid.
@@ -4669,6 +4688,7 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
     }
     return found ? Intermediate : Invalid;
 }
+#endif // QT_NO_DATESTRING
 
 /*!
   \internal
@@ -4709,6 +4729,7 @@ QString QDateTimeParser::stateName(int s) const
     }
 }
 
+#ifndef QT_NO_DATESTRING
 bool QDateTimeParser::fromString(const QString &text, QDate *date, QTime *time) const
 {
     QVariant val;
@@ -4742,7 +4763,6 @@ bool QDateTimeParser::fromString(const QString &text, QDate *date, QTime *time) 
     return true;
 }
 
-
 QVariant QDateTimeParser::getMinimum() const
 {
     switch (typ) {
@@ -4763,7 +4783,7 @@ QVariant QDateTimeParser::getMaximum() const
     }
     return QVariant();
 }
-
+#endif // QT_NO_DATESTRING
 
 QString QDateTimeParser::getAmPmText(AmPm ap, Case cs) const
 {
@@ -4858,7 +4878,5 @@ Q_CORE_EXPORT bool operator==(const QDateTimeParser::SectionNode &s1, const QDat
 {
     return (s1.type == s2.type) && (s1.pos == s2.pos) && (s1.count == s2.count);
 }
-
-
 
 #endif // QT_BOOTSTRAPPED

@@ -142,7 +142,9 @@ public:
         LowerCase
     };
 
+#ifndef QT_NO_DATESTRING
     StateNode parse(const QString &input, const QVariant &currentValue, bool fixup) const;
+#endif
     int sectionMaxSize(int index) const;
     int sectionSize(int index) const;
     int sectionMaxSize(Section s, int count) const;
@@ -160,14 +162,17 @@ public:
     int absoluteMax(int index) const;
     int absoluteMin(int index) const;
     bool parseFormat(const QString &format);
+#ifndef QT_NO_DATESTRING
     QDateTimeParser::State checkIntermediate(const QDateTime &dt, const QString &str) const;
     bool fromString(const QString &text, QDate *date, QTime *time) const;
+#endif
 
+#ifndef QT_NO_TEXTDATE
     int findMonth(const QString &str1, int monthstart, int sectionIndex,
                   QString *monthName = 0, int *used = 0) const;
     int findDay(const QString &str1, int intDaystart, int sectionIndex,
                 QString *dayName = 0, int *used = 0) const;
-
+#endif
     int findAmPm(QString &str1, int index, int *used = 0) const;
     int maxChange(int s) const;
     int potentialValue(const QString &str, int min, int max, int index, const QVariant &currentValue) const;
@@ -182,8 +187,10 @@ public:
 
     bool isFixedNumericSection(int index) const;
 
+#ifndef QT_NO_DATESTRING
     virtual QVariant getMinimum() const;
     virtual QVariant getMaximum() const;
+#endif
     virtual QString displayText() const { return text; }
     virtual QString getAmPmText(AmPm ap, Case cs) const;
     virtual bool isRightToLeft() const { return false; }

@@ -68,8 +68,8 @@ public:
     static QDate currentDate();
 #ifndef QT_NO_DATESTRING
     static QDate fromString(const QString &s, Qt::DateFormat f = Qt::TextDate);
-#endif
     static QDate fromString(const QString &s, const QString &format);
+#endif
     static bool isValid(int y, int m, int d);
     static bool isLeapYear(int year);
 #ifdef QT3_SUPPORT
