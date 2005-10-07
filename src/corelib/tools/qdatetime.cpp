@@ -4186,10 +4186,10 @@ QDateTimeParser::StateNode QDateTimeParser::parse(const QString &inp,
     }
 end:
     if (tmp.toDateTime().isValid()) {
-        if (state != Invalid && tmp  < minimum) {
+        if (state != Invalid && dateTimeCompare(tmp, minimum) < 0) {
             state = checkIntermediate(tmp.toDateTime(), input);
         } else {
-            if (tmp > maximum)
+            if (dateTimeCompare(tmp, maximum) > 0)
                 state = Invalid;
             QDTPDEBUG << "not checking intermediate because tmp is" << tmp  << minimum << maximum;
         }
@@ -4592,7 +4592,7 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
 
     const QVariant minimum = getMinimum();
     const QVariant maximum = getMaximum();
-    Q_ASSERT(dt < minimum);
+    Q_ASSERT(dateTimeCompare(dt, minimum) < 0);
 
     bool found = false;
     for (int i=0; i<sectionNodes.size(); ++i) {
@@ -4614,7 +4614,7 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
                 case PossiblePM:
                 case PossibleBoth: {
                     const QVariant copy(dt.addSecs(12 * 60 * 60));
-                    if (copy >= minimum && copy <= maximum)
+                    if (dateTimeCompare(copy, minimum) >= 0 && dateTimeCompare(copy, maximum) <= 0)
                         return Intermediate;
                     return Invalid; }
                 }
@@ -4624,7 +4624,7 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
                     // I know the first possible month makes the date too early
                     while ((tmp = findMonth(t, tmp + 1, sn.count)) != -1) {
                         const QVariant copy(dt.addMonths(tmp - dt.date().month()));
-                        if (copy >= minimum && copy <= maximum)
+                        if (dateTimeCompare(copy, minimum) >= 0 && dateTimeCompare(copy, maximum) <= 0)
                             break;
                     }
                     if (tmp == -1) {
@@ -4678,7 +4678,7 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
 
                 QVariant var(dt);
                 setDigit(var, sn.type, tmp);
-                if (var > maximum) {
+                if (dateTimeCompare(var, maximum) > 0) {
                     QDTPDEBUG << "invalid because" << var.toString() << ">" << maximum.toString();
                     return Invalid;
                 }
@@ -4800,7 +4800,7 @@ QString QDateTimeParser::getAmPmText(AmPm ap, Case cs) const
   I give arg2 preference because arg1 is always a QDateTime.
 */
 
-Q_CORE_EXPORT bool operator<(const QVariant &arg1, const QVariant &arg2)
+int QDateTimeParser::dateTimeCompare(const QVariant &arg1, const QVariant &arg2)
 {
     if ((arg1.type() == QVariant::Time && arg2.type() == QVariant::Date)
         || (arg1.type() == QVariant::Date && arg2.type() == QVariant::Time)) {
@@ -4808,75 +4808,43 @@ Q_CORE_EXPORT bool operator<(const QVariant &arg1, const QVariant &arg2)
                  arg1.typeName(), arg2.typeName());
     }
     switch (arg2.type()) {
-    case QVariant::Date: return arg1.toDate() < arg2.toDate();
-    case QVariant::Time: return arg1.toTime() < arg2.toTime();
-    case QVariant::DateTime: return arg1.toDateTime() < arg2.toDateTime();
-    case QVariant::Int: return arg1.toInt() < arg2.toInt();
-    case QVariant::Double: return arg1.toDouble() < arg2.toDouble();
-
-    default: break;
-    }
-    return false;
-}
-
-/*!
-    \internal
-    Compares two variants and returns true if \a arg1 > \a arg2
-*/
-
-Q_CORE_EXPORT bool operator>(const QVariant &arg1, const QVariant &arg2)
-{
-    if ((arg1.type() == QVariant::Time && arg2.type() == QVariant::Date)
-        || (arg1.type() == QVariant::Date && arg2.type() == QVariant::Time)) {
-        qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
-                 arg1.typeName(), arg2.typeName());
-    }
-    switch (arg2.type()) {
-    case QVariant::Time: return arg1.toTime() > arg2.toTime();
-    case QVariant::Date: return arg1.toDate() > arg2.toDate();
-    case QVariant::DateTime: return arg1.toDateTime() > arg2.toDateTime();
-    case QVariant::Int: return arg1.toInt() > arg2.toInt();
-    case QVariant::Double: return arg1.toDouble() > arg2.toDouble();
-    default: break;
-    }
-    return false;
-}
-
-Q_CORE_EXPORT bool operator<=(const QVariant &arg1, const QVariant &arg2)
-{
-    switch (arg2.type()) {
-    case QVariant::Int:
-    case QVariant::Double:
     case QVariant::Date:
+        if (arg1.toDate() == arg2.toDate()) {
+            return 0;
+        } else if (arg1.toDate() < arg2.toDate()) {
+            return -1;
+        } else {
+            return 1;
+        }
     case QVariant::Time:
-    case QVariant::DateTime: return (arg1 < arg2 || arg1 == arg2);
+        if (arg1.toTime() == arg2.toTime()) {
+            return 0;
+        } else if (arg1.toTime() < arg2.toTime()) {
+            return -1;
+        } else {
+            return 1;
+        }
+
+    case QVariant::DateTime:
+        if (arg1.toDateTime() == arg2.toDateTime()) {
+            return 0;
+        } else if (arg1.toDateTime() < arg2.toDateTime()) {
+            return -1;
+        } else {
+            return 1;
+        }
     default: break;
     }
-    return false;
+    qWarning("%s:%d Not supported types (%s, %s). This should not happen",
+             __FILE__, __LINE__, arg1.typeName(), arg2.typeName());
+
+    return -2;
 }
 
-/*!
-    \internal
-    Compares two variants and returns true if \a arg1 >= \a arg2
-
-*/
-
-Q_CORE_EXPORT bool operator>=(const QVariant &arg1, const QVariant &arg2)
-{
-    switch (arg2.type()) {
-    case QVariant::Int:
-    case QVariant::Double:
-    case QVariant::Time:
-    case QVariant::Date:
-    case QVariant::DateTime: return (arg1 > arg2 || arg1 == arg2);
-    default: break;
-    }
-    return false;
-}
-
-Q_CORE_EXPORT bool operator==(const QDateTimeParser::SectionNode &s1, const QDateTimeParser::SectionNode &s2)
+bool operator==(const QDateTimeParser::SectionNode &s1, const QDateTimeParser::SectionNode &s2)
 {
     return (s1.type == s2.type) && (s1.pos == s2.pos) && (s1.count == s2.count);
 }
+
 
 #endif // QT_BOOTSTRAPPED

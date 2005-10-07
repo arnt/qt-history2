@@ -396,10 +396,10 @@ QAbstractSpinBox::StepEnabled QAbstractSpinBox::stepEnabled() const
         || d->wrapping)
         return StepEnabled(StepUpEnabled | StepDownEnabled);
     StepEnabled ret = StepNone;
-    if (d->value < d->maximum) {
+    if (d->variantCompare(d->value, d->maximum) < 0) {
         ret |= StepUpEnabled;
     }
-    if (d->value > d->minimum) {
+    if (d->variantCompare(d->value, d->minimum) > 0) {
         ret |= StepDownEnabled;
     }
     return ret;
@@ -1423,22 +1423,25 @@ QVariant QAbstractSpinBoxPrivate::bound(const QVariant &val, const QVariant &old
 {
     QVariant v = val;
     if (!wrapping || steps == 0 || old.isNull()) {
-        if (v < minimum) {
+        if (variantCompare(v, minimum) < 0) {
             v = wrapping ? maximum : minimum;
         }
-        if (v > maximum) {
+        if (variantCompare(v, maximum) > 0) {
             v = wrapping ? minimum : maximum;
         }
     } else {
         const bool wasMin = old == minimum;
         const bool wasMax = old == maximum;
-        const bool wrapped = (v > old && steps < 0) || (v < old && steps > 0);
-        if (v > maximum) {
+        const int oldcmp = variantCompare(v, old);
+        const int maxcmp = variantCompare(v, maximum);
+        const int mincmp = variantCompare(v, minimum);
+        const bool wrapped = (oldcmp > 0 && steps < 0) || (oldcmp < 0 && steps > 0);
+        if (maxcmp > 0) {
             v = ((wasMax && !wrapped && steps > 0) || (steps < 0 && !wasMin && wrapped))
                 ? minimum : maximum;
-        } else if (wrapped && (v > maximum || v < minimum)) {
+        } else if (wrapped && (maxcmp > 0 || mincmp < 0)) {
             v = (wasMax && steps > 0 || (!wasMin && steps < 0)) ? minimum : maximum;
-        } else if (v < minimum) {
+        } else if (mincmp < 0) {
             v = (!wasMax && !wasMin ? minimum : maximum);
         }
     }
@@ -1509,7 +1512,7 @@ void QAbstractSpinBoxPrivate::setRange(const QVariant &min, const QVariant &max)
 {
     clearCache();
     minimum = min;
-    maximum = qMax(min, max);
+    maximum = (variantCompare(min, max) < 0 ? min : max);
 
     reset();
     setValue(bound(value), EmitIfChanged);
@@ -1773,6 +1776,65 @@ double operator/(const QVariant &arg1, const QVariant &arg2)
 
     return (a1 != 0 && a2 != 0) ? (a1 / a2) : 0.0;
 }
+
+int QAbstractSpinBoxPrivate::variantCompare(const QVariant &arg1, const QVariant &arg2)
+{
+    if ((arg1.type() == QVariant::Time && arg2.type() == QVariant::Date)
+        || (arg1.type() == QVariant::Date && arg2.type() == QVariant::Time)) {
+        qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
+                 arg1.typeName(), arg2.typeName());
+    }
+    switch (arg2.type()) {
+    case QVariant::Date:
+        if (arg1.toDate() == arg2.toDate()) {
+            return 0;
+        } else if (arg1.toDate() < arg2.toDate()) {
+            return -1;
+        } else {
+            return 1;
+        }
+    case QVariant::Time:
+        if (arg1.toTime() == arg2.toTime()) {
+            return 0;
+        } else if (arg1.toTime() < arg2.toTime()) {
+            return -1;
+        } else {
+            return 1;
+        }
+
+
+    case QVariant::DateTime:
+        if (arg1.toDateTime() == arg2.toDateTime()) {
+            return 0;
+        } else if (arg1.toDateTime() < arg2.toDateTime()) {
+            return -1;
+        } else {
+            return 1;
+        }
+    case QVariant::Int:
+        if (arg1.toInt() == arg2.toInt()) {
+            return 0;
+        } else if (arg1.toInt() < arg2.toInt()) {
+            return -1;
+        } else {
+            return 1;
+        }
+    case QVariant::Double:
+        if (arg1.toDouble() == arg2.toDouble()) {
+            return 0;
+        } else if (arg1.toDouble() < arg2.toDouble()) {
+            return -1;
+        } else {
+            return 1;
+        }
+    default: break;
+    }
+    qWarning("%s:%d Not supported types (%s, %s). This should not happen",
+             __FILE__, __LINE__, arg1.typeName(), arg2.typeName());
+
+    return -2;
+}
+
 
 #include "moc_qabstractspinbox.cpp"
 #endif // QT_NO_SPINBOX

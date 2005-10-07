@@ -309,7 +309,7 @@ void QDateTimeEdit::setMinimumDate(const QDate &min)
     Q_D(QDateTimeEdit);
     if (min.isValid()) {
         const QVariant m(QDateTime(min, d->minimum.toTime()));
-        d->setRange(m, qMax(d->maximum, m));
+        d->setRange(m, (d->variantCompare(d->maximum, m) > 0 ? d->maximum : m));
     }
 }
 
@@ -341,7 +341,7 @@ void QDateTimeEdit::setMaximumDate(const QDate &max)
     Q_D(QDateTimeEdit);
     if (max.isValid()) {
         const QVariant m(QDateTime(max, d->maximum.toTime()));
-        d->setRange(qMin(d->minimum, m), m);
+        d->setRange((d->variantCompare(d->minimum, m) < 0 ? d->minimum : m), m);
     }
 }
 
@@ -373,7 +373,7 @@ void QDateTimeEdit::setMinimumTime(const QTime &min)
     Q_D(QDateTimeEdit);
     if (min.isValid()) {
         const QVariant m(QDateTime(d->minimum.toDate(), min));
-        d->setRange(m, qMax(d->maximum, m));
+        d->setRange(m, (d->variantCompare(d->maximum, m) > 0 ? d->maximum : m));
     }
 }
 
@@ -404,7 +404,7 @@ void QDateTimeEdit::setMaximumTime(const QTime &max)
     Q_D(QDateTimeEdit);
     if (max.isValid()) {
         const QVariant m(QDateTime(d->maximum.toDate(), max));
-        d->setRange(qMin(d->minimum, m), m);
+        d->setRange((d->variantCompare(d->minimum, m) < 0 ? d->minimum : m), m);
     }
 }
 
@@ -1385,7 +1385,7 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
     // sure that days are lowered if needed.
 
     // changing one section should only modify that section, if possible
-    if (sn.type != AmPmSection && (v < minimum || v > maximum)) {
+    if (sn.type != AmPmSection && (variantCompare(v, minimum) < 0) || (variantCompare(v, maximum) > 0)) {
         const int localmin = getDigit(minimum, sn.type);
         const int localmax = getDigit(maximum, sn.type);
 
@@ -1400,9 +1400,9 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
                         setDigit(v, DaySection, qMin(tmp, daysInMonth));
                 }
 
-                if (v < minimum) {
+                if (variantCompare(v, minimum) < 0) {
                     setDigit(v, sn.type, localmin);
-                    if (v < minimum)
+                    if (variantCompare(v, minimum) < 0)
                         setDigit(v, sn.type, localmin + 1);
                 }
             } else {
@@ -1413,9 +1413,9 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
                         setDigit(v, DaySection, qMin(tmp, daysInMonth));
                 }
 
-                if (v > maximum) {
+                if (variantCompare(v, maximum) > 0) {
                     setDigit(v, sn.type, localmax);
-                    if (v > maximum)
+                    if (variantCompare(v, maximum) > 0)
                         setDigit(v, sn.type, localmax - 1);
                 }
             }
@@ -1428,30 +1428,38 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
         cachedDay = qMax<int>(tmp, cachedDay);
     }
 
-    if (v < minimum) {
+    if (variantCompare(v, minimum) < 0) {
         if (wrapping) {
             QVariant t = v;
             setDigit(t, sn.type, steps < 0 ? max : min);
-            if (t >= minimum && t <= maximum) {
+            int mincmp = variantCompare(t, minimum);
+            int maxcmp = variantCompare(t, maximum);
+            if (mincmp >= 0 && maxcmp <= 0) {
                 v = t;
             } else {
                 setDigit(t, sn.type, getDigit(steps < 0 ? maximum : minimum, sn.type));
-                if (t >= minimum && t <= maximum) {
+                mincmp = variantCompare(t, minimum);
+                maxcmp = variantCompare(t, maximum);
+                if (mincmp >= 0 && maxcmp <= 0) {
                     v = t;
                 }
             }
         } else {
             v = value;
         }
-    } else if (v > maximum) {
+    } else if (variantCompare(v, maximum) > 0) {
         if (wrapping) {
             QVariant t = v;
             setDigit(t, sn.type, steps > 0 ? min : max);
-            if (t >= minimum && t <= maximum) {
+            int mincmp = variantCompare(t, minimum);
+            int maxcmp = variantCompare(t, maximum);
+            if (mincmp >= 0 && maxcmp <= 0) {
                 v = t;
             } else {
                 setDigit(t, sn.type, getDigit(steps > 0 ? minimum : maximum, sn.type));
-                if (t >= minimum && t <= maximum) {
+                mincmp = variantCompare(t, minimum);
+                maxcmp = variantCompare(t, maximum);
+                if (mincmp >= 0 && maxcmp <= 0) {
                     v = t;
                 }
             }

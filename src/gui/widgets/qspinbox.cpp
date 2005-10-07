@@ -353,7 +353,7 @@ void QSpinBox::setMinimum(int min)
 {
     Q_D(QSpinBox);
     const QVariant m(min);
-    d->setRange(m, qMax(d->maximum, m));
+    d->setRange(m, (d->variantCompare(d->maximum, m) > 0 ? d->maximum : m));
 }
 
 /*!
@@ -381,7 +381,7 @@ void QSpinBox::setMaximum(int max)
 {
     Q_D(QSpinBox);
     const QVariant m(max);
-    d->setRange(qMin(d->minimum, m), m);
+    d->setRange((d->variantCompare(d->minimum, m) < 0 ? d->minimum : m), m);
 }
 
 /*!
@@ -740,7 +740,7 @@ void QDoubleSpinBox::setMinimum(double min)
 {
     Q_D(QDoubleSpinBox);
     const QVariant m(d->round(min));
-    d->setRange(m, qMax(d->maximum, m));
+    d->setRange(m, (d->variantCompare(d->maximum, m) > 0 ? d->maximum : m));
 }
 
 /*!
@@ -770,7 +770,7 @@ void QDoubleSpinBox::setMaximum(double max)
 {
     Q_D(QDoubleSpinBox);
     const QVariant m(d->round(max));
-    d->setRange(qMin(d->minimum, m), m);
+    d->setRange((d->variantCompare(d->minimum, m) < 0 ? d->minimum : m), m);
 }
 
 /*!

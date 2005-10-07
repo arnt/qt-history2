@@ -94,6 +94,8 @@ public:
 
     void clearCache() const;
 
+    static int variantCompare(const QVariant &arg1, const QVariant &arg2);
+
     QLineEdit *edit;
     QString prefix, suffix, specialValueText;
     QVariant value, minimum, maximum, singleStep;
