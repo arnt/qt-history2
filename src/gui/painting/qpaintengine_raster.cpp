@@ -56,6 +56,16 @@
 #include <limits.h>
 
 
+#if defined(Q_WS_WIN)
+#  ifndef SPI_GETFONTSMOOTHINGTYPE
+#    define SPI_GETFONTSMOOTHINGTYPE 0x200A
+#  endif
+
+#  ifndef FE_FONTSMOOTHINGCLEARTYPE
+#    define FE_FONTSMOOTHINGCLEARTYPE 0x0002
+#  endif
+#endif
+
 /*
     Used to prevent division by zero in LinearGradientData::init.
     This number does not have to be the smallest possible positive qreal.
@@ -1693,6 +1703,26 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     if (!d->penData.blend)
         return;
 
+    bool clearType = false;
+    QT_WA({
+        UINT result;
+        BOOL ok;
+        ok = SystemParametersInfoW(SPI_GETFONTSMOOTHINGTYPE, 0, &result, 0);
+        if (ok)
+            clearType = (result == FE_FONTSMOOTHINGCLEARTYPE);
+    }, {
+        UINT result;
+        BOOL ok;
+        ok = SystemParametersInfoA(SPI_GETFONTSMOOTHINGTYPE, 0, &result, 0);
+        if (ok)
+            clearType = (result == FE_FONTSMOOTHINGCLEARTYPE);
+    }); 
+
+    // Only support cleartype for solid pens, 32 bit target buffers and when the pen color is
+    // opaque
+    clearType = clearType && (d->penData.type == QSpanData::Solid) 
+        && d->deviceDepth == 32 && qAlpha(d->penData.solid.color) == 255;
+
     if (d->txop >= QPainterPrivate::TxScale) {
         bool antialiased = d->antialiased;
         d->antialiased = true;
@@ -1711,6 +1741,12 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
     d->fontRasterBuffer->prepare(devRect.width(), devRect.height());
 
+    // Boundaries
+    int ymax = qMin(devRect.y() + devRect.height(), d->rasterBuffer->height());
+    int ymin = qMax(devRect.y(), 0);
+    int xmax = qMin(devRect.x() + devRect.width(), d->rasterBuffer->width());
+    int xmin = qMax(devRect.x(), 0);
+
     if (d->mono_surface) {
         // Some extra work to get proper rasterization of text on monochrome targets
 
@@ -1726,22 +1762,42 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
         BitBlt(d->fontRasterBuffer->hdc(), 0, 0, devRect.width(), devRect.height(),
                hdc, 0, 0, SRCCOPY);
-
         SelectObject(hdc, null_bitmap);
         DeleteObject(bitmap);
         DeleteDC(hdc);
     } else {
-        d->fontRasterBuffer->resetBuffer(255);
+        // Let Windows handle the composition of background and foreground for cleartype text
+        QRgb penColor = 0;
+        if (clearType) {
+            // ### Brute force. We should use BitBlt when we can
+            for (int y=ymin; y<ymax; ++y) {
+                QRgb *sourceScanline = (QRgb *) d->rasterBuffer->scanLine(y);
+                QRgb *destScanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y());
+                for (int x=xmin; x<xmax; ++x) {
+                    destScanline[x - devRect.x()] = sourceScanline[x];
+                }
+            }
+            penColor = d->penData.solid.color;
+        } else {
+            d->fontRasterBuffer->resetBuffer(255);    
+        }
 
         // Fill buffer with stuff
+        SetTextColor(d->fontRasterBuffer->hdc(), 
+            RGB(qRed(penColor), qGreen(penColor), qBlue(penColor)));
         qt_draw_text_item(QPoint(0, ti.ascent.toInt()), ti, d->fontRasterBuffer->hdc());
-    }
 
-    // Boundaries
-    int ymax = qMin(devRect.y() + devRect.height(), d->rasterBuffer->height());
-    int ymin = qMax(devRect.y(), 0);
-    int xmax = qMin(devRect.x() + devRect.width(), d->rasterBuffer->width());
-    int xmin = qMax(devRect.x(), 0);
+        // Clean up alpha channel
+        if (clearType) {   
+            for (int y=ymin; y<ymax; ++y) {
+                QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y());
+                for (int x=xmin; x<xmax; ++x) {
+                    if (qAlpha(scanline[x - devRect.x()]) == 0) 
+                        scanline[x - devRect.x()] |= 0xff000000;                
+                }
+            }            
+        }
+    }
 
     const int NSPANS = 256;
     QSpan spans[NSPANS];
@@ -1768,6 +1824,21 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
                 spans[current++] = span;
             }
         }
+    } else if (clearType) {
+        QSpanData data; 
+        memcpy(&data, &d->penData, sizeof(QSpanData));
+        data.type = QSpanData::Texture;
+        data.texture.imageData = d->fontRasterBuffer->buffer();
+        data.texture.width = d->fontRasterBuffer->bytesPerLine() / 4;
+        data.texture.height = d->fontRasterBuffer->height();
+        data.texture.hasAlpha = true;
+        data.bilinear = false;        
+
+        data.dx = -devRect.x();
+        data.dy = -devRect.y();
+        data.adjustSpanMethods();    
+        data.blend = d->rasterBuffer->drawHelper->blend;
+        fillRect(QRect(xmin, ymin, xmax - xmin, ymax - ymin), &data);        
     } else {
         for (int y=ymin; y<ymax; ++y) {
             QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y()) - devRect.x();
@@ -2889,7 +2960,6 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
 
     SetTextAlign(hdc, TA_BASELINE);
     SetBkMode(hdc, TRANSPARENT);
-    SetTextColor(hdc, RGB(0, 0, 0));
 
     bool has_kerning = ti.f && ti.f->kerning();
 
