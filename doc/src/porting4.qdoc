@@ -1050,13 +1050,23 @@
     everything that is said in the \l{#qbytearray.section}{QByteArray
     section} applies for \c QCString as well.
 
-    \omit
     \section1 QCustomEvent
 
-    ### QCustomEvent is compat
+    In Qt 3, developers could create a custom event by constructing
+    a new QCustomEvent, and send relevant data to other components in
+    the application by passing a void pointer, either on construction or
+    using the setData() function. Objects could receive custom events
+    by reimplementing the \l{QObject::customEvent()}{customEvent()}
+    function, and access the stored data using the event's data()
+    function.
 
-    ### customEvent() signature
-    \endomit
+    In Qt 4, custom events are created by subclassing QEvent and
+    reimplementing the \l{QEvent::type()}{type()} function to return a
+    value in the range allocated for user events. Event-specific data
+    can be stored in a way that is appropriate for your application.
+    Custom events are still delivered to each object's
+    \l{QObject::customEvent()}{customEvent()} handler function, but as
+    QEvent objects rather than as deprecated QCustomEvent objects.
 
     \section1 QDataBrowser
 
