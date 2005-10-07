@@ -377,6 +377,8 @@ void QFTOutlineMapper::convertElements(const QPointF *elements,
                 i += 2;
             }
             break;
+        default:
+            break;
         }
         ++types;
         ++e;
