@@ -41,7 +41,7 @@
 
 // ################ should probably add frameFormatChange notification!
 
-struct LayoutStruct;
+struct QLayoutStruct;
 
 class QTextFrameData : public QTextFrameLayoutData
 {
@@ -68,7 +68,7 @@ public:
 
     QTextFrameFormat::Position flow_position;
 
-    LayoutStruct *currentLayoutStruct;
+    QLayoutStruct *currentLayoutStruct;
 
     bool sizeDirty;
     bool layoutDirty;
@@ -76,8 +76,8 @@ public:
     QList<QTextFrame *> floats;
 };
 
-struct LayoutStruct {
-    LayoutStruct() : widthUsed(0), minimumWidth(0), maximumWidth(INT_MAX), fullLayout(false), pageHeight(0.0), pageBottom(0.0) {}
+struct QLayoutStruct {
+    QLayoutStruct() : widthUsed(0), minimumWidth(0), maximumWidth(INT_MAX), fullLayout(false), pageHeight(0.0), pageBottom(0.0) {}
     QTextFrame *frame;
     qreal x_left;
     qreal x_right;
@@ -331,7 +331,7 @@ public:
     HitPoint hitTest(QTextTable *table, const QPointF &point, int *position) const;
     HitPoint hitTest(QTextBlock bl, const QPointF &point, int *position) const;
 
-    LayoutStruct layoutCell(QTextTable *t, const QTextTableCell &cell, qreal width,
+    QLayoutStruct layoutCell(QTextTable *t, const QTextTableCell &cell, qreal width,
                             int layoutFrom, int layoutTo);
     void setCellPosition(QTextTable *t, const QTextTableCell &cell, const QPointF &pos);
     void layoutTable(QTextTable *t, int layoutFrom, int layoutTo);
@@ -342,14 +342,14 @@ public:
     void layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo);
     void layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, qreal frameWidth, qreal frameHeight);
 
-    void layoutBlock(const QTextBlock &bl, LayoutStruct *layoutStruct, int layoutFrom, int layoutTo,
+    void layoutBlock(const QTextBlock &bl, QLayoutStruct *layoutStruct, int layoutFrom, int layoutTo,
                      const QTextBlock &previousBlock);
-    void layoutFlow(QTextFrame::Iterator it, LayoutStruct *layoutStruct, int layoutFrom, int layoutTo);
-    void pageBreakInsideTable(QTextTable *table, LayoutStruct *layoutStruct);
+    void layoutFlow(QTextFrame::Iterator it, QLayoutStruct *layoutStruct, int layoutFrom, int layoutTo);
+    void pageBreakInsideTable(QTextTable *table, QLayoutStruct *layoutStruct);
 
 
-    void floatMargins(qreal y, const LayoutStruct *layoutStruct, qreal *left, qreal *right) const;
-    qreal findY(qreal yFrom, const LayoutStruct *layoutStruct, qreal requiredWidth) const;
+    void floatMargins(qreal y, const QLayoutStruct *layoutStruct, qreal *left, qreal *right) const;
+    qreal findY(qreal yFrom, const QLayoutStruct *layoutStruct, qreal requiredWidth) const;
 
     QVector<QCheckPoint> checkPoints;
 
@@ -1080,11 +1080,11 @@ static bool isFrameInCell(const QTextTableCell &cell, QTextFrame *frame)
            && cellEnd >= frameStart && cellEnd >= frameEnd;
 }
 
-LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTableCell &cell, qreal width,
+QLayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTableCell &cell, qreal width,
                                                     int layoutFrom, int layoutTo)
 {
     LDEBUG << "layoutCell";
-    LayoutStruct layoutStruct;
+    QLayoutStruct layoutStruct;
     layoutStruct.frame = t;
     layoutStruct.minimumWidth = 0;
     layoutStruct.maximumWidth = INT_MAX;
@@ -1189,7 +1189,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, 
             // to figure out the min and the max width lay out the cell at
             // maximum width. otherwise the maxwidth calculation sometimes
             // returns wrong values
-            LayoutStruct layoutStruct = layoutCell(table, cell, INT_MAX, layoutFrom, layoutTo);
+            QLayoutStruct layoutStruct = layoutCell(table, cell, INT_MAX, layoutFrom, layoutTo);
 
             // distribute the minimum width over all columns the cell spans
             qreal widthToDistribute = layoutStruct.minimumWidth + 2 * td->cellPadding;
@@ -1316,7 +1316,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, 
 
             const qreal width = td->cellWidth(c, cspan);
 //            qDebug() << "layoutCell for cell at row" << r << "col" << c;
-            LayoutStruct layoutStruct = layoutCell(table, cell, width, layoutFrom, layoutTo);
+            QLayoutStruct layoutStruct = layoutCell(table, cell, width, layoutFrom, layoutTo);
 
             td->heights[r] = qMax(td->heights.at(r), layoutStruct.y + 2 * td->cellPadding);
         }
@@ -1341,7 +1341,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, 
                     continue;
 
                 const qreal width = td->cellWidth(c, cspan);
-                LayoutStruct layoutStruct = layoutCell(table, cell, width, layoutFrom, layoutTo);
+                QLayoutStruct layoutStruct = layoutCell(table, cell, width, layoutFrom, layoutTo);
 
                 // the last row gets all the remaining space
                 qreal heightToDistribute = layoutStruct.y + 2 * td->cellPadding;
@@ -1515,7 +1515,7 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
 //     }
 
     qreal margin = fd->margin + fd->border;
-    LayoutStruct layoutStruct;
+    QLayoutStruct layoutStruct;
     layoutStruct.frame = f;
     layoutStruct.x_left = margin + fd->padding;
     layoutStruct.x_right = margin + fd->contentsWidth - fd->padding;
@@ -1548,7 +1548,7 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
     fd->sizeDirty = false;
 }
 
-void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruct *layoutStruct,
+void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStruct *layoutStruct,
                                             int layoutFrom, int layoutTo)
 {
     Q_Q(QTextDocumentLayout);
@@ -1719,7 +1719,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
     fd->currentLayoutStruct = 0;
 }
 
-void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct *layoutStruct,
+void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct *layoutStruct,
                                              int layoutFrom, int layoutTo, const QTextBlock &previousBlock)
 {
     Q_Q(QTextDocumentLayout);
@@ -1890,7 +1890,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
 
 }
 
-void QTextDocumentLayoutPrivate::pageBreakInsideTable(QTextTable *table, LayoutStruct *layoutStruct)
+void QTextDocumentLayoutPrivate::pageBreakInsideTable(QTextTable *table, QLayoutStruct *layoutStruct)
 {
     QTextTableData *td = static_cast<QTextTableData *>(data(table));
     const int rows = table->rows();
@@ -1938,7 +1938,7 @@ void QTextDocumentLayoutPrivate::pageBreakInsideTable(QTextTable *table, LayoutS
     layoutStruct->y = origY + td->size.height();
 }
 
-void QTextDocumentLayoutPrivate::floatMargins(qreal y, const LayoutStruct *layoutStruct,
+void QTextDocumentLayoutPrivate::floatMargins(qreal y, const QLayoutStruct *layoutStruct,
                                               qreal *left, qreal *right) const
 {
 //     qDebug() << "floatMargins y=" << y;
@@ -1961,7 +1961,7 @@ void QTextDocumentLayoutPrivate::floatMargins(qreal y, const LayoutStruct *layou
 }
 
 
-qreal QTextDocumentLayoutPrivate::findY(qreal yFrom, const LayoutStruct *layoutStruct, qreal requiredWidth) const
+qreal QTextDocumentLayoutPrivate::findY(qreal yFrom, const QLayoutStruct *layoutStruct, qreal requiredWidth) const
 {
     qreal right, left;
     requiredWidth = qMin(requiredWidth, layoutStruct->x_right - layoutStruct->x_left);
