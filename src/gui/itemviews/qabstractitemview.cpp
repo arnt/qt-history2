@@ -2035,6 +2035,8 @@ void QAbstractItemView::startDrag(Qt::DropActions supportedActions)
         pixmap.fill(palette().base().color());
         QPainter painter(&pixmap);
         QStyleOptionViewItem option = viewOptions();
+        option.showDecorationSelected = true;
+        option.state |= QStyle::State_Selected;
         for (int j = 0; j < indexes.count(); ++j) {
             option.rect = QRect(rects.at(j).topLeft() - rect.topLeft(),
                                 rects.at(j).size());
