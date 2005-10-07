@@ -422,6 +422,9 @@ void TreeWidgetEditor::on_itemTextLineEdit_textChanged(const QString &text)
     if (!curItem)
         return;
 
+    if (!ui.listWidget->currentItem())
+        return;
+
     curItem->setText(ui.listWidget->currentRow(), text);
 }
 
@@ -431,6 +434,9 @@ void TreeWidgetEditor::on_deletePixmapItemButton_clicked()
     if (!curItem)
         return;
 
+    if (!ui.listWidget->currentItem())
+        return;
+
     curItem->setIcon(ui.listWidget->currentRow(), QIcon());
     ui.previewPixmapItemButton->setIcon(QIcon());
     ui.deletePixmapItemButton->setEnabled(false);
@@ -438,12 +444,11 @@ void TreeWidgetEditor::on_deletePixmapItemButton_clicked()
 
 void TreeWidgetEditor::on_previewPixmapItemButton_clicked()
 {
-    QListWidgetItem *currentColumn = ui.listWidget->currentItem();
-    if (!currentColumn)
-        return;
-
     QTreeWidgetItem *curItem = ui.treeWidget->currentItem();
     if (!curItem)
+        return;
+
+    if (!ui.listWidget->currentItem())
         return;
 
     int currentRow = ui.listWidget->currentRow();
