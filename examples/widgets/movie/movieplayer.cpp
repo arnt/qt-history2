@@ -45,7 +45,7 @@ MoviePlayer::MoviePlayer(QWidget *parent)
     stopButton->setDisabled(true);
 
     resize(400, 400);
-    setWindowTitle(tr("Movie"));
+    setWindowTitle(tr("Movie Player"));
 }
 
 void MoviePlayer::browse()
