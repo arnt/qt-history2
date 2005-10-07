@@ -371,7 +371,7 @@ static void sendXEmbedMessage(WId window, Display *display, long message,
 // From qapplication_x11.cpp
 static XKeyEvent lastKeyEvent;
 
-QCoreApplication::EventFilter oldX11EventFilter;
+static QCoreApplication::EventFilter oldX11EventFilter;
 
 // The purpose of this global x11 filter is for one to capture the key
 // events in their original state, but most importantly this is the
