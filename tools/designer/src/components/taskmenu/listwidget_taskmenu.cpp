@@ -14,6 +14,7 @@
 #include "listwidget_taskmenu.h"
 #include "inplace_editor.h"
 #include "listwidgeteditor.h"
+#include <qdesigner_command_p.h>
 
 #include <QtDesigner/QtDesigner>
 
@@ -66,12 +67,14 @@ void ListWidgetTaskMenu::editItems()
     ListWidgetEditor dlg(m_formWindow, m_listWidget->window());
     dlg.fillContentsFromListWidget(m_listWidget);
     if (dlg.exec() == QDialog::Accepted) {
-        m_listWidget->clear();
-        for (int i=0; i<dlg.count(); ++i) {
-            QListWidgetItem *item = new QListWidgetItem(dlg.text(i));
-            item->setIcon(dlg.icon(i));
-            m_listWidget->addItem(item);
+        QList<QPair<QString, QIcon> > items;
+        for (int i = 0; i < dlg.count(); i++) {
+            items.append(qMakePair<QString, QIcon>(dlg.text(i), dlg.icon(i)));
         }
+        ChangeListContentsCommand *cmd = new ChangeListContentsCommand(m_formWindow);
+        cmd->init(m_listWidget, items);
+        cmd->setDescription(tr("Change List Contents"));
+        m_formWindow->commandHistory()->push(cmd);
     }
 }
 

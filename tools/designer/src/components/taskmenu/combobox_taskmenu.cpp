@@ -14,6 +14,7 @@
 #include "combobox_taskmenu.h"
 #include "inplace_editor.h"
 #include "listwidgeteditor.h"
+#include <qdesigner_command_p.h>
 
 #include <QtDesigner/QtDesigner>
 
@@ -66,11 +67,14 @@ void ComboBoxTaskMenu::editItems()
     ListWidgetEditor dlg(m_formWindow, m_comboBox->window());
     dlg.fillContentsFromComboBox(m_comboBox);
     if (dlg.exec() == QDialog::Accepted) {
-        m_comboBox->clear();
-        for (int i=0; i<dlg.count(); ++i) {
-            m_comboBox->addItem(dlg.icon(i), dlg.text(i));
-            m_comboBox->setItemData(i, dlg.icon(i));
+        QList<QPair<QString, QIcon> > items;
+        for (int i = 0; i < dlg.count(); i++) {
+            items.append(qMakePair<QString, QIcon>(dlg.text(i), dlg.icon(i)));
         }
+        ChangeListContentsCommand *cmd = new ChangeListContentsCommand(m_formWindow);
+        cmd->init(m_comboBox, items);
+        cmd->setDescription(tr("Change Combobox Contents"));
+        m_formWindow->commandHistory()->push(cmd);
     }
 }
 

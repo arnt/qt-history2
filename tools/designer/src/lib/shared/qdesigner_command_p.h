@@ -48,6 +48,8 @@ class QDesignerMetaDataBaseItemInterface;
 class QToolBox;
 class QTabWidget;
 class QTableWidget;
+class QListWidget;
+class QComboBox;
 class QStackedWidget;
 class QDockWidget;
 class QMainWindow;
@@ -713,6 +715,28 @@ private:
     int m_newColumnCount;
     int m_oldRowCount;
     int m_newRowCount;
+};
+
+class QT_SHARED_EXPORT ChangeListContentsCommand: public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    ChangeListContentsCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QListWidget *listWidget, const QList<QPair<QString, QIcon> > &items);
+    void init(QComboBox *comboBox, const QList<QPair<QString, QIcon> > &items);
+    virtual void redo();
+    virtual void undo();
+private:
+    void changeContents(QListWidget *listWidget,
+        const QList<QPair<QString, QIcon> > &itemsState) const;
+    void changeContents(QComboBox *comboBox,
+        const QList<QPair<QString, QIcon> > &itemsState) const;
+
+    QPointer<QListWidget> m_listWidget;
+    QPointer<QComboBox> m_comboBox;
+    QList<QPair<QString, QIcon> > m_oldItemsState;
+    QList<QPair<QString, QIcon> > m_newItemsState;
 };
 
 } // namespace qdesigner_internal

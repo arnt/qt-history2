@@ -25,6 +25,8 @@
 #include <QtGui/QStackedWidget>
 #include <QtGui/QTabWidget>
 #include <QtGui/QTableWidget>
+#include <QtGui/QListWidget>
+#include <QtGui/QComboBox>
 #include <QtGui/QSplitter>
 #include <QtGui/QDockWidget>
 #include <QtGui/QMainWindow>
@@ -1775,6 +1777,88 @@ void ChangeTableContentsCommand::undo()
 {
     changeContents(m_tableWidget, m_oldRowCount, m_oldColumnCount,
                 m_oldHorizontalHeaderState, m_oldVerticalHeaderState, m_oldItemsState);
+}
+
+// ---- ChangeListContentsCommand ----
+ChangeListContentsCommand::ChangeListContentsCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(QString(), formWindow)
+{
+
+}
+
+void ChangeListContentsCommand::init(QListWidget *listWidget,
+                const QList<QPair<QString, QIcon> > &items)
+{
+    m_listWidget = listWidget;
+    m_comboBox = 0;
+
+    m_newItemsState = items;
+    m_oldItemsState.clear();
+
+    for (int i = 0; i < listWidget->count(); i++) {
+        QListWidgetItem *item = listWidget->item(i);
+        QString text = item->text();
+        QIcon icon = item->icon();
+
+        m_oldItemsState.append(qMakePair<QString, QIcon>(text, icon));
+    }
+}
+
+void ChangeListContentsCommand::init(QComboBox *comboBox,
+                const QList<QPair<QString, QIcon> > &items)
+{
+    m_listWidget = 0;
+    m_comboBox = comboBox;
+
+    m_newItemsState = items;
+    m_oldItemsState.clear();
+
+    for (int i = 0; i < comboBox->count(); i++) {
+        QString text = comboBox->itemText(i);
+        QIcon icon = comboBox->itemIcon(i);
+
+        m_oldItemsState.append(qMakePair<QString, QIcon>(text, icon));
+    }
+}
+
+void ChangeListContentsCommand::redo()
+{
+    if (m_listWidget)
+        changeContents(m_listWidget, m_newItemsState);
+    else if (m_comboBox)
+        changeContents(m_comboBox, m_newItemsState);
+}
+
+void ChangeListContentsCommand::undo()
+{
+    if (m_listWidget)
+        changeContents(m_listWidget, m_oldItemsState);
+    else if (m_comboBox)
+        changeContents(m_comboBox, m_oldItemsState);
+}
+
+void ChangeListContentsCommand::changeContents(QListWidget *listWidget,
+        const QList<QPair<QString, QIcon> > &itemsState) const
+{
+    listWidget->clear();
+    QListIterator<QPair<QString, QIcon> > it(itemsState);
+    while (it.hasNext()) {
+        QPair<QString, QIcon> pair = it.next();
+        QListWidgetItem *item = new QListWidgetItem(pair.second, pair.first);
+        listWidget->addItem(item);
+    }
+}
+
+void ChangeListContentsCommand::changeContents(QComboBox *comboBox,
+        const QList<QPair<QString, QIcon> > &itemsState) const
+{
+    comboBox->clear();
+    QListIterator<QPair<QString, QIcon> > it(itemsState);
+    while (it.hasNext()) {
+        QPair<QString, QIcon> pair = it.next();
+        comboBox->addItem(pair.first);
+        comboBox->setItemData(comboBox->count() - 1, pair.second);
+    }
 }
 
 } // namespace qdesigner_internal
