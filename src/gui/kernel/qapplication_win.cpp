@@ -3111,8 +3111,8 @@ bool QETWidget::translateWheelEvent(const MSG &msg)
 //
 // Windows Wintab to QTabletEvent translation
 //
-typedef QHash<UINT, TabletDeviceData> TabletCursorInfo;
-Q_GLOBAL_STATIC(TabletCursorInfo, tCursorInfo)
+typedef QHash<UINT, QTabletDeviceData> QTabletCursorInfo;
+Q_GLOBAL_STATIC(QTabletCursorInfo, tCursorInfo)
 
 // the following is adapted from the wintab syspress example (public domain)
 /* -------------------------------------------------------------------------- */
@@ -3139,7 +3139,7 @@ static void tabletInit(UINT wActiveCsr, HCTX hTab)
         ptrWTGet(hTab, &lc);
 
         /* get the size of the pressure axis. */
-        TabletDeviceData tdd;
+        QTabletDeviceData tdd;
         ptrWTInfo(WTI_DEVICES + lc.lcDevice, DVC_NPRESSURE, &np);
         tdd.minPressure = int(np.axMin);
         tdd.maxPressure = int(np.axMax);
@@ -3246,7 +3246,7 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
         prsNew = 0.0;
         if (!tCursorInfo()->contains(localPacketBuf[i].pkCursor))
             tabletInit(localPacketBuf[i].pkCursor, qt_tablet_context);
-        TabletDeviceData tdd = tCursorInfo()->value(localPacketBuf[i].pkCursor);
+        QTabletDeviceData tdd = tCursorInfo()->value(localPacketBuf[i].pkCursor);
         QRect desktopArea = qt_desktopWidget->geometry();
         QPointF hiResGlobal = tdd.scaleCoord(ptNew.x, ptNew.y, desktopArea.left(), desktopArea.width(),
                                              desktopArea.top(), desktopArea.height());
