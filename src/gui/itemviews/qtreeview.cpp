@@ -615,16 +615,16 @@ void QTreeView::paintEvent(QPaintEvent *event)
     }
 
     QVector<QRect> rects = event->region().rects();
-    for (int ii = 0; ii < rects.size(); ++ii) {
+    for (int a = 0; a < rects.size(); ++a) {
 
-        QRect area = rects.at(ii);
+        QRect area = rects.at(a);
         area.translate(offset);
 
         const int t = area.top();
         const int b = area.bottom() + 1;
 
         d->left = d->header->visualIndexAt(area.left());
-        d->right = d->header->visualIndexAt(d->header->length());
+        d->right = d->header->visualIndexAt(area.right());
         if (isRightToLeft()) {
             d->left = (d->left == -1 ? d->header->count() - 1 : d->left);
             d->right = (d->right == -1 ? 0 : d->right);
