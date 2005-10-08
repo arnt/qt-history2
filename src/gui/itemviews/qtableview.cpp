@@ -188,6 +188,15 @@ void QTableViewPrivate::trimHiddenSelections(QItemSelectionRange *range) const
     *range = QItemSelectionRange(topLeft, bottomRight);
 }
 
+int QTableViewPrivate::firstVisualIndex(int y) const
+{
+    int top = q_func()->verticalScrollBar()->value() / verticalStepsPerItem;
+    int row = verticalHeader->logicalIndex(top);
+    for (int v = verticalHeader->sectionPosition(row) - verticalHeader->offset();
+         (v += verticalHeader->sectionSize(row)) < y && top < bottom; ++top)
+        row = verticalHeader->logicalIndex(top);
+    return top;
+}
 
 /*!
     \class QTableView qtableview.h
@@ -505,28 +514,28 @@ void QTableView::paintEvent(QPaintEvent *event)
         right = qMax(tmp, right);
 
         // get the vertical start and end sections (visual indexes)
-        int top = d->verticalHeader->visualIndexAt(area.top());
         int bottom = d->verticalHeader->visualIndexAt(area.bottom());
-
-        top = (top == -1 ? 0 : top);
         bottom = (bottom == -1 ? d->model->rowCount(rootIndex()) - 1 : bottom);
 
-        tmp = top;
-        top = qMin(top, bottom);
-        bottom = qMax(tmp, bottom);
-
-        // Find the initial value for bPaintAlternateBase
-        bool bPaintAlternateBase = false;   // should only be inverted for *visible* rows
-        if (alternate) {
-            for (int v1 = 0; v1 < top; ++v1) {
-                int row = verticalHeader->logicalIndex(v1);
-                if (verticalHeader->isSectionHidden(row))
-                    continue;
-                bPaintAlternateBase = !bPaintAlternateBase;
+        int top = 0;
+        bool alternateBase = false;
+        if (verticalHeader->sectionsHidden()) {
+            int verticalOffset = verticalHeader->offset();
+            int row = verticalHeader->logicalIndex(top);
+            for (int y = 0;
+                 ((y += verticalHeader->sectionSize(top)) <= verticalOffset) && (top < bottom);
+                 ++top) {
+                row = verticalHeader->logicalIndex(top);
+                if (alternate && !verticalHeader->isSectionHidden(row))
+                    alternateBase = !alternateBase;
             }
+        } else {
+            top = d->firstVisualIndex(area.top());
+            alternateBase = (top & 1) && alternate;
         }
-        // do the actual painting
 
+        Q_ASSERT(top >= 0 && top <= bottom);
+        // do the actual painting
         for (int v = top; v <= bottom; ++v) {
             int row = verticalHeader->logicalIndex(v);
             if (verticalHeader->isSectionHidden(row))
@@ -558,7 +567,7 @@ void QTableView::paintEvent(QPaintEvent *event)
                     }
                     if (focus && index == current)
                         option.state |= QStyle::State_HasFocus;
-                    if (alternate && bPaintAlternateBase)
+                    if (alternateBase)
                         painter.fillRect(colp, rowp, colw, rowh,
                                          option.palette.brush(cg, QPalette::AlternateBase));
                     else
@@ -569,7 +578,7 @@ void QTableView::paintEvent(QPaintEvent *event)
                 if (v == top && showGrid) {
                     QPen old = painter.pen();
                     painter.setPen(gridPen);
-                    painter.drawLine(colp + colw, area.top(), colp + colw, area.bottom()+1);
+                    painter.drawLine(colp + colw, area.top(), colp + colw, area.bottom() + 1);
                     painter.setPen(old);
                 }
             }
@@ -579,7 +588,7 @@ void QTableView::paintEvent(QPaintEvent *event)
                 painter.drawLine(area.left(), rowp + rowh, area.right(), rowp + rowh);
                 painter.setPen(old);
             }
-            bPaintAlternateBase = !bPaintAlternateBase;
+            alternateBase = !alternateBase && alternate;
         }
 
         int w = d->viewport->width();

@@ -42,6 +42,7 @@ public:
     void updateVerticalScrollbar();
     void updateHorizontalScrollbar();
     void trimHiddenSelections(QItemSelectionRange *range) const;
+    int firstVisualIndex(int y) const;
 
     bool showGrid;
     Qt::PenStyle gridStyle;
