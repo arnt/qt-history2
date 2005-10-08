@@ -74,6 +74,7 @@ public:
     static QDateTimeEdit::Section convertToPublic(QDateTimeParser::Section s);
 
     QDateTimeEdit::Sections sections;
+    mutable bool cacheGuard;
 
     QString defaultDateFormat, defaultTimeFormat;
     Qt::LayoutDirection layoutDirection;
@@ -1066,6 +1067,7 @@ QDateEdit::QDateEdit(const QDate &date, QWidget *parent)
 QDateTimeEditPrivate::QDateTimeEditPrivate()
     : QDateTimeParser(QVariant::DateTime)
 {
+    cacheGuard = false;
     fixday = true;
     allowEmpty = false;
     type = QVariant::DateTime;
@@ -1267,11 +1269,13 @@ void QDateTimeEditPrivate::clearSection(int index)
 
 void QDateTimeEditPrivate::updateCache(const QVariant &val, const QString &str) const
 {
-    if (val != cachedValue || str != cachedText) {
+    if (val != cachedValue || str != cachedText || cacheGuard) {
+        cacheGuard = true;
         QString copy = str;
         int unused = edit->cursorPosition();
         QValidator::State unusedState;
         validateAndInterpret(copy, unused, unusedState);
+        cacheGuard = false;
     }
 }
 
