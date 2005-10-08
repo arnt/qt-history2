@@ -1512,7 +1512,7 @@ void QAbstractSpinBoxPrivate::setRange(const QVariant &min, const QVariant &max)
 {
     clearCache();
     minimum = min;
-    maximum = (variantCompare(min, max) < 0 ? min : max);
+    maximum = (variantCompare(min, max) < 0 ? max : min);
 
     reset();
     setValue(bound(value), EmitIfChanged);
@@ -1781,8 +1781,8 @@ int QAbstractSpinBoxPrivate::variantCompare(const QVariant &arg1, const QVariant
 {
     if ((arg1.type() == QVariant::Time && arg2.type() == QVariant::Date)
         || (arg1.type() == QVariant::Date && arg2.type() == QVariant::Time)) {
-        qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
-                 arg1.typeName(), arg2.typeName());
+        qFatal("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
+               arg1.typeName(), arg2.typeName());
     }
     switch (arg2.type()) {
     case QVariant::Date:
@@ -1827,10 +1827,14 @@ int QAbstractSpinBoxPrivate::variantCompare(const QVariant &arg1, const QVariant
         } else {
             return 1;
         }
-    default: break;
+    case QVariant::Invalid:
+        if (arg2.type() == QVariant::Invalid)
+            return 0;
+    default:
+        break;
     }
-    qWarning("%s:%d Not supported types (%s, %s). This should not happen",
-             __FILE__, __LINE__, arg1.typeName(), arg2.typeName());
+    qFatal("%s:%d Not supported types (%s, %s). This should not happen",
+           __FILE__, __LINE__, arg1.typeName(), arg2.typeName());
 
     return -2;
 }
