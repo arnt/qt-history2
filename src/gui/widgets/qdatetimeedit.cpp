@@ -784,7 +784,11 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
             d->validateAndInterpret(str, pos, state);
             if (state == QValidator::Acceptable
                 && (d->sectionNode(oldCurrent).count != 1 || d->sectionSize(oldCurrent) == d->sectionMaxSize(oldCurrent))) {
-                d->currentSectionIndex = d->closestSection(d->edit->cursorPosition(), true);
+                QDTEDEBUG << "Setting currentsection to" << d->closestSection(d->edit->cursorPosition(), true) << e->key()
+                    << oldCurrent;
+                const int tmp = d->closestSection(d->edit->cursorPosition(), true);
+                if (tmp >= 0)
+                    d->currentSectionIndex = tmp;
             }
         }
         if (d->currentSectionIndex != oldCurrent) {
@@ -1549,7 +1553,6 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
             if (allowChange) {
                 edit->setCursorPosition(c);
                 QDTEDEBUG << c;
-
             }
             s = closest;
         }
@@ -1564,8 +1567,6 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
                 setSelected(s, true);
             } else {
                 edit->setCursorPosition(pos);
-                QDTEDEBUG << pos;
-
             }
         }
         updateSpinBox();
