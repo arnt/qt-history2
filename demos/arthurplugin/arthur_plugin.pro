@@ -1,9 +1,9 @@
 
-QTDIR       = $$(QTDIR)
+QTDIR       = $$QT_SOURCE_TREE
 
 CONFIG      += designer plugin
 TEMPLATE    = lib
-DESTDIR     = $$QTDIR/plugins/designer
+DESTDIR     = $$QT_BUILD_TREE/plugins/designer
 
 SHARED_FOLDER = ../shared
 include(../shared/shared.pri)
@@ -44,3 +44,4 @@ win32-msvc.net {
 	QMAKE_CFLAGS += /Zm500
 	QMAKE_CXXFLAGS += /Zm500
 }
+
