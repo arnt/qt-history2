@@ -147,7 +147,7 @@ void QWSSoundServerClient::destruct()
     delete this;
 }
 
-QString getStringTok(QString &in)
+static QString getStringTok(QString &in)
 {
     int pos = in.indexOf(' ');
     QString ret;
@@ -161,7 +161,7 @@ QString getStringTok(QString &in)
     return ret;
 }
 
-int getNumTok(QString &in)
+static int getNumTok(QString &in)
 {
     return getStringTok(in).toInt();
 }
