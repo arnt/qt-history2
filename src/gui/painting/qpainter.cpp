@@ -1178,7 +1178,7 @@ const QBrush &QPainter::background() const
 bool QPainter::hasClipping() const
 {
     Q_D(const QPainter);
-    return d->state->clipOperation != Qt::NoClip;
+    return d->state->clipEnabled;
 }
 
 
@@ -1381,11 +1381,13 @@ void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
         printf("QPainter::setClipRegion(), size=%d, [%d,%d,%d,%d]\n",
            r.rects().size(), rect.x(), rect.y(), rect.width(), rect.height());
 #endif
-    Q_ASSERT(op != Qt::NoClip);
     if (!isActive()) {
         qWarning("QPainter::setClipRegion(); painter not active");
         return;
     }
+
+    if (!d->state->clipEnabled && (op == Qt::IntersectClip || op == Qt::UniteClip))
+        op = Qt::ReplaceClip;
 
     d->state->clipRegion = r;
     d->state->clipOperation = op;
@@ -1693,6 +1695,9 @@ void QPainter::setClipPath(const QPainterPath &path, Qt::ClipOperation op)
         return;
 
     Q_D(QPainter);
+
+    if (!d->state->clipEnabled && (op == Qt::IntersectClip || op == Qt::UniteClip))
+        op = Qt::ReplaceClip;
 
     d->state->clipPath = path;
     d->state->clipOperation = op;
