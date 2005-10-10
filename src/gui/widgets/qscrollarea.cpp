@@ -376,21 +376,26 @@ bool QScrollArea::focusNextPrevChild(bool next)
 }
 
 /*!
-    Scrolls the content so that the point (x, y) is visible with (xmargin, ymargin) pixel margins (if possible).
-    Otherwise scrolls to the nearest valid position. Default value for both margins is 50 pixels.
-    
-    Note: If you call this function before entering an event loop, make sure that you have set 
-    the focus on the QScrollArea widget. Otherwise, the content will be scrolled back.
-    
+    Scrolls the contents of the scroll area so that the point (\a x, \a y) is visible
+    inside the region of the viewport with margins specified in pixels by \a xmargin and
+    \a ymargin. If the specified point cannot be reached, the contents are scrolled to
+    the nearest valid position. The default value for both margins is 50 pixels.
+
+    \bold{Note:} If you call this function before entering an event loop, make sure that
+    you have set the focus on the QScrollArea widget; otherwise, the viewport will be
+    scrolled back to its old position.
+
+    Example:
+
     \code
         QScrollArea sa;
         sa.setBackgroundRole(QPalette::Dark);
         sa.setWidget(childWidget);                     
         sa.show();
-        
+
         sa.setFocus();
         sa.ensureVisible(640, 480, 10, 10);
-        
+
         qapp.exec();
     \endcode    
 */
