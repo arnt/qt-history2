@@ -1438,7 +1438,8 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 #ifdef QT_USE_BACKINGSTORE
     if (q->isVisible() && !q->isHidden() && isResize) {
         invalidateBuffer(q->rect()); //after the resize
-        q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, oldSize));
+        if(q->parentWidget())
+            q->parentWidget()->d_func()->invalidateBuffer(QRect(oldPos, oldSize));
     }
 #endif
 
