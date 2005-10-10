@@ -1325,6 +1325,9 @@ void QPrinter::setFromTo(int from, int to)
     if (!d->printDialog)
         const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
     d->printDialog->setFromTo(from, to);
+#else
+    Q_UNUSED(from);
+    Q_UNUSED(to);
 #endif
 }
 
