@@ -634,7 +634,7 @@ void QGIFFormat::nextY(QImage *image)
         // Don't dup with transparency
         if (trans_index < 0) {
             for (i=1; i<=my; i++) {
-                memcpy(image->scanLine(y+i)+left, image->scanLine(y)+left,
+                memcpy(image->scanLine(y+i)+left*sizeof(QRgb), image->scanLine(y)+left*sizeof(QRgb),
                        (right-left+1)*sizeof(QRgb));
             }
         }
@@ -642,8 +642,8 @@ void QGIFFormat::nextY(QImage *image)
         // if (!out_of_bounds) {
         //     ### Changed: QRect(left, y, right - left + 1, my + 1);
         // }
-        if (!out_of_bounds)
-            qDebug("consumer->changed(QRect(%d, %d, %d, %d))", left, y, right-left+1, my+1);
+//        if (!out_of_bounds)
+//            qDebug("consumer->changed(QRect(%d, %d, %d, %d))", left, y, right-left+1, my+1);
         y+=8;
         if (y>bottom) {
             interlace++; y=top+4;
@@ -663,7 +663,7 @@ void QGIFFormat::nextY(QImage *image)
         // Don't dup with transparency
         if (trans_index < 0) {
             for (i=1; i<=my; i++) {
-                memcpy(image->scanLine(y+i)+left, image->scanLine(y)+left,
+                memcpy(image->scanLine(y+i)+left*sizeof(QRgb), image->scanLine(y)+left*sizeof(QRgb),
                        (right-left+1)*sizeof(QRgb));
             }
         }
@@ -687,7 +687,7 @@ void QGIFFormat::nextY(QImage *image)
         // Don't dup with transparency
         if (trans_index < 0) {
             for (i=1; i<=my; i++) {
-                memcpy(image->scanLine(y+i)+left, image->scanLine(y)+left,
+                memcpy(image->scanLine(y+i)+left*sizeof(QRgb), image->scanLine(y)+left*sizeof(QRgb),
                        (right-left+1)*sizeof(QRgb));
             }
         }
@@ -792,7 +792,6 @@ bool QGifHandler::read(QImage *image)
             break;
         buffer.remove(0, decoded);
     }
-
     if (gifFormat->newFrame || (gifFormat->partialNewFrame && device()->atEnd())) {
         *image = lastImage;
         ++frameNumber;
