@@ -4764,15 +4764,18 @@ void QMacStylePrivate::AppManAdjustButtonSize(QStyle::ContentsType ct, QSize &sz
 
 /*!
     \class QMacStyle qmacstyle_mac.h
-    \brief The QMacStyle class implements an Appearance Manager style.
+    \brief The QMacStyle class provides a Mac OS X style using the Apple Appearance Manager.
 
     \ingroup appearance
 
     This class is implemented as a wrapper to the Apple Appearance
-    Manager. This allows your application to be styled by whatever
-    theme your Macintosh is using. This is done by having primitives
+    Manager, allowing applications to be styled according to the current
+    theme in use on the user's Macintosh. This is done by having primitives
     in QStyle implemented in terms of what the Macintosh would
-    normally theme (i.e. the Finder).
+    normally theme.
+
+    \warning This style is only available on Mac OS X because it relies on the
+    Apple Appearance Manager.
 
     There are additional issues that should be taken
     into consideration to make an application compatible with the
