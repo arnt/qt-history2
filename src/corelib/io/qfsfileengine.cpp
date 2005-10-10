@@ -97,7 +97,7 @@ QFSFileEngine::~QFSFileEngine()
         if (d->fh) {
             fclose(d->fh);
         } else if (d->fd != -1) {
-            ::close(d->fd);
+            QT_CLOSE(d->fd);
         }
     }
 }
