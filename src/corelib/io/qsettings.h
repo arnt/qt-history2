@@ -215,10 +215,16 @@ public:
     inline QT3_SUPPORT void setPath(const QString &organization, const QString &application,
                                     Scope scope = Global)
     {
+#ifndef QT_NO_QOBJECT
         QObject *parent = this->parent();
         this->~QSettings();
         new (this) QSettings(scope == Global ? QSettings::SystemScope : QSettings::UserScope,
                              organization, application, parent);
+#else
+        this->~QSettings();
+        new (this) QSettings(scope == Global ? QSettings::SystemScope : QSettings::UserScope,
+                             organization, application);
+#endif
     }
     inline QT3_SUPPORT void resetGroup()
     {
