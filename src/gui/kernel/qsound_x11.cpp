@@ -87,7 +87,7 @@ private:
 QAuServerNAS::QAuServerNAS(QObject* parent) :
     QAuServer(parent)
 {
-    setObjectName(QString::fromAscii("Network Audio System"));
+    setObjectName(QLatin1String("Network Audio System"));
     nas = AuOpenServer(NULL, 0, NULL, 0, NULL, NULL);
     if (nas) {
         AuSetCloseDownMode(nas, AuCloseDownDestroy, NULL);
