@@ -3579,10 +3579,12 @@ QPSPrintEngine::~QPSPrintEngine()
 {
     Q_D(QPSPrintEngine);
     ignoreSigPipe(true);
-    d->outStream << "%%Trailer\n";
-    d->outStream << "%%Pages: " << d->pageCount - 1 << "\n" <<
-        wrapDSC("%%DocumentFonts: " + d->fontsUsed);
-    d->outStream << "%%EOF\n";
+    if (d->outStream.device()) {
+        d->outStream << "%%Trailer\n";
+        d->outStream << "%%Pages: " << d->pageCount - 1 << "\n" <<
+                     wrapDSC("%%DocumentFonts: " + d->fontsUsed);
+        d->outStream << "%%EOF\n";
+    }
     ignoreSigPipe(false);
 
     d->outStream.flush();
