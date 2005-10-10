@@ -165,8 +165,9 @@
 
     The \c CONFIG variable is another special variable that \c qmake
     uses when generating a Makefile. It is discussed in the section on
-    configuration later in this chapter. In the above line, \c QT is
-    added to the list of existing values contained in \c CONFIG.
+    \l{#GeneralConfiguration}{general configuration} later in this chapter.
+    In the above line, \c QT is added to the list of existing values
+    contained in \c CONFIG.
 
     The following table lists the variables that \c qmake recognizes, and
     describes what they should contain.
@@ -350,10 +351,10 @@
     \row    \o x11    \o The project is an X11 application or library.
     \endtable
 
-    When using the \c app or \c lib templates, more specialized configuration
-    options can be used to fine tune the build process. These are explained in
-    details in the \l{qmake-common-projects.html}{Common Projects} chapter of
-    this manual.
+    When using \l{qmake Variable Reference#TEMPLATE}{application or library project
+    templates}, more specialized configuration options can be used to fine tune the
+    build process. These are explained in details in the
+    \l{qmake-common-projects.html}{Common Projects} chapter of this manual.
 
     For example, if your application uses the Qt library and you want to
     build it as a multi-threaded application in \c debug mode, your project
@@ -752,6 +753,8 @@
     \o plugin - The target is a plugin (lib only). This enables dll as well.
     \o designer - The target is a plugin for \QD.
     \o uic3 - Configures qmake to run uic3 on the content of FORMS3 if defined, else FORMS.
+    \o no_lflags_merge - Ensures that the list of libraries stored in the \c LIBS
+       variable is not reduced to a list of unique values before it is used.
     \endlist
 
     These options are used to set the compiler flags:
@@ -874,7 +877,7 @@
     If FORMS3 is defined in your project, then this variable must contain
     forms for uic, and not uic3. If CONFIG contains uic3, and FORMS3 is not
     defined, the this variable must contain only uic3 type forms.
-    
+
 
     \target FORMS3
     \section1 FORMS3
@@ -969,6 +972,14 @@
     \code
         unix:LIBS += -lmath -L/usr/local/lib
         win32:LIBS += c:\mylibs\math.lib
+    \endcode
+
+    By default, the list of libraries stored in \c LIBS is reduced to a list of
+    unique names before it is used. To change this behavior, add the
+    \c no_lflags_merge option to the \c CONFIG variable:
+
+    \code
+        CONFIG += no_lflags_merge
     \endcode
 
     \target LITERAL_HASH
@@ -3534,4 +3545,32 @@
     \list
     \o VERSION - The version number of the target library, for example, 2.3.1.
     \endlist
+
+    \target Plugin
+    \section1 Building a Plugin
+
+    \section2 The \c plugin Template
+
+    The \c plugin template tells \c qmake to generate a Makefile that will
+    build a plugin, usually in the form of a library. As with the \c lib template,
+    the \c VERSION variable is supported. You should use this to specify
+    information about the plugin.
+
+    \list
+    \o VERSION - The version number of the target library, for example, 2.3.1.
+    \endlist
+
+    \section2 Building a Qt Designer Plugin
+
+    \QD plugins are built using a specific set of configuration settings that
+    depend on the way Qt was configured for your system. For convenience, these
+    settings can be enabled by adding \c designer to the project's \c CONFIG
+    variable. For example:
+
+    \quotefromfile designer/worldtimeclockplugin/worldtimeclockplugin.pro
+    \skipto CONFIG
+    \printuntil CONFIG
+
+    See the \l{Qt Examples#Qt Designer Examples}{Qt Designer examples} for more
+    examples of plugin-based projects.
 */
