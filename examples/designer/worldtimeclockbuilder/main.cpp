@@ -23,11 +23,12 @@ int main(int argc, char *argv[])
     QForm::Loader loader;
 
     QFile file(":/forms/form.ui");
-    if (file.open(QFile::ReadOnly)) {
-        QWidget *widget = loader.load(&file, 0);
-        Q_ASSERT(widget != 0);
-        widget->show();
-    }
+    file.open(QFile::ReadOnly);
+
+    QWidget *widget = loader.load(&file);
+
+    file.close();
+    widget->show();
 
     return app.exec();
 }

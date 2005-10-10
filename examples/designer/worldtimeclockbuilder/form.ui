@@ -62,7 +62,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QTimeEdit" name="timeEdit" />
+        <widget class="QTimeEdit" name="timeEdit" >
+         <property name="readOnly" >
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
