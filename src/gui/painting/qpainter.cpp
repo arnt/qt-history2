@@ -1178,7 +1178,7 @@ const QBrush &QPainter::background() const
 bool QPainter::hasClipping() const
 {
     Q_D(const QPainter);
-    return d->state->clipEnabled;
+    return d->state->clipEnabled && d->state->clipOperation != Qt::NoClip;
 }
 
 
