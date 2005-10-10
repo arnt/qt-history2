@@ -1,4 +1,4 @@
-# addExclusiveBuilds(1config, 2config)
+# fixExclusiveOutputDirs(1config, 2config)
 # Change all output paths that references 2config to have the string 1config in them
 defineTest(fixExclusiveOutputDirs) {
     firstBuild = $$1
