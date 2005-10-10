@@ -160,18 +160,22 @@ The installation procedure is different for the different Qt platforms:
 
 \o Environment variables
 
-   In order to build and use Qt, the \c PATH environment variable needs to be
-   extended:
+    In order to build and use Qt, the \c PATH environment variable needs to be
+    extended:
 
 \code
     PATH               - to locate qmake, moc and other Qt tools
 \endcode
 
-   This is done by adding \c{c:\Qt\%VERSION%\bin} to the \c PATH variable.
+    This is done by adding \c{c:\Qt\%VERSION%\bin} to the \c PATH variable.
 
-   For newer versions of Windows, \c PATH can be extended through
-   "Control Panel->System->Advanced->Environment variables" and for
-   older versions by editing \c{c:\autoexec.bat}.
+    For newer versions of Windows, \c PATH can be extended through
+    "Control Panel->System->Advanced->Environment variables" and for
+    older versions by editing \c{c:\autoexec.bat}.
+
+    You may also need to ensure that the locations of your compiler and
+    other build tools are listed in the \c PATH variable. This will depend
+    on your choice of software development environment.
 
 \o  Building
 
