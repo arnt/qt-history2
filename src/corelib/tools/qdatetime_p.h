@@ -103,7 +103,7 @@ public:
         FirstSection = 0x1000|Internal,
         LastSection = 0x2000|Internal
     }; // duplicated from qdatetimeedit.h
-    Q_DECLARE_FLAGS(Sections, Section);
+    Q_DECLARE_FLAGS(Sections, Section)
 
     struct SectionNode {
         Section type;
