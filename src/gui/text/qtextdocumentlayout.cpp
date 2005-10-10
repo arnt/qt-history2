@@ -2208,7 +2208,6 @@ void QTextDocumentLayoutPrivate::ensureLayouted(qreal y) const
     if (currentLazyLayoutPosition == -1)
         return;
     const QSizeF oldSize = q->dynamicDocumentSize();
-    const int oldPageCount = q->dynamicPageCount();
 
     if (checkPoints.isEmpty())
         layoutStep();
