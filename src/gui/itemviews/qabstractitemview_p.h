@@ -47,6 +47,8 @@ public:
 
     void init();
 
+    void columnsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
+
     void fetchMore();
     bool shouldEdit(QAbstractItemView::EditTrigger trigger, const QModelIndex &index);
     bool shouldAutoScroll(const QPoint &pos);

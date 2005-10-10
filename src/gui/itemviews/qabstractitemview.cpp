@@ -432,6 +432,8 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
                    this, SLOT(rowsInserted(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                    this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+                   this, SLOT(columnsAboutToBeRemoved(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(modelReset()), this, SLOT(reset()));
         disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(doItemsLayout()));
     }
@@ -445,6 +447,8 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
                 this, SLOT(rowsInserted(QModelIndex,int,int)));
         connect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                 this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
+        connect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SLOT(columnsAboutToBeRemoved(QModelIndex,int,int)));
         connect(d->model, SIGNAL(modelReset()), this, SLOT(reset()));
         connect(d->model, SIGNAL(layoutChanged()), this, SLOT(doItemsLayout()));
     }
@@ -1960,6 +1964,21 @@ void QAbstractItemView::rowsInserted(const QModelIndex &, int, int)
 void QAbstractItemView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
 {
     Q_D(QAbstractItemView);
+
+    // Ensure one selected item in single selection mode.
+    QModelIndex current = currentIndex();
+    if (selectionMode() == SingleSelection && current.isValid() &&
+        current.row() >= start && current.row() <= end)
+    {
+        if (model()->rowCount(parent) < end - start + 1) { // no more children
+            if (parent.isValid())
+                setCurrentIndex(parent);
+        } else {
+            setCurrentIndex(model()->sibling(start > 0 ? start - 1 : end + 1,
+                                             current.column(), current));
+        }
+    }
+
     // Remove all affected editors; this is more efficient than waiting for updateGeometries() to clean out editors for invalid indexes
     QMap<QPersistentModelIndex, QWidget*>::iterator it = d->editors.begin();
     while (it != d->editors.end()) {
@@ -1969,6 +1988,33 @@ void QAbstractItemView::rowsAboutToBeRemoved(const QModelIndex &parent, int star
             it = d->editors.erase(it);
         } else {
             ++it;
+        }
+    }
+}
+
+/*!
+    \internal
+
+    This slot is called when columns are about to be removed. The deleted
+    columns are those under the given \a parent from \a start to \a end
+    inclusive.
+*/
+void QAbstractItemViewPrivate::columnsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
+{
+    Q_Q(QAbstractItemView);
+
+    // Ensure one selected item in single selection mode.
+    QModelIndex current = q->currentIndex();
+    if (current.isValid() && selectionMode == QAbstractItemView::SingleSelection &&
+        current.column() >= start && current.column() <= end)
+    {
+        if (model->columnCount(parent) < end - start + 1) { // no more columns
+            if (parent.isValid())
+                q->setCurrentIndex(parent);
+        } else {
+            q->setCurrentIndex(model->sibling(current.row(),
+                                              start > 0 ? start - 1 : end + 1,
+                                              current));
         }
     }
 }
@@ -2466,4 +2512,5 @@ void QAbstractItemViewPrivate::removeSelectedRows()
     }
 }
 
+#include "moc_qabstractitemview.cpp"
 #endif // QT_NO_ITEMVIEWS
