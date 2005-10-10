@@ -1114,12 +1114,25 @@ QTextBlockUserData *QTextBlock::userData() const
 /*!
     \since 4.1
 
-    Attaches the given \a data object to the text block, which can be used
-    to store custom settings. For example a programming editor may want to
-    store additional information like debugger breakpoints in an object derived
-    from QTextBlockUserData.
-    The ownership is passed to the underlying text document, the provided object
-    will be deleted if the corresponding text block gets deleted.
+    Attaches the given \a data object to the text block.
+
+    QTextBlockUserData can be used to store custom settings.  The
+    ownership is passed to the underlying text document, i.e. the
+    provided QTextBlockUserData object will be deleted if the
+    corresponding text block gets deleted.
+
+    For example, if you write a programming editor in an IDE, you may
+    want to let your user set breakpoints visually in your code for an
+    integrated debugger. In a programming editor a line of text
+    usually corresponds to one QTextBlock. The QTextBlockUserData
+    interface allows the developer to store data for each QTextBlock,
+    like for example in which lines of the source code the user has a
+    breakpoint set. Of course this could also be stored externally,
+    but by storing it inside the QTextDocument, it will for example be
+    automatically deleted when the user deletes the associated
+    line. It's really just a way to store custom information in the
+    QTextDocument without using custom properties in QTextFormat which
+    would affect the undo/redo stack.
 */
 void QTextBlock::setUserData(QTextBlockUserData *data)
 {
