@@ -222,9 +222,10 @@ void QItemDelegate::paint(QPainter *painter,
         drawCheck(painter, opt, checkRect, checkState);
     if (pixmapRect.isValid())
         drawDecoration(painter, opt, pixmapRect, pixmap);
-    if (!text.isEmpty())
+    if (!text.isEmpty()) {
         drawDisplay(painter, opt, textRect, text);
-    drawFocus(painter, opt, textRect);
+        drawFocus(painter, opt, textRect);
+    }
 }
 
 /*!
