@@ -7,7 +7,8 @@ UI_DIR = $$PWD
 FORMS += \
     $$PWD/promotetocustomwidgetdialog.ui \
     $$PWD/findicondialog.ui \
-    $$PWD/orderdialog.ui
+    $$PWD/orderdialog.ui \
+    $$PWD/newactiondialog.ui
 
 HEADERS += \
     $$PWD/shared_global_p.h \
@@ -47,7 +48,8 @@ HEADERS += \
     $$PWD/qdesigner_menubar_p.h \
     $$PWD/qdesigner_menu_p.h \
     $$PWD/actionprovider_p.h \
-    $$PWD/orderdialog_p.h
+    $$PWD/orderdialog_p.h \
+    $$PWD/newactiondialog_p.h
 
 SOURCES += \
     $$PWD/spacer_widget.cpp \
@@ -84,4 +86,6 @@ SOURCES += \
     $$PWD/qdesigner_toolbar.cpp \
     $$PWD/qdesigner_menubar.cpp \
     $$PWD/qdesigner_menu.cpp \
-    $$PWD/orderdialog.cpp
+    $$PWD/orderdialog.cpp \
+    $$PWD/newactiondialog.cpp
+

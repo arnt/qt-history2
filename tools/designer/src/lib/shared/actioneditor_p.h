@@ -28,6 +28,8 @@
 #include "shared_global_p.h"
 #include <QtDesigner/QDesignerActionEditorInterface>
 
+#include <QPointer>
+
 class QDesignerPropertyEditorInterface;
 class QListWidget;
 class QListWidgetItem;
@@ -44,6 +46,7 @@ public:
     ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent = 0, Qt::WindowFlags flags = 0);
     virtual ~ActionEditor();
 
+    QDesignerFormWindowInterface *formWindow() const;
     virtual void setFormWindow(QDesignerFormWindowInterface *formWindow);
 
     virtual QDesignerFormEditorInterface *core() const;
@@ -64,13 +67,18 @@ private slots:
     void slotNotImplemented();
 
 private:
+    QListWidgetItem *createListWidgetItem(QAction *action);
+
+private:
     QDesignerFormEditorInterface *m_core;
+    QPointer<QDesignerFormWindowInterface> m_formWindow;
     QSplitter *splitter;
     QListWidget *m_actionGroups;
     ActionRepository *m_actionRepository;
     QAction *m_actionNew;
     QAction *m_actionDelete;
     QString m_filter;
+    QWidget *m_filterWidget;
 };
 
 } // namespace qdesigner_internal

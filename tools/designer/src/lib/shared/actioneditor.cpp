@@ -14,9 +14,12 @@
 #include "actioneditor_p.h"
 #include "actionrepository_p.h"
 #include "iconloader_p.h"
+#include "newactiondialog_p.h"
+#include "qdesigner_menu_p.h"
 
 #include <QtDesigner/QtDesigner>
 
+#include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QListWidget>
 #include <QtGui/QToolBar>
@@ -26,6 +29,8 @@
 #include <QtGui/QPainter>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QLineEdit>
+
+#include <qdebug.h>
 
 Q_DECLARE_METATYPE(QAction*)
 Q_DECLARE_METATYPE(QListWidgetItem*)
@@ -89,11 +94,17 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
 
     m_actionNew = toolbar->addAction(tr("New..."));
     m_actionNew->setIcon(createIconSet("filenew.png"));
-    connect(m_actionNew, SIGNAL(triggered()), this, SLOT(slotNotImplemented()));
+    m_actionNew->setEnabled(false);
+    connect(m_actionNew, SIGNAL(triggered()), this, SLOT(slotNewAction()));
 
     m_actionDelete = toolbar->addAction(tr("Delete"));
     m_actionDelete->setIcon(createIconSet("editdelete.png"));
-    toolbar->addWidget(new ActionFilterWidget(this, toolbar));
+    m_actionDelete->setEnabled(false);
+
+    m_filterWidget = new ActionFilterWidget(this, toolbar);
+    m_filterWidget->setEnabled(false);
+    toolbar->addWidget(m_filterWidget);
+
     connect(m_actionDelete, SIGNAL(triggered()), this, SLOT(slotNotImplemented()));
 
     splitter = new QSplitter(Qt::Horizontal, this);
@@ -134,36 +145,59 @@ QAction *ActionEditor::actionDelete() const
     return m_actionDelete;
 }
 
+QDesignerFormWindowInterface *ActionEditor::formWindow() const
+{
+    return m_formWindow;
+}
+
 void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
 {
+    m_formWindow = formWindow;
+
     m_actionRepository->clear();
 
-    if (!formWindow || !formWindow->mainContainer())
+    if (!formWindow || !formWindow->mainContainer()) {
+        m_actionNew->setEnabled(false);
+        m_actionDelete->setEnabled(false);
+        m_filterWidget->setEnabled(false);
         return;
+    }
+
+    m_actionNew->setEnabled(true);
+    m_actionDelete->setEnabled(true);
+    m_filterWidget->setEnabled(true);
 
     QList<QAction*> actionList = qFindChildren<QAction*>(formWindow->mainContainer());
     foreach (QAction *action, actionList) {
         if (!core()->metaDataBase()->item(action)
             || action->isSeparator()
-            || action->menu())
+            // ### || action->menu()
+            )
             continue;
 
-        QListWidgetItem *item = new QListWidgetItem(m_actionRepository);
-        item->setText(action->objectName());
-        item->setIcon(action->icon());
-
-        QVariant itemData;
-        qVariantSetValue(itemData, action);
-        item->setData(ActionRepository::ActionRole, itemData);
-
-        QVariant actionData;
-        qVariantSetValue(actionData, item);
-        action->setData(actionData);
-
-        connect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
+        createListWidgetItem(action);
     }
 
     setFilter(m_filter);
+}
+
+QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
+{
+    QListWidgetItem *item = new QListWidgetItem(m_actionRepository);
+    item->setText(action->objectName());
+    item->setIcon(action->icon());
+
+    QVariant itemData;
+    qVariantSetValue(itemData, action);
+    item->setData(ActionRepository::ActionRole, itemData);
+
+    QVariant actionData;
+    qVariantSetValue(actionData, item);
+    action->setData(actionData);
+
+    connect(action, SIGNAL(changed()), this, SLOT(slotActionChanged()));
+
+    return item;
 }
 
 void ActionEditor::slotItemChanged(QListWidgetItem *item)
@@ -208,6 +242,31 @@ void ActionEditor::setFilter(const QString &f)
 
 void ActionEditor::slotNewAction()
 {
+    NewActionDialog dlg(this);
+
+    if (dlg.exec() == QDialog::Accepted) {
+        QWidget *form = formWindow()->mainContainer();
+
+        QAction *action = new QAction(form);
+        action->setObjectName(dlg.actionName());
+        action->setText(dlg.actionText());
+
+        if (dlg.isMenuAction()) {
+            action->setMenu(new QDesignerMenu(form));
+        }
+
+        core()->metaDataBase()->add(action);
+
+        QDesignerPropertySheetExtension *sheet = 0;
+        sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), action);
+        sheet->setChanged(sheet->indexOf("objectName"), true);
+        sheet->setChanged(sheet->indexOf("text"), true);
+
+        // formWindow()->emitSelectionChanged();
+        QListWidgetItem *item = createListWidgetItem(action);
+        m_actionRepository->setItemSelected(item, true);
+        core()->propertyEditor()->setObject(action);
+    }
 }
 
 void ActionEditor::slotDeleteAction()
