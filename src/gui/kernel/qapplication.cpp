@@ -2394,17 +2394,13 @@ void QApplication::commitData(QSessionManager& manager )
         bool cancelled = false;
         for (int i = 0; !cancelled && i < list.size(); ++i) {
             QWidget* w = list.at(i);
-            if (w->isVisible()) {
-                QCloseEvent e;
-                sendEvent(w, &e);
-                cancelled = !e.isAccepted();
+            if (w->isVisible() && !done.contains(w)) {
+                cancelled = !w->close();
                 if (!cancelled)
                     done.append(w);
                 list = QApplication::topLevelWidgets();
                 i = -1;
             }
-            while (i < list.size()-1 && done.contains(list.at(i-1)))
-                ++i;
         }
         if (cancelled)
             manager.cancel();
