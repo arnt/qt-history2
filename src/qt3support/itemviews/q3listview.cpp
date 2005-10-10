@@ -2112,8 +2112,8 @@ void Q3ListViewItem::paintCell(QPainter * p, const QColorGroup & cg,
 #endif
     if (isSelected() &&
          (column == 0 || lv->allColumnsShowFocus())) {
-        p->fillRect(r - marg, 0, width - r + marg, height(),
-                     pal.brush(QPalette::Highlight));
+        p->fillRect(r - marg, 0, qMax(0, width - r + marg), height(),
+                    pal.brush(QPalette::Highlight));
         if (enabled || !lv)
             p->setPen(pal.highlightedText().color());
         else if (!enabled && lv)
