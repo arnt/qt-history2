@@ -116,13 +116,18 @@ private:
     QMultiMap<QString, QString> contents;
 };
 
+bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
+{
+    return s1.toLower() < s2.toLower();
+}
+
 /**
  * \a real is kinda a hack for the smart search, need a way to match a regexp to an item
  * How would you say the best match for Q.*Wiget is QWidget?
  */
 QModelIndex IndexListModel::filter(const QString &s, const QString &real)
 {
-    QStringList lst;
+    QStringList list;
 
     int goodMatch = -1;
     int perfectMatch = -1;
@@ -137,18 +142,20 @@ QModelIndex IndexListModel::filter(const QString &s, const QString &real)
 
         const QString key = keys.at(i);
         if (key.contains(regExp) || key.contains(s, Qt::CaseInsensitive)) {
-            lst.append(key);
+            list.append(key);
             //qDebug() << regExp << regExp.indexIn(s) << s << key << regExp.matchedLength();
             if (perfectMatch == -1 && (key.startsWith(real, Qt::CaseInsensitive))) {
                 if (goodMatch == -1)
-                    goodMatch = lst.count() - 1;
+                    goodMatch = list.count() - 1;
                 if (s.length() == key.length())
-                    perfectMatch = lst.count() - 1;
+                    perfectMatch = list.count() - 1;
             }
         }
     }
-    setStringList(lst);
 
+    qSort(list.begin(), list.end(), caseInsensitiveLessThan);
+    setStringList(list);
+    
     int bestMatch = perfectMatch;
     if (bestMatch == -1)
         bestMatch = goodMatch;
