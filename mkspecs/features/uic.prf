@@ -36,9 +36,13 @@ isEmpty(UI_HEADERS_DIR):UI_HEADERS_DIR = $$UI_DIR
 INCLUDEPATH += $$UI_HEADERS_DIR
 
 uic3 {
-    isEmpty(FORMS3): UIC3_FORMS = FORMS
-    else:            UIC3_FORMS = FORMS3
-
+    isEmpty(FORMS3) {
+        UIC3_FORMS = FORMS
+        !build_pass:message("Project contains CONFIG+=uic3, but no files in FORMS3; .ui files in FORMS treated as UIC3 form files.")
+    } else {
+        UIC3_FORMS = FORMS3
+    }
+    
     uic3_decl.commands = $$QMAKE_UIC3 ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
     uic3_decl.dependency_type = TYPE_UI
     uic3_decl.output = $$UI_HEADERS_DIR/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
