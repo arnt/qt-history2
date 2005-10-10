@@ -6413,6 +6413,9 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
     if (newParent) {
         QEvent e(QEvent::ParentAboutToChange);
         QApplication::sendEvent(this, &e);
+
+        if (isAncestorOf(focusWidget()))
+            focusWidget()->clearFocus();
     }
 
     d->setParent_sys(parent, f);
