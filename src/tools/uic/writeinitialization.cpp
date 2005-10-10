@@ -250,14 +250,23 @@ void WriteInitialization::acceptWidget(DomWidget *node)
         output << option.indent << parentWidget << "->addWidget(" << varName << ", " << id << ");\n";
     } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QDockWidget"))) {
         output << option.indent << parentWidget << "->setWidget(" << varName << ");\n";
+    } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QSplitter"))) {
+        output << option.indent << parentWidget << "->addWidget(" << varName << ");\n";
     } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QToolBox"))) {
-        output << option.indent << parentWidget << "->addItem(" << varName << ", " << trCall(label) << ");\n";
+        QString icon;
+        if (DomProperty *picon = attributes.value(QLatin1String("icon"))) {
+            icon += QLatin1String(", ") + pixCall(picon);
+        }
+
+        output << option.indent << parentWidget << "->addItem(" << varName << icon << ", " << trCall(label) << ");\n";
 
         refreshOut << option.indent << parentWidget << "->setItemText("
                    << parentWidget << "->indexOf(" << varName << "), " << trCall(label) << ");\n";
 
-    } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QSplitter"))) {
-        output << option.indent << parentWidget << "->addWidget(" << varName << ");\n";
+        if (DomProperty *ptoolTip = attributes.value(QLatin1String("toolTip"))) {
+            refreshOut << option.indent << parentWidget << "->setItemToolTip("
+                       << parentWidget << "->indexOf(" << varName << "), " << trCall(ptoolTip->elementString()) << ");\n";
+        }
     } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QTabWidget"))) {
         QString icon;
         if (DomProperty *picon = attributes.value(QLatin1String("icon"))) {
@@ -273,7 +282,6 @@ void WriteInitialization::acceptWidget(DomWidget *node)
             refreshOut << option.indent << parentWidget << "->setTabToolTip("
                        << parentWidget << "->indexOf(" << varName << "), " << trCall(ptoolTip->elementString()) << ");\n";
         }
-
     } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3Wizard"))) {
         output << option.indent << parentWidget << "->addPage(" << varName << ", " << trCall(title) << ");\n";
 
