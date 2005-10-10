@@ -20,6 +20,8 @@ QT_MODULE(Gui)
 
 #if !defined(QT_NO_STYLE_WINDOWS)
 
+class QWindowsStylePrivate;
+
 class Q_GUI_EXPORT QWindowsStyle : public QCommonStyle
 {
     Q_OBJECT
@@ -52,12 +54,15 @@ public:
 
     QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
                            const QWidget *widget = 0) const;
+protected:
+    bool eventFilter(QObject *o, QEvent *e);
+    void timerEvent(QTimerEvent *event);
+    QWindowsStyle(QWindowsStylePrivate &dd);
 
 private:
     Q_DISABLE_COPY(QWindowsStyle)
-
-    class Private;
-    Private *d;
+    Q_DECLARE_PRIVATE(QWindowsStyle)
+    void *reserved;
 };
 
 #endif // QT_NO_STYLE_WINDOWS

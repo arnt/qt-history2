@@ -18,6 +18,7 @@
 #include "qbitmap.h"
 #include "qpixmapcache.h"
 #include "qstyleoption.h"
+#include "private/qstyle_p.h"
 #ifndef QT_NO_DEBUG
 #include "qdebug.h"
 #endif
@@ -244,6 +245,15 @@
     Constructs a style object.
 */
 QStyle::QStyle()
+{
+}
+
+
+/*!
+    Constructs a style object.
+*/
+QStyle::QStyle(QStylePrivate &dd)
+    : QObject(dd)
 {
 }
 

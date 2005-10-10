@@ -37,7 +37,9 @@ public:
 
     void polish(QPalette&);
     void polish(QWidget*);
+    void unpolish(QWidget*);
     void polish(QApplication*);
+    void unpolish(QApplication*);
 
     void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                         const QWidget *w = 0) const;
@@ -66,11 +68,16 @@ public:
                   QStyleHintReturn *returnData = 0) const;
 
     bool event(QEvent *);
-
     QPalette standardPalette() const;
+
 protected:
     QPointer<QFocusFrame> focus;
+    QMotifStyle(QMotifStylePrivate &dd, bool useHighlightCols = false);
+    void timerEvent(QTimerEvent *event);
+    bool eventFilter(QObject *o, QEvent *e);
+
 private:
+    Q_DECLARE_PRIVATE(QMotifStyle)
     Q_DISABLE_COPY(QMotifStyle)
 
     bool highlightCols;

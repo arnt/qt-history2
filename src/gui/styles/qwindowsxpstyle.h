@@ -60,10 +60,10 @@ protected Q_SLOTS:
 
 private:
     Q_DISABLE_COPY(QWindowsXPStyle)
-
+    Q_DECLARE_PRIVATE(QWindowsXPStyle)
     friend class QStyleFactory;
     friend class QWindowsXPStylePrivate;
-    QWindowsXPStylePrivate *dd;
+    void *reserved;
 };
 
 #endif // QT_NO_STYLE_WINDOWSXP

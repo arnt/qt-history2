@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qwindowsstyle.h"
+#include "qwindowsstyle_p.h"
 
 #if !defined(QT_NO_STYLE_WINDOWS) || defined(QT_PLUGIN)
 
@@ -23,6 +24,7 @@
 #include "qmenubar.h"
 #include "qpaintengine.h"
 #include "qpainter.h"
+#include "qprogressbar.h"
 #include "qrubberband.h"
 #include "qstyleoption.h"
 #include "qtabbar.h"
@@ -50,45 +52,48 @@ static bool use2000style = true;
 
 enum QSliderDirection { SlUp, SlDown, SlLeft, SlRight };
 
-// Private class
-class QWindowsStyle::Private : public QObject
-{
-public:
-    Private(QWindowsStyle *parent);
-
-    bool hasSeenAlt(const QWidget *widget) const;
-    bool altDown() const { return alt_down; }
-
-protected:
-    bool eventFilter(QObject *o, QEvent *e);
-
-private:
-    QList<const QWidget *> seenAlt;
-    bool alt_down;
-    int menuBarTimer;
-};
-
-QWindowsStyle::Private::Private(QWindowsStyle *parent)
-    : QObject(parent),
-      alt_down(false), menuBarTimer(0)
+/* 
+    \internal
+*/
+QWindowsStylePrivate::QWindowsStylePrivate()
+    : alt_down(false), menuBarTimer(0), animationFps(10), animateTimer(0), animateStep(0) 
 {
 }
 
 // Returns true if the toplevel parent of \a widget has seen the Alt-key
-bool QWindowsStyle::Private::hasSeenAlt(const QWidget *widget) const
+bool QWindowsStylePrivate::hasSeenAlt(const QWidget *widget) const
 {
     widget = widget->window();
     return seenAlt.contains(widget);
 }
 
+/*!
+    \reimp
+*/
+void QWindowsStyle::timerEvent(QTimerEvent *event)
+{
+#ifndef QT_NO_PROGRESSBAR
+    Q_D(QWindowsStyle);
+    if (event->timerId() == d->animateTimer) {
+        Q_ASSERT(d->animationFps> 0);
+        d->animateStep = d->startTime.elapsed() / (1000 / d->animationFps);
+        foreach (QProgressBar *bar, d->bars) {
+            if ((bar->minimum() == 0 && bar->maximum() == 0))
+                bar->update();
+        }
+    }
+#endif // QT_NO_PROGRESSBAR
+    event->ignore();
+}
+
 // Records Alt- and Focus events
-bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
+bool QWindowsStyle::eventFilter(QObject *o, QEvent *e)
 {
     if (!o->isWidgetType())
         return QObject::eventFilter(o, e);
 
     QWidget *widget = ::qobject_cast<QWidget*>(o);
-
+    Q_D(QWindowsStyle);
     switch(e->type()) {
     case QEvent::KeyPress:
         if (static_cast<QKeyEvent *>(e)->key() == Qt::Key_Alt) {
@@ -96,18 +101,18 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 
             // Alt has been pressed - find all widgets that care
             QList<QWidget *> l = qFindChildren<QWidget *>(widget);
-            for (int pos=0; pos<l.size(); ++pos) {
+            for (int pos=0 ; pos < l.size() ; ++pos) {
                 QWidget *w = l.at(pos);
                 if (w->isWindow() || !w->isVisible() ||
                     w->style()->styleHint(SH_UnderlineShortcut, 0, w))
                     l.removeAt(pos);
             }
             // Update states before repainting
-            seenAlt.append(widget);
-            alt_down = true;
+            d->seenAlt.append(widget);
+            d->alt_down = true;
 
             // Repaint all relevant widgets
-            for (int pos = 0; pos<l.size(); ++pos)
+            for (int pos = 0; pos < l.size(); ++pos)
                 l.at(pos)->repaint();
         }
         break;
@@ -116,7 +121,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 	    widget = widget->window();
 
 	    // Update state and repaint the menubars.
-	    alt_down = false;
+	    d->alt_down = false;
 #ifndef QT_NO_MENUBAR
             QList<QMenuBar *> l = qFindChildren<QMenuBar *>(widget);
             for (int i = 0; i < l.size(); ++i)
@@ -126,14 +131,32 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 	break;
     case QEvent::Close:
         // Reset widget when closing
-        seenAlt.removeAll(widget);
-        seenAlt.removeAll(widget->window());
+        d->seenAlt.removeAll(widget);
+        d->seenAlt.removeAll(widget->window());
         break;
+    case QEvent::StyleChange:
+    case QEvent::Show:
+        if (QProgressBar *bar = qobject_cast<QProgressBar *>(o)) {
+            d->bars << bar;
+            if (d->bars.size() == 1) {
+                Q_ASSERT(d->animationFps> 0);
+                d->animateTimer = startTimer(1000 / d->animationFps);
+            }
+        }
+        break;
+    case QEvent::Hide:
+    case QEvent::Destroy:
+        if (QProgressBar *bar = qobject_cast<QProgressBar *>(o)) {
+            d->bars.removeAll(bar);
+            if (d->bars.isEmpty()) {
+                killTimer(d->animateTimer);
+                d->animateTimer = 0;
+            }
+        }
     default:
         break;
     }
-
-    return QObject::eventFilter(o, e);
+    return QCommonStyle::eventFilter(o, e);
 }
 
 /*!
@@ -151,34 +174,42 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 /*!
     Constructs a QWindowsStyle object.
 */
-QWindowsStyle::QWindowsStyle() : QCommonStyle(), d(0)
+QWindowsStyle::QWindowsStyle() : QCommonStyle(*new QWindowsStylePrivate)
 {
 #if defined(Q_OS_WIN32)
     use2000style = QSysInfo::WindowsVersion != QSysInfo::WV_NT && QSysInfo::WindowsVersion != QSysInfo::WV_95;
 #endif
 }
 
+/*!
+    Constructs a QWindowsStyle object.
+*/
+QWindowsStyle::QWindowsStyle(QWindowsStylePrivate &dd) : QCommonStyle(dd)
+{
+#if defined(Q_OS_WIN32)
+    use2000style = QSysInfo::WindowsVersion != QSysInfo::WV_NT && QSysInfo::WindowsVersion != QSysInfo::WV_95;
+#endif
+}
+
+
 /*! Destroys the QWindowsStyle object. */
 QWindowsStyle::~QWindowsStyle()
 {
-    delete d;
 }
 
 /*! \reimp */
 void QWindowsStyle::polish(QApplication *app)
 {
+    Q_D(QWindowsStyle);
     // We only need the overhead when shortcuts are sometimes hidden
-    if (!styleHint(SH_UnderlineShortcut, 0) && app) {
-        d = new Private(this);
-        app->installEventFilter(d);
-    }
+    if (!styleHint(SH_UnderlineShortcut, 0) && app)
+        app->installEventFilter(this);
 }
 
 /*! \reimp */
-void QWindowsStyle::unpolish(QApplication *)
+void QWindowsStyle::unpolish(QApplication *app)
 {
-    delete d;
-    d = 0;
+    app->removeEventFilter(this);
 }
 
 /*! \reimp */
@@ -191,17 +222,25 @@ void QWindowsStyle::polish(QWidget *widget)
         widget->setAttribute(Qt::WA_PaintOnScreen);
     }
 #endif
+#ifndef QT_NO_PROGRESSBAR
+    if (qobject_cast<QProgressBar *>(widget))
+        widget->installEventFilter(this);
+#endif
 }
 
 /*! \reimp */
 void QWindowsStyle::unpolish(QWidget *widget)
 {
-    QCommonStyle::polish(widget);
+    QCommonStyle::unpolish(widget);
 #ifndef QT_NO_RUBBERBAND
     if (qobject_cast<QRubberBand*>(widget)) {
         widget->setWindowOpacity(1.0);
         widget->setAttribute(Qt::WA_PaintOnScreen, false);
     }
+#endif
+#ifndef QT_NO_PROGRESSBAR
+    if (qobject_cast<QProgressBar *>(widget))
+        widget->removeEventFilter(this);
 #endif
 }
 
@@ -879,6 +918,7 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
             SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, &cues, 0);
             ret = int(cues);
             // Do nothing if we always paint underlines
+            Q_D(const QWindowsStyle);
             if (!ret && widget && d) {
 #ifndef QT_NO_MENUBAR
                 const QMenuBar *menuBar = ::qobject_cast<const QMenuBar*>(widget);
@@ -1935,6 +1975,97 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             }
         }
         break;
+
+
+#ifndef QT_NO_PROGRESSBAR
+    case CE_ProgressBarContents:
+        if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
+
+            QRect rect = pb->rect;
+            bool vertical = false;
+            bool inverted = false;
+
+            // Get extra style options if version 2
+            const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt);
+            if (pb2) {
+                vertical = (pb2->orientation == Qt::Vertical);
+                inverted = pb2->invertedAppearance;
+            }
+            QMatrix m;
+            if (vertical) {
+                rect = QRect(rect.left(), rect.top(), rect.height(), rect.width()); // flip width and height
+                m.translate(rect.height(), 0.0);
+                m.rotate(90);
+            }
+            QPalette pal2 = pb->palette;
+            // Correct the highlight color if it is the same as the background
+            if (pal2.highlight() == pal2.background())
+                pal2.setColor(QPalette::Highlight, pb->palette.color(QPalette::Active,
+                                                                     QPalette::Highlight));
+            bool reverse = ((!vertical && (pb->direction == Qt::RightToLeft)) || vertical);
+            if (inverted)
+                reverse = !reverse;
+            int fw = 2;
+            int w = rect.width() - 2 * fw;
+            if (pb->minimum == 0 && pb->maximum == 0) {
+                Q_D(const QWindowsStyle);
+                const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, pb, widget);
+                QStyleOptionProgressBarV2 pbBits = *pb;
+                Q_ASSERT(unit_width >0);
+
+                pbBits.rect = rect;
+                pbBits.palette = pal2;
+
+                int chunkCount = w / unit_width + 1;
+                int step = d->animateStep%chunkCount;
+                int margin = 3;
+                int chunksInRow = 5;
+                int myY = pbBits.rect.y();
+                int myHeight = pbBits.rect.height();
+                int chunksToDraw = chunksInRow;
+
+                if(step > chunkCount - 5)chunksToDraw = (chunkCount - step);
+                QRegion prevClip = p->clipRegion(); //save state
+                QRect clip = rect;
+                clip.setLeft(clip.left() + margin);
+                clip.setRight(clip.right() - margin);
+                QRegion intersection = prevClip.intersect(clip);     
+                
+                int x0 = reverse ? rect.right() - unit_width*(step) - unit_width  : margin + unit_width * step;
+                int x = 0;
+            
+                //Make sure the cliprect is also rotated if vertical
+                if(vertical)clip = m.mapRect(clip);
+
+                if(!prevClip.isNull())p->setClipRegion(intersection);
+                else p->setClipRect(clip);
+
+                for (int i = 0; i < chunksToDraw ; ++i) {
+                    pbBits.rect.setRect(x0 + x, myY, unit_width, myHeight);
+                    pbBits.rect = m.mapRect(pbBits.rect);
+                    drawPrimitive(PE_IndicatorProgressChunk, &pbBits, p, widget);
+                    x += reverse ? -unit_width : unit_width;
+                }
+                //Draw wrap-around chunks
+                if( step > chunkCount-5){ 
+                    x0 = reverse ? rect.right() - unit_width : margin ;
+                    x = 0;
+                    int chunksToDraw = step - (chunkCount - chunksInRow);
+                    for (int i = 0; i < chunksToDraw ; ++i) {
+                        pbBits.rect.setRect(x0 + x, myY, unit_width, myHeight);
+                        pbBits.rect = m.mapRect(pbBits.rect);
+                        drawPrimitive(PE_IndicatorProgressChunk, &pbBits, p, widget);
+                        x += reverse ? -unit_width : unit_width;
+                    }
+                }
+                p->setClipRegion(prevClip); //restore state
+            } 
+            else {
+                QCommonStyle::drawControl(ce, opt, p, widget);
+            }
+        }
+        break;
+#endif // QT_NO_PROGRESSBAR
 #endif // QT_NO_TOOLBAR
     default:
         QCommonStyle::drawControl(ce, opt, p, widget);

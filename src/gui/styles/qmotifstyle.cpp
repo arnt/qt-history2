@@ -36,6 +36,7 @@
 #include "qfocusframe.h"
 #include "qdebug.h"
 #include "qpainterpath.h"
+#include "qmotifstyle_p.h"
 #include <limits.h>
 
 #ifdef Q_WS_X11
@@ -81,11 +82,21 @@ static const int motifCheckMarkSpace    = 12;
   highlighting, which is a simple inversion between the base and the
   text color.
 */
-QMotifStyle::QMotifStyle(bool useHighlightCols) : QCommonStyle()
+QMotifStyle::QMotifStyle(bool useHighlightCols)
+    : QCommonStyle(*new QMotifStylePrivate)
 {
     focus = 0;
     highlightCols = useHighlightCols;
 }
+
+
+QMotifStyle::QMotifStyle(QMotifStylePrivate &dd, bool useHighlightColors) 
+    : QCommonStyle(dd)
+{ 
+    focus = 0;
+    highlightCols = useHighlightColors;
+}
+
 
 /*!
   \overload
@@ -95,6 +106,65 @@ QMotifStyle::QMotifStyle(bool useHighlightCols) : QCommonStyle()
 QMotifStyle::~QMotifStyle()
 {
     delete focus;
+}
+
+/*
+Animate indeterminate progressbars only when visible
+*/
+bool QMotifStyle::eventFilter(QObject *o, QEvent *e)
+{
+    Q_D(QMotifStyle);
+    switch(e->type()) {
+    case QEvent::StyleChange:
+    case QEvent::Show:
+        if (QProgressBar *bar = qobject_cast<QProgressBar *>(o)) {
+            d->bars << bar;
+            if (d->bars.size() == 1) {
+                Q_ASSERT(d->animationFps> 0);
+                d->animateTimer = startTimer(1000 / d->animationFps);
+            }
+        }
+        break;
+    case QEvent::Destroy:
+    case QEvent::Hide:
+        if (QProgressBar *bar = qobject_cast<QProgressBar *>(o)) {
+            d->bars.removeAll(bar);
+            if (d->bars.isEmpty()) {
+                killTimer(d->animateTimer);
+                d->animateTimer = 0;
+            }
+        }
+    default:
+        break;
+    }
+    return QStyle::eventFilter(o, e);
+}
+
+
+
+/*!
+    \reimp
+*/
+void QMotifStyle::timerEvent(QTimerEvent *event)
+{
+    Q_D(QMotifStyle);
+#ifndef QT_NO_PROGRESSBAR
+    if (event->timerId() == d->animateTimer) {
+        Q_ASSERT(d->animationFps > 0);
+        d->animateStep = d->startTime.elapsed() / (1000 / d->animationFps);
+        foreach (QProgressBar *bar, d->bars) {
+            if ((bar->minimum() == 0 && bar->maximum() == 0))
+                bar->update();
+        }
+    }
+#endif // QT_NO_PROGRESSBAR
+    event->ignore();
+}
+
+
+QMotifStylePrivate::QMotifStylePrivate()
+    : animationFps(25), animateTimer(0), animateStep(0)
+{
 }
 
 /*!
@@ -158,10 +228,25 @@ void QMotifStyle::polish(QPalette& pal)
   \internal
   Keep QStyle::polish() visible.
 */
-void QMotifStyle::polish(QWidget* w)
+void QMotifStyle::polish(QWidget* widget)
 {
-    QStyle::polish(w);
+    QStyle::polish(widget);
+    if (qobject_cast<QProgressBar *>(widget))
+        widget->installEventFilter(this);
 }
+
+/*!
+  \reimp
+  \internal
+  Keep QStyle::polish() visible.
+*/
+void QMotifStyle::unpolish(QWidget* widget)
+{
+    QCommonStyle::unpolish(widget);
+    if (qobject_cast<QProgressBar *>(widget))
+        widget->removeEventFilter(this);   
+}
+
 
 /*!
   \reimp
@@ -170,7 +255,18 @@ void QMotifStyle::polish(QWidget* w)
 */
 void QMotifStyle::polish(QApplication* a)
 {
-    QStyle::polish(a);
+    QCommonStyle::polish(a);
+}
+
+
+/*!
+  \reimp
+  \internal
+  Keep QStyle::polish() visible.
+*/
+void QMotifStyle::unpolish(QApplication* a)
+{
+    QCommonStyle::unpolish(a);
 }
 
 static void rot(QPolygon& a, int n)
@@ -1123,6 +1219,54 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
         p->restore();
         }
         break;
+#ifndef QT_NO_PROGRESSBAR
+    case CE_ProgressBarContents:
+        if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
+            QRect rect = pb->rect;
+            bool vertical = false;
+            bool inverted = false;
+
+            // Get extra style options if version 2
+            const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt);
+            if (pb2) {
+                vertical = (pb2->orientation == Qt::Vertical);
+                inverted = pb2->invertedAppearance;
+            }
+
+            QMatrix m;
+            if (vertical) {
+                rect = QRect(rect.left(), rect.top(), rect.height(), rect.width()); // flip width and height
+                m.translate(rect.height(), 0.0);
+                m.rotate(90);
+            }
+
+            QPalette pal2 = pb->palette;
+            // Correct the highlight color if it is the same as the background
+            if (pal2.highlight() == pal2.background())
+                pal2.setColor(QPalette::Highlight, pb->palette.color(QPalette::Active,
+                                                                     QPalette::Highlight));
+            bool reverse = ((!vertical && (pb->direction == Qt::RightToLeft)) || vertical);
+            if (inverted)
+                reverse = !reverse;
+            int fw = 2;
+            int w = rect.width() - 2 * fw;
+            if (pb->minimum == 0 && pb->maximum == 0) {
+                QRect progressBar;
+                Q_D(const QMotifStyle);
+                 // draw busy indicator
+                 int x = (d->animateStep*8)% (w * 2);
+                 if (x > w)
+                     x = 2 * w - x;
+                 x = reverse ? rect.right() - x : x + rect.x();
+                 p->setMatrix(m);
+                 p->setPen(QPen(pal2.highlight().color(), 4));
+                 p->drawLine(x, rect.y() + 1, x, rect.height() - fw);
+   
+            } else 
+                QCommonStyle::drawControl(element, opt, p, widget);
+        }           
+        break;
+#endif // QT_NO_PROGRESSBAR
     default:
         QCommonStyle::drawControl(element, opt, p, widget);
         break; }
@@ -2348,7 +2492,7 @@ bool QMotifStyle::event(QEvent *e)
         if(focus)
             focus->setWidget(0);
     }
-    return false;
+    return  QCommonStyle::event(e);
 }
 
 

@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qcommonstyle.h"
+#include "qcommonstyle_p.h"
 
 #include <qapplication.h>
 #include <qbitmap.h>
@@ -57,7 +58,13 @@
     Constructs a QCommonStyle.
 */
 QCommonStyle::QCommonStyle()
-    : QStyle()
+    : QStyle(*new QCommonStylePrivate)
+{ }
+
+/* \internal 
+*/
+QCommonStyle::QCommonStyle(QCommonStylePrivate &dd)
+    : QStyle(dd)
 { }
 
 /*!

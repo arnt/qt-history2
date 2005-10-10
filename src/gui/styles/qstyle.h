@@ -20,6 +20,7 @@
 #include <QtGui/qicon.h>
 #include <QtGui/qpixmap.h>
 #include <QtGui/qpalette.h>
+#include <QtCore/qobject.h>
 
 QT_MODULE(Gui)
 
@@ -27,13 +28,18 @@ class QAction;
 class QDebug;
 class QTab;
 class QFontMetrics;
-
 class QStyleHintReturn;
 class QStyleOption;
 class QStyleOptionComplex;
+class QStylePrivate;
+
 class Q_GUI_EXPORT QStyle : public QObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QStyle)
+
+protected:
+    QStyle(QStylePrivate &dd);
 
 public:
     QStyle();
