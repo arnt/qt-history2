@@ -62,10 +62,13 @@ private slots:
     void changeToolTip();
     void changeStatusTip();
     void changeWhatsThis();
+    void createMenuBar();
+    void addToolBar();
 
 private:
     QPointer<QWidget> m_widget;
     QAction *m_separator;
+    QAction *m_separator2;
     QAction *m_changeObjectNameAction;
     QAction *m_changeToolTip;
     QAction *m_changeStatusTip;
@@ -73,6 +76,9 @@ private:
     QAction *m_createDockWidgetAction;
     QAction *m_promoteToCustomWidgetAction;
     QAction *m_demoteFromCustomWidgetAction;
+
+    QAction *m_addMenuBar;
+    QAction *m_addToolBar;
 };
 
 class QDESIGNER_SHARED_EXPORT QDesignerTaskMenuFactory: public QExtensionFactory

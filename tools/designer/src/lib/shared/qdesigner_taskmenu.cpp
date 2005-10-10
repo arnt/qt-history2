@@ -28,7 +28,9 @@
 #include <QtDesigner/QDesignerLayoutDecorationExtension>
 
 #include <QtGui/QAction>
+#include <QtGui/QToolBar>
 #include <QtGui/QWidget>
+#include <QtGui/QMenuBar>
 #include <QtGui/QInputDialog>
 #include <QtGui/QMainWindow>
 #include <QtGui/QDockWidget>
@@ -38,12 +40,28 @@
 
 namespace qdesigner_internal {
 
+static QMenuBar *findMenuBar(const QWidget *widget)
+{
+    QList<QObject*> children = widget->children();
+    foreach (QObject *obj, widget->children()) {
+        if (QMenuBar *mb = qobject_cast<QMenuBar*>(obj)) {
+            return mb;
+        }
+    }
+
+    return 0;
+}
+
 QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     : QObject(parent),
       m_widget(widget)
 {
     m_separator = new QAction(this);
     m_separator->setSeparator(true);
+
+    m_separator2 = new QAction(this);
+    m_separator2->setSeparator(true);
+
 
     m_changeObjectNameAction = new QAction(tr("Change objectName..."), this);
     connect(m_changeObjectNameAction, SIGNAL(triggered()), this, SLOT(changeObjectName()));
@@ -56,6 +74,12 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
 
     m_changeWhatsThis = new QAction(tr("Change whatsThis..."), this);
     connect(m_changeWhatsThis, SIGNAL(triggered()), this, SLOT(changeWhatsThis()));
+
+    m_addMenuBar = new QAction(tr("Create Menu Bar"), this);
+    connect(m_addMenuBar, SIGNAL(triggered()), this, SLOT(createMenuBar()));
+
+    m_addToolBar = new QAction(tr("Add Tool Bar"), this);
+    connect(m_addToolBar, SIGNAL(triggered()), this, SLOT(addToolBar()));
 
     m_createDockWidgetAction = new QAction(tr("Create Dock Window"), this);
     connect(m_createDockWidgetAction, SIGNAL(triggered()), this, SLOT(createDockWidget()));
@@ -87,6 +111,44 @@ QDesignerFormWindowInterface *QDesignerTaskMenu::formWindow() const
     return result;
 }
 
+void QDesignerTaskMenu::createMenuBar()
+{
+    if (QDesignerFormWindowInterface *fw = formWindow()) {
+        QMainWindow *mw = qobject_cast<QMainWindow*>(fw->mainContainer());
+        if (!mw) {
+            // ### warning message
+            return;
+        }
+
+        QDesignerFormEditorInterface *core = fw->core();
+        QMenuBar *mb = qobject_cast<QMenuBar*>(core->widgetFactory()->createWidget("QMenuBar", mw));
+        core->metaDataBase()->add(mb);
+
+        QDesignerContainerExtension *c;
+        c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), mw);
+        c->addWidget(mb);
+    }
+}
+
+void QDesignerTaskMenu::addToolBar()
+{
+    if (QDesignerFormWindowInterface *fw = formWindow()) {
+        QMainWindow *mw = qobject_cast<QMainWindow*>(fw->mainContainer());
+        if (!mw) {
+            // ### warning message
+            return;
+        }
+
+        QDesignerFormEditorInterface *core = fw->core();
+        QToolBar *tb = qobject_cast<QToolBar*>(core->widgetFactory()->createWidget("QToolBar", mw));
+        core->metaDataBase()->add(tb);
+
+        QDesignerContainerExtension *c;
+        c = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), mw);
+        c->addWidget(tb);
+    }
+}
+
 QList<QAction*> QDesignerTaskMenu::taskActions() const
 {
     QDesignerFormWindowInterface *formWindow = QDesignerFormWindowInterface::findFormWindow(widget());
@@ -94,15 +156,21 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
 
     QList<QAction*> actions;
 
+    if (const QMainWindow *mw = qobject_cast<const QMainWindow*>(formWindow->mainContainer())) {
+        if (!findMenuBar(mw)) {
+            actions.append(m_addMenuBar);
+        }
+        actions.append(m_addToolBar);
+        // ### create the status bar
+#if 0
+        actions.append(m_createDockWidgetAction);
+#endif
+        actions.append(m_separator2);
+    }
     actions.append(m_changeObjectNameAction);
     actions.append(m_separator);
     actions.append(m_changeToolTip);
     actions.append(m_changeWhatsThis);
-
-#if 0
-    if (qobject_cast<const QMainWindow*>(formWindow->mainContainer()) != 0 && qobject_cast<QDockWidget*>(widget()) == 0)
-        actions.append(m_createDockWidgetAction);
-#endif
 
     if (static_cast<void*>(m_widget) != static_cast<void*>(formWindow)) {
         actions.append(m_separator);
