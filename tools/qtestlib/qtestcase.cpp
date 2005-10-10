@@ -643,7 +643,7 @@ int qt_snprintf(char *str, int size, const char *format, ...)
 bool Q_TESTLIB_EXPORT defaultKeyVerbose()
 {
     if (keyVerbose == -1) {
-        keyVerbose = ::getenv("QTEST_KEYEVENT_VERBOSE") ? 1 : 0;
+        keyVerbose = ::qgetenv("QTEST_KEYEVENT_VERBOSE").constData() ? 1 : 0;
     }
     return keyVerbose == 1;
 }
@@ -651,8 +651,8 @@ bool Q_TESTLIB_EXPORT defaultKeyVerbose()
 int Q_TESTLIB_EXPORT defaultEventDelay()
 {
     if (eventDelay == -1) {
-        if (::getenv("QTEST_EVENT_DELAY"))
-            eventDelay = atoi(::getenv("QTEST_EVENT_DELAY"));
+        if (qgetenv("QTEST_EVENT_DELAY").constData())
+            eventDelay = atoi(::qgetenv("QTEST_EVENT_DELAY"));
         else
             eventDelay = 0;
     }
@@ -662,8 +662,8 @@ int Q_TESTLIB_EXPORT defaultEventDelay()
 int Q_TESTLIB_EXPORT defaultMouseDelay()
 {
     if (mouseDelay == -1) {
-        if (::getenv("QTEST_MOUSEEVENT_DELAY"))
-            mouseDelay = atoi((::getenv("QTEST_MOUSEEVENT_DELAY")));
+        if (::qgetenv("QTEST_MOUSEEVENT_DELAY").constData())
+            mouseDelay = atoi((::qgetenv("QTEST_MOUSEEVENT_DELAY")));
         else
             mouseDelay = defaultEventDelay();
     }
@@ -673,8 +673,8 @@ int Q_TESTLIB_EXPORT defaultMouseDelay()
 int Q_TESTLIB_EXPORT defaultKeyDelay()
 {
     if (keyDelay == -1) {
-        if (::getenv("QTEST_KEYEVENT_DELAY"))
-            keyDelay = atoi(::getenv("QTEST_KEYEVENT_DELAY"));
+        if (::qgetenv("QTEST_KEYEVENT_DELAY").constData())
+            keyDelay = atoi(qgetenv("QTEST_KEYEVENT_DELAY").constData());
         else
             keyDelay = defaultEventDelay();
     }
@@ -1317,7 +1317,7 @@ char *QTest::toString(const char *str)
     if (!str)
         return 0;
     char *msg = new char[strlen(str) + 1];
-    return strcpy(msg, str);
+    return qstrcpy(msg, str);
 }
 
 /*! \internal

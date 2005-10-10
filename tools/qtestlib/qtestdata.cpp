@@ -36,7 +36,7 @@ QTestData::QTestData(const char *tag, QTestTable *parent)
     QTEST_ASSERT(tag);
     QTEST_ASSERT(parent);
     d = new QTestDataPrivate;
-    d->tag = strdup(tag);
+    d->tag = qstrdup(tag);
     d->parent = parent;
     d->data = new void *[parent->elementCount()];
     memset(d->data, 0, parent->elementCount() * sizeof(void*));

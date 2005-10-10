@@ -24,13 +24,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <QtCore/QByteArray>
+
 namespace QTest {
 
     struct IgnoreResultList
     {
         inline IgnoreResultList(QtMsgType tp, const char *message)
             : type(tp), next(0)
-        { msg = strdup(message); }
+        { msg = qstrdup(message); }
         inline ~IgnoreResultList()
         { free(msg); }
 

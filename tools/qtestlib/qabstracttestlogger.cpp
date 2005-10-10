@@ -40,9 +40,12 @@ void QAbstractTestLogger::startLogging()
         QTest::stream = stdout;
         return;
     }
-
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+    if (::fopen_s(&QTest::stream, out, "wt")) {
+#else
     QTest::stream = ::fopen(out, "wt");
     if (!QTest::stream) {
+#endif
         printf("Unable to open file for logging: %s", out);
         ::exit(1);
     }
