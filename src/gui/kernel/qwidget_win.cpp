@@ -308,17 +308,19 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         // this should be correct anyway, so dig some more into this
         style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN ;
         if (topLevel) {
-            if ((type == Qt::Window || dialog || tool) && !(flags & Qt::FramelessWindowHint)) {
-                if ((type == Qt::Window || dialog) && !(flags & Qt::MSWindowsFixedSizeDialogHint)) {
-                    style |= WS_THICKFRAME;
-                    if(!(flags &
-                         ( Qt::WindowSystemMenuHint
-                           | Qt::WindowTitleHint
-                           | Qt::WindowMinMaxButtonsHint
-                           | Qt::WindowContextHelpButtonHint)))
-                        style |= WS_POPUP;
-                } else {
-                    style |= WS_POPUP | WS_DLGFRAME;
+            if ((type == Qt::Window || dialog || tool)) {
+                if (!(flags & Qt::FramelessWindowHint)) {
+                    if ((type == Qt::Window || dialog) && !(flags & Qt::MSWindowsFixedSizeDialogHint)) {
+                        style |= WS_THICKFRAME;
+                        if(!(flags &
+                            ( Qt::WindowSystemMenuHint
+                            | Qt::WindowTitleHint
+                            | Qt::WindowMinMaxButtonsHint
+                            | Qt::WindowContextHelpButtonHint)))
+                            style |= WS_POPUP;
+                    } else {
+                        style |= WS_POPUP | WS_DLGFRAME;
+                    }
                 }
                 if (flags & Qt::WindowTitleHint)
                     style |= WS_CAPTION;
