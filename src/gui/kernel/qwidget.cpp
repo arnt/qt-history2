@@ -6506,7 +6506,8 @@ void QWidget::repaint(const QRect &r)
     This version repaints a region \a rgn inside the widget.
 */
 
-/*! \fn void QWidget::update()
+/*! 
+    \fn void QWidget::update()
     Updates the widget unless updates are disabled or the widget is
     hidden.
 
