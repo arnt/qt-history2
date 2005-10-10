@@ -586,6 +586,7 @@ void QToolBar::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
     if (d->toolButtonStyle == toolButtonStyle)
         return;
     d->toolButtonStyle = toolButtonStyle;
+    setMinimumSize(0, 0);
     emit toolButtonStyleChanged(d->toolButtonStyle);
 }
 
