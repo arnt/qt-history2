@@ -146,8 +146,8 @@ static QString buddy(QDesignerLabel *label, QDesignerFormEditorInterface *core)
 
 void BuddyEditor::setBackground(QWidget *background)
 {
-    ConnectionEdit::setBackground(background);
     clear();
+    ConnectionEdit::setBackground(background);
 
     QList<QDesignerLabel*> label_list = qFindChildren<QDesignerLabel*>(background);
     foreach (QDesignerLabel *label, label_list) {
