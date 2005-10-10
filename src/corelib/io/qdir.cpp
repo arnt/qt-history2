@@ -1925,7 +1925,7 @@ QStringList QDir::nameFiltersFromString(const QString &nameFilter)
     \relates QDir
 
     Initializes the resources specified by the \c .qrc file with the
-    base name \a name. Normally, Qt resources are loaded
+    specified base \a name. Normally, Qt resources are loaded
     automatically at startup. The Q_INIT_RESOURCE() macro is
     necessary on some platforms for resources stored in a static
     library.
