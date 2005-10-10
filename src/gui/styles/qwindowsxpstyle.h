@@ -62,7 +62,6 @@ private:
     Q_DISABLE_COPY(QWindowsXPStyle)
     Q_DECLARE_PRIVATE(QWindowsXPStyle)
     friend class QStyleFactory;
-    friend class QWindowsXPStylePrivate;
     void *reserved;
 };
 
