@@ -81,8 +81,8 @@
     pairs, but some formats store all text in one continuous block.
     QImageIOHandler returns the text as one
     QString, where keys and values are separated by a ':', and
-    keys-value pairs are separated by two newlines (\n\n). For example,
-    "Title: Sunset\n\nAuthor: Jim Smith\nSarah Jones\n\n". Formats that
+    keys-value pairs are separated by two newlines (\\n\\n). For example,
+    "Title: Sunset\\n\\nAuthor: Jim Smith\\nSarah Jones\\n\\n". Formats that
     store text in a single block can use "Description" as the key.
 
     \value CompressionRatio The compression ratio of the image data. A
