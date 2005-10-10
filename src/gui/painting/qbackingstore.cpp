@@ -235,7 +235,9 @@ void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *wi
 #if defined(Q_WS_WIN)
     QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
     HDC engine_dc = engine->getDC();
-    Q_ASSERT(engine_dc);
+    if (!engine_dc)
+        return;   
+
     BitBlt(engine_dc, pos.x()+dx, pos.y()+dy, rect.width(), rect.height(),
            engine_dc, pos.x(), pos.y(), SRCCOPY);
     engine->releaseDC(engine_dc);
@@ -260,6 +262,9 @@ void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *wi
 void QWidgetPrivate::moveRect(const QRect &rect, int dx, int dy)
 {
     Q_Q(QWidget);
+    if (!q->isVisible())
+        return;
+
     QWidget *tlw = q->window();
     QTLWExtra* x = tlw->d_func()->topData();
 
@@ -325,8 +330,6 @@ void QWidgetPrivate::scrollRect(const QRect &rect, int dx, int dy)
 
         QRect destRect = scrollRect.translated(dx,dy).intersect(scrollRect);
         QRect sourceRect = destRect.translated(-dx, -dy);
-
-        qDebug() << sourceRect << clipRect() << rect << dx << dy;
 
         QWidgetBackingStore *wbs = x->backingStore;
 
