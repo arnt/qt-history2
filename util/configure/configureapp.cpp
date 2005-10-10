@@ -1512,6 +1512,11 @@ void Configure::generateConfigfiles()
         outStream << "#  define QT_EDITION " << dictionary["QT_EDITION"] << endl;
         outStream << "#endif" << endl;
 	outStream << endl;
+    if (dictionary["EDITION"] == "Trolltech") {
+        outStream << "/* Used for example to export symbols for the certain autotests*/" << endl;
+        outStream << "#define QT_BUILD_INTERNAL" << endl;
+        outStream << endl;    
+    }
 	outStream << "/* Machine byte-order */" << endl;
 	outStream << "#define Q_BIG_ENDIAN 4321" << endl;
 	outStream << "#define Q_LITTLE_ENDIAN 1234" << endl;
