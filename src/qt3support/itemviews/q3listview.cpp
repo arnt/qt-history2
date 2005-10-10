@@ -2980,7 +2980,7 @@ void Q3ListView::drawContentsOffset(QPainter * p, int ox, int oy,
 
             if (r.isValid()) {
                 p->save();
-                p->setClipRect(QRect(d->h->cellPos(cell), cy + oy, d->h->cellSize(cell), ch));
+                p->setClipRect(QRect(d->h->cellPos(cell), 0, d->h->cellSize(cell), height()));
                 p->translate(rleft-ox, crtop-oy);
 
                 current.i->paintBranches(p, palette(), treeStepSize(),
@@ -5865,8 +5865,6 @@ struct Q3CheckListItemPrivate
 
     \sa Q3ListViewItem Q3ListView
 */
-
-// ### obscenity is warranted.
 
 /*!
     \enum Q3CheckListItem::Type
