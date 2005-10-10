@@ -917,9 +917,6 @@ void qt_init(QApplicationPrivate *priv, int)
         QMacInputContext::initialize();
         QApplicationPrivate::inputContext = new QMacInputContext;
 
-#if defined(QT_THREAD_SUPPORT)
-        qt_mac_port_mutex = new QMutex(true);
-#endif
         RegisterAppearanceClient();
         if(QApplication::desktopSettingsAware())
             qt_mac_update_os_settings();
