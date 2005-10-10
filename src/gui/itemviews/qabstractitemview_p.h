@@ -199,10 +199,6 @@ public:
     QPoint scrollDelayOffset;
 };
 
-/*
-  Template functions for vector manipulation.
-*/
-
 #include <qvector.h>
 
 template <typename T>
@@ -215,9 +211,6 @@ inline int qBinarySearch(const QVector<T> &vec, const T &item, int start, int en
         else
             start = i;
         i = (start + end + 1) >> 1;
-    }
-    if (i > end) {
-        Q_ASSERT(0);
     }
     return i;
 }
