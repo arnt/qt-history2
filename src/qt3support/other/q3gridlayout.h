@@ -1,0 +1,42 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#ifndef Q3GRIDLAYOUT_H
+#define Q3GRIDLAYOUT_H
+
+#include <QtGui/qboxlayout.h>
+
+QT_MODULE(Qt3SupportLight)
+
+class Q_COMPAT_EXPORT Q3GridLayout : public QGridLayout
+{
+public:
+    inline explicit Q3GridLayout(QWidget *parent)
+        : QGridLayout(parent) { setMargin(0); setSpacing(0); }
+
+    inline Q3GridLayout(QWidget *parent, int nRows, int nCols = 1, int border = 0,
+                        int spacing = -1, const char *name = 0)
+        : QGridLayout(parent, nRows, nCols, border, spacing, name) {}
+
+    inline Q3GridLayout(int nRows, int nCols = 1, int spacing = -1, const char *name = 0)
+        : QGridLayout(nRows, nCols, spacing, name) {}
+
+    inline Q3GridLayout(QLayout *parentLayout, int nRows =1, int nCols = 1, int spacing = -1,
+                        const char *name = 0)
+        : QGridLayout(parentLayout, nRows, nCols, spacing, name) {}
+
+private:
+    Q_DISABLE_COPY(Q3GridLayout)
+};
+
+#endif // Q3GRIDLAYOUT_H
