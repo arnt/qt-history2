@@ -779,7 +779,14 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
     case DomProperty::Font: {
         DomFont *font = p->elementFont();
 
-        QFont f(font->elementFamily(), font->elementPointSize(), font->elementWeight(), font->elementItalic());
+        QFont f;
+        if (!font->elementFamily().isEmpty())
+            f.setFamily(font->elementFamily());
+        if (font->elementPointSize() > 0)
+            f.setPointSize(font->elementPointSize());
+        if (font->elementWeight() > 0)
+            f.setWeight(font->elementWeight());
+        f.setItalic(font->elementItalic());
         f.setBold(font->elementBold());
         f.setUnderline(font->elementUnderline());
         f.setStrikeOut(font->elementStrikeOut());

@@ -772,6 +772,28 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                 continue;
             }
 
+            if (name == QLatin1String("font")) {
+                // For the boolean properties (italic, bold, underline, strikeout),
+                // Ui 3 files store true as "1", but DomFont::read() expects "true",
+                // so we have to convert them
+                QDomElement f = e.firstChild().toElement();
+                for (QDomElement fp = f.firstChild().toElement(); !fp.isNull(); fp = fp.nextSibling().toElement()) {
+                    QString fpTag = fp.tagName().toLower();
+                    if (fpTag == QLatin1String("italic") ||
+                        fpTag == QLatin1String("bold") ||
+                        fpTag == QLatin1String("underline") ||
+                        fpTag == QLatin1String("strikeout")) {
+                        QDomText text = fp.firstChild().toText();
+                        if (!text.isNull()) {
+                            if (text.data() == QLatin1String("1"))
+                                text.setData(QLatin1String("true"));
+                            else if (text.data() == QLatin1String("0"))
+                                text.setData(QLatin1String("false"));
+                        }
+                    }
+                }
+            }
+
             DomProperty *prop = readProperty(e);
             if (!prop)
                 continue;
