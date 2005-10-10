@@ -34,11 +34,13 @@ public:
     virtual void dummyFunc() {  };
     virtual ~QSpontaneKeyEvent() {}
 
+#ifndef QTEST_NO_SIZEOF_CHECK
     inline void ifYouGetCompileErrorHereYouUseWrongQt()
     {
         // this is a static assert in case QEvent changed in Qt
         QEventSizeOfChecker<sizeof(QSpontaneKeyEvent)> dummy;
     }
+#endif
 
 protected:
     void *d;
