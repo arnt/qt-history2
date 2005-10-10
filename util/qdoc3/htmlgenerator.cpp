@@ -1622,6 +1622,13 @@ void HtmlGenerator::generateSectionList(const Section& section, const Node *rela
 	int i = 0;
 	NodeList::ConstIterator m = section.members.begin();
 	while ( m != section.members.end() ) {
+            if ((*m)->access() == Node::Private ||
+                ((*m)->type() == Node::Variable &&
+                 (*m)->access() != Node::Public)) {
+                ++m;
+                continue;
+            }
+
 	    if ( twoColumn && i == (int) (section.members.count() + 1) / 2 )
 		out() << "</ul></td><td valign=\"top\"><ul>\n";
 
