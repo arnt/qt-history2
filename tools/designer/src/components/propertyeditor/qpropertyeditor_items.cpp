@@ -245,13 +245,35 @@ QWidget *PropertyCollection::createExternalEditor(QWidget *parent)
 
 StringProperty::StringProperty(const QString &value, const QString &name, bool hasComment, const QString &comment)
     : AbstractPropertyGroup(name),
-      m_value(value)
+      m_value(value),
+      m_checkValidObjectName(false),
+      m_allowScope(false)
 {
     if (hasComment) {
         StringProperty *pcomment = new StringProperty(comment, QLatin1String("comment"));
         pcomment->setParent(this);
         m_properties << pcomment;
     }
+}
+
+bool StringProperty::checkValidObjectName() const
+{
+    return m_checkValidObjectName;
+}
+
+void StringProperty::setCheckValidObjectName(bool b)
+{
+    m_checkValidObjectName = b;
+}
+
+bool StringProperty::allowScope() const
+{
+    return m_allowScope;
+}
+
+void StringProperty::setAllowScope(bool b)
+{
+    m_allowScope = b;
 }
 
 QVariant StringProperty::value() const
@@ -279,8 +301,9 @@ QWidget *StringProperty::createEditor(QWidget *parent, const QObject *target, co
     QLineEdit *lineEdit = new QLineEdit(parent);
     lineEdit->setFrame(0);
 
-    if (propertyName() == QLatin1String("objectName")) {
-        lineEdit->setValidator(new QRegExpValidator(QRegExp(QLatin1String("[_a-zA-Z][_a-zA-Z0-9]*")), lineEdit));
+    if (checkValidObjectName()) {
+        QString rx = allowScope() ? QString("[_a-zA-Z:][_a-zA-Z0-9:]*") : QString("[_a-zA-Z][_a-zA-Z0-9]*");
+        lineEdit->setValidator(new QRegExpValidator(QRegExp(rx), lineEdit));
     }
 
     QObject::connect(lineEdit, SIGNAL(textChanged(QString)), target, receiver);

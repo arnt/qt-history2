@@ -280,6 +280,12 @@ class QT_PROPERTYEDITOR_EXPORT StringProperty: public AbstractPropertyGroup
 public:
     StringProperty(const QString &value, const QString &name, bool hasComment = false, const QString &comment = QString());
 
+    bool checkValidObjectName() const;
+    void setCheckValidObjectName(bool b);
+
+    bool allowScope() const;
+    void setAllowScope(bool b);
+
     QVariant value() const;
     void setValue(const QVariant &value);
     QString toString() const;
@@ -291,6 +297,8 @@ public:
 
 private:
     QString m_value;
+    bool m_checkValidObjectName;
+    bool m_allowScope;
 };
 
 class QT_PROPERTYEDITOR_EXPORT SeparatorProperty: public StringProperty

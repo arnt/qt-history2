@@ -452,6 +452,14 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
     QList<Group> groups;
 
     QExtensionManager *m = m_core->extensionManager();
+
+    bool isMainContainer = false;
+    if (QWidget *widget = qobject_cast<QWidget*>(object)) {
+        if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(widget)) {
+            isMainContainer = (fw->mainContainer() == widget);
+        }
+    }
+
     m_prop_sheet = qobject_cast<QDesignerPropertySheetExtension*>(m->extension(object, Q_TYPEID(QDesignerPropertySheetExtension)));
     for (int i=0; i<m_prop_sheet->count(); ++i) {
         if (!m_prop_sheet->isVisible(i))
@@ -498,7 +506,13 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                     MetaDataBaseItem *item = static_cast<MetaDataBaseItem*>(core()->metaDataBase()->item(object));
                     p = new StringProperty(value.toString(), pname, true, item->propertyComment(pname));
                 } else {
-                    p = new StringProperty(value.toString(), pname);
+                    StringProperty *sprop = new StringProperty(value.toString(), pname);
+                    p = sprop;
+
+                    if (pname == QLatin1String("objectName")) {
+                        sprop->setCheckValidObjectName(true);
+                        sprop->setAllowScope(isMainContainer);
+                    }
                 }
             } break;
             case QVariant::Size:
