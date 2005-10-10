@@ -38,6 +38,24 @@
 #include <private/qpaintengine_opengl_p.h>
 #include <qimage.h>
 
+
+/*! \fn QGLPbuffer::QGLPbuffer(const QSize &size,
+                               const QGLFormat &format=QGLFormat::defaultFormat(),
+                               QGLWidget *shareWidget=0)
+
+   Constructs an OpenGL pbuffer of the size \a size. If no \a format is
+   specified the \link QGLFormat::defaultFormat() default
+   format\endlink is used. If the \a shareWidget parameter points to a
+   valid QGLWidget, the pbuffer will share its context with \a
+   shareWidget.
+
+*/
+
+/*! \fn QGLPbuffer::~QGLPbuffer()
+
+   Destroys the QGLPbuffer and frees its resources.
+*/
+
 /*! \fn bool QGLPbuffer::makeCurrent()
 
     Makes this pbuffer the current GL rendering context. Returns true
@@ -182,7 +200,7 @@ QPaintEngine *QGLPbuffer::paintEngine() const
 
 extern int qt_defaultDpi();
 
-/*! \reimp 
+/*! \reimp
 */
 int QGLPbuffer::metric(PaintDeviceMetric metric) const
 {
@@ -284,3 +302,7 @@ QGLFormat QGLPbuffer::format() const
     Q_D(const QGLPbuffer);
     return d->format;
 }
+
+/*! \fn int QGLPbuffer::devType() const
+    \reimp
+*/
