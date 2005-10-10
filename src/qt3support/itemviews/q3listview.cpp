@@ -33,6 +33,7 @@
 #include "qstyleoption.h"
 #include "qtimer.h"
 #include "qtooltip.h"
+#include "qdebug.h"
 #include <private/qinternal_p.h>
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
@@ -2236,13 +2237,15 @@ void Q3ListViewItem::paintFocus(QPainter *p, const QColorGroup &cg, const QRect 
     Q3ListView *lv = listView();
     if (lv) {
         QStyleOptionFocusRect opt;
+        opt.init(lv);
         opt.rect = r;
         opt.palette = pal;
+        opt.state |= QStyle::State_KeyboardFocusChange;
         if (isSelected()) {
-            opt.state = QStyle::State_FocusAtBorder;
+            opt.state |= QStyle::State_FocusAtBorder;
             opt.backgroundColor = pal.highlight().color();
         } else {
-            opt.state = QStyle::State_None;
+            opt.state |= QStyle::State_None;
             opt.backgroundColor = pal.base().color();
         }
         lv->style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p, lv);
