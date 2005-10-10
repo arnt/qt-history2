@@ -75,11 +75,11 @@
 
     \endtable
 
-    Absolute paths are used as specified in the \c qt.conf. All paths
-    are relative to the \c Prefix. On Windows and X11, the \c Prefix
-    is relative to the directory containing the application executable
-    (QCoreApplication::applicationDirPath()). On Mac OS X, the \c
-    Prefix is relative to the \c Contents in the application
+    Absolute paths are used as specified in the \c qt.conf file.
+    All paths are relative to the \c Prefix. On Windows and X11, the
+    \c Prefix is relative to the directory containing the application
+    executable (QCoreApplication::applicationDirPath()). On Mac OS X,
+    the \c Prefix is relative to the \c Contents in the application
     bundle. For example, \c application.app/Contents/plugins/ is the
     default location for loading Qt plugins.
 
@@ -91,14 +91,14 @@
         Translations = i18n
     \endcode
 
-    Sub-groups of the \c Paths group may be used to specify locations
-    for specific versions of the Qt libraries. Such sub-groups are of
+    Subgroups of the \c Paths group may be used to specify locations
+    for specific versions of the Qt libraries. Such subgroups are of
     the form \c Paths/x.y.z, where x is the major version of the Qt
-    libraries, y the minor, and z the patch-level. The sub-group that
+    libraries, y the minor, and z the patch level. The subgroup that
     most closely matches the current Qt version is used. If no
-    sub-group matches, the \c Paths group is used as the fallback. The
-    minor and patch-level may be omitted, in which case they default
-    to zero.
+    subgroup matches, the \c Paths group is used as the fallback. The
+    minor and patch level values may be omitted, in which case they
+    default to zero.
 
     For example, given the following groups:
 
