@@ -2370,7 +2370,6 @@ void QWidget::scroll(int dx, int dy)
     d->scrollChildren(dx, dy);
     if (!QWidgetBackingStore::paintOnScreen(this)) {
         d->scrollRect(rect(), dx, dy);
-        QApplication::sendPostedEvents(0, QEvent::UpdateRequest); //synchronous updates
     } else {
         scroll(dx, dy, QRect());
     }
