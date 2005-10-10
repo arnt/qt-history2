@@ -18,7 +18,7 @@ const binaryExtensions = ["msi", "dll", "gif", "png", "mng",
 			  "jpg", "bmp", "any", "pic", "ppm",
 			  "exe", "zip", "qm", "ico", "wav",
 			  "icns", "qpf", "bdf", "pfb", "pfa",
-			  "ttf"];
+			  "ttf", "resource"];
 
 var binaryHosts = new Array();
 binaryHosts["win"] = "innsikt";
