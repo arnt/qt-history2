@@ -206,3 +206,22 @@ QString QSqlError::text() const
     result += driverError;
     return result;
 }
+
+/*!
+    Returns true if an error is set, otherwise false.
+
+    Example:
+    \code
+    QSqlQueryModel model;
+    model.setQuery("select * from myTable");
+    if (model.lastError().isValid())
+        qDebug() << model.lastError();
+    \endcode
+
+    \sa type()
+*/
+bool QSqlError::isValid() const
+{
+    return errorType != NoError;
+}
+

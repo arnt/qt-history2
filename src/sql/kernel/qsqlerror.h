@@ -52,6 +52,7 @@ public:
     int number() const;
     void setNumber(int number);
     QString text() const;
+    bool isValid() const;
 
 private:
     QString driverError;

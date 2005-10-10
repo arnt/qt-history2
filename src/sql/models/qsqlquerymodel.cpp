@@ -280,7 +280,10 @@ void QSqlQueryModel::queryChange()
     query. Note that the query must be active and must not be
     isForwardOnly().
 
-    \sa query(), QSqlQuery::isActive(), QSqlQuery::setForwardOnly()
+    lastError() can be used to retrieve verbose information if there
+    was an error setting the query.
+
+    \sa query(), QSqlQuery::isActive(), QSqlQuery::setForwardOnly(), lastError()
 */
 void QSqlQueryModel::setQuery(const QSqlQuery &query)
 {
@@ -347,7 +350,18 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
     Executes the query \a query for the given database connection \a
     db. If no database is specified, the default connection is used.
 
-    \sa query(), queryChange()
+    lastError() can be used to retrieve verbose information if there
+    was an error setting the query.
+
+    Example:
+    \code
+    QSqlQueryModel model;
+    model.setQuery("select * from MyTable");
+    if (model.lastError().isValid())
+        qDebug() << model.lastError();
+    \endcode
+
+    \sa query(), queryChange(), lastError()
 */
 void QSqlQueryModel::setQuery(const QString &query, const QSqlDatabase &db)
 {
