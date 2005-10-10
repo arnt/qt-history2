@@ -1,6 +1,6 @@
-CONFIG += form
-SOURCES += main.cpp
-RESOURCES += worldtimeclockbuilder.qrc
+CONFIG      += form
+SOURCES     += main.cpp
+RESOURCES   += worldtimeclockbuilder.qrc
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/designer/worldtimeclockbuilder

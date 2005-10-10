@@ -16,6 +16,8 @@
 
 int main(int argc, char *argv[])
 {
+    Q_INIT_RESOURCE(worldtimeclockbuilder);
+
     QApplication app(argc, argv);
 
     QForm::Loader loader;
