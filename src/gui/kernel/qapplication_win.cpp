@@ -14,7 +14,7 @@
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
-#include <private/qeventdispatcher_win_p.h>
+#include "private/qeventdispatcher_win_p.h"
 #include "qeventloop.h"
 #include "qclipboard.h"
 #include "qcursor.h"
@@ -35,18 +35,18 @@
 #if defined(QT_NON_COMMERCIAL)
 #include "qnc_win.h"
 #endif
+#include "private/qwininputcontext_p.h"
+#include "private/qcursor_p.h"
+#include "private/qmath_p.h"
+#include "private/qapplication_p.h"
+#include "private/qinternal_p.h"
 
-#include <private/qwininputcontext_p.h>
-
-#include <private/qcursor_p.h>
-#include <private/qmath_p.h>
-
-#ifdef QT_THREAD_SUPPORT
+#ifndef QT_NO_THREAD
 #include "qmutex.h"
-#endif // QT_THREAD_SUPPORT
+#endif
 
 #ifndef QT_NO_ACCESSIBILITY
-#include <qaccessible.h>
+#include "qaccessible.h"
 #include <winable.h>
 #include <oleacc.h>
 #ifndef WM_GETOBJECT
@@ -56,15 +56,12 @@
 extern IAccessible *qt_createWindowsAccessible(QAccessibleInterface *object);
 #endif // QT_NO_ACCESSIBILITY
 
-#include "private/qapplication_p.h"
-
-#include "private/qinternal_p.h"
-
 #include <windowsx.h>
 #include <limits.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <math.h>
 
 #ifdef Q_OS_TEMP
 #include <sipapi.h>
@@ -81,7 +78,6 @@ extern bool qt_tabletChokeMouse;
 #define CSR_TYPE 20 // Some old Wacom wintab.h may not provide this constant.
 #endif
 #include <pktdef.h>
-#include <math.h>
 
 typedef HCTX (API *PtrWTOpen)(HWND, LPLOGCONTEXT, BOOL);
 typedef BOOL (API *PtrWTClose)(HCTX);

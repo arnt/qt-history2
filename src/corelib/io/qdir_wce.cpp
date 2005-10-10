@@ -160,7 +160,7 @@ bool QDir::rename(const QString &oldName, const QString &newName,
 
 bool QDir::setCurrent(const QString &path)
 {
-#ifdef QT_THREAD_SUPPORT
+#ifndef QT_NO_THREAD
     QMutexLocker locker(qt_global_mutexpool ?
                          qt_global_mutexpool->get(&theCWD) : 0);
 #endif
@@ -187,7 +187,7 @@ bool QDir::setCurrent(const QString &path)
 */
 QString QDir::currentDirPath()
 {
-#ifdef QT_THREAD_SUPPORT
+#ifndef QT_NO_THREAD
     QMutexLocker locker(qt_global_mutexpool ?
                          qt_global_mutexpool->get(&theCWD) : 0);
 #endif

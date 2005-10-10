@@ -18,12 +18,10 @@
 #include "qwsevent_qws.h"
 #include "qwindowsystem_qws.h"
 #include "qeventdispatcher_qws_p.h"
-#include <private/qeventdispatcher_unix_p.h>
-
-
-#if defined(QT_THREAD_SUPPORT)
+#include "private/qeventdispatcher_unix_p.h"
+#ifndef QT_NO_THREAD
 #  include "qmutex.h"
-#endif // QT_THREAD_SUPPORT
+#endif
 
 #include <errno.h>
 
@@ -132,4 +130,3 @@ int QEventDispatcherQWS::select(int nfds, fd_set *readfds, fd_set *writefds, fd_
 {
     return QEventDispatcherUNIX::select(nfds, readfds, writefds, exceptfds, timeout);
 }
-

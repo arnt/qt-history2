@@ -36,10 +36,10 @@
 #include "qvariant.h"
 #include "qwidget.h"
 #include "qcolormap.h"
-#include <private/qmacinputcontext_p.h>
-#include <private/qpaintengine_mac_p.h>
-#include <private/qcursor_p.h>
-
+#include "qdir.h"
+#include "private/qmacinputcontext_p.h"
+#include "private/qpaintengine_mac_p.h"
+#include "private/qcursor_p.h"
 #include "private/qapplication_p.h"
 #include "private/qcolor_p.h"
 #include "private/qwidget_p.h"
@@ -49,21 +49,18 @@
 #  include "qaccessible.h"
 #endif
 
-#if defined(QT_THREAD_SUPPORT)
+#ifndef QT_NO_THREAD
 #  include "qmutex.h"
 #endif
 
-#if !defined(QT_NO_DEBUG)
-#include <qdebug.h>
+#ifndef QT_NO_DEBUG
+#  include "qdebug.h"
 #endif
 
-#include "qdir.h"
 #include <unistd.h>
+#include <string.h>
 #include <sys/time.h>
 #include <sys/select.h>
-
-
-#include <string.h>
 
 /*****************************************************************************
   QApplication debug facilities

@@ -11,18 +11,18 @@
 **
 ****************************************************************************/
 #include "qplatformdefs.h"
-#include <private/qt_mac_p.h>
+#include "private/qt_mac_p.h"
 #include "qeventdispatcher_mac_p.h"
 #include "qapplication.h"
 #include "qevent.h"
-#include <qhash.h>
+#include "qhash.h"
 #include "qsocketnotifier.h"
 #include "private/qwidget_p.h"
 #include "private/qthread_p.h"
 
-#if defined(QT_THREAD_SUPPORT)
+#ifndef QT_NO_THREAD
 #  include "qmutex.h"
-#endif // QT_THREAD_SUPPORT
+#endif
 
 #define QMAC_EVENT_NOWAIT kEventDurationNoWait
 

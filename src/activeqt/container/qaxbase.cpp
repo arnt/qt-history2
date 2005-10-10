@@ -24,7 +24,7 @@
 #include <qmetaobject.h>
 #include <qsettings.h>
 
-#ifdef QT_THREAD_SUPPORT
+#ifndef QT_NO_THREAD
 #   include <qmutex.h>
 #endif
 
@@ -3062,7 +3062,7 @@ const QMetaObject *QAxBase::metaObject() const
         d->initialized = true;
     }
 
-#ifdef QT_THREAD_SUPPORT
+#ifndef QT_NO_THREAD
     // only one thread at a time can generate meta objects
     QMutexLocker locker(&cache_mutex);
 #endif

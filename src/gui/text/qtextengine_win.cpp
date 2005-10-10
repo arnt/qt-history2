@@ -11,11 +11,10 @@
 **
 ****************************************************************************/
 
-#ifdef QT_THREAD_SUPPORT
-#  include <private/qmutexpool_p.h>
-#endif // QT_THREAD_SUPPORT
+#ifndef QT_NO_THREAD
+#  include "private/qmutexpool_p.h"
+#endif
 #include "qlibrary.h"
-
 
 // these defines are from usp10.h
 typedef void *SCRIPT_CACHE;
@@ -124,7 +123,7 @@ static void resolveUsp10()
     if (!resolvedUsp10) {
         // need to resolve the security info functions
 
-#ifdef QT_THREAD_SUPPORT
+#ifndef QT_NO_THREAD
         // protect initialization
         QMutexLocker locker(qt_global_mutexpool ?
                              qt_global_mutexpool->get((void*)&resolveUsp10) : 0);
@@ -641,4 +640,3 @@ end:
 
     layoutData->used += si.num_glyphs;
 }
-

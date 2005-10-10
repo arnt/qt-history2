@@ -59,25 +59,25 @@
 #include "qurlinfo.h"
 
 #ifdef Q_WS_WIN
-#ifdef QT_THREAD_SUPPORT
+#ifndef QT_NO_THREAD
 #  include "qwindowsstyle.h"
-#  include <private/qmutexpool_p.h>
-#endif // QT_THREAD_SUPPORT
+#  include "private/qmutexpool_p.h"
+#endif
 #endif // Q_WS_WIN
 
-#if !defined(Q_OS_TEMP)
+#ifndef Q_OS_TEMP
 #include <time.h>
 #else
 #include <shellapi.h>
-#endif
+#endif // Q_OS_TEMP
 #include <stdlib.h>
 #include <limits.h>
 #include <ctype.h>
 
 #ifdef Q_WS_MAC
-#include <qmacstyle_mac.h>
-#include <private/qt_mac_p.h>
-#include <private/qunicodetables_p.h>
+#include "qmacstyle_mac.h"
+#include "private/qt_mac_p.h"
+#include "private/qunicodetables_p.h"
 #undef check
 #endif
 
@@ -488,7 +488,7 @@ static void resolveLibs()
     static bool triedResolve = false;
 
     if (!triedResolve) {
-#ifdef QT_THREAD_SUPPORT
+#ifndef QT_NO_THREAD
         // protect initialization
         QMutexLocker locker(qt_global_mutexpool ?
                              qt_global_mutexpool->get(&triedResolve) : 0);
@@ -3103,7 +3103,7 @@ void Q3FileDialog::setDir(const QString & pathstr)
             i++;
         Q3CString user;
         if (i == 1) {
-#if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+#if !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
 
 #  ifndef _POSIX_LOGIN_NAME_MAX
 #    define _POSIX_LOGIN_NAME_MAX 9
@@ -3122,7 +3122,7 @@ void Q3FileDialog::setDir(const QString & pathstr)
             user = dr.mid(1, i-1).local8Bit();
         dr = dr.mid(i, dr.length());
         struct passwd *pw;
-#if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_FREEBSD) && !defined(Q_OS_OPENBSD)
+#if !defined(QT_NO_THREAD) && defined(_POSIX_THREAD_SAFE_FUNCTIONS) && !defined(Q_OS_FREEBSD) && !defined(Q_OS_OPENBSD)
         struct passwd mt_pw;
         char buffer[2048];
         if (::getpwnam_r(user, &mt_pw, buffer, 2048, &pw) == 0 && pw == &mt_pw)

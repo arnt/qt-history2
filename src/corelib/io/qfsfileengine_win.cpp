@@ -68,7 +68,7 @@ static void resolveLibs()
         // need to resolve the security info functions
 
         // protect initialization
-#ifdef QT_THREAD_SUPPORT
+#ifndef QT_NO_THREAD
         QMutexLocker locker(qt_global_mutexpool ?
             qt_global_mutexpool->get(&triedResolve) : 0);
         // check triedResolve again, since another thread may have already
@@ -151,7 +151,7 @@ static bool resolveUNCLibs_NT()
 {
     static bool triedResolve = false;
     if (!triedResolve) {
-#ifdef QT_THREAD_SUPPORT
+#ifndef QT_NO_THREAD
         QMutexLocker locker(qt_global_mutexpool ?
             qt_global_mutexpool->get(&triedResolve) : 0);
         if (triedResolve) {
@@ -188,7 +188,7 @@ static bool resolveUNCLibs_9x()
 {
     static bool triedResolve = false;
     if (!triedResolve) {
-#ifdef QT_THREAD_SUPPORT
+#ifndef QT_NO_THREAD
         QMutexLocker locker(qt_global_mutexpool ?
             qt_global_mutexpool->get(&triedResolve) : 0);
         if (triedResolve) {

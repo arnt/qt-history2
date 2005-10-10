@@ -756,7 +756,7 @@ void QWidgetPrivate::init(QWidget *desktopWidget, Qt::WFlags f)
     if (qApp->type() == QApplication::Tty)
         qWarning("QWidget: Cannot create a QWidget when no GUI is being used");
 
-#ifdef QT_THREAD_SUPPORT
+#ifndef QT_NO_THREAD
     if (!q->parent()) {
         Q_ASSERT_X(q->thread() == qApp->thread(), "QWidget",
                    "Widgets must be created in the GUI thread.");
