@@ -36,6 +36,7 @@ class QDESIGNER_UILIB_EXPORT QFormBuilder: public QAbstractFormBuilder
 {
 public:
     QFormBuilder();
+    virtual ~QFormBuilder();
 
     QStringList pluginPaths() const;
 
@@ -62,6 +63,7 @@ protected:
     virtual bool addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget);
 
     virtual void updateCustomWidgets();
+    virtual void applyProperties(QObject *o, const QList<DomProperty*> &properties);
 
     static QWidget *widgetByName(QWidget *topLevel, const QString &name);
 

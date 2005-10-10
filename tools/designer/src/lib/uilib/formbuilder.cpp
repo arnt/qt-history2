@@ -18,8 +18,32 @@
 #include <QtGui/QtGui>
 
 #ifdef QFORMINTERNAL_NAMESPACE
-using namespace QFormInternal;
+namespace QFormInternal {
 #endif
+
+class QFormBuilderExtra
+{
+public:
+    void reset()
+    { m_buddies.clear(); }
+
+    void addBuddy(QLabel *label, const QString &buddyName)
+    { m_buddies.insert(label, buddyName); }
+
+    QHash<QLabel*, QString> buddies() const
+    { return m_buddies; }
+
+private:
+    QHash<QLabel*, QString> m_buddies;
+};
+
+typedef QHash<QFormBuilder*, QFormBuilderExtra> ExtraInfoTable;
+Q_GLOBAL_STATIC(ExtraInfoTable, q_formbuilder_extra_info_table)
+
+static QFormBuilderExtra &extraInfo(QFormBuilder *builder)
+{
+    return (*q_formbuilder_extra_info_table())[builder];
+}
 
 
 /*!
@@ -95,6 +119,14 @@ using namespace QFormInternal;
 
 QFormBuilder::QFormBuilder()
 {
+}
+
+/*!
+    Destroys the form builder.
+*/
+QFormBuilder::~QFormBuilder()
+{
+    q_formbuilder_extra_info_table()->remove(this);
 }
 
 /*!
@@ -247,7 +279,23 @@ void QFormBuilder::createConnections(DomConnections *ui_connections, QWidget *wi
 */
 QWidget *QFormBuilder::create(DomUI *ui, QWidget *parentWidget)
 {
-    return QAbstractFormBuilder::create(ui, parentWidget);
+    extraInfo(this).reset();
+
+    if (QWidget *widget = QAbstractFormBuilder::create(ui, parentWidget))
+    {
+        QHash<QLabel*, QString> buddies = extraInfo(this).buddies();
+        QHashIterator<QLabel*, QString> it(buddies);
+        while (it.hasNext()) {
+            it.next();
+
+            it.key()->setBuddy(widgetByName(widget, it.value()));
+        }
+        extraInfo(this).reset();
+
+        return widget;
+    }
+
+    return 0;
 }
 
 /*!
@@ -369,3 +417,27 @@ QList<QDesignerCustomWidgetInterface*> QFormBuilder::customWidgets() const
 {
     return m_customWidgets.values();
 }
+
+/*!
+    \internal
+*/
+void QFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &properties)
+{
+    foreach (DomProperty *p, properties) {
+        QVariant v = toVariant(o->metaObject(), p);
+        if (v.isNull())
+            continue;
+
+        if (qobject_cast<QLabel*>(o) && p->attributeName() == QLatin1String("buddy")) {
+            // save the buddy and continue
+            extraInfo(this).addBuddy(qobject_cast<QLabel*>(o), v.toString());
+            continue;
+        }
+
+        o->setProperty(p->attributeName().toUtf8(), v);
+    }
+}
+
+#ifdef QFORMINTERNAL_NAMESPACE
+} // namespace QFormInternal
+#endif
