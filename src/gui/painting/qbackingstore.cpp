@@ -235,6 +235,7 @@ void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *wi
 #if defined(Q_WS_WIN)
     QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
     HDC engine_dc = engine->getDC();
+    Q_ASSERT(engine_dc);
     BitBlt(engine_dc, pos.x()+dx, pos.y()+dy, rect.width(), rect.height(),
            engine_dc, pos.x(), pos.y(), SRCCOPY);
     engine->releaseDC(engine_dc);
@@ -325,6 +326,8 @@ void QWidgetPrivate::scrollRect(const QRect &rect, int dx, int dy)
         QRect destRect = scrollRect.translated(dx,dy).intersect(scrollRect);
         QRect sourceRect = destRect.translated(-dx, -dy);
 
+        qDebug() << sourceRect << clipRect() << rect << dx << dy;
+
         QWidgetBackingStore *wbs = x->backingStore;
 
         QPoint toplevelOffset = q->mapTo(tlw, QPoint());
@@ -340,11 +343,11 @@ void QWidgetPrivate::scrollRect(const QRect &rect, int dx, int dy)
 //         qDebug() << "scrollRect" << q << rect << dx << dy << "dirty" << wbs->dirty << "newDirty" << newDirty;
         childExpose += newDirty;
         invalidateBuffer(childExpose);
-#ifndef Q_WS_WIN
-        // windows uses native scroll-on-screen, otherwise we copy from backingstore, giving only one
-        // screen update for each scroll, and a solid appearance
+
+        // windows uses native scroll-on-screen, otherwise we copy
+        // from backingstore, giving only one screen update for each
+        // scroll, and a solid appearance
         dirtyWidget_sys(rect);
-#endif
     }
 }
 
@@ -637,12 +640,6 @@ void QWidgetBackingStore::paintToBuffer(const QRegion &rgn, QWidget *widget, con
             QRegion wrgn = toBePainted;
             wrgn.translate(offset);
             PAINTDEVICE->paintEngine()->setSystemClip(wrgn);
-#ifdef Q_WS_WIN
-            QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
-            HDC engine_dc = engine->getDC();
-            SelectClipRgn(engine_dc, wrgn.handle());
-            engine->releaseDC(engine_dc);
-#endif
 
             //paint the background
             if((asRoot && !widget->testAttribute(Qt::WA_NoBackground) && !widget->testAttribute(Qt::WA_NoBackground))

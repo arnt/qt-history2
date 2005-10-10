@@ -2367,23 +2367,7 @@ void QWidget::scroll(int dx, int dy)
         return;
     if (dx == 0 && dy == 0)
         return;
-
-    if (children().size() > 0) {        // scroll children
-        QPoint pd(dx, dy);
-        QObjectList childObjects = children();
-        for (int i = 0; i < childObjects.size(); ++i) { // move all children
-            QObject *object = childObjects.at(i);
-            if (object->isWidgetType()) {
-                QWidget *w = static_cast<QWidget *>(object);
-                QPoint oldp = w->pos();
-                QRect  r(w->pos() + pd, w->size());
-                w->data->crect = r;
-                w->d_func()->setWSGeometry();
-                QMoveEvent e(r.topLeft(), oldp);
-                QApplication::sendEvent(w, &e);
-            }
-        }
-    }
+    d->scrollChildren(dx, dy);
     if (!QWidgetBackingStore::paintOnScreen(this)) {
         d->scrollRect(rect(), dx, dy);
         QApplication::sendPostedEvents(0, QEvent::UpdateRequest); //synchronous updates

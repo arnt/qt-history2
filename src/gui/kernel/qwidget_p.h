@@ -220,6 +220,8 @@ public:
     void reparentChildren();
 #endif
 
+    void scrollChildren(int dx, int dy);
+
 #ifdef QT_USE_BACKINGSTORE
     void dirtyWidget_sys(const QRegion &rgn);
     void cleanWidget_sys(const QRegion& rgn);

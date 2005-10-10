@@ -137,6 +137,31 @@ void QWidgetPrivate::focusInputContext()
 }
 
 /*!
+    \internal
+*/
+void QWidgetPrivate::scrollChildren(int dx, int dy)
+{
+    Q_Q(QWidget);
+    if (q->children().size() > 0) {        // scroll children
+        QPoint pd(dx, dy);
+        QObjectList childObjects = q->children();
+        for (int i = 0; i < childObjects.size(); ++i) { // move all children
+            QObject *object = childObjects.at(i);
+            if (object->isWidgetType()) {
+                QWidget *w = static_cast<QWidget *>(object);
+                QPoint oldp = w->pos();
+                QRect  r(w->pos() + pd, w->size());
+                w->data->crect = r;
+                w->d_func()->setWSGeometry();
+                QMoveEvent e(r.topLeft(), oldp);
+                QApplication::sendEvent(w, &e);
+            }
+        }
+    }
+}
+
+
+/*!
     This function returns the QInputContext for this widget. By
     default the input context is inherited from the widgets
     parent. For toplevels it is inherited from QApplication.
@@ -5764,6 +5789,7 @@ void QWidget::actionEvent(QActionEvent *)
 void QWidget::closeEvent(QCloseEvent *e)
 {
     Q_UNUSED(e);
+    e->accept();
 }
 
 
@@ -6506,7 +6532,7 @@ void QWidget::repaint(const QRect &r)
     This version repaints a region \a rgn inside the widget.
 */
 
-/*! 
+/*!
     \fn void QWidget::update()
     Updates the widget unless updates are disabled or the widget is
     hidden.

@@ -1490,36 +1490,55 @@ void QWidget::scroll(int dx, int dy)
 {
     if (!updatesEnabled() && children().size() == 0)
         return;
-    UINT flags = SW_INVALIDATE | SW_SCROLLCHILDREN;
-    if (!testAttribute(Qt::WA_NoBackground))
-        flags |= SW_ERASE;
+    if (dx == 0 && dy == 0)
+        return;
 
-    ScrollWindowEx(winId(), dx, dy, 0, 0, 0, 0, flags);
+    Q_D(QWidget);
+    d->scrollChildren(dx, dy);
+
 #ifdef QT_USE_BACKINGSTORE
-    d_func()->scrollRect(rect(), dx, dy);
+    if (!QWidgetBackingStore::paintOnScreen(this)) {
+        d->scrollRect(rect(), dx, dy);
+    } else
 #endif
-    UpdateWindow(winId());
+    {
+        UINT flags = SW_INVALIDATE | SW_SCROLLCHILDREN;
+        if (!testAttribute(Qt::WA_NoBackground))
+            flags |= SW_ERASE;
+        ScrollWindowEx(winId(), dx, dy, 0, 0, 0, 0, flags);
+        d->scrollRect(rect(), dx, dy);
+        UpdateWindow(winId());
+    }
 }
 
 void QWidget::scroll(int dx, int dy, const QRect& r)
 {
     if (!updatesEnabled())
         return;
-    UINT flags = SW_INVALIDATE;
-    if (!testAttribute(Qt::WA_NoBackground))
-        flags |= SW_ERASE;
+    if (dx == 0 && dy == 0)
+        return;
 
-    RECT wr;
-    wr.top = r.top();
-    wr.left = r.left();
-    wr.bottom = r.bottom()+1;
-    wr.right = r.right()+1;
+    Q_D(QWidget);
 
-    ScrollWindowEx(winId(), dx, dy, &wr, &wr, 0, 0, flags);
 #ifdef QT_USE_BACKINGSTORE
-    d_func()->scrollRect(r, dx, dy);
+    if (!QWidgetBackingStore::paintOnScreen(this)) {
+        d->scrollRect(rect(), dx, dy);
+    } else
 #endif
-    UpdateWindow(winId());
+    {
+        RECT wr;
+        wr.top = r.top();
+        wr.left = r.left();
+        wr.bottom = r.bottom()+1;
+        wr.right = r.right()+1;
+
+        UINT flags = SW_INVALIDATE;
+        if (!testAttribute(Qt::WA_NoBackground))
+            flags |= SW_ERASE;
+        ScrollWindowEx(winId(), dx, dy, &wr, &wr, 0, 0, flags);
+        d->scrollRect(rect(), dx, dy);
+        UpdateWindow(winId());
+    }
 }
 
 extern Q_GUI_EXPORT HDC qt_win_display_dc();
