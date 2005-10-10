@@ -320,6 +320,14 @@ void WidgetFactory::initialize(QObject *object) const
         if (sz.width() <= 0 && sz.height() <= 0)
             widget->setMinimumSize(QSize(16, 16));
     }
+
+    if (qobject_cast<QDockWidget*>(object) || qobject_cast<QToolBar*>(object)) {
+        sheet->setVisible(sheet->indexOf(QLatin1String("windowTitle")), true);
+
+        if (qobject_cast<QDockWidget*>(object)) {
+            sheet->setVisible(sheet->indexOf(QLatin1String("windowIcon")), true);
+        }
+    }
 }
 
 bool WidgetFactory::isPassiveInteractor(QWidget *widget)
