@@ -322,11 +322,11 @@ QXIMInputContext::QXIMInputContext()
     else
         ximServerName = "";
 
-#ifndef QT_NO_DEBUG
     if (!XSupportsLocale())
-        qWarning("Qt: Locale not supported on X server");
+#ifndef QT_NO_DEBUG
+        qWarning("Qt: Locale not supported on X server")
 #endif
-    
+            ;    
 #ifdef USE_X11R6_XIM
     else if (XSetLocaleModifiers (ximServerName.constData()) == 0)
         qWarning("Qt: Cannot set locale modifiers: %s", ximServerName.constData());
