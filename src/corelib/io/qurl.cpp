@@ -199,7 +199,9 @@ public:
     int port;
     QString path;
     QByteArray query;
+    bool hasQuery;
     QString fragment;
+    bool hasFragment;
 
     QByteArray encodedOriginal;
 
@@ -2915,6 +2917,8 @@ QUrlPrivate::QUrlPrivate()
     valueDelimiter = '=';
     pairDelimiter = '&';
     stateFlags = 0;
+    hasFragment = false;
+    hasQuery = false;
 }
 
 QUrlPrivate::QUrlPrivate(const QUrlPrivate &copy)
@@ -2925,7 +2929,9 @@ QUrlPrivate::QUrlPrivate(const QUrlPrivate &copy)
       port(copy.port),
       path(copy.path),
       query(copy.query),
+      hasQuery(copy.hasQuery),
       fragment(copy.fragment),
+      hasFragment(copy.hasFragment),
       encodedOriginal(copy.encodedOriginal),
       isValid(copy.isValid),
       parsingMode(copy.parsingMode),
@@ -3205,11 +3211,15 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
 
     // optional query
     char ch = *((*ptr)++);
-    if (ch == '?' && _query(ptr, &__query))
-        ch = *((*ptr)++);
-
+    if (ch == '?') {
+        that->hasQuery = true;
+        if (_query(ptr, &__query))
+            ch = *((*ptr)++);
+    }
+        
     // optional fragment
     if (ch == '#') {
+        that->hasFragment = true;
         (void) _fragment(ptr, &__fragment);
     } else if (ch != '\0') {
         that->isValid = false;
@@ -3340,11 +3350,12 @@ QByteArray QUrlPrivate::toEncoded(QUrl::FormattingOptions options) const
         url += QUrl::toPercentEncoding(path, "!$&'()*+,;=:@/");
     }
 
-    if (!(options & QUrl::RemoveQuery) && !query.isEmpty())
+    if (!(options & QUrl::RemoveQuery) && hasQuery)
         url += "?" + query;
-    if (!(options & QUrl::RemoveFragment) && !fragment.isEmpty())
+    if (!(options & QUrl::RemoveFragment) && hasFragment) {
         // fragment      = *( pchar / "/" / "?" )
         url += "#" + QUrl::toPercentEncoding(fragment, "!$&'()*+,;=:@/?");
+    }
 
     return url;
 }
@@ -3933,6 +3944,7 @@ void QUrl::setEncodedQuery(const QByteArray &query)
     QURL_UNSETFLAG(d->stateFlags, QUrlPrivate::Validated | QUrlPrivate::Normalized);
 
     d->query = query;
+    d->hasQuery = !query.isEmpty();
 }
 
 /*!
@@ -3964,6 +3976,7 @@ void QUrl::setQueryItems(const QList<QPair<QString, QString> > &query)
     }
 
     d->query = queryTmp;
+    d->hasQuery = !query.isEmpty();
 }
 
 /*!
@@ -4148,6 +4161,7 @@ void QUrl::setFragment(const QString &fragment)
     QURL_UNSETFLAG(d->stateFlags, QUrlPrivate::Validated | QUrlPrivate::Normalized);
 
     d->fragment = fragment;
+    d->hasFragment = !fragment.isEmpty();
 }
 
 /*!
@@ -4278,11 +4292,19 @@ QString QUrl::toString(FormattingOptions options) const
             && !d->authority(options).isEmpty() && !d->path.isEmpty() && d->path.at(0) != QLatin1Char('/'))
             url += QLatin1Char('/');
         url += d->path;
+        // check if we need to remove trailing slashes
+        while ((options & StripTrailingSlash) && url.right(1) == QLatin1String("/"))
+            url.chop(1);
     }
-    if (!(options & QUrl::RemoveQuery) && !d->query.isEmpty())
-        url += QLatin1Char('?') + fromPercentEncoding(d->query);
-    if (!(options & QUrl::RemoveFragment) && !d->fragment.isEmpty())
-        url += QLatin1Char('#') + d->fragment;
+
+    if (!(options & QUrl::RemoveQuery) && d->hasQuery) {
+        url += QLatin1Char('?');
+        url += fromPercentEncoding(d->query);
+    }
+    if (!(options & QUrl::RemoveFragment) && d->hasFragment) {
+        url += QLatin1Char('#');
+        url += d->fragment;
+    }
 
     return url;
 }
