@@ -176,8 +176,10 @@ int QMappingProxyModel::rowCount(const QModelIndex &parent) const
 {
     Q_D(const QMappingProxyModel);
     QModelIndex source_parent;
-    if (parent.isValid())
+    if (parent.isValid()) {
         source_parent = d->proxy_to_source.value(parent);
+        Q_ASSERT(source_parent.isValid());
+    }
     return sourceModel()->rowCount(source_parent);
 }
 
