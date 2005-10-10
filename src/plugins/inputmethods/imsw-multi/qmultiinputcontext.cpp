@@ -36,7 +36,7 @@
 #include <stdlib.h>
 
 QMultiInputContext::QMultiInputContext()
-    : QInputContext(), fw(0), current(-1)
+    : QInputContext(), current(-1)
 {
     QStringList keys = QInputContextFactory::keys();
     for (int i = keys.size()-1; i >= 0; --i)
@@ -124,14 +124,14 @@ QFont QMultiInputContext::font() const
 
 void QMultiInputContext::setFocusWidget(QWidget *w)
 {
-    fw = w;
+    QInputContext::setFocusWidget(w);
     if (slave())
 	slave()->setFocusWidget(w);
 }
 
 QWidget *QMultiInputContext::focusWidget() const
 {
-    return fw;
+    return QInputContext::focusWidget();
 }
 
 void QMultiInputContext::widgetDestroyed(QWidget *w)

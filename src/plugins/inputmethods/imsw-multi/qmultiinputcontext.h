@@ -73,7 +73,7 @@ public:
 protected Q_SLOTS:
     void changeSlave(QAction *);
 private:
-    QWidget *fw;
+    void *unused;
     int current;
     QList<QInputContext *> slaves;
     QMenu *menu;
