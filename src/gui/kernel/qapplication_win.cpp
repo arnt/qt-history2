@@ -175,6 +175,7 @@ Q_CORE_EXPORT bool winPostMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
 #define APPCOMMAND_TREBLE_UP              23
 #endif
 
+UINT WM_QT_REPAINT = 0;
 static UINT WM95_MOUSEWHEEL = 0;
 
 #if(_WIN32_WINNT < 0x0400)
@@ -641,8 +642,10 @@ void qt_init(QApplicationPrivate *priv, int)
 
     QT_WA({
         WM95_MOUSEWHEEL = RegisterWindowMessage(L"MSWHEEL_ROLLMSG");
+        WM_QT_REPAINT = RegisterWindowMessageW(L"WM_QT_REPAINT");
     } , {
         WM95_MOUSEWHEEL = RegisterWindowMessageA("MSWHEEL_ROLLMSG");
+        WM_QT_REPAINT = RegisterWindowMessageA("WM_QT_REPAINT");
     });
     initWinTabFunctions();
     QApplicationPrivate::inputContext = new QWinInputContext(0);
@@ -1440,6 +1443,8 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             if (!is_mouse_move || (is_mouse_move && !next_is_button))
                 qt_tabletChokeMouse = false;
         }
+    } else if (message == WM_QT_REPAINT) {
+        result = widget->translatePaintEvent(msg);
     } else if (message == WM95_MOUSEWHEEL) {
         result = widget->translateWheelEvent(msg);
     } else {

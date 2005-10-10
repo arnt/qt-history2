@@ -726,6 +726,8 @@ void QWidgetPrivate::invalidateBuffer(const QRegion &rgn)
     QWidget *tlw = q->window();
     QTLWExtra* x = tlw->d_func()->topData();
     x->backingStore->dirtyRegion(rgn, q);
+
+    q->setAttribute(Qt::WA_PendingUpdate);
 }
 
 void QWidget::repaint(const QRegion& rgn)
@@ -820,11 +822,11 @@ void QWidget::update(const QRegion& rgn)
     if (testAttribute(Qt::WA_WState_InPaintEvent)) {
         QApplication::postEvent(this, new QUpdateLaterEvent(rgn));
     } else {
-        setAttribute(Qt::WA_PendingUpdate);
-
         QWidget *tlw = window();
         QTLWExtra* x = tlw->d_func()->topData();
         x->backingStore->dirtyRegion(rgn, this);
+
+        setAttribute(Qt::WA_PendingUpdate);
     }
 }
 
