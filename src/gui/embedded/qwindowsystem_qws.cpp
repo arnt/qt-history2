@@ -14,7 +14,7 @@
 #include "qwindowsystem_qws.h"
 #include "qwsevent_qws.h"
 #include "qwscommand_qws.h"
-#include "qtransportauth_qws.h"
+#include "qtransportauth_qws_p.h"
 #include "qwsutils_qws.h"
 #include "qwscursor_qws.h"
 #include "qwsdisplay_qws.h"
@@ -783,7 +783,7 @@ void QWSServer::newConnection()
                 QTransportAuth::UnixStreamSock |
                 QTransportAuth::Trusted, socket );
 
-        AuthDevice *ad = a->recvBuf( d, sock );
+        QAuthDevice *ad = a->recvBuf( d, sock );
         ad->setClient( clientMap[socket] );
 
         connect(ad, SIGNAL(readyRead()),
@@ -894,7 +894,7 @@ QWSCommand* QWSClient::readMoreCommand()
         char displaybuf[1024];
         qint64 bytes = ad->bytesAvailable();
         if ( bytes > 511 ) bytes = 511;
-        hexstring( displaybuf, ((unsigned char *)(reinterpret_cast<AuthDevice*>(ad)->buffer().constData())), bytes );
+        hexstring( displaybuf, ((unsigned char *)(reinterpret_cast<QAuthDevice*>(ad)->buffer().constData())), bytes );
         qDebug( "readMoreCommand: %lli bytes - %s", ad->bytesAvailable(), displaybuf );
     }
 #endif
@@ -954,7 +954,7 @@ void QWSServer::doClient()
         return;
     }
     active = true;
-    AuthDevice *ad = qobject_cast<AuthDevice*>(sender());
+    QAuthDevice *ad = qobject_cast<QAuthDevice*>(sender());
     QWSClient* client;
     if ( ad )
     {

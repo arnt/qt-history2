@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qtransportauth_qws.h"
+#include "qtransportauth_qws_p.h"
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 
@@ -33,6 +34,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+
+static int hmac_md5(
+        unsigned char*  text,         /* pointer to data stream */
+        int             text_length,  /* length of data stream */
+        const unsigned char*  key,    /* pointer to authentication key */
+        int             key_length,   /* length of authentication key */
+        unsigned char * digest        /* caller digest to be filled in */
+        );
+
+
 
 #define KEY_CACHE_SIZE 10
 
@@ -250,11 +261,11 @@ QIODevice *QTransportAuth::passThroughByClient( QWSClient *client ) const
 
   \sa setTargetDevice()
 */
-AuthDevice *QTransportAuth::recvBuf( QTransportAuth::Data *d, QIODevice *iod )
+QAuthDevice *QTransportAuth::recvBuf( QTransportAuth::Data *d, QIODevice *iod )
 {
     if ( buffers.contains( d ))
         return buffers[d];
-    AuthDevice *authBuf = new AuthDevice( iod, d, AuthDevice::Receive );
+    QAuthDevice *authBuf = new QAuthDevice( iod, d, QAuthDevice::Receive );
     for ( int i = 0; i < policyReceivers.count(); ++i )
     {
         connect( authBuf, SIGNAL(policyCheck(QTransportAuth::Data &, const QString &)),
@@ -280,11 +291,11 @@ AuthDevice *QTransportAuth::recvBuf( QTransportAuth::Data *d, QIODevice *iod )
 
   \sa setTargetDevice()
 */
-AuthDevice *QTransportAuth::authBuf( QTransportAuth::Data *d, QIODevice *iod )
+QAuthDevice *QTransportAuth::authBuf( QTransportAuth::Data *d, QIODevice *iod )
 {
     if ( buffers.contains( d ))
         return buffers[d];
-    AuthDevice *authBuf = new AuthDevice( iod, d, AuthDevice::Send );
+    QAuthDevice *authBuf = new QAuthDevice( iod, d, QAuthDevice::Send );
     buffers[d] = authBuf;
     return authBuf;
 }
@@ -367,7 +378,7 @@ const unsigned char *QTransportAuth::getClientKey( unsigned char progId )
 ////  AuthDevice definition
 ////
 
-AuthDevice::AuthDevice( QIODevice *parent, QTransportAuth::Data *data, AuthDirection dir )
+QAuthDevice::QAuthDevice( QIODevice *parent, QTransportAuth::Data *data, AuthDirection dir )
     : QBuffer( parent )
     , d( data )
     , way( dir )
@@ -383,18 +394,18 @@ AuthDevice::AuthDevice( QIODevice *parent, QTransportAuth::Data *data, AuthDirec
     open( QIODevice::WriteOnly );
 }
 
-AuthDevice::~AuthDevice()
+QAuthDevice::~QAuthDevice()
 {
     // qDebug( "destroying authdevice" );
 }
 
-void AuthDevice::setClient( QWSClient *cli )
+void QAuthDevice::setClient( QWSClient *cli )
 {
     m_client = cli;
     QTransportAuth::getInstance()->buffersByClient[cli] = this;
 }
 
-QWSClient *AuthDevice::client() const
+QWSClient *QAuthDevice::client() const
 {
     return m_client;
 }
@@ -433,7 +444,7 @@ QWSClient *AuthDevice::client() const
 
   For server end, the writeData implementation in QBuffer is called.
 */
-qint64 AuthDevice::writeData(const char *data, qint64 len)
+qint64 QAuthDevice::writeData(const char *data, qint64 len)
 {
     if ( way == Receive )  // server
         return QBuffer::writeData( data, len );
@@ -492,7 +503,7 @@ qint64 AuthDevice::writeData(const char *data, qint64 len)
   If either of these fail, the message is denied.  In discovery mode
   denied messages are allowed, but the message is logged.
 */
-void AuthDevice::recvReadyRead()
+void QAuthDevice::recvReadyRead()
 {
     qint64 bytes = m_target->bytesAvailable();
     if ( bytes <= 0 ) return;
@@ -528,7 +539,7 @@ void AuthDevice::recvReadyRead()
     emit QBuffer::readyRead();
 }
 
-void AuthDevice::authorizeMessage()
+void QAuthDevice::authorizeMessage()
 {
     char buf[128];
     // msg auth header detected and auth determined, remove hdr
@@ -609,7 +620,7 @@ void AuthDevice::authorizeMessage()
    Returns true if header successfully added.  Will fail if the
    per-process key has not yet been set with setProcessKey()
 */
-bool AuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char *msg, int msgLen )
+bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char *msg, int msgLen )
 {
     QTransportAuth *a = QTransportAuth::getInstance();
     // only authorize connection oriented transports once
@@ -708,7 +719,7 @@ bool AuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char *
       qWarning( "error: %s", QTransportAuth::errorStrings[r] );
   \endcode
 */
-bool AuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int msgLen )
+bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int msgLen )
 {
     if ( msgLen < MAGIC_BYTES )
     {
@@ -841,7 +852,7 @@ void hexstring( char *buf, const unsigned char* key, size_t key_len )
   replaced with a call into the accelerated version.
 */
 
-int hmac_md5(
+static int hmac_md5(
         unsigned char*  text,         /* pointer to data stream */
         int             text_length,  /* length of data stream */
         const unsigned char*  key,    /* pointer to authentication key */
@@ -886,5 +897,7 @@ int hmac_md5(
         MD5Final(digest, &context);          /* finish up 2nd pass */
         return 1;
 }
+
+#include "moc_qtransportauth_qws_p.cpp"
 
 #endif // QT_NO_QWS_MULTIPROCESS

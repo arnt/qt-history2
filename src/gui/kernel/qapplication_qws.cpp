@@ -31,6 +31,7 @@
 #include "qbitmap.h"
 #include "qwssocket_qws.h"
 #include "qtransportauth_qws.h"
+#include "private/qtransportauth_qws_p.h"
 #include "qwsevent_qws.h"
 #include "qwscommand_qws.h"
 #include "qwsproperty_qws.h"
@@ -486,7 +487,7 @@ void QWSDisplay::Data::init()
                 QTransportAuth::Trusted,
                 csocket->socketDescriptor());
 
-        AuthDevice *ad = a->authBuf( d, csocket );
+        QAuthDevice *ad = a->authBuf( d, csocket );
 
         if  (csocket)
             cmd.write( ad );

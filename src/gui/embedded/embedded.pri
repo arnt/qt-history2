@@ -23,6 +23,7 @@ embedded {
 		    embedded/qwsmanager_p.h \
 		    embedded/qwsproperty_qws.h \
                     embedded/qtransportauth_qws.h \
+                    embedded/qtransportauth_qws_p.h \
                     embedded/md5.h \
 		    embedded/qwssocket_qws.h \
 		    embedded/qwsutils_qws.h

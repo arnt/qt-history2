@@ -122,7 +122,7 @@ struct AuthCookie
     unsigned char progId;
 };
 
-class AuthDevice;
+class QAuthDevice;
 class QWSClient;
 class QIODevice;
 
@@ -247,8 +247,8 @@ public:
 
     Data *connectTransport( unsigned char, int );
 
-    AuthDevice *authBuf( Data *, QIODevice * );
-    AuthDevice *recvBuf( Data *, QIODevice * );
+    QAuthDevice *authBuf( Data *, QIODevice * );
+    QAuthDevice *recvBuf( Data *, QIODevice * );
     QIODevice *passThroughByClient( QWSClient * ) const;
 
     void setKeyFilePath( const QString & );
@@ -271,61 +271,11 @@ private:
     QString m_keyFilePath;
     AuthCookie authKey;
     QList<Data*> data;
-    QHash<Data*,AuthDevice*> buffers;
+    QHash<Data*,QAuthDevice*> buffers;
     QList< QPointer<QObject> > policyReceivers;
     QHash<QWSClient*,QIODevice*> buffersByClient;
-    friend class AuthDevice;
+    friend class QAuthDevice;
 };
-
-/**
-  \internal
-  \class AuthDevice
-
-  \brief Pass-through QIODevice sub-class for authentication.
-
-   Use this class to forward on or receive forwarded data over a real
-   device for authentication.
-*/
-class Q_GUI_EXPORT AuthDevice : public QBuffer
-{
-    Q_OBJECT
-public:
-    enum AuthDirection {
-        Receive,
-        Send
-    };
-    AuthDevice( QIODevice *, QTransportAuth::Data *, AuthDirection );
-    ~AuthDevice();
-    void setTarget( QIODevice *t ) { m_target = t; }
-    QIODevice *target() const { return m_target; }
-    void setClient( QWSClient *c );
-    QWSClient *client() const;
-    bool authToMessage( QTransportAuth::Data &d, char *hdr, const char *msg, int msgLen );
-    bool authFromMessage( QTransportAuth::Data &d, const char *msg, int msgLen );
-signals:
-    void authViolation( QTransportAuth::Data & );
-    void policyCheck( QTransportAuth::Data &, const QString & );
-protected:
-    qint64 writeData(const char *, qint64 );
-private slots:
-    void recvReadyRead();
-private:
-    void authorizeMessage();
-
-    QTransportAuth::Data *d;
-    AuthDirection way;
-    QIODevice *m_target;
-    QWSClient *m_client;
-};
-
-int hmac_md5(
-        unsigned char*  text,         /* pointer to data stream */
-        int             text_length,  /* length of data stream */
-        const unsigned char*  key,    /* pointer to authentication key */
-        int             key_length,   /* length of authentication key */
-        unsigned char * digest        /* caller digest to be filled in */
-        );
-
 
 #ifdef QTRANSPORTAUTH_DEBUG
 void hexstring( char *buf, const unsigned char* key, size_t sz );
