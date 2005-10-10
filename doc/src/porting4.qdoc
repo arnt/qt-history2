@@ -2308,6 +2308,16 @@
     compatibility with older applications, Q3PopupMenu provides the old API
     and features that are specific to popup menus.
 
+    In Qt 3, it was common practice to add entries to popup menus using the
+    insertItem() function. In Qt 4, menu entries are completely represented
+    by actions for consistency with other user interface components, such as
+    toolbar buttons. Create new menus with the QMenu class, and use the
+    overloaded QMenu::addAction() functions to insert new entries.
+
+    The \l{Qt Examples#Main Window Examples}{Main Window examples} provided
+    show how to use Qt's action system to construct menus, toolbars, and other
+    common user interface elements.
+
     \section1 QPrinter
 
     The QPrinter class now expects printing to be set up from a
