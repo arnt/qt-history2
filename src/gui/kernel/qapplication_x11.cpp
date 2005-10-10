@@ -5291,7 +5291,7 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
   Session management support
  *****************************************************************************/
 
-#ifndef QT_NO_SM
+#ifndef QT_NO_SESSIONMANAGER
 
 #include <X11/SM/SMlib.h>
 
@@ -5778,4 +5778,4 @@ void QSessionManager::requestPhase2()
     sm_phase2 = true;
 }
 
-#endif // QT_NO_SM
+#endif // QT_NO_SESSIONMANAGER
