@@ -188,17 +188,26 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
     setFilter(m_filter);
 }
 
-QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
+QString fixActionText(QString text)
+{
+    return text.replace(QLatin1String("&"), QString());
+}
+
+QIcon fixActionIcon(QIcon icon)
 {
     static const QIcon empty_icon(":/trolltech/formeditor/images/emptyicon.png");
+    if (icon.isNull())
+        return empty_icon;
+    return icon;
+}
 
+QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
+{
     QListWidgetItem *item = new QListWidgetItem(m_actionRepository);
-    item->setSizeHint(m_actionRepository->iconSize()*2);
-    item->setText(action->objectName());
-    if (action->icon().isNull())
-        item->setIcon(empty_icon);
-    else
-        item->setIcon(action->icon());
+    QSize s = m_actionRepository->iconSize();
+    item->setSizeHint(QSize(s.width()*3, s.height()*2));
+    item->setText(fixActionText(action->objectName()));
+    item->setIcon(fixActionIcon(action->icon()));
 
     QVariant itemData;
     qVariantSetValue(itemData, action);
@@ -235,11 +244,8 @@ void ActionEditor::slotActionChanged()
     QListWidgetItem *item = qvariant_cast<QListWidgetItem*>(action->data());
     Q_ASSERT(item != 0);
 
-    item->setText(action->text());
-    if (action->icon().isNull())
-        item->setIcon(empty_icon);
-    else
-        item->setIcon(action->icon());
+    item->setText(fixActionText(action->text()));
+    item->setIcon(fixActionIcon(action->icon()));
 }
 
 QDesignerFormEditorInterface *ActionEditor::core() const
