@@ -191,6 +191,7 @@ private:
     bool outline_drawing;
     int subpixel;
     bool transform;
+    int hint_style;
     mutable FT_Matrix matrix; // need mutable because the freetype API doesn't use const
 
 public:

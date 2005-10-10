@@ -1553,12 +1553,12 @@ void qt_init(QApplicationPrivate *priv, int,
         }
         X11->fc_antialias = true;
         getXDefault("Xft", FC_ANTIALIAS, &X11->fc_antialias);
+#ifdef FC_HINT_STYLE
+        getXDefault("Xft", FC_HINT_STYLE, &X11->fc_hint_style);
+#endif
 #if 0
         // ###### these are implemented by Xft, not sure we need them
         getXDefault("Xft", FC_AUTOHINT, &X11->fc_autohint);
-#ifdef FC_HINT_STYLE
-        getXDefault("Xft", FC_HINT_STYLE, &X11->fc_autohint);
-#endif
         getXDefault("Xft", FC_HINTING, &X11->fc_autohint);
         getXDefault("Xft", FC_MINSPACE, &X11->fc_autohint);
 #endif

@@ -378,6 +378,7 @@ struct QX11Data
     bool has_fontconfig;
     qreal fc_scale;
     bool fc_antialias;
+    int fc_hint_style;
 
     char *startupId;
 

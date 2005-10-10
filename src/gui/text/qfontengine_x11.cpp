@@ -549,6 +549,11 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
     if (!antialias || subpixel == FC_RGBA_UNKNOWN)
         subpixel = FC_RGBA_NONE;
 
+#ifdef FC_HINT_STYLE
+    if (FcPatternGetInteger (pattern, FC_HINT_STYLE, 0, &hint_style) == FcResultNoMatch)
+	hint_style = X11->fc_hint_style;
+#endif
+    
     if (!library)
         FT_Init_FreeType(&library);
 
@@ -658,15 +663,13 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
 #ifndef QT_NO_XRENDER
     if (X11->use_xrender) {
         int format = PictStandardA8;
-        if (!antialias) {
+        if (!antialias) 
             format = PictStandardA1;
-        } else {
-            if (subpixel == FC_RGBA_RGB || subpixel == FC_RGBA_BGR) {
-                format = PictStandardARGB32;
-            } else if (subpixel == FC_RGBA_VRGB || subpixel == FC_RGBA_VBGR) {
-                format = PictStandardARGB32;
-            }
-        }
+        else if (subpixel == FC_RGBA_RGB
+                 || subpixel == FC_RGBA_BGR
+                 || subpixel == FC_RGBA_VRGB
+                 || subpixel == FC_RGBA_VBGR) 
+            format = PictStandardARGB32;
         glyphSet = XRenderCreateGlyphSet(X11->display,
                                          XRenderFindStandardFormat(X11->display, format));
         xglyph_format = format;
@@ -736,6 +739,13 @@ void QFontEngineFT::unlockFace() const
 #define TRUNC(x)    ((x) >> 6)
 #define ROUND(x)    (((x)+32) & -64)
 
+static const uint subpixel_filter[3][3] = {
+    { 180, 60, 16 },
+    { 38, 180, 38 },
+    { 16, 60, 180 }
+};
+
+
 QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) const
 {
     Q_ASSERT(freetype->lock == 1);
@@ -769,6 +779,13 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
         }
 
     }
+#ifdef FC_HINT_STYLE
+    if (hint_style == FC_HINT_NONE)
+        load_flags = FT_LOAD_NO_HINTING;
+    else if (hint_style < FC_HINT_FULL)
+        load_flags |= FT_LOAD_TARGET_LIGHT;
+#endif
+    
     if (transform)
         load_flags |= FT_LOAD_NO_BITMAP;
 
@@ -878,18 +895,40 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
             uchar *newBuf = new uchar[size];
             uint *dst = (uint *)newBuf;
             int h = info.height;
-            const uint r = (subpixel == FC_RGBA_RGB || subpixel == FC_RGBA_VRGB) ? 16 : 0;
-            const uint b = 16 - r;
-            while (h--) {
-                uint *dd = dst;
-                for (int x = 0; x < bitmap.width; x += 3) {
-                    // ############# filter
-                    uint res = (src[x] << r) + (src[x+1] << 8) + (src[x+2] << b);
-                    *dd = res;
-                    ++dd;
+            if (subpixel == FC_RGBA_RGB) {
+                while (h--) {
+                    uint *dd = dst;
+                    for (int x = 0; x < bitmap.width; x += 3) {
+                        uint red = src[x];
+                        uint green = src[x+1];
+                        uint blue = src[x+2];
+                        uint high = (red*subpixel_filter[0][0] + green*subpixel_filter[0][1] + blue*subpixel_filter[0][2]) >> 8;
+                        uint mid = (red*subpixel_filter[1][0] + green*subpixel_filter[1][1] + blue*subpixel_filter[1][2]) >> 8;
+                        uint low = (red*subpixel_filter[2][0] + green*subpixel_filter[2][1] + blue*subpixel_filter[2][2]) >> 8;
+                        uint res = (high << 16) + (mid << 8) + low;
+                        *dd = res;
+                        ++dd;
+                    }
+                    dst += info.width;
+                    src += bitmap.pitch;
                 }
-                dst += info.width;
-                src += bitmap.pitch;
+            } else {
+                while (h--) {
+                    uint *dd = dst;
+                    for (int x = 0; x < bitmap.width; x += 3) {
+                        uint blue = src[x];
+                        uint green = src[x+1];
+                        uint red = src[x+2];
+                        uint high = (red*subpixel_filter[0][0] + green*subpixel_filter[0][1] + blue*subpixel_filter[0][2]) >> 8;
+                        uint mid = (red*subpixel_filter[1][0] + green*subpixel_filter[1][1] + blue*subpixel_filter[1][2]) >> 8;
+                        uint low = (red*subpixel_filter[2][0] + green*subpixel_filter[2][1] + blue*subpixel_filter[2][2]) >> 8;
+                        uint res = (high << 16) + (mid << 8) + low;
+                        *dd = res;
+                        ++dd;
+                    }
+                    dst += info.width;
+                    src += bitmap.pitch;
+                }
             }
             delete [] buffer;
             buffer = newBuf;
@@ -899,16 +938,36 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
             uchar *newBuf = new uchar[size];
             uint *dst = (uint *)newBuf;
             int h = info.height;
-            const uint r = (subpixel == FC_RGBA_RGB || subpixel == FC_RGBA_VRGB) ? 16 : 0;
-            const uint b = 16 - r;
-            while (h--) {
-                for (int x = 0; x < info.width; x++) {
-                    // ############# filter
-                    uint res = src[x] << r + src[x+bitmap.pitch] << 8 + src[x+2*bitmap.pitch] << b;
-                    dst[x] = res;
+            if (subpixel == FC_RGBA_VRGB) {
+                while (h--) {
+                    for (int x = 0; x < info.width; x++) {
+                        uint red = src[x];
+                        uint green = src[x+bitmap.pitch];
+                        uint blue = src[x+2*bitmap.pitch];
+                        uint high = (red*subpixel_filter[0][0] + green*subpixel_filter[0][1] + blue*subpixel_filter[0][2]) >> 8;
+                        uint mid = (red*subpixel_filter[1][0] + green*subpixel_filter[1][1] + blue*subpixel_filter[1][2]) >> 8;
+                        uint low = (red*subpixel_filter[2][0] + green*subpixel_filter[2][1] + blue*subpixel_filter[2][2]) >> 8;
+                        uint res = (high << 16) + (mid << 8) + low;
+                        dst[x] = res;
+                    }
+                    dst += info.width;
+                    src += 3*bitmap.pitch;
                 }
-                dst += info.width;
-                src += 3*bitmap.pitch;
+            } else {
+                while (h--) {
+                    for (int x = 0; x < info.width; x++) {
+                        uint blue = src[x];
+                        uint green = src[x+bitmap.pitch];
+                        uint red = src[x+2*bitmap.pitch];
+                        uint high = (red*subpixel_filter[0][0] + green*subpixel_filter[0][1] + blue*subpixel_filter[0][2]) >> 8;
+                        uint mid = (red*subpixel_filter[1][0] + green*subpixel_filter[1][1] + blue*subpixel_filter[1][2]) >> 8;
+                        uint low = (red*subpixel_filter[2][0] + green*subpixel_filter[2][1] + blue*subpixel_filter[2][2]) >> 8;
+                        uint res = (high << 16) + (mid << 8) + low;
+                        dst[x] = res;
+                    }
+                    dst += info.width;
+                    src += 3*bitmap.pitch;
+                }
             }
             delete [] buffer;
             buffer = newBuf;
@@ -926,29 +985,13 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
                 src += slot->bitmap.pitch;
             }
         } else {
-            if (hfactor != 1) {
+            if (hfactor != 1 || vfactor != 1) {
                 while (h--) {
-                    uchar *dd = dst;
+                    uint *dd = (uint *)dst;
                     for (int x = 0; x < slot->bitmap.width; x++) {
                         unsigned char a = ((src[x >> 3] & (0x80 >> (x & 7))) ? 0xff : 0x00);
-                        *dd++ = a;
-                        *dd++ = a;
-                        *dd++ = a;
-                        *dd++ = a;
+                        *dd++ = (a << 16) | (a << 8) | a;
                     }
-                    dst += pitch * vfactor;
-                    src += slot->bitmap.pitch;
-                }
-
-            } else if (vfactor != 1) {
-                while (h--) {
-                    for (int x = 0; x < slot->bitmap.width; x++) {
-                        unsigned char a = ((src[x >> 3] & (0x80 >> (x & 7))) ? 0xff : 0x00);
-                        dst[x] = a;
-                    }
-                    memcpy(dst + pitch, dst, pitch);
-                    dst += pitch;
-                    memcpy(dst + pitch, dst, pitch);
                     dst += pitch;
                     src += slot->bitmap.pitch;
                 }
