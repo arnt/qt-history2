@@ -13,8 +13,9 @@ ActionRepository::ActionRepository(QWidget *parent)
     setViewMode(IconMode);
     setMovement(Static);
     setResizeMode(Adjust);
-    setIconSize(QSize(48, 48));
+    setIconSize(QSize(24, 24));
     setSpacing(iconSize().width() / 2);
+    setTextElideMode(Qt::ElideRight);
 
     setDragEnabled(true);
     setAcceptDrops(false);

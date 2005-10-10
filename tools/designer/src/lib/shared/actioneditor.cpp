@@ -29,6 +29,7 @@
 #include <QtGui/QPainter>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QLineEdit>
+#include <QtGui/QLabel>
 
 #include <qdebug.h>
 
@@ -49,6 +50,11 @@ public:
         l->setSpacing(0);
 
         l->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+        QLabel *label = new QLabel(tr("Filter: "), this);
+        label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        l->addWidget(label);
+
         m_editor = new QLineEdit(this);
         l->addWidget(m_editor);
 
@@ -88,7 +94,8 @@ ActionEditor::ActionEditor(QDesignerFormEditorInterface *core, QWidget *parent, 
     l->setSpacing(0);
 
     QToolBar *toolbar = new QToolBar(this);
-    toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon); // ### style
+//    toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon); // ### style
+    toolbar->setIconSize(QSize(24, 24));
     toolbar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     l->addWidget(toolbar);
 
@@ -183,9 +190,15 @@ void ActionEditor::setFormWindow(QDesignerFormWindowInterface *formWindow)
 
 QListWidgetItem *ActionEditor::createListWidgetItem(QAction *action)
 {
+    static const QIcon empty_icon(":/trolltech/formeditor/images/emptyicon.png");
+
     QListWidgetItem *item = new QListWidgetItem(m_actionRepository);
+    item->setSizeHint(m_actionRepository->iconSize()*2);
     item->setText(action->objectName());
-    item->setIcon(action->icon());
+    if (action->icon().isNull())
+        item->setIcon(empty_icon);
+    else
+        item->setIcon(action->icon());
 
     QVariant itemData;
     qVariantSetValue(itemData, action);
@@ -214,6 +227,8 @@ void ActionEditor::slotItemChanged(QListWidgetItem *item)
 
 void ActionEditor::slotActionChanged()
 {
+    static const QIcon empty_icon(":/trolltech/formeditor/images/emptyicon.png");
+
     QAction *action = qobject_cast<QAction*>(sender());
     Q_ASSERT(action != 0);
 
@@ -221,7 +236,10 @@ void ActionEditor::slotActionChanged()
     Q_ASSERT(item != 0);
 
     item->setText(action->text());
-    item->setIcon(action->icon());
+    if (action->icon().isNull())
+        item->setIcon(empty_icon);
+    else
+        item->setIcon(action->icon());
 }
 
 QDesignerFormEditorInterface *ActionEditor::core() const
