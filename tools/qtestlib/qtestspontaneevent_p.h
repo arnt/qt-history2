@@ -4,12 +4,6 @@
 #include <QtCore/qglobal.h>
 #include <QtCore/qcoreevent.h>
 
-#if defined Q_CC_HPACC
-// aCC 3.37 complains about the template syntax in this
-// file. It doesn't complain in Qt itself, though. (?)
-#define QTEST_NO_SIZEOF_CHECK
-#endif
-
 #ifndef QTEST_NO_SIZEOF_CHECK
 template <int>
 class QEventSizeOfChecker
