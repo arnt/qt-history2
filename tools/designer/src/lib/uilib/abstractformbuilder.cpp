@@ -523,6 +523,19 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
         }
 
         return true;
+    } else if (QToolBox *toolBox = qobject_cast<QToolBox*>(parentWidget)) {
+        int tabIndex = toolBox->count();
+        toolBox->addItem(widget, label);
+
+        if (DomProperty *picon = attributes.value(QLatin1String("icon"))) {
+            toolBox->setItemIcon(tabIndex, qvariant_cast<QIcon>(toVariant(0, picon)));
+        }
+
+        if (DomProperty *ptoolTip = attributes.value(QLatin1String("toolTip"))) {
+            toolBox->setItemToolTip(tabIndex, toString(ptoolTip->elementString()));
+        }
+
+        return true;
     }
 
     if (QStackedWidget *stackedWidget = qobject_cast<QStackedWidget*>(parentWidget)) {
@@ -530,9 +543,6 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
         return true;
     } else if (QSplitter *splitter = qobject_cast<QSplitter*>(parentWidget)) {
         splitter->addWidget(widget);
-        return true;
-    } else if (QToolBox *toolBox = qobject_cast<QToolBox*>(parentWidget)) {
-        toolBox->addItem(widget, label);
         return true;
     }
 

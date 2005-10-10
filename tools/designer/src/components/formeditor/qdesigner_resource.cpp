@@ -864,6 +864,23 @@ DomWidget *QDesignerResource::saveWidget(QDesignerToolBox *widget, DomWidget *ui
             QList<DomProperty*> ui_attribute_list;
             ui_attribute_list.append(p);
 
+            // attribute `icon'
+            if (!widget->itemIcon(i).isNull()) {
+                p = createIconProperty(widget->itemIcon(i));
+                p->setAttributeName(QLatin1String("icon"));
+                ui_attribute_list.append(p);
+            }
+
+            // attribute `toolTip'
+            if (!widget->itemToolTip(i).isEmpty()) {
+                p = new DomProperty();
+                p->setAttributeName(QLatin1String("toolTip"));
+                str = new DomString();
+                str->setText(widget->itemToolTip(i));
+                p->setElementString(str);
+                ui_attribute_list.append(p);
+            }
+
             ui_page->setElementAttribute(ui_attribute_list);
 
             ui_widget_list.append(ui_page);

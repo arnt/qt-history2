@@ -276,7 +276,9 @@ void ActionEditor::slotNewAction()
         action->setText(dlg.actionText());
 
         if (dlg.isMenuAction()) {
-            action->setMenu(new QDesignerMenu(form));
+            QMenu *menu = qobject_cast<QMenu*>(core()->widgetFactory()->createWidget("QMenu"));
+            core()->metaDataBase()->add(menu);
+            action->setMenu(menu);
         }
 
         core()->metaDataBase()->add(action);
