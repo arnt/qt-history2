@@ -177,13 +177,16 @@
     When you make your own widget class, you should also communicate its
     layout properties. If the widget has a QLayout, this is already taken
     care of. If the widget does not have any child widgets, or uses manual
-    layout, you should reimplement the following QWidget member functions:
+    layout, you can change the behavior of the widget using any or all of
+    the following mechanisms:
 
     \list
-    \o QWidget::sizeHint() returns the preferred size of the widget.
-    \o QWidget::minimumSizeHint() returns the smallest size the widget can have.
-    \o QWidget::sizePolicy() returns a QSizePolicy (a value
-       describing the space requirements of the widget).
+    \o Reimplement QWidget::sizeHint() to return the preferred size of the
+       widget.
+    \o Reimplement QWidget::minimumSizeHint() to return the smallest size the
+       widget can have.
+    \o Call QWidget::setSizePolicy() to specify the space requirements of the
+       widget.
     \endlist
 
     Call QWidget::updateGeometry() whenever the size hint, minimum
@@ -275,11 +278,11 @@
         {
         public:
             CardLayout(QWidget *parent, int dist)
-	        : QLayout(parent, 0, dist) {}
+                : QLayout(parent, 0, dist) {}
             CardLayout(QLayout *parent, int dist)
-	        : QLayout(parent, dist) {}
+                : QLayout(parent, dist) {}
             CardLayout(int dist)
-	        : QLayout(dist) {}
+                : QLayout(dist) {}
             ~CardLayout();
 
             void addItem(QLayoutItem *item);
