@@ -1727,7 +1727,7 @@ void QApplication::aboutQt()
 
     \list
 
-    \i this attribute is set for all widgets except tran sient windows
+    \i this attribute is set for all widgets except transient windows
     such as splash screens, tool windows, and popup menus
 
     \i QApplication implicitly quits when this signal is emitted.
