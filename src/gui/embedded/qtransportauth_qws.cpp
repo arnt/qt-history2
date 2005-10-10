@@ -36,7 +36,7 @@
 
 #define KEY_CACHE_SIZE 10
 
-const char * errorStrings[] = {
+const char * const errorStrings[] = {
     QT_TRANSLATE_NOOP( "Transport Auth error",  "pending identity verification" ),
     QT_TRANSLATE_NOOP( "Transport Auth error",  "message too small to carry auth data" ),
     QT_TRANSLATE_NOOP( "Transport Auth error",  "cache miss on connection oriented transport"  ),
@@ -569,7 +569,7 @@ void AuthDevice::authorizeMessage()
         QFile log( auth->logFilePath() );
         if ( !log.open( QIODevice::WriteOnly | QIODevice::Append ))
         {
-            qWarning("Could not write to log in discovery mode:",
+            qWarning("Could not write to log in discovery mode: %s",
                      qPrintable(auth->logFilePath()));
         }
         else
