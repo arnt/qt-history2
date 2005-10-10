@@ -830,7 +830,9 @@ void QComboBoxPrivate::emitCurrentIndexChanged(int index)
 {
     Q_Q(QComboBox);
     QModelIndex mi = q->model()->index(index, modelColumn, q->rootModelIndex());
-    QString text(q->model()->data(mi, Qt::EditRole).toString());
+    QString text;
+    if (mi.isValid())
+        text = q->model()->data(mi, Qt::EditRole).toString();
     emit q->currentIndexChanged(index);
     emit q->currentIndexChanged(text);
 }
