@@ -43,7 +43,7 @@ HEADERS	 = configureapp.h environment.h \
            $$QT_SOURCE_TREE/src/corelib/io/qdir.h \
            $$QT_SOURCE_TREE/src/corelib/io/qfile.h \
            $$QT_SOURCE_TREE/src/corelib/io/qfileinfo.h \
-           $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine_p.h \
+           $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine.h \
            $$QT_SOURCE_TREE/src/corelib/io/qiodevice.h \
            $$QT_SOURCE_TREE/src/corelib/io/qtextstream.h \
            $$QT_SOURCE_TREE/src/corelib/io/qtemporaryfile.h \
@@ -68,12 +68,11 @@ SOURCES	 = main.cpp configureapp.cpp environment.cpp \
            $$QT_SOURCE_TREE/src/corelib/codecs/qtextcodec.cpp \
            $$QT_SOURCE_TREE/src/corelib/global/qglobal.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qbuffer.cpp \
-	   $$QT_SOURCE_TREE/src/corelib/io/qbufferedfsfileengine.cpp \
-           $$QT_SOURCE_TREE/src/corelib/io/qdatastream.cpp \
+	   $$QT_SOURCE_TREE/src/corelib/io/qdatastream.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qdir.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qfile.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qfileinfo.cpp \
-           $$QT_SOURCE_TREE/src/corelib/io/qfileengine.cpp \
+	   $$QT_SOURCE_TREE/src/corelib/io/qabstractfileengine.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine_win.cpp \
            $$QT_SOURCE_TREE/src/corelib/io/qiodevice.cpp \
@@ -87,7 +86,15 @@ SOURCES	 = main.cpp configureapp.cpp environment.cpp \
            $$QT_SOURCE_TREE/src/corelib/tools/qstringlist.cpp \
            $$QT_SOURCE_TREE/src/corelib/tools/qstringmatcher.cpp \
            $$QT_SOURCE_TREE/src/corelib/tools/qunicodetables.cpp \
-           $$QT_SOURCE_TREE/src/corelib/tools/qvsnprintf.cpp
+           $$QT_SOURCE_TREE/src/corelib/tools/qvsnprintf.cpp \
+	   $$QT_SOURCE_TREE/src/corelib/kernel/qvariant.cpp \
+	   $$QT_SOURCE_TREE/src/corelib/io/qurl.cpp \
+	   $$QT_SOURCE_TREE/src/corelib/tools/qline.cpp \
+	   $$QT_SOURCE_TREE/src/corelib/tools/qsize.cpp \
+	   $$QT_SOURCE_TREE/src/corelib/tools/qpoint.cpp \
+	   $$QT_SOURCE_TREE/src/corelib/tools/qrect.cpp \
+	   $$QT_SOURCE_TREE/src/corelib/kernel/qmetatype.cpp
+	   
 
 SOURCES += $$QT_SOURCE_TREE/util/licensekeys/shared/keyinfo.cpp
 
