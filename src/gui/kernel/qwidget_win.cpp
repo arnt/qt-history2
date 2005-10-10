@@ -1480,10 +1480,10 @@ void QWidget::scroll(int dx, int dy)
     if (!testAttribute(Qt::WA_NoBackground))
         flags |= SW_ERASE;
 
+    ScrollWindowEx(winId(), dx, dy, 0, 0, 0, 0, flags);
 #ifdef QT_USE_BACKINGSTORE
     d_func()->scrollRect(rect(), dx, dy);
 #endif
-    ScrollWindowEx(winId(), dx, dy, 0, 0, 0, 0, flags);
     UpdateWindow(winId());
 }
 
@@ -1501,10 +1501,10 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     wr.bottom = r.bottom()+1;
     wr.right = r.right()+1;
 
+    ScrollWindowEx(winId(), dx, dy, &wr, &wr, 0, 0, flags);
 #ifdef QT_USE_BACKINGSTORE
     d_func()->scrollRect(r, dx, dy);
 #endif
-    ScrollWindowEx(winId(), dx, dy, &wr, &wr, 0, 0, flags);
     UpdateWindow(winId());
 }
 
