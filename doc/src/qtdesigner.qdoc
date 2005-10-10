@@ -96,12 +96,17 @@
 
     \section1 Creating User Interfaces at Run-Time
 
-    The QFormBuilder class provides a mechanism for dynamically
-    creating user interfaces at run-time, based on \c .ui files
-    created with \QD. For a complete example using QFormBuilder, see
+    The QtDesigner module contains the QFormBuilder class that provides a
+    mechanism for dynamically creating user interfaces at run-time, based
+    on \c .ui files created with \QD. This class is typically used by
+    custom components and applications that embed \QD. Standalone
+    applications that need to dynamically generate user interfaces at
+    run-time use the QForm::Loader class, found in the QtForm module.
+
+    For a complete example using QForm::Loader, see
     the \l {designer/calculatorbuilder}{Calculator Builder example}.
 
-    \sa {Qt Designer Manual}
+    \sa {Qt Designer Manual}, {QtForm Module}
 */
 
 /*!

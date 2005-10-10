@@ -1,9 +1,9 @@
-CONFIG      += designer
+CONFIG      += form
 
 HEADERS     = calculatorform.h
+RESOURCES   = calculatorbuilder.qrc
 SOURCES     = calculatorform.cpp \
               main.cpp
-RESOURCES   = calculatorbuilder.qrc
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/designer/calculatorbuilder

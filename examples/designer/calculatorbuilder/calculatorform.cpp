@@ -11,18 +11,19 @@
 **
 ****************************************************************************/
 
+#include <QtForm>
 #include <QtGui>
-#include <QtDesigner/QFormBuilder>
 
 #include "calculatorform.h"
 
 CalculatorForm::CalculatorForm(QWidget *parent)
     : QWidget(parent)
 {
-    QFormBuilder builder;
+    QForm::Loader loader;
+
     QFile file(":/forms/calculatorform.ui");
     file.open(QFile::ReadOnly);
-    QWidget *formWidget = builder.load(&file, this);
+    QWidget *formWidget = loader.load(&file, this);
     file.close();
 
     ui_inputSpinBox1 = qFindChild<QSpinBox*>(this, "inputSpinBox1");
