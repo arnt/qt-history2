@@ -213,7 +213,7 @@ bool QMappingProxyModel::hasChildren(const QModelIndex &parent) const
 QVariant QMappingProxyModel::data(const QModelIndex &index, int role) const
 {
     Q_D(const QMappingProxyModel);
-    if (index.isValid()) {
+    if (index.isValid() && !d->proxy_to_source.isEmpty()) {
         QModelIndex source_index = d->proxy_to_source.value(index);
         Q_ASSERT(source_index.isValid());
         return sourceModel()->data(source_index, role);
@@ -229,6 +229,7 @@ bool QMappingProxyModel::setData(const QModelIndex &index, const QVariant &value
     Q_D(QMappingProxyModel);
     if (index.isValid()) {
         QModelIndex source_index = d->proxy_to_source.value(index);
+        Q_ASSERT(source_index.isValid());
         return sourceModel()->setData(source_index, value, role);
     }
     return false;

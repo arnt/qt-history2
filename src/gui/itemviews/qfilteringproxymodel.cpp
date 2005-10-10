@@ -67,6 +67,8 @@ QModelIndex QFilteringProxyModel::index(int row, int column, const QModelIndex &
     Q_D(const QFilteringProxyModel);
     if (d->filtered_row_count.isEmpty() || !d->filtered_row_count.contains(parent))
         mapChildren(parent); // filter and map the children of parent, including proxy_index
+    if (d->proxy_to_source.isEmpty()) // nothing was mapped
+        return QModelIndex();
     void *parent_node = 0;
     if (parent.isValid())
         parent_node = d->proxy_to_source.find(parent); // ### slow
@@ -82,6 +84,8 @@ int QFilteringProxyModel::rowCount(const QModelIndex &parent) const
     Q_D(const QFilteringProxyModel);
     if (d->filtered_row_count.isEmpty() || !d->filtered_row_count.contains(parent))
         mapChildren(parent); // filter and map the children of parent, including proxy_index
+    if (d->proxy_to_source.isEmpty()) // nothing was mapped
+        return 0;
     return QMappingProxyModel::rowCount(parent) - d->filtered_row_count.value(parent);
 }
 
