@@ -724,7 +724,7 @@ void WriteInitialization::writeProperties(const QString &varName,
             DomSizePolicy *sp = p->elementSizePolicy();
             QString spName = driver->unique(QLatin1String("sizePolicy"));
             output << option.indent << "QSizePolicy " << spName << QString::fromLatin1(
-                "((QSizePolicy::Policy)%1, (QSizePolicy::Policy)%2);\n")
+                "(static_cast<QSizePolicy::Policy>(%1), static_cast<QSizePolicy::Policy>(%2));\n")
                             .arg(sp->elementHSizeType())
                             .arg(sp->elementVSizeType());
             output << option.indent << spName << ".setHorizontalStretch("
