@@ -1,9 +1,9 @@
 /*!
     \example designer/calculatorbuilder
-    \title Calculator Builder
+    \title Calculator Builder Example
 
     The Calculator Builder example shows how to create a user interface from
-    a \QD form at runtime, using the \c FormBuilder class.
+    a \QD form at run-time, using the \c FormBuilder class.
 
     \image calculatorbuilder-example.png
 
@@ -24,7 +24,7 @@
 
     \quotefromfile designer/calculatorbuilder/calculatorbuilder.pro
     \skipto CONFIG
-    \printuntil RESOURCES
+    \printuntil main.cpp
 
     All the other necessary files are declared as usual.
 
@@ -45,15 +45,15 @@
 
     \section1 CalculatorForm Class Implementation
 
-    We will need to use the \c FormBuilder class that is provided by the
-    \c libQtDesigner library, so we first ensure that we include the header
-    file for it:
+    We will need to use the QForm::Loader class that is provided by the
+    \c libQtForm library, so we first ensure that we include the header
+    file for the module:
 
     \quotefromfile designer/calculatorbuilder/calculatorform.cpp
-    \skipto QFormBuilder
+    \skipto QtForm
     \printline
 
-    The constructor uses a \c FormBuilder object to construct the user
+    The constructor uses a form loader object to construct the user
     interface that we retrieve, via a QFile object, from the example's
     resources:
 
@@ -61,7 +61,7 @@
     \printuntil file.close()
 
     By including the user interface in the example's resources, we ensure
-    that it will be present when the example is run. The \c{builder.load()}
+    that it will be present when the example is run. The \c{loader.load()}
     function takes the user interface description contained in the file
     and constructs the form widget as a child widget of the \c{CalculatorForm}.
 
@@ -71,12 +71,15 @@
     and we record them for later use. The \c qFindChild() template function
     allows us to query widgets in order to find named child widgets.
 
-    The widgets created by the \c FormBuilder need to be connected to the
+    \skipto ui_inputSpinBox1
+    \printuntil ui_outputWidget
+
+    The widgets created by the form loader need to be connected to the
     specially-named slots in the \c CalculatorForm object. We use Qt's
     meta-object system to enable these connections:
 
     \skipto QMetaObject
-    \printline
+    \printuntil QMetaObject
 
     The form widget is added to a layout, and the window title is set:
 
