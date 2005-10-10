@@ -2938,13 +2938,15 @@ void Q3Table::paintFocus(QPainter *p, const QRect &cr)
         p->drawRect(focusRect.x() - 1, focusRect.y() - 1, focusRect.width() + 1, focusRect.height() + 1);
     } else {
         QStyleOptionFocusRect opt;
+        opt.init(this);
         opt.rect = focusRect;
         opt.palette = palette();
+        opt.state |= QStyle::State_KeyboardFocusChange;
         if (isSelected(curRow, curCol, false)) {
-            opt.state = QStyle::State_FocusAtBorder;
+            opt.state |= QStyle::State_FocusAtBorder;
             opt.backgroundColor = palette().highlight().color();
         } else {
-            opt.state = QStyle::State_None;
+            opt.state |= QStyle::State_None;
             opt.backgroundColor = palette().base().color();
         }
         style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p, this);
