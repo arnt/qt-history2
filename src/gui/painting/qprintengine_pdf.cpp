@@ -1297,12 +1297,12 @@ QByteArray QPdfGradient::getSoftMaskFormDefinition()
 
 QByteArray QPdfGradient::getSoftMaskMainDefinition()
 {
-    return (softmask) ? softmask->getSingleMainDefinition() : "";
+    return (softmask) ? softmask->getSingleMainDefinition() : QByteArray();
 }
 
 QByteArray QPdfGradient::getSoftMaskFuncDefinition()
 {
-    return (softmask) ? softmask->getSingleFuncDefinition() : "";
+    return (softmask) ? softmask->getSingleFuncDefinition() : QByteArray();
 }
 
 void QPdfGradient::setSoftMaskRange(qreal x, qreal y, qreal w, qreal h)
