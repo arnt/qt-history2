@@ -788,8 +788,10 @@ QRect QGridLayoutPrivate::cellRect(int row, int col) const
     of the QGridLayout's four sides. The spacing is the width of the
     automatically allocated spacing between neighboring boxes.
 
-    Both the border and the spacing are parameters of the constructor
-    and default to 0.
+    The default border and the spacing values are provided by the
+    style. The default margin Qt styles specify is 9 for widgets
+    and 11 for top level windows.
+
 
     \sa QBoxLayout, QStackedLayout, {Layout Classes}
 */

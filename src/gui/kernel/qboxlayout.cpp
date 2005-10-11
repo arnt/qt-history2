@@ -320,9 +320,10 @@ void QBoxLayoutPrivate::calcHfw(int w)
        can use addSpacing() to get more space at a particular spot.)
     \endlist
 
-    The margin defaults to 0. The spacing defaults to the same as the
-    margin width for a top-level layout, or to the same as the parent
-    layout. Both are parameters to the constructor.
+    The margin default is provided by the style. The default margin
+    Qt styles specify is 9 for widgets and 11 for top level windows.
+    The spacing defaults to the same as the margin width for a
+    top-level layout, or to the same as the parent layout.
 
     To remove a widget from a layout, call removeWidget(). Calling
     QWidget::hide() on a widget also effectively removes the widget
