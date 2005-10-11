@@ -30,7 +30,7 @@ public:
 
     virtual QDesignerFormEditorInterface *core() const;
 
-public slots:
+public Q_SLOTS:
     virtual void setFormWindow(QDesignerFormWindowInterface *formWindow) = 0;
 };
 

@@ -14,11 +14,11 @@
 #ifndef ABSTRACTWIDGETBOX_H
 #define ABSTRACTWIDGETBOX_H
 
+#include <QtDesigner/sdk_global.h>
+
 #include <QtCore/QMetaType>
 #include <QtGui/QWidget>
 #include <QtGui/QIcon>
-
-#include <QtDesigner/sdk_global.h>
 
 class DomUI;
 class QDesignerDnDItemInterface;

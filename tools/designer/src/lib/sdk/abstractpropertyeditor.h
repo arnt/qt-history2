@@ -36,10 +36,10 @@ public:
 
     virtual QString currentPropertyName() const = 0;
 
-signals:
+Q_SIGNALS:
     void propertyChanged(const QString &name, const QVariant &value);
 
-public slots:
+public Q_SLOTS:
     virtual void setObject(QObject *object) = 0;
     virtual void setPropertyValue(const QString &name, const QVariant &value, bool changed = true) = 0;
     virtual void setReadOnly(bool readOnly) = 0;

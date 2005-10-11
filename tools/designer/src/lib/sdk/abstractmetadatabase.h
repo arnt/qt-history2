@@ -54,7 +54,7 @@ public:
 
     virtual QDesignerFormEditorInterface *core() const = 0;
 
-signals:
+Q_SIGNALS:
     void changed();
 };
 

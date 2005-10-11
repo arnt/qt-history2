@@ -109,7 +109,7 @@ public:
 
     virtual void ensureUniqueObjectName(QObject *object) = 0;
 
-public slots:
+public Q_SLOTS:
     virtual void manageWidget(QWidget *widget) = 0;
     virtual void unmanageWidget(QWidget *widget) = 0;
 
@@ -123,7 +123,7 @@ public slots:
 
     virtual void editWidgets() = 0;
 
-signals:
+Q_SIGNALS:
     void mainContainerChanged(QWidget *mainContainer);
     void toolChanged(int toolIndex);
     void fileNameChanged(const QString &fileName);

@@ -11,6 +11,9 @@
 **
 ****************************************************************************/
 
+#ifndef UI4_H
+#define UI4_H
+
 //
 //  W A R N I N G
 //  -------------
@@ -22,16 +25,12 @@
 // We mean it.
 //
 
-#ifndef UI4_H
-#define UI4_H
+#include <QtCore/qlist.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qstringlist.h>
 
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
 class QDomDocument;
 class QDomElement;
-
-#include <QtCore/qglobal.h>
 
 #define QDESIGNER_UILIB_EXTERN Q_DECL_EXPORT
 #define QDESIGNER_UILIB_IMPORT Q_DECL_IMPORT

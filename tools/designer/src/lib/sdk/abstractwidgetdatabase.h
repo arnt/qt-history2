@@ -90,7 +90,7 @@ public:
     bool isContainer(QObject *object, bool resolveName = true) const;
     bool isCustom(QObject *object, bool resolveName = true) const;
 
-signals:
+Q_SIGNALS:
     void changed();
 
 protected:

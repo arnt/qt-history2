@@ -14,9 +14,9 @@
 #ifndef ABSTRACTICONCACHE_H
 #define ABSTRACTICONCACHE_H
 
-#include <QtCore/QObject>
-
 #include <QtDesigner/sdk_global.h>
+
+#include <QtCore/QObject>
 
 class QIcon;
 class QPixmap;

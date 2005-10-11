@@ -33,7 +33,7 @@ public:
     virtual QObject *extension(QObject *object, const QString &iid) const;
     QExtensionManager *extensionManager() const;
 
-private slots:
+private Q_SLOTS:
     void objectDestroyed(QObject *object);
 
 protected:
