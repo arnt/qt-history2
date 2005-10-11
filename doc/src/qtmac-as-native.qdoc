@@ -109,9 +109,8 @@
     \section1 Dock
 
     Interaction with the dock is possible. The icon can be set by calling
-    QWidget::setWindowIcon() on the main window in your application. The
-    setWindowIcon() call can be made as often as necessary, providing a
-    constantly updating pixmap that works as expected.
+    QApplication::setIcon() as often as necessary, and allows you to provide
+    an icon that can be easily updated.
     \omit
     It is also possible to set a QMenu as the dock menu through the use of the
     qt_mac_set_dock_menu() function.
