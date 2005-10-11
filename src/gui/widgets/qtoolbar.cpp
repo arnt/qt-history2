@@ -1006,13 +1006,6 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 bool QToolBar::event(QEvent *event)
 {
     Q_D(QToolBar);
-
-#ifdef QT3_SUPPORT
-    if (event->type() == QEvent::Hide && isVisible())
-        emit visibilityChanged(false);
-    else if (event->type() == QEvent::Show && !isVisible())
-        emit visibilityChanged(true);
-#endif
     
     switch (event->type()) {
     case QEvent::Hide:
