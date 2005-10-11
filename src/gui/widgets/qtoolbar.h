@@ -101,6 +101,9 @@ Q_SIGNALS:
     void orientationChanged(Qt::Orientation orientation);
     void iconSizeChanged(const QSize &iconSize);
     void toolButtonStyleChanged(Qt::ToolButtonStyle toolButtonStyle);
+#ifdef QT3_SUPPORT
+    QT_MOC_COMPAT void visibilityChanged(bool visible);
+#endif
 
 protected:
     void actionEvent(QActionEvent *event);
