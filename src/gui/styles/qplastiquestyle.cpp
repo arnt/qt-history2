@@ -4158,7 +4158,6 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     QPixmapCache::insert(pixmapName, cache);
             }
             painter->drawPixmap(comboBox->rect.topLeft(), cache);
-
         }
         break;
 #endif // QT_NO_COMBOBOX
@@ -4476,9 +4475,6 @@ QSize QPlastiqueStyle::sizeFromContents(ContentsType type, const QStyleOption *o
         ++newSize.rheight();
         ++newSize.rwidth();
         break;
-    case CT_LineEdit:
-        newSize.rheight() += 4;
-        break;
 #ifndef QT_NO_SLIDER
     case CT_Slider:
         if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
@@ -4514,18 +4510,20 @@ QSize QPlastiqueStyle::sizeFromContents(ContentsType type, const QStyleOption *o
 #ifndef QT_NO_SPINBOX
     case CT_SpinBox:
         // Make sure the size is odd
+        newSize.setHeight(sizeFromContents(CT_LineEdit, option, size, widget).height());
         newSize.rheight() -= (1 - newSize.rheight() & 1);
         break;
 #endif
 #ifndef QT_NO_TOOLBUTTON
     case CT_ToolButton:
-        newSize.rwidth() += 3;
         newSize.rheight() += 3;
+        newSize.rwidth() += 3;
         break;
 #endif
 #ifndef QT_NO_COMBOBOX
     case CT_ComboBox:
-        ++newSize.rheight();
+        newSize.setHeight(sizeFromContents(CT_LineEdit, option, size, widget).height());
+        newSize.rheight() -= (1 - newSize.rheight() & 1);
         break;
 #endif
     case CT_MenuItem:
@@ -4752,6 +4750,14 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
             rect.setRect(option->rect.left() + frameWidth, option->rect.top() + frameWidth,
                          option->rect.width() - 16 - 2 * frameWidth,
                          option->rect.height() - 2 * frameWidth);
+            if (const QStyleOptionComboBox *box = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
+                if (!box->editable) {
+                    rect.setLeft(rect.left() + 2);
+                    rect.setRight(rect.right() - 2);
+                    if (box->state & (State_Sunken | State_On))
+                        rect.translate(1, 1);
+                }
+            }
             rect = visualRect(option->direction, option->rect, rect);
             break;
         }
@@ -4948,12 +4954,6 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
 {
     int ret = -1;
     switch (metric) {
-    case PM_ToolBarIconSize:
-#ifdef QT3_SUPPORT
-        if (widget && widget->parentWidget() && !widget->parentWidget()->inherits("Q3ToolBar"))
-#endif
-            ret = pixelMetric(PM_LargeIconSize);
-        break;
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
         ret = 1;
@@ -5009,6 +5009,12 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
         break;
     case PM_ToolBarSeparatorExtent:
         ret = 2;
+        break;
+    case PM_ToolBarItemSpacing:
+        ret = 1;
+        break;
+    case PM_ToolBarItemMargin:
+        ret = 1;
         break;
     case PM_ToolBarFrameWidth:
         ret = 2;
