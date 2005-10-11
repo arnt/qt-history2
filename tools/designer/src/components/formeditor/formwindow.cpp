@@ -720,44 +720,50 @@ void FormWindow::ensureUniqueObjectName(QObject *object)
 {
     QString name = object->objectName();
 
-    if (unify(object, name, true))
+    if (!unify(object, name, true)) {
         object->setObjectName(name);
+    }
+}
+
+template <class _T, class _P>
+static void merge(QList<_T> *target, const QList<_P> &source)
+{
+    foreach (_P item, source) {
+        target->append(item);
+    }
 }
 
 bool FormWindow::unify(QObject *w, QString &s, bool changeIt)
 {
     bool found = !isMainContainer(static_cast<QWidget*>(w)) && objectName() == s;
+
     if (!found) {
-        QString orig = s;
-        int num = 1;
+        QList<QObject*> objects;
+        merge(&objects, qFindChildren<QWidget*>(this));
+        merge(&objects, qFindChildren<QAction*>(this));
 
-        QListIterator<QWidget*> it(m_widgets);
-        while (it.hasNext()) {
-            QWidget *child = it.next();
-
-            if (child != w && child->objectName() == s) {
-                found = true;
-                if (!changeIt)
-                    break;
-                s = orig + QLatin1String("_") + QString::number(++num);
-                it.toFront();
+        QMutableListIterator<QObject*> mit(objects);
+        while (mit.hasNext()) {
+            if (!core()->metaDataBase()->item(mit.next())) {
+                mit.remove();
             }
         }
 
-        if (qobject_cast<QMainWindow*>(mainContainer())) {
-            if (!found) {
-                QList<QDockWidget*> l = qFindChildren<QDockWidget*>(mainContainer());
-                QListIterator<QDockWidget*> it(l);
-                while (it.hasNext()) {
-                    QDockWidget* o = it.next();
-                    if (o != w && o->objectName() == s) {
-                        found = true;
-                        if (!changeIt)
-                            break;
-                        s = orig + QLatin1Char('_') + QString::number(++num);
-                        o = l.first();
-                    }
-                }
+        QString orig = s;
+        int num = 1;
+
+        QListIterator<QObject*> it(objects);
+        while (it.hasNext()) {
+            QObject *child = it.next();
+
+            if (child != w && child->objectName() == s) {
+                found = true;
+
+                if (!changeIt)
+                    break;
+
+                s = orig + QLatin1String("_") + QString::number(++num);
+                it.toFront();
             }
         }
     }
