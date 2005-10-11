@@ -26,6 +26,7 @@
 //
 
 #include "QtGui/qwindowdefs.h"
+#include "qhash.h"
 #include "private/qeventdispatcher_unix_p.h"
 #include "private/qt_mac_p.h"
 
@@ -69,11 +70,12 @@ struct MacTimerInfo {
 typedef QList<MacTimerInfo> MacTimerList;
 
 struct MacSocketInfo {
-    union {
-        CFReadStreamRef read_not;
-        CFWriteStreamRef write_not;
-    };
+    MacSocketInfo()
+    :socket(0), refcount(0) {}
+    CFSocketRef socket;
+    int refcount;
 };
+typedef QHash<int, MacSocketInfo *> MacSocketHash; 
 
 class QEventDispatcherMacPrivate : public QEventDispatcherUNIXPrivate
 {
@@ -83,11 +85,10 @@ public:
     QEventDispatcherMacPrivate();
 
     int zero_timer_count;
-    EventLoopTimerRef select_timer;
     MacTimerList *macTimerList;
     int activateTimers();
 
-    QHash<QSocketNotifier *, MacSocketInfo *> *macSockets;
+    MacSocketHash macSockets;
     QList<EventRef> queuedUserInputEvents;
 };
 
