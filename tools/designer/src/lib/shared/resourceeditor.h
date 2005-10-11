@@ -28,6 +28,7 @@ class QComboBox;
 class QStackedWidget;
 class QString;
 class QTreeView;
+class QModelIndex;
 
 namespace qdesigner_internal {
 
@@ -40,6 +41,10 @@ public:
 
     QDesignerFormWindowInterface *form() const { return m_form; }
     int qrcCount() const;
+
+signals:
+    void fileActivated(const QString &qrc_path, const QString &file_path);
+    void fileChanged(const QString &qrc_path, const QString &file_path);
 
 public slots:
     void saveCurrentView();
@@ -59,6 +64,8 @@ private slots:
     void deleteItem();
     void setCurrentIndex(int i);
     void addView(const QString &file_name);
+    void itemActivated(const QModelIndex &index);
+    void itemChanged(const QModelIndex &index);
 
 private:
     QDesignerFormWindowInterface *m_form;

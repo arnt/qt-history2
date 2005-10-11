@@ -615,6 +615,10 @@ void ResourceEditor::setCurrentIndex(int i)
         m_qrc_stack->setCurrentIndex(i);
     }
 
+    QAbstractItemView *view = currentView();
+    if (view != 0)
+        itemChanged(view->currentIndex());
+
     updateUi();
 }
 
@@ -674,6 +678,9 @@ void ResourceEditor::addView(const QString &qrc_file)
     m_qrc_stack->addWidget(view);
     connect(view->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(updateUi()));
+    connect(view, SIGNAL(activated(QModelIndex)), this, SLOT(itemActivated(QModelIndex)));
+    connect(view->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+            this, SLOT(itemChanged(QModelIndex)));
 //    connect(model, SIGNAL(dirtyChanged(bool)), this, SLOT(updateUi()));
 
     setCurrentIndex(idx);
@@ -682,6 +689,45 @@ void ResourceEditor::addView(const QString &qrc_file)
         m_form->addResourceFile(qrc_file);
 
     updateUi();
+}
+
+void ResourceEditor::itemChanged(const QModelIndex &index)
+{
+    QString file_name, qrc_path;
+
+    if (ResourceModel *model = currentModel()) {
+        QString prefix, file;
+        model->getItem(index, prefix, file);
+        if (!file.isEmpty()) {
+            file_name = QLatin1Char(':')
+                        + prefix
+                        + QLatin1Char('/')
+                        + file;
+            file_name = QDir::cleanPath(file_name);
+            qrc_path = m_form->absoluteDir().relativeFilePath(model->fileName());
+        }
+    }
+
+    emit fileChanged(qrc_path, file_name);
+}
+
+void ResourceEditor::itemActivated(const QModelIndex &index)
+{
+    ResourceModel *model = currentModel();
+
+    QString prefix, file;
+    model->getItem(index, prefix, file);
+    if (file.isEmpty())
+        return;
+
+    QString file_name = QLatin1Char(':')
+                        + prefix
+                        + QLatin1Char('/')
+                        + file;
+    file_name = QDir::cleanPath(file_name);
+    QString qrc_path = m_form->absoluteDir().relativeFilePath(model->fileName());
+
+    emit fileActivated(qrc_path, file_name);
 }
 
 void ResourceEditor::saveCurrentView()

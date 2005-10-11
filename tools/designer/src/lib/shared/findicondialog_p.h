@@ -41,6 +41,8 @@ namespace Ui
 
 namespace qdesigner_internal {
 
+class ResourceEditor;
+
 class QDESIGNER_SHARED_EXPORT FindIconDialog : public QDialog
 {
     Q_OBJECT
@@ -65,6 +67,8 @@ private slots:
 
     void itemActivated(QListWidgetItem *item);
     void currentItemChanged(QListWidgetItem *item);
+    void itemActivated(const QString &qrc_path, const QString &file_name);
+    void itemChanged(const QString &qrc_path, const QString &file_name);
 
 private:
     enum InputBox { FileBox, ResourceBox };
@@ -77,7 +81,8 @@ private:
 
     void setViewDir(const QString &path);
     QDir m_view_dir;
-    QString m_current_file;
+    QString m_current_file, m_qrc_path;
+    ResourceEditor *m_resource_editor;
 };
 
 } // namespace qdesigner_internal
