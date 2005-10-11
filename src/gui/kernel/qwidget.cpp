@@ -2148,7 +2148,6 @@ void QWidget::setAcceptDrops(bool on)
 /*!
     \fn void QWidget::languageChange()
 
-    \internal
     \obsolete
 */
 

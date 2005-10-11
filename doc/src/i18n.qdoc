@@ -482,24 +482,31 @@
 
     Some applications, such as Qt Linguist, must be able to support changes
     to the user's language settings while they are still running. To make
-    widgets aware of changes to the system language, implement a public
-    slot called \c languageChange() in each widget that needs to be notified.
-    In this slot, you should update the text displayed by widgets using the
-    \l{QObject::tr()}{tr()} function in the usual way; for example:
+    widgets aware of changes to the system language, reimplement the widget's
+    \l{QWidget::changeEvent()}{changeEvent()} function to check whether the
+    event is a \l{QEvent::LanguageChange}{LanguageChange} event, and update
+    the text displayed by widgets using the \l{QObject::tr()}{tr()} function
+    in the usual way. For example:
 
     \code
-    void MyWidget::languageChange()
+    void QWidget::changeEvent(QEvent *event)
     {
-        titleLabel->setText(tr("Document Title"));
-        ...
-        okPushButton->setText(tr("&OK"));
+        if (e->type() == QEvent::LanguageChange) {
+            titleLabel->setText(tr("Document Title"));
+            ...
+            okPushButton->setText(tr("&OK"));
+        } else
+            QWidget::changeEvent(event);
     }
     \endcode
 
+    All other change events should be passed on by calling the default
+    implementation of the function.
+
     The default event handler for QWidget subclasses responds to the
-    \link QEvent::Type LanguageChange\endlink event, and will call this slot
-    when necessary; other application components can also connect signals
-    to this slot to force widgets to update themselves.
+    QEvent::LanguageChange event, and will call this function when necessary;
+    other application components can also force widgets to update themselves
+    by posting the \l{QEvent::LanguageChange}{LanguageChange} event to them.
 
     \section1 System Support
 
