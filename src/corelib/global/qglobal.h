@@ -1663,7 +1663,7 @@ inline quint16 qntoh(const uchar *data)
 {
     return 0
         | data[1]
-        | data[0] * Q_UINT64_C(0x0000000000000100)
+        | data[0] * Q_UINT64_C(0x0000000000000100);
 }
 
 /* This function will read a little-endian encoded value
@@ -1692,7 +1692,7 @@ inline quint32 qletoh(const uchar *data)
         | data[0]
         | data[1] * Q_UINT64_C(0x0000000000000100)
         | data[2] * Q_UINT64_C(0x0000000000010000)
-        | data[3] * Q_UINT64_C(0x0000000001000000)
+        | data[3] * Q_UINT64_C(0x0000000001000000);
 }
 
 template <>
@@ -1700,7 +1700,7 @@ inline quint16 qletoh(const uchar *data)
 {
     return 0
         | data[0]
-        | data[1] * Q_UINT64_C(0x0000000000000100)
+        | data[1] * Q_UINT64_C(0x0000000000000100);
 }
 
 template <>
