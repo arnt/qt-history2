@@ -4949,7 +4949,10 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
     int ret = -1;
     switch (metric) {
     case PM_ToolBarIconSize:
-        ret = pixelMetric(PM_LargeIconSize);
+#ifdef QT3_SUPPORT
+        if (widget && widget->parentWidget() && !widget->parentWidget()->inherits("Q3ToolBar"))
+#endif
+            ret = pixelMetric(PM_LargeIconSize);
         break;
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
