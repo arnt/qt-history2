@@ -14,7 +14,7 @@
 #ifndef QSVGWIDGET_H
 #define QSVGWIDGET_H
 
-#include "QtGui/qwidget.h"
+#include <QtGui/qwidget.h>
 
 QT_MODULE(Svg)
 
