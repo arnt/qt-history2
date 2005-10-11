@@ -827,10 +827,13 @@ void QSqlResult::virtual_hook(int, void *)
     Batch execution can be faster for large amounts of data since it
     reduces network roundtrips.
 
-    For batch executions, the \a values have to be provided as a vector
-    of variants. The parameter \a holderCount has to contain the number
-    of placeholders. Each row must contain the same amount and same types
-    of values. NULL values are passed in as typed QVariants, for example
+    For batch executions, bound values have to be provided as lists
+    of variants (QVariantList).
+    
+    Each list must contain values of the same type. All lists must
+    contain equal amount of values (rows).
+    
+    NULL values are passed in as typed QVariants, for example
     \c {QVariant(QVariant::Int)} for an integer NULL value.
 
     Example:
@@ -839,11 +842,19 @@ void QSqlResult::virtual_hook(int, void *)
     QSqlQuery q;
     q.prepare("insert into test (i1, i2, s) values (?, ?, ?)");
 
-    QVector<QVariant> values;
-    values << 1 << 2 << "hello"; // row 1
-    values << 3 << 4 << "world"; // row 2
-
-    if (!q.execBatch(values, 3))
+    QVariantList col1;
+    QVariantList col2;
+    QVariantList col3;
+    
+    col1 << 1 << 3;
+    col2 << 2 << 4;
+    col3 << "hello" << "world";
+    
+    q.bindValue(0, col1);
+    q.bindValue(1, col2);
+    q.bindValue(2, col3);
+        
+    if (!q.execBatch())
         qDebug() << q.lastError();
     \endcode
 
@@ -851,17 +862,18 @@ void QSqlResult::virtual_hook(int, void *)
 
     \sa exec(), QSqlDriver::hasFeature()
 */
-bool QSqlResult::execBatch(const QVector<QVariant> &values, int holderCount)
+bool QSqlResult::execBatch(bool arrayBind)
 {
-    if (driver()->hasFeature(QSqlDriver::BatchOperations)) {
-        BatchOperationData data = { holderCount, &values };
-        virtual_hook(BatchOperation, &data);
+    if (driver()->hasFeature(QSqlDriver::BatchOperations)) {      
+        virtual_hook(BatchOperation, &arrayBind);
         return d->error.type() == QSqlError::NoError;
     } else {
-        int rowCount = values.count() / holderCount;
-        for (int i = 0; i < rowCount; ++i) {
-            for (int j = 0; j < holderCount; ++j)
-                bindValue(j, values.at(i * holderCount + j), QSql::In);
+        QVector<QVariant> values = d->values;        
+        if (values.count() == 0)
+            return false;        
+        for (int i = 0; i < values.at(0).toList().count(); ++i) {            
+            for (int j = 0; j < values.count(); ++j)
+                bindValue(j, values.at(j).toList().at(i), QSql::In);            
             if (!exec())
                 return false;
         }

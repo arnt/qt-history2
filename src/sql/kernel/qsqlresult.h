@@ -97,15 +97,9 @@ protected:
     virtual QSqlRecord record() const;
     virtual QVariant lastInsertId() const;
 
-    enum VirtualHookOperation { BatchOperation };
-    struct BatchOperationData
-    {
-        int colCount;
-        const QVector<QVariant> *values;
-    };
+    enum VirtualHookOperation { BatchOperation };    
     virtual void virtual_hook(int id, void *data);
-
-    bool execBatch(const QVector<QVariant> &values, int placeHolderCount);
+    bool execBatch(bool arrayBind = false);
 
 private:
     QSqlResultPrivate* d;
