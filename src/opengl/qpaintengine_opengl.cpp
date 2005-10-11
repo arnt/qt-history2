@@ -1,4 +1,3 @@
-//depot/qt/main/src/opengl/qpaintengine_opengl.cpp#176 - edit change 195299 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.

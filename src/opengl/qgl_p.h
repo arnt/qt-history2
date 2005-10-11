@@ -1,4 +1,3 @@
-//depot/qt/main/src/opengl/qgl_p.h#35 - edit change 194576 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.

@@ -1,4 +1,3 @@
-//depot/qt/main/src/opengl/qgl.cpp#251 - edit change 195531 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.

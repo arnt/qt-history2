@@ -1,4 +1,3 @@
-//depot/qt/main/examples/painting/basicdrawing/renderarea.cpp#6 - integrate change 186537 (text)
 /****************************************************************************
 **
 ** Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved.

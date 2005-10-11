@@ -1,4 +1,3 @@
-//depot/qt/main/examples/opengl/grabber/glwidget.cpp#5 - integrate change 179691 (text)
 /****************************************************************************
 **
 ** Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved.
