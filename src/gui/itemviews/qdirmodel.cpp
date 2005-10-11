@@ -170,11 +170,12 @@ QIcon QFileIconProvider::icon(const QFileInfo &info) const
 	case DRIVE_UNKNOWN:
             return d_ptr->generic;
 	case DRIVE_NO_ROOT_DIR:
+        default:
             return d_ptr->generic;
 	}
     }
 #else
-  return d_ptr->generic;
+    return d_ptr->generic;
 #endif
   if (info.isFile())
     if (info.isSymLink())
@@ -215,6 +216,7 @@ public:
     {
         QDirNode *parent;
         QFileInfo info;
+        QIcon icon; // cache the icon
         mutable QVector<QDirNode> children;
         mutable bool populated; // have we read the children
     };
@@ -247,7 +249,6 @@ public:
     inline QDirNode *node(const QModelIndex &index) const;
     inline void populate(QDirNode *parent) const;
     inline void clear(QDirNode *parent) const;
-
     mutable QDirNode root;
     bool resolveSymlinks;
     bool readOnly;
@@ -556,6 +557,10 @@ bool QDirModel::hasChildren(const QModelIndex &parent) const
     if (!parent.isValid()) // the invalid index is the "My Computer" item
         return true; // the drives
     QDirModelPrivate::QDirNode *p = d->node(parent);
+    Q_ASSERT(p);
+
+    if (!p->parent) // it's a drive
+        return true;
 
     // If parent is a symlink and we are not resolving symlinks then it does not have children.
     if (!d->resolveSymlinks && p->info.isSymLink())
@@ -1175,7 +1180,10 @@ QIcon QDirModel::fileIcon(const QModelIndex &index) const
     Q_D(const QDirModel);
     if (!index.isValid())
         return d->iconProvider->icon(QFileIconProvider::Computer);
-    return d->iconProvider->icon(fileInfo(index));
+    QDirModelPrivate::QDirNode *node = d->node(index);
+    if (node->icon.isNull())
+        node->icon = d->iconProvider->icon(node->info);
+    return node->icon;
 }
 
 /*!
