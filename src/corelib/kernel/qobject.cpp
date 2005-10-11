@@ -604,10 +604,10 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
 
     \warning Deleting a QObject while pending events are waiting to
     be delivered can cause a crash. You must not delete the QObject
-    directly from a thread that is not the GUI thread.  Use the
-    deleteLater() method instead, which will cause the event loop to
-    delete the object after all pending events have been delivered to
-    the object.
+    directly if it exists in a different thread than the one currently
+    executing. Use the deleteLater() method instead, which will cause
+    the event loop to delete the object after all pending events have
+    been delivered to it.
 
     \sa deleteLater()
 */
