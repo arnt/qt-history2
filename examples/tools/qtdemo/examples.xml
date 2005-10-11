@@ -6,6 +6,7 @@
     <example filename="containerextension" name="Container Extension" />
     <example filename="customwidgetplugin" name="Custom Widget Plugin" />
     <example filename="taskmenuextension" name="Task Menu Extension" />
+    <example filename="worldtimeclockbuilder" name="World Time Clock Builder" />
     <example filename="worldtimeclockplugin" name="World Time Clock Plugin" />
   </category>
   <category dirname="dialogs" name="Dialogs">
@@ -20,6 +21,7 @@
   <category dirname="draganddrop" name="Drag and Drop">
     <example filename="draggableicons" name="Draggable Icons" />
     <example filename="draggabletext" name="Draggable Text" />
+    <example filename="dropsite" name="Drop Site" />
     <example filename="fridgemagnets" name="Fridge Magnets" />
     <example filename="puzzle" name="Puzzle" />
   </category>
@@ -55,6 +57,7 @@
     <example filename="blockingfortuneclient" name="Blocking Fortune Client" />
     <example filename="broadcastreceiver" name="Broadcast Receiver" />
     <example filename="broadcastsender" name="Broadcast Sender" />
+    <example filename="broadcastserver" name="Broadcast Server" executable="false" />
     <example filename="fortuneclient" name="Fortune Client" />
     <example filename="fortuneserver" name="Fortune Server" />
     <example filename="ftp" name="FTP" name="FTP Client" />
@@ -90,14 +93,16 @@
   </category>
   <category dirname="threads" name="Threading">
     <example filename="mandelbrot" name="Mandelbrot" />
+    <example filename="semaphores" name="Semaphores" executable="false" />
+    <example filename="waitconditions" name="Wait Conditions" executable="false" />
   </category>
   <category dirname="tools" name="Tools">
-    <example filename="i18n" name="Internationalization" />
-    <example filename="settingseditor" name="Settings Editor" />
-    <example filename="plugandpaint" name="Plug and Paint" />
     <example filename="codecs" name="Codecs" />
-    <example filename="regexp" name="Regular Expressions" />
+    <example filename="i18n" name="Internationalization" />
+    <example filename="plugandpaint" name="Plug and Paint" />
     <example filename="qtdemo" name="Qt Demo" executable="false" />
+    <example filename="regexp" name="Regular Expressions" />
+    <example filename="settingseditor" name="Settings Editor" />
   </category>
   <category dirname="widgets" name="Widgets">
     <example filename="analogclock" name="Analog Clock" />
@@ -108,6 +113,7 @@
     <example filename="icons" name="Icons" />
     <example filename="imageviewer" name="Image Viewer" />
     <example filename="lineedits" name="Line Edits" />
+    <example filename="movie" name="Movie Player" />
     <example filename="screenshot" name="Screenshot" />
     <example filename="scribble" name="Scribble" />
     <example filename="shapedclock" name="Shaped Clock" />
